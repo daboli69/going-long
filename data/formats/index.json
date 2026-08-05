@@ -1,1 +1,78 @@
-{"generated_at":"","season":2026,"formats":[]}
+{
+ "generated_at": "2026-08-05T22:30:26+00:00",
+ "season": 2026,
+ "formats": [
+  {
+   "id": "ppr-12-1",
+   "label": "12-team PPR",
+   "ffc": "ppr",
+   "teams": 12,
+   "ppr": 1,
+   "qbs": 1
+  },
+  {
+   "id": "ppr-12-2",
+   "label": "12-team Superflex PPR",
+   "ffc": "2qb",
+   "teams": 12,
+   "ppr": 1,
+   "qbs": 2
+  },
+  {
+   "id": "half-12-1",
+   "label": "12-team Half PPR",
+   "ffc": "half-ppr",
+   "teams": 12,
+   "ppr": 0.5,
+   "qbs": 1
+  },
+  {
+   "id": "half-12-2",
+   "label": "12-team Superflex Half",
+   "ffc": "2qb",
+   "teams": 12,
+   "ppr": 0.5,
+   "qbs": 2
+  },
+  {
+   "id": "std-12-1",
+   "label": "12-team Standard",
+   "ffc": "standard",
+   "teams": 12,
+   "ppr": 0,
+   "qbs": 1
+  },
+  {
+   "id": "ppr-10-1",
+   "label": "10-team PPR",
+   "ffc": "ppr",
+   "teams": 10,
+   "ppr": 1,
+   "qbs": 1
+  },
+  {
+   "id": "ppr-10-2",
+   "label": "10-team Superflex PPR",
+   "ffc": "2qb",
+   "teams": 10,
+   "ppr": 1,
+   "qbs": 2
+  },
+  {
+   "id": "ppr-14-1",
+   "label": "14-team PPR",
+   "ffc": "ppr",
+   "teams": 14,
+   "ppr": 1,
+   "qbs": 1
+  },
+  {
+   "id": "ppr-14-2",
+   "label": "14-team Superflex PPR",
+   "ffc": "2qb",
+   "teams": 14,
+   "ppr": 1,
+   "qbs": 2
+  }
+ ]
+}
