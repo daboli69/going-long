@@ -1,0 +1,52 @@
+name: Refresh draft data
+
+on:
+  schedule:
+    # 06:20 ET / 10:20 UTC daily. Bump to twice a day in late August if you want.
+    - cron: "20 10 * * *"
+  workflow_dispatch:
+  push:
+    paths:
+      - "scripts/build_data.py"
+      - ".github/workflows/data.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-draft-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      SEASON: "2026"
+      TEAMS: "12"
+      SCORING: "ppr"
+      NUM_QBS: "1"
+      HISTORY_SEASONS: "3"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build pool + format files
+        run: python scripts/build_data.py
+
+      - name: Build player history from nflverse
+        run: python scripts/build_history.py
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "goinglong-bot"
+          git config user.email "actions@github.com"
+          git add data/players.json data/formats data/history.json
+          if git diff --staged --quiet; then
+            echo "no change"
+          else
+            git commit -m "data: refresh pool $(date -u +%Y-%m-%d)"
+            git push
+          fi

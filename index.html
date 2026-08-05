@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0C1614">
+<title>Going Long — War Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+  :root{
+    /* Going Long — night game: black field, turf green, chalk yard lines */
+    --ink:#070A07; --panel:#0E140D; --panel-2:#141C12; --line:#212B1F;
+    --bone:#E8EDE4; --mute:#8B9885; --dim:#5C6857;
+    --turf:#4ADE6A; --turf-deep:#1F7A3A; --chalk:#DCE4D6;
+    --rust:#D2564A; --gold:#E8B44A;
+  }
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:var(--ink);color:var(--bone);font:400 14px/1.45 Inter,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+  button,input,select,textarea{font:inherit;color:inherit} button{cursor:pointer}
+  .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+  .eyebrow{font:600 11px/1 "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  .clock{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,#13211E,#101C1A);
+    border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:9px 16px;flex-wrap:wrap}
+  .brand{font:700 22px/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase}
+  .brand span{color:var(--turf);margin-left:.28em}
+  .cstat{display:flex;flex-direction:column;gap:3px;min-width:52px}
+  .cstat b{font:600 19px/1 "IBM Plex Mono",monospace} .cstat b.hot{color:var(--turf)}
+  .spacer{flex:1}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--dim);margin-right:6px;vertical-align:middle}
+  .dot.live{background:var(--turf);box-shadow:0 0 0 3px rgba(74,222,106,.18)}
+  #profileSel{max-width:180px}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;
+    font:500 11px/1 "IBM Plex Mono",monospace;color:var(--chalk);white-space:nowrap}
+  .chip.warn{color:#E89484;border-color:rgba(210,86,74,.5)}
+  .chip.on{background:rgba(74,222,106,.15);color:var(--turf);border-color:var(--turf)}
+  .shell{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;padding:16px;max-width:1460px;margin:0 auto}
+  @media (max-width:940px){.shell{grid-template-columns:1fr;padding:12px;gap:12px}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:4px}
+  .panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .field{background:var(--ink);border:1px solid var(--line);border-radius:3px;padding:7px 10px;color:var(--bone)}
+  .field:focus-visible{outline:2px solid var(--turf);outline-offset:1px}
+  .pos-group{display:flex;border:1px solid var(--line);border-radius:3px;overflow:hidden}
+  .pos-group button{background:transparent;border:0;padding:7px 10px;color:var(--mute);font:600 12px/1 "IBM Plex Mono",monospace}
+  .pos-group button+button{border-left:1px solid var(--line)}
+  .pos-group button[aria-pressed="true"]{background:var(--turf);color:#06120A}
+  .slider-wrap{display:flex;align-items:center;gap:6px;color:var(--mute);font-size:12px}
+  input[type=range]{accent-color:var(--turf);width:72px}
+  .board{max-height:calc(100vh - 226px);overflow-y:auto;overscroll-behavior:contain}
+  @media (max-width:940px){.board{max-height:none}}
+  .row{display:grid;grid-template-columns:30px minmax(0,1fr) 84px 54px 50px;align-items:center;gap:9px;
+    padding:8px 12px 8px 0;border-bottom:1px solid rgba(36,53,47,.6);position:relative;min-height:54px;cursor:pointer}
+  .row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--tier,transparent)}
+  .row:hover{background:var(--panel-2)} .row.sel{background:var(--panel-2)}
+  .rank{padding-left:12px;font:500 13px/1 "IBM Plex Mono",monospace;color:var(--dim);text-align:right}
+  .who{min-width:0}
+  .who b{font:600 17px/1.1 "Barlow Condensed",sans-serif;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .who small{color:var(--mute);font:400 11px/1.35 "IBM Plex Mono",monospace;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .who .inj{color:var(--rust)}
+  .tag{display:inline-block;padding:1px 5px;border-radius:2px;font:600 9px/1.5 "IBM Plex Mono",monospace;letter-spacing:.08em;margin-left:4px;vertical-align:1px}
+  .tag.thin{background:rgba(210,86,74,.22);color:#E89484}
+  .tag.deep{background:rgba(220,228,214,.14);color:var(--chalk)}
+  .tag.first{background:rgba(232,180,74,.2);color:var(--gold)}
+  .tag.urg{background:rgba(74,222,106,.2);color:var(--turf)}
+  .tag.burn{background:rgba(94,111,105,.3);color:var(--mute)}
+  .tag.note{background:rgba(220,228,214,.12);color:var(--chalk)}
+  .tag.rush{background:rgba(74,222,106,.18);color:var(--turf)}
+  .edge{text-align:right} .edge b{font:600 18px/1 "IBM Plex Mono",monospace;color:var(--turf)}
+  .edge b.neg{color:var(--dim)}
+  .survive{height:3px;background:var(--line);border-radius:2px;margin-top:5px;overflow:hidden}
+  .survive i{display:block;height:100%;background:var(--chalk)} .survive.thin i{background:var(--rust)}
+  .num{text-align:right;font:400 13px/1.2 "IBM Plex Mono",monospace;color:var(--mute)}
+  .num u{display:block;text-decoration:none;font-size:9px;color:var(--dim);letter-spacing:.06em}
+  .num.pos{color:var(--chalk)} .num.neg{color:#C08578}
+  .drawer{padding:10px 12px;background:#101C1A;border-bottom:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .drawer .why{flex:1 1 100%;font:400 12px/1.6 "IBM Plex Mono",monospace;color:var(--mute)}
+  .drawer .why b{color:var(--bone);font-weight:500}
+  .cliff{display:flex;align-items:center;gap:10px;padding:6px 12px;background:rgba(210,86,74,.09);
+    border-top:1px solid var(--rust);border-bottom:1px solid rgba(210,86,74,.3);
+    font:600 11px/1 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#E89484}
+  .banner{padding:6px 12px;background:rgba(74,222,106,.08);border-bottom:1px solid rgba(74,222,106,.4);
+    font:600 11px/1.4 "IBM Plex Mono",monospace;color:var(--turf)}
+  .empty{padding:34px 20px;text-align:center;color:var(--mute)}
+  .empty b{display:block;font:600 20px/1.2 "Barlow Condensed",sans-serif;color:var(--bone);margin-bottom:6px}
+  .rail{display:flex;flex-direction:column;gap:12px}
+  .lineup{padding:8px 12px 12px}
+  .lineup div{display:grid;grid-template-columns:56px 1fr auto;gap:8px;align-items:center;padding:5px 0;
+    border-bottom:1px solid rgba(36,53,47,.5);font-size:13px}
+  .lineup div em{font-style:normal;font:600 10px/1 "IBM Plex Mono",monospace;letter-spacing:.06em;color:var(--dim)}
+  .lineup div.filled em{color:var(--chalk)}
+  .lineup div b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lineup div span{font:400 11px/1 "IBM Plex Mono",monospace;color:var(--dim)}
+  .subnote{padding:0 12px 12px;font:400 11.5px/1.6 "IBM Plex Mono",monospace;color:var(--mute)}
+  .grid4{padding:8px 12px 12px}
+  .grid4 div{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:5px 0;
+    border-bottom:1px solid rgba(36,53,47,.5);font:400 12px/1.3 "IBM Plex Mono",monospace}
+  .grid4 em{font-style:normal;font-weight:600} .grid4 .v{color:var(--mute)}
+  .room{padding:8px 12px 12px}
+  .room div{display:grid;grid-template-columns:42px 1fr auto;gap:8px;padding:5px 0;
+    border-bottom:1px solid rgba(36,53,47,.5);font:400 12px/1.3 "IBM Plex Mono",monospace}
+  .room em{font-style:normal;color:var(--dim)}
+  .ticker{max-height:190px;overflow-y:auto;padding:4px 12px 12px}
+  .ticker div{padding:5px 0;border-bottom:1px solid rgba(36,53,47,.5);font-size:12.5px;display:flex;gap:8px}
+  .ticker em{font-style:normal;color:var(--dim);font-family:"IBM Plex Mono",monospace;min-width:38px}
+  .ticker div.mine{color:var(--chalk)}
+  details.setup{border-top:1px solid var(--line)}
+  details.setup summary{padding:10px 12px;cursor:pointer;color:var(--mute)}
+  details.setup summary::marker{color:var(--turf)}
+  .setup-body{padding:0 12px 14px;display:flex;flex-direction:column;gap:10px}
+  .setup-body label{display:flex;flex-direction:column;gap:4px} .setup-body .field{width:100%}
+  .btn{background:var(--turf);color:#06120A;border:0;border-radius:3px;padding:9px 14px;font:600 13px/1 Inter,sans-serif}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--bone)}
+  .btn.tiny{padding:5px 9px;font-size:11px}
+  textarea.field{min-height:120px;resize:vertical;font-family:"IBM Plex Mono",monospace;font-size:12px}
+  .note{color:var(--mute);font-size:12px;line-height:1.5} .warn{color:#E89484;font-size:12px}
+  .leagues{display:flex;flex-direction:column;gap:6px}
+  .leagues div{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:6px 8px;border:1px solid var(--line);border-radius:3px}
+  .leagues div.active{border-color:var(--turf)}
+  .leagues div b{flex:1;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .unmatched{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
+  .unmatched div{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center;font-size:12px}
+  @media (prefers-reduced-motion:no-preference){.row{transition:background .12s ease}}
+</style>
+</head>
+<body>
+
+<div class="clock">
+  <div class="brand">Going<span>Long</span></div>
+  <select id="profileSel" class="field" title="Active draft"></select>
+  <span class="chip" id="fmtChip">no draft</span>
+  <span class="chip" id="modeChip" title="Manual mode lets you mark picks by hand for offline drafts">live</span>
+  <div class="cstat"><span class="eyebrow">On clock</span><b id="cOnClock">—</b></div>
+  <div class="cstat"><span class="eyebrow">Your next</span><b id="cNext" class="hot">—</b></div>
+  <div class="cstat"><span class="eyebrow">Then</span><b id="cThen">—</b></div>
+  <div class="cstat"><span class="eyebrow">Gap</span><b id="cGap">—</b></div>
+  <div class="spacer"></div>
+  <div class="cstat"><span class="eyebrow">Feed</span><b id="cStatus" style="font-size:13px"><i class="dot"></i>idle</b></div>
+</div>
+
+<div class="shell">
+  <main class="panel">
+    <div class="controls">
+      <input id="q" class="field" type="search" placeholder="Search" style="flex:1;min-width:110px">
+      <div class="pos-group" id="posGroup">
+        <button data-pos="ALL" aria-pressed="true">ALL</button>
+        <button data-pos="QB" aria-pressed="false">QB</button>
+        <button data-pos="RB" aria-pressed="false">RB</button>
+        <button data-pos="WR" aria-pressed="false">WR</button>
+        <button data-pos="TE" aria-pressed="false">TE</button>
+      </div>
+      <select id="sort" class="field">
+        <option value="edge">Sort: Edge</option>
+        <option value="vorp">Sort: VORP</option>
+        <option value="mine">Sort: My rank</option>
+        <option value="ms">Sort: Market Score</option>
+        <option value="adp">Sort: ADP</option>
+        <option value="survive">Sort: Least likely to last</option>
+      </select>
+      <label class="slider-wrap" title="Guide rankings vs. raw market ADP">
+        Rank <input id="wr" type="range" min="0" max="100" value="60"><span class="mono" id="wrVal">.60</span></label>
+      <label class="slider-wrap" title="Market Score divergence">
+        MS <input id="wm" type="range" min="0" max="100" value="40"><span class="mono" id="wmVal">.40</span></label>
+      <label class="slider-wrap" title="Worth of a player who doesn't crack your lineup">
+        Bench <input id="wb" type="range" min="0" max="80" value="30"><span class="mono" id="wbVal">.30</span></label>
+    </div>
+    <div class="board" id="board"></div>
+  </main>
+
+  <aside class="rail">
+    <section class="panel">
+      <div class="panel-head"><span class="eyebrow">Runway</span><span class="eyebrow mono" id="runwayMeta">—</span></div>
+      <div class="grid4" id="runway"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="eyebrow">Room before you</span><span class="eyebrow mono" id="roomMeta">—</span></div>
+      <div class="room" id="room"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="eyebrow">Your lineup</span><span class="eyebrow mono" id="lineupMeta">—</span></div>
+      <div class="lineup" id="lineup"></div>
+      <div class="subnote" id="lineupNote"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="eyebrow">Tier watch</span><span class="eyebrow mono" id="tierMeta">—</span></div>
+      <div class="grid4" id="tierwatch"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="eyebrow">Picks</span>
+        <span><button class="btn ghost tiny" id="undo">Undo</button>
+        <button class="btn ghost tiny" id="refresh">Refresh</button></span></div>
+      <div class="ticker" id="ticker"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><span class="eyebrow">Setup</span><span class="eyebrow mono" id="dataMeta">—</span></div>
+
+      <details class="setup" open>
+        <summary>Drafts</summary>
+        <div class="setup-body">
+          <div class="leagues" id="leagueList"></div>
+          <label><span class="eyebrow">Sleeper username</span>
+            <input id="username" class="field" placeholder="yourhandle" autocomplete="off"></label>
+          <button class="btn ghost" id="findLeagues">Find my leagues</button>
+          <label><span class="eyebrow">League</span><select id="leagueSel" class="field"></select></label>
+          <label><span class="eyebrow">Draft</span><select id="draftSel" class="field"></select></label>
+          <button class="btn" id="addProfile">Add this draft</button>
+          <hr style="border:0;border-top:1px solid var(--line);margin:4px 0">
+          <label><span class="eyebrow">Or a mock / draft ID</span>
+            <input id="mockId" class="field mono" placeholder="1234567890123456789"></label>
+          <button class="btn ghost" id="addMock">Add mock draft</button>
+          <p class="note" id="connNote">Mocks have no league, so settings come off the draft itself. Paste the ID from the Sleeper mock URL.</p>
+        </div>
+      </details>
+
+      <details class="setup">
+        <summary>Rankings &amp; tiers</summary>
+        <div class="setup-body">
+          <label><span class="eyebrow">Ranking set</span><select id="rankSetSel" class="field"></select></label>
+          <label><span class="eyebrow">Name a new set</span><input id="rankSetName" class="field" placeholder="LRQB 2026 top 250"></label>
+          <p class="note">Drop in all five LateRoundQB CSVs at once — each league picks up the board matching its format automatically. Pasted cheat sheet rows <span class="mono">Ovr Player Pos PosRank Tier $</span> work too.</p>
+          <input type="file" id="rankFile" class="field" accept=".xlsx,.xls,.csv" multiple>
+          <textarea id="rankPaste" class="field" placeholder="1  Jahmyr Gibbs  RB  1  1  $65"></textarea>
+          <button class="btn" id="importRanks">Import rankings</button>
+          <div id="importResult"></div>
+        </div>
+      </details>
+
+      <details class="setup">
+        <summary>Market Score</summary>
+        <div class="setup-body">
+          <p class="note">Paste all four position tables — <span class="mono">Rank Player ADP Score</span>.</p>
+          <textarea id="msPaste" class="field" placeholder="1  Josh Allen  26.0  100.0"></textarea>
+          <button class="btn" id="importMS">Import Market Scores</button>
+          <div id="msResult"></div>
+        </div>
+      </details>
+
+      <details class="setup">
+        <summary>Overrides</summary>
+        <div class="setup-body">
+          <label><span class="eyebrow">Draft slot (1 = first pick)</span>
+            <input id="slot" class="field mono" type="number" min="1" max="20" placeholder="auto"></label>
+          <label><span class="eyebrow">ADP / value format</span><select id="fmtSel" class="field"></select></label>
+          <label><span class="eyebrow">Starting slots</span><input id="slots" class="field mono" placeholder="QB RB RB WR WR WR TE FLEX"></label>
+          <button class="btn ghost" id="toggleManual">Toggle manual pick mode</button>
+          <p class="note">Manual mode: click a player to mark him drafted. For in-person drafts or any board Sleeper can't see.</p>
+        </div>
+      </details>
+    </section>
+  </aside>
+</div>
+
+<script>
+"use strict";
+/* ==================================================================
+   GOING LONG
+   Expected points -> VORP against your league's replacement level ->
+   lineup marginal value -> opportunity cost weighted by the chance the
+   specific humans picking ahead of you take him first.
+   ================================================================== */
+
+const LS = {profiles:"goinglong.profiles", sets:"goinglong.rankSets", ms:"goinglong.marketScores",
+            notes:"goinglong.notes", active:"goinglong.active"};
+
+/* ---- Layer 1: ADP expectation (fits of the guide's 2014-2025 curves) */
+const ADP_CURVE = {
+  QB:{a:43.9683,b:-5.2690,c:59.75}, RB:{a:35.2964,b:-5.2544,c:22.00},
+  WR:{a:49.7475,b:-7.6306,c:59.75}, TE:{a:29.8234,b:-4.1146,c:22.00},
+};
+function expPPG(pos, adp){
+  const k = ADP_CURVE[pos];
+  if(!k || !adp) return 0;
+  return Math.max(0, k.a + k.b*Math.log(Math.max(1,adp)+k.c));
+}
+
+/* ---- Replacement level: the guide's positional rank averages table */
+const RANK_STEPS = [6,12,18,24,30,36,42,48,54,60,66,72];
+const POS_RANK_PPG = {
+  ppr:{ RB:[17.8,14.9,13.4,11.9,10.6,9.4,8.2,7.2,6.2,5.2,4.4,3.8],
+        WR:[18.3,15.9,14.7,13.6,12.6,11.7,10.9,10.1,9.3,8.6,7.9,7.2],
+        TE:[12.5,9.9,8.4,7.0,5.9,4.9,3.9,3.1,2.5,2.0,1.6,1.3] },
+  half:{ RB:[16.2,13.6,12.1,10.9,9.5,8.4,7.3,6.3,5.5,4.6,3.9,3.3],
+         WR:[15.1,13.3,12.1,11.2,10.3,9.6,9.0,8.3,7.7,7.1,6.4,5.9],
+         TE:[10.1,8.0,6.8,5.6,4.7,4.0,3.1,2.5,2.0,1.6,1.3,1.0] },
+  std:{ RB:[14.7,12.1,10.9,9.8,8.5,7.5,6.4,5.4,4.7,4.0,3.4,2.7],
+        WR:[12.1,10.7,9.6,8.9,8.1,7.6,7.1,6.5,6.0,5.5,5.0,5.0],
+        TE:[7.8,6.1,5.1,4.2,3.6,3.0,2.3,1.9,1.5,1.2,0.9,0.7] },
+};
+const scoringKey = ppr => ppr>=0.75 ? "ppr" : ppr>=0.25 ? "half" : "std";
+function posRankPPG(pos, rank, scoring){
+  const tbl = POS_RANK_PPG[scoring]?.[pos];
+  if(!tbl) return null;
+  if(rank <= RANK_STEPS[0]) return tbl[0];
+  for(let i=0;i<RANK_STEPS.length-1;i++){
+    const a=RANK_STEPS[i], b=RANK_STEPS[i+1];
+    if(rank<=b) return tbl[i] + ((rank-a)/(b-a))*(tbl[i+1]-tbl[i]);
+  }
+  const n=tbl.length;
+  const slope=(tbl[n-1]-tbl[n-2])/(RANK_STEPS[n-1]-RANK_STEPS[n-2]);
+  return Math.max(0, tbl[n-1]+slope*(rank-RANK_STEPS[n-1]));
+}
+function scoringMult(pos, posRank, scoring){
+  if(scoring==="ppr"||pos==="QB"||pos==="K"||pos==="DEF") return 1;
+  const a=posRankPPG(pos,posRank,scoring), b=posRankPPG(pos,posRank,"ppr");
+  return (!a||!b) ? 1 : Math.min(1.2, Math.max(0.5, a/b));
+}
+
+const FLEX_SHARE = {
+  FLEX:{RB:0.30,WR:0.50,TE:0.20}, WRRB_FLEX:{RB:0.45,WR:0.55},
+  REC_FLEX:{WR:0.70,TE:0.30}, SUPER_FLEX:{QB:0.70,RB:0.10,WR:0.15,TE:0.05},
+};
+
+const S = {
+  base:[], byId:new Map(), byKey:new Map(),
+  formats:[], fmtData:null, managers:null, history:null,
+  profiles:[], sets:{}, ms:{}, notes:{}, activeId:null,
+  pool:[], draft:null, picks:[], manualPicks:[], pickedIds:new Set(),
+  pos:"ALL", sort:"edge", query:"", selected:null,
+  wRank:0.60, wMS:0.40, wBench:0.30,
+  timer:null, derived:null,
+};
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const SUFFIXES = new Set(["jr","sr","ii","iii","iv","v"]);
+const esc = s => String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const clamp = (v,a,b) => Math.min(b, Math.max(a,v));
+function normalize(name){
+  if(!name) return "";
+  return String(name).normalize("NFKD").replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase().replace(/['\u2019.]/g,"").replace(/-/g," ")
+    .split(/\s+/).filter(p=>p&&!SUFFIXES.has(p)).join("").replace(/[^a-z0-9]/g,"");
+}
+function save(){
+  localStorage.setItem(LS.profiles, JSON.stringify(S.profiles));
+  localStorage.setItem(LS.sets, JSON.stringify(S.sets));
+  localStorage.setItem(LS.ms, JSON.stringify(S.ms));
+  localStorage.setItem(LS.notes, JSON.stringify(S.notes));
+  localStorage.setItem(LS.active, S.activeId||"");
+}
+function loadLocal(){
+  const get=(k,d)=>{ try{ return JSON.parse(localStorage.getItem(k)||d); }catch(e){ return JSON.parse(d); } };
+  S.profiles=get(LS.profiles,"[]"); S.sets=get(LS.sets,"{}");
+  S.ms=get(LS.ms,"{}"); S.notes=get(LS.notes,"{}");
+  S.activeId = localStorage.getItem(LS.active) || (S.profiles[0]?.id ?? null);
+}
+const profile = () => S.profiles.find(p=>p.id===S.activeId) || null;
+const activeRanks = () => { const p=profile(); return (p && S.sets[p.rankSetId]?.ranks) || {}; };
+
+/* ==================================================================
+   Lineup solver
+   ================================================================== */
+const ELIGIBLE = {
+  QB:["QB","SUPER_FLEX"], RB:["RB","FLEX","WRRB_FLEX","SUPER_FLEX"],
+  WR:["WR","FLEX","WRRB_FLEX","REC_FLEX","SUPER_FLEX"],
+  TE:["TE","FLEX","REC_FLEX","SUPER_FLEX"], K:["K"], DEF:["DEF","DST"],
+};
+const SLOT_ORDER = ["QB","RB","WR","TE","K","DEF","DST","REC_FLEX","WRRB_FLEX","FLEX","SUPER_FLEX"];
+const BENCH_SLOTS = new Set(["BN","IR","TAXI"]);
+const orderSlots = s => [...s].sort((a,b)=>{
+  const ia=SLOT_ORDER.indexOf(a), ib=SLOT_ORDER.indexOf(b);
+  return (ia<0?99:ia)-(ib<0?99:ib);
+});
+function solveLineup(players, slots){
+  const used=new Set(), filled=[]; let total=0;
+  for(const slot of slots){
+    let taken=null;
+    for(const p of players){
+      if(used.has(p.sleeper_id)) continue;
+      if(!(ELIGIBLE[p.pos]||[]).includes(slot)) continue;
+      taken=p; break;
+    }
+    if(taken){ used.add(taken.sleeper_id); total+=taken.proj; }
+    filled.push({slot, player:taken});
+  }
+  return {total, filled, used};
+}
+
+/* ==================================================================
+   Survival — and who, specifically, is picking before you
+   ==================================================================
+   Generic ADP survival asks "will he last twenty picks." The room model
+   asks whether these four managers take him. A manager's reach is his
+   average gap between a player's ADP and where he actually drafts him;
+   his positional lean is how much he over-drafts a position in this part
+   of a draft relative to everyone else. */
+function erf(x){
+  const s=Math.sign(x); x=Math.abs(x);
+  const a=[0.254829592,-0.284496736,1.421413741,-1.453152027,1.061405429], p=0.3275911;
+  const t=1/(1+p*x);
+  return s*(1-((((a[4]*t+a[3])*t+a[2])*t+a[1])*t+a[0])*t*Math.exp(-x*x));
+}
+const cdf = z => 0.5*(1+erf(z/Math.SQRT2));
+
+function roundBucket(round){ return round<=3 ? "1-3" : round<=8 ? "4-8" : "9+"; }
+
+/* Managers holding the picks between now and your next turn. */
+function roomBefore(ctx){
+  const out=[];
+  if(!ctx.next || !S.draft?.draft_order) return out;
+  const slotToUser = {};
+  for(const [userId, slot] of Object.entries(S.draft.draft_order||{})) slotToUser[slot]=userId;
+  for(let n=ctx.current; n<ctx.next; n++){
+    const round = Math.ceil(n/ctx.teams);
+    const idx = ((n-1)%ctx.teams)+1;
+    const slot = (ctx.snake && round%2===0) ? (ctx.teams-idx+1) : idx;
+    const userId = slotToUser[slot];
+    const m = userId && S.managers?.managers?.[userId];
+    out.push({pick:n, round, slot, userId, m});
+  }
+  return out;
+}
+
+/* How much earlier than ADP this specific room drafts this position. */
+function roomShift(pos, room){
+  if(!room.length) return 0;
+  let total=0, n=0;
+  for(const seat of room){
+    const m = seat.m;
+    if(!m || m.reach == null) continue;
+    let lean = 1;
+    const bucket = m.pos_by_round?.[roundBucket(seat.round)];
+    if(bucket){
+      const sum = Object.values(bucket).reduce((a,b)=>a+b,0);
+      if(sum > 0){
+        const share = (bucket[pos]||0)/sum;
+        // 0.25 is roughly an even four-way split; scale around that.
+        lean = clamp(share/0.25, 0.3, 2.2);
+      }
+    }
+    total += m.reach * lean; n++;
+  }
+  return n ? total/n : 0;
+}
+
+function pAvailable(p, pickNo, shift){
+  if(!pickNo) return 1;
+  if(S.pickedIds.has(p.sleeper_id)) return 0;
+  const adp = p.adp || (p.marketRank ? p.marketRank+4 : null);
+  if(!adp) return 0.9;
+  const eff = adp - (shift || 0);          // reach>0 means gone earlier
+  const sd = p.adpSd || Math.max(4, adp*0.15);
+  return clamp(1 - cdf((pickNo-eff)/sd), 0.005, 0.995);
+}
+
+function expectedBestAt(cands, pickNo, excludeId, shifts){
+  let carry=1, ev=0;
+  for(const c of cands){
+    if(c.sleeper_id===excludeId) continue;
+    const pa = pAvailable(c, pickNo, shifts?.[c.pos] ?? 0);
+    ev += c.adjValue*pa*carry;
+    carry *= (1-pa);
+    if(carry<0.01) break;
+  }
+  return ev;
+}
+
+/* ==================================================================
+   Prior-season traits, from nflverse
+   ==================================================================
+   Two findings in the guide are strong enough to price, and both are
+   computable from real production history rather than guesswork:
+
+   QB — among quarterbacks drafted inside the top six at the position,
+        those who averaged 4+ rushing fantasy points per game the prior
+        year reached 22 PPG about 48% of the time. Under two, 9%. Pocket
+        passers drafted early have been close to disastrous.
+
+   TE — of the fourteen early-round tight ends since 2014 who failed to
+        reach 12 PPR points per game the prior season, none beat draft-day
+        expectation by four points, and nearly 60% underperformed.
+
+   The multipliers are deliberately small. This is a tilt on a market
+   price, not a projection, and both findings rest on samples in the
+   twenties. A player with no qualifying prior season gets nothing. */
+function traitOf(p){
+  const n1 = p.n1;
+  if(!n1) return null;
+  if(p.pos === "QB"){
+    const r = n1.rush_fp;
+    const kind = r >= 4 ? "rush4" : r >= 2 ? "rush2" : "pocket";
+    const early = p.posAdpRank <= 8;
+    return {kind, rush:r, early,
+            mult: early ? (kind==="rush4" ? 1.06 : kind==="pocket" ? 0.93 : 1.00) : 1};
+  }
+  if(p.pos === "TE" && p.posAdpRank <= 6){
+    const under = n1.ppr < 12;
+    return {kind: under ? "teflag" : "tepass", ppg:n1.ppr, early:true, mult: under ? 0.94 : 1};
+  }
+  return null;
+}
+
+/* ==================================================================
+   Pool construction and the three point layers
+   ================================================================== */
+function buildPool(){
+  const table = S.fmtData?.players || {};
+  const ranks = activeRanks();
+  const pr = profile();
+  const scoring = scoringKey(pr?.ppr ?? 1);
+  const msTable = (pr && S.ms[pr.msSetId]) || {};
+
+  S.pool = S.base.filter(p=>table[p.sleeper_id]).map(p=>{
+    const t=table[p.sleeper_id], r=ranks[p.sleeper_id];
+    return {...p,
+      adp:t.adp??null, adpSd:t.sd??null, adpHi:t.hi??null, adpLo:t.lo??null, bye:t.bye??null,
+      marketRank:t.vr??null,
+      myRank:r?.rank??null, tier:r?.tier??null, auction:r?.auction??null,
+      ms:msTable[p.sleeper_id]?.score??null, msAdp:msTable[p.sleeper_id]?.adp??null,
+      note:S.notes[p.sleeper_id]||null,
+      hist:S.history?.players?.[p.sleeper_id]||null,
+      n1:S.history?.players?.[p.sleeper_id]?.n1||null,
+    };
+  });
+
+  const byPos={};
+  for(const p of S.pool) (byPos[p.pos] ||= []).push(p);
+  for(const list of Object.values(byPos)){
+    list.sort((a,b)=>(a.adp||a.marketRank||999)-(b.adp||b.marketRank||999));
+    list.forEach((p,i)=>{ p.posAdpRank=i+1; });
+    // median ADP spread, for the floor-early / ceiling-late tilt
+    const sds = list.map(p=>p.adpSd).filter(Boolean).sort((a,b)=>a-b);
+    const med = sds.length ? sds[Math.floor(sds.length/2)] : 0;
+    list.forEach(p=>{ p.sdZ = (med>0 && p.adpSd) ? clamp((p.adpSd-med)/med, -1, 2) : 0; });
+  }
+
+  for(const p of S.pool) p.trait = traitOf(p);
+
+  for(const p of S.pool){
+    const mult = scoringMult(p.pos, p.posAdpRank, scoring);
+    p.scoringMult = mult;
+    const adp = p.adp || (p.marketRank ? p.marketRank+4 : 260);
+    p.mktPts  = expPPG(p.pos, adp)*mult;
+    p.rankPts = p.myRank ? expPPG(p.pos, p.myRank)*mult : p.mktPts;
+    // optimistic market outcome, for the "will he burn me?" test
+    p.ceilPts = expPPG(p.pos, p.adpHi || adp)*mult;
+    p.msEdge  = 0;
+  }
+
+  for(const [pos, list] of Object.entries(byPos)){
+    const scored = list.filter(p=>p.ms!=null);
+    if(scored.length<4) continue;
+    const adpAt = [...scored].sort((a,b)=>(a.msAdp||a.adp||999)-(b.msAdp||b.adp||999))
+                             .map(p=>p.msAdp||p.adp||999);
+    [...scored].sort((a,b)=>b.ms-a.ms).forEach((p,i)=>{
+      const implied = adpAt[Math.min(i, adpAt.length-1)];
+      const actual  = p.msAdp||p.adp||999;
+      p.msEdge = (expPPG(pos,implied)-expPPG(pos,actual))*p.scoringMult;
+    });
+  }
+
+  S.byId = new Map(S.pool.map(p=>[p.sleeper_id,p]));
+  S.byKey = new Map();
+  for(const p of S.pool){
+    if(!S.byKey.has(p.key)) S.byKey.set(p.key,[]);
+    S.byKey.get(p.key).push(p);
+  }
+}
+
+/* Effective starters per position, flex slots split by real usage. */
+/* Two different questions, two different answers.
+
+   VALUATION need asks "on average, which positions fill this slot across
+   the league" — a superflex goes to a QB about 70% of the time, so that
+   is what sets replacement level.
+
+   PLANNING need asks "how many do I have to actually own." There a
+   superflex counts as a full quarterback, because the fallback of
+   starting a running back in it is dire and QB supply is thin. That
+   asymmetry is why superflex rosters drift to Round 6 with one QB. */
+function positionalNeed(slots, planning){
+  const need={QB:0,RB:0,WR:0,TE:0,K:0,DEF:0};
+  for(const slot of slots){
+    if(need[slot]!=null){ need[slot]+=1; continue; }
+    if(planning && slot==="SUPER_FLEX"){ need.QB+=1; continue; }
+    const share=FLEX_SHARE[slot];
+    if(share) for(const [pos,frac] of Object.entries(share)) need[pos]+=frac;
+  }
+  return need;
+}
+
+function replacementBaselines(need, teams, scoring, pool){
+  const base={}, ranks={}, adpAt={};
+  for(const pos of ["QB","RB","WR","TE"]){
+    const rank = Math.max(1, Math.round(teams*need[pos]));
+    ranks[pos]=rank;
+    const sorted = pool.filter(p=>p.pos===pos).sort((a,b)=>(a.adp||999)-(b.adp||999));
+    const repl = sorted[Math.min(rank-1, sorted.length-1)];
+    adpAt[pos] = repl?.adp ?? null;              // when replacement goes
+    const fromTable = posRankPPG(pos, rank, scoring);
+    base[pos] = fromTable != null ? fromTable : (repl ? expPPG(pos, repl.adp||200) : 0);
+  }
+  base.K=0; base.DEF=0;
+  return {base, ranks, adpAt};
+}
+
+/* ==================================================================
+   Draft position
+   ================================================================== */
+function pickNumbersForSlot(slot, teams, rounds, snake){
+  const out=[];
+  for(let r=1;r<=rounds;r++){
+    const inRound = (snake && r%2===0) ? (teams-slot+1) : slot;
+    out.push((r-1)*teams+inRound);
+  }
+  return out;
+}
+function ctxOf(){
+  const pr=profile();
+  const teams  = S.draft?.settings?.teams || pr?.teams || 12;
+  const rounds = S.draft?.settings?.rounds || pr?.rounds || 15;
+  const snake  = (S.draft?.type || pr?.type || "snake") !== "linear";
+  const slot   = pr?.slot || null;
+  const current = allPicks().length + 1;
+  let next=null, then=null, after=null;
+  if(slot){
+    const mine = pickNumbersForSlot(slot,teams,rounds,snake).filter(n=>n>=current);
+    next=mine[0]??null; then=mine[1]??null; after=mine[2]??null;
+  }
+  return {teams, rounds, snake, slot, current, next, then, after,
+          round: Math.ceil(current/teams)};
+}
+const pickLabel=(n,teams)=> n ? `${Math.ceil(n/teams)}.${String(((n-1)%teams)+1).padStart(2,"0")}` : "—";
+const allPicks = () => profile()?.manual ? S.manualPicks : S.picks;
+
+function myRoster(ctx){
+  if(!ctx.slot) return [];
+  const mine=new Set(pickNumbersForSlot(ctx.slot,ctx.teams,ctx.rounds,ctx.snake));
+  return allPicks().filter(pk=>mine.has(pk.pick_no))
+    .map(pk=>S.byId.get(String(pk.player_id))).filter(Boolean);
+}
+
+/* ==================================================================
+   The board
+   ================================================================== */
+function computeBoard(){
+  const pr=profile(), ctx=ctxOf();
+  const scoring = scoringKey(pr?.ppr ?? 1);
+  const slots = orderSlots((pr?.slots || ["QB","RB","RB","WR","WR","WR","TE","FLEX"]).filter(s=>!BENCH_SLOTS.has(s)));
+  const need = positionalNeed(slots, false);        // valuation
+  const planNeed = positionalNeed(slots, true);     // what I must own
+  const roster = myRoster(ctx);
+
+  for(const p of S.pool){
+    p.proj = (p.mktPts + S.wRank*(p.rankPts-p.mktPts) + S.wMS*p.msEdge) * (p.trait?.mult ?? 1);
+    if(p.note?.nudge) p.proj += p.note.nudge;
+  }
+
+  const repl = replacementBaselines(need, ctx.teams, scoring, S.pool);
+  for(const p of S.pool) p.vorp = p.proj - (repl.base[p.pos] ?? 0);
+
+  const rosterSorted=[...roster].sort((a,b)=>b.proj-a.proj);
+  const baseLineup = solveLineup(rosterSorted, slots);
+  const available = S.pool.filter(p=>!S.pickedIds.has(p.sleeper_id));
+
+  const onesieTilt = ctx.teams<=10 ? 1.08 : ctx.teams>=14 ? 0.92 : 1.0;
+  for(const p of available){
+    const withHim=[...rosterSorted,p].sort((a,b)=>b.proj-a.proj);
+    const marginal = solveLineup(withHim, slots).total - baseLineup.total;
+    p.marginal=marginal;
+    p.startsNow = marginal>0.01;
+    let v = marginal + S.wBench*Math.max(0, p.vorp-marginal);
+    if(p.pos==="QB"||p.pos==="TE") v*=onesieTilt;
+    p.adjValue=v;
+  }
+
+  const byPos={};
+  for(const p of available) (byPos[p.pos] ||= []).push(p);
+  for(const k in byPos) byPos[k].sort((a,b)=>b.adjValue-a.adjValue);
+
+  /* Room-aware survival shifts, one per position. */
+  const room = roomBefore(ctx);
+  const shifts={};
+  for(const pos of ["QB","RB","WR","TE","K","DEF"]) shifts[pos]=roomShift(pos, room);
+
+  /* ---- Positional runway -------------------------------------------
+     How many startable players at each position do we expect to still be
+     there at the pick AFTER next, versus how many we still need? This is
+     what stops a superflex roster from drifting to Round 6 without a
+     second quarterback: QB need is 1.7, quality supply dries up, and
+     the shortfall multiplier fires while it still matters. */
+  const have={};
+  for(const p of roster) have[p.pos]=(have[p.pos]||0)+1;
+  const horizon = ctx.after || ctx.then || ctx.next;
+  const runway={};
+  for(const pos of ["QB","RB","WR","TE"]){
+    const stillNeed = Math.max(0, planNeed[pos]-(have[pos]||0));
+    const list = byPos[pos]||[];
+    /* Counting everyone above replacement is useless in superflex, where
+       replacement is QB20 and nineteen technically-startable arms sit
+       behind it. What runs out is QUALITY. Bar the supply at a third of
+       the best remaining edge so the count tracks real upgrades. */
+    const bestV = list.length ? Math.max(...list.map(p=>p.vorp)) : 0;
+    const bar = Math.max(0.5, bestV*0.35);
+    const supply = list.filter(p=>p.vorp>=bar)
+      .reduce((s,p)=>s+pAvailable(p, horizon, shifts[pos]), 0);
+    const shortfall = stillNeed>0 ? Math.max(0, 1-supply/stillNeed) : 0;
+    runway[pos] = {need:stillNeed, supply, bar, shortfall,
+                   urgency: 1 + 0.35*shortfall};
+  }
+
+  /* Tier scarcity */
+  const gap = (ctx.next && ctx.current) ? Math.max(0, ctx.next-ctx.current) : 0;
+  const tierCounts={};
+  for(const p of available) if(p.tier) tierCounts[p.tier]=(tierCounts[p.tier]||0)+1;
+
+  /* First-mover risk at the onesie positions */
+  const draftedPos={};
+  for(const pk of allPicks()){
+    const dp=S.byId.get(String(pk.player_id));
+    if(dp) draftedPos[dp.pos]=(draftedPos[dp.pos]||0)+1;
+  }
+
+  /* Floor early, ceiling late. Round 1-3 punishes uncertainty; the late
+     rounds reward it, and punish players who cannot burn you. */
+  const phase = ctx.round<=3 ? "early" : ctx.round<=7 ? "middle" : "late";
+  const varK = phase==="early" ? -0.06 : phase==="late" ? 0.08 : 0.03;
+
+  for(const p of available){
+    p.tierLeft = p.tier ? tierCounts[p.tier] : null;
+    p.tierState = (p.tier && gap>0)
+      ? (p.tierLeft<=gap ? "thin" : p.tierLeft>gap*2 ? "deep" : null) : null;
+    p.firstOff = (p.pos==="QB"||p.pos==="TE") && !(draftedPos[p.pos]>0);
+    p.urgent = (runway[p.pos]?.shortfall ?? 0) > 0.15;
+    p.canBurn = p.ceilPts > (repl.base[p.pos] ?? 0) + 1.0;
+
+    const pa  = pAvailable(p, ctx.next, shifts[p.pos]);
+    const alt = ctx.next ? expectedBestAt((byPos[p.pos]||[]).slice(0,25), ctx.next, p.sleeper_id, shifts) : 0;
+    p.pSurvive=pa; p.altValue=alt;
+
+    let edge = ctx.next ? (1-pa)*(p.adjValue-alt) : p.adjValue;
+    edge *= (runway[p.pos]?.urgency ?? 1);
+    if(p.tierState==="thin") edge*=1.15;
+    else if(p.tierState==="deep") edge*=0.90;
+    edge *= (1 + varK*p.sdZ);
+    if(phase==="late" && !p.canBurn) edge*=0.75;
+    p.edge=edge;
+  }
+
+  S.derived={ctx,roster,slots,need,baseLineup,available,byPos,repl,gap,tierCounts,scoring,room,shifts,runway,phase};
+  return S.derived;
+}
+
+function cliffIndex(list){
+  if(list.length<8) return -1;
+  const gaps=[];
+  for(let i=0;i<Math.min(list.length-1,24);i++) gaps.push(list[i].adjValue-list[i+1].adjValue);
+  const med=a=>{const s=[...a].sort((x,y)=>x-y);return s.length?s[Math.floor(s.length/2)]:0;};
+  for(let i=1;i<gaps.length-4;i++)
+    if(gaps[i]>Math.max(med(gaps.slice(i+1,i+7))*2.2,0.35)) return i;
+  return -1;
+}
+
+/* ==================================================================
+   Render
+   ================================================================== */
+function render(){
+  renderChrome();
+  if(!profile() || !S.fmtData){
+    $("board").innerHTML=`<div class="empty"><b>No draft connected</b>Add a Sleeper draft or a mock ID under Setup.</div>`;
+    ["lineup","runway","room","tierwatch"].forEach(i=>$(i).innerHTML="");
+    $("lineupNote").textContent="";
+    return;
+  }
+  const d=computeBoard(), {ctx}=d;
+
+  $("cOnClock").textContent=pickLabel(ctx.current,ctx.teams);
+  $("cNext").textContent=pickLabel(ctx.next,ctx.teams);
+  $("cThen").textContent=pickLabel(ctx.then,ctx.teams);
+  $("cGap").textContent=(ctx.next&&ctx.then)?(ctx.then-ctx.next-1):"—";
+
+  // runway
+  $("runwayMeta").textContent = `${d.phase} · at ${pickLabel(ctx.after||ctx.then||ctx.next,ctx.teams)}`;
+  $("runway").innerHTML=["QB","RB","WR","TE"].map(pos=>{
+    const r=d.runway[pos];
+    const hot=r.shortfall>0.15;
+    return `<div><em style="color:${hot?"var(--turf)":"var(--mute)"}">${pos}</em>
+      <span class="v">need ${r.need.toFixed(1)} · ${r.supply.toFixed(1)} quality left</span>
+      <span style="color:${hot?"var(--turf)":"var(--dim)"}">${hot?"URGENT":"ok"}</span></div>`;
+  }).join("");
+
+  // room
+  $("roomMeta").textContent = d.room.length ? `${d.room.length} picks` : "—";
+  $("room").innerHTML = d.room.length ? d.room.map(seat=>{
+    const m=seat.m;
+    const who = m?.name || (seat.userId ? "seat "+seat.slot : "—");
+    const tend = m && m.reach!=null
+      ? `${m.reach>0?"reaches":"waits"} ${Math.abs(m.reach).toFixed(0)}`
+      : "no history";
+    return `<div><em>${pickLabel(seat.pick,ctx.teams)}</em>${esc(who)}<span class="v">${tend}</span></div>`;
+  }).join("") : `<p class="note">${S.managers?"You're on the clock.":"Run manager_profiles.py to model who picks before you."}</p>`;
+
+  // lineup
+  $("lineupMeta").textContent=`${d.baseLineup.total.toFixed(1)} pts`;
+  $("lineup").innerHTML=d.baseLineup.filled.map(f=>`
+    <div class="${f.player?"filled":""}">
+      <em>${f.slot.replace("SUPER_FLEX","SFLEX").replace("WRRB_FLEX","W/R").replace("REC_FLEX","RFLEX")}</em>
+      <b>${f.player?esc(f.player.name):'<span style="color:var(--dim)">open</span>'}</b>
+      <span>${f.player?f.player.proj.toFixed(1):""}</span></div>`).join("");
+  const bench=d.roster.filter(p=>!d.baseLineup.used.has(p.sleeper_id));
+  $("lineupNote").innerHTML = ["QB","RB","WR","TE"].map(p=>{
+    const a=d.repl.adpAt[p];
+    return `${p}${d.repl.ranks[p]} = ${d.repl.base[p].toFixed(1)}${a?` @${a.toFixed(0)}`:""}`;
+  }).join(" · ") + `<br><span style="color:var(--dim)">replacement level, and the pick it goes</span>`
+    + (bench.length?`<br>Bench: ${bench.map(p=>esc(p.name)).join(", ")}`:"");
+
+  // tiers
+  const tiers=Object.keys(d.tierCounts).map(Number).sort((a,b)=>a-b).slice(0,6);
+  $("tierMeta").textContent=d.gap?`${d.gap} picks out`:"—";
+  $("tierwatch").innerHTML=tiers.length?tiers.map(t=>{
+    const n=d.tierCounts[t];
+    const st=d.gap>0?(n<=d.gap?"thin":n>d.gap*2?"deep":""):"";
+    const label=st==="thin"?"won't last":st==="deep"?"comes back":"coin flip";
+    const col=st==="thin"?"#E89484":st==="deep"?"var(--chalk)":"var(--mute)";
+    return `<div><em style="color:${tierHue(t)}">T${t}</em><span class="v">${n} left</span><span style="color:${col}">${label}</span></div>`;
+  }).join(""):`<p class="note">Import tiered rankings to use this.</p>`;
+
+  // ticker
+  const mySet=ctx.slot?new Set(pickNumbersForSlot(ctx.slot,ctx.teams,ctx.rounds,ctx.snake)):new Set();
+  const picks=allPicks();
+  $("ticker").innerHTML=picks.length?[...picks].reverse().slice(0,40).map(pk=>{
+    const p=S.byId.get(String(pk.player_id)), m=pk.metadata||{};
+    const name=p?p.name:`${m.first_name||""} ${m.last_name||""}`.trim()||"—";
+    return `<div class="${mySet.has(pk.pick_no)?"mine":""}"><em>${pickLabel(pk.pick_no,ctx.teams)}</em> ${esc(name)}</div>`;
+  }).join(""):`<div class="note" style="border:0;padding:8px 0">No picks yet.</div>`;
+
+  // rows
+  let list=d.available;
+  if(S.pos!=="ALL") list=list.filter(p=>p.pos===S.pos);
+  if(S.query){ const q=normalize(S.query); list=list.filter(p=>p.key.includes(q)); }
+  const sorters={
+    edge:(a,b)=>b.edge-a.edge, vorp:(a,b)=>b.vorp-a.vorp,
+    mine:(a,b)=>(a.myRank||9999)-(b.myRank||9999),
+    ms:(a,b)=>(b.ms??-1)-(a.ms??-1),
+    adp:(a,b)=>(a.adp||999)-(b.adp||999),
+    survive:(a,b)=>a.pSurvive-b.pSurvive,
+  };
+  list=[...list].sort(sorters[S.sort]).slice(0,220);
+  const cliffAt=(S.pos!=="ALL"&&S.sort==="mine")?cliffIndex(list):-1;
+
+  const board=$("board");
+  if(!list.length){ board.innerHTML=`<div class="empty"><b>Nobody left matching that</b>Clear the search.</div>`; return; }
+
+  const urgentPos=["QB","RB","WR","TE"].filter(p=>d.runway[p].shortfall>0.15);
+  let banner="";
+  if(!Object.keys(activeRanks()).length) banner=`<div class="banner">No rankings imported — running on ADP expectation alone</div>`;
+  else if(urgentPos.length) banner=`<div class="banner">Runway warning: ${urgentPos.join(", ")} — startable supply won't cover your remaining need</div>`;
+
+  board.innerHTML = banner + list.map((p,i)=>{
+    const cliff=(cliffAt>=0&&i===cliffAt+1)?`<div class="cliff">Cliff · ${cliffAt+1} ${S.pos} above the drop</div>`:"";
+    const pct=Math.round(p.pSurvive*100);
+    const tags=(p.urgent?`<span class="tag urg">NEED</span>`:"")
+      +(p.tierState==="thin"?`<span class="tag thin">TIER THIN</span>`:"")
+      +(p.tierState==="deep"?`<span class="tag deep">COMES BACK</span>`:"")
+      +(p.firstOff?`<span class="tag first">FIRST ${p.pos}</span>`:"")
+      +(d.phase==="late"&&!p.canBurn?`<span class="tag burn">WON'T BURN</span>`:"")
+      +(p.trait?.kind==="rush4"&&p.trait.early?`<span class="tag rush">RUSH ${p.trait.rush.toFixed(1)}</span>`:"")
+      +(p.trait?.kind==="pocket"&&p.trait.early?`<span class="tag burn">POCKET</span>`:"")
+      +(p.trait?.kind==="teflag"?`<span class="tag thin">N-1 ${p.trait.ppg.toFixed(1)}</span>`:"")
+      +(p.note?.tag?`<span class="tag note">${esc(p.note.tag).toUpperCase()}</span>`:"");
+    const meta=[p.pos+(p.team?" "+p.team:""), p.tier?"T"+p.tier:null,
+      p.adp?"adp "+p.adp.toFixed(0):null, p.bye?"bye "+p.bye:null,
+      p.auction?"$"+p.auction:null, p.startsNow?null:"bench"].filter(Boolean).join(" · ");
+    const sel = S.selected===p.sleeper_id;
+    return cliff + `
+      <div class="row ${sel?"sel":""}" data-id="${p.sleeper_id}" style="--tier:${p.tier?tierHue(p.tier):"transparent"}">
+        <div class="rank">${p.myRank??"·"}</div>
+        <div class="who"><b>${esc(p.name)}${tags}</b>
+          <small>${meta}${p.injury_status?` <span class="inj">${esc(p.injury_status)}</span>`:""}</small></div>
+        <div class="edge"><b class="${p.edge<=0?"neg":""}">${p.edge>0?"+":""}${p.edge.toFixed(1)}</b>
+          <div class="survive ${pct<35?"thin":""}" title="${pct}% chance he lasts to your next pick"><i style="width:${pct}%"></i></div></div>
+        <div class="num ${p.vorp>0?"pos":"neg"}">${p.vorp>0?"+":""}${p.vorp.toFixed(1)}<u>VORP</u></div>
+        <div class="num">${p.ms!=null?p.ms.toFixed(0):"—"}<u>MS</u></div>
+      </div>` + (sel ? drawerHTML(p, d) : "");
+  }).join("");
+}
+
+function drawerHTML(p, d){
+  const shift = d.shifts[p.pos] || 0;
+  const why = [
+    `<b>${p.proj.toFixed(1)}</b> proj = ${p.mktPts.toFixed(1)} market`
+      + ` ${p.rankPts>=p.mktPts?"+":""}${(S.wRank*(p.rankPts-p.mktPts)).toFixed(1)} rank`
+      + ` ${p.msEdge>=0?"+":""}${(S.wMS*p.msEdge).toFixed(1)} MS`
+      + (p.note?.nudge?` ${p.note.nudge>0?"+":""}${p.note.nudge} manual`:""),
+    `<b>${p.vorp.toFixed(1)}</b> VORP vs ${p.pos}${d.repl.ranks[p.pos]} at ${d.repl.base[p.pos].toFixed(1)}`,
+    `<b>${p.adjValue.toFixed(1)}</b> after lineup fit — ${p.startsNow?`starts, +${p.marginal.toFixed(1)} to your lineup`:"bench body"}`,
+    p.n1
+      ? `<b>${p.n1.season}</b> ${p.n1.g}g · ${p.n1.ppr.toFixed(1)} PPR/g`
+        + (p.pos==="QB" ? ` · ${p.n1.rush_fp.toFixed(1)} rush FP/g` : "")
+        + (p.n1.tgt_share!=null ? ` · ${(p.n1.tgt_share*100).toFixed(0)}% tgt share` : "")
+      : `<b>no</b> qualifying prior season`,
+    `<b>${Math.round(p.pSurvive*100)}%</b> to last${shift?` (room drafts ${p.pos} ${shift>0?"early":"late"} by ${Math.abs(shift).toFixed(0)})`:""}, best ${p.pos} left after would be ${p.altValue.toFixed(1)}`,
+  ].join("<br>");
+  return `<div class="drawer">
+    <div class="why">${why}</div>
+    <button class="btn tiny" data-act="draft" data-id="${p.sleeper_id}">Mark drafted</button>
+    <button class="btn ghost tiny" data-act="nudge" data-id="${p.sleeper_id}" data-v="1">+1 pt</button>
+    <button class="btn ghost tiny" data-act="nudge" data-id="${p.sleeper_id}" data-v="-1">−1 pt</button>
+    <button class="btn ghost tiny" data-act="tag" data-id="${p.sleeper_id}">Tag</button>
+    <button class="btn ghost tiny" data-act="clear" data-id="${p.sleeper_id}">Clear</button>
+  </div>`;
+}
+
+function renderChrome(){
+  $("profileSel").innerHTML = S.profiles.length
+    ? S.profiles.map(p=>`<option value="${p.id}" ${p.id===S.activeId?"selected":""}>${esc(p.label)}</option>`).join("")
+    : `<option>no drafts yet</option>`;
+  const pr=profile(), chip=$("fmtChip");
+  if(pr){
+    const sf=(pr.slots||[]).includes("SUPER_FLEX")||(pr.slots||[]).filter(s=>s==="QB").length>=2;
+    const bits=[`${pr.teams}tm`, pr.ppr===1?"PPR":pr.ppr===0.5?"half":"std"];
+    if(sf) bits.push("SUPERFLEX");
+    if(pr.teBonus) bits.push(`TE+${pr.teBonus}`);
+    if(pr.isMock) bits.push("MOCK");
+    chip.textContent=bits.join(" · "); chip.className="chip";
+  } else { chip.textContent="no draft"; chip.className="chip warn"; }
+  const mc=$("modeChip");
+  mc.textContent = pr?.manual ? "manual" : "live";
+  mc.className = "chip" + (pr?.manual ? " on" : "");
+
+  $("leagueList").innerHTML=S.profiles.map(p=>`
+    <div class="${p.id===S.activeId?"active":""}"><b>${esc(p.label)}</b>
+      <button class="btn ghost tiny" data-use="${p.id}">Use</button>
+      <button class="btn ghost tiny" data-del="${p.id}">×</button></div>`).join("")
+    || `<p class="note">Nothing added yet.</p>`;
+  $("rankSetSel").innerHTML=`<option value="">— none —</option>`+
+    Object.values(S.sets).map(s=>`<option value="${s.id}" ${pr&&pr.rankSetId===s.id?"selected":""}>${esc(s.label)} (${Object.keys(s.ranks).length})</option>`).join("");
+  $("fmtSel").innerHTML=S.formats.map(f=>`<option value="${f.id}" ${pr&&pr.formatId===f.id?"selected":""}>${esc(f.label)}</option>`).join("");
+  if(pr){ $("slot").value=pr.slot||""; $("slots").value=(pr.slots||[]).join(" "); }
+}
+const tierHue=t=>["#4ADE6A","#DCE4D6","#E8B44A","#7FB2E5","#D2564A","#B48CE0","#6FD3C7"][(t-1)%7];
+
+/* ==================================================================
+   Data
+   ================================================================== */
+async function loadBase(){
+  try{
+    const [pl,fx]=await Promise.all([
+      fetch("data/players.json",{cache:"no-cache"}).then(r=>r.json()),
+      fetch("data/formats/index.json",{cache:"no-cache"}).then(r=>r.json()),
+    ]);
+    S.base=pl.players; S.formats=fx.formats;
+    $("dataMeta").textContent=`${S.base.length}p · ${S.formats.length} fmt · ${(pl.generated_at||"").slice(0,10)}`;
+  }catch(e){
+    $("dataMeta").textContent="data missing";
+    $("board").innerHTML=`<div class="empty"><b>No data files</b>Run the Refresh draft data workflow, then reload.</div>`;
+  }
+  try{ S.managers = await fetch("data/managers.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
+  catch(e){ S.managers=null; }
+  try{ S.history = await fetch("data/history.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
+  catch(e){ S.history=null; }
+}
+async function loadFormat(id){
+  if(S.fmtData?.format?.id===id) return;
+  S.fmtData=await fetch(`data/formats/${id}.json`,{cache:"no-cache"}).then(r=>r.json());
+}
+function pickFormat(want){
+  if(!S.formats.length) return null;
+  return S.formats.map(f=>({f,cost:Math.abs(f.qbs-want.qbs)*100+Math.abs(f.teams-want.teams)*3+Math.abs(f.ppr-want.ppr)*2}))
+    .sort((a,b)=>a.cost-b.cost)[0].f;
+}
+
+const SLEEPER="https://api.sleeper.app/v1";
+async function api(path){
+  const r=await fetch(SLEEPER+path);
+  if(!r.ok) throw new Error(`${path} -> ${r.status}`);
+  return r.json();
+}
+let scratch={user:null,leagues:[],drafts:[]};
+
+async function findLeagues(){
+  const name=$("username").value.trim(); if(!name) return;
+  $("connNote").textContent="Looking you up…";
+  try{
+    scratch.user=await api(`/user/${encodeURIComponent(name)}`);
+    const yr=new Date().getFullYear();
+    let leagues=await api(`/user/${scratch.user.user_id}/leagues/nfl/${yr}`);
+    if(!leagues.length) leagues=await api(`/user/${scratch.user.user_id}/leagues/nfl/${yr-1}`);
+    scratch.leagues=leagues;
+    $("leagueSel").innerHTML=leagues.map(l=>`<option value="${l.league_id}">${esc(l.name)} (${l.season})</option>`).join("");
+    localStorage.setItem("goinglong.username",name);
+    if(!leagues.length){ $("connNote").textContent="No leagues on that account."; return; }
+    await loadDrafts();
+  }catch(e){
+    $("connNote").innerHTML=`<span class="warn">Couldn't find that username — it's your Sleeper handle, not your display name.</span>`;
+  }
+}
+async function loadDrafts(){
+  const id=$("leagueSel").value; if(!id) return;
+  scratch.drafts=await api(`/league/${id}/drafts`);
+  $("draftSel").innerHTML=scratch.drafts.map(d=>`<option value="${d.draft_id}">${d.season} ${d.type} — ${d.status}</option>`).join("");
+  $("connNote").textContent=scratch.drafts.length?"Pick the draft and add it.":"No draft created yet.";
+}
+
+function shapeFromLeague(league){
+  const slots=(league.roster_positions||[]).filter(s=>!BENCH_SLOTS.has(s));
+  const sf=slots.includes("SUPER_FLEX")||slots.filter(s=>s==="QB").length>=2;
+  const sc=league.scoring_settings||{};
+  return {teams:league.total_rosters||12, ppr:sc.rec??1, qbs:sf?2:1, slots,
+          teBonus:sc.bonus_rec_te||0, passTd:sc.pass_td??4};
+}
+/* Mocks have no league object, so the draft's own settings carry the shape. */
+function shapeFromDraft(draft){
+  const s=draft.settings||{};
+  const slots=[];
+  const push=(k,n)=>{ for(let i=0;i<(n||0);i++) slots.push(k); };
+  push("QB",s.slots_qb); push("RB",s.slots_rb); push("WR",s.slots_wr); push("TE",s.slots_te);
+  push("FLEX",s.slots_flex); push("REC_FLEX",s.slots_rec_flex); push("WRRB_FLEX",s.slots_wrrb_flex);
+  push("SUPER_FLEX",s.slots_super_flex); push("K",s.slots_k); push("DEF",s.slots_def);
+  if(!slots.length) slots.push("QB","RB","RB","WR","WR","WR","TE","FLEX");
+  const st=(draft.metadata?.scoring_type||"ppr").toLowerCase();
+  const ppr = st.includes("half") ? 0.5 : st.includes("std") ? 0 : 1;
+  const sf = slots.includes("SUPER_FLEX")||slots.filter(x=>x==="QB").length>=2;
+  return {teams:s.teams||12, rounds:s.rounds||15, ppr, qbs:sf?2:1, slots, teBonus:0, passTd:4, type:draft.type||"snake"};
+}
+
+async function addProfileFrom(shape, meta){
+  const fmt=pickFormat(shape);
+  const existing=S.profiles.find(p=>p.draft_id===meta.draft_id);
+  const prof=existing||{id:uid(), rankSetId:"", msSetId:"", manual:false};
+  Object.assign(prof, {...meta, ...shape, formatId:fmt?.id||null, slot:prof.slot??null});
+  if(!existing) S.profiles.push(prof);
+  S.activeId=prof.id; save();
+  await activate();
+  return prof;
+}
+async function addProfile(){
+  const leagueId=$("leagueSel").value, draftId=$("draftSel").value;
+  if(!leagueId||!draftId) return;
+  const league=scratch.leagues.find(l=>l.league_id===leagueId)||await api(`/league/${leagueId}`);
+  const prof=await addProfileFrom(shapeFromLeague(league), {
+    label:`${league.name} ${league.season}`, league_id:leagueId, draft_id:draftId,
+    user_id:scratch.user?.user_id||"", isMock:false});
+  $("connNote").textContent=`Added ${prof.label}.`;
+}
+async function addMock(){
+  const id=$("mockId").value.trim().replace(/\D/g,"");
+  if(!id) return;
+  $("connNote").textContent="Reading draft…";
+  try{
+    const draft=await api(`/draft/${id}`);
+    const prof=await addProfileFrom(shapeFromDraft(draft), {
+      label: draft.metadata?.name || `Mock ${draft.season} ${draft.type}`,
+      league_id:draft.league_id||"", draft_id:id,
+      user_id:scratch.user?.user_id||draft.creators?.[0]||"", isMock:!draft.league_id});
+    $("connNote").textContent=`Added ${prof.label}. Set your slot under Overrides if it didn't autofill.`;
+  }catch(e){
+    $("connNote").innerHTML=`<span class="warn">No draft with that ID. Copy the long number from the mock draft URL.</span>`;
+  }
+}
+
+async function activate(){
+  const pr=profile(); if(!pr){ render(); return; }
+  clearInterval(S.timer);
+  S.draft=null; S.picks=[]; S.selected=null;
+  S.manualPicks = pr.manualPicks || [];
+  syncPicked();
+  if(pr.formatId) await loadFormat(pr.formatId);
+  autoPickRankSet();
+  buildPool(); render();
+  await connectDraft();
+}
+function syncPicked(){ S.pickedIds=new Set(allPicks().map(p=>String(p.player_id))); }
+
+async function connectDraft(){
+  const pr=profile(); if(!pr?.draft_id) return;
+  try{
+    S.draft=await api(`/draft/${pr.draft_id}`);
+    if(!pr.slot && pr.user_id && S.draft.draft_order){ pr.slot=S.draft.draft_order[pr.user_id]||null; save(); }
+    await pollPicks(); startPolling();
+  }catch(e){ setStatus("unreachable"); }
+}
+async function pollPicks(){
+  const pr=profile(); if(!pr?.draft_id) return;
+  if(pr.manual){ setStatus("manual"); render(); return; }
+  try{
+    const [draft,picks]=await Promise.all([api(`/draft/${pr.draft_id}`),api(`/draft/${pr.draft_id}/picks`)]);
+    S.draft=draft;
+    S.picks=picks.sort((a,b)=>a.pick_no-b.pick_no);
+    syncPicked();
+    setStatus(draft.status==="in_progress"?"live":draft.status);
+    render();
+  }catch(e){ setStatus("stalled"); }
+}
+const setStatus=t=>{ $("cStatus").innerHTML=`<i class="dot ${t==="live"?"live":""}"></i>${esc(t)}`; };
+function startPolling(){ clearInterval(S.timer); S.timer=setInterval(pollPicks,3000); }
+
+/* Manual picks — offline mocks and in-person drafts. */
+function manualDraft(id){
+  const pr=profile(); if(!pr) return;
+  if(!pr.manual){ pr.manual=true; }
+  S.manualPicks.push({pick_no:S.manualPicks.length+1, player_id:id});
+  pr.manualPicks=S.manualPicks;
+  S.selected=null; syncPicked(); save(); render();
+}
+function undoPick(){
+  const pr=profile(); if(!pr?.manual || !S.manualPicks.length) return;
+  S.manualPicks.pop(); pr.manualPicks=S.manualPicks;
+  syncPicked(); save(); render();
+}
+
+/* ==================================================================
+   Imports
+   ================================================================== */
+const TIER_RE=/^\s*tier\s*[:#]?\s*(\d+)/i;
+const POS_RE=/\b(QB|RB|WR|TE|K|DST|DEF)\b/i;
+const SHEET_RE=/^\s*(\d{1,3})\s+(.+?)\s+(QB|RB|WR|TE|K|DST|DEF)\s+(\d{1,3})\s+(\d{1,3})\s+\$?\s*(\d{1,3})\s*$/i;
+const MS_RE=/^\s*(\d{1,3})\s+(.+?)\s+(\d{1,3}(?:\.\d)?)\s+(\d{1,3}(?:\.\d)?)\s*$/;
+
+function parseRankLines(lines){
+  const rows=[]; let tier=1, rank=0, sheetHits=0;
+  for(const raw of lines){
+    const line=String(raw||"").trim(); if(!line) continue;
+    const m=line.match(SHEET_RE);
+    if(m){ sheetHits++;
+      rows.push({name:m[2].trim(), pos:m[3].toUpperCase().replace("DST","DEF"),
+        rank:parseInt(m[1],10), tier:parseInt(m[5],10), auction:parseInt(m[6],10)});
+      continue; }
+    const t=line.match(TIER_RE);
+    if(t){ tier=parseInt(t[1],10); continue; }
+    const pm=line.match(POS_RE);
+    const name=line.replace(/^\s*\d+[.)]?\s*/,"").replace(/\([^)]*\)/g,"").replace(/\$\s*\d+/g,"")
+      .replace(/\b(QB|RB|WR|TE|K|DST|DEF)\d*\b/ig,"").replace(/\s+\d{1,3}(?=\s|$)/g," ")
+      .replace(/\b[A-Z]{2,3}\b(?=\s*$)/,"").replace(/[,|\t]+/g," ").trim();
+    if(name.length<3) continue;
+    rank++;
+    rows.push({name, pos:pm?pm[1].toUpperCase().replace("DST","DEF"):null, tier, rank, auction:null});
+  }
+  if(sheetHits) rows.sort((a,b)=>a.rank-b.rank);
+  return rows;
+}
+function matchOne(name,pos){
+  const hits=S.byKey.get(normalize(name))||[];
+  if(hits.length===1) return hits[0];
+  if(hits.length>1) return hits.find(h=>!pos||h.pos===pos)||hits[0];
+  return null;
+}
+function fixerHTML(unmatched, assign){
+  const options=S.pool.map(p=>`<option value="${esc(p.sleeper_id)}">${esc(p.name)} — ${p.pos}${p.team?" "+p.team:""}</option>`).join("");
+  setTimeout(()=>{
+    document.querySelectorAll(".fixsel").forEach(sel=>{
+      sel.addEventListener("change",()=>{
+        if(!sel.value) return;
+        assign(sel, unmatched[+sel.dataset.i]);
+        save(); buildPool(); render();
+        sel.closest("div").style.opacity=".4";
+      });
+    });
+  },0);
+  return `<p class="warn">${unmatched.length} to fix by hand:</p><div class="unmatched">${
+    unmatched.map((u,i)=>`<div><span>${esc(u.name)}</span>
+      <select class="field fixsel" data-i="${i}"><option value="">skip</option>${options}</select></div>`).join("")}</div>`;
+}
+function applyImport(rows){
+  const pr=profile();
+  if(!pr){ $("importResult").innerHTML=`<p class="warn">Add a draft first.</p>`; return; }
+  const ranks={}, unmatched=[];
+  for(const r of rows){
+    const hit=matchOne(r.name,r.pos);
+    if(hit) ranks[hit.sleeper_id]={rank:r.rank,tier:r.tier,auction:r.auction};
+    else unmatched.push(r);
+  }
+  const label=$("rankSetName").value.trim()||`${pr.label} ranks`;
+  const setId=pr.rankSetId||uid();
+  S.sets[setId]={id:setId,label,ranks,updated:Date.now()};
+  pr.rankSetId=setId; save(); buildPool(); render();
+  const box=$("importResult");
+  box.innerHTML=`<p class="note">Matched <b class="mono">${Object.keys(ranks).length}</b> of ${rows.length} into “${esc(label)}”.</p>`;
+  if(unmatched.length) box.innerHTML+=fixerHTML(unmatched,(sel,u)=>{
+    S.sets[setId].ranks[sel.value]={rank:+u.rank,tier:+u.tier,auction:u.auction};
+  });
+}
+function importMarketScores(){
+  const pr=profile();
+  if(!pr){ $("msResult").innerHTML=`<p class="warn">Add a draft first.</p>`; return; }
+  const rows=[];
+  for(const raw of $("msPaste").value.split(/\r?\n/)){
+    const m=String(raw).trim().match(MS_RE); if(!m) continue;
+    const name=m[2].trim();
+    if(/^(quarterback|running back|wide receiver|tight end|player|rank)$/i.test(name)) continue;
+    rows.push({name, adp:parseFloat(m[3]), score:parseFloat(m[4])});
+  }
+  const table={}, unmatched=[];
+  for(const r of rows){
+    const hit=matchOne(r.name,null);
+    if(hit) table[hit.sleeper_id]={adp:r.adp,score:r.score}; else unmatched.push(r);
+  }
+  const setId=pr.msSetId||uid();
+  S.ms[setId]=table; pr.msSetId=setId; save(); buildPool(); render();
+  const box=$("msResult");
+  box.innerHTML=`<p class="note">Matched <b class="mono">${Object.keys(table).length}</b> of ${rows.length}.</p>`;
+  if(unmatched.length) box.innerHTML+=fixerHTML(unmatched,(sel,u)=>{ S.ms[setId][sel.value]={adp:u.adp,score:u.score}; });
+}
+/* Rankings come one file per format. Read the signature off the filename
+   so a superflex league picks up the superflex board by itself. */
+function sigFromName(fname){
+  const n = String(fname||"").toLowerCase();
+  return {
+    qbs: /super.?flex|superflex|2qb/.test(n) ? 2 : 1,
+    tePrem: /te.?prem/.test(n),
+    ppr: /half/.test(n) ? 0.5 : /standard|^std/.test(n) ? 0 : 1,
+  };
+}
+function sigScore(sig, pr){
+  if(!sig || !pr) return -1;
+  const sf = (pr.slots||[]).includes("SUPER_FLEX") || (pr.slots||[]).filter(s=>s==="QB").length>=2;
+  let score = 0;
+  score += (sig.qbs===(sf?2:1)) ? 100 : -100;
+  score += (sig.tePrem === !!pr.teBonus) ? 20 : -20;
+  score -= Math.abs((sig.ppr??1)-(pr.ppr??1))*10;
+  return score;
+}
+/* When a draft has no ranking set yet, take the best-matching one. */
+function autoPickRankSet(){
+  const pr = profile(); if(!pr || pr.rankSetId) return;
+  const sets = Object.values(S.sets).filter(s=>s.sig);
+  if(!sets.length) return;
+  const best = sets.map(s=>({s, k:sigScore(s.sig, pr)})).sort((a,b)=>b.k-a.k)[0];
+  if(best && best.k > 0){ pr.rankSetId = best.s.id; save(); }
+}
+
+function readRankFile(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error("read failed"));
+    reader.onload=e=>{
+      try{
+        const wb=XLSX.read(e.target.result,{type:"array"});
+        const grid=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,blankrows:false});
+        const head=(grid[0]||[]).map(h=>String(h||"").toLowerCase().trim());
+        const col=re=>head.findIndex(h=>re.test(h));
+        const ovrCol=col(/^(overall|ovr|rank)$/), nameCol=col(/player|^name$/),
+              posCol=col(/^position$/), posRankCol=col(/pos.?rank/),
+              tierCol=col(/tier/), aucCol=col(/auction|\$|value/);
+        let bestCol=nameCol;
+        if(bestCol<0){
+          const width=Math.max(...grid.map(r=>r.length)); let best=-1;
+          for(let c=0;c<width;c++){
+            let hits=0; for(const row of grid) if(S.byKey.has(normalize(row[c]))) hits++;
+            if(hits>best){ best=hits; bestCol=c; }
+          }
+        }
+        const rows=[]; let seq=0;
+        for(const row of grid.slice(nameCol>=0?1:0)){
+          const name=row[bestCol]; if(!name||!normalize(name)) continue;
+          seq++;
+          const num=v=>{ const n=parseInt(String(v??"").replace(/[^\d-]/g,""),10); return Number.isFinite(n)?n:null; };
+          rows.push({
+            name:String(name),
+            pos: posCol>=0 ? String(row[posCol]||"").toUpperCase().replace("DST","DEF") : null,
+            rank: (ovrCol>=0 ? num(row[ovrCol]) : null) ?? seq,
+            tier: (tierCol>=0 ? num(row[tierCol]) : null) ?? 1,
+            auction: aucCol>=0 ? num(row[aucCol]) : null,
+          });
+        }
+        rows.sort((a,b)=>a.rank-b.rank);
+        resolve({rows, sig:sigFromName(file.name), label:file.name.replace(/\.[^.]+$/,"")});
+      }catch(err){ reject(err); }
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+async function importFiles(files){
+  const pr=profile();
+  if(!pr){ $("importResult").innerHTML=`<p class="warn">Add a draft first.</p>`; return; }
+  const out=[];
+  for(const f of files){
+    try{
+      const {rows, sig, label} = await readRankFile(f);
+      const ranks={}; let missed=0;
+      for(const r of rows){
+        const hit=matchOne(r.name, r.pos);
+        if(hit) ranks[hit.sleeper_id]={rank:r.rank, tier:r.tier, auction:r.auction};
+        else missed++;
+      }
+      const existing=Object.values(S.sets).find(s=>s.label===label);
+      const id=existing?.id || uid();
+      S.sets[id]={id, label, ranks, sig, updated:Date.now()};
+      out.push({label, n:Object.keys(ranks).length, total:rows.length, missed, sig});
+    }catch(err){ out.push({label:f.name, error:String(err.message||err)}); }
+  }
+  // if this draft has no board yet, or the files just landed, pick the fit
+  autoPickRankSet();
+  save(); buildPool(); render();
+  $("importResult").innerHTML = out.map(o=> o.error
+    ? `<p class="warn">${esc(o.label)}: ${esc(o.error)}</p>`
+    : `<p class="note">${esc(o.label)} — matched <b class="mono">${o.n}</b>/${o.total}`
+      + `${o.missed?` <span class="warn">(${o.missed} unmatched)</span>`:""}`
+      + ` · ${o.sig.qbs===2?"superflex":"1QB"}${o.sig.tePrem?" · TE prem":""}</p>`
+  ).join("") + `<p class="note">Active board: <b>${esc(S.sets[profile().rankSetId]?.label||"none")}</b></p>`;
+}
+
+/* ==================================================================
+   Wiring
+   ================================================================== */
+function wire(){
+  $("posGroup").addEventListener("click",e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    S.pos=b.dataset.pos;
+    [...$("posGroup").children].forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+    render();
+  });
+  $("sort").addEventListener("change",e=>{S.sort=e.target.value;render();});
+  $("q").addEventListener("input",e=>{S.query=e.target.value;render();});
+  const slider=(id,key,out)=>$(id).addEventListener("input",e=>{
+    S[key]=e.target.value/100; $(out).textContent=S[key].toFixed(2).replace(/^0/,""); render();
+  });
+  slider("wr","wRank","wrVal"); slider("wm","wMS","wmVal"); slider("wb","wBench","wbVal");
+
+  $("board").addEventListener("click",e=>{
+    const btn=e.target.closest("button[data-act]");
+    if(btn){
+      const id=btn.dataset.id, act=btn.dataset.act;
+      if(act==="draft") manualDraft(id);
+      else if(act==="nudge"){
+        const n=S.notes[id]||{}; n.nudge=(n.nudge||0)+ +btn.dataset.v;
+        S.notes[id]=n; save(); buildPool(); render();
+      } else if(act==="tag"){
+        const cur=S.notes[id]?.tag||"";
+        const t=prompt("Tag (mobile, ambiguous, fade…)", cur);
+        if(t!==null){ const n=S.notes[id]||{}; n.tag=t.trim()||undefined; S.notes[id]=n; save(); buildPool(); render(); }
+      } else if(act==="clear"){ delete S.notes[id]; save(); buildPool(); render(); }
+      return;
+    }
+    const row=e.target.closest(".row"); if(!row) return;
+    S.selected = S.selected===row.dataset.id ? null : row.dataset.id;
+    render();
+  });
+
+  $("profileSel").addEventListener("change",e=>{S.activeId=e.target.value;save();activate();});
+  $("leagueList").addEventListener("click",e=>{
+    const use=e.target.dataset.use, del=e.target.dataset.del;
+    if(use){ S.activeId=use; save(); activate(); }
+    if(del){
+      S.profiles=S.profiles.filter(p=>p.id!==del);
+      if(S.activeId===del) S.activeId=S.profiles[0]?.id??null;
+      save(); activate();
+    }
+  });
+  $("findLeagues").addEventListener("click",findLeagues);
+  $("leagueSel").addEventListener("change",loadDrafts);
+  $("addProfile").addEventListener("click",addProfile);
+  $("addMock").addEventListener("click",addMock);
+  $("refresh").addEventListener("click",pollPicks);
+  $("undo").addEventListener("click",undoPick);
+  $("toggleManual").addEventListener("click",()=>{
+    const pr=profile(); if(!pr) return;
+    pr.manual=!pr.manual;
+    if(pr.manual) clearInterval(S.timer); else startPolling();
+    save(); syncPicked(); render();
+  });
+  $("importRanks").addEventListener("click",()=>{
+    const t=$("rankPaste").value; if(t.trim()) applyImport(parseRankLines(t.split(/\r?\n/)));
+  });
+  $("rankFile").addEventListener("change",e=>{ if(e.target.files.length) importFiles([...e.target.files]); });
+  $("importMS").addEventListener("click",importMarketScores);
+  $("rankSetSel").addEventListener("change",e=>{
+    const pr=profile(); if(!pr) return;
+    pr.rankSetId=e.target.value; save(); buildPool(); render();
+  });
+  $("slot").addEventListener("change",e=>{
+    const pr=profile(); if(!pr) return;
+    pr.slot=parseInt(e.target.value,10)||null; save(); render();
+  });
+  $("slots").addEventListener("change",e=>{
+    const pr=profile(); if(!pr) return;
+    pr.slots=e.target.value.toUpperCase().split(/[\s,]+/).filter(Boolean); save(); render();
+  });
+  $("fmtSel").addEventListener("change",async e=>{
+    const pr=profile(); if(!pr) return;
+    pr.formatId=e.target.value; save();
+    await loadFormat(pr.formatId); buildPool(); render();
+  });
+}
+
+async function boot(){
+  loadLocal();
+  $("username").value=localStorage.getItem("goinglong.username")||"";
+  wire(); await loadBase();
+  if(profile()) await activate(); else render();
+}
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden) clearInterval(S.timer);
+  else if(profile()?.draft_id && !profile()?.manual) startPolling();
+});
+boot();
+</script>
+</body>
+</html>
