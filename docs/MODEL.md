@@ -141,34 +141,67 @@ players left in a tier:
 
 ---
 
-## Prior-season traits (nflverse)
+## The guide's trend checks
 
-`scripts/build_history.py` pulls weekly player stats from the nflverse data
-releases and joins them to Sleeper IDs through the DynastyProcess crosswalk.
-Regular season only, weeks 1–17 — the guide drops the final week of every
-season, and you can only do that from week-level rows. Fantasy points are
-recomputed from components so PPR, half and standard all come out of one pass.
+Every "Metric to Watch" in the guide that has a free data source is now a rule.
+Each returns a verdict and a small multiplier; the product is capped to
+0.85–1.15 so a player who trips several rules is dinged rather than erased. In
+practice the spread across a real board runs about 0.89 to 1.11 with a median of
+exactly 1.00, and nothing hits the caps.
 
-`n1` is the most recent season in which the player appeared in at least eight
-games, which is the guide's qualifying bar.
+Two data layers feed them.
 
-Two findings are strong enough to price:
+**Prior-season production** comes from `scripts/build_history.py` — nflverse
+weekly stats joined to Sleeper IDs through the DynastyProcess crosswalk,
+regular season weeks 1–17, fantasy points recomputed from components. `n1` is
+the most recent season with 8+ games, which is the guide's qualifying bar.
+Career year comes from draft year in the same crosswalk.
 
-**Quarterback rushing.** Among quarterbacks drafted inside the top six at the
-position, those averaging 4+ rushing fantasy points per game the prior year
-reached 22 PPG roughly 48% of the time; under two, 9%. Applied to the top eight
-QBs by ADP: 4+ gets ×1.06, under 2 gets ×0.93, the middle bucket nothing.
+**Team and teammate scores** need no new data at all. The guide builds Team
+Environment Score and Pass-Catcher Score from teammate ADP, and the ADP
+expectation curves already convert any ADP into expected points. So each team's
+score is just the summed expected PPG of its players drafted inside the top 180.
+Teammate-framed scores exclude the player himself, and their terciles are
+computed on that same exclusive basis — cutting them against team totals would
+make every back look like he had a clear backfield.
 
-**Early-round tight ends.** Of the fourteen top-six tight ends since 2014 who
-failed to reach 12 PPR points per game the prior season, none beat expectation
-by four points and nearly 60% underperformed. Top-six TEs under that bar get
-×0.94.
+| Position | Check | Rule |
+|---|---|---|
+| QB | Rushing | Top 8: 4+ rush FP/g ×1.06, under 2 ×0.93 |
+| QB | TD rate | Top 24, 300+ att: 6%+ ×0.94, under 4% ×1.05 |
+| QB | Pts/dropback | QB18–30: 0.45+ ×1.08, under 0.35 ×0.92 |
+| QB | Career year | Year 2 inside top 24 ×1.05 |
+| RB | Receiving role | Top 18: 8+ rec FP/g ×1.06, under 4 ×0.94 |
+| RB | Backfield | RB19–42: middle tercile of teammate RB points ×1.05, top ×0.95 |
+| RB | Explosiveness | RB43+, 50+ carries: 12%+ of runs going 10+ ×1.07 |
+| RB | Team environment | Top 18: top tercile ×1.04, bottom ×0.94 |
+| WR | N-1 scoring | Top 18: 20+ PPR/g ×1.06, under 15 ×0.95 |
+| WR | Target share | WR19–42: 25%+ ×1.05, under 18% ×0.95 |
+| WR | Target share | WR43+: 18%+ ×1.06, under 13% ×0.93 |
+| WR | Depth of target | WR43+: 12+ aDOT ×1.04 |
+| WR | Target competition | WR19+: crowded ×0.94, open ×1.05 |
+| TE | N-1 scoring | Top 6: under 12 PPR/g ×0.94 |
+| TE | TD dependence | Top 12: 0.60+ TD/g ×0.94, under 0.40 ×1.05 |
+| TE | Target competition | TE13+: crowded ×0.95 |
 
-The multipliers are small on purpose. Both findings rest on samples in the
-twenties, and this is a tilt on a market price rather than a projection. A
-player without a qualifying prior season — rookies, the long-injured — gets no
-adjustment at all rather than a penalty.
+Spot checks reproduce the guide's own named examples without being told them:
+Jefferson and McMillan fall under the 15 PPG receiver bar, Javonte Williams
+fails the receiving-role check, McBride trips TD dependence at 0.69 while
+Loveland and Warren clear it at roughly 0.31, Stafford shows a 7.5% touchdown
+rate, Shough and Ward come back as Year 2 quarterbacks, Alec Pierce fails both
+target share and target competition, and Keaton Mitchell tops the late-round
+explosiveness metric.
 
-Spot-checking the 2026 board reproduces the guide's own conclusions: Bowers
-(14.7) and McBride (18.9) clear the tight end bar while Loveland (9.3) and
-Warren (11.3) do not, which is exactly the pair the guide flags as concerning.
+## What is deliberately missing
+
+Four of the guide's metrics have no free data source and are absent rather than
+approximated:
+
+- **Yards per route run** and **first downs per route run** — routes run is
+  charting data, not in nflverse. Receiving yards per target is a different
+  statistic and substituting it would quietly change what the rule means.
+- **Targets per route run** and **slot rate** — same problem, plus alignment.
+- **ZAP Score** — a proprietary college prospect model from a separate guide.
+
+The per-player nudge and tag controls exist for exactly these. If you know a
+receiver cleared 2.0 YPRR, nudge him and the reason travels with the player.
