@@ -463,38 +463,155 @@ function expectedBestAt(cands, pickNo, excludeId, shifts){
 }
 
 /* ==================================================================
-   Prior-season traits, from nflverse
+   The guide's trend checks
    ==================================================================
-   Two findings in the guide are strong enough to price, and both are
-   computable from real production history rather than guesswork:
+   Every "Metric to Watch" in the guide that can be computed from free
+   data is a rule here. Each returns a verdict and a small multiplier;
+   the product is capped so a player who trips five rules doesn't get
+   annihilated. Anything needing route-level charting — yards per route
+   run, first downs per route run, slot rate, ZAP score — has no free
+   source and is deliberately absent rather than faked. */
 
-   QB — among quarterbacks drafted inside the top six at the position,
-        those who averaged 4+ rushing fantasy points per game the prior
-        year reached 22 PPG about 48% of the time. Under two, 9%. Pocket
-        passers drafted early have been close to disastrous.
+const T = {   // thresholds, straight from the guide's tables
+  qbRush:[2,4], qbTdRate:[0.04,0.05,0.06], qbFpDb:[0.35,0.45],
+  rbRecFp:[4,8], rbRush10:0.12,
+  wrPpg:[15,20], wrTgtShareMid:0.25, wrTgtShareLate:[0.13,0.18], wrAdot:12,
+  tePpg:12, teTdPg:[0.40,0.60],
+};
 
-   TE — of the fourteen early-round tight ends since 2014 who failed to
-        reach 12 PPR points per game the prior season, none beat draft-day
-        expectation by four points, and nearly 60% underperformed.
+/* Expected fantasy points implied by ADP, summed per team. This is how the
+   guide builds Team Environment Score and Pass-Catcher Score — teammate
+   ADP, nothing more. Only players inside the top 180 count, which is the
+   first 15 rounds of a 12-team draft. */
+function teamScores(pool){
+  const t = {};
+  for(const p of pool){
+    if(!p.team || !p.adp || p.adp > 180) continue;
+    const s = (t[p.team] ||= {QB:0, RB:0, WR:0, TE:0});
+    if(s[p.pos] != null) s[p.pos] += expPPG(p.pos, p.adp);
+  }
+  for(const s of Object.values(t)){
+    s.env = s.QB + s.RB + s.WR + s.TE;
+    s.pc  = s.WR + s.TE;            // Pass-Catcher Score excludes the QB
+    s.pass = s.pc + s.QB;           // Passing Game Score includes him
+  }
+  return t;
+}
 
-   The multipliers are deliberately small. This is a tilt on a market
-   price, not a projection, and both findings rest on samples in the
-   twenties. A player with no qualifying prior season gets nothing. */
-function traitOf(p){
-  const n1 = p.n1;
-  if(!n1) return null;
+/* Terciles across the 32 teams, so "high" and "low" mean something
+   relative to this season rather than a number I made up. */
+function terciles(vals){
+  const v = vals.filter(x=>x!=null && !isNaN(x)).sort((a,b)=>a-b);
+  if(v.length < 6) return [0, Infinity];
+  return [v[Math.floor(v.length/3)], v[Math.floor(v.length*2/3)]];
+}
+
+function guideChecks(p, ts, cuts){
+  const out = [];
+  const n1 = p.n1, cy = p.careerYear, pr = p.posAdpRank;
+  const add = (label, verdict, detail, mult) => out.push({label, verdict, detail, mult});
+  const team = p.team ? ts[p.team] : null;
+  const own = (p.adp && p.adp <= 180) ? expPPG(p.pos, p.adp) : 0;
+
   if(p.pos === "QB"){
-    const r = n1.rush_fp;
-    const kind = r >= 4 ? "rush4" : r >= 2 ? "rush2" : "pocket";
-    const early = p.posAdpRank <= 8;
-    return {kind, rush:r, early,
-            mult: early ? (kind==="rush4" ? 1.06 : kind==="pocket" ? 0.93 : 1.00) : 1};
+    if(n1 && pr <= 8){
+      const r = n1.rush_fp;
+      if(r >= T.qbRush[1]) add("Rushing", "good", `${r.toFixed(1)} rush FP/g — the 4+ bucket hit 22 PPG 48% of the time`, 1.06);
+      else if(r < T.qbRush[0]) add("Rushing", "bad", `${r.toFixed(1)} rush FP/g — pocket passers drafted early hit 9%`, 0.93);
+      else add("Rushing", "ok", `${r.toFixed(1)} rush FP/g — middle bucket`, 1);
+    }
+    if(n1 && n1.td_rate != null && pr <= 24 && n1.att >= 300){
+      const td = n1.td_rate;
+      if(td >= T.qbTdRate[2]) add("TD rate", "bad", `${(td*100).toFixed(1)}% — highest bucket regresses hardest vs expectation`, 0.94);
+      else if(td < T.qbTdRate[0]) add("TD rate", "good", `${(td*100).toFixed(1)}% — room to regress upward`, 1.05);
+      else add("TD rate", "ok", `${(td*100).toFixed(1)}%`, 1);
+    }
+    if(n1 && n1.fp_db != null && pr >= 18 && pr <= 30){
+      const f = n1.fp_db;
+      if(f >= T.qbFpDb[1]) add("Pts/dropback", "good", `${f.toFixed(2)} — 30% of this bucket reached 18 PPG`, 1.08);
+      else if(f < T.qbFpDb[0]) add("Pts/dropback", "bad", `${f.toFixed(2)} — only 11% reached 18 PPG`, 0.92);
+      else add("Pts/dropback", "ok", `${f.toFixed(2)}`, 1);
+    }
+    if(cy === 2 && pr <= 24) add("Career year", "good", "Year 2 QBs beat expectation more than any other bucket", 1.05);
   }
-  if(p.pos === "TE" && p.posAdpRank <= 6){
-    const under = n1.ppr < 12;
-    return {kind: under ? "teflag" : "tepass", ppg:n1.ppr, early:true, mult: under ? 0.94 : 1};
+
+  if(p.pos === "RB"){
+    if(n1 && pr <= 18){
+      const rf = n1.rec_fp;
+      if(rf >= T.rbRecFp[1]) add("Receiving role", "good", `${rf.toFixed(1)} rec FP/g — the strongest early-RB signal`, 1.06);
+      else if(rf < T.rbRecFp[0]) add("Receiving role", "bad", `${rf.toFixed(1)} rec FP/g — 20% of this bucket busted by 4+`, 0.94);
+      else add("Receiving role", "ok", `${rf.toFixed(1)} rec FP/g`, 1);
+    }
+    if(team && pr >= 19 && pr <= 42){
+      const mates = team.RB - own;
+      const [lo, hi] = cuts.rbMates;
+      if(mates >= lo && mates <= hi) add("Backfield", "good", `ambiguous — teammate RBs worth ${mates.toFixed(1)} expected PPG`, 1.05);
+      else if(mates > hi) add("Backfield", "bad", `crowded — teammate RBs worth ${mates.toFixed(1)} expected PPG`, 0.95);
+      else add("Backfield", "ok", `clear — teammate RBs worth ${mates.toFixed(1)}`, 1);
+    }
+    if(n1 && n1.rush10 != null && pr >= 43 && n1.car >= 50){
+      if(n1.rush10 >= T.rbRush10) add("Explosiveness", "good", `${(n1.rush10*100).toFixed(1)}% of carries went 10+`, 1.07);
+      else add("Explosiveness", "ok", `${(n1.rush10*100).toFixed(1)}% of carries went 10+`, 1);
+    }
+    if(team && pr <= 18){
+      const [, hi] = cuts.env;
+      if(team.env >= hi) add("Team environment", "good", `top-tercile offense by ADP`, 1.04);
+      else if(team.env <= cuts.env[0]) add("Team environment", "bad", `bottom-tercile offense — upside is capped`, 0.94);
+    }
   }
-  return null;
+
+  if(p.pos === "WR"){
+    if(n1 && pr <= 18){
+      if(n1.ppr >= T.wrPpg[1]) add("N-1 scoring", "good", `${n1.ppr.toFixed(1)} PPR/g — 61% of this bucket beat expectation`, 1.06);
+      else if(n1.ppr < T.wrPpg[0]) add("N-1 scoring", "bad", `${n1.ppr.toFixed(1)} PPR/g — under 15 has underperformed`, 0.95);
+      else add("N-1 scoring", "ok", `${n1.ppr.toFixed(1)} PPR/g`, 1);
+    }
+    if(n1 && n1.tgt_share != null && pr >= 19 && pr <= 42){
+      if(n1.tgt_share >= T.wrTgtShareMid) add("Target share", "good", `${(n1.tgt_share*100).toFixed(0)}% — best results across the board`, 1.05);
+      else if(n1.tgt_share < 0.18) add("Target share", "bad", `${(n1.tgt_share*100).toFixed(0)}% — weak prior volume`, 0.95);
+      else add("Target share", "ok", `${(n1.tgt_share*100).toFixed(0)}%`, 1);
+    }
+    if(n1 && n1.tgt_share != null && pr >= 43){
+      if(n1.tgt_share >= T.wrTgtShareLate[1]) add("Target share", "good", `${(n1.tgt_share*100).toFixed(0)}% — best floor and ceiling combination`, 1.06);
+      else if(n1.tgt_share < T.wrTgtShareLate[0]) add("Target share", "bad", `${(n1.tgt_share*100).toFixed(0)}% — only 4% of this bucket hit`, 0.93);
+    }
+    if(n1 && n1.adot != null && pr >= 43){
+      if(n1.adot >= T.wrAdot) add("Depth of target", "good", `${n1.adot.toFixed(1)} aDOT — chunk-play upside`, 1.04);
+    }
+    if(team && pr >= 19){
+      const mates = team.pc - own;
+      const [, hi] = cuts.pc;
+      if(mates >= hi) add("Target competition", "bad", `crowded pass game — ${mates.toFixed(1)} expected PPG around him`, 0.94);
+      else if(mates <= cuts.pc[0]) add("Target competition", "good", `targets available — ${mates.toFixed(1)} expected PPG around him`, 1.05);
+    }
+    if(team && pr <= 18 && team.env >= cuts.env[1]) add("Team environment", "good", "top-tercile offense by ADP", 1.03);
+  }
+
+  if(p.pos === "TE"){
+    if(n1 && pr <= 6){
+      if(n1.ppr < T.tePpg) add("N-1 scoring", "bad", `${n1.ppr.toFixed(1)} PPR/g — no early TE under 12 has beaten expectation by 4`, 0.94);
+      else add("N-1 scoring", "good", `${n1.ppr.toFixed(1)} PPR/g clears the bar`, 1.02);
+    }
+    if(n1 && pr <= 12){
+      if(n1.td_pg >= T.teTdPg[1]) add("TD dependence", "bad", `${n1.td_pg.toFixed(2)} TD/g — this bucket has never beaten expectation by 4`, 0.94);
+      else if(n1.td_pg < T.teTdPg[0]) add("TD dependence", "good", `${n1.td_pg.toFixed(2)} TD/g — not riding an unsustainable TD rate`, 1.05);
+    }
+    if(team && pr >= 13){
+      const mates = team.pc - own;
+      if(mates >= cuts.pc[1]) add("Target competition", "bad", `crowded pass game — ${mates.toFixed(1)} expected PPG around him`, 0.95);
+    }
+  }
+
+  return out;
+}
+
+function traitOf(p, ts, cuts){
+  const checks = guideChecks(p, ts, cuts);
+  if(!checks.length) return null;
+  const raw = checks.reduce((m,c)=>m*c.mult, 1);
+  return {checks, mult: clamp(raw, 0.85, 1.15),
+          good: checks.filter(c=>c.verdict==="good").length,
+          bad:  checks.filter(c=>c.verdict==="bad").length};
 }
 
 /* ==================================================================
@@ -517,6 +634,7 @@ function buildPool(){
       note:S.notes[p.sleeper_id]||null,
       hist:S.history?.players?.[p.sleeper_id]||null,
       n1:S.history?.players?.[p.sleeper_id]?.n1||null,
+      careerYear:S.history?.players?.[p.sleeper_id]?.career_year??null,
     };
   });
 
@@ -531,7 +649,22 @@ function buildPool(){
     list.forEach(p=>{ p.sdZ = (med>0 && p.adpSd) ? clamp((p.adpSd-med)/med, -1, 2) : 0; });
   }
 
-  for(const p of S.pool) p.trait = traitOf(p);
+  const ts = teamScores(S.pool);
+  const teams = Object.values(ts);
+  /* Teammate scores exclude the player himself, so their terciles have to be
+     computed on the same exclusive basis. Cutting them against team totals
+     would make everyone look like he had a clear backfield. */
+  const inPool = p => p.team && ts[p.team] && p.adp && p.adp <= 180;
+  const own = p => expPPG(p.pos, p.adp);
+  const cuts = {
+    env: terciles(teams.map(t=>t.env)),
+    pc:  terciles(S.pool.filter(p=>inPool(p) && (p.pos==="WR"||p.pos==="TE"))
+                        .map(p=>ts[p.team].pc - own(p))),
+    rbMates: terciles(S.pool.filter(p=>inPool(p) && p.pos==="RB")
+                            .map(p=>ts[p.team].RB - own(p))),
+  };
+  S.teamScores = ts; S.cuts = cuts;
+  for(const p of S.pool) p.trait = traitOf(p, ts, cuts);
 
   for(const p of S.pool){
     const mult = scoringMult(p.pos, p.posAdpRank, scoring);
@@ -861,9 +994,8 @@ function render(){
       +(p.tierState==="deep"?`<span class="tag deep">COMES BACK</span>`:"")
       +(p.firstOff?`<span class="tag first">FIRST ${p.pos}</span>`:"")
       +(d.phase==="late"&&!p.canBurn?`<span class="tag burn">WON'T BURN</span>`:"")
-      +(p.trait?.kind==="rush4"&&p.trait.early?`<span class="tag rush">RUSH ${p.trait.rush.toFixed(1)}</span>`:"")
-      +(p.trait?.kind==="pocket"&&p.trait.early?`<span class="tag burn">POCKET</span>`:"")
-      +(p.trait?.kind==="teflag"?`<span class="tag thin">N-1 ${p.trait.ppg.toFixed(1)}</span>`:"")
+      +(p.trait?.good&&!p.trait.bad?`<span class="tag rush">${p.trait.good} PASS</span>`:"")
+      +(p.trait?.bad?`<span class="tag thin">${p.trait.bad} FLAG${p.trait.bad>1?"S":""}</span>`:"")
       +(p.note?.tag?`<span class="tag note">${esc(p.note.tag).toUpperCase()}</span>`:"");
     const meta=[p.pos+(p.team?" "+p.team:""), p.tier?"T"+p.tier:null,
       p.adp?"adp "+p.adp.toFixed(0):null, p.bye?"bye "+p.bye:null,
@@ -891,6 +1023,10 @@ function drawerHTML(p, d){
       + (p.note?.nudge?` ${p.note.nudge>0?"+":""}${p.note.nudge} manual`:""),
     `<b>${p.vorp.toFixed(1)}</b> VORP vs ${p.pos}${d.repl.ranks[p.pos]} at ${d.repl.base[p.pos].toFixed(1)}`,
     `<b>${p.adjValue.toFixed(1)}</b> after lineup fit — ${p.startsNow?`starts, +${p.marginal.toFixed(1)} to your lineup`:"bench body"}`,
+    ...(p.trait?.checks||[]).map(c=>{
+      const col = c.verdict==="good" ? "var(--turf)" : c.verdict==="bad" ? "#E89484" : "var(--dim)";
+      return `<b style="color:${col}">${c.label}</b> ${esc(c.detail)}`;
+    }),
     p.n1
       ? `<b>${p.n1.season}</b> ${p.n1.g}g · ${p.n1.ppr.toFixed(1)} PPR/g`
         + (p.pos==="QB" ? ` · ${p.n1.rush_fp.toFixed(1)} rush FP/g` : "")
