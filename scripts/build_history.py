@@ -13,9 +13,15 @@ can only do that from week-level rows.
 
 What comes out, per player per season:
   g            games with a snap (REG, weeks 1..17)
-  ppg_ppr / ppg_half / ppg_std
-  rush_fp_pg   rushing fantasy points per game  <- the QB metric from the guide
-  tgt_pg, car_pg, tgt_share, ay_share
+  ppr / half / std      fantasy points per game
+  rush_fp      rushing fantasy points per game   (QB mobility)
+  td_rate      passing TDs / attempts            (QB regression)
+  fp_db        fantasy points per dropback       (late QB)
+  rec_fp       receiving fantasy points per game (RB pass-game role)
+  rush10       share of carries gaining 10+      (late RB)
+  adot         average depth of target           (late WR)
+  td_pg        total TDs per game                (TE regression)
+  tgt_share, tgt_pg, car_pg, att
 """
 
 import csv
@@ -65,15 +71,22 @@ def num(row, key):
 
 
 def id_map():
-    """gsis_id -> sleeper_id"""
+    """gsis_id -> sleeper_id, plus sleeper_id -> draft year for career-year rules"""
     rows = fetch_csv(PLAYER_IDS)
-    out = {}
+    out, drafted = {}, {}
     for r in rows:
         g, s = (r.get("gsis_id") or "").strip(), (r.get("sleeper_id") or "").strip()
         if g and s:
             out[g] = s
-    print(f"id crosswalk: {len(out)} gsis->sleeper pairs")
-    return out
+        if s:
+            try:
+                dy = int(float(r.get("draft_year") or 0))
+                if 1980 < dy < 2100:
+                    drafted[s] = dy
+            except ValueError:
+                pass
+    print(f"id crosswalk: {len(out)} gsis->sleeper pairs, {len(drafted)} with draft year")
+    return out, drafted
 
 
 def fantasy_points(r, rec_pts):
@@ -125,6 +138,8 @@ def build_season(season, gsis_to_sleeper):
             "g": 0, "ppr": 0.0, "half": 0.0, "std": 0.0, "rush_fp": 0.0,
             "tgt": 0.0, "car": 0.0, "rec": 0.0, "rec_yds": 0.0, "rush_yds": 0.0,
             "tgt_share": 0.0, "ay_share": 0.0, "share_n": 0,
+            "att": 0.0, "pass_td": 0.0, "sacks": 0.0, "air_yds": 0.0,
+            "rush10": 0.0, "rec_td": 0.0, "rush_td": 0.0,
         })
         a["g"] += 1
         kept += 1
@@ -137,6 +152,13 @@ def build_season(season, gsis_to_sleeper):
         a["rec"]     += num(r, "receptions")
         a["rec_yds"] += num(r, "receiving_yards")
         a["rush_yds"] += num(r, "rushing_yards")
+        a["att"]     += num(r, "attempts")
+        a["pass_td"] += num(r, "passing_tds")
+        a["sacks"]   += num(r, "sacks_suffered")
+        a["air_yds"] += num(r, "receiving_air_yards")
+        a["rush10"]  += num(r, "rushing_10")
+        a["rec_td"]  += num(r, "receiving_tds")
+        a["rush_td"] += num(r, "rushing_tds")
         ts = num(r, "target_share")
         if ts:
             a["tgt_share"] += ts
@@ -150,12 +172,25 @@ def build_season(season, gsis_to_sleeper):
             continue
         sn = max(a["share_n"], 1)
         r2 = lambda v: round(v, 2)
+        dropbacks = a["att"] + a["sacks"]
+        rec_fp = 0.1 * a["rec_yds"] + 6 * a["rec_td"] + 1.0 * a["rec"]
         out[sid] = {
             "pos": a["pos"], "g": g,
             "ppr": r2(a["ppr"] / g), "half": r2(a["half"] / g), "std": r2(a["std"] / g),
             "rush_fp": r2(a["rush_fp"] / g),
             "tgt_pg": r2(a["tgt"] / g), "car_pg": r2(a["car"] / g),
             "rec_pg": r2(a["rec"] / g),
+            "att": int(a["att"]), "car": int(a["car"]),
+            # QB: touchdown rate regresses hard; points per dropback is the
+            # late-round separator. Both need volume to mean anything.
+            "td_rate": round(a["pass_td"] / a["att"], 4) if a["att"] >= 100 else None,
+            "fp_db": round(a["ppr"] / dropbacks, 3) if dropbacks >= 100 else None,
+            # RB: receiving role early, explosiveness late.
+            "rec_fp": r2(rec_fp / g),
+            "rush10": round(a["rush10"] / a["car"], 3) if a["car"] >= 30 else None,
+            # WR/TE: how they were deployed, and touchdown dependence.
+            "adot": round(a["air_yds"] / a["tgt"], 2) if a["tgt"] >= 20 else None,
+            "td_pg": r2((a["rec_td"] + a["rush_td"]) / g),
             "tgt_share": round(a["tgt_share"] / sn, 3) if a["share_n"] else None,
             "ay_share": round(a["ay_share"] / sn, 3) if a["share_n"] else None,
         }
@@ -164,7 +199,7 @@ def build_season(season, gsis_to_sleeper):
 
 
 def build():
-    gsis_to_sleeper = id_map()
+    gsis_to_sleeper, draft_year = id_map()
     seasons = [SEASON - i for i in range(1, N_SEASONS + 1)]  # 2025, 2024, 2023
     by_season = {}
     for s in seasons:
@@ -184,7 +219,14 @@ def build():
             if rec and rec["g"] >= 8:
                 n1 = {"season": s, **rec}
                 break
-        payload_players[sid] = {"seasons": hist, "n1": n1}
+        dy = draft_year.get(sid)
+        payload_players[sid] = {
+            "seasons": hist, "n1": n1,
+            "draft_year": dy,
+            # career year 1 = rookie season. The guide's Year 2 QB finding
+            # and the rookie WR buckets both key off this.
+            "career_year": (SEASON - dy + 1) if dy else None,
+        }
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps({
