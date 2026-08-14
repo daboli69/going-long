@@ -52,6 +52,14 @@
   input[type=range]{accent-color:var(--turf);width:72px}
   .board{max-height:calc(100vh - 226px);overflow-y:auto;overscroll-behavior:contain}
   @media (max-width:940px){.board{max-height:none}}
+  @media (max-width:430px){
+    .row{grid-template-columns:30px minmax(0,1fr) 66px 42px 38px;gap:6px;padding-right:8px}
+    .num u,.edge .survive{display:none}
+    .who small{font-size:10px}
+    .clock{gap:10px;padding:8px 10px}
+    .cstat{min-width:44px}
+    .cstat b{font-size:16px}
+  }
   .row{display:grid;grid-template-columns:40px minmax(0,1fr) 84px 54px 50px;align-items:center;gap:9px;
     padding:8px 12px 8px 0;border-bottom:1px solid rgba(36,53,47,.6);position:relative;min-height:54px;cursor:pointer}
   .row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--tier,transparent)}
@@ -72,6 +80,9 @@
   .tag.burn{background:rgba(94,111,105,.3);color:var(--mute)}
   .tag.note{background:rgba(220,228,214,.12);color:var(--chalk)}
   .tag.rush{background:rgba(74,222,106,.18);color:var(--turf)}
+  .tag.gold{background:rgba(232,180,74,.2);color:var(--gold)}
+  .tag.up{background:rgba(74,222,106,.14);color:var(--turf)}
+  .tag.dim{background:rgba(139,152,133,.18);color:var(--mute)}
   .edge{text-align:right} .edge b{font:600 18px/1 "IBM Plex Mono",monospace;color:var(--turf)}
   .edge b.neg{color:var(--dim)}
   .survive{height:3px;background:var(--line);border-radius:2px;margin-top:5px;overflow:hidden}
@@ -426,7 +437,7 @@ const cdf = z => 0.5*(1+erf(z/Math.SQRT2));
 function roundBucket(round){ return round<=3 ? "1-3" : round<=8 ? "4-8" : "9+"; }
 
 /* Managers holding the picks between now and your next turn. */
-function roomBefore(ctx){
+function roomBefore(ctx, planNeed){
   const out=[];
   if(!ctx.next || !S.draft?.draft_order) return out;
   const slotToUser = {};
@@ -437,18 +448,40 @@ function roomBefore(ctx){
     const slot = (ctx.snake && round%2===0) ? (ctx.teams-idx+1) : idx;
     const userId = slotToUser[slot];
     const m = userId && S.managers?.managers?.[userId];
-    out.push({pick:n, round, slot, userId, m});
+    // What this seat has already drafted, live — not history, this draft.
+    const needPressure = {};
+    if(userId && planNeed){
+      const have = {};
+      for(const pk of S.picks){
+        if(pk.picked_by !== userId) continue;
+        const dp = S.byId.get(String(pk.player_id));
+        if(dp) have[dp.pos] = (have[dp.pos]||0) + 1;
+      }
+      for(const pos of ["QB","RB","WR","TE"]){
+        const req = planNeed[pos]||0, got = have[pos]||0;
+        needPressure[pos] = got < req ? 1.3 : got < req+1 ? 1.0 : 0.65;
+      }
+    }
+    out.push({pick:n, round, slot, userId, m, needPressure});
   }
   return out;
 }
 
-/* How much earlier than ADP this specific room drafts this position. */
+/* How much earlier than ADP this specific room drafts this position.
+   Blends two signals: historical lean (this manager's actual pattern in
+   this part of past drafts) and live need (what their roster is missing
+   right now, in this draft). A manager with no history still exerts a
+   small live-need pull rather than being ignored outright. */
 function roomShift(pos, room){
   if(!room.length) return 0;
   let total=0, n=0;
   for(const seat of room){
     const m = seat.m;
-    if(!m || m.reach == null) continue;
+    const np = seat.needPressure?.[pos];
+    if(!m || m.reach == null){
+      if(np != null && np !== 1){ total += (np-1)*8; n++; }
+      continue;
+    }
     let lean = 1;
     const bucket = m.pos_by_round?.[roundBucket(seat.round)];
     if(bucket){
@@ -459,7 +492,7 @@ function roomShift(pos, room){
         lean = clamp(share/0.25, 0.3, 2.2);
       }
     }
-    total += m.reach * lean; n++;
+    total += m.reach * lean * (np ?? 1); n++;
   }
   return n ? total/n : 0;
 }
@@ -639,6 +672,93 @@ function traitOf(p, ts, cuts){
 }
 
 /* ==================================================================
+   Archetype badges
+   ==================================================================
+   Short labels, capped at two per player so the drawer stays readable.
+   Built from n1 production plus NGS aggregates where available. Every
+   threshold here is a judgment call, not a fitted number from the guide —
+   these are descriptive, not scored, and never touch p.edge. Two things
+   the guide asks for have no free substitute and are not faked: routes
+   run (so no true target-per-route-run or route-participation reads) and
+   offensive-line grading. NGS separation and YAC-over-expected stand in
+   for "wins in coverage," and RYOE stands in for "creates his own yards
+   regardless of the blocking," which is the closest honest proxy for
+   what a line grade would tell you. */
+function archetypeOf(p){
+  const n1 = p.n1; if(!n1) return [];
+  const ngs = n1.ngs || {};
+  const tags = [];
+  const push = (label, cls) => tags.push({label, cls});
+
+  if(p.pos === "QB"){
+    if(n1.rush_fp >= 4) push("Dual-threat", "gold");
+    else if(n1.rush_fp < 2 && n1.att >= 200) push("Pocket passer", "dim");
+    if(ngs.aggressiveness != null){
+      if(ngs.aggressiveness >= 18) push("Gunslinger", "up");
+      else if(ngs.aggressiveness <= 11 && ngs.time_to_throw <= 2.7) push("Check-down first", "dim");
+    }
+  }
+  if(p.pos === "RB"){
+    const touches = (n1.car_pg||0) + (n1.rec_pg||0);
+    if(touches >= 18) push("Bellcow", "gold");
+    if(n1.rec_fp >= 8) push("Receiving back", "up");
+    if(n1.rush10 >= 0.13) push("Explosive", "up");
+    if(ngs.ryoe_pa != null){
+      if(ngs.ryoe_pa >= 0.5) push("Creates his own yards", "gold");
+      else if(ngs.ryoe_pa <= -0.4) push("Scheme-dependent", "dim");
+    }
+    if(ngs.box8_rate >= 40) push("Stacked-box workload", "dim");
+  }
+  if(p.pos === "WR" || p.pos === "TE"){
+    if(n1.tgt_share >= 0.25) push("Alpha target earner", "gold");
+    if(n1.adot >= 12) push("Deep-threat ceiling", "up");
+    else if(n1.adot != null && n1.adot <= 7 && p.pos==="WR") push("Possession/slot", "dim");
+    if(ngs.separation != null && ngs.separation >= 3.2) push("Wins in coverage", "up");
+    if(ngs.yac_oe != null && ngs.yac_oe >= 1.5) push("YAC weapon", "gold");
+    if(n1.td_pg != null && p.pos==="TE" && n1.td_pg >= T.teTdPg[1]) push("TD-rate regression risk", "dim");
+  }
+  return tags.slice(0, 2);
+}
+
+/* ==================================================================
+   Adaptive structural build
+   ==================================================================
+   Late-Round methodology is a build, not a player list: what you value
+   in round 9 depends on what you already own. This reads the drafted
+   roster by round, classifies the RB investment pattern and the QB plan
+   in superflex, and returns small multipliers layered on top of edge —
+   same mechanism as the onesie tilt already in computeBoard, just keyed
+   off the room's actual state instead of league size. */
+function structuralBuild(roster, ctx, planNeed){
+  const early = roster.filter(p => pickRoundOfPlayer(p, ctx) <= 3);
+  const rbEarly = early.filter(p=>p.pos==="RB").length;
+
+  let rbBuild = "open";
+  if(ctx.round > 3){
+    rbBuild = rbEarly === 0 ? "zero" : rbEarly === 1 ? "hero" : "robust";
+  }
+
+  let qbBuild = "open";
+  const qbCount = roster.filter(p=>p.pos==="QB").length;
+  if(planNeed.QB >= 1.5){          // superflex-shaped league
+    if(ctx.round > 6) qbBuild = qbCount >= 2 ? "dual-elite" : qbCount === 1 ? "one-and-wait" : "none-yet";
+  }
+
+  const w = {RB:1, WR:1, TE:1, QB:1};
+  if(rbBuild === "zero")   { w.RB = 1.07; }               // chase ambiguous/ceiling backs harder
+  if(rbBuild === "robust") { w.RB = 0.95; w.WR = 1.04; }  // needs are elsewhere now
+  if(qbBuild === "dual-elite") w.QB = 0.90;               // a 3rd/4th QB rarely helps from here
+  if(qbBuild === "none-yet")   w.QB = 1.12;               // matches the runway warning, adds a nudge on top
+
+  return {rbBuild, qbBuild, weights:w};
+}
+function pickRoundOfPlayer(p, ctx){
+  const pk = S.picks.find(x=>String(x.player_id)===p.sleeper_id) ||
+             S.manualPicks.find(x=>String(x.player_id)===p.sleeper_id);
+  return pk ? Math.ceil(pk.pick_no/ctx.teams) : 1;
+}
+
+/* ==================================================================
    Pool construction and the three point layers
    ================================================================== */
 function buildPool(){
@@ -692,7 +812,7 @@ function buildPool(){
                             .map(p=>ts[p.team].RB - own(p))),
   };
   S.teamScores = ts; S.cuts = cuts;
-  for(const p of S.pool) p.trait = traitOf(p, ts, cuts);
+  for(const p of S.pool){ p.trait = traitOf(p, ts, cuts); p.archetypes = archetypeOf(p); }
 
   for(const p of S.pool){
     const mult = scoringMult(p.pos, p.posAdpRank, scoring);
@@ -822,6 +942,7 @@ function computeBoard(){
   const available = S.pool.filter(p=>!S.pickedIds.has(p.sleeper_id));
 
   const onesieTilt = ctx.teams<=10 ? 1.08 : ctx.teams>=14 ? 0.92 : 1.0;
+  const build = structuralBuild(roster, ctx, planNeed);
   for(const p of available){
     const withHim=[...rosterSorted,p].sort((a,b)=>b.proj-a.proj);
     const marginal = solveLineup(withHim, slots).total - baseLineup.total;
@@ -829,6 +950,7 @@ function computeBoard(){
     p.startsNow = marginal>0.01;
     let v = marginal + S.wBench*Math.max(0, p.vorp-marginal);
     if(p.pos==="QB"||p.pos==="TE") v*=onesieTilt;
+    v *= build.weights[p.pos] ?? 1;
     p.adjValue=v;
   }
 
@@ -837,7 +959,7 @@ function computeBoard(){
   for(const k in byPos) byPos[k].sort((a,b)=>b.adjValue-a.adjValue);
 
   /* Room-aware survival shifts, one per position. */
-  const room = roomBefore(ctx);
+  const room = roomBefore(ctx, planNeed);
   const shifts={};
   for(const pos of ["QB","RB","WR","TE","K","DEF"]) shifts[pos]=roomShift(pos, room);
 
@@ -905,7 +1027,7 @@ function computeBoard(){
     p.edge=edge;
   }
 
-  S.derived={ctx,roster,slots,need,baseLineup,available,byPos,repl,gap,tierCounts,scoring,room,shifts,runway,phase};
+  S.derived={ctx,roster,slots,need,planNeed,build,baseLineup,available,byPos,repl,gap,tierCounts,scoring,room,shifts,runway,phase};
   return S.derived;
 }
 
@@ -939,7 +1061,18 @@ function render(){
 
   // runway
   $("runwayMeta").textContent = `${d.phase} · at ${pickLabel(ctx.after||ctx.then||ctx.next,ctx.teams)}`;
-  $("runway").innerHTML=["QB","RB","WR","TE"].map(pos=>{
+  const buildLabel = {
+    zero:"Zero RB", hero:"Hero RB", robust:"Robust RB", open:null,
+    "dual-elite":"Dual-elite QB", "one-and-wait":"One QB, waiting", "none-yet":"No QB yet",
+  };
+  const buildBits = [buildLabel[d.build.rbBuild], buildLabel[d.build.qbBuild]].filter(Boolean);
+  const buildRow = buildBits.length
+    ? `<div style="grid-template-columns:1fr;padding-top:2px"><em style="color:var(--gold)">Build read</em>
+        <span class="v" style="grid-column:1/-1">${buildBits.join(" · ")} — tilting ${
+          Object.entries(d.build.weights).filter(([,w])=>w!==1)
+            .map(([p,w])=>`${p} ×${w.toFixed(2)}`).join(", ") || "nothing yet"
+        }</span></div>` : "";
+  $("runway").innerHTML=buildRow+["QB","RB","WR","TE"].map(pos=>{
     const r=d.runway[pos];
     const hot=r.shortfall>0.15;
     return `<div><em style="color:${hot?"var(--turf)":"var(--mute)"}">${pos}</em>
@@ -1053,15 +1186,35 @@ function render(){
   }).join("");
 }
 
+function sparklineSVG(weekly){
+  if(!weekly || weekly.length < 2) return "";
+  const w=180, h=30, pad=2;
+  const vals = weekly.map(x=>x[1]);
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  const span = Math.max(1, hi-lo);
+  const x = i => pad + i*(w-pad*2)/(weekly.length-1);
+  const y = v => h-pad - ((v-lo)/span)*(h-pad*2);
+  const pts = weekly.map((wk,i)=>`${x(i).toFixed(1)},${y(wk[1]).toFixed(1)}`).join(" ");
+  const dots = weekly.map((wk,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(wk[1]).toFixed(1)}" r="1.6" fill="var(--turf)"/>`).join("");
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;margin-top:4px">
+    <polyline points="${pts}" fill="none" stroke="var(--turf)" stroke-width="1.4" opacity="0.85"/>${dots}
+  </svg>`;
+}
+
 function drawerHTML(p, d){
   const shift = d.shifts[p.pos] || 0;
+  const badges = (p.archetypes||[]).map(t=>`<span class="tag ${t.cls}">${esc(t.label)}</span>`).join(" ");
   const why = [
     `<b>${p.proj.toFixed(1)}</b> proj = ${p.mktPts.toFixed(1)} market`
       + ` ${p.rankPts>=p.mktPts?"+":""}${(S.wRank*(p.rankPts-p.mktPts)).toFixed(1)} rank`
       + ` ${p.msEdge>=0?"+":""}${(S.wMS*p.msEdge).toFixed(1)} MS`
+      + (p.trait?p.trait.mult!==1?` ×${p.trait.mult.toFixed(2)} guide checks`:"":"")
       + (p.note?.nudge?` ${p.note.nudge>0?"+":""}${p.note.nudge} manual`:""),
     `<b>${p.vorp.toFixed(1)}</b> VORP vs ${p.pos}${d.repl.ranks[p.pos]} at ${d.repl.base[p.pos].toFixed(1)}`,
-    `<b>${p.adjValue.toFixed(1)}</b> after lineup fit — ${p.startsNow?`starts, +${p.marginal.toFixed(1)} to your lineup`:"bench body"}`,
+    `<b>${p.adjValue.toFixed(1)}</b> after lineup fit — ${p.startsNow?`starts, +${p.marginal.toFixed(1)} to your lineup`:"bench body"}`
+      + (d.build?.weights[p.pos] && d.build.weights[p.pos]!==1
+          ? ` · build tilt ×${d.build.weights[p.pos].toFixed(2)} (${d.build.rbBuild!=="open"&&p.pos==="RB"?d.build.rbBuild+" RB":d.build.qbBuild})`
+          : ""),
     (p.myRank!=null && p.consRank!=null)
       ? `<b>#${p.myRank}</b> on your board, <b>#${p.consRank}</b> consensus`
         + (p.adp ? ` (ADP ${p.adp.toFixed(1)})` : "")
@@ -1074,11 +1227,13 @@ function drawerHTML(p, d){
       ? `<b>${p.n1.season}</b> ${p.n1.g}g · ${p.n1.ppr.toFixed(1)} PPR/g`
         + (p.pos==="QB" ? ` · ${p.n1.rush_fp.toFixed(1)} rush FP/g` : "")
         + (p.n1.tgt_share!=null ? ` · ${(p.n1.tgt_share*100).toFixed(0)}% tgt share` : "")
+        + (p.n1.ngs?.separation!=null ? ` · ${p.n1.ngs.separation.toFixed(1)}yd sep` : "")
+        + (p.n1.ngs?.ryoe_pa!=null ? ` · ${p.n1.ngs.ryoe_pa>=0?"+":""}${p.n1.ngs.ryoe_pa.toFixed(2)} RYOE/att` : "")
       : `<b>no</b> qualifying prior season`,
     `<b>${Math.round(p.pSurvive*100)}%</b> to last${shift?` (room drafts ${p.pos} ${shift>0?"early":"late"} by ${Math.abs(shift).toFixed(0)})`:""}, best ${p.pos} left after would be ${p.altValue.toFixed(1)}`,
   ].join("<br>");
   return `<div class="drawer">
-    <div class="why">${why}</div>
+    <div class="why">${badges?`<div style="margin-bottom:5px">${badges}</div>`:""}${why}${sparklineSVG(p.n1?.weekly)}</div>
     <button class="btn tiny" data-act="draft" data-id="${p.sleeper_id}">Mark drafted</button>
     <button class="btn ghost tiny" data-act="nudge" data-id="${p.sleeper_id}" data-v="1">+1 pt</button>
     <button class="btn ghost tiny" data-act="nudge" data-id="${p.sleeper_id}" data-v="-1">−1 pt</button>
@@ -1086,6 +1241,7 @@ function drawerHTML(p, d){
     <button class="btn ghost tiny" data-act="clear" data-id="${p.sleeper_id}">Clear</button>
   </div>`;
 }
+
 
 function renderPresetBar(){
   $("presetGroup").innerHTML = BROWSE_PRESETS.map(p=>
