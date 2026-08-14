@@ -5,11 +5,17 @@ Sleeper ID so it joins straight onto the draft board.
 
 Sources (free, no keys, both on GitHub):
   nflverse-data   stats_player_week_<season>.csv   weekly player stats
+  nflverse-data   nextgen_stats/ngs_*              NGS season aggregates (via nflreadpy)
   DynastyProcess  db_playerids.csv                 gsis_id <-> sleeper_id
 
 Why weekly rather than season totals: the guide's metrics are per-game, need a
 games-played filter, and drop the final week of the season as meaningless. You
 can only do that from week-level rows.
+
+nflreadpy is an optional dependency, used only for Next Gen Stats — nflverse
+serves those as Parquet with no guessable public URL, and nflreadpy is the only
+thing that knows the real path. If it isn't installed, the script still runs
+and just skips the NGS fields (has_ngs: false in the output).
 
 What comes out, per player per season:
   g            games with a snap (REG, weeks 1..17)
@@ -21,7 +27,17 @@ What comes out, per player per season:
   rush10       share of carries gaining 10+      (late RB)
   adot         average depth of target           (late WR)
   td_pg        total TDs per game                (TE regression)
+  wopr / racr / pacr / cpoe / *_epa_pg   nflverse's own advanced rate stats
   tgt_share, tgt_pg, car_pg, att
+  weekly       [week, PPR points] pairs for the qualifying season (sparkline)
+
+n1 additionally carries an "ngs" block when available:
+  separation, cushion, yac_oe     receiving — route-running proxy, since real
+                                   routes-run charting has no free source
+  ryoe_pa, box8_rate              rushing — production over expectation, and
+                                   how stacked the box was
+  aggressiveness, time_to_throw,
+  air_to_sticks, cpoe_ngs         passing — QB tendency profile
 """
 
 import csv
@@ -108,6 +124,56 @@ def rushing_points(r):
             + 2 * num(r, "rushing_2pt_conversions"))
 
 
+try:
+    import nflreadpy as _nfl
+    HAVE_NFLREADPY = True
+except ImportError:
+    HAVE_NFLREADPY = False
+
+
+def fetch_ngs(season):
+    """
+    Next Gen Stats season aggregates (week=0, season_type=REG rows), keyed by
+    gsis_id. Separate from the weekly CSV pull above because it needs
+    nflreadpy to resolve — nflverse serves these as Parquet with no
+    guessable filename, only nflreadpy's own downloader knows the path.
+
+    Gives real substitutes for charting stats that aren't free anywhere:
+    avg_separation and YAC-over-expected stand in for route-running
+    efficiency; rush_yards_over_expected stands in for the "is this back's
+    production his blocking or his own legs" question; aggressiveness and
+    time-to-throw profile a quarterback's tendencies beyond raw rushing.
+    """
+    if not HAVE_NFLREADPY:
+        return {}
+    out = {}
+    for stat_type in ("rushing", "receiving", "passing"):
+        try:
+            df = _nfl.load_nextgen_stats(stat_type=stat_type, seasons=[season])
+        except Exception as exc:  # noqa: BLE001
+            print(f"  ! NGS {stat_type} {season} unavailable: {exc}")
+            continue
+        df = df.filter((df["week"] == 0) & (df["season_type"] == "REG"))
+        for row in df.iter_rows(named=True):
+            gid = row.get("player_gsis_id")
+            if not gid:
+                continue
+            rec = out.setdefault(gid, {})
+            if stat_type == "rushing":
+                rec["ryoe_pa"] = row.get("rush_yards_over_expected_per_att")
+                rec["box8_rate"] = row.get("percent_attempts_gte_eight_defenders")
+            elif stat_type == "receiving":
+                rec["separation"] = row.get("avg_separation")
+                rec["cushion"] = row.get("avg_cushion")
+                rec["yac_oe"] = row.get("avg_yac_above_expectation")
+            elif stat_type == "passing":
+                rec["aggressiveness"] = row.get("aggressiveness")
+                rec["time_to_throw"] = row.get("avg_time_to_throw")
+                rec["air_to_sticks"] = row.get("avg_air_yards_to_sticks")
+                rec["cpoe_ngs"] = row.get("completion_percentage_above_expectation")
+    return out
+
+
 def build_season(season, gsis_to_sleeper):
     url = f"{NFLVERSE}/stats_player/stats_player_week_{season}.csv"
     try:
@@ -140,6 +206,11 @@ def build_season(season, gsis_to_sleeper):
             "tgt_share": 0.0, "ay_share": 0.0, "share_n": 0,
             "att": 0.0, "pass_td": 0.0, "sacks": 0.0, "air_yds": 0.0,
             "rush10": 0.0, "rec_td": 0.0, "rush_td": 0.0,
+            # already computed by nflverse — just sum and average like everything else.
+            "wopr": 0.0, "wopr_n": 0, "racr": 0.0, "racr_n": 0,
+            "pacr": 0.0, "pacr_n": 0, "cpoe": 0.0, "cpoe_n": 0,
+            "pass_epa": 0.0, "rush_epa": 0.0, "rec_epa": 0.0,
+            "weekly": [],   # (week, ppr-points) — sparkline source, last season only
         })
         a["g"] += 1
         kept += 1
@@ -159,6 +230,16 @@ def build_season(season, gsis_to_sleeper):
         a["rush10"]  += num(r, "rushing_10")
         a["rec_td"]  += num(r, "receiving_tds")
         a["rush_td"] += num(r, "rushing_tds")
+        a["pass_epa"] += num(r, "passing_epa")
+        a["rush_epa"] += num(r, "rushing_epa")
+        a["rec_epa"]  += num(r, "receiving_epa")
+        a["weekly"].append([week, round(fantasy_points(r, 1.0), 1)])
+        if num(r, "targets") > 0:
+            a["wopr"] += num(r, "wopr"); a["wopr_n"] += 1
+            a["racr"] += num(r, "racr"); a["racr_n"] += 1
+        if num(r, "attempts") >= 10:
+            a["pacr"] += num(r, "pacr"); a["pacr_n"] += 1
+            a["cpoe"] += num(r, "passing_cpoe"); a["cpoe_n"] += 1
         ts = num(r, "target_share")
         if ts:
             a["tgt_share"] += ts
@@ -193,6 +274,16 @@ def build_season(season, gsis_to_sleeper):
             "td_pg": r2((a["rec_td"] + a["rush_td"]) / g),
             "tgt_share": round(a["tgt_share"] / sn, 3) if a["share_n"] else None,
             "ay_share": round(a["ay_share"] / sn, 3) if a["share_n"] else None,
+            # Already computed by nflverse — no reason to re-derive them.
+            "wopr": round(a["wopr"] / a["wopr_n"], 3) if a["wopr_n"] else None,
+            "racr": round(a["racr"] / a["racr_n"], 3) if a["racr_n"] else None,
+            "pacr": round(a["pacr"] / a["pacr_n"], 3) if a["pacr_n"] else None,
+            "cpoe": round(a["cpoe"] / a["cpoe_n"], 2) if a["cpoe_n"] else None,
+            "pass_epa_pg": r2(a["pass_epa"] / g), "rush_epa_pg": r2(a["rush_epa"] / g),
+            "rec_epa_pg": r2(a["rec_epa"] / g),
+            # trimmed sparkline source — filled in only for the most recent
+            # season by build(), to keep history.json from ballooning.
+            "weekly": sorted(a["weekly"]),
         }
     print(f"  {season}: {len(out)} players from {kept} player-weeks")
     return out
@@ -200,10 +291,18 @@ def build_season(season, gsis_to_sleeper):
 
 def build():
     gsis_to_sleeper, draft_year = id_map()
+    sleeper_to_gsis = {v: k for k, v in gsis_to_sleeper.items()}
     seasons = [SEASON - i for i in range(1, N_SEASONS + 1)]  # 2025, 2024, 2023
     by_season = {}
     for s in seasons:
         by_season[s] = build_season(s, gsis_to_sleeper)
+
+    print("\nNext Gen Stats enrichment" + ("" if HAVE_NFLREADPY else " — skipped (nflreadpy not installed)"))
+    ngs_by_season = {}
+    if HAVE_NFLREADPY:
+        for s in seasons:
+            ngs_by_season[s] = fetch_ngs(s)
+            print(f"  {s}: {len(ngs_by_season[s])} players")
 
     players = {}
     for s in seasons:
@@ -218,8 +317,18 @@ def build():
             rec = hist.get(str(s))
             if rec and rec["g"] >= 8:
                 n1 = {"season": s, **rec}
+                gid = sleeper_to_gsis.get(sid)
+                ngs = ngs_by_season.get(s, {}).get(gid) if gid else None
+                if ngs:
+                    n1["ngs"] = {k: (round(v, 3) if isinstance(v, float) else v)
+                                 for k, v in ngs.items() if v is not None}
                 break
         dy = draft_year.get(sid)
+        # The weekly sparkline is only useful for the qualifying season —
+        # strip it from every other season so the file doesn't balloon.
+        for s_key, rec in hist.items():
+            if not n1 or s_key != str(n1["season"]):
+                rec.pop("weekly", None)
         payload_players[sid] = {
             "seasons": hist, "n1": n1,
             "draft_year": dy,
@@ -233,7 +342,8 @@ def build():
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "seasons": seasons,
         "last_week": LAST_WEEK,
-        "source": "nflverse-data stats_player, ids via DynastyProcess",
+        "has_ngs": HAVE_NFLREADPY,
+        "source": "nflverse-data stats_player + nextgen_stats, ids via DynastyProcess",
         "players": payload_players,
     }, separators=(",", ":")))
     kb = OUT.stat().st_size / 1024
