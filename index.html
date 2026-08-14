@@ -52,11 +52,14 @@
   input[type=range]{accent-color:var(--turf);width:72px}
   .board{max-height:calc(100vh - 226px);overflow-y:auto;overscroll-behavior:contain}
   @media (max-width:940px){.board{max-height:none}}
-  .row{display:grid;grid-template-columns:30px minmax(0,1fr) 84px 54px 50px;align-items:center;gap:9px;
+  .row{display:grid;grid-template-columns:40px minmax(0,1fr) 84px 54px 50px;align-items:center;gap:9px;
     padding:8px 12px 8px 0;border-bottom:1px solid rgba(36,53,47,.6);position:relative;min-height:54px;cursor:pointer}
   .row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--tier,transparent)}
   .row:hover{background:var(--panel-2)} .row.sel{background:var(--panel-2)}
-  .rank{padding-left:12px;font:500 13px/1 "IBM Plex Mono",monospace;color:var(--dim);text-align:right}
+  .rank{padding-left:12px;text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  .rank b{display:block;font:500 13px/1.15 "IBM Plex Mono",monospace;color:var(--bone)}
+  .rank s{display:block;text-decoration:none;font-size:10px;line-height:1.3;color:var(--dim)}
+  .rank s.up{color:var(--turf)} .rank s.dn{color:#C08578}
   .who{min-width:0}
   .who b{font:600 17px/1.1 "Barlow Condensed",sans-serif;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .who small{color:var(--mute);font:400 11px/1.35 "IBM Plex Mono",monospace;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -79,6 +82,14 @@
   .drawer{padding:10px 12px;background:#101C1A;border-bottom:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .drawer .why{flex:1 1 100%;font:400 12px/1.6 "IBM Plex Mono",monospace;color:var(--mute)}
   .drawer .why b{color:var(--bone);font-weight:500}
+  .tierhead{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:9px 12px;margin-top:2px;background:var(--panel-2);
+    border-top:2px solid var(--tier,var(--line));border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:2;
+  }
+  .tierhead b{font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--bone)}
+  .tierhead span{font:500 11px/1 "IBM Plex Mono",monospace;color:var(--mute)}
   .cliff{display:flex;align-items:center;gap:10px;padding:6px 12px;background:rgba(210,86,74,.09);
     border-top:1px solid var(--rust);border-bottom:1px solid rgba(210,86,74,.3);
     font:600 11px/1 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#E89484}
@@ -152,12 +163,13 @@
         <button data-pos="WR" aria-pressed="false">WR</button>
         <button data-pos="TE" aria-pressed="false">TE</button>
       </div>
+      <div class="pos-group" id="presetGroup" title="Browse a format without connecting a league"></div>
       <select id="sort" class="field">
+        <option value="mine" selected>Sort: Tiers</option>
         <option value="edge">Sort: Edge</option>
         <option value="vorp">Sort: VORP</option>
-        <option value="mine">Sort: My rank</option>
         <option value="ms">Sort: Market Score</option>
-        <option value="adp">Sort: ADP</option>
+        <option value="adp">Sort: Consensus</option>
         <option value="survive">Sort: Least likely to last</option>
       </select>
       <label class="slider-wrap" title="Guide rankings vs. raw market ADP">
@@ -318,12 +330,24 @@ const FLEX_SHARE = {
   REC_FLEX:{WR:0.70,TE:0.30}, SUPER_FLEX:{QB:0.70,RB:0.10,WR:0.15,TE:0.05},
 };
 
+/* Formats you can browse without connecting anything. Picking one sets the
+   scoring, the roster shape and the matching Late-Round board in one go. */
+const BROWSE_PRESETS = [
+  {key:"ppr",  label:"PPR",     ppr:1,   teBonus:0,   sf:false},
+  {key:"half", label:"Half",    ppr:0.5, teBonus:0,   sf:false},
+  {key:"te",   label:"TE prem", ppr:1,   teBonus:0.5, sf:false},
+  {key:"sf",   label:"SF",      ppr:1,   teBonus:0,   sf:true},
+  {key:"sfte", label:"SF+TE",   ppr:1,   teBonus:0.5, sf:true},
+];
+const BASE_SLOTS = ["QB","RB","RB","WR","WR","WR","TE","FLEX"];
+
 const S = {
   base:[], byId:new Map(), byKey:new Map(),
   formats:[], fmtData:null, managers:null, history:null,
   profiles:[], sets:{}, ms:{}, notes:{}, activeId:null,
   pool:[], draft:null, picks:[], manualPicks:[], pickedIds:new Set(),
-  pos:"ALL", sort:"edge", query:"", selected:null,
+  pos:"ALL", sort:"mine", query:"",
+  browse:null, selected:null,
   wRank:0.60, wMS:0.40, wBench:0.30,
   timer:null, derived:null,
 };
@@ -351,7 +375,7 @@ function loadLocal(){
   S.ms=get(LS.ms,"{}"); S.notes=get(LS.notes,"{}");
   S.activeId = localStorage.getItem(LS.active) || (S.profiles[0]?.id ?? null);
 }
-const profile = () => S.profiles.find(p=>p.id===S.activeId) || null;
+const profile = () => S.profiles.find(p=>p.id===S.activeId) || S.browse || null;
 const activeRanks = () => { const p=profile(); return (p && S.sets[p.rankSetId]?.ranks) || {}; };
 
 /* ==================================================================
@@ -637,6 +661,10 @@ function buildPool(){
       careerYear:S.history?.players?.[p.sleeper_id]?.career_year??null,
     };
   });
+
+  /* Consensus order is just the market's own ranking — ADP, ascending. */
+  [...S.pool].sort((a,b)=>(a.adp||a.marketRank||999)-(b.adp||b.marketRank||999))
+    .forEach((p,i)=>{ p.consRank = i+1; });
 
   const byPos={};
   for(const p of S.pool) (byPos[p.pos] ||= []).push(p);
@@ -977,16 +1005,27 @@ function render(){
   };
   list=[...list].sort(sorters[S.sort]).slice(0,220);
   const cliffAt=(S.pos!=="ALL"&&S.sort==="mine")?cliffIndex(list):-1;
+  const hasRanks = Object.keys(activeRanks()).length > 0;
+  const showTiers = S.sort==="mine" && hasRanks;
+  let lastTier;
 
   const board=$("board");
   if(!list.length){ board.innerHTML=`<div class="empty"><b>Nobody left matching that</b>Clear the search.</div>`; return; }
 
   const urgentPos=["QB","RB","WR","TE"].filter(p=>d.runway[p].shortfall>0.15);
   let banner="";
-  if(!Object.keys(activeRanks()).length) banner=`<div class="banner">No rankings imported — running on ADP expectation alone</div>`;
+  if(!hasRanks) banner=`<div class="banner">No rankings imported — running on ADP expectation alone</div>`;
   else if(urgentPos.length) banner=`<div class="banner">Runway warning: ${urgentPos.join(", ")} — startable supply won't cover your remaining need</div>`;
 
   board.innerHTML = banner + list.map((p,i)=>{
+    let header="";
+    if(showTiers && p.tier !== lastTier){
+      lastTier = p.tier;
+      const n = list.filter(x=>x.tier===p.tier).length;
+      header = p.tier == null
+        ? `<div class="tierhead"><b style="color:var(--dim)">Unranked</b><span>${n} left off the board</span></div>`
+        : `<div class="tierhead" style="--tier:${tierHue(p.tier)}"><b>Tier ${p.tier}</b><span>${n} player${n>1?"s":""}</span></div>`;
+    }
     const cliff=(cliffAt>=0&&i===cliffAt+1)?`<div class="cliff">Cliff · ${cliffAt+1} ${S.pos} above the drop</div>`:"";
     const pct=Math.round(p.pSurvive*100);
     const tags=(p.urgent?`<span class="tag urg">NEED</span>`:"")
@@ -1001,9 +1040,9 @@ function render(){
       p.adp?"adp "+p.adp.toFixed(0):null, p.bye?"bye "+p.bye:null,
       p.auction?"$"+p.auction:null, p.startsNow?null:"bench"].filter(Boolean).join(" · ");
     const sel = S.selected===p.sleeper_id;
-    return cliff + `
+    return header + cliff + `
       <div class="row ${sel?"sel":""}" data-id="${p.sleeper_id}" style="--tier:${p.tier?tierHue(p.tier):"transparent"}">
-        <div class="rank">${p.myRank??"·"}</div>
+        <div class="rank">${rankCell(p)}</div>
         <div class="who"><b>${esc(p.name)}${tags}</b>
           <small>${meta}${p.injury_status?` <span class="inj">${esc(p.injury_status)}</span>`:""}</small></div>
         <div class="edge"><b class="${p.edge<=0?"neg":""}">${p.edge>0?"+":""}${p.edge.toFixed(1)}</b>
@@ -1023,6 +1062,10 @@ function drawerHTML(p, d){
       + (p.note?.nudge?` ${p.note.nudge>0?"+":""}${p.note.nudge} manual`:""),
     `<b>${p.vorp.toFixed(1)}</b> VORP vs ${p.pos}${d.repl.ranks[p.pos]} at ${d.repl.base[p.pos].toFixed(1)}`,
     `<b>${p.adjValue.toFixed(1)}</b> after lineup fit — ${p.startsNow?`starts, +${p.marginal.toFixed(1)} to your lineup`:"bench body"}`,
+    (p.myRank!=null && p.consRank!=null)
+      ? `<b>#${p.myRank}</b> on your board, <b>#${p.consRank}</b> consensus`
+        + (p.adp ? ` (ADP ${p.adp.toFixed(1)})` : "")
+      : `<b>#${p.consRank ?? "?"}</b> consensus${p.adp?` (ADP ${p.adp.toFixed(1)})`:""}`,
     ...(p.trait?.checks||[]).map(c=>{
       const col = c.verdict==="good" ? "var(--turf)" : c.verdict==="bad" ? "#E89484" : "var(--dim)";
       return `<b style="color:${col}">${c.label}</b> ${esc(c.detail)}`;
@@ -1044,7 +1087,13 @@ function drawerHTML(p, d){
   </div>`;
 }
 
+function renderPresetBar(){
+  $("presetGroup").innerHTML = BROWSE_PRESETS.map(p=>
+    `<button data-preset="${p.key}" aria-pressed="${S.browse?.id==="browse:"+p.key}">${esc(p.label)}</button>`
+  ).join("");
+}
 function renderChrome(){
+  renderPresetBar();
   $("profileSel").innerHTML = S.profiles.length
     ? S.profiles.map(p=>`<option value="${p.id}" ${p.id===S.activeId?"selected":""}>${esc(p.label)}</option>`).join("")
     : `<option>no drafts yet</option>`;
@@ -1055,6 +1104,7 @@ function renderChrome(){
     if(sf) bits.push("SUPERFLEX");
     if(pr.teBonus) bits.push(`TE+${pr.teBonus}`);
     if(pr.isMock) bits.push("MOCK");
+    if(pr.isBrowse) bits.push("BROWSE");
     chip.textContent=bits.join(" · "); chip.className="chip";
   } else { chip.textContent="no draft"; chip.className="chip warn"; }
   const mc=$("modeChip");
@@ -1071,6 +1121,21 @@ function renderChrome(){
   $("fmtSel").innerHTML=S.formats.map(f=>`<option value="${f.id}" ${pr&&pr.formatId===f.id?"selected":""}>${esc(f.label)}</option>`).join("");
   if(pr){ $("slot").value=pr.slot||""; $("slots").value=(pr.slots||[]).join(" "); }
 }
+/* Your board on top, the market's underneath. The arrow is how far apart
+   they are — that gap is the whole point of the exercise. */
+function rankCell(p){
+  const mine = p.myRank ?? null, cons = p.consRank ?? null;
+  if(mine == null) return `<b style="color:var(--dim)">·</b><s>${cons ?? ""}</s>`;
+  if(cons == null) return `<b>${mine}</b>`;
+  // Positive diff = your rank number is lower than consensus = you like him
+  // more than the room does. Arrow direction and color must agree: up/green
+  // for a player you're bullish on, down/red for one you're faded on.
+  const diff = cons - mine;
+  const cls = diff >= 8 ? "up" : diff <= -8 ? "dn" : "";
+  const arrow = diff > 0 ? "\u25b2" : diff < 0 ? "\u25bc" : "";
+  return `<b>${mine}</b><s class="${cls}" title="consensus ${cons}">${arrow}${cons}</s>`;
+}
+
 const tierHue=t=>["#4ADE6A","#DCE4D6","#E8B44A","#7FB2E5","#D2564A","#B48CE0","#6FD3C7"][(t-1)%7];
 
 /* ==================================================================
@@ -1192,6 +1257,31 @@ async function addMock(){
   }
 }
 
+function selectPreset(key){
+  const preset = BROWSE_PRESETS.find(x=>x.key===key); if(!preset) return;
+  const slots = [...BASE_SLOTS]; if(preset.sf) slots.push("SUPER_FLEX");
+  const carryRanks = S.browse?.id === "browse:"+key ? S.browse.rankSetId : "";
+  S.browse = {
+    id:"browse:"+key, label:"Browse — "+preset.label, isBrowse:true,
+    league_id:"", draft_id:"", user_id:"", slot:null,
+    teams:12, ppr:preset.ppr, qbs:preset.sf?2:1, slots, teBonus:preset.teBonus, passTd:4,
+    rankSetId: carryRanks, msSetId:"",
+  };
+  S.activeId = null;
+  localStorage.setItem("goinglong.browsePreset", key);
+  activateBrowse();
+}
+async function activateBrowse(){
+  clearInterval(S.timer);
+  S.draft=null; S.picks=[]; S.selected=null; S.manualPicks=[];
+  syncPicked();
+  const fmt = pickFormat(S.browse);
+  S.browse.formatId = fmt?.id || null;
+  if(S.browse.formatId) await loadFormat(S.browse.formatId);
+  autoPickRankSet();
+  buildPool(); render();
+  setStatus("browsing");
+}
 async function activate(){
   const pr=profile(); if(!pr){ render(); return; }
   clearInterval(S.timer);
@@ -1481,6 +1571,10 @@ function wire(){
       save(); activate();
     }
   });
+  $("presetGroup").addEventListener("click",e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    selectPreset(b.dataset.preset);
+  });
   $("findLeagues").addEventListener("click",findLeagues);
   $("leagueSel").addEventListener("change",loadDrafts);
   $("addProfile").addEventListener("click",addProfile);
@@ -1521,7 +1615,12 @@ async function boot(){
   loadLocal();
   $("username").value=localStorage.getItem("goinglong.username")||"";
   wire(); await loadBase();
-  if(profile()) await activate(); else render();
+  if(S.profiles.find(p=>p.id===S.activeId)){
+    await activate();
+  } else {
+    const remembered = localStorage.getItem("goinglong.browsePreset") || "ppr";
+    selectPreset(remembered);
+  }
 }
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden) clearInterval(S.timer);
