@@ -285,6 +285,75 @@
     .tl-item{ font-size:12px; grid-template-columns:1fr auto auto; }
     .tl-item small{ font-size:9px; }
   }
+
+  /* ==================================================================
+     BETTING — own token namespace. Black + orange, distinct from Going
+     Long's turf-green identity elsewhere, scoped entirely under .bt-
+     so nothing here can leak into the draft board or trade view. */
+  #view-betting{
+    --bt-ink:#0A0806; --bt-panel:#161109; --bt-panel-2:#1E1710; --bt-line:#2E2416;
+    --bt-orange:#FF7A1A; --bt-orange-deep:#B8560F; --bt-bone:#F0E9DE; --bt-mute:#9C8E78; --bt-dim:#6B6252;
+    --bt-pos:#4ADE6A; --bt-neg:#E85B4A;
+    max-width:1000px; margin:0 auto; padding:20px 16px 40px; background:var(--bt-ink);
+  }
+  .bt-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .bt-head h2{ font:700 26px/1.1 "Barlow Condensed",sans-serif; color:var(--bt-bone); text-transform:uppercase; letter-spacing:.02em; margin:0; }
+  #view-betting .pos-group{ border-color:var(--bt-line); }
+  #view-betting .pos-group button{ color:var(--bt-mute) }
+  #view-betting .pos-group button+button{ border-color:var(--bt-line) }
+  #view-betting .pos-group button[aria-pressed="true"]{ background:var(--bt-orange); color:#1A0D00; }
+  .bt-note{ font:400 12px/1.5 "IBM Plex Mono",monospace; color:var(--bt-dim); margin:10px 0 16px; }
+  .bt-controls{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:12px; }
+  .bt-toggle{ display:flex; align-items:center; gap:6px; font:400 12px/1 "IBM Plex Mono",monospace; color:var(--bt-mute); }
+  #view-betting .field{ background:var(--bt-panel); border:1px solid var(--bt-line); color:var(--bt-bone); }
+  #view-betting .field:focus-visible{ outline:2px solid var(--bt-orange); }
+
+  .bt-table{ display:flex; flex-direction:column; gap:6px; }
+  .bt-row{
+    display:grid; grid-template-columns:1fr 82px 66px 66px 84px;
+    gap:10px; align-items:center; padding:10px 12px;
+    background:var(--bt-panel); border:1px solid var(--bt-line); border-radius:5px;
+  }
+  .bt-row .bt-who b{ font:600 15px/1.2 "Barlow Condensed",sans-serif; color:var(--bt-bone); display:block; }
+  .bt-row .bt-who small{ font:400 11px/1.3 "IBM Plex Mono",monospace; color:var(--bt-dim); }
+  .bt-row .bt-line{ font:500 13px/1 "IBM Plex Mono",monospace; color:var(--bt-mute); text-align:right; }
+  .bt-row .bt-odds{ font:500 13px/1 "IBM Plex Mono",monospace; color:var(--bt-mute); text-align:right; }
+  .bt-ev{ font:700 15px/1 "IBM Plex Mono",monospace; text-align:right; padding:3px 6px; border-radius:3px; }
+  .bt-ev.hi{ color:var(--bt-pos); background:rgba(74,222,106,.12); }
+  .bt-ev.mid{ color:var(--bt-orange); background:rgba(255,122,26,.10); }
+  .bt-ev.neg{ color:var(--bt-neg); background:rgba(232,91,74,.10); }
+  .bt-kelly{ font:400 11px/1.3 "IBM Plex Mono",monospace; color:var(--bt-mute); text-align:right; }
+  .bt-kelly b{ color:var(--bt-orange); font-weight:600; }
+  .bt-empty{ padding:30px 16px; text-align:center; color:var(--bt-dim); font:400 13px/1.6 Inter,sans-serif; }
+
+  .bt-games{ display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+  .bt-game{ background:var(--bt-panel); border:1px solid var(--bt-line); border-radius:6px; padding:14px; }
+  .bt-game-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+  .bt-game-head b{ font:600 17px/1.1 "Barlow Condensed",sans-serif; color:var(--bt-bone); }
+  .bt-game-head span{ font:400 11px/1 "IBM Plex Mono",monospace; color:var(--bt-dim); }
+  .bt-lines{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:8px; }
+  .bt-lines div{ text-align:center; }
+  .bt-lines label{ display:block; font:600 10px/1 "IBM Plex Mono",monospace; letter-spacing:.08em; color:var(--bt-dim); text-transform:uppercase; margin-bottom:4px; }
+  .bt-lines b{ font:600 18px/1 "IBM Plex Mono",monospace; color:var(--bt-bone); }
+  .bt-implied{ display:flex; justify-content:space-between; font:400 12px/1.4 "IBM Plex Mono",monospace; color:var(--bt-mute); padding-top:8px; border-top:1px solid var(--bt-line); }
+  .bt-key{ display:inline-block; margin-top:8px; padding:2px 7px; border-radius:3px; font:600 10px/1.6 "IBM Plex Mono",monospace; letter-spacing:.05em; }
+  .bt-key.on{ background:rgba(255,122,26,.16); color:var(--bt-orange); }
+  .bt-key.near{ background:rgba(240,233,222,.08); color:var(--bt-mute); }
+  .bt-fair{ margin-top:8px; font:400 11px/1.5 "IBM Plex Mono",monospace; color:var(--bt-dim); }
+  .bt-fair b{ color:var(--bt-orange); }
+
+  @media (max-width:700px){
+    .bt-row{ grid-template-columns:1fr 70px 56px 50px; }
+    .bt-row .bt-kelly{ display:none; }
+    .bt-lines{ grid-template-columns:1fr 1fr; }
+  }
+  @media (max-width:430px){
+    #view-betting{ padding:14px 10px 32px; }
+    .bt-head h2{ font-size:21px; }
+    .bt-row{ grid-template-columns:1fr 60px 48px; gap:6px; padding:8px 9px; font-size:12px; }
+    .bt-row .bt-odds{ display:none; }
+    .bt-lines b{ font-size:15px; }
+  }
 </style>
 </head>
 <body>
@@ -497,9 +566,69 @@
   </div>
 </div>
 
+<div class="gl-view" id="view-betting">
+  <div class="bt-wrap">
+    <div class="bt-head">
+      <h2>Betting</h2>
+      <div class="pos-group" id="btTabGroup">
+        <button data-tab="props" aria-pressed="true">Player Props</button>
+        <button data-tab="games" aria-pressed="false">Game Lines</button>
+      </div>
+    </div>
+    <p class="bt-note">Manual/paste entry only — no live odds feed is wired in yet. Everything below runs on whatever you paste in.</p>
+
+    <!-- ============ PROPS TAB ============ -->
+    <section class="bt-panel" id="btPropsPanel">
+      <div class="bt-controls">
+        <div class="pos-group" id="btMarketGroup">
+          <button data-market="ALL" aria-pressed="true">ALL</button>
+          <button data-market="pass_yds">Pass Yds</button>
+          <button data-market="rush_yds">Rush Yds</button>
+          <button data-market="rec_yds">Rec Yds</button>
+          <button data-market="atd">ATD</button>
+        </div>
+        <select id="btSort" class="field">
+          <option value="ev">Sort: EV%</option>
+          <option value="disc">Sort: Line discrepancy</option>
+          <option value="time">Sort: Kickoff</option>
+        </select>
+        <label class="bt-toggle"><input type="checkbox" id="btLognormal"> Lognormal (yardage props)</label>
+      </div>
+      <div class="bt-table" id="btPropsTable"></div>
+      <details class="setup">
+        <summary>Paste props</summary>
+        <div class="setup-body">
+          <p class="note">One per line, tab or comma separated:<br>
+            <span class="mono">player, team, opp, market, line, overOdds, underOdds, projMean, projSd, kickoffISO</span><br>
+            For ATD rows: <span class="mono">player, team, opp, atd, , atdOdds, , eTD, , kickoffISO</span> — leave line/underOdds/projSd blank, put λ (expected TDs) in the projMean slot.</p>
+          <textarea id="btPropsPaste" class="field" placeholder="Josh Allen, BUF, MIA, pass_yds, 249.5, -110, -110, 262, 45, 2026-09-14T17:00:00Z"></textarea>
+          <button class="btn" id="btImportProps">Import props</button>
+          <div id="btPropsResult"></div>
+        </div>
+      </details>
+    </section>
+
+    <!-- ============ GAMES TAB ============ -->
+    <section class="bt-panel" id="btGamesPanel" hidden>
+      <div class="bt-games" id="btGamesList"></div>
+      <details class="setup">
+        <summary>Paste game lines</summary>
+        <div class="setup-body">
+          <p class="note">One per line: <span class="mono">away, home, spread(home), total, mlAway, mlHome, kickoffISO[, awayRating, homeRating]</span><br>
+            Spread is the <b>home</b> team's number (negative = home favored). Ratings are optional — omit them and the fair-line estimator just won't show anything for that game.</p>
+          <textarea id="btGamesPaste" class="field" placeholder="MIA, BUF, -6.5, 47.5, 220, -260, 2026-09-14T17:00:00Z"></textarea>
+          <button class="btn" id="btImportGames">Import games</button>
+          <div id="btGamesResult"></div>
+        </div>
+      </details>
+    </section>
+  </div>
+</div>
+
 <nav id="glNav">
   <button data-view="draft" aria-current="true"><span class="ic">&#9673;</span>Draft</button>
   <button data-view="trade"><span class="ic">&#8646;</span>Trade</button>
+  <button data-view="betting"><span class="ic">&#128176;</span>Betting</button>
   <button data-view="settings"><span class="ic">&#9881;</span>Settings</button>
   <button data-view="gateway"><span class="ic">&#8617;</span>Gateway</button>
 </nav>
@@ -527,7 +656,7 @@
   const gateway = document.getElementById("gateway");
   const app = document.getElementById("app-goinglong");
   const nav = document.getElementById("glNav");
-  const views = { draft: document.getElementById("view-draft"), trade: document.getElementById("view-trade") };
+  const views = { draft: document.getElementById("view-draft"), trade: document.getElementById("view-trade"), betting: document.getElementById("view-betting") };
 
   function showGateway(){
     document.documentElement.classList.remove("gl-boot-fantasy");
@@ -563,6 +692,9 @@
     });
     if(name === "trade"){
       window.renderTrade?.();   // defined in the main engine script below this one
+    }
+    if(name === "betting"){
+      window.renderBetting?.();
     }
     if(name === "settings"){
       // Settings already exists — it's the Setup panel in the draft
@@ -868,7 +1000,12 @@ function teamScores(pool){
   for(const s of Object.values(t)){
     s.env = s.QB + s.RB + s.WR + s.TE;
     s.pc  = s.WR + s.TE;            // Pass-Catcher Score excludes the QB
-    s.pass = s.pc + s.QB;           // Passing Game Score includes him
+    // Passing Game Score (Gdula, per the guide): the SHARE of a team's
+    // expected offensive output coming from the passing game — QB+WR+TE —
+    // explicitly excluding RB. A percentage, not a raw point total. The
+    // previous version of this summed points instead of computing a share,
+    // and the result was never actually read anywhere.
+    s.passShare = s.env > 0 ? (s.QB + s.WR + s.TE) / s.env : null;
   }
   return t;
 }
@@ -881,7 +1018,21 @@ function terciles(vals){
   return [v[Math.floor(v.length/3)], v[Math.floor(v.length*2/3)]];
 }
 
-function guideChecks(p, ts, cuts){
+/* Per-team RB list, sorted by ADP, earliest first. teamScores() only keeps
+   aggregate sums — the Handcuff check below needs an actual reference to
+   "who's the established lead back," not just a total, so it gets its own
+   small structure. */
+function teamRBGroups(pool){
+  const g = {};
+  for(const p of pool){
+    if(p.pos !== "RB" || !p.team) continue;
+    (g[p.team] ||= []).push(p);
+  }
+  for(const list of Object.values(g)) list.sort((a,b)=>(a.adp||999)-(b.adp||999));
+  return g;
+}
+
+function guideChecks(p, ts, cuts, rbGroups){
   const out = [];
   const n1 = p.n1, cy = p.careerYear, pr = p.posAdpRank;
   const add = (label, verdict, detail, mult) => out.push({label, verdict, detail, mult});
@@ -924,6 +1075,31 @@ function guideChecks(p, ts, cuts){
       else if(mates > hi) add("Backfield", "bad", `crowded — teammate RBs worth ${mates.toFixed(1)} expected PPG`, 0.95);
       else add("Backfield", "ok", `clear — teammate RBs worth ${mates.toFixed(1)}`, 1);
     }
+    /* Handcuff: "a backup running back whose value is almost entirely
+       dependent on his starter getting hurt" — the guide's own definition,
+       plus an explicit "don't draft handcuffs" recommendation. There's no
+       published numeric threshold for this in the guide, so the 60-pick
+       gap and the rec_fp/tgt_pg cutoffs below are my own engineering
+       judgment call, not a sourced number — same caveat as the archetype
+       badges. This only evaluates non-rookies with a real or missing n1;
+       true rookies never reach this function at all (they're intercepted
+       by the rookie branch in traitOf), so a rookie sitting behind an
+       established veteran currently isn't caught by this check. */
+    if(pr >= 25 && rbGroups){
+      const group = rbGroups[p.team] || [];
+      const lead = group[0];
+      if(lead && lead.sleeper_id !== p.sleeper_id && p.adp && lead.adp){
+        const gap = p.adp - lead.adp;
+        if(gap >= 60){
+          const thinRole = n1 ? (n1.rec_fp < 2 && n1.tgt_pg < 1.0) : true;
+          if(thinRole){
+            add("Handcuff", "bad",
+              `backs up ${lead.name} (ADP ${lead.adp.toFixed(0)} vs his own ${p.adp.toFixed(0)}) with no standalone receiving role — pure injury insurance`,
+              0.90);
+          }
+        }
+      }
+    }
     if(n1 && n1.rush10 != null && pr >= 43 && n1.car >= 50){
       if(n1.rush10 >= T.rbRush10) add("Explosiveness", "good", `${(n1.rush10*100).toFixed(1)}% of carries went 10+`, 1.07);
       else add("Explosiveness", "ok", `${(n1.rush10*100).toFixed(1)}% of carries went 10+`, 1);
@@ -960,6 +1136,11 @@ function guideChecks(p, ts, cuts){
       else if(mates <= cuts.pc[0]) add("Target competition", "good", `targets available — ${mates.toFixed(1)} expected PPG around him`, 1.05);
     }
     if(team && pr <= 18 && team.env >= cuts.env[1]) add("Team environment", "good", "top-tercile offense by ADP", 1.03);
+    if(team && pr <= 18 && team.passShare != null){
+      const [lo, hi] = cuts.passShare;
+      if(team.passShare >= hi) add("Passing Game Score", "good", `${(team.passShare*100).toFixed(0)}% of team output projects through the pass game`, 1.03);
+      else if(team.passShare <= lo) add("Passing Game Score", "bad", `${(team.passShare*100).toFixed(0)}% — a run-leaning offense by ADP`, 0.97);
+    }
   }
 
   if(p.pos === "TE"){
@@ -1020,9 +1201,9 @@ function rookieTrait(p){
           rookie:true};
 }
 
-function traitOf(p, ts, cuts){
+function traitOf(p, ts, cuts, rbGroups){
   if(p.rookie) return rookieTrait(p);
-  const checks = guideChecks(p, ts, cuts);
+  const checks = guideChecks(p, ts, cuts, rbGroups);
   if(!checks.length) return null;
   const raw = checks.reduce((m,c)=>m*c.mult, 1);
   return {checks, mult: clamp(raw, 0.85, 1.15),
@@ -1177,13 +1358,15 @@ function buildPool(){
   const own = p => expPPG(p.pos, p.adp);
   const cuts = {
     env: terciles(teams.map(t=>t.env)),
+    passShare: terciles(teams.map(t=>t.passShare)),
     pc:  terciles(S.pool.filter(p=>inPool(p) && (p.pos==="WR"||p.pos==="TE"))
                         .map(p=>ts[p.team].pc - own(p))),
     rbMates: terciles(S.pool.filter(p=>inPool(p) && p.pos==="RB")
                             .map(p=>ts[p.team].RB - own(p))),
   };
+  const rbGroups = teamRBGroups(S.pool);
   S.teamScores = ts; S.cuts = cuts;
-  for(const p of S.pool){ p.trait = traitOf(p, ts, cuts); p.archetypes = archetypeOf(p); }
+  for(const p of S.pool){ p.trait = traitOf(p, ts, cuts, rbGroups); p.archetypes = archetypeOf(p); }
 
   for(const p of S.pool){
     const mult = scoringMult(p.pos, p.posAdpRank, scoring);
@@ -2332,6 +2515,301 @@ function wireTrade(){
 }
 window.renderTrade = renderTrade;   // called from the gateway script's setView("trade")
 
+/* ==================================================================
+   Betting — Player Props EV + Game Lines
+   ==================================================================
+   Everything here is real, tested math with no live data behind it —
+   there's no odds feed wired into this app. Every number on screen
+   comes from whatever's pasted into the two textareas below. That's by
+   design for now: DATA.md already scopes out free odds sources for
+   later, and faking data here would be worse than not having the tab.
+
+   One correction to the requested spec, worth stating plainly: the
+   literal lognormal formula as originally given —
+     P(Over) = 1 - Φ((ln(L) - μ) / σ)
+   — is only correct if μ and σ are the mean and stdev of ln(X), not of
+   the yardage itself. Feed it a real projection (mean 75, sd 25 rushing
+   yards) directly and it returns P(Over)≈99.8% on a line sitting almost
+   exactly at the mean — nonsensical, confirmed numerically before this
+   shipped. lognormalOverProb() below moment-matches a real yardage
+   mean/sd into the correct ln-space parameters first. normalOverProb()
+   is the literal, correctly-applied normal case, and stays the default —
+   it's the simpler, more standard choice for yardage props and doesn't
+   assume a skew the data may not have. Lognormal is available as an
+   explicit toggle for markets where right-skew is real (long-ball-heavy
+   passing yardage, boom/bust receivers).
+
+   eTD/team-implied-TD conversion: expected TDs is a genuinely different
+   quantity from implied point total (that mix depends on FG rate, 2pt
+   rate, defensive/special-teams scores). POINTS_PER_TD below is a labeled,
+   overridable constant, not hidden math — change it if you have a better
+   number.
+
+   Fair-spread estimator: real, correct math (rating differential + home
+   field), but nothing in this project currently computes power ratings.
+   It shows "no ratings loaded" until a game row actually has them. */
+
+const POINTS_PER_TD = 6.95;   // ~6 + PAT/2pt conversion mix — labeled, override freely
+const NFL_KEY_NUMBERS = [3,7,6,10,14,4];
+
+const BET = {
+  props: [], games: [],
+  market: "ALL", sort: "ev", lognormal: false, tab: "props",
+};
+
+/* ---- odds & probability math -------------------------------------- */
+function americanToDecimal(american){
+  const a = Number(american);
+  if(!Number.isFinite(a) || a === 0) return null;
+  return a < 0 ? 1 + 100/Math.abs(a) : 1 + a/100;
+}
+function decimalImpliedProb(decimal){ return decimal ? 1/decimal : null; }
+
+/* Normal case, applied correctly and directly to yardage mean/sd. */
+function normalOverProb(line, mean, sd){
+  if(!sd || sd <= 0) return null;
+  return 1 - cdf((line - mean) / sd);
+}
+/* Lognormal, with the mean/sd you'd actually have (yardage-space)
+   moment-matched into ln-space before the CDF is applied. This is the
+   fix for the formula error described above. */
+function lognormalOverProb(line, mean, sd){
+  if(!sd || sd <= 0 || !mean || mean <= 0 || line <= 0) return null;
+  const variance = sd*sd;
+  const sigmaLog = Math.sqrt(Math.log(1 + variance/(mean*mean)));
+  const muLog = Math.log(mean*mean / Math.sqrt(variance + mean*mean));
+  return 1 - cdf((Math.log(line) - muLog) / sigmaLog);
+}
+function yardageOverProb(line, mean, sd, useLognormal){
+  return useLognormal ? lognormalOverProb(line, mean, sd) : normalOverProb(line, mean, sd);
+}
+
+/* Anytime TD: P(at least one) = 1 - e^-λ. Correct as given — this part
+   of the request had no error. λ is the player's own expected TD count,
+   not the team's; see impliedTeamTDs() below for the team-level step. */
+function poissonAtLeastOne(lambda){
+  if(lambda == null || lambda < 0) return null;
+  return 1 - Math.exp(-lambda);
+}
+function impliedTeamTDs(impliedPoints, pointsPerTd){
+  return impliedPoints / (pointsPerTd || POINTS_PER_TD);
+}
+
+function evPercent(pModel, decimal){
+  if(pModel == null || !decimal) return null;
+  return pModel*decimal - 1;
+}
+
+/* Quarter-Kelly, clamped at zero — a negative Kelly means "don't bet,"
+   not "bet a negative amount," and displaying the raw negative number
+   is the kind of thing that gets misread at a glance. */
+function kellyFraction(pModel, decimal, fraction){
+  fraction = fraction ?? 0.25;
+  if(pModel == null || !decimal || decimal <= 1) return 0;
+  const b = decimal - 1, q = 1 - pModel;
+  const full = (b*pModel - q) / b;
+  return Math.max(0, full * fraction);
+}
+
+/* ---- game lines math ------------------------------------------------ */
+function impliedTeamTotals(total, spread){
+  // spread convention here: negative = home favored, matching the paste
+  // format documented in the UI (spread is always the home team's number).
+  const favMargin = Math.abs(spread);
+  const fav = (total + favMargin) / 2;
+  const dog = (total - favMargin) / 2;
+  return spread <= 0 ? {home:fav, away:dog} : {home:dog, away:fav};
+}
+function keyNumberDistance(spread){
+  const abs = Math.abs(spread);
+  let best = null;
+  for(const k of NFL_KEY_NUMBERS){
+    const d = Math.abs(abs - k);
+    if(best == null || d < best.d) best = {key:k, d};
+  }
+  return best;
+}
+/* Real math, no data: spread = (away rating - home rating) - home field
+   edge, using the same "negative = home favored" convention as above.
+   Returns null rather than a fabricated number when ratings are absent. */
+function fairSpread(homeRating, awayRating, hfa){
+  if(homeRating == null || awayRating == null) return null;
+  hfa = hfa ?? 1.5;
+  return (awayRating - homeRating) - hfa;
+}
+
+/* ---- per-row computation -------------------------------------------- */
+function computePropRow(p){
+  if(p.market === "atd"){
+    const lambda = p.projMean;   // eTD (lambda) is stored in the projMean slot for ATD rows
+    const prob = poissonAtLeastOne(lambda);
+    const dec = americanToDecimal(p.overOdds);   // atdOdds goes in the overOdds slot
+    return {prob, dec, ev: evPercent(prob, dec), kelly: kellyFraction(prob, dec), side:"Yes"};
+  }
+  const prob = yardageOverProb(p.line, p.projMean, p.projSd, BET.lognormal);
+  const decOver = americanToDecimal(p.overOdds), decUnder = americanToDecimal(p.underOdds);
+  const evOver  = evPercent(prob, decOver);
+  const evUnder = evPercent(prob!=null ? 1-prob : null, decUnder);
+  if(evOver != null && (evUnder == null || evOver >= evUnder))
+    return {prob, dec:decOver, ev:evOver, kelly:kellyFraction(prob, decOver), side:"Over"};
+  if(evUnder != null)
+    return {prob:1-prob, dec:decUnder, ev:evUnder, kelly:kellyFraction(1-prob, decUnder), side:"Under"};
+  return {prob, dec:null, ev:null, kelly:0, side:"—"};
+}
+function propDiscrepancy(p, row){
+  if(p.market === "atd") return (row.prob!=null && row.dec) ? Math.abs(row.prob - decimalImpliedProb(row.dec)) : 0;
+  return (p.projMean!=null && p.line!=null) ? Math.abs(p.projMean - p.line) : 0;
+}
+function evClass(ev){
+  if(ev == null) return "";
+  if(ev > 0.05) return "hi";
+  if(ev >= 0) return "mid";
+  return "neg";
+}
+function americanOddsLabel(odds){
+  if(odds == null || isNaN(odds)) return "—";
+  return (odds > 0 ? "+" : "") + odds;
+}
+
+/* ---- paste parsers ---------------------------------------------------
+   Same freeform-line pattern the rankings/Market Score importers already
+   use elsewhere in this app — tab or comma separated, one row per line,
+   trailing fields optional. */
+function parsePropsPaste(text){
+  const rows = [];
+  for(const raw of text.split(/\r?\n/)){
+    const line = raw.trim(); if(!line) continue;
+    const parts = line.split(/\t|,\s*/).map(s=>s.trim());
+    if(parts.length < 4) continue;
+    const [player, team, opp, market, lineVal, overOdds, underOdds, projMean, projSd, kickoff] = parts;
+    rows.push({
+      id: uid(), player, team: team||"", opp: opp||"", market: (market||"").toLowerCase(),
+      line: lineVal ? Number(lineVal) : null,
+      overOdds: overOdds ? Number(overOdds) : null,
+      underOdds: underOdds ? Number(underOdds) : null,
+      projMean: projMean ? Number(projMean) : null,
+      projSd: projSd ? Number(projSd) : null,
+      kickoff: kickoff || null,
+    });
+  }
+  return rows;
+}
+function parseGamesPaste(text){
+  const rows = [];
+  for(const raw of text.split(/\r?\n/)){
+    const line = raw.trim(); if(!line) continue;
+    const parts = line.split(/\t|,\s*/).map(s=>s.trim());
+    if(parts.length < 6) continue;
+    const [away, home, spread, total, mlAway, mlHome, kickoff, awayRating, homeRating] = parts;
+    rows.push({
+      id: uid(), away, home,
+      spread: Number(spread), total: Number(total),
+      mlAway: mlAway ? Number(mlAway) : null, mlHome: mlHome ? Number(mlHome) : null,
+      kickoff: kickoff || null,
+      awayRating: (awayRating!=null && awayRating!=="") ? Number(awayRating) : null,
+      homeRating: (homeRating!=null && homeRating!=="") ? Number(homeRating) : null,
+    });
+  }
+  return rows;
+}
+
+/* ---- rendering --------------------------------------------------------*/
+const MARKET_LABEL = {pass_yds:"Pass Yds", rush_yds:"Rush Yds", rec_yds:"Rec Yds", atd:"ATD"};
+
+function renderPropsTable(){
+  const el = $("btPropsTable");
+  if(!el) return;
+  let rows = BET.props.map(p => ({p, row: computePropRow(p)}));
+  if(BET.market !== "ALL") rows = rows.filter(x => x.p.market === BET.market);
+  const sorters = {
+    ev:   (a,b) => (b.row.ev ?? -1) - (a.row.ev ?? -1),
+    disc: (a,b) => propDiscrepancy(b.p,b.row) - propDiscrepancy(a.p,a.row),
+    time: (a,b) => (a.p.kickoff||"").localeCompare(b.p.kickoff||""),
+  };
+  rows.sort(sorters[BET.sort]);
+  if(!rows.length){ el.innerHTML = `<div class="bt-empty">No props loaded. Paste some below.</div>`; return; }
+  el.innerHTML = rows.map(({p,row})=>{
+    const evPct = row.ev != null ? row.ev*100 : null;
+    const lineTxt = p.market==="atd" ? `λ ${p.projMean!=null?p.projMean.toFixed(2):"—"}` : (p.line!=null?p.line.toFixed(1):"—");
+    const oddsVal = row.side==="Under" ? p.underOdds : p.overOdds;
+    return `<div class="bt-row">
+      <div class="bt-who"><b>${esc(p.player)}</b><small>${esc(p.team)} vs ${esc(p.opp)} · ${MARKET_LABEL[p.market]||esc(p.market)}</small></div>
+      <div class="bt-line">${row.side!=="—"?row.side+" ":""}${lineTxt}</div>
+      <div class="bt-odds">${americanOddsLabel(oddsVal)}</div>
+      <div class="bt-ev ${evClass(row.ev)}">${evPct!=null?(evPct>0?"+":"")+evPct.toFixed(1)+"%":"—"}</div>
+      <div class="bt-kelly">${row.kelly>0?`<b>${(row.kelly*100).toFixed(1)}%</b> bankroll`:"—"}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderGamesList(){
+  const el = $("btGamesList");
+  if(!el) return;
+  if(!BET.games.length){ el.innerHTML = `<div class="bt-empty">No games loaded. Paste some below.</div>`; return; }
+  el.innerHTML = BET.games.map(g=>{
+    const it = impliedTeamTotals(g.total, g.spread);
+    const kn = keyNumberDistance(g.spread);
+    const knTag = kn.d===0 ? `<span class="bt-key on">ON KEY ${kn.key}</span>`
+                : kn.d<=1 ? `<span class="bt-key near">±${kn.d} from key ${kn.key}</span>` : "";
+    const fs = fairSpread(g.homeRating, g.awayRating);
+    const fmtSpread = v => v<=0 ? v.toFixed(1) : "+"+v.toFixed(1);
+    const fairTxt = fs != null
+      ? `<div class="bt-fair">Fair spread (ratings): <b>${esc(g.home)} ${fmtSpread(fs)}</b> vs market ${esc(g.home)} ${fmtSpread(g.spread)}</div>`
+      : `<div class="bt-fair">No power ratings loaded for this game — market line only.</div>`;
+    const homeFav = g.spread <= 0;
+    const spreadTxt = `${homeFav?esc(g.home):esc(g.away)} ${(-Math.abs(g.spread)).toFixed(1)}`;
+    return `<div class="bt-game">
+      <div class="bt-game-head"><b>${esc(g.away)} @ ${esc(g.home)}</b><span>${esc(g.kickoff||"")}</span></div>
+      <div class="bt-lines">
+        <div><label>Spread</label><b>${spreadTxt}</b></div>
+        <div><label>Total</label><b>${g.total.toFixed(1)}</b></div>
+        <div><label>Moneyline</label><b>${americanOddsLabel(g.mlAway)} / ${americanOddsLabel(g.mlHome)}</b></div>
+      </div>
+      <div class="bt-implied"><span>${esc(g.away)} implied ${it.away.toFixed(1)}</span><span>${esc(g.home)} implied ${it.home.toFixed(1)}</span></div>
+      ${knTag}${fairTxt}
+    </div>`;
+  }).join("");
+}
+
+function renderBetting(){
+  if(!$("btPropsTable")) return;   // view not in the DOM yet — defensive no-op
+  renderPropsTable();
+  renderGamesList();
+}
+window.renderBetting = renderBetting;   // called from the gateway script's setView("betting")
+
+function wireBetting(){
+  const view = document.getElementById("view-betting");
+  if(!view) return;
+  $("btTabGroup").addEventListener("click", e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    BET.tab = b.dataset.tab;
+    [...$("btTabGroup").children].forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+    $("btPropsPanel").hidden = BET.tab !== "props";
+    $("btGamesPanel").hidden = BET.tab !== "games";
+  });
+  $("btMarketGroup").addEventListener("click", e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    BET.market = b.dataset.market;
+    [...$("btMarketGroup").children].forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+    renderPropsTable();
+  });
+  $("btSort").addEventListener("change", e=>{ BET.sort=e.target.value; renderPropsTable(); });
+  $("btLognormal").addEventListener("change", e=>{ BET.lognormal=e.target.checked; renderPropsTable(); });
+  $("btImportProps").addEventListener("click", ()=>{
+    const rows = parsePropsPaste($("btPropsPaste").value);
+    BET.props.push(...rows);
+    $("btPropsResult").innerHTML = `<p class="note">Imported ${rows.length} prop${rows.length!==1?"s":""}.</p>`;
+    renderPropsTable();
+  });
+  $("btImportGames").addEventListener("click", ()=>{
+    const rows = parseGamesPaste($("btGamesPaste").value);
+    BET.games.push(...rows);
+    $("btGamesResult").innerHTML = `<p class="note">Imported ${rows.length} game${rows.length!==1?"s":""}.</p>`;
+    renderGamesList();
+  });
+}
+
 function wire(){
   $("posGroup").addEventListener("click",e=>{
     const b=e.target.closest("button"); if(!b) return;
@@ -2419,7 +2897,7 @@ function wire(){
 async function boot(){
   loadLocal();
   $("username").value=localStorage.getItem("goinglong.username")||"";
-  wire(); wireTrade(); await loadBase();
+  wire(); wireTrade(); wireBetting(); await loadBase();
   if(S.profiles.find(p=>p.id===S.activeId)){
     await activate();
   } else {
