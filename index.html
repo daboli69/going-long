@@ -146,10 +146,182 @@
   .unmatched{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
   .unmatched div{display:grid;grid-template-columns:1fr 1fr;gap:6px;align-items:center;font-size:12px}
   @media (prefers-reduced-motion:no-preference){.row{transition:background .12s ease}}
+
+  /* ==================================================================
+     GATEWAY + NAV SHELL
+     Deliberately separate token set — this is the front door, not the
+     draft board, and doesn't touch --turf/--ink/etc. used everywhere
+     else in this file. Nothing below here can affect board rendering.
+     ================================================================== */
+  #gateway{
+    position:fixed; inset:0; z-index:100; display:none;
+    background:#000; color:#fff;
+    flex-direction:column; align-items:center; justify-content:center;
+    gap:28px; padding:24px;
+  }
+  #gateway.show{display:flex}
+  #app-goinglong{display:none}
+  #app-goinglong.show{display:block}
+  /* Synchronous initial state, set before paint — see the inline script
+     right after #gateway's markup. Prevents a flash of the wrong view. */
+  html.gl-boot-gateway #gateway{display:flex}
+  html.gl-boot-fantasy #app-goinglong{display:block}
+  #gateway .gw-title{
+    font:700 15px/1 "IBM Plex Mono",monospace; letter-spacing:.3em; text-transform:uppercase;
+    color:#666; margin-bottom:4px;
+  }
+  #gateway .gw-cards{
+    display:flex; gap:20px; flex-wrap:wrap; justify-content:center; max-width:820px;
+  }
+  .gw-card{
+    width:280px; padding:28px 24px; border-radius:10px; text-align:left;
+    background:#0a0a0a; border:1px solid #222; cursor:pointer;
+    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    font-family:Inter,system-ui,sans-serif;
+  }
+  .gw-card:hover, .gw-card:focus-visible{ transform:translateY(-4px); outline:none; }
+  .gw-card .gw-name{
+    font:700 26px/1.1 "Barlow Condensed",sans-serif; letter-spacing:.02em; text-transform:uppercase;
+    margin-bottom:8px;
+  }
+  .gw-card .gw-tag{ font-size:13px; line-height:1.5; color:#9a9a9a; margin-bottom:16px; }
+  .gw-card .gw-go{
+    font:600 11px/1 "IBM Plex Mono",monospace; letter-spacing:.12em; text-transform:uppercase;
+  }
+  .gw-card.gw-fantasy{ border-color:#1b4332; }
+  .gw-card.gw-fantasy:hover{ border-color:#00ff88; box-shadow:0 8px 28px rgba(0,255,136,.14); }
+  .gw-card.gw-fantasy .gw-name{ color:#00ff88; }
+  .gw-card.gw-fantasy .gw-go{ color:#00ff88; }
+  .gw-card.gw-betting{ border-color:#4a1e00; }
+  .gw-card.gw-betting:hover{ border-color:#ff6b35; box-shadow:0 8px 28px rgba(255,107,53,.14); }
+  .gw-card.gw-betting .gw-name{ color:#ff6b35; }
+  .gw-card.gw-betting .gw-go{ color:#ff6b35; }
+  #gateway .gw-foot{ font:400 11px/1.4 "IBM Plex Mono",monospace; color:#444; text-align:center; max-width:420px; }
+
+  /* Going Long's own nav shell — bottom bar on phones, top strip on desktop */
+  #glNav{
+    position:fixed; left:0; right:0; bottom:0; z-index:40;
+    display:flex; background:var(--panel); border-top:1px solid var(--line);
+    padding:6px calc(env(safe-area-inset-bottom) + 6px) calc(env(safe-area-inset-bottom) + 6px);
+  }
+  #glNav button{
+    flex:1; background:transparent; border:0; padding:8px 4px;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    color:var(--dim); font:500 10px/1 "IBM Plex Mono",monospace; letter-spacing:.04em; text-transform:uppercase;
+  }
+  #glNav button .ic{ font-size:16px; line-height:1 }
+  #glNav button[aria-current="true"]{ color:var(--turf) }
+  body.has-nav{ padding-bottom:64px; }
+  @media (min-width:760px){
+    #glNav{
+      position:sticky; top:0; bottom:auto; z-index:40;
+      border-top:0; border-bottom:1px solid var(--line); padding:0 16px;
+      justify-content:flex-end; gap:4px;
+    }
+    #glNav button{ flex:0 0 auto; flex-direction:row; padding:10px 14px; gap:6px; font-size:11px }
+    body.has-nav{ padding-bottom:0; }
+  }
+
+  .gl-view{ display:none; }
+  .gl-view.active{ display:block; }
+  #view-trade{ max-width:960px; margin:0 auto; padding:20px 16px 40px; }
+  .tl-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
+  .tl-head h2{ font:700 26px/1.1 "Barlow Condensed",sans-serif; color:var(--bone); text-transform:uppercase; letter-spacing:.02em; margin:0; }
+  .tl-note{ font:400 12px/1.5 "IBM Plex Mono",monospace; color:var(--mute); margin:6px 0 18px; }
+  .tl-note b{ color:var(--gold); }
+
+  .tl-verdict{
+    background:var(--panel); border:1px solid var(--line); border-radius:6px;
+    padding:16px; margin-bottom:20px; display:flex; flex-wrap:wrap; gap:18px; align-items:center;
+  }
+  .tl-verdict .tl-diff{ font:700 30px/1 "Barlow Condensed",sans-serif; letter-spacing:.01em; }
+  .tl-verdict .tl-diff.pos{ color:var(--turf); } .tl-verdict .tl-diff.neg{ color:#E89484; } .tl-verdict .tl-diff.flat{ color:var(--mute); }
+  .tl-verdict .tl-rec{ font:700 15px/1.3 "Barlow Condensed",sans-serif; text-transform:uppercase; letter-spacing:.02em; }
+  .tl-verdict .tl-sub{ font:400 12px/1.5 "IBM Plex Mono",monospace; color:var(--mute); flex-basis:100%; }
+  .tl-verdict.empty{ color:var(--dim); font:400 13px/1.5 Inter,sans-serif; }
+
+  .tl-cols{ display:grid; grid-template-columns:1fr 40px 1fr; gap:14px; align-items:start; }
+  .tl-arrows{ text-align:center; font-size:22px; color:var(--dim); padding-top:40px; }
+  .tl-side{ background:var(--panel); border:1px solid var(--line); border-radius:6px; padding:12px; min-width:0; }
+  .tl-side-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+  .tl-side-head b{ font:600 13px/1 "Barlow Condensed",sans-serif; text-transform:uppercase; letter-spacing:.04em; color:var(--bone); font-size:15px; }
+  .tl-total{ font:600 15px/1 "IBM Plex Mono",monospace; color:var(--turf); }
+  .tl-search{ position:relative; margin-bottom:8px; }
+  .tl-search .field{ width:100%; }
+  .tl-dropdown{
+    position:absolute; left:0; right:0; top:calc(100% + 2px); z-index:20;
+    background:var(--panel-2); border:1px solid var(--line); border-radius:4px;
+    max-height:220px; overflow-y:auto; display:none;
+  }
+  .tl-dropdown.show{ display:block; }
+  .tl-dropdown div{ padding:8px 10px; font-size:13px; cursor:pointer; display:flex; justify-content:space-between; gap:8px; }
+  .tl-dropdown div:hover{ background:var(--line); }
+  .tl-dropdown small{ color:var(--dim); font-family:"IBM Plex Mono",monospace; }
+  .tl-list{ margin-top:10px; display:flex; flex-direction:column; gap:6px; min-height:32px; }
+  .tl-item{
+    display:grid; grid-template-columns:1fr auto auto; gap:8px; align-items:center;
+    padding:7px 9px; background:var(--ink); border:1px solid var(--line); border-radius:4px; font-size:13px;
+  }
+  .tl-item b{ font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tl-item small{ display:block; color:var(--dim); font:400 10px/1.3 "IBM Plex Mono",monospace; }
+  .tl-item .tl-val{ font:500 12px/1 "IBM Plex Mono",monospace; color:var(--chalk); white-space:nowrap; }
+  .tl-item input.tl-pickval{
+    width:64px; background:var(--panel); border:1px solid var(--line); border-radius:3px;
+    color:var(--bone); font:500 12px/1 "IBM Plex Mono",monospace; padding:4px 6px; text-align:right;
+  }
+  .tl-item button{ background:transparent; border:0; color:var(--dim); font-size:15px; line-height:1; cursor:pointer; padding:2px 4px; }
+  .tl-item button:hover{ color:#E89484; }
+  .tl-empty-row{ color:var(--dim); font:400 12px/1.5 "IBM Plex Mono",monospace; padding:8px 2px; }
+  .tl-foot{ margin-top:18px; font:400 11.5px/1.6 "IBM Plex Mono",monospace; color:var(--dim); }
+
+  @media (max-width:700px){
+    .tl-cols{ grid-template-columns:1fr; }
+    .tl-arrows{ padding:2px 0; transform:rotate(90deg); }
+  }
+  @media (max-width:430px){
+    #view-trade{ padding:14px 10px 32px; }
+    .tl-head h2{ font-size:21px; }
+    .tl-verdict .tl-diff{ font-size:24px; }
+    .tl-item{ font-size:12px; grid-template-columns:1fr auto auto; }
+    .tl-item small{ font-size:9px; }
+  }
 </style>
 </head>
 <body>
 
+<div id="gateway">
+  <div class="gw-title">Select your game</div>
+  <div class="gw-cards">
+    <div class="gw-card gw-fantasy" data-mode="fantasy" tabindex="0" role="button">
+      <div class="gw-name">Going Long</div>
+      <div class="gw-tag">Fantasy draft &amp; roster intelligence — live boards, tiered rankings, trend checks pulled from real production.</div>
+      <div class="gw-go">Enter →</div>
+    </div>
+    <div class="gw-card gw-betting" data-mode="betting" tabindex="0" role="button">
+      <div class="gw-name">Going Yard</div>
+      <div class="gw-tag">Predictive sportsbook &amp; player props models.</div>
+      <div class="gw-go">Enter →</div>
+    </div>
+  </div>
+  <div class="gw-foot">Your last choice is remembered on this device. Use "Gateway" in the nav to switch anytime.</div>
+</div>
+
+<script>
+  /* Decide the initial view synchronously, before the rest of the page
+     paints, so there's no flash of the draft board behind the gateway
+     (or vice versa) on load. All the click-handling logic lives in the
+     main script at the bottom — this just sets the starting state. */
+  (function(){
+    var mode = localStorage.getItem("goinglong.gateway.mode");
+    if(mode === "fantasy"){
+      document.documentElement.classList.add("gl-boot-fantasy");
+    } else {
+      document.documentElement.classList.add("gl-boot-gateway");
+    }
+  })();
+</script>
+
+<div id="app-goinglong">
 <div class="clock">
   <div class="brand">Going<span>Long</span></div>
   <select id="profileSel" class="field" title="Active draft"></select>
@@ -163,6 +335,7 @@
   <div class="cstat"><span class="eyebrow">Feed</span><b id="cStatus" style="font-size:13px"><i class="dot"></i>idle</b></div>
 </div>
 
+<div class="gl-view active" id="view-draft">
 <div class="shell">
   <main class="panel">
     <div class="controls">
@@ -181,6 +354,7 @@
         <option value="vorp">Sort: VORP</option>
         <option value="ms">Sort: Market Score</option>
         <option value="adp">Sort: Consensus</option>
+        <option value="gap">Sort: Consensus Gap</option>
         <option value="survive">Sort: Least likely to last</option>
       </select>
       <label class="slider-wrap" title="Guide rankings vs. raw market ADP">
@@ -280,6 +454,150 @@
     </section>
   </aside>
 </div>
+</div>
+
+<div class="gl-view" id="view-trade">
+  <div class="tl-wrap">
+    <div class="tl-head">
+      <h2>Trade Analyzer</h2>
+      <div class="pos-group" id="tlModeGroup">
+        <button data-mode="redraft" aria-pressed="true">Redraft</button>
+        <button data-mode="dynasty" aria-pressed="false">Dynasty (KTC)</button>
+      </div>
+    </div>
+    <p class="tl-note" id="tlDataNote"></p>
+
+    <div class="tl-verdict" id="tlVerdict"></div>
+
+    <div class="tl-cols">
+      <section class="tl-side" data-side="A">
+        <div class="tl-side-head"><b>Team A sends</b><span class="tl-total" id="tlTotalA"></span></div>
+        <div class="tl-search">
+          <input class="field" id="tlSearchA" placeholder="Add a player…" autocomplete="off">
+          <div class="tl-dropdown" id="tlDropA"></div>
+        </div>
+        <button class="btn ghost tiny" data-add-pick="A">+ Add draft pick</button>
+        <div class="tl-list" id="tlListA"></div>
+      </section>
+
+      <div class="tl-arrows" aria-hidden="true">⇄</div>
+
+      <section class="tl-side" data-side="B">
+        <div class="tl-side-head"><b>Team B sends</b><span class="tl-total" id="tlTotalB"></span></div>
+        <div class="tl-search">
+          <input class="field" id="tlSearchB" placeholder="Add a player…" autocomplete="off">
+          <div class="tl-dropdown" id="tlDropB"></div>
+        </div>
+        <button class="btn ghost tiny" data-add-pick="B">+ Add draft pick</button>
+        <div class="tl-list" id="tlListB"></div>
+      </section>
+    </div>
+
+    <p class="tl-foot" id="tlFoot"></p>
+  </div>
+</div>
+
+<nav id="glNav">
+  <button data-view="draft" aria-current="true"><span class="ic">&#9673;</span>Draft</button>
+  <button data-view="trade"><span class="ic">&#8646;</span>Trade</button>
+  <button data-view="settings"><span class="ic">&#9881;</span>Settings</button>
+  <button data-view="gateway"><span class="ic">&#8617;</span>Gateway</button>
+</nav>
+
+</div>
+
+<script>
+"use strict";
+/* ==================================================================
+   Gateway + Going Long nav shell
+   ==================================================================
+   Deliberately separate from the draft engine below: it only ever
+   toggles CSS classes and localStorage, never touches S, never
+   re-renders the board. If this block were deleted entirely, the
+   draft board would still work exactly as before — it would just
+   always be visible instead of living behind a gateway.
+   ================================================================== */
+(function(){
+  const MODE_KEY = "goinglong.gateway.mode";
+  // Fill this in once your Going Yard app has a URL. Until then the
+  // betting card opens a labeled placeholder instead of pretending to
+  // merge two separate codebases.
+  const GOING_YARD_URL = "";
+
+  const gateway = document.getElementById("gateway");
+  const app = document.getElementById("app-goinglong");
+  const nav = document.getElementById("glNav");
+  const views = { draft: document.getElementById("view-draft"), trade: document.getElementById("view-trade") };
+
+  function showGateway(){
+    document.documentElement.classList.remove("gl-boot-fantasy");
+    document.documentElement.classList.add("gl-boot-gateway");
+    gateway.classList.add("show");
+    app.classList.remove("show");
+    document.body.classList.remove("has-nav");
+  }
+
+  function enterFantasy(){
+    localStorage.setItem(MODE_KEY, "fantasy");
+    document.documentElement.classList.remove("gl-boot-gateway");
+    document.documentElement.classList.add("gl-boot-fantasy");
+    gateway.classList.remove("show");
+    app.classList.add("show");
+    document.body.classList.add("has-nav");
+    setView("draft");
+  }
+
+  function enterBetting(){
+    if(GOING_YARD_URL){ window.location.href = GOING_YARD_URL; return; }
+    alert("Going Yard lives at its own address — add the URL to GOING_YARD_URL near the top of this script once it's live.");
+  }
+
+  function setView(name){
+    if(name === "gateway"){ showGateway(); return; }
+    for(const [key, el] of Object.entries(views)){
+      if(!el) continue;
+      el.classList.toggle("active", key === name);
+    }
+    nav.querySelectorAll("button").forEach(b=>{
+      b.setAttribute("aria-current", String(b.dataset.view === name));
+    });
+    if(name === "trade"){
+      window.renderTrade?.();   // defined in the main engine script below this one
+    }
+    if(name === "settings"){
+      // Settings already exists — it's the Setup panel in the draft
+      // rail. Rather than fork a second copy of it, jump there and open it.
+      views.draft.classList.add("active");
+      views.trade.classList.remove("active");
+      nav.querySelector('[data-view="draft"]').setAttribute("aria-current","true");
+      nav.querySelector('[data-view="settings"]').removeAttribute("aria-current");
+      const setupPanels = document.querySelectorAll(".setup");
+      setupPanels.forEach(d => d.setAttribute("open",""));
+      setupPanels[0]?.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  }
+
+  document.querySelectorAll(".gw-card").forEach(card=>{
+    const go = () => card.dataset.mode === "betting" ? enterBetting() : enterFantasy();
+    card.addEventListener("click", go);
+    card.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } });
+  });
+  nav.addEventListener("click", e=>{
+    const b = e.target.closest("button"); if(!b) return;
+    setView(b.dataset.view);
+  });
+
+  // Initial state was already set synchronously (see the tiny inline
+  // script above #app-goinglong) to avoid a flash. This just finishes
+  // the wiring — nav visibility and the has-nav body padding.
+  if(document.documentElement.classList.contains("gl-boot-fantasy")){
+    app.classList.add("show");
+    document.body.classList.add("has-nav");
+  } else {
+    gateway.classList.add("show");
+  }
+})();
+</script>
 
 <script>
 "use strict";
@@ -358,7 +676,7 @@ const S = {
   profiles:[], sets:{}, ms:{}, notes:{}, activeId:null,
   pool:[], draft:null, picks:[], manualPicks:[], pickedIds:new Set(),
   pos:"ALL", sort:"mine", query:"",
-  browse:null, selected:null,
+  browse:null, browseGen:0, fmtReqSeq:0, selected:null,
   wRank:0.60, wMS:0.40, wBench:0.30,
   timer:null, derived:null,
 };
@@ -662,7 +980,48 @@ function guideChecks(p, ts, cuts){
   return out;
 }
 
+/* ==================================================================
+   Rookie handling
+   ==================================================================
+   The 16 checks above all lean on prior-season production, and a rookie
+   has none. Detection uses three signals, in order of trust: Sleeper's
+   own years_exp field (the most direct), career_year computed from real
+   NFL draft year (catches anyone Sleeper's field is stale on), and — as
+   a last resort — no crosswalk entry at all. That third branch is the
+   weakest signal (it could just as easily mean "obscure veteran" as
+   "rookie"), so it only fires when there's genuinely nothing else to go
+   on, never as a positive override of the first two. */
+function isRookie(p){
+  if(p.years_exp === 0) return true;
+  if(p.careerYear === 1) return true;
+  if(!p.hist && p.years_exp == null && p.careerYear == null) return true;
+  return false;
+}
+
+/* No production history means no historical checks — full stop, all 16
+   are bypassed rather than quietly no-op'ing on null fields. What's left
+   to price him on is exactly what the guide would call pre-season
+   information: his Late-Round board rank, market ADP, and real NFL draft
+   capital. The tilt here is smaller and the cap tighter than the veteran
+   trait cap (0.90–1.08 vs 0.85–1.15) because there's a lot less signal
+   to justify moving him far off the market. */
+function rookieTrait(p){
+  const checks = [];
+  const add = (label,verdict,detail,mult) => checks.push({label,verdict,detail,mult});
+  if(p.draftRound === 1) add("Draft capital","good",`Round 1, pick ${p.draftPick} overall (#${p.draftOvr})`,1.05);
+  else if(p.draftRound === 2) add("Draft capital","good",`Round 2, pick ${p.draftPick}`,1.02);
+  else if(p.draftRound != null && p.draftRound >= 4) add("Draft capital","bad",`Day 3 pick — round ${p.draftRound}`,0.97);
+  else if(p.draftRound == null) add("Draft capital","bad","Undrafted or unknown draft slot",0.96);
+  add("Rookie","note","No qualifying NFL season yet — valued on Late-Round rank, draft capital, and ADP only",1);
+  const raw = checks.reduce((m,c)=>m*(c.mult??1),1);
+  return {checks, mult: clamp(raw, 0.90, 1.08),
+          good: checks.filter(c=>c.verdict==="good").length,
+          bad:  checks.filter(c=>c.verdict==="bad").length,
+          rookie:true};
+}
+
 function traitOf(p, ts, cuts){
+  if(p.rookie) return rookieTrait(p);
   const checks = guideChecks(p, ts, cuts);
   if(!checks.length) return null;
   const raw = checks.reduce((m,c)=>m*c.mult, 1);
@@ -685,6 +1044,12 @@ function traitOf(p, ts, cuts){
    regardless of the blocking," which is the closest honest proxy for
    what a line grade would tell you. */
 function archetypeOf(p){
+  if(p.rookie){
+    const tags = [{label:"Rookie Profile", cls:"gold"}];
+    if(p.draftRound === 1) tags.push({label:"Day 1 capital", cls:"up"});
+    else if(p.draftRound == null || p.draftRound >= 4) tags.push({label:"Late-capital dart", cls:"dim"});
+    return tags.slice(0,2);
+  }
   const n1 = p.n1; if(!n1) return [];
   const ngs = n1.ngs || {};
   const tags = [];
@@ -770,17 +1135,23 @@ function buildPool(){
 
   S.pool = S.base.filter(p=>table[p.sleeper_id]).map(p=>{
     const t=table[p.sleeper_id], r=ranks[p.sleeper_id];
+    const h = S.history?.players?.[p.sleeper_id] || null;
     return {...p,
       adp:t.adp??null, adpSd:t.sd??null, adpHi:t.hi??null, adpLo:t.lo??null, bye:t.bye??null,
-      marketRank:t.vr??null,
+      marketRank:t.vr??null, marketValue:t.v??null,
+      dynastyValue:t.dv??null, dynastyRank:t.dvr??null,
+      ktcSf:S.pipeline?.players?.[p.sleeper_id]?.ktc_sf?.ktc_value??null,
+      ktc1qb:S.pipeline?.players?.[p.sleeper_id]?.ktc_1qb?.ktc_value??null,
       myRank:r?.rank??null, tier:r?.tier??null, auction:r?.auction??null,
       ms:msTable[p.sleeper_id]?.score??null, msAdp:msTable[p.sleeper_id]?.adp??null,
       note:S.notes[p.sleeper_id]||null,
-      hist:S.history?.players?.[p.sleeper_id]||null,
-      n1:S.history?.players?.[p.sleeper_id]?.n1||null,
-      careerYear:S.history?.players?.[p.sleeper_id]?.career_year??null,
+      hist:h,
+      n1:h?.n1||null,
+      careerYear:h?.career_year??null,
+      draftRound:h?.draft_round??null, draftPick:h?.draft_pick??null, draftOvr:h?.draft_ovr??null,
     };
   });
+  for(const p of S.pool) p.rookie = isRookie(p);
 
   /* Consensus order is just the market's own ranking — ADP, ascending. */
   [...S.pool].sort((a,b)=>(a.adp||a.marketRank||999)-(b.adp||b.marketRank||999))
@@ -1135,6 +1506,16 @@ function render(){
     ms:(a,b)=>(b.ms??-1)-(a.ms??-1),
     adp:(a,b)=>(a.adp||999)-(b.adp||999),
     survive:(a,b)=>a.pSurvive-b.pSurvive,
+    // Same diff as the row badge (consensus minus mine) so "sorted to the
+    // top" and "showing the biggest arrow" always agree. Absolute value,
+    // not signed — bargains and landmines are both "gap sort," and burying
+    // landmines at the bottom of a signed sort defeats the point of
+    // surfacing both in one pass. Missing either rank sinks to the bottom.
+    gap:(a,b)=>{
+      const ga = (a.myRank!=null && a.consRank!=null) ? Math.abs(a.consRank-a.myRank) : -1;
+      const gb = (b.myRank!=null && b.consRank!=null) ? Math.abs(b.consRank-b.myRank) : -1;
+      return gb-ga;
+    },
   };
   list=[...list].sort(sorters[S.sort]).slice(0,220);
   const cliffAt=(S.pos!=="ALL"&&S.sort==="mine")?cliffIndex(list):-1;
@@ -1166,8 +1547,9 @@ function render(){
       +(p.tierState==="deep"?`<span class="tag deep">COMES BACK</span>`:"")
       +(p.firstOff?`<span class="tag first">FIRST ${p.pos}</span>`:"")
       +(d.phase==="late"&&!p.canBurn?`<span class="tag burn">WON'T BURN</span>`:"")
-      +(p.trait?.good&&!p.trait.bad?`<span class="tag rush">${p.trait.good} PASS</span>`:"")
-      +(p.trait?.bad?`<span class="tag thin">${p.trait.bad} FLAG${p.trait.bad>1?"S":""}</span>`:"")
+      +(p.rookie?`<span class="tag gold">ROOKIE</span>`:"")
+      +(!p.rookie&&p.trait?.good&&!p.trait.bad?`<span class="tag rush">${p.trait.good} PASS</span>`:"")
+      +(!p.rookie&&p.trait?.bad?`<span class="tag thin">${p.trait.bad} FLAG${p.trait.bad>1?"S":""}</span>`:"")
       +(p.note?.tag?`<span class="tag note">${esc(p.note.tag).toUpperCase()}</span>`:"");
     const meta=[p.pos+(p.team?" "+p.team:""), p.tier?"T"+p.tier:null,
       p.adp?"adp "+p.adp.toFixed(0):null, p.bye?"bye "+p.bye:null,
@@ -1313,10 +1695,26 @@ async function loadBase(){
   catch(e){ S.managers=null; }
   try{ S.history = await fetch("data/history.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
   catch(e){ S.history=null; }
+  /* Optional: build_pipeline.py's consolidated output, if it's ever been
+     run and deployed. Carries KTC dynasty values keyed by normalized name
+     (KTC has no sleeper_id of its own). 404s cleanly if it doesn't exist —
+     Dynasty Mode in the Trade Analyzer degrades to FantasyCalc's dynasty
+     value, then redraft value, rather than failing. */
+  try{ S.pipeline = await fetch("data/data.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
+  catch(e){ S.pipeline=null; }
 }
 async function loadFormat(id){
   if(S.fmtData?.format?.id===id) return;
-  S.fmtData=await fetch(`data/formats/${id}.json`,{cache:"no-cache"}).then(r=>r.json());
+  /* Fetch into a local first, commit only if nothing newer has started
+     since. Without this, a slow first request finishing AFTER a fast
+     second one silently overwrites S.fmtData with stale data even though
+     the caller who kicked off the first request has already bailed out —
+     the corruption happens here, not in the caller, so it has to be
+     fixed here to protect every caller at once. */
+  const myReq = ++S.fmtReqSeq;
+  const data = await fetch(`data/formats/${id}.json`,{cache:"no-cache"}).then(r=>r.json());
+  if(myReq !== S.fmtReqSeq) return;
+  S.fmtData = data;
 }
 function pickFormat(want){
   if(!S.formats.length) return null;
@@ -1425,15 +1823,22 @@ function selectPreset(key){
   };
   S.activeId = null;
   localStorage.setItem("goinglong.browsePreset", key);
-  activateBrowse();
+  return activateBrowse();   // returned, not just fired — callers can now await the actual swap
 }
 async function activateBrowse(){
   clearInterval(S.timer);
   S.draft=null; S.picks=[]; S.selected=null; S.manualPicks=[];
   syncPicked();
-  const fmt = pickFormat(S.browse);
-  S.browse.formatId = fmt?.id || null;
-  if(S.browse.formatId) await loadFormat(S.browse.formatId);
+  /* Generation token: if the user clicks a second preset before this one's
+     format fetch resolves, an out-of-order network response could otherwise
+     overwrite the newer selection with stale data. Whichever call is still
+     current when its fetch lands wins; the other quietly no-ops. */
+  const myGen = ++S.browseGen;
+  const target = S.browse;
+  const fmt = pickFormat(target);
+  target.formatId = fmt?.id || null;
+  if(target.formatId) await loadFormat(target.formatId);
+  if(myGen !== S.browseGen || S.browse !== target) return;  // superseded — a later click already owns the screen
   autoPickRankSet();
   buildPool(); render();
   setStatus("browsing");
@@ -1683,6 +2088,250 @@ async function importFiles(files){
 /* ==================================================================
    Wiring
    ================================================================== */
+/* ==================================================================
+   Trade Analyzer
+   ==================================================================
+   Two honesty notes, since this is the feature most likely to be
+   trusted at face value if it isn't flagged clearly:
+
+   1. Dynasty values fall through three tiers depending on what's
+      actually loaded: real KTC (only if build_pipeline.py's output has
+      been deployed to data/data.json), then FantasyCalc's dynasty
+      market, then — if neither exists — FantasyCalc's REDRAFT value as
+      a labeled approximation. Every value shown says which tier it's
+      pulling from via its title tooltip.
+
+   2. There is no win-probability model anywhere in this app — that
+      needs a season simulation this project doesn't have. The verdict
+      shows a value-edge PERCENTAGE (net value as a share of the larger
+      side's total), not a win/loss percentage. Don't read it as a
+      season-outcome prediction.
+
+   Package-adjustment formula: a non-linear diminishing curve applied to
+   the 2nd, 3rd... asset on a side, reflecting that concentrating value
+   in fewer roster spots carries a premium. This is A reasonable formula
+   matching the same PRINCIPLE community trade calculators use — it is
+   not a verified reproduction of KTC's own internal algorithm, which
+   isn't publicly documented in enough detail to copy exactly. */
+
+const TRADE = { mode:"redraft", sideA:[], sideB:[] };
+
+function tradeValueOf(p){
+  if(p.ktcSf != null) return {value:p.ktcSf, source:"KTC superflex"};
+  if(p.ktc1qb != null) return {value:p.ktc1qb, source:"KTC 1QB"};
+  if(p.dynastyValue != null) return {value:p.dynastyValue, source:"FantasyCalc dynasty"};
+  if(p.marketValue != null) return {value:p.marketValue, source:"FantasyCalc redraft (approx — no dynasty data)"};
+  return {value:0, source:"no data"};
+}
+
+/* Sorted desc, geometric decay per additional asset, floored so a 5-for-1
+   package doesn't get crushed to nothing. */
+function packageAdjust(values){
+  const DECAY=0.84, FLOOR=0.40;
+  return [...values].sort((a,b)=>b-a)
+    .reduce((sum,v,i)=> sum + v*Math.max(FLOOR, Math.pow(DECAY,i)), 0);
+}
+
+function tradeAssetValue(a, mode){
+  if(a.type==="pick") return {value:Number(a.value)||0, source:"manual entry"};
+  const p = S.byId.get(a.sleeper_id);
+  if(!p) return {value:0, source:"?"};
+  return mode==="dynasty" ? tradeValueOf(p) : {value:p.proj ?? 0, source:"proj pts/g"};
+}
+
+function computeDynastySide(side){
+  const items = side.map(a=>({a, ...tradeAssetValue(a,"dynasty")}));
+  return {items, raw: items.reduce((s,i)=>s+i.value,0), adj: packageAdjust(items.map(i=>i.value))};
+}
+
+/* True marginal lineup gain: swap the roster, run the slot solver before
+   and after, diff the totals. Needs a connected roster to mean anything —
+   without one, callers should fall back to a raw point-total display. */
+function computeRedraft(){
+  const roster = S.derived?.roster, slots = S.derived?.slots;
+  if(!roster || !slots || !roster.length) return {ready:false};
+  const outIds = new Set(TRADE.sideA.filter(a=>a.type==="player").map(a=>a.sleeper_id));
+  const incoming = TRADE.sideB.filter(a=>a.type==="player").map(a=>S.byId.get(a.sleeper_id)).filter(Boolean);
+  const newRoster = [...roster.filter(p=>!outIds.has(p.sleeper_id)), ...incoming];
+  const before = solveLineup([...roster].sort((a,b)=>b.proj-a.proj), slots).total;
+  const after  = solveLineup([...newRoster].sort((a,b)=>b.proj-a.proj), slots).total;
+  return {ready:true, before, after, marginal: after-before};
+}
+
+function dynastyRecommendation(pct, topIncoming, eliteCut){
+  const elite = eliteCut>0 && topIncoming>=eliteCut;
+  if(pct>=15) return elite ? "Accept — Elite Tier Upgrade" : "Accept — Significant Value Gain";
+  if(pct>=5)  return "Accept — Modest Edge";
+  if(pct>-5)  return "Fair Trade — Roughly Even";
+  if(pct>-15) return "Decline — Modest Value Loss";
+  return "Decline — Significant Value Loss";
+}
+function redraftRecommendation(marginal){
+  if(marginal>=3)  return "Accept — Real Lineup Upgrade";
+  if(marginal>=1)  return "Accept — Marginal Upgrade";
+  if(marginal>-1)  return "Neutral — Minimal Lineup Impact";
+  if(marginal>-3)  return "Decline — Lineup Downgrade";
+  return "Decline — Roster Dilution";
+}
+
+function renderTradeSide(side){
+  const list = TRADE["side"+side], el = $("tlList"+side);
+  if(!el) return;
+  if(!list.length){ el.innerHTML = `<div class="tl-empty-row">Nothing added yet.</div>`; return; }
+  el.innerHTML = list.map(a=>{
+    if(a.type==="pick"){
+      return `<div class="tl-item">
+        <div><b>${esc(a.label)}</b><small>manual value</small></div>
+        <input type="number" class="tl-pickval" value="${a.value ?? ""}" data-pick-id="${a.id}" data-side="${side}" placeholder="value">
+        <button data-remove="${a.id}" data-side="${side}">×</button>
+      </div>`;
+    }
+    const p = S.byId.get(a.sleeper_id);
+    if(!p) return "";
+    const {value, source} = tradeAssetValue(a, TRADE.mode);
+    return `<div class="tl-item">
+      <div><b>${esc(p.name)}</b><small>${p.pos}${p.team?" "+p.team:""}</small></div>
+      <span class="tl-val" title="${esc(source)}">${TRADE.mode==="dynasty"?value.toFixed(0):value.toFixed(1)}</span>
+      <button data-remove="${a.sleeper_id}" data-side="${side}">×</button>
+    </div>`;
+  }).join("");
+}
+
+function renderTrade(){
+  if(!$("tlVerdict")) return;   // trade view not in the DOM yet — defensive no-op
+  renderTradeSide("A"); renderTradeSide("B");
+  const mode = TRADE.mode;
+
+  $("tlDataNote").innerHTML = mode==="dynasty"
+    ? (S.pipeline ? `Dynasty values: KTC where matched, FantasyCalc dynasty elsewhere.`
+                  : `No KTC data loaded — showing FantasyCalc dynasty value, or <b>redraft value as an approximation</b> where that's missing too.`)
+    : `Redraft mode uses your connected roster's actual lineup fit, not raw point totals.`;
+
+  if(mode==="dynasty"){
+    const A = computeDynastySide(TRADE.sideA), B = computeDynastySide(TRADE.sideB);
+    $("tlTotalA").textContent = A.adj.toFixed(0);
+    $("tlTotalB").textContent = B.adj.toFixed(0);
+    if(!TRADE.sideA.length && !TRADE.sideB.length){
+      $("tlVerdict").className="tl-verdict empty";
+      $("tlVerdict").innerHTML=`Add players or picks to either side to see a verdict.`;
+      $("tlFoot").textContent=""; return;
+    }
+    const net = B.adj - A.adj;
+    const base = Math.max(A.adj, B.adj, 1);
+    const pct = (net/base)*100;
+    const cls = pct>3?"pos":pct<-3?"neg":"flat";
+    const topIncoming = Math.max(0, ...TRADE.sideB.filter(a=>a.type==="player")
+      .map(a=>tradeValueOf(S.byId.get(a.sleeper_id)||{}).value||0));
+    const eliteCut = [...S.pool].map(p=>tradeValueOf(p).value).sort((a,b)=>b-a)[11] || 0;
+    const rec = dynastyRecommendation(pct, topIncoming, eliteCut);
+    $("tlVerdict").className="tl-verdict";
+    $("tlVerdict").innerHTML = `
+      <div class="tl-diff ${cls}">${net>0?"+":""}${net.toFixed(0)}</div>
+      <div><div class="tl-rec" style="color:${cls==="pos"?"var(--turf)":cls==="neg"?"#E89484":"var(--mute)"}">${esc(rec)}</div>
+      <div style="font:400 12px/1.4 'IBM Plex Mono',monospace;color:var(--mute)">for Team A · ${pct>=0?"+":""}${pct.toFixed(1)}% value edge</div></div>
+      <div class="tl-sub">Raw: A ${A.raw.toFixed(0)} → adj ${A.adj.toFixed(0)} (${TRADE.sideA.length} piece${TRADE.sideA.length!==1?"s":""}) · B ${B.raw.toFixed(0)} → adj ${B.adj.toFixed(0)} (${TRADE.sideB.length} piece${TRADE.sideB.length!==1?"s":""}). Package discount applied to the 2nd+ asset per side.</div>`;
+    $("tlFoot").textContent = "Value edge is a share of total trade value, not a win probability — there's no season simulation behind this number.";
+  } else {
+    const val = a => ({...a, ...tradeAssetValue(a,"redraft")});
+    const rawA = TRADE.sideA.map(val).reduce((s,i)=>s+i.value,0);
+    const rawB = TRADE.sideB.map(val).reduce((s,i)=>s+i.value,0);
+    $("tlTotalA").textContent = rawA.toFixed(1);
+    $("tlTotalB").textContent = rawB.toFixed(1);
+    if(!TRADE.sideA.length && !TRADE.sideB.length){
+      $("tlVerdict").className="tl-verdict empty";
+      $("tlVerdict").innerHTML=`Add players to either side to see a verdict.`;
+      $("tlFoot").textContent=""; return;
+    }
+    const r = computeRedraft();
+    if(!r.ready){
+      const net = rawB-rawA, cls = net>0.5?"pos":net<-0.5?"neg":"flat";
+      $("tlVerdict").className="tl-verdict";
+      $("tlVerdict").innerHTML = `
+        <div class="tl-diff ${cls}">${net>0?"+":""}${net.toFixed(1)}</div>
+        <div><div class="tl-rec">Raw point total only</div>
+        <div style="font:400 12px/1.4 'IBM Plex Mono',monospace;color:var(--mute)">pts/g difference</div></div>
+        <div class="tl-sub">No connected roster to compute true marginal lineup gain — this is a raw projected-points sum, not a lineup-fit calculation. Connect or mock a draft first for the real number.</div>`;
+      $("tlFoot").textContent=""; return;
+    }
+    const pct = r.before ? (r.marginal/r.before)*100 : 0;
+    const cls = r.marginal>=1?"pos":r.marginal<=-1?"neg":"flat";
+    const rec = redraftRecommendation(r.marginal);
+    $("tlVerdict").className="tl-verdict";
+    $("tlVerdict").innerHTML = `
+      <div class="tl-diff ${cls}">${r.marginal>0?"+":""}${r.marginal.toFixed(1)}</div>
+      <div><div class="tl-rec" style="color:${cls==="pos"?"var(--turf)":cls==="neg"?"#E89484":"var(--mute)"}">${esc(rec)}</div>
+      <div style="font:400 12px/1.4 'IBM Plex Mono',monospace;color:var(--mute)">pts/g marginal lineup gain · ${pct>=0?"+":""}${pct.toFixed(1)}% of current output</div></div>
+      <div class="tl-sub">Lineup total before ${r.before.toFixed(1)} pts/g → after ${r.after.toFixed(1)} pts/g, via the slot solver against your connected league's real starting requirements.</div>`;
+    $("tlFoot").textContent = "Marginal gain reflects your starting lineup fit, not raw player value — a bench-only add can show near zero even if the player himself is good.";
+  }
+}
+
+function tradeSearch(query){
+  const q = normalize(query);
+  if(q.length < 2) return [];
+  return S.pool.filter(p=>p.key.includes(q))
+    .sort((a,b)=>(a.myRank||a.adp||999)-(b.myRank||b.adp||999))
+    .slice(0,8);
+}
+
+function wireTradeSearch(side){
+  const input=$("tlSearch"+side), drop=$("tlDrop"+side);
+  if(!input) return;
+  input.addEventListener("input", ()=>{
+    const results = tradeSearch(input.value);
+    if(!results.length){ drop.classList.remove("show"); drop.innerHTML=""; return; }
+    drop.innerHTML = results.map(p=>
+      `<div data-add="${p.sleeper_id}"><span>${esc(p.name)}</span><small>${p.pos}${p.team?" "+p.team:""}</small></div>`
+    ).join("");
+    drop.classList.add("show");
+  });
+  drop.addEventListener("click", e=>{
+    const row=e.target.closest("[data-add]"); if(!row) return;
+    const sid=row.dataset.add;
+    if(!TRADE["side"+side].some(a=>a.type==="player"&&a.sleeper_id===sid)){
+      TRADE["side"+side].push({type:"player", sleeper_id:sid});
+    }
+    input.value=""; drop.classList.remove("show"); drop.innerHTML="";
+    renderTrade();
+  });
+  document.addEventListener("click", e=>{
+    if(drop && !drop.contains(e.target) && e.target!==input) drop.classList.remove("show");
+  });
+}
+
+function wireTrade(){
+  const view = document.getElementById("view-trade");
+  if(!view) return;
+  wireTradeSearch("A"); wireTradeSearch("B");
+  $("tlModeGroup")?.addEventListener("click", e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    TRADE.mode=b.dataset.mode;
+    [...$("tlModeGroup").children].forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+    renderTrade();
+  });
+  view.querySelectorAll("[data-add-pick]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const side=btn.dataset.addPick;
+      TRADE["side"+side].push({type:"pick", id:uid(), label:`${new Date().getFullYear()+1} pick`, value:null});
+      renderTrade();
+    });
+  });
+  view.addEventListener("click", e=>{
+    const rm=e.target.closest("[data-remove]"); if(!rm) return;
+    const side=rm.dataset.side, id=rm.dataset.remove;
+    TRADE["side"+side] = TRADE["side"+side].filter(a=> a.type==="pick" ? a.id!==id : a.sleeper_id!==id);
+    renderTrade();
+  });
+  view.addEventListener("change", e=>{
+    const inp=e.target.closest(".tl-pickval"); if(!inp) return;
+    const side=inp.dataset.side, id=inp.dataset.pickId;
+    const asset=TRADE["side"+side].find(a=>a.id===id);
+    if(asset) asset.value=Number(inp.value)||0;
+    renderTrade();
+  });
+}
+window.renderTrade = renderTrade;   // called from the gateway script's setView("trade")
+
 function wire(){
   $("posGroup").addEventListener("click",e=>{
     const b=e.target.closest("button"); if(!b) return;
@@ -1770,7 +2419,7 @@ function wire(){
 async function boot(){
   loadLocal();
   $("username").value=localStorage.getItem("goinglong.username")||"";
-  wire(); await loadBase();
+  wire(); wireTrade(); await loadBase();
   if(S.profiles.find(p=>p.id===S.activeId)){
     await activate();
   } else {
