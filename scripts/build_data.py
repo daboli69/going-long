@@ -110,6 +110,7 @@ def fetch_players():
             "pos": pos,
             "team": fix_team(p.get("team")),
             "age": p.get("age"),
+            "years_exp": p.get("years_exp"),   # 0 = rookie season, straight from Sleeper
             "injury_status": p.get("injury_status"),
             "key": normalize(name),
         }
@@ -152,16 +153,16 @@ def fetch_adp(ffc_format, teams):
     return out
 
 
-def fetch_values(teams, ppr, qbs):
-    ck = (teams, ppr, qbs)
+def fetch_values(teams, ppr, qbs, dynasty=False):
+    ck = (teams, ppr, qbs, dynasty)
     if ck in _VAL_CACHE:
         return _VAL_CACHE[ck]
     url = ("https://api.fantasycalc.com/values/current"
-           f"?isDynasty=false&numQbs={qbs}&numTeams={teams}&ppr={ppr}")
+           f"?isDynasty={'true' if dynasty else 'false'}&numQbs={qbs}&numTeams={teams}&ppr={ppr}")
     try:
         rows = get_json(url)
     except RuntimeError as exc:
-        print(f"  ! value fetch failed ({teams}/{ppr}/{qbs}): {exc}")
+        print(f"  ! {'dynasty' if dynasty else 'redraft'} value fetch failed ({teams}/{ppr}/{qbs}): {exc}")
         rows = []
     by_sleeper, by_key = {}, {}
     for r in rows:
@@ -185,7 +186,8 @@ def fetch_values(teams, ppr, qbs):
 
 def build_format(spec, players):
     adp = fetch_adp(spec["ffc"], spec["teams"])
-    vs_sleeper, vs_key = fetch_values(spec["teams"], spec["ppr"], spec["qbs"])
+    vs_sleeper, vs_key = fetch_values(spec["teams"], spec["ppr"], spec["qbs"], dynasty=False)
+    dv_sleeper, dv_key = fetch_values(spec["teams"], spec["ppr"], spec["qbs"], dynasty=True)
 
     table, n_adp, n_val = {}, 0, 0
     for pid, p in players.items():
@@ -199,6 +201,10 @@ def build_format(spec, players):
         if m:
             rec.update({k: v for k, v in m.items() if v is not None})
             n_val += 1
+        dm = dv_sleeper.get(pid) or dv_key.get(lookup)
+        if dm:
+            # namespaced so it can't collide with redraft's v/vr/pr/t30 above
+            rec.update({f"d{k}": v for k, v in dm.items() if v is not None})
         if rec.get("adp") or rec.get("v"):
             table[pid] = rec
 
