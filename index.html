@@ -11,11 +11,11 @@
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root{
-    /* Going Long — night game: black field, turf green, chalk yard lines */
-    --ink:#070A07; --panel:#0E140D; --panel-2:#141C12; --line:#212B1F;
-    --bone:#E8EDE4; --mute:#8B9885; --dim:#5C6857;
-    --turf:#4ADE6A; --turf-deep:#1F7A3A; --chalk:#DCE4D6;
-    --rust:#D2564A; --gold:#E8B44A;
+    /* Going Long — Sleeper-inspired dark mode: charcoal slate, mint accent */
+    --ink:#0E1117; --panel:#161B22; --panel-2:#1F242D; --line:#2A303C;
+    --bone:#F0F3F7; --mute:#8B93A1; --dim:#5B6270;
+    --turf:#2DD4BF; --turf-deep:#0F766E; --chalk:#D7DCE5;
+    --rust:#F0655A; --gold:#FBBF24;
   }
   *{box-sizing:border-box} html,body{margin:0;padding:0}
   body{background:var(--ink);color:var(--bone);font:400 14px/1.45 Inter,system-ui,sans-serif;
@@ -23,20 +23,51 @@
   button,input,select,textarea{font:inherit;color:inherit} button{cursor:pointer}
   .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
   .eyebrow{font:600 11px/1 "IBM Plex Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
-  .clock{position:sticky;top:0;z-index:30;background:linear-gradient(180deg,#13211E,#101C1A);
-    border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:9px 16px;flex-wrap:wrap}
-  .brand{font:700 22px/1 "Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase}
-  .brand span{color:var(--turf);margin-left:.28em}
-  .cstat{display:flex;flex-direction:column;gap:3px;min-width:52px}
-  .cstat b{font:600 19px/1 "IBM Plex Mono",monospace} .cstat b.hot{color:var(--turf)}
+  .clock{position:sticky;top:0;z-index:30;background:var(--panel);
+    border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 14px;height:52px}
+  .cfgBtn{background:transparent;border:0;color:var(--mute);padding:4px;display:flex;flex:0 0 auto;border-radius:6px}
+  .cfgBtn:hover{background:var(--panel-2);color:var(--bone)}
+  .pickBlock{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .pickBlock .eyebrow{font-size:9px}
+  .pickBlock b{font:600 17px/1.15 "IBM Plex Mono",monospace;color:var(--bone);white-space:nowrap}
+  .pickBlock b.hot{color:var(--turf)}
+  .pickBlock.next{flex-direction:row;align-items:baseline;gap:6px}
+  .thenTag{font:400 10px/1 "IBM Plex Mono",monospace;color:var(--dim);white-space:nowrap}
   .spacer{flex:1}
-  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--dim);margin-right:6px;vertical-align:middle}
-  .dot.live{background:var(--turf);box-shadow:0 0 0 3px rgba(74,222,106,.18)}
-  #profileSel{max-width:180px}
+  .feedDot{display:flex;align-items:center;flex:0 0 auto}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--dim)}
+  .dot.live{background:var(--turf);box-shadow:0 0 0 4px rgba(45,212,191,.18)}
+
+  /* Draft Config bottom sheet */
+  .drawer-scrim{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:49;display:none}
+  .drawer-scrim.show{display:block}
+  .cfg-sheet{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--panel-2);
+    border-top:1px solid var(--line);border-radius:14px 14px 0 0;
+    max-height:80vh;overflow-y:auto;transform:translateY(100%);transition:transform .22s ease;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .cfg-sheet.show{transform:translateY(0)}
+  .cfg-sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel-2)}
+  .cfg-sheet-head b{font:700 16px/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em;color:var(--bone)}
+  .cfg-close{background:var(--panel);border:1px solid var(--line);color:var(--mute);border-radius:6px;width:28px;height:28px;font-size:13px}
+  .cfg-sheet-body{padding:14px 16px 24px;display:flex;flex-direction:column;gap:10px}
+  .cfg-row{display:flex;gap:8px;flex-wrap:wrap}
+  .cfg-label{font:600 10px/1 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:6px}
+  .pos-group.full{width:100%}
+  .pos-group.full button{flex:1}
+  .slider-wrap.full{width:100%;justify-content:space-between}
+  @media (min-width:700px){
+    .cfg-sheet{left:auto;right:16px;bottom:auto;top:60px;width:320px;border-radius:10px;
+      transform:translateY(-8px) scale(.98);opacity:0;pointer-events:none;transition:transform .16s ease,opacity .16s ease;max-height:calc(100vh - 90px)}
+    .cfg-sheet.show{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+  }
+
+  #profileSel{width:100%}
   .chip{border:1px solid var(--line);border-radius:999px;padding:4px 10px;
     font:500 11px/1 "IBM Plex Mono",monospace;color:var(--chalk);white-space:nowrap}
-  .chip.warn{color:#E89484;border-color:rgba(210,86,74,.5)}
-  .chip.on{background:rgba(74,222,106,.15);color:var(--turf);border-color:var(--turf)}
+  .chip.warn{color:#F2938A;border-color:rgba(240,101,90,.5)}
+  .chip.on{background:rgba(45,212,191,.15);color:var(--turf);border-color:var(--turf)}
   .shell{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;padding:16px;max-width:1460px;margin:0 auto}
   @media (max-width:940px){.shell{grid-template-columns:1fr;padding:12px;gap:12px}}
   .panel{background:var(--panel);border:1px solid var(--line);border-radius:4px}
@@ -50,15 +81,15 @@
   .pos-group button[aria-pressed="true"]{background:var(--turf);color:#06120A}
   .slider-wrap{display:flex;align-items:center;gap:6px;color:var(--mute);font-size:12px}
   input[type=range]{accent-color:var(--turf);width:72px}
+  .slider-wrap.full input[type=range]{flex:1;width:auto}
   .board{max-height:calc(100vh - 226px);overflow-y:auto;overscroll-behavior:contain}
   @media (max-width:940px){.board{max-height:none}}
   @media (max-width:430px){
-    .row{grid-template-columns:30px minmax(0,1fr) 66px 42px 38px;gap:6px;padding-right:8px}
+    .row{grid-template-columns:28px minmax(0,1fr) 62px 40px 36px;gap:6px;padding-right:8px}
     .num u,.edge .survive{display:none}
-    .who small{font-size:10px}
-    .clock{gap:10px;padding:8px 10px}
-    .cstat{min-width:44px}
-    .cstat b{font-size:16px}
+    .clock{gap:8px;padding:8px 10px;height:48px}
+    .pickBlock b{font-size:15px}
+    .pickBlock .eyebrow{font-size:8px}
   }
   .row{display:grid;grid-template-columns:40px minmax(0,1fr) 84px 54px 50px;align-items:center;gap:9px;
     padding:8px 12px 8px 0;border-bottom:1px solid rgba(36,53,47,.6);position:relative;min-height:54px;cursor:pointer}
@@ -67,29 +98,29 @@
   .rank{padding-left:12px;text-align:right;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
   .rank b{display:block;font:500 13px/1.15 "IBM Plex Mono",monospace;color:var(--bone)}
   .rank s{display:block;text-decoration:none;font-size:10px;line-height:1.3;color:var(--dim)}
-  .rank s.up{color:var(--turf)} .rank s.dn{color:#C08578}
+  .rank s.up{color:var(--turf)} .rank s.dn{color:#D98D82}
   .who{min-width:0}
   .who b{font:600 17px/1.1 "Barlow Condensed",sans-serif;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .who small{color:var(--mute);font:400 11px/1.35 "IBM Plex Mono",monospace;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .who small{color:var(--mute);font:400 11px/1.4 "IBM Plex Mono",monospace;display:block;white-space:normal;word-break:break-word}
   .who .inj{color:var(--rust)}
   .tag{display:inline-block;padding:1px 5px;border-radius:2px;font:600 9px/1.5 "IBM Plex Mono",monospace;letter-spacing:.08em;margin-left:4px;vertical-align:1px}
-  .tag.thin{background:rgba(210,86,74,.22);color:#E89484}
-  .tag.deep{background:rgba(220,228,214,.14);color:var(--chalk)}
-  .tag.first{background:rgba(232,180,74,.2);color:var(--gold)}
-  .tag.urg{background:rgba(74,222,106,.2);color:var(--turf)}
-  .tag.burn{background:rgba(94,111,105,.3);color:var(--mute)}
-  .tag.note{background:rgba(220,228,214,.12);color:var(--chalk)}
-  .tag.rush{background:rgba(74,222,106,.18);color:var(--turf)}
-  .tag.gold{background:rgba(232,180,74,.2);color:var(--gold)}
-  .tag.up{background:rgba(74,222,106,.14);color:var(--turf)}
-  .tag.dim{background:rgba(139,152,133,.18);color:var(--mute)}
+  .tag.thin{background:rgba(240,101,90,.22);color:#F2938A}
+  .tag.deep{background:rgba(215,220,229,.14);color:var(--chalk)}
+  .tag.first{background:rgba(251,191,36,.2);color:var(--gold)}
+  .tag.urg{background:rgba(45,212,191,.2);color:var(--turf)}
+  .tag.burn{background:rgba(91,98,112,.3);color:var(--mute)}
+  .tag.note{background:rgba(215,220,229,.12);color:var(--chalk)}
+  .tag.rush{background:rgba(45,212,191,.18);color:var(--turf)}
+  .tag.gold{background:rgba(251,191,36,.2);color:var(--gold)}
+  .tag.up{background:rgba(45,212,191,.14);color:var(--turf)}
+  .tag.dim{background:rgba(139,147,161,.18);color:var(--mute)}
   .edge{text-align:right} .edge b{font:600 18px/1 "IBM Plex Mono",monospace;color:var(--turf)}
   .edge b.neg{color:var(--dim)}
   .survive{height:3px;background:var(--line);border-radius:2px;margin-top:5px;overflow:hidden}
   .survive i{display:block;height:100%;background:var(--chalk)} .survive.thin i{background:var(--rust)}
   .num{text-align:right;font:400 13px/1.2 "IBM Plex Mono",monospace;color:var(--mute)}
   .num u{display:block;text-decoration:none;font-size:9px;color:var(--dim);letter-spacing:.06em}
-  .num.pos{color:var(--chalk)} .num.neg{color:#C08578}
+  .num.pos{color:var(--chalk)} .num.neg{color:#D98D82}
   .drawer{padding:10px 12px;background:#101C1A;border-bottom:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
   .drawer .why{flex:1 1 100%;font:400 12px/1.6 "IBM Plex Mono",monospace;color:var(--mute)}
   .drawer .why b{color:var(--bone);font-weight:500}
@@ -101,10 +132,10 @@
   }
   .tierhead b{font:700 13px/1 "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--bone)}
   .tierhead span{font:500 11px/1 "IBM Plex Mono",monospace;color:var(--mute)}
-  .cliff{display:flex;align-items:center;gap:10px;padding:6px 12px;background:rgba(210,86,74,.09);
-    border-top:1px solid var(--rust);border-bottom:1px solid rgba(210,86,74,.3);
-    font:600 11px/1 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#E89484}
-  .banner{padding:6px 12px;background:rgba(74,222,106,.08);border-bottom:1px solid rgba(74,222,106,.4);
+  .cliff{display:flex;align-items:center;gap:10px;padding:6px 12px;background:rgba(240,101,90,.09);
+    border-top:1px solid var(--rust);border-bottom:1px solid rgba(240,101,90,.3);
+    font:600 11px/1 "IBM Plex Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#F2938A}
+  .banner{padding:6px 12px;background:rgba(45,212,191,.08);border-bottom:1px solid rgba(45,212,191,.4);
     font:600 11px/1.4 "IBM Plex Mono",monospace;color:var(--turf)}
   .empty{padding:34px 20px;text-align:center;color:var(--mute)}
   .empty b{display:block;font:600 20px/1.2 "Barlow Condensed",sans-serif;color:var(--bone);margin-bottom:6px}
@@ -138,7 +169,7 @@
   .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--bone)}
   .btn.tiny{padding:5px 9px;font-size:11px}
   textarea.field{min-height:120px;resize:vertical;font-family:"IBM Plex Mono",monospace;font-size:12px}
-  .note{color:var(--mute);font-size:12px;line-height:1.5} .warn{color:#E89484;font-size:12px}
+  .note{color:var(--mute);font-size:12px;line-height:1.5} .warn{color:#F2938A;font-size:12px}
   .leagues{display:flex;flex-direction:column;gap:6px}
   .leagues div{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:6px 8px;border:1px solid var(--line);border-radius:3px}
   .leagues div.active{border-color:var(--turf)}
@@ -235,7 +266,7 @@
     padding:16px; margin-bottom:20px; display:flex; flex-wrap:wrap; gap:18px; align-items:center;
   }
   .tl-verdict .tl-diff{ font:700 30px/1 "Barlow Condensed",sans-serif; letter-spacing:.01em; }
-  .tl-verdict .tl-diff.pos{ color:var(--turf); } .tl-verdict .tl-diff.neg{ color:#E89484; } .tl-verdict .tl-diff.flat{ color:var(--mute); }
+  .tl-verdict .tl-diff.pos{ color:var(--turf); } .tl-verdict .tl-diff.neg{ color:#F2938A; } .tl-verdict .tl-diff.flat{ color:var(--mute); }
   .tl-verdict .tl-rec{ font:700 15px/1.3 "Barlow Condensed",sans-serif; text-transform:uppercase; letter-spacing:.02em; }
   .tl-verdict .tl-sub{ font:400 12px/1.5 "IBM Plex Mono",monospace; color:var(--mute); flex-basis:100%; }
   .tl-verdict.empty{ color:var(--dim); font:400 13px/1.5 Inter,sans-serif; }
@@ -270,7 +301,7 @@
     color:var(--bone); font:500 12px/1 "IBM Plex Mono",monospace; padding:4px 6px; text-align:right;
   }
   .tl-item button{ background:transparent; border:0; color:var(--dim); font-size:15px; line-height:1; cursor:pointer; padding:2px 4px; }
-  .tl-item button:hover{ color:#E89484; }
+  .tl-item button:hover{ color:#F2938A; }
   .tl-empty-row{ color:var(--dim); font:400 12px/1.5 "IBM Plex Mono",monospace; padding:8px 2px; }
   .tl-foot{ margin-top:18px; font:400 11.5px/1.6 "IBM Plex Mono",monospace; color:var(--dim); }
 
@@ -319,7 +350,7 @@
   .bt-row .bt-line{ font:500 13px/1 "IBM Plex Mono",monospace; color:var(--bt-mute); text-align:right; }
   .bt-row .bt-odds{ font:500 13px/1 "IBM Plex Mono",monospace; color:var(--bt-mute); text-align:right; }
   .bt-ev{ font:700 15px/1 "IBM Plex Mono",monospace; text-align:right; padding:3px 6px; border-radius:3px; }
-  .bt-ev.hi{ color:var(--bt-pos); background:rgba(74,222,106,.12); }
+  .bt-ev.hi{ color:var(--bt-pos); background:rgba(45,212,191,.12); }
   .bt-ev.mid{ color:var(--bt-orange); background:rgba(255,122,26,.10); }
   .bt-ev.neg{ color:var(--bt-neg); background:rgba(232,91,74,.10); }
   .bt-kelly{ font:400 11px/1.3 "IBM Plex Mono",monospace; color:var(--bt-mute); text-align:right; }
@@ -392,16 +423,55 @@
 
 <div id="app-goinglong">
 <div class="clock">
-  <div class="brand">Going<span>Long</span></div>
-  <select id="profileSel" class="field" title="Active draft"></select>
-  <span class="chip" id="fmtChip">no draft</span>
-  <span class="chip" id="modeChip" title="Manual mode lets you mark picks by hand for offline drafts">live</span>
-  <div class="cstat"><span class="eyebrow">On clock</span><b id="cOnClock">—</b></div>
-  <div class="cstat"><span class="eyebrow">Your next</span><b id="cNext" class="hot">—</b></div>
-  <div class="cstat"><span class="eyebrow">Then</span><b id="cThen">—</b></div>
-  <div class="cstat"><span class="eyebrow">Gap</span><b id="cGap">—</b></div>
+  <button class="cfgBtn" id="cfgOpen" aria-label="Draft settings">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+  </button>
+  <div class="pickBlock">
+    <span class="eyebrow">On clock</span>
+    <b id="cOnClock">—</b>
+  </div>
+  <div class="pickBlock next">
+    <span class="eyebrow">Your next</span>
+    <b id="cNext" class="hot">—</b><span class="thenTag" id="cThenTag"></span>
+  </div>
   <div class="spacer"></div>
-  <div class="cstat"><span class="eyebrow">Feed</span><b id="cStatus" style="font-size:13px"><i class="dot"></i>idle</b></div>
+  <div class="feedDot" id="cStatus"><i class="dot"></i></div>
+</div>
+
+<div class="drawer-scrim" id="cfgScrim"></div>
+<div class="cfg-sheet" id="cfgSheet">
+  <div class="cfg-sheet-head">
+    <b>Draft Config</b>
+    <button class="cfg-close" id="cfgClose" aria-label="Close">&#10005;</button>
+  </div>
+  <div class="cfg-sheet-body">
+    <div class="cfg-row">
+      <select id="profileSel" class="field" title="Active draft"></select>
+    </div>
+    <div class="cfg-row">
+      <span class="chip" id="fmtChip">no draft</span>
+      <span class="chip" id="modeChip" title="Manual mode lets you mark picks by hand for offline drafts">live</span>
+    </div>
+    <div class="cfg-label">Format</div>
+    <div class="pos-group full" id="presetGroup" title="Browse a format without connecting a league"></div>
+    <div class="cfg-label">Sort</div>
+    <select id="sort" class="field">
+      <option value="mine" selected>Sort: Tiers</option>
+      <option value="edge">Sort: Edge</option>
+      <option value="vorp">Sort: VORP</option>
+      <option value="ms">Sort: Market Score</option>
+      <option value="adp">Sort: Consensus</option>
+      <option value="gap">Sort: Consensus Gap</option>
+      <option value="survive">Sort: Least likely to last</option>
+    </select>
+    <div class="cfg-label">Fine-tuning</div>
+    <label class="slider-wrap full" title="Guide rankings vs. raw market ADP">
+      Rank <input id="wr" type="range" min="0" max="100" value="60"><span class="mono" id="wrVal">.60</span></label>
+    <label class="slider-wrap full" title="Market Score divergence">
+      MS <input id="wm" type="range" min="0" max="100" value="40"><span class="mono" id="wmVal">.40</span></label>
+    <label class="slider-wrap full" title="Worth of a player who doesn't crack your lineup">
+      Bench <input id="wb" type="range" min="0" max="80" value="30"><span class="mono" id="wbVal">.30</span></label>
+  </div>
 </div>
 
 <div class="gl-view active" id="view-draft">
@@ -416,22 +486,6 @@
         <button data-pos="WR" aria-pressed="false">WR</button>
         <button data-pos="TE" aria-pressed="false">TE</button>
       </div>
-      <div class="pos-group" id="presetGroup" title="Browse a format without connecting a league"></div>
-      <select id="sort" class="field">
-        <option value="mine" selected>Sort: Tiers</option>
-        <option value="edge">Sort: Edge</option>
-        <option value="vorp">Sort: VORP</option>
-        <option value="ms">Sort: Market Score</option>
-        <option value="adp">Sort: Consensus</option>
-        <option value="gap">Sort: Consensus Gap</option>
-        <option value="survive">Sort: Least likely to last</option>
-      </select>
-      <label class="slider-wrap" title="Guide rankings vs. raw market ADP">
-        Rank <input id="wr" type="range" min="0" max="100" value="60"><span class="mono" id="wrVal">.60</span></label>
-      <label class="slider-wrap" title="Market Score divergence">
-        MS <input id="wm" type="range" min="0" max="100" value="40"><span class="mono" id="wmVal">.40</span></label>
-      <label class="slider-wrap" title="Worth of a player who doesn't crack your lineup">
-        Bench <input id="wb" type="range" min="0" max="80" value="30"><span class="mono" id="wbVal">.30</span></label>
     </div>
     <div class="board" id="board"></div>
   </main>
@@ -1070,10 +1124,24 @@ function guideChecks(p, ts, cuts, rbGroups){
     }
     if(team && pr >= 19 && pr <= 42){
       const mates = team.RB - own;
-      const [lo, hi] = cuts.rbMates;
-      if(mates >= lo && mates <= hi) add("Backfield", "good", `ambiguous — teammate RBs worth ${mates.toFixed(1)} expected PPG`, 1.05);
-      else if(mates > hi) add("Backfield", "bad", `crowded — teammate RBs worth ${mates.toFixed(1)} expected PPG`, 0.95);
+      const young = cy != null && cy <= 2;
+      // The guide's table splits this by career year — Year 1/2 backs show
+      // a bigger gap by teammate competition than veterans, same cut points
+      // but a wider swing since the effect is stronger for them.
+      const [lo, hi] = young ? cuts.rbMatesYoung : cuts.rbMatesVet;
+      const mult = young ? [1.07, 0.93] : [1.05, 0.95];
+      if(mates >= lo && mates <= hi) add("Backfield", "good", `ambiguous${young?" (young back)":""} — teammate RBs worth ${mates.toFixed(1)} expected PPG`, mult[0]);
+      else if(mates > hi) add("Backfield", "bad", `crowded${young?" (young back)":""} — teammate RBs worth ${mates.toFixed(1)} expected PPG`, mult[1]);
       else add("Backfield", "ok", `clear — teammate RBs worth ${mates.toFixed(1)}`, 1);
+    }
+    /* Year 2 RB workload: "workload tends to be a much better predictor of
+       Year 2 success than efficiency" — a general principle stated in the
+       guide's Jeanty writeup, not its own dedicated table like the WR Year 5
+       finding below. Lower confidence, smaller multiplier accordingly. The
+       12 carries/game bar is my own judgment call (real lead-role volume),
+       not a guide-quoted threshold. */
+    if(n1 && n1.car_pg != null && cy === 2 && pr <= 35){
+      if(n1.car_pg >= 12) add("Year 2 workload", "good", `${n1.car_pg.toFixed(1)} car/g as a rookie — volume predicts Year 2 better than efficiency`, 1.04);
     }
     /* Handcuff: "a backup running back whose value is almost entirely
        dependent on his starter getting hurt" — the guide's own definition,
@@ -1141,6 +1209,12 @@ function guideChecks(p, ts, cuts, rbGroups){
       if(team.passShare >= hi) add("Passing Game Score", "good", `${(team.passShare*100).toFixed(0)}% of team output projects through the pass game`, 1.03);
       else if(team.passShare <= lo) add("Passing Game Score", "bad", `${(team.passShare*100).toFixed(0)}% — a run-leaning offense by ADP`, 0.97);
     }
+    /* Career Year — Year 5 specifically. 33 Year 5 WRs in the guide's
+       2014-2025 sample, only 1 underperformed expectation by 4+ PPG, 70%
+       beat their draft-day cost. Likely tied to age curve: most good WRs
+       enter the league at 21-22, making Year 5 right in their prime before
+       the market has fully priced it in. */
+    if(cy === 5 && pr <= 18) add("Career year", "good", "Year 5 — 33-sample, only 1 busted by 4+, 70% beat cost", 1.06);
   }
 
   if(p.pos === "TE"){
@@ -1361,8 +1435,14 @@ function buildPool(){
     passShare: terciles(teams.map(t=>t.passShare)),
     pc:  terciles(S.pool.filter(p=>inPool(p) && (p.pos==="WR"||p.pos==="TE"))
                         .map(p=>ts[p.team].pc - own(p))),
-    rbMates: terciles(S.pool.filter(p=>inPool(p) && p.pos==="RB")
-                            .map(p=>ts[p.team].RB - own(p))),
+    // Split by career year — the guide's table shows a bigger teammate-
+    // competition effect for Year 1/2 backs than veterans. Small samples
+    // fall back to terciles()'s own [0,Infinity] no-op, same safety net
+    // used everywhere else in this app.
+    rbMatesYoung: terciles(S.pool.filter(p=>inPool(p) && p.pos==="RB" && p.careerYear!=null && p.careerYear<=2)
+                                 .map(p=>ts[p.team].RB - own(p))),
+    rbMatesVet: terciles(S.pool.filter(p=>inPool(p) && p.pos==="RB" && !(p.careerYear!=null && p.careerYear<=2))
+                               .map(p=>ts[p.team].RB - own(p))),
   };
   const rbGroups = teamRBGroups(S.pool);
   S.teamScores = ts; S.cuts = cuts;
@@ -1475,6 +1555,22 @@ function myRoster(ctx){
 /* ==================================================================
    The board
    ================================================================== */
+/* Onesie (QB/TE in single-QB leagues) tolerance, continuous rather than a
+   3-bucket step function. Two real inputs instead of one:
+     - team count, standing in for pick frequency / waiver-wire depth —
+       continuous between the guide's own explicit endpoints (8-team "take
+       it," 16-team "don't"), clamped beyond them rather than a hard jump
+       at exactly 10 or 14 teams.
+     - bench depth (BN slots only), which the guide doesn't quote a number
+       for — a deeper bench gives you room to speculate and wait, so it
+       softens the tilt; a shallow bench sharpens it. This part is my own
+       judgment call, not guide-sourced, same caveat as the Handcuff check. */
+function onesieCurve(teams, benchSlots){
+  const teamFactor = clamp(1.08 + (teams-8)*((0.92-1.08)/(16-8)), 0.88, 1.10);
+  const benchAdj = benchSlots!=null ? clamp((benchSlots-6)*-0.01, -0.04, 0.04) : 0;
+  return clamp(teamFactor + benchAdj, 0.85, 1.12);
+}
+
 function computeBoard(){
   const pr=profile(), ctx=ctxOf();
   const scoring = scoringKey(pr?.ppr ?? 1);
@@ -1495,7 +1591,7 @@ function computeBoard(){
   const baseLineup = solveLineup(rosterSorted, slots);
   const available = S.pool.filter(p=>!S.pickedIds.has(p.sleeper_id));
 
-  const onesieTilt = ctx.teams<=10 ? 1.08 : ctx.teams>=14 ? 0.92 : 1.0;
+  const onesieTilt = onesieCurve(ctx.teams, pr?.benchSlots);
   const build = structuralBuild(roster, ctx, planNeed);
   for(const p of available){
     const withHim=[...rosterSorted,p].sort((a,b)=>b.proj-a.proj);
@@ -1610,8 +1706,8 @@ function render(){
 
   $("cOnClock").textContent=pickLabel(ctx.current,ctx.teams);
   $("cNext").textContent=pickLabel(ctx.next,ctx.teams);
-  $("cThen").textContent=pickLabel(ctx.then,ctx.teams);
-  $("cGap").textContent=(ctx.next&&ctx.then)?(ctx.then-ctx.next-1):"—";
+  const gapVal = (ctx.next&&ctx.then)?(ctx.then-ctx.next-1):null;
+  $("cThenTag").textContent = ctx.then ? `then ${pickLabel(ctx.then,ctx.teams)}${gapVal!=null?" · gap "+gapVal:""}` : "";
 
   // runway
   $("runwayMeta").textContent = `${d.phase} · at ${pickLabel(ctx.after||ctx.then||ctx.next,ctx.teams)}`;
@@ -1666,7 +1762,7 @@ function render(){
     const n=d.tierCounts[t];
     const st=d.gap>0?(n<=d.gap?"thin":n>d.gap*2?"deep":""):"";
     const label=st==="thin"?"won't last":st==="deep"?"comes back":"coin flip";
-    const col=st==="thin"?"#E89484":st==="deep"?"var(--chalk)":"var(--mute)";
+    const col=st==="thin"?"#F2938A":st==="deep"?"var(--chalk)":"var(--mute)";
     return `<div><em style="color:${tierHue(t)}">T${t}</em><span class="v">${n} left</span><span style="color:${col}">${label}</span></div>`;
   }).join(""):`<p class="note">Import tiered rankings to use this.</p>`;
 
@@ -1766,6 +1862,22 @@ function sparklineSVG(weekly){
   </svg>`;
 }
 
+/* Stack context — informational only, never touches p.edge. The guide's
+   actual position ("You Don't Need to Stack") is a correction to the
+   common assumption that pairing a QB with his pass-catcher is a good
+   season-long move: stacking is a best-ball tournament optimization
+   (embracing variance across thousands of entries), not something that
+   helps much when you're only beating one opponent a week. This is a
+   note, not a penalty — the guide doesn't say avoid it either. */
+function stackNote(p, roster){
+  if(!roster || !roster.length || !p.team) return null;
+  const complement = p.pos==="QB" ? ["WR","TE"] : (p.pos==="WR"||p.pos==="TE") ? ["QB"] : null;
+  if(!complement) return null;
+  const partner = roster.find(r => r.team===p.team && complement.includes(r.pos));
+  if(!partner) return null;
+  return `<b style="color:var(--gold)">Stack</b> you already roster ${esc(partner.name)} (${p.team}) — fine either way, but the guide's take is you don't need to force a stack in season-long play; that's more of a best-ball tournament move.`;
+}
+
 function drawerHTML(p, d){
   const shift = d.shifts[p.pos] || 0;
   const badges = (p.archetypes||[]).map(t=>`<span class="tag ${t.cls}">${esc(t.label)}</span>`).join(" ");
@@ -1785,7 +1897,7 @@ function drawerHTML(p, d){
         + (p.adp ? ` (ADP ${p.adp.toFixed(1)})` : "")
       : `<b>#${p.consRank ?? "?"}</b> consensus${p.adp?` (ADP ${p.adp.toFixed(1)})`:""}`,
     ...(p.trait?.checks||[]).map(c=>{
-      const col = c.verdict==="good" ? "var(--turf)" : c.verdict==="bad" ? "#E89484" : "var(--dim)";
+      const col = c.verdict==="good" ? "var(--turf)" : c.verdict==="bad" ? "#F2938A" : "var(--dim)";
       return `<b style="color:${col}">${c.label}</b> ${esc(c.detail)}`;
     }),
     p.n1
@@ -1796,7 +1908,8 @@ function drawerHTML(p, d){
         + (p.n1.ngs?.ryoe_pa!=null ? ` · ${p.n1.ngs.ryoe_pa>=0?"+":""}${p.n1.ngs.ryoe_pa.toFixed(2)} RYOE/att` : "")
       : `<b>no</b> qualifying prior season`,
     `<b>${Math.round(p.pSurvive*100)}%</b> to last${shift?` (room drafts ${p.pos} ${shift>0?"early":"late"} by ${Math.abs(shift).toFixed(0)})`:""}, best ${p.pos} left after would be ${p.altValue.toFixed(1)}`,
-  ].join("<br>");
+    stackNote(p, d.roster),
+  ].filter(Boolean).join("<br>");
   return `<div class="drawer">
     <div class="why">${badges?`<div style="margin-bottom:5px">${badges}</div>`:""}${why}${sparklineSVG(p.n1?.weekly)}</div>
     <button class="btn tiny" data-act="draft" data-id="${p.sleeper_id}">Mark drafted</button>
@@ -1857,7 +1970,7 @@ function rankCell(p){
   return `<b>${mine}</b><s class="${cls}" title="consensus ${cons}">${arrow}${cons}</s>`;
 }
 
-const tierHue=t=>["#4ADE6A","#DCE4D6","#E8B44A","#7FB2E5","#D2564A","#B48CE0","#6FD3C7"][(t-1)%7];
+const tierHue=t=>["#2DD4BF","#D7DCE5","#FBBF24","#7FB2E5","#F0655A","#B48CE0","#6FD3C7"][(t-1)%7];
 
 /* ==================================================================
    Data
@@ -1941,7 +2054,11 @@ function shapeFromLeague(league){
   const slots=(league.roster_positions||[]).filter(s=>!BENCH_SLOTS.has(s));
   const sf=slots.includes("SUPER_FLEX")||slots.filter(s=>s==="QB").length>=2;
   const sc=league.scoring_settings||{};
-  return {teams:league.total_rosters||12, ppr:sc.rec??1, qbs:sf?2:1, slots,
+  // BN specifically, not IR/TAXI — those are injury/rookie-stash only and
+  // don't give you the general-purpose speculation room a real bench spot
+  // does, which is what the onesie curve below actually cares about.
+  const benchSlots=(league.roster_positions||[]).filter(s=>s==="BN").length;
+  return {teams:league.total_rosters||12, ppr:sc.rec??1, qbs:sf?2:1, slots, benchSlots,
           teBonus:sc.bonus_rec_te||0, passTd:sc.pass_td??4};
 }
 /* Mocks have no league object, so the draft's own settings carry the shape. */
@@ -1956,7 +2073,8 @@ function shapeFromDraft(draft){
   const st=(draft.metadata?.scoring_type||"ppr").toLowerCase();
   const ppr = st.includes("half") ? 0.5 : st.includes("std") ? 0 : 1;
   const sf = slots.includes("SUPER_FLEX")||slots.filter(x=>x==="QB").length>=2;
-  return {teams:s.teams||12, rounds:s.rounds||15, ppr, qbs:sf?2:1, slots, teBonus:0, passTd:4, type:draft.type||"snake"};
+  return {teams:s.teams||12, rounds:s.rounds||15, ppr, qbs:sf?2:1, slots, teBonus:0, passTd:4,
+          type:draft.type||"snake", benchSlots: s.slots_bn ?? null};
 }
 
 async function addProfileFrom(shape, meta){
@@ -2410,7 +2528,7 @@ function renderTrade(){
     $("tlVerdict").className="tl-verdict";
     $("tlVerdict").innerHTML = `
       <div class="tl-diff ${cls}">${net>0?"+":""}${net.toFixed(0)}</div>
-      <div><div class="tl-rec" style="color:${cls==="pos"?"var(--turf)":cls==="neg"?"#E89484":"var(--mute)"}">${esc(rec)}</div>
+      <div><div class="tl-rec" style="color:${cls==="pos"?"var(--turf)":cls==="neg"?"#F2938A":"var(--mute)"}">${esc(rec)}</div>
       <div style="font:400 12px/1.4 'IBM Plex Mono',monospace;color:var(--mute)">for Team A · ${pct>=0?"+":""}${pct.toFixed(1)}% value edge</div></div>
       <div class="tl-sub">Raw: A ${A.raw.toFixed(0)} → adj ${A.adj.toFixed(0)} (${TRADE.sideA.length} piece${TRADE.sideA.length!==1?"s":""}) · B ${B.raw.toFixed(0)} → adj ${B.adj.toFixed(0)} (${TRADE.sideB.length} piece${TRADE.sideB.length!==1?"s":""}). Package discount applied to the 2nd+ asset per side.</div>`;
     $("tlFoot").textContent = "Value edge is a share of total trade value, not a win probability — there's no season simulation behind this number.";
@@ -2442,7 +2560,7 @@ function renderTrade(){
     $("tlVerdict").className="tl-verdict";
     $("tlVerdict").innerHTML = `
       <div class="tl-diff ${cls}">${r.marginal>0?"+":""}${r.marginal.toFixed(1)}</div>
-      <div><div class="tl-rec" style="color:${cls==="pos"?"var(--turf)":cls==="neg"?"#E89484":"var(--mute)"}">${esc(rec)}</div>
+      <div><div class="tl-rec" style="color:${cls==="pos"?"var(--turf)":cls==="neg"?"#F2938A":"var(--mute)"}">${esc(rec)}</div>
       <div style="font:400 12px/1.4 'IBM Plex Mono',monospace;color:var(--mute)">pts/g marginal lineup gain · ${pct>=0?"+":""}${pct.toFixed(1)}% of current output</div></div>
       <div class="tl-sub">Lineup total before ${r.before.toFixed(1)} pts/g → after ${r.after.toFixed(1)} pts/g, via the slot solver against your connected league's real starting requirements.</div>`;
     $("tlFoot").textContent = "Marginal gain reflects your starting lineup fit, not raw player value — a bench-only add can show near zero even if the player himself is good.";
@@ -2811,6 +2929,12 @@ function wireBetting(){
 }
 
 function wire(){
+  const cfgOpen = () => { $("cfgSheet").classList.add("show"); $("cfgScrim").classList.add("show"); };
+  const cfgClose = () => { $("cfgSheet").classList.remove("show"); $("cfgScrim").classList.remove("show"); };
+  $("cfgOpen").addEventListener("click", cfgOpen);
+  $("cfgClose").addEventListener("click", cfgClose);
+  $("cfgScrim").addEventListener("click", cfgClose);
+
   $("posGroup").addEventListener("click",e=>{
     const b=e.target.closest("button"); if(!b) return;
     S.pos=b.dataset.pos;
