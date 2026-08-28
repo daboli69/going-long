@@ -533,6 +533,11 @@
           <label><span class="eyebrow">Draft</span><select id="draftSel" class="field"></select></label>
           <button class="btn" id="addProfile">Add this draft</button>
           <hr style="border:0;border-top:1px solid var(--line);margin:4px 0">
+          <label><span class="eyebrow">Or a league ID directly</span>
+            <input id="leagueIdInput" class="field mono" placeholder="1234567890123456789"></label>
+          <button class="btn ghost" id="addLeagueId">Add by league ID</button>
+          <p class="note">Skips the username lookup — bench spots, starting slots, PPR/superflex, and team count all come straight off the league. Grab the ID from your league's Sleeper URL.</p>
+          <hr style="border:0;border-top:1px solid var(--line);margin:4px 0">
           <label><span class="eyebrow">Or a mock / draft ID</span>
             <input id="mockId" class="field mono" placeholder="1234567890123456789"></label>
           <button class="btn ghost" id="addMock">Add mock draft</button>
@@ -1781,7 +1786,17 @@ function render(){
   if(S.query){ const q=normalize(S.query); list=list.filter(p=>p.key.includes(q)); }
   const sorters={
     edge:(a,b)=>b.edge-a.edge, vorp:(a,b)=>b.vorp-a.vorp,
-    mine:(a,b)=>(a.myRank||9999)-(b.myRank||9999),
+    // Ranked players sort by your rank first. Anyone without one — either
+    // because you haven't imported rankings yet, or a player your CSV
+    // missed — falls back to real market ADP rather than whatever order
+    // the array happened to build in. This is what makes "no rankings
+    // imported" actually mean ADP order, matching the banner that already
+    // says so, instead of an arbitrary tie.
+    mine:(a,b)=>{
+      const ra = a.myRank ?? (9000 + (a.adp ?? 999));
+      const rb = b.myRank ?? (9000 + (b.adp ?? 999));
+      return ra - rb;
+    },
     ms:(a,b)=>(b.ms??-1)-(a.ms??-1),
     adp:(a,b)=>(a.adp||999)-(b.adp||999),
     survive:(a,b)=>a.pSurvive-b.pSurvive,
@@ -2096,6 +2111,37 @@ async function addProfile(){
     user_id:scratch.user?.user_id||"", isMock:false});
   $("connNote").textContent=`Added ${prof.label}.`;
 }
+/* Paste a league ID directly, skip the username lookup entirely. Settings
+   — bench spots, starting slots, PPR level, superflex, team count — all
+   come straight off shapeFromLeague(), same auto-extraction the username
+   flow already uses. If the league has a draft created, the most recent
+   one is attached automatically; if not (pre-draft setup), the league
+   connects with settings only and no draft_id, which every downstream
+   function already treats as "no live sync" rather than an error. */
+async function addLeagueById(){
+  const id = $("leagueIdInput").value.trim().replace(/\D/g,"");
+  if(!id) return;
+  $("connNote").textContent = "Reading league…";
+  try{
+    const league = await api(`/league/${id}`);
+    let draftId = "";
+    try{
+      const drafts = await api(`/league/${id}/drafts`);
+      if(drafts.length) draftId = drafts[0].draft_id;
+    }catch(e){ /* no drafts yet — league settings still connect fine without one */ }
+    const shape = shapeFromLeague(league);
+    const prof = await addProfileFrom(shape, {
+      label: `${league.name} ${league.season}`, league_id:id, draft_id:draftId,
+      user_id: scratch.user?.user_id||"", isMock:false });
+    const benchTxt = shape.benchSlots!=null ? `${shape.benchSlots} bench` : "bench unknown";
+    $("connNote").textContent = `Added ${prof.label} — ${shape.teams} teams, ${shape.slots.length} starters, ${benchTxt}.`
+      + (draftId ? "" : " No draft created yet, settings only.")
+      + (scratch.user ? "" : " Add your username above too if you want your draft slot to autofill.");
+  }catch(e){
+    $("connNote").innerHTML = `<span class="warn">No league with that ID. Copy the number from your league's Sleeper URL.</span>`;
+  }
+}
+
 async function addMock(){
   const id=$("mockId").value.trim().replace(/\D/g,"");
   if(!id) return;
@@ -2985,6 +3031,7 @@ function wire(){
   $("findLeagues").addEventListener("click",findLeagues);
   $("leagueSel").addEventListener("change",loadDrafts);
   $("addProfile").addEventListener("click",addProfile);
+  $("addLeagueId").addEventListener("click",addLeagueById);
   $("addMock").addEventListener("click",addMock);
   $("refresh").addEventListener("click",pollPicks);
   $("undo").addEventListener("click",undoPick);
