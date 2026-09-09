@@ -33,17 +33,31 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install dependencies
+        run: pip install -r scripts/requirements.txt
+
       - name: Build pool + format files
         run: python scripts/build_data.py
 
       - name: Build player history from nflverse
         run: python scripts/build_history.py
 
+      - name: Build NFL betting data (lines + power ratings)
+        run: python scripts/build_nfl_betting.py
+        env:
+          # Optional. Without this, game lines + ratings still build for
+          # real — only live player props are skipped. Get a free key at
+          # the-odds-api.com and add it as a repo secret to enable props.
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+
+      - name: Build NCAA game lines + ratings
+        run: python scripts/build_ncaa_lines.py
+
       - name: Commit if changed
         run: |
           git config user.name  "goinglong-bot"
           git config user.email "actions@github.com"
-          git add data/players.json data/formats data/history.json
+          git add data/players.json data/formats data/history.json data/nfl_betting.json data/ncaa_lines.json
           if git diff --staged --quiet; then
             echo "no change"
           else
