@@ -37,12 +37,18 @@ jobs:
         run: pip install -r scripts/requirements.txt
 
       - name: Build pool + format files
+        id: build_data
+        continue-on-error: true
         run: python scripts/build_data.py
 
       - name: Build player history from nflverse
+        id: build_history
+        continue-on-error: true
         run: python scripts/build_history.py
 
       - name: Build NFL betting data (lines + power ratings)
+        id: build_nfl_betting
+        continue-on-error: true
         run: python scripts/build_nfl_betting.py
         env:
           # Optional. Without this, game lines + ratings still build for
@@ -51,6 +57,8 @@ jobs:
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
 
       - name: Build NCAA game lines + ratings
+        id: build_ncaa_lines
+        continue-on-error: true
         run: python scripts/build_ncaa_lines.py
 
       - name: Commit if changed
@@ -64,3 +72,13 @@ jobs:
             git commit -m "data: refresh pool $(date -u +%Y-%m-%d)"
             git push
           fi
+
+      - name: Fail the run if any build step failed
+        # Whatever DID succeed is already committed above — this just makes
+        # sure a real problem (like the nflreadpy season-range issue this
+        # step was added after) still shows red in the Actions tab instead
+        # of silently reporting green while one data source went stale.
+        if: ${{ steps.build_data.outcome == 'failure' || steps.build_history.outcome == 'failure' || steps.build_nfl_betting.outcome == 'failure' || steps.build_ncaa_lines.outcome == 'failure' }}
+        run: |
+          echo "One or more build steps failed — see the individual step logs above. Data that did build was still committed."
+          exit 1
