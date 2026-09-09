@@ -100,12 +100,41 @@ def fetch_lines():
     return games
 
 
+def _load_pbp_available(seasons):
+    """nflreadpy's play-by-play loader validates its own season range
+    internally and raises if a requested season is outside what it
+    currently accepts — in practice this is the CURRENT season, before
+    nflverse has published play-by-play for it yet, even though schedules
+    (fetch_lines, above) already has real lines for it. Confirmed live:
+    load_pbp(seasons=[2024,2025,2026]) throws "Season must be between
+    1999 and 2025"; load_pbp(seasons=[2024,2025]) succeeds fine.
+
+    Try the full list first; on failure, drop the most recent season and
+    retry, repeating until something loads or nothing's left. This is the
+    same shape as every other honest-degradation path in this project —
+    ratings come back built from whatever seasons are actually available
+    rather than taking the whole build down over one season not existing
+    yet, and current-season GAMES/LINES (which don't depend on this) are
+    completely unaffected either way."""
+    remaining = list(seasons)
+    while remaining:
+        try:
+            return nfl.load_pbp(seasons=remaining)
+        except Exception as exc:  # noqa: BLE001
+            dropped = remaining.pop()
+            print(f"  ! PBP unavailable for {dropped} ({exc}) — retrying without it")
+    print("  ! No PBP available for any requested season — ratings will be empty this run")
+    return None
+
+
 def build_ratings():
     """Season-to-date net EPA/play per team, using ONLY games strictly
     before the one a rating would be used to price. Returns
     {season: {team: {week: rating_entering_that_week}}}."""
     seasons = list(range(SEASON - HISTORY_SEASONS + 1, SEASON + 1))
-    pbp = nfl.load_pbp(seasons=seasons)
+    pbp = _load_pbp_available(seasons)
+    if pbp is None or pbp.is_empty():
+        return {}
 
     off = (pbp.filter(pl.col("posteam").is_not_null())
               .group_by(["season", "week", "posteam"])
