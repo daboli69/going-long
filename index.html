@@ -3021,10 +3021,28 @@ function wireBetting(){
     renderBetting();
   });
   $("btLoadReal").addEventListener("click", ()=>{
+    const raw = BET.sport==="nfl" ? BET.nflData : BET.ncaaData;
+    if(!raw){
+      $("btGamesResult").innerHTML = `<p class="warn">No ${BET.sport.toUpperCase()} data file loaded — the nightly build may not have run yet, or hasn't produced data/${BET.sport==="nfl"?"nfl_betting":"ncaa_lines"}.json.</p>`;
+      return;
+    }
+    const totalGames = raw.games?.length || 0;
+    const withRealLine = (raw.games || []).filter(g => !g.completed && g.spread != null).length;
     const added = gamesFromRealData(BET.sport);
     BET.games.push(...added);
-    $("btGamesResult").innerHTML = `<p class="note">Loaded ${added.length} real upcoming ${BET.sport.toUpperCase()} game${added.length!==1?"s":""} — duplicates against what's already listed were skipped.</p>`;
     renderGamesList();
+
+    if(added.length > 0){
+      $("btGamesResult").innerHTML = `<p class="note">Loaded ${added.length} real upcoming ${BET.sport.toUpperCase()} game${added.length!==1?"s":""}.</p>`;
+    } else if(withRealLine > 0){
+      $("btGamesResult").innerHTML = `<p class="note">Nothing new — the ${withRealLine} real upcoming game${withRealLine!==1?"s":""} available are already listed below.</p>`;
+    } else {
+      // This is the real, confirmed case: the schedule has games, but the
+      // odds source hasn't published lines for them yet — same pattern as
+      // nflreadpy not having current-season play-by-play ready. Not a bug,
+      // but a silent zero here reads exactly like one, so say so plainly.
+      $("btGamesResult").innerHTML = `<p class="warn">${totalGames} ${BET.sport.toUpperCase()} game${totalGames!==1?"s":""} in the data file, but none have a posted line yet — the odds source (${BET.sport==="nfl"?"nflreadpy's schedule dataset":"sportsdataverse's betting lines dataset"}) hasn't published this week's numbers. This isn't a bug — check back once lines are posted, or paste them manually below.</p>`;
+    }
   });
   $("btTabGroup").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
