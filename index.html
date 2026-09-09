@@ -629,12 +629,16 @@
   <div class="bt-wrap">
     <div class="bt-head">
       <h2>Betting</h2>
+      <div class="pos-group" id="btSportGroup">
+        <button data-sport="nfl" aria-pressed="true">NFL</button>
+        <button data-sport="ncaa" aria-pressed="false">NCAA</button>
+      </div>
       <div class="pos-group" id="btTabGroup">
         <button data-tab="props" aria-pressed="true">Player Props</button>
         <button data-tab="games" aria-pressed="false">Game Lines</button>
       </div>
     </div>
-    <p class="bt-note">Manual/paste entry only — no live odds feed is wired in yet. Everything below runs on whatever you paste in.</p>
+    <p class="bt-note" id="btDataNote">Manual/paste entry only — no live odds feed is wired in yet. Everything below runs on whatever you paste in.</p>
 
     <!-- ============ PROPS TAB ============ -->
     <section class="bt-panel" id="btPropsPanel">
@@ -669,6 +673,7 @@
 
     <!-- ============ GAMES TAB ============ -->
     <section class="bt-panel" id="btGamesPanel" hidden>
+      <button class="btn ghost tiny" id="btLoadReal" style="margin-bottom:10px">Load real lines from the nightly build</button>
       <div class="bt-games" id="btGamesList"></div>
       <details class="setup">
         <summary>Paste game lines</summary>
@@ -2719,6 +2724,7 @@ const NFL_KEY_NUMBERS = [3,7,6,10,14,4];
 const BET = {
   props: [], games: [],
   market: "ALL", sort: "ev", lognormal: false, tab: "props",
+  sport: "nfl", nflData: null, ncaaData: null,
 };
 
 /* ---- odds & probability math -------------------------------------- */
@@ -2793,13 +2799,18 @@ function keyNumberDistance(spread){
   }
   return best;
 }
-/* Real math, no data: spread = (away rating - home rating) - home field
-   edge, using the same "negative = home favored" convention as above.
-   Returns null rather than a fabricated number when ratings are absent. */
-function fairSpread(homeRating, awayRating, hfa){
-  if(homeRating == null || awayRating == null) return null;
-  hfa = hfa ?? 1.5;
-  return (awayRating - homeRating) - hfa;
+/* Real math: predictedMargin = scale*(homeRating-awayRating) + intercept,
+   spread = -predictedMargin. scale/intercept come from each sport's own
+   walk-forward calibration (build_nfl_betting.py / build_ncaa_lines.py) —
+   without them, a raw EPA-style rating differential (typically ±0.3) is
+   nowhere near point-scale, so this now REQUIRES real calibration
+   constants rather than silently guessing with a flat HFA number that
+   only made sense for a different kind of rating. Returns null when
+   ratings — or their calibration — aren't available, same as before. */
+function fairSpread(homeRating, awayRating, scale, intercept){
+  if(homeRating == null || awayRating == null || scale == null) return null;
+  intercept = intercept ?? 0;
+  return scale * (awayRating - homeRating) - intercept;
 }
 
 /* ---- per-row computation -------------------------------------------- */
@@ -2906,6 +2917,50 @@ function renderPropsTable(){
   }).join("");
 }
 
+/* Real data loading — 404-safe, same pattern as every other optional
+   data source in this app (managers.json, history.json, data.json).
+   Games get converted into the exact shape parseGamesPaste() already
+   produces, so every existing render/math function downstream (implied
+   totals, key numbers, fair spread) works completely unchanged — this
+   is new DATA, not new logic. */
+async function loadBettingData(){
+  try{ BET.nflData = await fetch("data/nfl_betting.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
+  catch(e){ BET.nflData = null; }
+  try{ BET.ncaaData = await fetch("data/ncaa_lines.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
+  catch(e){ BET.ncaaData = null; }
+}
+
+function nflRatingFor(raw, season, team, week){
+  return raw?.ratings?.[String(season)]?.[team]?.[String(week)] ?? null;
+}
+function ncaaRatingFor(raw, season, team){
+  return raw?.ratings?.[String(season)]?.[team] ?? null;
+}
+
+/* Only upcoming games with a real line — completed games and lineless
+   rows aren't useful on a "what should I bet" board. Dedupes against
+   whatever's already in BET.games by away+home+kickoff so clicking the
+   load button twice doesn't double the list. */
+function gamesFromRealData(sport){
+  const raw = sport==="nfl" ? BET.nflData : BET.ncaaData;
+  if(!raw) return [];
+  const existing = new Set(BET.games.map(g=>`${g.away}|${g.home}|${g.kickoff}`));
+  const out = [];
+  for(const g of raw.games){
+    if(g.completed || g.spread == null) continue;
+    const key = `${g.away}|${g.home}|${g.kickoff}`;
+    if(existing.has(key)) continue;
+    const homeRating = sport==="nfl" ? nflRatingFor(raw, g.season, g.home, g.week) : ncaaRatingFor(raw, g.season, g.home);
+    const awayRating = sport==="nfl" ? nflRatingFor(raw, g.season, g.away, g.week) : ncaaRatingFor(raw, g.season, g.away);
+    out.push({
+      id: uid(), away:g.away, home:g.home, spread:g.spread, total:g.total,
+      mlAway:g.away_ml, mlHome:g.home_ml, kickoff:g.kickoff,
+      awayRating, homeRating,
+    });
+  }
+  return out;
+}
+
 function renderGamesList(){
   const el = $("btGamesList");
   if(!el) return;
@@ -2915,7 +2970,8 @@ function renderGamesList(){
     const kn = keyNumberDistance(g.spread);
     const knTag = kn.d===0 ? `<span class="bt-key on">ON KEY ${kn.key}</span>`
                 : kn.d<=1 ? `<span class="bt-key near">±${kn.d} from key ${kn.key}</span>` : "";
-    const fs = fairSpread(g.homeRating, g.awayRating);
+    const calib = (BET.sport==="nfl" ? BET.nflData : BET.ncaaData)?.rating_calibration;
+    const fs = fairSpread(g.homeRating, g.awayRating, calib?.slope, calib?.intercept);
     const fmtSpread = v => v<=0 ? v.toFixed(1) : "+"+v.toFixed(1);
     const fairTxt = fs != null
       ? `<div class="bt-fair">Fair spread (ratings): <b>${esc(g.home)} ${fmtSpread(fs)}</b> vs market ${esc(g.home)} ${fmtSpread(g.spread)}</div>`
@@ -2945,6 +3001,31 @@ window.renderBetting = renderBetting;   // called from the gateway script's setV
 function wireBetting(){
   const view = document.getElementById("view-betting");
   if(!view) return;
+  $("btSportGroup").addEventListener("click", e=>{
+    const b=e.target.closest("button"); if(!b) return;
+    BET.sport = b.dataset.sport;
+    [...$("btSportGroup").children].forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+    const propsTabBtn = $("btTabGroup").querySelector('[data-tab="props"]');
+    if(BET.sport === "ncaa"){
+      // Explicit scope: NCAA is game lines + totals only, no props.
+      propsTabBtn.hidden = true;
+      BET.tab = "games";
+      $("btTabGroup").querySelector('[data-tab="games"]').click();
+    } else {
+      propsTabBtn.hidden = false;
+    }
+    const src = BET.sport==="nfl" ? BET.nflData : BET.ncaaData;
+    $("btDataNote").textContent = src
+      ? `Real ${BET.sport.toUpperCase()} lines available from the nightly build (generated ${(src.generated_at||"").slice(0,10)}) — click "Load real lines" below, or keep pasting manually.`
+      : `No ${BET.sport.toUpperCase()} data file found yet — paste manually, or run the nightly build.`;
+    renderBetting();
+  });
+  $("btLoadReal").addEventListener("click", ()=>{
+    const added = gamesFromRealData(BET.sport);
+    BET.games.push(...added);
+    $("btGamesResult").innerHTML = `<p class="note">Loaded ${added.length} real upcoming ${BET.sport.toUpperCase()} game${added.length!==1?"s":""} — duplicates against what's already listed were skipped.</p>`;
+    renderGamesList();
+  });
   $("btTabGroup").addEventListener("click", e=>{
     const b=e.target.closest("button"); if(!b) return;
     BET.tab = b.dataset.tab;
@@ -3068,7 +3149,7 @@ function wire(){
 async function boot(){
   loadLocal();
   $("username").value=localStorage.getItem("goinglong.username")||"";
-  wire(); wireTrade(); wireBetting(); await loadBase();
+  wire(); wireTrade(); wireBetting(); await loadBase(); await loadBettingData();
   if(S.profiles.find(p=>p.id===S.activeId)){
     await activate();
   } else {
