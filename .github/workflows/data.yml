@@ -68,10 +68,44 @@ jobs:
           git add data/players.json data/formats data/history.json data/nfl_betting.json data/ncaa_lines.json
           if git diff --staged --quiet; then
             echo "no change"
-          else
-            git commit -m "data: refresh pool $(date -u +%Y-%m-%d)"
-            git push
+            exit 0
           fi
+          git commit -m "data: refresh pool $(date -u +%Y-%m-%d)"
+
+          # The remote can move forward between this job's checkout and this
+          # push — a human pushing via the browser, or a second workflow run
+          # triggered close enough behind this one that they overlap. A plain
+          # push then gets rejected as non-fast-forward.
+          #
+          # A normal `git pull --rebase` is the WRONG fix here and was
+          # verified as such before shipping: every file this job commits is
+          # fully regenerated from scratch each run, so two runs racing each
+          # other produce two different versions of the *same* file with no
+          # shared line history — a rebase/merge can't reconcile that and
+          # fails with a real conflict, confirmed against a local repro.
+          #
+          # The correct fix for "bot commits full snapshots, might race with
+          # itself": don't merge content at all. Move the local branch
+          # pointer to the remote's current tip with --soft (which touches
+          # git's history bookkeeping only, never the working tree), then
+          # recommit the files this run already wrote to disk. Whichever run
+          # commits last simply wins outright, which is the correct
+          # semantics for a generated-data bot — also verified against the
+          # same local repro before shipping.
+          for i in 1 2 3 4 5; do
+            if git push origin main; then
+              echo "pushed on attempt $i"
+              exit 0
+            fi
+            echo "push attempt $i rejected — remote moved, resetting onto its tip and retrying"
+            git fetch origin main
+            git reset --soft origin/main
+            git add data/players.json data/formats data/history.json data/nfl_betting.json data/ncaa_lines.json
+            git commit -m "data: refresh pool $(date -u +%Y-%m-%d) (retry $i)"
+            sleep $((RANDOM % 5 + 1))
+          done
+          echo "Failed to push after 5 attempts — see above." >&2
+          exit 1
 
       - name: Fail the run if any build step failed
         # Whatever DID succeed is already committed above — this just makes
