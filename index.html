@@ -28,6 +28,7 @@
   .cfgBtn{background:transparent;border:0;color:var(--mute);padding:4px;display:flex;flex:0 0 auto;border-radius:6px}
   .cfgBtn:hover{background:var(--panel-2);color:var(--bone)}
   .pickBlock{display:flex;flex-direction:column;gap:1px;min-width:0}
+  .clock.not-draft .pickBlock{display:none}
   .pickBlock .eyebrow{font-size:9px}
   .pickBlock b{font:600 17px/1.15 "IBM Plex Mono",monospace;color:var(--bone);white-space:nowrap}
   .pickBlock b.hot{color:var(--turf)}
@@ -355,6 +356,9 @@
   .bt-ev.neg{ color:var(--bt-neg); background:rgba(232,91,74,.10); }
   .bt-kelly{ font:400 11px/1.3 "IBM Plex Mono",monospace; color:var(--bt-mute); text-align:right; }
   .bt-kelly b{ color:var(--bt-orange); font-weight:600; }
+  .bt-projedit{ margin-top:3px; font:400 10px/1.4 "IBM Plex Mono",monospace; color:var(--bt-dim); display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
+  .bt-projinput{ width:52px; background:var(--bt-panel-2); border:1px solid var(--bt-line); border-radius:3px; color:var(--bt-bone); font:500 11px/1 "IBM Plex Mono",monospace; padding:2px 4px; }
+  .bt-projinput:focus-visible{ outline:1px solid var(--bt-orange); }
   .bt-empty{ padding:30px 16px; text-align:center; color:var(--bt-dim); font:400 13px/1.6 Inter,sans-serif; }
 
   .bt-games{ display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
@@ -422,7 +426,7 @@
 </script>
 
 <div id="app-goinglong">
-<div class="clock">
+<div class="clock" id="clockBar">
   <button class="cfgBtn" id="cfgOpen" aria-label="Draft settings">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
   </button>
@@ -657,6 +661,8 @@
         </select>
         <label class="bt-toggle"><input type="checkbox" id="btLognormal"> Lognormal (yardage props)</label>
       </div>
+      <button class="btn ghost tiny" id="btLoadRealProps" style="margin-bottom:10px">Load real props from the nightly build</button>
+      <div id="btLoadPropsNote"></div>
       <div class="bt-table" id="btPropsTable"></div>
       <details class="setup">
         <summary>Paste props</summary>
@@ -690,9 +696,9 @@
 </div>
 
 <nav id="glNav">
-  <button data-view="draft" aria-current="true"><span class="ic">&#9673;</span>Draft</button>
+  <button data-view="betting" aria-current="true"><span class="ic">&#128176;</span>Betting</button>
+  <button data-view="draft"><span class="ic">&#9673;</span>Draft</button>
   <button data-view="trade"><span class="ic">&#8646;</span>Trade</button>
-  <button data-view="betting"><span class="ic">&#128176;</span>Betting</button>
   <button data-view="settings"><span class="ic">&#9881;</span>Settings</button>
   <button data-view="gateway"><span class="ic">&#8617;</span>Gateway</button>
 </nav>
@@ -715,7 +721,7 @@
   // Fill this in once your Going Yard app has a URL. Until then the
   // betting card opens a labeled placeholder instead of pretending to
   // merge two separate codebases.
-  const GOING_YARD_URL = "";
+  const GOING_YARD_URL = "https://daboli69.github.io/hr-board/";
 
   const gateway = document.getElementById("gateway");
   const app = document.getElementById("app-goinglong");
@@ -737,7 +743,7 @@
     gateway.classList.remove("show");
     app.classList.add("show");
     document.body.classList.add("has-nav");
-    setView("draft");
+    setView("betting");
   }
 
   function enterBetting(){
@@ -747,6 +753,8 @@
 
   function setView(name){
     if(name === "gateway"){ showGateway(); return; }
+    const clockBar = document.getElementById("clockBar");
+    clockBar?.classList.toggle("not-draft", name !== "draft" && name !== "settings");
     for(const [key, el] of Object.entries(views)){
       if(!el) continue;
       el.classList.toggle("active", key === name);
@@ -2907,8 +2915,13 @@ function renderPropsTable(){
     const evPct = row.ev != null ? row.ev*100 : null;
     const lineTxt = p.market==="atd" ? `λ ${p.projMean!=null?p.projMean.toFixed(2):"—"}` : (p.line!=null?p.line.toFixed(1):"—");
     const oddsVal = row.side==="Under" ? p.underOdds : p.overOdds;
+    const needsProj = p.market==="atd" ? p.projMean == null : (p.projMean == null || p.projSd == null);
+    const projEdit = needsProj ? `<div class="bt-projedit">no projection —
+        <input type="number" class="bt-projinput" data-id="${p.id}" data-field="projMean" placeholder="${p.market==="atd"?"λ":"mean"}" step="0.1" value="${p.projMean ?? ""}">
+        ${p.market!=="atd" ? `<input type="number" class="bt-projinput" data-id="${p.id}" data-field="projSd" placeholder="sd" step="0.1" value="${p.projSd ?? ""}">` : ""}
+      </div>` : "";
     return `<div class="bt-row">
-      <div class="bt-who"><b>${esc(p.player)}</b><small>${esc(p.team)} vs ${esc(p.opp)} · ${MARKET_LABEL[p.market]||esc(p.market)}</small></div>
+      <div class="bt-who"><b>${esc(p.player)}</b><small>${esc(p.team)} vs ${esc(p.opp)} · ${MARKET_LABEL[p.market]||esc(p.market)}</small>${projEdit}</div>
       <div class="bt-line">${row.side!=="—"?row.side+" ":""}${lineTxt}</div>
       <div class="bt-odds">${americanOddsLabel(oddsVal)}</div>
       <div class="bt-ev ${evClass(row.ev)}">${evPct!=null?(evPct>0?"+":"")+evPct.toFixed(1)+"%":"—"}</div>
@@ -2957,6 +2970,69 @@ function gamesFromRealData(sport){
       mlAway:g.away_ml, mlHome:g.home_ml, kickoff:g.kickoff,
       awayRating, homeRating,
     });
+  }
+  return out;
+}
+
+const ODDS_MARKET_MAP = {player_pass_yds:"pass_yds", player_rush_yds:"rush_yds", player_reception_yds:"rec_yds", player_anytime_td:"atd"};
+
+/* Real The Odds API player-prop events -> this app's flat prop-row shape.
+   Verified against The Odds API's actual documented schema before writing
+   this, not assumed: each outcome carries `description` (the player's
+   name — NOT `name`, which holds "Over"/"Under"/"Yes"), `point` (the
+   line, absent for ATD since there's no line, just yes/no), and `price`
+   (American odds). Confirmed independently via a second SDK's docs using
+   the same three fields the same way.
+
+   One thing this does NOT solve, and can't: the odds API gives real
+   lines and real prices, but a projection (projMean/projSd, or λ for ATD)
+   is YOUR model's number, not something a sportsbook publishes — nothing
+   here can invent one. Props load with projMean/projSd null and EV shows
+   as "—" until you fill them in inline (see the input fields rendered
+   for exactly this case in renderPropsTable). Building an automatic
+   projection would need two more real pieces that don't exist yet: raw
+   per-game yardage in history.json (it currently only stores fantasy-
+   scoring fields, not raw passing/rushing/receiving yards), and a name-
+   matching layer between the odds API's plain player-name strings and
+   this app's Sleeper-ID-keyed pool. Flagging both rather than faking
+   either. */
+function propsFromRealData(){
+  const raw = BET.nflData;
+  if(!raw || !raw.props_raw) return [];
+  const existing = new Set(BET.props.map(p=>`${p.player}|${p.market}`));
+  const out = [];
+  for(const event of raw.props_raw){
+    for(const bk of event.bookmakers || []){
+      for(const mk of bk.markets || []){
+        const ourMarket = ODDS_MARKET_MAP[mk.key];
+        if(!ourMarket) continue;
+        const byPlayer = {};
+        for(const oc of mk.outcomes || []){
+          const player = oc.description;
+          if(!player) continue;
+          (byPlayer[player] ||= []).push(oc);
+        }
+        for(const [player, outcomes] of Object.entries(byPlayer)){
+          const key = `${player}|${ourMarket}`;
+          if(existing.has(key)) continue;
+          existing.add(key);
+          if(ourMarket === "atd"){
+            const yes = outcomes.find(o => /yes/i.test(o.name));
+            if(!yes) continue;
+            out.push({id:uid(), player, team:"", opp:"", market:"atd",
+              line:null, overOdds:yes.price, underOdds:null,
+              projMean:null, projSd:null, kickoff:event.commence_time});
+          } else {
+            const over = outcomes.find(o => /over/i.test(o.name));
+            const under = outcomes.find(o => /under/i.test(o.name));
+            if(!over) continue;
+            out.push({id:uid(), player, team:"", opp:"", market:ourMarket,
+              line: over.point ?? null, overOdds: over.price ?? null, underOdds: under?.price ?? null,
+              projMean:null, projSd:null, kickoff:event.commence_time});
+          }
+        }
+      }
+    }
   }
   return out;
 }
@@ -3019,6 +3095,34 @@ function wireBetting(){
       ? `Real ${BET.sport.toUpperCase()} lines available from the nightly build (generated ${(src.generated_at||"").slice(0,10)}) — click "Load real lines" below, or keep pasting manually.`
       : `No ${BET.sport.toUpperCase()} data file found yet — paste manually, or run the nightly build.`;
     renderBetting();
+  });
+  $("btLoadRealProps").addEventListener("click", ()=>{
+    if(BET.sport === "ncaa"){
+      $("btLoadPropsNote").innerHTML = `<p class="warn">NCAA has no player props in this app by design — game lines and totals only.</p>`;
+      return;
+    }
+    const raw = BET.nflData;
+    if(!raw){
+      $("btLoadPropsNote").innerHTML = `<p class="warn">No NFL data file loaded yet.</p>`;
+      return;
+    }
+    if(!raw.has_live_odds){
+      $("btLoadPropsNote").innerHTML = `<p class="warn">No ODDS_API_KEY is configured in the nightly build, so there's no real props data to load — this isn't a bug, nothing's been fetched. Get a free key at the-odds-api.com and add it as a repo secret, or keep pasting manually.</p>`;
+      return;
+    }
+    const added = propsFromRealData();
+    BET.props.push(...added);
+    renderPropsTable();
+    $("btLoadPropsNote").innerHTML = added.length > 0
+      ? `<p class="note">Loaded ${added.length} real prop${added.length!==1?"s":""}. Lines and odds are real — projections are not (no sportsbook publishes those). Fill in the mean/sd shown inline on each row to get a real EV.</p>`
+      : `<p class="note">Nothing new — everything in this run's props data is already listed below.</p>`;
+  });
+  document.getElementById("btPropsTable").addEventListener("change", e=>{
+    const inp = e.target.closest(".bt-projinput"); if(!inp) return;
+    const prop = BET.props.find(p=>p.id===inp.dataset.id);
+    if(!prop) return;
+    prop[inp.dataset.field] = inp.value === "" ? null : Number(inp.value);
+    renderPropsTable();
   });
   $("btLoadReal").addEventListener("click", ()=>{
     const raw = BET.sport==="nfl" ? BET.nflData : BET.ncaaData;
