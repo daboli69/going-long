@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root{
     /* Going Long — Sleeper-inspired dark mode: charcoal slate, mint accent */
@@ -242,7 +242,7 @@
     color:var(--dim); font:500 10px/1 "IBM Plex Mono",monospace; letter-spacing:.04em; text-transform:uppercase;
   }
   #glNav button .ic{ font-size:16px; line-height:1 }
-  #glNav button[aria-current="true"]{ color:var(--turf) }
+  #glNav button[aria-current]{ color:var(--turf) }
   body.has-nav{ padding-bottom:64px; }
   @media (min-width:760px){
     #glNav{
@@ -322,11 +322,13 @@
      BETTING — own token namespace. Black + orange, distinct from Going
      Long's turf-green identity elsewhere, scoped entirely under .bt-
      so nothing here can leak into the draft board or trade view. */
+  [hidden]{display:none!important}
+  button:focus-visible{outline:2px solid var(--turf);outline-offset:3px}
   #view-betting{
-    --bt-ink:#0A0806; --bt-panel:#161109; --bt-panel-2:#1E1710; --bt-line:#2E2416;
-    --bt-orange:#FF7A1A; --bt-orange-deep:#B8560F; --bt-bone:#F0E9DE; --bt-mute:#9C8E78; --bt-dim:#6B6252;
+    --bt-ink:#0E1117; --bt-panel:#161B22; --bt-panel-2:#1F2935; --bt-line:#303C4B;
+    --bt-orange:#FFAD66; --bt-orange-deep:#B8560F; --bt-bone:#F0F3F7; --bt-mute:#B0BDCC; --bt-dim:#98A6B8;
     --bt-pos:#4ADE6A; --bt-neg:#E85B4A;
-    max-width:1000px; margin:0 auto; padding:20px 16px 40px; background:var(--bt-ink);
+    max-width:1460px; margin:0 auto; padding:24px 20px 40px; background:var(--bt-ink);
   }
   .bt-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
   .bt-head h2{ font:700 26px/1.1 "Barlow Condensed",sans-serif; color:var(--bt-bone); text-transform:uppercase; letter-spacing:.02em; margin:0; }
@@ -389,6 +391,37 @@
     .bt-row .bt-odds{ display:none; }
     .bt-lines b{ font-size:15px; }
   }
+
+  /* Terminal grid: stable numerical columns at every viewport width. */
+  #view-betting .bt-note{font-size:0.8125rem;color:var(--bt-mute)}
+  #view-betting .pos-group{flex-wrap:wrap}
+  #view-betting .pos-group button{font-size:0.875rem;min-height:36px}
+  #view-betting .field{font-size:0.875rem;min-height:38px}
+  .bt-controls{padding:16px 0;border-top:1px solid var(--bt-line);border-bottom:1px solid var(--bt-line);margin-top:18px}
+  .bt-table-scroll{overflow-x:auto;border:1px solid var(--bt-line);border-radius:6px}
+  .bt-table{gap:0}
+  .bt-row{grid-template-columns:minmax(230px,1fr) 64px minmax(420px,1.35fr);min-width:780px;border:0;border-bottom:1px solid var(--bt-line);border-radius:0;gap:16px;padding:14px 16px}
+  .bt-row:hover{background:var(--bt-panel-2)}
+  .bt-row .bt-who b{font:600 1rem/1.4 Inter,system-ui,sans-serif}
+  .bt-row .bt-who small{display:block;font-size:0.75rem;line-height:1.7;color:var(--bt-mute)}
+  .bt-metrics{display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:12px;align-items:center;text-align:right;font:500 0.875rem/1.4 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+  .bt-metrics>span:first-child{text-align:left}
+  .bt-ev{font-size:0.875rem;line-height:1.5}
+  .bt-labels{background:var(--bt-panel-2);font:500 0.8125rem/1.5 "IBM Plex Mono",monospace;color:var(--bt-mute)}
+  .bt-labels .bt-metrics{font-size:0.8125rem}
+  .bt-pagination{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;font-size:0.875rem}
+  .bt-pagination button:disabled{opacity:.4;cursor:default}
+  .bt-override{margin-top:4px;color:var(--bt-mute);font-size:0.75rem}
+  .bt-override summary{cursor:pointer;padding:4px 0}
+  .bt-override label{display:inline-flex;align-items:center;gap:5px;margin:4px 8px 4px 0}
+  .bt-projinput{width:80px;padding:6px;font-size:0.875rem}
+  .bt-game-prices{overflow:auto;margin-top:14px}
+  .bt-game-prices .bt-metrics{min-width:620px;padding:10px 0;border-top:1px solid var(--bt-line);grid-template-columns:2fr repeat(4,1fr)}
+  .bt-game-head span,.bt-fair{font-size:0.8125rem;line-height:1.5}
+  #btLoadPropsNote{font-size:0.875rem;color:var(--bt-mute);padding:4px 0 14px}
+  #glNav button{font-size:0.875rem;min-height:44px}
+  @media(max-width:700px){.bt-head{align-items:flex-start}.bt-head h2{width:100%}.bt-game-head{flex-wrap:wrap;gap:8px}.bt-lines{grid-template-columns:repeat(2,1fr)}}
+
 </style>
 </head>
 <body>
@@ -417,7 +450,7 @@
      main script at the bottom — this just sets the starting state. */
   (function(){
     var mode = localStorage.getItem("goinglong.gateway.mode");
-    if(mode === "fantasy"){
+    if(mode !== "gateway"){
       document.documentElement.classList.add("gl-boot-fantasy");
     } else {
       document.documentElement.classList.add("gl-boot-gateway");
@@ -632,7 +665,7 @@
 <div class="gl-view" id="view-betting">
   <div class="bt-wrap">
     <div class="bt-head">
-      <h2>Betting</h2>
+      <h2>Betting Board</h2>
       <div class="pos-group" id="btSportGroup">
         <button data-sport="nfl" aria-pressed="true">NFL</button>
         <button data-sport="ncaa" aria-pressed="false">NCAA</button>
@@ -642,7 +675,7 @@
         <button data-tab="games" aria-pressed="false">Game Lines</button>
       </div>
     </div>
-    <p class="bt-note" id="btDataNote">Manual/paste entry only — no live odds feed is wired in yet. Everything below runs on whatever you paste in.</p>
+    <p class="bt-note" id="btDataNote">Loading odds and historical projections…</p>
 
     <!-- ============ PROPS TAB ============ -->
     <section class="bt-panel" id="btPropsPanel">
@@ -652,24 +685,26 @@
           <button data-market="pass_yds">Pass Yds</button>
           <button data-market="rush_yds">Rush Yds</button>
           <button data-market="rec_yds">Rec Yds</button>
-          <button data-market="atd">ATD</button>
+          <button data-market="receptions">Receptions</button><button data-market="pass_tds">Pass TDs</button><button data-market="rush_tds">Rush TDs</button><button data-market="rec_tds">Rec TDs</button><button data-market="atd">ATD</button>
         </div>
         <select id="btSort" class="field">
           <option value="ev">Sort: EV%</option>
           <option value="disc">Sort: Line discrepancy</option>
           <option value="time">Sort: Kickoff</option>
         </select>
-        <label class="bt-toggle"><input type="checkbox" id="btLognormal"> Lognormal (yardage props)</label>
+        <input type="search" id="btSearch" class="field" aria-label="Search players, teams or bookmakers" placeholder="Player, team or bookmaker">
       </div>
-      <button class="btn ghost tiny" id="btLoadRealProps" style="margin-bottom:10px">Load real props from the nightly build</button>
+      <button class="btn ghost tiny" id="btLoadRealProps" style="margin-bottom:10px">Restore nightly props</button>
       <div id="btLoadPropsNote"></div>
-      <div class="bt-table" id="btPropsTable"></div>
+      <div class="bt-table-scroll"><div class="bt-row bt-labels" aria-hidden="true"><span>Player / model</span><span>Line</span><div class="bt-metrics"><span>Side</span><span>Odds</span><span>Win</span><span>EV</span><span>¼ Kelly</span></div></div><div class="bt-table" id="btPropsTable" aria-label="Player prop quotes" aria-live="polite"></div></div>
+      <div class="bt-pagination"><button class="btn ghost" id="btPrev">Previous</button><span id="btPageNote" role="status"></span><button class="btn ghost" id="btNext">Next</button></div>
+      <p class="bt-note">Historical estimates assume the player participates. Individual stakes do not account for correlated bets. Yardage: lognormal; receptions and TDs: Poisson. Win probability excludes pushes.</p>
       <details class="setup">
         <summary>Paste props</summary>
         <div class="setup-body">
           <p class="note">One per line, tab or comma separated:<br>
             <span class="mono">player, team, opp, market, line, overOdds, underOdds, projMean, projSd, kickoffISO</span><br>
-            For ATD rows: <span class="mono">player, team, opp, atd, , atdOdds, , eTD, , kickoffISO</span> — leave line/underOdds/projSd blank, put λ (expected TDs) in the projMean slot.</p>
+            Leave mean and SD blank to match a historical profile. Markets: pass_yds, rush_yds, rec_yds, receptions, pass_tds, rush_tds, rec_tds, atd.<br>For ATD rows: <span class="mono">player, team, opp, atd, , atdOdds, , eTD, , kickoffISO</span> — leave line/underOdds/projSd blank, put λ (expected TDs) in the projMean slot.</p>
           <textarea id="btPropsPaste" class="field" placeholder="Josh Allen, BUF, MIA, pass_yds, 249.5, -110, -110, 262, 45, 2026-09-14T17:00:00Z"></textarea>
           <button class="btn" id="btImportProps">Import props</button>
           <div id="btPropsResult"></div>
@@ -679,13 +714,13 @@
 
     <!-- ============ GAMES TAB ============ -->
     <section class="bt-panel" id="btGamesPanel" hidden>
-      <button class="btn ghost tiny" id="btLoadReal" style="margin-bottom:10px">Load real lines from the nightly build</button>
+      <button class="btn ghost tiny" id="btLoadReal" style="margin-bottom:10px">Restore nightly lines</button>
       <div class="bt-games" id="btGamesList"></div>
       <details class="setup">
         <summary>Paste game lines</summary>
         <div class="setup-body">
-          <p class="note">One per line: <span class="mono">away, home, spread(home), total, mlAway, mlHome, kickoffISO[, awayRating, homeRating]</span><br>
-            Spread is the <b>home</b> team's number (negative = home favored). Ratings are optional — omit them and the fair-line estimator just won't show anything for that game.</p>
+          <p class="note">One per line: <span class="mono">away, home, spread(home), total, mlAway, mlHome, kickoffISO</span><br>
+            Spread is the <b>home</b> team's number (negative = home favored). Team projections match the exact teams and kickoff from the historical pipeline.</p>
           <textarea id="btGamesPaste" class="field" placeholder="MIA, BUF, -6.5, 47.5, 220, -260, 2026-09-14T17:00:00Z"></textarea>
           <button class="btn" id="btImportGames">Import games</button>
           <div id="btGamesResult"></div>
@@ -729,6 +764,7 @@
   const views = { draft: document.getElementById("view-draft"), trade: document.getElementById("view-trade"), betting: document.getElementById("view-betting") };
 
   function showGateway(){
+    localStorage.setItem(MODE_KEY, "gateway");
     document.documentElement.classList.remove("gl-boot-fantasy");
     document.documentElement.classList.add("gl-boot-gateway");
     gateway.classList.add("show");
@@ -743,7 +779,7 @@
     gateway.classList.remove("show");
     app.classList.add("show");
     document.body.classList.add("has-nav");
-    setView("betting");
+    setView(localStorage.getItem("goinglong.view") || "betting");
   }
 
   function enterBetting(){
@@ -753,14 +789,19 @@
 
   function setView(name){
     if(name === "gateway"){ showGateway(); return; }
+    const route = name === "settings" ? "draft" : name;
+    if(!views[route]) { setView("betting"); return; }
+    localStorage.setItem("goinglong.view",route);
     const clockBar = document.getElementById("clockBar");
+    if(clockBar) clockBar.hidden = route !== "draft";
     clockBar?.classList.toggle("not-draft", name !== "draft" && name !== "settings");
     for(const [key, el] of Object.entries(views)){
       if(!el) continue;
-      el.classList.toggle("active", key === name);
+      el.classList.toggle("active", key === route);
+      el.hidden = key !== route;
     }
     nav.querySelectorAll("button").forEach(b=>{
-      b.setAttribute("aria-current", String(b.dataset.view === name));
+      if(b.dataset.view===route) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
     });
     if(name === "trade"){
       window.renderTrade?.();   // defined in the main engine script below this one
@@ -773,9 +814,9 @@
       // rail. Rather than fork a second copy of it, jump there and open it.
       views.draft.classList.add("active");
       views.trade.classList.remove("active");
-      nav.querySelector('[data-view="draft"]').setAttribute("aria-current","true");
+      nav.querySelector('[data-view="draft"]').setAttribute("aria-current","page");
       nav.querySelector('[data-view="settings"]').removeAttribute("aria-current");
-      const setupPanels = document.querySelectorAll(".setup");
+      const setupPanels = views.draft.querySelectorAll(".setup");
       setupPanels.forEach(d => d.setAttribute("open",""));
       setupPanels[0]?.scrollIntoView({behavior:"smooth", block:"start"});
     }
@@ -797,6 +838,7 @@
   if(document.documentElement.classList.contains("gl-boot-fantasy")){
     app.classList.add("show");
     document.body.classList.add("has-nav");
+    setView(localStorage.getItem("goinglong.view") || "betting");
   } else {
     gateway.classList.add("show");
   }
@@ -2017,15 +2059,7 @@ async function loadBase(){
   }
   try{ S.managers = await fetch("data/managers.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
   catch(e){ S.managers=null; }
-  try{ S.history = await fetch("data/history.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
-  catch(e){ S.history=null; }
-  /* Optional: build_pipeline.py's consolidated output, if it's ever been
-     run and deployed. Carries KTC dynasty values keyed by normalized name
-     (KTC has no sleeper_id of its own). 404s cleanly if it doesn't exist —
-     Dynasty Mode in the Trade Analyzer degrades to FantasyCalc's dynasty
-     value, then redraft value, rather than failing. */
-  try{ S.pipeline = await fetch("data/data.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
-  catch(e){ S.pipeline=null; }
+
 }
 async function loadFormat(id){
   if(S.fmtData?.format?.id===id) return;
@@ -2563,7 +2597,7 @@ function renderTrade(){
   const mode = TRADE.mode;
 
   $("tlDataNote").innerHTML = mode==="dynasty"
-    ? (S.pipeline ? `Dynasty values: KTC where matched, FantasyCalc dynasty elsewhere.`
+    ? (S.pipeline?.players ? `Dynasty values: KTC where matched, FantasyCalc dynasty elsewhere.`
                   : `No KTC data loaded — showing FantasyCalc dynasty value, or <b>redraft value as an approximation</b> where that's missing too.`)
     : `Redraft mode uses your connected roster's actual lineup fit, not raw point totals.`;
 
@@ -2692,490 +2726,398 @@ function wireTrade(){
 }
 window.renderTrade = renderTrade;   // called from the gateway script's setView("trade")
 
-/* ==================================================================
-   Betting — Player Props EV + Game Lines
-   ==================================================================
-   Everything here is real, tested math with no live data behind it —
-   there's no odds feed wired into this app. Every number on screen
-   comes from whatever's pasted into the two textareas below. That's by
-   design for now: DATA.md already scopes out free odds sources for
-   later, and faking data here would be worse than not having the tab.
-
-   One correction to the requested spec, worth stating plainly: the
-   literal lognormal formula as originally given —
-     P(Over) = 1 - Φ((ln(L) - μ) / σ)
-   — is only correct if μ and σ are the mean and stdev of ln(X), not of
-   the yardage itself. Feed it a real projection (mean 75, sd 25 rushing
-   yards) directly and it returns P(Over)≈99.8% on a line sitting almost
-   exactly at the mean — nonsensical, confirmed numerically before this
-   shipped. lognormalOverProb() below moment-matches a real yardage
-   mean/sd into the correct ln-space parameters first. normalOverProb()
-   is the literal, correctly-applied normal case, and stays the default —
-   it's the simpler, more standard choice for yardage props and doesn't
-   assume a skew the data may not have. Lognormal is available as an
-   explicit toggle for markets where right-skew is real (long-ball-heavy
-   passing yardage, boom/bust receivers).
-
-   eTD/team-implied-TD conversion: expected TDs is a genuinely different
-   quantity from implied point total (that mix depends on FG rate, 2pt
-   rate, defensive/special-teams scores). POINTS_PER_TD below is a labeled,
-   overridable constant, not hidden math — change it if you have a better
-   number.
-
-   Fair-spread estimator: real, correct math (rating differential + home
-   field), but nothing in this project currently computes power ratings.
-   It shows "no ratings loaded" until a game row actually has them. */
-
-const POINTS_PER_TD = 6.95;   // ~6 + PAT/2pt conversion mix — labeled, override freely
-const NFL_KEY_NUMBERS = [3,7,6,10,14,4];
-
+/* Betting engine: numerical probabilities are conditional on historical
+   baselines, not calibrated claims of future outcomes. No browser API key. */
 const BET = {
-  props: [], games: [],
-  market: "ALL", sort: "ev", lognormal: false, tab: "props",
-  sport: "nfl", nflData: null, ncaaData: null,
+  props: [], games: [], market: "ALL", sort: "ev", tab: "props", sport: "nfl",
+  history: null, config: {}, nflData: null, ncaaData: null,
+  page: 0, pageSize: 75, query: "", renderVersion: 0, loading: false,
 };
-
-/* ---- odds & probability math -------------------------------------- */
-function americanToDecimal(american){
-  const a = Number(american);
-  if(!Number.isFinite(a) || a === 0) return null;
-  return a < 0 ? 1 + 100/Math.abs(a) : 1 + a/100;
+const MARKET_LABEL = {pass_yds:"Passing yards", rush_yds:"Rushing yards", rec_yds:"Receiving yards",
+  receptions:"Receptions", pass_tds:"Passing TDs", rush_tds:"Rushing TDs", rec_tds:"Receiving TDs", atd:"Anytime TD"};
+const ODDS_MARKET_MAP = {player_pass_yds:"pass_yds", player_rush_yds:"rush_yds", player_reception_yds:"rec_yds",
+  player_receptions:"receptions", player_pass_tds:"pass_tds", player_rush_tds:"rush_tds",
+  player_reception_tds:"rec_tds", player_anytime_td:"atd"};
+const COUNT_MARKETS = new Set(["receptions", "pass_tds", "rush_tds", "rec_tds", "atd"]);
+const finiteNumber = x => typeof x === "number" && Number.isFinite(x);
+const pauseForPaint = () => new Promise(resolve => {
+  if(document.hidden) setTimeout(resolve, 0); else requestAnimationFrame(resolve);
+});
+function debounce(fn, ms=250){ let timer; return (...args)=>{clearTimeout(timer); timer=setTimeout(()=>fn(...args),ms);}; }
+function americanToDecimal(a){
+  return finiteNumber(a) && Math.abs(a)>=100 ? (a<0 ? 1+100/-a : 1+a/100) : null;
 }
-function decimalImpliedProb(decimal){ return decimal ? 1/decimal : null; }
-
-/* Normal case, applied correctly and directly to yardage mean/sd. */
-function normalOverProb(line, mean, sd){
-  if(!sd || sd <= 0) return null;
-  return 1 - cdf((line - mean) / sd);
+function americanOddsLabel(a){return americanToDecimal(a) ? (a>0?"+":"")+a : "—";}
+function normalCDF(z){
+  if(z===Infinity) return 1;
+  if(z===-Infinity) return 0;
+  if(!finiteNumber(z)) return NaN;
+  // Abramowitz-Stegun 7.1.26, absolute CDF error < 7.5e-8.
+  const x=Math.abs(z)/Math.SQRT2, t=1/(1+0.3275911*x);
+  const erf=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);
+  return 0.5*(1+(z<0?-erf:erf));
 }
-/* Lognormal, with the mean/sd you'd actually have (yardage-space)
-   moment-matched into ln-space before the CDF is applied. This is the
-   fix for the formula error described above. */
-function lognormalOverProb(line, mean, sd){
-  if(!sd || sd <= 0 || !mean || mean <= 0 || line <= 0) return null;
-  const variance = sd*sd;
-  const sigmaLog = Math.sqrt(Math.log(1 + variance/(mean*mean)));
-  const muLog = Math.log(mean*mean / Math.sqrt(variance + mean*mean));
-  return 1 - cdf((Math.log(line) - muLog) / sigmaLog);
+function poissonCDF(k, lambda){
+  if(!finiteNumber(lambda) || lambda<0 || !finiteNumber(k)) return null;
+  if(k<0) return 0;
+  k=Math.floor(k);
+  if(lambda===0) return 1;
+  // A bounded recurrence centered on the mode avoids exp(-lambda)
+  // underflow. Count props outside this supported range are unpriced.
+  if(lambda>1000 || k>10000) return null;
+  const mode=Math.floor(lambda);
+  let logFact=0;
+  for(let i=2;i<=mode;i++) logFact+=Math.log(i);
+  const peak=Math.exp(-lambda+mode*Math.log(lambda)-logFact);
+  let sum=mode<=k ? peak : 0, term=peak;
+  for(let i=mode;i>0;i--){term*=i/lambda; if(i-1<=k) sum+=term;}
+  term=peak;
+  for(let i=mode+1;i<=k;i++){term*=lambda/i; sum+=term; if(term<1e-16 && i>lambda+10) break;}
+  return Math.min(1,Math.max(0,sum));
 }
-function yardageOverProb(line, mean, sd, useLognormal){
-  return useLognormal ? lognormalOverProb(line, mean, sd) : normalOverProb(line, mean, sd);
+function lognormalCDF(x, model){
+  const mass=model.nonpositive||[], n=model.n||1;
+  const empirical=mass.reduce((s,v)=>s+(v<=x?1:0),0)/n;
+  const weight=model.positive_weight??1;
+  if(x<=0 || weight===0) return empirical;
+  if(!finiteNumber(model.mu_log) || !finiteNumber(model.sigma_log) || model.sigma_log<0) return null;
+  const positive=model.sigma_log===0 ? (x>=Math.exp(model.mu_log)?1:0) : normalCDF((Math.log(x)-model.mu_log)/model.sigma_log);
+  return Math.min(1, empirical+weight*positive);
 }
-
-/* Anytime TD: P(at least one) = 1 - e^-λ. Correct as given — this part
-   of the request had no error. λ is the player's own expected TD count,
-   not the team's; see impliedTeamTDs() below for the team-level step. */
-function poissonAtLeastOne(lambda){
-  if(lambda == null || lambda < 0) return null;
-  return 1 - Math.exp(-lambda);
+function manualModel(p){
+  if(!finiteNumber(p.projMean) || p.projMean<0) return null;
+  if(COUNT_MARKETS.has(p.market)) return {family:"poisson",lambda:p.projMean,status:"ready"};
+  if(!finiteNumber(p.projSd) || p.projSd<0 || p.projMean<=0) return null;
+  const variance=Math.log1p((p.projSd/p.projMean)**2);
+  return {family:"lognormal",mu_log:Math.log(p.projMean)-variance/2,sigma_log:Math.sqrt(variance),status:"ready"};
 }
-function impliedTeamTDs(impliedPoints, pointsPerTd){
-  return impliedPoints / (pointsPerTd || POINTS_PER_TD);
-}
-
-function evPercent(pModel, decimal){
-  if(pModel == null || !decimal) return null;
-  return pModel*decimal - 1;
-}
-
-/* Quarter-Kelly, clamped at zero — a negative Kelly means "don't bet,"
-   not "bet a negative amount," and displaying the raw negative number
-   is the kind of thing that gets misread at a glance. */
-function kellyFraction(pModel, decimal, fraction){
-  fraction = fraction ?? 0.25;
-  if(pModel == null || !decimal || decimal <= 1) return 0;
-  const b = decimal - 1, q = 1 - pModel;
-  const full = (b*pModel - q) / b;
-  return Math.max(0, full * fraction);
-}
-
-/* ---- game lines math ------------------------------------------------ */
-function impliedTeamTotals(total, spread){
-  // spread convention here: negative = home favored, matching the paste
-  // format documented in the UI (spread is always the home team's number).
-  const favMargin = Math.abs(spread);
-  const fav = (total + favMargin) / 2;
-  const dog = (total - favMargin) / 2;
-  return spread <= 0 ? {home:fav, away:dog} : {home:dog, away:fav};
-}
-function keyNumberDistance(spread){
-  const abs = Math.abs(spread);
-  let best = null;
-  for(const k of NFL_KEY_NUMBERS){
-    const d = Math.abs(abs - k);
-    if(best == null || d < best.d) best = {key:k, d};
+function propProbabilities(p){
+  const model=p.manual ? manualModel(p) : p.model;
+  if(!model || model.status!=="ready") return null;
+  const line=p.market==="atd" ? 0.5 : p.line;
+  if(!finiteNumber(line)) return null;
+  let under, over;
+  if(model.family==="poisson"){
+    under=poissonCDF(Math.ceil(line)-1, model.lambda);
+    const below=poissonCDF(Math.floor(line),model.lambda);
+    if(under==null || below==null) return null;
+    over=1-below;
+  } else {
+    // NFL yardage is recorded in integers: rounded lognormal likelihood
+    // assigns a push mass on integer lines instead of treating it as a loss.
+    under=lognormalCDF(Math.ceil(line)-0.5,model);
+    const below=lognormalCDF(Math.floor(line)+0.5,model);
+    if(under==null || below==null) return null;
+    over=1-below;
   }
-  return best;
+  if(!finiteNumber(over) || !finiteNumber(under)) return null;
+  return {over,under,push:Math.max(0,1-over-under)};
 }
-/* Real math: predictedMargin = scale*(homeRating-awayRating) + intercept,
-   spread = -predictedMargin. scale/intercept come from each sport's own
-   walk-forward calibration (build_nfl_betting.py / build_ncaa_lines.py) —
-   without them, a raw EPA-style rating differential (typically ±0.3) is
-   nowhere near point-scale, so this now REQUIRES real calibration
-   constants rather than silently guessing with a flat HFA number that
-   only made sense for a different kind of rating. Returns null when
-   ratings — or their calibration — aren't available, same as before. */
-function fairSpread(homeRating, awayRating, scale, intercept){
-  if(homeRating == null || awayRating == null || scale == null) return null;
-  intercept = intercept ?? 0;
-  return scale * (awayRating - homeRating) - intercept;
+function evPercent(win, decimal, push=0){
+  if(!finiteNumber(win) || !finiteNumber(push) || !finiteNumber(decimal) || decimal<=1 || win<0 || push<0 || win+push>1+1e-10) return null;
+  return win*(decimal-1)-(1-win-push);
 }
-
-/* ---- per-row computation -------------------------------------------- */
+function kellyFraction(win, decimal, push=0, fraction=0.25, cap=0.02){
+  const ev=evPercent(win,decimal,push);
+  if(ev==null || push>=1) return 0;
+  return Math.min(cap,Math.max(0,fraction*ev/((decimal-1)*(1-push))));
+}
+function quoteState(p, now=Date.now()){
+  if(p.kickoff && (!Number.isFinite(Date.parse(p.kickoff)) || Date.parse(p.kickoff)<=now)) return "Started / invalid kickoff";
+  if(p.source!=="manual"){
+    if(!p.kickoff) return "Kickoff unavailable";
+    const age=(now-Date.parse(p.updatedAt))/3600000;
+    if(!Number.isFinite(age) || age< -0.1 || age>(BET.config.max_quote_age_hours??24)) return "Stale quote";
+    if(p.profileDate && (now-Date.parse(p.profileDate))/86400000>(BET.config.max_profile_age_days??400)) return "Stale profile";
+  }
+  return null;
+}
 function computePropRow(p){
-  if(p.market === "atd"){
-    const lambda = p.projMean;   // eTD (lambda) is stored in the projMean slot for ATD rows
-    const prob = poissonAtLeastOne(lambda);
-    const dec = americanToDecimal(p.overOdds);   // atdOdds goes in the overOdds slot
-    return {prob, dec, ev: evPercent(prob, dec), kelly: kellyFraction(prob, dec), side:"Yes"};
+  const probs=propProbabilities(p), reason=quoteState(p);
+  if(!probs || reason) return {side:"—",prob:null,push:null,ev:null,kelly:0,reason:reason||p.matchStatus||"No projection"};
+  const candidates=[{side:p.market==="atd"?"Yes":"Over",prob:probs.over,odds:p.overOdds}];
+  if(p.market!=="atd") candidates.push({side:"Under",prob:probs.under,odds:p.underOdds});
+  for(const c of candidates){
+    c.push=probs.push; c.dec=americanToDecimal(c.odds); c.ev=evPercent(c.prob,c.dec,c.push);
+    c.kelly=kellyFraction(c.prob,c.dec,c.push,BET.config.kelly_fraction??0.25,BET.config.max_stake_fraction??0.02);
   }
-  const prob = yardageOverProb(p.line, p.projMean, p.projSd, BET.lognormal);
-  const decOver = americanToDecimal(p.overOdds), decUnder = americanToDecimal(p.underOdds);
-  const evOver  = evPercent(prob, decOver);
-  const evUnder = evPercent(prob!=null ? 1-prob : null, decUnder);
-  if(evOver != null && (evUnder == null || evOver >= evUnder))
-    return {prob, dec:decOver, ev:evOver, kelly:kellyFraction(prob, decOver), side:"Over"};
-  if(evUnder != null)
-    return {prob:1-prob, dec:decUnder, ev:evUnder, kelly:kellyFraction(1-prob, decUnder), side:"Under"};
-  return {prob, dec:null, ev:null, kelly:0, side:"—"};
+  return candidates.sort((a,b)=>(b.ev??-Infinity)-(a.ev??-Infinity))[0];
 }
-function propDiscrepancy(p, row){
-  if(p.market === "atd") return (row.prob!=null && row.dec) ? Math.abs(row.prob - decimalImpliedProb(row.dec)) : 0;
-  return (p.projMean!=null && p.line!=null) ? Math.abs(p.projMean - p.line) : 0;
+function normalizeBetName(name){return String(name).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g,"").trim().replace(/\s+/g," ").replace(/\s+(jr|sr|ii|iii|iv|v)$/,"");}
+function buildProfileIndex(history){
+  const index=new Map();
+  for(const p of Object.values(history?.profiles||{})){
+    const key=normalizeBetName(p.name); if(!index.has(key)) index.set(key,[]); index.get(key).push(p);
+  }
+  return index;
 }
-function evClass(ev){
-  if(ev == null) return "";
-  if(ev > 0.05) return "hi";
-  if(ev >= 0) return "mid";
-  return "neg";
+function attachProjection(p, index){
+  const h=BET.history, key=normalizeBetName(p.player);
+  const alias=h?.aliases?.[`${p.eventId}|${key}`];
+  let profile=alias?.player_id ? h.profiles[alias.player_id] : null;
+  if(!profile && !alias){
+    let matches=index.get(key)||[];
+    if(p.eventTeams?.every(Boolean)) matches=matches.filter(x=>p.eventTeams.includes(x.team));
+    else if(p.team) matches=matches.filter(x=>x.team===p.team);
+    if(matches.length===1) profile=matches[0];
+    p.matchStatus=matches.length>1?"Ambiguous name":"Unmatched name";
+  }
+  const model=profile?.stats?.[p.market];
+  p.matchStatus=alias?.status||p.matchStatus;
+  if(profile){
+    p.team=profile.team; p.profileId=profile.id; p.profileDate=profile.last_game;
+    p.opp=p.eventTeams?.find(t=>t!==profile.team)||p.opp||"";
+    p.model=model; p.projMean=model?.mean??null; p.projSd=model?.sd??null;
+    p.matchStatus=model?.status==="ready" ? (alias?.status||"exact") : `Sample: ${model?.n||0} games`;
+  }
+  return p;
 }
-function americanOddsLabel(odds){
-  if(odds == null || isNaN(odds)) return "—";
-  return (odds > 0 ? "+" : "") + odds;
+async function propsFromRealData(raw=BET.nflData){
+  const index=buildProfileIndex(BET.history), quotes=new Map(); let count=0;
+  for(const event of raw?.props_raw||[]){
+    const eventTeams=[BET.history?.team_names?.[event.home_team],BET.history?.team_names?.[event.away_team]];
+    for(const bk of event.bookmakers||[]) for(const mk of bk.markets||[]){
+      const market=ODDS_MARKET_MAP[mk.key]; if(!market) continue;
+      for(const oc of mk.outcomes||[]){
+        if(++count%250===0) await pauseForPaint();
+        const side=String(oc.name).toLowerCase();
+        if(!oc.description || (market==="atd" ? side!=="yes" : !["over","under"].includes(side))) continue;
+        if(!americanToDecimal(oc.price) || (market!=="atd" && !finiteNumber(oc.point))) continue;
+        const line=market==="atd"?null:oc.point;
+        // Full quote identity: no cross-book or alternate-line pairing.
+        const key=JSON.stringify([event.id,bk.key,mk.key,normalizeBetName(oc.description),line]);
+        if(!quotes.has(key)) quotes.set(key,{id:uid(),quoteKey:key,eventId:event.id,player:oc.description,
+          eventTeams,team:"",opp:"",market,line,book:bk.title||bk.key,source:"nightly",
+          updatedAt:mk.last_update||bk.last_update||raw.generated_at,kickoff:event.commence_time,
+          overOdds:null,underOdds:null,projMean:null,projSd:null});
+        quotes.get(key)[side==="under"?"underOdds":"overOdds"]=oc.price;
+      }
+    }
+  }
+  const result=[];
+  for(const p of quotes.values()){
+    if(result.length%250===0) await pauseForPaint();
+    result.push(attachProjection(p,index));
+  }
+  return result;
 }
-
-/* ---- paste parsers ---------------------------------------------------
-   Same freeform-line pattern the rankings/Market Score importers already
-   use elsewhere in this app — tab or comma separated, one row per line,
-   trailing fields optional. */
+async function loadBettingData(){
+  BET.loading=true; $("btDataNote").textContent="Loading odds and historical projections…";
+  try{
+    // Fetch and JSON.parse live on a worker, including the large raw API
+    // payload. Only structured data crosses back to the main thread.
+    const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url])=>{const r=await fetch(url,{cache:'no-cache'});if(!r.ok)return[key,null];return[key,await r.json()]}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
+    const blob=URL.createObjectURL(new Blob([workerSource],{type:"text/javascript"}));
+    let worker;
+    const files=await new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>reject(new Error("Data request timed out")),60000);
+      try{worker=new Worker(blob);}catch(e){clearTimeout(timer);reject(e);return;}
+      worker.onmessage=({data})=>{clearTimeout(timer); data.ok?resolve(data.files):reject(new Error(data.error));};
+      worker.onerror=()=>{clearTimeout(timer);reject(new Error("Background data loader failed"));};
+      worker.postMessage([['nfl','nfl_betting.json'],['ncaa','ncaa_lines.json'],['history','history.json'],['config','data.json']].map(([k,p])=>[k,new URL('data/'+p,document.baseURI).href]));
+    }).finally(()=>{worker?.terminate();URL.revokeObjectURL(blob);});
+    BET.nflData=files.nfl; BET.ncaaData=files.ncaa; BET.history=files.history?.betting;
+    S.history=files.history; S.pipeline=files.config;
+    BET.config=files.config?.betting||{};
+    BET.props=await propsFromRealData();
+    BET.games=gamesFromRealData();
+    const stamp=BET.history?.generated_at;
+    $("btDataNote").textContent=stamp ? `Model updated ${new Date(stamp).toLocaleString()} · ${BET.history.window}-game baseline · ¼ Kelly, capped at ${100*(BET.config.max_stake_fraction??0.02)}% per bet` : "Historical projections unavailable. Manual import is available below.";
+    $("btLoadPropsNote").textContent=BET.props.length ? `${BET.props.length} bookmaker quotes loaded automatically.` : "No prop quotes in the current snapshot. The nightly odds job needs ODDS_API_KEY; you can also import quotes below.";
+  }catch(e){$("btDataNote").textContent=`Data unavailable: ${e.message}. Reload to retry; manual imports remain available.`;}
+  finally{BET.loading=false;renderBetting();}
+}
+function gamesFromRealData(){
+  const games=[];
+  for(const sport of ["nfl","ncaa"]){
+    const raw=sport==="nfl"?BET.nflData:BET.ncaaData;
+    const byId=new Map((raw?.games||[]).map(g=>[String(g.game_id),g]));
+    for(const modelGame of BET.history?.games?.[sport]||[]){
+      const quote=byId.get(modelGame.id);
+      const g={...modelGame,source:"nightly",updatedAt:raw?.generated_at,book:quote?.book||"Schedule snapshot"};
+      if(quote){
+        // Pipeline stores home-relative lines; legacy NFL snapshots have
+        // the nflverse home-margin convention, so prefer normalized history.
+        if(sport==="ncaa") g.spread=quote.spread??g.spread;
+        g.total=quote.total??g.total; g.mlHome=quote.home_ml??g.mlHome; g.mlAway=quote.away_ml??g.mlAway;
+        g.homeSpreadOdds=quote.home_spread_odds??g.homeSpreadOdds;
+        g.awaySpreadOdds=quote.away_spread_odds??g.awaySpreadOdds;
+        g.overOdds=quote.over_odds??g.overOdds; g.underOdds=quote.under_odds??g.underOdds;
+      }
+      games.push(g);
+    }
+  }
+  return games;
+}
 function parsePropsPaste(text){
-  const rows = [];
+  const rows=[], index=buildProfileIndex(BET.history);
   for(const raw of text.split(/\r?\n/)){
-    const line = raw.trim(); if(!line) continue;
-    const parts = line.split(/\t|,\s*/).map(s=>s.trim());
-    if(parts.length < 4) continue;
-    const [player, team, opp, market, lineVal, overOdds, underOdds, projMean, projSd, kickoff] = parts;
-    rows.push({
-      id: uid(), player, team: team||"", opp: opp||"", market: (market||"").toLowerCase(),
-      line: lineVal ? Number(lineVal) : null,
-      overOdds: overOdds ? Number(overOdds) : null,
-      underOdds: underOdds ? Number(underOdds) : null,
-      projMean: projMean ? Number(projMean) : null,
-      projSd: projSd ? Number(projSd) : null,
-      kickoff: kickoff || null,
-    });
+    const parts=raw.split(/\t|,\s*/).map(s=>s.trim());
+    const [player,team,opp,market,point,over,under,mean,sd,kickoff]=parts;
+    if(!player || !Object.hasOwn(MARKET_LABEL,market)) continue;
+    const num=x=>x==null||x===""?null:Number(x);
+    const p={id:uid(),player,team:team||"",opp:opp||"",market,line:num(point),overOdds:num(over),underOdds:num(under),
+      projMean:num(mean),projSd:num(sd),kickoff:kickoff||null,book:"Manual",source:"manual",manual:mean!=null&&mean!==""};
+    if((market!=="atd"&&!finiteNumber(p.line)) || (!americanToDecimal(p.overOdds)&&!americanToDecimal(p.underOdds)) || (kickoff&&!Number.isFinite(Date.parse(kickoff)))) continue;
+    if(!p.manual) attachProjection(p,index);
+    rows.push(p);
   }
   return rows;
 }
 function parseGamesPaste(text){
-  const rows = [];
+  const rows=[];
   for(const raw of text.split(/\r?\n/)){
-    const line = raw.trim(); if(!line) continue;
-    const parts = line.split(/\t|,\s*/).map(s=>s.trim());
-    if(parts.length < 6) continue;
-    const [away, home, spread, total, mlAway, mlHome, kickoff, awayRating, homeRating] = parts;
-    rows.push({
-      id: uid(), away, home,
-      spread: Number(spread), total: Number(total),
-      mlAway: mlAway ? Number(mlAway) : null, mlHome: mlHome ? Number(mlHome) : null,
-      kickoff: kickoff || null,
-      awayRating: (awayRating!=null && awayRating!=="") ? Number(awayRating) : null,
-      homeRating: (homeRating!=null && homeRating!=="") ? Number(homeRating) : null,
-    });
+    const [away,home,spread,total,ma,mh,kickoff]=raw.split(/\t|,\s*/).map(s=>s.trim());
+    if(!away||!home||!spread||!total||!finiteNumber(Number(spread))||!finiteNumber(Number(total))||Number(total)<0) continue;
+    const model=BET.history?.games?.[BET.sport]?.find(g=>g.home===home&&g.away===away&&Date.parse(g.kickoff)===Date.parse(kickoff))?.model;
+    rows.push({id:uid(),sport:BET.sport,away,home,spread:Number(spread),total:Number(total),mlAway:ma?Number(ma):null,
+      mlHome:mh?Number(mh):null,kickoff:kickoff||null,model,source:"manual",book:"Manual"});
   }
   return rows;
 }
-
-/* ---- rendering --------------------------------------------------------*/
-const MARKET_LABEL = {pass_yds:"Pass Yds", rush_yds:"Rush Yds", rec_yds:"Rec Yds", atd:"ATD"};
-
-function renderPropsTable(){
-  const el = $("btPropsTable");
-  if(!el) return;
-  let rows = BET.props.map(p => ({p, row: computePropRow(p)}));
-  if(BET.market !== "ALL") rows = rows.filter(x => x.p.market === BET.market);
-  const sorters = {
-    ev:   (a,b) => (b.row.ev ?? -1) - (a.row.ev ?? -1),
-    disc: (a,b) => propDiscrepancy(b.p,b.row) - propDiscrepancy(a.p,a.row),
-    time: (a,b) => (a.p.kickoff||"").localeCompare(b.p.kickoff||""),
-  };
-  rows.sort(sorters[BET.sort]);
-  if(!rows.length){ el.innerHTML = `<div class="bt-empty">No props loaded. Paste some below.</div>`; return; }
-  el.innerHTML = rows.map(({p,row})=>{
-    const evPct = row.ev != null ? row.ev*100 : null;
-    const lineTxt = p.market==="atd" ? `λ ${p.projMean!=null?p.projMean.toFixed(2):"—"}` : (p.line!=null?p.line.toFixed(1):"—");
-    const oddsVal = row.side==="Under" ? p.underOdds : p.overOdds;
-    const needsProj = p.market==="atd" ? p.projMean == null : (p.projMean == null || p.projSd == null);
-    const projEdit = needsProj ? `<div class="bt-projedit">no projection —
-        <input type="number" class="bt-projinput" data-id="${p.id}" data-field="projMean" placeholder="${p.market==="atd"?"λ":"mean"}" step="0.1" value="${p.projMean ?? ""}">
-        ${p.market!=="atd" ? `<input type="number" class="bt-projinput" data-id="${p.id}" data-field="projSd" placeholder="sd" step="0.1" value="${p.projSd ?? ""}">` : ""}
-      </div>` : "";
-    return `<div class="bt-row">
-      <div class="bt-who"><b>${esc(p.player)}</b><small>${esc(p.team)} vs ${esc(p.opp)} · ${MARKET_LABEL[p.market]||esc(p.market)}</small>${projEdit}</div>
-      <div class="bt-line">${row.side!=="—"?row.side+" ":""}${lineTxt}</div>
-      <div class="bt-odds">${americanOddsLabel(oddsVal)}</div>
-      <div class="bt-ev ${evClass(row.ev)}">${evPct!=null?(evPct>0?"+":"")+evPct.toFixed(1)+"%":"—"}</div>
-      <div class="bt-kelly">${row.kelly>0?`<b>${(row.kelly*100).toFixed(1)}%</b> bankroll`:"—"}</div>
-    </div>`;
-  }).join("");
+function percent(value){return finiteNumber(value)?(value*100).toFixed(1)+"%":"—";}
+function evClass(ev){return ev==null?"":ev>0.05?"hi":ev>=0?"mid":"neg";}
+function metricMarkup(row){
+  return `<span>${row.side||"—"}</span><span>${americanOddsLabel(row.odds)}</span><span title="Probability of this side winning">${percent(row.prob)}</span><span class="bt-ev ${evClass(row.ev)}">${row.ev>0?"+":""}${percent(row.ev)}</span><span title="Fraction of bankroll; per-bet cap applies">${row.kelly>0?percent(row.kelly):"—"}</span>`;
 }
-
-/* Real data loading — 404-safe, same pattern as every other optional
-   data source in this app (managers.json, history.json, data.json).
-   Games get converted into the exact shape parseGamesPaste() already
-   produces, so every existing render/math function downstream (implied
-   totals, key numbers, fair spread) works completely unchanged — this
-   is new DATA, not new logic. */
-async function loadBettingData(){
-  try{ BET.nflData = await fetch("data/nfl_betting.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
-  catch(e){ BET.nflData = null; }
-  try{ BET.ncaaData = await fetch("data/ncaa_lines.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null); }
-  catch(e){ BET.ncaaData = null; }
-}
-
-function nflRatingFor(raw, season, team, week){
-  return raw?.ratings?.[String(season)]?.[team]?.[String(week)] ?? null;
-}
-function ncaaRatingFor(raw, season, team){
-  return raw?.ratings?.[String(season)]?.[team] ?? null;
-}
-
-/* Only upcoming games with a real line — completed games and lineless
-   rows aren't useful on a "what should I bet" board. Dedupes against
-   whatever's already in BET.games by away+home+kickoff so clicking the
-   load button twice doesn't double the list. */
-function gamesFromRealData(sport){
-  const raw = sport==="nfl" ? BET.nflData : BET.ncaaData;
-  if(!raw) return [];
-  const existing = new Set(BET.games.map(g=>`${g.away}|${g.home}|${g.kickoff}`));
-  const out = [];
-  for(const g of raw.games){
-    if(g.completed || g.spread == null) continue;
-    const key = `${g.away}|${g.home}|${g.kickoff}`;
-    if(existing.has(key)) continue;
-    const homeRating = sport==="nfl" ? nflRatingFor(raw, g.season, g.home, g.week) : ncaaRatingFor(raw, g.season, g.home);
-    const awayRating = sport==="nfl" ? nflRatingFor(raw, g.season, g.away, g.week) : ncaaRatingFor(raw, g.season, g.away);
-    out.push({
-      id: uid(), away:g.away, home:g.home, spread:g.spread, total:g.total,
-      mlAway:g.away_ml, mlHome:g.home_ml, kickoff:g.kickoff,
-      awayRating, homeRating,
-    });
-  }
-  return out;
-}
-
-const ODDS_MARKET_MAP = {player_pass_yds:"pass_yds", player_rush_yds:"rush_yds", player_reception_yds:"rec_yds", player_anytime_td:"atd"};
-
-/* Real The Odds API player-prop events -> this app's flat prop-row shape.
-   Verified against The Odds API's actual documented schema before writing
-   this, not assumed: each outcome carries `description` (the player's
-   name — NOT `name`, which holds "Over"/"Under"/"Yes"), `point` (the
-   line, absent for ATD since there's no line, just yes/no), and `price`
-   (American odds). Confirmed independently via a second SDK's docs using
-   the same three fields the same way.
-
-   One thing this does NOT solve, and can't: the odds API gives real
-   lines and real prices, but a projection (projMean/projSd, or λ for ATD)
-   is YOUR model's number, not something a sportsbook publishes — nothing
-   here can invent one. Props load with projMean/projSd null and EV shows
-   as "—" until you fill them in inline (see the input fields rendered
-   for exactly this case in renderPropsTable). Building an automatic
-   projection would need two more real pieces that don't exist yet: raw
-   per-game yardage in history.json (it currently only stores fantasy-
-   scoring fields, not raw passing/rushing/receiving yards), and a name-
-   matching layer between the odds API's plain player-name strings and
-   this app's Sleeper-ID-keyed pool. Flagging both rather than faking
-   either. */
-function propsFromRealData(){
-  const raw = BET.nflData;
-  if(!raw || !raw.props_raw) return [];
-  const existing = new Set(BET.props.map(p=>`${p.player}|${p.market}`));
-  const out = [];
-  for(const event of raw.props_raw){
-    for(const bk of event.bookmakers || []){
-      for(const mk of bk.markets || []){
-        const ourMarket = ODDS_MARKET_MAP[mk.key];
-        if(!ourMarket) continue;
-        const byPlayer = {};
-        for(const oc of mk.outcomes || []){
-          const player = oc.description;
-          if(!player) continue;
-          (byPlayer[player] ||= []).push(oc);
-        }
-        for(const [player, outcomes] of Object.entries(byPlayer)){
-          const key = `${player}|${ourMarket}`;
-          if(existing.has(key)) continue;
-          existing.add(key);
-          if(ourMarket === "atd"){
-            const yes = outcomes.find(o => /yes/i.test(o.name));
-            if(!yes) continue;
-            out.push({id:uid(), player, team:"", opp:"", market:"atd",
-              line:null, overOdds:yes.price, underOdds:null,
-              projMean:null, projSd:null, kickoff:event.commence_time});
-          } else {
-            const over = outcomes.find(o => /over/i.test(o.name));
-            const under = outcomes.find(o => /under/i.test(o.name));
-            if(!over) continue;
-            out.push({id:uid(), player, team:"", opp:"", market:ourMarket,
-              line: over.point ?? null, overOdds: over.price ?? null, underOdds: under?.price ?? null,
-              projMean:null, projSd:null, kickoff:event.commence_time});
-          }
-        }
+async function cooperativeSort(rows, compare, version){
+  let src=rows, dst=new Array(rows.length), checkpoint=performance.now();
+  for(let width=1;width<rows.length;width*=2){
+    for(let left=0;left<rows.length;left+=2*width){
+      const mid=Math.min(left+width,rows.length), end=Math.min(left+2*width,rows.length); let i=left,j=mid;
+      for(let k=left;k<end;k++){
+        dst[k]=i<mid&&(j>=end||compare(src[i],src[j])<=0)?src[i++]:src[j++];
+        if((k&511)===0&&performance.now()-checkpoint>7){await pauseForPaint();if(version!==BET.renderVersion)return null;checkpoint=performance.now();}
       }
     }
+    [src,dst]=[dst,src];
   }
-  return out;
+  return src;
 }
-
+function propMarkup(p,row){
+  const model=p.manual?null:p.model, mean=p.projMean, sd=p.projSd;
+  return `<div class="bt-row" data-prop-id="${esc(p.id)}">
+    <div class="bt-who"><b>${esc(p.player)}</b><small>${esc(p.team)} ${p.opp?'vs '+esc(p.opp):''} · ${esc(MARKET_LABEL[p.market])} · ${esc(p.book||"Manual")}</small>
+    <small>${esc(row.reason||`${p.manual?'Manual':model?.family||'No model'} · n=${model?.n??'—'} · μ ${finiteNumber(mean)?mean.toFixed(1):'—'} · σ ${finiteNumber(sd)?sd.toFixed(1):'—'}`)}</small>
+    <small>${p.kickoff?esc(new Date(p.kickoff).toLocaleString()):'Kickoff unspecified'} · Push ${percent(row.push)}</small>
+    <details class="bt-override"><summary>Projection ${p.manual?'override':'details / override'}</summary>
+      <label>Mean <input aria-label="${esc(p.player)} mean" type="number" min="0" class="bt-projinput" data-id="${esc(p.id)}" data-field="projMean" step="0.1" value="${finiteNumber(mean)?mean:''}"></label>
+      ${!COUNT_MARKETS.has(p.market)?`<label>SD <input aria-label="${esc(p.player)} standard deviation" type="number" min="0" class="bt-projinput" data-id="${esc(p.id)}" data-field="projSd" step="0.1" value="${finiteNumber(sd)?sd:''}"></label>`:''}
+      <button class="btn ghost tiny" data-reset="${esc(p.id)}">Use historical model</button>
+      <small>${esc(p.matchStatus||'Manual')} · Last game ${esc(p.profileDate||'unavailable')}</small>
+    </details></div><div class="bt-line">${p.market==='atd'?'1+ TD':p.line??'—'}</div><div class="bt-metrics">${metricMarkup(row)}</div></div>`;
+}
+async function renderPropsTable(){
+  if(BET.tab!=="props" || BET.sport!=="nfl" || !$("view-betting").classList.contains("active")) return;
+  const version=++BET.renderVersion, el=$("btPropsTable"), query=BET.query.toLowerCase();
+  el.setAttribute("aria-busy","true"); let rows=[];
+  for(let i=0;i<BET.props.length;i++){
+    const p=BET.props[i];
+    if((BET.market==="ALL"||p.market===BET.market)&&(!query||`${p.player} ${p.team} ${p.book}`.toLowerCase().includes(query))) rows.push({p,row:computePropRow(p)});
+    if(i%200===0){await pauseForPaint();if(version!==BET.renderVersion)return;}
+  }
+  const sorters={ev:(a,b)=>(b.row.ev??-Infinity)-(a.row.ev??-Infinity),disc:(a,b)=>Math.abs((b.p.projMean??b.p.line)-b.p.line)-Math.abs((a.p.projMean??a.p.line)-a.p.line),time:(a,b)=>(a.p.kickoff||"z").localeCompare(b.p.kickoff||"z")};
+  rows=await cooperativeSort(rows,sorters[BET.sort]||sorters.ev,version);
+  if(!rows||version!==BET.renderVersion)return;
+  const total=rows.length; BET.page=Math.max(0,Math.min(BET.page,Math.ceil(total/BET.pageSize)-1));
+  const start=BET.page*BET.pageSize;
+  el.innerHTML=rows.slice(start,start+BET.pageSize).map(({p,row})=>propMarkup(p,row)).join("")||`<div class="bt-empty">${BET.loading?'Loading projections…':'No matching props. Import quotes below or load a nightly snapshot.'}</div>`;
+  el.setAttribute("aria-busy","false");
+  $("btPageNote").textContent=total?`${start+1}–${Math.min(total,start+BET.pageSize)} of ${total} quotes`:"0 quotes";
+  $("btPrev").disabled=BET.page===0; $("btNext").disabled=start+BET.pageSize>=total;
+}
+function normalMarket(line, mean, sd){
+  if(![line,mean,sd].every(finiteNumber)||sd<=0)return null;
+  const under=normalCDF((Math.ceil(line)-0.5-mean)/sd), over=1-normalCDF((Math.floor(line)+0.5-mean)/sd);
+  return {over,under,push:Math.max(0,1-over-under)};
+}
+function gameQuotes(g){
+  const m=g.model;
+  if(!m||quoteState(g)) return [];
+  const spread=normalMarket(finiteNumber(g.spread)?-g.spread:null,m.margin_mean,m.margin_sd), total=normalMarket(g.total,m.total_mean,m.total_sd), ml=normalMarket(0,m.margin_mean,m.margin_sd);
+  const rows=[];
+  for(const [prob,label,over,under] of [[spread,'Spread',g.homeSpreadOdds,g.awaySpreadOdds],[total,'Total',g.overOdds,g.underOdds],[ml,'Moneyline',g.mlHome,g.mlAway]]){
+    if(!prob)continue;
+    for(const [side,odds,p] of [[label==='Total'?'Over':g.home,over,prob.over],[label==='Total'?'Under':g.away,under,prob.under]]){
+      const dec=americanToDecimal(odds);
+      if(dec) rows.push({side:`${label}: ${side}`,odds,prob:p,push:prob.push,ev:evPercent(p,dec,prob.push),kelly:kellyFraction(p,dec,prob.push,BET.config.kelly_fraction??0.25,BET.config.max_stake_fraction??0.02)});
+    }
+  }
+  return rows;
+}
 function renderGamesList(){
-  const el = $("btGamesList");
-  if(!el) return;
-  if(!BET.games.length){ el.innerHTML = `<div class="bt-empty">No games loaded. Paste some below.</div>`; return; }
-  el.innerHTML = BET.games.map(g=>{
-    const it = impliedTeamTotals(g.total, g.spread);
-    const kn = keyNumberDistance(g.spread);
-    const knTag = kn.d===0 ? `<span class="bt-key on">ON KEY ${kn.key}</span>`
-                : kn.d<=1 ? `<span class="bt-key near">±${kn.d} from key ${kn.key}</span>` : "";
-    const calib = (BET.sport==="nfl" ? BET.nflData : BET.ncaaData)?.rating_calibration;
-    const fs = fairSpread(g.homeRating, g.awayRating, calib?.slope, calib?.intercept);
-    const fmtSpread = v => v<=0 ? v.toFixed(1) : "+"+v.toFixed(1);
-    const fairTxt = fs != null
-      ? `<div class="bt-fair">Fair spread (ratings): <b>${esc(g.home)} ${fmtSpread(fs)}</b> vs market ${esc(g.home)} ${fmtSpread(g.spread)}</div>`
-      : `<div class="bt-fair">No power ratings loaded for this game — market line only.</div>`;
-    const homeFav = g.spread <= 0;
-    const spreadTxt = `${homeFav?esc(g.home):esc(g.away)} ${(-Math.abs(g.spread)).toFixed(1)}`;
-    return `<div class="bt-game">
-      <div class="bt-game-head"><b>${esc(g.away)} @ ${esc(g.home)}</b><span>${esc(g.kickoff||"")}</span></div>
-      <div class="bt-lines">
-        <div><label>Spread</label><b>${spreadTxt}</b></div>
-        <div><label>Total</label><b>${g.total.toFixed(1)}</b></div>
-        <div><label>Moneyline</label><b>${americanOddsLabel(g.mlAway)} / ${americanOddsLabel(g.mlHome)}</b></div>
-      </div>
-      <div class="bt-implied"><span>${esc(g.away)} implied ${it.away.toFixed(1)}</span><span>${esc(g.home)} implied ${it.home.toFixed(1)}</span></div>
-      ${knTag}${fairTxt}
-    </div>`;
-  }).join("");
+  if(BET.tab!=="games" || !$("view-betting").classList.contains("active"))return;
+  const games=BET.games.filter(g=>g.sport===BET.sport&&(!g.kickoff||Date.parse(g.kickoff)>Date.now())).sort((a,b)=>(a.kickoff||'').localeCompare(b.kickoff||''));
+  // Bounded DOM; the next 100 fixtures covers the near-term betting board.
+  $("btGamesList").innerHTML=games.slice(0,100).map(g=>{
+    const model=g.model, quotes=gameQuotes(g), fmt=n=>finiteNumber(n)?n.toFixed(1):'—';
+    return `<article class="bt-game"><div class="bt-game-head"><b>${esc(g.away)} @ ${esc(g.home)}</b><span>${esc(new Date(g.kickoff).toLocaleString())}</span></div>
+    <div class="bt-lines"><div><label>Home spread</label><b>${fmt(g.spread)}</b></div><div><label>Total</label><b>${fmt(g.total)}</b></div><div><label>Moneyline · away / home</label><b>${americanOddsLabel(g.mlAway)} / ${americanOddsLabel(g.mlHome)}</b></div></div>
+    <div class="bt-fair">${model?`Model home margin <b>${fmt(model.margin_mean)}</b> · total <b>${fmt(model.total_mean)}</b> · ${model.home_n}/${model.away_n} games · ${model.residual_n} prior residuals`:'Insufficient team history'}</div>
+    <div class="bt-fair">${esc(g.book)} · ${esc(quoteState(g)||'Snapshot odds')} · ${esc(g.updatedAt||'manual entry')}</div>
+    ${quotes.length?`<div class="bt-game-prices"><div class="bt-metrics bt-labels"><span>Market / side</span><span>Odds</span><span>Win</span><span>EV</span><span>¼ Kelly</span></div>${quotes.map(q=>`<div class="bt-metrics">${metricMarkup(q)}</div>`).join('')}</div>`:'<p class="bt-note">EV requires a current quote and a fitted model; missing prices are left blank.</p>'}</article>`;
+  }).join('')||'<div class="bt-empty">No upcoming games in this snapshot. Import lines below.</div>';
+  $("btGamesResult").textContent=`${Math.min(games.length,100)} of ${games.length} upcoming ${BET.sport.toUpperCase()} games shown.`;
 }
-
 function renderBetting(){
-  if(!$("btPropsTable")) return;   // view not in the DOM yet — defensive no-op
-  renderPropsTable();
-  renderGamesList();
+  $("btPropsPanel").hidden=BET.tab!=="props"; $("btGamesPanel").hidden=BET.tab!=="games";
+  $("btTabGroup").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tab===BET.tab)));
+  renderPropsTable(); renderGamesList();
 }
-window.renderBetting = renderBetting;   // called from the gateway script's setView("betting")
-
+window.renderBetting=renderBetting;
 function wireBetting(){
-  const view = document.getElementById("view-betting");
-  if(!view) return;
-  $("btSportGroup").addEventListener("click", e=>{
-    const b=e.target.closest("button"); if(!b) return;
-    BET.sport = b.dataset.sport;
-    [...$("btSportGroup").children].forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
-    const propsTabBtn = $("btTabGroup").querySelector('[data-tab="props"]');
-    if(BET.sport === "ncaa"){
-      // Explicit scope: NCAA is game lines + totals only, no props.
-      propsTabBtn.hidden = true;
-      BET.tab = "games";
-      $("btTabGroup").querySelector('[data-tab="games"]').click();
-    } else {
-      propsTabBtn.hidden = false;
-    }
-    const src = BET.sport==="nfl" ? BET.nflData : BET.ncaaData;
-    $("btDataNote").textContent = src
-      ? `Real ${BET.sport.toUpperCase()} lines available from the nightly build (generated ${(src.generated_at||"").slice(0,10)}) — click "Load real lines" below, or keep pasting manually.`
-      : `No ${BET.sport.toUpperCase()} data file found yet — paste manually, or run the nightly build.`;
-    renderBetting();
+  $("btSportGroup").addEventListener("click",e=>{
+    const b=e.target.closest("button");if(!b)return;
+    BET.sport=b.dataset.sport;BET.page=0;BET.renderVersion++;
+    $("btSportGroup").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+    $("btTabGroup").querySelector('[data-tab="props"]').hidden=BET.sport!=="nfl";
+    if(BET.sport==='ncaa')BET.tab='games';renderBetting();
   });
-  $("btLoadRealProps").addEventListener("click", ()=>{
-    if(BET.sport === "ncaa"){
-      $("btLoadPropsNote").innerHTML = `<p class="warn">NCAA has no player props in this app by design — game lines and totals only.</p>`;
-      return;
-    }
-    const raw = BET.nflData;
-    if(!raw){
-      $("btLoadPropsNote").innerHTML = `<p class="warn">No NFL data file loaded yet.</p>`;
-      return;
-    }
-    if(!raw.has_live_odds){
-      $("btLoadPropsNote").innerHTML = `<p class="warn">No ODDS_API_KEY is configured in the nightly build, so there's no real props data to load — this isn't a bug, nothing's been fetched. Get a free key at the-odds-api.com and add it as a repo secret, or keep pasting manually.</p>`;
-      return;
-    }
-    const added = propsFromRealData();
-    BET.props.push(...added);
-    renderPropsTable();
-    $("btLoadPropsNote").innerHTML = added.length > 0
-      ? `<p class="note">Loaded ${added.length} real prop${added.length!==1?"s":""}. Lines and odds are real — projections are not (no sportsbook publishes those). Fill in the mean/sd shown inline on each row to get a real EV.</p>`
-      : `<p class="note">Nothing new — everything in this run's props data is already listed below.</p>`;
+  $("btTabGroup").addEventListener("click",e=>{const b=e.target.closest('button');if(b){BET.tab=b.dataset.tab;BET.renderVersion++;renderBetting();}});
+  $("btMarketGroup").addEventListener("click",e=>{const b=e.target.closest('button');if(!b)return;BET.market=b.dataset.market;BET.page=0;[...b.parentElement.children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderPropsTable();});
+  $("btSort").addEventListener('change',e=>{BET.sort=e.target.value;BET.page=0;renderPropsTable();});
+  $("btSearch").addEventListener('input',debounce(e=>{BET.query=e.target.value;BET.page=0;renderPropsTable();}));
+  $("btPrev").onclick=()=>{BET.page--;renderPropsTable();}; $("btNext").onclick=()=>{BET.page++;renderPropsTable();};
+  const timers=new Map();
+  $("btPropsTable").addEventListener('input',e=>{
+    const input=e.target.closest('.bt-projinput');if(!input)return;
+    const p=BET.props.find(p=>p.id===input.dataset.id);if(!p)return;
+    p[input.dataset.field]=input.value===''?null:Number(input.value);p.manual=true;
+    clearTimeout(timers.get(p.id));
+    timers.set(p.id,setTimeout(()=>{
+      // Update only this row's metrics, preserving input focus and caret.
+      const row=input.closest('.bt-row');
+      if(row?.isConnected){
+        const result=computePropRow(p);
+        row.querySelector('.bt-metrics').innerHTML=metricMarkup(result);
+        row.querySelector('.bt-override summary').textContent='Projection override';
+        row.querySelectorAll('.bt-who > small')[1].textContent=result.reason||`Manual override · μ ${p.projMean??'—'} · σ ${p.projSd??'—'}`;
+        row.querySelectorAll('.bt-who > small')[2].textContent=`${p.kickoff?new Date(p.kickoff).toLocaleString():'Kickoff unspecified'} · Push ${percent(result.push)}`;
+      }
+      $("btPageNote").textContent='Projection override applied. Change sort to reorder.';timers.delete(p.id);
+    },250));
   });
-  document.getElementById("btPropsTable").addEventListener("change", e=>{
-    const inp = e.target.closest(".bt-projinput"); if(!inp) return;
-    const prop = BET.props.find(p=>p.id===inp.dataset.id);
-    if(!prop) return;
-    prop[inp.dataset.field] = inp.value === "" ? null : Number(inp.value);
-    renderPropsTable();
+  $("btPropsTable").addEventListener('click',e=>{
+    const button=e.target.closest('[data-reset]');if(!button)return;
+    const p=BET.props.find(p=>p.id===button.dataset.reset);if(!p)return;
+    clearTimeout(timers.get(p.id));p.manual=false;p.projMean=null;p.projSd=null;
+    attachProjection(p,buildProfileIndex(BET.history));renderPropsTable();
   });
-  $("btLoadReal").addEventListener("click", ()=>{
-    const raw = BET.sport==="nfl" ? BET.nflData : BET.ncaaData;
-    if(!raw){
-      $("btGamesResult").innerHTML = `<p class="warn">No ${BET.sport.toUpperCase()} data file loaded — the nightly build may not have run yet, or hasn't produced data/${BET.sport==="nfl"?"nfl_betting":"ncaa_lines"}.json.</p>`;
-      return;
-    }
-    const totalGames = raw.games?.length || 0;
-    const withRealLine = (raw.games || []).filter(g => !g.completed && g.spread != null).length;
-    const added = gamesFromRealData(BET.sport);
-    BET.games.push(...added);
-    renderGamesList();
-
-    if(added.length > 0){
-      $("btGamesResult").innerHTML = `<p class="note">Loaded ${added.length} real upcoming ${BET.sport.toUpperCase()} game${added.length!==1?"s":""}.</p>`;
-    } else if(withRealLine > 0){
-      $("btGamesResult").innerHTML = `<p class="note">Nothing new — the ${withRealLine} real upcoming game${withRealLine!==1?"s":""} available are already listed below.</p>`;
-    } else {
-      // This is the real, confirmed case: the schedule has games, but the
-      // odds source hasn't published lines for them yet — same pattern as
-      // nflreadpy not having current-season play-by-play ready. Not a bug,
-      // but a silent zero here reads exactly like one, so say so plainly.
-      $("btGamesResult").innerHTML = `<p class="warn">${totalGames} ${BET.sport.toUpperCase()} game${totalGames!==1?"s":""} in the data file, but none have a posted line yet — the odds source (${BET.sport==="nfl"?"nflreadpy's schedule dataset":"sportsdataverse's betting lines dataset"}) hasn't published this week's numbers. This isn't a bug — check back once lines are posted, or paste them manually below.</p>`;
-    }
-  });
-  $("btTabGroup").addEventListener("click", e=>{
-    const b=e.target.closest("button"); if(!b) return;
-    BET.tab = b.dataset.tab;
-    [...$("btTabGroup").children].forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
-    $("btPropsPanel").hidden = BET.tab !== "props";
-    $("btGamesPanel").hidden = BET.tab !== "games";
-  });
-  $("btMarketGroup").addEventListener("click", e=>{
-    const b=e.target.closest("button"); if(!b) return;
-    BET.market = b.dataset.market;
-    [...$("btMarketGroup").children].forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
-    renderPropsTable();
-  });
-  $("btSort").addEventListener("change", e=>{ BET.sort=e.target.value; renderPropsTable(); });
-  $("btLognormal").addEventListener("change", e=>{ BET.lognormal=e.target.checked; renderPropsTable(); });
-  $("btImportProps").addEventListener("click", ()=>{
-    const rows = parsePropsPaste($("btPropsPaste").value);
-    BET.props.push(...rows);
-    $("btPropsResult").innerHTML = `<p class="note">Imported ${rows.length} prop${rows.length!==1?"s":""}.</p>`;
-    renderPropsTable();
-  });
-  $("btImportGames").addEventListener("click", ()=>{
-    const rows = parseGamesPaste($("btGamesPaste").value);
-    BET.games.push(...rows);
-    $("btGamesResult").innerHTML = `<p class="note">Imported ${rows.length} game${rows.length!==1?"s":""}.</p>`;
-    renderGamesList();
-  });
+  $("btLoadRealProps").onclick=async()=>{
+    const b=$("btLoadRealProps");b.disabled=true;
+    try{BET.props=BET.props.filter(p=>p.source==='manual').concat(await propsFromRealData());BET.page=0;renderPropsTable();}
+    finally{b.disabled=false;}
+  };
+  $("btLoadReal").onclick=()=>{BET.games=BET.games.filter(g=>g.source==='manual').concat(gamesFromRealData());renderGamesList();};
+  $("btImportProps").onclick=async()=>{
+    const text=$("btPropsPaste").value;let imported=0,lines=text.split(/\r?\n/);
+    for(let i=0;i<lines.length;i+=200){const rows=parsePropsPaste(lines.slice(i,i+200).join('\n'));BET.props=BET.props.concat(rows);imported+=rows.length;await pauseForPaint();}
+    $("btPropsResult").textContent=`Imported ${imported} quotes; ${lines.filter(x=>x.trim()).length-imported} invalid rows skipped.`;BET.page=0;renderPropsTable();
+  };
+  $("btImportGames").onclick=()=>{const rows=parseGamesPaste($("btGamesPaste").value);BET.games=BET.games.concat(rows);renderGamesList();};
+  setInterval(()=>{if($("view-betting").classList.contains('active')&&!document.activeElement?.classList.contains('bt-projinput'))renderBetting();},60000);
 }
+
 
 function wire(){
   const cfgOpen = () => { $("cfgSheet").classList.add("show"); $("cfgScrim").classList.add("show"); };
@@ -3271,7 +3213,7 @@ function wire(){
 async function boot(){
   loadLocal();
   $("username").value=localStorage.getItem("goinglong.username")||"";
-  wire(); wireTrade(); wireBetting(); await loadBase(); await loadBettingData();
+  wire(); wireTrade(); wireBetting(); await Promise.all([loadBase(), loadBettingData()]);
   if(S.profiles.find(p=>p.id===S.activeId)){
     await activate();
   } else {

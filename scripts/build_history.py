@@ -1,43 +1,6 @@
 #!/usr/bin/env python3
-"""
-Builds data/history.json — real production history for every player, keyed by
-Sleeper ID so it joins straight onto the draft board.
-
-Sources (free, no keys, both on GitHub):
-  nflverse-data   stats_player_week_<season>.csv   weekly player stats
-  nflverse-data   nextgen_stats/ngs_*              NGS season aggregates (via nflreadpy)
-  DynastyProcess  db_playerids.csv                 gsis_id <-> sleeper_id
-
-Why weekly rather than season totals: the guide's metrics are per-game, need a
-games-played filter, and drop the final week of the season as meaningless. You
-can only do that from week-level rows.
-
-nflreadpy is an optional dependency, used only for Next Gen Stats — nflverse
-serves those as Parquet with no guessable public URL, and nflreadpy is the only
-thing that knows the real path. If it isn't installed, the script still runs
-and just skips the NGS fields (has_ngs: false in the output).
-
-What comes out, per player per season:
-  g            games with a snap (REG, weeks 1..17)
-  ppr / half / std      fantasy points per game
-  rush_fp      rushing fantasy points per game   (QB mobility)
-  td_rate      passing TDs / attempts            (QB regression)
-  fp_db        fantasy points per dropback       (late QB)
-  rec_fp       receiving fantasy points per game (RB pass-game role)
-  rush10       share of carries gaining 10+      (late RB)
-  adot         average depth of target           (late WR)
-  td_pg        total TDs per game                (TE regression)
-  wopr / racr / pacr / cpoe / *_epa_pg   nflverse's own advanced rate stats
-  tgt_share, tgt_pg, car_pg, att
-  weekly       [week, PPR points] pairs for the qualifying season (sparkline)
-
-n1 additionally carries an "ngs" block when available:
-  separation, cushion, yac_oe     receiving — route-running proxy, since real
-                                   routes-run charting has no free source
-  ryoe_pa, box8_rate              rushing — production over expectation, and
-                                   how stacked the box was
-  aggressiveness, time_to_throw,
-  air_to_sticks, cpoe_ngs         passing — QB tendency profile
+"""Fantasy history via nflreadpy player stats, rosters and Next Gen Stats.
+Keeps the fantasy schema and preserves the separate betting namespace.
 """
 
 import csv
@@ -58,22 +21,7 @@ N_SEASONS = int(os.environ.get("HISTORY_SEASONS", "3"))
 # The guide drops the final week of every season — it's mostly rested starters.
 LAST_WEEK = int(os.environ.get("HISTORY_LAST_WEEK", "17"))
 
-NFLVERSE = "https://github.com/nflverse/nflverse-data/releases/download"
-PLAYER_IDS = "https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_playerids.csv"
 KEEP_POS = {"QB", "RB", "WR", "TE"}
-
-
-def fetch_csv(url, tries=3):
-    last = None
-    for attempt in range(tries):
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "going-long-etl/1.0"})
-            with urllib.request.urlopen(req, timeout=180) as resp:
-                text = resp.read().decode("utf-8", errors="replace")
-            return list(csv.DictReader(io.StringIO(text)))
-        except (urllib.error.URLError, urllib.error.HTTPError, TimeoutError) as exc:
-            last = exc
-    raise RuntimeError(f"failed to fetch {url}: {last}")
 
 
 def num(row, key):
@@ -87,21 +35,15 @@ def num(row, key):
 
 
 def id_map():
-    """gsis_id -> sleeper_id, plus sleeper_id -> draft year for career-year rules"""
-    rows = fetch_csv(PLAYER_IDS)
+    import nflreadpy as nfl
+    rows = nfl.load_rosters(list(range(SEASON - N_SEASONS, SEASON + 1))).to_dicts()
     out, drafted = {}, {}
     for r in rows:
-        g, s = (r.get("gsis_id") or "").strip(), (r.get("sleeper_id") or "").strip()
-        if g and s:
-            out[g] = s
-        if s:
-            try:
-                dy = int(float(r.get("draft_year") or 0))
-                if 1980 < dy < 2100:
-                    drafted[s] = dy
-            except ValueError:
-                pass
-    print(f"id crosswalk: {len(out)} gsis->sleeper pairs, {len(drafted)} with draft year")
+        g, sid = r.get('gsis_id'), r.get('sleeper_id')
+        if g and sid:
+            out[g] = str(sid)
+        if sid and r.get('rookie_year'):
+            drafted[str(sid)] = int(r['rookie_year'])
     return out, drafted
 
 
@@ -175,12 +117,8 @@ def fetch_ngs(season):
 
 
 def build_season(season, gsis_to_sleeper):
-    url = f"{NFLVERSE}/stats_player/stats_player_week_{season}.csv"
-    try:
-        rows = fetch_csv(url)
-    except RuntimeError as exc:
-        print(f"  ! {season}: {exc}")
-        return {}
+    import nflreadpy as nfl
+    rows = nfl.load_player_stats([season], summary_level='week').to_dicts()
     agg = {}
     kept = 0
     for r in rows:
@@ -338,14 +276,17 @@ def build():
         }
 
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps({
+    existing = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
+    from build_pipeline import atomic_json
+    atomic_json(OUT, {
+        **({"betting": existing["betting"]} if "betting" in existing else {}),
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "seasons": seasons,
         "last_week": LAST_WEEK,
         "has_ngs": HAVE_NFLREADPY,
-        "source": "nflverse-data stats_player + nextgen_stats, ids via DynastyProcess",
+        "source": "nflreadpy player stats, nextgen stats and rosters",
         "players": payload_players,
-    }, separators=(",", ":")))
+    })
     kb = OUT.stat().st_size / 1024
     qualified = sum(1 for p in payload_players.values() if p["n1"])
     print(f"\nwrote {OUT} — {len(payload_players)} players, {qualified} with a "

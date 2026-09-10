@@ -1,485 +1,262 @@
 #!/usr/bin/env python3
+"""NFL/nflreadpy and NCAA/sportsdataverse historical betting baselines.
+Preserves history.players for fantasy; see docs/BETTING_MODEL.md.
 """
-build_pipeline.py — consolidated nightly ETL, one data.json out.
-
-Every source here is free and keyless. None require signup or an API key.
-KeepTradeCut is the one exception to "official API" — it has no public API
-at all, so this scrapes an embedded JSON blob off its rankings pages. That
-makes it the most fragile piece by a wide margin: a front-end redesign on
-KTC's end can silently break extraction with zero warning from their side.
-Everything here is written so that a KTC failure degrades the output
-(dynasty values missing) rather than crashing the whole pipeline.
-
-    SOURCE           AUTH    STABILITY   WHAT IT GIVES US
-    Sleeper          none    high        player metadata, team, years_exp
-    nflverse         none    high        weekly production, 3 seasons
-    DynastyProcess   none    high        cross-site ID crosswalk, draft capital
-    FantasyCalc      none    high        redraft + dynasty market value
-    KeepTradeCut     none    LOW         dynasty SF + 1QB consensus values
-                                          (scraped, no API — see caveat above)
-
-Usage:
-    pip install -r requirements.txt
-    python build_pipeline.py
-
-Env vars (all optional, defaults match a 12-team 1QB PPR redraft league):
-    SEASON, TEAMS, SCORING (ppr|half|standard), NUM_QBS (1|2),
-    HISTORY_SEASONS (default 3), SKIP_KTC (set to skip the fragile step)
-"""
-
 from __future__ import annotations
-
-import csv
-import io
 import json
+import math
 import os
 import re
-import sys
-import time
+import statistics as stats
 import unicodedata
-import urllib.error
-import urllib.request
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
-
-try:
-    import requests
-except ImportError:
-    print("This script needs `requests` — pip install -r requirements.txt", file=sys.stderr)
-    raise
-
-# --------------------------------------------------------------------------
-# Config
-# --------------------------------------------------------------------------
-SEASON = int(os.environ.get("SEASON", "2026"))
-TEAMS = int(os.environ.get("TEAMS", "12"))
-SCORING = os.environ.get("SCORING", "ppr")            # ppr | half | standard
-NUM_QBS = int(os.environ.get("NUM_QBS", "1"))          # 2 = superflex
-HISTORY_SEASONS = int(os.environ.get("HISTORY_SEASONS", "3"))
-SKIP_KTC = os.environ.get("SKIP_KTC", "").lower() in ("1", "true", "yes")
-LAST_WEEK = 17                                          # guide drops the final week
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "data" / "data.json"
-
-KEEP_POS = {"QB", "RB", "WR", "TE"}
-SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
-TEAM_FIXES = {"JAC": "JAX", "WSH": "WAS", "LAR": "LA", "OAK": "LV", "SD": "LAC", "STL": "LA"}
-PPR_MAP = {"ppr": 1, "half": 0.5, "standard": 0}
-
-SESSION = requests.Session()
-SESSION.headers.update({"User-Agent": "going-long-pipeline/1.0 (personal fantasy tool, non-commercial)"})
-
-
-def get_json(url: str, tries: int = 3, pause: float = 2.0, timeout: int = 60) -> Any:
-    last_exc = None
-    for attempt in range(tries):
-        try:
-            r = SESSION.get(url, timeout=timeout)
-            r.raise_for_status()
-            return r.json()
-        except Exception as exc:  # noqa: BLE001 — genuinely want to catch and retry anything here
-            last_exc = exc
-            if attempt < tries - 1:
-                time.sleep(pause * (attempt + 1))
-    raise RuntimeError(f"GET {url} failed after {tries} tries: {last_exc}")
+MARKETS = {
+    'pass_yds': ('passing_yards', 'lognormal'),
+    'rush_yds': ('rushing_yards', 'lognormal'),
+    'rec_yds': ('receiving_yards', 'lognormal'),
+    'receptions': ('receptions', 'poisson'),
+    'pass_tds': ('passing_tds', 'poisson'),
+    'rush_tds': ('rushing_tds', 'poisson'),
+    'rec_tds': ('receiving_tds', 'poisson'),
+    'atd': ('touchdowns', 'poisson'),
+}
 
 
-def get_text(url: str, tries: int = 3, pause: float = 2.0, timeout: int = 60) -> str:
-    last_exc = None
-    for attempt in range(tries):
-        try:
-            r = SESSION.get(url, timeout=timeout)
-            r.raise_for_status()
-            return r.text
-        except Exception as exc:  # noqa: BLE001
-            last_exc = exc
-            if attempt < tries - 1:
-                time.sleep(pause * (attempt + 1))
-    raise RuntimeError(f"GET {url} failed after {tries} tries: {last_exc}")
+def normalize_name(name):
+    name = unicodedata.normalize('NFKD', str(name)).encode('ascii', 'ignore').decode().lower()
+    name = re.sub(r'[^a-z0-9 ]', '', name)
+    return re.sub(r'\s+(jr|sr|ii|iii|iv|v)$', '', ' '.join(name.split()))
 
 
-def normalize(name: str | None) -> str:
-    """'A.J. Brown Jr.' -> 'ajbrown'. Same rule the front end uses — keep in sync."""
-    if not name:
-        return ""
-    name = unicodedata.normalize("NFKD", name)
-    name = "".join(c for c in name if not unicodedata.combining(c))
-    name = name.lower().replace("'", "").replace("\u2019", "").replace(".", "").replace("-", " ")
-    parts = [p for p in re.split(r"\s+", name) if p and p not in SUFFIXES]
-    return re.sub(r"[^a-z0-9]", "", "".join(parts))
+def finite(value):
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
 
-def fix_team(team: str | None) -> str | None:
-    if not team:
-        return None
-    team = team.upper()
-    return TEAM_FIXES.get(team, team)
+def fit_stat(values, family, minimum=5):
+    values = [float(v) for v in values if finite(v)]
+    n = len(values)
+    if not n:
+        return {'n': 0, 'status': 'missing'}
+    mean, sd = stats.mean(values), stats.stdev(values) if n > 1 else 0.0
+    out = {'family': family, 'n': n, 'mean': mean, 'sd': sd,
+           'status': 'ready' if n >= minimum else 'insufficient'}
+    if family == 'poisson':
+        if any(v < 0 or not v.is_integer() for v in values):
+            out['status'] = 'invalid_counts'
+        out.update({'lambda': mean, 'dispersion': sd * sd / mean if mean > 0 else None})
+    else:
+        # Preserve zero/negative games as empirical mass; fit positive yards.
+        positive = [v for v in values if v > 0]
+        out.update(nonpositive=sorted(v for v in values if v <= 0), positive_weight=len(positive) / n)
+        if positive:
+            pm, ps = stats.mean(positive), stats.stdev(positive) if len(positive) > 1 else 0.0
+            out.update(mu_log=math.log(pm) - math.log1p((ps / pm) ** 2) / 2,
+                       sigma_log=math.sqrt(math.log1p((ps / pm) ** 2)))
+        else:
+            out.update(mu_log=None, sigma_log=None)
+    return out
 
 
-# --------------------------------------------------------------------------
-# 1. Sleeper — player metadata
-# --------------------------------------------------------------------------
-def fetch_sleeper_players() -> dict[str, dict]:
-    raw = get_json("https://api.sleeper.app/v1/players/nfl", timeout=90)
-    players = {}
-    for pid, p in raw.items():
-        pos = p.get("position") or (p.get("fantasy_positions") or [None])[0]
-        if pos not in KEEP_POS:
+def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
+    metadata = {r['gsis_id']: r for r in roster if r.get('gsis_id')}
+    pfr = {r['pfr_id']: r['gsis_id'] for r in roster if r.get('pfr_id') and r.get('gsis_id')}
+    dates = {(r.get('season'), r.get('week'), r.get(side)): str(r.get('gameday', ''))
+             for r in schedule for side in ('home_team', 'away_team')}
+    games = {(r['player_id'], r['season'], r['week']): dict(r) for r in rows
+             if r.get('season_type') == 'REG' and r.get('position') in {'QB', 'RB', 'WR', 'TE', 'FB'}}
+    for snap in snaps:
+        pid = pfr.get(snap.get('pfr_player_id'))
+        if not pid or snap.get('game_type') != 'REG' or (snap.get('offense_snaps') or 0) <= 0:
             continue
-        if not p.get("active"):
+        meta = metadata[pid]
+        if meta.get('position') not in {'QB', 'RB', 'WR', 'TE', 'FB'}:
             continue
-        name = p.get("full_name") or f"{p.get('first_name','')} {p.get('last_name','')}".strip()
+        key = (pid, snap['season'], snap['week'])
+        if key not in games:
+            games[key] = {'player_id': pid, 'season': snap['season'], 'week': snap['week'],
+                          'team': snap.get('team'), 'player_display_name': meta.get('full_name'),
+                          **{col: 0 for col, _ in MARKETS.values()}, 'special_teams_tds': 0}
+    grouped = defaultdict(list)
+    for (pid, season, week), r in games.items():
+        r['date'] = dates.get((season, week, r.get('team') or r.get('recent_team')), '')
+        if not r['date'] or r['date'] > datetime.now(timezone.utc).date().isoformat():
+            continue
+        tds = [r.get(k) for k in ('rushing_tds', 'receiving_tds', 'special_teams_tds')]
+        tds += [r.get(k, 0) for k in ('def_tds', 'fumble_recovery_tds')]
+        r['touchdowns'] = sum(tds) if all(finite(v) for v in tds) else None
+        grouped[pid].append(r)
+    profiles = {}
+    for pid, player_games in grouped.items():
+        recent = sorted(player_games, key=lambda r: (r['season'], r['week']))[-window:]
+        last, meta = recent[-1], metadata.get(pid, {})
+        name = meta.get('full_name') or last.get('player_display_name')
         if not name:
             continue
-        players[pid] = {
-            "sleeper_id": pid,
-            "name": name,
-            "pos": pos,
-            "team": fix_team(p.get("team")),
-            "age": p.get("age"),
-            "years_exp": p.get("years_exp"),   # 0 = rookie season, straight from Sleeper
-            "injury_status": p.get("injury_status"),
-            "key": normalize(name),
-        }
-    print(f"[sleeper] {len(players)} active fantasy-relevant players")
-    return players
+        profiles[pid] = {'id': pid, 'name': name, 'name_key': normalize_name(name),
+                         'team': meta.get('team') or last.get('team') or last.get('recent_team'),
+                         'position': meta.get('position') or last.get('position'), 'last_game': last['date'],
+                         'stats': {market: fit_stat([r.get(column) for r in recent], family, minimum)
+                                   for market, (column, family) in MARKETS.items()},
+                         'games': [{'season': r['season'], 'week': r['week'], 'date': r['date'],
+                                    **{market: r.get(col) for market, (col, _) in MARKETS.items()}} for r in recent]}
+    return profiles
 
 
-# --------------------------------------------------------------------------
-# 2. DynastyProcess — the crosswalk everything else joins through
-# --------------------------------------------------------------------------
-def fetch_crosswalk() -> tuple[dict[str, str], dict[str, dict]]:
-    """Returns (gsis_id -> sleeper_id, sleeper_id -> draft capital dict)."""
-    text = get_text("https://raw.githubusercontent.com/dynastyprocess/data/master/files/db_playerids.csv")
-    rows = list(csv.DictReader(io.StringIO(text)))
-    gsis_to_sleeper: dict[str, str] = {}
-    draft_capital: dict[str, dict] = {}
-    for r in rows:
-        gsis, sleeper = (r.get("gsis_id") or "").strip(), (r.get("sleeper_id") or "").strip()
-        if gsis and sleeper:
-            gsis_to_sleeper[gsis] = sleeper
-        if sleeper:
-            try:
-                dy = int(float(r.get("draft_year") or 0))
-                if 1980 < dy < 2100:
-                    def _int(col):
-                        try:
-                            v = int(float(r.get(col) or 0))
-                            return v if v > 0 else None
-                        except ValueError:
-                            return None
-                    draft_capital[sleeper] = {
-                        "year": dy, "round": _int("draft_round"),
-                        "pick": _int("draft_pick"), "ovr": _int("draft_ovr"),
-                        "pos": (r.get("position") or "").upper(),
-                    }
-            except ValueError:
-                pass
-    print(f"[crosswalk] {len(gsis_to_sleeper)} gsis pairs, {len(draft_capital)} with draft capital")
-    return gsis_to_sleeper, draft_capital
+def match_player(name, profiles, teams=None):
+    from thefuzz.fuzz import ratio
+    key = normalize_name(name)
+    pool = [p for p in profiles.values() if not teams or p.get('team') in teams]
+    ranked = sorted(((ratio(key, p['name_key']), p['id']) for p in pool), reverse=True)
+    if not key or not ranked or ranked[0][0] < 92:
+        return {'status': 'unmatched', 'player_id': None}
+    if len(ranked) > 1 and ranked[0][0] - ranked[1][0] < 7:
+        return {'status': 'ambiguous', 'player_id': None}
+    return {'status': 'exact' if ranked[0][0] == 100 else 'fuzzy', 'player_id': ranked[0][1], 'score': ranked[0][0]}
 
 
-# --------------------------------------------------------------------------
-# 3. nflverse — weekly production, aggregated to per-game rates
-# --------------------------------------------------------------------------
-def fantasy_points(row: dict, rec_pts: float) -> float:
-    def n(key):
-        v = row.get(key)
-        if v in (None, "", "NA", "NaN"):
-            return 0.0
-        try:
-            return float(v)
-        except ValueError:
-            return 0.0
-    fumbles_lost = n("sack_fumbles_lost") + n("rushing_fumbles_lost") + n("receiving_fumbles_lost")
-    passing = 0.04 * n("passing_yards") + 4 * n("passing_tds") - 2 * n("passing_interceptions")
-    rushing = 0.1 * n("rushing_yards") + 6 * n("rushing_tds")
-    receiving = 0.1 * n("receiving_yards") + 6 * n("receiving_tds") + rec_pts * n("receptions")
-    return passing + rushing + receiving - 2 * fumbles_lost
-
-
-def fetch_season_stats(season: int, gsis_to_sleeper: dict[str, str]) -> dict[str, dict]:
-    url = f"https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.csv"
-    try:
-        text = get_text(url, timeout=120)
-    except RuntimeError as exc:
-        print(f"  ! {season} weekly stats unavailable: {exc}")
-        return {}
-    rows = list(csv.DictReader(io.StringIO(text)))
-
-    def n(row, key):
-        v = row.get(key)
-        if v in (None, "", "NA", "NaN"):
-            return 0.0
-        try:
-            return float(v)
-        except ValueError:
-            return 0.0
-
-    agg: dict[str, dict] = {}
-    for r in rows:
-        if (r.get("season_type") or "").upper() != "REG":
-            continue
-        try:
-            week = int(float(r.get("week") or 0))
-        except ValueError:
-            continue
-        if not (1 <= week <= LAST_WEEK):
-            continue
-        pos = (r.get("position") or "").upper()
-        if pos not in KEEP_POS:
-            continue
-        sid = gsis_to_sleeper.get((r.get("player_id") or "").strip())
-        if not sid:
-            continue
-        a = agg.setdefault(sid, {"pos": pos, "g": 0, "ppr": 0.0, "rush_fp": 0.0,
-                                  "tgt": 0.0, "car": 0.0, "tgt_share": 0.0, "share_n": 0})
-        a["g"] += 1
-        a["ppr"] += fantasy_points(r, 1.0)
-        a["rush_fp"] += 0.1 * n(r, "rushing_yards") + 6 * n(r, "rushing_tds")
-        a["tgt"] += n(r, "targets")
-        a["car"] += n(r, "carries")
-        ts = n(r, "target_share")
-        if ts:
-            a["tgt_share"] += ts
-            a["share_n"] += 1
-
-    out = {}
-    for sid, a in agg.items():
-        g = a["g"]
-        if g < 1:
-            continue
-        out[sid] = {
-            "pos": a["pos"], "g": g,
-            "ppg": round(a["ppr"] / g, 2),
-            "rush_fp_pg": round(a["rush_fp"] / g, 2),
-            "tgt_pg": round(a["tgt"] / g, 2), "car_pg": round(a["car"] / g, 2),
-            "tgt_share": round(a["tgt_share"] / a["share_n"], 3) if a["share_n"] else None,
-        }
-    print(f"[nflverse] {season}: {len(out)} players from {len(rows)} rows")
-    return out
-
-
-# --------------------------------------------------------------------------
-# 4. FantasyCalc — redraft + dynasty market value
-# --------------------------------------------------------------------------
-def fetch_fantasycalc(is_dynasty: bool) -> dict[str, dict]:
-    url = (
-        "https://api.fantasycalc.com/values/current"
-        f"?isDynasty={'true' if is_dynasty else 'false'}&numQbs={NUM_QBS}&numTeams={TEAMS}"
-        f"&ppr={PPR_MAP.get(SCORING, 1)}"
-    )
-    try:
-        rows = get_json(url)
-    except RuntimeError as exc:
-        print(f"  ! FantasyCalc ({'dynasty' if is_dynasty else 'redraft'}) unavailable: {exc}")
-        return {}
-    out = {}
-    for r in rows:
-        p = r.get("player") or {}
-        sid = p.get("sleeperId")
-        if not sid:
-            continue
-        out[str(sid)] = {
-            "value": r.get("redraftValue") or r.get("value"),
-            "overall_rank": r.get("overallRank"),
-            "trend_30d": r.get("trend30Day"),
-        }
-    kind = "dynasty" if is_dynasty else "redraft"
-    print(f"[fantasycalc:{kind}] {len(out)} players matched by sleeperId")
-    return out
-
-
-# --------------------------------------------------------------------------
-# 5. KeepTradeCut — scraped, no API, the fragile one
-# --------------------------------------------------------------------------
-def _extract_ktc_json_blob(html: str) -> list[dict] | None:
-    """
-    KTC has no API. Historically its rankings pages ship the full player
-    array embedded in the page — either inside a Next.js `__NEXT_DATA__`
-    script tag, or as a bare `var playersArray = [...]` assignment. Both
-    patterns are tried, in order, and this returns None (not an exception)
-    if neither matches, so the caller can degrade gracefully instead of
-    dying. This is the one piece of the pipeline that can silently start
-    returning None after a KTC front-end redesign with zero notice on
-    their end — if it stops working, that's the first place to look.
-    """
-    # Strategy 1: Next.js __NEXT_DATA__ (App Router / modern Next sites)
-    m = re.search(
-        r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.S
-    )
-    if m:
-        try:
-            blob = json.loads(m.group(1))
-            # the players array lives somewhere under props — walk it rather
-            # than hardcode a brittle exact path, since Next's prop shape
-            # shifts between KTC deploys.
-            found = _find_player_array(blob)
-            if found:
-                return found
-        except (json.JSONDecodeError, KeyError):
-            pass
-
-    # Strategy 2: a bare JS variable assignment some KTC pages use instead
-    m = re.search(r"var\s+playersArray\s*=\s*(\[.*?\]);", html, re.S)
-    if m:
-        try:
-            return json.loads(m.group(1))
-        except json.JSONDecodeError:
-            pass
-
-    return None
-
-
-def _find_player_array(obj: Any, depth: int = 0) -> list[dict] | None:
-    """Walk an arbitrary nested dict/list looking for what's plausibly the
-    KTC player list: a list of dicts each carrying both a name-like and a
-    value-like key. Depth-capped so a malformed blob can't recurse forever."""
-    if depth > 12:
+def nfl_kickoff(row):
+    day, time = str(row.get('gameday') or ''), str(row.get('gametime') or '')
+    if not day or not time:
         return None
-    if isinstance(obj, list) and obj and isinstance(obj[0], dict):
-        keys = {k.lower() for k in obj[0].keys()}
-        name_like = keys & {"playername", "name", "fullname"}
-        value_like = keys & {"value", "sfvalue", "onepvalue", "sfvalue1qb"}
-        if name_like and value_like:
-            return obj
-    if isinstance(obj, dict):
-        for v in obj.values():
-            found = _find_player_array(v, depth + 1)
-            if found:
-                return found
-    elif isinstance(obj, list):
-        for v in obj:
-            found = _find_player_array(v, depth + 1)
-            if found:
-                return found
-    return None
+    return datetime.fromisoformat(f'{day}T{time}').replace(tzinfo=ZoneInfo('America/New_York')).astimezone(timezone.utc).isoformat()
 
 
-def fetch_ktc(page_url: str, label: str) -> dict[str, dict]:
-    try:
-        html = get_text(page_url, timeout=45)
-    except RuntimeError as exc:
-        print(f"  ! KTC {label} fetch failed: {exc}")
-        return {}
-    blob = _extract_ktc_json_blob(html)
-    if not blob:
-        print(f"  ! KTC {label}: page fetched but no recognizable player data found in it. "
-              f"KTC's markup has likely changed — this needs a human to open the page, "
-              f"view source, and update _extract_ktc_json_blob's patterns.")
-        return {}
-    out = {}
-    for p in blob:
-        name = p.get("playerName") or p.get("name") or p.get("fullName")
-        val = p.get("value") or p.get("sfValue") or p.get("oneQBValue")
-        if not name or val is None:
-            continue
-        out[normalize(name)] = {
-            "ktc_value": val,
-            "ktc_rank": p.get("rank") or p.get("superflexRank") or p.get("oneQBRank"),
-            "ktc_pos": (p.get("position") or "").upper() or None,
-            "ktc_team": fix_team(p.get("team")),
-        }
-    print(f"[ktc:{label}] {len(out)} players extracted")
-    return out
-
-
-# --------------------------------------------------------------------------
-# Merge
-# --------------------------------------------------------------------------
-def build():
-    players = fetch_sleeper_players()
-    gsis_to_sleeper, draft_capital = fetch_crosswalk()
-
-    seasons = [SEASON - i for i in range(1, HISTORY_SEASONS + 1)]
-    season_stats = {s: fetch_season_stats(s, gsis_to_sleeper) for s in seasons}
-
-    fc_redraft = fetch_fantasycalc(is_dynasty=False)
-    fc_dynasty = fetch_fantasycalc(is_dynasty=True)
-
-    ktc_sf, ktc_1qb = {}, {}
-    if not SKIP_KTC:
-        # These URLs are current to my best knowledge, not verified live —
-        # I could not reach keeptradecut.com from the environment this
-        # script was written in. Check them by hand before relying on them.
-        ktc_sf = fetch_ktc("https://keeptradecut.com/dynasty-rankings?filters=SF", "superflex")
-        ktc_1qb = fetch_ktc("https://keeptradecut.com/dynasty-rankings", "1qb")
-    else:
-        print("[ktc] skipped (SKIP_KTC set)")
-
-    out_players = {}
-    matched = {"history": 0, "fc_redraft": 0, "fc_dynasty": 0, "ktc_sf": 0, "ktc_1qb": 0}
-
-    for sid, p in players.items():
-        rec = dict(p)
-
-        # n1: most recent qualifying season (8+ games), guide's own bar
-        n1 = None
-        for s in seasons:
-            h = season_stats.get(s, {}).get(sid)
-            if h and h["g"] >= 8:
-                n1 = {"season": s, **h}
-                matched["history"] += 1
-                break
-        rec["n1"] = n1
-
-        cap = draft_capital.get(sid)
-        if cap:
-            rec["draft_year"] = cap["year"]
-            rec["draft_round"] = cap["round"]
-            rec["draft_pick"] = cap["pick"]
-            rec["draft_ovr"] = cap["ovr"]
-            rec["career_year"] = (SEASON - cap["year"] + 1) if cap["year"] else None
+def normalize_games(rows, sport):
+    result = []
+    for r in rows:
+        if sport == 'nfl':
+            if r.get('game_type') != 'REG':
+                continue
+            hs, aws = r.get('home_score'), r.get('away_score')
+            g = {'id': str(r.get('game_id')), 'home': r.get('home_team'), 'away': r.get('away_team'),
+                 'kickoff': nfl_kickoff(r), 'spread': -r['spread_line'] if finite(r.get('spread_line')) else None,
+                 'total': r.get('total_line'), 'mlHome': r.get('home_moneyline'), 'mlAway': r.get('away_moneyline'),
+                 'homeSpreadOdds': r.get('home_spread_odds'), 'awaySpreadOdds': r.get('away_spread_odds'),
+                 'overOdds': r.get('over_odds'), 'underOdds': r.get('under_odds')}
         else:
-            rec["draft_year"] = rec["draft_round"] = rec["draft_pick"] = None
-            rec["draft_ovr"] = rec["career_year"] = None
-
-        if sid in fc_redraft:
-            rec["fc_redraft"] = fc_redraft[sid]; matched["fc_redraft"] += 1
-        if sid in fc_dynasty:
-            rec["fc_dynasty"] = fc_dynasty[sid]; matched["fc_dynasty"] += 1
-
-        key = p["key"]
-        if key in ktc_sf:
-            rec["ktc_sf"] = ktc_sf[key]; matched["ktc_sf"] += 1
-        if key in ktc_1qb:
-            rec["ktc_1qb"] = ktc_1qb[key]; matched["ktc_1qb"] += 1
-
-        # Only ship players the market has actually heard of — keeps the
-        # file from bloating with practice-squad names nobody will look up.
-        if n1 or sid in fc_redraft or key in ktc_sf or key in ktc_1qb or cap:
-            out_players[sid] = rec
-
-    payload = {
-        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "season": SEASON, "teams": TEAMS, "scoring": SCORING, "num_qbs": NUM_QBS,
-        "seasons_covered": seasons,
-        "sources": {
-            "sleeper": True, "nflverse": True, "dynastyprocess": True,
-            "fantasycalc": bool(fc_redraft or fc_dynasty),
-            "ktc": bool(ktc_sf or ktc_1qb),
-        },
-        "counts": {"players": len(out_players), **matched},
-        "players": out_players,
-    }
-
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(payload, separators=(",", ":")))
-    kb = OUT.stat().st_size / 1024
-    print(f"\nwrote {OUT} — {len(out_players)} players, {kb:.0f}KB")
-    print(f"  matched: {matched}")
-    if not (fc_redraft or fc_dynasty):
-        print("  WARNING: FantasyCalc returned nothing — market value will be absent this run.")
-    if not (ktc_sf or ktc_1qb) and not SKIP_KTC:
-        print("  WARNING: KTC returned nothing — see the extraction warning above. "
-              "Pipeline continuing without dynasty values rather than failing the build.")
+            if r.get('season_type') != 'regular' or not r.get('fbs_game'):
+                continue
+            hs, aws = r.get('home_points'), r.get('away_points')
+            if not r.get('completed'):
+                hs = aws = None
+            g = {'id': str(r.get('game_id')), 'home': r.get('home_team'), 'away': r.get('away_team'),
+                 'kickoff': r.get('start_date'), 'spread': None, 'total': None, 'mlHome': None, 'mlAway': None}
+        if not g['kickoff'] or not g['home'] or not g['away']:
+            continue
+        g.update(sport=sport, season=r.get('season'), homeScore=hs, awayScore=aws,
+                 completed=finite(hs) and finite(aws))
+        result.append(g)
+    return result
 
 
-if __name__ == "__main__":
-    try:
-        build()
-    except Exception as exc:  # noqa: BLE001 — top-level: fail the Action clearly, don't hang
-        print(f"PIPELINE FAILED: {exc}", file=sys.stderr)
-        sys.exit(1)
+def build_game_models(games, window=12, minimum=5):
+    history, buckets = defaultdict(list), defaultdict(list)
+    errors, output = {'margin': [], 'total': []}, []
+    for game in games:
+        buckets[game['kickoff']].append(game)
+    for kickoff in sorted(buckets):
+        pending = []
+        for g in buckets[kickoff]:
+            h, a = history[g['home']][-window:], history[g['away']][-window:]
+            model = None
+            if len(h) >= minimum and len(a) >= minimum:
+                home = (stats.mean(x[0] for x in h) + stats.mean(x[1] for x in a)) / 2
+                away = (stats.mean(x[0] for x in a) + stats.mean(x[1] for x in h)) / 2
+                model = {'margin_mean': home - away, 'total_mean': home + away,
+                         'home_n': len(h), 'away_n': len(a), 'residual_n': len(errors['margin'])}
+                for key in errors:
+                    prior = errors[key][-1000:]
+                    model[key + '_sd'] = stats.stdev(prior) if len(prior) >= 30 else None
+            if not g['completed']:
+                output.append({**g, 'model': model})
+            else:
+                pending.append((g, model))
+        # No same-kickoff outcomes influence a prediction in this bucket.
+        for g, model in pending:
+            if model:
+                errors['margin'].append(g['homeScore'] - g['awayScore'] - model['margin_mean'])
+                errors['total'].append(g['homeScore'] + g['awayScore'] - model['total_mean'])
+            history[g['home']].append((g['homeScore'], g['awayScore']))
+            history[g['away']].append((g['awayScore'], g['homeScore']))
+    return output, {key: {'n': len(v), 'rmse': math.sqrt(stats.mean(x*x for x in v)) if v else None}
+                    for key, v in errors.items()}
+
+
+def atomic_json(path, payload):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix('.tmp')
+    temporary.write_text(json.dumps(payload, separators=(',', ':'), allow_nan=False, default=str), encoding='utf-8')
+    temporary.replace(path)
+
+
+def load_json(path):
+    return json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+
+
+def build():
+    import nflreadpy as nfl
+    import sportsdataverse.cfb as cfb
+    season = int(os.getenv('SEASON', datetime.now().year))
+    window, minimum = int(os.getenv('PROJECTION_WINDOW', '12')), int(os.getenv('PROJECTION_MIN_GAMES', '5'))
+    if not 2 <= minimum <= window <= 50:
+        raise ValueError('Require 2 <= PROJECTION_MIN_GAMES <= PROJECTION_WINDOW <= 50')
+    seasons = list(range(season - 2, season + 1))
+    rows, roster, snaps, sources = [], [], [], {}
+    for year in seasons:
+        try:
+            yearly = nfl.load_player_stats([year], summary_level='week').to_dicts()
+        except Exception as exc:
+            if year != season or not ('404' in str(exc) or 'Season must be between' in str(exc)):
+                raise
+            sources[str(year)] = 'not_published'
+            print(f'[nflreadpy] {year} player stats not published')
+            continue
+        rows.extend(yearly)
+        roster.extend(nfl.load_rosters([year]).to_dicts())
+        snaps.extend(nfl.load_snap_counts([year]).to_dicts())
+        sources[str(year)] = 'loaded'
+    if not rows:
+        raise RuntimeError('No NFL player statistics loaded')
+    if sources.get(str(season)) == 'not_published':
+        roster.extend(nfl.load_rosters([season]).to_dicts())
+    schedule = nfl.load_schedules(seasons).to_dicts()
+    profiles = build_profiles(rows, roster, snaps, schedule, window, minimum)
+    if not profiles:
+        raise RuntimeError('No profiles built; refusing to replace history')
+    team_map = {r['team_name']: r['team_abbr'] for r in nfl.load_teams().to_dicts()}
+    aliases = {}
+    for event in load_json(ROOT / 'data/nfl_betting.json').get('props_raw', []):
+        teams = [team_map.get(event.get(side)) for side in ('home_team', 'away_team')]
+        for book in event.get('bookmakers', []):
+            for market in book.get('markets', []):
+                for outcome in market.get('outcomes', []):
+                    name = outcome.get('description')
+                    if name:
+                        aliases[f"{event['id']}|{normalize_name(name)}"] = match_player(name, profiles, teams if all(teams) else None)
+    game_data, validation = {}, {}
+    for sport, games in (('nfl', normalize_games(schedule, 'nfl')),
+                         ('ncaa', normalize_games(cfb.load_cfb_schedule(seasons).to_dicts(), 'ncaa'))):
+        game_data[sport], validation[sport] = build_game_models(games, window, minimum)
+    generated = datetime.now(timezone.utc).isoformat(timespec='seconds')
+    history = load_json(ROOT / 'data/history.json')
+    history['betting'] = {'schema_version': 1, 'generated_at': generated, 'window': window, 'minimum_games': minimum,
+                          'sources': {'nflreadpy': sources, 'sportsdataverse': 'loaded'}, 'profiles': profiles,
+                          'aliases': aliases, 'team_names': team_map, 'games': game_data, 'validation': validation}
+    config = load_json(ROOT / 'data/data.json')
+    config.update(schema_version=1, generated_at=generated, season=season,
+                  betting={'window': window, 'minimum_games': minimum, 'kelly_fraction': 0.25,
+                           'max_stake_fraction': 0.02, 'max_quote_age_hours': 24,
+                           'max_profile_age_days': 400, 'fuzzy_min_score': 92, 'fuzzy_min_margin': 7})
+    atomic_json(ROOT / 'data/history.json', history)
+    atomic_json(ROOT / 'data/data.json', config)
+    print(f'[projections] {len(profiles)} NFL profiles; {sum(len(v) for v in game_data.values())} upcoming games')
+    print(f'[walk-forward] {validation}')
+
+
+if __name__ == '__main__':
+    build()

@@ -36,6 +36,7 @@ import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from build_pipeline import atomic_json
 
 try:
     import sportsdataverse.cfb as cfb
@@ -58,51 +59,45 @@ PREFERRED_BOOKS = ["DraftKings", "Draft Kings", "ESPN Bet", "Bovada"]
 
 
 def pivot_lines(lines_df, schedule_df):
-    """One row per team/side/market -> one record per game, picking the
-    first available book in PREFERRED_BOOKS order."""
-    sched_lookup = {}
-    for row in schedule_df.iter_rows(named=True):
-        sched_lookup[row["game_id"]] = row
-
-    by_game = {}
+    """Select a single preferred bookmaker per game with matched line sides."""
+    schedules = {r['game_id']: r for r in schedule_df.iter_rows(named=True)}
+    books = {}
     for row in lines_df.iter_rows(named=True):
-        gid = row["game_id"]
-        book = row["book"]
-        if gid not in sched_lookup:
+        gid, book = row['game_id'], row['book']
+        if gid not in schedules:
             continue
-        rank = PREFERRED_BOOKS.index(book) if book in PREFERRED_BOOKS else 99
-        entry = by_game.setdefault(gid, {"_book_rank": 999})
-        if rank > entry["_book_rank"] and entry.get("spread") is not None:
-            continue  # already have a better book's spread, don't downgrade
-        entry["_book_rank"] = min(entry["_book_rank"], rank)
-
-        sched_row = sched_lookup[gid]
-        home_name, away_name = sched_row.get("home_team"), sched_row.get("away_team")
-        mtype, abbr, val = row["market_type"], row["abbr"], row["lines"]
-        odds = row["odds"]
-
-        if mtype == "spread" and abbr == home_name:
-            entry["spread"] = val   # home-relative, negative = home favored — same convention used elsewhere in this app
-        elif mtype == "total" and abbr == "over":
-            entry["total"] = val
-        elif mtype == "money_line" and abbr == home_name:
-            entry["home_ml"] = odds
-        elif mtype == "money_line" and abbr == away_name:
-            entry["away_ml"] = odds
-
-        entry["game_id"] = gid
-        entry["season"] = sched_row.get("season")
-        entry["week"] = sched_row.get("week")
-        entry["home"] = home_name
-        entry["away"] = away_name
-        entry["kickoff"] = sched_row.get("start_date")
-        entry["home_score"] = sched_row.get("home_points")
-        entry["away_score"] = sched_row.get("away_points")
-        entry["completed"] = bool(sched_row.get("completed"))
-
-    for e in by_game.values():
-        e.pop("_book_rank", None)
-    return list(by_game.values())
+        r = schedules[gid]
+        e = books.setdefault((gid, book), {
+            'game_id': gid, 'book': book, 'season': r.get('season'), 'week': r.get('week'),
+            'home': r.get('home_team'), 'away': r.get('away_team'), 'kickoff': r.get('start_date'),
+            'home_score': r.get('home_points'), 'away_score': r.get('away_points'),
+            'completed': bool(r.get('completed'))})
+        kind, side, line, odds = row['market_type'], row['abbr'], row['lines'], row['odds']
+        if kind == 'spread':
+            if side == e['home']:
+                e['spread'], e['home_spread_odds'] = line, odds
+            elif side == e['away']:
+                e['_away_spread'], e['away_spread_odds'] = line, odds
+        elif kind == 'total':
+            if side == 'over':
+                e['total'], e['over_odds'] = line, odds
+            elif side == 'under':
+                e['_under_total'], e['under_odds'] = line, odds
+        elif kind == 'money_line':
+            if side == e['home']:
+                e['home_ml'] = odds
+            elif side == e['away']:
+                e['away_ml'] = odds
+    selected = {}
+    rank = lambda e: PREFERRED_BOOKS.index(e['book']) if e['book'] in PREFERRED_BOOKS else 999
+    for e in books.values():
+        if e.get('spread') is None or e.pop('_away_spread', None) != -e['spread']:
+            e.pop('away_spread_odds', None)
+        if e.pop('_under_total', None) != e.get('total'):
+            e.pop('under_odds', None)
+        if e['game_id'] not in selected or rank(e) < rank(selected[e['game_id']]):
+            selected[e['game_id']] = e
+    return list(selected.values())
 
 
 def build():
@@ -146,7 +141,7 @@ def build():
         "ratings": ratings,
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(payload, separators=(",", ":"), default=str))
+    atomic_json(OUT, payload)
     print(f"\nwrote {OUT} — {OUT.stat().st_size/1024:.0f}KB")
 
 

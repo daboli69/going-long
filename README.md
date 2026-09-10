@@ -146,7 +146,7 @@ the tab is hidden. Everything else is a static file.
 2. **Trade finder** — consolidation penalty plus an acceptance filter that ranks
    by `my_gain × their_perceived_gain`.
 3. **Playoff odds** via Monte Carlo.
-4. **Betting side** — see `docs/DATA.md` for the source plan.
+4. **Betting models** — see `docs/BETTING_MODEL.md` for the implemented statistical contract and remaining validation limits.
 
 ## If something breaks
 
@@ -158,3 +158,20 @@ the tab is hidden. Everything else is a static file.
   commissioner sets it up. Enter your slot by hand under Overrides meanwhile.
 - **Names won't match** — the fixer dropdown writes straight to storage; once
   fixed, it stays fixed.
+
+
+## Automated Betting Board
+
+The board opens directly with NFL props and a separate NFL/NCAA game-lines view.
+Player projections use trailing nflreadpy game statistics, a nonpositive-mass
+lognormal yardage model, and Poisson receptions/TD counts. The board displays
+model win probabilities, push-aware EV and capped quarter-Kelly allocations.
+It preserves bookmaker/line identities and flags missing or stale data.
+
+The nightly workflow now runs `scripts/build_pipeline.py` after odds ingestion,
+writing configuration and projections into `data/data.json` and
+`data/history.json`. Set the Actions repository secret `ODDS_API_KEY` to
+enable prop quotes. No key is needed to rebuild historical models or game lines.
+
+For data sources, assumptions, limitations, test commands, and schema details,
+see [the betting model documentation](docs/BETTING_MODEL.md).

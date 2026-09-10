@@ -1,5 +1,7 @@
 requests>=2.31,<3
-nflreadpy
+nflreadpy==0.1.5
 polars
 pyarrow
-sportsdataverse
+sportsdataverse==0.1.4
+thefuzz==0.22.1
+tzdata>=2025.1
