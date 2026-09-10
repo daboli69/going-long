@@ -25,6 +25,13 @@ test('Parlay authenticates by header and rejects malformed upstream data',async(
   assert.ok(calls.every(c=>c.url.pathname.includes('/americanfootball_nfl/')));
   await assert.rejects(fetchParlay('ncaa','fixture-key',async()=>Response.json({error:'bad'})),/Unexpected/);
 });
+
+test('NCAA ingestion requests only game spreads, totals and moneylines',async()=>{
+  const {fetchParlay}=await import('../server/parlay.mjs');const urls=[];
+  const result=await fetchParlay('ncaa','fixture-key',async url=>{urls.push(url);return Response.json([]);});
+  assert.equal(urls.length,1);assert.ok(urls[0].pathname.endsWith('/americanfootball_ncaaf/odds'));
+  assert.equal(urls[0].searchParams.get('markets'),'h2h,spreads,totals');assert.equal(result.props.length,0);
+});
 test('Server proxy validates requests, coalesces refreshes and never exposes the key',async()=>{
   const {oddsResponse}=await import('../server/worker.mjs');
   assert.equal((await oddsResponse(new Request('https://test/api/odds?sport=bad'),{})).status,400);

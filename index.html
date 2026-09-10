@@ -457,7 +457,6 @@
   .bt-recent{display:flex;gap:4px;flex-wrap:wrap;padding-top:8px}.bt-recent span{font:500 11px "IBM Plex Mono",monospace;padding:5px;background:var(--bt-panel-2);border-radius:3px}
   .bt-game{border-radius:10px}.bt-game-head b{font-family:Archivo,Inter,sans-serif}.bt-game-book{margin-top:12px;border-top:1px solid var(--bt-line);padding-top:12px}.bt-game-book summary{cursor:pointer;font-size:14px;font-weight:600}.bt-game-book summary span{display:block;font:400 12px/1.8 "IBM Plex Mono",monospace;color:var(--bt-mute);margin-top:4px}.bt-lines small{display:block;color:var(--bt-mute);margin-top:6px}
   @media(max-width:820px){.bt-table{grid-template-columns:1fr}#view-betting .bt-row{padding:14px}.bt-controls select,.bt-controls input{min-width:0;max-width:100%}}
-  .bt-row[data-sport="ncaa"] .bt-override label,.bt-row[data-sport="ncaa"] .bt-override button{display:none}
 </style>
 </head>
 <body>
@@ -2767,7 +2766,7 @@ window.renderTrade = renderTrade;   // called from the gateway script's setView(
 /* Betting engine: numerical probabilities are conditional on historical
    baselines, not calibrated claims of future outcomes. No browser API key. */
 const BET = {
-  props: [], ncaaProps: [], liveAttempts: {}, games: [], market: "ALL", sort: "ev", tab: "props", sport: "nfl",
+  props: [], liveAttempts: {}, games: [], market: "ALL", sort: "ev", tab: "props", sport: "nfl",
   history: null, config: {}, nflData: null, ncaaData: null,
   page: 0, pageSize: 50, query: "", renderVersion: 0, loading: false,
   book: "sportsbooks", matchup: "ALL", liveLoading: false, liveStatus: "snapshot", liveLoaded: {},
@@ -2952,10 +2951,6 @@ async function propsFromRealData(raw=BET.nflData){
   }
   return result;
 }
-function collegePropsFromFeed(raw){
-  return (raw?.props||[]).filter(p=>!p.kickoff||Date.parse(p.kickoff)>Date.now()).map(p=>({...p,id:uid(),sport:'ncaa',model:null,projMean:null,projSd:null,matchStatus:'NCAA projections not loaded'}));
-}
-function activeProps(){return BET.sport==='ncaa'?BET.ncaaProps:BET.props;}
 async function loadBettingData(){
   BET.loading=true; $("btDataNote").textContent="Loading odds and historical projections…";
   try{
@@ -2974,7 +2969,7 @@ async function loadBettingData(){
     BET.nflData=files.nfl; BET.ncaaData=files.ncaa; BET.history=files.history?.betting;
     S.history=files.history; S.pipeline=files.config;
     BET.config=files.config?.betting||{};
-    BET.props=await propsFromRealData();BET.ncaaProps=collegePropsFromFeed(files.ncaa);
+    BET.props=await propsFromRealData();
     BET.games=gamesFromRealData();
     const stamp=BET.history?.generated_at;
     $("btDataNote").textContent=stamp ? `Model updated ${new Date(stamp).toLocaleString()} · ${BET.history.window}-game baseline · ¼ Kelly, capped at ${100*(BET.config.max_stake_fraction??0.02)}% per bet` : "Historical projections unavailable. Manual import is available below.";
@@ -3058,11 +3053,11 @@ function gamesFromRealData(){
 }
 function updateBetFilters(){
   const select=$('btBook');if(!select)return;
-  const current=BET.book,books=[...new Set(activeProps().map(p=>p.book))].sort();
+  const current=BET.book,books=[...new Set(BET.props.map(p=>p.book))].sort();
   select.innerHTML='<option value="sportsbooks">Sportsbooks</option><option value="ALL">All books + pick’em</option>'+books.map(book=>`<option value="${esc(book)}">${esc(book)}</option>`).join('');
   select.value=current;if(!select.value){select.value='sportsbooks';BET.book='sportsbooks';}
   const match=$('btMatchup'),currentMatch=BET.matchup;
-  const names=[...new Set(activeProps().map(p=>p.homeName&&p.awayName?`${p.awayName} @ ${p.homeName}`:'Unassigned matchup'))].sort();
+  const names=[...new Set(BET.props.map(p=>p.homeName&&p.awayName?`${p.awayName} @ ${p.homeName}`:'Unassigned matchup'))].sort();
   match.innerHTML='<option value="ALL">All matchups</option>'+names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
   match.value=currentMatch;if(!match.value){BET.matchup='ALL';match.value='ALL';}
 }
@@ -3086,11 +3081,11 @@ async function refreshLiveOdds(sport=BET.sport){
       const incoming=await propsFromRealData(fresh),overrides=new Map(BET.props.filter(p=>p.manual&&p.quoteKey).map(p=>[p.quoteKey,p]));
       for(const p of incoming){const previous=overrides.get(p.quoteKey);if(previous){p.manual=true;p.projMean=previous.projMean;p.projSd=previous.projSd;}}
       BET.props=BET.props.filter(p=>p.source==='manual').concat(incoming);
-    }else{BET.ncaaData=fresh;BET.ncaaProps=collegePropsFromFeed(fresh);}
+    }else BET.ncaaData=fresh;
     BET.games=BET.games.filter(g=>g.source==='manual').concat(gamesFromRealData());
     BET.liveLoaded[sport]=true;BET.liveStatus='live';BET.page=0;
     $('btDataNote').textContent=`Parlay connected · refreshed ${new Date(fresh.generated_at).toLocaleTimeString()} · historical model ${BET.history?.window||12} games`;
-    $('btLoadPropsNote').textContent=`${sport.toUpperCase()} · ${(sport==='nfl'?BET.props:BET.ncaaProps).length.toLocaleString()} quotes · ${(fresh.games_raw||[]).length} game events · ${fresh.coverage?.possibly_truncated?'Provider row limit reached; coverage may be partial.':'Auto-refresh every 5 minutes while this board is visible.'}`;
+    $('btLoadPropsNote').textContent=sport==='nfl'?`${BET.props.length.toLocaleString()} current quotes · ${fresh.coverage?.possibly_truncated?'Provider row limit reached; coverage may be partial.':'Auto-refresh every 5 minutes while visible.'}`:`${(fresh.games_raw||[]).length} ${sport.toUpperCase()} events refreshed. Auto-refresh every 5 minutes while visible.`;
     updateBetFilters();
   }catch(e){
     BET.liveStatus='snapshot';
@@ -3146,7 +3141,7 @@ function propMarkup(p,row,rank=1){
   const model=p.manual?null:p.model, mean=p.projMean, sd=p.projSd;
   const fmt=n=>finiteNumber(n)?n.toFixed(1):'—';
   const logs=BET.history?.profiles?.[p.profileId]?.games||[];
-  return `<article class="bt-row" data-prop-id="${esc(p.id)}" data-sport="${p.sport||'nfl'}">
+  return `<article class="bt-row" data-prop-id="${esc(p.id)}">
     <div class="bt-card-top"><span class="bt-rank">${rank}</span><div class="bt-who"><b>${esc(p.player)}</b><small>${esc(p.team)} ${p.opp?'vs '+esc(p.opp):''} · ${esc(p.market==='atd'&&p.line>.5?'Total TDs':MARKET_LABEL[p.market]||p.market)}</small></div><span class="bt-book-badge">${esc(p.book||'Manual')}${p.dfs?' · Pick’em':''}</span></div>
     <div class="bt-projection-strip"><div><label>MODEL ${p.market==='atd'?'E[TD]':''}</label><b class="bt-model-value">${fmt(mean)}</b></div><div><label>BOOK LINE</label><b>${p.market==='atd'?((p.line??.5)%1===.5?`${Math.ceil(p.line??.5)}+ TD`:`O ${p.line} TD`):p.line??'—'}</b></div><div><label>${p.market==='atd'?'YES':'OVER'}</label><b>${americanOddsLabel(p.overOdds)}</b></div><div><label>${p.market==='atd'?'NO':'UNDER'}</label><b>${americanOddsLabel(p.underOdds)}</b></div></div>
     <div class="bt-metric-labels"><span>Model side</span><span>Price</span><span>Win</span><span>EV</span><span>¼ Kelly</span></div><div class="bt-metrics">${metricMarkup(row)}</div>
@@ -3161,12 +3156,11 @@ function propMarkup(p,row,rank=1){
     </details></article>`;
 }
 async function renderPropsTable(){
-  if(BET.tab!=="props" || !$("view-betting").classList.contains("active")) return;
+  if(BET.tab!=="props" || BET.sport!=="nfl" || !$("view-betting").classList.contains("active")) return;
   const version=++BET.renderVersion, el=$("btPropsTable"), query=BET.query.toLowerCase();
   el.setAttribute("aria-busy","true"); let rows=[];
-  const source=activeProps();
-  for(let i=0;i<source.length;i++){
-    const p=source[i];
+  for(let i=0;i<BET.props.length;i++){
+    const p=BET.props[i];
     const matchup=p.homeName&&p.awayName?`${p.awayName} @ ${p.homeName}`:"Unassigned matchup";
     if(BET.book==="sportsbooks"&&p.dfs)continue;
     if(!["ALL","sportsbooks"].includes(BET.book)&&p.book!==BET.book)continue;
@@ -3227,7 +3221,6 @@ function renderGamesList(){
 function renderBetting(){
   $("btPropsPanel").hidden=BET.tab!=="props"; $("btGamesPanel").hidden=BET.tab!=="games";
   $("btTabGroup").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tab===BET.tab)));
-  $("btPropsPanel").querySelector("details.setup").hidden=BET.sport==='ncaa';
   renderPropsTable(); renderGamesList();
 }
 window.renderBetting=renderBetting;
@@ -3241,7 +3234,7 @@ function wireBetting(){
     const b=e.target.closest("button");if(!b)return;
     BET.sport=b.dataset.sport;BET.page=0;BET.renderVersion++;
     $("btSportGroup").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
-    $('btTabGroup').querySelector('[data-tab="props"]').hidden=false;updateBetFilters();
+    $("btTabGroup").querySelector('[data-tab="props"]').hidden=BET.sport!=="nfl";
     if(BET.sport==='ncaa')BET.tab='games';renderBetting();if(!BET.liveLoaded[BET.sport])refreshLiveOdds(BET.sport);
   });
   $("btTabGroup").addEventListener("click",e=>{const b=e.target.closest('button');if(b){BET.tab=b.dataset.tab;BET.renderVersion++;renderBetting();}});
@@ -3275,7 +3268,7 @@ function wireBetting(){
     clearTimeout(timers.get(p.id));p.manual=false;p.projMean=null;p.projSd=null;
     attachProjection(p,buildProfileIndex(BET.history));renderPropsTable();
   });
-  $('btLoadRealProps').onclick=()=>refreshLiveOdds(BET.sport);
+  $('btLoadRealProps').onclick=()=>refreshLiveOdds('nfl');
   $('btLoadReal').onclick=()=>refreshLiveOdds(BET.sport);
   $('btBook').onchange=e=>{BET.book=e.target.value;BET.page=0;renderPropsTable();};
   $('btMatchup').onchange=e=>{BET.matchup=e.target.value;BET.page=0;renderPropsTable();};

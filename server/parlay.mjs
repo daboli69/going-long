@@ -43,7 +43,7 @@ export async function fetchParlay(sport,key,fetcher=fetch){
     return body;
   };
   const [raw, games]=await Promise.all([
-    get('props',{markets:Object.keys(MARKET_MAP).join(','),limit:'10000'}),
+    sport==='nfl'?get('props',{markets:Object.keys(MARKET_MAP).join(','),limit:'10000'}):Promise.resolve([]),
     get('odds',{markets:'h2h,spreads,totals',regions:'us',oddsFormat:'american'})
   ]);
   return {provider:'parlay',sport,generated_at:new Date().toISOString(),props:normalizeProps(raw),games_raw:games,

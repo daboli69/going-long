@@ -18,7 +18,7 @@ function setup(t){
   vm.runInContext(`globalThis.api={BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,collegePropsFromFeed};`,context);
+    normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -105,6 +105,7 @@ test('Sport switch isolates game records and missing spreads stay unpriced',t=>{
   a.BET.games=[{id:'nfl',sport:'nfl',home:'BUF',away:'MIA',kickoff:future(),source:'manual'},
     {id:'ncaa',sport:'ncaa',home:'Alabama',away:'Georgia',kickoff:future(),source:'manual'}];
   w.document.querySelector('[data-sport="ncaa"]').click();
+  assert.equal(w.document.querySelector('[data-tab="props"]').hidden,true);
   assert.match(w.document.getElementById('btGamesList').textContent,/Alabama/);
   assert.doesNotMatch(w.document.getElementById('btGamesList').textContent,/BUF/);
   assert.equal(a.gameQuotes({source:'manual',spread:null,homeSpreadOdds:-110,model:{margin_mean:0,margin_sd:10}}).length,0);
@@ -174,14 +175,4 @@ test('Refresh requests the live endpoint and preserves manual edits by quote ide
   w.Worker=class{postMessage(){queueMicrotask(()=>this.onmessage({data:{error:'HTTP 502'}}));}terminate(){}};
   await a.refreshLiveOdds('nfl');assert.equal(a.BET.props[0].updatedAt,quote.updatedAt);assert.equal(a.BET.props[0].projMean,.9);
   assert.match(w.document.querySelector('#btLoadPropsNote').textContent,/saved NFL prices/);
-});
-
-test('NCAA props display real prices without borrowing NFL player models',async t=>{
-  const {api:a,w}=setup(t);a.wireBetting();
-  a.BET.history={profiles:{p:{name:'Shared Name',team:'BUF',stats:{receptions:{mean:8,status:'ready'}}}}};
-  a.BET.ncaaProps=a.collegePropsFromFeed({props:[{player:'Shared Name',book:'College Book',market:'receptions',line:4.5,overOdds:-110,underOdds:105,source:'parlay',kickoff:future(),updatedAt:new Date().toISOString()}]});
-  a.BET.sport='ncaa';a.BET.tab='props';await a.renderPropsTable();
-  assert.equal(a.BET.ncaaProps[0].model,null);assert.equal(a.computePropRow(a.BET.ncaaProps[0]).ev,null);
-  const card=w.document.querySelector('#btPropsTable .bt-row');assert.match(card.textContent,/Shared Name/);assert.match(card.textContent,/-110/);assert.match(card.textContent,/\+105/);
-  a.BET.sport='nfl';await a.renderPropsTable();assert.doesNotMatch(w.document.getElementById('btPropsTable').textContent,/Shared Name/);
 });
