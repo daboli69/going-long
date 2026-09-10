@@ -722,7 +722,7 @@
           <button data-market="pass_yds">Pass Yds</button>
           <button data-market="rush_yds">Rush Yds</button>
           <button data-market="rec_yds">Rec Yds</button>
-          <button data-market="receptions">Receptions</button><button data-market="pass_tds">Pass TDs</button><button data-market="rush_tds">Rush TDs</button><button data-market="rec_tds">Rec TDs</button><button data-market="atd">ATD</button>
+          <button data-market="receptions">Receptions</button><button data-market="pass_tds">Pass TDs</button><button data-market="rush_tds">Rush TDs</button><button data-market="rec_tds">Rec TDs</button><button data-market="atd">ATD</button><button data-market="first_td">1st TD</button><button data-market="1H">1H Props</button><button data-market="Q1">1Q Props</button>
         </div>
         <select id="btSort" class="field">
           <option value="ev">Sort: EV%</option>
@@ -2773,10 +2773,15 @@ const BET = {
 };
 const MARKET_LABEL = {pass_yds:"Passing yards", rush_yds:"Rushing yards", rec_yds:"Receiving yards",
   receptions:"Receptions", pass_tds:"Passing TDs", rush_tds:"Rushing TDs", rec_tds:"Receiving TDs", atd:"Anytime TD"};
+MARKET_LABEL.first_td="First touchdown";
+for(const base of ['pass_yds','rush_yds','rec_yds','receptions','pass_tds','rush_tds','rec_tds']){
+  for(const [suffix,label] of [['1h','1H'],['1q','1Q']])MARKET_LABEL[base+'_'+suffix]=label+' '+MARKET_LABEL[base];
+}
 const ODDS_MARKET_MAP = {player_pass_yds:"pass_yds", player_rush_yds:"rush_yds", player_reception_yds:"rec_yds",
   player_receptions:"receptions", player_pass_tds:"pass_tds", player_rush_tds:"rush_tds",
   player_reception_tds:"rec_tds", player_anytime_td:"atd"};
 const COUNT_MARKETS = new Set(["receptions", "pass_tds", "rush_tds", "rec_tds", "atd"]);
+for(const base of ['receptions','pass_tds','rush_tds','rec_tds'])for(const period of ['1h','1q'])COUNT_MARKETS.add(base+'_'+period);
 const finiteNumber = x => typeof x === "number" && Number.isFinite(x);
 const pauseForPaint = () => new Promise(resolve => {
   if(document.hidden) setTimeout(resolve, 0); else requestAnimationFrame(resolve);
@@ -2823,6 +2828,7 @@ function lognormalCDF(x, model){
   return Math.min(1, empirical+weight*positive);
 }
 function manualModel(p){
+  if(p.market==="first_td")return null;
   if(!finiteNumber(p.projMean) || p.projMean<0) return null;
   if(COUNT_MARKETS.has(p.market)) return {family:"poisson",lambda:p.projMean,status:"ready"};
   if(!finiteNumber(p.projSd) || p.projSd<0 || p.projMean<=0) return null;
@@ -2873,8 +2879,8 @@ function quoteState(p, now=Date.now()){
 function computePropRow(p){
   const probs=propProbabilities(p), reason=p.dfs?"Pick’em payout · no single-bet EV":quoteState(p);
   if(!probs || reason) return {side:"—",prob:null,push:null,ev:null,kelly:0,reason:reason||(p.manual?"Enter a valid projection":p.matchStatus)||"No projection"};
-  const candidates=[{side:p.market==="atd"?"Yes":"Over",prob:probs.over,odds:p.overOdds}];
-  if(p.market!=="atd") candidates.push({side:"Under",prob:probs.under,odds:p.underOdds});
+  const candidates=[{side:["atd","first_td"].includes(p.market)?"Yes":"Over",prob:probs.over,odds:p.overOdds}];
+  if(!["atd","first_td"].includes(p.market)) candidates.push({side:"Under",prob:probs.under,odds:p.underOdds});
   for(const c of candidates){
     c.push=probs.push; c.dec=americanToDecimal(c.odds); c.ev=evPercent(c.prob,c.dec,c.push);
     c.kelly=kellyFraction(c.prob,c.dec,c.push,BET.config.kelly_fraction??0.25,BET.config.max_stake_fraction??0.02);
@@ -2900,14 +2906,26 @@ function attachProjection(p, index){
     if(matches.length===1) profile=matches[0];
     p.matchStatus=matches.length>1?"Ambiguous name":"Unmatched name";
   }
-  const model=profile?.stats?.[p.market];
+  let model=profile?.stats?.[p.market];
+  p.features=h?.features?.nfl?.players?.[`${profile?.team}|${profile?.id}`];
   p.matchStatus=alias?.status||p.matchStatus;
   if(profile){
     p.team=profile.team; p.profileId=profile.id; p.profileDate=profile.last_game;
     p.opp=p.eventTeams?.find(t=>t!==profile.team)||p.opp||"";
+    const pressure=h?.features?.pressure_matchups?.[`${profile.team}|${p.opp}`];
+    p.adjustment=null;
+    if(profile.position==='QB'&&pressure?.status==='proxy'&&model?.status==='ready'&&model.mean>0&&model.family==='lognormal'){
+      let scale=p.market==='pass_yds'?pressure.pass_scale:p.market==='rush_yds'?Math.min(1.25,1+pressure.scramble_yards_delta/model.mean):1;
+      if(finiteNumber(scale)&&scale>0&&scale!==1){
+        model={...model,mean:model.mean*scale,sd:model.sd*scale,mu_log:finiteNumber(model.mu_log)?model.mu_log+Math.log(scale):model.mu_log,nonpositive:(model.nonpositive||[]).map(x=>Math.round(x*scale))};
+        p.adjustment='Pressure proxy sensitivity · '+((scale-1)*100).toFixed(1)+'% · uncalibrated';
+      }
+    }
     p.model=model; p.projMean=model?.mean??null; p.projSd=model?.sd??null;
     p.matchStatus=model?.status==="ready" ? (alias?.status||"exact") : `Sample: ${model?.n||0} games`;
   }
+  if(p.market==='first_td')p.matchStatus='First-TD probability inactive: calibration pending';
+  else if(/_1[hq]$/.test(p.market))p.matchStatus='Period projection inactive: calibration pending';
   return p;
 }
 async function propsFromRealData(raw=BET.nflData){
@@ -3137,16 +3155,24 @@ async function cooperativeSort(rows, compare, version){
   }
   return src;
 }
+function featureMarkup(p){
+  const f=p.features;
+  if(!f)return '';
+  const fmt=n=>finiteNumber(n)?n.toFixed(1):'—';
+  const team=BET.history?.features?.nfl?.teams?.[p.team];
+  return `<p class="bt-note">Neutral WP 20–80% · through ${esc(f.last_game)} · aDOT ${fmt(f.adot)} · air yards ${fmt(f.air_yards)} · goal-line carry share ${percent(f.shares?.goal_line_carries)} · end-zone target share ${percent(f.shares?.end_zone_targets)} · opening target share ${percent(f.shares?.opening_targets)}<br>Team PROE ${percent(team?.proe)} · pace ${fmt(team?.pace_seconds)} sec/play. Public historical signals. Pass-snap participation ${percent(f.pass_snap_participation_proxy)} · targets/pass snap ${percent(f.targets_per_pass_snap_proxy)} (route proxies) · charting coverage ${percent(team?.participation_coverage)} through ${esc(f.last_participation_game||'unavailable')}. ${esc(p.adjustment||'No pressure adjustment')}. OC and slot adjustments inactive.</p>`;
+}
 function propMarkup(p,row,rank=1){
   const model=p.manual?null:p.model, mean=p.projMean, sd=p.projSd;
   const fmt=n=>finiteNumber(n)?n.toFixed(1):'—';
   const logs=BET.history?.profiles?.[p.profileId]?.games||[];
   return `<article class="bt-row" data-prop-id="${esc(p.id)}">
     <div class="bt-card-top"><span class="bt-rank">${rank}</span><div class="bt-who"><b>${esc(p.player)}</b><small>${esc(p.team)} ${p.opp?'vs '+esc(p.opp):''} · ${esc(p.market==='atd'&&p.line>.5?'Total TDs':MARKET_LABEL[p.market]||p.market)}</small></div><span class="bt-book-badge">${esc(p.book||'Manual')}${p.dfs?' · Pick’em':''}</span></div>
-    <div class="bt-projection-strip"><div><label>MODEL ${p.market==='atd'?'E[TD]':''}</label><b class="bt-model-value">${fmt(mean)}</b></div><div><label>BOOK LINE</label><b>${p.market==='atd'?((p.line??.5)%1===.5?`${Math.ceil(p.line??.5)}+ TD`:`O ${p.line} TD`):p.line??'—'}</b></div><div><label>${p.market==='atd'?'YES':'OVER'}</label><b>${americanOddsLabel(p.overOdds)}</b></div><div><label>${p.market==='atd'?'NO':'UNDER'}</label><b>${americanOddsLabel(p.underOdds)}</b></div></div>
+    <div class="bt-projection-strip"><div><label>MODEL ${p.market==='atd'?'E[TD]':''}</label><b class="bt-model-value">${fmt(mean)}</b></div><div><label>BOOK LINE</label><b>${p.market==='atd'?((p.line??.5)%1===.5?`${Math.ceil(p.line??.5)}+ TD`:`O ${p.line} TD`):p.line??'—'}</b></div><div><label>${['atd','first_td'].includes(p.market)?'YES':'OVER'}</label><b>${americanOddsLabel(p.overOdds)}</b></div><div><label>${['atd','first_td'].includes(p.market)?'NO':'UNDER'}</label><b>${americanOddsLabel(p.underOdds)}</b></div></div>
     <div class="bt-metric-labels"><span>Model side</span><span>Price</span><span>Win</span><span>EV</span><span>¼ Kelly</span></div><div class="bt-metrics">${metricMarkup(row)}</div>
     <p class="bt-model-note">${esc(row.reason||`${p.manual?'Manual':model?.family||'No model'} · ${model?.n??'—'} games · SD ${fmt(sd)}`)}</p>
     <details class="bt-override"><summary>Recent games & projection ${p.manual?'override':'details'}</summary>
+      ${featureMarkup(p)}
       <div class="bt-recent">${logs.slice(-12).map(g=>`<span title="${esc(g.date)}">${finiteNumber(g[p.market])?g[p.market]:'—'}</span>`).join('')||'No recent game log available'}</div>
       <small>Oldest → newest · ${esc(p.matchStatus||'Manual')} · Last game ${esc(p.profileDate||'unavailable')}</small>
       <label>Mean <input aria-label="${esc(p.player)} mean" type="number" min="0" class="bt-projinput" data-id="${esc(p.id)}" data-field="projMean" step="0.1" value="${finiteNumber(mean)?mean:''}"></label>
@@ -3165,7 +3191,7 @@ async function renderPropsTable(){
     if(BET.book==="sportsbooks"&&p.dfs)continue;
     if(!["ALL","sportsbooks"].includes(BET.book)&&p.book!==BET.book)continue;
     if(BET.matchup!=="ALL"&&matchup!==BET.matchup)continue;
-    if((BET.market==="ALL"||p.market===BET.market)&&(!query||`${p.player} ${p.team} ${p.book}`.toLowerCase().includes(query))) rows.push({p,row:computePropRow(p)});
+    if((BET.market==="ALL"||p.market===BET.market||(BET.market==="1H"&&p.market.endsWith("_1h"))||(BET.market==="Q1"&&p.market.endsWith("_1q")))&&(!query||`${p.player} ${p.team} ${p.book}`.toLowerCase().includes(query))) rows.push({p,row:computePropRow(p)});
     if(i%200===0){await pauseForPaint();if(version!==BET.renderVersion)return;}
   }
   const sorters={ev:(a,b)=>(b.row.ev??-Infinity)-(a.row.ev??-Infinity),disc:(a,b)=>Math.abs((b.p.projMean??b.p.line)-b.p.line)-Math.abs((a.p.projMean??a.p.line)-a.p.line),time:(a,b)=>(a.p.kickoff||"z").localeCompare(b.p.kickoff||"z")};
@@ -3216,6 +3242,9 @@ function renderGamesList(){
       ${books.map((q,i)=>`<details class="bt-game-book" data-game-id="${esc(q.id)}" ${i===0?'open':''}><summary>${esc(q.book||'Manual')} <span>Home ${fmt(q.spread)} · Total ${fmt(q.total)} · ML ${americanOddsLabel(q.mlAway)} / ${americanOddsLabel(q.mlHome)}</span></summary>
       ${i===0?gameBookContent(q):''}</details>`).join('')}</article>`;
   }).join('')||'<div class="bt-empty">No upcoming games in this snapshot. Refresh live odds.</div>';
+  const periodFeed=BET.sport==='nfl'?BET.nflData:BET.ncaaData;
+  const periodQuotes=periodFeed?.period_quotes||[];
+  if(periodQuotes.length)$('btGamesList').insertAdjacentHTML('beforeend',`<article class="bt-game"><h3>1Q / 1H markets</h3><p class="bt-note">Period prices · no calibrated period EV or staking. Showing up to 150 quotes.</p>${periodQuotes.slice(0,150).map(q=>`<p class="bt-note">${q.home_team&&q.away_team?esc(q.away_team)+' @ '+esc(q.home_team):'Event '+esc(q.match_id)} · ${esc(q.period_key)} ${esc(q.market)} ${esc(q.team||'')} ${esc(q.side)} ${esc(q.line??'')} · <b>${americanOddsLabel(q.price)}</b> · ${esc(q.source)} · age at fetch ${finiteNumber(q.age_seconds)?q.age_seconds+'s':'unknown'}</p>`).join('')}</article>`);
   $('btGamesResult').textContent=`${Math.min(fixtures.length,100)} of ${fixtures.length} upcoming ${BET.sport.toUpperCase()} fixtures · ${games.length} book quotes.`;
 }
 function renderBetting(){

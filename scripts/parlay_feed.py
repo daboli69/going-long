@@ -40,7 +40,7 @@ def normalize_props(rows, now=None):
                     continue
             except ValueError:
                 continue
-        line = .5 if market == 'atd' and r.get('line') in (None, 0) else r.get('line')
+        line = .5 if market in ('atd', 'first_td') and r.get('line') in (None, 0) else r.get('line')
         if not numeric(line):
             continue
         event_id = r.get('canonical_event_id') or r.get('event_id') or f"player:{r.get('game_date', 'unknown')}:{r['player']}"
@@ -58,6 +58,27 @@ def normalize_props(rows, now=None):
     return list(output.values())
 
 
+def normalize_periods(rows):
+    output = {}
+    for r in rows:
+        period = str(r.get('period_key', '')).upper()
+        if period not in ('Q1', '1H') or not r.get('match_id') or not r.get('source'):
+            continue
+        if r.get('market') not in ('spread', 'total', 'team_total', 'h2h') or not numeric(r.get('price')) or abs(r['price']) < 100:
+            continue
+        if r['market'] != 'h2h' and not numeric(r.get('line')):
+            continue
+        if r.get('side') not in ('home', 'away', 'over', 'under', 'draw'):
+            continue
+        if r['market'] == 'team_total' and r.get('team') not in ('home', 'away'):
+            continue
+        key = json.dumps([r['match_id'], r['source'], period, r['market'], r.get('team'), r['side'], r.get('line')], separators=(',', ':'))
+        old = output.get(key)
+        if old is None or (numeric(r.get('age_seconds')) and (not numeric(old.get('age_seconds')) or r['age_seconds'] < old['age_seconds'])):
+            output[key] = dict(r, period_key=period, quoteKey=key, inPlay=True)
+    return list(output.values())
+
+
 def fetch_parlay(sport):
     key = os.getenv('PARLAY_API_KEY', '').strip()
     if not key:
@@ -70,18 +91,26 @@ def fetch_parlay(sport):
             if not response.ok:
                 raise RuntimeError(f'Parlay {endpoint} HTTP {response.status_code}')
             rows = response.json()
+            if endpoint == 'live/period_markets' and isinstance(rows, dict):
+                rows = rows.get('results')
             if not isinstance(rows, list):
                 raise RuntimeError('Unexpected Parlay response')
             return rows
         except requests.RequestException:
             raise RuntimeError('Parlay request failed; previous snapshot retained') from None
 
-    with ThreadPoolExecutor(max_workers=2) as executor:
+    with ThreadPoolExecutor(max_workers=3) as executor:
         future = executor.submit(get, 'odds', {'markets': 'h2h,spreads,totals', 'regions': 'us', 'oddsFormat': 'american'})
+        period_future = executor.submit(get, 'live/period_markets', {'period': 'all'})
         rows = get('props', {'markets': ','.join(MARKET_MAP), 'limit': 10000}) if sport == 'nfl' else []
         games = future.result()
+        try:
+            period_rows, period_status = normalize_periods(period_future.result()), 'loaded'
+        except RuntimeError:
+            period_rows, period_status = [], 'unavailable'
     return {'provider': 'parlay', 'sport': sport, 'generated_at': datetime.now(timezone.utc).isoformat(),
             'props': normalize_props(rows), 'games_raw': games, 'odds_status': 'loaded',
+            'period_quotes': period_rows, 'period_status': period_status,
             'coverage': {'raw_props': len(rows), 'possibly_truncated': len(rows) >= 10000}}
 
 

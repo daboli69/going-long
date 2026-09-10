@@ -260,10 +260,14 @@ def build():
                          ('ncaa', normalize_games(cfb.load_cfb_schedule(seasons).to_dicts(), 'ncaa'))):
         game_data[sport], validation[sport] = build_game_models(games, window, minimum)
     generated = datetime.now(timezone.utc).isoformat(timespec='seconds')
+    from pbp_features import build_public_features, matchup_adjustments
+    features = build_public_features(seasons, window)
+    matchup_adjustments(features, game_data['nfl'])
     history = load_json(ROOT / 'data/history.json')
     history['betting'] = {'schema_version': 1, 'generated_at': generated, 'window': window, 'minimum_games': minimum,
                           'sources': {'nflreadpy': sources, 'sportsdataverse': 'loaded'}, 'profiles': profiles,
-                          'aliases': aliases, 'team_names': team_map, 'games': game_data, 'validation': validation}
+                          'aliases': aliases, 'team_names': team_map, 'games': game_data, 'validation': validation,
+                          'features': features}
     config = load_json(ROOT / 'data/data.json')
     config.update(schema_version=1, generated_at=generated, season=season,
                   betting={'window': window, 'minimum_games': minimum, 'kelly_fraction': 0.25,

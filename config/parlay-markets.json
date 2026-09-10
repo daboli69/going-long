@@ -1,10 +1,128 @@
 {
-  "pass_yds": ["player_pass_yds", "player_pass_yards", "player_passing_yards", "prophetx_player_total_passing_yards"],
-  "rush_yds": ["player_rush_yds", "player_rushing_yards", "prophetx_player_total_rushing_yards"],
-  "rec_yds": ["player_rec_yds", "player_reception_yds", "player_receiving_yards", "prophetx_player_total_receiving_yards"],
-  "receptions": ["player_receptions", "prophetx_player_total_receptions"],
-  "pass_tds": ["player_pass_tds", "player_passing_tds", "player_passing_touchdowns", "player_touchdown_passes", "prophetx_player_total_passing_touchdowns"],
-  "rush_tds": ["player_rush_tds", "player_rushing_touchdowns"],
-  "rec_tds": ["player_rec_tds", "player_reception_tds", "player_receiving_touchdowns"],
-  "atd": ["player_anytime_td", "player_anytime_touchdowns", "player_anytime_touchdown_scorer", "prophetx_to_score_a_touchdown"]
+  "pass_yds": [
+    "player_pass_yds",
+    "player_pass_yards",
+    "player_passing_yards",
+    "prophetx_player_total_passing_yards"
+  ],
+  "rush_yds": [
+    "player_rush_yds",
+    "player_rushing_yards",
+    "prophetx_player_total_rushing_yards"
+  ],
+  "rec_yds": [
+    "player_rec_yds",
+    "player_reception_yds",
+    "player_receiving_yards",
+    "prophetx_player_total_receiving_yards"
+  ],
+  "receptions": [
+    "player_receptions",
+    "prophetx_player_total_receptions"
+  ],
+  "pass_tds": [
+    "player_pass_tds",
+    "player_passing_tds",
+    "player_passing_touchdowns",
+    "player_touchdown_passes",
+    "prophetx_player_total_passing_touchdowns"
+  ],
+  "rush_tds": [
+    "player_rush_tds",
+    "player_rushing_touchdowns"
+  ],
+  "rec_tds": [
+    "player_rec_tds",
+    "player_reception_tds",
+    "player_receiving_touchdowns"
+  ],
+  "atd": [
+    "player_anytime_td",
+    "player_anytime_touchdowns",
+    "player_anytime_touchdown_scorer",
+    "prophetx_to_score_a_touchdown"
+  ],
+  "first_td": [
+    "player_first_td",
+    "player_first_touchdown_scorer",
+    "exchange_first_touchdown_scorer"
+  ],
+  "pass_yds_1h": [
+    "pass_yds_1h",
+    "player_pass_yds_1h",
+    "player_pass_yards_1h",
+    "player_passing_yards_1h"
+  ],
+  "pass_yds_1q": [
+    "pass_yds_1q",
+    "player_pass_yds_1q",
+    "player_pass_yards_1q",
+    "player_passing_yards_1q"
+  ],
+  "rush_yds_1h": [
+    "rush_yds_1h",
+    "player_rush_yds_1h",
+    "player_rushing_yards_1h"
+  ],
+  "rush_yds_1q": [
+    "rush_yds_1q",
+    "player_rush_yds_1q",
+    "player_rushing_yards_1q"
+  ],
+  "rec_yds_1h": [
+    "rec_yds_1h",
+    "player_rec_yds_1h",
+    "player_reception_yds_1h",
+    "player_receiving_yards_1h"
+  ],
+  "rec_yds_1q": [
+    "rec_yds_1q",
+    "player_rec_yds_1q",
+    "player_reception_yds_1q",
+    "player_receiving_yards_1q"
+  ],
+  "receptions_1h": [
+    "receptions_1h",
+    "player_receptions_1h"
+  ],
+  "receptions_1q": [
+    "receptions_1q",
+    "player_receptions_1q"
+  ],
+  "pass_tds_1h": [
+    "pass_tds_1h",
+    "player_pass_tds_1h",
+    "player_passing_tds_1h",
+    "player_passing_touchdowns_1h",
+    "player_touchdown_passes_1h"
+  ],
+  "pass_tds_1q": [
+    "pass_tds_1q",
+    "player_pass_tds_1q",
+    "player_passing_tds_1q",
+    "player_passing_touchdowns_1q",
+    "player_touchdown_passes_1q"
+  ],
+  "rush_tds_1h": [
+    "rush_tds_1h",
+    "player_rush_tds_1h",
+    "player_rushing_touchdowns_1h"
+  ],
+  "rush_tds_1q": [
+    "rush_tds_1q",
+    "player_rush_tds_1q",
+    "player_rushing_touchdowns_1q"
+  ],
+  "rec_tds_1h": [
+    "rec_tds_1h",
+    "player_rec_tds_1h",
+    "player_reception_tds_1h",
+    "player_receiving_touchdowns_1h"
+  ],
+  "rec_tds_1q": [
+    "rec_tds_1q",
+    "player_rec_tds_1q",
+    "player_reception_tds_1q",
+    "player_receiving_touchdowns_1q"
+  ]
 }

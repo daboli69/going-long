@@ -24,6 +24,16 @@ function setup(t){
 }
 const close=(actual,expected,tol=1e-7)=>assert.ok(Math.abs(actual-expected)<tol,`${actual} != ${expected}`);
 const future=()=>new Date(Date.now()+86400000).toISOString();
+test('Pressure proxy scales QB distributions without mutating history or pricing unsupported first TD',t=>{
+  const {api:a}=setup(t);
+  const model={family:'lognormal',status:'ready',mean:200,sd:40,mu_log:5,sigma_log:.2,n:12,nonpositive:[]};
+  a.BET.history={profiles:{p:{id:'p',name:'Test QB',team:'A',position:'QB',stats:{pass_yds:model}}},features:{pressure_matchups:{'A|B':{status:'proxy',pass_scale:.9,scramble_yards_delta:2}}}};
+  const index=a.buildProfileIndex(a.BET.history);
+  const p=a.attachProjection({player:'Test QB',market:'pass_yds',eventTeams:['A','B']},index);
+  close(p.projMean,180);close(p.model.mu_log,5+Math.log(.9));close(model.mean,200);
+  const first=a.attachProjection({player:'Test QB',market:'first_td',eventTeams:['A','B']},index);
+  assert.equal(a.propProbabilities(first),null);assert.match(first.matchStatus,/calibration/);
+});
 test('American odds and push-aware EV/Kelly',t=>{
   const {api:a}=setup(t);
   close(a.americanToDecimal(-110),1+100/110); assert.equal(a.americanToDecimal(null),null);

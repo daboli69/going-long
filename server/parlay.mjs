@@ -13,7 +13,7 @@ export function normalizeProps(rows, now=Date.now()){
     const kickoff=r.commence_time||null;
     if(kickoff&&(!Number.isFinite(Date.parse(kickoff))||Date.parse(kickoff)<=now))continue;
     // Some books use the anytime key for 2+ and 3+ TD alternatives.
-    const line=market==='atd'&&(r.line==null||r.line===0)?.5:r.line;
+    const line=['atd','first_td'].includes(market)&&(r.line==null||r.line===0)?.5:r.line;
     if(!validNumber(line))continue;
     const stamp=r.last_update;
     const updatedAt=typeof stamp==='number'?new Date(stamp>1e12?stamp:stamp*1000).toISOString():stamp||null;
@@ -30,6 +30,39 @@ export function normalizeProps(rows, now=Date.now()){
   }
   return [...out.values()];
 }
+export function normalizePeriods(rows){
+  const quotes=new Map();
+  for(const r of rows||[]){
+    const period=String(r.period_key||'').toUpperCase();
+    if(!['Q1','1H'].includes(period)||!r.source||!r.match_id)continue;
+    if(!['spread','total','team_total','h2h'].includes(r.market)||!validOdds(r.price))continue;
+    if(r.market!=='h2h'&&!validNumber(r.line))continue;
+    if(!['home','away','over','under','draw'].includes(r.side))continue;
+    if(r.market==='team_total'&&!['home','away'].includes(r.team))continue;
+    const key=JSON.stringify([r.match_id,r.source,period,r.market,r.team||null,r.side,r.line??null]);
+    const q={...r,period_key:period,quoteKey:key,inPlay:r.inPlay!==false};
+    const old=quotes.get(key);
+    if(!old||(validNumber(r.age_seconds)&&(!validNumber(old.age_seconds)||r.age_seconds<old.age_seconds)))quotes.set(key,q);
+  }
+  return [...quotes.values()];
+}
+export function periodsFromGames(events){
+  const rows=[];
+  for(const event of events||[])for(const book of event.bookmakers||[])for(const market of book.markets||[]){
+    const key=market.key?.toLowerCase()||'';
+    const period=/(^|_)(1h|h1)($|_)/.test(key)?'1H':/(^|_)(1q|q1)($|_)/.test(key)?'Q1':null;
+    const kind=key.includes('team_total')?'team_total':key.includes('spread')?'spread':key.includes('total')?'total':key.includes('h2h')?'h2h':null;
+    if(!period||!kind)continue;
+    for(const o of market.outcomes||[]){
+      const side=o.name===event.home_team?'home':o.name===event.away_team?'away':String(o.name).toLowerCase();
+      const team=o.description===event.home_team?'home':o.description===event.away_team?'away':null;
+      rows.push({match_id:event.canonical_event_id||event.id,source:book.key,home_team:event.home_team,away_team:event.away_team,
+        period_key:period,market:kind,side,team,line:o.point,price:o.price,kickoff:event.commence_time,
+        inPlay:!(Date.parse(event.commence_time)>Date.now()),updated_at:market.last_update||book.last_update});
+    }
+  }
+  return normalizePeriods(rows);
+}
 export async function fetchParlay(sport,key,fetcher=fetch){
   if(!SPORT_KEYS[sport])throw new Error('Unsupported sport');
   if(!key)throw new Error('Parlay API key is not configured');
@@ -39,13 +72,20 @@ export async function fetchParlay(sport,key,fetcher=fetch){
     const r=await fetcher(url,{headers:{'X-API-Key':key,'Accept':'application/json'},signal:AbortSignal.timeout(45000)});
     if(!r.ok)throw new Error(`Parlay ${endpoint} returned HTTP ${r.status}`);
     const body=await r.json();
+    if(endpoint==='live/period_markets'){
+      if(Array.isArray(body))return body;
+      if(!Array.isArray(body?.results))throw new Error('Unexpected Parlay period response');
+      return body.results;
+    }
     if(!Array.isArray(body))throw new Error(`Unexpected Parlay ${endpoint} response`);
     return body;
   };
-  const [raw, games]=await Promise.all([
+  const [raw, games, periods]=await Promise.all([
     sport==='nfl'?get('props',{markets:Object.keys(MARKET_MAP).join(','),limit:'10000'}):Promise.resolve([]),
-    get('odds',{markets:'h2h,spreads,totals',regions:'us',oddsFormat:'american'})
+    get('odds',{markets:'h2h,spreads,totals',regions:'us',oddsFormat:'american'}),
+    get('live/period_markets',{period:'all'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'}))
   ]);
   return {provider:'parlay',sport,generated_at:new Date().toISOString(),props:normalizeProps(raw),games_raw:games,
+    period_quotes:[...periodsFromGames(games),...normalizePeriods(periods.rows)],period_status:periods.status,
     coverage:{raw_props:raw.length,possibly_truncated:raw.length>=10000},odds_status:'loaded'};
 }

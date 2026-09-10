@@ -20,7 +20,7 @@ test('Parlay authenticates by header and rejects malformed upstream data',async(
   const result=await fetchParlay('nfl','fixture-key',async(url,options)=>{
     calls.push({url,options});return Response.json(url.pathname.endsWith('/props')?[quote]:[]);
   });
-  assert.equal(result.props.length,1);assert.equal(calls.length,2);
+  assert.equal(result.props.length,1);assert.equal(calls.length,3);
   for(const c of calls){assert.equal(c.url.origin,'https://parlay-api.com');assert.equal(c.options.headers['X-API-Key'],'fixture-key');assert.ok(!c.url.href.includes('fixture-key'));}
   assert.ok(calls.every(c=>c.url.pathname.includes('/americanfootball_nfl/')));
   await assert.rejects(fetchParlay('ncaa','fixture-key',async()=>Response.json({error:'bad'})),/Unexpected/);
@@ -29,7 +29,7 @@ test('Parlay authenticates by header and rejects malformed upstream data',async(
 test('NCAA ingestion requests only game spreads, totals and moneylines',async()=>{
   const {fetchParlay}=await import('../server/parlay.mjs');const urls=[];
   const result=await fetchParlay('ncaa','fixture-key',async url=>{urls.push(url);return Response.json([]);});
-  assert.equal(urls.length,1);assert.ok(urls[0].pathname.endsWith('/americanfootball_ncaaf/odds'));
+  assert.equal(urls.length,2);assert.ok(urls[0].pathname.endsWith('/americanfootball_ncaaf/odds'));
   assert.equal(urls[0].searchParams.get('markets'),'h2h,spreads,totals');assert.equal(result.props.length,0);
 });
 test('Server proxy validates requests, coalesces refreshes and never exposes the key',async()=>{
@@ -43,9 +43,9 @@ test('Server proxy validates requests, coalesces refreshes and never exposes the
   try{
     const req=new Request('https://test/api/odds?sport=nfl');
     const responses=await Promise.all([oddsResponse(req,{PARLAY_API_KEY:'fixture-key'}),oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})]);
-    assert.equal(calls,2);
+    assert.equal(calls,3);
     for(const r of responses){assert.equal(r.status,200);assert.ok(!(await r.text()).includes('fixture-key'));}
-    assert.equal((await oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})).status,200);assert.equal(calls,2);
+    assert.equal((await oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})).status,200);assert.equal(calls,3);
   }finally{global.fetch=original;global.caches=oldCaches;}
 });
 
@@ -61,4 +61,22 @@ test('Hosted snapshots use an API route with allowlisted files and packaged fall
     global.fetch=async()=>{throw new Error('offline');};
     assert.deepEqual(await (await worker.fetch(new Request('https://test/api/snapshot?file=ncaa_lines.json'),env,{})).json(),{saved:true});
   }finally{global.fetch=old;}
+});
+
+test('Derivative identities separate first TD, anytime, periods, books and alternative lines',async()=>{
+  const {normalizeProps,normalizePeriods,periodsFromGames}=await import('../server/parlay.mjs');
+  const props=normalizeProps(['player_first_td','player_anytime_td','pass_yds_1h','player_pass_yds'].map(market_key=>({...quote,market_key,line:market_key.includes('td')?null:100})));
+  assert.equal(props.length,4);assert.equal(new Set(props.map(p=>p.quoteKey)).size,4);
+  const q={match_id:'g',source:'book',period_key:'1H',market:'total',side:'over',line:20.5,price:-110,age_seconds:4};
+  const rows=normalizePeriods([q,{...q,price:110,age_seconds:1},{...q,period_key:'Q1'},{...q,line:21.5},{...q,source:'other'}]);
+  assert.equal(rows.length,4);assert.equal(rows[0].price,110);assert.equal(rows[0].inPlay,true);
+  assert.equal(normalizePeriods([{...q,market:'team_total'}]).length,0);
+  const parsed=periodsFromGames([{id:'g',home_team:'A',away_team:'B',commence_time:'2099-01-01',bookmakers:[{key:'book',markets:[{key:'1h_spread',outcomes:[{name:'A',point:-3,price:-110},{name:'B',point:3,price:-110}]}]}]}]);
+  assert.equal(parsed.length,2);assert.equal(parsed[0].period_key,'1H');assert.equal(parsed[0].inPlay,false);
+});
+
+test('Optional period endpoint failure cannot erase working main odds',async()=>{
+  const {fetchParlay}=await import('../server/parlay.mjs');
+  const out=await fetchParlay('nfl','fixture',async url=>url.pathname.endsWith('/period_markets')?new Response('',{status:503}):Response.json(url.pathname.endsWith('/props')?[quote]:[]));
+  assert.equal(out.props.length,1);assert.equal(out.period_status,'unavailable');
 });

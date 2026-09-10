@@ -156,3 +156,56 @@ inputs debounce 250ms and update metrics without replacing the focused input.
 An unavailable worker reports a loading error and leaves manual import usable.
 Browser visual testing and an authenticated Parlay API run are separate from
 these automated checks.
+
+## Public PBP features and proxy sensitivity
+
+`build_pipeline.py` embeds `betting.features` in `history.json`. NFL PBP and
+participation come from nflreadpy. College game features use the cfbfastR
+release through `sportsdataverse.cfb.load_cfb_pbp_r`; there are no NCAA player
+projections. The build fetches three seasons and uses each offense's last
+12 games. Dates on or after the build's UTC date are excluded.
+
+Every feature uses pre-snap offensive WP inclusively between .20 and .80.
+No-play, kneel, spike and overtime snaps are excluded. First-15 numbering is
+assigned before the WP filter. Pace measures adjacent neutral offensive snaps
+within a drive and quarter, retaining clock gaps of 1–60 seconds. It is game
+clock pace, not wall-clock time. Q1/H1 exports contain neutral opportunities,
+production and pace; their totals are not full-period projections.
+
+Participation proxies use `offense_players` on charted dropbacks (including
+sacks/scrambles). Both semicolon strings and arrays are supported. Pass-snap
+participation and targets per pass snap use the SAME charted exposure set.
+Missing charting is excluded, not treated as absence. Coverage percentage and
+last charting date are exported. These proxies are explicitly not routes run
+or true TPRR. A heuristic expansion flag requires 50 pass snaps, target rate
+at least 25%, and participation below 70%; it is not a validated prediction.
+
+Pressure rates use non-null boolean `was_pressure`, with separate observed
+numerators and denominators for offense and defense. For upcoming NFL matchups,
+the adverse pressure-rate difference is halved, shrunk by n/(n+100), then
+multiplied by the offense's observed pressured-versus-clean yardage difference.
+Minimum samples are 100 charted dropbacks on both sides and 30 in each offensive
+pressure bucket. QB passing mean/SD can decrease at most 15%; QB rushing can
+increase at most 25%. Lognormal parameters are rescaled consistently. These
+are bounded observational sensitivities, not causal estimates or calibrated
+betting improvements. Historical baselines remain intact. Defense samples are
+restricted to the retained opposing-offense windows; sample counts are exposed.
+
+Receiver man/zone and single/two-high yards-per-target splits are exported;
+20 targets are required for an observed split label. Mixed or unknown shells
+are not assigned to single/two-high. Air yards/aDOT, red-zone/goal-line carry
+and target shares, end-zone targets (air yards reach the goal line), and
+opening-play usage are included. Slot alignment and cross-team OC identity
+remain inactive. PROE and neutral pace remain team-level features.
+
+First-TD and Q1/H1 prop aliases are distinct from full-game/anytime markets.
+The server and nightly adapters also fetch Parlay's dedicated period endpoint;
+its failure does not erase full-game odds. Period rows retain event, book,
+period, side, team and alternate-line identity. In-play rows are displayed
+separately and never receive a pregame model's EV. First-TD competing-scorer
+probabilities and period projection calibration are still inactive; these
+markets show prices without invented probabilities or Kelly recommendations.
+
+Sources: [nflverse participation dictionary](https://nflreadr.nflverse.com/articles/dictionary_participation.html),
+[cfbfastR data loader](https://cfbfastr.sportsdataverse.org/reference/load_cfb_pbp.html),
+[Parlay API documentation](https://parlay-api.com/docs).
