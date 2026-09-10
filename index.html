@@ -2956,7 +2956,7 @@ async function loadBettingData(){
   try{
     // Fetch and JSON.parse live on a worker, including the large raw API
     // payload. Only structured data crosses back to the main thread.
-    const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url])=>{const r=await fetch(url,{cache:'no-cache'});if(!r.ok)return[key,null];return[key,await r.json()]}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
+    const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url,fallback])=>{try{const r=await fetch(url,{cache:'no-cache'});if(r.ok)return[key,await r.json()];}catch{}const r=await fetch(fallback,{cache:'no-cache'});return[key,r.ok?await r.json():null]}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
     const blob=URL.createObjectURL(new Blob([workerSource],{type:"text/javascript"}));
     let worker;
     const files=await new Promise((resolve,reject)=>{
@@ -2964,7 +2964,7 @@ async function loadBettingData(){
       try{worker=new Worker(blob);}catch(e){clearTimeout(timer);reject(e);return;}
       worker.onmessage=({data})=>{clearTimeout(timer); data.ok?resolve(data.files):reject(new Error(data.error));};
       worker.onerror=()=>{clearTimeout(timer);reject(new Error("Background data loader failed"));};
-      worker.postMessage([['nfl','nfl_betting.json'],['ncaa','ncaa_lines.json'],['history','history.json'],['config','data.json']].map(([k,p])=>[k,new URL('data/'+p,document.baseURI).href]));
+      worker.postMessage([['nfl','nfl_betting.json'],['ncaa','ncaa_lines.json'],['history','history.json'],['config','data.json']].map(([k,p])=>[k,new URL('api/snapshot?file='+p,document.baseURI).href,new URL('data/'+p,document.baseURI).href]));
     }).finally(()=>{worker?.terminate();URL.revokeObjectURL(blob);});
     BET.nflData=files.nfl; BET.ncaaData=files.ncaa; BET.history=files.history?.betting;
     S.history=files.history; S.pipeline=files.config;

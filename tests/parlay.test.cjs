@@ -31,6 +31,7 @@ test('Server proxy validates requests, coalesces refreshes and never exposes the
   assert.equal((await oddsResponse(new Request('https://test/api/odds',{method:'POST'}),{})).status,405);
   assert.equal((await oddsResponse(new Request('https://test/api/odds'),{})).status,503);
   const original=global.fetch;let calls=0;
+  const oldCaches=global.caches;global.caches={open:async()=>{throw new Error('Cache unavailable');}};
   global.fetch=async(url,options)=>{calls++;assert.equal(options.headers['X-API-Key'],'fixture-key');return Response.json(url.pathname.endsWith('/props')?[quote]:[]);};
   try{
     const req=new Request('https://test/api/odds?sport=nfl');
@@ -38,5 +39,19 @@ test('Server proxy validates requests, coalesces refreshes and never exposes the
     assert.equal(calls,2);
     for(const r of responses){assert.equal(r.status,200);assert.ok(!(await r.text()).includes('fixture-key'));}
     assert.equal((await oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})).status,200);assert.equal(calls,2);
-  }finally{global.fetch=original;}
+  }finally{global.fetch=original;global.caches=oldCaches;}
+});
+
+test('Hosted snapshots use an API route with allowlisted files and packaged fallback',async()=>{
+  const {default:worker}=await import('../server/worker.mjs');const old=global.fetch;let calls=0;
+  const env={ASSETS:{fetch:async(req)=>{assert.equal(new URL(req.url).pathname,'/data/ncaa_lines.json');return Response.json({saved:true});}}};
+  try{
+    global.fetch=async()=>{calls++;return Response.json({betting:{schema_version:1,profiles:{p:{}}}});};
+    const result=await worker.fetch(new Request('https://test/api/snapshot?file=history.json'),env,{});
+    assert.equal(result.headers.get('X-Snapshot-Source'),'nightly');assert.equal(calls,1);
+    assert.equal((await worker.fetch(new Request('https://test/api/snapshot?file=../../secret'),env,{})).status,400);
+    assert.equal(calls,1);
+    global.fetch=async()=>{throw new Error('offline');};
+    assert.deepEqual(await (await worker.fetch(new Request('https://test/api/snapshot?file=ncaa_lines.json'),env,{})).json(),{saved:true});
+  }finally{global.fetch=old;}
 });
