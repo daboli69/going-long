@@ -1,3 +1,7 @@
+# Implemented betting data
+
+The current implementation and supported sources are documented in [BETTING_MODEL.md](BETTING_MODEL.md). The source survey below is historical planning context, not the current ingestion contract.
+
 # NFL data sources
 
 The pybaseball / MLB-StatsAPI equivalent for football is **nflverse**. It isn't

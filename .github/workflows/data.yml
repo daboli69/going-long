@@ -1,118 +1,95 @@
-name: Refresh draft data
-
+name: Refresh Going Long data
 on:
   schedule:
-    # 06:20 ET / 10:20 UTC daily. Bump to twice a day in late August if you want.
-    - cron: "20 10 * * *"
+    - cron: '20 10 * * *'
   workflow_dispatch:
   push:
     paths:
-      - "scripts/build_data.py"
-      - ".github/workflows/data.yml"
-
+      - 'scripts/**'
+      - 'config/**'
+      - '.github/workflows/data.yml'
 permissions:
   contents: write
-
 concurrency:
-  group: refresh-draft-data
+  group: refresh-going-long-data
   cancel-in-progress: false
-
 jobs:
   refresh:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     env:
-      SEASON: "2026"
-      TEAMS: "12"
-      SCORING: "ppr"
-      NUM_QBS: "1"
-      HISTORY_SEASONS: "3"
+      SEASON: '2026'
+      TEAMS: '12'
+      SCORING: ppr
+      NUM_QBS: '1'
+      HISTORY_SEASONS: '3'
+      PROJECTION_WINDOW: '12'
+      PROJECTION_MIN_GAMES: '5'
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
       - name: Install dependencies
         run: pip install -r scripts/requirements.txt
-
-      - name: Build pool + format files
-        id: build_data
+      - name: Validate model logic
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Build fantasy pool and formats
+        id: pool
         continue-on-error: true
         run: python scripts/build_data.py
-
-      - name: Build player history from nflverse
-        id: build_history
+      - name: Build fantasy history
+        id: history
         continue-on-error: true
         run: python scripts/build_history.py
-
-      - name: Build NFL betting data (lines + power ratings)
-        id: build_nfl_betting
+      - name: Build NFL odds
+        id: nfl
         continue-on-error: true
         run: python scripts/build_nfl_betting.py
         env:
-          # Optional. Without this, game lines + ratings still build for
-          # real — only live player props are skipped. Get a free key at
-          # the-odds-api.com and add it as a repo secret to enable props.
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
-
-      - name: Build NCAA game lines + ratings
-        id: build_ncaa_lines
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+      - name: Build NCAA odds
+        id: ncaa
         continue-on-error: true
         run: python scripts/build_ncaa_lines.py
-
-      - name: Commit if changed
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+      - name: Build historical projections and name matches
+        id: projections
+        continue-on-error: true
+        run: python scripts/build_pipeline.py
+      - name: Commit generated snapshots
+        shell: bash
         run: |
-          git config user.name  "goinglong-bot"
-          git config user.email "actions@github.com"
-          git add data/players.json data/formats data/history.json data/nfl_betting.json data/ncaa_lines.json
-          if git diff --staged --quiet; then
-            echo "no change"
-            exit 0
-          fi
-          git commit -m "data: refresh pool $(date -u +%Y-%m-%d)"
-
-          # The remote can move forward between this job's checkout and this
-          # push — a human pushing via the browser, or a second workflow run
-          # triggered close enough behind this one that they overlap. A plain
-          # push then gets rejected as non-fast-forward.
-          #
-          # A normal `git pull --rebase` is the WRONG fix here and was
-          # verified as such before shipping: every file this job commits is
-          # fully regenerated from scratch each run, so two runs racing each
-          # other produce two different versions of the *same* file with no
-          # shared line history — a rebase/merge can't reconcile that and
-          # fails with a real conflict, confirmed against a local repro.
-          #
-          # The correct fix for "bot commits full snapshots, might race with
-          # itself": don't merge content at all. Move the local branch
-          # pointer to the remote's current tip with --soft (which touches
-          # git's history bookkeeping only, never the working tree), then
-          # recommit the files this run already wrote to disk. Whichever run
-          # commits last simply wins outright, which is the correct
-          # semantics for a generated-data bot — also verified against the
-          # same local repro before shipping.
-          for i in 1 2 3 4 5; do
-            if git push origin main; then
-              echo "pushed on attempt $i"
-              exit 0
-            fi
-            echo "push attempt $i rejected — remote moved, resetting onto its tip and retrying"
-            git fetch origin main
-            git reset --soft origin/main
-            git add data/players.json data/formats data/history.json data/nfl_betting.json data/ncaa_lines.json
-            git commit -m "data: refresh pool $(date -u +%Y-%m-%d) (retry $i)"
-            sleep $((RANDOM % 5 + 1))
+          set -euo pipefail
+          git config user.name goinglong-bot
+          git config user.email actions@github.com
+          paths=(data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
+          existing=()
+          for path in "${paths[@]}"; do
+            if [ -e "$path" ]; then existing+=("$path"); fi
           done
-          echo "Failed to push after 5 attempts — see above." >&2
+          git add -- "${existing[@]}"
+          if git diff --staged --quiet; then exit 0; fi
+          git commit -m "data: refresh $(date -u +%Y-%m-%d)"
+          snapshot=$(git rev-parse HEAD)
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then exit 0; fi
+            git fetch origin main
+            # Reapply only generated files to the latest code. A soft reset
+            # would accidentally stage reversions of concurrent source edits.
+            git reset --hard origin/main
+            git restore --source="$snapshot" --staged --worktree -- "${existing[@]}"
+            if git diff --staged --quiet; then exit 0; fi
+            git commit -m "data: refresh $(date -u +%Y-%m-%d)"
+            sleep "$attempt"
+          done
           exit 1
-
-      - name: Fail the run if any build step failed
-        # Whatever DID succeed is already committed above — this just makes
-        # sure a real problem (like the nflreadpy season-range issue this
-        # step was added after) still shows red in the Actions tab instead
-        # of silently reporting green while one data source went stale.
-        if: ${{ steps.build_data.outcome == 'failure' || steps.build_history.outcome == 'failure' || steps.build_nfl_betting.outcome == 'failure' || steps.build_ncaa_lines.outcome == 'failure' }}
+      - name: Report source failures
+        if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' }}
         run: |
-          echo "One or more build steps failed — see the individual step logs above. Data that did build was still committed."
+          echo 'A data source failed. Successful snapshots were committed; inspect the failed step.'
           exit 1
