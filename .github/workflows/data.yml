@@ -6,6 +6,7 @@ on:
   push:
     paths:
       - 'scripts/**'
+      - 'config/**'
       - '.github/workflows/data.yml'
 permissions:
   contents: write
@@ -49,11 +50,13 @@ jobs:
         continue-on-error: true
         run: python scripts/build_nfl_betting.py
         env:
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
       - name: Build NCAA odds
         id: ncaa
         continue-on-error: true
         run: python scripts/build_ncaa_lines.py
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
       - name: Build historical projections and name matches
         id: projections
         continue-on-error: true

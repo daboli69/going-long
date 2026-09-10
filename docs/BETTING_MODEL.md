@@ -129,20 +129,30 @@ daylight saving time. Unknown kickoff times are not invented as midnight.
 Install `scripts/requirements.txt` in Python 3.12. Run the fantasy history,
 NFL odds, NCAA odds, then projection builders in that order. The daily GitHub
 workflow does this automatically and stages `data.json` as well as history.
-Set `ODDS_API_KEY` as a GitHub Actions repository secret to enable NFL props;
-it is never embedded in frontend code. Requests follow the
-[Odds API v4 event schema](https://the-odds-api.com/liveapi/guides/v4/) and
-[documented markets](https://the-odds-api.com/sports-odds-data/betting-markets.html).
-Quote requests are capped at 20 events per run. A daily snapshot is not a
-streaming live feed; prices can move between builds.
+Set `PARLAY_API_KEY` as a GitHub Actions and hosting secret. It never enters
+frontend bundles. The [Parlay API](https://parlay-api.com/docs#sport-keys)
+uses `X-API-Key`, `/v1/sports/americanfootball_nfl/props`, and NFL/NCAA `/odds`.
+Flat prop rows are normalized by the shared market aliases in
+`config/parlay-markets.json`. Book, event, line and both prices remain distinct.
+Anytime TD keys can contain 2+ / 3+ alternatives: their thresholds are preserved.
+DFS comparison prices are synthetic and cannot produce single-bet EV or Kelly.
+Unknown kickoff times keep their quotes visible but suppress recommendations.
+
+The hosted `/api/odds?sport=nfl|ncaa` route refreshes on demand, coalesces
+concurrent requests and caches for two minutes. It accepts no arbitrary upstream
+URL. Failed refreshes preserve saved data and its timestamps. Parlay caps prop
+responses at 10,000 rows; the UI discloses potentially partial coverage.
+GitHub Pages supports saved snapshots; live refresh needs the server runtime.
+NFL weeks are incorporated only once corresponding snap counts are available,
+so zero-stat appearances are not omitted during staggered source publication.
 
 Run `npm ci`, `npm test`, and
 `python -m unittest discover -s tests -p 'test_*.py' -v` for regressions.
 `npm run build` validates HTML identifiers/JSON and stages only public assets
-in `dist`. JSON fetch/parse runs in a Web Worker, odds transformation and
-sorting yield to animation frames, and the props DOM is bounded to 75 quotes
+in `dist/client`, with the secret-free Worker bundle in `dist/server`. JSON fetch/parse runs in a Web Worker, odds transformation and
+sorting yield to animation frames, and the props DOM is bounded to 50 quotes
 per page. Game rendering is limited to the nearest 100 fixtures. Projection
 inputs debounce 250ms and update metrics without replacing the focused input.
 An unavailable worker reports a loading error and leaves manual import usable.
-Browser visual testing and an authenticated Odds API run are separate from
+Browser visual testing and an authenticated Parlay API run are separate from
 these automated checks.

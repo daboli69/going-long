@@ -1,0 +1,10 @@
+{
+  "pass_yds": ["player_pass_yds", "player_pass_yards", "player_passing_yards", "prophetx_player_total_passing_yards"],
+  "rush_yds": ["player_rush_yds", "player_rushing_yards", "prophetx_player_total_rushing_yards"],
+  "rec_yds": ["player_rec_yds", "player_reception_yds", "player_receiving_yards", "prophetx_player_total_receiving_yards"],
+  "receptions": ["player_receptions", "prophetx_player_total_receptions"],
+  "pass_tds": ["player_pass_tds", "player_passing_tds", "player_passing_touchdowns", "player_touchdown_passes", "prophetx_player_total_passing_touchdowns"],
+  "rush_tds": ["player_rush_tds", "player_rushing_touchdowns"],
+  "rec_tds": ["player_rec_tds", "player_reception_tds", "player_receiving_touchdowns"],
+  "atd": ["player_anytime_td", "player_anytime_touchdowns", "player_anytime_touchdown_scorer", "prophetx_to_score_a_touchdown"]
+}

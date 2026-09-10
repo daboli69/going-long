@@ -216,10 +216,20 @@ def build():
             sources[str(year)] = 'not_published'
             print(f'[nflreadpy] {year} player stats not published')
             continue
-        rows.extend(yearly)
+        # Wait for snap counts before using a week's box scores: otherwise
+        # zero-stat appearances disappear and bias the trailing mean upward.
+        try:
+            yearly_snaps = nfl.load_snap_counts([year]).to_dicts()
+        except Exception as exc:
+            if year != season or '404' not in str(exc):
+                raise
+            yearly_snaps = []
+            print(f'[nflreadpy] {year} snap counts not published; retaining completed prior windows')
+        covered_weeks = {r.get('week') for r in yearly_snaps if r.get('game_type') == 'REG'}
+        rows.extend(r for r in yearly if r.get('week') in covered_weeks)
         roster.extend(nfl.load_rosters([year]).to_dicts())
-        snaps.extend(nfl.load_snap_counts([year]).to_dicts())
-        sources[str(year)] = 'loaded'
+        snaps.extend(yearly_snaps)
+        sources[str(year)] = 'loaded' if yearly_snaps else 'awaiting_snap_counts'
     if not rows:
         raise RuntimeError('No NFL player statistics loaded')
     if sources.get(str(season)) == 'not_published':
@@ -228,8 +238,15 @@ def build():
     profiles = build_profiles(rows, roster, snaps, schedule, window, minimum)
     if not profiles:
         raise RuntimeError('No profiles built; refusing to replace history')
-    team_map = {r['team_name']: r['team_abbr'] for r in nfl.load_teams().to_dicts()}
+    # Teams dictionary uses LAR while schedules, rosters and stats use LA.
+    codes = {'LAR': 'LA', 'JAC': 'JAX', 'WSH': 'WAS'}
+    team_map = {r['team_name']: codes.get(r['team_abbr'], r['team_abbr']) for r in nfl.load_teams().to_dicts()}
     aliases = {}
+    odds_snapshot = load_json(ROOT / 'data/nfl_betting.json')
+    for prop in odds_snapshot.get('props', []):
+        teams = [team_map.get(prop.get(k)) for k in ('homeName', 'awayName')]
+        aliases[f"{prop['eventId']}|{normalize_name(prop['player'])}"] = match_player(
+            prop['player'], profiles, teams if all(teams) else None)
     for event in load_json(ROOT / 'data/nfl_betting.json').get('props_raw', []):
         teams = [team_map.get(event.get(side)) for side in ('home_team', 'away_team')]
         for book in event.get('bookmakers', []):

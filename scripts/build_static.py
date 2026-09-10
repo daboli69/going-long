@@ -32,6 +32,8 @@ def build():
             raise ValueError("Unsafe output path")
         shutil.rmtree(output)
     output.mkdir()
+    output = output / "client"
+    output.mkdir()
     shutil.copy2(ROOT / "index.html", output / "index.html")
     shutil.copytree(ROOT / "data", output / "data")
     shutil.copy2(ROOT / ".nojekyll", output / ".nojekyll")

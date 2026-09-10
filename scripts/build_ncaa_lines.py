@@ -131,7 +131,10 @@ def build():
         ratings.setdefault(s, {})[name] = round(row["net_z"], 4) if row["net_z"] is not None else None
     print(f"[sportsdataverse] ratings for {sum(len(v) for v in ratings.values())} team-seasons")
 
+    from parlay_feed import fetch_parlay
+    live = fetch_parlay("ncaa")
     payload = {
+        **live,
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "season": SEASON,
         "rating_calibration": {"slope": RATING_SLOPE, "intercept": RATING_INTERCEPT,

@@ -170,8 +170,15 @@ It preserves bookmaker/line identities and flags missing or stale data.
 
 The nightly workflow now runs `scripts/build_pipeline.py` after odds ingestion,
 writing configuration and projections into `data/data.json` and
-`data/history.json`. Set the Actions repository secret `ODDS_API_KEY` to
-enable prop quotes. No key is needed to rebuild historical models or game lines.
+`data/history.json`. Set the Actions repository secret `PARLAY_API_KEY` to
+enable prop quotes. Historical model rebuilding does not need an odds key.
+
+The hosted board refreshes NFL props and NFL/NCAA game lines through the
+server route `/api/odds`. Set the same `PARLAY_API_KEY` secret in hosting.
+Run `npm ci` and `npm run dev` locally with the key in your environment.
+The server uses Parlay’s `X-API-Key` header and caches results for two minutes.
+Hosted model snapshots follow the nightly GitHub files automatically.
+GitHub Pages serves the nightly snapshots; live refresh requires the hosted server.
 
 For data sources, assumptions, limitations, test commands, and schema details,
 see [the betting model documentation](docs/BETTING_MODEL.md).

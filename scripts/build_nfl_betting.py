@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""NFL schedule odds and EPA ratings via nflreadpy; optional The Odds API props.
+"""NFL schedule odds and EPA ratings via nflreadpy; ParlayAPI live odds and props.
 Historical prop and team distributions are built by build_pipeline.py.
 The API key is server-side only. Failed authenticated requests fail the job
 and preserve the previously published snapshot.
@@ -28,7 +28,6 @@ except ImportError:
 
 SEASON = int(os.environ.get("SEASON", "2026"))
 HISTORY_SEASONS = int(os.environ.get("HISTORY_SEASONS", "3"))
-ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "").strip()
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "nfl_betting.json"
@@ -125,42 +124,10 @@ def build_ratings():
     return out
 
 
-def fetch_odds_api_props():
-    """Player props from the-odds-api.com. Needs a free key — get one at
-    the-odds-api.com, no card required. Skips cleanly with no key rather
-    than failing the whole build."""
-    if not ODDS_API_KEY or requests is None:
-        print("[odds-api] ODDS_API_KEY not set — skipping props, game lines still come from nflreadpy")
-        return []
-    try:
-        response = requests.get(
-            "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/events",
-            params={"apiKey": ODDS_API_KEY}, timeout=20)
-        if not response.ok:
-            raise RuntimeError(f"Odds events HTTP {response.status_code}")
-        events = response.json()
-        if not isinstance(events, list):
-            raise RuntimeError("Invalid Odds API events payload")
-        props = []
-        for ev in events[:20]:  # credits burn per call — cap per run
-            r = requests.get(
-                f"https://api.the-odds-api.com/v4/sports/americanfootball_nfl/events/{ev['id']}/odds",
-                params={"apiKey": ODDS_API_KEY, "regions": "us",
-                        "markets": "player_pass_yds,player_rush_yds,player_reception_yds,player_receptions,player_pass_tds,player_rush_tds,player_reception_tds,player_anytime_td",
-                        "oddsFormat": "american"}, timeout=20)
-            if not r.ok:
-                raise RuntimeError(f"Event odds HTTP {r.status_code}")
-            props.append(r.json())
-            time.sleep(0.2)
-        print(f"[odds-api] pulled props for {len(props)} events")
-        return props
-    except Exception as exc:  # noqa: BLE001
-        # Never print requests exceptions: their URLs may contain the key.
-        raise RuntimeError("Odds API request failed; prior snapshot retained") from None
-
 
 def build():
-    props = fetch_odds_api_props()
+    from parlay_feed import fetch_parlay
+    live = fetch_parlay("nfl")
     payload = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "season": SEASON,
@@ -169,9 +136,8 @@ def build():
                                         "walk-forward tested on real 2023-2025 games, not invented"},
         "games": fetch_lines(),
         "ratings": build_ratings(),
-        "props_raw": props,
-        "has_live_odds": bool(props),
-        "odds_status": "loaded" if props else ("empty" if ODDS_API_KEY else "not_configured"),
+        **live,
+        "has_live_odds": bool(live["props"] or live["games_raw"]),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
     atomic_json(OUT, payload)

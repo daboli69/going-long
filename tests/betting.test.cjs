@@ -18,7 +18,8 @@ function setup(t){
   vm.runInContext(`globalThis.api={BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    normalMarket,buildProfileIndex,attachProjection,loadBettingData};`,context);
+    normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
+  dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
 const close=(actual,expected,tol=1e-7)=>assert.ok(Math.abs(actual-expected)<tol,`${actual} != ${expected}`);
@@ -46,6 +47,7 @@ test('Integer and half lines partition win/loss/push correctly',t=>{
   close(integer.over+integer.under+integer.push,1);
   close(half.push,0);close(half.over,integer.over);
   close(a.propProbabilities({market:'atd',manual:true,projMean:.7}).over,1-Math.exp(-.7));
+  close(a.propProbabilities({market:'atd',line:1.5,manual:true,projMean:.7}).over,1-Math.exp(-.7)*(1+.7));
 });
 test('Lognormal handles positive, negative and zero mass',t=>{
   const {api:a}=setup(t);
@@ -112,7 +114,7 @@ test('Pagination bounds DOM and stale renders do not overwrite a newer filter',a
   a.BET.props=Array.from({length:10000},(_,i)=>({id:String(i),player:'Player '+i,market:'atd',source:'manual',manual:true,projMean:.5,overOdds:200}));
   const first=a.renderPropsTable();a.BET.query='Player 9999';await a.renderPropsTable();await first;
   assert.equal(w.document.querySelectorAll('#btPropsTable .bt-row').length,1);
-  a.BET.query='';await a.renderPropsTable();assert.equal(w.document.querySelectorAll('#btPropsTable .bt-row').length,75);
+  a.BET.query='';await a.renderPropsTable();assert.equal(w.document.querySelectorAll('#btPropsTable .bt-row').length,50);
 });
 test('Debounced projection edits preserve focus and calculate after typing',async t=>{
   const {api:a,w}=setup(t);a.wireBetting();
@@ -148,4 +150,28 @@ test('Background loader parses real snapshots and connects shared history',async
   assert.ok(a.BET.games.some(g=>g.sport==='ncaa'));
   assert.equal(blobs.size,0);
   assert.doesNotMatch(w.document.getElementById('btDataNote').textContent,/unavailable/i);
+});
+
+test('Parlay cards join Rams profiles and games despite LA/LAR naming',async t=>{
+  const {api:a,w}=setup(t);const kickoff=future();
+  a.BET.history={team_names:{'Los Angeles Rams':'LAR','San Francisco 49ers':'SF'},profiles:{p:{id:'p',name:'Puka Nacua',team:'LA',stats:{rec_yds:{family:'lognormal',status:'ready',n:12,mean:90,sd:30,mu_log:4.4,sigma_log:.3}}}},games:{nfl:[{home:'LA',away:'SF',kickoff,model:{margin_mean:4,total_mean:48,margin_sd:13,total_sd:13}}]}};
+  a.BET.props=await a.propsFromRealData({props:[{player:'Puka Nacua',homeName:'Los Angeles Rams',awayName:'San Francisco 49ers',market:'rec_yds',line:85.5,overOdds:-110,underOdds:105,source:'parlay',kickoff,updatedAt:new Date().toISOString()}]});
+  assert.equal(a.BET.props[0].projMean,90);await a.renderPropsTable();
+  const card=w.document.querySelector('.bt-row[data-prop-id]');assert.match(card.textContent,/90\.0/);assert.match(card.textContent,/-110/);assert.match(card.textContent,/\+105/);
+  const games=a.gamesFromParlay({games_raw:[{id:'e',home_team:'Los Angeles Rams',away_team:'San Francisco 49ers',commence_time:kickoff,bookmakers:[{key:'a',markets:[]}]}]},'nfl');
+  assert.equal(games[0].model.margin_mean,4);
+});
+
+test('Refresh requests the live endpoint and preserves manual edits by quote identity',async t=>{
+  const {api:a,w}=setup(t);const urls=[];const quote={quoteKey:'stable',player:'Josh Allen',market:'atd',line:.5,source:'parlay',overOdds:200,kickoff:future(),updatedAt:new Date().toISOString()};
+  a.BET.props=[{...quote,manual:true,projMean:.9,projSd:1}];
+  w.URL.createObjectURL=()=> 'blob:fixture';w.URL.revokeObjectURL=()=>{};
+  w.Worker=class{postMessage(url){urls.push(url);queueMicrotask(()=>this.onmessage({data:{body:{provider:'parlay',generated_at:new Date().toISOString(),props:[quote],games_raw:[]}}}));}terminate(){}};
+  await a.refreshLiveOdds('nfl');
+  assert.match(urls[0],/\/api\/odds\?sport=nfl$/);assert.equal(a.BET.props.length,1);assert.equal(a.BET.props[0].projMean,.9);
+  assert.equal(w.document.querySelector('#btLoadRealProps').disabled,false);assert.match(w.document.querySelector('#btDataNote').textContent,/Parlay connected/);
+  // Failed refresh keeps existing quotes and does not freshen their timestamps.
+  w.Worker=class{postMessage(){queueMicrotask(()=>this.onmessage({data:{error:'HTTP 502'}}));}terminate(){}};
+  await a.refreshLiveOdds('nfl');assert.equal(a.BET.props[0].updatedAt,quote.updatedAt);assert.equal(a.BET.props[0].projMean,.9);
+  assert.match(w.document.querySelector('#btLoadPropsNote').textContent,/saved NFL prices/);
 });
