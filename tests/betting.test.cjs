@@ -18,12 +18,36 @@ function setup(t){
   vm.runInContext(`globalThis.api={BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
+    footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
 const close=(actual,expected,tol=1e-7)=>assert.ok(Math.abs(actual-expected)<tol,`${actual} != ${expected}`);
 const future=()=>new Date(Date.now()+86400000).toISOString();
+test('Football week includes Monday night in Eastern time and rolls over Tuesday, including DST',t=>{
+  const {api:a}=setup(t),now=Date.parse('2026-09-11T16:00:00Z');
+  assert.equal(a.footballWeek(now).start,'2026-09-08');
+  assert.ok(a.inCurrentFootballWeek('2026-09-15T03:59:00Z',now));
+  assert.ok(!a.inCurrentFootballWeek('2026-09-15T04:00:00Z',now));
+  assert.ok(!a.inCurrentFootballWeek('2026-09-08T03:59:00Z',now));
+  assert.ok(!a.inCurrentFootballWeek(null,now));
+  const winter=Date.parse('2026-11-04T16:00:00Z');
+  assert.ok(!a.inCurrentFootballWeek('2026-11-03T04:59:00Z',winter));
+  assert.ok(a.inCurrentFootballWeek('2026-11-03T05:00:00Z',winter));
+});
+test('Matchup filter and prop cards exclude future weeks and clear an obsolete selection',async t=>{
+  const {api:a,w}=setup(t),kickoff=future(),later=new Date(Date.now()+14*86400000).toISOString();
+  a.BET.history={team_names:{Home:'A',Current:'B',Future:'C'},games:{nfl:[{home:'A',away:'B',kickoff},{home:'A',away:'C',kickoff:later}]}};
+  a.BET.props=[{id:'current',player:'Current Player',market:'atd',homeName:'Home',awayName:'Current',kickoff,source:'manual'},
+    {id:'later',player:'Future Player',market:'atd',homeName:'Home',awayName:'Future',kickoff:later,source:'manual'}];
+  a.BET.matchup='C @ A';a.updateBetFilters();
+  assert.equal(a.BET.matchup,'ALL');
+  const options=w.document.getElementById('btMatchup').textContent;
+  assert.match(options,/B @ A/);assert.doesNotMatch(options,/C @ A/);
+  await a.renderPropsTable();
+  assert.equal(w.document.querySelectorAll('#btPropsTable .bt-row').length,1);
+  assert.match(w.document.getElementById('btPropsTable').textContent,/Current Player/);
+});
 test('First TD uses game-level Bernoulli probability and book-specific conditional vig',t=>{
   const {api:a}=setup(t),kickoff=future(),updatedAt=new Date().toISOString();
   a.BET.history={profiles:{p:{id:'p',name:'Player One',team:'A',position:'RB',stats:{}}},derivatives:{first_td:{g:{home:'A',away:'B',kickoff,outcomes:{p:{probability:.2,fair_odds:400}}}}}};

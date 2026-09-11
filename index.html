@@ -748,6 +748,7 @@
       </div>
     </div>
     <div class="pos-group" id="btPeriodGroup" aria-label="Market period"><button data-period="FT" aria-pressed="true">Full Game</button><button data-period="1H" aria-pressed="false">1st Half</button><button data-period="Q1" aria-pressed="false">1st Quarter</button></div>
+    <p class="bt-note" id="btWeekNote"></p>
     <p class="bt-note" id="btDataNote" role="status">Loading odds and historical projections…</p>
     <div id="btLoadPropsNote" role="status"></div>
     <div class="bt-overview" id="btOverview" aria-label="Board summary"></div>
@@ -767,7 +768,7 @@
           <option value="disc">Market Line Difference</option>
           <option value="time">Sort: Kickoff</option>
         </select>
-        <select id="btBook" class="field" aria-label="Bookmaker"><option value="sportsbooks">Sportsbooks</option><option value="ALL">All books / pick’em</option></select><select id="btMatchup" class="field" aria-label="Filter by game" aria-label="Matchup"><option value="ALL">All matchups</option></select>
+        <select id="btBook" class="field" aria-label="Bookmaker"><option value="sportsbooks">Sportsbooks</option><option value="ALL">All books / pick’em</option></select><select id="btMatchup" class="field" aria-label="Filter by game" aria-label="Matchup"><option value="ALL">All matchups this week</option></select>
         <input type="search" id="btSearch" class="field" aria-label="Search players, teams or bookmakers" placeholder="Player, team or bookmaker">
       </div>
       <button class="btn" id="btLoadRealProps" style="margin-bottom:10px">Refresh live props</button>
@@ -3124,6 +3125,35 @@ function gamesFromRealData(){
   }
   return games;
 }
+const footballDateFormatter=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'});
+const footballKickoffDates=new Map();
+let footballWeekCache=null;
+function footballDate(value){
+  const time=typeof value==='number'?value:Date.parse(value);
+  if(!Number.isFinite(time))return null;
+  const parts=Object.fromEntries(footballDateFormatter.formatToParts(new Date(time)).map(p=>[p.type,p.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+function footballWeek(now=Date.now()){
+  const minute=Math.floor(now/60000);
+  if(footballWeekCache?.minute===minute)return footballWeekCache;
+  const day=footballDate(now),midnight=Date.parse(day+'T00:00:00Z');
+  const start=midnight-((new Date(midnight).getUTCDay()+5)%7)*86400000;
+  footballWeekCache={minute,start:new Date(start).toISOString().slice(0,10),end:new Date(start+7*86400000).toISOString().slice(0,10),last:new Date(start+6*86400000).toISOString().slice(0,10)};
+  return footballWeekCache;
+}
+function inCurrentFootballWeek(kickoff,now=Date.now()){
+  if(!kickoff)return false;
+  if(!footballKickoffDates.has(kickoff)){
+    if(footballKickoffDates.size>5000)footballKickoffDates.clear();
+    footballKickoffDates.set(kickoff,footballDate(kickoff));
+  }
+  const day=footballKickoffDates.get(kickoff),week=footballWeek(now);
+  return !!day&&day>=week.start&&day<week.end;
+}
+function currentWeekProp(p){
+  return (p.source==='manual'&&!p.kickoff)||(inCurrentFootballWeek(p.kickoff)&&Date.parse(p.kickoff)>Date.now());
+}
 function propMatchup(p){
   if(!p.homeName||!p.awayName)return 'Unassigned matchup';
   if(p.eventTeams?.length===2&&p.eventTeams.every(Boolean))return `${p.eventTeams[1]} @ ${p.eventTeams[0]}`;
@@ -3141,12 +3171,12 @@ function firstTdVigComparison(){
 function updateBetFilters(){
   firstTdVigComparison();
   const select=$('btBook');if(!select)return;
-  const current=BET.book,books=[...new Set(BET.props.map(p=>p.book))].sort();
+  const current=BET.book,weekProps=BET.props.filter(currentWeekProp),books=[...new Set(weekProps.map(p=>p.book))].sort();
   select.innerHTML='<option value="sportsbooks">Sportsbooks</option><option value="ALL">All books + pick’em</option>'+books.map(book=>`<option value="${esc(book)}">${esc(book)}</option>`).join('');
   select.value=current;if(!select.value){select.value='sportsbooks';BET.book='sportsbooks';}
   const match=$('btMatchup'),currentMatch=BET.matchup;
-  const names=[...new Set([...BET.props.map(propMatchup),...(BET.history?.games?.nfl||[]).filter(g=>Date.parse(g.kickoff)>Date.now()).map(g=>`${canonicalNflTeam(g.away)} @ ${canonicalNflTeam(g.home)}`)])].sort();
-  match.innerHTML='<option value="ALL">All matchups</option>'+names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  const names=[...new Set([...weekProps.filter(p=>p.homeName&&p.awayName).map(propMatchup),...(BET.history?.games?.nfl||[]).filter(g=>inCurrentFootballWeek(g.kickoff)&&Date.parse(g.kickoff)>Date.now()).map(g=>`${canonicalNflTeam(g.away)} @ ${canonicalNflTeam(g.home)}`)])].sort();
+  match.innerHTML='<option value="ALL">All matchups this week</option>'+names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
   match.value=currentMatch;if(!match.value){BET.matchup='ALL';match.value='ALL';}
 }
 async function refreshLiveOdds(sport=BET.sport){
@@ -3231,14 +3261,16 @@ function teamBadge(team){
 }
 let projectionCache=null;
 function projectionBoard(){
-  if(projectionCache?.props===BET.props&&projectionCache?.games===BET.games&&projectionCache?.history===BET.history)return projectionCache.rows;
+  const week=footballWeek().start;
+  if(projectionCache?.week===week&&projectionCache?.props===BET.props&&projectionCache?.games===BET.games&&projectionCache?.history===BET.history)return projectionCache.rows;
   const quoted=new Map(),scores=new Map();
-  for(const p of BET.props){if(!p.profileId||p.dfs)continue;const key=p.profileId+'|'+p.market,score=computePropRow(p).ev??-Infinity;if(!quoted.has(key)||score>scores.get(key)){quoted.set(key,p);scores.set(key,score);}}
+  for(const p of BET.props){if(!currentWeekProp(p)||!p.profileId||p.dfs)continue;const key=p.profileId+'|'+p.market,score=computePropRow(p).ev??-Infinity;if(!quoted.has(key)||score>scores.get(key)){quoted.set(key,p);scores.set(key,score);}}
   const result=[],index=buildProfileIndex(BET.history),nextGame=new Map();
-  const upcoming=[...BET.games.filter(g=>g.sport==='nfl'),...(BET.history?.games?.nfl||[])].filter(g=>Date.parse(g.kickoff)>Date.now()).sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff));
+  const upcoming=[...BET.games.filter(g=>g.sport==='nfl'),...(BET.history?.games?.nfl||[])].filter(g=>inCurrentFootballWeek(g.kickoff)&&Date.parse(g.kickoff)>Date.now()).sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff));
   for(const game of upcoming)for(const team of [game.homeCode||game.home,game.awayCode||game.away])if(!nextGame.has(team))nextGame.set(team,game);
   for(const profile of Object.values(BET.history?.profiles||{})){
     const game=nextGame.get(profile.team);
+    if(!game)continue;
     for(const [market,model] of Object.entries(profile.stats||{})){
       if(!finiteNumber(model.mean))continue;
       const quote=quoted.get(profile.id+'|'+market);
@@ -3248,7 +3280,7 @@ function projectionBoard(){
       else result.push({...p,profileId:profile.id,profileDate:profile.last_game,opp:p.eventTeams?.find(t=>t!==profile.team)||'',model,projMean:model.mean,projSd:model.sd,matchStatus:model.status==='ready'?'Historical profile':`Sample: ${model.n||0} games`,features:BET.history?.features?.nfl?.players?.[`${profile.team}|${profile.id}`]});
     }
   }
-  projectionCache={props:BET.props,games:BET.games,history:BET.history,rows:result};
+  projectionCache={week,props:BET.props,games:BET.games,history:BET.history,rows:result};
   return result;
 }
 function featureMarkup(p){
@@ -3286,6 +3318,7 @@ async function renderPropsTable(){
   const board=BET.tab==="projections"?projectionBoard():BET.props;
   for(let i=0;i<board.length;i++){
     const p=board[i];
+    if(!currentWeekProp(p))continue;
     const matchup=propMatchup(p);
     if(BET.book==="sportsbooks"&&p.dfs)continue;
     if(BET.tab!=="projections"&&!["ALL","sportsbooks"].includes(BET.book)&&p.book!==BET.book)continue;
@@ -3385,7 +3418,7 @@ function periodQuoteResult(q){
 }
 function renderPeriodGames(){
   const feed=BET.sport==='nfl'?BET.nflData:BET.ncaaData;
-  let quotes=(feed?.period_quotes||[]).filter(q=>q.period_key===BET.period);
+  let quotes=(feed?.period_quotes||[]).filter(q=>q.period_key===BET.period&&inCurrentFootballWeek(q.kickoff));
   if(BET.sport==='ncaa'&&BET.coverage==='active')quotes=quotes.filter(q=>!quoteState({...q,source:'parlay'}));
   const groups=new Map();for(const q of quotes){const key=[q.home_team||q.match_id,q.away_team,q.kickoff].join('|');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(q);}
   const shown=[...groups.values()].slice(0,BET.gameLimit);
@@ -3399,7 +3432,7 @@ function renderPeriodGames(){
 function renderGamesList(){
   if(BET.tab!=="games" || !$("view-betting").classList.contains("active"))return;
   if(BET.period!=="FT"){renderPeriodGames();return;}
-  const games=BET.games.filter(g=>g.sport===BET.sport&&(!g.kickoff||Date.parse(g.kickoff)>Date.now())).sort((a,b)=>(a.kickoff||'').localeCompare(b.kickoff||''));
+  const games=BET.games.filter(g=>g.sport===BET.sport&&inCurrentFootballWeek(g.kickoff)&&Date.parse(g.kickoff)>Date.now()).sort((a,b)=>(a.kickoff||'').localeCompare(b.kickoff||''));
   const groups=new Map();
   for(const g of games){const key=[g.home,g.away,g.kickoff].join('|');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(g);}
   const all=[...groups.values()],fixtures=all.filter(books=>BET.sport!=='ncaa'||BET.coverage==='all'||books.some(activeGameQuote));
@@ -3416,12 +3449,15 @@ function renderGamesList(){
       <span class="bt-best-grid">${cell('Home spread',best.spread,q=>(q.spread>0?'+':'')+q.spread,'homeSpreadOdds')}${cell('Total · Over',best.total,q=>'O '+q.total,'overOdds')}${cell('Home ML',best.ml,()=>g.homeCode||g.home,'mlHome')}</span>
       <span class="bt-compare-hint"><span>Best lines · Compare books →</span>${bestEV?.ev>0?`<strong>Top EV ${percent(bestEV.ev)} · ${esc(bestEV.side)}</strong>`:''}</span></button></article>`;
   }).join('')||'<div class="bt-empty">No active odds match this view. Choose All Games / Off Board or refresh.</div>';
-  const periodFeed=BET.sport==='nfl'?BET.nflData:BET.ncaaData,periodQuotes=periodFeed?.period_quotes||[];
+  const periodFeed=BET.sport==='nfl'?BET.nflData:BET.ncaaData,periodQuotes=(periodFeed?.period_quotes||[]).filter(q=>inCurrentFootballWeek(q.kickoff));
   if(periodQuotes.length)$('btGamesList').insertAdjacentHTML('beforeend',`<details class="bt-period-list"><summary>1Q / 1H markets · ${periodQuotes.length} quotes</summary><p class="bt-note">Use the 1st Half / 1st Quarter tabs for model EV. In-play prices never use pregame projections. Latest 150 quotes shown.</p><div class="bt-sheet-scroll"><table class="bt-odds-matrix"><thead><tr><th>Game / book</th><th>Period</th><th>Line</th><th>Price</th></tr></thead><tbody>${periodQuotes.slice(0,150).map(q=>`<tr><td>${q.home_team&&q.away_team?esc(q.away_team)+' @ '+esc(q.home_team):'Event '+esc(q.match_id)}<small>${esc(q.source)}</small></td><td>${esc(q.period_key)}<small>${esc(q.market)}</small></td><td>${esc(q.team||'')} ${esc(q.side)} ${esc(q.line??'')}</td><td>${americanOddsLabel(q.price)}</td></tr>`).join('')}</tbody></table></div></details>`);
   $('btGamesCount').textContent=`${Math.min(fixtures.length,BET.gameLimit)} of ${fixtures.length} ${BET.sport.toUpperCase()} fixtures · ${all.length-fixtures.length} off-board fixtures hidden`;
   $('btGamesResult').textContent=$('btGamesCount').textContent;
 }
 function renderBetting(){
+  const week=footballWeek();
+  if(BET.displayWeek!==week.start){BET.displayWeek=week.start;BET.matchup='ALL';BET.page=0;projectionCache=null;updateBetFilters();}
+  if($('btWeekNote'))$('btWeekNote').textContent=`Current week: ${week.start} – ${week.last} (Eastern time)`;
   $('btPeriodGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.period===BET.period)));
   $("btPropsPanel").hidden=!["props","projections"].includes(BET.tab); $("btGamesPanel").hidden=BET.tab!=="games";
   $("btTabGroup").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tab===BET.tab)));
