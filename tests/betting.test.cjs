@@ -18,12 +18,26 @@ function setup(t){
   vm.runInContext(`globalThis.api={BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
+    activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
 const close=(actual,expected,tol=1e-7)=>assert.ok(Math.abs(actual-expected)<tol,`${actual} != ${expected}`);
 const future=()=>new Date(Date.now()+86400000).toISOString();
+test('Best game lines ignore blank and stale books and compare the same betting side',t=>{
+  const {api:a}=setup(t),base={source:'parlay',kickoff:future(),updatedAt:new Date().toISOString(),spread:-3,total:45,homeSpreadOdds:-110,overOdds:-110,mlHome:-150};
+  const best=a.bestGameLines([{...base,book:'A'},{...base,book:'B',spread:-2.5,total:44,mlHome:-130},{...base,book:'stale',spread:3,total:40,mlHome:200,updatedAt:'2020-01-01'}]);
+  assert.equal(best.spread.book,'B');assert.equal(best.total.book,'B');assert.equal(best.ml.book,'B');
+  assert.ok(!a.activeGameQuote({source:'manual',kickoff:future(),spread:3}));
+  assert.ok(!a.activeGameQuote({...base,marketTimes:{spreads:'2020-01-01',totals:'2020-01-01',h2h:'2020-01-01'}}));
+});
+test('Projection explorer includes unquoted players with correct matchup and no invented EV',t=>{
+  const {api:a}=setup(t);
+  a.BET.history={profiles:{p:{id:'p',name:'Unquoted Player',team:'BUF',stats:{rec_yds:{mean:60,sd:10,status:'ready'}}}},team_names:{'Buffalo Bills':'BUF','Miami Dolphins':'MIA'}};
+  a.BET.games=[{sport:'nfl',home:'Buffalo Bills',away:'Miami Dolphins',homeCode:'BUF',awayCode:'MIA',kickoff:future()}];
+  const rows=a.projectionBoard();assert.equal(rows.length,1);assert.equal(rows[0].projMean,60);assert.equal(rows[0].opp,'MIA');
+  assert.equal(a.computePropRow(rows[0]).ev,null);assert.equal(rows[0].line,null);
+});
 test('Pressure proxy scales QB distributions without mutating history or pricing unsupported first TD',t=>{
   const {api:a}=setup(t);
   const model={family:'lognormal',status:'ready',mean:200,sd:40,mu_log:5,sigma_log:.2,n:12,nonpositive:[]};
@@ -116,6 +130,8 @@ test('Sport switch isolates game records and missing spreads stay unpriced',t=>{
     {id:'ncaa',sport:'ncaa',home:'Alabama',away:'Georgia',kickoff:future(),source:'manual'}];
   w.document.querySelector('[data-sport="ncaa"]').click();
   assert.equal(w.document.querySelector('[data-tab="props"]').hidden,true);
+  assert.doesNotMatch(w.document.getElementById('btGamesList').textContent,/Alabama/);
+  w.document.querySelector('[data-coverage="all"]').click();
   assert.match(w.document.getElementById('btGamesList').textContent,/Alabama/);
   assert.doesNotMatch(w.document.getElementById('btGamesList').textContent,/BUF/);
   assert.equal(a.gameQuotes({source:'manual',spread:null,homeSpreadOdds:-110,model:{margin_mean:0,margin_sd:10}}).length,0);
