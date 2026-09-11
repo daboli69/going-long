@@ -141,7 +141,7 @@ def aggregate(rows, sport='nfl', charting=(), window=12, as_of=None):
                 if first:
                     p['opening_' + kind] += 1
                     t['opening_' + kind] += 1
-                for zone, maximum in (('red_zone', 20), ('goal_line', 5)):
+                for zone, maximum in (('red_zone', 20), ('inside_ten', 10), ('goal_line', 5)):
                     if number(goal) and goal <= maximum:
                         p[zone + '_' + kind] += 1
                         t[zone + '_' + kind] += 1
@@ -185,7 +185,7 @@ def aggregate(rows, sport='nfl', charting=(), window=12, as_of=None):
                                targets_per_pass_snap_proxy=ratio(p['charted_targets'], p['pass_snaps_proxy']),
                                participation_charted_dropbacks=t['charted_dropbacks'],
                                route_expansion_flag=(p['pass_snaps_proxy'] >= 50 and p['charted_targets'] / p['pass_snaps_proxy'] >= .25 and p['pass_snaps_proxy'] / t['charted_dropbacks'] < .7) if t['charted_dropbacks'] else None,
-                               shares={k: ratio(p[k], t[k]) for k in ('red_zone_carries', 'goal_line_carries', 'red_zone_targets', 'goal_line_targets', 'end_zone_targets', 'opening_carries', 'opening_targets')},
+                               shares={k: ratio(p[k], t[k]) for k in ('red_zone_carries', 'inside_ten_carries', 'goal_line_carries', 'red_zone_targets', 'inside_ten_targets', 'goal_line_targets', 'end_zone_targets', 'opening_carries', 'opening_targets')},
                                coverage={k: dict(v, yards_per_target=ratio(v['yards'], v['targets']), status='observed' if v['targets'] >= 20 else 'insufficient') for k, v in player_coverage[key].items()})
     return {'teams': team_out, 'players': player_out,
             'defenses': {team: dict(v, pressure_rate_generated=ratio(v['pressures_generated'], v['pressure_dropbacks'])) for team, v in defenses.items() if team},

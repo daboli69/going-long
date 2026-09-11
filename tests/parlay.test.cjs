@@ -6,7 +6,7 @@ const quote={player:'Josh Allen',bookmaker:'draftkings',bookmaker_title:'DraftKi
 test('Parlay flat quotes preserve alternative TD thresholds, identities and missing prices',async()=>{
   const {normalizeProps}=await import('../server/parlay.mjs');
   const rows=normalizeProps([quote,{...quote,market_key:'player_anytime_td',line:1.5,over_price:600,under_price:null},
-    {...quote,market_key:'player_anytime_td',line:0}, {...quote,market_key:'player_first_touchdown'},
+    {...quote,market_key:'player_anytime_td',line:0}, {...quote,market_key:'player_last_touchdown'},
     {...quote,bookmaker:'prizepicks',dfs_normalized:true}, {...quote,commence_time:'invalid'},
     {...quote,bookmaker:'other',commence_time:null}]);
   assert.equal(rows.length,5);
@@ -20,7 +20,7 @@ test('Parlay authenticates by header and rejects malformed upstream data',async(
   const result=await fetchParlay('nfl','fixture-key',async(url,options)=>{
     calls.push({url,options});return Response.json(url.pathname.endsWith('/props')?[quote]:[]);
   });
-  assert.equal(result.props.length,1);assert.equal(calls.length,3);
+  assert.equal(result.props.length,1);assert.equal(calls.length,4);
   for(const c of calls){assert.equal(c.url.origin,'https://parlay-api.com');assert.equal(c.options.headers['X-API-Key'],'fixture-key');assert.ok(!c.url.href.includes('fixture-key'));}
   assert.ok(calls.every(c=>c.url.pathname.includes('/americanfootball_nfl/')));
   await assert.rejects(fetchParlay('ncaa','fixture-key',async()=>Response.json({error:'bad'})),/Unexpected/);
@@ -43,9 +43,9 @@ test('Server proxy validates requests, coalesces refreshes and never exposes the
   try{
     const req=new Request('https://test/api/odds?sport=nfl');
     const responses=await Promise.all([oddsResponse(req,{PARLAY_API_KEY:'fixture-key'}),oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})]);
-    assert.equal(calls,3);
+    assert.equal(calls,4);
     for(const r of responses){assert.equal(r.status,200);assert.ok(!(await r.text()).includes('fixture-key'));}
-    assert.equal((await oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})).status,200);assert.equal(calls,3);
+    assert.equal((await oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})).status,200);assert.equal(calls,4);
   }finally{global.fetch=original;global.caches=oldCaches;}
 });
 
@@ -79,4 +79,12 @@ test('Optional period endpoint failure cannot erase working main odds',async()=>
   const {fetchParlay}=await import('../server/parlay.mjs');
   const out=await fetchParlay('nfl','fixture',async url=>url.pathname.endsWith('/period_markets')?new Response('',{status:503}):Response.json(url.pathname.endsWith('/props')?[quote]:[]));
   assert.equal(out.props.length,1);assert.equal(out.period_status,'unavailable');
+});
+
+test('Observed period feeds retain upcoming kickoffs and identify three-way moneylines',async()=>{
+  const {normalizePeriods,MARKET_MAP}=await import('../server/parlay.mjs');
+  const base={match_id:'g',source:'book',period_key:'1H',market:'h2h',commence_time:future,last_observed_ms:Date.now(),price:120};
+  const rows=normalizePeriods(['home','away','draw'].map(side=>({...base,side})));
+  assert.equal(rows.length,3);assert.ok(rows.every(r=>r.inPlay===false&&r.threeWay&&r.updatedAt&&r.kickoff===future));
+  assert.equal(MARKET_MAP.player_1h_pass_yards,'pass_yds_1h');assert.equal(MARKET_MAP.player_1q_rec_yards,'rec_yds_1q');assert.equal(MARKET_MAP.player_1st_td,'first_td');
 });

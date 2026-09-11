@@ -40,18 +40,23 @@ export function normalizePeriods(rows){
     if(!['home','away','over','under','draw'].includes(r.side))continue;
     if(r.market==='team_total'&&!['home','away'].includes(r.team))continue;
     const key=JSON.stringify([r.match_id,r.source,period,r.market,r.team||null,r.side,r.line??null]);
-    const q={...r,period_key:period,quoteKey:key,inPlay:r.inPlay!==false};
+    const kickoff=r.kickoff||r.commence_time||null;
+    const observed=r.last_observed_ms||r.timestamp_ms;
+    const updatedAt=r.updatedAt||r.updated_at||(validNumber(observed)?new Date(observed).toISOString():null);
+    const q={...r,kickoff,updatedAt,period_key:period,quoteKey:key,inPlay:r.inPlay===true||!(Date.parse(kickoff)>Date.now())};
     const old=quotes.get(key);
     if(!old||(validNumber(r.age_seconds)&&(!validNumber(old.age_seconds)||r.age_seconds<old.age_seconds)))quotes.set(key,q);
   }
-  return [...quotes.values()];
+  const result=[...quotes.values()],threeWay=new Set(result.filter(q=>q.market==='h2h'&&q.side==='draw').map(q=>JSON.stringify([q.match_id,q.source,q.period_key])));
+  for(const q of result)q.threeWay=threeWay.has(JSON.stringify([q.match_id,q.source,q.period_key]));
+  return result;
 }
 export function periodsFromGames(events){
   const rows=[];
   for(const event of events||[])for(const book of event.bookmakers||[])for(const market of book.markets||[]){
     const key=market.key?.toLowerCase()||'';
-    const period=/(^|_)(1h|h1)($|_)/.test(key)?'1H':/(^|_)(1q|q1)($|_)/.test(key)?'Q1':null;
-    const kind=key.includes('team_total')?'team_total':key.includes('spread')?'spread':key.includes('total')?'total':key.includes('h2h')?'h2h':null;
+    const period=/(^|_)(1h|h1|1st_half)($|_)/.test(key)?'1H':/(^|_)(1q|q1|1st_quarter)($|_)/.test(key)?'Q1':null;
+    const kind=key.includes('team_total')?'team_total':key.includes('spread')?'spread':key.includes('total')?'total':(key.includes('h2h')||key.includes('moneyline'))?'h2h':null;
     if(!period||!kind)continue;
     for(const o of market.outcomes||[]){
       const side=o.name===event.home_team?'home':o.name===event.away_team?'away':String(o.name).toLowerCase();
@@ -80,12 +85,14 @@ export async function fetchParlay(sport,key,fetcher=fetch){
     if(!Array.isArray(body))throw new Error(`Unexpected Parlay ${endpoint} response`);
     return body;
   };
-  const [raw, games, periods]=await Promise.all([
+  const derivativeKeys=Object.entries(markets).filter(([k])=>k==='first_td'||/_1[hq]$/.test(k)).flatMap(([,v])=>v);
+  const [raw, games, periods, derivatives]=await Promise.all([
     sport==='nfl'?get('props',{markets:Object.keys(MARKET_MAP).join(','),limit:'10000'}):Promise.resolve([]),
     get('odds',{markets:'h2h,spreads,totals',regions:'us',oddsFormat:'american'}),
-    get('live/period_markets',{period:'all'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'}))
+    get('live/period_markets',{period:'all'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'})),
+    sport==='nfl'?get('props',{markets:derivativeKeys.join(','),limit:'10000'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'})):Promise.resolve({rows:[],status:'not_applicable'})
   ]);
-  return {provider:'parlay',sport,generated_at:new Date().toISOString(),props:normalizeProps(raw),games_raw:games,
+  return {provider:'parlay',sport,generated_at:new Date().toISOString(),props:normalizeProps([...raw,...derivatives.rows]),games_raw:games,derivative_status:derivatives.status,
     period_quotes:[...periodsFromGames(games),...normalizePeriods(periods.rows)],period_status:periods.status,
-    coverage:{raw_props:raw.length,possibly_truncated:raw.length>=10000},odds_status:'loaded'};
+    coverage:{raw_props:raw.length,derivative_props:derivatives.rows.length,possibly_truncated:raw.length>=10000||derivatives.rows.length>=10000},odds_status:'loaded'};
 }

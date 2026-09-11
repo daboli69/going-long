@@ -75,8 +75,17 @@ def normalize_periods(rows):
         key = json.dumps([r['match_id'], r['source'], period, r['market'], r.get('team'), r['side'], r.get('line')], separators=(',', ':'))
         old = output.get(key)
         if old is None or (numeric(r.get('age_seconds')) and (not numeric(old.get('age_seconds')) or r['age_seconds'] < old['age_seconds'])):
-            output[key] = dict(r, period_key=period, quoteKey=key, inPlay=True)
-    return list(output.values())
+            kickoff = r.get('kickoff') or r.get('commence_time')
+            try:
+                in_play = datetime.fromisoformat(kickoff.replace('Z','+00:00')) <= datetime.now(timezone.utc)
+            except (ValueError, AttributeError):
+                in_play = True
+            output[key] = dict(r, period_key=period, quoteKey=key, kickoff=kickoff, updatedAt=r.get('updatedAt') or stamp(r.get('last_observed_ms') or r.get('timestamp_ms')), inPlay=in_play)
+    result = list(output.values())
+    three_way = {(q['match_id'],q['source'],q['period_key']) for q in result if q['market']=='h2h' and q['side']=='draw'}
+    for q in result:
+        q['threeWay'] = (q['match_id'],q['source'],q['period_key']) in three_way
+    return result
 
 
 def fetch_parlay(sport):
@@ -102,14 +111,21 @@ def fetch_parlay(sport):
     with ThreadPoolExecutor(max_workers=3) as executor:
         future = executor.submit(get, 'odds', {'markets': 'h2h,spreads,totals', 'regions': 'us', 'oddsFormat': 'american'})
         period_future = executor.submit(get, 'live/period_markets', {'period': 'all'})
+        derivative_keys = [alias for market, aliases in GROUPS.items() if market == 'first_td' or market.endswith(('_1h','_1q')) for alias in aliases]
+        derivative_future = executor.submit(get, 'props', {'markets': ','.join(derivative_keys), 'limit': 10000}) if sport == 'nfl' else None
         rows = get('props', {'markets': ','.join(MARKET_MAP), 'limit': 10000}) if sport == 'nfl' else []
         games = future.result()
+        try:
+            derivative_rows = derivative_future.result() if derivative_future else []
+            derivative_status = 'loaded' if derivative_future else 'not_applicable'
+        except RuntimeError:
+            derivative_rows, derivative_status = [], 'unavailable'
         try:
             period_rows, period_status = normalize_periods(period_future.result()), 'loaded'
         except RuntimeError:
             period_rows, period_status = [], 'unavailable'
     return {'provider': 'parlay', 'sport': sport, 'generated_at': datetime.now(timezone.utc).isoformat(),
-            'props': normalize_props(rows), 'games_raw': games, 'odds_status': 'loaded',
+            'props': normalize_props(rows + derivative_rows), 'derivative_status': derivative_status, 'games_raw': games, 'odds_status': 'loaded',
             'period_quotes': period_rows, 'period_status': period_status,
             'coverage': {'raw_props': len(rows), 'possibly_truncated': len(rows) >= 10000}}
 

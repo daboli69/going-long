@@ -194,6 +194,132 @@ def atomic_json(path, payload):
     temporary.replace(path)
 
 
+def pace_factor(team, period):
+    early = team.get('periods', {}).get(period, {})
+    full, pace = team.get('pace_seconds'), early.get('pace_seconds')
+    if not finite(full) or not finite(pace) or min(full, pace) <= 0:
+        return 1.0
+    n = early.get('pace_n', 0)
+    return max(.9, min(1.1, 1 + (full / pace - 1) * n / (n + 100)))
+
+
+def period_distribution(model, mean_fraction, variance_fraction):
+    """Moment-matched baseline, not a claim of independent lognormal increments."""
+    if model.get('status') != 'ready' or not finite(model.get('mean')):
+        return {'status': 'insufficient', 'n': model.get('n', 0)}
+    if model['mean'] < 0 or (model['mean'] == 0 and model.get('sd', 0) > 0):
+        return {'status': 'unsupported_nonpositive_mean', 'n': model.get('n', 0)}
+    mean = max(0, model['mean'] * mean_fraction)
+    sd = model.get('sd', 0) * math.sqrt(variance_fraction)
+    out = dict(family=model['family'], mean=mean, sd=sd, n=model['n'], status='ready',
+               method='scaled period baseline', mean_fraction=mean_fraction, variance_fraction=variance_fraction)
+    if model['family'] == 'poisson':
+        out.update({'lambda': mean, 'sd': math.sqrt(mean)})
+    elif mean > 0:
+        variance = math.log1p((sd / mean)**2)
+        out.update(mu_log=math.log(mean)-variance/2, sigma_log=math.sqrt(variance), positive_weight=1, nonpositive=[])
+    else:
+        out.update(mu_log=None, sigma_log=None, positive_weight=0, nonpositive=[0]*model['n'])
+    return out
+
+
+def competing_first_td(stages):
+    """Integrate piecewise constant competing hazards over two unit intervals."""
+    probabilities = defaultdict(float)
+    survival = 1.0
+    for hazards in stages:
+        if any(not finite(v) or v < 0 for v in hazards.values()):
+            raise ValueError('Hazards must be finite and nonnegative')
+        total = sum(hazards.values())
+        if total:
+            scored = survival * -math.expm1(-total)
+            for key, hazard in hazards.items():
+                probabilities[key] += scored * hazard / total
+            survival *= math.exp(-total)
+    probabilities['no_td'] = survival
+    return dict(probabilities)
+
+
+def fair_american(probability):
+    if not 0 < probability < 1:
+        return None
+    return round(-100*probability/(1-probability) if probability >= .5 else 100*(1-probability)/probability)
+
+
+def first_td_game(game, profiles, features):
+    m = game.get('model')
+    if not m or not finite(m.get('total_mean')) or not finite(m.get('margin_mean')):
+        return None
+    stages = [defaultdict(float), defaultdict(float)]
+    metadata = {}
+    for team, sign in ((game['home'], 1), (game['away'], -1)):
+        t = features['nfl']['teams'].get(team, {})
+        # 75% of points attributed to offensive TD drives, seven points/drive.
+        expected_td = max(0, (m['total_mean'] + sign*m['margin_mean'])/2) * .75 / 7
+        available = {pid: p for pid, p in profiles.items() if p['team'] == team and p.get('position') in ('QB','RB','WR','TE','FB') and (datetime.now(timezone.utc).date()-datetime.fromisoformat(p['last_game']).date()).days <= 400}
+        scored, opening = {}, {}
+        run_mix = 1 - (t.get('opening_pass_rate') if finite(t.get('opening_pass_rate')) else .55)
+        for pid, p in available.items():
+            f = features['nfl']['players'].get(f'{team}|{pid}', {})
+            # Disjoint rush zones; end-zone targets are a separate receiving event.
+            carries5 = f.get('goal_line_carries', 0)
+            carries10 = max(0, f.get('inside_ten_carries', 0)-carries5)
+            carries20 = max(0, f.get('red_zone_carries', 0)-carries5-carries10)
+            signal = .4*carries5 + .15*carries10 + .04*carries20 + .3*f.get('end_zone_targets', 0)
+            prior = max(0, p.get('stats', {}).get('atd', {}).get('mean', 0))
+            scored[pid] = signal/max(1, t.get('games', 12)) + .5*prior
+            sh = f.get('shares', {})
+            opening[pid] = run_mix*(sh.get('opening_carries') or 0) + (1-run_mix)*(sh.get('opening_targets') or 0)
+            metadata[pid] = {'player_id': pid, 'name': p['name'], 'team': team}
+        # Reserve mass for unmodeled/new offensive participants; never renormalize
+        # only the names offered by the sportsbook.
+        total = sum(scored.values())
+        open_total = sum(opening.values())
+        opening_fraction = max(.15, min(.4, (t.get('opening_snaps', 0)+25)/(t.get('snaps', 0)+100)))
+        for stage, share in enumerate((opening_fraction, 1-opening_fraction)):
+            offense_mass = expected_td * share
+            for pid in available:
+                baseline = scored[pid]/total if total else 0
+                weight = .65*baseline + .35*opening[pid]/open_total if stage == 0 and open_total and total else baseline
+                stages[stage][pid] += offense_mass * .95 * weight
+            stages[stage]['other_'+team] += offense_mass * (.05 if total else 1)
+            stages[stage]['dst_'+team] += offense_mass * .06/.94
+        metadata['other_'+team] = {'name': 'Other offensive scorer', 'team': team}
+        metadata['dst_'+team] = {'name': 'Defense / special teams', 'team': team}
+    probabilities = competing_first_td(stages)
+    return {'status':'ready','method':'two-stage competing hazards baseline','calibrated':False,
+            'home':game['home'],'away':game['away'],'kickoff':game['kickoff'],
+            'outcomes':{key:dict(metadata.get(key, {'name':'No touchdown'}), probability=p, fair_odds=fair_american(p)) for key,p in probabilities.items()},
+            'probability_sum':sum(probabilities.values())}
+
+
+def build_derivatives(profiles, game_data, features):
+    for p in profiles.values():
+        team = features['nfl']['teams'].get(p['team'], {})
+        for period, suffix, mean_fraction, variance_fraction in (('1H','1h',.49,.5),('Q1','1q',.22,.25)):
+            pace = pace_factor(team, period)
+            for market in ('pass_yds','rush_yds','rec_yds','receptions','pass_tds','rush_tds','rec_tds'):
+                p['stats'][market+'_'+suffix] = period_distribution(p['stats'].get(market, {}), mean_fraction*pace, variance_fraction*pace)
+    for sport, games in game_data.items():
+        for game in games:
+            m = game.get('model')
+            if not m:
+                continue
+            game['period_models'] = {}
+            for period, fraction, margin_fraction in (('1H',.52,.5),('Q1',.22,.25)):
+                pace = stats.mean(pace_factor(features[sport]['teams'].get(team, {}), period) for team in (game['home'],game['away']))
+                game['period_models'][period] = {**m, 'total_mean': m['total_mean']*fraction*pace,
+                    'margin_mean':m['margin_mean']*margin_fraction, 'total_sd':m['total_sd']*math.sqrt(fraction*pace) if finite(m.get('total_sd')) else None,
+                    'margin_sd':m['margin_sd']*math.sqrt(margin_fraction) if finite(m.get('margin_sd')) else None,
+                    'method':'scaled early-pace baseline','calibrated':False,'pace_factor':pace}
+    first_td = {g['id']: model for g in game_data['nfl'] if (model := first_td_game(g, profiles, features))}
+    features['availability'].update(first_td_probability='baseline: two-stage competing hazards',period_probability='baseline: scaled moments and early pace')
+    return {'schema_version':1, 'first_td':first_td,
+            'assumptions':{'td_points_fraction':.75,'points_per_td_drive':7,'dst_hazard_share':.06,'other_offense_share':.05,
+                           'goal_line_carry_conversion':.4,'inside_ten_carry_conversion':.15,'red_zone_carry_conversion':.04,
+                           'end_zone_target_conversion':.3,'opening_usage_weight':.35,'calibrated':False}}
+
+
 def load_json(path):
     return json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
 
@@ -263,11 +389,12 @@ def build():
     from pbp_features import build_public_features, matchup_adjustments
     features = build_public_features(seasons, window)
     matchup_adjustments(features, game_data['nfl'])
+    derivatives = build_derivatives(profiles, game_data, features)
     history = load_json(ROOT / 'data/history.json')
     history['betting'] = {'schema_version': 1, 'generated_at': generated, 'window': window, 'minimum_games': minimum,
                           'sources': {'nflreadpy': sources, 'sportsdataverse': 'loaded'}, 'profiles': profiles,
                           'aliases': aliases, 'team_names': team_map, 'games': game_data, 'validation': validation,
-                          'features': features}
+                          'features': features, 'derivatives': derivatives}
     config = load_json(ROOT / 'data/data.json')
     config.update(schema_version=1, generated_at=generated, season=season,
                   betting={'window': window, 'minimum_games': minimum, 'kelly_fraction': 0.25,

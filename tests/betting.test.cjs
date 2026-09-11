@@ -18,12 +18,30 @@ function setup(t){
   vm.runInContext(`globalThis.api={BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
+    firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
 const close=(actual,expected,tol=1e-7)=>assert.ok(Math.abs(actual-expected)<tol,`${actual} != ${expected}`);
 const future=()=>new Date(Date.now()+86400000).toISOString();
+test('First TD uses game-level Bernoulli probability and book-specific conditional vig',t=>{
+  const {api:a}=setup(t),kickoff=future(),updatedAt=new Date().toISOString();
+  a.BET.history={profiles:{p:{id:'p',name:'Player One',team:'A',position:'RB',stats:{}}},derivatives:{first_td:{g:{home:'A',away:'B',kickoff,outcomes:{p:{probability:.2,fair_odds:400}}}}}};
+  const p=a.attachProjection({player:'Player One',eventId:'g',market:'first_td',eventTeams:['A','B'],kickoff,updatedAt,source:'parlay',bookKey:'book',overOdds:500},a.buildProfileIndex(a.BET.history));
+  close(a.computePropRow(p).prob,.2);close(a.computePropRow(p).ev,.2);assert.equal(p.model.fair_odds,400);
+  a.BET.props=[p,{...p,profileId:'other',player:'Other Player',model:{probability:.1},overOdds:900}];
+  a.firstTdVigComparison();close(p.bookConditionalProb,(1/6)/(1/6+1/10));close(p.listedModelMass,.3);
+  close(a.computePropRow(p).ev,.2);
+});
+test('Period pricing matches kickoff and distinguishes pregame, in-play and three-way draws',t=>{
+  const {api:a}=setup(t),kickoff=future();
+  a.BET.history={team_names:{Home:'A',Away:'B'},games:{nfl:[{home:'A',away:'B',kickoff,period_models:{'1H':{margin_mean:0,margin_sd:7,total_mean:22,total_sd:9}}}]}};
+  const q={home_team:'Home',away_team:'Away',kickoff,updatedAt:new Date().toISOString(),inPlay:false,period_key:'1H',market:'h2h',side:'home',price:100};
+  const two=a.periodQuoteResult(q);assert.ok(two.push>0);assert.ok(Number.isFinite(two.ev));
+  const three=a.periodQuoteResult({...q,threeWay:true});assert.equal(three.push,0);assert.ok(three.ev<two.ev);
+  assert.equal(a.periodQuoteResult({...q,inPlay:true}).ev,null);
+  assert.equal(a.periodQuoteResult({...q,kickoff:'2099-01-01'}).ev,null);
+});
 test('Best game lines ignore blank and stale books and compare the same betting side',t=>{
   const {api:a}=setup(t),base={source:'parlay',kickoff:future(),updatedAt:new Date().toISOString(),spread:-3,total:45,homeSpreadOdds:-110,overOdds:-110,mlHome:-150};
   const best=a.bestGameLines([{...base,book:'A'},{...base,book:'B',spread:-2.5,total:44,mlHome:-130},{...base,book:'stale',spread:3,total:40,mlHome:200,updatedAt:'2020-01-01'}]);
@@ -46,7 +64,7 @@ test('Pressure proxy scales QB distributions without mutating history or pricing
   const p=a.attachProjection({player:'Test QB',market:'pass_yds',eventTeams:['A','B']},index);
   close(p.projMean,180);close(p.model.mu_log,5+Math.log(.9));close(model.mean,200);
   const first=a.attachProjection({player:'Test QB',market:'first_td',eventTeams:['A','B']},index);
-  assert.equal(a.propProbabilities(first),null);assert.match(first.matchStatus,/calibration/);
+  assert.equal(a.propProbabilities(first),null);assert.match(first.matchStatus,/unavailable/);
 });
 test('American odds and push-aware EV/Kelly',t=>{
   const {api:a}=setup(t);

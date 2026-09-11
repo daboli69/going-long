@@ -202,10 +202,60 @@ First-TD and Q1/H1 prop aliases are distinct from full-game/anytime markets.
 The server and nightly adapters also fetch Parlay's dedicated period endpoint;
 its failure does not erase full-game odds. Period rows retain event, book,
 period, side, team and alternate-line identity. In-play rows are displayed
-separately and never receive a pregame model's EV. First-TD competing-scorer
-probabilities and period projection calibration are still inactive; these
-markets show prices without invented probabilities or Kelly recommendations.
+separately and never receive a pregame model's EV. First-TD and period markets use the baseline engine described below. They are
+not empirically calibrated; in-play quotes and pick’em payout comparisons remain
+unpriced for straight-bet EV.
 
 Sources: [nflverse participation dictionary](https://nflreadr.nflverse.com/articles/dictionary_participation.html),
 [cfbfastR data loader](https://cfbfastr.sportsdataverse.org/reference/load_cfb_pbp.html),
 [Parlay API documentation](https://parlay-api.com/docs).
+
+
+## First TD and early-period baseline engine
+
+The First TD engine integrates two competing-risk stages: opening scripted
+plays and the remainder of the game. For stage k, total hazard L is the sum of
+all player, other-offense and DST hazards. Each outcome receives
+S × (1 − exp(−L)) × hazard_i/L; surviving no-TD mass becomes S × exp(−L).
+The final survival probability is the no-touchdown outcome. This produces one
+multinomial pool per fixture with sum exactly one, independent of bookmaker
+lists. The implementation does not equate game-win probability with scoring
+first: projected team scoring supplies the relative team strength instead.
+
+Explicit, uncalibrated priors: offensive TD drives account for 75% of projected
+points at seven points per drive; DST has 6% of total TD hazard; other offensive
+players retain 5% of offensive hazard. Rush conversion weights are .40 inside
+five, .15 from six through ten, and .04 from eleven through twenty yards.
+End-zone target weight is .30. These weighted opportunities per game combine
+with half of the historical expected-TD prior. Opening-stage player allocation
+blends 65% scoring opportunity share with 35% scripted carry/target share,
+weighted by the team's opening run/pass mix. The opening-stage hazard fraction
+is shrunk toward .25 and bounded to .15–.40. Player participation is assumed;
+these estimates are not injury/starting-lineup forecasts or measured accuracy.
+All public opportunity features retain the neutral WP filter.
+
+Fair American odds come directly from each unconditional probability. EV is
+P × decimal payout − 1 for First TD, with no push assumed. Book-specific vig
+comparison divides each listed implied probability by that book's listed sum.
+It is labelled conditional on the listed pool, with modeled coverage displayed;
+missing DST/no-TD/unlisted-player prices never masquerade as a complete market.
+EV does not use this partial-pool renormalization.
+
+1H player means use .49 of full-game means; yardage SD uses sqrt(.50) of full
+SD. Q1 uses .22 and sqrt(.25). The early/full clock pace ratio is shrunk by
+n/(n+100), capped within .90–1.10, and applied to exposure. Yardage distributions
+are moment-matched lognormals; counts use thinned Poisson means. These are
+baseline assumptions, not empirically estimated period distributions.
+1H game total/margin use .52/.50; Q1 uses .22/.25. Total variance scales with
+scoring exposure, margin variance with the period fraction. Team-total variance
+uses zero covariance between margin and total. Two-way moneyline ties push;
+three-way feeds treat a draw as its own outcome. In-play and unknown-start
+quotes never use these pregame models.
+
+The live audit observed `player_1h_pass_yards`, `player_1h_rush_yards`,
+`player_1h_rec_yards` and Q1 equivalents. `/v1/markets` also lists
+`player_1st_td`. Team-only and first-drive touchdown markets are excluded from
+the game-first-TD aliases. A separate NFL derivative request prevents the broad
+10,000-row cap from suppressing these markets. Current half-player availability
+may be pick’em only: those lines retain projections but no fabricated payout,
+EV or Kelly. NCAA remains game markets only.
