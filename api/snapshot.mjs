@@ -1,6 +1,6 @@
 import {readFile} from 'node:fs/promises';
 import {sendJson} from '../server/vercel-response.mjs';
-const allowed=new Set(['history.json','data.json','nfl_betting.json','ncaa_lines.json']);
+const allowed=new Set(['history.json','data.json','nfl_betting.json','ncaa_lines.json','results.json']);
 export default async function handler(req,res){
   if(req.method!=='GET')return sendJson(req,res,{error:'Method not allowed'},405);
   const file=new URL(req.url,'https://going-long.vercel.app').searchParams.get('file');

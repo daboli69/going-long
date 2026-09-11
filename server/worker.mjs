@@ -1,7 +1,7 @@
 import {fetchParlay,SPORT_KEYS} from './parlay.mjs';
 const memory=new Map(),pending=new Map();
 const TTL=120000;
-const SNAPSHOTS=new Set(['/data/history.json','/data/data.json','/data/nfl_betting.json','/data/ncaa_lines.json']);
+const SNAPSHOTS=new Set(['/data/history.json','/data/data.json','/data/nfl_betting.json','/data/ncaa_lines.json','/data/results.json']);
 const snapshots=new Map();
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 export async function oddsResponse(request,env,ctx={waitUntil(){}}){
