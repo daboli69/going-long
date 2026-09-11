@@ -18,12 +18,74 @@ function setup(t){
   vm.runInContext(`globalThis.api={BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
+    SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
 const close=(actual,expected,tol=1e-7)=>assert.ok(Math.abs(actual-expected)<tol,`${actual} != ${expected}`);
 const future=()=>new Date(Date.now()+86400000).toISOString();
+
+test('Price flags use multiple distinct competing books, not duplicate quotes',t=>{
+  const {api:a}=setup(t),c={book:'A',dec:2.2,prob:.5,ev:.1};
+  assert.ok(!a.signalFlags(c,[{book:'B',dec:2},{book:'B',dec:2}],{}).some(f=>f.id==='price'));
+  assert.ok(a.signalFlags(c,[{book:'B',dec:2},{book:'C',dec:2}],{}).some(f=>f.id==='price'));
+  const r=a.signalReference(-110,-110,.1);close(r.win,.45);close(r.push,.1);close(r.loss,.45);
+});
+
+test('Football role flags need current charting and measured denominators',t=>{
+  const {api:a}=setup(t),now=Date.now(),date=new Date(now-86400000).toISOString();
+  const c={kind:'prop',team:'A',opp:'B',profileId:'p',market:'rec_yds',side:'Over',teamSpread:4};
+  const h={features:{nfl:{players:{'A|p':{last_game:date,last_participation_game:date,pass_snaps_proxy:80,targets_per_pass_snap_proxy:.3,pass_snap_participation_proxy:.6,targets:35}},teams:{A:{games:8,participation_coverage:.9}}}}};
+  assert.ok(a.signalFlags(c,[],h,now).some(f=>f.id==='demand'));
+  h.features.nfl.players['A|p'].last_participation_game='2025-01-01';
+  assert.ok(!a.signalFlags(c,[],h,now).some(f=>f.id==='demand'));
+  assert.ok(!a.signalFlags({...c,side:'Under'},[],h,now).some(f=>f.id==='chase'));
+});
+
+test('Settlement uses exact game and player date; missing data is never a zero',t=>{
+  const {api:a}=setup(t),kickoff='2026-09-10T00:20:00Z',now=Date.parse('2026-09-11T12:00:00Z');
+  const r={kind:'prop',sport:'nfl',home:'A',away:'B',profileId:'p',market:'rec_yds',side:'Over',line:50,kickoff};
+  const results={games:{g:{sport:'nfl',home:'A',away:'B',kickoff,homeScore:20,awayScore:10}},players:{'p|2026-09-09':{rec_yds:50}}};
+  assert.equal(a.signalGrade(r,results,now).status,'refund');
+  assert.equal(a.signalGrade({...r,line:49.5},results,now).status,'win');
+  assert.equal(a.signalGrade({...r,profileId:'missing'},results,now),null);
+  assert.equal(a.signalGrade({...r,market:'first_td'},results,now),null);
+  assert.equal(a.signalGrade({...r,market:'rec_yds_1h'},results,now),null);
+  assert.equal(a.signalGrade(r,results,Date.parse(kickoff)-1),null);
+  assert.equal(a.signalGrade({...r,kind:'game',market:'spread',side:'Away',line:-10.5},results,now).status,'win');
+});
+
+test('Prospective log stays frozen and ignores entries after kickoff',t=>{
+  const {api:a}=setup(t),now=Date.now(),r={key:'one',event:'event',book:'A',kickoff:future(),updatedAt:new Date(now-1000).toISOString(),flags:[],families:[],dec:2,prob:.6,push:0};
+  a.signalTrack([r],now);a.signalTrack([{...r,dec:3,prob:.9}],now+1000);
+  assert.equal(a.SIGNAL.ledger.records.one.dec,2);assert.equal(a.SIGNAL.ledger.records.one.prob,.6);
+  a.signalTrack([{...r,key:'late',kickoff:new Date(now-1).toISOString()}],now);
+  assert.equal(a.SIGNAL.ledger.records.late,undefined);
+});
+
+test('Accuracy uses only automatic prospective records and never promotes calibration',t=>{
+  const {api:a}=setup(t),r={event:'e',signalVersion:'football-signals-1',loggedAt:'2026-09-09',kickoff:'2026-09-10',prob:.8,push:0,reference:{win:.5,push:0,loss:.5},settlement:{status:'win',method:'public result'}};
+  const s=a.signalSummary([r,{...r,imported:true},{...r,settlement:{status:'loss',method:'manual'}},{...r,loggedAt:'2026-09-11'}]);
+  assert.equal(s.n,1);assert.equal(s.games,1);close(s.modelError,.08);close(s.bookError,.5);assert.equal(s.status,'Early recorded results');
+  assert.equal(a.signalSummary([]).modelError,null);
+});
+
+test('Closing comparison distinguishes a late sample from an earlier observation',t=>{
+  const {api:a}=setup(t),r={dec:2.2,kickoff:'2026-09-10T20:00:00Z',closing:{dec:2,at:'2026-09-10T19:55:00Z'}};
+  close(a.signalPriceMove(r).returnChange,.1);assert.equal(a.signalPriceMove(r).nearKickoff,true);
+  r.closing.at='2026-09-10T16:00:00Z';assert.equal(a.signalPriceMove(r).nearKickoff,false);
+});
+
+test('Two-leg ideas reject same-game and cross-book combinations and price refunds correctly',t=>{
+  const {api:a}=setup(t),r={key:'a',event:'one',book:'A',prob:.6,push:0,dec:2,ev:.2,kickoff:future(),flags:[{id:'gap'}]};
+  assert.equal(a.signalBuild([r,{...r,key:'b'}]),null);
+  assert.equal(a.signalBuild([r,{...r,key:'b',event:'two',book:'B'}]),null);
+  assert.equal(a.signalBuild([{...r,market:'first_td'},{...r,key:'b',event:'two',market:'first_td'}]),null);
+  assert.equal(a.signalBuild([{...r,flags:[{id:'check'}]},{...r,key:'b',event:'two',flags:[{id:'check'}]}]),null);
+  const b=a.signalBuild([r,{...r,key:'b',event:'two'}]);close(b.prob,.36);close(b.dec,4);
+  const result=a.signalBuildSettlement({keys:['a','b'],legs:[{dec:2.5},{dec:3}]},{a:{dec:2,settlement:{status:'win'}},b:{dec:3,settlement:{status:'void'}}});
+  close(result.returnPerDollar,2.5);
+});
 test('Football week includes Monday night in Eastern time and rolls over Tuesday, including DST',t=>{
   const {api:a}=setup(t),now=Date.parse('2026-09-11T16:00:00Z');
   assert.equal(a.footballWeek(now).start,'2026-09-08');

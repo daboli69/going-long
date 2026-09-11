@@ -44,3 +44,9 @@ Public charting definitions and release timing: https://nflreadr.nflverse.com/re
 ## Verification
 
 Test price identity, stale/future inputs, both directions, duplicate books/games, immutable pregame logs, no future-outcome leakage, void/refund settlement, probability scoring, missing results, restored storage and weekly stars. Browser test mobile 375/430 px and existing routes. Run existing JS/Python tests and both production builds, then push reviewable commits and check Vercel.
+
+## Implementation review notes
+
+Real-data inspection found First TD estimates as high as +858 cents per dollar. These are model outputs, not established advantages. The UI routes estimates above +25 cents/$1 or player histories older than 120 days to **Model needs checking**, gives that flag no supporting-category credit, and excludes them from two-leg ideas. First TD and scaled period baselines are excluded from builds regardless. These are conservative review gates, not empirically optimized cutoffs.
+
+The local ledger uses IndexedDB (with a limited-storage fallback) because a single observed slate already produced about 3 MB of records. Existing records are immutable except for later price samples, settlements and user saves. Imports preserve existing records and are excluded from automatic validation because their timestamp provenance cannot be established. Accuracy comparisons are version-specific. Browser checks covered weekly save persistence, backup import in a fresh browser context, AND filters, current NCAA/NFL navigation and widths of 375/430 px.

@@ -237,8 +237,8 @@ def build_public_features(seasons, window=12):
                               'play_caller': 'inactive: verified OC assignment history unavailable',
                               'slot_alignment': 'inactive: alignment unavailable',
                               'coverage_adjustment': 'inactive: historical splits exported; matchup calibration pending',
-                              'first_td_probability': 'inactive: competing-scorer calibration pending',
-                              'period_probability': 'inactive: period calibration pending'}, **output)
+                              'first_td_probability': 'baseline in derivatives: competing-scorer calibration pending',
+                              'period_probability': 'baseline in derivatives: period calibration pending'}, **output)
 
 
 def pressure_matchup(offense, defense):
