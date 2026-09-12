@@ -59,6 +59,8 @@ def scan(journal, send=False):
     for q in quotes:journal.append('quote',uid(q),dict(q,observed_at=at))
     report_path=Path(os.getenv('INACTIVES_FILE',str(ROOT/'private/inactives.json')))
     reports=json.loads(report_path.read_text()) if report_path.exists() else {}
+    for report in reports.values():
+        journal.append('inactive_report',uid(report),dict(report,observed_at=at))
     previous={}
     for row in journal.rows('reference'):
         if stamp(row['observed_at'])<now:previous[row['key']]={'at':stamp(row['observed_at']),'probability':row['probability']}
@@ -67,7 +69,7 @@ def scan(journal, send=False):
     settle(journal,data_root,now)
     settlements={s['prediction_id']:s for s in journal.rows('settlement')}
     penalty=feedback(journal.rows('prediction'),settlements,now)
-    predictions,arbs=evaluate(quotes,reports,now,bankroll=float(os.getenv('RESEARCH_BANKROLL','1000')),previous=previous,calibration_penalty=penalty)
+    predictions,arbs=evaluate(quotes,reports,now,bankroll=float(os.getenv('RESEARCH_BANKROLL','1000')),previous=previous,calibration_penalty=penalty,min_ev=float(os.getenv('MIN_EV','0.03')),favorite_ev=float(os.getenv('FAVORITE_MIN_EV','0.025')),fallback_ev=float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')))
     from topdown.secondary import context
     historical=json.loads((data_root/'data/nfl_betting.json').read_text())
     names=json.loads((data_root/'data/history.json').read_text())['betting'].get('team_names',{})
@@ -115,7 +117,7 @@ def scan(journal, send=False):
     try:sync=journal.sync()
     except requests.RequestException:sync={'status':'unavailable_local_journal_retained'}
     books=sorted({q['book'] for q in quotes if q['book']})
-    status={'observed_at':at,'model_version':VERSION,'quote_pairs':len(quotes),'reference_books':sorted(SHARP.intersection(books)),'required_reference_books':2,'research_predictions':len(predictions),'actionable_predictions':sum(p['actionable'] for p in predictions),'arbitrage_candidates':len(arbs),'inactives_configured':bool(reports),'supabase':sync,'notifications_configured':bool(os.getenv('DISCORD_WEBHOOK_URL') or (os.getenv('TELEGRAM_BOT_TOKEN') and os.getenv('TELEGRAM_CHAT_ID'))),'failures':failures,'possibly_truncated':len(responses['props'])>=10000,'calibration_penalty':penalty,'notice':'Research only until two fresh reference books, verified official inactives and all price checks pass. No market-volume or bettor-identity data is available.'}
+    status={'observed_at':at,'model_version':VERSION,'quote_pairs':len(quotes),'reference_books':sorted(SHARP.intersection(books)),'required_reference_books':1,'single_source_extra_hurdle':float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')),'timestamp_desyncs':sum(p.get('timestamp_delta_seconds',0)>60 for p in predictions),'pending_inactives':sum(p.get('inactive_state')=='pending_inactives' for p in predictions),'research_predictions':len(predictions),'actionable_predictions':sum(p['actionable'] for p in predictions),'arbitrage_candidates':len(arbs),'inactives_configured':bool(reports),'supabase':sync,'notifications_configured':bool(os.getenv('DISCORD_WEBHOOK_URL') or (os.getenv('TELEGRAM_BOT_TOKEN') and os.getenv('TELEGRAM_CHAT_ID'))),'failures':failures,'possibly_truncated':len(responses['props'])>=10000,'calibration_penalty':penalty,'notice':'Pinnacle is required; a single reference adds a safety hurdle. Official inactives and all price checks must pass. No market-volume or bettor-identity data is available.'}
     atomic_json(Path(os.getenv('TOPDOWN_STATUS_FILE',str(ROOT/'data/topdown_status.json'))),status)
     journal.append('run',uid(at),status)
     try:journal.sync()

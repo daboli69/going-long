@@ -23,7 +23,7 @@ class TopDownTests(unittest.TestCase):
         picks,_=evaluate(self.quotes,self.reports,self.now);p=next(p for p in picks if p['side']=='Over')
         self.assertTrue(p['actionable']);self.assertAlmostEqual(p['raw_probability'],.5);self.assertAlmostEqual(p['probability'],.49);self.assertAlmostEqual(p['ev'],.078);self.assertGreater(p['proposed_stake'],0)
         for qs,reports in [(self.quotes,{}),(self.quotes[::2],self.reports)]:
-            self.assertFalse(any(p['actionable'] for p in evaluate(qs,reports,self.now)[0]))
+            self.assertFalse(any(p['actionable'] for p in evaluate(qs,reports,self.now,min_sharps=2)[0]))
     def test_future_stale_and_integer_quotes_block(self):
         for updated in ['2026-09-13T16:01:00Z','2026-09-13T15:00:00Z']:
             self.assertEqual(evaluate([dict(q,updated_at=updated) for q in self.quotes],self.reports,self.now)[0],[])

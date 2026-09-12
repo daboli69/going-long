@@ -6,8 +6,9 @@ import statistics
 from urllib.parse import urlparse
 from datetime import datetime, timezone
 
-VERSION = 'topdown-1'
-SHARP = {'pinnacle', 'circa'}
+VERSION = 'topdown-2'
+SHARP = {'pinnacle', 'circa', 'bookmaker', 'betonlineag'}
+BOOK_ALIASES = {'cris':'bookmaker', 'bookmaker_eu':'bookmaker', 'betonline':'betonlineag'}
 RECREATIONAL = {'draftkings', 'fanduel', 'betmgm', 'caesars', 'fanatics', 'betrivers'}
 
 
@@ -87,8 +88,21 @@ def inactive_gate(report, q, now):
     for t in teams:
         published, verified = stamp(t.get('published_at')), stamp(t.get('verified_at'))
         if t.get('status') != 'official_confirmed' or (not t.get('source_url', '').startswith('https://') or urlparse(t.get('source_url','')).hostname not in ('www.nfl.com','nfl.com')) or not t.get('source_sha256') or not isinstance(t.get('inactive_players'), list):return False
-        if published is None or verified is None or not kickoff - 100 * 60 <= published <= verified <= now:return False
+        if published is None or verified is None or not kickoff - 90 * 60 <= published <= verified <= now:return False
     return True
+
+
+def inactive_state(report, q, now):
+    kickoff = stamp(q.get('kickoff'))
+    if kickoff is None or kickoff <= now:return 'closed'
+    if kickoff - now > 5400:return 'pending_inactives'
+    return 'verified' if inactive_gate(report, q, now) else 'awaiting_official_reports'
+
+
+def ev_hurdle(dec, single_source, base=.03, favorite=.025, fallback=.005):
+    if not all(math.isfinite(x) and 0 <= x <= .5 for x in (base,favorite,fallback)):
+        raise ValueError('Invalid estimated-return policy')
+    return (min(base,favorite) if dec < 1.67 else base) + (fallback if single_source else 0)
 
 
 def fresh(q, now, ttl=180):
@@ -100,41 +114,48 @@ def odds_band(d):
     return '<1.67' if d < 1.67 else '1.67–2.00' if d <= 2 else '2.01–3.00' if d <= 3 else '>3.00'
 
 
-def evaluate(quotes, reports, now, bankroll=1000, min_ev=.03, min_sharps=2, previous=None, calibration_penalty=0):
+def evaluate(quotes, reports, now, bankroll=1000, min_ev=.03, min_sharps=1, previous=None, calibration_penalty=0, favorite_ev=.025, fallback_ev=.005):
     buckets = {}
     for q in quotes:
-        if fresh(q, now):buckets.setdefault(q['selection'], {})[q['book']] = q
+        if fresh(q, now):
+            q=dict(q,book=BOOK_ALIASES.get(q['book'],q['book']))
+            existing=buckets.setdefault(q['selection'], {}).get(q['book'])
+            if existing is None or stamp(q['updated_at']) > stamp(existing['updated_at']):
+                buckets[q['selection']][q['book']] = q
     predictions, arbs = [], []
     for key, books in buckets.items():
         sharps = [(b, q, fair_pair(q['prices'])) for b, q in books.items() if b in SHARP]
         sharps = [(b, q, f) for b, q, f in sharps if f]
-        # Avoid treating asynchronous price changes as simultaneous opportunities.
-        if sharps:
-            latest = max(stamp(q['updated_at']) for _, q, _ in sharps)
-            sharps = [(b, q, f) for b, q, f in sharps if latest - stamp(q['updated_at']) <= 60]
         for book, q in books.items():
             if book not in RECREATIONAL:continue
+            aligned=[(b,r,f) for b,r,f in sharps if abs(stamp(r['updated_at'])-stamp(q['updated_at']))<=60]
+            selected=aligned if any(b=='pinnacle' for b,_,_ in aligned) else sharps
+            delta=max((abs(stamp(r['updated_at'])-stamp(q['updated_at'])) for _,r,_ in selected),default=0)
+            single=len(selected)==1
+            state=inactive_state(reports.get(q['event']),q,now)
             for side in (0, 1):
                 if not sharps:continue
-                values = [f['proportional'][side] for _, _, f in sharps]
+                values = [f['proportional'][side] for _, _, f in selected]
                 raw = statistics.median(values)
-                conservative = max(0, min([raw] + [f['power'][side] for _, _, f in sharps]) - .01 - calibration_penalty)
+                conservative = max(0, min([raw] + [f['power'][side] for _, _, f in selected]) - .01 - calibration_penalty)
                 dec = decimal(q['prices'][side]); ev = conservative * dec - 1
                 reasons = []
-                if len(sharps) < min_sharps:reasons.append('Not enough fresh designated reference books')
+                if not any(b=='pinnacle' for b,_,_ in selected):reasons.append('Fresh Pinnacle price is required')
+                if len(selected) < min_sharps:reasons.append('Not enough fresh designated reference books')
+                threshold=ev_hurdle(dec,single,min_ev,favorite_ev,fallback_ev)
                 if max(values) - min(values) > .03:reasons.append('Reference books disagree by more than 3 percentage points')
-                if any(abs(stamp(s['updated_at']) - stamp(q['updated_at'])) > 60 for _, s, _ in sharps):reasons.append('Book timestamps are not closely aligned')
+                if delta > 60:reasons.append(f'Price timestamps differ by {delta:.0f}s; maximum is 60s')
                 if not q['no_refund']:reasons.append('Refund probability or settlement rules are unresolved')
-                if not inactive_gate(reports.get(q['event']), q, now):reasons.append('Both official inactive reports have not been verified in the final window')
+                if state != 'verified':reasons.append('Pending Inactives' if state=='pending_inactives' else 'Awaiting both verified official inactive reports')
                 if q.get('player') and any(q['player'] in team.get('inactive_players',[]) for team in (reports.get(q['event']) or {}).get('teams',[])):reasons.append('Player appears on an official inactive list')
-                if ev < min_ev:reasons.append(f'Below the {100*min_ev:g}% minimum estimated return')
+                if ev < threshold:reasons.append(f'Below the {100*threshold:g}% minimum estimated return')
                 old = (previous or {}).get(key + '|' + str(side)); tags = ['price_disagreement']
                 movement = None
                 if old and 0 < now - old['at'] <= 900:
                     movement = raw - old['probability']
                     if movement >= .015:tags.append('reference_price_moved')
                 stake = bankroll * min(.01, .25 * max(0, ev / (dec - 1))) if not reasons else 0
-                predictions.append(dict(id=uid(VERSION,key,book,side,int(now)),event=q['event'],selection=key,market=q['market'],line=q['line'],player=q.get('player'),home=q['home'],away=q['away'],kickoff=q['kickoff'],book=book,side=q['sides'][side],side_index=side,odds=dec,american=q['prices'][side],raw_probability=raw,probability=conservative,ev=ev,proposed_stake=stake,odds_band=odds_band(dec),actionable=not reasons,reasons=reasons,tags=tags,movement=movement,reference_books=[b for b,_,_ in sharps],reference_times=[s['updated_at'] for _,s,_ in sharps],quoted_at=q['updated_at'],model_version=VERSION,probability_type='conditional_on_no_refund',observed_at=datetime.fromtimestamp(now,timezone.utc).isoformat(),no_refund=q['no_refund']))
+                predictions.append(dict(id=uid(VERSION,key,book,side,int(now)),event=q['event'],selection=key,market=q['market'],line=q['line'],player=q.get('player'),home=q['home'],away=q['away'],kickoff=q['kickoff'],book=book,side=q['sides'][side],side_index=side,odds=dec,american=q['prices'][side],raw_probability=raw,probability=conservative,ev=ev,proposed_stake=stake,odds_band=odds_band(dec),actionable=not reasons,reasons=reasons,tags=tags,movement=movement,reference_books=[b for b,_,_ in selected],reference_times=[s['updated_at'] for _,s,_ in selected],single_source=single,ev_threshold=threshold,timestamp_delta_seconds=delta,inactive_state=state,quoted_at=q['updated_at'],model_version=VERSION,probability_type='conditional_on_no_refund',observed_at=datetime.fromtimestamp(now,timezone.utc).isoformat(),no_refund=q['no_refund']))
         executable = [q for b,q in books.items() if b in RECREATIONAL and q['no_refund']]
         if len(executable) >= 2:
             legs = [max(executable, key=lambda q:decimal(q['prices'][i])) for i in (0,1)]
