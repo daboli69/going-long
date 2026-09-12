@@ -1,6 +1,6 @@
 import markets from '../config/parlay-markets.json' with {type:'json'};
 
-export const SPORT_KEYS={nfl:'americanfootball_nfl',ncaa:'americanfootball_ncaaf'};
+export const SPORT_KEYS={nfl:'americanfootball_nfl',ncaa:'americanfootball_ncaaf',mlb:'baseball_mlb'};
 export const MARKET_MAP=Object.fromEntries(Object.entries(markets).flatMap(([market,keys])=>keys.map(key=>[key,market])));
 const validNumber=v=>typeof v==='number'&&Number.isFinite(v);
 const validOdds=v=>validNumber(v)&&Math.abs(v)>=100?v:null;
@@ -85,6 +85,11 @@ export async function fetchParlay(sport,key,fetcher=fetch){
     if(!Array.isArray(body))throw new Error(`Unexpected Parlay ${endpoint} response`);
     return body;
   };
+  if(sport==='mlb'){
+    const keys=['player_home_runs','player_hits','player_hits_runs_rbis','player_strikeouts','player_total_bases'];
+    const [batches,games]=await Promise.all([Promise.all(keys.map(markets=>get('props',{markets,limit:'10000'}).then(rows=>({market:markets,rows,status:'loaded'})).catch(()=>({market:markets,rows:[],status:'unavailable'})))),get('odds',{markets:'h2h,spreads,totals',regions:'us',oddsFormat:'american'})]);
+    return {provider:'parlay',sport,generated_at:new Date().toISOString(),props:batches.flatMap(b=>b.rows),games_raw:games,coverage:{possibly_truncated:batches.some(b=>b.rows.length>=10000),markets:Object.fromEntries(batches.map(b=>[b.market,{status:b.status,rows:b.rows.length}]))}};
+  }
   const derivativeKeys=Object.entries(markets).filter(([k])=>k==='first_td'||/_1[hq]$/.test(k)).flatMap(([,v])=>v);
   const [raw, games, periods, derivatives]=await Promise.all([
     sport==='nfl'?get('props',{markets:Object.keys(MARKET_MAP).join(','),limit:'10000'}):Promise.resolve([]),

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<base href="/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0C1614">
@@ -497,6 +498,7 @@
 
   .sig-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:12px}.sig-card{min-width:0;border:1px solid #384238;border-radius:12px;padding:16px;background:#171d19}.sig-card p,#btSignalsPanel p{line-height:1.6;color:#bcc7be}.sig-card small{color:#b6beb8}.sig-card .bt-who b,.sig-card .bt-who small{display:block}.sig-card button{flex-shrink:0}.sig-numbers{font-variant-numeric:tabular-nums}.sig-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.sig-actions input{flex:1;min-width:160px}#view-betting #sigFilters{display:flex;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px}#sigFilters button{white-space:nowrap;flex-shrink:0}#sigSlate{display:flex;gap:8px;overflow-x:auto;margin:12px 0}#sigSlate span{padding:12px;border:1px solid #39423b;border-radius:9px;white-space:nowrap}#btSignalsPanel h3{margin-top:28px}#sigCards,#sigIdeas,#sigTrust{scroll-margin-top:150px}#btSignalsPanel a.btn{min-height:44px;display:inline-flex;align-items:center;background:#28332b;color:#e8eee9;font-size:12px;padding:8px;text-decoration:none;flex:1;justify-content:center;white-space:nowrap}#btSignalsPanel details{border-top:1px solid #354037;padding:8px 0}#btSignalsPanel summary{cursor:pointer;display:flex;align-items:center}#btSignalsPanel button,#btSignalsPanel select{padding:8px 12px;border-radius:8px;border:1px solid #566158;background:#202a23;color:#f3f6f3}#btSignalsPanel button[aria-pressed=true]{border-color:#ef824d;color:#ffac7e}#btSignalsPanel h2 small{font-size:12px;color:#ffac7e}#btSignalsPanel{overflow-wrap:anywhere}#sigTrust .sig-card{margin:10px 0}#sigTrust select{max-width:100%}@media(max-width:600px){#btTabGroup{grid-template-columns:repeat(4,minmax(0,1fr))}.sig-card{padding:12px}.sig-card .bt-card-top{flex-wrap:wrap}}
 
+.football-badge{padding:10px;border:1px solid #bf754b;border-radius:8px;color:#ffac7e}.football-badge small{display:block;font-size:11px}.football-notes summary{cursor:pointer;display:flex;align-items:center;min-height:44px}.football-notes li{margin:10px 0;line-height:1.6}.football-notes{font-size:13px;color:#bdc9bf}.football-notes small{display:block;color:#a1afa4}.football-notes ul{padding-left:18px}
 </style>
 </head>
 <body>
@@ -524,6 +526,8 @@
      (or vice versa) on load. All the click-handling logic lives in the
      main script at the bottom — this just sets the starting state. */
   (function(){
+    var requestedMode = new URLSearchParams(location.search).get("mode");
+    if(requestedMode){localStorage.setItem("goinglong.gateway.mode","fantasy");localStorage.setItem("goinglong.view",requestedMode==="fantasy"?"draft":"betting");}
     var mode = localStorage.getItem("goinglong.gateway.mode");
     if(mode !== "gateway"){
       document.documentElement.classList.add("gl-boot-fantasy");
@@ -761,9 +765,9 @@
       <div class="sig-actions"><input id="sigSearch" class="field" type="search" aria-label="Search signals" placeholder="Player or team"><button id="sigSaved" aria-pressed="false">Saved this week</button></div>
       <div id="sigFilters" class="pos-group" aria-label="Require every selected signal"></div><small>Selected filters must all match.</small>
       <p id="sigStatus" role="status">Checking current prices and available evidence…</p>
-      <details><summary>What is available right now?</summary><p id="sigAvailability"></p><p>Price comparison and historical-model disagreement are available with fresh matched quotes. Role, pace and pressure need observations within 45 days plus enough measured plays. Older observations stay visible in model details but do not establish a current role.</p><p>True routes, current injuries, defense by position, drops/luck, career milestones and weekly advanced-stat trends are not supported here yet. Pass-snap charting is credited to FTN Data via nflverse; it is not route tracking. Missing charting never counts as zero.</p></details>
+      <details><summary>What is available right now?</summary><p id="sigAvailability"></p><p>Price comparison and historical-model disagreement are available with fresh matched quotes. Role, pace and pressure need observations within 45 days plus enough measured plays. Older observations stay visible in model details but do not establish a current role.</p><p>True routes, current injuries, receiver alignment, drops/luck, career milestones and weekly advanced-stat trends are not supported here yet. Opportunity research includes dated position-based defensive comparisons. Pass-snap charting is credited to FTN Data via nflverse; it is not route tracking. Missing charting never counts as zero.</p></details>
       <h3>Games worth inspecting</h3><p>Counts describe available looks, not how much to bet. Multiple looks can depend on the same game outcome.</p><div id="sigSlate"></div>
-      <div id="sigCards"></div><button id="sigMore" hidden>Show 40 more</button>
+      <details><summary>Opportunity &amp; coaching research</summary><section id="footballResearch"></section></details><div id="sigCards"></div><button id="sigMore" hidden>Show 40 more</button>
       <h3>Two-leg ideas</h3><p>Full-game selections at the same book, from different games. First TD, period baselines and flagged model checks are excluded. The combined chance assumes the legs do not affect each other; shared model errors can still affect both. Payouts below multiply single prices and are illustrations, not bookmaker quotes. Check the actual ticket. Same-game and pick’em builds need separate payout and joint-outcome models, so they are not priced here.</p><div id="sigIdeas" class="sig-grid"></div>
       <section id="sigTrust" aria-label="Saved predictions and outcomes"></section>
     </section>
@@ -851,7 +855,7 @@
   // Fill this in once your Going Yard app has a URL. Until then the
   // betting card opens a labeled placeholder instead of pretending to
   // merge two separate codebases.
-  const GOING_YARD_URL = "https://daboli69.github.io/hr-board/";
+  const GOING_YARD_URL = "/yard/";
 
   const gateway = document.getElementById("gateway");
   const app = document.getElementById("app-goinglong");
@@ -883,7 +887,7 @@
   }
 
   function setView(name){
-    if(name === "gateway"){ showGateway(); return; }
+    if(name === "gateway"){ location.href="/"; return; }
     const route = name === "settings" ? "draft" : name;
     if(!views[route]) { setView("betting"); return; }
     localStorage.setItem("goinglong.view",route);
@@ -3039,7 +3043,7 @@ async function loadBettingData(){
   try{
     // Fetch and JSON.parse live on a worker, including the large raw API
     // payload. Only structured data crosses back to the main thread.
-    const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url,fallback])=>{try{const r=await fetch(url,{cache:'no-cache'});if(r.ok)return[key,await r.json()];}catch{}const r=await fetch(fallback,{cache:'no-cache'});return[key,r.ok?await r.json():null]}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
+    const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url,fallback])=>{try{const r=await fetch(url,{cache:'no-cache'});if(r.ok)return[key,await r.json()];}catch{}try{const r=await fetch(fallback,{cache:'no-cache'});return[key,r.ok?await r.json():null]}catch{return[key,null]}}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
     const blob=URL.createObjectURL(new Blob([workerSource],{type:"text/javascript"}));
     let worker;
     const files=await new Promise((resolve,reject)=>{
@@ -3047,9 +3051,9 @@ async function loadBettingData(){
       try{worker=new Worker(blob);}catch(e){clearTimeout(timer);reject(e);return;}
       worker.onmessage=({data})=>{clearTimeout(timer); data.ok?resolve(data.files):reject(new Error(data.error));};
       worker.onerror=()=>{clearTimeout(timer);reject(new Error("Background data loader failed"));};
-      worker.postMessage([['nfl','nfl_betting.json'],['ncaa','ncaa_lines.json'],['history','history.json'],['config','data.json']].map(([k,p])=>[k,new URL('api/snapshot?file='+p,document.baseURI).href,new URL('data/'+p,document.baseURI).href]));
+      worker.postMessage([['nfl','nfl_betting.json'],['ncaa','ncaa_lines.json'],['history','history.json'],['config','data.json'],['context','football_context.json']].map(([k,p])=>[k,new URL('api/snapshot?file='+p,document.baseURI).href,new URL('data/'+p,document.baseURI).href]));
     }).finally(()=>{worker?.terminate();URL.revokeObjectURL(blob);});
-    BET.nflData=files.nfl; BET.ncaaData=files.ncaa; BET.history=files.history?.betting;
+    BET.nflData=files.nfl; BET.ncaaData=files.ncaa; BET.history=files.history?.betting; BET.context=files.context;
     S.history=files.history; S.pipeline=files.config;
     BET.config=files.config?.betting||{};
     BET.props=await propsFromRealData();
@@ -3299,6 +3303,58 @@ function projectionBoard(){
   projectionCache={week,props:BET.props,games:BET.games,history:BET.history,rows:result};
   return result;
 }
+// Football-native explanations generated only from published observations.
+function footballScope(team){
+ const h=BET.context;if(!h?.scopes)return null;
+ const current=h.scopes[String(h.season)];return current?.teams?.[team]?.games>=3?current:h.scopes[String(h.season-1)];
+}
+function footballOpportunity(p){
+ const h=BET.context,scope=footballScope(p.team),r=scope?.players?.[p.profileId];
+ if(!r||r.team!==p.team||!['WR','TE'].includes(r.position))return null;
+ return {...r,historical:scope.season!==h.season,scope};
+}
+function footballOpportunityMarkup(p){
+ const r=footballOpportunity(p);if(!r?.opportunity_flag)return '';
+ return `<p class="football-badge">${r.historical?r.season+' research · ':''}Playing time ahead of results <small>${r.share_type==='passing_snap_proxy'?'Passing-snap proxy':'Offensive snaps, including blocking'} · not measured routes</small></p>`;
+}
+let footballLineCache=null;
+function footballGameLines(p){
+ const minute=Math.floor(Date.now()/60000);if(footballLineCache?.games!==BET.games||footballLineCache?.minute!==minute){const map=new Map();for(const g of BET.games){if(g.sport!=='nfl'||!activeGameQuote(g))continue;const key=signalEvent('nfl',g.homeCode||g.home,g.awayCode||g.away,g.kickoff);if(!map.has(key))map.set(key,{spread:new Map(),total:new Map()});const b=map.get(key);if(currentGameMarket(g,'spreads')&&finiteNumber(g.spread))b.spread.set(g.book,g.spread);if(currentGameMarket(g,'totals')&&finiteNumber(g.total))b.total.set(g.book,g.total);}footballLineCache={games:BET.games,map,minute};}
+ const key=signalEvent('nfl',p.eventTeams?.[0]||p.home,p.eventTeams?.[1]||p.away,p.kickoff),g=footballLineCache.map.get(key);
+ return {spread:signalMedian([...(g?.spread.values()||[])]),total:signalMedian([...(g?.total.values()||[])])};
+}
+function footballNotes(p){
+ const notes=[],h=BET.context,scope=footballScope(p.team),r=footballOpportunity(p),t=scope?.teams?.[p.team],opp=p.opp||p.eventTeams?.find(x=>x!==p.team),defScope=footballScope(opp),position=BET.history?.profiles?.[p.profileId]?.position,base=p.market.replace(/_1[hq]$/,''),logs=(BET.history?.profiles?.[p.profileId]?.games||[]).filter(g=>finiteNumber(g[base])).slice(-6);
+ if(logs.length&&['pass_yds','rush_yds','rec_yds','receptions'].includes(base))notes.push(`${logs.length} published games through ${logs.at(-1).date}: averaged ${(logs.reduce((s,g)=>s+g[base],0)/logs.length).toFixed(1)} ${base==='receptions'?'catches':base==='pass_yds'?'passing yards':base==='rush_yds'?'rushing yards':'receiving yards'}.`);
+ if(r?.share!=null)notes.push(`${r.season}, ${r.games} games (${r.first_game} to ${r.last_game}): ${(100*r.share).toFixed(0)}% ${r.share_type==='passing_snap_proxy'?'of charted team passing plays on the field':'offensive snap share, which includes blocking'}. ${r.position_average!=null?`Comparable ${r.position}s averaged ${(100*r.position_average).toFixed(0)}% (${r.peer_count} players).`: 'Not enough comparable players to rank this share.'} These are not measured routes.`);
+ if(r?.catch_model_targets>=20)notes.push(`${r.actual_catches} catches on ${r.catch_model_targets} throws with a public completion estimate; ${r.expected_catches.toFixed(1)} catches expected. ${r.catches_short>0?'Results fell short of the estimate; this does not establish drops or bad luck.':'Results met or exceeded that estimate.'}`);
+ const lines=footballGameLines(p),teamSpread=lines.spread==null?null:(p.eventTeams?.[0]===p.team?lines.spread:-lines.spread);
+ if(lines.total!=null)notes.push(`Bookmakers' typical game total is ${lines.total} points.${teamSpread!=null?` ${p.team} is ${teamSpread<0?'favored by':'an underdog by'} ${Math.abs(teamSpread)} points.`:''} ${teamSpread>=3?'Falling behind could add passing work.':teamSpread<=-3?'Protecting a lead could add rushing work.':'No strong lead/chase assumption.'}`);
+ if(t?.games>=3)notes.push(`${scope.season} offense, through ${t.last_game}: ${t.plays_per_game.toFixed(1)} regulation plays per game; ${t.pace_seconds?.toFixed(1)??'unknown'} seconds between measured plays in close games. ${t.pass_over_expected==null?'Passing tendency is unavailable.':`Passed ${t.pass_over_expected>=0?'more':'less'} often than the public play model expected (${Math.abs(100*(t.pass_over_expected||0)).toFixed(1)} percentage points).`}`);
+ const d=defScope?.defense_receiving?.[`${opp}|${position==='QB'?'WR':position}`];
+ if(d?.status==='observed')notes.push(`${opp}'s ${defScope.season} defense allowed ${d.yards_per_target.toFixed(1)} yards per ${position==='QB'?'WR':position} target over ${d.targets} targets in ${d.games} games. After accounting for those receivers' other opponents, the estimate is ${Math.abs(d.adjusted_extra_yards_per_target).toFixed(1)} yards ${d.adjusted_extra_yards_per_target>=0?'above':'below'} their reference per target. This measures position, not slot or outside alignment.`);
+ if(base==='rush_yds'){const d=defScope?.defenses?.[opp];if(d?.carries>=100)notes.push(`${opp}'s ${defScope.season} defense allowed ${d.run_yards_per_carry.toFixed(1)} yards per designed carry across ${d.carries} carries; quarterback scrambles are excluded.`);}
+ const game=h?.games?.find(g=>g.home===p.eventTeams?.[0]&&g.away===p.eventTeams?.[1]&&Math.abs(Date.parse(g.kickoff)-Date.parse(p.kickoff))<6*3600000);
+ if(game?.roof)notes.push(`Schedule lists the roof as ${game.roof}. No weather or roof scoring bonus is applied.`);
+ const staff=h?.coaches?.teams?.[p.team];if(staff)notes.push(`Current staff: ${staff.head_coach} (head coach), ${staff.offensive_coordinator} (offensive coordinator), ${staff.play_caller} (play-caller). Earlier team statistics are not automatically credited to this caller.`);
+ return notes;
+}
+function footballNoteMarkup(p){const notes=footballNotes(p);return `<details class="football-notes"><summary>Why this matchup matters</summary>${notes.length?'<ul>'+notes.map(n=>'<li>'+esc(n)+'</li>').join('')+'</ul>':'<p>Published matchup context is unavailable. No narrative has been filled in.</p>'}<small>Generated from recorded data. Historical patterns are not a promised betting advantage.</small></details>`;}
+function footballCoachMarkup(home,away,kickoff){
+ const h=BET.context,game=h?.games?.find(g=>g.home===home&&g.away===away&&Math.abs(Date.parse(g.kickoff)-Date.parse(kickoff))<6*3600000);if(!game)return '';
+ const rows=[[game.home_coach,game.away_coach],[game.away_coach,game.home_coach]].filter(([a,b])=>a&&b).map(([a,b])=>{const r=h.coach_meetings?.[a+'|'+b];return r?`${a} vs ${b}: ${r.wins} wins in ${r.games} meetings, ${r.ties} ties. ${r.priced_games} games had a recorded closing spread; beat it ${r.covers} times, tied it ${r.refunds} times. ${r.historically_behind?'Repeatedly finished below the market expectation in this historical sample.':'Not enough evidence for a repeated-disadvantage badge.'}`:`${a} vs ${b}: no qualifying recorded meetings.`;});
+ return `<details class="football-notes"><summary>Coaches in this matchup</summary>${rows.map(n=>'<p>'+esc(n)+'</p>').join('')}<small>Past teams, quarterbacks and injuries also drove these results. This does not isolate coaching ability.</small></details>`;
+}
+function renderFootballResearch(){
+ const el=$('footballResearch');if(!el)return;el.hidden=BET.sport!=='nfl';if(BET.sport!=='nfl')return;
+ const h=BET.context;if(!h){el.innerHTML='<p>Football opportunity data is unavailable. Existing odds remain usable.</p>';return;}
+ const year=Number($('footballSeason')?.value)||h.season,scope=h.scopes[String(year)],pos=$('footballPosition')?.value||'ALL';
+ const players=Object.values(scope?.players||{}).filter(p=>p.opportunity_flag&&(pos==='ALL'||p.position===pos)).sort((a,b)=>b.share-a.share);
+ const missing=Object.entries(h.sources||{}).filter(([key,value])=>key.endsWith('_'+year)&&value.status!=='loaded').map(([key])=>key.split('_')[0]);
+ const content=`<h3>Playing time ahead of results</h3><p>Data checked ${esc(h.as_of)}.${missing.length?' Not published or temporarily unavailable: '+missing.map(esc).join(', ')+'. Missing inputs are not treated as zero.':''}</p><p>WRs are compared with WRs; TEs with TEs. A flag needs at least 3 games, 20 throws with a completion estimate, share 5 percentage points above comparable players, and at least 2 fewer catches than expected. Those cutoffs are screening rules, not proven increases in win chance.</p><div class="sig-actions"><label>Observation season <select id="footballSeason"><option value="${h.season}" ${year===h.season?'selected':''}>${h.season} current</option><option value="${h.season-1}" ${year!==h.season?'selected':''}>${h.season-1} historical research</option></select></label><label>Position <select id="footballPosition"><option value="ALL">WR + TE</option><option ${pos==='WR'?'selected':''}>WR</option><option ${pos==='TE'?'selected':''}>TE</option></select></label></div><p>${year===h.season?'Current all-player routes are not available. Offensive snap share includes blocking. Early in the season, three-game evidence may not exist yet.':'Prior-season passing-snap charting is a route proxy. These roles may have changed; do not treat the badges as current usage.'}</p><div class="sig-grid">${players.map(p=>`<article class="sig-card"><b>${esc(p.name)} · ${p.position} · ${esc(p.team)}</b><p>${(100*p.share).toFixed(0)}% share versus ${(100*p.position_average).toFixed(0)}% position average. ${p.catches_short.toFixed(1)} fewer catches than the completion model expected.</p><small>${p.games} games through ${p.last_game} · ${p.share_type==='passing_snap_proxy'?'Passing-snap proxy':'All offensive snaps'} · not measured routes</small></article>`).join('')||'<p>No players meet the evidence requirements for this selection yet.</p>'}</div><details><summary>Offenses, personnel & current play-callers</summary><p>11 personnel means one running back, one tight end and three receivers. These are measured team-season tendencies. Staff titles come from the linked dated source; they do not prove who called an earlier season’s plays.</p><a href="${esc(h.coaches.source||'#')}" target="_blank" rel="noopener">Staff source · verified ${esc(h.coaches.verified_at||'unavailable')}</a><div class="sig-grid">${Object.entries(h.coaches.teams||{}).map(([team,c])=>{const t=scope?.teams?.[team],d=scope?.defenses?.[team];return `<article class="sig-card"><b>${team} · ${esc(c.play_caller)}</b><p>HC ${esc(c.head_coach)} · OC ${esc(c.offensive_coordinator)} · DC ${esc(c.defensive_coordinator)}</p>${t?`<p>${year} team offense: ${t.pass_over_expected==null?'Passing tendency unavailable':(100*t.pass_over_expected).toFixed(1)+' percentage points above expected passing'}; ${t.pace_seconds?.toFixed(1)??'—'} seconds/play in close games.<br>First 15 plays: ${percent(t.opening_pass_rate)} passing; RB target share ${percent(t.rb_target_share)}, TE target share ${percent(t.te_target_share)}.<br>11 personnel: ${percent(t.personnel_11_share)} (${t.personnel_n} charted plays). Defense sent at least five rushers on ${percent(d?.five_plus_rusher_rate)} of ${d?.rushers_n||0} charted passing plays. Cover 2 (two deep safeties in zone): ${d?.shell_n?percent((d.shell_COVER_2||0)/d.shell_n):'—'} of ${d?.shell_n||0} labeled coverage plays.</p><small>Through ${t.last_game}; ${t.games} games. Coverage shells and receiver alignment are different data.</small>`:'<p>No published team sample yet.</p>'}</article>`;}).join('')}</div></details>`;
+ el.innerHTML=content;el.querySelectorAll('select').forEach(s=>s.onchange=renderFootballResearch);
+}
+
 function featureMarkup(p){
   const f=p.features,t=BET.history?.features?.nfl?.teams?.[p.team];if(!f)return '<p class="bt-note">Detailed public play data is unavailable for this player.</p>';
   const fmt=n=>finiteNumber(n)?n.toFixed(1):'Unavailable';
@@ -3311,6 +3367,7 @@ function propMarkup(p,row,rank=1){
   const logs=BET.history?.profiles?.[p.profileId]?.games||[];
   return `<article class="bt-row" data-projection-only="${p.source==='projection'||p.market==='first_td'}" data-prop-id="${esc(p.id)}">
     <div class="bt-card-top">${teamBadge(p.team)}<div class="bt-who"><b>${esc(p.player)}</b><small>${esc(p.team)} ${p.opp?'vs '+esc(p.opp):''} · ${esc(p.market==='atd'&&p.line>.5?'Total TDs':MARKET_LABEL[p.market]||p.market)}</small></div><span class="bt-book-badge">${esc(p.book||'Manual')}${p.dfs?' · Pick’em':''}</span></div>
+    ${footballOpportunityMarkup(p)}${footballNoteMarkup(p)}
     ${p.market==='first_td'?firstTdStrip(p):`<div class="bt-projection-strip"><div><label>MODEL ${p.market==='atd'?'E[TD]':''}</label><b class="bt-model-value">${fmt(mean)}</b></div><div><label>BOOK LINE</label><b>${p.market==='atd'?((p.line??.5)%1===.5?`${Math.ceil(p.line??.5)}+ TD`:`O ${p.line} TD`):p.line??'—'}</b></div><div><label>${['atd','first_td'].includes(p.market)?'YES':'OVER'}</label><b>${americanOddsLabel(p.overOdds)}</b></div><div><label>${['atd','first_td'].includes(p.market)?'NO':'UNDER'}</label><b>${americanOddsLabel(p.underOdds)}</b></div></div>`}
     <div class="bt-edge"><span>${p.market==='first_td'?'Probability edge':'Model − line'}</span><strong>${p.market==='first_td'?(p.model?.probability!=null&&americanToDecimal(p.overOdds)?`Model chance − price break-even chance: ${percent(p.model.probability-1/americanToDecimal(p.overOdds))}`:'No comparable price'):finiteNumber(mean)&&finiteNumber(p.line)?`${mean-p.line>=0?'+':''}${fmt(mean-p.line)} ${p.market.includes('yds')?'yds':''}`:'No comparable market line'}</strong></div>
     <div class="bt-metric-labels"><span>Model side</span><span>Price</span><span>Win</span><span title="Estimated profit or loss per $1 over many repeated bets">Return/$1</span><span title="Model-based bankroll share; reduced to limit exposure to estimation mistakes">Bet size</span></div><div class="bt-metrics">${metricMarkup(row)}</div>
@@ -3461,7 +3518,7 @@ function renderGamesList(){
     const cell=(title,q,line,price)=>`<span><small>${esc(title)}</small><b>${q?esc(line(q)):'—'}</b><em>${q?americanOddsLabel(q[price])+' · '+esc(q.book||'Snapshot'):'No current quote'}</em></span>`;
     return `<article class="bt-game"><button class="bt-game-summary" data-compare="${index}" aria-haspopup="dialog" aria-label="Compare odds for ${esc(g.away)} at ${esc(g.home)}"><span class="bt-game-head"><b>${esc(g.away)} @ ${esc(g.home)}</b><span class="bt-coverage ${count?'':'off'}">${count?'● '+count+' Books':'Off the Board'}</span></span><time>${g.kickoff?esc(new Date(g.kickoff).toLocaleString()):'Kickoff unavailable'}</time>
       <span class="bt-best-grid">${cell('Home spread',best.spread,q=>(q.spread>0?'+':'')+q.spread,'homeSpreadOdds')}${cell('Total · Over',best.total,q=>'O '+q.total,'overOdds')}${cell('Home ML',best.ml,()=>g.homeCode||g.home,'mlHome')}</span>
-      <span class="bt-compare-hint"><span>Best lines · Compare books →</span>${bestEV?.ev>0?`<strong>Est. return ${percent(bestEV.ev)} · ${esc(bestEV.side)}</strong>`:''}</span></button></article>`;
+      <span class="bt-compare-hint"><span>Best lines · Compare books →</span>${bestEV?.ev>0?`<strong>Est. return ${percent(bestEV.ev)} · ${esc(bestEV.side)}</strong>`:''}</span></button>${footballCoachMarkup(g.homeCode||g.home,g.awayCode||g.away,g.kickoff)}</article>`;
   }).join('')||'<div class="bt-empty">No active odds match this view. Choose All Games / Off Board or refresh.</div>';
   const periodFeed=BET.sport==='nfl'?BET.nflData:BET.ncaaData,periodQuotes=(periodFeed?.period_quotes||[]).filter(q=>inCurrentFootballWeek(q.kickoff));
   if(periodQuotes.length)$('btGamesList').insertAdjacentHTML('beforeend',`<details class="bt-period-list"><summary>1Q / 1H markets · ${periodQuotes.length} quotes</summary><p class="bt-note">Use the 1st Half / 1st Quarter tabs for estimated returns. In-play prices never use pregame projections. Latest 150 quotes shown.</p><div class="bt-sheet-scroll"><table class="bt-odds-matrix"><thead><tr><th>Game / book</th><th>Period</th><th>Line</th><th>Price</th></tr></thead><tbody>${periodQuotes.slice(0,150).map(q=>`<tr><td>${q.home_team&&q.away_team?esc(q.away_team)+' @ '+esc(q.home_team):'Event '+esc(q.match_id)}<small>${esc(q.source)}</small></td><td>${esc(q.period_key)}<small>${esc(q.market)}</small></td><td>${esc(q.team||'')} ${esc(q.side)} ${esc(q.line??'')}</td><td>${americanOddsLabel(q.price)}</td></tr>`).join('')}</tbody></table></div></details>`);
@@ -3469,8 +3526,8 @@ function renderGamesList(){
   $('btGamesResult').textContent=$('btGamesCount').textContent;
 }
 // Versioned, descriptive screening rules. No flag changes the model probability.
-const SIGNAL_VERSION='football-signals-1';
-const SIGNAL_NAMES={price:'Better price here',gap:'Model and price disagree',demand:'Targets when on the field',chase:'Catching-up workload',protect:'Protecting a lead',pace:'More plays possible',pressure:'Passing under pressure',check:'Model needs checking'};
+const SIGNAL_VERSION='football-signals-2';
+const SIGNAL_NAMES={price:'Better price here',gap:'Model and price disagree',demand:'Targets when on the field',chase:'Catching-up workload',protect:'Protecting a lead',pace:'More plays possible',pressure:'Passing under pressure',check:'Model needs checking',opportunity:'Playing time ahead of results',position_room:'Room against this position',coach_history:'Coaching history caution'};
 const SIGNAL_GROUPS={market:'Price shopping',model:'Model disagreement',role:'Role & game flow',matchup:'Defensive pressure',audit:'Model checks · not pick recommendations'};
 const SIGNAL_STORE='goinglong.signals.v1';
 let SIGNAL={filters:new Set(),query:'',savedOnly:false,limit:40,rows:[],version:0,cache:null,results:null,resultsAt:0,resultNote:'Results not loaded yet.',message:'',ledger:{version:1,records:{},builds:[]}};
@@ -3504,6 +3561,8 @@ function signalFlags(c,peers,history,now=Date.now()){
  if(c.kind==='prop'){
   const f=history?.features?.nfl?.players?.[`${c.team}|${c.profileId}`],t=history?.features?.nfl?.teams?.[c.team],op=history?.features?.nfl?.teams?.[c.opp];
   c.evidence={playerObservedAt:f?.last_game,chartingAt:f?.last_participation_game,teamObservedAt:t?.last_game,opponentObservedAt:op?.last_game,passSnaps:f?.pass_snaps_proxy,participation:f?.pass_snap_participation_proxy,targetRate:f?.targets_per_pass_snap_proxy,chartingCoverage:t?.participation_coverage,targets:f?.targets,carries:f?.carries,teamPace:t?.pace_seconds,opponentPace:op?.pace_seconds};
+  const role=footballOpportunity(c);if(role?.opportunity_flag){add('opportunity',!role.historical&&signalFresh(role.last_game,now)&&['rec_yds','receptions'].includes(c.market)&&c.side==='Over'?'role':'audit',`${role.season} ${role.share_type==='passing_snap_proxy'?'passing-snap proxy':'offensive snap'} share ${(100*role.share).toFixed(0)}%, versus ${(100*role.position_average).toFixed(0)}% for comparable ${role.position}s. Catches were ${role.catches_short.toFixed(1)} below the completion estimate. ${role.historical?'Historical role; current usage is unconfirmed.':'This is opportunity evidence, not proof the missed production will arrive.'}`);c.evidence.opportunity={season:role.season,last_game:role.last_game,share:role.share,average:role.position_average,catch_gap:role.catches_short};}
+  const ds=footballScope(c.opp),allow=ds?.defense_receiving?.[`${c.opp}|${c.position}`];if(['rec_yds','receptions'].includes(c.market)&&c.side==='Over'&&allow?.status==='observed'&&allow.adjusted_extra_yards_per_target>=1)add('position_room',ds.season===BET.context?.season?'matchup':'audit',`${ds.season}: ${c.opp} allowed ${allow.adjusted_extra_yards_per_target.toFixed(1)} extra yards per ${c.position} target after accounting for the receivers faced (${allow.targets} targets, ${allow.games} games). Position-based, not slot/X charting; prior-season personnel may have changed.`);
   const recent=signalFresh(f?.last_game,now),receiving=['rec_yds','receptions'].includes(c.market),over=c.side==='Over';
   if(receiving&&over&&recent&&signalFresh(f?.last_participation_game,now)&&f.pass_snaps_proxy>=50&&t?.participation_coverage>=.8&&f.targets_per_pass_snap_proxy>=.25&&f.pass_snap_participation_proxy<.7)
    add('demand','role',`${(100*f.targets_per_pass_snap_proxy).toFixed(0)} targets per 100 charted passing snaps, but on the field for only ${(100*f.pass_snap_participation_proxy).toFixed(0)}% of charted passing plays. Pass snaps are a route proxy; more playing time is not guaranteed.`);
@@ -3517,6 +3576,7 @@ function signalFlags(c,peers,history,now=Date.now()){
   if(c.position==='QB'&&recent&&signalFresh(op?.last_game,now)&&pressure?.status==='proxy'&&pressure.pressure_rate_delta>=.03&&((c.market==='pass_yds'&&c.side==='Under')||(c.market==='rush_yds'&&over)))
    add('pressure','matchup','Recent charted pressure supports less passing production or more scrambling. This is an observed association and may already be reflected in the model.');
  }
+ if(c.kind==='game'&&c.team&&BET.context){const game=BET.context.games?.find(g=>g.home===c.home&&g.away===c.away&&Math.abs(Date.parse(g.kickoff)-Date.parse(c.kickoff))<6*3600000);if(game){const coach=c.team===c.home?game.home_coach:game.away_coach,opp=c.team===c.home?game.away_coach:game.home_coach,r=BET.context.coach_meetings?.[coach+'|'+opp];if(r?.historically_behind)add('coach_history','audit',`${coach} beat the closing spread in ${r.covers} of ${r.priced_games} recorded meetings with ${opp}. The average finish was ${r.average_vs_spread.toFixed(1)} points against that expectation. Teams and quarterbacks confound this history; no probability boost is applied.`);}}
  return flags;
 }
 function signalGrade(record,results,now=Date.now()){
@@ -3627,14 +3687,14 @@ function signalTrustMarkup(){
 async function renderSignals(){
  const panel=$('btSignalsPanel');if(!panel||BET.tab!=='signals')return;
  const version=++SIGNAL.version;await signalStorageReady;await signalLoadResults();const rows=await signalCandidates();if(version!==SIGNAL.version||BET.tab!=='signals')return;
- SIGNAL.rows=rows;signalTrack(rows);$('btOverview').innerHTML='';
+ SIGNAL.rows=rows;signalTrack(rows);renderFootballResearch();$('btOverview').innerHTML='';
  const q=SIGNAL.query.toLowerCase(),visible=rows.filter(c=>c.sport===BET.sport&&c.flags.length&&[...SIGNAL.filters].every(id=>c.flags.some(f=>f.id===id))&&(!SIGNAL.savedOnly||SIGNAL.ledger.records[c.key]?.starWeek===footballWeek().start)&&(!q||`${c.player} ${c.home} ${c.away}`.toLowerCase().includes(q)));
- const chartDates=Object.values(BET.history?.features?.nfl?.teams||{}).map(t=>t.last_participation_game).filter(Boolean).sort();$('sigAvailability').textContent=`NFL participation charting ends ${chartDates.at(-1)||'at an unavailable date'}. Current-role flags require charting within 45 days. No current injury feed is connected.`;
+ const chartDates=Object.values(BET.history?.features?.nfl?.teams||{}).map(t=>t.last_participation_game).filter(Boolean).sort();$('sigAvailability').textContent=`NFL participation charting ends ${chartDates.at(-1)||'at an unavailable date'}. Current passing-role flags need fresh charting. Opportunity research also separates published current offensive snaps from prior-season passing snaps. No current injury feed is connected.`;
  $('sigStatus').textContent=SIGNAL.message||`${visible.length} flagged selections. Observations record only while Signals is open. Multiple books count as one selection.`;
  $('sigFilters').innerHTML=Object.entries(SIGNAL_NAMES).map(([id,name])=>`<button data-sig-filter="${id}" aria-pressed="${SIGNAL.filters.has(id)}">${name}</button>`).join('');
  const slate=new Map();for(const c of visible){if(!slate.has(c.event))slate.set(c.event,{name:`${c.away} @ ${c.home}`,contracts:0,families:new Set()});const g=slate.get(c.event);g.contracts++;c.families.forEach(f=>g.families.add(f));}
  $('sigSlate').innerHTML=[...slate.values()].sort((a,b)=>b.families.size-a.families.size||b.contracts-a.contracts).map(g=>`<span><b>${esc(g.name)}</b> · ${g.contracts} looks / ${g.families.size} categories</span>`).join('')||'No supported signals for this view.';
- const shown=visible.slice(0,SIGNAL.limit),groups=new Map();for(const c of shown){const family=c.flags.some(f=>f.id==='check')?'audit':c.families.includes('market')?'market':c.families[0];if(!groups.has(family))groups.set(family,[]);groups.get(family).push(c);}
+ const shown=visible.slice(0,SIGNAL.limit),groups=new Map();for(const c of shown){const family=c.flags.some(f=>f.id==='check')?'audit':c.families.includes('market')?'market':c.families[0]||'audit';if(!groups.has(family))groups.set(family,[]);groups.get(family).push(c);}
  $('sigCards').innerHTML=[...groups].map(([family,items])=>`<h3>${SIGNAL_GROUPS[family]}</h3><div class="sig-grid">${items.map(c=>signalCard(c,rows.indexOf(c))).join('')}</div>`).join('')||'<p>No current plays meet these filters. Clear a chip or wait for fresh prices; absent data is not a negative signal.</p>';
  $('sigMore').hidden=visible.length<=SIGNAL.limit;
  const suggestions=['prob','ev'].map((sort,i)=>{const b=signalBuild(rows.filter(c=>c.sport===BET.sport),sort);return b?`<article class="sig-card"><h4>${i?'Larger estimated return':'Higher estimated chance'}</h4><p>${b.legs.map(c=>`${esc(c.player)} ${esc(c.side)} ${esc(c.line)} (${esc(c.book)})`).join('<br>')}</p><p>Estimated chance both win: ${percent(b.prob)}. Illustrative return: $${b.dec.toFixed(2)} per $1 if both win.</p><button data-sig-build="${sort}">Save this idea</button></article>`:'<p>Not enough eligible, different-game legs at the same book for this build.</p>';});

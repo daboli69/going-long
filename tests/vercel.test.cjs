@@ -25,3 +25,11 @@ test('Vercel snapshot endpoint validates file paths and falls back during upstre
  res=response();await handler({method:'GET',url:'/api/snapshot?file=data.json'},res);assert.equal(res.statusCode,200);assert.equal(res.headers['X-Snapshot-Source'],'packaged');assert.ok(JSON.parse(res.body).betting);
  }finally{global.fetch=before;}
 });
+
+test('Shared baseball snapshots allow only public assets and coalesce requests',async()=>{
+ const {default:handler}=await import('../api/yard-snapshot.mjs');const before=global.fetch;let calls=0;
+ try{global.fetch=async url=>{calls++;assert.equal(url,'https://raw.githubusercontent.com/daboli69/hr-board/main/docs/board.json');return Response.json({players:[]});};
+  const bad=response();await handler({method:'GET',url:'/api/yard-snapshot?file=../secret'},bad);assert.equal(bad.statusCode,400);assert.equal(calls,0);
+  const a=response(),b=response();await Promise.all([handler({method:'GET',url:'/api/yard-snapshot?file=board.json'},a),handler({method:'GET',url:'/api/yard-snapshot?file=board.json'},b)]);assert.equal(calls,1);assert.equal(a.statusCode,200);assert.deepEqual(JSON.parse(b.body),{players:[]});
+ }finally{global.fetch=before;}
+});

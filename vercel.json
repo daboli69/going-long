@@ -4,10 +4,88 @@
   "buildCommand": "node scripts/build_vercel.mjs",
   "outputDirectory": "dist/vercel",
   "functions": {
-    "api/*.mjs": { "maxDuration": 60, "includeFiles": "data/*.json" }
+    "api/*.mjs": {
+      "maxDuration": 60,
+      "includeFiles": "data/*.json"
+    }
   },
   "headers": [
-    { "source": "/", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] },
-    { "source": "/data/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }] }
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/data/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/:sport(long|yard)/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/long",
+      "destination": "/long/",
+      "permanent": true
+    },
+    {
+      "source": "/yard",
+      "destination": "/yard/",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/yard/board.json",
+      "destination": "/api/yard-snapshot?file=board.json"
+    },
+    {
+      "source": "/yard/odds.json",
+      "destination": "/api/yard-snapshot?file=odds.json"
+    },
+    {
+      "source": "/yard/history.json",
+      "destination": "/api/yard-snapshot?file=history.json"
+    },
+    {
+      "source": "/yard/backtest.json",
+      "destination": "/api/yard-snapshot?file=backtest.json"
+    },
+    {
+      "source": "/yard/bvp_career.json",
+      "destination": "/api/yard-snapshot?file=bvp_career.json"
+    },
+    {
+      "source": "/yard/hand2yr.json",
+      "destination": "/api/yard-snapshot?file=hand2yr.json"
+    },
+    {
+      "source": "/yard/microclimate.json",
+      "destination": "/api/yard-snapshot?file=microclimate.json"
+    },
+    {
+      "source": "/yard/park_factors.json",
+      "destination": "/api/yard-snapshot?file=park_factors.json"
+    },
+    {
+      "source": "/yard/wind_sens.json",
+      "destination": "/api/yard-snapshot?file=wind_sens.json"
+    }
   ]
 }

@@ -88,3 +88,16 @@ test('Observed period feeds retain upcoming kickoffs and identify three-way mone
   assert.equal(rows.length,3);assert.ok(rows.every(r=>r.inPlay===false&&r.threeWay&&r.updatedAt&&r.kickoff===future));
   assert.equal(MARKET_MAP.player_1h_pass_yards,'pass_yds_1h');assert.equal(MARKET_MAP.player_1q_rec_yards,'rec_yds_1q');assert.equal(MARKET_MAP.player_1st_td,'first_td');
 });
+
+test('MLB separates market requests to avoid a shared row cap and retains partial successes',async()=>{
+ const {fetchParlay}=await import('../server/parlay.mjs');const seen=[];
+ const result=await fetchParlay('mlb','fixture-key',async(url,options)=>{
+  assert.equal(options.headers['X-API-Key'],'fixture-key');assert.ok(url.pathname.startsWith('/v1/sports/baseball_mlb/'));
+  const market=url.searchParams.get('markets');seen.push(market);
+  if(market==='player_total_bases')throw Error('temporary outage');
+  return Response.json(url.pathname.endsWith('/props')?[{market_key:market}]:[]);
+ });
+ assert.equal(seen.length,6);assert.ok(seen.includes('player_home_runs'));assert.equal(result.props.length,4);
+ assert.equal(result.coverage.markets.player_home_runs.status,'loaded');assert.equal(result.coverage.markets.player_total_bases.status,'unavailable');
+});
+

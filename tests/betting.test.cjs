@@ -18,7 +18,7 @@ function setup(t){
   vm.runInContext(`globalThis.api={BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
+    footballNotes,footballOpportunity,footballOpportunityMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -64,7 +64,7 @@ test('Prospective log stays frozen and ignores entries after kickoff',t=>{
 });
 
 test('Accuracy uses only automatic prospective records and never promotes calibration',t=>{
-  const {api:a}=setup(t),r={event:'e',signalVersion:'football-signals-1',loggedAt:'2026-09-09',kickoff:'2026-09-10',prob:.8,push:0,reference:{win:.5,push:0,loss:.5},settlement:{status:'win',method:'public result'}};
+  const {api:a}=setup(t),r={event:'e',signalVersion:'football-signals-2',loggedAt:'2026-09-09',kickoff:'2026-09-10',prob:.8,push:0,reference:{win:.5,push:0,loss:.5},settlement:{status:'win',method:'public result'}};
   const s=a.signalSummary([r,{...r,imported:true},{...r,settlement:{status:'loss',method:'manual'}},{...r,loggedAt:'2026-09-11'}]);
   assert.equal(s.n,1);assert.equal(s.games,1);close(s.modelError,.08);close(s.bookError,.5);assert.equal(s.status,'Early recorded results');
   assert.equal(a.signalSummary([]).modelError,null);
@@ -305,4 +305,17 @@ test('Refresh requests the live endpoint and preserves manual edits by quote ide
   w.Worker=class{postMessage(){queueMicrotask(()=>this.onmessage({data:{error:'HTTP 502'}}));}terminate(){}};
   await a.refreshLiveOdds('nfl');assert.equal(a.BET.props[0].updatedAt,quote.updatedAt);assert.equal(a.BET.props[0].projMean,.9);
   assert.match(w.document.querySelector('#btLoadPropsNote').textContent,/saved NFL prices/);
+});
+
+test('Opportunity research stays dated and cannot support an Under or a different team',t=>{
+ const {api:a}=setup(t),today=new Date(Date.now()-86400000).toISOString().slice(0,10);
+ const p={profileId:'p',team:'A',position:'WR',market:'rec_yds',side:'Over',kind:'prop'};
+ const player={team:'A',position:'WR',season:2025,share:.9,position_average:.6,opportunity_flag:true,catches_short:3,share_type:'passing_snap_proxy',last_game:today};
+ a.BET.context={season:2026,scopes:{2025:{season:2025,players:{p:player},teams:{A:{games:6}}},2026:{season:2026,players:{p:{...player,season:2026}},teams:{A:{games:1}}}}};
+ assert.equal(a.signalFlags(p,[],{}).find(f=>f.id==='opportunity').family,'audit');
+ assert.match(a.footballOpportunityMarkup(p),/2025 research/);assert.equal(a.footballOpportunity({...p,team:'B'}),null);
+ a.BET.context.scopes[2026].teams.A.games=3;
+ assert.equal(a.signalFlags(p,[],{}).find(f=>f.id==='opportunity').family,'role');
+ assert.equal(a.signalFlags({...p,side:'Under'},[],{}).find(f=>f.id==='opportunity').family,'audit');
+ assert.equal(a.signalFlags({...p,market:'first_td'},[],{}).find(f=>f.id==='opportunity').family,'audit');
 });
