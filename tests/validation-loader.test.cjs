@@ -23,3 +23,7 @@ test('Only outcomes linked to eligible predictions enter performance loading',as
  const result=await loadJournal(c,'owner','2026-01-01','2026-09-12');
  assert.deepEqual(new Set(result.records.map(r=>r.id)),new Set(['p','s','c']));
 });
+
+test('Automatic tracked research loads its own results without scanning unrelated closings',async()=>{
+ const {loadJournal}=await import('../apps/validation/load-journal.mjs');const row=(kind,id,payload)=>({table:'market_journal',owner_id:'owner',kind,id,payload});const c=client([row('prediction','r',{actionable:false,tracking_group:'all_model'}),row('settlement','s',{prediction_id:'r'})]);const r=await loadJournal(c,'owner','2026-01-01','2026-09-12');assert.ok(r.records.some(x=>x.id==='s'));
+});

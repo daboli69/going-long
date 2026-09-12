@@ -90,6 +90,8 @@ def scan(journal, send=False):
         if stamp(row['observed_at'])<now:previous[row['key']]={'at':stamp(row['observed_at']),'probability':row['probability']}
     from settle_markets import settle
     data_root=Path(os.getenv('TOPDOWN_DATA_ROOT',str(ROOT)))
+    from topdown.tracking import track_predictions
+    track_predictions(journal,journal.rows('prediction'))
     settle(journal,data_root,now)
     settlements={s['prediction_id']:s for s in journal.rows('settlement')}
     penalties={};predictions=[];arbs=[]
@@ -118,7 +120,7 @@ def scan(journal, send=False):
     for q in quotes:
         if q['book'] in SHARP and fair_pair(q['prices']):groups.setdefault(q['selection'],[]).append(q)
     for p in journal.rows('prediction'):
-        if not p.get('actionable') or not 0<stamp(p['kickoff'])-now<=600:continue
+        if not (p.get('actionable') or p.get('tracking_group')=='all_model') or not 0<stamp(p['kickoff'])-now<=600:continue
         for q in groups.get(p['selection'],[]):
             qt=stamp(q['updated_at']);kick=stamp(p['kickoff'])
             if qt is not None and stamp(p['observed_at'])<qt<kick and 0<=now-qt<=180:

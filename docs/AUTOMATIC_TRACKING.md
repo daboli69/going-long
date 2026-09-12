@@ -1,0 +1,11 @@
+# Automatic hypothetical tracking
+
+PC worker requirements: Python environment plus Node and installed root npm dependencies. No open browser or manual pick selection required. The worker runs at Windows sign-in while awake and connected.
+
+Every five minutes, collect_model_plays.cjs runs the actual index.html model/ranking functions in jsdom, using current Parlay feeds and local historical inputs. It freezes every available current-day historical-model selection and both Best Plays lists before kickoff. Missing models remain missing. Prices, reasons, estimates and the selection's first observation are immutable; changing odds do not rewrite an old pick. Each exact line/side counts once per group. Alternative lines and opposing sides are diagnostics, not an independent recommended portfolio.
+
+The separate all_model group freezes the first existing pregame scanner price estimate per contract/side, including blocked checks. Recovery uses only real saved prospective records, never present-day reconstruction. Best Plays groups are prospective from feature activation only. Hypothetical $100 returns are separate from actual accepted bets and alert eligibility. Research never feeds the alert calibration penalty.
+
+Confirmed NFL/NCAA ESPN final scores are checked every two minutes, covering today and yesterday. Only explicit final status plus complete scores can settle a game. The former 12-hour hold is removed. Existing nflverse/sportsdataverse published finals remain a fallback. Player props require published appearance-aware player logs; missing stats, first TD and period results stay pending rather than being fabricated. Source URLs and observation times are retained. Official final scores and bookmaker-specific void rules can require later reconciliation.
+
+Validation defaults to all price-model checks and offers group and sport filters. It displays completed tracked plays and flat-stake returns. Exact follow-up queries and the tracking_group index keep the old blocked-closing backlog out of dashboard queries. Historical-model and Best Plays records currently do not have matching closing-price capture; all_model and alert picks use the scanner's exact-contract reference observations.

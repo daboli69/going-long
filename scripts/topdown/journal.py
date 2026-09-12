@@ -25,7 +25,7 @@ class Journal:
         # Raw polling quotes stay on disk; mirror decisions and their evidence,
         # rather than exhausting a small cloud database with unchanged markets.
         quote_filter='' if os.getenv('SUPABASE_SYNC_RAW_QUOTES')=='1' else " AND kind!='quote'"
-        records=self.db.execute("SELECT id,kind,observed_at,payload FROM journal WHERE synced=0"+quote_filter+" ORDER BY CASE WHEN kind='run' THEN 0 WHEN kind='notification' THEN 1 WHEN kind='quote' THEN 3 ELSE 2 END, observed_at DESC LIMIT 1000").fetchall()
+        records=self.db.execute("SELECT id,kind,observed_at,payload FROM journal WHERE synced=0"+quote_filter+" ORDER BY CASE WHEN kind='run' THEN 0 WHEN kind='settlement' THEN 0 WHEN kind='prediction' AND json_extract(payload,'$.tracking_group') IS NOT NULL THEN 0 WHEN kind='notification' THEN 1 WHEN kind='quote' THEN 3 ELSE 2 END, observed_at DESC LIMIT 1000").fetchall()
         if not records:return {'status':'up_to_date'}
         r=requests.post(url.rstrip('/')+'/rest/v1/market_journal?on_conflict=id',headers={'apikey':key,'Authorization':'Bearer '+key,'Prefer':'resolution=ignore-duplicates','Content-Type':'application/json'},json=[{'id':id,'owner_id':owner,'kind':kind,'observed_at':at,'payload':json.loads(body)} for id,kind,at,body in records],timeout=30)
         r.raise_for_status()

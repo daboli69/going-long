@@ -55,6 +55,8 @@ def main():
     from topdown.journal import Journal
     journal = Journal(PRIVATE / 'topdown.sqlite')
     next_refresh = 0
+    next_finals = 0
+    next_board = 0
     logging.info('Collector started; 60-second polling while this PC is awake')
     while True:
         started = time.monotonic()
@@ -62,6 +64,15 @@ def main():
             if started >= next_refresh:
                 refresh_inputs()
                 next_refresh = time.monotonic() + 3600
+            if started >= next_finals:
+                from topdown.live_results import refresh_finals
+                logging.info('Final score refresh: %s',refresh_finals(PRIVATE / 'scanner-data',time.time()))
+                next_finals=time.monotonic()+120
+            if started >= next_board:
+                from topdown.tracking import collect_board
+                try:logging.info('Automatic board picks frozen: %s',collect_board(journal,ROOT,time.time()))
+                except Exception as exc:logging.warning('Board tracking unavailable: %s',type(exc).__name__)
+                next_board=time.monotonic()+300
             with contextlib.redirect_stdout(io.StringIO()):
                 result = scan(journal, send=True)
             logging.info('Scan: pairs=%s eligible=%s delivery=%s failures=%s', result['quote_pairs'], result['actionable_predictions'], result['supabase']['status'], len(result['failures']))

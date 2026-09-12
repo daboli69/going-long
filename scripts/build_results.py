@@ -17,7 +17,7 @@ def assemble(games, profiles, previous=None, now=None):
     output = dict((previous or {}).get('games', {}))
     for g in games:
         kickoff = datetime.fromisoformat(g['kickoff'].replace('Z', '+00:00'))
-        if not g['completed'] or (now - kickoff).total_seconds() < 12 * 3600:
+        if not g['completed'] or kickoff >= now:
             continue
         key = f"{g['sport']}|{g['id']}"
         output[key] = {k: g[k] for k in ('sport', 'id', 'home', 'away', 'kickoff', 'homeScore', 'awayScore')}
