@@ -8,7 +8,7 @@ import unicodedata
 from urllib.parse import urlparse
 from datetime import datetime, timezone
 
-VERSION = 'topdown-3'
+VERSION = 'topdown-4'
 SHARP = {'pinnacle', 'circa', 'bookmaker', 'betonlineag'}
 BOOK_ALIASES = {'cris':'bookmaker', 'bookmaker_eu':'bookmaker', 'betonline':'betonlineag'}
 RECREATIONAL = {'draftkings', 'fanduel', 'betmgm', 'caesars', 'fanatics', 'betrivers'}
@@ -108,8 +108,16 @@ def inactive_gate(report, q, now):
 def inactive_state(report, q, now):
     kickoff = stamp(q.get('kickoff'))
     if kickoff is None or kickoff <= now:return 'closed'
+    if q.get('sport','nfl')=='ncaa':
+        return 'pending_final_window' if kickoff-now>5400 else 'availability_not_independently_verified'
     if kickoff - now > 5400:return 'pending_inactives'
     return 'verified' if inactive_gate(report, q, now) else 'awaiting_official_reports'
+
+
+def market_gate(report,q,now):
+    if q.get('sport','nfl')=='ncaa':
+        return inactive_state(None,q,now)=='availability_not_independently_verified'
+    return inactive_gate(report,q,now)
 
 
 def ev_hurdle(dec, single_source, base=.03, favorite=.025, fallback=.005):
@@ -159,7 +167,7 @@ def evaluate(quotes, reports, now, bankroll=1000, min_ev=.03, min_sharps=1, prev
                 if max(values) - min(values) > .03:reasons.append('Reference books disagree by more than 3 percentage points')
                 if delta > 60:reasons.append(f'Price timestamps differ by {delta:.0f}s; maximum is 60s')
                 if not q['no_refund']:reasons.append('Refund probability or settlement rules are unresolved')
-                if state != 'verified':reasons.append('Pending Inactives' if state=='pending_inactives' else 'Awaiting both verified official inactive reports')
+                if state not in ('verified','availability_not_independently_verified'):reasons.append('Waiting for the final 90 minutes' if state=='pending_final_window' else 'Pending Inactives' if state=='pending_inactives' else 'Awaiting both verified official inactive reports')
                 if q.get('player') and any(player_key(q['player']) in [player_key(n) for n in team.get('inactive_players',[])] for team in (reports.get(q['event']) or {}).get('teams',[])):reasons.append('Player appears on an official inactive list')
                 if ev < threshold:reasons.append(f'Below the {100*threshold:g}% minimum estimated return')
                 old = (previous or {}).get(key + '|' + str(side)); tags = ['price_disagreement']
@@ -168,13 +176,13 @@ def evaluate(quotes, reports, now, bankroll=1000, min_ev=.03, min_sharps=1, prev
                     movement = raw - old['probability']
                     if movement >= .015:tags.append('reference_price_moved')
                 stake = bankroll * min(.01, .25 * max(0, ev / (dec - 1))) if not reasons else 0
-                predictions.append(dict(id=uid(VERSION,key,book,side,int(now)),event=q['event'],selection=key,market=q['market'],line=q['line'],player=q.get('player'),home=q['home'],away=q['away'],kickoff=q['kickoff'],book=book,side=q['sides'][side],side_index=side,odds=dec,american=q['prices'][side],raw_probability=raw,probability=conservative,ev=ev,proposed_stake=stake,odds_band=odds_band(dec),actionable=not reasons,reasons=reasons,tags=tags,movement=movement,reference_books=[b for b,_,_ in selected],reference_times=[s['updated_at'] for _,s,_ in selected],single_source=single,ev_threshold=threshold,timestamp_delta_seconds=delta,inactive_state=state,quoted_at=q['updated_at'],model_version=VERSION,probability_type='conditional_on_no_refund',observed_at=datetime.fromtimestamp(now,timezone.utc).isoformat(),no_refund=q['no_refund']))
+                predictions.append(dict(id=uid(VERSION,key,book,side,int(now)),sport=q.get('sport','nfl'),event=q['event'],selection=key,market=q['market'],line=q['line'],player=q.get('player'),home=q['home'],away=q['away'],kickoff=q['kickoff'],book=book,side=q['sides'][side],side_index=side,odds=dec,american=q['prices'][side],raw_probability=raw,probability=conservative,ev=ev,proposed_stake=stake,odds_band=odds_band(dec),actionable=not reasons,reasons=reasons,tags=tags,movement=movement,reference_books=[b for b,_,_ in selected],reference_times=[s['updated_at'] for _,s,_ in selected],single_source=single,ev_threshold=threshold,timestamp_delta_seconds=delta,inactive_state=state,quoted_at=q['updated_at'],model_version=VERSION,probability_type='conditional_on_no_refund',observed_at=datetime.fromtimestamp(now,timezone.utc).isoformat(),no_refund=q['no_refund']))
         executable = [q for b,q in books.items() if b in RECREATIONAL and q['no_refund']]
         if len(executable) >= 2:
             legs = [max(executable, key=lambda q:decimal(q['prices'][i])) for i in (0,1)]
             ds = [decimal(q['prices'][i]) for i,q in enumerate(legs)];cost = sum(1/d for d in ds)
             if legs[0]['book'] != legs[1]['book'] and cost < .995 and abs(stamp(legs[0]['updated_at'])-stamp(legs[1]['updated_at'])) <= 30:
-                arbs.append({'selection':key,'event':legs[0]['event'],'return_if_executable':1/cost-1,'stakes_per_100':[100/d/cost for d in ds],'books':[q['book'] for q in legs],'actionable':inactive_gate(reports.get(legs[0]['event']),legs[0],now),'note':'Displayed-price candidate. Limits, accepted stakes and matching void rules are not verified.'})
+                arbs.append({'selection':key,'event':legs[0]['event'],'sport':legs[0].get('sport','nfl'),'return_if_executable':1/cost-1,'stakes_per_100':[100/d/cost for d in ds],'books':[q['book'] for q in legs],'actionable':market_gate(reports.get(legs[0]['event']),legs[0],now),'note':'Displayed-price candidate. Limits, accepted stakes and matching void rules are not verified.'})
     return predictions, arbs
 
 

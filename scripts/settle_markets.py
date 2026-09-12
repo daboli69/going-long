@@ -12,8 +12,14 @@ def settle(journal,root,now):
     names=h.get('team_names',{});profiles=h.get('profiles',{});existing={s['prediction_id'] for s in journal.rows('settlement')}
     for p in journal.rows('prediction'):
         if p['id'] in existing or stamp(p['kickoff']) is None or now-stamp(p['kickoff'])<12*3600:continue
-        home,away=names.get(p['home']),names.get(p['away'])
-        games=[g for g in results['games'].values() if g['sport']=='nfl' and g['home']==home and g['away']==away and abs(stamp(g['kickoff'])-stamp(p['kickoff']))<60]
+        sport=p.get('sport','nfl')
+        if sport=='ncaa':
+            from topdown.college import team_id
+            home,away=team_id(p['home']),team_id(p['away'])
+            games=[g for g in results['games'].values() if g['sport']=='ncaa' and home and away and team_id(g['home'])==home and team_id(g['away'])==away and abs(stamp(g['kickoff'])-stamp(p['kickoff']))<60]
+        else:
+            home,away=names.get(p['home']),names.get(p['away'])
+            games=[g for g in results['games'].values() if g['sport']=='nfl' and g['home']==home and g['away']==away and abs(stamp(g['kickoff'])-stamp(p['kickoff']))<60]
         if len(games)!=1:continue
         g=games[0];market=p['market'];value=None
         if market=='totals':value=g['homeScore']+g['awayScore'];target=p['line'];over=p['side_index']==0
@@ -32,5 +38,5 @@ def settle(journal,root,now):
         if value is None:continue
         status='refund' if value==target else ('win' if (value>target)==over else 'loss')
         at=datetime.fromtimestamp(now,timezone.utc).isoformat()
-        row={'prediction_id':p['id'],'event':p['event'],'status':status,'actual':value,'observed_at':at,'source_url':'https://github.com/daboli69/going-long/blob/main/data/results.json','source_generated_at':results['generated_at'],'source_sha256':uid(g,results['generated_at']),'method':'published_full_game_result','rules_note':'Research settlement; book-specific injury/void exceptions require reconciliation'}
+        row={'sport':sport,'prediction_id':p['id'],'event':p['event'],'status':status,'actual':value,'observed_at':at,'source_url':'https://github.com/daboli69/going-long/blob/main/data/results.json','source_generated_at':results['generated_at'],'source_sha256':uid(g,results['generated_at']),'method':'published_full_game_result','rules_note':'Research settlement; book-specific injury/void exceptions require reconciliation'}
         journal.append('settlement',uid(p['id'],'settlement'),row)

@@ -72,9 +72,15 @@ def scan(journal, send=False):
             responses[endpoint]=rows
         except (requests.RequestException,ValueError) as exc:
             responses[endpoint]=[];failures.append({'endpoint':endpoint,'type':type(exc).__name__})
+    try:
+        r=requests.get('https://parlay-api.com/v1/sports/americanfootball_ncaaf/odds',params={'markets':'h2h,spreads,totals','regions':'us,eu','oddsFormat':'american'},headers=headers,timeout=35);r.raise_for_status()
+        responses['ncaa']=r.json()
+        if not isinstance(responses['ncaa'],list):raise ValueError('Unexpected NCAA odds schema')
+    except (requests.RequestException,ValueError) as exc:
+        responses['ncaa']=[];failures.append({'endpoint':'ncaa_odds','type':type(exc).__name__})
     # Freshness is assessed after network calls, not at the start of a slow request.
     now=time.time();at=datetime.fromtimestamp(now,timezone.utc).isoformat()
-    quotes=normalize(responses['odds'],responses['props'])
+    quotes=normalize(responses['odds'],responses['props'])+normalize(responses['ncaa'],[],sport='ncaa')
     for q in quotes:journal.append('quote',uid(q),dict(q,observed_at=at))
     for report in reports.values():
         journal.append('inactive_report',uid(report),dict(report,observed_at=at))
@@ -85,14 +91,18 @@ def scan(journal, send=False):
     data_root=Path(os.getenv('TOPDOWN_DATA_ROOT',str(ROOT)))
     settle(journal,data_root,now)
     settlements={s['prediction_id']:s for s in journal.rows('settlement')}
-    penalty=feedback(journal.rows('prediction'),settlements,now)
-    predictions,arbs=evaluate(quotes,reports,now,bankroll=float(os.getenv('RESEARCH_BANKROLL','1000')),previous=previous,calibration_penalty=penalty,min_ev=float(os.getenv('MIN_EV','0.03')),favorite_ev=float(os.getenv('FAVORITE_MIN_EV','0.025')),fallback_ev=float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')))
+    penalties={};predictions=[];arbs=[]
+    history_predictions=journal.rows('prediction')
+    for sport in ('nfl','ncaa'):
+        penalties[sport]=feedback([p for p in history_predictions if p.get('sport','nfl')==sport],settlements,now)
+        picks,candidates=evaluate([q for q in quotes if q.get('sport','nfl')==sport],reports,now,bankroll=float(os.getenv('RESEARCH_BANKROLL','1000')),previous=previous,calibration_penalty=penalties[sport],min_ev=float(os.getenv('MIN_EV','0.03')),favorite_ev=float(os.getenv('FAVORITE_MIN_EV','0.025')),fallback_ev=float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')))
+        predictions.extend(picks);arbs.extend(candidates)
     from topdown.secondary import context
     historical=json.loads((data_root/'data/nfl_betting.json').read_text())
     names=json.loads((data_root/'data/history.json').read_text())['betting'].get('team_names',{})
     secondary={}
     for q in quotes:
-        if q['event'] not in secondary:secondary[q['event']]=context(q,historical.get('games',[]),names,now)
+        if q['event'] not in secondary:secondary[q['event']]=context(q,historical.get('games',[]),names,now) if q.get('sport','nfl')=='nfl' else None
     for p in predictions:
         p['secondary']=secondary.get(p['event'])
         if p['market']=='totals' and p['secondary'] and abs(p['line']-p['secondary']['estimated_total'])>14:
@@ -112,16 +122,17 @@ def scan(journal, send=False):
             qt=stamp(q['updated_at']);kick=stamp(p['kickoff'])
             if qt is not None and stamp(p['observed_at'])<qt<kick and 0<=now-qt<=180:
                 f=fair_pair(q['prices']);side=p['side_index']
-                journal.append('closing',uid(p['id'],q['book'],qt),{'prediction_id':p['id'],'book':q['book'],'probability':f['proportional'][side],'quoted_at':q['updated_at'],'observed_at':at,'near_kickoff':kick-qt<=600,'selection':p['selection']})
+                journal.append('closing',uid(p['id'],q['book'],qt),{'sport':p.get('sport','nfl'),'prediction_id':p['id'],'book':q['book'],'probability':f['proportional'][side],'quoted_at':q['updated_at'],'observed_at':at,'near_kickoff':kick-qt<=600,'selection':p['selection']})
     sent={n['alert_key'] for n in journal.rows('notification')}
     for p in sorted(predictions,key=lambda p:-p['ev']):
         alert=uid(p['event'],p['selection'],p['side'],p['book'],VERSION)
         if not send or not p['actionable'] or alert in sent:continue
-        message=f"GOING price check: {p['away']} at {p['home']} | {p.get('player') or ''} {p['market']} {p['side']} {p['line']} | {p['book']} {p['american']:+} | estimated repeat return {100*p['ev']:.1f}% after policy discount; suggested size ${p['proposed_stake']:.2f}. Check availability and rules. Not a guaranteed outcome."
+        message=f"GOING {p.get('sport','nfl').upper()} price check: {p['away']} at {p['home']} | {p.get('player') or ''} {p['market']} {p['side']} {p['line']} | {p['book']} {p['american']:+} | estimated repeat return {100*p['ev']:.1f}% after policy discount; suggested size ${p['proposed_stake']:.2f}. Check availability and rules. Not a guaranteed outcome."
+        if p.get('sport')=='ncaa':message+=' NCAA availability not independently verified.'
         try:
             channel=notify(message)
             if channel:
-                journal.append('notification',alert,{'alert_key':alert,'prediction_id':p['id'],'channel':channel,'observed_at':at});sent.add(alert)
+                journal.append('notification',alert,{'sport':p.get('sport','nfl'),'alert_key':alert,'prediction_id':p['id'],'channel':channel,'observed_at':at});sent.add(alert)
         except requests.RequestException:
             failures.append({'endpoint':'notification','type':'delivery_failed_or_unknown'})
     for arb in arbs:
@@ -129,13 +140,14 @@ def scan(journal, send=False):
         alert=uid('arbitrage',arb['selection'],arb['books'])
         if send and arb['actionable'] and alert not in sent:
             try:
-                channel=notify(f"GOING displayed-price arbitrage candidate: {arb['selection'][:12]} | {', '.join(arb['books'])} | quoted return {arb['return_if_executable']*100:.1f}%. Accepted stakes, limits and matching void rules still need checking.")
+                channel=notify(f"GOING {arb.get('sport','nfl').upper()} displayed-price arbitrage candidate: {arb['selection'][:12]} | {', '.join(arb['books'])} | quoted return {arb['return_if_executable']*100:.1f}%. Accepted stakes, limits and matching void rules still need checking.{' NCAA availability not independently verified.' if arb.get('sport')=='ncaa' else ''}")
                 if channel:journal.append('notification',alert,{'alert_key':alert,'channel':channel,'observed_at':at});sent.add(alert)
             except requests.RequestException:failures.append({'endpoint':'notification','type':'delivery_failed_or_unknown'})
     try:sync=journal.sync()
     except requests.RequestException:sync={'status':'unavailable_local_journal_retained'}
     books=sorted({q['book'] for q in quotes if q['book']})
-    status={'observed_at':at,'model_version':VERSION,'quote_pairs':len(quotes),'reference_books':sorted(SHARP.intersection(books)),'required_reference_books':1,'single_source_extra_hurdle':float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')),'timestamp_desyncs':sum(p.get('timestamp_delta_seconds',0)>60 for p in predictions),'pending_inactives':sum(p.get('inactive_state')=='pending_inactives' for p in predictions),'research_predictions':len(predictions),'actionable_predictions':sum(p['actionable'] for p in predictions),'arbitrage_candidates':len(arbs),'inactives_configured':True,'inactive_feed':inactive_status,'supabase':sync,'notifications_configured':bool(os.getenv('DISCORD_WEBHOOK_URL') or (os.getenv('TELEGRAM_BOT_TOKEN') and os.getenv('TELEGRAM_CHAT_ID'))),'failures':failures,'possibly_truncated':len(responses['props'])>=10000,'calibration_penalty':penalty,'notice':'Pinnacle is required; a single reference adds a safety hurdle. Official inactives and all price checks must pass. No market-volume or bettor-identity data is available.'}
+    sports={sport:{'quote_pairs':sum(q.get('sport','nfl')==sport for q in quotes),'research_predictions':sum(p.get('sport','nfl')==sport for p in predictions),'actionable_predictions':sum(p.get('sport','nfl')==sport and p['actionable'] for p in predictions),'reference_books':sorted({q['book'] for q in quotes if q.get('sport','nfl')==sport and q['book'] in SHARP})} for sport in ('nfl','ncaa')}
+    status={'sports':sports,'observed_at':at,'model_version':VERSION,'quote_pairs':len(quotes),'reference_books':sorted(SHARP.intersection(books)),'required_reference_books':1,'single_source_extra_hurdle':float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')),'timestamp_desyncs':sum(p.get('timestamp_delta_seconds',0)>60 for p in predictions),'pending_inactives':sum(p.get('inactive_state')=='pending_inactives' for p in predictions),'research_predictions':len(predictions),'actionable_predictions':sum(p['actionable'] for p in predictions),'arbitrage_candidates':len(arbs),'inactives_configured':True,'inactive_feed':inactive_status,'supabase':sync,'notifications_configured':bool(os.getenv('DISCORD_WEBHOOK_URL') or (os.getenv('TELEGRAM_BOT_TOKEN') and os.getenv('TELEGRAM_CHAT_ID'))),'failures':failures,'possibly_truncated':len(responses['props'])>=10000,'calibration_penalty':penalties,'notice':'Pinnacle is required; a single reference adds a safety hurdle. NFL official inactives must pass. NCAA availability is not independently verified; both sports require final-window and price checks. No market-volume or bettor-identity data is available.'}
     atomic_json(Path(os.getenv('TOPDOWN_STATUS_FILE',str(ROOT/'data/topdown_status.json'))),status)
     journal.append('run',uid(at),status)
     try:journal.sync()
