@@ -1,4 +1,17 @@
-# Going Long
+# GOING / Going Long
+
+The current application is hosted on **Vercel** at https://going-long.vercel.app/.
+It includes football betting/fantasy, baseball integration, server-side odds
+routes, a private React validation journal, and a separate local Python scanner.
+
+**Independent reviewers, including Claude:** start with [CLAUDE.md](CLAUDE.md)
+and the [audit guide](docs/AUDIT_GUIDE.md) for the current code map and tests.
+
+## Historical draft-board documentation
+
+The original setup notes below predate the current hosting, API and database
+architecture. Their GitHub Pages/no-server instructions are historical, not the
+current deployment procedure. See `vercel.json` and the audit guide instead.
 
 A draft war room built on the Late-Round Draft Guide's model. Every player is
 priced in expected PPR points per game, valued against your league's actual
