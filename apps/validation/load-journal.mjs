@@ -20,7 +20,10 @@ export async function loadJournal(client,owner,since,until){
   const jobs=[];
   for(let offset=start;offset<Math.min(start+200,predictions.length);offset+=50){
    const batch=predictions.slice(offset,offset+50),ids=batch.map(p=>p.id);
-   for(const kind of ['settlement','closing'])jobs.push(pages(()=>table(kind).in('payload->>prediction_id',ids).lte('observed_at',until)));
+   for(const kind of ['settlement','closing']){
+    const linked=kind==='closing'?batch.filter(p=>p.payload.actionable).map(p=>p.id):ids;
+    if(linked.length)jobs.push(pages(()=>table(kind).in('payload->>prediction_id',linked).lte('observed_at',until)));
+   }
   }
   for(const rows of await Promise.all(jobs))followups.push(...rows);
  }
