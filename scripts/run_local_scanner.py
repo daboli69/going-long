@@ -18,7 +18,7 @@ def refresh_inputs():
     """Refresh settlement inputs, retaining the last usable file during outages."""
     target = PRIVATE / 'scanner-data' / 'data'
     target.mkdir(parents=True, exist_ok=True)
-    for name, required in [('results.json', 'games'), ('history.json', 'betting'), ('nfl_betting.json', 'games')]:
+    for name, required in [('results.json', 'games'), ('history.json', 'betting'), ('nfl_betting.json', 'games'), ('data.json','betting'), ('football_context.json','schema_version')]:
         path = target / name
         if not path.exists():
             shutil.copyfile(ROOT / 'data' / name, path)

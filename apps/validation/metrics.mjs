@@ -7,5 +7,5 @@ export function summarize(records,group='alerts'){
   const close=(closes.get(p.id)||[]).filter(c=>c.near_kickoff&&Date.parse(c.quoted_at)>Date.parse(p.observed_at)&&Date.parse(c.quoted_at)<Date.parse(p.kickoff)).sort((a,b)=>Date.parse(b.quoted_at)-Date.parse(a.quoted_at))[0];
   const row={...p,...s,profit,priceMove:close?p.odds*close.probability-1:null};graded.push(row);const b=bands[p.odds_band]||(bands[p.odds_band]={bets:0,profit:0,decisive:0,error:0,games:new Set()});b.bets++;b.profit+=profit;b.games.add(p.event);if(['win','loss'].includes(s.status)){b.decisive++;b.error+=(p.probability-(s.status==='win'?1:0))**2;}
  }
- return {predictions:byKind('prediction'),graded,bands:Object.entries(bands).map(([band,b])=>({band,...b,games:b.games.size,roi:b.profit/(100*b.bets),brier:b.decisive?b.error/b.decisive:null})),profit:graded.reduce((a,b)=>a+b.profit,0),bets:graded.length,games:new Set(graded.map(p=>p.event)).size};
+ return {predictions:byKind('prediction').filter(p=>group==='alerts'?!p.tracking_group:p.tracking_group===group),graded,bands:Object.entries(bands).map(([band,b])=>({band,...b,games:b.games.size,roi:b.profit/(100*b.bets),brier:b.decisive?b.error/b.decisive:null})),profit:graded.reduce((a,b)=>a+b.profit,0),bets:graded.length,games:new Set(graded.map(p=>p.event)).size};
 }
