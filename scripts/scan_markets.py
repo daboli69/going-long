@@ -44,6 +44,25 @@ def feedback(predictions, settlements, now):
 def scan(journal, send=False):
     now=time.time();at=datetime.fromtimestamp(now,timezone.utc).isoformat();key=os.getenv('PARLAY_API_KEY')
     if not key:raise RuntimeError('PARLAY_API_KEY is required on the scanner host')
+    # Schedule-driven monitoring continues even when the odds provider is down.
+    data_root=Path(os.getenv('TOPDOWN_DATA_ROOT',str(ROOT)))
+    history_data=json.loads((data_root/'data/history.json').read_text())['betting']
+    names=history_data.get('team_names',{})
+    reverse={code:name for name,code in names.items()}
+    schedule=json.loads((data_root/'data/nfl_betting.json').read_text()).get('games',[])
+    events=[]
+    for g in schedule:
+        home,away=reverse.get(g.get('home')),reverse.get(g.get('away'))
+        if home and away and stamp(g.get('kickoff')) is not None:
+            events.append(dict(event=uid(home,away,stamp(g['kickoff'])),home=home,away=away,kickoff=g['kickoff']))
+    report_path=Path(os.getenv('INACTIVES_FILE',str(ROOT/'private/inactives.json')))
+    reports={r['event']:r for r in journal.rows('inactive_report')}
+    try:
+        manual=json.loads(report_path.read_text()) if report_path.exists() else {}
+        if isinstance(manual,dict):reports.update(manual)
+    except (OSError,ValueError):pass
+    from topdown.inactives import update_inactives
+    reports,inactive_status=update_inactives(journal,events,reports,now,notify if send else None)
     headers={'X-API-Key':key};base='https://parlay-api.com/v1/sports/americanfootball_nfl/'
     responses={};failures=[]
     for endpoint,params in [('odds',{'markets':'h2h,spreads,totals','regions':'us,eu','oddsFormat':'american'}),('props',{'markets':'player_passing_yards,player_rushing_yards,player_receiving_yards,player_receptions,player_passing_tds','limit':10000})]:
@@ -57,8 +76,6 @@ def scan(journal, send=False):
     now=time.time();at=datetime.fromtimestamp(now,timezone.utc).isoformat()
     quotes=normalize(responses['odds'],responses['props'])
     for q in quotes:journal.append('quote',uid(q),dict(q,observed_at=at))
-    report_path=Path(os.getenv('INACTIVES_FILE',str(ROOT/'private/inactives.json')))
-    reports=json.loads(report_path.read_text()) if report_path.exists() else {}
     for report in reports.values():
         journal.append('inactive_report',uid(report),dict(report,observed_at=at))
     previous={}
@@ -117,7 +134,7 @@ def scan(journal, send=False):
     try:sync=journal.sync()
     except requests.RequestException:sync={'status':'unavailable_local_journal_retained'}
     books=sorted({q['book'] for q in quotes if q['book']})
-    status={'observed_at':at,'model_version':VERSION,'quote_pairs':len(quotes),'reference_books':sorted(SHARP.intersection(books)),'required_reference_books':1,'single_source_extra_hurdle':float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')),'timestamp_desyncs':sum(p.get('timestamp_delta_seconds',0)>60 for p in predictions),'pending_inactives':sum(p.get('inactive_state')=='pending_inactives' for p in predictions),'research_predictions':len(predictions),'actionable_predictions':sum(p['actionable'] for p in predictions),'arbitrage_candidates':len(arbs),'inactives_configured':bool(reports),'supabase':sync,'notifications_configured':bool(os.getenv('DISCORD_WEBHOOK_URL') or (os.getenv('TELEGRAM_BOT_TOKEN') and os.getenv('TELEGRAM_CHAT_ID'))),'failures':failures,'possibly_truncated':len(responses['props'])>=10000,'calibration_penalty':penalty,'notice':'Pinnacle is required; a single reference adds a safety hurdle. Official inactives and all price checks must pass. No market-volume or bettor-identity data is available.'}
+    status={'observed_at':at,'model_version':VERSION,'quote_pairs':len(quotes),'reference_books':sorted(SHARP.intersection(books)),'required_reference_books':1,'single_source_extra_hurdle':float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')),'timestamp_desyncs':sum(p.get('timestamp_delta_seconds',0)>60 for p in predictions),'pending_inactives':sum(p.get('inactive_state')=='pending_inactives' for p in predictions),'research_predictions':len(predictions),'actionable_predictions':sum(p['actionable'] for p in predictions),'arbitrage_candidates':len(arbs),'inactives_configured':True,'inactive_feed':inactive_status,'supabase':sync,'notifications_configured':bool(os.getenv('DISCORD_WEBHOOK_URL') or (os.getenv('TELEGRAM_BOT_TOKEN') and os.getenv('TELEGRAM_CHAT_ID'))),'failures':failures,'possibly_truncated':len(responses['props'])>=10000,'calibration_penalty':penalty,'notice':'Pinnacle is required; a single reference adds a safety hurdle. Official inactives and all price checks must pass. No market-volume or bettor-identity data is available.'}
     atomic_json(Path(os.getenv('TOPDOWN_STATUS_FILE',str(ROOT/'data/topdown_status.json'))),status)
     journal.append('run',uid(at),status)
     try:journal.sync()

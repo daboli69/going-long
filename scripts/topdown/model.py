@@ -3,10 +3,12 @@ import hashlib
 import json
 import math
 import statistics
+import re
+import unicodedata
 from urllib.parse import urlparse
 from datetime import datetime, timezone
 
-VERSION = 'topdown-2'
+VERSION = 'topdown-3'
 SHARP = {'pinnacle', 'circa', 'bookmaker', 'betonlineag'}
 BOOK_ALIASES = {'cris':'bookmaker', 'bookmaker_eu':'bookmaker', 'betonline':'betonlineag'}
 RECREATIONAL = {'draftkings', 'fanduel', 'betmgm', 'caesars', 'fanatics', 'betrivers'}
@@ -78,6 +80,12 @@ def compound_points(td_rate, fg_rate, max_points=100):
     return {'mass': out, 'omitted_tail': 1 - sum(out), 'method': 'secondary compound scoring check; not Dixon-Coles'}
 
 
+def player_key(name):
+    text=unicodedata.normalize('NFKD',str(name)).encode('ascii','ignore').decode().lower()
+    text=re.sub(r'[^a-z0-9 ]','',text)
+    return re.sub(r'\s+(jr|sr|ii|iii|iv)$','',' '.join(text.split()))
+
+
 def inactive_gate(report, q, now):
     """A timer is insufficient. Require both official team reports and their provenance."""
     kickoff = stamp(q['kickoff'])
@@ -88,7 +96,12 @@ def inactive_gate(report, q, now):
     for t in teams:
         published, verified = stamp(t.get('published_at')), stamp(t.get('verified_at'))
         if t.get('status') != 'official_confirmed' or (not t.get('source_url', '').startswith('https://') or urlparse(t.get('source_url','')).hostname not in ('www.nfl.com','nfl.com')) or not t.get('source_sha256') or not isinstance(t.get('inactive_players'), list):return False
-        if published is None or verified is None or not kickoff - 90 * 60 <= published <= verified <= now:return False
+        if published is None or verified is None or not published <= verified <= now:return False
+        if t.get('verification')=='nfl_official_html_v1':
+            from zoneinfo import ZoneInfo
+            day=datetime.fromtimestamp(kickoff,ZoneInfo('America/New_York')).date().isoformat()
+            if t.get('report_game_date')!=day or datetime.fromtimestamp(published,ZoneInfo('America/New_York')).date().isoformat()!=day or not kickoff-5400<=verified:return False
+        elif not kickoff-5400<=published:return False
     return True
 
 
@@ -147,7 +160,7 @@ def evaluate(quotes, reports, now, bankroll=1000, min_ev=.03, min_sharps=1, prev
                 if delta > 60:reasons.append(f'Price timestamps differ by {delta:.0f}s; maximum is 60s')
                 if not q['no_refund']:reasons.append('Refund probability or settlement rules are unresolved')
                 if state != 'verified':reasons.append('Pending Inactives' if state=='pending_inactives' else 'Awaiting both verified official inactive reports')
-                if q.get('player') and any(q['player'] in team.get('inactive_players',[]) for team in (reports.get(q['event']) or {}).get('teams',[])):reasons.append('Player appears on an official inactive list')
+                if q.get('player') and any(player_key(q['player']) in [player_key(n) for n in team.get('inactive_players',[])] for team in (reports.get(q['event']) or {}).get('teams',[])):reasons.append('Player appears on an official inactive list')
                 if ev < threshold:reasons.append(f'Below the {100*threshold:g}% minimum estimated return')
                 old = (previous or {}).get(key + '|' + str(side)); tags = ['price_disagreement']
                 movement = None
