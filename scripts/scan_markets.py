@@ -63,13 +63,14 @@ def scan(journal, send=False):
     for row in journal.rows('reference'):
         if stamp(row['observed_at'])<now:previous[row['key']]={'at':stamp(row['observed_at']),'probability':row['probability']}
     from settle_markets import settle
-    settle(journal,ROOT,now)
+    data_root=Path(os.getenv('TOPDOWN_DATA_ROOT',str(ROOT)))
+    settle(journal,data_root,now)
     settlements={s['prediction_id']:s for s in journal.rows('settlement')}
     penalty=feedback(journal.rows('prediction'),settlements,now)
     predictions,arbs=evaluate(quotes,reports,now,bankroll=float(os.getenv('RESEARCH_BANKROLL','1000')),previous=previous,calibration_penalty=penalty)
     from topdown.secondary import context
-    historical=json.loads((ROOT/'data/nfl_betting.json').read_text())
-    names=json.loads((ROOT/'data/history.json').read_text())['betting'].get('team_names',{})
+    historical=json.loads((data_root/'data/nfl_betting.json').read_text())
+    names=json.loads((data_root/'data/history.json').read_text())['betting'].get('team_names',{})
     secondary={}
     for q in quotes:
         if q['event'] not in secondary:secondary[q['event']]=context(q,historical.get('games',[]),names,now)
@@ -115,8 +116,10 @@ def scan(journal, send=False):
     except requests.RequestException:sync={'status':'unavailable_local_journal_retained'}
     books=sorted({q['book'] for q in quotes if q['book']})
     status={'observed_at':at,'model_version':VERSION,'quote_pairs':len(quotes),'reference_books':sorted(SHARP.intersection(books)),'required_reference_books':2,'research_predictions':len(predictions),'actionable_predictions':sum(p['actionable'] for p in predictions),'arbitrage_candidates':len(arbs),'inactives_configured':bool(reports),'supabase':sync,'notifications_configured':bool(os.getenv('DISCORD_WEBHOOK_URL') or (os.getenv('TELEGRAM_BOT_TOKEN') and os.getenv('TELEGRAM_CHAT_ID'))),'failures':failures,'possibly_truncated':len(responses['props'])>=10000,'calibration_penalty':penalty,'notice':'Research only until two fresh reference books, verified official inactives and all price checks pass. No market-volume or bettor-identity data is available.'}
-    atomic_json(ROOT/'data/topdown_status.json',status)
+    atomic_json(Path(os.getenv('TOPDOWN_STATUS_FILE',str(ROOT/'data/topdown_status.json'))),status)
     journal.append('run',uid(at),status)
+    try:journal.sync()
+    except requests.RequestException:pass  # Run remains durable for the next retry.
     print(json.dumps(status));return status
 
 

@@ -29,7 +29,7 @@ Run `supabase/migrations/20260911_market_journal.sql` in the existing project SQ
 
 The scanner first writes an excluded `private/topdown.sqlite` journal, then syncs to Supabase. Delivery outages retain local records. Non-quote records have sync priority. Only the server service role writes journal records. React signs in with Supabase Auth and reads through row-level security. Never place the service-role secret in a client environment variable.
 
-Server/scanner variables: `PARLAY_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GOING_OWNER_ID` (the sole Supabase Auth user's UUID). Vercel additionally needs `SUPABASE_PUBLISHABLE_KEY`, which is public by design. The project and credentials were not provided; live database integration is not claimed as tested.
+Server/scanner variables: `PARLAY_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `GOING_OWNER_ID` (the sole Supabase Auth user's UUID). Vercel additionally needs `SUPABASE_PUBLISHABLE_KEY`, which is public by design. GOING Supabase is connected. The migration and sole owner account are installed; service-role delivery succeeds and anonymous journal reads are rejected. Vercel exposes only the browser-safe connection values. Owner sign-in details are stored in excluded private/owner-login.txt.
 
 ## Scanner and notifications
 Install `scripts/requirements.txt`. On a persistent host:
@@ -44,7 +44,7 @@ Use one alert destination: `DISCORD_WEBHOOK_URL`, or `TELEGRAM_BOT_TOKEN` plus `
 
 Before an actionable run, use `scripts/register_inactives.py --help` and verify both teams' real official reports. It creates `private/inactives.json` (or `INACTIVES_FILE`). Do not fabricate confirmations to make a timer pass. Until an official report adapter is verified, this is a manual dependency, not fully automatic inactives ingestion.
 
-This is a polling collector, not exchange tick data. The default is one scan per 60 seconds, plus request latency, and it consumes provider credits. A Vercel request cannot host an endless Python loop. The collector must run as a persistent process/service; no such host was configured or left running here. The UI reports a scan as stale after five minutes. Scheduled GitHub model refreshes are not claimed to provide instant alerts.
+This is a polling collector, not exchange tick data. The default is one scan per 60 seconds, plus request latency, and it consumes provider credits. A Vercel request cannot host an endless Python loop. The collector runs on the owner’s Windows PC using scripts/run_local_scanner.py. A sign-in shortcut starts it hidden; a file lock prevents duplicate workers. It pauses while the PC sleeps or is off. Hourly downloads refresh local settlement inputs without changing the repository checkout. There is no paid cloud worker. The UI reports a scan as stale after five minutes. Scheduled GitHub model refreshes are not claimed to provide instant alerts.
 
 Displayed-price arbitrage requires complementary exact contracts, different books, synchronized timestamps and an estimated margin above 0.5%. Stakes are apportioned by inverse payout. Limits, simultaneous acceptance, injury/void differences and withdrawal costs remain unverified; alerts call these candidates, not guaranteed profit. There is no market-volume or public-betting signal without its required data.
 
@@ -56,4 +56,9 @@ Displayed-price arbitrage requires complementary exact contracts, different book
 Future closing prices never enter the original decision. A same-contract sharp observation within ten minutes of kickoff is labeled a near-kickoff sample, not necessarily the actual last market price. Getting a better price than that later benchmark is complementary evidence to realized returns; neither proves a causal advantage across a few games.
 
 ## Activation still needed
-Supabase project migration/owner account/secrets; Telegram or Discord destination credentials; a persistent collector host; verified official inactive reports. Circa was absent in the observed feed, so the default two-book gate also blocks action when only Pinnacle is available. Do not relabel a recreational book to satisfy it.
+Verified official inactive reports remain required. Supabase is connected and the private Discord market-alerts webhook passed a labeled delivery test. The Windows collector uses excluded local credentials. No official reports are fabricated to force alerts. Circa was absent in the observed feed, so the default two-book gate also blocks action when only Pinnacle is available. Do not relabel a recreational book to satisfy it.
+
+## Local storage and validation limits
+Raw polling quotes are retained in private/topdown.sqlite. By default Supabase receives decisions, reference observations, settlements, notifications and run status; set SUPABASE_SYNC_RAW_QUOTES=1 only if the cloud storage budget supports it. Historical quotes already mirrored during setup remain untouched. The private React view refreshes the latest run every minute after sign-in.
+
+Existing score-model walk-forward error estimates are not a return backtest of this price strategy. A valid return test needs time-stamped multi-book prices and official availability information as known at each decision, followed by real settlements. We have not obtained that historical archive. Tests verify math, stale/future quote rejection, official-report gates and date-ordered scoring, but do not establish profitable returns. Never backfill today’s probabilities onto past results and call it a backtest.

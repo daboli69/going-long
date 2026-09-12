@@ -20,7 +20,10 @@ class Journal:
     def sync(self):
         url,key,owner=(os.getenv(k) for k in ('SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY','GOING_OWNER_ID'))
         if not all((url,key,owner)):return {'status':'not_configured'}
-        records=self.db.execute("SELECT id,kind,observed_at,payload FROM journal WHERE synced=0 ORDER BY CASE WHEN kind='quote' THEN 1 ELSE 0 END, observed_at LIMIT 1000").fetchall()
+        # Raw polling quotes stay on disk; mirror decisions and their evidence,
+        # rather than exhausting a small cloud database with unchanged markets.
+        quote_filter='' if os.getenv('SUPABASE_SYNC_RAW_QUOTES')=='1' else " AND kind!='quote'"
+        records=self.db.execute("SELECT id,kind,observed_at,payload FROM journal WHERE synced=0"+quote_filter+" ORDER BY CASE WHEN kind='quote' THEN 1 ELSE 0 END, observed_at LIMIT 1000").fetchall()
         if not records:return {'status':'up_to_date'}
         r=requests.post(url.rstrip('/')+'/rest/v1/market_journal?on_conflict=id',headers={'apikey':key,'Authorization':'Bearer '+key,'Prefer':'resolution=ignore-duplicates','Content-Type':'application/json'},json=[{'id':id,'owner_id':owner,'kind':kind,'observed_at':at,'payload':json.loads(body)} for id,kind,at,body in records],timeout=30)
         r.raise_for_status()
