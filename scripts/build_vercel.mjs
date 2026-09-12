@@ -11,3 +11,6 @@ await copyFile(new URL('index.html',root),new URL('long/index.html',output));
 await cp(new URL('apps/yard/',root),new URL('yard/',output),{recursive:true});
 await cp(new URL('data/',root),new URL('data/',output),{recursive:true});
 console.log('Vercel public assets built:',fileURLToPath(output));
+
+const {buildValidation}=await import('./build_validation.mjs');
+await buildValidation();

@@ -29,7 +29,7 @@
       ]
     },
     {
-      "source": "/:sport(long|yard)/",
+      "source": "/:sport(long|yard|validation)/",
       "headers": [
         {
           "key": "Cache-Control",
@@ -47,6 +47,11 @@
     {
       "source": "/yard",
       "destination": "/yard/",
+      "permanent": true
+    },
+    {
+      "source": "/validation",
+      "destination": "/validation/",
       "permanent": true
     }
   ],

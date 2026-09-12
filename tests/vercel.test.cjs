@@ -33,3 +33,8 @@ test('Shared baseball snapshots allow only public assets and coalesce requests',
   const a=response(),b=response();await Promise.all([handler({method:'GET',url:'/api/yard-snapshot?file=board.json'},a),handler({method:'GET',url:'/api/yard-snapshot?file=board.json'},b)]);assert.equal(calls,1);assert.equal(a.statusCode,200);assert.deepEqual(JSON.parse(b.body),{players:[]});
  }finally{global.fetch=before;}
 });
+
+test('Validation config never emits a service-role key mistaken for a public key',async()=>{
+ const {default:handler}=await import('../api/validation-config.mjs');const before=process.env.SUPABASE_PUBLISHABLE_KEY;
+ try{process.env.SUPABASE_PUBLISHABLE_KEY='sb_secret_private';const res=response();handler({method:'GET'},res);assert.equal(JSON.parse(res.body).publishableKey,null);}finally{if(before===undefined)delete process.env.SUPABASE_PUBLISHABLE_KEY;else process.env.SUPABASE_PUBLISHABLE_KEY=before;}
+});
