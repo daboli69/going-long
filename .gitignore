@@ -4,3 +4,7 @@ __pycache__/
 .venv/
 node_modules/
 dist/
+private/
+.env
+.env.*
+!.env.example
