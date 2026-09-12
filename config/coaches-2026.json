@@ -1,0 +1,232 @@
+{
+  "season": 2026,
+  "verified_at": "2026-09-11",
+  "source_updated": "2026-09-09",
+  "source": "https://g.espncdn.com/s/ffldraftkit/26/NFLDK2026_CS_ClayProjections2026.pdf",
+  "teams": {
+    "ARI": {
+      "head_coach": "Mike LaFleur",
+      "offensive_coordinator": "Nathaniel Hackett",
+      "play_caller": "Mike LaFleur",
+      "defensive_coordinator": "Nick Rallis",
+      "general_manager": "Monti Ossenfort"
+    },
+    "ATL": {
+      "head_coach": "Kevin Stefanski",
+      "offensive_coordinator": "Tommy Rees",
+      "play_caller": "Tommy Rees",
+      "defensive_coordinator": "Jeff Ulbrich",
+      "general_manager": "Ian Cunningham"
+    },
+    "BAL": {
+      "head_coach": "Jesse Minter",
+      "offensive_coordinator": "Declan Doyle",
+      "play_caller": "Declan Doyle",
+      "defensive_coordinator": "Anthony Weaver",
+      "general_manager": "Eric DeCosta"
+    },
+    "BUF": {
+      "head_coach": "Joe Brady",
+      "offensive_coordinator": "Pete Carmichael Jr.",
+      "play_caller": "Joe Brady",
+      "defensive_coordinator": "Jim Leonhard",
+      "general_manager": "Brandon Beane"
+    },
+    "CAR": {
+      "head_coach": "Dave Canales",
+      "offensive_coordinator": "Brad Idzik",
+      "play_caller": "Brad Idzik",
+      "defensive_coordinator": "Ejiro Evero",
+      "general_manager": "Dan Morgan"
+    },
+    "CHI": {
+      "head_coach": "Ben Johnson",
+      "offensive_coordinator": "Press Taylor",
+      "play_caller": "Ben Johnson",
+      "defensive_coordinator": "Dennis Allen",
+      "general_manager": "Ryan Poles"
+    },
+    "CIN": {
+      "head_coach": "Zac Taylor",
+      "offensive_coordinator": "Dan Pitcher",
+      "play_caller": "Zac Taylor",
+      "defensive_coordinator": "Al Golden",
+      "general_manager": "Duke Tobin"
+    },
+    "CLE": {
+      "head_coach": "Todd Monken",
+      "offensive_coordinator": "Travis Switzer",
+      "play_caller": "Todd Monken",
+      "defensive_coordinator": "Mike Rutenberg",
+      "general_manager": "Andrew Berry"
+    },
+    "DAL": {
+      "head_coach": "Brian Schottenheimer",
+      "offensive_coordinator": "Klayton Adams",
+      "play_caller": "Brian Schottenheimer",
+      "defensive_coordinator": "Christian Parker",
+      "general_manager": "Jerry Jones"
+    },
+    "DEN": {
+      "head_coach": "Sean Payton",
+      "offensive_coordinator": "Davis Webb",
+      "play_caller": "Davis Webb",
+      "defensive_coordinator": "Vance Joseph",
+      "general_manager": "George Paton"
+    },
+    "DET": {
+      "head_coach": "Dan Campbell",
+      "offensive_coordinator": "Drew Petzing",
+      "play_caller": "Drew Petzing",
+      "defensive_coordinator": "Kelvin Sheppard",
+      "general_manager": "Brad Holmes"
+    },
+    "GB": {
+      "head_coach": "Matt LaFleur",
+      "offensive_coordinator": "Adam Stenavich",
+      "play_caller": "Matt LaFleur",
+      "defensive_coordinator": "Jonathan Gannon",
+      "general_manager": "Brian Gutekunst"
+    },
+    "HOU": {
+      "head_coach": "DeMeco Ryans",
+      "offensive_coordinator": "Nick Caley",
+      "play_caller": "Nick Caley",
+      "defensive_coordinator": "Matt Burke",
+      "general_manager": "Nick Caserio"
+    },
+    "IND": {
+      "head_coach": "Shane Steichen",
+      "offensive_coordinator": "Jim Bob Cooter",
+      "play_caller": "Shane Steichen",
+      "defensive_coordinator": "Lou Anarumo",
+      "general_manager": "Chris Ballard"
+    },
+    "JAX": {
+      "head_coach": "Liam Coen",
+      "offensive_coordinator": "Grant Udinski",
+      "play_caller": "Liam Coen",
+      "defensive_coordinator": "Anthony Campanile",
+      "general_manager": "James Gladstone"
+    },
+    "KC": {
+      "head_coach": "Andy Reid",
+      "offensive_coordinator": "Eric Bieniemy",
+      "play_caller": "Andy Reid",
+      "defensive_coordinator": "Steve Spagnuolo",
+      "general_manager": "Brett Veach"
+    },
+    "LAC": {
+      "head_coach": "Jim Harbaugh",
+      "offensive_coordinator": "Mike McDaniel",
+      "play_caller": "Mike McDaniel",
+      "defensive_coordinator": "Chris O'Leary",
+      "general_manager": "Joe Horitz"
+    },
+    "LA": {
+      "head_coach": "Sean McVay",
+      "offensive_coordinator": "Nate Scheelhasse",
+      "play_caller": "Sean McVay",
+      "defensive_coordinator": "Chris Shula",
+      "general_manager": "Les Snead"
+    },
+    "LV": {
+      "head_coach": "Klint Kubiak",
+      "offensive_coordinator": "Andrew Janocko",
+      "play_caller": "Klint Kubiak",
+      "defensive_coordinator": "Rob Leonard",
+      "general_manager": "John Spytek"
+    },
+    "MIA": {
+      "head_coach": "Jeff Hafley",
+      "offensive_coordinator": "Bobby Slowik",
+      "play_caller": "Bobby Slowik",
+      "defensive_coordinator": "Sean Duggan",
+      "general_manager": "Jon-Eric Sullivan"
+    },
+    "MIN": {
+      "head_coach": "Kevin O'Connell",
+      "offensive_coordinator": "Wes Phillips",
+      "play_caller": "Kevin O'Connell",
+      "defensive_coordinator": "Brian Flores",
+      "general_manager": "Nolan Teasley"
+    },
+    "NE": {
+      "head_coach": "Mike Vrabel",
+      "offensive_coordinator": "Josh McDaniels",
+      "play_caller": "Josh McDaniels",
+      "defensive_coordinator": "Zak Kuhr",
+      "general_manager": "Eliot Wolf"
+    },
+    "NO": {
+      "head_coach": "Kellen Moore",
+      "offensive_coordinator": "Doug Nussmeier",
+      "play_caller": "Kellen Moore",
+      "defensive_coordinator": "Brandon Staley",
+      "general_manager": "Mickey Loomis"
+    },
+    "NYG": {
+      "head_coach": "John Harbaugh",
+      "offensive_coordinator": "Matt Nagy",
+      "play_caller": "Matt Nagy",
+      "defensive_coordinator": "Dennard Wilson",
+      "general_manager": "Joe Schoen"
+    },
+    "NYJ": {
+      "head_coach": "Aaron Glenn",
+      "offensive_coordinator": "Frank Reich",
+      "play_caller": "Frank Reich",
+      "defensive_coordinator": "Brian Duker",
+      "general_manager": "Darren Mougey"
+    },
+    "PHI": {
+      "head_coach": "Nick Sirianni",
+      "offensive_coordinator": "Sean Mannion",
+      "play_caller": "Sean Mannion",
+      "defensive_coordinator": "Vic Fangio",
+      "general_manager": "Howie Roseman"
+    },
+    "PIT": {
+      "head_coach": "Mike McCarthy",
+      "offensive_coordinator": "Brian Angelichio",
+      "play_caller": "Mike McCarthy",
+      "defensive_coordinator": "Patrick Graham",
+      "general_manager": "Omar Khan"
+    },
+    "SEA": {
+      "head_coach": "Mike Macdonald",
+      "offensive_coordinator": "Brian Fleury",
+      "play_caller": "Brian Fleury",
+      "defensive_coordinator": "Aden Durde",
+      "general_manager": "John Schneider"
+    },
+    "SF": {
+      "head_coach": "Kyle Shanahan",
+      "offensive_coordinator": "Klay Kubiak",
+      "play_caller": "Kyle Shanahan",
+      "defensive_coordinator": "Raheem Morris",
+      "general_manager": "John Lynch"
+    },
+    "TB": {
+      "head_coach": "Todd Bowles",
+      "offensive_coordinator": "Zac Robinson",
+      "play_caller": "Zac Robinson",
+      "defensive_coordinator": "Todd Bowles",
+      "general_manager": "Jason Licht"
+    },
+    "TEN": {
+      "head_coach": "Robert Saleh",
+      "offensive_coordinator": "Brian Daboll",
+      "play_caller": "Brian Daboll",
+      "defensive_coordinator": "Gus Bradley",
+      "general_manager": "Mike Borgonzi"
+    },
+    "WAS": {
+      "head_coach": "Dan Quinn",
+      "offensive_coordinator": "David Blough",
+      "play_caller": "David Blough",
+      "defensive_coordinator": "Daronte Jones",
+      "general_manager": "Adam Peters"
+    }
+  }
+}

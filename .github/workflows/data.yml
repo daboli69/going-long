@@ -1,7 +1,7 @@
 name: Refresh Going Long data
 on:
   schedule:
-    - cron: '20 10 * * *'
+    - cron: '20 10,22 * * *'
   workflow_dispatch:
   push:
     paths:
@@ -61,6 +61,10 @@ jobs:
         id: projections
         continue-on-error: true
         run: python scripts/build_pipeline.py
+      - name: Build football opportunity and coaching context
+        id: context
+        continue-on-error: true
+        run: python scripts/football_context.py
       - name: Build settlement observations
         run: python scripts/build_results.py
       - name: Commit generated snapshots
@@ -69,7 +73,7 @@ jobs:
           set -euo pipefail
           git config user.name goinglong-bot
           git config user.email actions@github.com
-          paths=(data/results.json data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
+          paths=(data/football_context.json data/results.json data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
           existing=()
           for path in "${paths[@]}"; do
             if [ -e "$path" ]; then existing+=("$path"); fi
@@ -91,7 +95,7 @@ jobs:
           done
           exit 1
       - name: Report source failures
-        if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' }}
+        if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' || steps.context.outcome == 'failure' }}
         run: |
           echo 'A data source failed. Successful snapshots were committed; inspect the failed step.'
           exit 1
