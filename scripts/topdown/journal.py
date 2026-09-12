@@ -12,6 +12,8 @@ class Journal:
         Path(path).parent.mkdir(parents=True,exist_ok=True)
         self.db=sqlite3.connect(path)
         self.db.execute('CREATE TABLE IF NOT EXISTS journal(id TEXT PRIMARY KEY, kind TEXT NOT NULL, observed_at TEXT NOT NULL, payload TEXT NOT NULL, synced INTEGER DEFAULT 0)')
+        self.db.execute('CREATE INDEX IF NOT EXISTS journal_kind_time ON journal(kind,observed_at)')
+        self.db.execute('CREATE INDEX IF NOT EXISTS journal_delivery ON journal(synced,observed_at)')
     def append(self,kind,id,payload):
         at=payload.get('observed_at') or datetime.now(timezone.utc).isoformat()
         self.db.execute('INSERT OR IGNORE INTO journal(id,kind,observed_at,payload) VALUES(?,?,?,?)',(id,kind,at,json.dumps(payload,allow_nan=False)));self.db.commit()
@@ -23,7 +25,7 @@ class Journal:
         # Raw polling quotes stay on disk; mirror decisions and their evidence,
         # rather than exhausting a small cloud database with unchanged markets.
         quote_filter='' if os.getenv('SUPABASE_SYNC_RAW_QUOTES')=='1' else " AND kind!='quote'"
-        records=self.db.execute("SELECT id,kind,observed_at,payload FROM journal WHERE synced=0"+quote_filter+" ORDER BY CASE WHEN kind='quote' THEN 1 ELSE 0 END, observed_at LIMIT 1000").fetchall()
+        records=self.db.execute("SELECT id,kind,observed_at,payload FROM journal WHERE synced=0"+quote_filter+" ORDER BY CASE WHEN kind='run' THEN 0 WHEN kind='notification' THEN 1 WHEN kind='quote' THEN 3 ELSE 2 END, observed_at LIMIT 1000").fetchall()
         if not records:return {'status':'up_to_date'}
         r=requests.post(url.rstrip('/')+'/rest/v1/market_journal?on_conflict=id',headers={'apikey':key,'Authorization':'Bearer '+key,'Prefer':'resolution=ignore-duplicates','Content-Type':'application/json'},json=[{'id':id,'owner_id':owner,'kind':kind,'observed_at':at,'payload':json.loads(body)} for id,kind,at,body in records],timeout=30)
         r.raise_for_status()

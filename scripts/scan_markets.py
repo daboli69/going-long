@@ -107,6 +107,7 @@ def scan(journal, send=False):
     for q in quotes:
         if q['book'] in SHARP and fair_pair(q['prices']):groups.setdefault(q['selection'],[]).append(q)
     for p in journal.rows('prediction'):
+        if not p.get('actionable') or not 0<stamp(p['kickoff'])-now<=600:continue
         for q in groups.get(p['selection'],[]):
             qt=stamp(q['updated_at']);kick=stamp(p['kickoff'])
             if qt is not None and stamp(p['observed_at'])<qt<kick and 0<=now-qt<=180:
