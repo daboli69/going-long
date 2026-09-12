@@ -182,7 +182,7 @@ def evaluate(quotes, reports, now, bankroll=1000, min_ev=.03, min_sharps=1, prev
             legs = [max(executable, key=lambda q:decimal(q['prices'][i])) for i in (0,1)]
             ds = [decimal(q['prices'][i]) for i,q in enumerate(legs)];cost = sum(1/d for d in ds)
             if legs[0]['book'] != legs[1]['book'] and cost < .995 and abs(stamp(legs[0]['updated_at'])-stamp(legs[1]['updated_at'])) <= 30:
-                arbs.append({'selection':key,'event':legs[0]['event'],'sport':legs[0].get('sport','nfl'),'return_if_executable':1/cost-1,'stakes_per_100':[100/d/cost for d in ds],'books':[q['book'] for q in legs],'actionable':market_gate(reports.get(legs[0]['event']),legs[0],now),'note':'Displayed-price candidate. Limits, accepted stakes and matching void rules are not verified.'})
+                arbs.append({'home':legs[0]['home'],'away':legs[0]['away'],'market':legs[0]['market'],'player':legs[0].get('player'),'line':legs[0]['line'],'legs':[{'side':q['sides'][i],'line':-q['line'] if q['market']=='spreads' and i==1 else q['line'],'american':q['prices'][i],'book':q['book'],'stake_per_100':100/ds[i]/cost} for i,q in enumerate(legs)],'selection':key,'event':legs[0]['event'],'sport':legs[0].get('sport','nfl'),'return_if_executable':1/cost-1,'stakes_per_100':[100/d/cost for d in ds],'books':[q['book'] for q in legs],'actionable':market_gate(reports.get(legs[0]['event']),legs[0],now),'note':'Displayed-price candidate. Limits, accepted stakes and matching void rules are not verified.'})
     return predictions, arbs
 
 

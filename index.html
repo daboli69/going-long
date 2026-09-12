@@ -49,6 +49,7 @@
     max-height:80vh;overflow-y:auto;transform:translateY(100%);transition:transform .22s ease;
     padding-bottom:env(safe-area-inset-bottom);
   }
+  .cfg-sheet:not(.show){visibility:hidden;pointer-events:none}
   .cfg-sheet.show{transform:translateY(0)}
   .cfg-sheet-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel-2)}
   .cfg-sheet-head b{font:700 16px/1 "Barlow Condensed",sans-serif;text-transform:uppercase;letter-spacing:.04em;color:var(--bone)}
@@ -499,6 +500,7 @@
   .sig-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:12px}.sig-card{min-width:0;border:1px solid #384238;border-radius:12px;padding:16px;background:#171d19}.sig-card p,#btSignalsPanel p{line-height:1.6;color:#bcc7be}.sig-card small{color:#b6beb8}.sig-card .bt-who b,.sig-card .bt-who small{display:block}.sig-card button{flex-shrink:0}.sig-numbers{font-variant-numeric:tabular-nums}.sig-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}.sig-actions input{flex:1;min-width:160px}#view-betting #sigFilters{display:flex;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px}#sigFilters button{white-space:nowrap;flex-shrink:0}#sigSlate{display:flex;gap:8px;overflow-x:auto;margin:12px 0}#sigSlate span{padding:12px;border:1px solid #39423b;border-radius:9px;white-space:nowrap}#btSignalsPanel h3{margin-top:28px}#sigCards,#sigIdeas,#sigTrust{scroll-margin-top:150px}#btSignalsPanel a.btn{min-height:44px;display:inline-flex;align-items:center;background:#28332b;color:#e8eee9;font-size:12px;padding:8px;text-decoration:none;flex:1;justify-content:center;white-space:nowrap}#btSignalsPanel details{border-top:1px solid #354037;padding:8px 0}#btSignalsPanel summary{cursor:pointer;display:flex;align-items:center}#btSignalsPanel button,#btSignalsPanel select{padding:8px 12px;border-radius:8px;border:1px solid #566158;background:#202a23;color:#f3f6f3}#btSignalsPanel button[aria-pressed=true]{border-color:#ef824d;color:#ffac7e}#btSignalsPanel h2 small{font-size:12px;color:#ffac7e}#btSignalsPanel{overflow-wrap:anywhere}#sigTrust .sig-card{margin:10px 0}#sigTrust select{max-width:100%}@media(max-width:600px){#btTabGroup{grid-template-columns:repeat(4,minmax(0,1fr))}.sig-card{padding:12px}.sig-card .bt-card-top{flex-wrap:wrap}}
 
 .football-badge{padding:10px;border:1px solid #bf754b;border-radius:8px;color:#ffac7e}.football-badge small{display:block;font-size:11px}.football-notes summary{cursor:pointer;display:flex;align-items:center;min-height:44px}.football-notes li{margin:10px 0;line-height:1.6}.football-notes{font-size:13px;color:#bdc9bf}.football-notes small{display:block;color:#a1afa4}.football-notes ul{padding-left:18px}
+@media(max-width:600px){#btTabGroup{display:flex!important;overflow-x:auto;flex-wrap:nowrap}#btTabGroup button{flex:0 0 auto;min-height:44px;padding:8px 12px!important}}#btBestPanel{overflow-wrap:anywhere}#btBestPanel p{line-height:1.6;color:#bdc8c0}#btBestPanel h3{margin-top:28px}
 </style>
 </head>
 <body>
@@ -750,7 +752,7 @@
         <button data-sport="ncaa" aria-pressed="false">NCAA</button>
       </div>
       <div class="pos-group" id="btTabGroup">
-        <button data-tab="props" aria-pressed="true">Player Props</button>
+        <button data-tab="best" aria-pressed="false">Best Plays</button><button data-tab="props" aria-pressed="true">Player Props</button>
         <button data-tab="games" aria-pressed="false">Game Lines</button><button data-tab="projections" aria-pressed="false">Projections</button><button data-tab="signals" aria-pressed="false">Signals</button>
       </div>
     </div>
@@ -758,6 +760,7 @@
     <p class="bt-note" id="btWeekNote"></p>
     <p class="bt-note" id="btDataNote" role="status">Loading odds and historical projections…</p>
     <div id="btLoadPropsNote" role="status"></div>
+    <section id="btBestPanel" hidden aria-label="Best plays today"><h2>Best plays today</h2><p>Upcoming games today, Eastern time. Each card is a single bet to investigate. Estimates are not proven win rates; final availability and price checks remain in <a href="/validation/">Validation</a>.</p><div class="pos-group" id="bestKind"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">NFL props</button></div><p id="bestStatus" role="status"></p><h3>Highest estimated win chance</h3><p>Ranked by the historical model’s chance of winning. A likely winner can still be overpriced.</p><div id="bestChance" class="sig-grid"></div><h3>Best value</h3><p>Fresh Pinnacle-led prices suggest a better payout here. We remove the books’ built-in charge and reduce the estimate for uncertainty. This shortlist has not passed the scanner’s final betting checks.</p><div id="bestValue" class="sig-grid"></div></section>
     <section id="btSignalsPanel" hidden aria-label="Football signals">
       <h2>Reasons to take a closer look <small>Experimental</small></h2>
       <p>Reasons to investigate, not proven advantages. More categories do not mean a measured increase in win chance.</p><nav class="sig-actions" aria-label="Signals sections"><a class="btn" href="#sigCards">Current looks</a><a class="btn" href="#sigIdeas">Two-leg ideas</a><a class="btn" href="#sigTrust">Saved &amp; results</a></nav>
@@ -3672,7 +3675,7 @@ async function signalCandidates(){
   const home=p.eventTeams?.[0],away=p.eventTeams?.[1];if(!home||!away)continue;
   const event=signalEvent('nfl',home,away,p.kickoff),spread=signalMedian([...(spreads.get(event)?.values()||[])]);
   quotes.push({kind:'prop',sport:'nfl',home,away,event,kickoff:p.kickoff,player:p.player,profileId:p.profileId,profileDate:p.profileDate,team:p.team,opp:p.opp,position:BET.history?.profiles?.[p.profileId]?.position,market:p.market,line:p.line,side:r.side,odds:r.odds,dec:r.dec,prob:r.prob,push:r.push,ev:r.ev,book:p.book,updatedAt:p.updatedAt,n:p.model?.n,teamSpread:spread==null?null:p.team===home?spread:-spread,reference:signalReference(r.odds,r.side==='Under'?p.overOdds:p.underOdds,r.push)});
-  if(!['atd','first_td'].includes(p.market)){const side=r.side==='Under'?'Over':'Under',dec=americanToDecimal(side==='Over'?p.overOdds:p.underOdds);if(dec)tracking.push({key:[event,'prop',p.profileId,p.market,p.line,side].join('|'),book:p.book,kickoff:p.kickoff,updatedAt:p.updatedAt,dec});}
+  if(!['atd','first_td'].includes(p.market)){const side=r.side==='Under'?'Over':'Under',odds=side==='Over'?p.overOdds:p.underOdds,dec=americanToDecimal(odds),prob=propProbabilities(p)?.[side.toLowerCase()];if(dec&&finiteNumber(prob))quotes.push({...quotes[quotes.length-1],side,odds,dec,prob,ev:evPercent(prob,dec,r.push),reference:signalReference(odds,r.odds,r.push)});}
  }
  const contracts=new Map();for(const c of quotes){c.contract=[c.event,c.kind,c.profileId||'',c.market,c.line,c.side].join('|');c.key=c.contract;
   if(!contracts.has(c.contract))contracts.set(c.contract,[]);contracts.get(c.contract).push(c);
@@ -3686,6 +3689,55 @@ async function signalLoadResults(){
  SIGNAL.resultsAt=Date.now();
  try{const response=await fetch('/api/snapshot?file=results.json');if(!response.ok)throw Error('unavailable');const data=await response.json();if(data.schema_version!==1||!data.games||!data.players)throw Error('invalid');SIGNAL.results=data;SIGNAL.resultNote=`Public results checked ${new Date(data.generated_at).toLocaleString()}. ${Object.entries(data.sources||{}).filter(([,v])=>v.status!=='loaded').map(([k])=>k.toUpperCase()+' source unavailable; prior results retained.').join(' ')}`;}
  catch{SIGNAL.resultNote='Public results are unavailable. Saved picks remain pending; no losses or zeroes are assumed.';}
+}
+let BEST_KIND='all',BEST_VERSION=0;
+function bestPriceCandidates(){
+ const rows=[],add=(base,prices,sides)=>{const ds=prices.map(americanToDecimal);if(ds.some(d=>!d))return;for(let i=0;i<2;i++){const c={...base,side:sides[i],odds:prices[i],dec:ds[i],push:0,reference:{win:(1/ds[i])/(1/ds[0]+1/ds[1])},flags:[]};c.contract=[c.event,c.kind,c.profileId||'',c.market,c.line,c.side].join('|');rows.push(c);}};
+ for(const g of BET.games){if(g.source==='manual'||!activeGameQuote(g)||footballDate(g.kickoff)!==footballDate(Date.now()))continue;
+  const home=g.homeCode||g.home,away=g.awayCode||g.away,base={kind:'game',sport:g.sport,home,away,event:signalEvent(g.sport,home,away,g.kickoff),kickoff:g.kickoff,book:g.book,player:`${away} @ ${home}`};
+  for(const [market,line,prices,key] of [['spread',g.spread,[g.homeSpreadOdds,g.awaySpreadOdds],'spreads'],['total',g.total,[g.overOdds,g.underOdds],'totals'],['moneyline',0,[g.mlHome,g.mlAway],'h2h']]){
+   if(!currentGameMarket(g,key)||!(market==='moneyline'?g.sport==='ncaa':finiteNumber(line)&&Math.abs(line%1)===.5))continue;
+   add({...base,market,line,updatedAt:g.marketTimes?.[key]||g.updatedAt},prices,market==='total'?['Over','Under']:['Home','Away']);
+  }
+ }
+ for(const p of BET.props){if(!currentWeekProp(p)||p.dfs||p.manual||p.source==='manual'||quoteState(p)||!finiteNumber(p.line)||Math.abs(p.line%1)!==.5||['atd','first_td'].includes(p.market))continue;
+  const [home,away]=p.eventTeams||[];if(!home||!away)continue;add({kind:'prop',sport:'nfl',home,away,event:signalEvent('nfl',home,away,p.kickoff),kickoff:p.kickoff,profileId:p.profileId||normalizeBetName(p.player),player:p.player,team:p.team,market:p.market,line:p.line,book:p.book,updatedAt:p.updatedAt},[p.overOdds,p.underOdds],['Over','Under']);
+ }
+ return rows;
+}
+function rankBestPlays(rows,quotes,sport,kind,now=Date.now()){
+ const today=footballDate(now),aliases={cris:'bookmaker',bookmaker_eu:'bookmaker',betonline:'betonlineag'},book=x=>aliases[x]||x;
+ const fresh=c=>{const age=now-Date.parse(c.updatedAt);return age>=0&&age<=300000;};
+ const eligible=rows.filter(c=>c.sport===sport&&(kind==='all'||c.kind===kind)&&footballDate(c.kickoff)===today&&Date.parse(c.kickoff)>now&&fresh(c));
+ const unique=(list)=>{const used=new Set();return list.filter(c=>{const key=[c.event,c.kind,c.profileId||'',c.market].join('|');if(used.has(key))return false;used.add(key);return true;}).slice(0,6);};
+ const chance=unique(eligible.filter(c=>Number.isFinite(c.prob)&&c.prob>0&&c.prob<1&&c.n>=5&&!c.flags.some(f=>f.id==='check')).sort((a,b)=>b.prob-a.prob||b.ev-a.ev));
+ const grouped=new Map();for(const q of quotes){if(!q.contract||!fresh(q)||!q.reference||q.push!==0)continue;if(!grouped.has(q.contract))grouped.set(q.contract,[]);grouped.get(q.contract).push(q);}
+ const values=[];
+ for(const c of eligible){if(c.push!==0)continue;const peers=grouped.get(c.contract)||[];
+  // Evaluate each recreational book: the largest payout may be too far out of sync.
+  for(const rec of peers.filter(q=>['draftkings','fanduel','betmgm','caesars','fanatics','betrivers'].includes(book(q.book)))){
+   const refs=new Map();for(const q of peers){if(!['pinnacle','circa','bookmaker','betonlineag'].includes(book(q.book))||Math.abs(Date.parse(q.updatedAt)-Date.parse(rec.updatedAt))>60000)continue;const prior=refs.get(book(q.book));if(!prior||Date.parse(q.updatedAt)>Date.parse(prior.updatedAt))refs.set(book(q.book),q);}
+   if(!refs.has('pinnacle'))continue;const ps=[...refs.values()].map(q=>q.reference.win);if(ps.some(p=>!Number.isFinite(p))||Math.max(...ps)-Math.min(...ps)>.03)continue;
+   const prob=Math.max(0,Math.min(...ps)-.01),ev=prob*rec.dec-1,threshold=(rec.dec<1.67?.025:.03)+(refs.size===1?.005:0);
+   if(ev<threshold)continue;values.push({...c,...rec,prob,ev,flags:c.flags,referenceBooks:[...refs.keys()],threshold});
+  }
+ }
+ return {chance,value:unique(values.sort((a,b)=>b.ev-a.ev||b.prob-a.prob)),count:new Set(eligible.map(c=>c.contract)).size};
+}
+function bestPlayCard(c,value=false){
+ const side=c.side==='Home'?c.home:c.side==='Away'?c.away:c.side,line=c.market==='spread'&&c.side==='Away'?-c.line:c.line;
+ const label=c.market==='moneyline'?`${side} to win`:c.market==='first_td'?`${c.player} to score first`:c.market==='atd'?`${c.player} to score a touchdown`:`${side} ${line>0&&c.market==='spread'?'+':''}${line} ${c.kind==='prop'?(MARKET_LABEL[c.market]||c.market):c.market==='spread'?'spread':'total points'}`;
+ const why=value?`The same selection pays ${americanOddsLabel(c.odds)} here. Compared with ${c.referenceBooks.join(' + ')}, the reduced estimate clears a ${(c.threshold*100).toFixed(1)}% return requirement.`:`This selection has one of today’s highest historical-model win estimates across eligible bets. It uses ${c.n} recorded games${c.profileDate?', through '+c.profileDate:''}.`;
+ return `<article class="sig-card">${teamBadge(c.team)}<h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><b>${esc(label)}</b><p>${esc(c.book)} · ${americanOddsLabel(c.odds)}<br>${esc(c.away)} @ ${esc(c.home)} · ${esc(new Date(c.kickoff).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}))} ET</p><p class="sig-numbers"><b>${percent(c.prob)} estimated win chance</b><br>${c.ev>=0?'+':''}${(c.ev*100).toFixed(1)}¢ estimated profit per $1 over many repeats${c.ev<0?' · Price does not offer estimated value':''}${c.push>0?'<br>'+percent(c.push)+' estimated chance of your stake being returned':''}</p><p>${esc(why)}</p>${c.flags.filter(f=>!['check','gap','price'].includes(f.id)).slice(0,2).map(f=>`<p>${esc(f.why)}</p>`).join('')}<small>${value?'Price-based estimate':'Historical-model estimate'} · Not yet validated<br>Quote ${esc(new Date(c.updatedAt).toLocaleTimeString())}${c.sport==='ncaa'?'<br>Availability not independently verified':'<br>Check official inactives in Validation before betting'}</small></article>`;
+}
+async function renderBestPlays(){
+ const version=++BEST_VERSION,sport=BET.sport;const rows=await signalCandidates();if(version!==BEST_VERSION||BET.tab!=='best'||sport!==BET.sport)return;
+ if(sport==='ncaa'&&BEST_KIND==='prop')BEST_KIND='all';
+ $('bestKind').querySelectorAll('button').forEach(b=>{b.hidden=sport==='ncaa'&&b.dataset.kind==='prop';b.setAttribute('aria-pressed',String(b.dataset.kind===BEST_KIND));});
+ const prices=bestPriceCandidates(),ranked=rankBestPlays([...rows,...prices],[...(SIGNAL.allQuotes||[]),...prices],sport,BEST_KIND);
+ $('bestStatus').textContent=`${sport.toUpperCase()} · ${footballDate(Date.now())} · ${ranked.count} current priced selections checked. Quotes must be no more than five minutes old. At most one side per player/game market appears in each list.`;
+ $('bestChance').innerHTML=ranked.chance.map(c=>bestPlayCard(c)).join('')||'<p>No supported model picks for today yet. Upcoming games, fresh prices and at least five historical games are required; stale or extreme estimates are left out.</p>';
+ $('bestValue').innerHTML=ranked.value.map(c=>bestPlayCard(c,true)).join('')||'<p>No qualifying price advantages for today yet. We need matching Pinnacle prices within 60 seconds, sufficient estimated return and no unresolved returned-stake outcome. The list stays empty when those checks fail.</p>';
 }
 function signalCard(c,index){
  const logged=SIGNAL.ledger.records[c.key],star=logged?.starWeek===footballWeek().start;
@@ -3738,13 +3790,15 @@ function renderBetting(){
   $('btCoverageGroup').hidden=BET.sport!=='ncaa';
   $('btBook').hidden=BET.tab==='projections';
   $('btMarketGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.market===BET.market)));
+  $("btBestPanel").hidden=BET.tab!=="best";
   $("btSignalsPanel").hidden=BET.tab!=="signals";
-  $("btPeriodGroup").hidden=BET.tab==="signals";
-  renderPropsTable(); renderGamesList(); if(BET.tab==="signals")renderSignals();
+  $("btPeriodGroup").hidden=["signals","best"].includes(BET.tab);
+  renderPropsTable(); renderGamesList(); if(BET.tab==="signals")renderSignals(); if(BET.tab==="best")renderBestPlays();
 }
 window.renderBetting=renderBetting;
 function wireBetting(){
   wireSignals();
+  $('bestKind').onclick=e=>{const b=e.target.closest('[data-kind]');if(!b)return;BEST_KIND=b.dataset.kind;renderBestPlays();};
   $('btGamesList').addEventListener('click',e=>{const b=e.target.closest('[data-compare]');if(b)openOddsDrawer(Number(b.dataset.compare));});
   $('btMoreGames').onclick=()=>{BET.gameLimit+=100;renderGamesList();};
   $('btOddsClose').onclick=()=>$('btOddsDialog').close();
@@ -3757,7 +3811,7 @@ function wireBetting(){
     BET.sport=b.dataset.sport;BET.page=0;BET.gameLimit=100;BET.renderVersion++;
     $("btSportGroup").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
     for(const tab of ['props','projections'])$("btTabGroup").querySelector(`[data-tab="${tab}"]`).hidden=BET.sport!=="nfl";
-    if(BET.sport==='ncaa'&&BET.tab!=='signals')BET.tab='games';renderBetting();if(!BET.liveLoaded[BET.sport])refreshLiveOdds(BET.sport);
+    if(BET.sport==='ncaa'&&!['signals','best'].includes(BET.tab))BET.tab='games';renderBetting();if(!BET.liveLoaded[BET.sport])refreshLiveOdds(BET.sport);
   });
   $("btTabGroup").addEventListener("click",e=>{const b=e.target.closest('button');if(b){BET.tab=b.dataset.tab;BET.page=0;if(BET.tab==='projections'){BET.sort='projection';$('btSort').value='projection';if(BET.market==='ALL')BET.market='rec_yds';}BET.renderVersion++;renderBetting();}});
   $("btMarketGroup").addEventListener("click",e=>{const b=e.target.closest('button');if(!b)return;BET.market=b.dataset.market;if(['1H','Q1'].includes(BET.market)){BET.period=BET.market;BET.market='ALL';}else if(['first_td','atd'].includes(BET.market))BET.period='FT';$('btPeriodGroup').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.period===BET.period)));BET.page=0;[...b.parentElement.children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderPropsTable();});

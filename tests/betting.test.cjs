@@ -15,7 +15,7 @@ function setup(t){
   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
   }
-  vm.runInContext(`globalThis.api={BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
+  vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
     mergePartialLive,footballNotes,footballOpportunity,footballOpportunityMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
@@ -324,4 +324,28 @@ test('Partial live refresh keeps failed categories dated while successful quotes
  const {api:a}=setup(t),old={props:[{quoteKey:'q',updatedAt:'old',overOdds:100},{quoteKey:'r',updatedAt:'older'}],games_raw:[{id:'saved'}]};
  const merged=a.mergePartialLive(old,{props_status:'unavailable',odds_status:'unavailable',props:[{quoteKey:'q',updatedAt:'new',overOdds:120}],games_raw:[]});
  assert.equal(merged.props.length,2);assert.equal(merged.props[0].updatedAt,'new');assert.equal(merged.props[1].updatedAt,'older');assert.equal(merged.games_raw[0].id,'saved');
+});
+
+
+test('Daily best plays separate win chance from value and reject stale, unaligned and next-day quotes',t=>{
+ const {api:a}=setup(t),now=Date.parse('2026-09-12T18:00:00Z');
+ const base={sport:'ncaa',kind:'game',event:'one',contract:'one|total|48.5|Over',market:'total',side:'Over',line:48.5,kickoff:'2026-09-12T19:00:00Z',updatedAt:new Date(now).toISOString(),flags:[],push:0,n:12,prob:.8,ev:-.04,book:'betmgm',dec:1.2};
+ const low={...base,event:'two',contract:'two',prob:.5,dec:2.2,ev:.1,reference:{win:.5}};
+ const sharp={...low,book:'pinnacle',reference:{win:.5},dec:2};
+ let r=a.rankBestPlays([base,low],[low,sharp],'ncaa','all',now);
+ assert.equal(r.chance[0].event,'one');assert.equal(r.value[0].event,'two');
+ assert.ok(Math.abs(r.value[0].ev-.078)<1e-8);assert.equal(r.value[0].referenceBooks.length,1);
+ assert.equal(a.rankBestPlays([low],[low,{...sharp,updatedAt:new Date(now-61000).toISOString()}],'ncaa','all',now).value.length,0);
+ assert.equal(a.rankBestPlays([{...base,updatedAt:new Date(now-300001).toISOString()}],[],'ncaa','all',now).chance.length,0);
+ assert.equal(a.rankBestPlays([{...base,kickoff:'2026-09-13T19:00:00Z'}],[],'ncaa','all',now).chance.length,0);
+ assert.equal(a.rankBestPlays([{...low,push:.01}],[{...low,push:.01},sharp],'ncaa','all',now).value.length,0);
+});
+test('Best play labels use away spread sign and escape names',t=>{
+ const {api:a}=setup(t);const text=a.bestPlayCard({kind:'game',sport:'ncaa',market:'spread',side:'Away',line:-3.5,away:'Away <tag>',home:'Home',team:'',book:'betmgm',odds:-110,prob:.6,push:0,ev:.14,n:12,kickoff:new Date().toISOString(),updatedAt:new Date().toISOString(),flags:[]});
+ assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));
+});
+
+test('Price shortlist needs no historical model and retains both opposing sides',t=>{
+ const {api:a}=setup(t),now=Date.now();a.BET.games=[{sport:'ncaa',home:'Home',away:'Away',kickoff:new Date(now+60000).toISOString(),book:'pinnacle',updatedAt:new Date(now).toISOString(),spread:-3.5,homeSpreadOdds:-110,awaySpreadOdds:-110,mlHome:-150,mlAway:130}];
+ const rows=a.bestPriceCandidates();assert.equal(rows.length,4);assert.equal(rows.filter(c=>c.market==='spread').length,2);assert.ok(rows.every(c=>c.reference.win>0));
 });

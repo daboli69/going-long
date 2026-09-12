@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 import requests
 from topdown.model import evaluate, uid, stamp, fair_pair, performance, SHARP, VERSION
 from topdown.feed import normalize
+from topdown.alerts import format_arbitrage
 from topdown.journal import Journal
 from build_pipeline import atomic_json
 
@@ -140,7 +141,7 @@ def scan(journal, send=False):
         alert=uid('arbitrage',arb['selection'],arb['books'])
         if send and arb['actionable'] and alert not in sent:
             try:
-                channel=notify(f"GOING {arb.get('sport','nfl').upper()} displayed-price arbitrage candidate: {arb['selection'][:12]} | {', '.join(arb['books'])} | quoted return {arb['return_if_executable']*100:.1f}%. Accepted stakes, limits and matching void rules still need checking.{' NCAA availability not independently verified.' if arb.get('sport')=='ncaa' else ''}")
+                channel=notify(format_arbitrage(arb))
                 if channel:journal.append('notification',alert,{'alert_key':alert,'channel':channel,'observed_at':at});sent.add(alert)
             except requests.RequestException:failures.append({'endpoint':'notification','type':'delivery_failed_or_unknown'})
     try:sync=journal.sync()
