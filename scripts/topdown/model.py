@@ -156,7 +156,7 @@ def performance(predictions, settlements, now):
     No claims of independence for multiple selections in one game.
     """
     groups = {}; seen = set()
-    for p in sorted(predictions,key=lambda p:p['observed_at']):
+    for p in sorted(predictions,key=lambda p:(p['observed_at'],-p.get('ev',0))):
         decision=(p['event'],p['selection'],p['side'])
         if decision in seen or not p['actionable'] or stamp(p['observed_at']) >= stamp(p['kickoff']):continue
         seen.add(decision);r=settlements.get(p['id'])

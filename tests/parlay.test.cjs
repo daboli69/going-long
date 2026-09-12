@@ -101,3 +101,8 @@ test('MLB separates market requests to avoid a shared row cap and retains partia
  assert.equal(result.coverage.markets.player_home_runs.status,'loaded');assert.equal(result.coverage.markets.player_total_bases.status,'unavailable');
 });
 
+
+test('Unavailable primary props do not discard successful game lines',async()=>{
+ const {fetchParlay}=await import('../server/parlay.mjs');const result=await fetchParlay('nfl','fixture-key',async url=>{if(url.pathname.endsWith('/props'))throw Error('timeout');return Response.json(url.pathname.endsWith('/odds')?[{id:'live-game'}]:[]);});
+ assert.equal(result.props_status,'unavailable');assert.equal(result.odds_status,'loaded');assert.equal(result.games_raw[0].id,'live-game');
+});

@@ -30,7 +30,7 @@ def notify(text):
 
 def feedback(predictions, settlements, now):
     eligible=[];seen=set()
-    for p in sorted(predictions,key=lambda p:p['observed_at']):
+    for p in sorted(predictions,key=lambda p:(p['observed_at'],-p.get('ev',0))):
         key=(p['event'],p['selection'],p['side'])
         s=settlements.get(p['id'])
         if key in seen or not p['actionable']:continue

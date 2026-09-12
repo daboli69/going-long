@@ -3199,6 +3199,17 @@ function updateBetFilters(){
   match.innerHTML='<option value="ALL">All matchups this week</option>'+names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
   match.value=currentMatch;if(!match.value){BET.matchup='ALL';match.value='ALL';}
 }
+function mergePartialLive(previous,fresh){
+ if(!previous)return fresh;
+ const result={...fresh};
+ if(fresh.odds_status==='unavailable')result.games_raw=previous.games_raw||[];
+ if(fresh.period_status==='unavailable')result.period_quotes=[...(previous.period_quotes||[]),...(fresh.period_quotes||[])];
+ if(fresh.props_status==='unavailable'||fresh.derivative_status==='unavailable'){
+  const key=p=>p.quoteKey||JSON.stringify([p.book,p.player,p.market,p.line,p.kickoff,p.overOdds,p.underOdds]);
+  result.props=[...new Map([...(previous.props||[]),...(fresh.props||[])].map(p=>[key(p),p])).values()];
+ }
+ return result;
+}
 async function refreshLiveOdds(sport=BET.sport){
   if(BET.liveLoading){BET.pendingSport=sport;return;}
   BET.liveLoading=true;BET.liveAttempts[sport]=Date.now();
@@ -3207,13 +3218,15 @@ async function refreshLiveOdds(sport=BET.sport){
   let worker,blob;
   try{
     blob=URL.createObjectURL(new Blob([`onmessage=async({data:url})=>{try{const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const body=await r.json();if(body.provider!=='parlay')throw new Error('Invalid feed');postMessage({body});}catch(e){postMessage({error:e.message});}};`],{type:'text/javascript'}));
-    const fresh=await new Promise((resolve,reject)=>{
+    let fresh=await new Promise((resolve,reject)=>{
       const timer=setTimeout(()=>reject(new Error('Request timed out')),55000);
       try{worker=new Worker(blob);}catch(e){clearTimeout(timer);reject(e);return;}
       worker.onmessage=({data})=>{clearTimeout(timer);data.body?resolve(data.body):reject(new Error(data.error));};
       worker.onerror=()=>{clearTimeout(timer);reject(new Error('Live connection failed'));};
       worker.postMessage(new URL(`api/odds?sport=${sport}`,document.baseURI).href);
     });
+    const partial=[fresh.props_status,fresh.odds_status,fresh.period_status,fresh.derivative_status].includes('unavailable');
+    fresh=mergePartialLive(BET[sport==='nfl'?'nflData':'ncaaData'],fresh);
     if(sport==='nfl'){
       BET.nflData=fresh;
       const incoming=await propsFromRealData(fresh),overrides=new Map(BET.props.filter(p=>p.manual&&p.quoteKey).map(p=>[p.quoteKey,p]));
@@ -3221,9 +3234,10 @@ async function refreshLiveOdds(sport=BET.sport){
       BET.props=BET.props.filter(p=>p.source==='manual').concat(incoming);
     }else BET.ncaaData=fresh;
     BET.games=BET.games.filter(g=>g.source==='manual').concat(gamesFromRealData());
-    BET.liveLoaded[sport]=true;BET.liveStatus='live';BET.page=0;
+    BET.liveLoaded[sport]=true;BET.liveStatus=partial?'partial':'live';BET.page=0;
     $('btDataNote').textContent=`Parlay connected · refreshed ${new Date(fresh.generated_at).toLocaleTimeString()} · historical model ${BET.history?.window||12} games`;
     $('btLoadPropsNote').textContent=sport==='nfl'?`${BET.props.length.toLocaleString()} current quotes · ${fresh.coverage?.possibly_truncated?'Provider row limit reached; coverage may be partial.':'Auto-refresh every 5 minutes while visible.'}`:`${(fresh.games_raw||[]).length} ${sport.toUpperCase()} events refreshed. Auto-refresh every 5 minutes while visible.`;
+    if(partial)$('btLoadPropsNote').textContent='Some provider categories are unavailable. Successful quotes refreshed; saved categories keep their original timestamps.';
     updateBetFilters();
   }catch(e){
     BET.liveStatus='snapshot';

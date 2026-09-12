@@ -92,12 +92,13 @@ export async function fetchParlay(sport,key,fetcher=fetch){
   }
   const derivativeKeys=Object.entries(markets).filter(([k])=>k==='first_td'||/_1[hq]$/.test(k)).flatMap(([,v])=>v);
   const [raw, games, periods, derivatives]=await Promise.all([
-    sport==='nfl'?get('props',{markets:Object.keys(MARKET_MAP).join(','),limit:'10000'}):Promise.resolve([]),
-    get('odds',{markets:'h2h,spreads,totals',regions:'us',oddsFormat:'american'}),
+    sport==='nfl'?get('props',{markets:Object.keys(MARKET_MAP).join(','),limit:'10000'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'})):Promise.resolve({rows:[],status:'not_applicable'}),
+    get('odds',{markets:'h2h,spreads,totals',regions:'us',oddsFormat:'american'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'})),
     get('live/period_markets',{period:'all'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'})),
     sport==='nfl'?get('props',{markets:derivativeKeys.join(','),limit:'10000'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'})):Promise.resolve({rows:[],status:'not_applicable'})
   ]);
-  return {provider:'parlay',sport,generated_at:new Date().toISOString(),props:normalizeProps([...raw,...derivatives.rows]),games_raw:games,derivative_status:derivatives.status,
-    period_quotes:[...periodsFromGames(games),...normalizePeriods(periods.rows)],period_status:periods.status,
-    coverage:{raw_props:raw.length,derivative_props:derivatives.rows.length,possibly_truncated:raw.length>=10000||derivatives.rows.length>=10000},odds_status:'loaded'};
+  if(games.status==='unavailable'&&periods.status==='unavailable'&&(raw.status==='unavailable'||sport==='ncaa')&&derivatives.status!=='loaded')throw new Error('Unexpected or unavailable Parlay responses');
+  return {provider:'parlay',sport,generated_at:new Date().toISOString(),props:normalizeProps([...raw.rows,...derivatives.rows]),games_raw:games.rows,props_status:raw.status,derivative_status:derivatives.status,
+    period_quotes:[...periodsFromGames(games.rows),...normalizePeriods(periods.rows)],period_status:periods.status,
+    coverage:{raw_props:raw.rows.length,derivative_props:derivatives.rows.length,possibly_truncated:raw.rows.length>=10000||derivatives.rows.length>=10000},odds_status:games.status};
 }

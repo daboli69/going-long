@@ -18,7 +18,7 @@ function setup(t){
   vm.runInContext(`globalThis.api={BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    footballNotes,footballOpportunity,footballOpportunityMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
+    mergePartialLive,footballNotes,footballOpportunity,footballOpportunityMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -318,4 +318,10 @@ test('Opportunity research stays dated and cannot support an Under or a differen
  assert.equal(a.signalFlags(p,[],{}).find(f=>f.id==='opportunity').family,'role');
  assert.equal(a.signalFlags({...p,side:'Under'},[],{}).find(f=>f.id==='opportunity').family,'audit');
  assert.equal(a.signalFlags({...p,market:'first_td'},[],{}).find(f=>f.id==='opportunity').family,'audit');
+});
+
+test('Partial live refresh keeps failed categories dated while successful quotes replace matching snapshots',t=>{
+ const {api:a}=setup(t),old={props:[{quoteKey:'q',updatedAt:'old',overOdds:100},{quoteKey:'r',updatedAt:'older'}],games_raw:[{id:'saved'}]};
+ const merged=a.mergePartialLive(old,{props_status:'unavailable',odds_status:'unavailable',props:[{quoteKey:'q',updatedAt:'new',overOdds:120}],games_raw:[]});
+ assert.equal(merged.props.length,2);assert.equal(merged.props[0].updatedAt,'new');assert.equal(merged.props[1].updatedAt,'older');assert.equal(merged.games_raw[0].id,'saved');
 });
