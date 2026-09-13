@@ -265,7 +265,8 @@ test('Background loader parses real snapshots and connects shared history',async
     constructor(id){this.code=blobs.get(id);}
     postMessage(data){
       const worker=this;
-      const workerContext=vm.createContext({fetch:async url=>{
+      const workerContext=vm.createContext({AbortSignal,fetch:async url=>{
+        assert.ok(new URL(url).pathname.startsWith('/data/'),'Startup reads the static CDN snapshot before the server proxy');
         const filename=path.basename(new URL(url).pathname);
         return {ok:true,json:async()=>JSON.parse(fs.readFileSync(path.join(__dirname,'../data',filename),'utf8'))};
       },postMessage:result=>worker.onmessage({data:result})});
@@ -364,4 +365,12 @@ test('Promo automatically renders from Fanatics quotes and fails closed on roste
  vm.runInContext('PROMO_AUTO.availability.teams=[]',context);
  await vm.runInContext('renderPromo()',context);
  assert.equal(w.document.querySelectorAll('#promoOptions article').length,0);
+});
+
+test('Started quotes yield by scanned count instead of pausing once per excluded row',async t=>{
+ const {api:a,w}=setup(t);let paints=0;
+ w.requestAnimationFrame=cb=>{paints++;setTimeout(cb,0);};
+ const rows=Array.from({length:1000},()=>({kickoff:'2020-01-01T00:00:00Z'}));
+ assert.equal((await a.propsFromRealData({props:rows})).length,0);
+ assert.ok(paints<=5,`Expected at most five frame yields, received ${paints}`);
 });

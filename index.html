@@ -3013,10 +3013,10 @@ async function propsFromRealData(raw=BET.nflData){
   if(Array.isArray(raw?.props)){
     const result=[];
     for(const quote of raw.props){
-      if(result.length%200===0)await pauseForPaint();
+      if(++count%200===0)await pauseForPaint();
+      if(quote.kickoff&&Date.parse(quote.kickoff)<=Date.now())continue;
       const p={...quote,id:uid(),projMean:null,projSd:null,
         eventTeams:[resolveTeamName(quote.homeName,'nfl'),resolveTeamName(quote.awayName,'nfl')]};
-      if(p.kickoff&&Date.parse(p.kickoff)<=Date.now())continue;
       result.push(attachProjection(p,index));
     }
     return result;
@@ -3054,11 +3054,11 @@ async function loadBettingData(){
   try{
     // Fetch and JSON.parse live on a worker, including the large raw API
     // payload. Only structured data crosses back to the main thread.
-    const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url,fallback])=>{try{const r=await fetch(url,{cache:'no-cache'});if(r.ok)return[key,await r.json()];}catch{}try{const r=await fetch(fallback,{cache:'no-cache'});return[key,r.ok?await r.json():null]}catch{return[key,null]}}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
+    const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url,fallback])=>{try{const r=await fetch(fallback,{signal:AbortSignal.timeout(key==='context'?3000:8000)});if(r.ok)return[key,await r.json()];}catch{}try{const r=await fetch(url,{signal:AbortSignal.timeout(key==='context'?3000:8000)});return[key,r.ok?await r.json():null]}catch{return[key,null]}}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
     const blob=URL.createObjectURL(new Blob([workerSource],{type:"text/javascript"}));
     let worker;
     const files=await new Promise((resolve,reject)=>{
-      const timer=setTimeout(()=>reject(new Error("Data request timed out")),60000);
+      const timer=setTimeout(()=>reject(new Error("Data request timed out")),18000);
       try{worker=new Worker(blob);}catch(e){clearTimeout(timer);reject(e);return;}
       worker.onmessage=({data})=>{clearTimeout(timer); data.ok?resolve(data.files):reject(new Error(data.error));};
       worker.onerror=()=>{clearTimeout(timer);reject(new Error("Background data loader failed"));};
