@@ -15,3 +15,22 @@ test('Same-game suggestion has no invented ticket odds or joint probability',()=
 test('Reject started, stale, future-week, negative-return and extreme estimates',()=>{
  for(const change of [{kickoff:new Date(now-1).toISOString()},{updatedAt:new Date(now-86400001).toISOString()},{kickoff:'2026-09-21T17:00:00Z'},{ev:-.1},{ev:.8},{push:.1},{n:2}])assert.equal(select([leg('a'),{...leg('b'),...change}],settings).parlay,null);
 });
+
+test('Custom leg counts and odds ranges apply without silently returning fewer legs',()=>{
+ const pool=['a','b','c','d'].map(id=>leg(id));
+ const result=select(pool,{...settings,legs:3,minOdds:600,maxOdds:800});
+ assert.equal(result.parlay.legs.length,3);assert.equal(result.parlay.decimal,8);
+ assert.equal(select(pool,{...settings,legs:5}).parlay,null);
+ assert.equal(select(pool,{...settings,legs:3,minOdds:900}).parlay,null);
+ assert.equal(select(pool,{...settings,legs:3,maxOdds:500}).parlay,null);
+ assert.throws(()=>select(pool,{...settings,minOdds:0}),/valid American/);
+ assert.throws(()=>select(pool,{...settings,legs:7}),/2 and 6/);
+ assert.equal(select(pool,{...settings,book:'draftkings'}).parlay,null);
+ assert.equal(select(pool,{...settings,kind:'game'}).parlay,null);
+});
+test('SGP respects requested leg count but never claims a target ticket price',()=>{
+ const pool=['a','b','c'].map(id=>leg(id,'g'));
+ const result=select(pool,{...settings,legs:3,minOdds:2000});
+ assert.equal(result.sgp.legs.length,3);assert.equal(result.sgp.decimal,null);
+ assert.equal(select(pool,{...settings,legs:4}).sgp,null);
+});

@@ -503,6 +503,11 @@
 @media(max-width:600px){#btTabGroup{display:flex!important;overflow-x:auto;flex-wrap:nowrap}#btTabGroup button{flex:0 0 auto;min-height:44px;padding:8px 12px!important}}#btBestPanel{overflow-wrap:anywhere}#btBestPanel p{line-height:1.6;color:#bdc8c0}#btBestPanel h3{margin-top:28px}
 </style>
 <link rel="stylesheet" href="/shared/going-shell.css"><script defer src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js" defer></script>
+<style>
+#parlayControls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
+#parlayControls label{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:13px}
+#parlayControls input,#parlayControls select{box-sizing:border-box;width:100%;min-height:44px;max-width:100%}
+</style>
 </head>
 <body>
 
@@ -770,10 +775,17 @@
       <p id="promoStatus" role="status">Checking Fanatics prices and player availability automatically…</p><div id="promoOptions" class="sig-grid"></div>
     </section>
     <section id="btParlaysPanel" hidden aria-label="Suggested football parlays">
-      <h2>Parlays</h2><p>Automatic two-leg research suggestions for upcoming games this week. Each leg needs a supported historical estimate and a listed price that does not show a negative estimated return. Prior-season history can support early-season suggestions. Current availability must still be checked.</p>
+      <h2>Parlays</h2><p>Automatic research suggestions for upcoming games this week. Each leg needs a supported historical estimate and a listed price that does not show a negative estimated return. Prior-season history can support early-season suggestions. Current availability must still be checked.</p>
+      <div class="sig-actions" id="parlayControls">
+        <label>Number of legs <select id="parlayLegs"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+        <label>Different-game minimum odds <input id="parlayMin" type="number" placeholder="Any, e.g. +500" step="50"></label>
+        <label>Different-game maximum odds <input id="parlayMax" type="number" placeholder="Any, e.g. +2000" step="50"></label>
+        <label>Bet types <select id="parlayKind"><option value="all">Game lines and props</option><option value="game">Game lines only</option><option value="prop">Player props only</option></select></label>
+        <label>Sportsbook <select id="parlayBook"><option value="all">Any single sportsbook</option></select></label>
+      </div><p>Leg count, bet type and sportsbook apply to both sections. The odds range applies only to different-game parlays; a same-game price cannot be checked from individual odds. Settings update automatically. Search is limited to keep the board responsive and may not find every qualifying combination.</p>
       <p id="parlaysStatus" role="status"></p>
-      <h3>Best Parlay</h3><p>Different games, one sportsbook. Ranked by estimated chance of both legs winning. The combined estimate assumes the games behave independently.</p><div id="bestParlay" class="sig-grid"></div>
-      <h3>Best SGP Parlay</h3><p>Same-game research pairing, ranked by the lower of the two individual win estimates. That ranking is not the chance both win. Shared game conditions can make the legs move together.</p><div id="bestSgp" class="sig-grid"></div>
+      <h3>Best Parlay</h3><p>Different games, one sportsbook. Ranked by estimated chance of every leg winning among searched combinations. The combined estimate assumes the games behave independently.</p><div id="bestParlay" class="sig-grid"></div>
+      <h3>Best SGP Parlay</h3><p>Same-game research pairing, ranked by the lowest individual win estimate. That ranking is not the chance every leg wins. Shared game conditions can make the legs move together.</p><div id="bestSgp" class="sig-grid"></div>
     </section>
     <section id="btBestPanel" hidden aria-label="Best plays today"><h2>Best plays this week</h2><p>Upcoming games across the current football week, including Sunday night and Monday night. Historical estimates remain available while live prices refresh. New recorded games gradually replace older games in the model. Each card is a single bet to investigate. Estimates are not proven win rates; final availability and price checks remain in <a href="/validation/">Validation</a>.</p><div class="pos-group" id="bestKind"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">NFL props</button></div><p id="bestStatus" role="status"></p><h3>Highest estimated win chance</h3><p>Ranked by the historical model’s chance of winning. A likely winner can still be overpriced.</p><div id="bestChance" class="sig-grid"></div><h3>Best value</h3><p>Fresh Pinnacle-led prices suggest a better payout here. We remove the books’ built-in charge and reduce the estimate for uncertainty. This shortlist has not passed the scanner’s final betting checks.</p><div id="bestValue" class="sig-grid"></div></section>
     <section id="btSignalsPanel" hidden aria-label="Football signals">
@@ -3760,11 +3772,18 @@ let PARLAY_VERSION=0;
 async function renderFootballParlays(){
  const version=++PARLAY_VERSION,sport=BET.sport,rows=await signalCandidates();
  if(version!==PARLAY_VERSION||BET.tab!=='parlays'||sport!==BET.sport)return;
- const week=footballWeek(),result=GoingFootballParlays.select([...rows,...(SIGNAL.allQuotes||[])],{sport,now:Date.now(),start:week.start,last:week.last});
+ const allRows=[...rows,...(SIGNAL.allQuotes||[])],bookSelect=$('parlayBook'),oldBook=bookSelect.value;
+ const books=[...new Set(allRows.filter(r=>r.sport===sport).map(r=>r.book))].sort();
+ bookSelect.innerHTML='<option value="all">Any single sportsbook</option>'+books.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');bookSelect.value=books.includes(oldBook)?oldBook:'all';
+ for(const id of ['parlayLegs','parlayMin','parlayMax','parlayKind','parlayBook'])$(id).onchange=()=>renderFootballParlays();
+ $('parlayKind').querySelector('[value="prop"]').disabled=sport==='ncaa';if(sport==='ncaa'&&$('parlayKind').value==='prop')$('parlayKind').value='all';
+ const week=footballWeek();let result;
+ try{result=GoingFootballParlays.select(allRows,{sport,now:Date.now(),start:week.start,last:week.last,legs:Number($('parlayLegs').value),minOdds:$('parlayMin').value===''?null:Number($('parlayMin').value),maxOdds:$('parlayMax').value===''?null:Number($('parlayMax').value),kind:$('parlayKind').value,book:bookSelect.value});}
+ catch(e){$('parlaysStatus').textContent=e.message;$('bestParlay').innerHTML='';$('bestSgp').innerHTML='';return;}
  $('parlaysStatus').textContent=`${sport.toUpperCase()} · ${week.start} through ${week.last} · Updates with the board; no extra odds requests.`;
  const card=(p,same)=>{
-  if(!p)return '<p>No supported pair currently meets these checks. Waiting for eligible legs at the same sportsbook; no combination is invented.</p>';
-  return `<article class="sig-card"><h4>${esc(p.book)} · Two legs</h4>${p.legs.map(l=>{const side=l.side==='Home'?l.home:l.side==='Away'?l.away:l.side;const line=l.market==='spread'&&l.side==='Away'?-l.line:l.line;const label=l.market==='atd'?'Anytime touchdown':l.market==='moneyline'?side+' to win':side+' '+(line>0&&l.market==='spread'?'+':'')+line+' '+(MARKET_LABEL[l.market]||l.market);return `<p><strong>${esc(l.kind==='prop'?l.player:l.away+' @ '+l.home)}</strong><br>${esc(label)} · ${americanOddsLabel(l.odds)}<br>${percent(l.prob)} individual estimate · ${l.n} recorded games<br>${esc(l.away)} @ ${esc(l.home)} · ${esc(new Date(l.kickoff).toLocaleString())}<br>Price observed ${esc(new Date(l.updatedAt).toLocaleString())}</p>`;}).join('')}${same?'<p><strong>Combined win chance and ticket price: unavailable.</strong> The feed contains individual prices, not an accepted same-game ticket. No combined return or suggested stake is calculated.</p>':`<p><strong>${percent(p.probability)} estimated chance both win</strong><br>${americanOddsLabel(Math.round((p.decimal-1)*100))} illustrative combined price. Confirm the actual ticket price and acceptance.</p>`}<small>Why selected: ${same?'the strongest weaker leg among compatible same-game pairs':'the highest estimated joint win chance among eligible different-game pairs'}. Estimates are not validated results. Prices may be saved observations up to 24 hours old. Availability, current roles and final book rules still need checking.</small></article>`;
+  if(!p)return '<p>No combination found for these settings. Try fewer legs, a wider odds range, or another sportsbook. No combination is invented.</p>';
+  return `<article class="sig-card"><h4>${esc(p.book)} · ${p.legs.length} legs</h4>${p.legs.map(l=>{const side=l.side==='Home'?l.home:l.side==='Away'?l.away:l.side;const line=l.market==='spread'&&l.side==='Away'?-l.line:l.line;const label=l.market==='atd'?'Anytime touchdown':l.market==='moneyline'?side+' to win':side+' '+(line>0&&l.market==='spread'?'+':'')+line+' '+(MARKET_LABEL[l.market]||l.market);return `<p><strong>${esc(l.kind==='prop'?l.player:l.away+' @ '+l.home)}</strong><br>${esc(label)} · ${americanOddsLabel(l.odds)}<br>${percent(l.prob)} individual estimate · ${l.n} recorded games<br>${esc(l.away)} @ ${esc(l.home)} · ${esc(new Date(l.kickoff).toLocaleString())}<br>Price observed ${esc(new Date(l.updatedAt).toLocaleString())}</p>`;}).join('')}${same?'<p><strong>Combined win chance and ticket price: unavailable.</strong> The feed contains individual prices, not an accepted same-game ticket. No combined return or suggested stake is calculated.</p>':`<p><strong>${percent(p.probability)} estimated chance all legs win</strong><br>${americanOddsLabel(Math.round((p.decimal-1)*100))} illustrative combined price. Confirm the actual ticket price and acceptance.</p>`}<small>Why selected: ${same?'the strongest weaker leg among eligible same-game combinations':'the highest estimated joint win chance among searched different-game combinations'}. Estimates are not validated results. Prices may be saved observations up to 24 hours old. Availability, current roles and final book rules still need checking.</small></article>`;
  };
  $('bestParlay').innerHTML=card(result.parlay,false);$('bestSgp').innerHTML=card(result.sgp,true);
 }
