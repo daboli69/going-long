@@ -1,6 +1,6 @@
 (function(root){
 'use strict';
-function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdds=null,book:chosenBook="all",kind="all"}={}){
+function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdds=null,book:chosenBook="all",kind="all",events=null}={}){
  const decimal=o=>o==null?null:Number.isFinite(o)&&Math.abs(o)>=100?(o>0?1+o/100:1+100/-o):NaN;
  const lower=decimal(minOdds)??1,upper=decimal(maxOdds)??Infinity;
  if(!Number.isInteger(legs)||legs<2||legs>6)throw Error('Choose between 2 and 6 legs.');
@@ -9,7 +9,7 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
  const books=new Map();
  for(const r of rows){
   const kick=Date.parse(r.kickoff),at=Date.parse(r.updatedAt);
-  if((chosenBook!=='all'&&r.book!==chosenBook)||(kind!=='all'&&r.kind!==kind)||r.sport!==sport||!r.event||!r.book||r.manual||r.dfs||!Number.isFinite(kick)||kick<=now||day(kick)<start||day(kick)>last||!Number.isFinite(at)||at>now||now-at>86400000||!(r.n>=5)||!(r.prob>0&&r.prob<1)||!(r.dec>1)||!Number.isFinite(r.ev)||r.ev<0||r.ev>.25||r.push!==0||r.market==='first_td'||/_1[hq]$/.test(r.market)||r.flags?.some(f=>f.id==='check'&&!f.historicalOnly))continue;
+  if((events!==null&&!events.includes(r.event))||(chosenBook!=='all'&&r.book!==chosenBook)||(kind!=='all'&&r.kind!==kind)||r.sport!==sport||!r.event||!r.book||r.manual||r.dfs||!Number.isFinite(kick)||kick<=now||day(kick)<start||day(kick)>last||!Number.isFinite(at)||at>now||now-at>86400000||!(r.n>=5)||!(r.prob>0&&r.prob<1)||!(r.dec>1)||!Number.isFinite(r.ev)||r.ev<0||r.ev>.25||r.push!==0||r.market==='first_td'||/_1[hq]$/.test(r.market)||r.flags?.some(f=>f.id==='check'&&!f.historicalOnly))continue;
   if(r.kind==='prop'&&!r.profileId)continue;
   if(!books.has(r.book))books.set(r.book,[]);books.get(r.book).push(r);
  }

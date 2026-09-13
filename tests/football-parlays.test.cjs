@@ -34,3 +34,11 @@ test('SGP respects requested leg count but never claims a target ticket price',(
  assert.equal(result.sgp.legs.length,3);assert.equal(result.sgp.decimal,null);
  assert.equal(select(pool,{...settings,legs:4}).sgp,null);
 });
+
+test('Game selections constrain both builders and clearing games returns no suggestions',()=>{
+ const pool=[leg('a','one'),leg('b','one'),leg('c','two'),leg('d','three')];
+ assert.equal(select(pool,{...settings,events:[]}).parlay,null);
+ assert.equal(select(pool,{...settings,events:[]}).sgp,null);
+ const only=select(pool,{...settings,events:['one']});assert.equal(only.parlay,null);assert.ok(only.sgp.legs.every(r=>r.event==='one'));
+ const pair=select(pool,{...settings,events:['two','three']}).parlay;assert.deepEqual(pair.legs.map(r=>r.event),['two','three']);
+});
