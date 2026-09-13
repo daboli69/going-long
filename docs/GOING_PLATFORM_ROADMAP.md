@@ -81,3 +81,16 @@ Sources:
 ## Immediate recommendation
 
 Start with a pricing-and-grading correctness pass alongside the shared navigation/card design. More badges, longshot builders and basketball expansion come later. Choose subscription pricing after commercial feed costs and a retained-user beta are measured. A useful paid product needs trustworthy decisions and a clear record more than a larger feature count.
+
+## Implementation log — September 13 continuation
+
+Completed and pushed in separate increments:
+- Shared GOING brand/header/navigation plus consistent research cards, controls and detail surfaces. Browser checks pass at 375, 430 and 1280 pixels across hub, football, baseball and results.
+- Baseball hit/HRR pricing requires the model's exact supported line. Integer strikeout lines are excluded until refund probabilities are implemented. This does not yet solve every identity/freshness issue in the legacy adapter.
+- Parlay Builder preserves the selected Under probability and label. Different-game research selects distinct known games. Same-game joint chance and all ticket payout/value claims are withheld without a supported combined model and ticket quote. Other baseball ticket-generation surfaces still require audit.
+- Legacy baseball grading now scopes outcome maps by game/player and excludes ambiguous or absent participants. Existing history was not silently rewritten. Legacy daily files remain mutable and cannot prove pregame timing.
+- New per-game research records are frozen before kickoff in snapshots/pregame. A separate official-final boxscore grader and Research record view show their results. These records currently hold scores, not exact frozen quotes/probabilities; they do not establish ROI or calibration. Initial result set is empty, accurately labeled.
+
+Verification: five new JavaScript contract/parlay checks, five Python game-identity/pregame/final-grading checks, Vercel endpoint checks and production browser navigation checks pass. Prior integration jobs for the game-identity and freeze commits passed. The latest full integration job should be checked after completion.
+
+Next work: audit all remaining ticket/price paths; ensure complete official outcomes and corrections remain retryable; add versioned exact prediction/price records with bounded storage; separate prospective validation from exploratory historical tests; remove known current-season lookahead before claiming calibrated performance. Continue UI consolidation without hiding missing evidence.
