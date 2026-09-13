@@ -376,3 +376,14 @@ test('Started quotes yield by scanned count instead of pausing once per excluded
  assert.equal((await a.propsFromRealData({props:rows})).length,0);
  assert.ok(paints<=5,`Expected at most five frame yields, received ${paints}`);
 });
+
+test('Best props accept offseason history without admitting extreme model discrepancies',t=>{
+ const {api:a}=setup(t),now=Date.parse('2026-09-13T18:00:00Z');
+ const p={sport:'nfl',kind:'prop',event:'g',contract:'p',profileId:'p',profileDate:'2026-01-04',market:'rec_yds',prob:.6,ev:.1,n:12,kickoff:'2026-09-14T00:20:00Z',updatedAt:new Date(now).toISOString(),book:'fanatics',dec:2,flags:[]};
+ p.flags=a.signalFlags(p,[],{},now);
+ assert.equal(a.rankBestPlays([p],[],'nfl','prop',now).chance.length,1);
+ const extreme={...p,ev:.8};extreme.flags=a.signalFlags(extreme,[],{},now);
+ assert.equal(a.rankBestPlays([extreme],[],'nfl','prop',now).chance.length,0);
+ const games=Array.from({length:6},(_,i)=>({...p,kind:'game',event:'g'+i,contract:'g'+i,prob:.9,flags:[]}));
+ assert.ok(a.rankBestPlays([...games,p],[],'nfl','all',now).chance.some(c=>c.kind==='prop'));
+});
