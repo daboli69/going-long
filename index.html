@@ -3793,7 +3793,7 @@ function wireSignals(){
 function renderPromo(){
  const date=$('promoDate');if(!date.value){const now=new Date();for(let n=0;n<7;n++){const candidate=new Date(now.getTime()+n*86400000);if(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short'}).format(candidate)==='Sun'){date.value=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(candidate);break;}}}
  $('promoLive').onclick=()=>{
-  const found=BET.props.filter(p=>p.market==='atd'&&(p.line==null||p.line===.5)&&String(p.bookKey||p.book).toLowerCase()==='fanatics'&&currentWeekProp(p)&&!quoteState(p));
+  const found=BET.props.filter(p=>p.market==='atd'&&(p.line==null||p.line===.5)&&String(p.bookKey||p.book).toLowerCase()==='fanatics'&&currentWeekProp(p)&&!quoteState(p)&&Number.isFinite(Date.parse(p.updatedAt))&&Date.now()-Date.parse(p.updatedAt)>=0&&Date.now()-Date.parse(p.updatedAt)<=15*60000);
   const unique=new Map(found.map(p=>[[p.profileId,p.kickoff].join('|'),p]));
   $('promoPaste').value=[...unique.values()].map(p=>`${p.player} | ${p.overOdds} | unknown`).join('\n');
   $('promoPaste')._liveRows=[...unique.values()];
