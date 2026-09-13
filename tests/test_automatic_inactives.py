@@ -31,6 +31,14 @@ class AutomaticInactivesTests(unittest.TestCase):
     def test_incomplete_stale_wrong_game_and_injury_articles_fail(self):
         for html,url,event in [(page(second=False),URL,EVENT),(page('2026-09-12T15:35:00Z'),URL,EVENT),(page(),URL,dict(EVENT,away='Atlanta Falcons')),(page().replace('Official game inactives','Injury report'),URL,EVENT),(page(), 'https://example.com/news/inactives',EVENT)]:
             self.assertIsNone(parse_official_report(html,url,event,NOW))
+    def test_editorial_empty_heading_and_public_position_labels(self):
+        html=page().replace('WR Test Player Jr.','Edge Test Player Jr.').replace('QB Other Player','F Other Player').replace('</ul></div>','</ul><h3> </h3></div>')
+        report=parse_official_report(html,URL,EVENT,NOW)
+        self.assertTrue(inactive_gate(report,EVENT,NOW))
+        self.assertEqual(report['teams'][0]['inactive_players'],['Test Player Jr.'])
+        self.assertIsNone(parse_official_report(html.replace('Edge Test','UNKNOWN Test'),URL,EVENT,NOW))
+        self.assertIsNone(parse_official_report(html.replace('<h3> </h3>','<h3>FALCONS</h3>'),URL,EVENT,NOW))
+
     def test_early_article_can_contain_late_game_lists(self):
         report=parse_official_report(page('2026-09-13T12:00:00Z'),URL,EVENT,NOW)
         self.assertTrue(inactive_gate(report,EVENT,NOW))
@@ -43,7 +51,7 @@ class AutomaticInactivesTests(unittest.TestCase):
             late=stamp('2026-09-13T15:45:00Z')
             update_inactives(journal,[EVENT],{},late,send,empty)
             update_inactives(journal,[EVENT],{},late+30,send,empty)
-            self.assertEqual(send.call_count,1);self.assertEqual(send.call_args.args[0],'[WARNING] Automated Inactive Feed Failed for San Francisco 49ers at Los Angeles Rams. Manual override required.')
+            self.assertEqual(send.call_count,1);self.assertEqual(send.call_args.args[0],'[WARNING] Automated Inactive Feed Failed for San Francisco 49ers at Los Angeles Rams. Betting alerts remain paused for this game; automatic retries continue.')
             report=parse_official_report(page(),URL,EVENT,late+60)
             reports,status=update_inactives(journal,[EVENT],{},late+60,send,lambda e,n:({'test':report},[]))
             self.assertEqual(status['state'],'verified');self.assertTrue(inactive_gate(reports['test'],EVENT,late+60));journal.db.close()

@@ -14,7 +14,7 @@ from .model import inactive_gate, stamp, uid
 ORIGIN='https://www.nfl.com'
 INDEXES=[ORIGIN+'/news/',ORIGIN+'/injuries/']
 METHOD='nfl_official_html_v1'
-POSITIONS=r'(?:QB|RB|FB|WR|TE|OT|OG|OL|C|G|T|DT|DE|DL|NT|LB|ILB|OLB|CB|DB|S|FS|SS|K|P|LS)'
+POSITIONS=r'(?:QB|RB|FB|WR|TE|OT|OG|OL|C|G|T|DT|DE|DL|NT|LB|ILB|OLB|CB|DB|S|FS|SS|K|P|LS|EDGE|F)'
 
 
 def iso(t):return datetime.fromtimestamp(t,timezone.utc).isoformat()
@@ -69,7 +69,7 @@ def parse_official_report(html,url,event,observed_at):
     if len(names)!=2:return None
     candidates=[]
     for block in soup.select('.story-part-rich-text-editor-wrapper'):
-        headings=block.find_all(['h2','h3','h4'])
+        headings=[h for h in block.find_all(['h2','h3','h4']) if h.get_text(' ',strip=True)]
         if {nickname(h.get_text(' ',strip=True)) for h in headings}!=set(names):continue
         if len(headings)!=2:continue
         text=block.get_text(' ',strip=True)
@@ -85,7 +85,7 @@ def parse_official_report(html,url,event,observed_at):
                 if node.name in ('ul','ol'):
                     for li in node.find_all('li',recursive=False):
                         raw=li.get_text(' ',strip=True)
-                        match=re.fullmatch(POSITIONS+r'\s+(.+)',raw)
+                        match=re.fullmatch(POSITIONS+r'\s+(.+)',raw,re.I)
                         if not match:players=[];break
                         player=re.sub(r'\s*\([^)]*\)\s*','',match[1]).strip()
                         if not re.fullmatch(r"[\w .’'\-]+",player) or len(player.split())<2:players=[];break
@@ -120,6 +120,9 @@ def retrieve_official_reports(events,now,get=fetch):
                 except (ValueError,TypeError,KeyError,AttributeError,IndexError):
                     failures.append('Official article structure changed');continue
                 if report:reports[event['event']]=report
+    if not links:failures.append('No official inactive article found on NFL indexes')
+    missing=[e['away']+' at '+e['home'] for e in events if e['event'] not in reports]
+    if missing:failures.append('Complete official lists not yet parsed: '+ '; '.join(missing))
     return reports,failures
 
 
@@ -142,7 +145,7 @@ def update_inactives(journal,events,reports,now,notify=None,retrieve=retrieve_of
         key=uid('inactive-feed-warning',event['event'])
         if stamp(event['kickoff'])-now<=4500 and key not in sent and notify:
             try:
-                channel=notify('[WARNING] Automated Inactive Feed Failed for '+event['away']+' at '+event['home']+'. Manual override required.')
+                channel=notify('[WARNING] Automated Inactive Feed Failed for '+event['away']+' at '+event['home']+'. Betting alerts remain paused for this game; automatic retries continue.')
                 if channel:
                     journal.append('notification',key,dict(alert_key=key,event=event['event'],channel=channel,type='inactive_feed_warning',observed_at=iso(now)))
                     sent.add(key);warnings+=1
