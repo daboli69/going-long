@@ -64,17 +64,23 @@ def scan(journal, send=False):
     except (OSError,ValueError):pass
     from topdown.inactives import update_inactives
     reports,inactive_status=update_inactives(journal,events,reports,now,notify if send else None)
+    from topdown.odds_budget import OddsBudget, cadence
+    budget=OddsBudget(ROOT/'private/odds-budget.sqlite',limit=int(os.getenv('SCANNER_MONTHLY_CREDITS','60000')))
+    nfl_ttl=cadence([stamp(g.get('kickoff')) for g in schedule],time.time())
+    try:ncaa_schedule=json.loads((data_root/'data/ncaa_lines.json').read_text()).get('games',[])
+    except (OSError,ValueError):ncaa_schedule=[]
+    ncaa_ttl=cadence([stamp(g.get('kickoff')) for g in ncaa_schedule],time.time())
     headers={'X-API-Key':key};base='https://parlay-api.com/v1/sports/americanfootball_nfl/'
     responses={};failures=[]
     for endpoint,params in [('odds',{'markets':'h2h,spreads,totals','regions':'us,eu','oddsFormat':'american'}),('props',{'markets':'player_passing_yards,player_rushing_yards,player_receiving_yards,player_receptions,player_passing_tds','limit':10000})]:
         try:
-            r=requests.get(base+endpoint,params=params,headers=headers,timeout=35);r.raise_for_status();rows=r.json()
+            r=budget.get(base+endpoint,params=params,headers=headers,timeout=35,ttl=nfl_ttl,cost=6 if endpoint=='odds' else 3);r.raise_for_status();rows=r.json()
             if not isinstance(rows,list):raise ValueError('Unexpected provider schema')
             responses[endpoint]=rows
         except (requests.RequestException,ValueError) as exc:
             responses[endpoint]=[];failures.append({'endpoint':endpoint,'type':type(exc).__name__})
     try:
-        r=requests.get('https://parlay-api.com/v1/sports/americanfootball_ncaaf/odds',params={'markets':'h2h,spreads,totals','regions':'us,eu','oddsFormat':'american'},headers=headers,timeout=35);r.raise_for_status()
+        r=budget.get('https://parlay-api.com/v1/sports/americanfootball_ncaaf/odds',params={'markets':'h2h,spreads,totals','regions':'us,eu','oddsFormat':'american'},headers=headers,timeout=35,ttl=ncaa_ttl,cost=6);r.raise_for_status()
         responses['ncaa']=r.json()
         if not isinstance(responses['ncaa'],list):raise ValueError('Unexpected NCAA odds schema')
     except (requests.RequestException,ValueError) as exc:
@@ -150,7 +156,7 @@ def scan(journal, send=False):
     except requests.RequestException:sync={'status':'unavailable_local_journal_retained'}
     books=sorted({q['book'] for q in quotes if q['book']})
     sports={sport:{'quote_pairs':sum(q.get('sport','nfl')==sport for q in quotes),'research_predictions':sum(p.get('sport','nfl')==sport for p in predictions),'actionable_predictions':sum(p.get('sport','nfl')==sport and p['actionable'] for p in predictions),'reference_books':sorted({q['book'] for q in quotes if q.get('sport','nfl')==sport and q['book'] in SHARP})} for sport in ('nfl','ncaa')}
-    status={'sports':sports,'observed_at':at,'model_version':VERSION,'quote_pairs':len(quotes),'reference_books':sorted(SHARP.intersection(books)),'required_reference_books':1,'single_source_extra_hurdle':float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')),'timestamp_desyncs':sum(p.get('timestamp_delta_seconds',0)>60 for p in predictions),'pending_inactives':sum(p.get('inactive_state')=='pending_inactives' for p in predictions),'research_predictions':len(predictions),'actionable_predictions':sum(p['actionable'] for p in predictions),'arbitrage_candidates':len(arbs),'inactives_configured':True,'inactive_feed':inactive_status,'supabase':sync,'notifications_configured':bool(os.getenv('DISCORD_WEBHOOK_URL') or (os.getenv('TELEGRAM_BOT_TOKEN') and os.getenv('TELEGRAM_CHAT_ID'))),'failures':failures,'possibly_truncated':len(responses['props'])>=10000,'calibration_penalty':penalties,'notice':'Pinnacle is required; a single reference adds a safety hurdle. NFL official inactives must pass. NCAA availability is not independently verified; both sports require final-window and price checks. No market-volume or bettor-identity data is available.'}
+    status={'credit_budget':budget.status(),'odds_poll_seconds':{'nfl':nfl_ttl,'ncaa':ncaa_ttl},'sports':sports,'observed_at':at,'model_version':VERSION,'quote_pairs':len(quotes),'reference_books':sorted(SHARP.intersection(books)),'required_reference_books':1,'single_source_extra_hurdle':float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')),'timestamp_desyncs':sum(p.get('timestamp_delta_seconds',0)>60 for p in predictions),'pending_inactives':sum(p.get('inactive_state')=='pending_inactives' for p in predictions),'research_predictions':len(predictions),'actionable_predictions':sum(p['actionable'] for p in predictions),'arbitrage_candidates':len(arbs),'inactives_configured':True,'inactive_feed':inactive_status,'supabase':sync,'notifications_configured':bool(os.getenv('DISCORD_WEBHOOK_URL') or (os.getenv('TELEGRAM_BOT_TOKEN') and os.getenv('TELEGRAM_CHAT_ID'))),'failures':failures,'possibly_truncated':len(responses['props'])>=10000,'calibration_penalty':penalties,'notice':'Pinnacle is required; a single reference adds a safety hurdle. NFL official inactives must pass. NCAA availability is not independently verified; both sports require final-window and price checks. No market-volume or bettor-identity data is available.'}
     atomic_json(Path(os.getenv('TOPDOWN_STATUS_FILE',str(ROOT/'data/topdown_status.json'))),status)
     journal.append('run',uid(at),status)
     try:journal.sync()

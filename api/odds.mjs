@@ -1,12 +1,15 @@
 import {fetchParlay,SPORT_KEYS} from '../server/parlay.mjs';
 import {sendJson} from '../server/vercel-response.mjs';
-const cache=new Map(),pending=new Map(),TTL=120000;
+const failures=new Map();
+const cache=new Map(),pending=new Map(),TTL=600000;
 export default async function handler(req,res){
   if(req.method!=='GET')return sendJson(req,res,{error:'Method not allowed'},405);
   const sport=new URL(req.url,'https://going-long.vercel.app').searchParams.get('sport')||'nfl';
   if(!Object.hasOwn(SPORT_KEYS,sport))return sendJson(req,res,{error:'Unsupported sport'},400);
   const key=process.env.PARLAY_API_KEY?.trim();
   if(!key)return sendJson(req,res,{error:'Live feed is not configured; saved prices remain available.'},503);
+  const retry=failures.get(sport);
+  if(retry&&Date.now()<retry)return sendJson(req,res,{error:'Live provider unavailable; requests are paused briefly to avoid repeated failures.',provider:'parlay',retry_at:new Date(retry).toISOString()},503,60);
   try{
     let hit=cache.get(sport);
     if(!hit||Date.now()-hit.at>=TTL){
@@ -17,6 +20,7 @@ export default async function handler(req,res){
     }
     return sendJson(req,res,hit.body,200,Math.max(0,Math.floor((TTL-Date.now()+hit.at)/1000)));
   }catch(error){
+    failures.set(sport,Date.now()+15*60000);
     console.error('Parlay odds request failed',{sport,type:error?.name||'Error'});
     return sendJson(req,res,{error:'Live provider unavailable; saved prices remain available.',provider:'parlay'},502);
   }

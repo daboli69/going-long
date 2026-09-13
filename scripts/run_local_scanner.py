@@ -18,7 +18,7 @@ def refresh_inputs():
     """Refresh settlement inputs, retaining the last usable file during outages."""
     target = PRIVATE / 'scanner-data' / 'data'
     target.mkdir(parents=True, exist_ok=True)
-    for name, required in [('results.json', 'games'), ('history.json', 'betting'), ('nfl_betting.json', 'games'), ('data.json','betting'), ('football_context.json','schema_version')]:
+    for name, required in [('results.json', 'games'), ('history.json', 'betting'), ('nfl_betting.json', 'games'), ('ncaa_lines.json', 'games'), ('data.json','betting'), ('football_context.json','schema_version')]:
         path = target / name
         if not path.exists():
             shutil.copyfile(ROOT / 'data' / name, path)
@@ -57,7 +57,7 @@ def main():
     next_refresh = 0
     next_finals = 0
     next_board = 0
-    logging.info('Collector started; 60-second polling while this PC is awake')
+    logging.info('Collector started; 60-second housekeeping with budgeted schedule-aware odds polling')
     while True:
         started = time.monotonic()
         try:
@@ -72,7 +72,13 @@ def main():
                 from topdown.tracking import collect_board
                 try:logging.info('Automatic board picks frozen: %s',collect_board(journal,ROOT,time.time()))
                 except Exception as exc:logging.warning('Board tracking unavailable: %s',type(exc).__name__)
-                next_board=time.monotonic()+300
+                from topdown.odds_budget import cadence
+                from topdown.model import stamp
+                upcoming=[]
+                for filename in ('nfl_betting.json','ncaa_lines.json'):
+                    try:upcoming.extend(stamp(g.get('kickoff')) for g in json.loads((PRIVATE/'scanner-data/data'/filename).read_text()).get('games',[]))
+                    except (OSError,ValueError):pass
+                next_board=time.monotonic()+max(600,cadence(upcoming,time.time()))
             with contextlib.redirect_stdout(io.StringIO()):
                 result = scan(journal, send=True)
             logging.info('Scan: pairs=%s eligible=%s delivery=%s failures=%s', result['quote_pairs'], result['actionable_predictions'], result['supabase']['status'], len(result['failures']))

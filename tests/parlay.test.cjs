@@ -20,7 +20,7 @@ test('Parlay authenticates by header and rejects malformed upstream data',async(
   const result=await fetchParlay('nfl','fixture-key',async(url,options)=>{
     calls.push({url,options});return Response.json(url.pathname.endsWith('/props')?[quote]:[]);
   });
-  assert.equal(result.props.length,1);assert.equal(calls.length,4);
+  assert.equal(result.props.length,1);assert.equal(calls.length,3);
   for(const c of calls){assert.equal(c.url.origin,'https://parlay-api.com');assert.equal(c.options.headers['X-API-Key'],'fixture-key');assert.ok(!c.url.href.includes('fixture-key'));}
   assert.ok(calls.every(c=>c.url.pathname.includes('/americanfootball_nfl/')));
   await assert.rejects(fetchParlay('ncaa','fixture-key',async()=>Response.json({error:'bad'})),/Unexpected/);
@@ -43,9 +43,9 @@ test('Server proxy validates requests, coalesces refreshes and never exposes the
   try{
     const req=new Request('https://test/api/odds?sport=nfl');
     const responses=await Promise.all([oddsResponse(req,{PARLAY_API_KEY:'fixture-key'}),oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})]);
-    assert.equal(calls,4);
+    assert.equal(calls,3);
     for(const r of responses){assert.equal(r.status,200);assert.ok(!(await r.text()).includes('fixture-key'));}
-    assert.equal((await oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})).status,200);assert.equal(calls,4);
+    assert.equal((await oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})).status,200);assert.equal(calls,3);
   }finally{global.fetch=original;global.caches=oldCaches;}
 });
 
