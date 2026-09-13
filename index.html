@@ -768,7 +768,7 @@
       <p>Options update automatically from fresh Fanatics prices and Going Long touchdown estimates. Players must appear on the current active roster without an injury designation. This is an early research screen, not official game-day clearance; the scanner checks official inactive reports separately.</p>
       <p id="promoStatus" role="status">Checking Fanatics prices and player availability automatically…</p><div id="promoOptions" class="sig-grid"></div>
     </section>
-    <section id="btBestPanel" hidden aria-label="Best plays today"><h2>Best plays today</h2><p>Upcoming games today, Eastern time. Each card is a single bet to investigate. Estimates are not proven win rates; final availability and price checks remain in <a href="/validation/">Validation</a>.</p><div class="pos-group" id="bestKind"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">NFL props</button></div><p id="bestStatus" role="status"></p><h3>Highest estimated win chance</h3><p>Ranked by the historical model’s chance of winning. A likely winner can still be overpriced.</p><div id="bestChance" class="sig-grid"></div><h3>Best value</h3><p>Fresh Pinnacle-led prices suggest a better payout here. We remove the books’ built-in charge and reduce the estimate for uncertainty. This shortlist has not passed the scanner’s final betting checks.</p><div id="bestValue" class="sig-grid"></div></section>
+    <section id="btBestPanel" hidden aria-label="Best plays today"><h2>Best plays this week</h2><p>Upcoming games across the current football week, including Sunday night and Monday night. Historical estimates remain available while live prices refresh. New recorded games gradually replace older games in the model. Each card is a single bet to investigate. Estimates are not proven win rates; final availability and price checks remain in <a href="/validation/">Validation</a>.</p><div class="pos-group" id="bestKind"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">NFL props</button></div><p id="bestStatus" role="status"></p><h3>Highest estimated win chance</h3><p>Ranked by the historical model’s chance of winning. A likely winner can still be overpriced.</p><div id="bestChance" class="sig-grid"></div><h3>Best value</h3><p>Fresh Pinnacle-led prices suggest a better payout here. We remove the books’ built-in charge and reduce the estimate for uncertainty. This shortlist has not passed the scanner’s final betting checks.</p><div id="bestValue" class="sig-grid"></div></section>
     <section id="btSignalsPanel" hidden aria-label="Football signals">
       <h2>Reasons to take a closer look <small>Experimental</small></h2>
       <p>Reasons to investigate, not proven advantages. More categories do not mean a measured increase in win chance.</p><nav class="sig-actions" aria-label="Signals sections"><a class="btn" href="#sigCards">Current looks</a><a class="btn" href="#sigIdeas">Two-leg ideas</a><a class="btn" href="#sigTrust">Saved &amp; results</a></nav>
@@ -3225,7 +3225,7 @@ async function refreshLiveOdds(sport=BET.sport){
   if(BET.liveLoading){BET.pendingSport=sport;return;}
   BET.liveLoading=true;BET.liveAttempts[sport]=Date.now();
   const controls=[$('btLoadRealProps'),$('btLoadReal')];controls.forEach(b=>b.disabled=true);
-  $('btLoadPropsNote').textContent=`Refreshing ${sport.toUpperCase()} odds from Parlay…`;
+  $('btLoadPropsNote').textContent=`Updating ${sport.toUpperCase()} prices in the background. Available projections and saved lines remain on the board.`;
   let worker,blob;
   try{
     blob=URL.createObjectURL(new Blob([`onmessage=async({data:url})=>{try{const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const body=await r.json();if(body.provider!=='parlay')throw new Error('Invalid feed');postMessage({body});}catch(e){postMessage({error:e.message});}};`],{type:'text/javascript'}));
@@ -3714,14 +3714,14 @@ function bestPriceCandidates(){
  return rows;
 }
 function rankBestPlays(rows,quotes,sport,kind,now=Date.now()){
- const today=footballDate(now),aliases={cris:'bookmaker',bookmaker_eu:'bookmaker',betonline:'betonlineag'},book=x=>aliases[x]||x;
+ const week=footballWeek(now),aliases={cris:'bookmaker',bookmaker_eu:'bookmaker',betonline:'betonlineag'},book=x=>aliases[x]||x;
  const fresh=c=>{const age=now-Date.parse(c.updatedAt);return age>=0&&age<=300000;};
- const eligible=rows.filter(c=>c.sport===sport&&(kind==='all'||c.kind===kind)&&footballDate(c.kickoff)===today&&Date.parse(c.kickoff)>now&&fresh(c));
+ const eligible=rows.filter(c=>c.sport===sport&&(kind==='all'||c.kind===kind)&&footballDate(c.kickoff)>=week.start&&footballDate(c.kickoff)<=week.last&&Date.parse(c.kickoff)>now&&now-Date.parse(c.updatedAt)>=0&&now-Date.parse(c.updatedAt)<=24*3600000);
  const unique=(list)=>{const used=new Set();return list.filter(c=>{const key=[c.event,c.kind,c.profileId||'',c.market].join('|');if(used.has(key))return false;used.add(key);return true;}).slice(0,6);};
  const chance=unique(eligible.filter(c=>Number.isFinite(c.prob)&&c.prob>0&&c.prob<1&&c.n>=5&&!c.flags.some(f=>f.id==='check')).sort((a,b)=>b.prob-a.prob||b.ev-a.ev));
  const grouped=new Map();for(const q of quotes){if(!q.contract||!fresh(q)||!q.reference||q.push!==0)continue;if(!grouped.has(q.contract))grouped.set(q.contract,[]);grouped.get(q.contract).push(q);}
  const values=[];
- for(const c of eligible){if(c.push!==0)continue;const peers=grouped.get(c.contract)||[];
+ for(const c of eligible){if(!fresh(c)||c.push!==0)continue;const peers=grouped.get(c.contract)||[];
   // Evaluate each recreational book: the largest payout may be too far out of sync.
   for(const rec of peers.filter(q=>['draftkings','fanduel','betmgm','caesars','fanatics','betrivers'].includes(book(q.book)))){
    const refs=new Map();for(const q of peers){if(!['pinnacle','circa','bookmaker','betonlineag'].includes(book(q.book))||Math.abs(Date.parse(q.updatedAt)-Date.parse(rec.updatedAt))>60000)continue;const prior=refs.get(book(q.book));if(!prior||Date.parse(q.updatedAt)>Date.parse(prior.updatedAt))refs.set(book(q.book),q);}
@@ -3730,22 +3730,22 @@ function rankBestPlays(rows,quotes,sport,kind,now=Date.now()){
    if(ev<threshold)continue;values.push({...c,...rec,prob,ev,flags:c.flags,referenceBooks:[...refs.keys()],threshold});
   }
  }
- return {chance,value:unique(values.sort((a,b)=>b.ev-a.ev||b.prob-a.prob)),count:new Set(eligible.map(c=>c.contract)).size};
+ return {chance:chance.map(c=>({...c,savedPrice:!fresh(c)})),value:unique(values.sort((a,b)=>b.ev-a.ev||b.prob-a.prob)),count:new Set(eligible.map(c=>c.contract)).size};
 }
 function bestPlayCard(c,value=false){
  const side=c.side==='Home'?c.home:c.side==='Away'?c.away:c.side,line=c.market==='spread'&&c.side==='Away'?-c.line:c.line;
  const label=c.market==='moneyline'?`${side} to win`:c.market==='first_td'?`${c.player} to score first`:c.market==='atd'?`${c.player} to score a touchdown`:`${side} ${line>0&&c.market==='spread'?'+':''}${line} ${c.kind==='prop'?(MARKET_LABEL[c.market]||c.market):c.market==='spread'?'spread':'total points'}`;
- const why=value?`The same selection pays ${americanOddsLabel(c.odds)} here. Compared with ${c.referenceBooks.join(' + ')}, the reduced estimate clears a ${(c.threshold*100).toFixed(1)}% return requirement.`:`This selection has one of today’s highest historical-model win estimates across eligible bets. It uses ${c.n} recorded games${c.profileDate?', through '+c.profileDate:''}.`;
- return `<article class="sig-card">${teamBadge(c.team)}<h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><b>${esc(label)}</b><p>${esc(c.book)} · ${americanOddsLabel(c.odds)}<br>${esc(c.away)} @ ${esc(c.home)} · ${esc(new Date(c.kickoff).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}))} ET</p><p class="sig-numbers"><b>${percent(c.prob)} estimated win chance</b><br>${c.ev>=0?'+':''}${(c.ev*100).toFixed(1)}¢ estimated profit per $1 over many repeats${c.ev<0?' · Price does not offer estimated value':''}${c.push>0?'<br>'+percent(c.push)+' estimated chance of your stake being returned':''}</p><p>${esc(why)}</p>${c.flags.filter(f=>!['check','gap','price'].includes(f.id)).slice(0,2).map(f=>`<p>${esc(f.why)}</p>`).join('')}<small>${value?'Price-based estimate':'Historical-model estimate'} · Not yet validated<br>Quote ${esc(new Date(c.updatedAt).toLocaleTimeString())}${c.sport==='ncaa'?'<br>Availability not independently verified':'<br>Check official inactives in Validation before betting'}</small></article>`;
+ const why=value?`The same selection pays ${americanOddsLabel(c.odds)} here. Compared with ${c.referenceBooks.join(' + ')}, the reduced estimate clears a ${(c.threshold*100).toFixed(1)}% return requirement.`:`This selection has one of this week’s highest historical-model win estimates across eligible bets. It uses ${c.n} recorded games${c.profileDate?', through '+c.profileDate:''}.`;
+ return `<article class="sig-card">${teamBadge(c.team)}<h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><b>${esc(label)}</b><p>${esc(c.book)} · ${americanOddsLabel(c.odds)}<br>${esc(c.away)} @ ${esc(c.home)} · ${esc(new Date(c.kickoff).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}))} ET</p>${c.savedPrice?'<p><strong>Saved line — research only.</strong> Confirm the current line and payout before betting; the estimate applies to the displayed line.</p>':''}<p class="sig-numbers"><b>${percent(c.prob)} estimated win chance</b><br>${c.ev>=0?'+':''}${(c.ev*100).toFixed(1)}¢ estimated profit per $1 over many repeats${c.ev<0?' · Price does not offer estimated value':''}${c.push>0?'<br>'+percent(c.push)+' estimated chance of your stake being returned':''}</p><p>${esc(why)}</p>${c.flags.filter(f=>!['check','gap','price'].includes(f.id)).slice(0,2).map(f=>`<p>${esc(f.why)}</p>`).join('')}<small>${value?'Price-based estimate':'Historical-model estimate'} · Not yet validated<br>Quote ${esc(new Date(c.updatedAt).toLocaleTimeString())}${c.sport==='ncaa'?'<br>Availability not independently verified':'<br>Check official inactives in Validation before betting'}</small></article>`;
 }
 async function renderBestPlays(){
  const version=++BEST_VERSION,sport=BET.sport;const rows=await signalCandidates();if(version!==BEST_VERSION||BET.tab!=='best'||sport!==BET.sport)return;
  if(sport==='ncaa'&&BEST_KIND==='prop')BEST_KIND='all';
  $('bestKind').querySelectorAll('button').forEach(b=>{b.hidden=sport==='ncaa'&&b.dataset.kind==='prop';b.setAttribute('aria-pressed',String(b.dataset.kind===BEST_KIND));});
  const prices=bestPriceCandidates(),ranked=rankBestPlays([...rows,...prices],[...(SIGNAL.allQuotes||[]),...prices],sport,BEST_KIND);
- $('bestStatus').textContent=`${sport.toUpperCase()} · ${footballDate(Date.now())} · ${ranked.count} current priced selections checked. Quotes must be no more than five minutes old. At most one side per player/game market appears in each list.`;
- $('bestChance').innerHTML=ranked.chance.map(c=>bestPlayCard(c)).join('')||'<p>No supported model picks for today yet. Upcoming games, fresh prices and at least five historical games are required; stale or extreme estimates are left out.</p>';
- $('bestValue').innerHTML=ranked.value.map(c=>bestPlayCard(c,true)).join('')||'<p>No qualifying price advantages for today yet. We need matching Pinnacle prices within 60 seconds, sufficient estimated return and no unresolved returned-stake outcome. The list stays empty when those checks fail.</p>';
+ $('bestStatus').textContent=`${sport.toUpperCase()} · ${footballWeek().start} through ${footballWeek().last} · ${ranked.count} priced selections checked. Model research can use saved lines up to 24 hours old; Best Value requires prices within five minutes. At most one side per player/game market appears in each list.`;
+ $('bestChance').innerHTML=ranked.chance.map(c=>bestPlayCard(c)).join('')||'<p>No supported model picks for the remaining week yet. A listed line from the last 24 hours and at least five recorded games are required. Prior-season games count; current-season games are not required. The Projections tab also shows players without a quoted line.</p>';
+ $('bestValue').innerHTML=ranked.value.map(c=>bestPlayCard(c,true)).join('')||'<p>No qualifying price advantages for the remaining week yet. We need matching Pinnacle prices within 60 seconds, sufficient estimated return and no unresolved returned-stake outcome. The list stays empty when those checks fail.</p>';
 }
 function signalCard(c,index){
  const logged=SIGNAL.ledger.records[c.key],star=logged?.starWeek===footballWeek().start;

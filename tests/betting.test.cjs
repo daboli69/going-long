@@ -328,7 +328,7 @@ test('Partial live refresh keeps failed categories dated while successful quotes
 });
 
 
-test('Daily best plays separate win chance from value and reject stale, unaligned and next-day quotes',t=>{
+test('Weekly best plays retain saved-line research while value requires fresh aligned prices',t=>{
  const {api:a}=setup(t),now=Date.parse('2026-09-12T18:00:00Z');
  const base={sport:'ncaa',kind:'game',event:'one',contract:'one|total|48.5|Over',market:'total',side:'Over',line:48.5,kickoff:'2026-09-12T19:00:00Z',updatedAt:new Date(now).toISOString(),flags:[],push:0,n:12,prob:.8,ev:-.04,book:'betmgm',dec:1.2};
  const low={...base,event:'two',contract:'two',prob:.5,dec:2.2,ev:.1,reference:{win:.5}};
@@ -337,8 +337,10 @@ test('Daily best plays separate win chance from value and reject stale, unaligne
  assert.equal(r.chance[0].event,'one');assert.equal(r.value[0].event,'two');
  assert.ok(Math.abs(r.value[0].ev-.078)<1e-8);assert.equal(r.value[0].referenceBooks.length,1);
  assert.equal(a.rankBestPlays([low],[low,{...sharp,updatedAt:new Date(now-61000).toISOString()}],'ncaa','all',now).value.length,0);
- assert.equal(a.rankBestPlays([{...base,updatedAt:new Date(now-300001).toISOString()}],[],'ncaa','all',now).chance.length,0);
- assert.equal(a.rankBestPlays([{...base,kickoff:'2026-09-13T19:00:00Z'}],[],'ncaa','all',now).chance.length,0);
+ assert.equal(a.rankBestPlays([{...base,updatedAt:new Date(now-300001).toISOString()}],[],'ncaa','all',now).chance[0].savedPrice,true);
+ assert.equal(a.rankBestPlays([{...base,kickoff:'2026-09-13T19:00:00Z'}],[],'ncaa','all',now).chance.length,1);
+ assert.equal(a.rankBestPlays([{...base,kickoff:'2026-09-21T19:00:00Z'}],[],'ncaa','all',now).chance.length,0);
+ assert.equal(a.rankBestPlays([{...base,updatedAt:new Date(now-86400001).toISOString()}],[],'ncaa','all',now).chance.length,0);
  assert.equal(a.rankBestPlays([{...low,push:.01}],[{...low,push:.01},sharp],'ncaa','all',now).value.length,0);
 });
 test('Best play labels use away spread sign and escape names',t=>{
