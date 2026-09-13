@@ -75,3 +75,5 @@ body[data-going-workspace=yard] .going-platform-nav>div{flex-wrap:nowrap;overflo
 body[data-going-workspace=yard] .going-platform-nav button{flex:none;white-space:nowrap}
 body[data-going-workspace=yard] .going-platform-nav button[aria-pressed=true]{border-color:#886247;color:#ffc29b;background:#33291f}
 body[data-yard-view="pregame-record"] #welcome,body[data-yard-view="market-disagreement"] #welcome,body[data-yard-view="fantasy-research"] #welcome{display:none}
+
+#btPromoPanel{max-width:1100px;margin:auto;line-height:1.65}#btPromoPanel textarea{display:block;width:100%;box-sizing:border-box;min-height:160px;background:var(--going-panel);color:var(--going-text);border:1px solid var(--going-border);border-radius:10px;padding:12px;font-size:16px}#btPromoPanel label{display:block;margin:12px 0}#btPromoPanel :is(input,button,summary){min-height:44px}#btPromoPanel input{background:var(--going-panel);color:var(--going-text);border:1px solid var(--going-border);border-radius:8px;padding:8px}#btPromoPanel button{margin:12px 8px 0 0;padding:10px 14px}
