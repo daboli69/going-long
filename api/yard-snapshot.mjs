@@ -1,5 +1,5 @@
 import {sendJson} from '../server/vercel-response.mjs';
-const allowed=new Set(['board.json','odds.json','history.json','backtest.json','bvp_career.json','hand2yr.json','microclimate.json','park_factors.json','wind_sens.json']);
+const allowed=new Set(['board.json','pregame-results.json','odds.json','history.json','backtest.json','bvp_career.json','hand2yr.json','microclimate.json','park_factors.json','wind_sens.json']);
 const cache=new Map(),pending=new Map();
 export default async function handler(req,res){
   if(req.method!=='GET')return sendJson(req,res,{error:'Method not allowed'},405);
