@@ -765,10 +765,8 @@
       <p>Five alternatives, ranked by estimated chance of all three scoring. Different games only in this first view. The estimate assumes those games behave independently; it is not a proven hit rate. The shared prize has no estimated dollar value here.</p>
       <label>Sunday slate <input type="date" id="promoDate"></label>
       <details><summary>Offer settings and unresolved rules</summary><label>Minimum combined American odds <input type="number" id="promoFloor" value="2000" min="100"></label><label>Minimum individual-leg American odds (if required) <input type="number" id="promoLegFloor" placeholder="Not verified"></label><p>Entry count, excluded games/players, opt-in requirements, and submission deadline still need checking in your offer. Options are not labeled promo-qualified. Same-game tickets need Fanatics’s actual combined price and a separately supported joint estimate.</p></details>
-      <h3>Paste current Fanatics prices</h3><p>ParlayAPI reported exhausted credits on September 13. You can use current manual prices while the live feed is unavailable. Paste one player per line: <code>Player name | American odds | expected</code>. Use <code>active</code> only when verified; out, doubtful, questionable and unknown statuses are excluded. Current injury status is not connected to this screen automatically.</p>
-      <textarea id="promoPaste" rows="7" aria-label="Fanatics anytime touchdown board" placeholder="Player name | +200 | expected"></textarea>
-      <p>Names must match this week’s existing touchdown profiles. The app supplies the model estimate; your paste supplies the Fanatics price and availability check. Clicking Generate records this as a current manual price observation.</p>
-      <button id="promoLive" type="button">Load available Fanatics prices</button><button id="promoGenerate" type="button">Generate five options</button><p id="promoStatus" role="status"></p><div id="promoOptions" class="sig-grid"></div>
+      <p>Options update automatically from fresh Fanatics prices and Going Long touchdown estimates. Players must appear on the current active roster without an injury designation. This is an early research screen, not official game-day clearance; the scanner checks official inactive reports separately.</p>
+      <p id="promoStatus" role="status">Checking Fanatics prices and player availability automatically…</p><div id="promoOptions" class="sig-grid"></div>
     </section>
     <section id="btBestPanel" hidden aria-label="Best plays today"><h2>Best plays today</h2><p>Upcoming games today, Eastern time. Each card is a single bet to investigate. Estimates are not proven win rates; final availability and price checks remain in <a href="/validation/">Validation</a>.</p><div class="pos-group" id="bestKind"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">NFL props</button></div><p id="bestStatus" role="status"></p><h3>Highest estimated win chance</h3><p>Ranked by the historical model’s chance of winning. A likely winner can still be overpriced.</p><div id="bestChance" class="sig-grid"></div><h3>Best value</h3><p>Fresh Pinnacle-led prices suggest a better payout here. We remove the books’ built-in charge and reduce the estimate for uncertainty. This shortlist has not passed the scanner’s final betting checks.</p><div id="bestValue" class="sig-grid"></div></section>
     <section id="btSignalsPanel" hidden aria-label="Football signals">
@@ -3790,32 +3788,33 @@ function wireSignals(){
  $('sigIdeas').onclick=e=>{const sort=e.target.closest('[data-sig-build]')?.dataset.sigBuild;if(!['prob','ev'].includes(sort))return;const build=signalBuild(SIGNAL.rows.filter(c=>c.sport===BET.sport),sort);if(!build)return;const keys=build.legs.map(c=>c.key);if(keys.some(k=>!SIGNAL.ledger.records[k]))return;if(!SIGNAL.ledger.builds.some(b=>b.keys.join()===keys.join()))SIGNAL.ledger.builds.push({keys,name:sort==='prob'?'Higher estimated chance':'Larger estimated return',at:new Date().toISOString(),prob:build.prob,dec:build.dec,legs:build.legs.map(c=>({key:c.key,dec:c.dec,book:c.book}))});keys.forEach(k=>SIGNAL.ledger.records[k].manualSaved=true);signalPersist();renderSignals();};
 }
 
-function renderPromo(){
+const PROMO_AUTO={availability:null,checked:0,pending:null,timer:null};
+async function renderPromo(){
  const date=$('promoDate');if(!date.value){const now=new Date();for(let n=0;n<7;n++){const candidate=new Date(now.getTime()+n*86400000);if(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short'}).format(candidate)==='Sun'){date.value=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(candidate);break;}}}
- $('promoLive').onclick=()=>{
-  const found=BET.props.filter(p=>p.market==='atd'&&(p.line==null||p.line===.5)&&String(p.bookKey||p.book).toLowerCase()==='fanatics'&&currentWeekProp(p)&&!quoteState(p)&&Number.isFinite(Date.parse(p.updatedAt))&&Date.now()-Date.parse(p.updatedAt)>=0&&Date.now()-Date.parse(p.updatedAt)<=15*60000);
-  const unique=new Map(found.map(p=>[[p.profileId,p.kickoff].join('|'),p]));
-  $('promoPaste').value=[...unique.values()].map(p=>`${p.player} | ${p.overOdds} | unknown`).join('\n');
-  $('promoPaste')._liveRows=[...unique.values()];
-  $('promoStatus').textContent=found.length?'Fanatics prices loaded. Availability remains unknown: verify each player and update the status before generating.':'No fresh Fanatics anytime-TD prices are available. Paste current prices from Fanatics; other books are never substituted.';
- };
- $('promoGenerate').onclick=()=>{
-  try{
-   const day=date.value;if(new Date(day+'T12:00:00Z').getUTCDay()!==0)throw Error('Choose a Sunday slate.');
-   const now=Date.now(),rows=[],notes=[];
-   for(const line of $('promoPaste').value.split(/\r?\n/).filter(x=>x.trim())){
-    const [name,odds,status]=line.split('|').map(x=>x.trim()),matches=BET.props.filter(p=>p.market==='atd'&&(p.line==null||p.line===.5)&&normalizeBetName(p.player)===normalizeBetName(name)&&currentWeekProp(p));
-    const unique=new Map(matches.map(p=>[[p.profileId,p.kickoff].join('|'),p]));
-    if(unique.size!==1){notes.push(name+': no unique current touchdown profile');continue;}
-    const p=[...unique.values()][0],probability=propProbabilities(p)?.over;
-    rows.push({player:p.player,playerId:p.profileId,event:(p.eventTeams||[]).join('|')+'|'+p.kickoff,kickoff:p.kickoff,book:'fanatics',market:'atd',line:.5,odds:Number(odds),probability,updatedAt:($('promoPaste')._liveRows||[]).find(q=>normalizeBetName(q.player)===normalizeBetName(name)&&q.overOdds===Number(odds))?.updatedAt||new Date(now).toISOString(),availability:(status||'unknown').toLowerCase(),team:p.team});
-   }
-   const floor=$('promoLegFloor').value;
-   const result=GoingTouchdown.optimize(rows,{now,slateDate:day,minimumAmerican:Number($('promoFloor').value),minimumLegAmerican:floor?Number(floor):null});
-   $('promoStatus').textContent=`${result.options.length} distinct options from ${result.eligiblePlayers} eligible players. ${Object.entries(result.excluded).map(([reason,n])=>n+' '+reason).join('; ')} ${notes.join('; ')}${result.options.length<5?' Fewer than five combinations meet the requirements; no extra options are invented.':''}`;
-   $('promoOptions').innerHTML=result.options.map((o,i)=>`<article class="sig-card"><h3>Option ${i+1}</h3><b>${(100*o.probability).toFixed(1)}% estimated chance</b><p>${americanOddsLabel(Math.round(o.american))} calculated combined price · ${o.decimal.toFixed(3)} decimal</p>${o.legs.map(l=>`<p><strong>${esc(l.player)}</strong> · ${esc(l.team)}<br>Anytime TD · Fanatics ${americanOddsLabel(l.odds)} · ${(100*l.probability).toFixed(1)}% individual estimate<br>${esc(new Date(l.kickoff).toLocaleString())}</p>`).join('')}<small>Current manual Fanatics prices. Check the final ticket and offer rules before submitting. No pool-share value estimated.</small></article>`).join('');
-  }catch(e){$('promoStatus').textContent=e.message;$('promoOptions').innerHTML='';}
- };
+ for(const id of ['promoDate','promoFloor','promoLegFloor'])$(id).onchange=()=>renderPromo();
+ if(!PROMO_AUTO.timer)PROMO_AUTO.timer=setInterval(()=>{if(BET.tab==='promo'&&!document.hidden)renderPromo();},60000);
+ try{
+  const now=Date.now(),day=date.value;
+  if(new Date(day+'T12:00:00Z').getUTCDay()!==0)throw Error('Choose a Sunday slate.');
+  if(now-PROMO_AUTO.checked>120000){
+   if(!PROMO_AUTO.pending)PROMO_AUTO.pending=fetch('/api/promo-availability',{signal:AbortSignal.timeout(45000)}).then(async r=>{const body=await r.json();if(!r.ok)throw Error(body.error||'Automatic availability check unavailable.');PROMO_AUTO.availability=body;PROMO_AUTO.checked=Date.now();}).finally(()=>PROMO_AUTO.pending=null);
+   $('promoOptions').innerHTML='';$('promoStatus').textContent='Checking player availability automatically…';
+   await PROMO_AUTO.pending;
+   if(BET.tab==='promo')return renderPromo();return;
+  }
+  const info=PROMO_AUTO.availability;
+  if(!info||now-Date.parse(info.checkedAt)>10*60000)throw Error('Waiting for fresh automatic roster checks. The app will retry.');
+  const key=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const rows=BET.props.filter(p=>p.market==='atd'&&String(p.bookKey||p.book).toLowerCase()==='fanatics'&&currentWeekProp(p)&&!quoteState(p)).map(p=>{
+   const teams=info.teams.filter(t=>key(t.team)===key(p.team)||resolveTeamName(t.team,'nfl')===resolveTeamName(p.team,'nfl'));
+   const matches=teams.flatMap(t=>t.players||[]).filter(r=>r.key===key(p.player));
+   return {player:p.player,playerId:p.profileId,event:p.eventTeams?.length===2?[...p.eventTeams].sort().join('|')+'|'+p.kickoff:null,kickoff:p.kickoff,book:'fanatics',market:'atd',line:p.line??.5,odds:p.overOdds,probability:propProbabilities(p)?.over,updatedAt:p.updatedAt,availability:matches.length===1?matches[0].availability:'unknown',team:p.team};
+  });
+  const floor=$('promoLegFloor').value;
+  const result=GoingTouchdown.optimize(rows,{now,slateDate:day,minimumAmerican:Number($('promoFloor').value),minimumLegAmerican:floor?Number(floor):null});
+  $('promoStatus').textContent=`${result.options.length} automatic options from ${result.eligiblePlayers} eligible players. ${Object.entries(result.excluded).map(([reason,n])=>n+' '+reason).join('; ')} ${result.options.length<5?'Waiting for enough fresh Fanatics prices and eligible players to form five options. No manual input is needed.':''}`;
+  $('promoOptions').innerHTML=result.options.map((o,i)=>`<article class="sig-card"><h3>Option ${i+1}</h3><b>${(100*o.probability).toFixed(1)}% estimated chance</b><p>${americanOddsLabel(Math.round(o.american))} calculated combined price · ${o.decimal.toFixed(3)} decimal</p>${o.legs.map(l=>`<p><strong>${esc(l.player)}</strong> · ${esc(l.team)}<br>Anytime TD · Fanatics ${americanOddsLabel(l.odds)} · ${(100*l.probability).toFixed(1)}% individual estimate<br>${esc(new Date(l.kickoff).toLocaleString())}<br>Price checked ${esc(new Date(l.updatedAt).toLocaleTimeString())}</p>`).join('')}<small>Why selected: highest combined Going Long scoring estimate among eligible three-game combinations meeting +${esc($('promoFloor').value)}. Active roster without a listed injury; official game-day clearance is separate. Confirm the final Fanatics ticket price and offer terms. No pool-share value estimated.</small></article>`).join('');
+ }catch(e){$('promoStatus').textContent=e.message+' Automatic checks retry while this screen is open.';$('promoOptions').innerHTML='';}
 }
 
 function renderBetting(){

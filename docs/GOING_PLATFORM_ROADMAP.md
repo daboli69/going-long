@@ -94,3 +94,10 @@ Completed and pushed in separate increments:
 Verification: five new JavaScript contract/parlay checks, five Python game-identity/pregame/final-grading checks, Vercel endpoint checks and production browser navigation checks pass. Prior integration jobs for the game-identity and freeze commits passed. The latest full integration job should be checked after completion.
 
 Next work: audit all remaining ticket/price paths; ensure complete official outcomes and corrections remain retryable; add versioned exact prediction/price records with bounded storage; separate prospective validation from exploratory historical tests; remove known current-season lookahead before claiming calibrated performance. Continue UI consolidation without hiding missing evidence.
+
+
+### September 13: automatic Fanatics Sunday research
+- Removed pasted prices and manual player-status entry. The promo view recomputes automatically from existing fresh Fanatics ATD quotes and Going Long estimates, with three distinct games and the configured +2000 floor.
+- Added a cached, free ESPN roster screen. Missing/stale rosters, non-active players, and any listed injury designation are excluded. This screen does not claim official inactive clearance; final scanner gates remain separate.
+- Five ranked alternatives are a maximum, not an invented minimum. Missing combinations display an automatic waiting state. The feature adds no ParlayAPI polling.
+- Verified all 32 live ESPN rosters; 41 targeted tests and the Vercel build passed. Full promo terms and final ticket prices still require sportsbook confirmation.

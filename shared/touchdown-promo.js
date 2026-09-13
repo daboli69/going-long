@@ -7,6 +7,8 @@ function optimize(input,settings={}){
  if(!floor)throw Error('Minimum combined odds must be valid American odds.');
  const date=settings.slateDate;
  if(!/^\d{4}-\d{2}-\d{2}$/.test(date||''))throw Error('Choose the Sunday slate date.');
+ if(new Date(date+'T12:00:00Z').getUTCDay()!==0)throw Error('Choose a Sunday slate.');
+ if(settings.minimumLegAmerican!=null&&!decimal(settings.minimumLegAmerican))throw Error('Individual-leg minimum must be valid American odds.');
  const day=stamp=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(stamp));
  const seen=new Map(),excluded={};
  const reject=why=>{excluded[why]=(excluded[why]||0)+1;};

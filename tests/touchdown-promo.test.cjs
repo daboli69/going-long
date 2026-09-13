@@ -5,3 +5,19 @@ test('Correct American conversion and strict 21.0 decimal floor',()=>{assert.equ
 test('Ranks by hit estimate, not highest odds, with five unique options',()=>{const result=optimize([leg('A'),leg('B'),leg('C'),leg('D'),leg('E',1000,.1)],settings);assert.equal(result.options.length,5);assert.ok(result.options[0].legs.every(l=>l.playerId!=='E'));assert.equal(new Set(result.options.map(x=>x.key)).size,5);});
 test('Stale, injured, other-book and non-anytime lines cannot qualify',()=>{for(const changes of [{availability:'questionable'},{book:'fanduel'},{line:1.5},{updatedAt:'2026-09-12T12:00:00Z'}])assert.equal(optimize([leg('A'),leg('B'),{...leg('C'),...changes}],settings).options.length,0);});
 test('Same-game combinations require ticket odds and never claim a modeled joint chance',()=>{const input=[leg('A',200,.4,'game'),leg('B',200,.4,'game'),leg('C')];assert.equal(optimize(input,{...settings,includeSameGame:true}).sameGame.length,0);const key=input.map(x=>x.event+'|'+x.playerId).sort().join('~');const out=optimize(input,{...settings,includeSameGame:true,ticketAmerican:{[key]:2200}});assert.equal(out.sameGame[0].probability,null);assert.equal(out.sameGame[0].decimal,23);});
+
+test('Sunday and optional individual price settings are validated',()=>{
+ assert.throws(()=>optimize([],{...settings,slateDate:'2026-09-14'}),/Sunday/);
+ assert.throws(()=>optimize([],{...settings,minimumLegAmerican:0}),/Individual/);
+});
+test('Automatic roster screening excludes injuries, reserves and missing injury data',async()=>{
+ const {rosterPlayers}=await import('../server/promo-availability.mjs');
+ const body={timestamp:new Date(now).toISOString(),athletes:[{items:[
+ {fullName:'Healthy Player',status:{type:'active'},injuries:[]},
+ {fullName:'Hurt Player',status:{type:'active'},injuries:[{status:'Questionable'}]},
+ {fullName:'Reserve Player',status:{type:'reserve'},injuries:[]},
+ {fullName:'Unknown Player',status:{type:'active'}}]}]};
+ assert.deepEqual(rosterPlayers(body,now).players.map(p=>p.availability),['expected','unavailable','unavailable','unavailable']);
+ assert.throws(()=>rosterPlayers({...body,timestamp:'2025-01-01'},now),/stale/);
+ assert.throws(()=>rosterPlayers({...body,athletes:[]},now),/unavailable/);
+});

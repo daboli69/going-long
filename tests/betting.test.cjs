@@ -349,3 +349,19 @@ test('Price shortlist needs no historical model and retains both opposing sides'
  const {api:a}=setup(t),now=Date.now();a.BET.games=[{sport:'ncaa',home:'Home',away:'Away',kickoff:new Date(now+60000).toISOString(),book:'pinnacle',updatedAt:new Date(now).toISOString(),spread:-3.5,homeSpreadOdds:-110,awaySpreadOdds:-110,mlHome:-150,mlAway:130}];
  const rows=a.bestPriceCandidates();assert.equal(rows.length,4);assert.equal(rows.filter(c=>c.market==='spread').length,2);assert.ok(rows.every(c=>c.reference.win>0));
 });
+
+test('Promo automatically renders from Fanatics quotes and fails closed on roster loss',async t=>{
+ const {api:a,w,context}=setup(t);
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/touchdown-promo.js'),'utf8'),context);
+ const now=Date.parse('2026-09-13T12:00:00Z');w.Date.now=()=>now;
+ w.document.getElementById('promoDate').value='2026-09-13';
+ a.BET.tab='promo';
+ a.BET.props=['A','B','C','D'].map((id,i)=>({player:'Player '+id,profileId:id,team:id,market:'atd',line:.5,overOdds:200,book:'fanatics',kickoff:'2026-09-13T17:00:00Z',updatedAt:'2026-09-13T11:59:00Z',eventTeams:[id,'Opponent '+id],projMean:.5,projSd:.5,model:{status:'ready',family:'poisson',lambda:.5,mean:.5,sd:.5}}));
+ vm.runInContext(`PROMO_AUTO.checked=Date.now();PROMO_AUTO.availability={checkedAt:new Date(Date.now()).toISOString(),teams:BET.props.map(p=>({team:p.team,code:p.team,players:[{key:('player'+p.team).toLowerCase(),availability:'expected'}]}))};`,context);
+ await vm.runInContext('renderPromo()',context);
+ assert.ok(w.document.querySelectorAll('#promoOptions article').length>0,w.document.getElementById('promoStatus').textContent);
+ assert.equal(w.document.getElementById('promoPaste'),null);
+ vm.runInContext('PROMO_AUTO.availability.teams=[]',context);
+ await vm.runInContext('renderPromo()',context);
+ assert.equal(w.document.querySelectorAll('#promoOptions article').length,0);
+});
