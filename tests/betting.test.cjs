@@ -387,3 +387,14 @@ test('Best props accept offseason history without admitting extreme model discre
  const games=Array.from({length:6},(_,i)=>({...p,kind:'game',event:'g'+i,contract:'g'+i,prob:.9,flags:[]}));
  assert.ok(a.rankBestPlays([...games,p],[],'nfl','all',now).chance.some(c=>c.kind==='prop'));
 });
+
+test('Parlay game selector includes scheduled SNF even without eligible odds',async t=>{
+ const {api:a,w,context}=setup(t);w.Date.now=()=>Date.parse('2026-09-13T23:00:00Z');
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-parlays.js'),'utf8'),context);
+ a.BET.tab='parlays';a.BET.sport='nfl';a.BET.props=[];a.BET.games=[];
+ a.BET.history={games:{nfl:[{home:'NYG',away:'DAL',kickoff:'2026-09-14T00:20:00Z'},{home:'KC',away:'DEN',kickoff:'2026-09-15T00:15:00Z'}]}};
+ await vm.runInContext('renderFootballParlays()',context);
+ const text=w.document.getElementById('parlayGames').textContent;
+ assert.match(text,/DAL @ NYG/);assert.match(text,/DEN @ KC/);assert.match(text,/Waiting for supported/);
+ assert.equal(w.document.querySelectorAll('#parlayGames input').length,2);
+});

@@ -3778,15 +3778,20 @@ const PARLAY_GAMES={nfl:null,ncaa:null};
 async function renderFootballParlays(){
  const version=++PARLAY_VERSION,sport=BET.sport,rows=await signalCandidates();
  if(version!==PARLAY_VERSION||BET.tab!=='parlays'||sport!==BET.sport)return;
- const allRows=[...rows,...(SIGNAL.allQuotes||[])],bookSelect=$('parlayBook'),oldBook=bookSelect.value;
+ const eventKey=(home,away,kickoff)=>signalEvent(sport,home,away,new Date(kickoff).toISOString());
+ const allRows=[...rows,...(SIGNAL.allQuotes||[])].map(r=>({...r,event:Number.isFinite(Date.parse(r.kickoff))?signalEvent(r.sport,r.home,r.away,new Date(r.kickoff).toISOString()):r.event})),bookSelect=$('parlayBook'),oldBook=bookSelect.value;
  const books=[...new Set(allRows.filter(r=>r.sport===sport).map(r=>r.book))].sort();
  bookSelect.innerHTML='<option value="all">Any single sportsbook</option>'+books.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');bookSelect.value=books.includes(oldBook)?oldBook:'all';
  for(const id of ['parlayLegs','parlayMin','parlayMax','parlayKind','parlayBook'])$(id).onchange=()=>renderFootballParlays();
  $('parlayKind').querySelector('[value="prop"]').disabled=sport==='ncaa';if(sport==='ncaa'&&$('parlayKind').value==='prop')$('parlayKind').value='all';
  const week=footballWeek(),gameMap=new Map();
  for(const r of allRows){if(r.sport!==sport||Date.parse(r.kickoff)<=Date.now()||!inCurrentFootballWeek(r.kickoff))continue;if(!gameMap.has(r.event))gameMap.set(r.event,r);}
+ for(const g of BET.history?.games?.[sport]||[]){if(!Number.isFinite(Date.parse(g.kickoff))||Date.parse(g.kickoff)<=Date.now()||!inCurrentFootballWeek(g.kickoff))continue;
+  const home=sport==='nfl'?canonicalNflTeam(g.home):g.home,away=sport==='nfl'?canonicalNflTeam(g.away):g.away,event=eventKey(home,away,g.kickoff);
+  if(!gameMap.has(event))gameMap.set(event,{...g,home,away,event,waiting:true});
+ }
  const games=[...gameMap.values()].sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff));
- $('parlayGames').innerHTML=games.map((g,i)=>`<label><input type="checkbox" data-parlay-game="${i}" ${PARLAY_GAMES[sport]===null||PARLAY_GAMES[sport].has(g.event)?'checked':''}><span>${esc(g.away)} @ ${esc(g.home)}<br><small>${esc(new Date(g.kickoff).toLocaleString())}</small></span></label>`).join('')||'<p>No upcoming priced games are available for this week yet.</p>';
+ $('parlayGames').innerHTML=games.map((g,i)=>`<label><input type="checkbox" data-parlay-game="${i}" ${PARLAY_GAMES[sport]===null||PARLAY_GAMES[sport].has(g.event)?'checked':''}><span>${esc(g.away)} @ ${esc(g.home)}<br><small>${esc(new Date(g.kickoff).toLocaleString())}${g.waiting?' · Waiting for supported sportsbook legs':''}</small></span></label>`).join('')||'<p>No upcoming scheduled games are available for this week yet.</p>';
  $('parlayGames').onchange=e=>{const index=e.target.dataset.parlayGame;if(index===undefined)return;if(PARLAY_GAMES[sport]===null)PARLAY_GAMES[sport]=new Set(games.map(g=>g.event));const event=games[Number(index)]?.event;if(!event)return;e.target.checked?PARLAY_GAMES[sport].add(event):PARLAY_GAMES[sport].delete(event);renderFootballParlays();};
  $('parlayAllGames').onclick=()=>{PARLAY_GAMES[sport]=null;renderFootballParlays();};
  $('parlayClearGames').onclick=()=>{PARLAY_GAMES[sport]=new Set();renderFootballParlays();};
