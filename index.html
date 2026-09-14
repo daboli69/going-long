@@ -832,7 +832,7 @@
       <button class="btn" id="btLoadRealProps" style="margin-bottom:10px">Refresh live props</button>
       <div class="bt-table-scroll"><div class="bt-table" id="btPropsTable" aria-label="Player prop quotes" aria-live="polite"></div></div>
       <div class="bt-pagination"><button class="btn ghost" id="btPrev">Previous</button><span id="btPageNote" role="status"></span><button class="btn ghost" id="btNext">Next</button></div>
-      <p class="bt-note">Historical estimates assume the player participates. Individual stakes do not account for correlated bets. Yardage: lognormal; receptions and TDs: Poisson. Win probability excludes pushes.</p>
+      <p class="bt-note">Research estimates assume the player participates. No stake is suggested until the model has been validated. The estimated win chance excludes outcomes where your stake is returned. Open projection details for the calculation and supporting history.</p>
       <details class="setup">
         <summary>Paste props</summary>
         <div class="setup-body">
@@ -2977,6 +2977,19 @@ function quoteState(p, now=Date.now()){
   }
   return null;
 }
+function footballTrust(c,now=Date.now()){
+ const reasons=[];
+ const review=Number.isFinite(c.ev)&&c.ev>.25;
+ if(review)reasons.push('The model and sportsbook disagree unusually strongly. Check the current role and exact market before relying on this estimate.');
+ const historical=Boolean(c.profileDate)&&now-Date.parse(c.profileDate)>120*86400000;
+ if(historical)reasons.push('Player history is more than 120 days old; current playing time may differ.');
+ if(c.market==='first_td'||/_1[hq]$/.test(c.market||''))reasons.push('This market uses an experimental model that has not been validated against recorded outcomes.');
+ const age=now-Date.parse(c.updatedAt);
+ if(Number.isFinite(age)&&age>300000)reasons.push('This is a saved price. Confirm the current line and payout.');
+ if(!Number.isFinite(c.prob))reasons.push('A supported probability estimate is unavailable.');
+ return {version:'football-trust-1',state:review?'review_required':'research',review,historical,canSuggestStake:false,reasons,
+  label:review?'Needs review — model and price disagree':'Research estimate — not yet validated'};
+}
 function computePropRow(p){
   if(p.source==="projection")return {side:"—",prob:null,push:null,ev:null,kelly:0,reason:"Projection only · no matched market quote"};
   const probs=propProbabilities(p), reason=p.dfs?"Pick’em payout · no single-bet EV":quoteState(p);
@@ -2987,7 +3000,9 @@ function computePropRow(p){
     c.push=probs.push; c.dec=americanToDecimal(c.odds); c.ev=evPercent(c.prob,c.dec,c.push);
     c.kelly=kellyFraction(c.prob,c.dec,c.push,BET.config.kelly_fraction??0.25,BET.config.max_stake_fraction??0.02);
   }
-  return candidates.sort((a,b)=>(b.ev??-Infinity)-(a.ev??-Infinity))[0];
+  const row=candidates.sort((a,b)=>(b.ev??-Infinity)-(a.ev??-Infinity))[0];
+  row.trust=footballTrust({...p,...row});row.kelly=0;
+  return row;
 }
 function normalizeBetName(name){return String(name).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g,"").trim().replace(/\s+/g," ").replace(/\s+(jr|sr|ii|iii|iv|v)$/,"");}
 function buildProfileIndex(history){
@@ -3097,7 +3112,7 @@ async function loadBettingData(){
     BET.props=await propsFromRealData();
     BET.games=gamesFromRealData();
     const stamp=BET.history?.generated_at;
-    $("btDataNote").textContent=stamp ? `Model updated ${new Date(stamp).toLocaleString()} · ${BET.history.window}-game baseline · Model-based bet size, capped at ${100*(BET.config.max_stake_fraction??0.02)}% per bet` : "Historical projections unavailable. Manual import is available below.";
+    $("btDataNote").textContent=stamp ? `Model updated ${new Date(stamp).toLocaleString()} · ${BET.history.window}-game baseline · Research estimates; no suggested stake until validated` : "Historical projections unavailable. Manual import is available below.";
     $("btLoadPropsNote").textContent=BET.props.length ? `${BET.props.length} bookmaker quotes loaded automatically.` : "No prop quotes in this snapshot. Refresh live props to request current prices.";
   }catch(e){$("btDataNote").textContent=`Data unavailable: ${e.message}. Reload to retry; manual imports remain available.`;}
   finally{BET.loading=false;updateBetFilters();renderBetting();}
@@ -3311,7 +3326,8 @@ function parseGamesPaste(text){
 function percent(value){return finiteNumber(value)?(value*100).toFixed(1)+"%":"—";}
 function evClass(ev){return ev==null?"":ev>0.05?"hi":ev>=0?"mid":"neg";}
 function metricMarkup(row){
-  return `<span>${row.side||"—"}</span><span>${americanOddsLabel(row.odds)}</span><span title="Probability of this side winning">${percent(row.prob)}</span><span class="bt-ev ${evClass(row.ev)}">${row.ev>0?"+":""}${percent(row.ev)}</span><span title="Fraction of bankroll; per-bet cap applies">${row.kelly>0?percent(row.kelly):"—"}</span>`;
+  const trust=row.trust||footballTrust(row);
+  return `<span>${row.side||"—"}</span><span>${americanOddsLabel(row.odds)}</span><span title="Unvalidated estimate of this side winning">${percent(row.prob)}</span><span title="${esc(trust.label)}" class="bt-ev ${trust.review?'':evClass(row.ev)}">${row.ev>0?"+":""}${percent(row.ev)}</span><span title="No suggested stake: this historical model has not been validated">—</span>`;
 }
 async function cooperativeSort(rows, compare, version){
   let src=rows, dst=new Array(rows.length), checkpoint=performance.now();
@@ -3423,7 +3439,7 @@ function propMarkup(p,row,rank=1){
     ${p.market==='first_td'?firstTdStrip(p):`<div class="bt-projection-strip"><div><label>MODEL ${p.market==='atd'?'E[TD]':''}</label><b class="bt-model-value">${fmt(mean)}</b></div><div><label>BOOK LINE</label><b>${p.market==='atd'?((p.line??.5)%1===.5?`${Math.ceil(p.line??.5)}+ TD`:`O ${p.line} TD`):p.line??'—'}</b></div><div><label>${['atd','first_td'].includes(p.market)?'YES':'OVER'}</label><b>${americanOddsLabel(p.overOdds)}</b></div><div><label>${['atd','first_td'].includes(p.market)?'NO':'UNDER'}</label><b>${americanOddsLabel(p.underOdds)}</b></div></div>`}
     <div class="bt-edge"><span>${p.market==='first_td'?'Probability edge':'Model − line'}</span><strong>${p.market==='first_td'?(p.model?.probability!=null&&americanToDecimal(p.overOdds)?`Model chance − price break-even chance: ${percent(p.model.probability-1/americanToDecimal(p.overOdds))}`:'No comparable price'):finiteNumber(mean)&&finiteNumber(p.line)?`${mean-p.line>=0?'+':''}${fmt(mean-p.line)} ${p.market.includes('yds')?'yds':''}`:'No comparable market line'}</strong></div>
     <div class="bt-metric-labels"><span>Model side</span><span>Price</span><span>Win</span><span title="Estimated profit or loss per $1 over many repeated bets">Return/$1</span><span title="Model-based bankroll share; reduced to limit exposure to estimation mistakes">Bet size</span></div><div class="bt-metrics">${metricMarkup(row)}</div>
-    <p class="bt-model-note">${esc(row.reason||`${p.manual?'Manual':model?'Historical model':'No model'} · ${model?.n??'—'} games · typical variation ${fmt(sd)}`)}</p>
+    <p class="bt-model-note"><strong>${esc((row.trust||footballTrust({...p,...row})).label)}</strong> · No suggested stake.<br>${esc((row.trust||footballTrust({...p,...row})).reasons.join(' '))}<br>${esc(row.reason||`${p.manual?'Manual':model?'Historical model':'No model'} · ${model?.n??'—'} games · typical variation ${fmt(sd)}`)}</p>
     <details class="bt-override"><summary>Recent games & projection ${p.manual?'override':'details'}</summary>
       ${featureMarkup(p)}
       <div class="bt-recent">${logs.slice(-12).map(g=>`<span title="${esc(g.date)}">${finiteNumber(g[p.market])?g[p.market]:'—'}</span>`).join('')||'No recent game log available'}</div>
@@ -3484,7 +3500,7 @@ function gameQuotes(g){
   return rows;
 }
 function gameBookContent(q){return `<div class="bt-book-content">      <div class="bt-lines"><div><label>Spread · away / home</label><b>${finiteNumber(q.spread)?-q.spread:'—'} / ${q.spread??'—'}</b><small>${americanOddsLabel(q.awaySpreadOdds)} / ${americanOddsLabel(q.homeSpreadOdds)}</small></div><div><label>Total ${q.total??'—'} · over / under</label><b>${americanOddsLabel(q.overOdds)} / ${americanOddsLabel(q.underOdds)}</b></div></div>
-      <p class="bt-note">${esc(quoteState(q)||'Current quote')} · ${esc(q.updatedAt?new Date(q.updatedAt).toLocaleString():'Manual entry')}</p>
+      <p class="bt-note">Historical research estimates are not yet validated. No suggested stake. Large model-price disagreements need review.</p><p class="bt-note">${esc(quoteState(q)||'Current quote')} · ${esc(q.updatedAt?new Date(q.updatedAt).toLocaleString():'Manual entry')}</p>
       ${gameQuotes(q).length?`<div class="bt-game-prices"><div class="bt-metrics bt-labels"><span>Market / side</span><span>Odds</span><span>Win</span><span title="Estimated profit or loss per $1 over many repeated bets">Return/$1</span><span title="Model-based bankroll share; reduced to limit exposure to estimation mistakes">Bet size</span></div>${gameQuotes(q).map(r=>`<div class="bt-metrics">${metricMarkup(r)}</div>`).join('')}</div>`:'<p class="bt-note">Estimated return needs a matched model and current price.</p>'}</div>`;}
 function currentGameMarket(g,market){return !quoteState({...g,updatedAt:g.marketTimes?.[market]||g.updatedAt});}
 function activeGameQuote(g){
@@ -3607,9 +3623,10 @@ function signalFlags(c,peers,history,now=Date.now()){
  const books=new Map();for(const p of peers)if(p.book!==c.book&&finiteNumber(p.dec))books.set(p.book,Math.max(books.get(p.book)||0,p.dec));
  const reference=signalMedian([...books.values()]);
  if(books.size>=2&&c.dec/reference-1>=.02)add('price','market',`Same selection and line: ${books.size} other books typically return $${reference.toFixed(2)} per $1; this price returns $${c.dec.toFixed(2)}. This compares payout, not win chance.`);
- const needsCheck=c.ev>.25||(c.profileDate&&!signalFresh(c.profileDate,now,120));
+ c.trust=footballTrust(c,now);
+ const needsCheck=c.trust.review||c.trust.historical;
  if(needsCheck)add('check','audit','The estimated return is unusually large or the player history is more than 120 days old. Confirm the current role and exact market before trusting this estimate. Excluded from two-leg ideas.');
- if(needsCheck)flags[flags.length-1].historicalOnly=c.ev<=.25&&Boolean(c.profileDate)&&!signalFresh(c.profileDate,now,120);
+ if(needsCheck)flags[flags.length-1].historicalOnly=!c.trust.review&&c.trust.historical;
  if(!needsCheck&&c.prob!=null&&c.ev>=.03)add('gap','model',`Historical model estimates $${(1+c.ev).toFixed(2)} returned per $1 over many repeats. Based on ${c.n??'unknown'} games through ${c.profileDate||'an unspecified date'}; it has not proved a betting edge.`);
  if(c.kind==='prop'){
   const f=history?.features?.nfl?.players?.[`${c.team}|${c.profileId}`],t=history?.features?.nfl?.teams?.[c.team],op=history?.features?.nfl?.teams?.[c.opp];
@@ -3713,7 +3730,7 @@ async function signalCandidates(){
   quotes.push({kind:'prop',sport:'nfl',home,away,event,kickoff:p.kickoff,player:p.player,profileId:p.profileId,profileDate:p.profileDate,team:p.team,opp:p.opp,position:BET.history?.profiles?.[p.profileId]?.position,market:p.market,line:p.line,side:r.side,odds:r.odds,dec:r.dec,prob:r.prob,push:r.push,ev:r.ev,book:p.book,updatedAt:p.updatedAt,n:p.model?.n,teamSpread:spread==null?null:p.team===home?spread:-spread,reference:signalReference(r.odds,r.side==='Under'?p.overOdds:p.underOdds,r.push)});
   if(!['atd','first_td'].includes(p.market)){const side=r.side==='Under'?'Over':'Under',odds=side==='Over'?p.overOdds:p.underOdds,dec=americanToDecimal(odds),prob=propProbabilities(p)?.[side.toLowerCase()];if(dec&&finiteNumber(prob))quotes.push({...quotes[quotes.length-1],side,odds,dec,prob,ev:evPercent(prob,dec,r.push),reference:signalReference(odds,r.odds,r.push)});}
  }
- const contracts=new Map();for(const c of quotes){c.contract=[c.event,c.kind,c.profileId||'',c.market,c.line,c.side].join('|');c.key=c.contract;
+ const contracts=new Map();for(const c of quotes){c.trust=footballTrust(c,now);c.contract=[c.event,c.kind,c.profileId||'',c.market,c.line,c.side].join('|');c.key=c.contract;
   if(!contracts.has(c.contract))contracts.set(c.contract,[]);contracts.get(c.contract).push(c);
  }
  const rows=[];for(const peers of contracts.values()){peers.sort((a,b)=>b.dec-a.dec);const c=peers[0];c.flags=signalFlags(c,peers,BET.history,now);c.families=[...new Set(c.flags.map(f=>f.family).filter(f=>f!=='audit'))];rows.push(c);}
@@ -3780,7 +3797,7 @@ function renderFirstTdPredictor(){
  const games=Object.values(BET.history?.derivatives?.first_td||{}).filter(g=>g.status==='ready'&&Date.parse(g.kickoff)>Date.now()&&inCurrentFootballWeek(g.kickoff)).sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff));
  $('firstTdPredictions').innerHTML=games.map(g=>{
   const outcomes=Object.values(g.outcomes||{}),players=outcomes.filter(p=>p.player_id&&p.name&&p.probability>0&&p.probability<1).sort((a,b)=>b.probability-a.probability).slice(0,8);
-  return `<article class="sig-card"><h3>${esc(g.away)} @ ${esc(g.home)}</h3><p>${esc(new Date(g.kickoff).toLocaleString())}</p>${players.map(p=>{const quotes=BET.props.filter(q=>q.market==='first_td'&&q.profileId===p.player_id&&!q.dfs&&!quoteState(q)&&q.eventTeams?.includes(g.home)&&q.eventTeams?.includes(g.away)&&Math.abs(Date.parse(q.kickoff)-Date.parse(g.kickoff))<60000&&americanToDecimal(q.overOdds)).sort((a,b)=>americanToDecimal(b.overOdds)-americanToDecimal(a.overOdds));const q=quotes[0];return `<p><strong>${esc(p.name)} · ${esc(p.team)}</strong><br>${percent(p.probability)} estimated first-TD chance · ${americanOddsLabel(p.fair_odds)} model break-even odds<br>${q?`${esc(q.book)} ${americanOddsLabel(q.overOdds)} · ${(100*(p.probability*americanToDecimal(q.overOdds)-1)).toFixed(1)}¢ estimated profit per $1<br>Quote ${esc(new Date(q.updatedAt).toLocaleString())}`:'No matching sportsbook quote available.'}</p>`;}).join('')}<small>Top eight players shown. Their probabilities are not rescaled to 100%; other outcomes remain in the model.</small></article>`;
+  return `<article class="sig-card"><h3>${esc(g.away)} @ ${esc(g.home)}</h3><p>${esc(new Date(g.kickoff).toLocaleString())}</p>${players.map(p=>{const quotes=BET.props.filter(q=>q.market==='first_td'&&q.profileId===p.player_id&&!q.dfs&&!quoteState(q)&&q.eventTeams?.includes(g.home)&&q.eventTeams?.includes(g.away)&&Math.abs(Date.parse(q.kickoff)-Date.parse(g.kickoff))<60000&&americanToDecimal(q.overOdds)).sort((a,b)=>americanToDecimal(b.overOdds)-americanToDecimal(a.overOdds));const q=quotes[0],trust=footballTrust({market:'first_td',prob:p.probability,ev:q?p.probability*americanToDecimal(q.overOdds)-1:null,updatedAt:q?.updatedAt});return `<p><strong>${esc(p.name)} · ${esc(p.team)}</strong><br>${percent(p.probability)} estimated first-TD chance · ${americanOddsLabel(p.fair_odds)} model break-even odds<br><strong>${esc(trust.label)}</strong><br>${q?`${esc(q.book)} ${americanOddsLabel(q.overOdds)} · ${(100*(p.probability*americanToDecimal(q.overOdds)-1)).toFixed(1)}¢ estimated profit per $1<br>Quote ${esc(new Date(q.updatedAt).toLocaleString())}`:'No matching sportsbook quote available.'}</p>`;}).join('')}<small>Top eight players shown. Their probabilities are not rescaled to 100%; other outcomes remain in the model.</small></article>`;
  }).join('')||'<p>No supported first-TD game model is available for the remaining week. No probabilities are invented.</p>';
 }
 let PARLAY_VERSION=0;

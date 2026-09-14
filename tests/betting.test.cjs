@@ -6,7 +6,10 @@ const vm=require('node:vm');
 const {JSDOM}=require('jsdom');
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 function setup(t){
+  t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-09-09T12:00:00Z')});
   const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true});
+  const BrowserDate=dom.window.Date;
+  dom.window.Date=class extends BrowserDate{constructor(...args){super(...(args.length?args:[Date.now()]));}static now(){return Date.now();}};
   t.after(()=>dom.window.close());
   dom.window.localStorage.setItem('goinglong.gateway.mode','fantasy');
   dom.window.requestAnimationFrame=cb=>dom.window.setTimeout(cb,0);
@@ -404,4 +407,17 @@ test('First TD predictor renders historical game outcomes without inventing quot
  a.BET.props=[];a.BET.history={derivatives:{first_td:{g:{status:'ready',home:'NYG',away:'DAL',kickoff:'2026-09-14T00:20:00Z',outcomes:{p:{player_id:'p',name:'Test Player',team:'DAL',probability:.1,fair_odds:900}}}}}};
  vm.runInContext('renderFirstTdPredictor()',context);const text=w.document.getElementById('firstTdPredictions').textContent;
  assert.match(text,/Test Player/);assert.match(text,/10.0%/);assert.match(text,/No matching sportsbook quote/);
+});
+
+
+test('Extreme model-price disagreement remains visible without a suggested stake',t=>{
+ const {w,context}=setup(t);
+ const result=vm.runInContext(`(()=>{const row={prob:.341,ev:4.111,odds:1400,side:'Yes',kelly:.02};return {trust:footballTrust(row),markup:metricMarkup(row)};})()`,context);
+ assert.equal(result.trust.state,'review_required');assert.equal(result.trust.canSuggestStake,false);
+ assert.match(result.markup,/411.1%/);assert.match(result.markup,/Needs review/);assert.doesNotMatch(result.markup,/2.0%/);
+});
+test('Trust policy distinguishes historical research from model-price review',t=>{
+ const {context}=setup(t);
+ const result=vm.runInContext(`(()=>{const now=Date.parse('2026-09-14T12:00:00Z');return [footballTrust({prob:.6,ev:.1,profileDate:'2026-01-01'},now),footballTrust({prob:.6,ev:.5,profileDate:'2026-01-01'},now)];})()`,context);
+ assert.equal(result[0].historical,true);assert.equal(result[0].review,false);assert.equal(result[1].review,true);
 });
