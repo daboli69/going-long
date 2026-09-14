@@ -1,7 +1,14 @@
 (function(root){
 'use strict';
-function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdds=null,book:chosenBook="all",kind="all",events=null}={}){
+function profitBoost(probability,decimal,boostPercent=0,stake=10){
+ if(!(probability>0&&probability<1)||!(decimal>1)||!Number.isFinite(decimal)||!Number.isFinite(boostPercent)||boostPercent<0||boostPercent>1000||!Number.isFinite(stake)||stake<=0)throw Error('Enter a boost from 0 to 1000% and a positive stake.');
+ const boostedDecimal=1+(decimal-1)*(1+boostPercent/100);
+ return {boostedDecimal,returnPerDollar:probability*boostedDecimal-1,baseReturn:probability*decimal-1,breakEvenBoost:Math.max(0,100*((1/probability-1)/(decimal-1)-1)),profitIfWin:stake*(boostedDecimal-1),expectedProfit:stake*(probability*boostedDecimal-1)};
+}
+
+function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdds=null,book:chosenBook="all",kind="all",events=null,boostPercent=0,stake=10}={}){
  const decimal=o=>o==null?null:Number.isFinite(o)&&Math.abs(o)>=100?(o>0?1+o/100:1+100/-o):NaN;
+ profitBoost(.5,2,boostPercent,stake);
  const lower=decimal(minOdds)??1,upper=decimal(maxOdds)??Infinity;
  if(!Number.isInteger(legs)||legs<2||legs>6)throw Error('Choose between 2 and 6 legs.');
  if(!Number.isFinite(lower)||Number.isNaN(upper)||upper<lower)throw Error('Enter valid American odds, with the maximum at least the minimum.');
@@ -9,7 +16,7 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
  const books=new Map();
  for(const r of rows){
   const kick=Date.parse(r.kickoff),at=Date.parse(r.updatedAt);
-  if((events!==null&&!events.includes(r.event))||(chosenBook!=='all'&&r.book!==chosenBook)||(kind!=='all'&&r.kind!==kind)||r.sport!==sport||!r.event||!r.book||r.manual||r.dfs||!Number.isFinite(kick)||kick<=now||day(kick)<start||day(kick)>last||!Number.isFinite(at)||at>now||now-at>86400000||!(r.n>=5)||!(r.prob>0&&r.prob<1)||!(r.dec>1)||!Number.isFinite(r.ev)||r.ev<0||r.ev>.25||r.push!==0||r.market==='first_td'||/_1[hq]$/.test(r.market)||r.flags?.some(f=>f.id==='check'&&!f.historicalOnly))continue;
+  if((events!==null&&!events.includes(r.event))||(chosenBook!=='all'&&r.book!==chosenBook)||(kind!=='all'&&r.kind!==kind)||r.sport!==sport||!r.event||!r.book||r.manual||r.dfs||!Number.isFinite(kick)||kick<=now||day(kick)<start||day(kick)>last||!Number.isFinite(at)||at>now||now-at>86400000||!(r.n>=5)||!(r.prob>0&&r.prob<1)||!(r.dec>1)||!Number.isFinite(r.ev)||(boostPercent===0&&r.ev<0)||r.ev>.25||r.push!==0||r.market==='first_td'||/_1[hq]$/.test(r.market)||r.flags?.some(f=>f.id==='check'&&!f.historicalOnly))continue;
   if(r.kind==='prop'&&!r.profileId)continue;
   if(!books.has(r.book))books.set(r.book,[]);books.get(r.book).push(r);
  }
@@ -36,9 +43,12 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
    }
   }
   for(const candidate of states.filter(x=>x.legs.length===legs&&x.decimal>=lower&&x.decimal<=upper)){
-   if(!parlay||candidate.probability>parlay.probability)parlay={book,...candidate,estimatedReturn:candidate.probability*candidate.decimal-1};
+   const boost=profitBoost(candidate.probability,candidate.decimal,boostPercent,stake);
+   if(boost.returnPerDollar<0)continue;
+   if(!parlay||candidate.probability>parlay.probability)parlay={book,...candidate,estimatedReturn:candidate.probability*candidate.decimal-1,boost};
   }
-  for(const group of events.values()){
+  for(const rawGroup of events.values()){
+   const group=rawGroup.filter(r=>r.ev>=0);
    const chosen=[],seen=new Set();for(const r of group){if(seen.has(entity(r)))continue;seen.add(entity(r));chosen.push(r);if(chosen.length===legs)break;}
    if(chosen.length!==legs)continue;
    const weakest=Math.min(...chosen.map(r=>r.prob));
@@ -47,5 +57,5 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
  }
  return {parlay,sgp};
 }
-root.GoingFootballParlays={select};if(typeof module!=='undefined')module.exports=root.GoingFootballParlays;
+root.GoingFootballParlays={select,profitBoost};if(typeof module!=='undefined')module.exports=root.GoingFootballParlays;
 })(globalThis);

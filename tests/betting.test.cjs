@@ -398,3 +398,10 @@ test('Parlay game selector includes scheduled SNF even without eligible odds',as
  assert.match(text,/DAL @ NYG/);assert.match(text,/DEN @ KC/);assert.match(text,/Waiting for supported/);
  assert.equal(w.document.querySelectorAll('#parlayGames input').length,2);
 });
+
+test('First TD predictor renders historical game outcomes without inventing quote prices',t=>{
+ const {api:a,w,context}=setup(t);w.Date.now=()=>Date.parse('2026-09-13T23:00:00Z');
+ a.BET.props=[];a.BET.history={derivatives:{first_td:{g:{status:'ready',home:'NYG',away:'DAL',kickoff:'2026-09-14T00:20:00Z',outcomes:{p:{player_id:'p',name:'Test Player',team:'DAL',probability:.1,fair_odds:900}}}}}};
+ vm.runInContext('renderFirstTdPredictor()',context);const text=w.document.getElementById('firstTdPredictions').textContent;
+ assert.match(text,/Test Player/);assert.match(text,/10.0%/);assert.match(text,/No matching sportsbook quote/);
+});

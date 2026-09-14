@@ -762,7 +762,7 @@
         <button data-sport="ncaa" aria-pressed="false">NCAA</button>
       </div>
       <div class="pos-group" id="btTabGroup">
-        <button data-tab="promo" aria-pressed="false">TD Promo</button><button data-tab="best" aria-pressed="false">Best Plays</button><button data-tab="parlays" aria-pressed="false">Parlays</button><button data-tab="props" aria-pressed="true">Player Props</button>
+        <button data-tab="promo" aria-pressed="false">TD Promo</button><button data-tab="best" aria-pressed="false">Best Plays</button><button data-tab="firsttd" aria-pressed="false">First TD Predictor</button><button data-tab="parlays" aria-pressed="false">Parlays</button><button data-tab="props" aria-pressed="true">Player Props</button>
         <button data-tab="games" aria-pressed="false">Game Lines</button><button data-tab="projections" aria-pressed="false">Projections</button><button data-tab="signals" aria-pressed="false">Signals</button>
       </div>
     </div>
@@ -778,13 +778,16 @@
       <p>Options update automatically from fresh Fanatics prices and Going Long touchdown estimates. Players must appear on the current active roster without an injury designation. This is an early research screen, not official game-day clearance; the scanner checks official inactive reports separately.</p>
       <p id="promoStatus" role="status">Checking Fanatics prices and player availability automatically…</p><div id="promoOptions" class="sig-grid"></div>
     </section>
+    <section id="btFirstTdPanel" hidden aria-label="First touchdown scorer predictor"><h2>First TD Predictor</h2><p>Players ranked within each upcoming game by the existing first-touchdown model. It weighs early possessions and scoring-area opportunities across both teams, including other scorers and no touchdown. Prior-season data can support the estimate; current roles and availability may differ. These estimates are not validated results.</p><div id="firstTdPredictions" class="sig-grid"></div></section>
     <section id="btParlaysPanel" hidden aria-label="Suggested football parlays">
-      <h2>Parlays</h2><p>Automatic research suggestions for upcoming games this week. Each leg needs a supported historical estimate and a listed price that does not show a negative estimated return. Prior-season history can support early-season suggestions. Current availability must still be checked.</p>
+      <h2>Parlays</h2><p>Automatic research suggestions for upcoming games this week. Each leg needs a supported historical estimate. With a profit boost, the different-game search can include otherwise negative-return legs if the combined boosted estimate reaches break-even. Prior-season history can support early-season suggestions. Current availability must still be checked.</p>
       <div class="sig-actions" id="parlayControls">
         <label>Number of legs <select id="parlayLegs"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
         <label>Different-game minimum odds <input id="parlayMin" type="number" placeholder="Any, e.g. +500" step="50"></label>
         <label>Different-game maximum odds <input id="parlayMax" type="number" placeholder="Any, e.g. +2000" step="50"></label>
         <label>Bet types <select id="parlayKind"><option value="all">Game lines and props</option><option value="game">Game lines only</option><option value="prop">Player props only</option></select></label>
+        <label>Profit boost (%) <input id="parlayBoost" type="number" min="0" max="1000" value="0" step="5"></label>
+        <label>Illustrative stake ($) <input id="parlayStake" type="number" min="0.01" value="10" step="1"></label>
         <label>Sportsbook <select id="parlayBook"><option value="all">Any single sportsbook</option></select></label>
       </div><p>Leg count, bet type and sportsbook apply to both sections. The odds range applies only to different-game parlays; a same-game price cannot be checked from individual odds. Settings update automatically. Search is limited to keep the board responsive and may not find every qualifying combination.</p>
       <details><summary>Choose games</summary><p>Checked games are eligible for both sections. A different-game parlay needs at least as many games as legs; an SGP uses one checked matchup.</p><div class="sig-actions"><button type="button" id="parlayAllGames">Select all games</button><button type="button" id="parlayClearGames">Clear games</button></div><div id="parlayGames"></div></details>
@@ -3773,6 +3776,13 @@ async function renderBestPlays(){
  $('bestChance').innerHTML=ranked.chance.map(c=>bestPlayCard(c)).join('')||'<p>No supported model picks for the remaining week yet. A listed line from the last 24 hours and at least five recorded games are required. Prior-season games count; current-season games are not required. The Projections tab also shows players without a quoted line.</p>';
  $('bestValue').innerHTML=ranked.value.map(c=>bestPlayCard(c,true)).join('')||'<p>No qualifying price advantages for the remaining week yet. We need matching Pinnacle prices within 60 seconds, sufficient estimated return and no unresolved returned-stake outcome. The list stays empty when those checks fail.</p>';
 }
+function renderFirstTdPredictor(){
+ const games=Object.values(BET.history?.derivatives?.first_td||{}).filter(g=>g.status==='ready'&&Date.parse(g.kickoff)>Date.now()&&inCurrentFootballWeek(g.kickoff)).sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff));
+ $('firstTdPredictions').innerHTML=games.map(g=>{
+  const outcomes=Object.values(g.outcomes||{}),players=outcomes.filter(p=>p.player_id&&p.name&&p.probability>0&&p.probability<1).sort((a,b)=>b.probability-a.probability).slice(0,8);
+  return `<article class="sig-card"><h3>${esc(g.away)} @ ${esc(g.home)}</h3><p>${esc(new Date(g.kickoff).toLocaleString())}</p>${players.map(p=>{const quotes=BET.props.filter(q=>q.market==='first_td'&&q.profileId===p.player_id&&!q.dfs&&!quoteState(q)&&q.eventTeams?.includes(g.home)&&q.eventTeams?.includes(g.away)&&Math.abs(Date.parse(q.kickoff)-Date.parse(g.kickoff))<60000&&americanToDecimal(q.overOdds)).sort((a,b)=>americanToDecimal(b.overOdds)-americanToDecimal(a.overOdds));const q=quotes[0];return `<p><strong>${esc(p.name)} · ${esc(p.team)}</strong><br>${percent(p.probability)} estimated first-TD chance · ${americanOddsLabel(p.fair_odds)} model break-even odds<br>${q?`${esc(q.book)} ${americanOddsLabel(q.overOdds)} · ${(100*(p.probability*americanToDecimal(q.overOdds)-1)).toFixed(1)}¢ estimated profit per $1<br>Quote ${esc(new Date(q.updatedAt).toLocaleString())}`:'No matching sportsbook quote available.'}</p>`;}).join('')}<small>Top eight players shown. Their probabilities are not rescaled to 100%; other outcomes remain in the model.</small></article>`;
+ }).join('')||'<p>No supported first-TD game model is available for the remaining week. No probabilities are invented.</p>';
+}
 let PARLAY_VERSION=0;
 const PARLAY_GAMES={nfl:null,ncaa:null};
 async function renderFootballParlays(){
@@ -3782,7 +3792,7 @@ async function renderFootballParlays(){
  const allRows=[...rows,...(SIGNAL.allQuotes||[])].map(r=>({...r,event:Number.isFinite(Date.parse(r.kickoff))?signalEvent(r.sport,r.home,r.away,new Date(r.kickoff).toISOString()):r.event})),bookSelect=$('parlayBook'),oldBook=bookSelect.value;
  const books=[...new Set(allRows.filter(r=>r.sport===sport).map(r=>r.book))].sort();
  bookSelect.innerHTML='<option value="all">Any single sportsbook</option>'+books.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');bookSelect.value=books.includes(oldBook)?oldBook:'all';
- for(const id of ['parlayLegs','parlayMin','parlayMax','parlayKind','parlayBook'])$(id).onchange=()=>renderFootballParlays();
+ for(const id of ['parlayLegs','parlayMin','parlayMax','parlayKind','parlayBook','parlayBoost','parlayStake'])$(id).onchange=()=>renderFootballParlays();
  $('parlayKind').querySelector('[value="prop"]').disabled=sport==='ncaa';if(sport==='ncaa'&&$('parlayKind').value==='prop')$('parlayKind').value='all';
  const week=footballWeek(),gameMap=new Map();
  for(const r of allRows){if(r.sport!==sport||Date.parse(r.kickoff)<=Date.now()||!inCurrentFootballWeek(r.kickoff))continue;if(!gameMap.has(r.event))gameMap.set(r.event,r);}
@@ -3796,12 +3806,12 @@ async function renderFootballParlays(){
  $('parlayAllGames').onclick=()=>{PARLAY_GAMES[sport]=null;renderFootballParlays();};
  $('parlayClearGames').onclick=()=>{PARLAY_GAMES[sport]=new Set();renderFootballParlays();};
  let result;
- try{result=GoingFootballParlays.select(allRows,{sport,now:Date.now(),start:week.start,last:week.last,legs:Number($('parlayLegs').value),minOdds:$('parlayMin').value===''?null:Number($('parlayMin').value),maxOdds:$('parlayMax').value===''?null:Number($('parlayMax').value),kind:$('parlayKind').value,book:bookSelect.value,events:PARLAY_GAMES[sport]===null?null:[...PARLAY_GAMES[sport]]});}
+ try{result=GoingFootballParlays.select(allRows,{sport,now:Date.now(),start:week.start,last:week.last,legs:Number($('parlayLegs').value),minOdds:$('parlayMin').value===''?null:Number($('parlayMin').value),maxOdds:$('parlayMax').value===''?null:Number($('parlayMax').value),kind:$('parlayKind').value,book:bookSelect.value,boostPercent:Number($('parlayBoost').value),stake:Number($('parlayStake').value),events:PARLAY_GAMES[sport]===null?null:[...PARLAY_GAMES[sport]]});}
  catch(e){$('parlaysStatus').textContent=e.message;$('bestParlay').innerHTML='';$('bestSgp').innerHTML='';return;}
  $('parlaysStatus').textContent=`${sport.toUpperCase()} · ${week.start} through ${week.last} · Updates with the board; no extra odds requests.`;
  const card=(p,same)=>{
   if(!p)return '<p>No combination found for these settings. Try fewer legs, a wider odds range, or another sportsbook. No combination is invented.</p>';
-  return `<article class="sig-card"><h4>${esc(p.book)} · ${p.legs.length} legs</h4>${p.legs.map(l=>{const side=l.side==='Home'?l.home:l.side==='Away'?l.away:l.side;const line=l.market==='spread'&&l.side==='Away'?-l.line:l.line;const label=l.market==='atd'?'Anytime touchdown':l.market==='moneyline'?side+' to win':side+' '+(line>0&&l.market==='spread'?'+':'')+line+' '+(MARKET_LABEL[l.market]||l.market);return `<p><strong>${esc(l.kind==='prop'?l.player:l.away+' @ '+l.home)}</strong><br>${esc(label)} · ${americanOddsLabel(l.odds)}<br>${percent(l.prob)} individual estimate · ${l.n} recorded games<br>${esc(l.away)} @ ${esc(l.home)} · ${esc(new Date(l.kickoff).toLocaleString())}<br>Price observed ${esc(new Date(l.updatedAt).toLocaleString())}</p>`;}).join('')}${same?'<p><strong>Combined win chance and ticket price: unavailable.</strong> The feed contains individual prices, not an accepted same-game ticket. No combined return or suggested stake is calculated.</p>':`<p><strong>${percent(p.probability)} estimated chance all legs win</strong><br>${americanOddsLabel(Math.round((p.decimal-1)*100))} illustrative combined price. Confirm the actual ticket price and acceptance.</p>`}<small>Why selected: ${same?'the strongest weaker leg among eligible same-game combinations':'the highest estimated joint win chance among searched different-game combinations'}. Estimates are not validated results. Prices may be saved observations up to 24 hours old. Availability, current roles and final book rules still need checking.</small></article>`;
+  return `<article class="sig-card"><h4>${esc(p.book)} · ${p.legs.length} legs</h4>${p.legs.map(l=>{const side=l.side==='Home'?l.home:l.side==='Away'?l.away:l.side;const line=l.market==='spread'&&l.side==='Away'?-l.line:l.line;const label=l.market==='atd'?'Anytime touchdown':l.market==='moneyline'?side+' to win':side+' '+(line>0&&l.market==='spread'?'+':'')+line+' '+(MARKET_LABEL[l.market]||l.market);return `<p><strong>${esc(l.kind==='prop'?l.player:l.away+' @ '+l.home)}</strong><br>${esc(label)} · ${americanOddsLabel(l.odds)}<br>${percent(l.prob)} individual estimate · ${l.n} recorded games<br>${esc(l.away)} @ ${esc(l.home)} · ${esc(new Date(l.kickoff).toLocaleString())}<br>Price observed ${esc(new Date(l.updatedAt).toLocaleString())}</p>`;}).join('')}${same?'<p><strong>Combined win chance and ticket price: unavailable.</strong> The feed contains individual prices, not an accepted same-game ticket. No combined return or suggested stake is calculated.</p>':`<p><strong>${percent(p.probability)} estimated chance all legs win</strong><br>${americanOddsLabel(Math.round((p.decimal-1)*100))} illustrative combined price. Confirm the actual ticket price and acceptance.</p><h4>Profit boost · ${esc($('parlayBoost').value)}%</h4><p>Before boost: ${(p.boost.baseReturn*100).toFixed(1)}¢ estimated profit per $1<br>After boost: ${(p.boost.returnPerDollar*100).toFixed(1)}¢ estimated profit per $1<br>Break-even boost: ${p.boost.breakEvenBoost.toFixed(1)}% (more is needed for a positive return)<br>Profit if all legs win: $${p.boost.profitIfWin.toFixed(2)} on the $${Number($('parlayStake').value).toFixed(2)} illustrative stake.</p><small>A profit boost increases winnings, not the returned stake or the chance of winning. Assumes the entire stake qualifies without a bonus cap. Check eligibility and limits. SGP boosted returns cannot be calculated without a supported joint chance and ticket price.</small>`}<small>Why selected: ${same?'the strongest weaker leg among eligible same-game combinations':'the highest estimated joint win chance among searched different-game combinations'}. Estimates are not validated results. Prices may be saved observations up to 24 hours old. Availability, current roles and final book rules still need checking.</small></article>`;
  };
  $('bestParlay').innerHTML=card(result.parlay,false);$('bestSgp').innerHTML=card(result.sgp,true);
 }
@@ -3886,10 +3896,11 @@ function renderBetting(){
   $('btBook').hidden=BET.tab==='projections';
   $('btMarketGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.market===BET.market)));
   $("btPromoPanel").hidden=BET.tab!=="promo";if(BET.tab==="promo")renderPromo();
+  $('btFirstTdPanel').hidden=BET.tab!=='firsttd';if(BET.tab==='firsttd')renderFirstTdPredictor();
   $("btParlaysPanel").hidden=BET.tab!=="parlays";if(BET.tab==="parlays")renderFootballParlays();
   $("btBestPanel").hidden=BET.tab!=="best";
   $("btSignalsPanel").hidden=BET.tab!=="signals";
-  $("btPeriodGroup").hidden=["signals","best","promo","parlays"].includes(BET.tab);
+  $("btPeriodGroup").hidden=["signals","best","promo","parlays","firsttd"].includes(BET.tab);
   renderPropsTable(); renderGamesList(); if(BET.tab==="signals")renderSignals(); if(BET.tab==="best")renderBestPlays();
 }
 window.renderBetting=renderBetting;
@@ -3907,7 +3918,7 @@ function wireBetting(){
     const b=e.target.closest("button");if(!b)return;
     BET.sport=b.dataset.sport;BET.page=0;BET.gameLimit=100;BET.renderVersion++;
     $("btSportGroup").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
-    for(const tab of ['props','projections','promo'])$("btTabGroup").querySelector(`[data-tab="${tab}"]`).hidden=BET.sport!=="nfl";
+    for(const tab of ['props','projections','promo','firsttd'])$("btTabGroup").querySelector(`[data-tab="${tab}"]`).hidden=BET.sport!=="nfl";
     if(BET.sport==='ncaa'&&!['signals','best','parlays'].includes(BET.tab))BET.tab='games';renderBetting();if(!BET.liveLoaded[BET.sport])refreshLiveOdds(BET.sport);
   });
   $("btTabGroup").addEventListener("click",e=>{const b=e.target.closest('button');if(b){BET.tab=b.dataset.tab;BET.page=0;if(BET.tab==='projections'){BET.sort='projection';$('btSort').value='projection';if(BET.market==='ALL')BET.market='rec_yds';}BET.renderVersion++;renderBetting();}});

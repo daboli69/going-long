@@ -42,3 +42,11 @@ test('Game selections constrain both builders and clearing games returns no sugg
  const only=select(pool,{...settings,events:['one']});assert.equal(only.parlay,null);assert.ok(only.sgp.legs.every(r=>r.event==='one'));
  const pair=select(pool,{...settings,events:['two','three']}).parlay;assert.deepEqual(pair.legs.map(r=>r.event),['two','three']);
 });
+
+test('Profit boost applies to winnings only and can turn a negative ticket positive',()=>{
+ const {profitBoost}=require('../shared/football-parlays.js');
+ const b=profitBoost(.3,3,50,10);assert.equal(b.boostedDecimal,4);assert.ok(Math.abs(b.returnPerDollar-.2)<1e-10);assert.equal(b.profitIfWin,30);assert.ok(Math.abs(b.breakEvenBoost-16.6666666667)<1e-6);
+ const pool=[{...leg('a'),prob:.5,dec:1.9,ev:-.05},{...leg('b'),prob:.5,dec:1.9,ev:-.05}];
+ assert.equal(select(pool,settings).parlay,null);assert.ok(select(pool,{...settings,boostPercent:50}).parlay.boost.returnPerDollar>0);
+ assert.throws(()=>profitBoost(.5,2,-1),/boost/);
+});
