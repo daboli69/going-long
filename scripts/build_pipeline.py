@@ -4,6 +4,7 @@ Preserves history.players for fantasy; see docs/BETTING_MODEL.md.
 """
 from __future__ import annotations
 import json
+import heapq
 import math
 import os
 import re
@@ -156,10 +157,29 @@ def normalize_games(rows, sport):
 
 def build_game_models(games, window=12, minimum=5):
     history, buckets = defaultdict(list), defaultdict(list)
+    awaiting = []
+    def timestamp(value):
+        parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
+        if parsed.tzinfo is None:
+            raise ValueError('Game timing requires an explicit timezone')
+        return parsed.timestamp()
+    def release(cutoff):
+        while awaiting and awaiting[0][0] < cutoff:
+            _, _, game, model = heapq.heappop(awaiting)
+            if model:
+                errors['margin'].append(game['homeScore'] - game['awayScore'] - model['margin_mean'])
+                errors['total'].append(game['homeScore'] + game['awayScore'] - model['total_mean'])
+            played_at = timestamp(game['kickoff'])
+            history[game['home']].append((game['homeScore'], game['awayScore'], played_at))
+            history[game['away']].append((game['awayScore'], game['homeScore'], played_at))
+            for team in (game['home'], game['away']):
+                history[team].sort(key=lambda result: result[2])
     errors, output = {'margin': [], 'total': []}, []
     for game in games:
-        buckets[game['kickoff']].append(game)
+        buckets[timestamp(game['kickoff'])].append(game)
+    sequence = 0
     for kickoff in sorted(buckets):
+        release(kickoff)
         pending = []
         for g in buckets[kickoff]:
             h, a = history[g['home']][-window:], history[g['away']][-window:]
@@ -168,7 +188,8 @@ def build_game_models(games, window=12, minimum=5):
                 home = (stats.mean(x[0] for x in h) + stats.mean(x[1] for x in a)) / 2
                 away = (stats.mean(x[0] for x in a) + stats.mean(x[1] for x in h)) / 2
                 model = {'margin_mean': home - away, 'total_mean': home + away,
-                         'home_n': len(h), 'away_n': len(a), 'residual_n': len(errors['margin'])}
+                         'home_n': len(h), 'away_n': len(a), 'residual_n': len(errors['margin']),
+                         'input_cutoff': g['kickoff'], 'timing_policy': 'published result time, otherwise kickoff plus 12 hours'}
                 for key in errors:
                     prior = errors[key][-1000:]
                     model[key + '_sd'] = stats.stdev(prior) if len(prior) >= 30 else None
@@ -176,13 +197,15 @@ def build_game_models(games, window=12, minimum=5):
                 output.append({**g, 'model': model})
             else:
                 pending.append((g, model))
-        # No same-kickoff outcomes influence a prediction in this bucket.
+        # A kickoff is not a result-publication time. Without archived publication
+        # metadata, wait 12 hours; this is a conservative fallback, not a known close.
         for g, model in pending:
-            if model:
-                errors['margin'].append(g['homeScore'] - g['awayScore'] - model['margin_mean'])
-                errors['total'].append(g['homeScore'] + g['awayScore'] - model['total_mean'])
-            history[g['home']].append((g['homeScore'], g['awayScore']))
-            history[g['away']].append((g['awayScore'], g['homeScore']))
+            available = timestamp(g['result_available_at']) if g.get('result_available_at') else kickoff + 12*3600
+            if available <= kickoff:
+                raise ValueError('A final result cannot be available before or at kickoff')
+            sequence += 1
+            heapq.heappush(awaiting, (available, sequence, g, model))
+    release(float('inf'))
     return output, {key: {'n': len(v), 'rmse': math.sqrt(stats.mean(x*x for x in v)) if v else None}
                     for key, v in errors.items()}
 

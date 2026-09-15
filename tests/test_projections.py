@@ -70,6 +70,27 @@ class ProjectionTests(unittest.TestCase):
         simultaneous = {**future,"kickoff":target["kickoff"]}
         self.assertEqual(before,build_game_models(games+[simultaneous,target],minimum=2)[0][0]["model"])
 
+    def test_overlapping_games_do_not_leak_unpublished_residuals(self):
+        games=[]
+        for week in range(1,7):
+            for pair in range(8):
+                games.append({'id':f'{week}-{pair}','home':f'H{pair}','away':f'A{pair}',
+                    'kickoff':f'2025-{week:02}-01T17:00:00Z','completed':True,
+                    'homeScore':20+week+pair,'awayScore':14+week})
+        target={'id':'target','home':'H0','away':'A0','kickoff':'2025-07-01T17:05:00Z','completed':False}
+        overlap={'id':'overlap','home':'H1','away':'A1','kickoff':'2025-07-01T17:00:00Z',
+                 'completed':True,'homeScore':1000,'awayScore':0}
+        base=build_game_models(games+[target],minimum=2)[0][0]['model']
+        current=build_game_models(games+[overlap,target],minimum=2)[0][0]['model']
+        self.assertEqual(base,current)
+        self.assertGreater(base['residual_n'],30)
+        published={**overlap,'kickoff':'2025-07-01T10:00:00Z','result_available_at':'2025-07-01T15:00:00Z'}
+        later=build_game_models(games+[published,target],minimum=2)[0][0]['model']
+        self.assertEqual(later['residual_n'],base['residual_n']+1)
+        self.assertNotEqual(later['total_sd'],base['total_sd'])
+        simultaneous={**published,'result_available_at':target['kickoff']}
+        self.assertEqual(base,build_game_models(games+[simultaneous,target],minimum=2)[0][0]['model'])
+
     def test_ncaa_bookmaker_integrity(self):
         import polars as pl
         from build_ncaa_lines import pivot_lines
