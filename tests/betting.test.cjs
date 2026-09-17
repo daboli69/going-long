@@ -21,7 +21,7 @@ function setup(t){
   vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool};`,context);
+    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -43,6 +43,16 @@ test('Football role flags need current charting and measured denominators',t=>{
   h.features.nfl.players['A|p'].last_participation_game='2025-01-01';
   assert.ok(!a.signalFlags(c,[],h,now).some(f=>f.id==='demand'));
   assert.ok(!a.signalFlags({...c,side:'Under'},[],h,now).some(f=>f.id==='chase'));
+});
+
+test('Role validation describes the chronological result without promoting it',t=>{
+ const {api:a}=setup(t),markup=a.roleValidationMarkup({season:2025,validation_scope:'chronological_next_game_diagnostic',groups:[
+  {name:'all_eligible',players_games:2160,mean_yards_vs_baseline:.1648},
+  {name:'role_ahead_of_results',players_games:191,mean_yards_vs_baseline:4.2846}
+ ]});
+ assert.match(markup,/191 future player-games/);assert.match(markup,/\+4\.3 receiving yards/);assert.match(markup,/\+0\.2 yards/);
+ assert.match(markup,/remains experimental/);assert.match(markup,/does not change projections or suggested bets/);
+ assert.doesNotMatch(markup,/proven|win rate of|lift/i);
 });
 
 test('Pass-snap role separates above-average usage from unrewarded results',t=>{

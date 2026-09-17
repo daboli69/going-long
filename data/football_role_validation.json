@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "season": 2025,
+  "validation_scope": "chronological_next_game_diagnostic",
+  "promotion_eligible": false,
+  "decision": "experimental_only",
+  "groups": [
+    {
+      "name": "all_eligible",
+      "players_games": 2160,
+      "mean_yards": 34.322685185185186,
+      "baseline_yards": 34.15784722222222,
+      "mean_yards_vs_baseline": 0.16483796296296302,
+      "yards_baseline_mae": 21.96633487654321,
+      "mean_catches_vs_baseline": -0.027492283950617282
+    },
+    {
+      "name": "above_average_role",
+      "players_games": 1010,
+      "mean_yards": 47.34851485148515,
+      "baseline_yards": 48.87656765676568,
+      "mean_yards_vs_baseline": -1.528052805280528,
+      "yards_baseline_mae": 26.383762376237623,
+      "mean_catches_vs_baseline": -0.16366336633663367
+    },
+    {
+      "name": "role_ahead_of_results",
+      "players_games": 191,
+      "mean_yards": 45.769633507853406,
+      "baseline_yards": 41.484991273996506,
+      "mean_yards_vs_baseline": 4.284642233856894,
+      "yards_baseline_mae": 25.091623036649214,
+      "mean_catches_vs_baseline": 0.11989528795811516
+    }
+  ],
+  "method": "Each weekly flag uses only games dated before that week. Actual participation is used only to decide whether the player appeared in the graded game. No market prices, ROI or claimed lift.",
+  "limitations": [
+    "Latest nflverse revisions are not a vintage archive.",
+    "Actual game participation is known retrospectively.",
+    "No projection adjustment is promoted from this diagnostic."
+  ],
+  "audited_player_games": 2160
+}
