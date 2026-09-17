@@ -3009,7 +3009,7 @@ function computePropRow(p){
   row.trust=footballTrust({...p,...row});row.kelly=0;
   return row;
 }
-function normalizeBetName(name){return String(name).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g,"").trim().replace(/\s+/g," ").replace(/\s+(jr|sr|ii|iii|iv|v)$/,"");}
+function normalizeBetName(name){return String(name).replace(/\s*\([A-Za-z]{2,4}\)\s*$/,"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9 ]/g,"").trim().replace(/\s+/g," ").replace(/\s+(jr|sr|ii|iii|iv|v)$/,"");}
 function buildProfileIndex(history){
   const index=new Map();
   for(const p of Object.values(history?.profiles||{})){
@@ -3453,7 +3453,7 @@ function featureMarkup(p){
 }
 function firstTdStrip(p){return `<div class="bt-projection-strip"><div><label>EST. WIN</label><b class="bt-model-value">${percent(p.model?.probability)}</b></div><div><label>BOOK ODDS</label><b>${americanOddsLabel(p.overOdds)}</b></div><div><label>MODEL PRICE</label><b>${americanOddsLabel(p.model?.fair_odds)}</b></div><div><label title="Estimated profit or loss per dollar over many repeats">RETURN/$1</label><b>${percent(computePropRow(p).ev)}</b></div></div><p class="bt-note">Model price is the break-even price if the estimated chance is right. This first-scorer model has not been validated.</p><details><summary>Bookmaker comparison</summary><p>${p.bookConditionalProb!=null?`After proportionally removing the book’s extra charge, this player has ${percent(p.bookConditionalProb)} of the listed players’ price-based chance. Those players cover ${percent(p.listedModelMass)} of the model’s total probability. The list may be incomplete; this is not the player’s chance against all possible outcomes.`:'The listed player pool is incomplete; a whole-market price comparison is unavailable.'}</p></details>`;}
 function propOfferIdentity(p){
- const event=signalEvent('nfl',p.eventTeams?.[0]||p.homeName||'',p.eventTeams?.[1]||p.awayName||'',p.kickoff);
+ const event=p.eventId?`provider-event|${p.eventId}`:signalEvent('nfl',p.eventTeams?.[0]||p.homeName||'',p.eventTeams?.[1]||p.awayName||'',p.kickoff);
  return [event,p.profileId||normalizeBetName(p.player),p.market,finiteNumber(p.line)?p.line:'',p.dfs?'pickem':p.source==='manual'?'manual':'sportsbook'].join('|');
 }
 function consolidatePropOffers(rows){

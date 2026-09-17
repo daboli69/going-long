@@ -47,6 +47,8 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P1.1c, one prop contract per card:** the default sportsbook prop board now groups matching player, game, market, period and line quotes into one opportunity. The card uses the best available price independently for each side, names the corresponding books, and exposes every observed book and timestamp in a compact comparison table. Alternate lines and pick'em rules remain separate. Pagination and counts now describe opportunities while also reporting the source quote count.
 
+  Live verification found one-minute kickoff differences between books and book-added player suffixes such as “(ARI).” Visual quote grouping now prefers the feed's stable event ID, while canonical tracking retains the exact kickoff identity. Team abbreviations in parentheses are removed only for player-name matching.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.

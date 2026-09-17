@@ -252,14 +252,21 @@ test('Routing hides inactive views and scopes Settings to draft',t=>{
 });
 
 test('Sportsbook prop offers collapse to one contract with the best side prices',t=>{
- const {api:a}=setup(t),base={player:'Receiver',profileId:'p',team:'A',eventTeams:['A','B'],kickoff:future(),market:'rec_yds',line:50.5,source:'parlay',updatedAt:new Date().toISOString(),projMean:55,projSd:20,model:{status:'ready',family:'lognormal',mu_log:3.9,sigma_log:.4,n:12}};
+ const {api:a}=setup(t),base={player:'Receiver',profileId:'p',team:'A',eventId:'event-one',eventTeams:['A','B'],kickoff:future(),market:'rec_yds',line:50.5,source:'parlay',updatedAt:new Date().toISOString(),projMean:55,projSd:20,model:{status:'ready',family:'lognormal',mu_log:3.9,sigma_log:.4,n:12}};
  const rows=[
   {p:{...base,id:'one',book:'Book A',overOdds:-110,underOdds:-105}},
-  {p:{...base,id:'two',book:'Book B',overOdds:105,underOdds:-120}},
+  {p:{...base,id:'two',book:'Book B',kickoff:new Date(Date.parse(base.kickoff)+60000).toISOString(),overOdds:105,underOdds:-120}},
   {p:{...base,id:'three',book:'Book C',line:51.5,overOdds:110,underOdds:-110}}
  ];
  const offers=a.consolidatePropOffers(rows);assert.equal(offers.length,2);
  const line=offers.find(x=>x.p.line===50.5).p;assert.equal(line.overOdds,105);assert.equal(line.overBook,'Book B');assert.equal(line.underOdds,-105);assert.equal(line.underBook,'Book A');assert.equal(line.offers.length,2);
+});
+
+test('Book-added team abbreviations do not prevent player matching',t=>{
+ const {api:a}=setup(t),history={profiles:{p:{id:'p',name:'Bam Knight',team:'ARI',last_game:'2026-01-01',stats:{atd:{status:'ready',family:'poisson',lambda:.2,mean:.2,sd:.4,n:8}}}}};
+ const index=a.buildProfileIndex(history);a.BET.history=history;
+ const quote=a.attachProjection({player:'Bam Knight (ARI)',eventTeams:['ARI','SEA'],market:'atd',line:.5},index);
+ assert.equal(quote.profileId,'p');
 });
 test('Betting navigation keeps five primary destinations and nests specialist tools',t=>{
   const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
