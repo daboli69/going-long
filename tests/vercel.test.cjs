@@ -38,3 +38,18 @@ test('Validation config never emits a service-role key mistaken for a public key
  const {default:handler}=await import('../api/validation-config.mjs');const before=process.env.SUPABASE_PUBLISHABLE_KEY;
  try{process.env.SUPABASE_PUBLISHABLE_KEY='sb_secret_private';const res=response();handler({method:'GET'},res);assert.equal(JSON.parse(res.body).publishableKey,null);}finally{if(before===undefined)delete process.env.SUPABASE_PUBLISHABLE_KEY;else process.env.SUPABASE_PUBLISHABLE_KEY=before;}
 });
+
+
+test('Provider outages retain dated cache and suppress repeated credit-consuming failures',async t=>{
+ const {default:handler}=await import('../api/odds.mjs');const before=global.fetch,key=process.env.PARLAY_API_KEY;
+ const start=Date.now();t.mock.timers.enable({apis:['Date'],now:start});let calls=0;
+ try{
+  process.env.PARLAY_API_KEY='fixture';global.fetch=async()=>{calls++;return Response.json([]);};
+  let res=response();await handler({method:'GET',url:'/api/odds?sport=ncaa'},res);
+  const original=JSON.parse(res.body);assert.equal(res.statusCode,200);
+  t.mock.timers.setTime(start+600001);global.fetch=async()=>{calls++;throw Error('offline');};
+  res=response();await handler({method:'GET',url:'/api/odds?sport=ncaa'},res);
+  assert.equal(res.statusCode,200);const saved=JSON.parse(res.body);assert.equal(saved.feed_status,'saved');assert.equal(saved.generated_at,original.generated_at);assert.match(saved.feed_notice,/original timestamps/);
+  const failedCalls=calls;res=response();await handler({method:'GET',url:'/api/odds?sport=ncaa'},res);assert.equal(calls,failedCalls);assert.equal(res.statusCode,200);
+ }finally{global.fetch=before;if(key===undefined)delete process.env.PARLAY_API_KEY;else process.env.PARLAY_API_KEY=key;}
+});

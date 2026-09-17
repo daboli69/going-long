@@ -3293,6 +3293,7 @@ async function refreshLiveOdds(sport=BET.sport){
     $('btDataNote').textContent=`Parlay connected · refreshed ${new Date(fresh.generated_at).toLocaleTimeString()} · historical model ${BET.history?.window||12} games`;
     $('btLoadPropsNote').textContent=sport==='nfl'?`${BET.props.length.toLocaleString()} current quotes · ${fresh.coverage?.possibly_truncated?'Provider row limit reached; coverage may be partial.':'Auto-refresh every 5 minutes while visible.'}`:`${(fresh.games_raw||[]).length} ${sport.toUpperCase()} events refreshed. Auto-refresh every 5 minutes while visible.`;
     if(partial)$('btLoadPropsNote').textContent='Some provider categories are unavailable. Successful quotes refreshed; saved categories keep their original timestamps.';
+    if(fresh.feed_notice)$('btLoadPropsNote').textContent=fresh.feed_notice;
     updateBetFilters();
   }catch(e){
     BET.liveStatus='snapshot';

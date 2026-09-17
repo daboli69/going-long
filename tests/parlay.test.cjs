@@ -106,3 +106,17 @@ test('Unavailable primary props do not discard successful game lines',async()=>{
  const {fetchParlay}=await import('../server/parlay.mjs');const result=await fetchParlay('nfl','fixture-key',async url=>{if(url.pathname.endsWith('/props'))throw Error('timeout');return Response.json(url.pathname.endsWith('/odds')?[{id:'live-game'}]:[]);});
  assert.equal(result.props_status,'unavailable');assert.equal(result.odds_status,'loaded');assert.equal(result.games_raw[0].id,'live-game');
 });
+
+
+test('Derivative fallback shares the original request deadline',async()=>{
+ const {fetchParlay}=await import('../server/parlay.mjs');let propCalls=0,aborted=false;
+ const result=await fetchParlay('nfl','fixture-key',async(url,{signal})=>{
+  if(!url.pathname.endsWith('/props'))return Response.json([]);
+  if(++propCalls===1){await new Promise(resolve=>setTimeout(resolve,60));return Response.json(Array(10000).fill({}));}
+  return new Promise((resolve,reject)=>{
+   const timer=setTimeout(()=>resolve(Response.json([])),1000);
+   signal.addEventListener('abort',()=>{clearTimeout(timer);aborted=true;reject(signal.reason);},{once:true});
+  });
+ },{budgetMs:150,requestMs:1000});
+ assert.equal(propCalls,2);assert.equal(aborted,true);assert.equal(result.derivative_status,'unavailable');assert.equal(result.odds_status,'loaded');assert.equal(result.coverage.possibly_truncated,true);
+});

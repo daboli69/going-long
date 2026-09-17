@@ -68,13 +68,16 @@ export function periodsFromGames(events){
   }
   return normalizePeriods(rows);
 }
-export async function fetchParlay(sport,key,fetcher=fetch){
+export async function fetchParlay(sport,key,fetcher=fetch,{budgetMs=40000,requestMs=18000}={}){
   if(!SPORT_KEYS[sport])throw new Error('Unsupported sport');
   if(!key)throw new Error('Parlay API key is not configured');
+  const deadline=AbortSignal.timeout(budgetMs);
   const get=async(endpoint,params)=>{
+    deadline.throwIfAborted();
     const url=new URL(`https://parlay-api.com/v1/sports/${SPORT_KEYS[sport]}/${endpoint}`);
     for(const [k,v] of Object.entries(params))url.searchParams.set(k,v);
-    const r=await fetcher(url,{headers:{'X-API-Key':key,'Accept':'application/json'},signal:AbortSignal.timeout(45000)});
+    const signal=AbortSignal.any([deadline,AbortSignal.timeout(requestMs)]);
+    const r=await fetcher(url,{headers:{'X-API-Key':key,'Accept':'application/json'},signal});
     if(!r.ok)throw new Error(`Parlay ${endpoint} returned HTTP ${r.status}`);
     const body=await r.json();
     if(endpoint==='live/period_markets'){
