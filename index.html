@@ -2875,7 +2875,20 @@ const BET = {
   page: 0, pageSize: 50, query: "", renderVersion: 0, loading: false,
   book: "sportsbooks", matchup: "ALL", liveLoading: false, liveStatus: "snapshot", liveLoaded: {},
 };
+const BETTING_VIEW_STORE='goinglong.betting.view.v1';
+try{
+ const saved=JSON.parse(localStorage.getItem(BETTING_VIEW_STORE)||'null');
+ if(saved&&['nfl','ncaa'].includes(saved.sport))BET.sport=saved.sport;
+ if(saved&&BETTING_TABS.has(saved.tab))BET.tab=saved.tab;
+ if(saved&&['FT','1H','Q1'].includes(saved.period))BET.period=saved.period;
+ if(saved&&typeof saved.market==='string')BET.market=saved.market;
+ if(saved&&['ev','projection','line','disc','time'].includes(saved.sort))BET.sort=saved.sort;
+ if(saved&&typeof saved.book==='string')BET.book=saved.book;
+ if(saved&&typeof saved.matchup==='string')BET.matchup=saved.matchup;
+}catch{}
 if(BETTING_TABS.has(requestedBettingTab))BET.tab=requestedBettingTab;
+if(BET.sport==='ncaa'&&['props','projections','firsttd','promo'].includes(BET.tab))BET.tab='games';
+function persistBettingView(){try{localStorage.setItem(BETTING_VIEW_STORE,JSON.stringify({sport:BET.sport,tab:BET.tab,period:BET.period,market:BET.market,sort:BET.sort,book:BET.book,matchup:BET.matchup}));}catch{}}
 const MARKET_LABEL = {pass_yds:"Passing yards", rush_yds:"Rushing yards", rec_yds:"Receiving yards",
   receptions:"Receptions", pass_tds:"Passing TDs", rush_tds:"Rushing TDs", rec_tds:"Receiving TDs", atd:"Anytime TD"};
 MARKET_LABEL.first_td="First touchdown";
@@ -3977,6 +3990,8 @@ function renderBetting(){
   const week=footballWeek();
   if(BET.displayWeek!==week.start){BET.displayWeek=week.start;BET.matchup='ALL';BET.page=0;projectionCache=null;updateBetFilters();}
   if($('btWeekNote'))$('btWeekNote').textContent=`Current week: ${week.start} – ${week.last} (Eastern time)`;
+  $('btSportGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sport===BET.sport)));$('btTabGroup').querySelector('[data-section="opportunities"]').hidden=BET.sport!=='nfl';
+  if($('btSort').querySelector(`[value="${BET.sort}"]`))$('btSort').value=BET.sort;
   $('btPeriodGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.period===BET.period)));
   $("btPropsPanel").hidden=!["props","projections"].includes(BET.tab); $("btGamesPanel").hidden=BET.tab!=="games";
   $("btTabGroup").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.section===bettingSection(BET.tab))));renderBettingTools();
@@ -3989,7 +4004,7 @@ function renderBetting(){
   $("btBestPanel").hidden=BET.tab!=="best";
   $("btSignalsPanel").hidden=BET.tab!=="signals";
   $("btPeriodGroup").hidden=["signals","best","promo","parlays","firsttd"].includes(BET.tab);
-  renderPropsTable(); renderGamesList(); if(BET.tab==="signals")renderSignals(); if(BET.tab==="best")renderBestPlays();
+  persistBettingView();renderPropsTable(); renderGamesList(); if(BET.tab==="signals")renderSignals(); if(BET.tab==="best")renderBestPlays();
 }
 window.renderBetting=renderBetting;
 function wireBetting(){

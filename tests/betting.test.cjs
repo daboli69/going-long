@@ -21,7 +21,7 @@ function setup(t){
   vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers};`,context);
+    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -275,6 +275,10 @@ test('Betting navigation keeps five primary destinations and nests specialist to
   assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['Player Props','Model Projections','First TD Predictor']);
   w.document.querySelector('#btToolGroup [data-tab="firsttd"]').click();assert.equal(a.BET.tab,'firsttd');
   assert.match(w.location.search,/tab=firsttd/);assert.equal(w.document.querySelector('#btFirstTdPanel').hidden,false);
+});
+test('Betting view preferences preserve the research context',t=>{
+ const {api:a,w}=setup(t);Object.assign(a.BET,{sport:'ncaa',tab:'best',period:'1H',market:'total',sort:'time',book:'Pinnacle',matchup:'A @ B'});a.persistBettingView();
+ assert.deepEqual(JSON.parse(w.localStorage.getItem('goinglong.betting.view.v1')),{sport:'ncaa',tab:'best',period:'1H',market:'total',sort:'time',book:'Pinnacle',matchup:'A @ B'});
 });
 test('Sport switch isolates game records and missing spreads stay unpriced',t=>{
   const {api:a,w}=setup(t);a.wireBetting();
