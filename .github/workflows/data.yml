@@ -61,6 +61,10 @@ jobs:
         id: projections
         continue-on-error: true
         run: python scripts/build_pipeline.py
+      - name: Build and grade Thursday longest touchdown research
+        id: jackpot
+        continue-on-error: true
+        run: python scripts/king_endzone.py
       - name: Build football opportunity and coaching context
         id: context
         continue-on-error: true
@@ -75,7 +79,7 @@ jobs:
           set -euo pipefail
           git config user.name goinglong-bot
           git config user.email actions@github.com
-          paths=(data/savant_context.json data/football_context.json data/results.json data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
+          paths=(data/king-endzone.json data/jackpot data/savant_context.json data/football_context.json data/results.json data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
           existing=()
           for path in "${paths[@]}"; do
             if [ -e "$path" ]; then existing+=("$path"); fi
@@ -97,7 +101,7 @@ jobs:
           done
           exit 1
       - name: Report source failures
-        if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' || steps.context.outcome == 'failure' }}
+        if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' || steps.context.outcome == 'failure' || steps.jackpot.outcome == 'failure' }}
         run: |
           echo 'A data source failed. Successful snapshots were committed; inspect the failed step.'
           exit 1
