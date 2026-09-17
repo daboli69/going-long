@@ -1,11 +1,34 @@
-import unittest,tempfile
+import unittest,tempfile,json
+from unittest.mock import patch
+from types import SimpleNamespace
 from pathlib import Path
 from topdown.journal import Journal
-from topdown.tracking import track_predictions
+from topdown.tracking import track_predictions,collect_board
 from topdown.live_results import parse_finals
 from topdown.model import stamp
 
 class AutomaticTrackingTests(unittest.TestCase):
+    def test_board_evidence_is_frozen_with_original_prediction(self):
+        row=dict(kickoff='2099-09-12T16:00:00Z',tracking_group='all_projection',contract='c',
+                 event='e',sport='nfl',home='BUF',away='DET',player='Player',kind='prop',
+                 profileId='p',market='rush_tds',line=.5,side='Over',book='test',dec=2,
+                 odds=100,prob=.55,ev=.1,updatedAt='2026-09-17T16:00:00Z',
+                 n=12,profileDate='2026-09-10',push=0,trust={'state':'research'},
+                 provenance={'schema_version':1,'model_source_sha256':'original',
+                             'inputs':{'history.json':{'sha256':'history','generated_at':'2026-09-17'}}})
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);j=Journal(root/'db')
+            with patch('subprocess.run',return_value=SimpleNamespace(returncode=0,stdout=json.dumps([row]))):
+                self.assertEqual(collect_board(j,root,0),1)
+            row['provenance']['model_source_sha256']='later'
+            with patch('subprocess.run',return_value=SimpleNamespace(returncode=0,stdout=json.dumps([row]))):
+                self.assertEqual(collect_board(j,root,0),0)
+            saved=j.rows('prediction')[0]
+            self.assertEqual(saved['provenance']['model_source_sha256'],'original')
+            self.assertEqual(saved['model_evidence']['n'],12)
+            self.assertEqual(saved['market'],'player_rushing_tds')
+            self.assertEqual(saved['model_version'],'board-tracking-2')
+            self.assertFalse(saved['actionable']);j.db.close()
     def test_recovery_freezes_first_before_kickoff_without_promoting_alert(self):
         p=dict(id='original',event='e',selection='s',side='Over',observed_at='2026-09-12T12:00:00Z',kickoff='2026-09-12T16:00:00Z',actionable=False,odds=2,probability=.5)
         with tempfile.TemporaryDirectory() as tmp:

@@ -31,5 +31,8 @@ def collect_board(journal,root,now):
         if key in existing:continue
         market=markets.get(c['market'],c['market']);side=c['side'];side_index=1 if side in ('Under','Away') else 0
         p=dict(id=key,tracking_group=group,event=c['event'],selection=c['contract'],sport=c['sport'],home=c['home'],away=c['away'],kickoff=c['kickoff'],player=c['player'] if c['kind']=='prop' else None,profile_id=c.get('profileId'),market=market,line=c['line'],side=side,side_index=side_index,book=c['book'],odds=c['dec'],american=c['odds'],probability=c['prob'],raw_probability=c['prob'],ev=c['ev'],odds_band=odds_band(c['dec']),actionable=False,proposed_stake=0,reasons=['Automatic hypothetical tracking; not an alert-qualified or accepted bet'],observed_at=at,quoted_at=c['updatedAt'],model_version='board-tracking-1',evidence=c.get('flags',[]))
+        p['model_version']='board-tracking-2'
+        p['provenance']=c.get('provenance')
+        p['model_evidence']={k:c.get(k) for k in ('n','profileDate','trust','reference','teamSpread','push','position','opp')}
         journal.append('prediction',key,p);existing.add(key);count+=1
     return count

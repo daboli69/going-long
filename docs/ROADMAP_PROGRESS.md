@@ -21,6 +21,10 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P0.2b, touchdown-count settlement:** automatic board records now map rushing and receiving TD totals to supported settlement keys. Existing short-name records remain compatible. Missing counts stay pending; published zero is graded; exact integer ties return the hypothetical stake. Anytime and First TD are not inferred from rush/receive counts because return/defensive scores and ordering need separate evidence. Tests cover missing-to-published retry, both sides, exact ties, Eastern game dates and idempotency. This change requires the PC scanner to load the updated code; a website deployment alone does not activate Python changes.
 
+  Released as `8f9071f`; Vercel success confirmed. Existing PC worker restarted and completed a scan with successful sync, two new board records and no reported failures.
+
+- **P0.2c, prospective evidence:** new board records retain fingerprints of the actual model source and loaded history/config/context, their published timestamps where supplied, supporting game count, trust label and comparison evidence. Existing records are never rewritten. Results exposes these details and explicitly identifies older records without provenance. Fingerprints establish identity, not complete historical replay or proof of input availability. Historical-model checks no longer describe themselves as price-derived estimates. Python immutability tests, seven validation tests and production build passed.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.
