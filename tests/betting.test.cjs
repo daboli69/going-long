@@ -21,7 +21,7 @@ function setup(t){
   vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
+    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -353,6 +353,15 @@ test('Weekly best plays retain saved-line research while value requires fresh al
  assert.equal(a.rankBestPlays([{...base,kickoff:'2026-09-21T19:00:00Z'}],[],'ncaa','all',now).chance.length,0);
  assert.equal(a.rankBestPlays([{...base,updatedAt:new Date(now-86400001).toISOString()}],[],'ncaa','all',now).chance.length,0);
  assert.equal(a.rankBestPlays([{...low,push:.01}],[{...low,push:.01},sharp],'ncaa','all',now).value.length,0);
+});
+
+test('Opportunity pool reports every exclusion without changing canonical eligibility',t=>{
+ const {api:a}=setup(t),now=Date.now(),current=new Date(now+86400000).toISOString(),fresh=new Date(now-60000).toISOString();
+ const base={sport:'nfl',kind:'prop',home:'A',away:'B',kickoff:current,updatedAt:fresh,profileId:'p',market:'rec_yds',side:'Over',line:50.5};
+ const rows=[base,{...base,book:'second'},{...base,sport:'ncaa'},{...base,kickoff:'2026-09-20T17:00:00Z'},{...base,kickoff:new Date(now-1).toISOString()},{...base,updatedAt:new Date(now-25*3600000).toISOString()}];
+ const pool=a.opportunityPool(rows,'nfl','all',now);
+ assert.equal(pool.eligible.length,2);assert.equal(pool.canonical,1);
+ assert.deepEqual({...pool.excluded},{wrong_sport_or_type:1,outside_current_week:1,started_or_invalid:1,quote_over_24_hours:1});
 });
 test('Best play labels use away spread sign and escape names',t=>{
  const {api:a}=setup(t);const text=a.bestPlayCard({kind:'game',sport:'ncaa',market:'spread',side:'Away',line:-3.5,away:'Away <tag>',home:'Home',team:'',book:'betmgm',odds:-110,prob:.6,push:0,ev:.14,n:12,kickoff:new Date().toISOString(),updatedAt:new Date().toISOString(),flags:[]});

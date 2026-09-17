@@ -3771,10 +3771,22 @@ function bestPriceCandidates(){
  }
  return rows;
 }
+function opportunityPool(rows,sport,kind,now=Date.now()){
+ const week=footballWeek(now),eligible=[],excluded={wrong_sport_or_type:0,outside_current_week:0,started_or_invalid:0,quote_over_24_hours:0};
+ for(const c of rows){
+  if(c.sport!==sport||(kind!=='all'&&c.kind!==kind)){excluded.wrong_sport_or_type++;continue;}
+  const date=footballDate(c.kickoff),start=Date.parse(c.kickoff);
+  if(date<week.start||date>week.last){excluded.outside_current_week++;continue;}
+  if(!Number.isFinite(start)||start<=now){excluded.started_or_invalid++;continue;}
+  const age=now-Date.parse(c.updatedAt);if(!Number.isFinite(age)||age<0||age>24*3600000){excluded.quote_over_24_hours++;continue;}
+  eligible.push(c);
+ }
+ return {eligible,excluded,total:rows.length,canonical:new Set(eligible.map(opportunityIdentity)).size};
+}
 function rankBestPlays(rows,quotes,sport,kind,now=Date.now()){
  const week=footballWeek(now),aliases={cris:'bookmaker',bookmaker_eu:'bookmaker',betonline:'betonlineag'},book=x=>aliases[x]||x;
  const fresh=c=>{const age=now-Date.parse(c.updatedAt);return age>=0&&age<=300000;};
- const eligible=rows.filter(c=>c.sport===sport&&(kind==='all'||c.kind===kind)&&footballDate(c.kickoff)>=week.start&&footballDate(c.kickoff)<=week.last&&Date.parse(c.kickoff)>now&&now-Date.parse(c.updatedAt)>=0&&now-Date.parse(c.updatedAt)<=24*3600000);
+ const pool=opportunityPool(rows,sport,kind,now),eligible=pool.eligible;
  const unique=(list)=>{const used=new Set();return list.filter(c=>{const key=[c.event,c.kind,c.profileId||'',c.market].join('|');if(used.has(key))return false;used.add(key);return true;}).slice(0,6);};
  const chancePool=eligible.filter(c=>Number.isFinite(c.prob)&&c.prob>0&&c.prob<1&&c.n>=5&&!c.flags.some(f=>f.id==='check'&&!f.historicalOnly)).sort((a,b)=>b.prob-a.prob||b.ev-a.ev);
  const chance=kind==='all'&&sport==='nfl'&&chancePool.some(c=>c.kind==='prop')&&chancePool.some(c=>c.kind==='game')?[...unique(chancePool.filter(c=>c.kind==='game')).slice(0,3),...unique(chancePool.filter(c=>c.kind==='prop')).slice(0,3)]:unique(chancePool);
@@ -3789,7 +3801,7 @@ function rankBestPlays(rows,quotes,sport,kind,now=Date.now()){
    if(ev<threshold)continue;values.push({...c,...rec,prob,ev,flags:c.flags,referenceBooks:[...refs.keys()],threshold});
   }
  }
- return {chance:chance.map(c=>({...c,savedPrice:!fresh(c)})),value:unique(values.sort((a,b)=>b.ev-a.ev||b.prob-a.prob)),count:new Set(eligible.map(c=>c.contract)).size};
+ return {chance:chance.map(c=>({...c,savedPrice:!fresh(c)})),value:unique(values.sort((a,b)=>b.ev-a.ev||b.prob-a.prob)),count:pool.canonical,diagnostics:pool};
 }
 function bestPlayCard(c,value=false){
  const side=c.side==='Home'?c.home:c.side==='Away'?c.away:c.side,line=c.market==='spread'&&c.side==='Away'?-c.line:c.line;
@@ -3802,7 +3814,7 @@ async function renderBestPlays(){
  if(sport==='ncaa'&&BEST_KIND==='prop')BEST_KIND='all';
  $('bestKind').querySelectorAll('button').forEach(b=>{b.hidden=sport==='ncaa'&&b.dataset.kind==='prop';b.setAttribute('aria-pressed',String(b.dataset.kind===BEST_KIND));});
  const prices=bestPriceCandidates(),ranked=rankBestPlays([...rows,...prices],[...(SIGNAL.allQuotes||[]),...prices],sport,BEST_KIND);
- $('bestStatus').textContent=`${sport.toUpperCase()} · ${footballWeek().start} through ${footballWeek().last} · ${ranked.count} priced selections checked. Model research can use saved lines up to 24 hours old; Best Value requires prices within five minutes. At most one side per player/game market appears in each list.`;
+ const x=ranked.diagnostics.excluded;$('bestStatus').textContent=`${sport.toUpperCase()} · ${footballWeek().start} through ${footballWeek().last} · ${ranked.count} distinct current-week selections checked from ${ranked.diagnostics.total} observed rows. Excluded: ${x.outside_current_week} outside this week, ${x.started_or_invalid} started/invalid, ${x.quote_over_24_hours} older than 24 hours, ${x.wrong_sport_or_type} outside this sport/view. Model research can use saved lines up to 24 hours old; Best Value requires prices within five minutes. Ranking changes display order, not pool eligibility.`;
  $('bestChance').innerHTML=ranked.chance.map(c=>bestPlayCard(c)).join('')||'<p>No supported model picks for the remaining week yet. A listed line from the last 24 hours and at least five recorded games are required. Prior-season games count; current-season games are not required. The Projections tab also shows players without a quoted line.</p>';
  $('bestValue').innerHTML=ranked.value.map(c=>bestPlayCard(c,true)).join('')||'<p>No qualifying price advantages for the remaining week yet. We need matching Pinnacle prices within 60 seconds, sufficient estimated return and no unresolved returned-stake outcome. The list stays empty when those checks fail.</p>';
 }
