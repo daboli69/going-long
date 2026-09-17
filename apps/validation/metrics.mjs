@@ -23,15 +23,16 @@ export function performanceSeries(graded){
  return {series,maxDrawdown,endingProfit:cumulative};
 }
 
-export function summarize(records,group='alerts'){
+export function summarize(records,group='alerts',asOf=Date.now()){
  const byKind=kind=>records.filter(r=>r.kind===kind).map(r=>({...r.payload,id:r.payload.id||r.id}));
  const outcomes=new Map(byKind('settlement').sort((a,b)=>Date.parse(a.observed_at)-Date.parse(b.observed_at)).map(s=>[s.prediction_id,s]));
  const closes=new Map();for(const c of byKind('closing')){if(!closes.has(c.prediction_id))closes.set(c.prediction_id,[]);closes.get(c.prediction_id).push(c);}
- const picks=byKind('prediction').filter(p=>(group==='alerts'?p.actionable:p.tracking_group===group)&&Date.parse(p.observed_at)<Date.parse(p.kickoff)).sort((a,b)=>Date.parse(a.observed_at)-Date.parse(b.observed_at)||b.ev-a.ev),seen=new Set(),graded=[],bands={};
- for(const p of picks){const key=performanceContractKey(p);if(seen.has(key))continue;seen.add(key);const s=outcomes.get(p.id);if(!s||!['win','loss','refund','void'].includes(s.status)||!(Date.parse(s.observed_at)>Date.parse(p.kickoff)))continue;const profit=s.status==='win'?100*(p.odds-1):s.status==='loss'?-100:0;
+ const picks=byKind('prediction').filter(p=>(group==='alerts'?p.actionable:p.tracking_group===group)&&Date.parse(p.observed_at)<Date.parse(p.kickoff)).sort((a,b)=>Date.parse(a.observed_at)-Date.parse(b.observed_at)||b.ev-a.ev),seen=new Set(),selected=[],graded=[],bands={};
+ for(const p of picks){const key=performanceContractKey(p);if(seen.has(key))continue;seen.add(key);selected.push(p);const s=outcomes.get(p.id);if(!s||!['win','loss','refund','void'].includes(s.status)||!(Date.parse(s.observed_at)>Date.parse(p.kickoff)))continue;const profit=s.status==='win'?100*(p.odds-1):s.status==='loss'?-100:0;
   const close=(closes.get(p.id)||[]).filter(c=>c.near_kickoff&&Date.parse(c.quoted_at)>Date.parse(p.observed_at)&&Date.parse(c.quoted_at)<Date.parse(p.kickoff)).sort((a,b)=>Date.parse(b.quoted_at)-Date.parse(a.quoted_at))[0];
   const row={...p,...s,prediction_observed_at:p.observed_at,profit,priceMove:close?p.odds*close.probability-1:null};graded.push(row);const b=bands[p.odds_band]||(bands[p.odds_band]={bets:0,profit:0,decisive:0,error:0,games:new Set()});b.bets++;b.profit+=profit;b.games.add(p.event);if(['win','loss'].includes(s.status)){b.decisive++;b.error+=(p.probability-(s.status==='win'?1:0))**2;}
  }
  const performance=performanceSeries(graded);
- return {predictions:byKind('prediction').filter(p=>group==='alerts'?!p.tracking_group:p.tracking_group===group),graded,bands:Object.entries(bands).map(([band,b])=>({band,...b,games:b.games.size,roi:b.profit/(100*b.bets),brier:b.decisive?b.error/b.decisive:null})),markets:breakdown(graded,p=>p.market||'Unspecified market'),reliability:breakdown(graded.filter(p=>['win','loss'].includes(p.status)),p=>chanceRange(p.probability)),profit:performance.endingProfit,bets:graded.length,games:new Set(graded.map(p=>p.event)).size,...performance};
+ const gradedKeys=new Set(graded.map(performanceContractKey)),upcoming=selected.filter(p=>Date.parse(p.kickoff)>asOf).length,awaiting=selected.filter(p=>Date.parse(p.kickoff)<=asOf&&!gradedKeys.has(performanceContractKey(p))).length,completed=selected.length-upcoming;
+ return {predictions:byKind('prediction').filter(p=>group==='alerts'?!p.tracking_group:p.tracking_group===group),graded,bands:Object.entries(bands).map(([band,b])=>({band,...b,games:b.games.size,roi:b.profit/(100*b.bets),brier:b.decisive?b.error/b.decisive:null})),markets:breakdown(graded,p=>p.market||'Unspecified market'),reliability:breakdown(graded.filter(p=>['win','loss'].includes(p.status)),p=>chanceRange(p.probability)),coverage:{selected:selected.length,upcoming,completed,settled:graded.length,awaiting,settledShare:completed?graded.length/completed:null},profit:performance.endingProfit,bets:graded.length,games:new Set(graded.map(p=>p.event)).size,...performance};
 }

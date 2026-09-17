@@ -57,6 +57,8 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P1.3b, contract-safe performance breakdowns:** Results deduplicates by canonical contract when available and otherwise includes event, entity, market, period, side, line and rules. Different player markets and alternate lines can no longer collapse into one performance record. The journal now reports market-level returns and compares each saved probability range with its later observed win share, with game and bet counts and explicit short-sample language. These are descriptive checks, not automatic evidence that a market is profitable.
 
+- **P1.3c, visible result coverage:** Results separates settled selections, completed selections awaiting usable results and upcoming selections. The graded share uses only games that have started, and outstanding records remain excluded from profit and probability calculations. The UI explains that final status, missing player statistics, unsupported contracts and safe-match failures can all keep a record outstanding. A fixed-time test verifies that upcoming and missing results remain visible without becoming losses.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.

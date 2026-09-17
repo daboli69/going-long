@@ -41,3 +41,17 @@ test('Different markets and lines for one player remain separate contracts',asyn
  assert.equal(result.reliability[0].decisive,3);
  assert.equal(result.reliability[0].winRate,2/3);
 });
+
+test('Tracking coverage separates upcoming and missing results without grading either',async()=>{
+ const {summarize}=await import('../apps/validation/metrics.mjs');
+ const base={tracking_group:'all_model',event:'game',selection:'team',market:'totals',side:'Over',line:45.5,odds:2,probability:.52,actionable:false,odds_band:'1.67–2.00',observed_at:'2026-09-10T12:00:00Z'};
+ const rows=[
+  {kind:'prediction',payload:{...base,id:'settled',kickoff:'2026-09-10T16:00:00Z'}},
+  {kind:'settlement',payload:{prediction_id:'settled',status:'win',observed_at:'2026-09-10T20:00:00Z'}},
+  {kind:'prediction',payload:{...base,id:'missing',line:46.5,kickoff:'2026-09-11T16:00:00Z'}},
+  {kind:'prediction',payload:{...base,id:'upcoming',line:47.5,kickoff:'2026-09-13T16:00:00Z'}}
+ ];
+ const result=summarize(rows,'all_model',Date.parse('2026-09-12T12:00:00Z'));
+ assert.deepEqual(result.coverage,{selected:3,upcoming:1,completed:2,settled:1,awaiting:1,settledShare:.5});
+ assert.equal(result.bets,1);
+});
