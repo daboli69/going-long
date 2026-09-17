@@ -64,13 +64,19 @@ def walk_forward_roles(rows, snaps, roster, charts, season):
             pid=r.get('receiver_player_id')
             if pid:
                 appeared.add(pid);actual[pid]['yards']+=r.get('receiving_yards') or 0;actual[pid]['catches']+=r.get('complete_pass') or 0
+        prior_role=[r for r in records if r['unrewarded']]
+        # Learn only from role-ahead observations graded before this week. The
+        # 100-game zero prior keeps an early outlier from becoming a large bump.
+        learned_role_adjustment=sum(r['actual_yards']-r['baseline_yards'] for r in prior_role)/(len(prior_role)+100)
         for pid,p in scope['players'].items():
             signal=p.get('role_signal') or {}
             if pid not in appeared or not signal.get('eligible') or not p.get('games'):continue
             baseline_yards=p.get('yards',0)/p['games'];baseline_catches=p.get('actual_catches',0)/p['games']
+            adjusted_yards=baseline_yards+(learned_role_adjustment if signal['unrewarded'] else 0)
             records.append({'season':season,'week':week,'cutoff':cutoff,'player_id':pid,'position':p['position'],
                             'status':signal['status'],'above_average':signal['above_average'],'unrewarded':signal['unrewarded'],
                             'baseline_yards':baseline_yards,'actual_yards':actual[pid]['yards'],
+                            'role_adjustment':learned_role_adjustment if signal['unrewarded'] else 0,'adjusted_yards':adjusted_yards,
                             'baseline_catches':baseline_catches,'actual_catches':actual[pid]['catches']})
     def group(name,predicate):
         sample=[r for r in records if predicate(r)]
@@ -79,6 +85,8 @@ def walk_forward_roles(rows, snaps, roster, charts, season):
                 'baseline_yards':mean(r['baseline_yards'] for r in sample) if sample else None,
                 'mean_yards_vs_baseline':mean(r['actual_yards']-r['baseline_yards'] for r in sample) if sample else None,
                 'yards_baseline_mae':mean(abs(r['actual_yards']-r['baseline_yards']) for r in sample) if sample else None,
+                'yards_role_adjusted_mae':mean(abs(r['actual_yards']-r['adjusted_yards']) for r in sample) if sample else None,
+                'yards_mae_improvement':mean(abs(r['actual_yards']-r['baseline_yards'])-abs(r['actual_yards']-r['adjusted_yards']) for r in sample) if sample else None,
                 'mean_catches_vs_baseline':mean(r['actual_catches']-r['baseline_catches'] for r in sample) if sample else None}
     predicates={'all_eligible':lambda r:True,'above_average_role':lambda r:r['above_average'],'role_ahead_of_results':lambda r:r['unrewarded']}
     groups=[group(name,predicate) for name,predicate in predicates.items()]
@@ -99,8 +107,8 @@ def walk_forward_roles(rows, snaps, roster, charts, season):
         baseline=groups[0]['mean_yards_vs_baseline'];item['mean_yards_difference_from_all']=item['mean_yards_vs_baseline']-baseline if baseline is not None and item['mean_yards_vs_baseline'] is not None else None
         item['yards_difference_from_all_range_95']=[0.0,0.0] if item['name']=='all_eligible' else difference_range(predicates[item['name']],20260917+index)
     return {'schema_version':1,'season':season,'validation_scope':'chronological_next_game_diagnostic','promotion_eligible':False,
-            'decision':'experimental_only','records':records,'groups':groups,
-            'method':'Each weekly flag uses only games dated before that week. Actual participation is used only to decide whether the player appeared in the graded game. No market prices, ROI or claimed lift.',
+            'decision':'experimental_only','projection_adjustment_decision':'do_not_promote','records':records,'groups':groups,
+            'method':'Each weekly flag uses only games dated before that week. A role-ahead receiving-yard adjustment is learned only from already graded earlier weeks and shrunk with a 100-player-game zero prior. Actual participation is used only to decide whether the player appeared in the graded game. No market prices, ROI or claimed lift.',
             'limitations':['Latest nflverse revisions are not a vintage archive.','Actual game participation is known retrospectively.','No projection adjustment is promoted from this diagnostic.']}
 
 

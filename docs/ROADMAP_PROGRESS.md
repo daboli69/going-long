@@ -51,6 +51,8 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
   Live verification found one-minute kickoff differences between books and book-added player suffixes such as “(ARI).” Visual quote grouping now prefers the feed's stable event ID, while canonical tracking retains the exact kickoff identity. Team abbreviations in parentheses are removed only for player-name matching.
 
+- **P2.1c, role feature removal test:** a receiving-yard adjustment was learned from already graded earlier weeks only and reduced toward zero with a 100-player-game prior. On 191 role-ahead future player-games, it increased average absolute error from 25.1 to 25.6 yards; across all 2,160 eligible player-games, error increased from 22.0 to 22.0 yards after rounding (0.04 yards unrounded). The adjustment is explicitly rejected and is not used in projections. The opportunity badge remains experimental context.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.

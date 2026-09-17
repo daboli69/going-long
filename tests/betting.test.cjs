@@ -46,12 +46,13 @@ test('Football role flags need current charting and measured denominators',t=>{
 });
 
 test('Role validation describes the chronological result without promoting it',t=>{
- const {api:a}=setup(t),markup=a.roleValidationMarkup({season:2025,validation_scope:'chronological_next_game_diagnostic',groups:[
+ const {api:a}=setup(t),markup=a.roleValidationMarkup({season:2025,validation_scope:'chronological_next_game_diagnostic',projection_adjustment_decision:'do_not_promote',groups:[
   {name:'all_eligible',players_games:2160,mean_yards_vs_baseline:.1648},
-  {name:'role_ahead_of_results',players_games:191,mean_yards_vs_baseline:4.2846,mean_yards_difference_from_all:4.1198,yards_difference_from_all_range_95:[-.5122,9.4737]}
+  {name:'role_ahead_of_results',players_games:191,mean_yards_vs_baseline:4.2846,mean_yards_difference_from_all:4.1198,yards_difference_from_all_range_95:[-.5122,9.4737],yards_baseline_mae:25.0916,yards_role_adjusted_mae:25.5561}
  ]});
  assert.match(markup,/191 future player-games/);assert.match(markup,/\+4\.3 receiving yards/);assert.match(markup,/\+0\.2 yards/);
  assert.match(markup,/\+4\.1 yards compared/);assert.match(markup,/-0\.5 to \+9\.5 yards/);assert.match(markup,/includes no difference/);
+ assert.match(markup,/error rose from 25\.1 to 25\.6 yards/);assert.match(markup,/not used in projections/);
  assert.match(markup,/remains experimental/);assert.match(markup,/does not change projections or suggested bets/);
  assert.doesNotMatch(markup,/proven|win rate of|lift/i);
 });

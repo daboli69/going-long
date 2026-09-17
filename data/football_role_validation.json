@@ -4,6 +4,7 @@
   "validation_scope": "chronological_next_game_diagnostic",
   "promotion_eligible": false,
   "decision": "experimental_only",
+  "projection_adjustment_decision": "do_not_promote",
   "groups": [
     {
       "name": "all_eligible",
@@ -12,6 +13,8 @@
       "baseline_yards": 34.15784722222222,
       "mean_yards_vs_baseline": 0.16483796296296302,
       "yards_baseline_mae": 21.96633487654321,
+      "yards_role_adjusted_mae": 22.007407122839425,
+      "yards_mae_improvement": -0.04107224629621539,
       "mean_catches_vs_baseline": -0.027492283950617282,
       "mean_yards_difference_from_all": 0.0,
       "yards_difference_from_all_range_95": [
@@ -26,6 +29,8 @@
       "baseline_yards": 48.87656765676568,
       "mean_yards_vs_baseline": -1.528052805280528,
       "yards_baseline_mae": 26.383762376237623,
+      "yards_role_adjusted_mae": 26.471600051484977,
+      "yards_mae_improvement": -0.08783767524735174,
       "mean_catches_vs_baseline": -0.16366336633663367,
       "mean_yards_difference_from_all": -1.692890768243491,
       "yards_difference_from_all_range_95": [
@@ -40,6 +45,8 @@
       "baseline_yards": 41.484991273996506,
       "mean_yards_vs_baseline": 4.284642233856894,
       "yards_baseline_mae": 25.091623036649214,
+      "yards_role_adjusted_mae": 25.55610498429228,
+      "yards_mae_improvement": -0.46448194764306416,
       "mean_catches_vs_baseline": 0.11989528795811516,
       "mean_yards_difference_from_all": 4.119804270893931,
       "yards_difference_from_all_range_95": [
@@ -48,7 +55,7 @@
       ]
     }
   ],
-  "method": "Each weekly flag uses only games dated before that week. Actual participation is used only to decide whether the player appeared in the graded game. No market prices, ROI or claimed lift.",
+  "method": "Each weekly flag uses only games dated before that week. A role-ahead receiving-yard adjustment is learned only from already graded earlier weeks and shrunk with a 100-player-game zero prior. Actual participation is used only to decide whether the player appeared in the graded game. No market prices, ROI or claimed lift.",
   "limitations": [
     "Latest nflverse revisions are not a vintage archive.",
     "Actual game participation is known retrospectively.",
