@@ -503,7 +503,7 @@
 .football-badge{padding:10px;border:1px solid #bf754b;border-radius:8px;color:#ffac7e}.football-badge small{display:block;font-size:11px}.football-notes summary{cursor:pointer;display:flex;align-items:center;min-height:44px}.football-notes li{margin:10px 0;line-height:1.6}.football-notes{font-size:13px;color:#bdc9bf}.football-notes small{display:block;color:#a1afa4}.football-notes ul{padding-left:18px}
 @media(max-width:600px){#btTabGroup{display:flex!important;overflow-x:auto;flex-wrap:nowrap}#btTabGroup button{flex:0 0 auto;min-height:44px;padding:8px 12px!important}}#btBestPanel{overflow-wrap:anywhere}#btBestPanel p{line-height:1.6;color:#bdc8c0}#btBestPanel h3{margin-top:28px}
 </style>
-<link rel="stylesheet" href="/shared/going-shell.css"><script defer src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js" defer></script><script src="/shared/king-endzone.js" defer></script>
+<link rel="stylesheet" href="/shared/going-shell.css"><script src="/shared/football-opportunity.js"></script><script defer src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js" defer></script><script src="/shared/king-endzone.js" defer></script>
 <style>
 #parlayControls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
 #parlayControls label{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:13px}
@@ -3618,7 +3618,8 @@ function signalPersist(){
   try{localStorage.setItem(SIGNAL_STORE,JSON.stringify(SIGNAL.ledger));return true;}catch{SIGNAL.message='Device storage is full or unavailable. New records are only in memory; export a backup now.';return false;}
 }
 function signalMedian(xs){const v=xs.filter(finiteNumber).sort((a,b)=>a-b);return v.length?v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2:null;}
-function signalEvent(sport,home,away,kickoff){return [sport,home,away,kickoff].join('|');}
+function signalEvent(sport,home,away,kickoff){return globalThis.GoingFootballOpportunity?.eventId({sport,home,away,kickoff})||[sport,home,away,kickoff].join('|');}
+function opportunityIdentity(c){return globalThis.GoingFootballOpportunity?.identity(c)||[c.event,c.kind,c.profileId||'',c.market,c.line,c.side].join('|');}
 function signalReference(price,other,push=0){const d=americanToDecimal(price),o=americanToDecimal(other);return d&&o?{win:(1/d)/(1/d+1/o)*(1-push),push,loss:(1/o)/(1/d+1/o)*(1-push)}:null;}
 function signalFresh(date,now,days=45){const t=Date.parse(date);return Number.isFinite(t)&&t<now&&now-t<=days*86400000;}
 function signalFlags(c,peers,history,now=Date.now()){
@@ -3733,8 +3734,8 @@ async function signalCandidates(){
   quotes.push({kind:'prop',sport:'nfl',home,away,event,kickoff:p.kickoff,player:p.player,profileId:p.profileId,profileDate:p.profileDate,team:p.team,opp:p.opp,position:BET.history?.profiles?.[p.profileId]?.position,market:p.market,line:p.line,side:r.side,odds:r.odds,dec:r.dec,prob:r.prob,push:r.push,ev:r.ev,book:p.book,updatedAt:p.updatedAt,n:p.model?.n,teamSpread:spread==null?null:p.team===home?spread:-spread,reference:signalReference(r.odds,r.side==='Under'?p.overOdds:p.underOdds,r.push)});
   if(!['atd','first_td'].includes(p.market)){const side=r.side==='Under'?'Over':'Under',odds=side==='Over'?p.overOdds:p.underOdds,dec=americanToDecimal(odds),prob=propProbabilities(p)?.[side.toLowerCase()];if(dec&&finiteNumber(prob))quotes.push({...quotes[quotes.length-1],side,odds,dec,prob,ev:evPercent(prob,dec,r.push),reference:signalReference(odds,r.odds,r.push)});}
  }
- const contracts=new Map();for(const c of quotes){c.trust=footballTrust(c,now);c.contract=[c.event,c.kind,c.profileId||'',c.market,c.line,c.side].join('|');c.key=c.contract;
-  if(!contracts.has(c.contract))contracts.set(c.contract,[]);contracts.get(c.contract).push(c);
+ const contracts=new Map();for(const c of quotes){c.trust=footballTrust(c,now);c.contract=[c.event,c.kind,c.profileId||'',c.market,c.line,c.side].join('|');c.canonicalContract=opportunityIdentity(c);c.key=c.contract;
+  if(!contracts.has(c.canonicalContract))contracts.set(c.canonicalContract,[]);contracts.get(c.canonicalContract).push(c);
  }
  const rows=[];for(const peers of contracts.values()){peers.sort((a,b)=>b.dec-a.dec);const c=peers[0];c.flags=signalFlags(c,peers,BET.history,now);c.families=[...new Set(c.flags.map(f=>f.family).filter(f=>f!=='audit'))];rows.push(c);}
  rows.sort((a,b)=>b.families.length-a.families.length||b.ev-a.ev);
@@ -3748,7 +3749,7 @@ async function signalLoadResults(){
 }
 let BEST_KIND='all',BEST_VERSION=0;
 function bestPriceCandidates(){
- const rows=[],add=(base,prices,sides)=>{const ds=prices.map(americanToDecimal);if(ds.some(d=>!d))return;for(let i=0;i<2;i++){const c={...base,side:sides[i],odds:prices[i],dec:ds[i],push:0,reference:{win:(1/ds[i])/(1/ds[0]+1/ds[1])},flags:[]};c.contract=[c.event,c.kind,c.profileId||'',c.market,c.line,c.side].join('|');rows.push(c);}};
+ const rows=[],add=(base,prices,sides)=>{const ds=prices.map(americanToDecimal);if(ds.some(d=>!d))return;for(let i=0;i<2;i++){const c={...base,side:sides[i],odds:prices[i],dec:ds[i],push:0,reference:{win:(1/ds[i])/(1/ds[0]+1/ds[1])},flags:[]};c.contract=[c.event,c.kind,c.profileId||'',c.market,c.line,c.side].join('|');c.canonicalContract=opportunityIdentity(c);rows.push(c);}};
  for(const g of BET.games){if(g.source==='manual'||!activeGameQuote(g)||footballDate(g.kickoff)!==footballDate(Date.now()))continue;
   const home=g.homeCode||g.home,away=g.awayCode||g.away,base={kind:'game',sport:g.sport,home,away,event:signalEvent(g.sport,home,away,g.kickoff),kickoff:g.kickoff,book:g.book,player:`${away} @ ${home}`};
   for(const [market,line,prices,key] of [['spread',g.spread,[g.homeSpreadOdds,g.awaySpreadOdds],'spreads'],['total',g.total,[g.overOdds,g.underOdds],'totals'],['moneyline',0,[g.mlHome,g.mlAway],'h2h']]){
@@ -3768,9 +3769,9 @@ function rankBestPlays(rows,quotes,sport,kind,now=Date.now()){
  const unique=(list)=>{const used=new Set();return list.filter(c=>{const key=[c.event,c.kind,c.profileId||'',c.market].join('|');if(used.has(key))return false;used.add(key);return true;}).slice(0,6);};
  const chancePool=eligible.filter(c=>Number.isFinite(c.prob)&&c.prob>0&&c.prob<1&&c.n>=5&&!c.flags.some(f=>f.id==='check'&&!f.historicalOnly)).sort((a,b)=>b.prob-a.prob||b.ev-a.ev);
  const chance=kind==='all'&&sport==='nfl'&&chancePool.some(c=>c.kind==='prop')&&chancePool.some(c=>c.kind==='game')?[...unique(chancePool.filter(c=>c.kind==='game')).slice(0,3),...unique(chancePool.filter(c=>c.kind==='prop')).slice(0,3)]:unique(chancePool);
- const grouped=new Map();for(const q of quotes){if(!q.contract||!fresh(q)||!q.reference||q.push!==0)continue;if(!grouped.has(q.contract))grouped.set(q.contract,[]);grouped.get(q.contract).push(q);}
+ const grouped=new Map();for(const q of quotes){const identity=q.canonicalContract||opportunityIdentity(q);if(!identity||!fresh(q)||!q.reference||q.push!==0)continue;if(!grouped.has(identity))grouped.set(identity,[]);grouped.get(identity).push(q);}
  const values=[];
- for(const c of eligible){if(!fresh(c)||c.push!==0)continue;const peers=grouped.get(c.contract)||[];
+ for(const c of eligible){if(!fresh(c)||c.push!==0)continue;const peers=grouped.get(c.canonicalContract||opportunityIdentity(c))||[];
   // Evaluate each recreational book: the largest payout may be too far out of sync.
   for(const rec of peers.filter(q=>['draftkings','fanduel','betmgm','caesars','fanatics','betrivers'].includes(book(q.book)))){
    const refs=new Map();for(const q of peers){if(!['pinnacle','circa','bookmaker','betonlineag'].includes(book(q.book))||Math.abs(Date.parse(q.updatedAt)-Date.parse(rec.updatedAt))>60000)continue;const prior=refs.get(book(q.book));if(!prior||Date.parse(q.updatedAt)>Date.parse(prior.updatedAt))refs.set(book(q.book),q);}

@@ -2,7 +2,7 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),{createHash}=require('node:crypto'),{JSDOM}=require('jsdom');
 const sha256=value=>createHash('sha256').update(value).digest('hex');
 (async()=>{const root=path.resolve(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');const dom=new JSDOM(html,{url:'https://going-long.vercel.app/long/',runScripts:'outside-only',pretendToBeVisual:true});
-try{const w=dom.window;w.localStorage.setItem('goinglong.gateway.mode','fantasy');w.requestAnimationFrame=cb=>w.setTimeout(cb,0);w.HTMLElement.prototype.scrollIntoView=function(){};
+try{const w=dom.window;w.GoingFootballOpportunity=require('../shared/football-opportunity.js');w.localStorage.setItem('goinglong.gateway.mode','fantasy');w.requestAnimationFrame=cb=>w.setTimeout(cb,0);w.HTMLElement.prototype.scrollIntoView=function(){};
 const ctx=dom.getInternalVMContext();for(const s of w.document.querySelectorAll('script:not([src])'))vm.runInContext(s.textContent.replace(/\nboot\(\);/,'\n'),ctx);
 const provenance={schema_version:1,model_source_sha256:sha256(html),inputs:{}};
 const data=name=>{const live=path.join(process.env.TOPDOWN_DATA_ROOT||root,'data',name),body=fs.readFileSync(fs.existsSync(live)?live:path.join(root,'data',name),'utf8'),parsed=JSON.parse(body);provenance.inputs[name]={sha256:sha256(body),generated_at:parsed.betting?.generated_at||parsed.generated_at||null};return parsed;};ctx.inputs={history:data('history.json'),config:data('data.json'),context:data('football_context.json')};

@@ -33,6 +33,8 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P0.1b, baseball price research:** replaced the Qualified Bets stake recommendations with research comparisons, no suggested stakes, explicit large-disagreement/reference-price labels and the complete matching pool. Removed unsupported claims that price movement establishes informed betting and that retrospective calibration proves the final estimates. A 20-candidate rendering test verifies no truncation, no stake advice and escaped source text; production build passed. Other legacy baseball surfaces still need the remaining terminology/trust audit.
 
+- **P1.1a, canonical football contract identity:** one shared module now defines event and contract identity across aliases, periods, entities, sides, lines and settlement rules. Odds comparison groups use this canonical ID. Existing browser and journal keys remain as explicit legacy IDs to avoid silently duplicating saved history; new automatic records carry both. Tests cover market aliases, time-zone-equivalent kickoffs and every contract dimension. This is the migration foundation, not yet the complete all-opportunity/exclusion-diagnostics UI.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.
