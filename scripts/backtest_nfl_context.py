@@ -4,6 +4,7 @@ from collections import defaultdict
 from datetime import datetime, timezone
 import json
 import math
+import random
 from pathlib import Path
 from statistics import mean
 from zoneinfo import ZoneInfo
@@ -79,7 +80,24 @@ def walk_forward_roles(rows, snaps, roster, charts, season):
                 'mean_yards_vs_baseline':mean(r['actual_yards']-r['baseline_yards'] for r in sample) if sample else None,
                 'yards_baseline_mae':mean(abs(r['actual_yards']-r['baseline_yards']) for r in sample) if sample else None,
                 'mean_catches_vs_baseline':mean(r['actual_catches']-r['baseline_catches'] for r in sample) if sample else None}
-    groups=[group('all_eligible',lambda r:True),group('above_average_role',lambda r:r['above_average']),group('role_ahead_of_results',lambda r:r['unrewarded'])]
+    predicates={'all_eligible':lambda r:True,'above_average_role':lambda r:r['above_average'],'role_ahead_of_results':lambda r:r['unrewarded']}
+    groups=[group(name,predicate) for name,predicate in predicates.items()]
+    weeks=sorted({r['week'] for r in records})
+    by_week={week:[r for r in records if r['week']==week] for week in weeks}
+    def difference_range(predicate,seed):
+        if not weeks:return None
+        rng=random.Random(seed);estimates=[]
+        for _ in range(2000):
+            sample=[r for _ in weeks for r in by_week[rng.choice(weeks)]]
+            selected=[r for r in sample if predicate(r)]
+            if not selected:continue
+            residual=lambda r:r['actual_yards']-r['baseline_yards']
+            estimates.append(mean(map(residual,selected))-mean(map(residual,sample)))
+        if not estimates:return None
+        estimates.sort();return [estimates[int(.025*(len(estimates)-1))],estimates[int(.975*(len(estimates)-1))]]
+    for index,item in enumerate(groups):
+        baseline=groups[0]['mean_yards_vs_baseline'];item['mean_yards_difference_from_all']=item['mean_yards_vs_baseline']-baseline if baseline is not None and item['mean_yards_vs_baseline'] is not None else None
+        item['yards_difference_from_all_range_95']=[0.0,0.0] if item['name']=='all_eligible' else difference_range(predicates[item['name']],20260917+index)
     return {'schema_version':1,'season':season,'validation_scope':'chronological_next_game_diagnostic','promotion_eligible':False,
             'decision':'experimental_only','records':records,'groups':groups,
             'method':'Each weekly flag uses only games dated before that week. Actual participation is used only to decide whether the player appeared in the graded game. No market prices, ROI or claimed lift.',

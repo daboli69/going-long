@@ -28,6 +28,8 @@ class RoleWalkForwardTests(unittest.TestCase):
         self.assertEqual(week4['status'],'role_ahead_of_results')
         self.assertEqual(week4['actual_yards'],100)
         self.assertFalse(result['promotion_eligible'])
+        role=next(g for g in result['groups'] if g['name']=='role_ahead_of_results')
+        self.assertEqual(role['yards_difference_from_all_range_95'],[role['mean_yards_difference_from_all']]*2)
         poisoned=walk_forward_roles(*fixture(include_future=True),2025)
         same=next(r for r in poisoned['records'] if r['week']==4 and r['player_id']=='0')
         self.assertEqual(week4,same)

@@ -12,7 +12,12 @@
       "baseline_yards": 34.15784722222222,
       "mean_yards_vs_baseline": 0.16483796296296302,
       "yards_baseline_mae": 21.96633487654321,
-      "mean_catches_vs_baseline": -0.027492283950617282
+      "mean_catches_vs_baseline": -0.027492283950617282,
+      "mean_yards_difference_from_all": 0.0,
+      "yards_difference_from_all_range_95": [
+        0.0,
+        0.0
+      ]
     },
     {
       "name": "above_average_role",
@@ -21,7 +26,12 @@
       "baseline_yards": 48.87656765676568,
       "mean_yards_vs_baseline": -1.528052805280528,
       "yards_baseline_mae": 26.383762376237623,
-      "mean_catches_vs_baseline": -0.16366336633663367
+      "mean_catches_vs_baseline": -0.16366336633663367,
+      "mean_yards_difference_from_all": -1.692890768243491,
+      "yards_difference_from_all_range_95": [
+        -2.9939176264296816,
+        -0.39001864447363177
+      ]
     },
     {
       "name": "role_ahead_of_results",
@@ -30,7 +40,12 @@
       "baseline_yards": 41.484991273996506,
       "mean_yards_vs_baseline": 4.284642233856894,
       "yards_baseline_mae": 25.091623036649214,
-      "mean_catches_vs_baseline": 0.11989528795811516
+      "mean_catches_vs_baseline": 0.11989528795811516,
+      "mean_yards_difference_from_all": 4.119804270893931,
+      "yards_difference_from_all_range_95": [
+        -0.5122455102653123,
+        9.473698308176479
+      ]
     }
   ],
   "method": "Each weekly flag uses only games dated before that week. Actual participation is used only to decide whether the player appeared in the graded game. No market prices, ROI or claimed lift.",

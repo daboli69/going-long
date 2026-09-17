@@ -48,9 +48,10 @@ test('Football role flags need current charting and measured denominators',t=>{
 test('Role validation describes the chronological result without promoting it',t=>{
  const {api:a}=setup(t),markup=a.roleValidationMarkup({season:2025,validation_scope:'chronological_next_game_diagnostic',groups:[
   {name:'all_eligible',players_games:2160,mean_yards_vs_baseline:.1648},
-  {name:'role_ahead_of_results',players_games:191,mean_yards_vs_baseline:4.2846}
+  {name:'role_ahead_of_results',players_games:191,mean_yards_vs_baseline:4.2846,mean_yards_difference_from_all:4.1198,yards_difference_from_all_range_95:[-.5122,9.4737]}
  ]});
  assert.match(markup,/191 future player-games/);assert.match(markup,/\+4\.3 receiving yards/);assert.match(markup,/\+0\.2 yards/);
+ assert.match(markup,/\+4\.1 yards compared/);assert.match(markup,/-0\.5 to \+9\.5 yards/);assert.match(markup,/includes no difference/);
  assert.match(markup,/remains experimental/);assert.match(markup,/does not change projections or suggested bets/);
  assert.doesNotMatch(markup,/proven|win rate of|lift/i);
 });
