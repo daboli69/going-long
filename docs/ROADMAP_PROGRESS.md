@@ -55,6 +55,8 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P1.3a, auditable cumulative results:** Results now plots every settled hypothetical $100 research selection in settlement order, reconciles the ending value to the headline profit, and reports the largest decline from a prior high. The chart states that it is a model check rather than the user's betting account; manually recorded wagers remain separate. Empty windows show an honest empty state. A deterministic test covers out-of-order settlements, wins, losses, refunds, final profit and drawdown.
 
+- **P1.3b, contract-safe performance breakdowns:** Results deduplicates by canonical contract when available and otherwise includes event, entity, market, period, side, line and rules. Different player markets and alternate lines can no longer collapse into one performance record. The journal now reports market-level returns and compares each saved probability range with its later observed win share, with game and bet counts and explicit short-sample language. These are descriptive checks, not automatic evidence that a market is profitable.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.

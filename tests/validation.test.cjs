@@ -29,3 +29,15 @@ test('Performance history is chronological, reconciles to total profit and measu
  assert.equal(result.endingProfit,-50);
  assert.equal(result.maxDrawdown,200);
 });
+
+test('Different markets and lines for one player remain separate contracts',async()=>{
+ const {summarize}=await import('../apps/validation/metrics.mjs');
+ const base={tracking_group:'all_projection',event:'game',selection:'Player',side:'Over',side_index:0,observed_at:'2026-09-12T12:00:00Z',kickoff:'2026-09-12T16:00:00Z',odds:2,probability:.6,actionable:false,odds_band:'1.67–2.00'};
+ const predictions=[{...base,id:'receiving',market:'player_receiving_yards',line:65.5},{...base,id:'receptions',market:'player_receptions',line:5.5},{...base,id:'alternate',market:'player_receiving_yards',line:75.5}];
+ const rows=[...predictions.map(payload=>({kind:'prediction',payload})),...predictions.map((p,index)=>({kind:'settlement',payload:{prediction_id:p.id,status:index===1?'loss':'win',observed_at:'2026-09-12T20:00:00Z'}}))];
+ const result=summarize(rows,'all_projection');
+ assert.equal(result.bets,3);
+ assert.equal(result.markets.find(row=>row.label==='player_receiving_yards').bets,2);
+ assert.equal(result.reliability[0].decisive,3);
+ assert.equal(result.reliability[0].winRate,2/3);
+});
