@@ -24,6 +24,7 @@ def collect_board(journal,root,now):
     # Freeze only after collection; a request crossing kickoff cannot create a pregame record.
     at=datetime.now(timezone.utc).isoformat()
     markets={'spread':'spreads','total':'totals','moneyline':'h2h','pass_yds':'player_passing_yards','rush_yds':'player_rushing_yards','rec_yds':'player_receiving_yards','receptions':'player_receptions','pass_tds':'player_passing_tds'}
+    markets.update({'rush_tds':'player_rushing_tds','rec_tds':'player_receiving_tds'})
     for c in rows:
         if stamp(c['kickoff'])<=stamp(at):continue
         group=c['tracking_group'];key=uid(group,c['contract'])

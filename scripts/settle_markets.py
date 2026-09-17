@@ -5,6 +5,8 @@ from topdown.model import stamp,uid
 from build_pipeline import match_player
 
 MAP={'player_passing_yards':'pass_yds','player_rushing_yards':'rush_yds','player_receiving_yards':'rec_yds','player_receptions':'receptions','player_passing_tds':'pass_tds'}
+MAP.update({'player_rushing_tds':'rush_tds','player_receiving_tds':'rec_tds',
+            'rush_tds':'rush_tds','rec_tds':'rec_tds'})
 
 
 def settle(journal,root,now):

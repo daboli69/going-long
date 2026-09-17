@@ -17,6 +17,10 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P0.4, odds request deadlines and saved-price recovery:** provider requests share a 40-second budget, with an 18-second per-request limit. Failed refreshes retain the last successful in-memory response for up to 24 hours, explicitly labeled as saved and preserving quote timestamps. A 15-minute failure backoff prevents repeated failed calls. This cache is per running server instance, not durable account-wide storage. No polling frequency increase is introduced.
 
+  Released in `5253070`; 58 targeted tests and production build passed. Vercel reported success and the live page included saved-price notice handling.
+
+- **P0.2b, touchdown-count settlement:** automatic board records now map rushing and receiving TD totals to supported settlement keys. Existing short-name records remain compatible. Missing counts stay pending; published zero is graded; exact integer ties return the hypothetical stake. Anytime and First TD are not inferred from rush/receive counts because return/defensive scores and ordering need separate evidence. Tests cover missing-to-published retry, both sides, exact ties, Eastern game dates and idempotency. This change requires the PC scanner to load the updated code; a website deployment alone does not activate Python changes.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.
