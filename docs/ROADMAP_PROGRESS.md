@@ -45,6 +45,8 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P1.2a, football discovery hierarchy:** eight equal betting destinations are reduced to five primary choices: Today, All Opportunities, Games, Research and Parlay Lab. Player Props, Model Projections and First TD now sit inside All Opportunities; Jackpot sits inside Parlay Lab. Specialist views retain stable `tab` links. Today's cards lead with the bet, price and estimated chance, keep the main risk visible, and place supporting detail behind “Why this is here.” This is the first Long navigation increment; contract-level quote consolidation and the cross-sport interaction pass remain.
 
+- **P1.1c, one prop contract per card:** the default sportsbook prop board now groups matching player, game, market, period and line quotes into one opportunity. The card uses the best available price independently for each side, names the corresponding books, and exposes every observed book and timestamp in a compact comparison table. Alternate lines and pick'em rules remain separate. Pagination and counts now describe opportunities while also reporting the source quote count.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.

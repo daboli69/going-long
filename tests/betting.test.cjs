@@ -21,7 +21,7 @@ function setup(t){
   vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool};`,context);
+    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -248,6 +248,17 @@ test('Routing hides inactive views and scopes Settings to draft',t=>{
   assert.equal(w.document.querySelector('#view-betting details').open,false);
   click('betting');assert.equal(w.document.getElementById('clockBar').hidden,true);
   assert.equal(w.document.querySelectorAll('#glNav [aria-current]').length,1);
+});
+
+test('Sportsbook prop offers collapse to one contract with the best side prices',t=>{
+ const {api:a}=setup(t),base={player:'Receiver',profileId:'p',team:'A',eventTeams:['A','B'],kickoff:future(),market:'rec_yds',line:50.5,source:'parlay',updatedAt:new Date().toISOString(),projMean:55,projSd:20,model:{status:'ready',family:'lognormal',mu_log:3.9,sigma_log:.4,n:12}};
+ const rows=[
+  {p:{...base,id:'one',book:'Book A',overOdds:-110,underOdds:-105}},
+  {p:{...base,id:'two',book:'Book B',overOdds:105,underOdds:-120}},
+  {p:{...base,id:'three',book:'Book C',line:51.5,overOdds:110,underOdds:-110}}
+ ];
+ const offers=a.consolidatePropOffers(rows);assert.equal(offers.length,2);
+ const line=offers.find(x=>x.p.line===50.5).p;assert.equal(line.overOdds,105);assert.equal(line.overBook,'Book B');assert.equal(line.underOdds,-105);assert.equal(line.underBook,'Book A');assert.equal(line.offers.length,2);
 });
 test('Betting navigation keeps five primary destinations and nests specialist tools',t=>{
   const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
