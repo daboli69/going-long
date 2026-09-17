@@ -6,6 +6,26 @@ function profitBoost(probability,decimal,boostPercent=0,stake=10){
  return {boostedDecimal,returnPerDollar:probability*boostedDecimal-1,baseReturn:probability*decimal-1,breakEvenBoost:Math.max(0,100*((1/probability-1)/(decimal-1)-1)),profitIfWin:stake*(boostedDecimal-1),expectedProfit:stake*(probability*boostedDecimal-1)};
 }
 
+const contractKey=r=>r.canonicalContract||r.contract||r.key||[r.event,r.kind,r.profileId||'',r.market,r.line??'',r.side].join('|');
+const entity=r=>r.kind==='prop'?'player:'+r.profileId:'game:'+(['spread','moneyline'].includes(r.market)?'result':r.market);
+const weakestLeg=legs=>legs.reduce((weak,row)=>!weak||row.prob<weak.prob?row:weak,null);
+
+function bestReplacement(ticket,pool,{sameGame,lower=1,upper=Infinity,boostPercent=0,stake=10}){
+ if(!ticket?.legs?.length)return null;
+ const weak=weakestLeg(ticket.legs),remaining=ticket.legs.filter(row=>row!==weak),usedContracts=new Set(ticket.legs.map(contractKey)),usedEntities=new Set(remaining.map(entity)),usedEvents=new Set(remaining.map(row=>row.event));
+ const candidates=pool.filter(row=>!usedContracts.has(contractKey(row))&&(sameGame?row.event===weak.event&&!usedEntities.has(entity(row)):!usedEvents.has(row.event)));
+ let best=null;
+ for(const row of candidates){
+  const legs=[...remaining,row];
+  if(sameGame){if(!best||row.prob>best.add.prob)best={remove:weak,add:row,legs,probability:null,decimal:null};continue;}
+  const probability=legs.reduce((value,leg)=>value*leg.prob,1),decimal=legs.reduce((value,leg)=>value*leg.dec,1);
+  if(decimal<lower||decimal>upper)continue;
+  const boost=profitBoost(probability,decimal,boostPercent,stake);if(boost.returnPerDollar<0)continue;
+  if(!best||probability>best.probability)best={remove:weak,add:row,legs,probability,decimal,estimatedReturn:probability*decimal-1,boost};
+ }
+ return best;
+}
+
 function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdds=null,book:chosenBook="all",kind="all",events=null,boostPercent=0,stake=10}={}){
  const decimal=o=>o==null?null:Number.isFinite(o)&&Math.abs(o)>=100?(o>0?1+o/100:1+100/-o):NaN;
  profitBoost(.5,2,boostPercent,stake);
@@ -21,7 +41,6 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
   if(!books.has(r.book))books.set(r.book,[]);books.get(r.book).push(r);
  }
  let parlay=null,sgp=null;
- const entity=r=>r.kind==='prop'?'player:'+r.profileId:'game:'+(['spread','moneyline'].includes(r.market)?'result':r.market);
  for(const [book,pool] of books){
   pool.sort((a,b)=>b.prob-a.prob||b.ev-a.ev);
   const events=new Map();for(const r of pool){if(!events.has(r.event))events.set(r.event,[]);events.get(r.event).push(r);}
@@ -45,16 +64,18 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
   for(const candidate of states.filter(x=>x.legs.length===legs&&x.decimal>=lower&&x.decimal<=upper)){
    const boost=profitBoost(candidate.probability,candidate.decimal,boostPercent,stake);
    if(boost.returnPerDollar<0)continue;
-   if(!parlay||candidate.probability>parlay.probability)parlay={book,...candidate,estimatedReturn:candidate.probability*candidate.decimal-1,boost};
+   if(!parlay||candidate.probability>parlay.probability)parlay={book,...candidate,estimatedReturn:candidate.probability*candidate.decimal-1,boost,pool};
   }
   for(const rawGroup of events.values()){
    const group=rawGroup.filter(r=>r.ev>=0);
    const chosen=[],seen=new Set();for(const r of group){if(seen.has(entity(r)))continue;seen.add(entity(r));chosen.push(r);if(chosen.length===legs)break;}
    if(chosen.length!==legs)continue;
    const weakest=Math.min(...chosen.map(r=>r.prob));
-   if(!sgp||weakest>sgp.weakest)sgp={book,legs:chosen,weakest,probability:null,decimal:null};
+   if(!sgp||weakest>sgp.weakest)sgp={book,legs:chosen,weakest,probability:null,decimal:null,pool};
   }
  }
+ if(parlay){parlay.weakestLeg=weakestLeg(parlay.legs);parlay.replacement=bestReplacement(parlay,parlay.pool,{sameGame:false,lower,upper,boostPercent,stake});delete parlay.pool;}
+ if(sgp){sgp.weakestLeg=weakestLeg(sgp.legs);sgp.replacement=bestReplacement(sgp,sgp.pool,{sameGame:true});delete sgp.pool;}
  return {parlay,sgp};
 }
 root.GoingFootballParlays={select,profitBoost};if(typeof module!=='undefined')module.exports=root.GoingFootballParlays;

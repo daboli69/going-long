@@ -50,3 +50,21 @@ test('Profit boost applies to winnings only and can turn a negative ticket posit
  assert.equal(select(pool,settings).parlay,null);assert.ok(select(pool,{...settings,boostPercent:50}).parlay.boost.returnPerDollar>0);
  assert.throws(()=>profitBoost(.5,2,-1),/boost/);
 });
+
+test('Tickets identify their weakest leg and a compatible replacement',()=>{
+ const pool=[{...leg('a','one'),prob:.7},{...leg('b','two'),prob:.55},{...leg('c','three'),prob:.5},{...leg('d','four'),prob:.49}];
+ const ticket=select(pool,{...settings,legs:2}).parlay;
+ assert.equal(ticket.weakestLeg.profileId,'b');
+ assert.equal(ticket.replacement.remove.profileId,'b');
+ assert.equal(ticket.replacement.add.profileId,'c');
+ assert.equal(new Set(ticket.replacement.legs.map(row=>row.event)).size,2);
+});
+
+test('Same-game replacement preserves the game and avoids a second outcome for one entity',()=>{
+ const pool=[{...leg('a','g'),prob:.7},{...leg('b','g'),prob:.55},{...leg('c','g'),prob:.5},{...leg('a-alt','g'),profileId:'a',prob:.68,market:'receptions'}];
+ const ticket=select(pool,{...settings,legs:2}).sgp;
+ assert.equal(ticket.weakestLeg.profileId,'b');
+ assert.equal(ticket.replacement.add.profileId,'c');
+ assert.equal(ticket.replacement.probability,null);
+ assert.equal(ticket.replacement.decimal,null);
+});
