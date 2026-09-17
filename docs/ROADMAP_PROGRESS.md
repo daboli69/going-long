@@ -29,6 +29,10 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P0.3b, baseball replay boundaries:** remove current-season FanGraphs aggregate fetches from historical hitter and runs replay. New outputs declare diagnostic scope; old numbers remain unchanged and explicitly require a corrected rerun. Actual participants/starters are still known retrospectively, so this is not presented as a clean pregame evaluation. Corrected that claim in both baseball UI copies. Two structural time-policy tests and the GOING production build pass; the full multi-season numerical replay has not been rerun.
 
+  Yard `3cfa934` and GOING `f142d3a` released. GOING Vercel success, live replay notice and legacy artifact metadata verified.
+
+- **P0.1b, baseball price research:** replaced the Qualified Bets stake recommendations with research comparisons, no suggested stakes, explicit large-disagreement/reference-price labels and the complete matching pool. Removed unsupported claims that price movement establishes informed betting and that retrospective calibration proves the final estimates. A 20-candidate rendering test verifies no truncation, no stake advice and escaped source text; production build passed. Other legacy baseball surfaces still need the remaining terminology/trust audit.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.
