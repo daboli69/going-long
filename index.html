@@ -762,11 +762,11 @@
         <button data-sport="nfl" aria-pressed="true">NFL</button>
         <button data-sport="ncaa" aria-pressed="false">NCAA</button>
       </div>
-      <div class="pos-group" id="btTabGroup">
-        <button data-tab="promo" aria-pressed="false">Jackpot</button><button data-tab="best" aria-pressed="false">Best Plays</button><button data-tab="firsttd" aria-pressed="false">First TD Predictor</button><button data-tab="parlays" aria-pressed="false">Parlays</button><button data-tab="props" aria-pressed="true">Player Props</button>
-        <button data-tab="games" aria-pressed="false">Game Lines</button><button data-tab="projections" aria-pressed="false">Projections</button><button data-tab="signals" aria-pressed="false">Signals</button>
+      <div class="pos-group" id="btTabGroup" role="navigation" aria-label="Football research">
+        <button data-section="today" data-tab="best" aria-pressed="false">Today</button><button data-section="opportunities" data-tab="props" aria-pressed="true">All Opportunities</button><button data-section="games" data-tab="games" aria-pressed="false">Games</button><button data-section="research" data-tab="signals" aria-pressed="false">Research</button><button data-section="parlay" data-tab="parlays" aria-pressed="false">Parlay Lab</button>
       </div>
     </div>
+    <div class="pos-group" id="btToolGroup" aria-label="Research tools" hidden></div>
     <div class="pos-group" id="btPeriodGroup" aria-label="Market period"><button data-period="FT" aria-pressed="true">Full Game</button><button data-period="1H" aria-pressed="false">1st Half</button><button data-period="Q1" aria-pressed="false">1st Quarter</button></div>
     <p class="bt-note" id="btWeekNote"></p>
     <p class="bt-note" id="btDataNote" role="status">Loading odds and historical projections…</p>
@@ -2867,12 +2867,15 @@ window.renderTrade = renderTrade;   // called from the gateway script's setView(
 
 /* Betting engine: numerical probabilities are conditional on historical
    baselines, not calibrated claims of future outcomes. No browser API key. */
+const BETTING_TABS=new Set(['best','props','projections','firsttd','games','signals','parlays','promo']);
+const requestedBettingTab=new URLSearchParams(location.search).get('tab');
 const BET = {
   props: [], liveAttempts: {}, games: [], coverage: "active", drawerGames: [], gameLimit:100, period:"FT", market: "ALL", sort: "ev", tab: "props", sport: "nfl",
   history: null, config: {}, nflData: null, ncaaData: null, context: null, roleValidation: null,
   page: 0, pageSize: 50, query: "", renderVersion: 0, loading: false,
   book: "sportsbooks", matchup: "ALL", liveLoading: false, liveStatus: "snapshot", liveLoaded: {},
 };
+if(BETTING_TABS.has(requestedBettingTab))BET.tab=requestedBettingTab;
 const MARKET_LABEL = {pass_yds:"Passing yards", rush_yds:"Rushing yards", rec_yds:"Receiving yards",
   receptions:"Receptions", pass_tds:"Passing TDs", rush_tds:"Rushing TDs", rec_tds:"Receiving TDs", atd:"Anytime TD"};
 MARKET_LABEL.first_td="First touchdown";
@@ -3814,7 +3817,8 @@ function bestPlayCard(c,value=false){
  const side=c.side==='Home'?c.home:c.side==='Away'?c.away:c.side,line=c.market==='spread'&&c.side==='Away'?-c.line:c.line;
  const label=c.market==='moneyline'?`${side} to win`:c.market==='first_td'?`${c.player} to score first`:c.market==='atd'?`${c.player} to score a touchdown`:`${side} ${line>0&&c.market==='spread'?'+':''}${line} ${c.kind==='prop'?(MARKET_LABEL[c.market]||c.market):c.market==='spread'?'spread':'total points'}`;
  const why=value?`The same selection pays ${americanOddsLabel(c.odds)} here. Compared with ${c.referenceBooks.join(' + ')}, the reduced estimate clears a ${(c.threshold*100).toFixed(1)}% return requirement.`:`This selection has one of this week’s highest historical-model win estimates across eligible bets. It uses ${c.n} recorded games${c.profileDate?', through '+c.profileDate:''}.`;
- return `<article class="sig-card">${teamBadge(c.team)}<h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><b>${esc(label)}</b><p>${esc(c.book)} · ${americanOddsLabel(c.odds)}<br>${esc(c.away)} @ ${esc(c.home)} · ${esc(new Date(c.kickoff).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}))} ET</p>${c.savedPrice?'<p><strong>Saved line — research only.</strong> Confirm the current line and payout before betting; the estimate applies to the displayed line.</p>':''}<p class="sig-numbers"><b>${percent(c.prob)} estimated win chance</b><br>${c.ev>=0?'+':''}${(c.ev*100).toFixed(1)}¢ estimated profit per $1 over many repeats${c.ev<0?' · Price does not offer estimated value':''}${c.push>0?'<br>'+percent(c.push)+' estimated chance of your stake being returned':''}</p><p>${esc(why)}</p>${c.flags.some(f=>f.id==='check'&&f.historicalOnly)?'<p>Prior-season history supports this estimate. Current role and availability are not confirmed; this is a research suggestion.</p>':''}${c.flags.filter(f=>!['check','gap','price'].includes(f.id)).slice(0,2).map(f=>`<p>${esc(f.why)}</p>`).join('')}<small>${value?'Price-based estimate':'Historical-model estimate'} · Not yet validated<br>Quote ${esc(new Date(c.updatedAt).toLocaleTimeString())}${c.sport==='ncaa'?'<br>Availability not independently verified':'<br>Check official inactives in Validation before betting'}</small></article>`;
+ const risk=c.savedPrice?'The displayed price may have changed. Confirm the current line and payout.':c.sport==='ncaa'?'Player availability is not independently verified.':c.flags.some(f=>f.id==='check'&&f.historicalOnly)?'The estimate uses prior-season history; the current role is not confirmed.':'Player availability and late lineup news still need a final check.';
+ return `<article class="sig-card">${teamBadge(c.team)}<h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><b>${esc(label)}</b><p>${esc(c.book)} · ${americanOddsLabel(c.odds)}<br>${esc(c.away)} @ ${esc(c.home)} · ${esc(new Date(c.kickoff).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}))} ET</p><p class="sig-numbers"><b>${percent(c.prob)} estimated win chance</b><br>${c.ev>=0?'+':''}${(c.ev*100).toFixed(1)}¢ estimated profit per $1 over many repeats${c.ev<0?' · Price does not offer estimated value':''}${c.push>0?'<br>'+percent(c.push)+' estimated chance of your stake being returned':''}</p><p><strong>Main thing to check:</strong> ${esc(risk)}</p><details><summary>Why this is here</summary><p>${esc(why)}</p>${c.flags.filter(f=>!['check','gap','price'].includes(f.id)).slice(0,2).map(f=>`<p>${esc(f.why)}</p>`).join('')}<small>${value?'Price-based estimate':'Historical-model estimate'} · Not yet validated<br>Quote ${esc(new Date(c.updatedAt).toLocaleTimeString())}</small></details></article>`;
 }
 async function renderBestPlays(){
  const version=++BEST_VERSION,sport=BET.sport;const rows=await signalCandidates();if(version!==BEST_VERSION||BET.tab!=='best'||sport!==BET.sport)return;
@@ -3935,13 +3939,29 @@ async function renderPromo(){
  }catch(e){$('promoStatus').textContent=e.message+' Automatic checks retry while this screen is open.';$('promoOptions').innerHTML='';}
 }
 
+const BETTING_SECTIONS={today:['best'],opportunities:['props','projections','firsttd'],games:['games'],research:['signals'],parlay:['parlays','promo']};
+const BETTING_TOOL_LABELS={props:'Player Props',projections:'Model Projections',firsttd:'First TD Predictor',parlays:'Parlay Builder',promo:'Jackpot'};
+function bettingSection(tab){return Object.entries(BETTING_SECTIONS).find(([,tabs])=>tabs.includes(tab))?.[0]||'today';}
+function syncBettingTabUrl(){
+ try{const url=new URL(location.href);if(BET.tab==='props')url.searchParams.delete('tab');else url.searchParams.set('tab',BET.tab);history.replaceState(history.state,'',url);}catch{}
+}
+function chooseBettingTab(tab,{sync=true}={}){
+ if(!BETTING_TABS.has(tab)||(BET.sport==='ncaa'&&['props','projections','firsttd','promo'].includes(tab)))tab=BET.sport==='ncaa'?'games':'props';
+ BET.tab=tab;BET.page=0;
+ if(tab==='projections'){BET.sort='projection';$('btSort').value='projection';if(BET.market==='ALL')BET.market='rec_yds';}
+ BET.renderVersion++;if(sync)syncBettingTabUrl();renderBetting();
+}
+function renderBettingTools(){
+ const section=bettingSection(BET.tab),tabs=(BETTING_SECTIONS[section]||[]).filter(tab=>BET.sport==='nfl'||!['props','projections','firsttd','promo'].includes(tab)),group=$('btToolGroup');
+ group.innerHTML=tabs.length>1?tabs.map(tab=>`<button data-tab="${tab}" aria-pressed="${tab===BET.tab}">${BETTING_TOOL_LABELS[tab]}</button>`).join(''):'';group.hidden=tabs.length<2;
+}
 function renderBetting(){
   const week=footballWeek();
   if(BET.displayWeek!==week.start){BET.displayWeek=week.start;BET.matchup='ALL';BET.page=0;projectionCache=null;updateBetFilters();}
   if($('btWeekNote'))$('btWeekNote').textContent=`Current week: ${week.start} – ${week.last} (Eastern time)`;
   $('btPeriodGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.period===BET.period)));
   $("btPropsPanel").hidden=!["props","projections"].includes(BET.tab); $("btGamesPanel").hidden=BET.tab!=="games";
-  $("btTabGroup").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tab===BET.tab)));
+  $("btTabGroup").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.section===bettingSection(BET.tab))));renderBettingTools();
   $('btCoverageGroup').hidden=BET.sport!=='ncaa';
   $('btBook').hidden=BET.tab==='projections';
   $('btMarketGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.market===BET.market)));
@@ -3968,10 +3988,11 @@ function wireBetting(){
     const b=e.target.closest("button");if(!b)return;
     BET.sport=b.dataset.sport;BET.page=0;BET.gameLimit=100;BET.renderVersion++;
     $("btSportGroup").querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
-    for(const tab of ['props','projections','promo','firsttd'])$("btTabGroup").querySelector(`[data-tab="${tab}"]`).hidden=BET.sport!=="nfl";
-    if(BET.sport==='ncaa'&&!['signals','best','parlays'].includes(BET.tab))BET.tab='games';renderBetting();if(!BET.liveLoaded[BET.sport])refreshLiveOdds(BET.sport);
+    $('btTabGroup').querySelector('[data-section="opportunities"]').hidden=BET.sport!=='nfl';
+    if(BET.sport==='ncaa'&&!['signals','best','parlays','games'].includes(BET.tab))BET.tab='games';syncBettingTabUrl();renderBetting();if(!BET.liveLoaded[BET.sport])refreshLiveOdds(BET.sport);
   });
-  $("btTabGroup").addEventListener("click",e=>{const b=e.target.closest('button');if(b){BET.tab=b.dataset.tab;BET.page=0;if(BET.tab==='projections'){BET.sort='projection';$('btSort').value='projection';if(BET.market==='ALL')BET.market='rec_yds';}BET.renderVersion++;renderBetting();}});
+  $("btTabGroup").addEventListener("click",e=>{const b=e.target.closest('button');if(b)chooseBettingTab(b.dataset.tab);});
+  $('btToolGroup').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)chooseBettingTab(b.dataset.tab);});
   $("btMarketGroup").addEventListener("click",e=>{const b=e.target.closest('button');if(!b)return;BET.market=b.dataset.market;if(['1H','Q1'].includes(BET.market)){BET.period=BET.market;BET.market='ALL';}else if(['first_td','atd'].includes(BET.market))BET.period='FT';$('btPeriodGroup').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.period===BET.period)));BET.page=0;[...b.parentElement.children].forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderPropsTable();});
   $("btSort").addEventListener('change',e=>{BET.sort=e.target.value;BET.page=0;renderPropsTable();});
   $("btSearch").addEventListener('input',debounce(e=>{BET.query=e.target.value;BET.page=0;renderPropsTable();},80));

@@ -249,6 +249,14 @@ test('Routing hides inactive views and scopes Settings to draft',t=>{
   click('betting');assert.equal(w.document.getElementById('clockBar').hidden,true);
   assert.equal(w.document.querySelectorAll('#glNav [aria-current]').length,1);
 });
+test('Betting navigation keeps five primary destinations and nests specialist tools',t=>{
+  const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
+  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','All Opportunities','Games','Research','Parlay Lab']);
+  w.document.querySelector('#btTabGroup [data-section="opportunities"]').click();
+  assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['Player Props','Model Projections','First TD Predictor']);
+  w.document.querySelector('#btToolGroup [data-tab="firsttd"]').click();assert.equal(a.BET.tab,'firsttd');
+  assert.match(w.location.search,/tab=firsttd/);assert.equal(w.document.querySelector('#btFirstTdPanel').hidden,false);
+});
 test('Sport switch isolates game records and missing spreads stay unpriced',t=>{
   const {api:a,w}=setup(t);a.wireBetting();
   a.BET.games=[{id:'nfl',sport:'nfl',home:'BUF',away:'MIA',kickoff:future(),source:'manual'},
@@ -375,7 +383,7 @@ test('Opportunity pool reports every exclusion without changing canonical eligib
 });
 test('Best play labels use away spread sign and escape names',t=>{
  const {api:a}=setup(t);const text=a.bestPlayCard({kind:'game',sport:'ncaa',market:'spread',side:'Away',line:-3.5,away:'Away <tag>',home:'Home',team:'',book:'betmgm',odds:-110,prob:.6,push:0,ev:.14,n:12,kickoff:new Date().toISOString(),updatedAt:new Date().toISOString(),flags:[]});
- assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));
+ assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));assert.match(text,/Main thing to check/);assert.match(text,/Why this is here/);
 });
 
 test('Price shortlist needs no historical model and retains both opposing sides',t=>{

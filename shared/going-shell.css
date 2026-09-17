@@ -41,7 +41,7 @@ body[data-going-workspace=results] main>header{padding:30px 0 16px}
 body[data-going-workspace=results] button{background:var(--going-accent);border-color:var(--going-accent)}
 body[data-going-workspace=results] .panel{border-color:var(--going-border)}
 @media(min-width:760px){body[data-going-workspace=long] #glNav{top:var(--going-header-height)}}
-@media(max-width:600px){#going-shell .going-shell-inner{padding:10px 16px 8px;min-height:104px;gap:4px;flex-wrap:wrap}#going-shell .going-wordmark{font-size:25px;min-height:44px}#going-shell .going-global-nav{width:100%;justify-content:space-between;gap:2px}#going-shell .going-global-nav a{padding:10px 12px;flex:1;font-size:12px}body[data-going-workspace=yard] .going-platform-nav{padding:10px 14px}body[data-going-workspace=long] .bt-head{display:flex;flex-wrap:wrap}body[data-going-workspace=long] #btSportGroup{margin-right:auto}}
+@media(max-width:600px){#going-shell .going-shell-inner{padding:10px 16px 8px;min-height:104px;gap:4px;flex-wrap:wrap}#going-shell .going-wordmark{font-size:25px;min-height:44px}#going-shell .going-global-nav{width:100%;justify-content:space-between;gap:2px}#going-shell .going-global-nav a{padding:10px 12px;flex:1;font-size:12px}body[data-going-workspace=yard] .going-platform-nav{padding:10px 14px}body[data-going-workspace=long] .bt-head{display:flex;flex-wrap:wrap}body[data-going-workspace=long] #btSportGroup{margin-right:auto}body[data-going-workspace=long] #btToolGroup{margin:8px 0 4px;padding-bottom:4px}}
 @media(prefers-reduced-motion:reduce){#going-shell *{transition:none!important}}
 
 body[data-going-workspace=yard] .thead{top:calc(var(--hh,200px) + var(--going-header-height))}
@@ -50,6 +50,9 @@ body[data-going-workspace=yard] .thead{top:calc(var(--hh,200px) + var(--going-he
 body[data-going-workspace=long] #glNav .ic{display:none}
 body[data-going-workspace=long] #btTabGroup{display:flex!important;flex-wrap:nowrap;width:100%;overflow-x:auto;scrollbar-width:none}
 body[data-going-workspace=long] #btTabGroup button{flex:0 0 auto;white-space:nowrap}
+body[data-going-workspace=long] #btToolGroup{display:flex;gap:6px;max-width:1440px;margin:10px auto 4px;overflow-x:auto;scrollbar-width:none}
+body[data-going-workspace=long] #btToolGroup[hidden]{display:none}
+body[data-going-workspace=long] #btToolGroup button{flex:0 0 auto;white-space:nowrap;padding:8px 14px}
 /* Shared research surfaces: consistent hierarchy without changing sport calculations. */
 body[data-going-workspace]{--going-panel-raised:#202d24;--going-control:#17231c;--going-radius:12px}
 body[data-going-workspace=long]{--bt-panel:var(--going-panel);--bt-panel-2:var(--going-panel-raised);--bt-line:var(--going-border);--bt-mute:var(--going-muted)}
