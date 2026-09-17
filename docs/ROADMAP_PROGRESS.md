@@ -25,6 +25,10 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P0.2c, prospective evidence:** new board records retain fingerprints of the actual model source and loaded history/config/context, their published timestamps where supplied, supporting game count, trust label and comparison evidence. Existing records are never rewritten. Results exposes these details and explicitly identifies older records without provenance. Fingerprints establish identity, not complete historical replay or proof of input availability. Historical-model checks no longer describe themselves as price-derived estimates. Python immutability tests, seven validation tests and production build passed.
 
+  Released in `3b841f2`; Vercel success and deployed evidence UI verified. Automatic approval review blocked the subsequent PC worker restart, so the running worker still needs to reload the Python evidence change. The prior touchdown settlement restart succeeded.
+
+- **P0.3b, baseball replay boundaries:** remove current-season FanGraphs aggregate fetches from historical hitter and runs replay. New outputs declare diagnostic scope; old numbers remain unchanged and explicitly require a corrected rerun. Actual participants/starters are still known retrospectively, so this is not presented as a clean pregame evaluation. Corrected that claim in both baseball UI copies. Two structural time-policy tests and the GOING production build pass; the full multi-season numerical replay has not been rerun.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.
