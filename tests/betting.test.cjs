@@ -21,7 +21,7 @@ function setup(t){
   vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    mergePartialLive,footballNotes,footballOpportunity,footballOpportunityMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
+    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -43,6 +43,14 @@ test('Football role flags need current charting and measured denominators',t=>{
   h.features.nfl.players['A|p'].last_participation_game='2025-01-01';
   assert.ok(!a.signalFlags(c,[],h,now).some(f=>f.id==='demand'));
   assert.ok(!a.signalFlags({...c,side:'Under'},[],h,now).some(f=>f.id==='chase'));
+});
+
+test('Pass-snap role separates above-average usage from unrewarded results',t=>{
+  const {api:a}=setup(t),scope={teams:{A:{charted_dropbacks:120}}},base={team:'A',position:'WR',share_type:'passing_snap_proxy',position_average:.55,pass_snaps:120,charting_coverage:.9,catch_model_targets:25,catches_short:1,scope};
+  let signal=a.footballRoleSignal(base);assert.equal(signal.status,'above_average_role');assert.equal(signal.unrewarded,false);
+  signal=a.footballRoleSignal({...base,catches_short:3});assert.equal(signal.status,'role_ahead_of_results');assert.equal(signal.unrewarded,true);
+  signal=a.footballRoleSignal({...base,pass_snaps:45,catches_short:3});assert.equal(signal.eligible,false);assert.equal(signal.above_average,false);
+  signal=a.footballRoleSignal({...base,share_type:'offensive_snap_share',catches_short:3});assert.equal(signal.eligible,false);
 });
 
 test('Settlement uses exact game and player date; missing data is never a zero',t=>{
@@ -314,8 +322,8 @@ test('Refresh requests the live endpoint and preserves manual edits by quote ide
 test('Opportunity research stays dated and cannot support an Under or a different team',t=>{
  const {api:a}=setup(t),today=new Date(Date.now()-86400000).toISOString().slice(0,10);
  const p={profileId:'p',team:'A',position:'WR',market:'rec_yds',side:'Over',kind:'prop'};
- const player={team:'A',position:'WR',season:2025,share:.9,position_average:.6,opportunity_flag:true,catches_short:3,share_type:'passing_snap_proxy',last_game:today};
- a.BET.context={season:2026,scopes:{2025:{season:2025,players:{p:player},teams:{A:{games:6}}},2026:{season:2026,players:{p:{...player,season:2026}},teams:{A:{games:1}}}}};
+ const player={team:'A',position:'WR',season:2025,share:.9,position_average:.6,opportunity_flag:true,catches_short:3,catch_model_targets:25,pass_snaps:108,charting_coverage:.9,share_type:'passing_snap_proxy',last_game:today};
+ a.BET.context={season:2026,scopes:{2025:{season:2025,players:{p:player},teams:{A:{games:6,charted_dropbacks:120}}},2026:{season:2026,players:{p:{...player,season:2026}},teams:{A:{games:1,charted_dropbacks:120}}}}};
  assert.equal(a.signalFlags(p,[],{}).find(f=>f.id==='opportunity').family,'audit');
  assert.match(a.footballOpportunityMarkup(p),/2025 research/);assert.equal(a.footballOpportunity({...p,team:'B'}),null);
  a.BET.context.scopes[2026].teams.A.games=3;

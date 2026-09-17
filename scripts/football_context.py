@@ -114,7 +114,7 @@ def build_scope(rows, snaps, roster, charting, season, cutoff):
         passing_coverage = div(t.get('charted_dropbacks', 0), t.get('dropbacks', 0))
         strong = passing_coverage is not None and passing_coverage >= .8 and p['pass_snaps'] >= 50
         share = div(p['pass_snaps'], t.get('charted_dropbacks', 0)) if strong else div(p['offense_snaps'], p['team_snaps'])
-        output[pid] = dict(p, name=names.get(pid), position=pos, team=team, games=len(gids), season=season,
+        output[pid] = dict(p, player_id=pid, name=names.get(pid), position=pos, team=team, games=len(gids), season=season,
                            first_game=min((dates[g] for g in gids), default=None), last_game=max((dates[g] for g in gids), default=None),
                            share=share, share_type='passing_snap_proxy' if strong else 'offensive_snap_share',
                            charting_coverage=passing_coverage, catches_short=round(p['expected_catches']-p['actual_catches'], 2),
@@ -127,7 +127,26 @@ def build_scope(rows, snaps, roster, charting, season, cutoff):
             benchmarks[pos + '|' + kind] = {'players': len(peers), 'average_share': avg}
             for p in peers:
                 p['position_average'] = avg;p['peer_count'] = len(peers)
-                p['opportunity_flag'] = avg is not None and p['share'] >= avg + .05 and p['catch_model_targets'] >= 20 and p['catches_short'] >= 2
+                denominator = next((teams[team]['charted_dropbacks'] for team in player_teams[p['player_id']]
+                                    if kind == 'passing_snap_proxy' and team in teams), 0) if kind == 'passing_snap_proxy' else p['team_snaps']
+                numerator = p['pass_snaps'] if kind == 'passing_snap_proxy' else p['offense_snaps']
+                p['share_denominator'] = denominator
+                shrunk = div(numerator + 80 * avg, denominator + 80) if avg is not None else None
+                p['shrunk_share'] = shrunk
+                p['share_above_average'] = shrunk - avg if finite(shrunk) and finite(avg) else None
+            ranked = sorted((p for p in peers if finite(p.get('shrunk_share'))), key=lambda p: p['shrunk_share'])
+            for p in peers:
+                percentile = div(sum(q['shrunk_share'] <= p.get('shrunk_share', -1) for q in ranked), len(ranked))
+                eligible = kind == 'passing_snap_proxy' and avg is not None and p['pass_snaps'] >= 50 and p.get('charting_coverage', 0) >= .8
+                above = eligible and p['share_above_average'] >= .03
+                unrewarded = above and p['catch_model_targets'] >= 20 and p['catches_short'] >= 2
+                status = 'role_ahead_of_results' if unrewarded else 'above_average_role' if above else 'insufficient_or_average'
+                p['share_percentile'] = percentile
+                p['role_signal'] = {'status': status, 'eligible': eligible, 'above_average': above,
+                                    'unrewarded': unrewarded, 'proxy': kind,
+                                    'prior_strength_pass_snaps': 80, 'minimum_pass_snaps': 50,
+                                    'minimum_charting_coverage': .8, 'minimum_excess': .03}
+                p['opportunity_flag'] = unrewarded
     # Compare each defense with the same receivers' production against OTHER
     # defenses. Twenty pseudo-targets stabilize player estimates; fifty stabilize
     # the defensive residual. These are policy shrinkage strengths, not fitted lift.

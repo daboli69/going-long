@@ -35,6 +35,10 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P1.1a, canonical football contract identity:** one shared module now defines event and contract identity across aliases, periods, entities, sides, lines and settlement rules. Odds comparison groups use this canonical ID. Existing browser and journal keys remain as explicit legacy IDs to avoid silently duplicating saved history; new automatic records carry both. Tests cover market aliases, time-zone-equivalent kickoffs and every contract dimension. This is the migration foundation, not yet the complete all-opportunity/exclusion-diagnostics UI.
 
+  Released in `4258f4c`; 45 browser/identity tests, three tracking tests and the production build passed.
+
+- **P2.1a, position-relative passing-snap role:** WR and TE opportunity is now adjusted toward the position average with an 80-pass-snap prior. “Above-average pass-snap role” requires at least 50 passing snaps, 80% team charting coverage and adjusted share 3 percentage points above comparable players. “Role ahead of results” additionally requires 20 modeled throws and a two-catch shortfall. The UI shows adjusted share, position percentile, dates and the explicit “not measured routes” limitation. The current 2026 participation feed was unavailable at generation time, so no 2026 player qualified; the 2025 research scope produced 79 above-average roles and 16 role-ahead signals. Missing current charting is not filled with old data while labeled current.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.
