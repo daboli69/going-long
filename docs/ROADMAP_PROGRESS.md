@@ -53,6 +53,8 @@ The implementation follows `PRODUCT_AUDIT_2026-09-14.md`. This is a progress led
 
 - **P2.1c, role feature removal test:** a receiving-yard adjustment was learned from already graded earlier weeks only and reduced toward zero with a 100-player-game prior. On 191 role-ahead future player-games, it increased average absolute error from 25.1 to 25.6 yards; across all 2,160 eligible player-games, error increased from 22.0 to 22.0 yards after rounding (0.04 yards unrounded). The adjustment is explicitly rejected and is not used in projections. The opportunity badge remains experimental context.
 
+- **P1.3a, auditable cumulative results:** Results now plots every settled hypothetical $100 research selection in settlement order, reconciles the ending value to the headline profit, and reports the largest decline from a prior high. The chart states that it is a model check rather than the user's betting account; manually recorded wagers remain separate. Empty windows show an honest empty state. A deterministic test covers out-of-order settlements, wins, losses, refunds, final profit and drawdown.
+
 ## Remaining sequence
 
 Complete P0 trust consistency, recording/settlement coverage, replay input availability, and odds deadlines/freshness. Then implement the full opportunity/evidence contract, unified discovery/navigation, graphical Results, Parlay Lab compatibility, and account-wide cost controls. Model additions and controlled learning follow prospective validation. Commercial data rights, account-level operational checks and subscription scope remain launch prerequisites.

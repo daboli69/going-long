@@ -16,3 +16,16 @@ test('Away spreads display the opposite sign and graded records retain the prega
  const p={id:'p',tracking_group:'all_model',event:'e',selection:'s',side:'Away',observed_at:'2026-09-12T12:00:00Z',kickoff:'2026-09-12T16:00:00Z',odds:2,probability:.4,actionable:false,odds_band:'1.67–2.00'};
  const result=summarize([{kind:'prediction',payload:p},{kind:'settlement',payload:{prediction_id:'p',status:'loss',observed_at:'2026-09-12T19:00:00Z'}}],'all_model');assert.equal(result.graded[0].prediction_observed_at,p.observed_at);
 });
+
+test('Performance history is chronological, reconciles to total profit and measures drawdown',async()=>{
+ const {performanceSeries}=await import('../apps/validation/metrics.mjs');
+ const result=performanceSeries([
+  {prediction_id:'loss',observed_at:'2026-09-14T20:00:00Z',profit:-100},
+  {prediction_id:'win',observed_at:'2026-09-13T20:00:00Z',profit:150},
+  {prediction_id:'refund',observed_at:'2026-09-15T20:00:00Z',profit:0},
+  {prediction_id:'loss-two',observed_at:'2026-09-16T20:00:00Z',profit:-100}
+ ]);
+ assert.deepEqual(result.series.map(p=>p.cumulative),[0,150,50,50,-50]);
+ assert.equal(result.endingProfit,-50);
+ assert.equal(result.maxDrawdown,200);
+});
