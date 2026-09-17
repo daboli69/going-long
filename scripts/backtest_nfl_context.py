@@ -13,6 +13,47 @@ from football_context import build_scope
 from pbp_features import player_ids
 
 
+def opponent_adjusted_projection(train, game, season, week):
+    """Ridge-shrunk team scoring ratings using current and prior-season games.
+
+    Positive defense values mean the team allowed more points than expected.
+    The first four weeks receive the stronger zero-rating prior. No market line
+    or future-week result enters the estimate.
+    """
+    weighted=[]
+    for g in train:
+        weight=1.0 if g['season']==season else .35 if g['season']==season-1 else 0
+        if not weight:continue
+        weighted.append((g,weight))
+    if not weighted:return None
+    total_weight=sum(2*w for _,w in weighted)
+    league=sum(w*(g['home_score']+g['away_score']) for g,w in weighted)/total_weight
+    home_weight=sum(w for _,w in weighted)
+    home_adv=sum(w*(g['home_score']-g['away_score']) for g,w in weighted)/(home_weight+64)
+    observations=[]
+    for g,weight in weighted:
+        observations.append((g['home_team'],g['away_team'],g['home_score'],home_adv/2,weight))
+        observations.append((g['away_team'],g['home_team'],g['away_score'],-home_adv/2,weight))
+    teams={team for row in observations for team in row[:2]}
+    offense={team:0.0 for team in teams};defense={team:0.0 for team in teams}
+    prior=6.0 if week<=4 else 3.0
+    for _ in range(12):
+        new_offense={}
+        for team in teams:
+            rows=[r for r in observations if r[0]==team]
+            new_offense[team]=sum(weight*(points-league-venue-defense[opp]) for _,opp,points,venue,weight in rows)/(sum(r[4] for r in rows)+prior)
+        new_defense={}
+        for team in teams:
+            rows=[r for r in observations if r[1]==team]
+            new_defense[team]=sum(weight*(points-league-venue-new_offense[offense_team]) for offense_team,_,points,venue,weight in rows)/(sum(r[4] for r in rows)+prior)
+        offense_mean=mean(new_offense.values());defense_mean=mean(new_defense.values())
+        offense={team:value-offense_mean for team,value in new_offense.items()}
+        defense={team:value-defense_mean for team,value in new_defense.items()}
+    home=league+home_adv/2+offense.get(game['home_team'],0)+defense.get(game['away_team'],0)
+    away=league-home_adv/2+offense.get(game['away_team'],0)+defense.get(game['home_team'],0)
+    return {'margin':home-away,'total':home+away,'league_points':league,'home_advantage':home_adv,'prior_games':prior}
+
+
 def walk_forward(games):
     folds=defaultdict(list)
     for game in games:
@@ -34,10 +75,34 @@ def walk_forward(games):
             for g in test:
                 home=(rate(g['home_team'],'home','home_score')+rate(g['away_team'],'away','home_score'))/2
                 away=(rate(g['away_team'],'away','away_score')+rate(g['home_team'],'home','away_score'))/2
-                results.append(dict(game_id=g['game_id'],season=season,week=week,training_games=len(train),training_cutoff=datetime.fromtimestamp(cutoff,timezone.utc).isoformat(),projected_margin=home-away,projected_total=home+away,actual_margin=g['home_score']-g['away_score'],actual_total=g['home_score']+g['away_score']))
+                adjusted=opponent_adjusted_projection(train,g,season,week)
+                results.append(dict(game_id=g['game_id'],season=season,week=week,training_games=len(train),training_cutoff=datetime.fromtimestamp(cutoff,timezone.utc).isoformat(),projected_margin=home-away,projected_total=home+away,opponent_projected_margin=adjusted['margin'] if adjusted else None,opponent_projected_total=adjusted['total'] if adjusted else None,opponent_prior_games=adjusted['prior_games'] if adjusted else None,actual_margin=g['home_score']-g['away_score'],actual_total=g['home_score']+g['away_score']))
         history.extend(sorted(test,key=lambda g:g['kickoff_ts']))
     rmse=lambda kind:math.sqrt(mean((r['projected_'+kind]-r['actual_'+kind])**2 for r in results)) if results else None
-    return dict(games=len(results),margin_error_points=rmse('margin'),total_error_points=rmse('total'),roi=None,closing_price_advantage=None,notice='Score-only walk-forward baseline. Historical closing prices alone cannot price earlier decisions. Latest nflverse revisions; not a vintage-data archive.',predictions=results)
+    candidate=lambda kind:math.sqrt(mean((r['opponent_projected_'+kind]-r['actual_'+kind])**2 for r in results if r['opponent_projected_'+kind] is not None)) if results else None
+    baseline_margin,baseline_total=rmse('margin'),rmse('total');candidate_margin,candidate_total=candidate('margin'),candidate('total')
+    clusters=defaultdict(list)
+    for row in results:clusters[(row['season'],row['week'])].append(row)
+    def improvement_range(kind,seed):
+        keys=list(clusters)
+        if not keys:return None
+        rng=random.Random(seed);values=[]
+        for _ in range(2000):
+            sample=[row for _ in keys for row in clusters[rng.choice(keys)]]
+            base=math.sqrt(mean((row['projected_'+kind]-row['actual_'+kind])**2 for row in sample))
+            adjusted=math.sqrt(mean((row['opponent_projected_'+kind]-row['actual_'+kind])**2 for row in sample))
+            values.append(base-adjusted)
+        values.sort();return [values[int(.025*(len(values)-1))],values[int(.975*(len(values)-1))]]
+    margin_range=improvement_range('margin',2026091701);total_range=improvement_range('total',2026091702)
+    promoted=bool(margin_range and total_range and margin_range[0]>0 and total_range[0]>0)
+    return dict(games=len(results),margin_error_points=baseline_margin,total_error_points=baseline_total,
+                opponent_adjusted={'margin_error_points':candidate_margin,'total_error_points':candidate_total,
+                                   'margin_improvement_points':baseline_margin-candidate_margin if candidate_margin is not None else None,
+                                   'total_improvement_points':baseline_total-candidate_total if candidate_total is not None else None,
+                                   'margin_improvement_range_95':margin_range,'total_improvement_range_95':total_range,
+                                   'decision':'promote' if promoted else 'do_not_promote','early_week_prior_games':6,'later_week_prior_games':3,
+                                   'method':'Current-season score residuals plus prior-season observations at 35% weight; iterative opponent adjustment; zero-centered ridge prior.'},
+                roi=None,closing_price_advantage=None,notice='Score-only walk-forward baseline. Historical closing prices alone cannot price earlier decisions. Latest nflverse revisions; not a vintage-data archive.',predictions=results)
 
 
 def walk_forward_roles(rows, snaps, roster, charts, season):
@@ -113,7 +178,7 @@ def walk_forward_roles(rows, snaps, roster, charts, season):
 
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--start',type=int,default=2023);p.add_argument('--end',type=int,default=2026);p.add_argument('--output',default='private/nfl-context-backtest.json');p.add_argument('--role-season',type=int);p.add_argument('--role-output',default='data/football_role_validation.json');p.add_argument('--role-records-output',default='private/football_role_validation_records.json');a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--start',type=int,default=2023);p.add_argument('--end',type=int,default=2026);p.add_argument('--output',default='private/nfl-context-backtest.json');p.add_argument('--summary-output',default='data/football_game_validation.json');p.add_argument('--role-season',type=int);p.add_argument('--role-output',default='data/football_role_validation.json');p.add_argument('--role-records-output',default='private/football_role_validation_records.json');a=p.parse_args()
     import nflreadpy as nfl
     games=nfl.load_schedules(list(range(a.start,a.end+1))).to_dicts()
     usable=[]
@@ -121,7 +186,7 @@ def main():
         if g.get('game_type')!='REG' or not g.get('gametime'):continue
         g['kickoff_ts']=datetime.fromisoformat(str(g['gameday'])+'T'+str(g['gametime'])).replace(tzinfo=ZoneInfo('America/New_York')).timestamp()
         if g['kickoff_ts']+12*3600<datetime.now(timezone.utc).timestamp():usable.append(g)
-    result=walk_forward(usable);Path(a.output).parent.mkdir(parents=True,exist_ok=True);Path(a.output).write_text(json.dumps(result,indent=2,allow_nan=False));print(json.dumps({k:v for k,v in result.items() if k!='predictions'}))
+    result=walk_forward(usable);Path(a.output).parent.mkdir(parents=True,exist_ok=True);Path(a.output).write_text(json.dumps(result,indent=2,allow_nan=False));summary={k:v for k,v in result.items() if k!='predictions'};summary.update(schema_version=1,generated_at=datetime.now(timezone.utc).isoformat(),seasons=[a.start,a.end],validation_scope='chronological_week_ahead_score_diagnostic');summary_path=Path(a.summary_output);summary_path.parent.mkdir(parents=True,exist_ok=True);summary_path.write_text(json.dumps(summary,indent=2,allow_nan=False));print(json.dumps(summary))
     if a.role_season:
         rows=nfl.load_pbp([a.role_season]).to_dicts();snaps=nfl.load_snap_counts([a.role_season]).to_dicts();roster=nfl.load_rosters([a.role_season]).to_dicts();charts=nfl.load_participation([a.role_season]).to_dicts()
         role=walk_forward_roles(rows,snaps,roster,charts,a.role_season)
