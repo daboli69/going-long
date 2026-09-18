@@ -145,6 +145,9 @@ def fetch_parlay(sport):
         previous.update(feed_status='STALE' if previous.get('generated_at') else 'FAILED',
                         refresh_status='FAILED', last_attempt_at=datetime.now(timezone.utc).isoformat(),
                         refresh_error=str(exc))
+        previous['source_states'] = {name: ('STALE' if previous.get(field) else 'FAILED')
+                                     for name, field in [('odds', 'games_raw'), ('props', 'props'),
+                                                         ('derivatives', 'props'), ('periods', 'period_quotes')]}
         atomic_json(path, previous)
         raise
 
@@ -171,7 +174,8 @@ def _fetch_parlay(sport):
             derivative_status = 'loaded' if sport == 'nfl' else 'not_applicable'
         except RuntimeError as exc:
             print(f'[parlay] derivatives unavailable: {exc}')
-            derivative_rows, derivative_status = [], 'unavailable'
+            derivative_rows = []
+            derivative_status = 'fallback' if any(r.get('market_key') in derivative_keys for r in rows) else 'unavailable'
         try:
             period_rows, period_status = normalize_periods(period_future.result()), 'loaded'
         except RuntimeError as exc:
@@ -180,6 +184,10 @@ def _fetch_parlay(sport):
     return {'provider': 'parlay', 'sport': sport, 'generated_at': datetime.now(timezone.utc).isoformat(),
             'feed_status': 'FRESH', 'refresh_status': 'FRESH', 'refresh_error': None,
             'last_attempt_at': datetime.now(timezone.utc).isoformat(),
+            'source_states': {'odds': 'FRESH', 'props': 'FRESH' if sport == 'nfl' else 'NOT_APPLICABLE',
+                              'derivatives': {'loaded': 'FRESH', 'fallback': 'FALLBACK', 'unavailable': 'FAILED',
+                                              'not_applicable': 'NOT_APPLICABLE'}[derivative_status],
+                              'periods': 'FRESH' if period_status == 'loaded' else 'FAILED'},
             'props': normalize_props(rows + derivative_rows), 'derivative_status': derivative_status, 'games_raw': games, 'odds_status': 'loaded',
             'period_quotes': period_rows, 'period_status': period_status,
             'coverage': {'raw_props': len(rows), 'possibly_truncated': len(rows) >= 10000}}

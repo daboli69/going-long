@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from parlay_feed import normalize_props, normalize_periods, request_rows, fetch_parlay
+from parlay_feed import normalize_props, normalize_periods, request_rows, fetch_parlay, _fetch_parlay
 
 
 class ParlayTests(unittest.TestCase):
@@ -50,6 +50,21 @@ class ParlayTests(unittest.TestCase):
             self.assertEqual(stored['generated_at'],old['generated_at'])
             self.assertEqual(stored['feed_status'],'STALE')
             self.assertEqual(stored['refresh_status'],'FAILED')
+            self.assertEqual(stored['source_states']['props'],'STALE')
+
+    def test_derivative_fallback_uses_actual_primary_rows(self):
+        row=dict(player='P',bookmaker='draftkings',market_key='player_first_td',line=.5,over_price=500)
+        def get(sport,endpoint,params,key):
+            if endpoint=='odds': return [{'id':'event','bookmakers':[]}]
+            if endpoint=='live/period_markets': return []
+            if 'player_pass_yds' in params['markets']: return [row]*10000
+            raise RuntimeError('Parlay props: HTTP 503')
+        with patch.dict('os.environ',{'PARLAY_API_KEY':'fixture'}), patch('parlay_feed.request_rows',side_effect=get):
+            result=_fetch_parlay('nfl')
+        self.assertEqual(result['source_states']['derivatives'],'FALLBACK')
+        self.assertEqual(result['props'][0]['bookKey'],'draftkings')
+        self.assertEqual(result['props'][0]['market'],'first_td')
+        self.assertTrue(result['coverage']['possibly_truncated'])
 
     def test_period_duplicates_and_first_td_alias(self):
         q=dict(match_id='a',source='book',market='total',period_key='1H',side='over',line=20.5,price=-110,age_seconds=4)
