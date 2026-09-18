@@ -277,9 +277,9 @@ test('Book-added team abbreviations do not prevent player matching',t=>{
 });
 test('Betting navigation keeps five primary destinations and nests specialist tools',t=>{
   const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
-  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','All Opportunities','Games','Research','Parlay Lab']);
+  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','Signals','Parlays']);
   w.document.querySelector('#btTabGroup [data-section="opportunities"]').click();
-  assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['Player Props','Model Projections','First TD Predictor']);
+  assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['All Bets','Model Board','First TD']);
   w.document.querySelector('#btToolGroup [data-tab="firsttd"]').click();assert.equal(a.BET.tab,'firsttd');
   assert.match(w.location.search,/tab=firsttd/);assert.equal(w.document.querySelector('#btFirstTdPanel').hidden,false);
 });
@@ -413,7 +413,7 @@ test('Opportunity pool reports every exclusion without changing canonical eligib
 });
 test('Best play labels use away spread sign and escape names',t=>{
  const {api:a}=setup(t);const text=a.bestPlayCard({kind:'game',sport:'ncaa',market:'spread',side:'Away',line:-3.5,away:'Away <tag>',home:'Home',team:'',book:'betmgm',odds:-110,prob:.6,push:0,ev:.14,n:12,kickoff:new Date().toISOString(),updatedAt:new Date().toISOString(),flags:[]});
- assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));assert.match(text,/Main thing to check/);assert.match(text,/Why this is here/);
+ assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));assert.match(text,/Primary risk/);assert.match(text,/Why GOING likes it/);assert.match(text,/SHOW ME THE DATA/);assert.match(text,/Parlay relevance/);
 });
 
 test('Price shortlist needs no historical model and retains both opposing sides',t=>{
@@ -432,6 +432,11 @@ test('Promo automatically renders from Fanatics quotes and fails closed on roste
  await vm.runInContext('renderPromo()',context);
  assert.ok(w.document.querySelectorAll('#promoOptions article').length>0,w.document.getElementById('promoStatus').textContent);
  assert.equal(w.document.getElementById('promoPaste'),null);
+ a.BET.props.forEach(p=>p.updatedAt=new Date(now-3600000).toISOString());
+ await vm.runInContext('renderPromo()',context);
+ assert.match(w.document.getElementById('promoStatus').textContent,/FALLBACK \/ STALE/);
+ assert.ok(w.document.querySelectorAll('#promoOptions article').length>0);
+ assert.match(w.document.getElementById('promoOptions').textContent,/STALE PRICE RESEARCH/);
  vm.runInContext('PROMO_AUTO.availability.teams=[]',context);
  await vm.runInContext('renderPromo()',context);
  assert.equal(w.document.querySelectorAll('#promoOptions article').length,0);
@@ -456,6 +461,13 @@ test('Best props accept offseason history without admitting extreme model discre
  assert.ok(a.rankBestPlays([...games,p],[],'nfl','all',now).chance.some(c=>c.kind==='prop'));
 });
 
+test('Best plays retain the complete exact-line field and identify alternative line sets',t=>{
+ const {api:a}=setup(t),now=Date.parse('2026-09-13T18:00:00Z'),base={sport:'nfl',kind:'prop',event:'g',profileId:'p',market:'rec_yds',side:'Over',prob:.6,ev:.1,n:12,kickoff:'2026-09-14T00:20:00Z',updatedAt:new Date(now).toISOString(),book:'fanatics',dec:2,flags:[]};
+ const rows=Array.from({length:12},(_,i)=>({...base,line:20.5+i,contract:`p|${20.5+i}`,canonicalContract:`g|prop|p|rec_yds|${20.5+i}|Over`}));
+ const ranked=a.rankBestPlays(rows,[],'nfl','prop',now);
+ assert.equal(ranked.chance.length,12);assert.ok(ranked.chance.every(c=>c.altLineSet));
+});
+
 test('Parlay game selector includes scheduled SNF even without eligible odds',async t=>{
  const {api:a,w,context}=setup(t);w.Date.now=()=>Date.parse('2026-09-13T23:00:00Z');
  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-parlays.js'),'utf8'),context);
@@ -469,9 +481,10 @@ test('Parlay game selector includes scheduled SNF even without eligible odds',as
 
 test('First TD predictor renders historical game outcomes without inventing quote prices',t=>{
  const {api:a,w,context}=setup(t);w.Date.now=()=>Date.parse('2026-09-13T23:00:00Z');
- a.BET.props=[];a.BET.history={derivatives:{first_td:{g:{status:'ready',home:'NYG',away:'DAL',kickoff:'2026-09-14T00:20:00Z',outcomes:{p:{player_id:'p',name:'Test Player',team:'DAL',probability:.1,fair_odds:900}}}}}};
+ const outcomes=Object.fromEntries(Array.from({length:10},(_,i)=>['p'+i,{player_id:'p'+i,name:i===9?'Tenth Player':'Test Player '+i,team:'DAL',probability:.1-i*.005,fair_odds:900+i*10}]));
+ a.BET.props=[];a.BET.history={derivatives:{first_td:{g:{status:'ready',home:'NYG',away:'DAL',kickoff:'2026-09-14T00:20:00Z',outcomes}}}};
  vm.runInContext('renderFirstTdPredictor()',context);const text=w.document.getElementById('firstTdPredictions').textContent;
- assert.match(text,/Test Player/);assert.match(text,/10.0%/);assert.match(text,/No matching sportsbook quote/);
+ assert.match(text,/Test Player 0/);assert.match(text,/Tenth Player/);assert.match(text,/10 eligible scorers/);assert.match(text,/10.0%/);assert.match(text,/No matching sportsbook quote/);assert.doesNotMatch(text,/Top eight/);
 });
 
 
