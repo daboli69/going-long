@@ -23,6 +23,20 @@ class ParlayTests(unittest.TestCase):
             self.assertEqual(get.call_count,2)
             sleep.assert_called_once_with(5)
 
+    def test_props_follow_documented_next_offset_and_completeness_headers(self):
+        first = self.response(200, [{'page': 1}], {'x-result-has-more':'true','x-next-offset':'10000'})
+        second = self.response(200, [{'page': 2}], {'x-result-has-more':'false'})
+        with patch('parlay_feed.requests.get', side_effect=[first, second]) as get:
+            rows = request_rows('nfl','props',{'markets':'player_pass_yds','limit':10000},'secret')
+        self.assertEqual(rows, [{'page':1},{'page':2}])
+        self.assertFalse(rows.truncated)
+        self.assertEqual(get.call_args_list[1].kwargs['params']['offset'], 10000)
+
+        degraded = self.response(200, [], {'x-result-truncated':'true','x-result-degraded':'fanatics'})
+        with patch('parlay_feed.requests.get', return_value=degraded):
+            rows = request_rows('nfl','props',{},'secret')
+        self.assertTrue(rows.truncated)
+
     def test_503_retry_policy_uses_provider_code(self):
         cases = [
             ('DB_NOT_READY', 30, True),

@@ -18,6 +18,12 @@ RETRY_DELAYS = {'DB_NOT_READY': 30, 'PRIMARY_TIER_UNAVAILABLE': 60,
                 'PROPS_BOARD_DEGRADED': 5, 'WARMING': 5}
 
 
+class ProviderRows(list):
+    def __init__(self, rows=(), *, truncated=False):
+        super().__init__(rows)
+        self.truncated = truncated
+
+
 def numeric(v):
     return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
 
@@ -110,41 +116,59 @@ def _provider_error(response, key):
 
 def request_rows(sport, endpoint, params, key):
     """Use one bounded, response-aware retry; never log credentials or request URLs."""
-    for attempt in range(2):
-        delay, retryable = 2, False
-        try:
-            response = requests.get(f'https://parlay-api.com/v1/sports/{SPORT_KEYS[sport]}/{endpoint}',
-                                    headers={'X-API-Key': key, 'Accept': 'application/json'},
-                                    params=params, timeout=(10, 60))
-            if response.ok:
-                try:
-                    rows = response.json()
-                except ValueError:
-                    raise RuntimeError(f'Parlay {endpoint}: invalid JSON response') from None
-                if endpoint == 'live/period_markets' and isinstance(rows, dict):
-                    rows = rows.get('results')
-                if not isinstance(rows, list):
-                    raise RuntimeError(f'Parlay {endpoint}: unexpected response schema')
-                return rows
-            code, message = _provider_error(response, key)
-            request_id = response.headers.get('x-request-id', 'unknown').replace(key, '[REDACTED]')[:100]
-            reason = (f'HTTP {response.status_code}; code={code or "UNKNOWN"}; '
-                      f'message={message or "unavailable"}; request_id={request_id}')
-            retryable = response.status_code in (429, 500, 502, 504)
-            if response.status_code == 503:
-                retryable = code not in NON_RETRYABLE_503 and code != 'INCIDENTS_PARSE_FAILED'
-                delay = RETRY_DELAYS.get(code, 5)
+    request_params, collected, provider_truncated = dict(params), [], False
+    for page in range(2):  # Provider currently permits offsets only through 10,000.
+        for attempt in range(2):
+            delay, retryable = 2, False
             try:
-                delay = max(delay, min(60, float(response.headers.get('Retry-After', 0))))
-            except ValueError:
-                pass
-        except requests.RequestException as exc:
-            retryable = isinstance(exc, (requests.Timeout, requests.ConnectionError))
-            reason = type(exc).__name__
-        if not retryable or attempt == 1:
-            raise RuntimeError(f'Parlay {endpoint}: {reason}; attempts={attempt + 1}; previous snapshot retained') from None
-        print(f'[parlay] stage={endpoint}; {reason}; retry 2/2 in {delay:g}s', flush=True)
-        time.sleep(delay)
+                response = requests.get(f'https://parlay-api.com/v1/sports/{SPORT_KEYS[sport]}/{endpoint}',
+                                        headers={'X-API-Key': key, 'Accept': 'application/json'},
+                                        params=request_params, timeout=(10, 60))
+                if response.ok:
+                    try:
+                        rows = response.json()
+                    except ValueError:
+                        raise RuntimeError(f'Parlay {endpoint}: invalid JSON response') from None
+                    if endpoint == 'live/period_markets' and isinstance(rows, dict):
+                        rows = rows.get('results')
+                    if not isinstance(rows, list):
+                        raise RuntimeError(f'Parlay {endpoint}: unexpected response schema')
+                    break
+                code, message = _provider_error(response, key)
+                request_id = response.headers.get('x-request-id', 'unknown').replace(key, '[REDACTED]')[:100]
+                reason = (f'HTTP {response.status_code}; code={code or "UNKNOWN"}; '
+                          f'message={message or "unavailable"}; request_id={request_id}')
+                retryable = response.status_code in (429, 500, 502, 504)
+                if response.status_code == 503:
+                    retryable = code not in NON_RETRYABLE_503 and code != 'INCIDENTS_PARSE_FAILED'
+                    delay = RETRY_DELAYS.get(code, 5)
+                try:
+                    delay = max(delay, min(60, float(response.headers.get('Retry-After', 0))))
+                except ValueError:
+                    pass
+            except requests.RequestException as exc:
+                retryable = isinstance(exc, (requests.Timeout, requests.ConnectionError))
+                reason = type(exc).__name__
+            if not retryable or attempt == 1:
+                raise RuntimeError(f'Parlay {endpoint}: {reason}; attempts={attempt + 1}; previous snapshot retained') from None
+            print(f'[parlay] stage={endpoint}; {reason}; retry 2/2 in {delay:g}s', flush=True)
+            time.sleep(delay)
+        collected.extend(rows)
+        provider_truncated = provider_truncated or response.headers.get('x-result-truncated', '').lower() == 'true' or bool(response.headers.get('x-result-degraded'))
+        if endpoint == 'props' and 'x-result-has-more' not in response.headers and len(rows) >= int(request_params.get('limit', 10000)):
+            provider_truncated = True
+        has_more = response.headers.get('x-result-has-more', '').lower() == 'true'
+        if endpoint != 'props' or not has_more:
+            return ProviderRows(collected, truncated=provider_truncated)
+        next_offset = response.headers.get('x-next-offset')
+        try:
+            next_offset = int(next_offset)
+        except (TypeError, ValueError):
+            return ProviderRows(collected, truncated=True)
+        if page == 1 or next_offset > 10000:
+            return ProviderRows(collected, truncated=True)
+        request_params['offset'] = next_offset
+    return ProviderRows(collected, truncated=True)
 
 
 def fetch_parlay(sport):
@@ -230,7 +254,8 @@ def _fetch_parlay(sport, previous=None):
             'games_raw': games, 'odds_status': odds_state.lower(),
             'period_quotes': period_rows, 'period_status': period_state.lower(),
             'coverage': {'raw_props': len(core_raw), 'derivative_props': len(derivative_raw),
-                         'possibly_truncated': len(core_raw) >= 10000 or len(derivative_raw) >= 10000}}
+                         'possibly_truncated': bool(getattr(core_raw, 'truncated', len(core_raw) >= 10000)
+                                                    or getattr(derivative_raw, 'truncated', len(derivative_raw) >= 10000))}}
 
 
 def refresh():
