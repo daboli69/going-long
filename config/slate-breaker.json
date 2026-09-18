@@ -1,0 +1,19 @@
+{
+  "offer_id": "dk-slate-breaker-2026-09-20",
+  "date": "2026-09-20",
+  "games": [
+    ["PHI", "TEN"],
+    ["PIT", "NE"],
+    ["MIN", "CHI"],
+    ["CAR", "ATL"],
+    ["GB", "NYJ"],
+    ["NO", "BAL"],
+    ["CIN", "HOU"],
+    ["CLE", "TB"]
+  ],
+  "eligible_positions": ["QB", "RB", "FB", "WR", "TE"],
+  "shared_returner_dst": true,
+  "ties_win": true,
+  "source": "Eligible slate supplied by the account owner on 2026-09-18",
+  "note": "Eligibility is limited to active-roster skill players and each team's D/ST. Official game-day inactive lists and the sportsbook selection menu still require confirmation."
+}

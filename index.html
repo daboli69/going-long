@@ -359,6 +359,8 @@
   .bt-ev.mid{ color:var(--bt-orange); background:rgba(255,122,26,.10); }
   .bt-ev.neg{ color:var(--bt-neg); background:rgba(232,91,74,.10); }
   .king-list{padding-left:2rem}.king-list li{padding:.3rem 0;border-bottom:1px solid var(--bt-border,#333)}.king-list summary{min-height:44px;padding:12px 4px;cursor:pointer}.king-list p{font-size:13px;line-height:1.5}
+  .sb-lead{padding:18px;border:1px solid #475449;border-radius:14px;background:linear-gradient(135deg,#1b241e,#151a17);margin:12px 0}.sb-lead small{color:#ff9f70;letter-spacing:.12em}.sb-lead h3{font-size:24px;margin:6px 0}.sb-game{border-top:1px solid #39433b;padding:8px 0}.sb-game>summary{display:flex;justify-content:space-between;gap:12px;align-items:center;min-height:48px;cursor:pointer}.sb-game>summary span{font-size:12px;color:#aebbb1;text-align:right}.sb-table-wrap{overflow-x:auto}.sb-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}.sb-table th,.sb-table td{padding:10px 8px;text-align:left;border-bottom:1px solid #303a32;vertical-align:top}.sb-table th{font-size:11px;color:#aebbb1;text-transform:uppercase;letter-spacing:.04em}.sb-table td:nth-child(3),.sb-table td:nth-child(4){white-space:nowrap}.sb-explain summary{cursor:pointer;min-height:30px}.sb-explain small,.sb-table td>small{display:block;color:#aebbb1;margin-top:4px}.sb-explain p{font-size:12px;line-height:1.5}.sb-explain dl{display:grid;grid-template-columns:max-content 1fr;gap:5px 10px;font-size:12px}.sb-explain dd{margin:0}.sb-confidence{display:block;color:#f2ad7d;font-weight:700}
+  @media(max-width:600px){.sb-game>summary{align-items:flex-start;flex-direction:column}.sb-game>summary span{text-align:left}.sb-table thead{display:none}.sb-table,.sb-table tbody,.sb-table tr,.sb-table td{display:block;width:100%}.sb-table tr{padding:10px 0;border-bottom:1px solid #465048}.sb-table td{display:grid;grid-template-columns:112px minmax(0,1fr);gap:8px;border:0;padding:5px 2px;white-space:normal!important}.sb-table td:before{content:attr(data-label);font-size:10px;color:#97a49a;text-transform:uppercase;letter-spacing:.04em}.sb-table td:first-child{display:block}.sb-table td:first-child:before{display:block;margin-bottom:4px}.sb-explain dl{grid-template-columns:1fr}.sb-explain dt{font-weight:700}.sb-lead h3{font-size:21px}}
   .bt-kelly{ font:400 11px/1.3 "IBM Plex Mono",monospace; color:var(--bt-mute); text-align:right; }
   .bt-kelly b{ color:var(--bt-orange); font-weight:600; }
   .bt-projedit{ margin-top:3px; font:400 10px/1.4 "IBM Plex Mono",monospace; color:var(--bt-dim); display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
@@ -503,7 +505,7 @@
 .football-badge{padding:10px;border:1px solid #bf754b;border-radius:8px;color:#ffac7e}.football-badge small{display:block;font-size:11px}.football-notes summary{cursor:pointer;display:flex;align-items:center;min-height:44px}.football-notes li{margin:10px 0;line-height:1.6}.football-notes{font-size:13px;color:#bdc9bf}.football-notes small{display:block;color:#a1afa4}.football-notes ul{padding-left:18px}
 @media(max-width:600px){#btTabGroup{display:flex!important;overflow-x:auto;flex-wrap:nowrap}#btTabGroup button{flex:0 0 auto;min-height:44px;padding:8px 12px!important}}#btBestPanel{overflow-wrap:anywhere}#btBestPanel p{line-height:1.6;color:#bdc8c0}#btBestPanel h3{margin-top:28px}
 </style>
-<link rel="stylesheet" href="/shared/going-shell.css"><script src="/shared/football-opportunity.js"></script><script defer src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js" defer></script><script src="/shared/king-endzone.js" defer></script>
+<link rel="stylesheet" href="/shared/going-shell.css"><script src="/shared/football-opportunity.js"></script><script defer src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js" defer></script><script src="/shared/slate-breaker.js" defer></script><script src="/shared/king-endzone.js" defer></script>
 <style>
 #parlayControls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
 #parlayControls label{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:13px}
@@ -772,6 +774,7 @@
     <p class="bt-note" id="btDataNote" role="status">Loading odds and historical projections…</p>
     <div id="btLoadPropsNote" role="status"></div>
     <section id="btPromoPanel" hidden aria-label="Jackpot research">
+      <h2>Slate Breaker — Sunday</h2><div id="slateBreaker" aria-live="polite"></div>
       <h2>King of the Endzone — Thursday</h2><div id="kingEndzone" aria-live="polite"></div>
       <h2>Fanatics Sunday TD options</h2><p>Ohio · exactly 3 anytime-touchdown scorers · $5 minimum · +2000 minimum per slip. These settings were supplied by you; the full offer terms and entry limit are not verified.</p>
       <p>Five alternatives, ranked by estimated chance of all three scoring. Different games only in this first view. The estimate assumes those games behave independently; it is not a proven hit rate. The shared prize has no estimated dollar value here.</p>
@@ -3950,6 +3953,7 @@ function wireSignals(){
 
 const PROMO_AUTO={availability:null,checked:0,pending:null,timer:null};
 async function renderPromo(){
+ if(globalThis.GoingSlateBreaker)GoingSlateBreaker.render();
  if(globalThis.GoingKingEndzone)GoingKingEndzone.render();
  const date=$('promoDate');if(!date.value){const now=new Date();for(let n=0;n<7;n++){const candidate=new Date(now.getTime()+n*86400000);if(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short'}).format(candidate)==='Sun'){date.value=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(candidate);break;}}}
  for(const id of ['promoDate','promoFloor','promoLegFloor'])$(id).onchange=()=>renderPromo();
