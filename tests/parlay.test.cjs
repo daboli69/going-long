@@ -20,7 +20,7 @@ test('Parlay authenticates by header and rejects malformed upstream data',async(
   const result=await fetchParlay('nfl','fixture-key',async(url,options)=>{
     calls.push({url,options});return Response.json(url.pathname.endsWith('/props')?[quote]:[]);
   });
-  assert.equal(result.props.length,1);assert.equal(calls.length,3);
+  assert.equal(result.props.length,1);assert.equal(calls.length,4);
   for(const c of calls){assert.equal(c.url.origin,'https://parlay-api.com');assert.equal(c.options.headers['X-API-Key'],'fixture-key');assert.ok(!c.url.href.includes('fixture-key'));}
   assert.ok(calls.every(c=>c.url.pathname.includes('/americanfootball_nfl/')));
   await assert.rejects(fetchParlay('ncaa','fixture-key',async()=>Response.json({error:'bad'})),/Unexpected/);
@@ -43,9 +43,9 @@ test('Server proxy validates requests, coalesces refreshes and never exposes the
   try{
     const req=new Request('https://test/api/odds?sport=nfl');
     const responses=await Promise.all([oddsResponse(req,{PARLAY_API_KEY:'fixture-key'}),oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})]);
-    assert.equal(calls,3);
+    assert.equal(calls,4);
     for(const r of responses){assert.equal(r.status,200);assert.ok(!(await r.text()).includes('fixture-key'));}
-    assert.equal((await oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})).status,200);assert.equal(calls,3);
+    assert.equal((await oddsResponse(req,{PARLAY_API_KEY:'fixture-key'})).status,200);assert.equal(calls,4);
   }finally{global.fetch=original;global.caches=oldCaches;}
 });
 
@@ -97,8 +97,26 @@ test('MLB separates market requests to avoid a shared row cap and retains partia
   if(market==='player_total_bases')throw Error('temporary outage');
   return Response.json(url.pathname.endsWith('/props')?[{market_key:market}]:[]);
  });
- assert.equal(seen.length,6);assert.ok(seen.includes('player_home_runs'));assert.equal(result.props.length,4);
+ assert.equal(seen.length,7);assert.ok(seen.includes('player_home_runs'));assert.equal(result.props.length,4);
  assert.equal(result.coverage.markets.player_home_runs.status,'loaded');assert.equal(result.coverage.markets.player_total_bases.status,'unavailable');
+});
+
+test('Structured 503 codes control bounded retry without exposing credentials',async()=>{
+ const {fetchParlay}=await import('../server/parlay.mjs');let coreCalls=0;const sleeps=[];
+ const result=await fetchParlay('nfl','private-fixture',async url=>{
+  if(!url.pathname.endsWith('/props')||url.searchParams.get('markets').includes('first_td'))return Response.json([]);
+  coreCalls++;
+  if(coreCalls===1)return Response.json({error:'DB_NOT_READY',message:'database warming'},{status:503,headers:{'Retry-After':'30','X-Request-ID':'fixture'}});
+  return Response.json([]);
+ },{budgetMs:70000,sleep:async ms=>sleeps.push(ms)});
+ assert.equal(coreCalls,2);assert.deepEqual(sleeps,[30000]);assert.equal(result.feed_status,'FRESH');
+ let disabledCalls=0;
+ const disabled=await fetchParlay('nfl','private-fixture',async url=>{
+  if(!url.pathname.endsWith('/props')||url.searchParams.get('markets').includes('first_td'))return Response.json([]);
+  disabledCalls++;return Response.json({error:'ENDPOINT_DISABLED',message:'not enabled'},{status:503});
+ },{sleep:async()=>assert.fail('non-retryable 503 slept')});
+ assert.equal(disabledCalls,1);assert.equal(disabled.feed_status,'FALLBACK');assert.equal(disabled.source_errors.props.code,'ENDPOINT_DISABLED');
+ assert.ok(!JSON.stringify(disabled).includes('private-fixture'));
 });
 
 

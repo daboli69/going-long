@@ -9,7 +9,7 @@ test('Vercel route reads the server secret and caches successful upstream reques
   process.env.PARLAY_API_KEY='private-fixture';
   global.fetch=async(url,options)=>{calls++;assert.equal(options.headers['X-API-Key'],'private-fixture');return Response.json([]);};
   for(let i=0;i<2;i++){res=response();await handler({method:'GET',url:'/api/odds?sport=nfl'},res);assert.equal(res.statusCode,200);assert.ok(!res.body.includes('private-fixture'));assert.equal(res.headers['Cache-Control'],'no-store');assert.match(res.headers['Vercel-CDN-Cache-Control'],/s-maxage=/);}
-  assert.equal(calls,3);
+  assert.equal(calls,4);
   res=response();await handler({method:'GET',url:'/api/odds?sport=__proto__'},res);assert.equal(res.statusCode,400);
   res=response();await handler({method:'POST',url:'/api/odds'},res);assert.equal(res.statusCode,405);
  }finally{global.fetch=fetchBefore;if(keyBefore===undefined)delete process.env.PARLAY_API_KEY;else process.env.PARLAY_API_KEY=keyBefore;}
@@ -49,7 +49,7 @@ test('Provider outages retain dated cache and suppress repeated credit-consuming
   const original=JSON.parse(res.body);assert.equal(res.statusCode,200);
   t.mock.timers.setTime(start+600001);global.fetch=async()=>{calls++;throw Error('offline');};
   res=response();await handler({method:'GET',url:'/api/odds?sport=ncaa'},res);
-  assert.equal(res.statusCode,200);const saved=JSON.parse(res.body);assert.equal(saved.feed_status,'saved');assert.equal(saved.generated_at,original.generated_at);assert.match(saved.feed_notice,/original timestamps/);
+  assert.equal(res.statusCode,200);const saved=JSON.parse(res.body);assert.equal(saved.feed_status,'STALE');assert.equal(saved.refresh_status,'STALE');assert.equal(saved.generated_at,original.generated_at);assert.match(saved.feed_notice,/original timestamps/);
   const failedCalls=calls;res=response();await handler({method:'GET',url:'/api/odds?sport=ncaa'},res);assert.equal(calls,failedCalls);assert.equal(res.statusCode,200);
  }finally{global.fetch=before;if(key===undefined)delete process.env.PARLAY_API_KEY;else process.env.PARLAY_API_KEY=key;}
 });

@@ -52,6 +52,7 @@
     "player_1st_td"
   ],
   "pass_yds_1h": [
+    "player_pass_yds_1st_half",
     "pass_yds_1h",
     "player_pass_yds_1h",
     "player_pass_yards_1h",
@@ -60,6 +61,7 @@
     "player_1h_passing_yards"
   ],
   "pass_yds_1q": [
+    "player_pass_yds_1st_quarter",
     "pass_yds_1q",
     "player_pass_yds_1q",
     "player_pass_yards_1q",
@@ -68,6 +70,7 @@
     "player_1q_passing_yards"
   ],
   "rush_yds_1h": [
+    "player_rush_yds_1st_half",
     "rush_yds_1h",
     "player_rush_yds_1h",
     "player_rushing_yards_1h",
@@ -75,6 +78,7 @@
     "player_1h_rushing_yards"
   ],
   "rush_yds_1q": [
+    "player_rush_yds_1st_quarter",
     "rush_yds_1q",
     "player_rush_yds_1q",
     "player_rushing_yards_1q",
@@ -82,6 +86,7 @@
     "player_1q_rushing_yards"
   ],
   "rec_yds_1h": [
+    "player_reception_yds_1st_half",
     "rec_yds_1h",
     "player_rec_yds_1h",
     "player_reception_yds_1h",
@@ -90,6 +95,7 @@
     "player_1h_receiving_yards"
   ],
   "rec_yds_1q": [
+    "player_reception_yds_1st_quarter",
     "rec_yds_1q",
     "player_rec_yds_1q",
     "player_reception_yds_1q",
@@ -98,11 +104,13 @@
     "player_1q_receiving_yards"
   ],
   "receptions_1h": [
+    "player_receptions_1st_half",
     "receptions_1h",
     "player_receptions_1h",
     "player_1h_receptions"
   ],
   "receptions_1q": [
+    "player_receptions_1st_quarter",
     "receptions_1q",
     "player_receptions_1q",
     "player_1q_receptions"

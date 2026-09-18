@@ -17,7 +17,7 @@ function markup(data,now=Date.now()){
 async function render(){
  const target=document.getElementById('kingEndzone');if(!target)return;
  try{
-  if(!cached){target.innerHTML='<p>Loading Thursday research…</p>';if(!pending)pending=fetch('/data/king-endzone.json',{signal:AbortSignal.timeout(12000)}).then(r=>{if(!r.ok)throw Error('unavailable');return r.json();}).then(x=>cached=x).finally(()=>pending=null);await pending;}
+  if(!cached){target.innerHTML='<p>Loading Thursday research…</p>';if(!pending)pending=fetch('/api/snapshot?file=king-endzone.json',{signal:AbortSignal.timeout(12000)}).then(r=>r.ok?r:fetch(new URL('data/king-endzone.json',document.baseURI),{signal:AbortSignal.timeout(12000)})).then(r=>{if(!r.ok)throw Error('unavailable');return r.json();}).then(x=>cached=x).finally(()=>pending=null);await pending;}
   target.innerHTML=markup(cached);
  }catch{target.innerHTML='<p>Thursday research is temporarily unavailable. Reopen Jackpot to retry. Other betting views remain available.</p>';}
 }

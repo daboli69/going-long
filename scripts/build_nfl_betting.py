@@ -142,6 +142,8 @@ def build():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     atomic_json(OUT, payload)
     print(f"\nwrote {OUT} — {OUT.stat().st_size/1024:.0f}KB")
+    if live.get("refresh_status") != "FRESH":
+        raise RuntimeError(f"Parlay partial refresh persisted as {live.get('refresh_status')}: {live.get('refresh_error')}")
 
 
 if __name__ == "__main__":

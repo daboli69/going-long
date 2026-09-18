@@ -13,6 +13,9 @@ ROOT = Path(__file__).resolve().parents[1]
 GROUPS = json.loads((ROOT / 'config/parlay-markets.json').read_text())
 MARKET_MAP = {alias: market for market, aliases in GROUPS.items() for alias in aliases}
 SPORT_KEYS = {'nfl': 'americanfootball_nfl', 'ncaa': 'americanfootball_ncaaf'}
+NON_RETRYABLE_503 = {'ENDPOINT_DISABLED', 'ASYNCAPI_NOT_LOADED', 'OPENAPI_UNAVAILABLE'}
+RETRY_DELAYS = {'DB_NOT_READY': 30, 'PRIMARY_TIER_UNAVAILABLE': 60,
+                'PROPS_BOARD_DEGRADED': 5, 'WARMING': 5}
 
 
 def numeric(v):
@@ -89,11 +92,26 @@ def normalize_periods(rows):
     return result
 
 
+def _provider_error(response, key):
+    """Return a short structured provider diagnostic without echoing credentials."""
+    code, message = '', ''
+    try:
+        body = response.json()
+        if isinstance(body, dict):
+            detail = body.get('detail')
+            nested = detail if isinstance(detail, dict) else {}
+            code = body.get('code') or body.get('error') or nested.get('code') or nested.get('error') or body.get('status') or ''
+            message = body.get('message') or nested.get('message') or (detail if isinstance(detail, str) else '')
+    except ValueError:
+        pass
+    clean = lambda value: str(value).replace(key, '[REDACTED]').replace('\n', ' ')[:160]
+    return clean(code).upper(), clean(message)
+
+
 def request_rows(sport, endpoint, params, key):
-    """Retry transient provider overload; never log credentials or request URLs."""
-    for attempt in range(3):
-        delay = 2 ** (attempt + 1)
-        retryable = False
+    """Use one bounded, response-aware retry; never log credentials or request URLs."""
+    for attempt in range(2):
+        delay, retryable = 2, False
         try:
             response = requests.get(f'https://parlay-api.com/v1/sports/{SPORT_KEYS[sport]}/{endpoint}',
                                     headers={'X-API-Key': key, 'Accept': 'application/json'},
@@ -108,40 +126,35 @@ def request_rows(sport, endpoint, params, key):
                 if not isinstance(rows, list):
                     raise RuntimeError(f'Parlay {endpoint}: unexpected response schema')
                 return rows
-            retryable = response.status_code in (429, 500, 502, 503, 504)
-            # Only expose short, redacted diagnostic fields, never an arbitrary body.
+            code, message = _provider_error(response, key)
             request_id = response.headers.get('x-request-id', 'unknown').replace(key, '[REDACTED]')[:100]
-            error = ''
+            reason = (f'HTTP {response.status_code}; code={code or "UNKNOWN"}; '
+                      f'message={message or "unavailable"}; request_id={request_id}')
+            retryable = response.status_code in (429, 500, 502, 504)
+            if response.status_code == 503:
+                retryable = code not in NON_RETRYABLE_503 and code != 'INCIDENTS_PARSE_FAILED'
+                delay = RETRY_DELAYS.get(code, 5)
             try:
-                body = response.json()
-                if isinstance(body, dict):
-                    detail = body.get('detail')
-                    error = body.get('error') or (detail.get('error') if isinstance(detail, dict) else '')
-            except ValueError:
-                pass
-            error = str(error).replace(key, '[REDACTED]')[:100]
-            reason = f'HTTP {response.status_code}; code={error or "unknown"}; request_id={request_id}'
-            try:
-                delay = max(delay, min(30, float(response.headers.get('Retry-After', 0))))
+                delay = max(delay, min(60, float(response.headers.get('Retry-After', 0))))
             except ValueError:
                 pass
         except requests.RequestException as exc:
             retryable = isinstance(exc, (requests.Timeout, requests.ConnectionError))
             reason = type(exc).__name__
-        if not retryable or attempt == 2:
+        if not retryable or attempt == 1:
             raise RuntimeError(f'Parlay {endpoint}: {reason}; attempts={attempt + 1}; previous snapshot retained') from None
-        print(f'[parlay] {endpoint}: {reason}; retry {attempt + 2}/3 in {delay:g}s', flush=True)
+        print(f'[parlay] stage={endpoint}; {reason}; retry 2/2 in {delay:g}s', flush=True)
         time.sleep(delay)
 
 
 def fetch_parlay(sport):
     """Keep quote timestamps and the last successful generation time on failure."""
+    from build_pipeline import atomic_json, load_json
+    path = ROOT / 'data' / ('nfl_betting.json' if sport == 'nfl' else 'ncaa_lines.json')
+    previous = load_json(path)
     try:
-        return _fetch_parlay(sport)
+        return _fetch_parlay(sport, previous)
     except RuntimeError as exc:
-        from build_pipeline import atomic_json, load_json
-        path = ROOT / 'data' / ('nfl_betting.json' if sport == 'nfl' else 'ncaa_lines.json')
-        previous = load_json(path)
         previous.update(feed_status='STALE' if previous.get('generated_at') else 'FAILED',
                         refresh_status='FAILED', last_attempt_at=datetime.now(timezone.utc).isoformat(),
                         refresh_error=str(exc))
@@ -152,7 +165,7 @@ def fetch_parlay(sport):
         raise
 
 
-def _fetch_parlay(sport):
+def _fetch_parlay(sport, previous=None):
     key = os.getenv('PARLAY_API_KEY', '').strip()
     if not key:
         raise RuntimeError('PARLAY_API_KEY is not configured')
@@ -160,37 +173,64 @@ def _fetch_parlay(sport):
     def get(endpoint, params):
         return request_rows(sport, endpoint, params, key)
 
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        future = executor.submit(get, 'odds', {'markets': 'h2h,spreads,totals', 'regions': 'us', 'oddsFormat': 'american'})
+    previous = previous or {}
+    derivative_markets = {market for market in GROUPS if market == 'first_td' or market.endswith(('_1h', '_1q'))}
+    core_keys = [aliases[0] for market, aliases in GROUPS.items() if market not in derivative_markets]
+    derivative_keys = [aliases[0] for market, aliases in GROUPS.items() if market in derivative_markets]
+    previous_core = [row for row in previous.get('props', []) if row.get('market') not in derivative_markets]
+    previous_derivatives = [row for row in previous.get('props', []) if row.get('market') in derivative_markets]
+    errors = {}
+
+    def resolve(name, future, fallback):
+        try:
+            return future.result(), 'FRESH'
+        except RuntimeError as exc:
+            errors[name] = str(exc)
+            print(f'[parlay] stage={name}; unavailable; {exc}', flush=True)
+            return fallback, 'STALE' if fallback else 'FAILED'
+
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        odds_future = executor.submit(get, 'odds', {'markets': 'h2h,spreads,totals', 'regions': 'us', 'oddsFormat': 'american'})
         period_future = executor.submit(get, 'live/period_markets', {'period': 'all'})
-        derivative_keys = [alias for market, aliases in GROUPS.items() if market == 'first_td' or market.endswith(('_1h','_1q')) for alias in aliases]
-        rows = get('props', {'markets': ','.join(MARKET_MAP), 'limit': 10000}) if sport == 'nfl' else []
-        # The primary request already contains derivatives. Avoid rebuilding the same
-        # overloaded props board twice unless its row cap requires a narrower read.
-        derivative_future = executor.submit(get, 'props', {'markets': ','.join(derivative_keys), 'limit': 10000}) if sport == 'nfl' and len(rows) >= 10000 else None
-        games = future.result()
-        try:
-            derivative_rows = derivative_future.result() if derivative_future else []
-            derivative_status = 'loaded' if sport == 'nfl' else 'not_applicable'
-        except RuntimeError as exc:
-            print(f'[parlay] derivatives unavailable: {exc}')
-            derivative_rows = []
-            derivative_status = 'fallback' if any(r.get('market_key') in derivative_keys for r in rows) else 'unavailable'
-        try:
-            period_rows, period_status = normalize_periods(period_future.result()), 'loaded'
-        except RuntimeError as exc:
-            print(f'[parlay] periods unavailable: {exc}')
-            period_rows, period_status = [], 'unavailable'
-    return {'provider': 'parlay', 'sport': sport, 'generated_at': datetime.now(timezone.utc).isoformat(),
-            'feed_status': 'FRESH', 'refresh_status': 'FRESH', 'refresh_error': None,
-            'last_attempt_at': datetime.now(timezone.utc).isoformat(),
-            'source_states': {'odds': 'FRESH', 'props': 'FRESH' if sport == 'nfl' else 'NOT_APPLICABLE',
-                              'derivatives': {'loaded': 'FRESH', 'fallback': 'FALLBACK', 'unavailable': 'FAILED',
-                                              'not_applicable': 'NOT_APPLICABLE'}[derivative_status],
-                              'periods': 'FRESH' if period_status == 'loaded' else 'FAILED'},
-            'props': normalize_props(rows + derivative_rows), 'derivative_status': derivative_status, 'games_raw': games, 'odds_status': 'loaded',
-            'period_quotes': period_rows, 'period_status': period_status,
-            'coverage': {'raw_props': len(rows), 'possibly_truncated': len(rows) >= 10000}}
+        core_future = executor.submit(get, 'props', {'markets': ','.join(core_keys), 'limit': 10000}) if sport == 'nfl' else None
+        derivative_future = executor.submit(get, 'props', {'markets': ','.join(derivative_keys), 'limit': 10000}) if sport == 'nfl' else None
+        games, odds_state = resolve('odds', odds_future, previous.get('games_raw', []))
+        periods, period_state = resolve('periods', period_future, previous.get('period_quotes', []))
+        if sport == 'nfl':
+            core_raw, props_state = resolve('props', core_future, previous_core)
+            derivative_raw, derivative_state = resolve('derivatives', derivative_future, previous_derivatives)
+            if derivative_state == 'FAILED':
+                recovered = [row for row in core_raw if MARKET_MAP.get(row.get('market_key')) in derivative_markets]
+                if recovered:
+                    derivative_raw, derivative_state = recovered, 'FALLBACK'
+        else:
+            core_raw, derivative_raw = [], []
+            props_state = derivative_state = 'NOT_APPLICABLE'
+
+    # Retained rows are already normalized; provider rows are normalized once here.
+    rows = []
+    for source in (core_raw, derivative_raw):
+        rows.extend(source if source and 'quoteKey' in source[0] else normalize_props(source))
+    period_rows = periods if periods and 'quoteKey' in periods[0] else normalize_periods(periods)
+    required = [odds_state] + ([props_state, derivative_state] if sport == 'nfl' else [])
+    fresh = all(state == 'FRESH' for state in required)
+    operational = any(state == 'FRESH' for state in (odds_state, props_state, derivative_state, period_state))
+    if not operational:
+        raise RuntimeError('; '.join(errors.values()) or 'Parlay returned no usable sources')
+    now = datetime.now(timezone.utc).isoformat()
+    state = 'FRESH' if fresh else 'FALLBACK'
+    return {'provider': 'parlay', 'sport': sport, 'generated_at': now,
+            'feed_status': state, 'refresh_status': state,
+            'refresh_error': '; '.join(f'{name}: {error}' for name, error in errors.items()) or None,
+            'source_errors': errors, 'last_attempt_at': now,
+            'last_fresh_at': now if fresh else previous.get('last_fresh_at') or (previous.get('generated_at') if previous.get('feed_status') == 'FRESH' else None),
+            'source_states': {'odds': odds_state, 'props': props_state,
+                              'derivatives': derivative_state, 'periods': period_state},
+            'props': rows, 'derivative_status': derivative_state.lower(),
+            'games_raw': games, 'odds_status': odds_state.lower(),
+            'period_quotes': period_rows, 'period_status': period_state.lower(),
+            'coverage': {'raw_props': len(core_raw), 'derivative_props': len(derivative_raw),
+                         'possibly_truncated': len(core_raw) >= 10000 or len(derivative_raw) >= 10000}}
 
 
 def refresh():

@@ -325,8 +325,8 @@ test('Background loader parses real snapshots and connects shared history',async
     postMessage(data){
       const worker=this;
       const workerContext=vm.createContext({AbortSignal,fetch:async url=>{
-        assert.ok(new URL(url).pathname.startsWith('/data/'),'Startup reads the static CDN snapshot before the server proxy');
-        const filename=path.basename(new URL(url).pathname);
+        assert.ok(new URL(url).pathname.startsWith('/api/snapshot'),'Startup reads the live nightly snapshot before the packaged fallback');
+        const filename=new URL(url).searchParams.get('file');
         return {ok:true,json:async()=>JSON.parse(fs.readFileSync(path.join(__dirname,'../data',filename),'utf8'))};
       },postMessage:result=>worker.onmessage({data:result})});
       vm.runInContext(this.code,workerContext);

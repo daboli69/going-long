@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
+  "ignoreCommand": "node scripts/vercel_ignore_build.mjs",
   "buildCommand": "node scripts/build_vercel.mjs",
   "outputDirectory": "dist/vercel",
   "functions": {

@@ -21,7 +21,32 @@ class ParlayTests(unittest.TestCase):
         with patch('parlay_feed.requests.get', side_effect=[busy,self.response(200,rows)]) as get, patch('parlay_feed.time.sleep') as sleep:
             self.assertEqual(request_rows('nfl','props',{'limit':10000},'secret'),rows)
             self.assertEqual(get.call_count,2)
-            sleep.assert_called_once_with(3)
+            sleep.assert_called_once_with(5)
+
+    def test_503_retry_policy_uses_provider_code(self):
+        cases = [
+            ('DB_NOT_READY', 30, True),
+            ('PRIMARY_TIER_UNAVAILABLE', 60, True),
+            ('props_board_degraded', 5, True),
+            ('ENDPOINT_DISABLED', None, False),
+            ('ASYNCAPI_NOT_LOADED', None, False),
+            ('OPENAPI_UNAVAILABLE', None, False),
+            ('INCIDENTS_PARSE_FAILED', None, False),
+        ]
+        for code, delay, retries in cases:
+            with self.subTest(code=code):
+                response = self.response(503, {'error': code, 'message': 'provider diagnostic'}, {'x-request-id':'fixture'})
+                sequence = [response, self.response(200, [])] if retries else [response]
+                with patch('parlay_feed.requests.get', side_effect=sequence) as get, patch('parlay_feed.time.sleep') as sleep:
+                    if retries:
+                        self.assertEqual(request_rows('nfl','props',{},'secret'), [])
+                        sleep.assert_called_once_with(delay)
+                        self.assertEqual(get.call_count, 2)
+                    else:
+                        with self.assertRaisesRegex(RuntimeError, code):
+                            request_rows('nfl','props',{},'secret')
+                        sleep.assert_not_called()
+                        self.assertEqual(get.call_count, 1)
 
     def test_auth_and_schema_errors_do_not_retry(self):
         for response in [self.response(401,{'error':'INVALID_KEY'}),self.response(200,{'unexpected':[]})]:
@@ -33,7 +58,7 @@ class ParlayTests(unittest.TestCase):
     def test_transport_retries_are_bounded_and_redacted(self):
         with patch('parlay_feed.requests.get',side_effect=requests.ReadTimeout('secret')) as get, patch('parlay_feed.time.sleep'):
             with self.assertRaises(RuntimeError) as error: request_rows('nfl','props',{},'secret')
-            self.assertEqual(get.call_count,3)
+            self.assertEqual(get.call_count,2)
             self.assertIn('ReadTimeout',str(error.exception))
             self.assertNotIn('secret',str(error.exception))
 

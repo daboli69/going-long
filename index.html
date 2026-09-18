@@ -2192,8 +2192,8 @@ const tierHue=t=>["#2DD4BF","#D7DCE5","#FBBF24","#7FB2E5","#F0655A","#B48CE0","#
 async function loadBase(){
   try{
     const [pl,fx]=await Promise.all([
-      fetch("data/players.json",{cache:"no-cache"}).then(r=>r.json()),
-      fetch("data/formats/index.json",{cache:"no-cache"}).then(r=>r.json()),
+      fetch("/api/snapshot?file=players.json",{cache:"no-cache"}).then(r=>r.ok?r:fetch("data/players.json",{cache:"no-cache"})).then(r=>r.json()),
+      fetch("/api/snapshot?file=formats/index.json",{cache:"no-cache"}).then(r=>r.ok?r:fetch("data/formats/index.json",{cache:"no-cache"})).then(r=>r.json()),
     ]);
     S.base=pl.players; S.formats=fx.formats;
     $("dataMeta").textContent=`${S.base.length}p · ${S.formats.length} fmt · ${(pl.generated_at||"").slice(0,10)}`;
@@ -2214,7 +2214,7 @@ async function loadFormat(id){
      the corruption happens here, not in the caller, so it has to be
      fixed here to protect every caller at once. */
   const myReq = ++S.fmtReqSeq;
-  const data = await fetch(`data/formats/${id}.json`,{cache:"no-cache"}).then(r=>r.json());
+  const data = await fetch(`/api/snapshot?file=formats/${encodeURIComponent(id)}.json`,{cache:"no-cache"}).then(r=>r.ok?r:fetch(`data/formats/${id}.json`,{cache:"no-cache"})).then(r=>r.json());
   if(myReq !== S.fmtReqSeq) return;
   S.fmtData = data;
 }
@@ -3119,7 +3119,7 @@ async function loadBettingData(){
   try{
     // Fetch and JSON.parse live on a worker, including the large raw API
     // payload. Only structured data crosses back to the main thread.
-    const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url,fallback])=>{try{const r=await fetch(fallback,{signal:AbortSignal.timeout(key==='context'?3000:8000)});if(r.ok)return[key,await r.json()];}catch{}try{const r=await fetch(url,{signal:AbortSignal.timeout(key==='context'?3000:8000)});return[key,r.ok?await r.json():null]}catch{return[key,null]}}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
+      const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url,fallback])=>{try{const r=await fetch(url,{signal:AbortSignal.timeout(key==='context'?3000:8000)});if(r.ok)return[key,await r.json()];}catch{}try{const r=await fetch(fallback,{signal:AbortSignal.timeout(key==='context'?3000:8000)});return[key,r.ok?await r.json():null]}catch{return[key,null]}}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
     const blob=URL.createObjectURL(new Blob([workerSource],{type:"text/javascript"}));
     let worker;
     const files=await new Promise((resolve,reject)=>{

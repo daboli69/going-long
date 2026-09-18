@@ -4,6 +4,26 @@ export const SPORT_KEYS={nfl:'americanfootball_nfl',ncaa:'americanfootball_ncaaf
 export const MARKET_MAP=Object.fromEntries(Object.entries(markets).flatMap(([market,keys])=>keys.map(key=>[key,market])));
 const validNumber=v=>typeof v==='number'&&Number.isFinite(v);
 const validOdds=v=>validNumber(v)&&Math.abs(v)>=100?v:null;
+const NON_RETRYABLE_503=new Set(['ENDPOINT_DISABLED','ASYNCAPI_NOT_LOADED','OPENAPI_UNAVAILABLE','INCIDENTS_PARSE_FAILED']);
+const RETRY_DELAYS={DB_NOT_READY:30,PRIMARY_TIER_UNAVAILABLE:60,PROPS_BOARD_DEGRADED:5,WARMING:5};
+export class ParlayRequestError extends Error{
+  constructor(stage,{status=null,code='UNKNOWN',providerMessage='',requestId='unknown',retryable=false,retryAfterSec=0}={}){
+    super(`Parlay ${stage}: ${status?`HTTP ${status}`:'request failed'}; code=${code}; message=${providerMessage||'unavailable'}; request_id=${requestId}`);
+    this.name='ParlayRequestError';Object.assign(this,{stage,status,code,providerMessage,requestId,retryable,retryAfterSec});
+  }
+}
+const clean=(value,key)=>String(value||'').replaceAll(key,'[REDACTED]').replace(/[\r\n]/g,' ').slice(0,160);
+async function responseFailure(response,stage,key){
+  let body={};try{body=await response.clone().json();}catch{}
+  const detail=body?.detail&&typeof body.detail==='object'?body.detail:{};
+  const code=clean(body?.code||body?.error||detail.code||detail.error||body?.status||'UNKNOWN',key).toUpperCase();
+  const providerMessage=clean(body?.message||detail.message||(typeof body?.detail==='string'?body.detail:''),key);
+  const requestId=clean(response.headers.get('x-request-id')||'unknown',key);
+  const headerDelay=Number(response.headers.get('retry-after'))||0;
+  let retryable=[429,500,502,504].includes(response.status),retryAfterSec=Math.max(2,headerDelay);
+  if(response.status===503){retryable=!NON_RETRYABLE_503.has(code);retryAfterSec=Math.max(RETRY_DELAYS[code]||5,headerDelay);}
+  return new ParlayRequestError(stage,{status:response.status,code,providerMessage,requestId,retryable,retryAfterSec});
+}
 export function normalizeProps(rows, now=Date.now()){
   if(!Array.isArray(rows))throw new Error('Unexpected Parlay props response');
   const out=new Map();
@@ -68,41 +88,59 @@ export function periodsFromGames(events){
   }
   return normalizePeriods(rows);
 }
-export async function fetchParlay(sport,key,fetcher=fetch,{budgetMs=40000,requestMs=18000}={}){
+export async function fetchParlay(sport,key,fetcher=fetch,{budgetMs=40000,requestMs=18000,sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))}={}){
   if(!SPORT_KEYS[sport])throw new Error('Unsupported sport');
   if(!key)throw new Error('Parlay API key is not configured');
-  const deadline=AbortSignal.timeout(budgetMs);
+  const deadline=AbortSignal.timeout(budgetMs),started=Date.now();
   const get=async(endpoint,params)=>{
-    deadline.throwIfAborted();
     const url=new URL(`https://parlay-api.com/v1/sports/${SPORT_KEYS[sport]}/${endpoint}`);
     for(const [k,v] of Object.entries(params))url.searchParams.set(k,v);
-    const signal=AbortSignal.any([deadline,AbortSignal.timeout(requestMs)]);
-    const r=await fetcher(url,{headers:{'X-API-Key':key,'Accept':'application/json'},signal});
-    if(!r.ok)throw new Error(`Parlay ${endpoint} returned HTTP ${r.status}`);
-    const body=await r.json();
-    if(endpoint==='live/period_markets'){
-      if(Array.isArray(body))return body;
-      if(!Array.isArray(body?.results))throw new Error('Unexpected Parlay period response');
-      return body.results;
+    for(let attempt=0;attempt<2;attempt++){
+      deadline.throwIfAborted();
+      const signal=AbortSignal.any([deadline,AbortSignal.timeout(requestMs)]);
+      let r;
+      try{r=await fetcher(url,{headers:{'X-API-Key':key,'Accept':'application/json'},signal});}
+      catch(error){
+        const failure=new ParlayRequestError(endpoint,{code:error?.name||'TRANSPORT_ERROR',providerMessage:'transport unavailable',retryable:true,retryAfterSec:2});
+        if(attempt||Date.now()-started+failure.retryAfterSec*1000>=budgetMs)throw failure;
+        await sleep(failure.retryAfterSec*1000);continue;
+      }
+      if(!r.ok){
+        const failure=await responseFailure(r,endpoint,key);
+        if(!failure.retryable||attempt||Date.now()-started+failure.retryAfterSec*1000>=budgetMs)throw failure;
+        await sleep(failure.retryAfterSec*1000);continue;
+      }
+      const body=await r.json();
+      if(endpoint==='live/period_markets'){
+        if(Array.isArray(body))return body;
+        if(!Array.isArray(body?.results))throw new Error('Unexpected Parlay period response');
+        return body.results;
+      }
+      if(!Array.isArray(body))throw new Error(`Unexpected Parlay ${endpoint} response`);
+      return body;
     }
-    if(!Array.isArray(body))throw new Error(`Unexpected Parlay ${endpoint} response`);
-    return body;
   };
   if(sport==='mlb'){
     const keys=['player_home_runs','player_hits','player_hits_runs_rbis','player_strikeouts','player_total_bases'];
     const [batches,games]=await Promise.all([Promise.all(keys.map(markets=>get('props',{markets,limit:'10000'}).then(rows=>({market:markets,rows,status:'loaded'})).catch(()=>({market:markets,rows:[],status:'unavailable'})))),get('odds',{markets:'h2h,spreads,totals',regions:'us',oddsFormat:'american'})]);
     return {provider:'parlay',sport,generated_at:new Date().toISOString(),props:batches.flatMap(b=>b.rows),games_raw:games,coverage:{possibly_truncated:batches.some(b=>b.rows.length>=10000),markets:Object.fromEntries(batches.map(b=>[b.market,{status:b.status,rows:b.rows.length}]))}};
   }
-  const derivativeKeys=Object.entries(markets).filter(([k])=>k==='first_td'||/_1[hq]$/.test(k)).flatMap(([,v])=>v);
+  const derivativeGroups=new Set(Object.keys(markets).filter(k=>k==='first_td'||/_1[hq]$/.test(k)));
+  const derivativeKeys=Object.entries(markets).filter(([k])=>derivativeGroups.has(k)).map(([,v])=>v[0]);
+  const coreKeys=Object.entries(markets).filter(([k])=>!derivativeGroups.has(k)).map(([,v])=>v[0]);
+  const result=(promise)=>promise.then(rows=>({rows,status:'loaded',error:null})).catch(error=>({rows:[],status:'unavailable',error}));
   const [raw, games, periods]=await Promise.all([
-    sport==='nfl'?get('props',{markets:Object.keys(MARKET_MAP).join(','),limit:'10000'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'})):Promise.resolve({rows:[],status:'not_applicable'}),
-    get('odds',{markets:'h2h,spreads,totals',regions:'us',oddsFormat:'american'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'})),
-    get('live/period_markets',{period:'all'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'}))
+    sport==='nfl'?result(get('props',{markets:coreKeys.join(','),limit:'10000'})):Promise.resolve({rows:[],status:'not_applicable',error:null}),
+    result(get('odds',{markets:'h2h,spreads,totals',regions:'us',oddsFormat:'american'})),
+    result(get('live/period_markets',{period:'all'}))
   ]);
-  // The primary props request already includes derivatives. Split only if the row cap was reached.
-  const derivatives=sport==='nfl'&&raw.rows.length>=10000?await get('props',{markets:derivativeKeys.join(','),limit:'10000'}).then(rows=>({rows,status:'loaded'})).catch(()=>({rows:[],status:'unavailable'})):{rows:[],status:raw.status};
-  if(games.status==='unavailable'&&periods.status==='unavailable'&&(raw.status==='unavailable'||sport==='ncaa')&&derivatives.status!=='loaded')throw new Error('Unexpected or unavailable Parlay responses');
-  return {provider:'parlay',sport,generated_at:new Date().toISOString(),props:normalizeProps([...raw.rows,...derivatives.rows]),games_raw:games.rows,props_status:raw.status,derivative_status:derivatives.status,
+  // Smaller independent boards avoid the provider's slow broad-query path while
+  // retaining every sportsbook row required for research and line shopping.
+  const derivatives=sport==='nfl'?await result(get('props',{markets:derivativeKeys.join(','),limit:'10000'})):{rows:[],status:'not_applicable',error:null};
+  const failures={props:raw.error,odds:games.error,periods:periods.error,derivatives:derivatives.error};
+  if(games.status==='unavailable'&&periods.status==='unavailable'&&(raw.status==='unavailable'||sport==='ncaa')&&derivatives.status!=='loaded')throw Object.values(failures).find(Boolean)||new Error('Unexpected or unavailable Parlay responses');
+  const degraded=Object.values(failures).some(Boolean),sourceErrors=Object.fromEntries(Object.entries(failures).filter(([,e])=>e).map(([name,e])=>[name,{code:e.code||e.name||'ERROR',status:e.status||null,message:e.providerMessage||'unavailable',stage:e.stage||name,retry_after_seconds:e.retryAfterSec||0}]));
+  return {provider:'parlay',sport,generated_at:new Date().toISOString(),feed_status:degraded?'FALLBACK':'FRESH',refresh_status:degraded?'FALLBACK':'FRESH',source_errors:sourceErrors,source_states:{props:raw.status==='loaded'?'FRESH':sport==='nfl'?'FAILED':'NOT_APPLICABLE',odds:games.status==='loaded'?'FRESH':'FAILED',periods:periods.status==='loaded'?'FRESH':'FAILED',derivatives:derivatives.status==='loaded'?'FRESH':'FAILED'},props:normalizeProps([...raw.rows,...derivatives.rows]),games_raw:games.rows,props_status:raw.status,derivative_status:derivatives.status,
     period_quotes:[...periodsFromGames(games.rows),...normalizePeriods(periods.rows)],period_status:periods.status,
     coverage:{raw_props:raw.rows.length,derivative_props:derivatives.rows.length,possibly_truncated:raw.rows.length>=10000||derivatives.rows.length>=10000},odds_status:games.status};
 }

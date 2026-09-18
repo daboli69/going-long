@@ -21,7 +21,7 @@ function markup(data){
 async function render(){
  const target=document.getElementById('slateBreaker');if(!target)return;
  try{
-  if(!cached){target.innerHTML='<p>Loading Slate Breaker…</p>';if(!pending)pending=fetch('/data/slate-breaker.json',{signal:AbortSignal.timeout(12000)}).then(r=>{if(!r.ok)throw Error('unavailable');return r.json();}).then(x=>cached=x).finally(()=>pending=null);await pending;}
+  if(!cached){target.innerHTML='<p>Loading Slate Breaker…</p>';if(!pending)pending=fetch('/api/snapshot?file=slate-breaker.json',{signal:AbortSignal.timeout(12000)}).then(r=>r.ok?r:fetch(new URL('data/slate-breaker.json',document.baseURI),{signal:AbortSignal.timeout(12000)})).then(r=>{if(!r.ok)throw Error('unavailable');return r.json();}).then(x=>cached=x).finally(()=>pending=null);await pending;}
   target.innerHTML=markup(cached);
  }catch{target.innerHTML='<p>Slate Breaker is temporarily unavailable. Reopen Jackpot to retry.</p>';}
 }
