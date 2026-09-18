@@ -2,6 +2,7 @@
 import json
 import math
 import os
+import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
@@ -88,43 +89,97 @@ def normalize_periods(rows):
     return result
 
 
+def request_rows(sport, endpoint, params, key):
+    """Retry transient provider overload; never log credentials or request URLs."""
+    for attempt in range(3):
+        delay = 2 ** (attempt + 1)
+        retryable = False
+        try:
+            response = requests.get(f'https://parlay-api.com/v1/sports/{SPORT_KEYS[sport]}/{endpoint}',
+                                    headers={'X-API-Key': key, 'Accept': 'application/json'},
+                                    params=params, timeout=(10, 60))
+            if response.ok:
+                try:
+                    rows = response.json()
+                except ValueError:
+                    raise RuntimeError(f'Parlay {endpoint}: invalid JSON response') from None
+                if endpoint == 'live/period_markets' and isinstance(rows, dict):
+                    rows = rows.get('results')
+                if not isinstance(rows, list):
+                    raise RuntimeError(f'Parlay {endpoint}: unexpected response schema')
+                return rows
+            retryable = response.status_code in (429, 500, 502, 503, 504)
+            # Only expose short, redacted diagnostic fields, never an arbitrary body.
+            request_id = response.headers.get('x-request-id', 'unknown').replace(key, '[REDACTED]')[:100]
+            error = ''
+            try:
+                body = response.json()
+                if isinstance(body, dict):
+                    detail = body.get('detail')
+                    error = body.get('error') or (detail.get('error') if isinstance(detail, dict) else '')
+            except ValueError:
+                pass
+            error = str(error).replace(key, '[REDACTED]')[:100]
+            reason = f'HTTP {response.status_code}; code={error or "unknown"}; request_id={request_id}'
+            try:
+                delay = max(delay, min(30, float(response.headers.get('Retry-After', 0))))
+            except ValueError:
+                pass
+        except requests.RequestException as exc:
+            retryable = isinstance(exc, (requests.Timeout, requests.ConnectionError))
+            reason = type(exc).__name__
+        if not retryable or attempt == 2:
+            raise RuntimeError(f'Parlay {endpoint}: {reason}; attempts={attempt + 1}; previous snapshot retained') from None
+        print(f'[parlay] {endpoint}: {reason}; retry {attempt + 2}/3 in {delay:g}s', flush=True)
+        time.sleep(delay)
+
+
 def fetch_parlay(sport):
+    """Keep quote timestamps and the last successful generation time on failure."""
+    try:
+        return _fetch_parlay(sport)
+    except RuntimeError as exc:
+        from build_pipeline import atomic_json, load_json
+        path = ROOT / 'data' / ('nfl_betting.json' if sport == 'nfl' else 'ncaa_lines.json')
+        previous = load_json(path)
+        previous.update(feed_status='STALE' if previous.get('generated_at') else 'FAILED',
+                        refresh_status='FAILED', last_attempt_at=datetime.now(timezone.utc).isoformat(),
+                        refresh_error=str(exc))
+        atomic_json(path, previous)
+        raise
+
+
+def _fetch_parlay(sport):
     key = os.getenv('PARLAY_API_KEY', '').strip()
     if not key:
         raise RuntimeError('PARLAY_API_KEY is not configured')
 
     def get(endpoint, params):
-        try:
-            response = requests.get(f'https://parlay-api.com/v1/sports/{SPORT_KEYS[sport]}/{endpoint}',
-                                    headers={'X-API-Key': key}, params=params, timeout=60)
-            if not response.ok:
-                raise RuntimeError(f'Parlay {endpoint} HTTP {response.status_code}')
-            rows = response.json()
-            if endpoint == 'live/period_markets' and isinstance(rows, dict):
-                rows = rows.get('results')
-            if not isinstance(rows, list):
-                raise RuntimeError('Unexpected Parlay response')
-            return rows
-        except requests.RequestException:
-            raise RuntimeError('Parlay request failed; previous snapshot retained') from None
+        return request_rows(sport, endpoint, params, key)
 
     with ThreadPoolExecutor(max_workers=3) as executor:
         future = executor.submit(get, 'odds', {'markets': 'h2h,spreads,totals', 'regions': 'us', 'oddsFormat': 'american'})
         period_future = executor.submit(get, 'live/period_markets', {'period': 'all'})
         derivative_keys = [alias for market, aliases in GROUPS.items() if market == 'first_td' or market.endswith(('_1h','_1q')) for alias in aliases]
-        derivative_future = executor.submit(get, 'props', {'markets': ','.join(derivative_keys), 'limit': 10000}) if sport == 'nfl' else None
         rows = get('props', {'markets': ','.join(MARKET_MAP), 'limit': 10000}) if sport == 'nfl' else []
+        # The primary request already contains derivatives. Avoid rebuilding the same
+        # overloaded props board twice unless its row cap requires a narrower read.
+        derivative_future = executor.submit(get, 'props', {'markets': ','.join(derivative_keys), 'limit': 10000}) if sport == 'nfl' and len(rows) >= 10000 else None
         games = future.result()
         try:
             derivative_rows = derivative_future.result() if derivative_future else []
-            derivative_status = 'loaded' if derivative_future else 'not_applicable'
-        except RuntimeError:
+            derivative_status = 'loaded' if sport == 'nfl' else 'not_applicable'
+        except RuntimeError as exc:
+            print(f'[parlay] derivatives unavailable: {exc}')
             derivative_rows, derivative_status = [], 'unavailable'
         try:
             period_rows, period_status = normalize_periods(period_future.result()), 'loaded'
-        except RuntimeError:
+        except RuntimeError as exc:
+            print(f'[parlay] periods unavailable: {exc}')
             period_rows, period_status = [], 'unavailable'
     return {'provider': 'parlay', 'sport': sport, 'generated_at': datetime.now(timezone.utc).isoformat(),
+            'feed_status': 'FRESH', 'refresh_status': 'FRESH', 'refresh_error': None,
+            'last_attempt_at': datetime.now(timezone.utc).isoformat(),
             'props': normalize_props(rows + derivative_rows), 'derivative_status': derivative_status, 'games_raw': games, 'odds_status': 'loaded',
             'period_quotes': period_rows, 'period_status': period_status,
             'coverage': {'raw_props': len(rows), 'possibly_truncated': len(rows) >= 10000}}
