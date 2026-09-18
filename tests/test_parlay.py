@@ -57,7 +57,7 @@ class ParlayTests(unittest.TestCase):
         def get(sport,endpoint,params,key):
             if endpoint=='odds': return [{'id':'event','bookmakers':[]}]
             if endpoint=='live/period_markets': return []
-            if 'player_pass_yds' in params['markets']: return [row]*10000
+            if 'player_pass_yds' in params['markets'].split(','): return [row]*10000
             raise RuntimeError('Parlay props: HTTP 503')
         with patch.dict('os.environ',{'PARLAY_API_KEY':'fixture'}), patch('parlay_feed.request_rows',side_effect=get):
             result=_fetch_parlay('nfl')
