@@ -25,6 +25,17 @@ test('GOING SCORE renormalizes missing components instead of treating missing da
 
 test('percentiles and tiers are deterministic and score is not a probability field',()=>{
  assert.equal(percentile([1,2,3],2),50);assert.equal(tier(85).label,'Elite');assert.equal(tier(69.9).label,'Watch');
- const [row]=scoreRows([{player:'Only',sampleGames:12,currentGames:0,components:{projection:{value:1}}}],'atd');
- assert.equal(row.score,50);assert.equal(Object.hasOwn(row,'probability'),false);
+ const [row]=scoreRows([{player:'Only',sampleGames:12,currentGames:0,scoreProbability:.47,components:{projection:{value:.47}}}],'atd');
+ assert.ok(row.score>55&&row.score<75);assert.equal(Object.hasOwn(row,'probability'),false);
+});
+
+test('Any TD is probability-led and does not force the slate leader toward 100',()=>{
+ const rows=scoreRows([
+  {player:'Henry-shaped',sampleGames:12,currentGames:1,probability:.713,scoreProbability:.48,components:{projection:{value:.48},role:{value:10},environment:{value:49}}},
+  {player:'Lower',sampleGames:12,currentGames:1,probability:.35,scoreProbability:.34,components:{projection:{value:.34},role:{value:4},environment:{value:42}}},
+ ],'atd');
+ assert.equal(rows[0].player,'Henry-shaped');
+ assert.ok(rows[0].score>=60&&rows[0].score<=75,`unexpected inflated score ${rows[0].score}`);
+ assert.ok(rows[0].score<90);
+ assert.ok(rows[0].score>rows[1].score);
 });

@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 const MARKET_SPECS={
- atd:{label:'Any TD',weights:{projection:.45,role:.30,matchup:.15,environment:.10}},
+ atd:{label:'Any TD',mode:'probability',weights:{projection:.75,role:.15,matchup:.06,environment:.04}},
  pass_yds:{label:'Pass Yards',weights:{projection:.45,role:.25,matchup:.20,environment:.10}},
  pass_tds:{label:'Pass TDs',weights:{projection:.50,role:.20,matchup:.15,environment:.15}},
  rush_yds:{label:'Rush Yards',weights:{projection:.45,role:.30,matchup:.15,environment:.10}},
@@ -29,6 +29,19 @@ function confidence(row,coverage){
  const value=Math.min(uncapped,currentGames===0?59:currentGames<3?79:100);
  return {value,label:value>=80?'High':value>=60?'Moderate':'Limited'};
 }
+function probabilityScore(row,components,certainty){
+ const probability=finite(row.scoreProbability)?clamp(row.scoreProbability,0,1):finite(row.probability)?clamp(row.probability,0,1):null;
+ if(probability==null)return null;
+ // An absolute TD evidence score: probability is the anchor and the other
+ // components can move it only modestly. No player is promoted merely because
+ // somebody must rank first on a small slate.
+ let raw=12+106*probability;
+ for(const [key,effect] of [['role',.08],['matchup',.04],['environment',.03]]){
+  const pct=components[key]?.percentile;if(pct!=null)raw+=(pct-50)*effect;
+ }
+ const reliability=.85+.15*(certainty.value/100);
+ return Math.round(10*clamp(50+(raw-50)*reliability,10,90))/10;
+}
 function scoreRows(rows,market){
  const spec=MARKET_SPECS[market];if(!spec)return [];
  const pools={};for(const key of Object.keys(spec.weights))pools[key]=rows.map(row=>row.components?.[key]?.value).filter(finite);
@@ -39,7 +52,8 @@ function scoreRows(rows,market){
    components[key]={...component,percentile:pct,weight};
    if(pct!=null){weighted+=pct*weight;used+=weight;}
   }
-  const coverage=total?used/total:0,score=used?Math.round(10*weighted/used)/10:null,certainty=confidence(row,coverage);
+  const coverage=total?used/total:0,certainty=confidence(row,coverage);
+  const score=spec.mode==='probability'?probabilityScore(row,components,certainty):used?Math.round(10*weighted/used)/10:null;
   const ranked=Object.entries(components).filter(([,c])=>c.percentile!=null).sort((a,b)=>b[1].percentile-a[1].percentile);
   return {...row,market,score,tier:score==null?{id:'unrated',label:'Unrated'}:tier(score),confidence:certainty,componentCoverage:coverage,components,highlights:ranked.slice(0,2).map(([key,c])=>({key,label:c.label,percentile:c.percentile}))};
  }).filter(row=>row.score!=null).sort((a,b)=>b.score-a.score||String(a.player).localeCompare(String(b.player))).map((row,index)=>({...row,rank:index+1}));
