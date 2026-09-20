@@ -111,7 +111,16 @@ def fetch_players():
             "team": fix_team(p.get("team")),
             "age": p.get("age"),
             "years_exp": p.get("years_exp"),   # 0 = rookie season, straight from Sleeper
+            "status": p.get("status"),
+            "active": p.get("active"),
             "injury_status": p.get("injury_status"),
+            "injury_body_part": p.get("injury_body_part"),
+            "injury_notes": p.get("injury_notes"),
+            "injury_start_date": p.get("injury_start_date"),
+            "practice_participation": p.get("practice_participation"),
+            "practice_description": p.get("practice_description"),
+            "depth_chart_position": p.get("depth_chart_position"),
+            "depth_chart_order": p.get("depth_chart_order"),
             "key": normalize(name),
         }
     print(f"sleeper: {len(players)} fantasy-relevant players")

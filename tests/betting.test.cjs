@@ -16,6 +16,7 @@ function setup(t){
   dom.window.HTMLElement.prototype.scrollIntoView=function(){};
   const context=dom.getInternalVMContext();
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-score.js'),'utf8'),context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-injuries.js'),'utf8'),context);
   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
   }
@@ -193,6 +194,14 @@ test('Pressure proxy scales QB distributions without mutating history or pricing
   const first=a.attachProjection({player:'Test QB',market:'first_td',eventTeams:['A','B']},index);
   assert.equal(a.propProbabilities(first),null);assert.match(first.matchStatus,/unavailable/);
 });
+test('Betting projections consume the roster injury context and retain auditable evidence',t=>{
+ const {api:a,w}=setup(t),model={family:'lognormal',status:'ready',mean:60,sd:20,mu_log:4,sigma_log:.3,n:12,nonpositive:[]};
+ a.BET.history={profiles:{p:{id:'p',name:'Injured Receiver',team:'A',position:'WR',last_game:'2026-09-01',stats:{rec_yds:model}}}};
+ a.BET.roster={generated_at:new Date().toISOString(),players:[{name:'Injured Receiver',team:'A',pos:'WR',injury_status:'Questionable',injury_body_part:'Chest',depth_chart_order:1}]};
+ a.BET.injuryContext=w.GoingFootballInjuries.createContext(a.BET.roster,a.BET.history.profiles);
+ const p=a.attachProjection({player:'Injured Receiver',market:'rec_yds',eventTeams:['A','B']},a.buildProfileIndex(a.BET.history));
+ close(p.projMean,52.8);assert.equal(p.injury.status,'Questionable');assert.match(p.adjustment,/availability adjustment/);assert.equal(model.mean,60);
+});
 test('American odds and push-aware EV/Kelly',t=>{
   const {api:a}=setup(t);
   close(a.americanToDecimal(-110),1+100/110); assert.equal(a.americanToDecimal(null),null);
@@ -366,6 +375,8 @@ test('Background loader parses real snapshots and connects shared history',async
   assert.ok(Object.keys(a.BET.history.profiles).length>0);
   assert.ok(a.BET.games.some(g=>g.sport==='nfl'));
   assert.ok(a.BET.games.some(g=>g.sport==='ncaa'));
+  assert.ok(a.BET.roster.players.length>0);
+  assert.ok(a.BET.injuryContext);
   assert.equal(blobs.size,0);
   assert.doesNotMatch(w.document.getElementById('btDataNote').textContent,/unavailable/i);
 });
