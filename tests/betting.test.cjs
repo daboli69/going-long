@@ -300,7 +300,7 @@ test('GOING SCORE renders an auditable slate-relative score apart from probabili
  a.BET.history={generated_at:'2026-09-09T10:00:00Z',profiles:{p:{id:'p',name:'Runner One',team:'A',position:'RB',last_game:'2026-09-01',stats:{atd:{family:'poisson',status:'ready',mean:.7,lambda:.7,n:12}}}},features:{nfl:{players:{'A|p':{goal_line_carries:8,inside_ten_carries:12,red_zone_carries:20,end_zone_targets:2,inside_ten_targets:3,red_zone_targets:5}}}}};
  a.BET.context={season:2026,scopes:{'2026':{players:{p:{player_id:'p',team:'A',games:1,rush_attempts:12,targets:3}},teams:{A:{games:1,dropbacks:30}}}}};
  a.renderBetting();const text=w.document.querySelector('#btScorePanel').textContent;
- assert.match(text,/Runner One/);assert.match(text,/GOING SCORE/);assert.match(text,/Model probability/);assert.match(text,/50\.3%/);assert.match(text,/score is not a probability/i);assert.match(text,/No live quote/);
+ assert.match(text,/Runner One/);assert.match(text,/GOING SCORE/);assert.match(text,/Model probability/);assert.match(text,/50\.3%/);assert.match(text,/score is not a probability/i);assert.match(text,/No priced line/);
  assert.equal(w.document.querySelectorAll('#scoreMarket button').length,5);
 });
 test('Betting view preferences preserve the research context',t=>{
