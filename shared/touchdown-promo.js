@@ -22,7 +22,7 @@ function optimize(input,settings={}){
   const key=leg.event+'|'+leg.playerId,old=seen.get(key);
   if(!old||at>Date.parse(old.updatedAt))seen.set(key,{...leg,decimal:dec});
  }
- const legs=[...seen.values()],top=[],sameGame=[];
+ const legs=[...seen.values()],candidates=[],sameGame=[];
  for(let i=0;i<legs.length;i++)for(let j=i+1;j<legs.length;j++)for(let k=j+1;k<legs.length;k++){
   const group=[legs[i],legs[j],legs[k]];
   if(new Set(group.map(l=>l.playerId)).size!==3)continue;
@@ -37,11 +37,18 @@ function optimize(input,settings={}){
    continue;
   }
   if(price+1e-12<floor)continue;
-  top.push({key,legs:group,decimal:price,american:(price-1)*100,probability,priceSource:'Product of Fanatics single prices',qualification:'Rules and final ticket require confirmation'});
-  top.sort((a,b)=>b.probability-a.probability||a.decimal-b.decimal||a.key.localeCompare(b.key));
-  if(top.length>5)top.pop();
+  candidates.push({key,legs:group,decimal:price,american:(price-1)*100,probability,priceSource:'Product of Fanatics single prices',qualification:'Rules and final ticket require confirmation'});
  }
- return {options:top,sameGame: sameGame.sort((a,b)=>b.independenceIllustration-a.independenceIllustration).slice(0,5),eligiblePlayers:legs.length,excluded,entryMode:'Five alternatives to choose from; entry allowance not verified'};
+ candidates.sort((a,b)=>b.probability-a.probability||a.decimal-b.decimal||a.key.localeCompare(b.key));
+ const optionCount=Math.max(1,Math.min(20,Math.trunc(settings.optionCount??5))),target=Math.min(optionCount,candidates.length),baseCap=Math.max(1,Math.ceil(optionCount*.6)),maxCap=Math.max(1,optionCount-1);
+ let top=[],exposureCap=Math.min(baseCap,maxCap);
+ for(let cap=exposureCap;cap<=maxCap;cap++){
+  const exposure=new Map(),selected=[];
+  for(const option of candidates){if(option.legs.some(leg=>(exposure.get(leg.playerId)||0)>=cap))continue;selected.push(option);for(const leg of option.legs)exposure.set(leg.playerId,(exposure.get(leg.playerId)||0)+1);if(selected.length===target)break;}
+  top=selected;exposureCap=cap;if(top.length===target)break;
+ }
+ const playerExposure={};for(const option of top)for(const leg of option.legs)playerExposure[leg.playerId]=(playerExposure[leg.playerId]||0)+1;
+ return {options:top,sameGame: sameGame.sort((a,b)=>b.independenceIllustration-a.independenceIllustration).slice(0,5),eligiblePlayers:legs.length,excluded,playerExposure,maxPlayerAppearances:exposureCap,entryMode:'Diversified alternatives to choose from; entry allowance not verified'};
 }
 root.GoingTouchdown={decimal,optimize};
 if(typeof module!=='undefined')module.exports=root.GoingTouchdown;

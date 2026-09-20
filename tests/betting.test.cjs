@@ -19,7 +19,7 @@ function setup(t){
   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
   }
-  vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
+  vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,filterBestPlays,bestBookKey,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
     mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
@@ -493,6 +493,16 @@ test('Best plays retain the complete exact-line field and identify alternative l
  const rows=Array.from({length:12},(_,i)=>({...base,line:20.5+i,contract:`p|${20.5+i}`,canonicalContract:`g|prop|p|rec_yds|${20.5+i}|Over`}));
  const ranked=a.rankBestPlays(rows,[],'nfl','prop',now);
  assert.equal(ranked.chance.length,12);assert.ok(ranked.chance.every(c=>c.altLineSet));
+});
+
+test('Today filters support a sportsbook, hide only alternate lines, and enforce minimum odds',t=>{
+ const {api:a}=setup(t),now=Date.parse('2026-09-13T18:00:00Z'),base={sport:'nfl',kind:'prop',event:'g',profileId:'p',market:'rec_yds',side:'Over',prob:.6,ev:.1,n:12,kickoff:'2026-09-14T00:20:00Z',updatedAt:new Date(now).toISOString(),flags:[]};
+ const rows=[{...base,line:50.5,book:'fanatics',odds:-110,dec:1.91,canonicalContract:'main'},{...base,line:20.5,book:'fanatics',odds:-1000,dec:1.1,canonicalContract:'alt'},{...base,line:50.5,book:'fanduel',odds:-105,dec:1.95,canonicalContract:'main'}];
+ const fanatics=a.rankBestPlays(rows,[],'nfl','prop',now,'fanatics').chance;
+ assert.equal(fanatics.length,2);assert.equal(fanatics.filter(x=>x.isAltLine).length,1);
+ const visible=a.filterBestPlays(fanatics,{book:'fanatics',excludeAlt:true,minOdds:-500});
+ assert.equal(visible.length,1);assert.equal(visible[0].line,50.5);assert.equal(visible[0].book,'fanatics');
+ assert.equal(a.rankBestPlays(rows,[],'nfl','prop',now,'fanduel').chance.length,1);
 });
 
 test('Parlay game selector includes scheduled SNF even without eligible odds',async t=>{

@@ -14,6 +14,7 @@ test('No eligible bets: load bounded checks without scanning closing history',as
  const c=client(Array.from({length:300},(_,i)=>({table:'market_journal',owner_id:'owner',kind:'prediction',id:String(i),payload:{actionable:false}})));
  const result=await loadJournal(c,'owner','2026-01-01','2026-09-12');
  assert.equal(result.records.length,100);assert.ok(c.calls.every(q=>q.filters.some(([k,v])=>k==='owner_id'&&v==='owner')));
+ assert.ok(c.calls.every(q=>!q.filters.some(([k])=>k.startsWith('payload->>'))));
  assert.ok(!c.calls.some(q=>q.filters.some(([k,v])=>k==='kind'&&['closing','settlement'].includes(v))));
 });
 test('Only outcomes linked to eligible predictions enter performance loading',async()=>{

@@ -21,7 +21,7 @@ function App(){
  if(latest.error)throw latest.error;if(version!==refreshVersion.current)return;if(latest.data[0])setStatus(latest.data[0].payload);
  const result=await loadJournal(client,session.user.id,new Date(Date.now()-days*86400000).toISOString(),new Date().toISOString());
  if(version!==refreshVersion.current)return;setRecords(result.records);setActual(result.actual);
- }catch(e){if(version===refreshVersion.current){setError(e.message?.includes('statement timeout')?'The database took too long to respond. Scanner status is shown separately; try Refresh journal again.':e.message);setRecords([]);setActual([]);}}finally{refreshBusy.current=false;setBusy(false);}}
+ }catch(e){if(version===refreshVersion.current)setError(e.message?.includes('statement timeout')?'The journal refresh timed out. Any previously loaded results remain on screen; try a shorter review window or Refresh journal again.':e.message);}finally{refreshBusy.current=false;setBusy(false);}}
 
  useEffect(()=>{if(!session)return;setRecords([]);setActual([]);let retry;const start=()=>{if(refreshBusy.current){retry=setTimeout(start,100);return;}refresh();};start();const timer=setInterval(refresh,60000);return()=>{clearInterval(timer);clearTimeout(retry);refreshVersion.current++;};},[session,days]);
  const stats=useMemo(()=>summarize(records.filter(r=>sport==='all'||(r.payload.sport||'nfl')===sport),group),[records,sport,group]);const picks=stats.predictions.filter(p=>!query||`${p.player||''} ${p.home} ${p.away} ${p.market} ${p.book}`.toLowerCase().includes(query.toLowerCase()));
