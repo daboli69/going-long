@@ -17,6 +17,7 @@ function setup(t){
   const context=dom.getInternalVMContext();
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-score.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-injuries.js'),'utf8'),context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-dfs.js'),'utf8'),context);
   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
   }
@@ -298,7 +299,7 @@ test('Book-added team abbreviations do not prevent player matching',t=>{
 });
 test('Betting navigation promotes GOING SCORE and nests specialist tools',t=>{
   const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
-  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','GOING SCORE','Markets','Games','Signals','Parlays']);
+  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','GOING SCORE','DFS','Markets','Games','Signals','Parlays']);
   w.document.querySelector('#btTabGroup [data-section="opportunities"]').click();
   assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['All Bets','Model Board','First TD']);
   w.document.querySelector('#btToolGroup [data-tab="firsttd"]').click();assert.equal(a.BET.tab,'firsttd');
