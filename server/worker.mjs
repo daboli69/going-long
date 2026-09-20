@@ -1,7 +1,7 @@
 import {fetchParlay,SPORT_KEYS} from './parlay.mjs';
 const memory=new Map(),pending=new Map();
 const TTL=120000;
-const SNAPSHOTS=new Set(['/data/history.json','/data/data.json','/data/nfl_betting.json','/data/ncaa_lines.json','/data/results.json','/data/football_context.json','/data/football_role_validation.json','/data/football_game_validation.json','/data/savant_context.json','/data/topdown_status.json','/data/players.json','/data/king-endzone.json','/data/slate-breaker.json','/data/formats/index.json','/data/formats/half-12-1.json','/data/formats/half-12-2.json','/data/formats/ppr-10-1.json','/data/formats/ppr-10-2.json','/data/formats/ppr-12-1.json','/data/formats/ppr-12-2.json','/data/formats/ppr-14-1.json','/data/formats/ppr-14-2.json','/data/formats/std-12-1.json']);
+const SNAPSHOTS=new Set(['/data/history.json','/data/data.json','/data/nfl_betting.json','/data/ncaa_lines.json','/data/results.json','/data/public_tracker.json','/data/football_context.json','/data/football_role_validation.json','/data/football_game_validation.json','/data/savant_context.json','/data/topdown_status.json','/data/players.json','/data/king-endzone.json','/data/slate-breaker.json','/data/formats/index.json','/data/formats/half-12-1.json','/data/formats/half-12-2.json','/data/formats/ppr-10-1.json','/data/formats/ppr-10-2.json','/data/formats/ppr-12-1.json','/data/formats/ppr-12-2.json','/data/formats/ppr-14-1.json','/data/formats/ppr-14-2.json','/data/formats/std-12-1.json']);
 const snapshots=new Map();
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 export async function oddsResponse(request,env,ctx={waitUntil(){}}){

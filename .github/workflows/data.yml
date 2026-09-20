@@ -33,8 +33,14 @@ jobs:
           python-version: '3.12'
           cache: pip
           cache-dependency-path: scripts/requirements.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
       - name: Install dependencies
-        run: pip install -r scripts/requirements.txt
+        run: |
+          pip install -r scripts/requirements.txt
+          npm ci
       - name: Validate model logic
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Build fantasy pool and formats
@@ -85,13 +91,17 @@ jobs:
         id: season_learning
         continue-on-error: true
         run: python scripts/season_learning.py
+      - name: Freeze and settle public performance tracker
+        id: tracker
+        continue-on-error: true
+        run: node scripts/build_public_tracker.mjs
       - name: Commit generated snapshots
         shell: bash
         run: |
           set -euo pipefail
           git config user.name goinglong-bot
           git config user.email actions@github.com
-          paths=(data/king-endzone.json data/slate-breaker.json data/jackpot data/savant_context.json data/football_context.json data/football_role_validation.json data/football_game_validation.json data/season_learning.json data/results.json data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
+          paths=(data/public_tracker.json data/king-endzone.json data/slate-breaker.json data/jackpot data/savant_context.json data/football_context.json data/football_role_validation.json data/football_game_validation.json data/season_learning.json data/results.json data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
           existing=()
           for path in "${paths[@]}"; do
             if [ -e "$path" ]; then existing+=("$path"); fi
@@ -113,7 +123,7 @@ jobs:
           done
           exit 1
       - name: Report source failures
-        if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' || steps.context.outcome == 'failure' || steps.game_validation.outcome == 'failure' || steps.season_learning.outcome == 'failure' || steps.jackpot.outcome == 'failure' || steps.slate_breaker.outcome == 'failure' }}
+        if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' || steps.context.outcome == 'failure' || steps.game_validation.outcome == 'failure' || steps.season_learning.outcome == 'failure' || steps.jackpot.outcome == 'failure' || steps.slate_breaker.outcome == 'failure' || steps.tracker.outcome == 'failure' }}
         run: |
           echo 'A data source failed. Successful snapshots were committed; inspect the failed step.'
           exit 1
