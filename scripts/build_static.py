@@ -38,6 +38,7 @@ def build():
     (output / "long").mkdir()
     shutil.copy2(ROOT / "index.html", output / "long/index.html")
     shutil.copytree(ROOT / "apps/yard", output / "yard")
+    shutil.copytree(ROOT / "shared", output / "shared")
     shutil.copytree(ROOT / "data", output / "data")
     shutil.copy2(ROOT / ".nojekyll", output / ".nojekyll")
     print(f"Validated and built {output}")

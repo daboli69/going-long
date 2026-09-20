@@ -15,13 +15,14 @@ function setup(t){
   dom.window.requestAnimationFrame=cb=>dom.window.setTimeout(cb,0);
   dom.window.HTMLElement.prototype.scrollIntoView=function(){};
   const context=dom.getInternalVMContext();
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-score.js'),'utf8'),context);
   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
   }
   vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
+    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,goingScoreCandidates,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -286,13 +287,21 @@ test('Book-added team abbreviations do not prevent player matching',t=>{
  const quote=a.attachProjection({player:'Bam Knight (ARI)',eventTeams:['ARI','SEA'],market:'atd',line:.5},index);
  assert.equal(quote.profileId,'p');
 });
-test('Betting navigation keeps five primary destinations and nests specialist tools',t=>{
+test('Betting navigation promotes GOING SCORE and nests specialist tools',t=>{
   const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
-  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','Signals','Parlays']);
+  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','GOING SCORE','Markets','Games','Signals','Parlays']);
   w.document.querySelector('#btTabGroup [data-section="opportunities"]').click();
   assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['All Bets','Model Board','First TD']);
   w.document.querySelector('#btToolGroup [data-tab="firsttd"]').click();assert.equal(a.BET.tab,'firsttd');
   assert.match(w.location.search,/tab=firsttd/);assert.equal(w.document.querySelector('#btFirstTdPanel').hidden,false);
+});
+test('GOING SCORE renders an auditable slate-relative score apart from probability',t=>{
+ const {api:a,w}=setup(t),kickoff=future();a.BET.tab='score';a.BET.games=[{id:'g',sport:'nfl',home:'B',away:'A',homeCode:'B',awayCode:'A',kickoff,source:'schedule'}];
+ a.BET.history={generated_at:'2026-09-09T10:00:00Z',profiles:{p:{id:'p',name:'Runner One',team:'A',position:'RB',last_game:'2026-09-01',stats:{atd:{family:'poisson',status:'ready',mean:.7,lambda:.7,n:12}}}},features:{nfl:{players:{'A|p':{goal_line_carries:8,inside_ten_carries:12,red_zone_carries:20,end_zone_targets:2,inside_ten_targets:3,red_zone_targets:5}}}}};
+ a.BET.context={season:2026,scopes:{'2026':{players:{p:{player_id:'p',team:'A',games:1,rush_attempts:12,targets:3}},teams:{A:{games:1,dropbacks:30}}}}};
+ a.renderBetting();const text=w.document.querySelector('#btScorePanel').textContent;
+ assert.match(text,/Runner One/);assert.match(text,/GOING SCORE/);assert.match(text,/Model probability/);assert.match(text,/50\.3%/);assert.match(text,/score is not a probability/i);assert.match(text,/No live quote/);
+ assert.equal(w.document.querySelectorAll('#scoreMarket button').length,5);
 });
 test('Betting view preferences preserve the research context',t=>{
  const {api:a,w}=setup(t);Object.assign(a.BET,{sport:'ncaa',tab:'best',period:'1H',market:'total',sort:'time',book:'Pinnacle',matchup:'A @ B'});a.persistBettingView();
