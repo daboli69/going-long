@@ -62,3 +62,15 @@ test('questionable replacement is not treated as a healthy workload recipient',(
  assert.equal(result.model.mean,35.2);
  assert.equal(result.injury.roleBoost,null);
 });
+
+test('only the first available quarterback is starter-eligible',()=>{
+ const players=[{name:'QB One',team:'A',pos:'QB',depth_chart_order:1},{name:'QB Two',team:'A',pos:'QB',depth_chart_order:2}];let ctx=context(players);
+ assert.equal(injuries.starterEligibility({name:'QB One',team:'A',position:'QB',context:ctx}).eligible,true);
+ const backup=injuries.starterEligibility({name:'QB Two',team:'A',position:'QB',context:ctx});assert.equal(backup.known,true);assert.equal(backup.eligible,false);assert.match(backup.reason,/behind QB One/);
+ players[0].injury_status='Out';ctx=context(players);assert.equal(injuries.starterEligibility({name:'QB Two',team:'A',position:'QB',context:ctx}).eligible,true);
+});
+
+test('stale depth data does not guess which quarterback starts',()=>{
+ const ctx=injuries.createContext({generated_at:'2026-09-17T00:00:00Z',players:[{name:'QB Two',team:'A',pos:'QB',depth_chart_order:2}]},{},now),result=injuries.starterEligibility({name:'QB Two',team:'A',position:'QB',context:ctx});
+ assert.equal(result.known,false);assert.equal(result.eligible,true);assert.match(result.reason,/not inferred/);
+});

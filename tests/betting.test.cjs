@@ -24,7 +24,7 @@ function setup(t){
   vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,filterBestPlays,bestBookKey,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
+    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,goingScoreRisk,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -325,6 +325,20 @@ test('Any TD calibration shrinks short windows and rejects a disputed sportsbook
  assert.equal(disputed.marketUsable,false);assert.ok(disputed.scoreProbability>.48&&disputed.scoreProbability<.51);assert.match(disputed.evidence,/guardrail withheld/);
  const aligned=a.scoreAtdAnchor(profile,model,.45,{books:5,marketImplied:.41,marketLow:.38,marketHigh:.44},4);
  assert.equal(aligned.marketUsable,true);assert.ok(aligned.scoreProbability>.38&&aligned.scoreProbability<.43);assert.match(aligned.evidence,/blended 80\/20/);
+});
+test('GOING SCORE risks use the actual market evidence instead of one matchup fallback',t=>{
+ const {api:a}=setup(t),base={injury:null,confidence:{label:'Moderate'},quote:{},components:{projection:{label:'Model projection',percentile:80},role:{label:'Target design & hands',percentile:20,evidence:'3.0 current targets/game'},environment:{label:'Pass script & environment',percentile:60,evidence:'47.5-point total'},matchup:{label:'Coverage leak',percentile:null,evidence:'No active weakness'}}};
+ const receptions=a.goingScoreRisk({...base,market:'receptions',projection:6.5,projectionLabel:'6.5 rec',projectionSd:1,line:5.5});assert.match(receptions,/Target design & hands is only 20th/);assert.match(receptions,/3\.0 current targets\/game/);
+ const passing=a.goingScoreRisk({...base,market:'pass_yds',projection:252,projectionLabel:'252.0 yds',projectionSd:20,line:250,components:{...base.components,role:{label:'Air volume',percentile:70,evidence:'36 current dropbacks/game'}}});assert.match(passing,/2\.0 yards cushion/);assert.match(passing,/20\.0 yards of projection uncertainty/);
+ const touchdown=a.goingScoreRisk({...base,market:'atd',projection:.5,line:.5,components:{...base.components,role:{label:'Scoring-area role',percentile:70,evidence:'3 goal-line carries'}}});assert.match(touchdown,/Touchdown outcomes remain much more volatile/);assert.notEqual(receptions,passing);assert.notEqual(passing,touchdown);
+ const limited=a.goingScoreRisk({...base,market:'pass_tds',projectionLabel:'1.80 TD',currentGames:1,sampleGames:12,confidence:{label:'Limited'}});assert.match(limited,/Pass TDs has only 1 current-season game/);assert.match(limited,/1\.80 TD estimate/);
+ const unquoted=a.goingScoreRisk({...base,market:'rush_yds',projectionLabel:'72.4 yds',quote:null});assert.match(unquoted,/No recent Rush Yards sportsbook quote/);assert.match(unquoted,/72\.4 yds projection/);
+});
+test('backup quarterbacks are excluded from GOING SCORE and DFS',t=>{
+ const {api:a,w}=setup(t),kickoff=future(),model=(mean,sd)=>({family:'normal',status:'ready',mean,sd,n:12}),stats={pass_yds:model(250,30),pass_tds:model(1.7,.7),rush_yds:model(20,12),rush_tds:model(.2,.2)};
+ a.BET.games=[{id:'g',sport:'nfl',home:'B',away:'A',homeCode:'B',awayCode:'A',kickoff,source:'schedule'}];a.BET.props=[];a.BET.history={generated_at:new Date().toISOString(),profiles:{q1:{id:'q1',name:'QB One',team:'A',position:'QB',stats},q2:{id:'q2',name:'QB Two',team:'A',position:'QB',stats}}};a.BET.context={season:2026,scopes:{'2026':{players:{q1:{games:1},q2:{games:1}},teams:{A:{games:1,dropbacks:35,plays:60,pass_actual:35}}}}};
+ a.BET.roster={generated_at:new Date().toISOString(),players:[{name:'QB One',team:'A',pos:'QB',depth_chart_order:1},{name:'QB Two',team:'A',pos:'QB',depth_chart_order:2}]};a.BET.injuryContext=w.GoingFootballInjuries.createContext(a.BET.roster,a.BET.history.profiles);
+ assert.equal(a.goingScoreCandidates('pass_yds').map(row=>row.player).join(','),'QB One');a.BET.tab='dfs';a.renderBetting();assert.match(w.document.querySelector('#dfsPool').textContent,/QB One/);assert.doesNotMatch(w.document.querySelector('#dfsPool').textContent,/QB Two/);
 });
 test('Betting view preferences preserve the research context',t=>{
  const {api:a,w}=setup(t);Object.assign(a.BET,{sport:'ncaa',tab:'best',period:'1H',market:'total',sort:'time',book:'Pinnacle',matchup:'A @ B'});a.persistBettingView();

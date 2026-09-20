@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 
-const VERSION='injury-role-1';
+const VERSION='injury-role-2';
 const MAX_AGE_HOURS=36;
 const HARD_OUT=new Set(['out','ir','pup','inactive','suspended','nfi','reserve']);
 const MARKET_ROLE={
@@ -61,6 +61,14 @@ function createContext(snapshot,profiles={},now=Date.now()){
  for(const rows of byTeamPosition.values())rows.sort((a,b)=>(depthOrder(a)??99)-(depthOrder(b)??99)||String(a.name).localeCompare(String(b.name)));
  return {version:VERSION,generatedAt,ageHours,fresh,byIdentity,byTeamPosition,profileByIdentity};
 }
+function starterEligibility({name,team:teamCode,position,context}){
+ if(String(position||'').toUpperCase()!=='QB')return {known:false,eligible:true,reason:'Starter filtering applies only to quarterbacks.'};
+ if(!context?.fresh)return {known:false,eligible:true,reason:'Fresh depth-chart data is unavailable; starter status was not inferred.'};
+ const player=context.byIdentity.get(team(teamCode)+'|'+normalize(name));if(!player)return {known:false,eligible:true,reason:'Quarterback is not matched to the current roster snapshot.'};
+ const quarterbacks=context.byTeamPosition.get(team(teamCode)+'|QB')||[],starter=quarterbacks.find(candidate=>!availability(candidate).block);
+ if(!starter)return {known:false,eligible:false,reason:'No available starting quarterback is identified in the current depth chart.'};
+ const eligible=normalize(starter.name)===normalize(player.name);return {known:true,eligible,starter:starter.name,depthOrder:depthOrder(player),reason:eligible?`${starter.name} is the first available quarterback on the current depth chart.`:`${player.name} is behind ${starter.name} on the current depth chart.`};
+}
 function nextRoleBoost(player,market,model,context){
  const position=String(player?.pos||'').toUpperCase(),rule=MARKET_ROLE[position]?.[market];
  const currentOrder=depthOrder(player);
@@ -92,6 +100,6 @@ function adjustModel({model,name,team:teamCode,position,market,context}){
  return {model:adjusted,injury:{...base,applied:true,projectionScale:totalScale,uncertaintyMultiplier:uncertainty,roleBoost:boost?{scale:boost.scale,added:boost.added,players:boost.players}:null,reason:parts.join(' · ')}};
 }
 
-root.GoingFootballInjuries={VERSION,MAX_AGE_HOURS,normalize,availability,scaleModel,createContext,adjustModel};
+root.GoingFootballInjuries={VERSION,MAX_AGE_HOURS,normalize,availability,scaleModel,createContext,starterEligibility,adjustModel};
 if(typeof module!=='undefined')module.exports=root.GoingFootballInjuries;
 })(globalThis);

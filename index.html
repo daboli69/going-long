@@ -3502,6 +3502,7 @@ function goingScoreCandidates(market=GOING_SCORE_MARKET){
  const allowed={atd:new Set(['QB','RB','WR','TE']),pass_yds:new Set(['QB']),pass_tds:new Set(['QB']),rush_yds:new Set(['QB','RB','WR','TE']),receptions:new Set(['RB','WR','TE'])},seen=new Set(),rows=[];
  for(const p of projectionBoard()){
   if(p.market!==market||!p.profileId||seen.has(p.profileId))continue;const profile=BET.history?.profiles?.[p.profileId],model=p.model||profile?.stats?.[market];if(!profile||!allowed[market].has(profile.position)||model?.status!=='ready'||!finiteNumber(model.mean))continue;
+  if(profile.position==='QB'&&!GoingFootballInjuries.starterEligibility({name:profile.name,team:profile.team,position:profile.position,context:BET.injuryContext}).eligible)continue;
   if(market!=='atd'&&model.mean<=0)continue;if(market==='atd'&&model.mean<=.001)continue;
   const ctx=scoreProfileContext(profile),quoteContext=scoreQuoteContext(profile.id,market),quote=quoteContext.quote;if(!quote&&!(ctx.currentPlayer?.games>0))continue;seen.add(p.profileId);
   const lines=footballGameLines(p),matchup=scoreMatchupComponent(profile,p,market),role=scoreRoleComponent(profile,market,ctx),opponent=p.opp||p.eventTeams?.find(team=>team!==profile.team)||'',game=propMatchup(p),probability=market==='atd'?1-Math.exp(-Math.max(0,model.mean)):quote?propProbabilities(quote)?.over:null,currentGames=ctx.currentPlayer?.games||ctx.currentTeam?.games||0;
@@ -3510,7 +3511,7 @@ function goingScoreCandidates(market=GOING_SCORE_MARKET){
   const environmentValue=market==='rush_yds'&&finiteNumber(lines.total)?lines.total-(teamSpread||0):['pass_yds','receptions'].includes(market)&&finiteNumber(lines.total)?lines.total+(teamSpread||0):finiteNumber(teamTotal)?teamTotal:lines.total;
   const environmentLabel=market==='rush_yds'?'Rush script':['pass_yds','receptions'].includes(market)?'Pass script & environment':'Scoring environment';
   const environmentEvidence=finiteNumber(lines.total)?`${lines.total.toFixed(1)}-point median total${finiteNumber(teamSpread)?` · ${profile.team} ${teamSpread<0?'favored':'underdog'} by ${Math.abs(teamSpread).toFixed(1)}`:''}${finiteNumber(teamTotal)?` · ${teamTotal.toFixed(1)} implied team points`:''}`:'Current game total unavailable; no environment value was invented.';
-  rows.push({key:`${market}|${profile.id}`,player:profile.name,profileId:profile.id,position:profile.position,team:profile.team,opponent,game,kickoff:p.kickoff,home:p.eventTeams?.[0],away:p.eventTeams?.[1],sampleGames:model.n||0,currentGames,projection:model.mean,projectionLabel:scoreProjectionLabel(market,model.mean),probability,scoreProbability,marketImplied:quoteContext.marketImplied,marketBooks:quoteContext.books,marketGuardrailUsed:atdAnchor?.marketUsable??false,injury:p.injury,quote,line:quote?.line,odds:quote?.overOdds,book:quote?.book,updatedAt:quote?.updatedAt,components:{projection:{value:market==='atd'?scoreProbability:model.mean,label:market==='atd'?'Calibrated TD anchor':'Model projection',evidence:market==='atd'?atdAnchor.evidence:`${scoreProjectionLabel(market,model.mean)} from ${model.n||0} recorded games · ${model.family} baseline${p.injury?.reason?' · '+p.injury.reason:''}`},role,matchup,environment:{value:environmentValue,label:environmentLabel,evidence:environmentEvidence}}});
+  rows.push({key:`${market}|${profile.id}`,player:profile.name,profileId:profile.id,position:profile.position,team:profile.team,opponent,game,kickoff:p.kickoff,home:p.eventTeams?.[0],away:p.eventTeams?.[1],sampleGames:model.n||0,currentGames,projection:model.mean,projectionSd:model.sd,projectionLabel:scoreProjectionLabel(market,model.mean),probability,scoreProbability,marketImplied:quoteContext.marketImplied,marketBooks:quoteContext.books,marketGuardrailUsed:atdAnchor?.marketUsable??false,injury:p.injury,quote,line:quote?.line,odds:quote?.overOdds,book:quote?.book,updatedAt:quote?.updatedAt,components:{projection:{value:market==='atd'?scoreProbability:model.mean,label:market==='atd'?'Calibrated TD anchor':'Model projection',evidence:market==='atd'?atdAnchor.evidence:`${scoreProjectionLabel(market,model.mean)} from ${model.n||0} recorded games · ${model.family} baseline${p.injury?.reason?' · '+p.injury.reason:''}`},role,matchup,environment:{value:environmentValue,label:environmentLabel,evidence:environmentEvidence}}});
  }
  return GoingScore.scoreRows(rows,market).map(row=>{
   if(!row.injury)return row;
@@ -3520,10 +3521,24 @@ function goingScoreCandidates(market=GOING_SCORE_MARKET){
 }
 function goingScoreRisk(row){
  if(row.injury)return `${row.injury.reason}. Confirm the final active list and expected workload before using this score.`;
- if(row.confidence.label==='Limited')return 'Limited current-season evidence; the historical baseline still carries most of the load.';
- if(!row.quote)return 'No recent sportsbook quote is matched. This is a player ranking, not a bet recommendation.';
- if(row.components.matchup?.percentile==null)return 'No supported role-matched opponent edge is active; the score leans on projection, role and environment.';
- return 'Role, matchup and game conditions can change before kickoff; confirm availability and the exact line.';
+ if(row.market!=='atd'&&finiteNumber(row.line)&&finiteNumber(row.projection)){
+  const margin=row.projection-row.line,unit=row.market==='receptions'?'receptions':row.market==='pass_tds'?'TDs':'yards';
+  if(margin<=0)return `GOING projects ${row.projectionLabel}, which does not clear the listed Over ${row.line}. The score is a relative player rating, not evidence of an Over edge.`;
+  if(finiteNumber(row.projectionSd)&&margin<.25*row.projectionSd)return `The model has only a ${margin.toFixed(1)} ${unit} cushion over ${row.line}, versus ${row.projectionSd.toFixed(1)} ${unit} of projection uncertainty.`;
+ }
+ const marketLabel=GoingScore.MARKET_SPECS[row.market]?.label||row.market;
+ if(row.confidence.label==='Limited'){const games=row.currentGames||0;return `${marketLabel} has only ${games} current-season ${games===1?'game':'games'} behind this ${row.projectionLabel} estimate; the ${row.sampleGames||0}-game historical profile still carries most of the model weight.`;}
+ if(!row.quote)return `No recent ${marketLabel} sportsbook quote is matched to the ${row.projectionLabel} projection. This remains a player ranking rather than a bet recommendation.`;
+ const role=row.components.role,environment=row.components.environment,matchup=row.components.matchup;
+ if(finiteNumber(role?.percentile)&&role.percentile<45)return `${role.label} is only ${scoreOrdinal(role.percentile)} on this slate: ${role.evidence}.`;
+ if(finiteNumber(environment?.percentile)&&environment.percentile<35)return `${environment.label} is only ${scoreOrdinal(environment.percentile)} on this slate: ${environment.evidence}.`;
+ if(finiteNumber(matchup?.percentile)&&matchup.percentile<40)return `${matchup.label} is the weakest supported input at the ${scoreOrdinal(matchup.percentile)} slate percentile: ${matchup.evidence}.`;
+ if(matchup?.percentile==null){
+  const strongest=[role,environment,row.components.projection].filter(component=>finiteNumber(component?.percentile)).sort((a,b)=>b.percentile-a.percentile)[0],lead=strongest?`${strongest.label} (${scoreOrdinal(strongest.percentile)})`:'the available model projection',caveat={atd:'Touchdown outcomes remain much more volatile than yardage volume.',pass_yds:'The current evidence does not establish an opponent-specific passing advantage.',pass_tds:'Passing-TD conversion can diverge sharply from overall pass volume.',rush_yds:'Carry volume can change quickly with score and backfield rotation.',receptions:'Target conversion can diverge from projected opportunity.'}[row.market]||'The opponent-specific edge is unverified.';
+  return `No active role-matched matchup edge is verified; ${lead} carries the score. ${caveat}`;
+ }
+ const weakest=[role,environment,matchup].filter(component=>finiteNumber(component?.percentile)).sort((a,b)=>a.percentile-b.percentile)[0];
+ return weakest?`${weakest.label} is the lowest supporting input at the ${scoreOrdinal(weakest.percentile)} slate percentile: ${weakest.evidence}.`:'Available evidence is narrow; confirm the exact line and final role before using this score.';
 }
 function goingScoreLine(row){return row.market==='atd'?'Any TD':finiteNumber(row.line)?`Over ${row.line}`:'No active line';}
 function scoreOrdinal(value){const n=Math.round(value),mod100=n%100,suffix=mod100>=11&&mod100<=13?'th':n%10===1?'st':n%10===2?'nd':n%10===3?'rd':'th';return n+suffix;}
@@ -3550,6 +3565,7 @@ function dfsModelSlate(){
  const board=projectionBoard(),profiles=BET.history?.profiles||{},players=new Map();
  for(const row of board){
   const profile=profiles[row.profileId];if(!profile||!['QB','RB','WR','TE'].includes(profile.position)||players.has(profile.id))continue;
+  if(profile.position==='QB'&&!GoingFootballInjuries.starterEligibility({name:profile.name,team:profile.team,position:profile.position,context:BET.injuryContext}).eligible)continue;
   const team=canonicalNflTeam(profile.team),teams=(row.eventTeams||[]).map(canonicalNflTeam),opponent=teams.find(candidate=>candidate!==team)||'',game=teams.length===2?`${teams[1]} @ ${teams[0]}`:propMatchup(row);
   players.set(profile.id,{id:'going-'+profile.id,profileId:profile.id,name:profile.name,position:profile.position,salary:null,team,opponent,game,siteProjection:null,injury:'',modelOnly:true});
  }
@@ -3564,6 +3580,7 @@ function dfsPlayerPool(){
  let slatePlayers=DFS_STATE.source==='model'?dfsModelSlate():DFS_STATE.salaryPlayers;if(DFS_STATE.contest==='showdown'&&DFS_STATE.game)slatePlayers=slatePlayers.filter(player=>player.game===DFS_STATE.game);if(!slatePlayers.length)return [];
  const board=projectionBoard(),byProfileMarket=new Map(board.filter(p=>p.profileId).map(p=>[p.profileId+'|'+p.market,p])),profiles=Object.values(BET.history.profiles||{}),site=DFS_STATE.site,needed=['pass_yds','pass_tds','rush_yds','rec_yds','receptions','rush_tds','rec_tds'];
  return slatePlayers.map(salary=>{
+  const starter=GoingFootballInjuries.starterEligibility({name:salary.name,team:salary.team,position:salary.position,context:BET.injuryContext});if(salary.position==='QB'&&!starter.eligible)return {...salary,projection:null,sd:null,value:null,source:'Excluded by current depth chart',coverage:'Non-starting QB',evidence:[starter.reason],unavailable:true};
   if(['DST','K'].includes(salary.position))return {...salary,projection:salary.siteProjection,sd:finiteNumber(salary.siteProjection)?Math.max(2.5,salary.siteProjection*.42):null,value:finiteNumber(salary.siteProjection)?1000*salary.siteProjection/salary.salary:null,source:'Imported platform FPPG',coverage:finiteNumber(salary.siteProjection)?`${salary.position} fallback`:`No ${salary.position} projection`,evidence:[`GOING does not yet have a validated ${salary.position} fantasy-points model.`],unavailable:!finiteNumber(salary.siteProjection)};
   const matches=salary.profileId?[profiles.find(profile=>profile.id===salary.profileId)].filter(Boolean):profiles.filter(profile=>GoingFootballDfs.norm(profile.name)===GoingFootballDfs.norm(salary.name)&&canonicalNflTeam(profile.team)===canonicalNflTeam(salary.team)),profile=matches.length===1?matches[0]:null;
   if(!profile){const fallback=salary.siteProjection;return {...salary,projection:fallback,sd:finiteNumber(fallback)?fallback*.38:null,value:finiteNumber(fallback)?1000*fallback/salary.salary:null,source:'Imported platform FPPG fallback',coverage:'GOING profile unmatched',evidence:['No unique GOING player profile matched this salary row.'],unavailable:!finiteNumber(fallback)};}
