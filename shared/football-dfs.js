@@ -53,23 +53,25 @@ function correlation(lineup,mode){
  return (stack?(mode==='ceiling'?1.1:.35):mode==='ceiling'?-1:0)+(stack&&bringBack&&mode==='ceiling'?.45:0)-1.25*opponentConflict(lineup);
 }
 function objective(player,mode){const projection=player.projection||0,sd=finite(player.sd)?player.sd:projection*.32;return mode==='floor'?projection-.18*sd:mode==='ceiling'?projection+.28*sd:projection;}
-function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2}={}){
+function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false}={}){
  const rule=RULES[site];if(!rule)return {lineups:[],reason:'Unsupported DFS platform.'};
- const available=players.filter(player=>finite(player.projection)&&player.projection>0&&finite(player.salary)&&player.salary>0&&!['o','out','ir'].includes(String(player.injury||'').toLowerCase())&&!player.unavailable);
- const bySlot=Object.fromEntries(rule.slots.map(slot=>[slot,available.filter(player=>eligible(player.position,slot)).sort((a,b)=>objective(b,mode)-objective(a,mode)).slice(0,slot==='FLEX'?90:60)]));
- const missing=[...new Set(rule.slots.filter(slot=>!bySlot[slot].length))];if(missing.length)return {lineups:[],reason:`No eligible ${missing.join(', ')} players were matched.`};
+ const slots=projectionOnly?rule.slots.filter(slot=>slot!=='DST'):rule.slots;
+ const available=players.filter(player=>finite(player.projection)&&player.projection>0&&(projectionOnly||(finite(player.salary)&&player.salary>0))&&!['o','out','ir'].includes(String(player.injury||'').toLowerCase())&&!player.unavailable);
+ const bySlot=Object.fromEntries(slots.map(slot=>[slot,available.filter(player=>eligible(player.position,slot)).sort((a,b)=>objective(b,mode)-objective(a,mode)).slice(0,slot==='FLEX'?90:60)]));
+ const missing=[...new Set(slots.filter(slot=>!bySlot[slot].length))];if(missing.length)return {lineups:[],reason:`No eligible ${missing.join(', ')} players were matched.`};
  let states=[{players:[],ids:new Set(),teams:{},salary:0,base:0}];
- for(const slot of rule.slots){
+ for(const slot of slots){
   const next=[];
   for(const state of states)for(const player of bySlot[slot]){
-   if(state.ids.has(player.id)||state.salary+player.salary>rule.cap||(state.teams[player.team]||0)>=rule.maxTeam)continue;
-   const ids=new Set(state.ids);ids.add(player.id);next.push({players:[...state.players,{...player,slot}],ids,teams:{...state.teams,[player.team]:(state.teams[player.team]||0)+1},salary:state.salary+player.salary,base:state.base+objective(player,mode)});
+   const salary=finite(player.salary)?player.salary:0;
+   if(state.ids.has(player.id)||(!projectionOnly&&state.salary+salary>rule.cap)||(state.teams[player.team]||0)>=rule.maxTeam)continue;
+   const ids=new Set(state.ids);ids.add(player.id);next.push({players:[...state.players,{...player,slot}],ids,teams:{...state.teams,[player.team]:(state.teams[player.team]||0)+1},salary:state.salary+salary,base:state.base+objective(player,mode)});
   }
-  next.sort((a,b)=>b.base-a.base||b.salary-a.salary);states=next.slice(0,beamWidth);if(!states.length)return {lineups:[],reason:`No legal lineup fits the ${rule.label} salary cap.`};
+  next.sort((a,b)=>b.base-a.base||b.salary-a.salary);states=next.slice(0,beamWidth);if(!states.length)return {lineups:[],reason:projectionOnly?'No position-valid offensive core could be generated.':`No legal lineup fits the ${rule.label} salary cap.`};
  }
  const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection,0),objective:state.base+correlation(state.players,mode),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
  const lineups=[];for(const candidate of ranked){const ids=new Set(candidate.players.map(player=>player.id)),different=lineups.every(lineup=>lineup.players.filter(player=>!ids.has(player.id)).length>=minUnique);if(different)lineups.push(candidate);if(lineups.length>=Math.max(1,Math.min(20,count)))break;}
- return {lineups,reason:lineups.length?null:'No sufficiently distinct legal lineups were found.',eligible:available.length,rule};
+ return {lineups,reason:lineups.length?null:'No sufficiently distinct roster ideas were found.',eligible:available.length,rule:{...rule,slots},projectionOnly};
 }
 
 root.GoingFootballDfs={RULES,norm,parseSalaryCsv,projectedPoints,optimize,correlation};

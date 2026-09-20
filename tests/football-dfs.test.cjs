@@ -35,3 +35,11 @@ test('optimizer excludes confirmed outs and reports a missing position',()=>{
  const result=dfs.optimize([{id:'q',name:'Only QB',position:'QB',salary:5000,team:'A',projection:20,injury:'O'}]);
  assert.equal(result.lineups.length,0);assert.match(result.reason,/No eligible/);
 });
+
+test('projection-only mode needs neither salary nor DST and does not claim a capped lineup',()=>{
+ const players=[],add=(position,count,start,teams)=>{for(let i=0;i<count;i++)players.push({id:position+i,name:position+i,position,team:teams[i%teams.length],opponent:teams[(i+1)%teams.length],projection:start-i*.3,sd:4});};
+ add('QB',3,24,['A','B','C']);add('RB',7,20,['A','B','C','D']);add('WR',9,19,['A','B','C','D']);add('TE',4,15,['A','B','C','D']);
+ const result=dfs.optimize(players,{site:'draftkings',count:2,minUnique:2,projectionOnly:true});
+ assert.equal(result.projectionOnly,true);assert.equal(result.lineups.length,2);assert.deepEqual(result.rule.slots,['QB','RB','RB','WR','WR','WR','TE','FLEX']);
+ for(const lineup of result.lineups){assert.equal(lineup.players.length,8);assert.equal(lineup.salary,0);assert.ok(lineup.players.every(player=>player.salary==null));}
+});

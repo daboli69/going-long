@@ -313,6 +313,11 @@ test('GOING SCORE renders an auditable score apart from probability',t=>{
  assert.match(text,/Runner One/);assert.match(text,/GOING SCORE/);assert.match(text,/Score anchor \/ model/);assert.match(text,/50\.3%/);assert.match(text,/score is not a probability/i);assert.match(text,/No priced line/);
  assert.equal(w.document.querySelectorAll('#scoreMarket button').length,5);
 });
+test('DFS opens the current GOING projection slate without requiring a salary CSV',t=>{
+ const {api:a,w}=setup(t),kickoff=future(),model=(mean,sd)=>({family:'normal',status:'ready',mean,sd,n:12});a.BET.tab='dfs';a.BET.games=[{id:'g',sport:'nfl',home:'B',away:'A',homeCode:'B',awayCode:'A',kickoff,source:'schedule'}];
+ a.BET.history={generated_at:'2026-09-09T10:00:00Z',profiles:{p:{id:'p',name:'Runner One',team:'A',position:'RB',last_game:'2026-09-01',stats:{rush_yds:model(65,18),rec_yds:model(28,12),receptions:model(3.5,1.4),rush_tds:model(.45,.3),rec_tds:model(.12,.2)}}}};
+ a.renderBetting();const panel=w.document.querySelector('#btDfsPanel');assert.equal(panel.hidden,false);assert.equal(w.document.querySelector('#dfsSource').value,'model');assert.equal(w.document.querySelector('#dfsCsvFields').hidden,true);assert.match(panel.textContent,/Runner One/);assert.match(panel.textContent,/Salary not loaded/);assert.match(panel.textContent,/no CSV/i);
+});
 test('Any TD calibration shrinks short windows and rejects a disputed sportsbook market',t=>{
  const {api:a}=setup(t),profile={position:'RB'},model={n:12};
  const disputed=a.scoreAtdAnchor(profile,model,.713,{books:8,marketImplied:.706,marketLow:.357,marketHigh:.726},1);
