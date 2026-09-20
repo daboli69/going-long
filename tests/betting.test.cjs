@@ -21,7 +21,7 @@ function setup(t){
   vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
-    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
+    mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
   dom.window.api.BET.liveLoaded={nfl:true,ncaa:true};
   return {api:dom.window.api,w:dom.window,context};
 }
@@ -61,6 +61,17 @@ test('Game validation rejects an opponent adjustment when uncertainty includes n
  const {api:a}=setup(t),markup=a.gameValidationMarkup({validation_scope:'chronological_week_ahead_score_diagnostic',games:768,margin_error_points:13.599,total_error_points:13.624,opponent_adjusted:{margin_error_points:13.212,total_error_points:13.587,margin_improvement_range_95:[.011,.763],total_improvement_range_95:[-.239,.293],decision:'do_not_promote'}});
  assert.match(markup,/768 future games/);assert.match(markup,/13\.6 to 13\.2 points/);assert.match(markup,/-0\.2 to \+0\.3 points/);
  assert.match(markup,/not used in live projections/);assert.match(markup,/cannot claim betting profit/);
+});
+
+test('Defensive memory is usage-matched, lineage-backed and not promoted while uncertain',t=>{
+ const {api:a}=setup(t),kickoff=future();a.BET.learning={completeness:{nfl:{status:'FRESH',actually_ingested:17,expected_completed:17},ncaa:{status:'FRESH',actually_ingested:115,expected_completed:115,supported_universe:'FBS regular-season games only'}},unsupported_granularity:['WR slot/outside'],defensive_weaknesses:[{id:'B|TE_RECEIVING',defense:'B',historical_weakness:'TE_RECEIVING',current_status:'uncertain',confidence:'low',historical:{season:2025,value:1.2},current:{season:2026,value:-.2,sample:8},weighted_estimate:.9,weights:{historical_weight:.8,current_weight:.2},opponent_adjustment:'same player comparison'}],matchup_signals:[{player_id:'p',player:'Player',team:'A',opponent:'B',kickoff,role:'TE_RECEIVING',status:'uncertain',confidence:'low',active_signal:false,usage:{opportunities:5,share:.2},weakness_id:'B|TE_RECEIVING',plain_language:'MATCHUP CONTEXT',lineage:['prediction','weakness','raw']} ]};
+ const matchup=a.defensiveMatchup({kind:'prop',profileId:'p',team:'A',home:'B',away:'A',kickoff});assert.equal(matchup.status,'uncertain');assert.equal(matchup.active_signal,false);
+ const markup=a.defensiveMemoryMarkup();assert.match(markup,/0 active matchup edges/);assert.match(markup,/UNCERTAIN — WATCH/);assert.match(markup,/FBS regular-season games only/);assert.match(markup,/prediction → weakness → raw/);
+});
+
+test('Global search exposes direct current player, game and market destinations',t=>{
+ const {api:a}=setup(t);a.BET.props=[{player:'Example TE',team:'A',market:'rec_yds',kickoff:future()}];a.BET.games=[{home:'B',away:'A',homeCode:'B',awayCode:'A',sport:'nfl',kickoff:future()}];
+ const items=a.globalSearchItems();assert.ok(items.some(x=>x.type==='Player'&&x.label==='Example TE'&&x.tab==='props'));assert.ok(items.some(x=>x.type==='Game'&&x.tab==='games'));assert.ok(items.some(x=>x.type==='Market'&&x.label==='Receiving yards'));
 });
 
 test('Pass-snap role separates above-average usage from unrewarded results',t=>{

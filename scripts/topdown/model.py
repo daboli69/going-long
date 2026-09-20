@@ -48,14 +48,24 @@ def fair_pair(prices):
     return {'proportional': [x / sum(q) for x in q], 'power': [x ** ((lo + hi) / 2) for x in q], 'overround': sum(q) - 1}
 
 
-def shrink_rating(observed, games, league, week, prior_games=None):
-    """Normal-normal posterior with equal per-game observation variance.
-    Prior strengths are explicit policy values, not fitted betting lift.
+def shrink_rating(observed, games, league, week, prior_games=None, stability=1.0,
+                  recency=1.0, oos_gain=0.0):
+    """Evidence-weighted normal-normal shrinkage.
+
+    The default prior strength decays continuously as scheduled opportunities
+    pass; it is not a week-bucket switch.  Callers with a validated metric can
+    scale it by chronological carryover ``stability``, ``recency`` and OOS gain.
+    The prior retains at least ten percent whenever it remains predictive.
     """
-    prior = prior_games if prior_games is not None else (8 if week <= 4 else 4)
+    if week < 1 or not all(math.isfinite(x) for x in (stability, recency, oos_gain)) or not 0 < stability <= 1 or not 0 < recency <= 1:
+        raise ValueError('Invalid evidence weighting inputs')
+    schedule_prior = 4 + 4 / (1 + (week - 1) / 3)
+    predictive_scale = stability * recency * max(.5, min(1.5, 1 + oos_gain))
+    prior = prior_games if prior_games is not None else max(2, schedule_prior * predictive_scale)
     if games < 0 or prior <= 0:raise ValueError('Invalid evidence weight')
-    weight = games / (games + prior)
-    return {'rating': league + weight * (observed - league), 'data_weight': weight, 'prior_games': prior}
+    weight = min(.90, games / (games + prior))
+    return {'rating': league + weight * (observed - league), 'data_weight': weight, 'prior_games': prior,
+            'historical_weight': 1-weight, 'weighting_method': 'continuous sample-size shrinkage'}
 
 
 def secondary_baseline(season_rate, form_rate, games, league_rate, week):

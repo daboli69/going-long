@@ -21,7 +21,7 @@ def div(a, b):
     return a / b if b else None
 
 
-def build_scope(rows, snaps, roster, charting, season, cutoff):
+def build_scope(rows, snaps, roster, charting, season, cutoff, max_games=6):
     positions = {r['gsis_id']: r.get('position') for r in roster if r.get('gsis_id')}
     names = {r['gsis_id']: r.get('full_name') for r in roster if r.get('gsis_id')}
     pfr = {r['pfr_id']: r['gsis_id'] for r in roster if r.get('pfr_id') and r.get('gsis_id')}
@@ -33,10 +33,12 @@ def build_scope(rows, snaps, roster, charting, season, cutoff):
     games_by_team = defaultdict(set)
     for r in valid:
         games_by_team[r['posteam']].add(r['game_id'])
-    selected = {t: set(sorted(ids, key=lambda g: (dates[g], g))[-6:]) for t, ids in games_by_team.items()}
+    selected = {t: set(sorted(ids, key=lambda g: (dates[g], g))[-max_games:] if max_games else ids)
+                for t, ids in games_by_team.items()}
     players, teams, defenses = defaultdict(Counter), defaultdict(Counter), defaultdict(Counter)
     player_games, team_games, player_teams = defaultdict(set), defaultdict(set), defaultdict(set)
     target_log, runner_log = [], []
+    player_game_usage = defaultdict(Counter)
     opening, previous = Counter(), {}
     for r in sorted(valid, key=lambda x: (x['game_date'], x['game_id'], x['play_id'])):
         gid, team, defense = r['game_id'], r['posteam'], r['defteam']
@@ -89,11 +91,20 @@ def build_scope(rows, snaps, roster, charting, season, cutoff):
             pos = positions.get(pid)
             if pos in ('RB', 'WR', 'TE'):
                 t['targets_' + pos] += 1;t['targets'] += 1
-                target_log.append((defense, pid, pos, gid, r.get('receiving_yards') or 0))
+                yards=r.get('receiving_yards') or 0;air=r.get('air_yards') if finite(r.get('air_yards')) else None
+                yac=r.get('yards_after_catch') if finite(r.get('yards_after_catch')) else None
+                redzone=finite(r.get('yardline_100')) and r['yardline_100']<=20
+                target_log.append((defense, pid, pos, gid, yards, air, yac, redzone))
+                pg=player_game_usage[(gid,pid)];pg['targets']+=1;pg['receiving_yards']+=yards
         runner = r.get('rusher_player_id')
-        if r.get('rush_attempt') == 1 and r.get('qb_dropback') != 1 and runner:
-            runner_log.append((defense, runner, gid, r.get('rushing_yards') or 0))
-            defenses[defense]['carries'] += 1;defenses[defense]['rush_yards'] += r.get('rushing_yards') or 0
+        if r.get('rush_attempt') == 1 and not r.get('qb_kneel') and runner:
+            pos=positions.get(runner);yards=r.get('rushing_yards') or 0
+            if pos in ('RB','QB'):
+                runner_log.append((defense, runner, pos, gid, yards, finite(r.get('yardline_100')) and r['yardline_100']<=20))
+                players[runner]['rush_attempts']+=1;player_games[runner].add(gid);player_teams[runner].add(team)
+                t['rush_attempts']+=1;t['rush_attempts_'+pos]+=1
+                pg=player_game_usage[(gid,runner)];pg['rush_attempts']+=1;pg['rushing_yards']+=yards
+            defenses[defense]['carries'] += 1;defenses[defense]['rush_yards'] += yards
             if finite(r.get('epa')):defenses[defense]['run_success_n'] += 1;defenses[defense]['run_success'] += int(r['epa'] > 0)
     # PFR offensive percentages use actual team offensive snaps; reconstruct counts
     # from supplied percentages rather than treating the maximum player as the team.
@@ -118,7 +129,8 @@ def build_scope(rows, snaps, roster, charting, season, cutoff):
                            first_game=min((dates[g] for g in gids), default=None), last_game=max((dates[g] for g in gids), default=None),
                            share=share, share_type='passing_snap_proxy' if strong else 'offensive_snap_share',
                            charting_coverage=passing_coverage, catches_short=round(p['expected_catches']-p['actual_catches'], 2),
-                           routes=None, opportunity_flag=False)
+                           routes=None, target_share=div(p['targets'],t.get('targets',0)),
+                           rush_share=div(p['rush_attempts'],t.get('rush_attempts',0)), opportunity_flag=False)
     benchmarks = {}
     for pos in ('WR', 'TE'):
         for kind in ('passing_snap_proxy', 'offensive_snap_share'):
@@ -151,22 +163,47 @@ def build_scope(rows, snaps, roster, charting, season, cutoff):
     # defenses. Twenty pseudo-targets stabilize player estimates; fifty stabilize
     # the defensive residual. These are policy shrinkage strengths, not fitted lift.
     totals, versus, league = defaultdict(Counter), defaultdict(Counter), defaultdict(Counter)
-    for d, pid, pos, gid, yards in target_log:
+    for d, pid, pos, gid, yards, air, yac, redzone in target_log:
         for bucket in (totals[pid], versus[(pid, d)], league[pos]):bucket['n'] += 1;bucket['yards'] += yards
     buckets, defensive_games = defaultdict(Counter), defaultdict(set)
-    for d, pid, pos, gid, yards in target_log:
+    for d, pid, pos, gid, yards, air, yac, redzone in target_log:
         base = league[pos]['yards'] / league[pos]['n']
         other_n = totals[pid]['n']-versus[(pid,d)]['n'];other_y = totals[pid]['yards']-versus[(pid,d)]['yards']
         expected = (other_y+20*base)/(other_n+20)
-        b = buckets[(d,pos)];b['targets'] += 1;b['yards'] += yards;b['residual'] += yards-expected;defensive_games[(d,pos)].add(gid)
+        residual=yards-expected;b = buckets[(d,pos)];b['targets'] += 1;b['yards'] += yards;b['residual'] += residual;b['residual_sq'] += residual*residual
+        b['explosives']+=int(yards>=20);b['redzone_targets']+=int(redzone)
+        if air is not None:
+            depth='deep' if air>=15 else 'short' if air<5 else 'intermediate';b['air_'+depth+'_targets']+=1;b['air_'+depth+'_yards']+=yards
+        if yac is not None:b['yac']+=yac;b['yac_targets']+=1
+        defensive_games[(d,pos)].add(gid)
     allowed = {}
     for (d,pos), b in buckets.items():
-        allowed[d+'|'+pos] = dict(b, games=len(defensive_games[(d,pos)]), yards_per_target=b['yards']/b['targets'], adjusted_extra_yards_per_target=b['residual']/(b['targets']+50), status='observed' if b['targets']>=40 and len(defensive_games[(d,pos)])>=4 else 'too_few_plays')
+        allowed[d+'|'+pos] = dict(b, games=len(defensive_games[(d,pos)]), yards_per_target=b['yards']/b['targets'], adjusted_extra_yards_per_target=b['residual']/(b['targets']+50),
+            yac_per_target=div(b['yac'],b['yac_targets']),explosive_rate=div(b['explosives'],b['targets']),redzone_target_rate=div(b['redzone_targets'],b['targets']),
+            depth={k: {'targets':b['air_'+k+'_targets'],'yards_per_target':div(b['air_'+k+'_yards'],b['air_'+k+'_targets'])} for k in ('short','intermediate','deep')},
+            status='observed' if b['targets']>=40 and len(defensive_games[(d,pos)])>=4 else 'too_few_plays')
+    # The rushing residual mirrors the receiving opponent adjustment: compare a
+    # runner with that same runner against other defenses, then stabilize both
+    # the runner reference and the defense estimate. QB scrambles are retained;
+    # kneels are excluded above.
+    rtotals, rversus, rleague = defaultdict(Counter), defaultdict(Counter), defaultdict(Counter)
+    for d,pid,pos,gid,yards,redzone in runner_log:
+        for bucket in (rtotals[pid],rversus[(pid,d)],rleague[pos]):bucket['n']+=1;bucket['yards']+=yards
+    rbuckets,rgames=defaultdict(Counter),defaultdict(set)
+    for d,pid,pos,gid,yards,redzone in runner_log:
+        base=div(rleague[pos]['yards'],rleague[pos]['n']) or 0
+        other_n=rtotals[pid]['n']-rversus[(pid,d)]['n'];other_y=rtotals[pid]['yards']-rversus[(pid,d)]['yards']
+        expected=(other_y+20*base)/(other_n+20);residual=yards-expected;b=rbuckets[(d,pos)]
+        b['carries']+=1;b['yards']+=yards;b['residual']+=residual;b['residual_sq']+=residual*residual;b['explosives']+=int(yards>=10);b['redzone_carries']+=int(redzone);rgames[(d,pos)].add(gid)
+    rushing_allowed={}
+    for (d,pos),b in rbuckets.items():
+        rushing_allowed[d+'|'+pos]=dict(b,games=len(rgames[(d,pos)]),yards_per_carry=div(b['yards'],b['carries']),adjusted_extra_yards_per_carry=b['residual']/(b['carries']+50),explosive_rate=div(b['explosives'],b['carries']),redzone_carry_rate=div(b['redzone_carries'],b['carries']),status='observed' if b['carries']>=35 and len(rgames[(d,pos)])>=4 else 'too_few_plays')
     team_out = {}
     for t, b in teams.items():
         team_out[t] = dict(b, games=len(team_games[t]), first_game=min(dates[g] for g in team_games[t]),last_game=max(dates[g] for g in team_games[t]),
                            plays_per_game=div(b['plays'],len(team_games[t])),pass_over_expected=div(b['pass_actual']-b['pass_expected'],b['pass_expected_n']),pace_seconds=div(b['pace_sum'],b['pace_n']),opening_pass_rate=div(b['opening_passes'],b['opening_plays']),personnel_11_share=div(b['personnel_11'],b['personnel_n']),rb_target_share=div(b['targets_RB'],b['targets']),te_target_share=div(b['targets_TE'],b['targets']))
-    return {'season':season,'players':output,'teams':team_out,'position_benchmarks':benchmarks,'defense_receiving':allowed,'defenses':{t:dict(b,run_yards_per_carry=div(b['rush_yards'],b['carries']),five_plus_rusher_rate=div(b['five_plus_rushers'],b['rushers_n'])) for t,b in defenses.items()}}
+    game_usage={gid+'|'+pid:dict(values,game_id=gid,player_id=pid,team=next(iter(player_teams[pid])) if len(player_teams[pid])==1 else None,position=positions.get(pid),date=dates.get(gid)) for (gid,pid),values in player_game_usage.items()}
+    return {'season':season,'players':output,'teams':team_out,'position_benchmarks':benchmarks,'defense_receiving':allowed,'defense_rushing':rushing_allowed,'player_game_usage':game_usage,'defenses':{t:dict(b,run_yards_per_carry=div(b['rush_yards'],b['carries']),five_plus_rusher_rate=div(b['five_plus_rushers'],b['rushers_n'])) for t,b in defenses.items()}}
 
 
 def coach_meetings(schedule, cutoff):
@@ -189,8 +226,9 @@ def build():
     import nflreadpy as nfl
     season=int(os.getenv('SEASON',datetime.now().year));cutoff=datetime.now(timezone.utc).date().isoformat()
     rows=[];snaps=[];roster=[];charts=[];sources={}
-    keep=['season','season_type','game_date','game_id','posteam','defteam','qtr','play_type','no_play','qb_kneel','qb_spike','play_deleted','play_id','wp','qb_dropback','xpass','drive','quarter_seconds_remaining','receiver_player_id','receiving_yards','air_yards','cp','complete_pass','rusher_player_id','rushing_yards','rush_attempt','epa','passer_player_id']
-    for year in (season-1,season):
+    keep=['season','season_type','game_date','game_id','posteam','defteam','qtr','play_type','no_play','qb_kneel','qb_spike','play_deleted','play_id','wp','qb_dropback','xpass','drive','quarter_seconds_remaining','receiver_player_id','receiving_yards','air_yards','yards_after_catch','yardline_100','cp','complete_pass','rusher_player_id','rushing_yards','rush_attempt','epa','passer_player_id']
+    years=tuple(range(season-3,season+1))
+    for year in years:
         for kind,fn,destination in [('pbp',nfl.load_pbp,rows),('snaps',nfl.load_snap_counts,snaps),('roster',nfl.load_rosters,roster),('participation',nfl.load_participation,charts)]:
             try:
                 frame=fn([year]);frame=frame.select([k for k in keep if k in frame.columns]) if kind=='pbp' else frame
@@ -200,10 +238,10 @@ def build():
     if not rows or not roster:raise RuntimeError('No verified public play data; retaining previous context')
     schedule=nfl.load_schedules(list(range(season-5,season+1))).to_dicts()
     staff_path=ROOT/f'config/coaches-{season}.json';staff=json.loads(staff_path.read_text()) if staff_path.exists() else {'teams':{},'source':None}
-    scopes={str(y):build_scope(rows,snaps,roster,charts,y,cutoff) for y in (season-1,season)}
+    scopes={str(y):build_scope(rows,snaps,roster,charts,y,cutoff,max_games=6 if y==season else None) for y in years}
     upcoming=[dict(id=g['game_id'],home=g['home_team'],away=g['away_team'],home_coach=g.get('home_coach'),away_coach=g.get('away_coach'),kickoff=nfl_kickoff(g),roof=g.get('roof')) for g in schedule if g['season']==season and str(g['gameday'])>=cutoff and g.get('game_type')=='REG']
     result={'schema_version':1,'generated_at':datetime.now(timezone.utc).isoformat(),'as_of':cutoff,'season':season,'sources':sources,'scopes':scopes,'coaches':staff,'coach_meetings':coach_meetings(schedule,cutoff),'games':upcoming,
-            'method':'Last six regular-season games per team, separately by season; future dates excluded. Snap opportunity is not measured routes. Defensive position residuals use other-opponent receiver production, shrunk by 20/50 targets. Coach records are associations, not causal advantages.'}
+            'method':'Current season uses the latest six regular-season games per team; prior seasons use full regular seasons. Future dates are excluded. Snap opportunity is not measured routes. Defensive role residuals compare the same player against other opponents and are shrunk by 20/50 opportunities. Coach records are associations, not causal advantages.'}
     atomic_json(ROOT/'data/football_context.json',result)
     print('Football context', {y:len(v['players']) for y,v in scopes.items()},sources)
 
