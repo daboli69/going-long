@@ -31,7 +31,7 @@ function parseSalaryCsv(text,requestedSite){
  for(const record of records){
   const suppliedName=value(record,'Name','Nickname','Name + ID'),name=(suppliedName||`${value(record,'First Name')} ${value(record,'Last Name')}`.trim()).replace(/\s*\(\d+\)\s*$/,''),rawPosition=(value(record,'Position','Roster Position').split('/')[0]||'').toUpperCase(),position=['D','DEF'].includes(rawPosition)?'DST':rawPosition,salary=Number(String(value(record,'Salary')).replace(/[$,]/g,'')),team=canonicalTeam(value(record,'TeamAbbrev','Team','Team Abbrev')),game=value(record,'Game Info','Game'),teams=gameTeams(game),opponent=canonicalTeam(value(record,'Opponent'))||(teams.find(candidate=>candidate!==team)||''),id=value(record,'ID','Id','Player ID')||norm(name)+'|'+team;
   const siteProjection=Number(value(record,'AvgPointsPerGame','FPPG','FPPG Played'))||null,injury=value(record,'Injury Indicator','Injury Status','Injury');
-  if(!name||!finite(salary)||salary<=0||!['QB','RB','WR','TE','DST'].includes(position))continue;
+  if(!name||!finite(salary)||salary<=0||!['QB','RB','WR','TE','DST','K'].includes(position))continue;
   players.push({id:String(id),name,position,salary,team,opponent,game,siteProjection,injury,sourceRow:record});
  }
  const duplicateIds=new Set(),seen=new Set();for(const player of players){if(seen.has(player.id))duplicateIds.add(player.id);seen.add(player.id);}
@@ -53,25 +53,26 @@ function correlation(lineup,mode){
  return (stack?(mode==='ceiling'?1.1:.35):mode==='ceiling'?-1:0)+(stack&&bringBack&&mode==='ceiling'?.45:0)-1.25*opponentConflict(lineup);
 }
 function objective(player,mode){const projection=player.projection||0,sd=finite(player.sd)?player.sd:projection*.32;return mode==='floor'?projection-.18*sd:mode==='ceiling'?projection+.28*sd:projection;}
-function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false}={}){
+function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false,contest='classic'}={}){
  const rule=RULES[site];if(!rule)return {lineups:[],reason:'Unsupported DFS platform.'};
- const slots=projectionOnly?rule.slots.filter(slot=>slot!=='DST'):rule.slots;
+ const showdown=contest==='showdown',multiplierSlot=site==='fanduel'?'MVP':'CPT',maxFromTeam=showdown?5:rule.maxTeam,slots=showdown?[multiplierSlot,'FLEX','FLEX','FLEX','FLEX','FLEX']:projectionOnly?rule.slots.filter(slot=>slot!=='DST'):rule.slots;
  const available=players.filter(player=>finite(player.projection)&&player.projection>0&&(projectionOnly||(finite(player.salary)&&player.salary>0))&&!['o','out','ir'].includes(String(player.injury||'').toLowerCase())&&!player.unavailable);
- const bySlot=Object.fromEntries(slots.map(slot=>[slot,available.filter(player=>eligible(player.position,slot)).sort((a,b)=>objective(b,mode)-objective(a,mode)).slice(0,slot==='FLEX'?90:60)]));
+ const bySlot=Object.fromEntries(slots.map(slot=>[slot,available.filter(player=>showdown||eligible(player.position,slot)).sort((a,b)=>objective(b,mode)-objective(a,mode)).slice(0,slot==='FLEX'?90:60)]));
  const missing=[...new Set(slots.filter(slot=>!bySlot[slot].length))];if(missing.length)return {lineups:[],reason:`No eligible ${missing.join(', ')} players were matched.`};
- let states=[{players:[],ids:new Set(),teams:{},salary:0,base:0}];
- for(const slot of slots){
+ let states=[{players:[],ids:new Set(),athletes:new Set(),teams:{},salary:0,base:0}];
+ for(let slotIndex=0;slotIndex<slots.length;slotIndex++){
+  const slot=slots[slotIndex],multiplier=showdown&&slotIndex===0?1.5:1;
   const next=[];
   for(const state of states)for(const player of bySlot[slot]){
-   const salary=finite(player.salary)?player.salary:0;
-   if(state.ids.has(player.id)||(!projectionOnly&&state.salary+salary>rule.cap)||(state.teams[player.team]||0)>=rule.maxTeam)continue;
-   const ids=new Set(state.ids);ids.add(player.id);next.push({players:[...state.players,{...player,slot}],ids,teams:{...state.teams,[player.team]:(state.teams[player.team]||0)+1},salary:state.salary+salary,base:state.base+objective(player,mode)});
+   const athlete=norm(player.name)+'|'+player.team,salary=(finite(player.salary)?player.salary:0)*multiplier;
+   if(state.ids.has(player.id)||state.athletes.has(athlete)||(!projectionOnly&&state.salary+salary>rule.cap)||(state.teams[player.team]||0)>=maxFromTeam)continue;
+   const ids=new Set(state.ids);ids.add(player.id);const athletes=new Set(state.athletes);athletes.add(athlete);next.push({players:[...state.players,{...player,slot,multiplier}],ids,athletes,teams:{...state.teams,[player.team]:(state.teams[player.team]||0)+1},salary:state.salary+salary,base:state.base+objective(player,mode)*multiplier});
   }
   next.sort((a,b)=>b.base-a.base||b.salary-a.salary);states=next.slice(0,beamWidth);if(!states.length)return {lineups:[],reason:projectionOnly?'No position-valid offensive core could be generated.':`No legal lineup fits the ${rule.label} salary cap.`};
  }
- const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection,0),objective:state.base+correlation(state.players,mode),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
+ const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:state.base+correlation(state.players,mode),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
  const lineups=[];for(const candidate of ranked){const ids=new Set(candidate.players.map(player=>player.id)),different=lineups.every(lineup=>lineup.players.filter(player=>!ids.has(player.id)).length>=minUnique);if(different)lineups.push(candidate);if(lineups.length>=Math.max(1,Math.min(20,count)))break;}
- return {lineups,reason:lineups.length?null:'No sufficiently distinct roster ideas were found.',eligible:available.length,rule:{...rule,slots},projectionOnly};
+ return {lineups,reason:lineups.length?null:'No sufficiently distinct roster ideas were found.',eligible:available.length,rule:{...rule,slots},projectionOnly,contest};
 }
 
 root.GoingFootballDfs={RULES,norm,parseSalaryCsv,projectedPoints,optimize,correlation};

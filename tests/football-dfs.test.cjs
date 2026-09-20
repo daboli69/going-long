@@ -43,3 +43,11 @@ test('projection-only mode needs neither salary nor DST and does not claim a cap
  assert.equal(result.projectionOnly,true);assert.equal(result.lineups.length,2);assert.deepEqual(result.rule.slots,['QB','RB','RB','WR','WR','WR','TE','FLEX']);
  for(const lineup of result.lineups){assert.equal(lineup.players.length,8);assert.equal(lineup.salary,0);assert.ok(lineup.players.every(player=>player.salary==null));}
 });
+
+test('single-game mode assigns one 1.5x Captain or MVP and includes both teams',()=>{
+ const players=Array.from({length:10},(_,i)=>({id:String(i),name:'Player '+i,position:i<2?'QB':i<5?'RB':'WR',salary:5000,team:i<6?'A':'B',opponent:i<6?'B':'A',projection:22-i,sd:4}));
+ for(const site of ['draftkings','fanduel']){
+  const result=dfs.optimize(players,{site,contest:'showdown',count:1});assert.equal(result.lineups.length,1);const lineup=result.lineups[0],multiplier=site==='fanduel'?'MVP':'CPT';
+  assert.deepEqual(lineup.players.map(player=>player.slot),[multiplier,'FLEX','FLEX','FLEX','FLEX','FLEX']);assert.equal(lineup.players[0].multiplier,1.5);assert.ok(lineup.players.slice(1).every(player=>player.multiplier===1));assert.equal(lineup.players.length,6);assert.equal(new Set(lineup.players.map(player=>player.name)).size,6);assert.equal(Object.keys(lineup.teams).length,2);assert.equal(lineup.salary,32500);assert.equal(lineup.projection,lineup.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0));
+ }
+});
