@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from season_learning import completeness, dynamic_blend, classify_status, build_matchups, carryover_validation
+from season_learning import completeness, dynamic_blend, classify_status, build_matchups, build_coverage_matchups, carryover_validation
 
 
 class SeasonLearningTests(unittest.TestCase):
@@ -57,6 +57,24 @@ class SeasonLearningTests(unittest.TestCase):
         rows = build_matchups(context, weakness)
         self.assertEqual([r['player_id'] for r in rows], ['used'])
         self.assertTrue(rows[0]['active_signal'])
+
+    def test_coverage_chain_requires_projected_state_qb_split_and_role_weakness(self):
+        context={'season':2026,'as_of':'2026-09-19T00:00:00Z','games':[{'id':'g','away':'A','home':'B','kickoff':'2026-09-20T00:00:00Z'}],
+                 'scopes':{'2026':{'players':{'qb':{'player_id':'qb','name':'QB','team':'A','position':'QB','pass_snaps':60},
+                                                        'te':{'player_id':'te','name':'TE','team':'A','position':'TE','targets':12,'target_share':.25}}},
+                           '2025':{'defenses':{'B':{'shell_n':100,'shell_COVER_3':30}},
+                                   'defense_coverage_game_states':{'B':{'leading_1_7':{'dropbacks':60,'games':5,'status':'observed','shells':{'COVER_3':{'plays':30,'rate':.5}}}}},
+                                   'qb_coverage':{'qb':{'ALL':{'target_rate_by_position':{'TE':.25}},'COVER_3':{'dropbacks':40,'targets':30,'games':4,'status':'observed','target_rate_by_position':{'TE':.40}}}},
+                                   'defense_coverage_receiving':{'B|COVER_3|TE':{'targets':30,'games':4,'status':'observed','yards_per_target':8,'adjusted_extra_yards_per_target':.5}}}}}
+        weakness=[{'id':'B|TE_RECEIVING','defense':'B','historical_weakness':'TE_RECEIVING','current_status':'persisting','confidence':'medium','weighted_estimate':.6}]
+        games=[{'id':'g','home':'B','away':'A','kickoff':'2026-09-20T00:00:00Z','model':{'margin_mean':6},'period_models':{'1H':{'margin_mean':3}}}]
+        injury={'current_players':{'qb':{'gsis_id':'qb','name':'QB','team':'A','position':'QB','depth_rank':1,'role_order':1,'roster_status':'ACT'}}}
+        rows=build_coverage_matchups(context,weakness,games,injury)
+        self.assertEqual(len(rows),1)
+        self.assertTrue(rows[0]['active_signal'])
+        self.assertEqual(rows[0]['coverage_tendency']['shell'],'COVER_3')
+        self.assertEqual(rows[0]['qb_tendency']['target_rate'],.4)
+        self.assertEqual(rows[0]['beneficiaries'][0]['player_id'],'te')
 
 
 if __name__ == '__main__':

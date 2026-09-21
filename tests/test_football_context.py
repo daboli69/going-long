@@ -2,7 +2,7 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from football_context import build_scope, coach_meetings
+from football_context import build_scope, coach_meetings, coverage_game_state
 
 
 class FootballContextTests(unittest.TestCase):
@@ -41,3 +41,28 @@ class FootballContextTests(unittest.TestCase):
         self.assertEqual(result['A|B']['average_vs_spread'],-4)
         self.assertTrue(result['A|B']['historically_behind'])
         self.assertFalse(result['B|A']['historically_behind'])
+
+    def test_exact_coverage_is_conditioned_on_defensive_score_state(self):
+        self.assertEqual(coverage_game_state(-3),'leading_1_7')
+        rows,charts=[],[]
+        roster=[{'gsis_id':'qb','position':'QB','full_name':'Quarterback'},
+                {'gsis_id':'te','position':'TE','full_name':'Tight End'}]
+        for game in range(3):
+            for play in range(20):
+                gid=f'g{game}'
+                rows.append(dict(season=2025,season_type='REG',game_date=f'2025-09-{game+1:02d}',game_id=gid,
+                                 posteam='A',defteam='B',qtr=1,play_type='pass',play_id=play,wp=.5,
+                                 score_differential=-3,qb_dropback=1,xpass=.6,drive=1,
+                                 quarter_seconds_remaining=900-play*20,passer_player_id='qb',receiver_player_id='te',
+                                 complete_pass=1,cp=.7,receiving_yards=8,air_yards=6))
+                charts.append({'nflverse_game_id':gid,'play_id':play,'defense_coverage_type':'COVER_3'})
+        result=build_scope(rows,[],roster,charts,2025,'2026-01-01',max_games=None)
+        state=result['defense_coverage_game_states']['B']['leading_1_7']
+        self.assertEqual(state['dropbacks'],60)
+        self.assertEqual(state['dominant_shell'],'COVER_3')
+        self.assertEqual(state['status'],'observed')
+        split=result['qb_coverage']['qb']['COVER_3']
+        self.assertEqual(split['status'],'observed')
+        self.assertEqual(split['target_rate_by_position']['TE'],1)
+        allowed=result['defense_coverage_receiving']['B|COVER_3|TE']
+        self.assertEqual(allowed['status'],'observed')

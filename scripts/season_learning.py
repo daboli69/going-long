@@ -30,6 +30,10 @@ def finite(value):
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
 
+def div(a, b):
+    return a / b if b else None
+
+
 def _stamp(value):
     try:
         parsed = datetime.fromisoformat(str(value).replace('Z', '+00:00'))
@@ -255,6 +259,142 @@ def build_matchups(context, weaknesses):
     return output
 
 
+def _coverage_state_from_margin(defense_margin):
+    if not finite(defense_margin):
+        return None
+    if defense_margin >= 8:
+        return 'leading_8_plus'
+    if defense_margin >= 1:
+        return 'leading_1_7'
+    if defense_margin <= -8:
+        return 'trailing_8_plus'
+    if defense_margin <= -1:
+        return 'trailing_1_7'
+    return 'tied'
+
+
+def _starting_qb(offense, current, injury):
+    depth = [row for row in (injury.get('current_players') or {}).values()
+             if row.get('team') == offense and row.get('position') == 'QB'
+             and row.get('roster_status') not in ('RES', 'RET', 'DEV')]
+    depth.sort(key=lambda row: (row.get('depth_rank') != 1, row.get('role_order', 99), -(row.get('snap_share') or 0)))
+    if depth and depth[0].get('gsis_id'):
+        return depth[0]['gsis_id'], depth[0].get('name')
+    qbs = [row for row in current.get('players', {}).values()
+           if row.get('team') == offense and row.get('position') == 'QB']
+    qbs.sort(key=lambda row: (-(row.get('pass_snaps') or 0), -(row.get('share') or 0)))
+    return (qbs[0].get('player_id'), qbs[0].get('name')) if qbs else (None, None)
+
+
+def build_coverage_matchups(context, weaknesses, game_models, injury):
+    """Create a conditional coverage chain without inferring uncharted shells.
+
+    The projected first-half margin selects a historical score-state bucket.
+    Exact participation labels then link the defense's shell tendency, the
+    starting QB's positional target split and the already opponent-adjusted
+    role weakness.  This affects GOING Score matchup ranking only; it is not
+    promoted into a hard yardage/probability projection before OOS validation.
+    """
+    season = int(context['season']);scopes = context.get('scopes', {})
+    current = scopes.get(str(season), {});as_of = _stamp(context.get('as_of')) or datetime.now(timezone.utc)
+    slate_end = as_of + timedelta(days=8);by_defense = {}
+    for row in weaknesses:
+        if row['historical_weakness'].endswith('RECEIVING'):
+            by_defense.setdefault(row['defense'], []).append(row)
+    models = {str(row.get('id')): row for row in game_models if row.get('id')}
+    chart_years = sorted((int(year) for year,scope in scopes.items()
+                          if int(year) < season and scope.get('defense_coverage_game_states')), reverse=True)
+    output = []
+    for game in context.get('games', []):
+        kickoff = _stamp(game.get('kickoff'))
+        if not kickoff or not as_of <= kickoff <= slate_end:
+            continue
+        modeled = models.get(str(game.get('id')))
+        if not modeled:
+            modeled = next((row for row in game_models if row.get('home') == game.get('home') and row.get('away') == game.get('away')
+                            and abs((_stamp(row.get('kickoff'))-kickoff).total_seconds()) < 6*3600), None)
+        model = (modeled or {}).get('model') or {}
+        first_half = ((modeled or {}).get('period_models') or {}).get('1H', {}).get('margin_mean')
+        if not finite(first_half) and finite(model.get('margin_mean')):
+            first_half = .5*model['margin_mean']
+        for offense, defense in ((game['away'],game['home']),(game['home'],game['away'])):
+            defense_margin = first_half if defense == game['home'] else -first_half if finite(first_half) else None
+            state = _coverage_state_from_margin(defense_margin)
+            qb_id, qb_name = _starting_qb(offense,current,injury)
+            if not state or not qb_id:
+                continue
+            chart_year = next((year for year in chart_years
+                               if scopes[str(year)].get('defense_coverage_game_states',{}).get(defense,{}).get(state)), None)
+            if chart_year is None:
+                continue
+            scope = scopes[str(chart_year)]
+            tendency = scope['defense_coverage_game_states'][defense][state]
+            overall = scope.get('defenses',{}).get(defense,{})
+            candidates = []
+            for shell, values in tendency.get('shells',{}).items():
+                if values.get('plays',0) < 15 or not finite(values.get('rate')):
+                    continue
+                baseline = div(overall.get('shell_'+shell,0),overall.get('shell_n',0))
+                candidates.append((values['rate']-(baseline or 0),values['rate'],shell,values,baseline))
+            if not candidates:
+                continue
+            uplift, shell_rate, shell, shell_values, baseline_rate = max(candidates)
+            qb_year = next((year for year in chart_years
+                            if scopes[str(year)].get('qb_coverage',{}).get(qb_id,{}).get(shell)), None)
+            if qb_year is None:
+                continue
+            qb_scope = scopes[str(qb_year)].get('qb_coverage',{}).get(qb_id,{})
+            split, all_split = qb_scope[shell], qb_scope.get('ALL',{})
+            for weakness in by_defense.get(defense,[]):
+                position = weakness['historical_weakness'].split('_')[0]
+                target_rate = split.get('target_rate_by_position',{}).get(position)
+                overall_rate = all_split.get('target_rate_by_position',{}).get(position)
+                if not finite(target_rate):
+                    continue
+                allowed = scope.get('defense_coverage_receiving',{}).get(f'{defense}|{shell}|{position}',{})
+                beneficiaries = [p for p in current.get('players',{}).values()
+                                 if p.get('team') == offense and p.get('position') == position
+                                 and p.get('targets',0) >= 2 and finite(p.get('target_share')) and p['target_share'] >= .08]
+                base_active = weakness['current_status'] in ('persisting','worsening') and weakness['confidence'] in ('medium','high')
+                state_supported = tendency.get('status') == 'observed' and shell_values.get('plays',0) >= 15
+                qb_supported = split.get('status') == 'observed'
+                coverage_weak = allowed.get('status') == 'observed' and allowed.get('adjusted_extra_yards_per_target',0) > .15
+                target_lift = target_rate-(overall_rate if finite(overall_rate) else target_rate)
+                active = base_active and state_supported and qb_supported and (target_lift >= .02 or coverage_weak)
+                conditional = None
+                if active:
+                    conditional = max(-2,min(2,weakness['weighted_estimate']+4*target_lift+.25*(allowed.get('adjusted_extra_yards_per_target') or 0)))
+                state_label = state.replace('_',' ')
+                output.append({
+                    'id': f"{game['id']}|{qb_id}|{defense}|{shell}|{position}", 'game_id': game['id'], 'kickoff': game['kickoff'],
+                    'player_id': qb_id, 'qb_id': qb_id, 'qb': qb_name, 'team': offense, 'opponent': defense, 'role': weakness['historical_weakness'],
+                    'projected_game_state': {'period':'1H','defense_margin':defense_margin,'bucket':state},
+                    'coverage_tendency': {'season':chart_year,'shell':shell,'rate':shell_rate,'plays':shell_values['plays'],
+                                          'state_dropbacks':tendency['dropbacks'],'state_games':tendency['games'],
+                                          'overall_rate':baseline_rate,'rate_lift':uplift,'status':tendency['status']},
+                    'qb_tendency': {'season':qb_year,'shell':shell,'position':position,'target_rate':target_rate,
+                                    'overall_target_rate':overall_rate,'rate_lift':target_lift,'dropbacks':split.get('dropbacks',0),
+                                    'targets':split.get('targets',0),'games':split.get('games',0),'status':split.get('status')},
+                    'defense_role_weakness': {'id':weakness['id'],'status':weakness['current_status'],'confidence':weakness['confidence'],
+                                              'weighted_estimate':weakness['weighted_estimate']},
+                    'coverage_role_results': {'season':chart_year,'targets':allowed.get('targets',0),'games':allowed.get('games',0),
+                                              'yards_per_target':allowed.get('yards_per_target'),
+                                              'adjusted_extra_yards_per_target':allowed.get('adjusted_extra_yards_per_target'),
+                                              'status':allowed.get('status','unavailable')},
+                    'beneficiaries': [{'player_id':p.get('player_id'),'player':p.get('name'),'targets':p.get('targets'),
+                                       'target_share':p.get('target_share')} for p in beneficiaries],
+                    'active_signal':active,'confidence':'high' if active and tendency['dropbacks']>=80 and split.get('dropbacks',0)>=60 else 'medium' if active else 'low',
+                    'conditional_strength':conditional,
+                    'plain_language': f"{defense} used {shell.replace('_',' ')} on {shell_rate:.0%} of charted {chart_year} snaps while {state_label}; GOING projects a {defense_margin:+.1f} first-half margin. {qb_name} targeted {position}s on {target_rate:.0%} of charted {shell.replace('_',' ')} targets in {qb_year}. {defense}'s {position} weakness is {weakness['current_status']}.",
+                    'projection_adjustment':'not_promoted: conditional coverage signal awaits chronological OOS validation',
+                    'weakness_id':weakness['id'],
+                    'lineage':[f'football_context.scopes.{chart_year}.defense_coverage_game_states.{defense}.{state}',
+                               f'football_context.scopes.{qb_year}.qb_coverage.{qb_id}.{shell}',
+                               f'football_context.scopes.{chart_year}.defense_coverage_receiving.{defense}|{shell}|{position}',
+                               f'season_learning.defensive_weaknesses.{weakness["id"]}']})
+    return output
+
+
 def update_evaluation_log(previous, matchups, context):
     now = datetime.now(timezone.utc); current_ids = {row['id'] for row in matchups}
     # Keep current-slate forecasts plus any already-started or settled historical
@@ -279,6 +419,7 @@ def build():
     results = json.loads((ROOT/'data/results.json').read_text())
     history = json.loads((ROOT/'data/history.json').read_text()).get('betting', {})
     path = ROOT/'data/season_learning.json'; previous = json.loads(path.read_text()) if path.exists() else {}
+    injury_path = ROOT/'data/injury_context.json'; injury = json.loads(injury_path.read_text()) if injury_path.exists() else {}
     schedules, raw_schedule, sources = {}, {}, {}
     for sport, loader in (('nfl', nfl.load_schedules), ('ncaa', cfb.load_cfb_schedule)):
         try:
@@ -296,17 +437,19 @@ def build():
     audits['ncaa']['supported_universe'] = 'FBS regular-season games only'
     weaknesses, validation = build_defensive_memory(context, raw_schedule['nfl'])
     matchups = build_matchups(context, weaknesses)
+    coverage_matchups = build_coverage_matchups(context, weaknesses, nfl_models, injury)
     result = {
-        'schema_version': 1, 'model_version': 'defensive-memory-1', 'generated_at': now.isoformat(), 'season': season,
+        'schema_version': 2, 'model_version': 'defensive-memory-coverage-2', 'generated_at': now.isoformat(), 'season': season,
         'sources': sources, 'completeness': audits, 'carryover_validation': validation,
-        'defensive_weaknesses': weaknesses, 'matchup_signals': matchups,
-        'unsupported_granularity': ['WR slot/outside', 'TE slot/inline', 'man/zone matchup'],
-        'unsupported_reason': 'Current public participation/alignment charting is unavailable; no alignment or coverage label is inferred.',
+        'defensive_weaknesses': weaknesses, 'matchup_signals': matchups, 'coverage_matchup_signals': coverage_matchups,
+        'unsupported_granularity': ['WR slot/outside', 'TE slot/inline', 'current-season exact coverage shells'],
+        'unsupported_reason': 'Current public participation/alignment charting is unavailable in-season. Conditional shell signals use the latest exact historical charting and never infer a current shell.',
         'evaluation_log': update_evaluation_log(previous, matchups, context),
-        'method': 'Historical weaknesses use opponent-adjusted role production. Current observations gain weight continuously with real opportunities and OOS carryover stability. A single game cannot change status. Matchup signals require current player usage mapped to the same role.',
+        'coverage_evaluation_log': update_evaluation_log({'evaluation_log':previous.get('coverage_evaluation_log',{})}, coverage_matchups, context),
+        'method': 'Historical weaknesses use opponent-adjusted role production. Current observations gain weight continuously with real opportunities and OOS carryover stability. A single game cannot change status. Conditional coverage selects an exact historical defensive shell bucket from the projected first-half score state, then requires a supported QB positional target split and a persisting role weakness. It changes matchup ranking only until chronological OOS validation supports a projection adjustment.',
     }
     atomic_json(path, result)
-    print('Season learning', {k: (v['expected_completed'], v['actually_ingested'], v['status']) for k,v in audits.items()}, f'{len(weaknesses)} weaknesses, {sum(x["active_signal"] for x in matchups)} active matchup signals')
+    print('Season learning', {k: (v['expected_completed'], v['actually_ingested'], v['status']) for k,v in audits.items()}, f'{len(weaknesses)} weaknesses, {sum(x["active_signal"] for x in matchups)} active role signals, {sum(x["active_signal"] for x in coverage_matchups)} active coverage signals')
     if any(v['status'] == 'FAILED' for v in audits.values()):
         raise RuntimeError('A current-season schedule source failed; report retained with explicit failure state')
 

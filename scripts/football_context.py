@@ -21,6 +21,27 @@ def div(a, b):
     return a / b if b else None
 
 
+def coverage_game_state(offense_score_differential):
+    """Bucket the score from the defending team's point of view.
+
+    nflverse ``score_differential`` is possession-team score minus defensive
+    team score.  Wider buckets preserve enough observations for conditional
+    coverage rates; the raw projected margin is still persisted downstream.
+    """
+    if not finite(offense_score_differential):
+        return None
+    defense_margin = -offense_score_differential
+    if defense_margin >= 8:
+        return 'leading_8_plus'
+    if defense_margin >= 1:
+        return 'leading_1_7'
+    if defense_margin <= -8:
+        return 'trailing_8_plus'
+    if defense_margin <= -1:
+        return 'trailing_1_7'
+    return 'tied'
+
+
 def build_scope(rows, snaps, roster, charting, season, cutoff, max_games=6):
     positions = {r['gsis_id']: r.get('position') for r in roster if r.get('gsis_id')}
     names = {r['gsis_id']: r.get('full_name') for r in roster if r.get('gsis_id')}
@@ -36,8 +57,10 @@ def build_scope(rows, snaps, roster, charting, season, cutoff, max_games=6):
     selected = {t: set(sorted(ids, key=lambda g: (dates[g], g))[-max_games:] if max_games else ids)
                 for t, ids in games_by_team.items()}
     players, teams, defenses = defaultdict(Counter), defaultdict(Counter), defaultdict(Counter)
+    coverage_states, qb_coverage = defaultdict(Counter), defaultdict(Counter)
+    coverage_state_games, qb_coverage_games = defaultdict(set), defaultdict(set)
     player_games, team_games, player_teams = defaultdict(set), defaultdict(set), defaultdict(set)
-    target_log, runner_log = [], []
+    target_log, coverage_target_log, runner_log = [], [], []
     player_game_usage = defaultdict(Counter)
     opening, previous = Counter(), {}
     for r in sorted(valid, key=lambda x: (x['game_date'], x['game_id'], x['play_id'])):
@@ -80,6 +103,17 @@ def build_scope(rows, snaps, roster, charting, season, cutoff, max_games=6):
             shell = c.get('defense_coverage_type')
             if shell:
                 defenses[defense]['shell_n'] += 1;defenses[defense]['shell_' + str(shell)] += 1
+                state = coverage_game_state(r.get('score_differential'))
+                if state:
+                    bucket = coverage_states[(defense, state)]
+                    bucket['dropbacks'] += 1;bucket['shell_' + str(shell)] += 1
+                    coverage_state_games[(defense, state)].add(gid)
+                passer = r.get('passer_player_id')
+                if passer:
+                    for label in ('ALL', str(shell)):
+                        q = qb_coverage[(passer, label)]
+                        q['dropbacks'] += 1
+                        qb_coverage_games[(passer, label)].add(gid)
         pid = r.get('receiver_player_id')
         if pid:
             player_teams[pid].add(team)
@@ -95,6 +129,14 @@ def build_scope(rows, snaps, roster, charting, season, cutoff, max_games=6):
                 yac=r.get('yards_after_catch') if finite(r.get('yards_after_catch')) else None
                 redzone=finite(r.get('yardline_100')) and r['yardline_100']<=20
                 target_log.append((defense, pid, pos, gid, yards, air, yac, redzone))
+                shell = c.get('defense_coverage_type')
+                passer = r.get('passer_player_id')
+                if shell:
+                    coverage_target_log.append((defense, pid, pos, gid, yards, str(shell)))
+                    if passer:
+                        for label in ('ALL', str(shell)):
+                            q = qb_coverage[(passer, label)]
+                            q['targets'] += 1;q['targets_' + pos] += 1
                 pg=player_game_usage[(gid,pid)];pg['targets']+=1;pg['receiving_yards']+=yards
         runner = r.get('rusher_player_id')
         if r.get('rush_attempt') == 1 and not r.get('qb_kneel') and runner:
@@ -182,6 +224,20 @@ def build_scope(rows, snaps, roster, charting, season, cutoff, max_games=6):
             yac_per_target=div(b['yac'],b['yac_targets']),explosive_rate=div(b['explosives'],b['targets']),redzone_target_rate=div(b['redzone_targets'],b['targets']),
             depth={k: {'targets':b['air_'+k+'_targets'],'yards_per_target':div(b['air_'+k+'_yards'],b['air_'+k+'_targets'])} for k in ('short','intermediate','deep')},
             status='observed' if b['targets']>=40 and len(defensive_games[(d,pos)])>=4 else 'too_few_plays')
+    coverage_buckets, coverage_games = defaultdict(Counter), defaultdict(set)
+    for d, pid, pos, gid, yards, shell in coverage_target_log:
+        base = league[pos]['yards'] / league[pos]['n']
+        other_n = totals[pid]['n']-versus[(pid,d)]['n'];other_y = totals[pid]['yards']-versus[(pid,d)]['yards']
+        expected = (other_y+20*base)/(other_n+20)
+        residual = yards-expected;b = coverage_buckets[(d,shell,pos)]
+        b['targets'] += 1;b['yards'] += yards;b['residual'] += residual;b['residual_sq'] += residual*residual
+        coverage_games[(d,shell,pos)].add(gid)
+    coverage_allowed = {}
+    for (d,shell,pos), b in coverage_buckets.items():
+        coverage_allowed[f'{d}|{shell}|{pos}'] = dict(
+            b, games=len(coverage_games[(d,shell,pos)]), yards_per_target=div(b['yards'],b['targets']),
+            adjusted_extra_yards_per_target=b['residual']/(b['targets']+30),
+            status='observed' if b['targets']>=25 and len(coverage_games[(d,shell,pos)])>=3 else 'too_few_plays')
     # The rushing residual mirrors the receiving opponent adjustment: compare a
     # runner with that same runner against other defenses, then stabilize both
     # the runner reference and the defense estimate. QB scrambles are retained;
@@ -203,7 +259,28 @@ def build_scope(rows, snaps, roster, charting, season, cutoff, max_games=6):
         team_out[t] = dict(b, games=len(team_games[t]), first_game=min(dates[g] for g in team_games[t]),last_game=max(dates[g] for g in team_games[t]),
                            plays_per_game=div(b['plays'],len(team_games[t])),pass_over_expected=div(b['pass_actual']-b['pass_expected'],b['pass_expected_n']),pace_seconds=div(b['pace_sum'],b['pace_n']),opening_pass_rate=div(b['opening_passes'],b['opening_plays']),personnel_11_share=div(b['personnel_11'],b['personnel_n']),rb_target_share=div(b['targets_RB'],b['targets']),te_target_share=div(b['targets_TE'],b['targets']))
     game_usage={gid+'|'+pid:dict(values,game_id=gid,player_id=pid,team=next(iter(player_teams[pid])) if len(player_teams[pid])==1 else None,position=positions.get(pid),date=dates.get(gid)) for (gid,pid),values in player_game_usage.items()}
-    return {'season':season,'players':output,'teams':team_out,'position_benchmarks':benchmarks,'defense_receiving':allowed,'defense_rushing':rushing_allowed,'player_game_usage':game_usage,'defenses':{t:dict(b,run_yards_per_carry=div(b['rush_yards'],b['carries']),five_plus_rusher_rate=div(b['five_plus_rushers'],b['rushers_n'])) for t,b in defenses.items()}}
+    state_out = {}
+    for (defense, state), b in coverage_states.items():
+        shells = {key.removeprefix('shell_'): value for key,value in b.items() if key.startswith('shell_')}
+        dominant = max(shells, key=shells.get) if shells else None
+        state_out.setdefault(defense, {})[state] = {
+            'dropbacks': b['dropbacks'], 'games': len(coverage_state_games[(defense,state)]),
+            'shells': {shell: {'plays': count, 'rate': div(count,b['dropbacks'])} for shell,count in shells.items()},
+            'dominant_shell': dominant, 'dominant_rate': div(shells.get(dominant,0),b['dropbacks']) if dominant else None,
+            'status': 'observed' if b['dropbacks']>=40 and len(coverage_state_games[(defense,state)])>=3 else 'too_few_plays'}
+    qb_out = {}
+    for (passer, shell), b in qb_coverage.items():
+        rates = {pos: div(b['targets_'+pos],b['targets']) for pos in ('RB','WR','TE')}
+        per_dropback = {pos: div(b['targets_'+pos],b['dropbacks']) for pos in ('RB','WR','TE')}
+        qb_out.setdefault(passer, {})[shell] = dict(
+            b, games=len(qb_coverage_games[(passer,shell)]), target_rate_by_position=rates,
+            targets_per_dropback_by_position=per_dropback,
+            status='observed' if b['dropbacks']>=30 and b['targets']>=20 and len(qb_coverage_games[(passer,shell)])>=2 else 'too_few_plays')
+    return {'season':season,'players':output,'teams':team_out,'position_benchmarks':benchmarks,
+            'defense_receiving':allowed,'defense_coverage_receiving':coverage_allowed,
+            'defense_coverage_game_states':state_out,'qb_coverage':qb_out,
+            'defense_rushing':rushing_allowed,'player_game_usage':game_usage,
+            'defenses':{t:dict(b,run_yards_per_carry=div(b['rush_yards'],b['carries']),five_plus_rusher_rate=div(b['five_plus_rushers'],b['rushers_n'])) for t,b in defenses.items()}}
 
 
 def coach_meetings(schedule, cutoff):
@@ -226,7 +303,7 @@ def build():
     import nflreadpy as nfl
     season=int(os.getenv('SEASON',datetime.now().year));cutoff=datetime.now(timezone.utc).date().isoformat()
     rows=[];snaps=[];roster=[];charts=[];sources={}
-    keep=['season','season_type','game_date','game_id','posteam','defteam','qtr','play_type','no_play','qb_kneel','qb_spike','play_deleted','play_id','wp','qb_dropback','xpass','drive','quarter_seconds_remaining','receiver_player_id','receiving_yards','air_yards','yards_after_catch','yardline_100','cp','complete_pass','rusher_player_id','rushing_yards','rush_attempt','epa','passer_player_id']
+    keep=['season','season_type','game_date','game_id','posteam','defteam','qtr','play_type','no_play','qb_kneel','qb_spike','play_deleted','play_id','wp','score_differential','qb_dropback','xpass','drive','quarter_seconds_remaining','receiver_player_id','receiving_yards','air_yards','yards_after_catch','yardline_100','cp','complete_pass','rusher_player_id','rushing_yards','rush_attempt','epa','passer_player_id']
     years=tuple(range(season-3,season+1))
     for year in years:
         for kind,fn,destination in [('pbp',nfl.load_pbp,rows),('snaps',nfl.load_snap_counts,snaps),('roster',nfl.load_rosters,roster),('participation',nfl.load_participation,charts)]:
@@ -241,7 +318,7 @@ def build():
     scopes={str(y):build_scope(rows,snaps,roster,charts,y,cutoff,max_games=6 if y==season else None) for y in years}
     upcoming=[dict(id=g['game_id'],home=g['home_team'],away=g['away_team'],home_coach=g.get('home_coach'),away_coach=g.get('away_coach'),kickoff=nfl_kickoff(g),roof=g.get('roof')) for g in schedule if g['season']==season and str(g['gameday'])>=cutoff and g.get('game_type')=='REG']
     result={'schema_version':1,'generated_at':datetime.now(timezone.utc).isoformat(),'as_of':cutoff,'season':season,'sources':sources,'scopes':scopes,'coaches':staff,'coach_meetings':coach_meetings(schedule,cutoff),'games':upcoming,
-            'method':'Current season uses the latest six regular-season games per team; prior seasons use full regular seasons. Future dates are excluded. Snap opportunity is not measured routes. Defensive role residuals compare the same player against other opponents and are shrunk by 20/50 opportunities. Coach records are associations, not causal advantages.'}
+            'method':'Current season uses the latest six regular-season games per team; prior seasons use full regular seasons. Future dates are excluded. Snap opportunity is not measured routes. Defensive role residuals compare the same player against other opponents and are shrunk by 20/50 opportunities. Exact coverage labels are grouped by defensive score state and QB target position only when published participation charting exists. Coach records are associations, not causal advantages.'}
     atomic_json(ROOT/'data/football_context.json',result)
     print('Football context', {y:len(v['players']) for y,v in scopes.items()},sources)
 
