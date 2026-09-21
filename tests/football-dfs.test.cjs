@@ -51,3 +51,18 @@ test('single-game mode assigns one 1.5x Captain or MVP and includes both teams',
   assert.deepEqual(lineup.players.map(player=>player.slot),[multiplier,'FLEX','FLEX','FLEX','FLEX','FLEX']);assert.equal(lineup.players[0].multiplier,1.5);assert.ok(lineup.players.slice(1).every(player=>player.multiplier===1));assert.equal(lineup.players.length,6);assert.equal(new Set(lineup.players.map(player=>player.name)).size,6);assert.equal(Object.keys(lineup.teams).length,2);assert.equal(lineup.salary,32500);assert.equal(lineup.projection,lineup.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0));
  }
 });
+
+test('optimizer includes every user-selected player in every generated roster',()=>{
+ const players=[],add=(position,count,start,teams)=>{for(let i=0;i<count;i++)players.push({id:position+i,name:position+i,position,team:teams[i%teams.length],opponent:teams[(i+1)%teams.length],projection:start-i*.3,sd:4});};
+ add('QB',3,24,['A','B','C']);add('RB',7,20,['A','B','C','D']);add('WR',9,19,['A','B','C','D']);add('TE',4,15,['A','B','C','D']);
+ const lockedIds=['QB2','RB6','WR8','TE3'],result=dfs.optimize(players,{site:'draftkings',count:3,minUnique:1,projectionOnly:true,lockedIds});
+ assert.equal(result.lineups.length,3);
+ for(const lineup of result.lineups){const ids=new Set(lineup.players.map(player=>player.id));for(const id of lockedIds)assert.ok(ids.has(id),`${id} was not locked`);assert.deepEqual(lineup.players.map(player=>player.slot),['QB','RB','RB','WR','WR','WR','TE','FLEX']);}
+});
+
+test('single-game Captain lock occupies the multiplier slot and unavailable locks fail clearly',()=>{
+ const players=Array.from({length:10},(_,i)=>({id:String(i),name:'Player '+i,position:i<2?'QB':i<5?'RB':'WR',salary:5000,team:i<6?'A':'B',opponent:i<6?'B':'A',projection:22-i,sd:4}));
+ const result=dfs.optimize(players,{site:'draftkings',contest:'showdown',count:2,lockedIds:['8'],captainId:'7'});
+ assert.equal(result.lineups.length,2);for(const lineup of result.lineups){assert.equal(lineup.players[0].id,'7');assert.equal(lineup.players[0].slot,'CPT');assert.equal(lineup.players[0].multiplier,1.5);assert.ok(lineup.ids.has('8'));}
+ const invalid=dfs.optimize(players,{site:'draftkings',contest:'showdown',lockedIds:['missing']});assert.equal(invalid.lineups.length,0);assert.match(invalid.reason,/selected player is unavailable/i);
+});
