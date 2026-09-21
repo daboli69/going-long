@@ -79,6 +79,10 @@ jobs:
         id: context
         continue-on-error: true
         run: python scripts/football_context.py
+      - name: Build historical injury effects and current replacement roles
+        id: injury_context
+        continue-on-error: true
+        run: python scripts/injury_context.py
       - name: Refresh chronological NFL game-model diagnostic
         id: game_validation
         continue-on-error: true
@@ -101,7 +105,7 @@ jobs:
           set -euo pipefail
           git config user.name goinglong-bot
           git config user.email actions@github.com
-          paths=(data/public_tracker.json data/king-endzone.json data/slate-breaker.json data/jackpot data/savant_context.json data/football_context.json data/football_role_validation.json data/football_game_validation.json data/season_learning.json data/results.json data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
+          paths=(data/public_tracker.json data/king-endzone.json data/slate-breaker.json data/jackpot data/savant_context.json data/football_context.json data/injury_context.json data/football_role_validation.json data/football_game_validation.json data/season_learning.json data/results.json data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
           existing=()
           for path in "${paths[@]}"; do
             if [ -e "$path" ]; then existing+=("$path"); fi
@@ -123,7 +127,7 @@ jobs:
           done
           exit 1
       - name: Report source failures
-        if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' || steps.context.outcome == 'failure' || steps.game_validation.outcome == 'failure' || steps.season_learning.outcome == 'failure' || steps.jackpot.outcome == 'failure' || steps.slate_breaker.outcome == 'failure' || steps.tracker.outcome == 'failure' }}
+        if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' || steps.context.outcome == 'failure' || steps.injury_context.outcome == 'failure' || steps.game_validation.outcome == 'failure' || steps.season_learning.outcome == 'failure' || steps.jackpot.outcome == 'failure' || steps.slate_breaker.outcome == 'failure' || steps.tracker.outcome == 'failure' }}
         run: |
           echo 'A data source failed. Successful snapshots were committed; inspect the failed step.'
           exit 1

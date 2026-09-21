@@ -2907,7 +2907,7 @@ const BETTING_TABS=new Set(['best','score','dfs','props','projections','firsttd'
 const requestedBettingTab=new URLSearchParams(location.search).get('tab');
 const BET = {
   props: [], liveAttempts: {}, games: [], coverage: "active", drawerGames: [], gameLimit:100, period:"FT", market: "ALL", sort: "ev", tab: "props", sport: "nfl",
-  history: null, config: {}, nflData: null, ncaaData: null, context: null, learning: null, roleValidation: null, gameValidation: null, roster: null, injuryContext: null,
+  history: null, config: {}, nflData: null, ncaaData: null, context: null, learning: null, injuryLearning: null, roleValidation: null, gameValidation: null, roster: null, injuryContext: null,
   page: 0, pageSize: 50, query: "", renderVersion: 0, loading: false,
   book: "sportsbooks", matchup: "ALL", liveLoading: false, liveStatus: "snapshot", liveLoaded: {},
 };
@@ -3103,7 +3103,7 @@ function attachProjection(p, index){
         p.adjustment='Pressure proxy sensitivity · '+((scale-1)*100).toFixed(1)+'% · uncalibrated';
       }
     }
-    const injuryResult=GoingFootballInjuries.adjustModel({model,name:profile.name,team:profile.team,position:profile.position,market:p.market,context:BET.injuryContext});
+    const injuryOpponent=(p.eventTeams||[]).map(canonicalNflTeam).find(candidate=>candidate!==canonicalNflTeam(profile.team))||null,injuryResult=GoingFootballInjuries.adjustModel({model,name:profile.name,team:profile.team,position:profile.position,market:p.market,context:BET.injuryContext,opponent:injuryOpponent});
     model=injuryResult.model;p.injury=injuryResult.injury;
     if(p.injury?.applied)p.adjustment=[p.adjustment,p.injury.reason].filter(Boolean).join(' · ');
     p.model=model; p.projMean=model?.mean??null; p.projSd=model?.sd??null;
@@ -3167,10 +3167,10 @@ async function loadBettingData(){
       try{worker=new Worker(blob);}catch(e){clearTimeout(timer);reject(e);return;}
       worker.onmessage=({data})=>{clearTimeout(timer); data.ok?resolve(data.files):reject(new Error(data.error));};
       worker.onerror=()=>{clearTimeout(timer);reject(new Error("Background data loader failed"));};
-      worker.postMessage([['nfl','nfl_betting.json'],['ncaa','ncaa_lines.json'],['history','history.json'],['config','data.json'],['context','football_context.json'],['learning','season_learning.json'],['roleValidation','football_role_validation.json'],['gameValidation','football_game_validation.json'],['roster','players.json']].map(([k,p])=>[k,new URL('api/snapshot?file='+p,document.baseURI).href,new URL('data/'+p,document.baseURI).href]));
+      worker.postMessage([['nfl','nfl_betting.json'],['ncaa','ncaa_lines.json'],['history','history.json'],['config','data.json'],['context','football_context.json'],['learning','season_learning.json'],['injuryLearning','injury_context.json'],['roleValidation','football_role_validation.json'],['gameValidation','football_game_validation.json'],['roster','players.json']].map(([k,p])=>[k,new URL('api/snapshot?file='+p,document.baseURI).href,new URL('data/'+p,document.baseURI).href]));
     }).finally(()=>{worker?.terminate();URL.revokeObjectURL(blob);});
-    BET.nflData=files.nfl; BET.ncaaData=files.ncaa; BET.history=files.history?.betting; BET.context=files.context; BET.learning=files.learning; BET.roleValidation=files.roleValidation; BET.gameValidation=files.gameValidation; BET.roster=files.roster;
-    BET.injuryContext=GoingFootballInjuries.createContext(BET.roster,BET.history?.profiles);
+    BET.nflData=files.nfl; BET.ncaaData=files.ncaa; BET.history=files.history?.betting; BET.context=files.context; BET.learning=files.learning; BET.injuryLearning=files.injuryLearning; BET.roleValidation=files.roleValidation; BET.gameValidation=files.gameValidation; BET.roster=files.roster;
+    BET.injuryContext=GoingFootballInjuries.createContext(BET.roster,BET.history?.profiles,Date.now(),BET.injuryLearning);
     S.history=files.history; S.pipeline=files.config;
     BET.config=files.config?.betting||{};
     BET.props=await propsFromRealData();
