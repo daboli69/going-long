@@ -38,6 +38,8 @@ def build():
     (output / "long").mkdir()
     shutil.copy2(ROOT / "index.html", output / "long/index.html")
     shutil.copytree(ROOT / "apps/yard", output / "yard")
+    for page in ('players','results'):
+        shutil.copytree(ROOT / 'apps' / page, output / page)
     shutil.copytree(ROOT / "shared", output / "shared")
     shutil.copytree(ROOT / "data", output / "data")
     shutil.copy2(ROOT / ".nojekyll", output / ".nojekyll")
