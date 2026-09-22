@@ -94,6 +94,7 @@ jobs:
       - name: Extract public Savant context
         run: python scripts/extract_savant.py
       - name: Build settlement observations
+        if: ${{ !cancelled() }}
         run: python scripts/build_results.py
       - name: Audit current season and build defensive memory
         id: season_learning
@@ -102,12 +103,15 @@ jobs:
       - name: Freeze and settle public performance tracker
         id: tracker
         continue-on-error: true
+        if: ${{ !cancelled() }}
         run: node scripts/build_public_tracker.mjs
       - name: Publish static opportunities and multisport signal journal
         id: consumer_data
         continue-on-error: true
+        if: ${{ !cancelled() }}
         run: node scripts/build_consumer_data.mjs
       - name: Commit generated snapshots
+        if: ${{ !cancelled() }}
         # Every consumer feature is a static artifact; no database or service added.
         shell: bash
         run: |
