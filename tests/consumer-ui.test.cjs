@@ -1,6 +1,11 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{JSDOM}=require('jsdom');
 const E=require('../shared/evidence-ui.js'),Y=require('../shared/yard-opportunities.js');
 const now=Date.parse('2026-09-21T18:00:00Z');
+test('mobile American odds controls allow exact negative prices without unsigned keyboards or steps',()=>{
+ const dom=new JSDOM(fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'));
+ for(const id of ['bestMinOdds','parlayMin','parlayMax']){const field=dom.window.document.getElementById(id);field.value='-120';assert.equal(field.inputMode,'text');assert.equal(field.checkValidity(),true);assert.equal(Number(field.value),-120);assert.equal(field.hasAttribute('min'),false);}
+ dom.window.close();
+});
 test('explicit injury laterality highlights only the reported side',()=>{const dom=new JSDOM(E.anatomy({primary_injury:'Left knee',secondary_injury:'Right shoulder'}));const selected=[...dom.window.document.querySelectorAll('.affected')].map(e=>e.dataset.region);assert.deepEqual(selected.sort(),['knee-left','shoulder-right']);dom.window.close();});
 function fixture(){const board={generated_at:'2026-09-21T17:00:00Z',games:[{game_pk:1,home:'BAL',away:'TOR',time:'2026-09-21T22:00:00Z'}],players:[{id:1,name:'Test Player',game_pk:1,heat:68,hit_heat:60,hrr_heat:63,why:'Published evidence',lineup_status:'confirmed',metrics:{barrel_pct:{recent:12}},sample:{L15:52}}]};const quote={name:'Test Player',home_team:'Baltimore Orioles',away_team:'Toronto Blue Jays',line:.5,last_update:'2026-09-21T17:58:00Z',books:{draftkings:500}};return{board,odds:{slate_date:'2026-09-21',prices:{test:quote}},quote};}
 test('compact charts show finite real values only and do not fabricate missing metrics',()=>{const html=E.panel([{label:'Missing',value:null},{label:'Zero',value:0,max:1},{label:'Bad',value:NaN}]);assert.match(html,/Zero/);assert.doesNotMatch(html,/Missing|Bad|NaN/);});

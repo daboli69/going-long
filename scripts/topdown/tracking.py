@@ -35,6 +35,6 @@ def collect_board(journal,root,now):
         p['canonical_contract']=c.get('canonicalContract')
         p['legacy_contract']=c.get('contract')
         p['provenance']=c.get('provenance')
-        p['model_evidence']={k:c.get(k) for k in ('n','profileDate','trust','reference','teamSpread','push','position','opp')}
+        p['model_evidence']={k:c.get(k) for k in ('n','profileDate','trust','reference','teamSpread','push','position','opp','seasonEvidence','roleEvidence')}
         journal.append('prediction',key,p);existing.add(key);count+=1
     return count

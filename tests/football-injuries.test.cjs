@@ -6,6 +6,10 @@ const generatedAt='2026-09-20T12:00:00Z';
 const now=Date.parse('2026-09-20T18:00:00Z');
 const model=(mean=100)=>({family:'lognormal',status:'ready',mean,sd:mean/5,mu_log:4.5,sigma_log:.2,nonpositive:[],n:12});
 const context=(players,profiles={})=>injuries.createContext({generated_at:generatedAt,players},profiles,now);
+test('a missing depth rank cannot select a starting QB alphabetically',()=>{
+ const ctx=context([{name:'Alphabetical Backup',team:'A',pos:'QB'}]);
+ assert.equal(injuries.starterEligibility({name:'Alphabetical Backup',team:'A',position:'QB',context:ctx}).eligible,false);
+});
 
 test('questionable designation lowers the mean and widens relative uncertainty',()=>{
  const ctx=context([{name:'Ladd Example',team:'LAC',pos:'WR',injury_status:'Questionable',injury_body_part:'Chest',depth_chart_order:1}]);

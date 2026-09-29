@@ -38,12 +38,16 @@ def finite(value):
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
 
-def fit_stat(values, family, minimum=5):
-    values = [float(v) for v in values if finite(v)]
+def fit_stat(values, family, minimum=5, weights=None):
+    pairs = [(float(v), float(w)) for v, w in zip(values, weights if weights is not None else [1]*len(values)) if finite(v) and finite(w) and w > 0]
+    values = [v for v, _ in pairs]
     n = len(values)
     if not n:
         return {'n': 0, 'status': 'missing'}
-    mean, sd = stats.mean(values), stats.stdev(values) if n > 1 else 0.0
+    total = sum(w for _, w in pairs)
+    mean = sum(v*w for v,w in pairs)/total
+    denominator = total-sum(w*w for _,w in pairs)/total
+    sd = math.sqrt(sum(w*(v-mean)**2 for v,w in pairs)/denominator) if denominator > 0 else 0.0
     out = {'family': family, 'n': n, 'mean': mean, 'sd': sd,
            'status': 'ready' if n >= minimum else 'insufficient'}
     if family == 'poisson':
@@ -52,10 +56,13 @@ def fit_stat(values, family, minimum=5):
         out.update({'lambda': mean, 'dispersion': sd * sd / mean if mean > 0 else None})
     else:
         # Preserve zero/negative games as empirical mass; fit positive yards.
-        positive = [v for v in values if v > 0]
-        out.update(nonpositive=sorted(v for v in values if v <= 0), positive_weight=len(positive) / n)
+        positive = [(v,w) for v,w in pairs if v > 0]
+        mass = sorted((v,w/total) for v,w in pairs if v <= 0)
+        out.update(nonpositive=[v for v,w in mass], nonpositive_weights=[w for v,w in mass], positive_weight=sum(w for v,w in positive)/total)
         if positive:
-            pm, ps = stats.mean(positive), stats.stdev(positive) if len(positive) > 1 else 0.0
+            pt = sum(w for v,w in positive); pm = sum(v*w for v,w in positive)/pt
+            pd = pt-sum(w*w for v,w in positive)/pt
+            ps = math.sqrt(sum(w*(v-pm)**2 for v,w in positive)/pd) if pd > 0 else 0.0
             out.update(mu_log=math.log(pm) - math.log1p((ps / pm) ** 2) / 2,
                        sigma_log=math.sqrt(math.log1p((ps / pm) ** 2)))
         else:
@@ -63,7 +70,33 @@ def fit_stat(values, family, minimum=5):
     return out
 
 
+def season_fit(games, column, family, season, minimum=5, candidate=False):
+    """Cap old-season evidence, rather than counting nine old games as nine current ones.
+
+    Two prior-equivalent games for volume; six for sparse TD counts. Research
+    constants, not claimed fitted optima. Weights and effective n are published.
+    """
+    usable = [r for r in games if finite(r.get(column))]
+    current = [r for r in usable if r['season'] == season]
+    prior = [r for r in usable if r['season'] < season]
+    strength = 6.0 if 'td' in column or column == 'touchdowns' else 2.0
+    effective_prior = min(len(prior), strength)
+    # Do not erase history entirely after a long season.
+    effective_prior = max(effective_prior, len(current)/9) if prior else 0
+    weights = [1.0 if not candidate or r['season'] == season else effective_prior/len(prior) for r in usable]
+    model = fit_stat([r[column] for r in usable], family, minimum, weights)
+    total = sum(weights)
+    model['season_evidence'] = {'season':season, 'current_games':len(current), 'historical_games':len(prior),
+        'current_weight':len(current)/total if total else 0, 'prior_equivalent_games':effective_prior if candidate else len(prior),
+        'effective_n':total**2/sum(w*w for w in weights) if weights else 0,
+        'method':'candidate sample-weighted prior' if candidate else 'equal appearance baseline; stronger current weighting not validated'}
+    return model
+
+
 def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
+    season = max((r.get('season', 0) for r in schedule), default=datetime.now(timezone.utc).year)
+    starters = {(r.get('season'), r.get('week'), r.get(side+'_team')): r.get(side+'_qb_id')
+                for r in schedule for side in ('home', 'away')}
     metadata = {r['gsis_id']: r for r in roster if r.get('gsis_id')}
     pfr = {r['pfr_id']: r['gsis_id'] for r in roster if r.get('pfr_id') and r.get('gsis_id')}
     dates = {(r.get('season'), r.get('week'), r.get(side)): str(r.get('gameday', ''))
@@ -90,7 +123,10 @@ def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
         tds = [r.get(k) for k in ('rushing_tds', 'receiving_tds', 'special_teams_tds')]
         tds += [r.get(k, 0) for k in ('def_tds', 'fumble_recovery_tds')]
         r['touchdowns'] = sum(tds) if all(finite(v) for v in tds) else None
+        starter = starters.get((season, week, r.get('team') or r.get('recent_team')))
+        r['verified_start'] = pid == starter if starter else None
         grouped[pid].append(r)
+    season = max((r.get('season', 0) for r in schedule), default=datetime.now(timezone.utc).year)
     profiles = {}
     for pid, player_games in grouped.items():
         recent = sorted(player_games, key=lambda r: (r['season'], r['week']))[-window:]
@@ -98,12 +134,21 @@ def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
         name = meta.get('full_name') or last.get('player_display_name')
         if not name:
             continue
+        position = meta.get('position') or last.get('position')
+        # A relief appearance is not a full-start workload. Never infer a start
+        # from one pass, nor turn a long-dormant QB's old starts into a ready fit.
+        modeled = recent if position != 'QB' else [r for r in sorted(player_games, key=lambda r:(r['season'],r['week']))
+            if r.get('verified_start') is True and (datetime.now(timezone.utc).date()-datetime.fromisoformat(r['date']).date()).days <= 730][-window:]
         profiles[pid] = {'id': pid, 'name': name, 'name_key': normalize_name(name),
                          'team': meta.get('team') or last.get('team') or last.get('recent_team'),
-                         'position': meta.get('position') or last.get('position'), 'last_game': last['date'],
-                         'stats': {market: fit_stat([r.get(column) for r in recent], family, minimum)
+                         'position': meta.get('position') or last.get('position'), 'last_game': modeled[-1]['date'] if position == 'QB' and modeled else last['date'],
+                         'role_evidence': {'basis':'verified schedule starts' if position == 'QB' else 'offensive appearances',
+                                           'modeled_games':len(modeled), 'latest_appearance':last['date'],
+                                           'latest_start':modeled[-1]['date'] if modeled and position == 'QB' else None},
+                         'stats': {market: season_fit(modeled, column, family, season, minimum)
                                    for market, (column, family) in MARKETS.items()},
                          'games': [{'season': r['season'], 'week': r['week'], 'date': r['date'],
+                                    'verified_start':r.get('verified_start'),
                                     **{market: r.get(col) for market, (col, _) in MARKETS.items()}} for r in recent]}
     return profiles
 
@@ -414,10 +459,13 @@ def build():
     matchup_adjustments(features, game_data['nfl'])
     derivatives = build_derivatives(profiles, game_data, features)
     history = load_json(ROOT / 'data/history.json')
+    from current_season_review import evaluate, results_review
+    learning = evaluate(profiles, season)
+    learning['results_by_market'] = results_review(load_json(ROOT / 'data/public_tracker.json'))
     history['betting'] = {'schema_version': 1, 'generated_at': generated, 'window': window, 'minimum_games': minimum,
                           'sources': {'nflreadpy': sources, 'sportsdataverse': 'loaded'}, 'profiles': profiles,
                           'aliases': aliases, 'team_names': team_map, 'games': game_data, 'validation': validation,
-                          'features': features, 'derivatives': derivatives}
+                          'features': features, 'derivatives': derivatives, 'season_review':learning}
     config = load_json(ROOT / 'data/data.json')
     config.update(schema_version=1, generated_at=generated, season=season,
                   betting={'window': window, 'minimum_games': minimum, 'kelly_fraction': 0.25,

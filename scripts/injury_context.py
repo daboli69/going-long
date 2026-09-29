@@ -220,7 +220,7 @@ def build_current(season, injury_rows, depth_rows, weekly_roster, context, pbp_r
     for rows in groups.values():
         rows.sort(key=lambda item: (item[1].get("depth_rank") or 99, -(item[1].get("snap_share") or 0), item[1]["name"]))
         for order, (_, row) in enumerate(rows, 1):
-            row["role_order"] = order
+            row["role_order"] = order if row['position'] != 'QB' or row.get('depth_rank') else None
 
     positions = {pid: offensive_position(row) for pid, row in roster.items()}
     qb_counts = defaultdict(Counter)
@@ -234,32 +234,59 @@ def build_current(season, injury_rows, depth_rows, weekly_roster, context, pbp_r
         # FTN's n_blitzers is the count of additional blitzing defenders, not
         # total pass rushers. One or more is therefore the supported split.
         blitz = bool(chart and finite(chart.get("n_blitzers")) and chart["n_blitzers"] >= 1)
-        split = "blitz" if blitz else "non_blitz"
+        split = ("blitz" if blitz else "non_blitz") if chart and finite(chart.get('n_blitzers')) else None
         qb_counts[(team, passer)]["dropbacks"] += 1
-        qb_counts[(team, passer)][split + "_dropbacks"] += 1
+        if split:
+            qb_counts[(team, passer)][split + "_dropbacks"] += 1
         if receiver:
             pos = positions.get(receiver)
             if pos in {"RB", "WR", "TE"}:
                 qb_counts[(team, passer)]["targets"] += 1
                 qb_counts[(team, passer)]["targets_" + pos] += 1
-                qb_counts[(team, passer)][split + "_targets_" + pos] += 1
-        if chart and row.get("defteam"):
+                if split:
+                    qb_counts[(team, passer)][split + "_targets_" + pos] += 1
+        if split and row.get("defteam"):
             d = defense[canonical_team(row["defteam"])]
             d["charted_dropbacks"] += 1
             d["blitzes"] += int(blitz)
 
-    qb_tendencies = {}
-    for team in {key[0] for key in qb_counts}:
-        (team_key, passer), counts = max(((key, value) for key, value in qb_counts.items() if key[0] == team), key=lambda item: item[1]["dropbacks"])
+    qb_tendencies, profiles_by_team = {}, defaultdict(dict)
+    for (team, passer), counts in qb_counts.items():
         name = roster.get(passer, {}).get("full_name")
         rates = {pos: counts["targets_" + pos] / counts["targets"] if counts["targets"] else None for pos in ("RB", "WR", "TE")}
-        qb_tendencies[team] = {"qb_id": passer, "qb_name": name, "dropbacks": counts["dropbacks"], "targets": counts["targets"],
+        profiles_by_team[team][passer] = {"qb_id": passer, "qb_name": name, "season":season, "dropbacks": counts["dropbacks"], "targets": counts["targets"],
                                "target_rate_by_position": rates,
                                "targets_per_dropback_by_position": {pos: counts["targets_" + pos] / counts["dropbacks"] if counts["dropbacks"] else None for pos in ("RB", "WR", "TE")},
                                "blitz_splits": {split: {"dropbacks": counts[split + "_dropbacks"],
                                    "target_rate_by_position": {pos: counts[split + "_targets_" + pos] / counts[split + "_dropbacks"] if counts[split + "_dropbacks"] else None for pos in ("RB", "WR", "TE")}}
                                    for split in ("blitz", "non_blitz")},
                                "supported_for_model": counts["dropbacks"] >= 50}
+    # Keep a returning QB's own older charted tendencies, never a teammate's.
+    # Historical context is explicitly separate and cannot activate a current edge.
+    for player in current.values():
+        if player['position'] != 'QB': continue
+        pid, team = player['gsis_id'], player['team']
+        profile = profiles_by_team[team].setdefault(pid, {'qb_id':pid,'qb_name':player['name'],
+            'season':season,'dropbacks':0,'targets':0,'supported_for_model':False})
+        for year in sorted((int(y) for y in context.get('scopes',{}) if str(y).isdigit() and int(y)<season), reverse=True):
+            old = context['scopes'][str(year)]
+            charted = old.get('qb_coverage',{}).get(pid,{}).get('ALL')
+            if not charted or not charted.get('targets'):continue
+            old_role = old.get('players',{}).get(pid,{})
+            profile['historical_context'] = {'season':year,'team':old_role.get('team'),
+                'last_game':old_role.get('last_game'),'games':charted.get('games'),
+                'targets':charted['targets'],'target_rate_by_position':charted.get('target_rate_by_position'),
+                'status':'historical charted appearances; research only, not current role or starter confirmation',
+                'supported_for_model':False}
+            break
+    for team, profiles in profiles_by_team.items():
+        candidates = sorted((p for p in current.values() if p['team']==team and p['position']=='QB' and p.get('role_order')), key=lambda p:p['role_order'])
+        selected = next((p for p in candidates if str(p.get('roster_status','')).upper() in ('ACT','ACTIVE')
+                         and str(reports.get(team+'|'+identity_name(p['name']),{}).get('report_status','')).lower() not in ('out','doubtful')), None)
+        chosen = profiles.get(selected['gsis_id']) if selected else None
+        qb_tendencies[team] = {**(chosen or {'supported_for_model':False}),
+            'selection_basis':'first available current depth role, never cumulative passing volume',
+            'profiles_by_id':profiles}
     defense_scheme = {team: {"charted_dropbacks": value["charted_dropbacks"],
                               "blitz_rate": value["blitzes"] / value["charted_dropbacks"] if value["charted_dropbacks"] else None,
                               "supported_for_model": value["charted_dropbacks"] >= 50}
