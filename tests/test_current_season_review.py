@@ -2,24 +2,42 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts'))
-from build_pipeline import fit_stat, season_fit, build_profiles
+from build_pipeline import fit_stat, season_fit, build_profiles, build_game_models
 from current_season_review import evaluate, results_review
 from injury_context import build_current
 
 
 class CurrentSeasonTests(unittest.TestCase):
-    def test_candidate_is_not_silently_promoted(self):
+    def test_requested_eighty_twenty_policy(self):
         games=[{'season':2025,'yards':10}]*9+[{'season':2026,'yards':50}]*3
         baseline=season_fit(games,'yards','lognormal',2026)
         candidate=season_fit(games,'yards','lognormal',2026,candidate=True)
-        self.assertEqual(baseline['mean'],20)
+        self.assertAlmostEqual(baseline['mean'],42)
         self.assertAlmostEqual(candidate['season_evidence']['current_weight'],.6)
-        self.assertEqual(baseline['season_evidence']['current_weight'],.25)
+        self.assertAlmostEqual(baseline['season_evidence']['current_weight'],.8)
+        self.assertEqual(baseline['season_evidence']['sample_confidence'],'low')
+
+    def test_missing_season_is_explicit_fallback_not_fabricated(self):
+        for years,status,weight in [([2025]*6,'historical_fallback',0),([2026]*6,'current_only',1)]:
+            fit=season_fit([{'season':y,'yards':10} for y in years],'yards','lognormal',2026)
+            self.assertEqual(fit['season_evidence']['evidence_status'],status)
+            self.assertAlmostEqual(fit['season_evidence']['current_weight'],weight)
+        self.assertEqual(season_fit([{'season':2027,'yards':999}],'yards','lognormal',2026)['n'],0)
 
     def test_weighted_zero_mass_is_normalized(self):
         model=fit_stat([-1,0,10,20],'lognormal',weights=[1,1,3,3])
         self.assertEqual(model['positive_weight'],.75)
         self.assertAlmostEqual(sum(model['nonpositive_weights'])+model['positive_weight'],1)
+
+    def test_game_line_blends_seasons_before_target_kickoff(self):
+        games=[dict(id=f'{year}-{day}',season=year,home='A',away='B',kickoff=f'{year}-09-{day:02}T17:00:00Z',
+            completed=True,homeScore=30 if year==2026 else 10,awayScore=5 if year==2026 else 0)
+            for year,count in [(2025,5),(2026,3)] for day in range(1,count+1)]
+        games.append(dict(id='next',season=2026,home='A',away='B',kickoff='2026-09-08T17:00:00Z',completed=False))
+        model=build_game_models(games)[0][0]['model']
+        self.assertAlmostEqual(model['total_mean'],30)
+        self.assertAlmostEqual(model['margin_mean'],22)
+        self.assertAlmostEqual(model['season_evidence']['home_current_weight'],.8)
 
     def test_qb_relief_is_not_a_start(self):
         roster=[{'gsis_id':'q','full_name':'Backup QB','position':'QB','team':'A'}]

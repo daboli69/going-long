@@ -4088,7 +4088,7 @@ async function signalCandidates(){
    const [label,sideName]=r.side.split(': '),market={Spread:'spread',Total:'total',Moneyline:'moneyline'}[label];if(!market||!finiteNumber(r.ev))continue;
    const side=market==='total'?sideName:sideName===g.home?'Home':'Away',line=market==='spread'?g.spread:market==='total'?g.total:0;
    const other=market==='spread'?(side==='Home'?g.awaySpreadOdds:g.homeSpreadOdds):market==='total'?(side==='Over'?g.underOdds:g.overOdds):(side==='Home'?g.mlAway:g.mlHome);
-   quotes.push({kind:'game',sport:g.sport,home,away,event,kickoff:g.kickoff,player:`${away} @ ${home}`,team:side==='Home'?home:side==='Away'?away:'',market,side,line,odds:r.odds,dec:americanToDecimal(r.odds),prob:r.prob,push:r.push,ev:r.ev,book:g.book,updatedAt:g.marketTimes?.[market==='spread'?'spreads':market==='total'?'totals':'h2h']||g.updatedAt,n:g.model?Math.min(g.model.home_n,g.model.away_n):null,reference:signalReference(r.odds,other,r.push)});
+   quotes.push({kind:'game',sport:g.sport,home,away,event,kickoff:g.kickoff,player:`${away} @ ${home}`,team:side==='Home'?home:side==='Away'?away:'',market,side,line,odds:r.odds,dec:americanToDecimal(r.odds),prob:r.prob,push:r.push,ev:r.ev,book:g.book,updatedAt:g.marketTimes?.[market==='spread'?'spreads':market==='total'?'totals':'h2h']||g.updatedAt,gameSeasonEvidence:g.model?.season_evidence,n:g.model?Math.min(g.model.home_n,g.model.away_n):null,reference:signalReference(r.odds,other,r.push)});
   }
  }
  for(let i=0;i<BET.props.length;i++){
@@ -4180,6 +4180,8 @@ function defensiveMatchup(c){
 }
 function defensiveWeakness(id){return (BET.learning?.defensive_weaknesses||[]).find(row=>row.id===id)||null;}
 function bestConfidence(c){
+ if(c.gameSeasonEvidence&&Math.min(c.gameSeasonEvidence.home_current_games,c.gameSeasonEvidence.away_current_games)<5)return {label:'Low',detail:'Current-season-led game model with fewer than five current games per team.'};
+ if(c.seasonEvidence?.sample_confidence==='low')return {label:'Low',detail:`${c.seasonEvidence.current_games} current-season games; ${percent(c.seasonEvidence.current_weight)} current weight is a policy choice, not validated confidence.`};
  const age=Date.now()-Date.parse(c.updatedAt),check=(c.flags||[]).some(f=>f.id==='check'),sample=c.n||0;
  if(c.injury?.stale||c.injury?.blockRecommendation)return {label:'Low',detail:'Availability is unresolved or the injury snapshot is stale'};
  if(c.injury&&!c.injury.roleBoost)return {label:'Low',detail:'Projection includes an uncertain-availability workload scenario'};
@@ -4201,6 +4203,7 @@ function bestEvidenceRows(c){
  const seasonEvidence=c.seasonEvidence,roleEvidence=c.roleEvidence;
  const rows=[],add=(label,value)=>{if(value!==null&&value!==undefined&&value!=='')rows.push([label,String(value)]);};
  if(seasonEvidence){add('Current-season projection weight',percent(seasonEvidence.current_weight));add('Current / historical games',`${seasonEvidence.current_games} / ${seasonEvidence.historical_games}`);add('Weighting policy',seasonEvidence.method);}
+ if(c.gameSeasonEvidence){const e=c.gameSeasonEvidence;add('Home / away current-season weights',`${percent(e.home_current_weight)} / ${percent(e.away_current_weight)}`);add('Home / away current-season games',`${e.home_current_games} / ${e.away_current_games}`);add('Weighting policy',e.policy);}
  if(roleEvidence){add('Workload basis',roleEvidence.basis);add('Verified starts used',roleEvidence.basis==='verified schedule starts'?roleEvidence.modeled_games:null);add('Last verified start',roleEvidence.latest_start);}
  if(c.position==='QB'){
   const qb=BET.injuryLearning?.qb_tendencies?.[c.team]?.profiles_by_id?.[c.profileId],old=qb?.historical_context;

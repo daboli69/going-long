@@ -19,12 +19,12 @@ def evaluate(profiles, season):
                 if game['season'] != season or len(prior)<5 or not finite(game.get(market)):
                     continue
                 baseline = fit_stat([r[market] for r in prior], 'poisson')['mean']
-                candidate = season_fit(prior, market, 'poisson', season, candidate=True)['mean']
+                candidate = season_fit(prior, market, 'poisson', season)['mean']
                 errors.append(((baseline-game[market])**2, (candidate-game[market])**2))
         output[market] = {'n':len(errors), 'baseline_rmse':math.sqrt(sum(x for x,y in errors)/len(errors)) if errors else None,
             'candidate_rmse':math.sqrt(sum(y for x,y in errors)/len(errors)) if errors else None}
-    return {'season':season, 'markets':output, 'promotion':'not promoted',
-        'method':'strict prior-appearance replay of archived trailing windows; two historical game equivalents for volume, six for TD counts',
+    return {'season':season, 'markets':output, 'promotion':'80/20 product policy by user request; not a validated accuracy improvement',
+        'method':'strict prior-appearance replay of archived trailing windows; 80% current / 20% historical versus equal appearances',
         'limitations':'Small current-season development sample; no odds/ROI claim; QB replay includes relief appearances in the legacy archive; require prospective role-matched validation.'}
 
 

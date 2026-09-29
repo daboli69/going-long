@@ -1,5 +1,20 @@
 # Week 4 role and learning review — September 29, 2026
 
+## Subsequent policy override: 80/20
+
+At the owner's explicit request, live player-prop and team game-line baseline
+distributions now give current-season observations 80% total weight and older
+observations 20%, when both exist. This supersedes the unpromoted decision below.
+The same policy applies to TD count fits. No current observations means an
+explicit historical fallback; no historical observations means current-only.
+Existing minimum samples, verified QB starts and freshness checks remain.
+Fewer than five current appearances carries low sample confidence, regardless
+of the assigned 80% weight. This is a product policy, not a validated accuracy
+improvement. Role/coverage evidence and market prices are not artificially
+reweighted. Game-model replay uses only results available before each kickoff.
+Scheduled season diagnostics now compare this exact 80/20 policy to the former
+equal-appearance baseline. Existing frozen predictions remain unchanged.
+
 The current snapshot accounts for 48/48 completed NFL games. Current role,
 injury and defensive-memory evidence is already separate from the historical
 outcome distribution. Three weeks alone do not validate replacing all priors.

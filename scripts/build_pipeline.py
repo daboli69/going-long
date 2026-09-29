@@ -70,26 +70,38 @@ def fit_stat(values, family, minimum=5, weights=None):
     return out
 
 
-def season_fit(games, column, family, season, minimum=5, candidate=False):
-    """Cap old-season evidence, rather than counting nine old games as nine current ones.
+def season_weights(years, season):
+    """Product policy: 80/20 when both sources exist; never invent missing data."""
+    current = sum(y == season for y in years)
+    prior = sum(y < season for y in years)
+    return [(0.8/current if prior else 1/current) if y == season else
+            (0.2/prior if current else 1/prior) if y < season else 0 for y in years]
 
-    Two prior-equivalent games for volume; six for sparse TD counts. Research
-    constants, not claimed fitted optima. Weights and effective n are published.
+
+def season_fit(games, column, family, season, minimum=5, candidate=False):
+    """Live 80/20 policy, with explicit missing-season fallback and effective n.
+
+    candidate=True retains the earlier two/six-game-prior research comparator.
+    Neither policy is claimed to be a fitted optimum.
     """
-    usable = [r for r in games if finite(r.get(column))]
+    usable = [r for r in games if r['season'] <= season and finite(r.get(column))]
     current = [r for r in usable if r['season'] == season]
     prior = [r for r in usable if r['season'] < season]
     strength = 6.0 if 'td' in column or column == 'touchdowns' else 2.0
     effective_prior = min(len(prior), strength)
     # Do not erase history entirely after a long season.
     effective_prior = max(effective_prior, len(current)/9) if prior else 0
-    weights = [1.0 if not candidate or r['season'] == season else effective_prior/len(prior) for r in usable]
+    weights = ([1.0 if r['season'] == season else effective_prior/len(prior) for r in usable]
+               if candidate else season_weights([r['season'] for r in usable], season))
     model = fit_stat([r[column] for r in usable], family, minimum, weights)
     total = sum(weights)
     model['season_evidence'] = {'season':season, 'current_games':len(current), 'historical_games':len(prior),
-        'current_weight':len(current)/total if total else 0, 'prior_equivalent_games':effective_prior if candidate else len(prior),
+        'current_weight':sum(w for r,w in zip(usable,weights) if r['season']==season)/total if total else 0,
+        'historical_weight':sum(w for r,w in zip(usable,weights) if r['season']<season)/total if total else 0,
+        'evidence_status':'mixed' if current and prior else 'current_only' if current else 'historical_fallback' if prior else 'missing',
+        'sample_confidence':'low' if len(current)<5 else 'moderate',
         'effective_n':total**2/sum(w*w for w in weights) if weights else 0,
-        'method':'candidate sample-weighted prior' if candidate else 'equal appearance baseline; stronger current weighting not validated'}
+        'method':'candidate sample-weighted prior' if candidate else '80% current / 20% historical policy; unvalidated accuracy improvement'}
     return model
 
 
@@ -215,8 +227,9 @@ def build_game_models(games, window=12, minimum=5):
                 errors['margin'].append(game['homeScore'] - game['awayScore'] - model['margin_mean'])
                 errors['total'].append(game['homeScore'] + game['awayScore'] - model['total_mean'])
             played_at = timestamp(game['kickoff'])
-            history[game['home']].append((game['homeScore'], game['awayScore'], played_at))
-            history[game['away']].append((game['awayScore'], game['homeScore'], played_at))
+            year = game.get('season') or int(game['kickoff'][:4])
+            history[game['home']].append((game['homeScore'], game['awayScore'], played_at, year))
+            history[game['away']].append((game['awayScore'], game['homeScore'], played_at, year))
             for team in (game['home'], game['away']):
                 history[team].sort(key=lambda result: result[2])
     errors, output = {'margin': [], 'total': []}, []
@@ -230,9 +243,15 @@ def build_game_models(games, window=12, minimum=5):
             h, a = history[g['home']][-window:], history[g['away']][-window:]
             model = None
             if len(h) >= minimum and len(a) >= minimum:
-                home = (stats.mean(x[0] for x in h) + stats.mean(x[1] for x in a)) / 2
-                away = (stats.mean(x[0] for x in a) + stats.mean(x[1] for x in h)) / 2
+                year = g.get('season') or int(g['kickoff'][:4])
+                hw, aw = season_weights([x[3] for x in h],year), season_weights([x[3] for x in a],year)
+                home = (sum(x[0]*w for x,w in zip(h,hw)) + sum(x[1]*w for x,w in zip(a,aw))) / 2
+                away = (sum(x[0]*w for x,w in zip(a,aw)) + sum(x[1]*w for x,w in zip(h,hw))) / 2
                 model = {'margin_mean': home - away, 'total_mean': home + away,
+                         'season_evidence':{'policy':'80% current / 20% historical when both exist; historical fallback otherwise',
+                             'home_current_weight':sum(w for x,w in zip(h,hw) if x[3]==year),
+                             'away_current_weight':sum(w for x,w in zip(a,aw) if x[3]==year),
+                             'home_current_games':sum(x[3]==year for x in h), 'away_current_games':sum(x[3]==year for x in a)},
                          'home_n': len(h), 'away_n': len(a), 'residual_n': len(errors['margin']),
                          'input_cutoff': g['kickoff'], 'timing_policy': 'published result time, otherwise kickoff plus 12 hours'}
                 for key in errors:
