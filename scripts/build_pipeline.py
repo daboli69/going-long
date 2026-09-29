@@ -159,8 +159,11 @@ def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
                                            'latest_start':modeled[-1]['date'] if modeled and position == 'QB' else None},
                          'stats': {market: season_fit(modeled, column, family, season, minimum)
                                    for market, (column, family) in MARKETS.items()},
+                         'workload': {column:season_fit(modeled,column,'poisson',season,minimum)
+                                      for column in ('attempts','carries','targets')},
                          'games': [{'season': r['season'], 'week': r['week'], 'date': r['date'],
                                     'verified_start':r.get('verified_start'),
+                                    'attempts':r.get('attempts'), 'carries':r.get('carries'), 'targets':r.get('targets'),
                                     **{market: r.get(col) for market, (col, _) in MARKETS.items()}} for r in recent]}
     return profiles
 

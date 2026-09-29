@@ -19,7 +19,7 @@ export function footballCards(rows){
   const flags=c.flags||[],market=labels[c.market]||c.market,side=c.side==='Home'?c.home:c.side==='Away'?c.away:c.side;
   const label=c.market==='atd'?c.player+' to score a touchdown':c.market==='moneyline'?side+' to win':(c.player?c.player+' · ':'')+side+' '+c.line+' '+market.toLowerCase();
   const qualified=c.tracking_group==='best_value'||(c.ev>=.03&&flags.some(f=>f.id==='gap')&&!flags.some(f=>f.id==='check'));
-  unique.set(id,{...c,id,label,qualification:qualified?'GOING candidate':'Price watchlist',marketLabel:market,
+  unique.set(id,{...c,id,label,qualification:qualified?'Model-screened research':'Price watchlist',marketLabel:market,
    projectionLabel:Number.isFinite(c.projMean)?c.projMean.toFixed(1)+' projected · '+(100*c.prob).toFixed(1)+'% model':Number.isFinite(c.prob)?(100*c.prob).toFixed(1)+'% model':'Unavailable',
    confidence:Number.isFinite(c.n)?c.n+' recorded games':'Sample unavailable',
    why:flags.filter(f=>f.id!=='check').map(f=>f.why||f.text||f.label||'').filter(Boolean).slice(0,2).join(' · ')||'Existing projection and quoted line are available for comparison; no separately qualified edge is asserted.',

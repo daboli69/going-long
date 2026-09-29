@@ -3,6 +3,8 @@ import {execFileSync} from 'node:child_process';
 import {readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
+import {modelCohort} from '../shared/model-cohort.mjs';
+import {calibrationRows,calibrationAudit,shadowPrediction,workloadAudit} from './calibration_audit.mjs';
 
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const OUTPUT=path.join(ROOT,'data','public_tracker.json');
@@ -38,24 +40,53 @@ export function selectTrackedPlays(plays){
 
 export function freezePredictions(records,plays,observedAt){
  const now=Date.parse(observedAt),existing=new Set(records.filter(r=>r.kind==='prediction').map(r=>r.id)),added=[];
+ const frozenContracts=new Set(records.filter(r=>r.kind==='prediction').map(({payload:p})=>[modelCohort(p),p.tracking_group,p.canonical_contract||p.selection].join('|')));
+ const training=calibrationRows(records);
  for(const row of plays){
   const market=MARKET[row.market],kickoff=Date.parse(row.kickoff),group=row.tracking_group,contract=row.canonicalContract||row.contract;
   if(!GROUPS.has(group)||!market||!contract||!Number.isFinite(kickoff)||kickoff<=now||!Number.isFinite(row.dec)||!Number.isFinite(row.prob)||row.prob<=0||row.prob>=1)continue;
-  const id=hash(`public-tracker-1|${group}|${contract}`);if(existing.has(id))continue;
+  const cohort=modelCohort(row),frozenKey=[cohort,group,contract].join('|'),id=hash(`public-tracker-1|${group}|${contract}${cohort==='legacy'?'':'|'+cohort}`);if(existing.has(id)||frozenContracts.has(frozenKey))continue;
   const payload={id,tracking_group:group,event:row.event,selection:contract,canonical_contract:contract,sport:row.sport,home:row.home,away:row.away,kickoff:row.kickoff,player:row.kind==='prop'?row.player:null,profile_id:row.profileId||null,market,line:row.line,side:row.side,side_index:['Under','Away'].includes(row.side)?1:0,book:row.book,odds:row.dec,american:row.odds,probability:row.prob,ev:row.ev,odds_band:oddsBand(row.dec),observed_at:observedAt,quoted_at:row.updatedAt,model_version:'public-tracker-1',model_evidence:{n:row.n??null,profileDate:row.profileDate??null,push:row.push??0,gameSeasonEvidence:row.gameSeasonEvidence??null,seasonEvidence:row.seasonEvidence??null,roleEvidence:row.roleEvidence??null},provenance:row.provenance||null};
-  const record={id,kind:'prediction',observed_at:observedAt,payload};records.push(record);added.push(record);existing.add(id);
+  payload.model_cohort=cohort;payload.model_version='board-research-3';
+  payload.model_evidence={...payload.model_evidence,reference:row.reference||null,projection_mean:row.projMean??null,projection_sd:row.projSd??null,workload:row.workloadEvidence||null};
+  payload.calibration_shadow=shadowPrediction(payload,training);
+  const record={id,kind:'prediction',observed_at:observedAt,payload};records.push(record);added.push(record);existing.add(id);frozenContracts.add(frozenKey);
  }
  return added;
 }
 
 function matchingGame(prediction,games){
- return games.filter(game=>game.sport===prediction.sport&&normalize(game.home)===normalize(prediction.home)&&normalize(game.away)===normalize(prediction.away)&&Math.abs(Date.parse(game.kickoff)-Date.parse(prediction.kickoff))<90000);
+ // Match the unique official matchup/day, not a vendor's delayed kickoff clock.
+ return games.filter(game=>game.sport===prediction.sport&&normalize(game.home)===normalize(prediction.home)&&normalize(game.away)===normalize(prediction.away)&&easternDate(game.kickoff)===easternDate(prediction.kickoff));
+}
+
+export function settlementReason(p,results,observedAt){
+ if(!(Date.parse(p.kickoff)<Date.parse(observedAt)))return 'upcoming';
+ const matches=matchingGame(p,Object.values(results.games||{}));
+ if(matches.length!==1)return matches.length?'ambiguous_game':'official_final_missing';
+ const g=matches[0];
+ if(!(Date.parse(p.observed_at)<Date.parse(g.kickoff)))return 'not_before_official_kickoff';
+ if(!Number.isFinite(g.homeScore)||!Number.isFinite(g.awayScore))return 'partial_final';
+ if(PLAYER_RESULT[p.market]){
+  const row=results.players?.[`${p.profile_id}|${easternDate(g.kickoff)}`];
+  if(!row)return 'player_participation_or_result_missing';
+  if(!Number.isFinite(row[PLAYER_RESULT[p.market]]))return 'player_market_result_missing';
+ }else if(!['totals','spreads','h2h'].includes(p.market))return 'unsupported_settlement_rules';
+ return null;
+}
+
+export function settlementAudit(records,results,observedAt){
+ const settled=new Set(records.filter(r=>r.kind==='settlement').map(r=>r.payload.prediction_id)),pending=[],counts={};
+ for(const {payload:p} of records.filter(r=>r.kind==='prediction')){
+  if(settled.has(p.id))continue;const reason=settlementReason(p,results,observedAt);if(!reason||reason==='upcoming')continue;
+  counts[reason]=(counts[reason]||0)+1;pending.push({prediction_id:p.id,player:p.player,market:p.market,group:p.tracking_group,cohort:modelCohort(p),reason});
+ }return {checked_at:observedAt,counts,pending,note:'Missing player participation is not zero and does not establish book-specific void rules.'};
 }
 
 export function settlePredictions(records,results,observedAt){
  const games=Object.values(results.games||{}),players=results.players||{},settled=new Set(records.filter(r=>r.kind==='settlement').map(r=>r.payload?.prediction_id)),added=[];
  for(const record of records.filter(r=>r.kind==='prediction')){
-  const p=record.payload;if(settled.has(p.id)||Date.parse(p.kickoff)>=Date.parse(observedAt))continue;
+  const p=record.payload;if(settled.has(p.id)||settlementReason(p,results,observedAt))continue;
   const matched=matchingGame(p,games);if(matched.length!==1)continue;const game=matched[0];let actual=null,target=p.line,over=p.side_index===0;
   if(p.market==='totals')actual=game.homeScore+game.awayScore;
   else if(p.market==='spreads'){actual=game.homeScore-game.awayScore+p.line;target=0;over=p.side_index===0;}
@@ -63,6 +94,8 @@ export function settlePredictions(records,results,observedAt){
   else if(PLAYER_RESULT[p.market]&&p.profile_id){actual=players[`${p.profile_id}|${easternDate(game.kickoff)}`]?.[PLAYER_RESULT[p.market]];if(p.market==='atd'){target=.5;over=true;}}
   if(!Number.isFinite(actual)||!Number.isFinite(target))continue;
   const status=actual===target?'refund':((actual>target)===over?'win':'loss'),id=hash(`public-tracker-1|settlement|${p.id}`),payload={sport:p.sport,prediction_id:p.id,event:p.event,status,actual,observed_at:observedAt,source_url:'https://github.com/daboli69/going-long/blob/main/data/results.json',source_generated_at:results.generated_at,source_sha256:hash(JSON.stringify(game)),method:'published_full_game_result',rules_note:'Public research settlement; book-specific injury and void exceptions are not inferred.'};
+  payload.actual_workload=players[`${p.profile_id}|${easternDate(game.kickoff)}`]||null;
+  payload.source_sha256=hash(JSON.stringify({game,player:payload.actual_workload}));
   const settlement={id,kind:'settlement',observed_at:observedAt,payload};records.push(settlement);added.push(settlement);settled.add(p.id);
  }
  return added;
@@ -72,11 +105,38 @@ export function summarizeSnapshot(records){
  const counts={};for(const group of GROUPS)counts[group]={predictions:records.filter(r=>r.kind==='prediction'&&r.payload?.tracking_group===group).length,settled:records.filter(r=>r.kind==='settlement'&&records.some(p=>p.kind==='prediction'&&p.id===r.payload?.prediction_id&&p.payload?.tracking_group===group)).length};return counts;
 }
 
+export function captureClosingPrices(records,quotes,observedAt){
+ const now=Date.parse(observedAt),existing=new Set(records.map(r=>r.id)),added=[];
+ const key=(p,raw=false)=>[p.sport,normalize(p.home),normalize(p.away),easternDate(p.kickoff),raw?(MARKET[p.market]||p.market):p.market,raw?p.profileId||'':p.profile_id||'',p.line,p.side,normalize(p.book)].join('|');
+ const available=new Map();
+ for(const q of quotes){
+  const quoted=Date.parse(q.updatedAt),kickoff=Date.parse(q.kickoff);
+  if(!Number.isFinite(q.dec)||q.dec<=1||!Number.isFinite(quoted)||quoted>now||now-quoted>10*60000||now>=kickoff)continue;
+  const k=key(q,true),old=available.get(k);if(!old||Date.parse(old.updatedAt)<quoted)available.set(k,q);
+ }
+ for(const {payload:p} of records.filter(r=>r.kind==='prediction')){
+  const q=available.get(key(p));if(!q||!(Date.parse(q.updatedAt)>Date.parse(p.observed_at))||now>=Date.parse(p.kickoff))continue;
+  const id=hash(`sampled-close|${p.id}|${q.updatedAt}`);if(existing.has(id))continue;
+  const ref=q.reference,probability=Number.isFinite(ref?.win)&&Number.isFinite(ref?.loss)&&ref.win+ref.loss>0?ref.win/(ref.win+ref.loss):null;
+  const payload={prediction_id:p.id,sport:p.sport,book:p.book,quoted_at:q.updatedAt,observed_at:observedAt,decimal:q.dec,probability,
+   near_kickoff:Date.parse(p.kickoff)-Date.parse(q.updatedAt)<=10*60000,
+   method:'same-book exact-line scheduled observation; not guaranteed final closing price',source:'existing scheduled odds snapshot'};
+  const row={id,kind:'closing',observed_at:observedAt,payload};records.push(row);added.push(row);existing.add(id);
+ }return added;
+}
+
 async function readJson(file,fallback){try{return JSON.parse(await readFile(file,'utf8'));}catch{return fallback;}}
 export async function build({now=new Date().toISOString(),plays=null,output=OUTPUT}={}){
  const previous=await readJson(output,{schema_version:1,records:[]}),records=Array.isArray(previous.records)?previous.records:[],results=await readJson(path.join(ROOT,'data','results.json'),{});
- if(!plays){const stdout=execFileSync(process.execPath,[path.join(ROOT,'scripts','collect_model_plays.cjs')],{cwd:ROOT,encoding:'utf8',maxBuffer:64*1024*1024,env:{...process.env,GOING_TRACKER_LOCAL_DATA:'1'}});plays=JSON.parse(stdout);}
+ if(!plays){const stdout=execFileSync(process.execPath,[path.join(ROOT,'scripts','collect_model_plays.cjs')],{cwd:ROOT,encoding:'utf8',maxBuffer:64*1024*1024,env:{...process.env,GOING_TRACKER_LOCAL_DATA:'1',GOING_CAPTURE_QUOTES:'1'}});plays=JSON.parse(stdout);}
  const tracked=selectTrackedPlays(plays),nowMs=Date.parse(now),eligible=new Set(tracked.filter(row=>GROUPS.has(row.tracking_group)&&MARKET[row.market]&&(row.canonicalContract||row.contract)&&Date.parse(row.kickoff)>nowMs&&Number.isFinite(row.dec)&&Number.isFinite(row.prob)&&row.prob>0&&row.prob<1).map(row=>`${row.tracking_group}|${row.canonicalContract||row.contract}`)).size,captured=freezePredictions(records,tracked,now),settled=settlePredictions(records,results,now),first=records.filter(r=>r.kind==='prediction').map(r=>r.observed_at).sort()[0]||null,snapshot={schema_version:1,generated_at:now,tracking_started_at:first,records,groups:summarizeSnapshot(records),latest_run:{eligible,captured:captured.length,settled:settled.length},sources:{predictions:{status:'FRESH',method:'scheduled GOING board snapshot'},results:{status:results.generated_at?'FRESH':'FAILED',generated_at:results.generated_at||null}},methodology:{minimum_american_odds:-500,best_model:'Non-alternate plays carrying the board’s price-gap qualification without a blocking check.',best_value:'Non-alternate selections independently qualified against reference-book prices.',all_projection:'One line per event, player, market and side, chosen closest to standard -110 pricing.'},limitations:'Prospective selections only; no retroactive winners. Results use published full-game outcomes. Book-specific void and injury rules are not inferred. Public research is separate from user-entered bets.'};
+ const closing=captureClosingPrices(records,plays,now);
+ snapshot.latest_run.closing_observations=closing.length;
+ snapshot.settlement_audit=settlementAudit(records,results,now);
+ snapshot.calibration_audit=calibrationAudit(records,now);
+ snapshot.workload_audit=workloadAudit(records);
+ snapshot.methodology.best_model='Model-screened research, not a validated betting edge. Includes legacy qualified selections; no outcome-driven deletion.';
+ snapshot.methodology.closing_prices='Scheduled same-book/exact-line observations from existing pulls. Only samples within 10 minutes are labeled near kickoff; the twice-daily schedule cannot guarantee closing coverage.';
  await writeFile(output,JSON.stringify(snapshot),{encoding:'utf8'});return snapshot;
 }
 
