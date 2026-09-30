@@ -4451,7 +4451,7 @@ function bestConfidence(c){
   const x=ncaaGameEvidence(c),age=Date.now()-Date.parse(c.updatedAt),check=(c.flags||[]).some(f=>f.id==='check');
   if(check||!x||!Number.isFinite(age)||age>300000)return {label:'Low',detail:'NCAA estimate needs a current quote and a resolved model check before confidence can rise.'};
   if(x.currentGames<3)return {label:'Low',detail:`Only ${x.currentGames} current-season games per team are in the recent sample; historical scoring error is not a betting calibration.`};
-  if(x.books<2||!finiteNumber(x.consensus))return {label:'Low',detail:'Fewer than two independent books have a matched two-sided price, so market confirmation is unavailable.'};
+  if(x.books<2||!finiteNumber(x.consensus))return {label:'Low',detail:'Fewer than two sportsbooks have a matched two-sided price, so market confirmation is unavailable.'};
   if(x.dispersion>.08)return {label:'Low',detail:`No-vig book estimates vary by ${(100*x.dispersion).toFixed(1)} percentage points; the market itself is not settled.`};
   if(x.distance>.06)return {label:'Low',detail:`GOING differs from the multi-book no-vig consensus by ${(100*x.distance).toFixed(1)} points; treat this as a disagreement, not confirmation.`};
   return {label:'Moderate',detail:`Fresh quote; ${x.currentGames}+ current games per team; ${x.books} paired books agree within ${(100*x.distance).toFixed(1)} points. This is evidence agreement, not calibrated betting confidence, so NCAA is capped at Moderate.`};
