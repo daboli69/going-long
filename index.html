@@ -4362,7 +4362,7 @@ async function signalCandidates(){
  const contracts=new Map();for(const c of quotes){c.trust=footballTrust(c,now);c.contract=[c.event,c.kind,c.profileId||'',c.market,c.line,c.side].join('|');c.canonicalContract=opportunityIdentity(c);c.key=c.contract;
   if(!contracts.has(c.canonicalContract))contracts.set(c.canonicalContract,[]);contracts.get(c.canonicalContract).push(c);
  }
- const rows=[];for(const peers of contracts.values()){peers.sort((a,b)=>b.dec-a.dec);const c=peers[0];c.flags=signalFlags(c,peers,BET.history,now);c.families=[...new Set(c.flags.map(f=>f.family).filter(f=>f!=='audit'))];c.offers=peers.map(p=>({...p,flags:c.flags,families:c.families}));rows.push(c);}
+ const rows=[];for(const peers of contracts.values()){peers.sort((a,b)=>b.dec-a.dec);const c=peers[0],marketEvidence=peers.map(p=>({book:p.book,reference:p.reference}));c.flags=signalFlags(c,peers,BET.history,now);c.families=[...new Set(c.flags.map(f=>f.family).filter(f=>f!=='audit'))];c.offers=peers.map(p=>({...p,marketEvidence,flags:c.flags,families:c.families}));rows.push(c);}
  rows.sort((a,b)=>b.families.length-a.families.length||b.ev-a.ev);
  SIGNAL.allQuotes=[...quotes,...tracking];SIGNAL.cache={minute,props:BET.props,games:BET.games,history:BET.history,rows};return rows;
 }
@@ -4439,7 +4439,23 @@ function defensiveMatchup(c){
  return (BET.learning?.matchup_signals||[]).find(row=>row.player_id===c.profileId&&row.opponent===(c.team===c.home?c.away:c.home)&&Math.abs(Date.parse(row.kickoff)-Date.parse(c.kickoff))<6*3600000)||null;
 }
 function defensiveWeakness(id){return (BET.learning?.defensive_weaknesses||[]).find(row=>row.id===id)||null;}
+function ncaaGameEvidence(c){
+ if(c.sport!=='ncaa'||c.kind!=='game')return null;
+ const offers=Array.isArray(c.marketEvidence)&&c.marketEvidence.length?c.marketEvidence:Array.isArray(c.offers)&&c.offers.length?c.offers:[c],byBook=new Map();
+ for(const offer of offers){const key=bestBookKey(offer.book),p=offer.reference?.win;if(key&&finiteNumber(p)&&p>0&&p<1&&!byBook.has(key))byBook.set(key,p);}
+ const market=[...byBook.values()],consensus=signalMedian(market),e=c.gameSeasonEvidence||{},validation=BET.history?.validation?.ncaa||{},error=validation[c.market==='total'?'total':'margin']||{};
+ return {currentGames:Math.min(Number(e.home_current_games)||0,Number(e.away_current_games)||0),books:market.length,consensus,dispersion:market.length>1?Math.max(...market)-Math.min(...market):null,distance:finiteNumber(c.prob)&&finiteNumber(consensus)?Math.abs(c.prob-consensus):null,rmse:error.rmse,validationGames:error.n};
+}
 function bestConfidence(c){
+ if(c.sport==='ncaa'&&c.kind==='game'){
+  const x=ncaaGameEvidence(c),age=Date.now()-Date.parse(c.updatedAt),check=(c.flags||[]).some(f=>f.id==='check');
+  if(check||!x||!Number.isFinite(age)||age>300000)return {label:'Low',detail:'NCAA estimate needs a current quote and a resolved model check before confidence can rise.'};
+  if(x.currentGames<3)return {label:'Low',detail:`Only ${x.currentGames} current-season games per team are in the recent sample; historical scoring error is not a betting calibration.`};
+  if(x.books<2||!finiteNumber(x.consensus))return {label:'Low',detail:'Fewer than two independent books have a matched two-sided price, so market confirmation is unavailable.'};
+  if(x.dispersion>.08)return {label:'Low',detail:`No-vig book estimates vary by ${(100*x.dispersion).toFixed(1)} percentage points; the market itself is not settled.`};
+  if(x.distance>.06)return {label:'Low',detail:`GOING differs from the multi-book no-vig consensus by ${(100*x.distance).toFixed(1)} points; treat this as a disagreement, not confirmation.`};
+  return {label:'Moderate',detail:`Fresh quote; ${x.currentGames}+ current games per team; ${x.books} paired books agree within ${(100*x.distance).toFixed(1)} points. This is evidence agreement, not calibrated betting confidence, so NCAA is capped at Moderate.`};
+ }
  if(c.gameSeasonEvidence&&Math.min(c.gameSeasonEvidence.home_current_games,c.gameSeasonEvidence.away_current_games)<5)return {label:'Low',detail:'Current-season-led game model with fewer than five current games per team.'};
  if(c.seasonEvidence?.sample_confidence==='low')return {label:'Low',detail:`${c.seasonEvidence.current_games} current-season games; ${percent(c.seasonEvidence.current_weight)} current weight is a policy choice, not validated confidence.`};
  const age=Date.now()-Date.parse(c.updatedAt),check=(c.flags||[]).some(f=>f.id==='check'),sample=c.n||0;
@@ -4464,6 +4480,7 @@ function bestEvidenceRows(c){
  const rows=[],add=(label,value)=>{if(value!==null&&value!==undefined&&value!=='')rows.push([label,String(value)]);};
  if(seasonEvidence){add('Current-season projection weight',percent(seasonEvidence.current_weight));add('Current / historical games',`${seasonEvidence.current_games} / ${seasonEvidence.historical_games}`);add('Weighting policy',seasonEvidence.method);}
  if(c.gameSeasonEvidence){const e=c.gameSeasonEvidence;add('Home / away current-season weights',`${percent(e.home_current_weight)} / ${percent(e.away_current_weight)}`);add('Home / away current-season games',`${e.home_current_games} / ${e.away_current_games}`);add('Weighting policy',e.policy);}
+ if(c.sport==='ncaa'&&c.kind==='game'){const x=ncaaGameEvidence(c);add('Multi-book no-vig consensus',finiteNumber(x?.consensus)?percent(x.consensus):'Unavailable');add('Paired books',x?.books||0);add('GOING-to-consensus difference',finiteNumber(x?.distance)?`${(100*x.distance).toFixed(1)} percentage points`:'Unavailable');add('Book-to-book spread',finiteNumber(x?.dispersion)?`${(100*x.dispersion).toFixed(1)} percentage points`:'Unavailable');add('Historical score error',finiteNumber(x?.rmse)?`${x.rmse.toFixed(1)} points across ${x.validationGames||0} chronological games`:'Unavailable');add('Important limitation','Score error is not a betting probability calibration; GOING win probabilities remain research estimates.');}
  if(roleEvidence){add('Workload basis',roleEvidence.basis);add('Verified starts used',roleEvidence.basis==='verified schedule starts'?roleEvidence.modeled_games:null);add('Last verified start',roleEvidence.latest_start);}
  if(c.position==='QB'){
   const qb=BET.injuryLearning?.qb_tendencies?.[c.team]?.profiles_by_id?.[c.profileId],old=qb?.historical_context;
