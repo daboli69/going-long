@@ -259,6 +259,27 @@
 
   .gl-view{ display:none; }
   .gl-view.active{ display:block; }
+  #fantasyNav{display:none;position:sticky;top:48px;z-index:35;gap:7px;overflow-x:auto;scrollbar-width:thin;padding:8px 14px;background:color-mix(in srgb,var(--panel) 94%,transparent);border-bottom:1px solid var(--line)}
+  body.fantasy-area #fantasyNav{display:flex;top:0;flex-wrap:wrap;align-items:center}
+  body.fantasy-area #glNav{display:none!important}
+  body.fantasy-area{padding-bottom:0}
+  #fantasyNav a{color:var(--bone);text-decoration:none;padding:10px;min-height:44px;display:flex;align-items:center;font-size:13px}
+  #fantasyNav .fantasy-brand{margin-right:auto;gap:6px;font-size:17px}
+  #fantasyNav button:focus-visible,#fantasyNav a:focus-visible{outline:2px solid var(--g-accent);outline-offset:2px}
+  #fantasyNav button{flex:0 0 auto;min-height:42px;padding:8px 13px;color:var(--bone);background:var(--panel);border:1px solid var(--line);border-radius:var(--g-radius-pill);font:600 12px/1 Inter,sans-serif}
+  #fantasyNav button[aria-current]{color:var(--g-bg);background:var(--g-accent);border-color:var(--g-accent)}
+  .fantasy-home{max-width:1000px;margin:0 auto;padding:clamp(18px,4vw,38px) 16px 36px}
+  .fantasy-home-hero{padding:clamp(20px,5vw,36px);border:1px solid var(--line);border-radius:var(--g-radius-lg);background:linear-gradient(145deg,var(--panel),var(--g-bg));margin-bottom:16px}
+  .fantasy-home-hero h1{margin:5px 0 8px;font-size:clamp(30px,6vw,48px);letter-spacing:-.04em}
+  .fantasy-home-hero p{max-width:680px;color:var(--mute);line-height:1.6;margin-bottom:0}
+  .fantasy-home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:12px}
+  .fantasy-entry{display:flex;flex-direction:column;align-items:flex-start;min-height:160px;padding:18px;text-align:left;color:var(--bone);background:var(--panel);border:1px solid var(--line);border-radius:var(--g-radius-md);box-shadow:var(--g-shadow-card);cursor:pointer}
+  .fantasy-entry:hover{border-color:var(--g-accent);transform:translateY(-1px)}
+  .fantasy-entry strong{font-size:19px;margin:8px 0 5px}
+  .fantasy-entry span{color:var(--mute);line-height:1.5;font-size:13px}
+  .fantasy-entry .fantasy-entry-kicker{font:700 10px/1.3 "IBM Plex Mono",monospace;letter-spacing:.09em;text-transform:uppercase;color:var(--g-accent)}
+  .fantasy-home-note{margin-top:12px;padding:13px 15px;border:1px solid var(--line);border-radius:var(--g-radius-sm);color:var(--mute);font-size:12px;line-height:1.55}
+  @media(max-width:759px){#fantasyNav{top:0;padding:7px 8px}#fantasyNav .fantasy-brand{flex-basis:100%}#fantasyNav button{min-height:44px;padding:8px 12px;flex:1 0 28%}.fantasy-home{padding:12px 10px 24px}.fantasy-home-hero{padding:20px}}
   #view-trade{ max-width:960px; margin:0 auto; padding:20px 16px 40px; }
   .tl-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
   .tl-head h2{ font:700 26px/1.1 "Barlow Condensed",sans-serif; color:var(--bone); text-transform:uppercase; letter-spacing:.02em; margin:0; }
@@ -525,6 +546,9 @@
 #parlayControls input,#parlayControls select{box-sizing:border-box;width:100%;min-height:44px;max-width:100%}
 .score-hero{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(220px,.7fr);gap:14px;padding:20px;border:1px solid var(--g-border);border-radius:var(--g-radius-lg);background:radial-gradient(circle at 92% 0,color-mix(in srgb, var(--g-raised) 40%, transparent),transparent 42%),linear-gradient(145deg,var(--g-surface),var(--g-bg));margin-bottom:16px}.score-hero h2{margin:4px 0 8px;font-size:clamp(28px,5vw,46px);letter-spacing:-.04em}.score-hero h2 span{color:var(--g-danger)}.score-hero p{max-width:720px;line-height:1.6;color:var(--g-muted)}.score-hero aside{align-self:center;padding:13px;border:1px solid var(--g-border);border-radius:var(--g-radius-md);background:var(--g-bg)}.score-hero aside b,.score-hero aside small{display:block}.score-hero aside b{color:var(--g-danger);margin-bottom:5px}.score-market-row,.score-view-row{display:flex;gap:7px;overflow-x:auto;scrollbar-width:thin;padding:2px 0 9px}.score-market-row button,.score-view-row button{flex:0 0 auto;min-height:44px;padding:9px 13px;border:1px solid var(--g-border)}.score-market-row button[aria-pressed=true],.score-view-row button[aria-pressed=true]{}.score-toolbar{display:grid;grid-template-columns:auto minmax(180px,1fr) minmax(145px,.5fr);gap:10px;align-items:center;margin:10px 0}.score-toolbar .field{width:100%}.score-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:16px 0}.score-summary>div{padding:12px;border:1px solid var(--g-border);border-radius:var(--g-radius-md);background:var(--g-bg)}.score-summary b,.score-summary span{display:block}.score-summary b{font:800 20px/1.2 Archivo,Inter,sans-serif;color:var(--g-danger)}.score-summary span{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--g-muted);margin-top:4px}.score-list{display:grid;gap:10px}.score-game{border:1px solid var(--g-border);border-radius:var(--g-radius-md);background:var(--g-bg);overflow:hidden}.score-game>summary{display:flex;justify-content:space-between;gap:12px;align-items:center;min-height:54px;padding:10px 14px;cursor:pointer}.score-game>summary small{color:var(--g-muted)}.score-game .score-list{padding:0 10px 10px}.score-card{display:grid;grid-template-columns:54px minmax(0,1fr) 90px;gap:12px;align-items:start;padding:14px;border:1px solid var(--g-border);min-width:0}.score-rank{display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--g-border);border-radius:var(--g-radius-md);color:var(--g-muted);font:800 14px "IBM Plex Mono",monospace}.score-player h3{margin:0 0 3px!important;font-size:19px}.score-player>small{color:var(--g-muted)}.score-tags{display:flex;gap:6px;flex-wrap:wrap;margin:9px 0}.score-tag{padding:4px 7px;border:1px solid var(--g-border);border-radius:var(--g-radius-pill);color:var(--g-muted);font:700 9px/1.3 "IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.05em}.score-gauge{--score:0;position:relative;display:grid;place-items:center;width:78px;height:78px;margin-left:auto;border-radius:50%;background:conic-gradient(var(--g-danger) calc(var(--score)*1%),var(--g-raised) 0)}.score-gauge:before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--g-bg)}.score-gauge b,.score-gauge span{position:relative;z-index:1;display:block;text-align:center}.score-gauge b{font:800 22px/1 Archivo,Inter,sans-serif}.score-gauge span{font-size:8px;letter-spacing:.08em;color:var(--g-muted)}.score-tier{margin-top:5px;text-align:center;font:700 9px/1.4 "IBM Plex Mono",monospace;text-transform:uppercase;color:var(--g-danger)}.score-facts{grid-column:2/4;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.score-fact{padding:9px;background:var(--g-surface);border-radius:var(--g-radius-sm);min-width:0}.score-fact span,.score-fact b{display:block}.score-fact span{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:var(--g-muted);margin-bottom:5px}.score-fact b{font:700 13px/1.35 "IBM Plex Mono",monospace;overflow-wrap:anywhere}.score-risk{grid-column:2/4;margin:0!important;padding:9px 11px;border-left:3px solid var(--g-danger);background:var(--g-bg);border-radius:var(--g-radius-sm);color:var(--g-muted)!important;font-size:12px}.score-card details{grid-column:2/4;border-top:1px solid var(--g-raised);padding-top:9px}.score-card summary{cursor:pointer;font-weight:var(--g-weight-display);min-height:36px}.score-components{display:grid;gap:10px;margin:12px 0}.score-component-head{display:flex;justify-content:space-between;gap:12px;font-size:12px}.score-component-head span{color:var(--g-muted)}.score-bar{height:6px;border-radius:var(--g-radius-pill);background:var(--g-raised);overflow:hidden;margin:5px 0}.score-bar i{display:block;height:100%;border-radius:var(--g-radius-pill);background:linear-gradient(90deg,var(--g-danger),var(--g-amber))}.score-component small{display:block;color:var(--g-muted);line-height:1.5}.score-card .best-actions{grid-column:2/4}.score-method{margin:14px 0;border:1px solid var(--g-border);border-radius:var(--g-radius-md);padding:10px 13px}.score-method summary{cursor:pointer;font-weight:var(--g-weight-display);min-height:34px}.score-method p,.score-method li{line-height:1.6;color:var(--g-muted)}.score-empty{padding:30px;text-align:center;border:1px dashed var(--g-border);border-radius:var(--g-radius-md);color:var(--g-muted)}
 @media(max-width:700px){.score-hero{grid-template-columns:1fr;padding:15px}.score-toolbar{grid-template-columns:1fr}.score-summary{grid-template-columns:1fr 1fr}.score-card{grid-template-columns:42px minmax(0,1fr) 74px;padding:11px;gap:9px}.score-rank{width:36px;height:36px}.score-gauge{width:68px;height:68px}.score-facts,.score-risk,.score-card details,.score-card .best-actions,.score-card>.injury-badge{grid-column:1/4}.score-facts{grid-template-columns:1fr 1fr}.score-player h3{font-size:17px}.score-game>summary{align-items:flex-start;flex-direction:column}.score-card .best-actions>*{flex:1}.score-hero aside{font-size:12px}}
+.chop-shell{max-width:1180px;margin:0 auto;padding:14px}.chop-hero,.chop-panel,.chop-sources{border:1px solid var(--g-border);border-radius:var(--g-radius-lg);background:var(--g-bg);padding:16px;margin:12px 0}.chop-hero{background:linear-gradient(145deg,var(--g-surface),var(--g-bg))}.chop-hero h1{font-size:clamp(28px,6vw,42px);margin:5px 0}.chop-hero p,.chop-note,.chop-muted{color:var(--g-muted);line-height:1.55}.chop-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.chop-head h2{margin:0}.chop-controls,.chop-imports{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:9px}.chop-controls label,.chop-imports label{display:grid;gap:6px;color:var(--g-muted);font-size:12px}.chop-controls input,.chop-controls select,.chop-imports input{box-sizing:border-box;width:100%;min-height:44px;color:var(--g-text);background:var(--g-surface);border:1px solid var(--g-border);border-radius:var(--g-radius-sm);padding:8px;font-size:16px}.chop-controls option{background:var(--g-bg);color:var(--g-text)}.chop-imports label{padding:10px;border:1px dashed var(--g-border);border-radius:var(--g-radius-sm)}.chop-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:10px}.chop-card{border:1px solid var(--g-border);border-radius:var(--g-radius-md);padding:13px;background:var(--g-surface);min-width:0}.chop-card h3{margin:0 0 7px}.chop-card p,.chop-card small{color:var(--g-muted);line-height:1.5}.chop-bid{font-size:26px;font-weight:800;color:var(--g-accent)}.chop-table{width:100%;border-collapse:collapse}.chop-table th,.chop-table td{text-align:left;border-bottom:1px solid var(--g-raised);padding:9px 6px}.chop-table th{color:var(--g-muted);font-size:11px}.chop-method,.chop-sources{margin:12px 0;border:1px solid var(--g-border);border-radius:var(--g-radius-md);padding:12px}.chop-method summary,.chop-sources summary{cursor:pointer;min-height:40px;display:flex;align-items:center;font-weight:700}.chop-method li,.chop-sources li{margin:8px 0;line-height:1.5}.chop-sources a{color:var(--g-accent)}.chop-empty{padding:22px;color:var(--g-muted);text-align:center}.chop-rank{font-family:"IBM Plex Mono",monospace;color:var(--g-muted)}.chop-tag{display:inline-block;padding:4px 7px;border:1px solid var(--g-border);border-radius:var(--g-radius-pill);font-size:10px;margin:2px;color:var(--g-muted)}.chop-warn{color:var(--g-amber)!important}
+@media(max-width:600px){.chop-shell{padding:8px}.chop-panel,.chop-hero{padding:12px}.chop-head{align-items:flex-start;flex-direction:column}.chop-head button{width:100%;min-height:44px}.chop-table{font-size:12px}.chop-table th,.chop-table td{padding:7px 4px}.chop-controls,.chop-imports{grid-template-columns:1fr}}
+.chop-table-wrap{overflow-x:auto}.chop-mine td{color:var(--g-accent);font-weight:700}.chop-card details{border-top:1px solid var(--g-raised);margin-top:9px;padding-top:7px}.chop-card summary{min-height:38px;display:flex;align-items:center;cursor:pointer;font-weight:700}.chop-evidence{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:6px;margin:8px 0}.chop-evidence span{display:flex;justify-content:space-between;gap:8px;padding:7px;border-radius:var(--g-radius-sm);background:var(--g-bg);font-size:11px}.chop-target-head input{max-width:340px}.chop-target-head{margin:14px 0}#chopFindLeagues{min-height:44px;align-self:end;color:var(--g-bg);background:var(--g-accent);border:1px solid var(--g-accent);border-radius:var(--g-radius-sm);font-weight:700;box-shadow:var(--g-shadow-card)}#chopFindLeagues:hover{filter:brightness(1.06)}#chopFindLeagues:disabled{opacity:.55;cursor:wait}
 </style>
 </head>
 <body>
@@ -534,7 +558,7 @@
   <div class="gw-cards">
     <div class="gw-card gw-fantasy" data-mode="fantasy" tabindex="0" role="button">
       <div class="gw-name">Going Long</div>
-      <div class="gw-tag">Fantasy draft &amp; roster intelligence — live boards, tiered rankings, trend checks pulled from real production.</div>
+      <div class="gw-tag">Fantasy hub — draft rankings, Sleeper waivers, and trade analysis in one place.</div>
       <div class="gw-go">Enter →</div>
     </div>
     <div class="gw-card gw-betting" data-mode="betting" tabindex="0" role="button">
@@ -553,7 +577,7 @@
      main script at the bottom — this just sets the starting state. */
   (function(){
     var requestedMode = new URLSearchParams(location.search).get("mode");
-    if(requestedMode){localStorage.setItem("goinglong.gateway.mode","fantasy");localStorage.setItem("goinglong.view",requestedMode==="fantasy"?"draft":"betting");}
+    if(requestedMode){localStorage.setItem("goinglong.gateway.mode","fantasy");localStorage.setItem("goinglong.view",requestedMode==="fantasy"?"fantasy":"betting");}
     var mode = localStorage.getItem("goinglong.gateway.mode");
     if(mode !== "gateway"){
       document.documentElement.classList.add("gl-boot-fantasy");
@@ -579,6 +603,17 @@
   <div class="spacer"></div>
   <div class="feedDot" id="cStatus"><i class="dot"></i></div>
 </div>
+
+<nav id="fantasyNav" aria-label="Fantasy tools">
+  <a href="/" class="fantasy-brand">GOING <strong>Fantasy</strong></a>
+  <button data-view="fantasy">Overview</button>
+  <button data-view="leagues">My leagues</button>
+  <button data-view="waivers">Waivers</button>
+  <button data-view="trade">Trades</button>
+  <button data-view="rankings">Rankings & imports</button>
+  <button data-view="draft">Draft</button>
+  <a href="/long/?mode=betting">Betting ↗</a>
+</nav>
 
 <div class="drawer-scrim" id="cfgScrim"></div>
 <div class="cfg-sheet" id="cfgSheet">
@@ -615,6 +650,23 @@
       Bench <input id="wb" type="range" min="0" max="80" value="30"><span class="mono" id="wbVal">.30</span></label>
   </div>
 </div>
+
+<div class="gl-view" id="view-fantasy">
+  <main class="fantasy-home">
+    <header class="fantasy-home-hero"><span class="eyebrow">Going Long · Fantasy</span><h1>Your team. Your next move.</h1><p>Connect your Sleeper league, bring your rankings, and plan the week. Draft tools stay in their own dedicated tab.</p><button type="button" class="btn" data-fantasy-go="leagues">Connect my Sleeper league →</button></header>
+    <div class="fantasy-home-grid">
+      <button type="button" class="fantasy-entry" data-fantasy-go="draft"><span class="fantasy-entry-kicker">Draft day</span><strong>Draft board</strong><span>Rank players for your league, check who may reach your next pick, and manage your live draft.</span></button>
+      <button type="button" class="fantasy-entry" data-fantasy-go="waivers"><span class="fantasy-entry-kicker">Sleeper · all leagues</span><strong>Waiver planner</strong><span>Compare the wire with your roster, remaining FAAB, Late Round rankings, projected lineup gains, and upcoming byes.</span></button>
+      <button type="button" class="fantasy-entry" data-fantasy-go="trade"><span class="fantasy-entry-kicker">Roster moves</span><strong>Trade analyzer</strong><span>Compare players and picks against your league format and roster needs.</span></button>
+      <button type="button" class="fantasy-entry" data-fantasy-go="leagues"><span class="fantasy-entry-kicker">Start here</span><strong>My leagues</strong><span>Enter your username, select a Sleeper league, and automatically load your team.</span></button>
+      <button type="button" class="fantasy-entry" data-fantasy-go="rankings"><span class="fantasy-entry-kicker">Your private research</span><strong>Rankings & imports</strong><span>Upload Late Round weekly rankings, rest-of-season rankings, and Data Dump files in one place.</span></button>
+    </div>
+    <div class="fantasy-home-note">Your uploaded Late Round rankings and Data Dump files are saved in this browser only. They are not included in the public app data or sent to GitHub.</div>
+  </main>
+</div>
+
+<div class="gl-view" id="view-leagues" hidden><main class="chop-shell"><header class="chop-hero"><span class="eyebrow">Fantasy · My leagues</span><h1>Connect your team</h1><p>Find your Sleeper leagues by username. Selecting a league loads it automatically; choose your roster below if needed.</p></header><div id="fantasyLeagueMount"></div><p class="fantasy-home-note">Once loaded, open Waivers to compare available players with your team. Draft configuration remains inside Draft.</p></main></div>
+<div class="gl-view" id="view-rankings" hidden><main class="chop-shell"><header class="chop-hero"><span class="eyebrow">Fantasy · Rankings</span><h1>Your rankings library</h1><p>Weekly rankings inform immediate lineup and waiver needs. Rest-of-season rankings inform longer-term value and redraft trades.</p></header><div id="fantasyRankingsMount"></div></main></div>
 
 <div class="gl-view active" id="view-draft">
 <div class="shell">
@@ -767,6 +819,22 @@
   </div>
 </div>
 
+<div class="gl-view" id="view-waivers">
+  <section class="chop-shell">
+    <header class="chop-hero"><span class="eyebrow">Fantasy · Sleeper</span><h1>Sleeper waiver planner</h1><p>Works with your Sleeper NFL leagues. Compare the wire with your roster, FAAB, Late Round weekly/ROS ranks, projected lineup gains, and byes. Select Chopped mode only for a guillotine league.</p></header>
+    <section class="chop-panel"><div class="chop-head"><h2>Connect your league</h2><button type="button" id="chopLoad" class="btn">Load Sleeper league ID</button></div>
+      <div class="chop-controls"><label>Sleeper username<input id="chopUsername" autocomplete="username" placeholder="Your Sleeper username"></label><button type="button" id="chopFindLeagues" class="btn">Find my leagues</button><label>Choose a league<select id="chopLeagueChoice"><option value="">Enter username to find leagues</option></select></label><label>Saved league<select id="chopProfile"><option value="">Or choose a saved league</option></select></label><label>League ID<input id="chopLeagueId" inputmode="numeric" placeholder="Or paste a league ID"></label><label>My roster<select id="chopRoster"><option value="">Load a league first</option></select></label><label>League format<select id="chopLeagueMode"><option value="redraft">Standard redraft</option><option value="chopped">Chopped / guillotine</option></select></label><label>Season FAAB cap<input id="chopBudget" type="number" min="1" step="1" value="100"></label><label>Waiver week<input id="chopWeek" type="number" min="1" max="18" step="1"></label></div>
+      <p class="chop-note" id="chopStatus">Type your Sleeper username and find leagues, then select one to load it automatically. League and roster data are read from Sleeper; your imported rankings stay in this browser.</p>
+    </section>
+    <section class="chop-panel"><div class="chop-head"><h2>Import your Late Round files</h2><span id="chopImportMeta" class="chop-muted">Saved in this browser</span></div><p class="chop-note">Open <a href="https://lateround.com/rankings-tiers/weekly-rankings/" target="_blank" rel="noopener">Weekly Rankings</a>, <a href="https://lateround.com/rankings-tiers/rest-of-season-rankings/" target="_blank" rel="noopener">ROS Rankings</a>, and the <a href="https://lateround.com/data-dump/" target="_blank" rel="noopener">Data Dump</a> on Late Round, download their files, then upload them here. You can select multiple files per source to combine positional tables. GOING reads every workbook sheet, matches player names to Sleeper IDs, and keeps original columns as evidence. Files are stored in this browser only, not sent to the GOING data build or GitHub.</p>
+      <div class="chop-imports"><label>Weekly rankings<input id="chopWeeklyFile" type="file" accept=".xlsx,.xls,.csv" multiple></label><label>Rest-of-season rankings<input id="chopRosFile" type="file" accept=".xlsx,.xls,.csv" multiple></label><label>Data Dump<input id="chopDataFile" type="file" accept=".xlsx,.xls,.csv" multiple></label></div><div id="chopImportResult" class="chop-note"></div>
+      <details class="chop-method"><summary>What each file contributes</summary><ul><li><b>Weekly rankings:</b> positional rank, weekly point total, matchup number, and tier for the current week.</li><li><b>Rest of season:</b> overall and positional rank, tier, ROS and next-four outlook, PPG, bye week, and rank movement.</li><li><b>Data Dump:</b> all player/team/defense/schedule columns from each workbook tab. Expected fantasy points describe workload; adjusted points allowed account for opponent and player quality over a rolling two-season baseline.</li></ul></details>
+    </section>
+    <section class="chop-panel" id="chopAnalysis"><div class="chop-empty">Load a Sleeper league and import your weekly rankings to see roster pressure and waiver targets.</div></section>
+    <details class="chop-sources" id="chopSources"><summary>Guillotine-specific guidance</summary><ul><li><a href="https://www.fantasylife.com/articles/guillotine-leagues/how-to-manage-your-faab-in-guillotine-league-fantasy-football" target="_blank" rel="noopener">Paul Charchian: season-long FAAB management</a></li><li><a href="https://www.fantasylife.com/articles/guillotine-leagues/guillotine-leagues-waiver-wire-strategy-how-to-manage-faab-2026" target="_blank" rel="noopener">Fantasy Life 2026: preserve early budget, account for bye timing</a></li><li><a href="https://www.fantasylife.com/articles/guillotine-leagues/week-2-guillotine-leagues-bidding-advice-how-much-faab-to-bid-on" target="_blank" rel="noopener">Joe Metz: 2026 weekly bidding advice and bid aggressiveness by league size / remaining FAAB</a></li><li><a href="https://www.fantasylife.com/articles/guillotine-leagues/week-4-guillotine-leagues-bidding-advice-save-faab-or-spend-on-c" target="_blank" rel="noopener">Paul Charchian: injury holes, backup floor, and when to spend</a></li></ul><p class="chop-note">These expert rules apply only in Chopped mode. Dollar suggestions remain GOING heuristics, not published prices or competitor-bid forecasts.</p></details>
+  </section>
+</div>
+
 <div class="gl-view" id="view-betting">
   <div class="bt-wrap">
     <div class="bt-head">
@@ -908,9 +976,7 @@
 <dialog id="btOddsDialog" aria-labelledby="btOddsTitle"><div class="bt-sheet-head"><h3 id="btOddsTitle">Compare odds</h3><button id="btOddsClose" aria-label="Close odds comparison">×</button></div><div class="bt-sheet-scroll" id="btOddsContent"></div></dialog>
 <nav id="glNav">
   <button data-view="betting" aria-current="true">Betting</button>
-  <button data-view="draft"><span class="ic">&#9673;</span>Draft</button>
-  <button data-view="trade"><span class="ic">&#8646;</span>Trade</button>
-  <button data-view="settings">Settings</button>
+  <button data-view="fantasy"><span class="ic">&#9823;</span>Fantasy</button>
   <button data-view="gateway"><span class="ic">&#8617;</span>Gateway</button>
 </nav>
 
@@ -937,7 +1003,11 @@
   const gateway = document.getElementById("gateway");
   const app = document.getElementById("app-goinglong");
   const nav = document.getElementById("glNav");
-  const views = { draft: document.getElementById("view-draft"), trade: document.getElementById("view-trade"), betting: document.getElementById("view-betting") };
+  const fantasyNav = document.getElementById("fantasyNav");
+  const fantasyHome = document.getElementById("view-fantasy");
+  const views = { fantasy: fantasyHome, leagues: document.getElementById("view-leagues"), rankings: document.getElementById("view-rankings"), draft: document.getElementById("view-draft"), waivers: document.getElementById("view-waivers"), trade: document.getElementById("view-trade"), betting: document.getElementById("view-betting") };
+  document.getElementById("fantasyLeagueMount").append(document.getElementById("chopLoad").closest(".chop-panel"));
+  document.getElementById("fantasyRankingsMount").append(document.getElementById("chopWeeklyFile").closest(".chop-panel"));
 
   function showGateway(){
     localStorage.setItem(MODE_KEY, "gateway");
@@ -955,7 +1025,7 @@
     gateway.classList.remove("show");
     app.classList.add("show");
     document.body.classList.add("has-nav");
-    setView(localStorage.getItem("goinglong.view") || "betting");
+    setView("fantasy");
   }
 
   function enterBetting(){
@@ -976,8 +1046,15 @@
       el.classList.toggle("active", key === route);
       el.hidden = key !== route;
     }
+    const inFantasy=["fantasy","leagues","rankings","draft","waivers","trade","settings"].includes(name);
+    document.body.classList.toggle("fantasy-area",inFantasy);
+    const topView=inFantasy?"fantasy":route;
     nav.querySelectorAll("button").forEach(b=>{
-      if(b.dataset.view===route) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
+      if(b.dataset.view===topView) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
+    });
+    const fantasyView=name==="settings"?"settings":route;
+    fantasyNav?.querySelectorAll("button").forEach(b=>{
+      if(b.dataset.view===fantasyView) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current");
     });
     if(name === "trade"){
       window.renderTrade?.();   // defined in the main engine script below this one
@@ -985,13 +1062,10 @@
     if(name === "betting"){
       window.renderBetting?.();
     }
+    if(["waivers","leagues","rankings"].includes(name)) window.renderChopped?.();
     if(name === "settings"){
-      // Settings already exists — it's the Setup panel in the draft
-      // rail. Rather than fork a second copy of it, jump there and open it.
+      // Keep the existing setup controls; expose them as a Fantasy section.
       views.draft.classList.add("active");
-      views.trade.classList.remove("active");
-      nav.querySelector('[data-view="draft"]').setAttribute("aria-current","page");
-      nav.querySelector('[data-view="settings"]').removeAttribute("aria-current");
       const setupPanels = views.draft.querySelectorAll(".setup");
       setupPanels.forEach(d => d.setAttribute("open",""));
       setupPanels[0]?.scrollIntoView({behavior:"smooth", block:"start"});
@@ -1006,6 +1080,12 @@
   nav.addEventListener("click", e=>{
     const b = e.target.closest("button"); if(!b) return;
     setView(b.dataset.view);
+  });
+  fantasyNav?.addEventListener("click",e=>{
+    const b=e.target.closest("button[data-view]");if(b)setView(b.dataset.view);
+  });
+  fantasyHome?.addEventListener("click",e=>{
+    const b=e.target.closest("button[data-fantasy-go]");if(b)setView(b.dataset.fantasyGo);
   });
 
   // Initial state was already set synchronously (see the tiny inline
@@ -1032,6 +1112,10 @@
 
 const LS = {profiles:"goinglong.profiles", sets:"goinglong.rankSets", ms:"goinglong.marketScores",
             notes:"goinglong.notes", active:"goinglong.active"};
+const PRIVATE_FANTASY_KEY = "goinglong.privateFantasyFiles.v1";
+let PRIVATE_FANTASY = {weekly:{players:{},sheets:{},updated:null}, ros:{players:{},sheets:{},updated:null}, dataDump:{players:{},teams:{},sheets:{},updated:null}};
+function restorePrivateFantasy(){try{const d=JSON.parse(localStorage.getItem(PRIVATE_FANTASY_KEY)||"null");if(d&&d.version===1)PRIVATE_FANTASY={...PRIVATE_FANTASY,...d};}catch{}}
+function persistPrivateFantasy(){try{localStorage.setItem(PRIVATE_FANTASY_KEY,JSON.stringify({version:1,...PRIVATE_FANTASY}));return true;}catch{return false;}}
 
 /* ---- Layer 1: ADP expectation (fits of the guide's 2014-2025 curves) */
 const ADP_CURVE = {
@@ -1125,6 +1209,7 @@ function loadLocal(){
   S.profiles=get(LS.profiles,"[]"); S.sets=get(LS.sets,"{}");
   S.ms=get(LS.ms,"{}"); S.notes=get(LS.notes,"{}");
   S.activeId = localStorage.getItem(LS.active) || (S.profiles[0]?.id ?? null);
+  restorePrivateFantasy();
 }
 const profile = () => S.profiles.find(p=>p.id===S.activeId) || S.browse || null;
 const activeRanks = () => { const p=profile(); return (p && S.sets[p.rankSetId]?.ranks) || {}; };
@@ -1626,14 +1711,17 @@ function buildPool(){
 
   S.pool = S.base.filter(p=>table[p.sleeper_id]).map(p=>{
     const t=table[p.sleeper_id], r=ranks[p.sleeper_id];
+    const importedWeekly=PRIVATE_FANTASY.weekly?.players?.[p.sleeper_id]||null;
+    const importedRos=PRIVATE_FANTASY.ros?.players?.[p.sleeper_id]||null;
     const h = S.history?.players?.[p.sleeper_id] || null;
     return {...p,
-      adp:t.adp??null, adpSd:t.sd??null, adpHi:t.hi??null, adpLo:t.lo??null, bye:t.bye??null,
+      adp:t.adp??null, adpSd:t.sd??null, adpHi:t.hi??null, adpLo:t.lo??null, bye:t.bye??importedRos?.bye??null,
       marketRank:t.vr??null, marketValue:t.v??null,
       dynastyValue:t.dv??null, dynastyRank:t.dvr??null,
       ktcSf:S.pipeline?.players?.[p.sleeper_id]?.ktc_sf?.ktc_value??null,
       ktc1qb:S.pipeline?.players?.[p.sleeper_id]?.ktc_1qb?.ktc_value??null,
       myRank:r?.rank??null, tier:r?.tier??null, auction:r?.auction??null,
+      weeklyRank:importedWeekly, rosRank:importedRos, lateRoundData:PRIVATE_FANTASY.dataDump?.players?.[p.sleeper_id]||null,
       ms:msTable[p.sleeper_id]?.score??null, msAdp:msTable[p.sleeper_id]?.adp??null,
       note:S.notes[p.sleeper_id]||null,
       hist:h,
@@ -2127,6 +2215,7 @@ function stackNote(p, roster){
 function drawerHTML(p, d){
   const shift = d.shifts[p.pos] || 0;
   const badges = (p.archetypes||[]).map(t=>`<span class="tag ${t.cls}">${esc(t.label)}</span>`).join(" ");
+  const lateRoundDump=Object.entries(p.lateRoundData||{}).flatMap(([sheet,values])=>Object.entries(values||{}).map(([label,value])=>({sheet,label,value}))).filter(x=>x.value!=null);
   const why = [
     `<b>${p.proj.toFixed(1)}</b> proj = ${p.mktPts.toFixed(1)} market`
       + ` ${p.rankPts>=p.mktPts?"+":""}${(S.wRank*(p.rankPts-p.mktPts)).toFixed(1)} rank`
@@ -2155,9 +2244,13 @@ function drawerHTML(p, d){
       : `<b>no</b> qualifying prior season`,
     `<b>${Math.round(p.pSurvive*100)}%</b> to last${shift?` (room drafts ${p.pos} ${shift>0?"early":"late"} by ${Math.abs(shift).toFixed(0)})`:""}, best ${p.pos} left after would be ${p.altValue.toFixed(1)}`,
     stackNote(p, d.roster),
-  ].filter(Boolean).join("<br>");
+  ].filter(Boolean);
+  if(p.weeklyRank?.total!=null)why.push("Late Round Week "+esc(p.weeklyRank.position||p.pos)+": "+esc(p.weeklyRank.total)+" points · rank "+esc(p.weeklyRank.rank??"—")+" · tier "+esc(p.weeklyRank.tier??"—"));
+  if(p.rosRank)why.push("Late Round ROS: "+esc(p.rosRank.position||p.pos)+" "+esc(p.rosRank.posRank??"—")+" · next 4 "+esc(p.rosRank.next4??"—")+" · PPG "+esc(p.rosRank.ppg??"—")+" · bye "+esc(p.rosRank.bye??"—"));
+  if(lateRoundDump.length)why.push("Late Round Data Dump: "+lateRoundDump.slice(0,8).map(x=>esc(x.label)+" "+esc(x.value)).join(" · "));
+  const whyHtml=why.join("<br>");
   return `<div class="drawer">
-    <div class="why">${badges?`<div style="margin-bottom:5px">${badges}</div>`:""}${why}${sparklineSVG(p.n1?.weekly)}</div>
+    <div class="why">${badges?`<div style="margin-bottom:5px">${badges}</div>`:""}${whyHtml}${sparklineSVG(p.n1?.weekly)}</div>
     <button class="btn tiny" data-act="draft" data-id="${p.sleeper_id}">Mark drafted</button>
     <button class="btn ghost tiny" data-act="nudge" data-id="${p.sleeper_id}" data-v="1">+1 pt</button>
     <button class="btn ghost tiny" data-act="nudge" data-id="${p.sleeper_id}" data-v="-1">−1 pt</button>
@@ -2655,6 +2748,153 @@ async function importFiles(files){
   ).join("") + `<p class="note">Active board: <b>${esc(S.sets[profile().rankSetId]?.label||"none")}</b></p>`;
 }
 
+/* Personal Late Round downloads stay in this browser's localStorage. The
+   source workbooks are read-only here: we preserve their columns so later
+   views can explain exactly which imported fields they used. */
+const fantasyHeaderKey=v=>String(v??"").normalize("NFKD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+function fantasyNumber(v){if(v==null||String(v).trim()==="")return null;const s=String(v).trim().replace(/[,$%]/g,"");const n=Number(s);return Number.isFinite(n)?n:String(v).trim();}
+function fantasyFinite(v){if(v==null||String(v).trim()==="")return null;const n=Number(v);return Number.isFinite(n)?n:null;}
+function fantasySheetPosition(sheet){const s=" "+fantasyHeaderKey(sheet)+" ";for(const [re,pos] of [[/\b(qb|quarterbacks?|quarterback)\b/,"QB"],[/\b(rb|running backs?)\b/,"RB"],[/\b(wr|wide receivers?)\b/,"WR"],[/\b(te|tight ends?)\b/,"TE"],[/\b(def|dst|defense|defenses|d st)\b/,"DEF"],[/\b(k|kicker|kickers)\b/,"K"]])if(re.test(s))return pos;return null;}
+function fantasyCol(headers,re){return headers.findIndex(h=>re.test(fantasyHeaderKey(h)));}
+function fantasyNameColumn(headers,rows){let n=fantasyCol(headers,/^(player|player name|name|qb|rb|wr|te|quarterback|running back|wide receiver|tight end|defense|kicker)$/);if(n>=0)return n;let best=-1,hits=0;for(let c=0;c<headers.length;c++){let found=0;for(const row of rows.slice(0,35))if(S.byKey.has(normalize(row[c])))found++;if(found>hits){hits=found;best=c;}}return hits?best:-1;}
+function parsePrivateFantasyGrid(grid,sheetName,type,fileName){
+  const rows=(grid||[]).filter(r=>Array.isArray(r)&&r.some(v=>String(v??"").trim()!==""));if(!rows.length)return null;
+  let hi=rows.findIndex(r=>{const h=r.map(fantasyHeaderKey);return h.some(x=>/^(player|player name|name|quarterback|running back|wide receiver|tight end|overall|team)$/.test(x))&&h.length>=3;});if(hi<0)hi=0;
+  const headers=rows[hi].map((h,i)=>String(h??`Column ${i+1}`).trim()), body=rows.slice(hi+1), nameCol=fantasyNameColumn(headers,body), key= headers.map(fantasyHeaderKey), posCol=fantasyCol(headers,/^(position|pos)$/), hint=fantasySheetPosition(sheetName)||fantasySheetPosition(fileName)||fantasySheetPosition(headers[nameCol]);
+  const rankCol=fantasyCol(headers,/^(rank|overall|overall rank)$/), posRankCol=fantasyCol(headers,/^(pos rank|position rank|positional rank)$/), tierCol=fantasyCol(headers,/^tier$/), teamCol=fantasyCol(headers,/^(team|tm)$/), oppCol=fantasyCol(headers,/^(opponent|opp)$/), totalCol=fantasyCol(headers,/^(total|projection|projected points|fantasy points)$/), matchupCol=fantasyCol(headers,/^matchup$/);
+  const ppgCol=fantasyCol(headers,/^(ppg|points per game)$/), next4Col=fantasyCol(headers,/^(next 4|next four)$/), byeCol=fantasyCol(headers,/^bye( week)?$/), moveCol=fantasyCol(headers,/^(\+ ?\/ ?-|movement|rank movement)$/), rosCol=fantasyCol(headers,/^ros( rank)?$/);
+  const records=[];
+  for(let i=0;i<body.length;i++){const row=body[i];if(nameCol<0)continue;const name=String(row[nameCol]??"").trim();if(!name||/^(player|name|team|total|rank)$/i.test(name))continue;const pos=posCol>=0?String(row[posCol]||"").toUpperCase().replace("DST","DEF"):hint;const player=matchOne(name,pos);const raw={};headers.forEach((h,c)=>{if(c<row.length&&String(row[c]??"").trim()!=="")raw[h]=fantasyNumber(row[c]);});records.push({name,pos,player,raw,rowIndex:i+hi+2,rank:rankCol>=0?fantasyFinite(fantasyNumber(row[rankCol])):null,posRank:posRankCol>=0?fantasyFinite(fantasyNumber(row[posRankCol])):null,tier:tierCol>=0?fantasyFinite(fantasyNumber(row[tierCol])):null,team:teamCol>=0?String(row[teamCol]||""):null,opponent:oppCol>=0?String(row[oppCol]||""):null,total:totalCol>=0?fantasyFinite(fantasyNumber(row[totalCol])):null,matchup:matchupCol>=0?fantasyNumber(row[matchupCol]):null,ppg:ppgCol>=0?fantasyFinite(fantasyNumber(row[ppgCol])):null,next4:next4Col>=0?fantasyNumber(row[next4Col]):null,bye:byeCol>=0?fantasyFinite(fantasyNumber(row[byeCol])):null,movement:moveCol>=0?fantasyNumber(row[moveCol]):null,ros:rosCol>=0?fantasyNumber(row[rosCol]):null});}
+  return {sheetName,headers,records,rawRows:body,kind:type,nameCol,teamCol,teamKey:fantasyCol(headers,/^(team|tm)$/)};
+}
+async function importPrivateFantasy(type,files){
+  const out=[];let matched=0,unmatched=0,tables=0;const matchedIds=new Set();
+  for(const file of files){try{const bytes=await file.arrayBuffer();const wb=XLSX.read(bytes,{type:"array",raw:true});for(const sheetName of wb.SheetNames){const grid=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,blankrows:false,defval:""});const parsed=parsePrivateFantasyGrid(grid,sheetName,type,file.name);if(!parsed)continue;tables++;let privateSheetName=wb.SheetNames.length===1?(fantasySheetPosition(file.name)||file.name.replace(/\.[^.]+$/,"")):sheetName;const positions=[...new Set(parsed.records.map(r=>r.pos).filter(Boolean))];if((type==="weekly"||type==="dataDump")&&positions.length===1)privateSheetName=positions[0];
+      if(type==="weekly"||type==="ros"){
+        const target=PRIVATE_FANTASY[type];for(const [id,old] of Object.entries(target.players))if(old.sheet===privateSheetName)delete target.players[id];target.sheets[privateSheetName]={headers:parsed.headers,rows:parsed.rawRows,source:file.name,updated:Date.now()};
+        for(const r of parsed.records){if(!r.player){unmatched++;continue;}const id=r.player.sleeper_id;matched++;matchedIds.add(id);const prev=target.players[id]||{};const obj=type==="weekly"?{name:r.name,position:r.pos||r.player.pos,rank:r.rank,team:r.team,opponent:r.opponent,total:r.total,matchup:r.matchup,tier:r.tier,source:file.name,sheet:privateSheetName}:{name:r.name,position:r.pos||r.player.pos,rank:r.rank,posRank:r.posRank,tier:r.tier,team:r.team,ros:r.ros,next4:r.next4,ppg:r.ppg,bye:r.bye,movement:r.movement,source:file.name,sheet:privateSheetName};
+          // The named position sheet is more specific than an ALL sheet.
+          const isAll=fantasyHeaderKey(privateSheetName)==="all";if(!prev.sheet||!isAll||!prev.position)target.players[id]={...prev,...obj};}
+      }else{
+        const title=fantasyHeaderKey(privateSheetName);if(title==="team")PRIVATE_FANTASY.dataDump.teams={};for(const [id,tablesBySheet] of Object.entries(PRIVATE_FANTASY.dataDump.players)){delete tablesBySheet[privateSheetName];if(!Object.keys(tablesBySheet).length)delete PRIVATE_FANTASY.dataDump.players[id];}PRIVATE_FANTASY.dataDump.sheets[privateSheetName]={headers:parsed.headers,rows:parsed.rawRows,source:file.name,updated:Date.now()};
+        for(const r of parsed.records){if(!r.player){unmatched++;continue;}const id=r.player.sleeper_id;matched++;matchedIds.add(id);(PRIVATE_FANTASY.dataDump.players[id] ||= {})[privateSheetName]=r.raw;}
+        // Team and schedule tabs often have no player-name column; retain every
+        // row and also index clean team-code tables for quick player context.
+        if(parsed.teamCol>=0){for(const row of parsed.rawRows){const team=String(row[parsed.teamCol]??"").trim().toUpperCase();if(/^[A-Z]{2,3}$/.test(team)){const values={};parsed.headers.forEach((h,c)=>{if(c<row.length&&String(row[c]??"").trim()!="")values[h]=fantasyNumber(row[c]);});PRIVATE_FANTASY.dataDump.teams[team]={...(PRIVATE_FANTASY.dataDump.teams[team]||{}),...values};}}}
+        if(!parsed.records.length&&title.includes("schedule"))PRIVATE_FANTASY.dataDump.sheets[privateSheetName].kind="schedule";
+      }
+    }}catch(e){out.push(`${file.name}: ${e.message||"could not read workbook"}`);}}
+  PRIVATE_FANTASY[type].updated=Date.now();const saved=persistPrivateFantasy();buildPool();window.renderChopped?.();
+  const label={weekly:"weekly rankings",ros:"rest-of-season rankings",dataDump:"Data Dump"}[type];
+  const result=`Imported ${label}: ${matchedIds.size} unique players matched${unmatched?`, ${unmatched} unmatched rows`:""}, ${tables} table${tables===1?"":"s"}${saved?". Saved only in this browser.":". Browser storage is full; this import is active until the tab closes but could not be saved."}`;
+  $("chopImportResult").innerHTML=`<span class="${unmatched||!saved||out.length?"chop-warn":""}">${esc(result)}${out.length?`<br>Import issues: ${esc(out.join(" · "))}`:""}</span>`;
+  $("chopImportMeta").textContent=`Weekly ${PRIVATE_FANTASY.weekly.updated?new Date(PRIVATE_FANTASY.weekly.updated).toLocaleDateString():"—"} · ROS ${PRIVATE_FANTASY.ros.updated?new Date(PRIVATE_FANTASY.ros.updated).toLocaleDateString():"—"} · Data Dump ${PRIVATE_FANTASY.dataDump.updated?new Date(PRIVATE_FANTASY.dataDump.updated).toLocaleDateString():"—"}`;
+}
+
+/* Chopped-league planning is local to this browser. Sleeper supplies league
+   rosters, available-player membership, FAAB used, and completed winning bids. */
+const CHOP_STORE="goinglong.choppedPlanner.v1";
+let CHOP={league:null,rosters:[],users:[],transactions:[],leagueChoices:[],week:4,leagueId:"",myRosterId:"",myUserId:"",discoveredUserId:"",mode:"redraft",busy:false};
+function chopPrefs(){try{return JSON.parse(localStorage.getItem(CHOP_STORE)||"{}");}catch{return {};}}
+function saveChopPrefs(){try{localStorage.setItem(CHOP_STORE,JSON.stringify({leagueId:$('chopLeagueId')?.value||"",username:$('chopUsername')?.value.trim()||"",myUserId:CHOP.myUserId||"",mode:$('chopLeagueMode')?.value||CHOP.mode,week:+$('chopWeek')?.value||4,budget:+$('chopBudget')?.value||100,myRosterId:$('chopRoster')?.value||""}));}catch{}}
+async function findChoppedLeagues(){
+  const username=$('chopUsername').value.trim().replace(/^@/,"");if(!username){$('chopStatus').textContent="Enter your Sleeper username first.";return;}
+  $('chopFindLeagues').disabled=true;$('chopStatus').textContent=`Looking up ${username} on Sleeper…`;
+  try{
+    const user=await api(`/user/${encodeURIComponent(username)}`);if(!user?.user_id)throw new Error("Sleeper did not find that username.");
+    const state=await api('/state/nfl').catch(()=>null),season=Number(state?.season)||new Date().getFullYear();
+    const leagues=await api(`/user/${encodeURIComponent(user.user_id)}/leagues/nfl/${season}`);
+    CHOP.discoveredUserId=String(user.user_id);CHOP.myUserId=CHOP.discoveredUserId;CHOP.leagueChoices=(leagues||[]).filter(l=>l?.league_id);
+    $('chopLeagueChoice').innerHTML='<option value="">Choose a Sleeper league to load</option>'+CHOP.leagueChoices.map(l=>`<option value="${esc(l.league_id)}">${esc(l.name||`NFL league ${l.league_id}`)} · ${Number(l.total_rosters)||"?"} teams · ${esc(l.status||"active")}</option>`).join('');
+    $('chopStatus').textContent=CHOP.leagueChoices.length?`Found ${CHOP.leagueChoices.length} NFL league${CHOP.leagueChoices.length===1?"":"s"} for ${user.display_name||username} in ${season}. Choose one above to load it.`:`No NFL leagues found for ${user.display_name||username} in ${season}. You can paste a league ID instead.`;
+    saveChopPrefs();
+  }catch(e){$('chopStatus').textContent=`Couldn't find Sleeper leagues: ${e.message||"request failed"}. Check the username and try again.`;}
+  finally{$('chopFindLeagues').disabled=false;}
+}
+function chopNum(v){if(v==null||String(v).trim()==="")return null;const n=Number(v);return Number.isFinite(n)?n:null;}
+function chopAvailableProjection(id,week){
+  const base=S.base.find(p=>String(p.sleeper_id)===String(id));if(!base)return null;
+  const wk=PRIVATE_FANTASY.weekly?.players?.[id],ros=PRIVATE_FANTASY.ros?.players?.[id],model=S.pool.find(p=>String(p.sleeper_id)===String(id));
+  const bye=chopNum(ros?.bye??model?.bye);
+  if(bye===week)return {player:base,points:0,source:"bye this week",bye};
+  if(chopNum(wk?.total)!=null)return {player:base,points:+wk.total,source:"Late Round weekly rank",bye};
+  if(chopNum(ros?.ppg)!=null)return {player:base,points:+ros.ppg,source:"Late Round ROS PPG",bye};
+  if(chopNum(model?.proj)!=null)return {player:base,points:+model.proj,source:"GOING fantasy estimate",bye};
+  return {player:base,points:null,source:"no projection imported",bye};
+}
+function chopRosterPlayers(roster,week){return (roster?.players||[]).map(id=>chopAvailableProjection(id,week)).filter(x=>x?.points!=null);}
+function chopSlots(league){return orderSlots((league?.roster_positions||["QB","RB","RB","WR","WR","TE","FLEX"]).filter(s=>!BENCH_SLOTS.has(s)));}
+function chopLineup(players,league){return solveLineup(players.map(x=>({...((x.player&&typeof x.player==="object")?x.player:x),proj:x.points??x.proj??0})).sort((a,b)=>b.proj-a.proj),chopSlots(league));}
+function chopPercentile(values,q){if(!values.length)return null;const a=values.slice().sort((x,y)=>x-y),i=(a.length-1)*q,lo=Math.floor(i),hi=Math.ceil(i);return a[lo]+(a[hi]-a[lo])*(i-lo);}
+function chopBudgetFor(roster,cap){let moved=0;for(const t of CHOP.transactions)for(const transfer of t.waiver_budget||[]){const amount=Number(transfer.amount)||0;if(String(transfer.sender)===String(roster.roster_id))moved-=amount;if(String(transfer.receiver)===String(roster.roster_id))moved+=amount;}const used=Math.max(0,Number(roster.settings?.waiver_budget_used)||0);return {used,moved,remaining:Math.max(0,cap-used+moved)};}
+function chopWinBidRange(position){
+  const wins=CHOP.transactions.filter(t=>t.status==="complete"&&t.settings&&Number.isFinite(Number(t.settings.waiver_bid))&&Number(t.settings.waiver_bid)>=0&&t.adds&&Object.keys(t.adds).length).map(t=>{const id=Object.keys(t.adds)[0],p=S.base.find(x=>String(x.sleeper_id)===String(id));return {bid:Number(t.settings.waiver_bid),pos:p?.pos,week:Number(t.leg)||0};}).filter(x=>x.week>=Math.max(1,CHOP.week-3));
+  let sample=wins.filter(x=>x.pos===position);let basis=`same-position completed wins, last four weeks`;
+  if(sample.length<3){sample=wins;basis="all-position completed wins, last four weeks";}
+  if(sample.length<3)return null;return {low:chopPercentile(sample.map(x=>x.bid),.25),high:chopPercentile(sample.map(x=>x.bid),.75),n:sample.length,basis};
+}
+function chopByePositionNeed(rosterPlayers,week){
+  const out=new Set();for(const p of rosterPlayers){if(!p.bye||p.bye<=week||p.bye>week+3)continue;const same=rosterPlayers.filter(x=>x.player.pos===p.player.pos&&x.player.sleeper_id!==p.player.sleeper_id&&x.points!=null);if(same.length<2)out.add(p.player.pos);}return out;
+}
+function chopDumpEvidence(id,team){
+  const player=PRIVATE_FANTASY.dataDump?.players?.[id]||{},teamData=PRIVATE_FANTASY.dataDump?.teams?.[team]||{};const out=[];
+  for(const [sheet,values] of Object.entries(player))for(const [label,value] of Object.entries(values||{}))if(value!==""&&value!=null)out.push({sheet,label,value});
+  const preferred=out.filter(x=>/expected|adjusted|target|touch|snap|route|pass rate|red zone|air yard|rush|receiving/i.test(x.label));
+  return {all:out,preferred:preferred.length?preferred:out,team:teamData};
+}
+function chopAdvisorRows(){
+  if(!CHOP.league||!CHOP.rosters.length||!CHOP.myRosterId)return {empty:"Choose your roster to calculate recommendations."};
+  const mode=$("chopLeagueMode")?.value==="chopped"?"chopped":"redraft",week=+$("chopWeek").value||CHOP.week,cap=Math.max(1,+$("chopBudget").value||100),mine=CHOP.rosters.find(r=>String(r.roster_id)===String(CHOP.myRosterId));if(!mine)return {empty:"This roster is no longer in the loaded league."};
+  const budget=chopBudgetFor(mine,cap),used=budget.used,remaining=budget.remaining,weeklyRoster=chopRosterPlayers(mine,week),lineup=chopLineup(weeklyRoster,CHOP.league),starterIds=new Set([...lineup.used].map(String)),bench=weeklyRoster.filter(x=>!starterIds.has(String(x.player.sleeper_id))),cuts=bench.slice().sort((a,b)=>(a.points??0)-(b.points??0));
+  const ownPoints=lineup.total,teamScores=CHOP.rosters.map(ro=>{const p=chopRosterPlayers(ro,week),l=chopLineup(p,CHOP.league);return {roster:ro,points:l.total,coverage:l.filled.filter(s=>s.player).length/(l.filled.length||1)};}).filter(x=>x.coverage>=.5).sort((a,b)=>b.points-a.points),standing=teamScores.findIndex(x=>String(x.roster.roster_id)===String(mine.roster_id))+1,pressure=mode==="chopped"?(standing>0&&standing>teamScores.length-3?1.5:standing>0&&standing>teamScores.length-5?1.22:.84):1,byeNeed=chopByePositionNeed(weeklyRoster,week);
+  const rostered=new Set(CHOP.rosters.flatMap(r=>(r.players||[]).map(String))),records=Object.entries(PRIVATE_FANTASY.weekly?.players||{}).map(([id,w])=>({id,weekly:w}));
+  for(const [id,r] of Object.entries(PRIVATE_FANTASY.ros?.players||{}))if(!PRIVATE_FANTASY.weekly?.players?.[id])records.push({id,ros:r});
+  for(const id of Object.keys(PRIVATE_FANTASY.dataDump?.players||{}))if(!records.some(r=>String(r.id)===String(id)))records.push({id});
+  const rows=[];
+  for(const r of records){const id=String(r.id);if(rostered.has(id))continue;const value=chopAvailableProjection(id,week);if(!value||!value.player.active||!value.player.team||!(["QB","RB","WR","TE","K","DEF"].includes(value.player.pos)))continue;const wk=PRIVATE_FANTASY.weekly.players[id],ros=PRIVATE_FANTASY.ros.players[id],points=value.points;if(points==null)continue;
+    const candidate={...value.player,points};const base=weeklyRoster.map(x=>({...x,proj:x.points}));const baseLine=chopLineup(base,CHOP.league);let best=chopLineup([...base,candidate],CHOP.league).total-baseLine.total,cut=cuts[0]||null;
+    for(const c of cuts){const test=base.filter(x=>String(x.player.sleeper_id)!==String(c.player.sleeper_id));const gain=chopLineup([...test,candidate],CHOP.league).total-baseLine.total;if(gain>best){best=gain;cut=c;}}
+    const positionalBackup=bench.filter(x=>x.player.pos===candidate.pos).sort((a,b)=>b.points-a.points)[0]||null;
+    const posRank=Number(ros?.posRank||0),tier=Number(ros?.tier||wk?.tier||0),quality=posRank>0?(posRank<=6?1.3:posRank<=12?1.12:posRank<=24?1:.72):tier===1?1.25:tier===2?1.12:tier>=4?.72:1;
+    const weekFactor=mode==="chopped"?(week<=4?.055:week<=9?.085:.13):(week<=4?.04:week<=9?.07:.10),needFactor=clamp(.72+Math.max(0,best)/12,.72,1.45),byeFactor=byeNeed.has(candidate.pos)&&value.bye!==week?1.18:1,urgency=pressure;
+    const backupFactor=mode==="chopped"?(week<=6&&(!positionalBackup||positionalBackup.points<10)?1.2:.82):1,reserveFactor=best<=.1?(byeNeed.has(candidate.pos)?.7:.35):1,eligible=best>.1||byeNeed.has(candidate.pos);
+    let bid=remaining*weekFactor*quality*needFactor*byeFactor*urgency*backupFactor*reserveFactor;const ceiling=mode==="chopped"?(week<=4?remaining*.42:week<=9?remaining*.65:remaining):(week<=4?remaining*.35:week<=9?remaining*.55:remaining*.8);bid=remaining>0&&eligible?clamp(Math.round(bid),1,Math.max(1,Math.round(ceiling))):0;
+    rows.push({id,player:value.player,points,source:value.source,gain:Math.max(0,best),cut,backup:positionalBackup,weekly:wk,ros,range:chopWinBidRange(value.player.pos),bid,byeNeed:byeNeed.has(candidate.pos),bye:value.bye,quality});
+  }
+  rows.sort((a,b)=>b.bid-a.bid||b.gain-a.gain||(Number(a.ros?.posRank)||999)-(Number(b.ros?.posRank)||999));
+  return {mine,used,moved:budget.moved,remaining,cap,weeklyRoster,lineup,ownPoints,teamScores,standing,pressure,byeNeed,rows,week,mode};
+}
+function renderChopped(){
+  const chopSaved=chopPrefs();CHOP.mode=chopSaved.mode==="chopped"?"chopped":"redraft";if($('chopLeagueMode'))$('chopLeagueMode').value=CHOP.mode;if($('chopSources'))$('chopSources').hidden=CHOP.mode!=="chopped";
+  if(!$('chopProfile'))return;const saved=chopPrefs();$('chopImportMeta').textContent=`Weekly ${PRIVATE_FANTASY.weekly.updated?new Date(PRIVATE_FANTASY.weekly.updated).toLocaleDateString():"—"} · ROS ${PRIVATE_FANTASY.ros.updated?new Date(PRIVATE_FANTASY.ros.updated).toLocaleDateString():"—"} · Data Dump ${PRIVATE_FANTASY.dataDump.updated?new Date(PRIVATE_FANTASY.dataDump.updated).toLocaleDateString():"—"}`;if(saved.username&&!$('chopUsername').value)$('chopUsername').value=saved.username;
+  const profs=S.profiles.filter(p=>p.league_id);$('chopProfile').innerHTML='<option value="">Choose a connected Sleeper league</option>'+profs.map(p=>`<option value="${esc(p.league_id)}">${esc(p.label)}</option>`).join('');if(saved.leagueId)$('chopLeagueId').value=CHOP.leagueId||saved.leagueId;$('chopProfile').value=CHOP.leagueId||saved.leagueId||"";if(saved.budget)$('chopBudget').value=saved.budget;if(saved.week)$('chopWeek').value=saved.week;
+  if(!CHOP.league){$('chopAnalysis').innerHTML='<div class="chop-empty">Load a Sleeper league to view remaining FAAB, roster strength, current byes, target fit, and available players.</div>';return;}
+  const my=CHOP.rosters.find(r=>String(r.roster_id)===String(CHOP.myRosterId)),summary=chopAdvisorRows();if(summary.empty){$('chopAnalysis').innerHTML=`<div class="chop-empty">${esc(summary.empty)}</div>`;return;}
+  const myUser=CHOP.users.find(u=>String(u.user_id)===String(my?.owner_id)),myName=myUser?.metadata?.team_name||myUser?.display_name||`Roster ${my?.roster_id}`;
+  const pressureLabel=summary.standing?`Projected ${summary.standing}${summary.standing===1?"st":summary.standing===2?"nd":summary.standing===3?"rd":"th"} of ${summary.teamScores.length} · ${summary.standing>summary.teamScores.length-3?"high chop pressure":summary.standing>summary.teamScores.length-5?"watch zone":"lower immediate pressure"}`:"not enough weekly roster projections to estimate";
+  const coach=summary.week<=4?"Early season: protect FAAB for stronger chopped rosters later. Spend up only to repair a real starting-lineup hole; keep backup bids in play.":summary.week<=9?"Middle stretch: use budget when a player materially improves your starters or covers a near bye. Keep enough for a top player released later.":"Late stretch: unused budget has little future value. Prioritize immediate starter gains and use your full remaining budget when a player matters.";
+  const top=summary.rows.slice(0,60),cards=top.map(r=>{const rank=r.ros?.posRank?`${r.player.pos}${r.ros.posRank}`:r.weekly?.rank?`Week rank ${r.weekly.rank}`:"rank unavailable";const hist=r.range?`Prior Sleeper winning bids: $${Math.round(r.range.low)}–$${Math.round(r.range.high)} (${r.range.n}; ${r.range.basis}). These are completed winners, not losing bids.`:"No comparable winning-bid sample from recent league transactions.";const bye=r.bye?`Bye ${r.bye}${r.bye===summary.week?" · bye this week":r.bye>summary.week&&r.bye<=summary.week+3?" · upcoming bye":""}`:"Bye unavailable";const dump=chopDumpEvidence(r.id,r.player.team),facts=dump.preferred.slice(0,8),teamFacts=Object.entries(dump.team).slice(0,6);return `<article class="chop-card"><div class="chop-head"><h3>${esc(r.player.name)}</h3><span class="chop-rank">${esc(rank)} · ${esc(r.player.team||"")}</span></div><div class="chop-bid">$${r.bid} <small>suggested cap</small></div><p>${r.points.toFixed(1)} projected points · +${r.gain.toFixed(1)} starter points vs. current lineup · ${esc(r.source)}</p><p><span class="chop-tag">${esc(bye)}</span><span class="chop-tag">ROS ${esc(r.ros?.rank??"—")}</span><span class="chop-tag">Next 4 ${esc(r.ros?.next4??"—")}</span><span class="chop-tag">Tier ${esc(r.ros?.tier??r.weekly?.tier??"—")}</span>${r.byeNeed?'<span class="chop-tag">covers roster bye gap</span>':''}</p><p><b>Risk / fit:</b> ${r.cut?`likely drop: ${esc(r.cut.player.name)} (${(r.cut.points||0).toFixed(1)} weekly points)`:"No clear low-cost roster cut."} ${r.player.injury_status?`· Listed injury: ${esc(r.player.injury_status)}${r.player.injury_body_part?` / ${esc(r.player.injury_body_part)}`:""}`:""}</p><small>${esc(hist)}</small>${facts.length||teamFacts.length?`<details><summary>Show Late Round Data Dump evidence</summary><div class="chop-evidence">${facts.map(x=>`<span>${esc(x.label)} <b>${esc(x.value)}</b></span>`).join("")}${teamFacts.map(([k,v])=>`<span>${esc(r.player.team)} · ${esc(k)} <b>${esc(v)}</b></span>`).join("")}</div><small>Original table columns are retained in this browser under Data Dump import; shown values are not combined into weekly points.</small></details>`:""}</article>`;}).join("");
+  const teamRows=summary.teamScores.map((x,i)=>{const user=CHOP.users.find(u=>String(u.user_id)===String(x.roster.owner_id)),name=user?.metadata?.team_name||user?.display_name||`Roster ${x.roster.roster_id}`,remaining=chopBudgetFor(x.roster,summary.cap).remaining;return `<tr${String(x.roster.roster_id)===String(my.roster_id)?' class="chop-mine"':''}><td>${i+1}. ${esc(name)}</td><td>${x.points.toFixed(1)}</td><td>$${remaining}</td></tr>`;}).join("");
+  const teamRowsHtml=teamRows||"<tr><td colspan=\"3\">Roster projections are incomplete. Import this week&#39;s rankings.</td></tr>";
+  const transferLabel=summary.moved?` · net transfers ${summary.moved>0?"+":""}$${summary.moved}`:"";
+  $('chopAnalysis').innerHTML=`<div class="chop-summary"><div><span>Your roster</span><b>${esc(myName)}</b></div><div><span>FAAB remaining</span><b>$${summary.remaining}</b><small>$${summary.used} used of $${summary.cap}${transferLabel}</small></div><div><span>Weekly survival context</span><b>${esc(pressureLabel)}</b><small>Based on imported weekly player points / GOING projections.</small></div><div><span>Bye coverage</span><b>${summary.byeNeed.size?Array.from(summary.byeNeed).join(", "):"No near-term starter gap detected"}</b><small>From Late Round ROS bye data where matched.</small></div></div><div class="chop-guidance"><b>Week ${summary.week} expert-informed budget posture</b><p>${coach}</p><small>Uses remaining FAAB, projected starter improvement, your relative roster pressure, player tier, and nearby byes. Dollar conversion is GOING's heuristic, not a published expert price.</small></div><div class="chop-league"><h2>League context</h2><div class="chop-table-wrap"><table class="chop-table"><thead><tr><th>Projected order</th><th>Weekly points</th><th>FAAB left</th></tr></thead><tbody>${teamRowsHtml}</tbody></table></div><small>Ranks use imported weekly totals when present, then ROS PPG. Teams with fewer than half their lineup slots projected are omitted from this comparison. Sleeper reports budget used; cap is editable above because league settings may differ.</small></div><div class="chop-head chop-target-head"><h2>Available player bids</h2><input id="chopSearch" class="field" type="search" placeholder="Search available players"></div><p class="chop-note">${summary.rows.length} available players matched to imported rankings. Suggested cap is your roster-fit bid; prior winning bids are shown separately. An unavailable bid history is left blank.</p><div class="chop-cards" id="chopTargetCards">${cards||'<div class="chop-empty">No available players matched. Import current rankings/Data Dump or reload after waivers process.</div>'}</div><div class="chop-guidance"><b>Data and estimate limits</b><p>Sleeper’s public feed exposes completed winning claims, not losing blind bids. It cannot reveal what rivals will bid this week. The rival range above is a recent winner-price reference, not a forecast of a particular opponent or guarantee of winning.</p></div>`;
+  if(summary.mode==="redraft"){
+    const guidance=$('chopAnalysis').querySelector(".chop-guidance"),context=$('chopAnalysis').querySelector(".chop-summary div:nth-child(3)");
+    if(guidance){guidance.querySelector("b").textContent="Week "+summary.week+" redraft waiver approach";guidance.querySelector("p").textContent="Prioritize pickups that improve your starting lineup or cover a bye. Late Round weekly rankings guide immediate need; ROS rankings guide rest-of-season priority. Keep bench-only bids modest.";guidance.querySelector("small").textContent="Bid amounts are GOING estimates based on your FAAB, player ranks, starter improvement, and bye needs—not published expert prices.";}
+    if(context){context.querySelector("span").textContent="Weekly league context";context.querySelector("b").textContent=summary.standing?"Projected points rank "+summary.standing+" of "+summary.teamScores.length+"; not an elimination forecast":"Not enough weekly projections to compare";}
+  }
+  $('chopSearch')?.addEventListener('input',e=>{const q=normalize(e.target.value);$('chopTargetCards').querySelectorAll('.chop-card').forEach(card=>card.hidden=q&&!normalize(card.textContent).includes(q));});
+}
+window.renderChopped=renderChopped;
+async function loadChoppedLeague(){
+  if(CHOP.busy)return;const id=$('chopLeagueId').value.trim().replace(/\D/g,"");if(!id){$('chopStatus').textContent="Choose a saved Sleeper league or paste its league ID.";return;}CHOP.busy=true;$('chopStatus').textContent="Loading Sleeper league, team rosters, NFL week, and recent completed waiver transactions…";
+  try{const [league,rosters,users,state]=await Promise.all([api(`/league/${id}`),api(`/league/${id}/rosters`),api(`/league/${id}/users`),api('/state/nfl').catch(()=>null)]);CHOP.league=league;CHOP.rosters=rosters||[];CHOP.users=users||[];CHOP.leagueId=id;CHOP.week=Number(state?.week)||Number($('chopWeek').value)||4;if(!CHOP.rosters.length)throw new Error("Sleeper returned no rosters.");const profile=S.profiles.find(p=>String(p.league_id)===id);CHOP.myUserId=CHOP.myUserId||String(profile?.user_id||chopPrefs().myUserId||"");const guessed=CHOP.myUserId?CHOP.rosters.find(r=>String(r.owner_id)===String(CHOP.myUserId)):null;CHOP.myRosterId=String(guessed?.roster_id||"");$('chopWeek').value=CHOP.week;
+    const cap=Number(league.settings?.waiver_budget);if(cap>0)$('chopBudget').value=cap;const weeks=Array.from({length:CHOP.week},(_,i)=>i+1);CHOP.transactions=(await Promise.all(weeks.map(w=>api(`/league/${id}/transactions/${w}`).catch(()=>[])))).flat().filter(t=>t?.status==="complete");
+    const savedRoster=chopPrefs().myRosterId;if(!CHOP.myRosterId&&CHOP.rosters.some(r=>String(r.roster_id)===String(savedRoster)))CHOP.myRosterId=String(savedRoster);
+    $('chopRoster').innerHTML='<option value="">Choose your Sleeper team</option>'+CHOP.rosters.map(r=>{const u=CHOP.users.find(x=>String(x.user_id)===String(r.owner_id)),left=chopBudgetFor(r,+$('chopBudget').value||100).remaining;return `<option value="${esc(r.roster_id)}">${esc(u?.metadata?.team_name||u?.display_name||`Roster ${r.roster_id}`)} · $${left} left</option>`;}).join('');if(CHOP.myRosterId)$('chopRoster').value=CHOP.myRosterId;saveChopPrefs();const recent=CHOP.transactions.filter(t=>Number(t.leg)>=Math.max(1,CHOP.week-3)&&Number(t.leg)<=CHOP.week&&t.settings&&Number.isFinite(Number(t.settings.waiver_bid)));$('chopStatus').textContent=`Loaded ${league.name} · ${CHOP.rosters.length} rosters · week ${CHOP.week} · ${recent.length} completed winning FAAB bids in the last four weeks.`;renderChopped();
+  }catch(e){$('chopStatus').textContent=`Couldn't load league: ${e.message||"Sleeper request failed"}. Check the league ID or refresh later.`;}finally{CHOP.busy=false;}
+}
+
 /* ==================================================================
    Wiring
    ================================================================== */
@@ -2694,6 +2934,14 @@ function tradeValueOf(p){
   return {value:0, source:"no data"};
 }
 
+function redraftTradeProjection(p){
+  const ros=fantasyFinite(p?.rosRank?.ppg),weekly=fantasyFinite(p?.weeklyRank?.total);
+  const fallback=Number(p?.proj)||0;
+  if(ros!=null)return {value:ros,weekValue:weekly??ros,source:"Late Round ROS PPG"+(weekly!=null?" · weekly "+weekly.toFixed(1):""),weekly,ros};
+  if(weekly!=null)return {value:weekly,weekValue:weekly,source:"Late Round weekly total",weekly,ros:null};
+  return {value:fallback,weekValue:fallback,source:"GOING projection",weekly:null,ros:null};
+}
+
 /* Sorted desc, geometric decay per additional asset, floored so a 5-for-1
    package doesn't get crushed to nothing. */
 function packageAdjust(values){
@@ -2706,7 +2954,7 @@ function tradeAssetValue(a, mode){
   if(a.type==="pick") return {value:Number(a.value)||0, source:"manual entry"};
   const p = S.byId.get(a.sleeper_id);
   if(!p) return {value:0, source:"?"};
-  return mode==="dynasty" ? tradeValueOf(p) : {value:p.proj ?? 0, source:"proj pts/g"};
+  return mode==="dynasty" ? tradeValueOf(p) : redraftTradeProjection(p);
 }
 
 function computeDynastySide(side){
@@ -2721,11 +2969,15 @@ function computeRedraft(){
   const roster = S.derived?.roster, slots = S.derived?.slots;
   if(!roster || !slots || !roster.length) return {ready:false};
   const outIds = new Set(TRADE.sideA.filter(a=>a.type==="player").map(a=>a.sleeper_id));
-  const incoming = TRADE.sideB.filter(a=>a.type==="player").map(a=>S.byId.get(a.sleeper_id)).filter(Boolean);
-  const newRoster = [...roster.filter(p=>!outIds.has(p.sleeper_id)), ...incoming];
-  const before = solveLineup([...roster].sort((a,b)=>b.proj-a.proj), slots).total;
+  const withRestOfSeason=p=>{const v=redraftTradeProjection(p);return {...p,proj:v.value,tradeWeekProj:v.weekValue};};
+  const current=roster.map(withRestOfSeason);
+  const incoming = TRADE.sideB.filter(a=>a.type==="player").map(a=>S.byId.get(a.sleeper_id)).filter(Boolean).map(withRestOfSeason);
+  const newRoster = [...current.filter(p=>!outIds.has(p.sleeper_id)), ...incoming];
+  const before = solveLineup([...current].sort((a,b)=>b.proj-a.proj), slots).total;
   const after  = solveLineup([...newRoster].sort((a,b)=>b.proj-a.proj), slots).total;
-  return {ready:true, before, after, marginal: after-before};
+  const currentWeek=current.map(p=>({...p,proj:p.tradeWeekProj})),newWeek=newRoster.map(p=>({...p,proj:p.tradeWeekProj}));
+  const weeklyBefore=solveLineup(currentWeek.sort((a,b)=>b.proj-a.proj),slots).total,weeklyAfter=solveLineup(newWeek.sort((a,b)=>b.proj-a.proj),slots).total;
+  return {ready:true,before,after,marginal:after-before,weeklyBefore,weeklyAfter,weeklyMarginal:weeklyAfter-weeklyBefore};
 }
 
 function dynastyRecommendation(pct, topIncoming, eliteCut){
@@ -2765,6 +3017,11 @@ function renderTradeSide(side){
       <button data-remove="${a.sleeper_id}" data-side="${side}">×</button>
     </div>`;
   }).join("");
+  if(TRADE.mode==="redraft")el.querySelectorAll(".tl-item").forEach(row=>{
+    const id=row.querySelector("button[data-remove]")?.dataset.remove,p=id&&S.byId.get(id);if(!p)return;
+    const context=[];if(p.rosRank?.ppg!=null)context.push("ROS "+Number(p.rosRank.ppg).toFixed(1)+" PPG");if(p.weeklyRank?.total!=null)context.push("Week "+Number(p.weeklyRank.total).toFixed(1)+" pts");
+    if(context.length){const evidence=document.createElement("small");evidence.className="tl-rank-context";evidence.textContent=context.join(" · ");row.querySelector("div")?.appendChild(evidence);}
+  });
 }
 
 function renderTrade(){
@@ -2775,7 +3032,7 @@ function renderTrade(){
   $("tlDataNote").innerHTML = mode==="dynasty"
     ? (S.pipeline?.players ? `Dynasty values: KTC where matched, FantasyCalc dynasty elsewhere.`
                   : `No KTC data loaded — showing FantasyCalc dynasty value, or <b>redraft value as an approximation</b> where that's missing too.`)
-    : `Redraft mode uses your connected roster's actual lineup fit, not raw point totals.`;
+    : `Redraft mode uses Late Round ROS PPG for rest-of-season lineup value, with weekly totals shown as near-term context; missing ranks fall back to GOING projections.`;
 
   if(mode==="dynasty"){
     const A = computeDynastySide(TRADE.sideA), B = computeDynastySide(TRADE.sideB);
@@ -2832,7 +3089,10 @@ function renderTrade(){
       <div><div class="tl-rec" style="color:${cls==="pos"?"var(--turf)":cls==="neg"?"#F2938A":"var(--mute)"}">${esc(rec)}</div>
       <div style="font:400 12px/1.4 'IBM Plex Mono',monospace;color:var(--mute)">pts/g marginal lineup gain · ${pct>=0?"+":""}${pct.toFixed(1)}% of current output</div></div>
       <div class="tl-sub">Lineup total before ${r.before.toFixed(1)} pts/g → after ${r.after.toFixed(1)} pts/g, via the slot solver against your connected league's real starting requirements.</div>`;
-    $("tlFoot").textContent = "Marginal gain reflects your starting lineup fit, not raw player value — a bench-only add can show near zero even if the player himself is good.";
+    const weeklyContext=document.createElement("div");weeklyContext.className="tl-sub";
+    weeklyContext.textContent="This-week lineup impact using Late Round weekly totals where imported: "+(r.weeklyMarginal>0?"+":"")+r.weeklyMarginal.toFixed(1)+" pts. ROS PPG remains the primary rest-of-season comparison.";
+    $("tlVerdict").appendChild(weeklyContext);
+    $("tlFoot").textContent = "Marginal gain reflects your starting lineup fit using Late Round ROS PPG where imported. Weekly rankings remain visible as immediate-week context; missing data falls back to GOING projections. This is roster fit, not a win-probability forecast.";
   }
 }
 
@@ -2840,7 +3100,7 @@ function tradeSearch(query){
   const q = normalize(query);
   if(q.length < 2) return [];
   return S.pool.filter(p=>p.key.includes(q))
-    .sort((a,b)=>(a.myRank||a.adp||999)-(b.myRank||b.adp||999))
+    .sort((a,b)=>(a.rosRank?.rank||a.myRank||a.adp||999)-(b.rosRank?.rank||b.myRank||b.adp||999))
     .slice(0,8);
 }
 
@@ -4589,6 +4849,17 @@ function wire(){
     const t=$("rankPaste").value; if(t.trim()) applyImport(parseRankLines(t.split(/\r?\n/)));
   });
   $("rankFile").addEventListener("change",e=>{ if(e.target.files.length) importFiles([...e.target.files]); });
+  $("chopLoad").addEventListener("click",loadChoppedLeague);
+  $("chopFindLeagues").addEventListener("click",findChoppedLeagues);
+  $("chopUsername").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();findChoppedLeagues();}});
+  $("chopLeagueChoice").addEventListener("change",e=>{const id=e.target.value;if(!id)return;$('chopLeagueId').value=id;CHOP.myUserId=CHOP.discoveredUserId;CHOP.myRosterId="";saveChopPrefs();loadChoppedLeague();});
+  $("chopProfile").addEventListener("change",e=>{const p=S.profiles.find(x=>String(x.league_id)===String(e.target.value));if(p){$('chopLeagueId').value=p.league_id;CHOP.myUserId=String(p.user_id||"");CHOP.discoveredUserId="";saveChopPrefs();loadChoppedLeague();}});
+  $("chopRoster").addEventListener("change",e=>{CHOP.myRosterId=e.target.value;saveChopPrefs();renderChopped();});
+  $("chopLeagueId").addEventListener("change",()=>{CHOP.myUserId="";CHOP.discoveredUserId="";saveChopPrefs();});
+  $("chopLeagueMode").addEventListener("change",()=>{CHOP.mode=$("chopLeagueMode").value==="chopped"?"chopped":"redraft";saveChopPrefs();renderChopped();});
+  $("chopBudget").addEventListener("change",()=>{saveChopPrefs();renderChopped();});
+  $("chopWeek").addEventListener("change",()=>{CHOP.week=+$('chopWeek').value||4;saveChopPrefs();renderChopped();});
+  for(const [input,type] of [["chopWeeklyFile","weekly"],["chopRosFile","ros"],["chopDataFile","dataDump"]])$(input).addEventListener("change",async e=>{const files=[...e.target.files];if(files.length)await importPrivateFantasy(type,files);e.target.value="";});
   $("importMS").addEventListener("click",importMarketScores);
   $("rankSetSel").addEventListener("change",e=>{
     const pr=profile(); if(!pr) return;
@@ -4611,6 +4882,7 @@ function wire(){
 
 async function boot(){
   loadLocal();
+  window.renderChopped?.();
   $("username").value=localStorage.getItem("goinglong.username")||"";
   wire(); wireTrade(); wireBetting(); renderResearchSlip(); await Promise.all([loadBase(), loadBettingData()]);
   if(S.profiles.find(p=>p.id===S.activeId)){
