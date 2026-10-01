@@ -1,24 +1,28 @@
 # Progress
-Cycle: `bootstrap-20261001`; approved base: `7d33e75b7eea05a52845a9fa02c203d850512da9`.
-Review branch: `codex/going-long-daily-review`. Final SHA comes from its `cycle complete:` commit, not a self-reference here.
+Cycle: `20261001-football-tabs` (manual execution of the daily heartbeat, Oct 1, 2026).
+Production base: `4f5164c4678b903df2a22fd65c4c010d71c62920`.
+Review base: `c5036b8ce94c69ad8d5da78556144e052e5f408e`.
+Production commit: `e7061941670b85de107937782482fc1c62b67782` (verified remote main).
+Review completion SHA: supplied by the subsequent cycle receipt; no self-reference.
 
 ## Completed
-- Prepared one isolated bootstrap: exact Vercel Git-deployment exclusion plus AGENTS.md, CLAUDE.md, concise trackers and review checklist. No application fixes or accumulated local commits transferred.
-- Read-only preflight: Vercel `par-lay-s-projects/going-long` connects to this repo, root directory empty, production branch main; no Vercel deploy hooks/integrations or GitHub repository webhooks; installed GitHub App is Vercel. Snapshot verified Oct 1; recheck before future publication.
-- GitHub repo public; standard Ubuntu CI runner minutes free. Existing workflows unchanged; refresh restricted to main. No new cache/storage capacity, paid service or settings activated.
-- Local config/full-tree checks and targeted Vercel/API tests passed. No runtime/build inputs changed except the branch deployment exclusion. First push is authorized for this bootstrap only; publication result is reported separately after remote SHA verification.
+- MANAGER selected keyboard/mobile cheatsheet focus loss on the fresh production baseline. UI/UX, BUILDER and QA hats used by one agent; no delegation. Navigation, filter toggles and pagination now preserve focus; final pagination moves focus to the result count. Only `shared/football-cheatsheets.js` and its test file changed in production (33 additions, 2 deletions).
+- Both new regressions failed before the fix and passed after; targeted 6/6, full Node 164/164, Python 96/96, npm build, Vercel build and Git diff checks passed with offline/mocked tests. Existing shared-asset build warnings remain; builds copy those assets.
+- Ordinary explicit fast-forward push used the existing main -> Vercel path. HTTP 200 live module matches the complete production Git blob after line-ending normalization (SHA256 `066580437e94f79ecb85c772a39ae1ae651f1e8ad2b28e66f49705835190e790`). Vercel/remote CI status was pending at this observation; deployed source verified independently.
+- Exact binary patch: `docs/daily-cycles/20261001-football-tabs.patch`. Applying it to the recorded production base in a temporary Git index reconstructed the entire tested production tree exactly. No bootstrap/old fixes merged into main, no provider workflow triggered, review deployment exclusion unchanged. Existing public Ubuntu CI and Hobby hosting only; no new services or spending.
+- Model methods/Champion unchanged; MODEL_RESEARCH.md unchanged. Cycle-specific model selection remains unavailable; no global/chat changes or escalation.
 
 ## Working
-- None. Bootstrap completion marker identifies the tested tree; automatic publication remains disabled.
+- Record final publication status and review completion SHA in the receipt after verifying remote publication.
 
 ## Problems
-- Baseline retains previously identified season-learning snapshot allowlist and public/shared CI path gaps; fixes deliberately excluded, not resolved on this branch.
-- Current scanner health and Claude Cloud access remain unverified; public scanner snapshot cannot establish worker health. Existing model diagnostics are research evidence only.
+- This focus cycle does not establish a comprehensive rendered mobile/screen-reader audit. No real odds-provider requests, secrets, alerts, production data writes or model promotion.
+- Existing season-learning snapshot allowlist and shared/public CI path gaps remain outside this cycle; no accumulated application fixes transferred. Scanner public snapshot remains insufficient evidence of worker health; do not repeat blocked audits.
 
 ## Next
-- Claude: review this exact bootstrap diff from the recorded base; retain evidence-backed model gates.
-- After separate authorization, transfer/retest only the validated football snapshot/CI fix or undertake one bounded football issue. Do not repeat blocked audits without new evidence.
+- Claude: locate newest genuine completion marker plus receipt; fetch production SHA, inspect exact patch against production base, and distinguish the review-only artifact tree from production.
+- Reuse existing findings for the next single bounded issue; follow research/holdout/calibration gates for any Challenger.
 
 ## Needs Travis
-- Authorize any further publication separately, especially automatic heartbeat pushes. This approval covers one initial branch push only; no main pushes, merges, deployments, settings changes or model promotion.
-- Confirm Claude Cloud can access the review branch using existing included capacity. No automatic reviewer messages sent.
+- No manual publication needed for this completed low-risk cycle. Approval remains required for all high-risk/cost/model-promotion categories; the current heartbeat authorization supersedes bootstrap-only publication notes solely within its stated scope.
+- Rollback: preserve user work, create a fresh branch from current main, `git revert e7061941670b85de107937782482fc1c62b67782`, rerun affected checks, then ordinary fast-forward publish through the existing path. The exact pre-cycle parent is recorded above; never reset/force-push. No rollback performed.
