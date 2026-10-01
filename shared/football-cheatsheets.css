@@ -1,0 +1,68 @@
+.football-cheatsheets{color:var(--bt-bone,#f0e9de);}
+.gcs-page{max-width:1320px;margin:0 auto;padding:8px 0 36px;}
+.gcs-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin:4px 0 14px;}
+.gcs-heading h2{margin:3px 0 6px;font:800 clamp(26px,4vw,34px)/1.05 Archivo,Inter,sans-serif;letter-spacing:-.035em;color:var(--bt-bone,#f0e9de);}
+.gcs-heading p,.gcs-note{color:var(--bt-mute,#b4afa4);font-size:13px;line-height:1.55;margin:6px 0 12px;}
+.gcs-kicker{display:block;color:var(--bt-orange,#ff7a1a);font:600 10px/1.4 "IBM Plex Mono",monospace;letter-spacing:.08em;text-transform:uppercase;}
+.gcs-season{flex:none;border:1px solid var(--bt-line,#393b35);border-radius:999px;padding:7px 11px;color:var(--bt-mute,#b4afa4);font:500 11px/1.2 "IBM Plex Mono",monospace;}
+.gcs-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0;}
+.gcs-metric{min-width:0;padding:10px 12px;border:1px solid var(--bt-line,#393b35);border-radius:var(--g-radius-sm,8px);background:var(--bt-panel-2,#171c19);}
+.gcs-metric small{display:block;color:var(--bt-mute,#b4afa4);font-size:10px;line-height:1.4;}
+.gcs-metric b{display:block;margin:3px 0;color:var(--bt-bone,#f0e9de);font:700 17px/1.25 "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+.gcs-shortcuts,.gcs-tabs{display:flex;align-items:center;gap:7px;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:thin;padding:4px 1px 8px;margin:8px 0;}
+.gcs-shortcuts button,.gcs-tabs button,.gcs-filter-toggle{flex:0 0 auto;min-height:42px;padding:8px 12px;border:1px solid var(--bt-line,#393b35);border-radius:999px;background:var(--bt-panel-2,#171c19);color:var(--bt-bone,#f0e9de);font:600 12px/1.2 Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 2px 5px #0003;}
+.gcs-shortcuts button:hover,.gcs-tabs button:hover,.gcs-filter-toggle:hover{border-color:var(--bt-orange,#ff7a1a);}
+.gcs-tabs button[aria-pressed="true"],.gcs-filter-toggle[aria-pressed="true"]{background:var(--bt-orange,#ff7a1a);border-color:var(--bt-orange,#ff7a1a);color:#17130f;}
+.gcs-toolbar{display:grid;grid-template-columns:2fr repeat(3,minmax(120px,1fr));align-items:end;gap:8px;padding:10px;border:1px solid var(--bt-line,#393b35);border-radius:var(--g-radius-md,12px);background:var(--bt-panel,#101411);}
+.gcs-toolbar label{display:flex;flex-direction:column;gap:5px;min-width:0;color:var(--bt-mute,#b4afa4);font-size:11px;}
+.gcs-toolbar input,.gcs-toolbar select,.gcs-controls input,.gcs-controls select{min-width:0;width:100%;min-height:42px;padding:8px 10px;border:1px solid var(--bt-line,#393b35);border-radius:var(--g-radius-sm,8px);background:var(--bt-panel-2,#171c19);color:var(--bt-bone,#f0e9de);font:500 13px Inter,system-ui,sans-serif;}
+.gcs-toolbar input:focus-visible,.gcs-toolbar select:focus-visible,.gcs-shortcuts button:focus-visible,.gcs-tabs button:focus-visible,.gcs-filter-toggle:focus-visible{outline:2px solid var(--bt-orange,#ff7a1a);outline-offset:2px;}
+.gcs-search{grid-column:span 2;}
+.gcs-source{margin:8px 2px 14px;color:var(--bt-dim,#89877f);font-size:10px;line-height:1.5;}
+.gcs-content{min-width:0;}
+.gcs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.gcs-card,.gcs-game-card{min-width:0;border:1px solid var(--bt-line,#393b35);border-radius:var(--g-radius-md,12px);background:var(--bt-panel,#101411);padding:13px;}
+.gcs-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;margin-bottom:10px;}
+.gcs-card h3,.gcs-game-card h3{font:700 17px/1.2 Archivo,Inter,sans-serif;margin:3px 0;color:var(--bt-bone,#f0e9de);overflow-wrap:anywhere;}
+.gcs-card-top small{display:block;color:var(--bt-mute,#b4afa4);font-size:10px;line-height:1.5;}
+.gcs-pill{display:inline-flex;align-items:center;justify-content:center;flex:none;border:1px solid var(--bt-line,#393b35);border-radius:999px;padding:5px 8px;color:var(--bt-mute,#b4afa4);font:600 10px/1.3 "IBM Plex Mono",monospace;text-align:center;}
+.gcs-pill.good{border-color:#2a8f75;background:#13352d;color:#92e2c7;}
+.gcs-pill.watch{border-color:#75633a;background:#30291a;color:#f4d48a;}
+.gcs-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:9px 0;}
+.gcs-metrics .gcs-metric{padding:8px;background:var(--bt-panel-2,#171c19);}
+.gcs-metrics .gcs-metric b{font-size:14px;}
+.gcs-card-price{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:7px;margin:8px 0;padding:9px 10px;border-radius:var(--g-radius-sm,8px);background:var(--bt-panel-2,#171c19);}
+.gcs-card-price b{font:600 12px/1.5 "IBM Plex Mono",monospace;color:var(--bt-orange,#ff7a1a);}
+.gcs-card-price span{font-size:10px;color:var(--bt-mute,#b4afa4);}
+.gcs-card details,.gcs-method{border-top:1px solid var(--bt-line,#393b35);margin-top:9px;padding-top:8px;}
+.gcs-card summary,.gcs-method summary{cursor:pointer;min-height:36px;display:flex;align-items:center;color:var(--bt-bone,#f0e9de);font-size:12px;font-weight:600;}
+.gcs-card details small{display:block;color:var(--bt-dim,#89877f);font-size:10px;line-height:1.55;margin-top:7px;}
+.gcs-evidence{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:8px 0;}
+.gcs-evidence>span,.gcs-evidence>b{min-width:0;padding:7px;border:1px solid var(--bt-line,#393b35);border-radius:var(--g-radius-sm,8px);color:var(--bt-mute,#b4afa4);font-size:10px;line-height:1.45;overflow-wrap:anywhere;}
+.gcs-evidence>b{grid-column:1/-1;color:var(--bt-orange,#ff7a1a);font:600 10px/1.4 "IBM Plex Mono",monospace;}
+.gcs-price-list{display:grid;gap:5px;margin-top:8px;}
+.gcs-price-list>div{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--bt-line,#393b35);font-size:10px;}
+.gcs-price-list b{color:var(--bt-bone,#f0e9de);}
+.gcs-price-list span{color:var(--bt-mute,#b4afa4);text-align:right;}
+.gcs-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0;}
+.gcs-controls .gcs-filter-toggle{min-height:40px;}
+.gcs-bar{display:block;height:4px;margin:4px 0;border-radius:4px;background:#30362f;overflow:hidden;}
+.gcs-bar i{display:block;height:100%;background:var(--bt-orange,#ff7a1a);}
+.gcs-game-list{display:grid;gap:10px;}
+.gcs-team-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.gcs-team-side{min-width:0;border:1px solid var(--bt-line,#393b35);border-radius:var(--g-radius-sm,8px);padding:10px;background:var(--bt-panel-2,#171c19);}
+.gcs-team-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:7px;}
+.gcs-team-title b{font:700 16px Archivo,Inter,sans-serif;color:var(--bt-orange,#ff7a1a);}
+.gcs-team-title span{font-size:10px;color:var(--bt-mute,#b4afa4);}
+.gcs-team-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 8px;}
+.gcs-team-stats span,.gcs-defense-lines>div{font-size:10px;line-height:1.45;color:var(--bt-mute,#b4afa4);}
+.gcs-team-stats b{color:var(--bt-bone,#f0e9de);font-family:"IBM Plex Mono",monospace;}
+.gcs-defense-lines{display:grid;gap:4px;margin-top:9px;padding-top:8px;border-top:1px solid var(--bt-line,#393b35);}
+.gcs-defense-lines>small{color:var(--bt-orange,#ff7a1a);font:600 9px/1.4 "IBM Plex Mono",monospace;text-transform:uppercase;}
+.gcs-defense-lines>div{display:grid;grid-template-columns:52px minmax(0,1fr);gap:6px;}
+.gcs-defense-lines>div b{color:var(--bt-bone,#f0e9de);}
+.gcs-empty{padding:22px 14px;border:1px dashed var(--bt-line,#393b35);border-radius:var(--g-radius-md,12px);color:var(--bt-mute,#b4afa4);font-size:13px;line-height:1.55;text-align:center;}
+.gcs-method{margin-top:16px;}
+.gcs-method ul{padding-left:18px;color:var(--bt-mute,#b4afa4);font-size:11px;line-height:1.65;}
+@media(max-width:760px){.gcs-grid{grid-template-columns:1fr}.gcs-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}.gcs-search{grid-column:1/-1}.gcs-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.gcs-team-grid{grid-template-columns:1fr}}
+@media(max-width:430px){.gcs-page{padding-top:2px}.gcs-heading{gap:8px}.gcs-heading p{font-size:12px}.gcs-season{padding:6px 8px}.gcs-toolbar{padding:8px;gap:7px}.gcs-toolbar label{font-size:10px}.gcs-toolbar input,.gcs-toolbar select{font-size:13px}.gcs-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.gcs-evidence{grid-template-columns:1fr}.gcs-evidence>b{grid-column:auto}.gcs-card{padding:11px}.gcs-shortcuts button,.gcs-tabs button,.gcs-filter-toggle{min-height:44px}.gcs-team-stats{grid-template-columns:1fr 1fr}}

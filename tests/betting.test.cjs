@@ -21,7 +21,7 @@ function setup(t){
   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
   }
-  vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,filterBestPlays,bestBookKey,bestPlayCard,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
+  vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,filterBestPlays,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
     mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,goingScoreRisk,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
@@ -272,11 +272,11 @@ test('Manual imports validate fields and use automatic projections when omitted'
 });
 test('Routing hides inactive views and scopes Settings to draft',t=>{
   const {w}=setup(t);
-  const click=name=>w.document.querySelector(`#glNav [data-view="${name}"]`).click();
-  click('trade');assert.equal(w.document.getElementById('view-betting').hidden,true);
-  click('settings');assert.equal(w.document.getElementById('view-draft').hidden,false);
+  const clickFantasy=name=>w.document.querySelector(`#fantasyNav [data-view="${name}"]`).click();
+  clickFantasy('trade');assert.equal(w.document.getElementById('view-betting').hidden,true);assert.equal(w.document.getElementById('clockBar').hidden,true);
+  clickFantasy('draft');assert.equal(w.document.getElementById('view-draft').hidden,false);assert.equal(w.document.getElementById('clockBar').hidden,false);assert.ok(w.document.getElementById('cfgOpen'));
   assert.equal(w.document.querySelector('#view-betting details').open,false);
-  click('betting');assert.equal(w.document.getElementById('clockBar').hidden,true);
+  w.document.querySelector('#glNav [data-view="betting"]').click();assert.equal(w.document.getElementById('clockBar').hidden,true);
   assert.equal(w.document.querySelectorAll('#glNav [aria-current]').length,1);
 });
 
@@ -299,7 +299,8 @@ test('Book-added team abbreviations do not prevent player matching',t=>{
 });
 test('Betting navigation promotes GOING SCORE and nests specialist tools',t=>{
   const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
-  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','GOING SCORE','DFS','Markets','Games','Signals','Parlays']);
+  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','GOING SCORE','DFS','Markets','Games','Cheatsheets','Signals','Parlays']);
+  w.document.querySelector('#btTabGroup [data-section="cheatsheets"]').click();assert.equal(a.BET.tab,'cheatsheets');assert.equal(w.document.querySelector('#btCheatsheetsPanel').hidden,false);
   w.document.querySelector('#btTabGroup [data-section="opportunities"]').click();
   assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['All Bets','Model Board','First TD']);
   w.document.querySelector('#btToolGroup [data-tab="firsttd"]').click();assert.equal(a.BET.tab,'firsttd');
@@ -474,8 +475,14 @@ test('Opportunity pool reports every exclusion without changing canonical eligib
  assert.deepEqual({...pool.excluded},{wrong_sport_or_type:1,outside_current_week:1,started_or_invalid:1,quote_over_24_hours:1});
 });
 test('Best play labels use away spread sign and escape names',t=>{
- const {api:a}=setup(t);const text=a.bestPlayCard({kind:'game',sport:'ncaa',market:'spread',side:'Away',line:-3.5,away:'Away <tag>',home:'Home',team:'',book:'betmgm',odds:-110,prob:.6,push:0,ev:.14,n:12,kickoff:new Date().toISOString(),updatedAt:new Date().toISOString(),flags:[]});
- assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));assert.match(text,/Primary risk/);assert.match(text,/Why GOING likes it/);assert.match(text,/SHOW ME THE DATA/);assert.match(text,/Parlay relevance/);
+  const {api:a}=setup(t);const text=a.bestPlayCard({kind:'game',sport:'ncaa',market:'spread',side:'Away',line:-3.5,away:'Away <tag>',home:'Home',team:'',book:'betmgm',odds:-110,prob:.6,push:0,ev:.14,n:12,kickoff:new Date().toISOString(),updatedAt:new Date().toISOString(),flags:[]});
+  assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));assert.match(text,/Primary risk/);assert.match(text,/Why GOING likes it/);assert.match(text,/SHOW ME THE DATA/);assert.match(text,/Parlay relevance/);
+});
+
+test('NFL picks attach player usage and opponent cheatsheet evidence to their expanded data',t=>{
+ const {api:a,context}=setup(t),kickoff=future();a.BET.context={season:2026,scopes:{'2026':{players:{p:{player_id:'p',name:'Test Receiver',team:'BUF',position:'WR',games:3,last_game:'2026-09-08',targets:20,target_share:.25,rush_attempts:1,rush_share:.01,share:.8,share_type:'offensive_snap_share',offense_snaps:96,team_snaps:120,routes:72}},teams:{BUF:{games:3,plays_per_game:64,pace_seconds:27}},defense_receiving:{'MIA|WR':{targets:50,games:3,yards_per_target:8.2,explosive_rate:.1,redzone_target_rate:.16,status:'observed'}}}}};a.BET.history={profiles:{p:{id:'p',name:'Test Receiver',team:'BUF',position:'WR',last_game:'2026-09-08'}},features:{nfl:{players:{'BUF|p':{route_participation:.75,participation_charted_dropbacks:80}}}}};
+ const pick={kind:'prop',sport:'nfl',player:'Test Receiver',profileId:'p',position:'WR',team:'BUF',home:'BUF',away:'MIA',market:'rec_yds',side:'Over',line:45.5,book:'Fanatics',odds:-110,dec:1.91,prob:.58,push:0,ev:.1,n:12,projMean:51,projSd:12,kickoff,updatedAt:new Date().toISOString(),flags:[]};
+ const evidence=a.bestCheatsheetEvidence(pick);assert.ok(evidence.some(([label])=>label.includes('Target share')));assert.ok(evidence.some(([label])=>label.includes('Route participation')));assert.ok(evidence.some(([label])=>label.includes('MIA vs WR receiving sample')));context.GoingUI={teamMarks:()=>'<logos>',card:value=>JSON.stringify({team:value.team,evidence:value.cheatsheetEvidence})};const card=a.bestPlayCard(pick);assert.match(card,/Target share/);assert.match(card,/MIA vs WR receiving sample/);assert.match(card,/BUF/);
 });
 
 test('Price shortlist needs no historical model and retains both opposing sides',t=>{
