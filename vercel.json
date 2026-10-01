@@ -1,5 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "codex/going-long-daily-review": false
+    }
+  },
   "framework": null,
   "ignoreCommand": "node scripts/vercel_ignore_build.mjs",
   "buildCommand": "node scripts/build_vercel.mjs",

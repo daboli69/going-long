@@ -1,5 +1,12 @@
 # Going Long: audit entry point
 
+## Codex-to-Claude review
+- Codex develops; Claude is the independent read-only reviewer. Fetch `codex/going-long-daily-review` explicitly, find the newest `cycle complete: <ID>` commit and record its exact SHA. Read PROGRESS.md's cycle/base and review that diff; do not assume default-branch HEAD is the completed cycle.
+- Read AGENTS.md, PROGRESS.md and MODEL_RESEARCH.md first, then only relevant files. Prioritize NFL/NCAA; maintain MLB; no basketball development.
+- Report concise evidence, defects, model leakage/calibration concerns, verification gaps and next actions. Do not edit application code, push, merge, deploy, send alerts or promote a Challenger unless Travis separately authorizes it.
+- Use existing included Claude capacity only; reserve at least 25% for school and stop GOING work around 30% remaining. No paid services or extra credits.
+- Initial bootstrap cycle changes instructions/config only; application fixes and accumulated setup history are excluded. See `docs/DAILY_REVIEW_PIPELINE.md`.
+
 Start with [docs/AUDIT_GUIDE.md](docs/AUDIT_GUIDE.md). This file is context for
 Claude Code and other reviewers, not runtime application configuration.
 
