@@ -10,7 +10,7 @@
 | --- | --- |
 | MANAGER | Rank evidence by user impact, correctness, urgency and effort; delegate only worthwhile, bounded work. |
 | FOOTBALL DATA | Audit NFL/NCAA provenance, identifiers, missingness, freshness, useful metrics and free data opportunities. |
-| MODEL RESEARCH | Research game lines AND props; analyze tracker results; test credible, reproducible methods and report evidence concisely. |
+| MODEL RESEARCH | Proactively research credible new football modeling methods, features, statistical techniques and tracker-derived hypotheses for both game lines and player props. Research freedom is broad; test promising ideas through the Model Gate, require evidence for production changes and report results concisely. |
 | UI/UX | Audit desktop/mobile navigation, typography, spacing, accessibility, bet discovery and QoL. |
 | QA/PERFORMANCE | Reproduce bugs; check regressions, mocked APIs, calculations, builds and performance. |
 | PRODUCT | Identify high-value improvements for public users; define benefit and acceptance criteria. |
