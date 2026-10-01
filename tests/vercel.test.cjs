@@ -26,6 +26,38 @@ test('Vercel snapshot endpoint validates file paths and falls back during upstre
  }finally{global.fetch=before;}
 });
 
+test('Every football loader snapshot can retrieve current upstream data without falling back',async()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+ const loader=html.match(/worker\.postMessage\((\[\[.*?\]\])\.map/);
+ assert.ok(loader,'Football worker snapshot manifest must be discoverable');
+ const files=[...loader[1].matchAll(/\['[^']+','([^']+)'\]/g)].map(m=>m[1]);
+ assert.ok(files.includes('season_learning.json'));
+ const {default:handler}=await import('../api/snapshot.mjs'),before=global.fetch;
+ const generated_at='2026-10-02T17:00:00Z';let calls=0;
+ try{
+  global.fetch=async url=>{calls++;const file=String(url).split('/data/')[1];assert.ok(files.includes(file));return Response.json({file,generated_at});};
+  for(const file of files){const res=response();await handler({method:'GET',url:'/api/snapshot?file='+encodeURIComponent(file)},res);
+   assert.equal(res.statusCode,200,file);assert.equal(res.headers['X-Snapshot-Source'],'nightly',file);assert.deepEqual(JSON.parse(res.body),{file,generated_at});
+  }
+  assert.equal(calls,files.length);
+  for(const file of ['../../secret','season_learning.json/../secret','unknown.json']){const res=response();await handler({method:'GET',url:'/api/snapshot?file='+encodeURIComponent(file)},res);assert.equal(res.statusCode,400,file);}
+  assert.equal(calls,files.length,'Rejected paths must never reach upstream');
+ }finally{global.fetch=before;}
+});
+
+test('Season learning retains its packaged timestamp when upstream is unavailable',async()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const packaged=JSON.parse(fs.readFileSync(path.join(__dirname,'../data/season_learning.json'),'utf8'));
+ const {default:handler}=await import('../api/snapshot.mjs'),before=global.fetch;
+ try{
+  global.fetch=async()=>{throw Error('offline');};
+  const res=response();await handler({method:'GET',url:'/api/snapshot?file=season_learning.json'},res);
+  assert.equal(res.statusCode,200);assert.equal(res.headers['X-Snapshot-Source'],'packaged');
+  assert.ok(packaged.generated_at);assert.deepEqual(JSON.parse(res.body),packaged);
+ }finally{global.fetch=before;}
+});
+
 test('Shared baseball snapshots allow only public assets and coalesce requests',async()=>{
  const {default:handler}=await import('../api/yard-snapshot.mjs');const before=global.fetch;let calls=0;
  try{global.fetch=async url=>{calls++;assert.equal(url,'https://raw.githubusercontent.com/daboli69/hr-board/main/docs/board.json');return Response.json({players:[]});};

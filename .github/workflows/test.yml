@@ -4,7 +4,9 @@ on:
   push:
     paths:
       - 'index.html'
-      - 'apps/validation/**'
+      - 'apps/**'
+      - 'shared/**'
+      - 'hub/**'
       - 'scripts/**'
       - 'server/**'
       - 'api/**'
