@@ -16,7 +16,7 @@ body[data-going-workspace] :focus-visible{outline:3px solid var(--g-accent);outl
 body[data-going-workspace=home] .top,body[data-going-workspace=long] .bt-brand,body[data-going-workspace=long] #glNav .ic,body[data-going-workspace=yard] .brand-mark,body[data-going-workspace=yard] .going-platform-nav .going-logo{display:none!important}
 body[data-going-workspace=long] .bt-head,body[data-going-workspace=yard]>header{top:var(--going-header-height);background:var(--g-bg);border-color:var(--g-border)}
 body[data-going-workspace=long] #glNav,body[data-going-workspace=yard] #tabbar{background:var(--g-bg);border-color:var(--g-border)}
-body[data-going-workspace=long] #btTabGroup{display:flex!important;flex-wrap:nowrap;width:100%;overflow-x:auto;scrollbar-width:none}
+body[data-going-workspace=long] #btTabGroup{display:flex;flex-wrap:wrap;flex:1;width:auto;overflow:visible}
 body[data-going-workspace=long] #btToolGroup{display:flex;gap:var(--g-space-2);max-width:1440px;margin:var(--g-space-3) auto var(--g-space-1);overflow-x:auto;scrollbar-width:none}
 body[data-going-workspace=long] #btToolGroup[hidden]{display:none}
 body[data-going-workspace=long] :is(#btTabGroup,#btToolGroup) button{flex:0 0 auto;white-space:nowrap}
@@ -35,3 +35,4 @@ body[data-yard-view="pregame-record"] #welcome,body[data-yard-view="market-disag
 @media(min-width:700px){body[data-going-workspace=long] .cfg-sheet{top:calc(var(--going-header-height) + 60px);max-height:calc(100vh - var(--going-header-height) - 90px)}}
 @media(max-width:600px){#going-shell .going-shell-inner{padding:var(--g-space-2) var(--g-space-4);min-height:104px;gap:var(--g-space-1);flex-wrap:wrap}#going-shell .going-global-nav{width:100%;justify-content:space-between;gap:0}#going-shell .going-global-nav a{padding:var(--g-space-2);font-size:var(--g-text-xs)}body[data-going-workspace=yard] .going-platform-nav{padding:var(--g-space-2) var(--g-space-3)}body[data-going-workspace=long] .bt-head{display:flex;flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){body[data-going-workspace] *{transition:none!important;animation:none!important}}
+@media(max-width:760px){body[data-going-workspace=long] #btTabGroup{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));flex-basis:100%;width:100%}body[data-going-workspace=long] #btTabGroup>button{min-width:0;padding:10px 5px!important;font-size:12px!important}}

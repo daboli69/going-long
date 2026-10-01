@@ -99,3 +99,28 @@ test('NCAA does not present NFL-only charting sheets as supported', () => {
   assert.match(host.textContent, /currently use NFL charting and season data/);
   dom.window.close();
 });
+
+test('mobile sheet selection shows real game bars and preserves exact line outcomes', () => {
+  const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet');
+  dom.window.GoingFootballCheatsheets.render(host,data);
+  const select=host.querySelector('[data-cheat-select]');select.value='hit-rates';select.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+  const market=host.querySelector('[data-cheat-filter="market"]');market.value='receptions';market.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+  const chart=host.querySelector('.gcs-history');assert.ok(chart);
+  assert.equal(chart.querySelectorAll('rect.over').length,2);assert.equal(chart.querySelectorAll('rect.under').length,1);
+  assert.match(chart.textContent,/2026-09-10: 5, over/);assert.match(chart.textContent,/line 4.5/);
+  assert.equal(host.querySelector('.gcs-row').open,true);
+  assert.doesNotMatch(chart.innerHTML,/NaN|Infinity/);dom.window.close();
+});
+
+test('compact sheet pagination retains the full filtered population and reset restores it', () => {
+  const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet'),players=data.context.scopes['2026'].players,base=players.p1;
+  for(let i=2;i<=85;i++)players['p'+i]={...base,player_id:'p'+i,name:'Player '+i,target_share:i/100};
+  dom.window.GoingFootballCheatsheets.render(host,data);
+  assert.equal(host.querySelectorAll('.gcs-row').length,40);assert.match(host.querySelector('.gcs-count').textContent,/85 rows/);
+  host.querySelector('[data-cheat-more]').click();assert.equal(host.querySelectorAll('.gcs-row').length,80);
+  host.querySelector('[data-cheat-more]').click();assert.equal(host.querySelectorAll('.gcs-row').length,85);
+  const team=host.querySelector('[data-cheat-filter="team"]');team.value='MIA';team.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+  assert.equal(host.querySelectorAll('.gcs-row').length,0);
+  host.querySelector('[data-cheat-reset]').click();assert.equal(host.querySelectorAll('.gcs-row').length,40);
+  assert.match(host.querySelector('.gcs-row summary').textContent,/Player 85/);dom.window.close();
+});

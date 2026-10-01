@@ -299,7 +299,7 @@ test('Book-added team abbreviations do not prevent player matching',t=>{
 });
 test('Betting navigation promotes GOING SCORE and nests specialist tools',t=>{
   const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
-  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','GOING SCORE','DFS','Markets','Games','Cheatsheets','Signals','Parlays']);
+  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','Cheatsheets','Parlays','GOING SCORE','DFS','Signals']);
   w.document.querySelector('#btTabGroup [data-section="cheatsheets"]').click();assert.equal(a.BET.tab,'cheatsheets');assert.equal(w.document.querySelector('#btCheatsheetsPanel').hidden,false);
   w.document.querySelector('#btTabGroup [data-section="opportunities"]').click();
   assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['All Bets','Model Board','First TD']);

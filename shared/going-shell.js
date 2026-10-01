@@ -15,6 +15,6 @@
  measure();if(typeof ResizeObserver!=='undefined')new ResizeObserver(measure).observe(shell);
  // Keep dynamically rendered controls in title case, preserving sport acronyms.
  const acronyms=new Set(['NFL','NCAA','MLB','DFS','TD','HR','RBI','RB','WR','TE','QB','DST','FBS','CSV','EV','IP','PA','BF','GOING']);
- const casing=node=>{for(const el of node.querySelectorAll?.('button,summary,[role=button]')||[]){const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let text;while(text=walker.nextNode()){if(text.parentElement.closest('svg,script,style'))continue;const value=text.nodeValue;if(/[A-Z]{3}/.test(value)&&value===value.toUpperCase())text.nodeValue=value.replace(/[A-Z]+/g,w=>acronyms.has(w)?w:w[0]+w.slice(1).toLowerCase());}}};
+ const casing=node=>{for(const el of node.querySelectorAll?.('button,summary,[role=button]')||[]){const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);let text;while(text=walker.nextNode()){if(text.parentElement.closest('svg,script,style,.g-team-mark'))continue;const value=text.nodeValue;if(/[A-Z]{3}/.test(value)&&value===value.toUpperCase())text.nodeValue=value.replace(/[A-Z]+/g,w=>acronyms.has(w)?w:w[0]+w.slice(1).toLowerCase());}}};
  casing(document);let scheduled=false;new MutationObserver(()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;casing(document);});}).observe(document.body,{childList:true,subtree:true});
 })();
