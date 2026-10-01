@@ -100,6 +100,32 @@ test('NCAA does not present NFL-only charting sheets as supported', () => {
   dom.window.close();
 });
 
+test('cheatsheet navigation and filter toggles preserve keyboard focus after repaint', () => {
+  const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet');
+  dom.window.GoingFootballCheatsheets.render(host,data);
+  for(const selector of ['[data-cheat-sheet="hit-rates"]','[data-cheat-filters]','[data-cheat-fresh]','[data-cheat-reset]']){
+    const control=host.querySelector(selector);assert.ok(control,selector);control.focus();control.click();
+    assert.equal(dom.window.document.activeElement,host.querySelector(selector),selector);
+  }
+  const mobile=host.querySelector('[data-cheat-select]');mobile.focus();mobile.value='roles';
+  mobile.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+  assert.equal(dom.window.document.activeElement,host.querySelector('[data-cheat-select]'));
+  assert.equal(dom.window.document.activeElement.value,'roles');
+  dom.window.close();
+});
+
+test('pagination retains focus and hands it to the result count when all rows are shown', () => {
+  const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet'),players=data.context.scopes['2026'].players;
+  for(let i=2;i<=85;i++)players['p'+i]={...players.p1,player_id:'p'+i,name:'Player '+i};
+  dom.window.GoingFootballCheatsheets.render(host,data);
+  let more=host.querySelector('[data-cheat-more]');more.focus();more.click();
+  assert.equal(dom.window.document.activeElement,host.querySelector('[data-cheat-more]'));
+  more=host.querySelector('[data-cheat-more]');more.click();
+  assert.equal(host.querySelectorAll('.gcs-row').length,85);
+  assert.equal(dom.window.document.activeElement,host.querySelector('.gcs-count'));
+  dom.window.close();
+});
+
 test('mobile sheet selection shows real game bars and preserves exact line outcomes', () => {
   const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet');
   dom.window.GoingFootballCheatsheets.render(host,data);

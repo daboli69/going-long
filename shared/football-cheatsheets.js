@@ -267,12 +267,17 @@
   if(cards.length>visibleLimit)content.insertAdjacentHTML('beforeend',`<div class="gcs-pagination"><span>Showing ${visibleLimit} of ${cards.length} matching rows</span><button type="button" data-cheat-more>Show 40 more</button></div>`);
  }
  function paint(host,d){
-  const active=document.activeElement,keep=active&&host.contains(active)&&active.hasAttribute('data-cheat-filter'),filter=keep?active.dataset.cheatFilter:null,selection=keep&&active.selectionStart;
+  const active=document.activeElement,focusAttr=active&&host.contains(active)?['data-cheat-filter','data-cheat-select','data-cheat-sheet','data-cheat-filters','data-cheat-fresh','data-cheat-active','data-cheat-reset','data-cheat-more'].find(attr=>active.hasAttribute(attr)):null;
+  const focusValue=focusAttr?active.getAttribute(focusAttr):null,selection=focusAttr==='data-cheat-filter'?active.selectionStart:null;
   cardCharts=[];cardMini=[];
   const sheetName=SHEETS.find(s=>s[0]===state.sheet)?.[1]||'Cheatsheets',content=contentMarkup(d);
   host.innerHTML=`<div class="gcs-page">${navMarkup(d)}<main class="gcs-workspace"><label class="gcs-mobile-nav">Cheatsheets<select data-cheat-select aria-label="Choose a cheatsheet">${GROUPS.map(([group,ids])=>`<optgroup label="${group}">${ids.map(id=>`<option value="${id}" ${state.sheet===id?'selected':''}>${esc(SHEETS.find(s=>s[0]===id)[1])}</option>`).join('')}</optgroup>`).join('')}</select></label><header class="gcs-heading"><div><span class="gcs-kicker">NFL · Cheatsheets</span><h2>${esc(sheetName)}</h2><p>${esc(DESCRIPTIONS[state.sheet])}</p></div><button class="gcs-back" data-cheat-open-tab="best">Today's picks ↗</button></header>${toolbarMarkup(d)}<div class="gcs-results-head"><span class="gcs-count" role="status"></span><button type="button" data-cheat-reset>Reset filters</button></div><div class="gcs-content">${content}</div><details class="gcs-method"><summary>Sources & how to read this sheet</summary><p class="gcs-source">${esc(sourceNote(d))}</p><ul><li>Bars show actual values. Higher does not automatically mean a better bet.</li><li>Historical hit rates are observed results against today's line, not future probabilities.</li><li>Passing-snap proxies and measured routes are labeled separately. Missing data stays unavailable.</li><li>Small samples and watch-only signals retain their original status. Open a row to inspect the full evidence.</li></ul></details></main></div>`;
   organizeCards(host,d);
-  if(keep){const next=host.querySelector(`[data-cheat-filter="${filter}"]`);next?.focus();if(next&&typeof next.setSelectionRange==='function'&&selection!=null)try{next.setSelectionRange(selection,selection);}catch{}}
+  if(focusAttr){
+   const next=[...host.querySelectorAll(`[${focusAttr}]`)].find(control=>control.getAttribute(focusAttr)===focusValue);
+   if(next){next.focus({preventScroll:true});if(typeof next.setSelectionRange==='function'&&selection!=null)try{next.setSelectionRange(selection,selection);}catch{}}
+   else if(focusAttr==='data-cheat-more'){const count=host.querySelector('.gcs-count');count?.setAttribute('tabindex','-1');count?.focus({preventScroll:true});}
+  }
  }
  function wire(host){
   if(host.dataset.gcsWired)return;host.dataset.gcsWired='true';
