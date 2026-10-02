@@ -21,7 +21,7 @@ function setup(t){
   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
   }
-  vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,filterBestPlays,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
+  vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
     mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,goingScoreRisk,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
@@ -354,6 +354,9 @@ test('Sport switch isolates game records and missing spreads stay unpriced',t=>{
     {id:'ncaa',sport:'ncaa',home:'Alabama',away:'Georgia',kickoff:future(),source:'manual'}];
   w.document.querySelector('[data-sport="ncaa"]').click();
   assert.equal(w.document.querySelector('[data-tab="props"]').hidden,true);
+  assert.match(w.document.getElementById('btGamesList').textContent,/Alabama/);
+  assert.equal(w.document.querySelector('[data-coverage="all"]').getAttribute('aria-pressed'),'true');
+  w.document.querySelector('[data-coverage="active"]').click();
   assert.doesNotMatch(w.document.getElementById('btGamesList').textContent,/Alabama/);
   w.document.querySelector('[data-coverage="all"]').click();
   assert.match(w.document.getElementById('btGamesList').textContent,/Alabama/);
@@ -547,6 +550,25 @@ test('Today filters support a sportsbook, hide only alternate lines, and enforce
  assert.equal(a.rankBestPlays(rows,[],'nfl','prop',now,'fanduel').chance.length,1);
 });
 
+test('Today date and game filters use Eastern calendar dates and stable sport/kickoff identity',t=>{
+ const {api:a}=setup(t),now=Date.parse('2026-09-13T02:00:00Z'),base={kind:'game',market:'spread',side:'Home',prob:.55,ev:.1,n:8,odds:-110,dec:1.91,flags:[]};
+ const rows=[
+  {...base,sport:'nfl',home:'NYG',away:'DAL',kickoff:'2026-09-13T03:00:00Z'},
+  {...base,sport:'nfl',home:'BUF',away:'MIA',kickoff:'2026-09-13T03:00:00Z',prob:.6},
+  {...base,sport:'ncaa',home:'Duke',away:'UNC',kickoff:'2026-09-13T03:00:00Z',prob:.7},
+  {...base,sport:'nfl',home:'KC',away:'DEN',kickoff:'2026-09-13T04:30:00Z'},
+  {...base,sport:'nfl',home:'BUF',away:'MIA',kickoff:'2026-09-14T00:00:00Z'}
+ ];
+ assert.equal(a.bestEtDate(now),'2026-09-12');assert.equal(a.bestEtDate(rows[0].kickoff),'2026-09-12');
+ const today=a.filterBestPlays(rows,{day:'today',event:'all',book:'all',excludeAlt:false,minOdds:null,query:'',focus:'all',sort:'kickoff',now});
+ assert.deepEqual(today.map(x=>x.home).sort(),['BUF','Duke','NYG']);
+ assert.equal(a.bestEventKey(rows[0]),`nfl|${Date.parse(rows[0].kickoff)}|DAL|NYG`);assert.notEqual(a.bestEventKey(rows[0]),a.bestEventKey(rows[1]));assert.notEqual(a.bestEventKey(rows[0]),a.bestEventKey(rows[2]));
+ const selected=a.filterBestPlays(rows,{day:'today',event:a.bestEventKey(rows[2]),book:'all',excludeAlt:false,minOdds:null,query:'',focus:'all',sort:'probability',now});
+ assert.deepEqual(selected.map(x=>x.home),['Duke']);
+ const sameKickoffGame=a.filterBestPlays(rows,{day:'today',event:a.bestEventKey(rows[0]),book:'all',excludeAlt:false,minOdds:null,query:'',focus:'all',sort:'probability',now});assert.deepEqual(sameKickoffGame.map(x=>x.home),['NYG']);
+ assert.equal(a.filterBestPlays(rows,{day:'slate',event:'all',book:'all',excludeAlt:false,minOdds:null,query:'',focus:'all',sort:'kickoff',now}).length,5);
+});
+
 test('Parlay game selector includes scheduled SNF even without eligible odds',async t=>{
  const {api:a,w,context}=setup(t);w.Date.now=()=>Date.parse('2026-09-13T23:00:00Z');
  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-parlays.js'),'utf8'),context);
@@ -577,4 +599,40 @@ test('Trust policy distinguishes historical research from model-price review',t=
  const {context}=setup(t);
  const result=vm.runInContext(`(()=>{const now=Date.parse('2026-09-14T12:00:00Z');return [footballTrust({prob:.6,ev:.1,profileDate:'2026-01-01'},now),footballTrust({prob:.6,ev:.5,profileDate:'2026-01-01'},now)];})()`,context);
  assert.equal(result[0].historical,true);assert.equal(result[0].review,false);assert.equal(result[1].review,true);
+});
+
+test('GOING Score exposes its full eligible field and resets narrowing filters without inventing scores',t=>{
+ const {api:a,w,context}=setup(t),kickoff=future();a.wireBetting();a.BET.tab='score';
+ a.BET.games=[{id:'g',sport:'nfl',home:'B',away:'A',homeCode:'B',awayCode:'A',kickoff,source:'schedule'}];
+ const profiles={},players={};for(let i=0;i<24;i++){const id='p'+i;profiles[id]={id,name:'Scored Runner '+i,team:'A',position:'RB',stats:{atd:{family:'poisson',status:'ready',mean:.4+i*.01,lambda:.4+i*.01,n:12}}};players[id]={player_id:id,team:'A',games:1};}
+ a.BET.history={profiles};a.BET.context={season:2026,scopes:{'2026':{players,teams:{A:{games:1}}}}};
+ vm.runInContext("GOING_SCORE_QUERY='not present';GOING_SCORE_CONFIDENCE='high'",context);a.renderBetting();
+ assert.match(w.document.querySelector('#scoreStatus').textContent,/24 eligible.*0 match/);
+ assert.equal(w.document.querySelector('#scoreSummary b').textContent,'24');
+ const clear=w.document.querySelector('#scoreReset');assert.ok(clear);clear.click();
+ assert.equal(w.document.querySelectorAll('.score-card').length,24);assert.equal(w.document.querySelector('#scoreConfidence').value,'all');assert.equal(w.document.querySelector('#scoreSearch').value,'');
+ assert.match(w.document.querySelector('#scoreStatus').textContent,/24 eligible.*24 match.*24 shown/);
+});
+test('NCAA coverage counts only current priced markets and keeps unpriced schedules visible',t=>{
+ const {api:a,w}=setup(t),kickoff=future(),stamp=new Date().toISOString();a.wireBetting();
+ a.BET.games=[{id:'n1',sport:'ncaa',home:'Alabama',away:'Georgia',kickoff,source:'snapshot',updatedAt:stamp,book:'Book A',spread:-3,homeSpreadOdds:-110,awaySpreadOdds:-110,total:null,mlHome:null,mlAway:null},
+ {id:'n2',sport:'ncaa',home:'Oregon',away:'Washington',kickoff,source:'schedule'},
+ {id:'n3',sport:'ncaa',home:'Texas',away:'Oklahoma',kickoff,source:'snapshot',updatedAt:'2026-09-01T00:00:00Z',book:'Old book',spread:-7,homeSpreadOdds:-110,total:55,overOdds:-110,mlHome:-200}];
+ w.document.querySelector('[data-sport="ncaa"]').click();a.BET.tab='games';a.renderBetting();
+ assert.equal(w.document.querySelectorAll('#btGamesList .bt-game').length,3);
+ const overview=w.document.querySelector('#btOverview').textContent;assert.match(overview,/1\/3With current spreads/);assert.match(overview,/0\/3With current totals/);assert.match(overview,/0\/3With current moneylines/);
+ assert.match(w.document.querySelector('#btGamesList').textContent,/No current spread price/);assert.match(w.document.querySelector('#btGamesList').textContent,/No current total price/);assert.match(w.document.querySelector('#btGamesList').textContent,/No current moneyline price/);
+ w.document.querySelector('[data-coverage="active"]').click();assert.equal(w.document.querySelectorAll('#btGamesList .bt-game').length,1);
+});
+
+
+test('Today forwards recorded injury context and NFL display labels preserve NCAA names',t=>{
+ const {api:a,w,context}=setup(t);
+ for(const file of ['evidence-ui.js','opportunity-ui.js'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared',file),'utf8'),context);
+ const candidate={sport:'nfl',kind:'prop',player:'Runner',team:'Atl',home:'Atl',away:'Ind',kickoff:future(),updatedAt:new Date().toISOString(),book:'Test book',market:'atd',odds:150,dec:2.5,prob:.4,ev:0,n:12,side:'Yes',injury:{status:'Questionable',state:'questionable',stale:true}};
+ const card=new JSDOM(a.bestPlayCard(candidate)).window.document;
+ assert.match(card.querySelector('.g-injury-marker').getAttribute('aria-label'),/Questionable.*stale/);assert.match(card.body.textContent,/IND @ ATL/);
+ assert.match(vm.runInContext("teamBadge('Atl')",context),/ATL/);assert.match(vm.runInContext("teamBadge('Ind')",context),/IND/);
+ a.BET.sport='ncaa';assert.match(vm.runInContext("teamBadge('Indiana')",context),/Indiana/);assert.doesNotMatch(vm.runInContext("teamBadge('Indiana')",context),/g-team-mark/);
+ assert.doesNotMatch(vm.runInContext("injuryMarkup({injury:{state:'available',roleBoost:true,status:'Available'}})",context),/g-injury-marker/);
 });

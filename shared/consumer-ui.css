@@ -64,3 +64,12 @@ body[data-going-workspace] summary{font:var(--g-weight-bold) var(--g-text-sm)/1.
 .g-slip{position:fixed;bottom:var(--g-space-4);right:var(--g-space-4);width:min(380px,calc(100vw - 32px));z-index:80;background:var(--g-surface);padding:var(--g-space-4);border:1px solid var(--g-border);border-radius:var(--g-radius-lg);box-shadow:var(--g-shadow-modal);max-height:65dvh;overflow:auto}.g-slip summary{padding:0}.g-slip-row{display:flex;justify-content:space-between;gap:var(--g-space-2);padding:var(--g-space-3) 0;border-bottom:1px solid var(--g-border)}
 @media(max-width:600px){.g-page{padding:var(--g-space-4);padding-bottom:100px}.g-page-hero{align-items:start}.g-evidence{gap:var(--g-space-2)}.g-stat{padding:var(--g-space-3)}.g-toolbar>label{flex:1}.g-toolbar select{width:100%}.g-injury{grid-template-columns:130px minmax(0,1fr);gap:var(--g-space-3)}.best-facts,.score-facts{grid-template-columns:repeat(2,minmax(0,1fr))!important}.best-card,.score-card{overflow-wrap:anywhere}.g-actions button{flex:1}.g-grid{grid-template-columns:minmax(0,1fr)}#going-shell .going-global-nav{overflow-x:auto;justify-content:start}#going-shell .going-global-nav a{flex:none}body[data-going-workspace] .score-card{grid-template-columns:36px minmax(0,1fr) 78px}.score-facts,.score-card details,.score-card .best-actions,.score-risk{grid-column:1/-1!important}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* Football availability and full-field ranking controls. */
+.g-injury-marker{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid var(--g-amber);border-radius:var(--g-radius-pill);color:var(--g-amber);font:var(--g-weight-bold) var(--g-text-xs)/1.4 var(--g-font);white-space:normal}
+.g-injury-marker [aria-hidden]{font-family:system-ui,sans-serif;font-size:16px}
+.g-team-mark{text-transform:uppercase}
+body[data-going-workspace=long] .score-toolbar{grid-template-columns:auto minmax(140px,1fr) minmax(145px,.6fr) auto}
+@media(max-width:900px){body[data-going-workspace=long] .score-toolbar{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){body[data-going-workspace=long] .score-toolbar{grid-template-columns:1fr}}
+body[data-going-workspace=long] .bt-best-grid>span{color:var(--g-text)}body[data-going-workspace=long] .bt-best-grid small{color:var(--g-muted)}body[data-going-workspace=long] .bt-best-grid b{color:var(--g-text)}
