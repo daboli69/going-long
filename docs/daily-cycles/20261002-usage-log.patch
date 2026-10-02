@@ -1,0 +1,159 @@
+diff --git a/shared/football-cheatsheets.css b/shared/football-cheatsheets.css
+index 86204f98b8f4010565e85365e1a6ec3b44b2f961..1f31885c1dfbdc5c60d57bd3a29ae43a2e445168 100644
+--- a/shared/football-cheatsheets.css
++++ b/shared/football-cheatsheets.css
+@@ -85,3 +85,7 @@ body[data-going-workspace] .football-cheatsheets input::placeholder{color:var(--
+ .bt-more-tools>div{position:absolute;right:0;top:calc(100% + 6px);z-index:60;min-width:180px;padding:6px;background:var(--bt-panel,#15221a);border:1px solid var(--bt-line,#394238);border-radius:10px;box-shadow:0 12px 28px #0006;display:grid;gap:5px}.bt-more-tools>div button{width:100%;text-align:left;min-height:44px!important;color:var(--bt-bone,#f0e9de)!important;background:var(--bt-panel-2,#1b241f)!important}.bt-more-tools:has([aria-pressed=true])>summary{border-color:var(--bt-orange,#ff8b45);color:var(--bt-orange,#ff8b45)}
+ @media(max-width:1000px){.gcs-page{grid-template-columns:166px minmax(0,1fr);gap:16px}.gcs-row>summary{grid-template-columns:minmax(130px,1fr) minmax(0,1.5fr) 16px;gap:10px}.gcs-row-values{gap:8px}.gcs-row-values b{font-size:14px}.gcs-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+ @media(max-width:760px){.gcs-page{display:block;margin-top:6px}.gcs-sidebar{display:none}.gcs-mobile-nav{display:grid;gap:5px;font-size:11px;color:var(--cs-muted);margin-bottom:14px}.gcs-heading>.gcs-back{display:none}.gcs-heading{margin-bottom:12px}.gcs-toolbar{gap:8px;padding:10px}.gcs-toolbar label{flex:1 1 40%}.gcs-toolbar .gcs-search{flex:1 1 100%}.gcs-row>summary{grid-template-columns:minmax(0,1fr) 18px;gap:8px;padding:12px}.gcs-row-values{grid-column:1;grid-row:2;gap:12px;margin-top:4px}.gcs-expand{grid-column:2;grid-row:1/3}.gcs-row .gcs-card-top{gap:5px 8px}.gcs-card-top h3{font-size:16px}.gcs-card-top>.gcs-pill{font-size:9px}.gcs-row-detail{padding:12px}.gcs-team-grid{grid-template-columns:1fr}.gcs-evidence{grid-template-columns:1fr}.gcs-chart-line{grid-template-columns:minmax(90px,1.1fr) minmax(35px,1fr) 45px;gap:8px}.gcs-comparison,.gcs-history{padding:10px}.gcs-content>.gcs-note{font-size:11px}.gcs-row-values .gcs-metric b{font-size:15px}.gcs-row-values .gcs-metric small{font-size:10px}.gcs-back,.gcs-filter-toggle,.gcs-pagination button{min-height:44px}#btTabGroup{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}#btTabGroup>button,#btTabGroup>.bt-more-tools>summary{width:100%;text-align:center;font-size:12px;padding:10px 6px}.bt-more-tools{min-width:0}.bt-more-tools>div{min-width:190px}}
++
++/* Sparse PBP opportunity log: counts remain readable on narrow screens. */
++.gcs-usage-mini{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:5px 14px;padding-top:6px;font-size:11px;color:var(--cs-muted)}.gcs-usage-mini b{color:var(--cs-text);font-variant-numeric:tabular-nums;font-size:12px}
++.gcs-usage-table{overflow-x:auto}.gcs-usage-table table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}.gcs-usage-table caption{text-align:left;font-size:11px;color:var(--cs-muted);padding:10px 0}.gcs-usage-table :is(th,td){text-align:left;padding:10px 6px;border-bottom:1px solid var(--cs-line)}.gcs-usage-table tbody th{font-weight:400;white-space:nowrap}.gcs-usage-table :is(th,td):nth-child(n+3){text-align:right}
+diff --git a/shared/football-cheatsheets.js b/shared/football-cheatsheets.js
+index c302901884ee583755e5a6e6c56756c5f86b7a88..6b38747cfd6a6e8ee274a1681e5c1d2d4bd68fdf 100644
+--- a/shared/football-cheatsheets.js
++++ b/shared/football-cheatsheets.js
+@@ -11,7 +11,7 @@
+  const MARKET_STATS={pass_yds:'pass_yds',pass_tds:'pass_tds',rush_yds:'rush_yds',rush_tds:'rush_tds',rec_yds:'rec_yds',receptions:'receptions',rec_tds:'rec_tds',atd:'atd'};
+  const DEFAULT={sheet:'roles',query:'',team:'ALL',position:'ALL',market:'ALL',book:'ALL',window:'season',sort:'target_share',freshOnly:true,minGames:0,activeOnly:false};
+  const GROUPS=[['Players',['roles','hit-rates']],['Matchups',['defense','matchups','coverage','teams']],['Markets',['markets','game-lines','odds']]];
+- const DESCRIPTIONS={roles:'Compare target, carry and snap shares. Open a player for the measured role and sample.', 'hit-rates':'Compare recorded results with today’s exact line, then inspect the game-by-game chart.',defense:'Find the defenses allowing explosive plays by position and play type.',matchups:'See how a player’s current usage fits an opponent’s measured weakness.',coverage:'Compare conditional defensive coverage and quarterback target tendencies.',teams:'Compare the upcoming teams’ pace, passing tendencies and opponent profiles.',markets:'Compare GOING projections with real sportsbook lines and prices.','game-lines':'Compare upcoming game projections with available spread, total and moneyline prices.',odds:'Compare prices across books for the same player, game, market and line.'};
++ const DESCRIPTIONS={roles:'Compare season shares with recent recorded targets and carries. Open a player to inspect the opportunity log and sample.', 'hit-rates':'Compare recorded results with today’s exact line, then inspect the game-by-game chart.',defense:'Find the defenses allowing explosive plays by position and play type.',matchups:'See how a player’s current usage fits an opponent’s measured weakness.',coverage:'Compare conditional defensive coverage and quarterback target tendencies.',teams:'Compare the upcoming teams’ pace, passing tendencies and opponent profiles.',markets:'Compare GOING projections with real sportsbook lines and prices.','game-lines':'Compare upcoming game projections with available spread, total and moneyline prices.',odds:'Compare prices across books for the same player, game, market and line.'};
+  let visibleLimit=40,cardCharts=[],cardMini=[],filtersOpen=false;
+  const SHEET_SORT={markets:'edge','game-lines':'kickoff','hit-rates':'hit-rate',roles:'target_share',matchups:'active',coverage:'active',teams:'pace_seconds',defense:'explosive_rate',odds:'gap'};
+  let state=readState(),dataRef=null,paintTimer=null;
+@@ -76,7 +76,7 @@
+   const bookControl=['markets','game-lines','hit-rates','odds'].includes(sheet)?`<label>Book<select data-cheat-filter="book">${setOptions(sheet==='game-lines'?(d.games||[]).map(g=>g.book):books,state.book,'All books')}</select></label>`:'';
+   const windowControl=sheet==='hit-rates'?`<label>Game window<select data-cheat-filter="window"><option value="season" ${state.window==='season'?'selected':''}>${esc(d.season||'Current')} season</option><option value="last5" ${state.window==='last5'?'selected':''}>Last 5 recorded games</option><option value="prior" ${state.window==='prior'?'selected':''}>${Number(d.season||0)-1} season</option></select></label><label>Minimum games<input type="number" min="0" max="25" step="1" value="${Number(state.minGames)||0}" data-cheat-filter="minGames" aria-label="Minimum sample games"></label>`:'';
+   const freshControl=['markets','game-lines','hit-rates','odds'].includes(sheet)?`<button type="button" class="gcs-filter-toggle" data-cheat-fresh aria-pressed="${state.freshOnly}">${state.freshOnly?'✓ Fresh prices only':'Include saved / stale prices'}</button>`:'';
+-  const sortOptions={markets:[['edge','Estimated return'],['projection','Projection'],['kickoff','Kickoff']], 'game-lines':[['kickoff','Kickoff'],['model-margin','Model margin'],['model-total','Model total']], 'hit-rates':[['hit-rate','Observed hit rate'],['sample','Sample size'],['player','Player']],roles:[['target_share','Target share'],['rush_share','Rush share'],['share','Snap share'],['games','Games']],matchups:[['active','Signal status'],['confidence','Confidence'],['player','Player']],coverage:[['active','Signal status'],['coverage','Coverage rate'],['player','Player']],teams:[['pace_seconds','Pace'],['pass_over_expected','Pass rate over expected'],['plays_per_game','Plays per game']],defense:[['explosive_rate','Explosive rate allowed'],['yards_per_opportunity','Yards per opportunity'],['redzone_rate','Red-zone rate'],['sample','Opportunities']],odds:[['books','Sportsbooks'],['gap','Price range'],['player','Player']]}[sheet]||[];
++  const sortOptions={markets:[['edge','Estimated return'],['projection','Projection'],['kickoff','Kickoff']], 'game-lines':[['kickoff','Kickoff'],['model-margin','Model margin'],['model-total','Model total']], 'hit-rates':[['hit-rate','Observed hit rate'],['sample','Sample size'],['player','Player']],roles:[['target_share','Target share'],['rush_share','Rush share'],['latest_targets','Latest recorded targets'],['latest_carries','Latest recorded carries'],['share','Snap share'],['games','Games']],matchups:[['active','Signal status'],['confidence','Confidence'],['player','Player']],coverage:[['active','Signal status'],['coverage','Coverage rate'],['player','Player']],teams:[['pace_seconds','Pace'],['pass_over_expected','Pass rate over expected'],['plays_per_game','Plays per game']],defense:[['explosive_rate','Explosive rate allowed'],['yards_per_opportunity','Yards per opportunity'],['redzone_rate','Red-zone rate'],['sample','Opportunities']],odds:[['books','Sportsbooks'],['gap','Price range'],['player','Player']]}[sheet]||[];
+   const sortControl=sortOptions.length?`<label>Sort<select data-cheat-filter="sort">${sortOptions.map(([v,l])=>`<option value="${v}" ${state.sort===v?'selected':''}>${l}</option>`).join('')}</select></label>`:'';
+   const filters=[['team','Team',state.team,teamControl],['position',sheet==='defense'?'Role':'Position',cap(state.position),posControl],['market','Market',label(state.market),marketControl],['book','Book',state.book,bookControl]].filter(([key,,,control])=>control&&state[key]!=='ALL');
+   if(String(state.query||'').trim())filters.unshift(['query','Search',state.query]);
+@@ -166,17 +166,46 @@
+   }).join('')||empty('No current prices and matched player outcomes meet this hit-rate filter.')}</div>`;
+  }
+  function roleFeature(d,p){const scope=currentScope(d),id=p.player_id||p.id,feature=d.history?.features?.nfl?.players?.[`${p.team}|${id}`]||null;return feature&&String(feature.last_game||'').startsWith(String(d.season))?feature:null;}
++ // Context PBP records are sparse opportunity logs, not complete appearance logs.
++ function usageIndex(d){
++  const scope=currentScope(d),season=String(d.season||d.context?.season||''),cutoff=String(d.context?.as_of||d.asOf||'');
++  const validDate=v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(v)&&Number.isFinite(Date.parse(v))&&new Date(v).toISOString().slice(0,10)===v;
++  const count=v=>typeof v==='number'&&Number.isInteger(v)&&v>=0?v:null,index=new Map(),conflicts=new Set();
++  if(!validDate(cutoff)||!/^\d{4}$/.test(season))return index;
++  for(const r of Object.values(scope.player_game_usage||{})){
++   if(!r||typeof r!=='object')continue;
++   const p=scope.players?.[r.player_id],id=String(r.game_id||''),parts=id.split('_');
++   if(!p||!p.team||p.team!==r.team||parts.length!==4||parts[0]!==season||!/^\d{2}$/.test(parts[1])||!parts.slice(2).includes(p.team)||!parts.slice(2).every(t=>/^[A-Z]{2,3}$/.test(t))||parts[2]===parts[3]||!validDate(r.date)||r.date<season+'-08-01'||r.date>=String(Number(season)+1)+'-03-01'||r.date>=cutoff)continue;
++   const targets=count(r.targets),carries=count(r.rush_attempts);if(targets===null&&carries===null)continue;
++   const key=JSON.stringify([r.player_id,id]),row={id,date:r.date,opponent:parts[2]===p.team?parts[3]:parts[2],targets,carries};
++   if(conflicts.has(key))continue;
++   if(index.has(key)&&JSON.stringify(index.get(key).row)!==JSON.stringify(row)){index.delete(key);conflicts.add(key);continue;}
++   index.set(key,{player:r.player_id,row});
++  }
++  const players=new Map();for(const {player,row} of index.values()){if(!players.has(player))players.set(player,[]);players.get(player).push(row);}
++  for(const rows of players.values())rows.sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id));
++  return players;
++ }
++ function usageMarkup(d,rows){
++  if(!rows.length)return '<p class="gcs-note">Opportunity log unavailable for this player; missing games are not inferred.</p>';
++  const latest=rows.at(-1),display=v=>v===null?'—':num(v,0),mini=`<div class="gcs-usage-mini"><small>Latest recorded · ${esc(new Date(latest.date+'T12:00:00Z').toLocaleDateString(undefined,{month:'short',day:'numeric',timeZone:'UTC'}))} vs ${esc(latest.opponent)}</small><b>${esc(display(latest.targets))} targets · ${esc(display(latest.carries))} carries</b></div>`;
++  const charts=['targets','carries'].map(field=>compareChart(`${cap(field)} · latest 5 recorded opportunity games`,rows.slice(-5).map(r=>[`${r.date.slice(5)} vs ${r.opponent}`,r[field]]))).join('');
++  const log=`<details class="gcs-usage-log"><summary>Game-by-game opportunities · ${rows.length} recorded games</summary>${charts}<div class="gcs-usage-table"><table><caption>Published current-season opportunity counts · oldest → newest</caption><thead><tr><th scope="col">Date</th><th scope="col">Opponent</th><th scope="col">Targets</th><th scope="col">Carries</th></tr></thead><tbody>${rows.map(r=>`<tr><th scope="row">${esc(r.date)}</th><td>${esc(r.opponent)}</td><td>${esc(display(r.targets))}</td><td>${esc(display(r.carries))}</td></tr>`).join('')}</tbody></table></div><p class="gcs-note">Source: nflverse play-by-play → football_context.scopes.${esc(d.season||d.context?.season)}.player_game_usage · snapshot cutoff (exclusive) ${esc(d.context?.as_of||d.asOf||'unavailable')}${d.context?.generated_at?` · snapshot ${esc(date(d.context.generated_at))}`:''}. Counts cover qualifying regulation plays (excluding no-plays, kneels and spikes); they may differ from full box scores. Missing games and fields are not filled with zeros. This is an opportunity log, not a complete appearance log, trend forecast or betting probability.</p></details>`;
++  return {mini,log};
++ }
+  function roleSheet(d){
+   let rows=playersFor(d).filter(p=>matchFilter(`${p.name} ${p.team} ${p.position} ${p.share_type}`,p.team,p.position));
+-  rows.sort((a,b)=>{const x=state.sort==='rush_share'?a.rush_share:state.sort==='share'?a.share:state.sort==='games'?a.games:a.target_share,y=state.sort==='rush_share'?b.rush_share:state.sort==='share'?b.share:state.sort==='games'?b.games:b.target_share;return (Number(y)||-1)-(Number(x)||-1);});
++  const usage=usageIndex(d),value=p=>{const latest=usage.get(p.player_id||p.id)?.at(-1);return state.sort==='latest_targets'?latest?.targets:state.sort==='latest_carries'?latest?.carries:state.sort==='rush_share'?p.rush_share:state.sort==='share'?p.share:state.sort==='games'?p.games:p.target_share;};
++  rows.sort((a,b)=>{const x=value(a),y=value(b);return (finite(y)?Number(y):-Infinity)-(finite(x)?Number(x):-Infinity)||String(a.name||'').localeCompare(String(b.name||''));});
+   const scope=currentScope(d);
+-  return `<p class="gcs-note">${rows.length} players with a current-season usage row. Snap share keeps its source type visible; charted routes appear only where the feed measured them. Sample size and data-through date are shown per player.</p><div class="gcs-grid">${rows.map(p=>{
++  return `<p class="gcs-note">${rows.length} players with a current-season usage row. Snap share keeps its source type visible; charted routes appear only where the feed measured them. Sample size and data-through date are shown per player. Latest-usage sorts use each player’s last published opportunity record, which may be older than their last appearance. Missing games are not zero-usage games.</p><div class="gcs-grid">${rows.map(p=>{
+     const f=roleFeature(d,p),snapLabel=/proxy/i.test(p.share_type||'')?'Passing-snap proxy':p.share_type==='offensive_snap_share'?'Offensive snap share':'Snap share · type unavailable',team=scope.teams?.[p.team],opp=(d.schedule||[]).find(g=>g.home===p.team||g.away===p.team),opponent=opp?(opp.home===p.team?opp.away:opp.home):'';
++   const log=usageMarkup(d,usage.get(p.player_id||p.id)||[]);cardMini.push(typeof log==='object'?log.mini:'');
+    const cards=[metric('Target share',pct(p.target_share),`${p.targets??0} targets`),metric('Rush share',pct(p.rush_share),`${p.rush_attempts??0} carries`),metric(snapLabel,pct(p.share),`${p.games??0} games`),metric('Route participation',f?pct(f.route_participation):'Unavailable',f?`${f.participation_charted_dropbacks??0} charted dropbacks`:'No measured route participation')];
+    if(f?.shares)cards.push(metric('Red-zone target share',pct(f.shares.red_zone_targets),`${f.last_game||'current snapshot'} · ${f.red_zone_targets??'count unavailable'} targets`));
+    if(f?.shares)cards.push(metric('Goal-line carry share',pct(f.shares.goal_line_carries),`${f.last_game||'current snapshot'}`));
+    cardCharts.push(compareChart('Share of team opportunities',[['Targets',finite(p.target_share)?p.target_share*100:null],['Carries',finite(p.rush_share)?p.rush_share*100:null],[snapLabel,finite(p.share)?p.share*100:null],['Measured routes',finite(f?.route_participation)?f.route_participation*100:null]],'%'));
+-   return `<article class="gcs-card"><div class="gcs-card-top"><div><span class="gcs-kicker">${esc(p.team)} · ${esc(p.position)}${opponent?` · vs ${esc(opponent)}`:''}</span><h3>${esc(p.name||'Player unavailable')}</h3><small>${p.games??0} current-season games · last observed ${esc(p.last_game||scope.teams?.[p.team]?.last_game||'unavailable')}</small></div>${p.opportunity_flag?pill('Usage flag','good'):pill('Role evidence','')}</div><div class="gcs-metrics">${cards.join('')}</div><details><summary>Usage definitions and sample</summary><div class="gcs-evidence"><span>Offensive snaps ${p.offense_snaps??'—'} / team snaps ${p.team_snaps??'—'} · ${esc(p.share_type||'share type unavailable')}</span><span>Targets ${p.targets??'—'} · carries ${p.rush_attempts??'—'} · routes ${finite(p.routes)?p.routes:'not charted'}</span><span>Target / rush shares use team totals from current-season play-by-play.</span><span>Team sample: ${team?.games??'unavailable'} games · ${team?.last_game||'date unavailable'}</span>${f?`<span>Charting coverage ${pct(f.charting_coverage)} · charted dropbacks ${f.participation_charted_dropbacks??0}</span>`:''}</div></details></article>`;
++   return `<article class="gcs-card"><div class="gcs-card-top"><div><span class="gcs-kicker">${esc(p.team)} · ${esc(p.position)}${opponent?` · vs ${esc(opponent)}`:''}</span><h3>${esc(p.name||'Player unavailable')}</h3><small>${p.games??0} current-season games · last observed ${esc(p.last_game||scope.teams?.[p.team]?.last_game||'unavailable')}</small></div>${p.opportunity_flag?pill('Usage flag','good'):pill('Role evidence','')}</div><div class="gcs-metrics">${cards.join('')}</div>${typeof log==='object'?log.log:log}<details><summary>Usage definitions and sample</summary><div class="gcs-evidence"><span>Offensive snaps ${p.offense_snaps??'—'} / team snaps ${p.team_snaps??'—'} · ${esc(p.share_type||'share type unavailable')}</span><span>Targets ${p.targets??'—'} · carries ${p.rush_attempts??'—'} · routes ${finite(p.routes)?p.routes:'not charted'}</span><span>Target / rush shares use team totals from current-season play-by-play.</span><span>Team sample: ${team?.games??'unavailable'} games · ${team?.last_game||'date unavailable'}</span>${f?`<span>Charting coverage ${pct(f.charting_coverage)} · charted dropbacks ${f.participation_charted_dropbacks??0}</span>`:''}</div></details></article>`;
+   }).join('')||empty('No current-season player-role records meet these filters.')}</div>`;
+  }
+  function weaknessStats(block){
+diff --git a/tests/football-cheatsheets.test.cjs b/tests/football-cheatsheets.test.cjs
+index fc3f5f1c023fce91b36c90e56f597f740e316b1a..1180ef395c13857310630cfa212971296ff31b7c 100644
+--- a/tests/football-cheatsheets.test.cjs
++++ b/tests/football-cheatsheets.test.cjs
+@@ -180,3 +180,70 @@ test('compact sheet pagination retains the full filtered population and reset re
+   host.querySelector('[data-cheat-reset]').click();assert.equal(host.querySelectorAll('.gcs-row').length,40);
+   assert.match(host.querySelector('.gcs-row summary').textContent,/Player 85/);dom.window.close();
+ });
++
++function usageFixture(data){
++ const scope=data.context.scopes['2026'];
++ scope.player_game_usage={
++  third:{player_id:'p1',team:'BUF',game_id:'2026_03_BUF_MIA',date:'2026-09-24',targets:7,rush_attempts:18},
++  first:{player_id:'p1',team:'BUF',game_id:'2026_01_BUF_NE',date:'2026-09-10',targets:2,rush_attempts:9},
++  second:{player_id:'p1',team:'BUF',game_id:'2026_02_NYJ_BUF',date:'2026-09-17',targets:0},
++ };
++ return scope;
++}
++test('roles expose chronological opportunity counts, latest usage and bounded source evidence',()=>{
++ const {dom,data}=setup(),scope=usageFixture(data),host=dom.window.document.querySelector('#sheet');
++ dom.window.GoingFootballCheatsheets.render(host,data);
++ const mini=host.querySelector('.gcs-usage-mini');assert.ok(mini);
++ assert.match(mini.textContent,/Latest recorded.*Sep 24.*7 targets.*18 carries/);
++ const log=host.querySelector('.gcs-usage-log');assert.ok(log);
++ assert.match(log.textContent,/nflverse.*2026-09-28/);
++ const rows=[...log.querySelectorAll('tbody tr')];assert.equal(rows.length,3);
++ assert.deepEqual(rows.map(r=>r.querySelector('th').textContent),['2026-09-10','2026-09-17','2026-09-24']);
++ assert.match(rows[1].textContent,/NYJ.*0.*—/,'observed zero remains zero; absent carry count is unavailable');
++ assert.match(log.textContent,/Missing games.*not filled with zeros/);
++ assert.match(log.textContent,/qualifying regulation/);
++ assert.equal(log.querySelectorAll('figure').length,2);
++ assert.match(log.textContent,/9\.0|9/);
++ assert.deepEqual(scope.player_game_usage.second,{player_id:'p1',team:'BUF',game_id:'2026_02_NYJ_BUF',date:'2026-09-17',targets:0});
++ dom.window.close();
++});
++test('usage ignores cross-team, prior-season, malformed, conflicting, future and cutoff-day rows',()=>{
++ const {dom,data}=setup(),scope=usageFixture(data),host=dom.window.document.querySelector('#sheet');
++ const valid=scope.player_game_usage.third;
++ Object.assign(scope.player_game_usage,{
++  wrongPlayer:{...valid,player_id:'p2'},wrongTeam:{...valid,team:'MIA'},prior:{...valid,game_id:'2025_03_BUF_MIA'},
++  future:{...valid,game_id:'2026_06_BUF_MIA',date:'2026-10-15'},cutoff:{...valid,game_id:'2026_04_BUF_MIA',date:'2026-09-28'},
++  invalidDate:{...valid,game_id:'2026_05_BUF_MIA',date:'2026-09-31'},badCounts:{...valid,game_id:'2026_06_BUF_MIA',date:'2026-09-25',targets:-1,rush_attempts:1.5},
++  conflict:{...scope.player_game_usage.first,targets:8},duplicate:{...scope.player_game_usage.second},
++ });
++ dom.window.GoingFootballCheatsheets.render(host,data);
++ const rows=host.querySelectorAll('.gcs-usage-log tbody tr');assert.equal(rows.length,2,'conflicting game excluded; identical duplicate counted once');
++ assert.doesNotMatch(host.querySelector('.gcs-usage-log').textContent,/2026-09-10|2026-10-15|2026-09-28.*BUF/);
++ dom.window.close();
++});
++test('latest usage sorting retains missingness and ignores unknown player identity',()=>{
++ const {dom,data}=setup(),scope=usageFixture(data),host=dom.window.document.querySelector('#sheet');
++ scope.players.p2={...scope.players.p1,player_id:'p2',name:'Other Receiver',position:'WR'};
++ scope.player_game_usage.other={player_id:'p2',team:'BUF',game_id:'2026_03_BUF_MIA',date:'2026-09-24',targets:10};
++ dom.window.GoingFootballCheatsheets.render(host,data);
++ const sort=host.querySelector('[data-cheat-filter="sort"]');sort.value='latest_targets';sort.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
++ assert.match(host.querySelector('.gcs-row h3').textContent,/Other Receiver/);
++ const next=host.querySelector('[data-cheat-filter="sort"]');next.value='latest_carries';next.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
++ assert.match(host.querySelector('.gcs-row h3').textContent,/Test Runner/);
++ delete scope.player_game_usage;dom.window.GoingFootballCheatsheets.render(host,{...data,context:{...data.context}},true);
++ assert.equal(host.querySelector('.gcs-usage-mini'),null);assert.match(host.textContent,/Opportunity log unavailable/);
++ dom.window.close();
++});
++
++test('usage follows NFL season identity across January and fails closed without a dated cutoff',()=>{
++ const {dom,data}=setup(),scope=usageFixture(data),host=dom.window.document.querySelector('#sheet');
++ data.context.as_of='2027-01-10';data.asOf='2027-01-10';
++ scope.player_game_usage.january={player_id:'p1',team:'BUF',game_id:'2026_18_BUF_NE',date:'2027-01-03',targets:5,rush_attempts:22};
++ scope.player_game_usage.badYear={player_id:'p1',team:'BUF',game_id:'2026_01_BUF_NE',date:'2025-09-01',targets:8};
++ dom.window.GoingFootballCheatsheets.render(host,data);
++ assert.match(host.querySelector('.gcs-usage-mini').textContent,/Jan 3.*5 targets.*22 carries/);
++ assert.equal(host.querySelectorAll('.gcs-usage-log tbody tr').length,4);
++ delete data.context.as_of;delete data.asOf;dom.window.GoingFootballCheatsheets.render(host,data,true);
++ assert.equal(host.querySelector('.gcs-usage-log'),null);assert.match(host.textContent,/Opportunity log unavailable/);
++ dom.window.close();
++});

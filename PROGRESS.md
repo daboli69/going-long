@@ -1,28 +1,28 @@
 # Progress
-Cycle: `20261002-filter-chips` (additional manually requested cycle, Oct 2, 2026).
-Production base: `554b727c18d545f72dcb7013539b7ce7f48b769e`.
-Review base: `70a6450d6fa78a26dd2b4da5ff47d70861a0b589`.
-Production commit: `8bef8a890d0e57a82e4b2abe1820ed99d2e09689` (verified remote main).
-Review completion SHA: `1ec46bf3e587381d7e2495cdf1906f10aba0549f` (verified remote). Receipt tip reported externally, never self-referenced.
+Cycle: `20261002-usage-log` (user-requested extended session, maximum 30 minutes; standing heartbeat remains 15 minutes).
+Production base: `d6624e92820bfc57ebb254720996f093b279ca7b`.
+Review base: `afb71f693b434c7fb5b4dd97ef7cbbf7546e3fbc`.
+Production commit: `60d3a7d7ff90c7502e1feebc771fde22133b41c9` (verified remote main).
+Review completion SHA: recorded in the receipt after publication; receipt tip reported externally, never self-referenced.
 
 ## Completed
-- Standing heartbeat updated and reread: continuous product advancement, proactive PRODUCT/UI/UX/DATA/MODEL opportunities and recent-history triage; original safety/publication rules preserved verbatim, 10 AM Eastern schedule unchanged.
-- MANAGER compared PRODUCT shareable research views; UI/UX visible removable filters; FOOTBALL DATA current/prior usage trends from dated nflverse context; MODEL RESEARCH frozen chronological calibration comparison (legacy diagnostics lack paired market contracts); maintenance worker-health investigation lacks new sanitized evidence. Recent focus/snapshot/CI cycles were maintenance-heavy. Chips won on immediate bettor value and bounded feasibility: mobile hid selected team/market/book behind a count. Sharing/trends/holdout work needs broader validation; no fresh reliability failure outweighed this improvement. Today's freshness/CI work was not duplicated.
-- PRODUCT + UI/UX + BUILDER + QA/PERFORMANCE hats, one agent, no delegation. Added visible applicable active-filter chips with individual removal, retained other filters, result/pagination reset and keyboard focus restoration. Only shared/football-cheatsheets.js, shared/football-cheatsheets.css and tests/football-cheatsheets.test.cjs changed (43 additions, 3 deletions); no betting/model logic changed.
-- Two new regressions failed before implementation, passed afterward. Targeted 8/8; full Node 170/170; Python 96/96; npm build and Vercel build passed. Local fixture visual checks at mobile 390x844 and desktop 1280x900; removal restored rows and focus. Strict source whitespace/scope checks passed; no provider calls or dependency installs.
-- Ordinary explicit fast-forward main push verified. Remote application CI, Vercel and Pages deployment succeeded. Live JS/CSS HTTP 200 exactly match the tested production blobs. Existing shared-asset build warnings remain; Vercel build copies assets. Existing public CI/Hobby hosting only, $0 additional spend; no settings/workflow changes.
-- Exact patch `docs/daily-cycles/20261002-filter-chips.patch` reconstructs the entire tested production tree from its base with strict apply/source-whitespace checks. Review Vercel exclusion remains intact. Prior freshness and CI cycles remain in review history. Champion unchanged; MODEL_RESEARCH.md untouched because no modeling experiment occurred.
+- MANAGER inspected today's freshness/CI/chip history and fresh main's expected data refresh. Compared PRODUCT shareable views; UI/UX richer role context; FOOTBALL DATA underused player-game opportunities (selected); MODEL frozen calibration holdout lacking paired evidence; reliability no new urgent failure. Published context already had 946 opportunity records dated Oct 2, while Player roles showed only season aggregates. Exposing measured game sequence and latest-usage sorting offered more immediate research value than sharing or another polish/maintenance task; a rigorous model experiment needs broader frozen evidence.
+- One agent wore MANAGER, PRODUCT, FOOTBALL DATA, UI/UX, BUILDER and QA/PERFORMANCE hats; no delegation. NFL Cheatsheets → Player roles now shows latest recorded targets/carries, offers latest-target/latest-carry sorts and opens chronological opportunity charts/tables with opponent, source and cutoff. Three files only: shared/football-cheatsheets.js, shared/football-cheatsheets.css, tests/football-cheatsheets.test.cjs (105 additions, 5 deletions).
+- Exact identity/team/season/date/count validation; identical duplicates count once, conflicting game records excluded. January respects NFL season identity. Missing games/fields remain unavailable, never invented zeros; incomplete-appearance coverage and qualifying regulation-play definition are explicit. Snapshot source: nflverse PBP → football_context.scopes.2026.player_game_usage, generated 2026-10-02T16:21:07.969421+00:00, exclusive cutoff 2026-10-02. No new sources/downloads/provider calls, model promotion or betting-model calculation changes.
+- Three new behavioral regressions failed before implementation, then passed; added January/cutoff regression. Targeted 12/12, full Node 174/174, Python 96/96, npm build and Vercel build passed. Existing shared-asset build warnings unchanged. Mobile 390x844 and desktop 1280x900 preview exercised real published data, chart/log expansion and latest-carry sorting. Independent James Cook source-to-display check matched all 3 dates/counts exactly (targets 4/3/1, carries 13/21/24). This validates presentation, not predictive gain.
+- Exact outgoing tree/scope/whitespace checks passed; no unrelated edits/commits. GitHub main unprotected/rules empty; existing public Ubuntu CI and Hobby basic single-build hosting verified, no paid capacity enabled. Shared/tests changes do not trigger credentialed data workflow. Main push used one explicit SHA with force/tags/mirror disabled. Vercel and Pages succeeded; live JS/CSS HTTP 200 exactly match production blobs. Remote application CI status is recorded in the receipt.
+- Exact patch docs/daily-cycles/20261002-usage-log.patch reconstructs the entire tested production tree from its recorded base via strict whitespace/apply checks. Review branch deployment exclusion remains intact; no application tree/setup history merged into main. Champion unchanged; MODEL_RESEARCH.md untouched because no modeling experiment occurred. Prior completed cycles retained in Git history.
 
 ## Working
-- None; completed cycle and verified review publication. Active work approximately 14 minutes including final publication checks.
+- None; completed improvement. Review receipt records completion SHA and final remote check status.
 
 ## Problems
-- Fixture visual checks and targeted tests cover this workflow, not comprehensive accessibility/usability or betting-performance validation. Visible chips currently cover existing NFL research sheets; no NCAA data/model changes. Cycle-specific model selection remains unavailable; no global/chat model changed.
+- PBP opportunity log is sparse: missing games are not known zero-usage games; counts omit overtime/no-plays/kneels/spikes and can differ from full box scores. Latest records may cover different dates across players, explicitly labeled. This NFL-only view does not establish profitability, predictive improvement or full appearance coverage. Cycle-specific model selection remains unavailable; global/chat model unchanged.
 
 ## Next
-- Claude: use newest genuine completion marker and receipt; fetch named production SHA and compare exact patch against recorded base, not the older review application tree.
-- Reassess sharing, usage context and prospectively frozen calibration opportunities by evidence and feasibility; do not repeat completed freshness/CI/chip work.
+- Claude: newest genuine completion plus receipt identifies this cycle; fetch exact production SHA and inspect the patch against its recorded base, not the older review application tree.
+- Highest logical follow-up: validated participation-aligned game denominators before recent-vs-earlier usage/share deltas; then contextual links between usage evidence and exact priced contracts. Shareable research views and frozen calibration comparisons remain evidence-dependent candidates.
 
 ## Needs Travis
-- None for this completed low-risk cycle. Existing high-risk, paid-service and production model-promotion gates remain binding.
-- Rollback: fresh branch from current main, `git revert 8bef8a890d0e57a82e4b2abe1820ed99d2e09689`, run required checks and ordinary fast-forward publication. Pre-cycle parent `554b727c18d545f72dcb7013539b7ce7f48b769e`; preserve user edits, no reset/force push or automatic rollback.
+- None for this completed low-risk presentation feature; $0 additional spend. Existing high-risk/cost/production-model-promotion gates remain binding. Automation and schedule unchanged during this session.
+- Rollback: fresh branch from current main, `git revert 60d3a7d7ff90c7502e1feebc771fde22133b41c9`, run required checks, publish ordinarily. Pre-cycle parent `d6624e92820bfc57ebb254720996f093b279ca7b`. Preserve user edits; no reset/force push or automatic rollback.
