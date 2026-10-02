@@ -1,29 +1,28 @@
 # Progress
-Cycle: `20261002-football-ci` (additional manually requested cycle, Oct 2, 2026).
-Production base: `712978ac84ede1cbd7a53808197412df624fa4e6`.
-Review base: `4e8b7640503c88464ecc03f60d3a4b869b4a94ce`.
-Production commit: `554b727c18d545f72dcb7013539b7ce7f48b769e` (verified remote main).
-Review completion SHA: `92f2792fe74c2bc921f0a34008e3ea9effd3378b` (verified remote). Receipt tip is reported externally; no self-reference.
+Cycle: `20261002-filter-chips` (additional manually requested cycle, Oct 2, 2026).
+Production base: `554b727c18d545f72dcb7013539b7ce7f48b769e`.
+Review base: `70a6450d6fa78a26dd2b4da5ff47d70861a0b589`.
+Production commit: `8bef8a890d0e57a82e4b2abe1820ed99d2e09689` (verified remote main).
+Review completion SHA: recorded by the cycle receipt; receipt tip reported externally, never self-referenced.
 
 ## Completed
-- MANAGER selected the existing CI coverage gap, independently reproduced on fresh main: source-only shared football, public players/results, hub and baseball edits skipped the application push filter. QA/PERFORMANCE + BUILDER hats, one agent; no delegation. Expanded existing push paths to apps/shared/hub and added two regression checks; only `.github/workflows/test.yml` and `tests/ci-paths.test.cjs` changed (28 additions, 1 deletion). Today's snapshot fix was not repeated; no accumulated files/commits transferred.
-- Source-only coverage regression failed before the change, passed afterward. Targeted 2/2, full Node 168/168, Python 96/96, npm build, Vercel build and scope/whitespace checks passed. Coverage verifies actual production paths, retained API/model/test inputs, PR trigger and data/review-material exclusions. Tests use existing local runtimes and mocks; no provider calls.
-- Exact workflow preservation check confirms only push paths changed: all jobs, runner, dependencies, timeout, cache, permissions and PR trigger remain identical; provider-backed data workflow unchanged and not triggered. Included public Ubuntu CI and existing Hobby hosting only; no new service/spend or setting changes.
-- Ordinary explicit fast-forward main push verified. Vercel deployment and existing Pages deployment succeeded. Football module live HTTP 200 equals production blob; no runtime application/model code changed. Remote Validate application CI also completed successfully. Existing shared-asset build warnings remain; Vercel build copies those assets.
-- Exact patch `docs/daily-cycles/20261002-football-ci.patch` passes strict source-whitespace/apply checks and reconstructs the entire tested production tree from the recorded base. Review deployment exclusion unchanged. Previous snapshot cycle remains in review history (`c65cd66` completion, `4e8b764` receipt).
-- Champion unchanged; MODEL_RESEARCH.md untouched. Existing cycle-specific model-selection limitation retained; no global/chat settings change or escalation.
+- Standing heartbeat updated and reread: continuous product advancement, proactive PRODUCT/UI/UX/DATA/MODEL opportunities and recent-history triage; original safety/publication rules preserved verbatim, 10 AM Eastern schedule unchanged.
+- MANAGER compared PRODUCT shareable research views; UI/UX visible removable filters; FOOTBALL DATA current/prior usage trends from dated nflverse context; MODEL RESEARCH frozen chronological calibration comparison (legacy diagnostics lack paired market contracts); maintenance worker-health investigation lacks new sanitized evidence. Recent focus/snapshot/CI cycles were maintenance-heavy. Chips won on immediate bettor value and bounded feasibility: mobile hid selected team/market/book behind a count. Sharing/trends/holdout work needs broader validation; no fresh reliability failure outweighed this improvement. Today's freshness/CI work was not duplicated.
+- PRODUCT + UI/UX + BUILDER + QA/PERFORMANCE hats, one agent, no delegation. Added visible applicable active-filter chips with individual removal, retained other filters, result/pagination reset and keyboard focus restoration. Only shared/football-cheatsheets.js, shared/football-cheatsheets.css and tests/football-cheatsheets.test.cjs changed (43 additions, 3 deletions); no betting/model logic changed.
+- Two new regressions failed before implementation, passed afterward. Targeted 8/8; full Node 170/170; Python 96/96; npm build and Vercel build passed. Local fixture visual checks at mobile 390x844 and desktop 1280x900; removal restored rows and focus. Strict source whitespace/scope checks passed; no provider calls or dependency installs.
+- Ordinary explicit fast-forward main push verified. Remote application CI, Vercel and Pages deployment succeeded. Live JS/CSS HTTP 200 exactly match the tested production blobs. Existing shared-asset build warnings remain; Vercel build copies assets. Existing public CI/Hobby hosting only, $0 additional spend; no settings/workflow changes.
+- Exact patch `docs/daily-cycles/20261002-filter-chips.patch` reconstructs the entire tested production tree from its base with strict apply/source-whitespace checks. Review Vercel exclusion remains intact. Prior freshness and CI cycles remain in review history. Champion unchanged; MODEL_RESEARCH.md untouched because no modeling experiment occurred.
 
 ## Working
-- None. Completed production change and exact review package published. Active work through completion publication: 6 minutes 46 seconds; final elapsed time reported after receipt verification.
+- None; completed cycle. Receipt records the completion SHA after review publication.
 
 ## Problems
-- Path-trigger behavior is checked against source-only fixture cases; no extra source-only remote commit was manufactured to test it. This is test coverage, not model-performance or comprehensive mobile/accessibility evidence.
-- Scanner public snapshot cannot establish worker health; reuse findings rather than repeat blocked audits. Snapshot delivery repair does not establish upstream completeness or predictive value.
+- Fixture visual checks and targeted tests cover this workflow, not comprehensive accessibility/usability or betting-performance validation. Visible chips currently cover existing NFL research sheets; no NCAA data/model changes. Cycle-specific model selection remains unavailable; no global/chat model changed.
 
 ## Next
-- Claude: newest completion marker plus receipt identifies this cycle. Fetch production SHA and review exact patch against its recorded base, not the older application tree on the review branch.
-- Select one new bounded issue next cycle; preserve evidence/holdout/calibration gates for research and do not repeat completed snapshot/focus/CI work.
+- Claude: use newest genuine completion marker and receipt; fetch named production SHA and compare exact patch against recorded base, not the older review application tree.
+- Reassess sharing, usage context and prospectively frozen calibration opportunities by evidence and feasibility; do not repeat completed freshness/CI/chip work.
 
 ## Needs Travis
-- No manual publication needed for this low-risk CI reliability change. All high-risk/cost/model-promotion approvals remain required; scoped heartbeat authorization supersedes bootstrap-only publication notes.
-- Rollback: fresh branch from then-current main, `git revert 554b727c18d545f72dcb7013539b7ce7f48b769e`, run affected checks and ordinary fast-forward publish. Exact pre-cycle parent recorded above. Preserve user edits; no reset/force-push or automatic rollback.
+- None for this completed low-risk cycle. Existing high-risk, paid-service and production model-promotion gates remain binding.
+- Rollback: fresh branch from current main, `git revert 8bef8a890d0e57a82e4b2abe1820ed99d2e09689`, run required checks and ordinary fast-forward publication. Pre-cycle parent `554b727c18d545f72dcb7013539b7ce7f48b769e`; preserve user edits, no reset/force push or automatic rollback.
