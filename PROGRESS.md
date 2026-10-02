@@ -2,7 +2,7 @@
 Cycle: `20261002-2320-parlay-controls` (dedicated maximum-30-minute PRODUCT + UI/UX + BUILDER session; automation unchanged).
 Production base: `d6f24d44bdca3be4c83dc01a3d04c7c1e3d90d49`. Review base: `80154acb42d5997ffd420644586f9a9fce4aaf57`.
 Production commit: `219c510d1d10c45f8b429fab338f6052d993af25` (verified remote main and successful live Vercel production).
-Review completion SHA: recorded by the subsequent cycle receipt; that receipt's own tip is reported externally.
+Review completion SHA: `2bfecac0aa81e66293db2655cbd26386683e5d10` (verified remote). This receipt records completion; its own tip is reported externally.
 
 ## Completed
 - Continued game-first `8626beb` and Score-evidence `d6f24d4` rather than redesigning Today/Score or expanding tracking. MANAGER PRODUCT/UI/UX integrated the editable workflow and regression tests; Sol/high BUILDER + QA owned pure contract/edit helpers and tests; Luna/low PRODUCT/UI/UX audited actual implementation and independently reviewed final scope/persistence/picker. Three agents total, narrow ownership. No automation/global model changes.
@@ -17,7 +17,7 @@ Review completion SHA: recorded by the subsequent cycle receipt; that receipt's 
 - Exact five-file code/test scope; original shared selection/profitBoost/replacement source and production prop/game/Signal/Score/ranking/confidence functions verified byte-identical. Explicit staging, secret/whitespace checks, sole isolated one-commit ancestry, captured main/review tips and current unprotected main/empty rulesets passed. Existing public Ubuntu application CI only, no data workflow triggers/config/provider settings. Strict exact patch reconstructs full tested production tree; review preserves every unrelated blob/mode and Vercel branch exclusion. MODEL_RESEARCH.md unchanged; no experiment or promotion.
 
 ## Working
-- None. Vercel deployment and GitHub test/build/deploy/report-build-status succeeded. Live /long/ HTML and both affected shared assets return HTTP 200 and exactly match the tested build/blobs. Review completion/receipt follow final remote gates.
+- None. Vercel deployment and GitHub test/build/deploy/report-build-status succeeded. Live /long/ HTML and both affected shared assets return HTTP 200 and exactly match the tested build/blobs. Completion patch published and revalidated directly from its Git blob against the full production tree; cycle-owned receipt follows final gates. Active work approximately 21.5 minutes through receipt preparation; final elapsed time reported externally.
 
 ## Problems
 - Current-week available dates only. One-minute duplicate fixtures remain distinct pending provenance-backed reconciliation. Book selection/leg-count/boost inputs are currently shared across sport views; drafts/date/game context are separate. Browser storage is device-local; no account sync or automatic ticket submission.
