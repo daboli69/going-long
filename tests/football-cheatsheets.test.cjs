@@ -180,3 +180,70 @@ test('compact sheet pagination retains the full filtered population and reset re
   host.querySelector('[data-cheat-reset]').click();assert.equal(host.querySelectorAll('.gcs-row').length,40);
   assert.match(host.querySelector('.gcs-row summary').textContent,/Player 85/);dom.window.close();
 });
+
+function usageFixture(data){
+ const scope=data.context.scopes['2026'];
+ scope.player_game_usage={
+  third:{player_id:'p1',team:'BUF',game_id:'2026_03_BUF_MIA',date:'2026-09-24',targets:7,rush_attempts:18},
+  first:{player_id:'p1',team:'BUF',game_id:'2026_01_BUF_NE',date:'2026-09-10',targets:2,rush_attempts:9},
+  second:{player_id:'p1',team:'BUF',game_id:'2026_02_NYJ_BUF',date:'2026-09-17',targets:0},
+ };
+ return scope;
+}
+test('roles expose chronological opportunity counts, latest usage and bounded source evidence',()=>{
+ const {dom,data}=setup(),scope=usageFixture(data),host=dom.window.document.querySelector('#sheet');
+ dom.window.GoingFootballCheatsheets.render(host,data);
+ const mini=host.querySelector('.gcs-usage-mini');assert.ok(mini);
+ assert.match(mini.textContent,/Latest recorded.*Sep 24.*7 targets.*18 carries/);
+ const log=host.querySelector('.gcs-usage-log');assert.ok(log);
+ assert.match(log.textContent,/nflverse.*2026-09-28/);
+ const rows=[...log.querySelectorAll('tbody tr')];assert.equal(rows.length,3);
+ assert.deepEqual(rows.map(r=>r.querySelector('th').textContent),['2026-09-10','2026-09-17','2026-09-24']);
+ assert.match(rows[1].textContent,/NYJ.*0.*—/,'observed zero remains zero; absent carry count is unavailable');
+ assert.match(log.textContent,/Missing games.*not filled with zeros/);
+ assert.match(log.textContent,/qualifying regulation/);
+ assert.equal(log.querySelectorAll('figure').length,2);
+ assert.match(log.textContent,/9\.0|9/);
+ assert.deepEqual(scope.player_game_usage.second,{player_id:'p1',team:'BUF',game_id:'2026_02_NYJ_BUF',date:'2026-09-17',targets:0});
+ dom.window.close();
+});
+test('usage ignores cross-team, prior-season, malformed, conflicting, future and cutoff-day rows',()=>{
+ const {dom,data}=setup(),scope=usageFixture(data),host=dom.window.document.querySelector('#sheet');
+ const valid=scope.player_game_usage.third;
+ Object.assign(scope.player_game_usage,{
+  wrongPlayer:{...valid,player_id:'p2'},wrongTeam:{...valid,team:'MIA'},prior:{...valid,game_id:'2025_03_BUF_MIA'},
+  future:{...valid,game_id:'2026_06_BUF_MIA',date:'2026-10-15'},cutoff:{...valid,game_id:'2026_04_BUF_MIA',date:'2026-09-28'},
+  invalidDate:{...valid,game_id:'2026_05_BUF_MIA',date:'2026-09-31'},badCounts:{...valid,game_id:'2026_06_BUF_MIA',date:'2026-09-25',targets:-1,rush_attempts:1.5},
+  conflict:{...scope.player_game_usage.first,targets:8},duplicate:{...scope.player_game_usage.second},
+ });
+ dom.window.GoingFootballCheatsheets.render(host,data);
+ const rows=host.querySelectorAll('.gcs-usage-log tbody tr');assert.equal(rows.length,2,'conflicting game excluded; identical duplicate counted once');
+ assert.doesNotMatch(host.querySelector('.gcs-usage-log').textContent,/2026-09-10|2026-10-15|2026-09-28.*BUF/);
+ dom.window.close();
+});
+test('latest usage sorting retains missingness and ignores unknown player identity',()=>{
+ const {dom,data}=setup(),scope=usageFixture(data),host=dom.window.document.querySelector('#sheet');
+ scope.players.p2={...scope.players.p1,player_id:'p2',name:'Other Receiver',position:'WR'};
+ scope.player_game_usage.other={player_id:'p2',team:'BUF',game_id:'2026_03_BUF_MIA',date:'2026-09-24',targets:10};
+ dom.window.GoingFootballCheatsheets.render(host,data);
+ const sort=host.querySelector('[data-cheat-filter="sort"]');sort.value='latest_targets';sort.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+ assert.match(host.querySelector('.gcs-row h3').textContent,/Other Receiver/);
+ const next=host.querySelector('[data-cheat-filter="sort"]');next.value='latest_carries';next.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+ assert.match(host.querySelector('.gcs-row h3').textContent,/Test Runner/);
+ delete scope.player_game_usage;dom.window.GoingFootballCheatsheets.render(host,{...data,context:{...data.context}},true);
+ assert.equal(host.querySelector('.gcs-usage-mini'),null);assert.match(host.textContent,/Opportunity log unavailable/);
+ dom.window.close();
+});
+
+test('usage follows NFL season identity across January and fails closed without a dated cutoff',()=>{
+ const {dom,data}=setup(),scope=usageFixture(data),host=dom.window.document.querySelector('#sheet');
+ data.context.as_of='2027-01-10';data.asOf='2027-01-10';
+ scope.player_game_usage.january={player_id:'p1',team:'BUF',game_id:'2026_18_BUF_NE',date:'2027-01-03',targets:5,rush_attempts:22};
+ scope.player_game_usage.badYear={player_id:'p1',team:'BUF',game_id:'2026_01_BUF_NE',date:'2025-09-01',targets:8};
+ dom.window.GoingFootballCheatsheets.render(host,data);
+ assert.match(host.querySelector('.gcs-usage-mini').textContent,/Jan 3.*5 targets.*22 carries/);
+ assert.equal(host.querySelectorAll('.gcs-usage-log tbody tr').length,4);
+ delete data.context.as_of;delete data.asOf;dom.window.GoingFootballCheatsheets.render(host,data,true);
+ assert.equal(host.querySelector('.gcs-usage-log'),null);assert.match(host.textContent,/Opportunity log unavailable/);
+ dom.window.close();
+});
