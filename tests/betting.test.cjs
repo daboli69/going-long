@@ -19,10 +19,11 @@ function setup(t){
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-injuries.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-dfs.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-slate.js'),'utf8'),context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/score-tracker.js'),'utf8'),context);
   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
   }
-  vm.runInContext(`globalThis.api={renderGameFirstSlate,openSlateAction, bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
+  vm.runInContext(`globalThis.api={bestRecommendationNotes,scoreSnapshot,freezeScoreRow,settleScoreHistory,scoreDriverContext,renderGameFirstSlate,openSlateAction, bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
     mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,goingScoreRisk,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
@@ -656,3 +657,40 @@ test('Today forwards recorded injury context and NFL display labels preserve NCA
  assert.equal(w.document.querySelectorAll('#bestGameSlate [data-slate-action="score"]').length,0);assert.equal(w.document.querySelector('#btTabGroup [data-section="jackpot"]').hidden,true);
  assert.match(w.document.querySelector('#bestGameSlate').textContent,/Michigan/);assert.equal(w.document.querySelector('#bestBuildParlay').disabled,true);
  });
+
+test('Score capture freezes decision inputs, preserves first snapshot and settles only trusted matching finals',t=>{
+ const {api:a,w,context}=setup(t);a.wireBetting();a.BET.history={generated_at:'2026-09-09T10:00:00Z'};a.BET.context={generated_at:'2026-09-09T10:30:00Z'};
+ const row=vm.runInContext(`({player:'Runner',profileId:'p',team:'A',opponent:'B',home:'B',away:'A',kickoff:'2026-09-10T00:20:00Z',market:'atd',score:70,rank:1,cohortSize:1,modelAt:'2026-09-09T10:00:00Z',contextAt:'2026-09-09T10:30:00Z',sampleGames:12,currentGames:1,projection:.7,probability:.5,scoreProbability:.42,confidence:{value:65,label:'Moderate'},componentCoverage:1,components:{projection:{value:.42,weight:.75,percentile:65,label:'Shrunk TD anchor',evidence:'Recorded estimate'}}})`,context);
+ // Frozen cohort count must use a populated field; no invented cohort size.
+ const snapshot=a.scoreSnapshot(row);snapshot.cohortSize=1;
+ const frozen=vm.runInContext('GoingScoreTracker.freeze(SCORE_LEDGER, globalThis.testSnapshot, Date.now())',Object.assign(context,{testSnapshot:snapshot}));assert.equal(frozen.added,true);vm.runInContext('SCORE_LEDGER=globalThis.testLedger',Object.assign(context,{testLedger:frozen.ledger}));
+ const before=JSON.stringify(frozen.ledger.records);assert.equal(frozen.record.quote,undefined);assert.equal(frozen.record.line,.5);
+ const recordKickoff=Date.parse(row.kickoff),now=recordKickoff+86400000;
+ const results={schema_version:1,generated_at:new Date(now-1000).toISOString(),player_source_at:new Date(now-2000).toISOString(),sources:{nfl:{status:'loaded',checked_at:new Date(now-500).toISOString()}},games:{g:{sport:'nfl',id:'g',home:'B',away:'A',kickoff:row.kickoff,homeScore:20,awayScore:10}},players:{'p|2026-09-09':{atd:1}}};
+ assert.equal(a.settleScoreHistory({...results,sources:{nfl:{status:'unavailable',checked_at:results.sources.nfl.checked_at}}},now),0);
+ assert.equal(a.settleScoreHistory({...results,players:{}},now),0);assert.equal(a.settleScoreHistory({...results,player_source_at:'2026-09-09T10:00:00Z'},now),0);
+ assert.equal(a.settleScoreHistory({...results,games:{g:results.games.g,duplicate:{...results.games.g,id:'duplicate'}}},now),0);
+ assert.equal(a.settleScoreHistory(results,now),1);assert.equal(vm.runInContext('Object.values(SCORE_LEDGER.settlements)[0].status',context),'win');assert.equal(vm.runInContext('JSON.stringify(SCORE_LEDGER.records)',context),before);
+ assert.equal(a.settleScoreHistory({...results,players:{'p|2026-09-09':{atd:0}}},now),0);assert.equal(vm.runInContext('Object.values(SCORE_LEDGER.settlements)[0].value',context),1);
+});
+test('Score drivers distinguish index, confidence, missing matchup and Under direction',t=>{
+ const {api:a}=setup(t),row={market:'rush_yds',score:90,confidence:{label:'Limited'},componentCoverage:.8,currentGames:1,sampleGames:12,projection:70,projectionLabel:'70 yards',line:80,components:{projection:{label:'Model',evidence:'12 recorded games',percentile:90,weight:.45},role:{label:'Carry share',evidence:'10 carries/game',percentile:75,weight:.3},matchup:{value:null,percentile:null,weight:.15},environment:{percentile:50,weight:.1}}};
+ const info=a.scoreDriverContext(row,'Under');assert.match(info.sideNote,/not support for this Under/);assert.equal(info.drivers.length,2);assert.match(info.risk,/does not clear/);assert.equal(info.confidence,'Limited');
+});
+
+test('Score capture serializes across tabs and re-reads the frozen original before writing',async t=>{
+ const {api:a,w,context}=setup(t);a.wireBetting();w.navigator.locks={request:async(name,callback)=>callback()};
+ const row=vm.runInContext(`({player:'Runner',profileId:'p',team:'A',opponent:'B',home:'B',away:'A',kickoff:'2026-09-10T00:20:00Z',market:'atd',score:70,rank:1,cohortSize:1,modelAt:'2026-09-09T10:00:00Z',sampleGames:12,currentGames:1,projection:.7,probability:.5,scoreProbability:.42,confidence:{value:65,label:'Moderate'},componentCoverage:1,components:{projection:{value:.42,weight:.75,percentile:65,label:'Anchor',evidence:'Estimate'}}})`,context);
+ await a.freezeScoreRow(row);const key=vm.runInContext('Object.keys(SCORE_LEDGER.records)[0]',context);assert.ok(key);const first=w.localStorage.getItem('goinglong.score.tracking.v1');
+ // A stale tab's empty in-memory state must not overwrite durable first capture.
+ vm.runInContext('SCORE_LEDGER=GoingScoreTracker.create()',context);row.score=99;await a.freezeScoreRow(row);
+ assert.equal(w.localStorage.getItem('goinglong.score.tracking.v1'),first);assert.equal(vm.runInContext('Object.values(SCORE_LEDGER.records)[0].score',context),70);
+ assert.match(w.document.querySelector('#scoreTrackingStatus').textContent,/insufficient sample/);assert.doesNotMatch(w.document.querySelector('#scoreTrackingStatus').textContent,/win rate|ROI/);
+ w.localStorage.setItem('goinglong.score.tracking.v1','bad');await a.freezeScoreRow(row);assert.equal(w.localStorage.getItem('goinglong.score.tracking.v1'),'bad');assert.equal(vm.runInContext('SCORE_STORAGE_BLOCKED',context),true);
+});
+
+test('NCAA recommendation notes distinguish current samples from saved market disagreement',t=>{
+ const {api:a}=setup(t),c={sport:'ncaa',kind:'game',home:'A',away:'B',market:'total',prob:.7,updatedAt:new Date(Date.now()-3600000).toISOString(),gameSeasonEvidence:{home_current_games:2,away_current_games:1},marketEvidence:[{book:'a',reference:{win:.51}},{book:'b',reference:{win:.52}}]};
+ const notes=a.bestRecommendationNotes(c).join(' ');assert.match(notes,/1 B games \/ 2 A games/);assert.match(notes,/2 paired books/);assert.match(notes,/may be saved prices/);assert.match(notes,/disagreement is not proof/);assert.match(notes,/not measured prediction reliability/);
+ assert.doesNotMatch(a.bestRecommendationNotes({...c,gameSeasonEvidence:{},marketEvidence:[]}).join(' '),/2 paired books/);
+});

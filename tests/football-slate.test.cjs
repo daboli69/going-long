@@ -47,7 +47,7 @@ test('renders research and fresh price comparison as distinct concepts and prese
   assert.match(card.querySelector('.slate-count').textContent, /2 model-ranked research candidates · 1 fresh price comparisons/);
   assert.match(card.textContent, /Lead candidate · not a ticket suggestion/);
   assert.match(card.querySelector('strong').textContent, /Ja'Marr <Chase>/);
-  assert.match(card.textContent, /Evidence: Moderate · Player GOING Score 72.4\/100 \(evidence index, not win chance\)/);
+  assert.match(card.textContent, /Evidence: Moderate · Player GOING Score 72.4\/100 \(player index, not win chance\)/);
   const detail = card.querySelector('details.slate-bets');
   assert.equal(detail.open, false, 'research list begins collapsed');
   assert.equal(detail.querySelector('.slate-bets-body').innerHTML, '', 'evidence body is lazy/empty until populated');
@@ -87,4 +87,10 @@ test('render is capped at twelve games and collapsed groups can be controlled by
   assert.equal(host.querySelectorAll('.slate-game').length, 12);
   assert.equal(host.querySelectorAll('.slate-bets[open]').length, 1);
   assert.equal(host.querySelector('.slate-bets[open]').dataset.slateOpen, groups[1].key);
+});
+
+test('a player index on an Under is explicitly not Under or exact-line evidence',()=>{
+ const row={sport:'nfl',home:'BAL',away:'CIN',kickoff:'2026-10-11T17:00:00Z',kind:'prop',player:'Player',side:'Under',market:'rush_yds',line:40.5,n:12,flags:[]};
+ const groups=require('../shared/football-slate.js').group([row],[]);const output=require('../shared/football-slate.js').render(groups,{label:()=> 'Under 40.5 rush yards',confidence:()=>({label:'Low'}),score:()=>88,teamLabel:x=>x});
+ assert.match(output,/Not an Under or exact-line score/);
 });

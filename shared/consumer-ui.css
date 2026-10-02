@@ -81,3 +81,6 @@ body[data-going-workspace=long] .bt-best-grid>span{color:var(--g-text)}body[data
  body[data-going-workspace=long] #btTabGroup>.bt-more-tools>div{left:0;right:0;width:100%;min-width:0;max-width:100%;max-height:min(65dvh,440px);overflow-y:auto;box-sizing:border-box;grid-template-columns:repeat(2,minmax(0,1fr))}
  body[data-going-workspace=long] #btTabGroup>.bt-more-tools>div button{min-width:0;white-space:normal;overflow-wrap:anywhere}
 }
+
+/* Score explanation spans the card grid on desktop and phones. */
+body[data-going-workspace=long] .score-driver-summary{grid-column:1/-1;min-width:0;line-height:1.5;font-size:.9rem}body[data-going-workspace=long] .score-driver-summary ul{padding-left:1.2rem;margin:.5rem 0}body[data-going-workspace=long] .score-driver-summary li+li{margin-top:.4rem}
