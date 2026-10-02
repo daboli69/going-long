@@ -1,29 +1,28 @@
 # Progress
-Cycle: `20261001-football-tabs` (manual execution of the daily heartbeat, Oct 1, 2026).
-Production base: `4f5164c4678b903df2a22fd65c4c010d71c62920`.
-Review base: `c5036b8ce94c69ad8d5da78556144e052e5f408e`.
-Production commit: `e7061941670b85de107937782482fc1c62b67782` (verified remote main).
-Review completion SHA: `017b03d292f2a218a8ab224dcb166018033af487` (verified remote). This receipt records it; the receipt tip is reported externally to avoid self-reference.
+Cycle: `20261002-season-freshness` (scheduled daily cycle, Oct 2, 2026).
+Production base: `484ba6d4627a4ce7156b50052e3150bd8dc75f86`.
+Review base: `8177c231caceb4c4fd0f52836ddc754cad5a0917`.
+Production commit: `712978ac84ede1cbd7a53808197412df624fa4e6` (verified remote main).
+Review completion SHA: recorded by the subsequent receipt, never self-referenced.
 
 ## Completed
-- MANAGER selected keyboard/mobile cheatsheet focus loss on the fresh production baseline. UI/UX, BUILDER and QA hats used by one agent; no delegation. Navigation, filter toggles and pagination now preserve focus; final pagination moves focus to the result count. Only `shared/football-cheatsheets.js` and its test file changed in production (33 additions, 2 deletions).
-- Both new regressions failed before the fix and passed after; targeted 6/6, full Node 164/164, Python 96/96, npm build, Vercel build and Git diff checks passed with offline/mocked tests. Existing shared-asset build warnings remain; builds copy those assets.
-- Ordinary explicit fast-forward push used the existing main -> Vercel path. HTTP 200 live module matches the complete production Git blob after line-ending normalization (SHA256 `066580437e94f79ecb85c772a39ae1ae651f1e8ad2b28e66f49705835190e790`). Vercel deployment, GitHub Validate application and existing Pages deployment all completed successfully; deployed source verified independently.
-- Patch formatting validation: required blank context lines are valid diff syntax; the exact artifact passed strict inner source-whitespace/apply checks, tracker whitespace checks and unchanged review blob/mode checks. No substantive discrepancy.
-- Exact binary patch: `docs/daily-cycles/20261001-football-tabs.patch`. Applying it to the recorded production base in a temporary Git index reconstructed the entire tested production tree exactly. No bootstrap/old fixes merged into main, no provider workflow triggered, review deployment exclusion unchanged. Existing public Ubuntu CI and Hobby hosting only; no new services or spending.
-- Model methods/Champion unchanged; MODEL_RESEARCH.md unchanged. Cycle-specific model selection remains unavailable; no global/chat changes or escalation.
+- MANAGER selected the still-live football matchup freshness gap: the UI requested the already-public `season_learning.json`, but API returned 400. FOOTBALL DATA, BUILDER and QA hats used by one agent. Fresh implementation from today's main, no accumulated commits/files transferred: added one snapshot allowlist entry and two regression tests (29 additions, 1 deletion).
+- Both new regressions failed before the fix and passed after. Focused 8/8, full Node 166/166, Python 96/96, npm build, Vercel build and Git scope/whitespace checks passed. Tests use mocks/offline fixtures, including upstream transport/503 outages, timestamp/provenance/cache preservation and rejected paths. Existing shared-asset build warnings remain; build copies those assets.
+- Explicit fast-forward main publication uses the existing Vercel route. Live endpoint now returns HTTP 200/nightly and its entire decoded JSON equals the production snapshot: generation `2026-10-02T01:44:45.709471+00:00`, 123 matchup signals. Unknown file remains 400. Vercel/remote CI final statuses are recorded in the receipt; no claim that the generation time itself proves data completeness.
+- Exact patch `docs/daily-cycles/20261002-season-freshness.patch` applies with strict source whitespace checks to the recorded base and reconstructs the entire tested production tree. Review exclusion unchanged. API/test-only scope triggers included public Ubuntu tests, not provider-backed data refresh; existing Hobby hosting, no new service/spend.
+- Previous completed focus cycle remains in review history (`017b03d` completion, `8177c23` receipt). Champion and research unchanged; MODEL_RESEARCH.md untouched. Existing cycle-specific model-selection limitation remains; no global/chat changes or escalation.
 
 ## Working
-- None. Completed change and exact review package published; final receipt records verified SHAs/status. Active work through completion publication: 7 minutes 6 seconds; total reported after receipt verification.
+- Complete final remote publication/receipt verification; implementation and local/live endpoint checks are complete.
 
 ## Problems
-- This focus cycle does not establish a comprehensive rendered mobile/screen-reader audit. No real odds-provider requests, secrets, alerts, production data writes or model promotion.
-- Existing season-learning snapshot allowlist and shared/public CI path gaps remain outside this cycle; no accumulated application fixes transferred. Scanner public snapshot remains insufficient evidence of worker health; do not repeat blocked audits.
+- This restores snapshot delivery; it does not certify every matchup signal's accuracy, upstream freshness or predictive value. No model promotion/retuning, alerts, private inputs or paid provider calls.
+- Existing shared/public CI path gap remains outside this cycle. Scanner public snapshot cannot establish worker health; reuse findings instead of repeating blocked audits.
 
 ## Next
-- Claude: locate newest genuine completion marker plus receipt; fetch production SHA, inspect exact patch against production base, and distinguish the review-only artifact tree from production.
-- Reuse existing findings for the next single bounded issue; follow research/holdout/calibration gates for any Challenger.
+- Claude: newest completion marker plus receipt identifies this cycle; fetch production SHA and review the exact patch against the production base, not the older application tree on the review branch.
+- Select only one meaningful bounded issue next cycle; keep Champion/Challenger and untouched-holdout gates.
 
 ## Needs Travis
-- No manual publication needed for this completed low-risk cycle. Approval remains required for all high-risk/cost/model-promotion categories; the current heartbeat authorization supersedes bootstrap-only publication notes solely within its stated scope.
-- Rollback: preserve user work, create a fresh branch from current main, `git revert e7061941670b85de107937782482fc1c62b67782`, rerun affected checks, then ordinary fast-forward publish through the existing path. The exact pre-cycle parent is recorded above; never reset/force-push. No rollback performed.
+- No manual publication or approval needed for this low-risk repair. High-risk/cost/model-promotion gates remain; current scoped heartbeat authorization supersedes bootstrap-only publication notes.
+- Rollback: fresh branch from then-current main, `git revert 712978ac84ede1cbd7a53808197412df624fa4e6`, run affected checks and ordinary fast-forward publication. Pre-cycle parent is recorded above. Preserve user work; no reset/force-push or automatic rollback.
