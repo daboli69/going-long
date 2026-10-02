@@ -78,5 +78,95 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
  if(sgp){sgp.weakestLeg=weakestLeg(sgp.legs);sgp.replacement=bestReplacement(sgp,sgp.pool,{sameGame:true});delete sgp.pool;}
  return {parlay,sgp};
 }
-root.GoingFootballParlays={select,profitBoost};if(typeof module!=='undefined')module.exports=root.GoingFootballParlays;
+// User edits share the builder's eligibility policy, without changing its search.
+// A retained leg must still match an eligible observed quote in the supplied pool.
+const quoteKey=r=>JSON.stringify([contractKey(r),r.event,r.book,r.kind,r.profileId||'',r.market,r.line??'',r.side||'',r.kickoff,r.updatedAt,r.prob,r.dec,r.ev,r.n,r.push,r.odds]);
+function editContext(rows,options={}){
+ const o={now:Date.now(),book:'all',kind:'all',events:null,boostPercent:0,stake:10,sameGame:false,...options};
+ const fail=error=>({o,error,pool:[],quotes:new Set()});
+ const date=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d+'T12:00:00Z'))&&new Date(d+'T12:00:00Z').toISOString().slice(0,10)===d;
+ if(!['nfl','ncaa'].includes(o.sport)||!Number.isFinite(o.now)||!date(o.start)||!date(o.last)||o.start>o.last)return fail('Choose a valid football sport and date range.');
+ if(!['all','game','prop'].includes(o.kind)||(o.events!==null&&(!Array.isArray(o.events)||o.events.some(e=>typeof e!=='string'))))return fail('Choose valid leg and game filters.');
+ const decimal=v=>v==null?null:Number.isFinite(v)&&Math.abs(v)>=100?(v>0?1+v/100:1+100/-v):NaN;
+ const lower=decimal(o.minOdds)??1,upper=decimal(o.maxOdds)??Infinity;
+ if(!Number.isFinite(lower)||Number.isNaN(upper)||upper<lower)return fail('Enter valid American odds, with the maximum at least the minimum.');
+ try{profitBoost(.5,2,o.boostPercent,o.stake);}catch(e){return fail(e.message);}
+ const formatter=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}),day=t=>formatter.format(new Date(t));
+ const eligible=r=>{
+  if(!r||typeof r!=='object'||typeof r.event!=='string'||!r.event||typeof r.book!=='string'||!r.book||!['game','prop'].includes(r.kind)||typeof r.market!=='string'||!r.market)return false;
+  if([r.canonicalContract,r.contract,r.key,r.line,r.side,r.profileId,r.kickoff,r.updatedAt].some(v=>v!=null&&!['string','number'].includes(typeof v))||![r.n,r.prob,r.dec,r.ev,r.odds].every(Number.isFinite))return false;
+  const kick=Date.parse(r.kickoff),at=Date.parse(r.updatedAt),priced=decimal(r.odds);
+  if((o.events!==null&&!o.events.includes(r.event))||(o.book!=='all'&&r.book!==o.book)||(o.kind!=='all'&&r.kind!==o.kind)||r.sport!==o.sport||(o.sport==='ncaa'&&r.kind==='prop')||r.manual||r.dfs||r.trust?.review||!Number.isFinite(kick)||kick<=o.now||day(kick)<o.start||day(kick)>o.last||!Number.isFinite(at)||at>o.now||o.now-at>86400000||!(r.n>=5)||!(r.prob>0&&r.prob<1)||!(r.dec>1)||!Number.isFinite(r.dec)||!Number.isFinite(priced)||Math.abs(priced-r.dec)>1e-9||!Number.isFinite(r.ev)||((o.boostPercent===0||o.sameGame)&&r.ev<0)||r.ev>.25||r.push!==0||r.market==='first_td'||/_1[hq]$/.test(r.market)||(!Array.isArray(r.flags)&&r.flags!=null)||r.flags?.some(f=>f?.id==='check'&&!f.historicalOnly))return false;
+  return !(r.kind==='prop'&&!r.profileId);
+ };
+ const pool=(Array.isArray(rows)?rows:[]).filter(eligible);
+ return {o,lower,upper,pool,eligible,quotes:new Set(pool.map(quoteKey)),error:null};
+}
+function summarizeEdit(legs,context){
+ const list=Array.isArray(legs)?legs:[],{o}=context;
+ const ticket={legs:list,book:list[0]?.book||null,valid:true,ready:false,error:null,issues:[],weakestLeg:weakestLeg(list.filter(r=>r&&typeof r==='object'&&Number.isFinite(r.prob))),probability:null,decimal:null,estimatedReturn:null,boost:null};
+ const fail=error=>({...ticket,valid:false,ready:false,error,issues:[error],probability:null,decimal:null,estimatedReturn:null,boost:null});
+ if(context.error)return fail(context.error);
+ if(!Array.isArray(legs)||list.length>6)return fail('Keep the ticket between zero and six legs.');
+ const contracts=new Set(),entities=new Set(),events=new Set();
+ for(const r of list){
+  if(!context.eligible(r)||!context.quotes.has(quoteKey(r)))return fail('A leg no longer has a supported current quote for these filters. Remove it or rebuild the ticket.');
+  if(r.book!==ticket.book)return fail('Keep every leg at the same sportsbook.');
+  if(contracts.has(contractKey(r)))return fail('This selection is already on the ticket.');
+  if(o.sameGame){
+   if(r.event!==list[0].event)return fail('Keep every same-game leg in the original game.');
+   if(entities.has(entity(r)))return fail('Use one outcome per player or game market in a same-game ticket.');
+  }else if(events.has(r.event))return fail('Choose a different game for each leg.');
+  contracts.add(contractKey(r));entities.add(entity(r));events.add(r.event);
+ }
+ if(list.length<2){ticket.issues.push('Add at least two legs to complete a ticket.');return ticket;}
+ if(o.sameGame){ticket.weakest=Math.min(...list.map(r=>r.prob));ticket.ready=true;return ticket;}
+ ticket.probability=list.reduce((v,r)=>v*r.prob,1);ticket.decimal=list.reduce((v,r)=>v*r.dec,1);
+ // An overflow cannot be presented as a real ticket price.
+ if(!Number.isFinite(ticket.decimal))return fail('The combined illustrative price is outside the supported range.');
+ ticket.estimatedReturn=ticket.probability*ticket.decimal-1;
+ try{ticket.boost=profitBoost(ticket.probability,ticket.decimal,o.boostPercent,o.stake);}catch{return fail('The combined illustrative estimate is outside the supported range.');}
+ if(ticket.decimal<context.lower||ticket.decimal>context.upper)ticket.issues.push('This draft is outside the selected combined odds range.');
+ if(ticket.boost.returnPerDollar<0)ticket.issues.push('This draft has a negative estimated return after the selected boost.');
+ ticket.ready=ticket.issues.length===0;
+ return ticket;
+}
+function summarize(legs,pool,options={}){return summarizeEdit(legs,editContext(pool,options));}
+function manageEdit(legs,context,action={}){
+ const current=Array.isArray(legs)?legs:[],reject=error=>({ok:false,legs:current,ticket:summarizeEdit(current,context),error});
+ if(!Array.isArray(legs))return reject('Choose a valid ticket.');
+ const {type,index,row}=action||{};
+ if(!['remove','swap','add'].includes(type))return reject('Choose remove, swap or add.');
+ if(type!=='add'&&(!Number.isInteger(index)||index<0||index>=current.length))return reject('Choose a leg on the ticket.');
+ const next=current.slice();
+ if(type==='remove'){
+  next.splice(index,1);return {ok:true,legs:next,ticket:summarizeEdit(next,context),error:null};
+ }
+ if(context.error)return reject(context.error);
+ if(type==='add'&&current.length>=6)return reject('Six legs is the maximum.');
+ if(!context.eligible(row)||!context.quotes.has(quoteKey(row)))return reject('That selection no longer has a supported current quote.');
+ if(current.length&&row.book!==current[0]?.book)return reject('Keep every leg at the current sportsbook.');
+ if(context.o.sameGame&&current.length&&row.event!==current[0]?.event)return reject('Keep every same-game leg in the original game.');
+ if(current.some(r=>r&&contractKey(r)===contractKey(row)))return reject('This selection is already on the ticket.');
+ if(type==='swap')next[index]=row;else next.push(row);
+ const ticket=summarizeEdit(next,context);
+ if(!ticket.valid)return reject(ticket.error);
+ if(next.length>=2&&!ticket.ready)return reject(ticket.issues.join(' '));
+ return {ok:true,legs:next,ticket,error:null};
+}
+function manage(legs,pool,options={},action={}){return manageEdit(legs,editContext(pool,options),action);}
+function alternatives(legs,pool,options={},request={}){
+ const context=editContext(pool,options),list=Array.isArray(legs)?legs:[],index=request?.index??null;
+ if(context.error||!Array.isArray(legs)||(index!==null&&(!Number.isInteger(index)||index<0||index>=list.length))||(index===null&&list.length>=6))return [];
+ if(!summarizeEdit(index===null?list:list.filter((_,i)=>i!==index),context).valid)return [];
+ const limit=Math.max(0,Math.min(6,Number.isInteger(request?.limit)?request.limit:6));
+ const candidates=context.pool.slice().sort((a,b)=>b.prob-a.prob||b.ev-a.ev),found=[],seen=new Set();
+ for(const row of candidates){
+  if(found.length>=limit)break;
+  const key=contractKey(row);if(seen.has(key))continue;
+  if(manageEdit(list,context,{type:index===null?'add':'swap',index,row}).ok){seen.add(key);found.push(row);}
+ }
+ return found;
+}
+root.GoingFootballParlays={select,profitBoost,summarize,manage,alternatives};if(typeof module!=='undefined')module.exports=root.GoingFootballParlays;
 })(globalThis);

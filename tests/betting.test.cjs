@@ -5,13 +5,13 @@ const path=require('node:path');
 const vm=require('node:vm');
 const {JSDOM}=require('jsdom');
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
-function setup(t){
+function setup(t,parlaySaved=null){
   t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-09-09T12:00:00Z')});
   const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true});
   const BrowserDate=dom.window.Date;
   dom.window.Date=class extends BrowserDate{constructor(...args){super(...(args.length?args:[Date.now()]));}static now(){return Date.now();}};
   t.after(()=>dom.window.close());
-  dom.window.localStorage.setItem('goinglong.gateway.mode','fantasy');
+  dom.window.localStorage.setItem('goinglong.gateway.mode','fantasy');if(parlaySaved!==null)dom.window.localStorage.setItem('goinglong.parlay.drafts.v1',typeof parlaySaved==='string'?parlaySaved:JSON.stringify(parlaySaved));
   dom.window.requestAnimationFrame=cb=>dom.window.setTimeout(cb,0);
   dom.window.HTMLElement.prototype.scrollIntoView=function(){};
   const context=dom.getInternalVMContext();
@@ -23,7 +23,7 @@ function setup(t){
   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
   }
-  vm.runInContext(`globalThis.api={bestRecommendationNotes,scoreSnapshot,freezeScoreRow,settleScoreHistory,scoreDriverContext,renderGameFirstSlate,openSlateAction, bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
+  vm.runInContext(`globalThis.api={renderFootballParlays,renderParlayDraft,parlayEditAction,parlayPrice,bestRecommendationNotes,scoreSnapshot,freezeScoreRow,settleScoreHistory,scoreDriverContext,renderGameFirstSlate,openSlateAction, bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
     mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,goingScoreRisk,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
@@ -581,8 +581,8 @@ test('Parlay game selector includes scheduled SNF even without eligible odds',as
  a.BET.history={games:{nfl:[{home:'NYG',away:'DAL',kickoff:'2026-09-14T00:20:00Z'},{home:'KC',away:'DEN',kickoff:'2026-09-15T00:15:00Z'}]}};
  await vm.runInContext('renderFootballParlays()',context);
  const text=w.document.getElementById('parlayGames').textContent;
- assert.match(text,/DAL @ NYG/);assert.match(text,/DEN @ KC/);assert.match(text,/Waiting for supported/);
- assert.equal(w.document.querySelectorAll('#parlayGames input').length,2);
+ assert.match(text,/DAL @ NYG/);assert.doesNotMatch(text,/DEN @ KC/);assert.match(text,/Waiting for supported/);
+ assert.equal(w.document.querySelectorAll('#parlayGames input').length,1);w.document.getElementById('parlayDate').value='week';await vm.runInContext("PARLAY_DATE.nfl='week';renderFootballParlays()",context);assert.match(w.document.getElementById('parlayGames').textContent,/DEN @ KC/);assert.equal(w.document.querySelectorAll('#parlayGames input').length,2);
 });
 
 test('First TD predictor renders historical game outcomes without inventing quote prices',t=>{
@@ -693,4 +693,54 @@ test('NCAA recommendation notes distinguish current samples from saved market di
  const {api:a}=setup(t),c={sport:'ncaa',kind:'game',home:'A',away:'B',market:'total',prob:.7,updatedAt:new Date(Date.now()-3600000).toISOString(),gameSeasonEvidence:{home_current_games:2,away_current_games:1},marketEvidence:[{book:'a',reference:{win:.51}},{book:'b',reference:{win:.52}}]};
  const notes=a.bestRecommendationNotes(c).join(' ');assert.match(notes,/1 B games \/ 2 A games/);assert.match(notes,/2 paired books/);assert.match(notes,/may be saved prices/);assert.match(notes,/disagreement is not proof/);assert.match(notes,/not measured prediction reliability/);
  assert.doesNotMatch(a.bestRecommendationNotes({...c,gameSeasonEvidence:{},marketEvidence:[]}).join(' '),/2 paired books/);
+});
+
+function parlayFixture(t,saved=null){
+ const x=setup(t,saved),{w,context,api:a}=x;vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-parlays.js'),'utf8'),context);
+ a.BET.tab='parlays';a.BET.sport='nfl';a.BET.history={};a.BET.props=[];a.BET.games=[];w.scrollTo=o=>{w.lastScroll=o.top;};
+ const row=(id,day='10',sport='nfl')=>({sport,kind:sport==='ncaa'?'game':'prop',profileId:id,player:'Player '+id,team:'H'+id,home:'H'+id,away:'A'+id,event:'g'+id,kickoff:`2026-09-${day}T17:00:00Z`,updatedAt:new Date(Date.now()).toISOString(),market:sport==='ncaa'?'moneyline':'rec_yds',side:sport==='ncaa'?'Home':'Over',line:sport==='ncaa'?0:30.5,odds:100,dec:2,prob:.6,ev:.2,n:12,push:0,book:'Fixture',flags:[]});
+ w.parlayRows=[row('a'),row('b'),row('c'),row('d','11'),row('e','10','ncaa'),row('f','10','ncaa')];vm.runInContext('signalCandidates=async()=>globalThis.parlayRows;SIGNAL.allQuotes=[];',context);return {...x,row};
+}
+test('Parlay date and selected games isolate candidates; explicit week is required for multiple days',async t=>{
+ const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();
+ assert.equal(w.document.getElementById('parlayDate').value,'2026-09-10');assert.equal(w.document.querySelectorAll('#parlayGames input').length,3);
+ let current=vm.runInContext('PARLAY_DRAFT.nfl.different',context);assert.ok(current.every(l=>l.sport==='nfl'&&l.kickoff.startsWith('2026-09-10')));
+ vm.runInContext('PARLAY_GAMES.nfl=new Set([signalEvent("nfl","Ha","Aa","2026-09-10T17:00:00.000Z")]);PARLAY_DRAFT.nfl.different=null;',context);await a.renderFootballParlays();assert.equal(vm.runInContext('PARLAY_DRAFT.nfl.different.length',context),0);
+ vm.runInContext('PARLAY_GAMES.nfl=null;PARLAY_DATE.nfl="week";PARLAY_DRAFT.nfl.different=null;',context);await a.renderFootballParlays();assert.equal(w.document.querySelectorAll('#parlayGames input').length,4);assert.match(w.document.getElementById('parlaysStatus').textContent,/2026-09-08 through 2026-09-14/);
+});
+test('Parlay remove, swap and add keep unaffected legs and preserve keyboard focus/scroll',async t=>{
+ const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();Object.defineProperty(w,'scrollY',{value:480,configurable:true});
+ const original=vm.runInContext('PARLAY_DRAFT.nfl.different.slice()',context);let swap=w.document.querySelector('[data-parlay-edit="swap"][data-leg="0"]');swap.focus();swap.click();assert.ok(w.document.querySelector('[data-parlay-choice]'));
+ w.document.querySelector('[data-parlay-choice]').click();let changed=vm.runInContext('PARLAY_DRAFT.nfl.different',context);assert.notEqual(changed[0],original[0]);assert.equal(changed[1],original[1]);assert.equal(w.lastScroll,480);assert.equal(w.document.activeElement.dataset.parlayEdit,'swap');
+ const kept=changed[1];w.document.querySelector('[data-parlay-edit="remove"][data-leg="0"]').click();changed=vm.runInContext('PARLAY_DRAFT.nfl.different',context);assert.equal(changed.length,1);assert.equal(changed[0],kept);
+ w.document.querySelector('[data-parlay-edit="add"]').click();w.document.querySelector('[data-parlay-choice]').click();changed=vm.runInContext('PARLAY_DRAFT.nfl.different',context);assert.equal(changed.length,2);assert.equal(changed[0],kept);assert.equal(w.lastScroll,480);
+ assert.match(w.document.querySelector('#bestParlay').textContent,/independent|independence/);assert.match(w.document.querySelector('#bestParlay').textContent,/No GOING Score is used/);
+});
+test('Parlay scope changes preserve draft but suppress invalid combined metrics and stale alternatives',async t=>{
+ const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();const original=vm.runInContext('PARLAY_DRAFT.nfl.different.slice()',context);
+ vm.runInContext('PARLAY_DATE.nfl="2026-09-11";',context);await a.renderFootballParlays();assert.equal(vm.runInContext('PARLAY_DRAFT.nfl.different[0]',context),original[0]);assert.match(w.document.querySelector('#bestParlay').textContent,/no longer|No combined estimate/);assert.doesNotMatch(w.document.querySelector('#bestParlay').textContent,/estimated chance all legs win/);
+ w.document.querySelector('[data-parlay-edit="swap"]').click();assert.equal(w.document.querySelectorAll('[data-parlay-choice]').length,0);assert.match(w.document.querySelector('#bestParlay').textContent,/No compatible alternative/);
+ vm.runInContext('PARLAY_DATE.nfl="2026-09-10";',context);w.parlayRows=w.parlayRows.map(l=>({...l,updatedAt:new Date(Date.now()-86400001).toISOString()}));await a.renderFootballParlays();assert.match(w.document.querySelector('#bestParlay').textContent,/no longer/);w.document.querySelector('[data-parlay-edit="remove"]').click();assert.equal(vm.runInContext('PARLAY_DRAFT.nfl.different.length',context),1);
+});
+test('NCAA parlay workflow excludes props and keeps NFL draft separate; empty drafts remain editable',async t=>{
+ const {api:a,w,context,row}=parlayFixture(t);await a.renderFootballParlays();const nfl=vm.runInContext('PARLAY_DRAFT.nfl.different.slice()',context);a.BET.sport='ncaa';w.parlayRows.push({...row('bad','10','ncaa'),kind:'prop'});await a.renderFootballParlays();
+ assert.ok(vm.runInContext('PARLAY_DRAFT.ncaa.different',context).every(l=>l.kind==='game'&&l.sport==='ncaa'));assert.equal(w.document.querySelector('#parlayKind [value="prop"]').disabled,true);assert.match(w.document.getElementById('parlaysStatus').textContent,/Game markets only/);
+ w.document.querySelector('[data-parlay-edit="clear"]').click();assert.match(w.document.querySelector('#bestParlay').textContent,/No legs in this draft/);w.document.querySelector('[data-parlay-edit="add"]').click();assert.ok(w.document.querySelector('[data-parlay-choice]'));w.document.querySelector('[data-parlay-choice]').click();assert.equal(vm.runInContext('PARLAY_DRAFT.ncaa.different.length',context),1);
+ a.BET.sport='nfl';await a.renderFootballParlays();assert.equal(vm.runInContext('PARLAY_DRAFT.nfl.different[0]',context),nfl[0]);
+});
+test('Parlay game selection refresh preserves checkbox focus and selected-game constraints',async t=>{
+ const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();const box=w.document.querySelector('#parlayGames input');const event=box.dataset.parlayEvent;box.focus();box.checked=false;box.dispatchEvent(new w.Event('change',{bubbles:true}));await new Promise(resolve=>setImmediate(resolve));assert.equal(w.document.activeElement.dataset.parlayEvent,event);assert.equal(w.document.activeElement.checked,false);
+ w.document.getElementById('parlayBuild').click();assert.ok(vm.runInContext('PARLAY_DRAFT.nfl.different',context).every(l=>l.event!==event));
+});
+test('Parlay prices display negative combined American odds correctly without changing odds math',t=>{const {api:a}=setup(t);assert.equal(a.parlayPrice(1.25),'-400');assert.equal(a.parlayPrice(4),'+300');assert.equal(a.parlayPrice(null),'Unavailable');});
+
+test('Editable parlay survives reload while restored stale/tampered legs cannot claim a qualifying ticket',async t=>{
+ const first=parlayFixture(t);await first.api.renderFootballParlays();first.w.document.querySelector('[data-parlay-edit="remove"]').click();const raw=first.w.localStorage.getItem('goinglong.parlay.drafts.v1');
+ t.mock.timers.reset();const second=parlayFixture(t,raw);await second.api.renderFootballParlays();assert.equal(vm.runInContext('PARLAY_DRAFT.nfl.different.length',second.context),1);assert.match(second.w.document.querySelector('#bestParlay').textContent,/Saved draft restored/);
+ const altered=JSON.parse(raw);altered.drafts.nfl.different[0].prob=.99;t.mock.timers.reset();const third=parlayFixture(t,altered);await third.api.renderFootballParlays();assert.match(third.w.document.querySelector('#bestParlay').textContent,/no longer.*supported/);assert.doesNotMatch(third.w.document.querySelector('#bestParlay').textContent,/estimated chance all legs win/);
+ t.mock.timers.reset();const bad=parlayFixture(t,'corrupt data');await bad.api.renderFootballParlays();assert.equal(bad.w.localStorage.getItem('goinglong.parlay.drafts.v1'),'corrupt data');assert.match(bad.w.document.querySelector('#bestParlay').textContent,/original storage preserved/);
+});
+test('An open parlay swap chooser survives background refresh with stable contract buttons and keyboard focus',async t=>{
+ const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();w.document.querySelector('[data-parlay-edit="swap"]').click();const button=w.document.querySelector('[data-parlay-choice]'),key=button.dataset.parlayChoice;button.focus();await a.renderFootballParlays();assert.equal(w.document.activeElement.dataset.parlayChoice,key);assert.ok(w.document.querySelector('[data-parlay-choice]'));assert.ok(vm.runInContext('PARLAY_ALTERNATIVES.size',context)<=6);
+ w.document.querySelector('[data-parlay-choice]').click();assert.equal(w.document.querySelectorAll('[data-parlay-choice]').length,0);
 });
