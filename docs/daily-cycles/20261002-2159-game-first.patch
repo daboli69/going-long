@@ -1,0 +1,352 @@
+diff --git a/index.html b/index.html
+index 69952f38bd03821658f43159b485daed76e86834..f712478113d46d42fd3f55114e0f70565026c722 100644
+--- a/index.html
++++ b/index.html
+@@ -3,7 +3,7 @@
+ <head>
+ <base href="/">
+ <script src="shared/evidence-ui.js"></script>
+-<script src="shared/opportunity-ui.js"></script>
++<script src="shared/opportunity-ui.js"></script><script src="/shared/football-slate.js"></script><link rel="stylesheet" href="/shared/football-slate.css">
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <meta name="theme-color" content="#0C1614">
+@@ -844,7 +844,7 @@
+         <button data-sport="ncaa" aria-pressed="false">NCAA</button>
+       </div>
+       <div class="pos-group" id="btTabGroup" role="navigation" aria-label="Football betting">
+-        <button data-section="today" data-tab="best" aria-pressed="false">Today</button><button data-section="opportunities" data-tab="props" aria-pressed="true">Markets</button><button data-section="games" data-tab="games" aria-pressed="false">Games</button><button data-section="cheatsheets" data-tab="cheatsheets" aria-pressed="false">Cheatsheets</button><button data-section="parlay" data-tab="parlays" aria-pressed="false">Parlays</button><details class="bt-more-tools"><summary>More</summary><div><button data-section="score" data-tab="score" aria-pressed="false">GOING SCORE</button><button data-section="dfs" data-tab="dfs" aria-pressed="false">DFS</button><button data-section="research" data-tab="signals" aria-pressed="false">Signals</button></div></details>
++        <button data-section="today" data-tab="best" aria-pressed="false">Today</button><button data-section="opportunities" data-tab="props" aria-pressed="true">Markets</button><button data-section="games" data-tab="games" aria-pressed="false">Games</button><button data-section="cheatsheets" data-tab="cheatsheets" aria-pressed="false">Cheatsheets</button><button data-section="parlay" data-tab="parlays" aria-pressed="false">Parlays</button><button data-section="score" data-tab="score" aria-pressed="false">GOING Score</button><button data-section="jackpot" data-tab="promo" aria-pressed="false">Jackpot</button><details class="bt-more-tools"><summary>More</summary><div><button data-section="dfs" data-tab="dfs" aria-pressed="false">DFS</button><button data-section="research" data-tab="signals" aria-pressed="false">Signals</button></div></details>
+       </div>
+     </div>
+     <div class="pos-group" id="btToolGroup" aria-label="Research tools" hidden></div>
+@@ -872,7 +872,7 @@
+       <details class="dfs-method"><summary>How projections and lineup builds work</summary><p>GOING begins with its injury-adjusted player distribution. For yardage, receptions and passing touchdowns, a fresh sportsbook consensus can move the mean modestly: 35% market with at least two distinct books, 20% with one, otherwise the GOING model stands alone. Extreme alternate lines are excluded by requiring a normally priced two-sided market. Touchdowns remain model-based because an anytime-TD price is a chance of one or more scores, not expected touchdown count.</p><p>DraftKings scoring uses full PPR and a $50,000 cap; FanDuel uses half PPR and a $60,000 cap. Both builds include expected yardage bonuses. Single-game mode uses six players from one game and ranks the Captain/MVP using the player's ceiling estimate; the multiplier slot earns 1.5× points and, with an official salary file, costs 1.5× salary. Every roster includes both teams. Ownership is unavailable and is never invented.</p><p>GOING currently lacks interception, fumble and ownership projections, so those components are explicitly absent. Projection-only mode ranks GOING's current slate without salaries; salary-file mode adds the cap plus platform D/ST/kicker rows. D/ST and kickers use imported platform FPPG until GOING has validated specialty projections. Balanced maximizes projected points. Floor discounts uncertainty. Ceiling rewards upside and QB–receiver correlation. Suggested lineups are research outputs, not automatic entries.</p></details>
+       <h3 id="dfsPoolTitle">GOING projected slate</h3><div id="dfsPool" class="dfs-pool"></div>
+     </section>
+-    <section id="btPromoPanel" hidden aria-label="Jackpot research">
++    <section id="btPromoPanel" hidden aria-label="Jackpot research"><h2>Touchdown jackpot research</h2><p class="slate-orientation">Explore specialized touchdown questions. First TD researches the opening scorer; Slate Breaker researches the last touchdown; King of the Endzone projects longest-touchdown candidates. These are model scenarios, not guaranteed outcomes. Check the market rules and available prices.</p>
+       <h2>Slate Breaker — Sunday</h2><div id="slateBreaker" aria-live="polite"></div>
+       <h2>King of the Endzone — Thursday</h2><div id="kingEndzone" aria-live="polite"></div>
+       <h2>Fanatics Sunday TD options</h2><p>Ohio · exactly 3 anytime-touchdown scorers · $5 minimum · +2000 minimum per slip. These settings were supplied by you; the full offer terms and entry limit are not verified.</p>
+@@ -899,7 +899,7 @@
+       <h3>Best Parlay</h3><p>Different games, one sportsbook. Ranked by estimated chance of every leg winning among searched combinations. The combined estimate assumes the games behave independently.</p><div id="bestParlay" class="sig-grid"></div>
+       <h3>Best SGP Parlay</h3><p>Same-game research pairing, ranked by the lowest individual win estimate. That ranking is not the chance every leg wins. Shared game conditions can make the legs move together.</p><div id="bestSgp" class="sig-grid"></div>
+     </section>
+-    <section id="btBestPanel" hidden aria-label="Best plays today"><h2>Today’s Slate</h2><p>Find a market, check the price, then open the evidence.</p><div class="today-summary" id="bestTodaySummary" aria-label="Today's slate summary"></div><details class="g-discovery-tools"><summary>More markets and deep research</summary><nav class="deep-links" aria-label="Deep football research"><button type="button" data-best-tab="props">All markets</button><button type="button" data-best-tab="signals">Early Signals</button><button type="button" data-best-tab="firsttd">First TD</button><button type="button" data-best-tab="parlays">Parlay Lab</button><button type="button" data-best-tab="promo">Jackpot</button><a href="/results/">Results</a></nav></details><details class="g-discovery-tools"><summary>Filter by date, game, book, price, player or market</summary><div class="best-discovery"><label>Date scope<select id="bestDay" class="field" aria-label="Date scope"><option value="slate">Full current slate</option><option value="today">Today (ET)</option></select></label><label>Recommended game<select id="bestEvent" class="field" aria-label="Recommended game"><option value="all">All supported games</option></select></label><input id="bestSearch" class="field" type="search" aria-label="Search recommended bets" placeholder="Filter these recommendations"><select id="bestSort" class="field" aria-label="Sort recommended bets"><option value="going">Sort: GOING rank</option><option value="probability">Highest probability</option><option value="edge">Highest estimated return</option><option value="payout">Highest payout</option><option value="kickoff">Earliest kickoff</option></select></div><div class="best-filter-panel" aria-label="Sportsbook and price filters"><label>Sportsbook<select id="bestBook" aria-label="Desired sportsbook"><option value="all">Best available / all books</option></select></label><label>Minimum odds<input id="bestMinOdds" type="text" inputmode="text" pattern="[+-]?[0-9]+" aria-label="Minimum American odds" placeholder="Any"></label><button type="button" id="bestExcludeAlt" aria-pressed="true">✓ Hide alternate props</button><button type="button" id="bestFilterReset">Reset price filters</button></div><small class="best-filter-note">Filters use prices already loaded on this page. The default hides alternate props and prices shorter than -500.</small><div class="pos-group" id="bestKind" aria-label="Bet type"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">Player props</button></div><div class="best-quick" id="bestFocus" aria-label="Quick filters"><button data-focus="all" aria-pressed="true">All qualified</button><button data-focus="td" aria-pressed="false">TD markets</button><button data-focus="plus" aria-pressed="false">Plus money</button><button data-focus="alt" aria-pressed="false">Alt line sets</button><button data-focus="parlay" aria-pressed="false">Parlay-ready</button></div></details><details><summary>Coverage and exclusions</summary><p id="bestStatus" role="status"></p></details><div class="best-section-head"><h3>What GOING found</h3><span id="bestChanceCount"></span></div><p>Candidates clear the existing checks. Watchlists still need a better price or stronger evidence.</p><div id="bestChance" class="sig-grid"></div><button class="btn ghost" id="bestChanceMore" hidden>Show more model selections</button><div class="best-section-head"><h3>Price-qualified value</h3><span id="bestValueCount"></span></div><p>Fresh Pinnacle-led comparisons remove the books’ built-in charge and reduce the estimate for uncertainty. These are research candidates, not proven edges.</p><div id="bestValue" class="sig-grid"></div><button class="btn ghost" id="bestValueMore" hidden>Show more price-qualified selections</button></section>
++    <section id="btBestPanel" hidden aria-label="Best plays today"><h2>GOING’s research slate</h2><p class="slate-orientation">Start with a game. GOING ranks research candidates from supported models and prices; a listed market is not a guaranteed winner or a ready-made ticket.</p><div class="slate-primary"><label>Date / slate<select id="bestDay" class="field" aria-label="Date scope"><option value="slate">This football week</option><option value="today">Today (ET)</option></select></label><button type="button" id="bestBuildParlay">Build from selected games</button><span id="bestSelectedGames" role="status">No games selected</span></div><div class="today-summary" id="bestTodaySummary" aria-label="Today's slate summary"></div><details class="g-discovery-tools"><summary>More markets and deep research</summary><nav class="deep-links" aria-label="Deep football research"><button type="button" data-best-tab="props">All markets</button><button type="button" data-best-tab="signals">Early Signals</button><button type="button" data-best-tab="firsttd">First TD</button><button type="button" data-best-tab="parlays">Parlay Lab</button><button type="button" data-best-tab="promo">Jackpot</button><a href="/results/">Results</a></nav></details><details class="g-discovery-tools"><summary>Filter by date, game, book, price, player or market</summary><div class="best-discovery"><label>Research game<select id="bestEvent" class="field" aria-label="Research game"><option value="all">All supported games</option></select></label><input id="bestSearch" class="field" type="search" aria-label="Search research candidates" placeholder="Filter research candidates"><select id="bestSort" class="field" aria-label="Sort research candidates"><option value="going">Sort: GOING rank</option><option value="probability">Highest probability</option><option value="edge">Highest estimated return</option><option value="payout">Highest payout</option><option value="kickoff">Earliest kickoff</option></select></div><div class="best-filter-panel" aria-label="Sportsbook and price filters"><label>Sportsbook<select id="bestBook" aria-label="Desired sportsbook"><option value="all">Best available / all books</option></select></label><label>Minimum odds<input id="bestMinOdds" type="text" inputmode="text" pattern="[+-]?[0-9]+" aria-label="Minimum American odds" placeholder="Any"></label><button type="button" id="bestExcludeAlt" aria-pressed="true">✓ Hide alternate props</button><button type="button" id="bestFilterReset">Reset price filters</button></div><small class="best-filter-note">Filters use prices already loaded on this page. The default hides alternate props and prices shorter than -500.</small><div class="pos-group" id="bestKind" aria-label="Bet type"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">Player props</button></div><div class="best-quick" id="bestFocus" aria-label="Quick filters"><button data-focus="all" aria-pressed="true">All qualified</button><button data-focus="td" aria-pressed="false">TD markets</button><button data-focus="plus" aria-pressed="false">Plus money</button><button data-focus="alt" aria-pressed="false">Alt line sets</button><button data-focus="parlay" aria-pressed="false">Parlay-ready</button></div></details><details><summary>Coverage and exclusions</summary><p id="bestStatus" role="status"></p></details><p id="bestOrderNote" class="slate-orientation"></p><div id="bestGameSlate" aria-label="GOING research by game"></div><button class="btn ghost" id="bestMoreGames" hidden>Show more games</button><details class="g-discovery-tools"><summary>Full ranked lists · advanced research</summary><div class="best-section-head"><h3>What GOING found</h3><span id="bestChanceCount"></span></div><p>Candidates clear the existing checks. Watchlists still need a better price or stronger evidence.</p><div id="bestChance" class="sig-grid"></div><button class="btn ghost" id="bestChanceMore" hidden>Show more model selections</button><div class="best-section-head"><h3>Price-qualified value</h3><span id="bestValueCount"></span></div><p>Fresh Pinnacle-led comparisons remove the books’ built-in charge and reduce the estimate for uncertainty. These are research candidates, not proven edges.</p><div id="bestValue" class="sig-grid"></div><button class="btn ghost" id="bestValueMore" hidden>Show more price-qualified selections</button></details></section>
+     <section id="btSignalsPanel" hidden aria-label="Football signals">
+       <h2>Early Signals <small>Experimental</small></h2>
+       <p>Reasons to investigate, not proven advantages. More categories do not mean a measured increase in win chance.</p><nav class="sig-actions" aria-label="Signals sections"><a class="btn" href="#sigCards">Current looks</a><a class="btn" href="#sigIdeas">Two-leg ideas</a><a class="btn" href="#sigTrust">Saved &amp; results</a></nav>
+@@ -917,7 +917,7 @@
+     <div class="bt-overview" id="btOverview" aria-label="Board summary"></div>
+ 
+     <!-- ============ PROPS TAB ============ -->
+-    <section class="bt-panel" id="btPropsPanel">
++    <section class="bt-panel" id="btPropsPanel"><h2>Browse by market</h2><p class="slate-orientation">Looking for a particular bet type? Compare available markets here. For GOING-ranked research, start with Today; for one matchup, use Games. Availability alone is not a recommendation.</p>
+       <div class="bt-controls">
+         <div class="pos-group" id="btMarketGroup">
+           <button data-market="ALL" aria-pressed="true">ALL</button>
+@@ -952,7 +952,7 @@
+     </section>
+ 
+     <!-- ============ GAMES TAB ============ -->
+-    <section class="bt-panel" id="btGamesPanel" hidden>
++    <section class="bt-panel" id="btGamesPanel" hidden><h2>Matchup research</h2><p class="slate-orientation">Compare spreads, totals and moneylines for a game. Open a matchup for book-by-book prices; Today groups GOING-ranked research angles by game.</p>
+       <div class="pos-group" id="btCoverageGroup" aria-label="NCAA game coverage" hidden><button data-coverage="active" aria-pressed="false">Active Odds</button><button data-coverage="all" aria-pressed="true">All Games / Off Board</button></div>
+       <p id="btGamesCount" role="status"></p>
+       <button class="btn" id="btLoadReal" style="margin-bottom:10px">Refresh live odds</button>
+@@ -3700,7 +3700,7 @@ function projectionBoard(){
+   return result;
+ }
+ const GOING_SCORE_STORE='goinglong.score.view.v1';
+-let GOING_SCORE_MARKET='atd',GOING_SCORE_VIEW='rankings',GOING_SCORE_QUERY='',GOING_SCORE_CONFIDENCE='all',GOING_SCORE_LIMIT=60;
++let GOING_SCORE_MARKET='atd',GOING_SCORE_VIEW='games',GOING_SCORE_QUERY='',GOING_SCORE_CONFIDENCE='all',GOING_SCORE_LIMIT=60;
+ const GOING_SCORE_VISIBLE=new Map();
+ try{const saved=JSON.parse(localStorage.getItem(GOING_SCORE_STORE)||'null');if(GoingScore.MARKET_SPECS[saved?.market])GOING_SCORE_MARKET=saved.market;if(['rankings','games'].includes(saved?.view))GOING_SCORE_VIEW=saved.view;if(['all','moderate','high'].includes(saved?.confidence))GOING_SCORE_CONFIDENCE=saved.confidence;}catch{}
+ function persistGoingScore(){try{localStorage.setItem(GOING_SCORE_STORE,JSON.stringify({market:GOING_SCORE_MARKET,view:GOING_SCORE_VIEW,confidence:GOING_SCORE_CONFIDENCE}));}catch{}}
+@@ -3826,7 +3826,7 @@ function renderGoingScore(){
+  const panel=$('btScorePanel');if(!panel||BET.tab!=='score')return;GOING_SCORE_VISIBLE.clear();$('scoreMarket').querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.scoreMarket===GOING_SCORE_MARKET)));$('scoreView').querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.scoreView===GOING_SCORE_VIEW)));$('scoreConfidence').value=GOING_SCORE_CONFIDENCE;
+  const eligible=goingScoreCandidates();let rows=eligible,q=GOING_SCORE_QUERY.trim().toLowerCase();if(q)rows=rows.filter(row=>`${row.player} ${row.team} ${row.opponent} ${row.game} ${row.position}`.toLowerCase().includes(q));const min={all:0,moderate:60,high:80}[GOING_SCORE_CONFIDENCE];rows=rows.filter(row=>row.confidence.value>=min);const quoted=rows.filter(row=>row.quote).length,high=rows.filter(row=>row.confidence.label==='High').length,leader=rows[0];
+  $('scoreSummary').innerHTML=`<div><b>${eligible.length}</b><span>Eligible field</span></div><div><b>${quoted}</b><span>With priced line</span></div><div><b>${high}</b><span>High confidence</span></div><div><b>${leader?esc(leader.player):'—'}</b><span>Current leader</span></div>`;$('scoreStatus').textContent=`${GoingScore.MARKET_SPECS[GOING_SCORE_MARKET].label} · ${eligible.length} eligible · ${rows.length} match filters · ${Math.min(rows.length,GOING_SCORE_LIMIT)} shown · ranked across the currently eligible NFL slate · prices: ${BET.liveStatus} · ${BET.history?.generated_at?'model updated '+new Date(BET.history.generated_at).toLocaleString():'model timestamp unavailable'}`;
+- const visible=rows.slice(0,GOING_SCORE_LIMIT),board=$('scoreBoard');if(!visible.length)board.innerHTML='<div class="score-empty">No eligible players match these filters. No score was fabricated.</div>';else if(GOING_SCORE_VIEW==='games')board.innerHTML=GoingScore.groupByGame(visible).map(group=>`<details class="score-game" open><summary><strong>${esc(footballGameLabel(group.game,'nfl'))}</strong><small>${group.selections.length} visible players</small></summary><div class="score-list">${group.selections.map(goingScoreCard).join('')}</div></details>`).join('');else board.innerHTML=visible.map(goingScoreCard).join('');$('scoreMore').hidden=visible.length>=rows.length;$('scoreMore').textContent=`Show ${Math.min(40,rows.length-visible.length)} more · ${rows.length-visible.length} remaining`;persistGoingScore();
++ const visible=rows.slice(0,GOING_SCORE_LIMIT),board=$('scoreBoard'),openGames=new Set([...board.querySelectorAll('.score-game[open]')].map(d=>d.dataset.scoreGame));if(!visible.length)board.innerHTML='<div class="score-empty">No eligible players match these filters. No score was fabricated.</div>';else if(GOING_SCORE_VIEW==='games')board.innerHTML=GoingScore.groupByGame(visible).map(group=>`<details class="score-game" data-score-game="${esc(group.game)}" ${openGames.has(group.game)?'open':''}><summary><strong>${esc(footballGameLabel(group.game,'nfl'))}</strong><small>${group.selections.length} visible players</small></summary><div class="score-list">${group.selections.map(goingScoreCard).join('')}</div></details>`).join('');else board.innerHTML=visible.map(goingScoreCard).join('');$('scoreMore').hidden=visible.length>=rows.length;$('scoreMore').textContent=`Show ${Math.min(40,rows.length-visible.length)} more · ${rows.length-visible.length} remaining`;persistGoingScore();
+ }
+ const DFS_STATE={site:'draftkings',source:'model',contest:'classic',game:'',salaryPlayers:[],players:[],lineups:[],errors:[],raw:'',status:'',locked:new Set(),captainId:null};
+ function dfsMarketMean(profileId,market,modelMean){
+@@ -4386,6 +4386,7 @@ async function signalLoadResults(){
+  catch{SIGNAL.resultNote='Public results are unavailable. Saved picks remain pending; no losses or zeroes are assumed.';}
+ }
+ const BEST_FILTER_STORE='goinglong.today.filters.v1';
++let TODAY_GROUPS=new Map(),TODAY_GAME_LIMIT=12;const TODAY_OPEN_GAMES=new Set(),TODAY_SELECTED_GAMES={nfl:new Set(),ncaa:new Set()};
+ let BEST_KIND='all',BEST_FOCUS='all',BEST_QUERY='',BEST_SORT='going',BEST_BOOK='all',BEST_EXCLUDE_ALT=true,BEST_MIN_ODDS=-500,BEST_DAY='slate',BEST_EVENT='all',BEST_LIMIT={chance:24,value:24},BEST_VERSION=0;
+ try{const saved=JSON.parse(localStorage.getItem(BEST_FILTER_STORE)||'null');if(typeof saved?.book==='string')BEST_BOOK=saved.book;if(typeof saved?.excludeAlt==='boolean')BEST_EXCLUDE_ALT=saved.excludeAlt;if(saved?.minOdds===null||Number.isFinite(saved?.minOdds))BEST_MIN_ODDS=saved.minOdds;if(['slate','today'].includes(saved?.day))BEST_DAY=saved.day;if(typeof saved?.event==='string')BEST_EVENT=saved.event;}catch{}
+ function bestBookKey(book){return String(book||'').trim().toLowerCase();}
+@@ -4547,6 +4548,29 @@ function bestPlayCard(c,value=false){
+   if(globalThis.GoingUI)return GoingUI.card({id:key,injury:c.injury,qualification:qualified?(value?'Price-comparison research':'Model-screened research'):'Price watchlist',sport:c.sport,kind:c.kind,team:c.team,player:c.player,profileId:c.profileId,market:c.market,marketLabel:MARKET_LABEL[c.market]||c.market,label,home:c.home,away:c.away,kickoff:c.kickoff,book:c.book,odds:c.odds,updatedAt:c.updatedAt,prob:c.prob,dec:c.dec,n:c.n,projMean:c.projMean,line:c.line,projectionLabel:projection,confidence:confidence.label,why,risk,parlay:parlay.text,cheatsheetEvidence,evidence:[...rows,...flags.map(f=>[SIGNAL_NAMES[f.id]||f.id,f.why]),['Confidence',confidence.detail],...(matchup?[['Matchup',matchup.plain_language]]:[])],source:'GOING current board · '+(c.profileDate||'source cutoff unavailable'),researchUrl:c.profileId?'/players/?player='+encodeURIComponent(c.profileId):'/long/?mode=betting&tab=games'});
+   return `<article class="sig-card best-card">${teamMarkup}<div class="best-card-badges"><span class="best-badge ${qualified?'go':'watch'}">${qualified?(value?'Price-comparison research':'Model-screened research'):'Price watchlist'}</span><span class="best-badge">${esc(c.kind==='prop'?(MARKET_LABEL[c.market]||c.market):'Game '+c.market)}</span>${c.altLineSet?'<span class="best-badge">Alt line set</span>':''}</div><h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><div class="best-bet">${esc(label)}</div><p>${esc(footballTeamLabel(c.away,c.sport||BET.sport))} @ ${esc(footballTeamLabel(c.home,c.sport||BET.sport))} · ${esc(new Date(c.kickoff).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}))} ET</p>${injuryMarkup(c)}<div class="best-facts"><div class="best-fact"><span>Projection / probability</span><b>${esc(projection)}</b></div><div class="best-fact"><span>Price</span><b>${esc(c.book)} ${americanOddsLabel(c.odds)}</b></div><div class="best-fact"><span>Estimated return</span><b>${c.ev>=0?'+':''}${(100*c.ev).toFixed(1)}¢ / $1</b></div><div class="best-fact" title="${esc(confidence.detail)}"><span>Confidence / uncertainty</span><b>${esc(confidence.label)}</b></div></div><p class="best-block"><strong>Why GOING likes it</strong>${esc(why)}</p><p class="best-block"><strong>Primary risk</strong>${esc(risk)}</p><p class="best-block"><strong>Parlay relevance</strong>${esc(parlay.text)}</p>${matchMarkup}<details><summary>SHOW ME THE DATA</summary><dl class="best-evidence">${rows.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${cheatsheetEvidence.length?`<details class="best-cheatsheet"><summary>Related cheatsheet context</summary><p class="best-evidence-note">Supporting GOING data for this matchup. These observations are descriptive context and are not added again to the pick’s score or probability.</p><dl class="best-evidence">${cheatsheetEvidence.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></details>`:''}${flags.map(f=>`<p class="best-evidence-note"><strong>${esc(SIGNAL_NAMES[f.id]||f.id)}</strong><br>${esc(f.why)}</p>`).join('')||'<p class="best-evidence-note">No additional signal evidence is attached to this model estimate.</p>'}<small>${value?'Price-comparison estimate':'Historical-model estimate'} · ${esc(confidence.label)} confidence: ${esc(confidence.detail)}</small></details><div class="best-actions"><button type="button" data-best-add="${esc(key)}" aria-pressed="${saved}">${saved?'✓ Shortlisted':'+ Compare / parlay'}</button><button type="button" data-best-tab="${deepTab}">Deep research</button>${parlay.eligible?'<button type="button" data-best-tab="parlays">Open Parlay Lab</button>':''}</div></article>`;
+ }
++function renderGameFirstSlate(chance,value){
++ const host=$('bestGameSlate');if(!host||!globalThis.GoingFootballSlate)return;
++ const groups=GoingFootballSlate.group(chance,value);TODAY_GROUPS=new Map(groups.map(g=>[g.key,g]));
++ const selected=new Set(groups.filter(g=>TODAY_SELECTED_GAMES[BET.sport].has(signalEvent(BET.sport,g.game.home,g.game.away,new Date(g.game.kickoff).toISOString()))).map(g=>g.key));
++ const scores=BET.sport==='nfl'?Object.keys(GoingScore.MARKET_SPECS).flatMap(market=>goingScoreCandidates(market)):[],scoreFor=c=>scores.find(r=>r.profileId===c.profileId&&r.market===c.market&&Date.parse(r.kickoff)===Date.parse(c.kickoff))?.score;
++ $('bestOrderNote').textContent=BEST_SORT==='going'?'Order: highest model-estimated win chance first within each game, then across games. This is not proven betting strength; price-comparison-only games follow. Prices, confidence and opposing/alternate selections need individual review.':'Order follows your selected sort. A high payout or model estimate is not proof of a good bet.';
++ host.innerHTML=GoingFootballSlate.render(groups,{label:bestPlayLabel,confidence:bestConfidence,score:scoreFor,teamLabel:footballTeamLabel,selected,open:TODAY_OPEN_GAMES,limit:TODAY_GAME_LIMIT});
++ updateSlateSelection();
++ $('bestMoreGames').hidden=groups.length<=TODAY_GAME_LIMIT;
++ for(const details of host.querySelectorAll('[data-slate-open]')){const populate=()=>{const g=TODAY_GROUPS.get(details.dataset.slateOpen);if(!g)return;const body=details.querySelector('.slate-bets-body');if(body.innerHTML)return;body.innerHTML=g.model.slice(0,3).map(c=>bestPlayCard(c)).join('')+g.price.slice(0,2).map(c=>bestPlayCard(c,true)).join('')+`<button data-slate-action="all" data-slate-game="${esc(g.key)}">Browse all ${g.model.length+g.price.length} research entries for this game</button>`;};details.ontoggle=()=>{details.open?TODAY_OPEN_GAMES.add(details.dataset.slateOpen):TODAY_OPEN_GAMES.delete(details.dataset.slateOpen);if(details.open)populate();};if(details.open)populate();}
++}
++function updateSlateSelection(){
++ const chosen=TODAY_SELECTED_GAMES[BET.sport],count=chosen.size;
++ $('bestSelectedGames').textContent=count?`${count} games selected for ${BET.sport.toUpperCase()}`:'Select games below to build your parlay';$('bestBuildParlay').disabled=!count;
++ for(const button of $('bestGameSlate').querySelectorAll('[data-slate-action="parlay"]')){const g=TODAY_GROUPS.get(button.dataset.slateGame);if(!g)continue;const selected=chosen?.has(signalEvent(BET.sport,g.game.home,g.game.away,new Date(g.game.kickoff).toISOString()));button.setAttribute('aria-pressed',String(!!selected));button.textContent=selected?'✓ Selected for parlay':'Select for parlay';}
++}
++function openSlateAction(action,key){
++ const group=TODAY_GROUPS.get(key);if(!group)return;const c=group.game,event=signalEvent(BET.sport,c.home,c.away,new Date(c.kickoff).toISOString());
++ if(action==='parlay'){const chosen=TODAY_SELECTED_GAMES[BET.sport];chosen.has(event)?chosen.delete(event):chosen.add(event);updateSlateSelection();return;}
++ if(action==='score'&&BET.sport==='nfl'){GOING_SCORE_QUERY=`${c.away} @ ${c.home}`;GOING_SCORE_CONFIDENCE='all';GOING_SCORE_VIEW='games';$('scoreSearch').value=GOING_SCORE_QUERY;chooseBettingTab('score');return;}
++ if(action==='all'){BEST_EVENT=key;$('bestEvent').value=key;persistBestFilters();renderBestPlays();const deep=$('bestChance').closest('details');if(deep)deep.open=true;return;}
++ if(action==='games'){BET.period='FT';BET.coverage='all';chooseBettingTab('games');const index=BET.drawerGames.findIndex(books=>GoingFootballSlate.key({...books[0],home:books[0].homeCode||books[0].home,away:books[0].awayCode||books[0].away})===key);if(index>=0)openOddsDrawer(index);}
++}
+ async function renderBestPlays(){
+  const version=++BEST_VERSION,sport=BET.sport;const rows=await signalCandidates();if(version!==BEST_VERSION||BET.tab!=='best'||sport!==BET.sport)return;
+  BEST_VISIBLE=new Map();
+@@ -4559,9 +4583,10 @@ async function renderBestPlays(){
+  $('bestBook').innerHTML='<option value="all">Best available / all books</option>'+[...bookNames].sort((a,b)=>String(a[1]).localeCompare(String(b[1]))).map(([key,label])=>`<option value="${esc(key)}">${esc(label)}</option>`).join('');$('bestBook').value=BEST_BOOK;$('bestMinOdds').value=Number.isFinite(BEST_MIN_ODDS)?BEST_MIN_ODDS:'';$('bestExcludeAlt').setAttribute('aria-pressed',String(BEST_EXCLUDE_ALT));$('bestExcludeAlt').textContent=BEST_EXCLUDE_ALT?'✓ Hide alternate props':'Show alternate props';
+  const ranked=rankBestPlays(allRows,allQuotes,sport,BEST_KIND,Date.now(),BEST_BOOK),eventPool=bestDayRows([...ranked.chance,...ranked.value]),eventMap=new Map();for(const c of eventPool){const key=bestEventKey(c);if(key&&!eventMap.has(key))eventMap.set(key,c);}if(BEST_EVENT!=='all'&&!eventMap.has(BEST_EVENT)){BEST_EVENT='all';persistBestFilters();}$('bestDay').value=BEST_DAY;$('bestEvent').innerHTML='<option value="all">All supported games</option>'+[...eventMap].sort((a,b)=>Date.parse(a[1].kickoff)-Date.parse(b[1].kickoff)).map(([key,c])=>`<option value="${esc(key)}">${esc(bestEventLabel(c))}</option>`).join('');$('bestEvent').value=BEST_EVENT;
+  const scopeRows=bestDayRows([...ranked.chance,...ranked.value]).filter(c=>BEST_EVENT==='all'||bestEventKey(c)===BEST_EVENT),scopeChance=bestDayRows(ranked.chance).filter(c=>BEST_EVENT==='all'||bestEventKey(c)===BEST_EVENT),games=new Set(scopeRows.map(bestEventKey)).size,td=scopeChance.filter(c=>['atd','first_td','pass_tds','rush_tds','rec_tds'].includes(c.market)).length,parlay=scopeChance.filter(c=>bestParlayRelevance(c).eligible).length,activeDefense=(BET.learning?.matchup_signals||[]).filter(x=>x.active_signal&&inCurrentFootballWeek(x.kickoff)).length;
+- $('bestTodaySummary').innerHTML=`<button type="button" data-summary-tab="games"><b>${games}</b><span>games with supported looks</span></button><button type="button" data-summary-focus="all"><b>${scopeChance.length}</b><span>modeled opportunities at ${esc(BEST_BOOK==='all'?'all books':bookNames.get(BEST_BOOK)||BEST_BOOK)}</span></button><button type="button" data-summary-focus="td"><b>${td}</b><span>touchdown markets</span></button><button type="button" data-summary-focus="parlay"><b>${parlay}</b><span>parlay-ready · ${activeDefense} active matchup edges</span></button>`;
++ $('bestTodaySummary').innerHTML=`<button type="button" data-summary-tab="games"><b>${games}</b><span>games in this scope</span></button><button type="button" data-summary-focus="all"><b>${scopeChance.length}</b><span>model-ranked research entries</span></button>`;
+  const x=ranked.diagnostics.excluded,priceFilter=`${BEST_EXCLUDE_ALT?'alternate props hidden':'alternate props shown'} · ${Number.isFinite(BEST_MIN_ODDS)?`minimum ${americanOddsLabel(BEST_MIN_ODDS)}`:'no minimum odds'}`;$('bestStatus').textContent=`${sport.toUpperCase()} · ${BEST_DAY==='today'?'Today (ET)':'Full current slate'} · ${BEST_EVENT==='all'?'all supported games':'selected game'} · ${footballWeek().start} through ${footballWeek().last} · ${ranked.count} distinct current-week selections checked from ${ranked.diagnostics.total} observed rows · ${priceFilter}. Excluded: ${x.outside_current_week} outside this week, ${x.started_or_invalid} started/invalid, ${x.quote_over_24_hours} older than 24 hours, ${x.wrong_sport_or_type} outside this sport/view. Model research can use saved lines up to 24 hours old; Best Value requires prices within five minutes.`;
+  const chance=filterBestPlays(ranked.chance),value=filterBestPlays(ranked.value,{value:true}),shownChance=chance.slice(0,BEST_LIMIT.chance),shownValue=value.slice(0,BEST_LIMIT.value);$('bestChanceCount').textContent=`Showing ${shownChance.length} of ${chance.length} matching selections · ${ranked.chance.length} supported total`;$('bestValueCount').textContent=`Showing ${shownValue.length} of ${value.length} matching prices · ${ranked.value.length} qualified total`;
++ renderGameFirstSlate(chance,value);
+  $('bestChance').innerHTML=shownChance.map(c=>bestPlayCard(c)).join('')||'<p>No supported model selections match these filters. A listed line from the last 24 hours and at least five recorded games are required. Prior-season games count; current-season games are not required. The Model Board also shows players without a quoted line.</p>';$('bestChanceMore').hidden=shownChance.length>=chance.length;
+  $('bestValue').innerHTML=shownValue.map(c=>bestPlayCard(c,true)).join('')||'<p>No qualifying price advantages match these filters. We need matching Pinnacle prices within 60 seconds, sufficient estimated return and no unresolved returned-stake outcome. The list stays empty when those checks fail.</p>';$('bestValueMore').hidden=shownValue.length>=value.length;
+  renderResearchSlip();
+@@ -4682,7 +4707,7 @@ async function renderPromo(){
+  }catch(e){$('promoStatus').textContent=e.message+' Automatic checks retry while this screen is open.';$('promoOptions').innerHTML='';}
+ }
+ 
+-const BETTING_SECTIONS={today:['best'],score:['score'],dfs:['dfs'],opportunities:['props','projections','firsttd'],games:['games'],cheatsheets:['cheatsheets'],research:['signals'],parlay:['parlays','promo']};
++const BETTING_SECTIONS={today:['best'],score:['score'],dfs:['dfs'],opportunities:['props','projections'],games:['games'],cheatsheets:['cheatsheets'],research:['signals'],parlay:['parlays'],jackpot:['promo','firsttd']};
+ const BETTING_TOOL_LABELS={props:'All Bets',projections:'Model Board',firsttd:'First TD',cheatsheets:'Cheatsheets',parlays:'Parlay Builder',promo:'Jackpot'};
+ function bettingSection(tab){return Object.entries(BETTING_SECTIONS).find(([,tabs])=>tabs.includes(tab))?.[0]||'today';}
+ function syncBettingTabUrl(){
+@@ -4725,7 +4750,7 @@ function renderBetting(){
+   const week=footballWeek();
+   if(BET.displayWeek!==week.start){BET.displayWeek=week.start;BET.matchup='ALL';BET.page=0;projectionCache=null;updateBetFilters();}
+   if($('btWeekNote'))$('btWeekNote').textContent=`Current week: ${week.start} – ${week.last} (Eastern time)`;
+-  $('btSportGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sport===BET.sport)));$('btTabGroup').querySelector('[data-section="opportunities"]').hidden=BET.sport!=='nfl';$('btTabGroup').querySelector('[data-section="score"]').hidden=BET.sport!=='nfl';$('btTabGroup').querySelector('[data-section="dfs"]').hidden=BET.sport!=='nfl';$('btTabGroup').querySelector('[data-section="cheatsheets"]').hidden=BET.sport!=='nfl';
++  $('btSportGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sport===BET.sport)));$('btTabGroup').querySelector('[data-section="opportunities"]').hidden=BET.sport!=='nfl';$('btTabGroup').querySelector('[data-section="score"]').hidden=BET.sport!=='nfl';$('btTabGroup').querySelector('[data-section="dfs"]').hidden=BET.sport!=='nfl';$('btTabGroup').querySelector('[data-section="cheatsheets"]').hidden=BET.sport!=='nfl';$('btTabGroup').querySelector('[data-section="jackpot"]').hidden=BET.sport!=='nfl';
+   if($('btSort').querySelector(`[value="${BET.sort}"]`))$('btSort').value=BET.sort;
+   $('btPeriodGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.period===BET.period)));
+   $("btPropsPanel").hidden=!["props","projections"].includes(BET.tab); $("btGamesPanel").hidden=BET.tab!=="games";
+@@ -4762,7 +4787,10 @@ function wireBetting(){
+   $('scoreMore').onclick=()=>{GOING_SCORE_LIMIT+=40;renderGoingScore();};
+   $('scoreReset').onclick=()=>{GOING_SCORE_QUERY='';GOING_SCORE_CONFIDENCE='all';GOING_SCORE_LIMIT=60;$('scoreSearch').value='';renderGoingScore();};
+   $('scoreBoard').onclick=e=>{const open=e.target.closest('[data-score-market-open]'),add=e.target.closest('[data-score-add]');if(open){const row=GOING_SCORE_VISIBLE.get(open.dataset.scoreMarketOpen);if(!row)return;BET.market=row.market;BET.query=row.player;$('btSearch').value=row.player;chooseBettingTab('props');updateBetFilters();}else if(add){const row=GOING_SCORE_VISIBLE.get(add.dataset.scoreAdd);if(!row)return;const key='score|'+row.key,index=BEST_SHORTLIST.findIndex(item=>item.key===key);if(index>=0)BEST_SHORTLIST.splice(index,1);else BEST_SHORTLIST.push({key,label:`${row.player} — ${goingScoreLine(row)}`,book:row.book,odds:row.odds,prob:row.probability,home:row.home,away:row.away,market:row.market,side:row.market==='atd'?'Yes':'Over',line:row.line});persistShortlist();renderGoingScore();}};
+-  const resetBestLimits=()=>BEST_LIMIT={chance:24,value:24};
++  const resetBestLimits=()=>{BEST_LIMIT={chance:24,value:24};TODAY_GAME_LIMIT=12;};
++  $('bestGameSlate').onclick=e=>{const b=e.target.closest('[data-slate-action]');if(b)openSlateAction(b.dataset.slateAction,b.dataset.slateGame);};
++  $('bestMoreGames').onclick=()=>{TODAY_GAME_LIMIT+=12;renderBestPlays();};
++  $('bestBuildParlay').onclick=()=>{if(!TODAY_SELECTED_GAMES[BET.sport].size)return;PARLAY_GAMES[BET.sport]=new Set(TODAY_SELECTED_GAMES[BET.sport]);chooseBettingTab('parlays');};
+   $('bestKind').onclick=e=>{const b=e.target.closest('[data-kind]');if(!b)return;BEST_KIND=b.dataset.kind;resetBestLimits();renderBestPlays();};
+   $('bestFocus').onclick=e=>{const b=e.target.closest('[data-focus]');if(!b)return;BEST_FOCUS=b.dataset.focus;resetBestLimits();renderBestPlays();};
+   $('bestSearch').addEventListener('input',debounce(e=>{BEST_QUERY=e.target.value;resetBestLimits();renderBestPlays();},80));
+diff --git a/shared/consumer-ui.css b/shared/consumer-ui.css
+index 245455ade15d6768965ea86b158c4b42726629f2..2517bec45885d121919781cd36b9c3ffa721a9a5 100644
+--- a/shared/consumer-ui.css
++++ b/shared/consumer-ui.css
+@@ -73,3 +73,11 @@ body[data-going-workspace=long] .score-toolbar{grid-template-columns:auto minmax
+ @media(max-width:900px){body[data-going-workspace=long] .score-toolbar{grid-template-columns:1fr 1fr}}
+ @media(max-width:600px){body[data-going-workspace=long] .score-toolbar{grid-template-columns:1fr}}
+ body[data-going-workspace=long] .bt-best-grid>span{color:var(--g-text)}body[data-going-workspace=long] .bt-best-grid small{color:var(--g-muted)}body[data-going-workspace=long] .bt-best-grid b{color:var(--g-text)}
++
++/* Keep the sparse NCAA More menu anchored to the whole phone-width nav. */
++@media(max-width:600px){
++ body[data-going-workspace=long] #btTabGroup>.bt-more-tools{grid-column:1/-1;width:100%;display:flex;justify-content:flex-end}
++ body[data-going-workspace=long] #btTabGroup>.bt-more-tools>summary{width:auto;min-width:96px;margin-left:auto}
++ body[data-going-workspace=long] #btTabGroup>.bt-more-tools>div{left:0;right:0;width:100%;min-width:0;max-width:100%;max-height:min(65dvh,440px);overflow-y:auto;box-sizing:border-box;grid-template-columns:repeat(2,minmax(0,1fr))}
++ body[data-going-workspace=long] #btTabGroup>.bt-more-tools>div button{min-width:0;white-space:normal;overflow-wrap:anywhere}
++}
+diff --git a/shared/football-slate.css b/shared/football-slate.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..7e51038851b7488c212ef032ff2148d91e3668aa
+--- /dev/null
++++ b/shared/football-slate.css
+@@ -0,0 +1 @@
++.slate-game{padding:16px;border:1px solid var(--g-border);border-radius:var(--g-radius-lg);background:var(--g-surface);min-width:0}.slate-game h3{margin:0 0 5px}.slate-game small,.slate-count{color:var(--g-muted)}.slate-game p{margin:10px 0;line-height:1.5}.slate-game p>strong{display:block}.slate-actions,.slate-primary{display:flex;gap:8px;flex-wrap:wrap}.slate-actions button,.slate-primary button,.slate-primary select{min-height:44px}.slate-actions button{flex:1;min-width:130px}.slate-bets>summary{padding:12px 0;min-height:44px;cursor:pointer;font-weight:700}.slate-bets-body{display:grid;gap:12px}.slate-bets .g-card{box-shadow:none}.slate-primary{align-items:end;margin:14px 0}.slate-primary label{display:grid;gap:5px;flex:1;min-width:160px}.slate-primary select{width:100%}#bestGameSlate{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.slate-orientation{color:var(--g-muted);max-width:780px;line-height:1.6}#bestSelectedGames{color:var(--g-accent)}@media(max-width:760px){#bestGameSlate{grid-template-columns:minmax(0,1fr)}.slate-primary{display:grid;grid-template-columns:1fr}.slate-actions button{min-width:0;flex-basis:calc(50% - 8px)}.slate-game{padding:14px}.slate-game h3{font-size:20px}}
+diff --git a/shared/football-slate.js b/shared/football-slate.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..5101eb3f1d2134f4e59cbeb186e4fe26b5cb379c
+--- /dev/null
++++ b/shared/football-slate.js
+@@ -0,0 +1,11 @@
++(function(root){
++'use strict';
++const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
++function key(c){const t=Date.parse(c.kickoff),home=String(c.home||'').trim().toUpperCase(),away=String(c.away||'').trim().toUpperCase();return Number.isFinite(t)&&home&&away?[c.sport,t,away,home].join('|'):'';}
++function group(chance,value){const groups=new Map();for(const [rows,kind] of [[chance,'model'],[value,'price']])for(const c of rows){const id=key(c);if(!id)continue;if(!groups.has(id))groups.set(id,{key:id,game:c,model:[],price:[]});groups.get(id)[kind].push(c);}return [...groups.values()];}
++function render(groups,{label,confidence,score,teamLabel,selected=new Set(),open=new Set(),limit=12}={}){
++return groups.slice(0,limit).map(g=>{const lead=g.model[0]||g.price[0],observed=Date.parse(lead.updatedAt),priceAge=Number.isFinite(observed)?Math.max(0,Date.now()-observed):null,priceNote=priceAge===null?'Price timestamp unavailable; verify availability.':priceAge>300000?'Saved price, over five minutes old; check the current line.':'Recently observed price; verify before betting.',e=confidence(lead),s=score?.(lead),why=(lead.flags||[]).find(f=>f.id!=='check')?.why||`${lead.n||'Unknown'} recorded games support the estimate; open the evidence to check sample, availability and price.`,stamp=new Date(g.game.kickoff).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'});
++return `<article class="slate-game"><header><h3>${esc(teamLabel(g.game.away,g.game.sport))} @ ${esc(teamLabel(g.game.home,g.game.sport))}</h3><small>${esc(stamp)} ET</small></header><p class="slate-count">${g.model.length} model-ranked research ${g.model.length===1?'candidate':'candidates'} · ${g.price.length} fresh price comparisons</p><p><small>Lead candidate · not a ticket suggestion</small><strong>${esc(lead.kind==='prop'?lead.player+' · ':'')}${esc(label(lead))}</strong></p><p class="slate-evidence">Evidence: <b>${esc(e.label)}</b>${Number.isFinite(s)?` · Player GOING Score <b>${s.toFixed(1)}/100</b> (evidence index, not win chance)`:''}</p><p class="slate-why">${esc(why)}</p><small class="slate-price-note">${esc(priceNote)}</small><div class="slate-actions"><button data-slate-action="parlay" data-slate-game="${esc(g.key)}" aria-pressed="${selected.has(g.key)}">${selected.has(g.key)?'✓ Selected for parlay':'Select game for parlay'}</button><button data-slate-action="games" data-slate-game="${esc(g.key)}">Compare this matchup</button>${g.game.sport==='nfl'?`<button data-slate-action="score" data-slate-game="${esc(g.key)}">Player GOING Scores</button>`:''}</div><details class="slate-bets" data-slate-open="${esc(g.key)}" ${open.has(g.key)?'open':''}><summary>View bets &amp; why · ${g.model.length+g.price.length} research entries</summary><div class="slate-bets-body"></div></details></article>`;}).join('')||'<div class="bt-empty">No supported research candidates match this date and filters. Try the full football week or Games to browse available prices. No recommendation is invented.</div>';
++}
++root.GoingFootballSlate={key,group,render};if(typeof module!=='undefined')module.exports=root.GoingFootballSlate;
++})(globalThis);
+diff --git a/tests/betting.test.cjs b/tests/betting.test.cjs
+index 1ece89c43b103e783a150e3c896bbca84aa0ccd0..ffbd8e396976abe189cd0fc83969b7701f00b3d2 100644
+--- a/tests/betting.test.cjs
++++ b/tests/betting.test.cjs
+@@ -18,10 +18,11 @@ function setup(t){
+   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-score.js'),'utf8'),context);
+   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-injuries.js'),'utf8'),context);
+   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-dfs.js'),'utf8'),context);
++  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-slate.js'),'utf8'),context);
+   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
+     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
+   }
+-  vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
++  vm.runInContext(`globalThis.api={renderGameFirstSlate,openSlateAction, bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
+     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
+     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
+     mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,goingScoreRisk,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
+@@ -299,10 +300,12 @@ test('Book-added team abbreviations do not prevent player matching',t=>{
+ });
+ test('Betting navigation promotes GOING SCORE and nests specialist tools',t=>{
+   const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
+-  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','Cheatsheets','Parlays','GOING SCORE','DFS','Signals']);
++  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','Cheatsheets','Parlays','GOING Score','Jackpot','DFS','Signals']);
+   w.document.querySelector('#btTabGroup [data-section="cheatsheets"]').click();assert.equal(a.BET.tab,'cheatsheets');assert.equal(w.document.querySelector('#btCheatsheetsPanel').hidden,false);
+   w.document.querySelector('#btTabGroup [data-section="opportunities"]').click();
+-  assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['All Bets','Model Board','First TD']);
++  assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['All Bets','Model Board']);
++  w.document.querySelector('#btTabGroup [data-section="jackpot"]').click();
++  assert.equal(a.BET.tab,'promo');
+   w.document.querySelector('#btToolGroup [data-tab="firsttd"]').click();assert.equal(a.BET.tab,'firsttd');
+   assert.match(w.location.search,/tab=firsttd/);assert.equal(w.document.querySelector('#btFirstTdPanel').hidden,false);
+ });
+@@ -313,6 +316,7 @@ test('GOING SCORE renders an auditable score apart from probability',t=>{
+  a.renderBetting();const text=w.document.querySelector('#btScorePanel').textContent;
+  assert.match(text,/Runner One/);assert.match(text,/GOING SCORE/);assert.match(text,/Score anchor \/ model/);assert.match(text,/50\.3%/);assert.match(text,/score is not a probability/i);assert.match(text,/No priced line/);
+  assert.equal(w.document.querySelectorAll('#scoreMarket button').length,5);
++ const game=w.document.querySelector('#scoreBoard .score-game');assert.ok(game);assert.equal(game.open,false);game.open=true;a.renderGoingScore();assert.equal(w.document.querySelector('#scoreBoard .score-game').open,true);
+ });
+ test('DFS opens the current GOING projection slate without requiring a salary CSV',t=>{
+  const {api:a,w}=setup(t),kickoff=future(),model=(mean,sd)=>({family:'normal',status:'ready',mean,sd,n:12});a.BET.tab='dfs';a.BET.games=[{id:'g',sport:'nfl',home:'B',away:'A',homeCode:'B',awayCode:'A',kickoff,source:'schedule'}];
+@@ -636,3 +640,19 @@ test('Today forwards recorded injury context and NFL display labels preserve NCA
+  a.BET.sport='ncaa';assert.match(vm.runInContext("teamBadge('Indiana')",context),/Indiana/);assert.doesNotMatch(vm.runInContext("teamBadge('Indiana')",context),/g-team-mark/);
+  assert.doesNotMatch(vm.runInContext("injuryMarkup({injury:{state:'available',roleBoost:true,status:'Available'}})",context),/g-injury-marker/);
+ });
++
++ test('Game-first Today selects exact games without losing focus and hands selection to Parlays',t=>{
++ const {api:a,w,context}=setup(t);a.wireBetting();a.BET.tab='best';
++ const c={sport:'nfl',kind:'game',home:'BAL',away:'CIN',kickoff:future(),market:'total',side:'Over',line:44.5,prob:.55,dec:2,n:20,book:'Fixture',flags:[]};
++ a.renderGameFirstSlate([c],[]);const host=w.document.querySelector('#bestGameSlate'),button=host.querySelector('[data-slate-action="parlay"]');
++ assert.equal(host.querySelector('details').open,false);assert.equal(host.querySelector('.slate-bets-body').textContent,'');assert.equal(w.document.querySelector('#bestBuildParlay').disabled,true);
++ button.focus();button.click();assert.equal(w.document.activeElement,button);assert.equal(button.getAttribute('aria-pressed'),'true');assert.equal(w.document.querySelector('#bestBuildParlay').disabled,false);
++ assert.equal(vm.runInContext('PARLAY_GAMES.nfl',context),null);w.document.querySelector('#bestBuildParlay').click();assert.equal(a.BET.tab,'parlays');assert.equal(vm.runInContext('PARLAY_GAMES.nfl.size',context),1);
++ a.BET.tab='best';button.click();assert.equal(button.getAttribute('aria-pressed'),'false');assert.equal(w.document.querySelector('#bestBuildParlay').disabled,true);
++ });
++ test('NCAA game-first Today has game markets and no NFL Score or Jackpot navigation',t=>{
++ const {api:a,w}=setup(t);a.wireBetting();a.BET.sport='ncaa';a.BET.tab='best';a.renderBetting();
++ a.renderGameFirstSlate([{sport:'ncaa',kind:'game',home:'Ohio State',away:'Michigan',kickoff:future(),market:'spread',side:'Home',line:-3,prob:.54,dec:1.9,n:14,flags:[]}],[]);
++ assert.equal(w.document.querySelectorAll('#bestGameSlate [data-slate-action="score"]').length,0);assert.equal(w.document.querySelector('#btTabGroup [data-section="jackpot"]').hidden,true);
++ assert.match(w.document.querySelector('#bestGameSlate').textContent,/Michigan/);assert.equal(w.document.querySelector('#bestBuildParlay').disabled,true);
++ });
+diff --git a/tests/football-slate.test.cjs b/tests/football-slate.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..e24476e1d098cd61e15841b8f9f59f38d427863c
+--- /dev/null
++++ b/tests/football-slate.test.cjs
+@@ -0,0 +1,90 @@
++const test = require('node:test');
++const assert = require('node:assert/strict');
++const fs = require('node:fs');
++const path = require('node:path');
++const { JSDOM } = require('jsdom');
++
++const source = fs.readFileSync(path.join(__dirname, '../shared/football-slate.js'), 'utf8');
++function setup() {
++  const dom = new JSDOM('<main id="slate"></main>', { runScripts: 'outside-only' });
++  dom.window.eval(source);
++  const api = dom.window.GoingFootballSlate;
++  const kickoff = '2026-10-11T17:00:00Z';
++  const game = { sport: 'nfl', home: 'BAL', away: 'CIN', kickoff };
++  const model = { ...game, kind: 'prop', player: 'Ja\'Marr <Chase>', market: 'rec_yds', line: 66.5, n: 12,
++    flags: [{ id: 'gap', why: 'Model evidence & matchup support' }], key: 'model-contract' };
++  const price = { ...game, kind: 'game', market: 'spread', side: 'Away', line: 3.5, odds: -110,
++    key: 'price-contract', quoteStatus: 'fresh' };
++  const callbacks = { label: c => `${c.market} ${c.line}`, confidence: () => ({ label: 'Moderate' }), score: () => 72.4,
++    teamLabel: x => ({ CIN: 'Bengals', BAL: 'Ravens' }[x] || x) };
++  return { dom, api, host: dom.window.document.querySelector('#slate'), game, model, price, callbacks };
++}
++
++test('group joins exact sport, kickoff and teams while keeping simultaneous games separate', () => {
++  const { api, game, model, price } = setup();
++  const rows = api.group([model], [price, { ...price, away: 'PIT', home: 'CLE' }, { ...price, sport: 'ncaa' },
++    { ...price, kickoff: '2026-10-11T17:01:00Z' }, { ...price, home: 'bal', away: 'cin', kickoff: '2026-10-11T13:00:00-04:00' }]);
++  assert.equal(rows.length, 4);
++  assert.equal(rows[0].model[0], model);
++  assert.equal(rows[0].price[0], price);
++  assert.equal(rows[0].game, model);
++  assert.notEqual(rows[0].key, rows[1].key, 'same kickoff with different teams stays distinct');
++  assert.notEqual(rows[0].key, rows[2].key, 'same teams with a different sport stay distinct');
++  assert.notEqual(rows[0].key, rows[3].key, 'one minute kickoff change stays distinct');
++  assert.equal(rows[0].model.length, 1);
++  assert.equal(rows[0].model[0], model);
++  assert.equal(rows[0].price.length, 2, 'equivalent timestamp representation groups into the same game');
++  assert.equal(rows[0].price[0], price);
++  assert.equal(api.key({ ...game, kickoff: 'invalid' }), '');
++});
++
++test('renders research and fresh price comparison as distinct concepts and preserves candidate order', () => {
++  const { api, host, model, price, callbacks } = setup();
++  const second = { ...model, market: 'atd', line: null, player: 'Second Candidate' };
++  const groups = api.group([model, second], [price]);
++  host.innerHTML = api.render(groups, callbacks);
++  const card = host.querySelector('.slate-game');
++  assert.match(card.querySelector('.slate-count').textContent, /2 model-ranked research candidates · 1 fresh price comparisons/);
++  assert.match(card.textContent, /Lead candidate · not a ticket suggestion/);
++  assert.match(card.querySelector('strong').textContent, /Ja'Marr <Chase>/);
++  assert.match(card.textContent, /Evidence: Moderate · Player GOING Score 72.4\/100 \(evidence index, not win chance\)/);
++  const detail = card.querySelector('details.slate-bets');
++  assert.equal(detail.open, false, 'research list begins collapsed');
++  assert.equal(detail.querySelector('.slate-bets-body').innerHTML, '', 'evidence body is lazy/empty until populated');
++  assert.match(detail.querySelector('summary').textContent, /View bets & why · 3 research entries/);
++});
++
++test('escapes candidate evidence and game data in generated HTML', () => {
++  const { api, host, model, callbacks } = setup();
++  const hostile = { ...model, away: '<img src=x onerror=alert(1)>', player: '<script>bad()</script>',
++    flags: [{ id: 'gap', why: '<svg onload=alert(1)>' }] };
++  host.innerHTML = api.render(api.group([hostile], []), callbacks);
++  assert.equal(host.querySelectorAll('script, img, svg').length, 0);
++  assert.match(host.innerHTML, /&lt;script&gt;bad\(\)&lt;\/script&gt;/);
++  assert.match(host.innerHTML, /&lt;svg onload=alert\(1\)&gt;/);
++});
++
++test('NCAA has no player GOING Score action and parlay state exposes selected accessibility', () => {
++  const { api, host, model, callbacks, game } = setup();
++  const ncaa = { ...model, ...game, sport: 'ncaa', kind: 'game', market: 'spread', player: undefined };
++  const ncaaGroup = api.group([ncaa], []);
++  host.innerHTML = api.render(ncaaGroup, { ...callbacks, selected: new Set([ncaaGroup[0].key]) });
++  assert.equal(host.querySelector('[data-slate-action="score"]'), null);
++  const selected = host.querySelector('[data-slate-action="parlay"]');
++  assert.equal(selected.getAttribute('aria-pressed'), 'true');
++  assert.match(selected.textContent, /Selected for parlay/);
++  const nflGroup = api.group([model], []);
++  host.innerHTML = api.render(nflGroup, callbacks);
++  assert.ok(host.querySelector('[data-slate-action="score"]'));
++  assert.equal(host.querySelector('[data-slate-action="parlay"]').getAttribute('aria-pressed'), 'false');
++});
++
++test('render is capped at twelve games and collapsed groups can be controlled by the open set', () => {
++  const { api, host, callbacks, model } = setup();
++  const rows = Array.from({ length: 15 }, (_, i) => ({ ...model, home: `H${i}`, away: `A${i}`, kickoff: new Date(Date.parse(model.kickoff) + i * 3600000).toISOString() }));
++  const groups = api.group(rows, []);
++  host.innerHTML = api.render(groups, { ...callbacks, open: new Set([groups[1].key]), limit: 12 });
++  assert.equal(host.querySelectorAll('.slate-game').length, 12);
++  assert.equal(host.querySelectorAll('.slate-bets[open]').length, 1);
++  assert.equal(host.querySelector('.slate-bets[open]').dataset.slateOpen, groups[1].key);
++});
