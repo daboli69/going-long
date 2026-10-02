@@ -100,6 +100,36 @@ test('NCAA does not present NFL-only charting sheets as supported', () => {
   dom.window.close();
 });
 
+test('active filter chips expose hidden research context and independently clear filters',()=>{
+ const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet');dom.window.GoingFootballCheatsheets.render(host,data);
+ host.querySelector('[data-cheat-sheet="hit-rates"]').click();
+ function set(key,value){const field=host.querySelector(`[data-cheat-filter="${key}"]`);field.value=value;field.dispatchEvent(new dom.window.Event('change',{bubbles:true}));}
+ set('market','receptions');set('book','Book A');set('team','MIA');
+ assert.equal(host.querySelectorAll('.gcs-row').length,0);
+ const summary=host.querySelector('.gcs-active-filters');assert.ok(summary);
+ assert.match(summary.textContent,/Team: MIA/);assert.match(summary.textContent,/Market: Receptions/);assert.match(summary.textContent,/Book: Book A/);
+ assert.equal(host.querySelector('[data-cheat-filters]').getAttribute('aria-expanded'),'false');
+ const clear=host.querySelector('[data-cheat-clear="team"]');clear.focus();clear.click();
+ assert.equal(host.querySelector('[data-cheat-filter="team"]').value,'ALL');
+ assert.equal(host.querySelector('[data-cheat-filter="market"]').value,'receptions');assert.equal(host.querySelector('[data-cheat-filter="book"]').value,'Book A');
+ assert.equal(host.querySelectorAll('.gcs-row').length,1);assert.ok(dom.window.document.activeElement.matches('[data-cheat-clear]'));
+ host.querySelector('[data-cheat-reset]').click();assert.equal(host.querySelector('.gcs-active-filters'),null);
+ dom.window.close();
+});
+
+test('sample and window chips reset only their criterion and return focus when the last chip is removed',()=>{
+ const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet');dom.window.GoingFootballCheatsheets.render(host,data);
+ host.querySelector('[data-cheat-sheet="hit-rates"]').click();
+ for(const [key,value] of [['window','last5'],['minGames','4']]){const field=host.querySelector(`[data-cheat-filter="${key}"]`);field.value=value;field.dispatchEvent(new dom.window.Event('change',{bubbles:true}));}
+ assert.equal(host.querySelectorAll('.gcs-row').length,0);
+ host.querySelector('[data-cheat-clear="minGames"]').click();assert.equal(host.querySelector('[data-cheat-filter="window"]').value,'last5');
+ assert.ok(host.querySelectorAll('.gcs-row').length>0);
+ const final=host.querySelector('[data-cheat-clear="window"]');final.focus();final.click();
+ assert.equal(host.querySelector('[data-cheat-filter="window"]').value,'season');assert.equal(host.querySelector('.gcs-active-filters'),null);
+ assert.equal(dom.window.document.activeElement,host.querySelector('[data-cheat-reset]'));
+ dom.window.close();
+});
+
 test('cheatsheet navigation and filter toggles preserve keyboard focus after repaint', () => {
   const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet');
   dom.window.GoingFootballCheatsheets.render(host,data);

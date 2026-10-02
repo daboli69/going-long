@@ -78,8 +78,13 @@
   const freshControl=['markets','game-lines','hit-rates','odds'].includes(sheet)?`<button type="button" class="gcs-filter-toggle" data-cheat-fresh aria-pressed="${state.freshOnly}">${state.freshOnly?'✓ Fresh prices only':'Include saved / stale prices'}</button>`:'';
   const sortOptions={markets:[['edge','Estimated return'],['projection','Projection'],['kickoff','Kickoff']], 'game-lines':[['kickoff','Kickoff'],['model-margin','Model margin'],['model-total','Model total']], 'hit-rates':[['hit-rate','Observed hit rate'],['sample','Sample size'],['player','Player']],roles:[['target_share','Target share'],['rush_share','Rush share'],['share','Snap share'],['games','Games']],matchups:[['active','Signal status'],['confidence','Confidence'],['player','Player']],coverage:[['active','Signal status'],['coverage','Coverage rate'],['player','Player']],teams:[['pace_seconds','Pace'],['pass_over_expected','Pass rate over expected'],['plays_per_game','Plays per game']],defense:[['explosive_rate','Explosive rate allowed'],['yards_per_opportunity','Yards per opportunity'],['redzone_rate','Red-zone rate'],['sample','Opportunities']],odds:[['books','Sportsbooks'],['gap','Price range'],['player','Player']]}[sheet]||[];
   const sortControl=sortOptions.length?`<label>Sort<select data-cheat-filter="sort">${sortOptions.map(([v,l])=>`<option value="${v}" ${state.sort===v?'selected':''}>${l}</option>`).join('')}</select></label>`:'';
-  const activeFilters=['team','position','market','book'].filter(k=>state[k]!=='ALL').length+(state.minGames>0?1:0);
-  return `<div class="gcs-toolbar">${commonSearch}<button class="gcs-mobile-filter" type="button" data-cheat-filters aria-expanded="${filtersOpen}" aria-controls="gcsFilterFields">Filters${activeFilters?` · ${activeFilters}`:''} ▾</button><div id="gcsFilterFields" class="gcs-filter-fields ${filtersOpen?'is-open':''}">${teamControl}${posControl}${marketControl}${bookControl}${windowControl}${sortControl}${freshControl}</div></div>`;
+  const filters=[['team','Team',state.team,teamControl],['position',sheet==='defense'?'Role':'Position',cap(state.position),posControl],['market','Market',label(state.market),marketControl],['book','Book',state.book,bookControl]].filter(([key,,,control])=>control&&state[key]!=='ALL');
+  if(String(state.query||'').trim())filters.unshift(['query','Search',state.query]);
+  if(windowControl&&state.window!=='season')filters.push(['window','Window',state.window==='last5'?'Last 5 recorded games':`${Number(d.season)-1} season`]);
+  if(windowControl&&state.minGames>0)filters.push(['minGames','Minimum games',state.minGames]);
+  if(freshControl&&!state.freshOnly)filters.push(['freshOnly','Prices','Include saved / stale']);
+  const activeFilters=filters.length,summary=activeFilters?`<div class="gcs-active-filters" role="group" aria-label="Active research filters"><span>Filtered by</span>${filters.map(([key,name,value])=>`<button type="button" data-cheat-clear="${key}" aria-label="Remove ${esc(name)} filter: ${esc(value)}">${esc(name)}: ${esc(value)} <span aria-hidden="true">×</span></button>`).join('')}</div>`:'';
+  return `<div class="gcs-toolbar">${commonSearch}<button class="gcs-mobile-filter" type="button" data-cheat-filters aria-expanded="${filtersOpen}" aria-controls="gcsFilterFields">Filters${activeFilters?` · ${activeFilters}`:''} ▾</button><div id="gcsFilterFields" class="gcs-filter-fields ${filtersOpen?'is-open':''}">${teamControl}${posControl}${marketControl}${bookControl}${windowControl}${sortControl}${freshControl}</div></div>${summary}`;
  }
  function matchesQuery(text){const q=String(state.query||'').toLowerCase().trim();return !q||String(text||'').toLowerCase().includes(q);}
  function matchFilter(text,rowTeam='',rowPosition=''){
@@ -267,7 +272,7 @@
   if(cards.length>visibleLimit)content.insertAdjacentHTML('beforeend',`<div class="gcs-pagination"><span>Showing ${visibleLimit} of ${cards.length} matching rows</span><button type="button" data-cheat-more>Show 40 more</button></div>`);
  }
  function paint(host,d){
-  const active=document.activeElement,focusAttr=active&&host.contains(active)?['data-cheat-filter','data-cheat-select','data-cheat-sheet','data-cheat-filters','data-cheat-fresh','data-cheat-active','data-cheat-reset','data-cheat-more'].find(attr=>active.hasAttribute(attr)):null;
+  const active=document.activeElement,focusAttr=active&&host.contains(active)?['data-cheat-filter','data-cheat-select','data-cheat-sheet','data-cheat-filters','data-cheat-fresh','data-cheat-active','data-cheat-reset','data-cheat-more','data-cheat-clear'].find(attr=>active.hasAttribute(attr)):null;
   const focusValue=focusAttr?active.getAttribute(focusAttr):null,selection=focusAttr==='data-cheat-filter'?active.selectionStart:null;
   cardCharts=[];cardMini=[];
   const sheetName=SHEETS.find(s=>s[0]===state.sheet)?.[1]||'Cheatsheets',content=contentMarkup(d);
@@ -277,11 +282,13 @@
    const next=[...host.querySelectorAll(`[${focusAttr}]`)].find(control=>control.getAttribute(focusAttr)===focusValue);
    if(next){next.focus({preventScroll:true});if(typeof next.setSelectionRange==='function'&&selection!=null)try{next.setSelectionRange(selection,selection);}catch{}}
    else if(focusAttr==='data-cheat-more'){const count=host.querySelector('.gcs-count');count?.setAttribute('tabindex','-1');count?.focus({preventScroll:true});}
+   else if(focusAttr==='data-cheat-clear')(host.querySelector('[data-cheat-clear]')||host.querySelector('[data-cheat-reset]'))?.focus({preventScroll:true});
   }
  }
  function wire(host){
   if(host.dataset.gcsWired)return;host.dataset.gcsWired='true';
   host.addEventListener('click',e=>{
+   const clear=e.target.closest('[data-cheat-clear]');if(clear){const key=clear.dataset.cheatClear;if(Object.hasOwn(DEFAULT,key)){clearTimeout(paintTimer);state[key]=DEFAULT[key];visibleLimit=40;saveState();render(host,dataRef,true);}return;}
    if(e.target.closest('[data-cheat-filters]')){filtersOpen=!filtersOpen;render(host,dataRef,true);return;}
    const more=e.target.closest('[data-cheat-more]');if(more){visibleLimit+=40;render(host,dataRef,true);return;}
    const reset=e.target.closest('[data-cheat-reset]');if(reset){state={...DEFAULT,sheet:state.sheet,sort:SHEET_SORT[state.sheet]};visibleLimit=40;saveState();render(host,dataRef,true);return;}
