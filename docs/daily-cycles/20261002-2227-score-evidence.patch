@@ -1,0 +1,558 @@
+diff --git a/index.html b/index.html
+index f712478113d46d42fd3f55114e0f70565026c722..2a76d754ecd7e1390da2bcad89368db92d6e96c1 100644
+--- a/index.html
++++ b/index.html
+@@ -3,7 +3,7 @@
+ <head>
+ <base href="/">
+ <script src="shared/evidence-ui.js"></script>
+-<script src="shared/opportunity-ui.js"></script><script src="/shared/football-slate.js"></script><link rel="stylesheet" href="/shared/football-slate.css">
++<script src="shared/opportunity-ui.js"></script><script src="/shared/football-slate.js"></script><script src="/shared/score-tracker.js"></script><link rel="stylesheet" href="/shared/football-slate.css">
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+ <meta name="theme-color" content="#0C1614">
+@@ -853,12 +853,12 @@
+     <p class="bt-note" id="btDataNote" role="status">Loading odds and historical projections…</p><div id="btLoadPropsNote" role="status"></div></details>
+     <div class="going-search"><input class="field" id="goingSearch" type="search" autocomplete="off" aria-label="Search players, teams, games and markets" aria-expanded="false" aria-controls="goingSearchResults" placeholder="Search player, team, game or market"><div class="going-search-results" id="goingSearchResults" role="listbox" hidden></div></div>
+     <section id="btScorePanel" hidden aria-label="GOING SCORE player rankings">
+-      <div class="score-hero"><div><small>FULL-SLATE PLAYER INDEX</small><h2>GOING <span>SCORE</span></h2><p>One fast view of who stands out in each NFL market, built from GOING's projection, recent role, supported matchup evidence and game environment. Open any player to see exactly what moved the score.</p></div><aside><b>A score is not a probability.</b><small>Any TD uses a probability-led absolute scale; volume props rank the current slate. Model probability, current price and confidence stay separate.</small></aside></div>
++      <div class="score-hero"><div><small>FULL-SLATE PLAYER INDEX</small><h2>GOING <span>SCORE</span></h2><p>One fast view of who stands out in each NFL market, built from GOING's projection, recent role, supported matchup evidence and game environment. Open any player to see exactly what moved the score.</p></div><aside><b>A score is not a probability.</b><small>Any TD uses a probability-led absolute scale; volume props rank the current slate. Model probability, current price and confidence stay separate. High evidence quality describes sample and coverage, not measured win reliability.</small></aside></div>
+       <div class="score-market-row" id="scoreMarket" aria-label="GOING SCORE market"><button data-score-market="atd" aria-pressed="true">Any TD</button><button data-score-market="pass_yds" aria-pressed="false">Pass Yards</button><button data-score-market="pass_tds" aria-pressed="false">Pass TDs</button><button data-score-market="rush_yds" aria-pressed="false">Rush Yards</button><button data-score-market="receptions" aria-pressed="false">Receptions</button></div>
+       <div class="score-toolbar"><div class="score-view-row" id="scoreView" aria-label="GOING SCORE view"><button data-score-view="rankings" aria-pressed="true">Rankings</button><button data-score-view="games" aria-pressed="false">By Game</button></div><input class="field" id="scoreSearch" type="search" aria-label="Search GOING SCORE" placeholder="Search player, team or game"><select class="field" id="scoreConfidence" aria-label="Minimum confidence"><option value="all">All confidence levels</option><option value="moderate">Moderate + High</option><option value="high">High confidence only</option></select><button class="btn ghost" id="scoreReset">Show all eligible players</button></div>
+       <div class="score-summary" id="scoreSummary"></div><p class="bt-note" id="scoreStatus" role="status"></p>
+       <details class="score-method"><summary>How GOING SCORE works</summary><p>Any TD is an absolute evidence score led by a conservative touchdown estimate. GOING shrinks a player's short historical window toward a position baseline, then uses the cross-book market only as a small guardrail when at least three books reasonably agree. A disputed market is disclosed and excluded from the score. Scoring-area role, supported matchup evidence and team scoring environment can move the result only modestly. A player is not pushed toward 100 merely for ranking first.</p><p>Pass yards, pass TDs, rush yards and receptions remain slate-relative because their inputs are market-specific continuous measures: air/red-zone volume, carry or target role, opponent weakness and expected game script. Missing evidence is omitted and never filled with a zero. Confidence remains separate. “Due” narratives and individual outcomes do not create a positive score bonus.</p><p>The eligible field requires either a recent unexpired sportsbook quote or recorded current-season participation, which keeps retired, inactive and stale roster profiles off the board without pretending a quote proves availability.</p></details>
+-      <div class="score-list" id="scoreBoard" aria-live="polite"></div><button class="btn ghost" id="scoreMore" hidden>Show 40 more</button>
++      <details class="score-method" id="scoreHistory"><summary>Prospective Score tracking · this device</summary><p>Freeze a score before kickoff to preserve what GOING knew then. Only the scores you choose are captured; this is not a representative product-wide backtest. Only the five existing NFL player Score markets are tracked; NFL/NCAA game markets have no defined GOING Score yet. No win-rate or profitability claim is made.</p><p id="scoreTrackingStatus" role="status"></p><div class="best-actions"><button id="scoreCheckResults">Check published results</button><button id="scoreExportHistory">Export frozen observations</button></div><div id="scoreTrackingRows"></div></details><div class="score-list" id="scoreBoard" aria-live="polite"></div><button class="btn ghost" id="scoreMore" hidden>Show 40 more</button>
+     </section>
+     <section id="btDfsPanel" hidden aria-label="NFL DFS lineup builder">
+       <div class="dfs-hero"><small>NFL FANTASY PROJECTION + LINEUP RESEARCH</small><h2>GOING <span>DFS LAB</span></h2><p>Open the current NFL slate instantly with GOING projections, or add an official DraftKings/FanDuel salary file for salary-cap optimization. Both paths use injury-adjusted roles and normally priced sportsbook market evidence when available.</p></div>
+@@ -3701,7 +3701,10 @@ function projectionBoard(){
+ }
+ const GOING_SCORE_STORE='goinglong.score.view.v1';
+ let GOING_SCORE_MARKET='atd',GOING_SCORE_VIEW='games',GOING_SCORE_QUERY='',GOING_SCORE_CONFIDENCE='all',GOING_SCORE_LIMIT=60;
+-const GOING_SCORE_VISIBLE=new Map();
++const GOING_SCORE_VISIBLE=new Map(),BEST_SCORE_ROWS=new Map();
++const SCORE_TRACKING_KEY='goinglong.score.tracking.v1',SCORE_MODEL_VERSION='going-score-1';
++let SCORE_LEDGER=GoingScoreTracker.create(),SCORE_TRACKING_NOTE='',SCORE_STORAGE_BLOCKED=false;
++try{const raw=localStorage.getItem(SCORE_TRACKING_KEY);if(raw){const restored=GoingScoreTracker.restore(JSON.parse(raw));if(!restored)throw Error();SCORE_LEDGER=restored;}}catch{SCORE_STORAGE_BLOCKED=true;SCORE_TRACKING_NOTE='Saved tracking data could not be read. It has been preserved; new snapshots are blocked.';}
+ try{const saved=JSON.parse(localStorage.getItem(GOING_SCORE_STORE)||'null');if(GoingScore.MARKET_SPECS[saved?.market])GOING_SCORE_MARKET=saved.market;if(['rankings','games'].includes(saved?.view))GOING_SCORE_VIEW=saved.view;if(['all','moderate','high'].includes(saved?.confidence))GOING_SCORE_CONFIDENCE=saved.confidence;}catch{}
+ function persistGoingScore(){try{localStorage.setItem(GOING_SCORE_STORE,JSON.stringify({market:GOING_SCORE_MARKET,view:GOING_SCORE_VIEW,confidence:GOING_SCORE_CONFIDENCE}));}catch{}}
+ function scoreBlend(current,prior,games,priorWeight=4){
+@@ -3784,9 +3787,10 @@ function goingScoreCandidates(market=GOING_SCORE_MARKET){
+   const environmentValue=market==='rush_yds'&&finiteNumber(lines.total)?lines.total-(teamSpread||0):['pass_yds','receptions'].includes(market)&&finiteNumber(lines.total)?lines.total+(teamSpread||0):finiteNumber(teamTotal)?teamTotal:lines.total;
+   const environmentLabel=market==='rush_yds'?'Rush script':['pass_yds','receptions'].includes(market)?'Pass script & environment':'Scoring environment';
+   const environmentEvidence=finiteNumber(lines.total)?`${lines.total.toFixed(1)}-point median total${finiteNumber(teamSpread)?` · ${profile.team} ${teamSpread<0?'favored':'underdog'} by ${Math.abs(teamSpread).toFixed(1)}`:''}${finiteNumber(teamTotal)?` · ${teamTotal.toFixed(1)} implied team points`:''}`:'Current game total unavailable; no environment value was invented.';
+-  rows.push({key:`${market}|${profile.id}`,player:profile.name,profileId:profile.id,position:profile.position,team:profile.team,opponent,game,kickoff:p.kickoff,home:p.eventTeams?.[0],away:p.eventTeams?.[1],sampleGames:model.n||0,currentGames,projection:model.mean,projectionSd:model.sd,projectionLabel:scoreProjectionLabel(market,model.mean),probability,scoreProbability,marketImplied:quoteContext.marketImplied,marketBooks:quoteContext.books,marketGuardrailUsed:atdAnchor?.marketUsable??false,injury:p.injury,quote,line:quote?.line,odds:quote?.overOdds,book:quote?.book,updatedAt:quote?.updatedAt,components:{projection:{value:market==='atd'?scoreProbability:model.mean,label:market==='atd'?'Calibrated TD anchor':'Model projection',evidence:market==='atd'?atdAnchor.evidence:`${scoreProjectionLabel(market,model.mean)} from ${model.n||0} recorded games · ${model.family} baseline${p.injury?.reason?' · '+p.injury.reason:''}`},role,matchup,environment:{value:environmentValue,label:environmentLabel,evidence:environmentEvidence}}});
++  rows.push({key:`${market}|${profile.id}`,player:profile.name,profileId:profile.id,position:profile.position,team:profile.team,opponent,game,kickoff:p.kickoff,home:p.eventTeams?.[0],away:p.eventTeams?.[1],sampleGames:model.n||0,currentGames,projection:model.mean,projectionSd:model.sd,projectionLabel:scoreProjectionLabel(market,model.mean),probability,scoreProbability,marketImplied:quoteContext.marketImplied,marketBooks:quoteContext.books,marketGuardrailUsed:atdAnchor?.marketUsable??false,injury:p.injury,quote,line:quote?.line,odds:quote?.overOdds,book:quote?.book,updatedAt:quote?.updatedAt,modelAt:BET.history?.generated_at,contextAt:BET.context?.generated_at,evidenceAt:Object.fromEntries([['learning',BET.learning?.generated_at],['injury',BET.injuryLearning?.generated_at],['roster',BET.roster?.generated_at]].filter(([,at])=>Number.isFinite(Date.parse(at)))),components:{projection:{value:market==='atd'?scoreProbability:model.mean,label:market==='atd'?'Shrunk TD anchor':'Model projection',evidence:market==='atd'?atdAnchor.evidence:`${scoreProjectionLabel(market,model.mean)} from ${model.n||0} recorded games · ${model.family} baseline${p.injury?.reason?' · '+p.injury.reason:''}`},role,matchup,environment:{value:environmentValue,label:environmentLabel,evidence:environmentEvidence}}});
+  }
+- return GoingScore.scoreRows(rows,market).map(row=>{
++ const scored=GoingScore.scoreRows(rows,market);return scored.map(row=>{
++  row={...row,cohortSize:scored.length};
+   if(!row.injury)return row;
+   const penalty=row.injury.roleBoost?10:row.injury.state==='questionable'?18:row.injury.state==='limited'||row.injury.state==='practice_dnp'?12:5,value=Math.max(0,row.confidence.value-penalty),label=value>=80?'High':value>=60?'Moderate':'Limited';
+   return {...row,confidence:{value,label}};
+@@ -3816,17 +3820,68 @@ function goingScoreRisk(row){
+ }
+ function goingScoreLine(row){return row.market==='atd'?'Any TD':finiteNumber(row.line)?`Over ${row.line}`:'No active line';}
+ function scoreOrdinal(value){const n=Math.round(value),mod100=n%100,suffix=mod100>=11&&mod100<=13?'th':n%10===1?'st':n%10===2?'nd':n%10===3?'rd':'th';return n+suffix;}
++function scoreDriverContext(row,side='Over'){
++ const available=Object.entries(row.components).filter(([,v])=>finiteNumber(v.percentile));
++ const ordered=row.market==='atd'?available.sort((a,b)=>Number(b[0]==='projection')-Number(a[0]==='projection')||b[1].percentile-a[1].percentile):available.sort((a,b)=>b[1].weight*b[1].percentile-a[1].weight*a[1].percentile);
++ return {score:row.score,confidence:row.confidence.label,coverage:row.componentCoverage,sideNote:side==='Under'?'This is a player-production index, not support for this Under or its exact line.':row.market==='atd'?'The TD score uses a shrunk anchor; it is not the model win probability.':'This is a slate-relative player-production index, not proof of an Over edge.',drivers:ordered.slice(0,2).map(([key,c])=>({label:c.label,evidence:c.evidence})),risk:goingScoreRisk(row)};
++}
++function scoreDriverMarkup(row){const x=scoreDriverContext(row);return `<div class="score-driver-summary"><strong>What drives this player index</strong><ul>${x.drivers.map(d=>`<li><b>${esc(d.label)}:</b> ${esc(d.evidence)}</li>`).join('')}</ul><small>${esc(x.sideNote)} · ${row.currentGames||0} current-season games in context · ${(100*x.coverage).toFixed(0)}% component coverage. Higher production can conflict with an Under.</small></div>`;}
++function scoreSnapshot(row){
++ const q=row.quote,probabilities=q?propProbabilities(q):null;
++ return {scoreVersion:SCORE_MODEL_VERSION,sport:'nfl',profileId:row.profileId,player:row.player,team:row.team,opp:row.opponent,home:row.home,away:row.away,kickoff:row.kickoff,market:row.market,side:row.market==='atd'?'Yes':'Over',line:row.market==='atd'?.5:row.line,score:row.score,probability:row.probability,pushProbability:probabilities?.push??(row.market==='atd'?0:null),scoreProbability:row.scoreProbability,projection:row.projection,confidence:row.confidence,componentCoverage:row.componentCoverage,components:row.components,rank:row.rank,cohortSize:row.cohortSize,sampleGames:row.sampleGames,currentGames:row.currentGames,modelAt:row.modelAt,contextAt:row.contextAt,evidenceAt:row.evidenceAt,quote:q?{book:row.book,odds:row.odds,line:row.market==='atd'?.5:row.line,updatedAt:row.updatedAt}:null};
++}
++function persistScoreHistory(){try{localStorage.setItem(SCORE_TRACKING_KEY,JSON.stringify(SCORE_LEDGER));return true;}catch{SCORE_STORAGE_BLOCKED=true;SCORE_TRACKING_NOTE='Device storage could not save this update. It is only in memory; export before closing.';return false;}}
++async function scoreWithLock(action){
++ if(SCORE_STORAGE_BLOCKED)return;
++ if(!navigator.locks?.request){SCORE_TRACKING_NOTE='This browser cannot lock tracking across tabs; capture is unavailable. Existing observations remain exportable.';renderScoreHistory();return;}
++ try{await navigator.locks.request(SCORE_TRACKING_KEY,()=>{
++  const raw=localStorage.getItem(SCORE_TRACKING_KEY),latest=raw?GoingScoreTracker.restore(JSON.parse(raw)):GoingScoreTracker.create();if(!latest)throw Error();SCORE_LEDGER=latest;action();
++ });}catch{SCORE_STORAGE_BLOCKED=true;SCORE_TRACKING_NOTE='Tracking storage or its lock is unavailable/corrupt; existing data was not overwritten. Export any in-memory observations.';}
++ renderScoreHistory();
++}
++window.addEventListener('storage',event=>{if(event.key!==SCORE_TRACKING_KEY||SCORE_STORAGE_BLOCKED)return;try{const latest=event.newValue?GoingScoreTracker.restore(JSON.parse(event.newValue)):null;if(!latest)throw Error();SCORE_LEDGER=latest;renderScoreHistory();}catch{SCORE_STORAGE_BLOCKED=true;SCORE_TRACKING_NOTE='Tracking storage changed unexpectedly in another tab. In-memory observations retained; export a backup.';renderScoreHistory();}});
++async function freezeScoreRow(row){
++ return scoreWithLock(()=>{
++ if(SCORE_STORAGE_BLOCKED){renderScoreHistory();return;}
++ const result=GoingScoreTracker.freeze(SCORE_LEDGER,scoreSnapshot(row));
++ if(result.error)SCORE_TRACKING_NOTE=result.error;else{SCORE_LEDGER=result.ledger;SCORE_TRACKING_NOTE=result.added?'Snapshot frozen. Later scores, prices and models will not replace it.':'The original snapshot for this contract/version was retained.';persistScoreHistory();}
++ renderScoreHistory();
++ });
++}
++function settleScoreHistory(results,now=Date.now()){
++ const at=Date.parse(results?.generated_at),sourceAt=Date.parse(results?.sources?.nfl?.checked_at),playerAt=Date.parse(results?.player_source_at);
++ if(results?.schema_version!==1||results.sources?.nfl?.status!=='loaded'||![at,sourceAt,playerAt].every(t=>Number.isFinite(t)&&t<=now)||playerAt>at||!results.games||!results.players)return 0;
++ let count=0;
++ for(const [key,r] of Object.entries(SCORE_LEDGER.records)){
++  if(SCORE_LEDGER.settlements[key]||Date.parse(r.kickoff)>=now||Math.min(at,sourceAt,playerAt)<Date.parse(r.kickoff))continue;
++  const games=Object.values(results.games).filter(g=>g.sport===r.sport&&g.home===r.home&&g.away===r.away&&Math.abs(Date.parse(g.kickoff)-Date.parse(r.kickoff))<=120000);
++  if(games.length!==1)continue;const g=games[0],value=results.players[`${r.profileId}|${footballDate(g.kickoff)}`]?.[r.market];
++  if(![g.homeScore,g.awayScore].every(v=>Number.isInteger(v)&&v>=0)||!finiteNumber(value)||(['atd','pass_tds','receptions'].includes(r.market)&&(!Number.isInteger(value)||value<0)))continue;
++  const grade=signalGrade({...r,kind:'prop',side:r.side==='Yes'?'Over':r.side},{games:{matched:g},players:results.players},now);if(!grade)continue;
++  const result=GoingScoreTracker.attachSettlement(SCORE_LEDGER,key,{status:grade.status==='refund'?'push':grade.status,value,source:'published-player-game-result',resultAt:results.generated_at,game:g.id||`${g.sport}|${g.home}|${g.away}|${g.kickoff}`,profileId:r.profileId,home:g.home,away:g.away,kickoff:g.kickoff,playerSourceAt:results.player_source_at,sourceCheckedAt:results.sources.nfl.checked_at},now);
++  if(result.added){SCORE_LEDGER=result.ledger;count++;}
++ }
++ if(count)persistScoreHistory();return count;
++}
++function renderScoreHistory(){
++ const status=$('scoreTrackingStatus');if(!status)return;const x=GoingScoreTracker.summary(SCORE_LEDGER);
++ status.textContent=`${SCORE_TRACKING_NOTE?SCORE_TRACKING_NOTE+' ':''}${x.total?'Tracking started — insufficient sample for validation.':'No prospective observations yet.'} ${x.total} frozen · ${x.settled} result-matched · ${x.pending} pending · ${x.games} distinct games. Browser-local, user-selected sample; related lines are not independent evidence.`;
++ $('scoreExportHistory').disabled=!x.total;$('scoreCheckResults').disabled=!x.pending||SCORE_STORAGE_BLOCKED;
++ const bands=Object.entries(x.bands).sort((a,b)=>parseInt(b[0])-parseInt(a[0])).map(([band,b])=>`${band}: ${b.count} frozen / ${b.settled} matched`).join(' · ');
++ const rows=Object.values(SCORE_LEDGER.records).sort((a,b)=>Date.parse(b.frozenAt)-Date.parse(a.frozenAt)).slice(0,10);
++ $('scoreTrackingRows').innerHTML=`<p>${esc(bands)}</p>${rows.map(r=>`<details><summary>${esc(r.player)} · ${esc(r.market)} ${esc(r.side)} ${r.line} · frozen Score ${r.score.toFixed(1)} (${esc(r.band)})</summary><p>${esc(footballGameLabel(`${r.away} @ ${r.home}`,'nfl'))} · ${esc(r.kickoff)}<br>Frozen ${esc(r.frozenAt)} · ${esc(r.scoreVersion)} · model cutoff ${esc(r.modelAt)}<br>${r.quote?`${esc(r.quote.book)} ${americanOddsLabel(r.quote.odds)} observed ${esc(r.quote.updatedAt)}; ${r.quoteFreshAtFreeze?'within five minutes at capture, not guaranteed available':'saved price, not confirmed at decision time'}`:'No captured price; no ROI/CLV available.'}<br>${SCORE_LEDGER.settlements[r.key]?`Published result: ${esc(SCORE_LEDGER.settlements[r.key].status)} · actual ${SCORE_LEDGER.settlements[r.key].value}; provisional to sportsbook participation/void rules.`:'Pending trustworthy full-game result; missing players are never zeroes.'}</p></details>`).join('')}<small>Latest 10 observations shown; export includes all frozen inputs and separate settlements. Source corrections require reviewed reconciliation; existing grades are not silently replaced.</small>`;
++}
+ function goingScoreCard(row){
+  GOING_SCORE_VISIBLE.set(row.key,row);const probability=finiteNumber(row.probability)?percent(row.probability):'Not available',observed=row.updatedAt&&Number.isFinite(Date.parse(row.updatedAt))?new Date(row.updatedAt).toLocaleString([],{month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'}):'time unavailable',price=row.quote?`${americanOddsLabel(row.odds)} · ${row.book} · observed ${observed}`:'No priced line',saved=BEST_SHORTLIST.some(x=>x.key==='score|'+row.key);
+- const components=Object.values(row.components).filter(c=>c.percentile!=null).map(c=>`<div class="score-component"><div class="score-component-head"><b>${esc(c.label)}</b><span>${scoreOrdinal(c.percentile)} slate percentile · ${(100*c.weight).toFixed(0)}% importance</span></div><div class="score-bar"><i style="width:${Math.max(2,c.percentile)}%"></i></div><small>${esc(c.evidence)}</small></div>`).join('');
++ const components=Object.entries(row.components).filter(([,c])=>c.percentile!=null).map(([key,c])=>`<div class="score-component"><div class="score-component-head"><b>${esc(c.label)}</b><span>${scoreOrdinal(c.percentile)} slate percentile · ${row.market==='atd'?({projection:'Shrunk probability anchor',role:'Up to ±4 score points',matchup:'Up to ±2 score points',environment:'Up to ±1.5 score points'}[key]):`${(100*c.weight/row.componentCoverage).toFixed(0)}% of available component weight`}</span></div><div class="score-bar"><i style="width:${Math.max(2,c.percentile)}%"></i></div><small>${esc(c.evidence)}</small></div>`).join('');
+  const scoreScale=row.market==='atd'?'Any TD uses an absolute evidence scale; disputed sportsbook consensus is excluded rather than allowed to inflate the score.':'This volume market is ranked against the current eligible slate.',probabilityLabel=row.market==='atd'?'Score anchor / model':'Model probability',probabilityValue=row.market==='atd'?`${percent(row.scoreProbability)} / ${probability}`:probability;
+- return `<article class="score-card"><div class="score-rank">#${row.rank}</div><div class="score-player"><h3>${esc(row.player)} ${teamBadge(row.team)}</h3><small>${esc(row.position)} · ${esc(footballGameLabel(row.game,'nfl'))} · ${row.kickoff?esc(new Date(row.kickoff).toLocaleString()):'Kickoff unavailable'}</small><div class="score-tags">${row.highlights.map(x=>`<span class="score-tag">${esc(x.label)} · ${scoreOrdinal(x.percentile)}</span>`).join('')}</div></div><div><div class="score-gauge" style="--score:${row.score}"><div><b>${row.score.toFixed(1)}</b><span>GOING SCORE</span></div></div><div class="score-tier">${esc(row.tier.label)}</div></div><div class="score-facts"><div class="score-fact"><span>Projection</span><b>${esc(row.projectionLabel)}</b></div><div class="score-fact"><span>Market / price</span><b>${esc(goingScoreLine(row))}<br>${esc(price)}</b></div><div class="score-fact"><span>${probabilityLabel}</span><b>${probabilityValue}</b></div><div class="score-fact"><span>Confidence</span><b>${esc(row.confidence.label)} · ${row.confidence.value}</b></div></div>${injuryMarkup(row)}<p class="score-risk"><strong>Main risk:</strong> ${esc(goingScoreRisk(row))}</p><details><summary>Show me the score data</summary><div class="score-components">${components}</div><small>${(100*row.componentCoverage).toFixed(0)}% of configured component importance available. Missing evidence was omitted, not scored as zero. ${scoreScale} GOING SCORE is not a probability.</small></details><div class="best-actions"><button type="button" data-score-market-open="${esc(row.key)}">Open market</button>${row.quote&&finiteNumber(row.probability)?`<button type="button" data-score-add="${esc(row.key)}" aria-pressed="${saved}">${saved?'Added to shortlist':'Add / compare'}</button>`:''}</div></article>`;
++ return `<article class="score-card"><div class="score-rank">#${row.rank}</div><div class="score-player"><h3>${esc(row.player)} ${teamBadge(row.team)}</h3><small>${esc(row.position)} · ${esc(footballGameLabel(row.game,'nfl'))} · ${row.kickoff?esc(new Date(row.kickoff).toLocaleString()):'Kickoff unavailable'}</small><div class="score-tags">${row.highlights.map(x=>`<span class="score-tag">${esc(x.label)} · ${scoreOrdinal(x.percentile)}</span>`).join('')}</div></div><div><div class="score-gauge" style="--score:${row.score}"><div><b>${row.score.toFixed(1)}</b><span>GOING SCORE</span></div></div><div class="score-tier" title="Player-index tier, not measured betting success">${esc(row.tier.label)} · index tier</div></div><div class="score-facts"><div class="score-fact"><span>Projection</span><b>${esc(row.projectionLabel)}</b></div><div class="score-fact"><span>Market / price</span><b>${esc(goingScoreLine(row))}<br>${esc(price)}</b></div><div class="score-fact"><span>${probabilityLabel}</span><b>${probabilityValue}</b></div><div class="score-fact"><span>Evidence quality</span><b>${esc(row.confidence.label)} · ${row.confidence.value}</b></div></div>${injuryMarkup(row)}${scoreDriverMarkup(row)}<p class="score-risk"><strong>Main risk:</strong> ${esc(goingScoreRisk(row))}</p><details><summary>Show me the score data</summary><div class="score-components">${components}</div><small>${(100*row.componentCoverage).toFixed(0)}% of configured component importance available. Missing evidence was omitted, not scored as zero. ${scoreScale} GOING SCORE is not a probability.</small></details><div class="best-actions"><button type="button" data-score-market-open="${esc(row.key)}">Open market</button><button type="button" data-score-freeze="${esc(row.key)}" ${SCORE_STORAGE_BLOCKED||(row.market!=='atd'&&!finiteNumber(row.line))?'disabled':''}>Freeze score for tracking</button>${row.quote&&finiteNumber(row.probability)?`<button type="button" data-score-add="${esc(row.key)}" aria-pressed="${saved}">${saved?'Added to shortlist':'Add / compare'}</button>`:''}</div></article>`;
+ }
+ function renderGoingScore(){
+  const panel=$('btScorePanel');if(!panel||BET.tab!=='score')return;GOING_SCORE_VISIBLE.clear();$('scoreMarket').querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.scoreMarket===GOING_SCORE_MARKET)));$('scoreView').querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.scoreView===GOING_SCORE_VIEW)));$('scoreConfidence').value=GOING_SCORE_CONFIDENCE;
+  const eligible=goingScoreCandidates();let rows=eligible,q=GOING_SCORE_QUERY.trim().toLowerCase();if(q)rows=rows.filter(row=>`${row.player} ${row.team} ${row.opponent} ${row.game} ${row.position}`.toLowerCase().includes(q));const min={all:0,moderate:60,high:80}[GOING_SCORE_CONFIDENCE];rows=rows.filter(row=>row.confidence.value>=min);const quoted=rows.filter(row=>row.quote).length,high=rows.filter(row=>row.confidence.label==='High').length,leader=rows[0];
+  $('scoreSummary').innerHTML=`<div><b>${eligible.length}</b><span>Eligible field</span></div><div><b>${quoted}</b><span>With priced line</span></div><div><b>${high}</b><span>High confidence</span></div><div><b>${leader?esc(leader.player):'—'}</b><span>Current leader</span></div>`;$('scoreStatus').textContent=`${GoingScore.MARKET_SPECS[GOING_SCORE_MARKET].label} · ${eligible.length} eligible · ${rows.length} match filters · ${Math.min(rows.length,GOING_SCORE_LIMIT)} shown · ranked across the currently eligible NFL slate · prices: ${BET.liveStatus} · ${BET.history?.generated_at?'model updated '+new Date(BET.history.generated_at).toLocaleString():'model timestamp unavailable'}`;
+- const visible=rows.slice(0,GOING_SCORE_LIMIT),board=$('scoreBoard'),openGames=new Set([...board.querySelectorAll('.score-game[open]')].map(d=>d.dataset.scoreGame));if(!visible.length)board.innerHTML='<div class="score-empty">No eligible players match these filters. No score was fabricated.</div>';else if(GOING_SCORE_VIEW==='games')board.innerHTML=GoingScore.groupByGame(visible).map(group=>`<details class="score-game" data-score-game="${esc(group.game)}" ${openGames.has(group.game)?'open':''}><summary><strong>${esc(footballGameLabel(group.game,'nfl'))}</strong><small>${group.selections.length} visible players</small></summary><div class="score-list">${group.selections.map(goingScoreCard).join('')}</div></details>`).join('');else board.innerHTML=visible.map(goingScoreCard).join('');$('scoreMore').hidden=visible.length>=rows.length;$('scoreMore').textContent=`Show ${Math.min(40,rows.length-visible.length)} more · ${rows.length-visible.length} remaining`;persistGoingScore();
++ const visible=rows.slice(0,GOING_SCORE_LIMIT),board=$('scoreBoard'),openGames=new Set([...board.querySelectorAll('.score-game[open]')].map(d=>d.dataset.scoreGame));if(!visible.length)board.innerHTML='<div class="score-empty">No eligible players match these filters. No score was fabricated.</div>';else if(GOING_SCORE_VIEW==='games')board.innerHTML=GoingScore.groupByGame(visible).map(group=>`<details class="score-game" data-score-game="${esc(group.game)}" ${openGames.has(group.game)?'open':''}><summary><strong>${esc(footballGameLabel(group.game,'nfl'))}</strong><small>${group.selections.length} visible players</small></summary><div class="score-list">${group.selections.map(goingScoreCard).join('')}</div></details>`).join('');else board.innerHTML=visible.map(goingScoreCard).join('');$('scoreMore').hidden=visible.length>=rows.length;$('scoreMore').textContent=`Show ${Math.min(40,rows.length-visible.length)} more · ${rows.length-visible.length} remaining`;persistGoingScore();renderScoreHistory();
+ }
+ const DFS_STATE={site:'draftkings',source:'model',contest:'classic',game:'',salaryPlayers:[],players:[],lineups:[],errors:[],raw:'',status:'',locked:new Set(),captainId:null};
+ function dfsMarketMean(profileId,market,modelMean){
+@@ -4536,6 +4591,15 @@ function filterBestPlays(list,{query=BEST_QUERY,focus=BEST_FOCUS,sort=BEST_SORT,
+  if(sort==='probability')rows.sort((a,b)=>b.prob-a.prob||b.ev-a.ev);else if(sort==='edge')rows.sort((a,b)=>b.ev-a.ev||b.prob-a.prob);else if(sort==='payout')rows.sort((a,b)=>b.dec-a.dec||b.prob-a.prob);else if(sort==='kickoff')rows.sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff)||b.prob-a.prob);else if(value)rows.sort((a,b)=>b.ev-a.ev||b.prob-a.prob);
+  return rows;
+ }
++function bestRecommendationNotes(c){
++ const notes=[],confidence=bestConfidence(c);notes.push(`Evidence quality: ${confidence.detail}. This is not measured prediction reliability.`);
++ if(c.sport==='ncaa'&&c.kind==='game'){
++  const x=ncaaGameEvidence(c),e=c.gameSeasonEvidence||{};
++  notes.push(Number.isInteger(e.home_current_games)&&Number.isInteger(e.away_current_games)?`Current-season sample: ${e.away_current_games} ${c.away} games / ${e.home_current_games} ${c.home} games. Historical samples are not automatically current-season evidence.`:'Current-season game counts are unavailable for this selection.');
++  if(x.books>=2&&finiteNumber(x.consensus))notes.push(`Recorded exact-market context: ${x.books} paired books imply ${percent(x.consensus)} after removing margin; GOING estimates ${percent(c.prob)}${finiteNumber(x.distance)?`, a ${(100*x.distance).toFixed(1)}-point difference`:''}. These may be saved prices; disagreement is not proof of an edge.`);
++ }else if(c.seasonEvidence&&Number.isInteger(c.seasonEvidence.current_games))notes.push(`${c.seasonEvidence.current_games} current-season player games; ${percent(c.seasonEvidence.current_weight)} current-season model weight. The weighting policy is not a validated predictive improvement.`);
++ return notes.slice(0,3);
++}
+ function bestPlayCard(c,value=false){
+  const label=bestPlayLabel(c),flags=c.flags||[],signal=flags.find(f=>!['check','gap','price'].includes(f.id)),parlay=bestParlayRelevance(c),qualified=value||(c.ev>=.03&&flags.some(f=>f.id==='gap')&&!flags.some(f=>f.id==='check')),matchup=defensiveMatchup(c),confidence=bestConfidence(c),key=bestSelectionKey(c);BEST_VISIBLE.set(key,c);
+  const baseWhy=value?`This exact selection pays ${americanOddsLabel(c.odds)} at ${c.book}. Compared with ${(c.referenceBooks||[]).join(' + ')}, the reduced estimate clears the ${(c.threshold*100).toFixed(1)}% required return.`:signal?.why||`The historical ${c.modelFamily||'outcome'} model estimates a ${percent(c.prob)} win chance from ${c.n} recorded games${c.profileDate?', through '+c.profileDate:''}. No additional structured signal fired for this selection.`;
+@@ -4544,16 +4608,16 @@ function bestPlayCard(c,value=false){
+   const rows=bestEvidenceRows(c),cheatsheetEvidence=bestCheatsheetEvidence(c),projection=finiteNumber(c.projMean)?`${c.projMean.toFixed(1)} / ${percent(c.prob)}`:percent(c.prob),deepTab=c.kind==='prop'?'props':'games',teams=c.kind==='game'?[c.away,c.home]:[c.team,c.team===c.home?c.away:c.home],teamMarkup=c.sport==='nfl'&&globalThis.GoingUI?.teamMarks?GoingUI.teamMarks(teams):teamBadge(c.team);
+  const risk='This model version has not demonstrated calibrated probabilities or a profitable edge. '+availabilityRisk;
+  const matchMarkup=matchup?`<p class="best-matchup ${matchup.active_signal?'active':''}"><strong>${matchup.active_signal?'MATCHUP EDGE':'MATCHUP CONTEXT — '+matchup.status.toUpperCase()}</strong><br>${esc(matchup.plain_language)} ${matchup.active_signal?'This is structured supporting evidence, not a standalone bet.':'It does not support the recommendation until more current evidence accumulates.'}</p>`:'';
+- const saved=BEST_SHORTLIST.some(x=>x.key===key);
+-  if(globalThis.GoingUI)return GoingUI.card({id:key,injury:c.injury,qualification:qualified?(value?'Price-comparison research':'Model-screened research'):'Price watchlist',sport:c.sport,kind:c.kind,team:c.team,player:c.player,profileId:c.profileId,market:c.market,marketLabel:MARKET_LABEL[c.market]||c.market,label,home:c.home,away:c.away,kickoff:c.kickoff,book:c.book,odds:c.odds,updatedAt:c.updatedAt,prob:c.prob,dec:c.dec,n:c.n,projMean:c.projMean,line:c.line,projectionLabel:projection,confidence:confidence.label,why,risk,parlay:parlay.text,cheatsheetEvidence,evidence:[...rows,...flags.map(f=>[SIGNAL_NAMES[f.id]||f.id,f.why]),['Confidence',confidence.detail],...(matchup?[['Matchup',matchup.plain_language]]:[])],source:'GOING current board · '+(c.profileDate||'source cutoff unavailable'),researchUrl:c.profileId?'/players/?player='+encodeURIComponent(c.profileId):'/long/?mode=betting&tab=games'});
++ const saved=BEST_SHORTLIST.some(x=>x.key===key),scoreRow=BEST_SCORE_ROWS.get([c.profileId,c.market,Date.parse(c.kickoff)].join('|')),scoreContext=scoreRow?scoreDriverContext(scoreRow,c.side):null;
++  if(globalThis.GoingUI)return GoingUI.card({id:key,scoreContext,researchNotes:bestRecommendationNotes(c),injury:c.injury,qualification:qualified?(value?'Price-comparison research':'Model-screened research'):'Price watchlist',sport:c.sport,kind:c.kind,team:c.team,player:c.player,profileId:c.profileId,market:c.market,marketLabel:MARKET_LABEL[c.market]||c.market,label,home:c.home,away:c.away,kickoff:c.kickoff,book:c.book,odds:c.odds,updatedAt:c.updatedAt,prob:c.prob,dec:c.dec,n:c.n,projMean:c.projMean,line:c.line,projectionLabel:projection,confidence:confidence.label,why,risk,parlay:parlay.text,cheatsheetEvidence,evidence:[...rows,...flags.map(f=>[SIGNAL_NAMES[f.id]||f.id,f.why]),['Confidence',confidence.detail],...(matchup?[['Matchup',matchup.plain_language]]:[])],source:'GOING current board · '+(c.profileDate||'source cutoff unavailable'),researchUrl:c.profileId?'/players/?player='+encodeURIComponent(c.profileId):'/long/?mode=betting&tab=games'});
+   return `<article class="sig-card best-card">${teamMarkup}<div class="best-card-badges"><span class="best-badge ${qualified?'go':'watch'}">${qualified?(value?'Price-comparison research':'Model-screened research'):'Price watchlist'}</span><span class="best-badge">${esc(c.kind==='prop'?(MARKET_LABEL[c.market]||c.market):'Game '+c.market)}</span>${c.altLineSet?'<span class="best-badge">Alt line set</span>':''}</div><h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><div class="best-bet">${esc(label)}</div><p>${esc(footballTeamLabel(c.away,c.sport||BET.sport))} @ ${esc(footballTeamLabel(c.home,c.sport||BET.sport))} · ${esc(new Date(c.kickoff).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}))} ET</p>${injuryMarkup(c)}<div class="best-facts"><div class="best-fact"><span>Projection / probability</span><b>${esc(projection)}</b></div><div class="best-fact"><span>Price</span><b>${esc(c.book)} ${americanOddsLabel(c.odds)}</b></div><div class="best-fact"><span>Estimated return</span><b>${c.ev>=0?'+':''}${(100*c.ev).toFixed(1)}¢ / $1</b></div><div class="best-fact" title="${esc(confidence.detail)}"><span>Confidence / uncertainty</span><b>${esc(confidence.label)}</b></div></div><p class="best-block"><strong>Why GOING likes it</strong>${esc(why)}</p><p class="best-block"><strong>Primary risk</strong>${esc(risk)}</p><p class="best-block"><strong>Parlay relevance</strong>${esc(parlay.text)}</p>${matchMarkup}<details><summary>SHOW ME THE DATA</summary><dl class="best-evidence">${rows.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${cheatsheetEvidence.length?`<details class="best-cheatsheet"><summary>Related cheatsheet context</summary><p class="best-evidence-note">Supporting GOING data for this matchup. These observations are descriptive context and are not added again to the pick’s score or probability.</p><dl class="best-evidence">${cheatsheetEvidence.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></details>`:''}${flags.map(f=>`<p class="best-evidence-note"><strong>${esc(SIGNAL_NAMES[f.id]||f.id)}</strong><br>${esc(f.why)}</p>`).join('')||'<p class="best-evidence-note">No additional signal evidence is attached to this model estimate.</p>'}<small>${value?'Price-comparison estimate':'Historical-model estimate'} · ${esc(confidence.label)} confidence: ${esc(confidence.detail)}</small></details><div class="best-actions"><button type="button" data-best-add="${esc(key)}" aria-pressed="${saved}">${saved?'✓ Shortlisted':'+ Compare / parlay'}</button><button type="button" data-best-tab="${deepTab}">Deep research</button>${parlay.eligible?'<button type="button" data-best-tab="parlays">Open Parlay Lab</button>':''}</div></article>`;
+ }
+ function renderGameFirstSlate(chance,value){
+  const host=$('bestGameSlate');if(!host||!globalThis.GoingFootballSlate)return;
+  const groups=GoingFootballSlate.group(chance,value);TODAY_GROUPS=new Map(groups.map(g=>[g.key,g]));
+  const selected=new Set(groups.filter(g=>TODAY_SELECTED_GAMES[BET.sport].has(signalEvent(BET.sport,g.game.home,g.game.away,new Date(g.game.kickoff).toISOString()))).map(g=>g.key));
+- const scores=BET.sport==='nfl'?Object.keys(GoingScore.MARKET_SPECS).flatMap(market=>goingScoreCandidates(market)):[],scoreFor=c=>scores.find(r=>r.profileId===c.profileId&&r.market===c.market&&Date.parse(r.kickoff)===Date.parse(c.kickoff))?.score;
+- $('bestOrderNote').textContent=BEST_SORT==='going'?'Order: highest model-estimated win chance first within each game, then across games. This is not proven betting strength; price-comparison-only games follow. Prices, confidence and opposing/alternate selections need individual review.':'Order follows your selected sort. A high payout or model estimate is not proof of a good bet.';
++ const scores=BET.sport==='nfl'?Object.keys(GoingScore.MARKET_SPECS).flatMap(market=>goingScoreCandidates(market)):[];BEST_SCORE_ROWS.clear();for(const r of scores)BEST_SCORE_ROWS.set([r.profileId,r.market,Date.parse(r.kickoff)].join('|'),r);const scoreFor=c=>scores.find(r=>r.profileId===c.profileId&&r.market===c.market&&Date.parse(r.kickoff)===Date.parse(c.kickoff))?.score;
++ $('bestOrderNote').textContent=BEST_SORT==='going'?'Order: highest model-estimated win chance first within each game, then across games. This sort does not use GOING Score or establish value; high-probability low-payout favorites can lead. Price-comparison-only games follow. Prices, confidence and opposing/alternate selections need individual review.':'Order follows your selected sort. A high payout or model estimate is not proof of a good bet.';
+  host.innerHTML=GoingFootballSlate.render(groups,{label:bestPlayLabel,confidence:bestConfidence,score:scoreFor,teamLabel:footballTeamLabel,selected,open:TODAY_OPEN_GAMES,limit:TODAY_GAME_LIMIT});
+  updateSlateSelection();
+  $('bestMoreGames').hidden=groups.length<=TODAY_GAME_LIMIT;
+@@ -4786,7 +4850,9 @@ function wireBetting(){
+   $('scoreConfidence').onchange=e=>{GOING_SCORE_CONFIDENCE=e.target.value;GOING_SCORE_LIMIT=60;renderGoingScore();};
+   $('scoreMore').onclick=()=>{GOING_SCORE_LIMIT+=40;renderGoingScore();};
+   $('scoreReset').onclick=()=>{GOING_SCORE_QUERY='';GOING_SCORE_CONFIDENCE='all';GOING_SCORE_LIMIT=60;$('scoreSearch').value='';renderGoingScore();};
+-  $('scoreBoard').onclick=e=>{const open=e.target.closest('[data-score-market-open]'),add=e.target.closest('[data-score-add]');if(open){const row=GOING_SCORE_VISIBLE.get(open.dataset.scoreMarketOpen);if(!row)return;BET.market=row.market;BET.query=row.player;$('btSearch').value=row.player;chooseBettingTab('props');updateBetFilters();}else if(add){const row=GOING_SCORE_VISIBLE.get(add.dataset.scoreAdd);if(!row)return;const key='score|'+row.key,index=BEST_SHORTLIST.findIndex(item=>item.key===key);if(index>=0)BEST_SHORTLIST.splice(index,1);else BEST_SHORTLIST.push({key,label:`${row.player} — ${goingScoreLine(row)}`,book:row.book,odds:row.odds,prob:row.probability,home:row.home,away:row.away,market:row.market,side:row.market==='atd'?'Yes':'Over',line:row.line});persistShortlist();renderGoingScore();}};
++  $('scoreCheckResults').onclick=async()=>{if(SCORE_STORAGE_BLOCKED)return;await signalLoadResults();await scoreWithLock(()=>{const n=settleScoreHistory(SIGNAL.results);if(!SCORE_STORAGE_BLOCKED)SCORE_TRACKING_NOTE=`${n} new published-result matches. Missing, stale or ambiguous evidence remains pending.`;});};
++  $('scoreExportHistory').onclick=()=>{const blob=new Blob([JSON.stringify(SCORE_LEDGER,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='going-long-score-observations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
++  $('scoreBoard').onclick=e=>{const freeze=e.target.closest('[data-score-freeze]');if(freeze){const row=GOING_SCORE_VISIBLE.get(freeze.dataset.scoreFreeze);if(row)freezeScoreRow(row);return;}const open=e.target.closest('[data-score-market-open]'),add=e.target.closest('[data-score-add]');if(open){const row=GOING_SCORE_VISIBLE.get(open.dataset.scoreMarketOpen);if(!row)return;BET.market=row.market;BET.query=row.player;$('btSearch').value=row.player;chooseBettingTab('props');updateBetFilters();}else if(add){const row=GOING_SCORE_VISIBLE.get(add.dataset.scoreAdd);if(!row)return;const key='score|'+row.key,index=BEST_SHORTLIST.findIndex(item=>item.key===key);if(index>=0)BEST_SHORTLIST.splice(index,1);else BEST_SHORTLIST.push({key,label:`${row.player} — ${goingScoreLine(row)}`,book:row.book,odds:row.odds,prob:row.probability,home:row.home,away:row.away,market:row.market,side:row.market==='atd'?'Yes':'Over',line:row.line});persistShortlist();renderGoingScore();}};
+   const resetBestLimits=()=>{BEST_LIMIT={chance:24,value:24};TODAY_GAME_LIMIT=12;};
+   $('bestGameSlate').onclick=e=>{const b=e.target.closest('[data-slate-action]');if(b)openSlateAction(b.dataset.slateAction,b.dataset.slateGame);};
+   $('bestMoreGames').onclick=()=>{TODAY_GAME_LIMIT+=12;renderBestPlays();};
+diff --git a/shared/consumer-ui.css b/shared/consumer-ui.css
+index 2517bec45885d121919781cd36b9c3ffa721a9a5..74182263c219e68d88cde79db7de0a3e1698b4c8 100644
+--- a/shared/consumer-ui.css
++++ b/shared/consumer-ui.css
+@@ -81,3 +81,6 @@ body[data-going-workspace=long] .bt-best-grid>span{color:var(--g-text)}body[data
+  body[data-going-workspace=long] #btTabGroup>.bt-more-tools>div{left:0;right:0;width:100%;min-width:0;max-width:100%;max-height:min(65dvh,440px);overflow-y:auto;box-sizing:border-box;grid-template-columns:repeat(2,minmax(0,1fr))}
+  body[data-going-workspace=long] #btTabGroup>.bt-more-tools>div button{min-width:0;white-space:normal;overflow-wrap:anywhere}
+ }
++
++/* Score explanation spans the card grid on desktop and phones. */
++body[data-going-workspace=long] .score-driver-summary{grid-column:1/-1;min-width:0;line-height:1.5;font-size:.9rem}body[data-going-workspace=long] .score-driver-summary ul{padding-left:1.2rem;margin:.5rem 0}body[data-going-workspace=long] .score-driver-summary li+li{margin-top:.4rem}
+diff --git a/shared/football-slate.js b/shared/football-slate.js
+index 5101eb3f1d2134f4e59cbeb186e4fe26b5cb379c..20c88401f9d24575216016908e603814001be155 100644
+--- a/shared/football-slate.js
++++ b/shared/football-slate.js
+@@ -5,7 +5,7 @@ function key(c){const t=Date.parse(c.kickoff),home=String(c.home||'').trim().toU
+ function group(chance,value){const groups=new Map();for(const [rows,kind] of [[chance,'model'],[value,'price']])for(const c of rows){const id=key(c);if(!id)continue;if(!groups.has(id))groups.set(id,{key:id,game:c,model:[],price:[]});groups.get(id)[kind].push(c);}return [...groups.values()];}
+ function render(groups,{label,confidence,score,teamLabel,selected=new Set(),open=new Set(),limit=12}={}){
+ return groups.slice(0,limit).map(g=>{const lead=g.model[0]||g.price[0],observed=Date.parse(lead.updatedAt),priceAge=Number.isFinite(observed)?Math.max(0,Date.now()-observed):null,priceNote=priceAge===null?'Price timestamp unavailable; verify availability.':priceAge>300000?'Saved price, over five minutes old; check the current line.':'Recently observed price; verify before betting.',e=confidence(lead),s=score?.(lead),why=(lead.flags||[]).find(f=>f.id!=='check')?.why||`${lead.n||'Unknown'} recorded games support the estimate; open the evidence to check sample, availability and price.`,stamp=new Date(g.game.kickoff).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'});
+-return `<article class="slate-game"><header><h3>${esc(teamLabel(g.game.away,g.game.sport))} @ ${esc(teamLabel(g.game.home,g.game.sport))}</h3><small>${esc(stamp)} ET</small></header><p class="slate-count">${g.model.length} model-ranked research ${g.model.length===1?'candidate':'candidates'} · ${g.price.length} fresh price comparisons</p><p><small>Lead candidate · not a ticket suggestion</small><strong>${esc(lead.kind==='prop'?lead.player+' · ':'')}${esc(label(lead))}</strong></p><p class="slate-evidence">Evidence: <b>${esc(e.label)}</b>${Number.isFinite(s)?` · Player GOING Score <b>${s.toFixed(1)}/100</b> (evidence index, not win chance)`:''}</p><p class="slate-why">${esc(why)}</p><small class="slate-price-note">${esc(priceNote)}</small><div class="slate-actions"><button data-slate-action="parlay" data-slate-game="${esc(g.key)}" aria-pressed="${selected.has(g.key)}">${selected.has(g.key)?'✓ Selected for parlay':'Select game for parlay'}</button><button data-slate-action="games" data-slate-game="${esc(g.key)}">Compare this matchup</button>${g.game.sport==='nfl'?`<button data-slate-action="score" data-slate-game="${esc(g.key)}">Player GOING Scores</button>`:''}</div><details class="slate-bets" data-slate-open="${esc(g.key)}" ${open.has(g.key)?'open':''}><summary>View bets &amp; why · ${g.model.length+g.price.length} research entries</summary><div class="slate-bets-body"></div></details></article>`;}).join('')||'<div class="bt-empty">No supported research candidates match this date and filters. Try the full football week or Games to browse available prices. No recommendation is invented.</div>';
++return `<article class="slate-game"><header><h3>${esc(teamLabel(g.game.away,g.game.sport))} @ ${esc(teamLabel(g.game.home,g.game.sport))}</h3><small>${esc(stamp)} ET</small></header><p class="slate-count">${g.model.length} model-ranked research ${g.model.length===1?'candidate':'candidates'} · ${g.price.length} fresh price comparisons</p><p><small>Lead candidate · not a ticket suggestion</small><strong>${esc(lead.kind==='prop'?lead.player+' · ':'')}${esc(label(lead))}</strong></p><p class="slate-evidence">Evidence: <b>${esc(e.label)}</b>${Number.isFinite(s)?` · Player GOING Score <b>${s.toFixed(1)}/100</b> (player index, not win chance)${lead.side==='Under'?' · Not an Under or exact-line score.':''}`:''}</p><p class="slate-why">${esc(why)}</p><small class="slate-price-note">${esc(priceNote)}</small><div class="slate-actions"><button data-slate-action="parlay" data-slate-game="${esc(g.key)}" aria-pressed="${selected.has(g.key)}">${selected.has(g.key)?'✓ Selected for parlay':'Select game for parlay'}</button><button data-slate-action="games" data-slate-game="${esc(g.key)}">Compare this matchup</button>${g.game.sport==='nfl'?`<button data-slate-action="score" data-slate-game="${esc(g.key)}">Player GOING Scores</button>`:''}</div><details class="slate-bets" data-slate-open="${esc(g.key)}" ${open.has(g.key)?'open':''}><summary>View bets &amp; why · ${g.model.length+g.price.length} research entries</summary><div class="slate-bets-body"></div></details></article>`;}).join('')||'<div class="bt-empty">No supported research candidates match this date and filters. Try the full football week or Games to browse available prices. No recommendation is invented.</div>';
+ }
+ root.GoingFootballSlate={key,group,render};if(typeof module!=='undefined')module.exports=root.GoingFootballSlate;
+ })(globalThis);
+diff --git a/shared/opportunity-ui.js b/shared/opportunity-ui.js
+index 7c40f5ef5d7eb7b8f789f2581569ce27ed99a7df..e6c7c8b080de56c81106ec39b1b086b954e821ed 100644
+--- a/shared/opportunity-ui.js
++++ b/shared/opportunity-ui.js
+@@ -12,7 +12,7 @@ function injuryBadge(injury){
+ function read(){try{const x=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(x)?x:[];}catch{return [];}}
+ function write(rows){try{localStorage.setItem(KEY,JSON.stringify(rows));}catch{}renderSlip();}
+ function add(row){const rows=read(),i=rows.findIndex(x=>x.id===row.id);if(i>=0)rows.splice(i,1);else rows.push({...row,label:row.player&&!String(row.label).includes(row.player)?row.player+' · '+row.label:row.label});write(rows);return i<0;}
+-function card(c){offers.set(c.id,c);const stale=!finite(Date.parse(c.updatedAt))||Date.now()-Date.parse(c.updatedAt)>24*3600000||Date.parse(c.kickoff)<=Date.now(),saved=read().some(x=>x.id===c.id),teams=c.kind==='game'?[c.away,c.home]:[c.team,c.team===c.home?c.away:c.home],marks=c.sport==='nfl'?teamMarks(teams):'',cheatsheet=c.sport==='nfl'&&c.cheatsheetEvidence?.length?`<details class="g-cheatsheet"><summary>Related cheatsheet context</summary><p class="g-note">Supporting GOING data for this matchup. These observations are descriptive context and are not added again to the pick’s score or probability.</p><dl class="best-evidence">${c.cheatsheetEvidence.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></details>`:'';return `<article class="g-card best-card"><div class="g-bet-head"><div><span class="g-kicker">${esc(c.sport?.toUpperCase())} · ${esc(c.marketLabel||c.market)} · ${esc(c.qualification||'Research candidate')}</span><h3>${esc(c.player||c.label)}</h3>${injuryBadge(c.injury)}</div><span class="g-price">${finite(c.odds)?(c.odds>0?'+':'')+c.odds:'No price'}</span></div>${marks}<strong>${esc(c.label)}</strong><p class="g-note">${esc(teamLabel(c.away,c.sport))} @ ${esc(teamLabel(c.home,c.sport))} · ${esc(c.book||'No matched book')} · ${stale?'Stale / unavailable quote':esc(new Date(c.updatedAt).toLocaleString())}</p><div class="g-evidence"><div class="g-stat"><span>${c.sport==='mlb'?'Projection / research strength':'Projection / probability'}</span><h3>${esc(c.projectionLabel||'Unavailable')}</h3></div><div class="g-stat"><span>Evidence confidence</span><h3>${esc(c.confidence||'Limited')}</h3></div></div><p><strong>Why</strong> · ${esc(c.why)}</p><p class="g-warning"><strong>Main risk</strong> · ${esc(c.risk)}</p><p class="g-note"><strong>Parlay fit</strong> · ${esc(c.parlay||'Compare at one book; correlation and final price need confirmation.')}</p><details><summary>Show me the data</summary>${c.chartStats?E.panel(c.chartStats):E.bet(c)}${cheatsheet}<details><summary>Sources and full evidence</summary><dl class="best-evidence">${(c.evidence||[]).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl><small>${esc(c.source||'GOING published snapshot')}</small></details></details><div class="g-actions"><button data-going-pick="${esc(c.id)}" aria-pressed="${saved}" ${!finite(c.odds)||stale?'disabled':''}>${saved?'Remove pick':'Add / compare / parlay'}</button>${c.researchUrl?`<a href="${esc(c.researchUrl)}">Player research ↗</a>`:''}</div></article>`;}
++function card(c){offers.set(c.id,c);const sx=c.scoreContext,scoreContext=sx?`<details class="g-score-context"><summary>Player GOING Score ${Number(sx.score).toFixed(1)} · what drives it</summary><p>${esc(sx.sideNote)}</p><ul>${sx.drivers.map(d=>`<li><b>${esc(d.label)}:</b> ${esc(d.evidence)}</li>`).join('')}</ul><p><strong>Counterweight:</strong> ${esc(sx.risk)}</p><small>${esc(sx.confidence)} confidence · ${(100*sx.coverage).toFixed(0)}% component coverage. Production evidence is not a validated betting advantage.</small></details>`:'';const stale=!finite(Date.parse(c.updatedAt))||Date.now()-Date.parse(c.updatedAt)>24*3600000||Date.parse(c.kickoff)<=Date.now(),saved=read().some(x=>x.id===c.id),teams=c.kind==='game'?[c.away,c.home]:[c.team,c.team===c.home?c.away:c.home],marks=c.sport==='nfl'?teamMarks(teams):'',cheatsheet=c.sport==='nfl'&&c.cheatsheetEvidence?.length?`<details class="g-cheatsheet"><summary>Related cheatsheet context</summary><p class="g-note">Supporting GOING data for this matchup. These observations are descriptive context and are not added again to the pick’s score or probability.</p><dl class="best-evidence">${c.cheatsheetEvidence.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></details>`:'';return `<article class="g-card best-card"><div class="g-bet-head"><div><span class="g-kicker">${esc(c.sport?.toUpperCase())} · ${esc(c.marketLabel||c.market)} · ${esc(c.qualification||'Research candidate')}</span><h3>${esc(c.player||c.label)}</h3>${injuryBadge(c.injury)}</div><span class="g-price">${finite(c.odds)?(c.odds>0?'+':'')+c.odds:'No price'}</span></div>${marks}<strong>${esc(c.label)}</strong><p class="g-note">${esc(teamLabel(c.away,c.sport))} @ ${esc(teamLabel(c.home,c.sport))} · ${esc(c.book||'No matched book')} · ${stale?'Stale / unavailable quote':esc(new Date(c.updatedAt).toLocaleString())}</p><div class="g-evidence"><div class="g-stat"><span>${c.sport==='mlb'?'Projection / research strength':'Projection / probability'}</span><h3>${esc(c.projectionLabel||'Unavailable')}</h3></div><div class="g-stat"><span>Evidence confidence</span><h3>${esc(c.confidence||'Limited')}</h3></div></div><p><strong>Why</strong> · ${esc(c.why)}</p><p class="g-warning"><strong>Main risk</strong> · ${esc(c.risk)}</p><p class="g-note"><strong>Parlay fit</strong> · ${esc(c.parlay||'Compare at one book; correlation and final price need confirmation.')}</p><details><summary>Show me the data</summary>${c.chartStats?E.panel(c.chartStats):E.bet(c)}${cheatsheet}<details><summary>Sources and full evidence</summary><dl class="best-evidence">${(c.evidence||[]).map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl><small>${esc(c.source||'GOING published snapshot')}</small></details></details>${c.researchNotes?.length?`<details class="g-research-context"><summary>Evidence behind this selection</summary><ul>${c.researchNotes.map(note=>`<li>${esc(note)}</li>`).join('')}</ul></details>`:''}${scoreContext}<div class="g-actions"><button data-going-pick="${esc(c.id)}" aria-pressed="${saved}" ${!finite(c.odds)||stale?'disabled':''}>${saved?'Remove pick':'Add / compare / parlay'}</button>${c.researchUrl?`<a href="${esc(c.researchUrl)}">Player research ↗</a>`:''}</div></article>`;}
+ function renderSlip(){if(typeof document==='undefined')return;let box=document.getElementById('goingSharedSlip');if(!box){box=document.createElement('details');box.id='goingSharedSlip';box.className='g-slip';document.body.append(box);}const rows=read();box.hidden=!rows.length;const books=new Set(rows.map(x=>String(x.book||'').toLowerCase())),events=new Set(rows.map(x=>x.event||[x.sport,x.home,x.away,x.kickoff].join('|'))),stale=rows.some(x=>!Number.isFinite(Date.parse(x.kickoff))||Date.parse(x.kickoff)<=Date.now()||!Number.isFinite(Date.parse(x.updatedAt))||Date.now()-Date.parse(x.updatedAt)>24*3600000),coherent=rows.length>=2&&books.size===1&&events.size===rows.length&&!stale;
+  const decimal=x=>x>0?1+x/100:1+100/-x,product=coherent&&rows.every(x=>finite(x.odds)&&Math.abs(x.odds)>=100)?rows.reduce((v,x)=>v*decimal(x.odds),1):null;
+  box.innerHTML=`<summary>${rows.length} shared ${rows.length===1?'pick':'picks'} · Compare & parlay</summary>${rows.map(r=>`<div class="g-slip-row"><div><b>${esc(r.label)}</b><small class="g-note"><br>${esc(r.sport?.toUpperCase())} · ${esc(r.book)} · ${esc(r.odds)}</small></div><button data-going-remove="${esc(r.id)}" aria-label="Remove ${esc(r.label)}">×</button></div>`).join('')}<p class="g-note">${stale?'One or more legs have started or have an old/unknown quote. Recheck them.':books.size>1?'Different books selected. Match all legs at one book before building a ticket.':events.size<rows.length?'Same-game legs: use the sportsbook’s actual combined price.':product?`Separate-game price product: ${product.toFixed(2)} decimal. Indicative only; confirm the ticket at your book.`:'Add another selection to compare.'} Joint win probability is unavailable.</p><div class="g-actions"><a href="/long/?mode=betting&tab=parlays">Parlay Lab</a><button data-going-clear>Clear picks</button></div>`;}
+diff --git a/shared/score-tracker.js b/shared/score-tracker.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..3f492e1bea2e135a4326340e702a0e17856b128e
+--- /dev/null
++++ b/shared/score-tracker.js
+@@ -0,0 +1,138 @@
++(function(root){
++'use strict';
++// Prospective, user-selected observations. These counts are not a model backtest.
++const CAPACITY=10000, MARKETS=['atd','pass_yds','pass_tds','rush_yds','receptions'];
++const finite=x=>typeof x==='number'&&Number.isFinite(x);
++const plain=x=>x!=null&&typeof x==='object'&&!Array.isArray(x)&&Object.getPrototypeOf(x)===Object.prototype;
++const str=x=>typeof x==='string'&&x.trim().length>0&&x.length<=500;
++const copy=x=>JSON.parse(JSON.stringify(x));
++function time(x){return (typeof x==='string'&&x.trim()||finite(x))?new Date(x).getTime():NaN;}
++function stamp(x){return new Date(time(x)).toISOString();}
++function create(){return {version:1,records:{},settlements:{}};}
++function identity(r){return JSON.stringify([r.sport,r.profileId,r.home,r.away,r.kickoff,r.market,r.side,r.line,r.scoreVersion]);}
++function gameIdentity(r){return JSON.stringify([r.sport,r.home,r.away,r.kickoff]);}
++function band(score){return score>=90?'90+':`${Math.floor(score/10)*10}-${Math.floor(score/10)*10+9}`;}
++function snapshot(input,now){
++ if(!plain(input)||!finite(now))return null;
++ const r={};
++ for(const k of ['scoreVersion','sport','profileId','player','team','opp','home','away','market','side']){
++  if(!str(input[k]))return null;r[k]=input[k];
++ }
++ if(r.sport!=='nfl'||!MARKETS.includes(r.market)||r.home===r.away||r.team===r.opp||
++  ![r.home,r.away].includes(r.team)||![r.home,r.away].includes(r.opp))return null;
++ if(r.side!==(r.market==='atd'?'Yes':'Over')||!finite(input.line)||input.line<0||
++  (r.market==='atd'&&input.line!==.5)||!finite(input.score)||input.score<0||input.score>100)return null;
++ const kickoff=time(input.kickoff), modelAt=time(input.modelAt);
++ if(!Number.isFinite(kickoff)||kickoff<=now||!Number.isFinite(modelAt)||modelAt>now)return null;
++ Object.assign(r,{kickoff:stamp(input.kickoff),modelAt:stamp(input.modelAt),line:input.line,score:input.score});
++ if(input.contextAt!=null){if(!Number.isFinite(time(input.contextAt))||time(input.contextAt)>now)return null;r.contextAt=stamp(input.contextAt);}
++ if(input.evidenceAt!=null){
++  if(!plain(input.evidenceAt))return null;r.evidenceAt={};
++  for(const key of ['learning','injury','roster'])if(Object.hasOwn(input.evidenceAt,key)){
++   if(!Number.isFinite(time(input.evidenceAt[key]))||time(input.evidenceAt[key])>now)return null;
++   r.evidenceAt[key]=stamp(input.evidenceAt[key]);
++  }
++ }
++ for(const k of ['probability','scoreProbability','pushProbability','projection'])if(input[k]!=null){
++  if(!finite(input[k])||(k!=='projection'&&(input[k]<0||input[k]>1)))return null;r[k]=input[k];
++ }
++ if(r.probability!=null&&r.pushProbability!=null&&r.probability+r.pushProbability>1)return null;
++ for(const k of ['cohortSize','rank','sampleGames','currentGames'])if(input[k]!=null){
++  if(!Number.isInteger(input[k])||input[k]<(k==='rank'||k==='cohortSize'?1:0))return null;r[k]=input[k];
++ }
++ if(r.rank!=null&&r.cohortSize!=null&&r.rank>r.cohortSize)return null;
++ if(input.componentCoverage!=null){if(!finite(input.componentCoverage)||input.componentCoverage<0||input.componentCoverage>1)return null;r.componentCoverage=input.componentCoverage;}
++ if(input.confidence!=null){
++  if(!plain(input.confidence)||!finite(input.confidence.value)||input.confidence.value<0||input.confidence.value>100||!str(input.confidence.label))return null;
++  r.confidence={value:input.confidence.value,label:input.confidence.label};
++ }
++ if(input.components!=null){
++  if(!plain(input.components))return null;r.components={};
++  for(const k of ['projection','role','matchup','environment'])if(input.components[k]!=null){
++   const c=input.components[k];if(!plain(c))return null;const clean={};
++   for(const field of ['value','weight','percentile'])if(c[field]!=null){
++    if(!finite(c[field])||(field==='weight'&&(c[field]<0||c[field]>1))||(field==='percentile'&&(c[field]<0||c[field]>100)))return null;
++    clean[field]=c[field];
++   }else if(Object.hasOwn(c,field))clean[field]=null;
++   for(const field of ['label','evidence'])if(c[field]!=null){
++    if(typeof c[field]!=='string'||!c[field].trim()||c[field].length>(field==='evidence'?4000:500))return null;clean[field]=c[field];
++   }
++   r.components[k]=clean;
++  }
++ }
++ if(input.quote!=null){
++  const q=input.quote;
++  if(!plain(q)||!str(q.book)||!finite(q.odds)||Math.abs(q.odds)<100||!finite(q.line)||q.line!==r.line||!Number.isFinite(time(q.updatedAt))||time(q.updatedAt)>now)return null;
++  r.quote={book:q.book,odds:q.odds,line:q.line,updatedAt:stamp(q.updatedAt)};
++  r.quoteFreshAtFreeze=now-time(q.updatedAt)<=5*60*1000;
++ }
++ return r;
++}
++function settlement(input,r,now){
++ if(!plain(input)||!finite(now)||now<time(r.kickoff)||!['win','loss','push','void'].includes(input.status)||
++  input.source!=='published-player-game-result'||!Number.isFinite(time(input.resultAt))||time(input.resultAt)<time(r.kickoff)||time(input.resultAt)>now||
++  input.profileId!==r.profileId||!str(input.game)||input.home!==r.home||input.away!==r.away||
++  !Number.isFinite(time(input.kickoff))||Math.abs(time(input.kickoff)-time(r.kickoff))>120000)return null;
++ if(input.value!==null&&!finite(input.value))return null;
++ if(input.status!=='void'&&input.value===null)return null;
++ // A result cannot supply a grade that contradicts its frozen contract.
++ if(input.status!=='void'){
++  const expected=input.value===r.line?'push':input.value>r.line?'win':'loss';
++  if(input.status!==expected)return null;
++ }
++ const clean={status:input.status,value:input.value,source:input.source,resultAt:stamp(input.resultAt),settledAt:new Date(now).toISOString(),game:input.game,profileId:input.profileId,
++  home:input.home,away:input.away,kickoff:stamp(input.kickoff)};
++ for(const k of ['playerSourceAt','sourceCheckedAt'])if(input[k]!=null){
++  if(!Number.isFinite(time(input[k]))||time(input[k])<time(r.kickoff)||time(input[k])>now)return null;
++  clean[k]=stamp(input[k]);
++ }
++ return clean;
++}
++function restore(input){
++ try{
++  if(!plain(input)||input.version!==1||!plain(input.records)||!plain(input.settlements)||Object.keys(input.records).length>CAPACITY)return null;
++  const ledger=create();
++  for(const [key,r] of Object.entries(input.records)){
++   if(!plain(r)||!Number.isFinite(time(r.frozenAt)))return null;
++   const clean=snapshot(r,time(r.frozenAt));
++   if(!clean||identity(clean)!==key||r.key!==key||r.band!==band(clean.score)||r.selectionBias!=='user-selected')return null;
++   ledger.records[key]={...clean,key,band:r.band,frozenAt:stamp(r.frozenAt),selectionBias:'user-selected'};
++  }
++  for(const [key,s] of Object.entries(input.settlements)){
++   const r=ledger.records[key];if(!r||!plain(s)||!Number.isFinite(time(s.settledAt)))return null;
++   const clean=settlement(s,r,time(s.settledAt));if(!clean)return null;
++   ledger.settlements[key]=clean;
++  }
++  return ledger;
++ }catch(_){return null;}
++}
++function freeze(inputLedger,input,now=Date.now()){
++ const ledger=restore(inputLedger);if(!ledger)return {ledger:inputLedger,record:null,added:false,error:'Invalid ledger'};
++ const r=snapshot(input,now);if(!r)return {ledger,record:null,added:false,error:'Invalid or non-prospective snapshot'};
++ const key=identity(r);
++ if(Object.hasOwn(ledger.records,key))return {ledger,record:copy(ledger.records[key]),added:false,error:null};
++ if(Object.keys(ledger.records).length>=CAPACITY)return {ledger,record:null,added:false,error:'Tracker capacity reached; export before starting a new ledger'};
++ const record={...r,key,band:band(r.score),frozenAt:new Date(now).toISOString(),selectionBias:'user-selected'};
++ ledger.records[key]=record;return {ledger,record:copy(record),added:true,error:null};
++}
++function attachSettlement(inputLedger,key,grade,now=Date.now()){
++ const ledger=restore(inputLedger);if(!ledger)return {ledger:inputLedger,settlement:null,added:false,error:'Invalid ledger'};
++ const r=Object.hasOwn(ledger.records,key)?ledger.records[key]:null;
++ if(!r)return {ledger,settlement:null,added:false,error:'Unknown observation'};
++ if(Object.hasOwn(ledger.settlements,key))return {ledger,settlement:copy(ledger.settlements[key]),added:false,error:'Settlement already recorded'};
++ const s=settlement(grade,r,now);if(!s)return {ledger,settlement:null,added:false,error:'Invalid or premature published result'};
++ ledger.settlements[key]=s;return {ledger,settlement:copy(s),added:true,error:null};
++}
++function summary(inputLedger){
++ const ledger=restore(inputLedger);if(!ledger)return null;
++ const bands={},games=new Set();let settled=0;
++ for(const [key,r] of Object.entries(ledger.records)){
++  games.add(gameIdentity(r));const b=bands[r.band]||(bands[r.band]={count:0,settled:0,pending:0,win:0,loss:0,push:0,void:0});b.count++;
++  const s=ledger.settlements[key];if(s){settled++;b.settled++;b[s.status]++;}else b.pending++;
++ }
++ const total=Object.keys(ledger.records).length;
++ return {total,settled,pending:total-settled,games:games.size,bands,selectionBias:'user-selected'};
++}
++root.GoingScoreTracker={create,freeze,attachSettlement,restore,summary,CAPACITY};
++if(typeof module!=='undefined')module.exports=root.GoingScoreTracker;
++})(globalThis);
+diff --git a/tests/betting.test.cjs b/tests/betting.test.cjs
+index ffbd8e396976abe189cd0fc83969b7701f00b3d2..ae6d137be823bfe84663a3823e75910aef8b77b9 100644
+--- a/tests/betting.test.cjs
++++ b/tests/betting.test.cjs
+@@ -19,10 +19,11 @@ function setup(t){
+   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-injuries.js'),'utf8'),context);
+   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-dfs.js'),'utf8'),context);
+   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-slate.js'),'utf8'),context);
++  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/score-tracker.js'),'utf8'),context);
+   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
+     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
+   }
+-  vm.runInContext(`globalThis.api={renderGameFirstSlate,openSlateAction, bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
++  vm.runInContext(`globalThis.api={bestRecommendationNotes,scoreSnapshot,freezeScoreRow,settleScoreHistory,scoreDriverContext,renderGameFirstSlate,openSlateAction, bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
+     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
+     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
+     mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,goingScoreRisk,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
+@@ -656,3 +657,40 @@ test('Today forwards recorded injury context and NFL display labels preserve NCA
+  assert.equal(w.document.querySelectorAll('#bestGameSlate [data-slate-action="score"]').length,0);assert.equal(w.document.querySelector('#btTabGroup [data-section="jackpot"]').hidden,true);
+  assert.match(w.document.querySelector('#bestGameSlate').textContent,/Michigan/);assert.equal(w.document.querySelector('#bestBuildParlay').disabled,true);
+  });
++
++test('Score capture freezes decision inputs, preserves first snapshot and settles only trusted matching finals',t=>{
++ const {api:a,w,context}=setup(t);a.wireBetting();a.BET.history={generated_at:'2026-09-09T10:00:00Z'};a.BET.context={generated_at:'2026-09-09T10:30:00Z'};
++ const row=vm.runInContext(`({player:'Runner',profileId:'p',team:'A',opponent:'B',home:'B',away:'A',kickoff:'2026-09-10T00:20:00Z',market:'atd',score:70,rank:1,cohortSize:1,modelAt:'2026-09-09T10:00:00Z',contextAt:'2026-09-09T10:30:00Z',sampleGames:12,currentGames:1,projection:.7,probability:.5,scoreProbability:.42,confidence:{value:65,label:'Moderate'},componentCoverage:1,components:{projection:{value:.42,weight:.75,percentile:65,label:'Shrunk TD anchor',evidence:'Recorded estimate'}}})`,context);
++ // Frozen cohort count must use a populated field; no invented cohort size.
++ const snapshot=a.scoreSnapshot(row);snapshot.cohortSize=1;
++ const frozen=vm.runInContext('GoingScoreTracker.freeze(SCORE_LEDGER, globalThis.testSnapshot, Date.now())',Object.assign(context,{testSnapshot:snapshot}));assert.equal(frozen.added,true);vm.runInContext('SCORE_LEDGER=globalThis.testLedger',Object.assign(context,{testLedger:frozen.ledger}));
++ const before=JSON.stringify(frozen.ledger.records);assert.equal(frozen.record.quote,undefined);assert.equal(frozen.record.line,.5);
++ const recordKickoff=Date.parse(row.kickoff),now=recordKickoff+86400000;
++ const results={schema_version:1,generated_at:new Date(now-1000).toISOString(),player_source_at:new Date(now-2000).toISOString(),sources:{nfl:{status:'loaded',checked_at:new Date(now-500).toISOString()}},games:{g:{sport:'nfl',id:'g',home:'B',away:'A',kickoff:row.kickoff,homeScore:20,awayScore:10}},players:{'p|2026-09-09':{atd:1}}};
++ assert.equal(a.settleScoreHistory({...results,sources:{nfl:{status:'unavailable',checked_at:results.sources.nfl.checked_at}}},now),0);
++ assert.equal(a.settleScoreHistory({...results,players:{}},now),0);assert.equal(a.settleScoreHistory({...results,player_source_at:'2026-09-09T10:00:00Z'},now),0);
++ assert.equal(a.settleScoreHistory({...results,games:{g:results.games.g,duplicate:{...results.games.g,id:'duplicate'}}},now),0);
++ assert.equal(a.settleScoreHistory(results,now),1);assert.equal(vm.runInContext('Object.values(SCORE_LEDGER.settlements)[0].status',context),'win');assert.equal(vm.runInContext('JSON.stringify(SCORE_LEDGER.records)',context),before);
++ assert.equal(a.settleScoreHistory({...results,players:{'p|2026-09-09':{atd:0}}},now),0);assert.equal(vm.runInContext('Object.values(SCORE_LEDGER.settlements)[0].value',context),1);
++});
++test('Score drivers distinguish index, confidence, missing matchup and Under direction',t=>{
++ const {api:a}=setup(t),row={market:'rush_yds',score:90,confidence:{label:'Limited'},componentCoverage:.8,currentGames:1,sampleGames:12,projection:70,projectionLabel:'70 yards',line:80,components:{projection:{label:'Model',evidence:'12 recorded games',percentile:90,weight:.45},role:{label:'Carry share',evidence:'10 carries/game',percentile:75,weight:.3},matchup:{value:null,percentile:null,weight:.15},environment:{percentile:50,weight:.1}}};
++ const info=a.scoreDriverContext(row,'Under');assert.match(info.sideNote,/not support for this Under/);assert.equal(info.drivers.length,2);assert.match(info.risk,/does not clear/);assert.equal(info.confidence,'Limited');
++});
++
++test('Score capture serializes across tabs and re-reads the frozen original before writing',async t=>{
++ const {api:a,w,context}=setup(t);a.wireBetting();w.navigator.locks={request:async(name,callback)=>callback()};
++ const row=vm.runInContext(`({player:'Runner',profileId:'p',team:'A',opponent:'B',home:'B',away:'A',kickoff:'2026-09-10T00:20:00Z',market:'atd',score:70,rank:1,cohortSize:1,modelAt:'2026-09-09T10:00:00Z',sampleGames:12,currentGames:1,projection:.7,probability:.5,scoreProbability:.42,confidence:{value:65,label:'Moderate'},componentCoverage:1,components:{projection:{value:.42,weight:.75,percentile:65,label:'Anchor',evidence:'Estimate'}}})`,context);
++ await a.freezeScoreRow(row);const key=vm.runInContext('Object.keys(SCORE_LEDGER.records)[0]',context);assert.ok(key);const first=w.localStorage.getItem('goinglong.score.tracking.v1');
++ // A stale tab's empty in-memory state must not overwrite durable first capture.
++ vm.runInContext('SCORE_LEDGER=GoingScoreTracker.create()',context);row.score=99;await a.freezeScoreRow(row);
++ assert.equal(w.localStorage.getItem('goinglong.score.tracking.v1'),first);assert.equal(vm.runInContext('Object.values(SCORE_LEDGER.records)[0].score',context),70);
++ assert.match(w.document.querySelector('#scoreTrackingStatus').textContent,/insufficient sample/);assert.doesNotMatch(w.document.querySelector('#scoreTrackingStatus').textContent,/win rate|ROI/);
++ w.localStorage.setItem('goinglong.score.tracking.v1','bad');await a.freezeScoreRow(row);assert.equal(w.localStorage.getItem('goinglong.score.tracking.v1'),'bad');assert.equal(vm.runInContext('SCORE_STORAGE_BLOCKED',context),true);
++});
++
++test('NCAA recommendation notes distinguish current samples from saved market disagreement',t=>{
++ const {api:a}=setup(t),c={sport:'ncaa',kind:'game',home:'A',away:'B',market:'total',prob:.7,updatedAt:new Date(Date.now()-3600000).toISOString(),gameSeasonEvidence:{home_current_games:2,away_current_games:1},marketEvidence:[{book:'a',reference:{win:.51}},{book:'b',reference:{win:.52}}]};
++ const notes=a.bestRecommendationNotes(c).join(' ');assert.match(notes,/1 B games \/ 2 A games/);assert.match(notes,/2 paired books/);assert.match(notes,/may be saved prices/);assert.match(notes,/disagreement is not proof/);assert.match(notes,/not measured prediction reliability/);
++ assert.doesNotMatch(a.bestRecommendationNotes({...c,gameSeasonEvidence:{},marketEvidence:[]}).join(' '),/2 paired books/);
++});
+diff --git a/tests/football-slate.test.cjs b/tests/football-slate.test.cjs
+index e24476e1d098cd61e15841b8f9f59f38d427863c..5b9d21cba21f370972d10850321186a07c0b84d8 100644
+--- a/tests/football-slate.test.cjs
++++ b/tests/football-slate.test.cjs
+@@ -47,7 +47,7 @@ test('renders research and fresh price comparison as distinct concepts and prese
+   assert.match(card.querySelector('.slate-count').textContent, /2 model-ranked research candidates · 1 fresh price comparisons/);
+   assert.match(card.textContent, /Lead candidate · not a ticket suggestion/);
+   assert.match(card.querySelector('strong').textContent, /Ja'Marr <Chase>/);
+-  assert.match(card.textContent, /Evidence: Moderate · Player GOING Score 72.4\/100 \(evidence index, not win chance\)/);
++  assert.match(card.textContent, /Evidence: Moderate · Player GOING Score 72.4\/100 \(player index, not win chance\)/);
+   const detail = card.querySelector('details.slate-bets');
+   assert.equal(detail.open, false, 'research list begins collapsed');
+   assert.equal(detail.querySelector('.slate-bets-body').innerHTML, '', 'evidence body is lazy/empty until populated');
+@@ -88,3 +88,9 @@ test('render is capped at twelve games and collapsed groups can be controlled by
+   assert.equal(host.querySelectorAll('.slate-bets[open]').length, 1);
+   assert.equal(host.querySelector('.slate-bets[open]').dataset.slateOpen, groups[1].key);
+ });
++
++test('a player index on an Under is explicitly not Under or exact-line evidence',()=>{
++ const row={sport:'nfl',home:'BAL',away:'CIN',kickoff:'2026-10-11T17:00:00Z',kind:'prop',player:'Player',side:'Under',market:'rush_yds',line:40.5,n:12,flags:[]};
++ const groups=require('../shared/football-slate.js').group([row],[]);const output=require('../shared/football-slate.js').render(groups,{label:()=> 'Under 40.5 rush yards',confidence:()=>({label:'Low'}),score:()=>88,teamLabel:x=>x});
++ assert.match(output,/Not an Under or exact-line score/);
++});
+diff --git a/tests/score-tracker.test.cjs b/tests/score-tracker.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..3b41bc1ffb3569d151ec15378ca584b74fcafb1f
+--- /dev/null
++++ b/tests/score-tracker.test.cjs
+@@ -0,0 +1,117 @@
++const test=require('node:test');
++const assert=require('node:assert/strict');
++const tracker=require('../shared/score-tracker.js');
++const now=Date.parse('2026-10-01T12:00:00Z');
++const kickoff=Date.parse('2026-10-02T20:00:00Z');
++function observation(extra={}){
++ return {scoreVersion:'v1',sport:'nfl',profileId:'player-1',player:'Player One',team:'BUF',opp:'NYJ',home:'BUF',away:'NYJ',
++  kickoff,market:'rush_yds',side:'Over',line:50.5,score:78,probability:.61,scoreProbability:.5,projection:65,
++  modelAt:now-1000,contextAt:now-2000,componentCoverage:.9,confidence:{value:73,label:'Moderate'},
++  components:{projection:{value:65,percentile:80,weight:.45,label:'Projection',evidence:'Published projection'}},...extra};
++}
++function captured(extra={}){return tracker.freeze(tracker.create(),observation(extra),now);}
++function result(extra={}){return {status:'win',value:65,source:'published-player-game-result',resultAt:kickoff+3600000,game:'NYJ at BUF',profileId:'player-1',home:'BUF',away:'NYJ',kickoff,...extra};}
++test('first observation survives changed score and reload without input mutation',()=>{
++ const input=tracker.create(),snap=observation();const original=JSON.stringify(snap);
++ const first=tracker.freeze(input,snap,now);assert.equal(first.added,true);assert.deepEqual(input,tracker.create());assert.equal(JSON.stringify(snap),original);
++ snap.components.projection.value=99;first.record.components.projection.value=1;
++ assert.equal(first.ledger.records[first.record.key].components.projection.value,65);
++ const second=tracker.freeze(first.ledger,observation({score:95,projection:99}),now+1000);
++ assert.equal(second.added,false);assert.equal(second.record.score,78);assert.equal(second.record.projection,65);
++ assert.deepEqual(tracker.restore(JSON.parse(JSON.stringify(first.ledger))),first.ledger);
++ assert.equal(second.record.selectionBias,'user-selected');assert.equal(second.record.probability,.61);assert.equal(second.record.scoreProbability,.5);
++});
++test('identity includes frozen line, version and game, but not bookmaker',()=>{
++ const a=captured({quote:{book:'A',line:50.5,odds:-110,updatedAt:now-500}});
++ const b=tracker.freeze(a.ledger,observation({quote:{book:'B',line:50.5,odds:105,updatedAt:now}}),now);
++ assert.equal(b.added,false);assert.equal(b.record.quote.book,'A');
++ const c=tracker.freeze(b.ledger,observation({line:51.5}),now);assert.equal(c.added,true);
++ const d=tracker.freeze(c.ledger,observation({scoreVersion:'v2'}),now);assert.equal(d.added,true);
++ const e=tracker.freeze(d.ledger,observation({opp:'MIA',away:'MIA'}),now);assert.equal(e.added,true);
++ assert.equal(tracker.summary(e.ledger).total,4);assert.equal(tracker.summary(e.ledger).games,2);
++});
++test('missing prices allowed; nested and top-level private fields discarded',()=>{
++ const a=captured({secret:'hidden',confidence:{value:73,label:'Moderate',private:'hidden'},components:{projection:{value:65,evidence:'Public',token:'hidden'}}});
++ assert.equal(a.added,true);assert.equal(a.record.quote,undefined);
++ assert.equal(JSON.stringify(a.ledger).includes('hidden'),false);
++});
++test('snapshot preserves cohort inputs and explicitly labels old prices',()=>{
++ const a=captured({cohortSize:20,rank:2,sampleGames:12,currentGames:3,pushProbability:.1,quote:{book:'A',line:50.5,odds:-110,updatedAt:now-300001}});
++ assert.equal(a.added,true);assert.equal(a.record.quoteFreshAtFreeze,false);assert.equal(a.record.cohortSize,20);assert.equal(a.record.rank,2);assert.equal(a.record.pushProbability,.1);
++ assert.equal(captured({quote:{book:'A',line:50.5,odds:-110,updatedAt:now-300000}}).record.quoteFreshAtFreeze,true);
++ assert.equal(captured({pushProbability:.5}).added,false);
++ assert.equal(captured({cohortSize:1,rank:2}).added,false);
++ assert.equal(captured({sampleGames:-1}).added,false);
++ const edited=JSON.parse(JSON.stringify(a.ledger));edited.records[a.record.key].quoteFreshAtFreeze=true;
++ assert.equal(tracker.restore(edited).records[a.record.key].quoteFreshAtFreeze,false);
++});
++test('independent evidence timestamps are frozen and cannot use future source updates',()=>{
++ const evidenceAt={learning:now-2000,injury:now-1000,roster:now};
++ const a=captured({evidenceAt});assert.equal(a.added,true);
++ evidenceAt.injury=now+1000;
++ assert.equal(a.record.evidenceAt.injury,new Date(now-1000).toISOString());
++ assert.deepEqual(tracker.restore(JSON.parse(JSON.stringify(a.ledger))),a.ledger);
++ for(const key of ['learning','injury','roster'])assert.equal(captured({evidenceAt:{[key]:now+1}}).added,false);
++ assert.equal(captured({evidenceAt:{injury:null}}).added,false);
++ const b=tracker.freeze(a.ledger,observation({evidenceAt:{injury:now}}),now);
++ assert.equal(b.record.evidenceAt.injury,a.record.evidenceAt.injury);
++});
++test('American quoted prices exclude magnitudes below 100',()=>{
++ for(let odds=1;odds<100;odds++)for(const signed of [odds,-odds]){
++  assert.equal(captured({quote:{book:'A',line:50.5,odds:signed,updatedAt:now}}).added,false);
++ }
++ for(const odds of [-100,100,-110,150])assert.equal(captured({quote:{book:'A',line:50.5,odds,updatedAt:now}}).added,true);
++});
++test('reject invalid contracts and future or postgame capture',()=>{
++ for(const extra of [{kickoff:now},{kickoff:now-1},{modelAt:now+1},{modelAt:null},{contextAt:now+1},{line:NaN},{score:101},{score:-1},{profileId:''},{home:'NYJ'},{probability:1.1},{market:'unknown'},{side:'Under'},
++  {quote:{book:'A',line:50.5,odds:-110,updatedAt:now+1}},{quote:{book:'A',line:51,odds:-110,updatedAt:now}}]){
++  assert.equal(captured(extra).added,false,JSON.stringify(extra));
++ }
++ assert.equal(captured({market:'atd',side:'Yes',line:.5}).added,true);
++ assert.equal(captured({market:'atd',side:'Yes',line:1.5}).added,false);
++});
++test('settlements require provenance and chronology and cannot overwrite prediction or result',()=>{
++ const a=captured(),before=JSON.stringify(a.ledger);
++ for(const [grade,at] of [[result(),now],[result({source:'manual'}),kickoff+7200000],[result({resultAt:kickoff-1}),kickoff+7200000],[result({resultAt:kickoff+8000000}),kickoff+7200000],
++  [result({profileId:'different'}),kickoff+7200000],[result({status:'loss'}),kickoff+7200000],[result({value:null}),kickoff+7200000],[result({game:''}),kickoff+7200000]]){
++  assert.equal(tracker.attachSettlement(a.ledger,a.record.key,grade,at).added,false);
++ }
++ const b=tracker.attachSettlement(a.ledger,a.record.key,result(),kickoff+7200000);
++ assert.equal(b.added,true);assert.equal(JSON.stringify(a.ledger),before);assert.deepEqual(b.ledger.records,a.ledger.records);
++ const c=tracker.attachSettlement(b.ledger,a.record.key,result({status:'void',value:null}),kickoff+8000000);
++ assert.equal(c.added,false);assert.equal(c.settlement.status,'win');assert.ok(c.error);
++ assert.deepEqual(tracker.restore(JSON.parse(JSON.stringify(b.ledger))),b.ledger);
++ assert.deepEqual(tracker.summary(b.ledger),{total:1,settled:1,pending:0,games:1,bands:{'70-79':{count:1,settled:1,pending:0,win:1,loss:0,push:0,void:0}},selectionBias:'user-selected'});
++});
++test('push and void handling and score 100 band',()=>{
++ const a=captured({score:100,line:65});assert.equal(a.record.band,'90+');
++ assert.equal(tracker.attachSettlement(a.ledger,a.record.key,result({status:'push'}),kickoff+7200000).added,true);
++ assert.equal(tracker.attachSettlement(a.ledger,a.record.key,result({status:'void',value:null}),kickoff+7200000).added,true);
++});
++test('settlement game identity must match with at most two minutes kickoff drift',()=>{
++ const a=captured();
++ for(const extra of [{home:'MIA'},{away:'MIA'},{kickoff:kickoff+120001},{kickoff:null},{playerSourceAt:kickoff-1},{sourceCheckedAt:kickoff+7200001}]){
++  assert.equal(tracker.attachSettlement(a.ledger,a.record.key,result(extra),kickoff+7200000).added,false);
++ }
++ const b=tracker.attachSettlement(a.ledger,a.record.key,result({kickoff:kickoff+120000,playerSourceAt:kickoff+3000000,sourceCheckedAt:kickoff+3600000}),kickoff+7200000);
++ assert.equal(b.added,true);assert.deepEqual(tracker.restore(b.ledger),b.ledger);
++});
++test('restore rejects corrupt keys, inconsistent chronology and invalid settlement',()=>{
++ const a=captured();const key=a.record.key;
++ const variants=[{version:2,records:{},settlements:{}},{version:1,records:[],settlements:{}}];
++ for(const mutate of [l=>{l.records.bad=l.records[key];delete l.records[key];},l=>{l.records[key].score=Infinity;},l=>{l.records[key].frozenAt=new Date(kickoff).toISOString();},l=>{l.records[key].modelAt=new Date(now+1).toISOString();},l=>{l.settlements[key]={...result(),settledAt:new Date(now).toISOString()};},l=>{l.settlements.unknown={};}]){
++  const ledger=JSON.parse(JSON.stringify(a.ledger));mutate(ledger);variants.push(ledger);
++ }
++ for(const ledger of variants)assert.equal(tracker.restore(ledger),null);
++ assert.equal(tracker.summary(null),null);
++});
++test('capacity is explicit and never prunes saved records',()=>{
++ let ledger=tracker.create();const base=captured().record;
++ for(let i=0;i<tracker.CAPACITY;i++){
++  const r={...base,profileId:`player-${i}`};
++  const key=JSON.stringify([r.sport,r.profileId,r.home,r.away,r.kickoff,r.market,r.side,r.line,r.scoreVersion]);r.key=key;ledger.records[key]=r;
++ }
++ const response=tracker.freeze(ledger,observation({profileId:'overflow'}),now);
++ assert.equal(response.added,false);assert.match(response.error,/capacity/i);assert.equal(Object.keys(response.ledger.records).length,tracker.CAPACITY);
++ assert.equal(Object.keys(ledger.records).length,tracker.CAPACITY);
++});
