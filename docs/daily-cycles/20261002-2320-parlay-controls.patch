@@ -1,0 +1,468 @@
+diff --git a/index.html b/index.html
+index 2a76d754ecd7e1390da2bcad89368db92d6e96c1..e24797f97230ab188e682ca606b7d5a835d8b4d0 100644
+--- a/index.html
++++ b/index.html
+@@ -884,20 +884,20 @@
+     </section>
+     <section id="btFirstTdPanel" hidden aria-label="First touchdown scorer predictor"><h2>First TD Predictor</h2><p>Players ranked within each upcoming game by the existing first-touchdown model. It weighs early possessions and scoring-area opportunities across both teams, including other scorers and no touchdown. Prior-season data can support the estimate; current roles and availability may differ. These estimates are not validated results.</p><div id="firstTdPredictions" class="sig-grid"></div></section>
+     <section id="btParlaysPanel" hidden aria-label="Suggested football parlays">
+-      <h2>Parlays</h2><p>Automatic research suggestions for upcoming games this week. Each leg needs a supported historical estimate. With a profit boost, the different-game search can include otherwise negative-return legs if the combined boosted estimate reaches break-even. Prior-season history can support early-season suggestions. Current availability must still be checked.</p>
+-      <div class="sig-actions" id="parlayControls">
++      <h2>Parlay Lab</h2><p>Choose your slate and games, then build and edit a research draft at one sportsbook. GOING searches for high estimated win chance, not guaranteed winners or the highest payout. Prices and model estimates need review.</p>
++      <div class="parlay-context"><label>Date / slate <select id="parlayDate" aria-label="Parlay date / slate"></select></label><span id="parlayScopeSummary" role="status"></span><a href="#parlayDraft">Your draft ↓</a></div>
++      <details id="parlayGamePicker"><summary id="parlayGamesSummary">Choose games</summary><p>Only checked games in the active date/slate can supply legs. Different-game drafts use one leg per game; same-game research uses one checked matchup.</p><div class="sig-actions"><button type="button" id="parlayAllGames">Select all games in this slate</button><button type="button" id="parlayClearGames">Clear games in this slate</button></div><div id="parlayGames"></div></details>
++      <details class="parlay-settings"><summary>Build settings · legs, markets, book and price</summary><div class="sig-actions" id="parlayControls">
+         <label>Number of legs <select id="parlayLegs"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
+-<label>Different-game minimum odds <input id="parlayMin" type="text" inputmode="text" pattern="[+-]?[0-9]+" placeholder="Any, e.g. -120"></label>
++        <label>Different-game minimum odds <input id="parlayMin" type="text" inputmode="text" pattern="[+-]?[0-9]+" placeholder="Any, e.g. -120"></label>
+         <label>Different-game maximum odds <input id="parlayMax" type="text" inputmode="text" pattern="[+-]?[0-9]+" placeholder="Any, e.g. +2000"></label>
+         <label>Bet types <select id="parlayKind"><option value="all">Game lines and props</option><option value="game">Game lines only</option><option value="prop">Player props only</option></select></label>
+         <label>Profit boost (%) <input id="parlayBoost" type="number" min="0" max="1000" value="0" step="5"></label>
+         <label>Illustrative stake ($) <input id="parlayStake" type="number" min="0.01" value="10" step="1"></label>
+         <label>Sportsbook <select id="parlayBook"><option value="all">Any single sportsbook</option></select></label>
+-      </div><p>Leg count, bet type and sportsbook apply to both sections. The odds range applies only to different-game parlays; a same-game price cannot be checked from individual odds. Settings update automatically. Search is limited to keep the board responsive and may not find every qualifying combination.</p>
+-      <details><summary>Choose games</summary><p>Checked games are eligible for both sections. A different-game parlay needs at least as many games as legs; an SGP uses one checked matchup.</p><div class="sig-actions"><button type="button" id="parlayAllGames">Select all games</button><button type="button" id="parlayClearGames">Clear games</button></div><div id="parlayGames"></div></details>
+-      <p id="parlaysStatus" role="status"></p>
+-      <h3>Best Parlay</h3><p>Different games, one sportsbook. Ranked by estimated chance of every leg winning among searched combinations. The combined estimate assumes the games behave independently.</p><div id="bestParlay" class="sig-grid"></div>
+-      <h3>Best SGP Parlay</h3><p>Same-game research pairing, ranked by the lowest individual win estimate. That ranking is not the chance every leg wins. Shared game conditions can make the legs move together.</p><div id="bestSgp" class="sig-grid"></div>
++      </div><p>Settings refresh suggestions but do not replace an edited draft. Use Build / replace draft when ready. Price limits apply to different-game tickets only. A profit boost increases qualifying winnings, not win chance; actual bonus caps and book rules still apply. Search is bounded, not an exhaustive optimum.</p></details>
++      <div class="sig-actions"><label>Draft type <select id="parlayMode"><option value="different">Different games</option><option value="same">Same-game research</option></select></label><button type="button" id="parlayBuild">Build / replace draft</button></div>
++      <p id="parlaysStatus" role="status"></p><section id="parlayDraft" aria-label="Your editable parlay draft"><div id="bestParlay"></div><div id="bestSgp" hidden></div></section>
+     </section>
+     <section id="btBestPanel" hidden aria-label="Best plays today"><h2>GOING’s research slate</h2><p class="slate-orientation">Start with a game. GOING ranks research candidates from supported models and prices; a listed market is not a guaranteed winner or a ready-made ticket.</p><div class="slate-primary"><label>Date / slate<select id="bestDay" class="field" aria-label="Date scope"><option value="slate">This football week</option><option value="today">Today (ET)</option></select></label><button type="button" id="bestBuildParlay">Build from selected games</button><span id="bestSelectedGames" role="status">No games selected</span></div><div class="today-summary" id="bestTodaySummary" aria-label="Today's slate summary"></div><details class="g-discovery-tools"><summary>More markets and deep research</summary><nav class="deep-links" aria-label="Deep football research"><button type="button" data-best-tab="props">All markets</button><button type="button" data-best-tab="signals">Early Signals</button><button type="button" data-best-tab="firsttd">First TD</button><button type="button" data-best-tab="parlays">Parlay Lab</button><button type="button" data-best-tab="promo">Jackpot</button><a href="/results/">Results</a></nav></details><details class="g-discovery-tools"><summary>Filter by date, game, book, price, player or market</summary><div class="best-discovery"><label>Research game<select id="bestEvent" class="field" aria-label="Research game"><option value="all">All supported games</option></select></label><input id="bestSearch" class="field" type="search" aria-label="Search research candidates" placeholder="Filter research candidates"><select id="bestSort" class="field" aria-label="Sort research candidates"><option value="going">Sort: GOING rank</option><option value="probability">Highest probability</option><option value="edge">Highest estimated return</option><option value="payout">Highest payout</option><option value="kickoff">Earliest kickoff</option></select></div><div class="best-filter-panel" aria-label="Sportsbook and price filters"><label>Sportsbook<select id="bestBook" aria-label="Desired sportsbook"><option value="all">Best available / all books</option></select></label><label>Minimum odds<input id="bestMinOdds" type="text" inputmode="text" pattern="[+-]?[0-9]+" aria-label="Minimum American odds" placeholder="Any"></label><button type="button" id="bestExcludeAlt" aria-pressed="true">✓ Hide alternate props</button><button type="button" id="bestFilterReset">Reset price filters</button></div><small class="best-filter-note">Filters use prices already loaded on this page. The default hides alternate props and prices shorter than -500.</small><div class="pos-group" id="bestKind" aria-label="Bet type"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">Player props</button></div><div class="best-quick" id="bestFocus" aria-label="Quick filters"><button data-focus="all" aria-pressed="true">All qualified</button><button data-focus="td" aria-pressed="false">TD markets</button><button data-focus="plus" aria-pressed="false">Plus money</button><button data-focus="alt" aria-pressed="false">Alt line sets</button><button data-focus="parlay" aria-pressed="false">Parlay-ready</button></div></details><details><summary>Coverage and exclusions</summary><p id="bestStatus" role="status"></p></details><p id="bestOrderNote" class="slate-orientation"></p><div id="bestGameSlate" aria-label="GOING research by game"></div><button class="btn ghost" id="bestMoreGames" hidden>Show more games</button><details class="g-discovery-tools"><summary>Full ranked lists · advanced research</summary><div class="best-section-head"><h3>What GOING found</h3><span id="bestChanceCount"></span></div><p>Candidates clear the existing checks. Watchlists still need a better price or stronger evidence.</p><div id="bestChance" class="sig-grid"></div><button class="btn ghost" id="bestChanceMore" hidden>Show more model selections</button><div class="best-section-head"><h3>Price-qualified value</h3><span id="bestValueCount"></span></div><p>Fresh Pinnacle-led comparisons remove the books’ built-in charge and reduce the estimate for uncertainty. These are research candidates, not proven edges.</p><div id="bestValue" class="sig-grid"></div><button class="btn ghost" id="bestValueMore" hidden>Show more price-qualified selections</button></details></section>
+     <section id="btSignalsPanel" hidden aria-label="Football signals">
+@@ -4663,38 +4663,71 @@ function renderFirstTdPredictor(){
+  }).join('')||'<p>No supported first-TD game model is available for the remaining week. No probabilities are invented.</p>';
+ }
+ let PARLAY_VERSION=0;
+-const PARLAY_GAMES={nfl:null,ncaa:null};
++const PARLAY_GAMES={nfl:null,ncaa:null},PARLAY_DATE={nfl:null,ncaa:null},PARLAY_DRAFT={nfl:{different:null,same:null},ncaa:{different:null,same:null}};
++let PARLAY_CONTEXT=null,PARLAY_MESSAGE='',PARLAY_ALTERNATIVES=new Map(),PARLAY_PICKER=null,PARLAY_STORAGE_BLOCKED=false,PARLAY_STORAGE_NOTE='';
++const PARLAY_STORE='goinglong.parlay.drafts.v1';
++try{const saved=JSON.parse(localStorage.getItem(PARLAY_STORE)||'null');if(saved){if(saved.schema!==1)throw Error();for(const sport of ['nfl','ncaa']){const game=saved.games?.[sport],date=saved.dates?.[sport],draft=saved.drafts?.[sport];if(game!==null&&(!Array.isArray(game)||game.length>1000||game.some(x=>typeof x!=='string')))throw Error();if(date!==null&&date!=='week'&&!/^\d{4}-\d{2}-\d{2}$/.test(date))throw Error();if(!draft||!['different','same'].every(k=>draft[k]===null||Array.isArray(draft[k])&&draft[k].length<=6&&draft[k].every(r=>r&&typeof r==='object'&&!Array.isArray(r)&&['sport','kind','home','away','event','book','market','side','kickoff','updatedAt'].every(f=>typeof r[f]==='string')&&['prob','dec','ev','n','push','odds'].every(f=>Number.isFinite(r[f]))&&[r.player,r.profileId,r.profileDate,r.team,r.key,r.contract,r.canonicalContract].every(v=>v==null||typeof v==='string')&&(r.line==null||Number.isFinite(r.line))&&Array.isArray(r.flags)&&r.flags.every(f=>f&&typeof f.id==='string'&&(f.why==null||typeof f.why==='string')))))throw Error();}for(const sport of ['nfl','ncaa']){PARLAY_GAMES[sport]=saved.games[sport]===null?null:new Set(saved.games[sport]);PARLAY_DATE[sport]=saved.dates[sport];PARLAY_DRAFT[sport]=saved.drafts[sport];}PARLAY_MESSAGE='Saved draft restored on this device; every leg is checked against current scope and quotes.';}}catch{PARLAY_STORAGE_BLOCKED=true;PARLAY_STORAGE_NOTE=PARLAY_MESSAGE='Saved draft could not be read; original storage preserved. This session remains editable but will not overwrite it.';}
++function persistParlayDraft(){if(PARLAY_STORAGE_BLOCKED)return;try{localStorage.setItem(PARLAY_STORE,JSON.stringify({schema:1,games:Object.fromEntries(['nfl','ncaa'].map(s=>[s,PARLAY_GAMES[s]===null?null:[...PARLAY_GAMES[s]]])),dates:PARLAY_DATE,drafts:Object.fromEntries(['nfl','ncaa'].map(s=>[s,Object.fromEntries(['different','same'].map(k=>[k,PARLAY_DRAFT[s][k]?.map(r=>({...Object.fromEntries(['sport','kind','profileId','player','team','home','away','event','kickoff','updatedAt','market','side','line','odds','dec','prob','ev','n','push','book','key','contract','canonicalContract','profileDate'].filter(f=>r[f]!==undefined).map(f=>[f,r[f]])),flags:(r.flags||[]).map(f=>({id:f.id,why:f.why,historicalOnly:f.historicalOnly})),trust:{review:r.trust?.review===true}}))??null]))]))}));}catch{PARLAY_STORAGE_BLOCKED=true;PARLAY_STORAGE_NOTE=PARLAY_MESSAGE='Draft could not be saved on this device. Keep this page open; refresh may lose changes.';}}
++function parlayChoiceKey(l){return JSON.stringify([l.canonicalContract||l.contract||l.key||[l.event,l.kind,l.profileId,l.market,l.side,l.line].join('|'),l.book,l.updatedAt,l.odds]);}
++function showParlayAlternatives(index,focus=true){
++ const ctx=PARLAY_CONTEXT,mode=$('parlayMode').value;if(!ctx)return;const legs=PARLAY_DRAFT[ctx.sport][mode]||[],host=$('bestParlay').querySelector(`[data-parlay-choice-host="${index??'add'}"]`);if(!host){PARLAY_PICKER=null;return;}
++ const rows=GoingFootballParlays.alternatives(legs,ctx.pool,{...ctx.options,now:Date.now(),sameGame:mode==='same'},{index,limit:6});PARLAY_ALTERNATIVES=new Map(rows.map(l=>[parlayChoiceKey(l),l]));PARLAY_PICKER={sport:ctx.sport,mode,index};$('bestParlay').querySelectorAll('[data-parlay-choice-host]').forEach(h=>h.innerHTML='');
++ host.innerHTML=`<p>${rows.length?'Choose a compatible alternative; other legs stay unchanged. Ranked by individual estimated win chance, then return.':'No compatible alternative in this sport/date/games/book and price rules. Try changing scope or rebuilding; existing legs are preserved.'}</p>${rows.map(l=>`<button type="button" data-parlay-choice="${esc(parlayChoiceKey(l))}" data-choice-index="${index??'add'}">${esc(parlayLegName(l))} · ${esc(parlayLegLabel(l))} · ${americanOddsLabel(l.odds)} · ${percent(l.prob)}</button>`).join('')}<button type="button" data-parlay-edit="cancel" data-leg="${index??'add'}">Cancel</button>`;if(focus)host.querySelector('button')?.focus({preventScroll:true});
++}
++
++function parlayLegLabel(l){const side=l.side==='Home'?footballTeamLabel(l.home,l.sport):l.side==='Away'?footballTeamLabel(l.away,l.sport):l.side,line=l.market==='spread'&&l.side==='Away'?-l.line:l.line;return l.market==='atd'?'Anytime touchdown':l.market==='moneyline'?side+' to win':side+' '+(line>0&&l.market==='spread'?'+':'')+line+' '+(MARKET_LABEL[l.market]||l.market);}
++function parlayLegName(l){return l.kind==='prop'?l.player:footballTeamLabel(l.away,l.sport)+' @ '+footballTeamLabel(l.home,l.sport);}
++function parlayPrice(d){if(!(d>1))return 'Unavailable';return americanOddsLabel(Math.round(d>=2?(d-1)*100:-100/(d-1)));}
++function renderParlayDraft(){
++ const ctx=PARLAY_CONTEXT;if(!ctx||ctx.sport!==BET.sport)return;const priorFocus=document.activeElement,priorChoice=priorFocus?.dataset?.parlayChoice,priorEdit=priorFocus?.dataset?.parlayEdit,priorLeg=priorFocus?.dataset?.leg,y=window.scrollY;const {sport,pool,options,result}=ctx;options.now=Date.now();const mode=$('parlayMode').value,same=mode==='same',state=PARLAY_DRAFT[sport];
++ if(state[mode]===null)state[mode]=[...(same?result.sgp:result.parlay)?.legs||[]];const legs=state[mode],ticket=GoingFootballParlays.summarize(legs,pool,{...options,sameGame:same});
++ $('bestSgp').hidden=true;const host=$('bestParlay');const focusedHere=host.contains(priorFocus);
++ const warnings=[];if(same&&legs.length>1)warnings.push('Same-game exposure: shared conditions may affect several legs. Joint chance and ticket price are unavailable; no correlation coefficient is claimed.');
++ const teams=legs.map(l=>l.team).filter(Boolean);if(teams.length>1&&new Set(teams).size<teams.length)warnings.push('Concentrated team exposure: multiple legs involve the same team. Check whether the supporting assumptions overlap.');
++ if(legs.length>1&&legs.every(l=>l.kind==='prop'))warnings.push('All legs are player props. Availability and role changes can affect more than one leg.');
++ const totals=legs.filter(l=>l.market==='total');if(same&&totals.some(l=>l.side==='Under')&&legs.some(l=>l.kind==='prop'&&l.side==='Over'))warnings.push('Review the game script: a game Under and player Over can rely on different assumptions. This is a research warning, not measured correlation.');
++ const metrics=!ticket.valid?`<p class="g-warning">${esc(ticket.error||'Draft no longer matches the active scope or current eligible prices.')} Remove affected legs or rebuild. No combined estimate is shown.</p>`:!ticket.ready?`<p class="g-warning">${esc(ticket.error||ticket.issues?.join(' ')||'Add another eligible leg to form a parlay.')} Draft only; no qualifying ticket is claimed.</p>`:same?'<p><strong>Combined win chance and ticket price: unavailable.</strong> Individual prices do not establish an accepted SGP. No joint return or stake recommendation.</p>':`<p><strong>${percent(ticket.probability)} estimated chance all legs win</strong> · ${parlayPrice(ticket.decimal)} illustrative combined price (${ticket.decimal.toFixed(2)} decimal).</p><details><summary>Price, boost and assumptions</summary><p>Before boost: ${(ticket.boost.baseReturn*100).toFixed(1)}¢ estimated profit per $1; after ${options.boostPercent}% boost: ${(ticket.boost.returnPerDollar*100).toFixed(1)}¢. Profit if all win: $${ticket.boost.profitIfWin.toFixed(2)} on a $${options.stake.toFixed(2)} illustrative stake.</p><p>Multiplies individual prices and win estimates, assuming different games are independent. Shared model errors remain possible. Not a book ticket quote or demonstrated edge; confirm price, bonus caps and acceptance.</p></details>`;
++ host.innerHTML=`<article class="sig-card parlay-ticket"><h3>${same?'Same-game research':'Different-game draft'} · ${legs.length} ${legs.length===1?'leg':'legs'}</h3><p>${esc(ticket.book||'No sportsbook selected')} · ${esc(options.start===options.last?options.start+' (ET)':'Explicit multi-day football week')} · <strong>Your changes stay until you rebuild. Saved on this device when storage is available.</strong></p><p id="parlayEditStatus" role="status">${esc(PARLAY_MESSAGE)} ${esc(PARLAY_STORAGE_NOTE)}</p>${legs.map((l,i)=>{
++ const flag=l.flags?.find(f=>f.id!=='check'),age=Date.now()-Date.parse(l.updatedAt),reason=flag?.why||`Supported historical model: ${l.n} recorded games, ${percent(l.prob)} individual win estimate. High probability alone does not establish positive return.`;
++ return `<section class="parlay-leg" data-parlay-leg="${i}"><h4>${i+1}. ${esc(parlayLegName(l))}</h4><p><strong>${esc(parlayLegLabel(l))}</strong> · ${americanOddsLabel(l.odds)}<br><small>${esc(footballTeamLabel(l.away,l.sport))} @ ${esc(footballTeamLabel(l.home,l.sport))} · ${esc(new Date(l.kickoff).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))} ET</small></p><p class="parlay-leg-reason">${esc(reason)}</p><details><summary>Estimate and price evidence</summary><p>${percent(l.prob)} estimated win chance; ${(100*l.ev).toFixed(1)}¢ estimated profit per $1 over many repeats. ${l.n} recorded games; ${esc(l.profileDate?'observations through '+l.profileDate:'historical team model')}. Estimates are not validated results.</p><p>Price observed ${esc(l.updatedAt)}. ${age>300000?'Saved price more than five minutes old; check the current line.':'Recently observed price; verify availability.'} No GOING Score is used to justify this contract.</p></details><div class="sig-actions"><button type="button" data-parlay-edit="remove" data-leg="${i}" aria-label="Remove leg ${i+1}">Remove</button><button type="button" data-parlay-edit="swap" data-leg="${i}" aria-label="Swap leg ${i+1}">Swap</button></div><div class="parlay-alternatives" data-parlay-choice-host="${i}"></div></section>`;}).join('')||'<p>No legs in this draft. Build from the checked games, or add an eligible leg. Nothing is invented when data is missing.</p>'}${metrics}${warnings.length?`<details class="parlay-warnings"><summary>Exposure checks · ${warnings.length}</summary>${warnings.map(w=>`<p>${esc(w)}</p>`).join('')}</details>`:''}<div class="sig-actions"><button type="button" data-parlay-edit="add" ${legs.length>=6?'disabled':''}>Add eligible leg</button><button type="button" data-parlay-edit="clear" ${!legs.length?'disabled':''}>Clear draft</button></div><div class="parlay-alternatives" data-parlay-choice-host="add"></div></article>`;
++ host.onclick=parlayEditAction;persistParlayDraft();if(PARLAY_PICKER?.sport===sport&&PARLAY_PICKER.mode===mode)showParlayAlternatives(PARLAY_PICKER.index,false);if(focusedHere){const el=[...host.querySelectorAll('button')].find(b=>priorChoice?b.dataset.parlayChoice===priorChoice:b.dataset.parlayEdit===priorEdit&&b.dataset.leg===priorLeg)||host.querySelector('[data-parlay-edit="add"]');el?.focus({preventScroll:true});window.scrollTo({top:y,behavior:'instant'});}$('parlayScopeSummary').textContent=$('parlayScopeSummary').textContent.replace(/ · \d+ draft legs$/,'')+' · '+legs.length+' draft legs';
++}
++function parlayEditAction(e){
++ const ctx=PARLAY_CONTEXT,mode=$('parlayMode').value;if(!ctx||ctx.sport!==BET.sport)return;const state=PARLAY_DRAFT[ctx.sport],legs=state[mode]||[],b=e.target.closest('[data-parlay-edit]'),choice=e.target.closest('[data-parlay-choice]');if(!b&&!choice)return;
++ const y=window.scrollY,options={...ctx.options,now:Date.now(),sameGame:mode==='same'},focus=(index)=>{const host=$('bestParlay'),el=index==null?host.querySelector('[data-parlay-edit="add"]'):host.querySelector(`[data-parlay-edit="swap"][data-leg="${index}"]`)||host.querySelector('[data-parlay-edit="add"]');el?.focus({preventScroll:true});window.scrollTo({top:y,behavior:'instant'});};
++ if(b&&['swap','add'].includes(b.dataset.parlayEdit)){
++  const index=b.dataset.parlayEdit==='swap'?Number(b.dataset.leg):null;showParlayAlternatives(index);window.scrollTo({top:y,behavior:'instant'});return;
++ }
++ if(b?.dataset.parlayEdit==='cancel'){PARLAY_PICKER=null;const index=b.dataset.leg,host=$('bestParlay').querySelector(`[data-parlay-choice-host="${index}"]`);host.innerHTML='';focus(index==='add'?null:Number(index));return;}
++ if(b?.dataset.parlayEdit==='clear'){PARLAY_PICKER=null;state[mode]=[];PARLAY_MESSAGE='Draft cleared. Selected games and settings are preserved.';renderParlayDraft();focus(null);return;}
++ const action=choice?{type:choice.dataset.choiceIndex==='add'?'add':'swap',index:choice.dataset.choiceIndex==='add'?null:Number(choice.dataset.choiceIndex),row:PARLAY_ALTERNATIVES.get(choice.dataset.parlayChoice)}:{type:'remove',index:Number(b.dataset.leg)};
++ const changed=GoingFootballParlays.manage(legs,ctx.pool,options,action);PARLAY_MESSAGE=changed.ok?`${action.type==='swap'?'Leg replaced':action.type==='remove'?'Leg removed':'Leg added'}; other legs preserved.`:changed.error;
++ PARLAY_PICKER=null;if(changed.ok)state[mode]=changed.legs;renderParlayDraft();focus(action.type==='remove'?Math.min(action.index,changed.legs.length-1):action.type==='add'?changed.legs.length-1:action.index);
++}
+ async function renderFootballParlays(){
+- const version=++PARLAY_VERSION,sport=BET.sport,rows=await signalCandidates();
++ const focusEvent=document.activeElement?.dataset?.parlayEvent,scrollY=window.scrollY;const version=++PARLAY_VERSION,sport=BET.sport,rows=await signalCandidates();
+  if(version!==PARLAY_VERSION||BET.tab!=='parlays'||sport!==BET.sport)return;
+  const eventKey=(home,away,kickoff)=>signalEvent(sport,home,away,new Date(kickoff).toISOString());
+  const allRows=[...rows,...(SIGNAL.allQuotes||[])].map(r=>({...r,event:Number.isFinite(Date.parse(r.kickoff))?signalEvent(r.sport,r.home,r.away,new Date(r.kickoff).toISOString()):r.event})),bookSelect=$('parlayBook'),oldBook=bookSelect.value;
+- const books=[...new Set(allRows.filter(r=>r.sport===sport).map(r=>r.book))].sort();
+- bookSelect.innerHTML='<option value="all">Any single sportsbook</option>'+books.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');bookSelect.value=books.includes(oldBook)?oldBook:'all';
+- for(const id of ['parlayLegs','parlayMin','parlayMax','parlayKind','parlayBook','parlayBoost','parlayStake'])$(id).onchange=()=>renderFootballParlays();
+- $('parlayKind').querySelector('[value="prop"]').disabled=sport==='ncaa';if(sport==='ncaa'&&$('parlayKind').value==='prop')$('parlayKind').value='all';
+- const week=footballWeek(),gameMap=new Map();
+- for(const r of allRows){if(r.sport!==sport||Date.parse(r.kickoff)<=Date.now()||!inCurrentFootballWeek(r.kickoff))continue;if(!gameMap.has(r.event))gameMap.set(r.event,r);}
+- for(const g of BET.history?.games?.[sport]||[]){if(!Number.isFinite(Date.parse(g.kickoff))||Date.parse(g.kickoff)<=Date.now()||!inCurrentFootballWeek(g.kickoff))continue;
+-  const home=sport==='nfl'?canonicalNflTeam(g.home):g.home,away=sport==='nfl'?canonicalNflTeam(g.away):g.away,event=eventKey(home,away,g.kickoff);
+-  if(!gameMap.has(event))gameMap.set(event,{...g,home,away,event,waiting:true});
+- }
+- const games=[...gameMap.values()].sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff));
+- $('parlayGames').innerHTML=games.map((g,i)=>`<label><input type="checkbox" data-parlay-game="${i}" ${PARLAY_GAMES[sport]===null||PARLAY_GAMES[sport].has(g.event)?'checked':''}><span>${esc(footballTeamLabel(g.away,g.sport||BET.sport))} @ ${esc(footballTeamLabel(g.home,g.sport||BET.sport))}<br><small>${esc(new Date(g.kickoff).toLocaleString())}${g.waiting?' · Waiting for supported sportsbook legs':''}</small></span></label>`).join('')||'<p>No upcoming scheduled games are available for this week yet.</p>';
+- $('parlayGames').onchange=e=>{const index=e.target.dataset.parlayGame;if(index===undefined)return;if(PARLAY_GAMES[sport]===null)PARLAY_GAMES[sport]=new Set(games.map(g=>g.event));const event=games[Number(index)]?.event;if(!event)return;e.target.checked?PARLAY_GAMES[sport].add(event):PARLAY_GAMES[sport].delete(event);renderFootballParlays();};
+- $('parlayAllGames').onclick=()=>{PARLAY_GAMES[sport]=null;renderFootballParlays();};
+- $('parlayClearGames').onclick=()=>{PARLAY_GAMES[sport]=new Set();renderFootballParlays();};
+- let result;
+- try{result=GoingFootballParlays.select(allRows,{sport,now:Date.now(),start:week.start,last:week.last,legs:Number($('parlayLegs').value),minOdds:$('parlayMin').value===''?null:Number($('parlayMin').value),maxOdds:$('parlayMax').value===''?null:Number($('parlayMax').value),kind:$('parlayKind').value,book:bookSelect.value,boostPercent:Number($('parlayBoost').value),stake:Number($('parlayStake').value),events:PARLAY_GAMES[sport]===null?null:[...PARLAY_GAMES[sport]]});}
+- catch(e){$('parlaysStatus').textContent=e.message;$('bestParlay').innerHTML='';$('bestSgp').innerHTML='';return;}
+- $('parlaysStatus').textContent=`${sport.toUpperCase()} · ${week.start} through ${week.last} · Updates with the board; no extra odds requests.`;
+- const card=(p,same)=>{
+-  if(!p)return '<p>No combination found for these settings. Try fewer legs, a wider odds range, or another sportsbook. No combination is invented.</p>';
+-  const legName=l=>l.kind==='prop'?l.player:l.away+' @ '+l.home,legLabel=l=>{const side=l.side==='Home'?l.home:l.side==='Away'?l.away:l.side,line=l.market==='spread'&&l.side==='Away'?-l.line:l.line;return l.market==='atd'?'Anytime touchdown':l.market==='moneyline'?side+' to win':side+' '+(line>0&&l.market==='spread'?'+':'')+line+' '+(MARKET_LABEL[l.market]||l.market);};
+-  const replacement=p.replacement?`<details><summary>Best compatible replacement for the weakest leg</summary><p>Replace <strong>${esc(legName(p.replacement.remove))}</strong> with <strong>${esc(legName(p.replacement.add))}</strong>: ${esc(legLabel(p.replacement.add))} at ${americanOddsLabel(p.replacement.add.odds)}, with a ${percent(p.replacement.add.prob)} individual estimate.${same?' Combined chance and ticket price remain unavailable.':` The resulting independence estimate is ${percent(p.replacement.probability)} at an illustrative ${americanOddsLabel(Math.round((p.replacement.decimal-1)*100))}.`}</p><small>This is the strongest compatible replacement found inside the bounded search and current filters. It may not be the best possible ticket.</small></details>`:'<p><small>No other compatible replacement met the current game, book, leg-count and price rules.</small></p>';
+-  return `<article class="sig-card"><h4>${esc(p.book)} · ${p.legs.length} legs</h4>${p.legs.map(l=>`<p><strong>${esc(legName(l))}</strong><br>${esc(legLabel(l))} · ${americanOddsLabel(l.odds)}<br>${percent(l.prob)} individual estimate · ${l.n} recorded games<br>${esc(l.away)} @ ${esc(l.home)} · ${esc(new Date(l.kickoff).toLocaleString())}<br>Price observed ${esc(new Date(l.updatedAt).toLocaleString())}</p>`).join('')}<p><strong>Weakest leg by individual estimated chance:</strong> ${esc(legName(p.weakestLeg))} at ${percent(p.weakestLeg.prob)}.</p>${replacement}${same?'<p><strong>Combined win chance and ticket price: unavailable.</strong> The feed contains individual prices, not an accepted same-game ticket. No combined return or suggested stake is calculated.</p>':`<p><strong>${percent(p.probability)} estimated chance all legs win</strong><br>${americanOddsLabel(Math.round((p.decimal-1)*100))} illustrative combined price. Confirm the actual ticket price and acceptance.</p><h4>Profit boost · ${esc($('parlayBoost').value)}%</h4><p>Before boost: ${(p.boost.baseReturn*100).toFixed(1)}¢ estimated profit per $1<br>After boost: ${(p.boost.returnPerDollar*100).toFixed(1)}¢ estimated profit per $1<br>Break-even boost: ${p.boost.breakEvenBoost.toFixed(1)}% (more is needed for a positive return)<br>Profit if all legs win: $${p.boost.profitIfWin.toFixed(2)} on the $${Number($('parlayStake').value).toFixed(2)} illustrative stake.</p><small>A profit boost increases winnings, not the returned stake or the chance of winning. Assumes the entire stake qualifies without a bonus cap. Check eligibility and limits. SGP boosted returns cannot be calculated without a supported joint chance and ticket price.</small>`}<small>Why selected: ${same?'the strongest weaker leg among eligible same-game combinations':'the highest estimated joint win chance among searched different-game combinations'}. Estimates are not validated results. Prices may be saved observations up to 24 hours old. Availability, current roles and final book rules still need checking.</small></article>`;
+- };
+- $('bestParlay').innerHTML=card(result.parlay,false);$('bestSgp').innerHTML=card(result.sgp,true);
++ const books=[...new Set(allRows.filter(r=>r.sport===sport).map(r=>r.book))].sort();bookSelect.innerHTML='<option value="all">Any single sportsbook</option>'+books.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');bookSelect.value=books.includes(oldBook)?oldBook:'all';
++ for(const id of ['parlayLegs','parlayMin','parlayMax','parlayKind','parlayBook','parlayBoost','parlayStake'])$(id).onchange=()=>{PARLAY_MESSAGE='Settings updated. Your draft was preserved; rebuild to replace it.';renderFootballParlays();};
++ $('parlayKind').querySelector('[value="prop"]').disabled=sport==='ncaa';$('parlayKind').querySelector('[value="all"]').textContent=sport==='ncaa'?'Supported game lines':'Game lines and props';if(sport==='ncaa'&&$('parlayKind').value==='prop')$('parlayKind').value='all';
++ const week=footballWeek(),gameMap=new Map();for(const r of allRows){if(r.sport!==sport||Date.parse(r.kickoff)<=Date.now()||!inCurrentFootballWeek(r.kickoff))continue;if(!gameMap.has(r.event))gameMap.set(r.event,r);}
++ for(const g of BET.history?.games?.[sport]||[]){if(!Number.isFinite(Date.parse(g.kickoff))||Date.parse(g.kickoff)<=Date.now()||!inCurrentFootballWeek(g.kickoff))continue;const home=sport==='nfl'?canonicalNflTeam(g.home):g.home,away=sport==='nfl'?canonicalNflTeam(g.away):g.away,event=eventKey(home,away,g.kickoff);if(!gameMap.has(event))gameMap.set(event,{...g,home,away,event,waiting:true});}
++ const allGames=[...gameMap.values()].sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff)),dates=[...new Set(allGames.map(g=>footballDate(g.kickoff)))],date=$('parlayDate');
++ if(!PARLAY_DATE[sport]){const selected=allGames.filter(g=>PARLAY_GAMES[sport]?.has(g.event));PARLAY_DATE[sport]=footballDate(selected[0]?.kickoff||allGames[0]?.kickoff||new Date().toISOString());}
++ const day=PARLAY_DATE[sport],scopeDates=day==='week'||dates.includes(day)?dates:[day,...dates];date.innerHTML=scopeDates.map(d=>`<option value="${esc(d)}">${esc(d)} (ET)${d===footballDate(new Date().toISOString())?' · Today':''}</option>`).join('')+'<option value="week">All week · intentionally multi-day</option>';date.value=day;
++ const games=allGames.filter(g=>day==='week'||footballDate(g.kickoff)===day),selected=games.filter(g=>PARLAY_GAMES[sport]===null||PARLAY_GAMES[sport].has(g.event)),outside=allGames.filter(g=>day!=='week'&&footballDate(g.kickoff)!==day&&PARLAY_GAMES[sport]?.has(g.event)).length;
++ $('parlayScopeSummary').textContent=`${sport.toUpperCase()} · ${selected.length}/${games.length} games selected${outside?` · ${outside} selected on other dates, excluded`:''}`;$('parlayGamesSummary').textContent=`Choose games · ${selected.length} selected in this slate`;
++ date.onchange=()=>{PARLAY_DATE[sport]=date.value;PARLAY_MESSAGE='Date changed. Draft preserved; out-of-scope legs cannot form a qualifying ticket.';renderFootballParlays();};
++ $('parlayGames').innerHTML=games.map((g,i)=>`<label><input type="checkbox" data-parlay-game="${i}" data-parlay-event="${esc(g.event)}" ${PARLAY_GAMES[sport]===null||PARLAY_GAMES[sport].has(g.event)?'checked':''}><span>${esc(footballTeamLabel(g.away,sport))} @ ${esc(footballTeamLabel(g.home,sport))}<br><small>${esc(new Date(g.kickoff).toLocaleString('en-US',{timeZone:'America/New_York',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}))} ET${g.waiting?' · Waiting for supported sportsbook legs':''}</small></span></label>`).join('')||'<p>No upcoming games in this date/slate. Select another available date; no games are invented.</p>';
++ const setScopedGames=()=>{if(PARLAY_GAMES[sport]===null)PARLAY_GAMES[sport]=new Set(allGames.map(g=>g.event));};
++ $('parlayGames').onchange=e=>{const i=e.target.dataset.parlayGame;if(i===undefined)return;const event=games[Number(i)]?.event;if(!event)return;setScopedGames();e.target.checked?PARLAY_GAMES[sport].add(event):PARLAY_GAMES[sport].delete(event);PARLAY_MESSAGE='Game selection changed; draft preserved and checked against the new scope.';renderFootballParlays();};
++ $('parlayAllGames').onclick=()=>{setScopedGames();games.forEach(g=>PARLAY_GAMES[sport].add(g.event));renderFootballParlays();};$('parlayClearGames').onclick=()=>{setScopedGames();games.forEach(g=>PARLAY_GAMES[sport].delete(g.event));renderFootballParlays();};
++ const options={sport,now:Date.now(),start:day==='week'?week.start:day,last:day==='week'?week.last:day,legs:Number($('parlayLegs').value),minOdds:$('parlayMin').value===''?null:Number($('parlayMin').value),maxOdds:$('parlayMax').value===''?null:Number($('parlayMax').value),kind:$('parlayKind').value,book:bookSelect.value,boostPercent:Number($('parlayBoost').value),stake:Number($('parlayStake').value),events:selected.map(g=>g.event)};
++ let result;try{result=GoingFootballParlays.select(allRows.filter(r=>sport!=='ncaa'||r.kind==='game'),options);}catch(e){$('parlaysStatus').textContent=e.message;PARLAY_CONTEXT=null;$('bestParlay').innerHTML='<p>Invalid build settings; draft preserved. Correct settings to continue.</p>';return;}
++ PARLAY_CONTEXT={sport,pool:allRows,options,result};$('parlaysStatus').textContent=`${sport.toUpperCase()} · ${options.start} through ${options.last} (ET). ${sport==='ncaa'?'Game markets only.':'Supported game markets and NFL player props.'} Different-game search maximizes estimated joint win chance subject to price/return checks; same-game search maximizes the weakest individual estimate. Neither is a validated best bet. No extra odds requests.`;
++ $('parlayBuild').onclick=()=>{PARLAY_PICKER=null;PARLAY_DRAFT[sport][$('parlayMode').value]=null;PARLAY_MESSAGE='Built from the active slate and checked games. Review each leg and current book price.';renderParlayDraft();};$('parlayMode').onchange=()=>{PARLAY_PICKER=null;PARLAY_MESSAGE='Draft type changed; separate drafts preserved.';renderParlayDraft();};renderParlayDraft();if(focusEvent){const el=[...$('parlayGames').querySelectorAll('input')].find(x=>x.dataset.parlayEvent===focusEvent);el?.focus({preventScroll:true});window.scrollTo({top:scrollY,behavior:'instant'});}
+ }
+ function signalCard(c,index){
+  const logged=SIGNAL.ledger.records[c.key],star=logged?.starWeek===footballWeek().start;
+@@ -4856,7 +4889,7 @@ function wireBetting(){
+   const resetBestLimits=()=>{BEST_LIMIT={chance:24,value:24};TODAY_GAME_LIMIT=12;};
+   $('bestGameSlate').onclick=e=>{const b=e.target.closest('[data-slate-action]');if(b)openSlateAction(b.dataset.slateAction,b.dataset.slateGame);};
+   $('bestMoreGames').onclick=()=>{TODAY_GAME_LIMIT+=12;renderBestPlays();};
+-  $('bestBuildParlay').onclick=()=>{if(!TODAY_SELECTED_GAMES[BET.sport].size)return;PARLAY_GAMES[BET.sport]=new Set(TODAY_SELECTED_GAMES[BET.sport]);chooseBettingTab('parlays');};
++  $('bestBuildParlay').onclick=()=>{if(!TODAY_SELECTED_GAMES[BET.sport].size)return;PARLAY_GAMES[BET.sport]=new Set(TODAY_SELECTED_GAMES[BET.sport]);PARLAY_PICKER=null;PARLAY_DATE[BET.sport]=null;PARLAY_DRAFT[BET.sport]={different:null,same:null};PARLAY_MESSAGE='Today selections copied. Only games in the displayed date are included; choose All week explicitly for multiple dates.';chooseBettingTab('parlays');};
+   $('bestKind').onclick=e=>{const b=e.target.closest('[data-kind]');if(!b)return;BEST_KIND=b.dataset.kind;resetBestLimits();renderBestPlays();};
+   $('bestFocus').onclick=e=>{const b=e.target.closest('[data-focus]');if(!b)return;BEST_FOCUS=b.dataset.focus;resetBestLimits();renderBestPlays();};
+   $('bestSearch').addEventListener('input',debounce(e=>{BEST_QUERY=e.target.value;resetBestLimits();renderBestPlays();},80));
+diff --git a/shared/consumer-ui.css b/shared/consumer-ui.css
+index 74182263c219e68d88cde79db7de0a3e1698b4c8..adef6d9ed570f83f65e2d610c0388822a9fa10c6 100644
+--- a/shared/consumer-ui.css
++++ b/shared/consumer-ui.css
+@@ -84,3 +84,7 @@ body[data-going-workspace=long] .bt-best-grid>span{color:var(--g-text)}body[data
+ 
+ /* Score explanation spans the card grid on desktop and phones. */
+ body[data-going-workspace=long] .score-driver-summary{grid-column:1/-1;min-width:0;line-height:1.5;font-size:.9rem}body[data-going-workspace=long] .score-driver-summary ul{padding-left:1.2rem;margin:.5rem 0}body[data-going-workspace=long] .score-driver-summary li+li{margin-top:.4rem}
++
++/* Editable football research draft: compact scope, bounded choices, native disclosure. */
++body[data-going-workspace=long] .parlay-context{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px;background:var(--g-surface,#12231e);border:1px solid var(--going-border);border-radius:12px;position:sticky;top:0;z-index:4}body[data-going-workspace=long] .parlay-context label{display:flex;gap:8px;align-items:center;flex-wrap:wrap}body[data-going-workspace=long] .parlay-context select{max-width:100%;min-height:44px}body[data-going-workspace=long] .parlay-context a{margin-left:auto;color:var(--g-text)}body[data-going-workspace=long] #parlayDraft{scroll-margin-top:110px}body[data-going-workspace=long] .parlay-ticket{max-width:820px;margin:12px auto}body[data-going-workspace=long] .parlay-leg{padding:12px 0;border-bottom:1px solid var(--going-border);overflow-wrap:anywhere}body[data-going-workspace=long] .parlay-leg h4{margin:0 0 8px}body[data-going-workspace=long] .parlay-leg p{margin:8px 0}body[data-going-workspace=long] .parlay-alternatives{display:grid;gap:8px}body[data-going-workspace=long] .parlay-alternatives button{text-align:left;white-space:normal;min-height:44px;overflow-wrap:anywhere}body[data-going-workspace=long] #btParlaysPanel details{margin:12px 0}body[data-going-workspace=long] #btParlaysPanel summary{min-height:44px;align-content:center;cursor:pointer}
++@media(max-width:600px){body[data-going-workspace=long] .parlay-context{gap:8px;font-size:.9rem}body[data-going-workspace=long] .parlay-context label{width:100%}body[data-going-workspace=long] #parlayGames{grid-template-columns:minmax(0,1fr)}body[data-going-workspace=long] #parlayControls{grid-template-columns:minmax(0,1fr)}body[data-going-workspace=long] .parlay-ticket{padding:12px}}
+diff --git a/shared/football-parlays.js b/shared/football-parlays.js
+index 29a9c0f04764c87c35f99bf0cf415578a5dd8f2f..c5411766dbec46c3078677835a602f53799c47e2 100644
+--- a/shared/football-parlays.js
++++ b/shared/football-parlays.js
+@@ -78,5 +78,95 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
+  if(sgp){sgp.weakestLeg=weakestLeg(sgp.legs);sgp.replacement=bestReplacement(sgp,sgp.pool,{sameGame:true});delete sgp.pool;}
+  return {parlay,sgp};
+ }
+-root.GoingFootballParlays={select,profitBoost};if(typeof module!=='undefined')module.exports=root.GoingFootballParlays;
++// User edits share the builder's eligibility policy, without changing its search.
++// A retained leg must still match an eligible observed quote in the supplied pool.
++const quoteKey=r=>JSON.stringify([contractKey(r),r.event,r.book,r.kind,r.profileId||'',r.market,r.line??'',r.side||'',r.kickoff,r.updatedAt,r.prob,r.dec,r.ev,r.n,r.push,r.odds]);
++function editContext(rows,options={}){
++ const o={now:Date.now(),book:'all',kind:'all',events:null,boostPercent:0,stake:10,sameGame:false,...options};
++ const fail=error=>({o,error,pool:[],quotes:new Set()});
++ const date=d=>typeof d==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&Number.isFinite(Date.parse(d+'T12:00:00Z'))&&new Date(d+'T12:00:00Z').toISOString().slice(0,10)===d;
++ if(!['nfl','ncaa'].includes(o.sport)||!Number.isFinite(o.now)||!date(o.start)||!date(o.last)||o.start>o.last)return fail('Choose a valid football sport and date range.');
++ if(!['all','game','prop'].includes(o.kind)||(o.events!==null&&(!Array.isArray(o.events)||o.events.some(e=>typeof e!=='string'))))return fail('Choose valid leg and game filters.');
++ const decimal=v=>v==null?null:Number.isFinite(v)&&Math.abs(v)>=100?(v>0?1+v/100:1+100/-v):NaN;
++ const lower=decimal(o.minOdds)??1,upper=decimal(o.maxOdds)??Infinity;
++ if(!Number.isFinite(lower)||Number.isNaN(upper)||upper<lower)return fail('Enter valid American odds, with the maximum at least the minimum.');
++ try{profitBoost(.5,2,o.boostPercent,o.stake);}catch(e){return fail(e.message);}
++ const formatter=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}),day=t=>formatter.format(new Date(t));
++ const eligible=r=>{
++  if(!r||typeof r!=='object'||typeof r.event!=='string'||!r.event||typeof r.book!=='string'||!r.book||!['game','prop'].includes(r.kind)||typeof r.market!=='string'||!r.market)return false;
++  if([r.canonicalContract,r.contract,r.key,r.line,r.side,r.profileId,r.kickoff,r.updatedAt].some(v=>v!=null&&!['string','number'].includes(typeof v))||![r.n,r.prob,r.dec,r.ev,r.odds].every(Number.isFinite))return false;
++  const kick=Date.parse(r.kickoff),at=Date.parse(r.updatedAt),priced=decimal(r.odds);
++  if((o.events!==null&&!o.events.includes(r.event))||(o.book!=='all'&&r.book!==o.book)||(o.kind!=='all'&&r.kind!==o.kind)||r.sport!==o.sport||(o.sport==='ncaa'&&r.kind==='prop')||r.manual||r.dfs||r.trust?.review||!Number.isFinite(kick)||kick<=o.now||day(kick)<o.start||day(kick)>o.last||!Number.isFinite(at)||at>o.now||o.now-at>86400000||!(r.n>=5)||!(r.prob>0&&r.prob<1)||!(r.dec>1)||!Number.isFinite(r.dec)||!Number.isFinite(priced)||Math.abs(priced-r.dec)>1e-9||!Number.isFinite(r.ev)||((o.boostPercent===0||o.sameGame)&&r.ev<0)||r.ev>.25||r.push!==0||r.market==='first_td'||/_1[hq]$/.test(r.market)||(!Array.isArray(r.flags)&&r.flags!=null)||r.flags?.some(f=>f?.id==='check'&&!f.historicalOnly))return false;
++  return !(r.kind==='prop'&&!r.profileId);
++ };
++ const pool=(Array.isArray(rows)?rows:[]).filter(eligible);
++ return {o,lower,upper,pool,eligible,quotes:new Set(pool.map(quoteKey)),error:null};
++}
++function summarizeEdit(legs,context){
++ const list=Array.isArray(legs)?legs:[],{o}=context;
++ const ticket={legs:list,book:list[0]?.book||null,valid:true,ready:false,error:null,issues:[],weakestLeg:weakestLeg(list.filter(r=>r&&typeof r==='object'&&Number.isFinite(r.prob))),probability:null,decimal:null,estimatedReturn:null,boost:null};
++ const fail=error=>({...ticket,valid:false,ready:false,error,issues:[error],probability:null,decimal:null,estimatedReturn:null,boost:null});
++ if(context.error)return fail(context.error);
++ if(!Array.isArray(legs)||list.length>6)return fail('Keep the ticket between zero and six legs.');
++ const contracts=new Set(),entities=new Set(),events=new Set();
++ for(const r of list){
++  if(!context.eligible(r)||!context.quotes.has(quoteKey(r)))return fail('A leg no longer has a supported current quote for these filters. Remove it or rebuild the ticket.');
++  if(r.book!==ticket.book)return fail('Keep every leg at the same sportsbook.');
++  if(contracts.has(contractKey(r)))return fail('This selection is already on the ticket.');
++  if(o.sameGame){
++   if(r.event!==list[0].event)return fail('Keep every same-game leg in the original game.');
++   if(entities.has(entity(r)))return fail('Use one outcome per player or game market in a same-game ticket.');
++  }else if(events.has(r.event))return fail('Choose a different game for each leg.');
++  contracts.add(contractKey(r));entities.add(entity(r));events.add(r.event);
++ }
++ if(list.length<2){ticket.issues.push('Add at least two legs to complete a ticket.');return ticket;}
++ if(o.sameGame){ticket.weakest=Math.min(...list.map(r=>r.prob));ticket.ready=true;return ticket;}
++ ticket.probability=list.reduce((v,r)=>v*r.prob,1);ticket.decimal=list.reduce((v,r)=>v*r.dec,1);
++ // An overflow cannot be presented as a real ticket price.
++ if(!Number.isFinite(ticket.decimal))return fail('The combined illustrative price is outside the supported range.');
++ ticket.estimatedReturn=ticket.probability*ticket.decimal-1;
++ try{ticket.boost=profitBoost(ticket.probability,ticket.decimal,o.boostPercent,o.stake);}catch{return fail('The combined illustrative estimate is outside the supported range.');}
++ if(ticket.decimal<context.lower||ticket.decimal>context.upper)ticket.issues.push('This draft is outside the selected combined odds range.');
++ if(ticket.boost.returnPerDollar<0)ticket.issues.push('This draft has a negative estimated return after the selected boost.');
++ ticket.ready=ticket.issues.length===0;
++ return ticket;
++}
++function summarize(legs,pool,options={}){return summarizeEdit(legs,editContext(pool,options));}
++function manageEdit(legs,context,action={}){
++ const current=Array.isArray(legs)?legs:[],reject=error=>({ok:false,legs:current,ticket:summarizeEdit(current,context),error});
++ if(!Array.isArray(legs))return reject('Choose a valid ticket.');
++ const {type,index,row}=action||{};
++ if(!['remove','swap','add'].includes(type))return reject('Choose remove, swap or add.');
++ if(type!=='add'&&(!Number.isInteger(index)||index<0||index>=current.length))return reject('Choose a leg on the ticket.');
++ const next=current.slice();
++ if(type==='remove'){
++  next.splice(index,1);return {ok:true,legs:next,ticket:summarizeEdit(next,context),error:null};
++ }
++ if(context.error)return reject(context.error);
++ if(type==='add'&&current.length>=6)return reject('Six legs is the maximum.');
++ if(!context.eligible(row)||!context.quotes.has(quoteKey(row)))return reject('That selection no longer has a supported current quote.');
++ if(current.length&&row.book!==current[0]?.book)return reject('Keep every leg at the current sportsbook.');
++ if(context.o.sameGame&&current.length&&row.event!==current[0]?.event)return reject('Keep every same-game leg in the original game.');
++ if(current.some(r=>r&&contractKey(r)===contractKey(row)))return reject('This selection is already on the ticket.');
++ if(type==='swap')next[index]=row;else next.push(row);
++ const ticket=summarizeEdit(next,context);
++ if(!ticket.valid)return reject(ticket.error);
++ if(next.length>=2&&!ticket.ready)return reject(ticket.issues.join(' '));
++ return {ok:true,legs:next,ticket,error:null};
++}
++function manage(legs,pool,options={},action={}){return manageEdit(legs,editContext(pool,options),action);}
++function alternatives(legs,pool,options={},request={}){
++ const context=editContext(pool,options),list=Array.isArray(legs)?legs:[],index=request?.index??null;
++ if(context.error||!Array.isArray(legs)||(index!==null&&(!Number.isInteger(index)||index<0||index>=list.length))||(index===null&&list.length>=6))return [];
++ if(!summarizeEdit(index===null?list:list.filter((_,i)=>i!==index),context).valid)return [];
++ const limit=Math.max(0,Math.min(6,Number.isInteger(request?.limit)?request.limit:6));
++ const candidates=context.pool.slice().sort((a,b)=>b.prob-a.prob||b.ev-a.ev),found=[],seen=new Set();
++ for(const row of candidates){
++  if(found.length>=limit)break;
++  const key=contractKey(row);if(seen.has(key))continue;
++  if(manageEdit(list,context,{type:index===null?'add':'swap',index,row}).ok){seen.add(key);found.push(row);}
++ }
++ return found;
++}
++root.GoingFootballParlays={select,profitBoost,summarize,manage,alternatives};if(typeof module!=='undefined')module.exports=root.GoingFootballParlays;
+ })(globalThis);
+diff --git a/tests/betting.test.cjs b/tests/betting.test.cjs
+index ae6d137be823bfe84663a3823e75910aef8b77b9..1b7638be5ce12041636e35d9758d65abffe3689f 100644
+--- a/tests/betting.test.cjs
++++ b/tests/betting.test.cjs
+@@ -5,13 +5,13 @@ const path=require('node:path');
+ const vm=require('node:vm');
+ const {JSDOM}=require('jsdom');
+ const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+-function setup(t){
++function setup(t,parlaySaved=null){
+   t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-09-09T12:00:00Z')});
+   const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true});
+   const BrowserDate=dom.window.Date;
+   dom.window.Date=class extends BrowserDate{constructor(...args){super(...(args.length?args:[Date.now()]));}static now(){return Date.now();}};
+   t.after(()=>dom.window.close());
+-  dom.window.localStorage.setItem('goinglong.gateway.mode','fantasy');
++  dom.window.localStorage.setItem('goinglong.gateway.mode','fantasy');if(parlaySaved!==null)dom.window.localStorage.setItem('goinglong.parlay.drafts.v1',typeof parlaySaved==='string'?parlaySaved:JSON.stringify(parlaySaved));
+   dom.window.requestAnimationFrame=cb=>dom.window.setTimeout(cb,0);
+   dom.window.HTMLElement.prototype.scrollIntoView=function(){};
+   const context=dom.getInternalVMContext();
+@@ -23,7 +23,7 @@ function setup(t){
+   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
+     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
+   }
+-  vm.runInContext(`globalThis.api={bestRecommendationNotes,scoreSnapshot,freezeScoreRow,settleScoreHistory,scoreDriverContext,renderGameFirstSlate,openSlateAction, bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
++  vm.runInContext(`globalThis.api={renderFootballParlays,renderParlayDraft,parlayEditAction,parlayPrice,bestRecommendationNotes,scoreSnapshot,freezeScoreRow,settleScoreHistory,scoreDriverContext,renderGameFirstSlate,openSlateAction, bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
+     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
+     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
+     mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,goingScoreRisk,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
+@@ -581,8 +581,8 @@ test('Parlay game selector includes scheduled SNF even without eligible odds',as
+  a.BET.history={games:{nfl:[{home:'NYG',away:'DAL',kickoff:'2026-09-14T00:20:00Z'},{home:'KC',away:'DEN',kickoff:'2026-09-15T00:15:00Z'}]}};
+  await vm.runInContext('renderFootballParlays()',context);
+  const text=w.document.getElementById('parlayGames').textContent;
+- assert.match(text,/DAL @ NYG/);assert.match(text,/DEN @ KC/);assert.match(text,/Waiting for supported/);
+- assert.equal(w.document.querySelectorAll('#parlayGames input').length,2);
++ assert.match(text,/DAL @ NYG/);assert.doesNotMatch(text,/DEN @ KC/);assert.match(text,/Waiting for supported/);
++ assert.equal(w.document.querySelectorAll('#parlayGames input').length,1);w.document.getElementById('parlayDate').value='week';await vm.runInContext("PARLAY_DATE.nfl='week';renderFootballParlays()",context);assert.match(w.document.getElementById('parlayGames').textContent,/DEN @ KC/);assert.equal(w.document.querySelectorAll('#parlayGames input').length,2);
+ });
+ 
+ test('First TD predictor renders historical game outcomes without inventing quote prices',t=>{
+@@ -694,3 +694,53 @@ test('NCAA recommendation notes distinguish current samples from saved market di
+  const notes=a.bestRecommendationNotes(c).join(' ');assert.match(notes,/1 B games \/ 2 A games/);assert.match(notes,/2 paired books/);assert.match(notes,/may be saved prices/);assert.match(notes,/disagreement is not proof/);assert.match(notes,/not measured prediction reliability/);
+  assert.doesNotMatch(a.bestRecommendationNotes({...c,gameSeasonEvidence:{},marketEvidence:[]}).join(' '),/2 paired books/);
+ });
++
++function parlayFixture(t,saved=null){
++ const x=setup(t,saved),{w,context,api:a}=x;vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-parlays.js'),'utf8'),context);
++ a.BET.tab='parlays';a.BET.sport='nfl';a.BET.history={};a.BET.props=[];a.BET.games=[];w.scrollTo=o=>{w.lastScroll=o.top;};
++ const row=(id,day='10',sport='nfl')=>({sport,kind:sport==='ncaa'?'game':'prop',profileId:id,player:'Player '+id,team:'H'+id,home:'H'+id,away:'A'+id,event:'g'+id,kickoff:`2026-09-${day}T17:00:00Z`,updatedAt:new Date(Date.now()).toISOString(),market:sport==='ncaa'?'moneyline':'rec_yds',side:sport==='ncaa'?'Home':'Over',line:sport==='ncaa'?0:30.5,odds:100,dec:2,prob:.6,ev:.2,n:12,push:0,book:'Fixture',flags:[]});
++ w.parlayRows=[row('a'),row('b'),row('c'),row('d','11'),row('e','10','ncaa'),row('f','10','ncaa')];vm.runInContext('signalCandidates=async()=>globalThis.parlayRows;SIGNAL.allQuotes=[];',context);return {...x,row};
++}
++test('Parlay date and selected games isolate candidates; explicit week is required for multiple days',async t=>{
++ const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();
++ assert.equal(w.document.getElementById('parlayDate').value,'2026-09-10');assert.equal(w.document.querySelectorAll('#parlayGames input').length,3);
++ let current=vm.runInContext('PARLAY_DRAFT.nfl.different',context);assert.ok(current.every(l=>l.sport==='nfl'&&l.kickoff.startsWith('2026-09-10')));
++ vm.runInContext('PARLAY_GAMES.nfl=new Set([signalEvent("nfl","Ha","Aa","2026-09-10T17:00:00.000Z")]);PARLAY_DRAFT.nfl.different=null;',context);await a.renderFootballParlays();assert.equal(vm.runInContext('PARLAY_DRAFT.nfl.different.length',context),0);
++ vm.runInContext('PARLAY_GAMES.nfl=null;PARLAY_DATE.nfl="week";PARLAY_DRAFT.nfl.different=null;',context);await a.renderFootballParlays();assert.equal(w.document.querySelectorAll('#parlayGames input').length,4);assert.match(w.document.getElementById('parlaysStatus').textContent,/2026-09-08 through 2026-09-14/);
++});
++test('Parlay remove, swap and add keep unaffected legs and preserve keyboard focus/scroll',async t=>{
++ const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();Object.defineProperty(w,'scrollY',{value:480,configurable:true});
++ const original=vm.runInContext('PARLAY_DRAFT.nfl.different.slice()',context);let swap=w.document.querySelector('[data-parlay-edit="swap"][data-leg="0"]');swap.focus();swap.click();assert.ok(w.document.querySelector('[data-parlay-choice]'));
++ w.document.querySelector('[data-parlay-choice]').click();let changed=vm.runInContext('PARLAY_DRAFT.nfl.different',context);assert.notEqual(changed[0],original[0]);assert.equal(changed[1],original[1]);assert.equal(w.lastScroll,480);assert.equal(w.document.activeElement.dataset.parlayEdit,'swap');
++ const kept=changed[1];w.document.querySelector('[data-parlay-edit="remove"][data-leg="0"]').click();changed=vm.runInContext('PARLAY_DRAFT.nfl.different',context);assert.equal(changed.length,1);assert.equal(changed[0],kept);
++ w.document.querySelector('[data-parlay-edit="add"]').click();w.document.querySelector('[data-parlay-choice]').click();changed=vm.runInContext('PARLAY_DRAFT.nfl.different',context);assert.equal(changed.length,2);assert.equal(changed[0],kept);assert.equal(w.lastScroll,480);
++ assert.match(w.document.querySelector('#bestParlay').textContent,/independent|independence/);assert.match(w.document.querySelector('#bestParlay').textContent,/No GOING Score is used/);
++});
++test('Parlay scope changes preserve draft but suppress invalid combined metrics and stale alternatives',async t=>{
++ const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();const original=vm.runInContext('PARLAY_DRAFT.nfl.different.slice()',context);
++ vm.runInContext('PARLAY_DATE.nfl="2026-09-11";',context);await a.renderFootballParlays();assert.equal(vm.runInContext('PARLAY_DRAFT.nfl.different[0]',context),original[0]);assert.match(w.document.querySelector('#bestParlay').textContent,/no longer|No combined estimate/);assert.doesNotMatch(w.document.querySelector('#bestParlay').textContent,/estimated chance all legs win/);
++ w.document.querySelector('[data-parlay-edit="swap"]').click();assert.equal(w.document.querySelectorAll('[data-parlay-choice]').length,0);assert.match(w.document.querySelector('#bestParlay').textContent,/No compatible alternative/);
++ vm.runInContext('PARLAY_DATE.nfl="2026-09-10";',context);w.parlayRows=w.parlayRows.map(l=>({...l,updatedAt:new Date(Date.now()-86400001).toISOString()}));await a.renderFootballParlays();assert.match(w.document.querySelector('#bestParlay').textContent,/no longer/);w.document.querySelector('[data-parlay-edit="remove"]').click();assert.equal(vm.runInContext('PARLAY_DRAFT.nfl.different.length',context),1);
++});
++test('NCAA parlay workflow excludes props and keeps NFL draft separate; empty drafts remain editable',async t=>{
++ const {api:a,w,context,row}=parlayFixture(t);await a.renderFootballParlays();const nfl=vm.runInContext('PARLAY_DRAFT.nfl.different.slice()',context);a.BET.sport='ncaa';w.parlayRows.push({...row('bad','10','ncaa'),kind:'prop'});await a.renderFootballParlays();
++ assert.ok(vm.runInContext('PARLAY_DRAFT.ncaa.different',context).every(l=>l.kind==='game'&&l.sport==='ncaa'));assert.equal(w.document.querySelector('#parlayKind [value="prop"]').disabled,true);assert.match(w.document.getElementById('parlaysStatus').textContent,/Game markets only/);
++ w.document.querySelector('[data-parlay-edit="clear"]').click();assert.match(w.document.querySelector('#bestParlay').textContent,/No legs in this draft/);w.document.querySelector('[data-parlay-edit="add"]').click();assert.ok(w.document.querySelector('[data-parlay-choice]'));w.document.querySelector('[data-parlay-choice]').click();assert.equal(vm.runInContext('PARLAY_DRAFT.ncaa.different.length',context),1);
++ a.BET.sport='nfl';await a.renderFootballParlays();assert.equal(vm.runInContext('PARLAY_DRAFT.nfl.different[0]',context),nfl[0]);
++});
++test('Parlay game selection refresh preserves checkbox focus and selected-game constraints',async t=>{
++ const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();const box=w.document.querySelector('#parlayGames input');const event=box.dataset.parlayEvent;box.focus();box.checked=false;box.dispatchEvent(new w.Event('change',{bubbles:true}));await new Promise(resolve=>setImmediate(resolve));assert.equal(w.document.activeElement.dataset.parlayEvent,event);assert.equal(w.document.activeElement.checked,false);
++ w.document.getElementById('parlayBuild').click();assert.ok(vm.runInContext('PARLAY_DRAFT.nfl.different',context).every(l=>l.event!==event));
++});
++test('Parlay prices display negative combined American odds correctly without changing odds math',t=>{const {api:a}=setup(t);assert.equal(a.parlayPrice(1.25),'-400');assert.equal(a.parlayPrice(4),'+300');assert.equal(a.parlayPrice(null),'Unavailable');});
++
++test('Editable parlay survives reload while restored stale/tampered legs cannot claim a qualifying ticket',async t=>{
++ const first=parlayFixture(t);await first.api.renderFootballParlays();first.w.document.querySelector('[data-parlay-edit="remove"]').click();const raw=first.w.localStorage.getItem('goinglong.parlay.drafts.v1');
++ t.mock.timers.reset();const second=parlayFixture(t,raw);await second.api.renderFootballParlays();assert.equal(vm.runInContext('PARLAY_DRAFT.nfl.different.length',second.context),1);assert.match(second.w.document.querySelector('#bestParlay').textContent,/Saved draft restored/);
++ const altered=JSON.parse(raw);altered.drafts.nfl.different[0].prob=.99;t.mock.timers.reset();const third=parlayFixture(t,altered);await third.api.renderFootballParlays();assert.match(third.w.document.querySelector('#bestParlay').textContent,/no longer.*supported/);assert.doesNotMatch(third.w.document.querySelector('#bestParlay').textContent,/estimated chance all legs win/);
++ t.mock.timers.reset();const bad=parlayFixture(t,'corrupt data');await bad.api.renderFootballParlays();assert.equal(bad.w.localStorage.getItem('goinglong.parlay.drafts.v1'),'corrupt data');assert.match(bad.w.document.querySelector('#bestParlay').textContent,/original storage preserved/);
++});
++test('An open parlay swap chooser survives background refresh with stable contract buttons and keyboard focus',async t=>{
++ const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();w.document.querySelector('[data-parlay-edit="swap"]').click();const button=w.document.querySelector('[data-parlay-choice]'),key=button.dataset.parlayChoice;button.focus();await a.renderFootballParlays();assert.equal(w.document.activeElement.dataset.parlayChoice,key);assert.ok(w.document.querySelector('[data-parlay-choice]'));assert.ok(vm.runInContext('PARLAY_ALTERNATIVES.size',context)<=6);
++ w.document.querySelector('[data-parlay-choice]').click();assert.equal(w.document.querySelectorAll('[data-parlay-choice]').length,0);
++});
+diff --git a/tests/football-parlays.test.cjs b/tests/football-parlays.test.cjs
+index 176f0af2ae79adc6beb44b5cff23b18d1a91979f..d6965aa9bf2375a85e254de900b5be0478499179 100644
+--- a/tests/football-parlays.test.cjs
++++ b/tests/football-parlays.test.cjs
+@@ -68,3 +68,114 @@ test('Same-game replacement preserves the game and avoids a second outcome for o
+  assert.equal(ticket.replacement.probability,null);
+  assert.equal(ticket.replacement.decimal,null);
+ });
++
++const {manage,alternatives,summarize}=require('../shared/football-parlays.js');
++const quote=(id,event=id,book='fanatics')=>({...leg(id,event,book),side:'Over',line:50.5,odds:100});
++const gameQuote=(id,event=id)=>({...quote(id,event),kind:'game',profileId:'',market:'total',side:'Over',line:45.5});
++
++test('User edits preserve the other legs and the position of a swapped leg',()=>{
++ const a=quote('a'),b=quote('b'),c=quote('c'),d=quote('d'),pool=[a,b,c,d],original=[a,b,c];
++ const swapped=manage(original,pool,settings,{type:'swap',index:1,row:d});
++ assert.equal(swapped.ok,true);assert.deepEqual(swapped.legs,[a,d,c]);
++ assert.equal(swapped.legs[0],a);assert.equal(swapped.legs[2],c);assert.deepEqual(original,[a,b,c]);
++ assert.equal(swapped.ticket.probability,.216);assert.equal(swapped.ticket.decimal,8);
++ const removed=manage(original,pool,settings,{type:'remove',index:1});
++ assert.deepEqual(removed.legs,[a,c]);assert.equal(removed.ticket.ready,true);
++ const added=manage(removed.legs,pool,settings,{type:'add',row:d});
++ assert.deepEqual(added.legs,[a,c,d]);assert.equal(added.ticket.boost.profitIfWin,70);
++});
++
++test('Alternatives are bounded, unique, scoped, and cannot move the ticket to another book',()=>{
++ const a=quote('a'),b=quote('b'),candidates=Array.from({length:12},(_,i)=>quote('alt'+i));
++ const pool=[a,b,...candidates,{...candidates[0]},quote('wrong-book','other','draftkings'),{...quote('wrong-sport'),sport:'ncaa'},quote('unselected')];
++ const options={...settings,events:['a','b',...candidates.map(r=>r.event)]};
++ const choices=alternatives([a,b],pool,options,{index:1,limit:99});
++ assert.equal(choices.length,6);assert.equal(new Set(choices.map(r=>r.profileId)).size,6);
++ assert.ok(choices.every(r=>r.book==='fanatics'&&r.profileId.startsWith('alt')));
++ assert.deepEqual(alternatives([a,b],pool,{...options,events:[]},{index:1}),[]);
++ const wrong=manage([a,b],pool,settings,{type:'swap',index:0,row:pool.find(r=>r.book==='draftkings')});
++ assert.equal(wrong.ok,false);assert.deepEqual(wrong.legs,[a,b]);
++});
++
++test('Managed legs need real, matching, fresh unstarted quotes rather than just an identity',()=>{
++ const a=quote('a'),b=quote('b');
++ const changes=[{odds:undefined},{odds:0},{odds:100,dec:3},{dec:Infinity},{kickoff:undefined},{updatedAt:undefined},{kickoff:new Date(now).toISOString()},{updatedAt:new Date(now-86400001).toISOString()},{updatedAt:new Date(now+1).toISOString()},{manual:true},{dfs:true},{trust:{review:true}},{flags:[{id:'check'}]},{push:.1},{market:'first_td'},{market:'rec_yds_1h'}];
++ for(const change of changes){
++  const invalid={...b,...change};
++  assert.equal(manage([a],[a,invalid],settings,{type:'add',row:invalid}).ok,false,JSON.stringify(change));
++  assert.equal(summarize([a,invalid],[a,invalid],settings).valid,false,JSON.stringify(change));
++ }
++ assert.equal(manage([a],[a,b],settings,{type:'add',row:{...b,prob:.7}}).ok,false);
++ assert.equal(manage([a],[a,b],settings,{type:'add',row:{...b,updatedAt:new Date(now-60000).toISOString()}}).ok,false);
++ assert.equal(summarize([a,b],[a],settings).valid,false);
++ const invalid=summarize([a,b],[a],settings);assert.equal(invalid.probability,null);assert.equal(invalid.decimal,null);assert.equal(invalid.boost,null);
++});
++
++test('Managed date filters use Eastern dates and NCAA never offers player props',()=>{
++ const a=quote('a'),evening={...quote('evening'),kickoff:'2026-09-14T02:00:00Z'},tomorrow={...quote('tomorrow'),kickoff:'2026-09-14T04:01:00Z'};
++ const day={...settings,start:'2026-09-13',last:'2026-09-13'};
++ assert.deepEqual(alternatives([a],[a,evening,tomorrow],day).map(r=>r.profileId),['evening']);
++ assert.equal(manage([a],[a,tomorrow],day,{type:'add',row:tomorrow}).ok,false);
++ const games=['a','b'].map(id=>({...gameQuote(id),sport:'ncaa'})),prop={...quote('prop'),sport:'ncaa'};
++ const ncaa={...settings,sport:'ncaa'};
++ assert.equal(summarize(games,[...games,prop],ncaa).ready,true);
++ assert.deepEqual(alternatives([games[0]],[...games,prop],ncaa).map(r=>r.event),['b']);
++ assert.equal(manage([games[0]],[...games,prop],ncaa,{type:'add',row:prop}).ok,false);
++ assert.deepEqual(alternatives([],games,{...ncaa,kind:'prop'}),[]);
++});
++
++test('Same-game edits keep the game, book, and independent entities without inventing combined prices',()=>{
++ const a=quote('a','g'),b=quote('b','g'),c=quote('c','g'),other=quote('other','other'),opposite={...a,side:'Under'},playerAlt={...quote('alt','g'),profileId:'a',market:'receptions'};
++ const total=gameQuote('total','g'),under={...total,side:'Under'},spread={...total,market:'spread',side:'Home'},moneyline={...spread,market:'moneyline',line:undefined};
++ const pool=[a,b,c,other,opposite,playerAlt,total,under,spread,moneyline],options={...settings,sameGame:true};
++ const result=manage([a,b],pool,options,{type:'swap',index:1,row:c});
++ assert.equal(result.ok,true);assert.equal(result.ticket.ready,true);
++ for(const name of ['probability','decimal','estimatedReturn','boost'])assert.equal(result.ticket[name],null);
++ assert.equal(manage([a,b],pool,options,{type:'swap',index:0,row:other}).ok,false);
++ for(const row of [opposite,playerAlt])assert.equal(manage([a,b],pool,options,{type:'add',row}).ok,false);
++ assert.equal(manage([a,total],pool,options,{type:'add',row:under}).ok,false);
++ assert.equal(manage([a,spread],pool,options,{type:'add',row:moneyline}).ok,false);
++ const boostedNegative={...c,ev:-.05};assert.equal(manage([a,b],[a,b,boostedNegative],{...options,boostPercent:50},{type:'add',row:boostedNegative}).ok,false);
++});
++
++test('An empty draft can restart, six legs cannot grow, and invalid edits preserve the draft',()=>{
++ const pool=Array.from({length:7},(_,i)=>quote('q'+i)),first=pool[0];
++ const cleared=manage([first],pool,settings,{type:'remove',index:0});
++ assert.equal(cleared.ok,true);assert.deepEqual(cleared.legs,[]);assert.equal(cleared.ticket.valid,true);assert.equal(cleared.ticket.ready,false);
++ assert.equal(cleared.ticket.probability,null);
++ assert.equal(manage([],pool,settings,{type:'add',row:first}).ok,true);
++ assert.equal(alternatives([],pool,settings).length,6);
++ assert.equal(manage(pool.slice(0,6),pool,settings,{type:'add',row:pool[6]}).ok,false);
++ assert.deepEqual(alternatives(pool.slice(0,6),pool,settings),[]);
++ for(const action of [{type:'remove',index:-1},{type:'swap',index:1,row:pool[1]},{type:'add',row:first},{type:'unknown'}]){
++  const result=manage([first],pool,settings,action);assert.equal(result.ok,false);assert.deepEqual(result.legs,[first]);
++ }
++ assert.equal(summarize([null],pool,settings).valid,false);
++ assert.equal(manage([null],pool,settings,{type:'add',row:first}).ok,false);
++ assert.equal(summarize([{}],pool,settings).valid,false);
++ assert.equal(summarize([],pool,{...settings,start:'bad'}).valid,false);
++});
++
++test('Removing an unavailable leg repairs a draft, and odds constraints remain visible after removal',()=>{
++ const a=quote('a'),b=quote('b'),c=quote('c'),pool=[a,b,c],options={...settings,minOdds:700,maxOdds:900};
++ assert.equal(summarize([a,b,c],pool,options).ready,true);
++ const smaller=manage([a,b,c],pool,options,{type:'remove',index:1});
++ assert.equal(smaller.ok,true);assert.equal(smaller.ticket.valid,true);assert.equal(smaller.ticket.ready,false);
++ assert.match(smaller.ticket.issues.join(' '),/odds range/);
++ assert.deepEqual(alternatives([a],pool,options),[]);
++ assert.equal(manage(smaller.legs,pool,options,{type:'add',row:b}).ok,true);
++ const stale={...b,updatedAt:new Date(now-86400001).toISOString()};
++ assert.equal(manage([a,stale,c],pool,settings,{type:'add',row:b}).ok,false);
++ const repair=manage([a,stale,c],pool,settings,{type:'remove',index:1});assert.equal(repair.ok,true);assert.equal(repair.ticket.valid,true);
++ assert.equal(manage([a,stale,c],pool,settings,{type:'swap',index:1,row:b}).ok,false,'same contract cannot be silently repriced by swapping');
++});
++
++test('Malformed quote metadata and extreme combined estimates never become ticket prices',()=>{
++ const a=quote('a'),b=quote('b'),bad={...b,canonicalContract:{invalid:true}};
++ assert.equal(summarize([a,bad],[a,bad],settings).valid,false);
++ assert.deepEqual(alternatives([a],[a,bad],settings),[]);
++ const huge=[a,b].map(r=>({...r,odds:1e308,dec:1e306}));
++ const overflow=summarize(huge,huge,settings);assert.equal(overflow.valid,false);assert.equal(overflow.decimal,null);assert.equal(overflow.probability,null);
++ const tiny=[a,b].map(r=>({...r,prob:1e-300}));
++ const underflow=summarize(tiny,tiny,settings);assert.equal(underflow.valid,false);assert.equal(underflow.decimal,null);assert.equal(underflow.boost,null);
++});
