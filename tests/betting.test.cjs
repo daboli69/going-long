@@ -18,10 +18,11 @@ function setup(t){
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-score.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-injuries.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-dfs.js'),'utf8'),context);
+  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-slate.js'),'utf8'),context);
   for(const script of dom.window.document.querySelectorAll('script:not([src])')){
     vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);
   }
-  vm.runInContext(`globalThis.api={bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
+  vm.runInContext(`globalThis.api={renderGameFirstSlate,openSlateAction, bestPriceCandidates,rankBestPlays,filterBestPlays,bestEventKey,bestEtDate,bestDayRows,bestBookKey,bestPlayCard,bestCheatsheetEvidence,renderBestPlays,BET,americanToDecimal,normalCDF,poissonCDF,lognormalCDF,
     propProbabilities,computePropRow,evPercent,kellyFraction,quoteState,propsFromRealData,
     parsePropsPaste,parseGamesPaste,renderPropsTable,renderBetting,wireBetting,gameQuotes,
     mergePartialLive,footballNotes,footballOpportunity,footballRoleSignal,footballOpportunityMarkup,roleValidationMarkup,gameValidationMarkup,defensiveMemoryMarkup,defensiveMatchup,bestConfidence,globalSearchItems,SIGNAL,signalFlags,signalReference,signalGrade,signalSummary,signalTrack,signalPriceMove,signalBuild,signalBuildSettlement,signalCandidates,footballWeek,inCurrentFootballWeek,updateBetFilters,firstTdVigComparison,periodQuoteResult,activeGameQuote,bestGameLines,projectionBoard,scoreAtdAnchor,goingScoreCandidates,goingScoreRisk,renderGoingScore,normalMarket,buildProfileIndex,attachProjection,loadBettingData,refreshLiveOdds,gamesFromParlay,opportunityPool,propOfferIdentity,consolidatePropOffers,persistBettingView};`,context);
@@ -299,10 +300,12 @@ test('Book-added team abbreviations do not prevent player matching',t=>{
 });
 test('Betting navigation promotes GOING SCORE and nests specialist tools',t=>{
   const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
-  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','Cheatsheets','Parlays','GOING SCORE','DFS','Signals']);
+  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','Cheatsheets','Parlays','GOING Score','Jackpot','DFS','Signals']);
   w.document.querySelector('#btTabGroup [data-section="cheatsheets"]').click();assert.equal(a.BET.tab,'cheatsheets');assert.equal(w.document.querySelector('#btCheatsheetsPanel').hidden,false);
   w.document.querySelector('#btTabGroup [data-section="opportunities"]').click();
-  assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['All Bets','Model Board','First TD']);
+  assert.deepEqual([...w.document.querySelectorAll('#btToolGroup button')].map(b=>b.textContent),['All Bets','Model Board']);
+  w.document.querySelector('#btTabGroup [data-section="jackpot"]').click();
+  assert.equal(a.BET.tab,'promo');
   w.document.querySelector('#btToolGroup [data-tab="firsttd"]').click();assert.equal(a.BET.tab,'firsttd');
   assert.match(w.location.search,/tab=firsttd/);assert.equal(w.document.querySelector('#btFirstTdPanel').hidden,false);
 });
@@ -313,6 +316,7 @@ test('GOING SCORE renders an auditable score apart from probability',t=>{
  a.renderBetting();const text=w.document.querySelector('#btScorePanel').textContent;
  assert.match(text,/Runner One/);assert.match(text,/GOING SCORE/);assert.match(text,/Score anchor \/ model/);assert.match(text,/50\.3%/);assert.match(text,/score is not a probability/i);assert.match(text,/No priced line/);
  assert.equal(w.document.querySelectorAll('#scoreMarket button').length,5);
+ const game=w.document.querySelector('#scoreBoard .score-game');assert.ok(game);assert.equal(game.open,false);game.open=true;a.renderGoingScore();assert.equal(w.document.querySelector('#scoreBoard .score-game').open,true);
 });
 test('DFS opens the current GOING projection slate without requiring a salary CSV',t=>{
  const {api:a,w}=setup(t),kickoff=future(),model=(mean,sd)=>({family:'normal',status:'ready',mean,sd,n:12});a.BET.tab='dfs';a.BET.games=[{id:'g',sport:'nfl',home:'B',away:'A',homeCode:'B',awayCode:'A',kickoff,source:'schedule'}];
@@ -636,3 +640,19 @@ test('Today forwards recorded injury context and NFL display labels preserve NCA
  a.BET.sport='ncaa';assert.match(vm.runInContext("teamBadge('Indiana')",context),/Indiana/);assert.doesNotMatch(vm.runInContext("teamBadge('Indiana')",context),/g-team-mark/);
  assert.doesNotMatch(vm.runInContext("injuryMarkup({injury:{state:'available',roleBoost:true,status:'Available'}})",context),/g-injury-marker/);
 });
+
+ test('Game-first Today selects exact games without losing focus and hands selection to Parlays',t=>{
+ const {api:a,w,context}=setup(t);a.wireBetting();a.BET.tab='best';
+ const c={sport:'nfl',kind:'game',home:'BAL',away:'CIN',kickoff:future(),market:'total',side:'Over',line:44.5,prob:.55,dec:2,n:20,book:'Fixture',flags:[]};
+ a.renderGameFirstSlate([c],[]);const host=w.document.querySelector('#bestGameSlate'),button=host.querySelector('[data-slate-action="parlay"]');
+ assert.equal(host.querySelector('details').open,false);assert.equal(host.querySelector('.slate-bets-body').textContent,'');assert.equal(w.document.querySelector('#bestBuildParlay').disabled,true);
+ button.focus();button.click();assert.equal(w.document.activeElement,button);assert.equal(button.getAttribute('aria-pressed'),'true');assert.equal(w.document.querySelector('#bestBuildParlay').disabled,false);
+ assert.equal(vm.runInContext('PARLAY_GAMES.nfl',context),null);w.document.querySelector('#bestBuildParlay').click();assert.equal(a.BET.tab,'parlays');assert.equal(vm.runInContext('PARLAY_GAMES.nfl.size',context),1);
+ a.BET.tab='best';button.click();assert.equal(button.getAttribute('aria-pressed'),'false');assert.equal(w.document.querySelector('#bestBuildParlay').disabled,true);
+ });
+ test('NCAA game-first Today has game markets and no NFL Score or Jackpot navigation',t=>{
+ const {api:a,w}=setup(t);a.wireBetting();a.BET.sport='ncaa';a.BET.tab='best';a.renderBetting();
+ a.renderGameFirstSlate([{sport:'ncaa',kind:'game',home:'Ohio State',away:'Michigan',kickoff:future(),market:'spread',side:'Home',line:-3,prob:.54,dec:1.9,n:14,flags:[]}],[]);
+ assert.equal(w.document.querySelectorAll('#bestGameSlate [data-slate-action="score"]').length,0);assert.equal(w.document.querySelector('#btTabGroup [data-section="jackpot"]').hidden,true);
+ assert.match(w.document.querySelector('#bestGameSlate').textContent,/Michigan/);assert.equal(w.document.querySelector('#bestBuildParlay').disabled,true);
+ });

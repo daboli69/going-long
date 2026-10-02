@@ -73,3 +73,11 @@ body[data-going-workspace=long] .score-toolbar{grid-template-columns:auto minmax
 @media(max-width:900px){body[data-going-workspace=long] .score-toolbar{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){body[data-going-workspace=long] .score-toolbar{grid-template-columns:1fr}}
 body[data-going-workspace=long] .bt-best-grid>span{color:var(--g-text)}body[data-going-workspace=long] .bt-best-grid small{color:var(--g-muted)}body[data-going-workspace=long] .bt-best-grid b{color:var(--g-text)}
+
+/* Keep the sparse NCAA More menu anchored to the whole phone-width nav. */
+@media(max-width:600px){
+ body[data-going-workspace=long] #btTabGroup>.bt-more-tools{grid-column:1/-1;width:100%;display:flex;justify-content:flex-end}
+ body[data-going-workspace=long] #btTabGroup>.bt-more-tools>summary{width:auto;min-width:96px;margin-left:auto}
+ body[data-going-workspace=long] #btTabGroup>.bt-more-tools>div{left:0;right:0;width:100%;min-width:0;max-width:100%;max-height:min(65dvh,440px);overflow-y:auto;box-sizing:border-box;grid-template-columns:repeat(2,minmax(0,1fr))}
+ body[data-going-workspace=long] #btTabGroup>.bt-more-tools>div button{min-width:0;white-space:normal;overflow-wrap:anywhere}
+}
