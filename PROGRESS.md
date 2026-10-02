@@ -1,8 +1,8 @@
 # Progress
 Cycle: `20261002-2159-game-first` (dedicated 30-minute PRODUCT + UI/UX session; automation unchanged).
 Production base: `3d9ae9ae05a54e8c7e324106840fc06b965f2c30`. Review base: `cb4e9988ae57890cdac6da2062309a676e5e13db`.
-Production commit: `8626bebcbfba44a4b356cb4f35f8e9035febdd4c` (verified remote main; deployment/check status recorded in receipt).
-Review completion SHA: recorded by subsequent receipt; receipt tip reported externally.
+Production commit: `8626bebcbfba44a4b356cb4f35f8e9035febdd4c` (verified remote main and live Vercel production).
+Review completion SHA: `952396a0dceb90d9d8e46adb1bcbd4fc25d82beb` (verified remote). This receipt records completion; its own tip is reported externally.
 
 ## Completed
 - MANAGER + two Luna/low agents: UI/UX fixed phone navigation; PRODUCT/QA audited journeys, added grouping tests and independently reviewed handoff. Manager implemented/integrated the coherent game-first phase. Review caught an inconsistent all-games parlay default; fixed separate Today choices before final verification.
@@ -14,13 +14,13 @@ Review completion SHA: recorded by subsequent receipt; receipt tip reported exte
 - Champion calculations, ranking/eligibility, confidence, Score candidate math and parlay search verified byte-identical to base. Scope/secret checks, explicit staging, ordinary one-commit main ancestry and both unchanged remote tips passed. Existing Hobby Basic root connection/paid concurrency disabled verified read-only; only standard public application CI triggered, not credentialed data refresh. Exact patch strictly applies and reconstructs the whole tested production tree; review Vercel exclusion preserved. MODEL_RESEARCH.md unchanged: no experiment or promotion.
 
 ## Working
-- None; production Vercel deployment succeeded. Live /long/ HTML and three affected shared assets return HTTP 200 and exactly match the tested production build/blobs. Claude receipt follows this completion; CI final state recorded there.
+- None; production Vercel deployment succeeded. Live /long/ HTML and three affected shared assets return HTTP 200 and exactly match the tested production build/blobs. GitHub application test, build, deploy and report-build-status all completed successfully. Review patch/completion published; receipt final tip reported externally. Active work approximately 25 minutes; primary checkout untouched/clean.
 
 ## Problems
 - Feed contains some same-team fixtures one minute apart (and NCAA aliases); keep separate until provenance-backed reconciliation is tested. Summary counts research entries, not unique recommended tickets. High model win estimates/Score bands are not validated betting performance. Score scroll-to-top report not reproduced; keeping open groups helps disclosure state but is not a claimed scroll fix. Selections are session-local; default week remains available alongside Today ET.
 
 ## Next
-1. Parlay workflow: explicit per-leg remove/swap/lock, preserve remaining legs and date/game context; supported book/SGP rules only.
+1. Entry point + parlay workflow: make first-visit Today the default while preserving returning-user context; explicit per-leg remove/swap/lock, preserve remaining legs and date/game context; supported book/SGP rules only.
 2. Matchup workspace: GOING angles + relevant scores + conclusions first, deeper current evidence on request; then compact sticky Cheatsheet search/game jump groups.
 3. Score tracking: separate prospective frozen local records (version, score/band, market, sport, exact contract, cutoff/quote, later settlement). No retrospective backfill; paired chronological samples/uncertainty and appropriate probability/error metrics. Existing Signals ledger does not track Score bands. Promotion still gated.
 4. Reproduce refresh/scroll anchoring and audit timestamp/alias split fixtures; no arbitrary event merging. Claude fetches production SHA and reviews this cycle patch against recorded base, not older review app tree.
