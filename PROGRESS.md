@@ -2,7 +2,7 @@
 Cycle: `20261002-2227-score-evidence` (dedicated maximum-30-minute PRODUCT + FOOTBALL DATA + MODEL RESEARCH session; automation unchanged).
 Production base: `8626bebcbfba44a4b356cb4f35f8e9035febdd4c`. Review base: `6aa167179ca978a97eecb070063dcc41f1a1a986`.
 Production commit: `d6f24d44bdca3be4c83dc01a3d04c7c1e3d90d49` (verified remote main, successful Vercel production and all application CI checks).
-Review completion SHA: recorded in the subsequent cycle-owned receipt; that receipt's own SHA is reported externally.
+Review completion SHA: `ff047bb2339e0e66e00936f8e1b4329e33b25a02` (verified remote). This cycle receipt records completion; its own SHA is reported externally.
 
 ## Completed
 - Continued game-first baseline without redesign. MANAGER integrated PRODUCT/BUILDER work; Luna/low FOOTBALL DATA + MODEL RESEARCH audited Score, ordering and settlement, then independently reviewed final implementation; Sol/medium BUILDER + QA owned temporal-immutability tracker/tests. Three agents total; narrow ownership. No model/global settings or automation changes.
@@ -15,7 +15,7 @@ Review completion SHA: recorded in the subsequent cycle-owned receipt; that rece
 - Exact eight-file production scope; Champion module and existing anchor/component/context/probability/ranking/confidence functions preserved byte-for-byte. Explicit staging, secret/whitespace checks, clean sole one-commit ancestry, unchanged captured remote tips and current unprotected main/empty rulesets passed. Only existing public Ubuntu application CI; no credentialed data workflow paths. Strict patch applies to recorded base and reconstructs the entire tested production tree; review-only materials preserve Vercel exclusion and all unrelated tracked blobs/modes.
 
 ## Working
-- None. Vercel deployment and GitHub test/build/deploy/report-build-status succeeded. Live /long/ HTML and all four affected shared assets return HTTP 200 and exactly match the tested production build/blobs. Review completion/receipt published after final remote gates. No automatic model promotion or performance conclusion.
+- None. Vercel deployment and GitHub test/build/deploy/report-build-status succeeded. Live /long/ HTML and all four affected shared assets return HTTP 200 and exactly match the tested production build/blobs. Review completion/receipt published after final remote gates. Published completion patch revalidated from its Git blob against the full production tree. Active work approximately 25.9 minutes through receipt preparation; final duration reported externally. No automatic model promotion or performance conclusion.
 
 ## Problems
 - Five existing NFL Score markets only; no receiving-yard/NFL/NCAA game Score definition. Today alternate/Under contracts do not share the tracked canonical Over probability. Existing one-minute duplicate fixtures remain separate.
