@@ -26,6 +26,34 @@ test('Vercel snapshot endpoint validates file paths and falls back during upstre
  }finally{global.fetch=before;}
 });
 
+test('Published season learning loads nightly updates and rejects non-public paths',async()=>{
+ const {default:handler}=await import('../api/snapshot.mjs'),before=global.fetch;
+ const nightly={generated_at:'2026-10-02T12:00:00Z',matchup_signals:[{id:'public-fixture',active_signal:false}]};let calls=0;
+ try{
+  global.fetch=async url=>{calls++;assert.equal(String(url),'https://raw.githubusercontent.com/daboli69/going-long/main/data/season_learning.json');return Response.json(nightly);};
+  const res=response();await handler({method:'GET',url:'/api/snapshot?file=season_learning.json'},res);
+  assert.equal(res.statusCode,200);assert.equal(res.headers['X-Snapshot-Source'],'nightly');
+  assert.equal(res.headers['Vercel-CDN-Cache-Control'],'public, s-maxage=120');assert.deepEqual(JSON.parse(res.body),nightly);
+  for(const file of ['../private/season_learning.json','season_learning.json/../secret','unknown.json']){
+   const denied=response();await handler({method:'GET',url:'/api/snapshot?file='+encodeURIComponent(file)},denied);assert.equal(denied.statusCode,400);
+  }
+  assert.equal(calls,1,'Rejected paths never contact the upstream');
+ }finally{global.fetch=before;}
+});
+
+test('Season-learning outages retain the packaged evidence and original generation time',async()=>{
+ const {default:handler}=await import('../api/snapshot.mjs'),before=global.fetch;
+ const packaged=JSON.parse(require('node:fs').readFileSync(require('node:path').join(__dirname,'../data/season_learning.json'),'utf8'));
+ try{
+  for(const unavailable of [async()=>{throw Error('offline fixture');},async()=>new Response(null,{status:503})]){
+   global.fetch=unavailable;const res=response();await handler({method:'GET',url:'/api/snapshot?file=season_learning.json'},res);
+   assert.equal(res.statusCode,200);assert.equal(res.headers['X-Snapshot-Source'],'packaged');
+   assert.equal(res.headers['Vercel-CDN-Cache-Control'],'public, s-maxage=30');assert.ok(packaged.generated_at);
+   assert.deepEqual(JSON.parse(res.body),packaged);
+  }
+ }finally{global.fetch=before;}
+});
+
 test('Shared baseball snapshots allow only public assets and coalesce requests',async()=>{
  const {default:handler}=await import('../api/yard-snapshot.mjs');const before=global.fetch;let calls=0;
  try{global.fetch=async url=>{calls++;assert.equal(url,'https://raw.githubusercontent.com/daboli69/hr-board/main/docs/board.json');return Response.json({players:[]});};
