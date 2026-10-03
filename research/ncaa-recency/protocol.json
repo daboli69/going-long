@@ -1,0 +1,122 @@
+{
+  "experiment": "ncaa-recency-v1",
+  "registered_date": "2026-10-03",
+  "status": "BLOCKED_DATA_NOT_FITTED",
+  "data_cutoff": "2026-10-03T00:00:00-04:00",
+  "scope": "NCAA regular-season FBS games; game margin and total only; NFL excluded",
+  "hypothesis": "Sample-aware priors and recency weighting describe the current NCAA team better than an immediate fixed current-season weight; shorter windows may help after season boundaries.",
+  "development_seasons": [
+    2018,
+    2019,
+    2021,
+    2022
+  ],
+  "validation_seasons": [
+    2023,
+    2024,
+    2025
+  ],
+  "excluded_seasons": {
+    "2020": "Predeclared COVID schedule discontinuity; separate descriptive report only"
+  },
+  "validation_folds": "One season ahead: parameters chosen only from earlier seasons; weekly prediction origins use inputs available before that origin. Refit on development + earlier validation seasons, never later seasons.",
+  "holdout": {
+    "season": 2027,
+    "kickoff_start_inclusive": "2027-08-01T00:00:00Z",
+    "kickoff_end_exclusive": "2027-12-20T00:00:00Z",
+    "evaluation_unlock": "2028-01-08T17:00:00Z",
+    "reason": "A future complete season is needed to test the early-season transition; historical outcomes have already been inspected in this repo.",
+    "minimum_paired_games": 500,
+    "minimum_week_clusters": 12,
+    "maximum_missing_outcomes_fraction": 0.1,
+    "minimum_games_in_each_stage": 75
+  },
+  "candidates": [
+    {
+      "id": "champion",
+      "method": "Exact frozen build_game_models trailing 12 / 80-20 / minimum 5 comparator"
+    },
+    {
+      "id": "uniform4",
+      "method": "Uniform trailing 4; common eligibility still requires 5 preceding games/team"
+    },
+    {
+      "id": "uniform6",
+      "method": "Uniform trailing 6"
+    },
+    {
+      "id": "uniform8",
+      "method": "Uniform trailing 8"
+    },
+    {
+      "id": "uniform12",
+      "method": "Uniform trailing 12"
+    },
+    {
+      "id": "shrink2",
+      "method": "All available current-season games; previous-season mean prior with k=2 pseudo-games"
+    },
+    {
+      "id": "shrink4",
+      "method": "All available current-season games; previous-season mean prior with k=4 pseudo-games"
+    },
+    {
+      "id": "shrink8",
+      "method": "All available current-season games; previous-season mean prior with k=8 pseudo-games"
+    },
+    {
+      "id": "decay2",
+      "method": "Trailing 24 games, exponential game-age half-life 2, prior-season multiplier 0.5"
+    },
+    {
+      "id": "decay4",
+      "method": "Trailing 24 games, exponential game-age half-life 4, prior-season multiplier 0.5"
+    },
+    {
+      "id": "decay8",
+      "method": "Trailing 24 games, exponential game-age half-life 8, prior-season multiplier 0.5"
+    }
+  ],
+  "candidate_parameters": "k/half-life/window values are preregistered search candidates, not validated coefficients or production requirements. No second round of searching after the holdout.",
+  "common_forecast_formula": "home=(home weighted points scored + away weighted points allowed)/2; away=(away weighted points scored + home weighted points allowed)/2. Keep home advantage and opponent-adjustment architecture fixed to Champion for this isolated weighting experiment.",
+  "shrink_formula": "(n_current*mean_current + k*mean_previous_season)/(n_current+k); if prior unavailable use a pooled prior learned strictly from earlier development data, flag that fallback; if no current data use prior with uncertainty disclosed",
+  "decay_formula": "raw_weight=2^(-game_age/half_life)*(0.5 if previous season else 1); discard observations older than previous season; normalize within team",
+  "eligibility": "Same games with 5 valid preceding results per team; exclude ambiguous IDs, non-FBS/nonregular games, missing kickoff timezone or missing as-of input provenance. Report exclusions and candidate missingness before scoring. Forecast at the latest 08:00 America/New_York origin strictly before kickoff; source captured_at and result_available_at must both precede origin.",
+  "benchmark": "Pooled prior-season mean total and pooled home margin estimated only from earlier development data; additionally report matched market spread/total MAE/RMSE only when exact decision-time quotes have trustworthy capture timestamps",
+  "selection": "Select at most one challenger separately for margin and total by mean chronological validation RMSE; require improvement in at least 2 of 3 validation seasons; ties within 0.01 points choose simpler uniform method, then longer window, then lower prior strength. Freeze selected parameters and implementation hashes before 2027-08-01.",
+  "primary_metrics": [
+    "paired margin RMSE",
+    "paired total RMSE"
+  ],
+  "secondary_metrics": [
+    "MAE",
+    "bias",
+    "coverage",
+    "95% prediction-interval coverage",
+    "stage-specific MAE/RMSE"
+  ],
+  "stages": {
+    "early": "minimum home/away current-season games 0-2",
+    "transition": "3-5",
+    "established": "6+"
+  },
+  "uncertainty": "2000 paired seven-day-block bootstrap replicates, fixed seed 20261003; resample all games in each block together; 97.5% intervals for 2 co-primary outcomes; sensitivity with 14-day blocks and team-cluster jackknife; no independent-row bootstrap",
+  "acceptance": "At least 0.25 points holdout RMSE improvement against Champion and 95% familywise paired interval excludes 0 for that outcome; not worse than simple benchmark; no stage worsens MAE by more than 0.5 points. If sample gates or provenance fail => INSUFFICIENT; no extensions or threshold changes. Any production promotion separately requires Travis.",
+  "probability_metrics": "Not an automatic probability challenger. A later separately registered distribution/calibration study must evaluate Brier/logloss/reliability on exact matched contracts, including push/void handling. Projection improvement alone does not validate betting probabilities.",
+  "forbidden": [
+    "ranking-v1 observations/outcomes as model-training data",
+    "reading ranking holdout performance",
+    "changing production models or Today ranking",
+    "season-end ratings as pregame features",
+    "retroactively asserted capture/result-publication times",
+    "ROI/CLV without exact archived decision/closing prices",
+    "automatic model promotion"
+  ],
+  "next_input_gate": "Archive versioned public raw schedules/results and game-level features with retrieval time/source URL/content hash/team-ID mapping/schema; verify historical releases and as-of semantics offline before any fitting. Public release access may be free but is not invoked by this scaffold. No provider calls or paid inputs.",
+  "deferred_features": "Opponent-adjusted ridge, feature-specific stabilization, verified coaching/QB/roster breaks require new versions after provenance/data availability is established; do not multiply the current candidate grid.",
+  "sources": [
+    "https://otexts.com/fpp3/tscv.html",
+    "https://otexts.com/fpp3/ses.html",
+    "https://stephenslab.github.io/ebnm/articles/shrink_intro.html"
+  ]
+}

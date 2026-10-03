@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-10-03T12:59:18Z",
+  "status": "AUDIT_ONLY_NO_BACKTEST",
+  "file_sha256": {
+    "data/history.json": "f31bca01000049cb930644fd44c269700ef6d4c63410491a66d699ce34261617",
+    "data/ncaa_lines.json": "0e2321e407fa30e33644aa761930c6f685f2e803d4ac8b371526aa60edb2afa1",
+    "data/results.json": "7d59de811f721a20a87bfeae77dd19e8a11cf0f59a54dfebc8889b613207672f",
+    "scripts/build_pipeline.py": "f304ac21c7667143382c10b39552c03877589984ae14a802976d6e96ab031804",
+    "scripts/pbp_features.py": "2380053a8d76e9b0fbe22ec53b4077e1f42140d825ad90001467a3fd5bb37ccd",
+    "scripts/build_ncaa_lines.py": "b55ed8fe1a9fa45e8fd2a31a4a5aed91e8b42acf137fde3d725911a874099db2",
+    "scripts/requirements.txt": "39da738e998dba9e0139b54a677d1d405df82febfb84e173ae7980335eb4d7e2"
+  },
+  "production": {
+    "generated_at": "2026-10-03T01:14:53+00:00",
+    "age_hours": 11.74,
+    "window": 12,
+    "minimum_games": 5,
+    "sources": {
+      "nflreadpy": {
+        "2024": "loaded",
+        "2025": "loaded",
+        "2026": "loaded"
+      },
+      "sportsdataverse": "loaded"
+    },
+    "season": 2026,
+    "scheduled_rows": 545,
+    "modeled_rows": 529,
+    "scheduled_season_counts": {
+      "2024": 1,
+      "2026": 544
+    },
+    "current_games_minimum_per_matchup": {
+      "2": 98,
+      "3": 397,
+      "4": 34
+    },
+    "unknown_current_game_counts": 0,
+    "current_weight_team_rows": {
+      "0.8": 1058
+    },
+    "pooled_historical_diagnostic_not_holdout": {
+      "margin": {
+        "n": 1367,
+        "rmse": 18.115519638270072
+      },
+      "total": {
+        "n": 1367,
+        "rmse": 16.009600818633114
+      }
+    }
+  },
+  "ncaa_features": {
+    "generated_at": "2026-10-03T01:15:36.113637+00:00",
+    "sources": {
+      "2024": "loaded",
+      "2025": "loaded",
+      "2026": "loaded"
+    },
+    "team_rows": 330,
+    "player_rows": 0,
+    "defense_rows": 0,
+    "defense_coverage_rows": 0,
+    "eligible_snaps": 469215,
+    "neutral_snaps": 98184,
+    "team_latest_observation_years": {
+      "2024": 20,
+      "2025": 77,
+      "2026": 233
+    },
+    "missing_team_last_game": 0,
+    "latest_observation": "2026-09-27",
+    "oldest_team_latest_observation": "2024-08-30",
+    "interpretation": "Refresh timestamp does not establish current-season team evidence; year is observation calendar year, not an audited season membership."
+  },
+  "quotes": {
+    "generated_at": "2026-10-03T01:14:44+00:00",
+    "raw_events": 131,
+    "feed_status": "FRESH",
+    "last_fresh_at": "2026-10-03T01:14:44.480569+00:00",
+    "interpretation": "Saved provider freshness status is not a fresh quote at this audit clock; inspect each exact market timestamp."
+  },
+  "outcomes": {
+    "ncaa_results_rows": 217,
+    "known_publication_timestamp_rows": 0,
+    "interpretation": "Results alone cannot reconstruct decision-time team inputs or prices."
+  },
+  "experiment_status": "BLOCKED_DATA_NOT_FITTED",
+  "blocker": "No archived raw season/game feature histories or trustworthy as-of publication metadata are supplied by these latest public snapshots. No challenger evaluation or calibrated confidence follows from the pooled diagnostic."
+}
