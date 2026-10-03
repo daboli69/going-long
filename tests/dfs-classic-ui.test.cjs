@@ -17,13 +17,13 @@ function officialShape(counts={QB:3,RB:7,WR:9,TE:4,DST:3}){
  return rows.join('\n');
 }
 function enrich(rows){return rows.map((p,i)=>({...p,matched:true,unavailable:false,athleteId:'fixture-'+p.id,projection:10+(i%7),tdMean:p.position==='DST'?0:.2+(i%6)/10,reasons:['Synthetic verified opportunity for construction testing only.'],evidence:['Synthetic fixture evidence.'],concerns:['Synthetic fixture; no real recommendation.']}));}
-function mount(t,{buildPool=enrich}={}){
+function mount(t,{buildPool=enrich,buildScenario=()=>({version:'team-budget-v1',releaseUpdatedAt:'2026-10-03T16:00:00Z',teams:{BUF:{counts:[4,4,4],denominator:20},KC:{counts:[4,4,4],denominator:20}}})}={}){
  const dom=new JSDOM('<main id="fixture"></main>',{url:'https://going.test/',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window,scroll=[];
  Object.defineProperty(w.crypto,'subtle',{value:webcrypto.subtle});w.TextEncoder=TextEncoder;
  w.fixtureNow=NOW;w.Date=class extends Date{constructor(...args){super(...(args.length?args:[w.fixtureNow]));}static now(){return w.fixtureNow;}};
  Object.defineProperty(w,'scrollY',{get:()=>240});w.scrollTo=opts=>scroll.push(opts);
- for(const file of ['shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
- w.GoingDfsClassicUI.mount(w.document.getElementById('fixture'),{generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool});
+ for(const file of ['shared/dfs-threshold.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
+ w.GoingDfsClassicUI.mount(w.document.getElementById('fixture'),{generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool,buildScenario});
  t.after(()=>w.close());
  return {w,d:w.document,scroll};
 }
@@ -89,3 +89,11 @@ test('pool picking a later-game player fills an unlocked slot and preserves ever
 test('NFL index integration loads isolated modules in dependency order and retains advanced DFS',()=>{
  const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');assert.match(html,/data-section="dfs" data-tab="dfs"/);assert.match(html,/id="dfsClassicRoot"/);assert.match(html,/id="dfsAdvanced"/);assert.ok(html.indexOf('/shared/dfs-classic.js')<html.indexOf('/shared/dfs-classic-ui.js'));assert.ok(html.indexOf('/shared/dfs-evidence.js')<html.indexOf('/shared/dfs-classic-ui.js'));assert.match(html,/GoingDfsClassicUI\.mount\(\$\('dfsClassicRoot'\)/);
 });
+
+test('missing eight-TD evidence fails Throne closed without preventing Best DFS',async t=>{const ui=mount(t,{buildScenario:()=>{throw Error('Synthetic stale team evidence');}});await load(ui);confirm(ui);await generate(ui);assert.equal(ids(ui).length,0);assert.match(ui.d.getElementById('dk-status').textContent,/Synthetic stale team evidence/);click(ui,'#dk-best');await generate(ui);assert.equal(ids(ui).length,9);});
+test('Throne UI uses full-lineup threshold scenario and never displays a precise chance',async t=>{const ui=mount(t);await load(ui);confirm(ui);await generate(ui);assert.match(ui.d.body.textContent,/8-TD scenario ready/);assert.match(ui.d.body.textContent,/complete lineup’s experimental eight-TD scenario/);click(ui,'#dk-swap-3');assert.match(ui.d.querySelector('.dk-swap').textContent,/8-TD scenario:/);assert.doesNotMatch(ui.d.body.textContent,/\d+\.\d+% chance/);});
+
+test('overlapping imports cannot mix salary fingerprint with a different slate',async t=>{let unblock;const pending=new Promise(resolve=>unblock=resolve),ui=mount(t,{buildScenario:async()=>{await pending;return {version:'team-budget-v1',teams:{BUF:{counts:[4,4,4],denominator:20},KC:{counts:[4,4,4],denominator:20}}};}});ui.d.getElementById('dk-paste').value=officialShape();click(ui,'#dk-load');await new Promise(resolve=>setTimeout(resolve,20));assert.equal(ui.d.getElementById('dk-generate').disabled,true);ui.d.getElementById('dk-paste').value='invalid second import';ui.d.getElementById('dk-load').click();unblock();await waitFor(()=>ui.d.getElementById('dk-confirm')&&!ui.d.getElementById('dk-load').disabled);assert.match(ui.d.body.textContent,/26 imported players/);confirm(ui);await generate(ui);assert.equal(ids(ui).length,9);});
+test('evidence builder exceptions during rebuild report a recoverable failure',async t=>{let broken=false;const ui=mount(t,{buildPool:rows=>{if(broken)throw Error('Synthetic evidence builder failure');return enrich(rows);}});await load(ui);confirm(ui);broken=true;click(ui,'#dk-generate');await waitFor(()=>/Synthetic evidence builder failure/.test(ui.d.getElementById('dk-status').textContent));assert.match(ui.d.getElementById('dk-status').textContent,/Synthetic evidence builder failure/);assert.equal(ui.d.getElementById('dk-generate').disabled,false);broken=false;await generate(ui);assert.equal(ids(ui).length,9);});
+
+test('zero eight-TD scenario support is disclosed instead of pretending the target is backed',async t=>{const ui=mount(t,{buildScenario:()=>({version:'team-budget-v1',teams:{BUF:{counts:[0,0,0],denominator:20},KC:{counts:[0,0,0],denominator:20}}})});await load(ui);confirm(ui);await generate(ui);assert.equal(ids(ui).length,9);assert.match(ui.d.getElementById('dk-status').textContent,/no eight-TD support/);assert.match(ui.d.getElementById('dk-status').textContent,/not treat this as an eight-TD recommendation/);});

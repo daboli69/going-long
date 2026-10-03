@@ -535,7 +535,7 @@
   @media(max-width:760px){.best-filter-panel{grid-template-columns:1fr 1fr}.best-filter-panel button{white-space:normal}}
   @media(max-width:600px){.today-summary{grid-template-columns:1fr 1fr}.best-discovery{grid-template-columns:1fr}.best-filter-panel{grid-template-columns:1fr}.best-facts{grid-template-columns:1fr 1fr}.best-section-head{align-items:start;flex-direction:column}.best-section-head span{text-align:left}.best-evidence{grid-template-columns:1fr;gap:2px}.best-evidence dd{margin-bottom:8px}.best-actions>*{flex:1}.first-td-game>summary{align-items:flex-start;flex-direction:column}.research-slip{right:12px;bottom:72px}}
 </style>
-<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/dfs-classic.js"></script><script src="/shared/dfs-evidence.js"></script><script src="/shared/dfs-classic-ui.js"></script><link rel="stylesheet" href="/shared/dfs-classic.css"><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script>
+<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/dfs-threshold.js"></script><script src="/shared/dfs-team-evidence.js"></script><script src="/shared/dfs-classic.js"></script><script src="/shared/dfs-evidence.js"></script><script src="/shared/dfs-classic-ui.js"></script><link rel="stylesheet" href="/shared/dfs-classic.css"><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script>
 <style>
 #parlayControls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
 #parlayControls label{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:13px}
@@ -3981,6 +3981,13 @@ function renderDfs(){
  const panel=$('btDfsPanel');if(!panel||BET.tab!=='dfs')return;
  if(rootDfsReady())GoingDfsClassicUI.mount($('dfsClassicRoot'),{
   generatedAt:BET.history?.generated_at,injuryAt:BET.injuryContext?.generatedAt,
+  buildScenario:async(salaryRows,pool,slateGames)=>{
+   const response=await fetch('/data/dfs_team_touchdowns.json',{cache:'no-cache'});if(!response.ok)throw Error('Current team TD evidence could not load; use Best DFS or retry after reloading.');
+   return GoingDfsTeamEvidence.buildScenario({teamSnapshot:await response.json(),profiles:BET.history?.profiles,context:BET.context,injuryContext:BET.injuryContext,generatedAt:BET.history?.generated_at,injuries:GoingFootballInjuries,pool,
+    slateGames,
+    makeModel:(profile,market,game)=>attachProjection({player:profile.name,team:profile.team,market,kickoff:game.kickoff,eventTeams:[game.team,game.opponent],source:'projection'},buildProfileIndex(BET.history))
+   });
+  },
   buildPool:salaryRows=>GoingDfsEvidence.buildPool(salaryRows,{
    profiles:BET.history?.profiles,context:BET.context,injuryContext:BET.injuryContext,generatedAt:BET.history?.generated_at,injuries:GoingFootballInjuries,
    makeModel:(profile,market,salary)=>attachProjection({player:profile.name,team:profile.team,market,kickoff:salary.kickoff,eventTeams:[salary.team,salary.opponent],source:'projection'},buildProfileIndex(BET.history)),

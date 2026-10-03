@@ -119,12 +119,18 @@ function validateLineup(lineup,pool,options={}){
  return {valid:errors.length===0,errors,...result};
 }
 function compare(a,b,mode){return (mode==='throne'?b.tdMean-a.tdMean:0)||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
+function thresholdEngine(){return root.GoingDfsThreshold||(typeof require==='function'?require('./dfs-threshold.js'):null);}
+function thresholdCompare(a,b){return b.tdThreshold.tailMass-a.tdThreshold.tailMass||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
 function optimize(pool,options={}){
  const c=context(pool,options),failure=reason=>({lineup:[],reason,errors:c.errors,heuristic:true});
  if(c.errors.length)return failure(c.errors.join(' '));
+ const scenario=c.mode==='throne'&&options.tdScenario,engine=scenario&&thresholdEngine();
+ if(c.mode==='throne'&&Object.hasOwn(options,'tdScenario')&&!scenario)return failure('Eight-TD scenario support is missing; no count-only fallback is allowed.');
+ if(scenario&&!engine)return failure('The eight-TD scenario module is unavailable. Reload before building.');
  const width=Math.max(50,Math.min(3000,Number.isInteger(options.beamWidth)?options.beamWidth:800));
  const candidates=SLOTS.map((slot,i)=>[...c.byId.values()].filter(p=>allowed(p,i,c)).sort((a,b)=>String(a.id).localeCompare(String(b.id))));
  if(candidates.some(ps=>!ps.length))return failure('No eligible matched players with current evidence fit every required slot.');
+ if(scenario){const check=engine.evaluate([...new Map(candidates.flat().map(p=>[String(p.id),p])).values()],scenario);if(!check.valid)return failure(check.reason);}
  const minRemaining=new Array(10).fill(0);
  for(let i=8;i>=0;i--)minRemaining[i]=minRemaining[i+1]+Math.min(...candidates[i].map(p=>p.salary));
  let states=[{players:[],ids:[],athletes:[],salary:0,projection:0,tdMean:0,key:''}];
@@ -153,10 +159,38 @@ function optimize(pool,options={}){
    states=keep;
   }
  }
- states.sort((a,b)=>compare(a,b,c.mode));
+ if(scenario){
+  for(const state of states)state.tdThreshold=engine.evaluate(state.players,scenario);
+  states=states.filter(state=>state.tdThreshold.valid);
+  states.sort(thresholdCompare);
+  // The beam supplies affordable complete seeds. Improve the best seeds against
+  // the WHOLE lineup's eight-TD mass, preserving every roster and lock constraint.
+  // This bounded ascent is deterministic, not a claim of a global optimum.
+  const seeds=states.slice(0,3);
+  for(let state of seeds){
+   for(let pass=0;pass<3;pass++){
+    let best=state;
+    for(let i=0;i<9;i++){
+     if(c.locks[i]!=null)continue;
+     for(const p of candidates[i]){
+      if(String(p.id)===String(state.players[i].id))continue;
+      const players=state.players.map((entry,j)=>j===i?p:entry),salary=state.salary-state.players[i].salary+p.salary;
+      if(salary>CAP||new Set(players.map(p=>String(p.id))).size!==9||new Set(players.map(athlete)).size!==9||new Set(players.map(p=>p.gameId)).size<2)continue;
+      const tdThreshold=engine.evaluate(players,scenario);if(!tdThreshold.valid)continue;
+      const sums=totals(players),candidate={players,salary,projection:sums.projection,tdMean:sums.tdMean,key:players.map(p=>String(p.id)).sort().join('|'),tdThreshold};
+      if(thresholdCompare(candidate,best)<0)best=candidate;
+     }
+    }
+    if(best===state)break;
+    state=best;
+   }
+   states.push(state);
+  }
+  states.sort(thresholdCompare);
+ }else states.sort((a,b)=>compare(a,b,c.mode));
  for(const state of states){
   const lineup=state.players.map((p,i)=>({...p,slot:SLOTS[i],slotIndex:i})),validation=validateLineup(lineup,pool,options);
-  if(validation.valid)return {lineup,...totals(lineup),reason:null,errors:[],heuristic:true,method:c.mode==='throne'?'Expected rushing/receiving TD sum; DFS points break ties. Bounded search; no calibrated threshold probability.':'Projected DraftKings point sum. Bounded search; global optimum is not guaranteed.'};
+  if(validation.valid)return {lineup,...totals(lineup),tdThreshold:state.tdThreshold||null,reason:null,errors:[],heuristic:true,method:scenario?'Eight-plus rushing/receiving TD scenario mass; DFS points break ties. Finite shared team budgets, independent teams; bounded uncalibrated scenario search.':c.mode==='throne'?'Expected rushing/receiving TD sum; DFS points break ties. Bounded search; no calibrated threshold probability.':'Projected DraftKings point sum. Bounded search; global optimum is not guaranteed.'};
  }
  return failure('No independently valid lineup survived the search.');
 }
@@ -165,13 +199,17 @@ function alternatives(lineup,slotIndex,pool,options={}){
  const baseline=validateLineup(lineup,pool,options);
  if(!baseline.valid)return {alternatives:[],errors:baseline.errors};
  const c=context(pool,options),results=[];
+ const scenario=c.mode==='throne'&&options.tdScenario,engine=scenario&&thresholdEngine(),baselineThreshold=scenario&&engine?.evaluate(lineup,scenario);
+ if(c.mode==='throne'&&Object.hasOwn(options,'tdScenario')&&!scenario)return {alternatives:[],errors:['Eight-TD scenario support is missing.']};
+ if(scenario&&!baselineThreshold?.valid)return {alternatives:[],errors:[baselineThreshold?.reason||'Eight-TD scenario support is unavailable.']};
  if(c.locks[slotIndex]!=null)return {alternatives:[],errors:['Unlock this player before swapping; started players cannot be swapped.']};
  for(const p of pool){
   if(String(p.id)===String(lineup[slotIndex].id)||!allowed(p,slotIndex,c))continue;
   const replaced=lineup.map((entry,i)=>i===slotIndex?{...p,slot:SLOTS[i],slotIndex:i}:entry),check=validateLineup(replaced,pool,options);
-  if(check.valid)results.push({player:p,lineup:replaced,salaryDelta:check.salaryUsed-baseline.salaryUsed,projectionDelta:check.projection-baseline.projection,tdMeanDelta:check.tdMean-baseline.tdMean,salaryRemaining:check.salaryRemaining});
+  const tdThreshold=scenario&&check.valid?engine.evaluate(replaced,scenario):null;
+  if(check.valid&&(!scenario||tdThreshold.valid))results.push({player:p,lineup:replaced,salaryDelta:check.salaryUsed-baseline.salaryUsed,projectionDelta:check.projection-baseline.projection,tdMeanDelta:check.tdMean-baseline.tdMean,tdThreshold,tdThresholdDelta:scenario?tdThreshold.tailMass-baselineThreshold.tailMass:null,salaryRemaining:check.salaryRemaining});
  }
- results.sort((a,b)=>(c.mode==='throne'?b.tdMeanDelta-a.tdMeanDelta:0)||b.projectionDelta-a.projectionDelta||a.salaryDelta-b.salaryDelta||String(a.player.id).localeCompare(String(b.player.id)));
+ results.sort((a,b)=>(scenario?b.tdThresholdDelta-a.tdThresholdDelta:c.mode==='throne'?b.tdMeanDelta-a.tdMeanDelta:0)||b.projectionDelta-a.projectionDelta||a.salaryDelta-b.salaryDelta||String(a.player.id).localeCompare(String(b.player.id)));
  return {alternatives:results,errors:[]};
 }
 root.GoingDfsClassic={SLOTS,CAP,matchName,parseCsv,validateLineup,optimize,alternatives};

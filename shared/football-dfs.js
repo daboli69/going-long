@@ -64,11 +64,18 @@ function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5
  const bySlot=Object.fromEntries(slots.map((slot,slotIndex)=>{
   let candidates=available.filter(player=>showdown||eligible(player.position,slot)).sort((a,b)=>objective(b,mode)-objective(a,mode));
   if(showdown&&slotIndex===0&&captainId!=null)candidates=candidates.filter(player=>String(player.id)===String(captainId));
-  const limited=candidates.slice(0,slot==='FLEX'?90:60),kept=new Set(limited.map(player=>String(player.id)));
+  const limit=slot==='FLEX'?90:60,limited=candidates.slice(0,limit),kept=new Set(limited.map(player=>String(player.id)));
+  // A score-only cutoff can discard the entire affordable roster. Retain a
+  // bounded salary frontier as well, using the existing score for salary ties.
+  if(!projectionOnly)for(const player of candidates.slice().sort((a,b)=>a.salary-b.salary||objective(b,mode)-objective(a,mode)).slice(0,limit))if(!kept.has(String(player.id))){limited.push(player);kept.add(String(player.id));}
   for(const player of candidates)if(requestedLocks.has(String(player.id))&&!kept.has(String(player.id))){limited.push(player);kept.add(String(player.id));}
   return [slot,limited];
  }));
  const missing=[...new Set(slots.filter(slot=>!bySlot[slot].length))];if(missing.length)return {lineups:[],reason:`No eligible ${missing.join(', ')} players were matched.`};
+ // This optimistic lower bound may reuse the same cheap player in several
+ // future slots. It never rules out a genuinely affordable completion.
+ const minimumRemaining=new Array(slots.length+1).fill(0);
+ if(!projectionOnly)for(let i=slots.length-1;i>=0;i--)minimumRemaining[i]=minimumRemaining[i+1]+Math.min(...bySlot[slots[i]].map(player=>player.salary*(showdown&&i===0?1.5:1)));
  const locksFit=(lockIds,futureSlots)=>{const ids=[...lockIds];if(ids.length>futureSlots.length)return false;const search=(index,remaining)=>{if(index>=ids.length)return true;const player=availableById.get(ids[index]);for(let slotIndex=0;slotIndex<remaining.length;slotIndex++){if(!showdown&&!eligible(player.position,remaining[slotIndex]))continue;const next=remaining.slice();next.splice(slotIndex,1);if(search(index+1,next))return true;}return false;};return search(0,futureSlots);};
  if(!locksFit(requestedLocks,slots))return {lineups:[],reason:'The selected players cannot fit the available roster positions.'};
  let states=[{players:[],ids:new Set(),athletes:new Set(),teams:{},salary:0,base:0}];
@@ -77,10 +84,22 @@ function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5
   const next=[];
   for(const state of states)for(const player of bySlot[slot]){
    const athlete=norm(player.name)+'|'+player.team,salary=(finite(player.salary)?player.salary:0)*multiplier;
-   if(state.ids.has(player.id)||state.athletes.has(athlete)||(!projectionOnly&&state.salary+salary>rule.cap)||(state.teams[player.team]||0)>=maxFromTeam)continue;
+   if(state.ids.has(player.id)||state.athletes.has(athlete)||(!projectionOnly&&state.salary+salary+minimumRemaining[slotIndex+1]>rule.cap)||(state.teams[player.team]||0)>=maxFromTeam)continue;
    const ids=new Set(state.ids);ids.add(player.id);const remainingLocks=new Set([...requestedLocks].filter(id=>![...ids].some(chosen=>String(chosen)===id)));if(!locksFit(remainingLocks,slots.slice(slotIndex+1)))continue;const athletes=new Set(state.athletes);athletes.add(athlete);next.push({players:[...state.players,{...player,slot,multiplier}],ids,athletes,teams:{...state.teams,[player.team]:(state.teams[player.team]||0)+1},salary:state.salary+salary,base:state.base+objective(player,mode)*multiplier});
   }
-  next.sort((a,b)=>b.base-a.base||b.salary-a.salary);states=next.slice(0,beamWidth);if(!states.length)return {lineups:[],reason:projectionOnly?'No position-valid offensive core could be generated.':`No legal lineup fits the ${rule.label} salary cap.`};
+  next.sort((a,b)=>b.base-a.base||b.salary-a.salary);
+  if(projectionOnly||next.length<=beamWidth||slotIndex===slots.length-1)states=next.slice(0,beamWidth);
+  else{
+   // Keep strong partials and the best partial in each $100 salary band. The
+   // cheap bands reserve room for remaining roster slots rather than letting
+   // every score-leading, expensive partial exhaust the bounded search.
+   const retained=next.slice(0,Math.floor(beamWidth/2)),chosen=new Set(retained),bands=new Map();
+   for(const state of next){const band=Math.floor(state.salary/100);if(!bands.has(band))bands.set(band,state);}
+   for(const state of [...bands.values()].sort((a,b)=>a.salary-b.salary))if(retained.length<beamWidth&&!chosen.has(state)){retained.push(state);chosen.add(state);}
+   for(const state of next)if(retained.length<beamWidth&&!chosen.has(state)){retained.push(state);chosen.add(state);}
+   states=retained;
+  }
+  if(!states.length)return {lineups:[],reason:projectionOnly?'No position-valid offensive core could be generated.':`No legal lineup fits the ${rule.label} salary cap.`};
  }
  const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:state.base+correlation(state.players,mode),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
  const lineups=[];for(const candidate of ranked){const ids=new Set(candidate.players.map(player=>player.id)),different=lineups.every(lineup=>lineup.players.filter(player=>!ids.has(player.id)).length>=minUnique);if(different)lineups.push(candidate);if(lineups.length>=Math.max(1,Math.min(20,count)))break;}

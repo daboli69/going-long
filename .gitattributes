@@ -1,0 +1,3 @@
+# Preserve exact downloaded/frozen evidence bytes used by SHA-256 receipts.
+research/dfs/team-stats-2026.csv -text
+research/dfs/results-team-reference.json -text

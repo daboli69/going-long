@@ -66,3 +66,39 @@ test('single-game Captain lock occupies the multiplier slot and unavailable lock
  assert.equal(result.lineups.length,2);for(const lineup of result.lineups){assert.equal(lineup.players[0].id,'7');assert.equal(lineup.players[0].slot,'CPT');assert.equal(lineup.players[0].multiplier,1.5);assert.ok(lineup.ids.has('8'));}
  const invalid=dfs.optimize(players,{site:'draftkings',contest:'showdown',lockedIds:['missing']});assert.equal(invalid.lineups.length,0);assert.match(invalid.reason,/selected player is unavailable/i);
 });
+
+test('classic search retains affordable players below position score cutoffs',()=>{
+ const players=[],add=(position,count,salary,projection)=>{for(let i=0;i<count;i++)players.push({id:position+i,name:position+i,position,salary,projection:projection-i*.01,team:i%2?'A':'B',opponent:i%2?'B':'A'});};
+ add('QB',61,25000,35);add('RB',65,25000,30);add('WR',95,25000,25);add('TE',61,25000,20);add('DST',61,25000,10);
+ for(const [position,count]of [['QB',1],['RB',3],['WR',4],['TE',1],['DST',1]])for(let i=0;i<count;i++)players.push({id:'cheap'+position+i,name:'Cheap '+position+i,position,salary:3000,projection:1,team:i%2?'A':'B',opponent:i%2?'B':'A'});
+ const result=dfs.optimize(players,{count:1,beamWidth:40});
+ assert.equal(result.lineups.length,1,result.reason);const lineup=result.lineups[0];
+ assert.equal(lineup.players.length,9);assert.ok(lineup.salary<=50000);assert.equal(lineup.ids.size,9);assert.ok(Object.keys(lineup.teams).length>=2);
+});
+
+test('salary-diverse beam keeps a feasible lower-scoring partial roster',()=>{
+ const teams=['A','B','C'],players=[],add=(position,count,salary,projection)=>{for(let i=0;i<count;i++)players.push({id:position+i,name:position+i,position,salary,projection:projection-i*.1,team:teams[i%3],opponent:teams[(i+1)%3]});};
+ add('QB',3,14000,40);add('RB',4,9000,30);add('WR',5,9000,25);add('TE',2,7000,20);add('DST',2,3000,10);
+ for(const [position,count]of [['QB',1],['RB',3],['WR',4],['TE',1]])for(let i=0;i<count;i++)players.push({id:'value'+position+i,name:'Value '+position+i,position,salary:3000,projection:3,team:teams[i%3],opponent:teams[(i+1)%3]});
+ for(const site of ['draftkings','fanduel']){
+  const result=dfs.optimize(players,{site,count:1,beamWidth:20,lockedIds:['valueWR3']});
+  assert.equal(result.lineups.length,1,result.reason);assert.ok(result.lineups[0].salary<=dfs.RULES[site].cap);assert.ok(result.lineups[0].ids.has('valueWR3'));
+  assert.ok(Object.values(result.lineups[0].teams).every(count=>count<=dfs.RULES[site].maxTeam));
+ }
+});
+
+test('affordability pruning still rejects genuinely over-budget Classic and Captain locks',()=>{
+ const players=[],positions=['QB','RB','RB','RB','WR','WR','WR','WR','TE','DST'];
+ positions.forEach((position,i)=>players.push({id:String(i),name:'Player '+i,position,salary:10000,projection:20,team:['A','B','C'][i%3],opponent:['A','B','C'][(i+1)%3]}));
+ for(const site of ['draftkings','fanduel']){const result=dfs.optimize(players,{site,count:1});assert.equal(result.lineups.length,0);assert.match(result.reason,/salary cap/);}
+ const showdown=dfs.optimize(players,{contest:'showdown',captainId:'0',count:1});assert.equal(showdown.lineups.length,0);assert.match(showdown.reason,/salary cap/);
+});
+
+test('affordable showdown candidates survive score cutoff with multiplier lock',()=>{
+ const players=Array.from({length:95},(_,i)=>({id:'exp'+i,name:'Expensive '+i,position:'WR',salary:30000,projection:50-i*.1,team:i%2?'A':'B',opponent:i%2?'B':'A'}));
+ for(let i=0;i<7;i++)players.push({id:'value'+i,name:'Value '+i,position:'WR',salary:4000,projection:2,team:i%2?'A':'B',opponent:i%2?'B':'A'});
+ for(const site of ['draftkings','fanduel']){
+  const result=dfs.optimize(players,{site,contest:'showdown',count:1,beamWidth:8,captainId:'value0'});
+  assert.equal(result.lineups.length,1,result.reason);assert.equal(result.lineups[0].players[0].id,'value0');assert.ok(result.lineups[0].salary<=dfs.RULES[site].cap);
+ }
+});
