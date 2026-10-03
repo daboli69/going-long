@@ -29,6 +29,8 @@
 ## Model gate
 **Research -> hypothesis -> backtest -> out-of-sample validation -> compare to current model -> accept/reject.**
 - Keep current production methods as **Champion**; version experimental **Challengers** separately. No automatic promotion or live retuning from a few wins.
+- GOING Confidence is qualitative **evidence readiness**, separate from estimated likelihood, price/value and the player GOING Score. Follow production `docs/GOING_CONFIDENCE.md`: exact current direction-relevant support, honest concerns/freshness, no invented confident call or calibrated percentage.
+- NCAA current-team evidence takes priority conceptually; learn sample-aware windows/decay/priors empirically. Existing 80/20 is an unvalidated Champion policy, not a requirement. Follow separate `research/ncaa-recency/protocol.json`; historical as-of inputs are blocked, NFL remains independent. No fitting/promotion from revised aggregates or assumed coaching/QB/roster continuity.
 - Today experiment `today-ranking-v1`: follow production `research/today-ranking/PROTOCOL.md`; preserve complete frozen pools and append results/invalidation separately. Never rewrite policies/cutoffs after outcomes or treat Score/100 as probability. New hypotheses need a new future version; ranking promotion requires Travis.
 - Require credible primary research with citations, established statistical methods, or reproducible data evidence. Never invent methodology, odds, results or performance.
 - Freeze hypothesis, data cutoff, splits and acceptance criteria before fitting. Train only on inputs/outcomes available at decision time; use chronological folds and an untouched later holdout. Guard against leakage, repeated holdout tuning, correlated selections and overfitting.

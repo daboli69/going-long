@@ -1,36 +1,34 @@
 # Progress
-Cycle: `20261002-2258-ranking-handoff` — final manual product/research handoff, no artificial session cap.
-Production base `7b2633ba80177129151910e89e57de860832dd38`; review base `965b983f2678eb217d778b603759a9025b7227bf`.
-Production `a609255b196724ab116c1754fcf5585ad9014884`, verified live. Review completion `4180e9fa652b19c62c10a7c86dc4f333ca6d8a26` is published and remote-verified. This PROGRESS-only receipt pins that completion; its own SHA is reported externally, not embedded in itself.
+Cycle: `20261003-085242-confidence-recency-a` — manually requested Confidence/NCAA/product session, no artificial minute cap.
+Production base `a609255b196724ab116c1754fcf5585ad9014884`; review base `bd0dc453044501555f350a28f0c6059a4d651fa2`. Production `f3e7351fc804e65f024482cdb9600dc02a4a47f5` published and verified live; Vercel production success. Review completion/receipt pending final scope gates.
 
 ## Completed
-- Safely reconciled paused2348 research. Main219c510->7b2633b was25 data files, no ranking/model code change. Original dated results/hash and C1/C2 retained;18 research tests pass. No old completion marker or application fixes transferred.
-- MANAGER PRODUCT/MODEL/QA + narrow BUILDER/QA and FOOTBALL DATA/MODEL specialists established `today-ranking-v1`. Champion probability DESC/return tie and existing eligibility remain production; C1 push-aware return order/C2 first C1 directional-family entry stay offline.
-- Offline automatic collector freezes full public-input pools/exclusions/versions/all ranks/top3/top10. Actual clocks;8AM primary, other slots exploratory, no catchup. Immutable hash-linked gzip journal, atomic locks, complete replay and Git blob/index/working-byte preservation. Outcomes append separately; ambiguity/conflicts unresolved.
-- Manual setup freeze2026-10-03T04:02:29.654Z:27,385rows/2,331eligible,12scopes,4148pre-generation+561game exclusions,53records/1,591,863bytes. Hash `30e61602d2836c496ddfa289bfbc45ed7b986a23f5620b920c0b6d17d19a5367`. Manual excluded from confirmation; zero<=5m quotes/settlements.
-- First visit opens game-first Today; saved preferences/routes preserved. Default “Estimated chance” and chance/value/index language clarified. Score/Jackpot/Parlay math and workflows retained.
-- Final QA hardened interrupted pool chunks: no final manifest means publication-blocking orphan, even beside a valid snapshot; regression/reuse tests pass. No frozen observation/policy change.
-- Node267/267,Python96/96,old research18/18,npm+Vercel builds pass; real-pool roundtrip/integrity/race/chronology/settlement/holdout guards pass. GitHub CI/VercelProduction success; live labels/game groups verified. Offline375px mobile NFL/NCAA no overflow; More fits viewport; desktop verified.
-- SINGLE existing heartbeat actually saved ACTIVE at02,08,10,12,14,17,20,22Eastern. Each independent15min TOTAL incl collection/tests/publication/receipt,max3agents,uniqueETtime/run IDs/commonGit mutex/cheapest routing/all $0/model/approval gates. No new automation/run/global-model change.
-- Exact production patch and handoff: `docs/daily-cycles/20261002-2258-ranking-handoff/report.md`; frozen protocol lives in production `research/today-ranking/PROTOCOL.md`.
+- MANAGER/BUILDER/QA + narrow PRODUCT/UIUX independent audit and FOOTBALL DATA/MODEL NCAA specialist. Chose evidence readiness + empirical NCAA foundation over cosmetic confidence/ranking changes; actual stale prices/inactive matchup signals make numeric confidence unjustified.
+- Prominent NFL/NCAA Today **GOING Confidence**: Current support / Developing / Check first, exact bet/game, why, biggest concern, chance vs recorded price/break-even/estimated return; current/older sample, weighting, provenance and actionable checks on expansion. Date/game/book filters, existing order, unlimited paginated access, exact-league Compare/parlay saving and game research retained. No invented High/Score probability/production ranking.
+- Current support requires verified current direction-relevant NFL role/matchup evidence with freshness/sample/availability checks. NCAA game-only models cannot manufacture personnel support. Saved-data view has zero Current support; stale NFL~21h/NCAA~12h prices are visible blockers, not refreshed via paid calls.
+- Phone375px one column/no horizontal overflow; compact44px filters; bulky football nav scrolls away, global header stays. Shortcut accounts for sticky header and keeps focus; pagination/expanded details/save preserve context. Desktop1280px two columns; NCAA date isolation/More bounds verified.
+- NCAA audit: fixed80/20/trailing12/minimum5 combined already production.529models/1058sides at.8; minimum current sample98at2/397at3/34at4.97of330PBPteam rows latest2024/25; no NCAA player/defense/coverage or verified turnover layer. Versioned independent recency protocol registered; raw/as-of archives missing, no fit/winner/promotion or NFL/model weighting change.
+- Node280/280 including13Confidence regressions; Python96/96 + NCAA7/7; npm/Vercel builds pass. Audit reproduces exactly; identity/direction/season/future/stale/escaping/empty/focus/save/hash checks pass. today-ranking-v1 policy/generator/C1/C2 hashes unchanged;53journal blobs/modes/1,591,863bytes preserved, no outcomes/holdout read/new capture.
+- Live static /long page and new module/CSS match the tested source; GitHub Vercel/build/deploy statuses succeeded. GitHub standard CI test/build/deploy checks succeeded; no dashboard deploy, provider workflow or settings change.
+- Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- The02:00 and08:00Oct3 occurrences overlapped this still-active manual handoff and were skipped under the common lock; no backfill. Oct3primary remains missing. Next10:00occurrence can collect exploratory data; first available primary isOct4at08:00. DiagnosticsOct3–23; untouchedOct24–Dec5; evaluation locked untilDec6 noonET. Never alter policies/cutoffs after outcomes; new hypotheses need future versions.
-- No active implementation remains. Completed review materials and exact production patch are published; this receipt records the verified completion. Release the exact manual lock owner after receipt verification; no follow-on development cycle.
+- Only Claude review completion/receipt verification remains; no second development cycle. Common-Git mutex owner is this exact cycle; release after verified recording.
+- Existing v1 collection remains primary08:00/other slots exploratory, no catchup. Oct3primary missing after overlap; next eligible slots use actual clocks. DiagnosticsOct3–23,untouchedOct24–Dec5,releaseDec6 noonET; do not change policies/cutoffs or inspect holdout aggregate performance.
 
 ## Problems
-- Saved public-input cohort differs from personalized/live-refreshed pages. App/computer awake required. HostEastern DST supported; no exposed IANA field; spring-forward2AM nonexistent, no invented replacement.
-- Pilot may not reach20paired slates/100games/<=10% unresolved/reference missing. ATD often lacks two-sided reference; FirstTD/period/book void/nonparticipation unresolved. No ROI/CLV, historic rank backtest or superiority.
-- Per-occurrence manager-model override is not exposed by heartbeat configuration; thread model unchanged. Routine specialists use the cheapest capable included model where configurable.
-- Frozen policy/model-source changes stopv1 collection; pending locks/changes/remotes block publication, no automatic reconciliation.
-- Live confirms duplicate kickoff clocks splitting matchups; Parlay per-leg locks and compact Cheat Sheet navigation remain.
+- Confidence is evidence readiness, not calibrated confidence/proven value. Saved quotes and zero active defensive support constrain supported calls; past charting is not current despite fresh player game dates.
+- NCAA recency experiment blocked on versioned raw schedules/game-level features/as-of provenance;217score rows have zero publication timestamps. Fixed80/20 and pooled RMSE are not validated betting accuracy. Coaching/QB/roster discontinuities remain unknown. Full future2027holdout is deliberate; no claim of imminent winner.
+- Saved cohort differs from live/personalized pages; source/policy changes stopv1. Existing duplicate kickoff identities remain; fixes need new prospective version if generator changes. Voluntary Score cohort stays separate.
+- Scheduler unchanged: one ACTIVE heartbeat02/08/10/12/14/17/20/22Eastern, independent15min,max3/uniqueIDs/common lock/$0/gates. Host/computer awake; no explicitTZID,spring-forward02 nonexistent. No cycle-specific manager-model override exposed.
 
 ## Next
-1. Preserve systematic observations/results; monitor missingness/source integrity/runtime/storage without early holdout performance or busywork.
-2. Fix duplicate kickoff identities with provenance/regressions and a NEW prospective version if rank/generator identity changes; retainv1.
-3. Per-leg parlay locks/rebuild-unlocked, compact mobile Cheatsheets, concise matchup evidence. Prioritize bettor usefulness over easy infrastructure; inspect recent cycles.
-4. Evaluate only after unlock with coverage/sample/cluster uncertainty; no auto promotion. Keep voluntary browser Score cohort separate.
+1. Preserve systematic v1 observations/append-only settlement within each15min; no backfill or premature metrics. Respect source/remote/lock gates.
+2. FOOTBALL DATA: bounded allowlisted free historical-release provenance/coverage audit for NCAA raw schedules; hash/version/as-of integrity first, no provider calls or revised-data-as-untouched claim. Register feasibility pilot separately; no change to locked2027protocol.
+3. PRODUCT: saved-pick recheck (what changed in exact line/price/evidence/availability) before return visits; then user-entered current-price acceptance check, clearly unverified, chance vs required price/push math preserved.
+4. UIUX: compact two-contract decision strip; descriptive current/older evidence-window lens. Preserve game-first and progressive disclosure; no new giant tab/list or model retuning.
+5. Per-leg parlay locks/rebuild-unlocked and richer verified matchup evidence; duplicate kickoff repair requires fresh experiment version. Existing compact Cheat Sheet work retained. Select by bettor value/current evidence, not easy-maintenance bias or quotas.
 
 ## Needs Travis
-- Nothing now. Future model/ranking promotion, paid/provider credits, DB/schema/auth/security/secrets/destructive/major architecture/GoingUp still approval-gated.
-- Rollback: fresh codex branch from latest main, `git revert a609255b196724ab116c1754fcf5585ad9014884 8d7ae66c99918a417153d86ebe31a72b42fa993d`, required tests and ordinary scoped publication. Never delete observations; append evidence-backed invalidation. Reverting collector/helper requires safe scheduled-reference update before retiring retained source worktree.
+- Nothing for completed low-risk work. Model/ranking promotion, paid/provider credits, DB/schema/auth/security/secrets/destructive/major architecture/GoingUp remain approval-gated.
+- Rollback: fresh codex worktree from latest main; `git revert f3e7351fc804e65f024482cdb9600dc02a4a47f5`, run required checks and scoped publication. Retain all ranking observations/registrations; never delete unfavorable evidence. Do not retire the retained automation helper checkout.

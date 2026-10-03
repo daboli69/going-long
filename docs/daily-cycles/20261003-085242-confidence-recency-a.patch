@@ -1,0 +1,777 @@
+diff --git a/docs/GOING_CONFIDENCE.md b/docs/GOING_CONFIDENCE.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..6e7b42f92effaa5d53022224527cc19f00b4c8e5
+--- /dev/null
++++ b/docs/GOING_CONFIDENCE.md
+@@ -0,0 +1,20 @@
++# GOING Confidence: evidence readiness
++
++Today -> choose NFL/NCAA and date -> GOING Confidence. This descriptive presentation reviews existing eligible contracts; it does not replace Today ranking, estimate calibrated confidence, use GOING Score, or promote a betting model.
++
++- **Current support attached:** a traceable current-season NFL receiving-role or exact player/opponent/role/direction defensive observation supports the contract, current coverage exists, and no sample/availability/quote check blocks it. Observations can overlap; this is not independent confirmation or demonstrated predictive accuracy.
++- **Developing evidence:** an eligible existing estimate needs stronger relevant football support. NCAA game models currently have no verified personnel/matchup layer and cannot earn Current support merely from scoring history.
++- **Check first:** stale/missing/future price or model evidence, unresolved availability, or a blocking model flag. No supported call is invented to populate the first view.
++
++Cards show the actual contract, game, why to investigate, biggest concern, estimated likelihood, recorded price and win-only break-even. Push-aware estimated return remains pWin * decimalOdds + pPush - 1, not proven value. Deeper evidence shows current/older counts, existing weights, source/cutoff timestamps and missing checks. High chance, attractive payout, model/market disagreement or old charting alone cannot establish current support. Quote <=5 minutes, model/context <=24 hours and latest NFL player observation <=28 days are operational freshness checks, not validated accuracy thresholds.
++
++Current support requires current football-season identity (January belongs to the preceding season), verified direction-relevant inputs and the underlying model's sample-quality flag. Receiving-role support is restricted to Over receiving yards/receptions. Defensive support is restricted to the exact receiving/rushing-yards role, player, opponent, kickoff and weakness lineage. Other market evidence stays descriptive. NCAA has game markets only. All views preserve existing Today order and date/game/book filters; pagination exposes the entire eligible view, not a permanent Top Five.
++
++NFL and NCAA probabilities, price calculations, game-first navigation, GOING Score, Jackpot and Parlay Lab are unchanged. The one small complementary workflow is the actionable evidence checklist and exact-contract Compare/parlay saving. At phone width the large football tab block scrolls away while the GOING header remains accessible; keyboard focus and expanded evidence survive ordinary view/pagination changes.
++
++## NCAA research boundary
++Current production already assigns 80% current / 20% older history whenever both exist, over a trailing twelve-game window with five combined games required. This is an unvalidated Champion policy, not a product requirement. Expose the current team sample and older fallback honestly; never relabel old team observations as current because a file was rebuilt.
++
++`research/ncaa-recency/README.md` and `protocol.json` audit the actual pipeline and preregister a separate window/decay/shrinkage experiment. Historical as-of inputs are missing: no fit, winner or production weighting change. Learn appropriate feature-specific windows from chronological evidence; do not prescribe 80/20, infer coaching/QB/roster continuity, reuse NFL conclusions for NCAA, or change production models without approval.
++
++Keep today-ranking-v1 policy/generator/C1/C2 definitions and immutable observations intact. Confidence is not a new experimental policy or a new performance cohort. New ranking/feature hypotheses require a separately versioned future registration; do not tune existing policies after results.
+diff --git a/index.html b/index.html
+index fe07f926ef5adada8f5644441c04149a0d34b274..f14f1ae36384d3666a48ae014ca11a31ada9a5b3 100644
+--- a/index.html
++++ b/index.html
+@@ -538 +538 @@
+-<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script defer src="/shared/football-cheatsheets.js"></script>
++<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script>
+@@ -902 +902 @@
+-    <section id="btBestPanel" aria-label="GOING research slate"><h2>GOING’s research slate</h2><p class="slate-orientation">Start with a game. Candidates are ordered by estimated chance, with estimated return breaking ties. Higher chance does not by itself mean better betting value.</p><div class="slate-primary"><label>Date / slate<select id="bestDay" class="field" aria-label="Date scope"><option value="slate">This football week</option><option value="today">Today (ET)</option></select></label><button type="button" id="bestBuildParlay">Build from selected games</button><span id="bestSelectedGames" role="status">No games selected</span></div><div class="today-summary" id="bestTodaySummary" aria-label="Today's slate summary"></div><details class="g-discovery-tools"><summary>More markets and deep research</summary><nav class="deep-links" aria-label="Deep football research"><button type="button" data-best-tab="props">All markets</button><button type="button" data-best-tab="signals">Early Signals</button><button type="button" data-best-tab="firsttd">First TD</button><button type="button" data-best-tab="parlays">Parlay Lab</button><button type="button" data-best-tab="promo">Jackpot</button><a href="/results/">Results</a></nav></details><details class="g-discovery-tools"><summary>Filter by date, game, book, price, player or market</summary><div class="best-discovery"><label>Research game<select id="bestEvent" class="field" aria-label="Research game"><option value="all">All supported games</option></select></label><input id="bestSearch" class="field" type="search" aria-label="Search research candidates" placeholder="Filter research candidates"><select id="bestSort" class="field" aria-label="Sort research candidates"><option value="going">Estimated chance · default</option><option value="probability">Highest probability</option><option value="edge">Highest estimated return</option><option value="payout">Highest payout</option><option value="kickoff">Earliest kickoff</option></select></div><div class="best-filter-panel" aria-label="Sportsbook and price filters"><label>Sportsbook<select id="bestBook" aria-label="Desired sportsbook"><option value="all">Best available / all books</option></select></label><label>Minimum odds<input id="bestMinOdds" type="text" inputmode="text" pattern="[+-]?[0-9]+" aria-label="Minimum American odds" placeholder="Any"></label><button type="button" id="bestExcludeAlt" aria-pressed="true">✓ Hide alternate props</button><button type="button" id="bestFilterReset">Reset price filters</button></div><small class="best-filter-note">Filters use prices already loaded on this page. The default hides alternate props and prices shorter than -500.</small><div class="pos-group" id="bestKind" aria-label="Bet type"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">Player props</button></div><div class="best-quick" id="bestFocus" aria-label="Quick filters"><button data-focus="all" aria-pressed="true">All candidates</button><button data-focus="td" aria-pressed="false">TD markets</button><button data-focus="plus" aria-pressed="false">Plus money</button><button data-focus="alt" aria-pressed="false">Alt line sets</button><button data-focus="parlay" aria-pressed="false">Parlay-ready</button></div></details><details><summary>Coverage and exclusions</summary><p id="bestStatus" role="status"></p></details><p id="bestOrderNote" class="slate-orientation"></p><div id="bestGameSlate" aria-label="GOING research by game"></div><button class="btn ghost" id="bestMoreGames" hidden>Show more games</button><details class="g-discovery-tools"><summary>Full ranked lists · advanced research</summary><div class="best-section-head"><h3>What GOING found</h3><span id="bestChanceCount"></span></div><p>Candidates clear the existing checks. Watchlists still need a better price or stronger evidence.</p><div id="bestChance" class="sig-grid"></div><button class="btn ghost" id="bestChanceMore" hidden>Show more model selections</button><div class="best-section-head"><h3>Price-qualified value</h3><span id="bestValueCount"></span></div><p>Fresh Pinnacle-led comparisons remove the books’ built-in charge and reduce the estimate for uncertainty. These are research candidates, not proven edges.</p><div id="bestValue" class="sig-grid"></div><button class="btn ghost" id="bestValueMore" hidden>Show more price-qualified selections</button></details></section>
++    <section id="btBestPanel" aria-label="GOING research slate"><h2>GOING’s research slate</h2><button type="button" class="confidence-jump" id="confidenceJump">GOING Confidence ↓</button><p class="slate-orientation">Check the evidence first, then browse by game. Estimated chance and betting value are different.</p><div class="slate-primary"><label>Date / slate<select id="bestDay" class="field" aria-label="Date scope"><option value="slate">This football week</option><option value="today">Today (ET)</option></select></label></div><section id="goingConfidence" class="confidence-review" aria-labelledby="confidenceTitle"><p class="confidence-kicker">NFL / NCAA · evidence first</p><h3 id="confidenceTitle" tabindex="-1">GOING Confidence</h3><p>Evidence readiness, not win chance or proven value. See why, the concern and the price.</p><div class="confidence-filters" role="group" aria-label="Confidence evidence views"><button type="button" data-confidence-view="support" aria-pressed="true">Current support</button><button type="button" data-confidence-view="developing" aria-pressed="false">Developing</button><button type="button" data-confidence-view="check" aria-pressed="false">Check first</button></div><p id="confidenceStatus" role="status"></p><div id="confidenceCards" class="confidence-grid"></div><button type="button" id="confidenceMore" hidden>Show more evidence reviews</button><p id="confidenceCount" class="confidence-count"></p><details><summary>How to read GOING Confidence</summary><p>Current support means a traceable current-season role or matchup observation supports this exact direction, with no unresolved sample, availability or price check. It does not establish predictive accuracy. Developing evidence needs more support; Check first flags a price, model or availability issue. Cards keep the existing Today order inside each view, not a new confidence ranking. A high estimated chance or better payout alone never qualifies as current football support.</p><p>NFL can use player-role or role-matched defensive evidence where verified. NCAA currently has scoring models and team samples, but no verified personnel/matchup layer; its evidence can remain Developing even with a recent quote. Inspect the current/older sample and weighting below.</p></details></section><div class="slate-primary"><button type="button" id="bestBuildParlay">Build from selected games</button><span id="bestSelectedGames" role="status">No games selected</span></div><div class="today-summary" id="bestTodaySummary" aria-label="Today's slate summary"></div><details class="g-discovery-tools"><summary>More markets and deep research</summary><nav class="deep-links" aria-label="Deep football research"><button type="button" data-best-tab="props">All markets</button><button type="button" data-best-tab="signals">Early Signals</button><button type="button" data-best-tab="firsttd">First TD</button><button type="button" data-best-tab="parlays">Parlay Lab</button><button type="button" data-best-tab="promo">Jackpot</button><a href="/results/">Results</a></nav></details><details class="g-discovery-tools"><summary>Filter by date, game, book, price, player or market</summary><div class="best-discovery"><label>Research game<select id="bestEvent" class="field" aria-label="Research game"><option value="all">All supported games</option></select></label><input id="bestSearch" class="field" type="search" aria-label="Search research candidates" placeholder="Filter research candidates"><select id="bestSort" class="field" aria-label="Sort research candidates"><option value="going">Estimated chance · default</option><option value="probability">Highest probability</option><option value="edge">Highest estimated return</option><option value="payout">Highest payout</option><option value="kickoff">Earliest kickoff</option></select></div><div class="best-filter-panel" aria-label="Sportsbook and price filters"><label>Sportsbook<select id="bestBook" aria-label="Desired sportsbook"><option value="all">Best available / all books</option></select></label><label>Minimum odds<input id="bestMinOdds" type="text" inputmode="text" pattern="[+-]?[0-9]+" aria-label="Minimum American odds" placeholder="Any"></label><button type="button" id="bestExcludeAlt" aria-pressed="true">✓ Hide alternate props</button><button type="button" id="bestFilterReset">Reset price filters</button></div><small class="best-filter-note">Filters use prices already loaded on this page. The default hides alternate props and prices shorter than -500.</small><div class="pos-group" id="bestKind" aria-label="Bet type"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">Player props</button></div><div class="best-quick" id="bestFocus" aria-label="Quick filters"><button data-focus="all" aria-pressed="true">All candidates</button><button data-focus="td" aria-pressed="false">TD markets</button><button data-focus="plus" aria-pressed="false">Plus money</button><button data-focus="alt" aria-pressed="false">Alt line sets</button><button data-focus="parlay" aria-pressed="false">Parlay-ready</button></div></details><details><summary>Coverage and exclusions</summary><p id="bestStatus" role="status"></p></details><p id="bestOrderNote" class="slate-orientation"></p><div id="bestGameSlate" aria-label="GOING research by game"></div><button class="btn ghost" id="bestMoreGames" hidden>Show more games</button><details class="g-discovery-tools"><summary>Full ranked lists · advanced research</summary><div class="best-section-head"><h3>What GOING found</h3><span id="bestChanceCount"></span></div><p>Candidates clear the existing checks. Watchlists still need a better price or stronger evidence.</p><div id="bestChance" class="sig-grid"></div><button class="btn ghost" id="bestChanceMore" hidden>Show more model selections</button><div class="best-section-head"><h3>Price-qualified value</h3><span id="bestValueCount"></span></div><p>Fresh Pinnacle-led comparisons remove the books’ built-in charge and reduce the estimate for uncertainty. These are research candidates, not proven edges.</p><div id="bestValue" class="sig-grid"></div><button class="btn ghost" id="bestValueMore" hidden>Show more price-qualified selections</button></details></section>
+@@ -4625,0 +4626,22 @@ function renderGameFirstSlate(chance,value){
++const CONFIDENCE_ROWS={nfl:[],ncaa:[]},CONFIDENCE_VIEW={nfl:'support',ncaa:'support'},CONFIDENCE_LIMIT={nfl:4,ncaa:4},CONFIDENCE_OPEN=new Set();
++function renderGoingConfidence(rows=CONFIDENCE_ROWS[BET.sport]){
++ const host=$('goingConfidence');if(!host||!globalThis.GoingFootballConfidence)return;
++ CONFIDENCE_ROWS[BET.sport]=rows;
++ const groups=GoingFootballConfidence.groups(rows,c=>{const matchup=defensiveMatchup(c);return {now:Date.now(),season:BET.history?.season_review?.season,contextAt:BET.context?.generated_at,learningAt:BET.learning?.generated_at,historyAt:BET.history?.generated_at,matchup,weakness:matchup&&defensiveWeakness(matchup.weakness_id)};});
++ const view=CONFIDENCE_VIEW[BET.sport],list=groups[view],shown=list.slice(0,CONFIDENCE_LIMIT[BET.sport]),titles={support:'Current support',developing:'Developing',check:'Check first'};
++ const focus=document.activeElement,viewFocus=focus?.dataset?.confidenceView,moreFocus=focus?.id==='confidenceMore';
++ host.querySelector('.confidence-kicker').textContent=BET.sport.toUpperCase()+' · '+(BEST_DAY==='today'?'Today (ET)':'Selected slate')+' · evidence first';
++ for(const b of host.querySelectorAll('[data-confidence-view]')){b.textContent=titles[b.dataset.confidenceView]+' · '+groups[b.dataset.confidenceView].length;b.setAttribute('aria-pressed',String(b.dataset.confidenceView===view));}
++ $('confidenceStatus').textContent=groups.support.length?`${groups.support.length} entries have current supporting evidence. This is not a measured confidence or betting-value ranking.`:rows.length?'No currently supported confident call. Review Developing or Check first for the evidence and missing checks.':'No model-supported candidates for this date and filters. Try another available date or Games; no confident call is invented.';
++ $('confidenceCards').innerHTML=shown.map(({candidate:c,evidence:e})=>{const key=bestSelectionKey(c);BEST_VISIBLE.set(key,c);return GoingFootballConfidence.card(c,e,{label:bestPlayLabel(c),key,teamLabel:footballTeamLabel,gameKey:bestEventKey(c),extra:bestEvidenceRows(c),saved:globalThis.GoingUI?.read().some(x=>x.id===key),canSave:!!globalThis.GoingUI?.add});}).join('')||`<p class="confidence-empty">${view==='support'?'No entry meets the current-support checks. High likelihood alone is not enough; choose another evidence view above to investigate.':'No entries in this evidence view for the current date and filters.'}</p>`;
++ for(const d of host.querySelectorAll('[data-confidence-detail]')){d.open=CONFIDENCE_OPEN.has(d.dataset.confidenceDetail);d.ontoggle=()=>{d.open?CONFIDENCE_OPEN.add(d.dataset.confidenceDetail):CONFIDENCE_OPEN.delete(d.dataset.confidenceDetail);};}
++ $('confidenceCount').textContent=`${shown.length} of ${list.length} ${titles[view].toLowerCase()} entries shown · Today order preserved; selected date/game/book filters apply`;
++ $('confidenceMore').hidden=shown.length>=list.length;
++ if(viewFocus)host.querySelector(`[data-confidence-view="${viewFocus}"]`)?.focus({preventScroll:true});else if(moreFocus){if(!$('confidenceMore').hidden)$('confidenceMore').focus({preventScroll:true});else host.querySelector('.confidence-card:last-child summary')?.focus({preventScroll:true});}
++}
++function addConfidencePick(button){
++ const c=BEST_VISIBLE.get(button.dataset.confidenceAdd);if(!c||!globalThis.GoingUI?.add)return;
++ const now=Date.now(),quote=Date.parse(c.updatedAt);if(Date.parse(c.kickoff)<=now||!Number.isFinite(quote)||quote>now||now-quote>24*3600000){button.disabled=true;button.textContent='Quote needs refreshing';return;}
++ const pick=Object.fromEntries(['sport','kind','profileId','player','team','home','away','event','kickoff','updatedAt','market','side','line','odds','dec','prob','push','ev','n','book'].filter(k=>c[k]!==undefined).map(k=>[k,c[k]]));pick.id=bestSelectionKey(c);pick.label=bestPlayLabel(c);
++ const saved=GoingUI.add(pick);button.setAttribute('aria-pressed',String(saved));button.textContent=saved?'✓ Shortlisted':'+ Compare / parlay';
++}
+@@ -4653,0 +4676 @@ async function renderBestPlays(){
++ renderGoingConfidence(chance);
+@@ -4890,0 +4914,3 @@ function wireBetting(){
++  $('goingConfidence').addEventListener('click',e=>{const b=e.target.closest('[data-confidence-view]'),game=e.target.closest('[data-slate-action]'),add=e.target.closest('[data-confidence-add]');if(add){addConfidencePick(add);return;}if(b){CONFIDENCE_VIEW[BET.sport]=b.dataset.confidenceView;CONFIDENCE_LIMIT[BET.sport]=4;renderGoingConfidence();}else if(game)openSlateAction(game.dataset.slateAction,game.dataset.slateGame);});
++  $('confidenceJump').onclick=()=>{const panel=$('goingConfidence'),head=document.querySelector('.bt-head');panel.scrollIntoView({block:'start'});const offset=Math.max(0,head?.getBoundingClientRect().bottom||0,document.getElementById('going-shell')?.getBoundingClientRect().bottom||0)+12;window.scrollBy(0,panel.getBoundingClientRect().top-offset);$('confidenceTitle').focus({preventScroll:true});};
++  $('confidenceMore').onclick=()=>{CONFIDENCE_LIMIT[BET.sport]+=4;renderGoingConfidence();};
+diff --git a/research/ncaa-recency/README.md b/research/ncaa-recency/README.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..0e55d1fd03416e47298b83f7e5c3ff1e1f23eb85
+--- /dev/null
++++ b/research/ncaa-recency/README.md
+@@ -0,0 +1,69 @@
++# NCAA recency research v1
++
++Status: **audit completed; experiment registered; blocked on historical inputs; no fit, winner, promotion or production weighting change**. Source revision: `a609255b196724ab116c1754fcf5585ad9014884`. This is separate from `today-ranking-v1`; neither its artifacts nor its holdout were read.
++
++## What production actually consumes
++
++- `scripts/build_pipeline.py:73` assigns **80% current / 20% all older games** whenever both are present, even after just one current game. This is an existing policy, not a requirement or validated optimum. With one current game and eleven historical games, Kish effective sample size is approximately **1.55**, although the model reports twelve recorded games.
++- `build_game_models` at line 218 takes the **last 12** per team across seasons and requires five recorded games per team, including older games. Home projected score is the mean of home weighted points scored and away weighted points allowed; away reverses the teams. There is no NCAA opponent-strength or home-field fit here. Both projected mean and residual SD feed browser normal distributions.
++- Results enter preceding history only after `result_available_at`, otherwise **kickoff +12 hours**. The fallback is a chronology precaution, not evidence of actual publication time. Pooled residual RMSE is a diagnostic across historical seasons, not a fresh calibrated win probability or untouched result.
++- `index.html:3432` loads `history.json` through `api/snapshot` with a static-file fallback. `gamesFromParlay` (3463) uses the matching history model, requiring a unique exact-team match within six kickoff hours. `gameQuotes` (4179) turns those means/SDs into spread/total/moneyline estimates. The season-aggregate `ncaa_lines.json.ratings` and its 13.39 slope **do not supply this NCAA model path** when `games_raw` exists. Such season-end ratings would be unsafe historical pregame inputs without dated versions.
++- `scripts/pbp_features.py:47` selects last twelve games across seasons and aggregates unweighted neutral snaps (pre-snap WP .20–.80). The NCAA output lacks per-game rows, season-separated totals and effective sample counts. It supplies pace/pass-rate observations, not the NCAA score means. The NCAA canonicalizer omits player/coverage/pressure fields; no NCAA player, defense or coverage rows exist in this snapshot. NFL-only context/coaching data do not establish NCAA turnover.
++
++## Verified local snapshot evidence
++
++`audit-20261003.json` contains exact input/source SHA-256 hashes and a reproducible clock. The saved history was generated **2026-10-03 01:14:53 UTC**; NCAA PBP aggregates at **01:15:36 UTC**. Both list 2024–26 sources loaded, but schedule provenance is only `sportsdataverse: loaded`, without release hash or per-season row coverage.
++
++| Observation | Count / finding |
++| --- | --- |
++| NCAA scheduled / modeled rows | 545 / 529; 544 scheduled in 2026, one unresolved 2024 schedule row |
++| Minimum current games per modeled matchup | 98 with 2; 397 with 3; 34 with 4; no matchup with 5 |
++| All modeled team sides' current weight | 1,058 at 0.8 |
++| Historical diagnostic | 1,367 errors; margin RMSE 18.116, total RMSE 16.010; not untouched OOS/calibration |
++| NCAA aggregate team rows | 330; latest observation in 2026 for 233, 2025 for 77, 2024 for 20 |
++| Observation dates | Latest 2026-09-27; oldest team's latest 2024-08-30 |
++| PBP rows | 469,215 eligible snaps; 98,184 neutral snaps |
++| NCAA player / defense / coverage rows | 0 / 0 / 0 |
++| Latest published NCAA score rows | 217; zero known result-publication timestamps |
++| Saved bookmaker events | 131, generated 01:14:44 UTC; stored FRESH status describes that refresh, not the audit clock |
++
++All 529 model rows include future season games, not just today's slate. Team latest-year counts include the broader PBP universe; they are not FBS-only or a measurement of current roster continuity. A newly generated file must never turn old team observations into current evidence.
++
++The pinned `sportsdataverse==0.1.4` loader source reads public release assets under `sportsdataverse-data/cfb_schedules` and `cfbfastR_cfb_pbp`; upstream normalization derives from ESPN/cfbfastR. The local installed loader file SHA-256 is `6e4f45fa736d44e9ffa16952b6c14ee485c6b21e9e4b0b8dd2889e446c135ae4`, verified by reading package source only. No loader or provider function was invoked. Current raw release bytes were not retained by the build, so package/source inspection cannot prove which exact release revision produced the saved aggregates.
++
++## Registered experiment and early season
++
++Read [protocol.json](protocol.json) for fixed cutoffs, candidates, formulas and acceptance criteria. Preserve this registration; changes after fitting or outcomes require a new future version, with results/invalidation recorded separately. Register before fitting: development seasons 2018, 2019, 2021, 2022; chronological validation 2023–25; 2020 excluded before testing due to COVID schedule differences. Historical revised public data may support **retrospective diagnostics**, never a claim that today's rebuilt features were actually known at an old decision time.
++
++Compare Champion to uniform 4/6/8/12-game histories, current-season means shrunk toward the previous-season mean with 2/4/8 pseudo-games, and decays with game-age half-lives 2/4/8 plus a fixed season-boundary discount. These grid values are experiments, not magical percentages. Keep the score architecture fixed so weighting is the only difference. Shrinkage gives a limited early-season sample less influence and lets its weight rise as games accumulate; missing prior/season evidence stays disclosed. Each forecast must retain current/historical counts, weights, effective n and source cutoff.
++
++Choose at most one margin and one total challenger using historical chronological validation, before a **complete future 2027 season holdout**, August 1–December 19, unlock January 8, 2028. A full future season is deliberate: the elapsed 2026 early season cannot now be an untouched test of early-season shrinkage. No collection or fitting has been enabled by these files. Register any feasibility pilot separately; never invent missed captures or treat ranking observations as this experiment's data.
++
++Same eligible games; RMSE primary, MAE/bias/coverage and stages 0–2/3–5/6+ current games secondary. Use paired time-block uncertainty and a simple earlier-data benchmark. Holdout gates: at least 500 paired games, 12 weekly clusters, 75 games per stage and at most 10% missing outcomes. Required benefit is 0.25 RMSE points, multiplicity-adjusted interval excluding zero, no stage MAE worsening above 0.5 points. Insufficient data means INSUFFICIENT. Promotion still requires Travis. Projection gains alone do not validate spread probabilities or returns.
++
++**Exact blocker:** latest public snapshots contain neither raw multi-season completed schedules/game-level PBP features nor trustworthy historical publication versions. The 217 score rows cannot recreate the Champion's twelve-game inputs or test alternate histories. No NCAA comparative backtest was run; no weighting/window superiority is claimed.
++
++## Turnover and feature-specific follow-up
++
++No verified NCAA head coach/coordinator assignments, starting-QB timelines, depth charts or roster continuity enter the saved game-model/PBP path. Do not infer these from team names or zero missing fields. A newly available free endpoint is a possible source, not a verified historical as-of feature.
++
++The upstream R loaders document free returning-production and weekly-rating releases. They need a separate coverage/license/schema/revision and point-in-time audit before acquisition/use: some weekly FPI rows are explicitly out of sequence, and season ratings are season-end aggregates. No extra API/account/paid service is needed merely to inspect documentation; no dataset was fetched here. Missing coordinator or starter assignments remain unknown. A future structural-break challenger needs a new protocol, genuine pregame timestamps, and enough changed/unchanged teams to validate separately.
++
++Pace, pass share, efficiency, explosiveness and red-zone behavior should not share a universal stabilizing threshold. A future feature-specific study needs game-level counts/exposure and chronological posterior-predictive validation. The current snapshot only justifies identifying missingness and observation dates. Opponent-adjusted NCAA ridge features deserve their own experiment once raw history can be reconstructed; do not enlarge this weighting grid after seeing results. NFL recency remains a separate research question and is unchanged.
++
++## Reproduce without network
++
++From the repository root with the existing Windows Python environment:
++
++```powershell
++& C:/Users/travi/OneDrive/Documents/ChatGPT/GOING/.venv/Scripts/python.exe research/ncaa-recency/audit.py --as-of 2026-10-03T12:59:18Z
++& C:/Users/travi/OneDrive/Documents/ChatGPT/GOING/.venv/Scripts/python.exe -m unittest discover -s research/ncaa-recency -p 'test_*.py'
++```
++
++The audit reads an explicit public-file allowlist; stdout is default. It never reads private inputs/ranking artifacts, downloads, fits, sends alerts or changes production data. Source rollback is deletion/revert of this research folder only; observations and frozen experiments stay retained.
++
++## Primary sources
++
++- Hyndman & Athanasopoulos: [rolling-origin cross-validation](https://otexts.com/fpp3/tscv.html) requires earlier observations; [exponential smoothing](https://otexts.com/fpp3/ses.html) gives decreasing older weights. Neither establishes an NCAA-optimal half-life.
++- Stephens Lab: [empirical Bayes normal means](https://stephenslab.github.io/ebnm/articles/shrink_intro.html) supplies the shrinkage rationale; learned priors must use earlier data, with their uncertainty retained.
++- SportsDataverse: [pinned Python loader source](https://raw.githubusercontent.com/sportsdataverse/sportsdataverse-py/v0.1.4/sportsdataverse/cfb/cfb_loaders.py), [R release loaders and point-in-time caveats](https://raw.githubusercontent.com/sportsdataverse/cfbfastR/master/R/load_cfb_datasets.R). New source capabilities do not imply GOING already consumes them.
+diff --git a/research/ncaa-recency/audit-20261003.json b/research/ncaa-recency/audit-20261003.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..740c67b058c19b1b5b70ee5b0eb0c0e977740455
+--- /dev/null
++++ b/research/ncaa-recency/audit-20261003.json
+@@ -0,0 +1,91 @@
++{
++  "schema_version": 1,
++  "as_of": "2026-10-03T12:59:18Z",
++  "status": "AUDIT_ONLY_NO_BACKTEST",
++  "file_sha256": {
++    "data/history.json": "f31bca01000049cb930644fd44c269700ef6d4c63410491a66d699ce34261617",
++    "data/ncaa_lines.json": "0e2321e407fa30e33644aa761930c6f685f2e803d4ac8b371526aa60edb2afa1",
++    "data/results.json": "7d59de811f721a20a87bfeae77dd19e8a11cf0f59a54dfebc8889b613207672f",
++    "scripts/build_pipeline.py": "f304ac21c7667143382c10b39552c03877589984ae14a802976d6e96ab031804",
++    "scripts/pbp_features.py": "2380053a8d76e9b0fbe22ec53b4077e1f42140d825ad90001467a3fd5bb37ccd",
++    "scripts/build_ncaa_lines.py": "b55ed8fe1a9fa45e8fd2a31a4a5aed91e8b42acf137fde3d725911a874099db2",
++    "scripts/requirements.txt": "39da738e998dba9e0139b54a677d1d405df82febfb84e173ae7980335eb4d7e2"
++  },
++  "production": {
++    "generated_at": "2026-10-03T01:14:53+00:00",
++    "age_hours": 11.74,
++    "window": 12,
++    "minimum_games": 5,
++    "sources": {
++      "nflreadpy": {
++        "2024": "loaded",
++        "2025": "loaded",
++        "2026": "loaded"
++      },
++      "sportsdataverse": "loaded"
++    },
++    "season": 2026,
++    "scheduled_rows": 545,
++    "modeled_rows": 529,
++    "scheduled_season_counts": {
++      "2024": 1,
++      "2026": 544
++    },
++    "current_games_minimum_per_matchup": {
++      "2": 98,
++      "3": 397,
++      "4": 34
++    },
++    "unknown_current_game_counts": 0,
++    "current_weight_team_rows": {
++      "0.8": 1058
++    },
++    "pooled_historical_diagnostic_not_holdout": {
++      "margin": {
++        "n": 1367,
++        "rmse": 18.115519638270072
++      },
++      "total": {
++        "n": 1367,
++        "rmse": 16.009600818633114
++      }
++    }
++  },
++  "ncaa_features": {
++    "generated_at": "2026-10-03T01:15:36.113637+00:00",
++    "sources": {
++      "2024": "loaded",
++      "2025": "loaded",
++      "2026": "loaded"
++    },
++    "team_rows": 330,
++    "player_rows": 0,
++    "defense_rows": 0,
++    "defense_coverage_rows": 0,
++    "eligible_snaps": 469215,
++    "neutral_snaps": 98184,
++    "team_latest_observation_years": {
++      "2024": 20,
++      "2025": 77,
++      "2026": 233
++    },
++    "missing_team_last_game": 0,
++    "latest_observation": "2026-09-27",
++    "oldest_team_latest_observation": "2024-08-30",
++    "interpretation": "Refresh timestamp does not establish current-season team evidence; year is observation calendar year, not an audited season membership."
++  },
++  "quotes": {
++    "generated_at": "2026-10-03T01:14:44+00:00",
++    "raw_events": 131,
++    "feed_status": "FRESH",
++    "last_fresh_at": "2026-10-03T01:14:44.480569+00:00",
++    "interpretation": "Saved provider freshness status is not a fresh quote at this audit clock; inspect each exact market timestamp."
++  },
++  "outcomes": {
++    "ncaa_results_rows": 217,
++    "known_publication_timestamp_rows": 0,
++    "interpretation": "Results alone cannot reconstruct decision-time team inputs or prices."
++  },
++  "experiment_status": "BLOCKED_DATA_NOT_FITTED",
++  "blocker": "No archived raw season/game feature histories or trustworthy as-of publication metadata are supplied by these latest public snapshots. No challenger evaluation or calibrated confidence follows from the pooled diagnostic."
++}
+diff --git a/research/ncaa-recency/audit.py b/research/ncaa-recency/audit.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..0f08cc0d8fb5f9577cf520ffde4a3bd72a430c9a
+--- /dev/null
++++ b/research/ncaa-recency/audit.py
+@@ -0,0 +1,121 @@
++"""Offline snapshot provenance audit; never downloads, fits, or reads ranking data."""
++from __future__ import annotations
++
++import argparse
++from collections import Counter
++from datetime import datetime
++import hashlib
++import json
++from pathlib import Path
++
++
++PUBLIC_INPUTS = ('data/history.json', 'data/ncaa_lines.json', 'data/results.json')
++MODEL_SOURCES = ('scripts/build_pipeline.py', 'scripts/pbp_features.py',
++                 'scripts/build_ncaa_lines.py', 'scripts/requirements.txt')
++
++
++def stamp(value):
++    parsed = datetime.fromisoformat(value.replace('Z', '+00:00'))
++    if parsed.tzinfo is None:
++        raise ValueError('Timezone required')
++    return parsed
++
++
++def age_hours(as_of, observed):
++    return round((stamp(as_of) - stamp(observed)).total_seconds() / 3600, 3)
++
++
++def audit(root: Path, as_of: str):
++    stamp(as_of)
++    files = {name: root / name for name in (*PUBLIC_INPUTS, *MODEL_SOURCES)}
++    hashes = {name: hashlib.sha256(path.read_bytes()).hexdigest()
++              for name, path in files.items()}
++    documents = {name: json.loads(files[name].read_text(encoding='utf-8'))
++                 for name in PUBLIC_INPUTS}
++    betting = documents['data/history.json']['betting']
++    season = max((g.get('season', 0) for g in betting['games']['ncaa']), default=None)
++    models = [g for g in betting['games']['ncaa'] if g.get('model')]
++    current_counts = Counter()
++    weights = Counter()
++    unknown_season_evidence = 0
++    for game in models:
++        evidence = game['model'].get('season_evidence') or {}
++        values = [evidence.get(k) for k in ('home_current_games', 'away_current_games')]
++        if all(isinstance(n, int) and not isinstance(n, bool) for n in values):
++            current_counts[str(min(values))] += 1
++        else:
++            unknown_season_evidence += 1
++        for side in ('home', 'away'):
++            value = evidence.get(side + '_current_weight')
++            weights[str(value) if value is not None else 'unknown'] += 1
++    features = betting['features']
++    teams = features['ncaa']['teams']
++    dates = [t['last_game'] for t in teams.values() if t.get('last_game')]
++    snapshot_generated = betting['generated_at']
++    results = documents['data/results.json']
++    ncaa_results = [v for k, v in results['games'].items() if k.startswith('ncaa|')]
++    # Existing public snapshots are latest views, not replayable raw archives.
++    # Do not infer publication timestamps or a usable backtest from result count.
++    return {
++        'schema_version': 1,
++        'as_of': as_of,
++        'status': 'AUDIT_ONLY_NO_BACKTEST',
++        'file_sha256': hashes,
++        'production': {
++            'generated_at': snapshot_generated,
++            'age_hours': age_hours(as_of, snapshot_generated),
++            'window': betting['window'], 'minimum_games': betting['minimum_games'],
++            'sources': betting['sources'], 'season': season,
++            'scheduled_rows': len(betting['games']['ncaa']), 'modeled_rows': len(models),
++            'scheduled_season_counts': dict(sorted(Counter(str(g.get('season')) for g in betting['games']['ncaa']).items())),
++            'current_games_minimum_per_matchup': dict(sorted(current_counts.items())),
++            'unknown_current_game_counts': unknown_season_evidence,
++            'current_weight_team_rows': dict(sorted(weights.items())),
++            'pooled_historical_diagnostic_not_holdout': betting['validation']['ncaa']
++        },
++        'ncaa_features': {
++            'generated_at': features['generated_at'], 'sources': features['sources']['ncaa'],
++            'team_rows': len(teams), 'player_rows': len(features['ncaa']['players']),
++            'defense_rows': len(features['ncaa']['defenses']),
++            'defense_coverage_rows': len(features['ncaa']['defense_coverage']),
++            'eligible_snaps': features['ncaa']['eligible_snaps'],
++            'neutral_snaps': features['ncaa']['neutral_snaps'],
++            'team_latest_observation_years': dict(sorted(Counter(d[:4] for d in dates).items())),
++            'missing_team_last_game': len(teams) - len(dates),
++            'latest_observation': max(dates, default=None),
++            'oldest_team_latest_observation': min(dates, default=None),
++            'interpretation': 'Refresh timestamp does not establish current-season team evidence; year is observation calendar year, not an audited season membership.'
++        },
++        'quotes': {
++            'generated_at': documents['data/ncaa_lines.json'].get('generated_at'),
++            'raw_events': len(documents['data/ncaa_lines.json'].get('games_raw', [])),
++            'feed_status': documents['data/ncaa_lines.json'].get('feed_status'),
++            'last_fresh_at': documents['data/ncaa_lines.json'].get('last_fresh_at'),
++            'interpretation': 'Saved provider freshness status is not a fresh quote at this audit clock; inspect each exact market timestamp.'
++        },
++        'outcomes': {
++            'ncaa_results_rows': len(ncaa_results),
++            'known_publication_timestamp_rows': sum(bool(g.get('result_available_at')) for g in ncaa_results),
++            'interpretation': 'Results alone cannot reconstruct decision-time team inputs or prices.'
++        },
++        'experiment_status': 'BLOCKED_DATA_NOT_FITTED',
++        'blocker': 'No archived raw season/game feature histories or trustworthy as-of publication metadata are supplied by these latest public snapshots. No challenger evaluation or calibrated confidence follows from the pooled diagnostic.'
++    }
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[2])
++    parser.add_argument('--as-of', required=True, help='Explicit timezone-aware audit clock')
++    parser.add_argument('--output', type=Path)
++    args = parser.parse_args()
++    output = json.dumps(audit(args.root, args.as_of), indent=2, allow_nan=False) + '\n'
++    if args.output:
++        # Explicit output only; the default cannot change a file or snapshot.
++        args.output.write_text(output, encoding='utf-8')
++    else:
++        print(output, end='')
++
++
++if __name__ == '__main__':
++    main()
+diff --git a/research/ncaa-recency/protocol.json b/research/ncaa-recency/protocol.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..cf0f67779b1713840f26cd757dce4210138601ba
+--- /dev/null
++++ b/research/ncaa-recency/protocol.json
+@@ -0,0 +1,122 @@
++{
++  "experiment": "ncaa-recency-v1",
++  "registered_date": "2026-10-03",
++  "status": "BLOCKED_DATA_NOT_FITTED",
++  "data_cutoff": "2026-10-03T00:00:00-04:00",
++  "scope": "NCAA regular-season FBS games; game margin and total only; NFL excluded",
++  "hypothesis": "Sample-aware priors and recency weighting describe the current NCAA team better than an immediate fixed current-season weight; shorter windows may help after season boundaries.",
++  "development_seasons": [
++    2018,
++    2019,
++    2021,
++    2022
++  ],
++  "validation_seasons": [
++    2023,
++    2024,
++    2025
++  ],
++  "excluded_seasons": {
++    "2020": "Predeclared COVID schedule discontinuity; separate descriptive report only"
++  },
++  "validation_folds": "One season ahead: parameters chosen only from earlier seasons; weekly prediction origins use inputs available before that origin. Refit on development + earlier validation seasons, never later seasons.",
++  "holdout": {
++    "season": 2027,
++    "kickoff_start_inclusive": "2027-08-01T00:00:00Z",
++    "kickoff_end_exclusive": "2027-12-20T00:00:00Z",
++    "evaluation_unlock": "2028-01-08T17:00:00Z",
++    "reason": "A future complete season is needed to test the early-season transition; historical outcomes have already been inspected in this repo.",
++    "minimum_paired_games": 500,
++    "minimum_week_clusters": 12,
++    "maximum_missing_outcomes_fraction": 0.1,
++    "minimum_games_in_each_stage": 75
++  },
++  "candidates": [
++    {
++      "id": "champion",
++      "method": "Exact frozen build_game_models trailing 12 / 80-20 / minimum 5 comparator"
++    },
++    {
++      "id": "uniform4",
++      "method": "Uniform trailing 4; common eligibility still requires 5 preceding games/team"
++    },
++    {
++      "id": "uniform6",
++      "method": "Uniform trailing 6"
++    },
++    {
++      "id": "uniform8",
++      "method": "Uniform trailing 8"
++    },
++    {
++      "id": "uniform12",
++      "method": "Uniform trailing 12"
++    },
++    {
++      "id": "shrink2",
++      "method": "All available current-season games; previous-season mean prior with k=2 pseudo-games"
++    },
++    {
++      "id": "shrink4",
++      "method": "All available current-season games; previous-season mean prior with k=4 pseudo-games"
++    },
++    {
++      "id": "shrink8",
++      "method": "All available current-season games; previous-season mean prior with k=8 pseudo-games"
++    },
++    {
++      "id": "decay2",
++      "method": "Trailing 24 games, exponential game-age half-life 2, prior-season multiplier 0.5"
++    },
++    {
++      "id": "decay4",
++      "method": "Trailing 24 games, exponential game-age half-life 4, prior-season multiplier 0.5"
++    },
++    {
++      "id": "decay8",
++      "method": "Trailing 24 games, exponential game-age half-life 8, prior-season multiplier 0.5"
++    }
++  ],
++  "candidate_parameters": "k/half-life/window values are preregistered search candidates, not validated coefficients or production requirements. No second round of searching after the holdout.",
++  "common_forecast_formula": "home=(home weighted points scored + away weighted points allowed)/2; away=(away weighted points scored + home weighted points allowed)/2. Keep home advantage and opponent-adjustment architecture fixed to Champion for this isolated weighting experiment.",
++  "shrink_formula": "(n_current*mean_current + k*mean_previous_season)/(n_current+k); if prior unavailable use a pooled prior learned strictly from earlier development data, flag that fallback; if no current data use prior with uncertainty disclosed",
++  "decay_formula": "raw_weight=2^(-game_age/half_life)*(0.5 if previous season else 1); discard observations older than previous season; normalize within team",
++  "eligibility": "Same games with 5 valid preceding results per team; exclude ambiguous IDs, non-FBS/nonregular games, missing kickoff timezone or missing as-of input provenance. Report exclusions and candidate missingness before scoring. Forecast at the latest 08:00 America/New_York origin strictly before kickoff; source captured_at and result_available_at must both precede origin.",
++  "benchmark": "Pooled prior-season mean total and pooled home margin estimated only from earlier development data; additionally report matched market spread/total MAE/RMSE only when exact decision-time quotes have trustworthy capture timestamps",
++  "selection": "Select at most one challenger separately for margin and total by mean chronological validation RMSE; require improvement in at least 2 of 3 validation seasons; ties within 0.01 points choose simpler uniform method, then longer window, then lower prior strength. Freeze selected parameters and implementation hashes before 2027-08-01.",
++  "primary_metrics": [
++    "paired margin RMSE",
++    "paired total RMSE"
++  ],
++  "secondary_metrics": [
++    "MAE",
++    "bias",
++    "coverage",
++    "95% prediction-interval coverage",
++    "stage-specific MAE/RMSE"
++  ],
++  "stages": {
++    "early": "minimum home/away current-season games 0-2",
++    "transition": "3-5",
++    "established": "6+"
++  },
++  "uncertainty": "2000 paired seven-day-block bootstrap replicates, fixed seed 20261003; resample all games in each block together; 97.5% intervals for 2 co-primary outcomes; sensitivity with 14-day blocks and team-cluster jackknife; no independent-row bootstrap",
++  "acceptance": "At least 0.25 points holdout RMSE improvement against Champion and 95% familywise paired interval excludes 0 for that outcome; not worse than simple benchmark; no stage worsens MAE by more than 0.5 points. If sample gates or provenance fail => INSUFFICIENT; no extensions or threshold changes. Any production promotion separately requires Travis.",
++  "probability_metrics": "Not an automatic probability challenger. A later separately registered distribution/calibration study must evaluate Brier/logloss/reliability on exact matched contracts, including push/void handling. Projection improvement alone does not validate betting probabilities.",
++  "forbidden": [
++    "ranking-v1 observations/outcomes as model-training data",
++    "reading ranking holdout performance",
++    "changing production models or Today ranking",
++    "season-end ratings as pregame features",
++    "retroactively asserted capture/result-publication times",
++    "ROI/CLV without exact archived decision/closing prices",
++    "automatic model promotion"
++  ],
++  "next_input_gate": "Archive versioned public raw schedules/results and game-level features with retrieval time/source URL/content hash/team-ID mapping/schema; verify historical releases and as-of semantics offline before any fitting. Public release access may be free but is not invoked by this scaffold. No provider calls or paid inputs.",
++  "deferred_features": "Opponent-adjusted ridge, feature-specific stabilization, verified coaching/QB/roster breaks require new versions after provenance/data availability is established; do not multiply the current candidate grid.",
++  "sources": [
++    "https://otexts.com/fpp3/tscv.html",
++    "https://otexts.com/fpp3/ses.html",
++    "https://stephenslab.github.io/ebnm/articles/shrink_intro.html"
++  ]
++}
+diff --git a/research/ncaa-recency/test_audit.py b/research/ncaa-recency/test_audit.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..767037505d749e51846a7c69377e28ae243cc0b1
+--- /dev/null
++++ b/research/ncaa-recency/test_audit.py
+@@ -0,0 +1,91 @@
++"""Offline regression checks for the audit's evidence boundaries."""
++import importlib.util
++import json
++from pathlib import Path
++import tempfile
++import unittest
++
++HERE = Path(__file__).resolve().parent
++SPEC = importlib.util.spec_from_file_location('ncaa_recency_audit', HERE / 'audit.py')
++MODULE = importlib.util.module_from_spec(SPEC)
++SPEC.loader.exec_module(MODULE)
++
++
++class AuditTests(unittest.TestCase):
++    def setUp(self):
++        self.temp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.temp.cleanup)
++        self.root = Path(self.temp.name)
++        self.as_of = '2026-10-03T12:00:00Z'
++        self.history = {'betting': {
++            'generated_at': '2026-10-03T01:00:00Z', 'window': 12, 'minimum_games': 5,
++            'sources': {'sportsdataverse': 'loaded'},
++            'games': {'ncaa': [{'season': 2026, 'model': {'margin_mean': 3, 'season_evidence': {
++                'home_current_games': 2, 'away_current_games': 3,
++                'home_current_weight': .8, 'away_current_weight': .8}}}]},
++            'validation': {'ncaa': {'margin': {'n': 123, 'rmse': 18}}},
++            'features': {'generated_at': '2026-10-03T01:01:00Z', 'sources': {'ncaa': {'2026': 'loaded'}},
++                         'ncaa': {'teams': {'old': {'last_game': '2024-08-30'}, 'new': {'last_game': '2026-09-27'}},
++                                  'players': {}, 'defenses': {}, 'defense_coverage': {},
++                                  'eligible_snaps': 1000, 'neutral_snaps': 300}}
++        }}
++        self.results = {'games': {'ncaa|a': {'homeScore': 30}, 'nfl|b': {'homeScore': 20}}}
++        self.quotes = {'generated_at': '2026-10-03T01:00:00Z', 'games_raw': [{}], 'feed_status': 'FRESH'}
++        for name in MODULE.MODEL_SOURCES:
++            path = self.root / name
++            path.parent.mkdir(parents=True, exist_ok=True)
++            path.write_text('source fixture\n', encoding='utf-8')
++        self.save()
++
++    def save(self):
++        for name, document in zip(MODULE.PUBLIC_INPUTS, (self.history, self.quotes, self.results)):
++            path = self.root / name
++            path.parent.mkdir(parents=True, exist_ok=True)
++            path.write_text(json.dumps(document), encoding='utf-8')
++
++    def test_fresh_build_does_not_make_old_team_current(self):
++        report = MODULE.audit(self.root, self.as_of)
++        self.assertEqual(report['ncaa_features']['team_latest_observation_years'], {'2024': 1, '2026': 1})
++        self.assertEqual(report['production']['age_hours'], 11)
++
++    def test_missing_current_sample_stays_unknown(self):
++        del self.history['betting']['games']['ncaa'][0]['model']['season_evidence']
++        self.save()
++        report = MODULE.audit(self.root, self.as_of)
++        self.assertEqual(report['production']['unknown_current_game_counts'], 1)
++        self.assertEqual(report['production']['current_games_minimum_per_matchup'], {})
++
++    def test_results_without_publication_times_cannot_be_replay(self):
++        report = MODULE.audit(self.root, self.as_of)
++        self.assertEqual(report['outcomes']['ncaa_results_rows'], 1)
++        self.assertEqual(report['outcomes']['known_publication_timestamp_rows'], 0)
++        self.assertEqual(report['experiment_status'], 'BLOCKED_DATA_NOT_FITTED')
++
++    def test_timezone_required(self):
++        with self.assertRaises(ValueError):
++            MODULE.audit(self.root, '2026-10-03T12:00:00')
++
++    def test_audit_does_not_read_ranking_or_write_inputs(self):
++        before = {p: p.read_bytes() for p in self.root.rglob('*') if p.is_file()}
++        # Any accidental read of this directory as a file would fail.
++        (self.root / 'research' / 'today-ranking').mkdir(parents=True)
++        MODULE.audit(self.root, self.as_of)
++        self.assertEqual(before, {p: p.read_bytes() for p in before})
++
++    def test_provenance_hash_changes_with_source_bytes(self):
++        first = MODULE.audit(self.root, self.as_of)
++        path = self.root / MODULE.MODEL_SOURCES[0]
++        path.write_text('changed source\n', encoding='utf-8')
++        second = MODULE.audit(self.root, self.as_of)
++        self.assertNotEqual(first['file_sha256'][MODULE.MODEL_SOURCES[0]], second['file_sha256'][MODULE.MODEL_SOURCES[0]])
++
++    def test_registration_is_future_full_season_and_has_no_fitted_result(self):
++        protocol = json.loads((HERE / 'protocol.json').read_text(encoding='utf-8'))
++        self.assertEqual(protocol['status'], 'BLOCKED_DATA_NOT_FITTED')
++        self.assertEqual(protocol['holdout']['season'], 2027)
++        self.assertEqual(protocol['scope'].split(';')[-1].strip(), 'NFL excluded')
++        self.assertGreater(MODULE.stamp(protocol['holdout']['kickoff_start_inclusive']), MODULE.stamp(protocol['data_cutoff']))
++
++
++if __name__ == '__main__':
++    unittest.main()
+diff --git a/shared/football-confidence.css b/shared/football-confidence.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa4e779928c564678632f9e93b014c3a11d60072
+--- /dev/null
++++ b/shared/football-confidence.css
+@@ -0,0 +1,11 @@
++.confidence-review{margin:18px 0 24px;border:1px solid var(--g-border,#34443c);border-top:3px solid var(--g-accent,#ff8b45);padding:18px;border-radius:14px;background:var(--g-surface,#131c19);scroll-margin-top:130px}
++.confidence-review h3{margin:0 0 7px;font-size:22px;letter-spacing:-.025em}.confidence-review>p{margin:8px 0;line-height:1.5}.confidence-review .confidence-kicker{font-size:12px;color:var(--g-muted,#afbbb2);text-transform:uppercase;letter-spacing:.08em}
++.confidence-filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.confidence-filters button,.confidence-actions button,#confidenceMore{min-height:44px;padding:10px 12px;white-space:normal;font:600 13px system-ui;cursor:pointer}.confidence-filters button[aria-pressed=true]{border-color:var(--g-accent,#ff8b45);color:var(--g-accent,#ff8b45)}
++.confidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.confidence-card{min-width:0;padding:16px;background:var(--g-raised,#1b2621);border:1px solid var(--g-border,#34443c);border-radius:12px;overflow-wrap:anywhere}.confidence-card h4{font-size:18px;line-height:1.35;margin:10px 0 6px}.confidence-card p{font-size:13px;line-height:1.5;margin:10px 0}.confidence-card p>strong{display:block;margin-bottom:3px}.confidence-game,.confidence-value{color:var(--g-muted,#afbbb2)}.confidence-concern{border-left:2px solid var(--g-accent,#ff8b45);padding-left:10px}
++.confidence-label{font:650 12px system-ui;color:var(--g-muted,#afbbb2)}.confidence-label.support{color:#a9dfc5}.confidence-label.check{color:#ffd099}.confidence-price{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0}.confidence-price small,.confidence-price b{display:block}.confidence-price small{font-size:11px;line-height:1.5;color:var(--g-muted,#afbbb2)}.confidence-price b{font-size:16px;line-height:1.5}
++.confidence-card details{font-size:12px;line-height:1.5;margin:12px 0}.confidence-card summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:650}.confidence-card dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;margin:12px 0}.confidence-card dt{color:var(--g-muted,#afbbb2)}.confidence-card dd{margin:0}.confidence-card ul{padding-left:18px}.confidence-actions{display:flex;flex-wrap:wrap;gap:8px}.confidence-actions button{flex:1 1 140px}.confidence-review button:focus-visible,.confidence-card summary:focus-visible{outline:2px solid var(--g-accent,#ff8b45);outline-offset:3px}.confidence-empty{padding:14px;border:1px dashed var(--g-border,#34443c);border-radius:10px;line-height:1.5}.confidence-count{font-size:12px;color:var(--g-muted,#afbbb2)}
++@media(max-width:650px){.confidence-review{padding:12px}.confidence-grid{grid-template-columns:minmax(0,1fr)}.confidence-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.confidence-filters button{min-width:0;font-size:12px;padding:9px 5px}.confidence-review h3{font-size:20px}.confidence-card{padding:13px}}
++
++.confidence-jump{display:inline-flex;align-items:center;min-height:44px;margin:4px 0;padding:8px 12px;border:1px solid var(--g-accent,#ff8b45);border-radius:9px;color:var(--g-accent,#ff8b45);font:650 13px system-ui;text-decoration:none}.confidence-jump:focus-visible{outline:2px solid var(--g-accent,#ff8b45);outline-offset:3px}
++@media(max-width:650px){#goingConfidence .confidence-filters button{font-size:12px!important;padding:9px 4px!important;overflow-wrap:normal}}
++@media(max-width:650px){body[data-going-workspace=long] .bt-head{position:relative;top:auto}}
+diff --git a/shared/football-confidence.js b/shared/football-confidence.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..4197e743270aa87e0ac71a536b742659b31bb81c
+--- /dev/null
++++ b/shared/football-confidence.js
+@@ -0,0 +1,61 @@
++(function(root){
++'use strict';
++const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
++const finite=Number.isFinite, pct=x=>finite(x)?(100*x).toFixed(1)+'%':'Unavailable';
++const seasonOf=at=>{const d=new Date(at);return d.getUTCFullYear()-(d.getUTCMonth()<6?1:0);};
++function recent(at,now,limit){const t=Date.parse(at);return finite(t)&&t<=now&&now-t<=limit;}
++function assess(c,{now=Date.now(),season,contextAt,learningAt,historyAt,matchup,weakness}={}){
++ const supports=[],concerns=[],checks=[],facts=[];
++ const add=(label,value)=>{if(value!==undefined&&value!==null&&value!=='')facts.push([label,String(value)]);};
++ const quoteAt=Date.parse(c.updatedAt),age=now-quoteAt,fresh=finite(age)&&age>=0&&age<=300000;
++ const eligible=['nfl','ncaa'].includes(c.sport)&&['game','prop'].includes(c.kind)&&!(c.sport==='ncaa'&&c.kind==='prop')&&finite(c.prob)&&c.prob>0&&c.prob<1&&finite(c.dec)&&c.dec>1&&finite(c.odds)&&Math.abs(c.odds)>=100&&finite(c.push??0)&&(c.push??0)>=0&&c.prob+(c.push??0)<=1+1e-12&&c.n>=5&&Date.parse(c.kickoff)>now&&!c.manual&&!c.dfs;
++ const blocking=(c.flags||[]).some(f=>f.id==='check'&&!f.historicalOnly);
++ if(!fresh){const note=!finite(age)||age<0?'Price timestamp is missing or in the future.':`Saved price is ${Math.floor(age/3600000)}h ${Math.floor(age%3600000/60000)}m old.`;checks.push(note+' Check the exact line and odds at your book.');}
++ if(!recent(historyAt,now,86400000))checks.push('Model snapshot is missing, future-dated or over 24 hours old.');
++ if(c.kind==='prop'&&!recent(c.profileDate,now,28*86400000))checks.push('Player observation cutoff is missing, future-dated or over 28 days old.');
++ if(blocking)checks.push('An unresolved model check blocks this estimate.');
++ if(c.injury?.stale||c.injury?.blockRecommendation)checks.push('Availability evidence is stale or participation is unresolved.');
++ else if(c.injury)concerns.push('Availability or replacement-role scenario may change the actual workload.');
++ const s=c.seasonEvidence,g=c.gameSeasonEvidence;
++ const currentSeason=season===seasonOf(now)&&(!s||s.season===season);
++ let current=false;
++ if(c.kind==='prop'&&s&&finite(s.current_games)&&finite(s.historical_games)){
++  current=currentSeason&&s.current_games>0;
++  supports.push(`${s.current_games} ${s.season} player games / ${s.historical_games} older games inform the projection.`);
++  if(s.sample_confidence==='low')concerns.push('The model marks the current-season player sample as limited.');
++  if(s.historical_games>0)concerns.push('The current/older weighting is a policy choice, not a validated accuracy improvement.');
++  add('Projection season',s.season);add('Current / older player games',`${s.current_games} / ${s.historical_games}`);add('Current-season model weight',pct(s.current_weight));add('Weighting method',s.method);
++ }else if(c.kind==='game'&&g&&finite(g.home_current_games)&&finite(g.away_current_games)){
++  current=currentSeason&&g.home_current_games>0&&g.away_current_games>0;
++  supports.push(`${c.away}: ${g.away_current_games} current-season games; ${c.home}: ${g.home_current_games}.`);
++  concerns.push(`Current-season samples are ${g.away_current_games} / ${g.home_current_games} games; the weighting has not demonstrated improved betting accuracy.`);
++  add('Away / home current games',`${g.away_current_games} / ${g.home_current_games}`);add('Away / home current weights',`${pct(g.away_current_weight)} / ${pct(g.home_current_weight)}`);add('Weighting method',g.policy);
++ }else concerns.push('Current-season sample counts are unavailable; older history must not be assumed current.');
++ if(!current)concerns.push('Current-season identity or coverage is missing for this exact estimate.');
++ const r=c.evidence?.opportunity;
++ const role=(c.flags||[]).find(f=>f.id==='opportunity'&&f.family==='role');
++ const roleSupported=c.kind==='prop'&&c.sport==='nfl'&&c.side==='Over'&&['rec_yds','receptions'].includes(c.market)&&role&&r?.season===season&&finite(r.adjustedShare)&&finite(r.average)&&r.adjustedShare>r.average&&recent(r.last_game,now,28*86400000)&&seasonOf(r.last_game)===season&&recent(contextAt,now,86400000);
++ if(roleSupported)supports.unshift(`Current recorded pass-snap role: ${pct(r.adjustedShare)} adjusted share versus ${pct(r.average)} for comparable positions. This is role support, not a promise of production.`);
++ const direction=c.side==='Over'?1:c.side==='Under'?-1:0;
++ const matchedRole=c.market==='rec_yds'?/RECEIVING$/.test(matchup?.role||''):c.market==='rush_yds'?/RUSHING$/.test(matchup?.role||''):false;
++ const matchedIdentity=matchup?.player_id===c.profileId&&matchup?.opponent===(c.team===c.home?c.away:c.home)&&matchup?.weakness_id===weakness?.id&&Math.abs(Date.parse(matchup?.kickoff)-Date.parse(c.kickoff))<60000;
++ const matchSupported=matchedRole&&matchedIdentity&&c.kind==='prop'&&c.sport==='nfl'&&['rec_yds','rush_yds'].includes(c.market)&&matchup?.active_signal===true&&weakness?.current?.season===season&&weakness.current.sample>0&&finite(weakness.current.value)&&direction*weakness.current.value>0&&Array.isArray(matchup.lineage)&&matchup.lineage.length>0&&Array.isArray(weakness.lineage)&&weakness.lineage.length>0&&recent(learningAt,now,86400000)&&current;
++ if(matchSupported)supports.unshift(`Current role-matched defensive residual: ${weakness.current.value>=0?'+':''}${weakness.current.value.toFixed(2)} yards per opportunity (${weakness.current.sample} opportunities). It supports this direction; it does not establish an edge.`);
++ if(!roleSupported&&!matchSupported)concerns.push(c.sport==='ncaa'?'No verified current-season matchup or personnel signal is attached; this is a scoring-model comparison.':'No verified current-season, direction-relevant role or matchup signal is attached.');
++ if(c.evidence?.chartingAt&&(!recent(c.evidence.chartingAt,now,28*86400000)||seasonOf(c.evidence.chartingAt)!==season))concerns.push('Charted participation is historical; the latest game date does not make it current.');
++ if(finite(c.ev)&&c.ev<=0)concerns.push('At this recorded price, the model estimates a non-positive return. High likelihood is not attractive value by itself.');
++ if(c.odds< -300)concerns.push('Short price: a loss costs more than the profit from one win. Compare likelihood with the required price.');
++ if(!supports.length)supports.push(`${c.n??'Unknown'} recorded games inform the existing ${c.modelFamily||'scoring'} model; additional football support is unconfirmed.`);
++ concerns.push('Prediction calibration and profitable betting value are not established.');
++ const group=!eligible||blocking||checks.length?'check':current&&(roleSupported||matchSupported)&&s?.sample_confidence!=='low'&&!c.injury?'support':'developing';
++ const label={support:'Current support attached',developing:'Developing evidence',check:'Check first'}[group];
++ add('Recorded model games',c.n);add('Model observation cutoff',c.profileDate);add('Model snapshot',historyAt);add('Context snapshot',contextAt);add('Matchup snapshot',learningAt);add('Price observed',c.updatedAt);add('Estimated win chance',pct(c.prob));add('Book break-even, ignoring returned stake',pct(1/c.dec));add('Estimated push chance',pct(c.push));add('Push-aware model return',finite(c.ev)?`${(100*c.ev).toFixed(1)} cents per $1`:'Unavailable');
++ return {group,label,eligible,supports,concerns,checks,facts,why:supports[0],concern:checks[0]||concerns[0],fresh,quoteAge:age,footballSupport:!!(roleSupported||matchSupported)};
++}
++function groups(rows,options){const out={support:[],developing:[],check:[]};for(const c of rows){const e=assess(c,typeof options==='function'?options(c):options);if(e.eligible)out[e.group].push({candidate:c,evidence:e});}return out;}
++function card(c,e,{label,key,teamLabel,gameKey,extra=[],saved=false,canSave=true}={}){
++ const odds=c.odds>0?'+'+c.odds:String(c.odds),stamp=new Date(c.kickoff).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'});
++ return `<article class="confidence-card" data-confidence-key="${esc(key)}"><div class="confidence-label ${esc(e.group)}">${esc(e.label)}</div><h4>${esc(c.kind==='prop'?c.player+' · ':'')}${esc(label)}</h4><p class="confidence-game">${esc(teamLabel(c.away,c.sport))} @ ${esc(teamLabel(c.home,c.sport))} · ${esc(stamp)} ET</p><p><strong>Why investigate</strong>${esc(e.why)}</p><p class="confidence-concern"><strong>Biggest concern</strong>${esc(e.concern)}</p><div class="confidence-price"><div><small>Estimated likelihood</small><b>${esc(pct(c.prob))}</b><small>Model estimate · not Confidence</small></div><div><small>Recorded price</small><b>${esc(c.book)} ${esc(odds)}</b><small>${esc(pct(1/c.dec))} win-only break-even${c.push>0?' · pushes return stake':''}</small></div></div><p class="confidence-value">${finite(c.ev)?`Push-aware model return: ${c.ev>=0?'+':''}${(100*c.ev).toFixed(1)}¢ per $1. `:''}Estimated return is not proven value. ${e.fresh?'Quote observed within five minutes; verify at your book.':'Saved price; do not assume it is still available.'}</p><details data-confidence-detail="${esc(key)}"><summary>Evidence &amp; what needs checking</summary><ul>${[...e.supports.slice(1),...e.checks,...e.concerns].map(s=>`<li>${esc(s)}</li>`).join('')}</ul><dl>${[...e.facts,...extra].map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl><p>These are overlapping observations, not independent confirmations. GOING Score is a player index and is not used here.</p></details><div class="confidence-actions"><button type="button" data-confidence-add="${esc(key)}" aria-pressed="${saved}" ${canSave?'':'disabled title="Saving is unavailable; research this game instead"'}>${saved?'✓ Shortlisted':'+ Compare / parlay'}</button><button type="button" data-slate-action="games" data-slate-game="${esc(gameKey)}">Research this game</button></div></article>`;
++}
++root.GoingFootballConfidence={assess,groups,card};if(typeof module!=='undefined')module.exports=root.GoingFootballConfidence;
++})(globalThis);
+diff --git a/tests/football-confidence.test.cjs b/tests/football-confidence.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..fae8a263a5652819ed26259cffb4aacd16a0edd8
+--- /dev/null
++++ b/tests/football-confidence.test.cjs
+@@ -0,0 +1,98 @@
++'use strict';
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const fs=require('node:fs');
++const path=require('node:path');
++const vm=require('node:vm');
++const {assess,groups,card}=require('../shared/football-confidence.js');
++const {openSource}=require('../research/today-ranking/collect.cjs');
++const at='2026-10-03T13:00:00Z',now=Date.parse(at);
++const options={now,season:2026,contextAt:at,learningAt:at,historyAt:at};
++function row(overrides={}){return {kind:'prop',sport:'nfl',profileId:'p',player:'Player',team:'A',away:'A',home:'B',event:'e',market:'rec_yds',side:'Over',line:55.5,book:'Book',odds:-110,dec:1+100/110,prob:.6,push:0,ev:.6*(1+100/110)-1,n:12,profileDate:'2026-09-27',kickoff:'2026-10-04T17:00:00Z',updatedAt:at,flags:[],seasonEvidence:{season:2026,current_games:6,historical_games:6,current_weight:.8,sample_confidence:'moderate',method:'Unvalidated policy'},...overrides};}
++function role(overrides={}){return row({flags:[{id:'opportunity',family:'role',why:'Role'}],evidence:{opportunity:{season:2026,last_game:'2026-09-27',adjustedShare:.7,average:.5}},...overrides});}
++function matchOptions(overrides={}){return {...options,matchup:{player_id:'p',opponent:'B',kickoff:row().kickoff,weakness_id:'w',role:'WR_RECEIVING',active_signal:true,lineage:['current player usage']},weakness:{id:'w',current:{season:2026,sample:60,value:1.5},lineage:['current defensive opportunities']},...overrides};}
++
++test('a high probability, expensive price or apparent return alone never earns current support',()=>{
++ const e=assess(row({prob:.98,odds:-500,dec:1.2,ev:.176,flags:[{id:'gap',family:'model'}]}),options);
++ assert.equal(e.group,'developing');assert.equal(e.footballSupport,false);
++ assert.ok(e.concerns.some(x=>x.includes('Short price')));
++ assert.ok(e.concerns.some(x=>x.includes('not established')));
++});
++test('traceable exact-direction role support is qualitative and separates likelihood and price',()=>{
++ const c=role(),e=assess(c,options);assert.equal(e.group,'support');assert.ok(e.why.includes('pass-snap'));
++ const text=card(c,e,{label:'Over 55.5 Receiving yards',key:'k',teamLabel:x=>x,gameKey:'g'});
++ assert.match(text,/Current support attached/);assert.match(text,/Model estimate · not Confidence/);assert.match(text,/52\.4% win-only break-even/);assert.doesNotMatch(text,/High confidence|60\.0% Confidence|best bet/i);
++});
++test('wrong direction, market, season, historical role or unavailable source never qualifies',()=>{
++ for(const c of [role({side:'Under'}),role({market:'rush_yds'}),role({sport:'ncaa',kind:'game'}),role({evidence:{opportunity:{season:2025,last_game:'2026-09-27',adjustedShare:.7,average:.5}}})])assert.notEqual(assess(c,options).group,'support');
++ assert.notEqual(assess(role(),{...options,contextAt:'2026-09-01'}).group,'support');
++ assert.notEqual(assess(role({seasonEvidence:{season:2025,current_games:6,historical_games:6}}),options).group,'support');
++});
++test('small player sample, stale quote, model check and uncertain injury lower readiness',()=>{
++ assert.equal(assess(role({seasonEvidence:{season:2026,current_games:2,historical_games:10,sample_confidence:'low'}}),options).group,'developing');
++ for(const c of [role({updatedAt:'2026-10-03T01:00:00Z'}),role({flags:[{id:'check'}]}),role({injury:{stale:true}}),role({updatedAt:'2026-10-03T14:00:00Z'}),role({profileDate:'2026-10-05'}),role({profileDate:null})])assert.equal(assess(c,options).group,'check');
++ assert.equal(assess(role({injury:{roleBoost:true}}),options).group,'developing');
++ assert.equal(assess(role(),{...options,historyAt:'2026-09-30'}).group,'check');
++});
++test('NCAA exposes current versus older policy evidence without pretending scoring is matchup support',()=>{
++ const c=row({kind:'game',sport:'ncaa',market:'total',seasonEvidence:null,gameSeasonEvidence:{home_current_games:2,away_current_games:3,home_current_weight:.8,away_current_weight:.8,policy:'80/20 existing unvalidated policy'}});
++ const e=assess(c,options);assert.equal(e.group,'developing');assert.ok(e.supports[0].includes('3 current-season games'));assert.ok(e.concerns.some(x=>x.includes('personnel')));assert.ok(e.facts.some(([k,v])=>k==='Weighting method'&&v.includes('80/20')));
++ assert.equal(assess({...c,kind:'prop'},options).eligible,false);
++});
++test('defensive support requires the exact player/opponent/role/weakness/market/direction',()=>{
++ const c=row();assert.equal(assess(c,matchOptions()).group,'support');
++ assert.notEqual(assess({...c,market:'rush_yds'},matchOptions()).group,'support');
++ for(const patch of [{player_id:'other'},{opponent:'C'},{weakness_id:'other'},{role:'RB_RUSHING'},{active_signal:false},{lineage:[]},{kickoff:'2026-10-04T23:00:00Z'}]){
++  const opts=matchOptions();opts.matchup={...opts.matchup,...patch};assert.notEqual(assess(c,opts).group,'support');
++ }
++ const opts=matchOptions();opts.weakness.current.value=-1;assert.notEqual(assess(c,opts).group,'support');assert.equal(assess({...c,side:'Under'},opts).group,'support');
++});
++test('historical charting is a concern and is not made current by the latest game date',()=>{
++ const c=row({evidence:{chartingAt:'2026-01-04',playerObservedAt:'2026-09-27'},flags:[{id:'demand',family:'role'},{id:'pace',family:'role'}]});const e=assess(c,options);assert.equal(e.group,'developing');assert.ok(e.concerns.some(x=>x.includes('Charted participation is historical')));
++});
++test('groups preserve input order and calculations, expose all entries and safely escape source text',()=>{
++ const rows=[role({profileId:'first',prob:.5}),role({profileId:'second',prob:.9})],before=JSON.stringify(rows),g=groups(rows,options);
++ assert.deepEqual(g.support.map(x=>x.candidate.profileId),['first','second']);assert.equal(JSON.stringify(rows),before);
++ const e=assess(row({player:'<script>',book:'<img>'}),options),text=card(row({book:'<img>'}),e,{label:'<script>alert(1)</script>',key:'" x',teamLabel:x=>x,gameKey:'g'});assert.ok(text.includes('&lt;script&gt;'));assert.ok(text.includes('&lt;img&gt;'));assert.ok(!text.includes('<script>'));
++ assert.equal(groups(Array.from({length:27},(_,i)=>role({profileId:String(i)})),options).support.length,27);
++});
++test('January retains the previous football season rather than misclassifying current role evidence',()=>{
++ const jan='2027-01-02T12:00:00Z',opts={...options,now:Date.parse(jan),historyAt:jan,contextAt:jan,learningAt:jan};
++ const c=role({profileDate:'2026-12-27',kickoff:'2027-01-03T17:00:00Z',updatedAt:jan,evidence:{opportunity:{season:2026,last_game:'2026-12-27',adjustedShare:.7,average:.5}}});assert.equal(assess(c,opts).group,'support');
++});
++test('Confidence presentation preserves frozen Champion/generator/C1/C2 hashes',t=>{
++ const root=path.resolve(__dirname,'..'),s=openSource(root,at);t.after(()=>s.dom.window.close());
++ const registry=require('../research/today-ranking/experiment-v1.json');
++ assert.equal(s.codeHashes.policy,registry.policyCodeHash);assert.equal(s.codeHashes.generator,registry.generatorCodeHash);
++ assert.equal(require('../research/today-ranking/collect.cjs').textHash(fs.readFileSync(path.join(root,'shared/ranking-policies.cjs'))),registry.challengersSourceHash);
++});
++test('Today integration handles empty state, unlimited pagination, league separation, details and focus',t=>{
++ const root=path.resolve(__dirname,'..'),s=openSource(root,at);t.after(()=>s.dom.window.close());
++ vm.runInContext(fs.readFileSync(path.join(root,'shared/football-confidence.js'),'utf8'),s.context);
++ s.w.fixture=Array.from({length:11},(_,i)=>role({profileId:'p'+i,event:'e'+i}));
++ vm.runInContext(`BET.sport='nfl';BET.history={generated_at:'${at}',season_review:{season:2026}};BET.context={generated_at:'${at}'};BET.learning={generated_at:'${at}'};renderGoingConfidence(fixture);`,s.context);
++ const d=s.w.document;assert.equal(d.querySelectorAll('.confidence-card').length,4);assert.match(d.getElementById('confidenceCount').textContent,/4 of 11/);
++ const detail=d.querySelector('[data-confidence-detail]');detail.open=true;detail.ontoggle();
++ const more=d.getElementById('confidenceMore');more.focus();vm.runInContext('CONFIDENCE_LIMIT.nfl+=4;renderGoingConfidence()',s.context);
++ assert.equal(d.querySelectorAll('.confidence-card').length,8);assert.equal(d.querySelector('[data-confidence-detail]').open,true);assert.equal(d.activeElement,more);
++ vm.runInContext('CONFIDENCE_LIMIT.nfl+=4;renderGoingConfidence()',s.context);assert.equal(d.querySelectorAll('.confidence-card').length,11);assert.equal(more.hidden,true);assert.equal(d.activeElement,d.querySelector('.confidence-card:last-child summary'));
++ vm.runInContext("BET.sport='ncaa';renderGoingConfidence([])",s.context);assert.equal(d.querySelectorAll('.confidence-card').length,0);assert.match(d.getElementById('confidenceStatus').textContent,/No model-supported candidates/);assert.match(d.querySelector('.confidence-kicker').textContent,/NCAA/);
++});
++
++test('Confidence saving preserves NCAA contract, league, quote and kickoff without losing focus',t=>{
++ const root=path.resolve(__dirname,'..'),s=openSource(root,at);t.after(()=>s.dom.window.close());
++ s.w.pick=row({sport:'ncaa',kind:'game',market:'spread',side:'Home',line:-3.5,seasonEvidence:null});
++ s.w.GoingUI={add:r=>{s.w.savedPick=r;return true;}};
++ const button=s.w.document.createElement('button');s.w.document.getElementById('confidenceCards').append(button);button.focus();s.w.saveButton=button;
++ vm.runInContext('const key=bestSelectionKey(pick);BEST_VISIBLE.set(key,pick);saveButton.dataset.confidenceAdd=key;addConfidencePick(saveButton)',s.context);
++ assert.equal(s.w.savedPick.sport,'ncaa');assert.equal(s.w.savedPick.kickoff,s.w.pick.kickoff);assert.equal(s.w.savedPick.updatedAt,s.w.pick.updatedAt);assert.equal(s.w.savedPick.event,'e');assert.equal(s.w.savedPick.market,'spread');assert.equal(s.w.savedPick.line,-3.5);assert.equal(button.getAttribute('aria-pressed'),'true');assert.equal(s.w.document.activeElement,button);
++ s.w.pick.updatedAt='2026-09-01T12:00:00Z';s.w.savedPick=null;vm.runInContext('addConfidencePick(saveButton)',s.context);assert.equal(s.w.savedPick,null);assert.equal(button.disabled,true);
++});
++
++test('Confidence shortcut stays inside Today despite the document base URL and focuses its heading',t=>{
++ const root=path.resolve(__dirname,'..'),s=openSource(root,at);t.after(()=>s.dom.window.close());
++ const before=s.w.location.href;let shift=null;s.w.scrollBy=(x,y)=>{shift=y;};s.w.document.querySelector('.bt-head').getBoundingClientRect=()=>({bottom:360});s.w.document.getElementById('goingConfidence').getBoundingClientRect=()=>({top:130});vm.runInContext('wireBetting()',s.context);
++ s.w.document.getElementById('confidenceJump').click();
++ assert.equal(s.w.location.href,before);assert.equal(s.w.document.activeElement.id,'confidenceTitle');
++ assert.equal(s.w.document.getElementById('confidenceJump').tagName,'BUTTON');assert.equal(shift,-242);
++});
