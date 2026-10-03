@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261003-120030-ranking-noon-c` — scheduled noon exploratory ranking observation; maximum15min, one research milestone.
-Production/base `4e5a1653acafae19cc95fd2fe69015874fd3ad75` unchanged; review base `e2a78ac60dccfdcf8b360cc5554b5819a807b1e0`. Completion/receipt publication pending; exact SHAs follow verification.
+Production/base `4e5a1653acafae19cc95fd2fe69015874fd3ad75` unchanged; review base `e2a78ac60dccfdcf8b360cc5554b5819a807b1e0`. Review completion `ddd81bc2b195ab1ecd61d008b87b3dfd6bbf8571` published and remote-verified; this PROGRESS-only receipt pins it. Its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 - MANAGER/MODEL RESEARCH/QA, one agent/no delegation: selected actual noon collection from newly refreshed public main over saved-pick recheck, comparison UI and NCAA archive work because decision-time evidence cannot be recovered later; earlier10AM capture is distinct. Acceptance: complete12scopes/all ranks/exclusions, immutable prior evidence, clean remote/scope gates, verified review receipt.
@@ -21,7 +21,7 @@ Production/base `4e5a1653acafae19cc95fd2fe69015874fd3ad75` unchanged; review bas
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- No active implementation remains. Publish verified noon completion/receipt, then release only this exact cycle mutex owner. No follow-on development.
+- No active implementation or unfinished cycle work remains. Noon completion is published; verify this receipt remotely and release only this exact cycle mutex owner. No follow-on development.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. Oct3primary missing after overlap; next eligible slots use actual clocks. DiagnosticsOct3–23,untouchedOct24–Dec5,releaseDec6 noonET; do not change policies/cutoffs or inspect holdout aggregate performance.
 
 ## Problems
