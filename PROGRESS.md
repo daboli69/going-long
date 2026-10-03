@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261003-124059-dfs-throne-manual` - explicitly requested manual NFL DFS session; no manual 15-minute limit. Future scheduled limits/schedule unchanged.
-Production `02f8b885984363b989ec4cff433645629322e14a` from main base `4e5a1653acafae19cc95fd2fe69015874fd3ad75`; review base `1a9a272f12cb92ba5e36a4e2af7ae363bf6828cd`. Completion/receipt publication pending; report their exact SHAs after verification.
+Production `02f8b885984363b989ec4cff433645629322e14a` from main base `4e5a1653acafae19cc95fd2fe69015874fd3ad75`; review base `1a9a272f12cb92ba5e36a4e2af7ae363bf6828cd`. Review completion `db3e7d326c904ebce11b16737db63341cbda363c` published and remote-verified. This PROGRESS-only receipt pins that exact completion; its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 - MANAGER/PRODUCT/UIUX/BUILDER plus narrow DFS core/QA and FOOTBALL DATA/MODEL RESEARCH specialists (three total). Resumed existing work once after usage reset, no restart/paid calls. Acceptance: actual CSV-only salaries, legal nine-slot/two-game cap, trustworthy separate TD objective, controls, mobile and preserved ranking experiment.
@@ -28,7 +28,7 @@ Production `02f8b885984363b989ec4cff433645629322e14a` from main base `4e5a1653ac
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- DFS implementation is verified live; publish/verify Claude completion and receipt, then release only this cycle mutex. No follow-on implementation.
+- No active implementation or unfinished DFS work remains. Production verified live and Claude completion published; verify this receipt remotely, release only this exact cycle mutex, then stop. Source/review checkouts retained clean; no unrelated worktree cleanup.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
