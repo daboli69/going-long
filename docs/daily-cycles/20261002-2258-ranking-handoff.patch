@@ -1,0 +1,2029 @@
+diff --git a/index.html b/index.html
+index e24797f97230ab188e682ca606b7d5a835d8b4d0..fe07f926ef5adada8f5644441c04149a0d34b274 100644
+--- a/index.html
++++ b/index.html
+@@ -847 +847 @@
+-        <button data-section="today" data-tab="best" aria-pressed="false">Today</button><button data-section="opportunities" data-tab="props" aria-pressed="true">Markets</button><button data-section="games" data-tab="games" aria-pressed="false">Games</button><button data-section="cheatsheets" data-tab="cheatsheets" aria-pressed="false">Cheatsheets</button><button data-section="parlay" data-tab="parlays" aria-pressed="false">Parlays</button><button data-section="score" data-tab="score" aria-pressed="false">GOING Score</button><button data-section="jackpot" data-tab="promo" aria-pressed="false">Jackpot</button><details class="bt-more-tools"><summary>More</summary><div><button data-section="dfs" data-tab="dfs" aria-pressed="false">DFS</button><button data-section="research" data-tab="signals" aria-pressed="false">Signals</button></div></details>
++        <button data-section="today" data-tab="best" aria-pressed="true">Today</button><button data-section="opportunities" data-tab="props" aria-pressed="false">Markets</button><button data-section="games" data-tab="games" aria-pressed="false">Games</button><button data-section="cheatsheets" data-tab="cheatsheets" aria-pressed="false">Cheatsheets</button><button data-section="parlay" data-tab="parlays" aria-pressed="false">Parlays</button><button data-section="score" data-tab="score" aria-pressed="false">GOING Score</button><button data-section="jackpot" data-tab="promo" aria-pressed="false">Jackpot</button><details class="bt-more-tools"><summary>More</summary><div><button data-section="dfs" data-tab="dfs" aria-pressed="false">DFS</button><button data-section="research" data-tab="signals" aria-pressed="false">Signals</button></div></details>
+@@ -902 +902 @@
+-    <section id="btBestPanel" hidden aria-label="Best plays today"><h2>GOING’s research slate</h2><p class="slate-orientation">Start with a game. GOING ranks research candidates from supported models and prices; a listed market is not a guaranteed winner or a ready-made ticket.</p><div class="slate-primary"><label>Date / slate<select id="bestDay" class="field" aria-label="Date scope"><option value="slate">This football week</option><option value="today">Today (ET)</option></select></label><button type="button" id="bestBuildParlay">Build from selected games</button><span id="bestSelectedGames" role="status">No games selected</span></div><div class="today-summary" id="bestTodaySummary" aria-label="Today's slate summary"></div><details class="g-discovery-tools"><summary>More markets and deep research</summary><nav class="deep-links" aria-label="Deep football research"><button type="button" data-best-tab="props">All markets</button><button type="button" data-best-tab="signals">Early Signals</button><button type="button" data-best-tab="firsttd">First TD</button><button type="button" data-best-tab="parlays">Parlay Lab</button><button type="button" data-best-tab="promo">Jackpot</button><a href="/results/">Results</a></nav></details><details class="g-discovery-tools"><summary>Filter by date, game, book, price, player or market</summary><div class="best-discovery"><label>Research game<select id="bestEvent" class="field" aria-label="Research game"><option value="all">All supported games</option></select></label><input id="bestSearch" class="field" type="search" aria-label="Search research candidates" placeholder="Filter research candidates"><select id="bestSort" class="field" aria-label="Sort research candidates"><option value="going">Sort: GOING rank</option><option value="probability">Highest probability</option><option value="edge">Highest estimated return</option><option value="payout">Highest payout</option><option value="kickoff">Earliest kickoff</option></select></div><div class="best-filter-panel" aria-label="Sportsbook and price filters"><label>Sportsbook<select id="bestBook" aria-label="Desired sportsbook"><option value="all">Best available / all books</option></select></label><label>Minimum odds<input id="bestMinOdds" type="text" inputmode="text" pattern="[+-]?[0-9]+" aria-label="Minimum American odds" placeholder="Any"></label><button type="button" id="bestExcludeAlt" aria-pressed="true">✓ Hide alternate props</button><button type="button" id="bestFilterReset">Reset price filters</button></div><small class="best-filter-note">Filters use prices already loaded on this page. The default hides alternate props and prices shorter than -500.</small><div class="pos-group" id="bestKind" aria-label="Bet type"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">Player props</button></div><div class="best-quick" id="bestFocus" aria-label="Quick filters"><button data-focus="all" aria-pressed="true">All qualified</button><button data-focus="td" aria-pressed="false">TD markets</button><button data-focus="plus" aria-pressed="false">Plus money</button><button data-focus="alt" aria-pressed="false">Alt line sets</button><button data-focus="parlay" aria-pressed="false">Parlay-ready</button></div></details><details><summary>Coverage and exclusions</summary><p id="bestStatus" role="status"></p></details><p id="bestOrderNote" class="slate-orientation"></p><div id="bestGameSlate" aria-label="GOING research by game"></div><button class="btn ghost" id="bestMoreGames" hidden>Show more games</button><details class="g-discovery-tools"><summary>Full ranked lists · advanced research</summary><div class="best-section-head"><h3>What GOING found</h3><span id="bestChanceCount"></span></div><p>Candidates clear the existing checks. Watchlists still need a better price or stronger evidence.</p><div id="bestChance" class="sig-grid"></div><button class="btn ghost" id="bestChanceMore" hidden>Show more model selections</button><div class="best-section-head"><h3>Price-qualified value</h3><span id="bestValueCount"></span></div><p>Fresh Pinnacle-led comparisons remove the books’ built-in charge and reduce the estimate for uncertainty. These are research candidates, not proven edges.</p><div id="bestValue" class="sig-grid"></div><button class="btn ghost" id="bestValueMore" hidden>Show more price-qualified selections</button></details></section>
++    <section id="btBestPanel" aria-label="GOING research slate"><h2>GOING’s research slate</h2><p class="slate-orientation">Start with a game. Candidates are ordered by estimated chance, with estimated return breaking ties. Higher chance does not by itself mean better betting value.</p><div class="slate-primary"><label>Date / slate<select id="bestDay" class="field" aria-label="Date scope"><option value="slate">This football week</option><option value="today">Today (ET)</option></select></label><button type="button" id="bestBuildParlay">Build from selected games</button><span id="bestSelectedGames" role="status">No games selected</span></div><div class="today-summary" id="bestTodaySummary" aria-label="Today's slate summary"></div><details class="g-discovery-tools"><summary>More markets and deep research</summary><nav class="deep-links" aria-label="Deep football research"><button type="button" data-best-tab="props">All markets</button><button type="button" data-best-tab="signals">Early Signals</button><button type="button" data-best-tab="firsttd">First TD</button><button type="button" data-best-tab="parlays">Parlay Lab</button><button type="button" data-best-tab="promo">Jackpot</button><a href="/results/">Results</a></nav></details><details class="g-discovery-tools"><summary>Filter by date, game, book, price, player or market</summary><div class="best-discovery"><label>Research game<select id="bestEvent" class="field" aria-label="Research game"><option value="all">All supported games</option></select></label><input id="bestSearch" class="field" type="search" aria-label="Search research candidates" placeholder="Filter research candidates"><select id="bestSort" class="field" aria-label="Sort research candidates"><option value="going">Estimated chance · default</option><option value="probability">Highest probability</option><option value="edge">Highest estimated return</option><option value="payout">Highest payout</option><option value="kickoff">Earliest kickoff</option></select></div><div class="best-filter-panel" aria-label="Sportsbook and price filters"><label>Sportsbook<select id="bestBook" aria-label="Desired sportsbook"><option value="all">Best available / all books</option></select></label><label>Minimum odds<input id="bestMinOdds" type="text" inputmode="text" pattern="[+-]?[0-9]+" aria-label="Minimum American odds" placeholder="Any"></label><button type="button" id="bestExcludeAlt" aria-pressed="true">✓ Hide alternate props</button><button type="button" id="bestFilterReset">Reset price filters</button></div><small class="best-filter-note">Filters use prices already loaded on this page. The default hides alternate props and prices shorter than -500.</small><div class="pos-group" id="bestKind" aria-label="Bet type"><button data-kind="all" aria-pressed="true">All bets</button><button data-kind="game" aria-pressed="false">Game lines</button><button data-kind="prop" aria-pressed="false">Player props</button></div><div class="best-quick" id="bestFocus" aria-label="Quick filters"><button data-focus="all" aria-pressed="true">All candidates</button><button data-focus="td" aria-pressed="false">TD markets</button><button data-focus="plus" aria-pressed="false">Plus money</button><button data-focus="alt" aria-pressed="false">Alt line sets</button><button data-focus="parlay" aria-pressed="false">Parlay-ready</button></div></details><details><summary>Coverage and exclusions</summary><p id="bestStatus" role="status"></p></details><p id="bestOrderNote" class="slate-orientation"></p><div id="bestGameSlate" aria-label="GOING research by game"></div><button class="btn ghost" id="bestMoreGames" hidden>Show more games</button><details class="g-discovery-tools"><summary>Full ranked lists · advanced research</summary><div class="best-section-head"><h3>What GOING found</h3><span id="bestChanceCount"></span></div><p>Candidates clear the existing checks. Watchlists still need a better price or stronger evidence.</p><div id="bestChance" class="sig-grid"></div><button class="btn ghost" id="bestChanceMore" hidden>Show more model selections</button><div class="best-section-head"><h3>Price-qualified value</h3><span id="bestValueCount"></span></div><p>Fresh Pinnacle-led comparisons remove the books’ built-in charge and reduce the estimate for uncertainty. These are research candidates, not proven edges.</p><div id="bestValue" class="sig-grid"></div><button class="btn ghost" id="bestValueMore" hidden>Show more price-qualified selections</button></details></section>
+@@ -920 +920 @@
+-    <section class="bt-panel" id="btPropsPanel"><h2>Browse by market</h2><p class="slate-orientation">Looking for a particular bet type? Compare available markets here. For GOING-ranked research, start with Today; for one matchup, use Games. Availability alone is not a recommendation.</p>
++    <section class="bt-panel" id="btPropsPanel" hidden><h2>Browse by market</h2><p class="slate-orientation">Looking for a particular bet type? Compare available markets here. For research ordered by estimated chance, start with Today; for one matchup, use Games. Availability alone is not a recommendation.</p>
+@@ -955 +955 @@
+-    <section class="bt-panel" id="btGamesPanel" hidden><h2>Matchup research</h2><p class="slate-orientation">Compare spreads, totals and moneylines for a game. Open a matchup for book-by-book prices; Today groups GOING-ranked research angles by game.</p>
++    <section class="bt-panel" id="btGamesPanel" hidden><h2>Matchup research</h2><p class="slate-orientation">Compare spreads, totals and moneylines for a game. Open a matchup for book-by-book prices; Today groups model-screened research angles by game.</p>
+@@ -3170 +3170 @@ const BET = {
+-  props: [], liveAttempts: {}, games: [], coverage: "all", drawerGames: [], gameLimit:100, period:"FT", market: "ALL", sort: "ev", tab: "props", sport: "nfl",
++  props: [], liveAttempts: {}, games: [], coverage: "all", drawerGames: [], gameLimit:100, period:"FT", market: "ALL", sort: "ev", tab: "best", sport: "nfl",
+@@ -4613 +4613 @@ function bestPlayCard(c,value=false){
+-  return `<article class="sig-card best-card">${teamMarkup}<div class="best-card-badges"><span class="best-badge ${qualified?'go':'watch'}">${qualified?(value?'Price-comparison research':'Model-screened research'):'Price watchlist'}</span><span class="best-badge">${esc(c.kind==='prop'?(MARKET_LABEL[c.market]||c.market):'Game '+c.market)}</span>${c.altLineSet?'<span class="best-badge">Alt line set</span>':''}</div><h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><div class="best-bet">${esc(label)}</div><p>${esc(footballTeamLabel(c.away,c.sport||BET.sport))} @ ${esc(footballTeamLabel(c.home,c.sport||BET.sport))} · ${esc(new Date(c.kickoff).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}))} ET</p>${injuryMarkup(c)}<div class="best-facts"><div class="best-fact"><span>Projection / probability</span><b>${esc(projection)}</b></div><div class="best-fact"><span>Price</span><b>${esc(c.book)} ${americanOddsLabel(c.odds)}</b></div><div class="best-fact"><span>Estimated return</span><b>${c.ev>=0?'+':''}${(100*c.ev).toFixed(1)}¢ / $1</b></div><div class="best-fact" title="${esc(confidence.detail)}"><span>Confidence / uncertainty</span><b>${esc(confidence.label)}</b></div></div><p class="best-block"><strong>Why GOING likes it</strong>${esc(why)}</p><p class="best-block"><strong>Primary risk</strong>${esc(risk)}</p><p class="best-block"><strong>Parlay relevance</strong>${esc(parlay.text)}</p>${matchMarkup}<details><summary>SHOW ME THE DATA</summary><dl class="best-evidence">${rows.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${cheatsheetEvidence.length?`<details class="best-cheatsheet"><summary>Related cheatsheet context</summary><p class="best-evidence-note">Supporting GOING data for this matchup. These observations are descriptive context and are not added again to the pick’s score or probability.</p><dl class="best-evidence">${cheatsheetEvidence.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></details>`:''}${flags.map(f=>`<p class="best-evidence-note"><strong>${esc(SIGNAL_NAMES[f.id]||f.id)}</strong><br>${esc(f.why)}</p>`).join('')||'<p class="best-evidence-note">No additional signal evidence is attached to this model estimate.</p>'}<small>${value?'Price-comparison estimate':'Historical-model estimate'} · ${esc(confidence.label)} confidence: ${esc(confidence.detail)}</small></details><div class="best-actions"><button type="button" data-best-add="${esc(key)}" aria-pressed="${saved}">${saved?'✓ Shortlisted':'+ Compare / parlay'}</button><button type="button" data-best-tab="${deepTab}">Deep research</button>${parlay.eligible?'<button type="button" data-best-tab="parlays">Open Parlay Lab</button>':''}</div></article>`;
++  return `<article class="sig-card best-card">${teamMarkup}<div class="best-card-badges"><span class="best-badge ${qualified?'go':'watch'}">${qualified?(value?'Price-comparison research':'Model-screened research'):'Price watchlist'}</span><span class="best-badge">${esc(c.kind==='prop'?(MARKET_LABEL[c.market]||c.market):'Game '+c.market)}</span>${c.altLineSet?'<span class="best-badge">Alt line set</span>':''}</div><h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><div class="best-bet">${esc(label)}</div><p>${esc(footballTeamLabel(c.away,c.sport||BET.sport))} @ ${esc(footballTeamLabel(c.home,c.sport||BET.sport))} · ${esc(new Date(c.kickoff).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'}))} ET</p>${injuryMarkup(c)}<div class="best-facts"><div class="best-fact"><span>Projection / probability</span><b>${esc(projection)}</b></div><div class="best-fact"><span>Price</span><b>${esc(c.book)} ${americanOddsLabel(c.odds)}</b></div><div class="best-fact"><span>Estimated return</span><b>${c.ev>=0?'+':''}${(100*c.ev).toFixed(1)}¢ / $1</b></div><div class="best-fact" title="${esc(confidence.detail)}"><span>Confidence / uncertainty</span><b>${esc(confidence.label)}</b></div></div><p class="best-block"><strong>Why this is surfaced</strong>${esc(why)}</p><p class="best-block"><strong>Primary risk</strong>${esc(risk)}</p><p class="best-block"><strong>Parlay relevance</strong>${esc(parlay.text)}</p>${matchMarkup}<details><summary>SHOW ME THE DATA</summary><dl class="best-evidence">${rows.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${cheatsheetEvidence.length?`<details class="best-cheatsheet"><summary>Related cheatsheet context</summary><p class="best-evidence-note">Supporting GOING data for this matchup. These observations are descriptive context and are not added again to the pick’s score or probability.</p><dl class="best-evidence">${cheatsheetEvidence.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></details>`:''}${flags.map(f=>`<p class="best-evidence-note"><strong>${esc(SIGNAL_NAMES[f.id]||f.id)}</strong><br>${esc(f.why)}</p>`).join('')||'<p class="best-evidence-note">No additional signal evidence is attached to this model estimate.</p>'}<small>${value?'Price-comparison estimate':'Historical-model estimate'} · ${esc(confidence.label)} confidence: ${esc(confidence.detail)}</small></details><div class="best-actions"><button type="button" data-best-add="${esc(key)}" aria-pressed="${saved}">${saved?'✓ Shortlisted':'+ Compare / parlay'}</button><button type="button" data-best-tab="${deepTab}">Deep research</button>${parlay.eligible?'<button type="button" data-best-tab="parlays">Open Parlay Lab</button>':''}</div></article>`;
+@@ -4650 +4650 @@ async function renderBestPlays(){
+- $('bestTodaySummary').innerHTML=`<button type="button" data-summary-tab="games"><b>${games}</b><span>games in this scope</span></button><button type="button" data-summary-focus="all"><b>${scopeChance.length}</b><span>model-ranked research entries</span></button>`;
++ $('bestTodaySummary').innerHTML=`<button type="button" data-summary-tab="games"><b>${games}</b><span>games in this scope</span></button><button type="button" data-summary-focus="all"><b>${scopeChance.length}</b><span>model-screened research entries</span></button>`;
+diff --git a/research/today-ranking/PROTOCOL.md b/research/today-ranking/PROTOCOL.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..67527e836aeff5da1d7b4de965e1461cac7f976c
+--- /dev/null
++++ b/research/today-ranking/PROTOCOL.md
+@@ -0,0 +1,52 @@
++# Today ranking experiment v1 — preregistered, no promotion
++
++Purpose: compare research attention allocated by probability-first Champion, C1 theoretical-return order and C2 family-diversified C1 on future frozen slates. No odds/model/production ranking change. GOING Score is not probability and is not a factor. Registration is `experiment-v1.json`; committed source, hashes and this protocol precede prospective collection. Original research remains a descriptive October 2 snapshot, not a retrospectively reconstructed backtest.
++
++## Frozen policies and universes
++
++Champion v1 is actual `rankBestPlays` plus first-visit `filterBestPlays`: sport/type, ET Tuesday–Monday week, future kickoff, valid nonfuture quotes <=24h, finite 0<p<1, n>=5 recorded games, no blocking check except historical-only. Existing generation removes manual/DFS/unmatched/unpriced inputs. Sort probability DESC then original push-aware EV DESC; stable source order for exact ties. Exact canonical-contract book dedup follows sort. Prop alternate primary = closest decimal1.91; hide other prop lines, not game alternates; American odds >=-500; no user/book/query/focus restriction. Default page is weekly. Saved user filters are NOT part of the systematic experiment. Game cards follow their leading entry; full ranked list is the primary rank unit, not number of cards seen. Exact source hashes are registered; any policy/generator change stops collection until an explicitly new preregistered version. Input vintages change legitimately and are individually pinned.
++
++C1 v1 preserves October 2 implementation byte-for-byte: on the identical ordered Champion-eligible pool, sort `pWin*decimal+pPush-1` DESC; exact ties retain Champion input order. Unconditional pWin/pPush; absent push follows the source zero-push approximation. No fitted weights or price/probability alterations.
++
++C2 v1 preserves the same implementation: walk C1 order, retaining FIRST row per exact `[event,kind,profileId-or-game,market,side]`. Ignore line/book only for this research-attention grouping; do not alias different kickoff clocks or market directions. Representative is therefore highest estimated return, then Champion tie order, fixed BEFORE outcomes. Different thresholds remain different settlement contracts; family grouping does not prove correlation or independence. Both Challengers stay offline.
++
++Store four sport/type cohorts (NFL combined/props/games; NCAA games), weekly plus Today(ET) complete ranks and top3/top10. Additionally preregister Today-settleable views for full-game spread/total/ML and supported NFL yards/receptions/TD contracts. FirstTD/period outcomes cannot be trusted from current full-game results: retain them in full original pools/ranks, explicitly unresolved, and exclude them from the SAME confirmatory universe for ALL policies before ranking. Restricted-universe conclusions cannot justify unrestricted Today promotion. NCAA props are never introduced.
++
++## Timing and persistence
++
++Existing eight America/New_York Codex occurrences collect a snapshot at cycle start, before choosing a development task, from freshly fetched public origin/main files and the exact source checkout. Capture uses actual process time; CLI provides NO backdate/replay switch, no provider/network calls and no browser-local/user-choice cohort. Snapshot window is requested local hour through minute15. One immutable experiment+ETdate+slot observation; later retries retain the original rather than recompute it. A manual setup capture is labelled manual and excluded from confirmatory evaluation.
++
++Primary sample is scheduled 08:00–08:15 ET, October3–December5 inclusive, Today-settleable. This avoids changing time selection after outcomes and DST's ambiguous/missing 02:00 hour. Missing primary slots stay missing; no later catchup. Other seven slots/weekly views are exploratory, never substitutions for failed primary observations. Quotes >5m remain marked saved research, not actionable/positive value; report freshness strata and missingness. No games is a valid zero-eligible observation, not evidence of failure/success.
++
++Persist in `docs/ranking-observations/today-ranking-v1/YYYY-MM-DD/` on ONLY the automation-owned review branch. Lossless columnar pool/evidence/exclusion chunks, content-addressed gzip records and final snapshot manifests keep complete pools reproducible without repeating enormous objects. All source input blobs are pinned by Git commit+SHA256; unsupported/unparsed raw markets are auditable there and are not fabricated modeled candidates. Frozen rows contain exact contract/game/player/source/market/direction/line/book/price/quote time, model probability/push/return/sample/profile date, evidence summary/freshness, directional family, every eligibility/exclusion and Champion/C1/C2 full ranks/topN. Derived quote age/frozenAt come ONLY from immutable original timestamps, never from evaluation time. Capture rechecks input hashes after calculation.
++
++Text provenance hashes use UTF-8 with ONLY CRLF normalized to LF, matching Git's text blobs across Windows/Linux checkouts; all other whitespace and data values remain significant. Canonical journal bytes and Git preservation hashes are exact bytes, never whitespace-normalized. This distinction was frozen before the first real observation and does not alter predictions, C1/C2 or eligibility.
++
++The journal uses canonical JSON SHA256, sequence/previous hash, immutable logical keys, exclusive writer lock, fsynced temporary bytes and atomic no-overwrite publication. Partial/corrupt/unknown files or a lock fail closed; no automatic stale takeover/deletion. Snapshot manifest is written LAST and must reference every required chunk. Unreferenced chunks from an interrupted capture are not a completed observation. Daily segmentation bounds scans; per-record1MiB, total256MiB/day limits stop rather than truncate. Before capture, settlement and verification, `preservation.cjs` requires the review branch and compares EVERY published journal blob/mode to both index and working bytes: tail deletion, replacement and staged tampering fail even if a shorter hash chain is internally valid. Publication also preserves prior blobs/modes. Invalidation is a new immutable reason/evidence record referencing the original snapshot. No cryptographic protection against a malicious administrator rewriting all history is claimed.
++
++## Outcomes and uncertainty
++
++Append result evidence independently using already published `data/results.json`; never rerun predictions for old outcomes. Exact sport/team/day matchup must uniquely match; official kickoff must follow freeze. Completed full-game public results with postkick source timestamps/hash and observed player metric grade win/loss/push. Negative yards are legitimate. Missing player participation is NOT zero/automatic void; ambiguous/conflicting identity, unsupported FirstTD/period/SGP/book exceptions, missing/stale source and partial evidence remain unresolved. A changed result creates a conflicting append, excludes that prediction from automatic analysis and requires an auditable integrity decision. It never replaces the first result. Settlements are statistical research grading, not claims about sportsbook execution/void rules. Invalidation requires reason, evidence reference and target snapshot; record remains preserved.
++
++Diagnostic collection: October3–23. Untouched confirmation: October24–December5. No fitting/weight tuning on either interval in v1. Do not read aggregate holdout accuracy/performance until December6 12:00 ET; collection/identity/integrity checks may inspect raw evidence only as needed. Evaluation CLI refuses early release; new hypotheses require new version and future start. Never change these cutoffs/policies/thresholds in place after collection.
++
++For each primary league/universe/N=3,10: identical captured eligible pool for all policies, fixed frozen topN, no replacing missing/losing selections. Report total slates/contracts/unique games/players/families, settled/push/unresolved/reference-missing counts and coverage. Probability scoring on settled nonpush rows uses pWin/(1-pPush); compare only genuine frozen same-book two-sided references, normalized conditional on nonpush. Brier/log loss and reliability are required; raw Brier across policies selecting different base rates cannot alone prove bet value. Primary statistic is model-minus-reference Brier at selected topN, then paired Challenger-minus-Champion by slate; negative means improved relative probability scoring, not profitability. Report game-balanced and slate-balanced diagnostics, composition/price/EV/freshness, family/game concentration and all limitations. Never treat correlated alternate/player/game legs or eight snapshots/day as independent. Only primary one/day enters confirmation; uncertainty resamples ET slate-date clusters (retaining all games/markets within date), 2,000 deterministic bootstrap draws. Game-cluster diagnostics are secondary. Preserve shared-date dependence between sports in any combined exploratory output.
++
++Minimum per comparison:20 paired primary slates,100 unique game clusters, <=10% unresolved and <=10% missing paired-reference coverage. Otherwise INSUFFICIENT, no superiority claim. Report complete-case matched-reference subset and attrition explicitly; selection/availability bias remains. Eight predeclared comparisons (two Challengers x two leagues x top3/top10); Bonferroni two-sided familywise5% intervals plus unadjusted95% diagnostic intervals. Candidate evidence requires adjusted interval below zero, at least .005 excess-Brier improvement and no mean log-loss deterioration >.01 on paired references. These are prospective practical screening thresholds, not empirical proof of optimal ranking. Passing does NOT promote; reproducibility, calibration/reliability/sample/coverage/regression review and explicit Travis approval remain required.
++
++This fixed pilot may not meet those requirements: football does not have 20 independent game-days per league in every six-week window, top3 can cover too few games, and ATD often lacks a frozen two-sided reference. Zero-game primary slots do not manufacture sample size. If the pilot is insufficient, report it; do not lower thresholds, extend cutoffs or consume the holdout to tune v1. Any follow-on study must preregister a new future cohort/version before its outcomes.
++
++No realized ROI/CLV in v1. Frozen prices enable later quoted-price diagnostics only after verified settlement/execution/void handling; this protocol does not establish it. Later scheduled quotes are not automatically closes. No historical price reconstruction, invented odds, Score/100, hit-rate-only or profitability claim. No universal model/evidence composite is invented.
++
++Method references: [Gneiting & Raftery, proper probability scoring rules](https://sites.stat.washington.edu/people/raftery/Research/PDF/Gneiting2007jasa.pdf) supports Brier/logarithmic scoring; [Stata's cluster bootstrap documentation](https://www.stata.com/support/faqs/statistics/bootstrap-with-panel-data/) explains preserving dependent groups when resampling. Neither establishes Going Long accuracy. Date clusters preserve same-slate dependence, but recurring teams/players and a short season can leave cross-date dependence; report this limitation and do not claim an independent-contract sample.
++
++## Operations and handoff
++
++Commands from an isolated clean current-main source checkout:
++- `node research/today-ranking/session.cjs acquire REVIEW_CHECKOUT UNIQUE_RUN_ID` (common-Git-directory cross-worktree mutex; do not overlap; release only exact owner after recording/publication).
++- `node research/today-ranking/collect.cjs capture SOURCE_CHECKOUT REVIEW_CHECKOUT/docs/ranking-observations/today-ranking-v1 scheduled`
++- `node research/today-ranking/collect.cjs settle SOURCE_CHECKOUT REVIEW_CHECKOUT/docs/ranking-observations/today-ranking-v1`
++- `node research/today-ranking/collect.cjs verify SOURCE_CHECKOUT REVIEW_CHECKOUT/docs/ranking-observations/today-ranking-v1`
++- `node research/today-ranking/evaluate.cjs JOURNAL_ROOT` after registered unlock; preregistration lives alongside command.
++
++Collector dirties only cycle-owned review artifacts; source remains clean. Publication must explicitly include those verified additions, never overwrite prior observations, and pass all captured-main/review-tip, diff, tests and receipt gates. If collection/publication fails, preserve pending work, report blocker and do not silently reset/reconcile. Do not call credentialed provider/API to rescue a missed slot, modify data.yml, add a deployment/DB/service, or spend money. Collection depends on Travis's computer/app awake and snapshots being published; cadence is systematic conditional on availability, not guaranteed complete or representative of all market hours.
+diff --git a/research/today-ranking/collect.cjs b/research/today-ranking/collect.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..78090ecdab780978949c74af5612a30ee91112ce
+--- /dev/null
++++ b/research/today-ranking/collect.cjs
+@@ -0,0 +1,98 @@
++'use strict';
++// No provider/network or retrospective --at switch. Tests call captureAt with fixtures.
++const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
++const {execFileSync}=require('node:child_process');
++const {rank,familyKey,expectedValue}=require('../../shared/ranking-policies.cjs');
++const {canonicalJSON,hashPayload,readRecords,appendRecord}=require('../../shared/ranking-journal.cjs');
++const {storeSnapshot,materialize,verifyCompletePools}=require('../../shared/ranking-snapshot.cjs');
++const {settleRow}=require('../../shared/ranking-settlement.cjs');
++const {verifyPreserved}=require('./preservation.cjs');
++const INPUTS=['history','nfl_betting','ncaa_lines','football_context','season_learning','injury_context','players','football_game_validation','football_role_validation','data'];
++const ASSETS=['going-score','football-opportunity','football-injuries','football-dfs','football-slate','score-tracker'];
++const POLICY_FUNCTIONS=['rankBestPlays','opportunityPool','filterBestPlays','opportunityIdentity','bestDayRows','bestPriceCandidates','signalCandidates','footballWeek','footballDate'];
++const GENERATOR_FUNCTIONS=['propsFromRealData','gamesFromRealData','gamesFromParlay','attachProjection','buildProfileIndex','normalizeBetName','resolveTeamName','canonicalNflTeam','americanToDecimal','normalCDF','poissonCDF','lognormalCDF','manualModel','propProbabilities','normalMarket','gameQuotes','computePropRow','evPercent','quoteState','activeGameQuote','currentGameMarket','currentWeekProp','footballTrust','signalEvent','signalReference','signalFlags','signalMedian'];
++// Git checkout CRLF conversion is not a model/input change. Hash UTF-8 text with
++// CRLF -> LF ONLY; preserve all other whitespace and every value for provenance.
++const sha=b=>crypto.createHash('sha256').update(b.toString().replace(/\r\n/g,'\n'),'utf8').digest('hex');
++const ET=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'});
++function slotAt(at){const p=Object.fromEntries(ET.formatToParts(new Date(at)).map(x=>[x.type,x.value]));return {date:p.year+'-'+p.month+'-'+p.day,hour:Number(p.hour),minute:Number(p.minute)};}
++const clone=x=>JSON.parse(JSON.stringify(x));
++function picked(row){const out={};for(const k of ['kind','sport','event','kickoff','home','away','profileId','player','team','opp','market','side','line','book','odds','dec','prob','push','ev','n','profileDate','updatedAt','canonicalContract','modelFamily','projMean','projSd'])out[k]=row[k]??null;out.flags=(row.flags||[]).map(f=>({id:f.id??null,historicalOnly:!!f.historicalOnly}));const se=row.seasonEvidence??row.gameSeasonEvidence??{};out.evidence={seasonPolicy:se.policy??se.method??null,currentGames:se.current_games??null,priorGames:se.prior_games??null,homeCurrentGames:se.home_current_games??null,awayCurrentGames:se.away_current_games??null,injuryStatus:row.injury?.status??null,injuryStale:row.injury?.stale??null,roleObservedAt:row.roleEvidence?.last_game??null,reference:row.reference??null};return clone(out);}
++function inputVersions(root,at){const versions={},values={};for(const name of INPUTS){const raw=fs.readFileSync(path.join(root,'data',name+'.json'));const d=JSON.parse(raw);const generatedAt=d.generated_at??d.generatedAt??d.betting?.generated_at??null;if(generatedAt&&(!Number.isFinite(Date.parse(generatedAt))||Date.parse(generatedAt)>Date.parse(at)))throw Error('Nondecision-time input: '+name);versions[name+'.json']={sha256:sha(raw),generatedAt};values[name]=d;}return {versions,values};}
++function openSource(root,at,{url='http://localhost/',storedView=null}={}){const {JSDOM,VirtualConsole}=require('jsdom'),html=fs.readFileSync(path.join(root,'index.html'),'utf8'),dom=new JSDOM(html,{url,runScripts:'outside-only',pretendToBeVisual:true,virtualConsole:new VirtualConsole()}),w=dom.window,D=w.Date;w.Date=class extends D{constructor(...a){super(...(a.length?a:[Date.parse(at)]));}static now(){return Date.parse(at);}};if(storedView!==null)w.localStorage.setItem('goinglong.betting.view.v1',JSON.stringify(storedView));w.fetch=()=>Promise.reject(Error('Research network disabled'));w.requestAnimationFrame=fn=>w.setTimeout(fn,0);w.HTMLElement.prototype.scrollIntoView=function(){};const context=dom.getInternalVMContext(),sourceHashes={'index.html':sha(html)};
++ try{for(const asset of ASSETS){const raw=fs.readFileSync(path.join(root,'shared',asset+'.js'));sourceHashes['shared/'+asset+'.js']=sha(raw);vm.runInContext(raw.toString(),context);}for(const script of w.document.querySelectorAll('script:not([src])'))vm.runInContext(script.textContent.replace(/\nboot\(\);/,'\n'),context);const codeHashes={policy:sha(vm.runInContext('['+POLICY_FUNCTIONS.join(',')+'].map(fn=>fn.toString()).join("\\n")',context)+sourceHashes['shared/football-opportunity.js']+sourceHashes['shared/football-slate.js']),generator:sha(vm.runInContext('['+GENERATOR_FUNCTIONS.join(',')+'].map(fn=>fn.toString()).join("\\n")',context)+sourceHashes['shared/football-injuries.js'])};return {dom,w,context,sourceHashes,codeHashes};}catch(e){dom.window.close();throw e;}}
++function exclusion(c,now,week){const reasons=[];if(!['nfl','ncaa'].includes(c.sport)||!['game','prop'].includes(c.kind)||(c.sport==='ncaa'&&c.kind==='prop'))reasons.push('unsupported_sport_type');const date=Number.isFinite(Date.parse(c.kickoff))?slotAt(c.kickoff).date:null;if(!date||date<week.start||date>week.last)reasons.push('outside_current_week');if(!Number.isFinite(Date.parse(c.kickoff))||Date.parse(c.kickoff)<=now)reasons.push('started_or_invalid');const age=now-Date.parse(c.updatedAt);if(!Number.isFinite(age)||age<0||age>86400000)reasons.push('quote_over_24_hours_or_invalid');if(!Number.isFinite(c.prob)||c.prob<=0||c.prob>=1||!Number.isFinite(c.n)||c.n<5)reasons.push('model_probability_or_sample_unavailable');if((c.flags||[]).some(f=>f.id==='check'&&!f.historicalOnly))reasons.push('blocking_model_check');return reasons;}
++function normalizeScope(ordered){const policies={};for(const method of ['champion','ev','family-diversified-ev']){const xs=rank(ordered,method);policies[method]={ranks:xs.map(x=>x.id),top3:xs.slice(0,3).map(x=>x.id),top10:xs.slice(0,10).map(x=>x.id)};}return policies;}
++async function captureAt(root,at,{revision='fixture',experiment=null,allowFixture=false}={}){
++ if(!Number.isFinite(Date.parse(at)))throw Error('Invalid decision time');const now=Date.parse(at),{versions,values}=inputVersions(root,at),source=openSource(root,at),{w,context}=source;
++ try{if(experiment){if(source.codeHashes.policy!==experiment.policyCodeHash||source.codeHashes.generator!==experiment.generatorCodeHash)throw Error('Frozen experiment source changed: create a new version; never overwrite v1');if(sha(fs.readFileSync(path.join(root,'shared/ranking-policies.cjs')))!==experiment.challengersSourceHash)throw Error('Frozen C1/C2 implementation changed');if(now<Date.parse(experiment.startedAt))throw Error('Cannot collect before preregistration');}else if(!allowFixture)throw Error('Registered experiment required');
++ w.fixture=values;await vm.runInContext('(async()=>{const d=fixture;BET.config=d.data?.betting||{};S.pipeline=d.data;BET.history=d.history?.betting;S.history=d.history;BET.nflData=d.nfl_betting;BET.ncaaData=d.ncaa_lines;BET.context=d.football_context;BET.learning=d.season_learning;BET.injuryLearning=d.injury_context;BET.roster=d.players;BET.gameValidation=d.football_game_validation;BET.roleValidation=d.football_role_validation;BET.injuryContext=GoingFootballInjuries.createContext(BET.roster,BET.history?.profiles,Date.now(),BET.injuryLearning);BET.liveLoaded={nfl:true,ncaa:true};BET.props=await propsFromRealData();BET.games=gamesFromRealData();globalThis.modelRows=await signalCandidates();const prices=bestPriceCandidates();globalThis.allRows=[...modelRows.flatMap(c=>c.offers?.length?c.offers:[c]),...prices];globalThis.allQuotes=[...(SIGNAL.allQuotes||[]),...prices];})()',context);
++ const raw=vm.runInContext('allRows',context),week=clone(vm.runInContext('footballWeek(Date.now())',context)),date=slotAt(at).date;
++ // Row IDs use source order to disambiguate even identical offers. No generated UI UUIDs.
++ const rows=raw.map((c,index)=>{const p=picked(c),reasons=exclusion(c,now,week);let family=null;try{family=familyKey(c);}catch{}return {...p,id:'r'+index,frozenAt:at,slateDate:Number.isFinite(Date.parse(c.kickoff))?slotAt(c.kickoff).date:null,family,quoteAgeSeconds:Number.isFinite(Date.parse(c.updatedAt))?(now-Date.parse(c.updatedAt))/1000:null,quoteFresh5m:Number.isFinite(Date.parse(c.updatedAt))&&now-Date.parse(c.updatedAt)>=0&&now-Date.parse(c.updatedAt)<=300000,eligibility:{preDedupEligible:!reasons.length,excluded:reasons,championRank:null,c1Rank:null,c2Rank:null}};});
++ // Keep the source row index through production's copies, filter and exact-contract dedup.
++ for(let i=0;i<raw.length;i++)raw[i].researchId=rows[i].id;
++ const scopes=[];for(const [sport,kind] of [['nfl','all'],['nfl','prop'],['nfl','game'],['ncaa','game']]){w.sport=sport;w.kind=kind;const result=vm.runInContext('rankBestPlays(allRows,allQuotes,sport,kind,Date.now(),"all")',context),rankedRaw=result.chance;w.ranked=rankedRaw;w.opts={query:'',focus:'all',sort:'going',value:false,book:'all',excludeAlt:true,minOdds:-500,day:'slate',event:'all',now};const filtered=vm.runInContext('filterBestPlays(ranked,opts)',context);const ordered=clone(filtered).map(x=>({...x,id:x.researchId}));if(ordered.some(x=>!x.id))throw Error('Production row identity lost');
++ const primary=sport==='nfl'&&kind==='all'||sport==='ncaa';const beforeIds=new Set(rankedRaw.map(x=>x.researchId)),afterIds=new Set(ordered.map(x=>x.id));if(primary)for(const row of rows.filter(x=>x.sport===sport)){if(!beforeIds.has(row.id)&&!row.eligibility.excluded.length)row.eligibility.excluded.push('canonical_contract_duplicate');else if(beforeIds.has(row.id)&&!afterIds.has(row.id)){const original=rankedRaw.find(x=>x.researchId===row.id);row.eligibility.excluded.push(original?.kind==='prop'&&original.isAltLine?'alternate_prop_hidden':'minimum_odds_filter');}row.eligibility.eligible=afterIds.has(row.id);}
++ for(const scope of ['week','today','today-settleable']){const selected=scope==='week'?ordered:ordered.filter(x=>slotAt(x.kickoff).date===date&&(scope!=='today-settleable'||['spread','total','moneyline','pass_yds','rush_yds','rec_yds','receptions','pass_tds','rush_tds','rec_tds','atd'].includes(x.market))),policies=normalizeScope(selected);scopes.push({sport,kind,scope,slateDate:scope==='week'?null:date,policies});if(primary&&scope==='week')for(const [method,field] of [['champion','championRank'],['ev','c1Rank'],['family-diversified-ev','c2Rank']])policies[method].ranks.forEach((id,i)=>rows[Number(id.slice(1))].eligibility[field]=i+1);}
++ }
++ // Quotes discarded before opportunityPool are retained with the production reason.
++ const preCandidateExclusions=clone(vm.runInContext('BET.props.map(p=>{const r=computePropRow(p);const reasons=[];if(!currentWeekProp(p))reasons.push("outside_current_week");if(p.dfs||p.manual||p.source==="manual")reasons.push("manual_or_dfs");const state=quoteState(p);if(state)reasons.push(state);if(!r.dec||!finiteNumber(r.ev)||!p.profileId)reasons.push("projection_or_price_unavailable");if(Date.parse(p.profileDate)>=Date.now())reasons.push("profile_not_before_decision");if(!p.eventTeams?.[0]||!p.eventTeams?.[1])reasons.push("team_identity_unresolved");return {player:p.player??null,profileId:p.profileId??null,eventId:p.eventId??null,home:p.eventTeams?.[0]??null,away:p.eventTeams?.[1]??null,kickoff:p.kickoff??null,market:p.market??null,line:p.line??null,book:p.book??null,overOdds:p.overOdds??null,underOdds:p.underOdds??null,updatedAt:p.updatedAt??null,reasons};}).filter(p=>p.reasons.length)',context));
++ const gameExclusions=clone(vm.runInContext('BET.games.filter(g=>g.source==="manual"||!activeGameQuote(g)||!inCurrentFootballWeek(g.kickoff)).map(g=>({sport:g.sport,home:g.homeCode||g.home,away:g.awayCode||g.away,kickoff:g.kickoff,book:g.book??null,updatedAt:g.updatedAt??null,reason:g.source==="manual"?"manual":!inCurrentFootballWeek(g.kickoff)?"outside_current_week":"inactive_game_quote",spread:g.spread??null,total:g.total??null,mlHome:g.mlHome??null,mlAway:g.mlAway??null}))',context));
++ const snapshot={schemaVersion:1,experiment:experiment?.id??'fixture',registrationHash:experiment?hashPayload(experiment):null,decisionTime:at,sourceRevision:revision,sourceHashes:source.sourceHashes,inputVersions:versions,codeHashes:source.codeHashes,week,slateDate:date,rows,preCandidateExclusions,gameExclusions,scopes,sourceNote:'Complete renderBestPlays input pool plus pre-generation exclusions; unsupported/unparsed raw markets remain reproducible in pinned Git input blobs, not invented candidates.'};
++ // Re-read inputs: a concurrent refresh cannot silently mix two vintages.
++ for(const [name,v] of Object.entries(versions))if(sha(fs.readFileSync(path.join(root,'data',name)))!==v.sha256)throw Error('Input changed during capture: '+name);
++ for(const [name,h] of Object.entries(source.sourceHashes))if(sha(fs.readFileSync(path.join(root,name)))!==h)throw Error('Source changed during capture: '+name);
++ return snapshot;
++ }finally{source.dom.window.close();}
++}
++function slotKey(experiment,at,mode){const p=slotAt(at);if(mode==='scheduled'){if(![2,8,10,12,14,17,20,22].includes(p.hour)||p.minute>15)throw Error('Outside registered scheduled capture window; no retrospective catchup');return experiment+'|'+p.date+'|'+String(p.hour).padStart(2,'0');}if(mode==='manual')return experiment+'|manual|'+at;throw Error('Invalid capture mode');}
++const SETTLEABLE=new Set(['spread','total','moneyline','pass_yds','rush_yds','rec_yds','receptions','pass_tds','rush_tds','rec_tds','atd']);
++function validateSnapshot(s){
++ if(s?.schemaVersion!==1||!Array.isArray(s.rows)||!Array.isArray(s.scopes)||!s.inputVersions||!s.sourceHashes||!Number.isFinite(Date.parse(s.decisionTime)))throw Error('Invalid snapshot');
++ const ids=new Map(s.rows.map(r=>[r.id,r]));if(ids.size!==s.rows.length)throw Error('Duplicate snapshot row IDs');
++ for(const row of s.rows){
++  if(row.frozenAt!==s.decisionTime)throw Error('Freeze time mismatch');
++  if(row.sport==='ncaa'&&row.kind==='prop')throw Error('Unsupported NCAA props');
++  if(!row.eligibility||!Array.isArray(row.eligibility.excluded))throw Error('Missing auditable eligibility');
++  if(row.eligibility.eligible){
++   const quote=Date.parse(row.updatedAt),decision=Date.parse(s.decisionTime);
++   if(!(quote<=decision&&decision-quote<=86400000&&decision<Date.parse(row.kickoff)))throw Error('Eligible row chronology');
++   const ev=expectedValue(row),decimal=row.odds<0?1+100/-row.odds:1+row.odds/100;
++   if(!Number.isFinite(row.odds)||Math.abs(row.odds)<100||row.odds< -500||Math.abs(decimal-row.dec)>1e-12||Math.abs(ev-row.ev)>1e-12)throw Error('Frozen price/return mismatch');
++   if(row.eligibility.excluded.length||row.family!==familyKey(row)||row.prob<=0||row.prob>=1||row.n<5)throw Error('Frozen eligibility/family mismatch');
++  }
++ }
++ const scopeKeys=new Set();
++ for(const scope of s.scopes){
++  const key=[scope.sport,scope.kind,scope.scope].join('|');if(scopeKeys.has(key))throw Error('Duplicate scope');scopeKeys.add(key);
++  const championIds=scope.policies?.champion?.ranks;if(!Array.isArray(championIds))throw Error('Missing Champion ranks');
++  const champion=championIds.map(id=>ids.get(id));if(champion.some(r=>!r))throw Error('Invalid complete policy ranks');
++  const expected=s.rows.filter(r=>r.eligibility.eligible&&r.sport===scope.sport&&(scope.kind==='all'||r.kind===scope.kind)&&(scope.scope==='week'||r.slateDate===s.slateDate&&(scope.scope!=='today-settleable'||SETTLEABLE.has(r.market))));
++  if(canonicalJSON([...championIds].sort())!==canonicalJSON(expected.map(r=>r.id).sort()))throw Error('Incomplete eligible Champion pool');
++  for(let i=1;i<champion.length;i++)if(champion[i].prob>champion[i-1].prob||champion[i].prob===champion[i-1].prob&&champion[i].ev>champion[i-1].ev)throw Error('Champion ordering mismatch');
++  for(const method of ['champion','ev','family-diversified-ev']){
++   const p=scope.policies[method];if(!p||!Array.isArray(p.ranks)||new Set(p.ranks).size!==p.ranks.length||p.ranks.some(id=>!ids.has(id)))throw Error('Invalid complete policy ranks');
++   if(canonicalJSON(p.top3)!==canonicalJSON(p.ranks.slice(0,3))||canonicalJSON(p.top10)!==canonicalJSON(p.ranks.slice(0,10)))throw Error('Top-N mismatch');
++   if(canonicalJSON(rank(champion,method,{decisionTime:s.decisionTime,evaluationMode:'historical'}).map(r=>r.id))!==canonicalJSON(p.ranks))throw Error('Frozen Challenger ranks mismatch');
++  }
++  if(scope.scope==='week'&&(scope.kind==='all'||scope.sport==='ncaa'))for(const [method,field] of [['champion','championRank'],['ev','c1Rank'],['family-diversified-ev','c2Rank']])scope.policies[method].ranks.forEach((id,i)=>{if(ids.get(id).eligibility[field]!==i+1)throw Error('Frozen per-row rank mismatch');});
++ }
++ for(const [sport,kind] of [['nfl','all'],['nfl','prop'],['nfl','game'],['ncaa','game']])for(const scope of ['week','today','today-settleable'])if(!scopeKeys.has([sport,kind,scope].join('|')))throw Error('Missing complete scope');
++ return true;
++}
++function invalidateSnapshot(directory,{snapshotHash,reason,evidence,observedAt=new Date().toISOString()}){
++ const records=readRecords(directory);if(!records.some(r=>r.kind==='snapshot'&&r.hash===snapshotHash))throw Error('Invalidation target must be a preserved snapshot');
++ if(typeof reason!=='string'||reason.trim().length<10||typeof evidence!=='string'||evidence.trim().length<10)throw Error('Invalidation requires a specific reason and evidence reference');
++ return appendRecord(directory,{kind:'invalidation',key:'invalidation|'+snapshotHash+'|'+hashPayload({reason,evidence}),observedAt,payload:{snapshotHash,reason,evidence}});
++}
++function appendSettlements(journal,root,at){const raw=fs.readFileSync(path.join(root,'data/results.json')),results=JSON.parse(raw),revision=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),records=readRecords(journal),existing=new Map(records.map(r=>[r.key,r])),added=[];
++ for(const snapshot of records.filter(r=>r.kind==='snapshot')){const frozen=materialize(snapshot,records);validateSnapshot(frozen);const outcomes=[];for(const row of frozen.rows.filter(r=>r.eligibility.eligible)){const grade=settleRow(row,results,{observedAt:at,sourceRevision:revision,sourceHash:sha(raw)});if(grade.status!=='unresolved')outcomes.push(grade);}
++ if(!outcomes.length)continue;const key='settlement|'+snapshot.hash+'|'+sha(raw);if(existing.has(key))continue;const prior=records.filter(r=>r.kind==='settlement'&&r.payload.snapshotHash===snapshot.hash);const first=new Map();for(const r of prior)for(const o of r.payload.outcomes||[])if(!first.has(o.predictionId))first.set(o.predictionId,o);const novel=outcomes.filter(o=>!first.has(o.predictionId)||first.get(o.predictionId).status!==o.status||first.get(o.predictionId).actual!==o.actual);if(!novel.length)continue;
++ const conflicts=novel.filter(o=>first.has(o.predictionId)).map(o=>o.predictionId);const record=appendRecord(journal,{kind:'settlement',key,observedAt:at,payload:{snapshotHash:snapshot.hash,sourceRevision:revision,sourceHash:sha(raw),outcomes:novel,conflicts,interpretation:'Statistical published-result grading; not executable wager/book-void settlement. Conflicts require explicit auditable invalidation/review, never automatic replacement.'}});added.push(record);}
++ return added;
++}
++async function main(){const [action,sourceArg,journalArg,mode='scheduled']=process.argv.slice(2);if(!['capture','verify','settle'].includes(action)||!sourceArg||!journalArg)throw Error('Usage: node research/today-ranking/collect.cjs capture|verify|settle SOURCE_CHECKOUT JOURNAL_DIR [scheduled|manual]');const root=path.resolve(sourceArg),journalRoot=path.resolve(journalArg);if(action==='capture'&&!fs.existsSync(journalRoot))fs.mkdirSync(journalRoot,{recursive:true});const preservation=verifyPreserved(journalRoot),segments=fs.readdirSync(journalRoot).sort();if(segments.some(n=>!/^\d{4}-\d{2}-\d{2}$/.test(n)||!fs.statSync(path.join(journalRoot,n)).isDirectory()))throw Error('Unexpected journal root entry');for(const segment of segments)verifyCompletePools(readRecords(path.join(journalRoot,segment)));if(action==='verify'){let total=0,snapshots=0;for(const segment of segments){const records=readRecords(path.join(journalRoot,segment));for(const r of records.filter(r=>r.kind==='snapshot')){validateSnapshot(materialize(r,records));snapshots++;}total+=records.length;}console.log(JSON.stringify({records:total,snapshots,segments:segments.length,preservation}));return;}
++ const at=new Date().toISOString();execFileSync('git',['diff','--exit-code','HEAD','--'],{cwd:root,stdio:'pipe'});const revision=execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),experiment=JSON.parse(fs.readFileSync(path.join(root,'research/today-ranking/experiment-v1.json')));if(action==='settle'){let count=0;for(const segment of segments)count+=appendSettlements(path.join(journalRoot,segment),root,at).length;console.log(JSON.stringify({settlementsAdded:count}));return;}if(Date.parse(at)>Date.parse(experiment.collectionEndsAt))throw Error('Preregistered collection ended; evaluate or register a new experiment');const journal=path.join(journalRoot,slotAt(at).date),key=slotKey(experiment.id,at,mode),records=readRecords(journal);if(records.some(r=>r.key===key)){console.log(JSON.stringify({status:'existing_frozen_slot',key}));return;}
++ const snapshot=await captureAt(root,at,{revision,experiment});snapshot.trigger={mode,slot:slotAt(at),primaryWindow:mode==='scheduled'&&slotAt(at).hour===8&&slotAt(at).minute<=15};validateSnapshot(snapshot);const record=storeSnapshot(journal,snapshot,key);const stored=materialize(record,readRecords(journal));validateSnapshot(stored);if(canonicalJSON(stored)!==canonicalJSON(snapshot))throw Error('Stored snapshot differs from complete captured pool');console.log(JSON.stringify({status:'frozen',key,hash:record.hash,rows:snapshot.rows.length,eligible:snapshot.rows.filter(r=>r.eligibility.eligible).length,primaryWindow:snapshot.trigger.primaryWindow}));}
++module.exports={captureAt,validateSnapshot,slotAt,slotKey,openSource,inputVersions,normalizeScope,appendSettlements,exclusion,invalidateSnapshot,textHash:sha};if(require.main===module)main().catch(e=>{console.error(e.message);process.exitCode=1;});
+diff --git a/research/today-ranking/evaluate.cjs b/research/today-ranking/evaluate.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..0291af76b3a5ec7628a0d6e065ff716c60e09a9e
+--- /dev/null
++++ b/research/today-ranking/evaluate.cjs
+@@ -0,0 +1,345 @@
++'use strict';
++// Offline holdout evaluator. The CLI has no clock override and refuses to read
++// outcome journals until the preregistered release time. Exported pure helpers
++// are for synthetic fixtures and cannot publish an observation.
++const fs = require('node:fs');
++const path = require('node:path');
++const crypto = require('node:crypto');
++const {readRecords, hashPayload} = require('../../shared/ranking-journal.cjs');
++const {materialize, verifyCompletePools} = require('../../shared/ranking-snapshot.cjs');
++const {validateSnapshot} = require('./collect.cjs');
++const REGISTERED = require('./experiment-v1.json');
++const METHODS = ['champion', 'ev', 'family-diversified-ev'];
++const DAY = /^\d{4}-\d{2}-\d{2}$/;
++const SHA = /^[0-9a-f]{64}$/;
++const ET = new Intl.DateTimeFormat('en-US', {timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
++  hour: '2-digit', minute: '2-digit', hourCycle: 'h23'});
++const mean = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
++
++function assertUnlocked(now = Date.now(), registration = REGISTERED) {
++  const when = typeof now === 'number' ? now : Date.parse(now);
++  if (!Number.isFinite(when) || !Number.isFinite(Date.parse(registration.evaluationUnlockAt))) throw Error('Invalid evaluation clock or registration');
++  if (when < Date.parse(registration.evaluationUnlockAt)) throw Error(`Outcome evaluation locked until ${registration.evaluationUnlockAt}`);
++}
++function eligiblePrimary(snapshot, registration = REGISTERED) {
++  const date = snapshot?.slateDate, trigger = snapshot?.trigger;
++  const decision = Date.parse(snapshot?.decisionTime);
++  if (!Number.isFinite(decision)) return false;
++  const parts = Object.fromEntries(ET.formatToParts(new Date(decision)).map(p => [p.type, p.value]));
++  const actualDate = `${parts.year}-${parts.month}-${parts.day}`, actualHour = Number(parts.hour), actualMinute = Number(parts.minute);
++  return snapshot?.experiment === registration.id && DAY.test(date || '') &&
++    date >= registration.holdoutStarts && date <= registration.holdoutEndsInclusive &&
++    trigger?.mode === 'scheduled' && trigger?.primaryWindow === true &&
++    trigger?.slot?.date === date && trigger.slot.hour === registration.primarySlot && trigger.slot.minute <= 15 &&
++    actualDate === date && actualHour === registration.primarySlot && actualMinute === trigger.slot.minute;
++}
++function etDate(ms) {
++  const parts = Object.fromEntries(ET.formatToParts(new Date(ms)).map(p => [p.type, p.value]));
++  return `${parts.year}-${parts.month}-${parts.day}`;
++}
++const label = s => typeof s === 'string' ? s.trim().replace(/\s+/g, ' ').toLowerCase() : '';
++function expectedGrade(row, actual) {
++  if (row.kind === 'prop') {
++    const yards = ['rec_yds', 'rush_yds', 'pass_yds'].includes(row.market);
++    if (!yards && (!Number.isSafeInteger(actual) || actual < 0)) return null;
++    if (row.market === 'atd' && actual !== 0 && actual !== 1) return null;
++  } else if ((row.market === 'total' && (!Number.isSafeInteger(actual) || actual < 0)) ||
++             (row.market === 'moneyline' && !Number.isSafeInteger(actual))) return null;
++  let margin;
++  if (row.market === 'spread' || row.market === 'moneyline') margin = row.side === 'Home' ? actual : row.side === 'Away' ? -actual : NaN;
++  else if (row.market === 'atd') margin = row.side === 'Yes' && row.line === .5 ? actual - .5 : NaN;
++  else margin = row.side === 'Over' ? actual - row.line : row.side === 'Under' ? row.line - actual : NaN;
++  if (!Number.isFinite(margin)) return null;
++  return margin > 0 ? 'win' : margin < 0 ? 'loss' : 'push';
++}
++function validateOutcome(snapshot, record, outcome) {
++  const row = snapshot.rows.find(r => r.id === outcome.predictionId), game = outcome.provenance?.game;
++  const frozen = Date.parse(snapshot.decisionTime), kickoff = Date.parse(game?.kickoff),
++    observed = Date.parse(outcome.observedAt), generated = Date.parse(outcome.provenance?.generatedAt);
++  if (!row || !['win', 'loss', 'push'].includes(outcome.status) || !Number.isFinite(outcome.actual) ||
++      !game?.id || game.sport !== row.sport || label(game.home) !== label(row.home) || label(game.away) !== label(row.away) ||
++      !Number.isFinite(kickoff) || !Number.isFinite(Date.parse(row.kickoff)) ||
++      etDate(kickoff) !== etDate(Date.parse(row.kickoff)) || expectedGrade(row, outcome.actual) !== outcome.status ||
++      (row.kind === 'prop' && (outcome.provenance?.player?.profileId !== row.profileId ||
++       outcome.provenance?.player?.metric !== row.market || outcome.provenance?.player?.date !== etDate(kickoff))) ||
++      !Number.isFinite(frozen) ||
++      !Number.isFinite(observed) || !Number.isFinite(generated) || !(frozen < kickoff && kickoff < generated && generated <= observed) ||
++      observed !== Date.parse(record.observedAt) || !SHA.test(outcome.provenance?.sourceHash || '') ||
++      outcome.provenance.sourceHash !== record.payload.sourceHash ||
++      outcome.provenance.sourceRevision !== record.payload.sourceRevision ||
++      typeof outcome.provenance.sourceRevision !== 'string' || !outcome.provenance.sourceRevision) {
++    throw Error('Invalid settlement identity, source, or chronology');
++  }
++}
++function outcomeIndex(snapshotHash, records, snapshot = null) {
++  const first = new Map(), conflicts = new Set(), invalidations = [];
++  const settlements = records.filter(r => r.kind === 'settlement' && r.payload?.snapshotHash === snapshotHash).sort((a, b) => a.seq - b.seq);
++  for (const record of settlements) {
++    for (const outcome of record.payload.outcomes || []) {
++      if (snapshot) validateOutcome(snapshot, record, outcome);
++      const id = outcome?.predictionId;
++      if (typeof id !== 'string' || !id) throw Error('Invalid outcome prediction identity');
++      const old = first.get(id);
++      if (!old) first.set(id, outcome);
++      else if (old.status !== outcome.status || old.actual !== outcome.actual ||
++               old.provenance?.game?.id !== outcome.provenance?.game?.id) conflicts.add(id);
++    }
++    for (const id of record.payload.conflicts || []) conflicts.add(id);
++  }
++  for (const r of records.filter(r => r.kind === 'invalidation')) {
++    const target = r.payload?.targetHash ?? r.payload?.snapshotHash;
++    if (target === snapshotHash || settlements.some(s => s.hash === target)) {
++      if (typeof r.payload?.reason !== 'string' || r.payload.reason.trim().length < 10 ||
++          typeof r.payload?.evidence !== 'string' || r.payload.evidence.trim().length < 10) throw Error('Invalidation lacks reason or evidence reference');
++      invalidations.push(r.hash);
++    }
++  }
++  return {first, conflicts, invalidations};
++}
++function opposite(row) {
++  if (row.side === 'Home') return 'Away';
++  if (row.side === 'Away') return 'Home';
++  if (row.side === 'Over') return 'Under';
++  if (row.side === 'Under') return 'Over';
++  return null; // No invented No side for an ATD Yes contract.
++}
++function sameBookReference(row, rows) {
++  const other = opposite(row);
++  if (!other || !Number.isFinite(row.dec) || row.dec <= 1 || !row.book || !row.updatedAt) return null;
++  const peers = rows.filter(p => p.sport === row.sport && p.event === row.event && p.kind === row.kind &&
++    (p.profileId ?? null) === (row.profileId ?? null) && p.market === row.market && p.line === row.line &&
++    p.side === other && p.book === row.book && p.updatedAt === row.updatedAt && Number.isFinite(p.dec) && p.dec > 1);
++  const distinct = new Set(peers.map(p => p.dec));
++  if (distinct.size !== 1) return null;
++  const implied = 1 / row.dec, oppositeImplied = 1 / peers[0].dec;
++  return implied / (implied + oppositeImplied);
++}
++function modelScore(row, outcome) {
++  if (!outcome || !['win', 'loss'].includes(outcome.status)) return null;
++  const push = row.push ?? 0;
++  if (!Number.isFinite(row.prob) || !Number.isFinite(push) || push < 0 || push >= 1 ||
++      row.prob < 0 || row.prob + push > 1) return null;
++  const p = row.prob / (1 - push), y = outcome.status === 'win' ? 1 : 0;
++  const ll = q => -(y * Math.log(Math.max(1e-12, q)) + (1 - y) * Math.log(Math.max(1e-12, 1 - q)));
++  return {p, y, brier: (p - y) ** 2, logLoss: ll(p)};
++}
++function score(row, outcome, reference) {
++  const model = modelScore(row, outcome);
++  if (!model || reference === null) return null;
++  const referenceBrier = (reference - model.y) ** 2;
++  const referenceLogLoss = -(model.y * Math.log(Math.max(1e-12, reference)) +
++    (1 - model.y) * Math.log(Math.max(1e-12, 1 - reference)));
++  return {...model, reference, referenceBrier, excessBrier: model.brier - referenceBrier, referenceLogLoss};
++}
++function selectedStats(ids, rowsById, allRows, outcomes) {
++  const counts = {selected: ids.length, settled: 0, push: 0, unresolved: 0, conflict: 0, missingReference: 0, scored: 0, probabilityScored: 0};
++  const scored = [], allScored = [], selected = [];
++  for (const id of ids) {
++    const row = rowsById.get(id);
++    if (!row) throw Error(`Frozen rank refers to missing row ${id}`);
++    const conflict = outcomes.conflicts.has(id), outcome = conflict ? null : outcomes.first.get(id);
++    selected.push(row);
++    if (conflict) { counts.conflict++; counts.unresolved++; continue; }
++    if (!outcome || !['win', 'loss', 'push'].includes(outcome.status)) { counts.unresolved++; continue; }
++    counts.settled++;
++    if (outcome.status === 'push') { counts.push++; continue; }
++    const model = modelScore(row, outcome);
++    if (!model) { counts.unresolved++; counts.settled--; continue; }
++    counts.probabilityScored++;
++    allScored.push({...model, id, game: outcome.provenance?.game?.id ?? row.event});
++    const reference = sameBookReference(row, allRows);
++    if (reference === null) { counts.missingReference++; continue; }
++    const metrics = score(row, outcome, reference);
++    if (!metrics) { counts.missingReference++; continue; }
++    counts.scored++;
++    scored.push({...metrics, id, game: outcome.provenance?.game?.id ?? row.event, family: row.family,
++      dec: row.dec, ev: row.ev, quoteFresh5m: row.quoteFresh5m});
++  }
++  return {counts, scored, allScored, selected};
++}
++function reliability(scored) {
++  return Array.from({length: 10}, (_, i) => {
++    const members = scored.filter(r => Math.min(9, Math.floor(r.p * 10)) === i);
++    return {bin: `${i / 10}-${(i + 1) / 10}`, n: members.length,
++      meanProbability: mean(members.map(r => r.p)), observedWinRate: mean(members.map(r => r.y))};
++  });
++}
++function composition(rows) {
++  const tally = field => Object.fromEntries([...rows.reduce((counts, row) => {
++    const key = field(row);
++    counts.set(key, (counts.get(key) || 0) + 1);
++    return counts;
++  }, new Map())].sort(([a], [b]) => a.localeCompare(b)));
++  const families = tally(row => row.family || 'unknown');
++  const games = tally(row => row.event || 'unknown');
++  const evs = rows.map(r => r.ev).filter(Number.isFinite).sort((a, b) => a - b);
++  return {contracts: rows.length, uniqueGames: Object.keys(games).length, uniqueFamilies: Object.keys(families).length,
++    byMarket: tally(row => row.market || 'unknown'), byType: tally(row => row.kind || 'unknown'),
++    byBook: tally(row => row.book || 'unknown'),
++    byQuoteFreshness: tally(row => row.quoteFresh5m === true ? 'within_5_minutes' : row.quoteFresh5m === false ? 'saved_over_5_minutes' : 'unknown'),
++    byPrice: tally(row => !Number.isFinite(row.odds) ? 'unknown' : row.odds < -200 ? 'shorter_than_-200' :
++      row.odds < 0 ? '-200_to_-100' : row.odds < 200 ? '+100_to_+199' : '+200_or_longer'),
++    evDistribution: {n: evs.length, min: evs.length ? evs[0] : null, p25: evs.length ? quantile(evs, .25) : null,
++      median: evs.length ? quantile(evs, .5) : null, p75: evs.length ? quantile(evs, .75) : null,
++      max: evs.length ? evs.at(-1) : null, mean: mean(evs), positive: evs.filter(v => v > 0).length},
++    largestGameShare: rows.length ? Math.max(...Object.values(games)) / rows.length : null,
++    largestFamilyShare: rows.length ? Math.max(...Object.values(families)) / rows.length : null};
++}
++function policySummary(slates) {
++  const scored = slates.flatMap(s => s.scored), allScored = slates.flatMap(s => s.allScored), selected = slates.flatMap(s => s.selected),
++    counts = Object.fromEntries(Object.keys(slates[0]?.counts || {selected: 0, settled: 0, push: 0, unresolved: 0, conflict: 0, missingReference: 0, scored: 0, probabilityScored: 0})
++      .map(k => [k, slates.reduce((n, s) => n + s.counts[k], 0)]));
++  const games = new Set(scored.map(r => r.game)), families = new Set(selected.map(r => r.family).filter(Boolean));
++  const gameMeans = [...games].map(game => mean(scored.filter(r => r.game === game).map(r => r.excessBrier)));
++  return {counts, composition: composition(selected), uniqueGames: games.size,
++    uniquePlayers: new Set(selected.map(r => r.profileId).filter(Boolean)).size,
++    uniqueFamilies: families.size, reliability: reliability(scored),
++    allSettledProbabilityDiagnostic: {n: allScored.length, modelBrier: mean(allScored.map(r => r.brier)),
++      modelLogLoss: mean(allScored.map(r => r.logLoss)), reliability: reliability(allScored),
++      interpretation: 'Includes settled nonpush contracts without a paired reference; descriptive calibration only, not a betting-value or policy-superiority test.'},
++    modelBrier: mean(scored.map(r => r.brier)), referenceBrier: mean(scored.map(r => r.referenceBrier)),
++    excessBrier: mean(scored.map(r => r.excessBrier)), gameBalancedExcessBrier: mean(gameMeans), modelLogLoss: mean(scored.map(r => r.logLoss)),
++    referenceLogLoss: mean(scored.map(r => r.referenceLogLoss)), meanDecimalPrice: mean(selected.map(r => r.dec).filter(Number.isFinite)),
++    meanFrozenEV: mean(selected.map(r => r.ev).filter(Number.isFinite)),
++    freshQuoteFraction: selected.length ? selected.filter(r => r.quoteFresh5m === true).length / selected.length : null,
++    maxGameShare: scored.length ? Math.max(...[...games].map(g => scored.filter(r => r.game === g).length)) / scored.length : null,
++    maxFamilyShare: selected.length && families.size ? Math.max(...[...families].map(f => selected.filter(r => r.family === f).length)) / selected.length : null};
++}
++function rng(seed) {
++  let state = seed >>> 0;
++  return () => { state += 0x6D2B79F5; let t = state; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
++}
++function quantile(sorted, q) {
++  const at = (sorted.length - 1) * q, low = Math.floor(at), high = Math.ceil(at);
++  return sorted[low] + (sorted[high] - sorted[low]) * (at - low);
++}
++function intervals(differences, registration = REGISTERED, cluster = 'ET slate date') {
++  if (!differences.length) return null;
++  const next = rng(registration.seed), draws = [];
++  for (let i = 0; i < registration.bootstrapResamples; i++) {
++    const sample = Array.from({length: differences.length}, () => differences[Math.floor(next() * differences.length)]);
++    draws.push(mean(sample));
++  }
++  draws.sort((a, b) => a - b);
++  const interval = alpha => [quantile(draws, alpha / 2), quantile(draws, 1 - alpha / 2)];
++  return {unadjusted95: interval(.05), adjustedFamilywise: interval(registration.alphaFamilywise / 8),
++    resamples: registration.bootstrapResamples, cluster, seed: registration.seed};
++}
++function evaluateObservations(observations, registration = REGISTERED) {
++  const primary = observations.filter(o => eligiblePrimary(o.snapshot, registration)), seen = new Set();
++  for (const o of primary) {
++    if (seen.has(o.snapshot.slateDate)) throw Error('Duplicate primary 8 a.m. slate date');
++    seen.add(o.snapshot.slateDate);
++    if (o.snapshot.schemaVersion !== registration.schemaVersion ||
++        o.snapshot.registrationHash !== hashPayload(registration) ||
++        o.snapshot.codeHashes?.policy !== registration.policyCodeHash ||
++        o.snapshot.codeHashes?.generator !== registration.generatorCodeHash ||
++        !Object.values(o.snapshot.inputVersions || {}).length ||
++        Object.values(o.snapshot.inputVersions).some(v => !SHA.test(v?.sha256 || '')) ||
++        !Object.values(o.snapshot.sourceHashes || {}).length ||
++        Object.values(o.snapshot.sourceHashes).some(v => !SHA.test(v))) throw Error('Frozen snapshot differs from registered source hashes or input schema');
++  }
++  const missingPrimaryDates = [];
++  for (let ms = Date.parse(`${registration.holdoutStarts}T12:00:00Z`);
++       ms <= Date.parse(`${registration.holdoutEndsInclusive}T12:00:00Z`); ms += 86400000) {
++    const day = new Date(ms).toISOString().slice(0, 10);
++    if (!seen.has(day)) missingPrimaryDates.push(day);
++  }
++  const indexed = primary.map(o => ({...o, outcomes: outcomeIndex(o.record.hash, o.records, o.snapshot)}))
++    .filter(o => !o.outcomes.invalidations.length);
++  const excludedInvalidated = primary.length - indexed.length, comparisons = [];
++  for (const [sport, kind, scopeName] of registration.primaryScopes) for (const topN of registration.topN) {
++    const slates = indexed.map(o => {
++      const scope = o.snapshot.scopes.find(s => s.sport === sport && s.kind === kind && s.scope === scopeName);
++      if (!scope) throw Error(`Missing preregistered scope ${sport}/${kind}/${scopeName}`);
++      const rowsById = new Map(o.snapshot.rows.map(r => [r.id, r]));
++      if (rowsById.size !== o.snapshot.rows.length) throw Error('Duplicate frozen prediction ID');
++      const eligibleRows = scope.policies.champion.ranks.map(id => {
++        const row = rowsById.get(id);
++        if (!row) throw Error('Full frozen eligible rank refers to a missing row');
++        return row;
++      });
++      const stats = Object.fromEntries(METHODS.map(method => {
++        const policy = scope.policies?.[method], ids = policy?.[`top${topN}`];
++        if (!Array.isArray(ids) || JSON.stringify(ids) !== JSON.stringify(policy.ranks.slice(0, topN))) throw Error('Invalid frozen top-N ranks');
++        return [method, selectedStats(ids, rowsById, o.snapshot.rows, o.outcomes)];
++      }));
++      return {date: o.snapshot.slateDate, stats, eligibleRows};
++    });
++    for (const challenger of METHODS.slice(1)) {
++      const championSlates = slates.map(s => s.stats.champion), challengerSlates = slates.map(s => s.stats[challenger]);
++      const policy = {champion: policySummary(championSlates), challenger: policySummary(challengerSlates)};
++      const paired = slates.map(s => ({date: s.date, champion: s.stats.champion.scored, challenger: s.stats[challenger].scored}))
++        .filter(s => s.champion.length && s.challenger.length);
++      const differences = paired.map(s => mean(s.challenger.map(r => r.excessBrier)) - mean(s.champion.map(r => r.excessBrier)));
++      const modelLogLossDifferences = paired.map(s => mean(s.challenger.map(r => r.logLoss)) - mean(s.champion.map(r => r.logLoss)));
++      const excessLogLossDifferences = paired.map(s => mean(s.challenger.map(r => r.logLoss - r.referenceLogLoss)) - mean(s.champion.map(r => r.logLoss - r.referenceLogLoss)));
++      const gameDifferences = paired.flatMap(s => {
++        const championByGame = new Map(), challengerByGame = new Map();
++        for (const r of s.champion) { if (!championByGame.has(r.game)) championByGame.set(r.game, []); championByGame.get(r.game).push(r.excessBrier); }
++        for (const r of s.challenger) { if (!challengerByGame.has(r.game)) challengerByGame.set(r.game, []); challengerByGame.get(r.game).push(r.excessBrier); }
++        return [...championByGame].filter(([game]) => challengerByGame.has(game))
++          .map(([game, values]) => mean(challengerByGame.get(game)) - mean(values));
++      });
++      const uniqueGames = new Set(paired.flatMap(s => [...s.champion, ...s.challenger].map(r => `${s.date}|${r.game}`))).size;
++      const selected = policy.champion.counts.selected + policy.challenger.counts.selected;
++      const unresolved = policy.champion.counts.unresolved + policy.challenger.counts.unresolved;
++      const settledNonpush = selected - unresolved - policy.champion.counts.push - policy.challenger.counts.push;
++      const missingReference = policy.champion.counts.missingReference + policy.challenger.counts.missingReference;
++      const unresolvedFraction = selected ? unresolved / selected : null;
++      const missingReferenceFraction = settledNonpush ? missingReference / settledNonpush : null;
++      const failures = [];
++      if (paired.length < registration.minimumPairedSlates) failures.push('too_few_paired_slates');
++      if (uniqueGames < registration.minimumGameClusters) failures.push('too_few_unique_games');
++      if (unresolvedFraction === null || unresolvedFraction > registration.maximumUnresolvedFraction) failures.push('unresolved_coverage');
++      if (missingReferenceFraction === null || missingReferenceFraction > registration.maximumMissingReferenceFraction) failures.push('paired_reference_coverage');
++      const uncertainty = failures.length ? null : intervals(differences, registration);
++      const effect = mean(differences), modelLogLossEffect = mean(modelLogLossDifferences), excessLogLossEffect = mean(excessLogLossDifferences);
++      const screeningPass = !failures.length && uncertainty.adjustedFamilywise[1] < 0 &&
++        effect <= -registration.minimumExcessBrierBenefit && modelLogLossEffect <= registration.maximumLogLossWorsening;
++      comparisons.push({sport, universe: kind, scope: scopeName, topN, challenger, status: failures.length ? 'INSUFFICIENT' : screeningPass ? 'SCREENING_PASS_NO_PROMOTION' : 'NO_SUPERIORITY',
++        pairedSlates: paired.length, uniqueGameClusters: uniqueGames, selected, unresolvedFraction, missingReferenceFraction,
++        failures, policy, fullEligibleRanking: composition(slates.flatMap(s => s.eligibleRows)),
++        meanSlateExcessBrierDifference: effect, meanSlateModelLogLossDifference: modelLogLossEffect,
++        meanSlateExcessLogLossDifference: excessLogLossEffect,
++        uncertainty, gameClusterDiagnostic: {pairedGames: gameDifferences.length, meanDifference: mean(gameDifferences),
++          uncertainty: gameDifferences.length ? intervals(gameDifferences, registration, 'game within ET slate (secondary)') : null,
++          note: 'Descriptive only; games from the same slate can remain dependent.'},
++        interpretation: 'Negative difference improves model-minus-same-book-reference Brier on selected contracts; this does not measure profit or justify promotion.'});
++    }
++  }
++  return {experiment: registration.id, phase: 'untouched_confirmation', primarySnapshots: primary.length,
++    missingPrimaryDates, invalidatedSnapshotsExcluded: excludedInvalidated, validPrimarySnapshots: indexed.length,
++    comparisons, limitations: ['Scheduled capture availability can select slates.', 'Complete-case paired references can select markets.',
++      'Results are statistical grading, not sportsbook execution or book-specific void decisions.',
++      'Today-settleable results cannot establish unrestricted Today ranking superiority.',
++      'Log loss probabilities are clipped at 1e-12 for finite numerical reporting.', 'No ROI or CLV is computed.']};
++}
++function loadObservations(root) {
++  assertUnlocked();
++  const challengerHash = crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname, '../../shared/ranking-policies.cjs'), 'utf8').replace(/\r\n/g, '\n')).digest('hex');
++  if (challengerHash !== REGISTERED.challengersSourceHash) throw Error('Challenger source differs from preregistration');
++  const entries = fs.readdirSync(root, {withFileTypes: true});
++  if (entries.some(e => !e.isDirectory() || !DAY.test(e.name))) throw Error('Unexpected journal root entry');
++  const out = [];
++  for (const entry of entries) {
++    const records = readRecords(path.join(root, entry.name));
++    verifyCompletePools(records);
++    for (const record of records.filter(r => r.kind === 'snapshot')) {
++      const snapshot = materialize(record, records);
++      validateSnapshot(snapshot);
++      if (snapshot.slateDate !== entry.name) throw Error('Snapshot/date segment mismatch');
++      out.push({record, snapshot, records});
++    }
++  }
++  return out;
++}
++function main() {
++  if (process.argv.length !== 3) throw Error('Usage: node research/today-ranking/evaluate.cjs JOURNAL_ROOT');
++  assertUnlocked(); // Before even listing journal files or reading raw outcomes.
++  const observations = loadObservations(path.resolve(process.argv[2]));
++  console.log(JSON.stringify(evaluateObservations(observations), null, 2));
++}
++module.exports = {assertUnlocked, eligiblePrimary, outcomeIndex, sameBookReference, score,
++  selectedStats, reliability, intervals, evaluateObservations, loadObservations};
++if (require.main === module) try { main(); } catch (error) { console.error(error.message); process.exitCode = 1; }
+diff --git a/research/today-ranking/experiment-v1.json b/research/today-ranking/experiment-v1.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..e364ab24fca35aae91ac7048151dba780fbc26c5
+--- /dev/null
++++ b/research/today-ranking/experiment-v1.json
+@@ -0,0 +1,46 @@
++{
++  "id": "today-ranking-v1",
++  "schemaVersion": 1,
++  "startedAt": "2026-10-03T03:17:28.899Z",
++  "baseline": "7b2633ba80177129151910e89e57de860832dd38",
++  "policyCodeHash": "6a2661ea6abcd455dab40c7802885b11417eacc7cf4c0f1f49f11799bc79c9bc",
++  "generatorCodeHash": "0f75db3315b280e287c4eb28e7e9d7db2c3d41b6f0c838ef2e31f4f5cf2bcc68",
++  "challengersSourceHash": "4c9b3de03949de29fa82915810413c32183d3bbb104890f3e2e30309a4a8522d",
++  "collectionEndsAt": "2026-12-06T05:00:00Z",
++  "evaluationUnlockAt": "2026-12-06T17:00:00Z",
++  "timezone": "America/New_York",
++  "primarySlot": 8,
++  "primaryStartDate": "2026-10-03",
++  "diagnosticEndsBefore": "2026-10-24",
++  "holdoutStarts": "2026-10-24",
++  "holdoutEndsInclusive": "2026-12-05",
++  "primaryScopes": [
++    [
++      "nfl",
++      "all",
++      "today-settleable"
++    ],
++    [
++      "ncaa",
++      "game",
++      "today-settleable"
++    ]
++  ],
++  "topN": [
++    3,
++    10
++  ],
++  "minimumPairedSlates": 20,
++  "minimumGameClusters": 100,
++  "maximumUnresolvedFraction": 0.1,
++  "maximumMissingReferenceFraction": 0.1,
++  "alphaFamilywise": 0.05,
++  "bootstrapResamples": 2000,
++  "seed": 20261003,
++  "minimumExcessBrierBenefit": 0.005,
++  "maximumLogLossWorsening": 0.01,
++  "promotion": "Never automatic; only reproducible heldout evidence and explicit Travis approval",
++  "notes": "No tuning/weights; supported-settlement universe is declared evaluation only, full production pool/ranks also captured. No overall unrestricted ranking claim from this subset. Full game definitions/ties/metrics are documented in PROTOCOL.md.",
++  "registrationIntegrityNote": "Before the first real observation: expanded source-hash coverage to numerical, identity, quote/model helpers and shared identity/injury/slate modules. Champion/C1/C2 definitions and cutoffs unchanged; no outcomes fitted or collected. Before first real observation, normalize Git CRLF-to-LF text hashing for cross-checkout reproducibility; no policy, probability or cutoff change.",
++  "textHashEncoding": "UTF-8; CRLF normalized to LF only; all other whitespace/values retained"
++}
+diff --git a/research/today-ranking/preservation.cjs b/research/today-ranking/preservation.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..2a1b31cb8f7189577a61171463ffdcc0a23ec89c
+--- /dev/null
++++ b/research/today-ranking/preservation.cjs
+@@ -0,0 +1,99 @@
++'use strict';
++const fs = require('node:fs');
++const path = require('node:path');
++const crypto = require('node:crypto');
++const {execFileSync} = require('node:child_process');
++
++const REVIEW_BRANCH = 'codex/going-long-daily-review';
++function git(cwd, ...args) {
++  return execFileSync('git', args, {cwd, encoding: 'buffer', maxBuffer: 256 * 1024 * 1024});
++}
++function output(cwd, ...args) { return git(cwd, ...args).toString('utf8').trim(); }
++function within(base, target) {
++  const relative = path.relative(base, target);
++  return relative === '' || (!path.isAbsolute(relative) && relative !== '..' && !relative.startsWith('..' + path.sep));
++}
++function safeFile(root, repo, gitPath) {
++  if (!gitPath || gitPath.includes('\\') || path.posix.isAbsolute(gitPath) || gitPath.split('/').some(part => !part || part === '.' || part === '..')) throw new Error('Unsafe journal Git path');
++  const target = path.resolve(repo, ...gitPath.split('/'));
++  if (!within(root, target)) throw new Error('Tracked path escapes journal root');
++  let current = repo;
++  for (const part of gitPath.split('/')) {
++    current = path.join(current, part);
++    const stat = fs.lstatSync(current);
++    if (stat.isSymbolicLink()) throw new Error('Journal symlink is forbidden: ' + gitPath);
++    if (current !== target && !stat.isDirectory()) throw new Error('Journal path component is not a directory: ' + gitPath);
++    if (current === target && !stat.isFile()) throw new Error('Journal observation is not a regular file: ' + gitPath);
++  }
++  return target;
++}
++function parseEntries(buffer, kind) {
++  const entries = new Map();
++  for (const line of buffer.subarray(0, buffer.length - (buffer.at(-1) === 0 ? 1 : 0)).toString('binary').split('\0')) {
++    if (!line) continue;
++    const tab = line.indexOf('\t');
++    if (tab < 0) throw new Error('Malformed Git ' + kind + ' entry');
++    const bytes = Buffer.from(line.slice(tab + 1), 'binary');
++    const name = bytes.toString('utf8');
++    if (!Buffer.from(name, 'utf8').equals(bytes)) throw new Error('Non-UTF-8 journal path is unsafe');
++    const header = line.slice(0, tab);
++    const match = kind === 'HEAD' ? /^(\d{6}) blob ([0-9a-f]+)$/.exec(header) : /^(\d{6}) ([0-9a-f]+) ([0-3])$/.exec(header);
++    if (!match || entries.has(name)) throw new Error('Malformed or duplicate Git ' + kind + ' entry');
++    entries.set(name, {mode: match[1], hash: match[2], stage: kind === 'index' ? Number(match[3]) : 0});
++  }
++  return entries;
++}
++function scanFiles(root, skipGit) {
++  let count = 0;
++  function visit(directory, top) {
++    for (const entry of fs.readdirSync(directory, {withFileTypes: true})) {
++      if (top && skipGit && entry.name === '.git') continue;
++      const target = path.join(directory, entry.name);
++      const stat = fs.lstatSync(target);
++      if (stat.isSymbolicLink()) throw new Error('Journal symlink is forbidden: ' + target);
++      if (stat.isDirectory()) visit(target, false);
++      else if (stat.isFile()) count++;
++      else throw new Error('Unsafe journal file type: ' + target);
++    }
++  }
++  visit(root, true);
++  return count;
++}
++
++function verifyPreserved(journalRoot) {
++  if (typeof journalRoot !== 'string' || !journalRoot) throw new TypeError('Journal root path required');
++  const root = path.resolve(journalRoot);
++  if (!fs.existsSync(root) || !fs.lstatSync(root).isDirectory() || fs.lstatSync(root).isSymbolicLink()) throw new Error('Journal root must be a real directory');
++  const repo = path.resolve(output(root, 'rev-parse', '--show-toplevel'));
++  if (!within(repo, root)) throw new Error('Journal root must be inside its Git repository');
++  if (output(repo, 'symbolic-ref', '--quiet', '--short', 'HEAD') !== REVIEW_BRANCH) throw new Error('Wrong journal review branch');
++  const format = output(repo, 'rev-parse', '--show-object-format');
++  if (format !== 'sha1' && format !== 'sha256') throw new Error('Unsupported Git object format');
++  const relative = path.relative(repo, root).split(path.sep).join('/');
++  const pathspec = relative || '.';
++  const head = parseEntries(git(repo, 'ls-tree', '-r', '-z', 'HEAD', '--', pathspec), 'HEAD');
++  const index = parseEntries(git(repo, 'ls-files', '--stage', '-z', '--', pathspec), 'index');
++  let bytesChecked = 0;
++  for (const [name, expected] of head) {
++    if (expected.mode !== '100644' && expected.mode !== '100755') throw new Error('Unsafe tracked journal mode: ' + name);
++    const staged = index.get(name);
++    if (!staged || staged.stage !== 0 || staged.mode !== expected.mode || staged.hash !== expected.hash) throw new Error('Staged journal change or deletion: ' + name);
++    const file = safeFile(root, repo, name);
++    const bytes = fs.readFileSync(file);
++    const actual = crypto.createHash(format).update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
++    if (actual !== expected.hash) throw new Error('Changed or deleted journal observation: ' + name);
++    if (process.platform !== 'win32') {
++      const executable = Boolean(fs.statSync(file).mode & 0o111);
++      if (executable !== (expected.mode === '100755')) throw new Error('Changed journal file mode: ' + name);
++    }
++    bytesChecked += bytes.length;
++  }
++  for (const [name, staged] of index) {
++    if (head.has(name)) continue;
++    if (staged.stage !== 0 || (staged.mode !== '100644' && staged.mode !== '100755')) throw new Error('Unsafe staged journal addition: ' + name);
++  }
++  const totalFiles = scanFiles(root, root === repo);
++  return {preservedFiles: head.size, addedFiles: totalFiles - head.size, bytesChecked};
++}
++
++module.exports = {verifyPreserved, REVIEW_BRANCH};
+diff --git a/research/today-ranking/session.cjs b/research/today-ranking/session.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..072ff1300efdb05e969efa82b08191d8257061db
+--- /dev/null
++++ b/research/today-ranking/session.cjs
+@@ -0,0 +1,8 @@
++'use strict';
++// Cross-worktree mutex for the existing autonomous development process, not a daemon.
++const fs=require('node:fs'),path=require('node:path'),{execFileSync}=require('node:child_process');
++function location(repo){const common=execFileSync('git',['rev-parse','--path-format=absolute','--git-common-dir'],{cwd:repo,encoding:'utf8'}).trim();return path.join(common,'going-long-cycle.lock');}
++function owner(repo){const dir=location(repo);if(!fs.existsSync(dir))return null;const record=JSON.parse(fs.readFileSync(path.join(dir,'owner.json'),'utf8'));if(typeof record.runId!=='string'||!record.runId||!Number.isFinite(Date.parse(record.acquiredAt)))throw Error('Unknown/incomplete cycle lock; inspect without deleting');return record;}
++function acquire(repo,runId){if(typeof runId!=='string'||!/^[a-zA-Z0-9_-]{5,150}$/.test(runId))throw Error('Invalid unique cycle ID');const dir=location(repo);fs.mkdirSync(dir);const record={runId,acquiredAt:new Date().toISOString()};const fd=fs.openSync(path.join(dir,'owner.json'),'wx');try{fs.writeFileSync(fd,JSON.stringify(record)+'\n');fs.fsyncSync(fd);}finally{fs.closeSync(fd);}return record;}
++function release(repo,runId){const current=owner(repo);if(!current||current.runId!==runId)throw Error('Only the recorded cycle owner can release the lock');const dir=location(repo);fs.unlinkSync(path.join(dir,'owner.json'));fs.rmdirSync(dir);return {released:runId};}
++module.exports={acquire,release,owner,location};if(require.main===module){const[action,repo,runId]=process.argv.slice(2);try{if(!repo||!['acquire','release','status'].includes(action))throw Error('Usage: session.cjs acquire|release|status REVIEW_CHECKOUT [UNIQUE_CYCLE_ID]');console.log(JSON.stringify(action==='status'?owner(repo):action==='acquire'?acquire(repo,runId):release(repo,runId)));}catch(e){console.error(e.message);process.exitCode=1;}}
+diff --git a/shared/ranking-journal.cjs b/shared/ranking-journal.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..3cf1b9c5deec1cecf8a0ae8f6007977f7bdf4331
+--- /dev/null
++++ b/shared/ranking-journal.cjs
+@@ -0,0 +1,196 @@
++'use strict';
++
++// Prospective research journal. The root is a dedicated directory; do not put
++// unrelated files there. Limits bound synchronous scans and gzip expansion.
++const fs = require('node:fs');
++const path = require('node:path');
++const crypto = require('node:crypto');
++const zlib = require('node:zlib');
++
++const LIMITS = Object.freeze({
++  maxRecordBytes: 1024 * 1024,
++  maxCompressedBytes: 2 * 1024 * 1024,
++  maxRecords: 50000,
++  maxTotalCompressedBytes: 256 * 1024 * 1024,
++  maxTotalRecordBytes: 256 * 1024 * 1024,
++  maxKeyBytes: 1024,
++});
++const KINDS = new Set(['snapshot', 'settlement', 'invalidation', 'status']);
++const FILE_RE = /^(\d{12})-([0-9a-f]{64})\.json\.gz$/;
++const SHA_RE = /^[0-9a-f]{64}$/;
++const LOCK = '.lock';
++
++function canonicalJSON(value) {
++  const active = new Set();
++  function encode(item) {
++    if (item === null || typeof item === 'boolean' || typeof item === 'string') return JSON.stringify(item);
++    if (typeof item === 'number') {
++      if (!Number.isFinite(item)) throw new TypeError('Journal JSON numbers must be finite');
++      return JSON.stringify(item);
++    }
++    if (typeof item !== 'object') throw new TypeError('Journal values must be JSON');
++    if (active.has(item)) throw new TypeError('Journal JSON cannot contain cycles');
++    const proto = Object.getPrototypeOf(item);
++    if (Array.isArray(item)) {
++      if (Object.getOwnPropertySymbols(item).length) throw new TypeError('Journal JSON cannot contain symbol keys');
++      active.add(item);
++      try {
++        const parts = [];
++        for (let i = 0; i < item.length; i++) {
++          if (!Object.hasOwn(item, i)) throw new TypeError('Journal JSON cannot contain sparse arrays');
++          const descriptor = Object.getOwnPropertyDescriptor(item, String(i));
++          if (!descriptor || !Object.hasOwn(descriptor, 'value')) throw new TypeError('Journal JSON cannot contain accessors');
++          parts.push(encode(descriptor.value));
++        }
++        const own = Object.keys(item);
++        if (own.some(key => key !== 'length' && !/^(0|[1-9]\d*)$/.test(key))) throw new TypeError('Journal arrays cannot contain extra properties');
++        return `[${parts.join(',')}]`;
++      } finally { active.delete(item); }
++    }
++    if (proto !== Object.prototype && proto !== null) throw new TypeError('Journal values must be plain JSON objects');
++    if (Object.getOwnPropertySymbols(item).length) throw new TypeError('Journal JSON cannot contain symbol keys');
++    active.add(item);
++    try {
++      return `{${Object.keys(item).sort().map(key => {
++        const descriptor = Object.getOwnPropertyDescriptor(item, key);
++        if (!descriptor || !Object.hasOwn(descriptor, 'value')) throw new TypeError('Journal JSON cannot contain accessors');
++        return `${JSON.stringify(key)}:${encode(descriptor.value)}`;
++      }).join(',')}}`;
++    } finally { active.delete(item); }
++  }
++  return encode(value);
++}
++
++function hashPayload(value) {
++  return crypto.createHash('sha256').update(canonicalJSON(value), 'utf8').digest('hex');
++}
++
++function validObservedAt(value) {
++  if (typeof value !== 'string') return false;
++  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/.exec(value);
++  if (!match) return false;
++  const [, y, mo, d, h, mi, s, zone] = match;
++  const year = Number(y), month = Number(mo), day = Number(d);
++  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
++  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
++  if (month < 1 || month > 12 || day < 1 || day > days[month - 1] || Number(h) > 23 || Number(mi) > 59 || Number(s) > 59) return false;
++  if (zone !== 'Z' && (Number(zone.slice(1, 3)) > 23 || Number(zone.slice(4)) > 59)) return false;
++  return Number.isFinite(Date.parse(value));
++}
++
++function validateInput(input) {
++  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new TypeError('Journal record must be an object');
++  const {kind, key, observedAt, payload} = input;
++  if (!KINDS.has(kind)) throw new TypeError('Invalid journal kind');
++  if (typeof key !== 'string' || !key || Buffer.byteLength(key, 'utf8') > LIMITS.maxKeyBytes) throw new TypeError('Invalid journal key');
++  if (!validObservedAt(observedAt)) throw new TypeError('observedAt must be a valid ISO timestamp with timezone');
++  const payloadJSON = canonicalJSON(payload);
++  if (Buffer.byteLength(payloadJSON, 'utf8') > LIMITS.maxRecordBytes) throw new RangeError('Journal payload exceeds record limit');
++  return {kind, key, observedAt, payload};
++}
++
++function checkedRoot(root) {
++  if (typeof root !== 'string' || !root) throw new TypeError('Journal root must be a directory path');
++  return path.resolve(root);
++}
++
++function inspect(root, ownLock = false) {
++  if (!fs.existsSync(root)) return [];
++  if (!fs.statSync(root).isDirectory()) throw new Error('Journal root is not a directory');
++  const entries = fs.readdirSync(root, {withFileTypes: true});
++  const files = [];
++  let total = 0;
++  for (const entry of entries) {
++    if (entry.name === LOCK && ownLock && entry.isDirectory()) continue;
++    if (entry.name === LOCK) throw new Error('Journal is locked');
++    const match = FILE_RE.exec(entry.name);
++    if (!match || !entry.isFile()) throw new Error(`Unexpected journal entry: ${entry.name}`);
++    const stat = fs.lstatSync(path.join(root, entry.name));
++    if (!stat.isFile() || stat.size > LIMITS.maxCompressedBytes) throw new Error(`Invalid journal file: ${entry.name}`);
++    total += stat.size;
++    if (total > LIMITS.maxTotalCompressedBytes) throw new RangeError('Journal total size limit exceeded');
++    files.push({name: entry.name, seq: Number(match[1]), hash: match[2]});
++  }
++  if (files.length > LIMITS.maxRecords) throw new RangeError('Journal record count limit exceeded');
++  files.sort((a, b) => a.seq - b.seq);
++  const records = [];
++  const keys = new Set();
++  let previousHash = null;
++  let totalRaw = 0;
++  for (const file of files) {
++    const expectedSeq = records.length + 1;
++    if (file.seq !== expectedSeq) throw new Error(`Journal sequence gap or duplicate at ${file.name}`);
++    const compressed = fs.readFileSync(path.join(root, file.name));
++    if (compressed.length > LIMITS.maxCompressedBytes) throw new Error(`Journal file grew while reading: ${file.name}`);
++    let raw;
++    try { raw = zlib.gunzipSync(compressed, {maxOutputLength: LIMITS.maxRecordBytes}); }
++    catch (error) { throw new Error(`Journal decompression failed: ${file.name}`, {cause: error}); }
++    totalRaw += raw.length;
++    if (totalRaw > LIMITS.maxTotalRecordBytes) throw new RangeError('Journal total record size limit exceeded');
++    let record;
++    try { record = JSON.parse(raw.toString('utf8')); }
++    catch (error) { throw new Error(`Journal JSON is invalid: ${file.name}`, {cause: error}); }
++    if (!record || Array.isArray(record) || typeof record !== 'object' || Object.keys(record).sort().join(',') !== 'hash,key,kind,observedAt,payload,prevHash,seq') throw new Error(`Journal record shape is invalid: ${file.name}`);
++    validateInput(record);
++    if (record.seq !== expectedSeq || record.prevHash !== previousHash || !SHA_RE.test(record.hash)) throw new Error(`Journal chain is invalid: ${file.name}`);
++    const {hash, ...content} = record;
++    const computed = hashPayload(content);
++    if (hash !== computed || file.hash !== hash) throw new Error(`Journal hash is invalid: ${file.name}`);
++    if (raw.toString('utf8') !== canonicalJSON(record)) throw new Error(`Journal bytes are not canonical: ${file.name}`);
++    if (keys.has(record.key)) throw new Error(`Duplicate journal key: ${record.key}`);
++    keys.add(record.key);
++    records.push(record);
++    previousHash = hash;
++  }
++  return records;
++}
++
++function readRecords(root) { return inspect(checkedRoot(root)); }
++function findRecord(root, key) { return readRecords(root).find(record => record.key === key) ?? null; }
++
++function appendRecord(root, input) {
++  const directory = checkedRoot(root);
++  const candidate = validateInput(input);
++  fs.mkdirSync(directory, {recursive: true});
++  const lockPath = path.join(directory, LOCK);
++  fs.mkdirSync(lockPath); // Exclusive; a stale lock requires explicit human inspection.
++  try {
++    const records = inspect(directory, true);
++    const existing = records.find(record => record.key === candidate.key);
++    if (existing) {
++      if (existing.kind === candidate.kind && existing.observedAt === candidate.observedAt && canonicalJSON(existing.payload) === canonicalJSON(candidate.payload)) return existing;
++      throw new Error(`Conflicting journal key: ${candidate.key}`);
++    }
++    if (records.length >= LIMITS.maxRecords) throw new RangeError('Journal record count limit exceeded');
++    const seq = records.length + 1;
++    const content = {seq, prevHash: records.at(-1)?.hash ?? null, ...candidate};
++    const hash = hashPayload(content);
++    const record = {...content, hash};
++    const raw = Buffer.from(canonicalJSON(record), 'utf8');
++    if (raw.length > LIMITS.maxRecordBytes) throw new RangeError('Journal record exceeds record limit');
++    const priorRawBytes = records.reduce((sum, prior) => sum + Buffer.byteLength(canonicalJSON(prior), 'utf8'), 0);
++    if (priorRawBytes + raw.length > LIMITS.maxTotalRecordBytes) throw new RangeError('Journal total record size limit exceeded');
++    const compressed = zlib.gzipSync(raw, {mtime: 0});
++    if (compressed.length > LIMITS.maxCompressedBytes) throw new RangeError('Compressed journal record exceeds limit');
++    const usedBytes = records.reduce((sum, prior) => {
++      const priorName = `${String(prior.seq).padStart(12, '0')}-${prior.hash}.json.gz`;
++      return sum + fs.statSync(path.join(directory, priorName)).size;
++    }, 0);
++    if (usedBytes + compressed.length > LIMITS.maxTotalCompressedBytes) throw new RangeError('Journal total size limit exceeded');
++    const name = `${String(seq).padStart(12, '0')}-${hash}.json.gz`;
++    const pending = path.join(directory, `.pending-${process.pid}-${crypto.randomUUID()}`);
++    const fd = fs.openSync(pending, 'wx');
++    try { fs.writeFileSync(fd, compressed); fs.fsyncSync(fd); }
++    finally { fs.closeSync(fd); }
++    // A hard link publishes atomically and fails if the final name exists.
++    // Deliberately preserve any pending file on failure for manual inspection.
++    fs.linkSync(pending, path.join(directory, name));
++    fs.unlinkSync(pending);
++    return record;
++  } finally {
++    // Release only our still-empty lock directory; never remove foreign data.
++    fs.rmdirSync(lockPath);
++  }
++}
++
++module.exports = {appendRecord, readRecords, findRecord, canonicalJSON, hashPayload, LIMITS};
+diff --git a/shared/ranking-policies.cjs b/shared/ranking-policies.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..5f5384985ddacbc6d4d54ce86661eaf42f3eab96
+--- /dev/null
++++ b/shared/ranking-policies.cjs
+@@ -0,0 +1,109 @@
++'use strict';
++
++// Offline, predeclared ranking experiments. The caller freezes the exact
++// Champion-eligible, already best-book/contract-deduplicated cohort in its
++// existing Champion order. No eligibility, probability, or staking changes.
++const METHODS = Object.freeze(['champion', 'ev', 'family-diversified-ev']);
++
++function expectedValue(row) {
++  if (!row || typeof row !== 'object') throw new TypeError('Expected a candidate object');
++  const { prob, dec } = row;
++  const push = row.push === undefined ? 0 : row.push;
++  if (!Number.isFinite(prob) || prob < 0 || prob > 1) throw new RangeError('prob must be an unconditional win probability in [0, 1]');
++  if (!Number.isFinite(push) || push < 0 || push > 1 || prob + push > 1) throw new RangeError('push must be an unconditional push probability with prob + push <= 1');
++  if (!Number.isFinite(dec) || dec <= 1) throw new RangeError('dec must be finite decimal odds greater than 1');
++  // Payoffs per unit staked: win dec-1, push 0, loss -1.
++  // An absent push uses the source model's zero-push approximation.
++  return prob * dec + push - 1;
++}
++
++function identity(value, field) {
++  if ((typeof value !== 'string' && typeof value !== 'number') || String(value).trim() === '' || (typeof value === 'number' && !Number.isFinite(value))) {
++    throw new TypeError(`${field} must be a nonempty canonical identifier`);
++  }
++  // Preserve exact event/time aliases; no text, time, or semantic normalization.
++  return String(value);
++}
++
++function familyKey(row) {
++  const event = identity(row.event, 'event');
++  const kind = identity(row.kind, 'kind');
++  const participant = row.profileId === undefined || row.profileId === null ? 'game' : identity(row.profileId, 'profileId');
++  if (kind === 'prop' && participant === 'game') throw new TypeError('prop rows need profileId');
++  return JSON.stringify([event, kind, participant, identity(row.market, 'market'), identity(row.side, 'side')]);
++}
++
++function timeMs(value, field) {
++  if (typeof value === 'number' && Number.isFinite(value)) return value;
++  if (typeof value !== 'string' || !/(?:Z|[+-]\d\d:\d\d)$/i.test(value)) throw new TypeError(`${field} must be epoch milliseconds or an ISO timestamp with a timezone`);
++  const result = Date.parse(value);
++  if (!Number.isFinite(result)) throw new TypeError(`${field} must be a valid timestamp`);
++  return result;
++}
++
++function validateQuoteTimes(rows, options) {
++  const historical = options.historical === true || options.evaluationMode === 'historical';
++  if (historical && options.decisionTime === undefined) throw new TypeError('Historical evaluation requires frozen decisionTime');
++  if (options.decisionTime === undefined) return;
++  const decision = timeMs(options.decisionTime, 'decisionTime');
++  for (const row of rows) {
++    const quote = row.quoteTime || row.updatedAt;
++    if (quote === undefined || quote === null || quote === '') throw new TypeError('Frozen evaluation requires quoteTime or updatedAt for every row');
++    if (timeMs(quote, 'quoteTime/updatedAt') > decision) throw new RangeError('Quote is newer than frozen decisionTime');
++  }
++  // This guards quote timing only. Archived feature/model availability and
++  // outcomes/splits still require separate evidence before calling it a backtest.
++}
++
++function rank(rows, method = 'champion', options = {}) {
++  if (!Array.isArray(rows)) throw new TypeError('rows must be an array');
++  if (!METHODS.includes(method)) throw new RangeError(`Unknown ranking method: ${method}`);
++  if (!options || typeof options !== 'object') throw new TypeError('options must be an object');
++  validateQuoteTimes(rows, options);
++  const decorated = rows.map((row, index) => ({ row, index, ev: expectedValue(row) }));
++  if (method === 'champion') return rows.slice();
++  decorated.sort((a, b) => b.ev - a.ev || a.index - b.index);
++  if (method === 'ev') return decorated.map(({ row }) => row);
++  const seen = new Set();
++  return decorated.filter(({ row }) => {
++    const key = familyKey(row);
++    if (seen.has(key)) return false;
++    seen.add(key);
++    return true;
++  }).map(({ row }) => row);
++}
++
++function rationale(row) {
++  const ev = expectedValue(row);
++  const push = row.push === undefined ? 0 : row.push;
++  return { winProbability: row.prob, pushProbability: push, lossProbability: 1 - row.prob - push, decimalOdds: row.dec, expectedProfitPerUnit: ev, familyKey: familyKey(row) };
++}
++
++function summarizeCohort(rows) {
++  if (!Array.isArray(rows)) throw new TypeError('rows must be an array');
++  const evs = rows.map(expectedValue);
++  const byKind = Object.create(null);
++  const events = new Set();
++  const families = new Set();
++  for (const row of rows) {
++    const kind = identity(row.kind, 'kind');
++    byKind[kind] = (byKind[kind] || 0) + 1;
++    events.add(identity(row.event, 'event'));
++    families.add(familyKey(row));
++  }
++  const mean = values => values.length ? values.reduce((a, b) => a + b, 0) / values.length : null;
++  return {
++    count: rows.length,
++    byKind: { ...byKind },
++    uniqueExactEvents: events.size,
++    uniqueFamilies: families.size,
++    repeatedFamilyRows: rows.length - families.size,
++    meanModelWinProbability: mean(rows.map(row => row.prob)),
++    meanModelEVPerUnit: mean(evs),
++    positiveModelEVCount: evs.filter(value => value > 0).length,
++    minModelEVPerUnit: evs.length ? Math.min(...evs) : null,
++    maxModelEVPerUnit: evs.length ? Math.max(...evs) : null,
++  };
++}
++
++module.exports = { METHODS, expectedValue, familyKey, rank, rationale, summarizeCohort };
+diff --git a/shared/ranking-settlement.cjs b/shared/ranking-settlement.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..a4eeda01f92a39021fed03ccc771a9dc105f36ce
+--- /dev/null
++++ b/shared/ranking-settlement.cjs
+@@ -0,0 +1,136 @@
++/* Pure settlement candidates for frozen ranking rows and public results.json v1.
++ * The caller owns append-only deduplication, corrections, and invalidations.
++ * A results game is a full-game final because build_results.py emits only completed games.
++ * Team labels are matched literally after case/whitespace normalization; no aliases are guessed.
++ */
++'use strict';
++
++const ET = new Intl.DateTimeFormat('en-US', {
++  timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
++});
++const PLAYER_MARKETS = new Set([
++  'rec_yds', 'rush_yds', 'pass_yds', 'receptions', 'pass_tds',
++  'rush_tds', 'rec_tds', 'atd',
++]);
++const YARDAGE_MARKETS = new Set(['rec_yds', 'rush_yds', 'pass_yds']);
++const GAME_MARKETS = new Set(['spread', 'total', 'moneyline']);
++
++function time(value) {
++  if (typeof value !== 'string' || !/(?:Z|[+-]\d\d:\d\d)$/i.test(value)) return NaN;
++  return Date.parse(value);
++}
++function etDay(ms) {
++  const parts = Object.fromEntries(ET.formatToParts(new Date(ms)).map(p => [p.type, p.value]));
++  return `${parts.year}-${parts.month}-${parts.day}`;
++}
++function label(value) {
++  return typeof value === 'string' ? value.trim().replace(/\s+/g, ' ').toLowerCase() : '';
++}
++function unresolved(row, observedAt, reason) {
++  return { predictionId: row?.id ?? null, status: 'unresolved', reason, actual: null, observedAt };
++}
++function validScore(value) { return Number.isSafeInteger(value) && value >= 0; }
++function sourceInfo(results, sport, market, observedMs, kickoffMs) {
++  if (results?.schema_version !== 1) return 'invalid_results_schema';
++  const generated = time(results.generated_at);
++  if (!Number.isFinite(generated) || generated < kickoffMs || generated > observedMs) return 'results_chronology';
++  const source = results.sources?.[sport];
++  const checked = time(source?.checked_at);
++  if (source?.status !== 'loaded' || !Number.isFinite(checked) || checked < kickoffMs || checked > generated) return 'game_source_unverified';
++  if (PLAYER_MARKETS.has(market)) {
++    // The published appearance-aware profile log currently covers NFL only.
++    if (sport !== 'nfl') return 'player_source_unsupported';
++    const playerAt = time(results.player_source_at);
++    if (!Number.isFinite(playerAt) || playerAt < kickoffMs || playerAt > generated) return 'player_source_unverified';
++  }
++  return null;
++}
++
++function settleRow(row, results, opts = {}) {
++  const observedAt = opts.observedAt ?? null;
++  const observedMs = time(observedAt);
++  const frozenMs = time(row?.frozenAt);
++  const advertisedMs = time(row?.kickoff);
++  const sourceHash = opts.sourceHash;
++  const sourceRevision = opts.sourceRevision;
++  if (!row || typeof row !== 'object' || typeof row.id !== 'string' || !row.id.trim()) return unresolved(row, observedAt, 'invalid_prediction');
++  if (!Number.isFinite(observedMs) || !Number.isFinite(frozenMs) || !Number.isFinite(advertisedMs) ||
++      frozenMs >= advertisedMs || observedMs <= frozenMs) return unresolved(row, observedAt, 'invalid_prediction_chronology');
++  if (typeof sourceRevision !== 'string' || !sourceRevision.trim() ||
++      typeof sourceHash !== 'string' || !/^[a-f\d]{64}$/i.test(sourceHash)) return unresolved(row, observedAt, 'source_identity_missing');
++  if (!['nfl', 'ncaa'].includes(row.sport) || !['game', 'prop'].includes(row.kind) ||
++      !label(row.home) || !label(row.away) || label(row.home) === label(row.away)) return unresolved(row, observedAt, 'invalid_prediction_identity');
++  const market = row.market;
++  if (market === 'first_td' || !GAME_MARKETS.has(market) && !PLAYER_MARKETS.has(market) ||
++      row.period && row.period !== 'full_game') return unresolved(row, observedAt, 'unsupported_settlement_rules');
++  if (row.kind === 'game' && !GAME_MARKETS.has(market) || row.kind === 'prop' && !PLAYER_MARKETS.has(market)) return unresolved(row, observedAt, 'invalid_prediction_market');
++  if (observedMs <= advertisedMs) return unresolved(row, observedAt, 'upcoming');
++  const games = results?.games && typeof results.games === 'object' && !Array.isArray(results.games) ? Object.values(results.games) : [];
++  const matches = games.filter(g => {
++    const kick = time(g?.kickoff);
++    return g?.sport === row.sport && Number.isFinite(kick) &&
++      label(g.home) === label(row.home) && label(g.away) === label(row.away) &&
++      etDay(kick) === etDay(advertisedMs);
++  });
++  if (matches.length !== 1) return unresolved(row, observedAt, matches.length ? 'ambiguous_game' : 'official_final_missing');
++  const game = matches[0];
++  const officialMs = time(game.kickoff);
++  // Vendor kickoff clocks can differ by minutes. Identity is matchup plus ET day;
++  // the frozen decision must still precede the official kickoff.
++  if (frozenMs >= officialMs) return unresolved(row, observedAt, 'not_before_official_kickoff');
++  if (observedMs <= officialMs) return unresolved(row, observedAt, 'upcoming');
++  const sourceError = sourceInfo(results, row.sport, market, observedMs, officialMs);
++  if (sourceError) return unresolved(row, observedAt, sourceError);
++  if (!validScore(game.homeScore) || !validScore(game.awayScore)) return unresolved(row, observedAt, 'partial_final');
++  if (!game.id || typeof game.id !== 'string') return unresolved(row, observedAt, 'game_identity_missing');
++
++  let actual;
++  let difference;
++  if (row.kind === 'game') {
++    if (market === 'spread') {
++      if (!Number.isFinite(row.line) || !['Home', 'Away'].includes(row.side)) return unresolved(row, observedAt, 'invalid_prediction_terms');
++      actual = game.homeScore - game.awayScore + row.line;
++      difference = row.side === 'Home' ? actual : -actual;
++    } else if (market === 'total') {
++      if (!Number.isFinite(row.line) || !['Over', 'Under'].includes(row.side)) return unresolved(row, observedAt, 'invalid_prediction_terms');
++      actual = game.homeScore + game.awayScore;
++      difference = row.side === 'Over' ? actual - row.line : row.line - actual;
++    } else {
++      if (!['Home', 'Away'].includes(row.side) || row.line != null && row.line !== 0) return unresolved(row, observedAt, 'invalid_prediction_terms');
++      actual = game.homeScore - game.awayScore;
++      difference = row.side === 'Home' ? actual : -actual;
++    }
++  } else {
++    if (typeof row.profileId !== 'string' || !row.profileId.trim() || row.profileId.includes('|') ||
++        !Number.isFinite(row.line) || (market === 'atd'
++          ? row.side !== 'Yes' || row.line !== .5
++          : !['Over', 'Under'].includes(row.side))) return unresolved(row, observedAt, 'invalid_prediction_terms');
++    const playerKey = `${row.profileId}|${etDay(officialMs)}`;
++    const player = results.players?.[playerKey];
++    if (!player || typeof player !== 'object' || Array.isArray(player)) return unresolved(row, observedAt, 'player_participation_or_result_missing');
++    actual = player[market];
++    if (!Number.isFinite(actual)) return unresolved(row, observedAt, 'player_market_result_missing');
++    // Sacks and plays behind the line can produce negative yardage. Counting
++    // stats (including the binary ATD flag) cannot be fractional or negative.
++    if (!YARDAGE_MARKETS.has(market) && (!Number.isSafeInteger(actual) || actual < 0))
++      return unresolved(row, observedAt, 'player_market_result_invalid');
++    if (market === 'atd' && actual !== 0 && actual !== 1) return unresolved(row, observedAt, 'player_market_result_invalid');
++    difference = row.side === 'Under' ? row.line - actual : actual - row.line;
++  }
++  const status = difference > 0 ? 'win' : difference < 0 ? 'loss' : 'push';
++  const provenance = {
++    sourceRevision, sourceHash: sourceHash.toLowerCase(), generatedAt: results.generated_at,
++    game: { id: game.id, sport: game.sport, home: game.home, away: game.away, kickoff: game.kickoff },
++  };
++  if (row.kind === 'prop') provenance.player = { profileId: row.profileId, date: etDay(officialMs), metric: market };
++  return { predictionId: row.id, status, reason: null, actual, observedAt, provenance };
++}
++
++function resultRecords(snapshot, results, opts = {}) {
++  const rows = Array.isArray(snapshot) ? snapshot : snapshot?.rows;
++  if (!Array.isArray(rows)) return [];
++  return rows.map(row => settleRow(row, results, opts))
++    .filter(candidate => candidate.status !== 'unresolved');
++}
++
++module.exports = { settleRow, resultRecords };
+diff --git a/shared/ranking-snapshot.cjs b/shared/ranking-snapshot.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..70fd418c728355ebf47e9da9b1f053b13af8d6fb
+--- /dev/null
++++ b/shared/ranking-snapshot.cjs
+@@ -0,0 +1,42 @@
++'use strict';
++// Lossless columnar chunks keep complete pools affordable in the existing Git journal.
++const {canonicalJSON,hashPayload,appendRecord,readRecords}=require('./ranking-journal.cjs');
++const COLUMNS=['id','kind','sport','event','kickoff','home','away','profileId','player','team','opp','market','side','line','book','odds','dec','prob','push','ev','n','profileDate','updatedAt','canonicalContract','modelFamily','projMean','projSd','flags','evidence','slateDate','family','eligibility'];
++const DERIVED=new Set(['frozenAt','quoteAgeSeconds','quoteFresh5m']);
++function checkSnapshot(snapshot){
++ if(!snapshot||typeof snapshot!=='object'||!Array.isArray(snapshot.rows)||!Array.isArray(snapshot.preCandidateExclusions)||!Array.isArray(snapshot.gameExclusions))throw Error('Invalid complete snapshot pool');
++ if(!Number.isFinite(Date.parse(snapshot.decisionTime)))throw Error('Invalid snapshot decision time');
++ for(const field of ['storageVersion','rowColumns','counts','chunks'])if(Object.hasOwn(snapshot,field))throw Error('Snapshot contains reserved storage field: '+field);
++ canonicalJSON(snapshot); // Reject non-JSON before writing any reusable chunks.
++ const ids=new Set();
++ for(const row of snapshot.rows){
++  if(!row||typeof row!=='object'||Array.isArray(row)||COLUMNS.some(k=>!Object.hasOwn(row,k)||row[k]===undefined)||Object.keys(row).some(k=>!COLUMNS.includes(k)&&!DERIVED.has(k)))throw Error('Snapshot row differs from frozen storage schema');
++  if(ids.has(row.id))throw Error('Duplicate snapshot row ID');ids.add(row.id);
++  const age=Number.isFinite(Date.parse(row.updatedAt))?(Date.parse(snapshot.decisionTime)-Date.parse(row.updatedAt))/1000:null;
++  if(row.frozenAt!==snapshot.decisionTime||row.quoteAgeSeconds!==age||row.quoteFresh5m!==(age!==null&&age>=0&&age<=300))throw Error('Snapshot derived time fields disagree with frozen row');
++ }
++}
++function storeSnapshot(directory,snapshot,key){checkSnapshot(snapshot);const records=readRecords(directory),known=new Map(records.map(r=>[r.key,r])),refs=[];const {rows,preCandidateExclusions,gameExclusions,...metadata}=snapshot;const evidence=[],evidenceIndex=new Map();const tuples=rows.map(row=>COLUMNS.map(k=>{if(k!=='evidence')return row[k];const body=row.evidence,h=hashPayload(body);if(!evidenceIndex.has(h)){evidenceIndex.set(h,evidence.length);evidence.push(body);}return evidenceIndex.get(h);}));
++ for(const [field,data] of [['rows',tuples],['evidence',evidence],['preCandidateExclusions',preCandidateExclusions],['gameExclusions',gameExclusions]]){let group=[],bytes=0;const flush=()=>{if(!group.length)return;const payload={type:'snapshot_chunk_v1',field,items:group},chunkKey='pool|'+hashPayload(payload);let r=known.get(chunkKey);if(r&&(r.kind!=='status'||canonicalJSON(r.payload)!==canonicalJSON(payload)))throw Error('Conflicting immutable pool chunk');if(!r){r=appendRecord(directory,{kind:'status',key:chunkKey,observedAt:snapshot.decisionTime,payload});known.set(chunkKey,r);}refs.push({field,hash:r.hash,count:group.length});group=[];bytes=0;};for(const item of data){const size=Buffer.byteLength(canonicalJSON(item));if(size>500000)throw Error('Single pool item exceeds safe chunk budget');if(bytes+size>500000||group.length>=1000)flush();group.push(item);bytes+=size;}flush();}
++ return appendRecord(directory,{kind:'snapshot',key,observedAt:snapshot.decisionTime,payload:{...metadata,storageVersion:1,rowColumns:COLUMNS,counts:{rows:rows.length,evidence:evidence.length,preCandidateExclusions:preCandidateExclusions.length,gameExclusions:gameExclusions.length},chunks:refs}});
++}
++function materialize(record,records){const meta=record?.payload;if(record?.kind!=='snapshot'||meta?.storageVersion!==1||JSON.stringify(meta.rowColumns)!==JSON.stringify(COLUMNS)||!Array.isArray(meta.chunks)||!meta.counts)throw Error('Unknown frozen storage schema');const byHash=new Map(records.map(r=>[r.hash,r])),parts={rows:[],evidence:[],preCandidateExclusions:[],gameExclusions:[]};for(const ref of meta.chunks){const r=byHash.get(ref.hash);if(!r||r.seq>=record.seq||Date.parse(r.observedAt)>Date.parse(record.observedAt)||r.key!=='pool|'+hashPayload(r.payload)||r.kind!=='status'||r.payload.type!=='snapshot_chunk_v1'||r.payload.field!==ref.field||!parts[ref.field]||!Array.isArray(r.payload.items)||r.payload.items.length!==ref.count)throw Error('Missing or invalid immutable pool chunk');parts[ref.field].push(...r.payload.items);}for(const f of Object.keys(parts))if(parts[f].length!==meta.counts[f])throw Error('Incomplete candidate pool: '+f);const rows=parts.rows.map(tuple=>{if(!Array.isArray(tuple)||tuple.length!==COLUMNS.length)throw Error('Corrupt columnar row');const row=Object.fromEntries(COLUMNS.map((k,i)=>[k,tuple[i]]));if(!Number.isSafeInteger(row.evidence)||row.evidence<0||row.evidence>=parts.evidence.length)throw Error('Invalid frozen evidence index');row.evidence=parts.evidence[row.evidence];row.frozenAt=meta.decisionTime;row.quoteAgeSeconds=Number.isFinite(Date.parse(row.updatedAt))?(Date.parse(meta.decisionTime)-Date.parse(row.updatedAt))/1000:null;row.quoteFresh5m=row.quoteAgeSeconds!==null&&row.quoteAgeSeconds>=0&&row.quoteAgeSeconds<=300;return row;});const {storageVersion,rowColumns,counts,chunks,...snapshot}=meta;return {...snapshot,rows,preCandidateExclusions:parts.preCandidateExclusions,gameExclusions:parts.gameExclusions};}
++function verifyCompletePools(records){
++ if(!Array.isArray(records))throw new TypeError('Journal records must be an array');
++ const referenced=new Set();
++ let snapshots=0;
++ for(const record of records){
++  if(record.kind!=='snapshot')continue;
++  materialize(record,records); // Validate each complete manifest and all of its references.
++  snapshots++;
++  for(const ref of record.payload.chunks)referenced.add(ref.hash);
++ }
++ let chunks=0;
++ for(const record of records){
++  if(record.kind!=='status'||record.payload?.type!=='snapshot_chunk_v1')continue;
++  chunks++;
++  if(!referenced.has(record.hash))throw Error('Orphan immutable pool chunk: '+record.hash);
++ }
++ return {snapshots,chunks};
++}
++module.exports={storeSnapshot,materialize,verifyCompletePools,COLUMNS};
+diff --git a/tests/betting.test.cjs b/tests/betting.test.cjs
+index 1b7638be5ce12041636e35d9758d65abffe3689f..46a5bef6697fa2aa0a22c39c62ca4ec854e1840f 100644
+--- a/tests/betting.test.cjs
++++ b/tests/betting.test.cjs
+@@ -146,0 +147 @@ test('Matchup filter and prop cards exclude future weeks and clear an obsolete s
++  a.BET.tab='props'; // This regression exercises Markets, not the fresh Today landing.
+@@ -357 +358 @@ test('Sport switch isolates game records and missing spreads stay unpriced',t=>{
+-  const {api:a,w}=setup(t);a.wireBetting();
++  const {api:a,w}=setup(t);a.BET.tab='games';a.wireBetting();
+@@ -372 +373 @@ test('Pagination bounds DOM and stale renders do not overwrite a newer filter',a
+-  const {api:a,w}=setup(t);
++  const {api:a,w}=setup(t);a.BET.tab='props';
+@@ -379 +380 @@ test('Debounced projection edits preserve focus and calculate after typing',asyn
+-  const {api:a,w}=setup(t);a.wireBetting();
++  const {api:a,w}=setup(t);a.BET.tab='props';a.wireBetting();
+@@ -418 +419 @@ test('Parlay cards join Rams profiles and games despite LA/LAR naming',async t=>
+-  const {api:a,w}=setup(t);const kickoff=future();
++  const {api:a,w}=setup(t);a.BET.tab='props';const kickoff=future();
+@@ -487 +488 @@ test('Best play labels use away spread sign and escape names',t=>{
+-  assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));assert.match(text,/Primary risk/);assert.match(text,/Why GOING likes it/);assert.match(text,/SHOW ME THE DATA/);assert.match(text,/Parlay relevance/);
++  assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));assert.match(text,/Primary risk/);assert.match(text,/Why this is surfaced/);assert.match(text,/SHOW ME THE DATA/);assert.match(text,/Parlay relevance/);
+diff --git a/tests/ranking-capture.test.cjs b/tests/ranking-capture.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..56518bb1d34d54573feb9958d23ef504d3b5100e
+--- /dev/null
++++ b/tests/ranking-capture.test.cjs
+@@ -0,0 +1,164 @@
++'use strict';
++const {test} = require('node:test');
++const assert = require('node:assert/strict');
++const fs = require('node:fs');
++const os = require('node:os');
++const path = require('node:path');
++const {appendRecord, readRecords, hashPayload} = require('../shared/ranking-journal.cjs');
++const {COLUMNS, storeSnapshot, materialize, verifyCompletePools} = require('../shared/ranking-snapshot.cjs');
++const {captureAt, validateSnapshot, invalidateSnapshot, textHash} = require('../research/today-ranking/collect.cjs');
++
++test('provenance hashes survive Git CRLF conversion without ignoring substantive edits', () => {
++  assert.equal(textHash('line1\r\nline2\r\n'), textHash('line1\nline2\n'));
++  assert.notEqual(textHash('line1 \nline2\n'), textHash('line1\nline2\n'));
++  assert.notEqual(textHash('{"p":0.5}\r\n'), textHash('{"p":0.6}\n'));
++});
++
++const fixedAt = '2026-10-03T03:30:00.000Z';
++const sourceRoot = path.resolve(__dirname, '..');
++const sourceNames = ['history','nfl_betting','ncaa_lines','football_context','season_learning','injury_context','players','football_game_validation','football_role_validation','data'];
++const sourceFixtureAt = (() => {
++  const times = sourceNames.map(name => {
++    const value = JSON.parse(fs.readFileSync(path.join(sourceRoot, 'data', name + '.json')));
++    const generated = value.generated_at ?? value.generatedAt ?? value.betting?.generated_at ?? null;
++    if (generated === null) return null;
++    const time = Date.parse(generated);
++    if (!Number.isFinite(time)) throw new Error('Invalid fixture input generation time: ' + name);
++    return time;
++  }).filter(time => time !== null);
++  if (!times.length) throw new Error('Actual source fixture has no generation time');
++  return new Date(Math.max(...times) + 60_000).toISOString();
++})();
++function tempJournal(t) {
++  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ranking-capture-'));
++  t.after(() => fs.rmSync(root, {recursive: true, force: true}));
++  return root;
++}
++function row(id, evidence = {source: 'fixture', input: [1, 2]}) {
++  const item = Object.fromEntries(COLUMNS.map(column => [column, null]));
++  Object.assign(item, {id, kind: 'game', sport: 'nfl', updatedAt: '2026-10-03T03:29:00.000Z', evidence,
++    eligibility: {eligible: false}, frozenAt: fixedAt, quoteAgeSeconds: 60, quoteFresh5m: true});
++  return item;
++}
++function snapshot(rows = [row('r0')]) {
++  return {schemaVersion: 1, decisionTime: fixedAt, sourceRevision: 'fixture', rows,
++    preCandidateExclusions: [{id: 'excluded-1', reason: 'stale'}], gameExclusions: [{id: 'game-1', reason: 'manual'}], scopes: []};
++}
++
++test('columnar storage roundtrips the complete pool and reuses immutable chunks', t => {
++  const directory = tempJournal(t);
++  const original = snapshot(Array.from({length: 1201}, (_, i) => row('r' + i)));
++  const first = storeSnapshot(directory, original, 'slot:1');
++  const initial = readRecords(directory);
++  assert.equal(initial.filter(record => record.kind === 'snapshot').length, 1);
++  assert.ok(first.payload.chunks.filter(ref => ref.field === 'rows').length >= 2);
++  assert.equal(first.payload.counts.evidence, 1);
++  assert.deepEqual(materialize(first, initial), original);
++  const second = storeSnapshot(directory, original, 'slot:2');
++  const after = readRecords(directory);
++  assert.equal(after.length, initial.length + 1);
++  assert.deepEqual(second.payload.chunks, first.payload.chunks);
++  assert.deepEqual(materialize(second, after), original);
++  assert.deepEqual(verifyCompletePools(after), {snapshots: 2, chunks: initial.length - 1});
++});
++
++test('interrupted pool chunks require a completed manifest, even beside a valid snapshot', t => {
++  const directory = tempJournal(t);
++  const orphanPayload = {type: 'snapshot_chunk_v1', field: 'evidence', items: [{source: 'interrupted write'}]};
++  const orphan = appendRecord(directory, {kind: 'status', key: 'pool|' + hashPayload(orphanPayload), observedAt: fixedAt, payload: orphanPayload});
++  assert.throws(() => verifyCompletePools(readRecords(directory)), /Orphan immutable pool chunk/);
++  const stored = storeSnapshot(directory, snapshot(), 'slot:complete');
++  assert.ok(stored.payload.chunks.every(ref => ref.hash !== orphan.hash));
++  assert.throws(() => verifyCompletePools(readRecords(directory)), /Orphan immutable pool chunk/);
++});
++
++test('schema drift and changed derived times fail before any chunk is published', t => {
++  const directory = tempJournal(t);
++  const extra = snapshot([row('r0')]);
++  extra.rows[0].newSignal = {value: 4};
++  assert.throws(() => storeSnapshot(directory, extra, 'slot:extra'), /storage schema/);
++  assert.deepEqual(readRecords(directory), []);
++  const changed = snapshot([row('r0')]);
++  changed.rows[0].quoteAgeSeconds = 0;
++  assert.throws(() => storeSnapshot(directory, changed, 'slot:age'), /derived time/);
++  assert.deepEqual(readRecords(directory), []);
++});
++
++test('materialization rejects missing, wrong, and forward chunk references', t => {
++  const directory = tempJournal(t);
++  const stored = storeSnapshot(directory, snapshot(), 'slot:1');
++  const records = readRecords(directory);
++  const modified = JSON.parse(JSON.stringify(stored));
++  modified.payload.chunks[0].hash = '0'.repeat(64);
++  assert.throws(() => materialize(modified, records), /Missing or invalid/);
++  assert.throws(() => verifyCompletePools(records.map(record => record.hash === stored.hash ? modified : record)), /Missing or invalid/);
++  const wrongField = JSON.parse(JSON.stringify(stored));
++  wrongField.payload.chunks[0].field = 'evidence';
++  assert.throws(() => materialize(wrongField, records), /Missing or invalid/);
++  const forward = records.map(record => record.kind === 'status' ? {...record, seq: stored.seq + 1} : record);
++  assert.throws(() => materialize(stored, forward), /Missing or invalid/);
++  const reduced = JSON.parse(JSON.stringify(stored));
++  reduced.payload.chunks.pop();
++  assert.throws(() => materialize(reduced, records), /Incomplete candidate pool/);
++});
++
++test('explicit invalidation keeps the snapshot and requires a reason with evidence', t => {
++  const directory = tempJournal(t);
++  const stored = storeSnapshot(directory, snapshot(), 'slot:1');
++  assert.throws(() => invalidateSnapshot(directory, {snapshotHash: '0'.repeat(64), reason: 'Incorrect game identity', evidence: 'Review note #1', observedAt: fixedAt}), /preserved snapshot/);
++  assert.throws(() => invalidateSnapshot(directory, {snapshotHash: stored.hash, reason: 'bad', evidence: 'Review note #1', observedAt: fixedAt}), /specific reason/);
++  const input = {snapshotHash: stored.hash, reason: 'Incorrect game identity', evidence: 'Review note #1', observedAt: fixedAt};
++  const invalidation = invalidateSnapshot(directory, input);
++  assert.equal(invalidation.kind, 'invalidation');
++  assert.equal(invalidateSnapshot(directory, input).hash, invalidation.hash);
++  assert.deepEqual(readRecords(directory).filter(record => record.kind === 'snapshot'), [stored]);
++});
++
++test('one input-derived clock reproducibly captures every actual source pool', async () => {
++  const first = await captureAt(sourceRoot, sourceFixtureAt, {allowFixture: true, revision: 'fixture'});
++  assert.equal(validateSnapshot(first), true);
++  assert.equal(first.decisionTime, sourceFixtureAt);
++  assert.deepEqual(Object.keys(first.inputVersions).sort(), sourceNames.map(name => name + '.json').sort());
++  for (const version of Object.values(first.inputVersions)) assert.match(version.sha256, /^[0-9a-f]{64}$/);
++  assert.ok(Array.isArray(first.rows));
++  assert.ok(Array.isArray(first.preCandidateExclusions));
++  assert.ok(Array.isArray(first.gameExclusions));
++  assert.equal(first.scopes.length, 12);
++  assert.deepEqual(first.rows.map(row => row.id), first.rows.map((_, i) => 'r' + i));
++  for (const scope of first.scopes) for (const method of ['champion', 'ev', 'family-diversified-ev']) {
++    const policy = scope.policies[method];
++    assert.deepEqual(policy.top3, policy.ranks.slice(0, 3));
++    assert.deepEqual(policy.top10, policy.ranks.slice(0, 10));
++  }
++  for (const [sport, kind] of [['nfl', 'all'], ['ncaa', 'game']]) {
++    const scope = first.scopes.find(value => value.sport === sport && value.kind === kind && value.scope === 'week');
++    const eligible = first.rows.filter(value => value.sport === sport && value.eligibility.eligible).map(value => value.id).sort();
++    assert.equal(scope.policies.champion.ranks.slice().sort().join('\n'), eligible.join('\n'));
++  }
++  const second = await captureAt(sourceRoot, sourceFixtureAt, {allowFixture: true, revision: 'fixture'});
++  assert.equal(hashPayload(second), hashPayload(first));
++  const weekly = first.scopes.find(value => value.sport === 'nfl' && value.kind === 'all' && value.scope === 'week');
++  const champion = weekly.policies.champion;
++  champion.top3.push('missing');
++  assert.throws(() => validateSnapshot(first), /Top-N mismatch/);
++  champion.top3.pop();
++  if (champion.ranks.length) {
++    const candidate = first.rows.find(value => value.id === champion.ranks[0]);
++    const last = champion.ranks.pop();
++    assert.throws(() => validateSnapshot(first), /Incomplete eligible Champion pool/);
++    champion.ranks.push(last);
++    const originalQuote = candidate.updatedAt; candidate.updatedAt = new Date(Date.parse(sourceFixtureAt) + 60_000).toISOString();
++    assert.throws(() => validateSnapshot(first), /Eligible row chronology/);
++    candidate.updatedAt = originalQuote;
++    const originalEv = candidate.ev; candidate.ev = originalEv + 0.01;
++    assert.throws(() => validateSnapshot(first), /Frozen price\/return mismatch/);
++    candidate.ev = originalEv;
++    const originalRank = candidate.eligibility.championRank; candidate.eligibility.championRank = originalRank + 1;
++    assert.throws(() => validateSnapshot(first), /Frozen per-row rank mismatch/);
++    candidate.eligibility.championRank = originalRank;
++  }
++  const missing = first.scopes.pop();
++  assert.throws(() => validateSnapshot(first), /Missing complete scope/);
++  first.scopes.push(missing);
++  assert.equal(validateSnapshot(first), true);
++});
+diff --git a/tests/ranking-evaluation.test.cjs b/tests/ranking-evaluation.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..a2bcb5c1c4c61399aa54060e532382d49fbf9be8
+--- /dev/null
++++ b/tests/ranking-evaluation.test.cjs
+@@ -0,0 +1,169 @@
++'use strict';
++const {test} = require('node:test');
++const assert = require('node:assert/strict');
++const {hashPayload} = require('../shared/ranking-journal.cjs');
++const evaluation = require('../research/today-ranking/evaluate.cjs');
++const registration = require('../research/today-ranking/experiment-v1.json');
++
++const fixtureRegistration = {...registration, minimumPairedSlates: 2, minimumGameClusters: 2,
++  bootstrapResamples: 200, maximumUnresolvedFraction: .1, maximumMissingReferenceFraction: .1};
++const date = i => new Date(Date.UTC(2026, 9, 24 + i)).toISOString().slice(0, 10);
++function observation(i, {missing = [], conflict = false, invalidate = false, referenceMissing = false, manual = false} = {}) {
++  const day = date(i), hash = 'snapshot-' + i, rows = [], outcomes = [], observedAt = `${day}T23:00:00Z`;
++  const sourceHash = 'a'.repeat(64), sourceRevision = 'fixture-revision';
++  const scopes = [];
++  for (const [sport, kind] of [['nfl', 'all'], ['ncaa', 'game']]) {
++    const ids = [];
++    for (let j = 0; j < 3; j++) {
++      const id = `${sport}-${j}`, event = `${sport}-event-${i}-${j}`;
++      const base = {id, event, sport, kind: 'game', market: 'total', side: 'Over', line: 44.5,
++        home: 'A', away: 'B', kickoff: `${day}T17:00:00Z`, book: 'SameBook', updatedAt: `${day}T12:00:00Z`,
++        frozenAt: `${day}T12:00:01Z`, prob: [.7, .6, .55][j], push: 0, dec: 2.1,
++        ev: [.47, .26, .155][j], family: event, quoteFresh5m: true, profileId: null};
++      rows.push(base);
++      if (!(referenceMissing && sport === 'nfl' && j === 0)) rows.push({...base, id: `${id}-other`, side: 'Under', dec: 1.9});
++      ids.push(id);
++      if (!missing.includes(id)) outcomes.push({predictionId: id, status: j === 0 ? 'win' : 'loss', actual: j === 0 ? 48 : 41,
++        observedAt, provenance: {sourceHash, sourceRevision, generatedAt: `${day}T22:00:00Z`,
++          game: {id: event, sport, home: 'A', away: 'B', kickoff: `${day}T17:00:00Z`}}});
++    }
++    const champion = ids, ev = [ids[1], ids[0], ids[2]], diversified = [ids[2], ids[1], ids[0]];
++    scopes.push({sport, kind, scope: 'today-settleable', policies: {
++      champion: {ranks: champion, top3: champion, top10: champion},
++      ev: {ranks: ev, top3: ev, top10: ev},
++      'family-diversified-ev': {ranks: diversified, top3: diversified, top10: diversified},
++    }});
++  }
++  const records = [{kind: 'settlement', seq: 1, hash: `result-${i}`, observedAt,
++    payload: {snapshotHash: hash, sourceHash, sourceRevision, outcomes}}];
++  if (conflict) records.push({kind: 'settlement', seq: 2, hash: `correction-${i}`, observedAt,
++    payload: {snapshotHash: hash, sourceHash, sourceRevision,
++      outcomes: [{...outcomes.find(o => o.predictionId === 'nfl-0'), status: 'loss', actual: 40}], conflicts: ['nfl-0']}});
++  if (invalidate) records.push({kind: 'invalidation', seq: 3, hash: `invalid-${i}`,
++    payload: {snapshotHash: hash, reason: 'bad source evidence', evidence: 'fixture://bad-source'}});
++  return {record: {hash}, records, snapshot: {schemaVersion: 1, experiment: registration.id, slateDate: day,
++    decisionTime: `${day}T12:00:01Z`, registrationHash: hashPayload(fixtureRegistration), rows, scopes,
++    codeHashes: {policy: registration.policyCodeHash, generator: registration.generatorCodeHash},
++    inputVersions: {'data.json': {sha256: 'b'.repeat(64)}}, sourceHashes: {'index.html': 'c'.repeat(64)},
++    trigger: {mode: manual ? 'manual' : 'scheduled', primaryWindow: !manual, slot: {date: day, hour: 8, minute: 0}}}};
++}
++
++test('registered unlock refuses premature CLI-style evaluation and accepts release time', () => {
++  assert.throws(() => evaluation.assertUnlocked('2026-12-06T16:59:59Z'), /locked/);
++  assert.doesNotThrow(() => evaluation.assertUnlocked('2026-12-06T17:00:00Z'));
++  const before = {...registration, evaluationUnlockAt: '2999-01-01T00:00:00Z'};
++  assert.throws(() => evaluation.assertUnlocked(Date.now(), before), /locked/);
++});
++
++test('only scheduled primary holdout slates qualify; manual and later slots cannot substitute', () => {
++  const valid = observation(0);
++  assert.equal(evaluation.eligiblePrimary(valid.snapshot), true);
++  assert.equal(evaluation.eligiblePrimary(observation(0, {manual: true}).snapshot), false);
++  assert.equal(evaluation.eligiblePrimary({...valid.snapshot, trigger: {...valid.snapshot.trigger, slot: {date: valid.snapshot.slateDate, hour: 10, minute: 0}}}), false);
++  assert.equal(evaluation.eligiblePrimary({...valid.snapshot, slateDate: '2026-10-23'}), false);
++});
++
++test('reference requires a frozen opposite side at the same book, contract, and quote time', () => {
++  const {snapshot} = observation(0), row = snapshot.rows[0];
++  assert.ok(Math.abs(evaluation.sameBookReference(row, snapshot.rows) - (1 / 2.1) / (1 / 2.1 + 1 / 1.9)) < 1e-12);
++  assert.equal(evaluation.sameBookReference(row, snapshot.rows.filter(r => r.id !== row.id + '-other')), null);
++  assert.equal(evaluation.sameBookReference({...row, side: 'Yes'}, snapshot.rows), null);
++  assert.equal(evaluation.sameBookReference(row, snapshot.rows.map(r => r.id === row.id + '-other' ? {...r, book: 'OtherBook'} : r)), null);
++});
++
++test('conditional nonpush Brier, log loss, and reliability use actual binary outcomes', () => {
++  const metrics = evaluation.score({prob: .6, push: .2}, {status: 'win'}, .5);
++  assert.ok(Math.abs(metrics.p - .75) < 1e-12);
++  assert.ok(Math.abs(metrics.brier - .0625) < 1e-12);
++  assert.ok(Math.abs(metrics.excessBrier + .1875) < 1e-12);
++  assert.ok(Math.abs(metrics.logLoss + Math.log(.75)) < 1e-12);
++  assert.equal(evaluation.score({prob: .6, push: .2}, {status: 'push'}, .5), null);
++  const bins = evaluation.reliability([{p: .75, y: 1}, {p: .76, y: 0}]);
++  assert.equal(bins[7].n, 2);
++  assert.equal(bins[7].observedWinRate, .5);
++});
++
++test('first outcome remains immutable; corrections and invalidations exclude evidence', () => {
++  const base = observation(0, {conflict: true});
++  const index = evaluation.outcomeIndex(base.record.hash, base.records);
++  assert.equal(index.first.get('nfl-0').status, 'win');
++  assert.equal(index.conflicts.has('nfl-0'), true);
++  const invalid = observation(1, {invalidate: true});
++  const report = evaluation.evaluateObservations([base, invalid], fixtureRegistration);
++  assert.equal(report.invalidatedSnapshotsExcluded, 1);
++  assert.equal(report.comparisons.find(c => c.sport === 'nfl' && c.challenger === 'ev').policy.champion.counts.conflict, 1);
++  assert.equal(report.comparisons.every(c => c.status === 'INSUFFICIENT'), true);
++});
++
++test('registered hashes, official chronology, and invalidation evidence fail closed', () => {
++  const badRegistration = observation(0);
++  badRegistration.snapshot.registrationHash = 'd'.repeat(64);
++  assert.throws(() => evaluation.evaluateObservations([badRegistration], fixtureRegistration), /registered source hashes/);
++  const badHash = observation(0);
++  badHash.snapshot.codeHashes.policy = 'changed';
++  assert.throws(() => evaluation.evaluateObservations([badHash], fixtureRegistration), /registered source hashes/);
++  const badChronology = observation(0);
++  badChronology.records[0].payload.outcomes[0].provenance.generatedAt = `${badChronology.snapshot.slateDate}T16:00:00Z`;
++  assert.throws(() => evaluation.evaluateObservations([badChronology], fixtureRegistration), /chronology/);
++  const badGrade = observation(0);
++  badGrade.records[0].payload.outcomes[0].status = 'loss';
++  assert.throws(() => evaluation.evaluateObservations([badGrade], fixtureRegistration), /chronology/);
++  const badInvalidation = observation(0, {invalidate: true});
++  badInvalidation.records.at(-1).payload.evidence = '';
++  assert.throws(() => evaluation.evaluateObservations([badInvalidation], fixtureRegistration), /evidence reference/);
++});
++
++test('eight fixed comparisons use paired slates, seeded slate and game diagnostics, and no ROI or CLV', () => {
++  const observations = [observation(0), observation(1)];
++  const first = evaluation.evaluateObservations(observations, fixtureRegistration);
++  const second = evaluation.evaluateObservations(observations, fixtureRegistration);
++  assert.deepEqual(first, second);
++  assert.equal(first.comparisons.length, 8);
++  assert.equal(first.missingPrimaryDates.length, 41);
++  for (const c of first.comparisons) {
++    assert.equal(c.pairedSlates, 2);
++    assert.equal(c.uniqueGameClusters, 6);
++    assert.equal(c.policy.champion.counts.scored, 6);
++    assert.equal(c.uncertainty.resamples, 200);
++    assert.equal(c.uncertainty.cluster, 'ET slate date');
++    assert.equal(c.gameClusterDiagnostic.pairedGames, 6);
++    assert.equal(c.gameClusterDiagnostic.uncertainty.cluster, 'game within ET slate (secondary)');
++    assert.equal('roi' in c, false);
++    assert.equal('clv' in c, false);
++    assert.notEqual(c.status, 'INSUFFICIENT');
++  }
++});
++
++test('coverage and game-cluster thresholds force insufficient evidence without replacing picks', () => {
++  const observations = [observation(0, {missing: ['nfl-0']}), observation(1, {referenceMissing: true})];
++  const report = evaluation.evaluateObservations(observations, fixtureRegistration);
++  const c = report.comparisons.find(x => x.sport === 'nfl' && x.challenger === 'ev' && x.topN === 3);
++  assert.equal(c.status, 'INSUFFICIENT');
++  assert.ok(c.failures.includes('unresolved_coverage'));
++  assert.ok(c.failures.includes('paired_reference_coverage'));
++  assert.equal(c.policy.champion.counts.selected, 6);
++  assert.equal(c.policy.champion.counts.unresolved, 1);
++  const strict = {...fixtureRegistration, minimumGameClusters: 100};
++  const strictRows = [observation(0), observation(1)];
++  for (const item of strictRows) item.snapshot.registrationHash = hashPayload(strict);
++  assert.ok(evaluation.evaluateObservations(strictRows, strict).comparisons.every(x => x.failures.includes('too_few_unique_games')));
++});
++
++test('one-sided settled ATD keeps model-only calibration but fails paired-reference coverage', () => {
++  const atd = observation(0, {referenceMissing: true}), other = observation(1);
++  const player = atd.snapshot.rows.find(r => r.id === 'nfl-0');
++  Object.assign(player, {kind: 'prop', profileId: 'p0', player: 'Fixture Player', market: 'atd', side: 'Yes', line: .5});
++  const outcome = atd.records[0].payload.outcomes.find(o => o.predictionId === 'nfl-0');
++  outcome.actual = 1;
++  outcome.provenance.player = {profileId: 'p0', metric: 'atd', date: atd.snapshot.slateDate};
++  const report = evaluation.evaluateObservations([atd, other], fixtureRegistration);
++  const result = report.comparisons.find(c => c.sport === 'nfl' && c.challenger === 'ev' && c.topN === 3);
++  assert.equal(result.status, 'INSUFFICIENT');
++  assert.ok(result.failures.includes('paired_reference_coverage'));
++  assert.equal(result.policy.champion.counts.probabilityScored, 6);
++  assert.equal(result.policy.champion.counts.scored, 5);
++  assert.equal(result.policy.champion.allSettledProbabilityDiagnostic.n, 6);
++  assert.ok(Number.isFinite(result.policy.champion.allSettledProbabilityDiagnostic.modelBrier));
++  assert.equal(result.policy.champion.composition.byMarket.atd, 1);
++  assert.equal(result.fullEligibleRanking.byType.prop, 1);
++});
+diff --git a/tests/ranking-journal.test.cjs b/tests/ranking-journal.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..f90abebf000f73d5be6ea2f099d061c5fff009fe
+--- /dev/null
++++ b/tests/ranking-journal.test.cjs
+@@ -0,0 +1,119 @@
++'use strict';
++const {test} = require('node:test');
++const assert = require('node:assert/strict');
++const fs = require('node:fs');
++const os = require('node:os');
++const path = require('node:path');
++const zlib = require('node:zlib');
++const {spawn} = require('node:child_process');
++const journal = require('../shared/ranking-journal.cjs');
++
++function fixture(t) {
++  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ranking-journal-'));
++  t.after(() => fs.rmSync(root, {recursive: true, force: true}));
++  return root;
++}
++const at = '2026-10-02T14:30:00-04:00';
++const input = (key = 'candidate:1', payload = {b: 2, a: 1}) => ({kind: 'snapshot', key, observedAt: at, payload});
++const files = root => fs.readdirSync(root).filter(name => name.endsWith('.json.gz'));
++
++test('canonical JSON and payload hashes are order independent and reject non-JSON values', () => {
++  assert.equal(journal.canonicalJSON({b: [1, {z: true, a: null}], a: -0}), '{"a":0,"b":[1,{"a":null,"z":true}]}');
++  assert.equal(journal.hashPayload({b: 2, a: 1}), journal.hashPayload({a: 1, b: 2}));
++  for (const value of [NaN, Infinity, -Infinity, undefined, {x: undefined}, [1, , 3], new Date(), {x: BigInt(1)}]) {
++    assert.throws(() => journal.canonicalJSON(value));
++  }
++  const cyclic = {}; cyclic.self = cyclic;
++  assert.throws(() => journal.canonicalJSON(cyclic), /cycles/);
++});
++
++test('append is immutable by logical key, idempotent for identical content, and chained', t => {
++  const root = fixture(t);
++  const first = journal.appendRecord(root, input());
++  assert.equal(first.seq, 1);
++  assert.equal(first.prevHash, null);
++  assert.equal(journal.appendRecord(root, input('candidate:1', {a: 1, b: 2})).hash, first.hash);
++  assert.equal(files(root).length, 1);
++  assert.throws(() => journal.appendRecord(root, input('candidate:1', {a: 3})), /Conflicting journal key/);
++  const second = journal.appendRecord(root, {kind: 'settlement', key: 'settlement:1', observedAt: at, payload: {outcome: 'win'}});
++  assert.equal(second.prevHash, first.hash);
++  assert.deepEqual(journal.readRecords(root), [first, second]);
++  assert.deepEqual(journal.findRecord(root, 'candidate:1'), first);
++  assert.equal(journal.findRecord(root, 'missing'), null);
++});
++
++test('invalidation appends a new record and preserves the original snapshot', t => {
++  const root = fixture(t);
++  const first = journal.appendRecord(root, input());
++  const invalidation = journal.appendRecord(root, {kind: 'invalidation', key: 'invalidation:1', observedAt: at, payload: {targetHash: first.hash, reason: 'late correction'}});
++  assert.equal(invalidation.prevHash, first.hash);
++  assert.deepEqual(journal.readRecords(root).map(record => record.kind), ['snapshot', 'invalidation']);
++  assert.deepEqual(journal.findRecord(root, first.key), first);
++});
++
++test('invalid timestamps, types, and excessive payloads never publish', t => {
++  const root = fixture(t);
++  for (const observedAt of ['2026-02-30T00:00:00Z', '2026-10-02T14:30:00', '2026-13-01T00:00:00Z', '2026-10-02T25:00:00Z']) {
++    assert.throws(() => journal.appendRecord(root, {...input(), observedAt}));
++  }
++  assert.throws(() => journal.appendRecord(root, {...input(), kind: 'other'}));
++  assert.throws(() => journal.appendRecord(root, {...input(), payload: {x: Infinity}}));
++  assert.throws(() => journal.appendRecord(root, input('', {})));
++  assert.throws(() => journal.appendRecord(root, input('large', {x: 'x'.repeat(journal.LIMITS.maxRecordBytes)})), /limit/);
++  assert.equal(journal.readRecords(root).length, 0);
++});
++
++test('tampering with canonical content or truncating gzip fails closed', t => {
++  const root = fixture(t);
++  journal.appendRecord(root, input());
++  const file = path.join(root, files(root)[0]);
++  const original = fs.readFileSync(file);
++  const changed = JSON.parse(zlib.gunzipSync(original).toString('utf8'));
++  changed.payload.a = 99;
++  fs.writeFileSync(file, zlib.gzipSync(JSON.stringify(changed)));
++  assert.throws(() => journal.readRecords(root), /hash/);
++  assert.throws(() => journal.appendRecord(root, input('another')), /hash/);
++  assert.equal(fs.existsSync(path.join(root, '.lock')), false);
++  fs.writeFileSync(file, original.subarray(0, 9));
++  assert.throws(() => journal.readRecords(root), /decompression/);
++});
++
++test('sequence gaps, pending writes, unknown entries, and locks fail closed', t => {
++  const root = fixture(t);
++  journal.appendRecord(root, input());
++  const filename = files(root)[0];
++  fs.renameSync(path.join(root, filename), path.join(root, `000000000002${filename.slice(12)}`));
++  assert.throws(() => journal.readRecords(root), /gap/);
++  fs.renameSync(path.join(root, `000000000002${filename.slice(12)}`), path.join(root, filename));
++  fs.writeFileSync(path.join(root, '.pending-abandoned'), 'partial');
++  assert.throws(() => journal.readRecords(root), /Unexpected journal entry/);
++  assert.throws(() => journal.appendRecord(root, input('next')), /Unexpected journal entry/);
++  fs.unlinkSync(path.join(root, '.pending-abandoned'));
++  fs.writeFileSync(path.join(root, 'notes.txt'), 'unexpected');
++  assert.throws(() => journal.readRecords(root), /Unexpected journal entry/);
++  fs.unlinkSync(path.join(root, 'notes.txt'));
++  fs.mkdirSync(path.join(root, '.lock'));
++  assert.throws(() => journal.readRecords(root), /locked/);
++  assert.throws(() => journal.appendRecord(root, input('next')), /EEXIST/);
++  assert.equal(fs.existsSync(path.join(root, '.lock')), true);
++});
++
++function worker(root, payload) {
++  const modulePath = path.resolve(__dirname, '../shared/ranking-journal.cjs');
++  const script = `const j=require(process.argv[1]);try{j.appendRecord(process.argv[2],{kind:'snapshot',key:'race',observedAt:'${at}',payload:{n:Number(process.argv[3])}});process.exit(0)}catch(e){process.stderr.write(e.message);process.exit(2)}`;
++  return new Promise(resolve => {
++    const child = spawn(process.execPath, ['-e', script, modulePath, root, String(payload)], {stdio: ['ignore', 'ignore', 'pipe']});
++    let error = '';
++    child.stderr.on('data', chunk => { error += chunk; });
++    child.on('close', code => resolve({code, error}));
++  });
++}
++
++test('competing worker processes cannot replace or double publish a logical key', async t => {
++  const root = fixture(t);
++  const results = await Promise.all([worker(root, 1), worker(root, 2)]);
++  assert.equal(results.filter(result => result.code === 0).length, 1, JSON.stringify(results));
++  assert.match(results.find(result => result.code !== 0).error, /EEXIST|Conflicting journal key/);
++  assert.equal(journal.readRecords(root).length, 1);
++  assert.equal(files(root).length, 1);
++});
+diff --git a/tests/ranking-policies.test.cjs b/tests/ranking-policies.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..7080f167dcfc7a25d52e54cc0982daceb05e838b
+--- /dev/null
++++ b/tests/ranking-policies.test.cjs
+@@ -0,0 +1,84 @@
++'use strict';
++const test = require('node:test');
++const assert = require('node:assert/strict');
++const { expectedValue, familyKey, rank, rationale, summarizeCohort } = require('../shared/ranking-policies.cjs');
++
++const candidate = (id, overrides = {}) => ({ id, event: '2026-10-04T17:00:00Z:A-B', kind: 'prop', profileId: 'player-1', market: 'passing_yards', side: 'over', line: 249.5, prob: 0.6, dec: 1.91, odds: -110, updatedAt: '2026-10-02T23:00:00Z', ...overrides });
++
++test('EV matches explicit win/push/loss payoffs, including zero and certain outcomes', () => {
++  const row = candidate('push', { prob: 0.4, push: 0.1, dec: 3 });
++  assert.ok(Math.abs(expectedValue(row) - (0.4 * 2 + 0.1 * 0 + 0.5 * -1)) < 1e-12);
++  assert.equal(expectedValue(candidate('all-push', { prob: 0, push: 1 })), 0);
++  assert.equal(expectedValue(candidate('all-loss', { prob: 0 })), -1);
++  assert.equal(expectedValue(candidate('all-win', { prob: 1, dec: 2 })), 1);
++  assert.equal(expectedValue(candidate('no-push', { prob: 0.5, dec: 2 })), 0);
++});
++
++test('EV ranking responds to payout and push, ignores Score and preserves exact ties in Champion order', () => {
++  const rows = [candidate('favorite', { prob: 0.8, dec: 1.2, Score: 1000000 }), candidate('value', { prob: 0.6, dec: 2.5, Score: -1 }), candidate('tie', { prob: 0.6, dec: 2.5 }), candidate('push-value', { prob: 0.4, push: 0.4, dec: 3 })];
++  assert.deepEqual(rank(rows, 'ev').map(row => row.id), ['push-value', 'value', 'tie', 'favorite']);
++  assert.deepEqual(rank(rows, 'champion'), rows);
++  assert.deepEqual(rank(rows, 'ev'), rank(rows, 'ev'));
++});
++
++test('ranking leaves frozen input and original objects unchanged and stays within the supplied cohort', () => {
++  const rows = Object.freeze([Object.freeze(candidate('a')), Object.freeze(candidate('b', { prob: 0.7 }))]);
++  const before = JSON.stringify(rows);
++  for (const method of ['champion', 'ev', 'family-diversified-ev']) {
++    const result = rank(rows, method);
++    assert.notEqual(result, rows);
++    for (const row of result) assert.ok(rows.includes(row));
++  }
++  assert.equal(JSON.stringify(rows), before);
++  assert.equal(rank(rows, 'ev').length, rows.length);
++});
++
++test('family diversification omits line and book but preserves event, kind, participant, market and side', () => {
++  const rows = [candidate('base'), candidate('better-other-line-book', { line: 299.5, dec: 2.5, book: 'other' }), candidate('under', { side: 'under' }), candidate('other-player', { profileId: 'player-2' }), candidate('other-market', { market: 'passing_tds' }), candidate('one-minute-alias', { event: '2026-10-04T17:01:00Z:A-B' }), candidate('game-spread', { kind: 'game', profileId: null, market: 'spread', side: 'A' }), candidate('game-winner', { kind: 'game', profileId: null, market: 'moneyline', side: 'A' })];
++  assert.deepEqual(rank(rows, 'family-diversified-ev').map(row => row.id), ['better-other-line-book', 'under', 'other-player', 'other-market', 'one-minute-alias', 'game-spread', 'game-winner']);
++  assert.equal(rank(rows, 'ev').length, 8);
++  assert.equal(familyKey(rows[0]), familyKey(rows[1]));
++  assert.notEqual(familyKey(rows[6]), familyKey(rows[7]));
++});
++
++test('identical rows are retained by EV and collapsed only by the declared family method', () => {
++  const rows = [candidate('first'), candidate('second')];
++  assert.deepEqual(rank(rows, 'ev').map(row => row.id), ['first', 'second']);
++  assert.deepEqual(rank(rows, 'family-diversified-ev').map(row => row.id), ['first']);
++});
++
++test('invalid estimates are errors rather than quietly altered eligibility', () => {
++  for (const overrides of [{ prob: NaN }, { prob: '0.6' }, { prob: -0.1 }, { prob: 1.1 }, { push: -0.1 }, { prob: 0.8, push: 0.3 }, { push: null }, { dec: 1 }, { dec: Infinity }]) {
++    assert.throws(() => rank([candidate('invalid', overrides)], 'ev'));
++  }
++  assert.throws(() => rank([candidate('missing-player', { profileId: undefined })], 'family-diversified-ev'));
++  assert.throws(() => rank([candidate('missing-market', { market: '' })], 'family-diversified-ev'));
++  assert.throws(() => rank([], 'Score'));
++});
++
++test('frozen decision-time guard rejects newly obtained quotes for every method', () => {
++  const options = { evaluationMode: 'historical', decisionTime: '2026-10-02T23:47:12Z' };
++  for (const method of ['champion', 'ev', 'family-diversified-ev']) {
++    assert.equal(rank([candidate('valid')], method, options).length, 1);
++    assert.throws(() => rank([candidate('new', { updatedAt: '2026-10-02T23:47:12.001Z' })], method, options), /newer/);
++  }
++  assert.equal(rank([candidate('exact', { quoteTime: options.decisionTime, updatedAt: '2026-10-03T00:00:00Z' })], 'ev', options).length, 1);
++  assert.throws(() => rank([candidate('missing', { updatedAt: undefined })], 'ev', options), /requires quoteTime/);
++  assert.throws(() => rank([], 'ev', { historical: true }), /decisionTime/);
++  assert.throws(() => rank([candidate('no-zone', { updatedAt: '2026-10-02T23:00:00' })], 'ev', options), /timezone/);
++});
++
++test('descriptive cohort summary reports model estimates and exact families without performance claims', () => {
++  const rows = [candidate('a', { prob: 0.5, dec: 2 }), candidate('b', { prob: 0.6, dec: 2, line: 299.5 })];
++  const summary = summarizeCohort(rows);
++  assert.equal(summary.count, 2);
++  assert.equal(summary.uniqueExactEvents, 1);
++  assert.equal(summary.uniqueFamilies, 1);
++  assert.equal(summary.repeatedFamilyRows, 1);
++  assert.equal(summary.meanModelWinProbability, 0.55);
++  assert.ok(Math.abs(summary.meanModelEVPerUnit - 0.1) < 1e-12);
++  assert.equal(summary.positiveModelEVCount, 1);
++  assert.equal(rationale(rows[0]).lossProbability, 0.5);
++  assert.equal(summarizeCohort([]).meanModelEVPerUnit, null);
++  assert.equal(summarizeCohort([]).count, 0);
++});
+diff --git a/tests/ranking-preservation.test.cjs b/tests/ranking-preservation.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..69b3ffe671c0e08ea3b6e7b418f7905fee52fad6
+--- /dev/null
++++ b/tests/ranking-preservation.test.cjs
+@@ -0,0 +1,69 @@
++'use strict';
++const {test} = require('node:test');
++const assert = require('node:assert/strict');
++const fs = require('node:fs');
++const os = require('node:os');
++const path = require('node:path');
++const {execFileSync} = require('node:child_process');
++const {verifyPreserved, REVIEW_BRANCH} = require('../research/today-ranking/preservation.cjs');
++
++function git(repo, ...args) { return execFileSync('git', args, {cwd: repo, encoding: 'utf8'}).trim(); }
++function fixture(t) {
++  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'ranking-preservation-'));
++  t.after(() => fs.rmSync(repo, {recursive: true, force: true}));
++  git(repo, 'init', '-q');
++  git(repo, 'checkout', '-q', '-b', REVIEW_BRANCH);
++  const journal = path.join(repo, 'journal');
++  const date = path.join(journal, '2026-10-03');
++  fs.mkdirSync(date, {recursive: true});
++  const old = path.join(date, '000000000001-old.json.gz');
++  const original = Buffer.from([31, 139, 8, 0, 1, 2, 3, 4]);
++  fs.writeFileSync(old, original);
++  git(repo, 'add', '--', 'journal');
++  git(repo, '-c', 'user.name=Offline Test', '-c', 'user.email=offline@example.invalid', 'commit', '-qm', 'baseline observation');
++  return {repo, journal, date, old, original};
++}
++
++test('preserves HEAD observations and allows new regular-file additions', t => {
++  const {repo, journal, date} = fixture(t);
++  assert.deepEqual(verifyPreserved(journal), {preservedFiles: 1, addedFiles: 0, bytesChecked: 8});
++  assert.deepEqual(verifyPreserved(repo), {preservedFiles: 1, addedFiles: 0, bytesChecked: 8});
++  const next = path.join(date, '000000000002-new.json.gz');
++  fs.writeFileSync(next, 'new observation');
++  assert.equal(verifyPreserved(journal).addedFiles, 1);
++  git(repo, 'add', '--', 'journal');
++  assert.equal(verifyPreserved(journal).addedFiles, 1);
++});
++
++test('detects deleted tail and changed bytes even when Git index is unchanged', t => {
++  const {journal, old} = fixture(t);
++  fs.unlinkSync(old);
++  assert.throws(() => verifyPreserved(journal));
++  fs.writeFileSync(old, 'changed observation');
++  assert.throws(() => verifyPreserved(journal), /Changed or deleted journal observation/);
++});
++
++test('detects staged content after working bytes are restored', t => {
++  const {repo, journal, old, original} = fixture(t);
++  fs.writeFileSync(old, 'staged replacement');
++  git(repo, 'add', '--', 'journal');
++  fs.writeFileSync(old, original);
++  assert.throws(() => verifyPreserved(journal), /Staged journal change/);
++});
++
++test('detects staged mode changes and symlink additions', t => {
++  const {repo, journal, date, old} = fixture(t);
++  git(repo, 'update-index', '--chmod=+x', '--', path.relative(repo, old));
++  assert.throws(() => verifyPreserved(journal), /Staged journal change/);
++  git(repo, 'update-index', '--chmod=-x', '--', path.relative(repo, old));
++  const linkBlob = execFileSync('git', ['hash-object', '-w', '--stdin'], {cwd: repo, input: 'target', encoding: 'utf8'}).trim();
++  const linkPath = path.relative(repo, path.join(date, 'link.json.gz')).replaceAll(path.sep, '/');
++  git(repo, 'update-index', '--add', '--cacheinfo', `120000,${linkBlob},${linkPath}`);
++  assert.throws(() => verifyPreserved(journal), /Unsafe staged journal addition/);
++});
++
++test('requires the dedicated review branch', t => {
++  const {repo, journal} = fixture(t);
++  git(repo, 'checkout', '-q', '-b', 'codex/wrong-review');
++  assert.throws(() => verifyPreserved(journal), /Wrong journal review branch/);
++});
+diff --git a/tests/ranking-session.test.cjs b/tests/ranking-session.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..c4779ea6d3e82fb8778ec68eabb88661d8076c68
+--- /dev/null
++++ b/tests/ranking-session.test.cjs
+@@ -0,0 +1,41 @@
++'use strict';
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const fs=require('node:fs'),os=require('node:os'),path=require('node:path');
++const {execFileSync,spawn}=require('node:child_process');
++const session=require('../research/today-ranking/session.cjs');
++const collector=require('../research/today-ranking/collect.cjs');
++const root=path.resolve(__dirname,'..');
++function repo(t){const p=fs.mkdtempSync(path.join(os.tmpdir(),'going-cycle-test-'));execFileSync('git',['init','--quiet',p]);t.after(()=>fs.rmSync(p,{recursive:true,force:true}));return p;}
++test('shared Git lock permits one cycle and only its recorded owner can release',t=>{
++ const p=repo(t);assert.equal(session.owner(p),null);session.acquire(p,'cycle-one');assert.equal(session.owner(p).runId,'cycle-one');
++ assert.throws(()=>session.acquire(p,'cycle-two'));assert.throws(()=>session.release(p,'cycle-two'),/owner/);
++ assert.equal(session.owner(p).runId,'cycle-one');session.release(p,'cycle-one');assert.equal(session.owner(p),null);
++});
++test('incomplete crashed cycle lock fails closed without a stale takeover',t=>{
++ const p=repo(t);fs.mkdirSync(session.location(p));assert.throws(()=>session.owner(p));assert.throws(()=>session.acquire(p,'cycle-other'));
++ assert.ok(fs.existsSync(session.location(p)));
++});
++test('independent process races cannot both begin a development session',async t=>{
++ const p=repo(t),script=path.join(root,'research/today-ranking/session.cjs');
++ const run=id=>new Promise(resolve=>{const c=spawn(process.execPath,[script,'acquire',p,id],{stdio:'ignore'});c.on('close',resolve);});
++ const codes=await Promise.all([run('process-one'),run('process-two')]);assert.deepEqual(codes.sort(),[0,1]);
++ session.release(p,session.owner(p).runId);
++});
++test('each requested ET slot is unique; 8AM remains unambiguous across DST',()=>{
++ const times=['06','12','14','16','18','21','00','02'];
++ const keys=times.map((hour,i)=>collector.slotKey('v1',`${i>=6?'2026-10-04':'2026-10-03'}T${hour}:00:00Z`,'scheduled'));
++ assert.equal(new Set(keys).size,8);
++ assert.equal(collector.slotAt('2026-10-03T12:00:00Z').hour,8);
++ assert.equal(collector.slotAt('2026-11-03T13:00:00Z').hour,8);
++ assert.throws(()=>collector.slotKey('v1','2026-10-03T12:16:00Z','scheduled'),/window/);
++ assert.notEqual(collector.slotKey('v1','2026-10-03T12:00:01Z','manual'),collector.slotKey('v1','2026-10-03T12:00:02Z','manual'));
++});
++test('fresh Today default respects saved preferences and explicit deep links',()=>{
++ for(const [options,tab,sport] of [[{},'best','nfl'],[{storedView:{tab:'props',sport:'nfl'}},'props','nfl'],[{url:'http://localhost/?tab=games',storedView:{tab:'props',sport:'nfl'}},'games','nfl'],[{storedView:{tab:'best',sport:'ncaa'}},'best','ncaa']]){
++  const s=collector.openSource(root,'2026-10-03T12:00:00Z',options);
++  try{const vm=require('node:vm');assert.equal(vm.runInContext('BET.tab',s.context),tab);assert.equal(vm.runInContext('BET.sport',s.context),sport);
++   assert.match(s.w.document.querySelector('#bestSort').textContent,/Estimated chance/);assert.doesNotMatch(s.w.document.querySelector('#bestSort').textContent,/GOING rank/);
++  }finally{s.dom.window.close();}
++ }
++});
+diff --git a/tests/ranking-settlement.test.cjs b/tests/ranking-settlement.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..6b50e65d3b9943196a005884c29e5892e3c03a40
+--- /dev/null
++++ b/tests/ranking-settlement.test.cjs
+@@ -0,0 +1,104 @@
++const { test } = require('node:test');
++const assert = require('node:assert/strict');
++const { settleRow, resultRecords } = require('../shared/ranking-settlement.cjs');
++
++const observedAt = '2026-09-21T00:00:00Z';
++const opts = { observedAt, sourceRevision: 'abc123', sourceHash: 'a'.repeat(64) };
++const game = { sport: 'nfl', id: 'official-1', home: 'BAL', away: 'PIT', kickoff: '2026-09-20T17:00:00Z', homeScore: 24, awayScore: 20 };
++const row = { id: 'prediction-1', sport: 'nfl', kind: 'game', event: 'vendor-1',
++  home: 'BAL', away: 'PIT', kickoff: '2026-09-20T17:01:00Z', frozenAt: '2026-09-20T16:00:00Z',
++  market: 'spread', side: 'Home', line: -4, book: 'Fixture' };
++function results(changes = {}) {
++  return { schema_version: 1, generated_at: '2026-09-20T23:00:00Z',
++    sources: { nfl: { status: 'loaded', checked_at: '2026-09-20T22:59:00Z' },
++      ncaa: { status: 'loaded', checked_at: '2026-09-20T22:59:00Z' } },
++    player_source_at: '2026-09-20T22:58:00Z', games: { one: game },
++    players: { 'player-1|2026-09-20': { rec_yds: 62, atd: 0, receptions: 0 } }, ...changes };
++}
++const reason = (r, data = results(), settings = opts) => settleRow(r, data, settings).reason;
++
++test('unique matchup and ET day tolerate vendor minute drift, with signed spreads and integer pushes', () => {
++  assert.equal(settleRow(row, results(), opts).status, 'push');
++  assert.equal(settleRow({ ...row, side: 'Away', line: -3.5 }, results(), opts).status, 'loss');
++  assert.equal(settleRow({ ...row, side: 'Home', line: -3.5 }, results(), opts).status, 'win');
++  assert.equal(settleRow({ ...row, market: 'total', side: 'Over', line: 44 }, results(), opts).status, 'push');
++  assert.equal(settleRow({ ...row, market: 'total', side: 'Under', line: 44.5 }, results(), opts).status, 'win');
++  assert.equal(settleRow({ ...row, market: 'moneyline', side: 'Away', line: 0 }, results(), opts).status, 'loss');
++  assert.equal(settleRow(row, results(), opts).actual, 0);
++  assert.deepEqual(settleRow(row, results(), opts).provenance.game,
++    { id: game.id, sport: game.sport, home: game.home, away: game.away, kickoff: game.kickoff });
++});
++
++test('NCAA full-game finals settle, but swapped teams, ET date changes, aliases, and duplicate matches do not', () => {
++  const ncaaGame = { ...game, sport: 'ncaa', id: '401', home: 'North Carolina', away: 'Duke' };
++  const ncaaRow = { ...row, sport: 'ncaa', home: ' North  Carolina ', away: 'duke', market: 'moneyline', side: 'Home', line: 0 };
++  assert.equal(settleRow(ncaaRow, results({ games: { one: ncaaGame } }), opts).status, 'win');
++  assert.equal(reason({ ...ncaaRow, home: 'UNC' }, results({ games: { one: ncaaGame } })), 'official_final_missing');
++  assert.equal(reason({ ...ncaaRow, home: 'Duke', away: 'North Carolina' }, results({ games: { one: ncaaGame } })), 'official_final_missing');
++  assert.equal(reason({ ...ncaaRow, kickoff: '2026-09-21T17:00:00Z' }, results({ games: { one: ncaaGame } })), 'upcoming');
++  assert.equal(reason(ncaaRow, results({ games: { one: ncaaGame, two: { ...ncaaGame, id: '402', homeScore: 10 } } })), 'ambiguous_game');
++});
++
++test('chronology, source provenance, source status, and partial finals are required', () => {
++  assert.equal(reason({ ...row, frozenAt: game.kickoff }), 'not_before_official_kickoff');
++  assert.equal(reason({ ...row, frozenAt: row.kickoff }), 'invalid_prediction_chronology');
++  assert.equal(reason(row, results(), { ...opts, observedAt: '2026-09-20T20:00:00Z' }), 'results_chronology');
++  assert.equal(reason(row, results({ generated_at: '2026-09-20T16:00:00Z' })), 'results_chronology');
++  assert.equal(reason(row, results({ sources: { nfl: { status: 'unavailable', checked_at: '2026-09-20T22:59:00Z' } } })), 'game_source_unverified');
++  assert.equal(reason(row, results({ games: { one: { ...game, homeScore: null } } })), 'partial_final');
++  assert.equal(reason(row, results(), { ...opts, sourceHash: 'bad' }), 'source_identity_missing');
++  assert.equal(reason({ ...row, market: 'total_1h' }), 'unsupported_settlement_rules');
++  assert.equal(reason({ ...row, period: '1h' }), 'unsupported_settlement_rules');
++});
++
++test('player metrics require exact profile and ET day with an observed finite value', () => {
++  const prop = { ...row, kind: 'prop', profileId: 'player-1', player: 'Receiver', market: 'rec_yds', side: 'Over', line: 62 };
++  assert.equal(settleRow(prop, results(), opts).status, 'push');
++  assert.equal(settleRow({ ...prop, market: 'receptions', side: 'Under', line: .5 }, results(), opts).status, 'win');
++  assert.equal(reason({ ...prop, profileId: 'absent' }), 'player_participation_or_result_missing');
++  assert.equal(reason(prop, results({ players: { 'player-1|2026-09-20': { rec_yds: null } } })), 'player_market_result_missing');
++  assert.equal(reason(prop, results({ player_source_at: '2026-09-20T16:00:00Z' })), 'player_source_unverified');
++  assert.equal(reason({ ...prop, sport: 'ncaa' }, results({ games: { one: { ...game, sport: 'ncaa' } } })), 'player_source_unsupported');
++  assert.equal(reason({ ...prop, market: 'first_td' }), 'unsupported_settlement_rules');
++});
++
++test('negative observed yardage is valid; count and TD results must be nonnegative integers', () => {
++  for (const market of ['rush_yds', 'pass_yds', 'rec_yds']) {
++    const prop = { ...row, kind: 'prop', profileId: 'player-1', market, side: 'Under', line: .5 };
++    const data = results({ players: { 'player-1|2026-09-20': { [market]: -2 } } });
++    assert.equal(settleRow(prop, data, opts).status, 'win');
++    assert.equal(settleRow(prop, data, opts).actual, -2);
++  }
++  for (const market of ['receptions', 'pass_tds', 'rush_tds', 'rec_tds', 'atd']) {
++    const prop = { ...row, kind: 'prop', profileId: 'player-1', market, side: market === 'atd' ? 'Yes' : 'Over', line: .5 };
++    for (const invalid of [-1, .5]) {
++      const data = results({ players: { 'player-1|2026-09-20': { [market]: invalid } } });
++      assert.equal(reason(prop, data), 'player_market_result_invalid');
++    }
++  }
++});
++
++test('ATD uses the issued Yes at 0.5 contract; missing participation and book voids are not inferred', () => {
++  const prop = { ...row, kind: 'prop', profileId: 'absent', market: 'atd', side: 'Yes', line: .5 };
++  assert.equal(settleRow(prop, results(), opts).status, 'unresolved');
++  assert.equal(reason(prop), 'player_participation_or_result_missing');
++  assert.equal(settleRow({ ...prop, profileId: 'player-1' }, results(), opts).status, 'loss');
++  assert.equal(settleRow({ ...prop, profileId: 'player-1' }, results({ players: { 'player-1|2026-09-20': { atd: 1 } } }), opts).status, 'win');
++  assert.equal(reason({ ...prop, profileId: 'player-1', side: 'No' }), 'invalid_prediction_terms');
++  assert.equal(reason({ ...prop, profileId: 'player-1', line: 1 }), 'invalid_prediction_terms');
++  assert.equal(reason({ ...prop, profileId: 'player-1', market: 'first_td' }), 'unsupported_settlement_rules');
++});
++
++test('resultRecords returns settled candidates without changing the snapshot or results', () => {
++  const input = { rows: [row, { ...row, id: 'unresolved', kind: 'prop', profileId: 'missing', market: 'atd', side: 'Yes', line: .5 }] };
++  const data = results();
++  const beforeInput = JSON.stringify(input), beforeData = JSON.stringify(data);
++  const records = resultRecords(input, data, opts);
++  assert.equal(records.length, 1);
++  assert.equal(records[0].predictionId, row.id);
++  assert.equal(records[0].status, 'push');
++  assert.equal(records[0].provenance.sourceRevision, opts.sourceRevision);
++  assert.equal(records[0].provenance.sourceHash, opts.sourceHash);
++  assert.equal(JSON.stringify(input), beforeInput);
++  assert.equal(JSON.stringify(data), beforeData);
++});
