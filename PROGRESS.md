@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261003-100159-ranking-capture-b` — scheduled10AM exploratory ranking observation; maximum15min, one research milestone.
-Production/base `f3e7351fc804e65f024482cdb9600dc02a4a47f5` unchanged; review base `66b2cc9986c3e9482881a2dae68953e3c162f326`. Completion/receipt publication pending verification.
+Production/base `f3e7351fc804e65f024482cdb9600dc02a4a47f5` unchanged; review base `66b2cc9986c3e9482881a2dae68953e3c162f326`. Review completion `e1e30ba4ae1c50e73cae4560bcb129c3e9a5b764` published and remote-verified; this PROGRESS-only receipt pins it. Its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 - MANAGER/MODEL RESEARCH/QA, one agent/no delegation: chose the irreplaceable decision-time capture over saved-pick UI work after today's substantial Confidence feature; NCAA archive audit remains next. Acceptance: actual10AM clock, complete pools/ranks/provenance, frozen policies/journal preserved, no guessed settlement, verified review/receipt.
@@ -17,7 +17,7 @@ Production/base `f3e7351fc804e65f024482cdb9600dc02a4a47f5` unchanged; review bas
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- Research capture and verification complete; review completion/receipt publication remains. Common-Git lock owner is this exact cycle; release only after verified recording. No follow-on development.
+- No active implementation remains. Completion is published; verify this receipt remotely and release only this exact cycle mutex owner. No follow-on development.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. Oct3primary missing after overlap; next eligible slots use actual clocks. DiagnosticsOct3–23,untouchedOct24–Dec5,releaseDec6 noonET; do not change policies/cutoffs or inspect holdout aggregate performance.
 
 ## Problems
