@@ -21,4 +21,22 @@ function storeSnapshot(directory,snapshot,key){checkSnapshot(snapshot);const rec
  return appendRecord(directory,{kind:'snapshot',key,observedAt:snapshot.decisionTime,payload:{...metadata,storageVersion:1,rowColumns:COLUMNS,counts:{rows:rows.length,evidence:evidence.length,preCandidateExclusions:preCandidateExclusions.length,gameExclusions:gameExclusions.length},chunks:refs}});
 }
 function materialize(record,records){const meta=record?.payload;if(record?.kind!=='snapshot'||meta?.storageVersion!==1||JSON.stringify(meta.rowColumns)!==JSON.stringify(COLUMNS)||!Array.isArray(meta.chunks)||!meta.counts)throw Error('Unknown frozen storage schema');const byHash=new Map(records.map(r=>[r.hash,r])),parts={rows:[],evidence:[],preCandidateExclusions:[],gameExclusions:[]};for(const ref of meta.chunks){const r=byHash.get(ref.hash);if(!r||r.seq>=record.seq||Date.parse(r.observedAt)>Date.parse(record.observedAt)||r.key!=='pool|'+hashPayload(r.payload)||r.kind!=='status'||r.payload.type!=='snapshot_chunk_v1'||r.payload.field!==ref.field||!parts[ref.field]||!Array.isArray(r.payload.items)||r.payload.items.length!==ref.count)throw Error('Missing or invalid immutable pool chunk');parts[ref.field].push(...r.payload.items);}for(const f of Object.keys(parts))if(parts[f].length!==meta.counts[f])throw Error('Incomplete candidate pool: '+f);const rows=parts.rows.map(tuple=>{if(!Array.isArray(tuple)||tuple.length!==COLUMNS.length)throw Error('Corrupt columnar row');const row=Object.fromEntries(COLUMNS.map((k,i)=>[k,tuple[i]]));if(!Number.isSafeInteger(row.evidence)||row.evidence<0||row.evidence>=parts.evidence.length)throw Error('Invalid frozen evidence index');row.evidence=parts.evidence[row.evidence];row.frozenAt=meta.decisionTime;row.quoteAgeSeconds=Number.isFinite(Date.parse(row.updatedAt))?(Date.parse(meta.decisionTime)-Date.parse(row.updatedAt))/1000:null;row.quoteFresh5m=row.quoteAgeSeconds!==null&&row.quoteAgeSeconds>=0&&row.quoteAgeSeconds<=300;return row;});const {storageVersion,rowColumns,counts,chunks,...snapshot}=meta;return {...snapshot,rows,preCandidateExclusions:parts.preCandidateExclusions,gameExclusions:parts.gameExclusions};}
-module.exports={storeSnapshot,materialize,COLUMNS};
+function verifyCompletePools(records){
+ if(!Array.isArray(records))throw new TypeError('Journal records must be an array');
+ const referenced=new Set();
+ let snapshots=0;
+ for(const record of records){
+  if(record.kind!=='snapshot')continue;
+  materialize(record,records); // Validate each complete manifest and all of its references.
+  snapshots++;
+  for(const ref of record.payload.chunks)referenced.add(ref.hash);
+ }
+ let chunks=0;
+ for(const record of records){
+  if(record.kind!=='status'||record.payload?.type!=='snapshot_chunk_v1')continue;
+  chunks++;
+  if(!referenced.has(record.hash))throw Error('Orphan immutable pool chunk: '+record.hash);
+ }
+ return {snapshots,chunks};
+}
+module.exports={storeSnapshot,materialize,verifyCompletePools,COLUMNS};

@@ -4,8 +4,8 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const {readRecords, hashPayload} = require('../shared/ranking-journal.cjs');
-const {COLUMNS, storeSnapshot, materialize} = require('../shared/ranking-snapshot.cjs');
+const {appendRecord, readRecords, hashPayload} = require('../shared/ranking-journal.cjs');
+const {COLUMNS, storeSnapshot, materialize, verifyCompletePools} = require('../shared/ranking-snapshot.cjs');
 const {captureAt, validateSnapshot, invalidateSnapshot, textHash} = require('../research/today-ranking/collect.cjs');
 
 test('provenance hashes survive Git CRLF conversion without ignoring substantive edits', () => {
@@ -59,6 +59,17 @@ test('columnar storage roundtrips the complete pool and reuses immutable chunks'
   assert.equal(after.length, initial.length + 1);
   assert.deepEqual(second.payload.chunks, first.payload.chunks);
   assert.deepEqual(materialize(second, after), original);
+  assert.deepEqual(verifyCompletePools(after), {snapshots: 2, chunks: initial.length - 1});
+});
+
+test('interrupted pool chunks require a completed manifest, even beside a valid snapshot', t => {
+  const directory = tempJournal(t);
+  const orphanPayload = {type: 'snapshot_chunk_v1', field: 'evidence', items: [{source: 'interrupted write'}]};
+  const orphan = appendRecord(directory, {kind: 'status', key: 'pool|' + hashPayload(orphanPayload), observedAt: fixedAt, payload: orphanPayload});
+  assert.throws(() => verifyCompletePools(readRecords(directory)), /Orphan immutable pool chunk/);
+  const stored = storeSnapshot(directory, snapshot(), 'slot:complete');
+  assert.ok(stored.payload.chunks.every(ref => ref.hash !== orphan.hash));
+  assert.throws(() => verifyCompletePools(readRecords(directory)), /Orphan immutable pool chunk/);
 });
 
 test('schema drift and changed derived times fail before any chunk is published', t => {
@@ -80,6 +91,7 @@ test('materialization rejects missing, wrong, and forward chunk references', t =
   const modified = JSON.parse(JSON.stringify(stored));
   modified.payload.chunks[0].hash = '0'.repeat(64);
   assert.throws(() => materialize(modified, records), /Missing or invalid/);
+  assert.throws(() => verifyCompletePools(records.map(record => record.hash === stored.hash ? modified : record)), /Missing or invalid/);
   const wrongField = JSON.parse(JSON.stringify(stored));
   wrongField.payload.chunks[0].field = 'evidence';
   assert.throws(() => materialize(wrongField, records), /Missing or invalid/);

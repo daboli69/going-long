@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const {readRecords, hashPayload} = require('../../shared/ranking-journal.cjs');
-const {materialize} = require('../../shared/ranking-snapshot.cjs');
+const {materialize, verifyCompletePools} = require('../../shared/ranking-snapshot.cjs');
 const {validateSnapshot} = require('./collect.cjs');
 const REGISTERED = require('./experiment-v1.json');
 const METHODS = ['champion', 'ev', 'family-diversified-ev'];
@@ -324,6 +324,7 @@ function loadObservations(root) {
   const out = [];
   for (const entry of entries) {
     const records = readRecords(path.join(root, entry.name));
+    verifyCompletePools(records);
     for (const record of records.filter(r => r.kind === 'snapshot')) {
       const snapshot = materialize(record, records);
       validateSnapshot(snapshot);
