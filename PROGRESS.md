@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261003-1412-dfs-threshold-manual` — user-requested manual DFS threshold + affordability fix; no manual 15-minute limit. Three agents: MANAGER/BUILDER/PRODUCT/QA, FOOTBALL DATA/MODEL RESEARCH adapter specialist, mathematical core/independent QA specialist.
-Production base `02f8b885984363b989ec4cff433645629322e14a` -> `e5fd2b87949849f91da5b116b9d6f1d1cdb3c701` **verified live**; review base `d2c7cdcddd1838d2ee91db9e3908e6db1e5d9f54`. Completion/receipt pending below; never embed a commit's own SHA.
+Production base `02f8b885984363b989ec4cff433645629322e14a` -> `e5fd2b87949849f91da5b116b9d6f1d1cdb3c701` **verified live**; review base `d2c7cdcddd1838d2ee91db9e3908e6db1e5d9f54`. Review completion `8b38ceb556f6603b786ba36ce23720ca11600bad` published and remote-verified. This PROGRESS-only receipt pins it; its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 - **Selected/implemented:** Travis requested actual full-lineup 8+ rushing/receiving TD targeting plus the reproducible false salary-cap failure. Acceptance: real CSV-only salaries, legal nine-slot/two-game/$50k lineups, passing/DST excluded, multi-TDs, fixed finite team opportunity, locks/swaps, honest uncertainty and exact tested publication.
@@ -38,7 +38,7 @@ Production base `02f8b885984363b989ec4cff433645629322e14a` -> `e5fd2b87949849f91
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- No active implementation. Manual threshold/affordability production verified live; publish/verify exact patch + completion/receipt, release only this owner and stop. Earlier 2PM ranking capture and initial DFS records remain preserved.
+- No active implementation. Manual threshold/affordability production and exact-patch completion verified live/remotely; verify this receipt, release only this owner and stop. Earlier 2PM ranking capture and initial DFS records remain preserved.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
