@@ -1,7 +1,7 @@
 # Progress
 Cycle: `20261002-2258-ranking-handoff` — final manual product/research handoff, no artificial session cap.
 Production base `7b2633ba80177129151910e89e57de860832dd38`; review base `965b983f2678eb217d778b603759a9025b7227bf`.
-Production `a609255b196724ab116c1754fcf5585ad9014884`, verified live. Completion/receipt recorded after review publication.
+Production `a609255b196724ab116c1754fcf5585ad9014884`, verified live. Review completion `4180e9fa652b19c62c10a7c86dc4f333ca6d8a26` is published and remote-verified. This PROGRESS-only receipt pins that completion; its own SHA is reported externally, not embedded in itself.
 
 ## Completed
 - Safely reconciled paused2348 research. Main219c510->7b2633b was25 data files, no ranking/model code change. Original dated results/hash and C1/C2 retained;18 research tests pass. No old completion marker or application fixes transferred.
@@ -16,7 +16,7 @@ Production `a609255b196724ab116c1754fcf5585ad9014884`, verified live. Completion
 
 ## Working
 - The02:00 and08:00Oct3 occurrences overlapped this still-active manual handoff and were skipped under the common lock; no backfill. Oct3primary remains missing. Next10:00occurrence can collect exploratory data; first available primary isOct4at08:00. DiagnosticsOct3–23; untouchedOct24–Dec5; evaluation locked untilDec6 noonET. Never alter policies/cutoffs after outcomes; new hypotheses need future versions.
-- Review completion/receipt is the final publication step; release the exact manual lock owner afterward. No follow-on development cycle.
+- No active implementation remains. Completed review materials and exact production patch are published; this receipt records the verified completion. Release the exact manual lock owner after receipt verification; no follow-on development cycle.
 
 ## Problems
 - Saved public-input cohort differs from personalized/live-refreshed pages. App/computer awake required. HostEastern DST supported; no exposed IANA field; spring-forward2AM nonexistent, no invented replacement.
