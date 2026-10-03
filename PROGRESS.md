@@ -1,8 +1,12 @@
 # Progress
-Cycle: `20261003-100159-ranking-capture-b` — scheduled10AM exploratory ranking observation; maximum15min, one research milestone.
-Production/base `f3e7351fc804e65f024482cdb9600dc02a4a47f5` unchanged; review base `66b2cc9986c3e9482881a2dae68953e3c162f326`. Review completion `e1e30ba4ae1c50e73cae4560bcb129c3e9a5b764` published and remote-verified; this PROGRESS-only receipt pins it. Its own SHA is reported externally, never embedded in itself.
+Cycle: `20261003-120030-ranking-noon-c` — scheduled noon exploratory ranking observation; maximum15min, one research milestone.
+Production/base `4e5a1653acafae19cc95fd2fe69015874fd3ad75` unchanged; review base `e2a78ac60dccfdcf8b360cc5554b5819a807b1e0`. Completion/receipt publication pending; exact SHAs follow verification.
 
 ## Completed
+- MANAGER/MODEL RESEARCH/QA, one agent/no delegation: selected actual noon collection from newly refreshed public main over saved-pick recheck, comparison UI and NCAA archive work because decision-time evidence cannot be recovered later; earlier10AM capture is distinct. Acceptance: complete12scopes/all ranks/exclusions, immutable prior evidence, clean remote/scope gates, verified review receipt.
+- Frozen noon observation **2026-10-03T16:01:24.684Z (12:01ET)**:10,349rows/1,307eligible; hash `c0728673b608550d60875bb6b8fc793f92bd50a97f89e8cf784ea02b87bf2e29`.23new journal files,77records/3snapshots total. Noon exploratory, no missed8AM catchup. Pinned refreshed main4e5a165 changed public data only; policy/generator hashes unchanged.
+- All54previous blobs/modes/1,614,421bytes preserved; complete pool/rank replay and append-only settlement checks pass. Settlements added0; zero5min-fresh quotes (all recorded quote ages approximately77–97min). No fit, evaluation, performance/ROI/CLV or promotion.
+- Ranking48/48 and Node280/280 pass. Review-only verified journals/report/trackers; no application/Python/build/deployment change or provider calls. Existing workflow path filters exclude this scope and review Vercel exclusion remains intact.
 - MANAGER/MODEL RESEARCH/QA, one agent/no delegation: chose the irreplaceable decision-time capture over saved-pick UI work after today's substantial Confidence feature; NCAA archive audit remains next. Acceptance: actual10AM clock, complete pools/ranks/provenance, frozen policies/journal preserved, no guessed settlement, verified review/receipt.
 - First systematic scheduled v1 observation frozen **2026-10-03T14:03:01.598Z (10:03ET)**:27,385rows/2,331eligible,12scopes; hash `40ef35438600a7f6a5172ae31168b8552ae0f4d5baf72eb91ee0129219fc45e1`.10AM is exploratory, not8AM confirmation/backfill. Content-addressed pool chunks legitimately reused; one new immutable manifest,54records/2snapshots total. Manual setup remains separate.
 - Settlements added0; zero eligible quotes<=5min. No fit, historical replay, ROI/CLV, aggregate holdout evaluation or promotion. All53previous Git blobs/modes/1,591,863bytes preserved; complete pool/top3/top10/all policy ranks replay/integrity checks pass. Frozen policy/generator/C1/C2 hashes unchanged.
@@ -17,7 +21,7 @@ Production/base `f3e7351fc804e65f024482cdb9600dc02a4a47f5` unchanged; review bas
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- No active implementation remains. Completion is published; verify this receipt remotely and release only this exact cycle mutex owner. No follow-on development.
+- No active implementation remains. Publish verified noon completion/receipt, then release only this exact cycle mutex owner. No follow-on development.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. Oct3primary missing after overlap; next eligible slots use actual clocks. DiagnosticsOct3–23,untouchedOct24–Dec5,releaseDec6 noonET; do not change policies/cutoffs or inspect holdout aggregate performance.
 
 ## Problems
