@@ -144,6 +144,7 @@ test('Football week includes Monday night in Eastern time and rolls over Tuesday
 });
 test('Matchup filter and prop cards exclude future weeks and clear an obsolete selection',async t=>{
   const {api:a,w}=setup(t),kickoff=future(),later=new Date(Date.now()+14*86400000).toISOString();
+  a.BET.tab='props'; // This regression exercises Markets, not the fresh Today landing.
   a.BET.history={team_names:{Home:'A',Current:'B',Future:'C'},games:{nfl:[{home:'A',away:'B',kickoff},{home:'A',away:'C',kickoff:later}]}};
   a.BET.props=[{id:'current',player:'Current Player',market:'atd',homeName:'Home',awayName:'Current',kickoff,source:'manual'},
     {id:'later',player:'Future Player',market:'atd',homeName:'Home',awayName:'Future',kickoff:later,source:'manual'}];
@@ -354,7 +355,7 @@ test('Betting view preferences preserve the research context',t=>{
  assert.deepEqual(JSON.parse(w.localStorage.getItem('goinglong.betting.view.v1')),{sport:'ncaa',tab:'best',period:'1H',market:'total',sort:'time',book:'Pinnacle',matchup:'A @ B'});
 });
 test('Sport switch isolates game records and missing spreads stay unpriced',t=>{
-  const {api:a,w}=setup(t);a.wireBetting();
+  const {api:a,w}=setup(t);a.BET.tab='games';a.wireBetting();
   a.BET.games=[{id:'nfl',sport:'nfl',home:'BUF',away:'MIA',kickoff:future(),source:'manual'},
     {id:'ncaa',sport:'ncaa',home:'Alabama',away:'Georgia',kickoff:future(),source:'manual'}];
   w.document.querySelector('[data-sport="ncaa"]').click();
@@ -369,14 +370,14 @@ test('Sport switch isolates game records and missing spreads stay unpriced',t=>{
   assert.equal(a.gameQuotes({source:'manual',spread:null,homeSpreadOdds:-110,model:{margin_mean:0,margin_sd:10}}).length,0);
 });
 test('Pagination bounds DOM and stale renders do not overwrite a newer filter',async t=>{
-  const {api:a,w}=setup(t);
+  const {api:a,w}=setup(t);a.BET.tab='props';
   a.BET.props=Array.from({length:10000},(_,i)=>({id:String(i),player:'Player '+i,market:'atd',source:'manual',manual:true,projMean:.5,overOdds:200}));
   const first=a.renderPropsTable();a.BET.query='Player 9999';await a.renderPropsTable();await first;
   assert.equal(w.document.querySelectorAll('#btPropsTable .bt-row').length,1);
   a.BET.query='';await a.renderPropsTable();assert.equal(w.document.querySelectorAll('#btPropsTable .bt-row').length,50);
 });
 test('Debounced projection edits preserve focus and calculate after typing',async t=>{
-  const {api:a,w}=setup(t);a.wireBetting();
+  const {api:a,w}=setup(t);a.BET.tab='props';a.wireBetting();
   a.BET.props=[{id:'edit',player:'Test Player',market:'atd',source:'manual',manual:true,projMean:.5,overOdds:200}];
   await a.renderPropsTable();const input=w.document.querySelector('.bt-projinput');input.focus();
   input.value='0.8';input.dispatchEvent(new w.Event('input',{bubbles:true}));
@@ -415,7 +416,7 @@ test('Background loader parses real snapshots and connects shared history',async
 });
 
 test('Parlay cards join Rams profiles and games despite LA/LAR naming',async t=>{
-  const {api:a,w}=setup(t);const kickoff=future();
+  const {api:a,w}=setup(t);a.BET.tab='props';const kickoff=future();
   a.BET.history={team_names:{'Los Angeles Rams':'LAR','San Francisco 49ers':'SF'},profiles:{p:{id:'p',name:'Puka Nacua',team:'LA',stats:{rec_yds:{family:'lognormal',status:'ready',n:12,mean:90,sd:30,mu_log:4.4,sigma_log:.3}}}},games:{nfl:[{home:'LA',away:'SF',kickoff,model:{margin_mean:4,total_mean:48,margin_sd:13,total_sd:13}}]}};
   a.BET.props=await a.propsFromRealData({props:[{player:'Puka Nacua',homeName:'Los Angeles Rams',awayName:'San Francisco 49ers',market:'rec_yds',line:85.5,overOdds:-110,underOdds:105,source:'parlay',kickoff,updatedAt:new Date().toISOString()}]});
   assert.equal(a.BET.props[0].projMean,90);await a.renderPropsTable();
@@ -484,7 +485,7 @@ test('Opportunity pool reports every exclusion without changing canonical eligib
 });
 test('Best play labels use away spread sign and escape names',t=>{
   const {api:a}=setup(t);const text=a.bestPlayCard({kind:'game',sport:'ncaa',market:'spread',side:'Away',line:-3.5,away:'Away <tag>',home:'Home',team:'',book:'betmgm',odds:-110,prob:.6,push:0,ev:.14,n:12,kickoff:new Date().toISOString(),updatedAt:new Date().toISOString(),flags:[]});
-  assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));assert.match(text,/Primary risk/);assert.match(text,/Why GOING likes it/);assert.match(text,/SHOW ME THE DATA/);assert.match(text,/Parlay relevance/);
+  assert.match(text,/Away &lt;tag&gt; \+3.5 spread/);assert.ok(!text.includes('<tag>'));assert.match(text,/Primary risk/);assert.match(text,/Why this is surfaced/);assert.match(text,/SHOW ME THE DATA/);assert.match(text,/Parlay relevance/);
 });
 
 test('NFL picks attach player usage and opponent cheatsheet evidence to their expanded data',t=>{

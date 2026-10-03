@@ -1,0 +1,46 @@
+{
+  "id": "today-ranking-v1",
+  "schemaVersion": 1,
+  "startedAt": "2026-10-03T03:17:28.899Z",
+  "baseline": "7b2633ba80177129151910e89e57de860832dd38",
+  "policyCodeHash": "6a2661ea6abcd455dab40c7802885b11417eacc7cf4c0f1f49f11799bc79c9bc",
+  "generatorCodeHash": "0f75db3315b280e287c4eb28e7e9d7db2c3d41b6f0c838ef2e31f4f5cf2bcc68",
+  "challengersSourceHash": "4c9b3de03949de29fa82915810413c32183d3bbb104890f3e2e30309a4a8522d",
+  "collectionEndsAt": "2026-12-06T05:00:00Z",
+  "evaluationUnlockAt": "2026-12-06T17:00:00Z",
+  "timezone": "America/New_York",
+  "primarySlot": 8,
+  "primaryStartDate": "2026-10-03",
+  "diagnosticEndsBefore": "2026-10-24",
+  "holdoutStarts": "2026-10-24",
+  "holdoutEndsInclusive": "2026-12-05",
+  "primaryScopes": [
+    [
+      "nfl",
+      "all",
+      "today-settleable"
+    ],
+    [
+      "ncaa",
+      "game",
+      "today-settleable"
+    ]
+  ],
+  "topN": [
+    3,
+    10
+  ],
+  "minimumPairedSlates": 20,
+  "minimumGameClusters": 100,
+  "maximumUnresolvedFraction": 0.1,
+  "maximumMissingReferenceFraction": 0.1,
+  "alphaFamilywise": 0.05,
+  "bootstrapResamples": 2000,
+  "seed": 20261003,
+  "minimumExcessBrierBenefit": 0.005,
+  "maximumLogLossWorsening": 0.01,
+  "promotion": "Never automatic; only reproducible heldout evidence and explicit Travis approval",
+  "notes": "No tuning/weights; supported-settlement universe is declared evaluation only, full production pool/ranks also captured. No overall unrestricted ranking claim from this subset. Full game definitions/ties/metrics are documented in PROTOCOL.md.",
+  "registrationIntegrityNote": "Before the first real observation: expanded source-hash coverage to numerical, identity, quote/model helpers and shared identity/injury/slate modules. Champion/C1/C2 definitions and cutoffs unchanged; no outcomes fitted or collected. Before first real observation, normalize Git CRLF-to-LF text hashing for cross-checkout reproducibility; no policy, probability or cutoff change.",
+  "textHashEncoding": "UTF-8; CRLF normalized to LF only; all other whitespace/values retained"
+}
