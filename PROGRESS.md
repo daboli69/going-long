@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261003-140130-ranking-afternoon-d` - scheduled2PM exploratory ranking milestone; maximum15min, one agent wearing MANAGER/MODEL RESEARCH/QA, no delegation.
-Production/base `02f8b885984363b989ec4cff433645629322e14a` unchanged; review base `249ea54b1f0878688d86bc3bf3915b9371e51c65`. Completion/receipt publication pending; no production patch/deployment for research-only work.
+Production/base `02f8b885984363b989ec4cff433645629322e14a` unchanged; review base `249ea54b1f0878688d86bc3bf3915b9371e51c65`. Review completion `561476b98d9238bb4ae455075ab9124ab70e8231` published and remote-verified. This PROGRESS-only receipt pins it; its own SHA is reported externally, never embedded in itself. No production patch/deployment for research-only work.
 
 ## Completed
 - Selected actual2PM capture over saved-pick recheck, DFS upgrade/comparison and NCAA archive audit: decision-time evidence is irreplaceable; today's Confidence/DFS product advances already delivered, actual DFS contest CSV remains absent. Acceptance: complete12scopes/all ranks/exclusions, all prior journal bytes/modes preserved, tested collector and verified scoped receipt. Earlier noon/10AM work is distinct, not a skip reason.
@@ -32,7 +32,7 @@ Production/base `02f8b885984363b989ec4cff433645629322e14a` unchanged; review bas
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- No active implementation.2PM capture/tests/settlement/integrity checks complete; publish and verify its Claude completion/receipt, release exact owner, stop. Prior DFS production remains verified live; its review completiondb3e7d3/receipt249ea54 are preserved.
+- No active implementation.2PM capture/tests/settlement/integrity and completion publication complete; verify this receipt remotely, release exact owner, stop. Prior DFS production remains verified live; its review completiondb3e7d3/receipt249ea54 are preserved.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
