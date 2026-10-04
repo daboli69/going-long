@@ -1,3 +1,5 @@
 # Going Long visual system
 
 The approved images in `docs/design-reference/` are the visual source of truth for Going Long. UI work must preserve near-pixel visual fidelity and reuse the shared design system documented in `docs/GOING_VISUAL_SYSTEM.md`. Do not introduce competing visual styles without explicit Travis approval. Real data, accessibility, routing and existing model/research gates remain authoritative; never replace controls or data with a flattened mockup.
+
+ABBEYS is a separate NFL current-season-only straight-up board; follow `docs/ABBEYS.md` and its frozen research protocol. Keep prior seasons, sportsbook data and historical context outside its prediction boundary. Never rewrite official journal observations or v1 model/protocol definitions after freeze; append outcomes/integrity evidence separately. Preserve all existing models and prospective ranking policies. New versions require preregistration and existing model-promotion approval gates; scheduled cycles retain their existing limits and publication rules.

@@ -14,16 +14,18 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 INPUT = ROOT / "data" / "nfl_betting.json"
-EXPECTED_SHA256 = "2b30cffe0399403dac23baf9230ec7f4b3e6486b0aa86f23b8d56909c65c19ca"
+EXPECTED_LF_SHA256 = "2b30cffe0399403dac23baf9230ec7f4b3e6486b0aa86f23b8d56909c65c19ca"
+ORIGINAL_WINDOWS_RAW_SHA256 = "2b30cffe0399403dac23baf9230ec7f4b3e6486b0aa86f23b8d56909c65c19ca"
 OUTPUT = Path(__file__).with_name("diagnostic-20261003.json")
 
 
 def read_games():
     raw = INPUT.read_bytes()
-    digest = sha256(raw).hexdigest()
-    if digest != EXPECTED_SHA256:
+    normalized = raw.replace(b"\r\n", b"\n")
+    digest = sha256(normalized).hexdigest()
+    if digest != EXPECTED_LF_SHA256:
         raise ValueError("Schedule snapshot differs from registered input hash")
-    doc = json.loads(raw)
+    doc = json.loads(normalized)
     games = defaultdict(list)
     seen = set()
     for row in doc["games"]:
@@ -211,8 +213,10 @@ def summarize(rows, challenger, seed):
 def main():
     games, digest, generated = read_games()
     report = {"status": "RETROSPECTIVE_DIAGNOSTIC_ONLY", "source_sha256": digest,
+              "source_hash_encoding": "UTF-8 bytes with CRLF normalized to LF only",
+              "original_windows_raw_sha256": ORIGINAL_WINDOWS_RAW_SHA256,
               "source_generated_at": generated, "source_revision": "2b3d85355c144017594b7b240a434571e57c5767",
-              "holdout_2026_weeks_5_18": "LOCKED_UNTIL_2027-01-09_12_ET",
+              "holdout_2026_weeks_5_18": "LOCKED_UNTIL_AT_LEAST_2027-01-16_12_ET_AND_ALL_WEEK18_FINAL",
               "seasons": {}}
     for season in (2024, 2025, 2026):
         rows = predictions(games, season)
@@ -224,8 +228,8 @@ def main():
                                              "B_only_rank_deficient" if "C" not in x else "paired"
                                              for x in rows if x["week"] == 4))}
         if season in (2024, 2025):
-            item["B_vs_C"] = summarize(rows, "C", 20261003+season)
-            item["B_vs_R_exploratory"] = summarize(rows, "R", 20261013+season)
+            item["B_vs_C"] = summarize(rows, "C", 20261003)
+            item["B_vs_R_exploratory"] = summarize(rows, "R", 20261003)
         report["seasons"][str(season)] = item
     OUTPUT.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({"output": str(OUTPUT), "coverage": {k:v["coverage"] for k,v in report["seasons"].items()}}, indent=2))
