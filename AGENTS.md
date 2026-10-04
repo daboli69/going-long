@@ -45,3 +45,6 @@
 - Do not send alerts, run `--send`/`scripts/smoke_alerts.py`, expose secrets or access excluded private inputs. Use mocks/offline fixtures for ordinary tests.
 - Test before claiming completion: targeted regressions, then affected build/integration checks. Use `.venv/Scripts/python.exe` on Windows. Standard checks: `npm test`; `python -m unittest discover -s tests -p 'test_*.py'`; `npm run build`; `node scripts/build_vercel.mjs`.
 - Update `PROGRESS.md` and `MODEL_RESEARCH.md` only when meaningful; no unchanged-status churn. Keep Progress limited to Completed / Working / Problems / Next / Needs Travis. Record revision, checks, limitations and verified vs unverified findings; no parallel backlog.
+
+## Approved visual system
+The approved images in production `docs/design-reference/` are the visual source of truth. UI work must preserve near-pixel fidelity, reuse `docs/GOING_VISUAL_SYSTEM.md` and real functional components, and introduce no competing style without Travis approval. Real data, accessibility and all model/publication gates remain authoritative.
