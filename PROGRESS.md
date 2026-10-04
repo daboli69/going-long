@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261004-020042-ranking-capture-a` — independent scheduled02:00ET, maximum15min total active work; MANAGER/MODEL RESEARCH/QA, one agent.
-Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured review base `20f48bccdfb985483ac0f71c0edb3dfa0827151c`. Research-only verified collection/settlement; completion and external receipt SHA recorded by the normal workflow.
+Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured review base `20f48bccdfb985483ac0f71c0edb3dfa0827151c`. Review completion `ec5eecf8200e317aca80522c9001c684412cbef3` published and remote-verified. This PROGRESS-only receipt pins that completion; its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 - **Selected02:00 milestone:** actual prospective ranking capture over minor ABBEYS punctuation/UI polish, DFS comparison and paired-C implementation. Recent manual product work is live; untouched decision-time data cannot be recovered later. Acceptance: complete pools/exclusions/12scopes/all Champion/C1/C2 ranks/top3/top10, immutable old bytes/modes, verified append-only settlement and scoped review receipt within15min. One agent; cycle-specific model override unavailable, global settings untouched.
@@ -55,7 +55,7 @@ Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured re
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
--02:00 research milestone verified; finish scoped completion/receipt and release only mutex owner `20261004-020042-ranking-capture-a`. Future scheduled cycles retain independent15min/same gates; no automation change.
+-02:00 research milestone/completion verified; receipt pins the completed result. Release only mutex owner `20261004-020042-ranking-capture-a` after this receipt publication. Future scheduled cycles retain independent15min/same gates; no automation change.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
