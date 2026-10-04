@@ -535,7 +535,7 @@
   @media(max-width:760px){.best-filter-panel{grid-template-columns:1fr 1fr}.best-filter-panel button{white-space:normal}}
   @media(max-width:600px){.today-summary{grid-template-columns:1fr 1fr}.best-discovery{grid-template-columns:1fr}.best-filter-panel{grid-template-columns:1fr}.best-facts{grid-template-columns:1fr 1fr}.best-section-head{align-items:start;flex-direction:column}.best-section-head span{text-align:left}.best-evidence{grid-template-columns:1fr;gap:2px}.best-evidence dd{margin-bottom:8px}.best-actions>*{flex:1}.first-td-game>summary{align-items:flex-start;flex-direction:column}.research-slip{right:12px;bottom:72px}}
 </style>
-<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/dfs-threshold.js"></script><script src="/shared/dfs-team-evidence.js"></script><script src="/shared/dfs-classic.js"></script><script src="/shared/dfs-evidence.js"></script><script src="/shared/dfs-classic-ui.js"></script><link rel="stylesheet" href="/shared/dfs-classic.css"><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script>
+<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/dfs-threshold.js"></script><script src="/shared/dfs-team-evidence.js"></script><script src="/shared/dfs-classic.js"></script><script src="/shared/dfs-evidence.js"></script><script src="/shared/dfs-classic-ui.js"></script><link rel="stylesheet" href="/shared/dfs-classic.css"><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script><script defer src="/shared/abbeys-ui.js"></script><link rel="stylesheet" href="/shared/abbeys.css">
 <style>
 #parlayControls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
 #parlayControls label{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:13px}
@@ -844,7 +844,7 @@
         <button data-sport="ncaa" aria-pressed="false">NCAA</button>
       </div>
       <div class="pos-group" id="btTabGroup" role="navigation" aria-label="Football betting">
-        <button data-section="today" data-tab="best" aria-pressed="true">Today</button><button data-section="opportunities" data-tab="props" aria-pressed="false">Markets</button><button data-section="games" data-tab="games" aria-pressed="false">Games</button><button data-section="dfs" data-tab="dfs" aria-pressed="false">DFS</button><button data-section="cheatsheets" data-tab="cheatsheets" aria-pressed="false">Cheatsheets</button><button data-section="parlay" data-tab="parlays" aria-pressed="false">Parlays</button><button data-section="score" data-tab="score" aria-pressed="false">GOING Score</button><button data-section="jackpot" data-tab="promo" aria-pressed="false">Jackpot</button><details class="bt-more-tools"><summary>More</summary><div><button data-section="research" data-tab="signals" aria-pressed="false">Signals</button></div></details>
+        <button data-section="today" data-tab="best" aria-pressed="true">Today</button><button data-section="opportunities" data-tab="props" aria-pressed="false">Markets</button><button data-section="games" data-tab="games" aria-pressed="false">Games</button><button data-section="dfs" data-tab="dfs" aria-pressed="false">DFS</button><button data-section="cheatsheets" data-tab="cheatsheets" aria-pressed="false">Cheatsheets</button><button data-section="parlay" data-tab="parlays" aria-pressed="false">Parlays</button><button data-section="score" data-tab="score" aria-pressed="false">GOING Score</button><button data-section="jackpot" data-tab="promo" aria-pressed="false">Jackpot</button><details class="bt-more-tools"><summary>More</summary><div><button data-section="abbeys" data-tab="abbeys" aria-pressed="false">ABBEYS</button><button data-section="research" data-tab="signals" aria-pressed="false">Signals</button></div></details>
       </div>
     </div>
     <div class="pos-group" id="btToolGroup" aria-label="Research tools" hidden></div>
@@ -861,6 +861,7 @@
       <details class="score-method"><summary>How GOING SCORE works</summary><p>Any TD is an absolute evidence score led by a conservative touchdown estimate. GOING shrinks a player's short historical window toward a position baseline, then uses the cross-book market only as a small guardrail when at least three books reasonably agree. A disputed market is disclosed and excluded from the score. Scoring-area role, supported matchup evidence and team scoring environment can move the result only modestly. A player is not pushed toward 100 merely for ranking first.</p><p>Pass yards, pass TDs, rush yards and receptions remain slate-relative because their inputs are market-specific continuous measures: air/red-zone volume, carry or target role, opponent weakness and expected game script. Missing evidence is omitted and never filled with a zero. Confidence remains separate. “Due” narratives and individual outcomes do not create a positive score bonus.</p><p>The eligible field requires either a recent unexpired sportsbook quote or recorded current-season participation, which keeps retired, inactive and stale roster profiles off the board without pretending a quote proves availability.</p></details>
       <details class="score-method" id="scoreHistory"><summary>Prospective Score tracking · this device</summary><p>Freeze a score before kickoff to preserve what GOING knew then. Only the scores you choose are captured; this is not a representative product-wide backtest. Only the five existing NFL player Score markets are tracked; NFL/NCAA game markets have no defined GOING Score yet. No win-rate or profitability claim is made.</p><p id="scoreTrackingStatus" role="status"></p><div class="best-actions"><button id="scoreCheckResults">Check published results</button><button id="scoreExportHistory">Export frozen observations</button></div><div id="scoreTrackingRows"></div></details><div class="score-list" id="scoreBoard" aria-live="polite"></div><button class="btn ghost" id="scoreMore" hidden>Show 40 more</button>
     </section>
+    <section id="btAbbeysPanel" hidden aria-label="ABBEYS NFL straight-up predictions" aria-live="polite"></section>
     <section id="btDfsPanel" hidden aria-label="NFL DFS lineup builder">
       <div id="dfsClassicRoot"></div><details id="dfsAdvanced"><summary>Other DFS research: FanDuel, Showdown &amp; projections without salaries</summary>
       <div class="dfs-hero"><small>NFL FANTASY PROJECTION + LINEUP RESEARCH</small><h2>GOING <span>DFS LAB</span></h2><p>Open the current NFL slate instantly with GOING projections, or add an official DraftKings/FanDuel salary file for salary-cap optimization. Both paths use injury-adjusted roles and normally priced sportsbook market evidence when available.</p></div>
@@ -3167,7 +3168,7 @@ window.renderTrade = renderTrade;   // called from the gateway script's setView(
 
 /* Betting engine: numerical probabilities are conditional on historical
    baselines, not calibrated claims of future outcomes. No browser API key. */
-const BETTING_TABS=new Set(['best','score','dfs','props','projections','firsttd','games','cheatsheets','signals','parlays','promo']);
+const BETTING_TABS=new Set(['best','abbeys','score','dfs','props','projections','firsttd','games','cheatsheets','signals','parlays','promo']);
 const requestedBettingTab=new URLSearchParams(location.search).get('tab');
 const BET = {
   props: [], liveAttempts: {}, games: [], coverage: "all", drawerGames: [], gameLimit:100, period:"FT", market: "ALL", sort: "ev", tab: "best", sport: "nfl",
@@ -3187,7 +3188,8 @@ try{
  if(saved&&typeof saved.matchup==='string')BET.matchup=saved.matchup;
 }catch{}
 if(BETTING_TABS.has(requestedBettingTab))BET.tab=requestedBettingTab;
-if(BET.sport==='ncaa'&&['score','dfs','props','projections','firsttd','cheatsheets','promo'].includes(BET.tab))BET.tab='games';
+if(requestedBettingTab==='abbeys')BET.sport='nfl';
+if(BET.sport==='ncaa'&&['score','dfs','abbeys','props','projections','firsttd','cheatsheets','promo'].includes(BET.tab))BET.tab='games';
 function persistBettingView(){try{localStorage.setItem(BETTING_VIEW_STORE,JSON.stringify({sport:BET.sport,tab:BET.tab,period:BET.period,market:BET.market,sort:BET.sort,book:BET.book,matchup:BET.matchup}));}catch{}}
 const MARKET_LABEL = {pass_yds:"Passing yards", rush_yds:"Rushing yards", rec_yds:"Receiving yards",
   receptions:"Receptions", pass_tds:"Passing TDs", rush_tds:"Rushing TDs", rec_tds:"Receiving TDs", atd:"Anytime TD"};
@@ -4847,14 +4849,14 @@ async function renderPromo(){
  }catch(e){$('promoStatus').textContent=e.message+' Automatic checks retry while this screen is open.';$('promoOptions').innerHTML='';}
 }
 
-const BETTING_SECTIONS={today:['best'],score:['score'],dfs:['dfs'],opportunities:['props','projections'],games:['games'],cheatsheets:['cheatsheets'],research:['signals'],parlay:['parlays'],jackpot:['promo','firsttd']};
-const BETTING_TOOL_LABELS={props:'All Bets',projections:'Model Board',firsttd:'First TD',cheatsheets:'Cheatsheets',parlays:'Parlay Builder',promo:'Jackpot'};
+const BETTING_SECTIONS={today:['best'],abbeys:['abbeys'],score:['score'],dfs:['dfs'],opportunities:['props','projections'],games:['games'],cheatsheets:['cheatsheets'],research:['signals'],parlay:['parlays'],jackpot:['promo','firsttd']};
+const BETTING_TOOL_LABELS={abbeys:'ABBEYS',props:'All Bets',projections:'Model Board',firsttd:'First TD',cheatsheets:'Cheatsheets',parlays:'Parlay Builder',promo:'Jackpot'};
 function bettingSection(tab){return Object.entries(BETTING_SECTIONS).find(([,tabs])=>tabs.includes(tab))?.[0]||'today';}
 function syncBettingTabUrl(){
  try{const url=new URL(location.href);if(BET.tab==='props')url.searchParams.delete('tab');else url.searchParams.set('tab',BET.tab);history.replaceState(history.state,'',url);}catch{}
 }
 function chooseBettingTab(tab,{sync=true}={}){
- if(!BETTING_TABS.has(tab)||(BET.sport==='ncaa'&&['score','dfs','props','projections','firsttd','cheatsheets','promo'].includes(tab)))tab=BET.sport==='ncaa'?'games':'props';
+ if(!BETTING_TABS.has(tab)||(BET.sport==='ncaa'&&['score','dfs','abbeys','props','projections','firsttd','cheatsheets','promo'].includes(tab)))tab=BET.sport==='ncaa'?'games':'props';
  BET.tab=tab;BET.page=0;
  document.querySelector('#btTabGroup .bt-more-tools')?.removeAttribute('open');
  if(tab==='projections'){BET.sort='projection';$('btSort').value='projection';if(BET.market==='ALL')BET.market='rec_yds';}
@@ -4883,7 +4885,7 @@ function openGlobalSearchResult(row){
  $('goingSearch').value='';$('goingSearchResults').hidden=true;chooseBettingTab(row.tab);if(row.tab==='props'){$('btSearch').value=row.query;updateBetFilters();}
 }
 function renderBettingTools(){
- const section=bettingSection(BET.tab),tabs=(BETTING_SECTIONS[section]||[]).filter(tab=>BET.sport==='nfl'||!['dfs','props','projections','firsttd','promo'].includes(tab)),group=$('btToolGroup');
+ const section=bettingSection(BET.tab),tabs=(BETTING_SECTIONS[section]||[]).filter(tab=>BET.sport==='nfl'||!['dfs','abbeys','props','projections','firsttd','promo'].includes(tab)),group=$('btToolGroup');
  group.innerHTML=tabs.length>1?tabs.map(tab=>`<button data-tab="${tab}" aria-pressed="${tab===BET.tab}">${BETTING_TOOL_LABELS[tab]}</button>`).join(''):'';group.hidden=tabs.length<2;
 }
 function renderBetting(){
@@ -4894,7 +4896,7 @@ function renderBetting(){
   if($('btSort').querySelector(`[value="${BET.sort}"]`))$('btSort').value=BET.sort;
   $('btPeriodGroup').querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.period===BET.period)));
   $("btPropsPanel").hidden=!["props","projections"].includes(BET.tab); $("btGamesPanel").hidden=BET.tab!=="games";
-  $("btCheatsheetsPanel").hidden=BET.tab!=="cheatsheets";$('btOverview').hidden=BET.tab==='cheatsheets';
+  $("btCheatsheetsPanel").hidden=BET.tab!=="cheatsheets";$('btOverview').hidden=['cheatsheets','abbeys'].includes(BET.tab);
   $("btTabGroup").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.section===bettingSection(BET.tab))));renderBettingTools();
   $('btCoverageGroup').hidden=BET.sport!=='ncaa';
   $('btBook').hidden=BET.tab==='projections';
@@ -4906,7 +4908,9 @@ function renderBetting(){
   $("btSignalsPanel").hidden=BET.tab!=="signals";
   $("btScorePanel").hidden=BET.tab!=="score";
   $("btDfsPanel").hidden=BET.tab!=="dfs";
-  $("btPeriodGroup").hidden=["signals","score","dfs","best","promo","parlays","firsttd","cheatsheets"].includes(BET.tab);
+  $("btAbbeysPanel").hidden=BET.tab!=="abbeys";if(BET.tab==="abbeys")window.GoingAbbeysUI?.render($("btAbbeysPanel"));
+  $("btTabGroup").querySelector('[data-section="abbeys"]').hidden=BET.sport!=="nfl";
+  $("btPeriodGroup").hidden=["signals","score","dfs","abbeys","best","promo","parlays","firsttd","cheatsheets"].includes(BET.tab);
   persistBettingView();renderPropsTable(); renderGamesList(); if(BET.tab==="signals")renderSignals(); if(BET.tab==="score")renderGoingScore(); if(BET.tab==="dfs")renderDfs(); if(BET.tab==="best")renderBestPlays();
   if(BET.tab==="cheatsheets"&&window.GoingFootballCheatsheets){const week=footballWeek();window.GoingFootballCheatsheets.render($('btCheatsheetsPanel'),{sport:BET.sport,season:BET.context?.season,asOf:BET.context?.as_of,modelUpdated:BET.history?.generated_at,learningUpdated:BET.learning?.generated_at,quotesUpdated:BET.nflData?.generated_at,priceStatus:BET.liveStatus,loading:BET.loading,props:BET.props,games:BET.games.filter(g=>g.sport==='nfl'),schedule:(BET.history?.games?.nfl||[]).filter(g=>inCurrentFootballWeek(g.kickoff)&&Date.parse(g.kickoff)>Date.now()),history:BET.history,context:BET.context,learning:BET.learning,week,isCurrentProp:currentWeekProp,isCurrentGame:inCurrentFootballWeek,quoteStatus:quoteState,freshGameQuote:activeGameQuote,currentGameMarket,bestGameLines,evaluateQuote:p=>({probabilities:propProbabilities(p),best:computePropRow(p)}),openTab:chooseBettingTab});}
 }

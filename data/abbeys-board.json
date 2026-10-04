@@ -1,0 +1,691 @@
+{
+  "schemaVersion": 1,
+  "modelVersion": "abbeys-current-season-v1",
+  "generatedAt": "2026-10-04T03:25:23.838Z",
+  "weeks": [
+    {
+      "methodology": {
+        "description": "Symmetric average of team points scored and opponent points allowed, plus this season’s designated-home scoring margin. Earlier weeks only; no odds or prior-season ratings.",
+        "limitations": [
+          "Direction stability is a leave-one-week-out sensitivity diagnostic, not win probability.",
+          "No validated opponent/recency/personnel weighting; exact score is an illustrative point forecast.",
+          "Historical method checks use each season independently; official prospective results start with this frozen board."
+        ],
+        "name": "Current-season scoring benchmark"
+      },
+      "modelVersion": "abbeys-current-season-v1",
+      "monday": {
+        "away": "ATL",
+        "gameId": "2026_04_ATL_NO",
+        "home": "NO",
+        "predictedAway": 22,
+        "predictedHome": 25
+      },
+      "picks": [
+        {
+          "away": "IND",
+          "concerns": [
+            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
+            "WAS has allowed more points/game than IND (30.7 vs 30.3).",
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "IND Ashton Dulin: Questionable (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "WAS Frankie Luvu: Limited Participation in Practice (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "WAS Charles Omenihu: Limited Participation in Practice (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "WAS Terry McLaurin: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "WAS Sam Cosmi: Out (Concussion). Current injury report; participation and numerical impact are uncertain.",
+            "WAS Rachaad White: Out (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "WAS Chig Okonkwo: Limited Participation in Practice (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "WAS Percy Butler: Questionable (Concussion). Current injury report; participation and numerical impact are uncertain.",
+            "WAS Jayden Daniels: Out (Elbow). Current injury report; participation and numerical impact are uncertain.",
+            "WAS Ben Sinnott: Limited Participation in Practice (Rib). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Sensitive lean",
+          "gameId": "2026_04_IND_WAS",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "WAS",
+          "kickoff": "2026-10-04T13:30:00+00:00",
+          "neutral": false,
+          "projectedAway": 27,
+          "projectedHome": 28,
+          "rawAway": 26.895833333333336,
+          "rawHome": 28.104166666666664,
+          "season": 2026,
+          "sensitivityRange": [
+            -2.59375,
+            5.53125
+          ],
+          "settlement": null,
+          "support": [
+            "WAS scores 25.0 points/game; IND allows 30.3 in this season's earlier games.",
+            "WAS allows 30.7 points/game; IND scores 24.0. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: WAS -5.7/game versus IND -6.3/game."
+          ],
+          "week": 4,
+          "winner": "WAS"
+        },
+        {
+          "away": "ARI",
+          "concerns": [
+            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
+            "ARI has the higher raw scoring average (21.0 vs 15.3); defense and the designated-home term drive the other direction.",
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "ARI Dadrion Taylor-Demerson: Out (Back). Current injury report; participation and numerical impact are uncertain.",
+            "NYG Andrew Thomas: Limited Participation in Practice (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Sensitive lean",
+          "gameId": "2026_04_ARI_NYG",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "NYG",
+          "kickoff": "2026-10-04T17:00:00+00:00",
+          "neutral": false,
+          "projectedAway": 19,
+          "projectedHome": 22,
+          "rawAway": 19.229166666666664,
+          "rawHome": 21.604166666666668,
+          "season": 2026,
+          "sensitivityRange": [
+            -0.3125,
+            4.15625
+          ],
+          "settlement": null,
+          "support": [
+            "NYG scores 15.3 points/game; ARI allows 27.0 in this season's earlier games.",
+            "NYG allows 18.3 points/game; ARI scores 21.0. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: NYG -3.0/game versus ARI -6.0/game."
+          ],
+          "week": 4,
+          "winner": "NYG"
+        },
+        {
+          "away": "DAL",
+          "concerns": [
+            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
+            "DAL has allowed more points/game than HOU (27.3 vs 25.0).",
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "DAL Cobie Durant: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "DAL DeMarvion Overshown: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "HOU Jadeveon Clowney: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "HOU M.J. Stewart: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "HOU Azeez Al-Shaair: Out (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "HOU Jake Hansen: Questionable (Calf). Current injury report; participation and numerical impact are uncertain.",
+            "HOU Logan Hall: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "HOU Ed Ingram: Questionable (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "HOU British Brooks: Did Not Participate In Practice (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Sensitive lean",
+          "gameId": "2026_04_DAL_HOU",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "HOU",
+          "kickoff": "2026-10-04T17:00:00+00:00",
+          "neutral": false,
+          "projectedAway": 27,
+          "projectedHome": 23,
+          "rawAway": 26.729166666666664,
+          "rawHome": 23.104166666666664,
+          "season": 2026,
+          "sensitivityRange": [
+            -6.8125,
+            2.53125
+          ],
+          "settlement": null,
+          "support": [
+            "DAL scores 29.3 points/game; HOU allows 25.0 in this season's earlier games.",
+            "DAL allows 27.3 points/game; HOU scores 18.0. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: DAL +2.0/game versus HOU -7.0/game."
+          ],
+          "week": 4,
+          "winner": "DAL"
+        },
+        {
+          "away": "GB",
+          "concerns": [
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "GB Aaron Banks: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "GB Lukas Van Ness: Limited Participation in Practice (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "GB Jacob Monk: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
+            "GB Edgerrin Cooper: Questionable (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "GB Warren Brinson: Out (Calf). Current injury report; participation and numerical impact are uncertain.",
+            "GB Anthony Campbell: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "GB Jager Burton: Questionable (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "TB Rakeem Nunez-Roches: Questionable (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "TB Baker Mayfield: Out (Thumb). Current injury report; participation and numerical impact are uncertain.",
+            "TB Ko Kieft: Out (Elbow). Current injury report; participation and numerical impact are uncertain.",
+            "TB SirVocea Dennis: Questionable (Calf). Current injury report; participation and numerical impact are uncertain.",
+            "TB Benjamin Morrison: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
+            "TB Rueben Bain Jr.: Out (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Stable lean",
+          "gameId": "2026_04_GB_TB",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "TB",
+          "kickoff": "2026-10-04T17:00:00+00:00",
+          "neutral": false,
+          "projectedAway": 22,
+          "projectedHome": 26,
+          "rawAway": 22.0625,
+          "rawHome": 25.9375,
+          "season": 2026,
+          "sensitivityRange": [
+            1.1875,
+            7.78125
+          ],
+          "settlement": null,
+          "support": [
+            "TB scores 20.7 points/game; GB allows 30.3 in this season's earlier games.",
+            "TB allows 26.3 points/game; GB scores 18.7. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: TB -5.7/game versus GB -11.7/game."
+          ],
+          "week": 4,
+          "winner": "TB"
+        },
+        {
+          "away": "JAX",
+          "concerns": [
+            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "CIN B.J. Hill: Questionable (Achilles). Current injury report; participation and numerical impact are uncertain.",
+            "CIN Dalton Risner: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "CIN Kyle Dugger: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
+            "CIN Bryan Cook: Questionable (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "CIN DJ Turner II: Limited Participation in Practice (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "CIN Swayze Bozeman: Questionable (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "CIN Colbie Young: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "JAX Montaric Brown: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "JAX Christian Braswell: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "JAX LeQuint Allen Jr.: Limited Participation in Practice (Hip). Current injury report; participation and numerical impact are uncertain.",
+            "JAX Albert Regis: Questionable (Elbow). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Sensitive lean",
+          "gameId": "2026_04_JAX_CIN",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "CIN",
+          "kickoff": "2026-10-04T17:00:00+00:00",
+          "neutral": false,
+          "projectedAway": 24,
+          "projectedHome": 20,
+          "rawAway": 23.729166666666664,
+          "rawHome": 19.770833333333336,
+          "season": 2026,
+          "sensitivityRange": [
+            -10.96875,
+            0.9375
+          ],
+          "settlement": null,
+          "support": [
+            "JAX scores 27.3 points/game; CIN allows 21.0 in this season's earlier games.",
+            "JAX allows 12.0 points/game; CIN scores 26.7. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: JAX +15.3/game versus CIN +5.7/game."
+          ],
+          "week": 4,
+          "winner": "JAX"
+        },
+        {
+          "away": "LA",
+          "concerns": [
+            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "LA Aaron Donald: Out (Back). Current injury report; participation and numerical impact are uncertain.",
+            "LA Colby Parkinson: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "LA Jaylen Watson: Out (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "LA Josaiah Stewart: Questionable (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "LA Terrance Ferguson: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "PHI Dallas Goedert: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "PHI Fred Johnson: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "PHI Marcus Epps: Out (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "PHI Marquise Brown: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "PHI Zack Baun: Out (Concussion). Current injury report; participation and numerical impact are uncertain.",
+            "PHI DeVonta Smith: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "PHI Jihaad Campbell: Limited Participation in Practice (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Sensitive lean",
+          "gameId": "2026_04_LA_PHI",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "PHI",
+          "kickoff": "2026-10-04T17:00:00+00:00",
+          "neutral": false,
+          "projectedAway": 21,
+          "projectedHome": 20,
+          "rawAway": 21.229166666666664,
+          "rawHome": 20.104166666666664,
+          "season": 2026,
+          "sensitivityRange": [
+            -7.59375,
+            3.03125
+          ],
+          "settlement": null,
+          "support": [
+            "LA scores 20.3 points/game; PHI allows 23.0 in this season's earlier games.",
+            "LA allows 21.0 points/game; PHI scores 18.3. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: LA -0.7/game versus PHI -4.7/game."
+          ],
+          "week": 4,
+          "winner": "LA"
+        },
+        {
+          "away": "NE",
+          "concerns": [
+            "BUF has allowed more points/game than NE (26.0 vs 17.0).",
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "BUF DJ Moore: Limited Participation in Practice (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "BUF Damar Hamlin: Limited Participation in Practice (Ribs). Current injury report; participation and numerical impact are uncertain.",
+            "BUF Terrel Bernard: Did Not Participate In Practice (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "BUF Christian Benford: Questionable (Toe). Current injury report; participation and numerical impact are uncertain.",
+            "BUF Ray Davis: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "BUF Keon Coleman: Limited Participation in Practice (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "NE Morgan Moses: Questionable (Foot). Current injury report; participation and numerical impact are uncertain.",
+            "NE Dre'Mont Jones: Questionable (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "NE Reggie Gilliam: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "NE Christian Elliss: Questionable (Chest). Current injury report; participation and numerical impact are uncertain.",
+            "NE Christian Barmore: Out (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "NE Brenden Schooler: Out (Back). Current injury report; participation and numerical impact are uncertain.",
+            "NE Christian Gonzalez: Out (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "NE Craig Woodson: Questionable (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "NE Channing Canada: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "NE Eli Raridon: Questionable (Thigh). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Stable lean",
+          "gameId": "2026_04_NE_BUF",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "BUF",
+          "kickoff": "2026-10-04T17:00:00+00:00",
+          "neutral": false,
+          "projectedAway": 19,
+          "projectedHome": 26,
+          "rawAway": 18.5625,
+          "rawHome": 25.770833333333332,
+          "season": 2026,
+          "sensitivityRange": [
+            0.4375,
+            12.78125
+          ],
+          "settlement": null,
+          "support": [
+            "BUF scores 33.7 points/game; NE allows 17.0 in this season's earlier games.",
+            "BUF allows 26.0 points/game; NE scores 12.0. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: BUF +7.7/game versus NE -5.0/game."
+          ],
+          "week": 4,
+          "winner": "BUF"
+        },
+        {
+          "away": "NYJ",
+          "concerns": [
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "CHI Cam Lewis: Doubtful (Hip). Current injury report; participation and numerical impact are uncertain.",
+            "CHI Braxton Jones: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "CHI Kyler Gordon: Out (Calf). Current injury report; participation and numerical impact are uncertain.",
+            "CHI Noah Sewell: Out (Achilles). Current injury report; participation and numerical impact are uncertain.",
+            "CHI Caleb Williams: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "CHI Shemar Turner: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "NYJ Kingsley Enagbare: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "NYJ Dylan Parham: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "NYJ Breece Hall: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
+            "NYJ Adonai Mitchell: Out (Finger). Current injury report; participation and numerical impact are uncertain.",
+            "NYJ Francisco Mauigoa: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
+            "NYJ Mason Taylor: Out (Thumb). Current injury report; participation and numerical impact are uncertain.",
+            "NYJ Kenyon Sadiq: Questionable (Back). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Stable lean",
+          "gameId": "2026_04_NYJ_CHI",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "CHI",
+          "kickoff": "2026-10-04T17:00:00+00:00",
+          "neutral": false,
+          "projectedAway": 19,
+          "projectedHome": 25,
+          "rawAway": 19.0625,
+          "rawHome": 25.4375,
+          "season": 2026,
+          "sensitivityRange": [
+            1.6875,
+            10.53125
+          ],
+          "settlement": null,
+          "support": [
+            "CHI scores 29.7 points/game; NYJ allows 20.3 in this season's earlier games.",
+            "CHI allows 17.7 points/game; NYJ scores 21.3. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: CHI +12.0/game versus NYJ +1.0/game."
+          ],
+          "week": 4,
+          "winner": "CHI"
+        },
+        {
+          "away": "TEN",
+          "concerns": [
+            "BAL has allowed more points/game than TEN (26.0 vs 19.7).",
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "BAL Chris Moore: Questionable (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "BAL Ronnie Stanley: Questionable (Toe). Current injury report; participation and numerical impact are uncertain.",
+            "BAL Ethan Pocic: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "BAL Trey Hendrickson: Out (Finger). Current injury report; participation and numerical impact are uncertain.",
+            "BAL Jovaughn Gwyn: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "BAL Zay Flowers: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "TEN Tyjae Spears: Questionable (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "TEN Kevin Winston Jr.: Questionable (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Stable lean",
+          "gameId": "2026_04_TEN_BAL",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "BAL",
+          "kickoff": "2026-10-04T17:00:00+00:00",
+          "neutral": false,
+          "projectedAway": 19,
+          "projectedHome": 26,
+          "rawAway": 18.729166666666668,
+          "rawHome": 25.604166666666668,
+          "season": 2026,
+          "sensitivityRange": [
+            2.15625,
+            11.28125
+          ],
+          "settlement": null,
+          "support": [
+            "BAL scores 30.7 points/game; TEN allows 19.7 in this season's earlier games.",
+            "BAL allows 26.0 points/game; TEN scores 12.3. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: BAL +4.7/game versus TEN -7.3/game."
+          ],
+          "week": 4,
+          "winner": "BAL"
+        },
+        {
+          "away": "MIA",
+          "concerns": [
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "MIA Tucker Addington: Limited Participation in Practice (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "MIA Rob Beal Jr.: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "MIA Storm Duck: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "MIA Caleb Douglas: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "MIN Justin Jefferson: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "MIN Charles Demmings: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "MIN Brett Thorson: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Stable lean",
+          "gameId": "2026_04_MIA_MIN",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "MIN",
+          "kickoff": "2026-10-04T20:05:00+00:00",
+          "neutral": false,
+          "projectedAway": 12,
+          "projectedHome": 27,
+          "rawAway": 12.395833333333332,
+          "rawHome": 26.604166666666668,
+          "season": 2026,
+          "sensitivityRange": [
+            13.15625,
+            14.9375
+          ],
+          "settlement": null,
+          "support": [
+            "MIN scores 23.7 points/game; MIA allows 28.7 in this season's earlier games.",
+            "MIN allows 13.7 points/game; MIA scores 12.0. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: MIN +10.0/game versus MIA -16.7/game."
+          ],
+          "week": 4,
+          "winner": "MIN"
+        },
+        {
+          "away": "DEN",
+          "concerns": [
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "DEN Dondrea Tillman: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "SF Mike Evans: Questionable (Ribs). Current injury report; participation and numerical impact are uncertain.",
+            "SF KhaDarel Hodge: Did Not Participate In Practice (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "SF Dre Greenlaw: Questionable (Quadricep). Current injury report; participation and numerical impact are uncertain.",
+            "SF Nick Bosa: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "SF Keion White: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "SF Mykel Williams: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "SF Jaden Dugger: Questionable (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "SF James Thompson Jr.: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "SF Romello Height: Limited Participation in Practice (Hand). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Stable lean",
+          "gameId": "2026_04_DEN_SF",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "SF",
+          "kickoff": "2026-10-04T20:25:00+00:00",
+          "neutral": false,
+          "projectedAway": 18,
+          "projectedHome": 28,
+          "rawAway": 17.895833333333336,
+          "rawHome": 28.4375,
+          "season": 2026,
+          "sensitivityRange": [
+            5.15625,
+            14.1875
+          ],
+          "settlement": null,
+          "support": [
+            "SF scores 32.7 points/game; DEN allows 23.3 in this season's earlier games.",
+            "SF allows 16.7 points/game; DEN scores 20.0. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: SF +16.0/game versus DEN -3.3/game."
+          ],
+          "week": 4,
+          "winner": "SF"
+        },
+        {
+          "away": "KC",
+          "concerns": [
+            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
+            "LV has allowed more points/game than KC (18.0 vs 16.7).",
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "KC Josh Simmons: Out (Back). Current injury report; participation and numerical impact are uncertain.",
+            "LV Cody White: Limited Participation in Practice (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "LV Brock Bowers: Limited Participation in Practice (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "LV Jackson Powers-Johnson: Out (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Sensitive lean",
+          "gameId": "2026_04_KC_LV",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "LV",
+          "kickoff": "2026-10-04T20:25:00+00:00",
+          "neutral": false,
+          "projectedAway": 23,
+          "projectedHome": 24,
+          "rawAway": 23.229166666666664,
+          "rawHome": 23.4375,
+          "season": 2026,
+          "sensitivityRange": [
+            -1.71875,
+            1.65625
+          ],
+          "settlement": null,
+          "support": [
+            "LV scores 29.3 points/game; KC allows 16.7 in this season's earlier games.",
+            "LV allows 18.0 points/game; KC scores 29.3. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: LV +11.3/game versus KC +12.7/game."
+          ],
+          "week": 4,
+          "winner": "LV"
+        },
+        {
+          "away": "LAC",
+          "concerns": [
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "LAC Dalvin Tomlinson: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "LAC Donte Jackson: Questionable (Concussion). Current injury report; participation and numerical impact are uncertain.",
+            "LAC Derwin James: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "LAC Kayode Awosika: Out (Fibula). Current injury report; participation and numerical impact are uncertain.",
+            "LAC Elijah Molden: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "LAC Trey Lance: Questionable (Groin). Current injury report; participation and numerical impact are uncertain.",
+            "LAC Charlie Kolar: Out (Forearm). Current injury report; participation and numerical impact are uncertain.",
+            "LAC Ladd McConkey: Questionable (Foot). Current injury report; participation and numerical impact are uncertain.",
+            "LAC Brenen Thompson: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
+            "SEA Chazz Surratt: Questionable (Calf). Current injury report; participation and numerical impact are uncertain.",
+            "SEA Ty Okada: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "SEA Zach Charbonnet: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "SEA George Holani: Limited Participation in Practice (Rib). Current injury report; participation and numerical impact are uncertain.",
+            "SEA Jadarian Price: Out (Chest). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Stable lean",
+          "gameId": "2026_04_LAC_SEA",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "SEA",
+          "kickoff": "2026-10-04T20:25:00+00:00",
+          "neutral": false,
+          "projectedAway": 15,
+          "projectedHome": 26,
+          "rawAway": 15.229166666666668,
+          "rawHome": 25.604166666666664,
+          "season": 2026,
+          "sensitivityRange": [
+            6.78125,
+            12.9375
+          ],
+          "settlement": null,
+          "support": [
+            "SEA scores 25.0 points/game; LAC allows 25.3 in this season's earlier games.",
+            "SEA allows 16.7 points/game; LAC scores 14.7. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: SEA +8.3/game versus LAC -10.7/game."
+          ],
+          "week": 4,
+          "winner": "SEA"
+        },
+        {
+          "away": "DET",
+          "concerns": [
+            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
+            "DET has the higher raw scoring average (31.0 vs 29.7); defense and the designated-home term drive the other direction.",
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "CAR Damien Lewis: Out (Elbow). Current injury report; participation and numerical impact are uncertain.",
+            "CAR Xavier Legette: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "CAR Jalen Coker: Questionable (Quadricep). Current injury report; participation and numerical impact are uncertain.",
+            "CAR Cam Jackson: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "CAR Monroe Freeling: Questionable (Concussion). Current injury report; participation and numerical impact are uncertain.",
+            "CAR Lee Hunter: Questionable (Foot). Current injury report; participation and numerical impact are uncertain.",
+            "DET D.J. Reed: Questionable (Rib). Current injury report; participation and numerical impact are uncertain.",
+            "DET Ben Bartch: Out (Foot). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Sensitive lean",
+          "gameId": "2026_04_DET_CAR",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "CAR",
+          "kickoff": "2026-10-05T00:20:00+00:00",
+          "neutral": false,
+          "projectedAway": 29,
+          "projectedHome": 31,
+          "rawAway": 28.895833333333336,
+          "rawHome": 31.104166666666668,
+          "season": 2026,
+          "sensitivityRange": [
+            -6.71875,
+            8.65625
+          ],
+          "settlement": null,
+          "support": [
+            "CAR scores 29.7 points/game; DET allows 31.7 in this season's earlier games.",
+            "CAR allows 27.7 points/game; DET scores 31.0. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: CAR +2.0/game versus DET -0.7/game."
+          ],
+          "week": 4,
+          "winner": "CAR"
+        },
+        {
+          "away": "ATL",
+          "concerns": [
+            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
+            "NO has allowed more points/game than ATL (27.7 vs 22.7).",
+            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
+            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
+            "ATL Samson Ebukam: Limited Participation in Practice (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "ATL Divine Deablo: Limited Participation in Practice (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "ATL Kendal Daniels: Limited Participation in Practice (Achilles). Current injury report; participation and numerical impact are uncertain.",
+            "NO Kaden Elliss: Did Not Participate In Practice (Calf). Current injury report; participation and numerical impact are uncertain.",
+            "NO Carl Granderson: Did Not Participate In Practice (Ankle). Current injury report; participation and numerical impact are uncertain.",
+            "NO Noah Fant: Limited Participation in Practice (Abdomen). Current injury report; participation and numerical impact are uncertain.",
+            "NO Anfernee Jennings: Did Not Participate In Practice (Knee). Current injury report; participation and numerical impact are uncertain.",
+            "NO Pete Werner: Did Not Participate In Practice (Shoulder). Current injury report; participation and numerical impact are uncertain.",
+            "NO Barion Brown: Limited Participation in Practice (Hamstring). Current injury report; participation and numerical impact are uncertain.",
+            "NO Christen Miller: Limited Participation in Practice (Toe). Current injury report; participation and numerical impact are uncertain.",
+            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
+          ],
+          "confidence": "Sensitive lean",
+          "gameId": "2026_04_ATL_NO",
+          "gamesAway": 3,
+          "gamesHome": 3,
+          "home": "NO",
+          "kickoff": "2026-10-06T00:15:00+00:00",
+          "neutral": false,
+          "projectedAway": 22,
+          "projectedHome": 25,
+          "rawAway": 21.895833333333336,
+          "rawHome": 25.270833333333336,
+          "season": 2026,
+          "sensitivityRange": [
+            -4.21875,
+            11.1875
+          ],
+          "settlement": null,
+          "support": [
+            "NO scores 27.0 points/game; ATL allows 22.7 in this season's earlier games.",
+            "NO allows 27.7 points/game; ATL scores 17.0. Both scoring and prevention enter the forecast equally.",
+            "Net scoring: NO -0.7/game versus ATL -5.7/game."
+          ],
+          "week": 4,
+          "winner": "NO"
+        }
+      ],
+      "season": 2026,
+      "week": 4,
+      "frozenAt": "2026-10-04T03:24:51.384Z",
+      "observationHash": "71d4ac15721b3f01a1ec3c5cd46980d3b741c5be7c0bb7fd0b44cc22da82d1cd",
+      "cohort": "manual-official",
+      "invalidations": [],
+      "source": {
+        "generatedAt": "2026-10-04T00:40:11.847553+00:00",
+        "sourceSHA": "dd9a943050dfb6276541736f4ea4263edc2c63e68a4392f5c51b092101a952cb",
+        "cutoff": "2026-10-04T03:24:51.384Z",
+        "season": 2026
+      },
+      "marketContext": null
+    }
+  ],
+  "record": {
+    "wins": 0,
+    "losses": 0,
+    "ties": 0,
+    "pending": 15
+  },
+  "recordScope": "Manual official boards only. Prospective holdout aggregate evaluation is locked until the registered release; no reconstructed historical picks."
+}

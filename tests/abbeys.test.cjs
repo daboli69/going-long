@@ -152,3 +152,8 @@ test('Monday exact-score grading uses frozen integers and appends actual score e
   assert.equal(after.predictedAway,before.predictedAway);assert.equal(after.predictedHome,before.predictedHome);
   assert.equal(after.settlement.awayAbsoluteError,Math.abs(17-before.predictedAway));assert.equal(after.settlement.homeAbsoluteError,Math.abs(27-before.predictedHome));
 });
+test('real-sized public source receipts verify beyond Node default one-MiB child-output buffer',t=>{
+  const {root,git}=temporarySource(t),file=path.join(root,'data/nfl_betting.json'),schedule=JSON.parse(fs.readFileSync(file));
+  schedule.ignoredProviderPayload='x'.repeat(1500000);fs.writeFileSync(file,JSON.stringify(schedule));git(['add','data/nfl_betting.json']);git(['commit','-m','large public source fixture']);
+  collector.capture(root,4,'manual');assert.equal(collector.verify(root).snapshots,1);
+});

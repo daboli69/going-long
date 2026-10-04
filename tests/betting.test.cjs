@@ -302,7 +302,7 @@ test('Book-added team abbreviations do not prevent player matching',t=>{
 });
 test('Betting navigation promotes GOING SCORE and nests specialist tools',t=>{
   const {api:a,w}=setup(t);a.wireBetting();a.renderBetting();
-  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','DFS','Cheatsheets','Parlays','GOING Score','Jackpot','Signals']);
+  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','DFS','Cheatsheets','Parlays','GOING Score','Jackpot','ABBEYS','Signals']);
   assert.equal(w.document.querySelector('[data-section="dfs"]').closest('.bt-more-tools'),null,'NFL DFS is directly discoverable');
   w.document.querySelector('#btTabGroup [data-section="cheatsheets"]').click();assert.equal(a.BET.tab,'cheatsheets');assert.equal(w.document.querySelector('#btCheatsheetsPanel').hidden,false);
   w.document.querySelector('#btTabGroup [data-section="opportunities"]').click();
@@ -311,6 +311,9 @@ test('Betting navigation promotes GOING SCORE and nests specialist tools',t=>{
   assert.equal(a.BET.tab,'promo');
   w.document.querySelector('#btToolGroup [data-tab="firsttd"]').click();assert.equal(a.BET.tab,'firsttd');
   assert.match(w.location.search,/tab=firsttd/);assert.equal(w.document.querySelector('#btFirstTdPanel').hidden,false);
+  const abbeys=w.document.querySelector('[data-section="abbeys"]');assert.ok(abbeys.closest('.bt-more-tools'),'ABBEYS preserves the approved nine-tool layout');
+  abbeys.click();assert.equal(a.BET.tab,'abbeys');assert.equal(w.document.querySelector('#btAbbeysPanel').hidden,false);assert.match(w.location.search,/tab=abbeys/);
+  w.document.querySelector('#btSportGroup [data-sport="ncaa"]').click();assert.equal(abbeys.hidden,true);assert.equal(w.document.querySelector('#btAbbeysPanel').hidden,true);assert.equal(a.BET.tab,'games');
 });
 test('GOING SCORE renders an auditable score apart from probability',t=>{
  const {api:a,w}=setup(t),kickoff=future();a.BET.tab='score';a.BET.games=[{id:'g',sport:'nfl',home:'B',away:'A',homeCode:'B',awayCode:'A',kickoff,source:'schedule'}];

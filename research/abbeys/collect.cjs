@@ -6,6 +6,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
 const cp=require('node:child_process');
+const GIT_BUFFER=32*1024*1024;
 const core=require('../../shared/abbeys-core.cjs');
 const {appendRecord,readRecords,hashPayload,canonicalJSON}=require('../../shared/ranking-journal.cjs');
 const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
@@ -13,6 +14,7 @@ const textHash=file=>sha(fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n'));
 const JOURNAL='data/abbeys/journal';
 const BOARD='data/abbeys-board.json';
 function readSource(root,name) {
+  if (fs.statSync(path.join(root,name)).size>GIT_BUFFER) throw new Error('Public source exceeds the verified 32 MiB bound');
   const bytes=fs.readFileSync(path.join(root,name));
   const data=JSON.parse(bytes);
   return {data,receipt:{file:name,sha256:hashPayload(data),hashEncoding:'canonical-json-v1',generatedAt:data.generated_at}};
@@ -24,13 +26,15 @@ function sources(root,now) {
   return {input:core.projectSources(schedule.data,results.data,season,now),receipts:[schedule.receipt,results.receipt],schedule:schedule.data};
 }
 function modelHash(root) {return textHash(path.join(root,'shared/abbeys-core.cjs'));}
-function git(root,args) {return cp.execFileSync('git',args,{cwd:root,encoding:'utf8'}).trim();}
+function git(root,args) {return cp.execFileSync('git',args,{cwd:root,encoding:'utf8',maxBuffer:GIT_BUFFER}).trim();}
+function gitJSON(root,commit,file) {return JSON.parse(cp.execFileSync('git',['show',`${commit}:${file}`],{cwd:root,encoding:'utf8',maxBuffer:GIT_BUFFER}));}
 function sourceCommit(root) {
   if (git(root,['status','--porcelain','--','data/nfl_betting.json','data/results.json','data/injury_context.json'])) throw new Error('Public input files have uncommitted modifications');
   return git(root,['rev-parse','HEAD']);
 }
 function capture(root,week,mode='manual') {
   const now=new Date().toISOString(),commit=sourceCommit(root),s=sources(root,now);
+  for (const receipt of s.receipts) if (receipt.sha256!==hashPayload(gitJSON(root,commit,receipt.file))) throw new Error('Public input differs from recorded Git revision');
   if (!['manual','scheduled'].includes(mode)) throw new Error('Capture mode must be manual or scheduled');
   const prediction=core.predictWeek(s.input,week);
   const records=readRecords(path.join(root,JOURNAL));
@@ -69,7 +73,7 @@ function verify(root) {
       if (p.schemaVersion!==1 || p.frozenAt!==r.observedAt || p.input.cutoff!==p.frozenAt || p.inputHash!==hashPayload(p.input) || p.modelVersion!==core.MODEL_VERSION || p.modelSHA256!==modelHash(root) || p.protocolSHA256!==textHash(path.join(root,'research/abbeys/PROTOCOL.md'))) throw new Error('Snapshot version/input integrity failure');
       for (const receipt of p.sourceReceipts) {
         if (!['data/nfl_betting.json','data/results.json'].includes(receipt.file) || receipt.hashEncoding!=='canonical-json-v1') throw new Error('Unknown predictive source');
-        const publicData=JSON.parse(cp.execFileSync('git',['show',`${p.sourceCommit}:${receipt.file}`],{cwd:root,encoding:'utf8'}));
+        const publicData=gitJSON(root,p.sourceCommit,receipt.file);
         if (receipt.sha256!==hashPayload(publicData)) throw new Error('Predictive source differs from recorded Git revision');
       }
       if (canonicalJSON(core.predictWeek(p.input,p.prediction.week))!==canonicalJSON(p.prediction)) throw new Error('Frozen prediction is not reproducible');
@@ -81,8 +85,8 @@ function verify(root) {
         const pick=frozen.payload.prediction.picks.find(g=>g.gameId===p.gameId);
         if (!pick || canonicalJSON(core.settlementFor(pick,p.result,p.source,r.observedAt))!==canonicalJSON(p.settlement) || p.settlement.state!=='settled') throw new Error('Invalid settlement evidence');
         if (!p.sourceSHA256 || !Number.isFinite(Date.parse(p.resultReceiptAt)) || Date.parse(p.resultReceiptAt)>Date.parse(r.observedAt) || Date.parse(p.resultReceiptAt)<=Date.parse(pick.kickoff)) throw new Error('Settlement source chronology failure');
-        const schedule=JSON.parse(cp.execFileSync('git',['show',`${p.sourceCommit}:data/nfl_betting.json`],{cwd:root,encoding:'utf8'}));
-        const results=JSON.parse(cp.execFileSync('git',['show',`${p.sourceCommit}:data/results.json`],{cwd:root,encoding:'utf8'}));
+        const schedule=gitJSON(root,p.sourceCommit,'data/nfl_betting.json');
+        const results=gitJSON(root,p.sourceCommit,'data/results.json');
         const publicInput=core.projectSources(schedule,results,frozen.payload.input.season,r.observedAt);
         if (hashPayload(results)!==p.sourceSHA256 || !publicInput.results.some(g=>canonicalJSON(g)===canonicalJSON(p.result))) throw new Error('Settlement differs from public Git result evidence');
         if (frozen.payload.cohort!=='manual-official' && !holdoutReleased(publicInput,r.observedAt)) throw new Error('Holdout scoring is still locked');
