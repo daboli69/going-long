@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261003-212622-visual-reference-manual` — resumed user-authorized manual approved-reference UI publication; no manual 15-minute limit. MANAGER/BUILDER/QA + two narrow UI/UX roles (Evidence and Cheatsheets).
-Production base `43b5ae27dd19ccb899e7a4b3fe71458f45034711` -> `2b3d85355c144017594b7b240a434571e57c5767` **verified live**; review base `887f09cf578c2936ece140d20c60f58b3ec52898`. Completion/receipt recorded after publication.
+Production base `43b5ae27dd19ccb899e7a4b3fe71458f45034711` -> `2b3d85355c144017594b7b240a434571e57c5767` **verified live**; review base `887f09cf578c2936ece140d20c60f58b3ec52898`. Review completion `f40d150546c08baf744af5fcc050729237b94f22` published and remote-verified. This PROGRESS-only receipt pins it; its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 - **GOING VISUAL SYSTEM:** seven approved PNGs in production `docs/design-reference/` are preserved byte-for-byte and govern future UI work. Shared navy/teal/coral tokens, locally licensed Archivo Black, original generic football/baseball WebP art (321,268 bytes combined), SVG controls, header/nav/league selector/three-column tools/heroes/cards/bottom modes. Durable production `AGENTS.md` rule and `docs/GOING_VISUAL_SYSTEM.md`; no competing styles without Travis approval.
@@ -44,7 +44,7 @@ Production base `43b5ae27dd19ccb899e7a4b3fe71458f45034711` -> `2b3d85355c1440175
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- Approved-reference UI production verified live; publish/verify this completion and receipt, then release its exact owner. ABBEYS attachment is the next manual request, not a changed Today/DFS model.
+- Approved-reference UI production and completion verified live/remotely; verify this receipt and release its exact owner. ABBEYS attachment is the next manual request, not a changed Today/DFS model.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
