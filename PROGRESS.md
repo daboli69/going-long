@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261004-080145-ranking-primary-a` — independent scheduled08:00ET primary window, maximum15min active work; MANAGER/MODEL RESEARCH/QA, one agent.
-Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured review base `427a42ee34d7f781b5457b903849a20cab4d7465`. Research-only primary capture/settlement verification; completion/receipt follow normal remote gates.
+Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured review base `427a42ee34d7f781b5457b903849a20cab4d7465`. Review completion `da1c7f6b880126bbfb88ae0d98aa162bf1dcb8f4` published and remote-verified. This PROGRESS-only receipt pins that completion; its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 - **Selected08:00 milestone:** registered primary decision-time capture over small ABBEYS punctuation/UI polish and new paired-C/DFS implementation. Today’s02:00 is exploratory and recent manual product advances remain live; primary measurement cannot be recreated later. Acceptance: actual slot/full pools/exclusions/12scopes/all ranks/top3/top10, immutable sources/old bytes/modes, public settlement, verified receipt within15min. One agent, no global model change.
@@ -59,7 +59,7 @@ Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured re
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
--08:00 primary milestone verified; finish scoped completion/receipt and release only mutex owner `20261004-080145-ranking-primary-a`. Future runs retain independent15min/same gates; no automation change.
+-08:00 primary milestone/completion verified; receipt pins the completed result. Release only mutex owner `20261004-080145-ranking-primary-a` after this receipt publication. Future runs retain independent15min/same gates; no automation change.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
