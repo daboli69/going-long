@@ -1,5 +1,10 @@
-const {test}=require('node:test');const assert=require('node:assert/strict');
+const {test}=require('node:test');const assert=require('node:assert/strict');const {execFileSync}=require('node:child_process');const path=require('node:path');
 const play=(changes={})=>({kind:'prop',sport:'nfl',home:'BAL',away:'PIT',event:'game',kickoff:'2026-09-20T17:00:00Z',player:'Example Player',profileId:'player-1',market:'rec_yds',side:'Over',line:50.5,odds:-110,dec:1.91,prob:.58,ev:.1078,book:'Fanatics',updatedAt:'2026-09-20T14:00:00Z',canonicalContract:'contract-1',tracking_group:'best_model',...changes});
+
+test('Public tracker collector boots using only repository-local data',()=>{
+ const root=path.resolve(__dirname,'..'),stdout=execFileSync(process.execPath,[path.join(root,'scripts/collect_model_plays.cjs')],{cwd:root,encoding:'utf8',maxBuffer:64*1024*1024,env:{...process.env,GOING_TRACKER_LOCAL_DATA:'1',GOING_CAPTURE_QUOTES:'0'}});
+ assert.ok(Array.isArray(JSON.parse(stdout)));
+});
 
 test('Public tracker freezes only supported prospective selections and never rewrites them',async()=>{
  const {freezePredictions}=await import('../scripts/build_public_tracker.mjs'),records=[],at='2026-09-20T15:00:00Z';

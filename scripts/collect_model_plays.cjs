@@ -2,7 +2,7 @@
 const fs=require('fs'),path=require('path'),vm=require('vm'),{createHash}=require('node:crypto'),{JSDOM}=require('jsdom');
 const sha256=value=>createHash('sha256').update(value).digest('hex');
 (async()=>{const root=path.resolve(__dirname,'..'),html=fs.readFileSync(path.join(root,'index.html'),'utf8');const dom=new JSDOM(html,{url:'https://going-long.vercel.app/long/',runScripts:'outside-only',pretendToBeVisual:true});
-try{const w=dom.window;w.GoingFootballOpportunity=require('../shared/football-opportunity.js');w.GoingFootballInjuries=require('../shared/football-injuries.js');w.localStorage.setItem('goinglong.gateway.mode','fantasy');w.requestAnimationFrame=cb=>w.setTimeout(cb,0);w.HTMLElement.prototype.scrollIntoView=function(){};
+try{const w=dom.window;w.GoingFootballOpportunity=require('../shared/football-opportunity.js');w.GoingFootballInjuries=require('../shared/football-injuries.js');w.GoingScoreTracker=require('../shared/score-tracker.js');w.localStorage.setItem('goinglong.gateway.mode','fantasy');w.requestAnimationFrame=cb=>w.setTimeout(cb,0);w.HTMLElement.prototype.scrollIntoView=function(){};
 const ctx=dom.getInternalVMContext();for(const s of w.document.querySelectorAll('script:not([src])'))vm.runInContext(s.textContent.replace(/\nboot\(\);/,'\n'),ctx);
 const provenance={schema_version:1,model_source_sha256:sha256(html),inputs:{}};
 ctx.captureQuotes=process.env.GOING_CAPTURE_QUOTES==='1';

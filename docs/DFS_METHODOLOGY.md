@@ -36,6 +36,12 @@ Best mode maximizes summed available DFS point estimates under actual roster, sa
 
 Beam search is approximate; no global-optimum claim. Feasible pruning/search should retain affordable candidates and lock feasibility, deduplicate interchangeable slots, and validate completed outputs. Lock/exclude/swap/rebuild use the same final validator, including two distinct games. A direct swap preserves unaffected slots and tests the resulting complete lineup, showing actual salary/point/TD deltas. Unavailable locks fail with an actionable explanation rather than quietly replacing the user choice.
 
+## Captain / MVP access and official salary rows
+
+NFL → DFS now exposes **Captain / MVP single-game tools** above the Classic builder. Select the single-game contest and import its official salary CSV; generation remains blocked until salaries are loaded. DraftKings Showdown uses six unique athletes from both teams in one game, with one Captain and five FLEX spots under $50,000 ([official rules](https://support.draftkings.com/dk/en-us/game-style-showdowns-overview?id=kb_article_view&sysparm_article=KB0010694)). Role-coded CPT and FLEX rows retain their distinct DraftKings IDs and exact imported salaries. An already priced CPT row is not multiplied again; the 1.5× fantasy-point multiplier remains. The pool shows FLEX entries and the Captain list shows CPT entries without duplicate athlete cards. Existing FanDuel MVP research stays accessible; check actual contest rules and pool before entry.
+
+This repairs access and roster/salary handling, not the projection or Touchdown Throne methods. Captain research remains separate from the Classic eight-rushing/receiving-TD promotion. Automated regressions use explicitly synthetic salary fixtures, not verified real contest lineups. A real official export is still required for a recommendation for an actual contest.
+
 ## Touchdown Throne and multi-TD representation
 
 Promo mean per offensive player is `E[rush TD] + E[receiving TD]`. Passing TDs affect QB fantasy points only. A QB rushing or receiving TD contributes once; a pass to a rostered receiver contributes the receiver's TD once. DST contributes zero promotional TDs under the supplied requirement. Returns and recovery TDs also remain excluded pending actual official terms.

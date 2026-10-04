@@ -13,6 +13,43 @@ test('DraftKings salary CSV preserves the actual slate, salaries and IDs',()=>{
  assert.equal(parsed.players[1].position,'DST');
 });
 
+test('DraftKings Showdown CPT and FLEX rows keep distinct IDs, exact salaries and one athlete per lineup',()=>{
+ const athletes=[
+  {name:'Josh Allen',position:'QB',team:'BUF',salary:8000,projection:27},
+  {name:'James Cook',position:'RB',team:'BUF',salary:6500,projection:18},
+  {name:'Khalil Shakir',position:'WR',team:'BUF',salary:5500,projection:16},
+  {name:'Tua Tagovailoa',position:'QB',team:'MIA',salary:7500,projection:22},
+  {name:'De\'Von Achane',position:'RB',team:'MIA',salary:6000,projection:17},
+  {name:'Tyreek Hill',position:'WR',team:'MIA',salary:8500,projection:20},
+ ];
+ const rows=['Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame'];
+ for(const athlete of athletes)for(const role of ['CPT','FLEX']){
+  const id=`${athlete.name.replace(/[^A-Za-z]/g,'').toLowerCase()}-${role.toLowerCase()}`,salary=athlete.salary*(role==='CPT'?1.5:1);
+  rows.push(`${athlete.position},"${athlete.name} (${id})","${athlete.name}",${id},${role},${salary},"BUF@MIA 10/04/2026 01:00PM ET",${athlete.team},${athlete.projection}`);
+ }
+ const parsed=dfs.parseSalaryCsv(rows.join('\n'));
+ assert.equal(parsed.site,'draftkings');assert.equal(parsed.players.length,12);assert.deepEqual(parsed.errors,[]);
+ const allenCaptain=parsed.players.find(player=>player.name==='Josh Allen'&&player.showdownRole==='CPT');
+ const allenFlex=parsed.players.find(player=>player.name==='Josh Allen'&&player.showdownRole==='FLEX');
+ assert.notEqual(allenCaptain.id,allenFlex.id);assert.equal(allenCaptain.salary,12000);assert.equal(allenFlex.salary,8000);
+ const players=parsed.players.map(player=>({...player,projection:athletes.find(athlete=>athlete.name===player.name).projection,sd:3}));
+ const result=dfs.optimize(players,{site:'draftkings',contest:'showdown',captainId:allenCaptain.id,lockedIds:[allenCaptain.id],count:1,minUnique:1});
+ assert.equal(result.lineups.length,1,result.reason);const lineup=result.lineups[0],captain=lineup.players[0];
+ assert.equal(captain.id,allenCaptain.id);assert.equal(captain.slot,'CPT');assert.equal(captain.salary,12000);assert.equal(captain.multiplier,1.5);
+ assert.equal(lineup.salary,46000);assert.equal(lineup.projection,133.5);
+ assert.equal(new Set(lineup.players.map(player=>`${dfs.norm(player.name)}|${player.team}`)).size,6);
+ assert.ok(lineup.players.slice(1).every(player=>player.showdownRole==='FLEX'&&player.multiplier===1));
+ assert.ok(lineup.players.every(player=>player.id.endsWith(player.showdownRole.toLowerCase())));
+});
+
+test('single-game optimizer rejects a pool containing multiple games',()=>{
+ const players=[{id:'a',name:'Player A',position:'QB',salary:5000,projection:20,team:'A',opponent:'B',game:'A@B'},
+  {id:'b',name:'Player B',position:'QB',salary:5000,projection:19,team:'B',opponent:'A',game:'A@B'},
+  {id:'c',name:'Player C',position:'QB',salary:5000,projection:18,team:'C',opponent:'D',game:'C@D'}];
+ const result=dfs.optimize(players,{site:'draftkings',contest:'showdown'});
+ assert.equal(result.lineups.length,0);assert.match(result.reason,/one game/i);
+});
+
 test('FanDuel salary CSV supports quoted names and half-PPR scoring',()=>{
  const csv='Id,Position,Nickname,Salary,Game,Team,Opponent,FPPG,Injury Indicator\n9,WR,"Smith, Jr.",7200,BUF@MIA,BUF,MIA,14.2,Q';
  const parsed=dfs.parseSalaryCsv(csv);
