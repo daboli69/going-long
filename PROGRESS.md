@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261004-100115-ranking-exploratory-a` — independent scheduled10:00ET exploratory window, maximum15min active work; MANAGER/MODEL RESEARCH/QA, one agent.
-Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured review base `4b25016a93a09a4c36a354d27a6575e8ffc97c53`. Completion/receipt pending publication.
+Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured review base `4b25016a93a09a4c36a354d27a6575e8ffc97c53`. Review completion `602deb56ad7145b6e37b63f776603e4947247dac` published and remote-verified. This PROGRESS-only receipt pins that completion; its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 - **Selected10:00 milestone:** actual scheduled decision-time observation over minor ABBEYS punctuation polish or separate DFS/paired-C work. Recent product work remains live; actual full-pool measurement cannot be replayed later. Acceptance: complete12scopes/all policies/ranks/top3/top10/exclusions, actual slot/source hashes, old bytes/modes preserved, public settlement and verified receipt within15min. One agent; no global model change.
@@ -63,7 +63,7 @@ Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured re
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
--10:00 exploratory milestone verified; completion/receipt pending. Release only mutex owner `20261004-100115-ranking-exploratory-a` after publication. Future runs retain independent15min/same gates; no automation change.
+-10:00 exploratory milestone/completion verified; this receipt pins the completed result. Release only mutex owner `20261004-100115-ranking-exploratory-a` after publication. Future runs retain independent15min/same gates; no automation change.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
