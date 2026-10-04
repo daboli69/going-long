@@ -48,3 +48,5 @@
 
 ## Approved visual system
 The approved images in production `docs/design-reference/` are the visual source of truth. UI work must preserve near-pixel fidelity, reuse `docs/GOING_VISUAL_SYSTEM.md` and real functional components, and introduce no competing style without Travis approval. Real data, accessibility and all model/publication gates remain authoritative.
+
+- ABBEYS is NFL-only and independent: current-season earlier-week scores alone make v1 picks; historical/market context is post-freeze only. Preserve immutable predictions, source/model/protocol hashes, append-only results and locked prospective holdout; never edit frozen v1 in place or promote research without approval. Existing scheduled cycles retain their15-minute limit.

@@ -1,0 +1,2717 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index b23920fc584f047afe081ff90359f0505d715fe6..160205309a3e0b0f6894b86e1261c20169f30441 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -3,0 +4,2 @@ The approved images in `docs/design-reference/` are the visual source of truth f
++
++ABBEYS is a separate NFL current-season-only straight-up board; follow `docs/ABBEYS.md` and its frozen research protocol. Keep prior seasons, sportsbook data and historical context outside its prediction boundary. Never rewrite official journal observations or v1 model/protocol definitions after freeze; append outcomes/integrity evidence separately. Preserve all existing models and prospective ranking policies. New versions require preregistration and existing model-promotion approval gates; scheduled cycles retain their existing limits and publication rules.
+diff --git a/api/snapshot.mjs b/api/snapshot.mjs
+index 7b72cfba4f396aac0229eeb594ff470ef7064ebb..18261e4e8f5f774c7999597d78b90985e0cb2603 100644
+--- a/api/snapshot.mjs
++++ b/api/snapshot.mjs
+@@ -3 +3 @@ import {sendJson} from '../server/vercel-response.mjs';
+-const allowed=new Set(['history.json','data.json','nfl_betting.json','ncaa_lines.json','results.json','public_tracker.json','football_context.json','season_learning.json','injury_context.json','football_role_validation.json','football_game_validation.json','savant_context.json','topdown_status.json','players.json','king-endzone.json','slate-breaker.json','formats/index.json','formats/half-12-1.json','formats/half-12-2.json','formats/ppr-10-1.json','formats/ppr-10-2.json','formats/ppr-12-1.json','formats/ppr-12-2.json','formats/ppr-14-1.json','formats/ppr-14-2.json','formats/std-12-1.json']);
++const allowed=new Set(['abbeys-board.json','history.json','data.json','nfl_betting.json','ncaa_lines.json','results.json','public_tracker.json','football_context.json','season_learning.json','injury_context.json','football_role_validation.json','football_game_validation.json','savant_context.json','topdown_status.json','players.json','king-endzone.json','slate-breaker.json','formats/index.json','formats/half-12-1.json','formats/half-12-2.json','formats/ppr-10-1.json','formats/ppr-10-2.json','formats/ppr-12-1.json','formats/ppr-12-2.json','formats/ppr-14-1.json','formats/ppr-14-2.json','formats/std-12-1.json']);
+diff --git a/data/abbeys-board.json b/data/abbeys-board.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..6346e44d7f964661e7401519dc4689e32f55d0fb
+--- /dev/null
++++ b/data/abbeys-board.json
+@@ -0,0 +1,691 @@
++{
++  "schemaVersion": 1,
++  "modelVersion": "abbeys-current-season-v1",
++  "generatedAt": "2026-10-04T03:25:23.838Z",
++  "weeks": [
++    {
++      "methodology": {
++        "description": "Symmetric average of team points scored and opponent points allowed, plus this season’s designated-home scoring margin. Earlier weeks only; no odds or prior-season ratings.",
++        "limitations": [
++          "Direction stability is a leave-one-week-out sensitivity diagnostic, not win probability.",
++          "No validated opponent/recency/personnel weighting; exact score is an illustrative point forecast.",
++          "Historical method checks use each season independently; official prospective results start with this frozen board."
++        ],
++        "name": "Current-season scoring benchmark"
++      },
++      "modelVersion": "abbeys-current-season-v1",
++      "monday": {
++        "away": "ATL",
++        "gameId": "2026_04_ATL_NO",
++        "home": "NO",
++        "predictedAway": 22,
++        "predictedHome": 25
++      },
++      "picks": [
++        {
++          "away": "IND",
++          "concerns": [
++            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
++            "WAS has allowed more points/game than IND (30.7 vs 30.3).",
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "IND Ashton Dulin: Questionable (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "WAS Frankie Luvu: Limited Participation in Practice (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "WAS Charles Omenihu: Limited Participation in Practice (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "WAS Terry McLaurin: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "WAS Sam Cosmi: Out (Concussion). Current injury report; participation and numerical impact are uncertain.",
++            "WAS Rachaad White: Out (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "WAS Chig Okonkwo: Limited Participation in Practice (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "WAS Percy Butler: Questionable (Concussion). Current injury report; participation and numerical impact are uncertain.",
++            "WAS Jayden Daniels: Out (Elbow). Current injury report; participation and numerical impact are uncertain.",
++            "WAS Ben Sinnott: Limited Participation in Practice (Rib). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Sensitive lean",
++          "gameId": "2026_04_IND_WAS",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "WAS",
++          "kickoff": "2026-10-04T13:30:00+00:00",
++          "neutral": false,
++          "projectedAway": 27,
++          "projectedHome": 28,
++          "rawAway": 26.895833333333336,
++          "rawHome": 28.104166666666664,
++          "season": 2026,
++          "sensitivityRange": [
++            -2.59375,
++            5.53125
++          ],
++          "settlement": null,
++          "support": [
++            "WAS scores 25.0 points/game; IND allows 30.3 in this season's earlier games.",
++            "WAS allows 30.7 points/game; IND scores 24.0. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: WAS -5.7/game versus IND -6.3/game."
++          ],
++          "week": 4,
++          "winner": "WAS"
++        },
++        {
++          "away": "ARI",
++          "concerns": [
++            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
++            "ARI has the higher raw scoring average (21.0 vs 15.3); defense and the designated-home term drive the other direction.",
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "ARI Dadrion Taylor-Demerson: Out (Back). Current injury report; participation and numerical impact are uncertain.",
++            "NYG Andrew Thomas: Limited Participation in Practice (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Sensitive lean",
++          "gameId": "2026_04_ARI_NYG",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "NYG",
++          "kickoff": "2026-10-04T17:00:00+00:00",
++          "neutral": false,
++          "projectedAway": 19,
++          "projectedHome": 22,
++          "rawAway": 19.229166666666664,
++          "rawHome": 21.604166666666668,
++          "season": 2026,
++          "sensitivityRange": [
++            -0.3125,
++            4.15625
++          ],
++          "settlement": null,
++          "support": [
++            "NYG scores 15.3 points/game; ARI allows 27.0 in this season's earlier games.",
++            "NYG allows 18.3 points/game; ARI scores 21.0. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: NYG -3.0/game versus ARI -6.0/game."
++          ],
++          "week": 4,
++          "winner": "NYG"
++        },
++        {
++          "away": "DAL",
++          "concerns": [
++            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
++            "DAL has allowed more points/game than HOU (27.3 vs 25.0).",
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "DAL Cobie Durant: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "DAL DeMarvion Overshown: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "HOU Jadeveon Clowney: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "HOU M.J. Stewart: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "HOU Azeez Al-Shaair: Out (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "HOU Jake Hansen: Questionable (Calf). Current injury report; participation and numerical impact are uncertain.",
++            "HOU Logan Hall: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "HOU Ed Ingram: Questionable (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "HOU British Brooks: Did Not Participate In Practice (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Sensitive lean",
++          "gameId": "2026_04_DAL_HOU",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "HOU",
++          "kickoff": "2026-10-04T17:00:00+00:00",
++          "neutral": false,
++          "projectedAway": 27,
++          "projectedHome": 23,
++          "rawAway": 26.729166666666664,
++          "rawHome": 23.104166666666664,
++          "season": 2026,
++          "sensitivityRange": [
++            -6.8125,
++            2.53125
++          ],
++          "settlement": null,
++          "support": [
++            "DAL scores 29.3 points/game; HOU allows 25.0 in this season's earlier games.",
++            "DAL allows 27.3 points/game; HOU scores 18.0. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: DAL +2.0/game versus HOU -7.0/game."
++          ],
++          "week": 4,
++          "winner": "DAL"
++        },
++        {
++          "away": "GB",
++          "concerns": [
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "GB Aaron Banks: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "GB Lukas Van Ness: Limited Participation in Practice (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "GB Jacob Monk: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
++            "GB Edgerrin Cooper: Questionable (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "GB Warren Brinson: Out (Calf). Current injury report; participation and numerical impact are uncertain.",
++            "GB Anthony Campbell: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "GB Jager Burton: Questionable (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "TB Rakeem Nunez-Roches: Questionable (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "TB Baker Mayfield: Out (Thumb). Current injury report; participation and numerical impact are uncertain.",
++            "TB Ko Kieft: Out (Elbow). Current injury report; participation and numerical impact are uncertain.",
++            "TB SirVocea Dennis: Questionable (Calf). Current injury report; participation and numerical impact are uncertain.",
++            "TB Benjamin Morrison: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
++            "TB Rueben Bain Jr.: Out (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Stable lean",
++          "gameId": "2026_04_GB_TB",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "TB",
++          "kickoff": "2026-10-04T17:00:00+00:00",
++          "neutral": false,
++          "projectedAway": 22,
++          "projectedHome": 26,
++          "rawAway": 22.0625,
++          "rawHome": 25.9375,
++          "season": 2026,
++          "sensitivityRange": [
++            1.1875,
++            7.78125
++          ],
++          "settlement": null,
++          "support": [
++            "TB scores 20.7 points/game; GB allows 30.3 in this season's earlier games.",
++            "TB allows 26.3 points/game; GB scores 18.7. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: TB -5.7/game versus GB -11.7/game."
++          ],
++          "week": 4,
++          "winner": "TB"
++        },
++        {
++          "away": "JAX",
++          "concerns": [
++            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "CIN B.J. Hill: Questionable (Achilles). Current injury report; participation and numerical impact are uncertain.",
++            "CIN Dalton Risner: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "CIN Kyle Dugger: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
++            "CIN Bryan Cook: Questionable (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "CIN DJ Turner II: Limited Participation in Practice (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "CIN Swayze Bozeman: Questionable (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "CIN Colbie Young: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "JAX Montaric Brown: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "JAX Christian Braswell: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "JAX LeQuint Allen Jr.: Limited Participation in Practice (Hip). Current injury report; participation and numerical impact are uncertain.",
++            "JAX Albert Regis: Questionable (Elbow). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Sensitive lean",
++          "gameId": "2026_04_JAX_CIN",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "CIN",
++          "kickoff": "2026-10-04T17:00:00+00:00",
++          "neutral": false,
++          "projectedAway": 24,
++          "projectedHome": 20,
++          "rawAway": 23.729166666666664,
++          "rawHome": 19.770833333333336,
++          "season": 2026,
++          "sensitivityRange": [
++            -10.96875,
++            0.9375
++          ],
++          "settlement": null,
++          "support": [
++            "JAX scores 27.3 points/game; CIN allows 21.0 in this season's earlier games.",
++            "JAX allows 12.0 points/game; CIN scores 26.7. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: JAX +15.3/game versus CIN +5.7/game."
++          ],
++          "week": 4,
++          "winner": "JAX"
++        },
++        {
++          "away": "LA",
++          "concerns": [
++            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "LA Aaron Donald: Out (Back). Current injury report; participation and numerical impact are uncertain.",
++            "LA Colby Parkinson: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "LA Jaylen Watson: Out (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "LA Josaiah Stewart: Questionable (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "LA Terrance Ferguson: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "PHI Dallas Goedert: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "PHI Fred Johnson: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "PHI Marcus Epps: Out (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "PHI Marquise Brown: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "PHI Zack Baun: Out (Concussion). Current injury report; participation and numerical impact are uncertain.",
++            "PHI DeVonta Smith: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "PHI Jihaad Campbell: Limited Participation in Practice (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Sensitive lean",
++          "gameId": "2026_04_LA_PHI",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "PHI",
++          "kickoff": "2026-10-04T17:00:00+00:00",
++          "neutral": false,
++          "projectedAway": 21,
++          "projectedHome": 20,
++          "rawAway": 21.229166666666664,
++          "rawHome": 20.104166666666664,
++          "season": 2026,
++          "sensitivityRange": [
++            -7.59375,
++            3.03125
++          ],
++          "settlement": null,
++          "support": [
++            "LA scores 20.3 points/game; PHI allows 23.0 in this season's earlier games.",
++            "LA allows 21.0 points/game; PHI scores 18.3. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: LA -0.7/game versus PHI -4.7/game."
++          ],
++          "week": 4,
++          "winner": "LA"
++        },
++        {
++          "away": "NE",
++          "concerns": [
++            "BUF has allowed more points/game than NE (26.0 vs 17.0).",
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "BUF DJ Moore: Limited Participation in Practice (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "BUF Damar Hamlin: Limited Participation in Practice (Ribs). Current injury report; participation and numerical impact are uncertain.",
++            "BUF Terrel Bernard: Did Not Participate In Practice (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "BUF Christian Benford: Questionable (Toe). Current injury report; participation and numerical impact are uncertain.",
++            "BUF Ray Davis: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "BUF Keon Coleman: Limited Participation in Practice (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "NE Morgan Moses: Questionable (Foot). Current injury report; participation and numerical impact are uncertain.",
++            "NE Dre'Mont Jones: Questionable (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "NE Reggie Gilliam: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "NE Christian Elliss: Questionable (Chest). Current injury report; participation and numerical impact are uncertain.",
++            "NE Christian Barmore: Out (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "NE Brenden Schooler: Out (Back). Current injury report; participation and numerical impact are uncertain.",
++            "NE Christian Gonzalez: Out (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "NE Craig Woodson: Questionable (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "NE Channing Canada: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "NE Eli Raridon: Questionable (Thigh). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Stable lean",
++          "gameId": "2026_04_NE_BUF",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "BUF",
++          "kickoff": "2026-10-04T17:00:00+00:00",
++          "neutral": false,
++          "projectedAway": 19,
++          "projectedHome": 26,
++          "rawAway": 18.5625,
++          "rawHome": 25.770833333333332,
++          "season": 2026,
++          "sensitivityRange": [
++            0.4375,
++            12.78125
++          ],
++          "settlement": null,
++          "support": [
++            "BUF scores 33.7 points/game; NE allows 17.0 in this season's earlier games.",
++            "BUF allows 26.0 points/game; NE scores 12.0. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: BUF +7.7/game versus NE -5.0/game."
++          ],
++          "week": 4,
++          "winner": "BUF"
++        },
++        {
++          "away": "NYJ",
++          "concerns": [
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "CHI Cam Lewis: Doubtful (Hip). Current injury report; participation and numerical impact are uncertain.",
++            "CHI Braxton Jones: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "CHI Kyler Gordon: Out (Calf). Current injury report; participation and numerical impact are uncertain.",
++            "CHI Noah Sewell: Out (Achilles). Current injury report; participation and numerical impact are uncertain.",
++            "CHI Caleb Williams: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "CHI Shemar Turner: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "NYJ Kingsley Enagbare: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "NYJ Dylan Parham: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "NYJ Breece Hall: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
++            "NYJ Adonai Mitchell: Out (Finger). Current injury report; participation and numerical impact are uncertain.",
++            "NYJ Francisco Mauigoa: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
++            "NYJ Mason Taylor: Out (Thumb). Current injury report; participation and numerical impact are uncertain.",
++            "NYJ Kenyon Sadiq: Questionable (Back). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Stable lean",
++          "gameId": "2026_04_NYJ_CHI",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "CHI",
++          "kickoff": "2026-10-04T17:00:00+00:00",
++          "neutral": false,
++          "projectedAway": 19,
++          "projectedHome": 25,
++          "rawAway": 19.0625,
++          "rawHome": 25.4375,
++          "season": 2026,
++          "sensitivityRange": [
++            1.6875,
++            10.53125
++          ],
++          "settlement": null,
++          "support": [
++            "CHI scores 29.7 points/game; NYJ allows 20.3 in this season's earlier games.",
++            "CHI allows 17.7 points/game; NYJ scores 21.3. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: CHI +12.0/game versus NYJ +1.0/game."
++          ],
++          "week": 4,
++          "winner": "CHI"
++        },
++        {
++          "away": "TEN",
++          "concerns": [
++            "BAL has allowed more points/game than TEN (26.0 vs 19.7).",
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "BAL Chris Moore: Questionable (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "BAL Ronnie Stanley: Questionable (Toe). Current injury report; participation and numerical impact are uncertain.",
++            "BAL Ethan Pocic: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "BAL Trey Hendrickson: Out (Finger). Current injury report; participation and numerical impact are uncertain.",
++            "BAL Jovaughn Gwyn: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "BAL Zay Flowers: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "TEN Tyjae Spears: Questionable (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "TEN Kevin Winston Jr.: Questionable (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Stable lean",
++          "gameId": "2026_04_TEN_BAL",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "BAL",
++          "kickoff": "2026-10-04T17:00:00+00:00",
++          "neutral": false,
++          "projectedAway": 19,
++          "projectedHome": 26,
++          "rawAway": 18.729166666666668,
++          "rawHome": 25.604166666666668,
++          "season": 2026,
++          "sensitivityRange": [
++            2.15625,
++            11.28125
++          ],
++          "settlement": null,
++          "support": [
++            "BAL scores 30.7 points/game; TEN allows 19.7 in this season's earlier games.",
++            "BAL allows 26.0 points/game; TEN scores 12.3. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: BAL +4.7/game versus TEN -7.3/game."
++          ],
++          "week": 4,
++          "winner": "BAL"
++        },
++        {
++          "away": "MIA",
++          "concerns": [
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "MIA Tucker Addington: Limited Participation in Practice (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "MIA Rob Beal Jr.: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "MIA Storm Duck: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "MIA Caleb Douglas: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "MIN Justin Jefferson: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "MIN Charles Demmings: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "MIN Brett Thorson: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Stable lean",
++          "gameId": "2026_04_MIA_MIN",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "MIN",
++          "kickoff": "2026-10-04T20:05:00+00:00",
++          "neutral": false,
++          "projectedAway": 12,
++          "projectedHome": 27,
++          "rawAway": 12.395833333333332,
++          "rawHome": 26.604166666666668,
++          "season": 2026,
++          "sensitivityRange": [
++            13.15625,
++            14.9375
++          ],
++          "settlement": null,
++          "support": [
++            "MIN scores 23.7 points/game; MIA allows 28.7 in this season's earlier games.",
++            "MIN allows 13.7 points/game; MIA scores 12.0. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: MIN +10.0/game versus MIA -16.7/game."
++          ],
++          "week": 4,
++          "winner": "MIN"
++        },
++        {
++          "away": "DEN",
++          "concerns": [
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "DEN Dondrea Tillman: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "SF Mike Evans: Questionable (Ribs). Current injury report; participation and numerical impact are uncertain.",
++            "SF KhaDarel Hodge: Did Not Participate In Practice (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "SF Dre Greenlaw: Questionable (Quadricep). Current injury report; participation and numerical impact are uncertain.",
++            "SF Nick Bosa: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "SF Keion White: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "SF Mykel Williams: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "SF Jaden Dugger: Questionable (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "SF James Thompson Jr.: Out (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "SF Romello Height: Limited Participation in Practice (Hand). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Stable lean",
++          "gameId": "2026_04_DEN_SF",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "SF",
++          "kickoff": "2026-10-04T20:25:00+00:00",
++          "neutral": false,
++          "projectedAway": 18,
++          "projectedHome": 28,
++          "rawAway": 17.895833333333336,
++          "rawHome": 28.4375,
++          "season": 2026,
++          "sensitivityRange": [
++            5.15625,
++            14.1875
++          ],
++          "settlement": null,
++          "support": [
++            "SF scores 32.7 points/game; DEN allows 23.3 in this season's earlier games.",
++            "SF allows 16.7 points/game; DEN scores 20.0. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: SF +16.0/game versus DEN -3.3/game."
++          ],
++          "week": 4,
++          "winner": "SF"
++        },
++        {
++          "away": "KC",
++          "concerns": [
++            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
++            "LV has allowed more points/game than KC (18.0 vs 16.7).",
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "KC Josh Simmons: Out (Back). Current injury report; participation and numerical impact are uncertain.",
++            "LV Cody White: Limited Participation in Practice (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "LV Brock Bowers: Limited Participation in Practice (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "LV Jackson Powers-Johnson: Out (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Sensitive lean",
++          "gameId": "2026_04_KC_LV",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "LV",
++          "kickoff": "2026-10-04T20:25:00+00:00",
++          "neutral": false,
++          "projectedAway": 23,
++          "projectedHome": 24,
++          "rawAway": 23.229166666666664,
++          "rawHome": 23.4375,
++          "season": 2026,
++          "sensitivityRange": [
++            -1.71875,
++            1.65625
++          ],
++          "settlement": null,
++          "support": [
++            "LV scores 29.3 points/game; KC allows 16.7 in this season's earlier games.",
++            "LV allows 18.0 points/game; KC scores 29.3. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: LV +11.3/game versus KC +12.7/game."
++          ],
++          "week": 4,
++          "winner": "LV"
++        },
++        {
++          "away": "LAC",
++          "concerns": [
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "LAC Dalvin Tomlinson: Out (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "LAC Donte Jackson: Questionable (Concussion). Current injury report; participation and numerical impact are uncertain.",
++            "LAC Derwin James: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "LAC Kayode Awosika: Out (Fibula). Current injury report; participation and numerical impact are uncertain.",
++            "LAC Elijah Molden: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "LAC Trey Lance: Questionable (Groin). Current injury report; participation and numerical impact are uncertain.",
++            "LAC Charlie Kolar: Out (Forearm). Current injury report; participation and numerical impact are uncertain.",
++            "LAC Ladd McConkey: Questionable (Foot). Current injury report; participation and numerical impact are uncertain.",
++            "LAC Brenen Thompson: Out (Quadricep). Current injury report; participation and numerical impact are uncertain.",
++            "SEA Chazz Surratt: Questionable (Calf). Current injury report; participation and numerical impact are uncertain.",
++            "SEA Ty Okada: Questionable (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "SEA Zach Charbonnet: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "SEA George Holani: Limited Participation in Practice (Rib). Current injury report; participation and numerical impact are uncertain.",
++            "SEA Jadarian Price: Out (Chest). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Stable lean",
++          "gameId": "2026_04_LAC_SEA",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "SEA",
++          "kickoff": "2026-10-04T20:25:00+00:00",
++          "neutral": false,
++          "projectedAway": 15,
++          "projectedHome": 26,
++          "rawAway": 15.229166666666668,
++          "rawHome": 25.604166666666664,
++          "season": 2026,
++          "sensitivityRange": [
++            6.78125,
++            12.9375
++          ],
++          "settlement": null,
++          "support": [
++            "SEA scores 25.0 points/game; LAC allows 25.3 in this season's earlier games.",
++            "SEA allows 16.7 points/game; LAC scores 14.7. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: SEA +8.3/game versus LAC -10.7/game."
++          ],
++          "week": 4,
++          "winner": "SEA"
++        },
++        {
++          "away": "DET",
++          "concerns": [
++            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
++            "DET has the higher raw scoring average (31.0 vs 29.7); defense and the designated-home term drive the other direction.",
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "CAR Damien Lewis: Out (Elbow). Current injury report; participation and numerical impact are uncertain.",
++            "CAR Xavier Legette: Out (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "CAR Jalen Coker: Questionable (Quadricep). Current injury report; participation and numerical impact are uncertain.",
++            "CAR Cam Jackson: Questionable (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "CAR Monroe Freeling: Questionable (Concussion). Current injury report; participation and numerical impact are uncertain.",
++            "CAR Lee Hunter: Questionable (Foot). Current injury report; participation and numerical impact are uncertain.",
++            "DET D.J. Reed: Questionable (Rib). Current injury report; participation and numerical impact are uncertain.",
++            "DET Ben Bartch: Out (Foot). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Sensitive lean",
++          "gameId": "2026_04_DET_CAR",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "CAR",
++          "kickoff": "2026-10-05T00:20:00+00:00",
++          "neutral": false,
++          "projectedAway": 29,
++          "projectedHome": 31,
++          "rawAway": 28.895833333333336,
++          "rawHome": 31.104166666666668,
++          "season": 2026,
++          "sensitivityRange": [
++            -6.71875,
++            8.65625
++          ],
++          "settlement": null,
++          "support": [
++            "CAR scores 29.7 points/game; DET allows 31.7 in this season's earlier games.",
++            "CAR allows 27.7 points/game; DET scores 31.0. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: CAR +2.0/game versus DET -0.7/game."
++          ],
++          "week": 4,
++          "winner": "CAR"
++        },
++        {
++          "away": "ATL",
++          "concerns": [
++            "Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.",
++            "NO has allowed more points/game than ATL (27.7 vs 22.7).",
++            "Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.",
++            "Venue adjustment uses this season's designated-home margin (0.9 points). Neutral-site metadata is incomplete.",
++            "ATL Samson Ebukam: Limited Participation in Practice (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "ATL Divine Deablo: Limited Participation in Practice (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "ATL Kendal Daniels: Limited Participation in Practice (Achilles). Current injury report; participation and numerical impact are uncertain.",
++            "NO Kaden Elliss: Did Not Participate In Practice (Calf). Current injury report; participation and numerical impact are uncertain.",
++            "NO Carl Granderson: Did Not Participate In Practice (Ankle). Current injury report; participation and numerical impact are uncertain.",
++            "NO Noah Fant: Limited Participation in Practice (Abdomen). Current injury report; participation and numerical impact are uncertain.",
++            "NO Anfernee Jennings: Did Not Participate In Practice (Knee). Current injury report; participation and numerical impact are uncertain.",
++            "NO Pete Werner: Did Not Participate In Practice (Shoulder). Current injury report; participation and numerical impact are uncertain.",
++            "NO Barion Brown: Limited Participation in Practice (Hamstring). Current injury report; participation and numerical impact are uncertain.",
++            "NO Christen Miller: Limited Participation in Practice (Toe). Current injury report; participation and numerical impact are uncertain.",
++            "Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast."
++          ],
++          "confidence": "Sensitive lean",
++          "gameId": "2026_04_ATL_NO",
++          "gamesAway": 3,
++          "gamesHome": 3,
++          "home": "NO",
++          "kickoff": "2026-10-06T00:15:00+00:00",
++          "neutral": false,
++          "projectedAway": 22,
++          "projectedHome": 25,
++          "rawAway": 21.895833333333336,
++          "rawHome": 25.270833333333336,
++          "season": 2026,
++          "sensitivityRange": [
++            -4.21875,
++            11.1875
++          ],
++          "settlement": null,
++          "support": [
++            "NO scores 27.0 points/game; ATL allows 22.7 in this season's earlier games.",
++            "NO allows 27.7 points/game; ATL scores 17.0. Both scoring and prevention enter the forecast equally.",
++            "Net scoring: NO -0.7/game versus ATL -5.7/game."
++          ],
++          "week": 4,
++          "winner": "NO"
++        }
++      ],
++      "season": 2026,
++      "week": 4,
++      "frozenAt": "2026-10-04T03:24:51.384Z",
++      "observationHash": "71d4ac15721b3f01a1ec3c5cd46980d3b741c5be7c0bb7fd0b44cc22da82d1cd",
++      "cohort": "manual-official",
++      "invalidations": [],
++      "source": {
++        "generatedAt": "2026-10-04T00:40:11.847553+00:00",
++        "sourceSHA": "dd9a943050dfb6276541736f4ea4263edc2c63e68a4392f5c51b092101a952cb",
++        "cutoff": "2026-10-04T03:24:51.384Z",
++        "season": 2026
++      },
++      "marketContext": null
++    }
++  ],
++  "record": {
++    "wins": 0,
++    "losses": 0,
++    "ties": 0,
++    "pending": 15
++  },
++  "recordScope": "Manual official boards only. Prospective holdout aggregate evaluation is locked until the registered release; no reconstructed historical picks."
++}
+diff --git a/data/abbeys/journal/000000000001-71d4ac15721b3f01a1ec3c5cd46980d3b741c5be7c0bb7fd0b44cc22da82d1cd.json.gz b/data/abbeys/journal/000000000001-71d4ac15721b3f01a1ec3c5cd46980d3b741c5be7c0bb7fd0b44cc22da82d1cd.json.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..a7261674b42034372323c1f876fee4248f902eaf
+GIT binary patch
+literal 8223
+zcmV+)AmHC0iwFP!000003hiCna^psl{S^dW))P(AsKQ--qApg;t)?6;cF%Yw91IXB
+zO0+3ZCaLc2u^q9$vA?%pvXNE1fIt$JtS+wiq5Uv1Y>B`TP?_iC$wK0H_c2>Ox@T_8
+ziXh8b7;`rECmzd~$o)Lbiy%r9ukgol!18b`;@lgL<4NI-gCNg2FS3LeEHB)S`>Xiu
+zp1Ik0EIu#);2w|u2>wu?y7|juA<9*EDYE6f?0#hM>(jDu&)j91Jue^UE4Sm$$4jyJ
+zD2o2dJ#*mzUFLPYVCea0JU9zk&rgDXx*hj9`#hUxg?sk9o6jHT3;6Y?tbEC4-T7oP
+z&8OMS?YNW0{NJL~9cx-XzpUhuURLwTr2Ur{V)-&#E#0$!{qAO;GWc@`S8hlC|NDHt
+z5bhcCI_^XEByNiJp++7X4X#G_SADnRKF*(nd*<#wY`*2g^~is%An?*I^M;;x#=SGo
+zd*#9Zx*b<tLH7)Pr{jJS;#c>K{n^>#x&MA2504Q%_ur3hD{yXWXkru$12BGg44D4#
+zwsv)V1WkW<JNofvxWlviu=yiA6p=q<@tJqj<vH)y5CsfDbl$%m-3%^wh;|<~i0~U`
+zg6Mtij`<OW=>7Mj*LUxCh;|<~Ut_iqUA(^8M--+AqKnrzql^B#9irWb4I+FUnIO8Q
+zMA^md)#!)*KX!<AA2x^rTZjgCwVQ^9{oUyDs<N(kAFSWA!B0Qb;vS2%!B0PohF60f
+zqTPqeg|&ldcuq(}!}HO_O$E>H!{!QEi?jZ_+N$PQob}(`jBfiE)!cYdyF!Q75ckgb
+zQQ7gjeuX#!==yy0wt9u$Hm*==3(wn|J|SDbz3Go`KU6NzhgxPl6!k~r`FsDKaDo2b
+zzaRZ5GuDPZwjVZMvv$WW>+Hd?u)plzjs`zn?-1=iY`&JDh=Swk{!#|8E;C+U4MuM&
+zi~7w4DG!B!haGo?WQwaM#wNdV$ciJyduu?u4;5NQ5G6E3yviMtma2#X1kpwR-AJjG
+zHKN^z&DStM+@mF;JwP`D?IPlk7Bz$)Sp!sOSA;vbWLKHfH`H-n%Zq3pGQrcxi`ezK
+zJ|8L0+s4=rH9Tk@GQsn<e#4q_h(nSdT~yQ1MLi8!TR?T~!LbEBxEm?0yNR&=?WwNM
+zk9EC>0{ZdwjYfOmD&GjvO+5=?fNq8(S-ovm(ABBnC>`2PtQ@54=(2i&F3A@NIOC|K
+zC`r3r3-QtI2O}wDf`=kKxRf6E71p?~k%k{0#-k_tDjrp!>uBu$sy|Y)azh&LYB7H(
+z#*PNm)IwNN1TAz~jrz-a)Z;ao2_jVzx0gU1s_1s*foDZVQ$l-LQHrbz9&AYue!6aT
+zK5${i`SG%&VST{jtl{yc^>JMx)$2N`;t@s^W`3ItVhMr=WRQ{r8y35*XGK()@tBqs
+z{Z<{+tPp*vgWAm@AJ2*gh?K;tULy?A>$~?FbLfB+GC(B5rJY&*(VL5r%Aea3vF<Kf
+zyF!Wrs#mBPWj?TmM&9EknF*r0|BB%mXni4^I85L)d>HJGfe&Ni44ELJP?;~OOmWN_
+z(e6WgrZzw{tk<kqlnt*2nj)HUTYwtY5JF|Xw1!&M2VRiHG&SV66&y%G=F5tswIH*G
+zr(v2SCA2S1bB*{ow5Unq!*9{AD7oH#7|Bv;vw-euIS7|RCTRLvH4RBoqwWvzSVEIR
+zep^9?1sK$0?FH+B3zQx&J{t8Hk`)74kZHt66A?7(i1IA>^XHDc%pXPZG82s+9<gah
+z>(Z6tWwpp=?%5=pEd{Y_M{3j28gs{<U#V4UXO3pbAB#a{8EP-?L>S(qH{w9|?KBuv
+z98&vjC&F-xhQxsm+i5V!d`;}Bod|&xbJQ-{X)s7uC-%)wgFvYxYNw3WXgL<cHF_2B
+z-q>jnsG^G24Lc12rO2uMuhU?-#B=n4ju)-Pbu<PUZL}U2t*Lc9f?*TE!LAmqjYYxG
+zY->^bSTrB|Xbd;VojBOKIuQnpsSb3jPJ;l;O^5nZr$O)*zYhmmQm4UyvGt)Y)M*g>
+zi0P(-eWw#)xIr@m+G;ut0;R~P%_Um*=2#4p1c~jW(;z_E`alDT)($xqfvOg%Eu+(5
+zKo!HmF41W)sA`SY7os(Sj?PR{i_ls@wBFCL2+->KK=X&z?V%uOc7Let9-6CqGzN^N
+z4mNmBgFz_~YD?!d801nXHgQgaKxJNP+vYSFFwgB!r{+Wmu<HI`Z{{=@P?k8@jX4d5
+zAy!WvY`~lb1L`pxXt~gO8pk3)HS~cd%V`jx{^!BA3axW-bY?)58{SAc(fQGEz*{G@
+zUdgct&?@3!w}jRnIT{02MI7vp&>A8X41rF!1yZ-^Gn0CHiuq^$(f1<IWraXy1$|~(
+zV=&1~RSc-(6-dWR?{QedfH@2SI1IYXWa<29O&Q3VQtv`r!hmIl05XH#`?Q1rQ!D`}
+z7QJS&g#c45fmAH|+++y@sulvN7W7V!B@AeFAIR!n-w#k2jM#cFFW}b!TxgwQ*&;Ze
+zD+5g(5kMWG>ql5RKUzfuvWn36%`IU-o%ldH@%mmVU<l0=L!hhf16kecR1+YGzMQME
+z9$^SQLcMMT1cr(w)TyRWswRCs$2{1>V5AnR7|_0XDEsC*mt~E>BrokDz-ow4Ivo1i
+z-WCR|9}>!bh`t|T2?Oe~gwkcvJMoq<p!zkG`c>~XS;Bx-Q=zP;G`#>z=SOSWP}a1B
+z%wz)r>b-{2dnHv7HZY(}9ZIIw_ahVrBef9fcq)`UrSAr8F&xj8RSei3vk>-}k=WV>
+z0@UFMrNg1`Spx=c#@2fnupM5Z+~K9`1^@#8%efNu{37Z3>0J)MV5k@(U51WihNkg#
+zV#e2zZZ$-5HIQ5mz+jRasu<9|NF@6rq`J}y228g^Qn%2e!U6`Ydmlmfp5(JwL4eh^
+zk*sYgY-s@j>bgbJbtCvJHV~k-btG$ReRs+d2Gnzl*1P@m`7tr$%1D=?BbA}`m90W>
+zJWoZs$~Kaft*&Qn2?6RlM$&bp)H10VPgW72dj}%9cYxq;aPP}G3iI1y@Y_gU7dK?;
+zSeFrEwVOw;pLuA;k+H6#jAcbha@zodNk)iu6=ke;*iouE8yL`PE|%3C$?>y+0d*Z?
+z={k}sYa1BQdMcLn6sa3w0|Qn^#85|&)QSxRnBNu4J@FLJ&jtdtri^7xNvh{~XvULO
+z3|LnvhOUr)_reyz@hlbZ@g#=eR=*?O()lq5JO&4xRMGOtj3r|oPsfs{N%aGdznrDe
+z8YYo73_&aShD@F4G-Dz)Bf)`YU5^b}Vi1vg7%&$;kuJPez1u;6*0YJMX9*obI~Y)|
+zP9#?oTu(a~P_9lSR};JiI~XwMHIdG%o~i91K)u&Qdas21YzG5cPbRXSB=qeq-3hFg
+zN@OjittTY{&J1`m(Xd1UEJ1MFHVBUAsYFxBBv8o^x<Ymkp#8Z-_U8ybJd-<$m;qPr
+z<t7{h_*?|OW?jz*3}41n=uVbY?qng<Q%rViO)#Xonl6<!9YH~}u9pm1U{F`4I-W>X
+zmrz&PDg-8ZA=N3TR4ONe*JTL<mLF58;t7?6Eewdqkjl;wEjw7ifa&-YbUZCLSU`Z*
+zwW+LY2|C&q2E>6*r30;X{p=t>yE3Wl$`Cr05`z(2rW)mxf^yQjes<1}))J}O2~J{(
+z#EdOdO=X?RCpvYV2s`J;{Ebxl8+zxH$^ASgTwO(gdhn_A;0b;k>%vTwFXc(hfo7g`
+zpb1?mCVRCe7?{^C-Ixc`jU?h(Xhzk05U_i}Jb5oj)eL|z$xM47Fq46K(qteA1}hM-
+z?8rQs9SQwnOCT@-$vi0_31+w@5J*MCJg8_$`q2sm%nWCqG{Z^q%@T;Fev=>udgsd$
+z1VlP952O>p29^+v2y+htwx5J~azBaIhqVO(%~1E>)9gP5!C){+6#~|)W1f0uhT?Uw
+z$c!~>s{xHn`CuibykxNj%EJ6N#-#s7=n*m5yEOu#8ydva&>(`C=G-teb@RlSnkPo8
+z?yP`7`GQHlAc+_&Akbv3W*3p1X)7R*Ek;a^^CF2_D-aM}&EzaCl9;mt0kIqa!_|P6
+zEA8A0q|#+-t{JJ$<lK-mSbL$#7!;Z$TUJ3Z;0&hY3??~)<T_XZfr=O=MGT?j=Ds0q
+z?M?f`A%G)Ea)5YXfiaMxo5?Xsgf;<}<ZTcYdy}LPf0}XWPt)>4WEh&dAx2CMF{0&%
+z2$rNl#mP1G1&8{A#ul;RlB`0&tXamTHA`w_t{=$%G7wl#nQ_@uCb=LywXh;k8N;QF
+zp~*QLAh2XDCpwWTZz~Wm{U8U7k>tG{2#8C~)FdHN(Q63=Lf%}GH>qJ@1q3Q%xRf!Z
+z9zRbF6@+fY7E>d(D9o7}lDBTc7E=?pNCtov5ST~F!J{OJIp4F8u2FkXO{3KAzTwc}
+zHq#F}(voA9wEBU|SN$3R(9O4EYQ7aAOLFKfn+2x7$D4?x_0@xBdUMbc2u#ZPvVWqp
+ziY);^t8QNntk74RmO!9pkeaeZi3uAJFkj9GUyk5CSb~6NNMB}1f?;k61Zsfz(f}b;
+zn-YW>UFjwZF*R9;z!jE2pv@#-HIsDB%?$(ty3)-eWNH>6K~-A<fi{!WAV5NW!MmPm
+zk+YYqF=_A1Jurk`H-}#Hm(v#NKLqL_as7&5rqr#QpuyAx4H9$0lzXEb5$MYQK$iam
+zU2O>jTK1}`GK5~QB@k$A1Tr=Vc910yXct4xA0v2kmOx-NXCP}%eFMP~1kAGzz_TVa
+zlx#u37p3&9^~RVb5U83`(}uKNP6@$`J2eBBm>jr7a3D4i3}{O;1x;QAeZgx90BV5*
+z(gGn-mK6}FhzX>K(f0khd<TUQbyp#vtphcpkzjyu`5KBZ=1olAhw80S+QOg9w@?^C
+z&<(Qy3|FMVd>kHC=G-JV=q5igHTj9)So3wq+h9e6IuR2}5kq2482)dRC3O>4n3}Lc
+zlC@Sqphk!qgGJ&^J0Or9?rbv$i%|Sp0fCAbHH3;({8|BlnjxVyLkJB7OCZn+Jd_nU
+zA!S>EfQh*f#2mqmu>$~e?nCL^lMDcO9fOgG33WARC~HoFQK}#q(6??N7h4bH(n~o@
+z5D@wf*H2v#JP6J#Fb3w^hv3`4(e04p^0gFSOx|drr=~!W$eWvrnCh4h%q)(;EG9X%
+z+;kJCZsH766K6>FAP)_j?vX~?M^f5TbTv18FpcSE|1dTChv3}9djP)pR-oqKdLS1`
+zz*qr+37AL<7($=d76?qhL{h+zN`EUL(5hQaLL!-BRzP5RGJ-rwvc#-Fz+9LJTo_VQ
+z%?bpxk)j4N(J0Hxb-<`wO(>&KcWfwNB2Cd7LD5TL&Dc;oL^?eksW+_Yw`g(smI@>7
+zus<#j@nItA!;m~Vo?74wwAzf-4r`4i7I!^n-uI7n<Q=acRclXC3WTXUshbDH)I6Z}
+zCW<`>XsxM6Wa*kH_CR13X{<J3v^!GvAYeL54kc<Y^XvgY8)~s?sA&kx9tf=1jiK1p
+z5tc;=Sc+1!%5-_s9thN@RU`a#4vakzs7V@2lT>Gj*#m*<hgj+donvh=IFWs%G3+DN
+z86X=7X8Ix4mHx4MWrU{Utbj1k5PQoKbF5>z7o@$Dqac`eFk)TtAIsvu-H}reOiTYN
+z1k^HDGrLG}!AxB_-B=oyto#1$y4oTLtk_d?yGTmP3JBC1Or$la>tI*}frV!x!;`Qq
+ztw2Bpej)|FuKc$L0<FB&+$^0ZWf26DuH_iD_FBsx0JLq8sF|yJU2O#d>e?sLwbwNl
+z?SVk~Le1~eb+asjz_e5%wUo}0vIhdyQi*!ny|sT~5du<hCUO8SMZ{Qvfca4g_)+aX
+ztwjJ>!K+3K>Y9pQ3gYMepZwWzr{(j@>UFk!bkE$PNV7EXz0fNr<A}#m7_iunCV|KT
+z9{Hlkc^>&9O0vLD`6SFkHuh4^JeH*)&&PmPz+ae+$Kvzy4>-ji!5`{VH-A|yM7ioJ
+z0Nszw?YK|#Ld@=8_jwq(XKp;n$Bd_;&w^YqPZX0ePd&k-B%e%@Nhnf3jKm}u`&n2N
+zED}Y*gRw|FmPZ~7i_HN)h{bXWf1}%S>gR<hruj<#-tX>{SUt{*`E36189o+bnJ=c#
+z>Zk7g=cgyJT1;~%`zRLKgK*{(XC<;H=XpLYS4(G^&ljR_va)dI&(HHxl&j5;ve|6@
+zNfaIDdG@k&R*%!Aqfq?MfBpB;Da3O6P-ZJpbm6AU15L{Z=P6q}Ov|2gl`Updv2fr9
+zE}eNf`~00#&YgKtES>qnd0tHCi}hdSEV9+Kd|39}jysz^O;;J9U%F@iaxbR~A^%cm
+zxyr`V*>v^UnJ%5onThP9=*~;gg%fn=FDqv$%H?!5{RqEPOtXh_zFbZ7j#JK8&ZlYV
+zJTK<s^)cW~gSqoDn@tP&6SjZ*w+oSrGXMPTvsf(WWhrLPCoz3^1bp8);y<%|r7oF7
+zQ99Gv>}9zE{2zt7Zq8)B5P7y-!8u+}m#g_=nrAad-6ki06#1`9=Vd7zk>!u;E9y+k
+zLOhGI5akLk)O<3T=F@Bjn3vCR1wIOAA(k&QxMizs0e{izQQefuV*YPYI^%h^D0=SC
+z9k<MsYTR2o+Z!|%W&Ze-Eq-<XJZ8~7&C4Q_E38GvA9?}adc}&OFTcxq<)2>5-{aw*
+z9rt;f{|dLg=5FQlG8YTAAnu-~E4UfXyo4*bTVqcCn3WGgF0R#7z=9PH9I)pMAB9tF
+z7m{4YYNZHgHD536r))NJmf6$uOu&u%d;i{f%(gM$Ji#qjaq%tu$<FFAE1jFcrSpyN
+z^<wAa((%2X|2O#VJ*<zVGcEJkOCcP%f75K%g{WJ8TZjpq{NpxYdd}S@?v|^CC?8gj
+z9cQ=tHh&ca=qHh_9>v1R7D6uS-(IqEHJwaF;fz14zhirI0muhYz6d8PetB80p5O#8
+zOR*Qo|IrL%6~4|lUN2q$y?^UD1C^q?%jrtMLe7e8mBEFamiZhm*-FTTm(R<|v=C)3
+ztJv*Do{6l)mdfs}!tkS|S{wfQlUf$OW&;)Njl<82`7fff{Nl<#t(RZYaTnRA_0OYT
+zl7@-D{V$R~-27&bc>#;I{{?l*s^p<}aP!==e|32;O#L|QguT#bJd|X%TFnI97Wb@t
+znaw)x^5yw?zF5I3hvm0a%ZP_Pue$QSldDdyOSR^lX<56co3N1AakH9t--w%s+ng)t
+zc|GTRzIxnd3s`s03-M8uGI&I}5(^nxn>6Q$-(IrWOr=z@+I;cMfs=N_UaaEfqgX6o
+zmhxoXsOQUnlxs#2e9&<}P0La&)_1zmp8gARK>yv1%mHwa$LRw^-Xi<7yE1D+{f4ui
+z2MK_MJ^ydtIV!@1ymIi>dW5aS;>jr%^30FInahygLi?IPjz}Q8SAr7~$d|k>yp}*%
+z+Dst4l0aD6<2>EZ5xWG!deL42Nhk@#>p|Y=1U(i;`us8Y>3S2>uqyWh9@h0b8}PX2
+z5%LEdZv73GV29h}4`wlcz)8D)&)dr%aI$W+{>KCP18#J~-}(#k$7TPPpdnu0y?4Ih
+zanFYo0?GcXhBzh#Ty6(q5K_RQ_v09(08B&p`x+uXoC16k4H5McNCBKCAz<}w!ZNML
+zEG)WB3J6Il01mfH8pz=`=_aw50^p>tcr69M$+~fS3V@ieZ#JxEfUn`D!fTa{XNP0!
+z`h2u?oHUVj;Pr?mfyJAF6;%U^_q>RQ)o2QPQd{doi1k<!hn=_=Cxi$Zo^J!FA)2qx
+zkCfoU?H71d51;GvO7z6mqGx#C)Zf?VPM5LuKOP94;knyri~I%j`87s~6e#CgY<Hh%
+z0u_Hw(JWGfW~6%6NcCGNkfpsi_V#ORJq0qamqrl6o(y?i1pm<g$2No;q;+vK*oGt{
+zaUdLSBZGOpDu=^u&J|gVVmRq55b=9)3}<^4w#P9<ZheQ;*Es(F8^^bshbIYPeCW+`
+zCSlApVa(c!S<ght#%njs?|Bp{d)u!NaV?5}e7!4XeNq(P_V>cRakL#3`__W^w(oSk
+z8WqF2x<Pvg-}b8!Ec@Nn2tI%RJ)y!JTshzHXzfwOUkl756!73`wA*N`2}%4hV{86W
+zRRgo67dABTKAmzx9D2O~qL6W#9){Jn4i4Y13*y1mmKtfE5*%%(h`q+qHetvu){}6~
+zS8**42Uj4ITgyqfwT-<YU+c-Eqv@v~Mi*3uJM@NcOW_pm+qKP-GN6`}Qjao^=E_{`
+z2!^MP82aglZAj3n%8MQQu^2nt&X~1FW^mG1tZvJ|*<P{sID&iH*iEuWXe7&Ycr~an
+zTH1@hG8#DsVXMyW0UjNt9eBU|X((;KSWNcA@%WYrSFMr`V?9oyx1C|yY?8u~+XNcK
+zErH)EhG~P};BY&Fvlp6h(pN!^;NWE4xV`6kzHgYS4VYgU?%3#p9jb4sRt)~gri?D_
+zTjJ}{g_x#sHM)4u-`ml^tI-u1L>Kcn;T4dqn70*sq#+*P-t20!gcMzGcjgU44|fXr
+z2q%5Tyc+Sr*}5!hFXZ4}Hy#}P8ehl87d%;cPprq#d1#yHYJZTY9$iWMejygO?-wFU
+z$#54@(5BEu)cvj+<Mjx*+|d>HNlNm5TaCd|ZXRuCz}SnY`|q7sEUJYQoUH4&v(^1x
+zIVPV(_zR59+Ybb-`sTv<2701WszzU>>T#CnoAsDSLb#*D2aLiU`uO#55BB>SErzI1
+z4fihV#j+jAdJ$z$&+Ui9{roo<d(lfUK|fSB^mvVfRZe8j1O4E<VyxE3cyl33$#xU;
+zgWGsQ>ML~~OP%lt+3qPC9e1MhhRnz_)D(VUEt*;jKT3NcQg$ZzniOSvf3<5bH1^uw
+z_Ae?MWk^JN)j!OnaJY>!4J<YZ;iRvUT5Q3|pkvw^TyUow&td)*o8_*Cq|LVedb2IK
+zXJ0ql{-5r&gGc4JbGmfyEjr}WlMj%4nrGPSblh}~d{(97q(y!Etk$0-ZMKcp%$(4e
+z`J(^su&E0Rd$U!Dk+>NSx7%um9Bw1~ZSJ;(lQy>6!O6Os1Oj)u@o@iNkU$1^1U23t
+z-pb9k@_`-Bzsm6=_uFrt?V@bA$HoPE@EQ-#(@c;c><A3^Hz>4}-(im*zt1S>aV5<e
+zsT3dFRkj(`6a*}}O*C^-{15I9hd&%`BOqd%o9*wK8x-JNUCkb&!JS)wGPmQd7TL6%
+zmJih@`Q+XO`2RB4;N8`Y^~Ipwj*Pv851ViKjWy+^@KkYwRM4l0>rZo6@PJ*~z$0g>
+z*Pbq~povj148Zu|F<?~EtX>@-K?Bi;Ov9`If_*y(BEQ+K(IHZup9-RYA&6k)8!{WC
+ziU_}9CWzkG?ifUJ6Vdzcu_w_hh(J5oL8Lm=6+~f*AcBc9$XJ^yB77a0AiAYQ8H|@f
+zW<OOC1-1}L7O37dH0<xN>4hh`XKL$4HSV!UgN+KvoUm#lvKDD_=e#Zv4bQQGK-DW`
+zEzZ>AmQ_GloWYZK$Z)^v6*{zr8U}(6(RKX_aRkuyIX1VcdWBM3cvN##m#v`{*cgsl
+z&5Vbl{%Abv$!OgLf{Aa)c<(AAYj^Cj&K?{Kdw6sU8DmpLl%R-$<LO>C+;o`{+DnZY
+zNBTSzHYKed&#;yloBYaU$&E}Ksvrt*L<tR1^Ifi0L;->bCUPUQB&*j50|YNppd_L_
+zKsN*JBI0s7cRS%n)&SMn72ysp*|jlqw3-*uJY<5Wkr%P+1Fv6gjvuY!LGzFap11WI
+z)|5kB&O=28E}mim)wKu57WCi_n__j6>+@q>FQR~8xL3ROz*W8xqMLda!T{Y2n^V_L
+z0!Qi4c4Fmf;&yWu9tBZjTa6BpB<*%B#9=U=i4-!yLy;a_N{_}o(Q1T+hw<o%zWFY8
+z9gV@1He^Veu97wZ)YL*)QUoo83?tUoWG0AIN!(rnaXAX7Re9i9k<paUURIPMtAYnx
+z(lD*L&H2EE8N8k5SlQ9AK45Xy@c7dDXv_iCM;K9<HD6O)jj#m412PC1uU@@Es4#=K
+zF;KE%^9A$m6{33Ie7ia1<5|%Fk&;-|YlI<!k;3if&;coAfJlZ*JG1(*nFM(?fVQYN
+z!J{akdWD)%rrrtPF7NS@%mh*0f5q?&w7w8d942rYJ`8rpz=tt$hD;DqsLYpChD=4)
+zXKDjP!+On%McGikBf71KhP}ad05z;3gvxwr4YjHdydaBdYN+`R^Y((wmla2AL1qn4
+z!!$=qXkVJ<8u4*xQIo`n-=bepa=rb~9N4Hes*KR|wQ3rYqDI{x;IV`zh5WXH3=1%*
+z$Jz_l0~aWzijQ4m?N8b0T+Q?OZnCTwq~RpY3qFDAwn304v6u0J1<54wM4E?_+|Tkn
+zo`han@XSxWv7d{O7k=n_JcY@&3-K^ruEatVcZ=!6w5+yc*^qICvgdi;KLKR^D4w$I
+zOi<Qwm-ClJE-vOzPtz3)3H8z>OhgifEb~0!v7m@E5st?q;A6pxBuYd)4!FDd<~xy#
+z>GMiW_MA*-a225;{cSm!jmARm4(R;?SEl1Wh*B(|yWL;y?>mF0T5=Zpy~qp0kZ-T)
+zW43&}D)V_E8;)+CmGcq?u6BRfjxJq3X6jnzL7WCcBykjkxgP|6G8SS|z*$5Zj>nVC
+z4<~Wqi*XcAJkBHG1!KR6JTJ>9<7gr`I#mCF^+;9<_`o}3td|6F82U!wMIHx}C<w-0
+zn({o&JRU|~AiQzragi1U=UF}uqa+<qCjK~0!!YnUAM>1NA`G(J{qtwJzQjj0GkM*`
+R7QcZr`M;0BYtj({0RZ8)y5s-=
+
+literal 0
+HcmV?d00001
+
+diff --git a/data/abbeys/journal/000000000002-5bbef809910e30ad621b6d674ed998bfc64f0be903ce3ef725abb24efe2323b6.json.gz b/data/abbeys/journal/000000000002-5bbef809910e30ad621b6d674ed998bfc64f0be903ce3ef725abb24efe2323b6.json.gz
+new file mode 100644
+index 0000000000000000000000000000000000000000..a9bc1945c58e1cf4a53cb58bfc03297ea44d7fdb
+GIT binary patch
+literal 2894
+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
+
+literal 0
+HcmV?d00001
+
+diff --git a/docs/ABBEYS.md b/docs/ABBEYS.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..37a5b6e7a9fac7468bcebe589e076d707d4618d1
+--- /dev/null
++++ b/docs/ABBEYS.md
+@@ -0,0 +1,49 @@
++# ABBEYS — NFL current-season board
++
++Find it at **Football → NFL → More → ABBEYS**, or `/long/?mode=betting&tab=abbeys`. This independent straight-up board does not alter Today, game/prop models, GOING Score/Confidence, DFS, or the Champion/C1/C2 experiment. One winner is issued for every actual regular-season Sunday game at/after 09:30 Eastern and every Monday game in the selected week. Earlier days and byes are excluded. Final Monday kickoff supplies the score tiebreaker; identical kickoff times break by game ID. No Monday game means no invented tiebreaker.
++
++## Prediction boundary
++
++`shared/abbeys-core.cjs` copies only **season, regular-season week, game ID, teams, kickoff, an explicit neutral flag, and completed scores**. Only results from the selected season and earlier weeks, at least 12 hours before the actual freeze, train the board. Target-week Thursday results are deliberately excluded. Old seasons, sportsbook fields, odds-derived ratings, historical injury effects, player indices and prior model coefficients are not passed to the predictor.
++
++| Feature | Source / season | Freshness and limits | Market-derived? |
++| --- | --- | --- | --- |
++| Team points scored/allowed per game | `data/results.json`, explicit NFL ID/active season | Frozen public generation receipt; no per-result upstream publication time | No |
++| League mean / designated-home margin | Same earlier-week scores in that season | Small early-season sample; not opponent adjusted | No |
++| Schedule / teams / kickoff | Allowlisted fields of `data/nfl_betting.json` | Snapshot generation receipt; mixed-source file also contains odds, which are discarded | No |
++| Direction stability | Leave one prior week out, refit the same current-season benchmark | Sensitivity diagnostic, not calibrated confidence or win probability | No |
++| Injury/practice reports | `injury_context.current_reports`, exact current season/week/team | Separate post-freeze context; generation age ≤36h, not confirmed inactives or individual report publication times | No |
++| Weather / starter changes | Not reliably quantified | No forecast adjustment or invented weather | No |
++| Historical trends / book comparison | Optional post-freeze layer | None attached in v1: no verified trend or book-level quote timestamp | Never predictive |
++
++The v1 scoring benchmark takes the symmetric average of a team's scored points and its opponent's allowed points, adding/subtracting half this season's observed designated-home margin. It uses all earlier games equally. A reliable neutral-site flag sets that venue term to zero; current reduced schedule lacks reliable venue detail, so international/home-designation bias remains a concern. Reasons show the actual scoring/prevention/net-scoring inputs and contradictory raw averages, with sensitivity and personnel limitations. No unexplained feature weights are introduced.
++
++`Stable lean`, `Sensitive lean`, `Limited evidence` and `Toss-up` describe the registered sensitivity/sample rules, **not percentages or validated betting value**. A zero forecast margin uses a disclosed alphabetic team-code tie break to meet the one-winner requirement. No current-season league results means no numerical score is invented. Final Monday integers are the nearest nonnegative winner-consistent score pair; this is a point estimate, not a likely exact outcome. See the locked [research protocol](../research/abbeys/PROTOCOL.md) and [retrospective diagnostics](../research/abbeys/README.md).
++
++## Official freeze and results
++
++Use the existing common-Git cycle mutex and clean public input files; no provider calls. From the fresh source checkout:
++
++```text
++node research/abbeys/collect.cjs capture SOURCE_CHECKOUT 4 manual
++node research/abbeys/collect.cjs settle SOURCE_CHECKOUT
++node research/abbeys/collect.cjs verify SOURCE_CHECKOUT
++```
++
++The first command is an example for initial Week 4, not permission to replay it. Choose the actual upcoming week. Capture refuses a board once **any applicable Sunday/Monday kickoff has started**, refuses an already-frozen week, and records actual process time. No official predictions are backfilled. The initial manual Week 4 board is official prospective product tracking, separate from the future research holdout and all retrospective diagnostics.
++
++`data/abbeys/journal/` is a dedicated public append-only hash-chain journal using the existing exclusive-lock, atomic-link, bounded writer. Each snapshot preserves the entire allowlisted schedule/results input, cutoff, predictions/reasons/counts/sensitivity, Monday scores, model/protocol hashes, public source revision and canonical JSON receipt hashes. Original snapshots are never recomputed for display using newer data. Duplicate/conflicting keys, locks, pending files, corruption, changed model/protocol definitions and alteration/removal of committed blobs fail verification. A failed context/materialization step leaves the original freeze intact: inspect the failure, then run `verify` and `materialize`; never delete the observation to retry. Missing optional injury context remains explicitly unavailable. Manual invalidation requires a reason and evidence, appends an auditable record and removes no original bytes.
++
++`settle` uses only newer public Git results with the exact game/teams/kickoff, nonnegative integer final scores and an after-kickoff generation receipt. Raw result evidence and win/loss/tie settlement are appended separately with source revision/hash. A revised conflicting result is appended as a conflict and leaves the displayed grade unresolved; it never silently replaces the first result. Missing, ambiguous, postponed/unfinished or unverified cancelled games remain pending. A final tied game is a tie, not a guessed win. The final Monday result adds per-team and combined absolute score errors and an exact-match indicator. No score/grade is reconstructed for weeks before launch.
++
++`data/abbeys-board.json` is a disposable materialized view of the immutable records. The browser loads it through the **existing public Git-backed snapshot endpoint**, with packaged fallback on outage. Thus ordinary verified data-only publication can update the board without inventing another deployment or persistence system. No browser-local voluntary cohort, database migration, API key, paid service, entry automation or new scheduler is involved.
++
++## Scheduled-agent handoff
++
++Existing recurring cycles retain their schedule, 15-minute budget, concurrency/publication/review gates and football priorities. When an upcoming week is due, they may perform this bounded existing-data operation; do not create another automation. `capture ... WEEK scheduled` is allowed only in the 08:00–08:15 ET slot on the date of the earliest **whole-week** kickoff minus 12h, before that origin. A missed/unrepresentable slot is missing coverage, not permission to backfill. The Sunday/Monday product pool is kept separate from the whole-week research origin.
++
++Scheduled v1 records are labeled **B-only prospective holdout**, not paired B-vs-C evidence. C forecasts are not yet systematically frozen; a genuine paired comparison needs pre-origin C snapshots on identical inputs. Preserve this limitation. Holdout raw results may accumulate, but grades/errors/aggregates remain locked until at least January 16, 2027 noon ET **and all Week 18 games final**; a postponement requires the later registered release. The visible season record currently covers manual official boards only and says so. Never fabricate a prospective sample from after-the-fact C fitting.
++
++Future changes must retain v1's implementation and protocol bytes or add a separate versioned implementation/registry; the current verifier intentionally refuses in-place v1 changes. New features, recency/opponent adjustment or injury weights require a new preregistration, chronological checks and untouched later data. No automatic replacement/promotion based on a few wins.
++
++Next priorities: freeze C alongside B prospectively without opening the holdout; improve audited neutral-site/starter availability provenance; add verified current-season efficiency features only through a new comparison; then evaluate score/margin errors, winner counts and sensitivity bands with sample size and game/week dependence. No Brier/log loss until genuine calibrated probabilities exist, and no ROI/CLV for this straight-up board without appropriate prices and settlements.
+diff --git a/index.html b/index.html
+index 3129855a4f72cd689522b448a5e83d8b530b8aa1..5b588d8135bf293c473e5f0219c71d045f5325ac 100644
+--- a/index.html
++++ b/index.html
+@@ -538 +538 @@
+-<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/dfs-threshold.js"></script><script src="/shared/dfs-team-evidence.js"></script><script src="/shared/dfs-classic.js"></script><script src="/shared/dfs-evidence.js"></script><script src="/shared/dfs-classic-ui.js"></script><link rel="stylesheet" href="/shared/dfs-classic.css"><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script>
++<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/dfs-threshold.js"></script><script src="/shared/dfs-team-evidence.js"></script><script src="/shared/dfs-classic.js"></script><script src="/shared/dfs-evidence.js"></script><script src="/shared/dfs-classic-ui.js"></script><link rel="stylesheet" href="/shared/dfs-classic.css"><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script><script defer src="/shared/abbeys-ui.js"></script><link rel="stylesheet" href="/shared/abbeys.css">
+@@ -847 +847 @@
+-        <button data-section="today" data-tab="best" aria-pressed="true">Today</button><button data-section="opportunities" data-tab="props" aria-pressed="false">Markets</button><button data-section="games" data-tab="games" aria-pressed="false">Games</button><button data-section="dfs" data-tab="dfs" aria-pressed="false">DFS</button><button data-section="cheatsheets" data-tab="cheatsheets" aria-pressed="false">Cheatsheets</button><button data-section="parlay" data-tab="parlays" aria-pressed="false">Parlays</button><button data-section="score" data-tab="score" aria-pressed="false">GOING Score</button><button data-section="jackpot" data-tab="promo" aria-pressed="false">Jackpot</button><details class="bt-more-tools"><summary>More</summary><div><button data-section="research" data-tab="signals" aria-pressed="false">Signals</button></div></details>
++        <button data-section="today" data-tab="best" aria-pressed="true">Today</button><button data-section="opportunities" data-tab="props" aria-pressed="false">Markets</button><button data-section="games" data-tab="games" aria-pressed="false">Games</button><button data-section="dfs" data-tab="dfs" aria-pressed="false">DFS</button><button data-section="cheatsheets" data-tab="cheatsheets" aria-pressed="false">Cheatsheets</button><button data-section="parlay" data-tab="parlays" aria-pressed="false">Parlays</button><button data-section="score" data-tab="score" aria-pressed="false">GOING Score</button><button data-section="jackpot" data-tab="promo" aria-pressed="false">Jackpot</button><details class="bt-more-tools"><summary>More</summary><div><button data-section="abbeys" data-tab="abbeys" aria-pressed="false">ABBEYS</button><button data-section="research" data-tab="signals" aria-pressed="false">Signals</button></div></details>
+@@ -863,0 +864 @@
++    <section id="btAbbeysPanel" hidden aria-label="ABBEYS NFL straight-up predictions" aria-live="polite"></section>
+@@ -3170 +3171 @@ window.renderTrade = renderTrade;   // called from the gateway script's setView(
+-const BETTING_TABS=new Set(['best','score','dfs','props','projections','firsttd','games','cheatsheets','signals','parlays','promo']);
++const BETTING_TABS=new Set(['best','abbeys','score','dfs','props','projections','firsttd','games','cheatsheets','signals','parlays','promo']);
+@@ -3190 +3191,2 @@ if(BETTING_TABS.has(requestedBettingTab))BET.tab=requestedBettingTab;
+-if(BET.sport==='ncaa'&&['score','dfs','props','projections','firsttd','cheatsheets','promo'].includes(BET.tab))BET.tab='games';
++if(requestedBettingTab==='abbeys')BET.sport='nfl';
++if(BET.sport==='ncaa'&&['score','dfs','abbeys','props','projections','firsttd','cheatsheets','promo'].includes(BET.tab))BET.tab='games';
+@@ -4850,2 +4852,2 @@ async function renderPromo(){
+-const BETTING_SECTIONS={today:['best'],score:['score'],dfs:['dfs'],opportunities:['props','projections'],games:['games'],cheatsheets:['cheatsheets'],research:['signals'],parlay:['parlays'],jackpot:['promo','firsttd']};
+-const BETTING_TOOL_LABELS={props:'All Bets',projections:'Model Board',firsttd:'First TD',cheatsheets:'Cheatsheets',parlays:'Parlay Builder',promo:'Jackpot'};
++const BETTING_SECTIONS={today:['best'],abbeys:['abbeys'],score:['score'],dfs:['dfs'],opportunities:['props','projections'],games:['games'],cheatsheets:['cheatsheets'],research:['signals'],parlay:['parlays'],jackpot:['promo','firsttd']};
++const BETTING_TOOL_LABELS={abbeys:'ABBEYS',props:'All Bets',projections:'Model Board',firsttd:'First TD',cheatsheets:'Cheatsheets',parlays:'Parlay Builder',promo:'Jackpot'};
+@@ -4857 +4859 @@ function chooseBettingTab(tab,{sync=true}={}){
+- if(!BETTING_TABS.has(tab)||(BET.sport==='ncaa'&&['score','dfs','props','projections','firsttd','cheatsheets','promo'].includes(tab)))tab=BET.sport==='ncaa'?'games':'props';
++ if(!BETTING_TABS.has(tab)||(BET.sport==='ncaa'&&['score','dfs','abbeys','props','projections','firsttd','cheatsheets','promo'].includes(tab)))tab=BET.sport==='ncaa'?'games':'props';
+@@ -4886 +4888 @@ function renderBettingTools(){
+- const section=bettingSection(BET.tab),tabs=(BETTING_SECTIONS[section]||[]).filter(tab=>BET.sport==='nfl'||!['dfs','props','projections','firsttd','promo'].includes(tab)),group=$('btToolGroup');
++ const section=bettingSection(BET.tab),tabs=(BETTING_SECTIONS[section]||[]).filter(tab=>BET.sport==='nfl'||!['dfs','abbeys','props','projections','firsttd','promo'].includes(tab)),group=$('btToolGroup');
+@@ -4897 +4899 @@ function renderBetting(){
+-  $("btCheatsheetsPanel").hidden=BET.tab!=="cheatsheets";$('btOverview').hidden=BET.tab==='cheatsheets';
++  $("btCheatsheetsPanel").hidden=BET.tab!=="cheatsheets";$('btOverview').hidden=['cheatsheets','abbeys'].includes(BET.tab);
+@@ -4909 +4911,3 @@ function renderBetting(){
+-  $("btPeriodGroup").hidden=["signals","score","dfs","best","promo","parlays","firsttd","cheatsheets"].includes(BET.tab);
++  $("btAbbeysPanel").hidden=BET.tab!=="abbeys";if(BET.tab==="abbeys")window.GoingAbbeysUI?.render($("btAbbeysPanel"));
++  $("btTabGroup").querySelector('[data-section="abbeys"]').hidden=BET.sport!=="nfl";
++  $("btPeriodGroup").hidden=["signals","score","dfs","abbeys","best","promo","parlays","firsttd","cheatsheets"].includes(BET.tab);
+diff --git a/research/abbeys/PROTOCOL.md b/research/abbeys/PROTOCOL.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..49bf4b9b3749dd155095cd281d508264b2cac0ab
+--- /dev/null
++++ b/research/abbeys/PROTOCOL.md
+@@ -0,0 +1,47 @@
++# ABBEYS NFL straight-up and score research v1
++
++Registered 2026-10-03 ET against `2b3d85355c144017594b7b240a434571e57c5767`, before this experiment's fit or error inspection. Research only. No production or existing model change. The 2026 schedule snapshot is `data/nfl_betting.json`, generated `2026-10-04T00:38:53.605552+00:00`. Its original Windows-file SHA-256 is `2B30CFFE0399403DAC23BAF9230EC7F4B3E6486B0AA86F23B8D56909C65C19CA`; its portable UTF-8 SHA-256 after **only** CRLF-to-LF normalization is also `2B30CFFE0399403DAC23BAF9230EC7F4B3E6486B0AA86F23B8D56909C65C19CA`, because the checked-in bytes already have LF endings. The diagnostic pins and checks the normalized hash, allowing Git's Windows/Linux line-ending representation without changing any JSON values. It contains 49 completed 2026 games through the Week 4 Thursday game, plus 2024–25 games. `PROGRESS.md` is absent from this base checkout; `docs/ROADMAP_PROGRESS.md` is not an equivalent experiment tracker.
++
++## Question and boundaries
++
++Can a current-season-only, opponent-adjusted additive score model improve next-week margin and team-score error over a simple current-season-only scoring average? Candidate outputs are expected home and away scores, an illustrative exact-score pick, and one straight-up pick. Neither method outputs a win probability or calibrated confidence. Show observed games per team and origin week as the evidence label. Exact score is a point forecast, not a likely precise outcome.
++
++For manual v1 output, B is permitted with fewer than three preceding games/team when at least one eligible same-season game supplies a league scoring mean. A team with zero games takes that **current-season** league mean for both offense and defense; label the forecast `Limited evidence`. This is a usability rule, not an eligible observation in the registered B-versus-C comparison below. With zero completed same-season games in the entire league, no evidence-based numerical score exists; a required winner can only be the lexical team-code tie break labeled `No score evidence`. Do not display `0–0` as a forecast or silently import an older season.
++
++For a qualitative cue, refit B after omitting each prior completed week in turn. Label `Limited evidence` when either team's full-data count is below three or any omitted-week refit leaves no league result or fewer than one game for either team. Otherwise label `Stable lean` only if all omitted-week unrounded margins are nonzero and select the same winner as the full-data forecast; label `Sensitive lean` when any differs or ties. These are deterministic sensitivity labels, not outcome probabilities or validated confidence levels. The diagnostic never changes the full-data winner or scores.
++
++Full-data winner is the sign of unrounded expected margin. An exact-zero margin uses the lexically first canonical team code as a deterministic winner and must be labeled `Toss-up; deterministic tie break, no model separation`. Round each expected score to the nearest nonnegative integer. If this produces a tied exact score while the unrounded pick has a winner, choose the nearest nonnegative adjacent integer pair consistent with that winner by minimum squared distance to the two unrounded scores; if two pairs have exactly equal squared distance, choose the pair with the **lower combined point total**. This deterministic display rule keeps the score and winner internally consistent; it does not improve prediction accuracy or create evidence of separation.
++
++Use NFL regular-season weeks 1–18 with valid team IDs, UTC kickoff and two finite scores. No sportsbook field, market line, prior-season game, earlier-year rating, published probability, manual ranking, betting return or player input enters a forecast. Historical 2024–25 seasons are used only for offline method checks; **each historical forecast uses only scores from its own season**. The 2026 forecasts use only 2026 scores. Store neither provider credentials nor private tracker inputs. A revised nflverse snapshot is a retrospective schedule/results source, not point-in-time publication evidence.
++
++Prediction origin is the earliest kickoff of each season/week, minus twelve hours. Use only completed games in **earlier weeks** of that season whose kickoff is at least 12 hours before origin; the delay is an availability precaution, not proof of actual publication. No same-week result, including Thursday's, enters later games that week. Common **B-versus-C evaluation** begins at Week 4 and requires at least three available earlier games for each matchup team. This avoids arbitrary cross-season opening priors in the comparison. Weeks 1–3 and any matchup with insufficient evidence are comparison abstentions, with counts reported; the manual B output rule above is separate. Postponements and ties remain in score-error analysis; actual ties are excluded from winner accuracy. Duplicate IDs or impossible score records fail closed.
++
++The model uses the schedule's designated home team to estimate current-season `h`. No stadium or travel advantage is assumed beyond that observed home score difference. A confirmed neutral-site flag may set the venue contribution to zero; the checked-in snapshot does not provide a reliable neutral flag for this experiment, so neutral-site forecasts must be marked as potentially biased. Weather, injuries, starting quarterbacks and other changing context are absent, unquantified and must not be inferred from scores.
++
++## Frozen candidates
++
++**B, current-season scoring average:** From all available prior games, league points per team `mu = total points/(2*games)`. Team offense is its mean scored points, or `mu` if absent; team defense is its mean allowed points, or `mu` if absent. Current-season home margin `h = mean(home-away)` across available games. `home=(home offense + away defense)/2+h/2`; `away=(away offense + home defense)/2-h/2`. The three-game common gate normally leaves no missing team average. This is a transparent simple benchmark; its observed home edge can be noisy.
++
++**C, opponent-adjusted least squares:** On the same games, fit both team scores with ordinary least squares: `points = mu + venue*h/2 + offense[scoring team] + defense[opponent]`, venue `+1` home and `-1` away. Constrain the sum of offense values to zero and the sum of defense values to zero. Use all prior games with equal weight and no tuned penalty or recency coefficient. Fit by `numpy.linalg.lstsq`; if the design is rank deficient or either team is absent, C abstains. Project both matchup scores with the fitted model. Coefficients are descriptive, not isolated player or coaching effects. Negative model scores, if any, are clipped to zero for forecast and flagged; no other post-fit correction. Compare B and C only on C-eligible games, and report C coverage against all B-eligible games.
++
++**R, recency diagnostic only:** Recompute B with each team's most recent four prior games and the league/home terms from the prior four complete weeks. This is a fixed, interpretable window, not a fitted weight. It is exploratory and cannot displace the registered B-versus-C comparison or justify production recency weighting. Report paired errors against B only after the B/C analysis.
++
++No parameter grid, optimization, or choice based on the 2026 outcomes is allowed. If C coverage is too low, report insufficient evidence; do not relax the rank gate after inspecting errors.
++
++## Splits, metrics and decision
++
++2024 is an implementation/sanity diagnostic; 2025 is retrospective chronological validation. Both use independent within-season weekly rolling origins. The future 2026 Weeks 5–18 are the untouched prospective holdout. Week 4 and earlier 2026 outcomes may be used to inspect input availability/coverage, not to tune or accept C. Do not score or aggregate holdout outcomes before **2027-01-16 12:00 ET**, and only after every 2026 Week 18 game has finished and its outcome is available. If any game is postponed beyond that date, defer release to the first Saturday at noon ET after the actual final Week 18 game. This corrects the initial January 9 date, which preceded all 16 currently scheduled January 10 Week 18 games; it is a pre-outcome chronology correction, not a response to model results. Freeze source revision and implementation hash before the first holdout forecast. Future **B and C** predictions must both be recorded before each weekly origin with input hash, game ID and candidate output to count as paired prospective evidence. A B-only user board has no paired C holdout evidence; report the cohort as partial or insufficient rather than reconstructing C after results. Rebuilding either prediction after results from a revised public file is only a retrospective diagnostic, not prospective validation.
++
++The registered origin is earliest **whole-week** kickoff minus twelve hours, including any Thursday game excluded from the Sunday/Monday user board. An official holdout capture must occur in the 08:00–08:15 ET slot on the calendar date containing that origin and strictly before the origin, with identical schedule/result input hashes for B and C. If the earliest kickoff yields an origin outside that slot or the capture is missed, the week's user board may still be shown as manual, but the week is missing from the prospective paired holdout. No backfill or alternate time selection is allowed. The minimum sample gates below may therefore be unattainable; report insufficient evidence if so.
++
++On identical paired games, primary metrics are margin RMSE and combined team-score RMSE (two team scores per game). Secondary: margin/team-score/total MAE, total RMSE, winner accuracy excluding actual ties, rounded exact-score match count, bias and missingness/coverage by week. A zero predicted margin is an abstention for winner scoring. Report denominators. Do not claim probability calibration, ROI or CLV. Compute paired uncertainty by resampling whole week clusters 2,000 times with fixed seed 20261003; report the 95% percentile interval for B RMSE minus C RMSE for each primary metric. Show 2024 and 2025 separately. One season and weekly team dependencies limit inference.
++
++For *future* 2026 consideration only, require at least 200 paired games across 12 weeks, at most 10% C abstentions among B-eligible games, and both primary RMSE improvements at least 0.25 points with both paired 95% week-bootstrap intervals above zero; also no >0.25-point total RMSE deterioration. These are practical screening gates, not claims of optimal thresholds or permission to promote. Any 2025 finding is diagnostic only; a 2026 passing result still needs manual review and Travis's approval for a model change. The currently deployed methods remain Champion. Insufficient sample, failed gates, or missing as-of snapshots mean reject/insufficient, never retrofit a new cutoff.
++
++## Method and provenance references
++
++- [nflverse data releases](https://github.com/nflverse/nflverse-data) document the public automated schedule/results source. The checked-in snapshot does not retain its upstream release hash or result publication times.
++- [Hyndman and Athanasopoulos, time-series cross-validation](https://otexts.com/fpp3/tscv.html) motivates rolling forecast origins, where only earlier observations train a prediction.
++- [statsmodels, rank-deficient design warning](https://www.statsmodels.org/stable/pitfalls.html) explains why a generalized inverse can yield numerically available but poorly identified team coefficients. The rank gate is conservative and may reduce early-season coverage.
++
++The additive score model and four-game recency check are hypotheses, not established NFL winners. The offline evaluation can support a score-accuracy comparison only; it cannot establish a calibrated confidence level or real betting value.
+diff --git a/research/abbeys/README.md b/research/abbeys/README.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..11057bbea1456eb8423ef2fc4d3e35f1ec22d871
+--- /dev/null
++++ b/research/abbeys/README.md
+@@ -0,0 +1,27 @@
++# ABBEYS NFL score-method diagnostic
++
++**Recommendation:** use the transparent current-season scoring average B as the provisional manual straight-up and exact-score method. Do not replace it with opponent-adjusted OLS C or a four-game recency window on the available evidence. Keep the production game/prop models unchanged. The proposed manual output is a score **point estimate** and a winner direction; no calibrated win probability, betting edge or exact-score likelihood has been established. The [registered protocol](PROTOCOL.md) was written before running [the diagnostic](diagnostic-20261003.json).
++
++The checked-in `data/nfl_betting.json` is a 2026-10-03 ET nflreadpy-derived schedule snapshot (generation UTC 2026-10-04 00:38:53) with regular-season scores. It includes 49 completed 2026 games through Thursday of Week 4. It also contains historical and odds columns, but [diagnose.py](diagnose.py) selects only season, week, team IDs, kickoff and scores; forecasts always use the **same season**, earlier weeks and a 12-hour result-availability buffer. The registered portable SHA-256 normalizes only CRLF to LF before hashing; the original Windows-byte hash is retained separately in the protocol and diagnostic. Both hashes happen to match for this LF-ending snapshot. The snapshot lacks per-result publication timestamps and its exact upstream nflverse release ID, so this is a retrospective check, not a verified archived pregame feed. No network or credentialed source was called.
++
++| Season, Weeks 4–18 | Paired games | B margin RMSE | C margin RMSE | B team-score RMSE | C team-score RMSE | B winner correct | C winner correct |
++| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
++| 2024 sanity | 224 | 13.25 | 14.14 | 9.35 | 10.05 | 156/224 | 150/224 |
++| 2025 retrospective validation | 224 | 13.14 | 13.60 | 9.39 | 9.85 | 136/223 | 134/223 |
++
++C's total RMSE also rose from 13.19 to 14.28 in 2024 and 13.42 to 14.24 in 2025. With the registered bootstrap seed `20261003`, the paired weekly interval for B-minus-C team-score RMSE was `[-1.22, -0.20]` in 2024 and `[-0.89, -0.06]` in 2025; negative favors B. The 2024 and 2025 margin intervals include zero, so no precise margin superiority claim follows. The 2024/25 samples are only two related seasons from a revised public source. OLS had full design rank and paired coverage for all 224 eligible games in each; poor results were not an early-week coverage artifact.
++
++The exploratory four-game B variant had margin RMSE 13.65 in 2024 versus B's 13.25, and 13.03 in 2025 versus 13.14. It had higher team-score and total RMSE in both years. That mixed margin result does not support a recency adjustment for v1. The rounded exact-score pick matched 0/224 games for B in each year, which illustrates why it must not be presented as a likely exact outcome. The result is a descriptive count, not a reason to invent an exact-score probability.
++
++The 2026 Week 4 schedule has 16/16 B-eligible and C-full-rank games based on completed Weeks 1–3 only. Its Thursday result was excluded from all Week 4 inputs and **no 2026 result was scored**. The future 2026 Weeks 5–18 holdout remains locked until at least January 16, 2027 at noon ET and after all Week 18 games finish. It needs genuinely saved pregame forecasts, not after-the-fact reconstructions. The current manual board implements B only; a B-versus-C prospective comparison remains **unimplemented** until C is independently frozen before each registered origin. A B-only capture is partial evidence and cannot satisfy the paired holdout gate. Thus this report recommends a manual B implementation, not model promotion or a claim of prospective validation.
++
++For a user-facing cue, report `Limited evidence`, `Stable lean`, or `Sensitive lean` from the registered leave-one-prior-week-out check, alongside each team's input count. These are sensitivity labels only. Manual B can return a limited-evidence pick before each team has three games, using only the current-season league mean for a team without games; such picks are outside the paired validation sample. If the entire league has no completed current-season game, a lexical winner tie break must be labeled `No score evidence` and no numerical score should be shown. An exact-zero unrounded margin also uses a disclosed lexical tie break. If rounded scores tie despite a nonzero margin, the protocol chooses the nearest adjacent integer pair consistent with the winner, without claiming that one point is meaningful. Neutral-site status, weather, injuries and starting-quarterback changes are not captured by this score-only method.
++
++Reproduce offline from the repository root with the existing Windows environment:
++
++```powershell
++& C:/Users/travi/OneDrive/Documents/ChatGPT/GOING/.venv/Scripts/python.exe research/abbeys/diagnose.py
++& C:/Users/travi/OneDrive/Documents/ChatGPT/GOING/.venv/Scripts/python.exe -m unittest discover -s research/abbeys -p 'test_*.py'
++```
++
++The three tests verify that same-week score changes and 2024–25 score changes cannot alter 2026 forecasts. This research folder can be reverted independently; it does not alter an application route, production data file, scheduler or model parameter.
+diff --git a/research/abbeys/collect.cjs b/research/abbeys/collect.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..a7db576ccd62e61f5b354271cc4ecb3ca2eddfd1
+--- /dev/null
++++ b/research/abbeys/collect.cjs
+@@ -0,0 +1,180 @@
++'use strict';
++// $0, offline public-Git collector. No provider requests, browser-local cohort or
++// retroactive official predictions. Run from the source checkout under its cycle
++// mutex. Frozen observations and appended result evidence are separate records.
++const fs=require('node:fs');
++const path=require('node:path');
++const crypto=require('node:crypto');
++const cp=require('node:child_process');
++const GIT_BUFFER=32*1024*1024;
++const core=require('../../shared/abbeys-core.cjs');
++const {appendRecord,readRecords,hashPayload,canonicalJSON}=require('../../shared/ranking-journal.cjs');
++const sha=bytes=>crypto.createHash('sha256').update(bytes).digest('hex');
++const textHash=file=>sha(fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n'));
++const JOURNAL='data/abbeys/journal';
++const BOARD='data/abbeys-board.json';
++function readSource(root,name) {
++  if (fs.statSync(path.join(root,name)).size>GIT_BUFFER) throw new Error('Public source exceeds the verified 32 MiB bound');
++  const bytes=fs.readFileSync(path.join(root,name));
++  const data=JSON.parse(bytes);
++  return {data,receipt:{file:name,sha256:hashPayload(data),hashEncoding:'canonical-json-v1',generatedAt:data.generated_at}};
++}
++function sources(root,now) {
++  const schedule=readSource(root,'data/nfl_betting.json'),results=readSource(root,'data/results.json');
++  const season=schedule.data.season;
++  if (season!==Number(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric'}).format(new Date(now))) && !(new Date(now).getUTCMonth()<=2 && season===new Date(now).getUTCFullYear()-1)) throw new Error('Source is not the active NFL season');
++  return {input:core.projectSources(schedule.data,results.data,season,now),receipts:[schedule.receipt,results.receipt],schedule:schedule.data};
++}
++function modelHash(root) {return textHash(path.join(root,'shared/abbeys-core.cjs'));}
++function git(root,args) {return cp.execFileSync('git',args,{cwd:root,encoding:'utf8',maxBuffer:GIT_BUFFER}).trim();}
++function gitJSON(root,commit,file) {return JSON.parse(cp.execFileSync('git',['show',`${commit}:${file}`],{cwd:root,encoding:'utf8',maxBuffer:GIT_BUFFER}));}
++function sourceCommit(root) {
++  if (git(root,['status','--porcelain','--','data/nfl_betting.json','data/results.json','data/injury_context.json'])) throw new Error('Public input files have uncommitted modifications');
++  return git(root,['rev-parse','HEAD']);
++}
++function capture(root,week,mode='manual') {
++  const now=new Date().toISOString(),commit=sourceCommit(root),s=sources(root,now);
++  for (const receipt of s.receipts) if (receipt.sha256!==hashPayload(gitJSON(root,commit,receipt.file))) throw new Error('Public input differs from recorded Git revision');
++  if (!['manual','scheduled'].includes(mode)) throw new Error('Capture mode must be manual or scheduled');
++  const prediction=core.predictWeek(s.input,week);
++  const records=readRecords(path.join(root,JOURNAL));
++  const key=`abbeys|${s.input.season}|${week}|${core.MODEL_VERSION}`;
++  if (records.some(r=>r.key===key)) throw new Error('This official week is already frozen; do not replace or backdate it');
++  const allWeek=s.input.schedule.filter(g=>g.week===week);
++  const origin=new Date(Math.min(...allWeek.map(g=>Date.parse(g.kickoff)))-12*3600000).toISOString();
++  const parts=core.easternParts(origin),actual=core.easternParts(now);
++  let cohort='manual-official';
++  if (mode==='scheduled') {
++    if (week<5 || parts.hour!=='08' || actual.year!==parts.year || actual.month!==parts.month || actual.day!==parts.day || actual.hour!=='08' || +actual.minute>14 || Date.parse(now)>Date.parse(origin)) throw new Error('Outside preregistered primary weekly origin; no missed-slot catchup');
++    cohort='prospective-holdout-b-only';
++  }
++  const payload={schemaVersion:1,key,frozenAt:now,modelVersion:core.MODEL_VERSION,modelSHA256:modelHash(root),protocolSHA256:textHash(path.join(root,'research/abbeys/PROTOCOL.md')),sourceCommit:commit,sourceReceipts:s.receipts,input:s.input,inputHash:hashPayload(s.input),prediction,cohort,registeredOrigin:origin};
++  const frozen=appendRecord(path.join(root,JOURNAL),{kind:'snapshot',key,observedAt:now,payload});
++  // Current news is frozen as a separate, non-predictive context record AFTER
++  // the official prediction exists. Historical injury effects are never read.
++  let injury;
++  try {injury=readSource(root,'data/injury_context.json');}
++  catch {injury={data:{},receipt:null};}
++  const fresh=Number.isFinite(Date.parse(injury.data.generated_at)) && Date.parse(injury.data.generated_at)<=Date.parse(now) && Date.parse(now)-Date.parse(injury.data.generated_at)<=36*3600000;
++  const availability={};
++  for (const p of prediction.picks) {
++    availability[p.gameId]=fresh && injury.data.season===s.input.season ? Object.values(injury.data.current_reports||{}).filter(r=>r.week===week && [p.away,p.home].includes(r.team) && /out|doubtful|questionable|limited|did not participate/i.test(`${r.report_status||''} ${r.practice_status||''}`)).map(r=>({team:r.team,name:r.name,status:r.report_status||r.practice_status,injury:r.primary_injury||null})).slice(0,20) : [];
++  }
++  appendRecord(path.join(root,JOURNAL),{kind:'status',key:`context|${frozen.hash}`,observedAt:new Date().toISOString(),payload:{type:'post-freeze-context',snapshotHash:frozen.hash,availability,injuryReceipt:injury.receipt,fresh,historicalContext:null,marketContext:null,limitation:'No verified book-level quote timestamp or historical trend attached. Injury reports are not confirmed game-day inactives and do not numerically adjust this score benchmark.'}});
++  verify(root);materialize(root);
++  return {snapshotHash:frozen.hash,key,cohort,picks:prediction.picks.length,frozenAt:now};
++}
++function verify(root) {
++  const records=readRecords(path.join(root,JOURNAL));
++  const snapshots=new Map(records.filter(r=>r.kind==='snapshot').map(r=>[r.hash,r]));
++  for (const r of records) {
++    const p=r.payload;
++    if (r.kind==='snapshot') {
++      if (p.schemaVersion!==1 || p.frozenAt!==r.observedAt || p.input.cutoff!==p.frozenAt || p.inputHash!==hashPayload(p.input) || p.modelVersion!==core.MODEL_VERSION || p.modelSHA256!==modelHash(root) || p.protocolSHA256!==textHash(path.join(root,'research/abbeys/PROTOCOL.md'))) throw new Error('Snapshot version/input integrity failure');
++      for (const receipt of p.sourceReceipts) {
++        if (!['data/nfl_betting.json','data/results.json'].includes(receipt.file) || receipt.hashEncoding!=='canonical-json-v1') throw new Error('Unknown predictive source');
++        const publicData=gitJSON(root,p.sourceCommit,receipt.file);
++        if (receipt.sha256!==hashPayload(publicData)) throw new Error('Predictive source differs from recorded Git revision');
++      }
++      if (canonicalJSON(core.predictWeek(p.input,p.prediction.week))!==canonicalJSON(p.prediction)) throw new Error('Frozen prediction is not reproducible');
++      if (p.sourceReceipts.some(s=>Date.parse(s.generatedAt)>Date.parse(p.frozenAt))) throw new Error('Source receipt is after freeze');
++    } else {
++      const frozen=snapshots.get(p.snapshotHash);
++      if (!frozen || Date.parse(r.observedAt)<Date.parse(frozen.observedAt)) throw new Error('Orphan or pre-freeze append');
++      if (r.kind==='settlement') {
++        const pick=frozen.payload.prediction.picks.find(g=>g.gameId===p.gameId);
++        if (!pick || canonicalJSON(core.settlementFor(pick,p.result,p.source,r.observedAt))!==canonicalJSON(p.settlement) || p.settlement.state!=='settled') throw new Error('Invalid settlement evidence');
++        if (!p.sourceSHA256 || !Number.isFinite(Date.parse(p.resultReceiptAt)) || Date.parse(p.resultReceiptAt)>Date.parse(r.observedAt) || Date.parse(p.resultReceiptAt)<=Date.parse(pick.kickoff)) throw new Error('Settlement source chronology failure');
++        const schedule=gitJSON(root,p.sourceCommit,'data/nfl_betting.json');
++        const results=gitJSON(root,p.sourceCommit,'data/results.json');
++        const publicInput=core.projectSources(schedule,results,frozen.payload.input.season,r.observedAt);
++        if (hashPayload(results)!==p.sourceSHA256 || !publicInput.results.some(g=>canonicalJSON(g)===canonicalJSON(p.result))) throw new Error('Settlement differs from public Git result evidence');
++        if (frozen.payload.cohort!=='manual-official' && !holdoutReleased(publicInput,r.observedAt)) throw new Error('Holdout scoring is still locked');
++      }
++      if (r.kind==='invalidation' && (!p.reason || !p.evidence)) throw new Error('Invalidation requires reason and evidence');
++    }
++  }
++  // Journal scans detect corruption/gaps; Git anchors additionally detect removal
++  // of a valid chain tail or rewriting any already-published observation blob.
++  const committed=git(root,['ls-tree','-r','--name-only','HEAD','--',JOURNAL]).split('\n').filter(Boolean);
++  for (const file of committed) {
++    const original=cp.execFileSync('git',['show',`HEAD:${file}`],{cwd:root});
++    if (!fs.existsSync(path.join(root,file)) || !original.equals(fs.readFileSync(path.join(root,file)))) throw new Error(`Published journal changed/deleted: ${file}`);
++  }
++  return {records:records.length,snapshots:snapshots.size};
++}
++function settle(root) {
++  const now=new Date().toISOString(),s=sources(root,now),records=readRecords(path.join(root,JOURNAL));
++  let appended=0,conflicts=0;
++  for (const frozen of records.filter(r=>r.kind==='snapshot')) for (const pick of frozen.payload.prediction.picks) {
++    const result=s.input.results.find(g=>g.gameId===pick.gameId);
++    if (!result) continue;
++    if (Date.parse(s.receipts[1].generatedAt)<=Date.parse(pick.kickoff)) continue;
++    const evidenceKey=`result-evidence|${frozen.hash}|${pick.gameId}|${hashPayload(result)}`;
++    if (!records.some(r=>r.key===evidenceKey)) appendRecord(path.join(root,JOURNAL),{kind:'status',key:evidenceKey,observedAt:now,payload:{type:'result-evidence',snapshotHash:frozen.hash,gameId:pick.gameId,result,sourceSHA256:s.receipts[1].sha256,resultReceiptAt:s.receipts[1].generatedAt,sourceCommit:sourceCommit(root)}});
++    if (frozen.payload.cohort!=='manual-official' && !holdoutReleased(s.input,now)) continue;
++    const settlement=core.settlementFor(pick,result,'Public nflreadpy schedule/results snapshot',now);
++    if (settlement.state!=='settled') continue;
++    const prior=records.find(r=>r.kind==='settlement' && r.payload.snapshotHash===frozen.hash && r.payload.gameId===pick.gameId);
++    if (prior) {
++      if (canonicalJSON(prior.payload.result)!==canonicalJSON(result)) {
++        const key=`result-conflict|${frozen.hash}|${pick.gameId}|${hashPayload(result)}`;
++        if (!records.some(r=>r.key===key)) {appendRecord(path.join(root,JOURNAL),{kind:'status',key,observedAt:now,payload:{type:'result-conflict',snapshotHash:frozen.hash,gameId:pick.gameId,result,sourceSHA256:s.receipts[1].sha256,priorSettlementHash:prior.hash}});conflicts++;}
++      }
++      continue;
++    }
++    appendRecord(path.join(root,JOURNAL),{kind:'settlement',key:`settlement|${frozen.hash}|${pick.gameId}`,observedAt:now,payload:{snapshotHash:frozen.hash,gameId:pick.gameId,result,settlement,source:settlement.source,sourceSHA256:s.receipts[1].sha256,resultReceiptAt:s.receipts[1].generatedAt,sourceCommit:sourceCommit(root)}});appended++;
++  }
++  verify(root);materialize(root);return {appended,conflicts};
++}
++function holdoutReleased(input,now) {
++  const finalWeek=input.schedule.filter(g=>g.week===18);
++  if (!finalWeek.length) return false;
++  const last=core.easternParts(new Date(Math.max(...finalWeek.map(g=>Date.parse(g.kickoff)))).toISOString());
++  const release=new Date(Date.UTC(+last.year,+last.month-1,+last.day,17));
++  do {release.setUTCDate(release.getUTCDate()+1);} while (release.getUTCDay()!==6);
++  return Date.parse(now)>=Math.max(Date.parse('2027-01-16T17:00:00Z'),release.getTime()) && finalWeek.every(g=>input.results.some(r=>r.gameId===g.gameId)) && finalWeek.every(g=>Date.parse(g.kickoff)<Date.parse(now));
++}
++function invalidate(root,snapshotHash,reason,evidence) {
++  if (!reason?.trim() || !evidence?.trim()) throw new Error('Reason and evidence required');
++  const records=readRecords(path.join(root,JOURNAL));
++  if (!records.some(r=>r.hash===snapshotHash && r.kind==='snapshot')) throw new Error('Unknown snapshot');
++  appendRecord(path.join(root,JOURNAL),{kind:'invalidation',key:`invalidation|${snapshotHash}|${hashPayload({reason,evidence})}`,observedAt:new Date().toISOString(),payload:{snapshotHash,reason,evidence}});
++  verify(root);materialize(root);
++}
++function materialize(root) {
++  const records=readRecords(path.join(root,JOURNAL)),weeks=[];
++  const record={wins:0,losses:0,ties:0,pending:0};
++  for (const frozen of records.filter(r=>r.kind==='snapshot')) {
++    const p=frozen.payload,context=records.find(r=>r.payload.type==='post-freeze-context' && r.payload.snapshotHash===frozen.hash)?.payload;
++    const invalidations=records.filter(r=>r.kind==='invalidation' && r.payload.snapshotHash===frozen.hash).map(r=>({reason:r.payload.reason,evidence:r.payload.evidence,observedAt:r.observedAt}));
++    const picks=p.prediction.picks.map(pick=>{
++      const settled=records.find(r=>r.kind==='settlement' && r.payload.snapshotHash===frozen.hash && r.payload.gameId===pick.gameId)?.payload.settlement;
++      const conflicts=records.filter(r=>r.payload.type==='result-conflict' && r.payload.snapshotHash===frozen.hash && r.payload.gameId===pick.gameId);
++      const settlement=invalidations.length || conflicts.length ? null : settled||null;
++      const reports=context?.availability?.[pick.gameId]||[];
++      const concerns=[...pick.concerns,...reports.map(r=>`${r.team} ${r.name}: ${r.status}${r.injury?` (${r.injury})`:''}. Current injury report; participation and numerical impact are uncertain.`)];
++      concerns.push(context?.fresh?'Availability snapshot is current; confirm game-day inactives. News does not rewrite this frozen score forecast.':'Availability evidence is missing/stale; confirm game-day inactives.');
++      if (conflicts.length) concerns.push('Conflicting later result evidence: unresolved pending inspection. Original result evidence is preserved.');
++      return {...pick,concerns,settlement};
++    });
++    // Holdout aggregate diagnostics stay locked. Manual Week 4 remains a separate
++    // official record; never blend the retrospective checks into this count.
++    if (p.cohort==='manual-official' && !invalidations.length) for (const pick of picks) record[pick.settlement?pick.settlement.outcome==='win'?'wins':pick.settlement.outcome==='loss'?'losses':'ties':'pending']++;
++    const monday={...p.prediction.monday};
++    const final=picks.find(g=>g.gameId===monday.gameId)?.settlement;
++    if (final && monday.predictedAway!==null && monday.predictedHome!==null) monday.settlement={...final,awayAbsoluteError:Math.abs(final.actualAway-monday.predictedAway),homeAbsoluteError:Math.abs(final.actualHome-monday.predictedHome),combinedAbsoluteError:Math.abs(final.actualAway-monday.predictedAway)+Math.abs(final.actualHome-monday.predictedHome),exact:final.actualAway===monday.predictedAway && final.actualHome===monday.predictedHome};
++    weeks.push({...p.prediction,training:undefined,picks,monday:p.prediction.monday?monday:null,frozenAt:p.frozenAt,observationHash:frozen.hash,cohort:p.cohort,invalidations,source:{generatedAt:p.sourceReceipts[1].generatedAt,sourceSHA:p.inputHash,cutoff:p.frozenAt,season:p.input.season},marketContext:context?.marketContext||null});
++  }
++  const board={schemaVersion:1,modelVersion:core.MODEL_VERSION,generatedAt:new Date().toISOString(),weeks,record,recordScope:'Manual official boards only. Prospective holdout aggregate evaluation is locked until the registered release; no reconstructed historical picks.'};
++  const target=path.join(root,BOARD),pending=`${target}.pending-${process.pid}`;
++  fs.writeFileSync(pending,JSON.stringify(board,null,2)+'\n',{flag:'wx'});fs.renameSync(pending,target);
++  return board;
++}
++if (require.main===module) {
++  const [command,rootArg,weekArg,modeArg]=process.argv.slice(2),root=path.resolve(rootArg||'.');
++  const output=command==='capture'?capture(root,Number(weekArg),modeArg||'manual'):command==='settle'?settle(root):command==='verify'?verify(root):command==='materialize'?(verify(root),{weeks:materialize(root).weeks.length}):null;
++  if (!output) throw new Error('Usage: collect.cjs capture SOURCE WEEK manual|scheduled; settle|verify|materialize SOURCE');
++  process.stdout.write(JSON.stringify(output)+'\n');
++}
++module.exports={capture,verify,settle,invalidate,materialize,holdoutReleased,JOURNAL,BOARD};
+diff --git a/research/abbeys/diagnose.py b/research/abbeys/diagnose.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..819815dd6aa53c92cbec31f20f1c217349282552
+--- /dev/null
++++ b/research/abbeys/diagnose.py
+@@ -0,0 +1,239 @@
++"""Offline, current-season-only NFL score-method diagnostic. No network or odds."""
++from __future__ import annotations
++
++from collections import Counter, defaultdict
++from datetime import datetime, timedelta
++from hashlib import sha256
++from pathlib import Path
++import json
++import math
++import random
++
++import numpy as np
++
++
++ROOT = Path(__file__).resolve().parents[2]
++INPUT = ROOT / "data" / "nfl_betting.json"
++EXPECTED_LF_SHA256 = "2b30cffe0399403dac23baf9230ec7f4b3e6486b0aa86f23b8d56909c65c19ca"
++ORIGINAL_WINDOWS_RAW_SHA256 = "2b30cffe0399403dac23baf9230ec7f4b3e6486b0aa86f23b8d56909c65c19ca"
++OUTPUT = Path(__file__).with_name("diagnostic-20261003.json")
++
++
++def read_games():
++    raw = INPUT.read_bytes()
++    normalized = raw.replace(b"\r\n", b"\n")
++    digest = sha256(normalized).hexdigest()
++    if digest != EXPECTED_LF_SHA256:
++        raise ValueError("Schedule snapshot differs from registered input hash")
++    doc = json.loads(normalized)
++    games = defaultdict(list)
++    seen = set()
++    for row in doc["games"]:
++        season, week = row.get("season"), row.get("week")
++        if season not in (2024, 2025, 2026) or not isinstance(week, int) or not 1 <= week <= 18:
++            continue
++        gid = row.get("game_id")
++        if not gid or gid in seen:
++            raise ValueError(f"Duplicate or missing game ID: {gid}")
++        seen.add(gid)
++        home, away = row.get("home"), row.get("away")
++        if not home or not away or home == away:
++            raise ValueError(f"Invalid teams: {gid}")
++        kickoff = datetime.fromisoformat(row["kickoff"].replace("Z", "+00:00"))
++        if kickoff.tzinfo is None:
++            raise ValueError(f"Timezone missing: {gid}")
++        hs, aws = row.get("home_score"), row.get("away_score")
++        completed = hs is not None and aws is not None
++        if (hs is None) != (aws is None) or any(
++            not isinstance(x, (int, float)) or not math.isfinite(x) or x < 0
++            for x in (hs, aws) if x is not None
++        ):
++            raise ValueError(f"Invalid scores: {gid}")
++        games[season].append(dict(id=gid, week=week, kickoff=kickoff, home=home,
++                                  away=away, hs=hs, aws=aws, completed=completed))
++    for season in games:
++        games[season].sort(key=lambda x: (x["week"], x["kickoff"], x["id"]))
++    return games, digest, doc.get("generated_at")
++
++
++def baseline(train, game, recent=False):
++    if recent:
++        last_week = max(x["week"] for x in train)
++        base = [x for x in train if x["week"] >= last_week - 3]
++    else:
++        base = train
++    mu = sum(x["hs"] + x["aws"] for x in base) / (2 * len(base))
++    h = sum(x["hs"] - x["aws"] for x in base) / len(base)
++
++    def team_mean(team, field):
++        rows = [x for x in train if x["home"] == team or x["away"] == team]
++        if recent:
++            rows = rows[-4:]
++        if not rows:
++            return mu
++        vals = [(x["hs"] if x["home"] == team else x["aws"])
++                if field == "for" else
++                (x["aws"] if x["home"] == team else x["hs"])
++                for x in rows]
++        return sum(vals) / len(vals)
++
++    home = (team_mean(game["home"], "for") + team_mean(game["away"], "against")) / 2 + h / 2
++    away = (team_mean(game["away"], "for") + team_mean(game["home"], "against")) / 2 - h / 2
++    return home, away
++
++
++def adjusted_fit(train, teams):
++    """OLS with sum-to-zero offense/defense via last-team reference coding."""
++    ordered = sorted(teams)
++    index = {team: i for i, team in enumerate(ordered)}
++    n = len(ordered)
++    if n != 32:
++        return None, {"rank": None, "columns": 2 * n, "reason": "team_universe_not_32"}
++    rows, y = [], []
++
++    def effect(vector, team, offset):
++        i = index[team]
++        if i == n - 1:
++            vector[offset:offset+n-1] = -1
++        else:
++            vector[offset+i] = 1
++
++    for g in train:
++        for scoring, opponent, score, venue in (
++            (g["home"], g["away"], g["hs"], .5),
++            (g["away"], g["home"], g["aws"], -.5),
++        ):
++            row = np.zeros(2*n)
++            row[0], row[1] = 1, venue
++            effect(row, scoring, 2)
++            effect(row, opponent, n+1)
++            rows.append(row)
++            y.append(score)
++    design = np.asarray(rows)
++    rank = int(np.linalg.matrix_rank(design))
++    meta = {"rank": rank, "columns": 2*n, "training_games": len(train)}
++    if rank < 2*n:
++        return None, meta
++    coefficients = np.linalg.lstsq(design, np.asarray(y), rcond=None)[0]
++    return (coefficients, ordered), meta
++
++
++def adjusted_predict(fit, game):
++    coefficients, teams = fit
++    n = len(teams)
++    index = {team: i for i, team in enumerate(teams)}
++
++    def effect(team, offset):
++        i = index[team]
++        return -sum(coefficients[offset:offset+n-1]) if i == n-1 else coefficients[offset+i]
++
++    home = coefficients[0] + coefficients[1]/2 + effect(game["home"], 2) + effect(game["away"], n+1)
++    away = coefficients[0] - coefficients[1]/2 + effect(game["away"], 2) + effect(game["home"], n+1)
++    return float(max(0, home)), float(max(0, away)), bool(home < 0 or away < 0)
++
++
++def predictions(games, season):
++    season_games = games[season]
++    teams = {x["home"] for x in season_games} | {x["away"] for x in season_games}
++    weekly = defaultdict(list)
++    for game in season_games:
++        weekly[game["week"]].append(game)
++    output = []
++    for week, targets in sorted(weekly.items()):
++        if week < 4:
++            continue
++        if season == 2026 and week > 4:
++            continue  # prospective holdout: no later-week estimates from stale data
++        origin = min(x["kickoff"] for x in targets) - timedelta(hours=12)
++        train = [x for x in season_games if x["completed"] and x["week"] < week
++                 and x["kickoff"] + timedelta(hours=12) < origin]
++        counts = Counter(team for x in train for team in (x["home"], x["away"]))
++        fit, meta = adjusted_fit(train, teams) if train else (None, {"rank": 0, "columns": 64})
++        for game in targets:
++            n = min(counts[game["home"]], counts[game["away"]])
++            row = {"id": game["id"], "week": week, "origin": origin.isoformat(),
++                   "min_team_games": n, "completed": game["completed"],
++                   "rank": meta["rank"], "columns": meta["columns"]}
++            if n >= 3:
++                row["B"] = baseline(train, game)
++                row["R"] = baseline(train, game, recent=True)
++                if fit:
++                    row["C"] = adjusted_predict(fit, game)
++            if season in (2024, 2025) and game["completed"]:
++                row["actual"] = (game["hs"], game["aws"])
++            output.append(row)
++    return output
++
++
++def metric(rows, method, kind):
++    def errors(row):
++        p, a = row[method], row["actual"]
++        if kind == "margin":
++            return [(p[0] - p[1]) - (a[0] - a[1])]
++        if kind == "total":
++            return [(p[0] + p[1]) - (a[0] + a[1])]
++        return [p[0]-a[0], p[1]-a[1]]
++    vals = [e for row in rows for e in errors(row)]
++    return {"rmse": math.sqrt(sum(e*e for e in vals)/len(vals)),
++            "mae": sum(abs(e) for e in vals)/len(vals),
++            "bias": sum(vals)/len(vals)}
++
++
++def summarize(rows, challenger, seed):
++    paired = [x for x in rows if "actual" in x and "B" in x and challenger in x]
++    if not paired:
++        return {"paired_games": 0}
++    out = {"paired_games": len(paired), "weekly_clusters": len({x["week"] for x in paired}),
++           "B": {k: metric(paired, "B", k) for k in ("margin", "score", "total")},
++           challenger: {k: metric(paired, challenger, k) for k in ("margin", "score", "total")}}
++    for method in ("B", challenger):
++        eligible = [x for x in paired if x["actual"][0] != x["actual"][1]
++                    and x[method][0] != x[method][1]]
++        out[method]["winner"] = {"correct": sum(
++            (x[method][0] > x[method][1]) == (x["actual"][0] > x["actual"][1]) for x in eligible),
++            "denominator": len(eligible)}
++        out[method]["rounded_exact_scores"] = sum(
++            tuple(round(v) for v in x[method][:2]) == tuple(x["actual"]) for x in paired)
++    byweek = defaultdict(list)
++    for row in paired:
++        byweek[row["week"]].append(row)
++    keys = sorted(byweek)
++    rng = random.Random(seed)
++    out["paired_rmse_improvement_95_week_bootstrap"] = {}
++    for kind in ("margin", "score", "total"):
++        draws = []
++        for _ in range(2000):
++            sample = [row for _ in keys for row in byweek[rng.choice(keys)]]
++            draws.append(metric(sample, "B", kind)["rmse"] - metric(sample, challenger, kind)["rmse"])
++        draws.sort()
++        out["paired_rmse_improvement_95_week_bootstrap"][kind] = [draws[49], draws[1949]]
++    return out
++
++
++def main():
++    games, digest, generated = read_games()
++    report = {"status": "RETROSPECTIVE_DIAGNOSTIC_ONLY", "source_sha256": digest,
++              "source_hash_encoding": "UTF-8 bytes with CRLF normalized to LF only",
++              "original_windows_raw_sha256": ORIGINAL_WINDOWS_RAW_SHA256,
++              "source_generated_at": generated, "source_revision": "2b3d85355c144017594b7b240a434571e57c5767",
++              "holdout_2026_weeks_5_18": "LOCKED_UNTIL_AT_LEAST_2027-01-16_12_ET_AND_ALL_WEEK18_FINAL",
++              "seasons": {}}
++    for season in (2024, 2025, 2026):
++        rows = predictions(games, season)
++        coverage = Counter("no_three_games" if "B" not in x else
++                           "B_only_rank_deficient" if "C" not in x else "paired"
++                           for x in rows)
++        item = {"scheduled_week4_plus": len(rows), "coverage": dict(coverage),
++                "week4_counts": dict(Counter("no_three_games" if "B" not in x else
++                                             "B_only_rank_deficient" if "C" not in x else "paired"
++                                             for x in rows if x["week"] == 4))}
++        if season in (2024, 2025):
++            item["B_vs_C"] = summarize(rows, "C", 20261003)
++            item["B_vs_R_exploratory"] = summarize(rows, "R", 20261003)
++        report["seasons"][str(season)] = item
++    OUTPUT.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
++    print(json.dumps({"output": str(OUTPUT), "coverage": {k:v["coverage"] for k,v in report["seasons"].items()}}, indent=2))
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/research/abbeys/diagnostic-20261003.json b/research/abbeys/diagnostic-20261003.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..fc58f2318a4ca819057e2ee5a8a88e61e13e96b7
+--- /dev/null
++++ b/research/abbeys/diagnostic-20261003.json
+@@ -0,0 +1,286 @@
++{
++  "status": "RETROSPECTIVE_DIAGNOSTIC_ONLY",
++  "source_sha256": "2b30cffe0399403dac23baf9230ec7f4b3e6486b0aa86f23b8d56909c65c19ca",
++  "source_hash_encoding": "UTF-8 bytes with CRLF normalized to LF only",
++  "original_windows_raw_sha256": "2b30cffe0399403dac23baf9230ec7f4b3e6486b0aa86f23b8d56909c65c19ca",
++  "source_generated_at": "2026-10-04T00:38:53.605552+00:00",
++  "source_revision": "2b3d85355c144017594b7b240a434571e57c5767",
++  "holdout_2026_weeks_5_18": "LOCKED_UNTIL_AT_LEAST_2027-01-16_12_ET_AND_ALL_WEEK18_FINAL",
++  "seasons": {
++    "2024": {
++      "scheduled_week4_plus": 224,
++      "coverage": {
++        "paired": 224
++      },
++      "week4_counts": {
++        "paired": 16
++      },
++      "B_vs_C": {
++        "paired_games": 224,
++        "weekly_clusters": 15,
++        "B": {
++          "margin": {
++            "rmse": 13.247617536155184,
++            "mae": 10.163481695944236,
++            "bias": -0.8468753374605695
++          },
++          "score": {
++            "rmse": 9.345820528703895,
++            "mae": 7.47894492997979,
++            "bias": -0.8585968316158048
++          },
++          "total": {
++            "rmse": 13.186283594505554,
++            "mae": 10.134355265270443,
++            "bias": -1.7171936632316098
++          },
++          "winner": {
++            "correct": 156,
++            "denominator": 224
++          },
++          "rounded_exact_scores": 0
++        },
++        "C": {
++          "margin": {
++            "rmse": 14.13626490230404,
++            "mae": 11.231797660621293,
++            "bias": -1.117614888669142
++          },
++          "score": {
++            "rmse": 10.047642487993933,
++            "mae": 8.067089361899225,
++            "bias": -0.8999675079306478
++          },
++          "total": {
++            "rmse": 14.282384005412071,
++            "mae": 11.169244500331851,
++            "bias": -1.7999350158612955
++          },
++          "winner": {
++            "correct": 150,
++            "denominator": 224
++          },
++          "rounded_exact_scores": 1
++        },
++        "paired_rmse_improvement_95_week_bootstrap": {
++          "margin": [
++            -2.220269444063627,
++            0.3299943172999722
++          ],
++          "score": [
++            -1.2196969012447152,
++            -0.19728132186177483
++          ],
++          "total": [
++            -1.5302412502555711,
++            -0.6732624746446731
++          ]
++        }
++      },
++      "B_vs_R_exploratory": {
++        "paired_games": 224,
++        "weekly_clusters": 15,
++        "B": {
++          "margin": {
++            "rmse": 13.247617536155184,
++            "mae": 10.163481695944236,
++            "bias": -0.8468753374605695
++          },
++          "score": {
++            "rmse": 9.345820528703895,
++            "mae": 7.47894492997979,
++            "bias": -0.8585968316158048
++          },
++          "total": {
++            "rmse": 13.186283594505554,
++            "mae": 10.134355265270443,
++            "bias": -1.7171936632316098
++          },
++          "winner": {
++            "correct": 156,
++            "denominator": 224
++          },
++          "rounded_exact_scores": 0
++        },
++        "R": {
++          "margin": {
++            "rmse": 13.652985518630278,
++            "mae": 10.527306159083617,
++            "bias": -0.6313499347189822
++          },
++          "score": {
++            "rmse": 9.674538444659175,
++            "mae": 7.760851599770817,
++            "bias": -0.42857142857142855
++          },
++          "total": {
++            "rmse": 13.710680613916487,
++            "mae": 10.642113095238097,
++            "bias": -0.8571428571428571
++          },
++          "winner": {
++            "correct": 136,
++            "denominator": 224
++          },
++          "rounded_exact_scores": 0
++        },
++        "paired_rmse_improvement_95_week_bootstrap": {
++          "margin": [
++            -0.8501694996865794,
++            -0.038076663792594445
++          ],
++          "score": [
++            -0.5801605666681837,
++            -0.13389217065423686
++          ],
++          "total": [
++            -0.9281865319419182,
++            -0.12321425559378696
++          ]
++        }
++      }
++    },
++    "2025": {
++      "scheduled_week4_plus": 224,
++      "coverage": {
++        "paired": 224
++      },
++      "week4_counts": {
++        "paired": 16
++      },
++      "B_vs_C": {
++        "paired_games": 224,
++        "weekly_clusters": 15,
++        "B": {
++          "margin": {
++            "rmse": 13.14242743255293,
++            "mae": 10.527855807796655,
++            "bias": 0.9573352186011977
++          },
++          "score": {
++            "rmse": 9.393025285340833,
++            "mae": 7.5220186583772115,
++            "bias": 0.15207026046869804
++          },
++          "total": {
++            "rmse": 13.42357244642011,
++            "mae": 10.534727549236479,
++            "bias": 0.304140520937396
++          },
++          "winner": {
++            "correct": 136,
++            "denominator": 223
++          },
++          "rounded_exact_scores": 0
++        },
++        "C": {
++          "margin": {
++            "rmse": 13.600930658452498,
++            "mae": 10.90477607010357,
++            "bias": 0.9130627431421091
++          },
++          "score": {
++            "rmse": 9.845716459979618,
++            "mae": 7.876957188041205,
++            "bias": 0.1831416913734972
++          },
++          "total": {
++            "rmse": 14.239635376835366,
++            "mae": 11.022350725973272,
++            "bias": 0.36628338274699435
++          },
++          "winner": {
++            "correct": 134,
++            "denominator": 223
++          },
++          "rounded_exact_scores": 0
++        },
++        "paired_rmse_improvement_95_week_bootstrap": {
++          "margin": [
++            -1.1953415424063838,
++            0.22357179324735732
++          ],
++          "score": [
++            -0.8881073849230319,
++            -0.0627498934547166
++          ],
++          "total": [
++            -1.519204430599867,
++            -0.14235738444139479
++          ]
++        }
++      },
++      "B_vs_R_exploratory": {
++        "paired_games": 224,
++        "weekly_clusters": 15,
++        "B": {
++          "margin": {
++            "rmse": 13.14242743255293,
++            "mae": 10.527855807796655,
++            "bias": 0.9573352186011977
++          },
++          "score": {
++            "rmse": 9.393025285340833,
++            "mae": 7.5220186583772115,
++            "bias": 0.15207026046869804
++          },
++          "total": {
++            "rmse": 13.42357244642011,
++            "mae": 10.534727549236479,
++            "bias": 0.304140520937396
++          },
++          "winner": {
++            "correct": 136,
++            "denominator": 223
++          },
++          "rounded_exact_scores": 0
++        },
++        "R": {
++          "margin": {
++            "rmse": 13.028242818891176,
++            "mae": 10.380990582367119,
++            "bias": 0.19919951773231803
++          },
++          "score": {
++            "rmse": 9.516271179034359,
++            "mae": 7.6604014449414635,
++            "bias": 0.21819196428571433
++          },
++          "total": {
++            "rmse": 13.874529097006876,
++            "mae": 10.880580357142858,
++            "bias": 0.4363839285714287
++          },
++          "winner": {
++            "correct": 138,
++            "denominator": 223
++          },
++          "rounded_exact_scores": 0
++        },
++        "paired_rmse_improvement_95_week_bootstrap": {
++          "margin": [
++            -0.5091593168886099,
++            0.7743263655517332
++          ],
++          "score": [
++            -0.38736298574007755,
++            0.12061601371203778
++          ],
++          "total": [
++            -0.7878119816927001,
++            -0.08955982872755186
++          ]
++        }
++      }
++    },
++    "2026": {
++      "scheduled_week4_plus": 16,
++      "coverage": {
++        "paired": 16
++      },
++      "week4_counts": {
++        "paired": 16
++      }
++    }
++  }
++}
+diff --git a/research/abbeys/test_diagnose.py b/research/abbeys/test_diagnose.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..7a54cd6f6760c67182d43238b093bc79c7dc4a72
+--- /dev/null
++++ b/research/abbeys/test_diagnose.py
+@@ -0,0 +1,44 @@
++import copy
++import unittest
++
++from diagnose import read_games, predictions
++
++
++class ChronologyTest(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.games, _, _ = read_games()
++
++    def test_same_week_result_cannot_change_forecast(self):
++        original = predictions(self.games, 2024)
++        changed = copy.deepcopy(self.games)
++        target = next(x for x in changed[2024] if x["week"] == 4)
++        target["hs"], target["aws"] = 99, 0
++        revised = predictions(changed, 2024)
++        for first, second in zip(original, revised):
++            if first["week"] == 4:
++                self.assertEqual(first.get("B"), second.get("B"))
++                self.assertEqual(first.get("C"), second.get("C"))
++                self.assertEqual(first.get("R"), second.get("R"))
++
++    def test_other_seasons_cannot_change_2026_forecasts(self):
++        original = predictions(self.games, 2026)
++        changed = copy.deepcopy(self.games)
++        for season in (2024, 2025):
++            for game in changed[season]:
++                if game["completed"]:
++                    game["hs"], game["aws"] = 0, 70
++        revised = predictions(changed, 2026)
++        self.assertEqual(original, revised)
++
++    def test_current_week_result_cannot_change_2026_forecasts(self):
++        original = predictions(self.games, 2026)
++        changed = copy.deepcopy(self.games)
++        thursday = next(x for x in changed[2026] if x["week"] == 4 and x["completed"])
++        thursday["hs"], thursday["aws"] = 100, 0
++        revised = predictions(changed, 2026)
++        self.assertEqual(original, revised)
++
++
++if __name__ == "__main__":
++    unittest.main()
+diff --git a/shared/abbeys-core.cjs b/shared/abbeys-core.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..4faf292cd16e82bc6c50e95e017b810671db0535
+--- /dev/null
++++ b/shared/abbeys-core.cjs
+@@ -0,0 +1,131 @@
++'use strict';
++
++// ABBEYS is an independent, current-season-only score benchmark. The predictive
++// boundary copies a small allowlist; market data, ratings and older seasons never
++// enter it. Context is attached only after the prediction has been journaled.
++const MODEL_VERSION = 'abbeys-current-season-v1';
++const TEAMS = new Set('ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC LA LAC LV MIA MIN NE NO NYG NYJ PHI PIT SEA SF TB TEN WAS'.split(' '));
++const team = value => value === 'LAR' ? 'LA' : value;
++const iso = value => {
++  if (typeof value!=='string' || !/^(\d{4})-(\d{2})-(\d{2})T\d\d:\d\d:\d\d(?:\.\d+)?(?:Z|[+-]\d\d:\d\d)$/.test(value) || !Number.isFinite(Date.parse(value))) return false;
++  const [y,m,d]=value.slice(0,10).split('-').map(Number),check=new Date(Date.UTC(y,m-1,d));
++  return check.getUTCFullYear()===y && check.getUTCMonth()===m-1 && check.getUTCDate()===d;
++};
++const finiteScore = value => Number.isInteger(value) && value >= 0 && value <= 100;
++function identity(id, season) {
++  const m = /^(\d{4})_(\d{2})_([A-Z]+)_([A-Z]+)$/.exec(id || '');
++  if (!m || +m[1] !== season || +m[2] < 1 || +m[2] > 18) return null;
++  const away = team(m[3]), home = team(m[4]);
++  if (!TEAMS.has(away) || !TEAMS.has(home) || away === home) throw new Error(`Invalid NFL identity: ${id}`);
++  return {gameId:id, season, week:+m[2], away, home};
++}
++function checkReceipt(data, cutoff, label) {
++  if (!iso(data?.generated_at) || Date.parse(data.generated_at) > Date.parse(cutoff)) throw new Error(`${label}: missing/future receipt`);
++}
++function projectSources(scheduleSource, resultSource, season, cutoff) {
++  if (!Number.isInteger(season) || !iso(cutoff)) throw new Error('Explicit season and ISO cutoff required');
++  checkReceipt(scheduleSource, cutoff, 'schedule');
++  checkReceipt(resultSource, cutoff, 'results');
++  const schedules = new Map(), results = new Map();
++  for (const raw of scheduleSource.games || []) {
++    const id = identity(raw.game_id, season);
++    if (!id) {if (raw.season===season) throw new Error('Malformed current-season schedule identity');continue;}
++    if (raw.season !== season || raw.week !== id.week || team(raw.away) !== id.away || team(raw.home) !== id.home || !iso(raw.kickoff)) throw new Error(`Conflicting schedule identity: ${id.gameId}`);
++    const row = {...id,kickoff:raw.kickoff,neutral:raw.location === 'Neutral' || raw.neutral_site === true};
++    if (schedules.has(row.gameId)) throw new Error(`Duplicate schedule: ${row.gameId}`);
++    schedules.set(row.gameId,row);
++  }
++  for (const raw of Object.values(resultSource.games || {})) {
++    if (raw.sport !== 'nfl') continue;
++    const id = identity(raw.id,season);
++    if (!id) {if (String(raw.id||'').startsWith(String(season))) throw new Error('Malformed current-season result identity');continue;}
++    if (team(raw.away) !== id.away || team(raw.home) !== id.home || !iso(raw.kickoff) || !finiteScore(raw.awayScore) || !finiteScore(raw.homeScore)) throw new Error(`Invalid result: ${id.gameId}`);
++    if (Date.parse(raw.kickoff) >= Date.parse(cutoff)) throw new Error(`Future result: ${id.gameId}`);
++    const scheduled = schedules.get(id.gameId);
++    if (!scheduled || Date.parse(scheduled.kickoff) !== Date.parse(raw.kickoff)) throw new Error(`Result/schedule mismatch: ${id.gameId}`);
++    if (results.has(id.gameId)) throw new Error(`Duplicate result: ${id.gameId}`);
++    results.set(id.gameId,{...id,kickoff:raw.kickoff,awayScore:raw.awayScore,homeScore:raw.homeScore});
++  }
++  return {season,cutoff,schedule:[...schedules.values()].sort(order),results:[...results.values()].sort(order)};
++}
++function order(a,b) { return Date.parse(a.kickoff)-Date.parse(b.kickoff) || a.gameId.localeCompare(b.gameId); }
++function easternParts(kickoff) {
++  return Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(kickoff)).map(p=>[p.type,p.value]));
++}
++function gameWindow(input,week) {
++  if (!Number.isInteger(week) || week < 1 || week > 18) throw new Error('Invalid NFL regular-season week');
++  return input.schedule.filter(g=>g.week===week).filter(g=>{
++    const p=easternParts(g.kickoff);
++    return p.weekday==='Mon' || (p.weekday==='Sun' && (+p.hour*60 + +p.minute >= 570));
++  }).sort(order);
++}
++function averageModel(results) {
++  if (!results.length) return {stats:{},mean:null,homeEdge:null};
++  const stats={}; let total=0,edge=0;
++  for (const g of results) {
++    for (const [t,pf,pa] of [[g.away,g.awayScore,g.homeScore],[g.home,g.homeScore,g.awayScore]]) {
++      const s=stats[t] ||= {games:0,pf:0,pa:0,wins:0,losses:0,ties:0};
++      s.games++;s.pf+=pf;s.pa+=pa;s.wins+=pf>pa?1:0;s.losses+=pf<pa?1:0;s.ties+=pf===pa?1:0;
++    }
++    total+=g.awayScore+g.homeScore;edge+=g.homeScore-g.awayScore;
++  }
++  for (const s of Object.values(stats)) {s.pf/=s.games;s.pa/=s.games;}
++  return {stats,mean:total/(2*results.length),homeEdge:edge/results.length};
++}
++function scoreGame(model,g) {
++  if (model.mean===null) return {away:null,home:null,margin:null};
++  const a=model.stats[g.away] || {pf:model.mean,pa:model.mean},h=model.stats[g.home] || {pf:model.mean,pa:model.mean};
++  const venue=g.neutral?0:model.homeEdge;
++  const away=Math.max(0,(a.pf+h.pa)/2-venue/2),home=Math.max(0,(h.pf+a.pa)/2+venue/2);
++  return {away,home,margin:home-away};
++}
++function winnerOf(g,score) {return score.margin===null || score.margin===0 ? [g.away,g.home].sort()[0] : score.margin>0?g.home:g.away;}
++function integerScore(g,score,winner) {
++  if (score.home===null) return {away:null,home:null};
++  let away=Math.round(score.away),home=Math.round(score.home);
++  if ((winner===g.home && home>away) || (winner===g.away && away>home)) return {away,home};
++  // Closest nonnegative integer score consistent with the declared winner.
++  const pairs=winner===g.home ? [{away,home:away+1},{away:Math.max(0,home-1),home}] : [{away:home+1,home},{away,home:Math.max(0,away-1)}];
++  return pairs.filter(p=>winner===g.home?p.home>p.away:p.away>p.home).sort((a,b)=>((a.away-score.away)**2+(a.home-score.home)**2)-((b.away-score.away)**2+(b.home-score.home)**2) || a.away+a.home-b.away-b.home)[0];
++}
++function predictWeek(input,week) {
++  const games=gameWindow(input,week);
++  if (!games.length) throw new Error('No Sunday/Monday games in this week');
++  if (games.some(g=>Date.parse(g.kickoff)<=Date.parse(input.cutoff))) throw new Error('Weekly official board must freeze before its first kickoff; no backfill');
++  // Earlier weeks only: Thursday in the target week is intentionally excluded.
++  const training=input.results.filter(g=>g.week<week && Date.parse(g.kickoff)+12*3600000<Date.parse(input.cutoff));
++  const model=averageModel(training), priorWeeks=[...new Set(training.map(g=>g.week))];
++  const refits=priorWeeks.map(w=>averageModel(training.filter(g=>g.week!==w)));
++  const picks=games.map(g=>{
++    const raw=scoreGame(model,g),winner=winnerOf(g,raw),integer=integerScore(g,raw,winner);
++    const a=model.stats[g.away],h=model.stats[g.home];
++    const limited=!a || !h || a.games<3 || h.games<3 || refits.some(m=>!m.stats[g.away]?.games || !m.stats[g.home]?.games);
++    const stable=!limited && raw.margin!==0 && refits.every(m=>m.stats[g.away]?.games>=1 && m.stats[g.home]?.games>=1 && scoreGame(m,g).margin!==0 && winnerOf(g,scoreGame(m,g))===winner);
++    const sensitivity=refits.map(m=>scoreGame(m,g).margin).filter(Number.isFinite);
++    const confidence=raw.margin===null?'No score evidence':raw.margin===0?'Toss-up':limited?'Limited evidence':stable?'Stable lean':'Sensitive lean';
++    const s=model.stats[winner],opp=model.stats[winner===g.away?g.home:g.away],other=winner===g.away?g.home:g.away;
++    const support=s&&opp ? [
++      `${winner} scores ${s.pf.toFixed(1)} points/game; ${other} allows ${opp.pa.toFixed(1)} in this season's earlier games.`,
++      `${winner} allows ${s.pa.toFixed(1)} points/game; ${other} scores ${opp.pf.toFixed(1)}. Both scoring and prevention enter the forecast equally.`,
++      `Net scoring: ${winner} ${(s.pf-s.pa>=0?'+':'')+(s.pf-s.pa).toFixed(1)}/game versus ${other} ${(opp.pf-opp.pa>=0?'+':'')+(opp.pf-opp.pa).toFixed(1)}/game.`
++    ] : ['Current-season scoring evidence is incomplete; no prior-season strength or sportsbook fallback is used.'];
++    const concerns=[];
++    if (raw.margin===0 || raw.margin===null) concerns.push('No model separation: the alphabetically first team code breaks the tie; this is not evidence of an advantage.');
++    if (limited) concerns.push(`Only ${a?.games||0} ${g.away} and ${h?.games||0} ${g.home} earlier-season games; limited evidence.`);
++    if (!stable && !limited && raw.margin!==0) concerns.push('Omitting one earlier week changes or ties the pick. The direction is sensitive to this small sample.');
++    if (s&&opp && s.pf<opp.pf) concerns.push(`${other} has the higher raw scoring average (${opp.pf.toFixed(1)} vs ${s.pf.toFixed(1)}); defense and the designated-home term drive the other direction.`);
++    if (s&&opp && s.pa>opp.pa) concerns.push(`${winner} has allowed more points/game than ${other} (${s.pa.toFixed(1)} vs ${opp.pa.toFixed(1)}).`);
++    concerns.push('Scores include special-teams/defensive scoring. Opponent strength, personnel changes and weather are not quantified by this benchmark.');
++    if (!g.neutral) concerns.push(`Venue adjustment uses this season's designated-home margin (${model.homeEdge===null?'unavailable':model.homeEdge.toFixed(1)} points). Neutral-site metadata is incomplete.`);
++    return {...g,winner,confidence,projectedAway:integer.away,projectedHome:integer.home,rawAway:raw.away,rawHome:raw.home,support,concerns,gamesAway:a?.games||0,gamesHome:h?.games||0,sensitivityRange:sensitivity.length?[Math.min(...sensitivity),Math.max(...sensitivity)]:null,settlement:null};
++  });
++  const monday=[...picks].filter(g=>easternParts(g.kickoff).weekday==='Mon').at(-1);
++  return {season:input.season,week,modelVersion:MODEL_VERSION,picks,monday:monday?{gameId:monday.gameId,away:monday.away,home:monday.home,predictedAway:monday.projectedAway,predictedHome:monday.projectedHome}:null,training,methodology:{name:'Current-season scoring benchmark',description:'Symmetric average of team points scored and opponent points allowed, plus this season’s designated-home scoring margin. Earlier weeks only; no odds or prior-season ratings.',limitations:['Direction stability is a leave-one-week-out sensitivity diagnostic, not win probability.','No validated opponent/recency/personnel weighting; exact score is an illustrative point forecast.','Historical method checks use each season independently; official prospective results start with this frozen board.']}};
++}
++function settlementFor(pick,result,source,settledAt) {
++  if (!result || result.gameId!==pick.gameId || result.away!==pick.away || result.home!==pick.home || Date.parse(result.kickoff)!==Date.parse(pick.kickoff)) return {state:'unresolved',reason:'Missing or ambiguous game identity'};
++  if (!finiteScore(result.awayScore) || !finiteScore(result.homeScore) || !iso(settledAt) || Date.parse(settledAt)<=Date.parse(pick.kickoff)) return {state:'unresolved',reason:'Invalid or premature result evidence'};
++  const actualWinner=result.awayScore===result.homeScore?null:result.awayScore>result.homeScore?result.away:result.home;
++  return {state:'settled',outcome:actualWinner===null?'tie':actualWinner===pick.winner?'win':'loss',actualAway:result.awayScore,actualHome:result.homeScore,settledAt,source};
++}
++module.exports={MODEL_VERSION,projectSources,gameWindow,averageModel,scoreGame,predictWeek,settlementFor,easternParts,integerScore};
+diff --git a/shared/abbeys-ui.js b/shared/abbeys-ui.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..65405c733c493d23d0d6a33572ba6b8276ba201b
+--- /dev/null
++++ b/shared/abbeys-ui.js
+@@ -0,0 +1,341 @@
++(function (root) {
++  'use strict';
++
++  const WEEK_KEY = 'going-abbeys-selected-week';
++  let payloadPromise = null;
++  let selectedWeekKey = null;
++  const panelState = new WeakMap();
++
++  function el(tag, className, text) {
++    const node = document.createElement(tag);
++    if (className) node.className = className;
++    if (text !== undefined && text !== null) node.textContent = String(text);
++    return node;
++  }
++
++  function text(value, fallback = 'Unavailable') {
++    return value === null || value === undefined || value === '' ? fallback : String(value);
++  }
++
++  function dateLabel(value, options) {
++    if (!value) return 'Unavailable';
++    const date = new Date(value);
++    if (!Number.isFinite(date.getTime())) return String(value);
++    return new Intl.DateTimeFormat('en-US', Object.assign({
++      timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric',
++      hour: 'numeric', minute: '2-digit', timeZoneName: 'short'
++    }, options || {})).format(date);
++  }
++
++  function weekId(week) { return `${week?.season ?? ''}-${week?.week ?? ''}`; }
++
++  function sortWeeks(weeks) {
++    return [...weeks].sort((a, b) =>
++      (Number(b?.season) || 0) - (Number(a?.season) || 0) ||
++      (Number(b?.week) || 0) - (Number(a?.week) || 0));
++  }
++
++  async function readBoard(url) {
++    const response = await root.fetch(url, { credentials: 'same-origin' });
++    if (!response.ok) throw new Error(`Board data returned ${response.status}.`);
++    const data = await response.json();
++    if (!data || !Array.isArray(data.weeks)) throw new Error('The ABBEYS board data is incomplete.');
++    return data;
++  }
++
++  function loadPayload() {
++    if (!payloadPromise) {
++      payloadPromise = readBoard('/api/snapshot?file=abbeys-board.json').catch(apiError =>
++        readBoard('/data/abbeys-board.json').catch(() => { throw apiError; })
++      );
++      const current = payloadPromise;
++      current.catch(() => { if (payloadPromise === current) payloadPromise = null; });
++    }
++    return payloadPromise;
++  }
++
++  function list(items, emptyText) {
++    const ul = el('ul', 'abbeys-evidence-list');
++    if (!items.length) ul.append(el('li', 'abbeys-empty-item', emptyText));
++    else items.forEach(item => ul.append(el('li', '', item)));
++    return ul;
++  }
++
++  function itemStrings(value) {
++    return Array.isArray(value) ? value.filter(item => item !== null && item !== undefined && String(item).trim() !== '').map(String) : [];
++  }
++
++  function scoreText(away, home) {
++    const validAway = away !== null && away !== undefined && away !== '' && Number.isFinite(Number(away));
++    const validHome = home !== null && home !== undefined && home !== '' && Number.isFinite(Number(home));
++    return validAway && validHome ? `${away}–${home}` : 'Score unavailable';
++  }
++
++  function oddsText(value) {
++    if (value === null || value === undefined || value === '') return 'Unavailable';
++    return typeof value === 'number' && Number.isFinite(value) && value > 0 ? `+${value}` : String(value);
++  }
++
++  function addFact(parent, label, value, className = 'abbeys-fact') {
++    const row = el('div', className);
++    row.append(el('dt', '', label), el('dd', '', text(value)));
++    parent.append(row);
++  }
++
++  function evidenceFor(pick) {
++    const support = itemStrings(pick?.support);
++    const concerns = itemStrings(pick?.concerns);
++    const availabilityPattern = /\b(injur\w*|availability|inactive\w*|out|doubtful|questionable|practice|roster|depth chart)\b/i;
++    return {
++      availability: [...support, ...concerns].filter(value => availabilityPattern.test(value)),
++      support: support.filter(value => !availabilityPattern.test(value)),
++      concerns: concerns.filter(value => !availabilityPattern.test(value))
++    };
++  }
++
++  function settlementDetails(body, pick) {
++    const settlement = pick?.settlement;
++    const section = el('section', 'abbeys-evidence-group abbeys-settlement-evidence');
++    section.append(el('h4', '', 'Settlement and actual score'));
++    if (!settlement) {
++      section.append(el('p', 'abbeys-muted', 'Pending official settlement. The frozen prediction remains unchanged.'));
++    } else {
++      section.append(el('p', '', `Recorded result · ${text(settlement.outcome).toUpperCase()} · Final ${text(pick.away).toUpperCase()} ${scoreText(settlement.actualAway, settlement.actualHome)} ${text(pick.home).toUpperCase()}`));
++      section.append(el('p', 'abbeys-muted', `Settled ${dateLabel(settlement.settledAt)} · Source: ${text(settlement.source)}`));
++    }
++    body.append(section);
++  }
++
++  function marketContext(body, week, pick) {
++    const section = el('section', 'abbeys-evidence-group abbeys-market-context');
++    section.append(el('h4', '', 'Post-freeze market context · optional, not a pick input'));
++    const context = week?.marketContext?.[pick?.gameId];
++    if (!context || typeof context !== 'object') {
++      section.append(el('p', 'abbeys-muted', 'No post-freeze market context attached.'));
++    } else {
++      section.append(el('p', 'abbeys-muted', `Observed after this pick was frozen · ${dateLabel(context.observedAt)} · ${text(context.source)}`));
++      const facts = el('dl', 'abbeys-facts');
++      addFact(facts, 'Away price', oddsText(context.awayOdds));
++      addFact(facts, 'Home price', oddsText(context.homeOdds));
++      addFact(facts, 'Market favorite', context.marketFavorite);
++      section.append(facts);
++    }
++    body.append(section);
++  }
++
++  function renderPick(pick, week) {
++    const card = el('article', 'abbeys-pick');
++    const head = el('header', 'abbeys-pick-head');
++    head.append(el('h3', '', `${text(pick?.away, 'Away').toUpperCase()} @ ${text(pick?.home, 'Home').toUpperCase()}`));
++    head.append(el('p', 'abbeys-kickoff', dateLabel(pick?.kickoff, { year: undefined, timeZoneName: undefined })));
++    if (pick?.settlement) {
++      const outcome = text(pick.settlement.outcome, 'Settled');
++      head.append(el('span', `abbeys-result-chip is-${['win', 'loss', 'tie'].includes(outcome.toLowerCase()) ? outcome.toLowerCase() : 'settled'}`, outcome.toUpperCase()));
++    } else {
++      head.append(el('span', 'abbeys-pending-chip', 'Pending'));
++    }
++    card.append(head);
++
++    card.append(el('p', 'abbeys-winner', `${text(pick?.winner).toUpperCase()} to win`));
++    const hasAwayGames = pick?.gamesAway !== null && pick?.gamesAway !== undefined && pick.gamesAway !== '' && Number.isFinite(Number(pick.gamesAway));
++    const hasHomeGames = pick?.gamesHome !== null && pick?.gamesHome !== undefined && pick.gamesHome !== '' && Number.isFinite(Number(pick.gamesHome));
++    const sample = hasAwayGames && hasHomeGames
++      ? `Evidence · ${text(pick.confidence)} (uncalibrated) · current-season games A/H ${pick.gamesAway}/${pick.gamesHome}`
++      : `Evidence · ${text(pick.confidence)} (uncalibrated) · current-season sample unavailable`;
++    card.append(el('p', 'abbeys-card-meta', sample));
++
++    const details = el('details', 'abbeys-why-details');
++    details.append(el('summary', '', 'Why this pick?'));
++    const body = el('div', 'abbeys-evidence-body');
++    body.append(el('p', 'abbeys-exact-score', `Frozen exact-score projection · ${text(pick?.away, 'Away').toUpperCase()} ${scoreText(pick?.projectedAway, pick?.projectedHome)} ${text(pick?.home, 'Home').toUpperCase()}`));
++
++    const evidence = evidenceFor(pick);
++    const availability = el('section', 'abbeys-evidence-group');
++    availability.append(el('h4', '', 'Current availability evidence'));
++    availability.append(list(evidence.availability, 'No current availability evidence attached.'));
++    body.append(availability);
++    const supporting = el('section', 'abbeys-evidence-group');
++    supporting.append(el('h4', '', 'Supporting evidence'));
++    supporting.append(list(evidence.support, 'No supporting evidence attached.'));
++    body.append(supporting);
++    const concerns = el('section', 'abbeys-evidence-group abbeys-concerns');
++    concerns.append(el('h4', '', 'Concerns and opposing evidence'));
++    concerns.append(list(evidence.concerns, 'No concerns supplied.'));
++    body.append(concerns);
++    settlementDetails(body, pick);
++    marketContext(body, week, pick);
++    body.append(el('p', 'abbeys-historical-note', 'Historical matchup context · none verified or used for this pick.'));
++    details.append(body);
++    card.append(details);
++    return card;
++  }
++
++  function renderRecord(parent, record, recordScope) {
++    const section = el('section', 'abbeys-record');
++    const heading = el('h3', '', 'Season record');
++    if (recordScope) heading.append(el('span', 'abbeys-record-scope', ` · ${recordScope}`));
++    section.append(heading);
++    const grid = el('dl', 'abbeys-record-grid');
++    for (const [key, label] of [['wins', 'Wins'], ['losses', 'Losses'], ['ties', 'Ties'], ['pending', 'Pending']]) {
++      const value = record && record[key] !== undefined && record[key] !== null ? String(record[key]) : '—';
++      addFact(grid, label, value, 'abbeys-record-item');
++    }
++    section.append(grid);
++    parent.append(section);
++  }
++
++  function renderMethodology(parent, payload, week) {
++    const details = el('details', 'abbeys-method-details');
++    details.append(el('summary', '', 'Methodology and source cutoffs'));
++    details.append(el('h3', 'abbeys-method-name', week?.methodology?.name || 'Methodology unavailable'));
++    details.append(el('p', 'abbeys-method-description', week?.methodology?.description || 'No methodology description was supplied.'));
++    const limitations = itemStrings(week?.methodology?.limitations);
++    const listNode = el('ul', 'abbeys-limitations');
++    if (limitations.length) limitations.forEach(value => listNode.append(el('li', '', value)));
++    else listNode.append(el('li', '', 'No limitations were supplied.'));
++    details.append(listNode);
++    const source = week?.source || payload?.source || {};
++    const facts = el('dl', 'abbeys-facts abbeys-source-facts');
++    addFact(facts, 'Season / week', `${week?.season ?? '—'} / ${week?.week ?? '—'}`);
++    addFact(facts, 'Input cutoff', source.cutoff);
++    addFact(facts, 'Source snapshot', dateLabel(source.generatedAt));
++    addFact(facts, 'Source hash', source.sourceSHA);
++    addFact(facts, 'Week frozen', dateLabel(week?.frozenAt));
++    addFact(facts, 'Observation hash', week?.observationHash);
++    addFact(facts, 'Model version', week?.modelVersion || payload?.modelVersion);
++    details.append(facts);
++    parent.append(details);
++  }
++
++  function renderMonday(parent, week) {
++    const monday = week?.monday;
++    if (!monday) return;
++    const section = el('section', 'abbeys-monday');
++    section.append(el('span', 'abbeys-eyebrow', 'Final Monday game · exact-score projection'));
++    section.append(el('h3', '', `${text(monday.away, 'Away').toUpperCase()} @ ${text(monday.home, 'Home').toUpperCase()}`));
++    section.append(el('p', 'abbeys-monday-score', `${text(monday.away, 'Away').toUpperCase()} ${scoreText(monday.predictedAway, monday.predictedHome)} ${text(monday.home, 'Home').toUpperCase()}`));
++    if (monday.settlement) {
++      const settlement = monday.settlement;
++      section.append(el('p', 'abbeys-monday-actual', `Final · ${text(monday.away).toUpperCase()} ${scoreText(settlement.actualAway, settlement.actualHome)} ${text(monday.home).toUpperCase()}`));
++      const validScores = [settlement.actualAway, settlement.actualHome, monday.predictedAway, monday.predictedHome].every(value => value !== null && value !== undefined && Number.isFinite(Number(value)));
++      if (validScores) {
++        const awayError = Math.abs(Number(settlement.actualAway) - Number(monday.predictedAway));
++        const homeError = Math.abs(Number(settlement.actualHome) - Number(monday.predictedHome));
++        const combinedError = Math.abs(Number(settlement.actualAway) + Number(settlement.actualHome) - Number(monday.predictedAway) - Number(monday.predictedHome));
++        section.append(el('p', 'abbeys-monday-errors', `Score errors · Away ${awayError} · Home ${homeError} · Combined ${combinedError}`));
++        section.append(el('p', 'abbeys-muted', 'Descriptive error for one settled game; not model validation.'));
++      }
++      section.append(el('p', 'abbeys-muted', `Settlement source · ${text(settlement.source)} · ${dateLabel(settlement.settledAt)}`));
++    } else {
++      section.append(el('p', 'abbeys-muted', 'Frozen for this week. No settlement metrics are shown before the game is final.'));
++    }
++    parent.append(section);
++  }
++
++  function paint(panel, state, payload, restoreWeekFocus = false) {
++    const weeks = sortWeeks(payload.weeks.filter(week => week && typeof week === 'object'));
++    const board = el('section', 'abbeys-board');
++    board.setAttribute('aria-label', 'ABBEYS current-season prediction board');
++    const top = el('header', 'abbeys-board-header');
++    top.append(el('p', 'abbeys-kicker', 'GOING LONG · CURRENT SEASON'));
++    top.append(el('h2', '', 'ABBEYS'));
++    top.append(el('p', 'abbeys-board-intro', 'Frozen weekly NFL picks. Confidence is an uncalibrated evidence category, not a win probability.'));
++    board.append(top);
++
++    if (!weeks.length) {
++      board.append(el('p', 'abbeys-empty', 'No frozen ABBEYS weeks are available yet.'));
++      panel.replaceChildren(board);
++      if (restoreWeekFocus) panel.querySelector('.abbeys-week-select')?.focus({ preventScroll: true });
++      return;
++    }
++
++    let rememberedWeek = null;
++    try { rememberedWeek = root.localStorage?.getItem?.(WEEK_KEY); } catch (_) { /* Storage can be disabled. */ }
++    const requested = state.selectedWeekKey || selectedWeekKey || rememberedWeek;
++    const week = weeks.find(item => weekId(item) === requested) || weeks[0];
++    state.selectedWeekKey = weekId(week);
++    selectedWeekKey = state.selectedWeekKey;
++    try { root.localStorage?.setItem?.(WEEK_KEY, selectedWeekKey); } catch (_) { /* Storage can be disabled. */ }
++
++    const controls = el('div', 'abbeys-controls');
++    const label = el('label', 'abbeys-week-label');
++    label.append(el('span', '', 'Season / week'));
++    const select = el('select', 'abbeys-week-select');
++    select.setAttribute('aria-label', 'Choose ABBEYS season and week');
++    weeks.forEach(optionWeek => {
++      const option = el('option', '', `${optionWeek.season ?? 'Season'} · Week ${String(optionWeek.week ?? '').padStart(2, '0')}`);
++      option.value = weekId(optionWeek);
++      option.selected = option.value === state.selectedWeekKey;
++      select.append(option);
++    });
++    select.addEventListener('change', () => {
++      state.selectedWeekKey = select.value;
++      selectedWeekKey = select.value;
++      try { root.localStorage?.setItem?.(WEEK_KEY, select.value); } catch (_) { /* Storage can be disabled. */ }
++      paint(panel, state, payload, true);
++    });
++    label.append(select);
++    controls.append(label, el('span', 'abbeys-pick-count', `${Array.isArray(week.picks) ? week.picks.length : 0} frozen picks`));
++    board.append(controls, el('p', 'abbeys-freeze-time', `Official picks frozen · ${dateLabel(week.frozenAt)}`));
++    if (Array.isArray(week.invalidations) && week.invalidations.length) {
++      const notice=el('section','abbeys-error');
++      notice.append(el('strong','','This board is invalidated. Original predictions remain visible for audit, not active recommendations.'));
++      for (const entry of week.invalidations) notice.append(el('p','',`${text(entry.reason)} · Evidence: ${text(entry.evidence)}`));
++      board.append(notice);
++    }
++
++    renderRecord(board, payload.record, payload.recordScope);
++    renderMonday(board, week);
++    const picks = el('section', 'abbeys-picks');
++    picks.setAttribute('aria-label', `Week ${week.week} official picks`);
++    if (Array.isArray(week.picks) && week.picks.length) week.picks.forEach(pick => picks.append(renderPick(pick || {}, week)));
++    else picks.append(el('p', 'abbeys-empty', 'No picks were frozen for this week.'));
++    board.append(picks);
++    renderMethodology(board, payload, week);
++    board.append(el('p', 'abbeys-updated', `Board snapshot · ${dateLabel(payload.generatedAt)}`));
++    panel.replaceChildren(board);
++    if (restoreWeekFocus) panel.querySelector('.abbeys-week-select')?.focus({ preventScroll: true });
++  }
++
++  function errorView(panel, state, error) {
++    const box = el('div', 'abbeys-error-box');
++    const message = el('p', 'abbeys-error', `ABBEYS data could not be loaded. ${error?.message || 'Please try again later.'}`);
++    message.setAttribute('role', 'status');
++    const retry = el('button', 'abbeys-retry', 'Retry loading board');
++    retry.type = 'button';
++    retry.addEventListener('click', () => {
++      state.status = 'idle';
++      state.promise = null;
++      render(panel);
++    });
++    box.append(message, retry);
++    panel.replaceChildren(box);
++  }
++
++  function render(panel) {
++    if (!panel || typeof panel.replaceChildren !== 'function') return Promise.resolve();
++    let state = panelState.get(panel);
++    if (!state) {
++      state = { status: 'idle', promise: null, selectedWeekKey: null };
++      panelState.set(panel, state);
++    }
++    if (state.status === 'loaded' || state.status === 'failed') return state.promise || Promise.resolve();
++    if (state.status === 'loading') return state.promise;
++
++    state.status = 'loading';
++    const loading = el('p', 'abbeys-loading', 'Loading the public ABBEYS board…');
++    loading.setAttribute('role', 'status');
++    panel.replaceChildren(loading);
++    state.promise = loadPayload().then(payload => {
++      paint(panel, state, payload);
++      state.status = 'loaded';
++      return payload;
++    }).catch(error => {
++      state.status = 'failed';
++      errorView(panel, state, error);
++    });
++    return state.promise;
++  }
++
++  root.GoingAbbeysUI = { render };
++})(globalThis);
+diff --git a/shared/abbeys.css b/shared/abbeys.css
+new file mode 100644
+index 0000000000000000000000000000000000000000..4aa702df67b8bbc1feb6ea9e4b9137ea1dce26ef
+--- /dev/null
++++ b/shared/abbeys.css
+@@ -0,0 +1,105 @@
++.abbeys-board {
++  display: grid;
++  gap: var(--g-space-3);
++  min-width: 0;
++  margin: 10px 0 22px;
++  color: var(--g-text);
++  font: var(--g-weight-normal) var(--g-text-sm)/1.45 var(--g-font);
++  overflow-wrap: anywhere;
++  scroll-margin-top: 110px;
++}
++.abbeys-board * { box-sizing: border-box; }
++body[data-going-workspace=long] #btTabGroup>.bt-more-tools:has(button[aria-pressed=true])>summary{border-color:var(--g-accent)!important;box-shadow:0 0 12px #35edcb1c!important}
++.abbeys-board h2, .abbeys-board h3, .abbeys-board h4, .abbeys-board p, .abbeys-board dl { margin-top: 0; }
++.abbeys-board-header, .abbeys-record, .abbeys-pick, .abbeys-monday, .abbeys-method-details {
++  min-width: 0;
++  padding: 12px;
++  border: 1px solid var(--g-border);
++  border-radius: var(--g-radius-md);
++  background: var(--g-surface);
++  box-shadow: var(--g-shadow-card);
++}
++.abbeys-board-header { border-top: 3px solid var(--g-accent); }
++.abbeys-board-header{padding:0;border:0;background:none;box-shadow:none}
++.abbeys-board-header .abbeys-kicker,.abbeys-board-header h2{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
++.abbeys-kicker, .abbeys-eyebrow {
++  margin: 0 0 4px;
++  color: var(--g-accent);
++  font-size: 10px;
++  font-weight: 700;
++  letter-spacing: .07em;
++  text-transform: uppercase;
++}
++.abbeys-board-header h2 { margin: 0 0 3px; font: italic 800 clamp(22px, 5vw, 28px)/1.12 var(--v-display, var(--g-font)); letter-spacing: -.025em; }
++.abbeys-board-intro, .abbeys-muted { margin: 0; color: var(--g-muted); line-height: 1.4; }
++.abbeys-controls { display: flex; align-items: end; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
++.abbeys-week-label { display: grid; flex: 1 1 180px; gap: 4px; min-width: 0; color: var(--g-muted); font-size: 11px; font-weight: 650; }
++.abbeys-week-select {
++  width: 100%; min-width: 0; min-height: 44px; padding: 7px 32px 7px 9px;
++  border: 1px solid var(--g-border); border-radius: var(--g-radius-sm);
++  background: var(--g-raised); color: var(--g-text); font: inherit; font-weight: 650;
++}
++.abbeys-pick-count { padding: 7px 8px; color: var(--g-muted); font-size: 11px; }
++.abbeys-freeze-time { margin: -5px 0 0; color: var(--g-muted); font-size: 10px; }
++.abbeys-record { padding: 9px; }
++.abbeys-record h3 { margin: 0 0 6px; font-size: 13px; }
++.abbeys-record-scope { color: var(--g-muted); font-size: 10px; font-weight: 500; }
++.abbeys-record-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin: 0; }
++.abbeys-record-item { display: grid; min-width: 0; gap: 1px; padding: 5px; border-radius: var(--g-radius-sm); background: var(--g-raised); text-align: center; }
++.abbeys-record-item dt { color: var(--g-muted); font-size: 10px; }
++.abbeys-record-item dd { margin: 0; font-size: 14px; font-weight: 750; font-variant-numeric: tabular-nums; }
++.abbeys-monday { padding: 11px 12px; border-color: var(--g-accent); background: linear-gradient(115deg, var(--g-accent-soft), var(--g-surface) 75%); }
++.abbeys-monday h3 { margin: 0 0 2px; font-size: 16px; }
++.abbeys-monday-score { margin: 0 0 2px; font-size: 19px; font-weight: 750; font-variant-numeric: tabular-nums; }
++.abbeys-monday-actual, .abbeys-monday-errors { margin: 3px 0; font-size: 11px; font-variant-numeric: tabular-nums; }
++.abbeys-monday .abbeys-muted { font-size: 10px; }
++.abbeys-picks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--g-space-2); min-width: 0; }
++.abbeys-pick { padding: 9px 10px; background: var(--g-raised); }
++.abbeys-pick-head { display: flex; align-items: center; gap: 3px 7px; flex-wrap: wrap; margin-bottom: 3px; }
++.abbeys-pick-head h3 { margin: 0 auto 0 0; font-size: 15px; line-height: 1.2; letter-spacing: -.02em; }
++.abbeys-kickoff { margin: 0; color: var(--g-muted); font-size: 10px; }
++.abbeys-pending-chip, .abbeys-result-chip { flex: none; padding: 1px 6px; border: 1px solid var(--g-border); border-radius: var(--g-radius-pill); color: var(--g-muted); font-size: 9px; font-weight: 700; line-height: 1.4; }
++.abbeys-result-chip.is-win { border-color: var(--g-accent); color: var(--g-accent); }
++.abbeys-result-chip.is-loss { border-color: var(--g-danger); color: var(--g-danger); }
++.abbeys-result-chip.is-tie { border-color: var(--g-amber); color: var(--g-amber); }
++.abbeys-winner { margin: 0; color: var(--g-accent); font-size: 18px; font-weight: 750; line-height: 1.15; }
++.abbeys-card-meta { margin: 3px 0 1px; color: var(--g-muted); font-size: 10px; line-height: 1.3; font-variant-numeric: tabular-nums; }
++.abbeys-why-details { min-width: 0; margin-top: 3px; border-top: 1px solid var(--g-border); }
++.abbeys-board summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; color: var(--g-accent); font-size: 11px; font-weight: 700; line-height: 1.25; }
++.abbeys-board summary::marker { color: var(--g-accent); }
++.abbeys-evidence-body { padding: 0 0 7px; }
++.abbeys-exact-score { margin: 0 0 8px; font-weight: 700; font-variant-numeric: tabular-nums; }
++.abbeys-evidence-group { margin: 0 0 7px; }
++.abbeys-evidence-group h4 { margin: 0 0 2px; font-size: 11px; }
++.abbeys-evidence-list { margin: 0; padding-left: 17px; color: var(--g-muted); font-size: 11px; line-height: 1.4; }
++.abbeys-evidence-list li + li { margin-top: 2px; }
++.abbeys-empty-item { list-style: none; margin-left: -17px; }
++.abbeys-evidence-group p { margin: 2px 0; line-height: 1.4; }
++.abbeys-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px 9px; margin: 6px 0 0; }
++.abbeys-fact { display: grid; min-width: 0; gap: 1px; }
++.abbeys-fact dt { color: var(--g-muted); font-size: 10px; }
++.abbeys-fact dd { min-width: 0; margin: 0; font-size: 11px; font-weight: 600; overflow-wrap: anywhere; }
++.abbeys-historical-note { margin: 6px 0 0; padding-top: 5px; border-top: 1px solid var(--g-border); color: var(--g-muted); font-size: 10px; }
++.abbeys-method-details { padding: 0 10px; }
++.abbeys-method-details[open] { padding-bottom: 8px; }
++.abbeys-method-name { margin: 4px 0; font-size: 14px; }
++.abbeys-method-description { margin: 0 0 5px; color: var(--g-muted); }
++.abbeys-limitations { margin: 0 0 7px; padding-left: 17px; color: var(--g-muted); font-size: 11px; }
++.abbeys-source-facts { padding-top: 7px; border-top: 1px solid var(--g-border); }
++.abbeys-updated { margin: 0; color: var(--g-muted); text-align: right; font-size: 10px; }
++.abbeys-empty, .abbeys-loading, .abbeys-error { margin: 0; padding: 12px; border: 1px dashed var(--g-border); border-radius: var(--g-radius-md); color: var(--g-muted); }
++.abbeys-error { color: var(--g-danger); }
++.abbeys-error-box { display: grid; justify-items: start; gap: 8px; }
++.abbeys-retry { min-height: 44px; padding: 8px 12px; border: 1px solid var(--g-accent); border-radius: var(--g-radius-sm); background: var(--g-raised); color: var(--g-text); font: 650 12px var(--g-font); cursor: pointer; }
++.abbeys-board :focus-visible { outline: 2px solid var(--g-accent); outline-offset: 3px; }
++@media (max-width: 700px) { .abbeys-picks { grid-template-columns: minmax(0, 1fr); } }
++@media (max-width: 360px) {
++  .abbeys-board-header, .abbeys-record, .abbeys-pick, .abbeys-monday { padding: 9px; }
++  .abbeys-week-label { flex-basis: 155px; }
++  .abbeys-pick-head h3 { font-size: 14px; }
++  .abbeys-record-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
++  .abbeys-facts { grid-template-columns: minmax(0, 1fr); }
++}
++@media (prefers-reduced-motion: reduce) {
++  .abbeys-board *, .abbeys-board *::before, .abbeys-board *::after { scroll-behavior: auto; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
++}
+diff --git a/shared/going-shell.js b/shared/going-shell.js
+index ea62df30cbc9563df25aad9013483053e44ec1fc..c84ff42a8841bacd6b059ad0c65fac123685045b 100644
+--- a/shared/going-shell.js
++++ b/shared/going-shell.js
+@@ -18 +18 @@
+- const acronyms=new Set(['NFL','NCAA','MLB','DFS','TD','HR','RBI','RB','WR','TE','QB','DST','FBS','CSV','EV','IP','PA','BF','GOING','ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WAS','WSH']);
++ const acronyms=new Set(['ABBEYS','NFL','NCAA','MLB','DFS','TD','HR','RBI','RB','WR','TE','QB','DST','FBS','CSV','EV','IP','PA','BF','GOING','ARI','ATL','BAL','BUF','CAR','CHI','CIN','CLE','DAL','DEN','DET','GB','HOU','IND','JAX','KC','LAC','LAR','LV','MIA','MIN','NE','NO','NYG','NYJ','PHI','PIT','SEA','SF','TB','TEN','WAS','WSH']);
+diff --git a/shared/visual-system.js b/shared/visual-system.js
+index d97bf5fe12214901f64e4238aea01d4a061140c5..4a1479ccedee8b3b16e0499de8e20d094d6d0cff 100644
+--- a/shared/visual-system.js
++++ b/shared/visual-system.js
+@@ -21 +21 @@ const hero=document.createElement('section');hero.className='v-football-hero';he
+-const meta={today:['TODAY','Data-backed markets, matchups and evidence for the selected slate.'],opportunities:['MARKETS','Compare available lines, totals and player markets.'],games:['GAMES','The matchup, a little clearer. Prices and evidence by game.'],dfs:['DFS','Real salaries. Your players. Two clear research objectives.'],cheatsheets:['CHEAT|SHEETS','Everything you need to investigate. Compare roles, targets, carries, and more.'],parlay:['PARLAYS','Build and edit a ticket from the games you care about.'],jackpot:['JACKPOT','First TD, Last TD and longest-touchdown research.'],research:['MORE','Tools, evidence and deeper football research.']};
++const meta={abbeys:['ABBEYS','Current-season football. One straight-up winner per game.'],today:['TODAY','Data-backed markets, matchups and evidence for the selected slate.'],opportunities:['MARKETS','Compare available lines, totals and player markets.'],games:['GAMES','The matchup, a little clearer. Prices and evidence by game.'],dfs:['DFS','Real salaries. Your players. Two clear research objectives.'],cheatsheets:['CHEAT|SHEETS','Everything you need to investigate. Compare roles, targets, carries, and more.'],parlay:['PARLAYS','Build and edit a ticket from the games you care about.'],jackpot:['JACKPOT','First TD, Last TD and longest-touchdown research.'],research:['MORE','Tools, evidence and deeper football research.']};
+diff --git a/tests/abbeys-ui.test.cjs b/tests/abbeys-ui.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..286edd1b40b075c46ca1d4948d9caf6cebdeafbc
+--- /dev/null
++++ b/tests/abbeys-ui.test.cjs
+@@ -0,0 +1,30 @@
++'use strict';
++const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs');
++const {JSDOM}=require('jsdom');
++const script=fs.readFileSync('shared/abbeys-ui.js','utf8');
++function board(){return {schemaVersion:1,generatedAt:'2026-10-04T03:00:00Z',record:{wins:0,losses:0,ties:0,pending:2},recordScope:'Manual official boards only',weeks:[4,5].map(week=>({season:2026,week,frozenAt:'2026-10-04T03:00:00Z',source:{cutoff:'week-specific cutoff',sourceSHA:'abc'},picks:[{gameId:'g'+week,away:'ATL',home:'NO',kickoff:'2026-10-06T00:15:00Z',winner:'NO',confidence:'Sensitive lean',gamesAway:3,gamesHome:3,projectedAway:22,projectedHome:25,support:['<img src=x onerror=alert(1)>','Current-season scoring evidence'],concerns:['Questionable participation remains uncertain.']}],monday:{gameId:'g'+week,away:'ATL',home:'NO',predictedAway:22,predictedHome:25}}))};}
++function setup(t,fetch){const dom=new JSDOM('<section id="panel"></section>',{url:'https://going-long.test/long/',runScripts:'outside-only'});t.after(()=>dom.window.close());dom.window.fetch=fetch;dom.window.eval(script);return {dom,panel:dom.window.document.querySelector('#panel')};}
++test('board shows every frozen pick, Monday first, explicit evidence and separated context; repeated render preserves nodes/focus',async t=>{
++  let calls=0;const {dom,panel}=setup(t,async url=>{calls++;assert.equal(url,'/api/snapshot?file=abbeys-board.json');return Response.json(board());});
++  await Promise.all([dom.window.GoingAbbeysUI.render(panel),dom.window.GoingAbbeysUI.render(panel)]);assert.equal(calls,1);
++  assert.equal(panel.querySelectorAll('.abbeys-pick').length,1);assert.match(panel.textContent,/Sensitive lean/);assert.match(panel.textContent,/week-specific cutoff/);assert.match(panel.textContent,/none verified/);assert.match(panel.textContent,/No post-freeze market/);assert.equal(panel.querySelector('img'),null);
++  const monday=panel.querySelector('.abbeys-monday'),picks=panel.querySelector('.abbeys-picks');assert.ok(monday.compareDocumentPosition(picks)&dom.window.Node.DOCUMENT_POSITION_FOLLOWING);
++  const details=panel.querySelector('.abbeys-why-details'),summary=details.querySelector('summary');details.open=true;summary.focus();
++  await dom.window.GoingAbbeysUI.render(panel);assert.equal(panel.querySelector('.abbeys-why-details'),details);assert.equal(details.open,true);assert.equal(dom.window.document.activeElement,summary);
++  const select=panel.querySelector('select');select.value='2026-4';select.dispatchEvent(new dom.window.Event('change'));assert.equal(panel.querySelector('select').value,'2026-4');assert.equal(dom.window.document.activeElement,panel.querySelector('select'));
++  assert.equal(panel.querySelectorAll('.abbeys-pick>details').length,1);
++});
++test('missing optional data, empty weeks and unverified news remain explicit without fake picks',async t=>{
++  const {dom,panel}=setup(t,async()=>Response.json({schemaVersion:1,weeks:[],record:{}}));await dom.window.GoingAbbeysUI.render(panel);assert.match(panel.textContent,/No frozen ABBEYS weeks/);assert.equal(panel.querySelectorAll('.abbeys-pick').length,0);
++});
++test('endpoint outage falls back to packaged snapshot; total failure offers one explicit retry',async t=>{
++  let calls=0,ready=false;const {dom,panel}=setup(t,async()=>{calls++;return ready?Response.json(board()):new Response(null,{status:503});});
++  await dom.window.GoingAbbeysUI.render(panel);assert.equal(calls,2);assert.match(panel.textContent,/could not be loaded/);assert.equal(panel.querySelector('button').textContent,'Retry loading board');
++  await dom.window.GoingAbbeysUI.render(panel);assert.equal(calls,2,'Background renders do not repeat failed requests');
++  ready=true;panel.querySelector('button').click();await new Promise(resolve=>setImmediate(resolve));assert.equal(calls,3);assert.equal(panel.querySelectorAll('.abbeys-pick').length,1);
++});
++test('ABBEYS integration keeps NFL-only route, nine-tool grid and unchanged existing model functions',()=>{
++  const html=fs.readFileSync('index.html','utf8'),shell=fs.readFileSync('shared/going-shell.js','utf8');
++  assert.match(html,/data-section="abbeys" data-tab="abbeys"/);assert.match(html,/\[data-section="abbeys"\]'\)\.hidden=BET.sport!=="nfl"/);assert.match(html,/'score','dfs','abbeys','props'/);assert.match(shell,/'ABBEYS','NFL'/);
++  assert.match(html,/id="btAbbeysPanel" hidden/);assert.match(html,/GoingAbbeysUI\?\.render/);
++});
+diff --git a/tests/abbeys.test.cjs b/tests/abbeys.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..18965f96a739caa562dde79ab2337d2c5e9eaa31
+--- /dev/null
++++ b/tests/abbeys.test.cjs
+@@ -0,0 +1,159 @@
++'use strict';
++const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),os=require('node:os'),cp=require('node:child_process');
++const core=require('../shared/abbeys-core.cjs');
++const journal=require('../shared/ranking-journal.cjs');
++const collector=require('../research/abbeys/collect.cjs');
++function fixture() {
++  const cutoff='2026-10-04T03:00:00Z',generated_at='2026-10-04T00:00:00Z';
++  const games=[],results={};
++  for (let week=1;week<=3;week++) {
++    for (const [away,home,away_score,home_score] of [['ATL','NO',35,10],['BUF','NE',30,14]]) {
++      const game_id=`2026_0${week}_${away}_${home}`,kickoff=`2026-09-${String(6+7*(week-1)).padStart(2,'0')}T17:00:00Z`;
++      games.push({game_id,season:2026,week,away,home,kickoff,away_score,home_score});
++      results[`nfl|${game_id}`]={id:game_id,sport:'nfl',away,home,kickoff,awayScore:away_score,homeScore:home_score};
++    }
++  }
++  for (const [away,home,kickoff] of [['ATL','BUF','2026-10-04T13:30:00Z'],['NE','NO','2026-10-05T23:00:00Z'],['NO','BUF','2026-10-06T00:15:00Z'],['ATL','NE','2026-10-02T00:15:00Z']]) games.push({game_id:`2026_04_${away}_${home}`,season:2026,week:4,away,home,kickoff});
++  return {schedule:{generated_at,season:2026,games},results:{generated_at,games:results},cutoff};
++}
++const predict=f=>core.predictWeek(core.projectSources(f.schedule,f.results,2026,f.cutoff),4);
++test('ABBEYS whitelist excludes all books, historical stats, ratings and player indices',()=>{
++  const f=fixture(),expected=predict(f);
++  f.schedule.ratings={ATL:999};f.schedule.rating_calibration={slope:999};f.schedule.history={strong:999};
++  f.schedule.games.forEach(g=>Object.assign(g,{home_ml:-9999,away_ml:10000,spread:-88,total:125,impliedProbability:.999,goingScore:100,prior_season_epa:999}));
++  f.schedule.games.push({game_id:'2025_04_ATL_NO',season:2025,week:4,away:'ATL',home:'NO',kickoff:'2025-09-30T00:00:00Z',home_score:99,away_score:0});
++  f.results.games.old={sport:'nfl',id:'2025_04_ATL_NO',home:'NO',away:'ATL',kickoff:'2025-09-30T00:00:00Z',homeScore:99,awayScore:0};
++  f.schedule.marketContext={favorite:'BUF'};f.results.historicalTrends={ATL:'10-0'};
++  assert.deepEqual(predict(f),expected);
++  delete f.schedule.ratings;delete f.schedule.rating_calibration;delete f.results.historicalTrends;delete f.schedule.marketContext;
++  assert.deepEqual(predict(f),expected);
++});
++test('legitimate same-season scoring changes can change a pick; same-week result cannot',()=>{
++  const f=fixture(),base=predict(f);
++  const g=f.schedule.games.find(g=>g.week===4&&g.away==='ATL'&&g.home==='NE');
++  f.results.games.thursday={sport:'nfl',id:g.game_id,away:g.away,home:g.home,kickoff:g.kickoff,awayScore:99,homeScore:0};
++  assert.deepEqual(predict(f),base);
++  for (const r of Object.values(f.results.games).filter(r=>r.away==='ATL'&&r.home==='NO')) {r.awayScore=0;r.homeScore=80;}
++  assert.notEqual(predict(f).picks[0].winner,base.picks[0].winner);
++});
++test('window includes Sunday international through final Monday, excludes Thursday and early Sunday',()=>{
++  const f=fixture();f.schedule.games.push({game_id:'2026_04_KC_LV',season:2026,week:4,away:'KC',home:'LV',kickoff:'2026-10-04T12:00:00Z'});
++  const board=predict(f);assert.equal(board.picks.length,3);assert.equal(board.monday.gameId,'2026_04_NO_BUF');
++  assert.equal(board.picks[0].kickoff,'2026-10-04T13:30:00Z');
++  assert.deepEqual(core.gameWindow(core.projectSources(f.schedule,f.results,2026,f.cutoff),5),[]);
++});
++test('NFL identifiers, duplicate records, invalid and future sources fail closed',()=>{
++  for (const mutate of [f=>f.schedule.games.push({...f.schedule.games[0]}),f=>f.schedule.games[0].game_id='2026_typo',f=>Object.values(f.results.games)[0].id='2026_typo',f=>Object.values(f.results.games)[0].awayScore=null,f=>f.results.generated_at='2026-10-05T00:00:00Z',f=>Object.values(f.results.games)[0].home='KC']) {
++    const f=fixture();mutate(f);assert.throws(()=>predict(f));
++  }
++  const f=fixture();f.cutoff='2026-10-04T13:30:00Z';assert.throws(()=>predict(f),/before its first kickoff/);
++});
++test('zero and tiny samples never import earlier seasons or invent a calibrated probability',()=>{
++  const f=fixture();f.results.games={};const p=predict(f).picks[0];
++  assert.equal(p.confidence,'No score evidence');assert.equal(p.projectedAway,null);assert.equal(p.projectedHome,null);assert.ok(['ATL','BUF'].includes(p.winner));assert.equal(p.winProbability,undefined);
++  f.results.games={one:Object.values(fixture().results.games)[0]};assert.equal(predict(f).picks[0].confidence,'Limited evidence');
++});
++test('integer exact score remains nonnegative and consistent with winner at tied rounding',()=>{
++  const g={away:'ATL',home:'NO'};
++  for (const [away,home,winner] of [[21.2,21.3,'NO'],[21.4,21.1,'ATL'],[0,0,'ATL']]) {
++    const p=core.integerScore(g,{away,home},winner);assert.ok(Number.isInteger(p.away)&&p.away>=0);assert.ok(Number.isInteger(p.home)&&p.home>=0);assert.equal(p.home>p.away?'NO':'ATL',winner);assert.notEqual(p.home,p.away);
++  }
++});
++test('settlement identity is exact and ties remain ties rather than guessed wins',()=>{
++  const p=predict(fixture()).picks[0],r={...p,awayScore:21,homeScore:21};
++  assert.equal(core.settlementFor(p,r,'fixture','2026-10-04T20:00:00Z').outcome,'tie');
++  assert.equal(core.settlementFor(p,{...r,gameId:'wrong'},'fixture','2026-10-04T20:00:00Z').state,'unresolved');
++  assert.equal(core.settlementFor(p,r,'fixture','2026-10-04T13:00:00Z').state,'unresolved');
++});
++function temporarySource(t) {
++  const root=fs.mkdtempSync(path.join(os.tmpdir(),'going-abbeys-'));t.after(()=>{assert.equal(path.dirname(path.resolve(root)),path.resolve(os.tmpdir()));assert.ok(path.basename(root).startsWith('going-abbeys-'));fs.rmSync(root,{recursive:true,force:true});});
++  const now=new Date(),season=now.getUTCFullYear(),sunday=new Date(now);sunday.setUTCDate(sunday.getUTCDate()+((7-sunday.getUTCDay())%7||7));sunday.setUTCHours(17,0,0,0);
++  const f=fixture(),before=new Date(now.getTime()-3600000).toISOString();
++  f.schedule.generated_at=before;f.schedule.season=season;f.results.generated_at=before;
++  f.schedule.games=f.schedule.games.filter(g=>g.week<4 || (g.week===4&&g.home==='BUF'&&g.away==='ATL'));
++  for (const g of f.schedule.games) {g.season=season;g.game_id=g.game_id.replace('2026',String(season));g.kickoff=(g.week===4?sunday:new Date(now.getTime()-(5-g.week)*7*86400000)).toISOString();}
++  f.results.games={};for (const g of f.schedule.games.filter(g=>g.week<4)) f.results.games[g.game_id]={sport:'nfl',id:g.game_id,home:g.home,away:g.away,kickoff:g.kickoff,homeScore:g.home_score,awayScore:g.away_score};
++  fs.mkdirSync(path.join(root,'data'),{recursive:true});fs.mkdirSync(path.join(root,'shared'));fs.mkdirSync(path.join(root,'research/abbeys'),{recursive:true});
++  fs.writeFileSync(path.join(root,'data/nfl_betting.json'),JSON.stringify(f.schedule));fs.writeFileSync(path.join(root,'data/results.json'),JSON.stringify(f.results));
++  fs.writeFileSync(path.join(root,'data/injury_context.json'),JSON.stringify({generated_at:before,season,current_reports:{},effects:{historicalForbidden:999}}));
++  for (const file of ['shared/abbeys-core.cjs','research/abbeys/PROTOCOL.md']) fs.copyFileSync(path.resolve(file),path.join(root,file));
++  const git=args=>cp.execFileSync('git',args,{cwd:root,encoding:'utf8',stdio:'pipe'});
++  git(['init']);git(['config','user.name','Offline fixture']);git(['config','user.email','fixture@example.invalid']);git(['add','data/nfl_betting.json','data/results.json','data/injury_context.json','shared/abbeys-core.cjs','research/abbeys/PROTOCOL.md']);git(['commit','-m','fixture']);return {root,git};
++}
++test('official freeze is reproducible, immutable, duplicate-protected, anchored to Git, and context cannot change it',t=>{
++  const {root,git}=temporarySource(t),captured=collector.capture(root,4,'manual');
++  assert.equal(captured.picks,1);assert.deepEqual(collector.verify(root),{records:2,snapshots:1});
++  const original=journal.readRecords(path.join(root,collector.JOURNAL))[0];
++  assert.throws(()=>collector.capture(root,4,'manual'),/already frozen/);
++  collector.materialize(root);assert.equal(journal.readRecords(path.join(root,collector.JOURNAL))[0].hash,original.hash);
++  const records=journal.readRecords(path.join(root,collector.JOURNAL));
++  git(['add',collector.JOURNAL,collector.BOARD]);git(['commit','-m','anchor']);
++  collector.invalidate(root,captured.snapshotHash,'Corrupt input receipt','Public source correction receipt #fixture');
++  assert.equal(collector.materialize(root).weeks[0].invalidations.length,1);
++  assert.equal(journal.readRecords(path.join(root,collector.JOURNAL))[0].hash,original.hash);
++  const tail=fs.readdirSync(path.join(root,collector.JOURNAL)).filter(f=>f.startsWith(String(records.length).padStart(12,'0')))[0];
++  const newTail=fs.readdirSync(path.join(root,collector.JOURNAL)).find(f=>f.startsWith('000000000003'));
++  fs.unlinkSync(path.join(root,collector.JOURNAL,newTail));fs.unlinkSync(path.join(root,collector.JOURNAL,tail));
++  assert.throws(()=>collector.verify(root),/changed\/deleted/);
++});
++test('journal refuses process overlap, partial observations, and model/protocol reinterpretation',t=>{
++  const {root}=temporarySource(t);collector.capture(root,4,'manual');const dir=path.join(root,collector.JOURNAL);
++  fs.mkdirSync(path.join(dir,'.lock'));assert.throws(()=>collector.verify(root),/locked/);fs.rmdirSync(path.join(dir,'.lock'));
++  fs.writeFileSync(path.join(dir,'.pending-interrupted'),'partial');assert.throws(()=>collector.verify(root),/Unexpected/);fs.unlinkSync(path.join(dir,'.pending-interrupted'));
++  fs.appendFileSync(path.join(root,'research/abbeys/PROTOCOL.md'),'changed definitions');assert.throws(()=>collector.verify(root),/version\/input/);
++});
++test('holdout unlock is after January 16 and requires every scheduled Week18 game final',()=>{
++  const schedule=[{gameId:'a',week:18,kickoff:'2027-01-10T18:00:00Z'}];
++  assert.equal(collector.holdoutReleased({schedule,results:[{gameId:'a'}]},'2027-01-09T18:00:00Z'),false);
++  assert.equal(collector.holdoutReleased({schedule,results:[]},'2027-01-16T18:00:00Z'),false);
++  assert.equal(collector.holdoutReleased({schedule,results:[{gameId:'a'}]},'2027-01-16T18:00:00Z'),true);
++  const postponed=[{gameId:'a',week:18,kickoff:'2027-01-20T18:00:00Z'}];
++  assert.equal(collector.holdoutReleased({schedule:postponed,results:[{gameId:'a'}]},'2027-01-21T18:00:00Z'),false);
++  assert.equal(collector.holdoutReleased({schedule:postponed,results:[{gameId:'a'}]},'2027-01-23T18:00:00Z'),true);
++});
++test('later public final results append without changing the original prediction; conflicting scores stay unresolved',t=>{
++  const {root,git}=temporarySource(t),captured=collector.capture(root,4,'manual');
++  const initial=journal.readRecords(path.join(root,collector.JOURNAL))[0],pick=initial.payload.prediction.picks[0];
++  const later=Date.parse(pick.kickoff)+8*3600000;t.mock.timers.enable({apis:['Date'],now:later});
++  const file=path.join(root,'data/results.json'),results=JSON.parse(fs.readFileSync(file));results.generated_at=new Date(later-60000).toISOString();
++  results.games[pick.gameId]={sport:'nfl',id:pick.gameId,away:pick.away,home:pick.home,kickoff:pick.kickoff,awayScore:35,homeScore:10};
++  fs.writeFileSync(file,JSON.stringify(results));git(['add','data/results.json']);git(['commit','-m','public result fixture']);
++  assert.equal(collector.settle(root).appended,1);assert.equal(journal.readRecords(path.join(root,collector.JOURNAL))[0].hash,captured.snapshotHash);
++  assert.equal(collector.materialize(root).weeks[0].picks[0].settlement.actualAway,35);
++  assert.equal(collector.settle(root).appended,0);
++  results.games[pick.gameId].awayScore=34;fs.writeFileSync(file,JSON.stringify(results));git(['add','data/results.json']);git(['commit','-m','corrected evidence fixture']);
++  assert.equal(collector.settle(root).conflicts,1);assert.equal(collector.materialize(root).weeks[0].picks[0].settlement,null);
++  assert.equal(journal.readRecords(path.join(root,collector.JOURNAL))[0].hash,initial.hash);
++});
++test('ABBEYS public board uses existing Git-backed snapshot delivery with a strict filename',async()=>{
++  const {default:handler}=await import('../api/snapshot.mjs'),before=global.fetch;let calls=0;
++  const response=()=>({headers:{},setHeader(k,v){this.headers[k]=v;},end(body){this.body=body;}});
++  try {
++    global.fetch=async url=>{calls++;assert.equal(String(url),'https://raw.githubusercontent.com/daboli69/going-long/main/data/abbeys-board.json');return Response.json({schemaVersion:1,weeks:[]});};
++    const res=response();await handler({method:'GET',url:'/api/snapshot?file=abbeys-board.json'},res);assert.equal(res.statusCode,200);assert.equal(res.headers['X-Snapshot-Source'],'nightly');
++    const bad=response();await handler({method:'GET',url:'/api/snapshot?file=abbeys/../../secret'},bad);assert.equal(bad.statusCode,400);assert.equal(calls,1);
++  } finally {global.fetch=before;}
++});
++test('two concurrent collectors cannot create two official snapshots for a week',async t=>{
++  const {root}=temporarySource(t),script=path.resolve('research/abbeys/collect.cjs');
++  function run(){return new Promise(resolve=>{const child=cp.spawn(process.execPath,[script,'capture',root,'4','manual'],{stdio:'ignore'});child.on('close',resolve);});}
++  const exits=await Promise.all([run(),run()]);assert.equal(exits.filter(x=>x===0).length,1);assert.equal(exits.filter(x=>x!==0).length,1);
++  assert.equal(collector.verify(root).snapshots,1);
++});
++test('Monday exact-score grading uses frozen integers and appends actual score errors',t=>{
++  const {root,git}=temporarySource(t),file=path.join(root,'data/nfl_betting.json'),schedule=JSON.parse(fs.readFileSync(file));
++  const sunday=schedule.games.find(g=>g.week===4),monday={...sunday,game_id:sunday.game_id.replace('ATL_BUF','NE_NO'),away:'NE',home:'NO',kickoff:new Date(Date.parse(sunday.kickoff)+27*3600000).toISOString()};
++  schedule.games.push(monday);fs.writeFileSync(file,JSON.stringify(schedule));git(['add','data/nfl_betting.json']);git(['commit','-m','Monday schedule fixture']);
++  collector.capture(root,4,'manual');const before=collector.materialize(root).weeks[0].monday;
++  const later=Date.parse(monday.kickoff)+8*3600000;t.mock.timers.enable({apis:['Date'],now:later});
++  const resultFile=path.join(root,'data/results.json'),results=JSON.parse(fs.readFileSync(resultFile));results.generated_at=new Date(later-60000).toISOString();results.games[monday.game_id]={sport:'nfl',id:monday.game_id,away:monday.away,home:monday.home,kickoff:monday.kickoff,awayScore:17,homeScore:27};
++  fs.writeFileSync(resultFile,JSON.stringify(results));git(['add','data/results.json']);git(['commit','-m','Monday final fixture']);collector.settle(root);
++  const after=collector.materialize(root).weeks[0].monday;
++  assert.equal(after.predictedAway,before.predictedAway);assert.equal(after.predictedHome,before.predictedHome);
++  assert.equal(after.settlement.awayAbsoluteError,Math.abs(17-before.predictedAway));assert.equal(after.settlement.homeAbsoluteError,Math.abs(27-before.predictedHome));
++});
++test('real-sized public source receipts verify beyond Node default one-MiB child-output buffer',t=>{
++  const {root,git}=temporarySource(t),file=path.join(root,'data/nfl_betting.json'),schedule=JSON.parse(fs.readFileSync(file));
++  schedule.ignoredProviderPayload='x'.repeat(1500000);fs.writeFileSync(file,JSON.stringify(schedule));git(['add','data/nfl_betting.json']);git(['commit','-m','large public source fixture']);
++  collector.capture(root,4,'manual');assert.equal(collector.verify(root).snapshots,1);
++});
+diff --git a/tests/betting.test.cjs b/tests/betting.test.cjs
+index f435754c39ac694e0e07693124e194bfec654d86..c8ed6390215fbe4f9f52eab47dd383a6e57af9ba 100644
+--- a/tests/betting.test.cjs
++++ b/tests/betting.test.cjs
+@@ -305 +305 @@ test('Betting navigation promotes GOING SCORE and nests specialist tools',t=>{
+-  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','DFS','Cheatsheets','Parlays','GOING Score','Jackpot','Signals']);
++  assert.deepEqual([...w.document.querySelectorAll('#btTabGroup button')].map(b=>b.textContent),['Today','Markets','Games','DFS','Cheatsheets','Parlays','GOING Score','Jackpot','ABBEYS','Signals']);
+@@ -313,0 +314,3 @@ test('Betting navigation promotes GOING SCORE and nests specialist tools',t=>{
++  const abbeys=w.document.querySelector('[data-section="abbeys"]');assert.ok(abbeys.closest('.bt-more-tools'),'ABBEYS preserves the approved nine-tool layout');
++  abbeys.click();assert.equal(a.BET.tab,'abbeys');assert.equal(w.document.querySelector('#btAbbeysPanel').hidden,false);assert.match(w.location.search,/tab=abbeys/);
++  w.document.querySelector('#btSportGroup [data-sport="ncaa"]').click();assert.equal(abbeys.hidden,true);assert.equal(w.document.querySelector('#btAbbeysPanel').hidden,true);assert.equal(a.BET.tab,'games');
