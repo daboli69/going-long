@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261004-103742-new-reference-ui-manual-a` — user-requested manual reference implementation; no manual15min limit, one MANAGER/UIUX/BUILDER/QA agent, $0. Scheduled cycles retain their existing independent15min limits and schedule.
-Captured production base `72fbd52f4c8d119812a545be6b4aacb7c3b342e4`; review base `e514148c74d8622bfb0581d93f8c0127084b2e03`. Production `3def63b3ba9381b356632ceeaf14dd9b869841ca` pushed/remote-verified; Vercel deployment77hhWDLaJT7CdbQKQitqG98VaHxe succeeded. Completion/receipt is recorded after this commit, never with its own SHA.
+Captured production base `72fbd52f4c8d119812a545be6b4aacb7c3b342e4`; review base `e514148c74d8622bfb0581d93f8c0127084b2e03`. Production `3def63b3ba9381b356632ceeaf14dd9b869841ca` pushed/remote-verified; Vercel deployment77hhWDLaJT7CdbQKQitqG98VaHxe succeeded. Review completion `e21d17b960393e2a371e92cbd75cbb67cde11edd` published/remote-verified. This PROGRESS-only receipt pins that completion; its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 
@@ -70,7 +70,7 @@ Captured production base `72fbd52f4c8d119812a545be6b4aacb7c3b342e4`; review base
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- Manual UI implementation and production publication verified; complete review/receipt, then release only recorded mutex owner `20261004-new-reference-ui-manual-a`. Keep clean source/publication worktrees for recovery; primary user changes remain untouched.
+- Manual UI implementation, live production and review completion verified; receipt records the completion SHA, then release only recorded mutex owner `20261004-new-reference-ui-manual-a`. Keep clean source/publication worktrees for recovery; primary user changes remain untouched.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
