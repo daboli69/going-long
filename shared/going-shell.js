@@ -4,7 +4,7 @@
  if(document.getElementById('going-shell'))return;
  document.body.dataset.goingWorkspace=workspace;
  const assetRoot=new URL('.',script.src);
- for(const name of ['design-tokens.css','consumer-ui.css','visual-system.css','visual-research-cards.css','visual-pages.css']){const link=document.createElement('link');link.rel='stylesheet';link.href=new URL(name,assetRoot).href;document.head.append(link);}
+ for(const name of ['design-tokens.css','consumer-ui.css','visual-system.css','visual-research-cards.css','visual-pages.css',...(workspace==='long'?['reference-workspace.css']:[])]){const link=document.createElement('link');link.rel='stylesheet';link.href=new URL(name,assetRoot).href;document.head.append(link);}
  const names={home:'',long:'LONG',yard:'YARD',results:'LONG',roster:'LONG'};
  const shell=document.createElement('div');shell.id='going-shell';shell.setAttribute('role','banner');
  const links=[['home','Home','/'],['long','Football','/long/?mode=betting'],['yard','Baseball','/yard/?mode=betting'],['roster','Players','/players/'],['results','Results','/results/']];
