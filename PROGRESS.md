@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261004-170124-ranking-evening-a` — scheduled17:00 exploratory research milestone; one MANAGER/MODEL RESEARCH/QA agent, independent15min limit, $0.
-Captured production/main base `3def63b3ba9381b356632ceeaf14dd9b869841ca` unchanged; review base `ed32fff6fba91fcbe9f98aed23ba761b044f6e29`. No application commit/deployment; completion/receipt publication pending.
+Captured production/main base `3def63b3ba9381b356632ceeaf14dd9b869841ca` unchanged; review base `ed32fff6fba91fcbe9f98aed23ba761b044f6e29`. No application commit/deployment. Completion `57d004fb76a04377efd3a1b0e089e8401ed4c248` published/remote-verified. This PROGRESS-only receipt pins that completion; its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 
@@ -77,7 +77,7 @@ Captured production/main base `3def63b3ba9381b356632ceeaf14dd9b869841ca` unchang
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- **20261004-170124-ranking-evening-a:** collection, settlement, preservation and Node checks verified; publishing completion/PROGRESS-only receipt, then releasing only this recorded lock owner.
+- **20261004-170124-ranking-evening-a:** research and completion publication verified; no implementation remains. Publish this PROGRESS-only receipt, verify its remote SHA, then release only this recorded lock owner.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
