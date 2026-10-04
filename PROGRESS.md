@@ -1,8 +1,12 @@
 # Progress
-Cycle: `20261004-080145-ranking-primary-a` — independent scheduled08:00ET primary window, maximum15min active work; MANAGER/MODEL RESEARCH/QA, one agent.
-Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured review base `427a42ee34d7f781b5457b903849a20cab4d7465`. Review completion `da1c7f6b880126bbfb88ae0d98aa162bf1dcb8f4` published and remote-verified. This PROGRESS-only receipt pins that completion; its own SHA is reported externally, never embedded in itself.
+Cycle: `20261004-100115-ranking-exploratory-a` — independent scheduled10:00ET exploratory window, maximum15min active work; MANAGER/MODEL RESEARCH/QA, one agent.
+Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured review base `4b25016a93a09a4c36a354d27a6575e8ffc97c53`. Completion/receipt pending publication.
 
 ## Completed
+- **Selected10:00 milestone:** actual scheduled decision-time observation over minor ABBEYS punctuation polish or separate DFS/paired-C work. Recent product work remains live; actual full-pool measurement cannot be replayed later. Acceptance: complete12scopes/all policies/ranks/top3/top10/exclusions, actual slot/source hashes, old bytes/modes preserved, public settlement and verified receipt within15min. One agent; no global model change.
+- **Frozen10:02:44.930EDT /14:02:44.930Z:**22,681rows/1,563eligible, hash591c30ea4291c48b1a813c820088acd2b8f49c90b87fa778455a3b75e46a4b14 at clean049b5a3. NFLToday1,479/settleable1,239; NCAA0eligible preserved.10AM exploratory, distinct from08:00primary, no catchup. Saved quote ages804.582–864.016min,0fresh<=5m; no actionable-price claim/provider rescue.
+- **Verified:**42new immutable files/1,251,181bytes;191records/7snapshots/2segments. All149previous blobs/modes/4,552,032bytes preserved; complete pool/rank replay and settlement additions0. Node381/381 passes. Initial missing local jsdom stopped before writes; reused existing node_modules junction, no install/spend. Research artifacts only; app/Python/builds unchanged, no performance/ROI/CLV/holdout aggregate/fit/promotion or scheduler change.
+- Prior08:00 primary completion da1c7f6b880126bbfb88ae0d98aa162bf1dcb8f4 and receipt4b25016a93a09a4c36a354d27a6575e8ffc97c53 remain recorded; snapshot7aa293e0095375b8c3877b12a2a7540e361d08ca55f4cf112325362c839757f4 unchanged.
 - **Selected08:00 milestone:** registered primary decision-time capture over small ABBEYS punctuation/UI polish and new paired-C/DFS implementation. Today’s02:00 is exploratory and recent manual product advances remain live; primary measurement cannot be recreated later. Acceptance: actual slot/full pools/exclusions/12scopes/all ranks/top3/top10, immutable sources/old bytes/modes, public settlement, verified receipt within15min. One agent, no global model change.
 - **Frozen actual08:02:41.359EDT /12:02:41.359Z:**24,186rows/1,660eligible, hash7aa293e0095375b8c3877b12a2a7540e361d08ca55f4cf112325362c839757f4 at clean049b5a3; first registered primary-window observation, Oct3–23diagnostic stage, not untouched confirmation/backfill. NFLToday1,576/Today-settleable1,314; NCAA0eligible preserved. Quotes684.523–743.956min old,0<=5min; saved public-Git research, no actionable-price claim/provider rescue.
 - **Verified:** one34,510byte final manifest reuses preserved complete chunks;149records/6snapshots/2segments total. All148prior blobs/modes/4,517,522bytes preserved; settlement additions0. Node381/381 and collector complete-pool/rank/chronology/source/version/integrity checks pass. Research artifacts only; no app/Python/build change, provider calls, fit/ROI/CLV/holdout reading or promotion; production and scheduler unchanged.
@@ -59,7 +63,7 @@ Production `049b5a344c7e0dff9d886569e018fabcd5e950ae` **unchanged**; captured re
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
--08:00 primary milestone/completion verified; receipt pins the completed result. Release only mutex owner `20261004-080145-ranking-primary-a` after this receipt publication. Future runs retain independent15min/same gates; no automation change.
+-10:00 exploratory milestone verified; completion/receipt pending. Release only mutex owner `20261004-100115-ranking-exploratory-a` after publication. Future runs retain independent15min/same gates; no automation change.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
