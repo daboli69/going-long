@@ -1,6 +1,6 @@
 # Progress
 Cycle: `20261003-225347-abbeys-manual-a` — user-requested manual ABBEYS implementation; no manual15min limit. MANAGER/BUILDER/QA + bounded FOOTBALL DATA/UI and MODEL RESEARCH specialists (maximum3total).
-Production base `2b3d85355c144017594b7b240a434571e57c5767` → `049b5a344c7e0dff9d886569e018fabcd5e950ae` **verified live**; review base `ba77d85859e34cfcb6a06ae7a8f5e566106e5481`. Completion/receipt publication recorded after final remote gates; a receipt never embeds its own SHA.
+Production base `2b3d85355c144017594b7b240a434571e57c5767` → `049b5a344c7e0dff9d886569e018fabcd5e950ae` **verified live**; review base `ba77d85859e34cfcb6a06ae7a8f5e566106e5481`. Review completion `b61a6fdd63c78fcf9dca6a44d80d568e3298b8a4` published and remote-verified. This PROGRESS-only receipt pins that completion; its own SHA is reported externally, never embedded in itself.
 
 ## Completed
 - **ABBEYS permanent product:** Football → NFL → More → ABBEYS, direct `/long/?mode=betting&tab=abbeys`; NFL-only Sunday >=09:30 ET and every Monday in the selected regular-season week. One frozen winner per game, final Monday point-score tiebreaker, compact expandable reasons/counterevidence/current injury context. Approved shared visual system/44px controls preserved; saved NCAA state cannot suppress the direct NFL route.
@@ -51,7 +51,7 @@ Production base `2b3d85355c144017594b7b240a434571e57c5767` → `049b5a344c7e0dff
 - Serious brainstorm retained saved-pick recheck, price-acceptance check, two-bet comparison and evidence-window lens; checklist implemented as the one close complement. Rejected invented game-script correlation and stale defensive leaderboard. Game-first/Score/Jackpot/Parlay workflows remain.
 
 ## Working
-- ABBEYS production is published; finalize exact review receipt and release only manual mutex owner `20261003-2210-abbeys-manual`. Future scheduled cycles remain independent15min, maximum3agents, same lock/$0/publication gates; no new/changed automation.
+- ABBEYS production/live checks and review completion are verified; receipt pins the completion. Release only manual mutex owner `20261003-2210-abbeys-manual` after receipt publication. Future scheduled cycles remain independent15min, maximum3agents, same lock/$0/publication gates; no new/changed automation.
 - Existing v1 collection remains primary08:00/other slots exploratory, no catchup. DiagnosticsOct3-23, untouchedOct24-Dec5, releaseDec6 noonET; policies/cutoffs/holdout remain locked.
 
 ## Problems
