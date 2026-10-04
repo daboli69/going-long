@@ -37,6 +37,25 @@ async function select(dom, group, dataAttribute, value) {
   await new Promise(resolve => dom.window.queueMicrotask(resolve));
 }
 
+test('header search ignores inactive-view fields and prioritizes the active football query', t => {
+  const { dom, doc, controls } = setup();
+  t.after(() => dom.window.close());
+  const inactive = doc.createElement('section');
+  inactive.hidden = true;
+  inactive.innerHTML = '<input type="search" id="inactiveSearch" value="private draft query">';
+  doc.body.prepend(inactive);
+  doc.querySelector('[data-v-search]').click();
+  assert.equal(doc.activeElement, controls.search);
+  assert.equal(controls.search.value, 'BUF');
+  assert.equal(doc.querySelector('#inactiveSearch').value, 'private draft query');
+  controls.search.closest('.going-search').hidden = true;
+  const active = doc.createElement('input');
+  active.type = 'search';
+  doc.body.append(active);
+  doc.querySelector('[data-v-search]').click();
+  assert.equal(doc.activeElement, active);
+});
+
 test('Score disclosure moves and restores the same live controls without losing state or listeners', async t => {
   const { dom, doc, controls } = setup(); t.after(() => dom.window.close());
   let changes = 0, toolClicks = 0;

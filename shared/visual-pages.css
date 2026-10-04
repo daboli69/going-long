@@ -1,4 +1,4 @@
-/* Approved Home geometry, 852px reference at 393 CSS px; actual routes stay live. */
+/* Approved Home geometry, 852px reference at 426 CSS px; actual routes stay live. */
 body[data-going-workspace=home] .visual-home{max-width:1180px;margin:auto;padding:0 11px 24px;color:var(--g-text,#f2f7fa)}
 body[data-going-workspace=home] .home-hero{position:relative;isolation:isolate;margin:0 -11px;padding:58px 20px 18px;min-height:286px;background:linear-gradient(90deg,#00111acc 0%,#00111a45 63%,transparent),url('/shared/visual-assets/football-hero.webp') center right/cover no-repeat}
 body[data-going-workspace=home] .home-wordmark{display:block;width:max-content;font-family:var(--v-display,"GOING Display",Impact,sans-serif);font-size:83px;font-style:italic;font-weight:950;line-height:.91;letter-spacing:-4px;display:inline-block}

@@ -198,6 +198,101 @@
   .football-cheatsheets .gcs-card-top .g-team-marks { gap: 4px; }
   .football-cheatsheets .gcs-card-top>.gcs-pill { margin-left: auto; }
 }
+/* Second aligned reference pass: keep Filters beside the sheet selector,
+ * then the role conclusion and a full-width search. Existing controls/labels
+ * remain live; the search's explicit aria-label supplies its accessible name.
+ * Fixed touch heights intentionally exceed the screenshot's tiny hit areas.
+ */
+@media(max-width:760px) {
+  body[data-going-workspace=long] .football-cheatsheets .gcs-workspace {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 78px;
+    gap: 7px 8px;
+    align-items: start;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-mobile-nav {
+    grid-column: 1;
+    grid-row: 1;
+    margin: 0;
+    gap: 2px;
+    font-size: 10px;
+    line-height: 1.3;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-mobile-nav select {
+    min-height: 44px;
+    height: 44px;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-heading {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin: 0;
+    gap: 0;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-heading h2 {
+    margin: 4px 0 3px;
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-heading p {
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.4;
+    max-width: none;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-toolbar { display: contents; }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-search {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    display: grid;
+    gap: 0;
+    font-size: 0;
+    line-height: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-search input {
+    min-height: 44px;
+    height: 44px;
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-mobile-filter {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    min-height: 44px;
+    height: 44px;
+    padding: 7px 6px;
+    font-size: 12px;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-filter-fields.is-open {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    padding: 0;
+    gap: 7px;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-active-filters {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    margin: 0;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-results-head {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    margin: 0;
+    min-height: 44px;
+    font-size: 10px;
+  }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-content { grid-column: 1 / -1; grid-row: auto; min-width: 0; }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-method { grid-column: 1 / -1; grid-row: auto; margin: 0; }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-row>summary { padding: 9px 11px; gap: 7px; }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-card-top { gap: 5px 8px; }
+  body[data-going-workspace=long] .football-cheatsheets .gcs-row-values { gap: 10px; }
+}
 @media(max-width:374px) {
   #btScorePanel .score-card { grid-template-columns: 22px minmax(0,1fr) 78px; gap: 6px; }
   #btScorePanel .score-card>.score-player+div { flex-wrap: wrap; justify-content: center; gap: 3px; }

@@ -78,8 +78,14 @@ test('duplicate/conflicting source games, invalid teams/counts and uncompleted c
 });
 test('actual official artifact and inline attachProjection match the primary evidence pool across the main slate',t=>{
  const snapshot=require('../data/dfs_team_touchdowns.json'),h=require('../data/history.json').betting,c=require('../data/football_context.json'),roster=require('../data/nfl_roster.json'),inj=require('../data/injury_context.json');
- const liveNow=Date.parse(snapshot.generatedAt)+60000,injuryContext=injuries.createContext(roster,h.profiles,liveNow,inj);
+ // Independent public inputs refresh at different times. The deterministic
+ // decision clock must follow every input, not just the older team receipt.
+ // Production's future/stale checks still apply to all unmodified timestamps.
+ const inputTimes=[snapshot.generatedAt,h.generated_at,c.generated_at,roster.generated_at,inj.generated_at].map(Date.parse);
+ assert.ok(inputTimes.every(Number.isFinite),'each public input needs a valid timestamp');
+ const liveNow=Math.max(...inputTimes)+60000,injuryContext=injuries.createContext(roster,h.profiles,liveNow,inj);
  const slate=h.games.nfl.filter(g=>g.kickoff.startsWith('2026-10-04')&&Date.parse(g.kickoff)>=Date.parse('2026-10-04T17:00:00Z')&&Date.parse(g.kickoff)<Date.parse('2026-10-04T23:00:00Z')).map(g=>({...g,gameId:g.id}));
+ assert.ok(slate.length&&slate.every(g=>Date.parse(g.kickoff)>liveNow),'the parity check must remain pregame');
  const vm=require('node:vm'),path=require('node:path'),source=require('../research/today-ranking/collect.cjs').openSource(path.resolve(__dirname,'..'),new Date(liveNow).toISOString());t.after(()=>source.dom.window.close());
  source.w.dfsFixture={history:h,context:c,injuryContext};
  vm.runInContext("BET.history=dfsFixture.history;BET.context=dfsFixture.context;BET.injuryContext=dfsFixture.injuryContext;globalThis.dfsInlineModel=(profile,market,salary)=>attachProjection({player:profile.name,team:profile.team,market,kickoff:salary.kickoff,eventTeams:[salary.team,salary.opponent],source:'projection'},buildProfileIndex(BET.history));",source.context);
