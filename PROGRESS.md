@@ -1,5 +1,30 @@
 # Progress
 
+Cycle `20261005-080207-ranking-tracker-a` — scheduled 08:00 ET; started 08:02:17, capture actual 08:03:15.658 (no backdating). Main base `81f9c4a187cb79b08409e0b3836c1bbe69966ca6`; review base `168dbf6cb07c8d9eb5179a9dbc420e4805e56fc7`; production `9e219914ede7efc822e23548064c0d3867b5e662`; tested tree `598244c22e605f298ac6f91329b9854350fd9950`.
+
+## Completed
+
+- Application advancement: Slate Breaker refresh now reuses its validated frozen forecast and grades complete official finals instead of rebuilding September 20 from today's rolling player pool. Prior existing data run failed with 0/8 configured games. This results blocker won over cosmetic work because it prevents real archive updates. Acceptance: exact saved 263-selection/8-game payload reused without invoking model builder; mismatched/incomplete archive fails closed; new offers cannot freeze after kickoff; future builder passes config correctly. No models, probabilities, offer terms, Confidence labels or UI styles changed.
+- Required primary 08:00 observation: snapshot `44af66e1fe0bfe657c60becd76ad9d1ffd60f38396bad9127eacfeeff420cdfb`; 2,736 rows/155 eligible. Eight append-only settlements. Integrity verify: 220 records/9 snapshots/3 segments; all 202 prior journal blobs/modes (5,944,281 bytes) preserved, 18 new files. No aggregate holdout evaluation or promotion.
+- Node408/408, Python109/109, production build and Vercel build passed offline. Real archive reuse verified unchanged, SHA256 `54124383c6a745a00ecefbca826af287296618c56949191bd1e5c0fd8332d5cc`. Exact two-path patch replayed at production base to tested tree. Explicit normal main push and remote SHA verified; existing Vercel commit status success at 08:12:09 ET (deployment 6ZEkt5wLi9Q8qRKXHg6TmaLvj4hN); existing data refresh and application CI still running. Latest refreshed results not yet verified live. No new deployment or provider calls locally; existing provider allowance confirmed by Travis at $0 additional.
+- Rollback: on fresh main-based codex checkout, revert `9e219914ede7efc822e23548064c0d3867b5e662`, rerun checks; retain frozen forecast and research journal. Review deployment exclusion remains false.
+
+## Working
+
+- Complete review publication and receipt; observe existing deployment/data job within cycle budget.
+
+## Problems
+
+- Refreshed results still require complete public play-by-play and official finals; repair does not manufacture missing outcomes. Build retained existing football-hero runtime-resolution warning. Backend-only change; unchanged UI route/mobile tests passed, no new screenshot claim.
+
+## Next
+
+- Prospectively capture qualitative Confidence readiness after the separately preserved patch receives its pending fresh-baseline publication approval. Continue tracker coverage work; do not reconstruct historical labels or repeat completed work.
+
+## Needs Travis
+
+- Prior Confidence publication approval remains pending; it was not mixed into this scheduled cycle. No action needed for this bounded archive repair.
+
 Cycle `20261005-063048-tracker-confidence-resume-a` — manual continuation, tracker/results + evidence audit; production `4a27a31b98a98732343e102e43d622c15f3eb302`; captured production base `28725471bb45df08136648602de67c4d63c5f734`; review base `6644108527209fabc231100753783e553b32a90e`. Completion `7b28df9c63cf9ecd7fb543d0bb69de44d1d04b5e` published/remote-verified; this receipt pins completion only. Its own SHA is reported externally.
 
 ## Completed
