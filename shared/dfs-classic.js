@@ -72,7 +72,7 @@ const athlete=p=>p.athleteId?String(p.athleteId):`${matchName(p.name)}|${p.team}
 const td=p=>p.position==='DST'?0:p.tdMean;
 function context(pool,options){
  const errors=[],byId=new Map(),now=options.now==null?Date.now():Date.parse(options.now),excluded=new Set((options.excludedIds||[]).map(String)),locks={...options.lockedSlots},incumbent=options.incumbentLineup||[],mode=options.mode||'best';
- if(!['best','throne'].includes(mode))errors.push('Unsupported DFS mode.');
+ if(!['best','throne','tournament'].includes(mode))errors.push('Unsupported DFS mode.');
  if(!Number.isFinite(now))errors.push('Invalid current time.');
  for(const p of pool||[]){const id=String(p.id);if(byId.has(id))errors.push('Duplicate DraftKings IDs in player pool.');byId.set(id,p);}
  // Game locks are immutable only when supplied with an existing complete roster.
@@ -118,7 +118,9 @@ function validateLineup(lineup,pool,options={}){
  if(games.size<2)errors.push('Lineup must represent at least two NFL games.');
  return {valid:errors.length===0,errors,...result};
 }
-function compare(a,b,mode){return (mode==='throne'?b.tdMean-a.tdMean:0)||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
+function tournamentEngine(){return root.GoingDfsTournament||(typeof require==='function'?require('./dfs-tournament.js'):null);}
+function tournamentSum(players){const engine=tournamentEngine();return players.reduce((sum,p)=>sum+(engine?.objective(p)??p.projection),0);}
+function compare(a,b,mode){return (mode==='tournament'?(b.tournamentTotal??=tournamentSum(b.players))-(a.tournamentTotal??=tournamentSum(a.players)):mode==='throne'?b.tdMean-a.tdMean:0)||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
 function thresholdEngine(){return root.GoingDfsThreshold||(typeof require==='function'?require('./dfs-threshold.js'):null);}
 function thresholdCompare(a,b){return b.tdThreshold.tailMass-a.tdThreshold.tailMass||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
 function optimize(pool,options={}){
@@ -190,7 +192,7 @@ function optimize(pool,options={}){
  }else states.sort((a,b)=>compare(a,b,c.mode));
  for(const state of states){
   const lineup=state.players.map((p,i)=>({...p,slot:SLOTS[i],slotIndex:i})),validation=validateLineup(lineup,pool,options);
-  if(validation.valid)return {lineup,...totals(lineup),tdThreshold:state.tdThreshold||null,reason:null,errors:[],heuristic:true,method:scenario?'Eight-plus rushing/receiving TD scenario mass; DFS points break ties. Finite shared team budgets, independent teams; bounded uncalibrated scenario search.':c.mode==='throne'?'Expected rushing/receiving TD sum; DFS points break ties. Bounded search; no calibrated threshold probability.':'Projected DraftKings point sum. Bounded search; global optimum is not guaranteed.'};
+  if(validation.valid)return {lineup,...totals(lineup),tournament:c.mode==='tournament'?tournamentEngine()?.evaluate(lineup,{contest:'classic',site:'draftkings'}):null,tdThreshold:state.tdThreshold||null,reason:null,errors:[],heuristic:true,method:scenario?'Eight-plus rushing/receiving TD scenario mass; DFS points break ties. Finite shared team budgets, independent teams; bounded uncalibrated scenario search.':c.mode==='throne'?'Expected rushing/receiving TD sum; DFS points break ties. Bounded search; no calibrated threshold probability.':c.mode==='tournament'?'Historical scoring-spread proxy plus current projections; unknown upside falls back to projection. Not a joint lineup ceiling or contest-win forecast.':'Projected DraftKings point sum. Bounded search; global optimum is not guaranteed.'};
  }
  return failure('No independently valid lineup survived the search.');
 }
@@ -209,9 +211,9 @@ function alternatives(lineup,slotIndex,pool,options={}){
   const tdThreshold=scenario&&check.valid?engine.evaluate(replaced,scenario):null;
   if(check.valid&&(!scenario||tdThreshold.valid))results.push({player:p,lineup:replaced,salaryDelta:check.salaryUsed-baseline.salaryUsed,projectionDelta:check.projection-baseline.projection,tdMeanDelta:check.tdMean-baseline.tdMean,tdThreshold,tdThresholdDelta:scenario?tdThreshold.tailMass-baselineThreshold.tailMass:null,salaryRemaining:check.salaryRemaining});
  }
- results.sort((a,b)=>(scenario?b.tdThresholdDelta-a.tdThresholdDelta:c.mode==='throne'?b.tdMeanDelta-a.tdMeanDelta:0)||b.projectionDelta-a.projectionDelta||a.salaryDelta-b.salaryDelta||String(a.player.id).localeCompare(String(b.player.id)));
+ results.sort((a,b)=>(c.mode==='tournament'?tournamentSum(b.lineup)-tournamentSum(a.lineup):scenario?b.tdThresholdDelta-a.tdThresholdDelta:c.mode==='throne'?b.tdMeanDelta-a.tdMeanDelta:0)||b.projectionDelta-a.projectionDelta||a.salaryDelta-b.salaryDelta||String(a.player.id).localeCompare(String(b.player.id)));
  return {alternatives:results,errors:[]};
 }
-root.GoingDfsClassic={SLOTS,CAP,matchName,parseCsv,validateLineup,optimize,alternatives};
+root.GoingDfsClassic={SLOTS,CAP,matchName,kickoffET,parseCsv,validateLineup,optimize,alternatives};
 if(typeof module!=='undefined')module.exports=root.GoingDfsClassic;
 })(globalThis);

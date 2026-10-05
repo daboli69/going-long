@@ -33,7 +33,7 @@ test('DraftKings Showdown CPT and FLEX rows keep distinct IDs, exact salaries an
  const allenFlex=parsed.players.find(player=>player.name==='Josh Allen'&&player.showdownRole==='FLEX');
  assert.notEqual(allenCaptain.id,allenFlex.id);assert.equal(allenCaptain.salary,12000);assert.equal(allenFlex.salary,8000);
  const players=parsed.players.map(player=>({...player,projection:athletes.find(athlete=>athlete.name===player.name).projection,sd:3}));
- const result=dfs.optimize(players,{site:'draftkings',contest:'showdown',captainId:allenCaptain.id,lockedIds:[allenCaptain.id],count:1,minUnique:1});
+ const result=dfs.optimize(players,{site:'draftkings',contest:'showdown',captainId:allenCaptain.id,lockedIds:[allenCaptain.id],now:Date.parse('2026-10-03T17:00:00Z'),count:1,minUnique:1});
  assert.equal(result.lineups.length,1,result.reason);const lineup=result.lineups[0],captain=lineup.players[0];
  assert.equal(captain.id,allenCaptain.id);assert.equal(captain.slot,'CPT');assert.equal(captain.salary,12000);assert.equal(captain.multiplier,1.5);
  assert.equal(lineup.salary,46000);assert.equal(lineup.projection,133.5);
@@ -138,4 +138,14 @@ test('affordable showdown candidates survive score cutoff with multiplier lock',
   const result=dfs.optimize(players,{site,contest:'showdown',count:1,beamWidth:8,captainId:'value0'});
   assert.equal(result.lineups.length,1,result.reason);assert.equal(result.lineups[0].players[0].id,'value0');assert.ok(result.lineups[0].salary<=dfs.RULES[site].cap);
  }
+});
+
+
+test('tournament build excludes object OUT/roster codes and started players without fake uncertainty fallback',()=>{
+ const players=[];for(let i=0;i<9;i++)players.push({id:'t'+i,name:'Fixture '+i,position:i===0?'QB':'WR',team:i<5?'BUF':'MIA',opponent:i<5?'MIA':'BUF',game:'BUF@MIA',salary:4000,projection:20-i,kickoff:'2026-10-05T23:30:00Z'});
+ players[8].upside={value:100,source:'observed-partial-fantasy-residual-v1',n:12,currentGames:4,asOf:'2026-10-05T22:00:00Z'};
+ const opts={contest:'showdown',mode:'tournament',count:1,now:Date.parse('2026-10-05T23:00:00Z')};
+ const result=dfs.optimize(players,opts);assert.equal(result.lineups.length,1);assert.ok(result.lineups[0].players.some(p=>p.id==='t8'));
+ for(const injury of [{state:'out'},'INA','RES']){players[8].injury=injury;assert.ok(!dfs.optimize(players,opts).lineups[0].players.some(p=>p.id==='t8'));}delete players[8].injury;
+ assert.equal(dfs.optimize(players,{...opts,now:Date.parse('2026-10-06T00:00:00Z')}).lineups.length,0);
 });

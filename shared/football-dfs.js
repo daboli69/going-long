@@ -22,6 +22,7 @@ function csvRows(text){
 }
 function value(record,...keys){for(const key of keys){const hit=Object.keys(record).find(header=>header.toLowerCase()===key.toLowerCase());if(hit&&record[hit]!==undefined)return record[hit];}return '';}
 function gameTeams(raw){const match=String(raw||'').toUpperCase().match(/([A-Z]{2,4})\s*@\s*([A-Z]{2,4})/);return match?[canonicalTeam(match[1]),canonicalTeam(match[2])]:[];}
+function gameKickoff(raw){const m=String(raw||'').match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{1,2}):(\d{2})(AM|PM)\s+ET/i),classic=root.GoingDfsClassic||(typeof require==='function'?require('./dfs-classic.js'):null);return m&&classic?.kickoffET?classic.kickoffET(+m[1],+m[2],+m[3],+m[4],+m[5],m[6].toUpperCase()):null;}
 function parseSalaryCsv(text,requestedSite){
  const rows=csvRows(text);if(rows.length<2)return {site:requestedSite||null,players:[],errors:['No salary rows were found.']};
  const headers=rows[0].map(header=>header.trim().replace(/^\uFEFF/,'')),records=rows.slice(1).map(cells=>Object.fromEntries(headers.map((header,index)=>[header,(cells[index]||'').trim()])));
@@ -32,7 +33,7 @@ function parseSalaryCsv(text,requestedSite){
   const suppliedName=value(record,'Name','Nickname','Name + ID'),name=(suppliedName||`${value(record,'First Name')} ${value(record,'Last Name')}`.trim()).replace(/\s*\(\d+\)\s*$/,''),rawPosition=(value(record,'Position')||value(record,'Roster Position').split('/')[0]||'').split('/')[0].toUpperCase(),position=['D','DEF'].includes(rawPosition)?'DST':rawPosition,salary=Number(String(value(record,'Salary')).replace(/[$,]/g,'')),team=canonicalTeam(value(record,'TeamAbbrev','Team','Team Abbrev')),game=value(record,'Game Info','Game'),teams=gameTeams(game),opponent=canonicalTeam(value(record,'Opponent'))||(teams.find(candidate=>candidate!==team)||''),id=value(record,'ID','Id','Player ID')||norm(name)+'|'+team,rosterPosition=value(record,'Roster Position').toUpperCase(),showdownRole=site==='draftkings'&&['CPT','FLEX'].includes(rosterPosition)?rosterPosition:null;
   const siteProjection=Number(value(record,'AvgPointsPerGame','FPPG','FPPG Played'))||null,injury=value(record,'Injury Indicator','Injury Status','Injury');
   if(!name||!finite(salary)||salary<=0||!['QB','RB','WR','TE','DST','K'].includes(position))continue;
-  players.push({id:String(id),name,position,salary,team,opponent,game,siteProjection,injury,showdownRole,sourceRow:record});
+  players.push({id:String(id),name,position,salary,team,opponent,game,kickoff:gameKickoff(game),siteProjection,injury,showdownRole,sourceRow:record});
  }
  const duplicateIds=new Set(),seen=new Set();for(const player of players){if(seen.has(player.id))duplicateIds.add(player.id);seen.add(player.id);}
  return {site,players:players.filter((player,index)=>players.findIndex(other=>other.id===player.id)===index),errors:[...(players.length?[]:['No supported NFL players were found in the CSV.']),...(duplicateIds.size?[`${duplicateIds.size} duplicate player IDs were collapsed.`]:[])]};
@@ -52,11 +53,11 @@ function correlation(lineup,mode){
  const stack=lineup.some(player=>['WR','TE'].includes(player.position)&&player.team===qb.team),bringBack=lineup.some(player=>['RB','WR','TE'].includes(player.position)&&player.team===qb.opponent);
  return (stack?(mode==='ceiling'?1.1:.35):mode==='ceiling'?-1:0)+(stack&&bringBack&&mode==='ceiling'?.45:0)-1.25*opponentConflict(lineup);
 }
-function objective(player,mode){const projection=player.projection||0,sd=finite(player.sd)?player.sd:projection*.32;return mode==='floor'?projection-.18*sd:mode==='ceiling'?projection+.28*sd:projection;}
-function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false,contest='classic',lockedIds=[],captainId=null}={}){
+function objective(player,mode){const projection=player.projection||0,sd=finite(player.sd)?player.sd:projection*.32;return mode==='tournament'?(root.GoingDfsTournament||(typeof require==='function'?require('./dfs-tournament.js'):null))?.objective(player)??projection:mode==='floor'?projection-.18*sd:mode==='ceiling'?projection+.28*sd:projection;}
+function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false,contest='classic',lockedIds=[],captainId=null,now=Date.now()}={}){
  const rule=RULES[site];if(!rule)return {lineups:[],reason:'Unsupported DFS platform.'};
  const showdown=contest==='showdown',multiplierSlot=site==='fanduel'?'MVP':'CPT',maxFromTeam=showdown?5:rule.maxTeam,slots=showdown?[multiplierSlot,'FLEX','FLEX','FLEX','FLEX','FLEX']:projectionOnly?rule.slots.filter(slot=>slot!=='DST'):rule.slots;
- const available=players.filter(player=>finite(player.projection)&&player.projection>0&&(projectionOnly||(finite(player.salary)&&player.salary>0))&&!['o','out','ir'].includes(String(player.injury||'').toLowerCase())&&!player.unavailable);
+ const available=players.filter(player=>finite(player.projection)&&player.projection>0&&(projectionOnly||(finite(player.salary)&&player.salary>0))&&!['o','out','ir','ina','res','dev','cut','ret','exe','inactive','reserve','doubtful'].includes(String(typeof player.injury==='object'?player.injury?.state:player.injury||'').toLowerCase())&&!player.unavailable&&(!player.kickoff||Date.parse(player.kickoff)>Number(now)));
  if(showdown&&new Set(available.map(player=>String(player.game||'').trim()).filter(Boolean)).size>1)return {lineups:[],reason:'Single-game lineups require players from one game.'};
  const availableById=new Map(available.map(player=>[String(player.id),player])),requestedLocks=new Set((lockedIds||[]).map(String));if(captainId!=null)requestedLocks.add(String(captainId));
  const unavailableLocks=[...requestedLocks].filter(id=>!availableById.has(id));if(unavailableLocks.length)return {lineups:[],reason:`${unavailableLocks.length} selected player${unavailableLocks.length===1?' is':'s are'} unavailable on this slate.`};
@@ -103,7 +104,7 @@ function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5
   }
   if(!states.length)return {lineups:[],reason:projectionOnly?'No position-valid offensive core could be generated.':`No legal lineup fits the ${rule.label} salary cap.`};
  }
- const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:state.base+correlation(state.players,mode),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
+ const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:state.base+(mode==='tournament'?0:correlation(state.players,mode)),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
  const lineups=[];for(const candidate of ranked){const ids=new Set(candidate.players.map(player=>player.id)),different=lineups.every(lineup=>lineup.players.filter(player=>!ids.has(player.id)).length>=minUnique);if(different)lineups.push(candidate);if(lineups.length>=Math.max(1,Math.min(20,count)))break;}
  return {lineups,reason:lineups.length?null:'No sufficiently distinct roster ideas were found.',eligible:available.length,rule:{...rule,slots},projectionOnly,contest,locked:[...requestedLocks]};
 }

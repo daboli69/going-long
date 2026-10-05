@@ -17,6 +17,7 @@ function setup(t,parlaySaved=null){
   const context=dom.getInternalVMContext();
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-score.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-injuries.js'),'utf8'),context);
+  for(const f of ['dfs-availability','dfs-upside','dfs-tournament','dfs-journal','dfs-classic','dfs-evidence'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/'+f+'.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-dfs.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-slate.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/score-tracker.js'),'utf8'),context);
@@ -751,4 +752,11 @@ test('Editable parlay survives reload while restored stale/tampered legs cannot 
 test('An open parlay swap chooser survives background refresh with stable contract buttons and keyboard focus',async t=>{
  const {api:a,w,context}=parlayFixture(t);await a.renderFootballParlays();w.document.querySelector('[data-parlay-edit="swap"]').click();const button=w.document.querySelector('[data-parlay-choice]'),key=button.dataset.parlayChoice;button.focus();await a.renderFootballParlays();assert.equal(w.document.activeElement.dataset.parlayChoice,key);assert.ok(w.document.querySelector('[data-parlay-choice]'));assert.ok(vm.runInContext('PARLAY_ALTERNATIVES.size',context)<=6);
  w.document.querySelector('[data-parlay-choice]').click();assert.equal(w.document.querySelectorAll('[data-parlay-choice]').length,0);
+});
+
+
+test('DFS feed nonactive status wins over imported FPPG and stale generic ACT',t=>{
+ const {api:a,context}=setup(t); a.BET.history={profiles:{}};a.BET.roster={generated_at:'2026-09-09T10:00:00Z',players:[{name:'Reserve One',team:'NO',position:'RB',roster_status:'ACT'}]};a.BET.injuryLearning={current_players:{'NO|reserveone':{name:'Reserve One',team:'NO',position:'RB',roster_status:'RES'}}};
+ vm.runInContext("DFS_STATE.source='csv';DFS_STATE.salaryPlayers=[{id:'res',name:'Reserve One',team:'NO',position:'RB',siteProjection:20,salary:5000,injury:''},{id:'out',name:'Imported Out',team:'ATL',position:'WR',siteProjection:25,salary:5000,injury:'O'}];",context);
+ const pool=vm.runInContext('dfsPlayerPool()',context);assert.equal(pool.length,2);assert.ok(pool.every(p=>p.unavailable));assert.ok(pool.every(p=>p.projection===null));assert.ok(pool.every(p=>p.source==='Unavailable'));
 });

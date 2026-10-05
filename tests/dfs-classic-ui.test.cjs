@@ -22,8 +22,8 @@ function mount(t,{buildPool=enrich,buildScenario=()=>({version:'team-budget-v1',
  Object.defineProperty(w.crypto,'subtle',{value:webcrypto.subtle});w.TextEncoder=TextEncoder;
  w.fixtureNow=NOW;w.Date=class extends Date{constructor(...args){super(...(args.length?args:[w.fixtureNow]));}static now(){return w.fixtureNow;}};
  Object.defineProperty(w,'scrollY',{get:()=>240});w.scrollTo=opts=>scroll.push(opts);
- for(const file of ['shared/dfs-threshold.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
- w.GoingDfsClassicUI.mount(w.document.getElementById('fixture'),{generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool,buildScenario});
+ for(const file of ['shared/dfs-threshold.js','shared/dfs-journal.js','shared/dfs-tournament.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
+ w.GoingDfsClassicUI.mount(w.document.getElementById('fixture'),{defaultMode:'throne',generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool,buildScenario});
  t.after(()=>w.close());
  return {w,d:w.document,scroll};
 }
@@ -97,3 +97,9 @@ test('overlapping imports cannot mix salary fingerprint with a different slate',
 test('evidence builder exceptions during rebuild report a recoverable failure',async t=>{let broken=false;const ui=mount(t,{buildPool:rows=>{if(broken)throw Error('Synthetic evidence builder failure');return enrich(rows);}});await load(ui);confirm(ui);broken=true;click(ui,'#dk-generate');await waitFor(()=>/Synthetic evidence builder failure/.test(ui.d.getElementById('dk-status').textContent));assert.match(ui.d.getElementById('dk-status').textContent,/Synthetic evidence builder failure/);assert.equal(ui.d.getElementById('dk-generate').disabled,false);broken=false;await generate(ui);assert.equal(ids(ui).length,9);});
 
 test('zero eight-TD scenario support is disclosed instead of pretending the target is backed',async t=>{const ui=mount(t,{buildScenario:()=>({version:'team-budget-v1',teams:{BUF:{counts:[0,0,0],denominator:20},KC:{counts:[0,0,0],denominator:20}}})});await load(ui);confirm(ui);await generate(ui);assert.equal(ids(ui).length,9);assert.match(ui.d.getElementById('dk-status').textContent,/no eight-TD support/);assert.match(ui.d.getElementById('dk-status').textContent,/not treat this as an eight-TD recommendation/);});
+
+
+test('tournament UI explains construction, unknown leverage and progressively exposes the full pool',async t=>{const ui=mount(t);await load(ui,officialShape({QB:3,RB:16,WR:25,TE:6,DST:4}));confirm(ui);click(ui,'#dk-tournament');await generate(ui);assert.equal(ids(ui).length,9);assert.match(ui.d.body.textContent,/Your tournament thesis/);assert.match(ui.d.body.textContent,/Ownership.leverage unknown/);assert.equal(ui.d.querySelectorAll('#dk-pool-list article').length,40);click(ui,'[data-act="more-pool"]');assert.equal(ui.d.querySelectorAll('#dk-pool-list article').length,54);});
+
+
+test('pregame lineup can be frozen without modifying the lineup and exports stay separate from betting journals',async t=>{const ui=mount(t);await load(ui);confirm(ui);click(ui,'#dk-tournament');await generate(ui);const before=ids(ui);click(ui,'[data-act="freeze"]');assert.match(ui.d.getElementById('dk-status').textContent,/Pregame DFS lineup frozen/);assert.deepEqual(ids(ui),before);const r=ui.w.GoingDfsJournal.read(ui.w.localStorage);assert.equal(r.ok,true);assert.equal(r.receipts.length,1);assert.equal(r.receipts[0].mode,'tournament');assert.equal(r.receipts[0].players.length,9);});

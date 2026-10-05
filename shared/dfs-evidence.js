@@ -50,7 +50,9 @@ function buildPool(salaries,{profiles={},context=null,injuryContext=null,generat
   if(!injuryContext?.fresh)base.concerns.push('Roster/injury snapshot is stale; final participation is not verified.');
   else base.concerns.push('Final game-day inactives and workload still need checking.');
   base.concerns.push('Count models are uncalibrated for multi-TD tails; no eight-TD lineup probability.');
-  return {...base,projection,tdMean,stats,unavailable:!finite(projection)||projection<=0,source:'Existing injury-adjusted GOING component models',injury,modelAgeHours:age(generatedAt,now),value:projection*1000/s.salary};
+  const upside=root.GoingDfsUpside?.observed(p,projection,{now,points,site:'draftkings'})||null;
+  if(upside)base.evidence.push(`Historical partial DFS scoring spread: ${upside.n} completed games (${upside.currentGames} current season); prior roles may differ.`);
+  return {...base,projection,tdMean,stats,upside,unavailable:!finite(projection)||projection<=0,source:'Existing injury-adjusted GOING component models',injury,modelAgeHours:age(generatedAt,now),value:projection*1000/s.salary};
  });
 }
 root.GoingDfsEvidence={buildPool,observedCounts,nameKey};if(typeof module!=='undefined')module.exports=root.GoingDfsEvidence;

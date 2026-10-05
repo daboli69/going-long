@@ -1,5 +1,7 @@
 # NFL DFS evidence and methodology
 
+October 5 update: [DFS tournament research v1](DFS_TOURNAMENT_RESEARCH.md) documents the new Classic/Captain research objective, observed scoring-spread proxy, DFS-only roster repair and separate voluntary pregame receipt journal. Existing mean projections and Touchdown Throne methodology below remain unchanged; this addition is not validation of tournament profitability.
+
 Audit: 2026-10-03, application/data base `4e5a165`. DFS is a separate product/research area; Champion/C1/C2, GOING Score and their prospective observations are unchanged. This document distinguishes available inputs from supported inference. Unit tests establish software behavior, not calibrated predictions or profitability.
 
 ## Contest and salary boundary

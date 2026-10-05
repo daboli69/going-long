@@ -82,3 +82,10 @@ test('representative 300-player pool search is bounded and returns a valid lineu
  const pool=fixture({QB:32,RB:70,WR:140,TE:40,DST:18});pool.forEach((p,i)=>{p.projection=8+(i%21);p.tdMean=(i%17)/20;p.salary=2500+(i%46)*100;});
  const start=performance.now(),result=dfs.optimize(pool,{now:NOW,mode:'throne',beamWidth:400});assert.equal(result.lineup.length,9);assert.ok(dfs.validateLineup(result.lineup,pool,{now:NOW,mode:'throne'}).valid);assert.ok(performance.now()-start<15000,'Bounded 300-player search should finish within 15 seconds.');
 });
+
+
+test('tournament objective distinguishes observed upside from median without relaxing any roster rules',()=>{
+ const pool=fixture();const first=pool.find(p=>p.position==='QB'),other=pool.filter(p=>p.position==='QB').at(-1);other.upside={value:75,source:'observed-partial-fantasy-residual-v1',n:12,currentGames:4,asOf:NOW};
+ const best=dfs.optimize(pool,{mode:'best',now:NOW}),tournament=dfs.optimize(pool,{mode:'tournament',now:NOW});assert.equal(best.lineup[0].id,first.id);assert.equal(tournament.lineup[0].id,other.id);assert.ok(dfs.validateLineup(tournament.lineup,pool,{mode:'tournament',now:NOW}).valid);assert.equal(tournament.tournament.ownership.status,'unknown');assert.equal(tournament.tournament.objective.jointCeiling,'not-estimated');
+ other.unavailable=true;assert.notEqual(dfs.optimize(pool,{mode:'tournament',now:NOW}).lineup[0].id,other.id);
+});
