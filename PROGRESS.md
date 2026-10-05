@@ -1,6 +1,6 @@
 # Progress
 
-Cycle `20261005-063048-tracker-confidence-resume-a` — manual continuation, tracker/results + evidence audit; production `4a27a31b98a98732343e102e43d622c15f3eb302`; captured production base `28725471bb45df08136648602de67c4d63c5f734`; review base `6644108527209fabc231100753783e553b32a90e`. Completion/receipt recorded after publication.
+Cycle `20261005-063048-tracker-confidence-resume-a` — manual continuation, tracker/results + evidence audit; production `4a27a31b98a98732343e102e43d622c15f3eb302`; captured production base `28725471bb45df08136648602de67c4d63c5f734`; review base `6644108527209fabc231100753783e553b32a90e`. Completion `7b28df9c63cf9ecd7fb543d0bb69de44d1d04b5e` published/remote-verified; this receipt pins completion only. Its own SHA is reported externally.
 
 ## Completed
 
