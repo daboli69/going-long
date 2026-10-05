@@ -200,3 +200,20 @@ test('Confidence results loader coalesces concurrent requests and retries after 
 test('inconsistent prices stay unvalidated and cannot expose a return as though a valid quote exists',()=>{
  const c=role({dec:9,odds:-110,ev:4});const e=assess(c,options);assert.equal(e.group,'support');assert.equal(e.validPrice,false);assert.equal(e.priceChecks[0].code,'price');const text=card(c,e,{label:'Over 55.5 Receiving yards',key:'x',teamLabel:x=>x,gameKey:'g'});assert.match(text,/No matched price/);assert.doesNotMatch(text,/Push-aware model return/);assert.match(text,/disabled title=/);
 });
+
+
+test('Recent prices filter changes displayed cards only, rejects invalid quotes and stays league-local',t=>{
+ const root=path.resolve(__dirname,'..'),s=openSource(root,at);t.after(()=>s.dom.window.close());
+ vm.runInContext(fs.readFileSync(path.join(root,'shared/football-confidence.js'),'utf8'),s.context);
+ s.w.fixture=[role({profileId:'fresh',updatedAt:at}),role({profileId:'stale',updatedAt:'2026-10-03T12:00:00Z'}),role({profileId:'future',updatedAt:'2026-10-03T14:00:00Z'}),role({profileId:'missing',updatedAt:null}),role({profileId:'corrupt',dec:9}),role({profileId:'bookless',book:null})];
+ const before=JSON.stringify(s.w.fixture);
+ vm.runInContext(`BET.sport='nfl';BET.history={generated_at:'${at}',season_review:{season:2026}};BET.context={generated_at:'${at}'};BET.learning={generated_at:'${at}'};wireBetting();renderGoingConfidence(fixture);`,s.context);
+ const d=s.w.document,button=d.getElementById('confidenceRecent');
+ assert.equal(button.getAttribute('aria-pressed'),'false');assert.match(d.querySelector('[data-confidence-view="support"]').textContent,/6/);
+ button.focus();button.click();assert.equal(d.querySelectorAll('.confidence-card').length,1);assert.match(d.querySelector('.confidence-card').dataset.confidenceKey,/fresh/);
+ assert.equal(button.getAttribute('aria-pressed'),'true');assert.equal(d.activeElement,button);assert.match(d.getElementById('confidenceCount').textContent,/1 of 1.*6 total football entries.*within five minutes/);
+ assert.match(d.querySelector('[data-confidence-view="support"]').textContent,/6/);assert.equal(JSON.stringify(s.w.fixture),before);
+ vm.runInContext("BET.sport='ncaa';renderGoingConfidence([])",s.context);assert.equal(button.getAttribute('aria-pressed'),'false');
+ vm.runInContext("BET.sport='nfl';renderGoingConfidence(fixture.slice(1))",s.context);assert.equal(button.getAttribute('aria-pressed'),'true');assert.equal(d.querySelectorAll('.confidence-card').length,0);assert.match(d.getElementById('confidenceCards').textContent,/No recently observed prices.*Freshness does not establish betting value/);
+ button.click();assert.equal(d.querySelectorAll('.confidence-card').length,4);assert.equal(button.getAttribute('aria-pressed'),'false');
+});

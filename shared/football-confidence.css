@@ -9,3 +9,5 @@
 @media(max-width:650px){.confidence-review{padding:12px}.confidence-grid{grid-template-columns:minmax(0,1fr)}.confidence-filters{gap:5px}.confidence-filters button{font-size:12px;padding:8px 4px;overflow-wrap:anywhere}.confidence-review h3{font-size:20px}.confidence-card{padding:13px}}
 @media(max-width:360px){.confidence-review{padding:9px}.confidence-filters button{font-size:11px;padding:7px 2px;letter-spacing:-.02em}.confidence-card{padding:11px}}
 @media(max-width:650px){body[data-going-workspace=long] .bt-head{position:relative;top:auto}}
+
+.confidence-price-filter{min-height:44px;padding:9px 12px;margin:0 0 8px;font:600 13px system-ui;cursor:pointer;white-space:normal}.confidence-price-filter[aria-pressed=true]{border-color:var(--g-accent,#ff8b45);color:var(--g-accent,#ff8b45)}
