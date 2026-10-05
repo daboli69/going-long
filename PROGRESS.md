@@ -1,5 +1,31 @@
 # Progress
 
+Cycle `20261005-120224-confidence-ux-a` — scheduled12:00 ET; started12:02:24, actual capture12:03:27.454. Main base `8812018628ba0baf9047b4fa0a1049aecfd0c408`; review base `c5dfb864380eaa139b9218c8b884d2ef3d7c9c3d`; production `aad7f60d3ebd8835a27aa995a6d09439626e4f9a`; tested tree `51c9604c330ada4f28c3c891473c5111851c3e0c`. Normal main push and exact remote SHA verified12:09 ET; Vercel deployment succeeded (37zYrCmU9baPZiP4Uc3aDrs529t2); production recent-price toggle and honest0fresh/54football-support count verified12:11 ET.
+
+## Completed
+
+- App improvement: Confidence's optional **Recent prices only** toggle shows only valid matched quotes within the unchanged five-minute freshness check. Football classification/counts stay intact; explicit displayed/total counts and honest empty state avoid mistaking quote freshness for value or lack of football support. Defaults off, NFL/NCAA state separate, toggle restores all cards, pagination resets and keyboard focus survives. Evidence:54 Current Support cards mixed old/recent prices requiring individual inspection; this bounded workflow improves finding usable price context. Current role/status/data gaps require broader source verification and cannot fit safely after collection. Acceptance tested invalid/corrupt/missing/stale/future prices, immutable candidate fields/counts, league isolation, zero-fresh and restoration. No model/assessor/ranking or tracker changes.
+- Mandatory exploratory12:00 snapshot03394785cd4dec9458dfd17ae672e77a5b4be5617b6af01fcd07732dbd3f0a40:2737rows/153eligible, actual `2026-10-05T16:03:27.454Z`;0settlements added. Integrity247records/11snapshots/3segments;237prior journal blobs/modes (6,413,635bytes) preserved,10files appended.08:00primary/holdout/cutoffs unchanged; no aggregate performance evaluation or backdating.
+-25/25 targeted Confidence tests;426/426Node,109/109Python,production and Vercel builds pass offline. Real published data local54Support/86Developing/13Check: recent-only correctly shows0current-support fresh quotes at QA time and keeps54football entries; off restores cards.430/393/390/375/360/320/1280 x844: no horizontal overflow; new control44px high at all widths. QA geometry/screenshot saved with exact four-path application patch; temporary-index replay at recorded base equals tested tree.
+- Existing approved colors/type/cards/navigation and price-vs-football definitions retained; docs/GOING_CONFIDENCE.md updated. AGENTS visual rule preserved. Only HTML/CSS/tests/doc paths; provider workflow not triggered, included public Actions/existing Vercel path, $0 additional. No global/model/automation/settings/paid service change; cycle-specific cheaper model unavailable on root, inherited included model retained. Working ownerBUILDER/UI; single root agent.
+- Rollback: fresh main-based codex checkout, revert `aad7f60d3ebd8835a27aa995a6d09439626e4f9a`, rerun checks; retain all frozen records. Exact production patch and cycle-owned QA/journal artifacts supplied to Claude without copying app code into stale review checkout.
+
+## Working
+
+- Production deployment/live verification complete; publish Claude completion/receipt within15minutes. No follow-on development.
+
+## Problems
+
+- Fresh prices do not establish availability or positive betting value. If none are fresh the filter intentionally shows no cards; all football evidence remains available with toggle off. Existing missing role/status/FirstTD evidence remains unchanged. Actual external Claude verdict is not claimed by delivery of review materials.
+
+## Next
+
+- Continue verified tracker coverage and genuine current role/status/quote evidence. Preserve Confidence v2 definitions; no arbitrary threshold tuning, label inflation or model/ranking promotion.
+
+## Needs Travis
+
+- None for this bounded routine improvement. No new automation or provider spending required.
+
 Cycle `20261005-110037-confidence-manual-a` — focused manual session requested by Travis, not a scheduled 15-minute cycle. Main base `adc0a8b04ccf26d291e44b56a14bd0f48bbd64be`; review base `d1f6880aec12a41542302561757ea89a05c951d0`; production `ff5dbb48d64ba7bab7658231004476da8dca6464`; tested tree `1ad235b20767623350b723eb4520c8b799fed0a2`. Production push/remote SHA verified11:50 ET; Vercel deployment succeeded (HeZ3AbH4V3WZU3UTwyaugTbF5N5E), production browser verified11:57 ET:154 NFL =55 Current Support /87 Developing /12 Check First. Live FirstTD cards expose market/current-data filters and separate stale-price/nonpositive-value checks. Exact patch replayed at main base to tested tree. Manual mutex owner matches this ID. Completion `9c7885d890d9073d62df6b68969c2ef8a62185e9` published and remote-verified; this PROGRESS-only receipt pins completion. Receipt SHA is reported externally, never embedded in itself.
 
 ## Completed
@@ -14,6 +40,7 @@ Cycle `20261005-110037-confidence-manual-a` — focused manual session requested
 - Rollback: fresh codex checkout from main, revert `ff5dbb48d64ba7bab7658231004476da8dca6464`, rerun checks; preserve all frozen receipts/journal records.
 
 ## Working
+
 
 - Production/live verification and Claude materials completion are published; final receipt records the verified state. Actual external Claude review verdict remains pending; no reviewer message/new automation was sent.
 

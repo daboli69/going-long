@@ -1,0 +1,57 @@
+{
+  "geometry": [
+    {
+      "filterHeight": 44,
+      "filterWidth": 134,
+      "pageWidth": 430,
+      "width": 430
+    },
+    {
+      "filterHeight": 44,
+      "filterWidth": 134,
+      "pageWidth": 393,
+      "width": 393
+    },
+    {
+      "filterHeight": 44,
+      "filterWidth": 134,
+      "pageWidth": 390,
+      "width": 390
+    },
+    {
+      "filterHeight": 44,
+      "filterWidth": 134,
+      "pageWidth": 375,
+      "width": 375
+    },
+    {
+      "filterHeight": 44,
+      "filterWidth": 134,
+      "pageWidth": 360,
+      "width": 360
+    },
+    {
+      "filterHeight": 44,
+      "filterWidth": 134,
+      "pageWidth": 320,
+      "width": 320
+    },
+    {
+      "filterHeight": 44,
+      "filterWidth": 134,
+      "pageWidth": 1280,
+      "width": 1280
+    }
+  ],
+  "baseline": "54 support / 86 developing / 13 check; 153 eligible",
+  "recentOnly": "0 of 0 support shown; 54 total football entries preserved",
+  "accepted": [
+    "toggle restores all cards",
+    "no recent price honest empty state",
+    "classification counts unchanged",
+    "44px control all widths",
+    "fixture invalid/stale/future/absent price excluded",
+    "NFL/NCAA state separate",
+    "keyboard focus preserved"
+  ]
+}
