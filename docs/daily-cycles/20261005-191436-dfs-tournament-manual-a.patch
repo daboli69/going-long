@@ -1,0 +1,985 @@
+diff --git a/docs/DFS_METHODOLOGY.md b/docs/DFS_METHODOLOGY.md
+index 030613d4a04adb7a7533272c9298119ad407b3c3..9e53c54a4211e53358c11e1bf269961c3a40eca4 100644
+--- a/docs/DFS_METHODOLOGY.md
++++ b/docs/DFS_METHODOLOGY.md
+@@ -2,0 +3,2 @@
++October 5 update: [DFS tournament research v1](DFS_TOURNAMENT_RESEARCH.md) documents the new Classic/Captain research objective, observed scoring-spread proxy, DFS-only roster repair and separate voluntary pregame receipt journal. Existing mean projections and Touchdown Throne methodology below remain unchanged; this addition is not validation of tournament profitability.
++
+diff --git a/docs/DFS_TOURNAMENT_RESEARCH.md b/docs/DFS_TOURNAMENT_RESEARCH.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..25de67b0f45f485dc96946797afef12ebe598ee3
+--- /dev/null
++++ b/docs/DFS_TOURNAMENT_RESEARCH.md
+@@ -0,0 +1,31 @@
++# DFS tournament research v1
++
++Manual session, October 5, 2026. Product: choose **Classic**, **Captain / MVP**, or **Player ideas**; inspect the projection, upside assumption, roster relationships and main risk; import the actual contest salary file before constructing a contest lineup. Keep the approved visual system. Existing Best DFS, Touchdown Throne, betting models, GOING Score and frozen ranking experiments are unchanged.
++
++## What public ETR research supports
++
++[ETR Showdown 101](https://establishtherun.com/nfl-showdown-101/), [Levitan's Milly Maker discussion](https://establishtherun.com/levitan-how-to-win-draftkings-nfl-milly-maker/) and the public [2022 strategy guide](https://cdn.establishtherun.com/wp-content/uploads/2022/09/23110421/2022-DFS-Strategy-Guide.pdf) motivate examining upside, QB/pass-catcher stacks, opponent responses, Captain relationships, salary context and field ownership. Their historical associations are not a validated 2026 GOING policy. No paid ETR projections, ownership, proprietary weights or contest data are copied.
++
++Classic and Showdown require different construction explanations. Stacks, double stacks, bring-backs, team splits, Captain positions and leftover salary are descriptive context, never universal hard constraints. Ownership and duplication remain **unknown** without a real feed. There is no field simulation, contest equity, fitted covariance, winning probability or guaranteed optimal lineup.
++
++## Versioned ordering, not a new projection model
++
++`dfs-tournament-research-v1` ranks current modeled partial fantasy points plus an observed historical scoring-spread proxy. `observed-partial-fantasy-residual-v1` uses complete joint game rows from the current/prior season, completed at least 24 hours before capture, with seven measured fields: passing yards/TDs, rushing yards/TDs, receiving yards/TDs and receptions. Require at least eight rows. Available profiles currently retain at most twelve appearances. Score each actual row using existing platform scoring and actual yardage-bonus thresholds; calculate nearest-rank historical 90th percentile minus historical mean, floored at zero. Add that spread to the current projection.
++
++The result is a **dispersion assumption**, not a forecast percentile or fitted ceiling. Eight rows is a pragmatic coverage minimum, not empirically validated. Prior roles and current-season sample differences matter. Correlated selections invalidate interpreting the sum as a joint lineup tail. Missing/invalid upside falls back to current projection, with coverage disclosed; it is not invented from `projection × constant`. Current mean forecasts are not retuned. Tournament mode adds no arbitrary stack fantasy-point bonuses. Bounded beam search and swaps preserve roster legality but do not guarantee a global optimum. Best DFS retains the mean-points objective; Throne retains its separate team-budget scenario and freshness gate.
++
++Passing interceptions, fumbles, return scores and two-point conversions are absent from the modeled component total. DST/K imported platform averages are historical fallbacks, not GOING matchup forecasts. FanDuel yardage bonuses are retained: [official scoring update](https://www.fanduel.com/research/daily-fantasy-football-what-you-should-know-about-fanduel-s-updated-scoring-for-2024). No assertion of improved forecast accuracy is made from these plumbing repairs.
++
++## Availability and projection plumbing
++
++`dfs-availability-v1` is scoped to DFS. The shared injury adapter is preserved byte-for-byte because it is a registered betting-experiment source. DFS consumes actual `position`, `roster_status` and `injury` fields and lets exact current evidence override the generic all-ACT roster feed. Known INA/RES/DEV/CUT/RET/EXE, spelled-out nonactive statuses, OUT/IR and doubtful designations are excluded before model or imported-average fallback. The [NFLverse roster-status dictionary](https://nflreadr.nflverse.com/articles/dictionary_roster_status.html) supplies code meanings. Questionable/limited practice is disclosed, not called confirmed OUT; unknown codes remain unknown. Last-known unavailability does not silently become active when old. A generated roster is not final game-day inactive confirmation.
++
++Quarterbacks require a fresh, unambiguous current depth role, excluding unavailable quarterbacks. No alphabetical starter inference. Projection-only ideas require recent/current participation; zero current targets/carries do not generate skill-player ideas. Strict Classic retains current-season opportunity and all four QB/five skill core components. Exact player/team/position, opponent and kickoff must match before reusing an existing projection or blending a quote; otherwise model the imported game or disclose the imported-average fallback. Any component's blocking injury excludes the player. Started games cannot generate new ideas. An unavailable existing lock stays visible with an actionable conflict; it is never silently replaced.
++
++## Prospective records and validation
++
++Voluntary **Freeze pregame lineup** stores a separate local DFS journal (`dfs-lineup-receipt-1`), never betting ROI or Today-ranking observations. Record actual process time, SHA-256 of imported salary bytes, contest/site, exact slots/IDs/salaries/kickoffs, projections, source-tagged upside/sample, opportunity/model/availability evidence and strategy versions. Require a complete legal roster, genuine imported-file identity, future kickoffs and valid source clocks. CPT projection multiplier is 1.5; an already priced CPT salary is charged once. Storage appends without rewriting old receipts, rejects corrupt/duplicate records and stops at capacity. Export is available. Records are device-local and voluntary, with selection bias; no automatic results, prize/equity/ROI or population coverage is claimed.
++
++Future hypothesis, declared before any prospective analysis: on identical frozen pools/locks/caps, this fixed spread ordering produces greater upper-tail realized partial fantasy points than Best DFS without sacrificing legality. First collect a separate paired cohort across at least 30 independent slates, recording both strategies before first kickoff and source failures. Keep collection/diagnostic and subsequent untouched holdout slates chronological. Evaluate mean/error and upper-tail outcomes with slate-cluster uncertainty, sample/coverage and loss cases; keep genuine field/prize/ownership outcomes separate. Thirty slates is a preliminary research minimum, not a guarantee of adequate power. Do not tune v1 from voluntary winners or claim superiority from eight-player model-only cores. Preregister any fitted replacement and its cutoff/splits/criteria separately; Model Gate and promotion approval remain binding.
++
++Remaining gaps: validated joint player/game outcomes, reliable ownership/field duplication, full scoring, current routes/first reads, defensible expected fantasy points, as-of injury/with-without effects, current official contest salaries and prospective contest results. Public play-by-play/current usage can support future work, but missing inputs are not fabricated. This release implements useful research ordering and explanations, not an ETR-equivalent simulator.
+diff --git a/index.html b/index.html
+index ed82d0acf2479772c29789e391abf93cc8c243da..0b169d9f6830e2cdbe35ebbfe0bd83a293c13a0f 100644
+--- a/index.html
++++ b/index.html
+@@ -539 +539 @@
+-<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/dfs-threshold.js"></script><script src="/shared/dfs-team-evidence.js"></script><script src="/shared/dfs-classic.js"></script><script src="/shared/dfs-evidence.js"></script><script src="/shared/dfs-classic-ui.js"></script><link rel="stylesheet" href="/shared/dfs-classic.css"><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><script src="/shared/football-picks.js"></script><link rel="stylesheet" href="/shared/football-picks.css"><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script><script defer src="/shared/abbeys-ui.js"></script><link rel="stylesheet" href="/shared/abbeys.css">
++<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/dfs-availability.js"></script><script src="/shared/dfs-upside.js"></script><script src="/shared/dfs-tournament.js"></script><script src="/shared/dfs-journal.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/dfs-threshold.js"></script><script src="/shared/dfs-team-evidence.js"></script><script src="/shared/dfs-classic.js"></script><script src="/shared/dfs-evidence.js"></script><script src="/shared/dfs-classic-ui.js"></script><link rel="stylesheet" href="/shared/dfs-classic.css"><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><script src="/shared/football-picks.js"></script><link rel="stylesheet" href="/shared/football-picks.css"><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script><script defer src="/shared/abbeys-ui.js"></script><link rel="stylesheet" href="/shared/abbeys.css">
+@@ -867,2 +867,2 @@
+-      <button type="button" id="dfsCaptainAccess" class="btn ghost">Captain / MVP single-game tools</button><div id="dfsClassicRoot"></div><details id="dfsAdvanced"><summary>FanDuel, Showdown &amp; projection research</summary>
+-      <div class="dfs-hero"><small>NFL FANTASY PROJECTION + LINEUP RESEARCH</small><h2>GOING <span>DFS LAB</span></h2><p>Open the current NFL slate instantly with GOING projections, or add an official DraftKings/FanDuel salary file for salary-cap optimization. Both paths use injury-adjusted roles and normally priced sportsbook market evidence when available.</p></div>
++      <div class="dfs-format-switch"><button type="button" id="dfsClassicAccess" class="btn ghost">DraftKings Classic</button><button type="button" id="dfsCaptainAccess" class="btn ghost">Captain / MVP</button><button type="button" id="dfsResearchAccess" class="btn ghost">Player ideas · no CSV</button></div><div id="dfsClassicRoot"></div><details id="dfsAdvanced"><summary>FanDuel, Showdown &amp; projection research</summary>
++      <div class="dfs-hero"><small>NFL FANTASY PROJECTION + LINEUP RESEARCH</small><h2>GOING <span>DFS LAB</span></h2><p>Choose players, inspect their projections, then build around your locks. Import your official salary slate before entry.</p></div>
+@@ -871 +871 @@
+-      <div class="dfs-controls"><label>Build style<select id="dfsMode"><option value="balanced">Balanced projection</option><option value="floor">Floor / lower uncertainty</option><option value="ceiling">Ceiling + correlated stack</option></select></label><label>Lineups<input id="dfsCount" type="number" min="1" max="20" value="5"></label><label>Minimum different players<input id="dfsUnique" type="number" min="1" max="5" value="2"></label><button type="button" id="dfsGenerate">Generate lineups</button></div>
++      <div class="dfs-controls"><label>Build style<select id="dfsMode"><option value="tournament">Tournament research</option><option value="balanced">Balanced projection</option><option value="floor">Floor / lower uncertainty</option><option value="ceiling">Legacy upside heuristic</option></select></label><label>Lineups<input id="dfsCount" type="number" min="1" max="20" value="5"></label><label>Minimum different players<input id="dfsUnique" type="number" min="1" max="5" value="2"></label><button type="button" id="dfsGenerate">Generate lineups</button></div>
+@@ -874 +874 @@
+-      <section id="dfsCaptainSection" hidden><h3 id="dfsCaptainTitle">Captain candidates</h3><p class="bt-note">Ranked by GOING ceiling estimate for this game. Multiplier output is shown separately from the underlying projection; ownership leverage is not available.</p><div id="dfsCaptains" class="dfs-captains"></div></section>
++      <section id="dfsCaptainSection" hidden><h3 id="dfsCaptainTitle">Captain candidates</h3><p class="bt-note">Ranked by historical scoring-spread proxy where supported, otherwise projection. Multiplier output is shown separately from the underlying projection; ownership leverage is not available.</p><div id="dfsCaptains" class="dfs-captains"></div></section>
+@@ -876,2 +876,2 @@
+-      <details class="dfs-method"><summary>How projections and lineup builds work</summary><p>GOING begins with its injury-adjusted player distribution. For yardage, receptions and passing touchdowns, a fresh sportsbook consensus can move the mean modestly: 35% market with at least two distinct books, 20% with one, otherwise the GOING model stands alone. Extreme alternate lines are excluded by requiring a normally priced two-sided market. Touchdowns remain model-based because an anytime-TD price is a chance of one or more scores, not expected touchdown count.</p><p>DraftKings scoring uses full PPR and a $50,000 cap; FanDuel uses half PPR and a $60,000 cap. Both builds include expected yardage bonuses. Single-game mode uses six players from one game and ranks the Captain/MVP using the player's ceiling estimate; the multiplier slot earns 1.5× points and, with an official salary file, costs 1.5× salary. Every roster includes both teams. Ownership is unavailable and is never invented.</p><p>GOING currently lacks interception, fumble and ownership projections, so those components are explicitly absent. Projection-only mode ranks GOING's current slate without salaries; salary-file mode adds the cap plus platform D/ST/kicker rows. D/ST and kickers use imported platform FPPG until GOING has validated specialty projections. Balanced maximizes projected points. Floor discounts uncertainty. Ceiling rewards upside and QB–receiver correlation. Suggested lineups are research outputs, not automatic entries.</p></details>
+-      <h3 id="dfsPoolTitle">GOING projected slate</h3><div id="dfsPool" class="dfs-pool"></div>
++      <details class="dfs-method"><summary>How projections and lineup builds work</summary><p>GOING begins with its injury-adjusted player distribution. For yardage, receptions and passing touchdowns, a fresh sportsbook consensus can move the mean modestly: 35% market with at least two distinct books, 20% with one, otherwise the GOING model stands alone. Extreme alternate lines are excluded by requiring a normally priced two-sided market. Touchdowns remain model-based because an anytime-TD price is a chance of one or more scores, not expected touchdown count.</p><p>DraftKings scoring uses full PPR and a $50,000 cap; FanDuel uses half PPR and a $60,000 cap. Both builds include expected yardage bonuses. Single-game mode uses six players from one game and ranks the Captain/MVP using a historical scoring-spread proxy when sufficiently sampled, otherwise projection; the multiplier slot earns 1.5× points and, with an official salary file, costs 1.5× salary. Every roster includes both teams. Ownership is unavailable and is never invented.</p><p>GOING currently lacks interception, fumble and ownership projections, so those components are explicitly absent. Projection-only mode ranks GOING's current slate without salaries; salary-file mode adds the cap plus platform D/ST/kicker rows. D/ST and kickers use imported platform FPPG until GOING has validated specialty projections. Tournament research ranks observed scoring-spread proxies plus current projection without numerical correlation bonuses. It does not estimate a joint lineup ceiling. Legacy styles retain their older projection heuristics. Suggested lineups are research outputs, not automatic entries.</p></details>
++      <h3 id="dfsPoolTitle">GOING projected slate</h3><div class="dfs-controls"><label>Find player<input id="dfsPoolSearch" type="search" placeholder="Name or team"></label><label>Position<select id="dfsPoolPosition"><option>ALL</option><option>QB</option><option>RB</option><option>WR</option><option>TE</option><option>DST</option><option>K</option></select></label></div><div id="dfsPool" class="dfs-pool"></div><button id="dfsPoolMore" type="button" hidden>Show 40 more players</button>
+@@ -3892 +3892 @@ function renderGoingScore(){
+-const DFS_STATE={site:'draftkings',source:'model',contest:'classic',game:'',salaryPlayers:[],players:[],lineups:[],errors:[],raw:'',status:'',locked:new Set(),captainId:null};
++const DFS_STATE={site:'draftkings',source:'model',contest:'classic',game:'',salaryPlayers:[],players:[],lineups:[],errors:[],raw:'',status:'',locked:new Set(),captainId:null,salaryHash:'',poolLimit:40,poolQuery:'',poolPosition:'ALL'};
+@@ -3898,0 +3899 @@ function dfsMarketMean(profileId,market,modelMean){
++function dfsAvailabilityContext(){const old=DFS_STATE.availabilityContext;if(old&&old.roster===BET.roster&&old.learning===BET.injuryLearning&&Date.now()-old.at<60000)return old.context;const context=GoingDfsAvailability.createContext(BET.roster,BET.history?.profiles,Date.now(),BET.injuryLearning);DFS_STATE.availabilityContext={roster:BET.roster,learning:BET.injuryLearning,at:Date.now(),context};return context;}
+@@ -3903 +3904 @@ function dfsModelSlate(){
+-  if(profile.position==='QB'&&!GoingFootballInjuries.starterEligibility({name:profile.name,team:profile.team,position:profile.position,context:BET.injuryContext}).eligible)continue;
++  const current=BET.context?.scopes?.[String(BET.context?.season)]?.players?.[profile.id],last=Date.parse(profile.last_game||current?.last_game),recent=Number.isFinite(last)&&last<=Date.now()&&Date.now()-last<=28*86400000;if(!recent&&!(current?.games>0))continue;if(profile.position!=='QB'&&current&&!(current.targets>0||current.rush_attempts>0))continue;const ctx=dfsAvailabilityContext(),roster=ctx.byIdentity.get(canonicalNflTeam(profile.team)+'|'+GoingDfsAvailability.normalize(profile.name));if(roster&&GoingDfsAvailability.availability(roster).block)continue;const starter=GoingDfsAvailability.starterEligibility({name:profile.name,team:profile.team,position:profile.position,context:ctx});if(profile.position==='QB'&&(!starter.known||!starter.eligible))continue;
+@@ -3905 +3906 @@ function dfsModelSlate(){
+-  players.set(profile.id,{id:'going-'+profile.id,profileId:profile.id,name:profile.name,position:profile.position,salary:null,team,opponent,game,siteProjection:null,injury:'',modelOnly:true});
++  players.set(profile.id,{id:'going-'+profile.id,profileId:profile.id,name:profile.name,position:profile.position,salary:null,team,opponent,game,kickoff:row.kickoff,siteProjection:null,injury:'',modelOnly:true});
+@@ -3918 +3919,2 @@ function dfsPlayerPool(){
+-  const starter=GoingFootballInjuries.starterEligibility({name:salary.name,team:salary.team,position:salary.position,context:BET.injuryContext});if(salary.position==='QB'&&!starter.eligible)return {...salary,projection:null,sd:null,value:null,source:'Excluded by current depth chart',coverage:'Non-starting QB',evidence:[starter.reason],unavailable:true};
++  const dfsContext=dfsAvailabilityContext(),roster=dfsContext.byIdentity.get(canonicalNflTeam(salary.team)+'|'+GoingDfsAvailability.normalize(salary.name)),availability=roster&&GoingDfsAvailability.availability(roster),importedStatus=typeof salary.injury==='string'?GoingDfsAvailability.availability({injury_status:salary.injury}):null;if(availability?.block||importedStatus?.block)return {...salary,projection:null,sd:null,value:null,source:'Unavailable',coverage:'Unavailable player',evidence:['Roster or imported salary file reports unavailable: '+(availability?.label||importedStatus?.label)],unavailable:true};
++  const starter=GoingDfsAvailability.starterEligibility({name:salary.name,team:salary.team,position:salary.position,context:dfsContext});if(salary.position==='QB'&&(!starter.known||!starter.eligible))return {...salary,projection:null,sd:null,value:null,source:'Excluded by current depth chart',coverage:'Non-starting QB',evidence:[starter.reason],unavailable:true};
+@@ -3920 +3922 @@ function dfsPlayerPool(){
+-  const matches=salary.profileId?[profiles.find(profile=>profile.id===salary.profileId)].filter(Boolean):profiles.filter(profile=>GoingFootballDfs.norm(profile.name)===GoingFootballDfs.norm(salary.name)&&canonicalNflTeam(profile.team)===canonicalNflTeam(salary.team)),profile=matches.length===1?matches[0]:null;
++  const matches=salary.profileId?[profiles.find(profile=>profile.id===salary.profileId)].filter(Boolean):profiles.filter(profile=>GoingDfsEvidence.nameKey(profile.name)===GoingDfsEvidence.nameKey(salary.name)&&canonicalNflTeam(profile.team)===canonicalNflTeam(salary.team)&&profile.position===salary.position),profile=matches.length===1?matches[0]:null;
+@@ -3923 +3925 @@ function dfsPlayerPool(){
+-  for(const market of needed){const p=byProfileMarket.get(profile.id+'|'+market);models[market]=p;if(p?.injury)injuries.push(p.injury);if(!finiteNumber(p?.projMean))continue;const blend=['pass_yds','pass_tds','rush_yds','rec_yds','receptions'].includes(market)?dfsMarketMean(profile.id,market,p.projMean):{mean:p.projMean,books:0,weight:0,marketMean:null};stats[market]=blend.mean;if(blend.weight)details.push(`${MARKET_LABEL[market]} ${p.projMean.toFixed(1)} GOING → ${blend.mean.toFixed(1)} after ${blend.books}-book center ${blend.marketMean.toFixed(1)}`);}
++  for(const market of needed){const indexed=byProfileMarket.get(profile.id+'|'+market),sameGame=indexed&&salary.kickoff&&indexed.kickoff===salary.kickoff&&(indexed.eventTeams||[]).map(canonicalNflTeam).includes(canonicalNflTeam(salary.opponent)),p=sameGame?indexed:salary.kickoff?attachProjection({player:profile.name,team:profile.team,market,kickoff:salary.kickoff,eventTeams:[salary.team,salary.opponent],source:'projection'},buildProfileIndex(BET.history)):null;models[market]=p;if(p?.injury)injuries.push(p.injury);if(p?.model?.status!=='ready'||!finiteNumber(p?.projMean))continue;const blend=['pass_yds','pass_tds','rush_yds','rec_yds','receptions'].includes(market)&&sameGame?dfsMarketMean(profile.id,market,p.projMean):{mean:p.projMean,books:0,weight:0,marketMean:null};stats[market]=blend.mean;if(blend.weight)details.push(`${MARKET_LABEL[market]} ${p.projMean.toFixed(1)} GOING → ${blend.mean.toFixed(1)} after ${blend.books}-book center ${blend.marketMean.toFixed(1)}`);}
+@@ -3925,2 +3927,2 @@ function dfsPlayerPool(){
+-  const projection=GoingFootballDfs.projectedPoints(stats,site),receptionPoints=GoingFootballDfs.RULES[site].receptionPoints,variance=[['pass_yds',.04],['pass_tds',4],['rush_yds',.1],['rec_yds',.1],['receptions',receptionPoints],['rush_tds',6],['rec_tds',6]].reduce((sum,[market,weight])=>sum+(finiteNumber(models[market]?.projSd)?(models[market].projSd*weight)**2:0),0),sd=Math.sqrt(variance),injury=injuries.find(row=>row.state!=='available')||injuries.find(row=>row.roleBoost)||null;
+-  const required=profile.position==='QB'?['pass_yds','pass_tds','rush_yds','rush_tds']:['rush_yds','rec_yds','receptions','rush_tds','rec_tds'],covered=required.filter(key=>finiteNumber(stats[key])).length,unavailable=injury?.state==='out'||!finiteNumber(projection)||covered<2;
++  const projection=GoingFootballDfs.projectedPoints(stats,site),receptionPoints=GoingFootballDfs.RULES[site].receptionPoints,variance=[['pass_yds',.04],['pass_tds',4],['rush_yds',.1],['rec_yds',.1],['receptions',receptionPoints],['rush_tds',6],['rec_tds',6]].reduce((sum,[market,weight])=>sum+(finiteNumber(models[market]?.projSd)?(models[market].projSd*weight)**2:0),0),sd=Math.sqrt(variance),injury=injuries.find(row=>row.state!=='available')||injuries.find(row=>row.roleBoost)||(importedStatus&&importedStatus.state!=='available'?{...importedStatus,status:importedStatus.label,source:'imported-salary-status',reason:'Imported designation; model workload may not yet reflect this report.'}:null);
++  const required=profile.position==='QB'?['pass_yds','pass_tds','rush_yds','rush_tds']:['rush_yds','rec_yds','receptions','rush_tds','rec_tds'],covered=required.filter(key=>finiteNumber(stats[key])).length,unavailable=injuries.some(row=>['out','doubtful'].includes(row.state))||!finiteNumber(projection)||covered<required.length;
+@@ -3928 +3930,2 @@ function dfsPlayerPool(){
+-  return {...salary,profileId:profile.id,projection,sd,value:finiteNumber(projection)&&finiteNumber(salary.salary)?1000*projection/salary.salary:null,source:'GOING + sportsbook center',coverage:`${covered}/${required.length} core components`,stats,evidence:details.slice(0,4),injury,unavailable};
++  const upside=GoingDfsUpside.observed(profile,projection,{site,points:GoingFootballDfs.projectedPoints});
++  return {...salary,profileId:profile.id,projection,sd,upside,value:finiteNumber(projection)&&finiteNumber(salary.salary)?1000*projection/salary.salary:null,source:'GOING + sportsbook center',coverage:`${covered}/${required.length} core components`,stats,evidence:details.slice(0,4),injury,unavailable};
+@@ -3936 +3939 @@ function dfsCaptainCandidates(players){
+- return roleRows.filter(player=>!player.unavailable&&finiteNumber(player.projection)).map(player=>({...player,captainCeiling:player.projection+.5*(finiteNumber(player.sd)?player.sd:player.projection*.32)})).sort((a,b)=>b.captainCeiling-a.captainCeiling||b.projection-a.projection).slice(0,8);
++ return roleRows.filter(player=>!player.unavailable&&finiteNumber(player.projection)).map(player=>({...player,captainCeiling:GoingDfsTournament.objective(player)})).sort((a,b)=>b.captainCeiling-a.captainCeiling||b.projection-a.projection).slice(0,8);
+@@ -3965,2 +3968,2 @@ function dfsNextSuggestions(players){
+- if(selected.length>=dfsPickLimit())return [];const selectedAthletes=new Set(selected.map(dfsAthleteKey)),roleRows=DFS_STATE.contest==='showdown'&&players.some(player=>player.showdownRole==='CPT');return players.filter(player=>!DFS_STATE.locked.has(String(player.id))&&(!roleRows||player.showdownRole==='FLEX')&&(!selectedAthletes.has(dfsAthleteKey(player)))&&dfsPicksFit([...DFS_STATE.locked,String(player.id)])).map(player=>{let score=player.projection,reason='Top remaining GOING projection';const reasons=[];
+-  if(mode==='floor'&&finiteNumber(player.sd))score-=.18*player.sd;if(mode==='ceiling'&&finiteNumber(player.sd))score+=.28*player.sd;if(DFS_STATE.source==='csv'&&finiteNumber(player.value))score+=player.value*1.4;
++ if(selected.length>=dfsPickLimit())return [];const selectedAthletes=new Set(selected.map(dfsAthleteKey)),roleRows=DFS_STATE.contest==='showdown'&&players.some(player=>player.showdownRole==='CPT');return players.filter(player=>!player.unavailable&&!DFS_STATE.locked.has(String(player.id))&&(!roleRows||player.showdownRole==='FLEX')&&(!selectedAthletes.has(dfsAthleteKey(player)))&&dfsPicksFit([...DFS_STATE.locked,String(player.id)])).map(player=>{let score=mode==='tournament'?GoingDfsTournament.objective(player):player.projection,reason=mode==='tournament'?(player.upside?'Historical scoring-spread proxy + current projection':'Projection only; upside unknown'):'Top remaining GOING projection';const reasons=[];
++  if(mode==='floor'&&finiteNumber(player.sd))score-=.18*player.sd;if(mode==='ceiling'&&finiteNumber(player.sd))score+=.28*player.sd;if(mode!=='tournament'&&DFS_STATE.source==='csv'&&finiteNumber(player.value))score+=player.value*1.4;
+@@ -3968,3 +3971,3 @@ function dfsNextSuggestions(players){
+-   if(selected.length&&!selected.some(pick=>pick.team===player.team)){score+=7;reasons.push('Balances the roster with the other team');}
+-   const qb=selected.find(pick=>pick.position==='QB'&&pick.team===player.team),receiver=selected.find(pick=>['WR','TE'].includes(pick.position)&&pick.team===player.team);if((qb&&['WR','TE'].includes(player.position))||(player.position==='QB'&&receiver)){score+=6;reasons.push(`Stacks with ${qb?.name||receiver.name}`);}
+-   if(selected.some(pick=>pick.opponent===player.team)){score+=3;reasons.push('Opponent bring-back');}
++   if(selected.length&&!selected.some(pick=>pick.team===player.team)){if(mode!=='tournament')score+=7;reasons.push('Balances the roster with the other team');}
++   const qb=selected.find(pick=>pick.position==='QB'&&pick.team===player.team),receiver=selected.find(pick=>['WR','TE'].includes(pick.position)&&pick.team===player.team);if((qb&&['WR','TE'].includes(player.position))||(player.position==='QB'&&receiver)){if(mode!=='tournament')score+=6;reasons.push(`Stacks with ${qb?.name||receiver.name}`);}
++   if(selected.some(pick=>pick.opponent===player.team)){if(mode!=='tournament')score+=3;reasons.push('Opponent bring-back');}
+@@ -3972,4 +3975,4 @@ function dfsNextSuggestions(players){
+-   const needed=(required[player.position]||0)-(counts[player.position]||0);if(needed>0){score+=12;reasons.push(`Fills required ${player.position}`);}
+-   const qb=selected.find(pick=>pick.position==='QB'&&pick.team===player.team),receiver=selected.find(pick=>['WR','TE'].includes(pick.position)&&pick.team===player.team);if((qb&&['WR','TE'].includes(player.position))||(player.position==='QB'&&receiver)){score+=8;reasons.push(`Stacks with ${qb?.name||receiver.name}`);}
+-   if(selected.some(pick=>pick.opponent===player.team)){score+=4;reasons.push('Opponent bring-back');}
+-   if(player.position==='DST'&&selected.some(pick=>pick.team===player.opponent)){score-=15;reasons.length=0;reasons.push('D/ST conflicts with a selected opponent');}
++   const needed=(required[player.position]||0)-(counts[player.position]||0);if(needed>0){if(mode!=='tournament')score+=12;reasons.push(`Fills required ${player.position}`);}
++   const qb=selected.find(pick=>pick.position==='QB'&&pick.team===player.team),receiver=selected.find(pick=>['WR','TE'].includes(pick.position)&&pick.team===player.team);if((qb&&['WR','TE'].includes(player.position))||(player.position==='QB'&&receiver)){if(mode!=='tournament')score+=8;reasons.push(`Stacks with ${qb?.name||receiver.name}`);}
++   if(selected.some(pick=>pick.opponent===player.team)){if(mode!=='tournament')score+=4;reasons.push('Opponent bring-back');}
++   if(player.position==='DST'&&selected.some(pick=>pick.team===player.opponent)){if(mode!=='tournament')score-=15;reasons.length=0;reasons.push('D/ST conflicts with a selected opponent');}
+@@ -3977 +3980 @@ function dfsNextSuggestions(players){
+-  if(player.injury){score-=2;reasons.push('Injury-adjusted role');}reason=reasons[0]||reason;return {player,score,reason};
++  if(player.injury){if(mode!=='tournament')score-=2;reasons.push('Injury-adjusted role');}reason=reasons[0]||reason;return {player,score,reason};
+@@ -3981,3 +3984,3 @@ function renderDfsBuilder(players){
+- const activeIds=new Set(players.map(player=>String(player.id))),roleRows=DFS_STATE.contest==='showdown'&&players.some(player=>player.showdownRole==='CPT'),poolPlayers=roleRows?players.filter(player=>player.showdownRole==='FLEX'):players;DFS_STATE.locked=new Set([...DFS_STATE.locked].filter(id=>activeIds.has(id)));if(DFS_STATE.captainId&&!DFS_STATE.locked.has(String(DFS_STATE.captainId)))DFS_STATE.captainId=null;
+- const selected=players.filter(player=>DFS_STATE.locked.has(String(player.id))),label=DFS_STATE.site==='fanduel'?'MVP':'Captain';$('dfsClearPicks').hidden=!selected.length;
+- $('dfsPicks').innerHTML=selected.length?selected.map(player=>`<span class="dfs-pick-chip"><b>${esc(player.name)}</b><small>${esc(player.position)} · ${esc(player.team)}${String(DFS_STATE.captainId)===String(player.id)?` · ${label}`:''}</small><button type="button" data-dfs-toggle="${esc(player.id)}" aria-label="Remove ${esc(player.name)}">×</button></span>`).join(''):`<span class="dfs-empty-picks">No players locked yet. Pick anyone from the pool or use one of GOING's suggestions.</span>`;
++ const activeIds=new Set(players.map(player=>String(player.id))),missingLocks=[...DFS_STATE.locked].filter(id=>!activeIds.has(id));if(missingLocks.length)DFS_STATE.status='A locked player is now unavailable or outside this slate. Remove the flagged lock before rebuilding.';const roleRows=DFS_STATE.contest==='showdown'&&players.some(player=>player.showdownRole==='CPT'),poolPlayers=roleRows?players.filter(player=>player.showdownRole==='FLEX'):players;// Preserve unavailable locks so generation reports the conflict instead of silently changing the roster.
++ const selected=DFS_STATE.players.filter(player=>DFS_STATE.locked.has(String(player.id))),label=DFS_STATE.site==='fanduel'?'MVP':'Captain';$('dfsClearPicks').hidden=!selected.length;
++ $('dfsPicks').innerHTML=selected.length?selected.map(player=>`<span class="dfs-pick-chip"><b>${esc(player.name)}</b><small>${esc(player.position)} · ${esc(player.team)}${player.unavailable?' · UNAVAILABLE':''}${String(DFS_STATE.captainId)===String(player.id)?` · ${label}`:''}</small><button type="button" data-dfs-toggle="${esc(player.id)}" aria-label="Remove ${esc(player.name)}">×</button></span>`).join(''):`<span class="dfs-empty-picks">No players locked yet. Pick anyone from the pool or use one of GOING's suggestions.</span>`;
+@@ -3988 +3991 @@ function renderDfsCaptains(players){
+- $('dfsCaptains').innerHTML=candidates.map((player,index)=>{const chosen=String(DFS_STATE.captainId)===String(player.id),same=dfsUniqueAthletes(players.filter(other=>dfsAthleteKey(other)!==dfsAthleteKey(player)&&other.team===player.team&&!other.unavailable)).sort((a,b)=>b.projection-a.projection).slice(0,2).map(other=>other.name),bring=dfsUniqueAthletes(players.filter(other=>other.team!==player.team&&!other.unavailable)).sort((a,b)=>b.projection-a.projection)[0],risk=player.injury?`${player.injury.status||'Injury designation'} is already reflected, but pregame workload uncertainty remains.`:`Projection uncertainty is ${finiteNumber(player.sd)?player.sd.toFixed(1):'unavailable'} points; GOING has no ownership estimate.`,captainSalary=player.showdownRole==='CPT'?player.salary:player.salary*1.5;return `<article class="dfs-captain${chosen?' selected':''}"><div class="dfs-captain-rank"><div><strong>#${index+1} ${esc(player.name)}</strong><small>${esc(player.position)} · ${esc(player.team)}</small></div><span class="dfs-value">${(player.projection*1.5).toFixed(1)}</span></div><p><b>${label} output:</b> ${player.projection.toFixed(1)} base × 1.5 · ceiling estimate ${player.captainCeiling.toFixed(1)} before multiplier${finiteNumber(captainSalary)?` · multiplier salary $${Math.round(captainSalary).toLocaleString()}`:''}</p><p><b>Pairing:</b> ${same.length?esc(same.join(' + ')):'No same-team modeled partner'}${bring?` · opponent bring-back ${esc(bring.name)}`:''}</p><p><b>Main risk:</b> ${esc(risk)}</p><button type="button" class="dfs-pick-button" data-dfs-captain="${esc(player.id)}" aria-pressed="${chosen}">${chosen?`${label} locked`:`Use as ${label}`}</button></article>`;}).join('')||'<p>No supported Captain/MVP candidates are available for this game.</p>';
++ $('dfsCaptains').innerHTML=candidates.map((player,index)=>{const chosen=String(DFS_STATE.captainId)===String(player.id),same=dfsUniqueAthletes(players.filter(other=>dfsAthleteKey(other)!==dfsAthleteKey(player)&&other.team===player.team&&!other.unavailable)).sort((a,b)=>b.projection-a.projection).slice(0,2).map(other=>other.name),bring=dfsUniqueAthletes(players.filter(other=>other.team!==player.team&&!other.unavailable)).sort((a,b)=>b.projection-a.projection)[0],risk=player.injury?player.injury.source==='imported-salary-status'?'Imported status needs checking; modeled workload may not reflect it.':`${player.injury.status||'Injury designation'} is reflected, but workload uncertainty remains.`:`Projection uncertainty is ${finiteNumber(player.sd)?player.sd.toFixed(1):'unavailable'} points; GOING has no ownership estimate.`,captainSalary=player.showdownRole==='CPT'?player.salary:player.salary*1.5;return `<article class="dfs-captain${chosen?' selected':''}"><div class="dfs-captain-rank"><div><strong>#${index+1} ${esc(player.name)}</strong><small>${esc(player.position)} · ${esc(player.team)}</small></div><span class="dfs-value">${(player.projection*1.5).toFixed(1)}</span></div><p><b>${label} output:</b> ${player.projection.toFixed(1)} base × 1.5 · ${player.upside?'historical spread proxy':'upside unknown; projection'} ${player.captainCeiling.toFixed(1)} before multiplier${finiteNumber(captainSalary)?` · multiplier salary $${Math.round(captainSalary).toLocaleString()}`:''}</p><p><b>Pairing:</b> ${same.length?esc(same.join(' + ')):'No same-team modeled partner'}${bring?` · opponent bring-back ${esc(bring.name)}`:''}</p><p><b>Main risk:</b> ${esc(risk)}</p><button type="button" class="dfs-pick-button" data-dfs-captain="${esc(player.id)}" aria-pressed="${chosen}">${chosen?`${label} locked`:`Use as ${label}`}</button></article>`;}).join('')||'<p>No supported Captain/MVP candidates are available for this game.</p>';
+@@ -3992 +3995,3 @@ function dfsLineupMarkup(lineup,index){
+- return `<article class="dfs-lineup"><div class="dfs-lineup-head"><div><b>${showdown?'Single-game roster':projectionOnly?'Offensive core':'Lineup'} ${index+1}</b><small>${DFS_STATE.site==='draftkings'?'DraftKings scoring':'FanDuel scoring'} · ${esc($('dfsMode').selectedOptions[0].textContent)}</small></div><span class="dfs-value">${lineup.projection.toFixed(1)} pts</span></div><ol>${lineup.players.map(player=>`<li><span>${esc(player.slot)}</span><b>${esc(player.name)} <small>${esc(player.team)}</small></b><span>${projectionOnly?'No salary':`$${dfsSlotSalary(player)?.toLocaleString()}`} · ${(player.projection*player.multiplier).toFixed(1)}${player.multiplier>1?' (1.5×)':''}</span></li>`).join('')}</ol><p>${projectionOnly?`<strong>${showdown?'6-player game roster':'8-player offense'}</strong> · ${Object.keys(lineup.teams).length} teams${showdown?'':' · D/ST not projected'}`:`<strong>$${Math.round(lineup.salary).toLocaleString()}</strong> used · $${Math.round(GoingFootballDfs.RULES[DFS_STATE.site].cap-lineup.salary).toLocaleString()} left · ${Object.keys(lineup.teams).length} teams`}</p><p class="dfs-warning">${esc(risk)}</p></article>`;
++ const strategy=GoingDfsTournament.evaluate(lineup.players,{contest:DFS_STATE.contest,site:DFS_STATE.site});
++ const story=showdown?`${Object.entries(strategy.showdown.teamComposition).map(([t,n])=>t+' '+n).join(' / ')} construction; Captain ${lineup.players[0].name}.`:strategy.classic.stackSize?`QB + ${strategy.classic.stackSize} pass catcher(s); ${strategy.classic.bringBacks.length} opponent bring-back(s).`:'No QB/pass-catcher stack; a projection-led exception.';
++ return `<article class="dfs-lineup"><div class="dfs-lineup-head"><div><b>${showdown?'Single-game roster':projectionOnly?'Offensive core':'Lineup'} ${index+1}</b><small>${DFS_STATE.site==='draftkings'?'DraftKings scoring':'FanDuel scoring'} · ${esc($('dfsMode').selectedOptions[0].textContent)}</small></div><span class="dfs-value">${lineup.projection.toFixed(1)} pts</span></div><ol>${lineup.players.map(player=>`<li><span>${esc(player.slot)}</span><b>${esc(player.name)} <small>${esc(player.team)}</small></b><span>${projectionOnly?'No salary':`$${dfsSlotSalary(player)?.toLocaleString()}`} · ${(player.projection*player.multiplier).toFixed(1)}${player.multiplier>1?' (1.5×)':''}</span></li>`).join('')}</ol><p>${projectionOnly?`<strong>${showdown?'6-player game roster':'8-player offense'}</strong> · ${Object.keys(lineup.teams).length} teams${showdown?'':' · D/ST not projected'}`:`<strong>$${Math.round(lineup.salary).toLocaleString()}</strong> used · $${Math.round(GoingFootballDfs.RULES[DFS_STATE.site].cap-lineup.salary).toLocaleString()} left · ${Object.keys(lineup.teams).length} teams`}</p><p><b>Game story:</b> ${esc(story)}</p><p><b>Why:</b> ${$('dfsMode').value==='tournament'?'Ranks historical scoring-spread proxies with current projections; unknown upside falls back to projection.':'Uses the selected projection objective.'} <b>Leverage:</b> Unknown — no ownership feed.</p><details><summary>Strategy & main risk</summary><p>${esc(risk)}</p><p>No joint ceiling or contest-winning probability is estimated. Salary left is context, not evidence of uniqueness.</p>${!projectionOnly?`<button type="button" data-dfs-freeze="${index}">Freeze pregame lineup</button>`:''}</details></article>`;
+@@ -3996 +4001 @@ function renderDfs(){
+- const panel=$('btDfsPanel');if(!panel||BET.tab!=='dfs')return;
++ const panel=$('btDfsPanel');if(!panel||BET.tab!=='dfs')return;$('dfsClassicRoot').hidden=DFS_STATE.contest==='showdown'||(DFS_STATE.source==='model'&&$('dfsAdvanced').open);$('dfsClassicAccess').setAttribute('aria-pressed',!$('dfsClassicRoot').hidden);$('dfsCaptainAccess').setAttribute('aria-pressed',DFS_STATE.contest==='showdown');$('dfsResearchAccess').setAttribute('aria-pressed',DFS_STATE.source==='model'&&$('dfsClassicRoot').hidden);
+@@ -4001 +4006 @@ function renderDfs(){
+-   return GoingDfsTeamEvidence.buildScenario({teamSnapshot:await response.json(),profiles:BET.history?.profiles,context:BET.context,injuryContext:BET.injuryContext,generatedAt:BET.history?.generated_at,injuries:GoingFootballInjuries,pool,
++   return GoingDfsTeamEvidence.buildScenario({teamSnapshot:await response.json(),profiles:BET.history?.profiles,context:BET.context,injuryContext:dfsAvailabilityContext(),generatedAt:BET.history?.generated_at,injuries:GoingDfsAvailability,pool,
+@@ -4007 +4012 @@ function renderDfs(){
+-   profiles:BET.history?.profiles,context:BET.context,injuryContext:BET.injuryContext,generatedAt:BET.history?.generated_at,injuries:GoingFootballInjuries,
++   profiles:BET.history?.profiles,context:BET.context,injuryContext:dfsAvailabilityContext(),generatedAt:BET.history?.generated_at,injuries:GoingDfsAvailability,
+@@ -4024,2 +4029,2 @@ $('dfsSite').value=DFS_STATE.site;$('dfsSource').value=DFS_STATE.source;$('dfsCo
+- const roleRows=DFS_STATE.contest==='showdown'&&usable.some(player=>player.showdownRole==='CPT'),poolPlayers=roleRows?usable.filter(player=>player.showdownRole==='FLEX'):usable;
+- $('dfsPool').innerHTML=poolPlayers.slice().sort((a,b)=>DFS_STATE.source==='model'?b.projection-a.projection:(b.value??-1)-(a.value??-1)).slice(0,80).map(player=>{const selected=DFS_STATE.locked.has(String(player.id));return `<article class="dfs-player${selected?' selected':''}"><div class="dfs-player-head"><div><b>${esc(player.name)}</b><small>${esc(player.position)} · ${esc(player.team)}${player.opponent?' vs '+player.opponent:''}</small></div><span class="dfs-value">${player.projection.toFixed(1)}</span></div><p>${DFS_STATE.source==='model'?'Salary not loaded':`$${player.salary.toLocaleString()} · ${player.value.toFixed(2)} pts/$1K`} · uncertainty ${finiteNumber(player.sd)?player.sd.toFixed(1):'unavailable'}</p><span class="dfs-tag">${esc(player.coverage)}</span>${player.injury?`<span class="dfs-tag">${esc(player.injury.status)}</span>`:''}<details><summary>Why this projection</summary><p>${player.evidence.map(esc).join('<br>')}</p><small>${esc(player.source)}${DFS_STATE.source==='csv'?' · imported salary/FPPG remains separate from GOING’s model.':' · no salary or platform projection used.'}</small></details><button type="button" class="dfs-pick-button" data-dfs-toggle="${esc(player.id)}" aria-pressed="${selected}">${selected?'Remove from lineup':'Add to lineup'}</button></article>`;}).join('')||'<p>No supported FLEX rows are available for this DraftKings Showdown slate.</p>';
++ const roleRows=DFS_STATE.contest==='showdown'&&usable.some(player=>player.showdownRole==='CPT'),poolPlayers=(roleRows?usable.filter(player=>player.showdownRole==='FLEX'):usable).filter(p=>(DFS_STATE.poolPosition==='ALL'||p.position===DFS_STATE.poolPosition)&&(!DFS_STATE.poolQuery||(p.name+' '+p.team).toLowerCase().includes(DFS_STATE.poolQuery)));$('dfsPoolMore').hidden=poolPlayers.length<=DFS_STATE.poolLimit;
++ $('dfsPool').innerHTML=poolPlayers.slice().sort((a,b)=>DFS_STATE.source==='model'?b.projection-a.projection:(b.value??-1)-(a.value??-1)).slice(0,DFS_STATE.poolLimit).map(player=>{const selected=DFS_STATE.locked.has(String(player.id));return `<article class="dfs-player${selected?' selected':''}"><div class="dfs-player-head"><div><b>${esc(player.name)}</b><small>${esc(player.position)} · ${esc(player.team)}${player.opponent?' vs '+player.opponent:''}</small></div><span class="dfs-value">${player.projection.toFixed(1)}</span></div><p>${DFS_STATE.source==='model'?'Salary not loaded':`$${player.salary.toLocaleString()} · ${player.value.toFixed(2)} pts/$1K`} · uncertainty ${finiteNumber(player.sd)?player.sd.toFixed(1):'unavailable'}</p><span class="dfs-tag">${esc(player.coverage)}</span>${player.injury?`<span class="dfs-tag">${esc(player.injury.status)}</span>`:''}<details><summary>Why this projection</summary><p>${player.evidence.map(esc).join('<br>')}</p><small>${esc(player.source)}${DFS_STATE.source==='csv'?' · imported salary/FPPG remains separate from GOING’s model.':' · no salary or platform projection used.'}</small></details><button type="button" class="dfs-pick-button" data-dfs-toggle="${esc(player.id)}" aria-pressed="${selected}">${selected?'Remove from lineup':'Add to lineup'}</button></article>`;}).join('')||'<p>No supported FLEX rows are available for this DraftKings Showdown slate.</p>';
+@@ -4028 +4033 @@ function loadDfsCsv(text){
+- const parsed=GoingFootballDfs.parseSalaryCsv(text,$('dfsSite').value);DFS_STATE.site=parsed.site||$('dfsSite').value;DFS_STATE.source='csv';DFS_STATE.salaryPlayers=parsed.players;DFS_STATE.errors=parsed.errors;DFS_STATE.raw=text;clearDfsPicks();renderDfs();
++ const parsed=GoingFootballDfs.parseSalaryCsv(text,$('dfsSite').value);DFS_STATE.site=parsed.site||$('dfsSite').value;DFS_STATE.source='csv';DFS_STATE.salaryPlayers=parsed.players;DFS_STATE.errors=parsed.errors;DFS_STATE.raw=text;DFS_STATE.salaryHash='';if(crypto.subtle)crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)).then(bytes=>{if(DFS_STATE.raw===text)DFS_STATE.salaryHash=Array.from(new Uint8Array(bytes)).map(x=>x.toString(16).padStart(2,'0')).join('');}).catch(()=>{});clearDfsPicks();renderDfs();
+@@ -4038,2 +4043,2 @@ function wireDfs(){
+- const reset=()=>{clearDfsPicks();DFS_STATE.status='';};$('dfsCaptainAccess').onclick=()=>{$('dfsAdvanced').open=true;DFS_STATE.source='csv';DFS_STATE.contest='showdown';reset();renderDfs();if(DFS_STATE.salaryPlayers.length)$('dfsContest').focus();else $('dfsFile').focus();};$('dfsSource').onchange=e=>{DFS_STATE.source=e.target.value;DFS_STATE.game='';if(DFS_STATE.source!=='csv'&&DFS_STATE.contest==='showdown')DFS_STATE.contest='classic';reset();renderDfs();};$('dfsSite').onchange=e=>{DFS_STATE.site=e.target.value;reset();if(DFS_STATE.source==='csv'&&DFS_STATE.raw)loadDfsCsv(DFS_STATE.raw);else renderDfs();};$('dfsContest').onchange=e=>{DFS_STATE.contest=e.target.value;DFS_STATE.game='';reset();renderDfs();};$('dfsGame').onchange=e=>{DFS_STATE.game=e.target.value;reset();renderDfs();};$('dfsFile').onchange=async e=>{const file=e.target.files?.[0];if(file)loadDfsCsv(await file.text());};$('dfsLoad').onclick=()=>{const text=$('dfsPaste').value.trim();if(text)loadDfsCsv(text);else if(!$('dfsFile').files?.length)$('dfsStatus').textContent='Choose a salary CSV or paste its contents first.';};$('dfsGenerate').onclick=generateDfsLineups;$('dfsExport').onclick=exportDfs;$('dfsClearPicks').onclick=()=>{clearDfsPicks();renderDfs();};
+- for(const id of ['dfsPool','dfsPicks','dfsSuggestions'])$(id).onclick=e=>{const button=e.target.closest('[data-dfs-toggle]');if(button)dfsTogglePick(button.dataset.dfsToggle);};$('dfsCaptains').onclick=e=>{const button=e.target.closest('[data-dfs-captain]');if(button)dfsSetCaptain(button.dataset.dfsCaptain);};$('dfsMode').onchange=()=>renderDfs();
++ $('dfsPoolSearch').oninput=e=>{DFS_STATE.poolQuery=e.target.value.trim().toLowerCase();DFS_STATE.poolLimit=40;renderDfs();};$('dfsPoolPosition').onchange=e=>{DFS_STATE.poolPosition=e.target.value;DFS_STATE.poolLimit=40;renderDfs();};$('dfsPoolMore').onclick=()=>{DFS_STATE.poolLimit+=40;renderDfs();};const reset=()=>{clearDfsPicks();DFS_STATE.status='';DFS_STATE.poolLimit=40;};$('dfsResearchAccess').onclick=()=>{DFS_STATE.contest='classic';DFS_STATE.source='model';$('dfsAdvanced').open=true;reset();renderDfs();};$('dfsClassicAccess').onclick=()=>{DFS_STATE.contest='classic';DFS_STATE.source='csv';$('dfsAdvanced').open=false;reset();renderDfs();};$('dfsCaptainAccess').onclick=()=>{$('dfsAdvanced').open=true;DFS_STATE.source='csv';DFS_STATE.contest='showdown';reset();renderDfs();if(DFS_STATE.salaryPlayers.length)$('dfsContest').focus();else $('dfsFile').focus();};$('dfsSource').onchange=e=>{DFS_STATE.source=e.target.value;DFS_STATE.game='';if(DFS_STATE.source!=='csv'&&DFS_STATE.contest==='showdown')DFS_STATE.contest='classic';reset();renderDfs();};$('dfsSite').onchange=e=>{DFS_STATE.site=e.target.value;reset();if(DFS_STATE.source==='csv'&&DFS_STATE.raw)loadDfsCsv(DFS_STATE.raw);else renderDfs();};$('dfsContest').onchange=e=>{DFS_STATE.contest=e.target.value;DFS_STATE.game='';reset();renderDfs();};$('dfsGame').onchange=e=>{DFS_STATE.game=e.target.value;reset();renderDfs();};$('dfsFile').onchange=async e=>{const file=e.target.files?.[0];if(file)loadDfsCsv(await file.text());};$('dfsLoad').onclick=()=>{const text=$('dfsPaste').value.trim();if(text)loadDfsCsv(text);else if(!$('dfsFile').files?.length)$('dfsStatus').textContent='Choose a salary CSV or paste its contents first.';};$('dfsLineups').addEventListener('click',e=>{const b=e.target.closest('[data-dfs-freeze]');if(!b)return;const lineup=DFS_STATE.lineups[Number(b.dataset.dfsFreeze)],r=GoingDfsJournal.freeze({players:lineup.players,contest:DFS_STATE.contest,site:DFS_STATE.site,mode:$('dfsMode').value,salaryHash:DFS_STATE.salaryHash,modelGeneratedAt:BET.history?.generated_at,injuryAt:BET.injuryContext?.generatedAt||null,now:Date.now()});try{const saved=r.ok?GoingDfsJournal.append(localStorage,r.receipt):r;DFS_STATE.status=saved.ok?'Pregame lineup frozen on this device; export through Classic’s prospective research panel. No contest performance claim.':saved.error;}catch(_){DFS_STATE.status='Local receipt storage unavailable.';}renderDfs();});$('dfsGenerate').onclick=generateDfsLineups;$('dfsExport').onclick=exportDfs;$('dfsClearPicks').onclick=()=>{clearDfsPicks();renderDfs();};
++ for(const id of ['dfsPool','dfsPicks','dfsSuggestions'])$(id).onclick=e=>{const button=e.target.closest('[data-dfs-toggle]');if(button)dfsTogglePick(button.dataset.dfsToggle);};$('dfsCaptains').onclick=e=>{const button=e.target.closest('[data-dfs-captain]');if(button)dfsSetCaptain(button.dataset.dfsCaptain);};$('dfsMode').onchange=()=>{DFS_STATE.lineups=[];DFS_STATE.status='Build style changed. Generate again to apply it; player locks are retained.';renderDfs();};
+diff --git a/shared/dfs-availability.js b/shared/dfs-availability.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..1260309a669e971771700da703a85707518f923a
+--- /dev/null
++++ b/shared/dfs-availability.js
+@@ -0,0 +1,57 @@
++(function(root){
++'use strict';
++
++const VERSION='dfs-availability-v1';
++const base=root.GoingFootballInjuries||(typeof require==='function'?require('./football-injuries.js'):null);
++const NONACTIVE=new Set(['o','out','ir','pup','inactive','suspended','nfi','reserve','ina','res','dev','cut','ret','exe','development','retired','exempt']);
++const ACTIVE=new Set(['act','active','active roster','healthy','available']);
++const finite=x=>typeof x==='number'&&Number.isFinite(x);
++const clean=value=>String(value||'').trim().toLowerCase().replace(/[_-]+/g,' ');
++const canonicalTeam=value=>({LAR:'LA',JAC:'JAX',WSH:'WAS',OAK:'LV',SD:'LAC',STL:'LA'})[String(value||'').toUpperCase()]||String(value||'').toUpperCase();
++if(!base)throw Error('The base football injury adapter is required.');
++
++function createContext(snapshot,profiles={},now=Date.now(),evidence=null){
++ const normalized={...snapshot,players:(snapshot?.players||[]).map(player=>({...player,
++  roster_status:player.roster_status||player.status,
++  status:player.roster_status||player.status,
++  pos:player.position||player.pos,
++  injury_status:player.injury_status||player.injury,
++ }))};
++ const context=base.createContext(normalized,profiles,now,evidence),roles=evidence?.current_players||{},baseByIdentity=new Map(normalized.players.map(player=>[canonicalTeam(player.team)+'|'+base.normalize(player.name),player]));
++ for(const [identity,player] of context.byIdentity){
++  const role=roles[identity],source=baseByIdentity.get(identity);
++  if(role?.roster_status!=null){player.roster_status=role.roster_status;player.status=role.roster_status;}
++  if(!finite(role?.role_order)&&finite(source?.depth_chart_order))player.depth_chart_order=source.depth_chart_order;
++ }
++ return context;
++}
++
++function availability(player){
++ const rosterStatus=clean(player?.roster_status||player?.status),rawInjury=clean(player?.injury_status||player?.injury),injuryStatus=({q:'questionable',d:'doubtful',p:'probable'})[rawInjury]||rawInjury,statuses=[rosterStatus,injuryStatus];
++ const blocking=statuses.find(status=>NONACTIVE.has(status)||status.startsWith('injured reserve')||status==='physically unable to perform');
++ if(blocking)return {state:'out',label:blocking.toUpperCase(),scale:0,uncertainty:1,block:true};
++ const knownRoster=!rosterStatus||ACTIVE.has(rosterStatus);
++ const medicalStatus=['doubtful','questionable','probable'].includes(rosterStatus)&&!injuryStatus?rosterStatus:null;
++ const adapted={...player,injury_status:medicalStatus||injuryStatus};
++ const result=base.availability(knownRoster?adapted:{...adapted,status:'ACT'});
++ if(result.state!=='available')return result;
++ if(rosterStatus&&!knownRoster)return {state:'unknown',label:player?.roster_status||player?.status,scale:1,uncertainty:1,block:false};
++ return result;
++}
++
++function starterEligibility({name,team,position,context}){
++ if(String(position||'').toUpperCase()!=='QB')return {known:false,eligible:true,reason:'Starter filtering applies only to quarterbacks.'};
++ if(!context?.fresh)return {known:false,eligible:false,reason:'Fresh depth-chart data is unavailable; a starting quarterback was not inferred.'};
++ const canonical=canonicalTeam(team),key=canonical+'|'+base.normalize(name),player=context.byIdentity.get(key);
++ if(!player)return {known:false,eligible:false,reason:'Quarterback is not matched to the current roster snapshot.'};
++ const order=candidate=>finite(candidate?._usage?.role_order)?candidate._usage.role_order:candidate?.depth_chart_order;
++ const quarterbacks=(context.byTeamPosition.get(canonical+'|QB')||[]).filter(candidate=>finite(order(candidate))&&!availability(candidate).block).sort((a,b)=>order(a)-order(b));
++ if(!quarterbacks.length)return {known:false,eligible:false,reason:'No active quarterback with a verified depth role is identified.'};
++ if(quarterbacks.length>1&&order(quarterbacks[0])===order(quarterbacks[1]))return {known:false,eligible:false,reason:'Quarterback depth order is ambiguous; a starter was not inferred.'};
++ const first=quarterbacks[0],eligible=base.normalize(first.name)===base.normalize(player.name);
++ return {known:true,eligible,starter:first.name,depthOrder:order(player),reason:eligible?`${first.name} is the first available quarterback on the current depth chart.`:`${player.name} is behind ${first.name} on the current depth chart.`};
++}
++
++root.GoingDfsAvailability={VERSION,normalize:base.normalize,createContext,availability,starterEligibility};
++if(typeof module!=='undefined')module.exports=root.GoingDfsAvailability;
++})(globalThis);
+diff --git a/shared/dfs-classic-ui.js b/shared/dfs-classic-ui.js
+index 52a764dbbafc60f54819b4b17a2b7cc3e18f3e12..e04afd12cfc92a729912b55f84e4a501e72318ec 100644
+--- a/shared/dfs-classic-ui.js
++++ b/shared/dfs-classic-ui.js
+@@ -5 +5 @@ const cash=x=>'$'+Math.round(x).toLocaleString('en-US'),num=x=>Number.isFinite(x
+-const S={parsed:null,pool:[],lineup:[],locks:{},excluded:new Set(),mode:'throne',builtMode:null,confirmed:false,status:'Import the official salary file from your selected DraftKings contest.',swap:null,hash:'',importedAt:'',query:'',filter:'ALL',busy:false,tdScenario:null,tdError:''};
++const S={parsed:null,pool:[],lineup:[],locks:{},excluded:new Set(),mode:'tournament',builtMode:null,confirmed:false,status:'Import the official salary file from your selected DraftKings contest.',swap:null,hash:'',importedAt:'',query:'',filter:'ALL',poolLimit:40,busy:false,tdScenario:null,tdError:''};
+@@ -14,0 +15,2 @@ function summary(){const salary=S.lineup.reduce((a,p)=>a+p.salary,0),points=S.li
++function exportReceipts(){const r=GoingDfsJournal.read(localStorage);if(!r.ok){S.status=r.error;return;}const url=URL.createObjectURL(new Blob([JSON.stringify(r.receipts,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='going-dfs-frozen-lineups.json';a.click();URL.revokeObjectURL(url);S.status=r.receipts.length+' frozen DFS receipts exported.';}
++function freezeLineup(){const r=GoingDfsJournal.freeze({players:S.lineup,contest:'classic',site:'draftkings',mode:S.builtMode,salaryHash:S.hash,modelGeneratedAt:context.generatedAt,injuryAt:context.injuryAt||null,now:Date.now()});if(!r.ok){S.status=r.error;return;}try{const saved=GoingDfsJournal.append(localStorage,r.receipt);S.status=saved.ok?'Pregame DFS lineup frozen on this device. This voluntary sample is separate from betting results.':saved.error;}catch(e){S.status='Local DFS receipt storage unavailable; lineup is unchanged.';}}
+@@ -19,3 +21,3 @@ function render(){
+- host.innerHTML=`<header class="dk-heading"><small>NFL · DRAFTKINGS CLASSIC</small><h2>Build a lineup you can understand</h2><p>Real salaries. Your players. Two clear research objectives.</p>${S.parsed?.slate?.date?`<p class="dk-note"><b>Imported slate: ${esc(S.parsed.slate.date)} · ${S.parsed.slate.gameIds.length} games</b> · game set from your file, not an assumed Sunday schedule.</p>`:''}</header>
+- <div class="dk-modes" role="group" aria-label="Lineup objective"><button id="dk-best" data-act="mode" data-value="best" aria-pressed="${S.mode==='best'}">Best DFS lineup<small>Highest modeled fantasy-point total</small></button><button id="dk-throne" data-act="mode" data-value="throne" aria-pressed="${S.mode==='throne'}">Touchdown Throne<small>Prioritize the lineup’s 8+ rush/rec TD scenario</small></button></div>
+- <p class="dk-note">${S.mode==='throne'?'Target: 8+ combined rushing/receiving TDs, including multiple scores by one player. Passing TDs and DST scores do not count.':'Maximize available GOING component projections under the cap, with no invented ownership or stack bonus.'} These are experimental lineup research tools, not validated contest-winning predictions.</p>
++ host.innerHTML=`<header class="dk-heading"><small>NFL · DRAFTKINGS CLASSIC</small><h2>GOING tournament lab</h2><p>Choose your contest. Build, inspect and refine your lineup.</p>${S.parsed?.slate?.date?`<p class="dk-note"><b>Imported slate: ${esc(S.parsed.slate.date)} · ${S.parsed.slate.gameIds.length} games</b> · game set from your file, not an assumed Sunday schedule.</p>`:''}</header>
++ <div class="dk-modes" role="group" aria-label="Lineup objective"><button id="dk-tournament" data-act="mode" data-value="tournament" aria-pressed="${S.mode==='tournament'}">Tournament research<small>Current projection + observed scoring spread</small></button><button id="dk-best" data-act="mode" data-value="best" aria-pressed="${S.mode==='best'}">Best DFS lineup<small>Highest modeled fantasy-point total</small></button><button id="dk-throne" data-act="mode" data-value="throne" aria-pressed="${S.mode==='throne'}">Touchdown Throne<small>Prioritize the lineup’s 8+ rush/rec TD scenario</small></button></div>
++ <p class="dk-note">${S.mode==='throne'?'Target: 8+ combined rushing/receiving TDs, including multiple scores by one player. Passing TDs and DST scores do not count.':S.mode==='tournament'?'Prioritize historical scoring-spread proxies; construction and ownership risk stay separate.':'Maximize available GOING component projections under the cap, with no invented ownership or stack bonus.'} Research ordering; not a winning-probability rating.</p>
+@@ -24,3 +26,3 @@ function render(){
+- ${S.lineup.length?`<p class="dk-note">Draft initially built for ${S.builtMode==='best'?'Best DFS lineup':'Touchdown Throne'}; your locks and swaps remain part of this draft.</p><div class="dk-budget" aria-label="Lineup totals"><strong>${cash(sum.salary)} / $50,000<small>${cash(50000-sum.salary)} remaining</small></strong><span>${num(sum.points)}<small>Modeled DFS points</small></span><span>${sum.td.toFixed(2)}<small>Rushing/receiving TD mean</small></span></div><p class="dk-note">TD mean is not the chance of reaching eight. Throne compares the complete lineup’s experimental eight-TD scenario, not just the sum of means. DraftKings averages are used only for DST; offensive scoring omits unmodeled turnovers, return TDs and two-point conversions.</p><ol class="dk-roster">${S.lineup.map((p,i)=>card(p,i)).join('')}</ol><details class="dk-analysis"><summary>Why this lineup · exposure & risks</summary>${analysis()}</details>`:''}
+- <details class="dk-pool"><summary>Choose, lock or exclude players (${usable.length} usable)</summary><label>Find a player<input id="dk-query" type="search" value="${esc(S.query)}" placeholder="Name or team"></label><label>Position<select id="dk-position">${['ALL','QB','RB','WR','TE','DST'].map(p=>`<option ${S.filter===p?'selected':''}>${p}</option>`).join('')}</select></label><div id="dk-pool-list">${poolMarkup()}</div><details><summary>Excluded or unsupported rows</summary>${S.pool.filter(p=>p.unavailable||S.excluded.has(p.id)).map(p=>`<p>${esc(p.name)} · ${esc(S.excluded.has(p.id)?'Excluded by you':p.concerns?.join(' '))}${S.excluded.has(p.id)?` <button data-act="include" data-id="${esc(p.id)}">Include again</button>`:''}</p>`).join('')||'<p>None.</p>'}</details></details>
+- <details class="dk-analysis"><summary>Data freshness, scoring and promotion limits</summary><p>GOING model snapshot: ${esc(context.generatedAt||'Unknown')}. Roster/injury snapshot: ${esc(context.injuryAt||'Unknown')}. Imported salaries have no provider freshness timestamp: download again before lock. Players without exact identities, ready scoring components or verified current-season opportunity are excluded.</p><p>Touchdown Throne compares the complete lineup’s eight-plus rushing/receiving TD scenario; modeled DFS points break ties. Actual completed team TD counts supply finite budgets shared by teammates. This is an experimental scenario ranking, not a calibrated probability. Multi-TD counts below are observed player-game evidence. Team budgets are combined independently across teams; opposing-game dependence is not fitted. No invented correlation coefficients. Beam search is bounded, so global optimality is not guaranteed.</p><p>The October 4, 2026 Sunday Millionaire/8-TD offer was supplied by Travis. Its exact game pool and official promotional terms have not been independently verified here. Check your opt-in, eligible contest, scoring and entry limits in DraftKings. No auto-entry or account access.</p><p>Game-start protection preserves started players in this browser’s draft. It does not establish official contest late-swap permission, synchronize entered lineups or supply live inactive reports.</p></details>`;
++ ${S.lineup.length?`<p class="dk-note">Draft initially built for ${S.builtMode==='tournament'?'Tournament research':S.builtMode==='best'?'Best DFS lineup':'Touchdown Throne'}; your locks and swaps remain part of this draft.</p><div class="dk-budget" aria-label="Lineup totals"><strong>${cash(sum.salary)} / $50,000<small>${cash(50000-sum.salary)} remaining</small></strong><span>${num(sum.points)}<small>Modeled DFS points</small></span><span>${sum.td.toFixed(2)}<small>Rushing/receiving TD mean</small></span></div><details class="dk-analysis"><summary>Scoring limits</summary><p class="dk-note">TD mean is not the chance of reaching eight. Throne compares the complete lineup’s experimental eight-TD scenario, not just the sum of means. DraftKings averages are used only for DST; offensive scoring omits unmodeled turnovers, return TDs and two-point conversions.</p></details>${S.builtMode==='tournament'?tournamentSummary():''}<ol class="dk-roster">${S.lineup.map((p,i)=>card(p,i)).join('')}</ol><details class="dk-analysis"><summary>Why this lineup · exposure & risks</summary>${analysis()}</details>`:''}
++ <details class="dk-pool"><summary>Choose, lock or exclude players (${usable.length} usable)</summary><label>Find a player<input id="dk-query" type="search" value="${esc(S.query)}" placeholder="Name or team"></label><label>Position<select id="dk-position">${['ALL','QB','RB','WR','TE','DST'].map(p=>`<option ${S.filter===p?'selected':''}>${p}</option>`).join('')}</select></label><div id="dk-pool-list">${poolMarkup()}</div>${S.pool.filter(p=>!p.unavailable&&(S.filter==='ALL'||p.position===S.filter)&&(!S.query||(p.name+' '+p.team).toLowerCase().includes(S.query.toLowerCase()))).length>S.poolLimit?'<button data-act="more-pool">Show 40 more</button>':''}<details><summary>Excluded or unsupported rows</summary>${S.pool.filter(p=>p.unavailable||S.excluded.has(p.id)).map(p=>`<p>${esc(p.name)} · ${esc(S.excluded.has(p.id)?'Excluded by you':p.concerns?.join(' '))}${S.excluded.has(p.id)?` <button data-act="include" data-id="${esc(p.id)}">Include again</button>`:''}</p>`).join('')||'<p>None.</p>'}</details></details>
++ <details class="dk-analysis"><summary>Prospective lineup research · this device</summary><p>Freeze this draft before every game starts. Saves the actual salary fingerprint, players, projections, spread evidence and strategy version. Voluntary local records are not a representative backtest; no ownership, contest rank, ROI or automatically verified DFS result is claimed.</p><div class="dk-toolbar"><button data-act="freeze" ${S.lineup.length!==9?'disabled':''}>Freeze this lineup</button><button data-act="export-receipts">Export frozen lineups</button></div></details><details class="dk-analysis"><summary>Data freshness, scoring and promotion limits</summary><p>GOING model snapshot: ${esc(context.generatedAt||'Unknown')}. Roster/injury snapshot: ${esc(context.injuryAt||'Unknown')}. Imported salaries have no provider freshness timestamp: download again before lock. Players without exact identities, ready scoring components or verified current-season opportunity are excluded.</p><p>Touchdown Throne compares the complete lineup’s eight-plus rushing/receiving TD scenario; modeled DFS points break ties. Actual completed team TD counts supply finite budgets shared by teammates. This is an experimental scenario ranking, not a calibrated probability. Multi-TD counts below are observed player-game evidence. Team budgets are combined independently across teams; opposing-game dependence is not fitted. No invented correlation coefficients. Beam search is bounded, so global optimality is not guaranteed.</p><p>The October 4, 2026 Sunday Millionaire/8-TD offer was supplied by Travis. Its exact game pool and official promotional terms have not been independently verified here. Check your opt-in, eligible contest, scoring and entry limits in DraftKings. No auto-entry or account access.</p><p>Game-start protection preserves started players in this browser’s draft. It does not establish official contest late-swap permission, synchronize entered lineups or supply live inactive reports.</p></details>`;
+@@ -28,2 +30,3 @@ function render(){
+-function card(p,i){const started=Date.parse(p.kickoff)<=Date.now(),locked=S.locks[i]===p.id||started;return `<li><div class="dk-player-top"><span class="dk-slot">${esc(slots[i])}</span><div><b>${esc(p.name)}</b><small>${esc(p.team)} vs ${esc(p.opponent)} · ${esc(p.position)}</small></div><strong>${cash(p.salary)}</strong></div><p class="dk-stat">${num(p.projection)} DFS pts · ${p.position==='DST'?'0 promo TDs':p.tdMean.toFixed(2)+' rush/rec TD mean'} · ${num(p.projection*1000/p.salary)} pts/$1K</p><p><b>Why:</b> ${esc(S.builtMode==='best'?num(p.projection)+' modeled DFS points at '+cash(p.salary)+'; supported components compete within the salary cap.':p.reasons?.[0]||p.source)}</p><details><summary>Evidence & main concern</summary><p>${(p.evidence||[]).map(esc).join('<br>')||'No additional current matchup signal is supported.'}</p>${p.counts?.n?`<p>Observed ${p.counts.season} games (n=${p.counts.n}): 0 TD ${p.counts.bins[0]} · 1 TD ${p.counts.bins[1]} · 2 TD ${p.counts.bins[2]} · 3+ TD ${p.counts.bins[3]}. These are descriptive counts, not future probabilities.</p>`:''}<p>${(p.concerns||[]).map(esc).join('<br>')}</p></details><div class="dk-leg-actions"><button id="dk-lock-${i}" data-act="lock" data-slot="${i}" aria-pressed="${locked}" ${started?'disabled':''}>${started?'Game locked':locked?'Unlock':'Lock player'}</button><button id="dk-swap-${i}" data-act="swap" data-slot="${i}" ${locked?'disabled':''}>Swap</button><button data-act="exclude" data-id="${esc(p.id)}" ${locked?'disabled':''}>Exclude</button></div>${S.swap===i?swaps(i):''}</li>`;}
+-function poolMarkup(){const q=S.query.toLowerCase(),rows=S.pool.filter(p=>!p.unavailable&&(S.filter==='ALL'||p.position===S.filter)&&(!q||(p.name+' '+p.team).toLowerCase().includes(q))).sort((a,b)=>S.mode==='throne'?b.tdMean-a.tdMean||b.projection-a.projection:b.projection-a.projection).slice(0,40);return rows.map(p=>`<article><b>${esc(p.name)}</b><small>${esc(p.position)} · ${esc(p.team)} · ${cash(p.salary)} · ${num(p.projection)} pts · ${num(p.tdMean)} rush/rec TD mean</small><button data-act="pick" data-id="${esc(p.id)}" ${S.excluded.has(p.id)?'disabled':''}>Lock player</button><button data-act="exclude" data-id="${esc(p.id)}">${S.excluded.has(p.id)?'Excluded':'Exclude'}</button></article>`).join('')||'<p>No supported players match. Try another name or position.</p>';}
++function tournamentSummary(){const x=GoingDfsTournament.evaluate(S.lineup,{contest:'classic',site:'draftkings'}),q=S.lineup.find(p=>p.position==='QB'),partners=S.lineup.filter(p=>x.classic.sameTeamPassCatchers.includes(String(p.id))),coverage=S.lineup.filter(p=>p.upside).length;return `<section class="dk-analysis"><h3>Your tournament thesis</h3><p><b>Why:</b> Current projections + historical scoring spread (${coverage}/9 players supported). This is an upside research proxy, not a lineup ceiling.</p><p><b>Key stack:</b> ${partners.length?esc(q.name+' + '+partners.map(p=>p.name).join(' + ')):'No QB/pass-catcher stack; projection-led exception.'}</p><p><b>Main risk:</b> ${x.classic.dstOpposingOffenseConflicts.length?'Offensive players oppose your D/ST.':partners.length?'Stacked players share game outcomes.':'No passing stack connects the QB to a receiver.'} Historical roles may differ. Ownership/leverage unknown.</p></section>`;}
++function card(p,i){const started=Date.parse(p.kickoff)<=Date.now(),locked=S.locks[i]===p.id||started;return `<li><div class="dk-player-top"><span class="dk-slot">${esc(slots[i])}</span><div><b>${esc(p.name)}</b><small>${esc(p.team)} vs ${esc(p.opponent)} · ${esc(p.position)}</small></div><strong>${cash(p.salary)}</strong></div><p class="dk-stat">${num(p.projection)} DFS pts · ${S.builtMode==='tournament'?(p.upside?num(p.upside.value)+' scoring-spread proxy':'Upside unknown'):p.position==='DST'?'0 promo TDs':p.tdMean.toFixed(2)+' rush/rec TD mean'} · ${num(p.projection*1000/p.salary)} pts/$1K</p><p><b>Why:</b> ${esc(S.builtMode==='tournament'?(p.upside?num(p.projection)+' current modeled points + '+num(p.upside.spread)+' historical scoring spread from '+p.upside.n+' games.':num(p.projection)+' modeled points; historical upside evidence is unavailable.'):S.builtMode!=='throne'?num(p.projection)+' modeled DFS points at '+cash(p.salary)+'; supported components compete within the salary cap.':p.reasons?.[0]||p.source)}</p><p><b>Main concern:</b> ${esc(p.injury?.reason||p.concerns?.[0]||'Partial scoring and changing player roles.')}</p><details><summary>View evidence</summary><p>${(p.evidence||[]).map(esc).join('<br>')||'No additional current matchup signal is supported.'}</p>${p.counts?.n?`<p>Observed ${p.counts.season} games (n=${p.counts.n}): 0 TD ${p.counts.bins[0]} · 1 TD ${p.counts.bins[1]} · 2 TD ${p.counts.bins[2]} · 3+ TD ${p.counts.bins[3]}. These are descriptive counts, not future probabilities.</p>`:''}<p>${(p.concerns||[]).map(esc).join('<br>')}</p></details><div class="dk-leg-actions"><button id="dk-lock-${i}" data-act="lock" data-slot="${i}" aria-pressed="${locked}" ${started?'disabled':''}>${started?'Game locked':locked?'Unlock':'Lock player'}</button><button id="dk-swap-${i}" data-act="swap" data-slot="${i}" ${locked?'disabled':''}>Swap</button><button data-act="exclude" data-id="${esc(p.id)}" ${locked?'disabled':''}>Exclude</button></div>${S.swap===i?swaps(i):''}</li>`;}
++function poolMarkup(){const q=S.query.toLowerCase(),rows=S.pool.filter(p=>!p.unavailable&&(S.filter==='ALL'||p.position===S.filter)&&(!q||(p.name+' '+p.team).toLowerCase().includes(q))).sort((a,b)=>S.mode==='throne'?b.tdMean-a.tdMean||b.projection-a.projection:S.mode==='tournament'?GoingDfsTournament.objective(b)-GoingDfsTournament.objective(a):b.projection-a.projection).slice(0,S.poolLimit);return rows.map(p=>`<article><b>${esc(p.name)}</b><small>${esc(p.position)} · ${esc(p.team)} · ${cash(p.salary)} · ${num(p.projection)} pts · ${num(p.tdMean)} rush/rec TD mean</small><button data-act="pick" data-id="${esc(p.id)}" ${S.excluded.has(p.id)?'disabled':''}>Lock player</button><button data-act="exclude" data-id="${esc(p.id)}">${S.excluded.has(p.id)?'Excluded':'Exclude'}</button></article>`).join('')||'<p>No supported players match. Try another name or position.</p>';}
+@@ -31,2 +34,2 @@ function swaps(i){const result=GoingDfsClassic.alternatives(S.lineup,i,S.pool,op
+-function analysis(){const groups=key=>Object.entries(S.lineup.reduce((o,p)=>(o[p[key]]=(o[p[key]]||0)+1,o),{})).map(([k,n])=>`${esc(k)}: ${n}`).join(' · '),qb=S.lineup.find(p=>p.position==='QB'),partners=S.lineup.filter(p=>['WR','TE'].includes(p.position)&&p.team===qb?.team),dst=S.lineup.find(p=>p.position==='DST'),opposing=S.lineup.filter(p=>p.position!=='DST'&&p.team===dst?.opponent);return `<p>${S.builtMode==='throne'?'Builder objective: prioritize the full lineup’s eight-plus rushing/receiving TD scenario; fantasy points break ties.':'Builder objective: maximize summed modeled fantasy points.'} Your locks and swaps can change the draft; this is not a global-optimum claim. The scenario allows multiple TDs per player and allocates each team’s finite TDs among selected and unselected players. It is not a validated chance of success.</p><p><b>Game exposure:</b> ${groups('gameId')}</p><p><b>Team exposure:</b> ${groups('team')}</p><p>${partners.length?`QB + ${partners.length} same-team pass catcher(s); shared game dependence.`:'No QB/pass-catcher stack imposed.'} ${opposing.length?`${opposing.length} offensive player(s) oppose your DST: potentially conflicting scoring goals.`:''}</p><p><b>Main risks:</b> Same-team players compete for finite TD opportunity; concentrated games share outcomes. Teams are modeled independently; same-game dependencies and ownership are not fitted. Only 3–4 current-season team games inform each empirical budget. Injury/usage changes, imported DST averages and omitted scoring components can change the result.</p>`;}
+-async function load(text){if(S.busy)return;S.busy=true;retainFocus(render);try{if(text.length>5_000_000)throw Error('Salary file exceeds 5 MB.');const parsed=GoingDfsClassic.parseCsv(text);if(parsed.errors?.length)throw Error(parsed.errors.join(' '));if(!parsed.players?.length)throw Error('No valid NFL Classic salary players.');S.parsed=parsed;S.pool=context.buildPool(parsed.players);S.tdScenario=null;S.tdError='';S.lineup=[];incumbent=[];S.locks={};S.excluded.clear();S.confirmed=false;S.swap=null;S.importedAt=new Date().toISOString();S.hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)))).map(x=>x.toString(16).padStart(2,'0')).join('');await refreshScenario();S.status='Salary slate loaded. Confirm the exact game set matches your selected contest.';}catch(e){S.parsed=null;S.pool=[];S.lineup=[];S.locks={};S.confirmed=false;S.tdScenario=null;S.tdError='';S.status=e.message;}finally{S.busy=false;render();}}
++function analysis(){const groups=key=>Object.entries(S.lineup.reduce((o,p)=>(o[p[key]]=(o[p[key]]||0)+1,o),{})).map(([k,n])=>`${esc(k)}: ${n}`).join(' · '),qb=S.lineup.find(p=>p.position==='QB'),partners=S.lineup.filter(p=>['WR','TE'].includes(p.position)&&p.team===qb?.team),dst=S.lineup.find(p=>p.position==='DST'),opposing=S.lineup.filter(p=>p.position!=='DST'&&p.team===dst?.opponent);return `<p>${S.builtMode==='throne'?'Builder objective: prioritize the full lineup’s eight-plus rushing/receiving TD scenario; fantasy points break ties.':S.builtMode==='tournament'?'Builder objective: current projections plus observed historical scoring spread; not a joint lineup ceiling.':'Builder objective: maximize summed modeled fantasy points.'} Your locks and swaps can change the draft; this is not a global-optimum claim. The scenario allows multiple TDs per player and allocates each team’s finite TDs among selected and unselected players. It is not a validated chance of success.</p><p><b>Game exposure:</b> ${groups('gameId')}</p><p><b>Team exposure:</b> ${groups('team')}</p><p>${partners.length?`QB + ${partners.length} same-team pass catcher(s); shared game dependence.`:'No QB/pass-catcher stack imposed.'} ${opposing.length?`${opposing.length} offensive player(s) oppose your DST: potentially conflicting scoring goals.`:''}</p><p><b>Main risks:</b> Same-team players compete for finite TD opportunity; concentrated games share outcomes. Teams are modeled independently; same-game dependencies and ownership are not fitted. Only 3–4 current-season team games inform each empirical budget. Injury/usage changes, imported DST averages and omitted scoring components can change the result.</p>`;}
++async function load(text){if(S.busy)return;S.busy=true;retainFocus(render);try{if(text.length>5_000_000)throw Error('Salary file exceeds 5 MB.');const parsed=GoingDfsClassic.parseCsv(text);if(parsed.errors?.length)throw Error(parsed.errors.join(' '));if(!parsed.players?.length)throw Error('No valid NFL Classic salary players.');S.parsed=parsed;S.pool=context.buildPool(parsed.players);S.tdScenario=null;S.tdError='';S.lineup=[];incumbent=[];S.locks={};S.excluded.clear();S.confirmed=false;S.swap=null;S.importedAt=new Date().toISOString();S.hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(text)))).map(x=>x.toString(16).padStart(2,'0')).join('');await refreshScenario();S.poolLimit=40;S.status='Salary slate loaded. Confirm the exact game set matches your selected contest.';}catch(e){S.parsed=null;S.pool=[];S.lineup=[];S.locks={};S.confirmed=false;S.tdScenario=null;S.tdError='';S.status=e.message;}finally{S.busy=false;render();}}
+@@ -55 +58 @@ async function generate(){
+-function mount(element,ctx){context=ctx;if(host===element)return;host=element;render();host.addEventListener('change',async e=>{if(e.target.id==='dk-file'){const f=e.target.files?.[0];if(f)await load(await f.text());}if(S.busy)return;if(e.target.id==='dk-confirm'){S.confirmed=e.target.checked;if(!S.confirmed)S.lineup=[];retainFocus(render);}if(e.target.id==='dk-position'){S.filter=e.target.value;document.getElementById('dk-pool-list').innerHTML=poolMarkup();}});host.addEventListener('input',e=>{if(e.target.id==='dk-query'){S.query=e.target.value;document.getElementById('dk-pool-list').innerHTML=poolMarkup();}});host.addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b||b.disabled||S.busy)return;const act=b.dataset.act,i=Number(b.dataset.slot),id=b.dataset.id;
++function mount(element,ctx){context=ctx;if(host===element)return;S.mode=ctx.defaultMode||'tournament';host=element;render();host.addEventListener('change',async e=>{if(e.target.id==='dk-file'){const f=e.target.files?.[0];if(f)await load(await f.text());}if(S.busy)return;if(e.target.id==='dk-confirm'){S.confirmed=e.target.checked;if(!S.confirmed)S.lineup=[];retainFocus(render);}if(e.target.id==='dk-position'){S.filter=e.target.value;document.getElementById('dk-pool-list').innerHTML=poolMarkup();}});host.addEventListener('input',e=>{if(e.target.id==='dk-query'){S.query=e.target.value;document.getElementById('dk-pool-list').innerHTML=poolMarkup();}});host.addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b||b.disabled||S.busy)return;const act=b.dataset.act,i=Number(b.dataset.slot),id=b.dataset.id;
+@@ -63 +66 @@ function mount(element,ctx){context=ctx;if(host===element)return;host=element;re
+- if(act==='include')S.excluded.delete(id);
++ if(act==='freeze')freezeLineup();if(act==='export-receipts')exportReceipts();if(act==='include')S.excluded.delete(id);if(act==='more-pool')S.poolLimit+=40;
+diff --git a/shared/dfs-classic-worker.js b/shared/dfs-classic-worker.js
+index 0b8d25eeaeefa147697e807fb42fc648b44254c8..467e1885743f1bbf4073f23ae3f34df30737297d 100644
+--- a/shared/dfs-classic-worker.js
++++ b/shared/dfs-classic-worker.js
+@@ -2 +2 @@
+-importScripts('/shared/dfs-threshold.js','/shared/dfs-classic.js');
++importScripts('/shared/dfs-threshold.js','/shared/dfs-tournament.js','/shared/dfs-classic.js');
+diff --git a/shared/dfs-classic.css b/shared/dfs-classic.css
+index 2195eff6c523f543facd416eb0bde5bc22999dc2..c9daa87fc09f6a252ff351b48f003e654fc1e8df 100644
+--- a/shared/dfs-classic.css
++++ b/shared/dfs-classic.css
+@@ -1,0 +2,2 @@
++
++.dk-modes{grid-template-columns:repeat(3,minmax(0,1fr))}.dfs-format-switch{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.dfs-format-switch button{min-height:44px}.dk-analysis h3{margin:0 0 8px}#dfsClassicRoot [hidden]{display:none!important}@media(max-width:430px){.dk-modes{grid-template-columns:1fr}.dk-modes button small{display:inline;margin-left:6px}.dk-budget{position:static}.dfs-format-switch button{flex:1}.dk-heading p{font-size:13px}}
+diff --git a/shared/dfs-classic.js b/shared/dfs-classic.js
+index 2c2cc25ba78158a91afbf01992612d538a09f8b3..6d2db3478ace240cc4c5975ca6e7e9eea8cb9e7c 100644
+--- a/shared/dfs-classic.js
++++ b/shared/dfs-classic.js
+@@ -75 +75 @@ function context(pool,options){
+- if(!['best','throne'].includes(mode))errors.push('Unsupported DFS mode.');
++ if(!['best','throne','tournament'].includes(mode))errors.push('Unsupported DFS mode.');
+@@ -121 +121,3 @@ function validateLineup(lineup,pool,options={}){
+-function compare(a,b,mode){return (mode==='throne'?b.tdMean-a.tdMean:0)||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
++function tournamentEngine(){return root.GoingDfsTournament||(typeof require==='function'?require('./dfs-tournament.js'):null);}
++function tournamentSum(players){const engine=tournamentEngine();return players.reduce((sum,p)=>sum+(engine?.objective(p)??p.projection),0);}
++function compare(a,b,mode){return (mode==='tournament'?(b.tournamentTotal??=tournamentSum(b.players))-(a.tournamentTotal??=tournamentSum(a.players)):mode==='throne'?b.tdMean-a.tdMean:0)||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
+@@ -193 +195 @@ function optimize(pool,options={}){
+-  if(validation.valid)return {lineup,...totals(lineup),tdThreshold:state.tdThreshold||null,reason:null,errors:[],heuristic:true,method:scenario?'Eight-plus rushing/receiving TD scenario mass; DFS points break ties. Finite shared team budgets, independent teams; bounded uncalibrated scenario search.':c.mode==='throne'?'Expected rushing/receiving TD sum; DFS points break ties. Bounded search; no calibrated threshold probability.':'Projected DraftKings point sum. Bounded search; global optimum is not guaranteed.'};
++  if(validation.valid)return {lineup,...totals(lineup),tournament:c.mode==='tournament'?tournamentEngine()?.evaluate(lineup,{contest:'classic',site:'draftkings'}):null,tdThreshold:state.tdThreshold||null,reason:null,errors:[],heuristic:true,method:scenario?'Eight-plus rushing/receiving TD scenario mass; DFS points break ties. Finite shared team budgets, independent teams; bounded uncalibrated scenario search.':c.mode==='throne'?'Expected rushing/receiving TD sum; DFS points break ties. Bounded search; no calibrated threshold probability.':c.mode==='tournament'?'Historical scoring-spread proxy plus current projections; unknown upside falls back to projection. Not a joint lineup ceiling or contest-win forecast.':'Projected DraftKings point sum. Bounded search; global optimum is not guaranteed.'};
+@@ -212 +214 @@ function alternatives(lineup,slotIndex,pool,options={}){
+- results.sort((a,b)=>(scenario?b.tdThresholdDelta-a.tdThresholdDelta:c.mode==='throne'?b.tdMeanDelta-a.tdMeanDelta:0)||b.projectionDelta-a.projectionDelta||a.salaryDelta-b.salaryDelta||String(a.player.id).localeCompare(String(b.player.id)));
++ results.sort((a,b)=>(c.mode==='tournament'?tournamentSum(b.lineup)-tournamentSum(a.lineup):scenario?b.tdThresholdDelta-a.tdThresholdDelta:c.mode==='throne'?b.tdMeanDelta-a.tdMeanDelta:0)||b.projectionDelta-a.projectionDelta||a.salaryDelta-b.salaryDelta||String(a.player.id).localeCompare(String(b.player.id)));
+@@ -215 +217 @@ function alternatives(lineup,slotIndex,pool,options={}){
+-root.GoingDfsClassic={SLOTS,CAP,matchName,parseCsv,validateLineup,optimize,alternatives};
++root.GoingDfsClassic={SLOTS,CAP,matchName,kickoffET,parseCsv,validateLineup,optimize,alternatives};
+diff --git a/shared/dfs-evidence.js b/shared/dfs-evidence.js
+index 1c8b3673f80d4ea8f136136d806cd1a69a2c0f0c..83ba541f84edf003faae72765fd9b3677dda1a71 100644
+--- a/shared/dfs-evidence.js
++++ b/shared/dfs-evidence.js
+@@ -53 +53,3 @@ function buildPool(salaries,{profiles={},context=null,injuryContext=null,generat
+-  return {...base,projection,tdMean,stats,unavailable:!finite(projection)||projection<=0,source:'Existing injury-adjusted GOING component models',injury,modelAgeHours:age(generatedAt,now),value:projection*1000/s.salary};
++  const upside=root.GoingDfsUpside?.observed(p,projection,{now,points,site:'draftkings'})||null;
++  if(upside)base.evidence.push(`Historical partial DFS scoring spread: ${upside.n} completed games (${upside.currentGames} current season); prior roles may differ.`);
++  return {...base,projection,tdMean,stats,upside,unavailable:!finite(projection)||projection<=0,source:'Existing injury-adjusted GOING component models',injury,modelAgeHours:age(generatedAt,now),value:projection*1000/s.salary};
+diff --git a/shared/dfs-journal.js b/shared/dfs-journal.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..7e741d634b61a8615b6701be74bd626baf61b84e
+--- /dev/null
++++ b/shared/dfs-journal.js
+@@ -0,0 +1,144 @@
++(function(root){
++'use strict';
++
++const VERSION='dfs-lineup-receipt-1',KEY='going.dfs.lineupReceipts.v1',CAPACITY=200,MAX_RECEIPT_BYTES=30000,MAX_STORE_BYTES=3_500_000;
++const STRATEGY_VERSION='dfs-tournament-research-v1',AVAILABILITY_VERSION='dfs-availability-v1',UPSIDE_SOURCE='observed-partial-fantasy-residual-v1';
++const CLASSIC_SLOTS=['QB','RB','RB','WR','WR','WR','TE','FLEX','DST'];
++const NFL_TEAMS=new Set('ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC LAC LA LV MIA MIN NE NO NYG NYJ PHI PIT SEA SF TB TEN WAS'.split(' '));
++const finite=x=>typeof x==='number'&&Number.isFinite(x);
++const plain=x=>x!==null&&typeof x==='object'&&!Array.isArray(x)&&(Object.getPrototypeOf(x)===Object.prototype||Object.getPrototypeOf(x)===null);
++const time=x=>typeof x==='string'&&x.trim()?Date.parse(x):NaN;
++const stamp=x=>new Date(time(x)).toISOString();
++const text=(x,max=300)=>typeof x==='string'&&x.trim().length>0&&x.length<=max;
++const teamCode=x=>String(x||'').trim().toUpperCase();
++const nameKey=x=>String(x||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
++
++function canonical(value){
++ if(value===null||typeof value==='string'||typeof value==='boolean')return JSON.stringify(value);
++ if(typeof value==='number'){if(!Number.isFinite(value))throw Error('Receipt contains a non-finite number.');return JSON.stringify(Object.is(value,-0)?0:value);}
++ if(Array.isArray(value))return '['+value.map(canonical).join(',')+']';
++ if(!plain(value))throw Error('Receipt contains a non-JSON value.');
++ return '{'+Object.keys(value).sort().map(key=>JSON.stringify(key)+':'+canonical(value[key])).join(',')+'}';
++}
++function hash(value){
++ const source=typeof value==='string'?value:canonical(value);let a=0x811c9dc5,b=0x9e3779b9;
++ for(let i=0;i<source.length;i++){const c=source.charCodeAt(i);a=Math.imul(a^c,0x01000193);b=Math.imul(b^c,0x85ebca6b);}
++ return (a>>>0).toString(16).padStart(8,'0')+(b>>>0).toString(16).padStart(8,'0');
++}
++function deepFreeze(value){if(value&&typeof value==='object'&&!Object.isFrozen(value)){Object.values(value).forEach(deepFreeze);Object.freeze(value);}return value;}
++function assertJson(value,label,stack=new Set(),depth=0){
++ if(depth>40)throw Error(`${label} exceeds the supported nesting depth.`);
++ if(value===null||typeof value==='string'||typeof value==='boolean')return;
++ if(typeof value==='number'){if(!Number.isFinite(value))throw Error(`${label} contains a non-finite number.`);return;}
++ if(!Array.isArray(value)&&!plain(value))throw Error(`${label} must contain JSON-safe data.`);
++ if(stack.has(value))throw Error(`${label} cannot contain circular data.`);stack.add(value);
++ for(const child of Array.isArray(value)?value:Object.values(value))assertJson(child,label,stack,depth+1);
++ stack.delete(value);
++}
++function cloneJson(value,label){
++ try{assertJson(value,label);const encoded=JSON.stringify(value);if(encoded===undefined)throw Error();return JSON.parse(encoded);}
++ catch(_){throw Error(`${label} must contain JSON-safe data.`);}
++}
++function fail(error){return {ok:false,receipt:null,error};}
++function salaryCap(site){return site==='draftkings'?50000:60000;}
++function showdownCaptain(site){return site==='draftkings'?'CPT':'MVP';}
++function eligible(position,slot,contest,site){
++ if(contest==='classic')return position===slot||(slot==='FLEX'&&['RB','WR','TE'].includes(position));
++ if(slot===showdownCaptain(site)||slot==='FLEX')return ['QB','RB','WR','TE','DST','K'].includes(position);
++ return false;
++}
++function receiptId(receipt){const payload={...receipt};delete payload.id;return `dfs-${receipt.createdAt.replace(/[-:.TZ]/g,'')}-${hash(payload)}`;}
++function size(textValue){return textValue.length*2;}
++function validUpside(value,now){
++ if(value==null)return true;
++ if(!plain(value)||value.source!==UPSIDE_SOURCE||!finite(value.value)||value.value<0||!Number.isInteger(value.n)||value.n<8||!Number.isInteger(value.currentGames)||value.currentGames<0||value.currentGames>value.n)return false;
++ const asOf=time(value.asOf);return Number.isFinite(asOf)&&asOf<=now;
++}
++function jsonSafe(value,label){try{cloneJson(value,label);return true;}catch(_){return false;}}
++
++function freeze(input){
++ try{
++  if(!plain(input))return fail('Lineup receipt input is invalid.');
++  const {players,contest,site,mode,salaryHash,modelGeneratedAt,injuryAt}=input,now=input.now;
++  if(!Array.isArray(players)||!['classic','showdown'].includes(contest)||!['draftkings','fanduel'].includes(site)||!text(mode,80))return fail('Contest, site, mode or lineup is missing.');
++  if(!Number.isSafeInteger(now)||now<0)return fail('A valid capture time in milliseconds is required.');
++  if(typeof salaryHash!=='string'||!/^([a-f0-9]{64})$/i.test(salaryHash))return fail('A SHA-256 hash of the imported salary file is required.');
++  if(!Number.isFinite(time(modelGeneratedAt))||time(modelGeneratedAt)>now)return fail('The model snapshot timestamp is missing, invalid or in the future.');
++  if(injuryAt!=null&&(!Number.isFinite(time(injuryAt))||time(injuryAt)>now))return fail('The roster/injury timestamp is invalid or in the future.');
++  const slots=contest==='classic'?CLASSIC_SLOTS:[showdownCaptain(site),'FLEX','FLEX','FLEX','FLEX','FLEX'];
++  if(players.length!==slots.length)return fail(`A ${contest} receipt requires exactly ${slots.length} players.`);
++  const cap=salaryCap(site),maxTeam=contest==='showdown'?5:site==='draftkings'?8:4,slotCounts=new Map(),ids=new Set(),athletes=new Set(),teams=new Map(),games=new Set(),gameLabels=new Set(),kickoffs=new Set(),slotIndexes=new Set();
++  let salaryUsed=0,projectionTotal=0,upsideTotal=0,allUpside=true;
++  const captured=[];
++  for(let index=0;index<players.length;index++){
++   const p=players[index];if(!plain(p))return fail(`Player ${index+1} is invalid.`);
++   const slot=p.slot,expectedMultiplier=contest==='classic'?1:slot===showdownCaptain(site)?1.5:1,multiplier=p.multiplier==null?expectedMultiplier:p.multiplier;
++   const id=text(String(p.id??''),120)?String(p.id):'',name=text(p.name,180)?p.name:'',team=teamCode(p.team),position=String(p.position||'').trim().toUpperCase();
++   const game=typeof p.game==='string'&&p.game.trim()?p.game:null,gameId=typeof p.gameId==='string'&&p.gameId.trim()?p.gameId:null,gameKey=gameId||game,kickoff=p.kickoff;
++   if(!id||!name||!NFL_TEAMS.has(team)||!['QB','RB','WR','TE','DST','K'].includes(position)||!text(slot,8))return fail(`Player ${index+1} is missing a valid identity, team, position or slot.`);
++   if(!slots.includes(slot)||!eligible(position,slot,contest,site))return fail(`${name} is not eligible for the ${slot||'unknown'} slot.`);
++   if(!gameKey||!text(kickoff,80)||!Number.isFinite(time(kickoff))||time(kickoff)<=now)return fail(`${name} has missing game identity or a game that has started.`);
++   if(p.slotIndex!=null&&(!Number.isInteger(p.slotIndex)||p.slotIndex<0||p.slotIndex>=slots.length||slots[p.slotIndex]!==slot||slotIndexes.has(p.slotIndex)))return fail(`${name} has an invalid or duplicate slot index.`);
++   if(p.unavailable===true||p.injury?.state==='out'||p.injury?.blockRecommendation===true)return fail(`${name} is marked unavailable.`);
++   if(!Number.isSafeInteger(p.salary)||p.salary<=0||!finite(p.projection)||p.projection<0||!validUpside(p.upside,now)||!finite(multiplier)||multiplier!==expectedMultiplier)return fail(`${name} has invalid salary, projection, sourced upside or multiplier.`);
++   if(contest==='classic'&&p.sourceSalary!=null&&p.sourceSalary!=='draftkings-csv')return fail(`${name} is not tied to the imported DraftKings Classic salary file.`);
++   if(contest==='showdown'&&p.showdownRole!=null&&!['CPT','FLEX'].includes(p.showdownRole))return fail(`${name} has an unsupported Showdown salary role.`);
++   if(p.showdownRole==='CPT'&&slot!==showdownCaptain(site))return fail(`${name}'s CPT salary row cannot be placed in FLEX.`);
++   if(p.showdownRole==='FLEX'&&slot===showdownCaptain(site))return fail(`${name}'s FLEX salary row cannot be used at the multiplier slot.`);
++   const athlete=`${nameKey(name)}|${team}`;
++   if(ids.has(id)||athletes.has(athlete))return fail('Player IDs and athlete identities must be unique across the lineup.');
++   ids.add(id);athletes.add(athlete);slotCounts.set(slot,(slotCounts.get(slot)||0)+1);teams.set(team,(teams.get(team)||0)+1);games.add(gameKey);if(game)gameLabels.add(game);kickoffs.add(time(kickoff));if(p.slotIndex!=null)slotIndexes.add(p.slotIndex);
++   if(teams.get(team)>maxTeam)return fail(`${team} exceeds the contest team limit.`);
++  if(contest==='showdown'&&(games.size>1||gameLabels.size>1||kickoffs.size>1))return fail('A Showdown receipt must contain players from exactly one game and kickoff.');
++   const salaryCost=p.salary*(contest==='showdown'&&slot===showdownCaptain(site)&&p.showdownRole!=='CPT'?1.5:1);
++   if(!Number.isSafeInteger(salaryCost))return fail(`${name} has a non-integer contest salary cost.`);
++   salaryUsed+=salaryCost;projectionTotal+=p.projection*multiplier;
++   if(p.upside==null)allUpside=false;else upsideTotal+=p.upside.value*multiplier;
++   const clean={slot,slotIndex:Number.isInteger(p.slotIndex)?p.slotIndex:null,id,name,team,position,game,gameId,kickoff,salary:p.salary,salaryCost,projection:p.projection,upside:cloneJson(p.upside??null,`${name} upside`),opportunityStats:cloneJson(p.opportunityStats??p.stats??null,`${name} opportunity stats`),opportunitySource:cloneJson(p.opportunitySource??p.source??null,`${name} opportunity source`),modelAgeHours:cloneJson(p.modelAgeHours??null,`${name} model age`),evidence:cloneJson(p.evidence??null,`${name} evidence`),injury:cloneJson(p.injury??null,`${name} injury`),concern:cloneJson(p.concern??null,`${name} concern`),concerns:cloneJson(p.concerns??null,`${name} concerns`),multiplier,showdownRole:p.showdownRole??null,sourceSalary:p.sourceSalary??null};
++   captured.push(clean);
++  }
++  for(const slot of new Set(slots))if(slotCounts.get(slot)!==slots.filter(s=>s===slot).length)return fail(`The lineup does not fill every required ${slot} slot.`);
++  if(salaryUsed>cap)return fail(`Lineup exceeds the ${site==='draftkings'?'$50,000':'$60,000'} salary cap.`);
++  if(contest==='classic'&&games.size<2)return fail('Classic lineups must include at least two games.');
++  const createdAt=new Date(now).toISOString(),receipt={version:VERSION,strategyVersion:mode==='tournament'?STRATEGY_VERSION:`legacy-${mode}`,availabilityVersion:AVAILABILITY_VERSION,createdAt,contest,site,mode,salaryHash:salaryHash.toLowerCase(),modelGeneratedAt,injuryAt:injuryAt??null,salaryCap:cap,salaryUsed,projectionTotal,upsideTotal:allUpside?upsideTotal:null,players:captured};
++  const encoded=canonical(receipt);if(size(encoded)>MAX_RECEIPT_BYTES)return fail('Receipt evidence exceeds the local storage limit.');
++  receipt.id=receiptId(receipt);return {ok:true,receipt:deepFreeze(receipt),error:null};
++ }catch(error){return fail(error?.message||'Could not validate lineup receipt.');}
++}
++
++function validReceipt(receipt){
++ try{
++  if(!plain(receipt)||receipt.version!==VERSION||receipt.availabilityVersion!==AVAILABILITY_VERSION||!text(receipt.strategyVersion,100)||!['classic','showdown'].includes(receipt.contest)||!['draftkings','fanduel'].includes(receipt.site)||!Array.isArray(receipt.players)||receipt.players.length!==(receipt.contest==='classic'?9:6)||!text(receipt.id,100)||!Number.isFinite(time(receipt.createdAt))||receipt.id!==receiptId(receipt)||size(canonical(receipt))>MAX_RECEIPT_BYTES)return false;
++  if(!Number.isSafeInteger(receipt.salaryUsed)||!finite(receipt.projectionTotal)||!(receipt.upsideTotal===null||finite(receipt.upsideTotal)))return false;
++  return receipt.players.every(p=>plain(p)&&text(p.id,120)&&text(p.name,180)&&validUpside(p.upside,Number.MAX_SAFE_INTEGER)&&['opportunityStats','opportunitySource','modelAgeHours','evidence','injury','concern','concerns'].every(key=>Object.hasOwn(p,key)&&jsonSafe(p[key],key)));
++ }
++ catch(_){return false;}
++}
++function read(storage){
++ try{
++  if(!storage||typeof storage.getItem!=='function')return {ok:false,receipts:[],error:'Local storage is unavailable.'};
++  const raw=storage.getItem(KEY);if(raw==null||raw==='')return {ok:true,receipts:[],error:null};
++  if(typeof raw!=='string'||size(raw)>MAX_STORE_BYTES)return {ok:false,receipts:[],error:'Stored DFS receipts exceed the supported size.'};
++  const data=JSON.parse(raw);if(!plain(data)||data.version!==1||!Array.isArray(data.receipts)||data.receipts.length>CAPACITY)return {ok:false,receipts:[],error:'Stored DFS receipt journal is invalid.'};
++  const seen=new Set();for(const receipt of data.receipts){if(!validReceipt(receipt)||seen.has(receipt.id))return {ok:false,receipts:[],error:'Stored DFS receipt journal failed its integrity check.'};seen.add(receipt.id);}
++  return {ok:true,receipts:data.receipts.map(receipt=>deepFreeze(receipt)),error:null};
++ }catch(_){return {ok:false,receipts:[],error:'Stored DFS receipts could not be read; existing data was preserved.'};}
++}
++function append(storage,receipt){
++ if(!validReceipt(receipt))return {ok:false,receipt:null,error:'Only a valid frozen DFS receipt can be appended.'};
++ const current=read(storage);if(!current.ok)return {ok:false,receipt:null,error:current.error};
++ if(current.receipts.some(item=>item.id===receipt.id))return {ok:false,receipt:null,error:'This receipt is already recorded.'};
++ if(current.receipts.length>=CAPACITY)return {ok:false,receipt:null,error:'DFS receipt capacity reached; export receipts before starting another journal.'};
++ try{
++  const encoded=JSON.stringify({version:1,receipts:[...current.receipts,receipt]});
++  if(size(encoded)>MAX_STORE_BYTES)return {ok:false,receipt:null,error:'DFS receipt journal is at its local storage limit; export before adding more.'};
++  if(!storage||typeof storage.setItem!=='function')return {ok:false,receipt:null,error:'Local storage is unavailable.'};
++  storage.setItem(KEY,encoded);const verified=read(storage);
++  if(!verified.ok||!verified.receipts.some(item=>item.id===receipt.id))return {ok:false,receipt:null,error:'Receipt write could not be verified; stored data was preserved.'};
++  return {ok:true,receipt:verified.receipts.find(item=>item.id===receipt.id),error:null};
++ }catch(_){return {ok:false,receipt:null,error:'Local storage could not append the receipt; existing data was preserved.'};}
++}
++
++root.GoingDfsJournal={VERSION,KEY,CAPACITY,freeze,append,read};
++if(typeof module!=='undefined')module.exports=root.GoingDfsJournal;
++})(globalThis);
+diff --git a/shared/dfs-tournament.js b/shared/dfs-tournament.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..0393c1263cd9985f41e17207dece2fb6558ac7f6
+--- /dev/null
++++ b/shared/dfs-tournament.js
+@@ -0,0 +1,121 @@
++(function(root){
++'use strict';
++
++// Transparent descriptive tournament research helpers. No ownership model,
++// covariance estimate, correlation bonus, or contest-win probability is implied.
++const VERSION='dfs-tournament-research-v1';
++const UPSIDE_SOURCE='observed-partial-fantasy-residual-v1';
++const finite=value=>typeof value==='number'&&Number.isFinite(value);
++const text=value=>String(value==null?'':value).trim();
++const teamKey=p=>text(p?.team).toUpperCase();
++const opponentKey=p=>text(p?.opponent).toUpperCase();
++const playerKey=p=>String(p?.id??`${text(p?.name)}|${teamKey(p)}`);
++const role=p=>text(p?.position).toUpperCase();
++const captainRole=p=>['CPT','MVP'].includes(text(p?.slot||p?.rosterPosition||p?.showdownRole).toUpperCase())||p?.captain===true;
++function validUpside(player){
++ const u=player?.upside;
++ return u&&u.source===UPSIDE_SOURCE&&finite(u.value)&&u.value>=0&&Number.isInteger(u.n)&&u.n>=8&&Number.isInteger(u.currentGames)&&u.currentGames>=0&&u.currentGames<=u.n&&Number.isFinite(Date.parse(u.asOf))?u:null;
++}
++
++function playerObjective(player,options={}){
++ const multiplier=finite(options)?options:(finite(options.multiplier)?options.multiplier:1);
++ const projection=finite(player?.projection)?player.projection:null;
++ const supplied=validUpside(player);
++ const upside=supplied?supplied.value:null;
++ const score=upside??projection;
++ return {
++  version:VERSION,
++  score:finite(score)?score*multiplier:null,
++  basis:upside==null?(projection==null?'unavailable':'projection-fallback'):'supplied-upside',
++  projection:projection==null?null:projection*multiplier,
++  upside:upside==null?null:upside*multiplier,
++  ceilingStatus:upside==null?'unknown':'provided-unvalidated',
++  upsideEvidence:supplied?{source:supplied.source,n:supplied.n,currentGames:supplied.currentGames,asOf:supplied.asOf}:null,
++  multiplier
++ };
++}
++function objective(player,options={}){return playerObjective(player,options).score;}
++
++function evaluate(lineup,{contest='classic',site='draftkings'}={}){
++ const players=Array.isArray(lineup)?lineup:[];
++ const showdown=contest==='showdown';
++ const qb=players.find(p=>role(p)==='QB');
++ const captain=showdown?players.find(captainRole)||players[0]:null;
++ const captainTeam=teamKey(captain);
++ const captainPosition=role(captain);
++ const captainPairs=captain?players.filter(p=>p!==captain).map(p=>({
++  playerId:playerKey(p),name:text(p.name),team:teamKey(p),position:role(p),
++  relation:teamKey(p)===captainTeam?'same-team':'opponent-or-other-team',
++  interpretation:captainPosition==='WR'||captainPosition==='TE'?(role(p)==='QB'&&teamKey(p)===captainTeam?'positive-pass-correlation candidate':'unmodeled'):
++   captainPosition==='QB'&&['WR','TE'].includes(role(p))&&teamKey(p)===captainTeam?'same-team-pass-catcher':
++   captainPosition==='QB'&&teamKey(p)!==captainTeam?'opposing-player; game-script relation unmodeled':'unmodeled'
++ })).filter(x=>x.playerId!==playerKey(captain)):[];
++ const teams={};for(const p of players){const t=teamKey(p)||'UNKNOWN';teams[t]=(teams[t]||0)+1;}
++ const gameIds=[...new Set(players.map(p=>text(p.gameId||p.game)).filter(Boolean))];
++ const salaryUsed=players.reduce((sum,p)=>sum+(finite(p.salary)?p.salary:0),0);
++ const objectiveRows=players.map(p=>({playerId:playerKey(p),...playerObjective(p,{multiplier:showdown&&p===captain?1.5:1})}));
++ const objectiveValue=objectiveRows.some(row=>!finite(row.score))?null:objectiveRows.reduce((sum,row)=>sum+row.score,0);
++ const cap=site==='fanduel'?60000:site==='draftkings'?50000:null;
++ const salaryRemaining=cap==null?null:cap-salaryUsed;
++ const classicStack=qb?players.filter(p=>p!==qb&&['WR','TE'].includes(role(p))&&teamKey(p)===teamKey(qb)):[];
++ const classicBringbacks=qb?players.filter(p=>p!==qb&&['RB','WR','TE'].includes(role(p))&&teamKey(p)===opponentKey(qb)):[];
++ const dst=players.find(p=>role(p)==='DST');
++ const dstConflicts=dst?players.filter(p=>role(p)!=='DST'&&teamKey(p)===opponentKey(dst)):[];
++ return {
++  version:VERSION,contest,site,
++  format:{type:showdown?'single-game':'multi-game',gameIds,gameCount:gameIds.length},
++  classic:showdown?null:{
++   qb:qb?playerKey(qb):null,
++   sameTeamPassCatchers:classicStack.map(playerKey),
++   stackSize:classicStack.length,
++   bringBacks:classicBringbacks.map(playerKey),
++   dst:dst?playerKey(dst):null,
++   dstOpposingOffenseConflicts:dstConflicts.map(playerKey)
++  },
++  showdown:showdown?{
++   captain:captain?playerKey(captain):null,
++   captainPosition:captainPosition||null,
++   captainTeam:captainTeam||null,
++   captainPairings:captainPairs,
++   teamComposition:teams
++  }:null,
++  salary:{cap,salaryUsed,salaryRemaining,interpretation:'context-only; no uniqueness inference'},
++  objective:{value:objectiveValue,basis:objectiveRows.some(row=>row.basis==='supplied-upside')?'sum-of-player-upside-with-projection-fallback':'sum-of-available-projections',jointCeiling:'not-estimated',coverage:{provided:objectiveRows.filter(row=>row.basis==='supplied-upside').length,missing:objectiveRows.filter(row=>row.basis!=='supplied-upside').length,players:objectiveRows}},
++  ownership:{status:'unknown',values:null,uniqueness:'unknown'},
++  ceiling:{status:players.every(p=>validUpside(p))?'provided-unvalidated':'unknown-with-projection-fallback',source:'caller-supplied observed-partial-fantasy-residual-v1 only; no estimate is created'},
++  constraints:{hardCorrelationRules:[],hardOwnershipRules:[],hardSalaryRemainingRules:[]},
++  limitations:['Descriptive construction context only; no fitted player covariance, ownership, duplication, field or win-probability model.','Classic stack and bring-back labels describe roster relationships and do not claim measured correlation.','Showdown pair labels are qualitative roster relationships, not estimated joint outcomes.','Salary remaining alone does not establish lineup uniqueness.']
++ };
++}
++
++function constructionTie(lineup,contest){
++ const qb=lineup.find(p=>role(p)==='QB');
++ if(contest==='showdown'){
++  const captain=lineup.find(captainRole)||lineup[0];
++  return {preferred:captainPositionHasPassCatchers(captain,lineup)?1:0};
++ }
++ const stack=qb?lineup.filter(p=>p!==qb&&['WR','TE'].includes(role(p))&&teamKey(p)===teamKey(qb)).length:0;
++ const bringback=qb?lineup.some(p=>teamKey(p)===opponentKey(qb)&&['RB','WR','TE'].includes(role(p))):false;
++ return {preferred:stack>=2?2:stack===1?1:0,stack,bringback};
++}
++function captainPositionHasPassCatchers(captain,lineup){return !!captain&&['WR','TE'].includes(role(captain))&&lineup.some(p=>p!==captain&&role(p)==='QB'&&teamKey(p)===teamKey(captain));}
++function compare(a,b,{contest='classic'}={}){
++ const rows=[a,b].map(lineup=>{
++  const players=Array.isArray(lineup)?lineup:lineup?.lineup||[];
++  const captain=contest==='showdown'?players.find(p=>['CPT','MVP'].includes(text(p?.slot||p?.rosterPosition).toUpperCase())||p?.captain===true)||players[0]:null;
++  const values=players.map(p=>playerObjective(p,{multiplier:contest==='showdown'&&p===captain?1.5:1}).score);
++  const total=values.some(v=>!finite(v))?null:values.reduce((sum,v)=>sum+v,0);
++  const covered=players.filter(p=>validUpside(p)).length;
++  return {lineup:players,score:total,upsideCovered:covered,playerCount:players.length,basis:covered===players.length&&players.length?'provided-upside':'projection-fallback',ceilingStatus:covered===players.length&&players.length?'provided-unvalidated':'partially-unknown'};
++ });
++ // Stable, explicit comparison; it ranks sums of caller-supplied player values,
++ // not a joint lineup quantile or tournament equity estimate.
++ for(const row of rows)row.tie=constructionTie(row.lineup,contest);
++ const ordered=rows.slice().sort((x,y)=>(finite(y.score)?y.score:-Infinity)-(finite(x.score)?x.score:-Infinity)||(y.tie.preferred||0)-(x.tie.preferred||0));
++ return {version:VERSION,contest,method:ordered.some(x=>x.upsideCovered)?'sum-of-player-upside-with-projection-fallback':'sum-of-available-projections',jointCeiling:'not-estimated',tieBreak:'construction descriptor only; used only for exact objective ties',ranked:ordered.map(x=>({score:x.score,basis:x.basis,ceilingStatus:x.ceilingStatus,upsideCovered:x.upsideCovered,playerCount:x.playerCount,constructionTie:x.tie,lineup:x.lineup}))};
++}
++
++const api={VERSION,UPSIDE_SOURCE,objective,playerObjective,evaluate,compare};
++if(typeof module!=='undefined'&&module.exports)module.exports=api;
++root.GoingDfsTournament=api;
++})(typeof globalThis!=='undefined'?globalThis:this);
+diff --git a/shared/dfs-upside.js b/shared/dfs-upside.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..31e24a8b192599742396ef3daf0fc4094afee895
+--- /dev/null
++++ b/shared/dfs-upside.js
+@@ -0,0 +1,19 @@
++(function(root){
++'use strict';
++const SOURCE='observed-partial-fantasy-residual-v1';
++const finite=x=>typeof x==='number'&&Number.isFinite(x);
++// Joint game rows, not independent component draws. This is a dispersion
++// assumption for research ordering, NOT a forecast 90th percentile.
++function observed(profile,projection,{site='draftkings',now=Date.now(),points}={}){
++ if(!finite(projection)||projection<=0||typeof points!=='function')return null;
++ const d=new Date(now),season=d.getUTCFullYear()-(d.getUTCMonth()<2?1:0);
++ const keys=['pass_yds','pass_tds','rush_yds','rush_tds','rec_yds','rec_tds','receptions'];
++ const games=(profile?.games||[]).filter(g=>Number(g.season)>=season-1&&Number(g.season)<=season&&Date.parse(g.date)+86400000<=now&&keys.every(k=>finite(g[k])&&g[k]>=0));
++ if(games.length<8)return null;
++ const scores=games.map(g=>points({...g,pass_300_probability:g.pass_yds>=300?1:0,rush_100_probability:g.rush_yds>=100?1:0,rec_100_probability:g.rec_yds>=100?1:0},site)).sort((a,b)=>a-b);
++ if(!scores.every(finite))return null;
++ const mean=scores.reduce((a,b)=>a+b,0)/scores.length,q90=scores[Math.ceil(.9*scores.length)-1],spread=Math.max(0,q90-mean);
++ return {value:projection+spread,source:SOURCE,n:scores.length,currentGames:games.filter(g=>Number(g.season)===season).length,asOf:new Date(now).toISOString(),historicalMean:mean,historicalQ90:q90,spread,site,label:'Historical scoring-spread proxy; not a predicted ceiling'};
++}
++root.GoingDfsUpside={SOURCE,observed};if(typeof module!=='undefined')module.exports=root.GoingDfsUpside;
++})(globalThis);
+diff --git a/shared/football-dfs.js b/shared/football-dfs.js
+index 1dfbc4de429d366d09ec225565147107ed0d9018..71a710ccb960d6fe5c7f3fa68a5be1d8b42b935b 100644
+--- a/shared/football-dfs.js
++++ b/shared/football-dfs.js
+@@ -24,0 +25 @@ function gameTeams(raw){const match=String(raw||'').toUpperCase().match(/([A-Z]{
++function gameKickoff(raw){const m=String(raw||'').match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{1,2}):(\d{2})(AM|PM)\s+ET/i),classic=root.GoingDfsClassic||(typeof require==='function'?require('./dfs-classic.js'):null);return m&&classic?.kickoffET?classic.kickoffET(+m[1],+m[2],+m[3],+m[4],+m[5],m[6].toUpperCase()):null;}
+@@ -35 +36 @@ function parseSalaryCsv(text,requestedSite){
+-  players.push({id:String(id),name,position,salary,team,opponent,game,siteProjection,injury,showdownRole,sourceRow:record});
++  players.push({id:String(id),name,position,salary,team,opponent,game,kickoff:gameKickoff(game),siteProjection,injury,showdownRole,sourceRow:record});
+@@ -55,2 +56,2 @@ function correlation(lineup,mode){
+-function objective(player,mode){const projection=player.projection||0,sd=finite(player.sd)?player.sd:projection*.32;return mode==='floor'?projection-.18*sd:mode==='ceiling'?projection+.28*sd:projection;}
+-function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false,contest='classic',lockedIds=[],captainId=null}={}){
++function objective(player,mode){const projection=player.projection||0,sd=finite(player.sd)?player.sd:projection*.32;return mode==='tournament'?(root.GoingDfsTournament||(typeof require==='function'?require('./dfs-tournament.js'):null))?.objective(player)??projection:mode==='floor'?projection-.18*sd:mode==='ceiling'?projection+.28*sd:projection;}
++function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false,contest='classic',lockedIds=[],captainId=null,now=Date.now()}={}){
+@@ -59 +60 @@ function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5
+- const available=players.filter(player=>finite(player.projection)&&player.projection>0&&(projectionOnly||(finite(player.salary)&&player.salary>0))&&!['o','out','ir'].includes(String(player.injury||'').toLowerCase())&&!player.unavailable);
++ const available=players.filter(player=>finite(player.projection)&&player.projection>0&&(projectionOnly||(finite(player.salary)&&player.salary>0))&&!['o','out','ir','ina','res','dev','cut','ret','exe','inactive','reserve','doubtful'].includes(String(typeof player.injury==='object'?player.injury?.state:player.injury||'').toLowerCase())&&!player.unavailable&&(!player.kickoff||Date.parse(player.kickoff)>Number(now)));
+@@ -106 +107 @@ function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5
+- const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:state.base+correlation(state.players,mode),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
++ const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:state.base+(mode==='tournament'?0:correlation(state.players,mode)),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
+diff --git a/shared/visual-system.js b/shared/visual-system.js
+index bee0d6a594eb857c752669b19e186d3c7c208c28..6e4cfc7bed8ef55e81fab463ae2e63be104ee12d 100644
+--- a/shared/visual-system.js
++++ b/shared/visual-system.js
+@@ -21 +21 @@ const hero=document.createElement('section');hero.className='v-football-hero';he
+-const meta={abbeys:['ABBEYS','Current-season football. One straight-up winner per game.'],today:['TODAY','Data-backed markets, matchups and evidence for the selected slate.'],opportunities:['MARKETS','Compare available lines, totals and player markets.'],games:['GAMES','The matchup, a little clearer. Prices and evidence by game.'],dfs:['DFS','Real salaries. Your players. Two clear research objectives.'],cheatsheets:['CHEAT|SHEETS','Everything you need to investigate. Compare roles, targets, carries, and more.'],parlay:['PARLAYS','Build and edit a ticket from the games you care about.'],jackpot:['JACKPOT','First TD, Last TD and longest-touchdown research.'],research:['MORE','Tools, evidence and deeper football research.']};
++const meta={abbeys:['ABBEYS','Current-season football. One straight-up winner per game.'],today:['TODAY','Data-backed markets, matchups and evidence for the selected slate.'],opportunities:['MARKETS','Compare available lines, totals and player markets.'],games:['GAMES','The matchup, a little clearer. Prices and evidence by game.'],dfs:['DFS','Classic or Captain. Build around current players and opportunity.'],cheatsheets:['CHEAT|SHEETS','Everything you need to investigate. Compare roles, targets, carries, and more.'],parlay:['PARLAYS','Build and edit a ticket from the games you care about.'],jackpot:['JACKPOT','First TD, Last TD and longest-touchdown research.'],research:['MORE','Tools, evidence and deeper football research.']};
+diff --git a/tests/betting.test.cjs b/tests/betting.test.cjs
+index 59507cc15f90e68db495c65dfc62132944903e07..77b46410ef064ad1d69f5a1134379107b87d75a4 100644
+--- a/tests/betting.test.cjs
++++ b/tests/betting.test.cjs
+@@ -19,0 +20 @@ function setup(t,parlaySaved=null){
++  for(const f of ['dfs-availability','dfs-upside','dfs-tournament','dfs-journal','dfs-classic','dfs-evidence'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/'+f+'.js'),'utf8'),context);
+@@ -754,0 +756,7 @@ test('An open parlay swap chooser survives background refresh with stable contra
++
++
++test('DFS feed nonactive status wins over imported FPPG and stale generic ACT',t=>{
++ const {api:a,context}=setup(t); a.BET.history={profiles:{}};a.BET.roster={generated_at:'2026-09-09T10:00:00Z',players:[{name:'Reserve One',team:'NO',position:'RB',roster_status:'ACT'}]};a.BET.injuryLearning={current_players:{'NO|reserveone':{name:'Reserve One',team:'NO',position:'RB',roster_status:'RES'}}};
++ vm.runInContext("DFS_STATE.source='csv';DFS_STATE.salaryPlayers=[{id:'res',name:'Reserve One',team:'NO',position:'RB',siteProjection:20,salary:5000,injury:''},{id:'out',name:'Imported Out',team:'ATL',position:'WR',siteProjection:25,salary:5000,injury:'O'}];",context);
++ const pool=vm.runInContext('dfsPlayerPool()',context);assert.equal(pool.length,2);assert.ok(pool.every(p=>p.unavailable));assert.ok(pool.every(p=>p.projection===null));assert.ok(pool.every(p=>p.source==='Unavailable'));
++});
+diff --git a/tests/dfs-availability.test.cjs b/tests/dfs-availability.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..c5dff32783f4bc22a8c3146dbf7c7e762a0acb6d
+--- /dev/null
++++ b/tests/dfs-availability.test.cjs
+@@ -0,0 +1,59 @@
++'use strict';
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const availability=require('../shared/dfs-availability.js');
++const {buildPool}=require('../shared/dfs-evidence.js');
++const dfs=require('../shared/football-dfs.js');
++
++const generatedAt='2026-10-05T12:00:00Z',now=Date.parse('2026-10-05T18:00:00Z');
++const profile={id:'dfs-rb',name:'Roster Status Back',team:'BUF',position:'RB',last_game:'2026-09-28',games:[]};
++const current={player_id:profile.id,team:'BUF',season:2026,games:3,last_game:'2026-09-28',targets:6,rush_attempts:20,target_share:.2,rush_share:.7};
++const modelStats={rush_yds:80,rush_tds:1,rec_yds:20,rec_tds:.2,receptions:3};
++function injuryContext(status,{reportStatus=null,practice=null}={}){
++ return availability.createContext({generated_at:generatedAt,players:[{name:profile.name,team:'BUF',position:'RB',roster_status:'ACT',status:'ACT'}]},{},now,{
++  current_players:{'BUF|rosterstatusback':{name:profile.name,team:'BUF',position:'RB',roster_status:status}},
++  current_reports:reportStatus||practice?{'BUF|rosterstatusback':{name:profile.name,team:'BUF',position:'RB',report_status:reportStatus,practice_status:practice,primary_injury:practice?'Ankle':null}}:{},
++ });
++}
++function dfsPool(context){
++ return buildPool([{id:'salary-id',name:profile.name,team:'BUF',opponent:'MIA',position:'RB',salary:5000,kickoff:'2026-10-06T17:00:00Z'}],{
++  profiles:{[profile.id]:profile},context:{season:2026,generated_at:generatedAt,scopes:{2026:{players:{[profile.id]:current}}}},injuryContext:context,generatedAt,now,injuries:availability,
++  makeModel:(p,key)=>({projMean:modelStats[key],model:{status:'ready',mean:modelStats[key]}}),bonusProbability:()=>0,points:dfs.projectedPoints,
++ });
++}
++
++test('DFS context gives exact evidence roster status precedence over all-ACT base rows',()=>{
++ for(const status of ['INA','RES','DEV','CUT','RET','EXE']){
++  const context=injuryContext(status),roster=context.byIdentity.get('BUF|rosterstatusback');
++  assert.equal(roster.status,status);assert.equal(roster.roster_status,status);assert.equal(availability.availability(roster).state,'out');assert.equal(dfsPool(context)[0].unavailable,true);
++ }
++ for(const status of ['ACT','ACTIVE']){
++  const context=injuryContext(status);assert.equal(availability.availability(context.byIdentity.get('BUF|rosterstatusback')).state,'available');
++  assert.equal(dfsPool(context)[0].unavailable,false);
++ }
++});
++
++test('unknown roster codes stay unknown; known injury and practice evidence still applies',()=>{
++ const unknown=injuryContext('NEW-CODE');assert.equal(availability.availability(unknown.byIdentity.get('BUF|rosterstatusback')).state,'unknown');
++ const questionable=injuryContext('NEW-CODE',{reportStatus:'Questionable'});assert.equal(availability.availability(questionable.byIdentity.get('BUF|rosterstatusback')).state,'questionable');
++ const dnp=injuryContext('NEW-CODE',{practice:'Did Not Participate'});assert.equal(availability.availability(dnp.byIdentity.get('BUF|rosterstatusback')).state,'practice_dnp');
++});
++
++test('DFS QB starter requires a verified current role and skips explicit nonactive quarterbacks',()=>{
++ const make=(rows)=>availability.createContext({generated_at:generatedAt,players:rows.map(row=>({name:row.name,team:'BUF',pos:'QB',status:'ACT'}))},{},now,{
++  current_players:Object.fromEntries(rows.map(row=>['BUF|'+availability.normalize(row.name),{name:row.name,team:'BUF',position:'QB',roster_status:row.status,role_order:row.order}]))
++ });
++ let context=make([{name:'QB One',order:1,status:'ACT'},{name:'QB Two',order:2,status:'ACT'}]);
++ assert.equal(availability.starterEligibility({name:'QB One',team:'BUF',position:'QB',context}).eligible,true);
++ context=make([{name:'QB One',order:1,status:'INA'},{name:'QB Two',order:2,status:'ACT'}]);
++ assert.equal(availability.starterEligibility({name:'QB Two',team:'BUF',position:'QB',context}).eligible,true);
++ context=make([{name:'Alphabetical Backup',order:null,status:'ACT'}]);
++ const unknown=availability.starterEligibility({name:'Alphabetical Backup',team:'BUF',position:'QB',context});assert.equal(unknown.known,false);assert.equal(unknown.eligible,false);
++ context=availability.createContext({generated_at:generatedAt,players:[{name:'Depth One',team:'BUF',position:'QB',roster_status:'ACT',depth_chart_order:1},{name:'Depth Two',team:'BUF',position:'QB',roster_status:'ACT',depth_chart_order:2}]},{},now,{current_players:{'BUF|depthone':{name:'Depth One',team:'BUF',position:'QB',roster_status:'ACT',role_order:null},'BUF|depthtwo':{name:'Depth Two',team:'BUF',position:'QB',roster_status:'ACT',role_order:null}}});
++ assert.equal(availability.starterEligibility({name:'Depth One',team:'BUF',position:'QB',context}).eligible,true);
++ context=availability.createContext({generated_at:generatedAt,players:[{name:'Depth One',team:'BUF',position:'QB',roster_status:'ACT',depth_chart_order:1},{name:'Depth Tie',team:'BUF',position:'QB',roster_status:'ACT',depth_chart_order:1}]},{},now,{});
++ const ambiguous=availability.starterEligibility({name:'Depth One',team:'BUF',position:'QB',context});assert.equal(ambiguous.known,false);assert.equal(ambiguous.eligible,false);
++});
++
++
++test('salary-file medical abbreviations cannot hide an OUT and do not call Q confirmed out',()=>{assert.equal(availability.availability({injury_status:'O'}).block,true);assert.equal(availability.availability({injury_status:'D'}).block,true);assert.equal(availability.availability({injury_status:'Q'}).state,'questionable');assert.equal(availability.availability({injury_status:'Q'}).block,false);});
+diff --git a/tests/dfs-classic-ui.test.cjs b/tests/dfs-classic-ui.test.cjs
+index b1c786c2888cc821360a9695ef2f1296075932d2..937a6867935f915d65b90bc74e86fc43263fa107 100644
+--- a/tests/dfs-classic-ui.test.cjs
++++ b/tests/dfs-classic-ui.test.cjs
+@@ -25,2 +25,2 @@ function mount(t,{buildPool=enrich,buildScenario=()=>({version:'team-budget-v1',
+- for(const file of ['shared/dfs-threshold.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
+- w.GoingDfsClassicUI.mount(w.document.getElementById('fixture'),{generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool,buildScenario});
++ for(const file of ['shared/dfs-threshold.js','shared/dfs-journal.js','shared/dfs-tournament.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
++ w.GoingDfsClassicUI.mount(w.document.getElementById('fixture'),{defaultMode:'throne',generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool,buildScenario});
+@@ -99,0 +100,6 @@ test('zero eight-TD scenario support is disclosed instead of pretending the targ
++
++
++test('tournament UI explains construction, unknown leverage and progressively exposes the full pool',async t=>{const ui=mount(t);await load(ui,officialShape({QB:3,RB:16,WR:25,TE:6,DST:4}));confirm(ui);click(ui,'#dk-tournament');await generate(ui);assert.equal(ids(ui).length,9);assert.match(ui.d.body.textContent,/Your tournament thesis/);assert.match(ui.d.body.textContent,/Ownership.leverage unknown/);assert.equal(ui.d.querySelectorAll('#dk-pool-list article').length,40);click(ui,'[data-act="more-pool"]');assert.equal(ui.d.querySelectorAll('#dk-pool-list article').length,54);});
++
++
++test('pregame lineup can be frozen without modifying the lineup and exports stay separate from betting journals',async t=>{const ui=mount(t);await load(ui);confirm(ui);click(ui,'#dk-tournament');await generate(ui);const before=ids(ui);click(ui,'[data-act="freeze"]');assert.match(ui.d.getElementById('dk-status').textContent,/Pregame DFS lineup frozen/);assert.deepEqual(ids(ui),before);const r=ui.w.GoingDfsJournal.read(ui.w.localStorage);assert.equal(r.ok,true);assert.equal(r.receipts.length,1);assert.equal(r.receipts[0].mode,'tournament');assert.equal(r.receipts[0].players.length,9);});
+diff --git a/tests/dfs-classic.test.cjs b/tests/dfs-classic.test.cjs
+index 72579f5d0a52493a114954c0090f6c558f190acd..f164818ed2e4b1492ee0478300f88d35d299368d 100644
+--- a/tests/dfs-classic.test.cjs
++++ b/tests/dfs-classic.test.cjs
+@@ -84,0 +85,7 @@ test('representative 300-player pool search is bounded and returns a valid lineu
++
++
++test('tournament objective distinguishes observed upside from median without relaxing any roster rules',()=>{
++ const pool=fixture();const first=pool.find(p=>p.position==='QB'),other=pool.filter(p=>p.position==='QB').at(-1);other.upside={value:75,source:'observed-partial-fantasy-residual-v1',n:12,currentGames:4,asOf:NOW};
++ const best=dfs.optimize(pool,{mode:'best',now:NOW}),tournament=dfs.optimize(pool,{mode:'tournament',now:NOW});assert.equal(best.lineup[0].id,first.id);assert.equal(tournament.lineup[0].id,other.id);assert.ok(dfs.validateLineup(tournament.lineup,pool,{mode:'tournament',now:NOW}).valid);assert.equal(tournament.tournament.ownership.status,'unknown');assert.equal(tournament.tournament.objective.jointCeiling,'not-estimated');
++ other.unavailable=true;assert.notEqual(dfs.optimize(pool,{mode:'tournament',now:NOW}).lineup[0].id,other.id);
++});
+diff --git a/tests/dfs-journal.test.cjs b/tests/dfs-journal.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae3ec188ee864865d0633899c7445928fa1a4a33
+--- /dev/null
++++ b/tests/dfs-journal.test.cjs
+@@ -0,0 +1,105 @@
++'use strict';
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const journal=require('../shared/dfs-journal.js');
++
++const now=Date.parse('2026-10-05T19:00:00Z'),kickoff='2026-10-06T17:00:00Z',hash='a'.repeat(64);
++const modelGeneratedAt='2026-10-05T18:00:00Z',injuryAt='2026-10-05T18:30:00Z';
++function classicPlayers(){
++ const rows=[
++  ['QB','QB','BUF',6000,'BUF@MIA'],['RB','RB','BUF',7000,'BUF@MIA'],['RB','RB','MIA',6500,'BUF@MIA'],
++  ['WR','WR','BUF',6500,'BUF@MIA'],['WR','WR','MIA',6000,'BUF@MIA'],['WR','WR','BUF',5500,'BUF@MIA'],
++  ['TE','TE','MIA',4000,'BUF@MIA'],['FLEX','WR','MIA',5000,'BUF@MIA'],['DST','DST','NYJ',3000,'NYJ@BUF'],
++ ];
++ return rows.map(([slot,position,team,salary,game],i)=>({id:'p'+i,name:`Player ${i}`,team,position,slot,game,gameId:`${game}|2026-10-06`,kickoff,salary,projection:10+i,upside:null,evidence:[`evidence ${i}`],injury:null,concern:null,concerns:[],sourceSalary:'draftkings-csv'}));
++}
++function input(extra={}){return {players:classicPlayers(),contest:'classic',site:'draftkings',mode:'best',salaryHash:hash,modelGeneratedAt,injuryAt,now,...extra};}
++function freeze(extra={}){return journal.freeze(input(extra));}
++function showdownPlayers({pricedCaptain=true}={}){
++ const rows=[['CPT','QB','BUF',pricedCaptain?12000:8000,pricedCaptain?'CPT':null],['FLEX','RB','BUF',6000,'FLEX'],['FLEX','WR','BUF',5000,'FLEX'],['FLEX','QB','MIA',7500,'FLEX'],['FLEX','RB','MIA',6000,'FLEX'],['FLEX','WR','MIA',8500,'FLEX']];
++ return rows.map(([slot,position,team,salary,showdownRole],i)=>({id:'s'+i,name:`Showdown ${i}`,team,position,slot,game:'BUF@MIA',gameId:'BUF@MIA|2026-10-06T17:00:00Z',kickoff,salary,projection:20-i,upside:null,evidence:[],injury:null,concerns:[],showdownRole}));
++}
++function showdown(extra={}){return journal.freeze({...input({players:showdownPlayers(),contest:'showdown'}),...extra});}
++function storage(){const data=new Map();return {data,getItem:key=>data.has(key)?data.get(key):null,setItem:(key,value)=>data.set(key,String(value))};}
++
++test('freeze makes a pure, immutable exact Classic lineup receipt',()=>{
++ const source=input(),before=JSON.stringify(source),result=journal.freeze(source);assert.equal(result.ok,true,result.error);
++ assert.equal(JSON.stringify(source),before);assert.equal(Object.isFrozen(result.receipt),true);assert.equal(Object.isFrozen(result.receipt.players[0]),true);
++ assert.equal(result.receipt.salaryUsed,49500);assert.equal(result.receipt.salaryCap,50000);assert.equal(result.receipt.players.length,9);
++ assert.equal(result.receipt.modelGeneratedAt,modelGeneratedAt);assert.equal(result.receipt.injuryAt,injuryAt);assert.equal(result.receipt.players[0].slot,'QB');
++ assert.equal(result.receipt.strategyVersion,'legacy-best');assert.equal(result.receipt.availabilityVersion,'dfs-availability-v1');
++ assert.equal(result.receipt.players[0].sourceSalary,'draftkings-csv');assert.match(result.receipt.id,/^dfs-/);
++ const roundTrip=JSON.parse(JSON.stringify(result.receipt));assert.equal(journal.append(storage(),roundTrip).ok,true);
++});
++
++test('freeze preserves sourced tournament upside evidence and optional opportunity context',()=>{
++ const upside={value:24.5,source:'observed-partial-fantasy-residual-v1',n:12,currentGames:3,asOf:'2026-10-05T18:45:00Z',spread:7.25,historicalMean:17.25,historicalQ90:24.5,site:'draftkings',label:'historical proxy'};
++ const players=classicPlayers().map((p,i)=>i===0?{...p,upside,stats:{targets:8},source:'local-profile',modelAgeHours:2.5}:p);
++ const result=journal.freeze(input({players,mode:'tournament'}));assert.equal(result.ok,true,result.error);
++ assert.deepEqual(result.receipt.players[0].upside,upside);assert.deepEqual(result.receipt.players[0].opportunityStats,{targets:8});
++ assert.equal(result.receipt.players[0].opportunitySource,'local-profile');assert.equal(result.receipt.players[0].modelAgeHours,2.5);
++ assert.equal(result.receipt.players[1].upside,null);assert.equal(result.receipt.players[1].opportunityStats,null);assert.equal(result.receipt.players[1].opportunitySource,null);assert.equal(result.receipt.players[1].modelAgeHours,null);
++ assert.equal(result.receipt.upsideTotal,null);assert.equal(result.receipt.strategyVersion,'dfs-tournament-research-v1');
++ const all=classicPlayers().map(p=>({...p,upside}));const complete=journal.freeze(input({players:all,mode:'tournament'}));assert.equal(complete.ok,true,complete.error);
++ assert.equal(complete.receipt.upsideTotal,upside.value*9);
++});
++
++test('sourced upside and persisted receipt schema reject malformed evidence',()=>{
++ const base={value:24.5,source:'observed-partial-fantasy-residual-v1',n:12,currentGames:3,asOf:'2026-10-05T18:45:00Z',spread:7.25,historicalMean:17.25,historicalQ90:24.5,site:'draftkings'};
++ for(const upside of [23,{...base,source:'invented'},{...base,n:7},{...base,currentGames:13},{...base,asOf:'2026-10-05T19:01:00Z'},{...base,value:NaN}]){
++  const result=journal.freeze(input({players:classicPlayers().map((p,i)=>i===0?{...p,upside}:p)}));assert.equal(result.ok,false);
++ }
++ const store=storage(),receipt=freeze().receipt;assert.equal(journal.append(store,receipt).ok,true);
++ const data=JSON.parse(store.data.get(journal.KEY));delete data.receipts[0].availabilityVersion;store.data.set(journal.KEY,JSON.stringify(data));
++ assert.equal(journal.read(store).ok,false);
++});
++
++test('freeze rejects invalid or already-started, unavailable, incomplete or non-genuine salary inputs',()=>{
++ for(const patch of [
++  {salaryHash:'not-a-hash'},
++  {modelGeneratedAt:'invalid'},
++  {modelGeneratedAt:'2026-10-05T19:01:00Z'},
++  {injuryAt:'2026-10-05T19:01:00Z'},
++  {now:NaN},
++  {players:classicPlayers().slice(1)},
++  {players:classicPlayers().map((p,i)=>i===0?{...p,kickoff:new Date(now).toISOString()}:p)},
++  {players:classicPlayers().map((p,i)=>i===0?{...p,unavailable:true}:p)},
++  {players:classicPlayers().map((p,i)=>i===0?{...p,injury:{state:'out'}}:p)},
++  {players:classicPlayers().map((p,i)=>i===0?{...p,evidence:[NaN]}:p)},
++  {players:classicPlayers().map((p,i)=>i===0?{...p,slotIndex:99}:p)},
++  {players:classicPlayers().map((p,i)=>i===0?{...p,sourceSalary:'invented'}:p)},
++ ])assert.equal(journal.freeze(input(patch)).ok,false,JSON.stringify(patch));
++ const cyclic={};cyclic.self=cyclic;assert.equal(journal.freeze(input({players:classicPlayers().map((p,i)=>i===0?{...p,evidence:cyclic}:p)})).ok,false);
++});
++
++test('Classic enforces slots, player identity, game coverage, team limits and salary cap',()=>{
++ const players=classicPlayers();
++ assert.equal(journal.freeze(input({players:players.map((p,i)=>i===1?{...p,slot:'WR'}:p)})).ok,false);
++ assert.equal(journal.freeze(input({players:players.map((p,i)=>i===1?{...p,id:players[0].id}:p)})).ok,false);
++ assert.equal(journal.freeze(input({players:players.map(p=>({...p,gameId:'BUF@MIA'}))})).ok,false);
++ assert.equal(journal.freeze(input({players:players.map(p=>({...p,team:'BUF'}))})).ok,false);
++ assert.equal(journal.freeze(input({players:players.map((p,i)=>i===0?{...p,salary:9000}:p)})).ok,false);
++});
++
++test('Showdown applies captain projection multiplier and captain salary cost once',()=>{
++ const priced=showdown();assert.equal(priced.ok,true,priced.error);assert.equal(priced.receipt.salaryUsed,45000);
++ assert.equal(priced.receipt.players[0].salary,12000);assert.equal(priced.receipt.players[0].salaryCost,12000);
++ assert.equal(priced.receipt.players[0].multiplier,1.5);assert.equal(priced.receipt.projectionTotal,115);
++ const base=showdown({players:showdownPlayers({pricedCaptain:false})});assert.equal(base.ok,true,base.error);
++ assert.equal(base.receipt.players[0].salary,8000);assert.equal(base.receipt.players[0].salaryCost,12000);assert.equal(base.receipt.salaryUsed,45000);
++ assert.equal(showdown({players:showdownPlayers().map((p,i)=>i===5?{...p,game:'BUF@NYJ',gameId:'BUF@NYJ|2026-10-06'}:p)}).ok,false);
++ assert.equal(showdown({players:showdownPlayers().map((p,i)=>i===5?{...p,kickoff:'2026-10-07T17:00:00Z'}:p)}).ok,false);
++ assert.equal(showdown({players:showdownPlayers().map((p,i)=>i===0?{...p,multiplier:1}:p)}).ok,false);
++});
++
++test('append/read are separate, bounded, duplicate-safe and preserve malformed storage',()=>{
++ const store=storage(),first=freeze();assert.equal(first.ok,true);assert.equal(journal.append(store,first.receipt).ok,true);
++ assert.equal(journal.read(store).receipts.length,1);assert.equal(journal.append(store,first.receipt).ok,false);
++ const before=store.data.get(journal.KEY);store.data.set(journal.KEY,'{bad json');
++ assert.equal(journal.append(store,freeze({now:now+1000}).receipt).ok,false);assert.equal(store.data.get(journal.KEY),'{bad json');
++ store.data.set(journal.KEY,before);
++ const fullReceipts=Array.from({length:journal.CAPACITY},(_,i)=>freeze({now:now+i*1000}).receipt);
++ store.data.set(journal.KEY,JSON.stringify({version:1,receipts:fullReceipts}));
++ const full=journal.read(store);assert.equal(full.ok,true);assert.equal(full.receipts.length,journal.CAPACITY);
++ assert.equal(journal.append(store,freeze({now:now+journal.CAPACITY*1000}).receipt).ok,false);assert.equal(journal.read(store).receipts.length,journal.CAPACITY);
++});
+diff --git a/tests/dfs-tournament.test.cjs b/tests/dfs-tournament.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..8d8a99c1cc35a41fa6d9bf3e39fdf695eb1d31ef
+--- /dev/null
++++ b/tests/dfs-tournament.test.cjs
+@@ -0,0 +1,85 @@
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const T=require('../shared/dfs-tournament.js');
++
++const upside=(value,n=10,currentGames=3,asOf='2026-10-04T16:00:00Z')=>({value,source:T.UPSIDE_SOURCE,n,currentGames,asOf});
++
++test('classic review describes stack, opponent bring-back, DST conflict and unknown ownership',()=>{
++ const lineup=[
++  {id:'qb',position:'QB',team:'BUF',opponent:'MIA',gameId:'BUF@MIA'},
++  {id:'wr',position:'WR',team:'BUF',opponent:'MIA',gameId:'BUF@MIA'},
++  {id:'te',position:'TE',team:'BUF',opponent:'MIA',gameId:'BUF@MIA'},
++  {id:'back',position:'WR',team:'MIA',opponent:'BUF',gameId:'BUF@MIA'},
++  {id:'dst',position:'DST',team:'BUF',opponent:'MIA',gameId:'BUF@MIA'},
++  {id:'opp',position:'RB',team:'MIA',opponent:'BUF',gameId:'BUF@MIA'}
++ ];
++ const result=T.evaluate(lineup,{contest:'classic'});
++ assert.equal(result.format.type,'multi-game');
++ assert.deepEqual(result.classic.sameTeamPassCatchers,['wr','te']);
++ assert.deepEqual(result.classic.bringBacks,['back','opp']);
++ assert.deepEqual(result.classic.dstOpposingOffenseConflicts,['back','opp']);
++ assert.equal(result.ownership.status,'unknown');
++ assert.equal(result.salary.interpretation,'context-only; no uniqueness inference');
++ assert.equal(result.objective.value,null);
++ assert.deepEqual(result.constraints.hardCorrelationRules,[]);
++ assert.equal(result.showdown,null);
++});
++
++test('showdown describes captain pairings and team split without restrictions',()=>{
++ const lineup=[
++  {id:'cpt',position:'WR',team:'KC',slot:'CPT',salary:12000,projection:20},
++  {id:'qb',position:'QB',team:'KC',slot:'FLEX'},
++  {id:'opp',position:'WR',team:'BUF',slot:'FLEX'},
++  {id:'dst',position:'DST',team:'BUF',slot:'FLEX'}
++ ];
++ const result=T.evaluate(lineup,{contest:'showdown'});
++ assert.equal(result.format.type,'single-game');
++ assert.equal(result.showdown.captain,'cpt');
++ assert.equal(result.showdown.captainPairings.find(p=>p.playerId==='qb').interpretation,'positive-pass-correlation candidate');
++ assert.equal(result.showdown.captainPairings.find(p=>p.playerId==='opp').interpretation,'unmodeled');
++ assert.deepEqual(result.showdown.teamComposition,{KC:2,BUF:2});
++ assert.deepEqual(result.constraints.hardCorrelationRules,[]);
++ assert.deepEqual(result.constraints.hardOwnershipRules,[]);
++});
++
++test('objective only uses correctly sourced, sufficiently sampled upside; malformed evidence falls back',()=>{
++ const supported={projection:15,upside:upside(23,8,3)};
++ assert.equal(T.objective(supported),23);
++ assert.equal(T.objective(supported,{multiplier:1.5}),34.5);
++ assert.equal(T.objective(supported,1.5),34.5);
++ assert.equal(T.playerObjective(supported).ceilingStatus,'provided-unvalidated');
++ for(const malformed of [
++  {value:99,source:'other',n:20,currentGames:3,asOf:'2026-10-04'},
++  upside(99,7,3),upside(99,8,9),upside(99,8,3,'not-a-date')
++ ]){
++  assert.equal(T.objective({projection:15,upside:malformed}),15);
++  assert.equal(T.playerObjective({projection:15,upside:malformed}).ceilingStatus,'unknown');
++ }
++ assert.equal(T.objective({projection:15,upside:{value:99}}),15);
++ assert.equal(T.objective({}),null);
++});
++
++test('comparison uses supplied player upside with projection fallback and only descriptive exact-tie preference',()=>{
++ const qb={id:'qb',position:'QB',team:'BUF',opponent:'MIA',projection:10,upside:upside(14)};
++ const stack={id:'stack',position:'WR',team:'BUF',opponent:'MIA',projection:10};
++ const plain={id:'plain',position:'WR',team:'NYJ',opponent:'NE',projection:10};
++ const compared=T.compare([qb,plain],[qb,stack],{contest:'classic'});
++ assert.equal(compared.ranked[0].lineup[1].id,'stack');
++ assert.equal(compared.ranked[0].score,24);
++ assert.equal(compared.ranked[0].upsideCovered,1);
++ assert.match(compared.ranked[0].ceilingStatus,/unknown/);
++ assert.equal(compared.jointCeiling,'not-estimated');
++ assert.match(compared.tieBreak,/exact objective ties/);
++});
++
++test('showdown applies 1.5 fantasy multiplier at CPT even when imported salary is already CPT salary',()=>{
++ const cpt={id:'cpt',position:'WR',team:'KC',slot:'CPT',salaryRole:'CPT',salary:15000,projection:20,upside:upside(24)};
++ const flex={id:'flex',position:'QB',team:'KC',slot:'FLEX',salary:8000,projection:20,upside:upside(20)};
++ const result=T.compare([cpt,flex],[{id:'plainCpt',position:'RB',team:'BUF',slot:'CPT',salaryRole:'CPT',salary:12000,projection:28,upside:upside(20)},flex],{contest:'showdown'});
++ assert.equal(T.objective(cpt,{multiplier:1.5}),36);
++ assert.equal(result.ranked[0].lineup[0].id,'cpt');
++ assert.equal(result.ranked[0].score,56);
++ assert.equal(T.evaluate([cpt,flex],{contest:'showdown'}).salary.salaryUsed,23000);
++ assert.equal(T.evaluate([cpt,flex],{contest:'showdown'}).salary.salaryRemaining,27000);
++ assert.equal(T.evaluate([cpt,flex],{contest:'showdown'}).objective.value,56);
++});
+diff --git a/tests/dfs-upside.test.cjs b/tests/dfs-upside.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..49915d008cb15758e57b4c3c714cc5e76a5c9859
+--- /dev/null
++++ b/tests/dfs-upside.test.cjs
+@@ -0,0 +1,7 @@
++const {test}=require('node:test'),assert=require('node:assert/strict');
++const U=require('../shared/dfs-upside.js'),D=require('../shared/football-dfs.js');
++const now=Date.parse('2026-10-05T22:00:00Z');
++function sample(){return {games:Array.from({length:10},(_,i)=>({season:i<6?2025:2026,date:i<6?`2025-11-${10+i}`:`2026-09-${10+i}`,pass_yds:0,pass_tds:0,rush_yds:i*20,rush_tds:0,rec_yds:0,rec_tds:0,receptions:0}))};}
++test('upside uses observed joint partial scoring including actual bonuses; separates forecast mean from spread',()=>{const u=U.observed(sample(),12,{now,points:D.projectedPoints});assert.equal(u.source,U.SOURCE);assert.equal(u.n,10);assert.equal(u.currentGames,4);assert.equal(u.historicalQ90,19);assert.equal(u.historicalMean,10.5);assert.equal(u.value,20.5);assert.equal(u.spread,8.5);});
++test('small samples, missing fields, future and current-day rows never create artificial ceilings',()=>{const p=sample();assert.equal(U.observed({games:p.games.slice(0,7)},12,{now,points:D.projectedPoints}),null);p.games.push({...p.games[0],date:'2026-10-05',rush_yds:900},{...p.games[0],date:'2026-10-06',rush_yds:999});const u=U.observed(p,12,{now,points:D.projectedPoints});assert.equal(u.n,10);delete p.games[0].rec_tds;assert.equal(U.observed(p,12,{now,points:D.projectedPoints}).n,9);});
++test('receptions follow platform scoring without independent component simulation',()=>{const p=sample();p.games.forEach(g=>g.receptions=4);const dk=U.observed(p,12,{now,points:D.projectedPoints}),fd=U.observed(p,12,{site:'fanduel',now,points:D.projectedPoints});assert.equal(dk.historicalMean-fd.historicalMean,2);assert.equal(dk.spread,fd.spread);});
+diff --git a/tests/football-dfs.test.cjs b/tests/football-dfs.test.cjs
+index 33a96cd6f0cdd7bb79c4b4bab1e79ccbb1414de3..fdf6e5e7fe87faf4a5f7c54af10a84acca3fcfbb 100644
+--- a/tests/football-dfs.test.cjs
++++ b/tests/football-dfs.test.cjs
+@@ -36 +36 @@ test('DraftKings Showdown CPT and FLEX rows keep distinct IDs, exact salaries an
+- const result=dfs.optimize(players,{site:'draftkings',contest:'showdown',captainId:allenCaptain.id,lockedIds:[allenCaptain.id],count:1,minUnique:1});
++ const result=dfs.optimize(players,{site:'draftkings',contest:'showdown',captainId:allenCaptain.id,lockedIds:[allenCaptain.id],now:Date.parse('2026-10-03T17:00:00Z'),count:1,minUnique:1});
+@@ -141,0 +142,10 @@ test('affordable showdown candidates survive score cutoff with multiplier lock',
++
++
++test('tournament build excludes object OUT/roster codes and started players without fake uncertainty fallback',()=>{
++ const players=[];for(let i=0;i<9;i++)players.push({id:'t'+i,name:'Fixture '+i,position:i===0?'QB':'WR',team:i<5?'BUF':'MIA',opponent:i<5?'MIA':'BUF',game:'BUF@MIA',salary:4000,projection:20-i,kickoff:'2026-10-05T23:30:00Z'});
++ players[8].upside={value:100,source:'observed-partial-fantasy-residual-v1',n:12,currentGames:4,asOf:'2026-10-05T22:00:00Z'};
++ const opts={contest:'showdown',mode:'tournament',count:1,now:Date.parse('2026-10-05T23:00:00Z')};
++ const result=dfs.optimize(players,opts);assert.equal(result.lineups.length,1);assert.ok(result.lineups[0].players.some(p=>p.id==='t8'));
++ for(const injury of [{state:'out'},'INA','RES']){players[8].injury=injury;assert.ok(!dfs.optimize(players,opts).lineups[0].players.some(p=>p.id==='t8'));}delete players[8].injury;
++ assert.equal(dfs.optimize(players,{...opts,now:Date.parse('2026-10-06T00:00:00Z')}).lineups.length,0);
++});
+diff --git a/tests/reference-workspace.test.cjs b/tests/reference-workspace.test.cjs
+index fe5196b17564ae0cd868a0df1d835dfbf22b1dd7..65bc00a45e80f8667bee66c7894a72dca7b51c34 100644
+--- a/tests/reference-workspace.test.cjs
++++ b/tests/reference-workspace.test.cjs
+@@ -52 +52 @@ test('DFS native import, confirmation, generation, lock and clear survive worksp
+- const ui=setup(t,w=>{Object.defineProperty(w.crypto,'subtle',{value:webcrypto.subtle});w.TextEncoder=TextEncoder;for(const f of ['shared/dfs-threshold.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(read(f));
++ const ui=setup(t,w=>{Object.defineProperty(w.crypto,'subtle',{value:webcrypto.subtle});w.TextEncoder=TextEncoder;for(const f of ['shared/dfs-threshold.js','shared/dfs-tournament.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(read(f));

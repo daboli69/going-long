@@ -1,0 +1,26 @@
+{
+  "commit": "9fd23bac7c9ac0d98b3fe7fd6450f4ac8aec0fe8",
+  "status": "success",
+  "assets": [
+    {
+      "path": "shared/dfs-availability.js",
+      "sha256": "5dd99bd136c77e7b998e284bd227afb9e18adde9b5e46e19cb49aa2255b5c8a0"
+    },
+    {
+      "path": "shared/dfs-tournament.js",
+      "sha256": "a198f9608963e95412c18552e5204bd7d4151963a2a7254d0c09b2172c696324"
+    },
+    {
+      "path": "shared/dfs-journal.js",
+      "sha256": "bbcfe1b5187e237ac0add96ee6a252258f3e3ea4491c9bab75635e5dce88cf05"
+    },
+    {
+      "path": "shared/dfs-upside.js",
+      "sha256": "7fb77d3c617a7f6f69da1cd550cd55d1e87a9d4c33de03cb8a483efdefc94f78"
+    },
+    {
+      "path": "shared/dfs-classic-ui.js",
+      "sha256": "857b14873944ef0d652411690cdf94f7d6fefb8427e618495ddca00a93879f30"
+    }
+  ]
+}

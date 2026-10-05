@@ -1,0 +1,29 @@
+{
+  "cycle": "20261005-191436-dfs-tournament-manual-a",
+  "mainBase": "8d84a7b78bf7c038f1bb97a701c10d525b1dd238",
+  "reviewBase": "641d7c77847f99c52d64670efa4c72c483b574ef",
+  "production": "9fd23bac7c9ac0d98b3fe7fd6450f4ac8aec0fe8",
+  "testedTree": "27ef526f67178a55a351c1d604f8807994ee9479",
+  "patchSha256": "0c234ec643ca3758197a8a3f0fa8f6f658b3b0ac4a035232c1d057d125a1b8fe",
+  "node": {
+    "passed": 470,
+    "failed": 0
+  },
+  "python": {
+    "passed": 114,
+    "failed": 0
+  },
+  "productionBuild": "passed",
+  "vercelBuild": "passed",
+  "mobileWidths": [
+    430,
+    393,
+    390,
+    375,
+    360,
+    320
+  ],
+  "desktop": 1440,
+  "providerCalls": 0,
+  "triggeredCredentialedRefresh": false
+}

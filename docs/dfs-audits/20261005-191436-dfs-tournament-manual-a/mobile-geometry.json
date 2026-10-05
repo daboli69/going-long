@@ -1,0 +1,611 @@
+[
+  {
+    "body": 430,
+    "controls": [
+      {
+        "height": 49.1875,
+        "right": 142,
+        "text": "DraftKings Classic",
+        "width": 130
+      },
+      {
+        "height": 49.1875,
+        "right": 280,
+        "text": "Captain / MVP",
+        "width": 130
+      },
+      {
+        "height": 49.1875,
+        "right": 418,
+        "text": "Player ideas · no CSV",
+        "width": 130
+      },
+      {
+        "height": 70.59375,
+        "right": 211,
+        "text": "Tournament researchCurrent projection + observed scoring spread",
+        "width": 184
+      },
+      {
+        "height": 70.59375,
+        "right": 403,
+        "text": "Best DFS lineupHighest modeled fantasy-point total",
+        "width": 184
+      },
+      {
+        "height": 70.59375,
+        "right": 211,
+        "text": "Touchdown ThronePrioritize the lineup’s 8+ rush/rec TD scenario",
+        "width": 184
+      }
+    ],
+    "format": "classic",
+    "width": 430
+  },
+  {
+    "body": 393,
+    "controls": [
+      {
+        "height": 49.1875,
+        "right": 129.65625,
+        "text": "DraftKings Classic",
+        "width": 117.65625
+      },
+      {
+        "height": 49.1875,
+        "right": 255.328125,
+        "text": "Captain / MVP",
+        "width": 117.671875
+      },
+      {
+        "height": 49.1875,
+        "right": 381,
+        "text": "Player ideas · no CSV",
+        "width": 117.671875
+      },
+      {
+        "height": 70.59375,
+        "right": 192.5,
+        "text": "Tournament researchCurrent projection + observed scoring spread",
+        "width": 165.5
+      },
+      {
+        "height": 70.59375,
+        "right": 366,
+        "text": "Best DFS lineupHighest modeled fantasy-point total",
+        "width": 165.5
+      },
+      {
+        "height": 70.59375,
+        "right": 192.5,
+        "text": "Touchdown ThronePrioritize the lineup’s 8+ rush/rec TD scenario",
+        "width": 165.5
+      }
+    ],
+    "format": "classic",
+    "width": 393
+  },
+  {
+    "body": 390,
+    "controls": [
+      {
+        "height": 49.1875,
+        "right": 128.65625,
+        "text": "DraftKings Classic",
+        "width": 116.65625
+      },
+      {
+        "height": 49.1875,
+        "right": 253.328125,
+        "text": "Captain / MVP",
+        "width": 116.671875
+      },
+      {
+        "height": 49.1875,
+        "right": 378,
+        "text": "Player ideas · no CSV",
+        "width": 116.671875
+      },
+      {
+        "height": 70.59375,
+        "right": 191,
+        "text": "Tournament researchCurrent projection + observed scoring spread",
+        "width": 164
+      },
+      {
+        "height": 70.59375,
+        "right": 363,
+        "text": "Best DFS lineupHighest modeled fantasy-point total",
+        "width": 164
+      },
+      {
+        "height": 70.59375,
+        "right": 191,
+        "text": "Touchdown ThronePrioritize the lineup’s 8+ rush/rec TD scenario",
+        "width": 164
+      }
+    ],
+    "format": "classic",
+    "width": 390
+  },
+  {
+    "body": 375,
+    "controls": [
+      {
+        "height": 49.1875,
+        "right": 123.65625,
+        "text": "DraftKings Classic",
+        "width": 111.65625
+      },
+      {
+        "height": 49.1875,
+        "right": 243.328125,
+        "text": "Captain / MVP",
+        "width": 111.671875
+      },
+      {
+        "height": 49.1875,
+        "right": 363,
+        "text": "Player ideas · no CSV",
+        "width": 111.671875
+      },
+      {
+        "height": 70.59375,
+        "right": 183.5,
+        "text": "Tournament researchCurrent projection + observed scoring spread",
+        "width": 156.5
+      },
+      {
+        "height": 70.59375,
+        "right": 348,
+        "text": "Best DFS lineupHighest modeled fantasy-point total",
+        "width": 156.5
+      },
+      {
+        "height": 70.59375,
+        "right": 183.5,
+        "text": "Touchdown ThronePrioritize the lineup’s 8+ rush/rec TD scenario",
+        "width": 156.5
+      }
+    ],
+    "format": "classic",
+    "width": 375
+  },
+  {
+    "body": 360,
+    "controls": [
+      {
+        "height": 49.1875,
+        "right": 118.65625,
+        "text": "DraftKings Classic",
+        "width": 106.65625
+      },
+      {
+        "height": 49.1875,
+        "right": 233.328125,
+        "text": "Captain / MVP",
+        "width": 106.671875
+      },
+      {
+        "height": 49.1875,
+        "right": 348,
+        "text": "Player ideas · no CSV",
+        "width": 106.671875
+      },
+      {
+        "height": 70.59375,
+        "right": 176,
+        "text": "Tournament researchCurrent projection + observed scoring spread",
+        "width": 149
+      },
+      {
+        "height": 70.59375,
+        "right": 333,
+        "text": "Best DFS lineupHighest modeled fantasy-point total",
+        "width": 149
+      },
+      {
+        "height": 70.59375,
+        "right": 176,
+        "text": "Touchdown ThronePrioritize the lineup’s 8+ rush/rec TD scenario",
+        "width": 149
+      }
+    ],
+    "format": "classic",
+    "width": 360
+  },
+  {
+    "body": 320,
+    "controls": [
+      {
+        "height": 64.78125,
+        "right": 105.328125,
+        "text": "DraftKings Classic",
+        "width": 93.328125
+      },
+      {
+        "height": 64.78125,
+        "right": 206.671875,
+        "text": "Captain / MVP",
+        "width": 93.34375
+      },
+      {
+        "height": 64.78125,
+        "right": 308,
+        "text": "Player ideas · no CSV",
+        "width": 93.328125
+      },
+      {
+        "height": 101.1875,
+        "right": 156,
+        "text": "Tournament researchCurrent projection + observed scoring spread",
+        "width": 129
+      },
+      {
+        "height": 101.1875,
+        "right": 293,
+        "text": "Best DFS lineupHighest modeled fantasy-point total",
+        "width": 129
+      },
+      {
+        "height": 101.1875,
+        "right": 156,
+        "text": "Touchdown ThronePrioritize the lineup’s 8+ rush/rec TD scenario",
+        "width": 129
+      }
+    ],
+    "format": "classic",
+    "width": 320
+  },
+  {
+    "body": 1440,
+    "controls": [
+      {
+        "height": 44,
+        "right": 153.03125,
+        "text": "DraftKings Classic",
+        "width": 133.03125
+      },
+      {
+        "height": 44,
+        "right": 270.0625,
+        "text": "Captain / MVP",
+        "width": 109.03125
+      },
+      {
+        "height": 44,
+        "right": 427.609375,
+        "text": "Player ideas · no CSV",
+        "width": 149.546875
+      },
+      {
+        "height": 61.59375,
+        "right": 1093.484375,
+        "text": "Tournament researchCurrent projection + observed scoring spread",
+        "width": 374.671875
+      },
+      {
+        "height": 61.59375,
+        "right": 1093.484375,
+        "text": "Best DFS lineupHighest modeled fantasy-point total",
+        "width": 374.671875
+      },
+      {
+        "height": 61.59375,
+        "right": 1093.484375,
+        "text": "Touchdown ThronePrioritize the lineup’s 8+ rush/rec TD scenario",
+        "width": 374.671875
+      }
+    ],
+    "format": "classic",
+    "width": 1440
+  },
+  {
+    "body": 430,
+    "captains": [
+      {
+        "right": 418,
+        "width": 406
+      },
+      {
+        "right": 418,
+        "width": 406
+      },
+      {
+        "right": 418,
+        "width": 406
+      },
+      {
+        "right": 418,
+        "width": 406
+      },
+      {
+        "right": 418,
+        "width": 406
+      },
+      {
+        "right": 418,
+        "width": 406
+      }
+    ],
+    "format": "captain-fixture",
+    "lineups": [
+      {
+        "right": 418,
+        "width": 406
+      }
+    ],
+    "width": 430
+  },
+  {
+    "body": 393,
+    "captains": [
+      {
+        "right": 381,
+        "width": 369
+      },
+      {
+        "right": 381,
+        "width": 369
+      },
+      {
+        "right": 381,
+        "width": 369
+      },
+      {
+        "right": 381,
+        "width": 369
+      },
+      {
+        "right": 381,
+        "width": 369
+      },
+      {
+        "right": 381,
+        "width": 369
+      }
+    ],
+    "format": "captain-fixture",
+    "lineups": [
+      {
+        "right": 381,
+        "width": 369
+      }
+    ],
+    "width": 393
+  },
+  {
+    "body": 390,
+    "captains": [
+      {
+        "right": 378,
+        "width": 366
+      },
+      {
+        "right": 378,
+        "width": 366
+      },
+      {
+        "right": 378,
+        "width": 366
+      },
+      {
+        "right": 378,
+        "width": 366
+      },
+      {
+        "right": 378,
+        "width": 366
+      },
+      {
+        "right": 378,
+        "width": 366
+      }
+    ],
+    "format": "captain-fixture",
+    "lineups": [
+      {
+        "right": 378,
+        "width": 366
+      }
+    ],
+    "width": 390
+  },
+  {
+    "body": 375,
+    "captains": [
+      {
+        "right": 363,
+        "width": 351
+      },
+      {
+        "right": 363,
+        "width": 351
+      },
+      {
+        "right": 363,
+        "width": 351
+      },
+      {
+        "right": 363,
+        "width": 351
+      },
+      {
+        "right": 363,
+        "width": 351
+      },
+      {
+        "right": 363,
+        "width": 351
+      }
+    ],
+    "format": "captain-fixture",
+    "lineups": [
+      {
+        "right": 363,
+        "width": 351
+      }
+    ],
+    "width": 375
+  },
+  {
+    "body": 360,
+    "captains": [
+      {
+        "right": 348,
+        "width": 336
+      },
+      {
+        "right": 348,
+        "width": 336
+      },
+      {
+        "right": 348,
+        "width": 336
+      },
+      {
+        "right": 348,
+        "width": 336
+      },
+      {
+        "right": 348,
+        "width": 336
+      },
+      {
+        "right": 348,
+        "width": 336
+      }
+    ],
+    "format": "captain-fixture",
+    "lineups": [
+      {
+        "right": 348,
+        "width": 336
+      }
+    ],
+    "width": 360
+  },
+  {
+    "body": 320,
+    "captains": [
+      {
+        "right": 308,
+        "width": 296
+      },
+      {
+        "right": 308,
+        "width": 296
+      },
+      {
+        "right": 308,
+        "width": 296
+      },
+      {
+        "right": 308,
+        "width": 296
+      },
+      {
+        "right": 308,
+        "width": 296
+      },
+      {
+        "right": 308,
+        "width": 296
+      }
+    ],
+    "format": "captain-fixture",
+    "lineups": [
+      {
+        "right": 308,
+        "width": 296
+      }
+    ],
+    "width": 320
+  },
+  {
+    "body": 1440,
+    "captains": [
+      {
+        "right": 362.5,
+        "width": 342.5
+      },
+      {
+        "right": 715,
+        "width": 342.5
+      },
+      {
+        "right": 1067.5,
+        "width": 342.5
+      },
+      {
+        "right": 1420,
+        "width": 342.5
+      },
+      {
+        "right": 362.5,
+        "width": 342.5
+      },
+      {
+        "right": 715,
+        "width": 342.5
+      }
+    ],
+    "format": "captain-fixture",
+    "lineups": [
+      {
+        "right": 1420,
+        "width": 1400
+      }
+    ],
+    "width": 1440
+  },
+  {
+    "blockedNames": [],
+    "body": 430,
+    "format": "actual-player-ideas",
+    "players": 18,
+    "width": 430
+  },
+  {
+    "blockedNames": [],
+    "body": 393,
+    "format": "actual-player-ideas",
+    "players": 18,
+    "width": 393
+  },
+  {
+    "blockedNames": [],
+    "body": 390,
+    "format": "actual-player-ideas",
+    "players": 18,
+    "width": 390
+  },
+  {
+    "blockedNames": [],
+    "body": 375,
+    "format": "actual-player-ideas",
+    "players": 18,
+    "width": 375
+  },
+  {
+    "blockedNames": [],
+    "body": 360,
+    "format": "actual-player-ideas",
+    "players": 18,
+    "width": 360
+  },
+  {
+    "blockedNames": [],
+    "body": 320,
+    "format": "actual-player-ideas",
+    "players": 18,
+    "width": 320
+  },
+  {
+    "blockedNames": [],
+    "body": 1440,
+    "format": "actual-player-ideas",
+    "players": 18,
+    "width": 1440
+  }
+]

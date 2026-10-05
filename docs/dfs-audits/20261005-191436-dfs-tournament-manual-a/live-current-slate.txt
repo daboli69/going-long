@@ -1,0 +1,231 @@
+DraftKings Classic
+Captain / MVP
+Player ideas · no CSV
+FanDuel, Showdown & projection research
+NFL FANTASY PROJECTION + LINEUP RESEARCH
+GOING DFS LAB
+
+Choose players, inspect their projections, then build around your locks. Import your official salary slate before entry.
+
+Slate source
+GOING projections — no CSV
+Official salary CSV
+Platform scoring
+DraftKings
+FanDuel
+Contest style
+Classic / Main Slate
+Single Game — Captain/MVP
+
+Projection-only mode needs no CSV. It creates ranked players and eight-player offensive roster ideas, but cannot verify salaries or contest eligibility. Upload the official salary file before treating a lineup as contest-valid.
+
+Build style
+Tournament research
+Balanced projection
+Floor / lower uncertainty
+Legacy upside heuristic
+Lineups
+Minimum different players
+Generate offensive cores
+
+DraftKings Classic scoring · 22 slate players · 18 usable projections.
+
+18
+PROJECTED PLAYERS
+18
+GOING MODELED
+1
+ADJUSTED ROLES
+NO CSV
+PROJECTION-ONLY MODE
+Build around your picks
+Tap players below to lock them. GOING updates complementary suggestions immediately and includes every locked player in generated lineups.
+No players locked yet. Pick anyone from the pool or use one of GOING's suggestions.
+Suggested next players
+Bijan Robinson
+RB · ATL · 26.1 pts
+Fills required RB
+Add
+Tyler Shough
+QB · NO · 25.9 pts
+Fills required QB
+Add
+Chris Olave
+WR · NO · 24.1 pts
+Fills required WR
+Add
+Drake London
+WR · ATL · 15.8 pts
+Fills required WR
+Add
+Devaughn Vele
+WR · NO · 11.5 pts
+Fills required WR
+Add
+Juwan Johnson
+TE · NO · 15.8 pts
+Fills required TE
+Add
+Noah Fant
+TE · NO · 8.2 pts
+Fills required TE
+Add
+Michael Penix Jr.
+QB · ATL · 14.4 pts
+Fills required QB
+Add
+How projections and lineup builds work
+GOING projected slate
+Find player
+Position
+ALL
+QB
+RB
+WR
+TE
+DST
+K
+Bijan RobinsonRB · ATL vs NO
+26.1
+
+Salary not loaded · uncertainty 10.4
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Tyler ShoughQB · NO vs ATL
+25.9
+
+Salary not loaded · uncertainty 7.8
+
+4/4 CORE COMPONENTS
+Why this projection
+Add to lineup
+Chris OlaveWR · NO vs ATL
+24.1
+
+Salary not loaded · uncertainty 6.4
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Drake LondonWR · ATL vs NO
+15.8
+
+Salary not loaded · uncertainty 9.2
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Juwan JohnsonTE · NO vs ATL
+15.8
+
+Salary not loaded · uncertainty 6.2
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Michael Penix Jr.QB · ATL vs NO
+14.4
+
+Salary not loaded · uncertainty 3.9
+
+4/4 CORE COMPONENTS
+Why this projection
+Add to lineup
+Devaughn VeleWR · NO vs ATL
+11.5
+
+Salary not loaded · uncertainty 4.6
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Noah FantTE · NO vs ATL
+8.2
+
+Salary not loaded · uncertainty 6.3
+
+5/5 CORE COMPONENTSQUESTIONABLE
+Why this projection
+Add to lineup
+Brian RobinsonRB · ATL vs NO
+7.0
+
+Salary not loaded · uncertainty 3.6
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Alvin KamaraRB · NO vs ATL
+6.8
+
+Salary not loaded · uncertainty 3.3
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Kendre MillerRB · NO vs ATL
+6.1
+
+Salary not loaded · uncertainty 4.0
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Austin HooperTE · ATL vs NO
+4.2
+
+Salary not loaded · uncertainty 3.5
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Kyle PittsTE · ATL vs NO
+3.9
+
+Salary not loaded · uncertainty 5.3
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Jahan DotsonWR · ATL vs NO
+2.6
+
+Salary not loaded · uncertainty 1.2
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Olamide ZaccheausWR · ATL vs NO
+2.4
+
+Salary not loaded · uncertainty 2.0
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Kevin Austin Jr.WR · NO vs ATL
+1.2
+
+Salary not loaded · uncertainty 1.9
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Chris BlairWR · ATL vs NO
+0.5
+
+Salary not loaded · uncertainty 0.7
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
+Charlie WoernerTE · ATL vs NO
+0.3
+
+Salary not loaded · uncertainty 0.8
+
+5/5 CORE COMPONENTS
+Why this projection
+Add to lineup
