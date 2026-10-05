@@ -1,6 +1,6 @@
 # GOING Picks: football first
 
-Permanent product north star: **select game → see GOING picks → understand why → see opportunity/injury/matchup → concern → market → optional deep research**. Sophisticated underneath, simple to use. Approved `docs/design-reference/` remains the visual source of truth.
+Permanent product north star: **select game â†’ see GOING picks â†’ understand why â†’ see opportunity/injury/matchup â†’ concern â†’ market â†’ optional deep research**. Sophisticated underneath, simple to use. Approved `docs/design-reference/` remains the visual source of truth.
 
 ## Product decision
 
@@ -8,7 +8,25 @@ Going Yard starts with ranked hitters, a readable rating and explanatory badges;
 
 PRODUCT proposed reusing GOING Score. MODEL RESEARCH rejected that: a player index cannot rate an exact Under or changing line. A separate direction-aware football-case rating won. FOOTBALL DATA rejected inferred routes, inferred absences and automatic injury-transfer bonuses. MODEL RESEARCH rejected positive Any-TD probability as directional proof, overlapping model/production as independent confirmation, and prioritizing game lines merely because they are easier to populate. These objections shape the implementation.
 
-Today opens GOING Picks for the nearest upcoming game. Select another game directly, optionally select a market family. Six cards initially, **Show more without a permanent cap**. Each shows the bet, 1–5 rating, evidence badges, why, main concern, observed book price/time and View research. Confidence's Current Support/Developing/Check First remain available as diagnostics in collapsed advanced research; they are no longer the primary discovery experience. No model or non-betting tool is replaced.
+Today opens GOING Picks for the nearest upcoming game. Select another game directly, optionally select a market family. Six cards initially, **Show more without a permanent cap**. Each shows the bet, 1â€“5 rating, evidence badges, why, main concern, observed book price/time and View research. Confidence's Current Support/Developing/Check First remain available as diagnostics in collapsed advanced research; they are no longer the primary discovery experience. No model or non-betting tool is replaced.
+
+## Current display and capture policy: football-case-v2
+
+GOING rating is shown as **72/100**, never 72%. It ranks the exact football thesis, not a player index, win chance, probability confidence, calibrated edge or expected return. It does not reuse GOING Score metrics. This is a deliberately simple, unfitted research policy requested by Travis; numerical granularity is not measurement precision.
+
+The original signed evidence components, interesting-case rule, integrity exclusions, badges, concerns, market-specific inputs and overlapping-evidence caps below remain intact. First compute the original evidence tier (1–5). Its 20-point band is 1–20, 21–40, 41–60, 61–80 or 81–100. Then refine **only inside that band**:
+
+`rating = 20 × (tier − 1) + 1 + round(19 × strength)`
+
+`strength = clamp(directional projection gap / existing model standard deviation, 0, 1)`
+
+For yardage, receptions and TD-count props the gap is signed `(projection − line)`. Spread uses signed `(home-margin mean + home spread)`, total signed `(total mean − total line)`, moneyline signed home-margin mean. Over/Home is positive, Under/Away negative. Use the exact existing prop SD or game-margin/total SD in the same units. A full favorable model SD saturates the refinement; larger gaps cannot leap an evidence band. This is a bounded unit-free contrast, **not** a normal-CDF win probability, favorite ranking or new forecast. The one-SD saturation and 20-point bands are declared policy assumptions, not fitted thresholds.
+
+A bigger favorable gap separates otherwise tied theses; a wider model spread lowers that refinement. Missing/nonpositive/nonfinite SD adds no refinement, remains unknown and never rejects the football thesis. An opposing model adds no refinement; its existing negative evidence component still applies. Unknown matchup/role/price stays unknown. No invented independent confirmation: model plus current production remains capped at 60/100; a model-only case at 40/100. Any TD stays separate role research, without a comparable directional model gap or yardage refinement. Rating 100 does not mean certainty.
+
+Ordering is rating, signed evidence points, kickoff, stable exact-contract ties. Primary-line selection, direction selection and price handling are unchanged. For example, two previously 3/5 cases with +2 and +12 directional projection gaps and SD 20 become 43/100 and 52/100. The numeric difference has a reproducible cause; it is not two different claims of win probability. Independent opportunity/matchup/injury evidence is still needed to enter a higher band. Within-band ordering remains unvalidated and may favor misestimated/narrow SDs; future validation must test that assumption.
+
+Future captures use **going_picks_v2 / going-picks-v2**, freezing the rating, original tier, refinement inputs/method, rank, exact contract and policy/input fingerprints before kickoff. V1 /5 predictions, research receipts, ranks and outcomes are preserved byte-for-byte; the tracker exposes both cohorts and renders each original scale. Never convert old ratings, combine policy cohorts into one bankroll or backfill v2 recommendations. Only genuine matched priced predictions enter the existing $100 results/ROI; unpriced research remains separate. The initial prospective question is whether within-tier higher directional-gap ratings separate future outcomes on identical market families and game-cluster samples. No outcomes were used to select this recipe; predeclare exact cutoffs, splits and criteria before fitting or comparing performance, and preserve every existing holdout/release gate.
 
 ## Frozen initial recipe: football-case-v1
 
@@ -16,16 +34,16 @@ This is a heuristic ordering of the football thesis, **not probability, confiden
 
 | Component | Exact rule | Points |
 | --- | --- | --- |
-| Model direction | Existing projection versus the exact line; spread uses home-margin mean plus home spread, total uses projected total minus total, moneyline uses home-margin direction | +2 agreement / −2 disagreement |
-| Current production | Exact player/team/current-season observed mean versus line; game markets use both teams' published current finals | +1 / −1 |
-| Usage trend | Targets for receiving, carries for rushing. Two chronological groups, at least two observed games each; absolute change ≥1/game AND relative change ≥20%; signed for Over/Under | +1 / −1 |
-| Matchup | Exact player/opponent/market-role/game/current-season active published residual with lineage and fresh source; sign respects Over/Under | +1 / −1 |
-| With/without | Exact current-game weekly OUT confirmation; ≥2 with and ≥2 without; market-specific targets/carries change ≥1/game and ≥20%; source fresh and identity matched | +1 / −1 |
-| Availability uncertainty | Existing questionable/limited/practice-DNP or stale injury treatment | −1 |
+| Model direction | Existing projection versus the exact line; spread uses home-margin mean plus home spread, total uses projected total minus total, moneyline uses home-margin direction | +2 agreement / âˆ’2 disagreement |
+| Current production | Exact player/team/current-season observed mean versus line; game markets use both teams' published current finals | +1 / âˆ’1 |
+| Usage trend | Targets for receiving, carries for rushing. Two chronological groups, at least two observed games each; absolute change â‰¥1/game AND relative change â‰¥20%; signed for Over/Under | +1 / âˆ’1 |
+| Matchup | Exact player/opponent/market-role/game/current-season active published residual with lineage and fresh source; sign respects Over/Under | +1 / âˆ’1 |
+| With/without | Exact current-game weekly OUT confirmation; â‰¥2 with and â‰¥2 without; market-specific targets/carries change â‰¥1/game and â‰¥20%; source fresh and identity matched | +1 / âˆ’1 |
+| Availability uncertainty | Existing questionable/limited/practice-DNP or stale injury treatment | âˆ’1 |
 
-Interesting means the signed total is positive. Rating is the total clamped to 1–5. **Model plus production alone is capped at 3/5**, because they overlap. A model-only thesis can appear at 2/5 with missing evidence disclosed. Counterevidence can leave a lower-ranked, still interesting case; agreement in every dimension is not required. Hard integrity/status exclusions remain: valid supported pregame contract, appropriate sport/market, existing model n≥5, current history ≤24h, exact player/team identity, recent player history ≤28d, no manual/DFS row and no known unavailable player. Reserve/inactive/PUP/IR/suspended statuses block Picks. No fake picks are inserted into empty games.
+Interesting means the signed total is positive. Rating is the total clamped to 1â€“5. **Model plus production alone is capped at 3/5**, because they overlap. A model-only thesis can appear at 2/5 with missing evidence disclosed. Counterevidence can leave a lower-ranked, still interesting case; agreement in every dimension is not required. Hard integrity/status exclusions remain: valid supported pregame contract, appropriate sport/market, existing model nâ‰¥5, current history â‰¤24h, exact player/team identity, recent player history â‰¤28d, no manual/DFS row and no known unavailable player. Reserve/inactive/PUP/IR/suspended statuses block Picks. No fake picks are inserted into empty games.
 
-One primary line per player/market/game is chosen closest to standard −110 decimal pricing **before rating**; the stronger direction is selected at that line. Opposite sides/alternate lines/books and one-minute vendor kickoff drift do not multiply the board. Actual contracts retain their original identifiers. Same-line offers prefer usable timestamp, newest quote, then payout and stable book ties. Ranking uses rating, signed points, kickoff, stable contract ties—never probability, sportsbook favorite or GOING Score. This standard-line heuristic is unvalidated; all original markets remain available.
+One primary line per player/market/game is chosen closest to standard âˆ’110 decimal pricing **before rating**; the stronger direction is selected at that line. Opposite sides/alternate lines/books and one-minute vendor kickoff drift do not multiply the board. Actual contracts retain their original identifiers. Same-line offers prefer usable timestamp, newest quote, then payout and stable book ties. Ranking uses rating, signed points, kickoff, stable contract tiesâ€”never probability, sportsbook favorite or GOING Score. This standard-line heuristic is unvalidated; all original markets remain available.
 
 ### Market families and badges
 
@@ -40,7 +58,7 @@ One primary line per player/market/game is chosen closest to standard −110 dec
 
 First TD and 2+ Any-TD remain in their existing specialized tools, outside primary v1 Picks; their methods are unchanged.
 
-Badge triggers: **MODEL +** positive exact-direction model component; **VOLUME** available positive current targets/carries/verified-start pass attempts (descriptive, no extra points); **ROLE UP/DOWN** the declared chronological count-change rule; **MATCHUP +/−** exact active direction-matched residual; **WITH/WITHOUT** the declared exact-game cohort rule; **STATUS WATCH** existing nonblocking injury treatment; **ROLE SCENARIO** existing injury redistribution scenario, never an observed causal boost; **TD ROLE** observed current rushing/receiving TD participation. No decorative badges or opaque aggregate score.
+Badge triggers: **MODEL +** positive exact-direction model component; **VOLUME** available positive current targets/carries/verified-start pass attempts (descriptive, no extra points); **ROLE UP/DOWN** the declared chronological count-change rule; **MATCHUP +/âˆ’** exact active direction-matched residual; **WITH/WITHOUT** the declared exact-game cohort rule; **STATUS WATCH** existing nonblocking injury treatment; **ROLE SCENARIO** existing injury redistribution scenario, never an observed causal boost; **TD ROLE** observed current rushing/receiving TD participation. No decorative badges or opaque aggregate score.
 
 ## Opportunity, injury and expected versus actual
 
@@ -64,7 +82,7 @@ The existing collector freezes a separate `going_picks_v1` board / `going-picks-
 
 Every interesting primary thesis gets an append-only `pick_research` receipt, even without usable pricing. Official full-game results append separate research outcomes. Only valid priced contracts become predictions in the existing **$100 stake** results graph and ROI calculation. Missing prices never create wagers or ROI. Repeated snapshots retain the first prediction/receipt. Same-game markets are correlated; boards/cohorts can overlap and are not additive bankrolls.
 
-Predeclared question: within identical market families and available priced contracts, do higher initial ratings and declared usage/matchup/with-without badges improve future outcomes over model-only cases? Collect prospectively from first v1 publication. Review four full future football weeks for source integrity and descriptive coverage; then reserve the next four full weeks untouched for any fitted challenger. Before fitting, register an exact data cutoff, chronological folds, release date, eligible paired sample, benchmarks and acceptance criteria in a separate experiment. Do not tune this recipe from wins, inspect an unregistered holdout, or claim validation from early returns. Evaluate ≥50 distinct game clusters per comparison/family or mark insufficient; game-cluster uncertainty, Brier/log loss/calibration for probabilities, MAE/RMSE for projections, and ROI only from actual saved prices/results. Rating itself is not a probability and cannot receive a Brier score. New policies need new versions; production model promotion still requires Travis approval. Existing Champion/C1/C2 and all frozen research gates remain untouched.
+Predeclared question: within identical market families and available priced contracts, do higher initial ratings and declared usage/matchup/with-without badges improve future outcomes over model-only cases? Collect prospectively from first v1 publication. Review four full future football weeks for source integrity and descriptive coverage; then reserve the next four full weeks untouched for any fitted challenger. Before fitting, register an exact data cutoff, chronological folds, release date, eligible paired sample, benchmarks and acceptance criteria in a separate experiment. Do not tune this recipe from wins, inspect an unregistered holdout, or claim validation from early returns. Evaluate â‰¥50 distinct game clusters per comparison/family or mark insufficient; game-cluster uncertainty, Brier/log loss/calibration for probabilities, MAE/RMSE for projections, and ROI only from actual saved prices/results. Rating itself is not a probability and cannot receive a Brier score. New policies need new versions; production model promotion still requires Travis approval. Existing Champion/C1/C2 and all frozen research gates remain untouched.
 
 ## Current gaps / next priorities
 
