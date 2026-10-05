@@ -1,6 +1,6 @@
 # Progress
 
-Cycle `20261005-155440-rating-manual-a` — manual /100 rating session. Main base `f39be683b484bf4dbed11b62ec995ccc3d2e1fba`; review base `d89c962a1f2cee0be5c134c75e6196b971a3e02c`; production `4410c67eb09fb80218a3d827ea4e86be39afbf0b`; tested tree `a3a1aa3aae35acffb0ea058122044b5456e2f8c6`. Exact11-path patch replay at main base equals tested tree. Main push/remote SHA verified; Vercel deployment `6AUu5fimHZWzB3xdCch6Koz4oewa` succeeded and live mobile/cards/cohort navigation verified16:13–16:16ET. Review completion/receipt SHAs follow through the normal receipt. Mutex held by this ID until final publication.
+Cycle `20261005-155440-rating-manual-a` — manual /100 rating session. Main base `f39be683b484bf4dbed11b62ec995ccc3d2e1fba`; review base `d89c962a1f2cee0be5c134c75e6196b971a3e02c`; production `4410c67eb09fb80218a3d827ea4e86be39afbf0b`; tested tree `a3a1aa3aae35acffb0ea058122044b5456e2f8c6`. Exact11-path patch replay at main base equals tested tree. Main push/remote SHA verified; Vercel deployment `6AUu5fimHZWzB3xdCch6Koz4oewa` succeeded and live mobile/cards/cohort navigation verified16:13–16:16ET. Review completion `14a3aaac2ea1db89cd7e049a6b8f66606d89a2cb` published and remote-verified; this PROGRESS-only receipt pins that completion. Receipt SHA is reported externally, never inside itself. Exact production/main and review gates verified before each push; mutex released only after recording/publication.
 
 ## Completed
 
