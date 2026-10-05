@@ -1,0 +1,66 @@
+diff --git a/apps/validation/evidence.mjs b/apps/validation/evidence.mjs
+index 983456298cc08a9566aa2b54612c3c746e358086..027a86f93e00efd1539d1b7319465f6a292bbd5a 100644
+--- a/apps/validation/evidence.mjs
++++ b/apps/validation/evidence.mjs
+@@ -12,0 +13,13 @@ export const isHistoricalModel=p=>['all_projection','best_model'].includes(p.tra
++
++export function settlementExplanation(reason){
++ const explanations={
++  player_participation_or_result_missing:'The player appearance or result log is missing. This does not establish a zero, loss or void.',
++  player_market_result_missing:'The player log is present, but the statistic needed for this market is missing.',
++  official_final_missing:'No matching official final is published yet. The game may still be in progress or its result unavailable.',
++  partial_final:'The official result is incomplete; both final team scores are required.',
++  ambiguous_game:'More than one official game matches this record. A unique match is required before grading.',
++  not_before_official_kickoff:'The recorded capture was not before the official kickoff. It cannot be graded as a pregame selection.',
++  unsupported_settlement_rules:'This market needs settlement rules or period-specific results that the tracker does not support yet.'
++ };
++ return explanations[reason]||'A verified result is not available for this saved selection yet.';
++}
+diff --git a/apps/validation/src.jsx b/apps/validation/src.jsx
+index b91a8c317af51073b4346e36987d73b958dd2673..c637623fe87aef4488df909e21c7738d97a4c1ab 100644
+--- a/apps/validation/src.jsx
++++ b/apps/validation/src.jsx
+@@ -7 +7 @@ import {loadJournal} from './load-journal.mjs';
+-import {recordedEvidence} from './evidence.mjs';
++import {recordedEvidence,settlementExplanation} from './evidence.mjs';
+@@ -41,0 +42 @@ function TrackerDashboard({records,meta,privateMode=false,onRefresh,refreshing=f
++ const pendingById=new Map((meta?.settlement_audit?.pending||[]).map(p=>[p.prediction_id,p.reason]));
+@@ -61 +62 @@ function TrackerDashboard({records,meta,privateMode=false,onRefresh,refreshing=f
+-  {!privateMode&&<section className="panel evidence-unresolved"><h2><EvidenceIcon kind="target"/>Unresolved results and price coverage</h2>{Object.entries(meta?.settlement_audit?.counts||{}).map(([reason,n])=><p key={reason}>{reason.replaceAll('_',' ')}: {n}</p>)}<p>Full tracker counts above are records, not independent bets. Missing participation is never graded as zero.</p><div className="evidence-price-tiles"><article><strong>{records.filter(r=>r.kind==='closing').length}</strong><span>Scheduled exact-line price observations</span><p>Only observations within ten minutes of kickoff qualify as near-closing samples.</p></article><article><strong>{stats.coverage.completed?pct(stats.coverage.settledShare):'—'}</strong><span>Tracking coverage</span><p>The current twice-daily schedule cannot guarantee full coverage.</p></article></div><details className="evidence-workload"><summary>Workload versus efficiency</summary><h3>Workload versus efficiency</h3><p>New predictions freeze expected attempts, carries or targets. Once settled, error can be separated into opportunity-count and production-per-opportunity components; this is diagnostic, not causal.</p>{(meta?.workload_audit?.families||[]).filter(r=>(cohort==='all'||r.cohort===cohort)).map(r=><p key={r.cohort+r.market+r.side}>{r.market} {r.side}: {r.contracts} contracts · volume error {r.volume_error.toFixed(2)} · efficiency error {r.efficiency_error.toFixed(2)}</p>)}{!meta?.workload_audit?.families?.length&&<p>No settled predictions have the new frozen workload evidence yet.</p>}</details></section>}
++  {!privateMode&&<section className="panel evidence-unresolved"><h2><EvidenceIcon kind="target"/>Unresolved results and price coverage</h2><p>Audit totals cover the entire published ledger across boards, model versions and dates. They are raw saved records, not the filtered unique selections above. Each unresolved card shows its recorded reason.</p>{Object.entries(meta?.settlement_audit?.counts||{}).map(([reason,n])=><p key={reason}>{reason.replaceAll('_',' ')}: {n}</p>)}<p>Full tracker counts above are records, not independent bets. Missing participation is never graded as zero.</p><div className="evidence-price-tiles"><article><strong>{records.filter(r=>r.kind==='closing').length}</strong><span>Scheduled exact-line price observations</span><p>Only observations within ten minutes of kickoff qualify as near-closing samples.</p></article><article><strong>{stats.coverage.completed?pct(stats.coverage.settledShare):'—'}</strong><span>Tracking coverage</span><p>The current twice-daily schedule cannot guarantee full coverage.</p></article></div><details className="evidence-workload"><summary>Workload versus efficiency</summary><h3>Workload versus efficiency</h3><p>New predictions freeze expected attempts, carries or targets. Once settled, error can be separated into opportunity-count and production-per-opportunity components; this is diagnostic, not causal.</p>{(meta?.workload_audit?.families||[]).filter(r=>(cohort==='all'||r.cohort===cohort)).map(r=><p key={r.cohort+r.market+r.side}>{r.market} {r.side}: {r.contracts} contracts · volume error {r.volume_error.toFixed(2)} · efficiency error {r.efficiency_error.toFixed(2)}</p>)}{!meta?.workload_audit?.families?.length&&<p>No settled predictions have the new frozen workload evidence yet.</p>}</details></section>}
+@@ -64 +65 @@ function TrackerDashboard({records,meta,privateMode=false,onRefresh,refreshing=f
+-  <section className="panel evidence-current"><div className="section-heading"><div><span className="eyebrow">CURRENT RECORD</span><h2>Tracked selections</h2></div><span className="source-pill">{picks.length} records</span></div><input className="tracker-search" aria-label="Search tracked selections" placeholder="Search player, team, market or book" value={query} onChange={e=>setQuery(e.target.value)}/><div className="cards tracked-cards">{picks.slice(pickOffset,pickOffset+size).map(p=><article key={p.id}><span className="badge">{settledById.get(p.id)?.status.toUpperCase()||(Date.parse(p.kickoff)>Date.now()?'UPCOMING':'AWAITING RESULT')}</span><h3>{p.player||`${p.away} at ${p.home}`}</h3><p>{p.market} · {p.side} {displayLine(p)} · {p.book}</p><p><strong>{pct(p.probability)}</strong> recorded model probability · {p.american>0?'+':''}{p.american} price</p><small>Frozen {new Date(p.observed_at).toLocaleString()} · Kickoff {new Date(p.kickoff).toLocaleString()}</small><p className="evidence-readiness">{p.actionable?'Alert-qualified at capture':'Research record · not an alert-qualified recommendation'}. A model probability is not a validated confidence grade.</p><details><summary>Show saved evidence</summary>{recordedEvidence(p).map((line,i)=><p key={i}>{line}</p>)}</details></article>)}</div><RecordPager total={picks.length} page={pickPage} onPage={setPickPage}/>{!picks.length&&<div className="empty-state"><strong>No selections in this view.</strong><p>Choose another board or wait for the next scheduled slate capture.</p></div>}</section>
++  <section className="panel evidence-current"><div className="section-heading"><div><span className="eyebrow">CURRENT RECORD</span><h2>Tracked selections</h2></div><span className="source-pill">{picks.length} records</span></div><input className="tracker-search" aria-label="Search tracked selections" placeholder="Search player, team, market or book" value={query} onChange={e=>setQuery(e.target.value)}/><div className="cards tracked-cards">{picks.slice(pickOffset,pickOffset+size).map(p=><article key={p.id}><span className="badge">{settledById.get(p.id)?.status.toUpperCase()||(Date.parse(p.kickoff)>Date.now()?'UPCOMING':'AWAITING RESULT')}</span>{!settledById.has(p.id)&&pendingById.has(p.id)&&<p className="settlement-reason"><strong>Why this is unresolved:</strong> {settlementExplanation(pendingById.get(p.id))} Excluded from settled profit and ROI.</p>}<h3>{p.player||`${p.away} at ${p.home}`}</h3><p>{p.market} · {p.side} {displayLine(p)} · {p.book}</p><p><strong>{pct(p.probability)}</strong> recorded model probability · {p.american>0?'+':''}{p.american} price</p><small>Frozen {new Date(p.observed_at).toLocaleString()} · Kickoff {new Date(p.kickoff).toLocaleString()}</small><p className="evidence-readiness">{p.actionable?'Alert-qualified at capture':'Research record · not an alert-qualified recommendation'}. A model probability is not a validated confidence grade.</p><details><summary>Show saved evidence</summary>{recordedEvidence(p).map((line,i)=><p key={i}>{line}</p>)}</details></article>)}</div><RecordPager total={picks.length} page={pickPage} onPage={setPickPage}/>{!picks.length&&<div className="empty-state"><strong>No selections in this view.</strong><p>Choose another board or wait for the next scheduled slate capture.</p></div>}</section>
+diff --git a/tests/validation-evidence.test.cjs b/tests/validation-evidence.test.cjs
+index ae2732287248de460cc7e970fc67692191e61e93..74b2370b07303dd7b27f059d1fefa3e0970cd57b 100644
+--- a/tests/validation-evidence.test.cjs
++++ b/tests/validation-evidence.test.cjs
+@@ -10,0 +11,10 @@ test('Recorded evidence distinguishes absent provenance from saved inputs',async
++
++test('Unresolved reasons explain the exact missing evidence without inventing a grade',async()=>{
++ const {settlementExplanation}=await import('../apps/validation/evidence.mjs');
++ assert.match(settlementExplanation('player_participation_or_result_missing'),/does not establish a zero, loss or void/);
++ assert.match(settlementExplanation('player_market_result_missing'),/statistic/);
++ assert.match(settlementExplanation('official_final_missing'),/still be in progress/);
++ assert.match(settlementExplanation('unsupported_settlement_rules'),/does not support/);
++ assert.match(settlementExplanation('not_before_official_kickoff'),/cannot be graded/);
++ assert.match(settlementExplanation('future_unknown_reason'),/not available/);
++});
+diff --git a/tests/validation-results-ui.test.cjs b/tests/validation-results-ui.test.cjs
+index 644be8843ad5f8ac0060a23d3477b715ea20ccc0..2767b6ea51e69003453c69999f6b40cb5ac7da86 100644
+--- a/tests/validation-results-ui.test.cjs
++++ b/tests/validation-results-ui.test.cjs
+@@ -11,2 +11,2 @@ test('Results exposes full paginated receipts, Eastern slate filters, and real f
+- const names=['React','useEffect','useMemo','useState','summarize','displayLine','filterTrackerRecords','slateDate','COHORT_LABELS','recordedEvidence'];
+- const Dashboard=Function(...names,code+';return TrackerDashboard;')(React,React.useEffect,React.useMemo,React.useState,metrics.summarize,metrics.displayLine,metrics.filterTrackerRecords,metrics.slateDate,cohort.COHORT_LABELS,evidence.recordedEvidence);
++ const names=['React','useEffect','useMemo','useState','summarize','displayLine','filterTrackerRecords','slateDate','COHORT_LABELS','recordedEvidence','settlementExplanation'];
++ const Dashboard=Function(...names,code+';return TrackerDashboard;')(React,React.useEffect,React.useMemo,React.useState,metrics.summarize,metrics.displayLine,metrics.filterTrackerRecords,metrics.slateDate,cohort.COHORT_LABELS,evidence.recordedEvidence,evidence.settlementExplanation);
+@@ -17,0 +18 @@ test('Results exposes full paginated receipts, Eastern slate filters, and real f
++ records.push({kind:'prediction',payload:{...records[0].payload,id:'000-missing',profile_id:'missing',player:'Missing Player'}});
+@@ -20 +21 @@ test('Results exposes full paginated receipts, Eastern slate filters, and real f
+-  await React.act(async()=>root.render(React.createElement(Dashboard,{records,meta:{generated_at:'2026-10-02T05:00:00Z',sources:{predictions:{last_capture_at:'2026-10-01T12:00:00Z'}},result_coverage:{slates:[{sport:'nfl',date:'2026-10-01',finals:2,tracked_finals:1,games:[{id:'game',home:'HOME',away:'AWAY',homeScore:28,awayScore:20,tracked:true},{id:'untracked',home:'OTHER',away:'VISITOR',homeScore:21,awayScore:10,tracked:false}]}]}}})));
++  await React.act(async()=>root.render(React.createElement(Dashboard,{records,meta:{settlement_audit:{counts:{player_participation_or_result_missing:1},pending:[{prediction_id:'000-missing',reason:'player_participation_or_result_missing'}]},generated_at:'2026-10-02T05:00:00Z',sources:{predictions:{last_capture_at:'2026-10-01T12:00:00Z'}},result_coverage:{slates:[{sport:'nfl',date:'2026-10-01',finals:2,tracked_finals:1,games:[{id:'game',home:'HOME',away:'AWAY',homeScore:28,awayScore:20,tracked:true},{id:'untracked',home:'OTHER',away:'VISITOR',homeScore:21,awayScore:10,tracked:false}]}]}}})));
+@@ -23,0 +25,3 @@ test('Results exposes full paginated receipts, Eastern slate filters, and real f
++  assert.match($('.settlement-reason').textContent,/does not establish a zero, loss or void/);
++  assert.match($('.settlement-reason').textContent,/Excluded from settled profit and ROI/);
++  assert.match($('.evidence-unresolved').textContent,/entire published ledger/);

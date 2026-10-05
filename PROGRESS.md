@@ -1,5 +1,32 @@
 # Progress
 
+Cycle `20261005-100038-tracker-a` — scheduled10:00 ET; started10:00:46, actual capture10:02:35.914. Main base `1676005f9d9057c1df05d41e629e374c6b0d3310`; review base `471a741f35f501371a3fd076d93057f7ef8c11cc`; production `adc0a8b04ccf26d291e44b56a14bd0f48bbd64be`; tested tree `f3d9d2027b6716780a83ca7e2eb013d7afad419f`.
+
+## Completed
+
+- App improvement: Evidence & results tracked cards explain the published reason each selection remains unresolved and its exclusion from settled profit/ROI. Missing player appearance/statistics, incomplete finals, ambiguous identity, late capture and unsupported rules receive distinct explanations; unknown reasons remain ungraded. Whole-ledger audit totals are explicitly separate from filtered unique selections. Evidence: current snapshot has93 raw missing-player records and13 unique current-policy model-board pending selections; generic badges and scope-free counts obscured these gaps. Settlement transparency/comprehension won over unrelated UI polish. Acceptance verified on real Terry McLaurin receipts; ROI and model math unchanged.
+- Exploratory10:00 snapshot `9afba1bfc91931fc364f4c6ff0e28aa42756294a4d40ccc2ccf0c9440bdb0634`;2748 rows/154 eligible. Actual capture `2026-10-05T14:02:35.914Z`; first attempt lacked local dependencies and wrote no snapshot, existing node_modules reused before actual capture. Seven append-only settlements. Integrity verify237 records/10 snapshots/3 segments; all220 prior journal blobs/modes (6,236,791 bytes) preserved,17 added. Primary remains08:00; no aggregate holdout evaluation/promotion.
+- Prior08:00 Slate Breaker repair verified: existing data job's Slate Breaker step succeeded; current public snapshot has one graded saved September20 slate (generated12:13:55Z). Overall job reported a separate source failure, not claimed healthy. No archived predictions recreated.
+- Node409/409, Python109/109 and production/Vercel builds pass. Actual built page320/390/1280: no page overflow, real-data search, Results/Unresolved tabs and missing-stat explanation verified. Existing tokens/layout retained; no Confidence/Champion/C1/C2/ABBEYS/2+TD/DFS/research changes. Exact four-path patch replays at base to tested tree.
+- Explicit normal main push and remote SHA verified; existing Vercel connection and unprotected/no-ruleset path verified. Vercel commit deployment succeeded at10:10 ET (6YMH7PSzyV2k6G4ZLN6v2zVLDG17); live content check pending. UI/test paths do not trigger provider data workflow; $0 additional and no settings/deployment system edits. Review deployment exclusion=false intact.
+- Rollback: fresh main-based codex checkout, revert `adc0a8b04ccf26d291e44b56a14bd0f48bbd64be`, rerun checks, retain frozen records.
+
+## Working
+
+- Complete review/receipt and observe existing deployment inside15-minute cycle.
+
+## Problems
+
+- Explanations identify gaps; they cannot establish missing outcomes or book-specific void rules. Older records without a published audit reason retain generic pending status.
+
+## Next
+
+- Continue tracker coverage from genuine published evidence. Separate prospective Confidence patch remains preserved with its previous fresh-baseline publication approval pending; never reconstruct historical readiness or invent stronger labels.
+
+## Needs Travis
+
+- Prior Confidence approval pending; no action needed for this bounded UI publication.
+
 Cycle `20261005-080207-ranking-tracker-a` — scheduled 08:00 ET; started 08:02:17, capture actual 08:03:15.658 (no backdating). Main base `81f9c4a187cb79b08409e0b3836c1bbe69966ca6`; review base `168dbf6cb07c8d9eb5179a9dbc420e4805e56fc7`; production `9e219914ede7efc822e23548064c0d3867b5e662`; tested tree `598244c22e605f298ac6f91329b9854350fd9950`. Completion `2f6108a3ac3cce48a98bb1cd1daa351fdf212ae0` published/remote-verified; this receipt pins the completion SHA. Receipt SHA is reported externally, never embedded in itself.
 
 ## Completed
