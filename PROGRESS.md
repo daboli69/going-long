@@ -1,5 +1,32 @@
 # Progress
 
+Cycle `20261005-155440-rating-manual-a` — manual /100 rating session. Main base `f39be683b484bf4dbed11b62ec995ccc3d2e1fba`; review base `d89c962a1f2cee0be5c134c75e6196b971a3e02c`; production `4410c67eb09fb80218a3d827ea4e86be39afbf0b`; tested tree `a3a1aa3aae35acffb0ea058122044b5456e2f8c6`. Exact11-path patch replay at main base equals tested tree. Main push/remote SHA verified; Vercel deployment `6AUu5fimHZWzB3xdCch6Koz4oewa` succeeded and live mobile/cards/cohort navigation verified16:13–16:16ET. Review completion/receipt SHAs follow through the normal receipt. Mutex held by this ID until final publication.
+
+## Completed
+
+- Owner BUILDER/PRODUCT/MODEL RESEARCH: finer **GOING rating /100**, separate from Score and probability. Preserve prior evidence tiers, market gates and signed football components; each tier occupies20points, with within-tier refinement from favorable exact-direction projection gap / existing same-unit SD (clamped0–1). Wider model spread lowers refinement, missing/invalid SD remains unknown, no new forecasts/probability/price/favorite/Score influence. These are transparent unvalidated heuristic assumptions, not empirical precision. Same former4/5 cases now LambOver80.5receiving72,GodwinOver29.5receiving68,IrvingOver56.5rushing65. Approved visual system unchanged.
+- Actual public source20:03:25.649Z:281 positive primary cases (122NFL/159NCAA),281/281 receipt validators pass;36 distinct ratings. NFL/NCAA direction/unit/market distinctions manually audited. Existing /5 freezes remain /5; new `football-case-v2` and `going-picks-v2` freeze tier/refinement/inputs/contract/rank separately. No old tracker records, production models, Today/ABBEYS ranking journals or holdout gates altered.
+-443/443Node,114/114Python, production and Vercel builds pass offline. Meaningful differentiation/dispersion/unknown/cap/price-Score invariance and v1/v2 receipt/cohort tests. Mobile430/393/390/375/360/320 and1440desktop no page/header overflow; actual game/league/research controls and live tracker cohort changes verified. Proof and actual-source audit in docs/picks-audits/20261005-155440-rating-manual-a/.
+- Requested post-live agent2026 NFL coverage audit completed, manager independently verified:498 exact current-season player profiles, at most4 current appearances;923 current80/20 prediction contracts/810 settlement receipts across only6–16 distinct game/date clusters per market family. Receipts/contract volume are not independent validation. New /100 cohort0 captures/settled results in audited prelaunch snapshot. Legacy12-game sample includes historical games. Measured targets/carries/snaps exist; routes/firstreads/strong goal-line/current historical injury timestamps remain gaps. No promise of validated confidence by a calendar week. Existing policy:4futureweeks integrity/coverage, next4 untouched for a separately preregistered challenger,≥50clusters/family comparison or insufficient; more time if captures remain narrow.
+- Previous prepared receipt d89c962 was normally pushed and remote-verified under Travis's explicit data-only tip exception;27data paths and12,701 earlier tracker records verified unchanged. Exception resolved before this fresh cycle; it does not authorize accepting future changed tips automatically. Existing scripts-triggered provider refresh uses Travis's previously confirmed $0 allowance; no local provider calls/settings/global models/automations/deployment system changes. Actions were queued at live check, not claimed passed. Existing main-to-root Hobby Vercel path and review deployment exclusion false verified.
+- Rollback: fresh codex worktree from then-current main, `git revert 4410c67eb09fb80218a3d827ea4e86be39afbf0b`, inspect code-only diff and rerun checks; preserve subsequent frozen v2 journal/data records. Parent/base f39be683b484bf4dbed11b62ec995ccc3d2e1fba. No rating outcome tuning, promotion or protected journal aggregate evaluation.
+
+## Working
+
+- None for this rating cycle. Travis subsequently requested a distinct football backtest view in the tracker; inspect Yard and usable chronological data in a fresh isolated cycle after this receipt.
+
+## Problems
+
+- /100 is research ordering, not calibrated win confidence or demonstrated sportsbook edge. Current small samples, missing roles/status evidence, model dispersion calibration and new-rating outcome coverage remain limitations; waiting alone cannot resolve missing inputs.
+
+## Next
+
+- Separate honest historical validation/backtest from prospective real-price performance; inspect existing football walk-forward diagnostics and Yard journey. Do not substitute fabricated historic quotes for $100 ROI or replay current ratings as original predictions. Preregister new hypotheses before fitting and preserve untouched holdouts.
+
+## Needs Travis
+
+- None for routine rating publication. No production model promotion or paid usage authorized.
+
 Cycle `20261005-122407-picks-reset-manual-a` — major manual PRODUCT / FOOTBALL DATA / MODEL RESEARCH reset requested by Travis; not a scheduled15-minute occurrence. Exact mutex owner acquired12:24:07ET. Main base `aad7f60d3ebd8835a27aa995a6d09439626e4f9a`; review base `e972fa3bccb03379fff4ee5e76a6dbf49c53eb70`; production `ce4e63271b55b007bdec1ad16070163463f7f25e`; tested tree `aef09b5fc2846d8b8c921b4aa1f1d3fb91e8ccff`. Exact19-path patch replay at main base equals tested production tree. Normal main push and exact remote SHA verified14:51ET. Vercel deployment BhQJznVhYgyk2T5BCyCc8y1cuQTg succeeded; live NFL/NCAA selections, evidence disclosure and tracker verified14:52–14:58ET. Completion `cfd1e9328a740d7f02dc727e17f4fba95407bd47` is published/remote-verified. This PROGRESS-only local receipt pins completion; its own SHA is reported externally. Receipt push is BLOCKED: successful existing data refresh advanced main to `dcf910768fcbd67c5513fc3132a01ca4cddd31bf`, violating the unchanged-main receipt gate. No retry/rebase/merge/force or production republish.
 
 ## Completed

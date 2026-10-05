@@ -1,0 +1,23 @@
+GOING rating / 2026 NFL coverage audit (2026-10-05)
+Scope: read-only; counts only, no fit/tune or performance evaluation. Snapshots: data/history.json generated 2026-10-05T19:25Z; public tracker 19:26Z.
+
+Conclusion
+- football-case-v2 /100 had 0 prospective records, 0 distinct game clusters, 0 settled results at audit time (before its first post-launch capture). It is a directional research-case ordering within coarse evidence tiers, not win probability or calibrated confidence.
+- Recommend disclosing facts/unknowns now; stronger data coverage should accumulate over upcoming refreshes, but no week/date can guarantee validated predictive confidence. GOING_PICKS policy: first four full future football weeks for integrity/coverage; next four untouched for a preregistered challenger; >=50 distinct game clusters per family/comparison or insufficient. A 50-game minimum is a calendar lower-bound of roughly 4+ complete NFL slates only if capture is broad (16 games each); current Picks prop-family coverage is only 3â€“4 clusters, so likely longer. V2-specific settlement/paired quote evidence starts only after launch.
+
+Current-season inputs
+- 2026 stats source `loaded`; 498 exact-player profiles with at least 1 current-season appearance through 2026-10-04: QB 53, RB 126, TE 119, WR 200. Maximum current appearances per player is four.
+- Model window up to 12 games, min 5. When history exists, policy is 80% current / 20% history; current samples are flagged low. 51 QBs have a verified 2026 start.
+- GOING_PICKS docs: snaps + complete PBP establish participation; target/carry/pass-attempt evidence depends on measured opportunity. Routes, first reads, reliable goal-line role and instant inactive updates are unavailable. 2026 weekly injury data lacks date_modified, so historical injury evidence cannot establish pregame knowledge.
+
+Prospective tracker coverage (coverage only)
+- Current-80-20 `best_model`: 923 contracts in 2026 over at most 10â€“16 distinct game clusters by family; examples: receiving yards 322 / 16 clusters; receptions 200 / 16; rushing yards 170 / 16; passing yards 90 / 15; spreads 25 / 14; totals 19 / 13. 810/923 have settlement receipts. Stored odds and quote timestamps are present for all these prediction rows.
+- `all_projection`: 286 prediction rows but only 2 game clusters per displayed family; contract volume is highly correlated and not independent evidence.
+- GOING Picks v1: 184 priced prediction contracts so far, 15 game clusters for game markets, 3â€“4 clusters per player-prop family, 0 settled. GOING Picks v2: 0 contracts/settlements.
+
+References
+- docs/GOING_PICKS.md: v2 rating, exact freeze policy, sample gates, market-family data gaps.
+- docs/BETTING_MODEL.md: 12-game trailing window, minimum 5, source/identity limits.
+- docs/MODEL_RESEARCH.md and review tracker: current 80/20, model policy and frozen collection constraints.
+
+Manager verification: source-pinned public_tracker.json generated 2026-10-05T19:26:55.275Z; updated agent counts supersede the earlier draft. 923 unique best_model/current-80-20 NFL prediction IDs, all with stored odds and quote timestamps; 810 have settlement receipts. Clusters deduplicated by sport/home/away/kickoff calendar date to avoid vendor timestamp variants. 498 current-season profiles/max four appearances independently reproduced. This is coverage, not a performance or calibration evaluation; no protected Today/ABBEYS journal aggregates evaluated.
