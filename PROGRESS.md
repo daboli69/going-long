@@ -1,6 +1,6 @@
 # Progress
 
-Cycle `20261005-162517-backtest-manual-a` — manual tracker backtest request, not a scheduled occurrence. Main base `4410c67eb09fb80218a3d827ea4e86be39afbf0b`; review base `ac1b33b914fbdd4606fd37f423230542ef26d2eb`; production `8d84a7b78bf7c038f1bb97a701c10d525b1dd238`; tested tree `6ad869faa3d8933388bdd5d06aae5733e55a9f8b`. Exact6-path patch replay verified; ordinary main push and remote SHA verified. Vercel deployment `9rURSRQWv8KYh2mVWghTALDi8EiV` succeeded; production Backtests815/2160 summaries/graphs/limits and return-to-Results verified live16:38ET. Completion SHA is pinned by the subsequent PROGRESS-only receipt.
+Cycle `20261005-162517-backtest-manual-a` — manual tracker backtest request, not a scheduled occurrence. Main base `4410c67eb09fb80218a3d827ea4e86be39afbf0b`; review base `ac1b33b914fbdd4606fd37f423230542ef26d2eb`; production `8d84a7b78bf7c038f1bb97a701c10d525b1dd238`; tested tree `6ad869faa3d8933388bdd5d06aae5733e55a9f8b`. Exact6-path patch replay verified; ordinary main push and remote SHA verified. Vercel deployment `9rURSRQWv8KYh2mVWghTALDi8EiV` succeeded; production Backtests815/2160 summaries/graphs/limits and return-to-Results verified live16:38ET. Completion `64d56bfabb6dd6e5d23b1d27d657510ee6aca997` published/remote-verified. This PROGRESS-only receipt pins that completion; receipt SHA reported externally, never inside itself.
 
 ## Completed
 
@@ -11,7 +11,7 @@ Cycle `20261005-162517-backtest-manual-a` — manual tracker backtest request, n
 
 ## Working
 
-- None for implementation; publish review completion/receipt under unchanged-tip gates.
+- None. Completion/receipt use unchanged-tip gates; release only recorded mutex owner after publication.
 
 ## Problems
 
