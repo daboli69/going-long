@@ -1,0 +1,153 @@
+diff --git a/apps/validation/backtests.jsx b/apps/validation/backtests.jsx
+new file mode 100644
+index 0000000000000000000000000000000000000000..796f8ae7c8ee5d5c12f8ec95e06c4fa230076ecb
+--- /dev/null
++++ b/apps/validation/backtests.jsx
+@@ -0,0 +1,23 @@
++import React,{useEffect,useState} from 'react';
++import {gameDiagnostic,roleDiagnostic,loadDiagnostic} from './backtests.mjs';
++const format=n=>Number.isFinite(n)?n.toFixed(2):'Not available';
++const ROLE_LABELS={all_eligible:'All eligible receivers',above_average_role:'Above-average role',role_ahead_of_results:'Opportunity ahead of results'};
++
++function ErrorComparison({rows,unit}){
++ const max=Math.max(1,...rows.flatMap(r=>[r.baseline,r.challenger]).filter(Number.isFinite))*1.1;
++ return <figure className="backtest-chart"><figcaption>Prediction error in {unit} · lower is better · bars start at zero</figcaption>{rows.map(r=><div key={r.label}><h3>{r.label}</h3>{[['Baseline',r.baseline,false],['Experimental',r.challenger,true]].map(([label,value,experimental])=><div className="backtest-bar-row" key={label}><span>{label}</span><div className="backtest-bar-track" aria-hidden="true"><div className={`backtest-bar${experimental?' experimental':''}`} style={{width:Number.isFinite(value)?`${value/max*100}%`:'0%'}}/></div><strong>{format(value)}</strong></div>)}</div>)}</figure>;
++}
++function SnapshotState({state,onRetry}){
++ return state.busy?<p role="status">Loading published backtest…</p>:<div className="empty-state"><p role="alert">{state.error}</p><button type="button" onClick={onRetry}>Retry backtest</button></div>;
++}
++export function BacktestView({onResults}){
++ const [refresh,setRefresh]=useState(0),[game,setGame]=useState({busy:true}),[role,setRole]=useState({busy:true});
++ useEffect(()=>{let alive=true;setGame({busy:true});setRole({busy:true});const read=async(file,parse,set)=>{try{const data=await loadDiagnostic(file,parse);if(alive)set({data});}catch(e){if(alive)set({error:e.message});}};read('football_game_validation.json',gameDiagnostic,setGame);read('football_role_validation.json',roleDiagnostic,setRole);return()=>{alive=false;};},[refresh]);
++ const retry=()=>setRefresh(n=>n+1),g=game.data,r=role.data,all=r?.rows.find(x=>x.name==='all_eligible');
++ return <div className="backtest-view">
++  <section className="panel"><div className="section-heading"><div><span className="eyebrow">HISTORICAL VALIDATION</span><h2>Football backtests</h2></div><span className="source-pill">Separate from live results</span></div><p>Did an earlier-data model predict later games well? These walk-forward tests help evaluate football methods. They do not validate today’s GOING rating or establish profitable bets.</p><div className="backtest-actions"><button type="button" onClick={onResults}>View saved-price $100 results</button><button type="button" onClick={retry} disabled={game.busy||role.busy}>Refresh backtests</button></div></section>
++  <section className="panel"><div className="section-heading"><div><span className="eyebrow">NFL · GAME MODELS</span><h2>Week-ahead score test</h2></div>{g?.seasons&&<span className="source-pill">{g.seasons[0]}–{g.seasons[1]} archive</span>}</div>{g?<><strong className="backtest-stat">{g.games.toLocaleString()} games</strong><p>Baseline versus opponent-adjusted experimental model. RMSE measures typical prediction error, with larger misses penalized more.</p><ErrorComparison rows={g.rows} unit="points (RMSE)"/><div className="backtest-conclusion">{g.rows.map(row=><p key={row.label}><strong>{row.label}:</strong> {row.improvementRange?`95% week-cluster interval for error reduction: ${format(row.improvementRange[0])} to ${format(row.improvementRange[1])} points. ${row.improvementRange[0]>0?'The interval favors the experimental model.':'The interval does not establish an improvement.'}`:'No uncertainty interval published.'}</p>)}<p>No production model is promoted by this view.</p></div><details><summary>Method and limits</summary><p>Each season/week is tested using earlier weeks only, after at least 64 training games. Training games must start at least 12 hours before the test week’s first kickoff. The opponent experiment uses current-season scores and prior-season observations at 35% weight, with a ridge prior; this is a separate historical comparison, not today’s 80/20 policy.</p><p>Latest revised nflverse data, not an archive of what was published at each historic kickoff. This is a score diagnostic across the displayed seasons, not a 2026-only result or an untouched confirmation set. Historical lines/prices are absent, so betting ROI is unavailable.</p>{g.generatedAt&&<p>Snapshot generated {new Date(g.generatedAt).toLocaleString()}.</p>}<a href="../data/football_game_validation.json">Published game summary</a></details></>:<SnapshotState state={game} onRetry={retry}/>}</section>
++  <section className="panel"><div className="section-heading"><div><span className="eyebrow">NFL · RECEIVING ROLE</span><h2>Next-game opportunity test</h2></div>{r&&<span className="source-pill">{r.season} season</span>}</div>{r?<><strong className="backtest-stat">{all.games.toLocaleString()} player-games</strong><p>Does an opportunity-ahead-of-results adjustment improve next-game receiving-yard predictions? MAE is the average absolute miss in yards.</p><ErrorComparison rows={[{label:'All eligible receivers',baseline:all.baseline,challenger:all.challenger}]} unit="yards (MAE)"/><p className="backtest-conclusion">{Number.isFinite(all.baseline)&&Number.isFinite(all.challenger)?all.challenger>=all.baseline?'The experimental adjustment did not improve average error. It remains out of the production model.':'Lower historical error alone is insufficient for promotion; the adjustment remains experimental.':'No complete paired error comparison is available.'}</p><div className="table-wrap"><table><caption>Declared role groups overlap; do not add their sample sizes.</caption><thead><tr><th>Role group</th><th>Player-games</th><th>Baseline MAE</th><th>Adjusted MAE</th></tr></thead><tbody>{r.rows.map(row=><tr key={row.name}><td>{ROLE_LABELS[row.name]}</td><td>{row.games}</td><td>{format(row.baseline)}</td><td>{format(row.challenger)}</td></tr>)}</tbody></table></div><details><summary>Method and limits</summary><p>Weekly role flags use earlier games. The adjustment learns only from already graded earlier weeks, with a 100-player-game zero prior. Actual participation selects the evaluated player-games retrospectively; this cannot simulate a historical availability decision.</p><p>Revised source data, correlated player-games and no historical prices. Opportunity and box-score result stay separate; this test does not prove a bounce-back bet or validate the /100 rating.</p><a href="../data/football_role_validation.json">Published role summary</a></details></>:<SnapshotState state={role} onRetry={retry}/>}</section>
++  <section className="panel"><h2>What this can validate</h2><p>Use historical error to reject weak model ideas and identify candidates for a new, preregistered future test. Use immutable pregame records to evaluate real recommendations, calibration and saved-price ROI. Neither automatically raises ratings.</p><p>The new GOING /100 rating needs its own frozen v2 outcomes. No NCAA historical backtest is published yet; NCAA prospective game results remain in Results. Missing historical injury timestamps, routes and decision-time quotes cannot be reconstructed from current data.</p></section>
++ </div>;
++}
+diff --git a/apps/validation/backtests.mjs b/apps/validation/backtests.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..74866610e31b29ce23503e89442f9eeeda464962
+--- /dev/null
++++ b/apps/validation/backtests.mjs
+@@ -0,0 +1,27 @@
++const number=n=>typeof n==='number'&&Number.isFinite(n);
++const error=n=>number(n)&&n>=0?n:null;
++const count=n=>Number.isInteger(n)&&n>=0?n:null;
++const interval=r=>Array.isArray(r)&&r.length===2&&r.every(number)&&r[0]<=r[1]?r:null;
++
++export function gameDiagnostic(d){
++ if(d?.schema_version!==1||d.validation_scope!=='chronological_week_ahead_score_diagnostic'||count(d.games)===null||error(d.margin_error_points)===null||error(d.total_error_points)===null)throw Error('Game backtest snapshot is invalid.');
++ const c=d.opponent_adjusted||{};
++ return {games:d.games,seasons:Array.isArray(d.seasons)&&d.seasons.length===2&&d.seasons.every(Number.isInteger)?d.seasons:null,generatedAt:d.generated_at||null,
++  rows:[['Margin','margin'],['Total','total']].map(([label,k])=>({label,baseline:d[k+'_error_points'],challenger:error(c[k+'_error_points']),improvementRange:interval(c[k+'_improvement_range_95'])})),
++  // Historical score diagnostics never acquire hypothetical odds or ROI.
++  roi:null};
++}
++export function roleDiagnostic(d){
++ if(d?.schema_version!==1||d.validation_scope!=='chronological_next_game_diagnostic'||!Array.isArray(d.groups)||!Number.isInteger(d.season))throw Error('Role backtest snapshot is invalid.');
++ const rows=d.groups.filter(g=>['all_eligible','above_average_role','role_ahead_of_results'].includes(g.name)&&count(g.players_games)!==null).map(g=>({name:g.name,games:g.players_games,baseline:error(g.yards_baseline_mae),challenger:error(g.yards_role_adjusted_mae)}));
++ if(!rows.some(r=>r.name==='all_eligible'))throw Error('Role backtest sample is missing.');
++ return {season:d.season,rows,roi:null};
++}
++export async function loadDiagnostic(file,parse,{fetcher=globalThis.fetch,base=globalThis.document?.baseURI,stamp=Date.now()}={}){
++ if(!['football_game_validation.json','football_role_validation.json'].includes(file))throw Error('Unknown backtest source.');
++ let lastError;
++ for(const path of [`../api/snapshot?file=${file}&t=${stamp}`,`../data/${file}?t=${stamp}`]){
++  try{const r=await fetcher(new URL(path,base));if(!r.ok)throw Error(`HTTP ${r.status}`);return parse(await r.json());}catch(e){lastError=e;}
++ }
++ throw Error(`Backtest snapshot unavailable (${lastError?.message||'no published source'}).`);
++}
+diff --git a/apps/validation/src.jsx b/apps/validation/src.jsx
+index 879e80ca73c69ee8e060894261da631d06903ae7..ee68f2a30cd81bb9feee134cd02496e88cb340b5 100644
+--- a/apps/validation/src.jsx
++++ b/apps/validation/src.jsx
+@@ -8,0 +9 @@ import './style.css';
++import {BacktestView} from './backtests.jsx';
+@@ -50 +51,2 @@ function TrackerDashboard({records,meta,privateMode=false,onRefresh,refreshing=f
+-  {!privateMode&&<nav className="evidence-tabs" aria-label="Evidence view">{[['inputs','Model inputs'],['unresolved','Unresolved results'],['coverage','Price coverage'],['performance','Results']].map(([key,label])=><button key={key} type="button" aria-pressed={evidenceView===key} onClick={()=>setEvidenceView(key)}>{label}</button>)}</nav>}
++  {!privateMode&&<nav className="evidence-tabs" aria-label="Evidence view">{[['inputs','Model inputs'],['unresolved','Unresolved results'],['coverage','Price coverage'],['performance','Results'],['backtests','Backtests']].map(([key,label])=><button key={key} type="button" aria-pressed={evidenceView===key} onClick={()=>setEvidenceView(key)}>{label}</button>)}</nav>}
++  {!privateMode&&evidenceView==='backtests'&&<BacktestView onResults={()=>setEvidenceView('performance')}/>}
+diff --git a/apps/validation/style.css b/apps/validation/style.css
+index 6714871c0f5adac4a015eb480a1efac921d69f60..56e274617655a0845ee9d69bc79f0446daa7d67f 100644
+--- a/apps/validation/style.css
++++ b/apps/validation/style.css
+@@ -79,0 +80,25 @@ body[data-going-workspace=results] .visual-evidence .evidence-filter-disclosure
++
++/* Historical diagnostics stay separate from frozen-price performance. */
++.evidence-tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
++.evidence-view-backtests>:not(.evidence-tabs):not(.backtest-view){display:none!important}
++.backtest-view{order:1;min-width:0;display:flex;flex-direction:column;gap:8px}
++.backtest-view .section-heading{flex-wrap:wrap;gap:8px}
++.backtest-view .source-pill{white-space:normal}
++.backtest-view .backtest-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
++.backtest-view button,.backtest-view summary{min-height:44px}
++.backtest-view details{margin-top:12px;border-top:1px solid #294b60;padding-top:4px}
++.backtest-view summary{display:flex;align-items:center;cursor:pointer;color:#35edcb}
++.backtest-view .backtest-stat{font-size:24px;color:#f1f7fb;display:block}
++.backtest-chart{margin:16px 0;padding:12px;background:#061820;border:1px solid #294b60;border-radius:8px}
++.backtest-chart figcaption{color:#b4cbdc;margin-bottom:12px;font-size:12px}
++.backtest-chart h3{margin:12px 0 6px}
++.backtest-bar-row{display:grid;grid-template-columns:112px minmax(0,1fr) 48px;gap:8px;align-items:center;margin:7px 0;font-size:11px}
++.backtest-bar-track{height:16px;background:#183440;border-radius:4px;overflow:hidden}
++.backtest-bar{height:100%;background:#35edcb;border-radius:4px}
++.backtest-bar.experimental{background:#839ef4}
++.backtest-bar-row strong{text-align:right;font-variant-numeric:tabular-nums}
++.backtest-conclusion{border-left:2px solid #ffae76;padding-left:10px}
++@media(min-width:650px){.backtest-bar-row{grid-template-columns:180px minmax(0,1fr) 70px;font-size:14px}.backtest-chart figcaption{font-size:14px}.backtest-view .backtest-stat{font-size:32px}}
++
++html body[data-going-workspace=results] .visual-evidence .evidence-dashboard .evidence-tabs button{min-width:0!important;padding:6px 3px!important;font-size:10px!important;line-height:1.25!important;overflow-wrap:anywhere;min-height:52px!important;height:100%;align-self:stretch}
++@media(min-width:650px){html body[data-going-workspace=results] .visual-evidence .evidence-dashboard .evidence-tabs button{font-size:14px!important}}
+diff --git a/docs/FOOTBALL_BACKTESTS.md b/docs/FOOTBALL_BACKTESTS.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..c66e43b71240565f9b4ca3406d50cd658fc6c0c9
+--- /dev/null
++++ b/docs/FOOTBALL_BACKTESTS.md
+@@ -0,0 +1,18 @@
++# Football historical validation
++
++Evidence & results → Backtests exposes the existing public, reproducible historical diagnostics. It is a separate view from frozen pregame Results and GOING Picks cohorts. Historical projection error is useful evidence for rejecting weak ideas or registering a new Challenger; it does not automatically validate a betting edge, raise confidence or promote a model.
++
++## Published tests
++
++- Game scores: `scripts/backtest_nfl_context.py::walk_forward`, expanding season/week folds with at least 64 prior games, training kickoff +12h before the earliest test kickoff. Baseline and opponent-adjusted experiment are compared on the same games. RMSE in points; 2,000 week-cluster bootstrap draws for paired error-reduction intervals. Display the published season range, game count, baseline/challenger errors and interval; unknown values remain unknown. This is not necessarily the current production 80/20 policy or a new untouched confirmation set.
++- Receiving roles: `walk_forward_roles`, next-game prediction using earlier weekly data, learning a role-ahead adjustment only from already graded earlier weeks with a 100-player-game zero prior. MAE in yards and overlapping declared role groups. Retrospective actual participation selects evaluated players. A positive group residual alone does not validate an improved projection or a bounce-back bet.
++
++Snapshots are `data/football_game_validation.json` and `data/football_role_validation.json`; these remain generated by the existing refresh path. The UI reads the existing public snapshot API, falls back to packaged validated summaries, independently reports unavailable sources and supports retry. It does not fetch football providers, fit/tune models, synthesize decisions or rewrite records. No new data ingestion/workflow/system.
++
++## Interpretation
++
++These use latest revised nflverse sources, not a vintage archive. Historic source publication times, injury decisions and genuine pregame quotes are not comprehensively recoverable. Historical prices/ROI and closing-price edge are unavailable, even if a payload accidentally supplies an ROI field. No fabricated -110 prices, reconstructed /100 winners or retrospective tier relabeling.
++
++$100-stake Results use real frozen contract/price/result records and remain hypothetical returns on selections, not an executed bankroll. Prospective cohorts stay separate by recipe; v1 /5 cannot validate v2 /100. New rating hypotheses need separately preregistered cutoffs/folds/benchmarks/criteria and future untouched observations. Current policies/Champion/C1/C2/ABBEYS/Score/DFS and protected ranking journals are unchanged.
++
++NCAA has no published historical backtest in this view; its genuine prospective game results remain available. Full multi-season player-prop and as-of injury/usage backtests require source archives before they can establish predictive validation. The new view shows evidence that exists and its limitations; it does not imply that every method is validated.
+diff --git a/tests/validation-backtests.test.cjs b/tests/validation-backtests.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..4625517ffdfdba7b11d315fc07041c1fea179b36
+--- /dev/null
++++ b/tests/validation-backtests.test.cjs
+@@ -0,0 +1,21 @@
++const test=require('node:test'),assert=require('node:assert/strict');
++const fixture={schema_version:1,validation_scope:'chronological_week_ahead_score_diagnostic',games:100,seasons:[2023,2026],margin_error_points:14,total_error_points:13,roi:.9,opponent_adjusted:{margin_error_points:13,total_error_points:12,margin_improvement_range_95:[-.2,1.1]}};
++test('Historical diagnostics preserve error/uncertainty without fabricating betting ROI',async()=>{
++ const {gameDiagnostic,roleDiagnostic}=await import('../apps/validation/backtests.mjs');
++ const g=gameDiagnostic(fixture);assert.equal(g.roi,null);assert.deepEqual(g.rows[0].improvementRange,[-.2,1.1]);assert.equal(g.rows[1].improvementRange,null);assert.equal(g.rows[1].challenger,12);
++ assert.throws(()=>gameDiagnostic({...fixture,margin_error_points:null}));assert.throws(()=>gameDiagnostic({...fixture,validation_scope:'in_sample'}));assert.throws(()=>gameDiagnostic({...fixture,games:-1}));
++ const missing=gameDiagnostic({...fixture,opponent_adjusted:{margin_error_points:'12',margin_improvement_range_95:[2,1]}});assert.equal(missing.rows[0].challenger,null);assert.equal(missing.rows[0].improvementRange,null);
++ const r=roleDiagnostic({schema_version:1,validation_scope:'chronological_next_game_diagnostic',season:2025,groups:[{name:'all_eligible',players_games:2,yards_baseline_mae:20,yards_role_adjusted_mae:21},{name:'above_average_role',players_games:1,yards_baseline_mae:null}]});assert.equal(r.roi,null);assert.equal(r.rows[1].baseline,null);assert.equal(r.rows[0].challenger,21);
++ assert.throws(()=>roleDiagnostic({schema_version:1,validation_scope:'chronological_next_game_diagnostic',season:2025,groups:[]}));
++});
++test('Backtests fall back to validated packaged public sources, reject invalid data, and surface errors',async()=>{
++ const {loadDiagnostic,gameDiagnostic}=await import('../apps/validation/backtests.mjs');let calls=[];
++ const result=await loadDiagnostic('football_game_validation.json',gameDiagnostic,{base:'https://example.test/validation/',stamp:1,fetcher:async url=>{calls.push(url.href);return calls.length===1?{ok:true,json:async()=>({schema_version:0})}:{ok:true,json:async()=>fixture};}});
++ assert.equal(result.games,100);assert.equal(calls.length,2);assert.match(calls[0],/api\/snapshot/);assert.match(calls[1],/data\/football_game_validation.json/);
++ await assert.rejects(loadDiagnostic('football_game_validation.json',gameDiagnostic,{base:'https://example.test/validation/',fetcher:async()=>({ok:false,status:503})}),/unavailable.*503/);
++ await assert.rejects(loadDiagnostic('private.json',gameDiagnostic),/Unknown backtest source/);
++});
++test('Published historical samples have correct scopes and nonempty baselines',async()=>{
++ const {gameDiagnostic,roleDiagnostic}=await import('../apps/validation/backtests.mjs');const g=gameDiagnostic(require('../data/football_game_validation.json')),r=roleDiagnostic(require('../data/football_role_validation.json'));
++ assert.ok(g.games>0);assert.ok(r.rows.find(x=>x.name==='all_eligible').games>0);assert.equal(g.roi,null);assert.equal(r.roi,null);
++});

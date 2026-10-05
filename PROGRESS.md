@@ -1,5 +1,30 @@
 # Progress
 
+Cycle `20261005-162517-backtest-manual-a` — manual tracker backtest request, not a scheduled occurrence. Main base `4410c67eb09fb80218a3d827ea4e86be39afbf0b`; review base `ac1b33b914fbdd4606fd37f423230542ef26d2eb`; production `8d84a7b78bf7c038f1bb97a701c10d525b1dd238`; tested tree `6ad869faa3d8933388bdd5d06aae5733e55a9f8b`. Exact6-path patch replay verified; ordinary main push and remote SHA verified. Vercel deployment `9rURSRQWv8KYh2mVWghTALDi8EiV` succeeded; production Backtests815/2160 summaries/graphs/limits and return-to-Results verified live16:38ET. Completion SHA is pinned by the subsequent PROGRESS-only receipt.
+
+## Completed
+
+- Owner PRODUCT/BUILDER with independent MODEL RESEARCH review. User benefit/acceptance: tracker → **Backtests** → historical error graphs/comparisons/sample/method/limitations, plus return to saved-price$100Results. Expose useful existing walk-forward evidence without mixing it with prospective performance or faking historic quotes/rating outcomes. Yard principle: immediately understandable findings, separate retrospective estimates and frozen predictions. Approved colors/cards/navigation retained; five equal52px tabs at mobile320–430/desktop.
+- Existing2023–26NFL score diagnostic815games: marginRMSE13.55→13.12,week-cluster95%reduction[0.07,0.79]; total13.61→13.57,reduction[-0.21,0.29] inconclusive. Existing2025receiving2160player-games: MAE21.97→22.01,worse; adjusted projections remain experimental. Dynamic data/graphs/source summaries, independent source loading/errors/retry, methods progressively disclosed. Historic test is not current80/20 or /100 confidence validation; no calibrated/profitability claim/promotion.
+-446/446Node,114/114Python, production/Vercel builds pass offline. Finite/null/error/schema/scope/uncertainty/ROI-suppression and fallback tests. Actual published summaries manually verified. Mobile430/393/390/375/360/320 +1440desktop no page/chart overflow; role groups table scrolls internally. Refresh/disclosure/Resultsreturn verified, JSerrorlogs empty. Cycle audit proof/geometry in docs/picks-audits/20261005-162517-backtest-manual-a/. No scripts/config/data/workflow/model changes, so this push does not trigger credentialed refresh. ExistingGit→rootHobbyVercel path/rulesets/review exclusion false retained; $0additional.
+- Rollback: fresh codex currentmain worktree, `git revert 8d84a7b78bf7c038f1bb97a701c10d525b1dd238` (parent4410c67eb09fb80218a3d827ea4e86be39afbf0b), inspect6code/doc/testpaths and rerun checks. Preserve all tracker/ranking observations; this commit changes no data. Prior /100 production4410c67 and completed review14a3aaa/receiptac1b33b remain intact.
+
+## Working
+
+- None for implementation; publish review completion/receipt under unchanged-tip gates.
+
+## Problems
+
+- Latest revised NFLverse is not historicalas-ofdata; role participation selected retrospectively. Score/yarderror cannot be converted to historical betting ROI without saved decision-time contracts/odds. HistoricalNCAA test and multi-season prop/as-ofinjury archive remain unavailable. New /100 rating still needs frozen future v2 outcomes; no waiting-only confidence uplift.
+
+## Next
+
+- Prospective validation remains separate per policy/family/cluster, new hypotheses preregistered before fitting. Explore reproducible historical input archives for genuinely decision-time prop/injury and NCAA tests; no outcome-tuned backfill, fake odds, automatic model promotion or protected holdout evaluation.
+
+## Needs Travis
+
+- None for this routine view. No paid APIs, destructiveGit, newautomation/deployment or model changes authorized/performed.
+
 Cycle `20261005-155440-rating-manual-a` — manual /100 rating session. Main base `f39be683b484bf4dbed11b62ec995ccc3d2e1fba`; review base `d89c962a1f2cee0be5c134c75e6196b971a3e02c`; production `4410c67eb09fb80218a3d827ea4e86be39afbf0b`; tested tree `a3a1aa3aae35acffb0ea058122044b5456e2f8c6`. Exact11-path patch replay at main base equals tested tree. Main push/remote SHA verified; Vercel deployment `6AUu5fimHZWzB3xdCch6Koz4oewa` succeeded and live mobile/cards/cohort navigation verified16:13–16:16ET. Review completion `14a3aaac2ea1db89cd7e049a6b8f66606d89a2cb` published and remote-verified; this PROGRESS-only receipt pins that completion. Receipt SHA is reported externally, never inside itself. Exact production/main and review gates verified before each push; mutex released only after recording/publication.
 
 ## Completed

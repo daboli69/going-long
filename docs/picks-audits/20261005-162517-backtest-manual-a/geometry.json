@@ -1,0 +1,331 @@
+[
+  {
+    "bodyWidth": 430,
+    "charts": [
+      {
+        "client": 382,
+        "scroll": 382
+      },
+      {
+        "client": 382,
+        "scroll": 382
+      }
+    ],
+    "pageWidth": 430,
+    "tabs": [
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Model inputs"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Unresolved results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Price coverage"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Backtests"
+      }
+    ],
+    "width": 430
+  },
+  {
+    "bodyWidth": 393,
+    "charts": [
+      {
+        "client": 345,
+        "scroll": 345
+      },
+      {
+        "client": 345,
+        "scroll": 345
+      }
+    ],
+    "pageWidth": 393,
+    "tabs": [
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Model inputs"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Unresolved results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Price coverage"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Backtests"
+      }
+    ],
+    "width": 393
+  },
+  {
+    "bodyWidth": 390,
+    "charts": [
+      {
+        "client": 342,
+        "scroll": 342
+      },
+      {
+        "client": 342,
+        "scroll": 342
+      }
+    ],
+    "pageWidth": 390,
+    "tabs": [
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Model inputs"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Unresolved results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Price coverage"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Backtests"
+      }
+    ],
+    "width": 390
+  },
+  {
+    "bodyWidth": 375,
+    "charts": [
+      {
+        "client": 327,
+        "scroll": 327
+      },
+      {
+        "client": 327,
+        "scroll": 327
+      }
+    ],
+    "pageWidth": 375,
+    "tabs": [
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Model inputs"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Unresolved results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Price coverage"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Backtests"
+      }
+    ],
+    "width": 375
+  },
+  {
+    "bodyWidth": 360,
+    "charts": [
+      {
+        "client": 312,
+        "scroll": 312
+      },
+      {
+        "client": 312,
+        "scroll": 312
+      }
+    ],
+    "pageWidth": 360,
+    "tabs": [
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Model inputs"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Unresolved results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Price coverage"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Backtests"
+      }
+    ],
+    "width": 360
+  },
+  {
+    "bodyWidth": 320,
+    "charts": [
+      {
+        "client": 278,
+        "scroll": 278
+      },
+      {
+        "client": 278,
+        "scroll": 278
+      }
+    ],
+    "pageWidth": 320,
+    "tabs": [
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Model inputs"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Unresolved results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Price coverage"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Results"
+      },
+      {
+        "font": "10px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Backtests"
+      }
+    ],
+    "width": 320
+  },
+  {
+    "bodyWidth": 1425,
+    "charts": [
+      {
+        "client": 1084,
+        "scroll": 1084
+      },
+      {
+        "client": 1084,
+        "scroll": 1084
+      }
+    ],
+    "pageWidth": 1425,
+    "tabs": [
+      {
+        "font": "14px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Model inputs"
+      },
+      {
+        "font": "14px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Unresolved results"
+      },
+      {
+        "font": "14px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Price coverage"
+      },
+      {
+        "font": "14px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Results"
+      },
+      {
+        "font": "14px",
+        "height": 52,
+        "padding": "6px 3px",
+        "text": "Backtests"
+      }
+    ],
+    "width": 1440
+  }
+]
