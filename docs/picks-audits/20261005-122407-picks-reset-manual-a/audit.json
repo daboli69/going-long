@@ -1,0 +1,2151 @@
+{
+  "cycle": "20261005-122407-picks-reset-manual-a",
+  "main_base": "aad7f60d3ebd8835a27aa995a6d09439626e4f9a",
+  "review_base": "e972fa3bccb03379fff4ee5e76a6dbf49c53eb70",
+  "audit_at": "2026-10-05T18:46:30.792Z",
+  "policy_sha256": "9382f5018e6d1886fba36f8439f48dc5a3219903033a0b26947931b94719bb62",
+  "index_sha256": "e56030e14f7c21d26acc7157337fb1576da27cb951f3e3657d75db0f3dcfe8a3",
+  "source_sha256": {
+    "history.json": "03c0d1a88560ea97a2dc71ffa381d5b9b9ace84c43e925fb0a38df0c672b7af6",
+    "football_context.json": "1de08579c18b2ee8de945b6065462cede22ab49dda0d9ef0621b73b2023fffe7",
+    "injury_context.json": "4e6b056c9501bdbece6163049c1506d55e9bdfbac40e7b397a052da12766cbdd",
+    "season_learning.json": "5c0e8eb463c80c5f5d62839492960e66684024cb7161ed08f13bd249948d1b76",
+    "players.json": "19fe26bc7630d4cff0d1c52260af0a7625507968fe0518dbe1883b16f24794d5",
+    "nfl_betting.json": "8778096167e1fd36a0fe94d7c1fcffbeab34719a70083ab6db0849f3a82c8cec",
+    "ncaa_lines.json": "8d0ce8b21dc93953c7d6551fc6f5de5391efa806d5276cf79e73cf3a8c306d0f",
+    "results.json": "4d156ed0d84def51216deb1b00c9f5aaa863815ca3a84c0661ff48447085120b",
+    "data.json": "19a662eb31c10be5c4e4aa6ac4c396acfc1fd5370d720867b890920de7052cb4",
+    "public_tracker.json": "a4c4b7cc3c07b67050f0616b03a59fc0fbed342d545f9040c1d2bdf1afd8e88b"
+  },
+  "pool": 5448,
+  "consolidated": 287,
+  "excluded": 56,
+  "eligible_games": 69,
+  "nfl_primary_positive": 100,
+  "primary_positive": 259,
+  "prior_records_unchanged": 12183,
+  "new_predictions": 259,
+  "new_research_receipts": 259,
+  "first_capture": "2026-10-05T18:32:04.523Z",
+  "new_settled": 0,
+  "picks_research": {
+    "saved": 259,
+    "graded": 0,
+    "new_outcomes": 0,
+    "unpriced": 0,
+    "note": "Football thesis results are separate from priced $100 predictions. Unknown prices never create ROI."
+  },
+  "examples": [
+    {
+      "game": "nfl|ATL|NO|2026-10-05",
+      "candidate": {
+        "kind": "game",
+        "sport": "nfl",
+        "home": "NO",
+        "away": "ATL",
+        "player": "ATL @ NO",
+        "team": "NO",
+        "kickoff": "2026-10-06T00:15:00Z",
+        "market": "moneyline",
+        "line": 0,
+        "side": "Home",
+        "odds": -120,
+        "dec": 1.8333333333333335,
+        "prob": 0.5508674333254051,
+        "push": 0.02978215673913337,
+        "ev": 0.03970578450237616,
+        "modelMean": 2.18888888888889,
+        "modelSd": 13.209601801675024,
+        "n": 12,
+        "gameSeasonEvidence": {
+          "policy": "80% current / 20% historical when both exist; historical fallback otherwise",
+          "home_current_weight": 0.8,
+          "away_current_weight": 0.8,
+          "home_current_games": 3,
+          "away_current_games": 3
+        },
+        "book": "Hard Rock Bet",
+        "updatedAt": "2026-10-05T15:52:13Z",
+        "flags": [],
+        "contract": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|game|no|moneyline|full_game|home|0|including_overtime"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|game|no|moneyline|full_game|home|0|including_overtime",
+        "gameKey": "nfl|ATL|NO|2026-10-05",
+        "family": "Game",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current scoring context 2.5 home margin agrees (3/3 finals)."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Team context",
+            "Raw current scores, not an opponent-adjusted forecast."
+          ],
+          [
+            "ATL game environment",
+            "3 games · 63.0 plays/game · -9.5% neutral pass above expectation"
+          ],
+          [
+            "NO game environment",
+            "3 games · 70.3 plays/game · 1.1% neutral pass above expectation"
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction.",
+          "Current scoring context 2.5 home margin agrees (3/3 finals)."
+        ],
+        "concerns": [
+          "Only a few current games; the role or matchup can change."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction. Current scoring context 2.5 home margin agrees (3/3 finals).",
+        "concern": "Only a few current games; the role or matchup can change.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 10457792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|ATL|NO|2026-10-05",
+      "candidate": {
+        "kind": "game",
+        "sport": "nfl",
+        "home": "NO",
+        "away": "ATL",
+        "player": "ATL @ NO",
+        "team": "NO",
+        "kickoff": "2026-10-06T00:15:00Z",
+        "market": "spread",
+        "line": -1.5,
+        "side": "Home",
+        "odds": -110,
+        "dec": 1.9090909090909092,
+        "prob": 0.5207957274538075,
+        "push": 0,
+        "ev": -0.005753611224549204,
+        "modelMean": 2.18888888888889,
+        "modelSd": 13.209601801675024,
+        "n": 12,
+        "gameSeasonEvidence": {
+          "policy": "80% current / 20% historical when both exist; historical fallback otherwise",
+          "home_current_weight": 0.8,
+          "away_current_weight": 0.8,
+          "home_current_games": 3,
+          "away_current_games": 3
+        },
+        "book": "FanDuel",
+        "updatedAt": "2026-10-05T15:52:16Z",
+        "flags": [],
+        "contract": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|game|no|spread|full_game|home|-1.5|including_overtime"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|game|no|spread|full_game|home|-1.5|including_overtime",
+        "gameKey": "nfl|ATL|NO|2026-10-05",
+        "family": "Game",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current scoring context 2.5 home margin agrees (3/3 finals)."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Team context",
+            "Raw current scores, not an opponent-adjusted forecast."
+          ],
+          [
+            "ATL game environment",
+            "3 games · 63.0 plays/game · -9.5% neutral pass above expectation"
+          ],
+          [
+            "NO game environment",
+            "3 games · 70.3 plays/game · 1.1% neutral pass above expectation"
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction.",
+          "Current scoring context 2.5 home margin agrees (3/3 finals)."
+        ],
+        "concerns": [
+          "Only a few current games; the role or matchup can change."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction. Current scoring context 2.5 home margin agrees (3/3 finals).",
+        "concern": "Only a few current games; the role or matchup can change.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 10454792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|ATL|NO|2026-10-05",
+      "candidate": {
+        "kind": "game",
+        "sport": "nfl",
+        "home": "NO",
+        "away": "ATL",
+        "player": "ATL @ NO",
+        "team": "ATL",
+        "kickoff": "2026-10-06T00:15:00Z",
+        "market": "total",
+        "line": 47.5,
+        "side": "Under",
+        "odds": -110,
+        "dec": 1.9090909090909092,
+        "prob": 0.529654764718986,
+        "push": 0,
+        "ev": 0.011159096281700531,
+        "modelMean": 46.455555555555556,
+        "modelSd": 14.037875758930532,
+        "n": 12,
+        "gameSeasonEvidence": {
+          "policy": "80% current / 20% historical when both exist; historical fallback otherwise",
+          "home_current_weight": 0.8,
+          "away_current_weight": 0.8,
+          "home_current_games": 3,
+          "away_current_games": 3
+        },
+        "book": "FanDuel",
+        "updatedAt": "2026-10-05T15:52:16Z",
+        "flags": [],
+        "contract": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|game|atl|total|full_game|under|47.5|including_overtime"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|game|atl|total|full_game|under|47.5|including_overtime",
+        "gameKey": "nfl|ATL|NO|2026-10-05",
+        "family": "Game",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current scoring context 47.2 total agrees (3/3 finals)."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Team context",
+            "Raw current scores, not an opponent-adjusted forecast."
+          ],
+          [
+            "ATL game environment",
+            "3 games · 63.0 plays/game · -9.5% neutral pass above expectation"
+          ],
+          [
+            "NO game environment",
+            "3 games · 70.3 plays/game · 1.1% neutral pass above expectation"
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction.",
+          "Current scoring context 47.2 total agrees (3/3 finals)."
+        ],
+        "concerns": [
+          "Only a few current games; the role or matchup can change."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction. Current scoring context 47.2 total agrees (3/3 finals).",
+        "concern": "Only a few current games; the role or matchup can change.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 10454792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|ATL|NO|2026-10-05",
+      "candidate": {
+        "kind": "prop",
+        "sport": "nfl",
+        "home": "NO",
+        "away": "ATL",
+        "kickoff": "2026-10-06T00:15:00.000Z",
+        "player": "Austin Hooper",
+        "profileId": "00-0032392",
+        "profileDate": "2026-09-24",
+        "team": "ATL",
+        "opp": "NO",
+        "position": "TE",
+        "market": "rec_yds",
+        "line": 7.5,
+        "n": 12,
+        "projMean": 11.533333333333333,
+        "projSd": 11.838400536927583,
+        "modelFamily": "lognormal",
+        "seasonEvidence": {
+          "season": 2026,
+          "current_games": 3,
+          "historical_games": 9,
+          "current_weight": 0.8,
+          "historical_weight": 0.2,
+          "evidence_status": "mixed",
+          "sample_confidence": "low",
+          "effective_n": 4.591836734693878,
+          "method": "80% current / 20% historical policy; unvalidated accuracy improvement"
+        },
+        "injury": null,
+        "book": "BetMGM",
+        "updatedAt": "2026-10-05T09:56:04Z",
+        "flags": [],
+        "side": "Over",
+        "odds": -120,
+        "dec": 1.8333333333333335,
+        "prob": 0.6044348809517801,
+        "push": 0,
+        "ev": 0.1081306150782636,
+        "contract": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|prop|00_0032392|rec_yds|full_game|over|7.5|player_must_participate"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|prop|00_0032392|rec_yds|full_game|over|7.5|player_must_participate",
+        "gameKey": "nfl|ATL|NO|2026-10-05",
+        "family": "Receiving",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction: 11.5 vs 7.5."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current 3-game average 10.3 agrees with Over 7.5."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Observed offensive role",
+            "3 games · 8.1% target share · 0.0% rush share"
+          ],
+          [
+            "Current PBP role cutoff",
+            "2026-09-24"
+          ],
+          [
+            "Snap / route distinction",
+            "29.9% offensive_snap_share; measured routes unavailable"
+          ],
+          [
+            "Expected versus actual catches",
+            "4.0 CP-summed expected / 4 actual on 6 modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast."
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction: 11.5 vs 7.5.",
+          "Current 3-game average 10.3 agrees with Over 7.5."
+        ],
+        "concerns": [
+          "Only a few current games; the role or matchup can change."
+        ],
+        "unknown": [
+          "Role trend needs at least two observed games in each period.",
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction: 11.5 vs 7.5. Current 3-game average 10.3 agrees with Over 7.5.",
+        "concern": "Only a few current games; the role or matchup can change.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 31826792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|ATL|NO|2026-10-05",
+      "candidate": {
+        "kind": "prop",
+        "sport": "nfl",
+        "home": "NO",
+        "away": "ATL",
+        "kickoff": "2026-10-06T00:15:00.000+00:00",
+        "player": "Alvin Kamara",
+        "profileId": "00-0033906",
+        "profileDate": "2026-09-27",
+        "team": "NO",
+        "opp": "ATL",
+        "position": "RB",
+        "market": "receptions",
+        "line": 2.5,
+        "n": 12,
+        "projMean": 3.02,
+        "projSd": 2.339397585937191,
+        "modelFamily": "poisson",
+        "seasonEvidence": {
+          "season": 2026,
+          "current_games": 2,
+          "historical_games": 10,
+          "current_weight": 0.8,
+          "historical_weight": 0.2,
+          "evidence_status": "mixed",
+          "sample_confidence": "low",
+          "effective_n": 3.0864197530864192,
+          "method": "80% current / 20% historical policy; unvalidated accuracy improvement"
+        },
+        "injury": null,
+        "book": "Novig",
+        "updatedAt": "2026-10-05T10:38:14Z",
+        "flags": [],
+        "side": "Over",
+        "odds": -153,
+        "dec": 1.65359477124183,
+        "prob": 0.5812757862102563,
+        "push": 0,
+        "ev": -0.03880539927323634,
+        "contract": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|prop|00_0033906|receptions|full_game|over|2.5|player_must_participate"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|prop|00_0033906|receptions|full_game|over|2.5|player_must_participate",
+        "gameKey": "nfl|ATL|NO|2026-10-05",
+        "family": "Receiving",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction: 3.0 vs 2.5."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current 2-game average 3.0 agrees with Over 2.5."
+          }
+        ],
+        "badges": [
+          "MODEL +",
+          "VOLUME"
+        ],
+        "facts": [
+          [
+            "Current opportunity",
+            "3.5 targets/game (2 observed games)"
+          ],
+          [
+            "Current PBP role cutoff",
+            "2026-09-27"
+          ],
+          [
+            "Snap / route distinction",
+            "30.6% offensive_snap_share; measured routes unavailable"
+          ],
+          [
+            "Expected versus actual catches",
+            "5.7 CP-summed expected / 6 actual on 7 modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast."
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction: 3.0 vs 2.5.",
+          "Current 2-game average 3.0 agrees with Over 2.5.",
+          "3.5 targets/game (2 observed games)"
+        ],
+        "concerns": [
+          "Only a few current games; the role or matchup can change."
+        ],
+        "unknown": [
+          "Role trend needs at least two observed games in each period.",
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction: 3.0 vs 2.5. Current 2-game average 3.0 agrees with Over 2.5.",
+        "concern": "Only a few current games; the role or matchup can change.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 29296792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|ATL|NO|2026-10-05",
+      "candidate": {
+        "kind": "prop",
+        "sport": "nfl",
+        "home": "NO",
+        "away": "ATL",
+        "kickoff": "2026-10-06T00:15:00.000+00:00",
+        "player": "Juwan Johnson",
+        "profileId": "00-0036040",
+        "profileDate": "2026-09-27",
+        "team": "NO",
+        "opp": "ATL",
+        "position": "TE",
+        "market": "rec_yds",
+        "line": 42.5,
+        "n": 12,
+        "projMean": 57.711111111111116,
+        "projSd": 14.271360032306562,
+        "modelFamily": "lognormal",
+        "seasonEvidence": {
+          "season": 2026,
+          "current_games": 3,
+          "historical_games": 9,
+          "current_weight": 0.8,
+          "historical_weight": 0.2,
+          "evidence_status": "mixed",
+          "sample_confidence": "low",
+          "effective_n": 4.591836734693878,
+          "method": "80% current / 20% historical policy; unvalidated accuracy improvement"
+        },
+        "injury": null,
+        "book": "Novig",
+        "updatedAt": "2026-10-05T10:38:14Z",
+        "flags": [],
+        "side": "Over",
+        "odds": -102,
+        "dec": 1.9803921568627452,
+        "prob": 0.8715960532483121,
+        "push": 0,
+        "ev": 0.726101987805481,
+        "contract": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|prop|00_0036040|rec_yds|full_game|over|42.5|player_must_participate"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|prop|00_0036040|rec_yds|full_game|over|42.5|player_must_participate",
+        "gameKey": "nfl|ATL|NO|2026-10-05",
+        "family": "Receiving",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction: 57.7 vs 42.5."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current 3-game average 57.7 agrees with Over 42.5."
+          }
+        ],
+        "badges": [
+          "MODEL +",
+          "VOLUME"
+        ],
+        "facts": [
+          [
+            "Current opportunity",
+            "6.3 targets/game (3 observed games)"
+          ],
+          [
+            "Current PBP role cutoff",
+            "2026-09-27"
+          ],
+          [
+            "Snap / route distinction",
+            "68.1% offensive_snap_share; measured routes unavailable"
+          ],
+          [
+            "Expected versus actual catches",
+            "12.1 CP-summed expected / 14 actual on 17 modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast."
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction: 57.7 vs 42.5.",
+          "Current 3-game average 57.7 agrees with Over 42.5.",
+          "6.3 targets/game (3 observed games)"
+        ],
+        "concerns": [
+          "Only a few current games; the role or matchup can change."
+        ],
+        "unknown": [
+          "Role trend needs at least two observed games in each period.",
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction: 57.7 vs 42.5. Current 3-game average 57.7 agrees with Over 42.5.",
+        "concern": "Only a few current games; the role or matchup can change.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 29296792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|TB|DAL|2026-10-08",
+      "candidate": {
+        "kind": "prop",
+        "sport": "nfl",
+        "home": "DAL",
+        "away": "TB",
+        "kickoff": "2026-10-09T00:15:00.000+00:00",
+        "player": "Chris Godwin",
+        "profileId": "00-0033921",
+        "profileDate": "2026-10-04",
+        "team": "TB",
+        "opp": "DAL",
+        "position": "WR",
+        "market": "rec_yds",
+        "line": 27.5,
+        "n": 12,
+        "projMean": 36.75,
+        "projSd": 18.383392010083647,
+        "modelFamily": "lognormal",
+        "seasonEvidence": {
+          "season": 2026,
+          "current_games": 4,
+          "historical_games": 8,
+          "current_weight": 0.8,
+          "historical_weight": 0.2,
+          "evidence_status": "mixed",
+          "sample_confidence": "low",
+          "effective_n": 6.06060606060606,
+          "method": "80% current / 20% historical policy; unvalidated accuracy improvement"
+        },
+        "injury": null,
+        "book": "Novig",
+        "updatedAt": "2026-10-05T10:38:14Z",
+        "flags": [],
+        "side": "Over",
+        "odds": -113,
+        "dec": 1.8849557522123894,
+        "prob": 0.6470143002379789,
+        "push": 5.551115123125783e-17,
+        "ev": 0.21959332699725237,
+        "contract": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:15:00.000Z|prop|00_0033921|rec_yds|full_game|over|27.5|player_must_participate"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:15:00.000Z|prop|00_0033921|rec_yds|full_game|over|27.5|player_must_participate",
+        "gameKey": "nfl|TB|DAL|2026-10-08",
+        "family": "Receiving",
+        "points": 4,
+        "rating": 4,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction: 36.8 vs 27.5."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current 4-game average 35.5 agrees with Over 27.5."
+          },
+          {
+            "id": "usage",
+            "points": 1,
+            "detail": "Targets moved 3.5 → 5.5 per observed game (two chronological groups of 2+)."
+          }
+        ],
+        "badges": [
+          "MODEL +",
+          "VOLUME",
+          "ROLE UP"
+        ],
+        "facts": [
+          [
+            "Current opportunity",
+            "4.5 targets/game (4 observed games)"
+          ],
+          [
+            "Current PBP role cutoff",
+            "2026-10-04"
+          ],
+          [
+            "Snap / route distinction",
+            "80.3% offensive_snap_share; measured routes unavailable"
+          ],
+          [
+            "Expected versus actual catches",
+            "13.7 CP-summed expected / 16 actual on 18 modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast."
+          ]
+        ],
+        "supports": [
+          "Targets moved 3.5 → 5.5 per observed game (two chronological groups of 2+).",
+          "Existing model favors this exact direction: 36.8 vs 27.5.",
+          "Current 4-game average 35.5 agrees with Over 27.5.",
+          "4.5 targets/game (4 observed games)"
+        ],
+        "concerns": [
+          "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Targets moved 3.5 → 5.5 per observed game (two chronological groups of 2+). Existing model favors this exact direction: 36.8 vs 27.5.",
+        "concern": "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 29296792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|TB|DAL|2026-10-08",
+      "candidate": {
+        "kind": "prop",
+        "sport": "nfl",
+        "home": "DAL",
+        "away": "TB",
+        "kickoff": "2026-10-09T00:15:00.000+00:00",
+        "player": "CeeDee Lamb",
+        "profileId": "00-0036358",
+        "profileDate": "2026-10-04",
+        "team": "DAL",
+        "opp": "TB",
+        "position": "WR",
+        "market": "rec_yds",
+        "line": 78.5,
+        "n": 12,
+        "projMean": 114.25000000000001,
+        "projSd": 60.183725693274866,
+        "modelFamily": "lognormal",
+        "seasonEvidence": {
+          "season": 2026,
+          "current_games": 4,
+          "historical_games": 8,
+          "current_weight": 0.8,
+          "historical_weight": 0.2,
+          "evidence_status": "mixed",
+          "sample_confidence": "low",
+          "effective_n": 6.06060606060606,
+          "method": "80% current / 20% historical policy; unvalidated accuracy improvement"
+        },
+        "injury": null,
+        "book": "Novig",
+        "updatedAt": "2026-10-05T10:38:14Z",
+        "flags": [],
+        "side": "Over",
+        "odds": -186,
+        "dec": 1.5376344086021505,
+        "prob": 0.6952987151788569,
+        "push": 0,
+        "ev": 0.06911522871587672,
+        "contract": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:15:00.000Z|prop|00_0036358|rec_yds|full_game|over|78.5|player_must_participate"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:15:00.000Z|prop|00_0036358|rec_yds|full_game|over|78.5|player_must_participate",
+        "gameKey": "nfl|TB|DAL|2026-10-08",
+        "family": "Receiving",
+        "points": 4,
+        "rating": 4,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction: 114.3 vs 78.5."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current 4-game average 124.5 agrees with Over 78.5."
+          },
+          {
+            "id": "usage",
+            "points": 1,
+            "detail": "Targets moved 8.5 → 15.0 per observed game (two chronological groups of 2+)."
+          }
+        ],
+        "badges": [
+          "MODEL +",
+          "VOLUME",
+          "ROLE UP"
+        ],
+        "facts": [
+          [
+            "Current opportunity",
+            "11.5 targets/game (4 observed games)"
+          ],
+          [
+            "Current PBP role cutoff",
+            "2026-10-04"
+          ],
+          [
+            "Snap / route distinction",
+            "81.5% offensive_snap_share; measured routes unavailable"
+          ],
+          [
+            "Expected versus actual catches",
+            "30.0 CP-summed expected / 37 actual on 46 modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast."
+          ]
+        ],
+        "supports": [
+          "Targets moved 8.5 → 15.0 per observed game (two chronological groups of 2+).",
+          "Existing model favors this exact direction: 114.3 vs 78.5.",
+          "Current 4-game average 124.5 agrees with Over 78.5.",
+          "11.5 targets/game (4 observed games)"
+        ],
+        "concerns": [
+          "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Targets moved 8.5 → 15.0 per observed game (two chronological groups of 2+). Existing model favors this exact direction: 114.3 vs 78.5.",
+        "concern": "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 29296792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|TB|DAL|2026-10-08",
+      "candidate": {
+        "kind": "prop",
+        "sport": "nfl",
+        "home": "DAL",
+        "away": "TB",
+        "kickoff": "2026-10-09T00:16:00.000Z",
+        "player": "Chris Godwin",
+        "profileId": "00-0033921",
+        "profileDate": "2026-10-04",
+        "team": "TB",
+        "opp": "DAL",
+        "position": "WR",
+        "market": "receptions",
+        "line": 2.5,
+        "n": 12,
+        "projMean": 3.9500000000000006,
+        "projSd": 1.4874726385044537,
+        "modelFamily": "poisson",
+        "seasonEvidence": {
+          "season": 2026,
+          "current_games": 4,
+          "historical_games": 8,
+          "current_weight": 0.8,
+          "historical_weight": 0.2,
+          "evidence_status": "mixed",
+          "sample_confidence": "low",
+          "effective_n": 6.06060606060606,
+          "method": "80% current / 20% historical policy; unvalidated accuracy improvement"
+        },
+        "injury": null,
+        "book": "FanDuel",
+        "updatedAt": "2026-10-05T10:39:06Z",
+        "flags": [],
+        "side": "Over",
+        "odds": -140,
+        "dec": 1.7142857142857144,
+        "prob": 0.7544784839865974,
+        "push": 5.551115123125783e-17,
+        "ev": 0.2933916868341672,
+        "contract": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:16:00.000Z|prop|00_0033921|receptions|full_game|over|2.5|player_must_participate"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:16:00.000Z|prop|00_0033921|receptions|full_game|over|2.5|player_must_participate",
+        "gameKey": "nfl|TB|DAL|2026-10-08",
+        "family": "Receiving",
+        "points": 4,
+        "rating": 4,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction: 4.0 vs 2.5."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current 4-game average 4.0 agrees with Over 2.5."
+          },
+          {
+            "id": "usage",
+            "points": 1,
+            "detail": "Targets moved 3.5 → 5.5 per observed game (two chronological groups of 2+)."
+          }
+        ],
+        "badges": [
+          "MODEL +",
+          "VOLUME",
+          "ROLE UP"
+        ],
+        "facts": [
+          [
+            "Current opportunity",
+            "4.5 targets/game (4 observed games)"
+          ],
+          [
+            "Current PBP role cutoff",
+            "2026-10-04"
+          ],
+          [
+            "Snap / route distinction",
+            "80.3% offensive_snap_share; measured routes unavailable"
+          ],
+          [
+            "Expected versus actual catches",
+            "13.7 CP-summed expected / 16 actual on 18 modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast."
+          ]
+        ],
+        "supports": [
+          "Targets moved 3.5 → 5.5 per observed game (two chronological groups of 2+).",
+          "Existing model favors this exact direction: 4.0 vs 2.5.",
+          "Current 4-game average 4.0 agrees with Over 2.5.",
+          "4.5 targets/game (4 observed games)"
+        ],
+        "concerns": [
+          "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Targets moved 3.5 → 5.5 per observed game (two chronological groups of 2+). Existing model favors this exact direction: 4.0 vs 2.5.",
+        "concern": "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 29244792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|TB|DAL|2026-10-08",
+      "candidate": {
+        "kind": "prop",
+        "sport": "nfl",
+        "home": "DAL",
+        "away": "TB",
+        "kickoff": "2026-10-09T00:16:00.000Z",
+        "player": "CeeDee Lamb",
+        "profileId": "00-0036358",
+        "profileDate": "2026-10-04",
+        "team": "DAL",
+        "opp": "TB",
+        "position": "WR",
+        "market": "receptions",
+        "line": 5.5,
+        "n": 12,
+        "projMean": 8.4,
+        "projSd": 4.947629929185051,
+        "modelFamily": "poisson",
+        "seasonEvidence": {
+          "season": 2026,
+          "current_games": 4,
+          "historical_games": 8,
+          "current_weight": 0.8,
+          "historical_weight": 0.2,
+          "evidence_status": "mixed",
+          "sample_confidence": "low",
+          "effective_n": 6.06060606060606,
+          "method": "80% current / 20% historical policy; unvalidated accuracy improvement"
+        },
+        "injury": null,
+        "book": "FanDuel",
+        "updatedAt": "2026-10-05T10:39:06Z",
+        "flags": [],
+        "side": "Over",
+        "odds": -118,
+        "dec": 1.847457627118644,
+        "prob": 0.842723216969532,
+        "push": 5.551115123125783e-17,
+        "ev": 0.5568954347403219,
+        "contract": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:16:00.000Z|prop|00_0036358|receptions|full_game|over|5.5|player_must_participate"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:16:00.000Z|prop|00_0036358|receptions|full_game|over|5.5|player_must_participate",
+        "gameKey": "nfl|TB|DAL|2026-10-08",
+        "family": "Receiving",
+        "points": 4,
+        "rating": 4,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction: 8.4 vs 5.5."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current 4-game average 9.3 agrees with Over 5.5."
+          },
+          {
+            "id": "usage",
+            "points": 1,
+            "detail": "Targets moved 8.5 → 15.0 per observed game (two chronological groups of 2+)."
+          }
+        ],
+        "badges": [
+          "MODEL +",
+          "VOLUME",
+          "ROLE UP"
+        ],
+        "facts": [
+          [
+            "Current opportunity",
+            "11.5 targets/game (4 observed games)"
+          ],
+          [
+            "Current PBP role cutoff",
+            "2026-10-04"
+          ],
+          [
+            "Snap / route distinction",
+            "81.5% offensive_snap_share; measured routes unavailable"
+          ],
+          [
+            "Expected versus actual catches",
+            "30.0 CP-summed expected / 37 actual on 46 modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast."
+          ]
+        ],
+        "supports": [
+          "Targets moved 8.5 → 15.0 per observed game (two chronological groups of 2+).",
+          "Existing model favors this exact direction: 8.4 vs 5.5.",
+          "Current 4-game average 9.3 agrees with Over 5.5.",
+          "11.5 targets/game (4 observed games)"
+        ],
+        "concerns": [
+          "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Targets moved 8.5 → 15.0 per observed game (two chronological groups of 2+). Existing model favors this exact direction: 8.4 vs 5.5.",
+        "concern": "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 29244792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|TB|DAL|2026-10-08",
+      "candidate": {
+        "kind": "prop",
+        "sport": "nfl",
+        "home": "DAL",
+        "away": "TB",
+        "kickoff": "2026-10-09T00:16:00.000Z",
+        "player": "Bucky Irving",
+        "profileId": "00-0039361",
+        "profileDate": "2026-10-04",
+        "team": "TB",
+        "opp": "DAL",
+        "position": "RB",
+        "market": "rush_yds",
+        "line": 56.5,
+        "n": 12,
+        "projMean": 60.2,
+        "projSd": 19.42311728404944,
+        "modelFamily": "lognormal",
+        "seasonEvidence": {
+          "season": 2026,
+          "current_games": 4,
+          "historical_games": 8,
+          "current_weight": 0.8,
+          "historical_weight": 0.2,
+          "evidence_status": "mixed",
+          "sample_confidence": "low",
+          "effective_n": 6.06060606060606,
+          "method": "80% current / 20% historical policy; unvalidated accuracy improvement"
+        },
+        "injury": null,
+        "book": "FanDuel",
+        "updatedAt": "2026-10-05T10:39:06Z",
+        "flags": [],
+        "side": "Over",
+        "odds": -114,
+        "dec": 1.8771929824561404,
+        "prob": 0.5176374866104035,
+        "push": 0,
+        "ev": -0.028294542678716117,
+        "contract": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:16:00.000Z|prop|00_0039361|rush_yds|full_game|over|56.5|player_must_participate"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:16:00.000Z|prop|00_0039361|rush_yds|full_game|over|56.5|player_must_participate",
+        "gameKey": "nfl|TB|DAL|2026-10-08",
+        "family": "Rushing",
+        "points": 4,
+        "rating": 4,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction: 60.2 vs 56.5."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current 4-game average 60.3 agrees with Over 56.5."
+          },
+          {
+            "id": "usage",
+            "points": 1,
+            "detail": "Carries moved 12.5 → 15.5 per observed game (two chronological groups of 2+)."
+          }
+        ],
+        "badges": [
+          "MODEL +",
+          "VOLUME",
+          "ROLE UP"
+        ],
+        "facts": [
+          [
+            "Current opportunity",
+            "14.0 carries/game (4 observed games)"
+          ],
+          [
+            "Current PBP role cutoff",
+            "2026-10-04"
+          ],
+          [
+            "Snap / route distinction",
+            "62.6% offensive_snap_share; measured routes unavailable"
+          ],
+          [
+            "Expected versus actual catches",
+            "11.8 CP-summed expected / 13 actual on 15 modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast."
+          ]
+        ],
+        "supports": [
+          "Carries moved 12.5 → 15.5 per observed game (two chronological groups of 2+).",
+          "Existing model favors this exact direction: 60.2 vs 56.5.",
+          "Current 4-game average 60.3 agrees with Over 56.5.",
+          "14.0 carries/game (4 observed games)"
+        ],
+        "concerns": [
+          "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Carries moved 12.5 → 15.5 per observed game (two chronological groups of 2+). Existing model favors this exact direction: 60.2 vs 56.5.",
+        "concern": "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 29244792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|TB|DAL|2026-10-08",
+      "candidate": {
+        "kind": "game",
+        "sport": "nfl",
+        "home": "DAL",
+        "away": "TB",
+        "player": "TB @ DAL",
+        "team": "DAL",
+        "kickoff": "2026-10-09T00:15:00Z",
+        "market": "moneyline",
+        "line": 0,
+        "side": "Home",
+        "odds": -560,
+        "dec": 1.1785714285714286,
+        "prob": 0.5820870441416206,
+        "push": 0.02930075684354244,
+        "ev": -0.28466808398954757,
+        "modelMean": 3.2375000000000007,
+        "modelSd": 13.209601801675024,
+        "n": 12,
+        "gameSeasonEvidence": {
+          "policy": "80% current / 20% historical when both exist; historical fallback otherwise",
+          "home_current_weight": 0.8,
+          "away_current_weight": 0.8,
+          "home_current_games": 4,
+          "away_current_games": 4
+        },
+        "book": "FanDuel",
+        "updatedAt": "2026-10-05T15:52:16Z",
+        "flags": [],
+        "contract": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:15:00.000Z|game|dal|moneyline|full_game|home|0|including_overtime"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:15:00.000Z|game|dal|moneyline|full_game|home|0|including_overtime",
+        "gameKey": "nfl|TB|DAL|2026-10-08",
+        "family": "Game",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current scoring context 3.8 home margin agrees (4/4 finals)."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Team context",
+            "Raw current scores, not an opponent-adjusted forecast."
+          ],
+          [
+            "TB game environment",
+            "4 games · 59.5 plays/game · -3.2% neutral pass above expectation"
+          ],
+          [
+            "DAL game environment",
+            "4 games · 62.8 plays/game · 2.4% neutral pass above expectation"
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction.",
+          "Current scoring context 3.8 home margin agrees (4/4 finals)."
+        ],
+        "concerns": [],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction. Current scoring context 3.8 home margin agrees (4/4 finals).",
+        "concern": "Opponent personnel and coverage may change the projected opportunity.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 10454792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|PHI|JAX|2026-10-11",
+      "candidate": {
+        "kind": "game",
+        "sport": "nfl",
+        "home": "JAX",
+        "away": "PHI",
+        "player": "PHI @ JAX",
+        "team": "JAX",
+        "kickoff": "2026-10-11T13:30:00Z",
+        "market": "moneyline",
+        "line": 0,
+        "side": "Home",
+        "odds": -240,
+        "dec": 1.4166666666666667,
+        "prob": 0.7266729309115723,
+        "push": 0.02459462031670745,
+        "ev": 0.05404793910810152,
+        "modelMean": 8.462499999999999,
+        "modelSd": 13.209601801675024,
+        "n": 12,
+        "gameSeasonEvidence": {
+          "policy": "80% current / 20% historical when both exist; historical fallback otherwise",
+          "home_current_weight": 0.8,
+          "away_current_weight": 0.8,
+          "home_current_games": 4,
+          "away_current_games": 4
+        },
+        "book": "FanDuel",
+        "updatedAt": "2026-10-05T15:52:16Z",
+        "flags": [],
+        "contract": "contract-v1|event-v1|nfl|phi|jax|2026-10-11T13:30:00.000Z|game|jax|moneyline|full_game|home|0|including_overtime"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|phi|jax|2026-10-11T13:30:00.000Z|game|jax|moneyline|full_game|home|0|including_overtime",
+        "gameKey": "nfl|PHI|JAX|2026-10-11",
+        "family": "Game",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current scoring context 8.6 home margin agrees (4/4 finals)."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Team context",
+            "Raw current scores, not an opponent-adjusted forecast."
+          ],
+          [
+            "PHI game environment",
+            "4 games · 57.0 plays/game · -5.5% neutral pass above expectation"
+          ],
+          [
+            "JAX game environment",
+            "4 games · 55.0 plays/game · -2.8% neutral pass above expectation"
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction.",
+          "Current scoring context 8.6 home margin agrees (4/4 finals)."
+        ],
+        "concerns": [],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction. Current scoring context 8.6 home margin agrees (4/4 finals).",
+        "concern": "Opponent personnel and coverage may change the projected opportunity.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 10454792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|PHI|JAX|2026-10-11",
+      "candidate": {
+        "kind": "game",
+        "sport": "nfl",
+        "home": "JAX",
+        "away": "PHI",
+        "player": "PHI @ JAX",
+        "team": "JAX",
+        "kickoff": "2026-10-11T13:30:00Z",
+        "market": "spread",
+        "line": -5.5,
+        "side": "Home",
+        "odds": -105,
+        "dec": 1.9523809523809523,
+        "prob": 0.588725837143238,
+        "push": 0,
+        "ev": 0.14941711061298846,
+        "modelMean": 8.462499999999999,
+        "modelSd": 13.209601801675024,
+        "n": 12,
+        "gameSeasonEvidence": {
+          "policy": "80% current / 20% historical when both exist; historical fallback otherwise",
+          "home_current_weight": 0.8,
+          "away_current_weight": 0.8,
+          "home_current_games": 4,
+          "away_current_games": 4
+        },
+        "book": "FanDuel",
+        "updatedAt": "2026-10-05T15:52:16Z",
+        "flags": [],
+        "contract": "contract-v1|event-v1|nfl|phi|jax|2026-10-11T13:30:00.000Z|game|jax|spread|full_game|home|-5.5|including_overtime"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|phi|jax|2026-10-11T13:30:00.000Z|game|jax|spread|full_game|home|-5.5|including_overtime",
+        "gameKey": "nfl|PHI|JAX|2026-10-11",
+        "family": "Game",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current scoring context 8.6 home margin agrees (4/4 finals)."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Team context",
+            "Raw current scores, not an opponent-adjusted forecast."
+          ],
+          [
+            "PHI game environment",
+            "4 games · 57.0 plays/game · -5.5% neutral pass above expectation"
+          ],
+          [
+            "JAX game environment",
+            "4 games · 55.0 plays/game · -2.8% neutral pass above expectation"
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction.",
+          "Current scoring context 8.6 home margin agrees (4/4 finals)."
+        ],
+        "concerns": [],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction. Current scoring context 8.6 home margin agrees (4/4 finals).",
+        "concern": "Opponent personnel and coverage may change the projected opportunity.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 10454792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "nfl|PHI|JAX|2026-10-11",
+      "candidate": {
+        "kind": "game",
+        "sport": "nfl",
+        "home": "JAX",
+        "away": "PHI",
+        "player": "PHI @ JAX",
+        "team": "PHI",
+        "kickoff": "2026-10-11T13:30:00Z",
+        "market": "total",
+        "line": 43,
+        "side": "Under",
+        "odds": -110,
+        "dec": 1.9090909090909092,
+        "prob": 0.5429007571472305,
+        "push": 0.028122559806545655,
+        "ev": 0.06456945981489487,
+        "modelMean": 40.987500000000004,
+        "modelSd": 14.037875758930532,
+        "n": 12,
+        "gameSeasonEvidence": {
+          "policy": "80% current / 20% historical when both exist; historical fallback otherwise",
+          "home_current_weight": 0.8,
+          "away_current_weight": 0.8,
+          "home_current_games": 4,
+          "away_current_games": 4
+        },
+        "book": "Hard Rock Bet",
+        "updatedAt": "2026-10-05T15:52:13Z",
+        "flags": [],
+        "contract": "contract-v1|event-v1|nfl|phi|jax|2026-10-11T13:30:00.000Z|game|phi|total|full_game|under|43|including_overtime"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|phi|jax|2026-10-11T13:30:00.000Z|game|phi|total|full_game|under|43|including_overtime",
+        "gameKey": "nfl|PHI|JAX|2026-10-11",
+        "family": "Game",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current scoring context 40.6 total agrees (4/4 finals)."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Team context",
+            "Raw current scores, not an opponent-adjusted forecast."
+          ],
+          [
+            "PHI game environment",
+            "4 games · 57.0 plays/game · -5.5% neutral pass above expectation"
+          ],
+          [
+            "JAX game environment",
+            "4 games · 55.0 plays/game · -2.8% neutral pass above expectation"
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction.",
+          "Current scoring context 40.6 total agrees (4/4 finals)."
+        ],
+        "concerns": [],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction. Current scoring context 40.6 total agrees (4/4 finals).",
+        "concern": "Opponent personnel and coverage may change the projected opportunity.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 10457792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "ncaa|SOUTHERN MISS|TROY|2026-10-06",
+      "candidate": {
+        "kind": "game",
+        "sport": "ncaa",
+        "home": "Troy",
+        "away": "Southern Miss",
+        "player": "Southern Miss @ Troy",
+        "team": "Troy",
+        "kickoff": "2026-10-07T00:00:00Z",
+        "market": "moneyline",
+        "line": 0,
+        "side": "Home",
+        "odds": -420,
+        "dec": 1.2380952380952381,
+        "prob": 0.6278571645501787,
+        "push": 0.020870724394555562,
+        "ev": -0.20178230997188984,
+        "modelMean": 6.355555555555554,
+        "modelSd": 17.951722819818045,
+        "n": 12,
+        "gameSeasonEvidence": {
+          "policy": "80% current / 20% historical when both exist; historical fallback otherwise",
+          "home_current_weight": 0.8,
+          "away_current_weight": 0.8,
+          "home_current_games": 3,
+          "away_current_games": 3
+        },
+        "book": "BetOnline",
+        "updatedAt": "2026-10-05T15:53:12Z",
+        "flags": [],
+        "contract": "contract-v1|event-v1|ncaa|southern_miss|troy|2026-10-07T00:00:00.000Z|game|troy|moneyline|full_game|home|0|including_overtime"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|ncaa|southern_miss|troy|2026-10-07T00:00:00.000Z|game|troy|moneyline|full_game|home|0|including_overtime",
+        "gameKey": "ncaa|SOUTHERN MISS|TROY|2026-10-06",
+        "family": "Game",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current scoring context 8.0 home margin agrees (3/3 finals)."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Team context",
+            "Raw current scores, not an opponent-adjusted forecast."
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction.",
+          "Current scoring context 8.0 home margin agrees (3/3 finals)."
+        ],
+        "concerns": [
+          "Only a few current games; the role or matchup can change."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction. Current scoring context 8.0 home margin agrees (3/3 finals).",
+        "concern": "Only a few current games; the role or matchup can change.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 10398792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "ncaa|SOUTHERN MISS|TROY|2026-10-06",
+      "candidate": {
+        "kind": "game",
+        "sport": "ncaa",
+        "home": "Troy",
+        "away": "Southern Miss",
+        "player": "Southern Miss @ Troy",
+        "team": "Southern Miss",
+        "kickoff": "2026-10-07T00:00:00Z",
+        "market": "spread",
+        "line": -10.5,
+        "side": "Away",
+        "odds": -110,
+        "dec": 1.9090909090909092,
+        "prob": 0.5912905453857146,
+        "push": 0,
+        "ev": 0.12882740482727328,
+        "modelMean": 6.355555555555554,
+        "modelSd": 17.951722819818045,
+        "n": 12,
+        "gameSeasonEvidence": {
+          "policy": "80% current / 20% historical when both exist; historical fallback otherwise",
+          "home_current_weight": 0.8,
+          "away_current_weight": 0.8,
+          "home_current_games": 3,
+          "away_current_games": 3
+        },
+        "book": "BetOnline",
+        "updatedAt": "2026-10-05T15:53:12Z",
+        "flags": [],
+        "contract": "contract-v1|event-v1|ncaa|southern_miss|troy|2026-10-07T00:00:00.000Z|game|southern_miss|spread|full_game|away|-10.5|including_overtime"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|ncaa|southern_miss|troy|2026-10-07T00:00:00.000Z|game|southern_miss|spread|full_game|away|-10.5|including_overtime",
+        "gameKey": "ncaa|SOUTHERN MISS|TROY|2026-10-06",
+        "family": "Game",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current scoring context 8.0 home margin agrees (3/3 finals)."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Team context",
+            "Raw current scores, not an opponent-adjusted forecast."
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction.",
+          "Current scoring context 8.0 home margin agrees (3/3 finals)."
+        ],
+        "concerns": [
+          "Only a few current games; the role or matchup can change."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction. Current scoring context 8.0 home margin agrees (3/3 finals).",
+        "concern": "Only a few current games; the role or matchup can change.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 10398792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    },
+    {
+      "game": "ncaa|SOUTHERN MISS|TROY|2026-10-06",
+      "candidate": {
+        "kind": "game",
+        "sport": "ncaa",
+        "home": "Troy",
+        "away": "Southern Miss",
+        "player": "Southern Miss @ Troy",
+        "team": "Southern Miss",
+        "kickoff": "2026-10-07T00:00:00Z",
+        "market": "total",
+        "line": 49.5,
+        "side": "Under",
+        "odds": -110,
+        "dec": 1.9090909090909092,
+        "prob": 0.5193875889211839,
+        "push": 0,
+        "ev": -0.008441875695921697,
+        "modelMean": 48.733333333333334,
+        "modelSd": 15.769694679751831,
+        "n": 12,
+        "gameSeasonEvidence": {
+          "policy": "80% current / 20% historical when both exist; historical fallback otherwise",
+          "home_current_weight": 0.8,
+          "away_current_weight": 0.8,
+          "home_current_games": 3,
+          "away_current_games": 3
+        },
+        "book": "BetOnline",
+        "updatedAt": "2026-10-05T15:53:12Z",
+        "flags": [],
+        "contract": "contract-v1|event-v1|ncaa|southern_miss|troy|2026-10-07T00:00:00.000Z|game|southern_miss|total|full_game|under|49.5|including_overtime"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|ncaa|southern_miss|troy|2026-10-07T00:00:00.000Z|game|southern_miss|total|full_game|under|49.5|including_overtime",
+        "gameKey": "ncaa|SOUTHERN MISS|TROY|2026-10-06",
+        "family": "Game",
+        "points": 3,
+        "rating": 3,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current scoring context 47.3 total agrees (3/3 finals)."
+          }
+        ],
+        "badges": [
+          "MODEL +"
+        ],
+        "facts": [
+          [
+            "Team context",
+            "Raw current scores, not an opponent-adjusted forecast."
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction.",
+          "Current scoring context 47.3 total agrees (3/3 finals)."
+        ],
+        "concerns": [
+          "Only a few current games; the role or matchup can change."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction. Current scoring context 47.3 total agrees (3/3 finals).",
+        "concern": "Only a few current games; the role or matchup can change.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 10398792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      }
+    }
+  ],
+  "injury_expected_examples": [
+    {
+      "candidate": {
+        "kind": "prop",
+        "sport": "nfl",
+        "home": "NO",
+        "away": "ATL",
+        "kickoff": "2026-10-06T00:15:00.000+00:00",
+        "player": "Noah Fant",
+        "profileId": "00-0035644",
+        "profileDate": "2026-09-27",
+        "team": "NO",
+        "opp": "ATL",
+        "position": "TE",
+        "market": "rec_yds",
+        "line": 15.5,
+        "n": 12,
+        "projMean": 16.199695555555557,
+        "projSd": 15.994643448479088,
+        "modelFamily": "lognormal",
+        "seasonEvidence": {
+          "season": 2026,
+          "current_games": 3,
+          "historical_games": 9,
+          "current_weight": 0.8,
+          "historical_weight": 0.2,
+          "evidence_status": "mixed",
+          "sample_confidence": "low",
+          "effective_n": 4.591836734693878,
+          "method": "80% current / 20% historical policy; unvalidated accuracy improvement"
+        },
+        "injury": {
+          "version": "injury-role-3",
+          "source": "NFLverse official injury reports and historical played-through cohort",
+          "updatedAt": "2026-10-05T15:52:08+00:00",
+          "status": "Questionable",
+          "state": "questionable",
+          "bodyPart": "Abdomen",
+          "practice": "Limited Participation in Practice",
+          "depthOrder": 2,
+          "position": "TE",
+          "blockRecommendation": false,
+          "stale": false,
+          "historicalEffect": {
+            "position": "TE",
+            "body_part": "*",
+            "status": "questionable",
+            "market": "rec_yds",
+            "sample": 28,
+            "raw_median_ratio": 0.6996,
+            "scale": 0.7847,
+            "confidence": "moderate",
+            "bodyPart": "other",
+            "fallback": true
+          },
+          "applied": true,
+          "projectionScale": 0.7847,
+          "uncertaintyMultiplier": 1.15,
+          "roleBoost": null,
+          "reason": "Historical other/questionable cohort -22% (n=28, moderate, position fallback)"
+        },
+        "book": "Novig",
+        "updatedAt": "2026-10-05T10:38:14Z",
+        "flags": [],
+        "side": "Over",
+        "odds": -122,
+        "dec": 1.819672131147541,
+        "prob": 0.2478771681012295,
+        "push": 0,
+        "ev": -0.5489448252584184,
+        "contract": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|prop|00_0035644|rec_yds|full_game|over|15.5|player_must_participate"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|atl|no|2026-10-06T00:15:00.000Z|prop|00_0035644|rec_yds|full_game|over|15.5|player_must_participate",
+        "gameKey": "nfl|ATL|NO|2026-10-05",
+        "family": "Receiving",
+        "points": 2,
+        "rating": 2,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction: 16.2 vs 15.5."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current 3-game average 22.0 agrees with Over 15.5."
+          },
+          {
+            "id": "availability",
+            "points": -1,
+            "detail": "Availability/participation is uncertain."
+          }
+        ],
+        "badges": [
+          "MODEL +",
+          "VOLUME",
+          "STATUS WATCH"
+        ],
+        "facts": [
+          [
+            "Current opportunity",
+            "4.0 targets/game (3 observed games)"
+          ],
+          [
+            "Current PBP role cutoff",
+            "2026-09-27"
+          ],
+          [
+            "Snap / route distinction",
+            "47.0% offensive_snap_share; measured routes unavailable"
+          ],
+          [
+            "Expected versus actual catches",
+            "7.5 CP-summed expected / 6 actual on 10 modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast."
+          ],
+          [
+            "Existing injury treatment",
+            "Historical other/questionable cohort -22% (n=28, moderate, position fallback)"
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction: 16.2 vs 15.5.",
+          "Current 3-game average 22.0 agrees with Over 15.5.",
+          "4.0 targets/game (3 observed games)"
+        ],
+        "concerns": [
+          "Questionable in the latest report; confirm participation for this game.",
+          "Only a few current games; the role or matchup can change."
+        ],
+        "unknown": [
+          "Role trend needs at least two observed games in each period.",
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction: 16.2 vs 15.5. Current 3-game average 22.0 agrees with Over 15.5.",
+        "concern": "Questionable in the latest report; confirm participation for this game.",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 29296792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      },
+      "offers": [
+        {
+          "book": "Novig",
+          "odds": -122,
+          "updatedAt": "2026-10-05T10:38:14Z"
+        },
+        {
+          "book": "DraftKings",
+          "odds": -116,
+          "updatedAt": "2026-10-05T10:33:38Z"
+        },
+        {
+          "book": "Fanatics",
+          "odds": -140,
+          "updatedAt": "2026-10-05T10:28:10Z"
+        },
+        {
+          "book": "BetMGM",
+          "odds": -120,
+          "updatedAt": "2026-10-05T09:56:04Z"
+        }
+      ],
+      "alternatives": 52
+    },
+    {
+      "candidate": {
+        "kind": "prop",
+        "sport": "nfl",
+        "home": "DAL",
+        "away": "TB",
+        "kickoff": "2026-10-09T00:16:00.000Z",
+        "player": "Ryan Flournoy",
+        "profileId": "00-0039410",
+        "profileDate": "2026-10-04",
+        "team": "DAL",
+        "opp": "TB",
+        "position": "WR",
+        "market": "rec_yds",
+        "line": 33.5,
+        "n": 12,
+        "projMean": 28.025000000000002,
+        "projSd": 19.414309649371432,
+        "modelFamily": "lognormal",
+        "seasonEvidence": {
+          "season": 2026,
+          "current_games": 4,
+          "historical_games": 8,
+          "current_weight": 0.8,
+          "historical_weight": 0.2,
+          "evidence_status": "mixed",
+          "sample_confidence": "low",
+          "effective_n": 6.06060606060606,
+          "method": "80% current / 20% historical policy; unvalidated accuracy improvement"
+        },
+        "injury": null,
+        "book": "FanDuel",
+        "updatedAt": "2026-10-05T10:39:06Z",
+        "flags": [],
+        "side": "Under",
+        "odds": -114,
+        "dec": 1.8771929824561404,
+        "prob": 0.7179943061146364,
+        "push": 0,
+        "ev": 0.3478138728818614,
+        "contract": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:16:00.000Z|prop|00_0039410|rec_yds|full_game|under|33.5|player_must_participate"
+      },
+      "evidence": {
+        "version": "football-case-v1",
+        "eligible": true,
+        "key": "contract-v1|event-v1|nfl|tb|dal|2026-10-09T00:16:00.000Z|prop|00_0039410|rec_yds|full_game|under|33.5|player_must_participate",
+        "gameKey": "nfl|TB|DAL|2026-10-08",
+        "family": "Receiving",
+        "points": 2,
+        "rating": 2,
+        "components": [
+          {
+            "id": "model",
+            "points": 2,
+            "detail": "Existing model favors this exact direction: 28.0 vs 33.5."
+          },
+          {
+            "id": "production",
+            "points": 1,
+            "detail": "Current 4-game average 26.0 agrees with Under 33.5."
+          },
+          {
+            "id": "usage",
+            "points": -1,
+            "detail": "Targets moved 5.0 → 6.5 per observed game (two chronological groups of 2+)."
+          }
+        ],
+        "badges": [
+          "MODEL +",
+          "VOLUME",
+          "ROLE UP"
+        ],
+        "facts": [
+          [
+            "Current opportunity",
+            "5.8 targets/game (4 observed games)"
+          ],
+          [
+            "Current PBP role cutoff",
+            "2026-10-04"
+          ],
+          [
+            "Snap / route distinction",
+            "71.7% offensive_snap_share; measured routes unavailable"
+          ],
+          [
+            "Expected versus actual catches",
+            "15.9 CP-summed expected / 13 actual on 23 modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast."
+          ]
+        ],
+        "supports": [
+          "Existing model favors this exact direction: 28.0 vs 33.5.",
+          "Current 4-game average 26.0 agrees with Under 33.5.",
+          "5.8 targets/game (4 observed games)"
+        ],
+        "concerns": [
+          "Targets moved 5.0 → 6.5 per observed game (two chronological groups of 2+).",
+          "Short usage trend; opportunity counts do not prove a lasting role change or an injury cause."
+        ],
+        "unknown": [
+          "Verified direction-matched matchup is unknown."
+        ],
+        "why": "Existing model favors this exact direction: 28.0 vs 33.5. Current 4-game average 26.0 agrees with Under 33.5.",
+        "concern": "Targets moved 5.0 → 6.5 per observed game (two chronological groups of 2+).",
+        "price": {
+          "valid": true,
+          "fresh": false,
+          "age": 29244792,
+          "saveable": true
+        },
+        "tdResearch": false,
+        "interesting": true
+      },
+      "offers": [
+        {
+          "book": "FanDuel",
+          "odds": -114,
+          "updatedAt": "2026-10-05T10:39:06Z"
+        },
+        {
+          "book": "DraftKings",
+          "odds": -114,
+          "updatedAt": "2026-10-05T10:34:43Z"
+        }
+      ],
+      "alternatives": 20
+    }
+  ],
+  "mobile_viewports": [
+    430,
+    393,
+    390,
+    375,
+    360,
+    320
+  ],
+  "desktop_viewport": [
+    1440,
+    900
+  ],
+  "horizontal_overflow": false,
+  "node_tests": 440,
+  "python_tests": 114,
+  "production_build": "passed",
+  "vercel_build": "passed",
+  "production_sha": "ce4e63271b55b007bdec1ad16070163463f7f25e",
+  "tested_tree": "aef09b5fc2846d8b8c921b4aa1f1d3fb91e8ccff",
+  "patch_bytes": 55598465,
+  "patch_replay_tree": "aef09b5fc2846d8b8c921b4aa1f1d3fb91e8ccff",
+  "index_git_blob_sha256": "747ab69fb6ea2328f6918c4ac46526b1d149fa3d3fe3fe5ef559acf90e5dee7b",
+  "index_capture_eol": "Original Windows CRLF bytes; converting published LF blob to CRLF reproduces captured index SHA exactly."
+}
