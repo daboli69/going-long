@@ -1,6 +1,6 @@
 # Progress
 
-Cycle `20261005-122407-picks-reset-manual-a` — major manual PRODUCT / FOOTBALL DATA / MODEL RESEARCH reset requested by Travis; not a scheduled15-minute occurrence. Exact mutex owner acquired12:24:07ET. Main base `aad7f60d3ebd8835a27aa995a6d09439626e4f9a`; review base `e972fa3bccb03379fff4ee5e76a6dbf49c53eb70`; production `ce4e63271b55b007bdec1ad16070163463f7f25e`; tested tree `aef09b5fc2846d8b8c921b4aa1f1d3fb91e8ccff`. Exact19-path patch replay at main base equals tested production tree. Normal main push and exact remote SHA verified14:51ET; existing Vercel deployment BhQJznVhYgyk2T5BCyCc8y1cuQTg is pending. Live/receipt status will be updated in the receipt; a commit cannot contain its own SHA.
+Cycle `20261005-122407-picks-reset-manual-a` — major manual PRODUCT / FOOTBALL DATA / MODEL RESEARCH reset requested by Travis; not a scheduled15-minute occurrence. Exact mutex owner acquired12:24:07ET. Main base `aad7f60d3ebd8835a27aa995a6d09439626e4f9a`; review base `e972fa3bccb03379fff4ee5e76a6dbf49c53eb70`; production `ce4e63271b55b007bdec1ad16070163463f7f25e`; tested tree `aef09b5fc2846d8b8c921b4aa1f1d3fb91e8ccff`. Exact19-path patch replay at main base equals tested production tree. Normal main push and exact remote SHA verified14:51ET. Vercel deployment BhQJznVhYgyk2T5BCyCc8y1cuQTg succeeded; live NFL/NCAA selections, evidence disclosure and tracker verified14:52–14:58ET. Completion `cfd1e9328a740d7f02dc727e17f4fba95407bd47` is published/remote-verified. This PROGRESS-only local receipt pins completion; its own SHA is reported externally. Receipt push is BLOCKED: successful existing data refresh advanced main to `dcf910768fcbd67c5513fc3132a01ca4cddd31bf`, violating the unchanged-main receipt gate. No retry/rebase/merge/force or production republish.
 
 ## Completed
 
@@ -17,10 +17,11 @@ Cycle `20261005-122407-picks-reset-manual-a` — major manual PRODUCT / FOOTBALL
 
 ## Working
 
-- Production push verified; finish existing deployment/live check and Claude completion/receipt after repeated remote-tip gates. External Claude verdict remains pending, never claimed by materials publication.
+- Application and completion publication verified; this receipt is prepared locally, unpublished pending Travis permission to use the verified data-only refresh tip for the receipt gate. External Claude verdict remains pending, never claimed by materials publication.
 
 ## Problems
 
+- Receipt gate blocker: main changed after completion publication. Refresh37359046525 and Validate37359046359 both succeeded; dcf9107 is ce4e632’s direct child changing27 data paths only. All12,701 records published by this reset remain unchanged in the refreshed tracker. Live Picks cohort shows328 unique upcoming contracts/0settled; no invented ROI. Live lines moved (Godwin29.5recyd4/5 Novig−108, Lamb80.5recyd4/5 Novig−113, Irving55.5rush4/5 FD−114; WashingtonUnder60.5recyd4/5 Novig−113); price observations14:51–14:54ET, then stale labels naturally return. Live ATLNO45/TBDAL36/PHIJAX21 football angles, NCAA SouthernMissTroy3; SacStateBGreen honest0. Original18:46 audit/18:32 receipts remain frozen.
 - Quotes are snapshots/fallback, not current executable prices. Four-game role trends and≥2/2 injury cohorts are small/descriptive, not causal evidence. Fresh current-game OUT/inactives and current charting/routes/expectedyardTD/pressureOL coverage remain gaps. No sportsbook-pricing edge or new-rating predictive accuracy established; correlated markets/cohorts are not independent bankrolls.
 
 ## Next
@@ -30,7 +31,7 @@ Cycle `20261005-122407-picks-reset-manual-a` — major manual PRODUCT / FOOTBALL
 
 ## Needs Travis
 
-- None for routine tested publication. External Claude review judgment remains pending. No new subscription, paid call, automation or promotion requested.
+- App is live; only receipt publication needs an explicit decision. Permission question sent: finish the prepared receipt against verified data-only dcf9107, or leave unpublished. docs/DAILY_REVIEW_PIPELINE.md requires main equal the published production SHA before every receipt push; the new tip is not accepted automatically. No new spending/automation/promotion requested.
 
 Cycle `20261005-120224-confidence-ux-a` — scheduled12:00 ET; started12:02:24, actual capture12:03:27.454. Main base `8812018628ba0baf9047b4fa0a1049aecfd0c408`; review base `c5dfb864380eaa139b9218c8b884d2ef3d7c9c3d`; production `aad7f60d3ebd8835a27aa995a6d09439626e4f9a`; tested tree `51c9604c330ada4f28c3c891473c5111851c3e0c`. Completion `d19b64baa8e652fd3f9aa7ed483c0ba250d90da2` published/remote-verified; this PROGRESS-only receipt pins completion, its own SHA is reported externally. Normal main push and exact remote SHA verified12:09 ET; Vercel deployment succeeded (37zYrCmU9baPZiP4Uc3aDrs529t2); production recent-price toggle and honest0fresh/54football-support count verified12:11 ET.
 
