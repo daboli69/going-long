@@ -8,19 +8,23 @@ test('Results exposes full paginated receipts, Eastern slate filters, and real f
  const {createRoot}=require('react-dom/client');
  const source=fs.readFileSync(require.resolve('../apps/validation/src.jsx'),'utf8').replace(/^import .*;\r?\n/gm,'').replace(/createRoot\(document\.getElementById\('root'\)\)\.render\(<App\/>\);/,'');
  const code=(await transformWithOxc(source,'validation.jsx',{jsx:{runtime:'classic'}})).code;
- const names=['React','useEffect','useMemo','useState','summarize','displayLine','filterTrackerRecords','slateDate','COHORT_LABELS','recordedEvidence'];
- const Dashboard=Function(...names,code+';return TrackerDashboard;')(React,React.useEffect,React.useMemo,React.useState,metrics.summarize,metrics.displayLine,metrics.filterTrackerRecords,metrics.slateDate,cohort.COHORT_LABELS,evidence.recordedEvidence);
+ const names=['React','useEffect','useMemo','useState','summarize','displayLine','filterTrackerRecords','slateDate','COHORT_LABELS','recordedEvidence','settlementExplanation'];
+ const Dashboard=Function(...names,code+';return TrackerDashboard;')(React,React.useEffect,React.useMemo,React.useState,metrics.summarize,metrics.displayLine,metrics.filterTrackerRecords,metrics.slateDate,cohort.COHORT_LABELS,evidence.recordedEvidence,evidence.settlementExplanation);
  const records=[];
  for(let i=0;i<70;i++){
   const p={id:`p${i}`,tracking_group:'best_model',model_cohort:'current-80-20',sport:'nfl',home:'HOME',away:'AWAY',event:'game',player:`Player ${i}`,profile_id:`player-${i}`,market:'player_receiving_yards',side:'Over',side_index:0,line:50.5,odds:2,probability:.6,book:'Test',observed_at:'2026-10-01T12:00:00Z',kickoff:'2026-10-02T00:20:00Z'};
   records.push({kind:'prediction',payload:p},{kind:'settlement',payload:{prediction_id:p.id,status:'win',observed_at:`2026-10-02T04:${String(i%60).padStart(2,'0')}:00Z`}});
  }
+ records.push({kind:'prediction',payload:{...records[0].payload,id:'000-missing',profile_id:'missing',player:'Missing Player'}});
  const root=createRoot(document.getElementById('root'));
  try{
-  await React.act(async()=>root.render(React.createElement(Dashboard,{records,meta:{generated_at:'2026-10-02T05:00:00Z',sources:{predictions:{last_capture_at:'2026-10-01T12:00:00Z'}},result_coverage:{slates:[{sport:'nfl',date:'2026-10-01',finals:2,tracked_finals:1,games:[{id:'game',home:'HOME',away:'AWAY',homeScore:28,awayScore:20,tracked:true},{id:'untracked',home:'OTHER',away:'VISITOR',homeScore:21,awayScore:10,tracked:false}]}]}}})));
+  await React.act(async()=>root.render(React.createElement(Dashboard,{records,meta:{settlement_audit:{counts:{player_participation_or_result_missing:1},pending:[{prediction_id:'000-missing',reason:'player_participation_or_result_missing'}]},generated_at:'2026-10-02T05:00:00Z',sources:{predictions:{last_capture_at:'2026-10-01T12:00:00Z'}},result_coverage:{slates:[{sport:'nfl',date:'2026-10-01',finals:2,tracked_finals:1,games:[{id:'game',home:'HOME',away:'AWAY',homeScore:28,awayScore:20,tracked:true},{id:'untracked',home:'OTHER',away:'VISITOR',homeScore:21,awayScore:10,tracked:false}]}]}}})));
   const $=selector=>document.querySelector(selector),text=()=>document.body.textContent;
   assert.equal($('.evidence-tabs button[aria-pressed="true"]').textContent,'Results');
   assert.equal(document.querySelectorAll('.result-card').length,24);
+  assert.match($('.settlement-reason').textContent,/does not establish a zero, loss or void/);
+  assert.match($('.settlement-reason').textContent,/Excluded from settled profit and ROI/);
+  assert.match($('.evidence-unresolved').textContent,/entire published ledger/);
   assert.match($('.evidence-receipts .record-pager').textContent,/1–24 of 70/);
   const next=$('.evidence-receipts .record-pager button:last-child');
   await React.act(async()=>next.dispatchEvent(new dom.window.MouseEvent('click',{bubbles:true})));

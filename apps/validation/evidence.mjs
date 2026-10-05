@@ -10,3 +10,16 @@ export function recordedEvidence(p){
  return lines;
 }
 export const isHistoricalModel=p=>['all_projection','best_model'].includes(p.tracking_group)||p.model_version?.startsWith('board-tracking-');
+
+export function settlementExplanation(reason){
+ const explanations={
+  player_participation_or_result_missing:'The player appearance or result log is missing. This does not establish a zero, loss or void.',
+  player_market_result_missing:'The player log is present, but the statistic needed for this market is missing.',
+  official_final_missing:'No matching official final is published yet. The game may still be in progress or its result unavailable.',
+  partial_final:'The official result is incomplete; both final team scores are required.',
+  ambiguous_game:'More than one official game matches this record. A unique match is required before grading.',
+  not_before_official_kickoff:'The recorded capture was not before the official kickoff. It cannot be graded as a pregame selection.',
+  unsupported_settlement_rules:'This market needs settlement rules or period-specific results that the tracker does not support yet.'
+ };
+ return explanations[reason]||'A verified result is not available for this saved selection yet.';
+}
