@@ -1,6 +1,6 @@
 # Progress
 
-Cycle `20261005-191436-dfs-tournament-manual-a` — focused manual DFS request; not a scheduled occurrence/missed-slot capture. Main base `8d84a7b78bf7c038f1bb97a701c10d525b1dd238`; review base `641d7c77847f99c52d64670efa4c72c483b574ef`; production `9fd23bac7c9ac0d98b3fe7fd6450f4ac8aec0fe8`; tested tree `27ef526f67178a55a351c1d604f8807994ee9479`. Exact23-path patch replay at main base equals tested tree. Ordinary main push/remote SHA verified. Existing Vercel deployment `Davo8NVX1uZVnZK5qd91FDB8Ya7Q` succeeded; live DFS controls/current18-player pool and five exact deployed modules verified19:55ET. Completion/receipt follow the exact remote gates; neither commit claims its own SHA. Mutex acquired23:14:54.920Z; release only this recorded owner after publication.
+Cycle `20261005-191436-dfs-tournament-manual-a` — focused manual DFS request; not a scheduled occurrence/missed-slot capture. Main base `8d84a7b78bf7c038f1bb97a701c10d525b1dd238`; review base `641d7c77847f99c52d64670efa4c72c483b574ef`; production `9fd23bac7c9ac0d98b3fe7fd6450f4ac8aec0fe8`; tested tree `27ef526f67178a55a351c1d604f8807994ee9479`. Exact23-path patch replay at main base equals tested tree. Ordinary main push/remote SHA verified. Existing Vercel deployment `Davo8NVX1uZVnZK5qd91FDB8Ya7Q` succeeded; live DFS controls/current18-player pool and five exact deployed modules verified19:55ET. Completion `a7a5d7f52e5360c7bc14082a062b518bba6351b3` published and remote-verified. This PROGRESS-only receipt pins that completion; receipt SHA is reported externally and never inside itself. Mutex acquired23:14:54.920Z; release only this recorded owner after publication.
 
 ## Completed
 
@@ -14,7 +14,7 @@ Cycle `20261005-191436-dfs-tournament-manual-a` — focused manual DFS request; 
 
 ## Working
 
-- None for this tested DFS release; record completion SHA via PROGRESS-only receipt and release recorded mutex after both pushes.
+- None. Production and review completion are verified; this receipt records completion for Claude. Release only the recorded mutex owner after the receipt push is verified.
 
 ## Problems
 
