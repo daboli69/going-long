@@ -5,4 +5,4 @@ export function modelCohort(p){
  if(e.roleEvidence||season)return 'role-aware-equal-weight';
  return 'legacy';
 }
-export const COHORT_LABELS={'current-80-20':'Current 80/20 policy','role-aware-equal-weight':'Role-aware, before 80/20','legacy':'Legacy model'};
+export const COHORT_LABELS={'current-80-20':'Current 80/20 policy','role-aware-equal-weight':'Role-aware, before 80/20','legacy':'Legacy model','going-picks-v1':'GOING Picks · football case v1'};

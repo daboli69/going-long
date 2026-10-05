@@ -303,7 +303,7 @@ def build():
     import nflreadpy as nfl
     season=int(os.getenv('SEASON',datetime.now().year));cutoff=datetime.now(timezone.utc).date().isoformat()
     rows=[];snaps=[];roster=[];charts=[];sources={}
-    keep=['season','season_type','game_date','game_id','posteam','defteam','qtr','play_type','no_play','qb_kneel','qb_spike','play_deleted','play_id','wp','score_differential','qb_dropback','xpass','drive','quarter_seconds_remaining','receiver_player_id','receiving_yards','air_yards','yards_after_catch','yardline_100','cp','complete_pass','rusher_player_id','rushing_yards','rush_attempt','epa','passer_player_id']
+    keep=['season','season_type','game_date','game_id','posteam','defteam','qtr','play_type','no_play','qb_kneel','qb_spike','play_deleted','play_id','wp','score_differential','qb_dropback','xpass','drive','quarter_seconds_remaining','receiver_player_id','receiving_yards','air_yards','yards_after_catch','yardline_100','cp','complete_pass','rusher_player_id','rushing_yards','rush_attempt','epa','passer_player_id','game_seconds_remaining']
     years=tuple(range(season-3,season+1))
     for year in years:
         for kind,fn,destination in [('pbp',nfl.load_pbp,rows),('snaps',nfl.load_snap_counts,snaps),('roster',nfl.load_rosters,roster),('participation',nfl.load_participation,charts)]:
@@ -319,6 +319,17 @@ def build():
     upcoming=[dict(id=g['game_id'],home=g['home_team'],away=g['away_team'],home_coach=g.get('home_coach'),away_coach=g.get('away_coach'),kickoff=nfl_kickoff(g),roof=g.get('roof')) for g in schedule if g['season']==season and str(g['gameday'])>=cutoff and g.get('game_type')=='REG']
     result={'schema_version':1,'generated_at':datetime.now(timezone.utc).isoformat(),'as_of':cutoff,'season':season,'sources':sources,'scopes':scopes,'coaches':staff,'coach_meetings':coach_meetings(schedule,cutoff),'games':upcoming,
             'method':'Current season uses the latest six regular-season games per team; prior seasons use full regular seasons. Future dates are excluded. Snap opportunity is not measured routes. Defensive role residuals compare the same player against other opponents and are shrunk by 20/50 opportunities. Exact coverage labels are grouped by defensive score state and QB target position only when published participation charting exists. Coach records are associations, not causal advantages.'}
+    # Additive descriptive evidence; all existing scopes/models remain intact.
+    from pick_evidence import build_pick_evidence
+    injury_rows=[];weekly_rows=[];pick_sources={}
+    for name,fn,destination in [('injury_reports',nfl.load_injuries,injury_rows),('weekly_rosters',nfl.load_rosters_weekly,weekly_rows)]:
+        try:
+            frame=fn([season]);destination.extend(frame.to_dicts());pick_sources[name]={'status':'loaded','rows':len(frame)}
+        except Exception as exc:
+            pick_sources[name]={'status':'unavailable','reason':type(exc).__name__}
+    for name,original in [('pbp','pbp'),('snap_counts','snaps'),('rosters','roster')]:
+        pick_sources[name]=sources.get(f'{original}_{season}',{'status':'unavailable'})
+    result['picks_evidence']=build_pick_evidence(season=season,games=[dict(g,kickoff=nfl_kickoff(g)) for g in schedule if g['season']==season],pbp_rows=[r for r in rows if r.get('season')==season],snap_rows=[r for r in snaps if r.get('season')==season],roster_rows=[r for r in roster if r.get('season')==season],injury_rows=injury_rows,weekly_roster_rows=weekly_rows,as_of=cutoff,generated_at=result['generated_at'],source_meta=pick_sources)
     atomic_json(ROOT/'data/football_context.json',result)
     print('Football context', {y:len(v['players']) for y,v in scopes.items()},sources)
 

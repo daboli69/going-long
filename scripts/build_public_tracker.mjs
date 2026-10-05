@@ -9,8 +9,9 @@ import {calibrationRows,calibrationAudit,shadowPrediction,workloadAudit} from '.
 
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const {validReadinessReceipt}=createRequire(import.meta.url)('../shared/football-readiness-snapshot.cjs');
+const {validPickReceipt}=createRequire(import.meta.url)('../shared/football-picks-snapshot.cjs');
 const OUTPUT=path.join(ROOT,'data','public_tracker.json');
-const GROUPS=new Set(['all_projection','best_model','best_value']);
+const GROUPS=new Set(['all_projection','best_model','best_value','going_picks_v1']);
 const MARKET={spread:'spreads',total:'totals',moneyline:'h2h',pass_yds:'player_passing_yards',rush_yds:'player_rushing_yards',rec_yds:'player_receiving_yards',receptions:'player_receptions',pass_tds:'player_passing_tds',rush_tds:'player_rushing_tds',rec_tds:'player_receiving_tds',atd:'atd'};
 const PLAYER_RESULT={player_passing_yards:'pass_yds',player_rushing_yards:'rush_yds',player_receiving_yards:'rec_yds',player_receptions:'receptions',player_passing_tds:'pass_tds',player_rushing_tds:'rush_tds',player_receiving_tds:'rec_tds',atd:'atd'};
 const hash=value=>createHash('sha256').update(String(value)).digest('hex');
@@ -24,6 +25,10 @@ const easternDate=stamp=>{const parts=Object.fromEntries(new Intl.DateTimeFormat
 export function selectTrackedPlays(plays){
  const minimumAmerican=-500,selected=[];
  for(const row of plays){
+  if(row.tracking_group==='going_picks_v1'){
+   if(row.picks_snapshot?.version==='football-case-v1'&&row.picks_snapshot.price?.saveable&&Number.isFinite(row.odds))selected.push(row);
+   continue;
+  }
   if(!GROUPS.has(row.tracking_group)||!Number.isFinite(row.odds)||row.odds<minimumAmerican)continue;
   if(row.tracking_group==='best_model'){
    const flags=row.flags||[],qualified=row.ev>=.03&&flags.some(flag=>flag.id==='gap')&&!flags.some(flag=>flag.id==='check');
@@ -53,6 +58,11 @@ export function freezePredictions(records,plays,observedAt){
   payload.model_cohort=cohort;payload.model_version='board-research-3';
   payload.model_evidence={...payload.model_evidence,reference:row.reference||null,projection_mean:row.projMean??null,projection_sd:row.projSd??null,workload:row.workloadEvidence||null};
   payload.calibration_shadow=shadowPrediction(payload,training);
+  if(group==='going_picks_v1'){
+   const receipt=row.picks_snapshot;
+   if(!validPickReceipt(receipt,row,row.provenance,observedAt)||!receipt.price?.saveable)continue;
+   payload.picks_snapshot=receipt;payload.model_version='football-case-v1';payload.calibration_shadow=null;
+  }
   const record={id,kind:'prediction',observed_at:observedAt,payload};records.push(record);added.push(record);existing.add(id);frozenContracts.add(frozenKey);
  }
  return added;
@@ -113,6 +123,13 @@ export function summarizeSnapshot(records){
  const counts={};for(const group of GROUPS)counts[group]={predictions:records.filter(r=>r.kind==='prediction'&&r.payload?.tracking_group===group).length,settled:records.filter(r=>r.kind==='settlement'&&records.some(p=>p.kind==='prediction'&&p.id===r.payload?.prediction_id&&p.payload?.tracking_group===group)).length};return counts;
 }
 
+export function settlePickResearch(records,results,observedAt){
+ const settled=new Set(records.filter(r=>r.kind==='pick_research_settlement').map(r=>r.payload.research_id));
+ const proxies=records.filter(r=>r.kind==='pick_research'&&!settled.has(r.id)).map(r=>({id:r.id,kind:'prediction',payload:{...r.payload,id:r.id,market:MARKET[r.payload.market],observed_at:r.payload.picks_snapshot.captured_at,side_index:['Under','Away'].includes(r.payload.side)?1:0}}));
+ const outcomes=settlePredictions(proxies,results,observedAt).map(r=>({id:hash(`picks-research-result-v1|${r.payload.prediction_id}`),kind:'pick_research_settlement',observed_at:observedAt,payload:{...r.payload,research_id:r.payload.prediction_id,price_scope:'No stake or ROI is assigned to this research receipt.'}}));
+ records.push(...outcomes);return outcomes;
+}
+
 export function resultCoverage(records,results,observedAt){
  const predictions=records.filter(r=>r.kind==='prediction').map(r=>r.payload),slates=new Map(),games=Object.values(results.games||{}),trackedGames=new Set();
  for(const p of predictions){const matches=matchingGame(p,games);if(matches.length===1&&Date.parse(p.observed_at)<Date.parse(matches[0].kickoff))trackedGames.add(matches[0]);}
@@ -154,6 +171,14 @@ export async function build({now=null,plays=null,output=OUTPUT,settleOnly=false}
  if(!plays){const stdout=execFileSync(process.execPath,[path.join(ROOT,'scripts','collect_model_plays.cjs')],{cwd:ROOT,encoding:'utf8',maxBuffer:64*1024*1024,env:{...process.env,GOING_TRACKER_LOCAL_DATA:'1',GOING_CAPTURE_QUOTES:'1'}});plays=JSON.parse(stdout);}
  // Freeze at the real post-collection time so the row receipt is never future-dated.
  now=now||new Date().toISOString();
+ // Preserve every surfaced football thesis, including unavailable prices, apart
+ // from priced predictions. Missing prices never enter a hypothetical ROI.
+ const researchKeys=new Set(records.filter(r=>r.kind==='pick_research').map(r=>r.id));
+ for(const row of plays.filter(r=>r.tracking_group==='going_picks_v1')){
+  const receipt=row.picks_snapshot;if(!validPickReceipt(receipt,row,row.provenance,now))continue;
+  const id=hash(`picks-research-v1|${row.canonicalContract||row.contract}`);if(researchKeys.has(id))continue;
+  records.push({id,kind:'pick_research',observed_at:now,payload:{contract:row.canonicalContract||row.contract,sport:row.sport,home:row.home,away:row.away,kickoff:row.kickoff,player:row.player,profile_id:row.profileId||null,market:row.market,side:row.side,line:row.line,model_probability:row.prob,model_mean:row.projMean??row.modelMean,picks_snapshot:receipt,provenance:row.provenance}});researchKeys.add(id);
+ }
  const tracked=selectTrackedPlays(plays),nowMs=Date.parse(now),eligible=new Set(tracked.filter(row=>GROUPS.has(row.tracking_group)&&MARKET[row.market]&&(row.canonicalContract||row.contract)&&Date.parse(row.kickoff)>nowMs&&Number.isFinite(row.dec)&&Number.isFinite(row.prob)&&row.prob>0&&row.prob<1).map(row=>`${row.tracking_group}|${row.canonicalContract||row.contract}`)).size,captured=freezePredictions(records,tracked,now),settled=settlePredictions(records,results,now),first=records.filter(r=>r.kind==='prediction').map(r=>r.observed_at).sort()[0]||null,snapshot={schema_version:1,generated_at:now,tracking_started_at:first,records,groups:summarizeSnapshot(records),latest_run:{eligible,captured:captured.length,settled:settled.length},sources:{predictions:{status:'FRESH',method:'scheduled GOING board snapshot'},results:{status:results.generated_at?'FRESH':'FAILED',generated_at:results.generated_at||null}},methodology:{minimum_american_odds:-500,best_model:'Non-alternate plays carrying the board’s price-gap qualification without a blocking check.',best_value:'Non-alternate selections independently qualified against reference-book prices.',all_projection:'One line per event, player, market and side, chosen closest to standard -110 pricing.'},limitations:'Prospective selections only; no retroactive winners. Results use published full-game outcomes. Book-specific void and injury rules are not inferred. Public research is separate from user-entered bets.'};
  const closing=captureClosingPrices(records,plays,now);
  snapshot.latest_run.kind=settleOnly?'settlement_only':'capture_and_settle';
@@ -166,7 +191,10 @@ export async function build({now=null,plays=null,output=OUTPUT,settleOnly=false}
  snapshot.result_coverage=resultCoverage(records,results,now);
  snapshot.calibration_audit=calibrationAudit(records,now);
  snapshot.workload_audit=workloadAudit(records);
+ const researchSettled=settlePickResearch(records,results,now);
+ snapshot.picks_research={saved:records.filter(r=>r.kind==='pick_research').length,graded:records.filter(r=>r.kind==='pick_research_settlement').length,new_outcomes:researchSettled.length,unpriced:records.filter(r=>r.kind==='pick_research'&&!r.payload.picks_snapshot.price?.saveable).length,note:'Football thesis results are separate from priced $100 predictions. Unknown prices never create ROI.'};
  snapshot.methodology.best_model='Model-screened research, not a validated betting edge. Includes legacy qualified selections; no outcome-driven deletion.';
+ snapshot.methodology.going_picks_v1='Football-case-v1: first prospective rating/badges/evidence frozen separately. Priced contracts enter the $100 research record; missing prices remain research receipts without ROI. No backfill or demonstrated pricing edge.';
  snapshot.methodology.closing_prices='Scheduled same-book/exact-line observations from existing pulls. Only samples within 10 minutes are labeled near kickoff; the twice-daily schedule cannot guarantee closing coverage.';
  await writeFile(output,JSON.stringify(snapshot),{encoding:'utf8'});return snapshot;
 }
