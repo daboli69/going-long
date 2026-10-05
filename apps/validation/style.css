@@ -77,3 +77,28 @@ body[data-going-workspace=results] .visual-evidence .evidence-filter-disclosure 
 .finished-games{order:7}.final-score-receipts{margin:10px 0;border:1px solid #294b60;border-radius:8px;padding:0 10px}.final-score-receipts>summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:#f1f7fb;font-size:13px}.evidence-dashboard:not(.evidence-private):not(.evidence-view-performance) .finished-games{display:none}
 @media(max-width:649px){.chart-label{font-size:28px}}
 .chart-caption{margin:6px 0 0;text-align:center;color:#9fb7c3;font-size:12px}
+
+/* Historical diagnostics stay separate from frozen-price performance. */
+.evidence-tabs{grid-template-columns:repeat(5,minmax(0,1fr))}
+.evidence-view-backtests>:not(.evidence-tabs):not(.backtest-view){display:none!important}
+.backtest-view{order:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.backtest-view .section-heading{flex-wrap:wrap;gap:8px}
+.backtest-view .source-pill{white-space:normal}
+.backtest-view .backtest-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.backtest-view button,.backtest-view summary{min-height:44px}
+.backtest-view details{margin-top:12px;border-top:1px solid #294b60;padding-top:4px}
+.backtest-view summary{display:flex;align-items:center;cursor:pointer;color:#35edcb}
+.backtest-view .backtest-stat{font-size:24px;color:#f1f7fb;display:block}
+.backtest-chart{margin:16px 0;padding:12px;background:#061820;border:1px solid #294b60;border-radius:8px}
+.backtest-chart figcaption{color:#b4cbdc;margin-bottom:12px;font-size:12px}
+.backtest-chart h3{margin:12px 0 6px}
+.backtest-bar-row{display:grid;grid-template-columns:112px minmax(0,1fr) 48px;gap:8px;align-items:center;margin:7px 0;font-size:11px}
+.backtest-bar-track{height:16px;background:#183440;border-radius:4px;overflow:hidden}
+.backtest-bar{height:100%;background:#35edcb;border-radius:4px}
+.backtest-bar.experimental{background:#839ef4}
+.backtest-bar-row strong{text-align:right;font-variant-numeric:tabular-nums}
+.backtest-conclusion{border-left:2px solid #ffae76;padding-left:10px}
+@media(min-width:650px){.backtest-bar-row{grid-template-columns:180px minmax(0,1fr) 70px;font-size:14px}.backtest-chart figcaption{font-size:14px}.backtest-view .backtest-stat{font-size:32px}}
+
+html body[data-going-workspace=results] .visual-evidence .evidence-dashboard .evidence-tabs button{min-width:0!important;padding:6px 3px!important;font-size:10px!important;line-height:1.25!important;overflow-wrap:anywhere;min-height:52px!important;height:100%;align-self:stretch}
+@media(min-width:650px){html body[data-going-workspace=results] .visual-evidence .evidence-dashboard .evidence-tabs button{font-size:14px!important}}
