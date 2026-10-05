@@ -4,9 +4,11 @@ import {readFile,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {modelCohort} from '../shared/model-cohort.mjs';
+import {createRequire} from 'node:module';
 import {calibrationRows,calibrationAudit,shadowPrediction,workloadAudit} from './calibration_audit.mjs';
 
 const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const {validReadinessReceipt}=createRequire(import.meta.url)('../shared/football-readiness-snapshot.cjs');
 const OUTPUT=path.join(ROOT,'data','public_tracker.json');
 const GROUPS=new Set(['all_projection','best_model','best_value']);
 const MARKET={spread:'spreads',total:'totals',moneyline:'h2h',pass_yds:'player_passing_yards',rush_yds:'player_rushing_yards',rec_yds:'player_receiving_yards',receptions:'player_receptions',pass_tds:'player_passing_tds',rush_tds:'player_rushing_tds',rec_tds:'player_receiving_tds',atd:'atd'};
@@ -47,6 +49,7 @@ export function freezePredictions(records,plays,observedAt){
   if(!GROUPS.has(group)||!market||!contract||!Number.isFinite(kickoff)||kickoff<=now||!Number.isFinite(row.dec)||!Number.isFinite(row.prob)||row.prob<=0||row.prob>=1)continue;
   const cohort=modelCohort(row),frozenKey=[cohort,group,contract].join('|'),id=hash(`public-tracker-1|${group}|${contract}${cohort==='legacy'?'':'|'+cohort}`);if(existing.has(id)||frozenContracts.has(frozenKey))continue;
   const payload={id,tracking_group:group,event:row.event,selection:contract,canonical_contract:contract,sport:row.sport,home:row.home,away:row.away,kickoff:row.kickoff,player:row.kind==='prop'?row.player:null,profile_id:row.profileId||null,market,line:row.line,side:row.side,side_index:['Under','Away'].includes(row.side)?1:0,book:row.book,odds:row.dec,american:row.odds,probability:row.prob,ev:row.ev,odds_band:oddsBand(row.dec),observed_at:observedAt,quoted_at:row.updatedAt,model_version:'public-tracker-1',model_evidence:{n:row.n??null,profileDate:row.profileDate??null,push:row.push??0,gameSeasonEvidence:row.gameSeasonEvidence??null,seasonEvidence:row.seasonEvidence??null,roleEvidence:row.roleEvidence??null},provenance:row.provenance||null};
+  const readiness=row.readiness_snapshot;if(validReadinessReceipt(readiness,row,row.provenance,observedAt))payload.readiness_snapshot=readiness;
   payload.model_cohort=cohort;payload.model_version='board-research-3';
   payload.model_evidence={...payload.model_evidence,reference:row.reference||null,projection_mean:row.projMean??null,projection_sd:row.projSd??null,workload:row.workloadEvidence||null};
   payload.calibration_shadow=shadowPrediction(payload,training);
@@ -145,10 +148,12 @@ export function captureClosingPrices(records,quotes,observedAt){
 }
 
 async function readJson(file,fallback){try{return JSON.parse(await readFile(file,'utf8'));}catch{return fallback;}}
-export async function build({now=new Date().toISOString(),plays=null,output=OUTPUT,settleOnly=false}={}){
+export async function build({now=null,plays=null,output=OUTPUT,settleOnly=false}={}){
  const previous=await readJson(output,{schema_version:1,records:[]}),records=Array.isArray(previous.records)?previous.records:[],results=await readJson(path.join(ROOT,'data','results.json'),{});
  if(settleOnly)plays=[];
  if(!plays){const stdout=execFileSync(process.execPath,[path.join(ROOT,'scripts','collect_model_plays.cjs')],{cwd:ROOT,encoding:'utf8',maxBuffer:64*1024*1024,env:{...process.env,GOING_TRACKER_LOCAL_DATA:'1',GOING_CAPTURE_QUOTES:'1'}});plays=JSON.parse(stdout);}
+ // Freeze at the real post-collection time so the row receipt is never future-dated.
+ now=now||new Date().toISOString();
  const tracked=selectTrackedPlays(plays),nowMs=Date.parse(now),eligible=new Set(tracked.filter(row=>GROUPS.has(row.tracking_group)&&MARKET[row.market]&&(row.canonicalContract||row.contract)&&Date.parse(row.kickoff)>nowMs&&Number.isFinite(row.dec)&&Number.isFinite(row.prob)&&row.prob>0&&row.prob<1).map(row=>`${row.tracking_group}|${row.canonicalContract||row.contract}`)).size,captured=freezePredictions(records,tracked,now),settled=settlePredictions(records,results,now),first=records.filter(r=>r.kind==='prediction').map(r=>r.observed_at).sort()[0]||null,snapshot={schema_version:1,generated_at:now,tracking_started_at:first,records,groups:summarizeSnapshot(records),latest_run:{eligible,captured:captured.length,settled:settled.length},sources:{predictions:{status:'FRESH',method:'scheduled GOING board snapshot'},results:{status:results.generated_at?'FRESH':'FAILED',generated_at:results.generated_at||null}},methodology:{minimum_american_odds:-500,best_model:'Non-alternate plays carrying the board’s price-gap qualification without a blocking check.',best_value:'Non-alternate selections independently qualified against reference-book prices.',all_projection:'One line per event, player, market and side, chosen closest to standard -110 pricing.'},limitations:'Prospective selections only; no retroactive winners. Results use published full-game outcomes. Book-specific void and injury rules are not inferred. Public research is separate from user-entered bets.'};
  const closing=captureClosingPrices(records,plays,now);
  snapshot.latest_run.kind=settleOnly?'settlement_only':'capture_and_settle';

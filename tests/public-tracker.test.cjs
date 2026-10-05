@@ -13,6 +13,23 @@ test('Public tracker freezes only supported prospective selections and never rew
  assert.equal(records[0].payload.probability,.58);assert.equal(records[0].payload.american,-110);assert.ok(Date.parse(records[0].payload.observed_at)<Date.parse(records[0].payload.kickoff));
 });
 
+test('Public tracker persists only a matching v2 capture-time readiness receipt',async()=>{
+ const {freezePredictions}=await import('../scripts/build_public_tracker.mjs');
+ const {captureReadiness}=require('../shared/football-readiness-snapshot.cjs');
+ const at='2026-09-20T15:00:00Z',hash='b'.repeat(64),generated='2026-09-20T14:00:00Z';
+ const sourceNames={history:'history.json',context:'football_context.json',learning:'season_learning.json',results:'results.json',config:'data.json',injury:'injury_context.json',roster:'players.json',nfl_feed:'nfl_betting.json',ncaa_feed:'ncaa_lines.json'};
+ const readinessInputs=Object.fromEntries(Object.keys(sourceNames).map(k=>[k,{sha256:hash,generated_at:generated}]));
+ const provenance={schema_version:1,model_source_sha256:hash,readiness_assessor_sha256:hash,inputs:Object.fromEntries(Object.entries(sourceNames).filter(([k])=>!['learning','results'].includes(k)).map(([k,v])=>[v,readinessInputs[k]]))};
+ const candidate={...play(),n:8,provenance,readiness_inputs:readinessInputs};
+ const profile={id:'player-1',team:'PIT',position:'WR',games:[{season:2026,date:'2026-09-10',verified_start:true,targets:8,rec_yds:60,receptions:5,pass_yds:0,rush_yds:0,attempts:0,carries:0,pass_tds:0,rush_tds:0,rec_tds:0,atd:0}]};
+ candidate.readiness_snapshot=captureReadiness(candidate,{capturedAt:at,season:2026,historyAt:generated,contextAt:generated,history:{generated_at:generated,profiles:{'player-1':profile}},historyHash:hash,contextHash:hash,assessorHash:hash,historyInputAt:generated,contextInputAt:generated});
+ assert.ok(candidate.readiness_snapshot);
+ const records=[];freezePredictions(records,[candidate],'2026-09-20T15:01:00Z');
+ assert.equal(records[0].payload.readiness_snapshot.version,'football-readiness-v2');
+ const staleRecords=[];freezePredictions(staleRecords,[{...candidate,readiness_snapshot:{...candidate.readiness_snapshot,captured_at:'2026-09-20T15:02:00Z'}}],'2026-09-20T15:01:00Z');
+ assert.equal(staleRecords[0].payload.readiness_snapshot,undefined);
+});
+
 test('Public tracker settles exact games and player outcomes without inventing missing results',async()=>{
  const {freezePredictions,settlePredictions}=await import('../scripts/build_public_tracker.mjs'),records=[];freezePredictions(records,[play(),play({profileId:'missing',canonicalContract:'missing-result'})],'2026-09-20T15:00:00Z');
  const results={generated_at:'2026-09-20T22:00:00Z',games:{one:{sport:'nfl',home:'BAL',away:'PIT',kickoff:'2026-09-20T17:00:00Z',homeScore:20,awayScore:17}},players:{'player-1|2026-09-20':{rec_yds:72}}};

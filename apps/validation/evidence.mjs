@@ -3,6 +3,16 @@ export function recordedEvidence(p){
  const lines=[];
  if(Number.isFinite(evidence.n))lines.push(`${evidence.n} recorded games supported this estimate.`);
  if(evidence.profileDate)lines.push(`Player history through ${evidence.profileDate}.`);
+ const readiness=p.readiness_snapshot;
+ if(readiness?.schema_version===2&&readiness.version==='football-readiness-v2'&&readiness.captured_at&&readiness.assessor_sha256){
+  lines.push(`Saved GOING Confidence at capture: ${readiness.label} (${readiness.captured_at}).`);
+  lines.push(`Why: ${readiness.why}`);
+  if(readiness.concern)lines.push(`Main concern: ${readiness.concern}`);
+  for(const check of readiness.football_checks||[])lines.push(`Football check — ${check.label}: ${check.detail}`);
+  for(const check of readiness.price_checks||[])lines.push(`Price check — ${check.label}: ${check.detail}`);
+  for(const [name,value] of readiness.facts||[])lines.push(`Capture-time ${name}: ${value}.`);
+  lines.push(`Readiness assessor fingerprint: ${readiness.assessor_sha256}; candidate fingerprint: ${readiness.candidate_sha256}.`);
+ }else lines.push('GOING Confidence readiness was not saved at capture; older records are not reconstructed from current context.');
  if(!source?.model_source_sha256)return [...lines,'This older record has no saved model/input fingerprints. They cannot be reconstructed reliably after the fact.'];
  lines.push(`Model fingerprint: ${source.model_source_sha256}.`);
  for(const [name,input] of Object.entries(source.inputs||{}))lines.push(`${name}: published ${input.generated_at||'at an unrecorded time'}; fingerprint ${input.sha256}.`);
