@@ -326,6 +326,11 @@ def build_payload(config, history, schedules, rows, roster, as_of):
     if len(games) != len(config['games']):
         raise RuntimeError(f"Slate Breaker found {len(games)} of {len(config['games'])} configured games")
     games.sort(key=lambda g: config['games'].index([g['away'], g['home']]))
+    cutoff = datetime.fromisoformat(as_of.replace('Z', '+00:00'))
+    for game in games:
+        kickoff = datetime.fromisoformat(game['kickoff'].replace('Z', '+00:00'))
+        if kickoff <= cutoff:
+            raise RuntimeError('Refusing to create a Slate Breaker forecast after a configured game has started')
     records = [r for r in game_records(rows, schedules) if r['date'] < config['date']]
     td_records = [r for r in records if r['elapsed_seconds'] is not None]
     if len(td_records) < 400:
@@ -387,12 +392,53 @@ def build_payload(config, history, schedules, rows, roster, as_of):
             'eligibility_note': config['note'], 'source': config['source']}
 
 
+def validate_snapshot(payload, config):
+    """Reject an archive unless its offer identity and public payload shape match config."""
+    required = {'schema_version', 'generated_at', 'date', 'offer_id', 'games', 'selections',
+                'event_components', 'model', 'validation', 'excluded_inactive', 'eligibility_note', 'source'}
+    if not isinstance(payload, dict) or not required.issubset(payload):
+        raise RuntimeError('Slate Breaker archive has an incomplete payload shape')
+    if (payload.get('schema_version') != 1 or payload.get('date') != config['date']
+            or payload.get('offer_id') != config['offer_id']):
+        raise RuntimeError('Slate Breaker archive identity does not match configured offer')
+    games = payload.get('games')
+    if not isinstance(games, list) or any(not isinstance(g, dict) or not all(k in g for k in ('id', 'away', 'home', 'kickoff'))
+                                          for g in games):
+        raise RuntimeError('Slate Breaker archive has an invalid games shape')
+    actual = [(g['away'], g['home']) for g in games]
+    expected = [tuple(pair) for pair in config['games']]
+    if len(actual) != len(expected) or len(set(actual)) != len(actual) or set(actual) != set(expected):
+        raise RuntimeError('Slate Breaker archive game pairs do not match configured offer')
+    if (not isinstance(payload.get('selections'), list) or not payload['selections']
+            or not isinstance(payload.get('event_components'), dict)
+            or not isinstance(payload.get('model'), dict) or not isinstance(payload.get('validation'), dict)
+            or not isinstance(payload.get('excluded_inactive'), list)):
+        raise RuntimeError('Slate Breaker archive has an invalid required payload shape')
+    return payload
+
+
+def resolve_archive_or_build(config, archive_path, builder):
+    """Reuse a validated frozen forecast exactly, building only when no archive exists."""
+    archive_path = Path(archive_path)
+    if archive_path.exists():
+        try:
+            payload = json.loads(archive_path.read_text(encoding='utf-8'))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise RuntimeError(f'Slate Breaker archive cannot be read: {archive_path}') from exc
+        return validate_snapshot(payload, config)
+    return validate_snapshot(builder(), config)
+
+
+def build_from_history_file(config, history_path, schedules, rows, roster, as_of):
+    history = json.loads(Path(history_path).read_text(encoding='utf-8'))['betting']
+    return build_payload(config, history, schedules, rows, roster, as_of)
+
+
 def main():
     import nflreadpy as nfl
     import polars as pl
     from build_pipeline import atomic_json
     config = json.loads((ROOT / 'config/slate-breaker.json').read_text(encoding='utf-8'))
-    history = json.loads((ROOT / 'data/history.json').read_text(encoding='utf-8'))['betting']
     year = int(config['date'][:4]); years = list(range(year - 3, year + 1))
     schedules = nfl.load_schedules(years).to_dicts()
     columns = ['game_id', 'game_date', 'play_id', 'qtr', 'quarter_seconds_remaining', 'game_seconds_remaining',
@@ -402,9 +448,11 @@ def main():
     rows = pl.concat([nfl.load_pbp([y]).select(columns) for y in years], how='diagonal_relaxed').to_dicts()
     roster = nfl.load_rosters(years).to_dicts()
     as_of = datetime.now(timezone.utc).isoformat()
-    payload = build_payload(config, history, schedules, rows, roster, as_of)
-    archive = ROOT / 'data/jackpot/slate-breaker'; archive.mkdir(parents=True, exist_ok=True)
+    archive = ROOT / 'data/jackpot/slate-breaker'
+    archive.mkdir(parents=True, exist_ok=True)
     snapshot_path = archive / f"{config['date']}.json"
+    payload = resolve_archive_or_build(config, snapshot_path, lambda: build_from_history_file(
+        config, ROOT / 'data/history.json', schedules, rows, roster, as_of))
     if not snapshot_path.exists():
         snapshot_path.write_text(json.dumps(payload, separators=(',', ':'), allow_nan=False), encoding='utf-8')
     results = []

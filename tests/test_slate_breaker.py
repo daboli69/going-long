@@ -1,13 +1,64 @@
 import math
+import json
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 from slate_breaker import (elapsed_game_seconds, first_td_event, fastest_factors,
-                           evaluate_time_models, build_selections, grade_slate)
+                           evaluate_time_models, build_selections, grade_slate,
+                           build_payload, build_from_history_file, resolve_archive_or_build)
 
 
 class SlateBreakerTests(unittest.TestCase):
+    def test_existing_archive_is_reused_as_the_entire_original_payload(self):
+        config = slate_config()
+        archived = slate_payload(config)
+        archived['generated_at'] = '2026-09-18T20:44:17.947735+00:00'
+        archived['model']['frozen_marker'] = {'source': 'original'}
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / '2026-09-20.json'
+            path.write_text(json.dumps(archived), encoding='utf-8')
+            result = resolve_archive_or_build(config, path, lambda: self.fail('builder must not run'))
+        self.assertEqual(result, archived)
+
+    def test_existing_archive_identity_or_shape_mismatches_fail_closed(self):
+        config = slate_config()
+        mutations = [
+            lambda p: p.update(date='2026-09-21'),
+            lambda p: p.update(offer_id='different-offer'),
+            lambda p: p['games'][0].update(away='WRONG'),
+            lambda p: p.pop('validation'),
+        ]
+        for mutate in mutations:
+            with self.subTest(mutate=mutate), tempfile.TemporaryDirectory() as folder:
+                payload = slate_payload(config)
+                mutate(payload)
+                path = Path(folder) / 'archive.json'
+                path.write_text(json.dumps(payload), encoding='utf-8')
+                with self.assertRaises(RuntimeError):
+                    resolve_archive_or_build(config, path, lambda: self.fail('invalid archive must not rebuild'))
+
+    def test_new_snapshot_cannot_backfill_after_configured_kickoff(self):
+        config = {'date': '2026-09-20', 'offer_id': 'offer', 'games': [['A', 'B']], 'note': '', 'source': ''}
+        history = {'derivatives': {'first_td': {'g': {'away': 'A', 'home': 'B',
+                    'kickoff': '2026-09-20T17:00:00+00:00', 'outcomes': {}}}},
+                   'games': {'nfl': []}}
+        with self.assertRaisesRegex(RuntimeError, 'after a configured game has started'):
+            build_payload(config, history, [], [], [], '2026-09-20T17:00:01+00:00')
+
+    def test_main_builder_wiring_passes_config_before_history(self):
+        config, schedules, rows, roster = slate_config(), [{'schedule': True}], [{'play': True}], [{'roster': True}]
+        as_of = '2026-09-18T12:00:00+00:00'
+        with tempfile.TemporaryDirectory() as folder:
+            history_path = Path(folder) / 'history.json'
+            history_path.write_text(json.dumps({'betting': {'history_fixture': True}}), encoding='utf-8')
+            with patch('slate_breaker.build_payload', return_value={'built': True}) as build:
+                result = build_from_history_file(config, history_path, schedules, rows, roster, as_of)
+        self.assertEqual(result, {'built': True})
+        build.assert_called_once_with(config, {'history_fixture': True}, schedules, rows, roster, as_of)
+
     def test_elapsed_game_time_ignores_kickoff_and_supports_overtime(self):
         self.assertEqual(elapsed_game_seconds({'qtr': 1, 'quarter_seconds_remaining': 840}), 60)
         self.assertEqual(elapsed_game_seconds({'qtr': 2, 'quarter_seconds_remaining': 900}), 900)
@@ -75,6 +126,21 @@ class SlateBreakerTests(unittest.TestCase):
 def defaultdict_counter():
     from collections import defaultdict, Counter
     return defaultdict(Counter)
+
+
+def slate_config():
+    return {'date': '2026-09-20', 'offer_id': 'offer',
+            'games': [['A', 'B'], ['C', 'D']], 'note': 'eligibility', 'source': 'source'}
+
+
+def slate_payload(config):
+    return {'schema_version': 1, 'generated_at': '2026-09-18T00:00:00+00:00',
+            'date': config['date'], 'offer_id': config['offer_id'],
+            'games': [{'id': 'g1', 'away': 'A', 'home': 'B', 'kickoff': '2026-09-20T17:00:00+00:00'},
+                      {'id': 'g2', 'away': 'C', 'home': 'D', 'kickoff': '2026-09-20T17:00:00+00:00'}],
+            'selections': [{'id': 'player', 'slate_breaker_probability': 0.1}],
+            'event_components': {}, 'model': {'version': 'slate-breaker-1'}, 'validation': {},
+            'excluded_inactive': [], 'eligibility_note': config['note'], 'source': config['source']}
 
 
 def td_row(game, player, clock, play):
