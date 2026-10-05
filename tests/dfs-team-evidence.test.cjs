@@ -77,10 +77,14 @@ test('duplicate/conflicting source games, invalid teams/counts and uncompleted c
  assert.throws(()=>buildScenario({...fixture(),slateGames:[...games,...games]}),/duplicate/);
 });
 test('actual official artifact and inline attachProjection match the primary evidence pool across the main slate',t=>{
- const snapshot=require('../data/dfs_team_touchdowns.json'),h=require('../data/history.json').betting,c=require('../data/football_context.json'),roster=require('../data/nfl_roster.json'),inj=require('../data/injury_context.json');
- // Independent public inputs refresh at different times. The deterministic
- // decision clock must follow every input, not just the older team receipt.
- // Production's future/stale checks still apply to all unmodified timestamps.
+ // Unmodified public pregame blobs from the recorded production commit.
+ // Rolling postgame updates cannot supply historical decision-time inputs.
+ const frozen=JSON.parse(require('node:zlib').gunzipSync(require('node:fs').readFileSync(require('node:path').join(__dirname,'fixtures/dfs-pregame-20261004.json.gz'))));
+ assert.equal(frozen.sourceCommit,'3def63b3ba9381b356632ceeaf14dd9b869841ca');
+ const values={};for(const [name,entry] of Object.entries(frozen.files)){assert.equal(require('node:crypto').createHash('sha256').update(entry.raw).digest('hex'),entry.sha256);values[name]=JSON.parse(entry.raw);}
+ const snapshot=values.dfs_team_touchdowns,h=values.history.betting,c=values.football_context,roster=values.nfl_roster,inj=values.injury_context;
+ // Decision clock follows all frozen input times; original freshness and
+ // pregame assertions remain mandatory. No timestamps are backdated.
  const inputTimes=[snapshot.generatedAt,h.generated_at,c.generated_at,roster.generated_at,inj.generated_at].map(Date.parse);
  assert.ok(inputTimes.every(Number.isFinite),'each public input needs a valid timestamp');
  const liveNow=Math.max(...inputTimes)+60000,injuryContext=injuries.createContext(roster,h.profiles,liveNow,inj);

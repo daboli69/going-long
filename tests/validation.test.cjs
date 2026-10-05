@@ -55,3 +55,47 @@ test('Tracking coverage separates upcoming and missing results without grading e
  assert.deepEqual(result.coverage,{selected:3,upcoming:1,completed:2,settled:1,awaiting:1,settledShare:.5});
  assert.equal(result.bets,1);
 });
+
+
+test('Eastern kickoff slate filters retain linked results and do not filter by capture date',async()=>{
+ const {filterTrackerRecords,slateDate,summarize}=await import('../apps/validation/metrics.mjs');
+ const nfl={id:'nfl',tracking_group:'best_model',sport:'nfl',event:'e1',selection:'team',side:'Over',market:'totals',line:40.5,odds:2.2,probability:.55,observed_at:'2026-10-02T12:00:00Z',kickoff:'2026-10-05T00:20:00Z'};
+ const ncaa={...nfl,id:'ncaa',sport:'ncaa',event:'e2',kickoff:'2026-10-04T02:30:00Z'};
+ const rows=[{kind:'prediction',id:'record-nfl',payload:nfl},{kind:'prediction',id:'record-ncaa',payload:ncaa},{kind:'settlement',payload:{prediction_id:'nfl',status:'win',observed_at:'2026-10-05T04:00:00Z'}},{kind:'settlement',payload:{prediction_id:'ncaa',status:'loss',observed_at:'2026-10-04T05:30:00Z'}}];
+ assert.equal(slateDate(nfl.kickoff),'2026-10-04');assert.equal(slateDate(ncaa.kickoff),'2026-10-03');
+ assert.equal(slateDate('not-a-date'),'');
+ const nflRows=filterTrackerRecords(rows,{sport:'nfl',date:'2026-10-04'});
+ assert.equal(nflRows.length,2);assert.ok(Math.abs(summarize(nflRows,'best_model').profit-120)<1e-9);
+ assert.equal(summarize(filterTrackerRecords(rows,{sport:'ncaa',date:'2026-10-03'}),'best_model').profit,-100);
+ assert.equal(filterTrackerRecords(rows,{days:'7',asOf:Date.parse('2026-10-05T12:00:00Z')}).length,4);
+});
+
+test('$100 financial denominators include returns and exclude unresolved selections',async()=>{
+ const {summarize}=await import('../apps/validation/metrics.mjs');
+ const base={tracking_group:'best_model',event:'game',selection:'team',market:'totals',side:'Over',odds:2.5,probability:.6,observed_at:'2026-10-03T12:00:00Z',kickoff:'2026-10-03T16:00:00Z'};
+ const statuses=['win','loss','refund','void'];
+ const rows=statuses.flatMap((status,i)=>[{kind:'prediction',payload:{...base,id:status,line:40.5+i}},{kind:'settlement',payload:{prediction_id:status,status,observed_at:'2026-10-03T20:00:00Z'}}]);
+ rows.push({kind:'prediction',payload:{...base,id:'pending',line:50.5}});
+ const result=summarize(rows,'best_model',Date.parse('2026-10-04T12:00:00Z'));
+ assert.deepEqual(result.counts,{win:1,loss:1,refund:1,void:1});assert.equal(result.stake,400);assert.equal(result.profit,50);assert.equal(result.roi,.125);assert.equal(result.winRate,.5);assert.equal(result.coverage.awaiting,1);assert.equal(result.series.at(-1).roi,.125);assert.equal(result.selected.length,5);
+});
+
+
+test('Vendor kickoff drift and book changes are one contract while cohorts and lines stay separate',async()=>{
+ const {summarize,performanceContractKey,performanceGameKey}=await import('../apps/validation/metrics.mjs');
+ const p={id:'first',tracking_group:'best_model',sport:'nfl',home:'DEN',away:'JAX',event:'vendor-1',selection:'contract|rule',canonical_contract:'canonical-1|rule',market:'player_receiving_yards',profile_id:'player-1',player:'Receiver',side_index:0,side:'Over',line:65.5,odds:2,probability:.55,observed_at:'2026-10-04T12:00:00Z',kickoff:'2026-10-04T20:05:00Z',book:'A',model_cohort:'legacy'};
+ const drift={...p,id:'later',event:'vendor-2',canonical_contract:'canonical-2|rule',kickoff:'2026-10-04T20:10:00Z',observed_at:'2026-10-04T13:00:00Z',book:'B',odds:3};
+ assert.equal(performanceContractKey(p),performanceContractKey(drift));assert.equal(performanceGameKey(p),performanceGameKey(drift));
+ assert.notEqual(performanceContractKey(p),performanceContractKey({...drift,line:75.5}));assert.notEqual(performanceContractKey(p),performanceContractKey({...drift,model_cohort:'current-80-20'}));
+ const rows=[{kind:'prediction',payload:p},{kind:'prediction',payload:drift},...['first','later'].map(prediction_id=>({kind:'settlement',payload:{prediction_id,status:'win',observed_at:'2026-10-05T00:00:00Z'}}))];
+ const result=summarize(rows,'best_model');assert.equal(result.bets,1);assert.equal(result.profit,100);assert.equal(result.games,1);assert.equal(result.selected[0].book,'A');
+});
+
+test('Verified official midnight slate correction preserves the original frozen kickoff',async()=>{
+ const {filterTrackerRecords,summarize}=await import('../apps/validation/metrics.mjs');
+ const p={id:'midnight',tracking_group:'best_model',sport:'ncaa',home:'HOME',away:'AWAY',player:'AWAY @ HOME',market:'h2h',side:'Home',side_index:0,line:0,odds:2,probability:.6,observed_at:'2026-10-03T12:00:00Z',kickoff:'2026-10-04T04:00:00Z'};
+ const rows=[{kind:'prediction',payload:p},{kind:'settlement',payload:{prediction_id:p.id,status:'loss',method:'published_full_game_result',official_kickoff:'2026-10-04T03:59:00Z',observed_at:'2026-10-04T08:00:00Z'}}];
+ const filtered=filterTrackerRecords(rows,{date:'2026-10-03',sport:'ncaa'});assert.equal(filtered.length,2);assert.equal(summarize(filtered,'best_model').profit,-100);
+ assert.equal(p.kickoff,'2026-10-04T04:00:00Z');assert.equal(filtered[0].payload.recorded_kickoff,p.kickoff);
+ assert.equal(filterTrackerRecords(rows,{date:'2026-10-04'}).length,0);
+});

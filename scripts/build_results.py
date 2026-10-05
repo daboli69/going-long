@@ -24,7 +24,10 @@ def assemble(games, profiles, previous=None, now=None):
     players = dict((previous or {}).get('players', {}))
     for pid, profile in profiles.items():
         for row in profile.get('games', []):
-            if row['date'] >= now.date().isoformat():
+            # Published same-day appearances are valid observations. The tracker
+            # separately requires the matching official game to be final before
+            # grading, so excluding today needlessly delays completed games.
+            if row['date'] > now.date().isoformat():
                 continue
             stats = {k: v for k, v in row.items() if k not in ('season', 'week', 'date') and finite(v)}
             if stats:

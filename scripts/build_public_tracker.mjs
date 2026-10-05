@@ -57,7 +57,11 @@ export function freezePredictions(records,plays,observedAt){
 
 function matchingGame(prediction,games){
  // Match the unique official matchup/day, not a vendor's delayed kickoff clock.
- return games.filter(game=>game.sport===prediction.sport&&normalize(game.home)===normalize(prediction.home)&&normalize(game.away)===normalize(prediction.away)&&easternDate(game.kickoff)===easternDate(prediction.kickoff));
+ const matchup=games.filter(game=>game.sport===prediction.sport&&normalize(game.home)===normalize(prediction.home)&&normalize(game.away)===normalize(prediction.away));
+ const sameDay=matchup.filter(game=>easternDate(game.kickoff)===easternDate(prediction.kickoff));
+ // A small vendor clock drift can cross Eastern midnight (23:59 vs 00:00).
+ // Only accept a unique nearby official matchup; never guess another day.
+ return sameDay.length?sameDay:matchup.filter(game=>Math.abs(Date.parse(game.kickoff)-Date.parse(prediction.kickoff))<=10*60000);
 }
 
 export function settlementReason(p,results,observedAt){
@@ -95,6 +99,7 @@ export function settlePredictions(records,results,observedAt){
   if(!Number.isFinite(actual)||!Number.isFinite(target))continue;
   const status=actual===target?'refund':((actual>target)===over?'win':'loss'),id=hash(`public-tracker-1|settlement|${p.id}`),payload={sport:p.sport,prediction_id:p.id,event:p.event,status,actual,observed_at:observedAt,source_url:'https://github.com/daboli69/going-long/blob/main/data/results.json',source_generated_at:results.generated_at,source_sha256:hash(JSON.stringify(game)),method:'published_full_game_result',rules_note:'Public research settlement; book-specific injury and void exceptions are not inferred.'};
   payload.actual_workload=players[`${p.profile_id}|${easternDate(game.kickoff)}`]||null;
+  payload.official_game_id=game.id;payload.official_kickoff=game.kickoff;
   payload.source_sha256=hash(JSON.stringify({game,player:payload.actual_workload}));
   const settlement={id,kind:'settlement',observed_at:observedAt,payload};records.push(settlement);added.push(settlement);settled.add(p.id);
  }
@@ -103,6 +108,20 @@ export function settlePredictions(records,results,observedAt){
 
 export function summarizeSnapshot(records){
  const counts={};for(const group of GROUPS)counts[group]={predictions:records.filter(r=>r.kind==='prediction'&&r.payload?.tracking_group===group).length,settled:records.filter(r=>r.kind==='settlement'&&records.some(p=>p.kind==='prediction'&&p.id===r.payload?.prediction_id&&p.payload?.tracking_group===group)).length};return counts;
+}
+
+export function resultCoverage(records,results,observedAt){
+ const predictions=records.filter(r=>r.kind==='prediction').map(r=>r.payload),slates=new Map(),games=Object.values(results.games||{}),trackedGames=new Set();
+ for(const p of predictions){const matches=matchingGame(p,games);if(matches.length===1&&Date.parse(p.observed_at)<Date.parse(matches[0].kickoff))trackedGames.add(matches[0]);}
+ for(const game of games){
+  if(!['nfl','ncaa'].includes(game.sport)||!Number.isFinite(game.homeScore)||!Number.isFinite(game.awayScore)||!(Date.parse(game.kickoff)<Date.parse(observedAt)))continue;
+  const date=easternDate(game.kickoff),key=game.sport+'|'+date;
+  const slate=slates.get(key)||{sport:game.sport,date,finals:0,tracked_finals:0,games:[]};
+  const tracked=trackedGames.has(game);
+  slate.finals++;if(tracked)slate.tracked_finals++;
+  slate.games.push({...game,tracked});slates.set(key,slate);
+ }
+ return {checked_at:observedAt,method:'Published finals compared with any original pregame selection; untracked finals never create retrospective bets',slates:[...slates.values()].sort((a,b)=>b.date.localeCompare(a.date)||a.sport.localeCompare(b.sport))};
 }
 
 export function captureClosingPrices(records,quotes,observedAt){
@@ -126,13 +145,20 @@ export function captureClosingPrices(records,quotes,observedAt){
 }
 
 async function readJson(file,fallback){try{return JSON.parse(await readFile(file,'utf8'));}catch{return fallback;}}
-export async function build({now=new Date().toISOString(),plays=null,output=OUTPUT}={}){
+export async function build({now=new Date().toISOString(),plays=null,output=OUTPUT,settleOnly=false}={}){
  const previous=await readJson(output,{schema_version:1,records:[]}),records=Array.isArray(previous.records)?previous.records:[],results=await readJson(path.join(ROOT,'data','results.json'),{});
+ if(settleOnly)plays=[];
  if(!plays){const stdout=execFileSync(process.execPath,[path.join(ROOT,'scripts','collect_model_plays.cjs')],{cwd:ROOT,encoding:'utf8',maxBuffer:64*1024*1024,env:{...process.env,GOING_TRACKER_LOCAL_DATA:'1',GOING_CAPTURE_QUOTES:'1'}});plays=JSON.parse(stdout);}
  const tracked=selectTrackedPlays(plays),nowMs=Date.parse(now),eligible=new Set(tracked.filter(row=>GROUPS.has(row.tracking_group)&&MARKET[row.market]&&(row.canonicalContract||row.contract)&&Date.parse(row.kickoff)>nowMs&&Number.isFinite(row.dec)&&Number.isFinite(row.prob)&&row.prob>0&&row.prob<1).map(row=>`${row.tracking_group}|${row.canonicalContract||row.contract}`)).size,captured=freezePredictions(records,tracked,now),settled=settlePredictions(records,results,now),first=records.filter(r=>r.kind==='prediction').map(r=>r.observed_at).sort()[0]||null,snapshot={schema_version:1,generated_at:now,tracking_started_at:first,records,groups:summarizeSnapshot(records),latest_run:{eligible,captured:captured.length,settled:settled.length},sources:{predictions:{status:'FRESH',method:'scheduled GOING board snapshot'},results:{status:results.generated_at?'FRESH':'FAILED',generated_at:results.generated_at||null}},methodology:{minimum_american_odds:-500,best_model:'Non-alternate plays carrying the board’s price-gap qualification without a blocking check.',best_value:'Non-alternate selections independently qualified against reference-book prices.',all_projection:'One line per event, player, market and side, chosen closest to standard -110 pricing.'},limitations:'Prospective selections only; no retroactive winners. Results use published full-game outcomes. Book-specific void and injury rules are not inferred. Public research is separate from user-entered bets.'};
  const closing=captureClosingPrices(records,plays,now);
+ snapshot.latest_run.kind=settleOnly?'settlement_only':'capture_and_settle';
+ snapshot.sources.predictions.last_capture_at=now;
+ if(settleOnly){
+  snapshot.sources.predictions={...previous.sources?.predictions,status:'RETAINED',last_capture_at:previous.sources?.predictions?.last_capture_at||previous.generated_at||null,method:'Existing frozen predictions retained; this refresh checks published results only'};
+ }
  snapshot.latest_run.closing_observations=closing.length;
  snapshot.settlement_audit=settlementAudit(records,results,now);
+ snapshot.result_coverage=resultCoverage(records,results,now);
  snapshot.calibration_audit=calibrationAudit(records,now);
  snapshot.workload_audit=workloadAudit(records);
  snapshot.methodology.best_model='Model-screened research, not a validated betting edge. Includes legacy qualified selections; no outcome-driven deletion.';
@@ -140,4 +166,4 @@ export async function build({now=new Date().toISOString(),plays=null,output=OUTP
  await writeFile(output,JSON.stringify(snapshot),{encoding:'utf8'});return snapshot;
 }
 
-if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))build().then(snapshot=>console.log(`Public tracker: ${snapshot.latest_run.captured} frozen, ${snapshot.latest_run.settled} settled, ${snapshot.records.length} records.`)).catch(error=>{console.error(error.message);process.exitCode=1;});
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))build({settleOnly:process.argv.includes('--settle-only')}).then(snapshot=>console.log(`Public tracker: ${snapshot.latest_run.captured} frozen, ${snapshot.latest_run.settled} settled, ${snapshot.records.length} records.`)).catch(error=>{console.error(error.message);process.exitCode=1;});

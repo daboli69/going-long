@@ -16,3 +16,13 @@ class ResultsTests(unittest.TestCase):
         self.assertEqual(out['players'], {'p|2026-09-09': {'rec_yds': 0}})
         retained = assemble([], {}, out, now=now)
         self.assertEqual(retained['games'], out['games'])
+
+    def test_published_same_day_appearance_is_retained_without_inventing_zero(self):
+        now = datetime(2026, 10, 4, 22, tzinfo=timezone.utc)
+        g = dict(sport='nfl', id='final', home='A', away='B', kickoff='2026-10-04T17:00:00Z', completed=True, homeScore=20, awayScore=10)
+        profiles = {'played': {'games': [{'date': '2026-10-04', 'rec_yds': 35, 'rush_yds': None}]},
+                    'future': {'games': [{'date': '2026-10-05', 'rec_yds': 99}]},
+                    'missing': {'games': []}}
+        out = assemble([g, {**g, 'id': 'live', 'completed': False}], profiles, now=now)
+        self.assertEqual(list(out['games']), ['nfl|final'])
+        self.assertEqual(out['players'], {'played|2026-10-04': {'rec_yds': 35}})
