@@ -1,5 +1,30 @@
 # Progress
 
+Cycle `20261005-200016-ranking-dfs-context-a` — independent scheduled20:00ET occurrence. Main base `9fd23bac7c9ac0d98b3fe7fd6450f4ac8aec0fe8`; review base `cfba80a4902d60a266ce094e4a2c23d5a75cb45a`; production `ae8d2ec45142a5099e1008a3ec6bec431e709868`; tested tree `903af5d55d188d69d063f4a3694239199f7d4965`. Main push and exact remote verified. Exact2-path patch replay equals tested production tree. Existing Vercel deployment `JDgkQSYAcFqcNG4qyMvqJdPFM64o` succeeded; production Captain export/empty-state manually verified20:10ET. Receipt will pin completion. Lock acquired00:02:14.355Z, exact owner released only after publication.
+
+## Completed
+
+- PRODUCT/BUILDER selected one bounded bettor workflow improvement: Captain/MVP frozen pregame lineups now export directly from the current mode, without leaving for Classic. Existing shared local journal and JSON format retained; exported records remain stored. Empty/corrupt/storage/download failures provide actionable status without writing records. Actual browser QA exposed no-salary render overwriting export feedback; fixed within the same workflow. Acceptance verified: direct button accessible with/without a loaded slate, exact JSON/download/revocation and preserved records, clear empty state. This outweighed an unused internal salary helper issue and fit the remaining budget better than unvalidated projection/full-scoring development. No models, projections, availability, ranking or scoring gates changed.
+- Mandatory actual-slot capture20:03:50.214ET from clean fetched main:3397rows/156eligible,12complete scopes; NFLToday156/settleable143, NCAA0preserved. Snapshot `1c226a7848536265ad3170834f7beca1f2bdcc89e404fccde66d8f4b59c6506e`. Exploratory, not08primary replacement. Saved eligible quotes279.220–337.854minutes old,0fresh<=5m; no actionable-price claim. Settlements added0. Full replay/integrity verifies259records/12snapshots/3dates;247prior blobs/modes/6,580,304bytes preserved,12newfiles. Initial fresh worktree lacked jsdom; reused retained local dependencies before actual capture, no partial observation/backdate/install/provider calls.
+-474/474Node/frontend,114/114Python, production and Vercel builds pass on exact tree. Focused tests include intact mixed Captain/Classic receipt export, empty/corrupt/storage/download errors and no-salary feedback. Local actual browser Captain button/empty state verified;430/393/390/375/360/320 mobile no horizontal overflow,44pxbutton. Existing visual system retained. Pushpaths index/tests do not trigger credentialed data.yml; rulesets empty, existing main/root Hobby Vercel connection successful immediately prior, review exclusion false retained. $0additional; no paid/provider calls, secrets/private inputs, automation/settings/deployment-system changes.
+- Rollback: fresh current-main codex worktree, `git revert ae8d2ec45142a5099e1008a3ec6bec431e709868` (parent9fd23bac7c9ac0d98b3fe7fd6450f4ac8aec0fe8), inspect2paths and rerun checks. Preserve all saved DFS receipts and append-only ranking records; never revert journal observations to undo UI.
+
+## Working
+
+- App verified live; publish Claude completion/receipt within this occurrence, then release exact owner; no follow-on cycle.
+
+## Problems
+
+- Voluntary local DFS records remain separate from betting ROI, not representative/calibrated contest performance or auto-settled. Export contains all same-device DFS formats; other devices do not sync. Current ranking prices stale; no accuracy/ROI/holdout claim.
+
+## Next
+
+- Continue the permanent select-game → GOING picks workflow and tracker/Confidence evidence priorities; fitted DFS/full scoring requires its own justified, versioned research. Preserve frozen Today-v1 definitions/cutoffs/holdout and actual-slot collection.
+
+## Needs Travis
+
+- None for this workflow fix. Official contest CSV/final actives remain necessary for legal lineups, as documented in prior manual release.
+
 Cycle `20261005-191436-dfs-tournament-manual-a` — focused manual DFS request; not a scheduled occurrence/missed-slot capture. Main base `8d84a7b78bf7c038f1bb97a701c10d525b1dd238`; review base `641d7c77847f99c52d64670efa4c72c483b574ef`; production `9fd23bac7c9ac0d98b3fe7fd6450f4ac8aec0fe8`; tested tree `27ef526f67178a55a351c1d604f8807994ee9479`. Exact23-path patch replay at main base equals tested tree. Ordinary main push/remote SHA verified. Existing Vercel deployment `Davo8NVX1uZVnZK5qd91FDB8Ya7Q` succeeded; live DFS controls/current18-player pool and five exact deployed modules verified19:55ET. Completion `a7a5d7f52e5360c7bc14082a062b518bba6351b3` published and remote-verified. This PROGRESS-only receipt pins that completion; receipt SHA is reported externally and never inside itself. Mutex acquired23:14:54.920Z; release only this recorded owner after publication.
 
 ## Completed

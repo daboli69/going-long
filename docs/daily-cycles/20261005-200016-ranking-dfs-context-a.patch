@@ -1,0 +1,67 @@
+diff --git a/index.html b/index.html
+index 0b169d9f6830e2cdbe35ebbfe0bd83a293c13a0f..7dc025df88ca2a3b6dac3cbe11ccb587c8c7e63c 100644
+--- a/index.html
++++ b/index.html
+@@ -875 +875 @@
+-      <div class="dfs-actions"><button type="button" id="dfsExport" hidden>Export suggestions CSV</button></div><div id="dfsLineups" class="dfs-lineups" aria-live="polite"></div>
++      <div class="dfs-actions"><button type="button" id="dfsExport" hidden>Export suggestions CSV</button><button type="button" id="dfsExportReceipts">Export frozen lineups</button></div><div id="dfsLineups" class="dfs-lineups" aria-live="polite"></div>
+@@ -4021 +4021 @@ $('dfsSite').value=DFS_STATE.site;$('dfsSource').value=DFS_STATE.source;$('dfsCo
+- if(DFS_STATE.source==='csv'&&!DFS_STATE.salaryPlayers.length){$('dfsStatus').textContent='Load an official DraftKings or FanDuel salary CSV to define the actual contest slate and salaries.';$('dfsSummary').innerHTML='';$('dfsLineups').innerHTML='';$('dfsPool').innerHTML='';$('dfsPicks').innerHTML='<span class="dfs-empty-picks">Load a salary slate to start choosing players.</span>';$('dfsSuggestions').innerHTML='';$('dfsClearPicks').hidden=true;$('dfsCaptainSection').hidden=true;$('dfsCaptains').innerHTML='';$('dfsExport').hidden=true;return;}
++ if(DFS_STATE.source==='csv'&&!DFS_STATE.salaryPlayers.length){$('dfsStatus').textContent=DFS_STATE.status||'Load an official DraftKings or FanDuel salary CSV to define the actual contest slate and salaries.';$('dfsSummary').innerHTML='';$('dfsLineups').innerHTML='';$('dfsPool').innerHTML='';$('dfsPicks').innerHTML='<span class="dfs-empty-picks">Load a salary slate to start choosing players.</span>';$('dfsSuggestions').innerHTML='';$('dfsClearPicks').hidden=true;$('dfsCaptainSection').hidden=true;$('dfsCaptains').innerHTML='';$('dfsExport').hidden=true;return;}
+@@ -4041,0 +4042,12 @@ function exportDfs(){
++function exportDfsReceipts(){
++ let url=null;
++ try{
++  const saved=GoingDfsJournal.read(localStorage);
++  if(!saved.ok)throw Error(saved.error);
++  if(!saved.receipts.length){DFS_STATE.status='No frozen DFS lineups on this device yet. Freeze a pregame lineup under Strategy & main risk.';return;}
++  url=URL.createObjectURL(new Blob([JSON.stringify(saved.receipts,null,2)],{type:'application/json'}));
++  const link=document.createElement('a');link.href=url;link.download='going-dfs-frozen-lineups.json';link.click();
++  DFS_STATE.status=`${saved.receipts.length} frozen DFS lineup${saved.receipts.length===1?'':'s'} exported. Records remain on this device.`;
++ }catch(error){DFS_STATE.status=error.message||'Frozen DFS lineups could not be exported; stored records were preserved.';}
++ finally{if(url)URL.revokeObjectURL(url);renderDfs();}
++}
+@@ -4043 +4055 @@ function wireDfs(){
+- $('dfsPoolSearch').oninput=e=>{DFS_STATE.poolQuery=e.target.value.trim().toLowerCase();DFS_STATE.poolLimit=40;renderDfs();};$('dfsPoolPosition').onchange=e=>{DFS_STATE.poolPosition=e.target.value;DFS_STATE.poolLimit=40;renderDfs();};$('dfsPoolMore').onclick=()=>{DFS_STATE.poolLimit+=40;renderDfs();};const reset=()=>{clearDfsPicks();DFS_STATE.status='';DFS_STATE.poolLimit=40;};$('dfsResearchAccess').onclick=()=>{DFS_STATE.contest='classic';DFS_STATE.source='model';$('dfsAdvanced').open=true;reset();renderDfs();};$('dfsClassicAccess').onclick=()=>{DFS_STATE.contest='classic';DFS_STATE.source='csv';$('dfsAdvanced').open=false;reset();renderDfs();};$('dfsCaptainAccess').onclick=()=>{$('dfsAdvanced').open=true;DFS_STATE.source='csv';DFS_STATE.contest='showdown';reset();renderDfs();if(DFS_STATE.salaryPlayers.length)$('dfsContest').focus();else $('dfsFile').focus();};$('dfsSource').onchange=e=>{DFS_STATE.source=e.target.value;DFS_STATE.game='';if(DFS_STATE.source!=='csv'&&DFS_STATE.contest==='showdown')DFS_STATE.contest='classic';reset();renderDfs();};$('dfsSite').onchange=e=>{DFS_STATE.site=e.target.value;reset();if(DFS_STATE.source==='csv'&&DFS_STATE.raw)loadDfsCsv(DFS_STATE.raw);else renderDfs();};$('dfsContest').onchange=e=>{DFS_STATE.contest=e.target.value;DFS_STATE.game='';reset();renderDfs();};$('dfsGame').onchange=e=>{DFS_STATE.game=e.target.value;reset();renderDfs();};$('dfsFile').onchange=async e=>{const file=e.target.files?.[0];if(file)loadDfsCsv(await file.text());};$('dfsLoad').onclick=()=>{const text=$('dfsPaste').value.trim();if(text)loadDfsCsv(text);else if(!$('dfsFile').files?.length)$('dfsStatus').textContent='Choose a salary CSV or paste its contents first.';};$('dfsLineups').addEventListener('click',e=>{const b=e.target.closest('[data-dfs-freeze]');if(!b)return;const lineup=DFS_STATE.lineups[Number(b.dataset.dfsFreeze)],r=GoingDfsJournal.freeze({players:lineup.players,contest:DFS_STATE.contest,site:DFS_STATE.site,mode:$('dfsMode').value,salaryHash:DFS_STATE.salaryHash,modelGeneratedAt:BET.history?.generated_at,injuryAt:BET.injuryContext?.generatedAt||null,now:Date.now()});try{const saved=r.ok?GoingDfsJournal.append(localStorage,r.receipt):r;DFS_STATE.status=saved.ok?'Pregame lineup frozen on this device; export through Classic’s prospective research panel. No contest performance claim.':saved.error;}catch(_){DFS_STATE.status='Local receipt storage unavailable.';}renderDfs();});$('dfsGenerate').onclick=generateDfsLineups;$('dfsExport').onclick=exportDfs;$('dfsClearPicks').onclick=()=>{clearDfsPicks();renderDfs();};
++ $('dfsPoolSearch').oninput=e=>{DFS_STATE.poolQuery=e.target.value.trim().toLowerCase();DFS_STATE.poolLimit=40;renderDfs();};$('dfsPoolPosition').onchange=e=>{DFS_STATE.poolPosition=e.target.value;DFS_STATE.poolLimit=40;renderDfs();};$('dfsPoolMore').onclick=()=>{DFS_STATE.poolLimit+=40;renderDfs();};const reset=()=>{clearDfsPicks();DFS_STATE.status='';DFS_STATE.poolLimit=40;};$('dfsResearchAccess').onclick=()=>{DFS_STATE.contest='classic';DFS_STATE.source='model';$('dfsAdvanced').open=true;reset();renderDfs();};$('dfsClassicAccess').onclick=()=>{DFS_STATE.contest='classic';DFS_STATE.source='csv';$('dfsAdvanced').open=false;reset();renderDfs();};$('dfsCaptainAccess').onclick=()=>{$('dfsAdvanced').open=true;DFS_STATE.source='csv';DFS_STATE.contest='showdown';reset();renderDfs();if(DFS_STATE.salaryPlayers.length)$('dfsContest').focus();else $('dfsFile').focus();};$('dfsSource').onchange=e=>{DFS_STATE.source=e.target.value;DFS_STATE.game='';if(DFS_STATE.source!=='csv'&&DFS_STATE.contest==='showdown')DFS_STATE.contest='classic';reset();renderDfs();};$('dfsSite').onchange=e=>{DFS_STATE.site=e.target.value;reset();if(DFS_STATE.source==='csv'&&DFS_STATE.raw)loadDfsCsv(DFS_STATE.raw);else renderDfs();};$('dfsContest').onchange=e=>{DFS_STATE.contest=e.target.value;DFS_STATE.game='';reset();renderDfs();};$('dfsGame').onchange=e=>{DFS_STATE.game=e.target.value;reset();renderDfs();};$('dfsFile').onchange=async e=>{const file=e.target.files?.[0];if(file)loadDfsCsv(await file.text());};$('dfsLoad').onclick=()=>{const text=$('dfsPaste').value.trim();if(text)loadDfsCsv(text);else if(!$('dfsFile').files?.length)$('dfsStatus').textContent='Choose a salary CSV or paste its contents first.';};$('dfsLineups').addEventListener('click',e=>{const b=e.target.closest('[data-dfs-freeze]');if(!b)return;const lineup=DFS_STATE.lineups[Number(b.dataset.dfsFreeze)],r=GoingDfsJournal.freeze({players:lineup.players,contest:DFS_STATE.contest,site:DFS_STATE.site,mode:$('dfsMode').value,salaryHash:DFS_STATE.salaryHash,modelGeneratedAt:BET.history?.generated_at,injuryAt:BET.injuryContext?.generatedAt||null,now:Date.now()});try{const saved=r.ok?GoingDfsJournal.append(localStorage,r.receipt):r;DFS_STATE.status=saved.ok?'Pregame lineup frozen on this device; use Export frozen lineups above to save your records. No contest performance claim.':saved.error;}catch(_){DFS_STATE.status='Local receipt storage unavailable.';}renderDfs();});$('dfsGenerate').onclick=generateDfsLineups;$('dfsExport').onclick=exportDfs;$('dfsExportReceipts').onclick=exportDfsReceipts;$('dfsClearPicks').onclick=()=>{clearDfsPicks();renderDfs();};
+diff --git a/tests/dfs-export-ui.test.cjs b/tests/dfs-export-ui.test.cjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..57a18182fd4c84bb64a015ea6a00b0b7e6d39b45
+--- /dev/null
++++ b/tests/dfs-export-ui.test.cjs
+@@ -0,0 +1,35 @@
++'use strict';
++const {test}=require('node:test');
++const assert=require('node:assert/strict');
++const fs=require('node:fs');
++const vm=require('node:vm');
++const html=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');
++const source=html.slice(html.indexOf('function exportDfsReceipts(){'),html.indexOf('function wireDfs(){'));
++function run(saved,{storageError=false,downloadError=false}={}){
++ const result={clicks:0,revoked:[],renders:0,reads:0};
++ const context={DFS_STATE:{status:''},GoingDfsJournal:{read(){result.reads++;if(storageError)throw Error('Storage blocked');return saved;}},
++  localStorage:{setItem(){throw Error('Export must never rewrite records');}},Blob,
++  URL:{createObjectURL(blob){result.blob=blob;return 'blob:receipt';},revokeObjectURL(url){result.revoked.push(url);}},
++  document:{createElement(){const link={click(){if(downloadError)throw Error('Download blocked');result.clicks++;}};result.link=link;return link;}},
++  renderDfs(){result.renders++;}};
++ vm.runInNewContext(source+';exportDfsReceipts();',context);
++ return {...result,status:context.DFS_STATE.status};
++}
++test('Captain workflow downloads all preserved receipts without rewriting them',async()=>{
++ const receipts=[{id:'captain',contest:'showdown',players:[{salary:6000}]},{id:'classic',contest:'classic'}],before=JSON.stringify(receipts);
++ const r=run({ok:true,receipts});assert.deepEqual(JSON.parse(await r.blob.text()),receipts);assert.equal(JSON.stringify(receipts),before);
++ assert.equal(r.link.download,'going-dfs-frozen-lineups.json');assert.equal(r.clicks,1);assert.deepEqual(r.revoked,['blob:receipt']);assert.equal(r.renders,1);assert.match(r.status,/2 frozen DFS lineups exported/);
++ assert.match(html,/id="dfsExportReceipts"/);assert.match(html,/\$\('dfsExportReceipts'\).onclick=exportDfsReceipts/);
++});
++test('empty and failed journal reads never download fake or incomplete records',()=>{
++ for(const [saved,options,message] of [[{ok:true,receipts:[]},{},/No frozen/],[{ok:false,error:'Integrity failed'},{},/Integrity failed/],[null,{storageError:true},/Storage blocked/]]){
++  const r=run(saved,options);assert.equal(r.clicks,0);assert.equal(r.blob,undefined);assert.equal(r.renders,1);assert.match(r.status,message);
++ }
++});
++test('download failures revoke the temporary URL and leave records intact',()=>{
++ const r=run({ok:true,receipts:[{id:'saved'}]},{downloadError:true});assert.equal(r.clicks,0);assert.deepEqual(r.revoked,['blob:receipt']);assert.equal(r.renders,1);assert.match(r.status,/Download blocked/);
++});
++
++test('no-salary Captain rendering preserves actionable export status',()=>{
++ assert.match(html,/\$\('dfsStatus'\).textContent=DFS_STATE.status\|\|'Load an official/);
++});
