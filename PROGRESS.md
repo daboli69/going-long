@@ -1,6 +1,6 @@
 # Progress
 
-Cycle `20261006-020211-ranking-tracker-a` — independent scheduled02:00ET occurrence. Main base `075c66b7a0214211d13b1314ed034c72e38d2292`; review base `ad240d0dd2873f5d303ad1b78c3bb8cbe2067f34`; production `5c5a13611558874c83a8b61ae3ca1f88dd736b95`; tested tree `77c184c673ae5245a60e417285483fb100c4d6f4`. Main push/exact remote verified; exact4-path patch replay equals tested production tree. Existing Vercel deployment `6j8tJBmKnnw1jZQD3d4Sk8mW2Qun` succeeded; exact live JS/CSS match tested bytes and live Game/graph47contract-$290.38 result verified02:09ET. Screenshot saved externally. Lock acquired2026-10-06T06:02:18.101Z; release only recorded owner after publication.
+Cycle `20261006-020211-ranking-tracker-a` — independent scheduled02:00ET occurrence. Main base `075c66b7a0214211d13b1314ed034c72e38d2292`; review base `ad240d0dd2873f5d303ad1b78c3bb8cbe2067f34`; production `5c5a13611558874c83a8b61ae3ca1f88dd736b95`; tested tree `77c184c673ae5245a60e417285483fb100c4d6f4`. Main push/exact remote verified; exact4-path patch replay equals tested production tree. Existing Vercel deployment `6j8tJBmKnnw1jZQD3d4Sk8mW2Qun` succeeded; exact live JS/CSS match tested bytes and live Game/graph47contract-$290.38 result verified02:09ET. Screenshot saved externally. Completion `80af0ed82c84e22eb55f15cb9a1769a65cbeb7af` published/exact remote verified; committed patch replay equals tested production tree. This PROGRESS-only receipt records completion; its own SHA is reported externally. Lock acquired2026-10-06T06:02:18.101Z; release only recorded owner after publication.
 
 ## Completed
 
@@ -11,7 +11,7 @@ Cycle `20261006-020211-ranking-tracker-a` — independent scheduled02:00ET occur
 
 ## Working
 
-- None. App/live and journal verified; publish completion/receipt then release exact owner.
+- None. App/live, journal and completion verified; receipt uses unchanged-tip gates then release recorded owner.
 
 ## Problems
 
