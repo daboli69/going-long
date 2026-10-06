@@ -1,0 +1,54 @@
+diff --git a/apps/validation/src.jsx b/apps/validation/src.jsx
+index ee68f2a30cd81bb9feee134cd02496e88cb340b5..443a3a9a3bdad9ce63ec30b5735637d84dc3ce0e 100644
+--- a/apps/validation/src.jsx
++++ b/apps/validation/src.jsx
+@@ -38 +38 @@ function TrackerDashboard({records,meta,privateMode=false,onRefresh,refreshing=f
+- const [group,setGroup]=useState(groups[0]),[sport,setSport]=useState('all'),[days,setDays]=useState('all'),[query,setQuery]=useState(''),[date,setDate]=useState(''),[receiptPage,setReceiptPage]=useState(0),[pickPage,setPickPage]=useState(0);
++ const [group,setGroup]=useState(groups[0]),[sport,setSport]=useState('all'),[days,setDays]=useState('all'),[query,setQuery]=useState(''),[date,setDate]=useState(''),[receiptPage,setReceiptPage]=useState(0),[pickPage,setPickPage]=useState(0),[pendingReason,setPendingReason]=useState('all');
+@@ -44 +44,4 @@ function TrackerDashboard({records,meta,privateMode=false,onRefresh,refreshing=f
+- const size=24,receiptOffset=Math.min(receiptPage,Math.max(0,Math.ceil(receipts.length/size)-1))*size,pickOffset=Math.min(pickPage,Math.max(0,Math.ceil(picks.length/size)-1))*size;
++ const awaiting=picks.filter(p=>!settledById.has(p.id)&&Date.parse(p.kickoff)<=Date.now()),reasonFor=p=>pendingById.get(p.id)||'verified_result_unavailable',reasonCounts=new Map();
++ for(const p of awaiting){const reason=reasonFor(p);reasonCounts.set(reason,(reasonCounts.get(reason)||0)+1);}
++ const visiblePicks=evidenceView==='unresolved'?awaiting.filter(p=>pendingReason==='all'||reasonFor(p)===pendingReason):picks;
++ const size=24,receiptOffset=Math.min(receiptPage,Math.max(0,Math.ceil(receipts.length/size)-1))*size,pickOffset=Math.min(pickPage,Math.max(0,Math.ceil(visiblePicks.length/size)-1))*size;
+@@ -47 +50,2 @@ function TrackerDashboard({records,meta,privateMode=false,onRefresh,refreshing=f
+- useEffect(()=>{setReceiptPage(0);setPickPage(0);},[group,sport,days,date,cohort,query]);
++ useEffect(()=>{setReceiptPage(0);setPickPage(0);},[group,sport,days,date,cohort,query,pendingReason,evidenceView]);
++ useEffect(()=>setPendingReason('all'),[group,sport,days,date,cohort]);
+@@ -67 +71 @@ function TrackerDashboard({records,meta,privateMode=false,onRefresh,refreshing=f
+-  <section className="panel evidence-current"><div className="section-heading"><div><span className="eyebrow">CURRENT RECORD</span><h2>Tracked selections</h2></div><span className="source-pill">{picks.length} records</span></div><input className="tracker-search" aria-label="Search tracked selections" placeholder="Search player, team, market or book" value={query} onChange={e=>setQuery(e.target.value)}/><div className="cards tracked-cards">{picks.slice(pickOffset,pickOffset+size).map(p=><article key={p.id}><span className="badge">{settledById.get(p.id)?.status.toUpperCase()||(Date.parse(p.kickoff)>Date.now()?'UPCOMING':'AWAITING RESULT')}</span>{!settledById.has(p.id)&&pendingById.has(p.id)&&<p className="settlement-reason"><strong>Why this is unresolved:</strong> {settlementExplanation(pendingById.get(p.id))} Excluded from settled profit and ROI.</p>}<h3>{p.player||`${p.away} at ${p.home}`}</h3><p>{p.market} · {p.side} {displayLine(p)} · {p.book}</p><p><strong>{pct(p.probability)}</strong> recorded model probability · {p.american>0?'+':''}{p.american} price</p><small>Frozen {new Date(p.observed_at).toLocaleString()} · Kickoff {new Date(p.kickoff).toLocaleString()}</small><p className="evidence-readiness">{p.actionable?'Alert-qualified at capture':'Research record · not an alert-qualified recommendation'}. A model probability is not a validated confidence grade.</p><details><summary>Show saved evidence</summary>{recordedEvidence(p).map((line,i)=><p key={i}>{line}</p>)}</details></article>)}</div><RecordPager total={picks.length} page={pickPage} onPage={setPickPage}/>{!picks.length&&<div className="empty-state"><strong>No selections in this view.</strong><p>Choose another board or wait for the next scheduled slate capture.</p></div>}</section>
++  <section className="panel evidence-current"><div className="section-heading"><div><span className="eyebrow">CURRENT RECORD</span><h2>{evidenceView==='unresolved'?'Awaiting tracked results':'Tracked selections'}</h2></div><span className="source-pill">{visiblePicks.length} records</span></div>{evidenceView==='unresolved'&&<label>Unresolved reason<select value={pendingReason} onChange={e=>setPendingReason(e.target.value)}><option value="all">All unresolved reasons ({awaiting.length})</option>{[...reasonCounts].sort(([a],[b])=>a.localeCompare(b)).map(([reason,n])=><option key={reason} value={reason}>{reason.replaceAll('_',' ')} ({n})</option>)}</select></label>}<input className="tracker-search" aria-label="Search tracked selections" placeholder="Search player, team, market or book" value={query} onChange={e=>setQuery(e.target.value)}/><div className="cards tracked-cards">{visiblePicks.slice(pickOffset,pickOffset+size).map(p=><article key={p.id}><span className="badge">{settledById.get(p.id)?.status.toUpperCase()||(Date.parse(p.kickoff)>Date.now()?'UPCOMING':'AWAITING RESULT')}</span>{!settledById.has(p.id)&&Date.parse(p.kickoff)<=Date.now()&&<p className="settlement-reason"><strong>Why this is unresolved:</strong> {settlementExplanation(reasonFor(p))} Excluded from settled profit and ROI.</p>}<h3>{p.player||`${p.away} at ${p.home}`}</h3><p>{p.market} · {p.side} {displayLine(p)} · {p.book}</p><p><strong>{pct(p.probability)}</strong> recorded model probability · {p.american>0?'+':''}{p.american} price</p><small>Frozen {new Date(p.observed_at).toLocaleString()} · Kickoff {new Date(p.kickoff).toLocaleString()}</small><p className="evidence-readiness">{p.actionable?'Alert-qualified at capture':'Research record · not an alert-qualified recommendation'}. A model probability is not a validated confidence grade.</p><details><summary>Show saved evidence</summary>{recordedEvidence(p).map((line,i)=><p key={i}>{line}</p>)}</details></article>)}</div><RecordPager total={visiblePicks.length} page={pickPage} onPage={setPickPage}/>{!visiblePicks.length&&<div className="empty-state"><strong>{evidenceView==='unresolved'?'No unresolved selections in this view.':'No selections in this view.'}</strong><p>{evidenceView==='unresolved'?'Try another board, model version or date. Upcoming games and settled plays are excluded here.':'Choose another board or wait for the next scheduled slate capture.'}</p></div>}</section>
+diff --git a/apps/validation/style.css b/apps/validation/style.css
+index 56e274617655a0845ee9d69bc79f0446daa7d67f..ba7966db3d05443eabe52a36b3d7375913ceb9d7 100644
+--- a/apps/validation/style.css
++++ b/apps/validation/style.css
+@@ -104,0 +105,3 @@ html body[data-going-workspace=results] .visual-evidence .evidence-dashboard .ev
++
++/* Pending receipts remain inspectable in the Unresolved results view. */
++.evidence-dashboard:not(.evidence-private).evidence-view-unresolved .evidence-current{display:block}
+diff --git a/tests/validation-results-ui.test.cjs b/tests/validation-results-ui.test.cjs
+index 2767b6ea51e69003453c69999f6b40cb5ac7da86..6465f19f0e2d76a2865bcd7faa1a0f59ffa077e1 100644
+--- a/tests/validation-results-ui.test.cjs
++++ b/tests/validation-results-ui.test.cjs
+@@ -18,0 +19 @@ test('Results exposes full paginated receipts, Eastern slate filters, and real f
++ records.push({kind:'prediction',payload:{...records[0].payload,id:'001-rules',profile_id:'rules',player:'Rules Player'}},{kind:'prediction',payload:{...records[0].payload,id:'002-unknown',profile_id:'unknown',player:'Unknown Player'}},{kind:'prediction',payload:{...records[0].payload,id:'003-future',profile_id:'future',player:'Future Player',kickoff:'2099-10-02T00:20:00Z'}});
+@@ -21 +22 @@ test('Results exposes full paginated receipts, Eastern slate filters, and real f
+-  await React.act(async()=>root.render(React.createElement(Dashboard,{records,meta:{settlement_audit:{counts:{player_participation_or_result_missing:1},pending:[{prediction_id:'000-missing',reason:'player_participation_or_result_missing'}]},generated_at:'2026-10-02T05:00:00Z',sources:{predictions:{last_capture_at:'2026-10-01T12:00:00Z'}},result_coverage:{slates:[{sport:'nfl',date:'2026-10-01',finals:2,tracked_finals:1,games:[{id:'game',home:'HOME',away:'AWAY',homeScore:28,awayScore:20,tracked:true},{id:'untracked',home:'OTHER',away:'VISITOR',homeScore:21,awayScore:10,tracked:false}]}]}}})));
++  await React.act(async()=>root.render(React.createElement(Dashboard,{records,meta:{settlement_audit:{counts:{player_participation_or_result_missing:1},pending:[{prediction_id:'000-missing',reason:'player_participation_or_result_missing'},{prediction_id:'001-rules',reason:'unsupported_settlement_rules'}]},generated_at:'2026-10-02T05:00:00Z',sources:{predictions:{last_capture_at:'2026-10-01T12:00:00Z'}},result_coverage:{slates:[{sport:'nfl',date:'2026-10-01',finals:2,tracked_finals:1,games:[{id:'game',home:'HOME',away:'AWAY',homeScore:28,awayScore:20,tracked:true},{id:'untracked',home:'OTHER',away:'VISITOR',homeScore:21,awayScore:10,tracked:false}]}]}}})));
+@@ -41,0 +43,16 @@ test('Results exposes full paginated receipts, Eastern slate filters, and real f
++  await React.act(async()=>[...document.querySelectorAll('.evidence-tabs button')].find(b=>b.textContent==='Unresolved results').click());
++  assert.equal(document.querySelectorAll('.tracked-cards article').length,3);
++  assert.match($('.evidence-current h2').textContent,/Awaiting tracked results/);
++  assert.doesNotMatch($('.tracked-cards').textContent,/Player 0|Future Player/);
++  const reason=[...document.querySelectorAll('select')].find(el=>el.parentElement.textContent.startsWith('Unresolved reason'));
++  assert.ok([...reason.options].some(o=>o.value==='verified_result_unavailable'));
++  await React.act(async()=>{reason.value='unsupported_settlement_rules';reason.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});
++  assert.equal(document.querySelectorAll('.tracked-cards article').length,1);
++  assert.match($('.tracked-cards').textContent,/Rules Player/);
++  assert.match($('.settlement-reason').textContent,/does not support yet/);
++  assert.match($('.profit-chart svg').getAttribute('aria-label'),/100\.0%/);
++  await React.act(async()=>{reason.value='verified_result_unavailable';reason.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});
++  assert.match($('.settlement-reason').textContent,/verified result is not available/);
++  await React.act(async()=>[...document.querySelectorAll('.evidence-tabs button')].find(b=>b.textContent==='Results').click());
++  assert.equal(document.querySelectorAll('.tracked-cards article').length,24);
++  assert.match(fs.readFileSync(require.resolve('../apps/validation/style.css'),'utf8'),/evidence-view-unresolved \.evidence-current\{display:block\}/);

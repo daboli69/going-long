@@ -1,5 +1,30 @@
 # Progress
 
+Cycle `20261005-220209-ranking-tracker-a` — independent scheduled22:00ET occurrence. Main base `338b73d4796fc7ccdb8d6cdc3535d4fc4767f1ad`; review base `ebb07f2501ceb6237351e72531e8ef616cce47cf`; production `77354eac56290cab4fe329d87b681f80e502e7b2`; tested tree `1fca2e3a1a5b3cc97ccca857542f218b134a2adc`. Main push/exact remote verified. Exact3-path patch replay equals tested production tree. Existing Vercel deployment `2DneyKigb8XYHgJc8sDG32VMuick` succeeded; exact live JS/CSS match tested bytes and live reason filter/13cards verified22:13ET. Lock acquired02:02:20.911Z; release exact owner only after recording/publication.
+
+## Completed
+
+- PRODUCT/BUILDER made Unresolved results actionable: original tab CSS hid the pending cards. It now exposes kicked-off unsettled unique selections under current board/version/date/search filters, recorded-reason selector with scoped counts, pagination and honest fallback when audit reason is absent. Settled/upcoming records excluded in this view; Results keeps the complete selection list. Actual public snapshot:93raw audited gaps across entire ledger; default current80/20 model-screened view98awaiting,13participation/result missing plus85without verified result (including started MNF). Source gaps do not imply zero/loss/void. No settlement, model, ROI or ranking change.
+- Selection: direct inspection of unresolved tracker coverage offers more bettor value than another DFS-export/label adjustment. Acceptance verified with reason-specific and unknown records, settled/upcoming exclusion, returning to Results and unchanged $100 graph. Browser QA found initial override specificity insufficient; corrected and reran full frontend/build checks. Actual13gap records include Jalen Coker; preserved market/line/book/time and saved evidence.430/393/390/375/360/320 no horizontal overflow and cards visible.476Node/frontend,114Python, production and Vercel builds pass offline. Only apps/validation/src.jsx,style.css and test changed; data.yml script/config triggers unaffected, public rulesets empty, existing rootHobby connection/review exclusion retained. $0additional/no provider/private/alerts/automation/model changes.
+- Actual-slot ranking capture at2026-10-06T02:02:56.951Z (Oct5 22:02:56.951ET): snapshot `e151488e900d4b667862324f93206f2842f9bddae846f07ab105b88fb6c9afc2`,0generated rows/0eligible,12complete empty scope/rank/top3/top10 structures,1177raw pre-generation exclusions and1251game exclusions retained. Fixed current week endsOct5; no next-week expansion or backdate.0newsettlements;262records/13snapshots/3segments verified;259previous files and6,792,009bytes preserved,3newfiles.22:00exploratory; no holdout aggregation, hit-rate or profitability inference.
+- Rollback: fresh current-main codex worktree, `git revert 77354eac56290cab4fe329d87b681f80e502e7b2` (parent338b73d4796fc7ccdb8d6cdc3535d4fc4767f1ad); inspect3paths/rerun checks. Preserve every ranking/tracker observation.
+
+## Working
+
+- None. App/live and new ranking observation verified; publish completion/receipt then release recorded owner.
+
+## Problems
+
+- This cycle exposes unresolved source gaps; it does not supply missing player logs or settle in-progress games. Raw ledger counts and unique filtered selections differ; missing audit reason remains explicitly unknown.
+
+## Next
+
+- Continue game-first bettor workflows and actual-slot scheduled rules; resolve participation/result coverage only with verified source evidence. No follow-on cycle.
+
+## Needs Travis
+
+- None.
+
 Cycle `20261005-201540-coverage-labels-manual-a` — manual Coverage formatting request, not a scheduled occurrence/backdated capture. Main base `ae8d2ec45142a5099e1008a3ec6bec431e709868`; review base `f477eac9646bf3d591d86e1a64df4e9ba22c6eb8`; production `338b73d4796fc7ccdb8d6cdc3535d4fc4767f1ad`; tested tree `be3adcb30a84310afb0a33ea85735f8f8f62ec98`. Exact3-path patch replay equals tested production tree. Main push/remote SHA verified; existing Vercel deployment `EJYDcuMwfjcQDRXWfTyvPiMV48pR` succeeded, exact live JS/CSS match production blobs and actual live39card titles verified20:25ET. Completion `18c9b35c956451662710102606550bb48eab276b` published and exact remote verified; this PROGRESS-only receipt pins that completion, its own SHA reported externally. Mutex acquired00:15:49.332Z; release exact owner only after recording/publication.
 
 ## Completed
