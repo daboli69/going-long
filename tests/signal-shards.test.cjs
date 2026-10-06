@@ -104,3 +104,25 @@ test('a legacy single-file journal (no archive block) still renders and shows no
  assert.equal(w.document.querySelectorAll('#records article').length,1);
  dom.window.close();
 });
+
+test('size guard refuses to write an oversized shard, leaving the last good files untouched',async()=>{
+ const {writeSignalTracker,readSignalRecords,MAX_FILE_BYTES}=await mod(),d=dir();
+ await writeSignalTracker({dataDir:d,generated_at:'1',sources:{},records:[rec('ok','2026-09-20T05:00:00Z')],now:NOW});
+ const before=fs.readFileSync(path.join(d,'signal_archive','2026-09-20.json'),'utf8');
+ const big=rec('big','2026-09-20T06:00:00Z',{features:{blob:'x'.repeat(MAX_FILE_BYTES+1)}});
+ await assert.rejects(()=>writeSignalTracker({dataDir:d,generated_at:'2',sources:{},records:[big],now:NOW}),/refusing to write/);
+ assert.equal(fs.readFileSync(path.join(d,'signal_archive','2026-09-20.json'),'utf8'),before);
+ assert.equal((await readSignalRecords(d)).records.length,1);
+});
+
+test('a partial archive-load failure keeps the days that did load and shows the error',async()=>{
+ const files={'../data/signal_tracker.json':{schema_version:1,generated_at:'2026-10-07T00:00:00Z',sources:{},records:[rec('c1','2026-10-07T01:00:00Z')],
+  archive:{layout:'daily-shards-v1',current_window_days:7,total_records:3,archived_records:2,shards:[{date:'2026-09-21',file:'signal_archive/2026-09-21.json',records:1},{date:'2026-09-20',file:'signal_archive/2026-09-20.json',records:1}]}},
+  '../data/signal_archive/2026-09-21.json':{schema_version:1,date:'2026-09-21',records:[rec('o1','2026-09-21T05:00:00Z')]}};
+ const {dom,w,status,button}=await openResults(async u=>{const body=files[u];return {ok:!!body,json:async()=>body};});
+ button().click();
+ for(let i=0;i<80&&!status().includes('unavailable');i++)await new Promise(r=>setTimeout(r,25));
+ assert.match(status(),/Archive file 2026-09-20 unavailable/);assert.match(status(),/2 matching signal observations/);
+ assert.equal(w.document.querySelectorAll('#records article').length,2);assert.equal(button().disabled,false);assert.equal(button().hasAttribute('aria-busy'),false);
+ dom.window.close();
+});
