@@ -1,6 +1,6 @@
 # Progress
 
-Cycle `20261005-220209-ranking-tracker-a` — independent scheduled22:00ET occurrence. Main base `338b73d4796fc7ccdb8d6cdc3535d4fc4767f1ad`; review base `ebb07f2501ceb6237351e72531e8ef616cce47cf`; production `77354eac56290cab4fe329d87b681f80e502e7b2`; tested tree `1fca2e3a1a5b3cc97ccca857542f218b134a2adc`. Main push/exact remote verified. Exact3-path patch replay equals tested production tree. Existing Vercel deployment `2DneyKigb8XYHgJc8sDG32VMuick` succeeded; exact live JS/CSS match tested bytes and live reason filter/13cards verified22:13ET. Lock acquired02:02:20.911Z; release exact owner only after recording/publication.
+Cycle `20261005-220209-ranking-tracker-a` — independent scheduled22:00ET occurrence. Main base `338b73d4796fc7ccdb8d6cdc3535d4fc4767f1ad`; review base `ebb07f2501ceb6237351e72531e8ef616cce47cf`; production `77354eac56290cab4fe329d87b681f80e502e7b2`; tested tree `1fca2e3a1a5b3cc97ccca857542f218b134a2adc`. Main push/exact remote verified. Exact3-path patch replay equals tested production tree. Existing Vercel deployment `2DneyKigb8XYHgJc8sDG32VMuick` succeeded; exact live JS/CSS match tested bytes and live reason filter/13cards verified22:13ET. Completion `0a16d98ea8ba5d4a7914e5231397de304533f7c7` published/exact remote verified; this PROGRESS-only receipt pins completion (its own SHA is reported externally). Committed patch replay also equals tested production tree. Lock acquired02:02:20.911Z; release exact owner only after recording/publication.
 
 ## Completed
 
@@ -11,11 +11,11 @@ Cycle `20261005-220209-ranking-tracker-a` — independent scheduled22:00ET occur
 
 ## Working
 
-- None. App/live and new ranking observation verified; publish completion/receipt then release recorded owner.
+- None. App/live, journal and completion verified; receipt uses unchanged-tip gates, then release recorded owner.
 
 ## Problems
 
-- This cycle exposes unresolved source gaps; it does not supply missing player logs or settle in-progress games. Raw ledger counts and unique filtered selections differ; missing audit reason remains explicitly unknown.
+- This cycle exposes unresolved source gaps; it does not supply missing player logs or settle in-progress games. Raw ledger counts and unique filtered selections differ; missing audit reason remains explicitly unknown. Browser screenshot capture unavailable after two attempts; live DOM/card/filter and asset-byte verification succeeded.
 
 ## Next
 
