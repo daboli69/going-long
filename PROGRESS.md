@@ -1,5 +1,30 @@
 # Progress
 
+Cycle `20261005-201540-coverage-labels-manual-a` — manual Coverage formatting request, not a scheduled occurrence/backdated capture. Main base `ae8d2ec45142a5099e1008a3ec6bec431e709868`; review base `f477eac9646bf3d591d86e1a64df4e9ba22c6eb8`; production `338b73d4796fc7ccdb8d6cdc3535d4fc4767f1ad`; tested tree `be3adcb30a84310afb0a33ea85735f8f8f62ec98`. Exact3-path patch replay equals tested production tree. Main push/remote SHA verified; existing Vercel deployment `EJYDcuMwfjcQDRXWfTyvPiMV48pR` succeeded, exact live JS/CSS match production blobs and actual live39card titles verified20:25ET. Mutex acquired00:15:49.332Z; release exact owner only after recording/publication.
+
+## Completed
+
+- UI/UX/BUILDER fixed screenshot raw-code leakage: COVER_1/3→Cover 1/3,2_MAN→Cover 2 Man; score states→leading/trailing by1–7 or8+ points/tied. Source scripts/football_context.py:coverage_game_state and scripts/season_learning.py:_coverage_state_from_margin confirm defending-team perspective. Card titles name the actual defending opponent (e.g. Cover 1 · DAL leading by1–7 points), expanded narratives/evidence use readable ranges, first-half projected margin names defense. Missing/unknown score state stays unavailable; no state inferred from absent data. Readable labels searchable. No source observations, rates, samples, active/watch gates or models altered. NFL standard Cover2-Man naming corroborated by https://www.nfl.com/news/broncos-defensive-tactics-flummoxed-panthers-in-super-bowl-50-0ap3000000635224 ; no new exact scheme inference.
+- User benefit/acceptance: understand the coverage and which team is ahead without decoding identifiers. Actual39current records inspected across all5published shells and3current score buckets. Mobile title previously shrank to12px at320; scoped flex wrapping now preserves readable140pxbasis and unchanged colors/components.430/393/390/375/360/320+1440desktop no horizontal overflow, minimum title widths155–251px on phones. Expanded SF@SEA record and unchanged35.8%/53/28.9% data manually verified.
+-476/476Node/frontend,114/114Python, production and Vercel builds pass offline. Classification-free formatting tests cover both directions/ranges/tied/missing,2Man,defense identity, unchanged input/rates and search. Only3shared/testpaths published; inspected data.yml script/config triggers unaffected. Empty rulesets and successful current main→par-lay-s-projects/going-long deployment connection; existing rootHobby included capacity/review exclusion false preserved. $0additional; no provider/private input/alert/automation/model/deployment-setting changes. MODEL_RESEARCH unchanged because no meaningful research/methodology changed.
+- Rollback: fresh current-main codex worktree, `git revert 338b73d4796fc7ccdb8d6cdc3535d4fc4767f1ad` (parentae8d2ec45142a5099e1008a3ec6bec431e709868); inspect3paths and rerun standard checks. Preserve every tracker/ranking/DFS observation.
+
+## Working
+
+- Live labels verified. Publish Claude completion/receipt, then release exact recorded mutex owner.
+
+## Problems
+
+- Labels describe historical charted coverage conditioned on the projected first-half defensive score bucket; they do not predict exact upcoming coverage or promote watch signals. Underlying data limitations remain in expanded evidence.
+
+## Next
+
+- Continue permanent game-first betting workflow priorities and actual-slot scheduled rules; no follow-on scheduled cycle or extra ranking observation for this manual fix.
+
+## Needs Travis
+
+- None.
+
 Cycle `20261005-200016-ranking-dfs-context-a` — independent scheduled20:00ET occurrence. Main base `9fd23bac7c9ac0d98b3fe7fd6450f4ac8aec0fe8`; review base `cfba80a4902d60a266ce094e4a2c23d5a75cb45a`; production `ae8d2ec45142a5099e1008a3ec6bec431e709868`; tested tree `903af5d55d188d69d063f4a3694239199f7d4965`. Main push and exact remote verified. Exact2-path patch replay equals tested production tree. Existing Vercel deployment `JDgkQSYAcFqcNG4qyMvqJdPFM64o` succeeded; production Captain export/empty-state manually verified20:10ET. Completion `faeff0a1ebf46ca69dce6ac5ea25f0c69420dc33` published and exact remote verified. This PROGRESS-only receipt pins completion; its own SHA is reported externally, never inside itself. Lock acquired00:02:14.355Z, exact owner released only after publication.
 
 ## Completed

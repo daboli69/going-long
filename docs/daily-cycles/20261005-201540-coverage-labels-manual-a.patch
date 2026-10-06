@@ -1,0 +1,75 @@
+diff --git a/shared/football-cheatsheets.css b/shared/football-cheatsheets.css
+index 1f31885c1dfbdc5c60d57bd3a29ae43a2e445168..2ce5d4038d08e2a607d165403422c58d72496a41 100644
+--- a/shared/football-cheatsheets.css
++++ b/shared/football-cheatsheets.css
+@@ -91,0 +92,3 @@ body[data-going-workspace] .football-cheatsheets input::placeholder{color:var(--
++
++/* Keep coverage names and score ranges readable beside team marks and status. */
++.football-cheatsheets .gcs-row.gcs-coverage .gcs-card-top>div:not(.g-team-marks){flex:1 1 140px}
+diff --git a/shared/football-cheatsheets.js b/shared/football-cheatsheets.js
+index 6b38747cfd6a6e8ee274a1681e5c1d2d4bd68fdf..790629211ff9923058909ec8d63fb03eef7ed1c1 100644
+--- a/shared/football-cheatsheets.js
++++ b/shared/football-cheatsheets.js
+@@ -27,0 +28,12 @@
++ function coverageName(v){
++  const raw=String(v||'').trim();
++  if(/^2[ _-]MAN$/i.test(raw))return 'Cover 2 Man';
++  const cover=raw.match(/^COVER[ _-]?(\d)$/i);
++  return cover?`Cover ${cover[1]}`:raw?cap(raw.toLowerCase()):'Coverage unavailable';
++ }
++ function coverageState(v){
++  return {leading_1_7:'leading by 1–7 points',leading_8_plus:'leading by 8+ points',trailing_1_7:'trailing by 1–7 points',trailing_8_plus:'trailing by 8+ points',tied:'tied'}[v]||'score state unavailable';
++ }
++ function coverageCopy(v){
++  return String(v||'No published explanation.').replace(/\bCOVER[ _-]?(\d)\b/gi,(_,n)=>`Cover ${n}`).replace(/\b2[ _-]MAN\b/gi,'Cover 2 Man').replace(/\b(leading|trailing)[ _]1[ _]7\b/g,(_,direction)=>`${direction} by 1–7 points`).replace(/\b(leading|trailing)[ _]8[ _](?:plus|\+)\b/g,(_,direction)=>`${direction} by 8+ points`);
++ }
+@@ -228 +240 @@
+-  let rows=(d.learning?.coverage_matchup_signals||[]).filter(r=>matchFilter(`${r.qb} ${r.player||''} ${r.team} ${r.opponent} ${r.role} ${r.coverage_tendency?.shell} ${r.plain_language}`,r.team,roleName(r.role)));
++  let rows=(d.learning?.coverage_matchup_signals||[]).filter(r=>matchFilter(`${r.qb} ${r.player||''} ${r.team} ${r.opponent} ${r.role} ${coverageName(r.coverage_tendency?.shell)} ${coverageState(r.projected_game_state?.bucket)} ${coverageCopy(r.plain_language)}`,r.team,roleName(r.role)));
+@@ -231,2 +243,2 @@
+-  return `<p class="gcs-note">Coverage tendencies are conditional on the projected game-state bucket. They describe prior charted behavior, not a claim that a defense will call that coverage on a particular snap. Inactive records are watch-only.</p><div class="gcs-controls"><button type="button" class="gcs-filter-toggle" data-cheat-active aria-pressed="${state.activeOnly}">${state.activeOnly?'✓ Active signals only':'Show active and watch signals'}</button></div><div class="gcs-grid">${rows.map(r=>{
+-   const ct=r.coverage_tendency||{},qt=r.qb_tendency||{},weak=r.defense_role_weakness||{},stateName=r.projected_game_state?.bucket||'state unavailable',margin=r.projected_game_state?.defense_margin;
++  return `<p class="gcs-note">Score states refer to the defending team. Coverage tendencies are conditional on the projected first-half score state. They describe prior charted behavior, not a claim that a defense will call that coverage on a particular snap. Inactive records are watch-only.</p><div class="gcs-controls"><button type="button" class="gcs-filter-toggle" data-cheat-active aria-pressed="${state.activeOnly}">${state.activeOnly?'✓ Active signals only':'Show active and watch signals'}</button></div><div class="gcs-grid">${rows.map(r=>{
++   const ct=r.coverage_tendency||{},qt=r.qb_tendency||{},weak=r.defense_role_weakness||{},stateName=coverageState(r.projected_game_state?.bucket),margin=r.projected_game_state?.defense_margin;
+@@ -234 +246 @@
+-   return `<article class="gcs-card"><div class="gcs-card-top"><div><span class="gcs-kicker">${esc(r.team)} vs ${esc(r.opponent)} · ${esc(roleName(r.role))} · ${esc(date(r.kickoff))}</span><h3>${esc(ct.shell||'Coverage')} in ${esc(stateName)}</h3></div>${pill(r.active_signal?'Active conditional fit':'Watch · not promoted',r.active_signal?'good':'watch')}</div><p>${esc(r.plain_language||'No published explanation.')}</p><div class="gcs-metrics">${metric('Coverage rate',pct(ct.rate),`${ct.plays??0} charted plays · ${ct.state_games??0} games`)}${metric('Score-state dropbacks',String(ct.state_dropbacks??'—'),finite(margin)?`Projected margin ${Number(margin)>0?'+':''}${num(margin,1)}`:'Projection unavailable')}${metric('QB target rate vs shell',pct(qt.target_rate),`${qt.targets??0} targets / ${qt.dropbacks??0} dropbacks`)}${metric('Role weakness status',cap(weak.status||'unavailable'),`${cap(weak.confidence||'confidence unavailable')} · ${r.coverage_role_results?.targets??0} role targets in results sample`)}</div><details><summary>Show the coverage evidence</summary><div class="gcs-evidence"><span>Defense tendency season ${ct.season??'—'} · ${pct(ct.rate)} in ${esc(stateName)} vs ${pct(ct.overall_rate)} overall · ${ct.plays??0} observed plays across ${ct.state_games??0} games.</span><span>QB split season ${qt.season??'—'} · ${esc(qt.position||roleName(r.role))} target rate ${pct(qt.target_rate)} vs ${pct(qt.overall_target_rate)} overall · ${qt.targets??0} targets / ${qt.dropbacks??0} dropbacks in ${qt.games??0} games.</span><span>Role outcome sample: ${r.coverage_role_results?.targets??0} targets · ${r.coverage_role_results?.games??0} games · ${num(r.coverage_role_results?.yards_per_target,1)} yards / target.</span>${(r.beneficiaries||[]).map(p=>`<span>Current role match · ${esc(p.player)} · ${p.targets??0} targets · ${pct(p.target_share)} team target share.</span>`).join('')}${(r.lineage||[]).map(x=>`<span>Source path · ${esc(x)}</span>`).join('')}</div><small>The current game-state estimate and historical shell/QB samples remain separate inputs. This conditional signal is not treated as a forecast of exact coverage or an automatic bet.</small></details></article>`;
++   return `<article class="gcs-card"><div class="gcs-card-top"><div><span class="gcs-kicker">${esc(r.team)} vs ${esc(r.opponent)} · ${esc(roleName(r.role))} · ${esc(date(r.kickoff))}</span><h3>${esc(coverageName(ct.shell))} · ${esc(r.opponent||'Defense')} ${esc(stateName)}</h3></div>${pill(r.active_signal?'Active conditional fit':'Watch · not promoted',r.active_signal?'good':'watch')}</div><p>${esc(coverageCopy(r.plain_language))}</p><div class="gcs-metrics">${metric('Coverage rate',pct(ct.rate),`${ct.plays??0} charted plays · ${ct.state_games??0} games · ${r.opponent||'defense'} ${stateName}`)}${metric('Score-state dropbacks',String(ct.state_dropbacks??'—'),finite(margin)?`Projected first-half ${r.opponent||'defense'} margin ${Number(margin)>0?'+':''}${num(margin,1)}`:'Projection unavailable')}${metric('QB target rate vs shell',pct(qt.target_rate),`${qt.targets??0} targets / ${qt.dropbacks??0} dropbacks`)}${metric('Role weakness status',cap(weak.status||'unavailable'),`${cap(weak.confidence||'confidence unavailable')} · ${r.coverage_role_results?.targets??0} role targets in results sample`)}</div><details><summary>Show the coverage evidence</summary><div class="gcs-evidence"><span>Defense tendency season ${ct.season??'—'} · ${pct(ct.rate)} when ${esc(r.opponent||'the defense')} is ${esc(stateName)} vs ${pct(ct.overall_rate)} overall · ${ct.plays??0} observed plays across ${ct.state_games??0} games.</span><span>QB split season ${qt.season??'—'} · ${esc(qt.position||roleName(r.role))} target rate ${pct(qt.target_rate)} vs ${pct(qt.overall_target_rate)} overall · ${qt.targets??0} targets / ${qt.dropbacks??0} dropbacks in ${qt.games??0} games.</span><span>Role outcome sample: ${r.coverage_role_results?.targets??0} targets · ${r.coverage_role_results?.games??0} games · ${num(r.coverage_role_results?.yards_per_target,1)} yards / target.</span>${(r.beneficiaries||[]).map(p=>`<span>Current role match · ${esc(p.player)} · ${p.targets??0} targets · ${pct(p.target_share)} team target share.</span>`).join('')}${(r.lineage||[]).map(x=>`<span>Source path · ${esc(x)}</span>`).join('')}</div><small>The current game-state estimate and historical shell/QB samples remain separate inputs. This conditional signal is not treated as a forecast of exact coverage or an automatic bet.</small></details></article>`;
+@@ -284 +296 @@
+-   const row=document.createElement('details');row.className='gcs-row';
++   const row=document.createElement('details');row.className=state.sheet==='coverage'?'gcs-row gcs-coverage':'gcs-row';
+diff --git a/tests/football-cheatsheets.test.cjs b/tests/football-cheatsheets.test.cjs
+index 1180ef395c13857310630cfa212971296ff31b7c..b67a91b11763389361f2548ed74337a5176ed73b 100644
+--- a/tests/football-cheatsheets.test.cjs
++++ b/tests/football-cheatsheets.test.cjs
+@@ -88 +88 @@ test('NFL cheatsheets render sourced market, results, role, matchup, coverage, t
+-  assert.match(host.textContent, /COVER_2/);
++  assert.match(host.textContent, /Cover 2 · MIA leading by 1–7 points/);
+@@ -249,0 +250,28 @@ test('usage follows NFL season identity across January and fails closed without
++
++
++test('coverage labels preserve defensive perspective, ranges and unmodified evidence',()=>{
++ const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet'),row=data.learning.coverage_matchup_signals[0];
++ for(const [shell,bucket,expected] of [['COVER_1','trailing_1_7','Cover 1 · MIA trailing by 1–7 points'],['COVER_3','leading_1_7','Cover 3 · MIA leading by 1–7 points'],['2_MAN','leading_8_plus','Cover 2 Man · MIA leading by 8+ points'],['COVER_4','trailing_8_plus','Cover 4 · MIA trailing by 8+ points'],['COVER_2','tied','Cover 2 · MIA tied'],[null,null,'Coverage unavailable · MIA score state unavailable']]){
++  row.coverage_tendency.shell=shell;row.projected_game_state.bucket=bucket;
++  row.plain_language='MIA used COVER 1 while trailing 1 7; 2_MAN remains charted evidence.';
++  const before=JSON.stringify(row);dom.window.GoingFootballCheatsheets.render(host,data);host.querySelector('[data-cheat-sheet="coverage"]').click();
++  assert.equal(host.querySelector('.gcs-row h3').textContent,expected);
++  assert.match(host.textContent,/Cover 1 while trailing by 1–7 points; Cover 2 Man/);
++  assert.match(host.textContent,/Score states refer to the defending team/);
++  assert.match(host.textContent,/25.0%/);assert.match(host.textContent,/180/);
++  assert.equal(JSON.stringify(row),before);
++ }
++ dom.window.close();
++});
++
++
++test('coverage search accepts the readable labels displayed on cards',()=>{
++ const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet'),row=data.learning.coverage_matchup_signals[0];
++ row.coverage_tendency.shell='2_MAN';row.projected_game_state.bucket='trailing_8_plus';
++ dom.window.GoingFootballCheatsheets.render(host,data);host.querySelector('[data-cheat-sheet="coverage"]').click();
++ for(const query of ['Cover 2 Man','trailing by 8+ points']){
++  const field=host.querySelector('[data-cheat-filter="query"]');field.value=query;field.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
++  assert.equal(host.querySelectorAll('.gcs-row').length,1);assert.match(host.textContent,/Cover 2 Man · MIA trailing by 8\+ points/);
++ }
++ dom.window.close();
++});
