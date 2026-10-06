@@ -102,3 +102,6 @@ body[data-going-workspace=results] .visual-evidence .evidence-filter-disclosure 
 
 html body[data-going-workspace=results] .visual-evidence .evidence-dashboard .evidence-tabs button{min-width:0!important;padding:6px 3px!important;font-size:10px!important;line-height:1.25!important;overflow-wrap:anywhere;min-height:52px!important;height:100%;align-self:stretch}
 @media(min-width:650px){html body[data-going-workspace=results] .visual-evidence .evidence-dashboard .evidence-tabs button{font-size:14px!important}}
+
+/* Pending receipts remain inspectable in the Unresolved results view. */
+.evidence-dashboard:not(.evidence-private).evidence-view-unresolved .evidence-current{display:block}
