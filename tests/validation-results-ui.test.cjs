@@ -8,11 +8,11 @@ test('Results exposes full paginated receipts, Eastern slate filters, and real f
  const {createRoot}=require('react-dom/client');
  const source=fs.readFileSync(require.resolve('../apps/validation/src.jsx'),'utf8').replace(/^import .*;\r?\n/gm,'').replace(/createRoot\(document\.getElementById\('root'\)\)\.render\(<App\/>\);/,'');
  const code=(await transformWithOxc(source,'validation.jsx',{jsx:{runtime:'classic'}})).code;
- const names=['React','useEffect','useMemo','useState','summarize','displayLine','filterTrackerRecords','slateDate','COHORT_LABELS','recordedEvidence','settlementExplanation'];
- const Dashboard=Function(...names,code+';return TrackerDashboard;')(React,React.useEffect,React.useMemo,React.useState,metrics.summarize,metrics.displayLine,metrics.filterTrackerRecords,metrics.slateDate,cohort.COHORT_LABELS,evidence.recordedEvidence,evidence.settlementExplanation);
+ const names=['React','useEffect','useMemo','useState','summarize','displayLine','filterTrackerRecords','slateDate','performanceGameKey','COHORT_LABELS','recordedEvidence','settlementExplanation'];
+ const Dashboard=Function(...names,code+';return TrackerDashboard;')(React,React.useEffect,React.useMemo,React.useState,metrics.summarize,metrics.displayLine,metrics.filterTrackerRecords,metrics.slateDate,metrics.performanceGameKey,cohort.COHORT_LABELS,evidence.recordedEvidence,evidence.settlementExplanation);
  const records=[];
  for(let i=0;i<70;i++){
-  const p={id:`p${i}`,tracking_group:'best_model',model_cohort:'current-80-20',sport:'nfl',home:'HOME',away:'AWAY',event:'game',player:`Player ${i}`,profile_id:`player-${i}`,market:'player_receiving_yards',side:'Over',side_index:0,line:50.5,odds:2,probability:.6,book:'Test',observed_at:'2026-10-01T12:00:00Z',kickoff:'2026-10-02T00:20:00Z'};
+  const p={id:`p${i}`,tracking_group:'best_model',model_cohort:'current-80-20',sport:'nfl',home:i===69?'OTHER':'HOME',away:'AWAY',event:'game',player:`Player ${i}`,profile_id:`player-${i}`,market:'player_receiving_yards',side:'Over',side_index:0,line:50.5,odds:2,probability:.6,book:'Test',observed_at:'2026-10-01T12:00:00Z',kickoff:'2026-10-02T00:20:00Z'};
   records.push({kind:'prediction',payload:p},{kind:'settlement',payload:{prediction_id:p.id,status:'win',observed_at:`2026-10-02T04:${String(i%60).padStart(2,'0')}:00Z`}});
  }
  records.push({kind:'prediction',payload:{...records[0].payload,id:'000-missing',profile_id:'missing',player:'Missing Player'}});
@@ -55,6 +55,18 @@ test('Results exposes full paginated receipts, Eastern slate filters, and real f
   assert.match($('.settlement-reason').textContent,/verified result is not available/);
   await React.act(async()=>[...document.querySelectorAll('.evidence-tabs button')].find(b=>b.textContent==='Results').click());
   assert.equal(document.querySelectorAll('.tracked-cards article').length,24);
+  const gameSelect=[...document.querySelectorAll('select')].find(el=>el.parentElement.textContent.startsWith('Game'));
+  const other=[...gameSelect.options].find(o=>o.textContent.includes('at OTHER'));
+  await React.act(async()=>{gameSelect.value=other.value;gameSelect.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});
+  assert.equal(document.querySelectorAll('.result-card').length,1);
+  assert.match($('.result-card').textContent,/AWAY at OTHER/);
+  assert.match($('.evidence-performance-tiles').textContent,/\$100.*1 settled selections/s);
+  assert.match($('.profit-chart svg').getAttribute('aria-label'),/across 1 settled.*100\.0%/);
+  await React.act(async()=>[...document.querySelectorAll('.evidence-tabs button')].find(b=>b.textContent==='Unresolved results').click());
+  assert.equal(document.querySelectorAll('.tracked-cards article').length,0);
+  assert.match($('.evidence-current').textContent,/No unresolved selections/);
+  await React.act(async()=>{gameSelect.value='';gameSelect.dispatchEvent(new dom.window.Event('change',{bubbles:true}));});
+  assert.equal(document.querySelectorAll('.tracked-cards article').length,3);
   assert.match(fs.readFileSync(require.resolve('../apps/validation/style.css'),'utf8'),/evidence-view-unresolved \.evidence-current\{display:block\}/);
  }finally{await React.act(async()=>root.unmount());dom.window.close();Object.assign(global,saved);}
 });

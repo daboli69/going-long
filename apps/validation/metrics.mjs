@@ -10,10 +10,10 @@ function withOfficialDates(records){
  const finals=new Map(records.filter(r=>r.kind==='settlement'&&r.payload?.method==='published_full_game_result'&&Number.isFinite(Date.parse(r.payload.official_kickoff))).map(r=>[r.payload.prediction_id,r.payload.official_kickoff]));
  return records.map(r=>{const kickoff=finals.get(r.payload?.id||r.id);return r.kind==='prediction'&&kickoff&&Math.abs(Date.parse(kickoff)-Date.parse(r.payload.kickoff))<=10*60000?{...r,payload:{...r.payload,recorded_kickoff:r.payload.recorded_kickoff||r.payload.kickoff,kickoff}}:r;});
 }
-export function filterTrackerRecords(records,{cohort='all',sport='all',days='all',date='',asOf=Date.now()}={}){
+export function filterTrackerRecords(records,{cohort='all',sport='all',days='all',date='',game='',asOf=Date.now()}={}){
  records=withOfficialDates(records);
  const since=days==='all'?0:asOf-Number(days)*86400000;
- const predictions=cohortRecords(records,cohort).filter(r=>r.kind==='prediction'&&Date.parse(r.payload.kickoff)>=since&&(sport==='all'||(r.payload.sport||'nfl')===sport)&&(!date||slateDate(r.payload.kickoff)===date));
+ const predictions=cohortRecords(records,cohort).filter(r=>r.kind==='prediction'&&Date.parse(r.payload.kickoff)>=since&&(sport==='all'||(r.payload.sport||'nfl')===sport)&&(!date||slateDate(r.payload.kickoff)===date)&&(!game||performanceGameKey(r.payload)===game));
  const ids=new Set(predictions.map(r=>r.payload.id||r.id));
  return records.filter(r=>r.kind==='prediction'?ids.has(r.payload.id||r.id):ids.has(r.payload.prediction_id));
 }

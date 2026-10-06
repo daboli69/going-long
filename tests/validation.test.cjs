@@ -99,3 +99,14 @@ test('Verified official midnight slate correction preserves the original frozen 
  assert.equal(p.kickoff,'2026-10-04T04:00:00Z');assert.equal(filtered[0].payload.recorded_kickoff,p.kickoff);
  assert.equal(filterTrackerRecords(rows,{date:'2026-10-04'}).length,0);
 });
+
+
+test('Game filter keeps linked settlements/prices, normalizes vendor drift and separates sports/dates',async()=>{
+ const {filterTrackerRecords,performanceGameKey,summarize}=await import('../apps/validation/metrics.mjs');
+ const p={id:'a',tracking_group:'best_model',sport:'nfl',home:'BAL',away:'CIN',event:'vendor-a',market:'totals',side:'Over',line:45.5,odds:2,probability:.6,observed_at:'2026-10-01T12:00:00Z',kickoff:'2026-10-04T17:00:00Z'};
+ const rows=[{kind:'prediction',payload:p},{kind:'prediction',payload:{...p,id:'b',event:'vendor-b',home:'bal',kickoff:'2026-10-04T17:01:00Z',line:46.5}},{kind:'prediction',payload:{...p,id:'ncaa',sport:'ncaa'}},{kind:'prediction',payload:{...p,id:'other-date',kickoff:'2026-10-11T17:00:00Z'}},{kind:'settlement',payload:{prediction_id:'a',status:'win',observed_at:'2026-10-04T21:00:00Z'}},{kind:'closing',payload:{prediction_id:'a',near_kickoff:true,quoted_at:'2026-10-04T16:59:00Z',probability:.55}}];
+ const selected=filterTrackerRecords(rows,{game:performanceGameKey(p)});
+ assert.deepEqual(selected.map(r=>r.payload.id||r.payload.prediction_id),['a','b','a','a']);
+ const stats=summarize(selected,'best_model');assert.equal(stats.profit,100);assert.equal(stats.stake,100);assert.equal(stats.roi,1);assert.equal(stats.selected.length,2);
+ assert.equal(filterTrackerRecords(rows,{game:'unknown'}).length,0);assert.equal(filterTrackerRecords(rows).length,rows.length);assert.equal(rows[1].payload.home,'bal');
+});
