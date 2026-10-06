@@ -1,5 +1,30 @@
 # Progress
 
+Cycle `20261006-020211-ranking-tracker-a` — independent scheduled02:00ET occurrence. Main base `075c66b7a0214211d13b1314ed034c72e38d2292`; review base `ad240d0dd2873f5d303ad1b78c3bb8cbe2067f34`; production `5c5a13611558874c83a8b61ae3ca1f88dd736b95`; tested tree `77c184c673ae5245a60e417285483fb100c4d6f4`. Main push/exact remote verified; exact4-path patch replay equals tested production tree. Existing Vercel deployment `6j8tJBmKnnw1jZQD3d4Sk8mW2Qun` succeeded; exact live JS/CSS match tested bytes and live Game/graph47contract-$290.38 result verified02:09ET. Screenshot saved externally. Lock acquired2026-10-06T06:02:18.101Z; release only recorded owner after publication.
+
+## Completed
+
+- PRODUCT/BUILDER added Game to existing tracker filters so bettors can inspect one matchup's performance. Former team search narrowed cards only, leaving graph/ROI league-wide. Explicit Game now scopes unique selections, settlements/linked price observations, $100 profit/ROI/graph, calibration/result tables and pending cards through existing sport/team/Eastern-date game key. Vendor minute drift/books retain same game; NFL/NCAA and different dates stay separate. Complete-record option restores all; sport/date/window/model changes reset stale game choice. Receipt/current cards show matchup and Eastern date. Search placeholder makes its cards-only scope explicit. Whole-slate official-final coverage remains separate and explicitly labelled. No grading/ROI formulas/model/probability/ranking changes.
+- Acceptance: targeted linked settlement/close/vendor/sport/date/unknown/reset tests; UI selection updates graph, tiles, receipts and empty pending state together. Actual NFL ARI@NYG Oct4:47settled/$4700stakes/net-$290.38/-6.2%, no pending. NCAA Alabama@MississippiState Oct3:5settled/$500stakes/net-$118.97/-23.8%, no pending. Restoring All recovers847settled/60games. These are existing correlated contract totals, not new model validation.430/393/390/375/360/320 no horizontal overflow; native Game control fits127–179px.477Node/frontend,114Python, production/Vercel builds pass offline. This game-centric results workflow outweighed another pending-label refinement and fit publication buffer.
+- Mandatory capture after reusing existing dependencies (initial missing-jsdom failure before any journal writes; no install/provider): actual2026-10-06T06:03:30.858Z (02:03:30.858ET), snapshot `be9d12fbb5d35c51d2bb6a4e1764f2725df2de5d326a41531999c03ab3f96da8`,6039generated/1064eligible rows. Weekly NFL520(355props/165games),NCAA544; Today NFL0/NCAA7, same7NCAA settleable.12complete scope structures with Champion/C1/C2 ranks/top3/top10,1159pre-generation/441game exclusions, all quote/input/model fingerprints retained.0fresh<=5min quotes; saved ages224.28–347.06min.0newsettlements.278records/14snapshots/4segments verified;262prior files/6,810,681bytes preserved,16newfiles. Exploratory02slot; no holdout aggregation/retuning/promotions/profitability inference.
+- Exact4application/test paths only; data.yml script/config/provider triggers unaffected, public rulesets empty; existing main/rootHobby connection/review exclusion retained. $0additional; no credentials/provider/private/alerts/automation/deployment-system changes. Rollback: fresh current-main codex worktree, `git revert 5c5a13611558874c83a8b61ae3ca1f88dd736b95` (parent075c66b7a0214211d13b1314ed034c72e38d2292), inspect4paths/rerun checks; preserve all ranking/tracker observations.
+
+## Working
+
+- None. App/live and journal verified; publish completion/receipt then release exact owner.
+
+## Problems
+
+- Source gaps remain pending; filtering does not supply missing player logs/finals. Snapshot quotes are saved research, not fresh executable prices. Official coverage and archived calibration audit retain their explicit full-slate/full-archive scope.
+
+## Next
+
+- Continue game-first bettor workflows and verified tracker source coverage. Preserve existing actual-slot collection and fixed model gates; no follow-on scheduled cycle.
+
+## Needs Travis
+
+- None.
+
 Cycle `20261005-220209-ranking-tracker-a` — independent scheduled22:00ET occurrence. Main base `338b73d4796fc7ccdb8d6cdc3535d4fc4767f1ad`; review base `ebb07f2501ceb6237351e72531e8ef616cce47cf`; production `77354eac56290cab4fe329d87b681f80e502e7b2`; tested tree `1fca2e3a1a5b3cc97ccca857542f218b134a2adc`. Main push/exact remote verified. Exact3-path patch replay equals tested production tree. Existing Vercel deployment `2DneyKigb8XYHgJc8sDG32VMuick` succeeded; exact live JS/CSS match tested bytes and live reason filter/13cards verified22:13ET. Completion `0a16d98ea8ba5d4a7914e5231397de304533f7c7` published/exact remote verified; this PROGRESS-only receipt pins completion (its own SHA is reported externally). Committed patch replay also equals tested production tree. Lock acquired02:02:20.911Z; release exact owner only after recording/publication.
 
 ## Completed
