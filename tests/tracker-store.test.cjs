@@ -48,7 +48,7 @@ test('write then read reproduces the single-file bytes, keeps top-level key orde
  assert.equal(man.total_records,33);
 });
 
-test('appending rewrites only the open segment; sealed segments stay byte-identical',async()=>{
+test('appending replaces only the open segment; sealed segments stay byte-identical under the same names',async()=>{
  const {writeTrackerStore}=await store(),d=dir(),segDir=path.join(d,'public_tracker','segments');
  await writeTrackerStore({dataDir:d,snapshot:snapshot(seq(30)),maxRaw:2500});
  const before=Object.fromEntries(fs.readdirSync(segDir).map(f=>[f,fs.readFileSync(path.join(segDir,f),'utf8')]));
@@ -56,7 +56,8 @@ test('appending rewrites only the open segment; sealed segments stay byte-identi
  const grown=await writeTrackerStore({dataDir:d,snapshot:snapshot([...seq(30),pred(30),pred(31)]),maxRaw:2500});
  assert.equal(grown.new_records,2);
  for(const f of names.slice(0,-1))assert.equal(fs.readFileSync(path.join(segDir,f),'utf8'),before[f]);
- assert.notEqual(fs.readFileSync(path.join(segDir,open),'utf8'),before[open]);
+ assert.equal(fs.existsSync(path.join(segDir,open)),false,'the superseded open-segment version was removed after the manifest was replaced');
+ assert.ok(fs.readdirSync(segDir).length<=names.length+1,'at most one new segment; superseded versions do not accumulate');
 });
 
 test('the store is append-only: changed, reordered or removed records are refused and nothing is written',async()=>{
@@ -75,7 +76,8 @@ test('integrity: tampered or missing segments and an orphaned tombstone fail lou
  const {writeTrackerStore,readTrackerStore,loadTrackerSnapshot,writeLegacyTombstone}=await store(),d=dir();
  assert.equal(await loadTrackerSnapshot(d),null,'a genuinely fresh checkout starts empty');
  await writeTrackerStore({dataDir:d,snapshot:snapshot(seq(20)),maxRaw:2500});
- const file=path.join(d,'public_tracker','segments','seg-000001.json'),text=fs.readFileSync(file,'utf8');
+ const first=JSON.parse(fs.readFileSync(path.join(d,'public_tracker','manifest.json'),'utf8')).segments[0].file;
+ const file=path.join(d,'public_tracker',first),text=fs.readFileSync(file,'utf8');
  fs.writeFileSync(file,text.replace('"sport":"nfl"','"sport":"ncaa"'));
  await assert.rejects(()=>readTrackerStore(d),/checksum/);
  fs.writeFileSync(file,text);fs.rmSync(file);
@@ -96,7 +98,8 @@ test('the browser loader verifies checksums so a cached manifest cannot mix with
  const read=rel=>fs.readFileSync(path.join(d,rel),'utf8');
  const rows=await loadTrackerVerified(async rel=>read(rel),{share:true});
  assert.equal(JSON.stringify(rows),JSON.stringify(snap));
- await assert.rejects(()=>loadTrackerVerified(async rel=>rel.includes('seg-000001')?read(rel).replace('nfl','xxx'):read(rel)),/out of sync/);
+ const firstFile=JSON.parse(read('public_tracker/manifest.json')).segments[0].file;
+ await assert.rejects(()=>loadTrackerVerified(async rel=>rel.endsWith(firstFile)?read(rel).replace('nfl','xxx'):read(rel)),/out of sync/);
 });
 
 test('a segment above the hard size limit is refused before anything is written',async()=>{
@@ -130,12 +133,12 @@ test('the snapshot API serves only fixed-format tracker store paths',async()=>{
  const response=()=>({statusCode:0,headers:{},setHeader(k,v){this.headers[k]=v;},end(body){this.body=body;}});
  try{
   global.fetch=async url=>{calls.push(String(url));return Response.json({ok:true});};
-  for(const file of ['public_tracker/manifest.json','public_tracker/segments/seg-000001.json']){
+  for(const file of ['public_tracker/manifest.json','public_tracker/segments/seg-000001-0123456789ab.json','public_tracker/segments/seg-000001.json']){
    const res=response();await handler({method:'GET',url:'/api/snapshot?file='+encodeURIComponent(file)},res);assert.equal(res.statusCode,200);
   }
-  assert.deepEqual(calls,['https://raw.githubusercontent.com/daboli69/going-long/main/data/public_tracker/manifest.json','https://raw.githubusercontent.com/daboli69/going-long/main/data/public_tracker/segments/seg-000001.json']);
+  assert.deepEqual(calls.map(u=>u.split('/data/')[1]),['public_tracker/manifest.json','public_tracker/segments/seg-000001-0123456789ab.json','public_tracker/segments/seg-000001.json']);
   calls=[];
-  for(const file of ['public_tracker/segments/../../secret.json','public_tracker/segments/seg-1.json','public_tracker/other.json','public_tracker/segments/seg-000001.json/../x','public_tracker/']){
+  for(const file of ['public_tracker/segments/../../secret.json','public_tracker/segments/seg-1.json','public_tracker/segments/seg-000001-XYZ.json','public_tracker/other.json','public_tracker/segments/seg-000001.json/../x','public_tracker/']){
    const res=response();await handler({method:'GET',url:'/api/snapshot?file='+encodeURIComponent(file)},res);assert.equal(res.statusCode,400,file);
   }
   assert.equal(calls.length,0);
@@ -148,4 +151,40 @@ test('the export command reproduces the legacy single file byte-for-byte for rol
  const {execFileSync}=require('node:child_process');
  const out=execFileSync(process.execPath,[path.resolve(__dirname,'../scripts/tracker_store.mjs'),'export',d],{encoding:'utf8',maxBuffer:64*1024*1024});
  assert.equal(out,JSON.stringify(snap));
+});
+
+test('crash safety: segments are content-addressed, an interrupted write leaves the old state loadable, and the next run cleans up',async()=>{
+ const {writeTrackerStore,readTrackerStore}=await store(),d=dir(),segDir=path.join(d,'public_tracker','segments');
+ await writeTrackerStore({dataDir:d,snapshot:snapshot(seq(30)),maxRaw:2500});
+ const man=()=>JSON.parse(fs.readFileSync(path.join(d,'public_tracker','manifest.json'),'utf8'));
+ const first=man();
+ for(const s of first.segments)assert.match(s.file,/^segments\/seg-\d{6}-[0-9a-f]{12}\.json$/);
+ // The open segment changes name when it changes content, so the old manifest's files all remain.
+ const grown=await writeTrackerStore({dataDir:d,snapshot:snapshot([...seq(30),pred(30)]),maxRaw:2500});
+ assert.equal(grown.new_records,1);assert.ok(grown.removed_superseded>=1,'the superseded open-segment version is removed only after the new manifest exists');
+ const second=man();assert.notEqual(second.segments.at(-1).file,first.segments.at(-1).file);
+ assert.deepEqual(second.segments.slice(0,-1).map(s=>s.file),first.segments.slice(0,-1).map(s=>s.file));
+ for(const s of second.segments)assert.ok(fs.existsSync(path.join(d,'public_tracker',s.file)));
+ // Simulated crash: new segment versions and temp files exist, but the manifest was never replaced.
+ fs.writeFileSync(path.join(segDir,'seg-000009-aaaaaaaaaaaa.json'),'{"half":');
+ fs.writeFileSync(path.join(segDir,'seg-000001-bbbbbbbbbbbb.json.tmp'),'x');
+ assert.equal((await readTrackerStore(d)).snapshot.records.length,31,'the previous manifest still loads');
+ const next=await writeTrackerStore({dataDir:d,snapshot:snapshot([...seq(30),pred(30),pred(31)]),maxRaw:2500});
+ assert.ok(next.removed_superseded>=2);
+ const names=new Set(fs.readdirSync(segDir)),listed=new Set(man().segments.map(s=>path.basename(s.file)));
+ assert.deepEqual([...names].sort(),[...listed].sort(),'only manifest-referenced files remain');
+ assert.equal((await readTrackerStore(d)).snapshot.records.length,32);
+});
+
+test('a corrupt manifest throws on read and on write instead of looking like a fresh store',async()=>{
+ const {writeTrackerStore,readTrackerStore}=await store(),d=dir();
+ await writeTrackerStore({dataDir:d,snapshot:snapshot(seq(10)),maxRaw:2500});
+ const mp=path.join(d,'public_tracker','manifest.json'),good=fs.readFileSync(mp,'utf8');
+ fs.writeFileSync(mp,good.slice(0,good.length/2));
+ await assert.rejects(()=>readTrackerStore(d),SyntaxError);
+ await assert.rejects(()=>writeTrackerStore({dataDir:d,snapshot:snapshot(seq(10)),maxRaw:2500}),SyntaxError);
+ fs.writeFileSync(mp,'');
+ await assert.rejects(()=>readTrackerStore(d));
+ fs.writeFileSync(mp,good);assert.equal((await readTrackerStore(d)).snapshot.records.length,10);
+ assert.equal(await readTrackerStore(dir()),null,'only a missing manifest means a fresh store');
 });

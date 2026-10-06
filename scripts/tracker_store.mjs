@@ -3,11 +3,12 @@
  * Invariants enforced on every write:
  *  - append-only: every record already stored must be unchanged and in the same position;
  *  - lossless: each segment is expanded again and compared record-for-record with its input;
- *  - sealed segments are never rewritten; the manifest is written LAST (atomic rename), so a
- *    crash or retry leaves the previous manifest pointing only at complete, existing files;
+ *  - segment files are content-addressed (seg-NNNNNN-<sha12>.json) and never rewritten in place; the
+ *    manifest is written LAST (atomic rename) and superseded files are removed only afterwards, so a
+ *    crash or retry always leaves a manifest whose every referenced file exists with a matching checksum;
  *  - no file may exceed MAX_FILE_BYTES.
  */
-import {readFile,writeFile,rename,mkdir,readdir} from 'node:fs/promises';
+import {readFile,writeFile,rename,mkdir,readdir,unlink} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -15,7 +16,7 @@ import {LAYOUT,expandSegment,rehydrate} from '../shared/tracker-store.mjs';
 
 export {LAYOUT};
 export const STORE_DIR='public_tracker',LEGACY_FILE='public_tracker.json';
-export const MAX_RAW_SEGMENT_BYTES=5_000_000,WARN_FILE_BYTES=8e6,MAX_FILE_BYTES=30e6,MIN_INTERN_BYTES=96;
+export const MAX_RAW_SEGMENT_BYTES=5_000_000,WARN_FILE_BYTES=4e6,MAX_FILE_BYTES=30e6,MIN_INTERN_BYTES=96;
 const sha=text=>createHash('sha256').update(text).digest('hex');
 const isBig=(node,s)=>s.length>=MIN_INTERN_BYTES;
 
@@ -69,7 +70,8 @@ export function planSegments(records,start,maxRaw=MAX_RAW_SEGMENT_BYTES){
  return bounds;
 }
 
-const segmentName=index=>`segments/seg-${String(index).padStart(6,'0')}.json`;
+const segmentName=(index,digest)=>`segments/seg-${String(index).padStart(6,'0')}-${digest.slice(0,12)}.json`;
+const SEGMENT_FILE=/^seg-\d{6}(-[0-9a-f]{12})?\.json(\.tmp)?$/;
 
 async function saveIfChanged(file,text){
  let existing=null;try{existing=await readFile(file,'utf8');}catch{}
@@ -81,7 +83,9 @@ async function saveIfChanged(file,text){
 /** Manifest + rehydrated snapshot from disk, or null when no store exists. */
 export async function readTrackerStore(dataDir){
  let manifest;
- try{manifest=JSON.parse(await readFile(path.join(dataDir,STORE_DIR,'manifest.json'),'utf8'));}catch{return null;}
+ let manifestText;
+ try{manifestText=await readFile(path.join(dataDir,STORE_DIR,'manifest.json'),'utf8');}catch(error){if(error.code==='ENOENT')return null;throw error;}
+ manifest=JSON.parse(manifestText); // a truncated or corrupt manifest must raise, never look like a fresh store
  const segments=[];
  for(const s of manifest.segments){
   const text=await readFile(path.join(dataDir,STORE_DIR,s.file),'utf8');
@@ -130,7 +134,7 @@ export async function writeTrackerStore({dataDir,snapshot,maxRaw=MAX_RAW_SEGMENT
   const text=JSON.stringify(segment),bytes=Buffer.byteLength(text);
   if(bytes>MAX_FILE_BYTES)throw new Error(`Tracker segment ${index} is ${bytes} bytes, over the ${MAX_FILE_BYTES} limit; refusing to write`);
   if(bytes>WARN_FILE_BYTES)console.warn(`Tracker segment ${index} is ${bytes} bytes`);
-  const file=segmentName(index);
+  const file=segmentName(index,sha(text));
   writes.push([file,text]);
   entries.push({file,index,first_record:from,records:to-from,raw_bytes:slice.reduce((s,r)=>s+JSON.stringify(r).length+1,0),bytes,sha256:sha(text),sealed:false,first_observed_at:slice[0]?.observed_at??null,last_observed_at:slice.at(-1)?.observed_at??null});
  });
@@ -145,7 +149,10 @@ export async function writeTrackerStore({dataDir,snapshot,maxRaw=MAX_RAW_SEGMENT
  let rewritten=0;
  for(const [file,text] of writes)if(await saveIfChanged(path.join(dataDir,STORE_DIR,file),text))rewritten++;
  await saveIfChanged(path.join(dataDir,STORE_DIR,'manifest.json'),manifestText); // last: everything it references already exists
- return {total:records.length,segments:entries.length,rewritten_segments:rewritten,new_records:records.length-(existing?existing.snapshot.records.length:0),
+ // Only now is it safe to drop superseded open-segment versions and temp debris (never anything the manifest references).
+ const keep=new Set(entries.map(e=>path.basename(e.file)));let removed=0;
+ try{for(const name of await readdir(path.join(dataDir,STORE_DIR,'segments')))if(SEGMENT_FILE.test(name)&&!keep.has(name)){await unlink(path.join(dataDir,STORE_DIR,'segments',name));removed++;}}catch(error){if(error.code!=='ENOENT')throw error;}
+ return {total:records.length,segments:entries.length,rewritten_segments:rewritten,removed_superseded:removed,new_records:records.length-(existing?existing.snapshot.records.length:0),
   largest_segment_bytes:Math.max(...entries.map(e=>e.bytes)),manifest_bytes:manifestBytes};
 }
 

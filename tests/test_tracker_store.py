@@ -49,7 +49,8 @@ class TrackerStoreTests(unittest.TestCase):
 
     def test_tampered_or_missing_segment_raises(self):
         directory, _ = self.build()
-        segment = directory / 'public_tracker' / 'segments' / 'seg-000001.json'
+        manifest = json.loads((directory / 'public_tracker' / 'manifest.json').read_text(encoding='utf-8'))
+        segment = directory / 'public_tracker' / manifest['segments'][0]['file']
         original = segment.read_text(encoding='utf-8')
         segment.write_text(original.replace('"sport":"nfl"', '"sport":"ncaa"'), encoding='utf-8')
         with self.assertRaises(ValueError):

@@ -4,7 +4,7 @@ Manual review on October 4, 2026. Public NFL/NCAA ledger only. Champion unchange
 
 ## Reproduce
 
-`node research/tracker-results/audit.cjs` reads only committed `data/public_tracker.json` and `data/results.json`, emits their SHA-256 hashes, and uses the tracker generation timestamp as its explicit as-of time. An optional ISO timestamp argument changes that cutoff. `node --test tests/tracker-results-audit.test.cjs` verifies settlement identity, midnight dates, refunds, missing participation, duplicates and leakage exclusions.
+`node research/tracker-results/audit.cjs` reads only the committed public tracker (the segmented `data/public_tracker/` store, rehydrated so its hash equals the former single file's; see docs/TRACKER_STORE.md) and `data/results.json`, emits their SHA-256 hashes, and uses the tracker generation timestamp as its explicit as-of time. An optional ISO timestamp argument changes that cutoff. `node --test tests/tracker-results-audit.test.cjs` verifies settlement identity, midnight dates, refunds, missing participation, duplicates and leakage exclusions.
 
 Numbers below describe the **02:05 ET October 5 manual-session snapshot**, refreshed using free public final results: tracker SHA-256 `90a681425907492b7c271dfb688b35fcbbd5c1fa65ed83046943c6e2d1d8e5c6`; results SHA-256 `d1d02faed4b430ab553e96fbc6ae644d9ace6afc33884a3ade930913b0982788`. The later refresh adds 14 Sunday-night game-market settlements and six previously unmatched Hawai‘i records. Player appearance logs can still lag; these are not complete player-market totals. No predictions were added or rewritten.
 
