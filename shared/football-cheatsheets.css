@@ -89,3 +89,6 @@ body[data-going-workspace] .football-cheatsheets input::placeholder{color:var(--
 /* Sparse PBP opportunity log: counts remain readable on narrow screens. */
 .gcs-usage-mini{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:5px 14px;padding-top:6px;font-size:11px;color:var(--cs-muted)}.gcs-usage-mini b{color:var(--cs-text);font-variant-numeric:tabular-nums;font-size:12px}
 .gcs-usage-table{overflow-x:auto}.gcs-usage-table table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}.gcs-usage-table caption{text-align:left;font-size:11px;color:var(--cs-muted);padding:10px 0}.gcs-usage-table :is(th,td){text-align:left;padding:10px 6px;border-bottom:1px solid var(--cs-line)}.gcs-usage-table tbody th{font-weight:400;white-space:nowrap}.gcs-usage-table :is(th,td):nth-child(n+3){text-align:right}
+
+/* Keep coverage names and score ranges readable beside team marks and status. */
+.football-cheatsheets .gcs-row.gcs-coverage .gcs-card-top>div:not(.g-team-marks){flex:1 1 140px}

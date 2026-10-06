@@ -85,7 +85,7 @@ test('NFL cheatsheets render sourced market, results, role, matchup, coverage, t
   assert.match(host.textContent, /Target share/);
   assert.match(host.textContent, /Passing-snap proxy|Offensive snap share/);
   host.querySelector('[data-cheat-sheet="coverage"]').click();
-  assert.match(host.textContent, /COVER_2/);
+  assert.match(host.textContent, /Cover 2 · MIA leading by 1–7 points/);
   host.querySelector('[data-cheat-sheet="game-lines"]').click();
   assert.match(host.textContent, /GOING margin/);
   dom.window.close();
@@ -245,5 +245,33 @@ test('usage follows NFL season identity across January and fails closed without 
  assert.equal(host.querySelectorAll('.gcs-usage-log tbody tr').length,4);
  delete data.context.as_of;delete data.asOf;dom.window.GoingFootballCheatsheets.render(host,data,true);
  assert.equal(host.querySelector('.gcs-usage-log'),null);assert.match(host.textContent,/Opportunity log unavailable/);
+ dom.window.close();
+});
+
+
+test('coverage labels preserve defensive perspective, ranges and unmodified evidence',()=>{
+ const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet'),row=data.learning.coverage_matchup_signals[0];
+ for(const [shell,bucket,expected] of [['COVER_1','trailing_1_7','Cover 1 · MIA trailing by 1–7 points'],['COVER_3','leading_1_7','Cover 3 · MIA leading by 1–7 points'],['2_MAN','leading_8_plus','Cover 2 Man · MIA leading by 8+ points'],['COVER_4','trailing_8_plus','Cover 4 · MIA trailing by 8+ points'],['COVER_2','tied','Cover 2 · MIA tied'],[null,null,'Coverage unavailable · MIA score state unavailable']]){
+  row.coverage_tendency.shell=shell;row.projected_game_state.bucket=bucket;
+  row.plain_language='MIA used COVER 1 while trailing 1 7; 2_MAN remains charted evidence.';
+  const before=JSON.stringify(row);dom.window.GoingFootballCheatsheets.render(host,data);host.querySelector('[data-cheat-sheet="coverage"]').click();
+  assert.equal(host.querySelector('.gcs-row h3').textContent,expected);
+  assert.match(host.textContent,/Cover 1 while trailing by 1–7 points; Cover 2 Man/);
+  assert.match(host.textContent,/Score states refer to the defending team/);
+  assert.match(host.textContent,/25.0%/);assert.match(host.textContent,/180/);
+  assert.equal(JSON.stringify(row),before);
+ }
+ dom.window.close();
+});
+
+
+test('coverage search accepts the readable labels displayed on cards',()=>{
+ const {dom,data}=setup(),host=dom.window.document.querySelector('#sheet'),row=data.learning.coverage_matchup_signals[0];
+ row.coverage_tendency.shell='2_MAN';row.projected_game_state.bucket='trailing_8_plus';
+ dom.window.GoingFootballCheatsheets.render(host,data);host.querySelector('[data-cheat-sheet="coverage"]').click();
+ for(const query of ['Cover 2 Man','trailing by 8+ points']){
+  const field=host.querySelector('[data-cheat-filter="query"]');field.value=query;field.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+  assert.equal(host.querySelectorAll('.gcs-row').length,1);assert.match(host.textContent,/Cover 2 Man · MIA trailing by 8\+ points/);
+ }
  dom.window.close();
 });
