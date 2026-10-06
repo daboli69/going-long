@@ -45,6 +45,33 @@ function playerContext(c,o){
  const trend=finite(before)&&finite(after)&&before>0&&Math.abs(after-before)>=1&&Math.abs(after/before-1)>=.2?Math.sign(after-before):0;
  return {player:p,rows,volume,before,after,trend,verified:!!log};
 }
+// Process evidence, not a forecast: pooled sd per sqrt(game) and floors come from the 2022-24 ffopportunity
+// noise study; 2025 showed no replicated persistence, so these labels carry ZERO rating points.
+const OPPORTUNITY_RULE={version:'opportunity-process-v1',sd:{RB:4.93,WR:4.91,TE:3.72},minGames:4,minExpectedPerGame:5,z:1.28,minAbsDelta:6,minRelDelta:.25,tdShare:.6};
+function opportunityProcess(c,o){
+ const ev=o.context?.picks_evidence,op=ev?.opportunity_process;
+ if(c.kind!=='prop'||op?.season!==o.season||op.provenance?.expected_points?.status!=='loaded'||!recent(op.generated_at,o.now,1))return null;
+ const key=team(c.team)+'|'+c.profileId,row=op.expected_vs_actual?.[key],usage=op.situational_usage?.[key],sd=OPPORTUNITY_RULE.sd[row?.position];
+ const total=row?.totals?.fantasy_points,out={usage:usage?.player_id===c.profileId?usage:null,process:null};
+ if(!row||row.player_id!==c.profileId||!sd||!total||!finite(total.expected)||!finite(total.actual)||row.games<OPPORTUNITY_RULE.minGames)return out;
+ const delta=total.actual-total.expected,z=delta/(sd*Math.sqrt(row.games)),R=OPPORTUNITY_RULE;
+ const td=finite(row.totals?.rec_tds?.delta)||finite(row.totals?.rush_tds?.delta)?6*((row.totals.rec_tds?.delta||0)+(row.totals.rush_tds?.delta||0)):null;
+ if(total.expected/row.games<R.minExpectedPerGame||Math.abs(z)<R.z||Math.abs(delta)<R.minAbsDelta||Math.abs(delta)/total.expected<R.minRelDelta)return out;
+ const tdDriven=finite(td)&&Math.sign(td)===Math.sign(delta)&&Math.abs(td)>=R.tdShare*Math.abs(delta),over=delta>0;
+ out.process={state:over?'over':'under',delta,expected:total.expected,actual:total.actual,z,games:row.games,tdDriven,
+  badge:tdDriven?(over?'TD ABOVE EXPECTED':'TD BELOW EXPECTED'):(over?'OVERPERFORMED OPPORTUNITY':'UNDERPERFORMED OPPORTUNITY'),
+  detail:`${delta>0?'+':''}${delta.toFixed(1)} fantasy points vs expected over ${row.games} games (${total.actual.toFixed(1)} actual, ${total.expected.toFixed(1)} expected, z ${z>0?'+':''}${z.toFixed(1)})${tdDriven?'; mostly touchdowns above/below expectation':''}. Descriptive only: expected points already reflect opportunity, small samples are noisy, and this is not a bounce-back or regression forecast.`};
+ return out;
+}
+function situationText(u,family){
+ const pct=x=>finite(x)?Math.round(100*x)+'%':'n/a',parts=[];
+ const kinds=family==='Receiving'?['targets']:family==='Rushing'?['carries']:['targets','carries'];
+ for(const [label,k] of [['Red zone','red_zone'],['Inside 5','inside_5'],['Third down','third_down']])for(const kind of kinds){
+  const x=u[k];if(!x||!(x['team_'+kind]>0))continue;
+  parts.push(`${label} ${kind}: ${x[kind]} of team ${x['team_'+kind]} (${pct(x[kind==='targets'?'target_share':'carry_share'])})`);
+ }
+ return parts.join(' · ');
+}
 function assess(c,options={}){
  const o={now:Date.now(),season:new Date().getUTCFullYear(),...options};
  const family=FAMILIES[c.market],price=quote(c,o.now),components=[],badges=[],facts=[],supports=[],concerns=[],unknown=[];
@@ -93,6 +120,9 @@ function assess(c,options={}){
    else facts.push(['Current injury applicability','Historical split only; no exact-game OUT confirmation or meaningful opportunity change. No injury rating points.']);
   }
  }
+ const opp=['Receiving','Rushing','TD'].includes(family)?opportunityProcess(c,o):null;
+ if(opp?.usage){const text=situationText(opp.usage,family);if(text)facts.push(['Situational usage (2026 PBP, completed games)',`${text}. ${opp.usage.games} games observed; counts exclude kneels, spikes and two-point tries.`]);}
+ if(opp?.process){facts.push(['Opportunity vs production',opp.process.detail]);badges.push(opp.process.badge);}
  if(c.injury){badges.push(c.injury.roleBoost?'ROLE SCENARIO':'STATUS WATCH');concerns.unshift(c.injury.roleBoost?'Opportunity depends on a teammate absence; redistribution is a scenario, not confirmed usage.':`${c.injury.status||'Uncertain availability'} in the latest report${row?.week?' (week '+row.week+')':''}; confirm participation for this game.`);facts.push(['Existing injury treatment',c.injury.reason||'Availability may change opportunity.']);if(c.injury.stale||['questionable','limited','practice_dnp'].includes(c.injury.state))add('availability',-1,'Availability/participation is uncertain.');if(c.injury.roleBoost)facts.push(['Injury redistribution','Existing bounded role-transfer scenario; not observed with/without evidence and earns no injury points.']);}
  if(role?.games<4||c.kind==='game'&&o.currentGameEvidence&&Math.min(o.currentGameEvidence.homeGames,o.currentGameEvidence.awayGames)<4)concerns.push('Only a few current games; the role or matchup can change.');
  const points=components.reduce((s,x)=>s+x.points,0),tier=evidenceTier(points,components,c.market);
@@ -123,5 +153,5 @@ function card(row,{label,key=row.evidence.key,rank=1,canSave=false}={}){
  const {candidate:c,evidence:e}=row,p=e.price,odds=c.odds>0?'+'+c.odds:String(c.odds),stamp=p.valid&&Number.isFinite(Date.parse(c.updatedAt))?new Date(c.updatedAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET':'Time unavailable';
  return `<article class="picks-card" data-pick-key="${esc(key)}"><div class="picks-head"><span>#${rank} · ${esc(e.family)}</span><span class="picks-rating">GOING <b>${e.rating}/100</b></span></div><h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><h4>${esc(label)}</h4><div class="picks-badges">${e.badges.map(x=>`<span>${esc(x)}</span>`).join('')}${e.tdResearch?'<span>TD ROLE RESEARCH</span>':''}</div><p class="picks-copy"><strong>WHY</strong>${esc(e.why)}</p><p class="picks-copy concern"><strong>CONCERN</strong>${esc(e.concern)}</p><div class="picks-market"><b>${p.valid?esc(c.book)+' '+esc(odds):'Price unavailable'}</b><small>${p.fresh?'Recently observed':'PRICE NEEDS REFRESH'} · ${esc(stamp)}</small></div><details class="picks-detail" data-pick-detail="${esc(key)}"><summary>View research</summary><p>GOING ${e.rating}/100 is a heuristic football-case rating, not win chance or betting value. Model and current production overlap; unknown evidence earns zero points.</p><dl>${[...e.components.map(x=>[x.id,`${x.points>0?'+':''}${x.points}: ${x.detail}`]),['Rating detail',e.ratingDetail.strength===null?'Model spread unavailable; no within-tier refinement.':`Directional projection gap ${e.ratingDetail.gap.toFixed(2)} / model spread ${e.ratingDetail.sd.toFixed(2)}. Evidence tier ${e.evidenceTier} of 5; larger favorable gap refines within its 20-point band only.`],...e.facts,...e.unknown.map(x=>['Unknown',x]),...e.concerns.slice(1).map(x=>['Concern',x]),['Existing model estimate',`${(100*c.prob).toFixed(1)}% win / ${(100*(c.push||0)).toFixed(1)}% push; calibration not established`],['Sources',`${VERSION}; model ${c.profileDate||'team snapshot'}; ${c.n} recorded games`],['Price/value','No demonstrated sportsbook-pricing edge. Check this exact line; stale prices do not erase the football case.']].map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${row.offers?.length?`<p>Same-line offers: ${row.offers.map(x=>esc(x.book)+' '+esc(x.odds)).join(' · ')}</p>`:''}<p>Related player markets are correlated. ${row.alternatives||0} opposite/alternate/book observations remain in Markets.</p><a href="${c.profileId?'/players/?player='+encodeURIComponent(c.profileId):'/long/?mode=betting&tab=games'}">Full ${c.profileId?'player':'game'} research →</a></details><div class="picks-actions"><button type="button" data-picks-add="${esc(key)}" ${canSave&&p.saveable?'':'disabled'}>+ Compare / parlay</button></div></article>`;
 }
-root.GoingFootballPicks={VERSION,FAMILIES,gameKey,familyKey,contractKey,quote,playerContext,evidenceTier,granularRating,assess,board,card};if(typeof module!=='undefined')module.exports=root.GoingFootballPicks;
+root.GoingFootballPicks={VERSION,OPPORTUNITY_RULE,opportunityProcess,FAMILIES,gameKey,familyKey,contractKey,quote,playerContext,evidenceTier,granularRating,assess,board,card};if(typeof module!=='undefined')module.exports=root.GoingFootballPicks;
 })(globalThis);
