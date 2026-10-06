@@ -1,6 +1,6 @@
 # Progress
 
-Cycle `20261005-201540-coverage-labels-manual-a` — manual Coverage formatting request, not a scheduled occurrence/backdated capture. Main base `ae8d2ec45142a5099e1008a3ec6bec431e709868`; review base `f477eac9646bf3d591d86e1a64df4e9ba22c6eb8`; production `338b73d4796fc7ccdb8d6cdc3535d4fc4767f1ad`; tested tree `be3adcb30a84310afb0a33ea85735f8f8f62ec98`. Exact3-path patch replay equals tested production tree. Main push/remote SHA verified; existing Vercel deployment `EJYDcuMwfjcQDRXWfTyvPiMV48pR` succeeded, exact live JS/CSS match production blobs and actual live39card titles verified20:25ET. Mutex acquired00:15:49.332Z; release exact owner only after recording/publication.
+Cycle `20261005-201540-coverage-labels-manual-a` — manual Coverage formatting request, not a scheduled occurrence/backdated capture. Main base `ae8d2ec45142a5099e1008a3ec6bec431e709868`; review base `f477eac9646bf3d591d86e1a64df4e9ba22c6eb8`; production `338b73d4796fc7ccdb8d6cdc3535d4fc4767f1ad`; tested tree `be3adcb30a84310afb0a33ea85735f8f8f62ec98`. Exact3-path patch replay equals tested production tree. Main push/remote SHA verified; existing Vercel deployment `EJYDcuMwfjcQDRXWfTyvPiMV48pR` succeeded, exact live JS/CSS match production blobs and actual live39card titles verified20:25ET. Completion `18c9b35c956451662710102606550bb48eab276b` published and exact remote verified; this PROGRESS-only receipt pins that completion, its own SHA reported externally. Mutex acquired00:15:49.332Z; release exact owner only after recording/publication.
 
 ## Completed
 
@@ -11,7 +11,7 @@ Cycle `20261005-201540-coverage-labels-manual-a` — manual Coverage formatting 
 
 ## Working
 
-- Live labels verified. Publish Claude completion/receipt, then release exact recorded mutex owner.
+- None. Live app/completion verified; receipt uses unchanged-tip gates, then release exact recorded mutex owner.
 
 ## Problems
 
