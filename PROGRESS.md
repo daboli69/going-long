@@ -1,6 +1,6 @@
 # Progress
 
-Cycle `20261005-200016-ranking-dfs-context-a` — independent scheduled20:00ET occurrence. Main base `9fd23bac7c9ac0d98b3fe7fd6450f4ac8aec0fe8`; review base `cfba80a4902d60a266ce094e4a2c23d5a75cb45a`; production `ae8d2ec45142a5099e1008a3ec6bec431e709868`; tested tree `903af5d55d188d69d063f4a3694239199f7d4965`. Main push and exact remote verified. Exact2-path patch replay equals tested production tree. Existing Vercel deployment `JDgkQSYAcFqcNG4qyMvqJdPFM64o` succeeded; production Captain export/empty-state manually verified20:10ET. Receipt will pin completion. Lock acquired00:02:14.355Z, exact owner released only after publication.
+Cycle `20261005-200016-ranking-dfs-context-a` — independent scheduled20:00ET occurrence. Main base `9fd23bac7c9ac0d98b3fe7fd6450f4ac8aec0fe8`; review base `cfba80a4902d60a266ce094e4a2c23d5a75cb45a`; production `ae8d2ec45142a5099e1008a3ec6bec431e709868`; tested tree `903af5d55d188d69d063f4a3694239199f7d4965`. Main push and exact remote verified. Exact2-path patch replay equals tested production tree. Existing Vercel deployment `JDgkQSYAcFqcNG4qyMvqJdPFM64o` succeeded; production Captain export/empty-state manually verified20:10ET. Completion `faeff0a1ebf46ca69dce6ac5ea25f0c69420dc33` published and exact remote verified. This PROGRESS-only receipt pins completion; its own SHA is reported externally, never inside itself. Lock acquired00:02:14.355Z, exact owner released only after publication.
 
 ## Completed
 
@@ -11,7 +11,7 @@ Cycle `20261005-200016-ranking-dfs-context-a` — independent scheduled20:00ET o
 
 ## Working
 
-- App verified live; publish Claude completion/receipt within this occurrence, then release exact owner; no follow-on cycle.
+- None. Live app/completion verified; receipt uses unchanged-tip gates. Release only exact recorded owner after receipt verification.
 
 ## Problems
 
