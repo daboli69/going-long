@@ -483,7 +483,8 @@ def build():
     history = load_json(ROOT / 'data/history.json')
     from current_season_review import evaluate, results_review
     learning = evaluate(profiles, season)
-    learning['results_by_market'] = results_review(load_json(ROOT / 'data/public_tracker.json'))
+    from tracker_store import load_tracker
+    learning['results_by_market'] = results_review(load_tracker(ROOT / 'data'))
     history['betting'] = {'schema_version': 1, 'generated_at': generated, 'window': window, 'minimum_games': minimum,
                           'sources': {'nflreadpy': sources, 'sportsdataverse': 'loaded'}, 'profiles': profiles,
                           'aliases': aliases, 'team_names': team_map, 'games': game_data, 'validation': validation,

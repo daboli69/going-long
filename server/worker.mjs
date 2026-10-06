@@ -36,7 +36,7 @@ export default {
     if(url.pathname==='/api/snapshot'){
       if(request.method!=='GET')return json({error:'Method not allowed'},405);
       const path='/data/'+url.searchParams.get('file');
-      if(!SNAPSHOTS.has(path))return json({error:'Unknown snapshot'},400);
+      if(!SNAPSHOTS.has(path)&&!/^\/data\/public_tracker\/(manifest|segments\/seg-\d{6})\.json$/.test(path))return json({error:'Unknown snapshot'},400);
       // Follow nightly GitHub snapshots without requiring a new UI deployment.
       // /api avoids the host's static-asset-first routing for /data/*.json.
       const hit=snapshots.get(path);

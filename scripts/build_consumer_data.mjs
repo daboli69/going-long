@@ -5,6 +5,7 @@ import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {writeSignalTracker,readSignalRecords} from './signal_shards.mjs';
+import {loadTrackerSnapshot} from './tracker_store.mjs';
 const require=createRequire(import.meta.url),ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const yard=require('../shared/yard-opportunities.js');
 const read=async file=>JSON.parse(await readFile(file,'utf8'));
@@ -34,7 +35,8 @@ async function main(){const generated_at=new Date().toISOString(),sources={},old
  try{const rows=JSON.parse(execFileSync(process.execPath,['scripts/collect_model_plays.cjs'],{cwd:ROOT,env:{...process.env,GOING_TRACKER_LOCAL_DATA:'1'},maxBuffer:256*1024*1024,timeout:90000}));football=footballCards(rows);sources.football={status:'FRESH',note:'Published projection feed; individual quote timestamps determine price freshness.'};}catch(error){console.error('Football opportunity export failed:',error?.code||error?.name,String(error?.message||error).slice(0,200));football=old.opportunities.filter(c=>c.sport!=='mlb');sources.football={status:football.length?'STALE':'FAILED',reason:'Football opportunity export failed; retained timestamps were not changed.'};}
  const fetchYard=async name=>{if(process.env.GOING_YARD_DATA_DIR)return read(path.join(process.env.GOING_YARD_DATA_DIR,name));const r=await fetch(`https://raw.githubusercontent.com/daboli69/hr-board/main/docs/${name}`,{signal:AbortSignal.timeout(20000)});if(!r.ok)throw Error('Published Yard snapshot unavailable');return r.json();};
  try{const [model,ledger]=await Promise.all(['opportunities.json','signal_tracker.json'].map(fetchYard));mlb=yard.fromModel(model);mlbRecords=ledger.records;sources.mlb={status:Date.now()-Date.parse(model.generated_at)>30*3600000?'STALE':model.status,generated_at:model.generated_at,ledger_at:ledger.generated_at};}catch{mlb=old.opportunities.filter(c=>c.sport==='mlb');const previous=await readSignalRecords(path.join(ROOT,'data'));mlbRecords=previous.records.filter(r=>r.sport==='mlb');sources.mlb={status:mlb.length||mlbRecords.length?'STALE':'FAILED',reason:'Published Yard snapshot unavailable; retained observation timestamps.'};}
- const tracker=await read(path.join(ROOT,'data/public_tracker.json'));
+ const tracker=await loadTrackerSnapshot(path.join(ROOT,'data'));
+ if(!tracker)throw new Error('Public tracker is not available');
  await save('opportunities.json',{schema_version:1,generated_at,sources,opportunities:[...football,...mlb]});
  const signal=await writeSignalTracker({dataDir:path.join(ROOT,'data'),generated_at,sources,records:[...footballRecords(tracker),...mlbRecords]});
  console.log(JSON.stringify({sources,football_offers:football.length,mlb_offers:mlb.length,mlb_records:mlbRecords.length,signal}));

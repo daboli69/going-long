@@ -3,10 +3,26 @@ import {createRoot} from 'react-dom/client';
 import {createClient} from '@supabase/supabase-js';
 import {summarize,displayLine,filterTrackerRecords,slateDate,performanceGameKey} from './metrics.mjs';
 import {COHORT_LABELS} from '../../shared/model-cohort.mjs';
+import {loadTrackerVerified} from '../../shared/tracker-store.mjs';
 import {loadJournal} from './load-journal.mjs';
 import {recordedEvidence,settlementExplanation} from './evidence.mjs';
 import './style.css';
 import {BacktestView} from './backtests.jsx';
+
+// The tracker is stored as a small manifest plus immutable segments. Try the live API route, then the packaged
+// static copy; each source is checked against the manifest checksums, with one retry for cache skew.
+async function loadPublicStore(stamp){
+ const sources=[rel=>new URL(`../api/snapshot?file=${encodeURIComponent(rel)}&t=${stamp}`,document.baseURI),rel=>new URL(`../data/${rel}?t=${stamp}`,document.baseURI)];
+ let lastError;
+ for(const toUrl of sources){
+  for(let attempt=0;attempt<2;attempt++){
+   try{
+    return await loadTrackerVerified(async rel=>{const response=await fetch(toUrl(rel));if(!response.ok)throw Error(`HTTP ${response.status}`);return response.text();},{share:true});
+   }catch(error){lastError=error;if(attempt===0)await new Promise(r=>setTimeout(r,1500));}
+  }
+ }
+ throw lastError;
+}
 
 const money=n=>Number.isFinite(n)?n.toLocaleString('en-US',{style:'currency',currency:'USD'}):'—';
 const pct=n=>Number.isFinite(n)?`${(100*n).toFixed(1)}%`:'—';
@@ -79,7 +95,7 @@ function TrackerDashboard({records,meta,privateMode=false,onRefresh,refreshing=f
 function App(){
  const [snapshot,setSnapshot]=useState(null),[publicBusy,setPublicBusy]=useState(true),[publicError,setPublicError]=useState('');
  const [client,setClient]=useState(null),[session,setSession]=useState(null),[configured,setConfigured]=useState(null),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[privateBusy,setPrivateBusy]=useState(false),[privateError,setPrivateError]=useState(''),[privateRecords,setPrivateRecords]=useState([]),[privateLoaded,setPrivateLoaded]=useState(false);
- async function loadPublic(){setPublicBusy(true);setPublicError('');try{let body,lastError;const stamp=Date.now(),urls=[new URL(`../api/snapshot?file=public_tracker.json&t=${stamp}`,document.baseURI),new URL(`../data/public_tracker.json?t=${stamp}`,document.baseURI)];for(const url of urls){try{const response=await fetch(url);if(!response.ok)throw Error(`HTTP ${response.status}`);body=await response.json();break;}catch(error){lastError=error;}}if(!body)throw Error(`The public tracker snapshot is not available yet${lastError?.message?` (${lastError.message})`:''}.`);if(body.schema_version!==1||!Array.isArray(body.records))throw Error('The public tracker snapshot is invalid.');setSnapshot(body);}catch(error){setPublicError(error.message);}finally{setPublicBusy(false);}}
+ async function loadPublic(){setPublicBusy(true);setPublicError('');try{let body,lastError;const stamp=Date.now();try{body=await loadPublicStore(stamp);}catch(error){lastError=error;}const urls=[new URL(`../api/snapshot?file=public_tracker.json&t=${stamp}`,document.baseURI),new URL(`../data/public_tracker.json?t=${stamp}`,document.baseURI)];if(!body)for(const url of urls){try{const response=await fetch(url);if(!response.ok)throw Error(`HTTP ${response.status}`);body=await response.json();break;}catch(error){lastError=error;}}if(!body)throw Error(`The public tracker snapshot is not available yet${lastError?.message?` (${lastError.message})`:''}.`);if(body.schema_version!==1||!Array.isArray(body.records))throw Error('The public tracker snapshot is invalid.');setSnapshot(body);}catch(error){setPublicError(error.message);}finally{setPublicBusy(false);}}
  useEffect(()=>{loadPublic();let alive=true,subscription;fetch('/api/validation-config').then(r=>r.ok?r.json():null).then(async config=>{if(!alive)return;setConfigured(!!config?.url&&!!config?.publishableKey);if(config?.url&&config?.publishableKey){const c=createClient(config.url,config.publishableKey);setClient(c);const {data}=await c.auth.getSession();if(alive)setSession(data.session);subscription=c.auth.onAuthStateChange((_,next)=>{if(alive){setSession(next);setPrivateLoaded(false);setPrivateRecords([]);}}).data.subscription;}}).catch(()=>alive&&setConfigured(false));return()=>{alive=false;subscription?.unsubscribe();};},[]);
  async function login(event){event.preventDefault();setPrivateBusy(true);setPrivateError('');const {error}=await client.auth.signInWithPassword({email,password});setPassword('');if(error)setPrivateError(error.message);setPrivateBusy(false);}
  async function loadPrivate(){if(!client||!session||privateBusy)return;setPrivateBusy(true);setPrivateError('');try{const result=await loadJournal(client,session.user.id,new Date(Date.now()-365*86400000).toISOString(),new Date().toISOString());setPrivateRecords(result.records);setPrivateLoaded(true);}catch(error){setPrivateError(error.message?.includes('statement timeout')?'The optional private journal timed out. The public GOING tracker above is unaffected.':error.message);}finally{setPrivateBusy(false);}}

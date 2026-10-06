@@ -1,6 +1,7 @@
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {readFile,writeFile} from 'node:fs/promises';
+import {loadTrackerSnapshot,writeTrackerStore,writeLegacyTombstone} from './tracker_store.mjs';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {modelCohort} from '../shared/model-cohort.mjs';
@@ -166,8 +167,10 @@ export function captureClosingPrices(records,quotes,observedAt){
 }
 
 async function readJson(file,fallback){try{return JSON.parse(await readFile(file,'utf8'));}catch{return fallback;}}
-export async function build({now=null,plays=null,output=OUTPUT,settleOnly=false}={}){
- const previous=await readJson(output,{schema_version:1,records:[]}),records=Array.isArray(previous.records)?previous.records:[],results=await readJson(path.join(ROOT,'data','results.json'),{});
+export async function build({now=null,plays=null,output=OUTPUT,settleOnly=false,store=null}={}){
+ // The real tracker lives in the segmented store; a custom `output` (tests) stays a single file unless store:true.
+ const useStore=store??(path.resolve(output)===path.resolve(OUTPUT)),dataDir=path.dirname(output);
+ const previous=(useStore?await loadTrackerSnapshot(dataDir):null)??(useStore?{schema_version:1,records:[]}:await readJson(output,{schema_version:1,records:[]})),records=Array.isArray(previous.records)?previous.records:[],results=await readJson(path.join(ROOT,'data','results.json'),{});
  if(settleOnly)plays=[];
  if(!plays){const stdout=execFileSync(process.execPath,[path.join(ROOT,'scripts','collect_model_plays.cjs')],{cwd:ROOT,encoding:'utf8',maxBuffer:64*1024*1024,env:{...process.env,GOING_TRACKER_LOCAL_DATA:'1',GOING_CAPTURE_QUOTES:'1'}});plays=JSON.parse(stdout);}
  // Freeze at the real post-collection time so the row receipt is never future-dated.
@@ -198,7 +201,8 @@ export async function build({now=null,plays=null,output=OUTPUT,settleOnly=false}
  snapshot.methodology.going_picks_v1='Football-case-v1: first prospective rating/badges/evidence frozen separately. Priced contracts enter the $100 research record; missing prices remain research receipts without ROI. No backfill or demonstrated pricing edge.';
  snapshot.methodology.going_picks_v2='Football-case-v2: /100 evidence bands with within-band directional projection-gap/model-spread refinement. Separate prospective cohort; v1 receipts stay unchanged. Heuristic, not probability or proven value.';
  snapshot.methodology.closing_prices='Scheduled same-book/exact-line observations from existing pulls. Only samples within 10 minutes are labeled near kickoff; the twice-daily schedule cannot guarantee closing coverage.';
- await writeFile(output,JSON.stringify(snapshot),{encoding:'utf8'});return snapshot;
+ if(useStore){await writeTrackerStore({dataDir,snapshot});await writeLegacyTombstone(dataDir);}else await writeFile(output,JSON.stringify(snapshot),{encoding:'utf8'});
+ return snapshot;
 }
 
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url))build({settleOnly:process.argv.includes('--settle-only')}).then(snapshot=>console.log(`Public tracker: ${snapshot.latest_run.captured} frozen, ${snapshot.latest_run.settled} settled, ${snapshot.records.length} records.`)).catch(error=>{console.error(error.message);process.exitCode=1;});
