@@ -331,10 +331,16 @@ def build():
         pick_sources[name]=sources.get(f'{original}_{season}',{'status':'unavailable'})
     result['picks_evidence']=build_pick_evidence(season=season,games=[dict(g,kickoff=nfl_kickoff(g)) for g in schedule if g['season']==season],pbp_rows=[r for r in rows if r.get('season')==season],snap_rows=[r for r in snaps if r.get('season')==season],roster_rows=[r for r in roster if r.get('season')==season],injury_rows=injury_rows,weekly_roster_rows=weekly_rows,as_of=cutoff,generated_at=result['generated_at'],source_meta=pick_sources)
     # Additive: situational usage from the same PBP plus ffopportunity expected points.
-    from opportunity_evidence import build_opportunity_evidence, fetch_expected_points
-    expected_rows,expected_meta=fetch_expected_points(season)
-    pick_sources['expected_points']=expected_meta
-    result['picks_evidence']['opportunity_process']=build_opportunity_evidence(season=season,pbp_rows=[r for r in rows if r.get('season')==season],expected_rows=expected_rows,roster_rows=[r for r in roster if r.get('season')==season],generated_at=result['generated_at'],source_meta=pick_sources)
+    # A failure here must never block the rest of the context snapshot.
+    try:
+        from opportunity_evidence import build_opportunity_evidence, fetch_expected_points
+        expected_rows,expected_meta=fetch_expected_points(season)
+        pick_sources['expected_points']=expected_meta
+        finals={g['game_id'] for g in schedule if g['season']==season and finite(g.get('home_score')) and finite(g.get('away_score'))}
+        result['picks_evidence']['opportunity_process']=build_opportunity_evidence(season=season,pbp_rows=[r for r in rows if r.get('season')==season],expected_rows=expected_rows,roster_rows=[r for r in roster if r.get('season')==season],generated_at=result['generated_at'],source_meta=pick_sources,final_game_ids=finals)
+    except Exception as exc:
+        print('Opportunity evidence unavailable:',type(exc).__name__)
+        result['picks_evidence']['opportunity_process']={'schema_version':1,'status':'unavailable','season':season,'generated_at':result['generated_at'],'reason':type(exc).__name__}
     atomic_json(ROOT/'data/football_context.json',result)
     print('Football context', {y:len(v['players']) for y,v in scopes.items()},sources)
 

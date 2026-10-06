@@ -49,6 +49,40 @@ class SituationalUsageTests(unittest.TestCase):
         self.assertEqual(situational_usage(2026, rows, self.positions)[0], {})
 
 
+class RobustnessTests(unittest.TestCase):
+    positions = {'rb': 'RB'}
+
+    def test_regulation_end_marker_without_a_schedule_final_is_not_complete(self):
+        rows = [play(G1, 'carry', 'rb', 3), play(G2, 'carry', 'rb', 3), *ends(G1, G2)]
+        usage, complete = situational_usage(2026, rows, self.positions, final_game_ids={G1})
+        self.assertEqual(complete, 1)
+        self.assertEqual(usage['NO|rb']['inside_5']['carries'], 1)
+        self.assertEqual(situational_usage(2026, rows, self.positions, final_game_ids=set())[0], {})
+
+    def test_float_nan_season_and_week_do_not_crash(self):
+        rows = [dict(play(G1, 'carry', 'rb', 3), season=float('nan')), play(G1, 'carry', 'rb', 3), *ends(G1)]
+        self.assertEqual(situational_usage(2026, rows, self.positions)[0]['NO|rb']['inside_5']['carries'], 1)
+        expected = dict(season=2026.0, week=float('nan'), game_id=G1, player_id='rb', posteam='NO', total_fantasy_points_exp=5.0, total_fantasy_points=6.0)
+        roster = [dict(season=2026, gsis_id='rb', position='RB', full_name='Back')]
+        e = build_opportunity_evidence(season=2026, pbp_rows=ends(G1), expected_rows=[expected], roster_rows=roster, generated_at='2026-10-06T00:00:00+00:00')
+        self.assertEqual(e['expected_vs_actual']['NO|rb']['games'], 1)
+
+    def test_real_ffopportunity_parquet_types_season_text_week_float(self):
+        expected = dict(season='2026', week=1.0, game_id=G1, player_id='rb', posteam='NO', total_fantasy_points_exp=5.0, total_fantasy_points=6.0,
+                        rec_attempt=2.0, rush_attempt=10.0)
+        roster = [dict(season=2026, gsis_id='rb', position='RB', full_name='Back')]
+        e = build_opportunity_evidence(season=2026, pbp_rows=ends(G1), expected_rows=[expected], roster_rows=roster, generated_at='2026-10-06T00:00:00+00:00')
+        row = e['expected_vs_actual']['NO|rb']
+        self.assertEqual((row['games'], row['weeks']), (1, [1]))
+        self.assertEqual(e['provenance']['expected_points']['latest_week'], 1)
+
+    def test_traded_player_keeps_separate_team_keys(self):
+        rows = [play(G1, 'carry', 'rb', 3), dict(play(G2, 'carry', 'rb', 3), posteam='KC'), *ends(G1, G2)]
+        usage, _ = situational_usage(2026, rows, self.positions)
+        self.assertEqual(sorted(usage), ['KC|rb', 'NO|rb'])
+        self.assertEqual(usage['NO|rb']['games'], 1)
+
+
 class ExpectedVsActualTests(unittest.TestCase):
     roster = [dict(season=2026, gsis_id='rb', position='RB', full_name='Back'), dict(season=2026, gsis_id='wr', position='WR', full_name='Wide')]
 

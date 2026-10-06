@@ -55,3 +55,6 @@ test('situational usage is shown for the market family only, from completed-game
 test('the rule constants are the model-research thresholds',()=>{
  assert.deepEqual(P.OPPORTUNITY_RULE,{version:'opportunity-process-v1',sd:{RB:4.93,WR:4.91,TE:3.72},minGames:4,minExpectedPerGame:5,z:1.28,minAbsDelta:6,minRelDelta:.25,tdShare:.6});
 });
+test('the situational label follows the requested season, not a hardcoded year',()=>{
+ const e=P.assess(c,{...base,context:ctx(totals(60,60))});assert.ok(e.facts.some(f=>f[0]==='Situational usage (2026 PBP, completed games)'));
+});

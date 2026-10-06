@@ -121,7 +121,7 @@ function assess(c,options={}){
   }
  }
  const opp=['Receiving','Rushing','TD'].includes(family)?opportunityProcess(c,o):null;
- if(opp?.usage){const text=situationText(opp.usage,family);if(text)facts.push(['Situational usage (2026 PBP, completed games)',`${text}. ${opp.usage.games} games observed; counts exclude kneels, spikes and two-point tries.`]);}
+ if(opp?.usage){const text=situationText(opp.usage,family);if(text)facts.push([`Situational usage (${o.season} PBP, completed games)`,`${text}. ${opp.usage.games} games observed; counts exclude kneels, spikes and two-point tries.`]);}
  if(opp?.process){facts.push(['Opportunity vs production',opp.process.detail]);badges.push(opp.process.badge);}
  if(c.injury){badges.push(c.injury.roleBoost?'ROLE SCENARIO':'STATUS WATCH');concerns.unshift(c.injury.roleBoost?'Opportunity depends on a teammate absence; redistribution is a scenario, not confirmed usage.':`${c.injury.status||'Uncertain availability'} in the latest report${row?.week?' (week '+row.week+')':''}; confirm participation for this game.`);facts.push(['Existing injury treatment',c.injury.reason||'Availability may change opportunity.']);if(c.injury.stale||['questionable','limited','practice_dnp'].includes(c.injury.state))add('availability',-1,'Availability/participation is uncertain.');if(c.injury.roleBoost)facts.push(['Injury redistribution','Existing bounded role-transfer scenario; not observed with/without evidence and earns no injury points.']);}
  if(role?.games<4||c.kind==='game'&&o.currentGameEvidence&&Math.min(o.currentGameEvidence.homeGames,o.currentGameEvidence.awayGames)<4)concerns.push('Only a few current games; the role or matchup can change.');

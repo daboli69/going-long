@@ -51,21 +51,37 @@ DEFINITIONS = {
 }
 
 
-def _complete_games(pbp_rows, season):
-    return {str(r.get("game_id")) for r in pbp_rows
-            if int(r.get("season") or 0) == int(season)
+def _int(value):
+    """Integer from ints, finite floats or numeric strings (the ffopportunity parquet stores season as text and week as float); anything else is 0."""
+    if isinstance(value, str):
+        try:
+            value = float(value.strip())
+        except ValueError:
+            return 0
+    return int(value) if _number(value) else 0
+
+
+def _complete_games(pbp_rows, season, final_game_ids=None):
+    """Games with a final PBP marker and, when supplied, a final schedule score.
+
+    ``game_seconds_remaining == 0`` also occurs at the end of regulation in a game
+    that goes to overtime, so a schedule final is required whenever it is known.
+    """
+    done = {str(r.get("game_id")) for r in pbp_rows
+            if _int(r.get("season")) == int(season)
             and (r.get("play_type") == "game_end" or r.get("game_seconds_remaining") == 0)}
+    return done if final_game_ids is None else done & {str(g) for g in final_game_ids}
 
 
-def situational_usage(season, pbp_rows, positions):
+def situational_usage(season, pbp_rows, positions, final_game_ids=None):
     """Count situational targets/carries per team|player from completed games."""
-    complete = _complete_games(pbp_rows, season)
+    complete = _complete_games(pbp_rows, season, final_game_ids)
     zero = lambda: {k: {"targets": 0, "carries": 0} for k in SITUATIONS}
     players = defaultdict(zero)
     teams = defaultdict(zero)
     seen = defaultdict(set)
     for r in pbp_rows:
-        if int(r.get("season") or 0) != int(season) or r.get("season_type") != "REG":
+        if _int(r.get("season")) != int(season) or r.get("season_type") != "REG":
             continue
         gid = str(r.get("game_id") or "")
         team = _team(r.get("posteam"))
@@ -105,13 +121,13 @@ def expected_vs_actual(season, expected_rows, complete_games, positions, names, 
     logs = defaultdict(list)
     for r in expected_rows:
         pid, gid = str(r.get("player_id") or ""), str(r.get("game_id") or "")
-        if int(r.get("season") or 0) != int(season) or gid not in complete_games:
+        if _int(r.get("season")) != int(season) or gid not in complete_games:
             continue
         if positions.get(pid) not in SKILL_POSITIONS:
             continue
         if not all(_number(r.get(c)) for c in ("total_fantasy_points_exp", "total_fantasy_points")):
             continue
-        entry = {"game_id": gid, "week": int(r.get("week") or 0), "team": _team(r.get("posteam")),
+        entry = {"game_id": gid, "week": _int(r.get("week")), "team": _team(r.get("posteam")),
                  "targets": int(r["rec_attempt"]) if _number(r.get("rec_attempt")) else None,
                  "carries": int(r["rush_attempt"]) if _number(r.get("rush_attempt")) else None}
         for label, (exp_col, act_col) in COMPONENTS.items():
@@ -138,33 +154,33 @@ def expected_vs_actual(season, expected_rows, complete_games, positions, names, 
 
 
 def build_opportunity_evidence(*, season, pbp_rows, expected_rows, roster_rows, generated_at,
-                               source_meta=None):
+                               source_meta=None, final_game_ids=None):
     meta = source_meta or {}
     positions, names = {}, {}
     for row in roster_rows:
         gsis = row.get("gsis_id")
-        if not gsis or int(row.get("season") or 0) != int(season):
+        if not gsis or _int(row.get("season")) != int(season):
             continue
         positions.setdefault(str(gsis), str(row.get("position") or "").upper())
         names.setdefault(str(gsis), row.get("full_name"))
     pbp_ok = bool(pbp_rows) and meta.get("pbp", {}).get("status", "loaded") == "loaded"
     exp_ok = bool(expected_rows) and meta.get("expected_points", {}).get("status", "loaded") == "loaded"
     usage, complete_count = ({}, 0)
-    complete = _complete_games(pbp_rows, season) if pbp_ok else set()
+    complete = _complete_games(pbp_rows, season, final_game_ids) if pbp_ok else set()
     if pbp_ok:
-        usage, complete_count = situational_usage(season, pbp_rows, positions)
+        usage, complete_count = situational_usage(season, pbp_rows, positions, final_game_ids)
     comparison = expected_vs_actual(season, expected_rows, complete, positions, names) if exp_ok and pbp_ok else {}
     return {
         "schema_version": 1, "status": "research_only", "season": int(season), "generated_at": generated_at,
         "provenance": {
             "play_by_play": {"provider": "nflverse via nflreadpy", "status": "loaded" if pbp_ok else "unavailable",
                              "completed_games": complete_count, "rows_sha256": source_sha256(
-                                 [{k: r.get(k) for k in ("game_id", "play_id")} for r in pbp_rows if int(r.get("season") or 0) == int(season)]) if pbp_ok else None},
+                                 [{k: r.get(k) for k in ("game_id", "play_id")} for r in pbp_rows if _int(r.get("season")) == int(season)]) if pbp_ok else None},
             "expected_points": {
                 "provider": "ffverse/ffopportunity weekly expected points (release v1.0.0-data)",
                 "status": "loaded" if exp_ok else "unavailable",
                 "rows": len(expected_rows) if exp_ok else 0,
-                "latest_week": max((int(r.get("week") or 0) for r in expected_rows), default=0) if exp_ok else 0,
+                "latest_week": max((_int(r.get("week")) for r in expected_rows), default=0) if exp_ok else 0,
                 "rows_sha256": source_sha256(expected_rows) if exp_ok else None,
                 "model_note": "Expected values come from a model fitted on earlier seasons and not retrained in-season; ffopportunity has no stated data license beyond GPL-3 code, so credit is given.",
                 "attribution": "Expected points: ffverse/ffopportunity; play-by-play: nflverse.",
