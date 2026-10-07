@@ -78,3 +78,29 @@ The Validation dashboard no longer loads the heavy store on first paint. `data/d
 
 Rollback: remove the ledger step from `data.yml` and `data/derived/`; the dashboard then loads the full store exactly
 as before (or revert the dashboard commit).
+
+## Scaling thresholds for the Validation ledger (revisit when measured, not by date)
+
+The ledger's wire size, parsed heap and per-interaction CPU all grow with the number of records inside a season (about
+0.5 MB raw / 106 KB gzipped per active day, measured 2026-10). Do not start another architecture project until a
+measurement crosses a threshold. Measure with the production page (cold load, throttled-free desktop Chrome and a
+mid-range phone profile) and record the numbers in `PROGRESS.md`.
+
+| Signal | Watch | Act (start per-shard partial aggregates + lazy per-shard rows) |
+| --- | --- | --- |
+| Ledger wire size, all loaded shards, gzipped | 8 MB | 12 MB |
+| Parsed JS heap of the Validation page | 60 MB | 100 MB |
+| Time from navigation to dashboard numbers (cold, phone profile) | 3 s | 5 s |
+| Time to apply one filter change (main thread) | 150 ms | 300 ms |
+| `scripts/validation_ledger.mjs` size guard (warn 8 MB / max 30 MB per shard) | any warning | any failure |
+
+`node scripts/validation_ledger.mjs build` prints the shard sizes, so the first row can be read from CI logs; the others
+need a browser run. Planned response when a row reaches "Act": publish a per-shard partial aggregate computed with
+`apps/validation/metrics.mjs` (the dashboard math must stay the single implementation), load rows only for the shard a
+user drills into, and keep the full-ledger path as the fallback. Season windows already reset the first paint each
+season; the "Load earlier seasons" path is the one that will hit these limits first.
+
+Known small follow-ups (not blocking): the season window starts in July, so check the "Complete record" wording before
+the 2027 preseason; once a second season exists the closing-count tile and slate/game lists reflect only loaded shards;
+an evidence fetch on a page left open for hours fails until refreshed; stale raw-content caches can send some visitors
+down the (correct but heavier) full-store fallback.
