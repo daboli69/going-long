@@ -9,6 +9,7 @@ FantasyPoints/
   manifests/index.json            one entry per distinct file (sha256); written last so a crash never leaves a half-import
   manifests/freshness.json, last_run.json
 """
+import datetime
 import json
 import os
 import re
@@ -55,13 +56,42 @@ def write_json(path, value):
 
 
 def clean_temporaries(root):
-    removed = 0
+    """Remove leftover *.tmp files from an interrupted run. A locked file is reported, never fatal. Returns (removed, failed)."""
+    removed, failed = 0, []
     for path in Path(root).rglob('*.tmp'):
         if 'Inbox' in path.parts or 'inbox' in path.parts:
             continue
-        path.unlink()
-        removed += 1
-    return removed
+        try:
+            path.unlink()
+            removed += 1
+        except OSError as error:
+            failed.append(f'{path.name}: {error}')
+    return removed, failed
+
+
+class RunLock:
+    """One import at a time. A lock older than two hours is treated as left behind by a crash."""
+
+    def __init__(self, root, max_age_seconds=7200):
+        self.path = Path(root) / 'manifests' / '.import.lock'
+        self.max_age = max_age_seconds
+
+    def __enter__(self):
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        if self.path.exists():
+            age = datetime.datetime.now().timestamp() - self.path.stat().st_mtime
+            if age < self.max_age:
+                raise RuntimeError(f'another import is running (lock {self.path}); delete it only if you are sure none is')
+            self.path.unlink()
+        self.path.write_text(str(os.getpid()), encoding='utf-8')
+        return self
+
+    def __exit__(self, *exc):
+        try:
+            self.path.unlink()
+        except OSError:
+            pass
+        return False
 
 
 class Manifest:
@@ -73,6 +103,8 @@ class Manifest:
                 self.data = json.loads(self.path.read_text(encoding='utf-8'))
             except json.JSONDecodeError as error:
                 raise RuntimeError(f'{self.path} is corrupt ({error}); restore it before importing (raw files are the source of truth)')
+            if not isinstance(self.data, dict) or not isinstance(self.data.get('files'), dict):
+                raise RuntimeError(f'{self.path} has an unexpected shape; restore it before importing')
         else:
             self.data = {'version': 1, 'source': 'Fantasy Points Data Suite', 'files': {}}
 
@@ -111,30 +143,38 @@ def current_entry(manifest, season, table_id):
 def point_in_time(manifest, season, table_id, for_season, for_week, known_by=None):
     """Return the manifest entry GOING could legitimately have used to predict ``for_season`` week ``for_week``, or None.
 
-    * same season: only a live season-to-date capture whose games are all before the target week and that GOING had
-      imported by ``known_by`` (ISO timestamp); a retrospective export of the same season is never eligible.
+    * same season: ``known_by`` (ISO timestamp of the prediction) is REQUIRED. Only a live season-to-date capture that GOING
+      had imported by then, with every game before the target week, qualifies. After every team's bye (14+ games) one more
+      week is held back because the games and the week number no longer line up. A later correction is invisible before it was
+      imported, a partial re-export never replaces a complete snapshot, and a retrospective export is never eligible.
     * forward-looking matchup tables are valid only for the week they were exported for (games + 1).
-    * an earlier season: its full-season (or last season-to-date) snapshot, which was complete before this season began.
+    * an earlier season: its full-season snapshot, complete before this season began. It was downloaded later, so it may
+      carry Fantasy Points corrections made after that season; that is the one accepted look-back imprecision.
     None means missing, never zero.
     """
     pool = manifest.entries(season, table_id)
     if season == for_season:
-        if known_by:
-            # the correction in force at the cutoff: later imports replace earlier ones, imports after the cutoff do not exist yet
-            latest = {}
-            for entry in sorted((e for e in pool if (e.get('first_imported_at') or '9999') <= known_by), key=lambda e: e.get('first_imported_at') or ''):
-                latest[(entry.get('scope'), entry.get('through_games'))] = entry
-            pool = list(latest.values())
-        else:
-            pool = [e for e in pool if not e.get('superseded_by')]
-        live = [e for e in pool if e.get('scope') == 'season_to_date' and e.get('known_live') and (e.get('through_games') or 0) <= for_week - 1]
-        if any(e.get('forward_looking') for e in pool):
+        if not known_by:
+            raise ValueError('known_by is required for same-season lookups: without it later corrections leak into the past')
+        latest = {}
+        for entry in pool:
+            if (entry.get('first_imported_at') or '9999') > known_by:
+                continue
+            key = (entry.get('scope'), entry.get('through_games'))
+            rank = (entry.get('status') != 'partial', entry.get('captured_at') or '', entry.get('first_imported_at') or '')
+            if key not in latest or rank > latest[key][0]:
+                latest[key] = (rank, entry)
+
+        def usable(entry):
+            games = entry.get('through_games') or 0
+            return entry.get('scope') == 'season_to_date' and entry.get('known_live') and games <= for_week - (2 if games >= EXPECTED_BASE_WEEK else 1)
+        live = [entry for _, entry in latest.values() if usable(entry)]
+        if any(e.get('forward_looking') for e in live):
             live = [e for e in live if e.get('through_games') == for_week - 1]
         return max(live, key=_order) if live else None
     if season < for_season:
-        # a finished season was complete before the next one began, whenever we happened to download it
         prior = [e for e in pool if not e.get('superseded_by') and not e.get('forward_looking')
-                 and (e.get('scope') == 'full_season' or (e.get('scope') == 'season_to_date' and (e.get('through_games') or 0) >= 16))]
+                 and (e.get('scope') == 'full_season' or (e.get('scope') == 'season_to_date' and (e.get('through_games') or 0) >= 17))]
         return max(prior, key=_order) if prior else None
     return None
 

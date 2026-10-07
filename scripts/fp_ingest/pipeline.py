@@ -16,11 +16,11 @@ from . import fields as fieldmod
 from . import identity as idmod
 from . import registry as regmod
 from .parse import ParseError, column_types, parse_export, sha256, to_number
-from .store import (GOOD, Manifest, atomic_write, clean_temporaries, find_inbox, freshness, public_status, scope_dir, write_json)
+from .store import (GOOD, Manifest, RunLock, atomic_write, clean_temporaries, find_inbox, freshness, public_status, scope_dir, write_json)
 
 MIN_TEAMS_PLAYER = 24
 MIN_TEAMS_TEAM = 28
-FULL_SEASON_GAMES = 16
+FULL_SEASON_GAMES = 17  # every 2021+ season; a finished season's league-wide maximum is 17
 
 
 def iso(moment):
@@ -42,6 +42,14 @@ def _find(columns, group_names, base):
 
 def inspect_bytes(name, data, registry, mtime=None):
     """Read-only description of one file. Never raises; problems are returned as ``error``."""
+    try:
+        return _inspect(name, data, registry, mtime)
+    except Exception as error:  # a surprise in one file is a rejected file, not a crashed refresh
+        return {'original_filename': name, 'sha256': sha256(data), 'bytes': len(data), 'modified_at': mtime,
+                'error': {'code': 'unreadable', 'message': f'{type(error).__name__}: {error}'}}, None
+
+
+def _inspect(name, data, registry, mtime):
     info = {'original_filename': name, 'sha256': sha256(data), 'bytes': len(data), 'modified_at': mtime}
     try:
         parsed = parse_export(data)
@@ -59,7 +67,12 @@ def inspect_bytes(name, data, registry, mtime=None):
                 drift=cls['drift'], level=(table or {}).get('level'), notes=parsed['notes'])
     if season_key and games_key:
         seasons = sorted({row[columns.index(season_key)] for row in parsed['rows']})
-        games = [int(float(row[columns.index(games_key)])) for row in parsed['rows'] if row[columns.index(games_key)] != '']
+        cells = [row[columns.index(games_key)] for row in parsed['rows'] if row[columns.index(games_key)] != '']
+        numbers = [to_number(cell) for cell in cells]
+        if any(n is None for n in numbers):
+            info['error'] = {'code': 'games_not_numeric', 'message': f"G column holds non-numeric values such as {next(c for c, n in zip(cells, numbers) if n is None)!r}"}
+            return info, None
+        games = [int(n) for n in numbers]
         info.update(seasons=seasons, games_min=min(games) if games else None, games_max=max(games) if games else None)
     teams = set()
     for row in parsed['rows']:
@@ -80,7 +93,7 @@ def inspect_bytes(name, data, registry, mtime=None):
     return info, {'parsed': parsed, 'cls': cls, 'table': table, 'keys': {'season': season_key, 'games': games_key, 'team': team_key, 'name': name_key}}
 
 
-def decide_scope(info, current_season, max_possible_games, override=None):
+def decide_scope(info, current_season, max_possible_games, override=None, in_season=True):
     """Return (scope, through_games, scope_source, problem). problem is a (code, message) when the file cannot be imported."""
     seasons = info.get('seasons') or []
     if len(seasons) != 1 or not str(seasons[0]).isdigit():
@@ -91,10 +104,12 @@ def decide_scope(info, current_season, max_possible_games, override=None):
         return None, None, None, ('games_implausible', f'games played looks wrong: {games}')
     if season > current_season:
         return None, None, None, ('future_season', f'Season {season} is after the current season {current_season}')
-    if override is not None:
-        scope = 'season_to_date' if season == current_season else 'unclassified'
-        return scope, int(override), 'operator', None
-    if season == current_season:
+    live = season == current_season and in_season  # outside July-January the "current" season is finished: treat it like a past one
+    if override is not None and live:
+        if override < 1 or (max_possible_games is not None and override > max_possible_games):
+            return None, None, None, ('override_invalid', f'--through-week {override} is outside 1..{max_possible_games}')
+        return 'season_to_date', int(override), 'operator', None
+    if live:
         if max_possible_games is not None and games > max_possible_games:
             return None, None, None, ('future_games', f'export has {games} games but only {max_possible_games} can have been played')
         return 'season_to_date', games, 'games_played', None
@@ -189,6 +204,7 @@ class Importer:
         self.max_possible_games = max_possible_games
         self.expected_games = expected_games
         self.through_override = through_override
+        self.in_season = self.now.month >= 7 or self.now.month == 1
         self.hooks = hooks or {}
         self.manifest = Manifest(self.root)
         self._indexes = {}
@@ -218,14 +234,14 @@ class Importer:
     def import_file(self, name, data, mtime=None):
         sha = sha256(data)
         existing = self.manifest.files.get(sha)
-        explicit_restate = self.through_override is not None and existing and existing.get('through_games') != self.through_override
-        if existing and not explicit_restate and existing.get('status') in GOOD and existing.get('normalized_path') and (self.root / existing['normalized_path']).exists() \
+        if existing and existing.get('status') in GOOD and existing.get('normalized_path') and (self.root / existing['normalized_path']).exists() \
                 and (self.root / existing['raw_path']).exists() and sha256((self.root / existing['raw_path']).read_bytes()) == sha:
             return {'file': name, 'outcome': 'duplicate', 'table_id': existing.get('table_id'), 'sha256': sha}
-        # anything else (never imported, previously held, or a damaged copy) is evaluated again; first_imported_at is kept
+        # anything else (never imported, previously held, or a damaged copy) is evaluated again
+        carry = existing if existing and existing.get('status') in GOOD else None  # a repair must not change the revision chain or known_at
         info, ctx = inspect_bytes(name, data, self.registry, mtime)
         now = iso(self.now)
-        base = {'sha256': sha, 'original_filename': name, 'bytes': len(data), 'first_imported_at': (existing or {}).get('first_imported_at', now),
+        base = {'sha256': sha, 'original_filename': name, 'bytes': len(data), 'first_seen_at': (existing or {}).get('first_seen_at', now),
                 'captured_at': mtime, 'captured_at_source': 'file_modified_time' if mtime else None, 'source': 'Fantasy Points Data Suite'}
 
         seasons = info.get('seasons') or []
@@ -250,7 +266,7 @@ class Importer:
             return hold('quarantined_schema', '_quarantine', 'schema_drift',
                         f"{ctx['cls']['table_id']}: missing {drift['missing'][:6]}, renamed {drift['possible_renames'][:3]}, type changes {drift['type_changes'][:3]}",
                         {'drift': drift})
-        scope, games, scope_source, problem = decide_scope(info, self.current_season, self.max_possible_games, self.through_override)
+        scope, games, scope_source, problem = decide_scope(info, self.current_season, self.max_possible_games, self.through_override, self.in_season)
         if problem and scope is None:
             return hold('rejected', '_rejected', problem[0], problem[1])
         season = int(info['seasons'][0])
@@ -273,7 +289,9 @@ class Importer:
         self._store_raw(raw_path, data, sha)
         self._hook('after_raw')
         entry = {**base, 'status': status, 'table_id': table['id'], 'season': season, 'scope': scope, 'scope_source': scope_source,
-                 'through_games': games, 'through_week': games if games < 14 else None, 'known_live': bool(scope == 'season_to_date' and season == self.current_season),
+                 # known_at: when GOING first accepted this data, not when it first saw the file
+                 'first_imported_at': carry['first_imported_at'] if carry else now,
+                 'through_games': games, 'through_week': games if games < 14 else None, 'known_live': scope == 'season_to_date',
                  'forward_looking': table['forward_looking'], 'row_count': info['row_count'], 'column_count': info['column_count'],
                  'team_count': info['team_count'], 'schema_signature': regmod.signature(ctx['parsed']['columns']),
                  'warnings': warnings, 'raw_path': str(raw_path.relative_to(self.root)).replace('\\', '/'), 'drift': drift if drift and drift['new'] else None}
@@ -287,14 +305,24 @@ class Importer:
         outcome = 'imported'
         previous = [e for e in self.manifest.entries(season, table['id'], statuses=GOOD)
                     if e['sha256'] != sha and e.get('scope') == scope and e.get('through_games') == games and not e.get('superseded_by')]
+        if carry:
+            for key in ('superseded_by', 'revision_of'):
+                if carry.get(key):
+                    entry[key] = carry[key]
+            outcome = 'repaired'
+            previous = []
         for old in previous:
-            if status != 'partial' or old.get('status') == 'partial':
+            if status == 'partial' and old.get('status') != 'partial':
+                warnings.append('a partial re-export does not replace the complete snapshot for the same week')
+                outcome = 'partial_revision_kept_old_current'
+            elif (mtime or '') >= (old.get('captured_at') or ''):  # the newer download wins, whatever order the files are processed in
                 old['superseded_by'] = sha
                 entry['revision_of'] = old['sha256']
                 outcome = 'revision'
             else:
-                warnings.append('a partial re-export does not replace the complete snapshot for the same week')
-                outcome = 'partial_revision_kept_old_current'
+                entry['superseded_by'] = old['sha256']
+                warnings.append('an older download of this week arrived after a newer one; the newer stays current')
+                outcome = 'older_revision_ignored'
         if outcome == 'imported':
             newest = max((e.get('through_games') or 0 for e in self.manifest.entries(season, table['id'], statuses=GOOD)), default=0)
             if games < newest:
@@ -308,9 +336,13 @@ class Importer:
     # -- whole inbox --
     def run(self, inbox=None):
         inbox = Path(inbox) if inbox else find_inbox(self.root)
-        cleaned = clean_temporaries(self.root)
+        with RunLock(self.root):
+            return self._run(inbox)
+
+    def _run(self, inbox):
+        cleaned, cleanup_failures = clean_temporaries(self.root)
         results = []
-        files = sorted(p for p in inbox.iterdir() if p.is_file() and p.suffix.lower() == '.csv')
+        files = sorted((p for p in inbox.iterdir() if p.is_file() and p.suffix.lower() == '.csv'), key=lambda p: (p.stat().st_mtime, p.name))
         for path in files:
             try:
                 data = path.read_bytes()
@@ -324,6 +356,7 @@ class Importer:
         fresh = freshness(self.registry, self.manifest, self.current_season, self.expected_games, iso(self.now))
         write_json(self.root / 'manifests' / 'freshness.json', fresh)
         report = self.report(results, fresh, cleaned)
+        report['temporary_files_failed'] = cleanup_failures
         for result in report['results']:
             result.pop('identity_details', None)  # per-player detail lives in the normalized file; the report keeps counts
         write_json(self.root / 'manifests' / 'last_run.json', report)

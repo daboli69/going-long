@@ -36,7 +36,7 @@ def seed(files):
             'forward_looking': bool(meta.get('forward_looking')), 'description': meta['description'],
             'filename_hints': meta['hints'], 'signature': signature(parsed['columns']),
             'columns': [{'key': key, 'type': types[key]} for key in parsed['columns']],
-            'glossary': parsed['glossary'],  # keyed by abbreviation; a repeated abbreviation keeps the footer's last definition
+            # vendor glossary text is deliberately not stored in the repo (licensed); it stays in the archived raw files
         }
     return {'version': 1, 'source': 'Fantasy Points Data Suite', 'tables': tables}
 

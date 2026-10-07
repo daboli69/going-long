@@ -59,13 +59,15 @@ def parse_export(data):
     table = list(csv.reader(io.StringIO(text, newline='')))
     if len(table) < 3:
         raise ParseError('too_short', 'fewer than a group row, a column row and one data row')
-    two_row = len(table[1]) > 1 and table[1][0].strip() == 'Rank' and table[0][0].strip() != 'Rank'
+    first = table[0][0].strip() if table[0] else ''
+    second = table[1][0].strip() if table[1] else ''
+    two_row = len(table[1]) > 1 and second == 'Rank' and first != 'Rank'
     if two_row:
         group_row, header = table[0], table[1]
         body_start = 2
         if len(group_row) != len(header):
             raise ParseError('header_mismatch', f'group row has {len(group_row)} cells, column row has {len(header)}')
-    elif table[0] and table[0][0].strip() == 'Rank':
+    elif first == 'Rank':
         group_row, header, body_start = None, table[0], 1
     else:
         raise ParseError('no_header', 'first rows are not a Fantasy Points header (no Rank column)')
@@ -83,6 +85,8 @@ def parse_export(data):
     while index < len(table):
         row = table[index]
         index += 1
+        if len(row) == len(header) and len(header) > 2 and any(cell.strip() for cell in row):
+            raise ParseError('blank_in_data', f'data row {index} follows a blank line: rows would be silently dropped')
         if len(row) == 2 and row[0].strip():
             glossary[row[0].strip()] = row[1].strip()
     if not rows:

@@ -23,6 +23,7 @@ REGISTRY = regmod.load()
 TEAMS = sorted(idmod.TEAMS)
 FP_CODE = {'ARI': 'ARZ', 'BAL': 'BLT', 'CLE': 'CLV', 'HOU': 'HST'}
 NOW = datetime.datetime(2026, 10, 7, 14, 0, tzinfo=datetime.timezone.utc)
+FUTURE = '2999-01-01T00:00:00Z'
 FULL_NAMES = {code: name.title() for name, code in idmod.TEAM_NAMES.items()}
 
 
@@ -185,7 +186,7 @@ class ImportTests(unittest.TestCase):
         self.assertNotEqual(sha256(raw.read_bytes()), entry['sha256'])
         report = workspace.run()  # a damaged archive copy is repaired from the Inbox bytes, never trusted
         self.assertEqual(raw.read_bytes(), data)
-        self.assertEqual(workspace.outcomes(report)['a.csv'], 'imported')
+        self.assertEqual(workspace.outcomes(report)['a.csv'], 'repaired')
 
     def test_corrected_export_is_an_explicit_revision(self):
         workspace = Workspace(self)
@@ -229,8 +230,11 @@ class ImportTests(unittest.TestCase):
         report = workspace.run()
         line = [l for l in report['freshness'] if l.startswith('Bell cow')][0]
         self.assertIn('STALE', line)
-        report = workspace.run(through_override=5)  # operator can state the truth explicitly
-        self.assertEqual(store.current_entry(workspace.manifest(), 2026, 'rushing_bell_cow')['scope_source'], 'operator')
+        other = Workspace(self)  # the operator can state the truth explicitly, for a file not imported yet
+        other.put('week5only.csv', make_csv('rushing_bell_cow', games=1))
+        other.run(through_override=5)
+        entry = store.current_entry(other.manifest(), 2026, 'rushing_bell_cow')
+        self.assertEqual((entry['scope_source'], entry['through_games']), ('operator', 5))
 
     def test_future_games_and_future_season_are_rejected(self):
         workspace = Workspace(self)
@@ -479,6 +483,10 @@ class IdentityTests(unittest.TestCase):
         self.assertEqual(document['target_game_hint'], 5)
 
 
+def pit(manifest, season, table_id, for_season, for_week, known_by=FUTURE):
+    return store.point_in_time(manifest, season, table_id, for_season, for_week, known_by=known_by)
+
+
 class LeakageTests(unittest.TestCase):
     def build(self):
         workspace = Workspace(self)
@@ -489,7 +497,7 @@ class LeakageTests(unittest.TestCase):
 
     def test_current_season_prediction_sees_only_earlier_games(self):
         manifest = self.build().manifest()
-        pick = lambda week: store.point_in_time(manifest, 2026, 'rushing_bell_cow', 2026, week)
+        pick = lambda week: pit(manifest, 2026, 'rushing_bell_cow', 2026, week)
         self.assertIsNone(pick(2), 'week 2 may only use data through week 1; none was captured')
         self.assertEqual(pick(3)['through_games'], 2)
         self.assertEqual(pick(4)['through_games'], 3)
@@ -500,8 +508,8 @@ class LeakageTests(unittest.TestCase):
         workspace.put('fix.csv', make_csv('rushing_bell_cow', games=3, mutate=lambda body, keys: body[0].__setitem__(keys.index('Rushing.ATT'), '31')))
         workspace.run(now=NOW + datetime.timedelta(days=30), expected_games=4, max_possible_games=5)
         manifest = workspace.manifest()
-        early = store.point_in_time(manifest, 2026, 'rushing_bell_cow', 2026, 4, known_by=iso(NOW + datetime.timedelta(days=5)))
-        late = store.point_in_time(manifest, 2026, 'rushing_bell_cow', 2026, 4)
+        early = pit(manifest, 2026, 'rushing_bell_cow', 2026, 4, known_by=iso(NOW + datetime.timedelta(days=5)))
+        late = pit(manifest, 2026, 'rushing_bell_cow', 2026, 4)
         self.assertNotEqual(early['sha256'], late['sha256'])
         self.assertEqual(early['through_games'], 3)
         self.assertTrue(late.get('revision_of') == early['sha256'])
@@ -511,27 +519,216 @@ class LeakageTests(unittest.TestCase):
         workspace.put('old.csv', make_csv('rushing_bell_cow', season=2025, games=17))
         workspace.run()
         manifest = workspace.manifest()
-        self.assertIsNone(store.point_in_time(manifest, 2025, 'rushing_bell_cow', 2025, 10), 'full-season totals contain weeks 10-17')
-        self.assertIsNone(store.point_in_time(manifest, 2025, 'rushing_bell_cow', 2025, 18))
-        self.assertIsNotNone(store.point_in_time(manifest, 2025, 'rushing_bell_cow', 2026, 1), 'a finished season is fair game for next season')
-        self.assertIsNone(store.point_in_time(manifest, 2025, 'rushing_bell_cow', 2024, 1), 'and never for an earlier one')
+        self.assertIsNone(pit(manifest, 2025, 'rushing_bell_cow', 2025, 10), 'full-season totals contain weeks 10-17')
+        self.assertIsNone(pit(manifest, 2025, 'rushing_bell_cow', 2025, 18))
+        self.assertIsNotNone(pit(manifest, 2025, 'rushing_bell_cow', 2026, 1), 'a finished season is fair game for next season')
+        self.assertIsNone(pit(manifest, 2025, 'rushing_bell_cow', 2024, 1), 'and never for an earlier one')
 
     def test_forward_looking_tables_apply_only_to_the_week_they_were_made_for(self):
         workspace = Workspace(self)
         workspace.put('m.csv', make_csv('wr_coverage_matchup', games=4))
         workspace.run()
         manifest = workspace.manifest()
-        self.assertIsNotNone(store.point_in_time(manifest, 2026, 'wr_coverage_matchup', 2026, 5))
-        self.assertIsNone(store.point_in_time(manifest, 2026, 'wr_coverage_matchup', 2026, 6), 'its OPP column is the week-5 opponent')
-        self.assertIsNone(store.point_in_time(manifest, 2026, 'wr_coverage_matchup', 2026, 4))
+        self.assertIsNotNone(pit(manifest, 2026, 'wr_coverage_matchup', 2026, 5))
+        self.assertIsNone(pit(manifest, 2026, 'wr_coverage_matchup', 2026, 6), 'its OPP column is the week-5 opponent')
+        self.assertIsNone(pit(manifest, 2026, 'wr_coverage_matchup', 2026, 4))
 
     def test_missing_snapshot_is_none_not_zero(self):
         manifest = Workspace(self).manifest()
-        self.assertIsNone(store.point_in_time(manifest, 2026, 'rushing_bell_cow', 2026, 5))
+        self.assertIsNone(pit(manifest, 2026, 'rushing_bell_cow', 2026, 5))
 
 
 def iso(moment):
     return pl.iso(moment)
+
+
+def set_mtime(path, moment):
+    stamp = moment.timestamp()
+    os.utime(path, (stamp, stamp))
+
+
+class QaRegressionTests(unittest.TestCase):
+    """Defects found by the independent QA review; each of these failed before the fix."""
+
+    def corrected(self, value='99'):
+        return make_csv('rushing_bell_cow', mutate=lambda body, keys: body[0].__setitem__(keys.index('Rushing.ATT'), value))
+
+    def test_revision_order_follows_download_time_not_filename(self):
+        workspace = Workspace(self)
+        workspace.put('rush.csv', make_csv('rushing_bell_cow'))
+        workspace.put('rush (1).csv', self.corrected())  # ' (1)' sorts before '.csv'
+        set_mtime(workspace.inbox / 'rush.csv', NOW - datetime.timedelta(hours=5))
+        set_mtime(workspace.inbox / 'rush (1).csv', NOW - datetime.timedelta(hours=1))
+        workspace.run()
+        current = store.current_entry(workspace.manifest(), 2026, 'rushing_bell_cow')
+        self.assertEqual(current['original_filename'], 'rush (1).csv')
+
+    def test_an_older_download_arriving_later_does_not_replace_a_newer_one(self):
+        workspace = Workspace(self)
+        workspace.put('new.csv', self.corrected())
+        set_mtime(workspace.inbox / 'new.csv', NOW)
+        workspace.run()
+        workspace.put('old.csv', make_csv('rushing_bell_cow'))
+        set_mtime(workspace.inbox / 'old.csv', NOW - datetime.timedelta(days=2))
+        report = workspace.run(now=NOW + datetime.timedelta(days=1))
+        self.assertEqual(workspace.outcomes(report)['old.csv'], 'older_revision_ignored')
+        self.assertEqual(store.current_entry(workspace.manifest(), 2026, 'rushing_bell_cow')['original_filename'], 'new.csv')
+
+    def test_repairing_a_file_does_not_flip_the_revision_chain(self):
+        workspace = Workspace(self)
+        workspace.put('a.csv', make_csv('rushing_bell_cow'))
+        workspace.put('b.csv', self.corrected())
+        set_mtime(workspace.inbox / 'a.csv', NOW - datetime.timedelta(hours=3))
+        set_mtime(workspace.inbox / 'b.csv', NOW - datetime.timedelta(hours=1))
+        workspace.run()
+        before = store.current_entry(workspace.manifest(), 2026, 'rushing_bell_cow')['sha256']
+        old = next(e for e in workspace.manifest().files.values() if e['original_filename'] == 'a.csv')
+        (workspace.dir / old['normalized_path']).unlink()
+        workspace.run(now=NOW + datetime.timedelta(days=1))
+        manifest = workspace.manifest()
+        self.assertEqual(store.current_entry(manifest, 2026, 'rushing_bell_cow')['sha256'], before)
+        self.assertEqual(manifest.files[old['sha256']]['superseded_by'], before)
+
+    def test_operator_override_is_bounded_and_never_restates_existing_files(self):
+        workspace = Workspace(self)
+        workspace.put('w4.csv', make_csv('rushing_bell_cow', games=4))
+        workspace.run()
+        workspace.put('w5.csv', make_csv('passing_depth', games=1))
+        workspace.run(through_override=5)
+        manifest = workspace.manifest()
+        self.assertEqual(sorted(e['through_games'] for e in manifest.files.values()), [4, 5])
+        self.assertEqual(len(list((workspace.dir / 'normalized').rglob('*.json'))), 2, 'no orphan restated copy')
+        high = Workspace(self)
+        high.put('x.csv', make_csv('rushing_bell_cow', games=1))
+        report = high.run(through_override=17)
+        self.assertEqual(report['results'][0]['reason']['code'], 'override_invalid')
+        past = Workspace(self)
+        past.put('p.csv', make_csv('rushing_bell_cow', season=2025, games=17))
+        past.run(through_override=5)
+        self.assertEqual(store.current_entry(past.manifest(), 2025, 'rushing_bell_cow')['scope'], 'full_season')
+
+    def test_known_at_starts_when_data_is_accepted_not_when_first_seen(self):
+        workspace = Workspace(self)
+        workspace.put('late.csv', make_csv('rushing_bell_cow', games=5))
+        first = workspace.run(max_possible_games=4)
+        self.assertEqual(workspace.outcomes(first)['late.csv'], 'rejected')
+        later = NOW + datetime.timedelta(days=30)
+        workspace.run(now=later, max_possible_games=6, expected_games=5)
+        entry = store.current_entry(workspace.manifest(), 2026, 'rushing_bell_cow')
+        self.assertEqual(entry['first_imported_at'], pl.iso(later))
+        self.assertEqual(entry['first_seen_at'], pl.iso(NOW))
+        self.assertIsNone(pit(workspace.manifest(), 2026, 'rushing_bell_cow', 2026, 7, known_by=pl.iso(NOW + datetime.timedelta(days=1))))
+
+    def test_same_season_lookup_requires_a_cutoff(self):
+        workspace = Workspace(self)
+        workspace.put('a.csv', make_csv('rushing_bell_cow'))
+        workspace.run()
+        with self.assertRaises(ValueError):
+            store.point_in_time(workspace.manifest(), 2026, 'rushing_bell_cow', 2026, 6)
+
+    def test_week_labels_after_every_bye_hold_back_one_more_week(self):
+        workspace = Workspace(self)
+        workspace.put('g14.csv', make_csv('rushing_bell_cow', games=14))
+        workspace.run(max_possible_games=15, expected_games=14)
+        manifest = workspace.manifest()
+        self.assertIsNone(pit(manifest, 2026, 'rushing_bell_cow', 2026, 15), 'a 14-game total may already include week 15 results')
+        self.assertIsNotNone(pit(manifest, 2026, 'rushing_bell_cow', 2026, 16))
+
+    def test_a_later_partial_reexport_never_hides_the_complete_snapshot_as_of_a_cutoff(self):
+        workspace = Workspace(self)
+        workspace.put('full.csv', make_csv('rushing_bell_cow'))
+        workspace.run()
+        workspace.put('few.csv', make_csv('rushing_bell_cow', teams=TEAMS[:5]))
+        workspace.run(now=NOW + datetime.timedelta(days=1))
+        found = pit(workspace.manifest(), 2026, 'rushing_bell_cow', 2026, 6)
+        self.assertEqual(found['status'], 'imported')
+
+    def test_offseason_exports_of_the_just_finished_season_are_not_live(self):
+        workspace = Workspace(self)
+        workspace.put('mid.csv', make_csv('rushing_bell_cow', games=9))
+        report = workspace.run(now=datetime.datetime(2027, 3, 1, tzinfo=datetime.timezone.utc), max_possible_games=None)
+        self.assertEqual(workspace.outcomes(report)['mid.csv'], 'held_scope')
+        workspace.put('full.csv', make_csv('passing_depth', games=17))
+        workspace.run(now=datetime.datetime(2027, 3, 1, tzinfo=datetime.timezone.utc), max_possible_games=None)
+        entry = store.current_entry(workspace.manifest(), 2026, 'passing_depth')
+        self.assertEqual((entry['scope'], entry['known_live']), ('full_season', False))
+
+    def test_surprising_cells_reject_the_file_and_preserve_it(self):
+        workspace = Workspace(self)
+        workspace.put('na.csv', make_csv('rushing_bell_cow', mutate=lambda body, keys: body[0].__setitem__(keys.index('Player Details.G'), 'N/A')))
+        workspace.put('lead.csv', b'\n' + make_csv('passing_depth'))
+        workspace.put('ok.csv', make_csv('rushing_advanced'))
+        report = workspace.run()
+        outcomes = workspace.outcomes(report)
+        self.assertEqual((outcomes['na.csv'], outcomes['lead.csv'], outcomes['ok.csv']), ('rejected', 'rejected', 'imported'))
+        self.assertEqual(len(list((workspace.dir / 'raw' / '_rejected').glob('*'))), 2)
+        info, _ = pl.inspect_bytes('x.csv', b'Rank,Name\n', REGISTRY)  # inspect never raises
+        self.assertIn('error', info)
+
+    def test_a_blank_line_inside_the_data_is_an_error_not_silent_row_loss(self):
+        data = make_csv('rushing_bell_cow')
+        lines = data.split(b'\n')
+        lines.insert(40, b'')
+        with self.assertRaises(ParseError) as caught:
+            parse_export(b'\n'.join(lines))
+        self.assertEqual(caught.exception.code, 'blank_in_data')
+
+    def test_non_skill_roster_positions_do_not_match_skill_rows(self):
+        roster = idmod.RosterIndex([
+            {'gsis_id': 'OL1', 'full_name': 'Chris Moore', 'team': 'HOU', 'position': 'OL'},
+            {'gsis_id': 'WR1', 'full_name': 'Justin Jefferson', 'team': 'MIN', 'position': 'WR'},
+            {'gsis_id': 'LB1', 'full_name': 'Justin Jefferson', 'team': 'CLE', 'position': 'LB'},
+            {'gsis_id': 'NP', 'full_name': 'Unknown Position', 'team': 'DEN', 'position': None},
+        ])
+        self.assertEqual(roster.resolve('Chris Moore', 'HOU', 'WR')['status'], 'unmatched')
+        moved = roster.resolve('Justin Jefferson', 'DAL', 'WR')
+        self.assertEqual((moved['status'], moved['player_id']), ('matched', 'WR1'))
+        self.assertEqual(roster.resolve('Unknown Position', 'DEN', 'WR')['player_id'], 'NP')
+
+    def test_locked_temp_file_and_bad_manifest_do_not_abort_the_run(self):
+        workspace = Workspace(self)
+        workspace.put('a.csv', make_csv('rushing_bell_cow'))
+        junk = workspace.dir / 'normalized' / 'x.json.tmp'
+        junk.parent.mkdir(parents=True)
+        junk.write_bytes(b'{')
+        real_unlink = Path.unlink
+
+        def locked(self_path, *args, **kwargs):
+            if self_path.name.endswith('.tmp'):
+                raise PermissionError('in use')
+            return real_unlink(self_path, *args, **kwargs)
+        with patch.object(Path, 'unlink', locked):
+            report = workspace.run()
+        self.assertEqual(workspace.outcomes(report)['a.csv'], 'imported')
+        self.assertEqual(len(report['temporary_files_failed']), 1)
+        (workspace.dir / 'manifests' / 'index.json').write_text('{"version": 1}', encoding='utf-8')
+        with self.assertRaises(RuntimeError):
+            workspace.importer()
+
+    def test_a_second_import_cannot_run_at_the_same_time(self):
+        workspace = Workspace(self)
+        workspace.put('a.csv', make_csv('rushing_bell_cow'))
+        lock = workspace.dir / 'manifests' / '.import.lock'
+        lock.parent.mkdir(parents=True)
+        lock.write_text('999', encoding='utf-8')
+        with self.assertRaises(RuntimeError):
+            workspace.run()
+        set_mtime(lock, NOW - datetime.timedelta(days=1))  # a stale lock from a crash is cleared
+        os.utime(lock, (1, 1))
+        workspace.run()
+        self.assertFalse(lock.exists())
+
+    def test_verify_command_reports_a_tampered_archive(self):
+        import fantasy_points
+        workspace = Workspace(self)
+        workspace.put('a.csv', make_csv('rushing_bell_cow'))
+        workspace.run()
+        self.assertEqual(fantasy_points.main(['--root', str(workspace.dir), 'verify']), 0)
+        next((workspace.dir / 'raw').rglob('*.csv')).write_bytes(b'tampered')
+        self.assertEqual(fantasy_points.main(['--root', str(workspace.dir), 'verify']), 1)
+
+    def test_committed_registry_carries_no_vendor_glossary_text(self):
+        self.assertTrue(all('glossary' not in table for table in REGISTRY['tables'].values()))
 
 
 class ProtectionRemovalTests(unittest.TestCase):
@@ -604,8 +801,8 @@ class ProtectionRemovalTests(unittest.TestCase):
     def test_future_season_guard_is_load_bearing(self):
         original = pl.decide_scope
 
-        def permissive(info, current_season, max_possible_games, override=None):
-            return original(info, 9999, None, override)
+        def permissive(info, current_season, max_possible_games, override=None, in_season=True):
+            return original(info, 9999, None, override, in_season)
         self.assert_guarded(lambda: self._run('test_future_games_and_future_season_are_rejected', ImportTests),
                             patch.object(pl, 'decide_scope', permissive))
 
@@ -618,6 +815,35 @@ class ProtectionRemovalTests(unittest.TestCase):
             return result
         self.assert_guarded(lambda: self._run('test_interrupted_import_resumes_cleanly', ImportTests),
                             patch.object(pl.Importer, 'import_file', save_each))
+
+
+    def test_capture_time_ordering_is_load_bearing(self):
+        real = pl.Importer.import_file
+        self.assert_guarded(lambda: self._run('test_an_older_download_arriving_later_does_not_replace_a_newer_one', QaRegressionTests),
+                            patch.object(pl.Importer, 'import_file', lambda self, name, data, mtime=None: real(self, name, data, None)))
+
+    def test_repair_keeps_revision_chain_is_load_bearing(self):
+        real = pl.Importer.import_file
+
+        def forget(self, name, data, mtime=None):
+            entry = self.manifest.files.get(sha256(data))
+            if entry and not (self.root / entry['normalized_path']).exists():
+                self.manifest.files.pop(sha256(data))  # as if the previous entry were not consulted
+                mtime = '9999-01-01T00:00:00Z'  # and the file looked freshly touched (OneDrive sync, copy)
+            return real(self, name, data, mtime)
+        self.assert_guarded(lambda: self._run('test_repairing_a_file_does_not_flip_the_revision_chain', QaRegressionTests),
+                            patch.object(pl.Importer, 'import_file', forget))
+
+    def test_skill_position_rule_is_load_bearing(self):
+        def wildcard(self, pids, group):
+            return sorted(pids)
+        self.assert_guarded(lambda: self._run('test_non_skill_roster_positions_do_not_match_skill_rows', QaRegressionTests),
+                            patch.object(idmod.RosterIndex, '_compatible', wildcard))
+
+    def test_required_cutoff_is_load_bearing(self):
+        real = store.point_in_time
+        self.assert_guarded(lambda: self._run('test_same_season_lookup_requires_a_cutoff', QaRegressionTests),
+                            patch.object(store, 'point_in_time', lambda *a, known_by=None, **k: real(*a, known_by=known_by or FUTURE, **k)))
 
 
 @unittest.skipUnless(os.environ.get('GOING_FP_ROOT'), 'set GOING_FP_ROOT to run against the real Inbox')

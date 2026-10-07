@@ -90,7 +90,8 @@ class RosterIndex:
     def _compatible(self, pids, group):
         if not group:
             return sorted(pids)
-        return sorted(p for p in pids if position_group(self.players[p]['position']) in (group, None))
+        # a roster position that is known and is not this skill group (OL, CB, K...) is a different person; only an empty one is unknown
+        return sorted(p for p in pids if not self.players[p]['position'] or position_group(self.players[p]['position']) == group)
 
     def resolve(self, name, team, position):
         """Return {status, player_id, method, candidates, note}. status: matched | ambiguous | unmatched | team_unknown."""
@@ -114,7 +115,8 @@ class RosterIndex:
         found = decide(self._compatible(same_team, group), 'name_team_position') if same_team else None
         if found:
             return found
-        found = decide(same_team, 'name_team', 'position differs from roster') if same_team else None
+        skill_team = [p for p in same_team if not self.players[p]['position'] or position_group(self.players[p]['position'])]  # never an OL/CB/K
+        found = decide(skill_team, 'name_team', 'position differs from roster') if skill_team else None
         if found:
             return found
         league = sorted(self.by_name.get(key, ()))
@@ -146,7 +148,7 @@ def read_repo_roster(path, season):
 def download_roster(season, destination):
     """Public nflverse roster file (free, not licensed data). Raises on any network or format problem."""
     url = f'https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_{int(season)}.csv'
-    with urllib.request.urlopen(url, timeout=60) as response:
+    with urllib.request.urlopen(url, timeout=20) as response:
         body = response.read()
     if b'gsis_id' not in body[:2000]:
         raise ValueError('unexpected roster file format')
