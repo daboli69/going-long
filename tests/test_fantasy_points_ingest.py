@@ -740,7 +740,7 @@ class HistoricalSnapshotTests(unittest.TestCase):
                                                     mutate=lambda body, keys, g=games: body[0].__setitem__(keys.index('Rushing.ATT'), str(g))))
         for path in workspace.inbox.glob('h*.csv'):
             set_mtime(path, NOW - datetime.timedelta(days=1))
-        return workspace.run(declare='cumulative', max_possible_games=None)
+        return workspace.run(declare='cumulative', only=['*'], max_possible_games=None)
 
     def test_undeclared_partial_past_season_is_held_with_instructions(self):
         workspace = Workspace(self)
@@ -773,7 +773,7 @@ class HistoricalSnapshotTests(unittest.TestCase):
         workspace = Workspace(self)
         workspace.put('full.csv', make_csv('rushing_bell_cow', season=2022, games=17))
         workspace.put('live.csv', make_csv('passing_depth', games=4))
-        workspace.run(declare='cumulative')
+        workspace.run(declare='cumulative', only=['*'])
         manifest = workspace.manifest()
         self.assertEqual(store.current_entry(manifest, 2022, 'rushing_bell_cow')['scope'], 'full_season')
         live = store.current_entry(manifest, 2026, 'passing_depth')
@@ -782,7 +782,7 @@ class HistoricalSnapshotTests(unittest.TestCase):
     def test_declared_single_weeks_are_stored_separately_and_never_served_as_cumulative(self):
         workspace = Workspace(self)
         workspace.put('w5.csv', make_csv('rushing_bell_cow', season=2023, games=1))
-        workspace.run(declare='week:5', max_possible_games=None)
+        workspace.run(declare='week:5', only=['*'], max_possible_games=None)
         manifest = workspace.manifest()
         self.assertEqual([e['week'] for e in store.weekly_entries(manifest, 2023, 'rushing_bell_cow')], [5])
         self.assertTrue(list((workspace.dir / 'raw' / '2023' / 'week-05').glob('*.csv')))
@@ -791,7 +791,7 @@ class HistoricalSnapshotTests(unittest.TestCase):
         self.assertIsNone(store.current_entry(manifest, 2023, 'rushing_bell_cow'))
         bad = Workspace(self)
         bad.put('c.csv', make_csv('rushing_bell_cow', season=2023, games=9))
-        report = bad.run(declare='week:5', max_possible_games=None)
+        report = bad.run(declare='week:5', only=['*'], max_possible_games=None)
         self.assertEqual(report['results'][0]['reason']['code'], 'declared_week_but_cumulative')
 
     def test_corrected_historical_snapshot_is_a_revision_of_the_same_games(self):
@@ -799,7 +799,7 @@ class HistoricalSnapshotTests(unittest.TestCase):
         self.cumulative_series(workspace, games_list=(6,))
         workspace.put('fix.csv', make_csv('rushing_bell_cow', season=2023, games=6, mutate=lambda body, keys: body[0].__setitem__(keys.index('Rushing.ATT'), '77')))
         set_mtime(workspace.inbox / 'fix.csv', NOW + datetime.timedelta(hours=1))
-        report = workspace.run(declare='cumulative', max_possible_games=None, now=NOW + datetime.timedelta(days=1))
+        report = workspace.run(declare='cumulative', only=['*'], max_possible_games=None, now=NOW + datetime.timedelta(days=1))
         self.assertEqual(workspace.outcomes(report)['fix.csv'], 'revision')
         self.assertEqual(pit(workspace.manifest(), 2023, 'rushing_bell_cow', 2023, 8)['original_filename'], 'fix.csv')
 
@@ -808,6 +808,30 @@ class HistoricalSnapshotTests(unittest.TestCase):
         self.cumulative_series(workspace)
         report = workspace.run(max_possible_games=None, now=NOW + datetime.timedelta(days=1))
         self.assertEqual(set(workspace.outcomes(report).values()), {'duplicate'})
+
+    def test_one_game_cumulative_declaration_is_refused_as_a_single_week(self):
+        workspace = Workspace(self)
+        workspace.put('w5.csv', make_csv('rushing_bell_cow', season=2023, games=1))
+        report = workspace.run(declare='cumulative', only=['*'], max_possible_games=None)
+        self.assertEqual(workspace.outcomes(report)['w5.csv'], 'held_scope')
+        self.assertEqual(report['results'][0]['reason']['code'], 'cumulative_ambiguous')
+        self.assertEqual(list((workspace.dir / 'normalized').rglob('*.json')), [])
+
+    def test_a_declaration_must_name_its_files_and_only_touches_them(self):
+        workspace = Workspace(self)
+        with self.assertRaises(ValueError):
+            workspace.importer(declare='cumulative')
+        workspace.put('cum_a.csv', make_csv('rushing_bell_cow', season=2023, games=6))
+        workspace.put('single.csv', make_csv('passing_depth', season=2023, games=1))
+        report = workspace.run(declare='cumulative', only=['cum_*'], max_possible_games=None)
+        self.assertEqual(workspace.outcomes(report), {'cum_a.csv': 'imported'})
+        report = workspace.run(declare='week:7', only=['single.csv'], max_possible_games=None)
+        self.assertEqual(workspace.outcomes(report), {'single.csv': 'imported'})
+        manifest = workspace.manifest()
+        self.assertIsNone(store.current_entry(manifest, 2023, 'rushing_bell_cow'), 'a historical cumulative snapshot is not a live current one')
+        self.assertEqual([e['week'] for e in store.weekly_entries(manifest, 2023, 'passing_depth')], [7])
+        self.assertEqual(pit(manifest, 2023, 'rushing_bell_cow', 2023, 9)['through_games'], 6)
+        self.assertIsNone(pit(manifest, 2023, 'passing_depth', 2023, 9))
 
     def test_bad_declarations_are_refused(self):
         for text in ('week:0', 'week:x', 'weekly', 'week:30'):
@@ -960,6 +984,24 @@ class ProtectionRemovalTests(unittest.TestCase):
             return real(View(), season, table_id, for_season, for_week, known_by)
         self.assert_guarded(lambda: self._run('test_declared_single_weeks_are_stored_separately_and_never_served_as_cumulative', HistoricalSnapshotTests),
                             patch.object(store, 'point_in_time', serves_weeks))
+
+    def test_single_week_guard_on_cumulative_declarations_is_load_bearing(self):
+        original = pl._decide_scope
+
+        def lenient(info, current_season, max_possible_games, override, in_season, declare):
+            patched = dict(info, games_max=max(2, info.get('games_max') or 0))  # pretend the file was not a one-game file
+            return original(patched, current_season, max_possible_games, override, in_season, declare)
+        self.assert_guarded(lambda: self._run('test_one_game_cumulative_declaration_is_refused_as_a_single_week', HistoricalSnapshotTests),
+                            patch.object(pl, '_decide_scope', lenient))
+
+    def test_file_selection_for_declarations_is_load_bearing(self):
+        real = pl.Importer._run
+
+        def everything(self, inbox):
+            self.only = []
+            return real(self, inbox)
+        self.assert_guarded(lambda: self._run('test_a_declaration_must_name_its_files_and_only_touches_them', HistoricalSnapshotTests),
+                            patch.object(pl.Importer, '_run', everything))
 
 @unittest.skipUnless(os.environ.get('GOING_FP_ROOT'), 'set GOING_FP_ROOT to run against the real Inbox')
 class RealInboxTests(unittest.TestCase):

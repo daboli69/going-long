@@ -108,7 +108,7 @@ calibration, Champion comparison, human approval.
 
 ## Tests
 
-`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (76 tests, synthetic fixtures built from the real
+`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (80 tests, synthetic fixtures built from the real
 registry; includes regression tests for every defect the independent QA review found). `GOING_FP_ROOT=<folder>` adds a test that every real export is recognised with the current schema. The
 `ProtectionRemovalTests` class switches each critical protection off and requires the guarding scenario to fail.
 
@@ -127,13 +127,14 @@ seasons:
 | What you downloaded | Command | Stored as | Usable for backtests |
 | --- | --- | --- | --- |
 | A full finished season (G reaches 17) | `import` | `full-season` | next season onward only |
-| Cumulative weeks 1-N, if Fantasy Points lets you pick them | `import --declare cumulative` | `cumulative-through-game-NN` | **yes**: point-in-time by content (games through N), whatever the download date |
-| One single week, if offered | `import --declare week:N` | `week-NN`, `weekly_entries()` | stored as true weekly observations; never summed or served as cumulative |
+| Cumulative weeks 1-N, if Fantasy Points lets you pick them | `import --declare cumulative --only "<pattern>"` | `cumulative-through-game-NN` | **yes**: point-in-time by content (games through N), whatever the download date |
+| One single week, if offered | `import --declare week:N --only "<pattern>"` | `week-NN`, `weekly_entries()` | stored as true weekly observations; never summed or served as cumulative |
 
-Put one declared batch in the Inbox, run `import --declare ...` once, and the files stay archived; plain `import` afterwards
-treats them as duplicates. Without a declaration a partial past-season file is held (`held_scope`) with these instructions.
-The declaration applies to every file in that run, so keep batches homogeneous. `declared cumulative` is the operator's
-statement; check in Fantasy Points that the season filter is "Weeks 1 to N" before declaring it.
+A declaration always names its files with `--only` (a filename pattern, e.g. `--only "2023_wk*"`); it is refused without one and
+never touches other Inbox files. Run it once; the files stay archived and plain `import` afterwards treats them as duplicates.
+Without a declaration a partial past-season file is held (`held_scope`) with these instructions. A one-game file declared
+`cumulative` is refused (`cumulative_ambiguous`): every single week looks like that, so declare it `week:N` (`week:1` for the
+opener). Declare only what you filtered in Fantasy Points; a 2-week range (G=2) cannot be told from "weeks 1-2" by the file.
 
 ## Known limits
 

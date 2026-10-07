@@ -8,6 +8,7 @@ Safety rules enforced here (each has a test that fails when the rule is removed)
 * blank is None, never 0; unmatched players keep player_id null and are listed, never fuzzy-matched
 """
 import datetime
+import fnmatch
 import hashlib
 import json
 from pathlib import Path
@@ -132,6 +133,10 @@ def _decide_scope(info, current_season, max_possible_games, override, in_season,
             return None, None, None, ('future_games', f'week {week} has not been played'), None
         return 'single_week', None, 'operator', None, week
     if declare and declare[0] == 'cumulative' and not live and games < FULL_SEASON_GAMES:
+        if games < 2:
+            # G=1 for everyone is what ANY single week looks like; filing it as "through game 1" would claim less than it holds
+            return 'unclassified', games, 'operator', ('cumulative_ambiguous', 'every player shows 1 game: this is a single week (declare week:N, '
+                                                       'or week:1 for the opener), not a weeks 1-N total'), None
         return 'historical_cumulative', games, 'operator', None, None
     if override is not None and live:
         if override < 1 or (max_possible_games is not None and override > max_possible_games):
@@ -224,7 +229,7 @@ def normalize(entry, ctx, index):
 
 class Importer:
     def __init__(self, root, registry, now=None, rosters=None, current_season=None, max_possible_games=None, expected_games=None,
-                 through_override=None, hooks=None, declare=None):
+                 through_override=None, hooks=None, declare=None, only=None):
         self.root = Path(root)
         self.registry = registry
         self.now = now or datetime.datetime.now(datetime.timezone.utc)
@@ -236,6 +241,9 @@ class Importer:
         self.in_season = self.now.month >= 7 or self.now.month == 1
         self.hooks = hooks or {}
         self.declare = parse_declare(declare) if isinstance(declare, str) or declare is None else declare
+        self.only = list(only or [])
+        if self.declare and not self.only:
+            raise ValueError('--declare needs --only <filename pattern>: a declaration is about specific files, never the whole Inbox')
         self.manifest = Manifest(self.root)
         self._indexes = {}
 
@@ -373,7 +381,9 @@ class Importer:
     def _run(self, inbox):
         cleaned, cleanup_failures = clean_temporaries(self.root)
         results = []
-        files = sorted((p for p in inbox.iterdir() if p.is_file() and p.suffix.lower() == '.csv'), key=lambda p: (p.stat().st_mtime, p.name))
+        files = sorted((p for p in inbox.iterdir() if p.is_file() and p.suffix.lower() == '.csv'
+                        and (not self.only or any(fnmatch.fnmatch(p.name.lower(), pattern.lower()) for pattern in self.only))),
+                       key=lambda p: (p.stat().st_mtime, p.name))
         for path in files:
             try:
                 data = path.read_bytes()

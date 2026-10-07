@@ -66,7 +66,7 @@ def make_importer(args):
     week = repo_week(season)
     return Importer(root, regmod.load(), now=now, rosters=roster_provider(root, season, not args.offline), current_season=season,
                     max_possible_games=week, expected_games=args.expected_through if args.expected_through is not None else (week - 1 if week else None),
-                    through_override=args.through_week, declare=getattr(args, 'declare', None))
+                    through_override=args.through_week, declare=getattr(args, 'declare', None), only=getattr(args, 'only', None))
 
 
 def cmd_import(args):
@@ -203,6 +203,7 @@ def main(argv=None):
     p.add_argument('--offline', action='store_true', help='do not download nflverse rosters')
     p.add_argument('--through-week', type=int, help='operator override of games played for every file in this run')
     p.add_argument('--declare', help="historical batch only: 'cumulative' (Fantasy Points weeks 1-N) or 'week:N' (a single week), applied to every file in this run")
+    p.add_argument('--only', action='append', help="only process Inbox files matching this name pattern (repeatable); required with --declare, e.g. --only '2023_*'")
     p.add_argument('--publish-status', help='write a metadata-only freshness JSON (no licensed values) to this path')
     p.set_defaults(func=cmd_import)
     p = sub.add_parser('inventory', help='read-only look at every file in the Inbox')
