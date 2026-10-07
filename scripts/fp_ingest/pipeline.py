@@ -22,6 +22,7 @@ from .store import (GOOD, Manifest, RunLock, atomic_write, clean_temporaries, fi
 
 MIN_TEAMS_PLAYER = 24
 MIN_TEAMS_TEAM = 28
+IMPORTER_VERSION = 2  # bump when normalized output or entry metadata changes: archived files are then re-derived from their raw copies
 FULL_SEASON_GAMES = 17  # every 2021+ season; a finished season's league-wide maximum is 17
 
 
@@ -160,10 +161,14 @@ def _decide_scope(info, current_season, max_possible_games, override, in_season,
 RESEARCH_BOUNDARY = {
     'full_season': {
         'same_season_point_in_time': False,
+        'season_type': 'UNCONFIRMED',
+        'season_type_note': 'not established whether these totals are regular season only or include postseason games; do not assume either. '
+                            'Any research that depends on it must first establish it from the Fantasy Points filters or from games-played evidence.',
         'summary': 'retrospective totals: they contain every game of the season, including those after any week you might predict',
         'allowed_uses': ['prior season -> next season relationships', 'metric stability / year-over-year persistence', 'player and team archetypes',
                          'candidate-feature discovery for later prospective testing', 'schema and distribution research'],
-        'forbidden_uses': ['input to any prediction or backtest for a week of the same season', 'claiming in-season predictive performance'],
+        'forbidden_uses': ['input to any prediction or backtest for a week of the same season', 'claiming in-season predictive performance',
+                           'assuming the totals are regular-season-only'],
     },
     'season_to_date': {'same_season_point_in_time': True, 'summary': 'captured live; valid for later weeks only (see store.point_in_time)'},
     'historical_cumulative': {'same_season_point_in_time': True, 'summary': 'operator-declared weeks 1-N export: valid for weeks after N, by content'},
@@ -295,7 +300,7 @@ class Importer:
     def import_file(self, name, data, mtime=None):
         sha = sha256(data)
         existing = self.manifest.files.get(sha)
-        if existing and existing.get('status') in GOOD and existing.get('normalized_path') and (self.root / existing['normalized_path']).exists() \
+        if existing and existing.get('status') in GOOD and existing.get('importer_version') == IMPORTER_VERSION and existing.get('normalized_path') and (self.root / existing['normalized_path']).exists() \
                 and (self.root / existing['raw_path']).exists() and sha256((self.root / existing['raw_path']).read_bytes()) == sha:
             return {'file': name, 'outcome': 'duplicate', 'table_id': existing.get('table_id'), 'sha256': sha}
         # anything else (never imported, previously held, or a damaged copy) is evaluated again
@@ -337,6 +342,9 @@ class Importer:
             return hold('held_scope', '_quarantine', problem[0], problem[1], {'season': season, 'table_id': info['table_id'], 'through_games': games})
         table = ctx['table']
         warnings = [note for note in info['notes'] if note != 'no_trailing_newline']  # real exports end without a newline: normal
+        if scope == 'full_season' and (info.get('games_max') or 0) > 17:
+            warnings.append(f"games played reaches {info['games_max']} (more than the 17 regular-season games): postseason games or a trade double count "
+                            f"may be included; regular-season-only is NOT established")
         teams_needed = MIN_TEAMS_PLAYER if table['level'] == 'player' else MIN_TEAMS_TEAM
         status = 'imported'
         if info['team_count'] < teams_needed:
@@ -351,12 +359,13 @@ class Importer:
         raw_path = self._raw_path(folder, table['id'], sha)
         self._store_raw(raw_path, data, sha)
         self._hook('after_raw')
-        entry = {**base, 'status': status, 'table_id': table['id'], 'season': season, 'scope': scope, 'scope_source': scope_source,
+        entry = {**base, 'importer_version': IMPORTER_VERSION, 'status': status, 'table_id': table['id'], 'season': season, 'scope': scope, 'scope_source': scope_source,
                  # known_at: when GOING first accepted this data, not when it first saw the file
                  'first_imported_at': carry['first_imported_at'] if carry else now,
                  'through_games': games, 'week': week, 'through_week': games if games is not None and games < 14 and scope == 'season_to_date' else None,
                  'declared_by': 'operator' if scope_source == 'operator' else None, 'known_live': scope == 'season_to_date',
                  'same_season_point_in_time': RESEARCH_BOUNDARY.get(scope, {}).get('same_season_point_in_time'),
+                 'season_type': RESEARCH_BOUNDARY.get(scope, {}).get('season_type'),
                  'forward_looking': table['forward_looking'], 'row_count': info['row_count'], 'column_count': info['column_count'],
                  'team_count': info['team_count'], 'schema_signature': regmod.signature(ctx['parsed']['columns']),
                  'warnings': warnings, 'raw_path': str(raw_path.relative_to(self.root)).replace('\\', '/'), 'drift': drift if drift and drift['new'] else None}

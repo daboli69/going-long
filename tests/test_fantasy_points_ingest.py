@@ -921,10 +921,56 @@ class FullSeasonHistoryTests(unittest.TestCase):
         matrix = history.availability(REGISTRY, workspace.manifest(), declarations)['tables']
         self.assertEqual(matrix['rushing_bell_cow']['2025']['status'], 'imported')
         self.assertEqual(matrix['passing_depth']['2025']['status'], 'import_problem')
-        self.assertEqual(matrix['line_matchups']['2025']['status'], 'provider_unavailable')
+        self.assertEqual(matrix['line_matchups']['2025']['status'], 'not_obtained')
         self.assertEqual(matrix['qb_coverage_matchup']['2025']['status'], 'unknown')
         self.assertEqual(matrix['rushing_bell_cow']['2024']['status'], 'unknown')
         self.assertEqual(sorted(matrix['rushing_bell_cow']), ['2021', '2022', '2023', '2024', '2025', '2026'])
+
+    def test_availability_never_calls_a_gap_confirmed_unless_confirmed(self):
+        from fp_ingest import history
+        workspace = Workspace(self)
+        workspace.put('a.csv', self.full('rushing_bell_cow'))
+        workspace.run()
+        declarations = {'2025': {'line_matchups': {'evidence': 'no file'},
+                                 'qb_coverage_matchup': {'status': 'not_obtained', 'evidence': 'no file'},
+                                 'wr_coverage_matchup': {'status': 'provider_unavailable', 'evidence': 'confirmed in the Fantasy Points UI'}}}
+        matrix = history.availability(REGISTRY, workspace.manifest(), declarations)['tables']
+        self.assertEqual(matrix['line_matchups']['2025']['status'], 'not_obtained')
+        self.assertEqual(matrix['qb_coverage_matchup']['2025']['status'], 'not_obtained')
+        self.assertEqual(matrix['wr_coverage_matchup']['2025']['status'], 'provider_unavailable')
+        committed = json.loads((ROOT / 'config' / 'fantasy_points_availability.json').read_text(encoding='utf-8'))['declarations']
+        self.assertTrue(all(item.get('status') != 'provider_unavailable' for season in committed.values() for item in season.values()),
+                        'nothing may be committed as confirmed-unavailable until it is confirmed')
+
+    def test_season_type_of_full_season_exports_is_an_explicit_open_question(self):
+        workspace = Workspace(self)
+        workspace.put('old.csv', self.full(mutate=lambda body, keys: body[0].__setitem__(keys.index('Player Details.G'), '18')))
+        report = workspace.run()
+        self.assertTrue(any('regular-season-only is NOT established' in w for w in report['results'][0]['warnings']))
+        document = json.loads(next((workspace.dir / 'normalized').rglob('*.json')).read_text(encoding='utf-8'))
+        self.assertEqual(document['research_boundary']['season_type'], 'UNCONFIRMED')
+        self.assertIn('assuming the totals are regular-season-only', document['research_boundary']['forbidden_uses'])
+        entry = store.current_entry(workspace.manifest(), 2025, 'rushing_bell_cow')
+        self.assertEqual(entry['season_type'], 'UNCONFIRMED')
+        from fp_ingest import history
+        cell = history.availability(REGISTRY, workspace.manifest(), {})['tables']['rushing_bell_cow']['2025']
+        self.assertEqual(cell['season_type'], 'UNCONFIRMED')
+
+    def test_older_importer_output_is_rederived_from_raw_without_changing_history(self):
+        workspace = Workspace(self)
+        workspace.put('a.csv', make_csv('rushing_bell_cow'))
+        workspace.run()
+        manifest = workspace.manifest()
+        entry = next(iter(manifest.files.values()))
+        entry['importer_version'] = 1
+        entry.pop('same_season_point_in_time', None)
+        first_seen = entry['first_imported_at']
+        manifest.save()
+        report = workspace.run(now=NOW + datetime.timedelta(days=3))
+        self.assertEqual(workspace.outcomes(report)['a.csv'], 'repaired')
+        refreshed = next(iter(workspace.manifest().files.values()))
+        self.assertEqual((refreshed['first_imported_at'], refreshed['importer_version']), (first_seen, pl.IMPORTER_VERSION))
+        self.assertEqual(workspace.outcomes(workspace.run(now=NOW + datetime.timedelta(days=4)))['a.csv'], 'duplicate')
 
     def test_optional_tables_are_not_reported_missing_but_show_when_present(self):
         workspace = Workspace(self)
@@ -1139,6 +1185,16 @@ class ProtectionRemovalTests(unittest.TestCase):
     def test_research_boundary_flag_is_load_bearing(self):
         self.assert_guarded(lambda: self._run('test_full_season_is_flagged_as_retrospective_in_metadata', FullSeasonHistoryTests),
                             patch.dict(pl.RESEARCH_BOUNDARY, {'full_season': {'same_season_point_in_time': True}}))
+
+    def test_unconfirmed_availability_label_is_load_bearing(self):
+        from fp_ingest import history
+        real = history.availability
+
+        def overclaim(registry, manifest, declarations=None, seasons=history.SEASONS):
+            declarations = {season: {t: dict(item, status='provider_unavailable') for t, item in tables.items()} for season, tables in (declarations or {}).items()}
+            return real(registry, manifest, declarations, seasons)
+        self.assert_guarded(lambda: self._run('test_availability_never_calls_a_gap_confirmed_unless_confirmed', FullSeasonHistoryTests),
+                            patch.object(history, 'availability', overclaim))
 
 @unittest.skipUnless(os.environ.get('GOING_FP_ROOT'), 'set GOING_FP_ROOT to run against the real Inbox')
 class RealInboxTests(unittest.TestCase):

@@ -108,7 +108,7 @@ calibration, Champion comparison, human approval.
 
 ## Tests
 
-`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (93 tests, synthetic fixtures built from the real
+`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (97 tests, synthetic fixtures built from the real
 registry; includes regression tests for every defect the independent QA review found). `GOING_FP_ROOT=<folder>` adds a test that every real export is recognised with the current schema. The
 `ProtectionRemovalTests` class switches each critical protection off and requires the guarding scenario to fail.
 
@@ -152,6 +152,13 @@ opener). Declare only what you filtered in Fantasy Points; a 2-week range (G=2) 
 * `python scripts/fantasy_points.py compat --older 2025 --newer 2026` writes `manifests/schema_compatibility_*.json`, classifying each
   column CONSISTENT / 2026_ONLY / HISTORICAL_ONLY / SCHEMA_CHANGED / NEEDS_REVIEW (name, type, vendor definition text hash, typical size
   of rate columns). Similar names are not proof of identical meaning; review anything that is not CONSISTENT.
+* **Regular season vs postseason is an open question** for full-season exports: `research_boundary.season_type` is `UNCONFIRMED`, and an
+  export whose games-played exceeds 17 carries a warning (the 2025 receiving/efficiency tables reach 18). Do not assume either until it is
+  established from the Fantasy Points filters. **Availability gaps are unconfirmed too:** a table with no file is `not_obtained`
+  (availability unconfirmed); `provider_unavailable` is used only when someone confirms it in the Fantasy Points UI and sets
+  `"status": "provider_unavailable"` in `config/fantasy_points_availability.json`.
+* Archived files are re-derived from their raw copies when `IMPORTER_VERSION` is bumped (outcome `repaired`); first-imported time and the
+  revision chain are kept, values never change.
 * Optional tables (`weekly_expected: false`, the three "basic" box-score tables) are not reported missing when absent.
 
 ## Known limits

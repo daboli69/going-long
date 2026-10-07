@@ -17,7 +17,8 @@ AVAILABILITY_CONFIG = Path(__file__).resolve().parents[2] / 'config' / 'fantasy_
 # How a missing table must be read. Only "provider_unavailable" means the provider does not offer it; "unknown" means nobody has checked.
 STATUS_MEANING = {
     'imported': 'archived and normalized',
-    'provider_unavailable': 'Fantasy Points does not offer this table for that season (operator-declared); absence is NOT an import failure and NOT zero',
+    'provider_unavailable': 'CONFIRMED from Fantasy Points that it does not offer this table for that season; absence is NOT an import failure and NOT zero',
+    'not_obtained': 'AVAILABILITY UNCONFIRMED: no file was obtained and nobody has verified whether Fantasy Points offers it; do not read it as provider-unavailable, as zero, or as a failure',
     'import_problem': 'a file for this table and season exists but was held or rejected: fix it, do not treat it as unavailable',
     'unknown': 'no file and no declaration: not yet downloaded or not yet checked',
 }
@@ -41,11 +42,13 @@ def availability(registry, manifest, declarations=None, seasons=SEASONS):
                         and e.get('status') in ('rejected', 'quarantined_schema', 'held_scope', 'unrecognized')]
             if entry:
                 cell = {'status': 'imported', 'scope': entry['scope'], 'through_games': entry.get('through_games'), 'rows': entry.get('row_count'),
-                        'complete': entry.get('status') != 'partial'}
+                        'complete': entry.get('status') != 'partial', 'season_type': entry.get('season_type')}
             elif problems:
                 cell = {'status': 'import_problem', 'detail': problems[0].get('reason', {}).get('code')}
             elif declared:
-                cell = {'status': 'provider_unavailable', 'evidence': declared.get('evidence')}
+                # only an explicit confirmed declaration may say the provider does not offer a table; anything else stays unconfirmed
+                status = 'provider_unavailable' if declared.get('status') == 'provider_unavailable' else 'not_obtained'
+                cell = {'status': status, 'evidence': declared.get('evidence')}
             else:
                 cell = {'status': 'unknown'}
             row[str(season)] = cell
