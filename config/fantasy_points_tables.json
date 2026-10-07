@@ -1,0 +1,3672 @@
+{
+ "source": "Fantasy Points Data Suite",
+ "tables": {
+  "efficiency": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.YACO",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.MTF",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.EXP",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.AY",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YAC",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YACO",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.MTF",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.EXP",
+     "type": "numeric"
+    },
+    {
+     "key": "Total.TOUCH",
+     "type": "numeric"
+    },
+    {
+     "key": "Total.YFS",
+     "type": "numeric"
+    },
+    {
+     "key": "Total.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Total.MTF",
+     "type": "numeric"
+    },
+    {
+     "key": "Total.YACO",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.YPC",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.YACO/ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.MTF/ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.EXP RUN %",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.YPT",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.YAC/REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.YACO/REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.MTF/REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.EXP REC %",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.YFS/TOUCH",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.MTF/TOUCH",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.YACO/TOUCH",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.EXP PLAY %",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.RuYDS/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.RecYDS/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Efficiency.YFS/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP %",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XTD",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XTD/G",
+     "type": "numeric"
+    }
+   ],
+   "description": "Per-player rushing and receiving efficiency plus XFP/XTD expectation; season to date.",
+   "filename_hints": [
+    "efficiency"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "ATT": "Rushing Attempts",
+    "AY": "Receiving - Yards - Air - Total",
+    "EXP": "Receptions that result in 20 or more yards",
+    "EXP PLAY %": "Percentage of touches that result in an explosive run or reception",
+    "EXP REC %": "Percentage of Receptions to go for 20+ yards",
+    "EXP RUN %": "Percentage of Runs to go for 15+ Yards",
+    "FP": "Fantasy Points",
+    "FP/G": "Fantasy Points per Game",
+    "G": "Games Played",
+    "MTF": "Missed Tackles Forced on Carries and Receptions",
+    "MTF/ATT": "Missed Tackles Forced per Attempt",
+    "MTF/REC": "Missed Tackles Forced per Reception",
+    "MTF/TOUCH": "Total Missed Tackles Forced per Touch",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "REC": "Receptions",
+    "RTE": "Routes Run",
+    "Rank": "Rank, Most to Least",
+    "RecYDS/G": "Receiving Yards per Game",
+    "RuYDS/G": "Rushing Yards per Game",
+    "TD": "Rushing + Receiving TDs",
+    "TGT": "Targets",
+    "TOUCH": "Total Carries + Receptions",
+    "Team": "Team(s) played for",
+    "XFP": "Expected Fantasy Points",
+    "XFP %": "Team XFP Share",
+    "XFP/G": "Expected PPR Fantasy Points per Game",
+    "XTD": "Scrimmage - Touchdowns - Expected - Total",
+    "XTD/G": "Scrimmage - Touchdowns - Expected - Per Game",
+    "YAC": "Yards After the Catch",
+    "YAC/REC": "Yards After the Catch per Reception",
+    "YACO": "Yards After Contact on Carries and Receptions",
+    "YACO/ATT": "Yards After Contact per Attempt",
+    "YACO/REC": "Yards After Contact per Reception",
+    "YACO/TOUCH": "Total Yards After Contact per Touch",
+    "YDS": "Receiving Yards",
+    "YFS": "Yards from Scrimmage",
+    "YFS/G": "Yards from Scrimmage per Game",
+    "YFS/TOUCH": "Yards from Scrimmage per Touch",
+    "YPC": "Rushing Yards per Carry",
+    "YPRR": "Yards per Route Run",
+    "YPT": "Yards per Target"
+   },
+   "id": "efficiency",
+   "label": "Efficiency (rushing, receiving, total, expected fantasy points)",
+   "level": "player",
+   "side": "offense",
+   "signature": "acccc1a4bd56ca3f"
+  },
+  "line_matchups": {
+   "columns": [
+    {
+     "key": "Team Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Team Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Team Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Team Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Team Details.Location",
+     "type": "text"
+    },
+    {
+     "key": "Team Details.Team Name",
+     "type": "text"
+    },
+    {
+     "key": "Offense Stats.RUSH GRADE",
+     "type": "numeric"
+    },
+    {
+     "key": "Offense Stats.PASS GRADE",
+     "type": "numeric"
+    },
+    {
+     "key": "Offense Stats.ADJ YBC/ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Offense Stats.PRESS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Offense Stats.PrROE",
+     "type": "numeric"
+    },
+    {
+     "key": "Offense Stats.Team",
+     "type": "text"
+    },
+    {
+     "key": "Offense Stats.TM ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Offense Stats.YBCO",
+     "type": "numeric"
+    },
+    {
+     "key": "Defense Stats.Name",
+     "type": "text"
+    },
+    {
+     "key": "Defense Stats.ADJ YBC/ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Defense Stats.PRESS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Defense Stats.PrROE",
+     "type": "numeric"
+    },
+    {
+     "key": "Defense Stats.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Defense Stats.YBCO",
+     "type": "numeric"
+    }
+   ],
+   "description": "Team rush/pass grades, pressure and run-block metrics paired with the next opponent defence (teams on bye are absent).",
+   "filename_hints": [
+    "linematchups"
+   ],
+   "forward_looking": true,
+   "glossary": {
+    "ADJ YBC/ATT": "Adjusted Rushing Yards Before Contact per Attempt - Adjusted to remove scrambles, trick plays, and QB kneels/sneaks",
+    "G": "Games Played",
+    "Name": "Upcoming Opponent",
+    "PASS GRADE": "Passing OL/DL Matchup Grade",
+    "PRESS %": "Percentage of Dropbacks Under Pressure",
+    "PrROE": "Pressure Rate Over Expectation - Pressure Rate vs. Expected Pressure Rate based on QB Time to Throw",
+    "RUSH GRADE": "Rushing OL/DL Matchup Grade",
+    "Rank": "Rank, Most to Least"
+   },
+   "id": "line_matchups",
+   "label": "Offensive line vs defensive front matchups (next game)",
+   "level": "team",
+   "side": "matchup",
+   "signature": "bc4bcfd5bcc7b7f6"
+  },
+  "offense_snaps": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Total.Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Total.TM Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Total.Snap %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.TM Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.Snap %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.TM Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.Snap %",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 5.Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 5.TM Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 5.Snap %",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 10.Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 10.TM Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 10.Snap %",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 20.Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 20.TM Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 20.Snap %",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP",
+     "type": "numeric"
+    }
+   ],
+   "description": "Snap counts and snap share with goal-line and red-zone splits.",
+   "filename_hints": [
+    "offensesnaps",
+    "offense snaps"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "FP": "Fantasy Points",
+    "FP/G": "Fantasy Points per Game",
+    "G": "Games Played",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "Rank": "Rank, Most to Least",
+    "Snap %": "Red Zone Snap Percentage",
+    "Snaps": "Total offensive snaps (pass + rush)",
+    "TM Snaps": "Total Team Red Zone Snaps",
+    "Team": "Team(s) played for"
+   },
+   "id": "offense_snaps",
+   "label": "Offensive snaps (total, rushing, passing, inside 5/10/20)",
+   "level": "player",
+   "side": "offense",
+   "signature": "b8d43aa195389625"
+  },
+  "passing_advanced": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.CMP",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.CMP %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.YDS/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.YPA",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.INT",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.1D",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.SACK",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.SACK %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.SK YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.ANY/A",
+     "type": "numeric"
+    },
+    {
+     "key": "Scrambles.SCRM",
+     "type": "numeric"
+    },
+    {
+     "key": "Scrambles.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Scrambles.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.CPOE",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.aDOT",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.AY",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.Deep Throw %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.Deep Throw",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.YAC %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.ADJ CMP %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.1Read %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.ACC %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.CATCH %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.OFF %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.HERO %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.TWT %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.EZATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.DROP %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.DROP YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.TTT",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.TTP",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.TTSK",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.TTSC",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.QB SK",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.QBP",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.PRESS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.PRESS SK %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.PrROE",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.CHK %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.RPO %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.TA",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.BAT",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing Advanced.SPK",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/OPP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.OPP",
+     "type": "numeric"
+    }
+   ],
+   "description": "QB accuracy, pressure, time-to-throw, depth and fantasy production.",
+   "filename_hints": [
+    "passingadvanced"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "1D": "Passing first downs",
+    "1Read %": "Percentage of Throws to the QB's 1st Read or Designed Throws",
+    "ACC %": "Highly Accurate Throw Percentage where the QB hits the receiver in stride, throws the ball away from coverage, or hits the receiver in the numbers when the receiver is standing still",
+    "ADJ CMP %": "Completion Percentage Adjusted for drops, spikes, throw aways, hit as thrown, and batted passes",
+    "ANY/A": "Adjusted Net Yards per Attempt - ((Pass Yards + 20*(Pass TDs)-45*(INTs)-Sack Yards))/(Pass Atts + Sacks)",
+    "ATT": "Passing Attempts",
+    "AY": "Passing - Yards - Air - Total",
+    "BAT": "Batted Passes",
+    "CATCH %": "Catchable Throw Percentage",
+    "CHK %": "Checkdown Throw Percentage",
+    "CMP": "Passing Completions",
+    "CMP %": "Passing Completion Percentage",
+    "CPOE": "Completion Percentage Over Expectation based on Depth of Throw",
+    "DB": "Dropbacks",
+    "DROP %": "Percentage of Throws that are dropped",
+    "DROP YDS": "Dropped Air Yards",
+    "Deep Throw": "Pass Attempts that travel 20+ yards in the air",
+    "Deep Throw %": "Deep throw attempt percentage",
+    "EZATT": "Passing attempts into the endzone",
+    "FP": "Fantasy Points",
+    "FP/DB": "Fantasy Points per Dropback",
+    "FP/G": "Fantasy Points per Game",
+    "FP/OPP": "Total Fantasy Points divided by Dropbacks + Designed Runs",
+    "G": "Games Played",
+    "HERO %": "Percent of attempts QB makes an extraordinary throw that maximizes the result of the play",
+    "INT": "Interceptions",
+    "Name": "Full name of the player or team",
+    "OFF %": "Off Target Throw Percentage",
+    "POS": "Player Position",
+    "PRESS %": "Percentage of Dropbacks Under Pressure",
+    "PRESS SK %": "Percentage of pressured dropbacks that result in a sack",
+    "PrROE": "Pressure Rate Over Expectation - Pressure Rate vs. Expected Pressure Rate based on QB Time to Throw",
+    "QB SK": "Sacks that are the fault of the QB",
+    "QBP": "Dropbacks Under Pressure",
+    "RATE": "QB Passer Rating",
+    "RPO %": "Percentage of Dropbacks that had a Run-Pass-Option",
+    "Rank": "Rank, Most to Least",
+    "SACK": "Number of times sacked",
+    "SACK %": "Percentage of dropbacks that result in a sack",
+    "SCRM": "Scrambles",
+    "SK YDS": "Yards Lost due to Sacks",
+    "SPK": "QB Spikes",
+    "TA": "Attempts Thrown Away",
+    "TD": "Scramble Touchdowns",
+    "TTP": "Average Time to Pressure",
+    "TTSC": "Average Time to Scramble",
+    "TTSK": "Average Time to Sack",
+    "TTT": "Average Time to Throw",
+    "TWT %": "Turnover Worthy Throw Rate",
+    "Team": "Team(s) played for",
+    "YAC %": "Percentage of Passing Yards that come after the catch",
+    "YDS": "Scramble Yards",
+    "YDS/G": "Passing Yards Per Game",
+    "YPA": "Passing Yards per Attempt",
+    "aDOT": "Average Depth of Target"
+   },
+   "id": "passing_advanced",
+   "label": "Passing advanced (QB)",
+   "level": "player",
+   "side": "offense",
+   "signature": "925c6e996c5b691a"
+  },
+  "passing_depth": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.CMP",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.INT",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.CATCH %",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.HERO",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TWT",
+     "type": "numeric"
+    },
+    {
+     "key": "Behind LOS.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Behind LOS.CMP",
+     "type": "numeric"
+    },
+    {
+     "key": "Behind LOS.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Behind LOS.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Behind LOS.INT",
+     "type": "numeric"
+    },
+    {
+     "key": "Behind LOS.RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Behind LOS.CATCH %",
+     "type": "numeric"
+    },
+    {
+     "key": "Behind LOS.HERO",
+     "type": "numeric"
+    },
+    {
+     "key": "Behind LOS.TWT",
+     "type": "numeric"
+    },
+    {
+     "key": "0-9 Yards.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "0-9 Yards.CMP",
+     "type": "numeric"
+    },
+    {
+     "key": "0-9 Yards.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "0-9 Yards.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "0-9 Yards.INT",
+     "type": "numeric"
+    },
+    {
+     "key": "0-9 Yards.RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "0-9 Yards.CATCH %",
+     "type": "numeric"
+    },
+    {
+     "key": "0-9 Yards.HERO",
+     "type": "numeric"
+    },
+    {
+     "key": "0-9 Yards.TWT",
+     "type": "numeric"
+    },
+    {
+     "key": "10-19 Yards.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "10-19 Yards.CMP",
+     "type": "numeric"
+    },
+    {
+     "key": "10-19 Yards.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "10-19 Yards.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "10-19 Yards.INT",
+     "type": "numeric"
+    },
+    {
+     "key": "10-19 Yards.RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "10-19 Yards.CATCH %",
+     "type": "numeric"
+    },
+    {
+     "key": "10-19 Yards.HERO",
+     "type": "numeric"
+    },
+    {
+     "key": "10-19 Yards.TWT",
+     "type": "numeric"
+    },
+    {
+     "key": "20+ Yards.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "20+ Yards.CMP",
+     "type": "numeric"
+    },
+    {
+     "key": "20+ Yards.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "20+ Yards.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "20+ Yards.INT",
+     "type": "numeric"
+    },
+    {
+     "key": "20+ Yards.RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "20+ Yards.CATCH %",
+     "type": "numeric"
+    },
+    {
+     "key": "20+ Yards.HERO",
+     "type": "numeric"
+    },
+    {
+     "key": "20+ Yards.TWT",
+     "type": "numeric"
+    }
+   ],
+   "description": "QB attempts, completions, yards and rate by depth bucket.",
+   "filename_hints": [
+    "passingdepth"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "ATT": "Passing Attempts",
+    "CATCH %": "Catchable Throw Percentage",
+    "CMP": "Passing Completions",
+    "G": "Games Played",
+    "HERO": "QB makes an extraordinary throw that maximizes the result of the play",
+    "INT": "Interceptions",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "RATE": "QB Passer Rating",
+    "Rank": "Rank, Most to Least",
+    "TD": "Passing Touchdowns",
+    "TWT": "Total Turnover Worthy Throws",
+    "Team": "Team(s) played for",
+    "YDS": "Passing Yards"
+   },
+   "id": "passing_depth",
+   "label": "Passing by depth (QB)",
+   "level": "player",
+   "side": "offense",
+   "signature": "dc541b2c0ea1c476"
+  },
+  "qb_coverage_matchup": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.OPP",
+     "type": "text"
+    },
+    {
+     "key": "Matchup.DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Matchup.DB/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Matchup.FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Matchup.EXP FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Matchup.COV GRADE",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.DEF MAN %",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.DEF FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.QB MAN %",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.QB FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.DEF COVER 2 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.DEF FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.QB COVER 2 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.QB FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.DEF COVER 3 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.DEF FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.QB Cover 3 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.QB FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.DEF COVER 4 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.DEF FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.QB Cover 4 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.QB FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.DEF COVER 6 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.DEF FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.QB COVER 6 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.QB FP/DB",
+     "type": "numeric"
+    }
+   ],
+   "description": "QB production against each coverage family and the next opponent defence mix (OPP is the upcoming opponent).",
+   "filename_hints": [
+    "qbcoveragematchup"
+   ],
+   "forward_looking": true,
+   "glossary": {
+    "COV GRADE": "Coverage Matchup Grade",
+    "DB": "Dropbacks",
+    "DB/G": "Dropbacks per Game",
+    "DEF COVER 2 %": "Defense Cover 2 Rate",
+    "DEF COVER 3 %": "Defense Cover 3 Rate",
+    "DEF COVER 4 %": "Defense Cover 4 Rate",
+    "DEF COVER 6 %": "Defense Cover 6 Rate",
+    "DEF FP/DB": "Cover 6 Fantasy Points per Dropback",
+    "DEF MAN %": "Defense Man Coverage Rate",
+    "EXP FP/DB": "Matchup Expected Fantasy Points per Dropback",
+    "FP/DB": "Fantasy Points per Dropback",
+    "G": "Games Played",
+    "Name": "Full name of the player or team",
+    "OPP": "Upcoming Opponent",
+    "POS": "Player Position",
+    "QB COVER 2 %": "QB Cover 2 Rate",
+    "QB COVER 6 %": "Dropback Cover 6 Rate",
+    "QB Cover 3 %": "Dropback Cover 3 Rate",
+    "QB Cover 4 %": "Dropback Cover 4 Rate",
+    "QB FP/DB": "Cover 6 Fantasy Points per Dropback",
+    "QB MAN %": "Dropback Man Coverage Rate",
+    "Rank": "Rank, Most to Least",
+    "Team": "Team(s) played for"
+   },
+   "id": "qb_coverage_matchup",
+   "label": "QB vs coverage matchup (next game)",
+   "level": "player",
+   "side": "matchup",
+   "signature": "63500105e8347b95"
+  },
+  "receiving_advanced": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.aDOT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.AY",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.AY Share",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TGT/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TGT %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.CR %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.RecYDS/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TM YDS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YPT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YPR",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YAC",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YAC/REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YACO",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YACO/REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TM TD %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.i20 TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.EZTGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.EZTD",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.DP TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.1READ",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.1READ %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.MTF",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.MTF/REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.1D",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.1D/RR",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.DRP",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.DRP %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.CTGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.CTGT %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.DESIGN",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.DESIGN %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.CT",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.CC",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.CC %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.HERO",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.THREAT",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.YPTOE",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.WIDE RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.SLOT RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.INLINE RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.BACK RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/RR",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP/RR",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.RecXFP",
+     "type": "numeric"
+    }
+   ],
+   "description": "Route share, targets, air yards, first-read, designed targets, alignment route split, expected fantasy points.",
+   "filename_hints": [
+    "receivingadvanced"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "1D": "Receiving 1st Downs",
+    "1D/RR": "Receiving 1st Downs per Route Run",
+    "1READ": "First Read and Designed Targets",
+    "1READ %": "Percentage of Team's 1st Read and Designed Targets",
+    "AY": "Receiving - Yards - Air - Total",
+    "AY Share": "Percentage of Team Air Yards",
+    "BACK RTE %": "Percentage of Routes Run from the Backfield",
+    "CC": "Receptions the Receiver has Contact with a Defender at the Catch Point",
+    "CC %": "Contested Catch Rate",
+    "CR %": "Catch Rate",
+    "CT": "Targets the Receiver has Contact with a Defender at the Catch Point",
+    "CTGT": "Targets the QB gave the receiver a chance to catch the ball",
+    "CTGT %": "Percentage of Targets the Receiver had an Opportunity to Catch",
+    "DESIGN": "Targets that come on a designed read",
+    "DESIGN %": "Percentage of Targets from Designed Plays such as Screens",
+    "DP TGT": "Receiving - Deep Target - Targets - Total",
+    "DRP": "Drops",
+    "DRP %": "Drops per Target",
+    "EZTD": "Touchdowns Scored on Endzone Targets",
+    "EZTGT": "Endzone Targets",
+    "FP": "Fantasy Points",
+    "FP/G": "Fantasy Points per Game",
+    "FP/RR": "Fantasy Points per Route Run",
+    "G": "Games Played",
+    "HERO": "WR makes an extraordinary catch",
+    "INLINE RTE %": "Percentage of Routes Run Inline",
+    "MTF": "Missed Tackles Forced on Receptions",
+    "MTF/REC": "Missed Tackles Forced per Reception",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "RATE": "Passer Rating When Targeted",
+    "REC": "Receptions",
+    "RTE": "Routes Run",
+    "RTE %": "Routes Run per Team Dropback",
+    "Rank": "Rank, Most to Least",
+    "RecYDS/G": "Receiving Yards per Game",
+    "SLOT RTE %": "Percentage of Routes Run from the Slot",
+    "TD": "Receiving Touchdowns",
+    "TGT": "Targets",
+    "TGT %": "Team Target Share",
+    "TGT/G": "Receiving - Targets - Per Game",
+    "THREAT": "Targets per Aimed Pass on Passing Play Snaps",
+    "TM TD %": "Receiving Touchdown Market Share",
+    "TM YDS %": "Receiving Yards Market Share",
+    "TPRR": "Targets per Route Run",
+    "Team": "Team(s) played for",
+    "WIDE RTE %": "Percentage of Routes Run Out Wide",
+    "XFP": "Expected Fantasy Points",
+    "XFP/G": "Expected PPR Fantasy Points per Game",
+    "XFP/RR": "Expected Fantasy Points per Route Run",
+    "YAC": "Yards After the Catch",
+    "YAC/REC": "Yards After the Catch per Reception",
+    "YACO": "Yards After Contact on Receptions",
+    "YACO/REC": "Yards After Contact per Reception",
+    "YDS": "Receiving Yards",
+    "YPR": "Yards per Reception",
+    "YPRR": "Yards per Route Run",
+    "YPT": "Yards per Target",
+    "YPTOE": "Yards per Target Over Expectation (Based on Depth of Target)",
+    "aDOT": "Average Depth of Target",
+    "i20 TGT": "Inside the 20 targets"
+   },
+   "id": "receiving_advanced",
+   "label": "Receiving advanced",
+   "level": "player",
+   "side": "offense",
+   "signature": "c49a6a7d21c86e78"
+  },
+  "receiving_man_vs_zone": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.FP/RR",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.FP/RR",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone.FP/RR",
+     "type": "numeric"
+    },
+    {
+     "key": "Single-High.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Single-High.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Single-High.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Single-High.FP/RR",
+     "type": "numeric"
+    },
+    {
+     "key": "Two-High.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Two-High.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Two-High.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Two-High.FP/RR",
+     "type": "numeric"
+    }
+   ],
+   "description": "Per-route production against man, zone, single-high and two-high shells.",
+   "filename_hints": [
+    "receivingmanvszone"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "FP/RR": "Fantasy Points per Route Run",
+    "G": "Games Played",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "RTE": "Routes Run",
+    "Rank": "Rank, Most to Least",
+    "TPRR": "Targets per Route Run",
+    "Team": "Team(s) played for",
+    "YPRR": "Yards per Route Run"
+   },
+   "id": "receiving_man_vs_zone",
+   "label": "Receiving: man vs zone, single-high vs two-high",
+   "level": "player",
+   "side": "offense",
+   "signature": "31963924dd830c2f"
+  },
+  "receiving_routes_run": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.WIDE RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.TM RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.SLOT RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.TM RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.INLINE RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.TM RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.BACK RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.TM RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.YPRR",
+     "type": "numeric"
+    }
+   ],
+   "description": "Routes, targets and per-route production split by wide/slot/inline/backfield.",
+   "filename_hints": [
+    "receivingroutesrun",
+    "routesrun"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "BACK RTE %": "Percentage of Routes Run from the Backfield",
+    "G": "Games Played",
+    "INLINE RTE %": "Percentage of Routes Run Inline",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "RTE": "Routes Run from the Backfield",
+    "RTE %": "Percentage of Dropbacks when Running a Route from the Backfield",
+    "Rank": "Rank, Most to Least",
+    "SLOT RTE %": "Percentage of Routes Run from the Slot",
+    "TGT": "Targets Received when Lined Up in the Backfield",
+    "TM RTE %": "Percentage of Team Backfield Routes Run",
+    "TPRR": "Targets per Route Run when Lined Up in the Backfield",
+    "Team": "Team(s) played for",
+    "WIDE RTE %": "Percentage of Routes Run Out Wide",
+    "YPRR": "Backfield Yards per Route Run"
+   },
+   "id": "receiving_routes_run",
+   "label": "Routes run by alignment",
+   "level": "player",
+   "side": "offense",
+   "signature": "d7bafd47696c2b1b"
+  },
+  "receiving_separation_by_alignment": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.+1 Rate",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.+2 Rate",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.+3 Rate",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.Neg Rate",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.AY",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Wide.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Slot.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Inline.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.WIN RATE",
+     "type": "numeric"
+    }
+   ],
+   "description": "Separation score and win rate overall and from wide/slot/inline/backfield.",
+   "filename_hints": [
+    "receivingseparationbyalignment"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "+1 Rate": "Percentage of graded routes to earn a grade of +1",
+    "+2 Rate": "Percentage of graded routes to earn a grade of +2",
+    "+3 Rate": "Percentage of graded routes to earn a grade of +3",
+    "G": "Games Played",
+    "Name": "Full name of the player or team",
+    "Neg Rate": "Percentage of graded routes to earn a negative separation grade",
+    "POS": "Player Position",
+    "RTE": "Routes Run",
+    "Rank": "Rank, Most to Least",
+    "SEP SCORE": "Average separation score on routes run",
+    "TPRR": "Targets per Route Run",
+    "Team": "Team(s) played for",
+    "WIN RATE": "Percentage of routes with a positive separation score",
+    "YPRR": "Yards per Route Run"
+   },
+   "id": "receiving_separation_by_alignment",
+   "label": "Separation by alignment",
+   "level": "player",
+   "side": "offense",
+   "signature": "c3a9c358ec584d32"
+  },
+  "receiving_separation_by_breaks": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Horizontally Breaking.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Horizontally Breaking.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Horizontally Breaking.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Horizontally Breaking.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Horizontally Breaking.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Horizontally Breaking.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Vertically Breaking.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Vertically Breaking.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Vertically Breaking.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Vertically Breaking.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Vertically Breaking.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Vertically Breaking.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Static.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Static.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Static.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Static.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Static.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Static.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Shallow/Underneath.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Shallow/Underneath.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Shallow/Underneath.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Shallow/Underneath.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Shallow/Underneath.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Shallow/Underneath.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.WIN RATE",
+     "type": "numeric"
+    }
+   ],
+   "description": "Separation score and win rate by horizontal/vertical/static/shallow route breaks.",
+   "filename_hints": [
+    "receivingseparationbybreaks"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "G": "Games Played",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "RTE": "Routes Run",
+    "RTE %": "Percentage of total routes",
+    "Rank": "Rank, Most to Least",
+    "SEP SCORE": "Average separation score on routes run",
+    "TPRR": "Targets per Route Run",
+    "Team": "Team(s) played for",
+    "WIN RATE": "Percentage of routes with a positive separation score",
+    "YPRR": "Yards per Route Run"
+   },
+   "id": "receiving_separation_by_breaks",
+   "label": "Separation by route break type",
+   "level": "player",
+   "side": "offense",
+   "signature": "80b9fb573dacf41a"
+  },
+  "receiving_separation_by_coverage": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Red Zone.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Red Zone.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Red Zone.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Red Zone.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Red Zone.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.WIN RATE",
+     "type": "numeric"
+    }
+   ],
+   "description": "Separation score and win rate against man, zone, red zone and Cover 2/3/4/6.",
+   "filename_hints": [
+    "receivingseparationbycoverage"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "G": "Games Played",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "RTE": "Routes Run",
+    "Rank": "Rank, Most to Least",
+    "SEP SCORE": "Average separation score on routes run",
+    "TPRR": "Targets per Route Run",
+    "Team": "Team(s) played for",
+    "WIN RATE": "Percentage of routes with a positive separation score",
+    "YPRR": "Yards per Route Run"
+   },
+   "id": "receiving_separation_by_coverage",
+   "label": "Separation by coverage",
+   "level": "player",
+   "side": "offense",
+   "signature": "fee00bf0f6f793f7"
+  },
+  "receiving_separation_by_routes": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Slant.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Slant.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Slant.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Slant.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Slant.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Slant.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "Slant.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Out.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Out.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Out.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Out.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Out.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Out.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "Out.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "In/Dig.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "In/Dig.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "In/Dig.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "In/Dig.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "In/Dig.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "In/Dig.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "In/Dig.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Hitch.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Hitch.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Hitch.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Hitch.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Hitch.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Hitch.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "Hitch.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Comeback.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Comeback.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Comeback.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Comeback.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Comeback.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Comeback.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Comeback.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "Corner.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Corner.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Corner.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Corner.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Corner.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Corner.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "Corner.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Post.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Post.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Post.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Post.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Post.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Post.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "Post.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Go.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Go.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Go.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Go.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Go.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Go.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Crossers.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Crossers.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Crossers.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Crossers.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Crossers.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Crossers.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "Crossers.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Screens.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Screens.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Screens.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Screens.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Screens.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Screens.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "Screens.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Flat.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Flat.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Flat.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Flat.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Flat.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Flat.ADOR",
+     "type": "empty"
+    },
+    {
+     "key": "Flat.WIN RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.SEP SCORE",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.TPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.ADOR",
+     "type": "numeric"
+    },
+    {
+     "key": "Backfield.WIN RATE",
+     "type": "numeric"
+    }
+   ],
+   "description": "Separation, route share and win rate by route tree (slant, out, dig, hitch, comeback, corner, post, go, ...).",
+   "filename_hints": [
+    "receivingseparationbyroutes"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "ADOR": "Average depth of the break in the route",
+    "G": "Games Played",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "RTE": "Routes Run",
+    "RTE %": "Percentage of total routes",
+    "Rank": "Rank, Most to Least",
+    "SEP SCORE": "Average separation score on routes run",
+    "TPRR": "Targets per Route Run",
+    "Team": "Team(s) played for",
+    "WIN RATE": "Percentage of routes with a positive separation score",
+    "YPRR": "Yards per Route Run"
+   },
+   "id": "receiving_separation_by_routes",
+   "label": "Separation by route type",
+   "level": "player",
+   "side": "offense",
+   "signature": "a7a75badd3347c0b"
+  },
+  "run_pass_report": {
+   "columns": [
+    {
+     "key": "Team Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Team Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Team Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Team Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Team Details.Location",
+     "type": "text"
+    },
+    {
+     "key": "Team Details.Team Name",
+     "type": "text"
+    },
+    {
+     "key": "Overall.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Overall.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "1st Half.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "1st Half.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "1st Half.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "1st Half.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "1st Half.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "2nd Half.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "2nd Half.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "2nd Half.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "2nd Half.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "2nd Half.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 10.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 10.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 10.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 10.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 10.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 20.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 20.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 20.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 20.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Inside 20.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "Leading By 7+.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "Leading By 7+.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "Leading By 7+.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "Leading By 7+.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Leading By 7+.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "Neutral.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "Neutral.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "Neutral.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "Neutral.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Neutral.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "Trailing By 7+.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "Trailing By 7+.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "Trailing By 7+.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "Trailing By 7+.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Trailing By 7+.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "<5 Yds to Go.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "<5 Yds to Go.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "<5 Yds to Go.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "<5 Yds to Go.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "<5 Yds to Go.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "5-9 Yds to Go.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "5-9 Yds to Go.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "5-9 Yds to Go.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "5-9 Yds to Go.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "5-9 Yds to Go.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "10+ Yds to Go.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "10+ Yds to Go.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "10+ Yds to Go.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "10+ Yds to Go.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "10+ Yds to Go.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "1st Down.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "1st Down.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "1st Down.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "1st Down.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "1st Down.RUSH %",
+     "type": "numeric"
+    },
+    {
+     "key": "3rd Down.SNAPS",
+     "type": "numeric"
+    },
+    {
+     "key": "3rd Down.PASS",
+     "type": "numeric"
+    },
+    {
+     "key": "3rd Down.RUSH",
+     "type": "numeric"
+    },
+    {
+     "key": "3rd Down.PASS %",
+     "type": "numeric"
+    },
+    {
+     "key": "3rd Down.RUSH %",
+     "type": "numeric"
+    }
+   ],
+   "description": "Team snaps, pass and rush counts and rates by half, field position, score state, distance and down.",
+   "filename_hints": [
+    "runpassreport"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "G": "Games Played",
+    "Name": "Team",
+    "PASS": "Number of passing play snaps",
+    "PASS %": "Number of passing play snaps",
+    "RUSH": "Number of offensive rush snaps",
+    "RUSH %": "Number of offensive rush snaps",
+    "Rank": "Rank, Most to Least",
+    "SNAPS": "Total offensive snaps (pass + rush)"
+   },
+   "id": "run_pass_report",
+   "label": "Team run/pass report by situation",
+   "level": "team",
+   "side": "offense",
+   "signature": "8eb0b7a1b055074e"
+  },
+  "rushing_advanced": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.RuYDS/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.YPC",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.FUM",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.1D",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.EXP RUN %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.EXP YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.EXP YDS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.i5 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.TD RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.Success %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.STUFF %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.MTF",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.MTF/ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.YACO",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.YACO/ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.YACO %",
+     "type": "numeric"
+    },
+    {
+     "key": "Advanced.YBCO/ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone Concept.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone Concept.ATT %",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone Concept.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone Concept.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone Concept.YPC",
+     "type": "numeric"
+    },
+    {
+     "key": "Zone Concept.Success %",
+     "type": "numeric"
+    },
+    {
+     "key": "Man/Gap Concept.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Man/Gap Concept.ATT %",
+     "type": "numeric"
+    },
+    {
+     "key": "Man/Gap Concept.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Man/Gap Concept.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Man/Gap Concept.YPC",
+     "type": "numeric"
+    },
+    {
+     "key": "Man/Gap Concept.Success %",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP/G",
+     "type": "numeric"
+    }
+   ],
+   "description": "Explosive/success/stuff rates, yards before/after contact, zone vs man/gap concept splits, expected fantasy points.",
+   "filename_hints": [
+    "rushingadvanced"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "1D": "Rushing 1st Downs",
+    "ATT": "Man/Gap Attempts",
+    "ATT %": "Man/Gap Attempts Percentage",
+    "EXP RUN %": "Percentage of Runs to go for 15+ Yards",
+    "EXP YDS": "Rushing Yards on Runs that go for 15+ Yards",
+    "EXP YDS %": "Percentage of Yards to come on Explosive Runs",
+    "FP": "Fantasy Points",
+    "FP/G": "Fantasy Points per Game",
+    "FUM": "Rushing Fumbles",
+    "G": "Games Played",
+    "MTF": "Missed Tackles Forced on Carries",
+    "MTF/ATT": "Missed Tackles Forced per Attempt",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "Rank": "Rank, Most to Least",
+    "RuYDS/G": "Rushing Yards per Game",
+    "STUFF %": "Percentage of Carries that are \"Stuffed\". A \"stuff\" is any run that does not result in a first down or touchdown, less than 4 yards on first down, or less than 3 yards on any other down",
+    "Success %": "Man/Gap Attempts Success Rate",
+    "TD": "Man/Gap Touchdowns Total",
+    "TD RATE": "Percentage of Carries where a TD is Scored",
+    "Team": "Team(s) played for",
+    "XFP": "Expected Fantasy Points",
+    "XFP/G": "Expected PPR Fantasy Points per Game",
+    "YACO": "Yards After Contact on Carries",
+    "YACO %": "Percentage of Yards that come After Contact",
+    "YACO/ATT": "Yards After Contact per Attempt",
+    "YBCO/ATT": "Yards Before Contact per Attempt",
+    "YDS": "Man/Gap Yards Total",
+    "YPC": "Man/Gap Yards per Carry",
+    "i5 %": "Percentage of Team's Inside the 5 Carries"
+   },
+   "id": "rushing_advanced",
+   "label": "Rushing advanced",
+   "level": "player",
+   "side": "offense",
+   "signature": "528bb7e0165e595a"
+  },
+  "rushing_bell_cow": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Snaps.Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Snaps.TM Snaps",
+     "type": "numeric"
+    },
+    {
+     "key": "Snaps.Snap %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.TM ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.ATT %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TM TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TGT %",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.TM XFP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP %",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.XFP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP",
+     "type": "numeric"
+    }
+   ],
+   "description": "Player share of team snaps, rushes, routes, targets and expected fantasy points.",
+   "filename_hints": [
+    "rushingbellcow"
+   ],
+   "forward_looking": false,
+   "glossary": {
+    "ATT": "Rushing Attempts",
+    "ATT %": "Rushing Attempt Share",
+    "DB": "Team Dropbacks",
+    "FP": "Fantasy Points",
+    "FP/G": "Fantasy Points per Game",
+    "G": "Games Played",
+    "Name": "Full name of the player or team",
+    "POS": "Player Position",
+    "RTE": "Routes Run",
+    "RTE %": "Routes Run per Team Dropback",
+    "Rank": "Rank, Most to Least",
+    "Snap %": "Snap Percentage",
+    "Snaps": "Total Offensive Snaps",
+    "TGT": "Targets",
+    "TGT %": "Team Target Share",
+    "TM ATT": "Team Rushing Attempts",
+    "TM Snaps": "Total Team Snaps",
+    "TM TGT": "Team Targets",
+    "TM XFP": "Team Expected Fantasy Points",
+    "Team": "Team(s) played for",
+    "XFP": "Expected Fantasy Points",
+    "XFP %": "Team XFP Share",
+    "XFP/G": "Expected PPR Fantasy Points per Game"
+   },
+   "id": "rushing_bell_cow",
+   "label": "Backfield opportunity share (bell cow)",
+   "level": "player",
+   "side": "offense",
+   "signature": "883160c91341e74e"
+  },
+  "wr_coverage_matchup": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.OPP",
+     "type": "text"
+    },
+    {
+     "key": "Matchup.RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Matchup.RTE/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Matchup.FP/RR",
+     "type": "numeric"
+    },
+    {
+     "key": "Matchup.EXP FP/RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Matchup.COV GRADE",
+     "type": "numeric"
+    },
+    {
+     "key": "Matchup.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.DEF MAN %",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.DEF FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.FP/RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Man.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.DEF COVER 2 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.DEF FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.FP/RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 2.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.DEF COVER 3 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.DEF FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.FP/RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 3.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.DEF COVER 4 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.DEF FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.FP/RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 4.YPRR",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.DEF COVER 6 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.DEF FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.FP/RTE",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.RTE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Cover 6.YPRR",
+     "type": "numeric"
+    }
+   ],
+   "description": "Receiver production against each coverage family and the next opponent defence mix (OPP is the upcoming opponent).",
+   "filename_hints": [
+    "wrcoveragematchup"
+   ],
+   "forward_looking": true,
+   "glossary": {
+    "COV GRADE": "Coverage Matchup Grade",
+    "DEF COVER 2 %": "Defense Cover 2 Rate",
+    "DEF COVER 3 %": "Defense Cover 3 Rate",
+    "DEF COVER 4 %": "Defense Cover 4 Rate",
+    "DEF COVER 6 %": "Defense Cover 6 Rate",
+    "DEF FP/DB": "Cover 6 Fantasy Points per Dropback",
+    "DEF MAN %": "Defense Man Coverage Rate",
+    "EXP FP/RTE": "Expected Matchup Fantasy Points Per Route Run",
+    "FP/RR": "Fantasy Points per Route Run",
+    "FP/RTE": "Cover 6 Fantasy Points per Route Run",
+    "G": "Games Played",
+    "Name": "Full name of the player or team",
+    "OPP": "Upcoming Opponent",
+    "POS": "Player Position",
+    "RTE": "Routes Run",
+    "RTE %": "Cover 6 Routes Run Rate",
+    "RTE/G": "Routes Run per Game",
+    "Rank": "Rank, Most to Least",
+    "Team": "Team(s) played for"
+   },
+   "id": "wr_coverage_matchup",
+   "label": "Receiver vs coverage matchup (next game)",
+   "level": "player",
+   "side": "matchup",
+   "signature": "5dbf0a6a81071c3c"
+  }
+ },
+ "version": 1
+}

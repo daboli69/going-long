@@ -1,0 +1,197 @@
+"""On-disk layout, manifest, freshness and point-in-time access for imported Fantasy Points data.
+
+FantasyPoints/
+  Inbox/                          you drop exports here (never modified, never deleted by this code)
+  raw/<season>/<scope>/<table>__<sha12>.csv   immutable copies, content-addressed; scope = through-week-NN | full-season
+  raw/_unrecognized | _rejected | _quarantine/ preserved bytes of files that could not be imported
+  normalized/<season>/<table>/<scope>__<sha12>.json
+  identity/roster_<season>.csv    public nflverse roster cache used for player identity
+  manifests/index.json            one entry per distinct file (sha256); written last so a crash never leaves a half-import
+  manifests/freshness.json, last_run.json
+"""
+import json
+import os
+import re
+from pathlib import Path
+
+GOOD = ('imported', 'imported_review', 'partial')
+EXPECTED_BASE_WEEK = 14  # byes run through week 14, so max-games == week only up to here
+
+
+def find_root(explicit=None, repo_root=None):
+    """Locate the FantasyPoints folder: --root, GOING_FP_ROOT, <repo>/FantasyPoints, then a sibling GOING/FantasyPoints."""
+    candidates = [explicit, os.environ.get('GOING_FP_ROOT')]
+    if repo_root:
+        repo_root = Path(repo_root)
+        candidates += [repo_root / 'FantasyPoints', repo_root.parent / 'GOING' / 'FantasyPoints']
+    for candidate in candidates:
+        if candidate and Path(candidate).is_dir():
+            return Path(candidate)
+    raise FileNotFoundError('FantasyPoints folder not found; pass --root or set GOING_FP_ROOT')
+
+
+def find_inbox(root):
+    for child in Path(root).iterdir():
+        if child.is_dir() and child.name.lower() == 'inbox':
+            return child
+    raise FileNotFoundError(f'no Inbox folder inside {root}')
+
+
+def atomic_write(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + '.tmp')
+    if isinstance(data, str):
+        data = data.encode('utf-8')
+    with open(temporary, 'wb') as handle:
+        handle.write(data)
+        handle.flush()
+        os.fsync(handle.fileno())
+    os.replace(temporary, path)
+
+
+def write_json(path, value):
+    atomic_write(path, json.dumps(value, indent=1, sort_keys=True, ensure_ascii=False) + '\n')
+
+
+def clean_temporaries(root):
+    removed = 0
+    for path in Path(root).rglob('*.tmp'):
+        if 'Inbox' in path.parts or 'inbox' in path.parts:
+            continue
+        path.unlink()
+        removed += 1
+    return removed
+
+
+class Manifest:
+    def __init__(self, root):
+        self.root = Path(root)
+        self.path = self.root / 'manifests' / 'index.json'
+        if self.path.exists():
+            try:
+                self.data = json.loads(self.path.read_text(encoding='utf-8'))
+            except json.JSONDecodeError as error:
+                raise RuntimeError(f'{self.path} is corrupt ({error}); restore it before importing (raw files are the source of truth)')
+        else:
+            self.data = {'version': 1, 'source': 'Fantasy Points Data Suite', 'files': {}}
+
+    @property
+    def files(self):
+        return self.data['files']
+
+    def save(self):
+        write_json(self.path, self.data)
+
+    def entries(self, season=None, table_id=None, statuses=GOOD):
+        return [e for e in self.files.values()
+                if (season is None or e.get('season') == season) and (table_id is None or e.get('table_id') == table_id)
+                and (statuses is None or e.get('status') in statuses)]
+
+
+def scope_dir(scope, through_games):
+    if scope == 'season_to_date':
+        return f'through-week-{int(through_games):02d}'
+    return {'full_season': 'full-season'}.get(scope, 'unclassified')
+
+
+def _order(entry):
+    return (entry.get('through_games') or 0, entry.get('status') != 'partial', entry.get('first_imported_at') or '', entry.get('sha256'))
+
+
+def current_entry(manifest, season, table_id):
+    """The snapshot GOING should treat as current: most games, then the latest correction. Superseded revisions never win."""
+    live = [e for e in manifest.entries(season, table_id) if e.get('scope') == 'season_to_date' and not e.get('superseded_by')]
+    if live:
+        return max(live, key=_order)
+    full = [e for e in manifest.entries(season, table_id) if e.get('scope') == 'full_season' and not e.get('superseded_by')]
+    return max(full, key=_order) if full else None
+
+
+def point_in_time(manifest, season, table_id, for_season, for_week, known_by=None):
+    """Return the manifest entry GOING could legitimately have used to predict ``for_season`` week ``for_week``, or None.
+
+    * same season: only a live season-to-date capture whose games are all before the target week and that GOING had
+      imported by ``known_by`` (ISO timestamp); a retrospective export of the same season is never eligible.
+    * forward-looking matchup tables are valid only for the week they were exported for (games + 1).
+    * an earlier season: its full-season (or last season-to-date) snapshot, which was complete before this season began.
+    None means missing, never zero.
+    """
+    pool = manifest.entries(season, table_id)
+    if season == for_season:
+        if known_by:
+            # the correction in force at the cutoff: later imports replace earlier ones, imports after the cutoff do not exist yet
+            latest = {}
+            for entry in sorted((e for e in pool if (e.get('first_imported_at') or '9999') <= known_by), key=lambda e: e.get('first_imported_at') or ''):
+                latest[(entry.get('scope'), entry.get('through_games'))] = entry
+            pool = list(latest.values())
+        else:
+            pool = [e for e in pool if not e.get('superseded_by')]
+        live = [e for e in pool if e.get('scope') == 'season_to_date' and e.get('known_live') and (e.get('through_games') or 0) <= for_week - 1]
+        if any(e.get('forward_looking') for e in pool):
+            live = [e for e in live if e.get('through_games') == for_week - 1]
+        return max(live, key=_order) if live else None
+    if season < for_season:
+        # a finished season was complete before the next one began, whenever we happened to download it
+        prior = [e for e in pool if not e.get('superseded_by') and not e.get('forward_looking')
+                 and (e.get('scope') == 'full_season' or (e.get('scope') == 'season_to_date' and (e.get('through_games') or 0) >= 16))]
+        return max(prior, key=_order) if prior else None
+    return None
+
+
+def short_name(table_id):
+    return {
+        'receiving_routes_run': 'Routes', 'receiving_advanced': 'Receiving', 'receiving_man_vs_zone': 'Man vs Zone',
+        'receiving_separation_by_alignment': 'Separation: alignment', 'receiving_separation_by_breaks': 'Separation: breaks',
+        'receiving_separation_by_coverage': 'Separation: coverage', 'receiving_separation_by_routes': 'Separation: routes',
+        'rushing_advanced': 'Rushing', 'rushing_bell_cow': 'Bell cow', 'passing_advanced': 'Passing', 'passing_depth': 'Passing depth',
+        'qb_coverage_matchup': 'QB coverage matchup', 'wr_coverage_matchup': 'WR coverage matchup', 'line_matchups': 'OL/DL matchups',
+        'run_pass_report': 'Run/pass', 'offense_snaps': 'Snaps', 'efficiency': 'Efficiency',
+    }.get(table_id, table_id)
+
+
+def freshness(registry, manifest, season, expected_games, now_iso):
+    """Compact per-table status. Missing or stale is its own state, never evidence about a player."""
+    tables = []
+    for table_id, table in sorted(registry['tables'].items()):
+        entry = current_entry(manifest, season, table_id)
+        item = {'table': table_id, 'label': short_name(table_id)}
+        if entry is None:
+            quarantined = [e for e in manifest.files.values() if e.get('table_id') == table_id and e.get('season') == season
+                           and e.get('status') in ('quarantined_schema', 'held_scope')]
+            item.update(state='quarantined' if quarantined else 'missing', through_games=None)
+        else:
+            games = entry.get('through_games')
+            if entry.get('status') == 'partial':
+                state = 'partial'
+            elif expected_games is None:
+                state = 'unknown_expectation'
+            elif games is None:
+                state = 'unknown_scope'
+            elif games < expected_games:
+                state = 'stale'
+            else:
+                state = 'current'
+            item.update(state=state, through_games=games, rows=entry.get('row_count'), sha256=entry.get('sha256')[:12],
+                        imported_at=entry.get('first_imported_at'), forward_looking=bool(table.get('forward_looking')))
+            if entry.get('warnings'):
+                item['warnings'] = entry['warnings']
+        item['line'] = freshness_line(item, expected_games)
+        tables.append(item)
+    return {'season': season, 'expected_games_through': expected_games, 'generated_at': now_iso, 'tables': tables}
+
+
+def freshness_line(item, expected):
+    through = item.get('through_games')
+    week = f'Week {through}' if through is not None else 'no data'
+    mark = {'current': '✓', 'stale': '⚠ STALE', 'partial': '⚠ PARTIAL', 'missing': '✗ MISSING', 'quarantined': '✗ QUARANTINED',
+            'unknown_expectation': '?', 'unknown_scope': '? scope'}[item['state']]
+    if item['state'] in ('missing', 'quarantined'):
+        return f"{item['label']}: {mark}"
+    return f"{item['label']}: {week} {mark}"
+
+
+def public_status(fresh):
+    """Metadata-only view that is safe to publish: table names, weeks and states, no licensed values."""
+    return {'season': fresh['season'], 'expected_games_through': fresh['expected_games_through'], 'generated_at': fresh['generated_at'],
+            'tables': [{'table': t['table'], 'label': t['label'], 'state': t['state'], 'through_games': t.get('through_games')} for t in fresh['tables']]}

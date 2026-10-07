@@ -8,3 +8,6 @@ private/
 .env
 .env.*
 !.env.example
+
+# Licensed Fantasy Points Data Suite exports and everything derived from them: never commit
+FantasyPoints/
