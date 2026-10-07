@@ -942,6 +942,25 @@ class FullSeasonHistoryTests(unittest.TestCase):
         self.assertTrue(all(item.get('status') != 'provider_unavailable' for season in committed.values() for item in season.values()),
                         'nothing may be committed as confirmed-unavailable until it is confirmed')
 
+    def test_every_command_runs_against_a_real_looking_archive(self):
+        """The CLI printers must handle every status the library can produce (a missing label once crashed `availability`)."""
+        import contextlib
+        import fantasy_points
+        from fp_ingest import history
+        workspace = Workspace(self)
+        workspace.put('a.csv', self.full('rushing_bell_cow'))
+        workspace.put('b.csv', self.full('passing_depth', mutate=lambda body, keys: body.append(list(body[0]))))
+        workspace.run()
+        with patch.object(history, 'load_declarations', lambda *a: {'2025': {'line_matchups': {'evidence': 'x'}, 'qb_coverage_matchup': {'status': 'provider_unavailable'}}}):
+            for command in (['status'], ['verify'], ['availability'], ['compat'], ['inventory'], ['fields']):
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    code = fantasy_points.main(['--root', str(workspace.dir), '--current-season', '2026', *command])
+                self.assertIn(code, (0, 1), command)
+        matrix = json.loads((workspace.dir / 'manifests' / 'availability.json').read_text(encoding='utf-8'))['tables']
+        self.assertEqual({matrix['line_matchups']['2025']['status'], matrix['qb_coverage_matchup']['2025']['status'], matrix['passing_depth']['2025']['status']},
+                         {'not_obtained', 'provider_unavailable', 'import_problem'})
+
     def test_season_type_of_full_season_exports_is_an_explicit_open_question(self):
         workspace = Workspace(self)
         workspace.put('old.csv', self.full(mutate=lambda body, keys: body[0].__setitem__(keys.index('Player Details.G'), '18')))

@@ -184,11 +184,11 @@ def cmd_availability(args):
     matrix = history.availability(regmod.load(), Manifest(root))
     write_json(root / 'manifests' / 'availability.json', matrix)
     seasons = [str(s) for s in matrix['seasons']]
-    mark = {'imported': 'yes', 'provider_unavailable': 'n/a', 'import_problem': 'PROBLEM', 'unknown': '?'}
+    mark = {'imported': 'yes', 'provider_unavailable': 'n/a', 'not_obtained': 'unconf.', 'import_problem': 'PROBLEM', 'unknown': '?'}
     print('table'.ljust(36) + ' '.join(s.rjust(7) for s in seasons))
     for table_id, row in matrix['tables'].items():
         print(table_id.ljust(36) + ' '.join(mark[row[s]['status']].rjust(7) for s in seasons))
-    print('yes=imported  n/a=provider does not offer it (declared)  PROBLEM=file held/rejected  ?=not downloaded or not yet checked')
+    print('yes=imported  n/a=provider does not offer it (CONFIRMED)  unconf.=not obtained, availability unconfirmed  PROBLEM=file held/rejected  ?=not downloaded/checked')
     return 0
 
 
