@@ -13,7 +13,7 @@
 import {modelCohort} from './model-cohort.mjs';
 import {expandSegment,LAYOUT as STORE_LAYOUT} from './tracker-store.mjs';
 
-export const LEDGER_LAYOUT='validation-ledger-v1',PROJECTION_VERSION='validation-light-v2',LEDGER_PATH='derived/validation_ledger';
+export const LEDGER_LAYOUT='validation-ledger-v1',PROJECTION_VERSION='validation-light-v3',LEDGER_PATH='derived/validation_ledger';
 export const INDEX_PATH=LEDGER_PATH+'/index.json';
 const HEAVY_PARTS=['model_evidence','provenance','picks_snapshot','readiness_snapshot'];
 const KEPT_KINDS=new Set(['prediction','settlement','closing']);
@@ -38,12 +38,12 @@ export function projectRecord(record){
   payload=copy(p,['id','tracking_group','sport','home','away','kickoff','recorded_kickoff','player','profile_id','market','line','side','side_index','book','odds','american','probability','observed_at','actionable','period','period_label','odds_band']);
   // Derived values that the dashboard would otherwise compute from heavy fields; exact by construction.
   payload.model_cohort=modelCohort(p);
-  payload.rules=p.rules??((p.canonical_contract||p.selection||'').split('|').at(-1));
+  payload.rules=p.rules||((p.canonical_contract||p.selection||'').split('|').at(-1));
   if(p.model_evidence?.push!==undefined)payload.model_evidence={push:p.model_evidence.push};
   // The contract key falls back to these only when a record lacks teams or a valid kickoff; carry them then.
   if(!p.home||!p.away||!slate(p.kickoff))copy(p,['event','selection','canonical_contract'],payload);
  }else if(record.kind==='settlement'){
-  payload=copy(p,['prediction_id','status','observed_at','actual','method','official_kickoff']);
+  payload=copy(p,['prediction_id','status','observed_at','actual','method','official_kickoff','sport','event']);
  }else{
   payload=copy(p,['prediction_id','near_kickoff','quoted_at','probability']);
  }
@@ -132,17 +132,21 @@ export function makeEvidenceLoader(getText,manifest,idToShard,{keepSegments=2}={
   if(cache.has(index)){const hit=cache.get(index);cache.delete(index);cache.set(index,hit);return hit;}
   const entry=manifest.segments[index];
   if(!entry)throw new Error('No tracker segment for evidence');
-  const text=await getText('public_tracker/'+entry.file);
-  if(await sha256Hex(text)!==entry.sha256)throw new Error('Tracker segment '+entry.file+' is out of sync with the manifest');
-  const rows=expandSegment(JSON.parse(text),{share:true}),byId=new Map();
-  for(const r of rows){
-   if(r.kind!=='prediction')continue;
-   const parts={};for(const k of HEAVY_PARTS)if(r.payload[k]!==undefined)parts[k]=r.payload[k];
-   byId.set(r.payload.id||r.id,parts);
-  }
-  cache.set(index,byId);
+  const pending=(async()=>{
+   const text=await getText('public_tracker/'+entry.file);
+   if(await sha256Hex(text)!==entry.sha256)throw new Error('Tracker segment '+entry.file+' is out of sync with the manifest');
+   const rows=expandSegment(JSON.parse(text),{share:true}),byId=new Map();
+   for(const r of rows){
+    if(r.kind!=='prediction')continue;
+    const parts={};for(const k of HEAVY_PARTS)if(r.payload[k]!==undefined)parts[k]=r.payload[k];
+    byId.set(r.payload.id||r.id,parts);
+   }
+   return byId;
+  })();
+  cache.set(index,pending); // the in-flight promise is cached, so simultaneous requests share one download
+  pending.catch(()=>{if(cache.get(index)===pending)cache.delete(index);});
   while(cache.size>keepSegments)cache.delete(cache.keys().next().value);
-  return byId;
+  return pending;
  }
  return async function loadEvidence(id){
   const index=idToShard.get(id);

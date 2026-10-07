@@ -14,7 +14,7 @@ const hasRealStore=fs.existsSync(path.join(dataDir,'public_tracker','manifest.js
 
 // ---- synthetic records -------------------------------------------------------------------------------------
 const PROV={model_source_sha256:'c'.repeat(64),inputs:{history:{generated_at:'2026-10-05T10:00:00Z',sha256:'a'.repeat(64)}}};
-const pred=(id,kickoff,extra={})=>({id,kind:'prediction',observed_at:new Date(Date.parse(kickoff)-86400000).toISOString(),payload:{id,tracking_group:'best_model',sport:'nfl',home:'NO',away:'ATL',kickoff,player:'P '+id,profile_id:'pid'+id,market:'rec_yds',side:'Over',side_index:0,line:50.5,book:'B',odds:1.9,american:-110,probability:.55,odds_band:'even',selection:'S|'+id+'|including_overtime',canonical_contract:'S|'+id+'|including_overtime',model_version:'v',quoted_at:'2026-01-01T00:00:00Z',ev:.01,provenance:structuredClone(PROV),readiness_snapshot:{label:'x'.repeat(40)},picks_snapshot:{version:'football-case-v2'},model_evidence:{push:.02,n:12,profileDate:'2026-10-01',seasonEvidence:{method:'80% current / 20% historical'},workload:{a:1}},...extra}});
+const pred=(id,kickoff,extra={})=>({id,kind:'prediction',observed_at:new Date(Date.parse(kickoff)-86400000).toISOString(),payload:{id,observed_at:new Date(Date.parse(kickoff)-86400000).toISOString(),tracking_group:'best_model',sport:'nfl',home:'NO',away:'ATL',kickoff,player:'P '+id,profile_id:'pid'+id,market:'rec_yds',side:'Over',side_index:0,line:50.5,book:'B',odds:1.9,american:-110,probability:.55,odds_band:'even',selection:'S|'+id+'|including_overtime',canonical_contract:'S|'+id+'|including_overtime',model_version:'v',quoted_at:'2026-01-01T00:00:00Z',ev:.01,provenance:structuredClone(PROV),readiness_snapshot:{label:'x'.repeat(40)},picks_snapshot:{version:'football-case-v2'},model_evidence:{push:.02,n:12,profileDate:'2026-10-01',seasonEvidence:{method:'80% current / 20% historical'},workload:{a:1}},...extra}});
 const settle=(pid,at,status='win')=>({id:'s-'+pid,kind:'settlement',observed_at:at,payload:{prediction_id:pid,status,observed_at:at,actual:60,method:'published_full_game_result',official_kickoff:null,rules_note:'long rule text '.repeat(10),source_url:'https://x'}});
 const closing=(pid,at)=>({id:'c-'+pid+at,kind:'closing',observed_at:at,payload:{prediction_id:pid,near_kickoff:true,quoted_at:at,probability:.5,method:'sampled',source:'https://x'}});
 const research=id=>({id:'r-'+id,kind:'pick_research',observed_at:'2026-10-01T00:00:00Z',payload:{contract:id,picks_snapshot:{version:'football-case-v2'}}});
@@ -91,6 +91,35 @@ test('lazy evidence equals the canonical record, uses only checksum-verified seg
  const seg=manifest.segments[ledger.idToShard.get(first)].file,segPath=path.join(work,'public_tracker',seg);
  fs.writeFileSync(segPath,fs.readFileSync(segPath,'utf8').replace('"sport":"nfl"','"sport":"ncaa"'));
  await assert.rejects(()=>makeEvidenceLoader(getText,manifest,ledger.idToShard)(first),/out of sync/);
+});
+
+// ---- adversarial equivalence (cases real data does not currently exercise) ----------------------------------
+test('edge cases give identical dashboard results on full and projected records',async()=>{
+ const {projectSegment}=await mod(),{view,combos}=await support();
+ const k1='2026-10-11T17:00:00Z',obs='2026-10-10T12:00:00Z';
+ const mk=(id,extra={},kickoff=k1)=>{const r=pred(id,kickoff,extra);r.observed_at=obs;r.payload.observed_at=obs;return r;};
+ const records=[
+  mk('e1',{rules:''}),mk('e1b',{rules:undefined,profile_id:'pide1',player:'P e1'}),   // same contract in the full path: an empty-string `rules` must fall through like the key does, or the pair double-counts
+  mk('e2',{rules:undefined}),mk('e3',{sport:undefined}),mk('e4',{home:undefined,away:undefined}),mk('e5',{model_cohort:undefined,model_evidence:{push:1.5,seasonEvidence:{method:'80% current'}}}),
+  mk('e6',{probability:null}),mk('e7',{model_evidence:{push:-.2}}),mk('e8',{model_cohort:'legacy'}),mk('e9',{actionable:true}),
+  {...mk('e10'),payload:{...mk('e10').payload,kickoff:'not a date'}},
+  settle('e1','2026-10-12T03:00:00Z'),settle('e1','2026-10-12T04:00:00Z','loss'),            // duplicate settlements: last wins
+  settle('e2','2026-10-09T00:00:00Z'),                                                       // settled before kickoff: not graded
+  settle('e3','2026-10-12T03:00:00Z','refund'),settle('e5','2026-10-12T03:00:00Z','void'),settle('e7','2026-10-12T03:00:00Z','loss'),
+  {...settle('e8','2026-10-12T03:00:00Z'),payload:{...settle('e8','2026-10-12T03:00:00Z').payload,official_kickoff:'2026-10-11T17:05:00Z'}},   // within 10 minutes
+  {...settle('e9','2026-10-12T03:00:00Z'),payload:{...settle('e9','2026-10-12T03:00:00Z').payload,official_kickoff:'2026-10-11T19:30:00Z'}},   // outside
+  {...settle('e6','2026-10-12T03:00:00Z'),payload:{...settle('e6','2026-10-12T03:00:00Z').payload,sport:'ncaa'}},                               // settlement sport overrides
+  closing('e1','2026-10-11T16:55:00Z'),closing('e8','2026-10-11T16:58:00Z'),research('e1'),
+ ];
+ const light=projectSegment(records),meta={result_coverage:{slates:[]}};
+ // Non-vacuity: the fixtures must actually flow through selection, grading, refunds and price moves.
+ const probe=JSON.parse(view(records,meta,{cohort:'all',sport:'all',days:'all',date:'',game:'',group:'best_model'},Date.parse('2026-10-20T00:00:00Z')));
+ assert.ok(probe.picks.length>=6,'selected picks: '+probe.picks.length);
+ assert.ok(probe.receipts.length>=3,'graded receipts: '+probe.receipts.length);
+ assert.ok(probe.rest.counts.refund+probe.rest.counts.void>=1);
+ for(const asOf of [Date.parse('2026-10-09T00:00:00Z'),Date.parse('2026-10-11T18:00:00Z'),Date.parse('2026-10-20T00:00:00Z')])
+  for(const p of [...combos(records),{cohort:'all',sport:'ncaa',days:'all',date:'',game:'',group:'best_model'},{cohort:'all',sport:'all',days:'7',date:'',game:'',group:'alerts'}])
+   assert.equal(view(light,meta,p,asOf),view(records,meta,p,asOf),JSON.stringify(p)+' @'+asOf);
 });
 
 // ---- determinism, integrity, staleness ----------------------------------------------------------------------
@@ -195,4 +224,18 @@ test('the snapshot API serves only fixed-format ledger names',async()=>{
   for(const file of ['derived/validation_ledger/../../secret.json','derived/validation_ledger/ledger-1-a-b.json','derived/other/index.json','derived/validation_ledger/','derived/validation_ledger/index.json/../x']){const res=response();await handler({method:'GET',url:'/api/snapshot?file='+encodeURIComponent(file)},res);assert.equal(res.statusCode,400,file);}
   assert.equal(calls.length,2);
  }finally{global.fetch=before;}
+});
+
+test('simultaneous evidence requests for one segment share a single download, and a failed download is not cached',{skip:!hasRealStore,timeout:300000},async()=>{
+ const {buildValidationLedger}=await builder(),{loadLedgerVerified,makeEvidenceLoader}=await mod();
+ const work=tmp();fs.cpSync(path.join(dataDir,'public_tracker'),path.join(work,'public_tracker'),{recursive:true});
+ await buildValidationLedger({dataDir:work});
+ const manifest=JSON.parse(fs.readFileSync(path.join(work,'public_tracker','manifest.json'),'utf8'));
+ let fail=true;const calls=[],getText=async rel=>{if(rel.startsWith('public_tracker/segments/')){calls.push(rel);if(fail)throw new Error('HTTP 503');}return fs.readFileSync(path.join(work,rel),'utf8');};
+ const ledger=await loadLedgerVerified(getText,manifest);
+ const ids=ledger.rows().filter(r=>r.kind==='prediction'&&ledger.idToShard.get(r.id)===0).slice(0,3).map(r=>r.id);
+ const load=makeEvidenceLoader(getText,manifest,ledger.idToShard);
+ await assert.rejects(()=>load(ids[0]),/503/);fail=false;calls.length=0;
+ const all=await Promise.all(ids.map(load));
+ assert.equal(calls.length,1);assert.equal(all.length,3);assert.ok(all.every(x=>x.provenance));
 });
