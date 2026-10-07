@@ -28,3 +28,9 @@ Never invent missing historical odds, outcomes, probabilities, measured returns,
 or a validation percentage. A scoring-error backtest is not a betting-return
 backtest. Public feed availability and existing policy thresholds do not prove
 that a strategy is profitable.
+
+## Process safety (all agents)
+
+- Never use broad process-kill commands: `taskkill /IM node.exe`, `pkill`, `killall`, `Stop-Process -Name ...`, or anything that matches processes by image name or pattern across the machine. Node, Python and other processes on this host belong to other tools and sessions.
+- Terminate only a process you started yourself and can identify by its specific PID: record the PID when you launch it, verify it in the process list, then stop that PID alone. If you cannot identify your process by PID, leave it running and report it.
+- Prefer finite commands with timeouts over long-running servers. If you must start a server, start it from your own directory, note the PID, and stop that exact PID when done.
