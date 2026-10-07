@@ -108,7 +108,7 @@ calibration, Champion comparison, human approval.
 
 ## Tests
 
-`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (80 tests, synthetic fixtures built from the real
+`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (93 tests, synthetic fixtures built from the real
 registry; includes regression tests for every defect the independent QA review found). `GOING_FP_ROOT=<folder>` adds a test that every real export is recognised with the current schema. The
 `ProtectionRemovalTests` class switches each critical protection off and requires the guarding scenario to fail.
 
@@ -135,6 +135,24 @@ never touches other Inbox files. Run it once; the files stay archived and plain 
 Without a declaration a partial past-season file is held (`held_scope`) with these instructions. A one-game file declared
 `cumulative` is refused (`cumulative_ambiguous`): every single week looks like that, so declare it `week:N` (`week:1` for the
 opener). Declare only what you filtered in Fantasy Points; a 2-week range (G=2) cannot be told from "weeks 1-2" by the file.
+
+## Completed seasons (2025 pilot) and multi-season bookkeeping
+
+* A finished season is imported with a plain `import`: no flag, no folder, no renaming. Season and table come from the file's contents;
+  `(1)` and every other part of the filename mean nothing. Two seasons of one table are separate snapshots that never replace each other.
+* Season totals list traded players with every team they played for (`"SEA, NO"`, order arbitrary). Rows keep `teams` (all of them),
+  `team` is null when there is more than one, `multi_team` is true, and identity is resolved against any of the teams.
+* A player/team repeated inside one export rejects the file (`duplicate_rows`).
+* `rosters <season>` downloads the public nflverse roster used for identity (done automatically on import unless `--offline`).
+* Every full-season snapshot carries `research_boundary`: it is retrospective, **not** point-in-time inside its own season; allowed
+  uses are prior-season to next-season work, stability, archetypes and feature discovery.
+* `python scripts/fantasy_points.py availability` writes `manifests/availability.json`: table x 2021-2026 as `imported`,
+  `provider_unavailable` (only if declared in `config/fantasy_points_availability.json`), `import_problem` (a file exists but was held
+  or rejected) or `unknown` (not downloaded/checked). A missing table is never zero and never silently an import failure.
+* `python scripts/fantasy_points.py compat --older 2025 --newer 2026` writes `manifests/schema_compatibility_*.json`, classifying each
+  column CONSISTENT / 2026_ONLY / HISTORICAL_ONLY / SCHEMA_CHANGED / NEEDS_REVIEW (name, type, vendor definition text hash, typical size
+  of rate columns). Similar names are not proof of identical meaning; review anything that is not CONSISTENT.
+* Optional tables (`weekly_expected: false`, the three "basic" box-score tables) are not reported missing when absent.
 
 ## Known limits
 

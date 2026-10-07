@@ -12,6 +12,12 @@ Regenerate after changing either file. Classes are a boundary, not a score: noth
 | DO_NOT_USE | export artifact (`Rank`) |
 | UNREVIEWED | new column nobody has classified; never used until reviewed |
 
+## Defensive coverage matrix (team) (`coverage_matrix`)
+
+Team defence: man/zone, middle-of-field look and Cover 0/1/2/3/4/6 rates with fantasy points allowed per dropback. Level: team.
+
+- **RESEARCH** (15): `Man/Zone.MAN %`, `Man/Zone.FP/DB`, `Man/Zone.ZONE %`, `Man/Zone.FP/DB#2`, `Middle of Field Look (Closed/Open).1-HI/MOF C %`, `Middle of Field Look (Closed/Open).FP/DB`, `Middle of Field Look (Closed/Open).2-HI/MOF O %`, `Middle of Field Look (Closed/Open).FP/DB#2`, `Coverages.COVER 0 %`, `Coverages.COVER 1 %`, `Coverages.COVER 2 %`, `Coverages.COVER 2 MAN %`, `Coverages.COVER 3 %`, `Coverages.COVER 4 %`, `Coverages.COVER 6 %`
+
 ## Efficiency (rushing, receiving, total, expected fantasy points) (`efficiency`)
 
 Per-player rushing and receiving efficiency plus XFP/XTD expectation; season to date. Level: player.
@@ -43,7 +49,15 @@ QB accuracy, pressure, time-to-throw, depth and fantasy production. Level: playe
 - **DERIVED** (4): `Passing Advanced.Deep Throw %`, `Passing Advanced.1Read %`, `Passing Advanced.CHK %`, `Passing Advanced.RPO %`
 - **RESEARCH** (17): `Passing Advanced.CPOE`, `Passing Advanced.YAC %`, `Passing Advanced.ADJ CMP %`, `Passing Advanced.ACC %`, `Passing Advanced.OFF %`, `Passing Advanced.HERO %`, `Passing Advanced.TWT %`, `Passing Advanced.DROP %`, `Passing Advanced.TTT`, `Passing Advanced.TTP`, `Passing Advanced.TTSK`, `Passing Advanced.TTSC`, `Passing Advanced.PRESS %`, `Passing Advanced.PRESS SK %`, `Passing Advanced.PrROE`, `FPTS.FP/DB`, `FPTS.FP/OPP`
 - **CURRENT** (9): `Passing.DB`, `Passing Advanced.Deep Throw`, `Passing Advanced.EZATT`, `Passing Advanced.DROP YDS`, `Passing Advanced.QB SK`, `Passing Advanced.QBP`, `Passing Advanced.TA`, `Passing Advanced.BAT`, `Passing Advanced.SPK`
-- **REDUNDANT** (22): `Passing.ATT`, `Passing.CMP`, `Passing.CMP %`, `Passing.YDS`, `Passing.YDS/G`, `Passing.YPA`, `Passing.TD`, `Passing.INT`, `Passing.1D`, `Passing.RATE`, `Passing.SACK`, `Passing.SACK %`, `Passing.SK YDS`, `Passing.ANY/A`, `Scrambles.SCRM`, `Scrambles.YDS`, `Scrambles.TD`, `Passing Advanced.aDOT` ... (+4 more)
+- **REDUNDANT** (23): `Passing.ATT`, `Passing.CMP`, `Passing.CMP %`, `Passing.YDS`, `Passing.YDS/G`, `Passing.YPA`, `Passing.TD`, `Passing.INT`, `Passing.1D`, `Passing.RATE`, `Passing.SACK`, `Passing.SACK %`, `Passing.SK YDS`, `Passing.ANY/A`, `Scrambles.SCRM`, `Scrambles.YDS`, `Scrambles.TD`, `Passing Advanced.aDOT` ... (+5 more)
+
+## Passing basic (QB box score) (`passing_basic`)
+
+QB box score: attempts, completions, yards, TDs, sacks, rushing and scrambles, fantasy points. Level: player.
+
+- **RESEARCH** (2): `FPTS.FP/DB`, `FPTS.FP/OPP`
+- **CURRENT** (1): `Passing.DB`
+- **REDUNDANT** (23): `Passing.ATT`, `Passing.CMP`, `Passing.CMP %`, `Passing.YDS`, `Passing.YDS/G`, `Passing.YPA`, `Passing.TD`, `Passing.INT`, `Passing.1D`, `Passing.RATE`, `Passing.SACK`, `Passing.SACK %`, `Passing.SK YDS`, `Passing.ANY/A`, `Total Rushing.ATT`, `Total Rushing.YDS`, `Total Rushing.TD`, `Scrambles.SCRM` ... (+5 more)
 
 ## Passing by depth (QB) (`passing_depth`)
 
@@ -68,6 +82,14 @@ Route share, targets, air yards, first-read, designed targets, alignment route s
 - **RESEARCH** (10): `Receiving.CR %`, `Receiving.YPRR`, `Receiving.YACO/REC`, `Advanced.MTF/REC`, `Advanced.1D/RR`, `Advanced.DRP %`, `Advanced.THREAT`, `Advanced.YPTOE`, `FPTS.FP/RR`, `FPTS.XFP/RR`
 - **CURRENT** (14): `Receiving.RTE`, `Receiving.YACO`, `Advanced.i20 TGT`, `Advanced.EZTGT`, `Advanced.EZTD`, `Advanced.DP TGT`, `Advanced.1READ`, `Advanced.MTF`, `Advanced.DRP`, `Advanced.CTGT`, `Advanced.DESIGN`, `Advanced.CT`, `Advanced.CC`, `Advanced.HERO`
 - **REDUNDANT** (23): `Receiving.aDOT`, `Receiving.AY`, `Receiving.AY Share`, `Receiving.TGT`, `Receiving.TGT/G`, `Receiving.TGT %`, `Receiving.REC`, `Receiving.YDS`, `Receiving.RecYDS/G`, `Receiving.TM YDS %`, `Receiving.YPT`, `Receiving.YPR`, `Receiving.YAC`, `Receiving.YAC/REC`, `Receiving.TD`, `Receiving.TM TD %`, `Advanced.1D`, `Advanced.RATE` ... (+5 more)
+
+## Receiving basic (box score) (`receiving_basic`)
+
+Targets, receptions, yards, market shares, inside-10/20 targets, PPR and non-PPR fantasy points. Level: player.
+
+- **RESEARCH** (1): `Receiving.CR %`
+- **CURRENT** (2): `Receiving.i10`, `Receiving.i20 TGT`
+- **REDUNDANT** (15): `Receiving.TGT`, `Receiving.TGT %`, `Receiving.REC`, `Receiving.YDS`, `Receiving.TM YDS %`, `Receiving.YPR`, `Receiving.YPT`, `Receiving.RecYDS/G`, `Receiving.TD`, `Receiving.TM TD %`, `Receiving.FUM`, `FPTS.FP/G`, `FPTS.FP`, `FPTS.PPR`, `FPTS.NON-PPR`
 
 ## Receiving: man vs zone, single-high vs two-high (`receiving_man_vs_zone`)
 
@@ -136,6 +158,15 @@ Explosive/success/stuff rates, yards before/after contact, zone vs man/gap conce
 - **RESEARCH** (10): `Advanced.EXP YDS %`, `Advanced.TD RATE`, `Advanced.Success %`, `Advanced.STUFF %`, `Advanced.MTF/ATT`, `Advanced.YACO/ATT`, `Advanced.YACO %`, `Advanced.YBCO/ATT`, `Zone Concept.Success %`, `Man/Gap Concept.Success %`
 - **CURRENT** (3): `Advanced.EXP YDS`, `Advanced.MTF`, `Advanced.YACO`
 - **REDUNDANT** (19): `Rushing.ATT`, `Rushing.YDS`, `Rushing.RuYDS/G`, `Rushing.YPC`, `Rushing.TD`, `Rushing.FUM`, `Rushing.1D`, `Zone Concept.ATT`, `Zone Concept.YDS`, `Zone Concept.TD`, `Zone Concept.YPC`, `Man/Gap Concept.ATT`, `Man/Gap Concept.YDS`, `Man/Gap Concept.TD`, `Man/Gap Concept.YPC`, `FPTS.FP/G`, `FPTS.FP`, `FPTS.XFP` ... (+1 more)
+
+## Rushing basic (box score) (`rushing_basic`)
+
+Rushing and receiving box score with carry-length buckets and inside-5/10/20 carries, weighted opportunity. Level: player.
+
+- **DERIVED** (10): `Rushing.1+ %`, `Rushing.3+ %`, `Rushing.5+ %`, `Rushing.10+ %`, `Rushing.15+ %`, `Rushing.20+ %`, `Rushing.30+ %`, `Rushing.i5 %`, `Rushing.i10 %`, `Rushing.i20 %`
+- **RESEARCH** (1): `Receiving.CR %`
+- **CURRENT** (5): `Rushing.i5`, `Rushing.i10`, `Rushing.i20`, `Receiving.i10`, `Receiving.i20 TGT`
+- **REDUNDANT** (24): `Rushing.ATT`, `Rushing.YDS`, `Rushing.RuYDS/G`, `Rushing.YPC`, `Rushing.TD`, `Rushing.FUM`, `Rushing.SCRM`, `Rushing.YDS#2`, `Rushing.TD#2`, `Receiving.TGT`, `Receiving.TGT %`, `Receiving.REC`, `Receiving.YDS`, `Receiving.TM YDS %`, `Receiving.YPR`, `Receiving.YPT`, `Receiving.RecYDS/G`, `Receiving.TD` ... (+6 more)
 
 ## Backfield opportunity share (bell cow) (`rushing_bell_cow`)
 

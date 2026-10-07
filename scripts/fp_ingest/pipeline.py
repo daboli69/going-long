@@ -7,6 +7,7 @@ Safety rules enforced here (each has a test that fails when the rule is removed)
 * an unknown/changed schema, wrong season, truncated file or ambiguous scope is held, not guessed
 * blank is None, never 0; unmatched players keep player_id null and are listed, never fuzzy-matched
 """
+import collections
 import datetime
 import fnmatch
 import hashlib
@@ -76,15 +77,19 @@ def _inspect(name, data, registry, mtime):
         games = [int(n) for n in numbers]
         info.update(seasons=seasons, games_min=min(games) if games else None, games_max=max(games) if games else None)
     teams = set()
+    seen_entities = collections.Counter()
     for row in parsed['rows']:
+        if name_key:
+            seen_entities[(row[columns.index(name_key)], row[columns.index(team_key)] if team_key else '', row[columns.index(_find(columns, group_names, 'POS'))] if _find(columns, group_names, 'POS') else '')] += 1
         try:
             if team_key and (table or {}).get('level') == 'player':
-                teams.add(idmod.canonical_team(row[columns.index(team_key)]))
+                teams.update(idmod.canonical_teams(row[columns.index(team_key)]))
             elif name_key and (table or {}).get('level') == 'team':
                 teams.add(idmod.canonical_team(row[columns.index(name_key)]))
         except idmod.TeamError:
             info.setdefault('unknown_teams', set()).add(row[columns.index(team_key or name_key)])
     info['team_count'] = len(teams)
+    info['duplicate_entities'] = [key for key, count in seen_entities.items() if count > 1][:5]
     if 'unknown_teams' in info:
         info['unknown_teams'] = sorted(info['unknown_teams'])
     by_class = {}
@@ -152,6 +157,20 @@ def _decide_scope(info, current_season, max_possible_games, override, in_season,
                                                    f'weeks 1-N export re-run with --declare cumulative; if one week, --declare week:N'), None
 
 
+RESEARCH_BOUNDARY = {
+    'full_season': {
+        'same_season_point_in_time': False,
+        'summary': 'retrospective totals: they contain every game of the season, including those after any week you might predict',
+        'allowed_uses': ['prior season -> next season relationships', 'metric stability / year-over-year persistence', 'player and team archetypes',
+                         'candidate-feature discovery for later prospective testing', 'schema and distribution research'],
+        'forbidden_uses': ['input to any prediction or backtest for a week of the same season', 'claiming in-season predictive performance'],
+    },
+    'season_to_date': {'same_season_point_in_time': True, 'summary': 'captured live; valid for later weeks only (see store.point_in_time)'},
+    'historical_cumulative': {'same_season_point_in_time': True, 'summary': 'operator-declared weeks 1-N export: valid for weeks after N, by content'},
+    'single_week': {'same_season_point_in_time': True, 'summary': 'operator-declared single week: a weekly observation, never cumulative'},
+}
+
+
 def normalize(entry, ctx, index):
     """Build the GOING-facing rows. Returns (document, identity_report)."""
     parsed, table, keys = ctx['parsed'], ctx['table'], ctx['keys']
@@ -178,9 +197,12 @@ def normalize(entry, ctx, index):
         if level == 'player':
             entity = {'type': 'player', 'name': cell(ident['Name']), 'fp_team': cell(ident['Team']), 'position': cell(ident['POS'])}
             try:
-                entity['team'] = idmod.canonical_team(entity['fp_team'])
+                entity['teams'] = idmod.canonical_teams(entity['fp_team'])
             except idmod.TeamError:
-                entity['team'] = None
+                entity['teams'] = []
+            # a traded player's season total spans several teams: team is then null and `teams` lists them (order carries no meaning)
+            entity['team'] = entity['teams'][0] if len(entity['teams']) == 1 else None
+            entity['multi_team'] = len(entity['teams']) > 1
             if index is None:
                 match = {'status': 'no_roster', 'player_id': None, 'method': None, 'candidates': [], 'note': 'no roster available for this season'}
             else:
@@ -221,6 +243,7 @@ def normalize(entry, ctx, index):
         'season': entry['season'], 'scope': entry['scope'], 'through_games': entry['through_games'], 'forward_looking': table['forward_looking'],
         'target_game_hint': entry['through_games'] + 1 if table['forward_looking'] and entry['through_games'] is not None else None,
         'known_at': entry['first_imported_at'], 'known_live': entry['known_live'], 'raw_sha256': entry['sha256'],
+        'research_boundary': RESEARCH_BOUNDARY.get(entry['scope']),
         'columns': [{'key': key, 'type': types[key], 'unit': fieldmod.unit_hint(key), **fieldmod.classify_column(key)} for key in metric_keys],
         'leakage_note': fieldmod.LEAKAGE_NOTE, 'rows': rows,
     }
@@ -297,6 +320,8 @@ class Importer:
             return hold('rejected', '_rejected', info['error']['code'], info['error']['message'])
         if ctx['cls']['status'] == 'unknown':
             return hold('unrecognized', '_unrecognized', 'unknown_table', f"{info['column_count']} columns do not match any known Fantasy Points table")
+        if info.get('duplicate_entities'):
+            return hold('rejected', '_rejected', 'duplicate_rows', f"the same player/team appears more than once: {info['duplicate_entities'][:3]}")
         if info.get('unknown_teams'):
             return hold('rejected', '_rejected', 'unknown_team', f"team codes not recognised: {info['unknown_teams'][:5]}")
         drift = info['drift']
@@ -331,6 +356,7 @@ class Importer:
                  'first_imported_at': carry['first_imported_at'] if carry else now,
                  'through_games': games, 'week': week, 'through_week': games if games is not None and games < 14 and scope == 'season_to_date' else None,
                  'declared_by': 'operator' if scope_source == 'operator' else None, 'known_live': scope == 'season_to_date',
+                 'same_season_point_in_time': RESEARCH_BOUNDARY.get(scope, {}).get('same_season_point_in_time'),
                  'forward_looking': table['forward_looking'], 'row_count': info['row_count'], 'column_count': info['column_count'],
                  'team_count': info['team_count'], 'schema_signature': regmod.signature(ctx['parsed']['columns']),
                  'warnings': warnings, 'raw_path': str(raw_path.relative_to(self.root)).replace('\\', '/'), 'drift': drift if drift and drift['new'] else None}

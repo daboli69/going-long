@@ -208,7 +208,8 @@ def short_name(table_id):
         'receiving_separation_by_coverage': 'Separation: coverage', 'receiving_separation_by_routes': 'Separation: routes',
         'rushing_advanced': 'Rushing', 'rushing_bell_cow': 'Bell cow', 'passing_advanced': 'Passing', 'passing_depth': 'Passing depth',
         'qb_coverage_matchup': 'QB coverage matchup', 'wr_coverage_matchup': 'WR coverage matchup', 'line_matchups': 'OL/DL matchups',
-        'run_pass_report': 'Run/pass', 'offense_snaps': 'Snaps', 'efficiency': 'Efficiency',
+        'run_pass_report': 'Run/pass', 'offense_snaps': 'Snaps', 'efficiency': 'Efficiency', 'coverage_matrix': 'Defensive coverage matrix',
+        'passing_basic': 'Passing basic', 'receiving_basic': 'Receiving basic', 'rushing_basic': 'Rushing basic',
     }.get(table_id, table_id)
 
 
@@ -217,6 +218,8 @@ def freshness(registry, manifest, season, expected_games, now_iso):
     tables = []
     for table_id, table in sorted(registry['tables'].items()):
         entry = current_entry(manifest, season, table_id)
+        if entry is None and not table.get('weekly_expected', True):
+            continue  # an optional table nobody has imported for this season is not "missing"
         item = {'table': table_id, 'label': short_name(table_id)}
         if entry is None:
             quarantined = [e for e in manifest.files.values() if e.get('table_id') == table_id and e.get('season') == season

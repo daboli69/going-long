@@ -50,6 +50,18 @@ TABLES = {
     'rushing_bell_cow': dict(
         label='Backfield opportunity share (bell cow)', level='player', side='offense', hints=['rushingbellcow'],
         description='Player share of team snaps, rushes, routes, targets and expected fantasy points.'),
+    'coverage_matrix': dict(
+        label='Defensive coverage matrix (team)', level='team', side='defense', hints=['coveragematrix'],
+        description='Team defence: man/zone, middle-of-field look and Cover 0/1/2/3/4/6 rates with fantasy points allowed per dropback.'),
+    'passing_basic': dict(
+        label='Passing basic (QB box score)', level='player', side='offense', hints=['passingbasic'], weekly_expected=False,
+        description='QB box score: attempts, completions, yards, TDs, sacks, rushing and scrambles, fantasy points.'),
+    'receiving_basic': dict(
+        label='Receiving basic (box score)', level='player', side='offense', hints=['receivingbasic'], weekly_expected=False,
+        description='Targets, receptions, yards, market shares, inside-10/20 targets, PPR and non-PPR fantasy points.'),
+    'rushing_basic': dict(
+        label='Rushing basic (box score)', level='player', side='offense', hints=['rushingbasic'], weekly_expected=False,
+        description='Rushing and receiving box score with carry-length buckets and inside-5/10/20 carries, weighted opportunity.'),
     'run_pass_report': dict(
         label='Team run/pass report by situation', level='team', side='offense', hints=['runpassreport'],
         description='Team snaps, pass and rush counts and rates by half, field position, score state, distance and down.'),

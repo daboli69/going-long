@@ -21,19 +21,19 @@ REDUNDANT = {
     'ATT', 'CMP', 'CMP %', 'YDS', 'TD', 'INT', 'REC', 'TGT', 'FUM', '1D', 'SACK', 'SACK %', 'SK YDS', 'SCRM', 'TOUCH', 'YFS', 'YPA', 'YPC', 'YPR',
     'YPT', 'YDS/G', 'RuYDS/G', 'RecYDS/G', 'YFS/G', 'RATE', 'ANY/A', 'TGT/G', 'Snaps', 'TM Snaps', 'Snap %', 'SNAPS', 'FP', 'FP/G', 'XFP',
     'XFP/G', 'XTD', 'XTD/G', 'TM XFP', 'XFP %', 'TM ATT', 'TM TGT', 'YAC', 'YAC/REC', 'AY', 'aDOT', 'AY Share', 'TM YDS %', 'TM TD %', 'TGT %',
-    'CATCH %', 'RecXFP', 'YFS/TOUCH',
+    'CATCH %', 'RecXFP', 'YFS/TOUCH', 'PPR', 'NON-PPR', 'SK YDS', 'OPP', 'WO', 'WO/G',
 }
 REDUNDANT_WHY = 'GOING already derives this from nflverse play-by-play / expected-usage; compare, do not duplicate as a second source of truth'
 
 CURRENT = {
-    'MTF', 'YACO', 'EXP', 'EXP YDS', 'YBCO', 'DRP', 'DROP YDS', 'TA', 'BAT', 'SPK', 'QB SK', 'QBP', 'TWT', 'HERO', 'CT', 'CC', 'DESIGN', 'CTGT',
+    'i5', 'i10', 'i20', 'MTF', 'YACO', 'EXP', 'EXP YDS', 'YBCO', 'DRP', 'DROP YDS', 'TA', 'BAT', 'SPK', 'QB SK', 'QBP', 'TWT', 'HERO', 'CT', 'CC', 'DESIGN', 'CTGT',
     '1READ', 'EZTGT', 'EZTD', 'i20 TGT', 'DP TGT', 'EZATT', 'DB', 'RTE', 'PASS', 'RUSH', 'Deep Throw',
 }
 CURRENT_WHY = 'descriptive count of what happened; safe to show as current evidence with its week'
 
 DERIVED = {
     'RTE %', 'RTE/G', 'TM RTE %', 'WIDE RTE %', 'SLOT RTE %', 'INLINE RTE %', 'BACK RTE %', 'DB/G', 'TPRR', '1READ %', '1Read %', 'DESIGN %',
-    'CTGT %', 'i5 %', 'PASS %', 'RUSH %', 'Deep Throw %', 'RPO %', 'CHK %', 'CC %', 'ATT %', 'EXP PLAY %', 'EXP REC %', 'EXP RUN %',
+    'CTGT %', 'i5 %', 'i10 %', 'i20 %', '1+ %', '3+ %', '5+ %', '10+ %', '15+ %', '20+ %', '30+ %', 'PASS %', 'RUSH %', 'Deep Throw %', 'RPO %', 'CHK %', 'CC %', 'ATT %', 'EXP PLAY %', 'EXP REC %', 'EXP RUN %',
 }
 DERIVED_WHY = 'role / deployment / opportunity share: can be tracked week to week and compared to expectation'
 
@@ -43,7 +43,8 @@ RESEARCH = {
     'YAC %', 'YACO/ATT', 'YACO %', 'YACO/REC', 'YACO/TOUCH', 'MTF/ATT', 'MTF/REC', 'MTF/TOUCH', 'EXP YDS %', 'Success %', 'STUFF %', 'TD RATE',
     'YBCO/ATT', 'ADJ YBC/ATT', '1D/RR', 'COV GRADE', 'EXP FP/DB', 'EXP FP/RTE', 'DEF COVER 2 %', 'DEF COVER 3 %', 'DEF COVER 4 %', 'DEF COVER 6 %',
     'DEF MAN %', 'QB COVER 2 %', 'QB Cover 3 %', 'QB Cover 4 %', 'QB COVER 6 %', 'QB MAN %', 'DEF FP/DB', 'QB FP/DB', 'FP/RTE', 'RUSH GRADE',
-    'PASS GRADE', 'CR %', 'HERO', 'MTF/ATT',
+    'PASS GRADE', 'CR %', 'HERO', 'MTF/ATT', 'MAN %', 'ZONE %', '1-HI/MOF C %', '2-HI/MOF O %', 'COVER 0 %', 'COVER 1 %', 'COVER 2 %',
+    'COVER 2 MAN %', 'COVER 3 %', 'COVER 4 %', 'COVER 6 %',
 }
 RESEARCH_WHY = 'efficiency / skill / matchup measure: a hypothesis. Unstable on small samples; needs historical + chronological OOS testing before any model use'
 
@@ -58,7 +59,7 @@ def base_name(key):
 def classify_column(key):
     group = key.split('.', 1)[0] if '.' in key else ''
     base = base_name(key)
-    if group in IDENTITY_GROUPS or (base in IDENTITY_BASES and base != 'Rank'):
+    if group in IDENTITY_GROUPS or (not group and base in IDENTITY_BASES and base != 'Rank') or (group in ('Offense Stats', 'Defense Stats') and base in ('Team', 'Name')):
         return {'class': 'IDENTITY', 'why': 'row identity / context, not a metric'}
     if base in DO_NOT_USE:
         return {'class': 'DO_NOT_USE', 'why': DO_NOT_USE[base]}

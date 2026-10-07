@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "note": "Operator declarations that Fantasy Points does not offer a table for a season. Absence from this file means 'unknown', never 'unavailable'. Metadata only.",
+  "declarations": {
+    "2025": {
+      "offense_snaps": {
+        "evidence": "the 2025 download of this table returned the 2026 file (byte-identical checksum), so no 2025 version was obtained; confirm in the Fantasy Points UI"
+      },
+      "line_matchups": {
+        "evidence": "absent from the 2025 download batch (operator: some tables offer no historical data); forward-looking next-game table; confirm in the Fantasy Points UI"
+      },
+      "qb_coverage_matchup": {
+        "evidence": "absent from the 2025 download batch (operator: some tables offer no historical data); forward-looking next-game table; confirm in the Fantasy Points UI"
+      },
+      "wr_coverage_matchup": {
+        "evidence": "absent from the 2025 download batch (operator: some tables offer no historical data); forward-looking next-game table; confirm in the Fantasy Points UI"
+      }
+    }
+  }
+}

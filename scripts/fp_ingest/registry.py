@@ -24,16 +24,40 @@ def filename_stem(name):
     return re.sub(r'[^a-z0-9]', '', stem.lower())
 
 
+def merge_types(first, second):
+    """Column types from several exports of one table: numeric beats empty, a numeric/text conflict becomes text and is reported."""
+    merged = dict(first)
+    conflicts = []
+    for key, kind in second.items():
+        have = merged.get(key, 'empty')
+        if have == 'empty':
+            merged[key] = kind
+        elif kind != 'empty' and kind != have:
+            merged[key] = 'text'
+            conflicts.append(key)
+    return merged, conflicts
+
+
 def seed(files):
-    """Build a registry from real exports: {table_id: path}. Only used to add a new table or refresh the config."""
+    """Build a registry from real exports: {table_id: path or [paths]}, e.g. the same table from different seasons. All files of a
+    table must share one column layout. Only used to add a new table or refresh the config."""
     tables = {}
-    for table_id, path in files.items():
+    for table_id, paths in files.items():
         meta = TABLES[table_id]
-        parsed = parse_export(Path(path).read_bytes())
-        types = column_types(parsed)
+        paths = paths if isinstance(paths, (list, tuple)) else [paths]
+        parsed, types = None, {}
+        for path in paths:
+            current = parse_export(Path(path).read_bytes())
+            if parsed is not None and current['columns'] != parsed['columns']:
+                raise ValueError(f'{table_id}: {Path(path).name} has a different column layout than the other sample files')
+            parsed = current
+            types, conflicts = merge_types(types, column_types(current))
+            if conflicts:
+                raise ValueError(f'{table_id}: numeric/text conflict across samples in {conflicts[:3]}')
         tables[table_id] = {
             'id': table_id, 'label': meta['label'], 'level': meta['level'], 'side': meta['side'],
-            'forward_looking': bool(meta.get('forward_looking')), 'description': meta['description'],
+            'forward_looking': bool(meta.get('forward_looking')), 'weekly_expected': meta.get('weekly_expected', True),
+            'description': meta['description'],
             'filename_hints': meta['hints'], 'signature': signature(parsed['columns']),
             'columns': [{'key': key, 'type': types[key]} for key in parsed['columns']],
             # vendor glossary text is deliberately not stored in the repo (licensed); it stays in the archived raw files

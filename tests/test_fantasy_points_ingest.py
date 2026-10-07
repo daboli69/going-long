@@ -308,7 +308,7 @@ class ImportTests(unittest.TestCase):
         lines = {l.split(':')[0]: l for l in report['freshness']}
         self.assertIn('STALE', lines['Bell cow'])
         self.assertIn('MISSING', lines['Routes'])
-        self.assertEqual(len(report['freshness']), len(REGISTRY['tables']))
+        self.assertEqual(len(report['freshness']), sum(1 for t in REGISTRY['tables'].values() if t.get('weekly_expected', True)))
         fresh = json.loads((workspace.dir / 'manifests' / 'freshness.json').read_text(encoding='utf-8'))
         self.assertEqual({t['state'] for t in fresh['tables']}, {'stale', 'missing'})
 
@@ -839,6 +839,123 @@ class HistoricalSnapshotTests(unittest.TestCase):
                 pl.parse_declare(text)
 
 
+class FullSeasonHistoryTests(unittest.TestCase):
+    """The 2025 pilot: completed seasons with traded players, mixed filenames and tables the provider does not offer for every year."""
+
+    def full(self, table_id='rushing_bell_cow', season=2025, **kw):
+        return make_csv(table_id, season=season, games=17, **kw)
+
+    def traded(self, order='DAL, ARZ'):
+        def mutate(body, keys):
+            body[0][keys.index('Player Details.Team')] = order
+        return mutate
+
+    def test_traded_players_with_several_teams_are_matched_not_rejected(self):
+        for order in ('DAL, ARZ', 'ARZ, DAL'):  # the order of teams in the export carries no meaning
+            workspace = Workspace(self)
+            workspace.put('a.csv', self.full(mutate=self.traded(order)))
+            report = workspace.run()
+            self.assertEqual(workspace.outcomes(report)['a.csv'], 'imported', order)
+            document = json.loads(next((workspace.dir / 'normalized').rglob('*.json')).read_text(encoding='utf-8'))
+            entity = document['rows'][0]['entity']
+            self.assertEqual((entity['multi_team'], entity['team'], sorted(entity['teams'])), (True, None, ['ARI', 'DAL']))
+            self.assertEqual(entity['match']['status'], 'matched')
+            self.assertTrue(entity['player_id'])
+
+    def test_an_unknown_team_inside_a_multi_team_cell_rejects_the_file(self):
+        workspace = Workspace(self)
+        workspace.put('a.csv', self.full(mutate=self.traded('ARZ, XYZ')))
+        self.assertEqual(workspace.outcomes(workspace.run())['a.csv'], 'rejected')
+
+    def test_repeated_players_in_one_export_are_rejected(self):
+        def twice(body, keys):
+            body.append(list(body[0]))
+        workspace = Workspace(self)
+        workspace.put('a.csv', self.full(mutate=twice))
+        report = workspace.run()
+        self.assertEqual(report['results'][0]['reason']['code'], 'duplicate_rows')
+
+    def test_filenames_and_copy_suffixes_never_decide_the_season(self):
+        workspace = Workspace(self)
+        workspace.put('rushingBellCowExport (1).csv', make_csv('rushing_bell_cow', season=2026, games=4))  # the 2026 file got the (1)
+        workspace.put('rushingBellCowExport.csv', self.full())  # and the 2025 file kept the plain name
+        report = workspace.run()
+        self.assertEqual(set(workspace.outcomes(report).values()), {'imported'})
+        manifest = workspace.manifest()
+        a, b = store.current_entry(manifest, 2025, 'rushing_bell_cow'), store.current_entry(manifest, 2026, 'rushing_bell_cow')
+        self.assertEqual((a['original_filename'], a['scope'], a['through_games']), ('rushingBellCowExport.csv', 'full_season', 17))
+        self.assertEqual((b['original_filename'], b['scope'], b['through_games']), ('rushingBellCowExport (1).csv', 'season_to_date', 4))
+        self.assertNotEqual(a['sha256'], b['sha256'])
+
+    def test_importing_another_season_never_touches_existing_entries_or_files(self):
+        workspace = Workspace(self)
+        workspace.put('now.csv', make_csv('rushing_bell_cow', season=2026, games=4))
+        workspace.run()
+        before = {str(p): p.read_bytes() for p in workspace.dir.rglob('*') if p.is_file() and 'manifests' not in p.parts}
+        entry_before = dict(store.current_entry(workspace.manifest(), 2026, 'rushing_bell_cow'))
+        workspace.put('old.csv', self.full())
+        workspace.run(now=NOW + datetime.timedelta(days=1))
+        for path, content in before.items():
+            self.assertEqual(Path(path).read_bytes(), content)
+        self.assertEqual(store.current_entry(workspace.manifest(), 2026, 'rushing_bell_cow'), entry_before)
+        self.assertFalse(any(e.get('superseded_by') for e in workspace.manifest().files.values()), 'seasons never supersede each other')
+
+    def test_full_season_is_flagged_as_retrospective_in_metadata(self):
+        workspace = Workspace(self)
+        workspace.put('old.csv', self.full())
+        workspace.put('now.csv', make_csv('passing_depth', season=2026, games=4))
+        workspace.run()
+        docs = {d['season']: d for d in (json.loads(p.read_text(encoding='utf-8')) for p in (workspace.dir / 'normalized').rglob('*.json'))}
+        self.assertFalse(docs[2025]['research_boundary']['same_season_point_in_time'])
+        self.assertIn('input to any prediction or backtest for a week of the same season', docs[2025]['research_boundary']['forbidden_uses'])
+        self.assertTrue(docs[2026]['research_boundary']['same_season_point_in_time'])
+        self.assertFalse(store.current_entry(workspace.manifest(), 2025, 'rushing_bell_cow')['same_season_point_in_time'])
+
+    def test_availability_separates_provider_gaps_from_failures_and_unknowns(self):
+        from fp_ingest import history
+        workspace = Workspace(self)
+        workspace.put('a.csv', self.full('rushing_bell_cow'))
+        workspace.put('b.csv', self.full('passing_depth', mutate=lambda body, keys: body.append(list(body[0]))))  # a bad file: duplicate rows
+        workspace.run()
+        declarations = {'2025': {'line_matchups': {'evidence': 'test'}}}
+        matrix = history.availability(REGISTRY, workspace.manifest(), declarations)['tables']
+        self.assertEqual(matrix['rushing_bell_cow']['2025']['status'], 'imported')
+        self.assertEqual(matrix['passing_depth']['2025']['status'], 'import_problem')
+        self.assertEqual(matrix['line_matchups']['2025']['status'], 'provider_unavailable')
+        self.assertEqual(matrix['qb_coverage_matchup']['2025']['status'], 'unknown')
+        self.assertEqual(matrix['rushing_bell_cow']['2024']['status'], 'unknown')
+        self.assertEqual(sorted(matrix['rushing_bell_cow']), ['2021', '2022', '2023', '2024', '2025', '2026'])
+
+    def test_optional_tables_are_not_reported_missing_but_show_when_present(self):
+        workspace = Workspace(self)
+        workspace.put('a.csv', make_csv('rushing_bell_cow'))
+        lines = workspace.run()['freshness']
+        self.assertFalse(any(l.startswith('Passing basic') for l in lines))
+        workspace.put('b.csv', make_csv('passing_basic'))
+        lines = workspace.run(now=NOW + datetime.timedelta(days=1))['freshness']
+        self.assertTrue(any(l.startswith('Passing basic') for l in lines))
+
+    def test_schema_comparison_classifies_every_kind_of_change(self):
+        from fp_ingest import history
+        old = make_csv('rushing_bell_cow', season=2025, games=17)
+        new = make_csv('rushing_bell_cow', season=2026, games=4, add_columns=['FPTS.NEW'], drop_columns={'Rushing.TM ATT'},
+                       mutate=lambda body, keys: [row.__setitem__(keys.index('Rushing.ATT'), 'n/a') for row in body]).replace(b'Routes Run', b'Routes Run (new rule)')
+        result = history.compare_exports(old, new)
+        self.assertEqual(result['FPTS.NEW']['class'], '2026_ONLY')
+        self.assertEqual(result['Rushing.TM ATT']['class'], 'HISTORICAL_ONLY')
+        self.assertEqual(result['Rushing.ATT']['class'], 'SCHEMA_CHANGED')
+        self.assertIn('type', result['Rushing.ATT']['why'])
+        self.assertEqual(result['Snaps.Snaps']['class'], 'CONSISTENT') if 'Snaps.Snaps' in result else None
+        unchanged = history.compare_exports(old, old)
+        self.assertEqual({v['class'] for v in unchanged.values()}, {'CONSISTENT'})
+
+    def test_scale_changes_are_surfaced_for_review(self):
+        from fp_ingest import history
+        old = make_csv('rushing_bell_cow', season=2025, games=17, mutate=lambda body, keys: [row.__setitem__(keys.index('Snaps.Snap %'), '80') for row in body])
+        new = make_csv('rushing_bell_cow', season=2026, games=4, mutate=lambda body, keys: [row.__setitem__(keys.index('Snaps.Snap %'), '0.8') for row in body])
+        self.assertEqual(history.compare_exports(old, new)['Snaps.Snap %']['class'], 'NEEDS_REVIEW')
+
+
 class ProtectionRemovalTests(unittest.TestCase):
     """Each protection is switched off in turn; the scenario that guards it must then fail (the tests are not vacuous)."""
 
@@ -1003,6 +1120,26 @@ class ProtectionRemovalTests(unittest.TestCase):
         self.assert_guarded(lambda: self._run('test_a_declaration_must_name_its_files_and_only_touches_them', HistoricalSnapshotTests),
                             patch.object(pl.Importer, '_run', everything))
 
+    def test_multi_team_support_is_load_bearing(self):
+        def single_only(value):
+            return [idmod.canonical_team(value)]
+        self.assert_guarded(lambda: self._run('test_traded_players_with_several_teams_are_matched_not_rejected', FullSeasonHistoryTests),
+                            patch.object(idmod, 'canonical_teams', single_only))
+
+    def test_duplicate_row_guard_is_load_bearing(self):
+        real = pl._inspect
+
+        def blind(name, data, registry, mtime):
+            info, ctx = real(name, data, registry, mtime)
+            info['duplicate_entities'] = []
+            return info, ctx
+        self.assert_guarded(lambda: self._run('test_repeated_players_in_one_export_are_rejected', FullSeasonHistoryTests),
+                            patch.object(pl, '_inspect', blind))
+
+    def test_research_boundary_flag_is_load_bearing(self):
+        self.assert_guarded(lambda: self._run('test_full_season_is_flagged_as_retrospective_in_metadata', FullSeasonHistoryTests),
+                            patch.dict(pl.RESEARCH_BOUNDARY, {'full_season': {'same_season_point_in_time': True}}))
+
 @unittest.skipUnless(os.environ.get('GOING_FP_ROOT'), 'set GOING_FP_ROOT to run against the real Inbox')
 class RealInboxTests(unittest.TestCase):
     def test_every_real_export_is_recognised_with_current_schema(self):
@@ -1013,7 +1150,8 @@ class RealInboxTests(unittest.TestCase):
             info, _ = pl.inspect_bytes(path.name, path.read_bytes(), REGISTRY)
             self.assertNotIn('error', info, path.name)
             self.assertEqual(info['schema_status'], 'known', path.name)
-            self.assertEqual(info['seasons'], ['2026'], path.name)
+            self.assertEqual(len(info['seasons']), 1, path.name)
+            self.assertIn(info['seasons'][0], ('2025', '2026'), path.name)
 
 
 if __name__ == '__main__':

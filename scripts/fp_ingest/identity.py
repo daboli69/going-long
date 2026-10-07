@@ -45,6 +45,19 @@ def canonical_team(value):
     raise TeamError(f'unknown team {value!r}')
 
 
+def canonical_teams(value):
+    """Season totals list every team a traded player appeared for ("SEA, NO", order not stable). Returns canonical codes, de-duplicated."""
+    parts = [part.strip() for part in str(value or '').split(',')]
+    if not any(parts):
+        raise TeamError(f'unknown team {value!r}')
+    seen = []
+    for part in parts:
+        code = canonical_team(part)
+        if code not in seen:
+            seen.append(code)
+    return seen
+
+
 def name_tokens(name):
     text = unicodedata.normalize('NFKD', str(name or '')).encode('ascii', 'ignore').decode().lower()
     text = re.sub(r"[.'’]", '', text).replace('-', ' ')
@@ -96,13 +109,14 @@ class RosterIndex:
     def resolve(self, name, team, position):
         """Return {status, player_id, method, candidates, note}. status: matched | ambiguous | unmatched | team_unknown."""
         try:
-            code = canonical_team(team)
+            codes = canonical_teams(team)
         except TeamError:
             return {'status': 'team_unknown', 'player_id': None, 'method': None, 'candidates': [], 'note': f'unknown team {team!r}'}
         group, key, tokens = position_group(position), norm_name(name), name_tokens(name)
-        override = self.aliases.get(f'{key}|{code}')
-        if override:
-            return {'status': 'matched', 'player_id': override, 'method': 'alias', 'candidates': [override], 'note': None}
+        for code in codes:
+            override = self.aliases.get(f'{key}|{code}')
+            if override:
+                return {'status': 'matched', 'player_id': override, 'method': 'alias', 'candidates': [override], 'note': None}
 
         def decide(pids, method, note=None):
             if len(pids) == 1:
@@ -111,7 +125,7 @@ class RosterIndex:
                 return {'status': 'ambiguous', 'player_id': None, 'method': method, 'candidates': pids, 'note': 'more than one roster player fits'}
             return None
 
-        same_team = sorted(self.by_name_team.get((key, code), ()))
+        same_team = sorted({pid for code in codes for pid in self.by_name_team.get((key, code), ())})
         found = decide(self._compatible(same_team, group), 'name_team_position') if same_team else None
         if found:
             return found
@@ -125,7 +139,7 @@ class RosterIndex:
             if found:
                 return found
         if len(tokens) >= 2 and len(tokens[0]) == 1:
-            pids = sorted(self.by_initial_team.get((tokens[0][0], tokens[-1], code), ()))
+            pids = sorted({pid for code in codes for pid in self.by_initial_team.get((tokens[0][0], tokens[-1], code), ())})
             found = decide(self._compatible(pids, group), 'initial_last_team_position', 'first name abbreviated in source')
             if found:
                 return found

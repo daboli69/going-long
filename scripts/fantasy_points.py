@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fp_ingest import fields as fieldmod  # noqa: E402
 from fp_ingest import identity as idmod  # noqa: E402
 from fp_ingest import registry as regmod  # noqa: E402
+from fp_ingest import history  # noqa: E402
 from fp_ingest.pipeline import Importer, inspect_bytes, iso, season_of  # noqa: E402
 from fp_ingest.store import Manifest, find_inbox, find_root, freshness, public_status, write_json  # noqa: E402
 from fp_ingest.parse import sha256  # noqa: E402
@@ -163,7 +164,7 @@ def cmd_seed(args):
         stem = regmod.filename_stem(path.name)
         for table_id, meta in __import__('fp_ingest.table_meta', fromlist=['TABLES']).TABLES.items():
             if stem in meta['hints']:
-                files[table_id] = path
+                files.setdefault(table_id, []).append(path)
     seeded = regmod.seed(files)
     write_json(regmod.REGISTRY_PATH, seeded)
     print(f'wrote {regmod.REGISTRY_PATH} with {len(seeded["tables"])} tables')
@@ -175,6 +176,31 @@ def cmd_rosters(args):
     for season in args.seasons:
         path = idmod.download_roster(season, root / 'identity' / f'roster_{season}.csv')
         print('saved', path)
+    return 0
+
+
+def cmd_availability(args):
+    root = find_root(args.root, REPO)
+    matrix = history.availability(regmod.load(), Manifest(root))
+    write_json(root / 'manifests' / 'availability.json', matrix)
+    seasons = [str(s) for s in matrix['seasons']]
+    mark = {'imported': 'yes', 'provider_unavailable': 'n/a', 'import_problem': 'PROBLEM', 'unknown': '?'}
+    print('table'.ljust(36) + ' '.join(s.rjust(7) for s in seasons))
+    for table_id, row in matrix['tables'].items():
+        print(table_id.ljust(36) + ' '.join(mark[row[s]['status']].rjust(7) for s in seasons))
+    print('yes=imported  n/a=provider does not offer it (declared)  PROBLEM=file held/rejected  ?=not downloaded or not yet checked')
+    return 0
+
+
+def cmd_compat(args):
+    root = find_root(args.root, REPO)
+    report = history.compatibility(root, regmod.load(), Manifest(root), args.older, args.newer)
+    write_json(root / 'manifests' / f'schema_compatibility_{args.older}_{args.newer}.json', report)
+    for table_id, item in report['tables'].items():
+        if item['status'] != 'compared':
+            print(f"{table_id}: not comparable (no {', '.join(item['missing'])} snapshot)")
+        else:
+            print(f"{table_id}: {item['counts']}")
     return 0
 
 
@@ -213,6 +239,11 @@ def main(argv=None):
     sub.add_parser('verify', help='re-checksum every archived file').set_defaults(func=cmd_verify)
     sub.add_parser('seed-registry', help='rebuild config/fantasy_points_tables.json from the files in the Inbox').set_defaults(func=cmd_seed)
     sub.add_parser('fields', help='column use classes per table').set_defaults(func=cmd_fields)
+    sub.add_parser('availability', help='table x season matrix: imported / provider-unavailable / problem / unknown').set_defaults(func=cmd_availability)
+    p = sub.add_parser('compat', help='compare two seasons\' schemas table by table')
+    p.add_argument('--older', type=int, default=2025)
+    p.add_argument('--newer', type=int, default=2026)
+    p.set_defaults(func=cmd_compat)
     p = sub.add_parser('rosters', help='download nflverse rosters used for identity')
     p.add_argument('seasons', nargs='+', type=int)
     p.set_defaults(func=cmd_rosters)

@@ -1,6 +1,109 @@
 {
  "source": "Fantasy Points Data Suite",
  "tables": {
+  "coverage_matrix": {
+   "columns": [
+    {
+     "key": "Team Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Team Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Team Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Team Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Team Details.Location",
+     "type": "text"
+    },
+    {
+     "key": "Team Details.Team Name",
+     "type": "text"
+    },
+    {
+     "key": "Team Details.DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Man/Zone.MAN %",
+     "type": "numeric"
+    },
+    {
+     "key": "Man/Zone.FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Man/Zone.ZONE %",
+     "type": "numeric"
+    },
+    {
+     "key": "Man/Zone.FP/DB#2",
+     "type": "numeric"
+    },
+    {
+     "key": "Middle of Field Look (Closed/Open).1-HI/MOF C %",
+     "type": "numeric"
+    },
+    {
+     "key": "Middle of Field Look (Closed/Open).FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Middle of Field Look (Closed/Open).2-HI/MOF O %",
+     "type": "numeric"
+    },
+    {
+     "key": "Middle of Field Look (Closed/Open).FP/DB#2",
+     "type": "numeric"
+    },
+    {
+     "key": "Coverages.COVER 0 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Coverages.COVER 1 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Coverages.COVER 2 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Coverages.COVER 2 MAN %",
+     "type": "numeric"
+    },
+    {
+     "key": "Coverages.COVER 3 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Coverages.COVER 4 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Coverages.COVER 6 %",
+     "type": "numeric"
+    }
+   ],
+   "description": "Team defence: man/zone, middle-of-field look and Cover 0/1/2/3/4/6 rates with fantasy points allowed per dropback.",
+   "filename_hints": [
+    "coveragematrix"
+   ],
+   "forward_looking": false,
+   "id": "coverage_matrix",
+   "label": "Defensive coverage matrix (team)",
+   "level": "team",
+   "side": "defense",
+   "signature": "0f841f71471111a1",
+   "weekly_expected": true
+  },
   "efficiency": {
    "columns": [
     {
@@ -217,7 +320,8 @@
    "label": "Efficiency (rushing, receiving, total, expected fantasy points)",
    "level": "player",
    "side": "offense",
-   "signature": "acccc1a4bd56ca3f"
+   "signature": "acccc1a4bd56ca3f",
+   "weekly_expected": true
   },
   "line_matchups": {
    "columns": [
@@ -311,7 +415,8 @@
    "label": "Offensive line vs defensive front matchups (next game)",
    "level": "team",
    "side": "matchup",
-   "signature": "bc4bcfd5bcc7b7f6"
+   "signature": "bc4bcfd5bcc7b7f6",
+   "weekly_expected": true
   },
   "offense_snaps": {
    "columns": [
@@ -430,7 +535,8 @@
    "label": "Offensive snaps (total, rushing, passing, inside 5/10/20)",
    "level": "player",
    "side": "offense",
-   "signature": "b8d43aa195389625"
+   "signature": "b8d43aa195389625",
+   "weekly_expected": true
   },
   "passing_advanced": {
    "columns": [
@@ -680,7 +786,151 @@
    "label": "Passing advanced (QB)",
    "level": "player",
    "side": "offense",
-   "signature": "925c6e996c5b691a"
+   "signature": "925c6e996c5b691a",
+   "weekly_expected": true
+  },
+  "passing_basic": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.DB",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.CMP",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.CMP %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.YDS/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.YPA",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.INT",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.1D",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.RATE",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.SACK",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.SACK %",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.SK YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Passing.ANY/A",
+     "type": "numeric"
+    },
+    {
+     "key": "Total Rushing.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Total Rushing.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Total Rushing.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Scrambles.SCRM",
+     "type": "numeric"
+    },
+    {
+     "key": "Scrambles.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Scrambles.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/DB",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/OPP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.OPP",
+     "type": "numeric"
+    }
+   ],
+   "description": "QB box score: attempts, completions, yards, TDs, sacks, rushing and scrambles, fantasy points.",
+   "filename_hints": [
+    "passingbasic"
+   ],
+   "forward_looking": false,
+   "id": "passing_basic",
+   "label": "Passing basic (QB box score)",
+   "level": "player",
+   "side": "offense",
+   "signature": "5d5600430c8b652e",
+   "weekly_expected": false
   },
   "passing_depth": {
    "columns": [
@@ -898,7 +1148,8 @@
    "label": "Passing by depth (QB)",
    "level": "player",
    "side": "offense",
-   "signature": "dc541b2c0ea1c476"
+   "signature": "dc541b2c0ea1c476",
+   "weekly_expected": true
   },
   "qb_coverage_matchup": {
    "columns": [
@@ -1040,7 +1291,8 @@
    "label": "QB vs coverage matchup (next game)",
    "level": "player",
    "side": "matchup",
-   "signature": "63500105e8347b95"
+   "signature": "63500105e8347b95",
+   "weekly_expected": true
   },
   "receiving_advanced": {
    "columns": [
@@ -1306,7 +1558,119 @@
    "label": "Receiving advanced",
    "level": "player",
    "side": "offense",
-   "signature": "c49a6a7d21c86e78"
+   "signature": "c49a6a7d21c86e78",
+   "weekly_expected": true
+  },
+  "receiving_basic": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TGT %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TM YDS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YPR",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YPT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.RecYDS/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.CR %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TM TD %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.i10",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.i20 TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.FUM",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.PPR",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.NON-PPR",
+     "type": "numeric"
+    }
+   ],
+   "description": "Targets, receptions, yards, market shares, inside-10/20 targets, PPR and non-PPR fantasy points.",
+   "filename_hints": [
+    "receivingbasic"
+   ],
+   "forward_looking": false,
+   "id": "receiving_basic",
+   "label": "Receiving basic (box score)",
+   "level": "player",
+   "side": "offense",
+   "signature": "91ac1579d764f8be",
+   "weekly_expected": false
   },
   "receiving_man_vs_zone": {
    "columns": [
@@ -1424,7 +1788,8 @@
    "label": "Receiving: man vs zone, single-high vs two-high",
    "level": "player",
    "side": "offense",
-   "signature": "31963924dd830c2f"
+   "signature": "31963924dd830c2f",
+   "weekly_expected": true
   },
   "receiving_routes_run": {
    "columns": [
@@ -1595,7 +1960,8 @@
    "label": "Routes run by alignment",
    "level": "player",
    "side": "offense",
-   "signature": "d7bafd47696c2b1b"
+   "signature": "d7bafd47696c2b1b",
+   "weekly_expected": true
   },
   "receiving_separation_by_alignment": {
    "columns": [
@@ -1773,7 +2139,8 @@
    "label": "Separation by alignment",
    "level": "player",
    "side": "offense",
-   "signature": "c3a9c358ec584d32"
+   "signature": "c3a9c358ec584d32",
+   "weekly_expected": true
   },
   "receiving_separation_by_breaks": {
    "columns": [
@@ -1951,7 +2318,8 @@
    "label": "Separation by route break type",
    "level": "player",
    "side": "offense",
-   "signature": "80b9fb573dacf41a"
+   "signature": "80b9fb573dacf41a",
+   "weekly_expected": true
   },
   "receiving_separation_by_coverage": {
    "columns": [
@@ -2117,7 +2485,8 @@
    "label": "Separation by coverage",
    "level": "player",
    "side": "offense",
-   "signature": "fee00bf0f6f793f7"
+   "signature": "fee00bf0f6f793f7",
+   "weekly_expected": true
   },
   "receiving_separation_by_routes": {
    "columns": [
@@ -2467,7 +2836,7 @@
     },
     {
      "key": "Flat.ADOR",
-     "type": "empty"
+     "type": "numeric"
     },
     {
      "key": "Flat.WIN RATE",
@@ -2511,7 +2880,8 @@
    "label": "Separation by route type",
    "level": "player",
    "side": "offense",
-   "signature": "a7a75badd3347c0b"
+   "signature": "a7a75badd3347c0b",
+   "weekly_expected": true
   },
   "run_pass_report": {
    "columns": [
@@ -2809,7 +3179,8 @@
    "label": "Team run/pass report by situation",
    "level": "team",
    "side": "offense",
-   "signature": "8eb0b7a1b055074e"
+   "signature": "8eb0b7a1b055074e",
+   "weekly_expected": true
   },
   "rushing_advanced": {
    "columns": [
@@ -2991,7 +3362,207 @@
    "label": "Rushing advanced",
    "level": "player",
    "side": "offense",
-   "signature": "528bb7e0165e595a"
+   "signature": "528bb7e0165e595a",
+   "weekly_expected": true
+  },
+  "rushing_basic": {
+   "columns": [
+    {
+     "key": "Player Details.Rank",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Name",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.Team",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.POS",
+     "type": "text"
+    },
+    {
+     "key": "Player Details.G",
+     "type": "numeric"
+    },
+    {
+     "key": "Player Details.Season",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.ATT",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.RuYDS/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.YPC",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.FUM",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.SCRM",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.YDS#2",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.TD#2",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.1+ %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.3+ %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.5+ %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.10+ %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.15+ %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.20+ %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.30+ %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.i5",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.i5 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.i10",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.i10 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.i20",
+     "type": "numeric"
+    },
+    {
+     "key": "Rushing.i20 %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TGT %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.REC",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YDS",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TM YDS %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YPR",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.YPT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.RecYDS/G",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.CR %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TD",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.TM TD %",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.i10",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.i20 TGT",
+     "type": "numeric"
+    },
+    {
+     "key": "Receiving.FUM",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.WO",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.WO/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP/G",
+     "type": "numeric"
+    },
+    {
+     "key": "FPTS.FP",
+     "type": "numeric"
+    }
+   ],
+   "description": "Rushing and receiving box score with carry-length buckets and inside-5/10/20 carries, weighted opportunity.",
+   "filename_hints": [
+    "rushingbasic"
+   ],
+   "forward_looking": false,
+   "id": "rushing_basic",
+   "label": "Rushing basic (box score)",
+   "level": "player",
+   "side": "offense",
+   "signature": "ee3e3bc53f08a78a",
+   "weekly_expected": false
   },
   "rushing_bell_cow": {
    "columns": [
@@ -3101,7 +3672,8 @@
    "label": "Backfield opportunity share (bell cow)",
    "level": "player",
    "side": "offense",
-   "signature": "883160c91341e74e"
+   "signature": "883160c91341e74e",
+   "weekly_expected": true
   },
   "wr_coverage_matchup": {
    "columns": [
@@ -3267,7 +3839,8 @@
    "label": "Receiver vs coverage matchup (next game)",
    "level": "player",
    "side": "matchup",
-   "signature": "5dbf0a6a81071c3c"
+   "signature": "5dbf0a6a81071c3c",
+   "weekly_expected": true
   }
  },
  "version": 1
