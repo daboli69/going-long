@@ -52,3 +52,29 @@ cp /tmp/public_tracker.json data/public_tracker.json        # overwrite the tomb
 
 The pre-migration single file also remains in git history. `data/public_tracker/` may be left in place
 (unused) or removed.
+
+## Validation light ledger (derived, UI only)
+
+The Validation dashboard no longer loads the heavy store on first paint. `data/derived/validation_ledger/` holds a
+**derived projection** of the canonical segments, one shard per segment plus `index.json`:
+
+- Built by `node scripts/validation_ledger.mjs build` (its own data.yml step, after the tracker step). It is a pure,
+  deterministic function of the store: no clocks or randomness, so deleting it and rebuilding reproduces identical bytes.
+- A shard keeps only what `apps/validation/metrics.mjs` and the dashboard lists read, in the same
+  `{id,kind,observed_at,payload}` shape, so the dashboard's own code produces identical numbers
+  (`tests/validation-ledger.test.cjs` compares every displayed number and field across 82 filter/group combinations
+  against the full store). It derives `model_cohort` and `rules` exactly as the dashboard would, and drops
+  `provenance`, `readiness_snapshot`, `picks_snapshot`, full `model_evidence`, and the `pick_research*` kinds.
+- File names embed the source segment checksum and the shard's own checksum. The index records the source segment
+  checksums; the browser refuses a ledger that does not match the store manifest it loaded and **falls back to the full
+  store** (also on any fetch/checksum error). Index and shards carry `derived: true, not_for_evaluation: true`.
+- Heavy evidence loads **on demand**: opening "Show saved evidence" fetches the one canonical segment that holds the
+  record (verified against the manifest checksum) and renders the same lines as before.
+- Season windows: the default load is the latest season's shards. A shard lists the seasons of the predictions it
+  holds *and of the predictions its settlements/closings refer to*, so a window never drops a settlement. "Load earlier
+  seasons" loads the rest in canonical order. (One season exists today, so everything loads.)
+- It is **never** read by the tracker writer, calibration, settlement or any audit; a test fails if any of those
+  files mention it. The canonical store remains the only source of truth.
+
+Rollback: remove the ledger step from `data.yml` and `data/derived/`; the dashboard then loads the full store exactly
+as before (or revert the dashboard commit).
