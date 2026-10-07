@@ -219,7 +219,11 @@ def main(argv=None):
     args = parser.parse_args(argv)
     if not args.command:
         args = parser.parse_args((argv or sys.argv[1:]) + ['import'])
-    return args.func(args)
+    try:
+        return args.func(args)
+    except (ValueError, RuntimeError, FileNotFoundError) as error:  # usage problems get a message, not a traceback
+        print(f'ERROR: {error}', file=sys.stderr)
+        return 2
 
 
 if __name__ == '__main__':
