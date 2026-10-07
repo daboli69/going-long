@@ -108,7 +108,7 @@ calibration, Champion comparison, human approval.
 
 ## Tests
 
-`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (65 tests, synthetic fixtures built from the real
+`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (76 tests, synthetic fixtures built from the real
 registry; includes regression tests for every defect the independent QA review found). `GOING_FP_ROOT=<folder>` adds a test that every real export is recognised with the current schema. The
 `ProtectionRemovalTests` class switches each critical protection off and requires the guarding scenario to fail.
 
@@ -118,6 +118,22 @@ The importer is additive and reads/writes only `FantasyPoints/`; no GOING data, 
 reverting the branch is enough. **Do not delete `raw/` or `manifests/index.json`**: `raw/` is the only copy of earlier
 weeks once you overwrite Inbox files, and the manifest is the only record of when each file became known (needed for
 leakage-safe backtests). `normalized/` can be rebuilt by re-running the import with the originals in the Inbox.
+
+## Historical exports (2021-2025)
+
+A file reports how many games it covers (`G`) but not how it was filtered in Fantasy Points, so **nothing is inferred** for past
+seasons:
+
+| What you downloaded | Command | Stored as | Usable for backtests |
+| --- | --- | --- | --- |
+| A full finished season (G reaches 17) | `import` | `full-season` | next season onward only |
+| Cumulative weeks 1-N, if Fantasy Points lets you pick them | `import --declare cumulative` | `cumulative-through-game-NN` | **yes**: point-in-time by content (games through N), whatever the download date |
+| One single week, if offered | `import --declare week:N` | `week-NN`, `weekly_entries()` | stored as true weekly observations; never summed or served as cumulative |
+
+Put one declared batch in the Inbox, run `import --declare ...` once, and the files stay archived; plain `import` afterwards
+treats them as duplicates. Without a declaration a partial past-season file is held (`held_scope`) with these instructions.
+The declaration applies to every file in that run, so keep batches homogeneous. `declared cumulative` is the operator's
+statement; check in Fantasy Points that the season filter is "Weeks 1 to N" before declaring it.
 
 ## Known limits
 

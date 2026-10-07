@@ -121,10 +121,26 @@ class Manifest:
                 and (statuses is None or e.get('status') in statuses)]
 
 
-def scope_dir(scope, through_games):
+def scope_dir(scope, through_games, week=None):
     if scope == 'season_to_date':
         return f'through-week-{int(through_games):02d}'
+    if scope == 'historical_cumulative':
+        return f'cumulative-through-game-{int(through_games):02d}'
+    if scope == 'single_week':
+        return f'week-{int(week):02d}'
     return {'full_season': 'full-season'}.get(scope, 'unclassified')
+
+
+def snapshot_key(entry):
+    """Same key = same observation (a re-export/correction of it): scope plus games for cumulative scopes, the week for single weeks."""
+    return (entry.get('scope'), entry.get('week') if entry.get('scope') == 'single_week' else entry.get('through_games'))
+
+
+def weekly_entries(manifest, season, table_id):
+    """Declared single-week exports for one table, oldest week first, corrections applied. These are NOT cumulative and are never
+    summed or served by point_in_time; they are stored so research can use true weekly observations."""
+    found = [e for e in manifest.entries(season, table_id) if e.get('scope') == 'single_week' and not e.get('superseded_by')]
+    return sorted(found, key=lambda e: e['week'])
 
 
 def _order(entry):
@@ -158,16 +174,22 @@ def point_in_time(manifest, season, table_id, for_season, for_week, known_by=Non
             raise ValueError('known_by is required for same-season lookups: without it later corrections leak into the past')
         latest = {}
         for entry in pool:
-            if (entry.get('first_imported_at') or '9999') > known_by:
+            # a declared historical cumulative export is point-in-time by its CONTENT (games through N), not by when it was
+            # downloaded; live captures are point-in-time by when GOING imported them
+            if entry.get('scope') != 'historical_cumulative' and (entry.get('first_imported_at') or '9999') > known_by:
                 continue
-            key = (entry.get('scope'), entry.get('through_games'))
+            if entry.get('scope') == 'single_week':
+                continue
+            key = snapshot_key(entry)
             rank = (entry.get('status') != 'partial', entry.get('captured_at') or '', entry.get('first_imported_at') or '')
             if key not in latest or rank > latest[key][0]:
                 latest[key] = (rank, entry)
 
         def usable(entry):
             games = entry.get('through_games') or 0
-            return entry.get('scope') == 'season_to_date' and entry.get('known_live') and games <= for_week - (2 if games >= EXPECTED_BASE_WEEK else 1)
+            live_ok = entry.get('scope') == 'season_to_date' and entry.get('known_live')
+            historical_ok = entry.get('scope') == 'historical_cumulative' and entry.get('declared_by') == 'operator'
+            return (live_ok or historical_ok) and games <= for_week - (2 if games >= EXPECTED_BASE_WEEK else 1)
         live = [entry for _, entry in latest.values() if usable(entry)]
         if any(e.get('forward_looking') for e in live):
             live = [e for e in live if e.get('through_games') == for_week - 1]

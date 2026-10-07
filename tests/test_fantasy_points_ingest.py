@@ -731,6 +731,90 @@ class QaRegressionTests(unittest.TestCase):
         self.assertTrue(all('glossary' not in table for table in REGISTRY['tables'].values()))
 
 
+class HistoricalSnapshotTests(unittest.TestCase):
+    """Past seasons: only an operator-declared cumulative (weeks 1-N) export is a point-in-time snapshot; nothing is inferred."""
+
+    def cumulative_series(self, workspace, games_list=(3, 6, 9), season=2023):
+        for games in games_list:
+            workspace.put(f'h{games}.csv', make_csv('rushing_bell_cow', season=season, games=games,
+                                                    mutate=lambda body, keys, g=games: body[0].__setitem__(keys.index('Rushing.ATT'), str(g))))
+        for path in workspace.inbox.glob('h*.csv'):
+            set_mtime(path, NOW - datetime.timedelta(days=1))
+        return workspace.run(declare='cumulative', max_possible_games=None)
+
+    def test_undeclared_partial_past_season_is_held_with_instructions(self):
+        workspace = Workspace(self)
+        workspace.put('h.csv', make_csv('rushing_bell_cow', season=2023, games=9))
+        report = workspace.run(max_possible_games=None)
+        self.assertEqual(workspace.outcomes(report)['h.csv'], 'held_scope')
+        self.assertIn('--declare cumulative', report['results'][0]['reason']['message'])
+
+    def test_declared_cumulative_exports_are_true_point_in_time_snapshots(self):
+        workspace = Workspace(self)
+        report = self.cumulative_series(workspace)
+        self.assertEqual(set(workspace.outcomes(report).values()), {'imported'})
+        self.assertEqual(sorted(p.parent.name for p in (workspace.dir / 'raw' / '2023').rglob('*.csv')),
+                         ['cumulative-through-game-03', 'cumulative-through-game-06', 'cumulative-through-game-09'])
+        manifest = workspace.manifest()
+        known_by = '2023-12-01T00:00:00Z'  # long before they were downloaded: the content, not the download date, is what counts
+        seen = {week: pit(manifest, 2023, 'rushing_bell_cow', 2023, week, known_by=known_by) for week in (2, 4, 7, 10, 18)}
+        self.assertIsNone(seen[2], 'nothing known before game 3')
+        self.assertEqual([seen[w]['through_games'] for w in (4, 7, 10, 18)], [3, 6, 9, 9])
+        self.assertTrue(all(e['known_live'] is False and e['declared_by'] == 'operator' for e in manifest.files.values()))
+
+    def test_cumulative_snapshot_never_leaks_the_target_week(self):
+        workspace = Workspace(self)
+        self.cumulative_series(workspace)
+        manifest = workspace.manifest()
+        self.assertIsNone(pit(manifest, 2023, 'rushing_bell_cow', 2023, 3), 'week 3 prediction cannot use a 3-game total')
+        self.assertEqual(pit(manifest, 2023, 'rushing_bell_cow', 2023, 4)['through_games'], 3)
+
+    def test_declaration_does_not_apply_to_full_seasons_or_live_files(self):
+        workspace = Workspace(self)
+        workspace.put('full.csv', make_csv('rushing_bell_cow', season=2022, games=17))
+        workspace.put('live.csv', make_csv('passing_depth', games=4))
+        workspace.run(declare='cumulative')
+        manifest = workspace.manifest()
+        self.assertEqual(store.current_entry(manifest, 2022, 'rushing_bell_cow')['scope'], 'full_season')
+        live = store.current_entry(manifest, 2026, 'passing_depth')
+        self.assertEqual((live['scope'], live['known_live']), ('season_to_date', True))
+
+    def test_declared_single_weeks_are_stored_separately_and_never_served_as_cumulative(self):
+        workspace = Workspace(self)
+        workspace.put('w5.csv', make_csv('rushing_bell_cow', season=2023, games=1))
+        workspace.run(declare='week:5', max_possible_games=None)
+        manifest = workspace.manifest()
+        self.assertEqual([e['week'] for e in store.weekly_entries(manifest, 2023, 'rushing_bell_cow')], [5])
+        self.assertTrue(list((workspace.dir / 'raw' / '2023' / 'week-05').glob('*.csv')))
+        for week in (2, 6, 10, 18):
+            self.assertIsNone(pit(manifest, 2023, 'rushing_bell_cow', 2023, week))
+        self.assertIsNone(store.current_entry(manifest, 2023, 'rushing_bell_cow'))
+        bad = Workspace(self)
+        bad.put('c.csv', make_csv('rushing_bell_cow', season=2023, games=9))
+        report = bad.run(declare='week:5', max_possible_games=None)
+        self.assertEqual(report['results'][0]['reason']['code'], 'declared_week_but_cumulative')
+
+    def test_corrected_historical_snapshot_is_a_revision_of_the_same_games(self):
+        workspace = Workspace(self)
+        self.cumulative_series(workspace, games_list=(6,))
+        workspace.put('fix.csv', make_csv('rushing_bell_cow', season=2023, games=6, mutate=lambda body, keys: body[0].__setitem__(keys.index('Rushing.ATT'), '77')))
+        set_mtime(workspace.inbox / 'fix.csv', NOW + datetime.timedelta(hours=1))
+        report = workspace.run(declare='cumulative', max_possible_games=None, now=NOW + datetime.timedelta(days=1))
+        self.assertEqual(workspace.outcomes(report)['fix.csv'], 'revision')
+        self.assertEqual(pit(workspace.manifest(), 2023, 'rushing_bell_cow', 2023, 8)['original_filename'], 'fix.csv')
+
+    def test_rerunning_without_the_declaration_is_a_no_op(self):
+        workspace = Workspace(self)
+        self.cumulative_series(workspace)
+        report = workspace.run(max_possible_games=None, now=NOW + datetime.timedelta(days=1))
+        self.assertEqual(set(workspace.outcomes(report).values()), {'duplicate'})
+
+    def test_bad_declarations_are_refused(self):
+        for text in ('week:0', 'week:x', 'weekly', 'week:30'):
+            with self.assertRaises(ValueError):
+                pl.parse_declare(text)
+
+
 class ProtectionRemovalTests(unittest.TestCase):
     """Each protection is switched off in turn; the scenario that guards it must then fail (the tests are not vacuous)."""
 
@@ -801,8 +885,8 @@ class ProtectionRemovalTests(unittest.TestCase):
     def test_future_season_guard_is_load_bearing(self):
         original = pl.decide_scope
 
-        def permissive(info, current_season, max_possible_games, override=None, in_season=True):
-            return original(info, 9999, None, override, in_season)
+        def permissive(info, current_season, max_possible_games, override=None, in_season=True, declare=None):
+            return original(info, 9999, None, override, in_season, declare)
         self.assert_guarded(lambda: self._run('test_future_games_and_future_season_are_rejected', ImportTests),
                             patch.object(pl, 'decide_scope', permissive))
 
@@ -845,6 +929,37 @@ class ProtectionRemovalTests(unittest.TestCase):
         self.assert_guarded(lambda: self._run('test_same_season_lookup_requires_a_cutoff', QaRegressionTests),
                             patch.object(store, 'point_in_time', lambda *a, known_by=None, **k: real(*a, known_by=known_by or FUTURE, **k)))
 
+
+    def test_declaration_requirement_is_load_bearing(self):
+        original = pl._decide_scope
+
+        def infers(info, current_season, max_possible_games, override, in_season, declare):
+            return original(info, current_season, max_possible_games, override, in_season, ('cumulative', None))  # guess instead of asking
+        self.assert_guarded(lambda: self._run('test_undeclared_partial_past_season_is_held_with_instructions', HistoricalSnapshotTests),
+                            patch.object(pl, '_decide_scope', infers))
+
+    def test_content_based_time_for_historical_snapshots_is_load_bearing(self):
+        real = store.point_in_time
+
+        def by_download_date(manifest, season, table_id, for_season, for_week, known_by=None):
+            class View:
+                def entries(self, *a, **k):
+                    return [dict(e, scope='season_to_date') if e.get('scope') == 'historical_cumulative' else e for e in manifest.entries(*a, **k)]
+            return real(View(), season, table_id, for_season, for_week, known_by)
+        self.assert_guarded(lambda: self._run('test_declared_cumulative_exports_are_true_point_in_time_snapshots', HistoricalSnapshotTests),
+                            patch.object(store, 'point_in_time', by_download_date))
+
+    def test_single_week_isolation_is_load_bearing(self):
+        real = store.point_in_time
+
+        def serves_weeks(manifest, season, table_id, for_season, for_week, known_by=None):
+            class View:
+                def entries(self, *a, **k):
+                    return [dict(e, scope='historical_cumulative', through_games=e['week'], declared_by='operator') if e.get('scope') == 'single_week' else e
+                            for e in manifest.entries(*a, **k)]
+            return real(View(), season, table_id, for_season, for_week, known_by)
+        self.assert_guarded(lambda: self._run('test_declared_single_weeks_are_stored_separately_and_never_served_as_cumulative', HistoricalSnapshotTests),
+                            patch.object(store, 'point_in_time', serves_weeks))
 
 @unittest.skipUnless(os.environ.get('GOING_FP_ROOT'), 'set GOING_FP_ROOT to run against the real Inbox')
 class RealInboxTests(unittest.TestCase):

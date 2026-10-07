@@ -16,7 +16,7 @@ from . import fields as fieldmod
 from . import identity as idmod
 from . import registry as regmod
 from .parse import ParseError, column_types, parse_export, sha256, to_number
-from .store import (GOOD, Manifest, RunLock, atomic_write, clean_temporaries, find_inbox, freshness, public_status, scope_dir, write_json)
+from .store import (GOOD, Manifest, RunLock, atomic_write, clean_temporaries, find_inbox, freshness, public_status, scope_dir, snapshot_key, write_json)
 
 MIN_TEAMS_PLAYER = 24
 MIN_TEAMS_TEAM = 28
@@ -93,8 +93,27 @@ def _inspect(name, data, registry, mtime):
     return info, {'parsed': parsed, 'cls': cls, 'table': table, 'keys': {'season': season_key, 'games': games_key, 'team': team_key, 'name': name_key}}
 
 
-def decide_scope(info, current_season, max_possible_games, override=None, in_season=True):
-    """Return (scope, through_games, scope_source, problem). problem is a (code, message) when the file cannot be imported."""
+def parse_declare(text):
+    """``cumulative`` or ``week:N``: the operator's statement about how a historical export was filtered in Fantasy Points."""
+    if text is None:
+        return None
+    if text == 'cumulative':
+        return ('cumulative', None)
+    if text.startswith('week:') and text[5:].isdigit() and 1 <= int(text[5:]) <= 22:
+        return ('week', int(text[5:]))
+    raise ValueError("--declare must be 'cumulative' or 'week:N'")
+
+
+def decide_scope(info, current_season, max_possible_games, override=None, in_season=True, declare=None):
+    """Return (scope, through_games, scope_source, problem, week). problem is a (code, message) when the file cannot be imported.
+
+    A file can say how many games it covers (G) but not whether it is cumulative or a week range, so historical point-in-time
+    snapshots exist only when the operator declares them (``declare``); nothing is inferred."""
+    result = _decide_scope(info, current_season, max_possible_games, override, in_season, declare)
+    return result if len(result) == 5 else (*result, None)
+
+
+def _decide_scope(info, current_season, max_possible_games, override, in_season, declare):
     seasons = info.get('seasons') or []
     if len(seasons) != 1 or not str(seasons[0]).isdigit():
         return None, None, None, ('season_unclear', f'Season column must hold exactly one year, found {seasons[:4]}')
@@ -105,6 +124,15 @@ def decide_scope(info, current_season, max_possible_games, override=None, in_sea
     if season > current_season:
         return None, None, None, ('future_season', f'Season {season} is after the current season {current_season}')
     live = season == current_season and in_season  # outside July-January the "current" season is finished: treat it like a past one
+    if declare and declare[0] == 'week':
+        week = declare[1]
+        if info.get('games_max', 0) > 1:
+            return None, None, None, ('declared_week_but_cumulative', f'declared a single week but G reaches {info.get("games_max")}'), None
+        if live and max_possible_games is not None and week > max_possible_games:
+            return None, None, None, ('future_games', f'week {week} has not been played'), None
+        return 'single_week', None, 'operator', None, week
+    if declare and declare[0] == 'cumulative' and not live and games < FULL_SEASON_GAMES:
+        return 'historical_cumulative', games, 'operator', None, None
     if override is not None and live:
         if override < 1 or (max_possible_games is not None and override > max_possible_games):
             return None, None, None, ('override_invalid', f'--through-week {override} is outside 1..{max_possible_games}')
@@ -115,7 +143,8 @@ def decide_scope(info, current_season, max_possible_games, override=None, in_sea
         return 'season_to_date', games, 'games_played', None
     if games >= FULL_SEASON_GAMES:
         return 'full_season', games, 'games_played', None
-    return 'unclassified', games, 'games_played', ('scope_unclear', f'{season} export has at most {games} games: partial or week-range export, not a full season')
+    return 'unclassified', games, 'games_played', ('scope_unclear', f'{season} export has at most {games} games: not a full season. If it is a cumulative '
+                                                   f'weeks 1-N export re-run with --declare cumulative; if one week, --declare week:N'), None
 
 
 def normalize(entry, ctx, index):
@@ -185,7 +214,7 @@ def normalize(entry, ctx, index):
     document = {
         'schema': 'fp-normalized-v1', 'source': 'Fantasy Points Data Suite', 'licensed': True, 'table_id': table['id'], 'level': level,
         'season': entry['season'], 'scope': entry['scope'], 'through_games': entry['through_games'], 'forward_looking': table['forward_looking'],
-        'target_game_hint': entry['through_games'] + 1 if table['forward_looking'] else None,
+        'target_game_hint': entry['through_games'] + 1 if table['forward_looking'] and entry['through_games'] is not None else None,
         'known_at': entry['first_imported_at'], 'known_live': entry['known_live'], 'raw_sha256': entry['sha256'],
         'columns': [{'key': key, 'type': types[key], 'unit': fieldmod.unit_hint(key), **fieldmod.classify_column(key)} for key in metric_keys],
         'leakage_note': fieldmod.LEAKAGE_NOTE, 'rows': rows,
@@ -195,7 +224,7 @@ def normalize(entry, ctx, index):
 
 class Importer:
     def __init__(self, root, registry, now=None, rosters=None, current_season=None, max_possible_games=None, expected_games=None,
-                 through_override=None, hooks=None):
+                 through_override=None, hooks=None, declare=None):
         self.root = Path(root)
         self.registry = registry
         self.now = now or datetime.datetime.now(datetime.timezone.utc)
@@ -206,6 +235,7 @@ class Importer:
         self.through_override = through_override
         self.in_season = self.now.month >= 7 or self.now.month == 1
         self.hooks = hooks or {}
+        self.declare = parse_declare(declare) if isinstance(declare, str) or declare is None else declare
         self.manifest = Manifest(self.root)
         self._indexes = {}
 
@@ -266,7 +296,7 @@ class Importer:
             return hold('quarantined_schema', '_quarantine', 'schema_drift',
                         f"{ctx['cls']['table_id']}: missing {drift['missing'][:6]}, renamed {drift['possible_renames'][:3]}, type changes {drift['type_changes'][:3]}",
                         {'drift': drift})
-        scope, games, scope_source, problem = decide_scope(info, self.current_season, self.max_possible_games, self.through_override, self.in_season)
+        scope, games, scope_source, problem, week = decide_scope(info, self.current_season, self.max_possible_games, self.through_override, self.in_season, self.declare)
         if problem and scope is None:
             return hold('rejected', '_rejected', problem[0], problem[1])
         season = int(info['seasons'][0])
@@ -284,27 +314,28 @@ class Importer:
         if drift and drift['new']:
             status = 'imported_review' if status == 'imported' else status
             warnings.append(f"new columns need review: {drift['new'][:8]}")
-        folder = f"{season}/{scope_dir(scope, games)}"
+        folder = f"{season}/{scope_dir(scope, games, week)}"
         raw_path = self._raw_path(folder, table['id'], sha)
         self._store_raw(raw_path, data, sha)
         self._hook('after_raw')
         entry = {**base, 'status': status, 'table_id': table['id'], 'season': season, 'scope': scope, 'scope_source': scope_source,
                  # known_at: when GOING first accepted this data, not when it first saw the file
                  'first_imported_at': carry['first_imported_at'] if carry else now,
-                 'through_games': games, 'through_week': games if games < 14 else None, 'known_live': scope == 'season_to_date',
+                 'through_games': games, 'week': week, 'through_week': games if games is not None and games < 14 and scope == 'season_to_date' else None,
+                 'declared_by': 'operator' if scope_source == 'operator' else None, 'known_live': scope == 'season_to_date',
                  'forward_looking': table['forward_looking'], 'row_count': info['row_count'], 'column_count': info['column_count'],
                  'team_count': info['team_count'], 'schema_signature': regmod.signature(ctx['parsed']['columns']),
                  'warnings': warnings, 'raw_path': str(raw_path.relative_to(self.root)).replace('\\', '/'), 'drift': drift if drift and drift['new'] else None}
         document, identity = normalize(entry, ctx, self.index(season) if table['level'] == 'player' else None)
         document['identity'] = {'tally': identity['tally'], 'review': identity['review'], 'unresolved': identity['unresolved']}
         entry['identity'] = {'tally': identity['tally'], 'review': len(identity['review']), 'unresolved': len(identity['unresolved'])}
-        normalized_path = self.root / 'normalized' / str(season) / table['id'] / f"{scope_dir(scope, games)}__{sha[:12]}.json"
+        normalized_path = self.root / 'normalized' / str(season) / table['id'] / f"{scope_dir(scope, games, week)}__{sha[:12]}.json"
         write_json(normalized_path, document)
         entry['normalized_path'] = str(normalized_path.relative_to(self.root)).replace('\\', '/')
         self._hook('after_normalized')
         outcome = 'imported'
         previous = [e for e in self.manifest.entries(season, table['id'], statuses=GOOD)
-                    if e['sha256'] != sha and e.get('scope') == scope and e.get('through_games') == games and not e.get('superseded_by')]
+                    if e['sha256'] != sha and snapshot_key(e) == snapshot_key(entry) and not e.get('superseded_by')]
         if carry:
             for key in ('superseded_by', 'revision_of'):
                 if carry.get(key):
@@ -325,7 +356,7 @@ class Importer:
                 outcome = 'older_revision_ignored'
         if outcome == 'imported':
             newest = max((e.get('through_games') or 0 for e in self.manifest.entries(season, table['id'], statuses=GOOD)), default=0)
-            if games < newest:
+            if games is not None and games < newest and scope == 'season_to_date':
                 outcome = 'older_snapshot'
         if status == 'partial' and outcome == 'imported':
             outcome = 'partial'
