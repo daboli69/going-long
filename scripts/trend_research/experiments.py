@@ -191,7 +191,7 @@ def run_e1(root, manifest, exp_id='E1'):
 
 
 # ------------------------------------------------------------------ E2
-def e2_pairs(root, manifest):
+def e2_pairs(root, manifest, min_games_next=8):
     out = {}
     for season in range(2022, 2026):
         prev = data.prior_features(root, manifest, season, 'efficiency')
@@ -202,7 +202,7 @@ def e2_pairs(root, manifest):
         left = left[left.pos.isin(['WR', 'TE', 'RB']) & (left.games_prev >= 8)]
         right = now[['player_id', 'games', 'FPTS.FP/G', 'Total.TD']].rename(columns={'games': 'games_next', 'FPTS.FP/G': 'y_fpg', 'Total.TD': 'y_td'})
         frame = left.merge(right, on='player_id')
-        frame = frame[frame.games_next >= 8].dropna(subset=cols + ['y_fpg', 'y_td']).copy()
+        frame = frame[frame.games_next >= min_games_next].dropna(subset=cols + ['y_fpg', 'y_td']).copy()
         frame['fpg'], frame['xfpg'], frame['xtdg'] = frame['FPTS.FP/G'], frame['FPTS.XFP/G'], frame['FPTS.XTD/G']
         frame['tdg'] = frame['Total.TD'] / frame.games_prev
         frame['t_fpg'], frame['t_tdg'] = frame.y_fpg, frame.y_td / frame.games_next
@@ -344,3 +344,59 @@ def run_e6(root, manifest):
 
 
 RUNNERS = {'E6': run_e6, 'E1': run_e1, 'E2': run_e2, 'E3': run_e3, 'E4': run_e4, 'E5': run_e5}
+
+
+# ------------------------------------------------------------------ supplementary sensitivity checks (descriptive; never change a registered verdict)
+def _pooled(folds, cols, target, alpha):
+    errors = []
+    for year, (train, test) in folds.items():
+        model = Ridge(alpha).fit(train[cols], train[target])
+        errors.append(np.abs(test[target].to_numpy() - model.predict(test[cols])))
+    return float(np.concatenate(errors).mean())
+
+
+def sensitivity(root, manifest):
+    """How fragile are E1/E2/E6 to choices that were fixed in advance? Reported next to, never instead of, the registered result."""
+    out = {'note': 'descriptive robustness checks added after QA; the registered verdicts are unchanged', 'alphas': [1e-6, 1, 10, 100]}
+    pairs = e1_pairs(root, manifest)
+    folds = _train_test(pairs, [2023, 2024, 2025])
+    base_cols = ['b_tgt', 'b_rec', 'b_yds', 'games_prev', 'is_te']
+    for label, role_cols in (('E1', ROLE_FEATURES + ['rte_g']), ('E6', list(SPECS['E6']['features_role']))):
+        block = {}
+        for outcome, target in (('targets/g', 't_tgt'), ('receptions/g', 't_rec'), ('receiving yards/g', 't_yds')):
+            rows = {}
+            for alpha in out['alphas']:
+                b, c = _pooled(folds, base_cols, target, alpha), _pooled(folds, base_cols + role_cols, target, alpha)
+                rows[str(alpha)] = {'baseline_mae': b, 'challenger_mae': c, 'relative_gain': (b - c) / b}
+            best_base = min(r['baseline_mae'] for r in rows.values())
+            best_chal = min(r['challenger_mae'] for r in rows.values())
+            rows['best_challenger_vs_best_baseline_relative_gain'] = (best_base - best_chal) / best_base
+            block[outcome] = rows
+        out[label] = block
+    # E2 FP/G
+    block = {}
+    for min_games in (8, 4, 1):
+        pairs2 = e2_pairs(root, manifest, min_games)
+        folds2 = _train_test(pairs2, [2023, 2024, 2025])
+        base = ['fpg', 'games_prev', 'is_te', 'is_rb']
+        rows = {}
+        for alpha in out['alphas']:
+            b, c = _pooled(folds2, base, 't_fpg', alpha), _pooled(folds2, base + ['xfpg'], 't_fpg', alpha)
+            rows[str(alpha)] = {'baseline_mae': b, 'challenger_mae': c, 'relative_gain': (b - c) / b}
+        block[f'min_games_next={min_games}'] = rows
+    # stronger simple baseline: add prior targets/g and carries/g (raw volume)
+    pairs3 = {}
+    for season in range(2022, 2026):
+        prev = data.prior_features(root, manifest, season, 'efficiency')
+        frame = e2_pairs(root, manifest)[season].merge(prev[['player_id', 'Receiving.TGT', 'Rushing.ATT']], on='player_id')
+        frame['tgt_g'] = frame['Receiving.TGT'] / frame.games_prev
+        frame['att_g'] = frame['Rushing.ATT'] / frame.games_prev
+        pairs3[season] = frame
+    folds3 = _train_test(pairs3, [2023, 2024, 2025])
+    base = ['fpg', 'games_prev', 'is_te', 'is_rb']
+    vol = base + ['tgt_g', 'att_g']
+    block['volume_baseline_alpha10'] = {'baseline_mae': _pooled(folds3, base, 't_fpg', 10), 'volume_baseline_mae': _pooled(folds3, vol, 't_fpg', 10),
+                                        'xfp_on_top_of_volume_mae': _pooled(folds3, vol + ['xfpg'], 't_fpg', 10),
+                                        'xfp_gain_over_volume_baseline': 1 - _pooled(folds3, vol + ['xfpg'], 't_fpg', 10) / _pooled(folds3, vol, 't_fpg', 10)}
+    out['E2_fp_per_game'] = block
+    return out

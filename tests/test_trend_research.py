@@ -84,6 +84,19 @@ class TrendCaptureTests(unittest.TestCase):
         self.assertIn('__revision-', revised[0])
         self.assertEqual((workspace.dir / original).read_bytes(), before)
 
+    def test_known_at_includes_a_corrected_earlier_snapshot(self):
+        workspace = fpt.Workspace(self)
+        self.snapshots(workspace, [3, 4])
+        trends.capture(workspace.dir, 2026)
+        workspace.put('fix3.csv', routes_csv(3, 29, 4))
+        late = NOW + datetime.timedelta(days=40)
+        fpt.set_mtime(workspace.inbox / 'fix3.csv', late)
+        workspace.run(now=late, max_possible_games=5, expected_games=4)
+        revised = [n for n in trends.capture(workspace.dir, 2026) if '__revision-' in n]
+        self.assertTrue(revised)
+        state = json.loads((workspace.dir / revised[0]).read_text(encoding='utf-8'))
+        self.assertEqual(state['known_at'], late.strftime('%Y-%m-%dT%H:%M:%SZ'), 'the revised state was not knowable before the corrected week-3 file arrived')
+
     def test_players_who_did_not_play_have_no_weekly_usage(self):
         workspace = fpt.Workspace(self)
         for games, skip in ((3, False), (4, True)):
@@ -95,6 +108,14 @@ class TrendCaptureTests(unittest.TestCase):
         self.assertTrue(inactive and all('week' not in p for p in inactive))
 
 
+try:  # the research stack is not part of the production requirements; those tests run wherever numpy/pandas/scipy exist
+    import numpy, pandas, scipy  # noqa: F401
+    HAVE_STACK = True
+except ImportError:
+    HAVE_STACK = False
+
+
+@unittest.skipUnless(HAVE_STACK, 'numpy, pandas and scipy are needed for the research tooling tests')
 class ResearchToolingTests(unittest.TestCase):
     def setUp(self):
         from trend_research import data, experiments, ledger, stats
@@ -155,6 +176,20 @@ class ResearchToolingTests(unittest.TestCase):
         self.assertEqual(self.stats.verdict(good, 1.0, 1, 3, rule)[0], 'INCONCLUSIVE', 'needs 2 of 3 seasons')
         self.assertEqual(self.stats.verdict({'delta_mae': -0.05, 'ci_low': -0.08, 'ci_high': 0.01}, 1.0, 3, 3, rule)[0], 'INCONCLUSIVE')
         self.assertEqual(self.stats.verdict({'delta_mae': 0.02, 'ci_low': 0.01, 'ci_high': 0.03}, 1.0, 0, 3, rule)[0], 'REJECTED')
+
+    def test_the_v2_rejection_rule_needs_the_interval_to_exclude_a_worthwhile_gain(self):
+        rule = {'min_relative_improvement': 0.01, 'min_years_better': 2, 'reject_below_relative_improvement': 0.0025, 'reject_requires_ci': True}
+        wide = {'delta_mae': 0.02, 'ci_low': -0.20, 'ci_high': 0.24}
+        self.assertEqual(self.stats.verdict(wide, 3.0, 0, 3, rule)[0], 'INCONCLUSIVE', 'wide interval: a 6% gain is still plausible')
+        tight = {'delta_mae': 0.02, 'ci_low': -0.01, 'ci_high': 0.05}
+        self.assertEqual(self.stats.verdict(tight, 3.0, 0, 3, rule)[0], 'REJECTED')
+        v1 = dict(rule, reject_requires_ci=False)
+        self.assertEqual(self.stats.verdict(wide, 3.0, 0, 3, v1)[0], 'REJECTED', 'the first-wave v1 rule is unchanged')
+
+    def test_sensitivity_is_recorded_beside_the_registered_results(self):
+        book = json.loads((ROOT / 'research' / 'trend-intelligence' / 'ledger.json').read_text(encoding='utf-8'))
+        self.assertIn('E2_fp_per_game', book['sensitivity'])
+        self.assertEqual(book['experiments']['E2']['status'], 'INCONCLUSIVE', 'sensitivity never edits a registered verdict')
 
     def test_exploratory_experiments_cannot_report_promising(self):
         with patch.object(self.experiments, 'run_e1', lambda root, manifest, exp_id='E1': ({}, 'PROMISING')):

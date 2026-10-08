@@ -68,6 +68,11 @@ def verdict(delta, base_mae, years_better, years_total, rule):
     rel = -delta['delta_mae'] / base_mae if base_mae else 0.0
     if delta['ci_high'] < 0 and rel >= rule['min_relative_improvement'] and years_better >= rule['min_years_better']:
         return 'PROMISING', rel
+    if rule.get('reject_requires_ci'):
+        # v2 (experiments registered after the first wave): rejecting needs the CI to exclude a worthwhile gain, so a wide interval is INCONCLUSIVE
+        if delta['ci_low'] > 0 or -delta['ci_low'] / base_mae < rule['min_relative_improvement']:
+            return 'REJECTED', rel
+        return 'INCONCLUSIVE', rel
     if delta['ci_low'] > 0 or rel < rule['reject_below_relative_improvement']:
         return 'REJECTED', rel
     return 'INCONCLUSIVE', rel

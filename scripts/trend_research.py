@@ -47,6 +47,15 @@ def cmd_run(args):
     return 0
 
 
+def cmd_sensitivity(args):
+    root = find_root(args.root, REPO)
+    book = ledger.load()
+    book['sensitivity'] = experiments.sensitivity(root, Manifest(root))
+    ledger.save(book)
+    print('sensitivity recorded')
+    return 0
+
+
 def cmd_show(args):
     book = ledger.load()
     for exp_id, entry in book['experiments'].items():
@@ -79,6 +88,19 @@ def cmd_report(args):
             for name, res in groups.items():
                 p = res['pooled']
                 lines.append(f"| {name} | {res['verdict']} | {p['base_mae']:.4g} | {p['new_mae']:.4g} | {p['relative_improvement'] * 100:+.2f}% | [{p['ci_low']:+.3g}, {p['ci_high']:+.3g}] | {p['years_better']}/{p['years_total']} | {p['n']} |")
+    sens = book.get('sensitivity')
+    if sens:
+        lines += ['', '## Robustness checks (added after independent QA; the registered verdicts stand)', '',
+                  'Relative MAE gain of the challenger over its baseline when the ridge penalty or sample filter changes (positive = challenger better).', '',
+                  '| Check | ' + ' | '.join(f'alpha {a:g}' for a in sens['alphas']) + ' |', '| --- | ' + ' | '.join('---' for _ in sens['alphas']) + ' |']
+        for label in ('E1', 'E6'):
+            for outcome, rows in sens[label].items():
+                lines.append(f'| {label} {outcome} | ' + ' | '.join(f"{rows[str(a)]['relative_gain'] * 100:+.2f}%" for a in sens['alphas']) + ' |')
+        for name, rows in sens['E2_fp_per_game'].items():
+            if 'baseline_mae' in rows:
+                lines.append(f"| E2 FP/G {name} | XFP gain over a baseline that already has raw targets and carries per game: {rows['xfp_gain_over_volume_baseline'] * 100:+.2f}% | | | |")
+            else:
+                lines.append(f'| E2 FP/G {name} | ' + ' | '.join(f"{rows[str(a)]['relative_gain'] * 100:+.2f}%" for a in sens['alphas']) + ' |')
     lines += ['', '## Candidate signal map (ranked)', '', '| Priority | Signal | Class | Markets | Seasons | Experiments |', '| --- | --- | --- | --- | --- | --- |']
     for signal in sorted(signals, key=lambda x: -(x['betting_value'] * x['data_quality'] * x['testability'])):
         score = signal['betting_value'] * signal['data_quality'] * signal['testability']
@@ -98,6 +120,7 @@ def main(argv=None):
     p.add_argument('ids', nargs='+')
     p.set_defaults(func=cmd_run)
     sub.add_parser('show').set_defaults(func=cmd_show)
+    sub.add_parser('sensitivity').set_defaults(func=cmd_sensitivity)
     sub.add_parser('report').set_defaults(func=cmd_report)
     args = parser.parse_args(argv)
     return args.func(args)

@@ -1,7 +1,7 @@
 {
  "experiments": {
   "E1": {
-   "completed_at": "2026-10-08T01:47:10Z",
+   "completed_at": "2026-10-08T01:59:54Z",
    "registered_at": "2026-10-08T01:47:04Z",
    "result": {
     "outcomes": {
@@ -11,6 +11,24 @@
        "2024": 11.626560694207752,
        "2025": 9.87017215229885
       },
+      "challenger_columns": [
+       "Receiving.RTE",
+       "Receiving.RTE %",
+       "Receiving.TPRR",
+       "Receiving.YPRR",
+       "Receiving.TGT %",
+       "Receiving.AY Share",
+       "Receiving.aDOT",
+       "Advanced.1READ %",
+       "Advanced.DESIGN %",
+       "Advanced.CTGT %",
+       "Advanced.WIDE RTE %",
+       "Advanced.SLOT RTE %",
+       "Advanced.INLINE RTE %",
+       "FPTS.XFP/G",
+       "Advanced.EZTGT",
+       "rte_g"
+      ],
       "per_test_year": {
        "2023": {
         "B1": {
@@ -95,6 +113,24 @@
        "2024": 1.0186466438662771,
        "2025": 0.8681384268488339
       },
+      "challenger_columns": [
+       "Receiving.RTE",
+       "Receiving.RTE %",
+       "Receiving.TPRR",
+       "Receiving.YPRR",
+       "Receiving.TGT %",
+       "Receiving.AY Share",
+       "Receiving.aDOT",
+       "Advanced.1READ %",
+       "Advanced.DESIGN %",
+       "Advanced.CTGT %",
+       "Advanced.WIDE RTE %",
+       "Advanced.SLOT RTE %",
+       "Advanced.INLINE RTE %",
+       "FPTS.XFP/G",
+       "Advanced.EZTGT",
+       "rte_g"
+      ],
       "per_test_year": {
        "2023": {
         "B1": {
@@ -179,6 +215,24 @@
        "2024": 1.3437463181924603,
        "2025": 1.0513213617286015
       },
+      "challenger_columns": [
+       "Receiving.RTE",
+       "Receiving.RTE %",
+       "Receiving.TPRR",
+       "Receiving.YPRR",
+       "Receiving.TGT %",
+       "Receiving.AY Share",
+       "Receiving.aDOT",
+       "Advanced.1READ %",
+       "Advanced.DESIGN %",
+       "Advanced.CTGT %",
+       "Advanced.WIDE RTE %",
+       "Advanced.SLOT RTE %",
+       "Advanced.INLINE RTE %",
+       "FPTS.XFP/G",
+       "Advanced.EZTGT",
+       "rte_g"
+      ],
       "per_test_year": {
        "2023": {
         "B1": {
@@ -2096,5 +2150,230 @@
   }
  },
  "note": "Aggregate research results only (no licensed player-level values). Negative findings are kept on purpose.",
+ "sensitivity": {
+  "E1": {
+   "receiving yards/g": {
+    "1": {
+     "baseline_mae": 10.40220807630528,
+     "challenger_mae": 10.949241245839145,
+     "relative_gain": -0.05258817796386204
+    },
+    "10": {
+     "baseline_mae": 10.432106412203016,
+     "challenger_mae": 10.744942545233151,
+     "relative_gain": -0.029987820356605393
+    },
+    "100": {
+     "baseline_mae": 10.951678734614397,
+     "challenger_mae": 10.454745981584681,
+     "relative_gain": 0.04537503017314476
+    },
+    "1e-06": {
+     "baseline_mae": 10.434652379199663,
+     "challenger_mae": 10.84625232059458,
+     "relative_gain": -0.03944548667624002
+    },
+    "best_challenger_vs_best_baseline_relative_gain": -0.005050649332719517
+   },
+   "receptions/g": {
+    "1": {
+     "baseline_mae": 0.8680768810332141,
+     "challenger_mae": 0.9033462914901588,
+     "relative_gain": -0.040629362706867414
+    },
+    "10": {
+     "baseline_mae": 0.8591887828478104,
+     "challenger_mae": 0.8889369546679504,
+     "relative_gain": -0.034623557027291106
+    },
+    "100": {
+     "baseline_mae": 0.9044721777895982,
+     "challenger_mae": 0.8670284797452719,
+     "relative_gain": 0.041398396726622856
+    },
+    "1e-06": {
+     "baseline_mae": 0.8759771635875079,
+     "challenger_mae": 0.8999054697353543,
+     "relative_gain": -0.027316130080206242
+    },
+    "best_challenger_vs_best_baseline_relative_gain": -0.00912453357628402
+   },
+   "targets/g": {
+    "1": {
+     "baseline_mae": 1.1211621492440509,
+     "challenger_mae": 1.1647017071973818,
+     "relative_gain": -0.03883430954450935
+    },
+    "10": {
+     "baseline_mae": 1.1240221892041518,
+     "challenger_mae": 1.154887097101689,
+     "relative_gain": -0.027459340388458542
+    },
+    "100": {
+     "baseline_mae": 1.1952024146253297,
+     "challenger_mae": 1.1289028310819256,
+     "relative_gain": 0.05547142704207776
+    },
+    "1e-06": {
+     "baseline_mae": 1.1241849881432817,
+     "challenger_mae": 1.1681754250893917,
+     "relative_gain": -0.03913095923720268
+    },
+    "best_challenger_vs_best_baseline_relative_gain": -0.006904159084476656
+   }
+  },
+  "E2_fp_per_game": {
+   "min_games_next=1": {
+    "1": {
+     "baseline_mae": 2.5211674786850033,
+     "challenger_mae": 2.508605034110649,
+     "relative_gain": 0.004982788601139077
+    },
+    "10": {
+     "baseline_mae": 2.5274882097912603,
+     "challenger_mae": 2.5047261831155594,
+     "relative_gain": 0.009005789458294168
+    },
+    "100": {
+     "baseline_mae": 2.6635629381317387,
+     "challenger_mae": 2.5617102837201986,
+     "relative_gain": 0.03823925200092363
+    },
+    "1e-06": {
+     "baseline_mae": 2.520526886847712,
+     "challenger_mae": 2.5099540387238095,
+     "relative_gain": 0.004194697616229503
+    }
+   },
+   "min_games_next=4": {
+    "1": {
+     "baseline_mae": 2.4969796502018062,
+     "challenger_mae": 2.4831584876098503,
+     "relative_gain": 0.005535152275205348
+    },
+    "10": {
+     "baseline_mae": 2.504147033654495,
+     "challenger_mae": 2.4792717325262266,
+     "relative_gain": 0.009933642391583475
+    },
+    "100": {
+     "baseline_mae": 2.6480994154461346,
+     "challenger_mae": 2.539617137459535,
+     "relative_gain": 0.040966089624064624
+    },
+    "1e-06": {
+     "baseline_mae": 2.4962472868438415,
+     "challenger_mae": 2.4847110518492834,
+     "relative_gain": 0.004621431160029019
+    }
+   },
+   "min_games_next=8": {
+    "1": {
+     "baseline_mae": 2.5224955249195227,
+     "challenger_mae": 2.5069055598060204,
+     "relative_gain": 0.006180373744765982
+    },
+    "10": {
+     "baseline_mae": 2.531644835796886,
+     "challenger_mae": 2.5002526412409805,
+     "relative_gain": 0.012399920443826455
+    },
+    "100": {
+     "baseline_mae": 2.7010910704825486,
+     "challenger_mae": 2.5737786362899233,
+     "relative_gain": 0.04713370666538873
+    },
+    "1e-06": {
+     "baseline_mae": 2.5215979666335064,
+     "challenger_mae": 2.5096065783043855,
+     "relative_gain": 0.004755471922088441
+    }
+   },
+   "volume_baseline_alpha10": {
+    "baseline_mae": 2.531644835796886,
+    "volume_baseline_mae": 2.5110912310111657,
+    "xfp_gain_over_volume_baseline": 0.0018915284271613375,
+    "xfp_on_top_of_volume_mae": 2.5063414305645124
+   }
+  },
+  "E6": {
+   "receiving yards/g": {
+    "1": {
+     "baseline_mae": 10.40220807630528,
+     "challenger_mae": 10.56581936635838,
+     "relative_gain": -0.01572851541258649
+    },
+    "10": {
+     "baseline_mae": 10.432106412203016,
+     "challenger_mae": 10.283162362455696,
+     "relative_gain": 0.014277466492585926
+    },
+    "100": {
+     "baseline_mae": 10.951678734614397,
+     "challenger_mae": 10.443131206310989,
+     "relative_gain": 0.046435577652225016
+    },
+    "1e-06": {
+     "baseline_mae": 10.434652379199663,
+     "challenger_mae": 10.691330884988092,
+     "relative_gain": -0.024598663804085066
+    },
+    "best_challenger_vs_best_baseline_relative_gain": 0.011444273463511328
+   },
+   "receptions/g": {
+    "1": {
+     "baseline_mae": 0.8680768810332141,
+     "challenger_mae": 0.8804784284726271,
+     "relative_gain": -0.014286231681060649
+    },
+    "10": {
+     "baseline_mae": 0.8591887828478104,
+     "challenger_mae": 0.853692955068092,
+     "relative_gain": 0.006396531111011898
+    },
+    "100": {
+     "baseline_mae": 0.9044721777895982,
+     "challenger_mae": 0.8634113362682231,
+     "relative_gain": 0.045397572782970505
+    },
+    "1e-06": {
+     "baseline_mae": 0.8759771635875079,
+     "challenger_mae": 0.8919135708604229,
+     "relative_gain": -0.018192720010700374
+    },
+    "best_challenger_vs_best_baseline_relative_gain": 0.006396531111011898
+   },
+   "targets/g": {
+    "1": {
+     "baseline_mae": 1.1211621492440509,
+     "challenger_mae": 1.1443025879488011,
+     "relative_gain": -0.020639689558154276
+    },
+    "10": {
+     "baseline_mae": 1.1240221892041518,
+     "challenger_mae": 1.1105868301405146,
+     "relative_gain": 0.011952930460518622
+    },
+    "100": {
+     "baseline_mae": 1.1952024146253297,
+     "challenger_mae": 1.1344036842149157,
+     "relative_gain": 0.050868982246386404
+    },
+    "1e-06": {
+     "baseline_mae": 1.1241849881432817,
+     "challenger_mae": 1.15877535040153,
+     "relative_gain": -0.030769279631974157
+    },
+    "best_challenger_vs_best_baseline_relative_gain": 0.009432461763596571
+   }
+  },
+  "alphas": [
+   1e-06,
+   1,
+   10,
+   100
+  ],
+  "note": "descriptive robustness checks added after QA; the registered verdicts are unchanged"
+ },
  "version": 1
 }

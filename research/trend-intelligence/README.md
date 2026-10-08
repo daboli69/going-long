@@ -44,8 +44,12 @@ A trend is not a bet. A significant relationship is not a betting edge. Missing 
    those, not merely rediscover target share.
 5. **Decision rule fixed in advance**: PROMISING needs >= 1% lower MAE, a paired cluster-bootstrap CI (Bonferroni-adjusted) that excludes 0, and
    improvement in >= 2 of 3 test seasons. REJECTED is a successful result when the test was sound.
+   *Rule versions:* the first wave (E1-E6) used rule v1, whose REJECTED fires when the point estimate is below +0.25% regardless of interval width, so
+   low-power rejections (E5, E1 yards) read as "no evidence", not "no effect". Experiments registered from now on use v2 (`reject_requires_ci`):
+   REJECTED only when the interval excludes a worthwhile gain, otherwise INCONCLUSIVE.
 6. **Ledger**: `ledger.json` (machine-readable, aggregate numbers only) and `LEDGER.md` (readable) keep every result, including negatives, so
    rejected ideas are not rediscovered. Post-hoc follow-ups are labelled exploratory and cannot be PROMISING (capped at NEEDS PROSPECTIVE DATA).
+   *Robustness checks* (`python scripts/trend_research.py sensitivity`) are descriptive and recorded beside, never instead of, registered results.
 7. **Champion / Challenger**: GOING as it is today is the Champion. Nothing here changes a production model, the GOING Rating, recommendation
    selection or ABBEYS. Promotion needs evidence and explicit approval.
 

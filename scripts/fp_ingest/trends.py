@@ -73,7 +73,7 @@ def weekly_usage(root, manifest, season, game):
                 record.setdefault('new_in_table', []).append(table_id)  # first appearance: no weekly difference can be computed
                 continue
             if (current['games'] or 0) <= (previous['games'] or 0):
-                record.setdefault('did_not_play', []).append(table_id)  # bye, inactive, or no new game recorded
+                record.setdefault('did_not_play', []).append(table_id)  # no new game recorded: bye, inactive or injured (not distinguishable here)
                 continue
             for name in columns:
                 a, b = current.get(name), previous.get(name)
@@ -119,8 +119,9 @@ def build_trend(root, manifest, season, game):
         return None
     usage = derive(usage)
     known = []
-    for table_id, shas in sources.items():
+    for table_id, shas in sources.items():  # a state is knowable only once BOTH snapshots it was derived from had been imported (a corrected earlier week counts)
         known.append(manifest.files[shas['now']]['first_imported_at'])
+        known.append(manifest.files[shas['before']]['first_imported_at'])
     return {'schema': 'fp-trend-state-v1', 'season': season, 'through_games': game, 'prev_through_games': game - 1, 'known_at': max(known),
             'sources': sources, 'players': usage,
             'note': 'weekly usage = difference of two consecutive live season-to-date snapshots; route share uses the busiest teammate\'s routes as the team total; '
