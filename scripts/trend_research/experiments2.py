@@ -70,7 +70,7 @@ SPECS = {
 
 # ------------------------------------------------------------------ frames
 def champion_rows(root):
-    path = data.cache(root) / 'champion_2021_2025.parquet'
+    path = champion.cache(root) / 'champion_2021_2025.parquet'
     if path.exists():
         frame = pd.read_parquet(path)
     else:

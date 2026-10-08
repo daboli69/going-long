@@ -394,6 +394,56 @@
    "spec_sha256": "13db4ff5c45c730f1c2b07031eae712cfd50c31824998ae50815d0dc09828507",
    "status": "REJECTED"
   },
+  "E10": {
+   "registered_at": "2026-10-08T10:49:11Z",
+   "result": null,
+   "spec": {
+    "blend_parameter": "c per market = argmin MAE of W3 over ALL 2021-2025 target rows (the E7 procedure), fixed before looking at any 2026 outcome",
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "anything else, including wide intervals",
+     "PROMISING": "relative MAE improvement >= 1% over the comparison base AND the Bonferroni-adjusted CI of the paired difference excludes 0 AND better in >= 2 of 3 test seasons",
+     "REJECTED (v2)": "the adjusted CI excludes a gain of 1% (or lies entirely on the wrong side)"
+    },
+    "football_rationale": "Same as E7; this applies it to real, time-stamped production output that no analysis has seen.",
+    "hypothesis": "Replacing the Champion mean with the learned-shrinkage blend (W3) improves the Brier score of the frozen Poisson probabilities on settled 2026 predictions.",
+    "id": "E10",
+    "leakage": "blend inputs are games before each target week; c fixed on 2021-2025 only",
+    "limitations": "about four weeks of 2026 and a few dozen games: low power. A positive result would be directional, not proof.",
+    "markets": [
+     "receptions"
+    ],
+    "metric": "Brier score of P(win | decided bet), paired by prediction, game-clustered bootstrap, 95% CI (one primary comparison)",
+    "multiple_testing": "none (single primary); pass_tds is descriptive",
+    "population": "settled 2026 predictions in the count markets (player_receptions primary; player_passing_tds descriptive) from every tracking group, one record per (contract, group), only where the frozen projection_mean equals the reconstructed Champion mean to 1e-6 (so only the blend differs; injury adjustments excluded)",
+    "primary_comparison": "receptions: W3 Poisson probability vs frozen Champion probability. PROMISING needs >= 1% relative Brier improvement with a CI below 0",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01,
+     "min_years_better": 2,
+     "reject_below_relative_improvement": 0.0025,
+     "reject_requires_ci": true
+    },
+    "sources": [
+     "data/public_tracker frozen predictions and settlements",
+     "nflverse weekly stats 2019-2026"
+    ],
+    "splits": {
+     "history_from": 2019,
+     "rolling_origin": true,
+     "test": [
+      2023,
+      2024,
+      2025
+     ],
+     "train": "all earlier target seasons"
+    },
+    "title": "Prospective check (2026): would the E7 blend have improved the probabilities the production system actually froze?"
+   },
+   "spec_sha256": "316b07fc256cb7f357d59ba99a9b9c3147c393c0e80ecf3f71907ef6e41ff642",
+   "status": "REGISTERED"
+  },
   "E2": {
    "completed_at": "2026-10-08T01:47:11Z",
    "registered_at": "2026-10-08T01:47:04Z",
@@ -2149,8 +2199,1121 @@
    "status": "INCONCLUSIVE"
   },
   "E7": {
+   "completed_at": "2026-10-08T10:47:20Z",
    "registered_at": "2026-10-08T10:47:03Z",
-   "result": null,
+   "result": {
+    "markets": {
+     "atd": {
+      "all_weeks_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 0.28162748565744417,
+        "ci_high": 7.563018831537445e-05,
+        "ci_low": -0.0018943984477925787,
+        "confidence": 0.99375,
+        "delta_mae": -0.0009028894020819411,
+        "n": 16623,
+        "new_mae": 0.2807245962553622,
+        "relative_improvement": 0.0032059704683092085,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      },
+      "chosen_prior_strength_c": {
+       "2023": 0.5,
+       "2024": 0.5,
+       "2025": 0.5
+      },
+      "mae_by_current_games_in_window": {
+       "0": {
+        "champion_mae": 0.24863370236321056,
+        "n": 1220,
+        "w3_mae": 0.24863370236321056
+       },
+       "1": {
+        "champion_mae": 0.24832527596486986,
+        "n": 1182,
+        "w3_mae": 0.2514389117180995
+       },
+       "2": {
+        "champion_mae": 0.26530122655122657,
+        "n": 1144,
+        "w3_mae": 0.26530122655122657
+       },
+       "3": {
+        "champion_mae": 0.26595931021673597,
+        "n": 1111,
+        "w3_mae": 0.2649784366191721
+       },
+       "4": {
+        "champion_mae": 0.2664428747469413,
+        "n": 1082,
+        "w3_mae": 0.2650909788848791
+       },
+       "5": {
+        "champion_mae": 0.25143496072462135,
+        "n": 1267,
+        "w3_mae": 0.2499562657810487
+       },
+       "6": {
+        "champion_mae": 0.2758917284968398,
+        "n": 1213,
+        "w3_mae": 0.2741211660008033
+       },
+       "7": {
+        "champion_mae": 0.2900933464923102,
+        "n": 1158,
+        "w3_mae": 0.2882431395125696
+       },
+       "8": {
+        "champion_mae": 0.2888261000602773,
+        "n": 1106,
+        "w3_mae": 0.2875868701911144
+       }
+      },
+      "n_rows": 27551,
+      "per_test_year": {
+       "2023": {
+        "W0": 0.27386140739028497,
+        "W1": 0.2804237237718894,
+        "W3": 0.2724672231399687,
+        "W4": 0.2991947273383609,
+        "n": 5506,
+        "weeks1_6": {
+         "W0": 0.2932718147865207,
+         "W1": 0.30493597742127154,
+         "W3": 0.2935278921669678,
+         "W4": 0.30136395578582104
+        }
+       },
+       "2024": {
+        "W0": 0.2816507190082882,
+        "W1": 0.2873602965029986,
+        "W3": 0.28098537313000094,
+        "W4": 0.3064699490340493,
+        "n": 5529,
+        "weeks1_6": {
+         "W0": 0.2750701740402546,
+         "W1": 0.2860625405792264,
+         "W3": 0.27611621170884687,
+         "W4": 0.29372231885871236
+        }
+       },
+       "2025": {
+        "W0": 0.28925661410092335,
+        "W1": 0.2932548914340253,
+        "W3": 0.2886027746793921,
+        "W4": 0.3094968616773773,
+        "n": 5588,
+        "weeks1_6": {
+         "W0": 0.2964115393486426,
+         "W1": 0.3045804471222821,
+         "W3": 0.296039405719564,
+         "W4": 0.30508573610717704
+        }
+       }
+      },
+      "poisson_log_score": {
+       "W0": -0.5364846390672448,
+       "W3": -0.5410062833075098
+      },
+      "primary_weeks1_6_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 0.28820639050671926,
+        "ci_high": 0.0014217999569011916,
+        "ci_low": -0.0007268167438695183,
+        "confidence": 0.99375,
+        "delta_mae": 0.00031104959110045405,
+        "n": 5171,
+        "new_mae": 0.2885174400978197,
+        "relative_improvement": -0.0010792598684351597,
+        "years_better": 1,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      },
+      "secondary": {
+       "W1": {
+        "champion_pooled_mae_weeks1_6": 0.28820639050671926,
+        "pooled_mae_weeks1_6": 0.29847336530763335
+       },
+       "W4": {
+        "champion_pooled_mae_weeks1_6": 0.28820639050671926,
+        "pooled_mae_weeks1_6": 0.3000428728845631
+       }
+      }
+     },
+     "pass_tds": {
+      "all_weeks_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 0.9586165524290524,
+        "ci_high": -0.008699120464329376,
+        "ci_low": -0.035186616513924455,
+        "confidence": 0.99375,
+        "delta_mae": -0.021892721760529255,
+        "n": 1440,
+        "new_mae": 0.9367238306685232,
+        "relative_improvement": 0.02283782989669328,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "PROMISING"
+      },
+      "chosen_prior_strength_c": {
+       "2023": 4,
+       "2024": 4,
+       "2025": 4
+      },
+      "mae_by_current_games_in_window": {
+       "0": {
+        "champion_mae": 0.8189399283843728,
+        "n": 135,
+        "w3_mae": 0.8189399283843729
+       },
+       "1": {
+        "champion_mae": 0.9654063251563251,
+        "n": 120,
+        "w3_mae": 0.7816253006253007
+       },
+       "2": {
+        "champion_mae": 0.8816539115646258,
+        "n": 112,
+        "w3_mae": 0.8331916099773243
+       },
+       "3": {
+        "champion_mae": 0.9242585034013605,
+        "n": 105,
+        "w3_mae": 0.888055285606306
+       },
+       "4": {
+        "champion_mae": 0.9586553287981859,
+        "n": 105,
+        "w3_mae": 0.9323526077097505
+       },
+       "5": {
+        "champion_mae": 0.9370885547201337,
+        "n": 114,
+        "w3_mae": 0.9333797456604475
+       },
+       "6": {
+        "champion_mae": 1.0447249190938515,
+        "n": 103,
+        "w3_mae": 1.0489967637540454
+       },
+       "7": {
+        "champion_mae": 1.1092330827067667,
+        "n": 95,
+        "w3_mae": 1.1139302802460698
+       },
+       "8": {
+        "champion_mae": 0.9101190476190476,
+        "n": 84,
+        "w3_mae": 0.9037698412698412
+       }
+      },
+      "n_rows": 2399,
+      "per_test_year": {
+       "2023": {
+        "W0": 0.8827441943649571,
+        "W1": 0.8640694933597476,
+        "W3": 0.8651991712327669,
+        "W4": 0.8642136829212801,
+        "n": 472,
+        "weeks1_6": {
+         "W0": 0.8931277512923083,
+         "W1": 0.8460267229254571,
+         "W3": 0.8448803587411182,
+         "W4": 0.8453368502058544
+        }
+       },
+       "2024": {
+        "W0": 0.9710741908022242,
+        "W1": 0.9474171632644437,
+        "W3": 0.9491710006249754,
+        "W4": 0.9432902999852874,
+        "n": 478,
+        "weeks1_6": {
+         "W0": 0.9136052461512585,
+         "W1": 0.8629737338326294,
+         "W3": 0.8597647892893292,
+         "W4": 0.8531522972470306
+        }
+       },
+       "2025": {
+        "W0": 1.0195492092941072,
+        "W1": 0.9866146891657095,
+        "W3": 0.9934787123307531,
+        "W4": 0.9638896468764042,
+        "n": 490,
+        "weeks1_6": {
+         "W0": 0.9816585603938545,
+         "W1": 0.8969686359392243,
+         "W3": 0.9115850734233087,
+         "W4": 0.8618116682044007
+        }
+       }
+      },
+      "poisson_log_score": {
+       "W0": -1.5459207926264058,
+       "W3": -1.505229618588347
+      },
+      "primary_weeks1_6_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 0.9305779940810491,
+        "ci_high": -0.029669661702647752,
+        "ci_low": -0.08862273378989025,
+        "confidence": 0.99375,
+        "delta_mae": -0.05766104944312678,
+        "n": 491,
+        "new_mae": 0.8729169446379224,
+        "relative_improvement": 0.06196261872715718,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "PROMISING"
+      },
+      "secondary": {
+       "W1": {
+        "champion_pooled_mae_weeks1_6": 0.9305779940810491,
+        "pooled_mae_weeks1_6": 0.8692904459197738
+       },
+       "W4": {
+        "champion_pooled_mae_weeks1_6": 0.9305779940810491,
+        "pooled_mae_weeks1_6": 0.8536354997526253
+       }
+      }
+     },
+     "pass_yds": {
+      "all_weeks_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 63.42974263468013,
+        "ci_high": -0.5899542345264955,
+        "ci_low": -2.616772475217999,
+        "confidence": 0.99375,
+        "delta_mae": -1.564662378030178,
+        "n": 1440,
+        "new_mae": 61.865080256649954,
+        "relative_improvement": 0.024667645067421428,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "PROMISING"
+      },
+      "chosen_prior_strength_c": {
+       "2023": 4,
+       "2024": 3,
+       "2025": 3
+      },
+      "mae_by_current_games_in_window": {
+       "0": {
+        "champion_mae": 64.32515311848645,
+        "n": 135,
+        "w3_mae": 64.32515311848645
+       },
+       "1": {
+        "champion_mae": 75.60085642135643,
+        "n": 120,
+        "w3_mae": 64.33866744829245
+       },
+       "2": {
+        "champion_mae": 64.20182823129252,
+        "n": 112,
+        "w3_mae": 58.75451436130008
+       },
+       "3": {
+        "champion_mae": 64.71125321239607,
+        "n": 105,
+        "w3_mae": 62.874895799589666
+       },
+       "4": {
+        "champion_mae": 64.49598866213151,
+        "n": 105,
+        "w3_mae": 63.33489795918367
+       },
+       "5": {
+        "champion_mae": 60.589582289055976,
+        "n": 114,
+        "w3_mae": 59.68797166527429
+       },
+       "6": {
+        "champion_mae": 64.15595469255663,
+        "n": 103,
+        "w3_mae": 64.02868392664509
+       },
+       "7": {
+        "champion_mae": 63.10111779448622,
+        "n": 95,
+        "w3_mae": 63.80147983595353
+       },
+       "8": {
+        "champion_mae": 52.86676587301587,
+        "n": 84,
+        "w3_mae": 52.25175865800867
+       }
+      },
+      "n_rows": 2399,
+      "per_test_year": {
+       "2023": {
+        "W0": 65.21034022121945,
+        "W1": 63.03738466688679,
+        "W3": 63.63295112227921,
+        "W4": 63.24392441225688,
+        "n": 472,
+        "weeks1_6": {
+         "W0": 68.82364335032055,
+         "W1": 62.225517379947746,
+         "W3": 62.62237750470345,
+         "W4": 62.15246191082543
+        }
+       },
+       "2024": {
+        "W0": 63.943725343693956,
+        "W1": 61.69776131005211,
+        "W3": 61.981577072683244,
+        "W4": 61.42173968664896,
+        "n": 478,
+        "weeks1_6": {
+         "W0": 60.51976903124142,
+         "W1": 56.50198080719554,
+         "W3": 56.4692553271541,
+         "W4": 57.94403498218285
+        }
+       },
+       "2025": {
+        "W0": 61.21315937803693,
+        "W1": 60.22049982330594,
+        "W3": 60.04850775330112,
+        "W4": 59.43909344741592,
+        "n": 490,
+        "weeks1_6": {
+         "W0": 60.02012023597317,
+         "W1": 57.68481113657584,
+         "W3": 57.375009941855524,
+         "W4": 55.0300575439922
+        }
+       }
+      },
+      "primary_weeks1_6_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 63.018897029650596,
+        "ci_high": -2.0595176661574817,
+        "ci_low": -6.549764942154267,
+        "confidence": 0.99375,
+        "delta_mae": -4.256013212573812,
+        "n": 491,
+        "new_mae": 58.76288381707678,
+        "relative_improvement": 0.06753550781079752,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "PROMISING"
+      },
+      "secondary": {
+       "W1": {
+        "champion_pooled_mae_weeks1_6": 63.018897029650596,
+        "pooled_mae_weeks1_6": 58.753304502693496
+       },
+       "W4": {
+        "champion_pooled_mae_weeks1_6": 63.018897029650596,
+        "pooled_mae_weeks1_6": 58.289361438869435
+       }
+      }
+     },
+     "rec_tds": {
+      "all_weeks_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 0.20427148523069838,
+        "ci_high": 0.00011871758279781308,
+        "ci_low": -0.0015590542381952175,
+        "confidence": 0.99375,
+        "delta_mae": -0.0007157468251619836,
+        "n": 16623,
+        "new_mae": 0.2035557384055364,
+        "relative_improvement": 0.003503899843649933,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      },
+      "chosen_prior_strength_c": {
+       "2023": 0.5,
+       "2024": 0.5,
+       "2025": 0.5
+      },
+      "mae_by_current_games_in_window": {
+       "0": {
+        "champion_mae": 0.18175617415371514,
+        "n": 1220,
+        "w3_mae": 0.18175617415371517
+       },
+       "1": {
+        "champion_mae": 0.17711071923000857,
+        "n": 1182,
+        "w3_mae": 0.17956129459936568
+       },
+       "2": {
+        "champion_mae": 0.1792884199134199,
+        "n": 1144,
+        "w3_mae": 0.1792884199134199
+       },
+       "3": {
+        "champion_mae": 0.18621354992642125,
+        "n": 1111,
+        "w3_mae": 0.18521489904092447
+       },
+       "4": {
+        "champion_mae": 0.19645343719742978,
+        "n": 1082,
+        "w3_mae": 0.19519542978415438
+       },
+       "5": {
+        "champion_mae": 0.18387830270229638,
+        "n": 1267,
+        "w3_mae": 0.18259805177721516
+       },
+       "6": {
+        "champion_mae": 0.20372904644133003,
+        "n": 1213,
+        "w3_mae": 0.20239816517640097
+       },
+       "7": {
+        "champion_mae": 0.2133946048194753,
+        "n": 1158,
+        "w3_mae": 0.21176810044685693
+       },
+       "8": {
+        "champion_mae": 0.20512356841470766,
+        "n": 1106,
+        "w3_mae": 0.20417154203453533
+       }
+      },
+      "n_rows": 27551,
+      "per_test_year": {
+       "2023": {
+        "W0": 0.1997179110391969,
+        "W1": 0.20383033542314324,
+        "W3": 0.1987673024812107,
+        "W4": 0.2169051639181537,
+        "n": 5506,
+        "weeks1_6": {
+         "W0": 0.20944539937186996,
+         "W1": 0.2180918640183346,
+         "W3": 0.20919626941685765,
+         "W4": 0.2164715062545778
+        }
+       },
+       "2024": {
+        "W0": 0.2017790206015925,
+        "W1": 0.2074458182841254,
+        "W3": 0.20084671467777532,
+        "W4": 0.2211369260061635,
+        "n": 5529,
+        "weeks1_6": {
+         "W0": 0.19447418870606445,
+         "W1": 0.20473255487639838,
+         "W3": 0.19499033432577736,
+         "W4": 0.20650736368401348
+        }
+       },
+       "2025": {
+        "W0": 0.2112243872408511,
+        "W1": 0.21450062156486638,
+        "W3": 0.21095432831071323,
+        "W4": 0.22456828575218313,
+        "n": 5588,
+        "weeks1_6": {
+         "W0": 0.22461834568585867,
+         "W1": 0.2334976173406641,
+         "W3": 0.22448313185515395,
+         "W4": 0.2278536889322263
+        }
+       }
+      },
+      "poisson_log_score": {
+       "W0": -0.4068826475007736,
+       "W3": -0.4112069022304761
+      },
+      "primary_weeks1_6_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 0.20949853258110845,
+        "ci_high": 0.0009858355566080186,
+        "ci_low": -0.0008725905545104841,
+        "confidence": 0.99375,
+        "delta_mae": 4.6260799638181416e-05,
+        "n": 5171,
+        "new_mae": 0.20954479338074664,
+        "relative_improvement": -0.00022081681942221387,
+        "years_better": 2,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      },
+      "secondary": {
+       "W1": {
+        "champion_pooled_mae_weeks1_6": 0.20949853258110845,
+        "pooled_mae_weeks1_6": 0.2187647882532818
+       },
+       "W4": {
+        "champion_pooled_mae_weeks1_6": 0.20949853258110845,
+        "pooled_mae_weeks1_6": 0.2169371111265028
+       }
+      }
+     },
+     "rec_yds": {
+      "all_weeks_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 15.322375094609349,
+        "ci_high": -0.024076255003406807,
+        "ci_low": -0.1294855491587967,
+        "confidence": 0.99375,
+        "delta_mae": -0.07618169270289776,
+        "n": 16623,
+        "new_mae": 15.246193401906451,
+        "relative_improvement": 0.004971924537319262,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      },
+      "chosen_prior_strength_c": {
+       "2023": 2,
+       "2024": 1,
+       "2025": 1
+      },
+      "mae_by_current_games_in_window": {
+       "0": {
+        "champion_mae": 14.894522656305442,
+        "n": 1220,
+        "w3_mae": 14.894522656305442
+       },
+       "1": {
+        "champion_mae": 15.218224455089937,
+        "n": 1182,
+        "w3_mae": 14.388558892852464
+       },
+       "2": {
+        "champion_mae": 14.179066697191697,
+        "n": 1144,
+        "w3_mae": 14.141439752377252
+       },
+       "3": {
+        "champion_mae": 14.00434236280771,
+        "n": 1111,
+        "w3_mae": 14.112446780392323
+       },
+       "4": {
+        "champion_mae": 15.06664532171464,
+        "n": 1082,
+        "w3_mae": 15.09948207317431
+       },
+       "5": {
+        "champion_mae": 14.188680798286164,
+        "n": 1267,
+        "w3_mae": 14.190110416700223
+       },
+       "6": {
+        "champion_mae": 14.539661995053587,
+        "n": 1213,
+        "w3_mae": 14.56190966906136
+       },
+       "7": {
+        "champion_mae": 15.368821860350359,
+        "n": 1158,
+        "w3_mae": 15.361835226078533
+       },
+       "8": {
+        "champion_mae": 14.477388487040384,
+        "n": 1106,
+        "w3_mae": 14.5071319737459
+       }
+      },
+      "n_rows": 27551,
+      "per_test_year": {
+       "2023": {
+        "W0": 15.684429233437589,
+        "W1": 15.927282640372903,
+        "W3": 15.66444805056806,
+        "W4": 15.94649028905023,
+        "n": 5506,
+        "weeks1_6": {
+         "W0": 16.195033978439863,
+         "W1": 16.529101667939905,
+         "W3": 16.040728314558145,
+         "W4": 16.13632365313795
+        }
+       },
+       "2024": {
+        "W0": 15.333476221533738,
+        "W1": 15.555422641003217,
+        "W3": 15.2474060404839,
+        "W4": 15.671007184886443,
+        "n": 5529,
+        "weeks1_6": {
+         "W0": 15.943200287437916,
+         "W1": 16.254422492224567,
+         "W3": 15.776057610877807,
+         "W4": 15.736288140202843
+        }
+       },
+       "2025": {
+        "W0": 14.954649930122372,
+        "W1": 15.12913740250444,
+        "W3": 14.83287651317604,
+        "W4": 15.224930027101717,
+        "n": 5588,
+        "weeks1_6": {
+         "W0": 15.505439765722514,
+         "W1": 15.814098323936754,
+         "W3": 15.21666904287288,
+         "W4": 15.221725609842327
+        }
+       }
+      },
+      "primary_weeks1_6_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 15.879281952603359,
+        "ci_high": -0.06940302907127842,
+        "ci_low": -0.3486687352832605,
+        "confidence": 0.99375,
+        "delta_mae": -0.20368463801175452,
+        "n": 5171,
+        "new_mae": 15.675597314591604,
+        "relative_improvement": 0.012827068542501763,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "PROMISING"
+      },
+      "secondary": {
+       "W1": {
+        "champion_pooled_mae_weeks1_6": 15.879281952603359,
+        "pooled_mae_weeks1_6": 16.197155583517024
+       },
+       "W4": {
+        "champion_pooled_mae_weeks1_6": 15.879281952603359,
+        "pooled_mae_weeks1_6": 15.695352829213654
+       }
+      }
+     },
+     "receptions": {
+      "all_weeks_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 1.2066590093751257,
+        "ci_high": -0.0008782694817521642,
+        "ci_low": -0.009501491019786578,
+        "confidence": 0.99375,
+        "delta_mae": -0.005319007884923677,
+        "n": 16623,
+        "new_mae": 1.201340001490202,
+        "relative_improvement": 0.004408045556862125,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      },
+      "chosen_prior_strength_c": {
+       "2023": 2,
+       "2024": 1,
+       "2025": 1
+      },
+      "mae_by_current_games_in_window": {
+       "0": {
+        "champion_mae": 1.1935944633690534,
+        "n": 1220,
+        "w3_mae": 1.1935944633690534
+       },
+       "1": {
+        "champion_mae": 1.2300448587885138,
+        "n": 1182,
+        "w3_mae": 1.1727121244676235
+       },
+       "2": {
+        "champion_mae": 1.2016634060384062,
+        "n": 1144,
+        "w3_mae": 1.198940006752507
+       },
+       "3": {
+        "champion_mae": 1.1773829525809725,
+        "n": 1111,
+        "w3_mae": 1.187108139385367
+       },
+       "4": {
+        "champion_mae": 1.1547737875187045,
+        "n": 1082,
+        "w3_mae": 1.1533188099639118
+       },
+       "5": {
+        "champion_mae": 1.11557484872402,
+        "n": 1267,
+        "w3_mae": 1.1177225112618054
+       },
+       "6": {
+        "champion_mae": 1.1393129980763945,
+        "n": 1213,
+        "w3_mae": 1.141053272092019
+       },
+       "7": {
+        "champion_mae": 1.2062899909532032,
+        "n": 1158,
+        "w3_mae": 1.2047069614643018
+       },
+       "8": {
+        "champion_mae": 1.1214587100663052,
+        "n": 1106,
+        "w3_mae": 1.1227144866385372
+       }
+      },
+      "n_rows": 27551,
+      "per_test_year": {
+       "2023": {
+        "W0": 1.2266640131269624,
+        "W1": 1.2512592585603846,
+        "W3": 1.2247642815717255,
+        "W4": 1.2431157459318116,
+        "n": 5506,
+        "weeks1_6": {
+         "W0": 1.3205680714710126,
+         "W1": 1.3457996986673457,
+         "W3": 1.3025248750005052,
+         "W4": 1.3042676555893113
+        }
+       },
+       "2024": {
+        "W0": 1.2257041646081255,
+        "W1": 1.2448129200435223,
+        "W3": 1.2197719735617638,
+        "W4": 1.2490352838966619,
+        "n": 5529,
+        "weeks1_6": {
+         "W0": 1.2846828676374131,
+         "W1": 1.29426797151193,
+         "W3": 1.2720104221844728,
+         "W4": 1.267620707565624
+        }
+       },
+       "2025": {
+        "W0": 1.1681034950693148,
+        "W1": 1.187541220312337,
+        "W3": 1.1600220953140155,
+        "W4": 1.1851043537308872,
+        "n": 5588,
+        "weeks1_6": {
+         "W0": 1.2083389579581154,
+         "W1": 1.241719499004554,
+         "W3": 1.1916773458904155,
+         "W4": 1.1934851903836792
+        }
+       }
+      },
+      "poisson_log_score": {
+       "W0": -1.67604502816638,
+       "W3": -1.6574564175538555
+      },
+      "primary_weeks1_6_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 1.2708945967116534,
+        "ci_high": -0.00495519245310079,
+        "ci_low": -0.027721177041050506,
+        "confidence": 0.99375,
+        "delta_mae": -0.015775037306206885,
+        "n": 5171,
+        "new_mae": 1.2551195594054465,
+        "relative_improvement": 0.012412545735125192,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "PROMISING"
+      },
+      "secondary": {
+       "W1": {
+        "champion_pooled_mae_weeks1_6": 1.2708945967116534,
+        "pooled_mae_weeks1_6": 1.2935983589242146
+       },
+       "W4": {
+        "champion_pooled_mae_weeks1_6": 1.2708945967116534,
+        "pooled_mae_weeks1_6": 1.254822981857629
+       }
+      }
+     },
+     "rush_tds": {
+      "all_weeks_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 0.31022586180338385,
+        "ci_high": 0.001718192214871578,
+        "ci_low": -0.002385755332743538,
+        "confidence": 0.99375,
+        "delta_mae": -0.00024187361307526078,
+        "n": 4431,
+        "new_mae": 0.3099839881903086,
+        "relative_improvement": 0.0007796694049593982,
+        "years_better": 2,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      },
+      "chosen_prior_strength_c": {
+       "2023": 0.5,
+       "2024": 0.5,
+       "2025": 0.5
+      },
+      "mae_by_current_games_in_window": {
+       "0": {
+        "champion_mae": 0.2641225785031095,
+        "n": 339,
+        "w3_mae": 0.2641225785031095
+       },
+       "1": {
+        "champion_mae": 0.2634214452214452,
+        "n": 325,
+        "w3_mae": 0.2667280497280497
+       },
+       "2": {
+        "champion_mae": 0.3231024297529152,
+        "n": 309,
+        "w3_mae": 0.3231024297529152
+       },
+       "3": {
+        "champion_mae": 0.2892474723662843,
+        "n": 303,
+        "w3_mae": 0.28927074680257137
+       },
+       "4": {
+        "champion_mae": 0.2867969138875062,
+        "n": 287,
+        "w3_mae": 0.28670289253912945
+       },
+       "5": {
+        "champion_mae": 0.28710884353741495,
+        "n": 336,
+        "w3_mae": 0.2869975262832406
+       },
+       "6": {
+        "champion_mae": 0.28464773922187175,
+        "n": 317,
+        "w3_mae": 0.2829005904715684
+       },
+       "7": {
+        "champion_mae": 0.302081362346263,
+        "n": 302,
+        "w3_mae": 0.30093345947650585
+       },
+       "8": {
+        "champion_mae": 0.31950171821305845,
+        "n": 291,
+        "w3_mae": 0.32037093187790583
+       }
+      },
+      "n_rows": 7399,
+      "per_test_year": {
+       "2023": {
+        "W0": 0.29834712454479095,
+        "W1": 0.30569643884674774,
+        "W3": 0.2967550799062889,
+        "W4": 0.32557176855451486,
+        "n": 1457,
+        "weeks1_6": {
+         "W0": 0.3273834752231189,
+         "W1": 0.33520650346930975,
+         "W3": 0.3279167904366759,
+         "W4": 0.32866060897549887
+        }
+       },
+       "2024": {
+        "W0": 0.3095234465958812,
+        "W1": 0.31158330454105104,
+        "W3": 0.31037835486980814,
+        "W4": 0.3390356761849415,
+        "n": 1491,
+        "weeks1_6": {
+         "W0": 0.3096538800705468,
+         "W1": 0.31137334887334894,
+         "W3": 0.3114773035606369,
+         "W4": 0.33396245163843213
+        }
+       },
+       "2025": {
+        "W0": 0.32260254505365765,
+        "W1": 0.32870777420676267,
+        "W3": 0.32258447278281205,
+        "W4": 0.3436257527604585,
+        "n": 1483,
+        "weeks1_6": {
+         "W0": 0.3107712292689871,
+         "W1": 0.3250792680164877,
+         "W3": 0.31154471255368116,
+         "W4": 0.3248035215942144
+        }
+       }
+      },
+      "poisson_log_score": {
+       "W0": -0.5825891669909595,
+       "W3": -0.5862972598166694
+      },
+      "primary_weeks1_6_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 0.31585998862961445,
+        "ci_high": 0.003503751581835428,
+        "ci_low": -0.0013003245272514257,
+        "confidence": 0.99375,
+        "delta_mae": 0.0010548747389749757,
+        "n": 1363,
+        "new_mae": 0.31691486336858943,
+        "relative_improvement": -0.003339690929362848,
+        "years_better": 0,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      },
+      "secondary": {
+       "W1": {
+        "champion_pooled_mae_weeks1_6": 0.31585998862961445,
+        "pooled_mae_weeks1_6": 0.32370931831680183
+       },
+       "W4": {
+        "champion_pooled_mae_weeks1_6": 0.31585998862961445,
+        "pooled_mae_weeks1_6": 0.3292189372177585
+       }
+      }
+     },
+     "rush_yds": {
+      "all_weeks_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 19.120074783036866,
+        "ci_high": 0.0026635781411127432,
+        "ci_low": -0.21904279928778086,
+        "confidence": 0.99375,
+        "delta_mae": -0.10562706663616339,
+        "n": 4431,
+        "new_mae": 19.014447716400703,
+        "relative_improvement": 0.005524406564030525,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "INCONCLUSIVE"
+      },
+      "chosen_prior_strength_c": {
+       "2023": 0.5,
+       "2024": 0.5,
+       "2025": 1
+      },
+      "mae_by_current_games_in_window": {
+       "0": {
+        "champion_mae": 20.015378287723422,
+        "n": 339,
+        "w3_mae": 20.015378287723422
+       },
+       "1": {
+        "champion_mae": 18.92483831723832,
+        "n": 325,
+        "w3_mae": 18.32198137048137
+       },
+       "2": {
+        "champion_mae": 17.466347151589872,
+        "n": 309,
+        "w3_mae": 17.472029759764386
+       },
+       "3": {
+        "champion_mae": 17.867953271517628,
+        "n": 303,
+        "w3_mae": 17.977011582961016
+       },
+       "4": {
+        "champion_mae": 18.183704994192798,
+        "n": 287,
+        "w3_mae": 18.33886049812879
+       },
+       "5": {
+        "champion_mae": 18.079910714285713,
+        "n": 336,
+        "w3_mae": 18.10663651824366
+       },
+       "6": {
+        "champion_mae": 18.096498422712934,
+        "n": 317,
+        "w3_mae": 17.974538657977146
+       },
+       "7": {
+        "champion_mae": 16.93466256701356,
+        "n": 302,
+        "w3_mae": 16.77109389782403
+       },
+       "8": {
+        "champion_mae": 18.752978235967927,
+        "n": 291,
+        "w3_mae": 18.708205122446074
+       }
+      },
+      "n_rows": 7399,
+      "per_test_year": {
+       "2023": {
+        "W0": 18.570978601586013,
+        "W1": 19.50472461649538,
+        "W3": 18.501844186303632,
+        "W4": 19.036510520906102,
+        "n": 1457,
+        "weeks1_6": {
+         "W0": 19.804314092242823,
+         "W1": 21.27834220345356,
+         "W3": 19.892573439805382,
+         "W4": 19.215944904871527
+        }
+       },
+       "2024": {
+        "W0": 19.74154772308696,
+        "W1": 19.946048198764494,
+        "W3": 19.63403009040502,
+        "W4": 20.332948265345554,
+        "n": 1491,
+        "weeks1_6": {
+         "W0": 20.93789204622538,
+         "W1": 20.653546838963507,
+         "W3": 20.900157197300057,
+         "W4": 20.79020842286901
+        }
+       },
+       "2025": {
+        "W0": 19.03471873634719,
+        "W1": 19.67978606019739,
+        "W3": 18.89513957325235,
+        "W4": 19.401428255202493,
+        "n": 1483,
+        "weeks1_6": {
+         "W0": 19.410668455859035,
+         "W1": 20.801298701298702,
+         "W3": 19.22378036180727,
+         "W4": 18.79923582191406
+        }
+       }
+      },
+      "primary_weeks1_6_W3_vs_W0": {
+       "pooled": {
+        "base_mae": 20.06473120789702,
+        "ci_high": 0.16453663768535956,
+        "ci_low": -0.24875465607441988,
+        "confidence": 0.99375,
+        "delta_mae": -0.04503562156167007,
+        "n": 1363,
+        "new_mae": 20.01969558633535,
+        "relative_improvement": 0.0022445165646647228,
+        "years_better": 2,
+        "years_total": 3
+       },
+       "verdict": "INCONCLUSIVE"
+      },
+      "secondary": {
+       "W1": {
+        "champion_pooled_mae_weeks1_6": 20.06473120789702,
+        "pooled_mae_weeks1_6": 20.907714446635943
+       },
+       "W4": {
+        "champion_pooled_mae_weeks1_6": 20.06473120789702,
+        "pooled_mae_weeks1_6": 19.62012911281268
+       }
+      }
+     }
+    },
+    "seconds": 5.4
+   },
    "spec": {
     "bootstrap": "cluster by player, 2000 draws, seed 20261008",
     "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
@@ -2206,11 +3369,561 @@
     "title": "Dynamic blend of prior and current-season usage vs the production 80/20 policy"
    },
    "spec_sha256": "f466075db1c08984b5e0c3f5bf3952697158157a3146d5e62437972048b2eca8",
-   "status": "REGISTERED"
+   "status": "PROMISING"
   },
   "E8": {
+   "completed_at": "2026-10-08T10:47:33Z",
    "registered_at": "2026-10-08T10:47:03Z",
-   "result": null,
+   "result": {
+    "markets": {
+     "rec_tds": {
+      "comparisons": {
+       "MEO vs M0": {
+        "pooled": {
+         "base_mae": 0.229371216553621,
+         "ci_high": -0.004779073874652394,
+         "ci_low": -0.013484186118591847,
+         "confidence": 0.9975,
+         "delta_mae": -0.009021655425210523,
+         "n": 13797,
+         "new_mae": 0.22034956112841048,
+         "relative_improvement": 0.03933211656093517,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "PROMISING"
+       },
+       "MEOFP vs MEOP": {
+        "pooled": {
+         "base_mae": 0.22111923802144373,
+         "ci_high": 0.0033088846192796065,
+         "ci_low": -0.002837100050963494,
+         "confidence": 0.9975,
+         "delta_mae": 0.00023933809410409124,
+         "n": 13797,
+         "new_mae": 0.22135857611554782,
+         "relative_improvement": -0.0010823938081809086,
+         "years_better": 1,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       },
+       "MEOP vs M0": {
+        "pooled": {
+         "base_mae": 0.229371216553621,
+         "ci_high": -0.004121295557507266,
+         "ci_low": -0.011993293949864913,
+         "confidence": 0.9975,
+         "delta_mae": -0.008251978532177268,
+         "n": 13797,
+         "new_mae": 0.22111923802144373,
+         "relative_improvement": 0.03597652162361955,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "PROMISING"
+       },
+       "MFP vs M0": {
+        "pooled": {
+         "base_mae": 0.229371216553621,
+         "ci_high": 0.004119479233606988,
+         "ci_low": -0.006136610926633612,
+         "confidence": 0.9975,
+         "delta_mae": -0.000978299147188194,
+         "n": 13797,
+         "new_mae": 0.2283929174064328,
+         "relative_improvement": 0.004265134753555677,
+         "years_better": 2,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       }
+      },
+      "descriptive_MV_vs_M0": {
+       "pooled": {
+        "base_mae": 0.229371216553621,
+        "ci_high": -0.0038416460894365794,
+        "ci_low": -0.015400009688188542,
+        "confidence": 0.9975,
+        "delta_mae": -0.009940562229233535,
+        "n": 13797,
+        "new_mae": 0.21943065432438746,
+        "relative_improvement": 0.043338315847096236,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "PROMISING"
+      },
+      "n_rows": 18388,
+      "per_test_year": {
+       "2023": {
+        "M0": 0.22054688712866954,
+        "MEO": 0.2114955812869319,
+        "MEOFP": 0.21473492224856808,
+        "MEOP": 0.21208056032101802,
+        "MFP": 0.22140998149909097,
+        "MV": 0.211419225076276,
+        "n": 4605
+       },
+       "2024": {
+        "M0": 0.2321089406754256,
+        "MEO": 0.22324182572018447,
+        "MEOFP": 0.22415768808978737,
+        "MEOP": 0.22396999282874808,
+        "MFP": 0.23136074818676286,
+        "MV": 0.22342598388883006,
+        "n": 4629
+       },
+       "2025": {
+        "M0": 0.23549944623630076,
+        "MEO": 0.22635093837467105,
+        "MEOFP": 0.22520359840980317,
+        "MEOP": 0.22734912336166918,
+        "MFP": 0.2324293695587802,
+        "MV": 0.2234627058549043,
+        "n": 4563
+       }
+      }
+     },
+     "rec_yds": {
+      "comparisons": {
+       "MEO vs M0": {
+        "pooled": {
+         "base_mae": 16.28585964038971,
+         "ci_high": -0.2879041810522252,
+         "ci_low": -0.5825245140396835,
+         "confidence": 0.9975,
+         "delta_mae": -0.4368366471868903,
+         "n": 13797,
+         "new_mae": 15.84902299320282,
+         "relative_improvement": 0.026823063493898385,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "PROMISING"
+       },
+       "MEOFP vs MEOP": {
+        "pooled": {
+         "base_mae": 16.063100273609923,
+         "ci_high": 0.008014754087066771,
+         "ci_low": -0.0325354589444348,
+         "confidence": 0.9975,
+         "delta_mae": -0.012669349145053133,
+         "n": 13797,
+         "new_mae": 16.05043092446487,
+         "relative_improvement": 0.0007887237786760016,
+         "years_better": 2,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       },
+       "MEOP vs M0": {
+        "pooled": {
+         "base_mae": 16.28585964038971,
+         "ci_high": -0.0993932284309907,
+         "ci_low": -0.3389750379644129,
+         "confidence": 0.9975,
+         "delta_mae": -0.22275936677978692,
+         "n": 13797,
+         "new_mae": 16.063100273609923,
+         "relative_improvement": 0.01367808465125986,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "PROMISING"
+       },
+       "MFP vs M0": {
+        "pooled": {
+         "base_mae": 16.28585964038971,
+         "ci_high": 0.026957998369753985,
+         "ci_low": -0.18071648698729864,
+         "confidence": 0.9975,
+         "delta_mae": -0.08698637670698162,
+         "n": 13797,
+         "new_mae": 16.198873263682728,
+         "relative_improvement": 0.005341221073234062,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       }
+      },
+      "descriptive_MV_vs_M0": {
+       "pooled": {
+        "base_mae": 16.28585964038971,
+        "ci_high": -0.14356544697276777,
+        "ci_low": -0.35962791459973065,
+        "confidence": 0.9975,
+        "delta_mae": -0.25229923701560963,
+        "n": 13797,
+        "new_mae": 16.0335604033741,
+        "relative_improvement": 0.015491920143404373,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "PROMISING"
+      },
+      "n_rows": 18388,
+      "per_test_year": {
+       "2023": {
+        "M0": 16.340745420602982,
+        "MEO": 15.971693442526812,
+        "MEOFP": 16.15411715789956,
+        "MEOP": 16.182200403244938,
+        "MFP": 16.331559420000286,
+        "MV": 16.123815280340132,
+        "n": 4605
+       },
+       "2024": {
+        "M0": 16.494200272367937,
+        "MEO": 15.989910075903078,
+        "MEOFP": 16.239043118864874,
+        "MEOP": 16.2495828901489,
+        "MFP": 16.372288027828258,
+        "MV": 16.23586960767353,
+        "n": 4629
+       },
+       "2025": {
+        "M0": 16.019114559673216,
+        "MEO": 15.582298530139818,
+        "MEOFP": 15.754450001202896,
+        "MEOP": 15.753723957824647,
+        "MFP": 15.889042737039729,
+        "MV": 15.737239339352472,
+        "n": 4563
+       }
+      }
+     },
+     "receptions": {
+      "comparisons": {
+       "MEO vs M0": {
+        "pooled": {
+         "base_mae": 1.2709136503025316,
+         "ci_high": -0.023988110507684332,
+         "ci_low": -0.04280790611043837,
+         "confidence": 0.9975,
+         "delta_mae": -0.03332851447423968,
+         "n": 13797,
+         "new_mae": 1.2375851358282919,
+         "relative_improvement": 0.026224058940830536,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "PROMISING"
+       },
+       "MEOFP vs MEOP": {
+        "pooled": {
+         "base_mae": 1.2618635230280797,
+         "ci_high": 0.000986980439586196,
+         "ci_low": -0.0035270669721644316,
+         "confidence": 0.9975,
+         "delta_mae": -0.0012636607677813938,
+         "n": 13797,
+         "new_mae": 1.2605998622602983,
+         "relative_improvement": 0.0010014242782365253,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       },
+       "MEOP vs M0": {
+        "pooled": {
+         "base_mae": 1.2709136503025316,
+         "ci_high": -0.0030739934152285626,
+         "ci_low": -0.01437978870049168,
+         "confidence": 0.9975,
+         "delta_mae": -0.009050127274451869,
+         "n": 13797,
+         "new_mae": 1.2618635230280797,
+         "relative_improvement": 0.007120961579331179,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       },
+       "MFP vs M0": {
+        "pooled": {
+         "base_mae": 1.2709136503025316,
+         "ci_high": -0.0033676269047945074,
+         "ci_low": -0.015871815302571545,
+         "confidence": 0.9975,
+         "delta_mae": -0.009588020011517262,
+         "n": 13797,
+         "new_mae": 1.2613256302910143,
+         "relative_improvement": 0.007544194689572265,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       }
+      },
+      "descriptive_MV_vs_M0": {
+       "pooled": {
+        "base_mae": 1.2709136503025316,
+        "ci_high": -0.0016826949715867475,
+        "ci_low": -0.011415915750018216,
+        "confidence": 0.9975,
+        "delta_mae": -0.006702504061042225,
+        "n": 13797,
+        "new_mae": 1.2642111462414893,
+        "relative_improvement": 0.005273768252820908,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      },
+      "n_rows": 18388,
+      "per_test_year": {
+       "2023": {
+        "M0": 1.2752620941733823,
+        "MEO": 1.2455549102955508,
+        "MEOFP": 1.2667482358759385,
+        "MEOP": 1.2690400244479738,
+        "MFP": 1.2669804534948264,
+        "MV": 1.2668916250837046,
+        "n": 4605
+       },
+       "2024": {
+        "M0": 1.304713252721207,
+        "MEO": 1.268851596706915,
+        "MEOFP": 1.2967455823045935,
+        "MEOP": 1.2979058556629233,
+        "MFP": 1.296849040961071,
+        "MV": 1.2986525069307284,
+        "n": 4629
+       },
+       "2025": {
+        "M0": 1.2322366957504134,
+        "MEO": 1.1978232995738822,
+        "MEOFP": 1.2177263582968831,
+        "MEOP": 1.2180573107104582,
+        "MFP": 1.2195815301715216,
+        "MV": 1.2265664686831095,
+        "n": 4563
+       }
+      }
+     },
+     "rush_tds": {
+      "comparisons": {
+       "MEO vs M0": {
+        "pooled": {
+         "base_mae": 0.3559905657911252,
+         "ci_high": 0.0009366687941518207,
+         "ci_low": -0.01498023866576693,
+         "confidence": 0.9975,
+         "delta_mae": -0.006519572083662328,
+         "n": 3691,
+         "new_mae": 0.3494709937074629,
+         "relative_improvement": 0.01831389005822036,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       },
+       "MEOFP vs MEOP": {
+        "pooled": {
+         "base_mae": 0.3498788954531738,
+         "ci_high": 0.00247377957570341,
+         "ci_low": -0.012660074995672736,
+         "confidence": 0.9975,
+         "delta_mae": -0.004935368146824326,
+         "n": 3691,
+         "new_mae": 0.3449435273063495,
+         "relative_improvement": 0.014105932684027388,
+         "years_better": 2,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       },
+       "MEOP vs M0": {
+        "pooled": {
+         "base_mae": 0.3559905657911252,
+         "ci_high": 0.0007103208374928404,
+         "ci_low": -0.013051914243077441,
+         "confidence": 0.9975,
+         "delta_mae": -0.006111670337951403,
+         "n": 3691,
+         "new_mae": 0.3498788954531738,
+         "relative_improvement": 0.01716806827273445,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       },
+       "MFP vs M0": {
+        "pooled": {
+         "base_mae": 0.3559905657911252,
+         "ci_high": -0.0004273449359598373,
+         "ci_low": -0.02294528886446934,
+         "confidence": 0.9975,
+         "delta_mae": -0.011059647980862397,
+         "n": 3691,
+         "new_mae": 0.3449309178102628,
+         "relative_improvement": 0.031067250212893457,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "PROMISING"
+       }
+      },
+      "descriptive_MV_vs_M0": {
+       "pooled": {
+        "base_mae": 0.3559905657911252,
+        "ci_high": 0.00018376918767740272,
+        "ci_low": -0.026406400851138392,
+        "confidence": 0.9975,
+        "delta_mae": -0.012471558208267342,
+        "n": 3691,
+        "new_mae": 0.34351900758285786,
+        "relative_improvement": 0.03503339528268548,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "INCONCLUSIVE"
+      },
+      "n_rows": 4933,
+      "per_test_year": {
+       "2023": {
+        "M0": 0.33880647346619674,
+        "MEO": 0.3328999056231082,
+        "MEOFP": 0.3232366500799833,
+        "MEOP": 0.3311340504364472,
+        "MFP": 0.32325585552983305,
+        "MV": 0.33447355496066994,
+        "n": 1264
+       },
+       "2024": {
+        "M0": 0.3698308469793357,
+        "MEO": 0.3623262784431379,
+        "MEOFP": 0.36204428671844013,
+        "MEOP": 0.3615442401554816,
+        "MFP": 0.3618807409660407,
+        "MV": 0.3552200064235876,
+        "n": 1226
+       },
+       "2025": {
+        "M0": 0.359947691488014,
+        "MEO": 0.35378845936332176,
+        "MEOFP": 0.35033233810976644,
+        "MEOP": 0.35769885506692317,
+        "MFP": 0.35044032291724,
+        "MV": 0.34109438438195105,
+        "n": 1201
+       }
+      }
+     },
+     "rush_yds": {
+      "comparisons": {
+       "MEO vs M0": {
+        "pooled": {
+         "base_mae": 20.362160764121576,
+         "ci_high": -0.02772642993571948,
+         "ci_low": -0.7378656844125602,
+         "confidence": 0.9975,
+         "delta_mae": -0.35477863305731816,
+         "n": 3691,
+         "new_mae": 20.007382131064258,
+         "relative_improvement": 0.017423427560912065,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "PROMISING"
+       },
+       "MEOFP vs MEOP": {
+        "pooled": {
+         "base_mae": 20.20149091231906,
+         "ci_high": 0.09817156566490803,
+         "ci_low": -0.0856521721843007,
+         "confidence": 0.9975,
+         "delta_mae": 0.0033263612085789873,
+         "n": 3691,
+         "new_mae": 20.204817273527638,
+         "relative_improvement": -0.0001646591938692278,
+         "years_better": 1,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       },
+       "MEOP vs M0": {
+        "pooled": {
+         "base_mae": 20.362160764121576,
+         "ci_high": 0.09325625890404138,
+         "ci_low": -0.4281818364381977,
+         "confidence": 0.9975,
+         "delta_mae": -0.16066985180251692,
+         "n": 3691,
+         "new_mae": 20.20149091231906,
+         "relative_improvement": 0.007890609138378846,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       },
+       "MFP vs M0": {
+        "pooled": {
+         "base_mae": 20.362160764121576,
+         "ci_high": -0.018960030012618544,
+         "ci_low": -0.4233011622138677,
+         "confidence": 0.9975,
+         "delta_mae": -0.21608548553034979,
+         "n": 3691,
+         "new_mae": 20.146075278591226,
+         "relative_improvement": 0.010612109787046548,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "PROMISING"
+       }
+      },
+      "descriptive_MV_vs_M0": {
+       "pooled": {
+        "base_mae": 20.362160764121576,
+        "ci_high": -0.00401700898786045,
+        "ci_low": -0.4337252906672956,
+        "confidence": 0.9975,
+        "delta_mae": -0.2357346081280447,
+        "n": 3691,
+        "new_mae": 20.12642615599353,
+        "relative_improvement": 0.011577091982468408,
+        "years_better": 3,
+        "years_total": 3
+       },
+       "verdict": "PROMISING"
+      },
+      "n_rows": 4933,
+      "per_test_year": {
+       "2023": {
+        "M0": 19.411179335240977,
+        "MEO": 19.106449144108208,
+        "MEOFP": 19.26417175457673,
+        "MEOP": 19.248250871045197,
+        "MFP": 19.205264938920287,
+        "MV": 19.317232539658097,
+        "n": 1264
+       },
+       "2024": {
+        "M0": 21.416343340146764,
+        "MEO": 21.25478912640538,
+        "MEOFP": 21.362368780551858,
+        "MEOP": 21.307666355799554,
+        "MFP": 21.298867778567512,
+        "MV": 21.24531061015188,
+        "n": 1226
+       },
+       "2025": {
+        "M0": 20.286900720739556,
+        "MEO": 19.682201714098575,
+        "MEOFP": 20.013158479474562,
+        "MEOP": 20.075532809457343,
+        "MFP": 19.959448021616325,
+        "MV": 19.835891926393074,
+        "n": 1201
+       }
+      }
+     }
+    },
+    "seconds": 12.5
+   },
    "spec": {
     "bootstrap": "cluster by player, 2000 draws, seed 20261008",
     "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
@@ -2272,11 +3985,298 @@
     "title": "Fantasy Points XFP vs ffopportunity expected points vs raw volume, each against the Champion"
    },
    "spec_sha256": "61d3f727f7ae9464c583524e4a55c9d29c657ea3e9195c7d1bdd7aa2a7f3fbdc",
-   "status": "REGISTERED"
+   "status": "PROMISING"
   },
   "E9": {
+   "completed_at": "2026-10-08T10:47:35Z",
    "registered_at": "2026-10-08T10:47:03Z",
-   "result": null,
+   "result": {
+    "outcomes": {
+     "carries": {
+      "comparisons": {
+       "R1 vs MV": {
+        "pooled": {
+         "base_mae": 3.8757066044450186,
+         "ci_high": 0.013242238475857145,
+         "ci_low": -0.017670880998709487,
+         "confidence": 0.9958333333333333,
+         "delta_mae": -0.003003392480223077,
+         "n": 2151,
+         "new_mae": 3.8727032119647955,
+         "relative_improvement": 0.0007749277194456642,
+         "years_better": 3,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       },
+       "R2 vs MV": {
+        "pooled": {
+         "base_mae": 3.8757066044450186,
+         "ci_high": 0.08604588340571291,
+         "ci_low": -0.017163607305512123,
+         "confidence": 0.9958333333333333,
+         "delta_mae": 0.03402975823797272,
+         "n": 2151,
+         "new_mae": 3.9097363626829913,
+         "relative_improvement": -0.00878027201515828,
+         "years_better": 0,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       },
+       "R3 vs MV": {
+        "pooled": {
+         "base_mae": 3.8757066044450186,
+         "ci_high": 0.0306757171688099,
+         "ci_low": -0.0769951174590267,
+         "confidence": 0.9958333333333333,
+         "delta_mae": -0.01983488692712676,
+         "n": 2151,
+         "new_mae": 3.855871717517892,
+         "relative_improvement": 0.005117747278490657,
+         "years_better": 2,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       },
+       "R4 vs MV": {
+        "pooled": {
+         "base_mae": 3.8757066044450186,
+         "ci_high": 0.033151376413063476,
+         "ci_low": -0.0310116819827607,
+         "confidence": 0.9958333333333333,
+         "delta_mae": 0.0017820951289744258,
+         "n": 2151,
+         "new_mae": 3.877488699573993,
+         "relative_improvement": -0.00045981167071071745,
+         "years_better": 1,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       }
+      },
+      "n_rows": 2899,
+      "per_test_year": {
+       "2023": {
+        "M0": 3.9764616368918473,
+        "MV": 3.9999059495059717,
+        "R1": 3.99417186749106,
+        "R2": 4.070485817326566,
+        "R3": 3.953751265413615,
+        "R4": 3.965553025752412,
+        "n": 730
+       },
+       "2024": {
+        "M0": 3.9847352173551847,
+        "MV": 3.9526345370615803,
+        "R1": 3.9497331626087133,
+        "R2": 3.9597060222685254,
+        "R3": 3.9387036872706163,
+        "R4": 3.979572869546585,
+        "n": 748
+       },
+       "2025": {
+        "M0": 3.6842911293683342,
+        "MV": 3.6554872649328582,
+        "R1": 3.655332451762977,
+        "R2": 3.679833825892814,
+        "R3": 3.6576393500009283,
+        "R4": 3.668505167256395,
+        "n": 673
+       }
+      }
+     },
+     "rush_tds": {
+      "comparisons": {
+       "R1 vs MV": {
+        "pooled": {
+         "base_mae": 0.4052787893231255,
+         "ci_high": 0.0034200392864799463,
+         "ci_low": -0.002613607253026067,
+         "confidence": 0.9958333333333333,
+         "delta_mae": 0.0005347736590262109,
+         "n": 2151,
+         "new_mae": 0.4058135629821517,
+         "relative_improvement": -0.001319520471128925,
+         "years_better": 1,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       },
+       "R2 vs MV": {
+        "pooled": {
+         "base_mae": 0.4052787893231255,
+         "ci_high": 0.008795370438452339,
+         "ci_low": -0.00041304079916346906,
+         "confidence": 0.9958333333333333,
+         "delta_mae": 0.0036752018581045487,
+         "n": 2151,
+         "new_mae": 0.40895399118123005,
+         "relative_improvement": -0.009068330134529541,
+         "years_better": 1,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       },
+       "R3 vs MV": {
+        "pooled": {
+         "base_mae": 0.4052787893231255,
+         "ci_high": 0.006350840420632208,
+         "ci_low": -0.0014887283687799813,
+         "confidence": 0.9958333333333333,
+         "delta_mae": 0.002460590357696524,
+         "n": 2151,
+         "new_mae": 0.407739379680822,
+         "relative_improvement": -0.00607135241843292,
+         "years_better": 0,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       },
+       "R4 vs MV": {
+        "pooled": {
+         "base_mae": 0.4052787893231255,
+         "ci_high": 0.0060168903963704065,
+         "ci_low": -0.0020848597259208175,
+         "confidence": 0.9958333333333333,
+         "delta_mae": 0.002213547442411312,
+         "n": 2151,
+         "new_mae": 0.4074923367655368,
+         "relative_improvement": -0.005461789515578297,
+         "years_better": 0,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       }
+      },
+      "n_rows": 2899,
+      "per_test_year": {
+       "2023": {
+        "M0": 0.4029407704180399,
+        "MV": 0.4063595562793245,
+        "R1": 0.40428457825216224,
+        "R2": 0.40405628226429935,
+        "R3": 0.4084235746047552,
+        "R4": 0.4067519838848354,
+        "n": 730
+       },
+       "2024": {
+        "M0": 0.41947363290175416,
+        "MV": 0.40560900176661563,
+        "R1": 0.4072002804137244,
+        "R2": 0.41128786358585334,
+        "R3": 0.408135621163447,
+        "R4": 0.41108617957454296,
+        "n": 748
+       },
+       "2025": {
+        "M0": 0.41621537003657083,
+        "MV": 0.40373947463403803,
+        "R1": 0.40593079064051124,
+        "R2": 0.41167255128628394,
+        "R3": 0.4065568374468328,
+        "R4": 0.4043010487741183,
+        "n": 673
+       }
+      }
+     },
+     "rush_yds": {
+      "comparisons": {
+       "R1 vs MV": {
+        "pooled": {
+         "base_mae": 21.94405795797224,
+         "ci_high": 0.11737582737427747,
+         "ci_low": -0.024048986783727303,
+         "confidence": 0.9958333333333333,
+         "delta_mae": 0.04452793642188979,
+         "n": 2151,
+         "new_mae": 21.98858589439413,
+         "relative_improvement": -0.0020291568909984975,
+         "years_better": 0,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       },
+       "R2 vs MV": {
+        "pooled": {
+         "base_mae": 21.94405795797224,
+         "ci_high": 0.5956544698918756,
+         "ci_low": -0.12320697692862248,
+         "confidence": 0.9958333333333333,
+         "delta_mae": 0.23042603680892526,
+         "n": 2151,
+         "new_mae": 22.174483994781166,
+         "relative_improvement": -0.010500611931040396,
+         "years_better": 0,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       },
+       "R3 vs MV": {
+        "pooled": {
+         "base_mae": 21.94405795797224,
+         "ci_high": 0.22048626502388685,
+         "ci_low": -0.3197391022383547,
+         "confidence": 0.9958333333333333,
+         "delta_mae": -0.05455799965613295,
+         "n": 2151,
+         "new_mae": 21.889499958316108,
+         "relative_improvement": 0.0024862311137084886,
+         "years_better": 2,
+         "years_total": 3
+        },
+        "verdict": "INCONCLUSIVE"
+       },
+       "R4 vs MV": {
+        "pooled": {
+         "base_mae": 21.94405795797224,
+         "ci_high": 0.2079229296240314,
+         "ci_low": -0.15167550506988642,
+         "confidence": 0.9958333333333333,
+         "delta_mae": 0.03137633379975213,
+         "n": 2151,
+         "new_mae": 21.975434291771993,
+         "relative_improvement": -0.001429832798466209,
+         "years_better": 1,
+         "years_total": 3
+        },
+        "verdict": "REJECTED"
+       }
+      },
+      "n_rows": 2899,
+      "per_test_year": {
+       "2023": {
+        "M0": 21.052601432370363,
+        "MV": 21.02692846709543,
+        "R1": 21.101264666364855,
+        "R2": 21.604324834497085,
+        "R3": 20.83265169246875,
+        "R4": 20.82656970430678,
+        "n": 730
+       },
+       "2024": {
+        "M0": 23.081734130561852,
+        "MV": 22.812776779012257,
+        "R1": 22.867798468894257,
+        "R2": 22.836607863076726,
+        "R3": 22.925016826080427,
+        "R4": 23.063739060346325,
+        "n": 748
+       },
+       "2025": {
+        "M0": 22.643172126823785,
+        "MV": 21.973334109832784,
+        "R1": 21.973865969780878,
+        "R2": 22.057021191693945,
+        "R3": 21.884942182656168,
+        "R4": 22.012015542821036,
+        "n": 673
+       }
+      }
+     }
+    },
+    "seconds": 2.7
+   },
    "spec": {
     "bootstrap": "cluster by player, 2000 draws, seed 20261008",
     "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
@@ -2341,7 +4341,7 @@
     "title": "Rushing / bell-cow: role share, advanced rushing efficiency, role stability and expected opportunity over Champion plus raw volume"
    },
    "spec_sha256": "15cfe2dc7be249cbb958fa66255b372d5a56f63204cfcb6dc205041a447ca689",
-   "status": "REGISTERED"
+   "status": "INCONCLUSIVE"
   }
  },
  "note": "Aggregate research results only (no licensed player-level values). Negative findings are kept on purpose.",

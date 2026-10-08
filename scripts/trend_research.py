@@ -16,10 +16,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fp_ingest.store import Manifest, find_root  # noqa: E402
-from trend_research import experiments, experiments2, ledger  # noqa: E402
+from trend_research import experiments, experiments2, experiments3, ledger  # noqa: E402
 
-SPECS = {**experiments.SPECS, **experiments2.SPECS}
-RUNNERS = {**experiments.RUNNERS, **experiments2.RUNNERS}
+SPECS = {**experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS}
+RUNNERS = {**experiments.RUNNERS, **experiments2.RUNNERS, **experiments3.RUNNERS}
 
 REPO = Path(__file__).resolve().parents[1]
 
