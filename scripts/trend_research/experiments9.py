@@ -45,12 +45,9 @@ def partial_projection(frame, c, version):
             mean = _blend(frame, market, c[market])
         else:
             mean = frame['champ_' + market].to_numpy(float)
-        # a position that does not play the market contributes zero (e.g. WR passing)
-        positions_for = MARKET_RULES[market][0]
-        applies = frame.position.isin(positions_for).to_numpy()
-        part = np.where(applies, mean, 0.0)
-        ok &= ~(applies & np.isnan(mean))
-        total += coef * np.nan_to_num(part)
+        # every component counts for every position that has a mean (a quarterback's rushing is real DraftKings scoring); a missing mean drops the row for both versions
+        ok &= ~np.isnan(mean)
+        total += coef * np.nan_to_num(mean)
     return total, ok
 
 

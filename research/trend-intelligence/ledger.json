@@ -13228,8 +13228,153 @@
    "status": "NEEDS PROSPECTIVE DATA"
   },
   "P3-7": {
+   "completed_at": "2026-10-08T20:50:43Z",
    "registered_at": "2026-10-08T20:50:21Z",
-   "result": null,
+   "result": {
+    "positions": {
+     "QB": {
+      "holdout": {
+       "bias_v1": 0.397926630738876,
+       "bias_v2": 0.39273921349625457,
+       "ci": [
+        0.004197824322965999,
+        0.053414164955043794
+       ],
+       "mae_v1": 6.219250777159349,
+       "mae_v2": 6.043831846849296,
+       "n": 490,
+       "relative_gain": 0.02820579786785442,
+       "rmse_v1": 7.8534358357958105,
+       "rmse_v2": 7.629541005178606,
+       "weeks_1_6_relative": 0.06725760474148434,
+       "weeks_7_plus_relative": 0.008064723224216142
+      },
+      "validation": {
+       "bias_v1": -0.2341643881795141,
+       "bias_v2": -0.08323424488287945,
+       "ci": [
+        -0.0049481720652073645,
+        0.0407352535716627
+       ],
+       "mae_v1": 6.0785716553287985,
+       "mae_v2": 5.965261495223575,
+       "n": 476,
+       "relative_gain": 0.01864091871087669,
+       "rmse_v1": 7.678035194557314,
+       "rmse_v2": 7.5182620740900035,
+       "weeks_1_6_relative": 0.04444036415861308,
+       "weeks_7_plus_relative": 0.006193564427243947
+      },
+      "verdict": "PROMISING"
+     },
+     "RB": {
+      "holdout": {
+       "bias_v1": -0.15193453204872734,
+       "bias_v2": -0.06835331486817535,
+       "ci": [
+        -0.010699502624626466,
+        0.006576428444773897
+       ],
+       "mae_v1": 4.357122802464967,
+       "mae_v2": 4.364701004583599,
+       "n": 1423,
+       "relative_gain": -0.0017392675079860366,
+       "rmse_v1": 6.319616423781079,
+       "rmse_v2": 6.285522211812028,
+       "weeks_1_6_relative": 0.0011774912728889086,
+       "weeks_7_plus_relative": -0.002939407012158224
+      },
+      "validation": {
+       "bias_v1": -0.08011457013343926,
+       "bias_v2": -0.0837142865802659,
+       "ci": [
+        -0.005013646663595012,
+        0.011328241926366644
+       ],
+       "mae_v1": 4.477954594200461,
+       "mae_v2": 4.462422335034139,
+       "n": 1415,
+       "relative_gain": 0.003468605775153811,
+       "rmse_v1": 6.1964448607872304,
+       "rmse_v2": 6.167196466236705,
+       "weeks_1_6_relative": 0.01826686169397629,
+       "weeks_7_plus_relative": -0.0037766882082996833
+      },
+      "verdict": "REJECTED"
+     },
+     "TE": {
+      "holdout": {
+       "bias_v1": -0.5235340749910181,
+       "bias_v2": -0.47727335055418174,
+       "ci": [
+        -0.012072119301994253,
+        0.009124378692590293
+       ],
+       "mae_v1": 3.495169333314362,
+       "mae_v2": 3.4992890576523163,
+       "n": 1217,
+       "relative_gain": -0.0011786909145393343,
+       "rmse_v1": 5.141859511052268,
+       "rmse_v2": 5.124582246902894,
+       "weeks_1_6_relative": -0.010652145254127499,
+       "weeks_7_plus_relative": 0.0030914932811224594
+      },
+      "validation": {
+       "bias_v1": -0.8097784749805368,
+       "bias_v2": -0.6885579390108201,
+       "ci": [
+        -0.003652423396322729,
+        0.019402035595239307
+       ],
+       "mae_v1": 3.507853657091286,
+       "mae_v2": 3.4789751089161345,
+       "n": 1164,
+       "relative_gain": 0.008232540749461524,
+       "rmse_v1": 5.092931637227211,
+       "rmse_v2": 5.0130018120365065,
+       "weeks_1_6_relative": 0.02673732763046599,
+       "weeks_7_plus_relative": -6.769278332763307e-05
+      },
+      "verdict": "REJECTED"
+     },
+     "WR": {
+      "holdout": {
+       "bias_v1": 0.05149887078330492,
+       "bias_v2": 0.12217880438844513,
+       "ci": [
+        0.003942613121520424,
+        0.02390989714159658
+       ],
+       "mae_v1": 4.325794187092686,
+       "mae_v2": 4.266078625097381,
+       "n": 2332,
+       "relative_gain": 0.01380453147158144,
+       "rmse_v1": 6.092522073154605,
+       "rmse_v2": 5.9797030607339,
+       "weeks_1_6_relative": 0.036351487478841205,
+       "weeks_7_plus_relative": 0.0026996068289100172
+      },
+      "validation": {
+       "bias_v1": -0.46066053836978677,
+       "bias_v2": -0.396251339541062,
+       "ci": [
+        -0.00340667607753737,
+        0.0139133709845061
+       ],
+       "mae_v1": 4.535692993775653,
+       "mae_v2": 4.513675963580626,
+       "n": 2249,
+       "relative_gain": 0.004854171176320977,
+       "rmse_v1": 6.533363142082481,
+       "rmse_v2": 6.449705961636611,
+       "weeks_1_6_relative": 0.012008918573910954,
+       "weeks_7_plus_relative": 0.0012969095655134266
+      },
+      "verdict": "INCONCLUSIVE"
+     }
+    },
+    "seconds": 0.7
+   },
    "spec": {
     "bootstrap": "cluster by player, 2000 draws, seed 20261008",
     "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
@@ -13267,6 +13412,123 @@
     "title": "DraftKings projection: Champion v2 means vs the 80/20 means, modelled-component DK points of the next game"
    },
    "spec_sha256": "dd9352e9128326760fcf54d009120f3d718366e390602c8b235796f6d7c86cce",
+   "status": "PROMISING"
+  },
+  "P3-8": {
+   "registered_at": "2026-10-08T20:52:37Z",
+   "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "otherwise",
+     "PROMISING": "pinball improves >= 0.5% in BOTH 2024 and 2025 with the 2025 interval excluding 0",
+     "REJECTED": "the 2025 interval lies below 0.5%"
+    },
+    "draws": 400,
+    "football_rationale": "A receiver's catches, yards and touchdowns rise together; independent components understate both ceilings and floors.",
+    "hypothesis": "A Gaussian copula with measured within-player correlations (receptions-yards-TDs, rushing yards-TDs) and the v2 marginals give better floor / median / ceiling quantiles of next-game core DraftKings points than independent components.",
+    "id": "P3-8",
+    "leakage": "marginals from games before the target game; copula correlations from 2021-2023 only",
+    "limitations": "no salaries or contest data: calibration only, not lineup value",
+    "markets": [
+     "DFS projection"
+    ],
+    "metric": "mean pinball loss over quantiles .05/.1/.25/.5/.75/.9/.95; coverage of the central 80% interval; share of outcomes above the predicted 90th percentile",
+    "models": {
+     "COP-v1": "within-player copula, v1 chain",
+     "COP-v2": "within-player copula, v2 chain",
+     "INDEP-v1": "independent components, 80/20 chain",
+     "INDEP-v2": "independent components, v2 chain"
+    },
+    "multiple_testing": "Bonferroni over 4 positions x 3 comparisons = 12 (99.58% intervals)",
+    "population": "reconstructed Champion rows 2021-2025, QB (starts) / RB / WR / TE; outcome = core DK points (7 modelled components plus 300/100/100 yardage bonuses)",
+    "primary_comparisons": [
+     "COP-v2 vs INDEP-v2 (value of dependence)",
+     "INDEP-v2 vs INDEP-v1 (value of the v2 chain)",
+     "COP-v2 vs INDEP-v1 (both)"
+    ],
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_pinball": 0.005
+    },
+    "sources": [
+     "nflverse weekly stats"
+    ],
+    "splits": {
+     "development": [
+      2021,
+      2022,
+      2023
+     ],
+     "holdout": [
+      2025
+     ],
+     "validation": [
+      2024
+     ]
+    },
+    "title": "DraftKings player distributions: independent components vs within-player copula, Champion v1 vs v2 chain"
+   },
+   "spec_sha256": "3a6f7a518e1c9c663c3a04384d23c210c46445b29ceedc5a3ed7ca4190798e65",
+   "status": "REGISTERED"
+  },
+  "P3-9": {
+   "registered_at": "2026-10-08T20:52:37Z",
+   "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "otherwise",
+     "PROMISING": "pinball improves >= 0.5% in BOTH 2024 and 2025 with the 2025 interval excluding 0",
+     "REJECTED": "the 2025 interval lies below 0.5%"
+    },
+    "football_rationale": "A quarterback's passing outcomes are the receivers' outcomes; a shootout lifts both offences.",
+    "hypothesis": "Measured role-pair correlations (QB with WR1/WR2/TE1, opposing offences) make the predicted distribution of a QB-stack total better calibrated than treating players as independent.",
+    "id": "P3-9",
+    "leakage": "as P3-8",
+    "limitations": "defence/special teams are not modelled; no ownership or salary data",
+    "markets": [
+     "DFS stacks"
+    ],
+    "metric": "pinball loss of the stack-total quantiles; coverage of the central 80% interval; PIT standard deviation (1 = calibrated spread)",
+    "models": {
+     "COPULA": "Gaussian copula with the role-pair correlations measured on 2021-2023",
+     "INDEP": "independent players with their own predicted distributions"
+    },
+    "multiple_testing": "Bonferroni over 5 stacks (99% intervals)",
+    "population": "team-games 2021-2025 with a starting QB1, WR1, WR2 and TE1 (roles by pre-game champion targets / carries)",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_pinball": 0.005
+    },
+    "sources": [
+     "nflverse weekly stats"
+    ],
+    "splits": {
+     "development": [
+      2021,
+      2022,
+      2023
+     ],
+     "holdout": [
+      2025
+     ],
+     "validation": [
+      2024
+     ]
+    },
+    "stacks": [
+     "QB+WR1",
+     "QB+WR1+TE1",
+     "QB+WR1+WR2",
+     "QB+WR1+opponent WR1",
+     "QB+RB1"
+    ],
+    "title": "DFS correlations by role pair and stack-total calibration"
+   },
+   "spec_sha256": "b6bc0bbb83b20cec05cc2c91d927ac29958c6ac1646f903e57792fe66993c451",
    "status": "REGISTERED"
   }
  },
