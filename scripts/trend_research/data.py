@@ -15,7 +15,7 @@ import pandas as pd
 
 from fp_ingest.store import Manifest, current_entry
 
-WEEKLY_URL = 'https://github.com/nflverse/nflverse-data/releases/download/player_stats/stats_player_week_{season}.csv'
+WEEKLY_URL = 'https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.csv'
 SKILL = ('WR', 'TE', 'RB')
 
 

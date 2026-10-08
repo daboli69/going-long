@@ -35,6 +35,16 @@ SPECS = {
            'splits': {'pairs': ['2021->2022', '2022->2023', '2023->2024', '2024->2025'], 'test': ['2022->2023', '2023->2024', '2024->2025'], 'rolling_origin': True},
            'multiple_testing': 'Bonferroni over 3 outcomes (98.33% CI)', 'sources': ['Fantasy Points receiving_advanced, receiving_basic 2021-2025 (retrospective, regular season)'],
            'leakage': 'features from season N-1 only; season N file used as outcome only', 'markets': ['receptions', 'receiving yards']},
+    'E6': {**COMMON, 'id': 'E6', 'exploratory': True,
+           'title': 'EXPLORATORY follow-up to E1: three compact role features instead of fifteen',
+           'hypothesis': 'E1 failed in the first test seasons and recovered in the last, the pattern of an over-parameterised model trained on ~100 rows. A compact set '
+                         '(targets per route run, route participation, first-read share) may add to the production baseline without that overfit.',
+           'football_rationale': 'Same as E1; fewer degrees of freedom.', 'unit': 'as E1', 'features_role': ['Receiving.TPRR', 'Receiving.RTE %', 'Advanced.1READ %'],
+           'baselines': {'B1': 'as E1'}, 'challenger': 'C6 = B1 + 3 compact role features', 'primary_comparison': 'C6 vs B1', 'outcomes': ['targets/g', 'receptions/g', 'receiving yards/g'],
+           'splits': {'test': ['2022->2023', '2023->2024', '2024->2025'], 'rolling_origin': True}, 'multiple_testing': 'Bonferroni over 3 outcomes (98.33% CI)',
+           'sources': ['as E1'], 'leakage': 'as E1',
+           'markets': ['receptions', 'receiving yards'],
+           'limitations': 'POST-HOC: designed after seeing E1 on the same seasons. Exploratory only: a PROMISING result is capped at NEEDS PROSPECTIVE DATA and may not support promotion.'},
     'E2': {**COMMON, 'id': 'E2', 'title': 'Expected fantasy points / expected TDs vs actual: does opportunity predict next season better than results?',
            'hypothesis': 'XFP/G of season N-1 adds to FP/G of N-1 in predicting FP/G of N (regression toward opportunity); XTD/G adds to TD/G in predicting next-season TD/G.',
            'football_rationale': 'Results include touchdown and efficiency variance that does not persist; opportunity volume does.',
@@ -154,12 +164,12 @@ def e1_pairs(root, manifest):
     return data_by_year
 
 
-def run_e1(root, manifest):
-    spec = SPECS['E1']
+def run_e1(root, manifest, exp_id='E1'):
+    spec = SPECS[exp_id]
     pairs = e1_pairs(root, manifest)
     folds = _train_test(pairs, [2023, 2024, 2025])
     base_cols = ['b_tgt', 'b_rec', 'b_yds', 'games_prev', 'is_te']
-    role_cols = ROLE_FEATURES + ['rte_g']
+    role_cols = (ROLE_FEATURES + ['rte_g']) if exp_id == 'E1' else list(spec['features_role'])
     results, verdicts = {}, []
     for outcome, target, own in (('targets/g', 't_tgt', 'b_tgt'), ('receptions/g', 't_rec', 'b_rec'), ('receiving yards/g', 't_yds', 'b_yds')):
         frames = {}
@@ -169,6 +179,7 @@ def run_e1(root, manifest):
                 frame['B0'] = frame[own]
             frames[year] = (train, test)
         res = _compare(frames, {'B1': base_cols, 'C1': base_cols + role_cols}, target, 'player_id', 1 - 0.05 / 3, spec['rule_numbers'], 'B1', 'C1')
+        res['challenger_columns'] = role_cols
         # B0 reference (no model): prior per-game value
         b0 = {str(y): mae(te[target], te[own]) for y, (tr, te) in frames.items()}
         res['B0_mae_by_year'] = b0
@@ -327,4 +338,9 @@ def run_e5(root, manifest):
     return {'sample_sizes': {str(y): int(len(f)) for y, f in pairs.items()}, 'outcomes': {'overall pass rate': res}}, res['verdict']
 
 
-RUNNERS = {'E1': run_e1, 'E2': run_e2, 'E3': run_e3, 'E4': run_e4, 'E5': run_e5}
+def run_e6(root, manifest):
+    result, status = run_e1(root, manifest, 'E6')
+    return result, ('NEEDS PROSPECTIVE DATA' if status == 'PROMISING' else status)
+
+
+RUNNERS = {'E6': run_e6, 'E1': run_e1, 'E2': run_e2, 'E3': run_e3, 'E4': run_e4, 'E5': run_e5}
