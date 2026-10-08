@@ -67,6 +67,8 @@ def join_next_game(state, appearances):
             continue  # the next game has not happened (or has no outcome file yet)
         own_week, own_line = lines[index]
         next_week, next_line = lines[index + 1]
-        aligned = own_line.get('targets') is not None and abs((own_line.get('targets') or 0) - (record['week'].get('targets') or 0)) < 0.5
+        # the state stores targets (always) and carries (rushing table); every stat present on both sides must agree, and targets must be present
+        checks = [(own_line.get(k), record['week'].get(k)) for k in ('targets', 'carries') if own_line.get(k) is not None and record['week'].get(k) is not None]
+        aligned = record['week'].get('targets') is not None and len(checks) >= 1 and all(abs(x - y) < 0.5 for x, y in checks)
         pairs[pid] = {'state_week': own_week, 'next_week': next_week, 'aligned': bool(aligned), 'next': next_line, 'labels': [l['label'] for l in record.get('labels', [])]}
     return pairs

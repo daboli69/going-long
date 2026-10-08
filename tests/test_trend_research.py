@@ -171,6 +171,18 @@ class TrendContextAndLabelTests(unittest.TestCase):
         self.assertEqual(trend_labels.detect({'week': {'routes': 40}, 'derived': {}}), [])
 
 
+class MatchupContextTests(unittest.TestCase):
+    def test_own_and_opponent_defense_are_kept_apart(self):
+        from unittest import mock
+        from fp_ingest import trend_labels
+        doc = {'rows': [{'entity': {'team': 'AAA'}, 'context': {'opponent': 'BBB'}, 'metrics': {'Defense Stats.ADJ YBC/ATT': 1.0, 'Defense Stats.PRESS %': 10.0, 'Offense Stats.RUSH GRADE': 70}},
+                        {'entity': {'team': 'BBB'}, 'context': {'opponent': 'AAA'}, 'metrics': {'Defense Stats.ADJ YBC/ATT': 2.0, 'Defense Stats.PRESS %': 20.0, 'Offense Stats.RUSH GRADE': 60}}]}
+        with mock.patch.object(trend_labels, 'live_snapshots', lambda m, s, t: {1: {'sha256': 'x'}} if t == 'line_matchups' else {}), mock.patch.object(trend_labels, '_doc', lambda r, e: doc):
+            out, _ = trend_labels.matchup_context('root', {}, 2026, 1)
+        self.assertEqual((out['AAA']['own_defense_adj_ybc_per_att'], out['AAA']['opponent_defense_adj_ybc_per_att']), (1.0, 2.0))
+        self.assertEqual(out['BBB']['opponent_defense_pressure_pct'], 10.0)
+
+
 @unittest.skipUnless(__import__('importlib').util.find_spec('pandas'), 'pandas needed')
 class OutcomeJoinTests(unittest.TestCase):
     def weekly(self, weeks):
@@ -205,6 +217,7 @@ class OutcomeJoinTests(unittest.TestCase):
         self.assertEqual((pair['state_week'], pair['next_week'], pair['aligned']), (2, 4, True))
         self.assertEqual(pair['next']['targets'], 6.0)
         state['players']['P1']['week']['targets'] = 99
+        self.assertFalse(prospective.join_next_game({'players': {'P1': {'week': {'carries': 8}, 'games_before': {'receiving_routes_run': 1}}}}, prospective.appearances_by_player(root, 2026))['P1']['aligned'], 'targets are required')
         self.assertFalse(prospective.join_next_game(state, prospective.appearances_by_player(root, 2026))['P1']['aligned'], 'a mismatched stat line is flagged')
 
 

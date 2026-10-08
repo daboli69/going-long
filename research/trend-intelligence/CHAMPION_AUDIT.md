@@ -18,21 +18,21 @@ tracker; the production numbers are reproducible with `scripts/trend_research/ch
 ## Is current-season usage handled correctly? No.
 
 After one game, that single game carries 80% of the weight although eleven earlier games supply the minimum sample (effective sample size about 1.5). Week 1 puts all weight on the
-prior season with no shrinkage. The weighted standard deviation is deflated, probabilities are never capped or recalibrated (0.99999999937 on a 14.5-yard line was frozen), and the repository's own
-season review shows 80/20 has higher RMSE than equal weights in every market in 2026. Wave-2 experiment **E7** quantifies it on 2021-2025: replacing 80/20 with a prior-strength blend lowers
-the mean's MAE in weeks 1-6 by about 6-7% for QB passing yards/TDs and about 1.3% for receptions and receiving yards, and changes nothing for touchdowns or rushing yards. It was **not confirmed**
-by the small 2026 prospective check (E10, receptions, 105 predictions).
+prior season with no shrinkage. The weighted standard deviation is deflated, probabilities are never capped or recalibrated (the live feed showed 0.99999999937; the maximum frozen tracker value is 0.9990), and the repository's own
+(unaudited) season review reports 80/20 with higher RMSE than equal weights in 2026. Wave-2 experiment **E7** quantifies it on 2021-2025: replacing 80/20 with a prior-strength blend lowers
+the mean's MAE in weeks 1-6 by about 6-7% for QB passing yards/TDs and about 1.3% for receptions and receiving yards, and changes nothing for touchdowns or rushing yards. The exploratory E7b, using the Poisson log score, finds gains in every count market, partly an artefact of zero predicted means. The 2026 prospective check (E10, 179 receptions predictions, 11 early-season) is
+uninformative, neither confirming nor refuting.
 
 ## Real benchmarks
 
 * **Production tracker, 2026 weeks 1-4** (frozen predictions, settled): the unselected universe (`all_projection`, 2,319 decided bets, 77 games) has Brier 0.258 against 0.230 for the
-  vig-included price-implied probability, flat-stake ROI -4.4% (95% CI -10.3% to +3.6%). `best_model` (selected) predicts a 58.3% win rate and wins 49.4%: overconfident by about nine points; ROI -2.7%
-  (CI -8.2% to +2.6%). `going_picks_v2` has only 6 settled predictions. No cohort shows a demonstrated edge; none shows a demonstrated loss beyond the vig.
-* **Closing-line value cannot be measured honestly**: no closing record is flagged near-kickoff and the median observation is 3.8 days before kickoff.
+  vig-included price-implied probability, flat-stake ROI -4.4% (95% CI -10.3% to +3.6%). The gap between model and price largely reflects selection (where the model disagrees most with the price, the price tends to be right). `best_model` (EV-selected) predicts a 58.3% win rate and wins 49.4%, ROI -2.7%
+  (CI -8.2% to +2.6%); on the 71 games it shares with the other groups its ROI is -6.4%. `going_picks_v2` has only 6 settled predictions. No cohort shows a demonstrated edge; none shows a demonstrated loss beyond the vig.
+* **Closing-line value cannot be measured honestly**: no closing record is flagged near-kickoff and the median closing gap is about 3.6 days before kickoff.
 * **Reconstructed Champion, 2021-2025** (point-in-time): mean absolute error by market and season in `champion_benchmark.json` (for example receptions about 1.24, receiving yards about 15.7, passing yards about 62.5).
 * **Game model vs the closing market** (1,359 games 2021-2025): margin RMSE 13.54 vs 12.63 for the market line; total RMSE 13.68 vs 13.08. The team-score model is clearly weaker than the market.
 * Reconstruction fidelity: the rebuilt mean equals the frozen `projection_mean` to 1e-6 for 91% of receptions and receiving-yards records (and every frozen receptions probability equals Poisson of that mean);
-  injury/role adjustments and QB start selection explain the rest.
+  the mismatches are injury/availability multipliers and, for QBs, the 730-day dormancy rule for verified starts.
 
 ## Weaknesses in the recommendation architecture (verified)
 

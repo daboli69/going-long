@@ -1555,7 +1555,7 @@ class RealInboxTests(unittest.TestCase):
             self.assertNotIn('error', info, path.name)
             self.assertEqual(info['schema_status'], 'known', path.name)
             self.assertEqual(len(info['seasons']), 1, path.name)
-            self.assertIn(info['seasons'][0], ('2025', '2026'), path.name)
+            self.assertIn(info['seasons'][0], ('2021', '2022', '2023', '2024', '2025', '2026'), path.name)
 
 
 if __name__ == '__main__':

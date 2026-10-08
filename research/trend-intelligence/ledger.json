@@ -395,7 +395,7 @@
    "status": "REJECTED"
   },
   "E10": {
-   "completed_at": "2026-10-08T10:49:17Z",
+   "completed_at": "2026-10-08T11:14:00Z",
    "registered_at": "2026-10-08T10:49:11Z",
    "result": {
     "c_final": {
@@ -404,29 +404,43 @@
     },
     "markets": {
      "pass_tds": {
-      "n": 11,
-      "note": "too few matching settled predictions",
-      "verdict": "INCONCLUSIVE"
+      "brier_champion": 0.2868014965204531,
+      "brier_w3": 0.26120331222648013,
+      "c": 4,
+      "delta_brier_ci95": [
+       -0.06157724344911403,
+       0.007414014228713367
+      ],
+      "games": 8,
+      "mean_champion_prob": 0.5698601469815217,
+      "mean_w3_prob": 0.5720780599232914,
+      "n": 23,
+      "n_with_k_le_2": 3,
+      "relative_improvement": 0.08925401228562788,
+      "share_with_k_le_3": 1.0,
+      "verdict": "DESCRIPTIVE",
+      "win_rate": 0.5217391304347826
      },
      "receptions": {
-      "brier_champion": 0.270735485277905,
-      "brier_w3": 0.2725833702703732,
+      "brier_champion": 0.2480367785225145,
+      "brier_w3": 0.24792844785691132,
       "c": 1,
       "delta_brier_ci95": [
-       -0.0015394134147940146,
-       0.005942259156921964
+       -0.00261659675961964,
+       0.0037204027679396236
       ],
-      "games": 13,
-      "mean_champion_prob": 0.6175067451321012,
-      "mean_w3_prob": 0.6117520060137048,
-      "n": 105,
-      "relative_improvement": -0.006825425897057494,
+      "games": 16,
+      "mean_champion_prob": 0.5953705689736385,
+      "mean_w3_prob": 0.5907598168380284,
+      "n": 179,
+      "n_with_k_le_2": 11,
+      "relative_improvement": 0.0004367524294117545,
       "share_with_k_le_3": 1.0,
-      "verdict": "REJECTED",
-      "win_rate": 0.5333333333333333
+      "verdict": "INCONCLUSIVE",
+      "win_rate": 0.553072625698324
      }
     },
-    "seconds": 4.0
+    "seconds": 4.1
    },
    "spec": {
     "blend_parameter": "c per market = argmin MAE of W3 over ALL 2021-2025 target rows (the E7 procedure), fixed before looking at any 2026 outcome",
@@ -473,7 +487,7 @@
     "title": "Prospective check (2026): would the E7 blend have improved the probabilities the production system actually froze?"
    },
    "spec_sha256": "316b07fc256cb7f357d59ba99a9b9c3147c393c0e80ecf3f71907ef6e41ff642",
-   "status": "REJECTED"
+   "status": "INCONCLUSIVE"
   },
   "E2": {
    "completed_at": "2026-10-08T01:47:11Z",
@@ -3403,8 +3417,218 @@
    "status": "PROMISING"
   },
   "E7b": {
+   "completed_at": "2026-10-08T11:11:06Z",
    "registered_at": "2026-10-08T11:11:02Z",
-   "result": null,
+   "result": {
+    "markets": {
+     "atd": {
+      "adjusted_ci": [
+       0.03255124710954854,
+       0.056041891103978975
+      ],
+      "chosen_c": {
+       "2023": 4,
+       "2024": 4,
+       "2025": 4
+      },
+      "mean_log_score_gain_per_row": 0.04432835098468848,
+      "n": 5171,
+      "per_test_year": {
+       "2023": {
+        "gain": 0.04348371652715112,
+        "log_score_champion": -0.5592817767470376,
+        "log_score_w3": -0.5157980602198865,
+        "mse_champion": 0.2530534505561331,
+        "mse_w3": 0.22463798744166893,
+        "n": 1700
+       },
+       "2024": {
+        "gain": 0.04184077265302258,
+        "log_score_champion": -0.5694823786221914,
+        "log_score_w3": -0.5276416059691688,
+        "mse_champion": 0.24448045082385234,
+        "mse_w3": 0.21948127134639797,
+        "n": 1738
+       },
+       "2025": {
+        "gain": 0.04765165722718636,
+        "log_score_champion": -0.5942111163367028,
+        "log_score_w3": -0.5465594591095164,
+        "mse_champion": 0.24361271326974898,
+        "mse_w3": 0.21923361944955408,
+        "n": 1733
+       }
+      },
+      "verdict": "PROMISING",
+      "years_better": 3
+     },
+     "pass_tds": {
+      "adjusted_ci": [
+       0.054740889175632704,
+       0.12901944257540604
+      ],
+      "chosen_c": {
+       "2023": 4,
+       "2024": 4,
+       "2025": 4
+      },
+      "mean_log_score_gain_per_row": 0.09153022620425831,
+      "n": 491,
+      "per_test_year": {
+       "2023": {
+        "gain": 0.07237540695873491,
+        "log_score_champion": -1.4670213110896102,
+        "log_score_w3": -1.3946459041308754,
+        "mse_champion": 1.1829580127704586,
+        "mse_w3": 1.053959663105177,
+        "n": 158
+       },
+       "2024": {
+        "gain": 0.063607316115762,
+        "log_score_champion": -1.4943904001988215,
+        "log_score_w3": -1.4307830840830595,
+        "mse_champion": 1.3084547261497284,
+        "mse_w3": 1.176356545317773,
+        "n": 163
+       },
+       "2025": {
+        "gain": 0.13610608376436187,
+        "log_score_champion": -1.6643664638405373,
+        "log_score_w3": -1.5282603800761752,
+        "mse_champion": 1.5018179541228796,
+        "mse_w3": 1.2424962720644581,
+        "n": 170
+       }
+      },
+      "verdict": "PROMISING",
+      "years_better": 3
+     },
+     "rec_tds": {
+      "adjusted_ci": [
+       0.02539865990545015,
+       0.04537838038178865
+      ],
+      "chosen_c": {
+       "2023": 4,
+       "2024": 4,
+       "2025": 4
+      },
+      "mean_log_score_gain_per_row": 0.03500975743747029,
+      "n": 5171,
+      "per_test_year": {
+       "2023": {
+        "gain": 0.03551428395719341,
+        "log_score_champion": -0.41471892582967734,
+        "log_score_w3": -0.379204641872484,
+        "mse_champion": 0.16851934937461366,
+        "mse_w3": 0.14415173244665322,
+        "n": 1700
+       },
+       "2024": {
+        "gain": 0.035469687822269995,
+        "log_score_champion": -0.4122766686406716,
+        "log_score_w3": -0.37680698081840164,
+        "mse_champion": 0.15212614564475868,
+        "mse_w3": 0.13564667999186272,
+        "n": 1738
+       },
+       "2025": {
+        "gain": 0.03405358081178583,
+        "log_score_champion": -0.47223841161538205,
+        "log_score_w3": -0.4381848308035962,
+        "mse_champion": 0.17621545442098793,
+        "mse_w3": 0.15946615664061584,
+        "n": 1733
+       }
+      },
+      "verdict": "PROMISING",
+      "years_better": 3
+     },
+     "receptions": {
+      "adjusted_ci": [
+       0.04634901269883171,
+       0.0797326189774747
+      ],
+      "chosen_c": {
+       "2023": 2,
+       "2024": 2,
+       "2025": 2
+      },
+      "mean_log_score_gain_per_row": 0.062405606699072254,
+      "n": 5171,
+      "per_test_year": {
+       "2023": {
+        "gain": 0.0711654662571996,
+        "log_score_champion": -1.8166286960582991,
+        "log_score_w3": -1.7454632298010995,
+        "mse_champion": 3.42399370592605,
+        "mse_w3": 3.171550490249021,
+        "n": 1700
+       },
+       "2024": {
+        "gain": 0.06759037697237028,
+        "log_score_champion": -1.779174881759297,
+        "log_score_w3": -1.7115845047869267,
+        "mse_champion": 3.3564985906362605,
+        "mse_w3": 3.1369958787083045,
+        "n": 1738
+       },
+       "2025": {
+        "gain": 0.04861282425025026,
+        "log_score_champion": -1.6636202244119351,
+        "log_score_w3": -1.6150074001616848,
+        "mse_champion": 2.882017335859218,
+        "mse_w3": 2.7057186838240987,
+        "n": 1733
+       }
+      },
+      "verdict": "PROMISING",
+      "years_better": 3
+     },
+     "rush_tds": {
+      "adjusted_ci": [
+       0.018076193886044412,
+       0.056023842902965526
+      ],
+      "chosen_c": {
+       "2023": 3,
+       "2024": 3,
+       "2025": 3
+      },
+      "mean_log_score_gain_per_row": 0.03782740693188684,
+      "n": 1363,
+      "per_test_year": {
+       "2023": {
+        "gain": 0.040918085973405446,
+        "log_score_champion": -0.6372345920110266,
+        "log_score_w3": -0.5963165060376212,
+        "mse_champion": 0.29203208739744285,
+        "mse_w3": 0.2673894041321545,
+        "n": 449
+       },
+       "2024": {
+        "gain": 0.0262986487479598,
+        "log_score_champion": -0.6590743741735089,
+        "log_score_w3": -0.632775725425549,
+        "mse_champion": 0.27626502312411105,
+        "mse_w3": 0.2579002201397644,
+        "n": 468
+       },
+       "2025": {
+        "gain": 0.04681337989250567,
+        "log_score_champion": -0.5940483500063872,
+        "log_score_w3": -0.5472349701138816,
+        "mse_champion": 0.2859302726688576,
+        "mse_w3": 0.26048641734087086,
+        "n": 446
+       }
+      },
+      "verdict": "PROMISING",
+      "years_better": 3
+     }
+    },
+    "seconds": 1.9
+   },
    "spec": {
     "bootstrap": "cluster by player, 2000 draws, seed 20261008",
     "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
@@ -3465,7 +3689,7 @@
     "title": "EXPLORATORY follow-up to E7: count markets judged by Poisson log score"
    },
    "spec_sha256": "0d8e6e6711a32160fe5c12959aadba677c563f340086271c37d9663439947d9c",
-   "status": "REGISTERED"
+   "status": "NEEDS PROSPECTIVE DATA"
   },
   "E8": {
    "completed_at": "2026-10-08T10:47:33Z",
@@ -4084,8 +4308,423 @@
    "status": "PROMISING"
   },
   "E8b": {
+   "completed_at": "2026-10-08T11:11:15Z",
    "registered_at": "2026-10-08T11:11:02Z",
-   "result": null,
+   "result": {
+    "markets": {
+     "rec_tds": {
+      "comparisons": {
+       "MEO vs MVR": {
+        "base_loss": 0.3793284646135263,
+        "ci": [
+         -0.0047840658414171535,
+         5.586787377513298e-05
+        ],
+        "new_loss": 0.37687907576893764,
+        "relative_improvement": 0.006457171219893029,
+        "verdict": "INCONCLUSIVE",
+        "years_better": 3
+       },
+       "MEOFP vs MEO": {
+        "base_loss": 0.37687907576893764,
+        "ci": [
+         -0.0003621318942921644,
+         0.0018185392125499333
+        ],
+        "new_loss": 0.377646242630136,
+        "relative_improvement": -0.002035578280999399,
+        "verdict": "REJECTED",
+        "years_better": 0
+       },
+       "MEOP vs MV": {
+        "base_loss": 0.3791534540773024,
+        "ci": [
+         -0.0017353579414971646,
+         0.0029294435751915605
+        ],
+        "new_loss": 0.3796761880192524,
+        "relative_improvement": -0.0013786870100448555,
+        "verdict": "REJECTED",
+        "years_better": 1
+       },
+       "MFP vs MV": {
+        "base_loss": 0.3791534540773024,
+        "ci": [
+         -0.0004961250254264965,
+         0.0015011710133334573
+        ],
+        "new_loss": 0.37961921482245026,
+        "relative_improvement": -0.0012284227933023382,
+        "verdict": "REJECTED",
+        "years_better": 2
+       }
+      },
+      "metric": "neg_poisson_log_score",
+      "n_rows": 18388,
+      "per_test_year": {
+       "2023": {
+        "M0": 0.3785285540527407,
+        "MEO": 0.359130856865594,
+        "MEOFP": 0.3599054908237937,
+        "MEOP": 0.3623361787745202,
+        "MFP": 0.3608473387305557,
+        "MV": 0.3609442884069692,
+        "MVR": 0.36053069065999005,
+        "n": 4605
+       },
+       "2024": {
+        "M0": 0.4082062535824015,
+        "MEO": 0.39222551830379687,
+        "MEOFP": 0.3923701807469564,
+        "MEOP": 0.396293335794651,
+        "MFP": 0.39631452633046255,
+        "MV": 0.39477992457704736,
+        "MVR": 0.39455928615098057,
+        "n": 4629
+       },
+       "2025": {
+        "M0": 0.40301888718269524,
+        "MEO": 0.37922224157126827,
+        "MEOFP": 0.38061338103150455,
+        "MEOP": 0.38031830187410065,
+        "MFP": 0.38162708079496527,
+        "MV": 0.381677731081152,
+        "MVR": 0.3828481394237736,
+        "n": 4563
+       }
+      }
+     },
+     "rec_yds": {
+      "comparisons": {
+       "MEO vs MVR": {
+        "base_loss": 16.028776655019442,
+        "ci": [
+         -0.3389901323526703,
+         -0.05040521566636081
+        ],
+        "new_loss": 15.838250651892299,
+        "relative_improvement": 0.011886496844254149,
+        "verdict": "PROMISING",
+        "years_better": 3
+       },
+       "MEOFP vs MEO": {
+        "base_loss": 15.838250651892299,
+        "ci": [
+         -0.07864614546563388,
+         -0.011631876669105886
+        ],
+        "new_loss": 15.79514006090631,
+        "relative_improvement": 0.0027219288249386783,
+        "verdict": "REJECTED",
+        "years_better": 3
+       },
+       "MEOP vs MV": {
+        "base_loss": 16.0335604033741,
+        "ci": [
+         -0.16715451478520385,
+         -0.008277157137001492
+        ],
+        "new_loss": 15.941271438316468,
+        "relative_improvement": 0.005755986988280574,
+        "verdict": "INCONCLUSIVE",
+        "years_better": 3
+       },
+       "MFP vs MV": {
+        "base_loss": 16.0335604033741,
+        "ci": [
+         -0.00964353633782188,
+         0.11202797803904976
+        ],
+        "new_loss": 16.080927714525284,
+        "relative_improvement": -0.0029542603114662133,
+        "verdict": "REJECTED",
+        "years_better": 0
+       }
+      },
+      "metric": "mae",
+      "n_rows": 18388,
+      "per_test_year": {
+       "2023": {
+        "M0": 16.340745420602982,
+        "MEO": 15.93746124214122,
+        "MEOFP": 15.879664470701814,
+        "MEOP": 16.06017804566803,
+        "MFP": 16.20657570751704,
+        "MV": 16.123815280340132,
+        "MVR": 16.118118925828036,
+        "n": 4605
+       },
+       "2024": {
+        "M0": 16.494200272367937,
+        "MEO": 15.956058388611808,
+        "MEOFP": 15.925711448892582,
+        "MEOP": 16.11885347640853,
+        "MFP": 16.25924626024095,
+        "MV": 16.23586960767353,
+        "MVR": 16.243509432910432,
+        "n": 4629
+       },
+       "2025": {
+        "M0": 16.019114559673216,
+        "MEO": 15.61861515301637,
+        "MEOFP": 15.577377654135162,
+        "MEOP": 15.641119743996487,
+        "MFP": 15.773225423084373,
+        "MV": 15.737239339352472,
+        "MVR": 15.72077332696093,
+        "n": 4563
+       }
+      }
+     },
+     "receptions": {
+      "comparisons": {
+       "MEO vs MVR": {
+        "base_loss": 1.262909962163725,
+        "ci": [
+         -0.047292589575904175,
+         -0.026836221881390933
+        ],
+        "new_loss": 1.22596832600334,
+        "relative_improvement": 0.02925120338515136,
+        "verdict": "PROMISING",
+        "years_better": 3
+       },
+       "MEOFP vs MEO": {
+        "base_loss": 1.22596832600334,
+        "ci": [
+         -0.001650106576005811,
+         0.001411661999376823
+        ],
+        "new_loss": 1.225907527309036,
+        "relative_improvement": 4.959238588339401e-05,
+        "verdict": "REJECTED",
+        "years_better": 2
+       },
+       "MEOP vs MV": {
+        "base_loss": 1.2642111462414893,
+        "ci": [
+         -0.011075112428001481,
+         -0.0015469353141703067
+        ],
+        "new_loss": 1.2578416961565035,
+        "relative_improvement": 0.005038280277722772,
+        "verdict": "REJECTED",
+        "years_better": 3
+       },
+       "MFP vs MV": {
+        "base_loss": 1.2642111462414893,
+        "ci": [
+         -0.012602407071507721,
+         -0.0013501289432426321
+        ],
+        "new_loss": 1.2573566225340305,
+        "relative_improvement": 0.005421976959970198,
+        "verdict": "REJECTED",
+        "years_better": 3
+       }
+      },
+      "metric": "mae",
+      "n_rows": 18388,
+      "per_test_year": {
+       "2023": {
+        "M0": 1.2752620941733823,
+        "MEO": 1.2279173222291744,
+        "MEOFP": 1.227671338133816,
+        "MEOP": 1.262924022834037,
+        "MFP": 1.2614977445347153,
+        "MV": 1.2668916250837046,
+        "MVR": 1.266300559988315,
+        "n": 4605
+       },
+       "2024": {
+        "M0": 1.304713252721207,
+        "MEO": 1.2553368003699674,
+        "MEOFP": 1.2548427040687447,
+        "MEOP": 1.2940140733346142,
+        "MFP": 1.2934053429953196,
+        "MV": 1.2986525069307284,
+        "MVR": 1.2974055343388633,
+        "n": 4629
+       },
+       "2025": {
+        "M0": 1.2322366957504134,
+        "MEO": 1.1942081253758838,
+        "MEOFP": 1.1947737815126733,
+        "MEOP": 1.2160170088219617,
+        "MFP": 1.2166072484756343,
+        "MV": 1.2265664686831095,
+        "MVR": 1.224493633743617,
+        "n": 4563
+       }
+      }
+     },
+     "rush_tds": {
+      "comparisons": {
+       "MEO vs MVR": {
+        "base_loss": 0.5562128790806465,
+        "ci": [
+         -0.001914894666478447,
+         0.002578820755246961
+        ],
+        "new_loss": 0.5566267670137662,
+        "relative_improvement": -0.0007441178525096391,
+        "verdict": "REJECTED",
+        "years_better": 1
+       },
+       "MEOFP vs MEO": {
+        "base_loss": 0.5566267670137662,
+        "ci": [
+         -0.0019226736168405684,
+         0.002775813560167798
+        ],
+        "new_loss": 0.556963188243662,
+        "relative_improvement": -0.0006043928352576414,
+        "verdict": "REJECTED",
+        "years_better": 1
+       },
+       "MEOP vs MV": {
+        "base_loss": 0.5549740807314455,
+        "ci": [
+         -0.0007477526614200222,
+         0.0009818537393997849
+        ],
+        "new_loss": 0.5550666129148192,
+        "relative_improvement": -0.0001667324413632578,
+        "verdict": "REJECTED",
+        "years_better": 1
+       },
+       "MFP vs MV": {
+        "base_loss": 0.5549740807314455,
+        "ci": [
+         -0.0016570452472942272,
+         0.0019471350175100197
+        ],
+        "new_loss": 0.5551347514065427,
+        "relative_improvement": -0.00028951023241556307,
+        "verdict": "REJECTED",
+        "years_better": 1
+       }
+      },
+      "metric": "neg_poisson_log_score",
+      "n_rows": 4933,
+      "per_test_year": {
+       "2023": {
+        "M0": 0.5485398237609789,
+        "MEO": 0.5256790334100565,
+        "MEOFP": 0.5239205950153625,
+        "MEOP": 0.5243683552008083,
+        "MFP": 0.5230170705583383,
+        "MV": 0.5245049796941091,
+        "MVR": 0.5272645823581823,
+        "n": 1264
+       },
+       "2024": {
+        "M0": 0.6084622501690972,
+        "MEO": 0.5875808681636635,
+        "MEOFP": 0.5887619591771535,
+        "MEOP": 0.5848736923606787,
+        "MFP": 0.5855643499410781,
+        "MV": 0.5846256823483763,
+        "MVR": 0.585947730456182,
+        "n": 1226
+       },
+       "2025": {
+        "M0": 0.5833019131444227,
+        "MEO": 0.5575994624886328,
+        "MEOFP": 0.5592783794810555,
+        "MEOP": 0.556947644013808,
+        "MFP": 0.5578741858684821,
+        "MV": 0.5567726486988361,
+        "MVR": 0.5563258843019526,
+        "n": 1201
+       }
+      }
+     },
+     "rush_yds": {
+      "comparisons": {
+       "MEO vs MVR": {
+        "base_loss": 20.123137655408225,
+        "ci": [
+         -0.43808736139231075,
+         -0.009180253637192208
+        ],
+        "new_loss": 19.914229452585257,
+        "relative_improvement": 0.010381492508789893,
+        "verdict": "PROMISING",
+        "years_better": 3
+       },
+       "MEOFP vs MEO": {
+        "base_loss": 19.914229452585257,
+        "ci": [
+         -0.06947738085802829,
+         0.16170485464597023
+        ],
+        "new_loss": 19.966723988639476,
+        "relative_improvement": -0.0026360314959313798,
+        "verdict": "REJECTED",
+        "years_better": 1
+       },
+       "MEOP vs MV": {
+        "base_loss": 20.12642615599353,
+        "ci": [
+         -0.16287801998339965,
+         0.08066415395668128
+        ],
+        "new_loss": 20.084850320749386,
+        "relative_improvement": 0.002065733624136977,
+        "verdict": "REJECTED",
+        "years_better": 3
+       },
+       "MFP vs MV": {
+        "base_loss": 20.12642615599353,
+        "ci": [
+         -0.1722579965729107,
+         0.040951876852243364
+        ],
+        "new_loss": 20.06113906939134,
+        "relative_improvement": 0.0032438489623627417,
+        "verdict": "REJECTED",
+        "years_better": 2
+       }
+      },
+      "metric": "mae",
+      "n_rows": 4933,
+      "per_test_year": {
+       "2023": {
+        "M0": 19.411179335240977,
+        "MEO": 19.091479514807844,
+        "MEOFP": 19.170065082448748,
+        "MEOP": 19.22358373042935,
+        "MFP": 19.243703498345766,
+        "MV": 19.317232539658097,
+        "MVR": 19.283429338756914,
+        "n": 1264
+       },
+       "2024": {
+        "M0": 21.416343340146764,
+        "MEO": 21.133725717885884,
+        "MEOFP": 21.232393825730643,
+        "MEOP": 21.23080391174838,
+        "MFP": 21.25056185223838,
+        "MV": 21.24531061015188,
+        "MVR": 21.329284636300677,
+        "n": 1226
+       },
+       "2025": {
+        "M0": 20.286900720739556,
+        "MEO": 19.535256513444608,
+        "MEOFP": 19.513156659040227,
+        "MEOP": 19.821488012339533,
+        "MFP": 19.7072724832391,
+        "MV": 19.835891926393074,
+        "MVR": 19.775639831655624,
+        "n": 1201
+       }
+      }
+     }
+    },
+    "seconds": 8.6
+   },
    "spec": {
     "bootstrap": "cluster by player, 2000 draws, seed 20261008",
     "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
@@ -4148,7 +4787,7 @@
     "title": "EXPLORATORY follow-up to E8: expected-opportunity sources against raw-volume baselines"
    },
    "spec_sha256": "fc45ba27d9b85bcc61ea655823416f95874aa8d3c87bfb7e422682384bbc761f",
-   "status": "REGISTERED"
+   "status": "NEEDS PROSPECTIVE DATA"
   },
   "E9": {
    "completed_at": "2026-10-08T10:47:35Z",

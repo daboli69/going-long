@@ -20,6 +20,14 @@ SPECS = {'E10': {**COMMON, 'id': 'E10', 'title': 'Prospective check (2026): woul
                  'markets': ['receptions'], 'limitations': 'about four weeks of 2026 and a few dozen games: low power. A positive result would be directional, not proof.'}}
 
 
+def _eastern_date(kickoff):
+    """nflverse `gameday` is the local (US Eastern) calendar date; tracker kickoffs are UTC, so a night game would otherwise land on the next day."""
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    moment = datetime.fromisoformat(str(kickoff).replace('Z', '+00:00'))
+    return moment.astimezone(ZoneInfo('America/New_York')).strftime('%Y-%m-%d')
+
+
 def run_e10(root, manifest):
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -42,9 +50,9 @@ def run_e10(root, manifest):
         market = {'player_receptions': 'receptions', 'player_passing_tds': 'pass_tds'}.get(p['market'])
         if not market or p['id'] not in settle or p.get('sport') != 'nfl' or not p.get('profile_id'):
             continue
-        key = (p['canonical_contract'], p['tracking_group'])
+        key = p['canonical_contract']  # one record per contract: groups repeat the same bet
         me = p.get('model_evidence') or {}
-        week = week_of.get((p['home'], p['away'], str(p['kickoff'])[:10]))
+        week = week_of.get((p['home'], p['away'], _eastern_date(p['kickoff'])))
         got = index.get((p['profile_id'], week))
         if got is None or 'projection_mean' not in me or key in seen:
             continue
@@ -81,10 +89,11 @@ def run_e10(root, manifest):
         lo, hi = np.quantile(diffs, [0.025, 0.975])
         brier_old, brier_new = float(e_old.mean()), float(e_new.mean())
         rel = (brier_old - brier_new) / brier_old
-        label = 'PROMISING' if hi < 0 and rel >= 0.01 else ('REJECTED' if lo > 0 or (-lo / brier_old) < 0.01 else 'INCONCLUSIVE')
+        early = sum(r['k'] <= 2 for r in sub)
+        label = 'INCONCLUSIVE' if early < 30 else 'PROMISING' if hi < 0 and rel >= 0.01 else ('REJECTED' if lo > 0 or (-lo / brier_old) < 0.01 else 'INCONCLUSIVE')
         out[market] = {'n': len(sub), 'games': len(names), 'c': c_final[market], 'brier_champion': brier_old, 'brier_w3': brier_new, 'relative_improvement': rel,
                        'delta_brier_ci95': [float(lo), float(hi)], 'verdict': label if market == 'receptions' else 'DESCRIPTIVE', 'win_rate': float(y.mean()),
-                       'mean_champion_prob': float(old.mean()), 'mean_w3_prob': float(new.mean()), 'share_with_k_le_3': float(np.mean([r['k'] <= 3 for r in sub]))}
+                       'mean_champion_prob': float(old.mean()), 'mean_w3_prob': float(new.mean()), 'n_with_k_le_2': int(early), 'share_with_k_le_3': float(np.mean([r['k'] <= 3 for r in sub]))}
     return {'markets': out, 'c_final': c_final}, out.get('receptions', {}).get('verdict', 'INCONCLUSIVE')
 
 

@@ -75,13 +75,14 @@ def matchup_context(root, manifest, season, game):
                                   and 'FP/DB' not in k}
     if lm:
         sources['line_matchups'] = lm['sha256']
-        for row in _doc(root, lm)['rows']:
-            team, opponent = row['entity'].get('team'), row['context'].get('opponent')
-            if team:
-                m = row['metrics']
-                out[team] = {'next_opponent': opponent, 'offense_rush_grade': m.get('Offense Stats.RUSH GRADE'), 'offense_pass_grade': m.get('Offense Stats.PASS GRADE'),
-                             'opponent_defense_adj_ybc_per_att': m.get('Defense Stats.ADJ YBC/ATT'), 'opponent_defense_pressure_pct': m.get('Defense Stats.PRESS %'),
-                             'opponent_coverage_mix_season_to_date': coverage.get(opponent)}
+        rows = {r['entity'].get('team'): r for r in _doc(root, lm)['rows'] if r['entity'].get('team')}
+        for team, row in rows.items():
+            opponent = row['context'].get('opponent')
+            m, theirs = row['metrics'], (rows.get(opponent) or {}).get('metrics', {})
+            out[team] = {'next_opponent': opponent, 'offense_rush_grade': m.get('Offense Stats.RUSH GRADE'), 'offense_pass_grade': m.get('Offense Stats.PASS GRADE'),
+                         'own_defense_adj_ybc_per_att': m.get('Defense Stats.ADJ YBC/ATT'), 'own_defense_pressure_pct': m.get('Defense Stats.PRESS %'),
+                         'opponent_defense_adj_ybc_per_att': theirs.get('Defense Stats.ADJ YBC/ATT'), 'opponent_defense_pressure_pct': theirs.get('Defense Stats.PRESS %'),
+                         'opponent_coverage_mix_season_to_date': coverage.get(opponent)}
     elif coverage:
         out = {team: {'coverage_mix_season_to_date': mix} for team, mix in coverage.items()}
     return out, sources

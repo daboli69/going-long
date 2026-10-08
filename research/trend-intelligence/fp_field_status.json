@@ -10,7 +10,7 @@
   },
   "families": [
     {"family": "Expected fantasy points / expected TDs (XFP, XTD)", "tables": ["efficiency", "receiving_advanced", "rushing_bell_cow", "rushing_advanced"], "status": "DESCRIPTIVE_EVIDENCE",
-     "tested_in": ["E2", "E8"], "finding": "Adds a little to the Champion for rushing yards/TDs, but adds nothing beyond ffopportunity expected points, which GOING already has free (E8 MEOFP vs MEOP: INCONCLUSIVE/REJECTED on every market). Redundant source.", "predictive_use": "no; use ffopportunity"},
+     "tested_in": ["E2", "E8"], "finding": "Adds nothing beyond raw target/carry volume (E8b MFP vs MV: no gain in any market) or beyond free ffopportunity expected points (MEOFP vs MEO: REJECTED in every market). The small E8 rushing gain was raw volume. Redundant source.", "predictive_use": "no; use ffopportunity"},
     {"family": "Route participation, TPRR, target share, first-read/designed share (compact set)", "tables": ["receiving_routes_run", "receiving_advanced"], "status": "NEEDS_PROSPECTIVE_DATA",
      "tested_in": ["E1", "E3", "E6"], "finding": "The 16-feature bundle failed (E1, E3). A 3-feature compact set was directionally positive but inconclusive and post-hoc (E6). In-season role needs the 2026 weekly trend states.", "predictive_use": "no"},
     {"family": "Alignment mix (wide/slot/inline/backfield)", "tables": ["receiving_routes_run", "receiving_advanced"], "status": "REJECTED_AS_PREDICTOR", "tested_in": ["E1", "E3"],
@@ -33,5 +33,5 @@
      "finding": "Forward-looking and 2026 only; stored with each weekly trend state.", "predictive_use": "no"},
     {"family": "Raw box-score basics", "tables": ["receiving_basic", "rushing_basic", "passing_basic"], "status": "DESCRIPTIVE_EVIDENCE", "tested_in": [], "finding": "Redundant with nflverse.", "predictive_use": "no"}
   ],
-  "non_fantasy_points_finding": "The signals that DID beat or help the Champion in wave 2 are not Fantasy Points fields: (1) a prior-strength blend instead of 80/20 current-season weighting (E7), (2) ffopportunity in-season expected volume and (3) raw target/carry volume (E8). Fantasy Points data is the least additive source tested so far."
+  "non_fantasy_points_finding": "The signals that DID beat or help the Champion in wave 2 are not Fantasy Points fields: (1) a prior-strength blend instead of 80/20 current-season weighting (E7, E7b), (2) free ffopportunity in-season expected receptions/yards beyond raw in-season volume (E8b, exploratory) and (3) raw target/carry volume (E8). Fantasy Points data is the least additive source tested so far."
 }
