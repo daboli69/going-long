@@ -22,7 +22,7 @@ from .store import (GOOD, Manifest, RunLock, atomic_write, clean_temporaries, fi
 
 MIN_TEAMS_PLAYER = 24
 MIN_TEAMS_TEAM = 28
-IMPORTER_VERSION = 2  # bump when normalized output or entry metadata changes: archived files are then re-derived from their raw copies
+IMPORTER_VERSION = 4  # bump when normalized output or entry metadata changes: archived files are then re-derived from their raw copies
 FULL_SEASON_GAMES = 17  # every 2021+ season; a finished season's league-wide maximum is 17
 
 
@@ -79,9 +79,15 @@ def _inspect(name, data, registry, mtime):
         info.update(seasons=seasons, games_min=min(games) if games else None, games_max=max(games) if games else None)
     teams = set()
     seen_entities = collections.Counter()
+    seen_rows = collections.Counter()
+    over_17 = []
+    games_index = columns.index(games_key) if games_key else None
     for row in parsed['rows']:
         if name_key:
             seen_entities[(row[columns.index(name_key)], row[columns.index(team_key)] if team_key else '', row[columns.index(_find(columns, group_names, 'POS'))] if _find(columns, group_names, 'POS') else '')] += 1
+            seen_rows[tuple(cell for position, cell in enumerate(row) if columns[position] != _find(columns, group_names, 'Rank'))] += 1
+        if games_index is not None and team_key and row[games_index] != '' and to_number(row[games_index]) is not None and to_number(row[games_index]) > 17:
+            over_17.append((row[columns.index(name_key)], ',' in row[columns.index(team_key)]))
         try:
             if team_key and (table or {}).get('level') == 'player':
                 teams.update(idmod.canonical_teams(row[columns.index(team_key)]))
@@ -90,7 +96,9 @@ def _inspect(name, data, registry, mtime):
         except idmod.TeamError:
             info.setdefault('unknown_teams', set()).add(row[columns.index(team_key or name_key)])
     info['team_count'] = len(teams)
-    info['duplicate_entities'] = [key for key, count in seen_entities.items() if count > 1][:5]
+    info['duplicate_entities'] = [key[:3] for key, count in seen_rows.items() if count > 1][:3]  # repeated identical rows: a corrupt export
+    info['split_entities'] = [key for key, count in seen_entities.items() if count > 1][:20]  # same name/team/position, different numbers
+    info['games_over_17'] = {'players': len(over_17), 'single_team': [name for name, multi in over_17 if not multi][:5]}
     if 'unknown_teams' in info:
         info['unknown_teams'] = sorted(info['unknown_teams'])
     by_class = {}
@@ -161,16 +169,16 @@ def _decide_scope(info, current_season, max_possible_games, override, in_season,
 RESEARCH_BOUNDARY = {
     'full_season': {
         'same_season_point_in_time': False,
-        'season_type': 'UNCONFIRMED',
-        'season_type_note': 'not established whether these totals are regular season only or include postseason games; do not assume either. '
-                            'Any research that depends on it must first establish it from the Fantasy Points filters or from games-played evidence.',
+        'season_scope': 'regular_season',
+        'season_scope_source': 'operator statement: every downloaded Fantasy Points file is regular season only (postseason excluded)',
         'summary': 'retrospective totals: they contain every game of the season, including those after any week you might predict',
         'allowed_uses': ['prior season -> next season relationships', 'metric stability / year-over-year persistence', 'player and team archetypes',
                          'candidate-feature discovery for later prospective testing', 'schema and distribution research'],
         'forbidden_uses': ['input to any prediction or backtest for a week of the same season', 'claiming in-season predictive performance',
-                           'assuming the totals are regular-season-only'],
+                           'treating a completed regular season as information available during that season'],
     },
-    'season_to_date': {'same_season_point_in_time': True, 'summary': 'captured live; valid for later weeks only (see store.point_in_time)'},
+    'season_to_date': {'same_season_point_in_time': True, 'season_scope': 'regular_season',
+                       'summary': 'captured live; valid for later weeks only (see store.point_in_time)'},
     'historical_cumulative': {'same_season_point_in_time': True, 'summary': 'operator-declared weeks 1-N export: valid for weeks after N, by content'},
     'single_week': {'same_season_point_in_time': True, 'summary': 'operator-declared single week: a weekly observation, never cumulative'},
 }
@@ -189,6 +197,10 @@ def normalize(entry, ctx, index):
     position = {key: columns.index(key) for key in columns}
     rows, review, unresolved = [], [], []
     tally = {}
+    split_counts = collections.Counter()
+    if level == 'player':
+        for raw in parsed['rows']:
+            split_counts[(raw[position[ident['Name']]], raw[position[ident['Team']]], raw[position[ident['POS']]])] += 1
     for raw in parsed['rows']:
         def cell(key):
             return raw[position[key]] if key else ''
@@ -212,6 +224,10 @@ def normalize(entry, ctx, index):
                 match = {'status': 'no_roster', 'player_id': None, 'method': None, 'candidates': [], 'note': 'no roster available for this season'}
             else:
                 match = index.resolve(entity['name'], entity['fp_team'], entity['position'])
+            entity['split_entity'] = split_counts[(entity['name'], entity['fp_team'], entity['position'])] > 1
+            if entity['split_entity']:
+                match = {'status': 'ambiguous', 'player_id': None, 'method': 'split_entity', 'candidates': match['candidates'],
+                         'note': 'the same name/team/position appears in more than one row with different numbers; rows are not merged'}
             entity['player_id'] = match['player_id']
             entity['match'] = {k: match[k] for k in ('status', 'method', 'note')}
             entity['match']['review'] = match['status'] == 'matched' and match['method'] not in ('name_team_position', 'alias')
@@ -326,7 +342,7 @@ class Importer:
         if ctx['cls']['status'] == 'unknown':
             return hold('unrecognized', '_unrecognized', 'unknown_table', f"{info['column_count']} columns do not match any known Fantasy Points table")
         if info.get('duplicate_entities'):
-            return hold('rejected', '_rejected', 'duplicate_rows', f"the same player/team appears more than once: {info['duplicate_entities'][:3]}")
+            return hold('rejected', '_rejected', 'duplicate_rows', f"identical rows are repeated in the export: {info['duplicate_entities'][:3]}")
         if info.get('unknown_teams'):
             return hold('rejected', '_rejected', 'unknown_team', f"team codes not recognised: {info['unknown_teams'][:5]}")
         drift = info['drift']
@@ -342,9 +358,15 @@ class Importer:
             return hold('held_scope', '_quarantine', problem[0], problem[1], {'season': season, 'table_id': info['table_id'], 'through_games': games})
         table = ctx['table']
         warnings = [note for note in info['notes'] if note != 'no_trailing_newline']  # real exports end without a newline: normal
-        if scope == 'full_season' and (info.get('games_max') or 0) > 17:
-            warnings.append(f"games played reaches {info['games_max']} (more than the 17 regular-season games): postseason games or a trade double count "
-                            f"may be included; regular-season-only is NOT established")
+        over = info.get('games_over_17') or {}
+        if over.get('players'):
+            if over.get('single_team'):
+                warnings.append(f"games played above 17 for single-team players {over['single_team'][:3]}: suspicious for a regular-season export")
+            else:
+                warnings.append(f"games played above 17 for {over['players']} traded player(s) only (a split season can double-count a week); not an error")
+        if info.get('split_entities'):
+            warnings.append(f"{len(info['split_entities'])} name/team/position combination(s) appear in two rows with different numbers "
+                            f"(e.g. {info['split_entities'][0][0]}): kept as separate unresolved rows, never merged")
         teams_needed = MIN_TEAMS_PLAYER if table['level'] == 'player' else MIN_TEAMS_TEAM
         status = 'imported'
         if info['team_count'] < teams_needed:
@@ -365,7 +387,7 @@ class Importer:
                  'through_games': games, 'week': week, 'through_week': games if games is not None and games < 14 and scope == 'season_to_date' else None,
                  'declared_by': 'operator' if scope_source == 'operator' else None, 'known_live': scope == 'season_to_date',
                  'same_season_point_in_time': RESEARCH_BOUNDARY.get(scope, {}).get('same_season_point_in_time'),
-                 'season_type': RESEARCH_BOUNDARY.get(scope, {}).get('season_type'),
+                 'season_scope': 'regular_season', 'season_scope_source': 'operator_statement',
                  'forward_looking': table['forward_looking'], 'row_count': info['row_count'], 'column_count': info['column_count'],
                  'team_count': info['team_count'], 'schema_signature': regmod.signature(ctx['parsed']['columns']),
                  'warnings': warnings, 'raw_path': str(raw_path.relative_to(self.root)).replace('\\', '/'), 'drift': drift if drift and drift['new'] else None}

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "note": "Operator declarations about tables that were not obtained for a season. status 'not_obtained' (the default) means AVAILABILITY UNCONFIRMED; only status 'provider_unavailable' means confirmed in the Fantasy Points UI. Absence from this file means 'unknown'. Metadata only.",
+  "note": "Seasons listed in downloaded_seasons were downloaded in full by the operator: a registered table with no file there is NOT_OBTAINED (availability unconfirmed, never zero). A season not listed is AVAILABILITY_UNCONFIRMED. Only an entry with status 'provider_unavailable' (confirmed in the Fantasy Points UI) becomes PROVIDER_UNAVAILABLE_CONFIRMED. Metadata only.",
   "declarations": {
     "2025": {
       "offense_snaps": {
@@ -20,5 +20,13 @@
         "status": "not_obtained"
       }
     }
-  }
+  },
+  "downloaded_seasons": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ]
 }

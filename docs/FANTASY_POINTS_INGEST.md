@@ -108,7 +108,7 @@ calibration, Champion comparison, human approval.
 
 ## Tests
 
-`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (97 tests, synthetic fixtures built from the real
+`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (112 tests, synthetic fixtures built from the real
 registry; includes regression tests for every defect the independent QA review found). `GOING_FP_ROOT=<folder>` adds a test that every real export is recognised with the current schema. The
 `ProtectionRemovalTests` class switches each critical protection off and requires the guarding scenario to fail.
 
@@ -160,6 +160,26 @@ opener). Declare only what you filtered in Fantasy Points; a 2-week range (G=2) 
 * Archived files are re-derived from their raw copies when `IMPORTER_VERSION` is bumped (outcome `repaired`); first-imported time and the
   revision chain are kept, values never change.
 * Optional tables (`weekly_expected: false`, the three "basic" box-score tables) are not reported missing when absent.
+
+## 2021-2026 foundation (multi-season)
+
+* **Scope facts (operator-stated):** every Fantasy Points file is regular season only. Every manifest entry and normalized file carries
+  `season_scope = regular_season`. 2021-2025 are retrospective completed-season totals (`same_season_point_in_time = false`); 2026 snapshots
+  are prospective. `(1)`, `(2)`... suffixes mean nothing; season and table come from the contents.
+* **Statuses in the availability matrix:** `AVAILABLE`, `PARTIAL`, `NOT_OBTAINED` (a downloaded season has no file; availability unconfirmed),
+  `AVAILABILITY_UNCONFIRMED` (season not downloaded), `PROVIDER_UNAVAILABLE_CONFIRMED` (only when confirmed and set in
+  `config/fantasy_points_availability.json`), `SCHEMA_UNSUPPORTED`, `IMPORT_PROBLEM`. Missing never means zero.
+* **`python scripts/fantasy_points.py audit`** writes, under `manifests/`: `availability.json`, `schema_compatibility_matrix.json`
+  (per column: CONSISTENT / SEASON_LIMITED / SCHEMA_CHANGED / UNIT_CHANGED / DEFINITION_CHANGED / NEEDS_REVIEW, plus the longest run of
+  consecutive consistent seasons; a missing season never bridges a run), `quality_report.json` (identity rate per season, sibling-table
+  population agreement, traded players, games above 17, signed shares outside 0-100, duplicate ids, year-over-year row-count jumps) and
+  `research_readiness.json` (feature family -> READY_FOR_MULTI_SEASON_RESEARCH / LIMITED_HISTORY / 2026_PROSPECTIVE_ONLY /
+  NEEDS_SCHEMA_REVIEW / DESCRIPTIVE_ONLY_FOR_NOW). READY means a study can be designed, not that a metric predicts anything.
+* **Identity:** deterministic only. Rules in order: explicit alias (`config/fantasy_points_aliases.json`, each with evidence), name+team+
+  position, name+team (never an OL/CB/K), the roster's legal first name + last name on the same team (nicknames such as "Ced Wilson"),
+  name+position league-wide (flagged for review), first initial + last name. Two rows with the same name/team/position but different numbers
+  (a real source collision) are both kept as unresolved and never merged; byte-identical repeated rows still reject the file.
+* A completed-season total can never be served for a week of its own season; `store.point_in_time` raises without a cutoff and returns `None`.
 
 ## Known limits
 

@@ -184,11 +184,12 @@ def cmd_availability(args):
     matrix = history.availability(regmod.load(), Manifest(root))
     write_json(root / 'manifests' / 'availability.json', matrix)
     seasons = [str(s) for s in matrix['seasons']]
-    mark = {'imported': 'yes', 'provider_unavailable': 'n/a', 'not_obtained': 'unconf.', 'import_problem': 'PROBLEM', 'unknown': '?'}
+    mark = {'AVAILABLE': 'yes', 'PARTIAL': 'PART', 'NOT_OBTAINED': 'no-file', 'AVAILABILITY_UNCONFIRMED': '?', 'PROVIDER_UNAVAILABLE_CONFIRMED': 'n/a',
+            'SCHEMA_UNSUPPORTED': 'SCHEMA', 'IMPORT_PROBLEM': 'PROBLEM'}
     print('table'.ljust(36) + ' '.join(s.rjust(7) for s in seasons))
     for table_id, row in matrix['tables'].items():
         print(table_id.ljust(36) + ' '.join(mark[row[s]['status']].rjust(7) for s in seasons))
-    print('yes=imported  n/a=provider does not offer it (CONFIRMED)  unconf.=not obtained, availability unconfirmed  PROBLEM=file held/rejected  ?=not downloaded/checked')
+    print('yes=available  PART=partial  no-file=NOT_OBTAINED (availability unconfirmed)  n/a=provider unavailable (CONFIRMED)  SCHEMA=unsupported schema  PROBLEM=held/rejected  ?=season not downloaded')
     return 0
 
 
@@ -201,6 +202,28 @@ def cmd_compat(args):
             print(f"{table_id}: not comparable (no {', '.join(item['missing'])} snapshot)")
         else:
             print(f"{table_id}: {item['counts']}")
+    return 0
+
+
+def cmd_audit(args):
+    """Write every cross-season artifact: availability, compatibility matrix, data quality, research-readiness map."""
+    root = find_root(args.root, REPO)
+    registry, manifest = regmod.load(), Manifest(root)
+    matrix = history.availability(registry, manifest)
+    write_json(root / 'manifests' / 'availability.json', matrix)
+    compat = history.multi_season(root, registry, manifest)
+    write_json(root / 'manifests' / 'schema_compatibility_matrix.json', compat)
+    report = history.quality(root, registry, manifest)
+    write_json(root / 'manifests' / 'quality_report.json', report)
+    ready = history.readiness(registry, matrix, compat)
+    write_json(root / 'manifests' / 'research_readiness.json', ready)
+    print('season  tables   rows  player rows  match%   review  traded')
+    for season, item in report['seasons'].items():
+        print(f"{season:6} {item['tables']:6} {item['rows']:7} {item['player_rows']:11}  {item['match_rate']!s:>6}  {item['review']:6} {item['multi_team']:6}")
+    print('\nresearch readiness:')
+    for family, item in ready['families'].items():
+        print(f"  {item['label']:34} {family}")
+    print('\nartifacts written to', root / 'manifests')
     return 0
 
 
@@ -239,6 +262,7 @@ def main(argv=None):
     sub.add_parser('verify', help='re-checksum every archived file').set_defaults(func=cmd_verify)
     sub.add_parser('seed-registry', help='rebuild config/fantasy_points_tables.json from the files in the Inbox').set_defaults(func=cmd_seed)
     sub.add_parser('fields', help='column use classes per table').set_defaults(func=cmd_fields)
+    sub.add_parser('audit', help='write availability, schema compatibility matrix, quality report and research-readiness map').set_defaults(func=cmd_audit)
     sub.add_parser('availability', help='table x season matrix: imported / provider-unavailable / problem / unknown').set_defaults(func=cmd_availability)
     p = sub.add_parser('compat', help='compare two seasons\' schemas table by table')
     p.add_argument('--older', type=int, default=2025)

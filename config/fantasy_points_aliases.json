@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "note": "Explicit, independently verified identity links used before any rule. Key: normalized name|team code. Value: nflverse gsis_id. Add an entry only with evidence.",
+  "aliases": {
+    "bomelton|GB": "00-0037091"
+  },
+  "evidence": {
+    "bomelton|GB": "Bo Melton, Green Bay: nflverse roster lists gsis 00-0037091 for GB in 2025 (position mislabelled DB/CB) and as GB WR in 2026; the nflverse player master and Sleeper (GOING data/players.json) both list him as a GB WR; GOING data/nfl_roster.json carries the same id."
+  }
+}

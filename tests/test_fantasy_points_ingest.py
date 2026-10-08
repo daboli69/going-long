@@ -439,6 +439,26 @@ class IdentityTests(unittest.TestCase):
         self.assertEqual(roster.resolve('Nobody Real', 'BUF', 'QB')['status'], 'unmatched')
         self.assertEqual(roster.resolve('Josh Allen', 'ZZZ', 'QB')['status'], 'team_unknown')
 
+    def test_roster_nicknames_match_on_the_legal_first_name_but_stay_flagged(self):
+        roster = self.index([
+            {'gsis_id': 'W', 'full_name': 'Ced Wilson', 'first_name': 'Cedrick', 'last_name': 'Wilson', 'team': 'MIA', 'position': 'WR'},
+            {'gsis_id': 'K', 'full_name': 'Bam Knight', 'first_name': 'Zonovan', 'last_name': 'Knight', 'team': 'DET', 'position': 'RB'},
+            {'gsis_id': 'T', 'full_name': 'Deven Thompkins', 'first_name': 'Deven', 'last_name': 'Thompkins', 'team': 'CAR', 'position': 'WR'},
+        ])
+        for name, team, position, pid in (('Cedrick Wilson', 'MIA', 'WR', 'W'), ('Zonovan Knight', 'DET', 'RB', 'K')):
+            result = roster.resolve(name, team, position)
+            self.assertEqual((result['status'], result['player_id'], result['method']), ('matched', pid, 'legal_name_team_position'))
+        self.assertEqual(roster.resolve('Devin Thompkins', 'CAR', 'WR')['status'], 'unmatched', 'a different spelling is not guessed')
+        self.assertEqual(roster.resolve('Zonovan Knight', 'MIA', 'RB')['status'], 'unmatched', 'the team must agree')
+
+    def test_committed_aliases_resolve_only_their_exact_name_and_team(self):
+        committed = json.loads((ROOT / 'config' / 'fantasy_points_aliases.json').read_text(encoding='utf-8'))
+        self.assertEqual(set(committed['aliases']), set(committed['evidence']), 'every alias carries its evidence')
+        roster = idmod.RosterIndex([{'gsis_id': '00-0037091', 'full_name': 'Bo Melton', 'team': 'GB', 'position': 'DB'}], committed['aliases'])
+        found = roster.resolve('Bo Melton', 'GB', 'WR')
+        self.assertEqual((found['status'], found['player_id'], found['method']), ('matched', '00-0037091', 'alias'))
+        self.assertNotEqual(roster.resolve('Bo Melton', 'DAL', 'WR')['method'], 'alias')
+
     def test_traded_player_matches_by_name_and_position_but_is_flagged_for_review(self):
         roster = self.index([{'gsis_id': 'T', 'full_name': 'Traded Guy', 'team': 'MIA', 'position': 'WR'}])
         result = roster.resolve('Traded Guy', 'DEN', 'WR')
@@ -919,11 +939,11 @@ class FullSeasonHistoryTests(unittest.TestCase):
         workspace.run()
         declarations = {'2025': {'line_matchups': {'evidence': 'test'}}}
         matrix = history.availability(REGISTRY, workspace.manifest(), declarations)['tables']
-        self.assertEqual(matrix['rushing_bell_cow']['2025']['status'], 'imported')
-        self.assertEqual(matrix['passing_depth']['2025']['status'], 'import_problem')
-        self.assertEqual(matrix['line_matchups']['2025']['status'], 'not_obtained')
-        self.assertEqual(matrix['qb_coverage_matchup']['2025']['status'], 'unknown')
-        self.assertEqual(matrix['rushing_bell_cow']['2024']['status'], 'unknown')
+        self.assertEqual(matrix['rushing_bell_cow']['2025']['status'], 'AVAILABLE')
+        self.assertEqual(matrix['passing_depth']['2025']['status'], 'IMPORT_PROBLEM')
+        self.assertEqual(matrix['line_matchups']['2025']['status'], 'NOT_OBTAINED')
+        self.assertEqual(matrix['qb_coverage_matchup']['2025']['status'], 'AVAILABILITY_UNCONFIRMED')
+        self.assertEqual(matrix['rushing_bell_cow']['2024']['status'], 'AVAILABILITY_UNCONFIRMED')
         self.assertEqual(sorted(matrix['rushing_bell_cow']), ['2021', '2022', '2023', '2024', '2025', '2026'])
 
     def test_availability_never_calls_a_gap_confirmed_unless_confirmed(self):
@@ -935,9 +955,9 @@ class FullSeasonHistoryTests(unittest.TestCase):
                                  'qb_coverage_matchup': {'status': 'not_obtained', 'evidence': 'no file'},
                                  'wr_coverage_matchup': {'status': 'provider_unavailable', 'evidence': 'confirmed in the Fantasy Points UI'}}}
         matrix = history.availability(REGISTRY, workspace.manifest(), declarations)['tables']
-        self.assertEqual(matrix['line_matchups']['2025']['status'], 'not_obtained')
-        self.assertEqual(matrix['qb_coverage_matchup']['2025']['status'], 'not_obtained')
-        self.assertEqual(matrix['wr_coverage_matchup']['2025']['status'], 'provider_unavailable')
+        self.assertEqual(matrix['line_matchups']['2025']['status'], 'NOT_OBTAINED')
+        self.assertEqual(matrix['qb_coverage_matchup']['2025']['status'], 'NOT_OBTAINED')
+        self.assertEqual(matrix['wr_coverage_matchup']['2025']['status'], 'PROVIDER_UNAVAILABLE_CONFIRMED')
         committed = json.loads((ROOT / 'config' / 'fantasy_points_availability.json').read_text(encoding='utf-8'))['declarations']
         self.assertTrue(all(item.get('status') != 'provider_unavailable' for season in committed.values() for item in season.values()),
                         'nothing may be committed as confirmed-unavailable until it is confirmed')
@@ -951,7 +971,7 @@ class FullSeasonHistoryTests(unittest.TestCase):
         workspace.put('a.csv', self.full('rushing_bell_cow'))
         workspace.put('b.csv', self.full('passing_depth', mutate=lambda body, keys: body.append(list(body[0]))))
         workspace.run()
-        with patch.object(history, 'load_declarations', lambda *a: {'2025': {'line_matchups': {'evidence': 'x'}, 'qb_coverage_matchup': {'status': 'provider_unavailable'}}}):
+        with patch.object(history, 'load_config', lambda *a: {'downloaded_seasons': [2025], 'declarations': {'2025': {'line_matchups': {'evidence': 'x'}, 'qb_coverage_matchup': {'status': 'provider_unavailable'}}}}):
             for command in (['status'], ['verify'], ['availability'], ['compat'], ['inventory'], ['fields']):
                 out = io.StringIO()
                 with contextlib.redirect_stdout(out):
@@ -959,21 +979,53 @@ class FullSeasonHistoryTests(unittest.TestCase):
                 self.assertIn(code, (0, 1), command)
         matrix = json.loads((workspace.dir / 'manifests' / 'availability.json').read_text(encoding='utf-8'))['tables']
         self.assertEqual({matrix['line_matchups']['2025']['status'], matrix['qb_coverage_matchup']['2025']['status'], matrix['passing_depth']['2025']['status']},
-                         {'not_obtained', 'provider_unavailable', 'import_problem'})
+                         {'NOT_OBTAINED', 'PROVIDER_UNAVAILABLE_CONFIRMED', 'IMPORT_PROBLEM'})
 
-    def test_season_type_of_full_season_exports_is_an_explicit_open_question(self):
+    def test_every_import_is_tagged_regular_season_and_full_seasons_are_retrospective(self):
         workspace = Workspace(self)
-        workspace.put('old.csv', self.full(mutate=lambda body, keys: body[0].__setitem__(keys.index('Player Details.G'), '18')))
-        report = workspace.run()
-        self.assertTrue(any('regular-season-only is NOT established' in w for w in report['results'][0]['warnings']))
-        document = json.loads(next((workspace.dir / 'normalized').rglob('*.json')).read_text(encoding='utf-8'))
-        self.assertEqual(document['research_boundary']['season_type'], 'UNCONFIRMED')
-        self.assertIn('assuming the totals are regular-season-only', document['research_boundary']['forbidden_uses'])
-        entry = store.current_entry(workspace.manifest(), 2025, 'rushing_bell_cow')
-        self.assertEqual(entry['season_type'], 'UNCONFIRMED')
+        workspace.put('old.csv', self.full())
+        workspace.put('now.csv', make_csv('passing_depth', games=4))
+        workspace.run()
+        for entry in workspace.manifest().files.values():
+            self.assertEqual((entry['season_scope'], entry['season_scope_source']), ('regular_season', 'operator_statement'))
+        docs = {d['season']: d for d in (json.loads(p.read_text(encoding='utf-8')) for p in (workspace.dir / 'normalized').rglob('*.json'))}
+        self.assertEqual(docs[2025]['research_boundary']['season_scope'], 'regular_season')
+        self.assertFalse(docs[2025]['research_boundary']['same_season_point_in_time'])
         from fp_ingest import history
         cell = history.availability(REGISTRY, workspace.manifest(), {})['tables']['rushing_bell_cow']['2025']
-        self.assertEqual(cell['season_type'], 'UNCONFIRMED')
+        self.assertEqual(cell['season_scope'], 'regular_season')
+
+    def test_games_above_17_are_explained_for_traded_players_and_flagged_otherwise(self):
+        def traded(body, keys):
+            body[0][keys.index('Player Details.G')] = '18'
+            body[0][keys.index('Player Details.Team')] = 'DAL, ARZ'
+        workspace = Workspace(self)
+        workspace.put('a.csv', self.full(mutate=traded))
+        report = workspace.run()
+        self.assertTrue(any('traded player' in w and 'not an error' in w for w in report['results'][0]['warnings']))
+        single = Workspace(self)
+        single.put('a.csv', self.full(mutate=lambda body, keys: body[0].__setitem__(keys.index('Player Details.G'), '18')))
+        self.assertTrue(any('suspicious' in w for w in single.run()['results'][0]['warnings']))
+
+    def test_two_rows_for_one_name_with_different_numbers_are_kept_unresolved_never_merged(self):
+        def split(body, keys):
+            twin = list(body[0])
+            twin[keys.index('Rushing.ATT')] = '7'
+            twin[keys.index('Player Details.Rank')] = '999'
+            body.append(twin)
+        workspace = Workspace(self)
+        workspace.put('a.csv', self.full(mutate=split))
+        report = workspace.run()
+        self.assertEqual(workspace.outcomes(report)['a.csv'], 'imported')
+        document = json.loads(next((workspace.dir / 'normalized').rglob('*.json')).read_text(encoding='utf-8'))
+        twins = [r for r in document['rows'] if r['entity']['split_entity']]
+        self.assertEqual(len(twins), 2)
+        self.assertTrue(all(r['entity']['player_id'] is None and r['entity']['match']['status'] == 'ambiguous' for r in twins))
+        self.assertTrue(any('never merged' in w for w in report['results'][0]['warnings']))
+
+    def test_franchise_names_from_earlier_seasons_resolve(self):
+        self.assertEqual(idmod.canonical_team('Washington Football Team'), 'WAS')
+        self.assertEqual(idmod.canonical_teams('WFT, ARZ'), ['WAS', 'ARI'])
 
     def test_older_importer_output_is_rederived_from_raw_without_changing_history(self):
         workspace = Workspace(self)
@@ -1006,8 +1058,8 @@ class FullSeasonHistoryTests(unittest.TestCase):
         new = make_csv('rushing_bell_cow', season=2026, games=4, add_columns=['FPTS.NEW'], drop_columns={'Rushing.TM ATT'},
                        mutate=lambda body, keys: [row.__setitem__(keys.index('Rushing.ATT'), 'n/a') for row in body]).replace(b'Routes Run', b'Routes Run (new rule)')
         result = history.compare_exports(old, new)
-        self.assertEqual(result['FPTS.NEW']['class'], '2026_ONLY')
-        self.assertEqual(result['Rushing.TM ATT']['class'], 'HISTORICAL_ONLY')
+        self.assertEqual((result['FPTS.NEW']['class'], result['FPTS.NEW']['side']), ('SEASON_LIMITED', 'newer_only'))
+        self.assertEqual((result['Rushing.TM ATT']['class'], result['Rushing.TM ATT']['side']), ('SEASON_LIMITED', 'older_only'))
         self.assertEqual(result['Rushing.ATT']['class'], 'SCHEMA_CHANGED')
         self.assertIn('type', result['Rushing.ATT']['why'])
         self.assertEqual(result['Snaps.Snaps']['class'], 'CONSISTENT') if 'Snaps.Snaps' in result else None
@@ -1018,7 +1070,102 @@ class FullSeasonHistoryTests(unittest.TestCase):
         from fp_ingest import history
         old = make_csv('rushing_bell_cow', season=2025, games=17, mutate=lambda body, keys: [row.__setitem__(keys.index('Snaps.Snap %'), '80') for row in body])
         new = make_csv('rushing_bell_cow', season=2026, games=4, mutate=lambda body, keys: [row.__setitem__(keys.index('Snaps.Snap %'), '0.8') for row in body])
-        self.assertEqual(history.compare_exports(old, new)['Snaps.Snap %']['class'], 'NEEDS_REVIEW')
+        self.assertEqual(history.compare_exports(old, new)['Snaps.Snap %']['class'], 'UNIT_CHANGED')
+
+
+class MultiSeasonAuditTests(unittest.TestCase):
+    """Cross-season artifacts: compatibility matrix, data quality, readiness. Built from synthetic multi-season archives."""
+
+    def archive(self, seasons=(2021, 2022, 2023, 2024, 2025), tables=('rushing_bell_cow',), live=True, **kw):
+        workspace = Workspace(self)
+        for season in seasons:
+            for table in tables:
+                workspace.put(f'{table}_{season}.csv', make_csv(table, season=season, games=17, **kw))
+        if live:
+            for table in tables:
+                workspace.put(f'{table}_now.csv', make_csv(table, season=2026, games=4))
+        workspace.run()
+        return workspace
+
+    def test_consistent_history_gives_a_long_run_and_ready_label(self):
+        from fp_ingest import history
+        workspace = self.archive(tables=('receiving_routes_run',))
+        manifest = workspace.manifest()
+        compat = history.multi_season(workspace.dir, REGISTRY, manifest)['tables']['receiving_routes_run']
+        self.assertEqual((compat['first_season'], compat['last_season']), (2021, 2026))
+        self.assertEqual(compat['table_consistent_run'], [2021, 2026])
+        self.assertEqual(compat['column_counts'].get('CONSISTENT'), len(REGISTRY['tables']['receiving_routes_run']['columns']))
+        matrix = history.availability(REGISTRY, manifest, {}, downloaded=[2021, 2022, 2023, 2024, 2025, 2026])
+        ready = history.readiness(REGISTRY, matrix, history.multi_season(workspace.dir, REGISTRY, manifest))
+        self.assertEqual(ready['families']['routes / route participation']['label'], 'READY_FOR_MULTI_SEASON_RESEARCH')
+        self.assertEqual(ready['families']['OL / DL']['label'], 'NO_DATA')
+
+    def test_a_schema_change_breaks_the_run_and_blocks_the_ready_label(self):
+        from fp_ingest import history
+        workspace = Workspace(self)
+        for season in (2021, 2022, 2023, 2024):
+            workspace.put(f'r{season}.csv', make_csv('rushing_bell_cow', season=season, games=17))
+        workspace.put('r2025.csv', make_csv('rushing_bell_cow', season=2025, games=17,
+                                            mutate=lambda body, keys: [row.__setitem__(keys.index('Snaps.Snap %'), 'n/a') for row in body]))
+        workspace.run()
+        manifest = workspace.manifest()
+        # the retyped 2025 file is quarantined, so the matrix must say so instead of calling it unavailable
+        matrix = history.availability(REGISTRY, manifest, {}, downloaded=[2021, 2022, 2023, 2024, 2025])['tables']['rushing_bell_cow']
+        self.assertEqual(matrix['2025']['status'], 'SCHEMA_UNSUPPORTED')
+        self.assertEqual(matrix['2024']['status'], 'AVAILABLE')
+
+    def test_unit_and_definition_changes_are_named_and_end_the_consistent_run(self):
+        from fp_ingest import history
+        workspace = Workspace(self)
+        workspace.put('a2022.csv', make_csv('rushing_bell_cow', season=2022, games=17, mutate=lambda body, keys: [row.__setitem__(keys.index('Snaps.Snap %'), '80') for row in body]))
+        workspace.put('a2023.csv', make_csv('rushing_bell_cow', season=2023, games=17, mutate=lambda body, keys: [row.__setitem__(keys.index('Snaps.Snap %'), '80') for row in body]))
+        workspace.put('a2024.csv', make_csv('rushing_bell_cow', season=2024, games=17, mutate=lambda body, keys: [row.__setitem__(keys.index('Snaps.Snap %'), '0.8') for row in body]))
+        workspace.run()
+        compat = history.multi_season(workspace.dir, REGISTRY, workspace.manifest())['tables']['rushing_bell_cow']
+        self.assertEqual(compat['columns']['Snaps.Snap %']['class'], 'UNIT_CHANGED')
+        self.assertEqual(compat['columns']['Snaps.Snap %']['consistent_run'], [2022, 2023])
+        self.assertEqual(compat['table_consistent_run'], [2022, 2023])
+
+    def test_a_missing_season_does_not_bridge_a_consistent_run(self):
+        from fp_ingest import history
+        workspace = self.archive(seasons=(2021, 2022, 2024, 2025), live=False)
+        compat = history.multi_season(workspace.dir, REGISTRY, workspace.manifest())['tables']['rushing_bell_cow']
+        self.assertEqual(compat['seasons'], [2021, 2022, 2024, 2025])
+        self.assertIn(compat['table_consistent_run'], ([2021, 2022], [2024, 2025]))
+
+    def test_quality_report_flags_partial_siblings_and_scores_identity_per_season(self):
+        from fp_ingest import history
+        workspace = Workspace(self)
+        workspace.put('adv.csv', make_csv('receiving_routes_run', season=2024, games=17))
+        workspace.put('sep.csv', make_csv('receiving_separation_by_alignment', season=2024, games=17, teams=TEAMS[:28]))
+        workspace.run()
+        report = history.quality(workspace.dir, REGISTRY, workspace.manifest())
+        season = report['seasons']['2024']
+        self.assertEqual(season['match_rate'], 100.0)
+        sibling = next(item for item in report['sibling_populations'] if item['group'] == 'routes_and_separation')
+        self.assertGreater(sibling['in_some_only'], 0)
+
+    def test_quality_report_counts_impossible_percentages_and_split_players(self):
+        from fp_ingest import history
+        def corrupt(body, keys):
+            body[0][keys.index('Snaps.Snap %')] = '140'
+        workspace = Workspace(self)
+        workspace.put('a.csv', make_csv('rushing_bell_cow', season=2024, games=17, mutate=corrupt))
+        workspace.run()
+        report = history.quality(workspace.dir, REGISTRY, workspace.manifest())
+        self.assertEqual(report['tables']['rushing_bell_cow']['2024']['impossible_values'], 1)
+
+    def test_historical_full_seasons_are_never_inputs_to_their_own_season_across_all_years(self):
+        workspace = self.archive(tables=('receiving_routes_run', 'rushing_bell_cow'))
+        manifest = workspace.manifest()
+        for table in ('receiving_routes_run', 'rushing_bell_cow'):
+            for season in (2021, 2022, 2023, 2024, 2025):
+                for week in range(1, 19):
+                    self.assertIsNone(pit(manifest, season, table, season, week), f'{table} {season} week {week}')
+                self.assertIsNotNone(pit(manifest, season, table, season + 1, 1), 'next season may use it')
+                self.assertIsNone(pit(manifest, season, table, season - 1, 18), 'an earlier season may never use it')
+            self.assertEqual(pit(manifest, 2026, table, 2026, 5)['through_games'], 4)
+            self.assertIsNone(pit(manifest, 2026, table, 2026, 4), 'game 4 data is not known before week 4 is played')
 
 
 class ProtectionRemovalTests(unittest.TestCase):
@@ -1203,7 +1350,7 @@ class ProtectionRemovalTests(unittest.TestCase):
 
     def test_research_boundary_flag_is_load_bearing(self):
         self.assert_guarded(lambda: self._run('test_full_season_is_flagged_as_retrospective_in_metadata', FullSeasonHistoryTests),
-                            patch.dict(pl.RESEARCH_BOUNDARY, {'full_season': {'same_season_point_in_time': True}}))
+                            patch.dict(pl.RESEARCH_BOUNDARY, {'full_season': {'same_season_point_in_time': True, 'season_scope': 'regular_season'}}))
 
     def test_unconfirmed_availability_label_is_load_bearing(self):
         from fp_ingest import history
@@ -1214,6 +1361,18 @@ class ProtectionRemovalTests(unittest.TestCase):
             return real(registry, manifest, declarations, seasons)
         self.assert_guarded(lambda: self._run('test_availability_never_calls_a_gap_confirmed_unless_confirmed', FullSeasonHistoryTests),
                             patch.object(history, 'availability', overclaim))
+
+    def test_multi_season_leakage_guard_is_load_bearing(self):
+        def leaky(manifest, season, table_id, for_season, for_week, known_by=None):
+            return next(iter(manifest.entries(season, table_id)), None)
+        self.assert_guarded(lambda: self._run('test_historical_full_seasons_are_never_inputs_to_their_own_season_across_all_years', MultiSeasonAuditTests),
+                            patch.object(store, 'point_in_time', leaky))
+
+    def test_unit_change_detection_is_load_bearing(self):
+        from fp_ingest import history
+        real = history._scale
+        self.assert_guarded(lambda: self._run('test_unit_and_definition_changes_are_named_and_end_the_consistent_run', MultiSeasonAuditTests),
+                            patch.object(history, '_scale', lambda values: 1.0))
 
 @unittest.skipUnless(os.environ.get('GOING_FP_ROOT'), 'set GOING_FP_ROOT to run against the real Inbox')
 class RealInboxTests(unittest.TestCase):

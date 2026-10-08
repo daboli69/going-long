@@ -13,7 +13,7 @@ from pathlib import Path
 
 SUFFIXES = {'jr', 'sr', 'ii', 'iii', 'iv', 'v'}
 # Fantasy Points uses ARZ/BLT/CLV/HST; everything else already matches nflverse.
-TEAM_ALIASES = {'ARZ': 'ARI', 'BLT': 'BAL', 'CLV': 'CLE', 'HST': 'HOU', 'LAR': 'LA', 'WSH': 'WAS', 'JAC': 'JAX', 'OAK': 'LV', 'SD': 'LAC', 'STL': 'LA'}
+TEAM_ALIASES = {'ARZ': 'ARI', 'BLT': 'BAL', 'CLV': 'CLE', 'HST': 'HOU', 'LAR': 'LA', 'WSH': 'WAS', 'WFT': 'WAS', 'JAC': 'JAX', 'OAK': 'LV', 'SD': 'LAC', 'STL': 'LA'}
 TEAMS = {'ARI', 'ATL', 'BAL', 'BUF', 'CAR', 'CHI', 'CIN', 'CLE', 'DAL', 'DEN', 'DET', 'GB', 'HOU', 'IND', 'JAX', 'KC', 'LA', 'LAC', 'LV', 'MIA',
          'MIN', 'NE', 'NO', 'NYG', 'NYJ', 'PHI', 'PIT', 'SEA', 'SF', 'TB', 'TEN', 'WAS'}
 TEAM_NAMES = {
@@ -24,6 +24,8 @@ TEAM_NAMES = {
     'minnesota vikings': 'MIN', 'new england patriots': 'NE', 'new orleans saints': 'NO', 'new york giants': 'NYG', 'new york jets': 'NYJ',
     'philadelphia eagles': 'PHI', 'pittsburgh steelers': 'PIT', 'seattle seahawks': 'SEA', 'san francisco 49ers': 'SF', 'tampa bay buccaneers': 'TB',
     'tennessee titans': 'TEN', 'washington commanders': 'WAS',
+    # franchise names used in earlier seasons map to the same franchise code
+    'washington football team': 'WAS', 'washington redskins': 'WAS', 'oakland raiders': 'LV', 'san diego chargers': 'LAC', 'st. louis rams': 'LA',
 }
 POSITION_GROUP = {'QB': 'QB', 'RB': 'RB', 'HB': 'RB', 'FB': 'RB', 'WR': 'WR', 'TE': 'TE'}
 
@@ -81,6 +83,7 @@ class RosterIndex:
     def __init__(self, rows, aliases=None):
         self.players = {}
         self.by_name_team, self.by_name, self.by_initial_team = {}, {}, {}
+        self.by_legal_name_team = {}  # nflverse lists many players by nickname ("Ced Wilson"); first_name + last_name is the legal name Fantasy Points uses
         self.aliases = {str(k): v for k, v in (aliases or {}).items()}
         for row in rows:
             pid, name = row.get('gsis_id') or row.get('id'), row.get('full_name') or row.get('name')
@@ -99,6 +102,9 @@ class RosterIndex:
             self.by_name_team.setdefault((key, team), set()).add(pid)
             self.by_name.setdefault(key, set()).add(pid)
             self.by_initial_team.setdefault((tokens[0][0], tokens[-1], team), set()).add(pid)
+            legal = norm_name(f"{row.get('first_name') or ''} {row.get('last_name') or ''}") if row.get('first_name') and row.get('last_name') else ''
+            if legal and legal != key:
+                self.by_legal_name_team.setdefault((legal, team), set()).add(pid)
 
     def _compatible(self, pids, group):
         if not group:
@@ -133,6 +139,10 @@ class RosterIndex:
         found = decide(skill_team, 'name_team', 'position differs from roster') if skill_team else None
         if found:
             return found
+        legal = sorted({pid for code in codes for pid in self.by_legal_name_team.get((key, code), ())})
+        found = decide(self._compatible(legal, group), 'legal_name_team_position', 'matched on the roster\'s legal first name (nickname in the roster)') if legal else None
+        if found:
+            return found
         league = sorted(self.by_name.get(key, ()))
         if league:
             found = decide(self._compatible(league, group), 'name_position', 'team differs from roster (trade, release or stale roster)')
@@ -149,7 +159,8 @@ class RosterIndex:
 def read_roster_csv(path):
     with open(path, encoding='utf-8', newline='') as handle:
         return [{'gsis_id': r.get('gsis_id'), 'full_name': r.get('full_name'), 'team': r.get('team'), 'position': r.get('position'),
-                 'season': r.get('season'), 'status': r.get('status')} for r in csv.DictReader(handle)]
+                 'season': r.get('season'), 'status': r.get('status'), 'first_name': r.get('first_name'), 'last_name': r.get('last_name')}
+                for r in csv.DictReader(handle)]
 
 
 def read_repo_roster(path, season):
