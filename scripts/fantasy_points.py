@@ -18,6 +18,7 @@ from fp_ingest import fields as fieldmod  # noqa: E402
 from fp_ingest import identity as idmod  # noqa: E402
 from fp_ingest import registry as regmod  # noqa: E402
 from fp_ingest import history  # noqa: E402
+from fp_ingest import trends  # noqa: E402
 from fp_ingest.pipeline import Importer, inspect_bytes, iso, season_of  # noqa: E402
 from fp_ingest.store import Manifest, find_inbox, find_root, freshness, public_status, write_json  # noqa: E402
 from fp_ingest.parse import sha256  # noqa: E402
@@ -98,6 +99,11 @@ def cmd_import(args):
     notes = getattr(importer.rosters, 'notes', [])
     for note in notes:
         print('NOTE', note)
+    try:  # trend capture is best-effort and never blocks or fails the import
+        for name in trends.capture(importer.root, report['current_season'], importer.manifest):
+            print('trend state written:', name)
+    except Exception as error:
+        print('NOTE trend capture skipped:', error)
     if args.publish_status:
         fresh = json.loads((importer.root / 'manifests' / 'freshness.json').read_text(encoding='utf-8'))
         write_json(args.publish_status, public_status(fresh))
@@ -205,6 +211,18 @@ def cmd_compat(args):
     return 0
 
 
+def cmd_trends(args):
+    """Write the missing weekly trend states (week usage from consecutive live snapshots). Write-once; see fp_ingest/trends.py."""
+    root = find_root(args.root, REPO)
+    season = args.current_season or season_of(datetime.datetime.now(datetime.timezone.utc))
+    written = trends.capture(root, season)
+    for name in written:
+        print('wrote', name)
+    if not written:
+        print(f'no new trend state for {season}: a state needs two consecutive live snapshots (through games g-1 and g)')
+    return 0
+
+
 def cmd_audit(args):
     """Write every cross-season artifact: availability, compatibility matrix, data quality, research-readiness map."""
     root = find_root(args.root, REPO)
@@ -262,6 +280,7 @@ def main(argv=None):
     sub.add_parser('verify', help='re-checksum every archived file').set_defaults(func=cmd_verify)
     sub.add_parser('seed-registry', help='rebuild config/fantasy_points_tables.json from the files in the Inbox').set_defaults(func=cmd_seed)
     sub.add_parser('fields', help='column use classes per table').set_defaults(func=cmd_fields)
+    sub.add_parser('trends', help='write weekly trend states from consecutive live snapshots (write-once)').set_defaults(func=cmd_trends)
     sub.add_parser('audit', help='write availability, schema compatibility matrix, quality report and research-readiness map').set_defaults(func=cmd_audit)
     sub.add_parser('availability', help='table x season matrix: imported / provider-unavailable / problem / unknown').set_defaults(func=cmd_availability)
     p = sub.add_parser('compat', help='compare two seasons\' schemas table by table')

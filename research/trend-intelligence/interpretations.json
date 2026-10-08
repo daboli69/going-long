@@ -1,0 +1,20 @@
+{
+  "E1": {"thought": "A fifteen-feature prior-season role profile (routes, TPRR, first-read share, alignment, XFP) would improve next-season targets, receptions and yards per game over the player's own prior production.",
+         "result": "REJECTED by the registered rule. The challenger was 3% WORSE than the baseline model on all three outcomes (better in only 1 of 3 test seasons). It lost in the first two test seasons, when it was trained on about 100 rows, and won in 2025 after more training data, the signature of an over-parameterised model rather than evidence that role carries no information.",
+         "action": "Do not use the fifteen-feature profile. The compact version E6 is exploratory and cannot support promotion; confirm it on 2026 weekly data."},
+  "E2": {"thought": "Opportunity (XFP/G) of the prior season predicts next-season fantasy production better than results (FP/G) alone, because touchdown and efficiency variance does not persist.",
+         "result": "FP/G: PROMISING by the registered rule (about 1.2% lower MAE, CI excludes 0 at 97.5%, better in 3 of 3 test seasons) but the effect is small. TD/G: INCONCLUSIVE (0.47% improvement, below the 1% bar). The registered overall status is INCONCLUSIVE because the two outcomes disagree.",
+         "action": "Treat XFP/G as a modest, real regression signal for season-level production. GOING already derives expected usage from nflverse ff_opportunity; the next step is to test whether Fantasy Points XFP adds anything beyond GOING's own expected usage before using it anywhere."},
+  "E3": {"thought": "Prior-season role features add to what GOING already knows in-season (rolling usage), most in weeks 1-4.",
+         "result": "Not supported. In weeks 1-4 the challenger was 1.0% worse (yards) and 0.4% worse (receptions) and 0.3% better (targets, inconclusive) than the baseline that already contains prior averages and rolling in-season usage. Later buckets were consistently worse. Separately, in-season rolling usage clearly matters: it lowers MAE by 3.3-5.0% in weeks 1-4 and 5-12% later versus prior-season averages alone.",
+         "action": "Do not add Fantasy Points role features to weekly volume projections on this evidence. Make sure GOING's early-season props blend prior-season averages with in-season usage (large measured gain)."},
+  "E4": {"thought": "A receiver's man-vs-zone advantage interacts with how much man coverage the opponent played, improving weekly yardage prediction.",
+         "result": "REJECTED. The interaction term did not improve prediction (receiving yards 0.2% worse, targets unchanged; CIs include 0; 0 of 2 test seasons better). Test seasons are few (2024, 2025) and the opponent signal is a prior-season average, so power is limited.",
+         "action": "No matchup badge built on this signal. Revisit with 2026 same-season coverage frequencies when enough weekly snapshots exist."},
+  "E5": {"thought": "Script-split pass rates predict next season's overall pass rate better than the overall rate alone.",
+         "result": "REJECTED: 2.4% worse; about 96 team-seasons, so the test has little power, but nothing suggests an edge.",
+         "action": "Keep using overall pass tendency; nothing to add."},
+  "E6": {"thought": "(Exploratory, post-hoc after E1) three compact role features add to the production baseline without E1's overfit.",
+         "result": "INCONCLUSIVE: 0.6-1.4% lower MAE, better in 2 of 3 seasons, but the confidence intervals include 0 (about 250 test players). Directionally positive, not demonstrated.",
+         "action": "Needs prospective data. Cannot support promotion because it was designed after seeing E1 on the same seasons."}
+}
