@@ -93,3 +93,20 @@ def team_recency(frame, root):
     rp = rp.dropna(subset=['team'])
     cols = ['fp_pass_pct', 'fp_neutral_pass_pct', 'fp_i10_pass_pct', 'fp_snaps']
     return rolling_asof(out, rp[['team', 'season', 'week'] + cols], 'team', cols, 'rp.')
+
+
+ROLE_FREE = ['offense_pct', 'target_share', 'carry_share']
+
+
+def nfl_role(frame, root):
+    """Free role signals from nflverse: offensive snap share (snap counts) and the player's share of his team's targets and carries."""
+    seasons = list(range(2019, 2026))
+    snaps = champion.load_snaps(root, seasons)
+    snaps = snaps[(snaps.game_type == 'REG') & snaps.offense_snaps.notna()].copy()
+    players = champion.load_players(root).dropna(subset=['pfr_id', 'gsis_id'])
+    snaps['player_id'] = snaps.pfr_player_id.map(dict(zip(players.pfr_id, players.gsis_id)))
+    snaps = snaps.dropna(subset=['player_id'])[['player_id', 'season', 'week', 'offense_pct']]
+    shares = champion.appearances(root, seasons)[['player_id', 'season', 'week', 'target_share', 'carry_share']]
+    role = shares.merge(snaps.drop_duplicates(['player_id', 'season', 'week']), on=['player_id', 'season', 'week'], how='left')
+    role['offense_pct'] = role['offense_pct'] * 100
+    return rolling_asof(frame, role, 'player_id', ROLE_FREE, 'role.')

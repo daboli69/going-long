@@ -364,8 +364,8 @@ class ResearchToolingTests(unittest.TestCase):
         book = json.loads((ROOT / 'research' / 'trend-intelligence' / 'ledger.json').read_text(encoding='utf-8'))
         for exp_id, entry in book['experiments'].items():
             self.assertEqual(entry['spec_sha256'], self.ledger.spec_hash(entry['spec']), exp_id)
-            from trend_research import experiments2, experiments3, experiments4, experiments5, experiments6, experiments7
-            current = {**self.experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS, **experiments4.SPECS, **experiments5.SPECS, **experiments6.SPECS, **experiments7.SPECS}
+            from trend_research import experiments2, experiments3, experiments4, experiments5, experiments6, experiments7, experiments8
+            current = {**self.experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS, **experiments4.SPECS, **experiments5.SPECS, **experiments6.SPECS, **experiments7.SPECS, **experiments8.SPECS}
             self.assertEqual(entry['spec_sha256'], self.ledger.spec_hash(current[exp_id]), f'{exp_id}: spec edited after registration')
             self.assertNotIn('player_id', json.dumps(entry['result']), 'aggregate results only')
 

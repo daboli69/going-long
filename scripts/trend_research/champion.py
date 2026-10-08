@@ -55,7 +55,7 @@ def load_weekly(root, seasons):
 
 def load_snaps(root, seasons):
     frames = [pd.read_csv(_download(SNAP_URL.format(season=s), cache(root) / f'snap_counts_{s}.csv'),
-                          usecols=['season', 'game_type', 'week', 'pfr_player_id', 'position', 'team', 'offense_snaps']) for s in seasons]
+                          usecols=['season', 'game_type', 'week', 'pfr_player_id', 'position', 'team', 'offense_snaps', 'offense_pct']) for s in seasons]
     return pd.concat(frames, ignore_index=True)
 
 

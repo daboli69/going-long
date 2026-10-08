@@ -11023,9 +11023,868 @@
    "spec_sha256": "139a9d74116d3fbf82c5c1dfe26e11fb6b5805d9cf07ab534e52a65d0f7b95c1",
    "status": "PROMISING"
   },
-  "P3-5": {
-   "registered_at": "2026-10-08T20:30:07Z",
+  "P3-4": {
+   "registered_at": "2026-10-08T20:32:37Z",
    "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "otherwise",
+     "PROMISING": "as P3-2",
+     "REJECTED": "as P3-2"
+    },
+    "exploratory": true,
+    "football_rationale": "P3-2/P3-3 found a ROLE gain (1-2% MAE); most of it may be role share, which is free.",
+    "hypothesis": "Snap share and target/carry share (free, nflverse) trends predict next-game targets/receiving yards (WR/TE) and carries/rushing yards (RB) beyond Champion + raw box-score recency; Fantasy Points routes/participation/bell-cow shares add nothing further.",
+    "id": "P3-4",
+    "leakage": "games strictly before the target game",
+    "limitations": "post-hoc follow-up; mean accuracy only",
+    "markets": [
+     "receptions",
+     "receiving yards",
+     "rushing yards"
+    ],
+    "models": {
+     "BV": "as P3-2/P3-3",
+     "FP": "FREE + Fantasy Points ROLE / RUROLE block",
+     "FREE": "BV + free role block (snap %, target share, carry share) level + trends"
+    },
+    "multiple_testing": "Bonferroni over 8 comparisons (99.375%)",
+    "population": "as P3-2 (WR/TE) and P3-3 (RB), complete-case; Fantasy Points games >= 3",
+    "primary_comparisons": [
+     "FREE vs BV x 4 outcomes (targets, rec_yds, carries, rush_yds)",
+     "FP vs FREE x 4 outcomes"
+    ],
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01,
+     "min_years_better": 2,
+     "reject_below_relative_improvement": 0.0025,
+     "reject_requires_ci": true
+    },
+    "sources": [
+     "nflverse snap counts, weekly stats",
+     "Fantasy Points by-game tables"
+    ],
+    "splits": {
+     "history_from": 2019,
+     "rolling_origin": true,
+     "test": [
+      2023,
+      2024,
+      2025
+     ],
+     "train": "all earlier target seasons"
+    },
+    "title": "Free nflverse role signals vs Fantasy Points ROLE signals, beyond Champion + raw recency (follow-up to P3-2/P3-3)"
+   },
+   "spec_sha256": "7b34677bf8d179a1182369aeb240bbb57406a6291411c17b10187af28035ccbc",
+   "status": "REGISTERED"
+  },
+  "P3-5": {
+   "completed_at": "2026-10-08T20:30:11Z",
+   "registered_at": "2026-10-08T20:30:07Z",
+   "result": {
+    "markets": {
+     "atd": {
+      "blend_c": 4,
+      "means": {
+       "blend": {
+        "cells": {
+         "NB": {
+          "holdout": {
+           "actual_over_first_line": 0.1739441660701503,
+           "brier": 0.13068833265727178,
+           "brier_relative_vs_pois": 0.006638705479467692,
+           "delta_ci": [
+            -0.0010111010038331184,
+            0.0027729355030819665
+           ],
+           "delta_log_score": 0.0008569181938086319,
+           "log_score": -0.524648029624269,
+           "mean_p_over_first_line": 0.16692672291419858
+          },
+          "validation": {
+           "actual_over_first_line": 0.17923675167299694,
+           "brier": 0.13220242875953167,
+           "brier_relative_vs_pois": 0.003992833881004077,
+           "delta_ci": [
+            -0.0023009049660755727,
+            0.0016539250749944183
+           ],
+           "delta_log_score": -0.00033085426941877847,
+           "log_score": -0.5288828967647424,
+           "mean_p_over_first_line": 0.16066103005478313
+          },
+          "verdict": "REJECTED"
+         },
+         "POIS": {
+          "holdout": {
+           "actual_over_first_line": 0.1739441660701503,
+           "brier": 0.13156173225004844,
+           "log_score": -0.5255049478180777,
+           "mean_p_over_first_line": 0.17476343765448113
+          },
+          "validation": {
+           "actual_over_first_line": 0.17923675167299694,
+           "brier": 0.1327324072121556,
+           "log_score": -0.5285520424953236,
+           "mean_p_over_first_line": 0.1681280778762393
+          }
+         },
+         "ZIP": {
+          "holdout": {
+           "actual_over_first_line": 0.1739441660701503,
+           "brier": 0.1308090233409589,
+           "brier_relative_vs_pois": 0.005721336259535814,
+           "delta_ci": [
+            -0.0009225138001653467,
+            0.0022018768052176397
+           ],
+           "delta_log_score": 0.000619751879865447,
+           "log_score": -0.5248851959382123,
+           "mean_p_over_first_line": 0.1688037198937453
+          },
+          "validation": {
+           "actual_over_first_line": 0.17923675167299694,
+           "brier": 0.1322657809887856,
+           "brier_relative_vs_pois": 0.0035155410285307733,
+           "delta_ci": [
+            -0.00203205483678045,
+            0.0013720873634709822
+           ],
+           "delta_log_score": -0.0002943142670151659,
+           "log_score": -0.5288463567623388,
+           "mean_p_over_first_line": 0.16245466354756377
+          },
+          "verdict": "REJECTED"
+         }
+        },
+        "params": {
+         "NB": 0.3,
+         "POIS": null,
+         "ZIP": 0.15
+        }
+       },
+       "champion": {
+        "cells": {
+         "NB": {
+          "holdout": {
+           "actual_over_first_line": 0.1739441660701503,
+           "brier": 0.13319556806566285,
+           "brier_relative_vs_pois": 0.012516640444427669,
+           "delta_ci": [
+            -0.001043921125840869,
+            0.0047861649024740415
+           ],
+           "delta_log_score": 0.001967142669689845,
+           "log_score": -0.5404453838773944,
+           "mean_p_over_first_line": 0.15474177414974924
+          },
+          "validation": {
+           "actual_over_first_line": 0.17923675167299694,
+           "brier": 0.1336553400492661,
+           "brier_relative_vs_pois": 0.007888344213720458,
+           "delta_ci": [
+            -0.0031681290906787505,
+            0.0031194871905688474
+           ],
+           "delta_log_score": -4.2376020045380004e-05,
+           "log_score": -0.5437426460194135,
+           "mean_p_over_first_line": 0.14979283127223497
+          },
+          "verdict": "REJECTED"
+         },
+         "POIS": {
+          "holdout": {
+           "actual_over_first_line": 0.1739441660701503,
+           "brier": 0.13488386085372514,
+           "log_score": -0.542412526547084,
+           "mean_p_over_first_line": 0.1670826959989231
+          },
+          "validation": {
+           "actual_over_first_line": 0.17923675167299694,
+           "brier": 0.13471804233903498,
+           "log_score": -0.5437002699993682,
+           "mean_p_over_first_line": 0.16175179106090365
+          }
+         },
+         "ZIP": {
+          "holdout": {
+           "actual_over_first_line": 0.1739441660701503,
+           "brier": 0.13351276242725632,
+           "brier_relative_vs_pois": 0.01016502951346943,
+           "delta_ci": [
+            -0.0009812006252066115,
+            0.0036255080593912688
+           ],
+           "delta_log_score": 0.001272518794006128,
+           "log_score": -0.541140007753078,
+           "mean_p_over_first_line": 0.1586647680359006
+          },
+          "validation": {
+           "actual_over_first_line": 0.17923675167299694,
+           "brier": 0.13376133077059355,
+           "brier_relative_vs_pois": 0.0071015845526744385,
+           "delta_ci": [
+            -0.00268746099899011,
+            0.002721713113232713
+           ],
+           "delta_log_score": -2.2187217487144663e-05,
+           "log_score": -0.5437224572168553,
+           "mean_p_over_first_line": 0.1535538482336139
+          },
+          "verdict": "REJECTED"
+         }
+        },
+        "params": {
+         "NB": 0.5,
+         "POIS": null,
+         "ZIP": 0.2
+        }
+       }
+      }
+     },
+     "pass_tds": {
+      "blend_c": 4,
+      "means": {
+       "blend": {
+        "cells": {
+         "NB": {
+          "holdout": {
+           "actual_over_first_line": 0.7918367346938775,
+           "brier": 0.19861333600532943,
+           "brier_relative_vs_pois": 0.0,
+           "delta_ci": [
+            0.0,
+            0.0
+           ],
+           "delta_log_score": 0.0,
+           "log_score": -1.5555034651967536,
+           "mean_p_over_first_line": 0.7583864120290975
+          },
+          "validation": {
+           "actual_over_first_line": 0.7656903765690377,
+           "brier": 0.18762697189207306,
+           "brier_relative_vs_pois": 0.0,
+           "delta_ci": [
+            0.0,
+            0.0
+           ],
+           "delta_log_score": 0.0,
+           "log_score": -1.516354181484326,
+           "mean_p_over_first_line": 0.7389749431221697
+          },
+          "verdict": "REJECTED"
+         },
+         "POIS": {
+          "holdout": {
+           "actual_over_first_line": 0.7918367346938775,
+           "brier": 0.19861333600532943,
+           "log_score": -1.5555034651967536,
+           "mean_p_over_first_line": 0.7583864120290975
+          },
+          "validation": {
+           "actual_over_first_line": 0.7656903765690377,
+           "brier": 0.18762697189207306,
+           "log_score": -1.516354181484326,
+           "mean_p_over_first_line": 0.7389749431221697
+          }
+         },
+         "ZIP": {
+          "holdout": {
+           "actual_over_first_line": 0.7918367346938775,
+           "brier": 0.19861333600532943,
+           "brier_relative_vs_pois": 0.0,
+           "delta_ci": [
+            0.0,
+            1.255981078781433e-18
+           ],
+           "delta_log_score": 3.398641912117826e-19,
+           "log_score": -1.5555034651967536,
+           "mean_p_over_first_line": 0.7583864120290975
+          },
+          "validation": {
+           "actual_over_first_line": 0.7656903765690377,
+           "brier": 0.18762697189207306,
+           "brier_relative_vs_pois": 0.0,
+           "delta_ci": [
+            0.0,
+            1.318890059454935e-18
+           ],
+           "delta_log_score": 3.4839634663969347e-19,
+           "log_score": -1.516354181484326,
+           "mean_p_over_first_line": 0.7389749431221697
+          },
+          "verdict": "REJECTED"
+         }
+        },
+        "params": {
+         "NB": 0.0,
+         "POIS": null,
+         "ZIP": 0.0
+        }
+       },
+       "champion": {
+        "cells": {
+         "NB": {
+          "holdout": {
+           "actual_over_first_line": 0.7918367346938775,
+           "brier": 0.20603702524924578,
+           "brier_relative_vs_pois": 0.0,
+           "delta_ci": [
+            0.0,
+            0.0
+           ],
+           "delta_log_score": 0.0,
+           "log_score": -1.6077419055785855,
+           "mean_p_over_first_line": 0.7520736787588937
+          },
+          "validation": {
+           "actual_over_first_line": 0.7656903765690377,
+           "brier": 0.19348223009016938,
+           "brier_relative_vs_pois": 0.0,
+           "delta_ci": [
+            0.0,
+            0.0
+           ],
+           "delta_log_score": 0.0,
+           "log_score": -1.5527296366319514,
+           "mean_p_over_first_line": 0.722627010314892
+          },
+          "verdict": "REJECTED"
+         },
+         "POIS": {
+          "holdout": {
+           "actual_over_first_line": 0.7918367346938775,
+           "brier": 0.20603702524924578,
+           "log_score": -1.6077419055785855,
+           "mean_p_over_first_line": 0.7520736787588937
+          },
+          "validation": {
+           "actual_over_first_line": 0.7656903765690377,
+           "brier": 0.19348223009016938,
+           "log_score": -1.5527296366319514,
+           "mean_p_over_first_line": 0.722627010314892
+          }
+         },
+         "ZIP": {
+          "holdout": {
+           "actual_over_first_line": 0.7918367346938775,
+           "brier": 0.20603702524924578,
+           "brier_relative_vs_pois": 0.0,
+           "delta_ci": [
+            -1.071664695265344e-19,
+            2.0960565130464937e-18
+           ],
+           "delta_log_score": 7.363724142921956e-19,
+           "log_score": -1.6077419055785855,
+           "mean_p_over_first_line": 0.7520736787588937
+          },
+          "validation": {
+           "actual_over_first_line": 0.7656903765690377,
+           "brier": 0.19348223009016938,
+           "brier_relative_vs_pois": 0.0,
+           "delta_ci": [
+            -1.9638536135019068e-18,
+            5.244039013763641e-19
+           ],
+           "delta_log_score": -6.096936066194635e-19,
+           "log_score": -1.5527296366319514,
+           "mean_p_over_first_line": 0.722627010314892
+          },
+          "verdict": "REJECTED"
+         }
+        },
+        "params": {
+         "NB": 0.0,
+         "POIS": null,
+         "ZIP": 0.0
+        }
+       }
+      }
+     },
+     "rec_tds": {
+      "blend_c": 4,
+      "means": {
+       "blend": {
+        "cells": {
+         "NB": {
+          "holdout": {
+           "actual_over_first_line": 0.12133142448103078,
+           "brier": 0.0997400719287578,
+           "brier_relative_vs_pois": 0.009937942820491895,
+           "delta_ci": [
+            -0.0014113366890060634,
+            0.0025902585998362616
+           ],
+           "delta_log_score": 0.0006661394357069245,
+           "log_score": -0.4019126023586072,
+           "mean_p_over_first_line": 0.1170012368475737
+          },
+          "validation": {
+           "actual_over_first_line": 0.1222644239464641,
+           "brier": 0.09872656169772737,
+           "brier_relative_vs_pois": 0.005634573700351571,
+           "delta_ci": [
+            -0.0024029130526038232,
+            0.001502856830135923
+           ],
+           "delta_log_score": -0.00038386927170452857,
+           "log_score": -0.3950378580571093,
+           "mean_p_over_first_line": 0.11041331843082076
+          },
+          "verdict": "REJECTED"
+         },
+         "POIS": {
+          "holdout": {
+           "actual_over_first_line": 0.12133142448103078,
+           "brier": 0.10074123253738017,
+           "log_score": -0.4025787417943142,
+           "mean_p_over_first_line": 0.1244885834295758
+          },
+          "validation": {
+           "actual_over_first_line": 0.1222644239464641,
+           "brier": 0.09928599595937326,
+           "log_score": -0.3946539887854047,
+           "mean_p_over_first_line": 0.11718566999471035
+          }
+         },
+         "ZIP": {
+          "holdout": {
+           "actual_over_first_line": 0.12133142448103078,
+           "brier": 0.10001486699834891,
+           "brier_relative_vs_pois": 0.007210210960658416,
+           "delta_ci": [
+            -0.0008303102689629121,
+            0.0017511759869314309
+           ],
+           "delta_log_score": 0.0004872631296293629,
+           "log_score": -0.4020914786646848,
+           "mean_p_over_first_line": 0.11976603423030782
+          },
+          "validation": {
+           "actual_over_first_line": 0.1222644239464641,
+           "brier": 0.09886387094014412,
+           "brier_relative_vs_pois": 0.004251606836898432,
+           "delta_ci": [
+            -0.0015263341905854524,
+            0.0012555966941226104
+           ],
+           "delta_log_score": -4.757060900770963e-05,
+           "log_score": -0.3947015593944124,
+           "mean_p_over_first_line": 0.11294089825223244
+          },
+          "verdict": "REJECTED"
+         }
+        },
+        "params": {
+         "NB": 0.5,
+         "POIS": null,
+         "ZIP": 0.2
+        }
+       },
+       "champion": {
+        "cells": {
+         "NB": {
+          "holdout": {
+           "actual_over_first_line": 0.12133142448103078,
+           "brier": 0.10139723751299791,
+           "brier_relative_vs_pois": 0.018972852252827643,
+           "delta_ci": [
+            -0.0014414629190862783,
+            0.005075005144239952
+           ],
+           "delta_log_score": 0.0018962437877748572,
+           "log_score": -0.41327335594060244,
+           "mean_p_over_first_line": 0.10766391409217341
+          },
+          "validation": {
+           "actual_over_first_line": 0.1222644239464641,
+           "brier": 0.10010060754463797,
+           "brier_relative_vs_pois": 0.011131432779018213,
+           "delta_ci": [
+            -0.0031964313274132753,
+            0.0029442476446660754
+           ],
+           "delta_log_score": 1.7276918372863822e-05,
+           "log_score": -0.4067159185600274,
+           "mean_p_over_first_line": 0.10019954065498146
+          },
+          "verdict": "INCONCLUSIVE"
+         },
+         "POIS": {
+          "holdout": {
+           "actual_over_first_line": 0.12133142448103078,
+           "brier": 0.10335823809345766,
+           "log_score": -0.4151695997283773,
+           "mean_p_over_first_line": 0.11904384987205806
+          },
+          "validation": {
+           "actual_over_first_line": 0.1222644239464641,
+           "brier": 0.10122741369558423,
+           "log_score": -0.40673319547840026,
+           "mean_p_over_first_line": 0.11033118552545465
+          }
+         },
+         "ZIP": {
+          "holdout": {
+           "actual_over_first_line": 0.12133142448103078,
+           "brier": 0.10172320812285704,
+           "brier_relative_vs_pois": 0.015819058071812442,
+           "delta_ci": [
+            -0.001273938767003659,
+            0.003435894794610411
+           ],
+           "delta_log_score": 0.0010317638887364364,
+           "log_score": -0.41413783583964087,
+           "mean_p_over_first_line": 0.11084991217907549
+          },
+          "validation": {
+           "actual_over_first_line": 0.1222644239464641,
+           "brier": 0.10021754356033064,
+           "brier_relative_vs_pois": 0.009976251475618297,
+           "delta_ci": [
+            -0.002526979784344466,
+            0.002671050498037548
+           ],
+           "delta_log_score": 0.0001412444965095388,
+           "log_score": -0.40659195098189066,
+           "mean_p_over_first_line": 0.10312596654866102
+          },
+          "verdict": "REJECTED"
+         }
+        },
+        "params": {
+         "NB": 0.8,
+         "POIS": null,
+         "ZIP": 0.3
+        }
+       }
+      }
+     },
+     "receptions": {
+      "blend_c": 2,
+      "means": {
+       "blend": {
+        "cells": {
+         "NB": {
+          "holdout": {
+           "actual_over_first_line": 0.4470293486041518,
+           "brier": 0.09628729556207569,
+           "brier_relative_vs_pois": 0.011217015312851023,
+           "delta_ci": [
+            0.010117290011918162,
+            0.033286018385193294
+           ],
+           "delta_log_score": 0.020692766116129316,
+           "log_score": -1.5858698369178021,
+           "mean_p_over_first_line": 0.42690704463495127
+          },
+          "validation": {
+           "actual_over_first_line": 0.4579489962018448,
+           "brier": 0.1020517227891012,
+           "brier_relative_vs_pois": 0.005809074830581716,
+           "delta_ci": [
+            0.018393709598884887,
+            0.043872111725781454
+           ],
+           "delta_log_score": 0.031549369229673496,
+           "log_score": -1.6502925493188971,
+           "mean_p_over_first_line": 0.4358634427456561
+          },
+          "verdict": "PROMISING"
+         },
+         "POIS": {
+          "holdout": {
+           "actual_over_first_line": 0.4470293486041518,
+           "brier": 0.09737960407211194,
+           "log_score": -1.6065626030339313,
+           "mean_p_over_first_line": 0.4570409778879233
+          },
+          "validation": {
+           "actual_over_first_line": 0.4579489962018448,
+           "brier": 0.10264801277653057,
+           "log_score": -1.6818419185485705,
+           "mean_p_over_first_line": 0.4667247456016038
+          }
+         },
+         "ZIP": {
+          "holdout": {
+           "actual_over_first_line": 0.4470293486041518,
+           "brier": 0.09738133214753777,
+           "brier_relative_vs_pois": -1.7745763523118828e-05,
+           "delta_ci": [
+            -0.0032282609772603882,
+            0.010532845428498456
+           ],
+           "delta_log_score": 0.003536674775087423,
+           "log_score": -1.6030259282588442,
+           "mean_p_over_first_line": 0.44828243648509997
+          },
+          "validation": {
+           "actual_over_first_line": 0.4579489962018448,
+           "brier": 0.10245152982336712,
+           "brier_relative_vs_pois": 0.0019141427860975854,
+           "delta_ci": [
+            0.0029638212790844666,
+            0.015663661642784314
+           ],
+           "delta_log_score": 0.008902786949843713,
+           "log_score": -1.6729391315987268,
+           "mean_p_over_first_line": 0.45826873687359965
+          },
+          "verdict": "INCONCLUSIVE"
+         }
+        },
+        "params": {
+         "NB": 0.2,
+         "POIS": null,
+         "ZIP": 0.05
+        }
+       },
+       "champion": {
+        "cells": {
+         "NB": {
+          "holdout": {
+           "actual_over_first_line": 0.4470293486041518,
+           "brier": 0.09733532320545192,
+           "brier_relative_vs_pois": 0.01354783371686517,
+           "delta_ci": [
+            0.013601156594227577,
+            0.03797534534097861
+           ],
+           "delta_log_score": 0.02473031902167057,
+           "log_score": -1.6028517344212803,
+           "mean_p_over_first_line": 0.41970729134511225
+          },
+          "validation": {
+           "actual_over_first_line": 0.4579489962018448,
+           "brier": 0.10311469616946725,
+           "brier_relative_vs_pois": 0.0075424731474805105,
+           "delta_ci": [
+            0.02272574432334534,
+            0.04928351202223494
+           ],
+           "delta_log_score": 0.03590649287969717,
+           "log_score": -1.6678785766521451,
+           "mean_p_over_first_line": 0.42895014364804374
+          },
+          "verdict": "PROMISING"
+         },
+         "POIS": {
+          "holdout": {
+           "actual_over_first_line": 0.4470293486041518,
+           "brier": 0.09867211663410186,
+           "log_score": -1.627582053442951,
+           "mean_p_over_first_line": 0.4494291692240953
+          },
+          "validation": {
+           "actual_over_first_line": 0.4579489962018448,
+           "brier": 0.10389834665921198,
+           "log_score": -1.7037850695318424,
+           "mean_p_over_first_line": 0.4594550202254716
+          }
+         },
+         "ZIP": {
+          "holdout": {
+           "actual_over_first_line": 0.4470293486041518,
+           "brier": 0.09861694778776196,
+           "brier_relative_vs_pois": 0.0005591128296606185,
+           "delta_ci": [
+            -0.002798028103253042,
+            0.010608092270494116
+           ],
+           "delta_log_score": 0.003891480309487647,
+           "log_score": -1.6236905731334634,
+           "mean_p_over_first_line": 0.4407023692011167
+          },
+          "validation": {
+           "actual_over_first_line": 0.4579489962018448,
+           "brier": 0.10365672872035443,
+           "brier_relative_vs_pois": 0.0023255224613925474,
+           "delta_ci": [
+            0.0036374323924185884,
+            0.016512056144105593
+           ],
+           "delta_log_score": 0.009556778493782163,
+           "log_score": -1.6942282910380602,
+           "mean_p_over_first_line": 0.45097674877928645
+          },
+          "verdict": "INCONCLUSIVE"
+         }
+        },
+        "params": {
+         "NB": 0.2,
+         "POIS": null,
+         "ZIP": 0.05
+        }
+       }
+      }
+     },
+     "rush_tds": {
+      "blend_c": 3,
+      "means": {
+       "blend": {
+        "cells": {
+         "NB": {
+          "holdout": {
+           "actual_over_first_line": 0.19150370869858396,
+           "brier": 0.14091491492676111,
+           "brier_relative_vs_pois": 0.009604508579629687,
+           "delta_ci": [
+            -0.00136812213594054,
+            0.0073961994592525865
+           ],
+           "delta_log_score": 0.002844683349726296,
+           "log_score": -0.5749260453665137,
+           "mean_p_over_first_line": 0.18116123185311747
+          },
+          "validation": {
+           "actual_over_first_line": 0.20791415157612342,
+           "brier": 0.14198952722165156,
+           "brier_relative_vs_pois": 0.0021229337539733785,
+           "delta_ci": [
+            -0.005816428343595123,
+            0.0027460413990917517
+           ],
+           "delta_log_score": -0.0016960796542284289,
+           "log_score": -0.5793460947864455,
+           "mean_p_over_first_line": 0.182513292829782
+          },
+          "verdict": "INCONCLUSIVE"
+         },
+         "POIS": {
+          "holdout": {
+           "actual_over_first_line": 0.19150370869858396,
+           "brier": 0.14228145841482856,
+           "log_score": -0.5777707287162399,
+           "mean_p_over_first_line": 0.19043162315324277
+          },
+          "validation": {
+           "actual_over_first_line": 0.20791415157612342,
+           "brier": 0.14229160286828763,
+           "log_score": -0.5776500151322171,
+           "mean_p_over_first_line": 0.1920780913619838
+          }
+         },
+         "ZIP": {
+          "holdout": {
+           "actual_over_first_line": 0.19150370869858396,
+           "brier": 0.1410614027680559,
+           "brier_relative_vs_pois": 0.008574944763466852,
+           "delta_ci": [
+            -0.0011971324077530226,
+            0.0074602745917178815
+           ],
+           "delta_log_score": 0.0027576594166646385,
+           "log_score": -0.5750130692995754,
+           "mean_p_over_first_line": 0.1831587784707423
+          },
+          "validation": {
+           "actual_over_first_line": 0.20791415157612342,
+           "brier": 0.14199860281596893,
+           "brier_relative_vs_pois": 0.002059152096205624,
+           "delta_ci": [
+            -0.005494087553131883,
+            0.0019363245308766383
+           ],
+           "delta_log_score": -0.0015469960782175792,
+           "log_score": -0.5791970112104348,
+           "mean_p_over_first_line": 0.18460739423280736
+          },
+          "verdict": "INCONCLUSIVE"
+         }
+        },
+        "params": {
+         "NB": 0.3,
+         "POIS": null,
+         "ZIP": 0.15
+        }
+       },
+       "champion": {
+        "cells": {
+         "NB": {
+          "holdout": {
+           "actual_over_first_line": 0.19150370869858396,
+           "brier": 0.1429112766789857,
+           "brier_relative_vs_pois": 0.015403607060190217,
+           "delta_ci": [
+            -0.0016021322847146996,
+            0.012067759573939404
+           ],
+           "delta_log_score": 0.004700195208831973,
+           "log_score": -0.5898218736230545,
+           "mean_p_over_first_line": 0.16700361049654924
+          },
+          "validation": {
+           "actual_over_first_line": 0.20791415157612342,
+           "brier": 0.14296132565778266,
+           "brier_relative_vs_pois": 0.005737566110639504,
+           "delta_ci": [
+            -0.009292615254262138,
+            0.0036794347831621676
+           ],
+           "delta_log_score": -0.00274257739769611,
+           "log_score": -0.5914867709681493,
+           "mean_p_over_first_line": 0.17583419167854955
+          },
+          "verdict": "INCONCLUSIVE"
+         },
+         "POIS": {
+          "holdout": {
+           "actual_over_first_line": 0.19150370869858396,
+           "brier": 0.1451470650347204,
+           "log_score": -0.5945220688318865,
+           "mean_p_over_first_line": 0.18132946338554606
+          },
+          "validation": {
+           "actual_over_first_line": 0.20791415157612342,
+           "brier": 0.1437863091121183,
+           "log_score": -0.5887441935704532,
+           "mean_p_over_first_line": 0.19161621900355993
+          }
+         },
+         "ZIP": {
+          "holdout": {
+           "actual_over_first_line": 0.19150370869858396,
+           "brier": 0.143260126885163,
+           "brier_relative_vs_pois": 0.013000181223823074,
+           "delta_ci": [
+            -0.001875771009507893,
+            0.011580869011756707
+           ],
+           "delta_log_score": 0.004065431196579551,
+           "log_score": -0.590456637635307,
+           "mean_p_over_first_line": 0.17129601110334652
+          },
+          "validation": {
+           "actual_over_first_line": 0.20791415157612342,
+           "brier": 0.14293863107278812,
+           "brier_relative_vs_pois": 0.005895401617612886,
+           "delta_ci": [
+            -0.00821817102887279,
+            0.0032316580809935206
+           ],
+           "delta_log_score": -0.002067463085589337,
+           "log_score": -0.5908116566560425,
+           "mean_p_over_first_line": 0.18046400378582084
+          },
+          "verdict": "INCONCLUSIVE"
+         }
+        },
+        "params": {
+         "NB": 0.5,
+         "POIS": null,
+         "ZIP": 0.2
+        }
+       }
+      }
+     }
+    },
+    "seconds": 0.9
+   },
    "spec": {
     "bootstrap": "cluster by player, 2000 draws, seed 20261008",
     "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
@@ -11087,11 +11946,254 @@
     "title": "Count distributions: Poisson vs negative binomial vs zero-inflated Poisson around a fixed mean"
    },
    "spec_sha256": "30fe4e58f4fc79a31e9ba215f5c258f070f09db0cc2d331105a7c50153972088",
-   "status": "REGISTERED"
+   "status": "PROMISING"
   },
   "P3-6": {
+   "completed_at": "2026-10-08T20:30:11Z",
    "registered_at": "2026-10-08T20:30:07Z",
-   "result": null,
+   "result": {
+    "markets": {
+     "pass_yds": {
+      "blend_c": 3,
+      "cells": {
+       "holdout": {
+        "POOL": {
+         "brier": 0.2161206830977561,
+         "brier_relative": 0.025768202830542163,
+         "ci": [
+          0.0008401011992387664,
+          0.06626566595491412
+         ],
+         "coverage80": 0.8510204081632653,
+         "pinball": 21.193232550783193,
+         "relative_pinball_gain": 0.031203180517249383
+        },
+        "PROD": {
+         "brier": 0.2218370245414645,
+         "coverage80": 0.7081632653061225,
+         "pinball": 21.87582795956995
+        },
+        "PROD-B": {
+         "brier": 0.2169086391779007,
+         "brier_relative": 0.022216243540728757,
+         "ci": [
+          0.0031579889652581235,
+          0.04608342395726572
+         ],
+         "coverage80": 0.7183673469387755,
+         "pinball": 21.359785985718307,
+         "relative_pinball_gain": 0.02358959737685658
+        },
+        "n": 490
+       },
+       "validation": {
+        "POOL": {
+         "brier": 0.21546568911586092,
+         "brier_relative": 0.05808122214885396,
+         "ci": [
+          0.030147321559362786,
+          0.08738839398886905
+         ],
+         "coverage80": 0.8430962343096234,
+         "pinball": 21.651157949184658,
+         "relative_pinball_gain": 0.053488270635687105
+        },
+        "PROD": {
+         "brier": 0.22875187774408245,
+         "coverage80": 0.6882845188284519,
+         "pinball": 22.874685307625086
+        },
+        "PROD-B": {
+         "brier": 0.21889599023796663,
+         "brier_relative": 0.043085493344636745,
+         "ci": [
+          0.01458876474178448,
+          0.053735059423477664
+         ],
+         "coverage80": 0.7112970711297071,
+         "pinball": 22.16365140935572,
+         "relative_pinball_gain": 0.031083876726922727
+        },
+        "n": 478
+       },
+       "verdicts": {
+        "POOL": "PROMISING",
+        "PROD-B": "PROMISING"
+       }
+      },
+      "pool": {
+       "QB": {
+        "cv": 0.4,
+        "n": 1431,
+        "zero_rate": 0.0020964360587002098
+       }
+      }
+     },
+     "rec_yds": {
+      "blend_c": 1,
+      "cells": {
+       "holdout": {
+        "POOL": {
+         "brier": 0.22213616712858453,
+         "brier_relative": 0.0355117909249479,
+         "ci": [
+          0.01905477670122487,
+          0.03824030890922021
+         ],
+         "coverage80": 0.8550178874035022,
+         "pinball": 5.286694582123036,
+         "relative_pinball_gain": 0.02897687040678213
+        },
+        "PROD": {
+         "brier": 0.2303150676581251,
+         "coverage80": 0.7431745434004895,
+         "pinball": 5.444457934115063
+        },
+        "PROD-B": {
+         "brier": 0.2278700897576584,
+         "brier_relative": 0.010615796549168735,
+         "ci": [
+          0.0054725449003322985,
+          0.014256571600371703
+         ],
+         "coverage80": 0.7439276972321597,
+         "pinball": 5.390182267351593,
+         "relative_pinball_gain": 0.00996897531770419
+        },
+        "n": 5311
+       },
+       "validation": {
+        "POOL": {
+         "brier": 0.2263902291932441,
+         "brier_relative": 0.02426344668417539,
+         "ci": [
+          0.017084513734863076,
+          0.03444935820560452
+         ],
+         "coverage80": 0.8603993971363979,
+         "pinball": 5.431955876801708,
+         "relative_pinball_gain": 0.025152059036488875
+        },
+        "PROD": {
+         "brier": 0.2320198299673278,
+         "coverage80": 0.756405425772419,
+         "pinball": 5.572105811120576
+        },
+        "PROD-B": {
+         "brier": 0.22956288311669604,
+         "brier_relative": 0.010589383032380262,
+         "ci": [
+          0.006059408859106212,
+          0.013801934304759914
+         ],
+         "coverage80": 0.7626224566691786,
+         "pinball": 5.517791927692257,
+         "relative_pinball_gain": 0.009747460882727784
+        },
+        "n": 5308
+       },
+       "verdicts": {
+        "POOL": "PROMISING",
+        "PROD-B": "INCONCLUSIVE"
+       }
+      },
+      "pool": {
+       "RB": {
+        "cv": 0.9,
+        "n": 4311,
+        "zero_rate": 0.3975875666898631
+       },
+       "TE": {
+        "cv": 0.7,
+        "n": 4260,
+        "zero_rate": 0.3748826291079812
+       },
+       "WR": {
+        "cv": 0.7,
+        "n": 7346,
+        "zero_rate": 0.2753879662401307
+       }
+      }
+     },
+     "rush_yds": {
+      "blend_c": 0.5,
+      "cells": {
+       "holdout": {
+        "POOL": {
+         "brier": 0.23032826598748057,
+         "brier_relative": 0.0011917583722876018,
+         "ci": [
+          -0.011566462762554136,
+          0.020056922975590547
+         ],
+         "coverage80": 0.7979020979020979,
+         "pinball": 6.945642226005249,
+         "relative_pinball_gain": 0.004277511437761108
+        },
+        "PROD": {
+         "brier": 0.23060308914965005,
+         "coverage80": 0.7286713286713287,
+         "pinball": 6.97547992115185
+        },
+        "PROD-B": {
+         "brier": 0.2303397035575368,
+         "brier_relative": 0.0011421598604098833,
+         "ci": [
+          -0.006247015375452172,
+          0.0074282164577659125
+         ],
+         "coverage80": 0.7244755244755244,
+         "pinball": 6.973576617420256,
+         "relative_pinball_gain": 0.00027285631284259783
+        },
+        "n": 1430
+       },
+       "validation": {
+        "POOL": {
+         "brier": 0.23427080302910253,
+         "brier_relative": 0.026799387003141325,
+         "ci": [
+          0.002919836950891079,
+          0.03428409241178996
+         ],
+         "coverage80": 0.7753673897830651,
+         "pinball": 7.113951353745274,
+         "relative_pinball_gain": 0.018204981598581287
+        },
+        "PROD": {
+         "brier": 0.24072200520681208,
+         "coverage80": 0.6724982505248426,
+         "pinball": 7.245862140682253
+        },
+        "PROD-B": {
+         "brier": 0.23958883229742853,
+         "brier_relative": 0.0047073922818564535,
+         "ci": [
+          -0.007032687093645328,
+          0.012494847429656163
+         ],
+         "coverage80": 0.6759972008397481,
+         "pinball": 7.2177618339945075,
+         "relative_pinball_gain": 0.0038781177646169517
+        },
+        "n": 1429
+       },
+       "verdicts": {
+        "POOL": "INCONCLUSIVE",
+        "PROD-B": "REJECTED"
+       }
+      },
+      "pool": {
+       "RB": {
+        "cv": 0.6,
+        "n": 4253,
+        "zero_rate": 0.1925699506230896
+       }
+      }
+     }
+    },
+    "seconds": 0.3
+   },
    "spec": {
     "bootstrap": "cluster by player, 2000 draws, seed 20261008",
     "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
@@ -11145,6 +12247,61 @@
     "title": "Yardage distributions: production lognormal + zero mass vs pooled-spread alternatives around a fixed mean"
    },
    "spec_sha256": "d6bfc27b0c56793864d6bd78846b8562660c79d47290133f7dc6914ceef8c490",
+   "status": "PROMISING"
+  },
+  "P3-6b": {
+   "registered_at": "2026-10-08T20:32:37Z",
+   "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "otherwise",
+     "PROMISING": "as P3-6",
+     "REJECTED": "as P3-6"
+    },
+    "exploratory": true,
+    "football_rationale": "A quarterback's yardage spread is about 0.25-0.35 of the mean, far from the 0.4 grid floor.",
+    "hypothesis": "A pooled (or shrunk) spread prices yardage thresholds better than the production per-window spread; the P3-6 grid was too coarse at the low end.",
+    "id": "P3-6b",
+    "leakage": "parameters from 2021-2023",
+    "limitations": "post-hoc",
+    "markets": [
+     "rec_yds",
+     "rush_yds",
+     "pass_yds"
+    ],
+    "metric": "pinball loss relative gain vs PROD; Brier at lines; 80% coverage",
+    "models": {
+     "POOL2": "pooled CV per position, grid [0.15..1.2], zero mass shrunk toward position rate, blend mean",
+     "PROD": "production",
+     "SHRINK": "sigma^2 = w*window_sigma^2 + (1-w)*pooled_sigma^2, w = n/(n+n0), n0 in [2,5,10,20] learned on development seasons"
+    },
+    "multiple_testing": "Bonferroni over 3 markets x 2 alternatives (99.2%)",
+    "population": "as P3-6",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_pinball": 0.01
+    },
+    "sources": [
+     "nflverse weekly stats"
+    ],
+    "splits": {
+     "development": [
+      2021,
+      2022,
+      2023
+     ],
+     "holdout": [
+      2025
+     ],
+     "validation": [
+      2024
+     ]
+    },
+    "title": "Yardage spread: wider coefficient-of-variation grid and player/pool shrinkage (follow-up to P3-6)"
+   },
+   "spec_sha256": "0eb30285f9e37da4f63a71c8bdbcae4bbb3e33d4972655b52c18e8883f1b09aa",
    "status": "REGISTERED"
   }
  },
