@@ -216,3 +216,19 @@ class ResearchEquivalenceTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class RoleTrendTests(unittest.TestCase):
+    def test_role_trend_is_descriptive_and_flags_expansion_and_contraction(self):
+        games_list = [{'season': 2026, 'week': w, 'team': 'AAA', 'targets': t, 'carries': 0} for w, t in enumerate([2, 2, 3, 6, 7, 8], 1)]
+        team_week = {(2026, w, 'AAA'): {'targets': 30.0, 'carries': 25.0} for w in range(1, 7)}
+        snaps = {('p', 2026, w): s for w, s in enumerate([.5, .5, .55, .8, .85, .9], 1)}
+        up = bp.role_trend('p', games_list, snaps, team_week)
+        self.assertEqual(up['flags'], ['ROLE UP'])
+        self.assertAlmostEqual(up['target_share']['l1'], 8 / 30)
+        self.assertAlmostEqual(up['snap_share']['l6'], sum([.5, .5, .55, .8, .85, .9]) / 6 * 100)
+        down = bp.role_trend('p', list(reversed(games_list)) and [dict(g, targets=t) for g, t in zip(games_list, [8, 7, 6, 3, 2, 2])], {k: v for k, v in zip(snaps, [.9, .85, .8, .55, .5, .5])}, team_week)
+        self.assertEqual(down['flags'], ['ROLE DOWN'])
+        self.assertIsNone(bp.role_trend('p', games_list[:2], snaps, team_week), 'fewer than three games gives no trend')
+        flat = bp.role_trend('p', [dict(g, targets=5) for g in games_list], {k: .7 for k in snaps}, team_week)
+        self.assertEqual(flat['flags'], [])

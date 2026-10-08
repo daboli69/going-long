@@ -4693,7 +4693,7 @@ function goingPicksCandidates(now=Date.now()){
  for(const p of BET.props){
   if(p.dfs||p.manual||['manual','projection'].includes(p.source)||!upcoming(p.kickoff)||!p.profileId||!GoingFootballPicks.FAMILIES[p.market]||p.market==='atd'&&p.line>.5)continue;
   const probabilities=propProbabilities(p),[home,away]=p.eventTeams||[];if(!probabilities||!home||!away)continue;
-  const base={kind:'prop',sport:'nfl',home,away,kickoff:p.kickoff,player:p.player,profileId:p.profileId,profileDate:p.profileDate,team:p.team,opp:p.opp,position:BET.history?.profiles?.[p.profileId]?.position,market:p.market,line:p.market==='atd'?(p.line??.5):p.line,n:p.model?.n,projMean:p.projMean,projSd:p.projSd,modelFamily:p.model?.family,seasonEvidence:p.model?.season_evidence,injury:p.injury,book:p.book,updatedAt:p.updatedAt,flags:[]};
+  const base={kind:'prop',sport:'nfl',home,away,kickoff:p.kickoff,player:p.player,profileId:p.profileId,profileDate:p.profileDate,team:p.team,opp:p.opp,position:BET.history?.profiles?.[p.profileId]?.position,market:p.market,line:p.market==='atd'?(p.line??.5):p.line,n:p.model?.n,projMean:p.projMean,projSd:p.projSd,modelFamily:p.model?.family,roleTrend:BET.history?.profiles?.[p.profileId]?.role_trend||null,seasonEvidence:p.model?.season_evidence,injury:p.injury,book:p.book,updatedAt:p.updatedAt,flags:[]};
   for(const side of p.market==='atd'?['Yes']:['Over','Under']){const odds=side==='Under'?p.underOdds:p.overOdds,prob=side==='Under'?probabilities.under:probabilities.over,dec=americanToDecimal(odds),c={...base,side,odds,dec,prob,push:probabilities.push,ev:evPercent(prob,dec,probabilities.push)};c.contract=opportunityIdentity(c);rows.push(c);}
  }
  for(const g of BET.games){

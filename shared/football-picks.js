@@ -122,6 +122,17 @@ function assess(c,options={}){
    else facts.push(['Current injury applicability','Historical split only; no exact-game OUT confirmation or meaningful opportunity change. No injury rating points.']);
   }
  }
+ if(c.kind==='prop'){
+  facts.push(['Projection vs line',finite(c.projMean)?`GOING projects ${c.projMean.toFixed(1)} against a line of ${c.line}${c.market==='atd'?'':` (${c.side})`}.`:'No model projection is attached.']);
+  const t=c.roleTrend;
+  if(t){
+   const part=(label,x,scale,unit)=>x&&finite(x.l6)&&finite(x.l3)?`${label} ${(x.l6*scale).toFixed(0)}${unit} → ${(x.l3*scale).toFixed(0)}${unit}`:null;
+   const text=[part('Snap share',t.snap_share,1,'%'),part('Target share',t.target_share,100,'%'),part('Carry share',t.carry_share,100,'%')].filter(Boolean).join(' · ');
+   if(text)facts.push(['Role trend (last 6 games → last 3)',`${text}. ${t.flags?.includes('ROLE UP')?'The role has expanded recently.':t.flags?.includes('ROLE DOWN')?'The role has shrunk recently.':'No meaningful change.'} Descriptive public data; it earns no rating points.`]);
+   if(t.flags?.includes('ROLE UP'))badges.push('ROLE UP');
+   if(t.flags?.includes('ROLE DOWN')){badges.push('ROLE DOWN');concerns.push('Snap, target or carry share has fallen over the last three games versus the last six.');}
+  }
+ }
  const opp=['Receiving','Rushing','TD'].includes(family)?opportunityProcess(c,o):null;
  if(opp?.usage){const text=situationText(opp.usage,family);if(text)facts.push([`Situational usage (${o.season} PBP, completed games)`,`${text}. ${opp.usage.games} games observed; counts exclude kneels, spikes and two-point tries.`]);}
  if(opp?.process){facts.push(['Opportunity vs production',opp.process.detail]);badges.push(opp.process.badge);}

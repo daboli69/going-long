@@ -32,3 +32,12 @@ test('projection refinement respects direction, market units, evidence caps and 
  }
  const td=P.assess({...c,market:'atd',side:'Yes',line:.5}, {...o,currentRoleEvidence:{...o.currentRoleEvidence,tdAppearances:2}});assert.equal(td.ratingDetail.strength,null);assert.ok(td.rating<=40);
 });
+test('role trend and projection-vs-line appear as descriptive facts and add no rating points',()=>{
+ const trend={games:8,snap_share:{l1:90,l3:84,l6:70,change_l3_vs_l6:14,change_l1_vs_l6:20},target_share:{l1:.25,l3:.23,l6:.18,change_l3_vs_l6:.05,change_l1_vs_l6:.07},flags:['ROLE UP']};
+ const base=P.assess(c,o),up=P.assess({...c,roleTrend:trend},o);
+ assert.equal(up.points,base.points);assert.equal(up.rating,base.rating);
+ const fact=up.facts.find(x=>x[0].startsWith('Role trend'));assert.match(fact[1],/Snap share 70% → 84%/);assert.match(fact[1],/Target share 18% → 23%/);assert.match(fact[1],/expanded/);
+ assert.ok(up.badges.includes('ROLE UP'));assert.match(up.facts.find(x=>x[0]==='Projection vs line')[1],/projects 65\.0 against a line of 55\.5/);
+ const down=P.assess({...c,roleTrend:{...trend,flags:['ROLE DOWN']}},o);assert.ok(down.badges.includes('ROLE DOWN'));assert.ok(down.concerns.some(x=>/fallen/.test(x)));
+ assert.equal(P.assess({...c,roleTrend:null},o).facts.some(x=>x[0].startsWith('Role trend')),false);
+});

@@ -125,13 +125,15 @@ def season_weights(seasons, current):
     return [(0.8 / now if before else 1 / now) if s == current else ((0.2 / before if now else 1 / before) if s < current else 0) for s in seasons]
 
 
-def champion_frame(root, target_seasons, history_from=2019):
+def champion_frame(root, target_seasons, history_from=2019, extra=None):
     """For every appearance in `target_seasons`, the Champion's inputs and market means using ONLY earlier games.
 
     Columns per market m: champ_m (the production mean), cur_m / prior_m (equal-weight means of the window's current-season / earlier-season games),
     plus k (current-season games in the window), n (window size), n_prior, and the actual outcome y_m.
     """
     games = appearances(root, range(history_from, max(target_seasons) + 1))
+    if extra is not None and len(extra):  # placeholder appearances for games not yet played: features come from earlier games only, the outcome stays empty
+        games = pd.concat([games, extra], ignore_index=True).sort_values(['player_id', 'season', 'week']).reset_index(drop=True)
     schedule = load_games(root)
     starters = verified_starts(schedule)
     date = {(r.season, r.week, r.home_team): r.gameday for r in schedule.itertuples() if r.game_type == 'REG'}

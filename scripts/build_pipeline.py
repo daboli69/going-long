@@ -159,6 +159,47 @@ def _apply_champion_v2(model, spec, usable, column, season, position):
     return False
 
 
+ROLE_RULE = {'snap': 8.0, 'target': 0.03, 'carry': 0.05}  # descriptive thresholds fixed before any outcome: L3 versus L6 change in snap-share points / target share / carry share
+
+
+def role_trend(pid, games, snap_share, team_week):
+    """Free, public role evidence per player: offensive snap share, share of team targets and carries, over the last 1 / 3 / 6 games, and the recent change.
+
+    Descriptive. A free-role Challenger (research P3-4) found level plus change predictive of next-game volume; it is recorded in shadow, not used by the Champion."""
+    rows = []
+    for r in sorted(games, key=lambda x: (x['season'], x['week'])):
+        team = r.get('team') or r.get('recent_team')
+        totals = team_week.get((r['season'], r['week'], team), {})
+        rows.append({'snap': snap_share.get((pid, r['season'], r['week'])),
+                     'target': (r['targets'] / totals['targets']) if finite(r.get('targets')) and totals.get('targets') else None,
+                     'carry': (r['carries'] / totals['carries']) if finite(r.get('carries')) and totals.get('carries') else None, 'week': r['week'], 'season': r['season']})
+    if len(rows) < 3:
+        return None
+
+    def mean(key, n):
+        values = [x[key] for x in rows[-n:] if x[key] is not None]
+        return (sum(values) / len(values)) if values else None
+    out = {'games': len(rows), 'last_game': {'season': rows[-1]['season'], 'week': rows[-1]['week']}}
+    for key, label in (('snap', 'snap_share'), ('target', 'target_share'), ('carry', 'carry_share')):
+        l1, l3, l6 = mean(key, 1), mean(key, 3), mean(key, 6)
+        if l6 is None:
+            continue
+        scale = 100.0 if key == 'snap' else 1.0
+        out[label] = {'l1': l1, 'l3': l3, 'l6': l6, 'change_l3_vs_l6': (l3 - l6) if l3 is not None else None, 'change_l1_vs_l6': (l1 - l6) if l1 is not None else None}
+        if label == 'snap_share':
+            out[label].update({k: (v * scale if v is not None else None) for k, v in list(out[label].items())})
+    flags = []
+    snap, target, carry = out.get('snap_share'), out.get('target_share'), out.get('carry_share')
+    up = (snap and snap['change_l3_vs_l6'] is not None and snap['change_l3_vs_l6'] >= ROLE_RULE['snap']) or (target and target['change_l3_vs_l6'] is not None and target['change_l3_vs_l6'] >= ROLE_RULE['target'])         or (carry and carry['change_l3_vs_l6'] is not None and carry['change_l3_vs_l6'] >= ROLE_RULE['carry'])
+    down = (snap and snap['change_l3_vs_l6'] is not None and snap['change_l3_vs_l6'] <= -ROLE_RULE['snap']) or (target and target['change_l3_vs_l6'] is not None and target['change_l3_vs_l6'] <= -ROLE_RULE['target'])         or (carry and carry['change_l3_vs_l6'] is not None and carry['change_l3_vs_l6'] <= -ROLE_RULE['carry'])
+    if up and not down:
+        flags.append('ROLE UP')
+    elif down and not up:
+        flags.append('ROLE DOWN')
+    out['flags'] = flags
+    return out
+
+
 def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
     season = max((r.get('season', 0) for r in schedule), default=datetime.now(timezone.utc).year)
     starters = {(r.get('season'), r.get('week'), r.get(side+'_team')): r.get(side+'_qb_id')
@@ -181,6 +222,16 @@ def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
             games[key] = {'player_id': pid, 'season': snap['season'], 'week': snap['week'],
                           'team': snap.get('team'), 'player_display_name': meta.get('full_name'),
                           **{col: 0 for col, _ in MARKETS.values()}, 'special_teams_tds': 0}
+    snap_share = {}
+    for snap in snaps:
+        gid = pfr.get(snap.get('pfr_player_id'))
+        if gid and snap.get('game_type') == 'REG' and finite(snap.get('offense_pct')):
+            snap_share[(gid, snap['season'], snap['week'])] = snap['offense_pct']
+    team_week = defaultdict(lambda: {'targets': 0.0, 'carries': 0.0})
+    for (pid, season, week), r in games.items():
+        for column in ('targets', 'carries'):
+            if finite(r.get(column)):
+                team_week[(season, week, r.get('team') or r.get('recent_team'))][column] += r[column]
     grouped = defaultdict(list)
     for (pid, season, week), r in games.items():
         r['date'] = dates.get((season, week, r.get('team') or r.get('recent_team')), '')
@@ -208,6 +259,7 @@ def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
         profiles[pid] = {'id': pid, 'name': name, 'name_key': normalize_name(name),
                          'team': meta.get('team') or last.get('team') or last.get('recent_team'),
                          'position': meta.get('position') or last.get('position'), 'last_game': modeled[-1]['date'] if position == 'QB' and modeled else last['date'],
+                         'role_trend': role_trend(pid, recent, snap_share, team_week),
                          'role_evidence': {'basis':'verified schedule starts' if position == 'QB' else 'offensive appearances',
                                            'modeled_games':len(modeled), 'latest_appearance':last['date'],
                                            'latest_start':modeled[-1]['date'] if modeled and position == 'QB' else None},
