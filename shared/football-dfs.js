@@ -53,7 +53,11 @@ function correlation(lineup,mode){
  const stack=lineup.some(player=>['WR','TE'].includes(player.position)&&player.team===qb.team),bringBack=lineup.some(player=>['RB','WR','TE'].includes(player.position)&&player.team===qb.opponent);
  return (stack?(mode==='ceiling'?1.1:.35):mode==='ceiling'?-1:0)+(stack&&bringBack&&mode==='ceiling'?.45:0)-1.25*opponentConflict(lineup);
 }
-function objective(player,mode){const projection=player.projection||0,sd=finite(player.sd)?player.sd:projection*.32;return mode==='tournament'?(root.GoingDfsTournament||(typeof require==='function'?require('./dfs-tournament.js'):null))?.objective(player)??projection:mode==='floor'?projection-.18*sd:mode==='ceiling'?projection+.28*sd:projection;}
+const sim=()=>root.GoingDfsSim||(typeof require==='function'?require('./dfs-sim.js'):null);
+function objective(player,mode){const projection=player.projection||0,sd=finite(player.sd)?player.sd:projection*.32;return mode==='measured'?projection+.28*sd:mode==='tournament'?(root.GoingDfsTournament||(typeof require==='function'?require('./dfs-tournament.js'):null))?.objective(player)??projection:mode==='floor'?projection-.18*sd:mode==='ceiling'?projection+.28*sd:projection;}
+// Measured-correlation objective: mean plus 1.28 standard deviations of the lineup total (about its 90th percentile), with the pairwise correlations measured in
+// research/trend-intelligence (P3-9). Players without a simulated distribution fall back to their projection spread and are treated as independent.
+function measuredObjective(lineup){const simulator=sim();if(!simulator)return lineup.reduce((sum,player)=>sum+(player.projection||0)*(player.multiplier||1),0);const moments=simulator.lineupMoments(lineup);return moments.mean+1.2816*moments.sd;}
 function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false,contest='classic',lockedIds=[],captainId=null,now=Date.now()}={}){
  const rule=RULES[site];if(!rule)return {lineups:[],reason:'Unsupported DFS platform.'};
  const showdown=contest==='showdown',multiplierSlot=site==='fanduel'?'MVP':'CPT',maxFromTeam=showdown?5:rule.maxTeam,slots=showdown?[multiplierSlot,'FLEX','FLEX','FLEX','FLEX','FLEX']:projectionOnly?rule.slots.filter(slot=>slot!=='DST'):rule.slots;
@@ -104,8 +108,9 @@ function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5
   }
   if(!states.length)return {lineups:[],reason:projectionOnly?'No position-valid offensive core could be generated.':`No legal lineup fits the ${rule.label} salary cap.`};
  }
- const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:state.base+(mode==='tournament'?0:correlation(state.players,mode)),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
+ const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:mode==='measured'?measuredObjective(state.players):state.base+(mode==='tournament'?0:correlation(state.players,mode)),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
  const lineups=[];for(const candidate of ranked){const ids=new Set(candidate.players.map(player=>player.id)),different=lineups.every(lineup=>lineup.players.filter(player=>!ids.has(player.id)).length>=minUnique);if(different)lineups.push(candidate);if(lineups.length>=Math.max(1,Math.min(20,count)))break;}
+ const simulator=sim();if(simulator)lineups.forEach((lineup,index)=>{const moments=simulator.lineupMoments(lineup.players),distribution=simulator.lineupDistribution(lineup.players,{draws:2000,seed:index+1});if(distribution)lineup.simulation={mean:distribution.mean,sd:distribution.sd,floor:distribution.floor,p25:distribution.p25,median:distribution.median,p75:distribution.p75,p90:distribution.p90,p95:distribution.p95,draws:2000,source:distribution.source,analyticSd:moments.sd};});
  return {lineups,reason:lineups.length?null:'No sufficiently distinct roster ideas were found.',eligible:available.length,rule:{...rule,slots},projectionOnly,contest,locked:[...requestedLocks]};
 }
 

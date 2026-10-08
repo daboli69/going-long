@@ -17,7 +17,7 @@ function setup(t,parlaySaved=null){
   const context=dom.getInternalVMContext();
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-score.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-injuries.js'),'utf8'),context);
-  for(const f of ['dfs-availability','dfs-upside','dfs-tournament','dfs-journal','dfs-classic','dfs-evidence'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/'+f+'.js'),'utf8'),context);
+  for(const f of ['dfs-availability','dfs-upside','dfs-tournament','dfs-journal','dfs-correlations','dfs-sim','dfs-classic','dfs-evidence'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/'+f+'.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-dfs.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-slate.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/score-tracker.js'),'utf8'),context);
