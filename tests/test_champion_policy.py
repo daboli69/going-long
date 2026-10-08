@@ -47,6 +47,35 @@ class PolicyFileTests(unittest.TestCase):
         self.assertTrue(committed['rollback'])
 
 
+class StrictLoadingAndGatingTests(PolicyFileTests):
+    def test_a_broken_file_raises_instead_of_silently_disabling_and_only_true_activates(self):
+        with self.assertRaises(ValueError):
+            cp.load(self.write({**POLICY, 'markets': {'receptions': {'mean': {'c': -1}}}}))
+        bad = tempfile.NamedTemporaryFile('w', suffix='.json', delete=False, encoding='utf-8')
+        bad.write('{not json')
+        bad.close()
+        self.addCleanup(os.unlink, bad.name)
+        with self.assertRaises(ValueError):
+            cp.load(bad.name)
+        self.assertIsNone(cp.load(self.write({**POLICY, 'active': 'false'})))
+        self.assertIsNone(cp.load(self.write({**POLICY, 'active': 1})))
+
+    def test_positions_outside_the_validated_cells_keep_v1(self):
+        gated = {**POLICY, 'markets': {**POLICY['markets'], 'receptions': {**POLICY['markets']['receptions'], 'positions': ['WR', 'TE', 'RB']}}}
+        self.assertIsNotNone(cp.market_policy(gated, 'receptions', 'WR'))
+        self.assertIsNone(cp.market_policy(gated, 'receptions', 'QB'))
+        self.assertIsNone(cp.market_policy(gated, 'receptions', 'FB'))
+        self.assertIsNotNone(cp.market_policy(gated, 'rec_tds', 'QB'), 'a market without a positions list applies to every position')
+
+    def test_v1_output_carries_no_policy_key_and_v2_output_does(self):
+        rows = games([4, 5, 3, 6, 2, 5, 4, 3, 7, 4, 5], [9], 'receptions')
+        gated = {**POLICY, 'markets': {**POLICY['markets'], 'receptions': {**POLICY['markets']['receptions'], 'positions': ['WR']}}}
+        with mock.patch.object(cp, 'load', lambda path=None: gated):
+            self.assertNotIn('policy', bp.season_fit(rows, 'receptions', 'poisson', 2026, 5, market='receptions', position='QB'))
+            self.assertEqual(bp.season_fit(rows, 'receptions', 'poisson', 2026, 5, market='receptions', position='WR')['policy'], 'champion-v2')
+        self.assertNotIn('policy', bp.season_fit(rows, 'receptions', 'poisson', 2026, 5))
+
+
 class BlendTests(unittest.TestCase):
     def test_blend_weights_reproduce_the_prior_strength_formula(self):
         rng = random.Random(7)
@@ -103,14 +132,13 @@ class SeasonFitIntegrationTests(unittest.TestCase):
         rows = games([4, 5, 3, 6, 2, 5, 4, 3, 7, 4, 5], [9], 'receptions')
         old = bp.season_fit(rows, 'receptions', 'poisson', 2026, 5)
         new = self.fit(rows, 'receptions', 'poisson', 'receptions', 'WR', None)
-        self.assertEqual({k: v for k, v in old.items() if k != 'policy'}, {k: v for k, v in new.items() if k != 'policy'})
-        self.assertEqual(new['policy'], 'champion-v1')
+        self.assertEqual(old, new)
 
     def test_unlisted_market_is_unchanged_even_when_the_policy_is_active(self):
         rows = games([40, 55, 0, 80, 20, 65, 44, 31, 97, 54, 15], [120], 'rushing_yards')
         old = bp.season_fit(rows, 'rushing_yards', 'lognormal', 2026, 5)
         new = self.fit(rows, 'rushing_yards', 'lognormal', 'rush_yds', 'RB', POLICY)
-        self.assertEqual({k: v for k, v in old.items() if k != 'policy'}, {k: v for k, v in new.items() if k != 'policy'})
+        self.assertEqual(old, new)
 
     def test_receptions_v2_blends_the_mean_and_adds_dispersion(self):
         rows = games([4, 5, 3, 6, 2, 5, 4, 3, 7, 4, 5], [9], 'receptions')
@@ -146,7 +174,7 @@ class SeasonFitIntegrationTests(unittest.TestCase):
         rows = games([40, 55, 0, 80, 20, 65, 44, 31, 97, 54, 15], [120], 'receiving_yards')
         old = bp.season_fit(rows, 'receiving_yards', 'lognormal', 2026, 5)
         new = self.fit(rows, 'receiving_yards', 'lognormal', 'rec_yds', 'FB', POLICY)
-        self.assertEqual(new['policy'], 'champion-v1')
+        self.assertNotIn('policy', new)
         self.assertEqual(old['mean'], new['mean'])
 
     def test_too_few_games_stays_insufficient_under_v2(self):

@@ -14,19 +14,38 @@ POLICY_PATH = Path(__file__).resolve().parent.parent / 'config' / 'champion_poli
 V1_NAME = 'champion-v1'
 
 
+_CACHE = {}
+
+
 def load(path=None):
-    """The active policy, or None when v1 is in force (inactive config, missing file, or GOING_CHAMPION_POLICY=v1)."""
+    """The active policy, or None when v1 is in force (inactive config, missing file, or GOING_CHAMPION_POLICY=v1).
+
+    A missing file means v1; a file that exists but cannot be parsed or validated raises, so a typo can never silently change which model runs. Only the JSON value true
+    activates the policy."""
     if os.environ.get('GOING_CHAMPION_POLICY', '').lower() == 'v1':
         return None
+    target = Path(path or POLICY_PATH)
     try:
-        policy = json.loads(Path(path or POLICY_PATH).read_text(encoding='utf-8'))
-    except (OSError, ValueError):
+        stamp = (str(target), target.stat().st_mtime_ns)
+    except OSError:
         return None
-    return policy if policy.get('active') else None
+    if stamp not in _CACHE:
+        policy = json.loads(target.read_text(encoding='utf-8'))
+        for market, spec in (policy.get('markets') or {}).items():
+            c = (spec.get('mean') or {}).get('c')
+            if not isinstance(c, (int, float)) or isinstance(c, bool) or c <= 0:
+                raise ValueError(f'{target}: market {market} needs a positive mean.c')
+        _CACHE[stamp] = policy
+    policy = _CACHE[stamp]
+    return policy if policy.get('active') is True else None
 
 
-def market_policy(policy, market):
-    return (policy or {}).get('markets', {}).get(market)
+def market_policy(policy, market, position=None):
+    """The market's spec, or None. When the spec lists `positions`, a position outside it keeps v1 (the cells were never validated)."""
+    spec = (policy or {}).get('markets', {}).get(market)
+    if spec and position is not None and spec.get('positions') and position not in spec['positions']:
+        return None
+    return spec
 
 
 def blend_weights(years, season, c):

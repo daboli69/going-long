@@ -259,3 +259,9 @@ the game-first-TD aliases. A separate NFL derivative request prevents the broad
 10,000-row cap from suppressing these markets. Current half-player availability
 may be pick’em only: those lines retain projections but no fabricated payout,
 EV or Kelly. NCAA remains game markets only.
+
+## Champion v2 (2026-10-08)
+
+The paragraphs above describe the original projection (equal-weight window). The live policy weights the window 80% current / 20% earlier season (`season_weights`) and, for the markets
+and positions in [CHAMPION_V2.md](CHAMPION_V2.md), a prior-strength blend with a pooled yardage spread. Count markets use Poisson(lambda); there is no BET/PASS tier, GOING Picks rates
+the football case independently of price, and the tracker applies a -500 American-odds floor to every tracked group (GOING Picks included since 2026-10-08).

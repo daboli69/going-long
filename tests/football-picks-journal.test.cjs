@@ -16,7 +16,8 @@ test('Picks receipt rejects changed line/model, future inputs and future capture
 });
 test('Picks forecasts retain first rating, use existing settlement and remain a distinct cohort',async()=>{
  const {freezePredictions,settlePredictions,selectTrackedPlays}=await import('../scripts/build_public_tracker.mjs'),records=[],row=play();
- assert.equal(selectTrackedPlays([row]).length,1);assert.equal(freezePredictions(records,[row],frozen).length,1);const original=JSON.stringify(records[0]);
+ assert.equal(selectTrackedPlays([row]).length,1);
+ for(const [odds,dec,expected] of [[-500,1.2,1],[-501,1.1996,0],[-1200,1.083,0],[-110,1.909,1]])assert.equal(selectTrackedPlays([{...row,odds,dec}]).length,expected,`odds ${odds}: Picks follow the same -500 floor as every other tracked group`);assert.equal(freezePredictions(records,[row],frozen).length,1);const original=JSON.stringify(records[0]);
  assert.equal(freezePredictions(records,[play({prob:.9})],'2026-10-05T18:02:00Z').length,0);assert.equal(JSON.stringify(records[0]),original);
  assert.equal(records[0].payload.model_cohort,'going-picks-v2');assert.equal(records[0].payload.picks_snapshot.rating,35);
  const results={games:{g:{sport:'nfl',id:'g',home:'NO',away:'ATL',kickoff:row.kickoff,homeScore:20,awayScore:17}},players:{'p|2026-10-05':{rec_yds:60}},generated_at:'2026-10-06T04:00:00Z'};

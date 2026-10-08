@@ -58,5 +58,55 @@
   "thought": "(Exploratory, post-hoc after QA) Expected-opportunity sources add information beyond raw volume, including raw in-season volume.",
   "result": "Fantasy Points XFP/XTD added nothing beyond raw volume (MFP vs MV: REJECTED in all five markets) nor beyond ffopportunity (MEOFP vs MEO: REJECTED in all five). ffopportunity prior-season expectation beyond raw volume (MEOP vs MV): INCONCLUSIVE for receiving yards (+0.6%), nothing elsewhere. ffopportunity in-season rolling expected values beyond in-season raw volume (MEO vs MVR): receptions +2.9%, receiving yards +1.2% and rushing yards +1.0%, each better in 3 of 3 seasons with an adjusted CI above the bar; no gain for either TD market. Capped at NEEDS PROSPECTIVE DATA (post-hoc). Caveat: the ffopportunity expected-value model's training period was not verified and may include 2023-2025, which would flatter this result.",
   "action": "Challenger idea: in-season ffopportunity expected receptions/yards/rushing yards as a mean adjustment. Free data. Confirm the ffopportunity fitting period and run it prospectively on 2026 before any use. Fantasy Points XFP is not needed."
+ },
+ "P3-1": {
+  "thought": "A learned prior-strength blend beats the fixed 80/20 weighting in the first six weeks without hurting later weeks (develop 2021-23, validate 2024, confirm 2025).",
+  "result": "PROMISING in 6 of 8 markets: receptions, receiving yards, receiving TD, rushing TD, anytime TD, passing TD (both years, holdout intervals above zero, all-weeks not worse). Early-week gains: receptions +0.05-0.07 nats/row, receiving yards MAE -1.0%/-1.9%, TD markets +0.03-0.05 nats. Passing yards (-6.7%/-4.4% MAE but only 170 rows) and rushing yards are INCONCLUSIVE. 2025 is a confirmation holdout, not a clean one. Independent QA reproduced the receptions and receiving-yards numbers with separate code.",
+  "action": "Candidate Champion v2 for the six markets and validated positions (docs/CHAMPION_V2.md); passing and rushing yards stay shadow."
+ },
+ "P3-2": {
+  "thought": "What changed in a receiver's routes, target quality, alignment, expected points or team pass environment over his last 1/3/6 games predicts next-game targets and yards beyond the Champion and raw recency.",
+  "result": "Only the ROLE block (routes, route participation, TPRR, target share) helped: targets +2.0%, receiving yards +1.3%, receptions +1.4% MAE in all 3 seasons; the last game is the best single window and level+trend beats either alone. Target quality (first read, designed, air-yards share, aDOT), deployment (slot/wide/inline), Fantasy Points XFP, free ffopportunity and team pass environment added nothing.",
+  "action": "See P3-4: the ROLE gain is reproduced by free nflverse snap share."
+ },
+ "P3-3": {
+  "thought": "Rushing role, expected opportunity, goal-line usage and efficiency trends predict next-game carries and rushing yards beyond Champion + raw recency.",
+  "result": "RUROLE (snap %, carry share, target share, route %) lifted carries +1.8% (3/3 seasons) and rushing yards +0.9% (inconclusive). XFP/expected-yards, goal-line and efficiency blocks, ffopportunity and team environment: no gain; XFP beyond ffopportunity was slightly worse.",
+  "action": "No bell-cow or efficiency feature is a predictor beyond role share."
+ },
+ "P3-4": {
+  "thought": "(Exploratory follow-up) The ROLE gain is carried by free nflverse snap/target/carry share; Fantasy Points routes and bell-cow shares add nothing further.",
+  "result": "Free role signals beat baseline: targets +2.4%, receiving yards +1.5%, carries +1.8%, rushing yards +1.0% (3/3 seasons, snap share the strongest component). Fantasy Points role fields added +0.2% at most (rushing worse): their intervals exclude a 1% gain. Capped at NEEDS PROSPECTIVE DATA (post-hoc).",
+  "action": "Candidate Challenger on free data only: a role layer on the Champion mean. Run it in shadow on 2026; do not buy or ship Fantasy Points role fields for prediction."
+ },
+ "P3-5": {
+  "thought": "Counts are overdispersed: a negative binomial prices count thresholds better than Poisson.",
+  "result": "True for receptions only (phi 0.2: +0.02-0.03 nats/row, Brier +0.6-1.4%, both years). Touchdown markets show no gain; passing TDs are not overdispersed. Zero-inflated Poisson adds nothing reliable.",
+  "action": "Receptions NB is ready as a patch (parked: it changes hashed generator code of the today-ranking-v1 experiment)."
+ },
+ "P3-6": {
+  "thought": "The production per-window yardage spread is poorly estimated; a pooled spread per position prices thresholds better.",
+  "result": "Production 80% intervals cover only 69-76% of outcomes. Pooled spread improves pinball loss 2.5-5.4% (receiving and passing yards) in both years; rushing yards is inconclusive. QB spread sat at the grid edge (0.4).",
+  "action": "Receiving yards goes with the blend; passing yards stays shadow."
+ },
+ "P3-6b": {
+  "thought": "(Exploratory) A finer spread grid and a player/pool shrinkage improve P3-6.",
+  "result": "QB cv 0.3, same gains (+5.4%/+3.6% passing, +2.5%/+2.9% receiving pinball). Tail coverage still imperfect for QBs. Capped at NEEDS PROSPECTIVE DATA.",
+  "action": "Parameters used for receiving yards only; passing yards in shadow."
+ },
+ "P3-7": {
+  "thought": "Champion v2 means lower the error of next-game DraftKings projections.",
+  "result": "QB core-component DK points MAE -1.9%/-2.8% (weeks 1-6 -4%/-7%), WR +0.5%/+1.4% (inconclusive), RB and TE no change. The first run mis-scored quarterback rushing (a bug, fixed and rerun; the corrected run is the one on file).",
+  "action": "DFS inherits the betting-side mean gains for QB; elsewhere no measurable change."
+ },
+ "P3-8": {
+  "thought": "A within-player copula and the v2 chain give better DraftKings floor/median/ceiling quantiles than independent components.",
+  "result": "Independent components cover only 62-72% of outcomes in the central 80% interval; the copula with measured correlations (receptions-yards .74-.75, yards-TD .19-.20, QB passing yards-TD .43) reaches 73-82% and improves pinball 3-8% against the old chain, in both years.",
+  "action": "Used by shared/dfs-sim.js; projection SD now comes from the simulation, not the independent-variance sum."
+ },
+ "P3-9": {
+  "thought": "Measured role-pair correlations make stack-total forecasts better calibrated than independence.",
+  "result": "QB-WR1 .34, QB-WR2 .25, QB-TE1 .21, QB-RB1 .07, QB-opposing QB .13; QB-opposing WR1 .03 (interval spans zero) and WR1-WR2 .01: no measurable bring-back or teammate-competition effect. Stack total spread (PIT sd) improves from 1.19-1.29 to 1.04-1.14; pinball +1.0-1.7% for four of five stacks.",
+  "action": "Measured correlations replace the heuristic stack and bring-back bonuses in the new build style."
  }
 }

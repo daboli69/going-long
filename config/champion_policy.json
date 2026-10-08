@@ -7,13 +7,23 @@
    "mean": {
     "method": "prior_strength_blend",
     "c": 2
-   }
+   },
+   "positions": [
+    "WR",
+    "TE",
+    "RB"
+   ]
   },
   "rec_yds": {
    "mean": {
     "method": "prior_strength_blend",
     "c": 1
    },
+   "positions": [
+    "WR",
+    "TE",
+    "RB"
+   ],
    "shape": {
     "family": "pooled_lognormal",
     "zero_shrink_games": 10,
@@ -33,41 +43,41 @@
    "mean": {
     "method": "prior_strength_blend",
     "c": 4
-   }
+   },
+   "positions": [
+    "WR",
+    "TE",
+    "RB"
+   ]
   },
   "rush_tds": {
    "mean": {
     "method": "prior_strength_blend",
     "c": 3
-   }
+   },
+   "positions": [
+    "RB"
+   ]
   },
   "atd": {
    "mean": {
     "method": "prior_strength_blend",
     "c": 4
-   }
+   },
+   "positions": [
+    "WR",
+    "TE",
+    "RB"
+   ]
   },
   "pass_tds": {
    "mean": {
     "method": "prior_strength_blend",
     "c": 4
-   }
-  },
-  "pass_yds": {
-   "mean": {
-    "method": "prior_strength_blend",
-    "c": 3
    },
-   "shape": {
-    "family": "pooled_lognormal",
-    "zero_shrink_games": 10,
-    "cv": {
-     "QB": 0.3
-    },
-    "zero_rate": {
-     "QB": 0.002096
-    }
-   }
+   "positions": [
+    "QB"
+   ]
   }
  },
  "pending_activation": {
@@ -80,6 +90,7 @@
  },
  "not_promoted": {
   "rush_yds": "P3-1 and P3-6 inconclusive: shadow only",
+  "pass_yds": "P3-1 holdout interval included 0 (n=170); the pooled spread was validated only together with the blend mean. Shadow only.",
   "comment": "rush_yds stays on v1 until a holdout supports it"
  },
  "provenance": {

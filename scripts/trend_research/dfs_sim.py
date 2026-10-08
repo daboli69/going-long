@@ -26,6 +26,8 @@ def policy():
     if POLICY is None:
         import json
         POLICY = {**json.loads(cp.POLICY_PATH.read_text(encoding='utf-8')), 'active': True}
+        # P3-7/P3-8 were registered with the pass_yds chain (blend c=3 + pooled QB spread); production keeps pass_yds in shadow, the research definition stays pinned here
+        POLICY['markets'] = {**POLICY['markets'], 'pass_yds': {'mean': {'c': 3}, 'shape': {'family': 'pooled_lognormal', 'zero_shrink_games': 10, 'cv': {'QB': 0.3}, 'zero_rate': {'QB': 0.002096}}}}
     return POLICY
 
 

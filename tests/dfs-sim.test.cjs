@@ -102,3 +102,9 @@ test('the measured build style prefers a quarterback stack over the same project
  const legacy=D.optimize(pool,{mode:'balanced',projectionOnly:true,count:1,minUnique:1,now:Date.parse('2026-01-01T00:00:00Z')});
  assert.ok(legacy.lineups[0].simulation,'every mode reports the simulated range');
 });
+
+test('Champion v2 is its own tracker cohort and injury scaling keeps its pooled spread and zero mass',async()=>{
+ const {modelCohort}=await import('../shared/model-cohort.mjs');
+ assert.equal(modelCohort({model_evidence:{seasonEvidence:{method:'prior-strength blend c=2 (champion-v2)'}}}),'champion-v2');
+ assert.equal(modelCohort({model_evidence:{seasonEvidence:{method:'80% current / 20% historical policy; unvalidated accuracy improvement'}}}),'current-80-20');
+});

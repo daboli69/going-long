@@ -50,3 +50,11 @@ Commands from an isolated clean current-main source checkout:
 - `node research/today-ranking/evaluate.cjs JOURNAL_ROOT` after registered unlock; preregistration lives alongside command.
 
 Collector dirties only cycle-owned review artifacts; source remains clean. Publication must explicitly include those verified additions, never overwrite prior observations, and pass all captured-main/review-tip, diff, tests and receipt gates. If collection/publication fails, preserve pending work, report blocker and do not silently reset/reconcile. Do not call credentialed provider/API to rescue a missed slot, modify data.yml, add a deployment/DB/service, or spend money. Collection depends on Travis's computer/app awake and snapshots being published; cadence is systematic conditional on availability, not guaranteed complete or representative of all market hours.
+
+
+## Addendum 2026-10-08: Champion v2 data policy
+
+The registered source hashes (policy, generator, C1/C2) are unchanged. What changed is the DATA the frozen generator reads: from the promotion commit, `data/history.json` profiles for the markets
+in docs/CHAMPION_V2.md are built with the prior-strength policy. Frozen rows record it in `evidence.seasonPolicy`, so Champion/C1/C2 comparisons can be split before and after. The
+comparison between the three rankings inside each slate is unaffected in kind (all three use the same probabilities), but the protocol's "no model change" sentence no longer holds from that date.
+Two code patches that would extend v2 (negative binomial receptions, injury scaling) are held back precisely because they would change the hashed generator and require a new registration.

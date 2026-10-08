@@ -98,7 +98,7 @@ def season_fit(games, column, family, season, minimum=5, candidate=False, market
     effective_prior = min(len(prior), strength)
     # Do not erase history entirely after a long season.
     effective_prior = max(effective_prior, len(current)/9) if prior else 0
-    spec = None if candidate or not market else champion_policy.market_policy(champion_policy.load(), market)
+    spec = None if candidate or not market else champion_policy.market_policy(champion_policy.load(), market, position)
     years = [r['season'] for r in usable]
     if spec:
         weights = champion_policy.blend_weights(years, season, spec['mean']['c'])
@@ -118,7 +118,8 @@ def season_fit(games, column, family, season, minimum=5, candidate=False, market
             weights = season_weights(years, season)
             total = sum(weights)
             model = fit_stat([r[column] for r in usable], family, minimum, weights)
-    model['policy'] = policy_name
+    if policy_name != champion_policy.V1_NAME:
+        model['policy'] = policy_name  # v1 output stays byte-identical to the previous code
     model['season_evidence'] = {'season':season, 'current_games':len(current), 'historical_games':len(prior),
         'current_weight':sum(w for r,w in zip(usable,weights) if r['season']==season)/total if total else 0,
         'historical_weight':sum(w for r,w in zip(usable,weights) if r['season']<season)/total if total else 0,

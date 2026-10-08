@@ -28,7 +28,8 @@ export function selectTrackedPlays(plays){
  const minimumAmerican=-500,selected=[];
  for(const row of plays){
   if(PICK_VERSIONS[row.tracking_group]){
-   if(row.picks_snapshot?.version===PICK_VERSIONS[row.tracking_group]&&row.picks_snapshot.price?.saveable&&Number.isFinite(row.odds))selected.push(row);
+   // the -500 floor applies to every tracked group, GOING Picks included (it was bypassed here before 2026-10-08)
+   if(row.picks_snapshot?.version===PICK_VERSIONS[row.tracking_group]&&row.picks_snapshot.price?.saveable&&Number.isFinite(row.odds)&&row.odds>=minimumAmerican)selected.push(row);
    continue;
   }
   if(!GROUPS.has(row.tracking_group)||!Number.isFinite(row.odds)||row.odds<minimumAmerican)continue;
