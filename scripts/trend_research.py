@@ -16,14 +16,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fp_ingest.store import Manifest, find_root  # noqa: E402
-from trend_research import experiments, ledger  # noqa: E402
+from trend_research import experiments, experiments2, ledger  # noqa: E402
+
+SPECS = {**experiments.SPECS, **experiments2.SPECS}
+RUNNERS = {**experiments.RUNNERS, **experiments2.RUNNERS}
 
 REPO = Path(__file__).resolve().parents[1]
 
 
 def cmd_register(args):
     book = ledger.load()
-    for spec in experiments.SPECS.values():
+    for spec in SPECS.values():
         entry = ledger.register(book, spec)
         print(f"{spec['id']}: {entry['status']} spec {entry['spec_sha256'][:12]} registered {entry['registered_at']}")
     ledger.save(book)
@@ -35,11 +38,11 @@ def cmd_run(args):
     manifest = Manifest(root)
     book = ledger.load()
     for exp_id in args.ids:
-        spec = experiments.SPECS[exp_id]
+        spec = SPECS[exp_id]
         if exp_id not in book['experiments']:
             raise SystemExit(f'{exp_id} is not pre-registered; run `register` first')
         started = time.time()
-        result, status = experiments.RUNNERS[exp_id](root, manifest)
+        result, status = RUNNERS[exp_id](root, manifest)
         result['seconds'] = round(time.time() - started, 1)
         ledger.record(book, exp_id, spec, result, status)
         ledger.save(book)

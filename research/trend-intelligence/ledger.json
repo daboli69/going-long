@@ -2147,6 +2147,201 @@
    },
    "spec_sha256": "73152233a7915f7680b73d402d8f351b6b4a4fa0309ccb0ca65d10bb3b043ac2",
    "status": "INCONCLUSIVE"
+  },
+  "E7": {
+   "registered_at": "2026-10-08T10:47:03Z",
+   "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "comparators": {
+     "W0": "Champion (production 80/20)",
+     "W1": "equal weights over the window (no season weighting)",
+     "W3": "learned shrinkage: (k*current_mean + c*prior_mean)/(k+c), c from the grid [0.5..40] chosen on TRAIN seasons only per market",
+     "W4": "ridge on current mean, prior mean, k, k=0 flag, prior games"
+    },
+    "decision_rule": {
+     "INCONCLUSIVE": "anything else, including wide intervals",
+     "PROMISING": "relative MAE improvement >= 1% over the comparison base AND the Bonferroni-adjusted CI of the paired difference excludes 0 AND better in >= 2 of 3 test seasons",
+     "REJECTED (v2)": "the adjusted CI excludes a gain of 1% (or lies entirely on the wrong side)"
+    },
+    "football_rationale": "One or two games are a noisy read of a role; early in a season the earlier seasons contain most of the real information, and by midseason the current role dominates. The 80/20 rule jumps to 80% after a single game.",
+    "hypothesis": "The production policy gives 80% of the weight to the current season's games however few there are; a blend whose prior strength is learned (prior games count as c pseudo-games) predicts weekly outcomes better, mainly in the first six weeks.",
+    "id": "E7",
+    "leakage": "window = games strictly before the target week",
+    "limitations": "tests the projected MEAN; no historical prop lines exist, so no ROI. The Poisson/lognormal distribution layer and the injury adjustments are not reconstructed.",
+    "markets": [
+     "receptions",
+     "receiving yards",
+     "rushing yards",
+     "TDs",
+     "QB passing"
+    ],
+    "metric": "MAE of the projected mean (primary), Poisson log score (secondary)",
+    "multiple_testing": "Bonferroni over 8 markets",
+    "outcomes": "the weekly stat of each market",
+    "population": "player appearances 2021-2025 with a production-ready window (>= 5 games; QBs: verified starters only); markets receptions, rec_yds, rec_tds, rush_yds, rush_tds, atd, pass_yds, pass_tds by position",
+    "primary_comparison": "W3 vs W0, weeks 1-6, per market (8 markets, Bonferroni 99.375% CI)",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01,
+     "min_years_better": 2,
+     "reject_below_relative_improvement": 0.0025,
+     "reject_requires_ci": true
+    },
+    "secondary": "all weeks; W1 and W4; MAE by number of current games; Poisson log score for count markets",
+    "sources": [
+     "nflverse weekly player stats, snap counts, schedules 2019-2025"
+    ],
+    "splits": {
+     "history_from": 2019,
+     "rolling_origin": true,
+     "test": [
+      2023,
+      2024,
+      2025
+     ],
+     "train": "all earlier target seasons"
+    },
+    "title": "Dynamic blend of prior and current-season usage vs the production 80/20 policy"
+   },
+   "spec_sha256": "f466075db1c08984b5e0c3f5bf3952697158157a3146d5e62437972048b2eca8",
+   "status": "REGISTERED"
+  },
+  "E8": {
+   "registered_at": "2026-10-08T10:47:03Z",
+   "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "anything else, including wide intervals",
+     "PROMISING": "relative MAE improvement >= 1% over the comparison base AND the Bonferroni-adjusted CI of the paired difference excludes 0 AND better in >= 2 of 3 test seasons",
+     "REJECTED (v2)": "the adjusted CI excludes a gain of 1% (or lies entirely on the wrong side)"
+    },
+    "football_rationale": "Expected points describe the quality of touches (location, depth, down) that raw production and counts miss.",
+    "hypothesis": "Expected-opportunity information adds to the Champion's mean; Fantasy Points XFP adds something beyond ffopportunity (which GOING already has).",
+    "id": "E8",
+    "leakage": "Fantasy Points features are prior-season only; ffopportunity current-season values use earlier weeks only",
+    "limitations": "Fantasy Points XFP exists only as a prior-season total (no weekly history before 2026), ffopportunity has weekly values; a fair test of timing advantage is the MEO row.",
+    "markets": [
+     "receptions",
+     "rec_yds",
+     "rec_tds",
+     "rush_yds",
+     "rush_tds"
+    ],
+    "models": {
+     "M0": "Champion mean + position flags",
+     "MEO": "MEOP + ffopportunity current-season rolling expected value + games count (the in-season advantage ffopportunity has)",
+     "MEOFP": "MEOP + Fantasy Points XFP/G, XTD/G",
+     "MEOP": "M0 + ffopportunity prior-season per-game expected value of the market stat (apples-to-apples with MFP)",
+     "MFP": "M0 + Fantasy Points prior-season XFP/G, XTD/G",
+     "MV": "M0 + raw volume (Champion-window targets/g or carries/g)"
+    },
+    "multiple_testing": "Bonferroni over 5 markets x 4 comparisons = 20 (99.75% CI)",
+    "population": "appearances 2022-2025 with a ready Champion window and available prior-season Fantasy Points efficiency and ffopportunity rows (complete-case, identical across models)",
+    "primary_comparisons": [
+     "MFP vs M0",
+     "MEOP vs M0",
+     "MEOFP vs MEOP (does Fantasy Points add beyond ffopportunity?)",
+     "MEO vs M0"
+    ],
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01,
+     "min_years_better": 2,
+     "reject_below_relative_improvement": 0.0025,
+     "reject_requires_ci": true
+    },
+    "sources": [
+     "Fantasy Points efficiency 2021-2024 (prior season, retrospective)",
+     "ffverse/ffopportunity weekly expected points 2020-2025",
+     "nflverse weekly stats"
+    ],
+    "splits": {
+     "history_from": 2019,
+     "rolling_origin": true,
+     "test": [
+      2023,
+      2024,
+      2025
+     ],
+     "train": "all earlier target seasons"
+    },
+    "title": "Fantasy Points XFP vs ffopportunity expected points vs raw volume, each against the Champion"
+   },
+   "spec_sha256": "61d3f727f7ae9464c583524e4a55c9d29c657ea3e9195c7d1bdd7aa2a7f3fbdc",
+   "status": "REGISTERED"
+  },
+  "E9": {
+   "registered_at": "2026-10-08T10:47:03Z",
+   "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "anything else, including wide intervals",
+     "PROMISING": "relative MAE improvement >= 1% over the comparison base AND the Bonferroni-adjusted CI of the paired difference excludes 0 AND better in >= 2 of 3 test seasons",
+     "REJECTED (v2)": "the adjusted CI excludes a gain of 1% (or lies entirely on the wrong side)"
+    },
+    "football_rationale": "Carries follow role and game script; yards per carry are mostly noise and regress; goal-line TDs follow role.",
+    "hypothesis": "Bell-cow role shares and role stability predict weekly carries/rushing yards beyond Champion + raw volume; efficiency metrics (success, stuff, contact yards) do not.",
+    "id": "E9",
+    "leakage": "prior-season features only; share statistics from games before the target week",
+    "limitations": "carries are not a market GOING prices, but they drive the markets that it does",
+    "markets": [
+     "rushing yards",
+     "rushing TD",
+     "carries"
+    ],
+    "models": {
+     "M0": "Champion mean of the outcome + RB-only constant",
+     "MV": "M0 + Champion-window carries/g and targets/g",
+     "R1": "MV + Fantasy Points bell-cow block (snap %, carry share %, target share %, XFP share %) from the prior season",
+     "R2": "MV + Fantasy Points advanced rushing block (success %, stuff %, contact yards/att, missed tackles/att, explosive run %, yards before contact/att, zone share)",
+     "R3": "MV + role stability from nflverse (window mean, window SD and current-vs-prior change of the team carry share)",
+     "R4": "MV + ffopportunity prior-season expected rushing yards and TDs per game"
+    },
+    "multiple_testing": "Bonferroni over 3 outcomes x 4 blocks = 12 (99.58% CI)",
+    "outcomes": [
+     "carries",
+     "rush_yds",
+     "rush_tds"
+    ],
+    "population": "RB appearances 2022-2025 with a ready Champion window and the prior-season Fantasy Points rows needed by each block (complete-case per comparison)",
+    "primary_comparisons": [
+     "R1 vs MV",
+     "R2 vs MV",
+     "R3 vs MV",
+     "R4 vs MV"
+    ],
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01,
+     "min_years_better": 2,
+     "reject_below_relative_improvement": 0.0025,
+     "reject_requires_ci": true
+    },
+    "sources": [
+     "Fantasy Points rushing_bell_cow, rushing_advanced 2021-2024 (prior season)",
+     "nflverse weekly stats",
+     "ffopportunity"
+    ],
+    "splits": {
+     "history_from": 2019,
+     "rolling_origin": true,
+     "test": [
+      2023,
+      2024,
+      2025
+     ],
+     "train": "all earlier target seasons"
+    },
+    "title": "Rushing / bell-cow: role share, advanced rushing efficiency, role stability and expected opportunity over Champion plus raw volume"
+   },
+   "spec_sha256": "15cfe2dc7be249cbb958fa66255b372d5a56f63204cfcb6dc205041a447ca689",
+   "status": "REGISTERED"
   }
  },
  "note": "Aggregate research results only (no licensed player-level values). Negative findings are kept on purpose.",
