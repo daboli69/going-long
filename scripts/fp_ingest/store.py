@@ -150,10 +150,13 @@ def _order(entry):
 def current_entry(manifest, season, table_id):
     """The snapshot GOING should treat as current: most games, then the latest correction. Superseded revisions never win."""
     live = [e for e in manifest.entries(season, table_id) if e.get('scope') == 'season_to_date' and not e.get('superseded_by')]
-    if live:
-        return max(live, key=_order)
     full = [e for e in manifest.entries(season, table_id) if e.get('scope') == 'full_season' and not e.get('superseded_by')]
-    return max(full, key=_order) if full else None
+    best_live = max(live, key=_order) if live else None
+    best_full = max(full, key=_order) if full else None
+    if best_live and best_full:
+        # a finished season's totals beat an earlier in-season capture of the same season
+        return best_full if (best_full.get('through_games') or 0) > (best_live.get('through_games') or 0) else best_live
+    return best_live or best_full
 
 
 def point_in_time(manifest, season, table_id, for_season, for_week, known_by=None):

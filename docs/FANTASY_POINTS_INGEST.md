@@ -108,7 +108,7 @@ calibration, Champion comparison, human approval.
 
 ## Tests
 
-`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (112 tests, synthetic fixtures built from the real
+`python -m unittest discover -s tests -p "test_fantasy_points_ingest.py"` (128 tests, synthetic fixtures built from the real
 registry; includes regression tests for every defect the independent QA review found). `GOING_FP_ROOT=<folder>` adds a test that every real export is recognised with the current schema. The
 `ProtectionRemovalTests` class switches each critical protection off and requires the guarding scenario to fail.
 
@@ -179,6 +179,13 @@ opener). Declare only what you filtered in Fantasy Points; a 2-week range (G=2) 
   position, name+team (never an OL/CB/K), the roster's legal first name + last name on the same team (nicknames such as "Ced Wilson"),
   name+position league-wide (flagged for review), first initial + last name. Two rows with the same name/team/position but different numbers
   (a real source collision) are both kept as unresolved and never merged; byte-identical repeated rows still reject the file.
+* **Scale checks:** every numeric metric is compared between adjacent seasons (shares and rates as they are, counts per game played, signed centred
+  scores skipped); a >4x change in typical size is `UNIT_CHANGED`. Vendor definition text is only what the archived glossary says (it may reflect the
+  download date), so `DEFINITION_CHANGED` is a lower bound.
+* **Readiness labels** use completed seasons only (the live 2026 capture never counts), judge columns individually (>= 90% must be consistent over
+  >= 4 completed seasons), and the weakest core table of a family decides.
+* **Archive re-derivation:** when `IMPORTER_VERSION` is bumped every archived entry is re-derived from `raw/` (also entries whose file left the Inbox);
+  capture time, first-imported time and the revision chain never change.
 * A completed-season total can never be served for a week of its own season; `store.point_in_time` raises without a cutoff and returns `None`.
 
 ## Known limits

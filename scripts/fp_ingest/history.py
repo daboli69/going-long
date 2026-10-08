@@ -80,6 +80,48 @@ def _definition_hash(text):
     return hashlib.sha256(' '.join((text or '').split()).lower().encode('utf-8')).hexdigest()[:12] if text else None
 
 
+def group_of(key):
+    return key.split('.', 1)[0] if '.' in key else ''
+
+
+# counts grow with games played; everything else (shares, per-route and per-attempt rates, scores) is compared as it is
+COUNT_BASES = {'RTE', 'TGT', 'REC', 'ATT', 'YDS', 'TD', 'DB', 'AY', 'YAC', 'YACO', 'MTF', 'EXP', '1D', 'FUM', 'INT', 'CMP', 'SACK', 'Snaps', 'SNAPS',
+               'TM Snaps', 'PASS', 'RUSH', 'TOUCH', 'FP', 'XFP', 'EZTGT', 'EZTD', 'i5', 'i10', 'i20', 'i20 TGT', 'DP TGT', '1READ', 'DESIGN', 'CT',
+               'CC', 'CTGT', 'DRP', 'SCRM', 'OPP', 'YFS', 'TM ATT', 'TM TGT', 'TM XFP', 'YBCO', 'EXP YDS'}
+# signed, centred-on-zero measures: a ratio of typical sizes is meaningless for them
+CENTRED_BASES = {'SEP SCORE', 'YPTOE', 'CPOE', 'PrROE', 'ADOR', 'COV GRADE', 'RUSH GRADE', 'PASS GRADE'}
+
+
+def _is_rate(base):
+    return base.split('#')[0] not in COUNT_BASES
+
+
+def _games_index(parsed):
+    for i, key in enumerate(parsed['columns']):
+        if group_of(key) in ('Player Details', 'Team Details') and key.split('.', 1)[-1] == 'G':
+            return i
+    return None
+
+
+def _typical(parsed, index, games_at, key, base):
+    """Median magnitude of a metric: rates as they are, counts per game (players with 2+ games) so a 4-game and a 17-game table compare."""
+    values = []
+    for row in parsed['rows']:
+        cell = row[index[key]]
+        if cell == '':
+            continue
+        value = to_number(cell)
+        if value is None:
+            continue
+        if not _is_rate(base):
+            games = to_number(row[games_at]) if games_at is not None and row[games_at] != '' else None
+            if not games or games < 2:
+                continue
+            value = value / games
+        values.append(value)
+    return _scale(values)
+
+
 def compare_exports(older_bytes, newer_bytes):
     """Column-by-column comparison of two exports of one table. Each column gets a class and the reasons behind it."""
     old, new = parse_export(older_bytes), parse_export(newer_bytes)
@@ -87,6 +129,7 @@ def compare_exports(older_bytes, newer_bytes):
     old_index, new_index = {k: i for i, k in enumerate(old['columns'])}, {k: i for i, k in enumerate(new['columns'])}
     old_header = dict(zip(old['columns'], old['headers']))
     new_header = dict(zip(new['columns'], new['headers']))
+    old_games, new_games = _games_index(old), _games_index(new)
     result = {}
     only_old = [k for k in old['columns'] if k not in new_index]
     only_new = [k for k in new['columns'] if k not in old_index]
@@ -110,11 +153,11 @@ def compare_exports(older_bytes, newer_bytes):
             reasons.append('definition present in only one export')
             codes.append('NEEDS_REVIEW')
         base = new_header[key]
-        if '%' in base or '/' in base:
-            ma = _scale([to_number(r[old_index[key]]) for r in old['rows'] if r[old_index[key]] != ''])
-            mb = _scale([to_number(r[new_index[key]]) for r in new['rows'] if r[new_index[key]] != ''])
+        if group_of(key) not in ('Player Details', 'Team Details') and base.split('#')[0] not in CENTRED_BASES:
+            ma = _typical(old, old_index, old_games, key, base)
+            mb = _typical(new, new_index, new_games, key, base)
             if ma and mb and max(ma, mb) / min(ma, mb) > 4:
-                reasons.append(f'typical size differs a lot ({ma:.3g} vs {mb:.3g}): unit or scale may have changed')
+                reasons.append(f'typical size differs a lot ({ma:.3g} vs {mb:.3g}{"" if _is_rate(base) else " per game"}): unit, scale or definition may have changed')
                 codes.append('UNIT_CHANGED')
         klass = max(codes, key=SEVERITY.index) if codes else 'CONSISTENT'
         result[key] = {'class': klass, 'why': '; '.join(reasons) or 'same name, type, definition and typical size'}
@@ -205,7 +248,8 @@ def multi_season(root, registry, manifest, seasons=SEASONS):
                             'consistent_columns': sum(1 for v in columns.values() if v['class'] == 'CONSISTENT')}
     return {'version': 2, 'seasons': seasons, 'tables': tables,
             'note': 'columns are compared only within the same table and key. CONSISTENT = name, type, vendor definition text and typical size of rate columns '
-                    'agree between adjacent available seasons; it does not prove identical meaning. Never merge fields across tables by name similarity.'}
+                    'agree between adjacent available seasons; vendor definition text is whatever the archived glossary says (it may reflect the download date, '
+                    'not the season), so it does not prove identical meaning. Never merge fields across tables by name similarity.'}
 
 
 # ---------------------------------------------------------------- data quality
@@ -304,57 +348,92 @@ def quality(root, registry, manifest, seasons=SEASONS):
 
 # ---------------------------------------------------------------- research readiness
 FAMILIES = {
-    'routes / route participation': ['receiving_routes_run'],
-    'alignment (wide/slot/inline/backfield)': ['receiving_routes_run', 'receiving_separation_by_alignment'],
-    'first-read / designed targets': ['receiving_advanced'],
-    'separation': ['receiving_separation_by_alignment', 'receiving_separation_by_breaks', 'receiving_separation_by_coverage', 'receiving_separation_by_routes'],
-    'coverage / shell': ['receiving_man_vs_zone', 'receiving_separation_by_coverage', 'coverage_matrix', 'qb_coverage_matchup', 'wr_coverage_matchup'],
-    'route concepts': ['receiving_separation_by_routes'],
-    'advanced rushing': ['rushing_advanced'],
-    'XFP / opportunity': ['rushing_bell_cow', 'efficiency'],
-    'red zone / goal line': ['offense_snaps', 'rushing_basic', 'receiving_basic'],
-    'pressure / time-to-throw': ['passing_advanced'],
-    'run / pass tendencies': ['run_pass_report'],
-    'OL / DL': ['line_matchups'],
+    'routes / route participation': {'core': ['receiving_routes_run']},
+    'alignment (wide/slot/inline/backfield)': {'core': ['receiving_routes_run', 'receiving_separation_by_alignment']},
+    'first-read / designed targets': {'core': ['receiving_advanced']},
+    'separation': {'core': ['receiving_separation_by_alignment', 'receiving_separation_by_breaks', 'receiving_separation_by_coverage',
+                            'receiving_separation_by_routes']},
+    'coverage / shell': {'core': ['receiving_man_vs_zone', 'receiving_separation_by_coverage', 'coverage_matrix'],
+                         'optional': ['qb_coverage_matchup', 'wr_coverage_matchup']},
+    'route concepts': {'core': ['receiving_separation_by_routes']},
+    'advanced rushing': {'core': ['rushing_advanced']},
+    'XFP / opportunity': {'core': ['rushing_bell_cow', 'efficiency']},
+    'red zone / goal line': {'core': ['offense_snaps'], 'optional': ['rushing_basic', 'receiving_basic']},
+    'pressure / time-to-throw': {'core': ['passing_advanced']},
+    'run / pass tendencies': {'core': ['run_pass_report']},
+    'OL / DL': {'core': ['line_matchups']},
 }
 DESCRIPTIVE_ONLY = {'rushing_basic', 'receiving_basic', 'passing_basic'}
+LABEL_ORDER = ['NO_DATA', '2026_PROSPECTIVE_ONLY', 'NEEDS_SCHEMA_REVIEW', 'LIMITED_HISTORY', 'READY_FOR_MULTI_SEASON_RESEARCH']
+CURRENT_SEASON = 2026
+READY_SEASONS = 4
+READY_SHARE = 0.9
+
+
+def _chain(seasons):
+    """Longest chain of consecutive years in a list of seasons: where an all-consistent column is consistent."""
+    best, start = [None, None], None
+    for i, season in enumerate(seasons):
+        if start is None or season - seasons[i - 1] != 1:
+            start = season
+        if best[0] is None or season - start > best[1] - best[0]:
+            best = [start, season]
+    return best
+
+
+def _completed_run_length(run):
+    """Completed-season (before the live 2026 capture) length of a [first, last] consistent run."""
+    if not run or run[0] is None or run[0] >= CURRENT_SEASON:
+        return 0
+    return min(run[1], CURRENT_SEASON - 1) - run[0] + 1
+
+
+def table_label(table_id, cells, info):
+    """Label one table from completed regular seasons only. Columns are judged one by one so a single changed column
+    does not hide four clean seasons for everything else, and the live 2026 capture never counts as a completed season."""
+    have = [int(s) for s, c in cells.items() if c['status'] in ('AVAILABLE', 'PARTIAL') and int(s) < CURRENT_SEASON]
+    partial = [int(s) for s, c in cells.items() if c['status'] == 'PARTIAL' and int(s) < CURRENT_SEASON]
+    detail = {'completed_seasons': sorted(have), 'partial_seasons': partial}
+    if not have:
+        return ('NO_DATA' if not any(c['status'] in ('AVAILABLE', 'PARTIAL') for c in cells.values()) else '2026_PROSPECTIVE_ONLY'), detail
+    span = _chain(info.get('seasons') or [])
+    runs = {k: v.get('consistent_run') for k, v in (info.get('columns') or {}).items()}
+    total = info.get('consistent_columns', 0) + len(runs)
+    consistent_len = _completed_run_length(span)
+    long_columns = info.get('consistent_columns', 0) if consistent_len >= READY_SEASONS else 0
+    long_columns += sum(1 for run in runs.values() if _completed_run_length(run) >= READY_SEASONS)
+    share = long_columns / total if total else 0
+    detail.update(columns_total=total, columns_with_4plus_consistent_completed_seasons=long_columns, share=round(share, 3),
+                  changed_columns=[k for k, v in (info.get('columns') or {}).items() if v['class'] not in ('CONSISTENT', 'SEASON_LIMITED')][:10])
+    if partial:
+        return 'LIMITED_HISTORY', detail
+    if share >= READY_SHARE and len(have) >= READY_SEASONS:
+        return 'READY_FOR_MULTI_SEASON_RESEARCH', detail
+    if share < 0.5 and len(have) >= 2 and detail['changed_columns']:
+        return 'NEEDS_SCHEMA_REVIEW', detail
+    return 'LIMITED_HISTORY', detail
 
 
 def readiness(registry, availability_matrix, compat):
-    """Per feature family: how many consecutive consistent regular-season seasons exist. Coverage is not predictive value."""
+    """Per feature family: the WEAKEST of its core tables decides. Coverage is not predictive value."""
     out = {}
-    for family, tables in FAMILIES.items():
+    for family, spec in FAMILIES.items():
         per_table = {}
-        for table_id in tables:
+        for table_id in spec['core'] + spec.get('optional', []):
             cells = availability_matrix['tables'].get(table_id, {})
-            have = [int(s) for s, c in cells.items() if c['status'] in ('AVAILABLE', 'PARTIAL')]
-            info = compat['tables'].get(table_id, {})
-            run = info.get('table_consistent_run')
-            historical = [s for s in have if s < 2026]
-            partial = [s for s in have if cells[str(s)]['status'] == 'PARTIAL']
-            per_table[table_id] = {'seasons': have, 'historical_seasons': historical, 'partial_seasons': partial, 'consistent_run': run,
-                                   'non_consistent_columns': sum(v for k, v in (info.get('column_counts') or {}).items() if k not in ('CONSISTENT', 'SEASON_LIMITED'))}
-        usable = [t for t, v in per_table.items() if v['seasons']]
-        if not usable:
-            label = 'NO_DATA'
-        elif all(t in DESCRIPTIVE_ONLY for t in usable):
-            label = 'DESCRIPTIVE_ONLY_FOR_NOW'
+            label, detail = table_label(table_id, cells, compat['tables'].get(table_id, {}))
+            if table_id in DESCRIPTIVE_ONLY and label != 'NO_DATA':
+                label = 'DESCRIPTIVE_ONLY_FOR_NOW'
+            per_table[table_id] = dict(detail, label=label, role='core' if table_id in spec['core'] else 'optional')
+        core_labels = [per_table[t]['label'] for t in spec['core']]
+        if all(label == 'DESCRIPTIVE_ONLY_FOR_NOW' for label in core_labels):
+            family_label = 'DESCRIPTIVE_ONLY_FOR_NOW'
         else:
-            best = max((per_table[t] for t in usable if t not in DESCRIPTIVE_ONLY), key=lambda v: (len(v['historical_seasons']), len(v['seasons'])))
-            hist = len(best['historical_seasons'])
-            clean_run = (best['consistent_run'][1] - best['consistent_run'][0] + 1) if best['consistent_run'] else 0
-            if hist == 0:
-                label = '2026_PROSPECTIVE_ONLY'
-            elif best['non_consistent_columns'] and clean_run < 3:
-                label = 'NEEDS_SCHEMA_REVIEW'
-            elif hist >= 4 and clean_run >= 4 and not best['partial_seasons']:
-                label = 'READY_FOR_MULTI_SEASON_RESEARCH'
-            else:
-                label = 'LIMITED_HISTORY'
-        caveats = [f"{t}: {v['non_consistent_columns']} column(s) changed unit/definition/schema; consistent run {v['consistent_run'][0]}-{v['consistent_run'][1]}"
-                   for t, v in per_table.items() if v['non_consistent_columns']]
-        descriptive = {t: v['historical_seasons'] for t, v in per_table.items() if t in DESCRIPTIVE_ONLY and v['historical_seasons']}
-        out[family] = {'label': label, 'caveats': caveats, 'descriptive_history_in_basic_tables': descriptive, 'tables': per_table}
-    return {'version': 1, 'families': out,
-            'note': 'READY means enough consistent completed regular seasons exist to design a study; it does not mean the metric predicts anything. '
+            family_label = min((l for l in core_labels if l != 'DESCRIPTIVE_ONLY_FOR_NOW'), key=LABEL_ORDER.index)
+        weakest = [t for t in spec['core'] if per_table[t]['label'] == family_label]
+        out[family] = {'label': family_label, 'weakest_core_tables': weakest, 'tables': per_table,
+                       'caveats': [f"{t}: {', '.join(v['changed_columns'][:4])} changed across seasons" for t, v in per_table.items() if v.get('changed_columns')]}
+    return {'version': 2, 'families': out, 'rule': f'READY needs >= {READY_SEASONS} completed regular seasons with >= {int(READY_SHARE * 100)}% of columns consistent across them; '
+            'the live 2026 capture is never counted; the weakest core table decides.',
+            'note': 'READY means a study can be designed, not that a metric predicts anything. '
                     'Completed-season totals are retrospective and may never feed same-season predictions.'}

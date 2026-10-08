@@ -86,8 +86,8 @@ def _inspect(name, data, registry, mtime):
         if name_key:
             seen_entities[(row[columns.index(name_key)], row[columns.index(team_key)] if team_key else '', row[columns.index(_find(columns, group_names, 'POS'))] if _find(columns, group_names, 'POS') else '')] += 1
             seen_rows[tuple(cell for position, cell in enumerate(row) if columns[position] != _find(columns, group_names, 'Rank'))] += 1
-        if games_index is not None and team_key and row[games_index] != '' and to_number(row[games_index]) is not None and to_number(row[games_index]) > 17:
-            over_17.append((row[columns.index(name_key)], ',' in row[columns.index(team_key)]))
+        if games_index is not None and name_key and row[games_index] != '' and to_number(row[games_index]) is not None and to_number(row[games_index]) > 17:
+            over_17.append((row[columns.index(name_key)], bool(team_key) and ',' in row[columns.index(team_key)]))
         try:
             if team_key and (table or {}).get('level') == 'player':
                 teams.update(idmod.canonical_teams(row[columns.index(team_key)]))
@@ -155,6 +155,8 @@ def _decide_scope(info, current_season, max_possible_games, override, in_season,
     if override is not None and live:
         if override < 1 or (max_possible_games is not None and override > max_possible_games):
             return None, None, None, ('override_invalid', f'--through-week {override} is outside 1..{max_possible_games}')
+        if games > override:
+            return None, None, None, ('override_invalid', f'the file shows {games} games played, more than --through-week {override}: it cannot be through fewer games')
         return 'season_to_date', int(override), 'operator', None
     if live:
         if max_possible_games is not None and games > max_possible_games:
@@ -325,6 +327,9 @@ class Importer:
         now = iso(self.now)
         base = {'sha256': sha, 'original_filename': name, 'bytes': len(data), 'first_seen_at': (existing or {}).get('first_seen_at', now),
                 'captured_at': mtime, 'captured_at_source': 'file_modified_time' if mtime else None, 'source': 'Fantasy Points Data Suite'}
+        if carry:  # re-deriving never moves the capture time (a touched or copied file would otherwise look newer)
+            base['captured_at'], base['captured_at_source'] = carry.get('captured_at'), carry.get('captured_at_source')
+            mtime = carry.get('captured_at')
 
         seasons = info.get('seasons') or []
         season_guess = int(seasons[0]) if len(seasons) == 1 and str(seasons[0]).isdigit() else None
@@ -450,6 +455,19 @@ class Importer:
                 results.append({'file': path.name, 'outcome': 'error', 'reason': {'code': type(error).__name__, 'message': str(error)}})
                 if self.hooks.get('raise_errors'):
                     raise
+        # archived entries written by an older importer are re-derived from their raw copies even when the file left the Inbox
+        handled = {r.get('sha256') for r in results}
+        for entry in list(self.manifest.files.values()):
+            if entry.get('status') in GOOD and entry.get('importer_version') != IMPORTER_VERSION and entry['sha256'] not in handled:
+                raw = self.root / entry['raw_path']
+                try:
+                    data = raw.read_bytes()
+                    if sha256(data) != entry['sha256']:
+                        raise ValueError('raw copy does not match its checksum')
+                    results.append(self.import_file(entry['original_filename'], data, entry.get('captured_at')))
+                except Exception as error:
+                    results.append({'file': entry['original_filename'], 'outcome': 'error', 'sha256': entry['sha256'],
+                                    'reason': {'code': type(error).__name__, 'message': f'could not re-derive from the archive: {error}'}})
         self.manifest.save()  # last: a crash before this line leaves only content-addressed files that the next run reuses
         fresh = freshness(self.registry, self.manifest, self.current_season, self.expected_games, iso(self.now))
         write_json(self.root / 'manifests' / 'freshness.json', fresh)
