@@ -167,12 +167,15 @@ export function captureClosingPrices(records,quotes,observedAt){
 }
 
 async function readJson(file,fallback){try{return JSON.parse(await readFile(file,'utf8'));}catch{return fallback;}}
+// The collector prints every surfaced play as one JSON document (77MB on 2026-10-07 and growing with the odds feed). A buffer that is too small
+// makes the whole tracker step fail with ENOBUFS and silently stops capture and settlement, so keep generous headroom (tests warn at 50%).
+export const COLLECTOR_MAX_BUFFER=1024*1024*1024;
 export async function build({now=null,plays=null,output=OUTPUT,settleOnly=false,store=null}={}){
  // The real tracker lives in the segmented store; a custom `output` (tests) stays a single file unless store:true.
  const useStore=store??(path.resolve(output)===path.resolve(OUTPUT)),dataDir=path.dirname(output);
  const previous=(useStore?await loadTrackerSnapshot(dataDir):null)??(useStore?{schema_version:1,records:[]}:await readJson(output,{schema_version:1,records:[]})),records=Array.isArray(previous.records)?previous.records:[],results=await readJson(path.join(ROOT,'data','results.json'),{});
  if(settleOnly)plays=[];
- if(!plays){const stdout=execFileSync(process.execPath,[path.join(ROOT,'scripts','collect_model_plays.cjs')],{cwd:ROOT,encoding:'utf8',maxBuffer:64*1024*1024,env:{...process.env,GOING_TRACKER_LOCAL_DATA:'1',GOING_CAPTURE_QUOTES:'1'}});plays=JSON.parse(stdout);}
+ if(!plays){const stdout=execFileSync(process.execPath,[path.join(ROOT,'scripts','collect_model_plays.cjs')],{cwd:ROOT,encoding:'utf8',maxBuffer:COLLECTOR_MAX_BUFFER,env:{...process.env,GOING_TRACKER_LOCAL_DATA:'1',GOING_CAPTURE_QUOTES:'1'}});plays=JSON.parse(stdout);}
  // Freeze at the real post-collection time so the row receipt is never future-dated.
  now=now||new Date().toISOString();
  // Preserve every surfaced football thesis, including unavailable prices, apart
