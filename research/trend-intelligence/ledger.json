@@ -5144,6 +5144,99 @@
    },
    "spec_sha256": "15cfe2dc7be249cbb958fa66255b372d5a56f63204cfcb6dc205041a447ca689",
    "status": "INCONCLUSIVE"
+  },
+  "P3-1": {
+   "registered_at": "2026-10-08T20:23:28Z",
+   "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "otherwise",
+     "PROMISING": "weeks 1-6: validation AND holdout each improve by >= 1% MAE (yards) or >= 0.005 nats (counts); holdout player-clustered 95% CI (Bonferroni over 8 markets) excludes 0; all-weeks metric not worse than the tolerance; counts also improve on rows with Champion mean >= 0.1",
+     "REJECTED": "holdout early-week 99.4% interval lies entirely below the minimum improvement"
+    },
+    "football_rationale": "One or two games are a noisy measure of a role or a rate; the prior season holds most of the information early and the current season takes over as games accumulate.",
+    "grid": {
+     "counts": [
+      0.25,
+      0.5,
+      1,
+      2,
+      3,
+      4,
+      6,
+      8,
+      12,
+      20,
+      40
+     ],
+     "yards": [
+      0.5,
+      1,
+      2,
+      3,
+      4,
+      6,
+      8,
+      12,
+      20,
+      40
+     ]
+    },
+    "hypothesis": "Replacing the fixed 80% current / 20% earlier weighting by (k*current + c*prior)/(k + c), with c learned per market on 2021-2023 only, reduces error in the first six weeks without hurting later weeks, and holds in 2024 (validation) and 2025 (holdout).",
+    "id": "P3-1",
+    "leakage": "window strictly before the target week; c fixed on 2021-2023",
+    "limitations": "projected mean and Poisson/lognormal score only: no historical prop prices exist, so no ROI or closing-line value. Injury adjustments are not reconstructed.",
+    "markets": [
+     "receptions",
+     "rec_yds",
+     "rec_tds",
+     "rush_yds",
+     "rush_tds",
+     "atd",
+     "pass_yds",
+     "pass_tds"
+    ],
+    "metric": "yardage markets: MAE of the mean; count markets: mean Poisson log score with the mean floored at 0.01 (plus the same on rows with Champion mean >= 0.1)",
+    "multiple_testing": "Bonferroni over 8 markets (99.375% intervals)",
+    "population": "reconstructed Champion rows 2021-2025 (ready window, QBs verified starts), by market",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "all_weeks_max_regress": 0.0025,
+     "counts_min_nats": 0.005,
+     "early_weeks": 6,
+     "holdout_ci_excludes_zero": true,
+     "subset_mean_floor": 0.1,
+     "yards_min_relative_mae": 0.01,
+     "years_required": [
+      2024,
+      2025
+     ]
+    },
+    "selection_metric": "same as the metric, on development seasons only (all weeks, so that c balances early and late weeks)",
+    "sources": [
+     "nflverse weekly player stats, snap counts, schedules 2019-2025"
+    ],
+    "splits": {
+     "development": [
+      2021,
+      2022,
+      2023
+     ],
+     "disclosure": "2025 is a confirmation holdout: wave-2 experiments E7/E7b already examined 2023-2025 for the same idea with rolling re-fit",
+     "holdout": [
+      2025
+     ],
+     "prospective": "2026 (shadow)",
+     "validation": [
+      2024
+     ]
+    },
+    "title": "Champion Challenger: learned prior-strength blend (dynamic shrinkage) under development/validation/holdout"
+   },
+   "spec_sha256": "e73cd3d73c0b35bb4cf376a4feac173b992b11042f2aa66cb4f10cb2912333f0",
+   "status": "REGISTERED"
   }
  },
  "note": "Aggregate research results only (no licensed player-level values). Negative findings are kept on purpose.",
