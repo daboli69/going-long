@@ -128,12 +128,12 @@ def scope_dir(scope, through_games, week=None):
         return f'cumulative-through-game-{int(through_games):02d}'
     if scope == 'single_week':
         return f'week-{int(week):02d}'
-    return {'full_season': 'full-season'}.get(scope, 'unclassified')
+    return {'full_season': 'full-season', 'game_weekly': 'by-game'}.get(scope, 'unclassified')
 
 
 def snapshot_key(entry):
     """Same key = same observation (a re-export/correction of it): scope plus games for cumulative scopes, the week for single weeks."""
-    return (entry.get('scope'), entry.get('week') if entry.get('scope') == 'single_week' else entry.get('through_games'))
+    return (entry.get('scope'), entry.get('week') if entry.get('scope') == 'single_week' else entry.get('through_games'))  # a by-game file is keyed (game_weekly, None): one per season and table
 
 
 def weekly_entries(manifest, season, table_id):
@@ -263,3 +263,16 @@ def public_status(fresh):
     """Metadata-only view that is safe to publish: table names, weeks and states, no licensed values."""
     return {'season': fresh['season'], 'expected_games_through': fresh['expected_games_through'], 'generated_at': fresh['generated_at'],
             'tables': [{'table': t['table'], 'label': t['label'], 'state': t['state'], 'through_games': t.get('through_games')} for t in fresh['tables']]}
+
+
+def game_entries(manifest, season, table_id, include_superseded=False):
+    """By-game files for one season and table, newest coverage first."""
+    found = [e for e in manifest.entries(season, table_id) if e.get('scope') == 'game_weekly' and (include_superseded or not e.get('superseded_by'))]
+    return sorted(found, key=lambda e: (max(e.get('weeks') or [0]), e.get('first_imported_at') or ''), reverse=True)
+
+
+def game_row_known_at(manifest, season, table_id, week):
+    """When GOING first held any row of ``week``: historical seasons were downloaded in bulk, so this is the first import time of the earliest
+    file that contains the week (superseded files included: a row existed the moment an earlier file carried it)."""
+    times = [e.get('first_imported_at') for e in game_entries(manifest, season, table_id, include_superseded=True) if week in (e.get('weeks') or [])]
+    return min(times) if times else None

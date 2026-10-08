@@ -57,12 +57,18 @@ def seed(files):
         tables[table_id] = {
             'id': table_id, 'label': meta['label'], 'level': meta['level'], 'side': meta['side'],
             'forward_looking': bool(meta.get('forward_looking')), 'weekly_expected': meta.get('weekly_expected', True),
-            'description': meta['description'],
+            'description': meta['description'], **({'granularity': meta['granularity']} if meta.get('granularity') else {}),
             'filename_hints': meta['hints'], 'signature': signature(parsed['columns']),
             'columns': [{'key': key, 'type': types[key]} for key in parsed['columns']],
             # vendor glossary text is deliberately not stored in the repo (licensed); it stays in the archived raw files
         }
     return {'version': 1, 'source': 'Fantasy Points Data Suite', 'tables': tables}
+
+
+def seed_weekly(registry, files):
+    """Add (or refresh) only the by-game tables of an existing registry. ``files``: {weekly_table_id: [paths]}. Cumulative tables are untouched."""
+    added = seed(files)['tables']
+    return {**registry, 'tables': {**registry['tables'], **added}}
 
 
 def load(path=REGISTRY_PATH):

@@ -63,7 +63,7 @@ def make_csv(table_id, season=2026, games=4, teams=TEAMS, mutate=None, blanks=()
                 if group in ('Player Details', 'Team Details'):
                     name, position = players_for(team, rows_per_team)[index] if table['level'] == 'player' else (FULL_NAMES[team], '')
                     value = {'Rank': str(len(body) + 1), 'Name': name, 'Team': FP_CODE.get(team, team), 'POS': position, 'G': str(games), 'Season': str(season),
-                             'OPP': FP_CODE.get('SF' if team != 'SF' else 'KC', 'SF'), 'Location': FULL_NAMES[team].rsplit(' ', 1)[0],
+                             'OPP': FP_CODE.get('SF' if team != 'SF' else 'KC', 'SF'), 'Opponent': FP_CODE.get('SF' if team != 'SF' else 'KC', 'SF'), 'Location': FULL_NAMES[team].rsplit(' ', 1)[0],
                              'Team Name': FULL_NAMES[team].rsplit(' ', 1)[1]}.get(base, '')
                 elif key == 'Defense Stats.Name':
                     value = FULL_NAMES['SF' if team != 'SF' else 'KC']
@@ -74,6 +74,17 @@ def make_csv(table_id, season=2026, games=4, teams=TEAMS, mutate=None, blanks=()
                     value = '' if (len(body), key) in blanks else ('1.5' if rate_like else str(round(1.5 * games, 1)))  # counts grow with games played
                 row.append(value)
             body.append(row)
+    if table.get('granularity') == 'game':  # one row per player per game: weeks 1..games, G == 1, regular-season code 1
+        week_at, games_at, type_at = (keys.index(k) if k in keys else None for k in ('%s.WEEK' % ('Team Details' if table['level'] == 'team' else 'Player Details'),
+                                                                                     '%s.G' % ('Team Details' if table['level'] == 'team' else 'Player Details'),
+                                                                                     '%s.Season Type' % ('Team Details' if table['level'] == 'team' else 'Player Details')))
+        expanded = []
+        for week in range(1, games + 1):
+            for row in body:
+                row = list(row)
+                row[week_at], row[games_at], row[type_at] = str(week), '1', '1'
+                expanded.append(row)
+        body = expanded
     if mutate:
         mutate(body, keys)
     out = io.StringIO()
@@ -151,7 +162,7 @@ class ImportTests(unittest.TestCase):
         self.assertEqual(set(report['outcomes']), {'imported'}, report['outcomes'])
         self.assertEqual(len(report['results']), len(REGISTRY['tables']))
         raws = sorted(p.parent.name for p in (workspace.dir / 'raw' / '2026').rglob('*.csv'))
-        self.assertEqual(set(raws), {'through-week-04'})
+        self.assertEqual(set(raws), {'through-week-04', 'by-game'})
         self.assertTrue(all(line.endswith('✓') for line in report['freshness']), report['freshness'])
 
     def test_filename_is_only_a_hint(self):
@@ -350,6 +361,79 @@ class ImportTests(unittest.TestCase):
             return {str(p.relative_to(workspace.dir)): p.read_bytes() for p in workspace.dir.rglob('*')
                     if p.is_file() and 'Inbox' not in p.parts and p.parent.name not in ('manifests',)}
         self.assertEqual(snapshot(crashed), snapshot(clean), 'a resumed import must equal an uninterrupted one')
+
+
+class GameWeeklyTests(unittest.TestCase):
+    TABLE = 'receiving_routes_run_weekly'
+
+    def put(self, workspace, name='g.csv', **kw):
+        workspace.put(name, make_csv(self.TABLE, **kw))
+
+    def test_by_game_file_imports_with_week_and_opponent_and_repeat_players_are_not_split(self):
+        workspace = Workspace(self)
+        self.put(workspace)
+        report = workspace.run()
+        result = report['results'][0]
+        self.assertEqual((result['outcome'], result['table_id']), ('imported', self.TABLE), result)
+        entry = workspace.manifest().entries(2026, self.TABLE)[0]
+        self.assertEqual((entry['scope'], entry['weeks'], entry['through_games']), ('game_weekly', [1, 2, 3, 4], None))
+        document = json.loads((workspace.dir / entry['normalized_path']).read_text(encoding='utf-8'))
+        weeks = {row['context']['week'] for row in document['rows']}
+        self.assertEqual(weeks, {1, 2, 3, 4})
+        self.assertFalse(any(row['entity']['split_entity'] for row in document['rows']), 'the same player in different weeks is not a split entity')
+        self.assertEqual(document['identity']['tally'].get('matched'), len(document['rows']))
+        self.assertTrue(all(row['context']['games'] == 1 for row in document['rows']))
+
+    def test_cumulative_file_is_never_taken_for_a_by_game_file_and_bad_by_game_files_are_held(self):
+        workspace = Workspace(self)
+        workspace.put('cum.csv', make_csv('receiving_routes_run'))  # no WEEK column: stays the cumulative table
+        def not_single(body, keys):
+            for row in body:
+                row[keys.index('Player Details.G')] = '3'
+        workspace.put('multi.csv', make_csv(self.TABLE, mutate=not_single))
+        def postseason_week(body, keys):
+            for row in body[:2]:
+                row[keys.index('Player Details.WEEK')] = '19'
+        workspace.put('post.csv', make_csv(self.TABLE, season=2025, mutate=postseason_week))
+        def other_type(body, keys):
+            for row in body:
+                row[keys.index('Player Details.Season Type')] = '2'
+        workspace.put('type.csv', make_csv(self.TABLE, season=2024, mutate=other_type))
+        report = workspace.run()
+        outcomes = workspace.outcomes(report)
+        reasons = {r['file']: (r.get('reason') or {}).get('code') for r in report['results']}
+        self.assertEqual(outcomes['cum.csv'], 'imported')
+        self.assertEqual(reasons['multi.csv'], 'games_not_single')
+        self.assertEqual(reasons['post.csv'], 'week_out_of_range')
+        self.assertEqual(reasons['type.csv'], 'season_type_unclear')
+
+    def test_missing_weeks_make_the_file_partial_and_a_shorter_export_never_replaces_a_longer_one(self):
+        workspace = Workspace(self)
+        def drop_week_two(body, keys):
+            body[:] = [row for row in body if row[keys.index('Player Details.WEEK')] != '2']
+        workspace.put('gap.csv', make_csv(self.TABLE, mutate=drop_week_two))
+        report = workspace.run()
+        self.assertEqual(report['results'][0]['status'], 'partial')
+        self.assertIn('weeks [2] are missing', ' '.join(report['results'][0]['warnings']))
+        workspace2 = Workspace(self)
+        workspace2.put('long.csv', make_csv(self.TABLE, games=4))
+        workspace2.run()
+        workspace2.put('short.csv', make_csv(self.TABLE, games=3, mutate=lambda body, keys: [row.__setitem__(keys.index('Player Details.Rank'), '9') for row in body]))
+        report = workspace2.run(now=NOW + datetime.timedelta(days=1))
+        self.assertEqual(workspace2.outcomes(report)['short.csv'], 'older_revision_ignored')
+        current = store.game_entries(workspace2.manifest(), 2026, self.TABLE)
+        self.assertEqual(max(current[0]['weeks']), 4)
+        self.assertEqual(len(current), 1)
+
+    def test_row_known_at_is_the_first_import_that_held_the_week(self):
+        workspace = Workspace(self)
+        workspace.put('three.csv', make_csv(self.TABLE, games=3))
+        workspace.run()
+        workspace.put('four.csv', make_csv(self.TABLE, games=4, mutate=lambda body, keys: [row.__setitem__(keys.index('Player Details.Rank'), '8') for row in body]))
+        workspace.run(now=NOW + datetime.timedelta(days=7))
+        manifest = workspace.manifest()
+        first, second = store.game_row_known_at(manifest, 2026, self.TABLE, 3), store.game_row_known_at(manifest, 2026, self.TABLE, 4)
+        self.assertLess(first, second)
 
 
 class SchemaTests(unittest.TestCase):

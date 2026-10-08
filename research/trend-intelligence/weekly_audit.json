@@ -1,0 +1,685 @@
+{
+ "tables": {
+  "receiving_routes_run_weekly": {
+   "2021": {
+    "status": "IMPORTED",
+    "rows": 5611,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 130,
+     "tally": {
+      "matched": 5611
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2022": {
+    "status": "IMPORTED",
+    "rows": 5591,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 183,
+     "tally": {
+      "matched": 5590,
+      "unmatched": 1
+     },
+     "unresolved": 1
+    },
+    "warnings": []
+   },
+   "2023": {
+    "status": "IMPORTED",
+    "rows": 5656,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 137,
+     "tally": {
+      "matched": 5656
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2024": {
+    "status": "IMPORTED",
+    "rows": 5535,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 152,
+     "tally": {
+      "matched": 5529,
+      "unmatched": 6
+     },
+     "unresolved": 6
+    },
+    "warnings": []
+   },
+   "2025": {
+    "status": "IMPORTED",
+    "rows": 5527,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 168,
+     "tally": {
+      "matched": 5527
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2026": {
+    "status": "IMPORTED",
+    "rows": 1346,
+    "weeks": [
+     1,
+     4
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 10,
+     "tally": {
+      "matched": 1346
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   }
+  },
+  "receiving_advanced_weekly": {
+   "2021": {
+    "status": "IMPORTED",
+    "rows": 4057,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 78,
+     "tally": {
+      "matched": 4057
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2022": {
+    "status": "IMPORTED",
+    "rows": 4015,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 108,
+     "tally": {
+      "matched": 4014,
+      "unmatched": 1
+     },
+     "unresolved": 1
+    },
+    "warnings": []
+   },
+   "2023": {
+    "status": "IMPORTED",
+    "rows": 4144,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 61,
+     "tally": {
+      "matched": 4144
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2024": {
+    "status": "IMPORTED",
+    "rows": 4055,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 127,
+     "tally": {
+      "matched": 4049,
+      "unmatched": 6
+     },
+     "unresolved": 6
+    },
+    "warnings": []
+   },
+   "2025": {
+    "status": "IMPORTED",
+    "rows": 4037,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 156,
+     "tally": {
+      "matched": 4037
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2026": {
+    "status": "IMPORTED",
+    "rows": 983,
+    "weeks": [
+     1,
+     4
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 10,
+     "tally": {
+      "matched": 983
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   }
+  },
+  "rushing_bell_cow_weekly": {
+   "2021": {
+    "status": "IMPORTED",
+    "rows": 1777,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 65,
+     "tally": {
+      "matched": 1777
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2022": {
+    "status": "IMPORTED",
+    "rows": 1806,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 80,
+     "tally": {
+      "matched": 1806
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2023": {
+    "status": "IMPORTED",
+    "rows": 1696,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 80,
+     "tally": {
+      "matched": 1696
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2024": {
+    "status": "IMPORTED",
+    "rows": 1710,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 41,
+     "tally": {
+      "matched": 1710
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2025": {
+    "status": "IMPORTED",
+    "rows": 1761,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 26,
+     "tally": {
+      "matched": 1761
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2026": {
+    "status": "IMPORTED",
+    "rows": 418,
+    "weeks": [
+     1,
+     4
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 0,
+     "tally": {
+      "matched": 418
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   }
+  },
+  "rushing_advanced_weekly": {
+   "2021": {
+    "status": "IMPORTED",
+    "rows": 1333,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 50,
+     "tally": {
+      "matched": 1333
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2022": {
+    "status": "IMPORTED",
+    "rows": 1335,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 71,
+     "tally": {
+      "matched": 1335
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2023": {
+    "status": "IMPORTED",
+    "rows": 1302,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 62,
+     "tally": {
+      "matched": 1302
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2024": {
+    "status": "IMPORTED",
+    "rows": 1308,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 25,
+     "tally": {
+      "matched": 1308
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2025": {
+    "status": "IMPORTED",
+    "rows": 1295,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 9,
+     "tally": {
+      "matched": 1295
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2026": {
+    "status": "IMPORTED",
+    "rows": 302,
+    "weeks": [
+     1,
+     4
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 0,
+     "tally": {
+      "matched": 302
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   }
+  },
+  "efficiency_weekly": {
+   "2021": {
+    "status": "IMPORTED",
+    "rows": 4389,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 100,
+     "tally": {
+      "matched": 4389
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2022": {
+    "status": "IMPORTED",
+    "rows": 4347,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 132,
+     "tally": {
+      "matched": 4347
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2023": {
+    "status": "IMPORTED",
+    "rows": 4359,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 109,
+     "tally": {
+      "matched": 4359
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2024": {
+    "status": "IMPORTED",
+    "rows": 4289,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 94,
+     "tally": {
+      "matched": 4285,
+      "unmatched": 4
+     },
+     "unresolved": 4
+    },
+    "warnings": []
+   },
+   "2025": {
+    "status": "IMPORTED",
+    "rows": 4358,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 101,
+     "tally": {
+      "matched": 4358
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2026": {
+    "status": "IMPORTED",
+    "rows": 1016,
+    "weeks": [
+     1,
+     4
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 1,
+     "tally": {
+      "matched": 1016
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   }
+  },
+  "run_pass_report_weekly": {
+   "2021": {
+    "status": "IMPORTED",
+    "rows": 544,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 0,
+     "tally": {
+      "matched": 544
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2022": {
+    "status": "IMPORTED",
+    "rows": 542,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 0,
+     "tally": {
+      "matched": 542
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2023": {
+    "status": "IMPORTED",
+    "rows": 544,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 0,
+     "tally": {
+      "matched": 544
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2024": {
+    "status": "NOT_IMPORTED"
+   },
+   "2025": {
+    "status": "IMPORTED",
+    "rows": 544,
+    "weeks": [
+     1,
+     18
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 0,
+     "tally": {
+      "matched": 544
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   },
+   "2026": {
+    "status": "IMPORTED",
+    "rows": 128,
+    "weeks": [
+     1,
+     4
+    ],
+    "missing_weeks": [],
+    "identity": {
+     "review": 0,
+     "tally": {
+      "matched": 128
+     },
+     "unresolved": 0
+    },
+    "warnings": []
+   }
+  }
+ },
+ "checks": {
+  "routes.TGT vs nflverse targets": {
+   "rows": 29259,
+   "found_in_nflverse_same_week": 0.8832495984141632,
+   "stat_equal_same_week": 0.8917695314011531,
+   "team_equal": 1.0,
+   "stat_equal_if_week_shifted": {
+    "-1": 0.1990418118466899,
+    "1": 0.200329122501331
+   }
+  },
+  "receiving_advanced.REC vs nflverse receptions": {
+   "rows": 21284,
+   "found_in_nflverse_same_week": 0.8626198083067093,
+   "stat_equal_same_week": 0.9999455337690631,
+   "team_equal": 1.0,
+   "stat_equal_if_week_shifted": {
+    "-1": 0.23056045596417424,
+    "1": 0.23066494950179625
+   }
+  },
+  "receiving_advanced.YDS vs nflverse receiving yards": {
+   "rows": 21284,
+   "found_in_nflverse_same_week": 0.8626198083067093,
+   "stat_equal_same_week": 0.9997821350762527,
+   "team_equal": 1.0,
+   "stat_equal_if_week_shifted": {
+    "-1": 0.09831727507124441,
+    "1": 0.098556225852369
+   }
+  },
+  "efficiency.rush ATT vs nflverse carries": {
+   "rows": 22754,
+   "found_in_nflverse_same_week": 1.0,
+   "stat_equal_same_week": 0.9999560516832205,
+   "team_equal": 1.0,
+   "stat_equal_if_week_shifted": {
+    "-1": 0.5900354218686488,
+    "1": 0.591112922951488
+   }
+  },
+  "rushing_advanced.YDS vs nflverse rushing yards": {
+   "rows": 6875,
+   "found_in_nflverse_same_week": 1.0,
+   "stat_equal_same_week": 0.9998545454545454,
+   "team_equal": 1.0,
+   "stat_equal_if_week_shifted": {
+    "-1": 0.022503782148260213,
+    "1": 0.0214543383330169
+   }
+  },
+  "bell_cow.ATT vs nflverse carries": {
+   "rows": 9168,
+   "found_in_nflverse_same_week": 0.9232111692844677,
+   "stat_equal_same_week": 1.0,
+   "team_equal": 1.0,
+   "stat_equal_if_week_shifted": {
+    "-1": 0.18611746758199849,
+    "1": 0.1851060582939112
+   }
+  },
+  "routes: share of nflverse player-games with >=3 targets present": 0.9998494202680319,
+  "receiving_advanced: share of nflverse player-games with >=3 targets present": 0.7979219996988406,
+  "run_pass: Overall.RUSH vs nflverse team carries, share within 3": 0.8397046046915726,
+  "run_pass: Overall.PASS vs nflverse attempts+sacks, share within 3": 0.8440486533449174
+ }
+}

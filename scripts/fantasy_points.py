@@ -177,6 +177,29 @@ def cmd_seed(args):
     return 0
 
 
+def cmd_seed_weekly(args):
+    from fp_ingest.parse import parse_export
+    from fp_ingest.table_meta import GAME_TABLES
+    root = find_root(args.root, REPO)
+    inbox = find_inbox(root)
+    files = {}
+    for path in sorted(inbox.glob('*.csv')):
+        try:
+            columns = parse_export(path.read_bytes())['columns']
+        except Exception:
+            continue
+        if not any(key.endswith('.WEEK') for key in columns):
+            continue
+        stem = regmod.filename_stem(path.name)
+        for base, weekly in GAME_TABLES.items():
+            if stem in __import__('fp_ingest.table_meta', fromlist=['TABLES']).TABLES[base]['hints']:
+                files.setdefault(weekly, []).append(path)
+    seeded = regmod.seed_weekly(regmod.load(), files)
+    write_json(regmod.REGISTRY_PATH, seeded)
+    print(f'wrote {regmod.REGISTRY_PATH}: by-game tables {sorted(files)}')
+    return 0
+
+
 def cmd_rosters(args):
     root = find_root(args.root, REPO)
     for season in args.seasons:
@@ -279,6 +302,7 @@ def main(argv=None):
     sub.add_parser('status', help='freshness per table').set_defaults(func=cmd_status)
     sub.add_parser('verify', help='re-checksum every archived file').set_defaults(func=cmd_verify)
     sub.add_parser('seed-registry', help='rebuild config/fantasy_points_tables.json from the files in the Inbox').set_defaults(func=cmd_seed)
+    sub.add_parser('seed-weekly', help='add the by-game (WEEK column) tables to the registry from the Inbox').set_defaults(func=cmd_seed_weekly)
     sub.add_parser('fields', help='column use classes per table').set_defaults(func=cmd_fields)
     sub.add_parser('trends', help='write weekly trend states from consecutive live snapshots (write-once)').set_defaults(func=cmd_trends)
     sub.add_parser('audit', help='write availability, schema compatibility matrix, quality report and research-readiness map').set_defaults(func=cmd_audit)

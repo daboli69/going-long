@@ -66,3 +66,15 @@ TABLES = {
         label='Team run/pass report by situation', level='team', side='offense', hints=['runpassreport'],
         description='Team snaps, pass and rush counts and rates by half, field position, score state, distance and down.'),
 }
+
+# Week-by-week (one row per player per game, or per team per game) exports. They carry Season Type, WEEK and (player tables) Opponent columns, so their
+# layout differs from the cumulative export of the same table and they are registered as separate tables. `granularity='game'` drives the importer.
+GAME_TABLES = {
+    'efficiency': 'efficiency_weekly', 'receiving_advanced': 'receiving_advanced_weekly', 'receiving_routes_run': 'receiving_routes_run_weekly',
+    'rushing_advanced': 'rushing_advanced_weekly', 'rushing_bell_cow': 'rushing_bell_cow_weekly', 'run_pass_report': 'run_pass_report_weekly',
+}
+for _base, _weekly in GAME_TABLES.items():
+    _meta = dict(TABLES[_base])
+    _meta.update(label=_meta['label'] + ' - by game', hints=[h + 'weekly' for h in _meta['hints']], weekly_expected=False, granularity='game',
+                 description='One row per ' + ('team' if _meta['level'] == 'team' else 'player') + ' per game (WEEK column). ' + _meta['description'])
+    TABLES[_weekly] = _meta

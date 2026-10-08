@@ -66,6 +66,8 @@ def _inspect(name, data, registry, mtime):
     season_key, games_key = _find(columns, group_names, 'Season'), _find(columns, group_names, 'G')
     team_key = _find(columns, group_names, 'Team')
     name_key = _find(columns, group_names, 'Name')
+    week_key, type_key = _find(columns, group_names, 'WEEK'), _find(columns, group_names, 'Season Type')
+    is_game = bool(table and table.get('granularity') == 'game')
     info.update(row_count=len(parsed['rows']), column_count=len(columns), table_id=cls['table_id'], schema_status=cls['status'],
                 drift=cls['drift'], level=(table or {}).get('level'), notes=parsed['notes'])
     if season_key and games_key:
@@ -84,7 +86,8 @@ def _inspect(name, data, registry, mtime):
     games_index = columns.index(games_key) if games_key else None
     for row in parsed['rows']:
         if name_key:
-            seen_entities[(row[columns.index(name_key)], row[columns.index(team_key)] if team_key else '', row[columns.index(_find(columns, group_names, 'POS'))] if _find(columns, group_names, 'POS') else '')] += 1
+            week_part = row[columns.index(week_key)] if is_game and week_key else ''  # one row per game: the same player legitimately repeats across weeks
+            seen_entities[(row[columns.index(name_key)], row[columns.index(team_key)] if team_key else '', row[columns.index(_find(columns, group_names, 'POS'))] if _find(columns, group_names, 'POS') else '', week_part)] += 1
             seen_rows[tuple(cell for position, cell in enumerate(row) if columns[position] != _find(columns, group_names, 'Rank'))] += 1
         if games_index is not None and name_key and row[games_index] != '' and to_number(row[games_index]) is not None and to_number(row[games_index]) > 17:
             over_17.append((row[columns.index(name_key)], bool(team_key) and ',' in row[columns.index(team_key)]))
@@ -96,6 +99,13 @@ def _inspect(name, data, registry, mtime):
         except idmod.TeamError:
             info.setdefault('unknown_teams', set()).add(row[columns.index(team_key or name_key)])
     info['team_count'] = len(teams)
+    if is_game:
+        weeks = [row[columns.index(week_key)] for row in parsed['rows']] if week_key else []
+        info['game_weeks'] = sorted({int(w) for w in weeks if w.isdigit()})
+        info['game_weeks_bad'] = sorted({w for w in weeks if not w.isdigit()})[:5]
+        info['season_types'] = sorted({row[columns.index(type_key)] for row in parsed['rows']}) if type_key else None
+        info['games_values'] = sorted({row[columns.index(games_key)] for row in parsed['rows']}) if games_key else None
+        info['rows_per_week'] = dict(sorted(collections.Counter(int(w) for w in weeks if w.isdigit()).items()))
     info['duplicate_entities'] = [key[:3] for key, count in seen_rows.items() if count > 1][:3]  # repeated identical rows: a corrupt export
     info['split_entities'] = [key for key, count in seen_entities.items() if count > 1][:20]  # same name/team/position, different numbers
     info['games_over_17'] = {'players': len(over_17), 'single_team': [name for name, multi in over_17 if not multi][:5]}
@@ -168,7 +178,45 @@ def _decide_scope(info, current_season, max_possible_games, override, in_season,
                                                    f'weeks 1-N export re-run with --declare cumulative; if one week, --declare week:N'), None
 
 
+MAX_REGULAR_WEEK = 18
+
+
+def decide_game_scope(info, current_season, in_season=True, max_possible_games=None):
+    """Scope for a by-game export (one row per player/team per game). Decided from content: a single season, G == 1 on every row, WEEK 1..18 only,
+    and regular-season type. Returns (problem, partial_note). A season type code other than the one seen in every real export is held, never guessed."""
+    seasons = info.get('seasons') or []
+    if len(seasons) != 1 or not str(seasons[0]).isdigit():
+        return ('season_unclear', f'Season column must hold exactly one year, found {seasons[:4]}'), None
+    season = int(seasons[0])
+    if season > current_season:
+        return ('future_season', f'Season {season} is after the current season {current_season}'), None
+    if info.get('game_weeks_bad'):
+        return ('week_not_numeric', f"WEEK holds non-numeric values such as {info['game_weeks_bad'][:3]}"), None
+    weeks = info.get('game_weeks') or []
+    if not weeks:
+        return ('no_weeks', 'a by-game export must carry a WEEK column with values'), None
+    if min(weeks) < 1 or max(weeks) > MAX_REGULAR_WEEK:
+        return ('week_out_of_range', f'WEEK {min(weeks)}..{max(weeks)} is outside the regular season 1..{MAX_REGULAR_WEEK} (postseason would be 19+)'), None
+    if info.get('season_types') not in (['1'],):
+        return ('season_type_unclear', f"Season Type values {info.get('season_types')} are not the regular-season code seen in every real export ('1')"), None
+    if info.get('games_values') not in (['1'], None):
+        return ('games_not_single', f"a by-game export must show G == 1 on every row, found {info.get('games_values')}"), None
+    live = season == current_season and in_season
+    if live and max_possible_games is not None and max(weeks) > max_possible_games:
+        return ('future_games', f'week {max(weeks)} has not been played yet'), None
+    note = None
+    expected_top = 17 if not live else max(weeks)
+    gaps = [w for w in range(1, max(weeks) + 1) if w not in weeks]
+    if gaps:
+        note = f'weeks {gaps} are missing between 1 and {max(weeks)}: absence means unknown, not zero'
+    elif not live and max(weeks) < expected_top:
+        note = f'a finished season should reach week {expected_top}; this file stops at week {max(weeks)}'
+    return None, note
+
+
 RESEARCH_BOUNDARY = {
+    'game_weekly': {'same_season_point_in_time': True, 'season_scope': 'regular_season',
+                    'summary': 'one row per game: a row is knowable once that game was played; for predicting week N use rows with WEEK < N (store.game_rows)'},
     'full_season': {
         'same_season_point_in_time': False,
         'season_scope': 'regular_season',
@@ -194,19 +242,23 @@ def normalize(entry, ctx, index):
     level = table['level']
     groups = {'Player Details', 'Team Details'}
     special = {key for key in (_find(columns, {'Defense Stats'}, 'Name'), _find(columns, {'Offense Stats'}, 'Team')) if key} if table['id'] == 'line_matchups' else set()
-    ident = {base: _find(columns, groups, base) for base in ('Rank', 'Name', 'Team', 'POS', 'G', 'OPP', 'Location', 'Team Name')}
+    ident = {base: _find(columns, groups, base) for base in ('Rank', 'Name', 'Team', 'POS', 'G', 'OPP', 'Location', 'Team Name', 'Opponent', 'WEEK', 'Season Type')}
+    ident['OPP'] = ident['OPP'] or ident['Opponent']
     metric_keys = [key for key in columns if key not in ident.values() and key not in special and key != keys['season']]
+    is_game = table.get('granularity') == 'game'
     position = {key: columns.index(key) for key in columns}
     rows, review, unresolved = [], [], []
     tally = {}
     split_counts = collections.Counter()
     if level == 'player':
         for raw in parsed['rows']:
-            split_counts[(raw[position[ident['Name']]], raw[position[ident['Team']]], raw[position[ident['POS']]])] += 1
+            split_counts[(raw[position[ident['Name']]], raw[position[ident['Team']]], raw[position[ident['POS']]], raw[position[ident['WEEK']]] if is_game else '')] += 1
     for raw in parsed['rows']:
         def cell(key):
             return raw[position[key]] if key else ''
         context = {'games': to_number(cell(ident['G'])), 'source_rank': to_number(cell(ident['Rank']))}
+        if is_game:
+            context['week'] = int(cell(ident['WEEK']))
         if ident['OPP'] and cell(ident['OPP']):
             try:
                 context['opponent'] = idmod.canonical_team(cell(ident['OPP']))
@@ -226,7 +278,7 @@ def normalize(entry, ctx, index):
                 match = {'status': 'no_roster', 'player_id': None, 'method': None, 'candidates': [], 'note': 'no roster available for this season'}
             else:
                 match = index.resolve(entity['name'], entity['fp_team'], entity['position'])
-            entity['split_entity'] = split_counts[(entity['name'], entity['fp_team'], entity['position'])] > 1
+            entity['split_entity'] = split_counts[(entity['name'], entity['fp_team'], entity['position'], str(context['week']) if is_game else '')] > 1
             if entity['split_entity']:
                 match = {'status': 'ambiguous', 'player_id': None, 'method': 'split_entity', 'candidates': match['candidates'],
                          'note': 'the same name/team/position appears in more than one row with different numbers; rows are not merged'}
@@ -355,9 +407,17 @@ class Importer:
             return hold('quarantined_schema', '_quarantine', 'schema_drift',
                         f"{ctx['cls']['table_id']}: missing {drift['missing'][:6]}, renamed {drift['possible_renames'][:3]}, type changes {drift['type_changes'][:3]}",
                         {'drift': drift})
-        scope, games, scope_source, problem, week = decide_scope(info, self.current_season, self.max_possible_games, self.through_override, self.in_season, self.declare)
-        if problem and scope is None:
-            return hold('rejected', '_rejected', problem[0], problem[1])
+        is_game = bool(ctx['table'] and ctx['table'].get('granularity') == 'game')
+        game_note = None
+        if is_game:
+            problem, game_note = decide_game_scope(info, self.current_season, self.in_season, self.max_possible_games)
+            if problem:
+                return hold('rejected', '_rejected', problem[0], problem[1])
+            scope, games, scope_source, week = 'game_weekly', None, 'content', None
+        else:
+            scope, games, scope_source, problem, week = decide_scope(info, self.current_season, self.max_possible_games, self.through_override, self.in_season, self.declare)
+            if problem and scope is None:
+                return hold('rejected', '_rejected', problem[0], problem[1])
         season = int(info['seasons'][0])
         if problem:
             return hold('held_scope', '_quarantine', problem[0], problem[1], {'season': season, 'table_id': info['table_id'], 'through_games': games})
@@ -374,6 +434,9 @@ class Importer:
                             f"(e.g. {info['split_entities'][0][0]}): kept as separate unresolved rows, never merged")
         teams_needed = MIN_TEAMS_PLAYER if table['level'] == 'player' else MIN_TEAMS_TEAM
         status = 'imported'
+        if game_note:
+            status = 'partial'
+            warnings.append(game_note)
         if info['team_count'] < teams_needed:
             status = 'partial'
             warnings.append(f"only {info['team_count']} teams present (expected at least {teams_needed}): filtered or partial download, absence means unknown")
@@ -391,6 +454,8 @@ class Importer:
                  'first_imported_at': carry['first_imported_at'] if carry else now,
                  'through_games': games, 'week': week, 'through_week': games if games is not None and games < 14 and scope == 'season_to_date' else None,
                  'declared_by': 'operator' if scope_source == 'operator' else None, 'known_live': scope == 'season_to_date',
+                 'granularity': 'game' if is_game else None, 'weeks': info.get('game_weeks') if is_game else None,
+                 'rows_per_week': info.get('rows_per_week') if is_game else None,
                  'same_season_point_in_time': RESEARCH_BOUNDARY.get(scope, {}).get('same_season_point_in_time'),
                  'season_scope': 'regular_season', 'season_scope_source': 'operator_statement',
                  'forward_looking': table['forward_looking'], 'row_count': info['row_count'], 'column_count': info['column_count'],
@@ -416,6 +481,10 @@ class Importer:
             if status == 'partial' and old.get('status') != 'partial':
                 warnings.append('a partial re-export does not replace the complete snapshot for the same week')
                 outcome = 'partial_revision_kept_old_current'
+            elif is_game and max(entry.get('weeks') or [0]) < max(old.get('weeks') or [0]):
+                entry['superseded_by'] = old['sha256']  # a by-game file covering fewer weeks never replaces one covering more
+                warnings.append('this by-game export covers fewer weeks than one already imported; the longer one stays current')
+                outcome = 'older_revision_ignored'
             elif (mtime or '') >= (old.get('captured_at') or ''):  # the newer download wins, whatever order the files are processed in
                 old['superseded_by'] = sha
                 entry['revision_of'] = old['sha256']

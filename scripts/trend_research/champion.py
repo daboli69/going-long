@@ -29,7 +29,7 @@ GAMES_URL = 'https://github.com/nflverse/nfldata/raw/master/data/games.csv'
 FFOPP_URL = 'https://github.com/ffverse/ffopportunity/releases/download/v1.0.0-data/ep_weekly_{season}.parquet'
 WEEKLY_COLUMNS = ['player_id', 'player_display_name', 'position', 'team', 'opponent_team', 'season', 'week', 'season_type', 'passing_yards', 'passing_tds',
                   'attempts', 'carries', 'rushing_yards', 'rushing_tds', 'receptions', 'targets', 'receiving_yards', 'receiving_tds', 'special_teams_tds',
-                  'def_tds', 'fumble_recovery_tds']
+                  'def_tds', 'fumble_recovery_tds', 'sacks_suffered', 'passing_interceptions', 'completions', 'rushing_fumbles_lost', 'sack_fumbles_lost']
 
 
 def _download(url, destination):
