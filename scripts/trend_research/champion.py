@@ -170,6 +170,20 @@ def champion_frame(root, target_seasons, history_from=2019):
                 row['cur_' + m] = float(values[ok][cur_mask[ok]].mean()) if (cur_mask & ok).any() else np.nan
                 row['prior_' + m] = float(values[ok][~cur_mask[ok]].mean()) if ((~cur_mask) & ok).any() else np.nan
                 row['y_' + m] = stats[m][i]
+                # production distribution inputs (build_pipeline.fit_stat): weighted spread of all games (counts) and of positive games plus the nonpositive mass (yardage)
+                total = w.sum()
+                vals = values[ok]
+                denom = total - (w * w).sum() / total
+                mean_all = row['champ_' + m]
+                row['var_' + m] = float((w * (vals - mean_all) ** 2).sum() / denom) if denom > 0 else 0.0
+                positive = vals > 0
+                pt = w[positive].sum()
+                row['pw_' + m] = float(pt / total)
+                if pt > 0:
+                    pm = (vals[positive] * w[positive]).sum() / pt
+                    pd_ = pt - (w[positive] ** 2).sum() / pt
+                    row['pm_' + m] = float(pm)
+                    row['ps_' + m] = float(np.sqrt((w[positive] * (vals[positive] - pm) ** 2).sum() / pd_)) if pd_ > 0 else 0.0
             for share in ('carry_share', 'target_share'):
                 v = shares[share][window]
                 ok = ~np.isnan(v)
