@@ -1,6 +1,6 @@
 {
  "version": "champion-v2",
- "active": false,
+ "active": true,
  "rollback": "set \"active\": false (or run with GOING_CHAMPION_POLICY=v1) and rebuild: every market returns to the 80% current / 20% earlier weights and per-window spread",
  "markets": {
   "receptions": {

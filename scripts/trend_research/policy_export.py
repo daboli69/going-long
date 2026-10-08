@@ -23,7 +23,7 @@ def build():
         pool = p36b['markets'][market]['pool']
         markets[market]['shape'] = {'family': 'pooled_lognormal', 'zero_shrink_games': 10, 'cv': {p: v['cv'] for p, v in pool.items()},
                                     'zero_rate': {p: round(v['zero_rate'], 6) for p, v in pool.items()}}
-    return {'version': 'champion-v2', 'active': False,  # flipped to True only by the promotion commit
+    return {'version': 'champion-v2', 'active': True,  # activated 2026-10-08 on the user's explicit approval (Phase 3.1)
             'rollback': 'set "active": false (or run with GOING_CHAMPION_POLICY=v1) and rebuild: every market returns to the 80% current / 20% earlier weights and per-window spread',
             'markets': markets, 'pending_activation': pending,
             'not_promoted': {'rush_yds': 'P3-1 and P3-6 inconclusive: shadow only', 'pass_yds': 'P3-1 holdout interval included 0 (n=170); the pooled spread was validated only together with the blend mean. Shadow only.', 'comment': 'rush_yds stays on v1 until a holdout supports it'},
