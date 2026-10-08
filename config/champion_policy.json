@@ -1,0 +1,99 @@
+{
+ "version": "champion-v2",
+ "active": false,
+ "rollback": "set \"active\": false (or run with GOING_CHAMPION_POLICY=v1) and rebuild: every market returns to the 80% current / 20% earlier weights and per-window spread",
+ "markets": {
+  "receptions": {
+   "mean": {
+    "method": "prior_strength_blend",
+    "c": 2
+   }
+  },
+  "rec_yds": {
+   "mean": {
+    "method": "prior_strength_blend",
+    "c": 1
+   },
+   "shape": {
+    "family": "pooled_lognormal",
+    "zero_shrink_games": 10,
+    "cv": {
+     "RB": 0.9,
+     "TE": 0.7,
+     "WR": 0.7
+    },
+    "zero_rate": {
+     "RB": 0.397588,
+     "TE": 0.374883,
+     "WR": 0.275388
+    }
+   }
+  },
+  "rec_tds": {
+   "mean": {
+    "method": "prior_strength_blend",
+    "c": 4
+   }
+  },
+  "rush_tds": {
+   "mean": {
+    "method": "prior_strength_blend",
+    "c": 3
+   }
+  },
+  "atd": {
+   "mean": {
+    "method": "prior_strength_blend",
+    "c": 4
+   }
+  },
+  "pass_tds": {
+   "mean": {
+    "method": "prior_strength_blend",
+    "c": 4
+   }
+  },
+  "pass_yds": {
+   "mean": {
+    "method": "prior_strength_blend",
+    "c": 3
+   },
+   "shape": {
+    "family": "pooled_lognormal",
+    "zero_shrink_games": 10,
+    "cv": {
+     "QB": 0.3
+    },
+    "zero_rate": {
+     "QB": 0.002096
+    }
+   }
+  }
+ },
+ "pending_activation": {
+  "receptions_shape": {
+   "family": "nbinom",
+   "phi": 0.2,
+   "blocked_by": "needs index.html propProbabilities/poissonCDF changes, which the frozen today-ranking-v1 experiment hashes; patch kept in research/trend-intelligence/pending/negative-binomial-receptions.patch",
+   "activation": "register today-ranking-v2 (new hashes), apply the patch, then move this block into markets.receptions.shape"
+  }
+ },
+ "not_promoted": {
+  "rush_yds": "P3-1 and P3-6 inconclusive: shadow only",
+  "comment": "rush_yds stays on v1 until a holdout supports it"
+ },
+ "provenance": {
+  "mean_blend": "P3-1",
+  "receptions_shape": "P3-5",
+  "yardage_shape": "P3-6 (gate) with P3-6b development-fitted parameters",
+  "ledger_spec_hashes": {
+   "P3-1": "e73cd3d73c0b35bb4cf376a4feac173b992b11042f2aa66cb4f10cb2912333f0",
+   "P3-5": "30fe4e58f4fc79a31e9ba215f5c258f070f09db0cc2d331105a7c50153972088",
+   "P3-6": "d6bfc27b0c56793864d6bd78846b8562660c79d47290133f7dc6914ceef8c490",
+   "P3-6b": "0eb30285f9e37da4f63a71c8bdbcae4bbb3e33d4972655b52c18e8883f1b09aa"
+  },
+  "development": "2021-2023",
+  "validation": "2024",
+  "holdout": "2025"
+ }
+}

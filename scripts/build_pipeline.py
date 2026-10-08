@@ -9,6 +9,7 @@ import math
 import os
 import re
 import statistics as stats
+import sys
 import unicodedata
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -16,6 +17,8 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import champion_policy  # noqa: E402  (versioned Champion policy; see config/champion_policy.json)
 MARKETS = {
     'pass_yds': ('passing_yards', 'lognormal'),
     'rush_yds': ('rushing_yards', 'lognormal'),
@@ -78,11 +81,15 @@ def season_weights(years, season):
             (0.2/prior if current else 1/prior) if y < season else 0 for y in years]
 
 
-def season_fit(games, column, family, season, minimum=5, candidate=False):
+def season_fit(games, column, family, season, minimum=5, candidate=False, market=None, position=None):
     """Live 80/20 policy, with explicit missing-season fallback and effective n.
 
     candidate=True retains the earlier two/six-game-prior research comparator.
     Neither policy is claimed to be a fitted optimum.
+
+    ``market``/``position`` enable the versioned Champion v2 policy (config/champion_policy.json) for the markets it lists: a prior-strength blend of current and
+    earlier-season games, a pooled yardage spread, and a negative-binomial dispersion for receptions. Any market not listed, an inactive config or
+    GOING_CHAMPION_POLICY=v1 gives exactly the previous behaviour.
     """
     usable = [r for r in games if r['season'] <= season and finite(r.get(column))]
     current = [r for r in usable if r['season'] == season]
@@ -91,18 +98,64 @@ def season_fit(games, column, family, season, minimum=5, candidate=False):
     effective_prior = min(len(prior), strength)
     # Do not erase history entirely after a long season.
     effective_prior = max(effective_prior, len(current)/9) if prior else 0
-    weights = ([1.0 if r['season'] == season else effective_prior/len(prior) for r in usable]
-               if candidate else season_weights([r['season'] for r in usable], season))
+    spec = None if candidate or not market else champion_policy.market_policy(champion_policy.load(), market)
+    years = [r['season'] for r in usable]
+    if spec:
+        weights = champion_policy.blend_weights(years, season, spec['mean']['c'])
+    else:
+        weights = ([1.0 if r['season'] == season else effective_prior/len(prior) for r in usable]
+                   if candidate else season_weights(years, season))
     model = fit_stat([r[column] for r in usable], family, minimum, weights)
     total = sum(weights)
+    method = 'candidate sample-weighted prior' if candidate else '80% current / 20% historical policy; unvalidated accuracy improvement'
+    policy_name = champion_policy.V1_NAME
+    if spec and model.get('status') == 'ready':
+        applied = _apply_champion_v2(model, spec, usable, column, season, position)
+        if applied:
+            policy_name = 'champion-v2'
+            method = f"prior-strength blend c={spec['mean']['c']} (champion-v2)"
+        else:  # a player the pooled parameters do not cover keeps the previous policy end to end
+            weights = season_weights(years, season)
+            total = sum(weights)
+            model = fit_stat([r[column] for r in usable], family, minimum, weights)
+    model['policy'] = policy_name
     model['season_evidence'] = {'season':season, 'current_games':len(current), 'historical_games':len(prior),
         'current_weight':sum(w for r,w in zip(usable,weights) if r['season']==season)/total if total else 0,
         'historical_weight':sum(w for r,w in zip(usable,weights) if r['season']<season)/total if total else 0,
         'evidence_status':'mixed' if current and prior else 'current_only' if current else 'historical_fallback' if prior else 'missing',
         'sample_confidence':'low' if len(current)<5 else 'moderate',
         'effective_n':total**2/sum(w*w for w in weights) if weights else 0,
-        'method':'candidate sample-weighted prior' if candidate else '80% current / 20% historical policy; unvalidated accuracy improvement'}
+        'method':method}
     return model
+
+
+def _apply_champion_v2(model, spec, usable, column, season, position):
+    """Distribution layer of Champion v2 on top of the blended mean. Returns False when the player is not covered (the caller then falls back to v1)."""
+    shape = spec.get('shape')
+    if not shape:
+        return True
+    if shape.get('family') == 'nbinom':
+        mean = model['mean']
+        if not (mean > 0):
+            return True  # a zero mean stays a degenerate Poisson, exactly as before
+        model['dispersion_phi'] = shape['phi']
+        model['sd'] = champion_policy.negative_binomial_sd(mean, shape['phi'])
+        return True
+    if shape.get('family') == 'pooled_lognormal':
+        years = [r['season'] for r in usable]
+        legacy = champion_policy.legacy_weights(years, season)
+        total = sum(legacy)
+        positive = sum(w for r, w in zip(usable, legacy) if r[column] > 0)
+        if not total or not positive:
+            return False
+        fields = champion_policy.pooled_lognormal(model['mean'], len(usable), 1 - positive / total, position, shape)
+        if fields is None:
+            return False
+        fields.pop('zero_mass', None)
+        model.update(fields)
+        model['pooled_zero_mass'] = 1 - fields['positive_weight']
+        return True
+    return False
 
 
 def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
@@ -157,7 +210,7 @@ def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
                          'role_evidence': {'basis':'verified schedule starts' if position == 'QB' else 'offensive appearances',
                                            'modeled_games':len(modeled), 'latest_appearance':last['date'],
                                            'latest_start':modeled[-1]['date'] if modeled and position == 'QB' else None},
-                         'stats': {market: season_fit(modeled, column, family, season, minimum)
+                         'stats': {market: season_fit(modeled, column, family, season, minimum, market=market, position=position)
                                    for market, (column, family) in MARKETS.items()},
                          'workload': {column:season_fit(modeled,column,'poisson',season,minimum)
                                       for column in ('attempts','carries','targets')},
