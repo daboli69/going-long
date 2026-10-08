@@ -122,9 +122,22 @@ def build_trend(root, manifest, season, game):
     for table_id, shas in sources.items():  # a state is knowable only once BOTH snapshots it was derived from had been imported (a corrected earlier week counts)
         known.append(manifest.files[shas['now']]['first_imported_at'])
         known.append(manifest.files[shas['before']]['first_imported_at'])
-    return {'schema': 'fp-trend-state-v1', 'season': season, 'through_games': game, 'prev_through_games': game - 1, 'known_at': max(known),
-            'sources': sources, 'players': usage,
-            'note': 'weekly usage = difference of two consecutive live season-to-date snapshots; route share uses the busiest teammate\'s routes as the team total; '
+    from . import trend_labels  # imported here: trend_labels reads snapshots through this module
+    environment, env_sources = trend_labels.team_environment(root, manifest, season, game)
+    matchup, matchup_sources = trend_labels.matchup_context(root, manifest, season, game)
+    for table_id, shas in env_sources.items():
+        sources[table_id] = shas
+        known.append(manifest.files[shas['now']]['first_imported_at'])
+        known.append(manifest.files[shas['before']]['first_imported_at'])
+    for table_id, sha in matchup_sources.items():
+        sources[table_id] = {'now': sha}
+        known.append(manifest.files[sha]['first_imported_at'])
+    for record in usage.values():
+        record['labels'] = trend_labels.detect(record)
+    return {'schema': 'fp-trend-state-v2', 'season': season, 'through_games': game, 'prev_through_games': game - 1, 'known_at': max(known),
+            'sources': sources, 'players': usage, 'team_environment': environment, 'matchup_known_before_game': matchup,
+            'labels_note': 'labels are descriptive evidence only: not model inputs, rating bonuses or bet triggers until prospective evidence validates them',
+            'note': 'weekly usage = difference of two consecutive live season-to-date snapshots; team environment likewise from the run/pass report; matchup context = what the forward-looking tables said when this snapshot was imported; route share uses the busiest teammate\'s routes as the team total; '
                     'no game outcome beyond the snapshots is used; this file is write-once'}
 
 

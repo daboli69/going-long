@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "audited_at": "2026-10-08",
+  "audited_commit": "origin/main b595a51 (data refresh 2026-10-08); code paths below",
+  "purpose": "Machine-readable map of what actually produces GOING's numbers and recommendations, so research compares against the real system (the Champion), not a toy baseline. Facts were read from code and verified against the frozen 2026 tracker; items marked inferred were not verified.",
+  "champion_definition": {
+    "player_markets": "weighted trailing-window mean per market (scripts/build_pipeline.py build_profiles/season_fit/fit_stat), then optional QB pressure scale and injury/availability/next-man-up adjustment (index.html attachProjection, shared/football-injuries.js), then Poisson (counts) or lognormal+empirical-mass (yardage) pricing (index.html propProbabilities)",
+    "window": "last 12 regular-season appearances across seasons (QB: verified schedule starts within 730 days), minimum 5, zero-stat appearances taken from snap counts",
+    "weights": "80% spread equally over current-season games and 20% over earlier-season games when both are present; equal weights otherwise (build_pipeline.py season_weights). Documented as 'product policy, unvalidated'. No within-season recency weighting, no shrinkage to a position prior, no rookie handling",
+    "reconstruction": "scripts/trend_research/champion.py reproduces the production mean exactly (to 1e-6) for 91% of frozen receptions and receiving-yards records, 95% of atd, 100% of pass_tds, 79% of rush_yds and 59% of pass_yds (differences are injury/role adjustments and QB start selection); recorded probability equals Poisson(projection_mean) for every frozen receptions record that stores projection_mean",
+    "ffopportunity": "NOT a projection input: expected points appear only in descriptive facts (opportunity_evidence.py)",
+    "fantasy_points": "NOT used anywhere in production"
+  },
+  "markets": {
+    "receptions": {"quoted": true, "distribution": "Poisson(lambda = weighted mean)", "adjustments": ["injury scale", "next-man-up boost"], "not_modeled": ["matchup", "pace/game script", "weather", "home/away", "overdispersion (median variance/mean about 1.22)"]},
+    "rec_yds": {"quoted": true, "distribution": "lognormal on positive games + empirical <=0 mass", "adjustments": ["injury scale", "next-man-up boost"], "uncertainty": "weighted SD, deflated when one season dominates the weights", "not_modeled": ["opponent/coverage", "target volume (only yards history)"]},
+    "rec_tds": {"quoted": false, "note": "modeled in profiles, zero quotes in the odds feed"},
+    "atd": {"quoted": true, "distribution": "Poisson, P(yes)=1-exp(-lambda) on rushing+receiving+special-teams+defensive+fumble-recovery TDs", "not_modeled": ["goal-line role", "team scoring environment"]},
+    "rush_yds": {"quoted": true, "distribution": "lognormal + empirical mass", "adjustments": ["injury", "QB-only: scramble/pressure scale"]},
+    "rush_tds": {"quoted": false},
+    "carries": {"quoted": false, "note": "not a market; only a descriptive workload fit"},
+    "pass_yds": {"quoted": true, "distribution": "lognormal + empirical mass over verified starts", "adjustments": ["QB pressure scale (floor 0.85, adverse only)"]},
+    "pass_tds": {"quoted": true, "distribution": "Poisson (variance/mean about 0.75: underdispersed)", "not_modeled": ["defense", "pace"]},
+    "qb_attempts_completions_ints": {"quoted": false, "modeled": false},
+    "game_sides_totals": {"quoted": true, "model": "team trailing scoring: home pts = mean(home scored, away allowed), 12 games, 80/20 season weights; normal margin/total with SD from up to 1000 walk-forward residuals; NO opponent strength, home field, injury, weather, rest or market blending; moneyline from the same margin", "walk_forward_rmse": {"nfl_margin": 13.37, "nfl_total": 14.05, "ncaa_margin": 18.17, "ncaa_total": 16.05}}
+  },
+  "season_transition": {
+    "week_1": "all weight on prior-season games (historical_fallback)",
+    "after_one_game": "that single game carries 80% of the weight although the 11 earlier games satisfy the n>=5 gate; effective_n about 1.5",
+    "after_four_games": "four current games share 80%, eight prior share 20%",
+    "self_review": "scripts/current_season_review.py compares 80/20 with equal weights each refresh; in 2026 80/20 has HIGHER RMSE than equal weights in every market (pass_yds 94.0 vs 86.4, pass_tds 1.263 vs 1.144, rush_yds 24.29 vs 23.99, rec_yds 25.89 vs 24.32, receptions 1.884 vs 1.817, atd 0.545 vs 0.502)",
+    "validation_in_this_repo": "E7 (2021-2025 walk-forward, reconstructed Champion): see ledger.json"
+  },
+  "decision_layer": {
+    "no_bet_pass_tier": "There is no BET/PASS tier anywhere; every UI string disclaims calibration and edge",
+    "pipelines": {
+      "board": "signalCandidates -> rankBestPlays: best_model = highest model win chance first (favourites lead) subject to fresh-ish quote, n>=5, no 'check' flag; tracked only when EV>=3% and the 'gap' flag (defined as EV>=3%) and no check flag",
+      "best_value": "reference-book consensus (Pinnacle required) vs recreational book; ZERO frozen predictions exist",
+      "going_picks_v2": "football-case-v2 evidence rating /100 (see rating inputs); independent of price, EV and model probability except as an eligibility check",
+      "all_projection": "every projected play (one line per family nearest -110, odds >= -500): the unselected universe, the right baseline"
+    },
+    "going_rating_inputs": {"model direction": "+2/-2", "current production vs line": "+1/-1", "usage trend (targets/carries early vs late)": "+1/-1", "role-matched matchup (rec_yds, rush_yds only)": "+1/-1", "teammate-out with/without": "+1/-1", "availability concern": "-1", "td_role (atd only, capped tier 2)": "+1", "rating formula": "(tier-1)*20 + 1 + round(19*strength), strength = clamp(directional gap / model SD, 0, 1)"},
+    "going_score": "separate /100 player index, slate-percentile based, Over-only, 5 markets; ATD blends 20% book-implied probability",
+    "price_effects": "Rating ignores price. Tracker applies a -500 odds floor to every group except going_picks (v1/v2 bypass it). best_model drops EV>25% as a 'check'"
+  },
+  "frozen_record_fields": ["probability (win only)", "ev", "odds/american", "line/side", "model_evidence.projection_mean/projection_sd (post-adjustment)", "model_evidence.n/profileDate/push/seasonEvidence/roleEvidence/reference", "provenance hashes of every input file", "readiness_snapshot, picks_snapshot (pick groups)", "calibration_shadow"],
+  "known_gaps": [
+    "closing-price records are scheduled later observations, not closes: none is flagged near-kickoff and the median is 3.8 days before kickoff, so closing-line value cannot be measured honestly",
+    "frozen records do not store the unadjusted mean, the injury scale, the lognormal parameters or the game log; exact replay needs the hashed input files",
+    "the same bet appears in several tracking groups and as both sides in all_projection: groups are not independent samples; the game is the cluster"
+  ]
+}

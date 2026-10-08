@@ -59,6 +59,25 @@ def cmd_sensitivity(args):
     return 0
 
 
+def cmd_benchmark(args):
+    root = find_root(args.root, REPO)
+    from tracker_store import load_tracker
+    from trend_research import benchmarks_run
+    records = load_tracker(str(REPO / 'data'))['records']
+    result = benchmarks_run.run(root, records, REPO / 'research' / 'trend-intelligence' / 'champion_benchmark.json')
+    print('player markets:', {m: round(sum(v['mae'] * v['n'] for v in b.values()) / sum(v['n'] for v in b.values()), 3) for m, b in result['player_mean_accuracy_reconstructed_champion'].items()})
+    print('game model vs market (pooled):', {k: round(v, 2) for k, v in result['game_model_vs_closing_market']['pooled'].items()})
+    return 0
+
+
+def cmd_outcomes(args):
+    root = find_root(args.root, REPO)
+    from trend_research import prospective
+    written = prospective.write_outcomes(root, args.season, refresh=True)
+    print('wrote', written or 'nothing new (an outcome file needs a completed NFL week)')
+    return 0
+
+
 def cmd_show(args):
     book = ledger.load()
     for exp_id, entry in book['experiments'].items():
@@ -80,14 +99,26 @@ def cmd_report(args):
         lines += ['', f"## {exp_id}: {spec['title']} - {entry['status']}", '', f"*Pre-registered {entry['registered_at']} (spec `{entry['spec_sha256'][:12]}`).*"]
         if spec.get('exploratory'):
             lines.append('*Exploratory, post-hoc: cannot support promotion.*')
-        lines += ['', f"- **What we thought:** {note.get('thought', spec['hypothesis'])}", f"- **Why football supports it:** {spec['football_rationale']}",
-                  f"- **How tested without leakage:** {spec['leakage']}; chronological rolling origin; baselines {json.dumps(spec['baselines'])}",
+        lines += ['', f"- **What we thought:** {note.get('thought', spec['hypothesis'])}", f"- **Why football supports it:** {spec.get('football_rationale', '')}",
+                  f"- **How tested without leakage:** {spec['leakage']}; chronological rolling origin; comparators {json.dumps(spec.get('baselines') or spec.get('models') or spec.get('comparators') or spec.get('primary_comparison'))}",
                   f"- **Result:** {note.get('result', '')}", f"- **What GOING should do:** {note.get('action', '')}"]
         if result:
             lines += ['', '| Outcome / bucket | Verdict | Baseline MAE | Challenger MAE | Rel. improvement | 95%-adj CI of delta | Seasons better | n |', '| --- | --- | --- | --- | --- | --- | --- | --- |']
             groups = result.get('outcomes') or {}
             if 'buckets' in result:
                 groups = {f'{b} / {o}': r for b, outs in result['buckets'].items() for o, r in outs.items()}
+            elif exp_id == 'E7':
+                groups = {f'{m} (weeks 1-6, blend vs Champion)': r['primary_weeks1_6_W3_vs_W0'] for m, r in result['markets'].items()}
+                groups.update({f'{m} (all weeks)': r['all_weeks_W3_vs_W0'] for m, r in result['markets'].items()})
+            elif exp_id == 'E8':
+                groups = {f'{m}: {name}': c for m, r in result['markets'].items() for name, c in r['comparisons'].items()}
+            elif exp_id == 'E9':
+                groups = {f'{m}: {name}': c for m, r in result['outcomes'].items() for name, c in r['comparisons'].items()}
+            elif exp_id == 'E10':
+                groups = {}
+                for m, r in result['markets'].items():
+                    if 'brier_w3' in r:
+                        lines.append(f"| {m} (Brier, 2026 frozen) | {r['verdict']} | {r['brier_champion']:.4f} | {r['brier_w3']:.4f} | {r['relative_improvement'] * 100:+.2f}% | [{r['delta_brier_ci95'][0]:+.4f}, {r['delta_brier_ci95'][1]:+.4f}] | n/a | {r['n']} |")
             for name, res in groups.items():
                 p = res['pooled']
                 lines.append(f"| {name} | {res['verdict']} | {p['base_mae']:.4g} | {p['new_mae']:.4g} | {p['relative_improvement'] * 100:+.2f}% | [{p['ci_low']:+.3g}, {p['ci_high']:+.3g}] | {p['years_better']}/{p['years_total']} | {p['n']} |")
@@ -123,6 +154,10 @@ def main(argv=None):
     p.add_argument('ids', nargs='+')
     p.set_defaults(func=cmd_run)
     sub.add_parser('show').set_defaults(func=cmd_show)
+    sub.add_parser('benchmark').set_defaults(func=cmd_benchmark)
+    p = sub.add_parser('outcomes')
+    p.add_argument('--season', type=int, default=2026)
+    p.set_defaults(func=cmd_outcomes)
     sub.add_parser('sensitivity').set_defaults(func=cmd_sensitivity)
     sub.add_parser('report').set_defaults(func=cmd_report)
     args = parser.parse_args(argv)

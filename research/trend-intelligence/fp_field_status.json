@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "as_of": "2026-10-08 (after waves 1 and 2)",
+  "rule": "Nothing is a model input, rating bonus or bet trigger because it is premium data. A field family may be used as a PREDICTOR only when a pre-registered chronological test shows it beats the real Champion (plus raw volume where relevant) and a prospective check does not contradict it. Until then Fantasy Points data is descriptive evidence.",
+  "statuses": {
+    "PREDICTIVE_CANDIDATE": "evidence suggests possible incremental forecasting value over the Champion; not yet confirmed prospectively",
+    "DESCRIPTIVE_EVIDENCE": "explains role / matchup / thesis; no demonstrated incremental prediction (tested without gain, or untested)",
+    "REJECTED_AS_PREDICTOR": "tested and failed to improve the relevant baseline",
+    "NEEDS_PROSPECTIVE_DATA": "cannot be evaluated honestly yet (no historical point-in-time data)"
+  },
+  "families": [
+    {"family": "Expected fantasy points / expected TDs (XFP, XTD)", "tables": ["efficiency", "receiving_advanced", "rushing_bell_cow", "rushing_advanced"], "status": "DESCRIPTIVE_EVIDENCE",
+     "tested_in": ["E2", "E8"], "finding": "Adds a little to the Champion for rushing yards/TDs, but adds nothing beyond ffopportunity expected points, which GOING already has free (E8 MEOFP vs MEOP: INCONCLUSIVE/REJECTED on every market). Redundant source.", "predictive_use": "no; use ffopportunity"},
+    {"family": "Route participation, TPRR, target share, first-read/designed share (compact set)", "tables": ["receiving_routes_run", "receiving_advanced"], "status": "NEEDS_PROSPECTIVE_DATA",
+     "tested_in": ["E1", "E3", "E6"], "finding": "The 16-feature bundle failed (E1, E3). A 3-feature compact set was directionally positive but inconclusive and post-hoc (E6). In-season role needs the 2026 weekly trend states.", "predictive_use": "no"},
+    {"family": "Alignment mix (wide/slot/inline/backfield)", "tables": ["receiving_routes_run", "receiving_advanced"], "status": "REJECTED_AS_PREDICTOR", "tested_in": ["E1", "E3"],
+     "finding": "Part of the failed bundle; no gain beyond prior production and in-season usage. Valid as a deployment descriptor.", "predictive_use": "no"},
+    {"family": "Separation score / win rate (alignment, break, coverage, route)", "tables": ["receiving_separation_by_*"], "status": "DESCRIPTIVE_EVIDENCE", "tested_in": [],
+     "finding": "Untested as a predictor. Testable on completed seasons (wave 3 candidate). Several columns are unit-unstable (Post route share).", "predictive_use": "no"},
+    {"family": "Man/zone and coverage splits x opponent coverage mix", "tables": ["receiving_man_vs_zone", "coverage_matrix", "receiving_separation_by_coverage"], "status": "REJECTED_AS_PREDICTOR",
+     "tested_in": ["E4"], "finding": "The interaction did not improve weekly yardage or target prediction (0 of 2 seasons). 2021 coverage scales differ. Still useful to explain a matchup.", "predictive_use": "no; revisit with same-season 2026 coverage"},
+    {"family": "Bell-cow role shares (snap %, carry share, target share, XFP share)", "tables": ["rushing_bell_cow"], "status": "REJECTED_AS_PREDICTOR", "tested_in": ["E9"],
+     "finding": "No gain over Champion plus raw volume for carries, rushing yards or rushing TDs.", "predictive_use": "no"},
+    {"family": "Advanced rushing efficiency (success %, stuff %, contact yardage, missed tackles, explosive %)", "tables": ["rushing_advanced"], "status": "REJECTED_AS_PREDICTOR", "tested_in": ["E9"],
+     "finding": "Worse than the baseline in every outcome (0 of 3 seasons better): efficiency does not persist.", "predictive_use": "no"},
+    {"family": "Role stability (team carry-share mean, spread and trend, from nflverse)", "tables": ["nflverse weekly"], "status": "DESCRIPTIVE_EVIDENCE", "tested_in": ["E9"],
+     "finding": "+0.5% on carries, +0.25% on rushing yards: inconclusive.", "predictive_use": "no"},
+    {"family": "Team run/pass splits by game script", "tables": ["run_pass_report"], "status": "REJECTED_AS_PREDICTOR", "tested_in": ["E5"], "finding": "No gain predicting next-season pass rate (low power).", "predictive_use": "no"},
+    {"family": "QB pressure, time to throw, depth", "tables": ["passing_advanced", "passing_depth"], "status": "DESCRIPTIVE_EVIDENCE", "tested_in": [],
+     "finding": "Untested. GOING already applies a pressure scale to QB yards. Candidate for wave 3 on completed seasons.", "predictive_use": "no"},
+    {"family": "Goal-line / inside-5,10,20 snaps", "tables": ["offense_snaps"], "status": "NEEDS_PROSPECTIVE_DATA", "tested_in": [], "finding": "Exists for 2026 only.", "predictive_use": "no"},
+    {"family": "OL/DL matchups, QB/WR coverage matchups, next-game tables", "tables": ["line_matchups", "qb_coverage_matchup", "wr_coverage_matchup"], "status": "NEEDS_PROSPECTIVE_DATA", "tested_in": [],
+     "finding": "Forward-looking and 2026 only; stored with each weekly trend state.", "predictive_use": "no"},
+    {"family": "Raw box-score basics", "tables": ["receiving_basic", "rushing_basic", "passing_basic"], "status": "DESCRIPTIVE_EVIDENCE", "tested_in": [], "finding": "Redundant with nflverse.", "predictive_use": "no"}
+  ],
+  "non_fantasy_points_finding": "The signals that DID beat or help the Champion in wave 2 are not Fantasy Points fields: (1) a prior-strength blend instead of 80/20 current-season weighting (E7), (2) ffopportunity in-season expected volume and (3) raw target/carry volume (E8). Fantasy Points data is the least additive source tested so far."
+}

@@ -395,8 +395,39 @@
    "status": "REJECTED"
   },
   "E10": {
+   "completed_at": "2026-10-08T10:49:17Z",
    "registered_at": "2026-10-08T10:49:11Z",
-   "result": null,
+   "result": {
+    "c_final": {
+     "pass_tds": 4,
+     "receptions": 1
+    },
+    "markets": {
+     "pass_tds": {
+      "n": 11,
+      "note": "too few matching settled predictions",
+      "verdict": "INCONCLUSIVE"
+     },
+     "receptions": {
+      "brier_champion": 0.270735485277905,
+      "brier_w3": 0.2725833702703732,
+      "c": 1,
+      "delta_brier_ci95": [
+       -0.0015394134147940146,
+       0.005942259156921964
+      ],
+      "games": 13,
+      "mean_champion_prob": 0.6175067451321012,
+      "mean_w3_prob": 0.6117520060137048,
+      "n": 105,
+      "relative_improvement": -0.006825425897057494,
+      "share_with_k_le_3": 1.0,
+      "verdict": "REJECTED",
+      "win_rate": 0.5333333333333333
+     }
+    },
+    "seconds": 4.0
+   },
    "spec": {
     "blend_parameter": "c per market = argmin MAE of W3 over ALL 2021-2025 target rows (the E7 procedure), fixed before looking at any 2026 outcome",
     "bootstrap": "cluster by player, 2000 draws, seed 20261008",
@@ -442,7 +473,7 @@
     "title": "Prospective check (2026): would the E7 blend have improved the probabilities the production system actually froze?"
    },
    "spec_sha256": "316b07fc256cb7f357d59ba99a9b9c3147c393c0e80ecf3f71907ef6e41ff642",
-   "status": "REGISTERED"
+   "status": "REJECTED"
   },
   "E2": {
    "completed_at": "2026-10-08T01:47:11Z",
