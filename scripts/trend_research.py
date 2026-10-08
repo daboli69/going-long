@@ -16,10 +16,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fp_ingest.store import Manifest, find_root  # noqa: E402
-from trend_research import experiments, experiments2, experiments3, experiments4, experiments5, experiments6, experiments7, experiments8, ledger  # noqa: E402
+from trend_research import experiments, experiments2, experiments3, experiments4, experiments5, experiments6, experiments7, experiments8, experiments9, ledger  # noqa: E402
 
-SPECS = {**experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS, **experiments4.SPECS, **experiments5.SPECS, **experiments6.SPECS, **experiments7.SPECS, **experiments8.SPECS}
-RUNNERS = {**experiments.RUNNERS, **experiments2.RUNNERS, **experiments3.RUNNERS, **experiments4.RUNNERS, **experiments5.RUNNERS, **experiments6.RUNNERS, **experiments7.RUNNERS, **experiments8.RUNNERS}
+SPECS = {**experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS, **experiments4.SPECS, **experiments5.SPECS, **experiments6.SPECS, **experiments7.SPECS, **experiments8.SPECS, **experiments9.SPECS}
+RUNNERS = {**experiments.RUNNERS, **experiments2.RUNNERS, **experiments3.RUNNERS, **experiments4.RUNNERS, **experiments5.RUNNERS, **experiments6.RUNNERS, **experiments7.RUNNERS, **experiments8.RUNNERS, **experiments9.RUNNERS}
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -85,6 +85,44 @@ def cmd_show(args):
     return 0
 
 
+def phase3_table(exp_id, result):
+    """Compact aggregate tables for the Phase 3 experiments (their result shapes differ from waves 1 and 2)."""
+    rows = []
+    pct = lambda x: '' if x is None else f'{x * 100:+.2f}%'
+    if exp_id == 'P3-1':
+        rows += ['| Market | Verdict | c | 2024 early gain | 2025 early gain (95%-adj CI) | 2025 all-weeks gain |', '| --- | --- | --- | --- | --- | --- |']
+        for m, r in result['markets'].items():
+            v, h = r['validation'], r['holdout']
+            rows.append(f"| {m} | {r['verdict']} | {r['chosen_c']} | {v['early_gain']:+.4f} | {h['early_gain']:+.4f} [{h['early_ci'][0]:+.4f}, {h['early_ci'][1]:+.4f}] | {h['all_weeks_gain']:+.4f} |")
+    elif exp_id in ('P3-2', 'P3-3'):
+        rows += ['| Outcome | Block | Verdict | Rel. MAE improvement | Seasons better | n |', '| --- | --- | --- | --- | --- | --- |']
+        for o, r in result['outcomes'].items():
+            for b, c in r['blocks'].items():
+                rows.append(f"| {o} | {b} | {c['verdict']} | {pct(c.get('relative_improvement'))} | {c.get('years_better', '')}/{len(c.get('per_year', {}))} | {c.get('n', '')} |")
+            if 'fantasy_points_beyond_ffopportunity' in r:
+                c = r['fantasy_points_beyond_ffopportunity']
+                rows.append(f"| {o} | Fantasy Points beyond ffopportunity | {c['verdict']} | {pct(c.get('relative_improvement'))} | {c.get('years_better', '')}/{len(c.get('per_year', {}))} | {c.get('n', '')} |")
+    elif exp_id == 'P3-4':
+        rows += ['| Outcome | Comparison | Verdict | Rel. MAE improvement | Seasons better |', '| --- | --- | --- | --- | --- |']
+        for o, r in result['outcomes'].items():
+            for name, c in (('free nflverse role vs baseline', r['free_vs_bv']), ('Fantasy Points role beyond free role', r['fp_beyond_free'])):
+                rows.append(f"| {o} | {name} | {c['verdict']} | {pct(c.get('relative_improvement'))} | {c.get('years_better', '')}/{len(c.get('per_year', {}))} |")
+    elif exp_id == 'P3-5':
+        rows += ['| Market | Mean | Alternative | Verdict | 2024 d log score | 2025 d log score | 2025 Brier vs Poisson |', '| --- | --- | --- | --- | --- | --- | --- |']
+        for m, r in result['markets'].items():
+            for mean, d in r['means'].items():
+                for fam in ('NB', 'ZIP'):
+                    c = d['cells'][fam]
+                    rows.append(f"| {m} | {mean} | {fam} | {c['verdict']} | {c['validation']['delta_log_score']:+.4f} | {c['holdout']['delta_log_score']:+.4f} | {pct(c['holdout']['brier_relative_vs_pois'])} |")
+    elif exp_id in ('P3-6', 'P3-6b'):
+        rows += ['| Market | Model | Verdict | 2024 pinball gain | 2025 pinball gain | 2025 80% coverage |', '| --- | --- | --- | --- | --- | --- |']
+        for m, r in result['markets'].items():
+            verdicts = r.get('verdicts') or r['cells'].get('verdicts', {})
+            for name, verdict in verdicts.items():
+                rows.append(f"| {m} | {name} | {verdict} | {pct(r['cells']['validation'][name]['relative_pinball_gain'])} | {pct(r['cells']['holdout'][name]['relative_pinball_gain'])} | {r['cells']['holdout'][name]['coverage80']:.3f} |")
+    return rows
+
+
 def cmd_report(args):
     """Write research/trend-intelligence/LEDGER.md from the ledger and interpretations (aggregate numbers only)."""
     book = ledger.load()
@@ -102,7 +140,9 @@ def cmd_report(args):
         lines += ['', f"- **What we thought:** {note.get('thought', spec['hypothesis'])}", f"- **Why football supports it:** {spec.get('football_rationale', '')}",
                   f"- **How tested without leakage:** {spec['leakage']}; chronological rolling origin; comparators {json.dumps(spec.get('baselines') or spec.get('models') or spec.get('comparators') or spec.get('primary_comparison'))}",
                   f"- **Result:** {note.get('result', '')}", f"- **What GOING should do:** {note.get('action', '')}"]
-        if result:
+        if result and exp_id.startswith('P3-'):
+            lines += [''] + phase3_table(exp_id, result)
+        elif result:
             lines += ['', '| Outcome / bucket | Verdict | Baseline MAE | Challenger MAE | Rel. improvement | 95%-adj CI of delta | Seasons better | n |', '| --- | --- | --- | --- | --- | --- | --- | --- |']
             groups = result.get('outcomes') or {}
             if 'buckets' in result:

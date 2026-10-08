@@ -13226,6 +13226,48 @@
    },
    "spec_sha256": "0eb30285f9e37da4f63a71c8bdbcae4bbb3e33d4972655b52c18e8883f1b09aa",
    "status": "NEEDS PROSPECTIVE DATA"
+  },
+  "P3-7": {
+   "registered_at": "2026-10-08T20:50:21Z",
+   "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "otherwise",
+     "PROMISING": "relative MAE improvement >= 1% in BOTH 2024 and 2025 AND the 2025 interval excludes 0",
+     "REJECTED": "the 2025 interval lies below a 1% gain"
+    },
+    "football_rationale": "DFS uses the same player projections as betting; the shrinkage lowers noise from one-game reads of a role.",
+    "hypothesis": "Replacing the 80/20 market means by the validated blend (same c as P3-1, no re-tuning) lowers the error of the projected modelled-component DraftKings points, mainly in weeks 1-6.",
+    "id": "P3-7",
+    "leakage": "as P3-1",
+    "limitations": "partial DK points only (no interceptions, fumbles, conversions, bonuses, defence); no salaries or field data exist for these seasons, so nothing about lineup value is tested",
+    "markets": [
+     "DFS projection"
+    ],
+    "metric": "MAE of partial DK points by position; player-clustered paired bootstrap; Bonferroni over 4 positions (98.75% intervals)",
+    "population": "reconstructed Champion rows 2021-2025 for QB/RB/WR/TE with every component mean available; outcome = partial DK points (pass yds .04, pass TD 4, rush yds .1, rush TD 6, rec 1, rec yds .1, rec TD 6)",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01
+    },
+    "sources": [
+     "nflverse weekly stats"
+    ],
+    "splits": {
+     "holdout": [
+      2025
+     ],
+     "note": "c values come from P3-1 (development 2021-2023); nothing is re-fit",
+     "validation": [
+      2024
+     ]
+    },
+    "title": "DraftKings projection: Champion v2 means vs the 80/20 means, modelled-component DK points of the next game"
+   },
+   "spec_sha256": "dd9352e9128326760fcf54d009120f3d718366e390602c8b235796f6d7c86cce",
+   "status": "REGISTERED"
   }
  },
  "note": "Aggregate research results only (no licensed player-level values). Negative findings are kept on purpose.",
