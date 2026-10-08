@@ -5146,8 +5146,500 @@
    "status": "INCONCLUSIVE"
   },
   "P3-1": {
+   "completed_at": "2026-10-08T20:23:31Z",
    "registered_at": "2026-10-08T20:23:28Z",
-   "result": null,
+   "result": {
+    "chosen_c": {
+     "atd": 4,
+     "pass_tds": 4,
+     "pass_yds": 3,
+     "rec_tds": 4,
+     "rec_yds": 1,
+     "receptions": 2,
+     "rush_tds": 3,
+     "rush_yds": 0.5
+    },
+    "markets": {
+     "atd": {
+      "chosen_c": 4,
+      "development_scores": {
+       "0.25": -0.5660164964420443,
+       "0.5": -0.5522957406201185,
+       "1": -0.5402930931734414,
+       "12": -0.5390323498271251,
+       "2": -0.5326915883811647,
+       "20": -0.5470811645792671,
+       "3": -0.5307373317214494,
+       "4": -0.5305684557408616,
+       "40": -0.5606524521019818,
+       "6": -0.5320693622271031,
+       "8": -0.5343261146649773
+      },
+      "gates": {
+       "all_weeks_tolerance": true,
+       "holdout_ci_excludes_zero": true,
+       "holdout_min_effect": true,
+       "subset_ok": true,
+       "validation_min_effect": true
+      },
+      "holdout": {
+       "all_weeks_gain": 0.01690757872900648,
+       "early_blend_metric": -0.5465594591095164,
+       "early_champion_metric": -0.5942111163367028,
+       "early_ci": [
+        0.028729319264347193,
+        0.06753423419765553
+       ],
+       "early_gain": 0.04765165722718636,
+       "early_gain_where_champion_mean_ge_0.1": 0.045438906307729114,
+       "early_relative_mae": null,
+       "mean_actual_early": 0.2152336987882285,
+       "mean_pred_blend_early": 0.2300942054766966,
+       "mean_pred_champion_early": 0.21619222477849137,
+       "n_early": 1733,
+       "n_subset": 771,
+       "season": 2025
+      },
+      "validation": {
+       "all_weeks_gain": 0.015148227504044463,
+       "early_blend_metric": -0.5276416059691688,
+       "early_champion_metric": -0.5694823786221914,
+       "early_ci": [
+        0.02398676420077705,
+        0.06420544005593046
+       ],
+       "early_gain": 0.04184077265302258,
+       "early_gain_where_champion_mean_ge_0.1": 0.03420097745948351,
+       "early_relative_mae": null,
+       "mean_actual_early": 0.20771001150747986,
+       "mean_pred_blend_early": 0.20329426242257082,
+       "mean_pred_champion_early": 0.19693673542925558,
+       "n_early": 1738,
+       "n_subset": 682,
+       "season": 2024
+      },
+      "verdict": "PROMISING"
+     },
+     "pass_tds": {
+      "chosen_c": 4,
+      "development_scores": {
+       "0.25": -1.5116202693289371,
+       "0.5": -1.4951774556120476,
+       "1": -1.4809359354019038,
+       "12": -1.4732541499487786,
+       "2": -1.4705967323744586,
+       "20": -1.4817113193963047,
+       "3": -1.4671211956411785,
+       "4": -1.4660460847830876,
+       "40": -1.4958354259503972,
+       "6": -1.4666492637207573,
+       "8": -1.4685837597099995
+      },
+      "gates": {
+       "all_weeks_tolerance": true,
+       "holdout_ci_excludes_zero": true,
+       "holdout_min_effect": true,
+       "subset_ok": true,
+       "validation_min_effect": true
+      },
+      "holdout": {
+       "all_weeks_gain": 0.052238440381832,
+       "early_blend_metric": -1.5282603800761752,
+       "early_champion_metric": -1.6643664638405373,
+       "early_ci": [
+        0.05282371032766297,
+        0.23883151184496246
+       ],
+       "early_gain": 0.13610608376436187,
+       "early_gain_where_champion_mean_ge_0.1": 0.13610608376436187,
+       "early_relative_mae": null,
+       "mean_actual_early": 1.5941176470588236,
+       "mean_pred_blend_early": 1.4957604405398524,
+       "mean_pred_champion_early": 1.463862957304134,
+       "n_early": 170,
+       "n_subset": 170,
+       "season": 2025
+      },
+      "validation": {
+       "all_weeks_gain": 0.03637545514762529,
+       "early_blend_metric": -1.4307830840830595,
+       "early_champion_metric": -1.4943904001988215,
+       "early_ci": [
+        -0.001946033279920562,
+        0.12511023624672712
+       ],
+       "early_gain": 0.063607316115762,
+       "early_gain_where_champion_mean_ge_0.1": 0.06568345555306468,
+       "early_relative_mae": null,
+       "mean_actual_early": 1.3803680981595092,
+       "mean_pred_blend_early": 1.4162023757882654,
+       "mean_pred_champion_early": 1.3628906505900371,
+       "n_early": 163,
+       "n_subset": 162,
+       "season": 2024
+      },
+      "verdict": "PROMISING"
+     },
+     "pass_yds": {
+      "chosen_c": 3,
+      "development_scores": {
+       "0.5": -62.35048545853467,
+       "1": -61.75979902810003,
+       "12": -61.853669512638206,
+       "2": -61.275648596455476,
+       "20": -62.43702704195275,
+       "3": -61.12424295619413,
+       "4": -61.15679440183309,
+       "40": -63.22340136154458,
+       "6": -61.30420993697352,
+       "8": -61.48925695653776
+      },
+      "gates": {
+       "all_weeks_tolerance": true,
+       "holdout_ci_excludes_zero": false,
+       "holdout_min_effect": true,
+       "subset_ok": true,
+       "validation_min_effect": true
+      },
+      "holdout": {
+       "all_weeks_gain": 1.1646516247358083,
+       "early_blend_metric": -57.375009941855524,
+       "early_champion_metric": -60.02012023597317,
+       "early_ci": [
+        -1.2360338052880429,
+        6.048947068063486
+       ],
+       "early_gain": 2.645110294117648,
+       "early_gain_where_champion_mean_ge_0.1": 2.645110294117648,
+       "early_relative_mae": 0.04407039312347622,
+       "mean_actual_early": 228.08235294117648,
+       "mean_pred_blend_early": 227.7575996838129,
+       "mean_pred_champion_early": 225.88133252695016,
+       "n_early": 170,
+       "n_subset": 170,
+       "season": 2025
+      },
+      "validation": {
+       "all_weeks_gain": 1.96214827101072,
+       "early_blend_metric": -56.4692553271541,
+       "early_champion_metric": -60.51976903124142,
+       "early_ci": [
+        0.5710543688730938,
+        7.299500976883072
+       ],
+       "early_gain": 4.050513704087325,
+       "early_gain_where_champion_mean_ge_0.1": 4.050513704087325,
+       "early_relative_mae": 0.06692877003539745,
+       "mean_actual_early": 224.60122699386503,
+       "mean_pred_blend_early": 226.85152787737144,
+       "mean_pred_champion_early": 223.58169415451627,
+       "n_early": 163,
+       "n_subset": 163,
+       "season": 2024
+      },
+      "verdict": "INCONCLUSIVE"
+     },
+     "rec_tds": {
+      "chosen_c": 4,
+      "development_scores": {
+       "0.25": -0.43218181062727196,
+       "0.5": -0.42272224839522227,
+       "1": -0.41385228855081607,
+       "12": -0.4104354328866938,
+       "2": -0.4079210604522281,
+       "20": -0.415603199475925,
+       "3": -0.4061382960405651,
+       "4": -0.40570762199955535,
+       "40": -0.4246525598248521,
+       "6": -0.40630603551613725,
+       "8": -0.4075673671619481
+      },
+      "gates": {
+       "all_weeks_tolerance": true,
+       "holdout_ci_excludes_zero": true,
+       "holdout_min_effect": true,
+       "subset_ok": true,
+       "validation_min_effect": true
+      },
+      "holdout": {
+       "all_weeks_gain": 0.012590857934063057,
+       "early_blend_metric": -0.4381848308035962,
+       "early_champion_metric": -0.47223841161538205,
+       "early_ci": [
+        0.018247120022110836,
+        0.0506183100830365
+       ],
+       "early_gain": 0.03405358081178583,
+       "early_gain_where_champion_mean_ge_0.1": 0.04200237867595015,
+       "early_relative_mae": null,
+       "mean_actual_early": 0.14945181765724178,
+       "mean_pred_blend_early": 0.15542732537127063,
+       "mean_pred_champion_early": 0.14724515786835463,
+       "n_early": 1733,
+       "n_subset": 574,
+       "season": 2025
+      },
+      "validation": {
+       "all_weeks_gain": 0.012079206692995576,
+       "early_blend_metric": -0.37680698081840164,
+       "early_champion_metric": -0.4122766686406716,
+       "early_ci": [
+        0.019632074322414077,
+        0.053807001068755335
+       ],
+       "early_gain": 0.035469687822269995,
+       "early_gain_where_champion_mean_ge_0.1": 0.03996628352523441,
+       "early_relative_mae": null,
+       "mean_actual_early": 0.12600690448791715,
+       "mean_pred_blend_early": 0.13202347257439317,
+       "mean_pred_champion_early": 0.12028675294785766,
+       "n_early": 1738,
+       "n_subset": 492,
+       "season": 2024
+      },
+      "verdict": "PROMISING"
+     },
+     "rec_yds": {
+      "chosen_c": 1,
+      "development_scores": {
+       "0.5": -16.082259244191924,
+       "1": -16.027195290409967,
+       "12": -16.58671785546152,
+       "2": -16.029843512677836,
+       "20": -16.829288643374237,
+       "3": -16.0809207433517,
+       "4": -16.146113286178764,
+       "40": -17.119674586050948,
+       "6": -16.281434622578217,
+       "8": -16.399457800425214
+      },
+      "gates": {
+       "all_weeks_tolerance": true,
+       "holdout_ci_excludes_zero": true,
+       "holdout_min_effect": true,
+       "subset_ok": true,
+       "validation_min_effect": true
+      },
+      "holdout": {
+       "all_weeks_gain": 0.12177341694633206,
+       "early_blend_metric": -15.21666904287288,
+       "early_champion_metric": -15.505439765722514,
+       "early_ci": [
+        0.11008700049821611,
+        0.47597147527264244
+       ],
+       "early_gain": 0.28877072284963246,
+       "early_gain_where_champion_mean_ge_0.1": 0.30223329394281934,
+       "early_relative_mae": 0.018623833132937685,
+       "mean_actual_early": 21.611079053664167,
+       "mean_pred_blend_early": 22.62465216594544,
+       "mean_pred_champion_early": 22.238676510384533,
+       "n_early": 1733,
+       "n_subset": 1643,
+       "season": 2025
+      },
+      "validation": {
+       "all_weeks_gain": 0.08607018104983379,
+       "early_blend_metric": -15.776057610877807,
+       "early_champion_metric": -15.943200287437916,
+       "early_ci": [
+        -0.04391690604736838,
+        0.36341287287212765
+       ],
+       "early_gain": 0.1671426765601103,
+       "early_gain_where_champion_mean_ge_0.1": 0.17429868442908,
+       "early_relative_mae": 0.010483633997360405,
+       "mean_actual_early": 21.743958573072497,
+       "mean_pred_blend_early": 21.889033705873466,
+       "mean_pred_champion_early": 21.470904860706355,
+       "n_early": 1738,
+       "n_subset": 1668,
+       "season": 2024
+      },
+      "verdict": "PROMISING"
+     },
+     "receptions": {
+      "chosen_c": 2,
+      "development_scores": {
+       "0.25": -1.7512206133968113,
+       "0.5": -1.7292265850832678,
+       "1": -1.7131769471152227,
+       "12": -1.76468811743907,
+       "2": -1.7078520693111787,
+       "20": -1.7964912459545266,
+       "3": -1.7114076828433442,
+       "4": -1.7173126889969208,
+       "40": -1.8428800120701692,
+       "6": -1.7304802141743578,
+       "8": -1.7430682220246307
+      },
+      "gates": {
+       "all_weeks_tolerance": true,
+       "holdout_ci_excludes_zero": true,
+       "holdout_min_effect": true,
+       "subset_ok": true,
+       "validation_min_effect": true
+      },
+      "holdout": {
+       "all_weeks_gain": 0.021019450409019674,
+       "early_blend_metric": -1.6150074001616848,
+       "early_champion_metric": -1.6636202244119351,
+       "early_ci": [
+        0.021923328377711087,
+        0.079823699681451
+       ],
+       "early_gain": 0.04861282425025026,
+       "early_gain_where_champion_mean_ge_0.1": 0.048083695956647125,
+       "early_relative_mae": null,
+       "mean_actual_early": 2.0276976341604156,
+       "mean_pred_blend_early": 2.137045364935275,
+       "mean_pred_champion_early": 2.0757586082571655,
+       "n_early": 1733,
+       "n_subset": 1561,
+       "season": 2025
+      },
+      "validation": {
+       "all_weeks_gain": 0.021943150983271716,
+       "early_blend_metric": -1.7115845047869267,
+       "early_champion_metric": -1.779174881759297,
+       "early_ci": [
+        0.036262713475764145,
+        0.10032123011768479
+       ],
+       "early_gain": 0.06759037697237028,
+       "early_gain_where_champion_mean_ge_0.1": 0.06284367634929648,
+       "early_relative_mae": null,
+       "mean_actual_early": 2.01150747986191,
+       "mean_pred_blend_early": 2.035905004915567,
+       "mean_pred_champion_early": 1.9828824535009806,
+       "n_early": 1738,
+       "n_subset": 1587,
+       "season": 2024
+      },
+      "verdict": "PROMISING"
+     },
+     "rush_tds": {
+      "chosen_c": 3,
+      "development_scores": {
+       "0.25": -0.5955563015586118,
+       "0.5": -0.5802819095758854,
+       "1": -0.5682063596128442,
+       "12": -0.5750921281075602,
+       "2": -0.5615126200775018,
+       "20": -0.5861599290427296,
+       "3": -0.560600113518464,
+       "4": -0.5614007764010689,
+       "40": -0.6040968945522789,
+       "6": -0.5645737649619309,
+       "8": -0.5682116600794707
+      },
+      "gates": {
+       "all_weeks_tolerance": true,
+       "holdout_ci_excludes_zero": true,
+       "holdout_min_effect": true,
+       "subset_ok": true,
+       "validation_min_effect": true
+      },
+      "holdout": {
+       "all_weeks_gain": 0.016751340115646447,
+       "early_blend_metric": -0.5472349701138816,
+       "early_champion_metric": -0.5940483500063872,
+       "early_ci": [
+        0.010768428507554408,
+        0.08508447662950434
+       ],
+       "early_gain": 0.04681337989250567,
+       "early_gain_where_champion_mean_ge_0.1": 0.04127804316991937,
+       "early_relative_mae": null,
+       "mean_actual_early": 0.23094170403587444,
+       "mean_pred_blend_early": 0.2610638576669967,
+       "mean_pred_champion_early": 0.23749972498851418,
+       "n_early": 446,
+       "n_subset": 199,
+       "season": 2025
+      },
+      "validation": {
+       "all_weeks_gain": 0.011094178438236041,
+       "early_blend_metric": -0.632775725425549,
+       "early_champion_metric": -0.6590743741735089,
+       "early_ci": [
+        -0.0008555926843028443,
+        0.05553763693203557
+       ],
+       "early_gain": 0.0262986487479598,
+       "early_gain_where_champion_mean_ge_0.1": 0.01173687410826826,
+       "early_relative_mae": null,
+       "mean_actual_early": 0.2692307692307692,
+       "mean_pred_blend_early": 0.23632827049493718,
+       "mean_pred_champion_early": 0.2506989461156128,
+       "n_early": 468,
+       "n_subset": 215,
+       "season": 2024
+      },
+      "verdict": "PROMISING"
+     },
+     "rush_yds": {
+      "chosen_c": 0.5,
+      "development_scores": {
+       "0.5": -19.232914969651038,
+       "1": -19.245357786908635,
+       "12": -20.725500016459982,
+       "2": -19.396842609212747,
+       "20": -21.202413242507724,
+       "3": -19.58095902666072,
+       "4": -19.76223868130793,
+       "40": -21.722451213994972,
+       "6": -20.07645163957971,
+       "8": -20.33055343750843
+      },
+      "gates": {
+       "all_weeks_tolerance": true,
+       "holdout_ci_excludes_zero": false,
+       "holdout_min_effect": false,
+       "subset_ok": true,
+       "validation_min_effect": false
+      },
+      "holdout": {
+       "all_weeks_gain": 0.17913818363247758,
+       "early_blend_metric": -19.251364892788658,
+       "early_champion_metric": -19.410668455859035,
+       "early_ci": [
+        -0.1627723290742218,
+        0.5093691251568824
+       ],
+       "early_gain": 0.15930356307037902,
+       "early_gain_where_champion_mean_ge_0.1": 0.15624199123039004,
+       "early_relative_mae": 0.008207010666976482,
+       "mean_actual_early": 31.47085201793722,
+       "mean_pred_blend_early": 33.368772763940925,
+       "mean_pred_champion_early": 33.27719344307909,
+       "n_early": 446,
+       "n_subset": 431,
+       "season": 2025
+      },
+      "validation": {
+       "all_weeks_gain": 0.10751763268193688,
+       "early_blend_metric": -20.900157197300057,
+       "early_champion_metric": -20.93789204622538,
+       "early_ci": [
+        -0.20482729904787195,
+        0.3003868713267543
+       ],
+       "early_gain": 0.03773484892532539,
+       "early_gain_where_champion_mean_ge_0.1": 0.03968518943157816,
+       "early_relative_mae": 0.0018022276952243679,
+       "mean_actual_early": 34.72008547008547,
+       "mean_pred_blend_early": 33.08338776303062,
+       "mean_pred_champion_early": 32.98746404829738,
+       "n_early": 468,
+       "n_subset": 445,
+       "season": 2024
+      },
+      "verdict": "INCONCLUSIVE"
+     }
+    },
+    "seconds": 0.8
+   },
    "spec": {
     "bootstrap": "cluster by player, 2000 draws, seed 20261008",
     "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
@@ -5236,6 +5728,203 @@
     "title": "Champion Challenger: learned prior-strength blend (dynamic shrinkage) under development/validation/holdout"
    },
    "spec_sha256": "e73cd3d73c0b35bb4cf376a4feac173b992b11042f2aa66cb4f10cb2912333f0",
+   "status": "PROMISING"
+  },
+  "P3-2": {
+   "registered_at": "2026-10-08T20:26:37Z",
+   "result": null,
+   "spec": {
+    "blocks": {
+     "DEPLOY": [
+      "rr.Slot.SLOT RTE %",
+      "rr.Wide.WIDE RTE %",
+      "rr.Inline.INLINE RTE %"
+     ],
+     "OPP": [
+      "ra.FPTS.XFP",
+      "ra.FPTS.RecXFP"
+     ],
+     "QUALITY": [
+      "ra.Advanced.1READ %",
+      "ra.Advanced.DESIGN %",
+      "ra.Receiving.AY Share",
+      "ra.Receiving.aDOT"
+     ],
+     "ROLE": [
+      "rr.Overall.RTE",
+      "ra.Receiving.RTE %",
+      "rr.Overall.TPRR",
+      "ra.Receiving.TGT %"
+     ]
+    },
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "otherwise",
+     "PROMISING": "relative MAE improvement >= 1% AND adjusted CI excludes 0 AND better in >= 2 of 3 test seasons AND better in 2025 (the latest season)",
+     "REJECTED": "adjusted CI excludes a 1% gain"
+    },
+    "ffopportunity": [
+     "receptions_exp",
+     "rec_yards_gained_exp"
+    ],
+    "football_rationale": "Targets follow routes, deployment and the quality of a player's looks; raw counts lag a role change by a game or two. A trend only matters if it carries information the counts do not.",
+    "hypothesis": "What changed in a WR/TE's routes, target quality, alignment, expected fantasy points or team pass environment over his last 1/3/6 games predicts next-game targets and receiving yards beyond the Champion mean and his own raw box-score recency.",
+    "id": "P3-2",
+    "leakage": "all features from games strictly before the target game",
+    "limitations": "tests the next-game mean (MAE), not prop prices. Fantasy Points inputs are licensed/local: a production use would need an approved derived-output path.",
+    "markets": [
+     "receptions",
+     "receiving yards"
+    ],
+    "metric": "MAE of next-game outcome, ridge (fixed penalty 10), rolling origin test 2023/2024/2025, player-clustered paired bootstrap",
+    "models": {
+     "BV": "Champion mean, current-season mean, games played, TE flag, nflverse last-1/3/6 targets, receptions, receiving yards",
+     "FFO": "BV + free ffopportunity expected receptions and yards at L1/L3/L6 (+ trends)",
+     "block LT": "BV + the block at L6 level plus trends (L3-L6, L1-L6)"
+    },
+    "multiple_testing": "Bonferroni over 28 primary comparisons (99.82% intervals)",
+    "outcomes": [
+     "targets",
+     "rec_yds"
+    ],
+    "population": "WR/TE target rows 2021-2025 with a ready Champion window and >= 3 prior Fantasy Points games (complete-case per comparison)",
+    "primary_comparisons": "each block (LT form) vs BV, for targets and receiving yards; FFO vs BV; OPP vs FFO (does Fantasy Points beyond ffopportunity add?); nflverse team environment vs BV: 14 receiving + 14 rushing = 28 total across P3-2/P3-3",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01,
+     "min_years_better": 2,
+     "reject_below_relative_improvement": 0.0025,
+     "reject_requires_ci": true
+    },
+    "secondary": "LEVEL vs TREND vs LEVEL+TREND for each block; windows L1/L3/L6; weeks 1-6 vs later; receptions; Fantasy Points run/pass vs nflverse team pass rate (2024 run/pass file not downloaded: folds 2023 and 2025 only)",
+    "secondary_outcomes": [
+     "receptions"
+    ],
+    "sources": [
+     "Fantasy Points by-game tables 2021-2025",
+     "nflverse weekly stats",
+     "ffopportunity weekly expected values"
+    ],
+    "splits": {
+     "history_from": 2019,
+     "rolling_origin": true,
+     "test": [
+      2023,
+      2024,
+      2025
+     ],
+     "train": "all earlier target seasons"
+    },
+    "team_environment": {
+     "fantasy_points_run_pass": [
+      "fp_pass_pct",
+      "fp_neutral_pass_pct",
+      "fp_i10_pass_pct",
+      "fp_snaps"
+     ],
+     "nflverse": [
+      "nfl_pass_rate",
+      "nfl_att",
+      "nfl_car"
+     ]
+    },
+    "title": "Week N -> N+1: receiving role, deployment, opportunity and team-environment trends beyond Champion + raw recency"
+   },
+   "spec_sha256": "3ace3fb850bb48adc9f8f808867c3de218e8ddcc454d556aef301371f332d5c8",
+   "status": "REGISTERED"
+  },
+  "P3-3": {
+   "registered_at": "2026-10-08T20:26:37Z",
+   "result": null,
+   "spec": {
+    "blocks": {
+     "RUEFF": [
+      "ru.Advanced.Success %",
+      "ru.Advanced.STUFF %",
+      "ru.Advanced.YACO/ATT",
+      "ru.Advanced.MTF/ATT"
+     ],
+     "RUGOAL": [
+      "ru.Advanced.i5 %",
+      "ru.Advanced.TD RATE"
+     ],
+     "RUOPP": [
+      "rb.FPTS.XFP %",
+      "rb.FPTS.XFP",
+      "ru.Advanced.EXP YDS",
+      "ef.FPTS.XFP"
+     ],
+     "RUROLE": [
+      "rb.Snaps.Snap %",
+      "rb.Rushing.ATT %",
+      "rb.Receiving.TGT %",
+      "rb.Receiving.RTE %"
+     ]
+    },
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "otherwise",
+     "PROMISING": "as P3-2",
+     "REJECTED": "as P3-2"
+    },
+    "ffopportunity": [
+     "rush_yards_gained_exp",
+     "rush_touchdown_exp"
+    ],
+    "football_rationale": "Carries follow role and game script; yards per carry regress; goal-line work drives touchdowns.",
+    "hypothesis": "Bell-cow role share, expected rushing opportunity and goal-line usage trends predict next-game carries and rushing yards beyond Champion + raw recency; efficiency trends do not.",
+    "id": "P3-3",
+    "leakage": "as P3-2",
+    "limitations": "as P3-2",
+    "markets": [
+     "rushing yards"
+    ],
+    "metric": "as P3-2",
+    "models": {
+     "BV": "Champion mean, current-season mean, games played, nflverse last-1/3/6 carries, rushing yards, targets",
+     "FFO": "BV + ffopportunity expected rushing yards and TDs",
+     "block LT": "BV + block level + trends"
+    },
+    "multiple_testing": "Bonferroni over 28 primary comparisons (shared with P3-2)",
+    "outcomes": [
+     "carries",
+     "rush_yds"
+    ],
+    "population": "RB target rows 2021-2025 with a ready Champion window and >= 3 prior Fantasy Points games (complete-case per comparison)",
+    "primary_comparisons": "see P3-2",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01,
+     "min_years_better": 2,
+     "reject_below_relative_improvement": 0.0025,
+     "reject_requires_ci": true
+    },
+    "secondary_outcomes": [],
+    "sources": [
+     "as P3-2"
+    ],
+    "splits": {
+     "history_from": 2019,
+     "rolling_origin": true,
+     "test": [
+      2023,
+      2024,
+      2025
+     ],
+     "train": "all earlier target seasons"
+    },
+    "team_environment": {
+     "nflverse": [
+      "nfl_pass_rate",
+      "nfl_att",
+      "nfl_car"
+     ]
+    },
+    "title": "Week N -> N+1: rushing role, expected opportunity, goal-line usage and efficiency beyond Champion + raw recency"
+   },
+   "spec_sha256": "139a9d74116d3fbf82c5c1dfe26e11fb6b5805d9cf07ab534e52a65d0f7b95c1",
    "status": "REGISTERED"
   }
  },
