@@ -181,6 +181,7 @@ def champion_frame(root, target_seasons, history_from=2019):
                 v = work[c][window]
                 ok = ~np.isnan(v)
                 row['champ_' + c] = float((v[ok] * weights[ok]).sum() / weights[ok].sum()) if ok.any() else np.nan
+                row['cur_' + c] = float(v[ok & cur_mask].mean()) if (ok & cur_mask).any() else np.nan
                 row['y_' + c] = work[c][i]
             rows.append(row)
     out = pd.DataFrame(rows)

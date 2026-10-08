@@ -3402,6 +3402,71 @@
    "spec_sha256": "f466075db1c08984b5e0c3f5bf3952697158157a3146d5e62437972048b2eca8",
    "status": "PROMISING"
   },
+  "E7b": {
+   "registered_at": "2026-10-08T11:11:02Z",
+   "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "comparators": {
+     "W0": "Champion (production 80/20)",
+     "W3": "learned shrinkage with c chosen on TRAIN seasons by mean Poisson log score"
+    },
+    "decision_rule": {
+     "INCONCLUSIVE": "otherwise",
+     "PROMISING": "mean gain >= 0.005 nats per row AND adjusted CI above 0 AND better in >= 2 of 3 test seasons (capped at NEEDS PROSPECTIVE DATA: post-hoc)",
+     "REJECTED": "the adjusted CI lies below 0.005 nats"
+    },
+    "exploratory": true,
+    "football_rationale": "Same as E7. For 0/1-like outcomes the mean absolute error is a poor loss; the log score is the proper score for the Poisson model that prices them.",
+    "grid": [
+     0.25,
+     0.5,
+     1,
+     2,
+     3,
+     4,
+     6,
+     8,
+     12,
+     20,
+     40
+    ],
+    "hypothesis": "For count markets (receptions, receiving/rushing TDs, anytime TD, QB passing TDs) a learned prior strength chosen and judged by Poisson log score improves on the production 80/20 weighting in weeks 1-6.",
+    "id": "E7b",
+    "leakage": "as E7",
+    "limitations": "post-hoc after QA found that E7 chose c by MAE; secondary MSE is reported but is not a decision metric",
+    "markets": [
+     "receptions",
+     "anytime TD",
+     "QB passing TDs"
+    ],
+    "multiple_testing": "Bonferroni over 5 markets (99% CI)",
+    "population": "as E7, markets receptions, rec_tds, rush_tds, atd, pass_tds",
+    "primary_comparison": "W3 vs W0, mean per-row Poisson log score, weeks 1-6, per market",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_gain_nats": 0.005,
+     "min_years_better": 2
+    },
+    "sources": [
+     "as E7"
+    ],
+    "splits": {
+     "history_from": 2019,
+     "rolling_origin": true,
+     "test": [
+      2023,
+      2024,
+      2025
+     ],
+     "train": "all earlier target seasons"
+    },
+    "title": "EXPLORATORY follow-up to E7: count markets judged by Poisson log score"
+   },
+   "spec_sha256": "0d8e6e6711a32160fe5c12959aadba677c563f340086271c37d9663439947d9c",
+   "status": "REGISTERED"
+  },
   "E8": {
    "completed_at": "2026-10-08T10:47:33Z",
    "registered_at": "2026-10-08T10:47:03Z",
@@ -4017,6 +4082,73 @@
    },
    "spec_sha256": "61d3f727f7ae9464c583524e4a55c9d29c657ea3e9195c7d1bdd7aa2a7f3fbdc",
    "status": "PROMISING"
+  },
+  "E8b": {
+   "registered_at": "2026-10-08T11:11:02Z",
+   "result": null,
+   "spec": {
+    "bootstrap": "cluster by player, 2000 draws, seed 20261008",
+    "champion": "production window mean: last 12 regular-season appearances (QB: verified starts), min 5, 80% current-season / 20% earlier-season weights (reconstruction validated against the 2026 frozen projection_mean: 91% exact for receptions and receiving yards)",
+    "decision_rule": {
+     "INCONCLUSIVE": "anything else, including wide intervals",
+     "PROMISING": "relative MAE improvement >= 1% over the comparison base AND the Bonferroni-adjusted CI of the paired difference excludes 0 AND better in >= 2 of 3 test seasons",
+     "REJECTED (v2)": "the adjusted CI excludes a gain of 1% (or lies entirely on the wrong side)"
+    },
+    "exploratory": true,
+    "football_rationale": "Expected points should describe quality of touches, which raw counts cannot.",
+    "hypothesis": "ffopportunity expected values (prior-season and in-season) and Fantasy Points XFP add information beyond raw volume, including raw IN-SEASON volume.",
+    "id": "E8b",
+    "leakage": "as E8",
+    "limitations": "post-hoc after QA; ffopportunity expected-value model fitting period not verified (suspected out of sample for 2023-2025)",
+    "markets": [
+     "receptions",
+     "receiving yards",
+     "receiving TD",
+     "rushing yards",
+     "rushing TD"
+    ],
+    "metric": "MAE for receptions, rec_yds, rush_yds; mean Poisson deviance proxy (negative log score) for rec_tds, rush_tds",
+    "models": {
+     "M0": "Champion mean + position flags",
+     "MEO": "MVR + ffopportunity prior-season and in-season rolling expected value + count of games",
+     "MEOFP": "MEO + Fantasy Points XFP/G, XTD/G",
+     "MEOP": "MV + ffopportunity prior-season expected value",
+     "MFP": "MV + Fantasy Points prior-season XFP/G, XTD/G",
+     "MV": "M0 + Champion-window volume per game",
+     "MVR": "MV + current-season mean volume + games in the window this season"
+    },
+    "multiple_testing": "Bonferroni over 5 markets x 4 comparisons = 20 (99.75% CI)",
+    "population": "as E8",
+    "primary_comparisons": [
+     "MFP vs MV",
+     "MEOP vs MV",
+     "MEO vs MVR",
+     "MEOFP vs MEO"
+    ],
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01,
+     "min_years_better": 2,
+     "reject_below_relative_improvement": 0.0025,
+     "reject_requires_ci": true
+    },
+    "sources": [
+     "as E8"
+    ],
+    "splits": {
+     "history_from": 2019,
+     "rolling_origin": true,
+     "test": [
+      2023,
+      2024,
+      2025
+     ],
+     "train": "all earlier target seasons"
+    },
+    "title": "EXPLORATORY follow-up to E8: expected-opportunity sources against raw-volume baselines"
+   },
+   "spec_sha256": "fc45ba27d9b85bcc61ea655823416f95874aa8d3c87bfb7e422682384bbc761f",
+   "status": "REGISTERED"
   },
   "E9": {
    "completed_at": "2026-10-08T10:47:35Z",
