@@ -109,5 +109,31 @@ class ConditionalLogitTests(unittest.TestCase):
         self.assertAlmostEqual(s, -2 + .2 * math.log(.01) + 1 + .1 + .5)
 
 
+class AvailabilityGateTests(unittest.TestCase):
+    CUT = '2026-09-13'
+
+    def test_only_active_players_and_fallback_without_entry(self):
+        cur = {'A': {'roster_status': 'ACT'}, 'R': {'roster_status': 'RES'}, 'D': {'roster_status': 'DEV'}}
+        mk = lambda i, last='2026-10-04', pos='RB': {'id': i, 'position': pos, 'last_game': last}
+        self.assertTrue(ts.eligible(mk('A'), cur, self.CUT))
+        self.assertFalse(ts.eligible(mk('R'), cur, self.CUT))
+        self.assertFalse(ts.eligible(mk('D'), cur, self.CUT))
+        self.assertTrue(ts.eligible(mk('N'), cur, self.CUT))
+        self.assertFalse(ts.eligible(mk('N', last='2026-08-01'), cur, self.CUT))
+
+    def test_backup_qb_needs_a_rushing_role(self):
+        cur = {'Q1': {'roster_status': 'ACT', 'depth_rank': 1, 'rush_share': 0}, 'Q2': {'roster_status': 'ACT', 'depth_rank': 2, 'rush_share': 0.01},
+               'Q3': {'roster_status': 'ACT', 'depth_rank': 2, 'rush_share': 0.2}}
+        q = lambda i: {'id': i, 'position': 'QB', 'last_game': '2026-10-04'}
+        self.assertTrue(ts.eligible(q('Q1'), cur, self.CUT))
+        self.assertFalse(ts.eligible(q('Q2'), cur, self.CUT))
+        self.assertTrue(ts.eligible(q('Q3'), cur, self.CUT))
+
+    def test_supersede_refused_after_first_kickoff(self):
+        games = [{'gameday': '2026-10-11', 'gametime': '13:00'}]
+        kick = ts.first_kickoff(games)
+        self.assertEqual(kick.utcoffset().total_seconds(), -4 * 3600)
+
+
 if __name__ == '__main__':
     unittest.main()

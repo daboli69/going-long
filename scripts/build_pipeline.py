@@ -180,6 +180,7 @@ def role_trend(pid, games, snap_share, team_week):
         values = [x[key] for x in rows[-n:] if x[key] is not None]
         return (sum(values) / len(values)) if values else None
     out = {'games': len(rows), 'last_game': {'season': rows[-1]['season'], 'week': rows[-1]['week']}}
+    out['last6_current_season'] = sum(1 for x in rows[-6:] if x['season'] == rows[-1]['season'])  # how many of the last 6 games are from the latest season (earlier ones span the offseason)
     for key, label in (('snap', 'snap_share'), ('target', 'target_share'), ('carry', 'carry_share')):
         l1, l3, l6 = mean(key, 1), mean(key, 3), mean(key, 6)
         if l6 is None:
@@ -446,14 +447,14 @@ UNAVAILABLE_STATUS = {'RES', 'INA', 'PUP', 'IR', 'SUS', 'RET', 'EXE'}
 
 
 def unavailable_players():
-    """Players the latest roster says are not active (reserve/injured/suspended/retired). From the previous run of scripts/injury_context.py (same data/ folder);
-    absent or unreadable file means no gate, never an invented one."""
+    """Players the latest roster does NOT list as active (ACT): reserve, injured, practice squad (DEV), cut, suspended, retired. From the previous run of scripts/injury_context.py
+    (same data/ folder). Players with no roster entry are not in this set; first_td_game falls back to a 60-day recency rule for them. Missing file means no gate."""
     path = Path(__file__).resolve().parents[1] / 'data' / 'injury_context.json'
     try:
         current = json.loads(path.read_text(encoding='utf-8')).get('current_players', {})
     except (OSError, ValueError):
         return set()
-    return {v['gsis_id'] for v in current.values() if v.get('gsis_id') and str(v.get('roster_status') or '').upper() in UNAVAILABLE_STATUS}
+    return {v['gsis_id'] for v in current.values() if v.get('gsis_id') and str(v.get('roster_status') or '').upper() != 'ACT'}
 
 
 def first_td_game(game, profiles, features, unavailable=frozenset()):
@@ -466,7 +467,7 @@ def first_td_game(game, profiles, features, unavailable=frozenset()):
         t = features['nfl']['teams'].get(team, {})
         # 75% of points attributed to offensive TD drives, seven points/drive.
         expected_td = max(0, (m['total_mean'] + sign*m['margin_mean'])/2) * .75 / 7
-        available = {pid: p for pid, p in profiles.items() if pid not in unavailable and p['team'] == team and p.get('position') in ('QB','RB','WR','TE','FB') and (datetime.now(timezone.utc).date()-datetime.fromisoformat(p['last_game']).date()).days <= 400}
+        available = {pid: p for pid, p in profiles.items() if pid not in unavailable and p['team'] == team and p.get('position') in ('QB','RB','WR','TE','FB') and (datetime.now(timezone.utc).date()-datetime.fromisoformat(p['last_game']).date()).days <= 60}
         scored, opening = {}, {}
         run_mix = 1 - (t.get('opening_pass_rate') if finite(t.get('opening_pass_rate')) else .55)
         for pid, p in available.items():

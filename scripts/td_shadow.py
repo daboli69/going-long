@@ -3,13 +3,15 @@
 The probabilities come from the lean score of research/trend-intelligence/JACKPOT_TD_REPORT.md (constants in config/td_shadow_recipe.json). They are NOT shown to users or
 written to history.json: this script only archives them so 2026 outcomes can confirm or refute the 2021-2025 research.
 
-    python scripts/td_shadow.py record [YYYY-MM-DD]   write-once data/td_shadow/<season>-week-NN.json for the slate on/after the date (default: today)
+    python scripts/td_shadow.py record [YYYY-MM-DD] [--supersede]   write-once (--supersede: re-record before the first kickoff, keeping the old sha256) data/td_shadow/<season>-week-NN.json for the slate on/after the date (default: today)
     python scripts/td_shadow.py settle                append outcomes (nflverse play-by-play) to every recorded week whose games are final
 """
+import hashlib
 import json
 import math
 import os
 import sys
+from zoneinfo import ZoneInfo
 from datetime import date as Date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -20,6 +22,9 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'data' / 'td_shadow'
 FEATURES = ('xtd_pg_l12', 'xtd_share_l6', 'snap_pct_l3', 'inside5_touch_pg_l12')
 MAX_STALE_DAYS = 28
+SCHEMA_VERSION = 2
+GATE_VERSION = 'availability-gate-2'
+QB_RUSH_SHARE = 0.05  # a backup QB with a recorded rushing role at least this large stays a candidate
 TD_COLUMNS = ['game_id', 'play_id', 'season', 'week', 'season_type', 'posteam', 'td_team', 'td_player_id', 'touchdown', 'two_point_attempt', 'play_deleted', 'play_type',
               'kickoff_attempt', 'punt_attempt', 'yards_gained', 'return_yards', 'fumble', 'fumble_recovery_1_team', 'fumble_recovery_1_yards', 'fumble_recovery_2_team',
               'fumble_recovery_2_yards', 'pass_touchdown', 'game_seconds_remaining']
@@ -88,7 +93,21 @@ def slate(schedule, on_or_after):
     return rows[0]['season'], week, sorted((g for g in rows if g['week'] == week), key=lambda g: (g['gameday'], g.get('gametime') or '', g['game_id']))
 
 
-def build_week(profiles, games, recipe, on_or_after):
+def eligible(profile, current, cutoff):
+    """Availability gate. `current` = data/injury_context.json current_players keyed by gsis id. Only ACT players qualify; no entry -> last game within 28 days.
+    A QB must also be the depth-chart QB1 unless he has a recorded rushing role."""
+    entry = current.get(profile['id'])
+    if entry is None:
+        return (profile.get('last_game') or '') >= cutoff
+    if entry.get('roster_status') != 'ACT':
+        return False
+    if profile.get('position') == 'QB' and entry.get('depth_rank') != 1 and (entry.get('rush_share') or 0) < QB_RUSH_SHARE:
+        return False
+    return True
+
+
+def build_week(profiles, games, recipe, on_or_after, current=None):
+    current = current or {}
     cutoff = (Date.fromisoformat(on_or_after) - timedelta(days=MAX_STALE_DAYS)).isoformat()
     result = []
     for g in games:
@@ -97,7 +116,7 @@ def build_week(profiles, games, recipe, on_or_after):
             role, atd = p.get('scoring_role'), p.get('stats', {}).get('atd', {})
             if p.get('team') not in (g['home_team'], g['away_team']) or not role or role.get('confidence') != 'ok':
                 continue
-            if atd.get('status') != 'ready' or atd.get('mean') is None or (p.get('last_game') or '') < cutoff:
+            if atd.get('status') != 'ready' or atd.get('mean') is None or not eligible(p, current, cutoff):
                 continue
             score, used = anytime_score(atd['mean'], role, recipe)
             candidates.append({'player_id': p['id'], 'name': p['name'], 'team': p['team'], 'position': p['position'], 'champion_rate': round(atd['mean'], 4), 'features': {k: round(v, 3) for k, v in used.items()},
@@ -112,7 +131,11 @@ def build_week(profiles, games, recipe, on_or_after):
     return result
 
 
-def record(on_or_after=None, now=None):
+def first_kickoff(games):
+    return min(datetime.fromisoformat(f"{g['gameday']}T{g.get('gametime') or '00:00'}").replace(tzinfo=ZoneInfo('America/New_York')) for g in games)
+
+
+def record(on_or_after=None, now=None, supersede=False):
     import nflreadpy as nfl
     now = now or datetime.now(timezone.utc)
     on_or_after = on_or_after or now.date().isoformat()
@@ -124,18 +147,32 @@ def record(on_or_after=None, now=None):
         print('no regular-season games on/after', on_or_after)
         return None
     path = OUT / f'{season}-week-{week:02d}.json'
+    superseded = None
     if path.exists():
-        print(f'{path.name} already recorded (write-once); nothing changed')
-        return path
+        if not supersede:
+            print(f'{path.name} already recorded (write-once); nothing changed')
+            return path
+        old_bytes = path.read_bytes()
+        old = json.loads(old_bytes)
+        old_games = old['games']
+        if now >= first_kickoff([{'gameday': g['gameday'], 'gametime': g.get('gametime')} for g in old_games]):
+            raise SystemExit(f'{path.name}: --supersede refused, the first game has kicked off')
+        superseded = {'sha256': hashlib.sha256(old_bytes).hexdigest(), 'recorded_at': old['recorded_at'], 'schema_version': old.get('schema_version'),
+                      'reason': 'candidate set included non-active players (RES/DEV/practice squad) and non-starting QBs, diluting teammate first/last/king shares; gated on injury_context roster_status'}
     profiles = history['profiles']
     recipe = load_recipe()
     cutoff = max((p['scoring_role']['as_of'] for p in profiles.values() if p.get('scoring_role')), default=None)
-    payload = {'schema_version': 1, 'status': 'SHADOW', 'season': season, 'week': week, 'recorded_at': now.isoformat(timespec='seconds'), 'slate_on_or_after': on_or_after,
+    current = json.loads((ROOT / 'data/injury_context.json').read_text(encoding='utf-8')).get('current_players', {})
+    current = {v['gsis_id']: v for v in current.values() if v.get('gsis_id')}
+    payload = {'schema_version': SCHEMA_VERSION, 'candidate_gate': GATE_VERSION, 'status': 'SHADOW', 'season': season, 'week': week, 'recorded_at': now.isoformat(timespec='seconds'), 'slate_on_or_after': on_or_after,
                'data_cutoff': {'history_generated_at': history.get('generated_at'), 'latest_game_used': cutoff, 'rule': 'scoring_role uses games strictly before the history build date'},
                'recipe': {'file': 'config/td_shadow_recipe.json', 'version': recipe['version']},
-               'population_note': 'candidates: profiles with scoring_role confidence ok, atd status ready, latest appearance within 28 days; availability/inactives are NOT modelled (probabilities are conditional on '
+               'population_note': 'candidates: profiles with scoring_role confidence ok, atd status ready, injury_context roster_status ACT (no entry: latest appearance within 28 days), QBs only if depth-chart QB1 or rush share >= 5%; availability/inactives are NOT modelled (probabilities are conditional on '
                                   'the candidate set; settle records who appeared)',
-               'games': build_week(profiles, games, recipe, on_or_after)}
+               'games': build_week(profiles, games, recipe, on_or_after, current)}
+    if superseded:
+        payload['supersedes'] = superseded
+        path.unlink()
     OUT.mkdir(parents=True, exist_ok=True)
     with path.open('x', encoding='utf-8') as handle:  # write-once
         json.dump(payload, handle, separators=(',', ':'), allow_nan=False)
@@ -212,7 +249,8 @@ def settle(now=None):
 if __name__ == '__main__':
     command = sys.argv[1:2]
     if command == ['record']:
-        record(sys.argv[2] if len(sys.argv) > 2 else None)
+        args = [a for a in sys.argv[2:] if a != '--supersede']
+        record(args[0] if args else None, supersede='--supersede' in sys.argv)
     elif command == ['settle']:
         settle()
     else:

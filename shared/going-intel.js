@@ -32,7 +32,7 @@ function roleTrend(trend,position,market){
  }
  if(!parts.length)return null;
  const state=up&&!down?'up':down&&!up?'down':'flat';
- const text=parts.map(p=>`${p.label} ${p.from} → ${p.to}`).join(' · ');
+ const spans=finite(trend.last6_current_season)&&trend.last6_current_season<6,text=parts.map(p=>`${p.label} ${p.from} → ${p.to}`).join(' · ')+(spans?` (last 6 includes ${6-trend.last6_current_season} games from last season)`:'');
  return {state,parts,text,games:trend.games,badge:state==='up'?'ROLE ↑':state==='down'?'ROLE ↓':null,
   sentence:state==='up'?'Role has expanded over the last three games versus the last six.':state==='down'?'Role has shrunk over the last three games versus the last six.':'No meaningful role change.'};
 }
