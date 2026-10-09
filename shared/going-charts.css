@@ -1,0 +1,9 @@
+.gc{margin:8px 0;max-width:100%}.gc svg{width:100%;height:auto;display:block;overflow:visible}
+.gc-grid{stroke:var(--g-border,#294a58);stroke-width:1;opacity:.55}.gc-ref{stroke:var(--g-muted,#8fa3ad);stroke-width:1.2;stroke-dasharray:4 4}.gc-fit{stroke:#e0a43a;stroke-width:2}
+.gc-tick{fill:var(--g-muted,#8fa3ad);font-size:11px}.gc-axis{fill:var(--g-text,#e8f3f6);font-size:12px}
+.gc-dot{cursor:pointer;opacity:.85;stroke:var(--g-bg,#06161e);stroke-width:1}.gc-dot:hover,.gc-dot:focus{opacity:1;stroke:#fff;stroke-width:2;outline:none}
+.gc-cap,.gc-empty{font-size:12px;color:var(--g-muted,#8fa3ad)}.gc-legend{list-style:none;display:flex;flex-wrap:wrap;gap:6px 14px;padding:0;margin:6px 0;font-size:12px}.gc-legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.charts-chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.charts-chips button{min-height:44px}
+.charts-filters{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.charts-filters label{display:grid;gap:3px;font-size:12px}
+.charts-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid currentColor;margin-left:6px}.charts-badge.pred{color:var(--g-accent,#35e0c3)}.charts-badge.desc{color:#e0a43a}
+.charts-list{list-style:none;padding:0;display:grid;gap:6px}.charts-list li{padding:8px 10px;border:1px solid var(--g-border,#294a58);border-radius:8px;font-size:13px}

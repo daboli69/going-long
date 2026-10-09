@@ -25,6 +25,6 @@ test('endpoint outage falls back to packaged snapshot; total failure offers one 
 });
 test('ABBEYS integration keeps NFL-only route, nine-tool grid and unchanged existing model functions',()=>{
   const html=fs.readFileSync('index.html','utf8'),shell=fs.readFileSync('shared/going-shell.js','utf8');
-  assert.match(html,/data-section="abbeys" data-tab="abbeys"/);assert.match(html,/\[data-section="abbeys"\]'\)\.hidden=BET.sport!=="nfl"/);assert.match(html,/'score','dfs','abbeys','props'/);assert.match(shell,/'ABBEYS','NFL'/);
+  assert.match(html,/data-section="abbeys" data-tab="abbeys"/);assert.match(html,/\[data-section="abbeys"\]'\)\.hidden=BET.sport!=="nfl"/);assert.match(html,/'score','charts','dfs','abbeys','props'/);assert.match(shell,/'ABBEYS','NFL'/);
   assert.match(html,/id="btAbbeysPanel" hidden/);assert.match(html,/GoingAbbeysUI\?\.render/);
 });

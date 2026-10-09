@@ -1,0 +1,33 @@
+{
+  "id": "E12",
+  "title": "Expected Opportunity vs Actual Production: do trailing PPR residuals predict next-game / next-3-game output beyond workload and production?",
+  "registered_utc": "2026-10-09",
+  "hypothesis": "H1 (persistence): trailing residual (actual PPR - ffopportunity expected PPR) carries information about future output beyond trailing workload and production. H2 (regression): after controls, a negative trailing residual predicts a better-than-baseline future (bounce-back) and a positive one a worse-than-baseline future. Null: residual adds nothing.",
+  "sources": ["nflverse stats_player_week 2020-2025", "ffverse/ffopportunity ep_weekly 2020-2025 (public release v1.0.0-data; total_fantasy_points_exp / total_fantasy_points are PPR)"],
+  "population": "QB/RB/WR/TE regular-season player-games. Prediction origin = a completed game t; requires >=k prior appearances (window k) and the targeted future appearances. Logs run across seasons per player; the split is by the season of the origin game.",
+  "splits": {"dev": [2021, 2022, 2023], "validation": [2024], "holdout": [2025], "note": "dev fit -> validation 2024. Then refit on 2021-2024 and score 2025 exactly once with the frozen specification. 2026 YTD is descriptive only (5 weeks)."},
+  "features": {
+    "res_k": "mean over last k appearances (k in {3,6}) of actual PPR - expected PPR (ffopportunity)",
+    "exp_k": "mean expected PPR over the same k games (workload proxy)",
+    "act_k": "mean actual PPR over the same k games (production)",
+    "vol_k": "mean targets, carries and pass attempts over the same k games (raw workload)",
+    "act_12": "mean actual PPR over the last 12 appearances (longer production baseline)"
+  },
+  "outcomes": ["fantasy_points_ppr", "receptions", "total_yards (pass+rush+rec)", "total_tds (pass+rush+rec)"],
+  "horizons": ["next game", "mean of next 3 appearances (all 3 required, same season as origin or later; no gaps filter)"],
+  "models": {
+    "baseline": "OLS per position: y ~ act_k + vol_k(3 terms) + act_12",
+    "challenger": "baseline + exp_k (identical to adding res_k since res_k = act_k - exp_k; coefficient on res_k reported as b_res = b_act - b_exp decomposition: challenger fitted as y ~ res_k + exp_k + vol_k + act_12)",
+    "note": "Fixed specification, no tuning, no regularisation. Hyperparameters nothing; windows k=3 and k=6 are both reported, not selected."
+  },
+  "family": "4 outcomes x 2 horizons x 2 windows = 16 tests per position; Bonferroni 95% intervals (alpha 0.05/16) for any claim of 'predictive'.",
+  "inference": "player-clustered bootstrap (2000 resamples) on (a) per-row squared-error difference baseline minus challenger out of sample and (b) the b_res coefficient fitted on the training window.",
+  "decision_rule": {
+    "PREDICTIVE": "Out-of-sample MSE reduction >= 1% in BOTH 2024 validation and 2025 holdout, and the Bonferroni cluster-bootstrap CI of the 2025 holdout squared-error difference excludes 0 (favouring challenger), and the sign of b_res matches in dev and in the 2021-24 refit.",
+    "DESCRIPTIVE_ONLY": "Everything else: residual is reported as a description of the past, not a forecast.",
+    "NO_EFFECT_CLAIM": "Only if the CI excludes a 1% improvement; otherwise INCONCLUSIVE."
+  },
+  "exploratory_not_countable": "Split of the residual into touchdown part (6*TD diff, 4 for passing TD folded in via total_touchdown_diff*6) and non-touchdown part; same models. Labelled exploratory and cannot support a PREDICTIVE label.",
+  "leakage": "All features use games up to and including the origin game; targets are strictly later games; ffopportunity expected values are model outputs fitted on earlier seasons and not retrained in-season (ffopportunity v1.0.0 was fitted on pre-2021 data per its documentation: stated as an assumption, not verified).",
+  "caveats": ["Not a betting-return test. No market prices are used.", "Pre-registration is a committed document date, not a cryptographic timestamp; spec hash is printed by the study script."]
+}
