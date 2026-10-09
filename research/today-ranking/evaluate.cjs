@@ -336,7 +336,7 @@ function loadObservations(root, registration = REGISTERED) {
 }
 function main() {
   if (process.argv.length !== 3) throw Error('Usage: node research/today-ranking/evaluate.cjs JOURNAL_ROOT');
-  const root = path.resolve(process.argv[2]), registration = /today-ranking-v1/.test(root) ? REGISTERED : require('./experiment-v2.json');
+  const root = path.resolve(process.argv[2]), registration = /today-ranking-v1/.test(root) ? REGISTERED : /today-ranking-v2/.test(root) ? require('./experiment-v2.json') : require('./experiment-v3.json');
   assertUnlocked(Date.now(), registration); // Before even listing journal files or reading raw outcomes.
   const observations = loadObservations(root, registration);
   console.log(JSON.stringify(evaluateObservations(observations, registration), null, 2));

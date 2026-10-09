@@ -1,0 +1,957 @@
+{
+ "schema": "going-calibration-candidates-1",
+ "version": "cal-b-2026.10.09-v1",
+ "status": "CANDIDATE - not wired into index.html; shadow/evaluate before any use",
+ "apply": {
+  "logistic": "p' = 1 / (1 + exp(-(a + b * logit(p_over_given_no_push)))); p_over_out = p' * (1 - push); p_under_out = (1 - push) - p_over_out. Clip p to [1e-6, 1-1e-6].",
+  "isotonic": "p' = linear interpolation of (x, y) knots, clamped at the ends; same push handling.",
+  "shrink_const": "p' = w * p + (1 - w) * target (target = market over-rate, dev window; Under uses 1 - target)",
+  "domain": "validated only for lines within about +/-50% of the player median (main line and 4 ladder steps each side); do not apply to degenerate lines (e.g. rushing yards 0.5 for a non-rusher) or when the player is a different position than the Champion policy covers",
+  "hierarchy": "pooled_platt = per-market logistic pulled toward the all-market logistic by kappa pseudo-observations (kappa tuned on 2024)",
+  "markets_in_js": "receptions, rec_yds, rush_yds, pass_yds, pass_tds, rush_tds, rec_tds, atd (market ids as in nfl_betting.json)"
+ },
+ "markets": {
+  "receptions": {
+   "Over": {
+    "method": "platt",
+    "recommendation": "PROMOTE",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 20063,
+     "brier_raw": 0.16346033103850088,
+     "brier_calibrated": 0.160954787508221,
+     "logloss_raw": 0.4998857438275055,
+     "logloss_calibrated": 0.49146655505680825,
+     "slope_raw": 0.8196480195829973,
+     "slope_calibrated": 1.0560639234825508,
+     "ece_raw": 0.04333611179083398,
+     "ece_calibrated": 0.01610348261352225,
+     "brier_gain_ci95": [
+      0.0016557623964667117,
+      0.003274167910332537
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_var",
+     "parameters": {
+      "a": 0.0,
+      "b": 1.0,
+      "phi": 0.19569438820681623
+     },
+     "recommendation": "PROMOTE",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.16346033103850088,
+      "brier_new": 0.16171061052079952,
+      "slope_new": 1.046173148266783,
+      "ece_new": 0.023130599900469926,
+      "brier_gain_ci95": [
+       0.0010332121757985252,
+       0.002382230637602191
+      ],
+      "main_line_brier_raw": 0.24537163595226155,
+      "main_line_brier_new": 0.24215020769306156
+     }
+    },
+    "parameters": {
+     "a": -0.19609734128885895,
+     "b": 0.7761348544887966
+    },
+    "deploy": {
+     "a": -0.1747078646663904,
+     "b": 0.7788423281408231
+    }
+   },
+   "Under": {
+    "method": "platt",
+    "recommendation": "PROMOTE",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 20063,
+     "brier_raw": 0.16346033103850088,
+     "brier_calibrated": 0.160954787508221,
+     "logloss_raw": 0.4998857438275055,
+     "logloss_calibrated": 0.49146655505680825,
+     "slope_raw": 0.8196480195829973,
+     "slope_calibrated": 1.0560639234825508,
+     "ece_raw": 0.04333611179083398,
+     "ece_calibrated": 0.01610348261352225,
+     "brier_gain_ci95": [
+      0.0016557623964667117,
+      0.003274167910332537
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_var",
+     "parameters": {
+      "a": 0.0,
+      "b": 1.0,
+      "phi": 0.19569438820681623
+     },
+     "recommendation": "PROMOTE",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.16346033103850088,
+      "brier_new": 0.16171061052079952,
+      "slope_new": 1.046173148266783,
+      "ece_new": 0.023130599900469926,
+      "brier_gain_ci95": [
+       0.0010332121757985252,
+       0.002382230637602191
+      ],
+      "main_line_brier_raw": 0.24537163595226155,
+      "main_line_brier_new": 0.24215020769306156
+     }
+    },
+    "parameters": {
+     "a": 0.19609734128885895,
+     "b": 0.7761348544887966,
+     "input": "logit(p_under_given_no_push)"
+    },
+    "deploy": {
+     "a": 0.1747078646663904,
+     "b": 0.7788423281408231,
+     "input": "logit(p_under_given_no_push)"
+    }
+   }
+  },
+  "rec_yds": {
+   "Over": {
+    "method": "shrink_const",
+    "recommendation": "SHADOW",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 26892,
+     "brier_raw": 0.2163400400865875,
+     "brier_calibrated": 0.21579070751528368,
+     "logloss_raw": 0.6242619142450466,
+     "logloss_calibrated": 0.6219702388669827,
+     "slope_raw": 0.8443994086664907,
+     "slope_calibrated": 0.9776958963921144,
+     "ece_raw": 0.02748654533151134,
+     "ece_calibrated": 0.019017174518376048,
+     "brier_gain_ci95": [
+      0.0001804091576946773,
+      0.0008853831711373201
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_var",
+     "parameters": {
+      "a": 0.0,
+      "b": 1.0,
+      "s": 0.22850445524141827
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.2163400400865875,
+      "brier_new": 0.21578918604395017,
+      "slope_new": 0.9976396808123346,
+      "ece_new": 0.01790844394195647,
+      "brier_gain_ci95": [
+       -3.987506670520001e-06,
+       0.0010341370937202864
+      ],
+      "main_line_brier_raw": 0.2504962085906377,
+      "main_line_brier_new": 0.24934631014395303
+     }
+    },
+    "parameters": {
+     "w": 0.8966074273808006,
+     "target": 0.4421937929400616
+    },
+    "deploy": {
+     "w": 0.9006112158778943,
+     "target": 0.44811464397671297
+    }
+   },
+   "Under": {
+    "method": "shrink_const",
+    "recommendation": "SHADOW",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 26892,
+     "brier_raw": 0.2163400400865875,
+     "brier_calibrated": 0.21579070751528368,
+     "logloss_raw": 0.6242619142450466,
+     "logloss_calibrated": 0.6219702388669827,
+     "slope_raw": 0.8443994086664907,
+     "slope_calibrated": 0.9776958963921144,
+     "ece_raw": 0.02748654533151134,
+     "ece_calibrated": 0.019017174518376048,
+     "brier_gain_ci95": [
+      0.0001804091576946773,
+      0.0008853831711373201
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_var",
+     "parameters": {
+      "a": 0.0,
+      "b": 1.0,
+      "s": 0.22850445524141827
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.2163400400865875,
+      "brier_new": 0.21578918604395017,
+      "slope_new": 0.9976396808123346,
+      "ece_new": 0.01790844394195647,
+      "brier_gain_ci95": [
+       -3.987506670520001e-06,
+       0.0010341370937202864
+      ],
+      "main_line_brier_raw": 0.2504962085906377,
+      "main_line_brier_new": 0.24934631014395303
+     }
+    },
+    "parameters": {
+     "w": 0.8966074273808006,
+     "target": 0.5578062070599383,
+     "input": "p_under_given_no_push"
+    },
+    "deploy": {
+     "w": 0.9006112158778943,
+     "target": 0.551885356023287,
+     "input": "p_under_given_no_push"
+    }
+   }
+  },
+  "rush_yds": {
+   "Over": {
+    "method": "shrink_const",
+    "recommendation": "SHADOW",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 8486,
+     "brier_raw": 0.22001077847320366,
+     "brier_calibrated": 0.21595903415620085,
+     "logloss_raw": 0.643371685591562,
+     "logloss_calibrated": 0.6217382434948338,
+     "slope_raw": 0.6044962148490222,
+     "slope_calibrated": 1.0544302609973897,
+     "ece_raw": 0.05315630442413868,
+     "ece_calibrated": 0.011819803940241643,
+     "brier_gain_ci95": [
+      0.0024734435940329115,
+      0.005839083847079215
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_var",
+     "parameters": {
+      "a": 0.0,
+      "b": 1.0,
+      "s": 0.5423262950116498
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.22001077847320366,
+      "brier_new": 0.21635789569545136,
+      "slope_new": 1.0372540544825761,
+      "ece_new": 0.02170995515196332,
+      "brier_gain_ci95": [
+       0.0018884134141208893,
+       0.005646166119814321
+      ],
+      "main_line_brier_raw": 0.24905092493101605,
+      "main_line_brier_new": 0.24921416199686075
+     }
+    },
+    "parameters": {
+     "w": 0.7099494845825686,
+     "target": 0.47987464129285606
+    },
+    "deploy": {
+     "w": 0.7122007343311318,
+     "target": 0.4764417005752771
+    }
+   },
+   "Under": {
+    "method": "shrink_const",
+    "recommendation": "SHADOW",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 8486,
+     "brier_raw": 0.22001077847320366,
+     "brier_calibrated": 0.21595903415620085,
+     "logloss_raw": 0.643371685591562,
+     "logloss_calibrated": 0.6217382434948338,
+     "slope_raw": 0.6044962148490222,
+     "slope_calibrated": 1.0544302609973897,
+     "ece_raw": 0.05315630442413868,
+     "ece_calibrated": 0.011819803940241643,
+     "brier_gain_ci95": [
+      0.0024734435940329115,
+      0.005839083847079215
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_var",
+     "parameters": {
+      "a": 0.0,
+      "b": 1.0,
+      "s": 0.5423262950116498
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.22001077847320366,
+      "brier_new": 0.21635789569545136,
+      "slope_new": 1.0372540544825761,
+      "ece_new": 0.02170995515196332,
+      "brier_gain_ci95": [
+       0.0018884134141208893,
+       0.005646166119814321
+      ],
+      "main_line_brier_raw": 0.24905092493101605,
+      "main_line_brier_new": 0.24921416199686075
+     }
+    },
+    "parameters": {
+     "w": 0.7099494845825686,
+     "target": 0.5201253587071439,
+     "input": "p_under_given_no_push"
+    },
+    "deploy": {
+     "w": 0.7122007343311318,
+     "target": 0.5235582994247229,
+     "input": "p_under_given_no_push"
+    }
+   }
+  },
+  "pass_yds": {
+   "Over": {
+    "method": "shrink_const",
+    "recommendation": "PROMOTE",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 4401,
+     "brier_raw": 0.16695849085531048,
+     "brier_calibrated": 0.16534320839174668,
+     "logloss_raw": 0.5274326678500948,
+     "logloss_calibrated": 0.503227662516086,
+     "slope_raw": 0.69961761597243,
+     "slope_calibrated": 1.0087761991045316,
+     "ece_raw": 0.04763277409087052,
+     "ece_calibrated": 0.03024205784316073,
+     "brier_gain_ci95": [
+      0.0009022181104573488,
+      0.0023699750706695126
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_mean_var_zero",
+     "parameters": {
+      "a": 2.9116161091629533,
+      "b": 0.4625207464605885,
+      "s": 0.3205044743327063,
+      "c0": 1.5490159362651987
+     },
+     "recommendation": "PROMOTE",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.16695849085531048,
+      "brier_new": 0.1606505195526864,
+      "slope_new": 1.0536434658128082,
+      "ece_new": 0.03526173403233294,
+      "brier_gain_ci95": [
+       0.002904972383185926,
+       0.009418471830529934
+      ],
+      "main_line_brier_raw": 0.2494243116772151,
+      "main_line_brier_new": 0.2414258372955379
+     }
+    },
+    "parameters": {
+     "w": 0.875008098597966,
+     "target": 0.5186480186480187
+    },
+    "deploy": {
+     "w": 0.8671542174209772,
+     "target": 0.5246169084658859
+    }
+   },
+   "Under": {
+    "method": "shrink_const",
+    "recommendation": "PROMOTE",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 4401,
+     "brier_raw": 0.16695849085531048,
+     "brier_calibrated": 0.16534320839174668,
+     "logloss_raw": 0.5274326678500948,
+     "logloss_calibrated": 0.503227662516086,
+     "slope_raw": 0.69961761597243,
+     "slope_calibrated": 1.0087761991045316,
+     "ece_raw": 0.04763277409087052,
+     "ece_calibrated": 0.03024205784316073,
+     "brier_gain_ci95": [
+      0.0009022181104573488,
+      0.0023699750706695126
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_mean_var_zero",
+     "parameters": {
+      "a": 2.9116161091629533,
+      "b": 0.4625207464605885,
+      "s": 0.3205044743327063,
+      "c0": 1.5490159362651987
+     },
+     "recommendation": "PROMOTE",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.16695849085531048,
+      "brier_new": 0.1606505195526864,
+      "slope_new": 1.0536434658128082,
+      "ece_new": 0.03526173403233294,
+      "brier_gain_ci95": [
+       0.002904972383185926,
+       0.009418471830529934
+      ],
+      "main_line_brier_raw": 0.2494243116772151,
+      "main_line_brier_new": 0.2414258372955379
+     }
+    },
+    "parameters": {
+     "w": 0.875008098597966,
+     "target": 0.4813519813519813,
+     "input": "p_under_given_no_push"
+    },
+    "deploy": {
+     "w": 0.8671542174209772,
+     "target": 0.47538309153411407,
+     "input": "p_under_given_no_push"
+    }
+   }
+  },
+  "pass_tds": {
+   "Over": {
+    "method": "raw",
+    "recommendation": "NO CORRECTION NEEDED",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 1354,
+     "brier_raw": 0.19938978403523236,
+     "brier_calibrated": 0.19938978403523236,
+     "logloss_raw": 0.5844084696308226,
+     "logloss_calibrated": 0.5844084696308226,
+     "slope_raw": 0.9408764464757124,
+     "slope_calibrated": 0.9408764464757124,
+     "ece_raw": 0.015260298690455457,
+     "ece_calibrated": 0.015260298690455457,
+     "brier_gain_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_shrink_var",
+     "parameters": {
+      "a": 0.0030470813103884963,
+      "b": 1.0,
+      "phi": 0.0,
+      "w": 0.5773174710595184,
+      "pos_lam_note": "lam = w*lam + (1-w)*pos_lam[position]; pos_lam are 2021-2023 position means (see parameters)",
+      "pos_lam": {
+       "QB": 1.446643109540636
+      }
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.19938978403523236,
+      "brier_new": 0.19164901693125766,
+      "slope_new": 1.053427128586683,
+      "ece_new": 0.028894781694203127,
+      "brier_gain_ci95": [
+       0.004292069765413311,
+       0.010832647906657321
+      ],
+      "main_line_brier_raw": 0.2404298707539099,
+      "main_line_brier_new": 0.22875357486836845
+     }
+    },
+    "parameters": {},
+    "deploy": {}
+   },
+   "Under": {
+    "method": "raw",
+    "recommendation": "NO CORRECTION NEEDED",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 1354,
+     "brier_raw": 0.19938978403523236,
+     "brier_calibrated": 0.19938978403523236,
+     "logloss_raw": 0.5844084696308226,
+     "logloss_calibrated": 0.5844084696308226,
+     "slope_raw": 0.9408764464757124,
+     "slope_calibrated": 0.9408764464757124,
+     "ece_raw": 0.015260298690455457,
+     "ece_calibrated": 0.015260298690455457,
+     "brier_gain_ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_shrink_var",
+     "parameters": {
+      "a": 0.0030470813103884963,
+      "b": 1.0,
+      "phi": 0.0,
+      "w": 0.5773174710595184,
+      "pos_lam_note": "lam = w*lam + (1-w)*pos_lam[position]; pos_lam are 2021-2023 position means (see parameters)",
+      "pos_lam": {
+       "QB": 1.446643109540636
+      }
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.19938978403523236,
+      "brier_new": 0.19164901693125766,
+      "slope_new": 1.053427128586683,
+      "ece_new": 0.028894781694203127,
+      "brier_gain_ci95": [
+       0.004292069765413311,
+       0.010832647906657321
+      ],
+      "main_line_brier_raw": 0.2404298707539099,
+      "main_line_brier_new": 0.22875357486836845
+     }
+    },
+    "parameters": {
+     "derived_from": "Over: p_under = (1 - push) - calibrated_over"
+    },
+    "deploy": {
+     "derived_from": "Over: p_under = (1 - push) - calibrated_over"
+    }
+   }
+  },
+  "rush_tds": {
+   "Over": {
+    "method": "pooled_platt",
+    "recommendation": "SHADOW",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 776,
+     "brier_raw": 0.20342600354217516,
+     "brier_calibrated": 0.19921063630375482,
+     "logloss_raw": 0.5955590861311337,
+     "logloss_calibrated": 0.5864564548922151,
+     "slope_raw": 0.5009753098337092,
+     "slope_calibrated": 0.6113122571509827,
+     "ece_raw": 0.06170478667149668,
+     "ece_calibrated": 0.03919308241680402,
+     "brier_gain_ci95": [
+      0.0023774765560633966,
+      0.00604788567564821
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_mean_var",
+     "parameters": {
+      "a": -0.3589811145031559,
+      "b": 0.774140605948978,
+      "phi": 7.391510812253609e-09
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.20342600354217516,
+      "brier_new": 0.19763981375967277,
+      "slope_new": 0.6957959883213133,
+      "ece_new": 0.029712588486981332,
+      "brier_gain_ci95": [
+       0.0028903970259101654,
+       0.008703462752556313
+      ],
+      "main_line_brier_raw": 0.20342600354217516,
+      "main_line_brier_new": 0.19763981375967277
+     }
+    },
+    "parameters": {
+     "a": -0.24733232454863036,
+     "b": 0.8195080402419901
+    },
+    "deploy": {
+     "a": -0.22570955189110695,
+     "b": 0.8228674388177778
+    }
+   },
+   "Under": {
+    "method": "pooled_platt",
+    "recommendation": "SHADOW",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 776,
+     "brier_raw": 0.20342600354217516,
+     "brier_calibrated": 0.19921063630375482,
+     "logloss_raw": 0.5955590861311337,
+     "logloss_calibrated": 0.5864564548922151,
+     "slope_raw": 0.5009753098337092,
+     "slope_calibrated": 0.6113122571509827,
+     "ece_raw": 0.06170478667149668,
+     "ece_calibrated": 0.03919308241680402,
+     "brier_gain_ci95": [
+      0.0023774765560633966,
+      0.00604788567564821
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_mean_var",
+     "parameters": {
+      "a": -0.3589811145031559,
+      "b": 0.774140605948978,
+      "phi": 7.391510812253609e-09
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.20342600354217516,
+      "brier_new": 0.19763981375967277,
+      "slope_new": 0.6957959883213133,
+      "ece_new": 0.029712588486981332,
+      "brier_gain_ci95": [
+       0.0028903970259101654,
+       0.008703462752556313
+      ],
+      "main_line_brier_raw": 0.20342600354217516,
+      "main_line_brier_new": 0.19763981375967277
+     }
+    },
+    "parameters": {
+     "a": 0.24733232454863036,
+     "b": 0.8195080402419901,
+     "input": "logit(p_under_given_no_push)"
+    },
+    "deploy": {
+     "a": 0.22570955189110695,
+     "b": 0.8228674388177778,
+     "input": "logit(p_under_given_no_push)"
+    }
+   }
+  },
+  "rec_tds": {
+   "Over": {
+    "method": "shrink_const",
+    "recommendation": "SHADOW",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 2152,
+     "brier_raw": 0.16404044994848305,
+     "brier_calibrated": 0.16060472715830604,
+     "logloss_raw": 0.5038135467577335,
+     "logloss_calibrated": 0.4980329804874156,
+     "slope_raw": 0.7586136059091761,
+     "slope_calibrated": 1.3662488428422837,
+     "ece_raw": 0.04873774273693366,
+     "ece_calibrated": 0.021022222451107474,
+     "brier_gain_ci95": [
+      0.0010887881824571059,
+      0.005851628717754675
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_shrink_var",
+     "parameters": {
+      "a": -0.1887650095605528,
+      "b": 1.0,
+      "phi": 0.00033724587736105784,
+      "w": 0.587446994954878,
+      "pos_lam_note": "lam = w*lam + (1-w)*pos_lam[position]; pos_lam are 2021-2023 position means (see parameters)",
+      "pos_lam": {
+       "RB": 0.12680756395995552,
+       "TE": 0.19450934579439252,
+       "WR": 0.272631855156127
+      }
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.16404044994848305,
+      "brier_new": 0.16004812836724064,
+      "slope_new": 1.1249527534378554,
+      "ece_new": 0.011854602755944825,
+      "brier_gain_ci95": [
+       0.0012792245656986648,
+       0.0068027949345043056
+      ],
+      "main_line_brier_raw": 0.16404044994848305,
+      "main_line_brier_new": 0.16004812836724064
+     }
+    },
+    "parameters": {
+     "w": 0.5246061128764461,
+     "target": 0.19853628153223296
+    },
+    "deploy": {
+     "w": 0.5537949602408566,
+     "target": 0.20504581697012972
+    }
+   },
+   "Under": {
+    "method": "shrink_const",
+    "recommendation": "SHADOW",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 2152,
+     "brier_raw": 0.16404044994848305,
+     "brier_calibrated": 0.16060472715830604,
+     "logloss_raw": 0.5038135467577335,
+     "logloss_calibrated": 0.4980329804874156,
+     "slope_raw": 0.7586136059091761,
+     "slope_calibrated": 1.3662488428422837,
+     "ece_raw": 0.04873774273693366,
+     "ece_calibrated": 0.021022222451107474,
+     "brier_gain_ci95": [
+      0.0010887881824571059,
+      0.005851628717754675
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_shrink_var",
+     "parameters": {
+      "a": -0.1887650095605528,
+      "b": 1.0,
+      "phi": 0.00033724587736105784,
+      "w": 0.587446994954878,
+      "pos_lam_note": "lam = w*lam + (1-w)*pos_lam[position]; pos_lam are 2021-2023 position means (see parameters)",
+      "pos_lam": {
+       "RB": 0.12680756395995552,
+       "TE": 0.19450934579439252,
+       "WR": 0.272631855156127
+      }
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.16404044994848305,
+      "brier_new": 0.16004812836724064,
+      "slope_new": 1.1249527534378554,
+      "ece_new": 0.011854602755944825,
+      "brier_gain_ci95": [
+       0.0012792245656986648,
+       0.0068027949345043056
+      ],
+      "main_line_brier_raw": 0.16404044994848305,
+      "main_line_brier_new": 0.16004812836724064
+     }
+    },
+    "parameters": {
+     "w": 0.5246061128764461,
+     "target": 0.8014637184677671,
+     "input": "p_under_given_no_push"
+    },
+    "deploy": {
+     "w": 0.5537949602408566,
+     "target": 0.7949541830298703,
+     "input": "p_under_given_no_push"
+    }
+   }
+  },
+  "atd": {
+   "Over": {
+    "method": "shrink_const",
+    "recommendation": "SHADOW",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 2077,
+     "brier_raw": 0.2066927899892107,
+     "brier_calibrated": 0.20300487762644884,
+     "logloss_raw": 0.602107059976818,
+     "logloss_calibrated": 0.5947058455024528,
+     "slope_raw": 0.6632814222777546,
+     "slope_calibrated": 1.133609420838992,
+     "ece_raw": 0.05106471446532025,
+     "ece_calibrated": 0.023370325843043358,
+     "brier_gain_ci95": [
+      0.0014231696839711499,
+      0.005752216353392082
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_shrink_var",
+     "parameters": {
+      "a": -0.1810149647431377,
+      "b": 1.0,
+      "phi": 0.001496942104878059,
+      "w": 0.658493609386267,
+      "pos_lam_note": "lam = w*lam + (1-w)*pos_lam[position]; pos_lam are 2021-2023 position means (see parameters)",
+      "pos_lam": {
+       "RB": 0.44135373203523415,
+       "TE": 0.22907083716651333,
+       "WR": 0.3171987641606591
+      }
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.2066927899892107,
+      "brier_new": 0.2018778837734567,
+      "slope_new": 1.002119214438277,
+      "ece_new": 0.018466435457749578,
+      "brier_gain_ci95": [
+       0.00219128779275252,
+       0.007624243147369175
+      ],
+      "main_line_brier_raw": 0.2066927899892107,
+      "main_line_brier_new": 0.2018778837734567
+     }
+    },
+    "parameters": {
+     "w": 0.5760335635012755,
+     "target": 0.2756212441123924
+    },
+    "deploy": {
+     "w": 0.5983534317910506,
+     "target": 0.2854860513702839
+    }
+   },
+   "Under": {
+    "method": "shrink_const",
+    "recommendation": "SHADOW",
+    "version": "cal-b-2026.10.09-v1",
+    "base_model": "champion-v2 (v1 for markets outside the policy)",
+    "training_window": "2021-2023",
+    "tuning_window": "2024",
+    "holdout_window": "2025 (scored once, selection frozen before it was loaded)",
+    "deployment_refit_window": "2021-2024 (parameters under `deploy`; NOT holdout-scored)",
+    "holdout_2025": {
+     "n": 2077,
+     "brier_raw": 0.2066927899892107,
+     "brier_calibrated": 0.20300487762644884,
+     "logloss_raw": 0.602107059976818,
+     "logloss_calibrated": 0.5947058455024528,
+     "slope_raw": 0.6632814222777546,
+     "slope_calibrated": 1.133609420838992,
+     "ece_raw": 0.05106471446532025,
+     "ece_calibrated": 0.023370325843043358,
+     "brier_gain_ci95": [
+      0.0014231696839711499,
+      0.005752216353392082
+     ]
+    },
+    "distribution_fix_upstream": {
+     "method": "dist_shrink_var",
+     "parameters": {
+      "a": -0.1810149647431377,
+      "b": 1.0,
+      "phi": 0.001496942104878059,
+      "w": 0.658493609386267,
+      "pos_lam_note": "lam = w*lam + (1-w)*pos_lam[position]; pos_lam are 2021-2023 position means (see parameters)",
+      "pos_lam": {
+       "RB": 0.44135373203523415,
+       "TE": 0.22907083716651333,
+       "WR": 0.3171987641606591
+      }
+     },
+     "recommendation": "SHADOW",
+     "note": "changes the Champion distribution itself (needs build_pipeline/index.html changes), not a probability-level map; fitted on 2021-2023",
+     "holdout_2025": {
+      "brier_raw": 0.2066927899892107,
+      "brier_new": 0.2018778837734567,
+      "slope_new": 1.002119214438277,
+      "ece_new": 0.018466435457749578,
+      "brier_gain_ci95": [
+       0.00219128779275252,
+       0.007624243147369175
+      ],
+      "main_line_brier_raw": 0.2066927899892107,
+      "main_line_brier_new": 0.2018778837734567
+     }
+    },
+    "parameters": {
+     "w": 0.5760335635012755,
+     "target": 0.7243787558876076,
+     "input": "p_under_given_no_push"
+    },
+    "deploy": {
+     "w": 0.5983534317910506,
+     "target": 0.7145139486297161,
+     "input": "p_under_given_no_push"
+    }
+   }
+  }
+ }
+}

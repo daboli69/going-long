@@ -760,3 +760,17 @@ test('DFS feed nonactive status wins over imported FPPG and stale generic ACT',t
  vm.runInContext("DFS_STATE.source='csv';DFS_STATE.salaryPlayers=[{id:'res',name:'Reserve One',team:'NO',position:'RB',siteProjection:20,salary:5000,injury:''},{id:'out',name:'Imported Out',team:'ATL',position:'WR',siteProjection:25,salary:5000,injury:'O'}];",context);
  const pool=vm.runInContext('dfsPlayerPool()',context);assert.equal(pool.length,2);assert.ok(pool.every(p=>p.unavailable));assert.ok(pool.every(p=>p.projection===null));assert.ok(pool.every(p=>p.source==='Unavailable'));
 });
+
+test('Validated calibration moves overconfident probabilities toward the middle, only inside its line domain, keeps bounds, and is a no-op without data',t=>{
+ const {api:a}=setup(t);
+ const base={market:'receptions',line:4.5,model:{status:'ready',family:'poisson',lambda:4.6}};
+ const raw=a.propProbabilities(base),cal={method:'platt',params:{a:-0.1747,b:0.7788},version:'t'};
+ const adj=a.propProbabilities({...base,model:{...base.model,calibration:cal}});
+ assert.ok(raw.over>0&&adj.over>0&&adj.over<1);assert.ok(Math.abs(adj.over+adj.under+adj.push-1)<1e-9);assert.ok(adj.under>raw.under-0.2);
+ const hi=a.propProbabilities({market:'receptions',line:2.5,model:{status:'ready',family:'poisson',lambda:4.6,calibration:cal}}),hiRaw=a.propProbabilities({market:'receptions',line:2.5,model:{status:'ready',family:'poisson',lambda:4.6}});
+ assert.ok(hi.over<hiRaw.over,'a 0.85 raw over is pulled down');
+ const off=a.propProbabilities({market:'receptions',line:0.5,model:{status:'ready',family:'poisson',lambda:4.6,calibration:cal}}),offRaw=a.propProbabilities({market:'receptions',line:0.5,model:{status:'ready',family:'poisson',lambda:4.6}});
+ assert.equal(off.over,offRaw.over,'line far from the mean is outside the validated domain');
+ const sh=a.propProbabilities({...base,model:{...base.model,calibration:{method:'shrink_const',params:{w:.8,target:.5}}}});assert.ok(sh.over>0&&sh.over<1);
+ const bad=a.propProbabilities({...base,model:{...base.model,calibration:{method:'platt',params:{a:NaN,b:1}}}});assert.equal(bad.over,raw.over);
+});

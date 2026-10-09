@@ -1,0 +1,51 @@
+id,sport,market,player,side,line,tracker_status,tracker_actual,game_id,regraded_actual_results_json,regraded_status_results_json,nflverse_actual,nflverse_status,nflverse_st_tds,nflverse_no_row,match_results_json,match_nflverse
+19192cae2601225491201215dbc503e89805d4e8a4a5601cf7d2816ed0fad6f9,nfl,atd,Daniel Jones,Yes,0.5,loss,0.0,2026_02_IND_KC,0.0,loss,0.0,loss,0.0,False,True,True
+95b676e21620e3adb7ae3e00d5a7d1526a46577a0354669b3eff01a8bba8cba0,nfl,atd,Rashid Shaheed,Yes,0.5,loss,0.0,2026_02_SEA_ARI,0.0,loss,0.0,loss,0.0,False,True,True
+d0977cc17338b964cf76428237a390bbe1ee1446f5080891e9a2860b104c62ff,nfl,atd,Justin Herbert,Yes,0.5,loss,0.0,2026_02_LV_LAC,0.0,loss,0.0,loss,0.0,False,True,True
+0247775ebf2bcc2dbfcdedbe0b882121a5e9abe6154a519d3a462b5f08e9b9a9,nfl,atd,Cam Skattebo,Yes,0.5,loss,0.0,2026_02_NYG_LA,0.0,loss,0.0,loss,0.0,False,True,True
+7ef094f35d6201f20812999410068ac29a32b9cbf7bada0229a6e28167013028,nfl,atd,Travis Kelce,Yes,0.5,loss,0.0,2026_04_KC_LV,0.0,loss,0.0,loss,0.0,False,True,True
+b943b7c4f901029068bce6a4a145c11a9870116ebde560ccef2fbfee3a202ca4,nfl,h2h,,Home,0.0,win,11.0,2026_04_NYJ_CHI,11.0,win,11.0,win,,False,True,True
+4c1958f0541c74f3054eadca9636275a842f810b8ef219adef163131574208ee,ncaa,h2h,,Home,0.0,loss,-8.0,401862785,-8.0,loss,,,,False,True,
+2327ac7f677e00d010ca9bf218b7f197294d31512920755a8d42c7a360287cc0,ncaa,h2h,,Home,0.0,loss,-7.0,401858242,-7.0,loss,,,,False,True,
+73721e355c5b11a15ae006f99b3bf859fb05ab40711dcf5d4d65aae85af000d6,nfl,h2h,,Away,0.0,win,-31.0,2026_02_CAR_ATL,-31.0,win,-31.0,win,,False,True,True
+ac757ee7362e60614e0b1d061549276737971e08226e37056e37b02f9575886a,ncaa,h2h,,Home,0.0,win,21.0,401864511,21.0,win,,,,False,True,
+12d54ebc759cad835ca13623e7ffec794225509b44e277d977d88a1490951ffa,nfl,player_passing_tds,Drake Maye,Under,1.5,win,0.0,2026_02_PIT_NE,0.0,win,0.0,win,,False,True,True
+c83255928f506618356bdb71009ee47452f9ee7a28939331189fe8fd5b7a0a94,nfl,player_passing_tds,Kirk Cousins,Over,1.5,win,2.0,2026_04_KC_LV,2.0,win,2.0,win,,False,True,True
+113cc11459a9d0ec81d83a49659849064085af91b9cc5f1bf0e33cc65acb324f,nfl,player_passing_tds,Kirk Cousins,Under,1.5,loss,3.0,2026_02_LV_LAC,3.0,loss,3.0,loss,,False,True,True
+55afe9d5fd6502eaf342084ebea5e972fbb20dada79518344cbc98ad5e51018d,nfl,player_passing_tds,Jared Goff,Over,1.5,loss,1.0,2026_04_DET_CAR,1.0,loss,1.0,loss,,False,True,True
+36850121e2a292e6119bdaf09c0b685e760b476e35c44cdcd446e8fe01693933,nfl,player_passing_tds,Patrick Mahomes,Under,1.5,loss,2.0,2026_03_KC_MIA,2.0,loss,2.0,loss,,False,True,True
+c6b0d12c9e278d5cf382436280f86a52eb12f52a11548b1da881aae944e98b0e,nfl,player_passing_yards,Bo Nix,Over,226.5,win,288.0,2026_02_JAX_DEN,288.0,win,288.0,win,,False,True,True
+61cafe92375636a0777c504b402a223fd152b226cc3707e4f22a316920feed84,nfl,player_passing_yards,Brock Purdy,Over,234.5,loss,218.0,2026_04_DEN_SF,218.0,loss,218.0,loss,,False,True,True
+2f76618379e2b9fe07dc69093e890eb2117a8f1e285ef40cff25b5583da1281f,nfl,player_passing_yards,Patrick Mahomes,Over,236.5,loss,225.0,2026_04_KC_LV,225.0,loss,225.0,loss,,False,True,True
+936c22a287e5480ecd1279afcf9cf9378bce22a86c81f5ce69b837d35fb519da,nfl,player_passing_yards,Daniel Jones,Over,216.5,loss,210.0,2026_02_IND_KC,210.0,loss,210.0,loss,,False,True,True
+ae6eb13775c47529506bdb9ecba57f16c37d83f7b2174ec684e82245a15b3af5,nfl,player_passing_yards,Brock Purdy,Over,238.5,win,287.0,2026_02_MIA_SF,287.0,win,287.0,win,,False,True,True
+a9358ebe3b474de39c98b991bbd3d1ac34aa0a8497fbea66bd49c82f61bea776,nfl,player_receiving_yards,Saquon Barkley,Under,11.5,win,11.0,2026_02_PHI_TEN,11.0,win,11.0,win,,False,True,True
+9560aec31f661a5d8db4aa120458f7c73e26a7f68901138d2f36bc9011050a6c,nfl,player_receiving_yards,Jameson Williams,Under,50.5,loss,102.0,2026_04_DET_CAR,102.0,loss,102.0,loss,,False,True,True
+0d5ea4ad86d818389eda6129dce9e6a28042ed04e14829f425d3fbf706dfe965,nfl,player_receiving_yards,Ja'Marr Chase,Under,76.5,win,75.0,2026_02_CIN_HOU,75.0,win,75.0,win,,False,True,True
+11e2cc3b10fefb9db9567d55b8afef0e4b207d0cf260daa18fb9e04d4b5c0a3a,nfl,player_receiving_yards,Isaiah Likely,Under,40.5,loss,66.0,2026_04_ARI_NYG,66.0,loss,66.0,loss,,False,True,True
+d4784bdd95017c85705ebd857acc2af14badfe28ba99558bdc14f9d71888a833,nfl,player_receiving_yards,Aaron Jones,Under,15.5,win,0.0,2026_02_MIN_CHI,0.0,win,0.0,win,,False,True,True
+08a40512b6e018e02b611d2cf230b42a80479b6ec67ca8b9cb018913de255754,nfl,player_receptions,Cam Skattebo,Over,1.5,win,4.0,2026_02_NYG_LA,4.0,win,4.0,win,,False,True,True
+697f2973d78bbd877487c640edef21bb163dcc6f3323360f1dfe0e684318f9ea,nfl,player_receptions,Raheim Sanders,Over,1.5,loss,1.0,2026_02_CLE_TB,1.0,loss,1.0,loss,,False,True,True
+1a227e1ed2543f2b6b7223c7f0d1b34fbdb05df1ea2f7937c07a58c4e6338df6,nfl,player_receptions,DK Metcalf,Under,4.5,win,3.0,2026_03_CIN_PIT,3.0,win,3.0,win,,False,True,True
+94f40c2edd399f39cc84735888695aedfd04d75d1aef77c928cb1cf42777ea6d,nfl,player_receptions,Trey McBride,Over,7.5,win,9.0,2026_03_ARI_SF,9.0,win,9.0,win,,False,True,True
+824d56a7484543cec19cdac4d52630593b4b3fdf200f75be51fa5e959e56bd41,nfl,player_receptions,Cooper Kupp,Under,2.5,loss,4.0,2026_03_SEA_WAS,4.0,loss,4.0,loss,,False,True,True
+666c7ba87755c75d935772881511d3889bdda71c3a4174d6f4ba68b6d06cbeea,nfl,player_rushing_yards,Kenny Gainwell,Under,12.5,loss,18.0,2026_05_TB_DAL,18.0,loss,18.0,loss,,False,True,True
+a892d442d9838f9138d482aa089a5d8b0e38e52a28227d3009ba5e48aeb13f2b,nfl,player_rushing_yards,Kendre Miller,Over,25.5,loss,9.0,2026_04_ATL_NO,9.0,loss,9.0,loss,,False,True,True
+fd1b75bf4af2c7afdf12fd16e3866cb3fb5122a93086467d308e26c7d2621533,nfl,player_rushing_yards,Jahmyr Gibbs,Over,94.5,loss,46.0,2026_04_DET_CAR,46.0,loss,46.0,loss,,False,True,True
+dd19f0c43b2e9162a1d75ba32fd9bef14762a92d80b6b881fa6a93d0755c6865,nfl,player_rushing_yards,Bucky Irving,Over,51.5,win,165.0,2026_05_TB_DAL,165.0,win,165.0,win,,False,True,True
+37330b7e8a351b4d071640e176208a05d54caa0b93e4928dfe67756fef97dcf3,nfl,player_rushing_yards,Brian Robinson,Under,25.5,loss,51.0,2026_02_CAR_ATL,51.0,loss,51.0,loss,,False,True,True
+4bfe2df5879566fcb7e9fa7f41fb8a096a93908ce2ef060e6add4c48ed6479dc,ncaa,spreads,,Away,2.5,loss,1.5,401871051,1.5,loss,,,,False,True,
+504e44cbf28a7c6c0170d26bac5fb7f83ac0948dd3c4d0f2f543a389c0b33256,ncaa,spreads,,Away,5.5,win,-12.5,401858464,-12.5,win,,,,False,True,
+1e9e5983f54f14beb7090e9d3fac1eed4fa65a02e5f79762dc3f18d0dc504083,nfl,spreads,,Away,3.0,refund,0.0,2026_03_BAL_DAL,0.0,refund,0.0,refund,,False,True,True
+e56a90110c9659dc0125f8c525a7ce1c73edd9a3661bdaa044a932a7197fa8b8,ncaa,spreads,,Home,21.0,win,10.0,401858250,10.0,win,,,,False,True,
+9563628c84ac82e0889568f965aff6e70ff20e91ecbdbc390a531f9c21af94b8,ncaa,spreads,,Home,21.0,win,10.0,401858250,10.0,win,,,,False,True,
+a0734e85636983398a474345fcc96c597ddc594630ff38b41ddf4b9542978492,nfl,totals,,Under,42.0,win,39.0,2026_03_MIN_TB,39.0,win,39.0,win,,False,True,True
+9143de1367968392b12ccd481988fd7078b6a59e3bfcca57e9095eb573012d19,nfl,totals,,Over,46.0,loss,26.0,2026_02_CIN_HOU,26.0,loss,26.0,loss,,False,True,True
+238efc9ed034923eb95fea1fd65bfde5fdd3b7dfea27255dab04c39af9fc0ecd,nfl,totals,,Under,45.5,win,26.0,2026_02_CIN_HOU,26.0,win,26.0,win,,False,True,True
+8494899e2f408b3720abd2f6063b9b293fd5c1fe450fe863b653c8536268910a,ncaa,totals,,Over,48.0,refund,48.0,401856816,48.0,refund,,,,False,True,
+9986762215b7c646e7b37f220c76830ea8c756d9ed3754f43bf3ce1587958c97,ncaa,totals,,Over,52.5,loss,48.0,401864512,48.0,loss,,,,False,True,
+5eff63d28ff26407c1a19b4d0e82deb7b2ac6bd3dd5032fd2f0e86b03a7194b0,nfl,totals,,Under,44.0,refund,44.0,2026_04_LA_PHI,44.0,refund,44.0,refund,,False,True,True
+3964da5dbd445bada52acfa8dcb12be8d743236790191cbf74233750920a08ea,ncaa,spreads,,Home,-3.0,refund,0.0,401861970,0.0,refund,,,,False,True,
+a7c2f10ca52dd321912a55ac6f1b3e7b70e0d6f266ee1f80b1cb772961aa58ce,nfl,spreads,,Away,3.0,refund,0.0,2026_02_GB_NYJ,0.0,refund,0.0,refund,,False,True,True
+946071b1bbbf12374b9e6740f0e1f90b2110eea4407fadf50903662c1dca0421,ncaa,totals,,Over,51.0,refund,51.0,401869941,51.0,refund,,,,False,True,
+7c41b13865dbb0b30d50f3940e5db47c405ed3ecb474637d104e795919c86929,nfl,player_receiving_yards,Raheim Sanders,Over,14.5,loss,7.0,2026_04_PIT_CLE,7.0,loss,7.0,loss,,False,True,True

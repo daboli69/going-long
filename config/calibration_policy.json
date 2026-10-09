@@ -1,0 +1,52 @@
+{
+ "schema": "going-calibration-policy-1",
+ "active": true,
+ "version": "cal-b-2026.10.09-v1",
+ "source": "config/calibration_candidates.json (Auditor B, fit 2021-2024 for deployment; 2021-23 fit / 2024 tuned / 2025 holdout-scored once for validation)",
+ "rollback": "set \"active\": false (rebuild history) or remove a market; probabilities then revert to the raw Champion output",
+ "domain": "applied only for lines within +/-50% of the model mean; positions listed per market",
+ "markets": {
+  "receptions": {
+   "method": "platt",
+   "params": {
+    "a": -0.1747078646663904,
+    "b": 0.7788423281408231
+   },
+   "positions": [
+    "WR",
+    "TE",
+    "RB"
+   ],
+   "holdout_2025": {
+    "brier_raw": 0.1635,
+    "brier_calibrated": 0.161,
+    "slope_raw": 0.82,
+    "slope_calibrated": 1.06
+   }
+  },
+  "pass_yds": {
+   "method": "shrink_const",
+   "params": {
+    "w": 0.8671542174209772,
+    "target": 0.5246169084658859
+   },
+   "positions": [
+    "QB"
+   ],
+   "holdout_2025": {
+    "brier_raw": 0.167,
+    "brier_calibrated": 0.1653,
+    "slope_raw": 0.7,
+    "slope_calibrated": 1.01
+   }
+  }
+ },
+ "shadow": [
+  "rec_yds",
+  "rush_yds",
+  "pass_tds",
+  "rush_tds",
+  "rec_tds",
+  "atd"
+ ]
+}

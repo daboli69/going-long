@@ -127,7 +127,27 @@ def season_fit(games, column, family, season, minimum=5, candidate=False, market
         'sample_confidence':'low' if len(current)<5 else 'moderate',
         'effective_n':total**2/sum(w*w for w in weights) if weights else 0,
         'method':method}
+    cal = _calibration_for(market, position)
+    if cal and model.get('status') == 'ready':
+        model['calibration'] = cal
     return model
+
+
+_CAL = {}
+
+
+def _calibration_for(market, position):
+    """Validated probability calibration (config/calibration_policy.json) attached to the model as DATA; index.html propProbabilities applies it. Missing/inactive file: none."""
+    if 'p' not in _CAL:
+        try:
+            _CAL['p'] = json.loads((Path(__file__).resolve().parents[1] / 'config' / 'calibration_policy.json').read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            _CAL['p'] = {}
+    pol = _CAL['p']
+    spec = (pol.get('markets') or {}).get(market) if pol.get('active') is True else None
+    if not spec or position not in spec.get('positions', []):
+        return None
+    return {'method': spec['method'], 'params': spec['params'], 'version': pol['version']}
 
 
 def _apply_champion_v2(model, spec, usable, column, season, position):

@@ -57,7 +57,7 @@ def main(day):
     doc = {'schema': 'going-pregame-freeze-v1', 'slate_date': day, 'frozen_at': now.isoformat(timespec='seconds'), 'first_kickoff': kickoffs[0] if kickoffs else None,
            'git_head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=REPO).decode().strip(),
            'champion_policy': {'active': champion.get('active'), 'sha256': sha(REPO / 'config/champion_policy.json')},
-           'today_ranking_experiment': json.loads((REPO / 'research/today-ranking/experiment-v2.json').read_text(encoding='utf-8')).get('id'),
+           'today_ranking_experiment': json.loads((REPO / 'research/today-ranking/experiment-v3.json').read_text(encoding='utf-8')).get('id'),
            'profile_policy_counts': policies, 'profiles_with_scoring_role': scoring, 'scoring_role_ok': scoring >= 0.5 * max(1, len(history['profiles'])),
            'data': {f: {'sha256': sha(REPO / 'data' / f), 'generated_at': generated(REPO / 'data' / f)} for f in FILES if (REPO / 'data' / f).exists()},
            'shadow_files': shadows,

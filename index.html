@@ -3280,6 +3280,14 @@ function propProbabilities(p){
     over=1-below;
   }
   if(!finiteNumber(over) || !finiteNumber(under)) return null;
+  // Validated probability calibration (config/calibration_policy.json, attached to the model by the build). Applied to the no-push over share, only within +/-50% of the model mean.
+  const cal=model.calibration,center=model.family==="poisson"?model.lambda:model.mean;
+  if(cal&&cal.params&&finiteNumber(center)&&center>0&&line>=.5*center&&line<=1.5*center&&over+under>0){
+    const total=over+under,pc=Math.min(1-1e-6,Math.max(1e-6,over/total));let q=null;
+    if(cal.method==="platt"&&finiteNumber(cal.params.a)&&finiteNumber(cal.params.b))q=1/(1+Math.exp(-(cal.params.a+cal.params.b*Math.log(pc/(1-pc)))));
+    else if(cal.method==="shrink_const"&&finiteNumber(cal.params.w)&&finiteNumber(cal.params.target))q=cal.params.w*pc+(1-cal.params.w)*cal.params.target;
+    if(finiteNumber(q)&&q>0&&q<1){over=q*total;under=total-over;}
+  }
   return {over,under,push:Math.max(0,1-over-under)};
 }
 function evPercent(win, decimal, push=0){

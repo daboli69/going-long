@@ -1,0 +1,674 @@
+{
+ "reported_overall": {
+  "n": 5066,
+  "brier": 0.254,
+  "base_rate": 0.477,
+  "brier_base_rate_ref": 0.2494,
+  "skill_vs_base_rate": -0.018
+ },
+ "audited_code_rerun": {
+  "n": 5066,
+  "brier": 0.254,
+  "base_rate": 0.477
+ },
+ "rows_before_cross_group_dedup": 5675,
+ "by_group_rows": {
+  "all_projection": 2352,
+  "best_model": 3074,
+  "going_picks_v1": 130,
+  "going_picks_v2": 119
+ },
+ "independent_rebuild": {
+  "n": 5066,
+  "brier": 0.254,
+  "base_rate": 0.477,
+  "rows_group_level": 5675
+ },
+ "market_check": {
+  "atd": {
+   "reported_n": 545,
+   "rebuilt_n": 545,
+   "reported_brier": 0.1592,
+   "rebuilt_brier": 0.1592
+  },
+  "h2h": {
+   "reported_n": 191,
+   "rebuilt_n": 191,
+   "reported_brier": 0.2368,
+   "rebuilt_brier": 0.2368
+  },
+  "player_passing_tds": {
+   "reported_n": 155,
+   "rebuilt_n": 155,
+   "reported_brier": 0.2593,
+   "rebuilt_brier": 0.2593
+  },
+  "player_passing_yards": {
+   "reported_n": 334,
+   "rebuilt_n": 334,
+   "reported_brier": 0.2719,
+   "rebuilt_brier": 0.2719
+  },
+  "player_receiving_yards": {
+   "reported_n": 1420,
+   "rebuilt_n": 1420,
+   "reported_brier": 0.2733,
+   "rebuilt_brier": 0.2733
+  },
+  "player_receptions": {
+   "reported_n": 966,
+   "rebuilt_n": 966,
+   "reported_brier": 0.2641,
+   "rebuilt_brier": 0.2641
+  },
+  "player_rushing_yards": {
+   "reported_n": 657,
+   "rebuilt_n": 657,
+   "reported_brier": 0.2515,
+   "rebuilt_brier": 0.2515
+  },
+  "spreads": {
+   "reported_n": 346,
+   "rebuilt_n": 346,
+   "reported_brier": 0.2601,
+   "rebuilt_brier": 0.2601
+  },
+  "totals": {
+   "reported_n": 452,
+   "rebuilt_n": 452,
+   "reported_brier": 0.277,
+   "rebuilt_brier": 0.277
+  }
+ },
+ "group_check": {
+  "all_projection": {
+   "reported_n": 2352,
+   "rebuilt_n": 2352,
+   "reported_brier": 0.2579,
+   "rebuilt_brier": 0.2579
+  },
+  "best_model": {
+   "reported_n": 3074,
+   "rebuilt_n": 3074,
+   "reported_brier": 0.2485,
+   "rebuilt_brier": 0.2485
+  },
+  "going_picks_v1": {
+   "reported_n": 130,
+   "rebuilt_n": 130,
+   "reported_brier": 0.2474,
+   "rebuilt_brier": 0.2474
+  },
+  "going_picks_v2": {
+   "reported_n": 119,
+   "rebuilt_n": 119,
+   "reported_brier": 0.2552,
+   "rebuilt_brier": 0.2552
+  }
+ },
+ "bin_check": [
+  {
+   "bin": 0.0,
+   "reported_n": 162,
+   "reported_freq": 0.167,
+   "rebuilt_n": 162,
+   "rebuilt_freq": 0.167
+  },
+  {
+   "bin": 0.1,
+   "reported_n": 173,
+   "reported_freq": 0.266,
+   "rebuilt_n": 173,
+   "rebuilt_freq": 0.266
+  },
+  {
+   "bin": 0.2,
+   "reported_n": 342,
+   "reported_freq": 0.357,
+   "rebuilt_n": 342,
+   "rebuilt_freq": 0.357
+  },
+  {
+   "bin": 0.3,
+   "reported_n": 396,
+   "reported_freq": 0.369,
+   "rebuilt_n": 396,
+   "rebuilt_freq": 0.369
+  },
+  {
+   "bin": 0.4,
+   "reported_n": 584,
+   "reported_freq": 0.529,
+   "rebuilt_n": 584,
+   "rebuilt_freq": 0.529
+  },
+  {
+   "bin": 0.5,
+   "reported_n": 1468,
+   "reported_freq": 0.485,
+   "rebuilt_n": 1468,
+   "rebuilt_freq": 0.485
+  },
+  {
+   "bin": 0.6,
+   "reported_n": 1360,
+   "reported_freq": 0.528,
+   "rebuilt_n": 1360,
+   "rebuilt_freq": 0.528
+  },
+  {
+   "bin": 0.7,
+   "reported_n": 357,
+   "reported_freq": 0.549,
+   "rebuilt_n": 357,
+   "rebuilt_freq": 0.549
+  },
+  {
+   "bin": 0.8,
+   "reported_n": 145,
+   "reported_freq": 0.559,
+   "rebuilt_n": 145,
+   "rebuilt_freq": 0.559
+  },
+  {
+   "bin": 0.9,
+   "reported_n": 79,
+   "reported_freq": 0.722,
+   "rebuilt_n": 79,
+   "rebuilt_freq": 0.722
+  }
+ ],
+ "sensitivity": {
+  "pooled_ref_brier": 0.2494,
+  "per_market_side_ref_brier": 0.2383,
+  "skill_vs_pooled_base": -0.0182,
+  "skill_vs_per_market_side_base": -0.0659,
+  "family_dedup_n": 2203,
+  "family_dedup_brier": 0.2414,
+  "n_with_same_family_other_side_present": 4332
+ },
+ "store": {
+  "total_records": 29260,
+  "manifest_generated_at": "2026-10-09T20:22:05.404Z",
+  "head_ref": "17732b8b014ebe1c26c2d289ab031311a6f488d3"
+ },
+ "frames": {
+  "universe_rows": 5784,
+  "U_contract": 5066,
+  "G_group_contract": 5675,
+  "C_cohort_contract": 5310,
+  "F_family": 2203
+ },
+ "bin_90_100": {
+  "n": 79,
+  "win_rate": 0.7215189873417721,
+  "mean_p": 0.9400781596367677,
+  "mean_implied_raw": 0.6867984701822458,
+  "mean_american_median": -310.0,
+  "n_games": 35,
+  "n_players": 57,
+  "n_ref_rows": 16,
+  "mean_market_ref_where_available": 0.711882813155794,
+  "share_alt_proxy": 0.3291139240506329,
+  "share_american_gt_minus200": 0.3924050632911392,
+  "by_market": [
+   {
+    "market": "player_passing_yards",
+    "n": 2,
+    "win": 1.0,
+    "mean_p": 0.914,
+    "implied": 0.756
+   },
+   {
+    "market": "player_receiving_yards",
+    "n": 36,
+    "win": 0.722,
+    "mean_p": 0.943,
+    "implied": 0.695
+   },
+   {
+    "market": "player_receptions",
+    "n": 16,
+    "win": 0.562,
+    "mean_p": 0.94,
+    "implied": 0.642
+   },
+   {
+    "market": "player_rushing_yards",
+    "n": 22,
+    "win": 0.818,
+    "mean_p": 0.941,
+    "implied": 0.721
+   },
+   {
+    "market": "spreads",
+    "n": 3,
+    "win": 0.667,
+    "mean_p": 0.917,
+    "implied": 0.525
+   }
+  ],
+  "by_side": [
+   {
+    "side": "Away",
+    "n": 3,
+    "win": 0.667,
+    "mean_p": 0.917,
+    "implied": 0.525
+   },
+   {
+    "side": "Over",
+    "n": 26,
+    "win": 0.769,
+    "mean_p": 0.943,
+    "implied": 0.716
+   },
+   {
+    "side": "Under",
+    "n": 50,
+    "win": 0.7,
+    "mean_p": 0.94,
+    "implied": 0.681
+   }
+  ],
+  "by_group": [
+   {
+    "group": "all_projection",
+    "n": 32,
+    "win": 0.594,
+    "mean_p": 0.93,
+    "implied": 0.556
+   },
+   {
+    "group": "best_model",
+    "n": 45,
+    "win": 0.8,
+    "mean_p": 0.945,
+    "implied": 0.787
+   },
+   {
+    "group": "going_picks_v2",
+    "n": 2,
+    "win": 1.0,
+    "mean_p": 0.98,
+    "implied": 0.535
+   }
+  ],
+  "by_cohort": [
+   {
+    "cohort": "current-80-20",
+    "n": 23,
+    "win": 0.739,
+    "mean_p": 0.943,
+    "implied": 0.768
+   },
+   {
+    "cohort": "going-picks-v2",
+    "n": 2,
+    "win": 1.0,
+    "mean_p": 0.98,
+    "implied": 0.535
+   },
+   {
+    "cohort": "legacy",
+    "n": 54,
+    "win": 0.704,
+    "mean_p": 0.938,
+    "implied": 0.658
+   }
+  ],
+  "by_sport": [
+   {
+    "sport": "ncaa",
+    "n": 3,
+    "win": 0.667,
+    "mean_p": 0.917,
+    "implied": 0.525
+   },
+   {
+    "sport": "nfl",
+    "n": 76,
+    "win": 0.724,
+    "mean_p": 0.941,
+    "implied": 0.693
+   }
+  ],
+  "by_odds_band": [
+   {
+    "odds_band": "1.67\u20132.00",
+    "n": 27,
+    "win": 0.63,
+    "mean_p": 0.93,
+    "implied": 0.532
+   },
+   {
+    "odds_band": "2.01\u20133.00",
+    "n": 1,
+    "win": 1.0,
+    "mean_p": 0.988,
+    "implied": 0.465
+   },
+   {
+    "odds_band": "<1.67",
+    "n": 51,
+    "win": 0.765,
+    "mean_p": 0.945,
+    "implied": 0.773
+   }
+  ],
+  "by_book": [
+   {
+    "book": "BetMGM",
+    "n": 1,
+    "win": 1.0,
+    "mean_p": 0.929,
+    "implied": 0.524
+   },
+   {
+    "book": "BetRivers",
+    "n": 1,
+    "win": 1.0,
+    "mean_p": 0.912,
+    "implied": 0.528
+   },
+   {
+    "book": "Bovada",
+    "n": 10,
+    "win": 1.0,
+    "mean_p": 0.952,
+    "implied": 0.782
+   },
+   {
+    "book": "Caesars",
+    "n": 2,
+    "win": 1.0,
+    "mean_p": 0.919,
+    "implied": 0.553
+   },
+   {
+    "book": "DraftKings",
+    "n": 3,
+    "win": 0.333,
+    "mean_p": 0.95,
+    "implied": 0.524
+   },
+   {
+    "book": "FanDuel",
+    "n": 4,
+    "win": 0.5,
+    "mean_p": 0.913,
+    "implied": 0.585
+   },
+   {
+    "book": "Fanatics",
+    "n": 4,
+    "win": 0.5,
+    "mean_p": 0.928,
+    "implied": 0.593
+   },
+   {
+    "book": "Fliff",
+    "n": 1,
+    "win": 1.0,
+    "mean_p": 0.988,
+    "implied": 0.465
+   },
+   {
+    "book": "Novig",
+    "n": 27,
+    "win": 0.741,
+    "mean_p": 0.945,
+    "implied": 0.787
+   },
+   {
+    "book": "Parx Casino",
+    "n": 3,
+    "win": 0.0,
+    "mean_p": 0.925,
+    "implied": 0.571
+   },
+   {
+    "book": "Pinnacle",
+    "n": 2,
+    "win": 0.0,
+    "mean_p": 0.927,
+    "implied": 0.606
+   },
+   {
+    "book": "bet365",
+    "n": 21,
+    "win": 0.81,
+    "mean_p": 0.939,
+    "implied": 0.636
+   }
+  ],
+  "by_market_side_line": [
+   {
+    "market": "player_passing_yards",
+    "side": "Over",
+    "n": 2,
+    "win": 1.0,
+    "line_median": 199.5,
+    "line_min": 174.5,
+    "line_max": 224.5
+   },
+   {
+    "market": "player_receiving_yards",
+    "side": "Over",
+    "n": 15,
+    "win": 0.867,
+    "line_median": 14.5,
+    "line_min": 7.5,
+    "line_max": 40.5
+   },
+   {
+    "market": "player_receiving_yards",
+    "side": "Under",
+    "n": 21,
+    "win": 0.619,
+    "line_median": 24.5,
+    "line_min": 0.5,
+    "line_max": 99.5
+   },
+   {
+    "market": "player_receptions",
+    "side": "Over",
+    "n": 5,
+    "win": 0.2,
+    "line_median": 1.5,
+    "line_min": 0.5,
+    "line_max": 4.5
+   },
+   {
+    "market": "player_receptions",
+    "side": "Under",
+    "n": 11,
+    "win": 0.727,
+    "line_median": 1.5,
+    "line_min": 0.5,
+    "line_max": 5.5
+   },
+   {
+    "market": "player_rushing_yards",
+    "side": "Over",
+    "n": 4,
+    "win": 1.0,
+    "line_median": 19.5,
+    "line_min": 4.5,
+    "line_max": 39.5
+   },
+   {
+    "market": "player_rushing_yards",
+    "side": "Under",
+    "n": 18,
+    "win": 0.778,
+    "line_median": 7.5,
+    "line_min": 0.5,
+    "line_max": 79.5
+   },
+   {
+    "market": "spreads",
+    "side": "Away",
+    "n": 3,
+    "win": 0.667,
+    "line_median": -31.5,
+    "line_min": -34.5,
+    "line_max": -21.0
+   }
+  ],
+  "win_rate_cluster_boot_ci": [
+   0.6321687840290381,
+   0.8235492845786963
+  ],
+  "family_dedup_bin": {
+   "n": 40,
+   "win_rate": 0.75
+  },
+  "p_gap_to_implied": 0.25327968945452156
+ },
+ "regrade": {
+  "graded": 5805,
+  "match_results_json": 5805,
+  "mismatch_results_json": "{}",
+  "nfl_player_rows_settled_with_no_nflverse_stat_row": 127,
+  "sample_n": 50,
+  "sample_mismatch_results_json": 0,
+  "nflverse_checked": 4855,
+  "nflverse_match": 4855,
+  "nflverse_mismatch_by_market": "{}",
+  "nflverse_unavailable": 950,
+  "sample_nflverse_mismatch": 0
+ },
+ "no_row_sensitivity": [
+  {
+   "slice": "ALL",
+   "n_all": 5066,
+   "n_dropped": 112,
+   "brier_all": 0.25398178832746693,
+   "brier_ex": 0.25435125533702857,
+   "base_all": 0.47651006711409394,
+   "base_ex": 0.4784012918853452,
+   "n90_all": 79,
+   "n90_ex": 77,
+   "win90_all": 0.7215189873417721,
+   "win90_ex": 0.7142857142857143
+  },
+  {
+   "slice": "atd",
+   "n_all": 545,
+   "n_dropped": 27,
+   "brier_all": 0.15917703291123325,
+   "brier_ex": 0.1650267657065931,
+   "base_all": 0.20550458715596331,
+   "base_ex": 0.21621621621621623,
+   "n90_all": 0,
+   "n90_ex": 0,
+   "win90_all": null,
+   "win90_ex": null
+  },
+  {
+   "slice": "h2h",
+   "n_all": 191,
+   "n_dropped": 0,
+   "brier_all": 0.23683329794775937,
+   "brier_ex": 0.23683329794775937,
+   "base_all": 0.4712041884816754,
+   "base_ex": 0.4712041884816754,
+   "n90_all": 0,
+   "n90_ex": 0,
+   "win90_all": null,
+   "win90_ex": null
+  },
+  {
+   "slice": "player_passing_tds",
+   "n_all": 155,
+   "n_dropped": 0,
+   "brier_all": 0.25927863992337286,
+   "brier_ex": 0.25927863992337286,
+   "base_all": 0.5032258064516129,
+   "base_ex": 0.5032258064516129,
+   "n90_all": 0,
+   "n90_ex": 0,
+   "win90_all": null,
+   "win90_ex": null
+  },
+  {
+   "slice": "player_passing_yards",
+   "n_all": 334,
+   "n_dropped": 0,
+   "brier_all": 0.27186970489715656,
+   "brier_ex": 0.27186970489715656,
+   "base_all": 0.4820359281437126,
+   "base_ex": 0.4820359281437126,
+   "n90_all": 2,
+   "n90_ex": 2,
+   "win90_all": 1.0,
+   "win90_ex": 1.0
+  },
+  {
+   "slice": "player_receiving_yards",
+   "n_all": 1420,
+   "n_dropped": 48,
+   "brier_all": 0.27331487853283937,
+   "brier_ex": 0.2729151509948378,
+   "base_all": 0.5091549295774648,
+   "base_ex": 0.510932944606414,
+   "n90_all": 36,
+   "n90_ex": 34,
+   "win90_all": 0.7222222222222222,
+   "win90_ex": 0.7058823529411765
+  },
+  {
+   "slice": "player_receptions",
+   "n_all": 966,
+   "n_dropped": 32,
+   "brier_all": 0.2641229478911272,
+   "brier_ex": 0.2613330055111989,
+   "base_all": 0.5507246376811594,
+   "base_ex": 0.5513918629550322,
+   "n90_all": 16,
+   "n90_ex": 16,
+   "win90_all": 0.5625,
+   "win90_ex": 0.5625
+  },
+  {
+   "slice": "player_rushing_yards",
+   "n_all": 657,
+   "n_dropped": 5,
+   "brier_all": 0.2515198189278662,
+   "brier_ex": 0.25249355747851304,
+   "base_all": 0.5144596651445966,
+   "base_ex": 0.5107361963190185,
+   "n90_all": 22,
+   "n90_ex": 22,
+   "win90_all": 0.8181818181818182,
+   "win90_ex": 0.8181818181818182
+  },
+  {
+   "slice": "spreads",
+   "n_all": 346,
+   "n_dropped": 0,
+   "brier_all": 0.260074069819379,
+   "brier_ex": 0.260074069819379,
+   "base_all": 0.5028901734104047,
+   "base_ex": 0.5028901734104047,
+   "n90_all": 3,
+   "n90_ex": 3,
+   "win90_all": 0.6666666666666666,
+   "win90_ex": 0.6666666666666666
+  },
+  {
+   "slice": "totals",
+   "n_all": 452,
+   "n_dropped": 0,
+   "brier_all": 0.2770096943052125,
+   "brier_ex": 0.2770096943052125,
+   "base_all": 0.4557522123893805,
+   "base_ex": 0.4557522123893805,
+   "n90_all": 0,
+   "n90_ex": 0,
+   "win90_all": null,
+   "win90_ex": null
+  }
+ ]
+}
