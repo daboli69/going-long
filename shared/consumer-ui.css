@@ -99,3 +99,4 @@ body[data-going-workspace=long] .parlay-context{display:flex;flex-wrap:wrap;alig
 .g-trend-flat{color:var(--g-muted,#8fa3ad)}
 .g-spark{display:block}
 .g-trends li small{display:block;font-weight:700;font-size:13px}
+.g-last{font-weight:400;color:var(--g-muted,#8fa3ad)}

@@ -179,6 +179,11 @@ function assess(c,options={}){
  const opp=['Receiving','Rushing','TD'].includes(family)?opportunityProcess(c,o):null;
  if(opp?.usage){const text=situationText(opp.usage,family);if(text)facts.push([`Situational usage (${o.season} PBP, completed games)`,`${text}. ${opp.usage.games} games observed; counts exclude kneels, spikes and two-point tries.`]);}
  if(opp?.process){facts.push(['Opportunity vs production',opp.process.detail]);if(!opp.process.tdDriven||family==='TD')badges.push(opp.process.badge);}// a touchdown-luck badge only belongs on touchdown markets
+ // Missed time: a player who has appeared in far fewer games than his team has played is probably coming back from an injury or a role change; the recent sample may not describe him.
+ if(c.kind==='prop'&&row&&finite(row.games)&&finite(row.roster_week)&&row.roster_week-1-row.games>=2){
+  const text=`Appeared in ${row.games} of his team's ${row.roster_week-1} games this season: recent form rests on a short or interrupted sample.`;
+  facts.push(['Games played this season',text]);concerns.unshift(text);
+ }
  if(c.kind==='prop'&&row&&['RB','WR','TE'].includes(String(row.position||c.position).toUpperCase())&&o.injuryLearning?.current_players){
   const mates=Object.values(o.injuryLearning.current_players).filter(m=>team(m.team)===team(c.team)&&m.position===row.position&&m.gsis_id!==row.gsis_id&&finite(m.depth_rank)&&finite(row.depth_rank)&&m.depth_rank<row.depth_rank&&String(m.roster_status).toUpperCase()==='ACT');
   const reports=o.injuryLearning.current_reports||{},hurt=mates.map(m=>({m,r:reports[team(m.team)+'|'+clean(m.name)]})).find(x=>x.r&&/did not|dnp|out|doubtful/i.test(`${x.r.practice_status||''} ${x.r.report_status||''}`));

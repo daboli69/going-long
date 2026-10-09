@@ -87,3 +87,17 @@ test('collapse() merges same-thesis rows for display and keeps the best-rated fi
  const out=P.collapse(rows);assert.equal(out.length,2);assert.equal(out[0].related.length,1);assert.equal(out[0].related[0].candidate.market,'receptions');
  assert.match(P.card({...out[0],evidence:{...P.assess(c,o),rating:50,family:'Receiving',badges:[],components:[],ratingDetail:{strength:null},facts:[],unknown:[],concerns:[],why:'w',concern:'c',price:P.quote(c,o.now),key:'k'},offers:[]},{label:'x'}),/SAME THESIS/);
 });
+
+test('v3: missed time and an injured higher-depth teammate are surfaced; game lines cap at tier 3; sub-0.25-SD gaps earn nothing',()=>{
+ const players={'NO|player':{gsis_id:'p',position:'RB',roster_status:'ACT',depth_rank:2,games:2,roster_week:5,name:'Player'},'NO|starter':{gsis_id:'s',name:'Starter',team:'NO',position:'RB',roster_status:'ACT',depth_rank:1,games:4,roster_week:5}};
+ players['NO|player'].team='NO';
+ const reports={'NO|starter':{name:'Starter',practice_status:'Did Not Participate In Practice',report_status:null,primary_injury:'Hamstring'}};
+ const under={...c,market:'rush_yds',side:'Under',line:70.5,projMean:40,projSd:30,position:'RB'},opts={...o,injuryLearning:{current_players:players,current_reports:reports}};
+ const e=P.assess(under,opts);
+ assert.ok(e.concerns.some(x=>/Appeared in 2 of his team's 4 games/.test(x)));assert.ok(e.concerns.some(x=>/Starter \(depth 1, same position\) did not practice/.test(x)));assert.ok(e.components.some(x=>x.id==='teammate'&&x.points===-1));
+ assert.equal(P.assess({...under,side:'Over',projMean:100},opts).components.some(x=>x.id==='teammate'),false);// context only for an Over
+ const flat=P.assess({...c,projMean:56.5},o);assert.equal(flat.components.some(x=>x.id==='model'),false);assert.ok(flat.unknown.some(x=>/quarter of a standard deviation/.test(x)));
+ const neg=P.assess({...c,projMean:-0.3,projSd:3.5,line:.5,side:'Under'},o);assert.equal(neg.components.some(x=>x.id==='model'),false);
+ const game=P.assess({...c,kind:'game',sport:'nfl',market:'total',side:'Over',line:41.5,modelMean:50,modelSd:8,profileId:null},{...o,currentRoleEvidence:null,currentGameEvidence:{sport:'nfl',home:'NO',away:'ATL',season:2026,totalContext:50,homeGames:4,awayGames:4}});
+ assert.ok(game.evidenceTier<=3);assert.match(game.concern,/Game script|moves|line/i);
+});

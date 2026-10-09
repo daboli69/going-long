@@ -4735,7 +4735,31 @@ function roleWatchMarkup(game,slateGames=null){
  const shown=[...top('up'),...top('down')];
  if(!shown.length)return '<p class="role-watch-empty">No meaningful role changes among regular players in this game (last 6 games vs last 3).</p>';
  const last=n=>String(n).split(/\s+/).slice(1).join(' ')||n,names=state=>shown.filter(r=>r.rt.state===state).map(r=>last(r.p.name)).join(', ');
- return `<details class="role-watch-d" ${shown.length<=2?'open':''}><summary><b>Role watch${game?'':' · whole slate'}</b>${names('up')?` · ROLE ↑ ${esc(names('up'))}`:''}${names('down')?` · ROLE ↓ ${esc(names('down'))}`:''}</summary><ul>${shown.map(({p,rt})=>`<li class="role-${rt.state}"><b>${esc(p.name)}</b> <small>${esc(p.position)} · ${esc(p.team)}</small><span class="role-badge">${esc(rt.badge)}</span><span>${esc(rt.text)}</span> <a href="/players/?player=${encodeURIComponent(p.id)}">Player card</a></li>`).join('')}</ul><small>Public nflverse snap and usage data, last 6 games to last 3. A role change describes opportunity; it is not a forecast or a rating input.</small></details>`;
+ return `<details class="role-watch-d" ${shown.length<=2?'open':''}><summary><b>Role watch${game?'':' · whole slate'}</b>${names('up')?` · ROLE ↑ ${esc(names('up'))}`:''}${names('down')?` · ROLE ↓ ${esc(names('down'))}`:''}</summary><ul>${shown.map(({p,rt})=>`<li class="role-${rt.state}"><b>${esc(p.name)}</b> <small>${esc(p.position)} · ${esc(p.team)}</small><span class="role-badge" aria-label="${rt.state==='up'?'Gaining role':'Losing role'}">${esc(rt.badge)} ${rt.state==='up'?'Gaining':'Losing'}</span><span>${esc(rt.text)}</span> <a href="/players/?player=${encodeURIComponent(p.id)}">Player card</a></li>`).join('')}</ul><small>Public nflverse snap and usage data, last 6 games to last 3. A role change describes opportunity; it is not a forecast or a rating input.</small></details>`;
+}
+// Games page: what actually matters in this matchup, from the same primitives the cards use (role changes, scoring, injuries, the GOING board for this game).
+let GAME_INTEL_CACHE={at:0,board:null};
+function gameIntelBoard(){
+ const now=Date.now();if(GAME_INTEL_CACHE.board&&now-GAME_INTEL_CACHE.at<60000)return GAME_INTEL_CACHE.board;
+ try{GAME_INTEL_CACHE.board=GoingFootballPicks.board(goingPicksCandidates(now).filter(c=>c.sport==='nfl'),c=>({...confidenceEvidenceOptions(c),context:BET.context,injuryLearning:BET.injuryLearning}));GAME_INTEL_CACHE.at=now;}catch{GAME_INTEL_CACHE.board=null;}
+ return GAME_INTEL_CACHE.board;
+}
+function gameIntelMarkup(g){
+ if(!g||BET.sport!=='nfl'||!globalThis.GoingIntel||!BET.history?.profiles)return '';
+ const a=canonicalNflTeam(g.awayCode||g.away),h=canonicalNflTeam(g.homeCode||g.home),teams=new Set([a,h]),parts=[];
+ const scope=BET.context?.scopes?.[String(BET.context?.season)]?.teams||{};
+ const env=[a,h].map(t=>{const p=scope[t];return p&&Number.isFinite(p.plays_per_game)?`<li><b>${esc(t)}</b> ${p.games} games · ${p.plays_per_game.toFixed(1)} plays/game${Number.isFinite(p.pass_over_expected)?` · neutral-situation pass rate ${p.pass_over_expected>=0?'+':''}${(100*p.pass_over_expected).toFixed(1)}% vs expectation`:''}</li>`:'';}).join('');
+ if(env)parts.push(`<h4>Team environment</h4><ul>${env}</ul><small>Completed 2026 games; not opponent-adjusted.</small>`);
+ const role=roleWatchMarkup({away:a,home:h});if(role&&!/role-watch-empty/.test(role))parts.push(role);
+ const players=BET.injuryLearning?.current_players||{},reports=BET.injuryLearning?.current_reports||{},hurt=[];
+ for(const [key,r] of Object.entries(reports)){const p=players[key];if(!p||!teams.has(canonicalNflTeam(p.team))||!['QB','RB','WR','TE'].includes(p.position))continue;const text=`${r.practice_status||''} ${r.report_status||''}`;if(/did not|limited|out|doubtful|questionable/i.test(text))hurt.push(`<li><b>${esc(p.name)}</b> <small>${esc(p.position)} · ${esc(canonicalNflTeam(p.team))}</small> ${esc((r.report_status||r.practice_status||'').trim())}${r.primary_injury?` · ${esc(r.primary_injury)}`:''}</li>`);}
+ if(hurt.length)parts.push(`<h4>Skill-position availability</h4><ul>${hurt.slice(0,6).join('')}</ul><small>Weekly injury report; final inactives are not known until about 90 minutes before kickoff.</small>`);
+ const board=gameIntelBoard();
+ if(board){
+  const rows=GoingFootballPicks.collapse(board.picks.filter(x=>x.evidence.interesting&&!x.evidence.tdResearch&&teams.has(canonicalNflTeam(x.candidate.away))&&teams.has(canonicalNflTeam(x.candidate.home)))).slice(0,3);
+  if(rows.length)parts.push(`<h4>GOING's best cases here</h4><ul>${rows.map(x=>`<li><b>${esc(x.candidate.kind==='prop'?x.candidate.player:'Game')}</b> · ${esc(bestPlayLabel(x.candidate))} <span class="role-badge">${x.evidence.rating}/100</span><br><small>${esc(x.evidence.why)}</small></li>`).join('')}</ul><small>Football-case rating, not a probability or a price edge. Full cards on Today.</small>`);
+ }
+ return parts.join('')||'';
 }
 function renderGoingPicks(){
  if(!globalThis.GoingFootballPicks||!$('picksCards'))return;
