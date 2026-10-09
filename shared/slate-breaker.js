@@ -8,9 +8,11 @@ function row(selection){
  const f=selection.feature_snapshot||{};
  return `<tr><td data-label="Player/DST"><details class="sb-explain"><summary><strong>${esc(selection.name)}</strong> <small>${esc(selection.team)} · ${esc(selection.position)}</small></summary><h4>Why</h4>${(selection.evidence||[]).map(x=>`<p>${esc(x)}</p>`).join('')}<p>This game's modeled first-TD clock has a ${pct(f.first_td_by_5m_given_td)} chance to occur by 5:00, conditional on a touchdown.</p><details><summary>Show me the data</summary><dl><dt>First TD model</dt><dd>${esc(f.first_td_model)}</dd><dt>Clock median</dt><dd>${clock(f.median_first_td_seconds_given_td)} elapsed game time</dd><dt>Scoring input</dt><dd>${Number.isFinite(f.total)?f.total.toFixed(1):'Unavailable'} · ${esc(f.total_source)}</dd><dt>Player sample</dt><dd>${esc(f.first_td_profile_games)} recorded games</dd><dt>Roster status</dt><dd>${esc(f.active_roster_status)}</dd></dl></details></details></td><td data-label="Game">${esc(selection.game)}</td><td data-label="Slate Breaker %"><strong>${pct(selection.slate_breaker_probability)}</strong></td><td data-label="First TD %">${pct(selection.first_td_probability)}</td><td data-label="Estimate Confidence"><span class="sb-confidence">${esc(selection.confidence?.label)}</span><small>${esc(selection.confidence?.reason)}</small></td></tr>`;
 }
-function markup(data){
+const expired=(s,now)=>(s.games||[]).length>0&&s.games.every(g=>Date.parse(g.kickoff)+6*3600000<now);
+function markup(data,now=Date.now()){
  const s=data?.slate;
  if(!s)return '<p>Slate Breaker is unavailable. No probabilities have been invented.</p>';
+ if(expired(s,now))return `<p><strong>No current Slate Breaker slate.</strong> The last slate we modeled (${(s.games||[]).map(g=>esc(g.away+'-'+g.home)).join(', ')}) has been played, so its ranking is not shown as a current recommendation.</p>`;
  const selections=s.selections||[],leader=selections[0],games=s.games||[],validation=s.validation?.models?.[s.validation.selected]||{};
  const groups=games.map(game=>{
   const name=`${game.away}-${game.home}`,field=selections.filter(x=>x.game_id===game.id);

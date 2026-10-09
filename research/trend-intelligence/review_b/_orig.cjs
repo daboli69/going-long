@@ -44,11 +44,6 @@ function scaleModel(model,scale,uncertainty=1){
   const lambda=Math.max(0,(model.lambda??model.mean??0)*scale),sd=finite(model.sd)?model.sd*scale*uncertainty:Math.sqrt(lambda)*uncertainty;
   return {...next,lambda,mean:lambda,sd};
  }
- if(model.family==='lognormal'&&model.policy==='champion-v2'&&finite(model.mu_log)&&finite(model.sigma_log)){
-  // Champion v2 yardage keeps an explicit zero-mass: rebuilding sigma from the overall mean/sd as if all mass were positive erased the calibrated spread (QA D3; review B measured a 26% mean loss).
-  const sigma=model.sigma_log*uncertainty,mu=model.mu_log+Math.log(scale)-(sigma*sigma-model.sigma_log*model.sigma_log)/2,mean=Math.max(0,(model.mean??0)*scale);
-  return {...next,mean,sd:finite(model.sd)?model.sd*scale*uncertainty:model.sd,mu_log:mu,sigma_log:sigma};
- }
  if(model.family==='lognormal'){
   const mean=Math.max(0,(model.mean??0)*scale),sd=finite(model.sd)?Math.max(0,model.sd*scale*uncertainty):null;
   if(mean>0&&finite(sd)){

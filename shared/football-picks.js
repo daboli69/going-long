@@ -6,6 +6,7 @@
 const VERSION='football-case-v2';
 const FAMILIES={rec_yds:'Receiving',receptions:'Receiving',rush_yds:'Rushing',pass_yds:'Passing',pass_tds:'Passing',rush_tds:'TD',rec_tds:'TD',atd:'TD',spread:'Game',total:'Game',moneyline:'Game'};
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
+const intel=()=>root.GoingIntel||(typeof require!=='undefined'?require('./going-intel.js'):null);
 const clean=x=>String(x??'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const team=x=>({LAR:'LA',JAC:'JAX',WSH:'WAS'})[String(x||'').toUpperCase()]||String(x||'').toUpperCase();
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -100,7 +101,7 @@ function assess(c,options={}){
   if(finite(volume)&&volume>0){badges.push('VOLUME');facts.push(['Current opportunity',`${volume.toFixed(1)} ${family==='Receiving'?'targets':family==='Rushing'?'carries':'pass attempts'}/game (${role.games} observed games)`]);supports.push(facts.at(-1)[1]);}
   else if(pc)facts.push(['Observed offensive role',`${pc.player.games} games · ${finite(pc.player.target_share)?(100*pc.player.target_share).toFixed(1)+'% target share':'target share unknown'} · ${finite(pc.player.rush_share)?(100*pc.player.rush_share).toFixed(1)+'% rush share':'rush share unknown'}`]);
   else unknown.push('Current opportunity is unknown.');
-  if(pc?.trend&&direction){const points=direction*pc.trend;add('usage',points,`${pc.volume==='targets'?'Targets':'Carries'} moved ${pc.before.toFixed(1)} → ${pc.after.toFixed(1)} per observed game (two chronological groups of ${Math.floor(pc.rows.length/2)}+).`);badges.push(pc.trend>0?'ROLE UP':'ROLE DOWN');(points>0?supports:concerns).unshift(components.at(-1).detail);concerns.push('Short usage trend; opportunity counts do not prove a lasting role change or an injury cause.');}
+  if(pc?.trend&&direction){const points=direction*pc.trend;add('usage',points,`${pc.volume==='targets'?'Targets':'Carries'} moved ${pc.before.toFixed(1)} → ${pc.after.toFixed(1)} per observed game (two chronological groups of ${Math.floor(pc.rows.length/2)}+).`);badges.push((pc.volume==='targets'?'TARGETS ':'CARRIES ')+(pc.trend>0?'↑':'↓'));(points>0?supports:concerns).unshift(components.at(-1).detail);concerns.push('Short usage trend; opportunity counts do not prove a lasting role change or an injury cause.');}
   else unknown.push('Role trend needs at least two observed games in each period.');
   if(pc){facts.push(['Current PBP role cutoff',pc.player.last_game],['Snap / route distinction',`${finite(pc.player.share)?(100*pc.player.share).toFixed(1)+'% '+pc.player.share_type:'Unknown snap share'}; measured routes ${pc.player.routes==null?'unavailable':pc.player.routes}`]);if(finite(pc.player.expected_catches)&&finite(pc.player.actual_catches)&&pc.player.catch_model_targets>0){facts.push(['Expected versus actual catches',`${pc.player.expected_catches.toFixed(1)} CP-summed expected / ${pc.player.actual_catches} actual on ${pc.player.catch_model_targets} modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast.`]);}}
   if(c.market==='atd'&&role?.tdAppearances>0&&role.games>0){add('td_role',1,`Scored a rushing/receiving TD in ${role.tdAppearances}/${role.games} current appearances.`);supports.push(components.at(-1).detail);badges.push('TD ROLE');}
@@ -124,13 +125,11 @@ function assess(c,options={}){
  }
  if(c.kind==='prop'){
   facts.push(['Projection vs line',finite(c.projMean)?`GOING projects ${c.projMean.toFixed(1)} against a line of ${c.line}${c.market==='atd'?'':` (${c.side})`}.`:'No model projection is attached.']);
-  const t=c.roleTrend;
-  if(t){
-   const part=(label,x,scale,unit)=>x&&finite(x.l6)&&finite(x.l3)?`${label} ${(x.l6*scale).toFixed(0)}${unit} → ${(x.l3*scale).toFixed(0)}${unit}`:null;
-   const text=[part('Snap share',t.snap_share,1,'%'),part('Target share',t.target_share,100,'%'),part('Carry share',t.carry_share,100,'%')].filter(Boolean).join(' · ');
-   if(text)facts.push(['Role trend (last 6 games → last 3)',`${text}. ${t.flags?.includes('ROLE UP')?'The role has expanded recently.':t.flags?.includes('ROLE DOWN')?'The role has shrunk recently.':'No meaningful change.'} Descriptive public data; it earns no rating points.`]);
-   if(t.flags?.includes('ROLE UP'))badges.push('ROLE UP');
-   if(t.flags?.includes('ROLE DOWN')){badges.push('ROLE DOWN');concerns.push('Snap, target or carry share has fallen over the last three games versus the last six.');}
+  const rt=intel()?.roleTrend(c.roleTrend,c.position,c.market);
+  if(rt){
+   facts.push(['Role trend (last 6 games → last 3)',`${rt.text}. ${rt.sentence} Descriptive public data; it earns no rating points.`]);
+   if(rt.state==='up')badges.push(rt.badge);
+   if(rt.state==='down'){badges.push(rt.badge);concerns.push(`${rt.text}: the role has shrunk recently.`);}
   }
  }
  const opp=['Receiving','Rushing','TD'].includes(family)?opportunityProcess(c,o):null;
@@ -160,11 +159,24 @@ function board(rows,options){
   const chosen=offers[0];chosen.offers=offers.map(x=>({book:x.candidate.book,odds:x.candidate.odds,updatedAt:x.candidate.updatedAt}));chosen.alternatives=pool.length-offers.length;picks.push(chosen);
  }
  picks.sort((a,b)=>b.evidence.rating-a.evidence.rating||b.evidence.points-a.evidence.points||Date.parse(a.candidate.kickoff)-Date.parse(b.candidate.kickoff)||contractKey(a.candidate).localeCompare(contractKey(b.candidate)));
- return {version:VERSION,picks,excluded};
+ return {version:VERSION,picks:collapseTheses(picks),excluded};
 }
+// Cards that are the same football thesis (e.g. Over receiving yards and Over receptions for one player) show once, with the others listed as related.
+function collapseTheses(picks){
+ const seen=new Map(),out=[];
+ for(const row of picks){
+  const key=intel()?.thesisKey(row.candidate);
+  if(!key){out.push(row);continue;}
+  const first=seen.get(key);
+  if(first){(first.related=first.related||[]).push(row);continue;}
+  seen.set(key,row);out.push(row);
+ }
+ return out;
+}
+function relatedLabel(r){const c=r.candidate;return c.kind==='prop'?`${c.side} ${c.line} ${({rec_yds:'receiving yards',receptions:'receptions',pass_yds:'passing yards',pass_tds:'passing TDs',rush_yds:'rushing yards',rush_tds:'rushing TDs',rec_tds:'receiving TDs',atd:'anytime TD'})[c.market]||c.market}`:`${c.market} ${c.side} ${c.line}`;}
 function card(row,{label,key=row.evidence.key,rank=1,canSave=false}={}){
  const {candidate:c,evidence:e}=row,p=e.price,odds=c.odds>0?'+'+c.odds:String(c.odds),stamp=p.valid&&Number.isFinite(Date.parse(c.updatedAt))?new Date(c.updatedAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET':'Time unavailable';
- return `<article class="picks-card" data-pick-key="${esc(key)}"><div class="picks-head"><span>#${rank} · ${esc(e.family)}</span><span class="picks-rating">GOING <b>${e.rating}/100</b></span></div><h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><h4>${esc(label)}</h4><div class="picks-badges">${e.badges.map(x=>`<span>${esc(x)}</span>`).join('')}${e.tdResearch?'<span>TD ROLE RESEARCH</span>':''}</div><p class="picks-copy"><strong>WHY</strong>${esc(e.why)}</p><p class="picks-copy concern"><strong>CONCERN</strong>${esc(e.concern)}</p><div class="picks-market"><b>${p.valid?esc(c.book)+' '+esc(odds):'Price unavailable'}</b><small>${p.fresh?'Recently observed':'PRICE NEEDS REFRESH'} · ${esc(stamp)}</small>${e.priceCaution?`<small class="picks-caution">${esc(e.priceCaution)}</small>`:''}</div><details class="picks-detail" data-pick-detail="${esc(key)}"><summary>View research</summary><p>GOING ${e.rating}/100 is a heuristic football-case rating, not win chance or betting value. Model and current production overlap; unknown evidence earns zero points.</p><dl>${[...e.components.map(x=>[x.id,`${x.points>0?'+':''}${x.points}: ${x.detail}`]),['Rating detail',e.ratingDetail.strength===null?'Model spread unavailable; no within-tier refinement.':`Directional projection gap ${e.ratingDetail.gap.toFixed(2)} / model spread ${e.ratingDetail.sd.toFixed(2)}. Evidence tier ${e.evidenceTier} of 5; larger favorable gap refines within its 20-point band only.`],...e.facts,...e.unknown.map(x=>['Unknown',x]),...e.concerns.slice(1).map(x=>['Concern',x]),['Existing model estimate',`${(100*c.prob).toFixed(1)}% win / ${(100*(c.push||0)).toFixed(1)}% push; calibration not established`],['Sources',`${VERSION}; model ${c.profileDate||'team snapshot'}; ${c.n} recorded games`],['Price/value','No demonstrated sportsbook-pricing edge. Check this exact line; stale prices do not erase the football case.']].map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${row.offers?.length?`<p>Same-line offers: ${row.offers.map(x=>esc(x.book)+' '+esc(x.odds)).join(' · ')}</p>`:''}<p>Related player markets are correlated. ${row.alternatives||0} opposite/alternate/book observations remain in Markets.</p><a href="${c.profileId?'/players/?player='+encodeURIComponent(c.profileId):'/long/?mode=betting&tab=games'}">Full ${c.profileId?'player':'game'} research →</a></details><div class="picks-actions"><button type="button" data-picks-add="${esc(key)}" ${canSave&&p.saveable?'':'disabled'}>+ Compare / parlay</button></div></article>`;
+ return `<article class="picks-card" data-pick-key="${esc(key)}"><div class="picks-head"><span>#${rank} · ${esc(e.family)}</span><span class="picks-rating">GOING <b>${e.rating}/100</b></span></div><h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><h4>${esc(label)}</h4><div class="picks-badges">${e.badges.map(x=>`<span>${esc(x)}</span>`).join('')}${e.tdResearch?'<span>TD ROLE RESEARCH</span>':''}</div><p class="picks-copy"><strong>WHY</strong>${esc(e.why)}</p><p class="picks-copy concern"><strong>CONCERN</strong>${esc(e.concern)}</p><div class="picks-market"><b>${p.valid?esc(c.book)+' '+esc(odds):'Price unavailable'}</b><small>${p.fresh?'Recently observed':'PRICE NEEDS REFRESH'} · ${esc(stamp)}</small>${e.priceCaution?`<small class="picks-caution">${esc(e.priceCaution)}</small>`:''}</div>${row.related?.length?`<p class="picks-copy related"><strong>SAME THESIS</strong>${esc(row.related.map(relatedLabel).join(' · '))}</p>`:''}<details class="picks-detail" data-pick-detail="${esc(key)}"><summary>View research</summary><p>GOING ${e.rating}/100 is a heuristic football-case rating, not win chance or betting value. Model and current production overlap; unknown evidence earns zero points.</p><dl>${[...e.components.map(x=>[x.id,`${x.points>0?'+':''}${x.points}: ${x.detail}`]),['Rating detail',e.ratingDetail.strength===null?'Model spread unavailable; no within-tier refinement.':`Directional projection gap ${e.ratingDetail.gap.toFixed(2)} / model spread ${e.ratingDetail.sd.toFixed(2)}. Evidence tier ${e.evidenceTier} of 5; larger favorable gap refines within its 20-point band only.`],...e.facts,...e.unknown.map(x=>['Unknown',x]),...e.concerns.slice(1).map(x=>['Concern',x]),['Existing model estimate',`${(100*c.prob).toFixed(1)}% win / ${(100*(c.push||0)).toFixed(1)}% push; calibration not established`],['Sources',`${VERSION}; model ${c.profileDate||'team snapshot'}; ${c.n} recorded games`],['Price/value','No demonstrated sportsbook-pricing edge. Check this exact line; stale prices do not erase the football case.']].map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${row.offers?.length?`<p>Same-line offers: ${row.offers.map(x=>esc(x.book)+' '+esc(x.odds)).join(' · ')}</p>`:''}<p>Related player markets are correlated. ${row.alternatives||0} opposite/alternate/book observations remain in Markets.</p><a href="${c.profileId?'/players/?player='+encodeURIComponent(c.profileId):'/long/?mode=betting&tab=games'}">Full ${c.profileId?'player':'game'} research →</a></details><div class="picks-actions"><button type="button" data-picks-add="${esc(key)}" ${canSave&&p.saveable?'':'disabled'}>+ Compare / parlay</button></div></article>`;
 }
 root.GoingFootballPicks={VERSION,OPPORTUNITY_RULE,opportunityProcess,FAMILIES,gameKey,familyKey,contractKey,quote,playerContext,evidenceTier,granularRating,assess,board,card};if(typeof module!=='undefined')module.exports=root.GoingFootballPicks;
 })(globalThis);

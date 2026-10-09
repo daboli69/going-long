@@ -9,7 +9,7 @@ test('missing evidence is neutral, disagreement lowers support, model-only remai
 test('no fabricated ATD, First TD or rare-event model-direction credit',()=>{const e=P.assess({...c,market:'atd',side:'Yes',line:.5,prob:.95},o);assert.equal(e.points,0);assert.equal(e.tdResearch,true);assert.equal(e.interesting,false);assert.equal(P.assess({...c,market:'first_td'},o).eligible,false);});
 test('official reserve/inactive status, started games and invalid models cannot be picks',()=>{for(const status of ['RES','INA','PUP','IR','SUS'])assert.equal(P.assess(c,{...o,injuryLearning:{current_players:{'NO|player':{roster_status:status}}}}).eligible,false);for(const x of [{prob:null},{n:4},{kickoff:'2026-10-04T17:00:00Z'},{market:'rec_yds_1h'}])assert.equal(P.assess({...c,...x},o).eligible,false);});
 test('missing/stale/future/invalid prices do not erase a valid football thesis',()=>{for(const x of [{odds:null,dec:null},{updatedAt:'2026-10-01T12:00:00Z'},{updatedAt:'2026-10-06T12:00:00Z'},{dec:4}]){const e=P.assess({...c,...x},o);assert.equal(e.points,3);assert.equal(e.price.fresh,false);assert.equal(e.price.saveable,false);}});
-test('current usage trend requires exact player/team and two observed games in each period',()=>{const player={player_id:'p',team:'NO',season:2026,last_game:'2026-10-04',games:4},rows=[4,5,8,9].map((targets,i)=>({player_id:'p',team:'NO',date:['2026-09-13','2026-09-20','2026-09-27','2026-10-04'][i],targets})),context={generated_at:o.historyAt,scopes:{2026:{players:{p:player},player_game_usage:Object.fromEntries(rows.map((r,i)=>[i,r]))}}};assert.equal(P.assess(c,{...o,context}).points,4);assert.ok(P.assess(c,{...o,context}).badges.includes('ROLE UP'));delete context.scopes[2026].player_game_usage[0];assert.equal(P.assess(c,{...o,context}).points,3);context.scopes[2026].players.p.team='ATL';assert.equal(P.assess(c,{...o,context}).points,3);});
+test('current usage trend requires exact player/team and two observed games in each period',()=>{const player={player_id:'p',team:'NO',season:2026,last_game:'2026-10-04',games:4},rows=[4,5,8,9].map((targets,i)=>({player_id:'p',team:'NO',date:['2026-09-13','2026-09-20','2026-09-27','2026-10-04'][i],targets})),context={generated_at:o.historyAt,scopes:{2026:{players:{p:player},player_game_usage:Object.fromEntries(rows.map((r,i)=>[i,r]))}}};assert.equal(P.assess(c,{...o,context}).points,4);assert.ok(P.assess(c,{...o,context}).badges.includes('TARGETS ↑'));delete context.scopes[2026].player_game_usage[0];assert.equal(P.assess(c,{...o,context}).points,3);context.scopes[2026].players.p.team='ATL';assert.equal(P.assess(c,{...o,context}).points,3);});
 test('opportunity does not become a reward for box-score success or invented routes',()=>{const context={generated_at:o.historyAt,scopes:{2026:{players:{p:{player_id:'p',team:'NO',season:2026,last_game:'2026-09-27',games:3,routes:null,expected_catches:21,actual_catches:16,catch_model_targets:30}},player_game_usage:{}}}};const e=P.assess(c,{...o,context});assert.equal(e.points,3);assert.ok(e.facts.some(x=>x[1].includes('not expected yards')));assert.ok(e.facts.some(x=>x[1].includes('routes unavailable')));});
 test('NCAA game evidence never needs NFL player-role fields',()=>{const game={...c,kind:'game',sport:'ncaa',profileId:null,market:'total',side:'Under',line:48.5,modelMean:44},currentGameEvidence={sport:'ncaa',home:'NO',away:'ATL',season:2026,totalContext:45,homeGames:4,awayGames:4};const e=P.assess(game,{...o,currentRoleEvidence:null,currentGameEvidence});assert.equal(e.evidenceTier,3);assert.equal(e.eligible,true);});
 test('standard line, opposite sides and duplicate minute-shift/book observations are consolidated',()=>{const rows=[c,{...c,book:'Other',updatedAt:'2026-10-05T16:30:00Z',kickoff:'2026-10-06T00:16:00Z'},{...c,side:'Under',projMean:65,projSd:20,prob:.4},{...c,line:15.5,odds:-1000,dec:1.1,prob:.99}];const b=P.board(rows,o);assert.equal(b.picks.length,1);assert.equal(b.picks[0].candidate.line,55.5);assert.equal(b.picks[0].candidate.side,'Over');assert.equal(b.picks[0].candidate.book,'Other');});
@@ -33,11 +33,26 @@ test('projection refinement respects direction, market units, evidence caps and 
  const td=P.assess({...c,market:'atd',side:'Yes',line:.5}, {...o,currentRoleEvidence:{...o.currentRoleEvidence,tdAppearances:2}});assert.equal(td.ratingDetail.strength,null);assert.ok(td.rating<=40);
 });
 test('role trend and projection-vs-line appear as descriptive facts and add no rating points',()=>{
- const trend={games:8,snap_share:{l1:90,l3:84,l6:70,change_l3_vs_l6:14,change_l1_vs_l6:20},target_share:{l1:.25,l3:.23,l6:.18,change_l3_vs_l6:.05,change_l1_vs_l6:.07},flags:['ROLE UP']};
- const base=P.assess(c,o),up=P.assess({...c,roleTrend:trend},o);
+ const trend={games:8,snap_share:{l1:90,l3:84,l6:70},target_share:{l1:.25,l3:.23,l6:.18},carry_share:{l1:0,l3:0,l6:0}},w={...c,position:'WR'};
+ const base=P.assess(w,o),up=P.assess({...w,roleTrend:trend},o);
  assert.equal(up.points,base.points);assert.equal(up.rating,base.rating);
- const fact=up.facts.find(x=>x[0].startsWith('Role trend'));assert.match(fact[1],/Snap share 70% → 84%/);assert.match(fact[1],/Target share 18% → 23%/);assert.match(fact[1],/expanded/);
- assert.ok(up.badges.includes('ROLE UP'));assert.match(up.facts.find(x=>x[0]==='Projection vs line')[1],/projects 65\.0 against a line of 55\.5/);
- const down=P.assess({...c,roleTrend:{...trend,flags:['ROLE DOWN']}},o);assert.ok(down.badges.includes('ROLE DOWN'));assert.ok(down.concerns.some(x=>/fallen/.test(x)));
- assert.equal(P.assess({...c,roleTrend:null},o).facts.some(x=>x[0].startsWith('Role trend')),false);
+ const fact=up.facts.find(x=>x[0].startsWith('Role trend'));assert.match(fact[1],/Snap share 70% → 84%/);assert.match(fact[1],/Target share 18% → 23%/);assert.match(fact[1],/expanded/);assert.doesNotMatch(fact[1],/Carry/);
+ assert.ok(up.badges.includes('ROLE ↑'));assert.match(up.facts.find(x=>x[0]==='Projection vs line')[1],/projects 65\.0 against a line of 55\.5/);
+ const shrink={games:8,snap_share:{l1:50,l3:55,l6:70},target_share:{l1:.1,l3:.12,l6:.18}};
+ const down=P.assess({...w,roleTrend:shrink},o);assert.ok(down.badges.includes('ROLE ↓'));assert.ok(down.concerns.some(x=>/shrunk/.test(x)));
+ assert.equal(P.assess({...w,roleTrend:null},o).facts.some(x=>x[0].startsWith('Role trend')),false);
+ // A quarterback has no snap/target/carry-share role in passing markets: never a role badge.
+ assert.equal(P.assess({...w,position:'QB',roleTrend:shrink},o).badges.some(x=>x.startsWith('ROLE')),false);
+});
+test('GoingIntel picks only the role metrics that matter for the market',()=>{
+ const I=require('../shared/going-intel.js'),t={snap_share:{l3:60,l6:75},target_share:{l3:.1,l6:.2},carry_share:{l3:.3,l6:.5}};
+ assert.deepEqual(I.roleTrend(t,'WR','receptions').parts.map(x=>x.metric),['snap_share','target_share']);
+ assert.deepEqual(I.roleTrend(t,'RB','rush_yds').parts.map(x=>x.metric),['snap_share','carry_share']);
+ assert.equal(I.roleTrend(t,'QB','pass_yds'),null);assert.equal(I.roleTrend(t,'WR','pass_yds'),null);
+ assert.equal(I.roleTrend({snap_share:{l3:80,l6:80},carry_share:{l3:0,l6:0}},'WR','atd').parts.length,1);
+});
+test('Same-thesis cards collapse into one with the others listed',()=>{
+ const I=require('../shared/going-intel.js'),a={kind:'prop',away:'MIN',home:'NO',profileId:'p',market:'rec_yds',side:'Over'};
+ assert.equal(I.thesisKey(a),I.thesisKey({...a,market:'receptions'}));assert.notEqual(I.thesisKey(a),I.thesisKey({...a,side:'Under'}));assert.notEqual(I.thesisKey(a),I.thesisKey({...a,market:'atd'}));
+ const g={kind:'game',away:'MIN',home:'NO',market:'spread',side:'Away'};assert.equal(I.thesisKey(g),I.thesisKey({...g,market:'moneyline'}));assert.notEqual(I.thesisKey(g),I.thesisKey({...g,market:'total',side:'Over'}));
 });

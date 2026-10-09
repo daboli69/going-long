@@ -103,3 +103,15 @@ test('supported current blitz and QB target splits can bound replacement receivi
  const ctx=injuries.createContext({generated_at:generatedAt,players},profiles,now,evidence),result=injuries.adjustModel({model:model(100),name:'Replacement',team:'A',position:'WR',market:'rec_yds',opponent:'B',context:ctx});
  assert.equal(result.injury.roleBoost.schemeFactor,1.1);assert.ok(Math.abs(result.model.mean-111)<1e-9);assert.match(result.injury.reason,/B blitz mix changes the supported WR target tendency by 10%/);
 });
+
+test('Champion v2 yardage keeps its mean and zero mass when injury scale/uncertainty are applied',()=>{
+ const I=require('../shared/football-injuries.js');
+ const m={family:'lognormal',policy:'champion-v2',mu_log:3.2,sigma_log:.7,positive_weight:.9,nonpositive:[0],nonpositive_weights:[.1],mean:.9*Math.exp(3.2+.7*.7/2),sd:30};
+ for(const [scale,unc] of [[1,1.15],[.7,1],[1.3,1.3]]){
+  const a=I.scaleModel(m,scale,unc);
+  assert.ok(Math.abs(a.mean-m.mean*scale)<1e-9);assert.deepEqual(a.nonpositive_weights,m.nonpositive_weights);assert.equal(a.positive_weight,.9);
+  const trueMean=.9*Math.exp(a.mu_log+a.sigma_log**2/2);
+  if(unc===1)assert.ok(Math.abs(trueMean-m.mean*scale)<1e-6,'mean preserved when spread is unchanged');
+  assert.ok(a.sigma_log>=m.sigma_log-1e-12);
+ }
+});

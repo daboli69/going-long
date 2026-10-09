@@ -64,9 +64,9 @@ test('January retains the previous football season rather than misclassifying cu
  const jan='2027-01-02T12:00:00Z',opts={...options,now:Date.parse(jan),historyAt:jan,contextAt:jan,learningAt:jan};
  const c=role({profileDate:'2026-12-27',kickoff:'2027-01-03T17:00:00Z',updatedAt:jan,evidence:{opportunity:{season:2026,last_game:'2026-12-27',adjustedShare:.7,average:.5}}});assert.equal(assess(c,opts).group,'support');
 });
-test('Confidence presentation preserves frozen Champion/generator/C1/C2 hashes',t=>{
+test('Confidence presentation preserves the registered Champion/generator/C1/C2 hashes (today-ranking-v2)',t=>{
  const root=path.resolve(__dirname,'..'),s=openSource(root,at);t.after(()=>s.dom.window.close());
- const registry=require('../research/today-ranking/experiment-v1.json');
+ const registry=require('../research/today-ranking/experiment-v2.json');
  assert.equal(s.codeHashes.policy,registry.policyCodeHash);assert.equal(s.codeHashes.generator,registry.generatorCodeHash);
  assert.equal(require('../research/today-ranking/collect.cjs').textHash(fs.readFileSync(path.join(root,'shared/ranking-policies.cjs'))),registry.challengersSourceHash);
 });

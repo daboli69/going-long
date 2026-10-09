@@ -315,10 +315,10 @@ function evaluateObservations(observations, registration = REGISTERED) {
       'Today-settleable results cannot establish unrestricted Today ranking superiority.',
       'Log loss probabilities are clipped at 1e-12 for finite numerical reporting.', 'No ROI or CLV is computed.']};
 }
-function loadObservations(root) {
-  assertUnlocked();
+function loadObservations(root, registration = REGISTERED) {
+  assertUnlocked(Date.now(), registration);
   const challengerHash = crypto.createHash('sha256').update(fs.readFileSync(path.join(__dirname, '../../shared/ranking-policies.cjs'), 'utf8').replace(/\r\n/g, '\n')).digest('hex');
-  if (challengerHash !== REGISTERED.challengersSourceHash) throw Error('Challenger source differs from preregistration');
+  if (challengerHash !== registration.challengersSourceHash) throw Error('Challenger source differs from preregistration');
   const entries = fs.readdirSync(root, {withFileTypes: true});
   if (entries.some(e => !e.isDirectory() || !DAY.test(e.name))) throw Error('Unexpected journal root entry');
   const out = [];
@@ -336,9 +336,10 @@ function loadObservations(root) {
 }
 function main() {
   if (process.argv.length !== 3) throw Error('Usage: node research/today-ranking/evaluate.cjs JOURNAL_ROOT');
-  assertUnlocked(); // Before even listing journal files or reading raw outcomes.
-  const observations = loadObservations(path.resolve(process.argv[2]));
-  console.log(JSON.stringify(evaluateObservations(observations), null, 2));
+  const root = path.resolve(process.argv[2]), registration = /today-ranking-v1/.test(root) ? REGISTERED : require('./experiment-v2.json');
+  assertUnlocked(Date.now(), registration); // Before even listing journal files or reading raw outcomes.
+  const observations = loadObservations(root, registration);
+  console.log(JSON.stringify(evaluateObservations(observations, registration), null, 2));
 }
 module.exports = {assertUnlocked, eligiblePrimary, outcomeIndex, sameBookReference, score,
   selectedStats, reliability, intervals, evaluateObservations, loadObservations};

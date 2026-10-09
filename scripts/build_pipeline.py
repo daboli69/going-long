@@ -442,7 +442,21 @@ def fair_american(probability):
     return round(-100*probability/(1-probability) if probability >= .5 else 100*(1-probability)/probability)
 
 
-def first_td_game(game, profiles, features):
+UNAVAILABLE_STATUS = {'RES', 'INA', 'PUP', 'IR', 'SUS', 'RET', 'EXE'}
+
+
+def unavailable_players():
+    """Players the latest roster says are not active (reserve/injured/suspended/retired). From the previous run of scripts/injury_context.py (same data/ folder);
+    absent or unreadable file means no gate, never an invented one."""
+    path = Path(__file__).resolve().parents[1] / 'data' / 'injury_context.json'
+    try:
+        current = json.loads(path.read_text(encoding='utf-8')).get('current_players', {})
+    except (OSError, ValueError):
+        return set()
+    return {v['gsis_id'] for v in current.values() if v.get('gsis_id') and str(v.get('roster_status') or '').upper() in UNAVAILABLE_STATUS}
+
+
+def first_td_game(game, profiles, features, unavailable=frozenset()):
     m = game.get('model')
     if not m or not finite(m.get('total_mean')) or not finite(m.get('margin_mean')):
         return None
@@ -452,7 +466,7 @@ def first_td_game(game, profiles, features):
         t = features['nfl']['teams'].get(team, {})
         # 75% of points attributed to offensive TD drives, seven points/drive.
         expected_td = max(0, (m['total_mean'] + sign*m['margin_mean'])/2) * .75 / 7
-        available = {pid: p for pid, p in profiles.items() if p['team'] == team and p.get('position') in ('QB','RB','WR','TE','FB') and (datetime.now(timezone.utc).date()-datetime.fromisoformat(p['last_game']).date()).days <= 400}
+        available = {pid: p for pid, p in profiles.items() if pid not in unavailable and p['team'] == team and p.get('position') in ('QB','RB','WR','TE','FB') and (datetime.now(timezone.utc).date()-datetime.fromisoformat(p['last_game']).date()).days <= 400}
         scored, opening = {}, {}
         run_mix = 1 - (t.get('opening_pass_rate') if finite(t.get('opening_pass_rate')) else .55)
         for pid, p in available.items():
@@ -508,7 +522,8 @@ def build_derivatives(profiles, game_data, features):
                     'margin_mean':m['margin_mean']*margin_fraction, 'total_sd':m['total_sd']*math.sqrt(fraction*pace) if finite(m.get('total_sd')) else None,
                     'margin_sd':m['margin_sd']*math.sqrt(margin_fraction) if finite(m.get('margin_sd')) else None,
                     'method':'scaled early-pace baseline','calibrated':False,'pace_factor':pace}
-    first_td = {g['id']: model for g in game_data['nfl'] if (model := first_td_game(g, profiles, features))}
+    unavailable = unavailable_players()
+    first_td = {g['id']: model for g in game_data['nfl'] if (model := first_td_game(g, profiles, features, unavailable))}
     features['availability'].update(first_td_probability='baseline: two-stage competing hazards',period_probability='baseline: scaled moments and early pace')
     return {'schema_version':1, 'first_td':first_td,
             'assumptions':{'td_points_fraction':.75,'points_per_td_drive':7,'dst_hazard_share':.06,'other_offense_share':.05,
