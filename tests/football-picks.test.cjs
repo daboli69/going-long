@@ -63,7 +63,7 @@ test('Scoring role: tier, goal-line/red-zone badges and TD luck appear on touchd
  assert.deepEqual(I.scoringRole({...sr,gl_carry_pg_l12:.6},'RB','atd').badges,['SCORING ROLE','GOAL LINE','RED ZONE']);
  assert.equal(I.scoringRole({...sr,confidence:'low'},'RB','atd'),null);assert.equal(I.scoringRole(null,'RB','atd'),null);
  const td={...c,market:'atd',side:'Yes',line:.5,position:'RB',scoringRole:sr},e=P.assess(td,o);
- assert.ok(e.badges.includes('SCORING ROLE'));assert.ok(e.facts.some(x=>x[0]==='Scoring role'&&/primary scoring role/.test(x[1])));assert.ok(e.components.some(x=>x.id==='scoring_role'&&x.points===1));
+ assert.ok(e.badges.includes('SCORING ROLE'));assert.ok(e.facts.some(x=>x[0]==='Scoring role'&&/primary scoring role/i.test(x[1])));assert.ok(e.components.some(x=>x.id==='scoring_role'&&x.points===1));
  assert.ok(e.concerns.some(x=>/more than his opportunity predicts/.test(x)));
  assert.equal(P.assess({...c,position:'RB',scoringRole:sr},o).facts.some(x=>x[0]==='Scoring role'),false);// not a touchdown market
 });

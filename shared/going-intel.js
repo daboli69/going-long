@@ -38,6 +38,13 @@ function roleTrend(trend,position,market){
   sentence:state==='up'?'Role has expanded over the last three games versus the last six.':state==='down'?'Role has shrunk over the last three games versus the last six.':'No meaningful role change.'};
 }
 
+// Every role metric for a position with the last-6 / last-3 / last-1 values, for charts. Same thresholds as roleTrend.
+function roleSeries(trend,position){
+ const pos=String(position||'').toUpperCase();if(!trend||!pos||pos==='QB')return [];
+ const metrics=pos==='RB'?['snap_share','carry_share','target_share']:['snap_share','target_share'];
+ return metrics.map(m=>{const x=trend[m];if(!x||!finite(x.l6)||!finite(x.l3))return null;if(m!=='snap_share'&&x.l6<.02&&x.l3<.02)return null;
+  const change=x.l3-x.l6,limit=THRESHOLD[m];return {metric:m,label:LABEL[m],l6:x.l6,l3:x.l3,l1:finite(x.l1)?x.l1:null,change,state:change>=limit?'up':change<=-limit?'down':'flat',fmt:v=>fmt(m,v)};}).filter(Boolean);
+}
 // Scoring role (build: scripts/scoring_role.py, public nflverse play-by-play, games before the build date). Research JP-1..5: expected TDs per game by field zone, share of team
 // expected TDs and snap share predict anytime TD beyond the Champion rate (2025 holdout, log loss -4.2%); tiers separate anytime rates monotonically (PRIMARY .47 ... FRINGE .07).
 // First/last/longest-TD probabilities from it are still SHADOW; trends are not used (rejected).
@@ -49,7 +56,7 @@ function scoringRole(sr,position,market){
  if(['RB','QB'].includes(pos)&&finite(sr.gl_carry_pg_l12)&&sr.gl_carry_pg_l12>=.5)badges.push('GOAL LINE');
  if(['WR','TE','RB'].includes(pos)&&finite(sr.rz_tgt_pg_l12)&&sr.rz_tgt_pg_l12>=1)badges.push('RED ZONE');
  const luck=finite(sr.td_luck_l12)?sr.td_luck_l12:null,state=luck===null?null:luck>=.25?'above':luck<=-.25?'below':'even';
- const text=`${TIER_TEXT[sr.tier]}: ${Math.round(sr.xtd_share_l6*100)}% of his team's expected TDs (last 6 games), ${sr.xtd_pg_l12.toFixed(2)} expected TDs per game${finite(sr.td_pg_l12)?` against ${sr.td_pg_l12.toFixed(2)} scored`:''} over the last ${sr.n} games${finite(sr.snap_pct_l6)?`, ${Math.round(sr.snap_pct_l6*100)}% of offensive snaps`:''}`;
+ const tierText=TIER_TEXT[sr.tier][0].toUpperCase()+TIER_TEXT[sr.tier].slice(1),text=`${tierText}: ${Math.round(sr.xtd_share_l6*100)}% of his team's expected TDs (last 6 games), ${sr.xtd_pg_l12.toFixed(2)} expected TDs per game${finite(sr.td_pg_l12)?` against ${sr.td_pg_l12.toFixed(2)} scored`:''} over the last ${sr.n} games${finite(sr.snap_pct_l6)?`, ${Math.round(sr.snap_pct_l6*100)}% of offensive snaps`:''}`;
  const luckText=state==='above'?'He has scored more than his opportunity predicts, so his recent touchdown total overstates the role.':state==='below'?'He has scored less than his opportunity predicts: the role is better than his touchdown total.':null;
  return {tier:sr.tier,text,badges,luck:state,luckText,xtd:sr.xtd_pg_l12,share:sr.xtd_share_l6};
 }
@@ -66,6 +73,46 @@ function thesisKey(c){
  const group=GROUP[c.market];if(!group||!c.profileId)return null;
  return ['prop',c.away,c.home,c.profileId,group,String(c.side||'Over').toLowerCase()].join('|');
 }
-root.GoingIntel={RULE,relevantMetrics,roleTrend,scoringRole,thesisKey};
+
+// How the legs of a same-game ticket relate. Football logic and the signs of the measured fantasy-point correlations (QB-WR1 +.34, QB-WR2 +.25, QB-TE1 +.21); no joint probability is implied.
+const NAME={rec_yds:'receiving yards',receptions:'receptions',pass_yds:'passing yards',pass_tds:'passing TDs',rush_yds:'rushing yards',rush_tds:'rushing TDs',rec_tds:'receiving TDs',atd:'anytime TD',total:'game total',spread:'spread',moneyline:'moneyline'};
+const legName=l=>l.kind==='prop'?l.player:'Game';
+const legText=l=>l.market==='atd'?`${l.player} anytime TD`:l.kind==='prop'?`${l.player} ${String(l.side).toLowerCase()} ${l.line} ${NAME[l.market]||l.market}`:l.market==='total'?`${l.side} ${l.line}`:l.market==='moneyline'?`${l.side==='Home'?l.home:l.away} to win`:`${l.side==='Home'?l.home:l.away} spread`;
+const overVolume=l=>l.kind==='prop'&&l.side==='Over'&&['rec_yds','receptions','pass_yds','rush_yds'].includes(l.market);
+const passer=l=>l.kind==='prop'&&['pass_yds','pass_tds'].includes(l.market);
+const catcher=l=>l.kind==='prop'&&['rec_yds','receptions','rec_tds'].includes(l.market);
+function favoriteTeam(l){
+ if(l.kind!=='game')return null;
+ if(l.market==='moneyline')return l.dec<2?(l.side==='Home'?l.home:l.away):null;
+ if(l.market==='spread'){const homeLine=l.side==='Home'?l.line:-l.line;return l.side==='Home'?(homeLine<0?l.home:null):(homeLine>0?l.away:null);}
+ return null;
+}
+function legRelations(legs){
+ const out=[],list=Array.isArray(legs)?legs.filter(Boolean):[];
+ for(let i=0;i<list.length;i++)for(let j=i+1;j<list.length;j++){
+  const a=list[i],b=list[j];if(a.event!==b.event)continue;
+  const add=(kind,text)=>out.push({kind,legs:[i,j],text});
+  const ka=thesisKey(a);
+  if(ka&&ka===thesisKey(b)){add('same-thesis',`${legText(a)} and ${legText(b)} are one thesis: both win if the same volume shows up. Hitting one makes the other likelier, so they are not two independent edges.`);continue;}
+  if(passer(a)!==passer(b)&&(catcher(a)||catcher(b))&&a.team&&a.team===b.team){
+   const p=passer(a)?a:b,c=passer(a)?b:a;
+   if(p.side==='Over'&&c.side==='Over')add('complement',`${legText(p)} and ${legText(c)} both need the same passing offense to produce; QB and receiver outcomes are positively correlated (measured, about +.2 to +.3).`);
+   else if(p.side==='Over'&&c.side==='Under'||p.side==='Under'&&c.side==='Over')add('conflict',`${legText(p)} and ${legText(c)} pull in opposite directions: a big passing day usually means catches for his receivers.`);
+   continue;
+  }
+  const total=a.market==='total'?a:b.market==='total'?b:null,other=total===a?b:a;
+  if(total&&other!==total&&overVolume(other)){
+   if(total.side==='Under')add('conflict',`${legText(total)} expects a low-scoring game, which works against ${legText(other)}: fewer possessions mean fewer yards and catches.`);
+   else add('complement',`${legText(total)} supports ${legText(other)}: more scoring means more plays and more volume.`);
+   continue;
+  }
+  const fav=favoriteTeam(a)||favoriteTeam(b),game=favoriteTeam(a)?a:favoriteTeam(b)?b:null,prop=game===a?b:a;
+  if(fav&&prop.kind==='prop'&&prop.team===fav&&prop.market==='rush_yds'&&prop.side==='Over')add('complement',`${fav} winning supports ${legText(prop)}: teams with a lead run more late.`);
+  else if(fav&&prop.kind==='prop'&&prop.team&&prop.team!==fav&&prop.market==='rush_yds'&&prop.side==='Over')add('conflict',`${fav} winning works against ${legText(prop)}: a trailing team runs less.`);
+  else if(passer(a)&&passer(b)&&a.team!==b.team&&a.side==='Over'&&b.side==='Over')add('complement',`${legText(a)} and ${legText(b)} both benefit from a shootout, so they tend to hit together.`);
+ }
+ return out;
+}
+root.GoingIntel={RULE,relevantMetrics,roleTrend,roleSeries,scoringRole,thesisKey,legRelations};
 if(typeof module!=='undefined')module.exports=root.GoingIntel;
 })(globalThis);

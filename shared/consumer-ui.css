@@ -88,3 +88,14 @@ body[data-going-workspace=long] .score-driver-summary{grid-column:1/-1;min-width
 /* Editable football research draft: compact scope, bounded choices, native disclosure. */
 body[data-going-workspace=long] .parlay-context{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px;background:var(--g-surface,#12231e);border:1px solid var(--going-border);border-radius:12px;position:sticky;top:0;z-index:4}body[data-going-workspace=long] .parlay-context label{display:flex;gap:8px;align-items:center;flex-wrap:wrap}body[data-going-workspace=long] .parlay-context select{max-width:100%;min-height:44px}body[data-going-workspace=long] .parlay-context a{margin-left:auto;color:var(--g-text)}body[data-going-workspace=long] #parlayDraft{scroll-margin-top:110px}body[data-going-workspace=long] .parlay-ticket{max-width:820px;margin:12px auto}body[data-going-workspace=long] .parlay-leg{padding:12px 0;border-bottom:1px solid var(--going-border);overflow-wrap:anywhere}body[data-going-workspace=long] .parlay-leg h4{margin:0 0 8px}body[data-going-workspace=long] .parlay-leg p{margin:8px 0}body[data-going-workspace=long] .parlay-alternatives{display:grid;gap:8px}body[data-going-workspace=long] .parlay-alternatives button{text-align:left;white-space:normal;min-height:44px;overflow-wrap:anywhere}body[data-going-workspace=long] #btParlaysPanel details{margin:12px 0}body[data-going-workspace=long] #btParlaysPanel summary{min-height:44px;align-content:center;cursor:pointer}
 @media(max-width:600px){body[data-going-workspace=long] .parlay-context{gap:8px;font-size:.9rem}body[data-going-workspace=long] .parlay-context label{width:100%}body[data-going-workspace=long] #parlayGames{grid-template-columns:minmax(0,1fr)}body[data-going-workspace=long] #parlayControls{grid-template-columns:minmax(0,1fr)}body[data-going-workspace=long] .parlay-ticket{padding:12px}}
+.g-intel h3{margin:14px 0 4px;font-size:15px}
+.g-trends{list-style:none;margin:8px 0;padding:0;display:grid;gap:6px}
+.g-trends li{display:grid;grid-template-columns:1fr 64px 18px;align-items:center;gap:8px;font-size:14px}
+.g-trends.g-proj li{grid-template-columns:1fr auto}
+.g-trends em{font-style:normal;font-weight:700}
+.g-trend-up{color:var(--g-accent,#35e0c3)}
+.g-trend-down{color:#e0a43a}
+.g-trends li>span:first-child{color:var(--g-text,inherit)}
+.g-trend-flat{color:var(--g-muted,#8fa3ad)}
+.g-spark{display:block}
+.g-trends li small{display:block;font-weight:700;font-size:13px}

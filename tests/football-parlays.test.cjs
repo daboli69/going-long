@@ -179,3 +179,16 @@ test('Malformed quote metadata and extreme combined estimates never become ticke
  const tiny=[a,b].map(r=>({...r,prob:1e-300}));
  const underflow=summarize(tiny,tiny,settings);assert.equal(underflow.valid,false);assert.equal(underflow.decimal,null);assert.equal(underflow.boost,null);
 });
+
+test('Same-game legs are explained as complements, conflicts or the same thesis',()=>{
+ const I=require('../shared/going-intel.js'),g={event:'e',home:'NO',away:'MIN',kind:'prop',dec:1.9};
+ const qb={...g,player:'QB One',team:'MIN',market:'pass_yds',side:'Over',line:240.5},wr={...g,player:'WR One',profileId:'w1',team:'MIN',market:'rec_yds',side:'Over',line:60.5};
+ assert.equal(I.legRelations([qb,wr])[0].kind,'complement');
+ assert.equal(I.legRelations([qb,{...wr,side:'Under'}])[0].kind,'conflict');
+ const under={event:'e',home:'NO',away:'MIN',kind:'game',market:'total',side:'Under',line:44.5},over={...under,side:'Over'};
+ assert.equal(I.legRelations([under,wr])[0].kind,'conflict');assert.equal(I.legRelations([over,wr])[0].kind,'complement');
+ const fav={event:'e',home:'NO',away:'MIN',kind:'game',market:'moneyline',side:'Away',line:0,dec:1.5},rb={...g,player:'RB One',team:'MIN',market:'rush_yds',side:'Over',line:60.5};
+ assert.equal(I.legRelations([fav,rb])[0].kind,'complement');assert.equal(I.legRelations([fav,{...rb,team:'NO'}])[0].kind,'conflict');
+ assert.deepEqual(I.legRelations([wr,{...wr,event:'other'}]),[]);// different games are independent
+ assert.equal(I.legRelations([wr,{...wr,market:'receptions',line:5.5}])[0].kind,'same-thesis');
+});
