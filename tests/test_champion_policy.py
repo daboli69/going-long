@@ -233,3 +233,13 @@ class RoleTrendTests(unittest.TestCase):
         self.assertIsNone(bp.role_trend('p', games_list[:2], snaps, team_week), 'fewer than three games gives no trend')
         flat = bp.role_trend('p', [dict(g, targets=5) for g in games_list], {k: .7 for k in snaps}, team_week)
         self.assertEqual(flat['flags'], [])
+
+
+class CalibrationAttachmentTests(unittest.TestCase):
+    def test_only_validated_markets_and_positions_carry_calibration(self):
+        for market, pos, expected in [('receptions', 'WR', True), ('receptions', 'TE', True), ('receptions', 'RB', True), ('receptions', 'QB', False),
+                                      ('pass_yds', 'QB', True), ('pass_yds', 'WR', False), ('rec_yds', 'WR', False), ('rush_yds', 'RB', False), ('atd', 'WR', False), ('rush_tds', 'RB', False)]:
+            cal = bp._calibration_for(market, pos)
+            self.assertEqual(cal is not None, expected, (market, pos))
+            if cal:
+                self.assertEqual(cal['version'], 'cal-b-2026.10.09-v1')

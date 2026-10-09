@@ -59,7 +59,7 @@ export function freezePredictions(records,plays,observedAt){
   const payload={id,tracking_group:group,event:row.event,selection:contract,canonical_contract:contract,sport:row.sport,home:row.home,away:row.away,kickoff:row.kickoff,player:row.kind==='prop'?row.player:null,profile_id:row.profileId||null,market,line:row.line,side:row.side,side_index:['Under','Away'].includes(row.side)?1:0,book:row.book,odds:row.dec,american:row.odds,probability:row.prob,ev:row.ev,odds_band:oddsBand(row.dec),observed_at:observedAt,quoted_at:row.updatedAt,model_version:'public-tracker-1',model_evidence:{n:row.n??null,profileDate:row.profileDate??null,push:row.push??0,gameSeasonEvidence:row.gameSeasonEvidence??null,seasonEvidence:row.seasonEvidence??null,roleEvidence:row.roleEvidence??null},provenance:row.provenance||null};
   const readiness=row.readiness_snapshot;if(validReadinessReceipt(readiness,row,row.provenance,observedAt))payload.readiness_snapshot=readiness;
   payload.model_cohort=cohort;payload.model_version='board-research-3';
-  payload.model_evidence={...payload.model_evidence,reference:row.reference||null,projection_mean:row.projMean??null,projection_sd:row.projSd??null,workload:row.workloadEvidence||null};
+  payload.model_evidence={...payload.model_evidence,calibration:row.calibration||null,reference:row.reference||null,projection_mean:row.projMean??null,projection_sd:row.projSd??null,workload:row.workloadEvidence||null};
   payload.calibration_shadow=shadowPrediction(payload,training);
   if(PICK_VERSIONS[group]){
    const receipt=row.picks_snapshot;
