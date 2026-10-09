@@ -3,30 +3,30 @@
 // Showdown field model: projected Captain / FLEX ownership and lineup duplication risk.
 // The code is public; the COEFFICIENTS are not. They come from a private file (showdown_models.json) derived from licensed stat-api contest history, which the user loads
 // from their own disk in the browser. Nothing here fetches, stores or embeds that data. Without the file every function returns null and the DFS page works as before.
-// Validation (archived contests of 2025-26, models fitted on earlier contests): Captain ownership MAE 1.0 percentage point (naive 2.8), FLEX 4.1 (naive 11.7);
-// the duplication model orders lineups (lowest predicted decile: median 2 copies, 45% unique; highest: median 23 copies, 3% unique).
+// Validation: see showdown_models_report.json (models fitted on contests before 2025, scored on 2025-26 contests).
+const ENTRIES_RANGE=[11000,90000]; // field sizes seen in training; the entries feature is clamped to this range
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const state={models:null,loadedAt:null};
 
 function load(json){
  let data=json;if(typeof json==='string'){try{data=JSON.parse(json);}catch{return {ok:false,reason:'The file is not valid JSON.'};}}
- if(!data||data.schema!=='going-private-showdown-models-v1'||!data.ownership?.CPT?.table||!data.ownership?.FLEX?.table||!data.duplication?.coef)return {ok:false,reason:'This is not a GOING private Showdown model file.'};
+ if(!data||data.schema!=='going-private-showdown-models-v2'||!data.ownership?.CPT?.table||!data.ownership?.FLEX?.table||!data.duplication?.coef||!Array.isArray(data.duplication.decile_edges)||data.duplication.decile_edges.length!==9||!Array.isArray(data.duplication.decile_median_copies)||data.duplication.decile_median_copies.length!==10||!Array.isArray(data.duplication.decile_unique_share)||data.duplication.decile_unique_share.length!==10)return {ok:false,reason:'This is not a GOING private Showdown model file.'};
  state.models=data;state.loadedAt=Date.now();return {ok:true};
 }
 function clear(){state.models=null;state.loadedAt=null;}
 function ready(){return Boolean(state.models);}
 
 const group=position=>position==='QB'?'QB':(position==='DST'||position==='K')?'DK':'SKILL';
-// Adds ownership (% of the field) to every Showdown pool row: rank inside the role by salary, table lookup, normalised so Captain sums to 100% and FLEX to 500%.
+// Adds ownership (% of the field) to every Showdown pool row. Exactly as in training: ALL pool rows with a salary are ranked (injured/unavailable players included), the rank is
+// 1 + number of same-role players with strictly higher salary (ties share the best rank, so row order never matters), then a table lookup normalised so Captain sums to 100% and FLEX to 500%.
 function annotate(players){
  if(!state.models)return players;
  for(const role of ['CPT','FLEX']){
-  const model=state.models.ownership[role],rows=players.filter(p=>p.showdownRole===role&&finite(p.salary)&&!p.unavailable);
+  const model=state.models.ownership[role],rows=players.filter(p=>p.showdownRole===role&&finite(p.salary));
   if(!rows.length)continue;
-  const ranked=rows.slice().sort((a,b)=>b.salary-a.salary||String(a.id).localeCompare(String(b.id)));
-  const raw=new Map();let total=0;
-  ranked.forEach((p,i)=>{const bin=Math.min(i,model.bins-1),value=model.table[group(p.position)][bin];raw.set(p,value);total+=value;});
-  ranked.forEach((p,i)=>{p.fieldRank=i+1;p.fieldRankPct=(i+1)/ranked.length;p.ownership=total>0?Math.min(100,raw.get(p)*model.total/total):null;p.ownershipRole=role;});
+  const salaries=rows.map(p=>p.salary),raw=new Map();let total=0;
+  for(const p of rows){const rank=1+salaries.filter(s=>s>p.salary).length,value=model.table[group(p.position)][Math.min(rank-1,model.bins-1)];p.fieldRank=rank;p.fieldRankPct=rank/rows.length;raw.set(p,value);total+=value;}
+  for(const p of rows){p.ownership=total>0?Math.min(100,raw.get(p)*model.total/total):null;p.ownershipRole=role;}
  }
  return players;
 }
@@ -41,14 +41,16 @@ function lineupFeatures(lineup,entries){
  return {cpt_own:captain.ownership,sum_flex_own:flexOwn.reduce((a,b)=>a+b,0),min_flex_own:Math.min(...flexOwn),
   log_prod_own:Math.log(Math.max(captain.ownership,.05)/100)+flexOwn.reduce((s,o)=>s+Math.log(Math.min(100,Math.max(o,.05))/100),0),
   unused:50000-salary,cpt_salary_rank_pct:captain.fieldRankPct,max_team:maxTeam,
-  n_stars:flex.filter(p=>p.fieldRankPct<=.1).length+(captain.fieldRankPct<=.1?1:0),cpt_pos_QB:captain.position==='QB'?1:0,log_entries:Math.log(entries)};
+  n_stars:flex.filter(p=>p.fieldRankPct<=.1).length+(captain.fieldRankPct<=.1?1:0),cpt_pos_QB:captain.position==='QB'?1:0,log_entries:Math.log(Math.min(ENTRIES_RANGE[1],Math.max(ENTRIES_RANGE[0],entries)))};
 }
-// Expected number of identical lineups in the field (including this one) and a coarse band taken from the validation deciles.
+// Expected number of identical lineups (including this one) and where the lineup sits among archived field lineups. The decile tables come from held-out archived contests
+// scored by a model fitted on earlier contests only. The model ranks lineups; it is not an exact count (expectedCopies is a mean and the real counts are heavy-tailed).
 function duplication(lineup,entries=30000){
  if(!state.models)return null;const spec=state.models.duplication,f=lineupFeatures(lineup,entries);if(!f)return null;
  const x=spec.features.map(name=>f[name]),z=zscore(x,spec),logDup=spec.intercept+z.reduce((s,v,i)=>s+v*spec.coef[i],0),copies=Math.exp(logDup+.5*spec.resid_sd**2);
- return {logDup,expectedCopies:copies,band:copies<3?'low':copies<8?'moderate':'high',entries,
-  note:'Expected identical lineups in a field of this size, from salary structure and projected ownership. Validated as a ranking of lineups, not as an exact count.'};
+ const decile=1+spec.decile_edges.filter(e=>e<copies).length,band=decile<=3?'lower':decile<=7?'typical':'higher';
+ return {logDup,expectedCopies:copies,decile,band,medianCopies:spec.decile_median_copies[decile-1],uniqueShare:spec.decile_unique_share[decile-1],entries:Math.min(ENTRIES_RANGE[1],Math.max(ENTRIES_RANGE[0],entries)),
+  note:'Ranks lineups by predicted duplication. In archived 2025-26 contests, field lineups in this decile had the median copies and unique share shown (group statistics, not a prediction for this lineup). Field size is clamped to 11,000-90,000 entries.'};
 }
 function lineupOwnership(lineup){
  const captain=lineup.find(p=>p.slot==='CPT'||p.slot==='MVP'),flex=lineup.filter(p=>p!==captain);
@@ -64,6 +66,6 @@ function objective(kind,moments,lineup,entries){
  if(kind==='best')return dup?ceiling-WEIGHTS.lambda*dup.logDup:ceiling;
  return ceiling;
 }
-root.GoingDfsField={SCHEMA:'going-private-showdown-models-v1',WEIGHTS,load,clear,ready,annotate,lineupFeatures,duplication,lineupOwnership,objective,state};
+root.GoingDfsField={SCHEMA:'going-private-showdown-models-v2',WEIGHTS,load,clear,ready,annotate,lineupFeatures,duplication,lineupOwnership,objective,state};
 if(typeof module!=='undefined')module.exports=root.GoingDfsField;
 })(globalThis);

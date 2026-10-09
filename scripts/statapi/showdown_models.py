@@ -24,7 +24,7 @@ def pool_features(pool):
     out = pool.copy()
     out['role'] = np.where(out.slot.isin(['CPT', 'MVP']), 'CPT', 'FLEX')
     g = out.groupby(['contest_id', 'role'])
-    out['salary_rank'] = g.salary.rank(ascending=False, method='first')
+    out['salary_rank'] = g.salary.rank(ascending=False, method='min')  # 1 + number of strictly higher salaries; row order (which correlated with results) never matters
     out['rank_pct'] = out.salary_rank / g.salary.transform('size')
     out['salary_share'] = out.salary / g.salary.transform('sum')
     out['log_salary'] = np.log(out.salary.clip(lower=100))
@@ -105,14 +105,36 @@ class TableOwnership:
         return (raw * TOTAL[self.role] / total).clip(0, 100).to_numpy()
 
     def export(self):
-        return {'kind': 'rank_table', 'bins': BINS, 'table': self.table, 'total': TOTAL[self.role], 'note': 'rank = 1 + number of same-role players with higher salary; last bin covers all lower ranks'}
+        return {'kind': 'rank_table', 'bins': BINS, 'table': self.table, 'total': TOTAL[self.role], 'note': 'rank = 1 + number of same-role players with strictly higher salary (ties share the best rank); last bin covers all lower ranks'}
 
 
-def load_showdown(root):
+def degenerate_contests(root, sd):
+    """Contest ids unusable for training/backtest: <10 distinct salaries, zero archived payout, or a partial pool (CPT total <97% or FLEX total <480%)."""
+    bad = {}
+    for cid, g in sd.groupby('contest_id'):
+        why = []
+        if g.salary.nunique() < 10:
+            why.append('salaries')
+        if g[g.slot.isin(['CPT', 'MVP'])].cpt_field_pct.sum() < 97 or g[~g.slot.isin(['CPT', 'MVP'])].flex_field_pct.sum() < 480:
+            why.append('partial_pool')
+        try:
+            v = json.load(open(Path(root) / 'normalized' / f'contest_{cid}' / 'validation.json', encoding='utf-8'))
+            if not v.get('total_payout_cents'):
+                why.append('zero_payout')
+        except OSError:
+            why.append('no_validation')
+        if why:
+            bad[cid] = why
+    return bad
+
+
+def load_showdown(root, keep_degenerate=False):
     root = Path(root)
     df = pd.read_parquet(root / 'ownership_frame.parquet')
     sd = df[df.game_type == 'showdown'].copy()
     sd = sd[sd.salary.notna() & sd.position.notna() & sd.team.notna()]
+    if not keep_degenerate:
+        sd = sd[~sd.contest_id.isin(degenerate_contests(root, sd))]
     return pool_features(sd)
 
 
@@ -130,17 +152,22 @@ def fit_ownership(sd):
 
 
 def oof_ownership(sd):
-    """Out-of-fold predicted CPT/FLEX ownership for every archived row (contest-grouped folds) so the duplication model never sees actual ownership."""
+    """Pre-lock predicted CPT/FLEX ownership for every archived row, never using the row's own contest, and for holdout contests (>= HOLDOUT_FROM) only contests BEFORE it.
+    Training contests: contest-grouped 5-fold inside the pre-holdout data. Holdout contests: table fitted on all pre-holdout contests."""
     sd = sd.copy()
-    ids = sorted(sd.contest_id.unique())
+    pre = sd.date < HOLDOUT_FROM
+    ids = sorted(sd[pre].contest_id.unique())
     sd['fold'] = sd.contest_id.map({c: i % 5 for i, c in enumerate(ids)})
     sd['own_pred'] = np.nan
     for role, target in (('CPT', 'cpt_field_pct'), ('FLEX', 'flex_field_pct')):
+        rr = sd[(sd.role == role) & sd[target].notna()]
         for f in range(5):
-            tr = sd[(sd.role == role) & (sd.fold != f) & sd[target].notna()]
-            te = sd[(sd.role == role) & (sd.fold == f)]
-            m = TableOwnership(role).fit(tr, target)
+            m = TableOwnership(role).fit(rr[pre.reindex(rr.index) & (rr.fold != f)], target)
+            te = sd[(sd.role == role) & pre & (sd.fold == f)]
             sd.loc[te.index, 'own_pred'] = m.predict(te)
+        m = TableOwnership(role).fit(rr[pre.reindex(rr.index)], target)
+        te = sd[(sd.role == role) & ~pre]
+        sd.loc[te.index, 'own_pred'] = m.predict(te)
     return sd
 
 
@@ -203,20 +230,26 @@ class DupModel:
 
 
 def fit_duplication(lineups):
+    """Holdout evaluation uses a model fitted on pre-holdout lineups only. The decile tables (edges of predicted expected copies, actual median copies and P(unique) per decile)
+    come from that same train-only model on the holdout lineups, and are stored with the exported (all-data) model for the UI."""
     train, test = lineups[lineups.date < HOLDOUT_FROM], lineups[lineups.date >= HOLDOUT_FROM]
     m = DupModel().fit(train[DUP_FEATURES], train.dup)
     pl = m.predict_log(test[DUP_FEATURES])
     t = np.log(test.dup.to_numpy())
-    # scale by field size: dup counts grow with the field, which the log_entries feature already carries
+    cop = np.exp(pl + .5 * m.resid_sd ** 2)
+    edges = [float(x) for x in np.quantile(cop, [i / 10 for i in range(1, 10)])]
+    q = np.searchsorted(np.array(edges), cop, side='left')  # 0..9, same rule as the JS: decile = 1 + number of edges strictly below the value
+    d = test.dup.to_numpy()
     report = {'train_lineups': int(len(train)), 'test_lineups': int(len(test)), 'test_contests': int(test.contest_id.nunique()),
               'corr_log': float(np.corrcoef(pl, t)[0, 1]), 'mae_log': float(np.abs(pl - t).mean()), 'mae_log_constant': float(np.abs(t - np.log(train.dup).mean()).mean()),
-              'rank_corr': float(pd.Series(pl).corr(pd.Series(t), method='spearman'))}
-    # decision-relevant check: lineups the model calls low-duplication (bottom decile) vs top decile, actual duplicate counts
-    q = pd.qcut(pl, 10, labels=False, duplicates='drop')
-    report['actual_median_dup_by_predicted_decile'] = [float(np.median(test.dup.to_numpy()[q == d])) for d in sorted(set(q))]
-    report['actual_unique_share_by_predicted_decile'] = [float((test.dup.to_numpy()[q == d] == 1).mean()) for d in sorted(set(q))]
-    final = DupModel().fit(lineups[DUP_FEATURES], lineups.dup)
-    return final.export(), report
+              'rank_corr': float(pd.Series(pl).corr(pd.Series(t), method='spearman')), 'resid_sd_train': m.resid_sd,
+              'decile_edges': edges, 'actual_median_copies_by_predicted_decile': [float(np.median(d[q == k])) for k in range(10)],
+              'actual_mean_copies_by_predicted_decile': [float(d[q == k].mean()) for k in range(10)], 'predicted_mean_copies_by_predicted_decile': [float(cop[q == k].mean()) for k in range(10)],
+              'p_unique_by_predicted_decile': [float((d[q == k] == 1).mean()) for k in range(10)]}
+    final = DupModel().fit(lineups[DUP_FEATURES], lineups.dup).export()
+    final.update({'decile_edges': edges, 'decile_median_copies': report['actual_median_copies_by_predicted_decile'], 'decile_unique_share': report['p_unique_by_predicted_decile'],
+                  'decile_basis': 'holdout lineups of 2025-26 scored by a model fitted on earlier contests only'})
+    return final, report
 
 
 def main(root):
@@ -225,7 +258,7 @@ def main(root):
     sd = oof_ownership(sd)
     lineups = lineup_rows(root, sd)
     dup_model, dup_report = fit_duplication(lineups)
-    Path(root, 'showdown_models.json').write_text(json.dumps({'schema': 'going-private-showdown-models-v1', 'ownership': own_models, 'duplication': dup_model, 'salary_cap': 50000,
+    Path(root, 'showdown_models.json').write_text(json.dumps({'schema': 'going-private-showdown-models-v2', 'ownership': own_models, 'duplication': dup_model, 'salary_cap': 50000,
                                                               'notice': 'Derived from licensed stat-api data. Private research file: do not publish, commit or serve.'}, indent=1), encoding='utf-8')
     Path(root, 'showdown_models_report.json').write_text(json.dumps({'ownership_holdout': own_report, 'duplication_holdout': dup_report, 'archived_showdown_contests': int(sd.contest_id.nunique())}, indent=1), encoding='utf-8')
     print(json.dumps({'ownership_holdout': own_report, 'duplication_holdout': dup_report}, indent=1))

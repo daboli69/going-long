@@ -575,6 +575,12 @@ def build():
     profiles = build_profiles(rows, roster, snaps, schedule, window, minimum)
     if not profiles:
         raise RuntimeError('No profiles built; refusing to replace history')
+    try:  # descriptive public scoring-role record (scripts/scoring_role.py); a missing play-by-play feed must not stop the projections
+        import scoring_role
+        attached = scoring_role.attach(profiles, scoring_role.load_pbp_rows(seasons), scoring_role.snap_share_map(roster, snaps), datetime.now(timezone.utc).date().isoformat())
+        print(f'[scoring_role] {attached} profiles')
+    except Exception as exc:
+        print(f'[scoring_role] SKIPPED: {exc!r}')
     # Teams dictionary uses LAR while schedules, rosters and stats use LA.
     codes = {'LAR': 'LA', 'JAC': 'JAX', 'WSH': 'WAS'}
     team_map = {r['team_name']: codes.get(r['team_abbr'], r['team_abbr']) for r in nfl.load_teams().to_dicts()}

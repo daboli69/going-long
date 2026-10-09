@@ -56,3 +56,14 @@ test('Same-thesis cards collapse into one with the others listed',()=>{
  assert.equal(I.thesisKey(a),I.thesisKey({...a,market:'receptions'}));assert.notEqual(I.thesisKey(a),I.thesisKey({...a,side:'Under'}));assert.notEqual(I.thesisKey(a),I.thesisKey({...a,market:'atd'}));
  const g={kind:'game',away:'MIN',home:'NO',market:'spread',side:'Away'};assert.equal(I.thesisKey(g),I.thesisKey({...g,market:'moneyline'}));assert.notEqual(I.thesisKey(g),I.thesisKey({...g,market:'total',side:'Over'}));
 });
+
+test('Scoring role: tier, goal-line/red-zone badges and TD luck appear on touchdown cards only, from the profile record',()=>{
+ const I=require('../shared/going-intel.js'),sr={version:1,n:12,confidence:'ok',tier:'PRIMARY',xtd_pg_l12:.96,xtd_share_l6:.32,snap_pct_l6:.755,gl_carry_pg_l12:.42,rz_tgt_pg_l12:1.2,td_pg_l12:1.25,td_luck_l12:.29};
+ const a=I.scoringRole(sr,'RB','atd');assert.equal(a.tier,'PRIMARY');assert.deepEqual(a.badges,['SCORING ROLE','RED ZONE']);assert.equal(a.luck,'above');assert.match(a.text,/32% of his team's expected TDs/);
+ assert.deepEqual(I.scoringRole({...sr,gl_carry_pg_l12:.6},'RB','atd').badges,['SCORING ROLE','GOAL LINE','RED ZONE']);
+ assert.equal(I.scoringRole({...sr,confidence:'low'},'RB','atd'),null);assert.equal(I.scoringRole(null,'RB','atd'),null);
+ const td={...c,market:'atd',side:'Yes',line:.5,position:'RB',scoringRole:sr},e=P.assess(td,o);
+ assert.ok(e.badges.includes('SCORING ROLE'));assert.ok(e.facts.some(x=>x[0]==='Scoring role'&&/primary scoring role/.test(x[1])));assert.ok(e.components.some(x=>x.id==='scoring_role'&&x.points===1));
+ assert.ok(e.concerns.some(x=>/more than his opportunity predicts/.test(x)));
+ assert.equal(P.assess({...c,position:'RB',scoringRole:sr},o).facts.some(x=>x[0]==='Scoring role'),false);// not a touchdown market
+});

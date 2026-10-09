@@ -108,5 +108,30 @@
   "thought": "Measured role-pair correlations make stack-total forecasts better calibrated than independence.",
   "result": "QB-WR1 .34, QB-WR2 .25, QB-TE1 .21, QB-RB1 .07, QB-opposing QB .13; QB-opposing WR1 .03 (interval spans zero) and WR1-WR2 .01: no measurable bring-back or teammate-competition effect. Stack total spread (PIT sd) improves from 1.19-1.29 to 1.04-1.14; pinball +1.0-1.7% for four of five stacks.",
   "action": "Measured correlations replace the heuristic stack and bring-back bonuses in the new build style."
+ },
+ "JP-1": {
+  "thought": "First, anytime and last touchdowns have different scorers: first more passing-game, last more rushing by the favourite (H1-H4 pre-registered).",
+  "result": "No position or play-type hypothesis is confirmed (RB, WR, rushing-TD shares of first vs last differ by <1.5 points pooled 2024-25 (RB -4 points in development), intervals span zero in every period). H4 is reversed and stable: the pre-game favourite scores 59% of FIRST TDs and 58% of all TDs but only 52% of LAST TDs (2021-25: -7.4 points last vs first, CI -11.2 to -3.3; same sign in all five seasons). Post-hoc: PRIMARY-role players (>=30% of team xTD) score the first TD 14.9% of games and the last TD 10.2% (+4.8 points, CI +2.0 to +7.6): first TD concentrates on starters, last TD on depth and the trailing team.",
+  "action": "Do not use position as a first/last differentiator. Use one player scoring score for all three markets; allocate team-side mass for LAST TD towards the underdog relative to anytime (SHADOW) and keep FIRST TD team mass proportional to scoring environment."
+ },
+ "JP-2": {
+  "thought": "Opportunity, snap share, trend, team environment, injury opportunity and TD-luck regression each add to the Champion v2 anytime rate.",
+  "result": "Champion v2 rate recalibrated is the baseline (log loss .412 holdout). OPP (+.013), ROLE (+.014), REG (+.004) and ALL (+.017, 4.2%) beat it in 2024 and 2025 with adjusted intervals above zero; holdout Brier -4.1%; weekly top-10 precision .48 to .58 (18 slates, noisy). TEAM, INJ, POS and TREND are positive but unproven (SHADOW); L3-vs-L6 trend features add nothing beyond the level (REJECT). Historical last-12 TD totals do not beat the Champion once the log transform is fair.",
+  "action": "Emit expected-TD opportunity (xTD per game, share of team xTD) and snap share as scoring-role features and add them to the anytime ranking; keep team total, injury-created opportunity and positions as SHADOW."
+ },
+ "JP-3": {
+  "thought": "The first scorer is not simply proportional to the anytime rate; opening-script usage and position matter.",
+  "result": "Calibrated proportional-to-rate allocation is the baseline (game log loss 2.87 holdout; the uncalibrated rate is worse by .07-.1). OPP and ROLE improve game log loss by .05-.08 in both years; ALL +.07/+.10 (adjusted CI above zero); top-3 hit rate .28 to .32, top-10 .69 to .71 in 2025. Opening-script share is positive in both years (+.04) but unproven (SHADOW). Injury and trend blocks are rejected. A score trained on ANYTIME TD ranks first scorers as well as a first-TD-specific model (difference .000, CI -.02 to +.02).",
+  "action": "Use the anytime scoring score for FIRST TD with a market-specific slope and \"other\" utility; collect open_share6 and tm_first_td_rate as SHADOW."
+ },
+ "JP-4": {
+  "thought": "The last scorer is predicted by the same opportunity blocks with a favourite/rushing tilt.",
+  "result": "OPP and ROLE improve game log loss by .04-.06 and ALL by about .06 in both years (promote); late-lead carry share and team blocks are positive but unproven. Last-TD ranking is the same score as anytime/first (transfer test difference ~0). Under a different baseline transform ROLE and ALL are SHADOW, OPP stays PROMOTE.",
+  "action": "Same score as FIRST TD; apply the underdog-leaning team split as SHADOW."
+ },
+ "JP-5": {
+  "thought": "The longest TD depends on how long a scorer's touchdowns tend to be, not only how often he scores.",
+  "result": "ALL improves game log loss by .04 (2024) and .07 (2025) and top-3 hit rate by about 7 points; the dedicated long-TD block (share of own TDs of 30+ yards, depth of target) is positive in both years but unproven (SHADOW, adjusted CI includes zero). Most of the gain comes from OPP, which is partly a goal-line effect (short-yardage scorers lose), and does not survive an alternative baseline transform.",
+  "action": "Rank King of the Endzone with the anytime score plus long_prop and adot12 (SHADOW); the unvalidated Poisson-distance baseline in scripts/king_endzone.py is not contradicted but not supported either."
  }
 }

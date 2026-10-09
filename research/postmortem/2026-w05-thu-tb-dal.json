@@ -1,0 +1,94 @@
+{
+ "game": "TB @ DAL",
+ "season": 2026,
+ "week": 5,
+ "pregame_commit": "c31f4e8",
+ "note": "One game is one observation. Descriptive only; no model was changed because of it.",
+ "projection_vs_actual": {
+  "pass_tds": {
+   "n": 22,
+   "model_mae": 0.036931818181818184,
+   "model_bias": 0.036931818181818184,
+   "lines": 2,
+   "market_mae": 1.0,
+   "model_mae_on_lined": 0.40625
+  },
+  "pass_yds": {
+   "n": 22,
+   "model_mae": 4.007954545454546,
+   "model_bias": -4.007954545454546,
+   "lines": 2,
+   "market_mae": 26.0,
+   "model_mae_on_lined": 44.087500000000006
+  },
+  "rec_tds": {
+   "n": 22,
+   "model_mae": 0.18768939393939393,
+   "model_bias": 0.03428030303030303
+  },
+  "rec_yds": {
+   "n": 22,
+   "model_mae": 16.70568181818182,
+   "model_bias": -3.010227272727271,
+   "lines": 12,
+   "market_mae": 24.333333333333332,
+   "model_mae_on_lined": 28.214583333333334
+  },
+  "receptions": {
+   "n": 22,
+   "model_mae": 1.0337121212121212,
+   "model_bias": 0.03749999999999989,
+   "lines": 12,
+   "market_mae": 1.5833333333333333,
+   "model_mae_on_lined": 1.4895833333333333
+  },
+  "rush_tds": {
+   "n": 22,
+   "model_mae": 0.12821428571428573,
+   "model_bias": -0.04711038961038961
+  },
+  "rush_yds": {
+   "n": 22,
+   "model_mae": 9.21840909090909,
+   "model_bias": -3.107045454545454
+  }
+ },
+ "prop_direction": {
+  "n": 28,
+  "model_side_hit_rate": 0.6071428571428571
+ },
+ "role_shadow": {
+  "carries": {
+   "n": 5,
+   "champion_mae": 2.5100000000000002,
+   "challenger_mae": 2.9483667374124316
+  },
+  "rec_yds": {
+   "n": 14,
+   "champion_mae": 24.83214285714286,
+   "challenger_mae": 21.431671333138194
+  },
+  "rush_yds": {
+   "n": 5,
+   "champion_mae": 27.036,
+   "challenger_mae": 26.553981411540768
+  },
+  "targets": {
+   "n": 14,
+   "champion_mae": 2.230357142857143,
+   "challenger_mae": 2.0578210722192027
+  }
+ },
+ "touchdowns": {
+  "players": 22,
+  "scorers": 4,
+  "scorer_ranks": [
+   1,
+   6,
+   9,
+   11
+  ],
+  "mean_model_atd_of_scorers": 0.40625,
+  "mean_model_atd_of_nonscorers": 0.1650462962962963
+ }
+}

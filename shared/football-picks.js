@@ -132,6 +132,17 @@ function assess(c,options={}){
    if(rt.state==='down'){badges.push(rt.badge);concerns.push(`${rt.text}: the role has shrunk recently.`);}
   }
  }
+ if(c.kind==='prop'&&['atd','rush_tds','rec_tds'].includes(c.market)){
+  const sr=intel()?.scoringRole(c.scoringRole,c.position,c.market);
+  if(sr){
+   facts.push(['Scoring role',sr.text+'.'+(sr.luckText?' '+sr.luckText:'')]);
+   badges.push(...sr.badges);
+   const yes=direction>0||c.market==='atd';
+   if(sr.tier==='PRIMARY'&&yes){add('scoring_role',1,`Primary scoring role: ${Math.round(sr.share*100)}% of his team's expected TDs, ${sr.xtd.toFixed(2)} expected TDs per game.`);supports.unshift(components.at(-1).detail);}
+   else if(sr.tier==='FRINGE'&&yes)concerns.unshift(`Fringe scoring role: ${Math.round(sr.share*100)}% of his team's expected TDs; touchdowns come from a thin opportunity.`);
+   if(sr.luck==='above'&&yes)concerns.push(sr.luckText);
+  }
+ }
  const opp=['Receiving','Rushing','TD'].includes(family)?opportunityProcess(c,o):null;
  if(opp?.usage){const text=situationText(opp.usage,family);if(text)facts.push([`Situational usage (${o.season} PBP, completed games)`,`${text}. ${opp.usage.games} games observed; counts exclude kneels, spikes and two-point tries.`]);}
  if(opp?.process){facts.push(['Opportunity vs production',opp.process.detail]);badges.push(opp.process.badge);}

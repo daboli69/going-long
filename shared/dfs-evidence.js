@@ -52,7 +52,9 @@ function buildPool(salaries,{profiles={},context=null,injuryContext=null,generat
   base.concerns.push('Count models are uncalibrated for multi-TD tails; no eight-TD lineup probability.');
   const upside=root.GoingDfsUpside?.observed(p,projection,{now,points,site:'draftkings'})||null;
   if(upside)base.evidence.push(`Historical partial DFS scoring spread: ${upside.n} completed games (${upside.currentGames} current season); prior roles may differ.`);
-  return {...base,projection,tdMean,stats,upside,unavailable:!finite(projection)||projection<=0,source:'Existing injury-adjusted GOING component models',injury,modelAgeHours:age(generatedAt,now),value:projection*1000/s.salary};
+  // Simulated outcome distribution (floor/median/90th/boom/bust) from the same component models, with measured within-player correlations.
+  const distribution=root.GoingDfsSim?.player(Object.fromEntries(Object.entries(models).map(([k,row])=>[k,row?.model])),p.position,{id:p.id,site:'draftkings'})||null;
+  return {...base,distribution,roleTrend:p.role_trend||null,projection,tdMean,stats,upside,unavailable:!finite(projection)||projection<=0,source:'Existing injury-adjusted GOING component models',injury,modelAgeHours:age(generatedAt,now),value:projection*1000/s.salary};
  });
 }
 root.GoingDfsEvidence={buildPool,observedCounts,nameKey};if(typeof module!=='undefined')module.exports=root.GoingDfsEvidence;

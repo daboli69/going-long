@@ -38,6 +38,22 @@ function roleTrend(trend,position,market){
   sentence:state==='up'?'Role has expanded over the last three games versus the last six.':state==='down'?'Role has shrunk over the last three games versus the last six.':'No meaningful role change.'};
 }
 
+// Scoring role (build: scripts/scoring_role.py, public nflverse play-by-play, games before the build date). Research JP-1..5: expected TDs per game by field zone, share of team
+// expected TDs and snap share predict anytime TD beyond the Champion rate (2025 holdout, log loss -4.2%); tiers separate anytime rates monotonically (PRIMARY .47 ... FRINGE .07).
+// First/last/longest-TD probabilities from it are still SHADOW; trends are not used (rejected).
+const TIER_TEXT={PRIMARY:'primary scoring role',SECONDARY:'secondary scoring role',TERTIARY:'tertiary scoring role',FRINGE:'fringe scoring role'};
+function scoringRole(sr,position,market){
+ if(!sr||sr.confidence==='low'||!sr.tier||!finite(sr.xtd_pg_l12)||!finite(sr.xtd_share_l6))return null;
+ const pos=String(position||'').toUpperCase(),badges=[];
+ if(sr.tier==='PRIMARY')badges.push('SCORING ROLE');
+ if(['RB','QB'].includes(pos)&&finite(sr.gl_carry_pg_l12)&&sr.gl_carry_pg_l12>=.5)badges.push('GOAL LINE');
+ if(['WR','TE','RB'].includes(pos)&&finite(sr.rz_tgt_pg_l12)&&sr.rz_tgt_pg_l12>=1)badges.push('RED ZONE');
+ const luck=finite(sr.td_luck_l12)?sr.td_luck_l12:null,state=luck===null?null:luck>=.25?'above':luck<=-.25?'below':'even';
+ const text=`${TIER_TEXT[sr.tier]}: ${Math.round(sr.xtd_share_l6*100)}% of his team's expected TDs (last 6 games), ${sr.xtd_pg_l12.toFixed(2)} expected TDs per game${finite(sr.td_pg_l12)?` against ${sr.td_pg_l12.toFixed(2)} scored`:''} over the last ${sr.n} games${finite(sr.snap_pct_l6)?`, ${Math.round(sr.snap_pct_l6*100)}% of offensive snaps`:''}`;
+ const luckText=state==='above'?'He has scored more than his opportunity predicts, so his recent touchdown total overstates the role.':state==='below'?'He has scored less than his opportunity predicts: the role is better than his touchdown total.':null;
+ return {tier:sr.tier,text,badges,luck:state,luckText,xtd:sr.xtd_pg_l12,share:sr.xtd_share_l6};
+}
+
 // Two cards are the same football thesis when they ride on the same player/team outcome in the same direction.
 // Receptions and receiving yards over are one thesis (the player gets volume); passing yards and passing TDs over are one (the offense throws a lot).
 const GROUP={rec_yds:'receiving',receptions:'receiving',pass_yds:'passing',pass_tds:'passing',rush_yds:'rushing',rush_tds:'rushing-td',rec_tds:'receiving-td',atd:'scoring',first_td:'scoring',last_td:'scoring'};
@@ -50,6 +66,6 @@ function thesisKey(c){
  const group=GROUP[c.market];if(!group||!c.profileId)return null;
  return ['prop',c.away,c.home,c.profileId,group,String(c.side||'Over').toLowerCase()].join('|');
 }
-root.GoingIntel={RULE,relevantMetrics,roleTrend,thesisKey};
+root.GoingIntel={RULE,relevantMetrics,roleTrend,scoringRole,thesisKey};
 if(typeof module!=='undefined')module.exports=root.GoingIntel;
 })(globalThis);

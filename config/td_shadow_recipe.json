@@ -1,0 +1,76 @@
+{
+ "version": 1,
+ "status": "SHADOW",
+ "note": "lean score recipe from research/trend-intelligence/JACKPOT_TD_REPORT.md; constants refit on 2021-2025; probabilities are research-only until 2026 confirms",
+ "anytime": {
+  "coefficients_raw": {
+   "inside5_touch12": -0.747112802999145,
+   "intercept": -2.360439434728205,
+   "log_champion_rate": 0.1952532925958769,
+   "snap3": 0.8639863955910944,
+   "xshare6": 1.8515110628943325,
+   "xtd12": 2.739461817493129
+  },
+  "winsor": {
+   "inside5_touch12": {
+    "median": 0.125,
+    "lo": 0.0,
+    "hi": 1.3333333333333333
+   },
+   "snap3": {
+    "median": 0.49000000000000005,
+    "lo": 0.01,
+    "hi": 1.0
+   },
+   "xshare6": {
+    "median": 0.06171710499633621,
+    "lo": 0.0,
+    "hi": 0.3638932487986317
+   },
+   "xtd12": {
+    "median": 0.1520026864611242,
+    "lo": 0.0,
+    "hi": 0.884028832251162
+   }
+  },
+  "rate_floor": 0.01
+ },
+ "features_map": {
+  "xtd12": "xtd_pg_l12",
+  "xshare6": "xtd_share_l6",
+  "snap3": "snap_pct_l3",
+  "inside5_touch12": "inside5_touch_pg_l12"
+ },
+ "game": {
+  "first": {
+   "k": 0.9217494606889396,
+   "u": -0.419787834241227
+  },
+  "last": {
+   "k": 0.7657155924849324,
+   "u": -0.09371728839395961
+  },
+  "king": {
+   "k": 0.7995512650394782,
+   "u": 0.28011912585000387
+  }
+ },
+ "king_extras": {
+  "long_td_share": {
+   "coef": 0.21336486830917006,
+   "median": 0.12841577812736701,
+   "lo": 0.04445161550562704,
+   "hi": 0.39659553870356173,
+   "mean": 0.1477855063683173,
+   "sd": 0.07132034572835783
+  },
+  "adot_l12": {
+   "coef": 0.12941417888610937,
+   "median": 6.918918918918919,
+   "lo": -4.0,
+   "hi": 20.153732718894013,
+   "mean": 6.602002929929327,
+   "sd": 5.031326098967818
+  }
+ }
+}

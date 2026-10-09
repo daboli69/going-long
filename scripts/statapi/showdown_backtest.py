@@ -147,11 +147,12 @@ def evaluate_contest(contest, pool_c, lineups_field, dup_model, lam, gamma, kind
 def run(root, lam, gamma, split, kinds=TYPES, max_contests=None):
     sd = sm.load_showdown(root)
     sd = sm.oof_ownership(sd)
-    sd = sd[sd.proj_pts.notna()]
     lineups_all = None
-    models = json.load(open(Path(root) / 'showdown_models.json', encoding='utf-8'))['duplication']
-    dup = sm.DupModel()
-    dup.mu, dup.sd, dup.b0, dup.w = np.array(models['mean']), np.array(models['sd']), models['intercept'], np.array(models['coef'])
+    # duplication model fitted on PRE-HOLDOUT lineups only (the exported file is fitted on everything, so using it would leak holdout dup counts)
+    lineups = sm.lineup_rows(root, sd)
+    tr = lineups[lineups.date < HOLDOUT_FROM]
+    dup = sm.DupModel().fit(tr[sm.DUP_FEATURES], tr.dup)
+    sd = sd[sd.proj_pts.notna()]
     meta = pd.read_parquet(Path(root) / 'ownership_frame.parquet', columns=['contest_id', 'entry_fee_cents', 'entries']).drop_duplicates('contest_id').set_index('contest_id')
     all_rows = {k: [] for k in kinds}
     n = 0

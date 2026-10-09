@@ -1,0 +1,48 @@
+{
+ "version": 1,
+ "source": "nflverse public play-by-play, regular season; league touchdown rate per designed carry / target by yard line (yardline_100) zone",
+ "fitted_on_seasons": [
+  2019,
+  2020,
+  2021,
+  2022,
+  2023
+ ],
+ "plays": 156898,
+ "zones": {
+  "z1": "1 yard",
+  "z2": "2 yards",
+  "z3_5": "3-5",
+  "z6_10": "6-10",
+  "z11_20": "11-20",
+  "far": "21+"
+ },
+ "rates": {
+  "carry": {
+   "z1": 0.567391,
+   "z2": 0.38069,
+   "z3_5": 0.293627,
+   "z6_10": 0.124374,
+   "z11_20": 0.051031,
+   "far": 0.004924
+  },
+  "target": {
+   "z1": 0.544885,
+   "z2": 0.27129,
+   "z3_5": 0.438542,
+   "z6_10": 0.289534,
+   "z11_20": 0.137986,
+   "far": 0.015722
+  }
+ },
+ "long_td": {
+  "min_yards": 30,
+  "shrink_tds": 8,
+  "league_share": 0.144468,
+  "fitted_on_seasons": [
+   2021,
+   2022,
+   2023
+  ]
+ }
+}

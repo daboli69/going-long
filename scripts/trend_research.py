@@ -16,10 +16,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fp_ingest.store import Manifest, find_root  # noqa: E402
-from trend_research import experiments, experiments2, experiments3, experiments4, experiments5, experiments6, experiments7, experiments8, experiments9, experiments10, ledger  # noqa: E402
+from trend_research import experiments, experiments2, experiments3, experiments4, experiments5, experiments6, experiments7, experiments8, experiments9, experiments10, experiments11, ledger  # noqa: E402
 
-SPECS = {**experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS, **experiments4.SPECS, **experiments5.SPECS, **experiments6.SPECS, **experiments7.SPECS, **experiments8.SPECS, **experiments9.SPECS, **experiments10.SPECS}
-RUNNERS = {**experiments.RUNNERS, **experiments2.RUNNERS, **experiments3.RUNNERS, **experiments4.RUNNERS, **experiments5.RUNNERS, **experiments6.RUNNERS, **experiments7.RUNNERS, **experiments8.RUNNERS, **experiments9.RUNNERS, **experiments10.RUNNERS}
+SPECS = {**experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS, **experiments4.SPECS, **experiments5.SPECS, **experiments6.SPECS, **experiments7.SPECS, **experiments8.SPECS, **experiments9.SPECS, **experiments10.SPECS, **experiments11.SPECS}
+RUNNERS = {**experiments.RUNNERS, **experiments2.RUNNERS, **experiments3.RUNNERS, **experiments4.RUNNERS, **experiments5.RUNNERS, **experiments6.RUNNERS, **experiments7.RUNNERS, **experiments8.RUNNERS, **experiments9.RUNNERS, **experiments10.RUNNERS, **experiments11.RUNNERS}
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -120,6 +120,18 @@ def phase3_table(exp_id, result):
             verdicts = r.get('verdicts') or r['cells'].get('verdicts', {})
             for name, verdict in verdicts.items():
                 rows.append(f"| {m} | {name} | {verdict} | {pct(r['cells']['validation'][name]['relative_pinball_gain'])} | {pct(r['cells']['holdout'][name]['relative_pinball_gain'])} | {r['cells']['holdout'][name]['coverage80']:.3f} |")
+    elif exp_id == 'JP-1':
+        rows += ['| Category | Period | share first | share all | share last | last minus first [95% CI] |', '| --- | --- | --- | --- | --- | --- |']
+        for cat, cells in result['categories'].items():
+            for label in ('development 2021-2023', 'pooled 2024-2025'):
+                c = cells[label]
+                m, lo, hi = c['last_minus_first']
+                rows.append(f"| {cat} | {label} | {c['share_first']:.3f} | {c['share_all']:.3f} | {c['share_last']:.3f} | {m:+.3f} [{lo:+.3f}, {hi:+.3f}] |")
+    elif exp_id.startswith('JP-'):
+        rows += ['| Model / block | Verdict | Validation d log loss | Holdout d log loss [adj. CI] | n comparisons |', '| --- | --- | --- | --- | --- |']
+        for name, c in result['blocks'].items():
+            h = c['holdout']['gain_logloss_adj']
+            rows.append(f"| {name} | {c['verdict']} | {c['validation']['gain_logloss'][0]:+.4f} | {c['holdout']['gain_logloss'][0]:+.4f} [{h[1]:+.4f}, {h[2]:+.4f}] | {c['n_comparisons']} |")
     return rows
 
 
@@ -140,7 +152,7 @@ def cmd_report(args):
         lines += ['', f"- **What we thought:** {note.get('thought', spec['hypothesis'])}", f"- **Why football supports it:** {spec.get('football_rationale', '')}",
                   f"- **How tested without leakage:** {spec['leakage']}; chronological rolling origin; comparators {json.dumps(spec.get('baselines') or spec.get('models') or spec.get('comparators') or spec.get('primary_comparison'))}",
                   f"- **Result:** {note.get('result', '')}", f"- **What GOING should do:** {note.get('action', '')}"]
-        if result and exp_id.startswith('P3-'):
+        if result and (exp_id.startswith('P3-') or exp_id.startswith('JP-')):
             lines += [''] + phase3_table(exp_id, result)
         elif result:
             lines += ['', '| Outcome / bucket | Verdict | Baseline MAE | Challenger MAE | Rel. improvement | 95%-adj CI of delta | Seasons better | n |', '| --- | --- | --- | --- | --- | --- | --- | --- |']

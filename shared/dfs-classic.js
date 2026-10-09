@@ -72,7 +72,7 @@ const athlete=p=>p.athleteId?String(p.athleteId):`${matchName(p.name)}|${p.team}
 const td=p=>p.position==='DST'?0:p.tdMean;
 function context(pool,options){
  const errors=[],byId=new Map(),now=options.now==null?Date.now():Date.parse(options.now),excluded=new Set((options.excludedIds||[]).map(String)),locks={...options.lockedSlots},incumbent=options.incumbentLineup||[],mode=options.mode||'best';
- if(!['best','throne','tournament'].includes(mode))errors.push('Unsupported DFS mode.');
+ if(!['best','throne','tournament','measured'].includes(mode))errors.push('Unsupported DFS mode.');
  if(!Number.isFinite(now))errors.push('Invalid current time.');
  for(const p of pool||[]){const id=String(p.id);if(byId.has(id))errors.push('Duplicate DraftKings IDs in player pool.');byId.set(id,p);}
  // Game locks are immutable only when supplied with an existing complete roster.
@@ -120,7 +120,11 @@ function validateLineup(lineup,pool,options={}){
 }
 function tournamentEngine(){return root.GoingDfsTournament||(typeof require==='function'?require('./dfs-tournament.js'):null);}
 function tournamentSum(players){const engine=tournamentEngine();return players.reduce((sum,p)=>sum+(engine?.objective(p)??p.projection),0);}
-function compare(a,b,mode){return (mode==='tournament'?(b.tournamentTotal??=tournamentSum(b.players))-(a.tournamentTotal??=tournamentSum(a.players)):mode==='throne'?b.tdMean-a.tdMean:0)||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
+const simEngine=()=>root.GoingDfsSim||(typeof require==='function'?require('./dfs-sim.js'):null);
+// Measured ceiling: mean + 1.28 SD of the lineup total, using the measured player correlations (research P3-7/P3-9). The beam uses an additive proxy; finalists are re-ranked on the exact joint moments.
+const MEASURED_Z=1.2816,proxy=p=>p.projection+MEASURED_Z*.7*(finite(p.distribution?.sd)?p.distribution.sd:0);
+function measuredObjective(players){const m=simEngine()?.lineupMoments(players);return m?m.mean+MEASURED_Z*m.sd:players.reduce((s,p)=>s+p.projection,0);}
+function compare(a,b,mode){return (mode==='measured'?(b.measuredTotal??=b.players.reduce((s,p)=>s+proxy(p),0))-(a.measuredTotal??=a.players.reduce((s,p)=>s+proxy(p),0)):mode==='tournament'?(b.tournamentTotal??=tournamentSum(b.players))-(a.tournamentTotal??=tournamentSum(a.players)):mode==='throne'?b.tdMean-a.tdMean:0)||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
 function thresholdEngine(){return root.GoingDfsThreshold||(typeof require==='function'?require('./dfs-threshold.js'):null);}
 function thresholdCompare(a,b){return b.tdThreshold.tailMass-a.tdThreshold.tailMass||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
 function optimize(pool,options={}){
@@ -189,7 +193,8 @@ function optimize(pool,options={}){
    states.push(state);
   }
   states.sort(thresholdCompare);
- }else states.sort((a,b)=>compare(a,b,c.mode));
+ }else if(c.mode==='measured'){for(const state of states)state.exact=measuredObjective(state.players);states.sort((a,b)=>(b.exact-a.exact)||compare(a,b,'best'));}
+ else states.sort((a,b)=>compare(a,b,c.mode));
  for(const state of states){
   const lineup=state.players.map((p,i)=>({...p,slot:SLOTS[i],slotIndex:i})),validation=validateLineup(lineup,pool,options);
   if(validation.valid)return {lineup,...totals(lineup),tournament:c.mode==='tournament'?tournamentEngine()?.evaluate(lineup,{contest:'classic',site:'draftkings'}):null,tdThreshold:state.tdThreshold||null,reason:null,errors:[],heuristic:true,method:scenario?'Eight-plus rushing/receiving TD scenario mass; DFS points break ties. Finite shared team budgets, independent teams; bounded uncalibrated scenario search.':c.mode==='throne'?'Expected rushing/receiving TD sum; DFS points break ties. Bounded search; no calibrated threshold probability.':c.mode==='tournament'?'Historical scoring-spread proxy plus current projections; unknown upside falls back to projection. Not a joint lineup ceiling or contest-win forecast.':'Projected DraftKings point sum. Bounded search; global optimum is not guaranteed.'};

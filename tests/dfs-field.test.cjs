@@ -8,8 +8,8 @@ const close=(a,b,tol=1e-9)=>assert.ok(Math.abs(a-b)<=tol,`${a} != ${b}`);
 
 // A toy model with the private file's schema. It contains no licensed data.
 const bins=30,ramp=Array.from({length:bins},(_,i)=>Math.max(.2,30*Math.exp(-i/5)));
-const toy={schema:'going-private-showdown-models-v1',ownership:{CPT:{bins,table:{QB:ramp,SKILL:ramp,DK:ramp.map(x=>x/3)},total:100},FLEX:{bins,table:{QB:ramp,SKILL:ramp,DK:ramp.map(x=>x/3)},total:500}},
- duplication:{features:['cpt_own','sum_flex_own','min_flex_own','log_prod_own','unused','cpt_salary_rank_pct','max_team','n_stars','cpt_pos_QB','log_entries'],mean:[5,40,2,-18,800,.3,4,1.5,.2,10],sd:[5,20,2,4,900,.25,1,1,.4,1],intercept:1.4,coef:[.3,.2,.1,.15,-.1,-.1,.05,.1,.05,.2],resid_sd:1}};
+const toy={schema:'going-private-showdown-models-v2',ownership:{CPT:{bins,table:{QB:ramp,SKILL:ramp,DK:ramp.map(x=>x/3)},total:100},FLEX:{bins,table:{QB:ramp,SKILL:ramp,DK:ramp.map(x=>x/3)},total:500}},
+ duplication:{features:['cpt_own','sum_flex_own','min_flex_own','log_prod_own','unused','cpt_salary_rank_pct','max_team','n_stars','cpt_pos_QB','log_entries'],mean:[5,40,2,-18,800,.3,4,1.5,.2,10],sd:[5,20,2,4,900,.25,1,1,.4,1],intercept:1.4,coef:[.3,.2,.1,.15,-.1,-.1,.05,.1,.05,.2],resid_sd:1,decile_edges:[2,4,6,8,10,14,20,30,50],decile_median_copies:[1,2,3,4,5,6,8,10,14,25],decile_unique_share:[.6,.5,.4,.3,.2,.15,.1,.07,.04,.02]}};
 
 function pool(){
  const teams=['AAA','BBB'],positions=['QB','RB','WR','WR','WR','TE','DST'],rows=[];let id=1;
@@ -39,7 +39,10 @@ test('duplication follows the stored linear model exactly and a more popular lin
  const expected=spec.intercept+x.reduce((s,v,i)=>s+(v-spec.mean[i])/spec.sd[i]*spec.coef[i],0);
  close(F.duplication(chalk,30000).logDup,expected);close(F.duplication(chalk,30000).expectedCopies,Math.exp(expected+.5));
  assert.ok(F.duplication(chalk,30000).expectedCopies>F.duplication(odd,30000).expectedCopies);
- assert.ok(['low','moderate','high'].includes(F.duplication(odd,30000).band));
+ const dd=F.duplication(odd,30000);assert.ok(['lower','typical','higher'].includes(dd.band));assert.ok(dd.decile>=1&&dd.decile<=10);
+ assert.equal(dd.medianCopies,toy.duplication.decile_median_copies[dd.decile-1]);assert.equal(dd.uniqueShare,toy.duplication.decile_unique_share[dd.decile-1]);assert.equal(dd.band,dd.decile<=3?'lower':dd.decile<=7?'typical':'higher');
+ assert.equal(F.duplication(chalk,1000).entries,11000);close(F.duplication(chalk,1000).logDup,F.duplication(chalk,11000).logDup);close(F.duplication(chalk,500000).logDup,F.duplication(chalk,90000).logDup);
+ assert.equal(F.load({...toy,duplication:{...toy.duplication,decile_edges:[1]}}).ok,false);F.load(toy);
  assert.equal(F.duplication(chalk.slice(0,4),30000),null);
 });
 
@@ -52,4 +55,25 @@ test('Showdown build styles use the field model, report ownership and duplicatio
  const lowdup=D.optimize(p,{...opts,mode:'lowdup'}),balanced=D.optimize(p,{...opts,mode:'balanced'});
  assert.ok(lowdup.lineups[0].duplication.expectedCopies<=balanced.lineups[0].duplication.expectedCopies+1e-9,'the lower-duplication style does not pick a more duplicated lineup than the projection-only style');
  F.clear();p=make();const plain=D.optimize(p,{...opts,mode:'best'});assert.ok(plain.lineups.length>=1);assert.equal(plain.lineups[0].duplication,undefined);assert.equal(plain.lineups[0].ownership,undefined);
+});
+
+test('ranks use all pool rows (unavailable included) and ties share the best rank, independent of row order',()=>{
+ F.load(toy);const a=F.annotate(pool()),b=F.annotate(pool().reverse().map(x=>({...x})));
+ for(const x of a){const y=b.find(z=>z.id===x.id&&z.showdownRole===x.showdownRole);close(x.ownership,y.ownership,1e-12);assert.equal(x.fieldRank,y.fieldRank);}
+ const flex=a.filter(x=>x.showdownRole==='FLEX');for(const x of flex)assert.equal(x.fieldRank,1+flex.filter(y=>y.salary>x.salary).length);
+ const withOut=pool();withOut[0].unavailable=true;withOut[1].unavailable=true;const c=F.annotate(withOut);
+ for(const x of c){const y=a.find(z=>z.id===x.id&&z.showdownRole===x.showdownRole);close(x.ownership,y.ownership,1e-12);}
+});
+
+test('Python training code and the JS runtime agree on a synthetic fixture (ownership, features, logDup, decile)',()=>{
+ const fx=require('./fixtures/dfs-field-parity.json');assert.equal(F.load(fx.model).ok,true);
+ const players=fx.players.map(p=>({...p,showdownRole:p.role})),annotated=F.annotate(players);
+ for(const e of fx.expectedOwnership){const p=annotated.find(x=>x.id===e.id&&x.showdownRole===e.role);close(p.ownership,e.ownership,1e-9);assert.equal(p.fieldRank,e.rank);close(p.fieldRankPct,e.rankPct,1e-12);}
+ const by=(role,id)=>annotated.find(x=>x.id===id&&x.showdownRole===role);
+ fx.lineups.forEach((l,i)=>{
+  const lineup=[{...by('CPT',l[0]),slot:'CPT'},...l.slice(1).map(k=>({...by('FLEX',k),slot:'FLEX'}))];
+  const f=F.lineupFeatures(lineup,fx.entries);
+  for(const name of Object.keys(fx.expectedFeatures)){if(name==='log_entries'){close(f[name],Math.log(11000),1e-12);continue;}close(f[name],fx.expectedFeatures[name][i],1e-9);}
+  const d=F.duplication(lineup,fx.entries);close(d.logDup,fx.expectedLogDup[i],1e-9);close(d.expectedCopies,fx.expectedCopies[i],1e-8);assert.equal(d.decile,fx.expectedDecile[i]);
+ });
 });
