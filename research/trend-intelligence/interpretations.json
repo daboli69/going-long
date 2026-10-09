@@ -133,5 +133,10 @@
   "thought": "The longest TD depends on how long a scorer's touchdowns tend to be, not only how often he scores.",
   "result": "ALL improves game log loss by .04 (2024) and .07 (2025) and top-3 hit rate by about 7 points; the dedicated long-TD block (share of own TDs of 30+ yards, depth of target) is positive in both years but unproven (SHADOW, adjusted CI includes zero). Most of the gain comes from OPP, which is partly a goal-line effect (short-yardage scorers lose), and does not survive an alternative baseline transform.",
   "action": "Rank King of the Endzone with the anytime score plus long_prop and adot12 (SHADOW); the unvalidated Poisson-distance baseline in scripts/king_endzone.py is not contradicted but not supported either."
+ },
+ "P4-1": {
+  "thought": "A shrunk, recency-weighted index of expected-points opportunity, team share, efficiency residual, snap role and availability ranks next-game PPR at least as well as shrunk trailing xFP and better than trailing PPR or the Champion window.",
+  "result": "Modest. Next-game MAE gain over the Champion window is +0.4% to +3.7% (2025 holdout, all positions), over shrunk trailing PPR +0.4% to +3.8%, over shrunk trailing xFP -0.9% to +2.3%. Only TE clears the registered bar (>= 0.5% over all three baselines in 2024 and 2025, adjusted interval excluding 0); WR is non-inferior to xFP; QB and RB are statistically indistinguishable from trailing xFP. Opportunity (xFP) carries 38-51% of the weight; trend-of-xFP gets 0; team share is redundant with xFP; efficiency earns 5-20%. Rank stability (week-to-week Spearman .97-.99) is equal to the baselines and the percentile reacts about 1.6x as strongly to +/-15-point snap-share changes (partly by construction).",
+  "action": "Ship as a display-only situation index with its component breakdown; do not present it as a projection or edge. A higher score is not a better bet. Consider pruning team_share and opp_trend in a re-registered v2.1."
  }
 }

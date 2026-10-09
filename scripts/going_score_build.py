@@ -448,7 +448,10 @@ def build_output(table, panel, config, cfg_sha, roster, history, players_csv, as
             if rr.get('roster_status') and rr['roster_status'] != 'ACT':
                 flags.append('ROSTER:' + str(rr['roster_status']))
             if rr.get('injury'):
-                flags.append('INJURY:' + (rr['injury'] if isinstance(rr['injury'], str) else json.dumps(rr['injury'], sort_keys=True)[:60]))
+                inj = rr['injury']
+                if isinstance(inj, dict):
+                    inj = ' '.join(str(x) for x in (inj.get('report_status') or inj.get('practice_status'), inj.get('primary_injury')) if x)
+                flags.append('INJURY:' + str(inj)[:60])
             l3, l6 = r.snap_l3, r.snap_l6
             if pos != 'QB' and not (np.isnan(l3) or np.isnan(l6)):
                 if l3 - l6 >= ROLE_RULE_SNAP:

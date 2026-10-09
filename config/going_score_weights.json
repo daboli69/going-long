@@ -1,0 +1,255 @@
+{
+ "schema": "going-score-weights-1",
+ "version": "going-score-2.0.0",
+ "rollback_note": "To roll back: restore the previous revision of this file from git (git log -- config/going_score_weights.json), re-run scripts/going_score_build.py and republish data/going_score.json. The score is display-only; nothing downstream consumes it for picks, probabilities or stakes, so rollback needs no data migration. Any change to a weight, half-life, shrinkage or eligibility rule is a new version and needs a new pre-registered experiment.",
+ "params": {
+  "window": 12,
+  "half_life": 5.0,
+  "offseason_discount": 0.7,
+  "min_games": 3,
+  "max_stale_team_games": 6,
+  "availability_window": 8,
+  "availability_prior": 0.85,
+  "availability_k": 2.0,
+  "trend_k": 3.0,
+  "qb_min_attempts": 10,
+  "shrink_k": {
+   "opportunity": 3.0,
+   "team_share": 3.0,
+   "efficiency": 8.0,
+   "role": 3.0,
+   "production": 3.0
+  }
+ },
+ "fit": {
+  "experiment": "P4-1",
+  "development_seasons": [
+   2021,
+   2022,
+   2023
+  ],
+  "half_life_cv_relative_mae": {
+   "3.0": 0.5745460656643262,
+   "5.0": 0.5735833246251051,
+   "8.0": 0.5736406498676219
+  },
+  "chosen_half_life": 5.0,
+  "ridge_lambda_per_row": 0.02,
+  "data": "public nflverse + ffopportunity only",
+  "spec_sha256": "3068a66a3541486e4f832cae3e82057358321f2b46be40df2ebf3dc8072a7309"
+ },
+ "positions": {
+  "QB": {
+   "priors": {
+    "production": 15.512494089834515,
+    "opportunity": 16.759314420803783,
+    "team_share": 0.22308582653640227,
+    "role": 93.93971631205673
+   },
+   "components": {
+    "opportunity": {
+     "weight": 0.4813793994072268,
+     "mean": 17.38948624148876,
+     "sd": 2.5009044162493894
+    },
+    "team_share": {
+     "weight": 0.2049647432179775,
+     "mean": 0.22789501356034866,
+     "sd": 0.02177951478749719
+    },
+    "efficiency": {
+     "weight": 0.20425079575782948,
+     "mean": -0.5059788054392007,
+     "sd": 0.8716266383784133
+    },
+    "role": {
+     "weight": 0.0,
+     "mean": 94.92342107247691,
+     "sd": 3.4938301588728766
+    },
+    "availability": {
+     "weight": 0.1094050616169663,
+     "mean": 0.8337925473219591,
+     "sd": 0.2173790496266664
+    },
+    "opp_trend": {
+     "weight": 0.0,
+     "mean": -0.2002133201765555,
+     "sd": 2.592132206328924
+    },
+    "role_trend": {
+     "weight": 0.0,
+     "mean": -0.08887721755368794,
+     "sd": 5.610506729830626
+    }
+   },
+   "calibration_next_game": {
+    "intercept": 16.03173796791444,
+    "slope": 4.188903177478437
+   },
+   "anchors": {
+    "low": -1.3432002370777076,
+    "high": 1.4835490620998122
+   }
+  },
+  "RB": {
+   "priors": {
+    "production": 7.406249743694894,
+    "opportunity": 7.524273118720524,
+    "team_share": 0.10355880916941003,
+    "role": 37.028067885117494
+   },
+   "components": {
+    "opportunity": {
+     "weight": 0.38106762019066365,
+     "mean": 7.826820052356775,
+     "sd": 3.522556397398247
+    },
+    "team_share": {
+     "weight": 0.22253865946987875,
+     "mean": 0.10665152053126846,
+     "sd": 0.04776707007150641
+    },
+    "efficiency": {
+     "weight": 0.11158893744200106,
+     "mean": -0.02261478282642023,
+     "sd": 0.6111919360307116
+    },
+    "role": {
+     "weight": 0.13213983576697994,
+     "mean": 37.714551350041575,
+     "sd": 12.618776066408385
+    },
+    "availability": {
+     "weight": 0.0506014729131828,
+     "mean": 0.8179689860196047,
+     "sd": 0.1997274796487139
+    },
+    "opp_trend": {
+     "weight": 0.0,
+     "mean": -0.09062620297462815,
+     "sd": 2.5790380795796812
+    },
+    "role_trend": {
+     "weight": 0.1020634742172939,
+     "mean": -0.21826914492831248,
+     "sd": 9.128689191954876
+    }
+   },
+   "calibration_next_game": {
+    "intercept": 7.680917885264344,
+    "slope": 6.546563619267627
+   },
+   "anchors": {
+    "low": -1.0535070603890488,
+    "high": 1.6335138773471782
+   }
+  },
+  "WR": {
+   "priors": {
+    "production": 6.640147807123818,
+    "opportunity": 6.664617155318633,
+    "team_share": 0.08951731943925609,
+    "role": 51.95307807807808
+   },
+   "components": {
+    "opportunity": {
+     "weight": 0.5099900373548345,
+     "mean": 7.037298562198625,
+     "sd": 3.3569979826792067
+    },
+    "team_share": {
+     "weight": 0.22201753330111373,
+     "mean": 0.09373369257854733,
+     "sd": 0.04333645847578557
+    },
+    "efficiency": {
+     "weight": 0.11349964695067462,
+     "mean": -0.014798001072324094,
+     "sd": 0.6011698951097372
+    },
+    "role": {
+     "weight": 0.04803387876782299,
+     "mean": 53.26453592577559,
+     "sd": 16.722446902199913
+    },
+    "availability": {
+     "weight": 0.04192045795762335,
+     "mean": 0.8520359488310766,
+     "sd": 0.1846070518685154
+    },
+    "opp_trend": {
+     "weight": 0.0,
+     "mean": -0.1461750458525618,
+     "sd": 2.242335836472575
+    },
+    "role_trend": {
+     "weight": 0.06453844566793084,
+     "mean": -0.2843358034552125,
+     "sd": 11.272447172036514
+    }
+   },
+   "calibration_next_game": {
+    "intercept": 6.961432374866884,
+    "slope": 6.054504113539694
+   },
+   "anchors": {
+    "low": -1.0988635957886288,
+    "high": 1.8451458997094807
+   }
+  },
+  "TE": {
+   "priors": {
+    "production": 4.033593462717058,
+    "opportunity": 4.0137895812053115,
+    "team_share": 0.054211597756338215,
+    "role": 43.83196384552178
+   },
+   "components": {
+    "opportunity": {
+     "weight": 0.492412014263908,
+     "mean": 4.217878099268043,
+     "sd": 2.54551250479872
+    },
+    "team_share": {
+     "weight": 0.2222612274180309,
+     "mean": 0.056423754439144075,
+     "sd": 0.03255952538223212
+    },
+    "efficiency": {
+     "weight": 0.04645131838697354,
+     "mean": -0.0009839118863728944,
+     "sd": 0.4168059294480065
+    },
+    "role": {
+     "weight": 0.12869003106219745,
+     "mean": 45.164489062874225,
+     "sd": 14.686935930564676
+    },
+    "availability": {
+     "weight": 0.03335059679245362,
+     "mean": 0.8682665014483195,
+     "sd": 0.17210658499065506
+    },
+    "opp_trend": {
+     "weight": 0.0,
+     "mean": -0.03895026520026519,
+     "sd": 1.6780979718983644
+    },
+    "role_trend": {
+     "weight": 0.07683481207643637,
+     "mean": -0.10920653534289909,
+     "sd": 9.195466558279396
+    }
+   },
+   "calibration_next_game": {
+    "intercept": 4.2559839178021,
+    "slope": 4.293132946365
+   },
+   "anchors": {
+    "low": -1.003577688311804,
+    "high": 2.098397539410636
+   }
+  }
+ }
+}

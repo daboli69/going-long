@@ -15,8 +15,8 @@ Baseline 2026-10-09 20:00Z: branch `claude/phase3-weekly` = origin/main 1fa0584;
 | 7 | P0 | Sunday pregame freeze in workflow | `data/freezes/2026-10-11.json` exists before 13:30Z Sunday | IN PROGRESS: verify Sunday 08:20Z run |
 | 8 | P0 | Windows scanner state | cannot be inspected from this session | BLOCKED (owner machine) |
 | 9 | P1 | GOING Score player-level redesign + validation + page | research report, data/going_score.json auto-built, page + breakdown | IN PROGRESS |
-| 10 | P1 | Charts section (shared data endpoints + components) | nav entry, filters, tooltips, drilldowns, mobile | IN PROGRESS |
-| 11 | P1 | Opportunity vs production (expected vs actual) research | pre-registered test next-game / next-3, report | IN PROGRESS |
+| 10 | P1 | Charts section | 7 charts verified rendering on real data; auto-built by refresh | VERIFIED (mobile pass pending) |
+| 11 | P1 | Opportunity vs production research | E12: no predictive cell; descriptive only | VERIFIED |
 | 12 | P1 | Showdown field model | private-file ownership/duplication, honest bands | SHIPPED |
 | 13 | P1 | Today payload (29 MB raw first load) | lazy history/context | TODO |
 | 14 | P2 | NB1 receptions, TD lean score, free-role challenger | prospective shadow only | SHADOW |

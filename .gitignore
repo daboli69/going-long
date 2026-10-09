@@ -11,3 +11,4 @@ private/
 
 # Licensed Fantasy Points Data Suite exports and everything derived from them: never commit
 FantasyPoints/
+.cache/

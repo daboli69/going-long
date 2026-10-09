@@ -16,10 +16,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fp_ingest.store import Manifest, find_root  # noqa: E402
-from trend_research import experiments, experiments2, experiments3, experiments4, experiments5, experiments6, experiments7, experiments8, experiments9, experiments10, experiments11, ledger  # noqa: E402
+from trend_research import experiments, experiments2, experiments3, experiments4, experiments5, experiments6, experiments7, experiments8, experiments9, experiments10, experiments11, experiments12, ledger  # noqa: E402
 
-SPECS = {**experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS, **experiments4.SPECS, **experiments5.SPECS, **experiments6.SPECS, **experiments7.SPECS, **experiments8.SPECS, **experiments9.SPECS, **experiments10.SPECS, **experiments11.SPECS}
-RUNNERS = {**experiments.RUNNERS, **experiments2.RUNNERS, **experiments3.RUNNERS, **experiments4.RUNNERS, **experiments5.RUNNERS, **experiments6.RUNNERS, **experiments7.RUNNERS, **experiments8.RUNNERS, **experiments9.RUNNERS, **experiments10.RUNNERS, **experiments11.RUNNERS}
+SPECS = {**experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS, **experiments4.SPECS, **experiments5.SPECS, **experiments6.SPECS, **experiments7.SPECS, **experiments8.SPECS, **experiments9.SPECS, **experiments10.SPECS, **experiments11.SPECS, **experiments12.SPECS}
+RUNNERS = {**experiments.RUNNERS, **experiments2.RUNNERS, **experiments3.RUNNERS, **experiments4.RUNNERS, **experiments5.RUNNERS, **experiments6.RUNNERS, **experiments7.RUNNERS, **experiments8.RUNNERS, **experiments9.RUNNERS, **experiments10.RUNNERS, **experiments11.RUNNERS, **experiments12.RUNNERS}
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -120,6 +120,13 @@ def phase3_table(exp_id, result):
             verdicts = r.get('verdicts') or r['cells'].get('verdicts', {})
             for name, verdict in verdicts.items():
                 rows.append(f"| {m} | {name} | {verdict} | {pct(r['cells']['validation'][name]['relative_pinball_gain'])} | {pct(r['cells']['holdout'][name]['relative_pinball_gain'])} | {r['cells']['holdout'][name]['coverage80']:.3f} |")
+    elif exp_id == 'P4-1':
+        rows += ['| Position | Horizon | Season | Score MAE | xFP MAE | PPR MAE | Champion MAE | Gain vs xFP [adj CI] | Score R2 | xFP R2 |', '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |']
+        for pos, block in result['positions'].items():
+            for hz, cells in block.items():
+                for lab, c in cells.items():
+                    m, g = c['models'], c['vs']['B2_xfp_shrunk']
+                    rows.append(f"| {pos} | {hz} | {lab[-4:]} | {m['SCORE']['mae']:.2f} | {m['B2_xfp_shrunk']['mae']:.2f} | {m['B1_ppr_shrunk']['mae']:.2f} | {m['B3_champion_window']['mae']:.2f} | {pct(g['relative_mae_gain'])} [{pct(g['ci_adj'][0])}, {pct(g['ci_adj'][1])}] | {m['SCORE']['r2']:.3f} | {m['B2_xfp_shrunk']['r2']:.3f} |")
     elif exp_id == 'JP-1':
         rows += ['| Category | Period | share first | share all | share last | last minus first [95% CI] |', '| --- | --- | --- | --- | --- | --- |']
         for cat, cells in result['categories'].items():
@@ -152,7 +159,7 @@ def cmd_report(args):
         lines += ['', f"- **What we thought:** {note.get('thought', spec['hypothesis'])}", f"- **Why football supports it:** {spec.get('football_rationale', '')}",
                   f"- **How tested without leakage:** {spec['leakage']}; chronological rolling origin; comparators {json.dumps(spec.get('baselines') or spec.get('models') or spec.get('comparators') or spec.get('primary_comparison'))}",
                   f"- **Result:** {note.get('result', '')}", f"- **What GOING should do:** {note.get('action', '')}"]
-        if result and (exp_id.startswith('P3-') or exp_id.startswith('JP-')):
+        if result and (exp_id.startswith('P3-') or exp_id.startswith('P4-') or exp_id.startswith('JP-')):
             lines += [''] + phase3_table(exp_id, result)
         elif result:
             lines += ['', '| Outcome / bucket | Verdict | Baseline MAE | Challenger MAE | Rel. improvement | 95%-adj CI of delta | Seasons better | n |', '| --- | --- | --- | --- | --- | --- | --- | --- |']
