@@ -1,0 +1,5 @@
+Model Research B - summary. Run order: build.py, exp1_baselines.py, exp2_residual.py, exp345.py, exp4_stability.py.
+Data: public nflverse only (ffopportunity ep_weekly 2019-25, stats_player_week, games.csv). No licensed FP rows used.
+Outputs: exp1_results.csv exp2_results.csv exp5_nested.csv exp3_full_coefs.csv exp3_corr_*.csv exp4_stability.csv
+Protocol: trailing features shift(1); >=4 prior games; fit 2021..(test-1), test 2024 (val) and 2025 (holdout); player-clustered bootstrap (300-400 draws).
+Caveats: target conditional on playing next game(s); Vegas line is for target game (pre-game known); QB share features meaningless.

@@ -132,6 +132,7 @@ class SeasonFitIntegrationTests(unittest.TestCase):
         rows = games([4, 5, 3, 6, 2, 5, 4, 3, 7, 4, 5], [9], 'receptions')
         old = bp.season_fit(rows, 'receptions', 'poisson', 2026, 5)
         new = self.fit(rows, 'receptions', 'poisson', 'receptions', 'WR', None)
+        new.pop('calibration', None)  # the probability-calibration layer is separate data (config/calibration_policy.json), not part of the Champion policy
         self.assertEqual(old, new)
 
     def test_unlisted_market_is_unchanged_even_when_the_policy_is_active(self):
