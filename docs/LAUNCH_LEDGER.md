@@ -14,7 +14,7 @@ Baseline 2026-10-09 20:00Z: branch `claude/phase3-weekly` = origin/main 1fa0584;
 | 6 | P0 | DFS Classic distributions, ownership, measured objective | headless lineup valid; copy honest | SHIPPED (limitations documented) |
 | 7 | P0 | Sunday pregame freeze in workflow | `data/freezes/2026-10-11.json` exists before 13:30Z Sunday | IN PROGRESS: verify Sunday 08:20Z run |
 | 8 | P0 | Windows scanner state | cannot be inspected from this session | BLOCKED (owner machine) |
-| 9 | P1 | GOING Score player-level redesign + validation + page | research report, data/going_score.json auto-built, page + breakdown | IN PROGRESS |
+| 9 | P1 | GOING Score v2 (player-level) | P4-1: matches shrunk xFP for QB/RB/WR, beats for TE; page with breakdown, movers, compare | SHIPPED (modest validation) |
 | 10 | P1 | Charts section | 7 charts verified rendering on real data; auto-built by refresh | VERIFIED (mobile pass pending) |
 | 11 | P1 | Opportunity vs production research | E12: no predictive cell; descriptive only | VERIFIED |
 | 12 | P1 | Showdown field model | private-file ownership/duplication, honest bands | SHIPPED |
