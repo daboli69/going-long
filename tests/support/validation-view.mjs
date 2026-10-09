@@ -24,8 +24,8 @@ export function view(records,meta,{cohort,sport,days,date,game,group},asOf=NOW){
 }
 
 export function combos(records){
- const out=[];const groups=['best_model','best_value','all_projection','going_picks_v2','going_picks_v1','alerts','all_model'];
- const cohorts=['all','current-80-20','role-aware-equal-weight','legacy','going-picks-v1','going-picks-v2'];
+ const out=[];const groups=['best_model','best_value','all_projection','going_picks_v3','going_picks_v2','going_picks_v1','alerts','all_model'];
+ const cohorts=['all','current-80-20','role-aware-equal-weight','legacy','going-picks-v1','going-picks-v2','going-picks-v3'];
  for(const cohort of cohorts)for(const group of groups)out.push({cohort,sport:'all',days:'all',date:'',game:'',group});
  for(const [cohort,group] of [['current-80-20','best_model'],['all','all_projection'],['going-picks-v1','going_picks_v1']])
   for(const sport of ['nfl','ncaa'])for(const days of ['all','7','30','90'])out.push({cohort,sport,days,date:'',game:'',group});

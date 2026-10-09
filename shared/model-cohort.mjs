@@ -6,4 +6,4 @@ export function modelCohort(p){
  if(e.roleEvidence||season)return 'role-aware-equal-weight';
  return 'legacy';
 }
-export const COHORT_LABELS={'current-80-20':'Current 80/20 policy','champion-v2':'Champion v2 · prior-strength blend','role-aware-equal-weight':'Role-aware, before 80/20','legacy':'Legacy model','going-picks-v1':'GOING Picks · original /5','going-picks-v2':'GOING Picks · rating /100'};
+export const COHORT_LABELS={'current-80-20':'Current 80/20 policy','champion-v2':'Champion v2 · prior-strength blend','role-aware-equal-weight':'Role-aware, before 80/20','legacy':'Legacy model','going-picks-v1':'GOING Picks · original /5','going-picks-v2':'GOING Picks · rating /100','going-picks-v3':'GOING Picks · rating /100 (v3)'};

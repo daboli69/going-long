@@ -36,7 +36,7 @@ async function loadPublicStore(stamp){
 
 const money=n=>Number.isFinite(n)?n.toLocaleString('en-US',{style:'currency',currency:'USD'}):'—';
 const pct=n=>Number.isFinite(n)?`${(100*n).toFixed(1)}%`:'—';
-const GROUP_LABELS={going_picks_v1:'GOING Picks · original /5',going_picks_v2:'GOING Picks · rating /100',best_model:'Model-screened research',best_value:'Price-comparison research',all_projection:'Primary-line projection audit',all_model:'All price-model checks',alerts:'Alert-qualified picks'};
+const GROUP_LABELS={going_picks_v1:'GOING Picks · original /5',going_picks_v2:'GOING Picks · rating /100',going_picks_v3:'GOING Picks · rating /100 (v3, from Oct 9)',best_model:'Model-screened research',best_value:'Price-comparison research',all_projection:'Primary-line projection audit',all_model:'All price-model checks',alerts:'Alert-qualified picks'};
 
 function EvidenceIcon({kind}){return <svg className={`evidence-icon evidence-icon-${kind}`} viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{kind==='database'?<><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 4 16 4 16 0V5M4 10c0 4 16 4 16 0M4 15c0 4 16 4 16 0"/></>:kind==='search'?<><circle cx="10" cy="10" r="7"/><path d="m15 15 6 6"/></>:kind==='shield'?<><path d="m12 2 9 4v6c0 5-5 8-9 10-4-2-9-5-9-10V6zM8 12l3 3 5-6"/></>:kind==='target'?<><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="m12 12 9-9M17 3h4v4"/></>:<><path d="m3 18 6-9 5 5 7-11"/><circle cx="3" cy="18" r="1"/><circle cx="9" cy="9" r="1"/><circle cx="14" cy="14" r="1"/></>}</svg>;}
 
@@ -72,7 +72,7 @@ function SavedEvidence({p,loadEvidence}){
 function TrackerDashboard({records,meta,privateMode=false,onRefresh,refreshing=false,loadEvidence=null}){
  const [cohort,setCohort]=useState(privateMode?'all':'current-80-20'),[evidenceView,setEvidenceView]=useState('performance');
  const audits=(meta?.calibration_audit?.families||[]).filter(r=>(cohort==='all'||r.cohort===cohort));
- const groups=privateMode?['all_model','all_projection','best_model','best_value','alerts']:['best_model','best_value','all_projection','going_picks_v2','going_picks_v1'];
+ const groups=privateMode?['all_model','all_projection','best_model','best_value','alerts']:['best_model','best_value','all_projection','going_picks_v3','going_picks_v2','going_picks_v1'];
  const [group,setGroup]=useState(groups[0]),[sport,setSport]=useState('all'),[days,setDays]=useState('all'),[query,setQuery]=useState(''),[date,setDate]=useState(''),[receiptPage,setReceiptPage]=useState(0),[pickPage,setPickPage]=useState(0),[pendingReason,setPendingReason]=useState('all'),[game,setGame]=useState('');
  const beforeGame=useMemo(()=>filterTrackerRecords(records,{cohort,sport,days,date}),[records,sport,days,date,cohort]);
  const games=useMemo(()=>[...new Map(beforeGame.filter(r=>r.kind==='prediction'&&r.payload.home&&r.payload.away).map(r=>{const p=r.payload;return [performanceGameKey(p),{key:performanceGameKey(p),label:`${(p.sport||'nfl').toUpperCase()} · ${p.away} at ${p.home} · ${slateDate(p.kickoff)}`}];})).values()].sort((a,b)=>b.label.slice(-10).localeCompare(a.label.slice(-10))||a.label.localeCompare(b.label)),[beforeGame]);

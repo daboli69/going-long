@@ -11,6 +11,9 @@ const SCHEMA='going-private-classic-ownership-v1';
 function load(json){
  let data=json;if(typeof json==='string'){try{data=JSON.parse(json);}catch{return {ok:false,reason:'The file is not valid JSON.'};}}
  if(!data||data.schema!==SCHEMA||!data.models?.salary_only||!data.slot_totals)return {ok:false,reason:'This is not a GOING private Classic ownership file.'};
+ const spec=data.models.salary_only;
+ const sound=Array.isArray(data.positions)&&data.positions.length>0&&data.positions.every(pos=>finite(data.slot_totals[pos])&&Array.isArray(spec[pos]?.features)&&Array.isArray(spec[pos]?.beta)&&spec[pos].features.length===spec[pos].beta.length&&spec[pos].beta.every(finite));
+ if(!sound)return {ok:false,reason:'This Classic ownership file is incomplete (missing positions, features or coefficients).'};
  state.model=data;return {ok:true};
 }
 const clear=()=>{state.model=null;};

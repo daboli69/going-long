@@ -192,3 +192,15 @@ test('Same-game legs are explained as complements, conflicts or the same thesis'
  assert.deepEqual(I.legRelations([wr,{...wr,event:'other'}]),[]);// different games are independent
  assert.equal(I.legRelations([wr,{...wr,market:'receptions',line:5.5}])[0].kind,'same-thesis');
 });
+
+test('Parlay relations follow football logic: Under+Under fits, Under total fits a run game and conflicts with touchdowns, nested scoring legs are one thesis',()=>{
+ const I=require('../shared/going-intel.js'),g={event:'e',home:'NO',away:'MIN',kind:'prop',dec:1.9};
+ const qb={...g,player:'Q',profileId:'q',team:'MIN',market:'pass_yds',side:'Under',line:240.5},wr={...g,player:'W',profileId:'w',team:'MIN',market:'rec_yds',side:'Under',line:60.5};
+ assert.equal(I.legRelations([qb,wr])[0].kind,'complement');
+ const under={event:'e',home:'NO',away:'MIN',kind:'game',market:'total',side:'Under',line:38.5},rb={...g,player:'R',profileId:'r',team:'MIN',market:'rush_yds',side:'Over',line:70.5};
+ assert.equal(I.legRelations([under,rb])[0].kind,'complement');
+ const td={...g,player:'R',profileId:'r',team:'MIN',market:'atd',side:'Over',line:.5};
+ assert.equal(I.legRelations([under,td])[0].kind,'conflict');assert.equal(I.legRelations([{...under,side:'Over'},td])[0].kind,'complement');
+ assert.equal(I.legRelations([td,{...td,market:'rush_tds'}])[0].kind,'same-thesis');
+ const smallFav={event:'e',home:'NO',away:'MIN',kind:'game',market:'moneyline',side:'Away',dec:1.8};assert.deepEqual(I.legRelations([smallFav,rb]),[]);// a small favourite says nothing about script
+});

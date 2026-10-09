@@ -23,10 +23,11 @@ test('overperformance and an Under bet get the same neutral label, never a conce
  assert.ok(over.badges.includes('OVERPERFORMED OPPORTUNITY'));assert.ok(under.badges.includes('OVERPERFORMED OPPORTUNITY'));
  assert.deepEqual(under.concerns,P.assess({...c,side:'Under',projMean:40},base).concerns);
 });
-test('touchdown-driven gaps use separate wording',()=>{
- const e=withCtx(totals(60,84,24));assert.ok(e.badges.includes('TD ABOVE EXPECTED'));assert.ok(!e.badges.includes('OVERPERFORMED OPPORTUNITY'));
+test('touchdown-driven gaps use separate wording and a touchdown badge only on touchdown markets',()=>{
+ const e=withCtx(totals(60,84,24));assert.ok(!e.badges.includes('TD ABOVE EXPECTED'),'a yardage card must not carry a TD-luck badge');assert.ok(!e.badges.includes('OVERPERFORMED OPPORTUNITY'));
  assert.match(e.facts.find(f=>f[0]==='Opportunity vs production')[1],/touchdowns above\/below expectation/);
- assert.ok(withCtx(totals(60,36,-24)).badges.includes('TD BELOW EXPECTED'));
+ const td=(t,extra)=>P.assess({...c,market:'rush_tds',side:'Over',line:.5,projMean:.5,projSd:.5},{...base,context:ctx(t,extra)});
+ assert.ok(td(totals(60,84,24)).badges.includes('TD ABOVE EXPECTED'));assert.ok(td(totals(60,36,-24)).badges.includes('TD BELOW EXPECTED'));
 });
 test('sample, size, relative and z floors all must pass',()=>{
  const none2=e=>!e.badges.some(b=>/OPPORTUNITY|EXPECTED/.test(b));

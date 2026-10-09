@@ -91,3 +91,20 @@ No current measured routes, first-read share, receiver alignment, reliable press
 ## Failed refresh investigation
 
 [Run 37336119083](https://github.com/daboli69/going-long/actions/runs/37336119083) failed because the existing NFL props provider returned HTTP503 `PROPS_TEMPORARILY_BUSY` after its bounded retry. Previous props were retained as FALLBACK; successful snapshots were committed, then the source-failure summary correctly failed the run. This was a provider outage, not proof that every snapshot failed. Existing credentialed ParlayAPI steps ran; Travis previously confirmed their allowance incurs $0 additional. No new provider, local credentialed call, paid activation, workflow bypass or retry deployment was introduced. Dollar billing cannot be independently established from run logs.
+
+## football-case-v3 (from 2026-10-09)
+
+Adversarial football review of the Oct 11 board (550 positive cards) found that correlated evidence stacked into high tiers: the model direction (+2), the current-production average (+1) and the two-game-half usage split (+1) are all read from the same four games, and 90 of 267 props "favored" a line the projection merely sat on. v3 keeps the /100 bands and the within-band refinement, and changes only how points are earned. The v2 cohort (`going_picks_v2`, `football-case-v2`) is closed, unchanged and still validates under its own rule.
+
+| Change | Why |
+| --- | --- |
+| A model direction earns points only when the projection clears the line by at least 0.25 forecast SD, and a yardage mean must be positive | the sign alone rated lines the model sat on as support; a negative mean (Cousins rush Under 0.5) is not an edge |
+| The usage split is no longer independent evidence (tier stays at 3 without a matchup, injury split or other independent component) | it comes from the same games as production |
+| A usage split counts only when the multi-season role share agrees, or it rests on six observed games; if volume and role disagree the card says USAGE MIXED and earns no usage points | two-game halves are noise; two measures of one thing must not show opposite badges |
+| Game lines stop at tier 3; the fallback concern is game-specific | there is no independent evidence for a game line on this board |
+| An injured same-position teammate of higher depth counts against an Under (-1) and is noted as context on an Over | Shipley Under 35.5 rested on a backfield in which the RB1 did not practice |
+| `TD ROLE` and the production point need a TD in at least half of the current games; TD-luck badges appear only on touchdown markets | one touchdown in four games is not a role |
+| ROLE / TARGETS / CARRIES badges are direction-aware (`ROLE ↑ vs Under`), and VOLUME is not shown on Unders | a growing role is counterevidence for an Under |
+
+Display-only (no points, no cohort effect): role trend and scoring role from the public builds, the same-thesis grouping on the Today board, the stale-price age pill.
+Tracker: new group `going_picks_v3`; receipts validate by their own version (`evidenceTier(points, components, market, version)`).

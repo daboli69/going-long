@@ -10,5 +10,7 @@
 .role-watch .role-up .role-badge{color:var(--g-accent,#35e0c3)}
 .role-watch .role-down .role-badge{color:#e0a43a}
 .role-watch-empty{font-size:13px;color:var(--g-muted,#8fa3ad)}
-.role-watch-d>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-size:13px;line-height:1.4}
+.role-watch-d>summary{cursor:pointer;min-height:44px;font-size:13px;line-height:1.5;padding:6px 0}
 .role-watch-d ul{margin-top:6px}
+.picks-market small.picks-stale{display:inline-block;align-self:flex-start;font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid #e0a43a;color:#e0a43a;font-weight:700}
+.picks-actions button{width:100%}

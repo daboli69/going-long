@@ -3,7 +3,7 @@
  */
 (function(root){
 'use strict';
-const VERSION='football-case-v2';
+const VERSION='football-case-v3';// v3 (2026-10-09): correlated evidence no longer stacks; see docs/GOING_PICKS.md
 const FAMILIES={rec_yds:'Receiving',receptions:'Receiving',rush_yds:'Rushing',pass_yds:'Passing',pass_tds:'Passing',rush_tds:'TD',rec_tds:'TD',atd:'TD',spread:'Game',total:'Game',moneyline:'Game'};
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const intel=()=>root.GoingIntel||(typeof require!=='undefined'?require('./going-intel.js'):null);
@@ -16,9 +16,14 @@ const avg=(rows,key)=>rows.length&&rows.every(r=>finite(r[key]))?rows.reduce((s,
 function gameKey(c){return [c.sport,team(c.away),team(c.home),Number.isFinite(Date.parse(c.kickoff))?etDate(c.kickoff):'invalid'].join('|');}
 function familyKey(c){return [gameKey(c),c.kind,c.profileId||'game',c.market].join('|');}
 function contractKey(c){return [familyKey(c),c.side,c.line].join('|');}
-function evidenceTier(points,components,market){
+// v3: the model, the current-production average and the 2-vs-2 usage split are all read from the same few games, so none of them counts as independent evidence;
+// without a matchup, an injury split or another independent component the tier stops at 3. Game lines have no independent evidence on this board and stop at 3.
+// v2 receipts keep their original rule (model and production only), so the frozen v2 cohort still validates.
+function evidenceTier(points,components,market,version=VERSION){
  let tier=Math.max(1,Math.min(5,points));
- if(!components.some(x=>x.points>0&&!['model','production'].includes(x.id)))tier=Math.min(tier,3);
+ const dependent=version==='football-case-v2'?['model','production']:['model','production','usage'];
+ if(!components.some(x=>x.points>0&&!dependent.includes(x.id)))tier=Math.min(tier,3);
+ if(version!=='football-case-v2'&&['spread','total','moneyline'].includes(market))tier=Math.min(tier,3);
  return market==='atd'?Math.min(tier,2):tier;
 }
 function granularRating(c,tier){
@@ -89,22 +94,31 @@ function assess(c,options={}){
  else if(c.market==='moneyline')modelSign=Math.sign(direction*c.modelMean);
  else if(c.market==='total')modelSign=Math.sign(direction*(c.modelMean-c.line));
  else if(c.market!=='atd'&&finite(c.projMean))modelSign=Math.sign(direction*(c.projMean-c.line));
+ // v3: a model "edge" must clear a quarter of the forecast SD, and a yardage mean must be positive. The sign alone made lines the projection merely sat on look like support.
+ let belowEdge=false;
+ if(modelSign&&c.market!=='atd'){
+  const sdGap=c.kind==='game'?c.modelSd:c.projSd,gap=Math.abs(c.market==='spread'?c.modelMean+c.line:c.market==='moneyline'?c.modelMean:c.market==='total'?c.modelMean-c.line:c.projMean-c.line);
+  if(finite(sdGap)&&sdGap>0&&gap<.25*sdGap)belowEdge=true;
+  if(c.kind==='prop'&&['rec_yds','rush_yds','pass_yds'].includes(c.market)&&!(c.projMean>0))belowEdge=true;
+  if(belowEdge)modelSign=0;
+ }
  // ATD Yes lacks a comparable model-direction test. Any p>0 is not support.
  if(finite(modelSign)&&modelSign){add('model',2*modelSign,`Existing model ${modelSign>0?'favors':'opposes'} this exact direction${finite(c.projMean)?`: ${c.projMean.toFixed(1)} vs ${c.line}`:''}.`);if(modelSign>0){badges.push('MODEL +');supports.push(components.at(-1).detail);}else concerns.push(components.at(-1).detail);}
- else unknown.push(c.market==='atd'?'Any TD model direction is not graded.':'The model is neutral at this exact line.');
+ else unknown.push(c.market==='atd'?'Any TD model direction is not graded.':belowEdge?'The model is within a quarter of a standard deviation of this line: no edge.':'The model is neutral at this exact line.');
+ let roleSign=0,volumeSign=0;
  const role=o.currentRoleEvidence,pc=playerContext(c,o);
  if(c.kind==='prop'){
   const production=role?.playerId===c.profileId&&team(role.team)===team(c.team)&&role.season===o.season&&recent(role.latest,o.now)?role.means?.[c.market]:null;
   if(c.market!=='atd'&&finite(production)&&direction){const sign=Math.sign(direction*(production-c.line));add('production',sign,`Current ${role.games}-game average ${production.toFixed(1)} ${sign>0?'agrees with':'does not favor'} ${c.side} ${c.line}.`);if(sign>0)supports.push(components.at(-1).detail);else if(sign<0)concerns.push(components.at(-1).detail);}
   else unknown.push('Comparable current production is unavailable.');
   const volume=family==='Receiving'?role?.means?.targets:family==='Rushing'?role?.means?.carries:family==='Passing'?role?.means?.attempts:null;
-  if(finite(volume)&&volume>0){badges.push('VOLUME');facts.push(['Current opportunity',`${volume.toFixed(1)} ${family==='Receiving'?'targets':family==='Rushing'?'carries':'pass attempts'}/game (${role.games} observed games)`]);supports.push(facts.at(-1)[1]);}
+  if(finite(volume)&&volume>0){if(direction>=0)badges.push('VOLUME');facts.push(['Current opportunity',`${volume.toFixed(1)} ${family==='Receiving'?'targets':family==='Rushing'?'carries':'pass attempts'}/game (${role.games} observed games)`]);supports.push(facts.at(-1)[1]);}
   else if(pc)facts.push(['Observed offensive role',`${pc.player.games} games · ${finite(pc.player.target_share)?(100*pc.player.target_share).toFixed(1)+'% target share':'target share unknown'} · ${finite(pc.player.rush_share)?(100*pc.player.rush_share).toFixed(1)+'% rush share':'rush share unknown'}`]);
   else unknown.push('Current opportunity is unknown.');
-  if(pc?.trend&&direction){const points=direction*pc.trend;add('usage',points,`${pc.volume==='targets'?'Targets':'Carries'} moved ${pc.before.toFixed(1)} → ${pc.after.toFixed(1)} per observed game (two chronological groups of ${Math.floor(pc.rows.length/2)}+).`);badges.push((pc.volume==='targets'?'TARGETS ':'CARRIES ')+(pc.trend>0?'↑':'↓'));(points>0?supports:concerns).unshift(components.at(-1).detail);concerns.push('Short usage trend; opportunity counts do not prove a lasting role change or an injury cause.');}
+  if(pc?.trend&&direction){const points=direction*pc.trend;add('usage',points,`${pc.volume==='targets'?'Targets':'Carries'} moved ${pc.before.toFixed(1)} → ${pc.after.toFixed(1)} per observed game (two chronological groups of ${Math.floor(pc.rows.length/2)}+).`);badges.push((pc.volume==='targets'?'TARGETS ':'CARRIES ')+(pc.trend>0?'↑':'↓')+(points<0?' vs '+(direction>0?'Over':'Under'):''));volumeSign=pc.trend;(points>0?supports:concerns).unshift(components.at(-1).detail);concerns.push('Short usage trend; opportunity counts do not prove a lasting role change or an injury cause.');}
   else unknown.push('Role trend needs at least two observed games in each period.');
   if(pc){facts.push(['Current PBP role cutoff',pc.player.last_game],['Snap / route distinction',`${finite(pc.player.share)?(100*pc.player.share).toFixed(1)+'% '+pc.player.share_type:'Unknown snap share'}; measured routes ${pc.player.routes==null?'unavailable':pc.player.routes}`]);if(finite(pc.player.expected_catches)&&finite(pc.player.actual_catches)&&pc.player.catch_model_targets>0){facts.push(['Expected versus actual catches',`${pc.player.expected_catches.toFixed(1)} CP-summed expected / ${pc.player.actual_catches} actual on ${pc.player.catch_model_targets} modeled targets. Descriptive catch opportunity, not expected yards or a bounceback forecast.`]);}}
-  if(c.market==='atd'&&role?.tdAppearances>0&&role.games>0){add('td_role',1,`Scored a rushing/receiving TD in ${role.tdAppearances}/${role.games} current appearances.`);supports.push(components.at(-1).detail);badges.push('TD ROLE');}
+  if(c.market==='atd'&&role?.tdAppearances>0&&role.games>0&&role.tdAppearances/role.games>=.5){add('td_role',1,`Scored a rushing/receiving TD in ${role.tdAppearances}/${role.games} current appearances.`);supports.push(components.at(-1).detail);badges.push('TD ROLE');}
  }else{
   const g=o.currentGameEvidence,valid=g&&g.sport===c.sport&&team(g.home)===team(c.home)&&team(g.away)===team(c.away)&&g.season===o.season;
   if(valid){const value=c.market==='total'?g.totalContext:g.marginContext,sign=Math.sign(direction*(value+(c.market==='spread'?c.line:0)-(c.market==='total'?c.line:0)));if(finite(value)&&sign){add('production',sign,`Current scoring context ${value.toFixed(1)} ${c.market==='total'?'total':'home margin'} ${sign>0?'agrees':'conflicts'} (${g.awayGames}/${g.homeGames} finals).`);(sign>0?supports:concerns).push(components.at(-1).detail);}facts.push(['Team context','Raw current scores, not an opponent-adjusted forecast.']);}else unknown.push(o.gameEvidenceIssue||'Completed current team context is unknown.');
@@ -126,10 +140,29 @@ function assess(c,options={}){
  if(c.kind==='prop'){
   facts.push(['Projection vs line',finite(c.projMean)?`GOING projects ${c.projMean.toFixed(1)} against a line of ${c.line}${c.market==='atd'?'':` (${c.side})`}.`:'No model projection is attached.']);
   const rt=intel()?.roleTrend(c.roleTrend,c.position,c.market);
+  if(rt)roleSign=rt.state==='up'?1:rt.state==='down'?-1:0;
   if(rt){
    facts.push(['Role trend (last 6 games → last 3)',`${rt.text}. ${rt.sentence} Descriptive public data; it earns no rating points.`]);
-   if(rt.state==='up')badges.push(rt.badge);
-   if(rt.state==='down'){badges.push(rt.badge);concerns.push(`${rt.text}: the role has shrunk recently.`);}
+   const against=direction&&roleSign&&roleSign!==direction;
+   if(roleSign&&!against)badges.push(rt.badge);
+   else if(against){badges.push(rt.badge+' vs '+(direction>0?'Over':'Under'));concerns.unshift(`${rt.text}: the role has ${rt.state==='up'?'grown':'shrunk'} recently, which works against this ${direction>0?'Over':'Under'}.`);}
+   if(roleSign&&!against&&direction)supports.push(`${rt.text}: the role has ${rt.state==='up'?'expanded':'shrunk'} recently, which supports this ${direction>0?'Over':'Under'}.`);
+  }
+ }
+ // Two different measures of the same thing (this season's volume halves vs the multi-season last-6/last-3 role share) can disagree. Say so once instead of showing opposite badges.
+ if(volumeSign&&roleSign&&volumeSign!==roleSign){
+  for(const b of [...badges])if(/^(TARGETS|CARRIES) [↑↓]( vs (Over|Under))?$/.test(b)||/^ROLE [↑↓]( vs (Over|Under))?$/.test(b))badges.splice(badges.indexOf(b),1);
+  badges.push('USAGE MIXED');concerns.unshift('Volume and role signals disagree: the current season per-game volume and the last-6-to-last-3 role share point in opposite directions, so the role change is not clear.');
+ }
+ // v3: a usage split counts only when the multi-season role share agrees, or when it rests on at least six observed games (two-game halves are noise).
+ const usageIndex=components.findIndex(x=>x.id==='usage');
+ if(usageIndex>=0){
+  const agrees=roleSign!==0?roleSign===volumeSign:(pc?.rows?.length||0)>=6;
+  if(!agrees){
+   const [gone]=components.splice(usageIndex,1);
+   for(const list of [supports,concerns]){const i=list.indexOf(gone.detail);if(i>=0)list.splice(i,1);}
+   for(const b of [...badges])if(/^(TARGETS|CARRIES) [↑↓]( vs (Over|Under))?$/.test(b))badges.splice(badges.indexOf(b),1);
+   unknown.push('The recent usage split is too short or unconfirmed by the role share: it earns no points.');
   }
  }
  if(c.kind==='prop'&&['atd','rush_tds','rec_tds'].includes(c.market)){
@@ -138,20 +171,31 @@ function assess(c,options={}){
    facts.push(['Scoring role',sr.text+'.'+(sr.luckText?' '+sr.luckText:'')]);
    badges.push(...sr.badges);
    const yes=direction>0||c.market==='atd';
-   if(sr.tier==='PRIMARY'&&yes){supports.unshift(`Primary scoring role: ${Math.round(sr.share*100)}% of his team's expected TDs, ${sr.xtd.toFixed(2)} expected TDs per game. Descriptive; earns no rating points (football-case-v2 cohort stays unchanged).`);}
+   if(sr.tier==='PRIMARY'&&yes){supports.unshift(`Primary scoring role: ${Math.round(sr.share*100)}% of his team's expected TDs, ${sr.xtd.toFixed(2)} expected TDs per game. Descriptive; earns no rating points.`);}
    else if(sr.tier==='FRINGE'&&yes)concerns.unshift(`Fringe scoring role: ${Math.round(sr.share*100)}% of his team's expected TDs; touchdowns come from a thin opportunity.`);
    if(sr.luck==='above'&&yes)concerns.push(sr.luckText);
   }
  }
  const opp=['Receiving','Rushing','TD'].includes(family)?opportunityProcess(c,o):null;
  if(opp?.usage){const text=situationText(opp.usage,family);if(text)facts.push([`Situational usage (${o.season} PBP, completed games)`,`${text}. ${opp.usage.games} games observed; counts exclude kneels, spikes and two-point tries.`]);}
- if(opp?.process){facts.push(['Opportunity vs production',opp.process.detail]);badges.push(opp.process.badge);}
+ if(opp?.process){facts.push(['Opportunity vs production',opp.process.detail]);if(!opp.process.tdDriven||family==='TD')badges.push(opp.process.badge);}// a touchdown-luck badge only belongs on touchdown markets
+ if(c.kind==='prop'&&row&&['RB','WR','TE'].includes(String(row.position||c.position).toUpperCase())&&o.injuryLearning?.current_players){
+  const mates=Object.values(o.injuryLearning.current_players).filter(m=>team(m.team)===team(c.team)&&m.position===row.position&&m.gsis_id!==row.gsis_id&&finite(m.depth_rank)&&finite(row.depth_rank)&&m.depth_rank<row.depth_rank&&String(m.roster_status).toUpperCase()==='ACT');
+  const reports=o.injuryLearning.current_reports||{},hurt=mates.map(m=>({m,r:reports[team(m.team)+'|'+clean(m.name)]})).find(x=>x.r&&/did not|dnp|out|doubtful/i.test(`${x.r.practice_status||''} ${x.r.report_status||''}`));
+  if(hurt){
+   const listed=/out|doubtful/i.test(hurt.r.report_status||'');
+   const text=`${hurt.m.name} (depth ${hurt.m.depth_rank}, same position) ${listed?'is listed '+hurt.r.report_status:'did not practice'} (${hurt.r.primary_injury||'injury'}): if he sits, this player's role grows.`;
+   facts.push(['Teammate availability',text]);
+   if(direction<0){add('teammate',-1,text);concerns.unshift(text);}
+   else if(direction>0)supports.push(text);
+  }
+ }
  if(c.injury){badges.push(c.injury.roleBoost?'ROLE SCENARIO':'STATUS WATCH');concerns.unshift(c.injury.roleBoost?'Opportunity depends on a teammate absence; redistribution is a scenario, not confirmed usage.':`${c.injury.status||'Uncertain availability'} in the latest report${row?.week?' (week '+row.week+')':''}; confirm participation for this game.`);facts.push(['Existing injury treatment',c.injury.reason||'Availability may change opportunity.']);if(c.injury.stale||['questionable','limited','practice_dnp'].includes(c.injury.state))add('availability',-1,'Availability/participation is uncertain.');if(c.injury.roleBoost)facts.push(['Injury redistribution','Existing bounded role-transfer scenario; not observed with/without evidence and earns no injury points.']);}
  if(role?.games<4||c.kind==='game'&&o.currentGameEvidence&&Math.min(o.currentGameEvidence.homeGames,o.currentGameEvidence.awayGames)<4)concerns.push('Only a few current games; the role or matchup can change.');
  const points=components.reduce((s,x)=>s+x.points,0),tier=evidenceTier(points,components,c.market);
  const {rating,detail:ratingDetail}=granularRating(c,tier);
  const why=supports.slice(0,2).join(' ')||'A current model is attached; this direction needs stronger football evidence.';
- const concern=concerns[0]||(unknown.some(x=>x.includes('matchup'))?'Opponent personnel and coverage may change the projected opportunity.':unknown[0])||'Football outcomes remain uncertain; verify availability and the line.';
+ const concern=concerns[0]||(c.kind==='game'?'Game script, injuries and weather can move this line; compare the price with where the line closes.':unknown.some(x=>x.includes('matchup'))?'Opponent personnel and coverage may change the projected opportunity.':unknown[0])||'Football outcomes remain uncertain; verify availability and the line.';
  const key=c.canonicalContract||c.contract||contractKey(c);
  return {version:VERSION,eligible:true,key,gameKey:gameKey(c),family,points,rating,evidenceTier:tier,ratingDetail,components,badges:[...new Set(badges)].slice(0,4),facts,supports,concerns,unknown,why,concern,price,tdResearch:c.market==='atd',interesting:points>0,priceCaution:finite(c.ev)&&c.ev>.25?'The model and the sportsbook disagree unusually strongly on this price. Check the current role, exact market and line before relying on it; the football rating above does not use price.':null};
 }
@@ -186,9 +230,10 @@ function collapseTheses(picks){
  return out;
 }
 function relatedLabel(r){const c=r.candidate;return c.kind==='prop'?`${c.side} ${c.line} ${({rec_yds:'receiving yards',receptions:'receptions',pass_yds:'passing yards',pass_tds:'passing TDs',rush_yds:'rushing yards',rush_tds:'rushing TDs',rec_tds:'receiving TDs',atd:'anytime TD'})[c.market]||c.market}`:`${c.market} ${c.side} ${c.line}`;}
-function card(row,{label,key=row.evidence.key,rank=1,canSave=false}={}){
+const ageText=ms=>!Number.isFinite(ms)||ms<0?'age unknown':ms<3600000?Math.max(1,Math.round(ms/60000))+'m':ms<86400000?Math.round(ms/3600000)+'h':Math.round(ms/86400000)+'d';
+function card(row,{label,key=row.evidence.key,rank=1,canSave=false,gameLabel=''}={}){
  const {candidate:c,evidence:e}=row,p=e.price,odds=c.odds>0?'+'+c.odds:String(c.odds),stamp=p.valid&&Number.isFinite(Date.parse(c.updatedAt))?new Date(c.updatedAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET':'Time unavailable';
- return `<article class="picks-card" data-pick-key="${esc(key)}"><div class="picks-head"><span>#${rank} · ${esc(e.family)}</span><span class="picks-rating">GOING <b>${e.rating}/100</b></span></div><h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><h4>${esc(label)}</h4><div class="picks-badges">${e.badges.map(x=>`<span>${esc(x)}</span>`).join('')}${e.tdResearch?'<span>TD ROLE RESEARCH</span>':''}</div><p class="picks-copy"><strong>WHY</strong>${esc(e.why)}</p><p class="picks-copy concern"><strong>CONCERN</strong>${esc(e.concern)}</p><div class="picks-market"><b>${p.valid?esc(c.book)+' '+esc(odds):'Price unavailable'}</b><small>${p.fresh?'Recently observed':'PRICE NEEDS REFRESH'} · ${esc(stamp)}</small>${e.priceCaution?`<small class="picks-caution">${esc(e.priceCaution)}</small>`:''}</div>${row.related?.length?`<p class="picks-copy related"><strong>SAME THESIS</strong>${esc(row.related.map(relatedLabel).join(' · '))}</p>`:''}<details class="picks-detail" data-pick-detail="${esc(key)}"><summary>View research</summary><p>GOING ${e.rating}/100 is a heuristic football-case rating, not win chance or betting value. Model and current production overlap; unknown evidence earns zero points.</p><dl>${[...e.components.map(x=>[x.id,`${x.points>0?'+':''}${x.points}: ${x.detail}`]),['Rating detail',e.ratingDetail.strength===null?'Model spread unavailable; no within-tier refinement.':`Directional projection gap ${e.ratingDetail.gap.toFixed(2)} / model spread ${e.ratingDetail.sd.toFixed(2)}. Evidence tier ${e.evidenceTier} of 5; larger favorable gap refines within its 20-point band only.`],...e.facts,...e.unknown.map(x=>['Unknown',x]),...e.concerns.slice(1).map(x=>['Concern',x]),['Existing model estimate',`${(100*c.prob).toFixed(1)}% win / ${(100*(c.push||0)).toFixed(1)}% push; calibration not established`],['Sources',`${VERSION}; model ${c.profileDate||'team snapshot'}; ${c.n} recorded games`],['Price/value','No demonstrated sportsbook-pricing edge. Check this exact line; stale prices do not erase the football case.']].map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${row.offers?.length?`<p>Same-line offers: ${row.offers.map(x=>esc(x.book)+' '+esc(x.odds)).join(' · ')}</p>`:''}<p>Related player markets are correlated. ${row.alternatives||0} opposite/alternate/book observations remain in Markets.</p><a href="${c.profileId?'/players/?player='+encodeURIComponent(c.profileId):'/long/?mode=betting&tab=games'}">Full ${c.profileId?'player':'game'} research →</a></details><div class="picks-actions"><button type="button" data-picks-add="${esc(key)}" ${canSave&&p.saveable?'':'disabled'}>+ Compare / parlay</button></div></article>`;
+ return `<article class="picks-card" data-pick-key="${esc(key)}"><div class="picks-head"><span>#${rank} · ${esc(e.family)}${gameLabel?` · ${esc(gameLabel)}`:''}</span><span class="picks-rating">GOING <b>${e.rating}/100</b></span></div><h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><h4>${esc(label)}</h4><div class="picks-badges">${e.badges.map(x=>`<span>${esc(x)}</span>`).join('')}${e.tdResearch?'<span>TD ROLE RESEARCH</span>':''}</div><p class="picks-copy"><strong>WHY</strong>${esc(e.why)}</p><p class="picks-copy concern"><strong>CONCERN</strong>${esc(e.concern)}</p><div class="picks-market"><b>${p.valid?esc(c.book)+' '+esc(odds):'Price unavailable'}</b><small class="${p.fresh?'':'picks-stale'}">${p.fresh?'Recently observed':'PRICE NEEDS REFRESH · '+ageText(Date.now()-Date.parse(c.updatedAt))+' old'} · ${esc(stamp)}</small>${e.priceCaution?`<small class="picks-caution">${esc(e.priceCaution)}</small>`:''}</div>${row.related?.length?`<p class="picks-copy related"><strong>SAME THESIS</strong>${esc(row.related.map(relatedLabel).join(' · '))}</p>`:''}<details class="picks-detail" data-pick-detail="${esc(key)}"><summary>View research</summary><p>GOING ${e.rating}/100 is a heuristic football-case rating, not win chance or betting value. Model and current production overlap; unknown evidence earns zero points.</p><dl>${[...e.components.map(x=>[x.id,`${x.points>0?'+':''}${x.points}: ${x.detail}`]),['Rating detail',e.ratingDetail.strength===null?'Model spread unavailable; no within-tier refinement.':`Directional projection gap ${e.ratingDetail.gap.toFixed(2)} / model spread ${e.ratingDetail.sd.toFixed(2)}. Evidence tier ${e.evidenceTier} of 5; larger favorable gap refines within its 20-point band only.`],...e.facts,...e.unknown.map(x=>['Unknown',x]),...e.concerns.slice(1).map(x=>['Concern',x]),['Existing model estimate',`${(100*c.prob).toFixed(1)}% win / ${(100*(c.push||0)).toFixed(1)}% push; calibration not established`],['Sources',`${VERSION}; model ${c.profileDate||'team snapshot'}; ${c.n} recorded games`],['Price/value','No demonstrated sportsbook-pricing edge. Check this exact line; stale prices do not erase the football case.']].map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${row.offers?.length?`<p>Same-line offers: ${row.offers.map(x=>esc(x.book)+' '+esc(x.odds)).join(' · ')}</p>`:''}<p>Related player markets are correlated. ${row.alternatives||0} opposite/alternate/book observations remain in Markets.</p><a href="${c.profileId?'/players/?player='+encodeURIComponent(c.profileId):'/long/?mode=betting&tab=games'}">Full ${c.profileId?'player':'game'} research →</a></details><div class="picks-actions"><button type="button" data-picks-add="${esc(key)}" ${canSave&&p.saveable?'':'disabled'}>+ Compare / parlay</button></div></article>`;
 }
 root.GoingFootballPicks={collapse:collapseTheses,VERSION,OPPORTUNITY_RULE,opportunityProcess,FAMILIES,gameKey,familyKey,contractKey,quote,playerContext,evidenceTier,granularRating,assess,board,card};if(typeof module!=='undefined')module.exports=root.GoingFootballPicks;
 })(globalThis);

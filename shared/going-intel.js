@@ -8,13 +8,12 @@ const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const RULE={snap:8,target:.03,carry:.05};// L3 minus L6, in snap-share points / share of team targets / share of team carries (same constants as the build)
 
 // Which role metrics matter for which market. QBs have no snap/target/carry-share role in the passing markets, so no role badge there.
+// One answer per player: the metric set depends on POSITION only, so a player never reads ROLE up on one page and flat on another. (QBs have no snap/target/carry-share role.)
 function relevantMetrics(position,market){
  const pos=String(position||'').toUpperCase();
- if(pos==='QB'||!pos)return [];
- if(['rec_yds','receptions','rec_tds'].includes(market))return ['snap_share','target_share'];
- if(['rush_yds','rush_tds'].includes(market))return ['snap_share','carry_share'];
- if(['atd','first_td','last_td'].includes(market))return pos==='RB'?['snap_share','carry_share','target_share']:['snap_share','target_share'];
- return [];
+ if(!pos||pos==='QB'||!['RB','WR','TE'].includes(pos))return [];
+ if(['pass_yds','pass_tds'].includes(market))return [];
+ return pos==='RB'?['snap_share','carry_share','target_share']:['snap_share','target_share'];
 }
 const LABEL={snap_share:'Snap share',target_share:'Target share',carry_share:'Carry share'};
 const THRESHOLD={snap_share:RULE.snap,target_share:RULE.target,carry_share:RULE.carry};
@@ -48,9 +47,16 @@ function roleSeries(trend,position){
 // Scoring role (build: scripts/scoring_role.py, public nflverse play-by-play, games before the build date). Research JP-1..5: expected TDs per game by field zone, share of team
 // expected TDs and snap share predict anytime TD beyond the Champion rate (2025 holdout, log loss -4.2%); tiers separate anytime rates monotonically (PRIMARY .47 ... FRINGE .07).
 // First/last/longest-TD probabilities from it are still SHADOW; trends are not used (rejected).
+// A profile is current when the player appeared within 21 days and the roster does not list him reserve/injured/suspended/retired. Stale profiles must not read as current form.
+const OUT_STATUS=new Set(['RES','INA','PUP','IR','SUS','RET','EXE']);
+const unavailableIds=cache=>{const s=new Set();for(const v of Object.values(cache||{}))if(v?.gsis_id&&OUT_STATUS.has(String(v.roster_status||'').toUpperCase()))s.add(v.gsis_id);return s;};
+function activeProfile(profile,out=null,now=Date.now()){
+ const t=Date.parse(profile?.last_game);if(!Number.isFinite(t)||now-t>21*86400000||t>now+86400000)return false;
+ return !(out&&profile.id&&out.has(profile.id));
+}
 const TIER_TEXT={PRIMARY:'primary scoring role',SECONDARY:'secondary scoring role',TERTIARY:'tertiary scoring role',FRINGE:'fringe scoring role'};
 function scoringRole(sr,position,market){
- if(!sr||sr.confidence==='low'||!sr.tier||!finite(sr.xtd_pg_l12)||!finite(sr.xtd_share_l6))return null;
+ if(!sr||sr.confidence==='low'||!TIER_TEXT[sr.tier]||!finite(sr.xtd_pg_l12)||!finite(sr.xtd_share_l6))return null;
  const pos=String(position||'').toUpperCase(),badges=[];
  if(sr.tier==='PRIMARY')badges.push('SCORING ROLE');
  if(['RB','QB'].includes(pos)&&finite(sr.gl_carry_pg_l12)&&sr.gl_carry_pg_l12>=.5)badges.push('GOAL LINE');
@@ -78,13 +84,19 @@ function thesisKey(c){
 const NAME={rec_yds:'receiving yards',receptions:'receptions',pass_yds:'passing yards',pass_tds:'passing TDs',rush_yds:'rushing yards',rush_tds:'rushing TDs',rec_tds:'receiving TDs',atd:'anytime TD',total:'game total',spread:'spread',moneyline:'moneyline'};
 const legName=l=>l.kind==='prop'?l.player:'Game';
 const legText=l=>l.market==='atd'?`${l.player} anytime TD`:l.kind==='prop'?`${l.player} ${String(l.side).toLowerCase()} ${l.line} ${NAME[l.market]||l.market}`:l.market==='total'?`${l.side} ${l.line}`:l.market==='moneyline'?`${l.side==='Home'?l.home:l.away} to win`:`${l.side==='Home'?l.home:l.away} spread`;
-const overVolume=l=>l.kind==='prop'&&l.side==='Over'&&['rec_yds','receptions','pass_yds','rush_yds'].includes(l.market);
+const overVolume=l=>l.kind==='prop'&&l.side==='Over'&&['rec_yds','receptions','pass_yds'].includes(l.market);
+const scoringProp=l=>l.kind==='prop'&&['atd','rush_tds','rec_tds','pass_tds'].includes(l.market);
+const scoringEvent=l=>l.kind==='prop'&&['atd','first_td','last_td','rush_tds','rec_tds'].includes(l.market);
 const passer=l=>l.kind==='prop'&&['pass_yds','pass_tds'].includes(l.market);
 const catcher=l=>l.kind==='prop'&&['rec_yds','receptions','rec_tds'].includes(l.market);
+// A clear favourite only: moneyline of about -200 or shorter, or a spread of 3 points or more. A pick'em or a small favourite says nothing about game script.
+// The team this leg BACKS, if that team is a clear favourite. Spread legs on both sides store the HOME line (the label negates it for the away side), so the backed team is
+// laying points when (home leg and home line <= -3) or (away leg and home line >= +3).
 function favoriteTeam(l){
  if(l.kind!=='game')return null;
- if(l.market==='moneyline')return l.dec<2?(l.side==='Home'?l.home:l.away):null;
- if(l.market==='spread'){const homeLine=l.side==='Home'?l.line:-l.line;return l.side==='Home'?(homeLine<0?l.home:null):(homeLine>0?l.away:null);}
+ const backed=l.side==='Home'?l.home:l.side==='Away'?l.away:null;if(!backed)return null;
+ if(l.market==='moneyline')return l.dec<=1.5?backed:null;
+ if(l.market==='spread'){const laying=l.side==='Home'?-l.line:l.line;return laying>=3?backed:null;}
  return null;
 }
 function legRelations(legs){
@@ -93,10 +105,12 @@ function legRelations(legs){
   const a=list[i],b=list[j];if(a.event!==b.event)continue;
   const add=(kind,text)=>out.push({kind,legs:[i,j],text});
   const ka=thesisKey(a);
+  if(a.profileId&&a.profileId===b.profileId&&scoringEvent(a)&&scoringEvent(b)&&a.side!=='Under'&&b.side!=='Under'){add('same-thesis',`${legText(a)} and ${legText(b)} are nested: one touchdown can settle both, so they are not independent.`);continue;}
   if(ka&&ka===thesisKey(b)){add('same-thesis',`${legText(a)} and ${legText(b)} are one thesis: both win if the same volume shows up. Hitting one makes the other likelier, so they are not two independent edges.`);continue;}
   if(passer(a)!==passer(b)&&(catcher(a)||catcher(b))&&a.team&&a.team===b.team){
    const p=passer(a)?a:b,c=passer(a)?b:a;
-   if(p.side==='Over'&&c.side==='Over')add('complement',`${legText(p)} and ${legText(c)} both need the same passing offense to produce; QB and receiver outcomes are positively correlated (measured, about +.2 to +.3).`);
+   if(p.side==='Over'&&c.side==='Over')add('complement',`${legText(p)} and ${legText(c)} both need the same passing offense to produce; QB and receiver outcomes are positively correlated (measured on fantasy points: about +.2 to +.3 for WR1/WR2/TE1).`);
+   else if(p.side==='Under'&&c.side==='Under')add('complement',`${legText(p)} and ${legText(c)} both win in a low-volume passing game for this offense.`);
    else if(p.side==='Over'&&c.side==='Under'||p.side==='Under'&&c.side==='Over')add('conflict',`${legText(p)} and ${legText(c)} pull in opposite directions: a big passing day usually means catches for his receivers.`);
    continue;
   }
@@ -106,13 +120,21 @@ function legRelations(legs){
    else add('complement',`${legText(total)} supports ${legText(other)}: more scoring means more plays and more volume.`);
    continue;
   }
+  if(total&&other!==total&&other.kind==='prop'&&other.market==='rush_yds'&&other.side==='Over'&&total.side==='Under'){add('complement',`${legText(total)} and ${legText(other)} fit together: low-scoring games are run-heavy and burn clock.`);continue;}
+  if(total&&other!==total&&scoringProp(other)&&other.side!=='Under'){
+   if(total.side==='Under')add('conflict',`${legText(total)} works against ${legText(other)}: fewer points means fewer touchdowns to go around.`);
+   else add('complement',`${legText(total)} supports ${legText(other)}: more points means more touchdowns.`);
+   continue;
+  }
   const fav=favoriteTeam(a)||favoriteTeam(b),game=favoriteTeam(a)?a:favoriteTeam(b)?b:null,prop=game===a?b:a;
   if(fav&&prop.kind==='prop'&&prop.team===fav&&prop.market==='rush_yds'&&prop.side==='Over')add('complement',`${fav} winning supports ${legText(prop)}: teams with a lead run more late.`);
   else if(fav&&prop.kind==='prop'&&prop.team&&prop.team!==fav&&prop.market==='rush_yds'&&prop.side==='Over')add('conflict',`${fav} winning works against ${legText(prop)}: a trailing team runs less.`);
+  else if(fav&&prop.kind==='prop'&&prop.team===fav&&['rush_tds','atd'].includes(prop.market)&&prop.side!=='Under')add('complement',`${fav} winning supports ${legText(prop)}: leading teams score on the ground late.`);
+  else if(fav&&prop.kind==='prop'&&prop.team&&prop.team!==fav&&prop.market==='pass_yds'&&prop.side==='Over')add('complement',`${fav} winning supports ${legText(prop)}: a trailing team throws more.`);
   else if(passer(a)&&passer(b)&&a.team!==b.team&&a.side==='Over'&&b.side==='Over')add('complement',`${legText(a)} and ${legText(b)} both benefit from a shootout, so they tend to hit together.`);
  }
  return out;
 }
-root.GoingIntel={RULE,relevantMetrics,roleTrend,roleSeries,scoringRole,thesisKey,legRelations};
+root.GoingIntel={RULE,relevantMetrics,roleTrend,roleSeries,scoringRole,thesisKey,legRelations,unavailableIds,activeProfile};
 if(typeof module!=='undefined')module.exports=root.GoingIntel;
 })(globalThis);

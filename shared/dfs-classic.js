@@ -122,8 +122,14 @@ function tournamentEngine(){return root.GoingDfsTournament||(typeof require==='f
 function tournamentSum(players){const engine=tournamentEngine();return players.reduce((sum,p)=>sum+(engine?.objective(p)??p.projection),0);}
 const simEngine=()=>root.GoingDfsSim||(typeof require==='function'?require('./dfs-sim.js'):null);
 // Measured ceiling: mean + 1.28 SD of the lineup total, using the measured player correlations (research P3-7/P3-9). The beam uses an additive proxy; finalists are re-ranked on the exact joint moments.
-const MEASURED_Z=1.2816,proxy=p=>p.projection+MEASURED_Z*.7*(finite(p.distribution?.sd)?p.distribution.sd:0);
-function measuredObjective(players){const m=simEngine()?.lineupMoments(players);return m?m.mean+MEASURED_Z*m.sd:players.reduce((s,p)=>s+p.projection,0);}
+const MEASURED_Z=1.2816,TYPICAL_LINEUP_SD=19;
+const spreadOf=p=>finite(p.distribution?.sd)?p.distribution.sd:Math.max(2.5,(p.projection||0)*.42);
+// The beam needs an additive proxy. A player's marginal contribution to a lineup's 90th percentile is about z*sd_i^2/SD_lineup (not z*sd_i): variance matters in proportion to its square.
+const proxy=p=>p.projection+MEASURED_Z*spreadOf(p)**2/TYPICAL_LINEUP_SD;
+// Exact lineup mean and SD with the measured correlations. The mean is the projection itself (simulated means carry sampling noise of about 0.2-0.3 pt per player); D/ST has no simulated
+// distribution and uses the platform-average spread, independent of everyone else.
+function measuredMoments(players){const m=simEngine()?.lineupMoments(players.map(p=>({dfsRole:p.dfsRole,team:p.team,opponent:p.opponent,projection:p.projection,sd:spreadOf(p),distribution:finite(p.distribution?.sd)?{mean:p.projection,sd:p.distribution.sd}:undefined})));return m||null;}
+function measuredObjective(players){const m=measuredMoments(players);return m?m.mean+MEASURED_Z*m.sd:players.reduce((s,p)=>s+p.projection,0);}
 function compare(a,b,mode){return (mode==='measured'?(b.measuredTotal??=b.players.reduce((s,p)=>s+proxy(p),0))-(a.measuredTotal??=a.players.reduce((s,p)=>s+proxy(p),0)):mode==='tournament'?(b.tournamentTotal??=tournamentSum(b.players))-(a.tournamentTotal??=tournamentSum(a.players)):mode==='throne'?b.tdMean-a.tdMean:0)||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
 function thresholdEngine(){return root.GoingDfsThreshold||(typeof require==='function'?require('./dfs-threshold.js'):null);}
 function thresholdCompare(a,b){return b.tdThreshold.tailMass-a.tdThreshold.tailMass||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
@@ -219,6 +225,6 @@ function alternatives(lineup,slotIndex,pool,options={}){
  results.sort((a,b)=>(c.mode==='tournament'?tournamentSum(b.lineup)-tournamentSum(a.lineup):scenario?b.tdThresholdDelta-a.tdThresholdDelta:c.mode==='throne'?b.tdMeanDelta-a.tdMeanDelta:0)||b.projectionDelta-a.projectionDelta||a.salaryDelta-b.salaryDelta||String(a.player.id).localeCompare(String(b.player.id)));
  return {alternatives:results,errors:[]};
 }
-root.GoingDfsClassic={SLOTS,CAP,matchName,kickoffET,parseCsv,validateLineup,optimize,alternatives};
+root.GoingDfsClassic={SLOTS,CAP,matchName,kickoffET,parseCsv,validateLineup,optimize,alternatives,measuredMoments};
 if(typeof module!=='undefined')module.exports=root.GoingDfsClassic;
 })(globalThis);

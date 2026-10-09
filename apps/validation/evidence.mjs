@@ -3,7 +3,7 @@ export function recordedEvidence(p){
  const lines=[];
  if(Number.isFinite(evidence.n))lines.push(`${evidence.n} recorded games supported this estimate.`);
  if(evidence.profileDate)lines.push(`Player history through ${evidence.profileDate}.`);
- const picks=p.picks_snapshot;if(['football-case-v1','football-case-v2'].includes(picks?.version)){lines.push('Frozen GOING rating: '+picks.rating+(picks.version==='football-case-v2'?'/100':'/5')+' — research strength, not probability or value.');lines.push('Why: '+picks.why,'Concern: '+picks.concern,'Badges: '+picks.badges.join(', '));for(const [name,value] of picks.facts||[])lines.push(name+': '+value);}
+ const picks=p.picks_snapshot;if(['football-case-v1','football-case-v2','football-case-v3'].includes(picks?.version)){lines.push('Frozen GOING rating: '+picks.rating+(picks.version==='football-case-v1'?'/5':'/100')+' — research strength, not probability or value.');lines.push('Why: '+picks.why,'Concern: '+picks.concern,'Badges: '+picks.badges.join(', '));for(const [name,value] of picks.facts||[])lines.push(name+': '+value);}
  const readiness=p.readiness_snapshot;
  if(readiness?.schema_version===2&&readiness.version==='football-readiness-v2'&&readiness.captured_at&&readiness.assessor_sha256){
   lines.push(`Saved GOING Confidence at capture: ${readiness.label} (${readiness.captured_at}).`);

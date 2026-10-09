@@ -100,7 +100,7 @@ def summarize(rows):
             'mean_clv_vs_sampled_close': float(np.mean(clv)) if clv else None, 'n_with_close': len(clv), 'vs_closing_novig': cm, 'calibration_bins': bins}
 
 
-def benchmark(records, groups=('all_projection', 'best_model', 'going_picks_v2', 'going_picks_v1')):
+def benchmark(records, groups=('all_projection', 'best_model', 'going_picks_v3', 'going_picks_v2', 'going_picks_v1')):
     rows = frame(records)
     out = {}
     for group in groups:
