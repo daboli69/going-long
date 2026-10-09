@@ -116,6 +116,14 @@ jobs:
         continue-on-error: true
         if: ${{ !cancelled() }}
         run: node scripts/build_consumer_data.mjs
+      - name: Settle TD shadow and write the pregame freeze manifest
+        id: freeze
+        continue-on-error: true
+        if: ${{ !cancelled() }}
+        # Public data only. The freeze is write-once and only written before the first kickoff of the day.
+        run: |
+          python scripts/td_shadow.py settle
+          python scripts/sunday_freeze.py "$(date -u +%F)"
       - name: Commit generated snapshots
         if: ${{ !cancelled() }}
         # Every consumer feature is a static artifact; no database or service added.
@@ -125,7 +133,7 @@ jobs:
           git config user.name goinglong-bot
           git config user.email actions@github.com
           paths=(data/public_tracker.json data/public_tracker data/derived data/king-endzone.json data/slate-breaker.json data/jackpot data/savant_context.json data/football_context.json data/injury_context.json data/football_role_validation.json data/football_game_validation.json data/season_learning.json data/results.json data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
-          paths+=(data/nfl_roster.json data/opportunities.json data/signal_tracker.json data/signal_archive)
+          paths+=(data/nfl_roster.json data/opportunities.json data/signal_tracker.json data/signal_archive data/freezes data/td_shadow)
           existing=()
           for path in "${paths[@]}"; do
             if [ -e "$path" ]; then existing+=("$path"); fi

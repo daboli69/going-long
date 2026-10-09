@@ -63,7 +63,14 @@ test('Scoring role: tier, goal-line/red-zone badges and TD luck appear on touchd
  assert.deepEqual(I.scoringRole({...sr,gl_carry_pg_l12:.6},'RB','atd').badges,['SCORING ROLE','GOAL LINE','RED ZONE']);
  assert.equal(I.scoringRole({...sr,confidence:'low'},'RB','atd'),null);assert.equal(I.scoringRole(null,'RB','atd'),null);
  const td={...c,market:'atd',side:'Yes',line:.5,position:'RB',scoringRole:sr},e=P.assess(td,o);
- assert.ok(e.badges.includes('SCORING ROLE'));assert.ok(e.facts.some(x=>x[0]==='Scoring role'&&/primary scoring role/i.test(x[1])));assert.ok(e.components.some(x=>x.id==='scoring_role'&&x.points===1));
+ assert.ok(e.badges.includes('SCORING ROLE'));assert.ok(e.facts.some(x=>x[0]==='Scoring role'&&/primary scoring role/i.test(x[1])));assert.equal(e.components.some(x=>x.id==='scoring_role'),false);assert.equal(e.points,P.assess({...td,scoringRole:null},o).points);
  assert.ok(e.concerns.some(x=>/more than his opportunity predicts/.test(x)));
  assert.equal(P.assess({...c,position:'RB',scoringRole:sr},o).facts.some(x=>x[0]==='Scoring role'),false);// not a touchdown market
+});
+
+test('collapse() merges same-thesis rows for display and keeps the best-rated first; board() itself does not collapse',()=>{
+ const mk=(market,line)=>({candidate:{kind:'prop',away:'MIN',home:'NO',profileId:'p',market,side:'Over',line},evidence:{rating:50}});
+ const rows=[mk('rec_yds',42.5),mk('receptions',4.5),{candidate:{kind:'prop',away:'MIN',home:'NO',profileId:'q',market:'rec_yds',side:'Over',line:50.5},evidence:{rating:40}}];
+ const out=P.collapse(rows);assert.equal(out.length,2);assert.equal(out[0].related.length,1);assert.equal(out[0].related[0].candidate.market,'receptions');
+ assert.match(P.card({...out[0],evidence:{...P.assess(c,o),rating:50,family:'Receiving',badges:[],components:[],ratingDetail:{strength:null},facts:[],unknown:[],concerns:[],why:'w',concern:'c',price:P.quote(c,o.now),key:'k'},offers:[]},{label:'x'}),/SAME THESIS/);
 });

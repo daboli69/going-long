@@ -138,7 +138,7 @@ function assess(c,options={}){
    facts.push(['Scoring role',sr.text+'.'+(sr.luckText?' '+sr.luckText:'')]);
    badges.push(...sr.badges);
    const yes=direction>0||c.market==='atd';
-   if(sr.tier==='PRIMARY'&&yes){add('scoring_role',1,`Primary scoring role: ${Math.round(sr.share*100)}% of his team's expected TDs, ${sr.xtd.toFixed(2)} expected TDs per game.`);supports.unshift(components.at(-1).detail);}
+   if(sr.tier==='PRIMARY'&&yes){supports.unshift(`Primary scoring role: ${Math.round(sr.share*100)}% of his team's expected TDs, ${sr.xtd.toFixed(2)} expected TDs per game. Descriptive; earns no rating points (football-case-v2 cohort stays unchanged).`);}
    else if(sr.tier==='FRINGE'&&yes)concerns.unshift(`Fringe scoring role: ${Math.round(sr.share*100)}% of his team's expected TDs; touchdowns come from a thin opportunity.`);
    if(sr.luck==='above'&&yes)concerns.push(sr.luckText);
   }
@@ -170,9 +170,10 @@ function board(rows,options){
   const chosen=offers[0];chosen.offers=offers.map(x=>({book:x.candidate.book,odds:x.candidate.odds,updatedAt:x.candidate.updatedAt}));chosen.alternatives=pool.length-offers.length;picks.push(chosen);
  }
  picks.sort((a,b)=>b.evidence.rating-a.evidence.rating||b.evidence.points-a.evidence.points||Date.parse(a.candidate.kickoff)-Date.parse(b.candidate.kickoff)||contractKey(a.candidate).localeCompare(contractKey(b.candidate)));
- return {version:VERSION,picks:collapseTheses(picks),excluded};
+ return {version:VERSION,picks,excluded};
 }
-// Cards that are the same football thesis (e.g. Over receiving yards and Over receptions for one player) show once, with the others listed as related.
+// Display-time grouping: cards that are the same football thesis (e.g. Over receiving yards and Over receptions for one player) show once, with the others listed as related.
+// board() itself is unchanged (the tracked football-case-v2 cohort keeps recording every contract).
 function collapseTheses(picks){
  const seen=new Map(),out=[];
  for(const row of picks){
@@ -189,5 +190,5 @@ function card(row,{label,key=row.evidence.key,rank=1,canSave=false}={}){
  const {candidate:c,evidence:e}=row,p=e.price,odds=c.odds>0?'+'+c.odds:String(c.odds),stamp=p.valid&&Number.isFinite(Date.parse(c.updatedAt))?new Date(c.updatedAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/New_York'})+' ET':'Time unavailable';
  return `<article class="picks-card" data-pick-key="${esc(key)}"><div class="picks-head"><span>#${rank} · ${esc(e.family)}</span><span class="picks-rating">GOING <b>${e.rating}/100</b></span></div><h3>${esc(c.kind==='prop'?c.player:c.away+' @ '+c.home)}</h3><h4>${esc(label)}</h4><div class="picks-badges">${e.badges.map(x=>`<span>${esc(x)}</span>`).join('')}${e.tdResearch?'<span>TD ROLE RESEARCH</span>':''}</div><p class="picks-copy"><strong>WHY</strong>${esc(e.why)}</p><p class="picks-copy concern"><strong>CONCERN</strong>${esc(e.concern)}</p><div class="picks-market"><b>${p.valid?esc(c.book)+' '+esc(odds):'Price unavailable'}</b><small>${p.fresh?'Recently observed':'PRICE NEEDS REFRESH'} · ${esc(stamp)}</small>${e.priceCaution?`<small class="picks-caution">${esc(e.priceCaution)}</small>`:''}</div>${row.related?.length?`<p class="picks-copy related"><strong>SAME THESIS</strong>${esc(row.related.map(relatedLabel).join(' · '))}</p>`:''}<details class="picks-detail" data-pick-detail="${esc(key)}"><summary>View research</summary><p>GOING ${e.rating}/100 is a heuristic football-case rating, not win chance or betting value. Model and current production overlap; unknown evidence earns zero points.</p><dl>${[...e.components.map(x=>[x.id,`${x.points>0?'+':''}${x.points}: ${x.detail}`]),['Rating detail',e.ratingDetail.strength===null?'Model spread unavailable; no within-tier refinement.':`Directional projection gap ${e.ratingDetail.gap.toFixed(2)} / model spread ${e.ratingDetail.sd.toFixed(2)}. Evidence tier ${e.evidenceTier} of 5; larger favorable gap refines within its 20-point band only.`],...e.facts,...e.unknown.map(x=>['Unknown',x]),...e.concerns.slice(1).map(x=>['Concern',x]),['Existing model estimate',`${(100*c.prob).toFixed(1)}% win / ${(100*(c.push||0)).toFixed(1)}% push; calibration not established`],['Sources',`${VERSION}; model ${c.profileDate||'team snapshot'}; ${c.n} recorded games`],['Price/value','No demonstrated sportsbook-pricing edge. Check this exact line; stale prices do not erase the football case.']].map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>${row.offers?.length?`<p>Same-line offers: ${row.offers.map(x=>esc(x.book)+' '+esc(x.odds)).join(' · ')}</p>`:''}<p>Related player markets are correlated. ${row.alternatives||0} opposite/alternate/book observations remain in Markets.</p><a href="${c.profileId?'/players/?player='+encodeURIComponent(c.profileId):'/long/?mode=betting&tab=games'}">Full ${c.profileId?'player':'game'} research →</a></details><div class="picks-actions"><button type="button" data-picks-add="${esc(key)}" ${canSave&&p.saveable?'':'disabled'}>+ Compare / parlay</button></div></article>`;
 }
-root.GoingFootballPicks={VERSION,OPPORTUNITY_RULE,opportunityProcess,FAMILIES,gameKey,familyKey,contractKey,quote,playerContext,evidenceTier,granularRating,assess,board,card};if(typeof module!=='undefined')module.exports=root.GoingFootballPicks;
+root.GoingFootballPicks={collapse:collapseTheses,VERSION,OPPORTUNITY_RULE,opportunityProcess,FAMILIES,gameKey,familyKey,contractKey,quote,playerContext,evidenceTier,granularRating,assess,board,card};if(typeof module!=='undefined')module.exports=root.GoingFootballPicks;
 })(globalThis);
