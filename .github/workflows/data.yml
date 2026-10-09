@@ -127,6 +127,7 @@ jobs:
         run: |
           python scripts/sunday_freeze.py "$(date -u +%F)"
           python scripts/td_shadow.py settle || echo 'td shadow settle skipped'
+          python scripts/nb_shadow.py settle || echo 'nb shadow settle skipped'
       - name: Commit generated snapshots
         if: ${{ !cancelled() }}
         # Every consumer feature is a static artifact; no database or service added.
@@ -136,7 +137,7 @@ jobs:
           git config user.name goinglong-bot
           git config user.email actions@github.com
           paths=(data/public_tracker.json data/public_tracker data/derived data/king-endzone.json data/slate-breaker.json data/jackpot data/savant_context.json data/football_context.json data/injury_context.json data/football_role_validation.json data/football_game_validation.json data/season_learning.json data/results.json data/players.json data/formats data/history.json data/data.json data/nfl_betting.json data/ncaa_lines.json)
-          paths+=(data/nfl_roster.json data/opportunities.json data/signal_tracker.json data/signal_archive data/freezes data/td_shadow data/role_shadow)
+          paths+=(data/nfl_roster.json data/opportunities.json data/signal_tracker.json data/signal_archive data/freezes data/td_shadow data/role_shadow data/nb_shadow)
           existing=()
           for path in "${paths[@]}"; do
             if [ -e "$path" ]; then existing+=("$path"); fi

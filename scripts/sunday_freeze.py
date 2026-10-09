@@ -49,7 +49,7 @@ def main(day):
         scoring += 1 if p.get('scoring_role') else 0
     champion = json.loads((REPO / 'config/champion_policy.json').read_text(encoding='utf-8'))
     shadows = {}
-    for folder in ('role_shadow', 'td_shadow'):
+    for folder in ('role_shadow', 'td_shadow', 'nb_shadow'):
         for path in sorted((REPO / 'data' / folder).glob('*-week-??.json')):
             doc = json.loads(path.read_text(encoding='utf-8'))
             rows = len(doc.get('rows', [])) or sum(len(g.get('candidates', [])) for g in doc.get('games', []) if isinstance(g, dict))

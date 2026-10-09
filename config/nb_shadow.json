@@ -1,0 +1,16 @@
+{
+ "version": "nb-shadow-config-1",
+ "market": "receptions",
+ "family": "nb1",
+ "definition": "variance = c * mean, c = 1 + a",
+ "a": 0.5317010954467075,
+ "c": 1.5317,
+ "fit": {
+  "data": "nflverse-derived champion rows 2021-2023 only",
+  "mean": "blend c=2",
+  "n_rows": 16434,
+  "loglik_nb1": -1.6505591909130612,
+  "loglik_poisson": -1.7078520693111787,
+  "delta_nats_per_row": 0.057292878398117475
+ }
+}
