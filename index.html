@@ -3313,6 +3313,9 @@ function footballTrust(c,now=Date.now()){
  const reasons=[];
  let review=Number.isFinite(c.ev)&&c.ev>.25;
  if(review)reasons.push('The model and sportsbook disagree unusually strongly. Check the current role and exact market before relying on this estimate.');
+ // Calibration audit 2026-10-09: outcomes the model put at 85%+ won far less often (94% predicted, 72% observed) and live model-vs-price gaps carried little signal.
+ const extreme=Number.isFinite(c.prob)&&(c.prob>=.85||(c.prob<=.15&&Number.isFinite(c.dec)&&c.dec>=4));
+ if(extreme){review=true;reasons.push('The model puts this at an extreme probability. Estimates above 85% have not held up in recorded results, so treat the value estimate as overstated.');}
  const historical=Boolean(c.profileDate)&&now-Date.parse(c.profileDate)>120*86400000;
  if(historical)reasons.push('Player history is more than 120 days old; current playing time may differ.');
  if(c.market==='first_td'||/_1[hq]$/.test(c.market||''))reasons.push('This market uses an experimental model that has not been validated against recorded outcomes.');
