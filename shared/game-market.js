@@ -11,13 +11,25 @@ const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const POLICY={version:'market-anchor-v1',active:true,nfl:{total_sd:13.3,margin_sd:12.75,evidence:'2016-2022 closing-line residuals (fit), 2023-25 holdout; independent QA reproduced'},ncaa:{total_sd:15,margin_sd:16,evidence:'live 2026 sample only (about 100 games); weak'}};
 function active(){return POLICY.active&&root.GOING_GAME_ANCHOR!==false;}
 // g: game with posted `spread` (home line, negative when home favoured) and `total`; m: trailing-average model. Returns a model-shaped object.
+function normalCDF(x){const t=1/(1+.2316419*Math.abs(x)),d=.3989423*Math.exp(-x*x/2),p=d*t*(.3193815+t*(-.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return x>0?1-p:p;}
+function americanDecimal(a){return !finite(a)||a===0?null:a>0?1+a/100:1+100/-a;}
+// A book row with a moneyline but no spread still carries the market's view of the margin: de-vig the moneyline and solve for the mean that reproduces it
+// (same discretised two-way split the quote code applies), so moneylines are never priced off the raw trailing model.
+function marginFromMoneyline(g,sd){
+ const dh=americanDecimal(g?.mlHome),da=americanDecimal(g?.mlAway);if(!dh||!da)return null;
+ const ph=(1/dh)/(1/dh+1/da);if(!(ph>.001&&ph<.999))return null;
+ let lo=-60,hi=60;
+ for(let i=0;i<60;i++){const mid=(lo+hi)/2,over=1-normalCDF((0.5-mid)/sd),under=normalCDF((-0.5-mid)/sd),share=over/(over+under);if(share<ph)lo=mid;else hi=mid;}
+ return (lo+hi)/2;
+}
 function anchor(g,m,sport){
  if(!m||!active())return m;
  const s=POLICY[String(sport||g?.sport||'nfl').toLowerCase()==='ncaa'?'ncaa':'nfl'];
- const hasMargin=finite(g?.spread),hasTotal=finite(g?.total);
+ const spreadMargin=finite(g?.spread)?-g.spread:null,mlMargin=spreadMargin==null?marginFromMoneyline(g,s.margin_sd):null,marginMean=spreadMargin!=null?spreadMargin:mlMargin;
+ const hasMargin=marginMean!=null,hasTotal=finite(g?.total);
  if(!hasMargin&&!hasTotal)return m;
- return {...m,margin_mean:hasMargin?-g.spread:m.margin_mean,total_mean:hasTotal?g.total:m.total_mean,margin_sd:hasMargin?s.margin_sd:m.margin_sd,total_sd:hasTotal?s.total_sd:m.total_sd,
-  anchored:{version:POLICY.version,raw_margin_mean:m.margin_mean,raw_total_mean:m.total_mean,raw_margin_sd:m.margin_sd,raw_total_sd:m.total_sd,hasMargin,hasTotal}};
+ return {...m,margin_mean:hasMargin?marginMean:m.margin_mean,total_mean:hasTotal?g.total:m.total_mean,margin_sd:hasMargin?s.margin_sd:m.margin_sd,total_sd:hasTotal?s.total_sd:m.total_sd,
+  anchored:{version:POLICY.version,raw_margin_mean:m.margin_mean,raw_total_mean:m.total_mean,raw_margin_sd:m.margin_sd,raw_total_sd:m.total_sd,hasMargin,hasTotal,marginSource:spreadMargin!=null?'spread':mlMargin!=null?'moneyline':null}};
 }
 // Period model derived from the same fractions the pipeline used (sd ratio squared = mean fraction).
 function anchorPeriod(g,full,period,sport,opts){

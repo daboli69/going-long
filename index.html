@@ -3398,7 +3398,7 @@ function attachProjection(p, index){
 // One eligibility decision for every surface (shared/going-eligibility.js). Built from the injury file and the all-team roster snapshot; stale or missing data fails closed.
 let ELIG_CACHE=null;
 function bettingEligibility(now=Date.now()){
-  const i=BET.injuryLearning,r=BET.roster,key=[i?.generated_at,r?.generated_at,Math.floor(now/60000)].join('|');
+  const i=BET.injuryLearning,r=BET.fullRoster,key=[i?.generated_at,r?.generated_at,Math.floor(now/60000)].join('|');
   if(ELIG_CACHE&&ELIG_CACHE.key===key)return ELIG_CACHE.engine;
   let week=null;for(const v of Object.values(i?.current_players||{}))if(Number.isFinite(v.roster_week)&&(week==null||v.roster_week>week))week=v.roster_week;
   const engine=globalThis.GoingEligibility?GoingEligibility.create({injury:i,roster:r,week:week??r?.week,now}):null;
@@ -3416,6 +3416,17 @@ function markUnavailableProps(list){
   }
   return list;
 }
+// Visible, page-level notice (not inside a collapsed details) when the availability data is stale or missing; recommendations are already withheld by the engine.
+function updateEligibilityBanner(){
+  const engine=bettingEligibility(),host=document.getElementById('btTabGroup');if(!host)return;
+  let el=document.getElementById('eligBanner');
+  const stale=engine&&!engine.fresh.ok;
+  if(!stale){if(el)el.remove();return;}
+  if(!el){el=document.createElement('div');el.id='eligBanner';el.className='bt-note gt-warn';el.setAttribute('role','alert');host.parentNode.insertBefore(el,host);}
+  el.innerHTML='<b>Recommendations paused:</b> the roster or injury data is stale or missing ('+esc(engine.fresh.reason)+'). Nobody is treated as active until the next refresh; players already known to be unavailable stay excluded.';
+}
+// A tab left open keeps its data; re-check freshness every 10 minutes and pause recommendations if it has gone stale (one-way: pausing is the safe direction).
+setInterval(()=>{try{ELIG_CACHE=null;if(BET.props&&BET.props.length)markUnavailableProps(BET.props);updateEligibilityBanner();}catch(e){}},600000);
 async function propsFromRealData(raw=BET.nflData){
   const index=buildProfileIndex(BET.history), quotes=new Map(); let count=0;
   if(Array.isArray(raw?.props)){
@@ -3477,7 +3488,10 @@ async function loadBettingData(){
     BET.injuryContext=GoingFootballInjuries.createContext(BET.roster,BET.history?.profiles,Date.now(),BET.injuryLearning);
     S.history=files.history; S.pipeline=files.config;
     BET.config=files.config?.betting||{};
+    // The eligibility engine needs the all-team roster snapshot (bye teams, injury objects, its own timestamp); players.json is only the Sleeper pool.
+    try{const rr=await fetch(new URL('data/nfl_roster.json',document.baseURI),{cache:'no-cache'});BET.fullRoster=rr.ok?await rr.json():null;}catch{BET.fullRoster=null;}
     BET.props=markUnavailableProps(await propsFromRealData());
+    updateEligibilityBanner();
     BET.games=gamesFromRealData();
     const stamp=BET.history?.generated_at,injuryStamp=BET.injuryContext?.generatedAt,el=bettingEligibility(),injuryNote=el&&!el.fresh.ok?`AVAILABILITY DATA STALE OR MISSING (${el.fresh.reason}) — recommendations paused until the next refresh`:BET.injuryContext?.fresh?`Injuries FRESH ${new Date(injuryStamp).toLocaleString()}`:`INJURIES STALE/FAILED — projection adjustments disabled`;
     $("btDataNote").textContent=stamp ? `Model updated ${new Date(stamp).toLocaleString()} · ${BET.history.window}-game baseline · ${injuryNote} · Research estimates; no suggested stake until validated` : "Historical projections unavailable. Manual import is available below.";
@@ -3956,6 +3970,18 @@ function dfsAvailableGames(){
  return [...new Set(rows.map(player=>player.game).filter(Boolean))].sort();
 }
 function dfsPlayerPool(){
+ const rows=dfsPlayerPoolRaw(),engine=bettingEligibility();
+ if(!engine||!rows.length)return rows;
+ const byKey=new Map();for(const profile of Object.values(BET.history?.profiles||{}))byKey.set(GoingDfsEvidence.nameKey(profile.name)+'|'+canonicalNflTeam(profile.team),profile);
+ for(const p of rows){
+  if(p.unavailable||['DST','K'].includes(p.position))continue;
+  const profile=byKey.get(GoingDfsEvidence.nameKey(p.name)+'|'+canonicalNflTeam(p.team));
+  const d=profile?engine.decide(profile.id,{team:profile.team,lastGame:profile.last_game,requireRecentGame:false,hasGame:true}):(engine.fresh.ok?null:{actionable:false,label:'Availability unverified',detail:'Roster or injury data is stale or missing.'});
+  if(d&&!d.actionable){p.unavailable=true;p.unavailableReason=d.label+': '+d.detail;}
+ }
+ return rows;
+}
+function dfsPlayerPoolRaw(){
  if(!BET.history)return [];
  let slatePlayers=DFS_STATE.source==='model'?dfsModelSlate():DFS_STATE.salaryPlayers;if(DFS_STATE.contest==='showdown'&&DFS_STATE.game)slatePlayers=slatePlayers.filter(player=>player.game===DFS_STATE.game);if(!slatePlayers.length)return [];
  const board=projectionBoard(),byProfileMarket=new Map(board.filter(p=>p.profileId).map(p=>[p.profileId+'|'+p.market,p])),profiles=Object.values(BET.history.profiles||{}),site=DFS_STATE.site,needed=['pass_yds','pass_tds','rush_yds','rec_yds','receptions','rush_tds','rec_tds'];
@@ -4753,6 +4779,7 @@ function goingPicksCandidates(now=Date.now()){
  const rows=[],upcoming=at=>Date.parse(at)>now&&Date.parse(at)<=now+7*86400000,outIds=globalThis.GoingIntel?GoingIntel.unavailableIds(BET.injuryLearning?.current_players):new Set();// reserve/suspended/retired/practice-squad players are never recommended
  for(const p of BET.props){
   if(p.profileId&&outIds.has(p.profileId))continue;
+  if(quoteState(p))continue;// stale or started quotes never enter the board
   if(p.dfs||p.manual||['manual','projection'].includes(p.source)||!upcoming(p.kickoff)||!p.profileId||!GoingFootballPicks.FAMILIES[p.market]||p.market==='atd'&&p.line>.5)continue;
   const probabilities=propProbabilities(p),[home,away]=p.eventTeams||[];if(!probabilities||!home||!away)continue;
   const base={kind:'prop',sport:'nfl',home,away,kickoff:p.kickoff,player:p.player,profileId:p.profileId,profileDate:p.profileDate,team:p.team,opp:p.opp,position:BET.history?.profiles?.[p.profileId]?.position,market:p.market,line:p.market==='atd'?(p.line??.5):p.line,n:p.model?.n,projMean:p.projMean,projSd:p.projSd,modelFamily:p.model?.family,roleTrend:BET.history?.profiles?.[p.profileId]?.role_trend||null,scoringRole:BET.history?.profiles?.[p.profileId]?.scoring_role||null,calibrated:!!p.model?.calibration,seasonEvidence:p.model?.season_evidence,injury:p.injury,book:p.book,updatedAt:p.updatedAt,flags:[]};
@@ -4773,7 +4800,7 @@ function roleWatchMarkup(game,slateGames=null){
  const out=GoingIntel.unavailableIds(BET.injuryLearning?.current_players);
  const teams=new Set((game?[[game.away,game.home]]:slateGames.map(g=>[g.away,g.home])).flat().map(t=>canonicalNflTeam(t))),rows=[],perSide=game?3:4;
  for(const p of Object.values(BET.history?.profiles||{})){
-  if(!['WR','TE','RB'].includes(p.position)||!teams.has(canonicalNflTeam(p.team))||!GoingIntel.activeProfile(p,out))continue;
+  if(!['WR','TE','RB'].includes(p.position)||!teams.has(canonicalNflTeam(p.team))||!GoingIntel.activeProfile(p,out)||(bettingEligibility()&&!bettingEligibility().decide(p.id,{team:p.team,lastGame:p.last_game,requireRecentGame:false}).actionable))continue;
   const rt=GoingIntel.roleTrend(p.role_trend,p.position,p.position==='RB'?'rush_yds':'rec_yds'),snap=p.role_trend?.snap_share;
   if(!rt||rt.state==='flat'||!(snap?.l6>=30))continue;
   const size=Math.max(...rt.parts.map(x=>Math.abs(x.change)/GoingIntel.RULE[({snap_share:'snap',target_share:'target',carry_share:'carry'})[x.metric]]));
@@ -5056,6 +5083,7 @@ async function renderPromo(){
   const exclusions=Object.entries(result.excluded).map(([reason,n])=>n+' '+reason).join('; ');
   const diversity=`No player appears in more than ${result.maxPlayerAppearances} of these ${result.options.length||5} options.`;
   $('promoStatus').textContent=staleFallback?`FALLBACK / STALE — no fresh Fanatics combination is available. Showing ${result.options.length} saved-price research options from retained quotes up to 72 hours old. ${diversity} Confirm every price and the final ticket in Fanatics; these are not labeled promo-qualified. ${exclusions}`:`FRESH — ${result.options.length} automatic options from ${result.eligiblePlayers} eligible players. ${diversity} ${exclusions} ${result.options.length<5?'The diversity cap or available fresh eligible combinations produced fewer than five options. No manual input is needed.':''}`;
+  if(!result.options.length&&!staleFallback)$('promoStatus').textContent=`NO OPTIONS — the current Fanatics feed has no usable anytime-touchdown prices for eligible players (${result.eligiblePlayers} eligible). Nothing is shown rather than an empty "fresh" list. ${Object.entries(result.excluded).map(([r,n])=>n+' '+r).join('; ')}`;
   $('promoOptions').innerHTML=result.options.map((o,i)=>`<article class="sig-card"><div class="best-card-badges"><span class="best-badge ${staleFallback?'watch':'go'}">${staleFallback?'STALE PRICE RESEARCH':'FRESH PRICE'}</span><span class="best-badge">Diversified player exposure</span></div><h3>Option ${i+1}</h3><b>${(100*o.probability).toFixed(1)}% estimated chance</b><p>${americanOddsLabel(Math.round(o.american))} ${staleFallback?'saved-price illustration':'calculated combined price'} · ${o.decimal.toFixed(3)} decimal</p>${o.legs.map(l=>`<p><strong>${esc(l.player)}</strong> · ${esc(l.team)}<br>Anytime TD · Fanatics ${americanOddsLabel(l.odds)} · ${(100*l.probability).toFixed(1)}% individual estimate<br>${esc(new Date(l.kickoff).toLocaleString())}<br>${staleFallback?'Retained price observed':'Price checked'} ${esc(new Date(l.updatedAt).toLocaleString())}</p>`).join('')}<small>Why selected: strongest available Going Long scoring estimate among eligible three-game combinations meeting +${esc($('promoFloor').value)} after limiting repeated-player exposure across the option set. ${staleFallback?'The retained prices may no longer be offered and this card is research only. ':'Active roster without a listed injury; official game-day clearance is separate. '}Confirm the final Fanatics ticket price and offer terms. No pool-share value estimated.</small></article>`).join('');
  }catch(e){$('promoStatus').textContent=e.message+' Automatic checks retry while this screen is open.';$('promoOptions').innerHTML='';}
 }
@@ -5122,7 +5150,7 @@ function renderBetting(){
   $("btAbbeysPanel").hidden=BET.tab!=="abbeys";if(BET.tab==="abbeys")window.GoingAbbeysUI?.render($("btAbbeysPanel"));
   $("btTabGroup").querySelector('[data-section="abbeys"]').hidden=BET.sport!=="nfl";
   $("btPeriodGroup").hidden=["signals","score","charts","dfs","abbeys","best","promo","parlays","firsttd","cheatsheets"].includes(BET.tab);
-  persistBettingView();renderPropsTable(); renderGamesList(); if(BET.tab==="signals")renderSignals(); if(BET.tab==="score"){syncScoreMode();renderGoingScore();} if(BET.tab==="charts"&&globalThis.GoingChartsUI)GoingChartsUI.render(document.getElementById("chartsRoot"),{profiles:BET.history?.profiles,profileDate:BET.history?.generated_at,injury:BET.injuryLearning,roster:BET.roster,candidates:()=>{try{return goingPicksCandidates().filter(c=>c.kind==="prop"&&!quoteState(c));}catch(e){return [];}}}); if(BET.tab==="dfs")renderDfs(); if(BET.tab==="best")renderBestPlays();
+  persistBettingView();renderPropsTable(); renderGamesList(); if(BET.tab==="signals")renderSignals(); if(BET.tab==="score"){syncScoreMode();renderGoingScore();} if(BET.tab==="charts"&&globalThis.GoingChartsUI)GoingChartsUI.render(document.getElementById("chartsRoot"),{profiles:BET.history?.profiles,profileDate:BET.history?.generated_at,injury:BET.injuryLearning,roster:BET.fullRoster,eligibility:bettingEligibility(),candidates:()=>{try{return goingPicksCandidates().filter(c=>c.kind==="prop"&&!quoteState(c));}catch(e){return [];}}}); if(BET.tab==="dfs")renderDfs(); if(BET.tab==="best")renderBestPlays();
   if(BET.tab==="cheatsheets"&&window.GoingFootballCheatsheets){const week=footballWeek();window.GoingFootballCheatsheets.render($('btCheatsheetsPanel'),{sport:BET.sport,season:BET.context?.season,asOf:BET.context?.as_of,modelUpdated:BET.history?.generated_at,learningUpdated:BET.learning?.generated_at,quotesUpdated:BET.nflData?.generated_at,priceStatus:BET.liveStatus,loading:BET.loading,props:BET.props,games:BET.games.filter(g=>g.sport==='nfl'),schedule:(BET.history?.games?.nfl||[]).filter(g=>inCurrentFootballWeek(g.kickoff)&&Date.parse(g.kickoff)>Date.now()),history:BET.history,context:BET.context,learning:BET.learning,week,isCurrentProp:currentWeekProp,isCurrentGame:inCurrentFootballWeek,quoteStatus:quoteState,freshGameQuote:activeGameQuote,currentGameMarket,bestGameLines,evaluateQuote:p=>({probabilities:propProbabilities(p),best:computePropRow(p)}),openTab:chooseBettingTab});}
 }
 window.renderBetting=renderBetting;

@@ -37,3 +37,12 @@ test('anchored spread pushes follow the key numbers, half points stay 50/50, raw
  assert.equal(G.spread({over:.5,under:.5,push:0},G.anchor({spread:-3.5},raw),-3.5).over,.5);
  assert.equal(G.spread(n,raw,-3),n);assert.ok(G.spreadPush(7)>G.spreadPush(5));assert.equal(G.spreadPush(3.5),0);
 });
+test('a row with a moneyline but no spread is anchored to the de-vigged moneyline, not the raw model',()=>{
+ const g={mlHome:-200,mlAway:170},a=G.anchor(g,raw,'nfl');
+ assert.equal(a.anchored.marginSource,'moneyline');assert.ok(a.margin_mean>3&&a.margin_mean<9);
+ // the discretised two-way split of the anchored model reproduces the fair moneyline probability
+ const ph=(1/1.5)/(1/1.5+1/2.7),cdf=x=>{const t=1/(1+.2316419*Math.abs(x)),d=.3989423*Math.exp(-x*x/2),p=d*t*(.3193815+t*(-.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));return x>0?1-p:p;};
+ const over=1-cdf((.5-a.margin_mean)/a.margin_sd),under=cdf((-.5-a.margin_mean)/a.margin_sd);assert.ok(Math.abs(over/(over+under)-ph)<1e-3);
+ assert.equal(G.anchor({spread:-3,mlHome:-200,mlAway:170},raw,'nfl').anchored.marginSource,'spread');
+ assert.equal(G.anchor({mlHome:null,mlAway:null},raw,'nfl'),raw);
+});
