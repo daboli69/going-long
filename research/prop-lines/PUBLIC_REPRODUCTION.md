@@ -92,4 +92,8 @@ The public route establishes a smaller matched forecasting cohort, not the earli
 
 No wager execution, closing-price joins, stake sizes, settlement pushes/voids for actual bets, or all-season robustness are established. No ROI, CLV, profitability or production promotion is claimed.
 
-Verification: nine new synthetic replay tests pass, including exact game identity, ambiguous QB exclusion, starter-window completeness, production-refit parity, outcome-independent main selection, constant-price calibration and complete-cluster bootstrap. The result JSON is the quantitative artifact; parent release validation owns the final tested commit.
+Verification: ten synthetic replay tests pass, including exact game identity, ambiguous QB exclusion, starter-window completeness, production-refit parity, outcome-independent main selection, constant-price calibration and complete-cluster bootstrap. The result JSON is the quantitative artifact; parent release validation owns the final tested commit.
+
+Portability repair after reproduction: frozen text input hashes accept only LF/CRLF transport equivalence; source content changes still fail. The registered protocol receipt retains its original CRLF hash, executed research code receipts use LF, and Git snapshot receipts always use exact blob bytes. The rerun preserved every metric, cohort count and historical receipt; only execution metadata changed. No hypotheses, model parameters, splits or selection criteria were revised.
+
+The output writer and scoped Git attributes also preserve canonical LF artifact bytes on both platforms.

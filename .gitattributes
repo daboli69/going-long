@@ -1,3 +1,6 @@
 # Preserve exact downloaded/frozen evidence bytes used by SHA-256 receipts.
 research/dfs/team-stats-2026.csv -text
 research/dfs/results-team-reference.json -text
+
+# Keep the reproducible research artifact byte hash across platforms.
+research/prop-lines/out/public_passyds_replay.json text eol=lf

@@ -2,6 +2,7 @@
   "schema": "going-public-prop-reproduction-v1",
   "protocol_sha256": "fe818b48746adb2fe03343c79cecec888c6bcad07995e514fc704baa3ea3b774",
   "baseline_revision": "c9cccd68619fac73a5c0c5c11fbff08f5b0be532",
+  "text_receipt_policy": "Frozen text receipts accept LF/CRLF transport only; protocol receipt uses registered CRLF, executed research source hashes use LF. Git snapshot receipts retain exact blob bytes.",
   "cohort": "matched published-snapshot retrospective replay; distinct from original cache-based cohort",
   "extraction_counts": {
     "raw": 70954,
@@ -1424,7 +1425,7 @@
     }
   ],
   "execution_source_sha256": {
-    "research/prop-lines/public_passyds_replay.py": "2b2b86a0a5fe93673451ea198ba238ccc2fa70ba75c231cc7f1a915bfb712218",
+    "research/prop-lines/public_passyds_replay.py": "274ea8e218e9b204fde87fae0f375499fc830bca5b06ec643e23ed0ba926e007",
     "research/prop-lines/extract_git_props.py": "f0ae8302f6451a567f82dc608b3ff022751c65b9d5003ea9ee7685bbcef4d6bc",
     "research/prop-lines/build_quotes.py": "b015a61ce378a699fbfa5cfbe8c7e504268cc0d39d9d48ef41cc7736f8d31139"
   },

@@ -14,6 +14,14 @@ import public_passyds_replay as replay
 
 
 class PublicPropReplayTests(unittest.TestCase):
+    def test_frozen_receipts_allow_only_git_line_ending_transport(self):
+        original = b'policy=1\r\ncohort=frozen\r\n'
+        receipt = replay.sha(original)
+        self.assertTrue(replay.text_receipt_matches(original, receipt))
+        self.assertTrue(replay.text_receipt_matches(original.replace(b'\r\n', b'\n'), receipt))
+        self.assertFalse(replay.text_receipt_matches(b'policy=2\ncohort=frozen\n', receipt))
+        self.assertFalse(replay.text_receipt_matches(b'policy=1\ncohort=new\n', receipt))
+
     def profile(self):
         games = [dict(date=f'2026-09-{day:02}', season=2026, week=i + 1, verified_start=True, pass_yds=150 + 30 * i)
                  for i, day in enumerate([1, 7, 14, 21, 28])]

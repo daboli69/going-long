@@ -35,6 +35,12 @@ def sha(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
+def text_receipt_matches(raw, digest):
+    """Git may transport text as LF or CRLF; never allow content substitutions."""
+    lf = raw.replace(b'\r\n', b'\n')
+    return any(sha(value) == digest for value in (raw, lf, lf.replace(b'\n', b'\r\n')))
+
+
 def iso(value):
     try:
         if not isinstance(value, str):
@@ -213,7 +219,7 @@ def run(protocol_path):
     raw_protocol = protocol_path.read_bytes()
     protocol = json.loads(raw_protocol)
     for path, digest in protocol['sources'].items():
-        if sha((ROOT / path).read_bytes()) != digest:
+        if not text_receipt_matches((ROOT / path).read_bytes(), digest):
             raise ValueError('Frozen source changed: ' + path)
     revision = protocol['git_quote_and_history_ancestor']
     revision = subprocess.check_output(['git', 'rev-parse', '--verify', '--end-of-options', f'{revision}^{{commit}}'], cwd=ROOT, text=True).strip()
@@ -271,11 +277,15 @@ def run(protocol_path):
         if error:
             attrition[error] += 1
     frame = pd.DataFrame(records)
-    result = {'schema': protocol['schema'], 'protocol_sha256': sha(raw_protocol), 'baseline_revision': revision,
+    # The frozen protocol receipt was registered on Windows with CRLF. Recreate
+    # that exact byte receipt on LF checkouts; execution text uses canonical LF.
+    protocol_receipt = raw_protocol.replace(b'\r\n', b'\n').replace(b'\n', b'\r\n')
+    result = {'schema': protocol['schema'], 'protocol_sha256': sha(protocol_receipt), 'baseline_revision': revision,
+              'text_receipt_policy': 'Frozen text receipts accept LF/CRLF transport only; protocol receipt uses registered CRLF, executed research source hashes use LF. Git snapshot receipts retain exact blob bytes.',
               'cohort': 'matched published-snapshot retrospective replay; distinct from original cache-based cohort',
               'extraction_counts': extraction_counts, 'attrition': dict(attrition),
               'quote_sources': quotes_receipts, 'history_sources': list(history.receipts.values()),
-              'execution_source_sha256': {path: sha((ROOT / path).read_bytes()) for path in
+              'execution_source_sha256': {path: sha((ROOT / path).read_bytes().replace(b'\r\n', b'\n')) for path in
                   ['research/prop-lines/public_passyds_replay.py', 'research/prop-lines/extract_git_props.py', 'research/prop-lines/build_quotes.py']},
               'limitations': protocol['limitations'], 'reports': {}}
     if frame.empty:
@@ -316,7 +326,7 @@ def main():
     args = parser.parse_args()
     result = run(args.protocol)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + '\n', encoding='utf-8')
+    args.output.write_text(json.dumps(result, indent=2, allow_nan=False) + '\n', encoding='utf-8', newline='\n')
     print(json.dumps({key: result[key] for key in ['status', 'extraction_counts', 'attrition', 'reports']}, indent=2))
 
 
