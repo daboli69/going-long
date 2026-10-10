@@ -1,6 +1,7 @@
 # Progress
 
 ## Completed
+- Final safety review also removed legacy JS freshness bypass and rejected unknown injury-report statuses in both languages. Fifteen focused Node tests and seven Python tests, including 60 parity cases, pass; separate reviewer found no defect in this final patch.
 - Repairs: `fbbb8f0` availability/DFS/freeze; `30cbb4b` deployment/refresh/dependency; `52c5b79` quotes/first-TD. Independent review found additional bypasses, repaired and reviewed again.
 - Verified source revision `52c5b79`: Node 620/620; Python 426 tests, five skips; both builds; npm audit zero advisories. Desktop/mobile smoke covered Today, GOING Score and Classic import. Final documentation commit receives the same required checks.
 - Takeover baseline fetched 2026-10-10: `3f2651e` (data refresh after `6716bc8`). Isolated worktree on `codex/going-takeover`; original checkout `3958ed1` and its untracked folders preserved.

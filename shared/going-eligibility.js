@@ -9,19 +9,20 @@
  *  4. Questionable, game-time decision, did-not-practice and limited practice stay actionable with a caution.
  *  5. A published expected_return_week makes a reserve player 'returning' (stash only, never actionable now).
  * Game-day inactives (about 90 minutes before kickoff) are not in the free feeds; an 'Inactive'/'Out' report excludes the player as soon as it appears in a refresh.
- * Rollback: set globalThis.GOING_ELIGIBILITY_STRICT=false to keep only rule 1 (confirmed unavailable) and skip the freshness requirement.
+ * Freshness cannot be disabled by a legacy browser flag; unknown injury-report statuses fail closed.
  */
 (function(root){
 'use strict';
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const RESERVE=new Set(['RES','INA','PUP','IR','NFI']),REMOVED=new Set(['CUT','REL','WAIVED']),PRACTICE=new Set(['DEV','PRA','PS','PSQ']);
 const ACTIVE=new Set(['ACT','ACTIVE']);
+const REPORT_STATUS=new Set(['','none','not listed','active','available','healthy','probable','questionable','game-time decision','game time decision','gtd','doubtful','out','inactive','injured reserve','suspended']);
 const object=x=>x!=null&&typeof x==='object'&&!Array.isArray(x);
 const status=x=>typeof x==='string'?x.trim().toUpperCase():'';
 const idOk=x=>typeof x==='string'&&x.trim().length>0;
 const weekNumber=x=>typeof x==='number'&&Number.isInteger(x)&&x>0&&x<=22?x:typeof x==='string'&&/^\d+$/.test(x)&&Number(x)>0&&Number(x)<=22?Number(x):null;
 const reportCurrent=(r,week)=>weekNumber(week)==null||weekNumber(r.week)==null||weekNumber(r.week)>=weekNumber(week);
-const reportValid=v=>object(v)&&['report_status','practice_status'].every(k=>v[k]==null||typeof v[k]==='string')&&(v.week==null||weekNumber(v.week)!=null);
+const reportValid=v=>object(v)&&['report_status','practice_status'].every(k=>v[k]==null||typeof v[k]==='string')&&(v.report_status==null||REPORT_STATUS.has(v.report_status.trim().toLowerCase()))&&(v.week==null||weekNumber(v.week)!=null);
 const playerValid=v=>object(v)&&['roster_status','team'].every(k=>v[k]==null||typeof v[k]==='string')&&(v.roster_week==null||weekNumber(v.roster_week)!=null);
 function validInjury(x){return object(x)&&object(x.current_players)&&object(x.current_reports)&&Object.values(x.current_players).every(v=>playerValid(v)&&idOk(v.gsis_id))&&Object.values(x.current_reports).every(v=>reportValid(v)&&idOk(v.gsis_id));}
 function validRoster(x){return object(x)&&(x.week==null||weekNumber(x.week)!=null)&&Array.isArray(x.players)&&x.players.every(v=>playerValid(v)&&idOk(v.id)&&(v.injury==null||reportValid(v.injury)))&&(x.bye_carry_forward_teams==null||Array.isArray(x.bye_carry_forward_teams)&&x.bye_carry_forward_teams.every(v=>typeof v==='string'));}
@@ -42,7 +43,6 @@ function freshness(injury,roster,now=Date.now(),limits=LIMITS){
  if(!weeksAgree)reasons.push('roster weeks disagree');
  return {ok:injuryOk&&rosterOk&&weeksAgree,injuryOk,rosterOk,injuryAsOf:injury?.generated_at||null,rosterAsOf:roster?.generated_at||null,injuryAgeHours:iAge,rosterAgeHours:rAge,reason:reasons.join('; ')};
 }
-function strict(){return root.GOING_ELIGIBILITY_STRICT!==false;}
 function severity(r){const s=String(r?.report_status||'').trim().toLowerCase();return /^out|^inactive|injured reserve|suspend/.test(s)?4:/doubtful/.test(s)?3:/questionable|game.?time|^gtd/.test(s)?2:/did not/.test(String(r?.practice_status||'').toLowerCase())?1:0;}
 // Merge the injury file (statuses incl. reserve/practice squad) with the all-teams roster snapshot (bye teams, injury objects).
 function index(injury,roster,week){
@@ -86,7 +86,7 @@ function create({injury,roster,week,now=Date.now(),limits=LIMITS}={}){
   if(!entry)return mk('unknown',false,'Availability unconfirmed','Not found in the current roster snapshot; not treated as active.');
   if(!ACTIVE.has(rs))return mk('unknown',false,'Availability unconfirmed','The roster status is not recognized as active; not treated as active.');
   if(entry.teamConflict||(team&&entry.team&&team!==entry.team))return mk('unknown',false,'Team assignment unconfirmed','Player team assignments disagree; not treated as active.');
-  if(strict()&&!fresh.ok)return mk('unverified',false,'Availability unverified',`Roster/injury data is stale or missing (${fresh.reason}); nothing is assumed active until the next refresh.`);
+  if(!fresh.ok)return mk('unverified',false,'Availability unverified',`Roster/injury data is stale or missing (${fresh.reason}); nothing is assumed active until the next refresh.`);
   if(requireRecentGame){const t=Date.parse(lastGame);if(!finite(t)||t>now||now-t>limits.staleGameDays*86400000)return mk('stale',false,'No recent game',`No appearance in the last ${limits.staleGameDays} days; history is not current form.`);}
   if(/questionable|game.?time|^gtd/.test(reportStatus))return mk('questionable',true,'Questionable','Game status questionable. Inactives are announced about 90 minutes before kickoff.',{caution:true});
   if(/did not|^dnp/.test(practice))return mk('dnp',true,'Missed practice','Did not practice this week; confirm the final report.',{caution:true});

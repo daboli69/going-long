@@ -15,6 +15,7 @@ REPO = Path(__file__).resolve().parents[1]
 INJURY_HOURS = ROSTER_HOURS = 36
 NOT_ACTIVE = {'RES', 'INA', 'PUP', 'IR', 'NFI', 'SUS', 'RET', 'EXE', 'CUT', 'REL', 'WAIVED', 'DEV', 'PRA', 'PS', 'PSQ'}
 ACTIVE = {'ACT', 'ACTIVE'}
+REPORT_STATUS = {'', 'none', 'not listed', 'active', 'available', 'healthy', 'probable', 'questionable', 'game-time decision', 'game time decision', 'gtd', 'doubtful', 'out', 'inactive', 'injured reserve', 'suspended'}
 _DEFAULT = object()
 
 
@@ -41,7 +42,7 @@ def _valid_player(row):
 
 
 def _valid_report(row):
-    return isinstance(row, dict) and all(row.get(k) is None or isinstance(row[k], str) for k in ('report_status', 'practice_status')) and (row.get('week') is None or _week(row['week']) is not None)
+    return isinstance(row, dict) and all(row.get(k) is None or isinstance(row[k], str) for k in ('report_status', 'practice_status')) and (row.get('report_status') is None or row['report_status'].strip().lower() in REPORT_STATUS) and (row.get('week') is None or _week(row['week']) is not None)
 
 
 def _load(name):

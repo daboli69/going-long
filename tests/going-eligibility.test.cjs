@@ -56,10 +56,17 @@ test('IR with a published return week is stash-only and never actionable; blank 
  const x=d(eng(i),'a');assert.equal(x.state,'returning');assert.equal(x.stashOnly,true);assert.equal(x.actionable,false);
  const b=inj({a:'ACT'});b.current_players['T|a'].roster_status='';assert.equal(d(eng(b),'a').state,'unknown');
 });
-test('roster snapshot fills teams missing from the injury file; rollback switch drops only the freshness rule',()=>{
+test('roster snapshot fills missing teams; legacy rollback switch cannot bypass freshness',()=>{
  const r=roster([{id:'q',team:'BBB',roster_status:'ACT'}]);
  assert.equal(d(eng(inj({}),r),'q').state,'active');
- globalThis.GOING_ELIGIBILITY_STRICT=false;try{assert.equal(d(eng(inj({a:'ACT'},{},old)),'a').actionable,true);assert.equal(d(eng(inj({a:'RES'},{},old)),'a').actionable,false);}finally{delete globalThis.GOING_ELIGIBILITY_STRICT;}
+ globalThis.GOING_ELIGIBILITY_STRICT=false;try{assert.equal(d(eng(inj({a:'ACT'},{},old)),'a').actionable,false);assert.equal(d(eng(inj({a:'RES'},{},old)),'a').actionable,false);}finally{delete globalThis.GOING_ELIGIBILITY_STRICT;}
+});
+
+test('unrecognized injury reports cannot clear fresh active players',()=>{
+ for(const report_status of ['UNKNOWN','BOGUS','uncertain']){
+  assert.equal(d(eng(inj({a:'ACT'},{a:{report_status,week:5}})),'a').actionable,false);
+  assert.equal(d(eng(inj({a:'ACT'}),roster([{id:'a',roster_status:'ACT',injury:{report_status,week:5}}])),'a').actionable,false);
+ }
 });
 test('blockedIds includes everyone when data is stale',()=>{
  const e=eng(inj({a:'ACT',r:'RES'},{},old));const b=e.blockedIds({a:{},z:{}});assert.ok(b.has('a')&&b.has('r')&&b.has('z'));

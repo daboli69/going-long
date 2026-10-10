@@ -87,6 +87,9 @@ class EligibilityMirrorTests(unittest.TestCase):
             corrupt['current_players']['T|a']['roster_week'] = roster_week
             add(corrupt, {**roster, 'week': 5})
         add(inj({'a': 'ACT'}), {**roster, 'week': 99})
+        for report_status in ('UNKNOWN', 'BOGUS', 'uncertain'):
+            add(inj({'a': 'ACT'}, {'a': {'report_status': report_status, 'week': 5}}))
+            add(inj({'a': 'ACT'}), {**roster, 'players': [{'id': 'a', 'roster_status': 'ACT', 'injury': {'report_status': report_status, 'week': 5}}]})
         js = """const E=require('./shared/going-eligibility.js');let s='';process.stdin.on('data',x=>s+=x);process.stdin.on('end',()=>console.log(JSON.stringify(JSON.parse(s).map(c=>{const e=E.create({...c,now:Date.parse('2026-10-11T12:00:00Z')});return {fresh:e.fresh.ok,blocked:[...e.blockedIds(c.profiles)].sort()};}))));"""
         result = subprocess.run(['node', '-e', js], input=json.dumps(cases), text=True,
                                 capture_output=True, check=True, cwd=Path(__file__).resolve().parents[1], timeout=20)
