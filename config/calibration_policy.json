@@ -1,10 +1,10 @@
 {
  "schema": "going-calibration-policy-1",
  "active": true,
- "version": "cal-b-2026.10.09-v1",
+ "version": "cal-b-2026.10.09-v2",
  "source": "config/calibration_candidates.json (Auditor B, fit 2021-2024 for deployment; 2021-23 fit / 2024 tuned / 2025 holdout-scored once for validation)",
  "rollback": "set \"active\": false (rebuild history) or remove a market; probabilities then revert to the raw Champion output",
- "domain": "applied only for lines within +/-50% of the model mean; positions listed per market",
+ "domain": "applied only for lines within +/-50% of the model mean; positions listed per market; mean_scale entries change the model mean itself at build time and apply at every line",
  "markets": {
   "receptions": {
    "method": "platt",
@@ -39,14 +39,45 @@
     "slope_raw": 0.7,
     "slope_calibrated": 1.01
    }
+  },
+  "rec_tds": {
+   "method": "mean_scale",
+   "params": {
+    "factor": 0.7853
+   },
+   "positions": [
+    "WR",
+    "TE",
+    "RB"
+   ],
+   "note": "Structural mean correction (Champion TD mean overstated). Fit 2021-24 on realised/predicted TD totals; walk-forward Brier gain at P(>=1) positive in 2023/2024/2025 for rec_tds and atd, mixed for rush_tds (lower confidence). Not subject to the +/-50% line band."
+  },
+  "atd": {
+   "method": "mean_scale",
+   "params": {
+    "factor": 0.811
+   },
+   "positions": [
+    "WR",
+    "TE",
+    "RB"
+   ],
+   "note": "Structural mean correction (Champion TD mean overstated). Fit 2021-24 on realised/predicted TD totals; walk-forward Brier gain at P(>=1) positive in 2023/2024/2025 for rec_tds and atd, mixed for rush_tds (lower confidence). Not subject to the +/-50% line band."
+  },
+  "rush_tds": {
+   "method": "mean_scale",
+   "params": {
+    "factor": 0.8681
+   },
+   "positions": [
+    "RB"
+   ],
+   "note": "Structural mean correction (Champion TD mean overstated). Fit 2021-24 on realised/predicted TD totals; walk-forward Brier gain at P(>=1) positive in 2023/2024/2025 for rec_tds and atd, mixed for rush_tds (lower confidence). Not subject to the +/-50% line band."
   }
  },
  "shadow": [
   "rec_yds",
   "rush_yds",
-  "pass_tds",
-  "rush_tds",
-  "rec_tds",
-  "atd"
+  "pass_tds"
  ]
 }

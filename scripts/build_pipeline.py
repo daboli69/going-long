@@ -130,6 +130,11 @@ def season_fit(games, column, family, season, minimum=5, candidate=False, market
     cal = _calibration_for(market, position)
     if cal and model.get('status') == 'ready':
         model['calibration'] = cal
+        if cal['method'] == 'mean_scale' and model.get('family') == 'poisson' and finite(model.get('lambda')):
+            # TD means were ~20% too high in every chronological fold (docs/CALIBRATION_AUDIT.md); correct the mean, keep the raw value for provenance.
+            model['lambda_raw'], model['mean_raw'] = model['lambda'], model['mean']
+            model['lambda'] *= cal['params']['factor']
+            model['mean'] *= cal['params']['factor']
     return model
 
 

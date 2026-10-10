@@ -157,7 +157,7 @@ class SeasonFitIntegrationTests(unittest.TestCase):
         rows = games([0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0], [2, 1], 'receiving_tds')
         model = self.fit(rows, 'receiving_tds', 'poisson', 'rec_tds', 'WR', POLICY)
         self.assertNotIn('dispersion_phi', model)
-        self.assertAlmostEqual(model['mean'], (2 * 1.5 + 4 * (3 / 11)) / 6, places=9)
+        self.assertAlmostEqual(model.get('mean_raw', model['mean']), (2 * 1.5 + 4 * (3 / 11)) / 6, places=9)  # blend; calibration policy may then scale the mean
 
     def test_yardage_v2_uses_the_pooled_spread_and_the_legacy_window_for_zero_mass(self):
         prior = [40, 55, 0, 80, 20, 65, 44, 31, 97, 54, 15]
@@ -238,8 +238,17 @@ class RoleTrendTests(unittest.TestCase):
 class CalibrationAttachmentTests(unittest.TestCase):
     def test_only_validated_markets_and_positions_carry_calibration(self):
         for market, pos, expected in [('receptions', 'WR', True), ('receptions', 'TE', True), ('receptions', 'RB', True), ('receptions', 'QB', False),
-                                      ('pass_yds', 'QB', True), ('pass_yds', 'WR', False), ('rec_yds', 'WR', False), ('rush_yds', 'RB', False), ('atd', 'WR', False), ('rush_tds', 'RB', False)]:
+                                      ('pass_yds', 'QB', True), ('pass_yds', 'WR', False), ('rec_yds', 'WR', False), ('rush_yds', 'RB', False), ('atd', 'WR', True), ('atd', 'QB', False), ('rush_tds', 'RB', True), ('rec_tds', 'TE', True), ('pass_tds', 'QB', False)]:
             cal = bp._calibration_for(market, pos)
             self.assertEqual(cal is not None, expected, (market, pos))
             if cal:
-                self.assertEqual(cal['version'], 'cal-b-2026.10.09-v1')
+                self.assertEqual(cal['version'], 'cal-b-2026.10.09-v2')
+
+
+    def test_td_mean_scale_changes_lambda_and_keeps_raw(self):
+        games = [{'season': 2025, 'touchdowns': t} for t in (1, 0, 1, 0, 1, 0, 0, 1)] + [{'season': 2026, 'touchdowns': t} for t in (1, 0, 1)]
+        scaled = bp.season_fit(games, 'touchdowns', 'poisson', 2026, market='atd', position='WR')
+        factor = bp._calibration_for('atd', 'WR')['params']['factor']
+        self.assertAlmostEqual(scaled['lambda'], scaled['lambda_raw'] * factor, places=9)
+        self.assertAlmostEqual(scaled['mean'], scaled['mean_raw'] * factor, places=9)
+        self.assertNotIn('lambda_raw', bp.season_fit(games, 'touchdowns', 'poisson', 2026, market='atd', position='QB'))

@@ -9,6 +9,17 @@ MAP.update({'player_rushing_tds':'rush_tds','player_receiving_tds':'rec_tds',
             'rush_tds':'rush_tds','rec_tds':'rec_tds'})
 
 
+STAT_KEYS=('pass_yds','rush_yds','rec_yds','receptions','pass_tds','rush_tds','rec_tds','atd','attempts','carries','targets')
+
+
+def no_participation(stat):
+    """All-zero line (including attempts/carries/targets when published) means no evidence the player took part.
+    Sportsbooks void player props for a player who does not play, and the box-score feed zero-fills those rows, so grading them as Under wins
+    (or Over losses) fabricates results (calibration audit 2026-10-09: 127 such rows)."""
+    vals=[stat.get(k) for k in STAT_KEYS if k in stat]
+    return bool(vals) and all(v==0 for v in vals)
+
+
 def settle(journal,root,now):
     results=json.loads((root/'data/results.json').read_text());h=json.loads((root/'data/history.json').read_text())['betting']
     names=h.get('team_names',{});profiles=h.get('profiles',{});existing={s['prediction_id'] for s in journal.rows('settlement')}
@@ -41,6 +52,8 @@ def settle(journal,root,now):
         else:continue
         if value is None:continue
         status='refund' if value==target else ('win' if (value>target)==over else 'loss')
+        voided=market in MAP and no_participation(stat)
+        if voided:status='refund'
         at=datetime.fromtimestamp(now,timezone.utc).isoformat()
-        row={'sport':sport,'prediction_id':p['id'],'event':p['event'],'status':status,'actual':value,'observed_at':at,'source_url':g.get('source_url','https://github.com/daboli69/going-long/blob/main/data/results.json'),'source_generated_at':results['generated_at'],'source_sha256':uid(g,results['generated_at']),'method':'published_full_game_result','rules_note':'Research settlement; book-specific injury/void exceptions require reconciliation'}
+        row={'sport':sport,'prediction_id':p['id'],'event':p['event'],'status':status,'actual':value,'observed_at':at,'source_url':g.get('source_url','https://github.com/daboli69/going-long/blob/main/data/results.json'),'source_generated_at':results['generated_at'],'source_sha256':uid(g,results['generated_at']),'method':'published_full_game_result','rules_note':('Voided: all-zero stat line gives no evidence the player took part (books void non-participants)' if voided else 'Research settlement; book-specific injury/void exceptions require reconciliation')}
         journal.append('settlement',uid(p['id'],'settlement'),row)

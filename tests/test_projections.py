@@ -48,7 +48,7 @@ class ProjectionTests(unittest.TestCase):
         p = build_profiles(rows,roster,snaps,schedule,window=2,minimum=2)["a"]
         self.assertEqual([g["week"] for g in p["games"]], [2,3])
         self.assertEqual(p["stats"]["rec_yds"]["mean"],10)
-        self.assertEqual(p["stats"]["atd"]["lambda"],.5)
+        self.assertEqual(p["stats"]["atd"].get("lambda_raw",p["stats"]["atd"]["lambda"]),.5)  # TD mean is then scaled by config/calibration_policy.json
 
     def test_spread_and_timezone_conventions(self):
         row = {"game_type":"REG", "game_id":"x", "season":2025, "home_team":"BUF", "away_team":"KC",
