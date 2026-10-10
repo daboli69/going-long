@@ -149,3 +149,5 @@ Research verdict: existing useful estimators/composite indices have uneven evide
 
 
 Parent independently ran the stdlib-only metric verifier (all reported probability metrics matched), 16 research regressions and 10 public-replay regressions at that exact research commit. Run the reproduction commands from `C:/Users/travi/.codex/worktrees/going-saturday-models/GOING`; the isolated code/results remain there. This copy records the inventory/findings in the release branch without importing a challenger.
+
+Parent also independently replayed the complete public ATD extraction/current-policy sensitivity: byte-identical artifact SHA256 `98fb2cb3e49ecacf523d69ba5e218cf15f0ac9306b20376c2680c9ff1e5dc67e`. Passing replay again byte-identical `a6441f719f3a31aaa84662bfbc771fb9a608988aeef252900bd000b6a5872768`. These are historical diagnostics with the limitations above, not new live-market skill.
