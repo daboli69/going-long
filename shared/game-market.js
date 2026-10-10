@@ -28,7 +28,13 @@ function anchorPeriod(g,full,period,sport,opts){
   total_mean:a.anchored.hasTotal&&rt?a.total_mean*rt*rt:period.total_mean,total_sd:a.anchored.hasTotal&&rt?a.total_sd*rt:period.total_sd,
   margin_mean:a.anchored.hasMargin&&rm?a.margin_mean*rm*rm:period.margin_mean,margin_sd:a.anchored.hasMargin&&rm?a.margin_sd*rm:period.margin_sd,anchored:a.anchored};
 }
-const api={POLICY,anchor,anchorPeriod,active};
+// Two-way moneyline from a discretised normal: the integer-margin normal puts ~3% on a tie, but NFL ties are ~0.4% of games (10 of 2,689), so the mass is
+// redistributed proportionally and only a 0.4% push (stake returned) is kept. Leaves the input alone when it is not a two-way split.
+function moneyline(prob,tie=.004){
+ if(!prob||!(prob.over+prob.under>0))return prob;
+ const total=prob.over+prob.under;return {over:prob.over/total*(1-tie),under:prob.under/total*(1-tie),push:tie};
+}
+const api={POLICY,anchor,anchorPeriod,moneyline,active};
 root.GoingGameMarket=api;
 if(typeof module!=='undefined')module.exports=api;
 })(globalThis);

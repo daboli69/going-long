@@ -27,3 +27,7 @@ test('strict period anchoring refuses to price without both posted lines',()=>{
  assert.equal(G.anchorPeriod({},raw,per,'nfl',{strict:true}),null);
  assert.ok(G.anchorPeriod({spread:-3,total:44},raw,per,'nfl',{strict:true}));
 });
+test('moneyline keeps a 0.4% tie, not the ~3% a discretised normal implies',()=>{
+ const m=G.moneyline({over:.4,under:.57,push:.03});assert.ok(Math.abs(m.push-.004)<1e-12);assert.ok(Math.abs(m.over+m.under+m.push-1)<1e-12);assert.ok(Math.abs(m.over/m.under-.4/.57)<1e-9);
+ assert.equal(G.moneyline(null),null);
+});
