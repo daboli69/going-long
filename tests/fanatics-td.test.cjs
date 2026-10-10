@@ -1,0 +1,123 @@
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const F=require('../shared/fanatics-td.js');
+const NOW=Date.parse('2026-10-11T12:00:00Z'),KICK='2026-10-11T17:00:00Z',FRESH='2026-10-11T11:55:00Z';
+const leg=(id,american=300,p=.3,event='g'+id,over={})=>({playerId:id,player:'Player '+id,team:'T'+id,opp:'O'+id,event,gameLabel:event,kickoff:KICK,probability:p,availability:'active',
+ eligibility:{actionable:true,state:'active',label:'Active'},price:{american,source:'feed',book:'fanatics',updatedAt:FRESH},...over});
+const run=(legs,terms={},more={})=>F.select(legs,{now:NOW,terms,...more});
+
+test('American to decimal and back are exact',()=>{
+ assert.equal(F.decimal(2000),21);assert.equal(F.decimal(-200),1.5);assert.equal(F.decimal(100),2);assert.equal(F.decimal(-100),2);
+ assert.equal(F.decimal(0),null);assert.equal(F.decimal(50),null);assert.equal(F.decimal(NaN),null);
+ assert.ok(Math.abs(F.american(21)-2000)<1e-9);assert.ok(Math.abs(F.american(1.5)+200)<1e-9);assert.equal(F.american(1),null);
+});
+test('a slip qualifies only when the full-precision decimal product is at least 21.00, never by its rounded display',()=>{
+ const exactly=run([leg('A',200),leg('B',200),leg('C',250)]);// 3 x 3 x 3.5 = 31.5
+ assert.equal(exactly.options.length,1);
+ const boundary=run([leg('A',200),leg('B',200),leg('C',133.33333333333334)]);// 3 x 3 x 2.3333.. = 21.0000000000000 (within float noise)
+ assert.equal(boundary.options.length,1);
+ const below=run([leg('A',200),leg('B',200),leg('C',133)]);// 3 x 3 x 2.33 = 20.97 -> displays as +1997, not +2000
+ assert.equal(below.options.length,0);
+ const shy=run([leg('A',200),leg('B',200),leg('C',133.3)]);// 20.997 would display as +2000 when rounded
+ assert.equal(shy.options.length,0);assert.equal(F.roundAmerican(F.american(3*3*(1+1.333)))>=1999,true);
+});
+test('exactly three distinct players from three different games',()=>{
+ const r=run([leg('A'),leg('B'),leg('C'),leg('D')]);
+ for(const o of r.options){assert.equal(o.legs.length,3);assert.equal(new Set(o.legs.map(l=>l.playerId)).size,3);assert.equal(new Set(o.legs.map(l=>l.event)).size,3);}
+ assert.equal(r.options.length,4);// C(4,3)
+ const sameGame=run([leg('A',300,.3,'x'),leg('B',300,.3,'x'),leg('C',300,.3,'y'),leg('D',300,.3,'y')]);
+ assert.equal(sameGame.options.length,0);assert.match(sameGame.reasons.join(' '),/2 games/);
+});
+test('the same player listed twice is collapsed to the freshest price and cannot appear twice',()=>{
+ const older=leg('A',300,.3,'g1',{price:{american:900,source:'feed',book:'fanatics',updatedAt:'2026-10-11T11:50:00Z'}});
+ const r=run([older,leg('A',300),leg('B'),leg('C')]);
+ assert.equal(r.eligiblePlayers,3);assert.equal(r.options.length,1);assert.equal(r.options[0].legs.find(l=>l.playerId==='A').price.american,300);
+});
+test('ranking is by joint probability, then lower payout, deterministically; independence product is exact',()=>{
+ const legs=[leg('A',300,.6),leg('B',300,.5),leg('C',300,.4),leg('D',300,.1),leg('E',300,.05)];
+ const r=run(legs);
+ assert.deepEqual(r.options.map(o=>o.key),['A~B~C','A~B~D','A~C~D','B~C~D','A~B~E']);
+ assert.ok(Math.abs(r.options[0].probability-.12)<1e-12);
+ for(let i=1;i<r.options.length;i++)assert.ok(r.options[i-1].probability>=r.options[i].probability);
+});
+test('branch-and-bound search equals brute force on random pools',()=>{
+ let seed=7;const rnd=()=>(seed=(seed*1664525+1013904223)%4294967296)/4294967296;
+ for(let round=0;round<30;round++){
+  const legs=[];for(let i=0;i<24;i++)legs.push(leg('P'+i,Math.round(150+rnd()*900),.03+rnd()*.6,'g'+Math.floor(rnd()*7)));
+  const r=run(legs),n=legs.length,all=[];
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)for(let k=j+1;k<n;k++){
+   const a=legs[i],b=legs[j],c=legs[k];if(new Set([a.event,b.event,c.event]).size<3)continue;
+   const dec=F.decimal(a.price.american)*F.decimal(b.price.american)*F.decimal(c.price.american);if(dec+1e-9<21)continue;
+   all.push({key:[a,b,c].map(l=>l.playerId).sort().join('~'),probability:a.probability*b.probability*c.probability,decimal:dec});
+  }
+  all.sort((x,y)=>y.probability-x.probability||x.decimal-y.decimal||(x.key<y.key?-1:1));
+  assert.deepEqual(r.options.map(o=>o.key),all.slice(0,5).map(o=>o.key),'round '+round);
+ }
+});
+test('fewer than five valid slips are shown as is with an explanation, never padded',()=>{
+ const r=run([leg('A',300),leg('B',300),leg('C',300)]);
+ assert.equal(r.options.length,1);assert.match(r.reasons.join(' '),/Only 1 distinct slip/);
+ assert.equal(run([]).options.length,0);assert.match(run([]).reasons.join(' '),/No leg has a usable Fanatics price/);
+ assert.match(run([leg('A'),leg('B')]).reasons.join(' '),/Only 2 eligible players/);
+ const lowPayout=run([leg('A',-300),leg('B',-300),leg('C',-300)]);assert.equal(lowPayout.options.length,0);
+});
+test('missing, other-book, stale, expired-manual and invalid prices are never used',()=>{
+ const base=[leg('B'),leg('C')];
+ const cases={'No Fanatics price':leg('A',300,.3,'g',{price:null}),'Other sportsbook price':leg('A',300,.3,'g',{price:{american:300,source:'feed',book:'fanduel',updatedAt:FRESH}}),
+  'Price needs refreshing':leg('A',300,.3,'g',{price:{american:300,source:'feed',book:'fanatics',updatedAt:'2026-10-11T11:30:00Z'}}),
+  'Entered price expired':leg('A',300,.3,'g',{price:{american:300,source:'manual',book:'fanatics',updatedAt:'2026-10-11T09:00:00Z'}}),
+  'Invalid price':leg('A',50,.3,'g',{price:{american:50,source:'feed',book:'fanatics',updatedAt:FRESH}})};
+ for(const [why,bad] of Object.entries(cases)){const r=run([bad,...base]);assert.equal(r.excluded[why],1,why);assert.equal(r.eligiblePlayers,2,why);assert.equal(r.options.length,0,why);}
+ const future=run([leg('A',300,.3,'g',{price:{american:300,source:'feed',book:'fanatics',updatedAt:'2026-10-11T13:00:00Z'}}),...base]);assert.equal(future.excluded['Price needs refreshing'],1);
+ const manualFresh=run([leg('A',300,.3,'g',{price:{american:300,source:'manual',book:'fanatics',updatedAt:'2026-10-11T10:30:00Z'}}),...base]);assert.equal(manualFresh.options.length,1);
+});
+test('unavailable, unknown, bye and unverified players cannot be recommended; missing eligibility fails safe',()=>{
+ const base=[leg('B'),leg('C')];
+ const decisions={'Not eligible: Reserve / injured list':{actionable:false,state:'reserve',label:'Reserve / injured list'},'Not eligible: Team on bye':{actionable:false,state:'bye',label:'Team on bye'},
+  'Not eligible: Availability unverified':{actionable:false,state:'unverified',label:'Availability unverified'},'Not eligible: Ruled out':{actionable:false,state:'out',label:'Ruled out'},
+  'Not eligible: Practice squad':{actionable:false,state:'practice_squad',label:'Practice squad'},'Not eligible: Availability unconfirmed':{actionable:false,state:'unknown',label:'Availability unconfirmed'}};
+ for(const [why,eligibility] of Object.entries(decisions)){const r=run([leg('A',300,.3,'g',{eligibility}),...base]);assert.equal(r.excluded[why],1,why);assert.equal(r.options.length,0,why);}
+ assert.equal(run([leg('A',300,.3,'g',{eligibility:null}),...base]).excluded['Eligibility not verified'],1);
+ assert.equal(run([leg('A',300,.3,'g',{eligibility:{state:'active'}}),...base]).options.length,0);// actionable must be exactly true
+ for(const availability of ['questionable','unavailable','unknown',undefined])assert.equal(run([leg('A',300,.3,'g',{availability}),...base]).options.length,0,String(availability));
+ assert.equal(run([leg('A',300,.3,'g',{availability:'expected'}),...base]).options.length,1);
+});
+test('started games, invalid model inputs and extreme estimates are excluded',()=>{
+ const base=[leg('B'),leg('C')];
+ assert.equal(run([leg('A',300,.3,'g',{kickoff:'2026-10-11T11:00:00Z'}),...base]).excluded['Game started or time unavailable'],1);
+ assert.equal(run([leg('A',300,.3,'g',{kickoff:'garbage'}),...base]).options.length,0);
+ for(const p of [0,1,-.1,1.2,NaN,null,'0.3'])assert.equal(run([leg('A',300,p),...base]).options.length,0,String(p));
+ assert.equal(run([leg('A',300,.9),...base]).excluded['Model estimate above the reliability ceiling'],1);
+ assert.equal(run([{...leg('A'),playerId:null},...base]).excluded['Missing player or game identity'],1);
+ assert.equal(run([null,undefined,...base]).options.length,0);
+});
+test('terms are validated; individual-leg minimum and excluded players are honoured',()=>{
+ assert.throws(()=>F.validateTerms({legs:4}),/exactly three/);assert.throws(()=>F.validateTerms({minCombinedAmerican:50}),/valid American/);assert.throws(()=>F.validateTerms({minimumLegAmerican:10}),/Individual/);
+ assert.throws(()=>F.validateTerms({quoteMaxAgeMinutes:0}),/age limits/);
+ const r=run([leg('A',200),leg('B',300),leg('C',400)],{minimumLegAmerican:250});assert.equal(r.options.length,0);assert.equal(r.excluded['Below individual-leg minimum'],1);
+ const x=run([leg('A'),leg('B'),leg('C')],{},{excludedPlayers:['A']});assert.equal(x.options.length,0);assert.equal(x.excluded['Excluded by you'],1);
+ assert.equal(F.validateTerms({optionCount:99}).optionCount,20);
+});
+test('combined odds shown are the product of the three prices, with the combined American derived from it',()=>{
+ const r=run([leg('A',250),leg('B',300),leg('C',400)]);const o=r.options[0];
+ assert.ok(Math.abs(o.decimal-3.5*4*5)<1e-9);// 70.0 -> +6900
+ assert.equal(F.roundAmerican(o.american),6900);assert.equal(F.fmtAmerican(o.american),'+6900');assert.equal(F.fmtAmerican(null),'n/a');
+});
+test('optional diversification caps how often one player repeats, but is off by default',()=>{
+ const legs=[leg('A',300,.6),leg('B',300,.5),leg('C',300,.45),leg('D',300,.44),leg('E',300,.43),leg('F',300,.42),leg('G',300,.41)];
+ const pure=run(legs);assert.ok(pure.options.filter(o=>o.legs.some(l=>l.playerId==='A')).length===5);
+ const div=run(legs,{diversify:true,maxPlayerAppearances:3});assert.ok(Object.values(div.exposure).every(v=>v<=3));assert.equal(div.options.length,5);
+});
+test('manual Fanatics price entry matches players exactly and reports anything it cannot read',()=>{
+ const pool=[{playerId:'1',player:'Josh Allen'},{playerId:'2',player:'Josh Allen'},{playerId:'3',player:'Amon-Ra St. Brown'},{playerId:'4',player:'José Ramírez'}];
+ const r=F.parseManualPrices('Amon-Ra St. Brown +120\nJose Ramirez, -150\nJosh Allen +300\nNobody Here +500\nbad line\nAmon-Ra St. Brown +10',pool,NOW);
+ assert.deepEqual(r.entries.map(e=>[e.playerId,e.american]),[['3',120],['4',-150]]);
+ assert.equal(r.errors.length,4);assert.match(r.errors.join(' '),/more than one player/);assert.match(r.errors.join(' '),/does not match/);assert.match(r.errors.join(' '),/Could not read/);assert.match(r.errors.join(' '),/invalid American/);
+ assert.equal(F.parseManualPrices('',pool).entries.length,0);assert.equal(F.parseManualPrices(null,null).errors.length,0);
+});
+test('the terms file separates verified, user-supplied and unverified rules and never claims official verification',()=>{
+ const cfg=require('../shared/fanatics-td-terms.js'),d=F.describeTerms(cfg);
+ assert.ok(d.userSupplied.some(t=>t.key==='state'));assert.ok(d.unverified.length>=4);
+ for(const t of Object.values(cfg.terms))assert.ok(['verified-secondary','user-supplied','conflicting','unverified'].includes(t.status),t.status);
+ assert.ok(!Object.values(cfg.terms).some(t=>t.status==='verified'),'no term may be marked officially verified');
+ assert.match(cfg.read_me,/could not be retrieved/);
+});
