@@ -1,5 +1,7 @@
 # Calibration audit and release gate (2026-10-09)
 
+**Independent takeover caveat, 2026-10-10:** posted-line extraction merged different observations and lacked pre-kickoff receipt checks; first-TD summaries mixed games. Code is repaired on `codex/going-takeover`; aggregates below have not been regenerated from permitted original inputs. Affected real-market sample sizes, intervals and superiority claims remain unverified. Synthetic-ladder results are different evidence. No new promotion or edge established. See `CODEX_TAKEOVER_PROGRESS.md` and `../MODEL_RESEARCH.md`.
+
 Independent reproduction: Auditor A (live tracker, `research/calibration/A`), Auditor B (point-in-time backtest 2021-25, `research/calibration/B`), QA (`research/calibration/QA`, `tests/qa_calibration_wiring.cjs`).
 
 ## The reported figures
