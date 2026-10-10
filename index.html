@@ -3394,6 +3394,13 @@ function attachProjection(p, index){
   else if(/_1[hq]$/.test(p.market)&&model?.status!=='ready')p.matchStatus='Period projection unavailable';
   return p;
 }
+// Props for reserve/suspended/retired/practice-squad players keep their quote row but have no usable model, so no page can rank or recommend them.
+function markUnavailableProps(list){
+  const out=globalThis.GoingIntel?GoingIntel.unavailableIds(BET.injuryLearning?.current_players):null;
+  if(!out||!out.size)return list;
+  for(const p of list)if(p.profileId&&out.has(p.profileId)&&p.model&&p.model.status!=='unavailable')p.model={...p.model,status:'unavailable',unavailable_reason:'Reserve, suspended, retired or practice-squad player'};
+  return list;
+}
 async function propsFromRealData(raw=BET.nflData){
   const index=buildProfileIndex(BET.history), quotes=new Map(); let count=0;
   if(Array.isArray(raw?.props)){
@@ -3455,7 +3462,7 @@ async function loadBettingData(){
     BET.injuryContext=GoingFootballInjuries.createContext(BET.roster,BET.history?.profiles,Date.now(),BET.injuryLearning);
     S.history=files.history; S.pipeline=files.config;
     BET.config=files.config?.betting||{};
-    BET.props=await propsFromRealData();
+    BET.props=markUnavailableProps(await propsFromRealData());
     BET.games=gamesFromRealData();
     const stamp=BET.history?.generated_at,injuryStamp=BET.injuryContext?.generatedAt,injuryNote=BET.injuryContext?.fresh?`Injuries FRESH ${new Date(injuryStamp).toLocaleString()}`:`INJURIES STALE/FAILED — projection adjustments disabled`;
     $("btDataNote").textContent=stamp ? `Model updated ${new Date(stamp).toLocaleString()} · ${BET.history.window}-game baseline · ${injuryNote} · Research estimates; no suggested stake until validated` : "Historical projections unavailable. Manual import is available below.";
@@ -3630,7 +3637,7 @@ async function refreshLiveOdds(sport=BET.sport){
       BET.nflData=fresh;
       const incoming=await propsFromRealData(fresh),overrides=new Map(BET.props.filter(p=>p.manual&&p.quoteKey).map(p=>[p.quoteKey,p]));
       for(const p of incoming){const previous=overrides.get(p.quoteKey);if(previous){p.manual=true;p.projMean=previous.projMean;p.projSd=previous.projSd;}}
-      BET.props=BET.props.filter(p=>p.source==='manual').concat(incoming);
+      BET.props=BET.props.filter(p=>p.source==='manual').concat(markUnavailableProps(incoming));
     }else BET.ncaaData=fresh;
     BET.games=BET.games.filter(g=>g.source==='manual').concat(gamesFromRealData());
     BET.liveLoaded[sport]=true;BET.liveStatus=partial?'partial':'live';BET.page=0;
@@ -4727,8 +4734,9 @@ function renderGameFirstSlate(chance,value){
 const PICKS_GAME={nfl:null,ncaa:null},PICKS_LIMIT={nfl:6,ncaa:6},PICKS_FAMILY={nfl:'all',ncaa:'all'},PICKS_OPEN=new Set();
 let PICKS_VISIBLE=new Map(),PICKS_LAST=null;
 function goingPicksCandidates(now=Date.now()){
- const rows=[],upcoming=at=>Date.parse(at)>now&&Date.parse(at)<=now+7*86400000;
+ const rows=[],upcoming=at=>Date.parse(at)>now&&Date.parse(at)<=now+7*86400000,outIds=globalThis.GoingIntel?GoingIntel.unavailableIds(BET.injuryLearning?.current_players):new Set();// reserve/suspended/retired/practice-squad players are never recommended
  for(const p of BET.props){
+  if(p.profileId&&outIds.has(p.profileId))continue;
   if(p.dfs||p.manual||['manual','projection'].includes(p.source)||!upcoming(p.kickoff)||!p.profileId||!GoingFootballPicks.FAMILIES[p.market]||p.market==='atd'&&p.line>.5)continue;
   const probabilities=propProbabilities(p),[home,away]=p.eventTeams||[];if(!probabilities||!home||!away)continue;
   const base={kind:'prop',sport:'nfl',home,away,kickoff:p.kickoff,player:p.player,profileId:p.profileId,profileDate:p.profileDate,team:p.team,opp:p.opp,position:BET.history?.profiles?.[p.profileId]?.position,market:p.market,line:p.market==='atd'?(p.line??.5):p.line,n:p.model?.n,projMean:p.projMean,projSd:p.projSd,modelFamily:p.model?.family,roleTrend:BET.history?.profiles?.[p.profileId]?.role_trend||null,scoringRole:BET.history?.profiles?.[p.profileId]?.scoring_role||null,calibrated:!!p.model?.calibration,seasonEvidence:p.model?.season_evidence,injury:p.injury,book:p.book,updatedAt:p.updatedAt,flags:[]};

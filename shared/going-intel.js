@@ -48,7 +48,7 @@ function roleSeries(trend,position){
 // expected TDs and snap share predict anytime TD beyond the Champion rate (2025 holdout, log loss -4.2%); tiers separate anytime rates monotonically (PRIMARY .47 ... FRINGE .07).
 // First/last/longest-TD probabilities from it are still SHADOW; trends are not used (rejected).
 // A profile is current when the player appeared within 21 days and the roster does not list him reserve/injured/suspended/retired. Stale profiles must not read as current form.
-const OUT_STATUS=new Set(['RES','INA','PUP','IR','SUS','RET','EXE']);
+const OUT_STATUS=new Set(['RES','INA','PUP','IR','SUS','RET','EXE','CUT','DEV']);// DEV = practice squad/development: a book may post a prop, but he is not on the active roster
 const unavailableIds=cache=>{const s=new Set();for(const v of Object.values(cache||{}))if(v?.gsis_id&&OUT_STATUS.has(String(v.roster_status||'').toUpperCase()))s.add(v.gsis_id);return s;};
 function activeProfile(profile,out=null,now=Date.now()){
  const t=Date.parse(profile?.last_game);if(!Number.isFinite(t)||now-t>21*86400000||t>now+86400000)return false;
