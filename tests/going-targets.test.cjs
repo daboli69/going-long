@@ -53,7 +53,7 @@ test('betting targets: unavailable players excluded; unpriced are research targe
  const r=T.bettingTargets({profiles,injury:inj({a:'ACT',b:'RES',c:'ACT',d:'ACT'}),week:5,now:NOW},[cand('a'),cand('b'),cand('c',{prob:.93,ev:.6}),]);
  const by=Object.fromEntries(r.targets.filter(x=>x.market==='rec_yds').map(x=>[x.id,x]));
  assert.ok(!by.b);assert.ok(r.excluded.some(x=>x.id==='b'&&/Reserve/.test(x.reason)));
- assert.equal(by.a.status,'Priced research target');assert.equal(by.a.ev,.05);assert.match(by.a.calibration,/Raw model/);
+ assert.equal(by.a.status,'Priced research target');assert.equal(by.a.ev,null);assert.equal(by.a.evUnavailable,true);assert.match(by.a.calibration,/Raw model/);
  assert.equal(by.c.ev,null);assert.equal(by.c.evWithheld,true);assert.match(by.c.status,/needs review/);
  assert.equal(by.d.priced,false);assert.equal(by.d.ev,null);assert.match(by.d.status,/no price/);
 });
@@ -67,5 +67,24 @@ test('betting targets use the main line, not alternate or extreme ladder rungs, 
  const mk=(line,odds,dec,prob,ev)=>({kind:'prop',profileId:'a',player:'Pa',market:'rec_yds',side:'Over',line,odds,dec,prob,ev,book:'b'});
  const r=T.bettingTargets({profiles,injury:inj({a:'ACT'}),week:5,now:NOW},[mk(60.5,-110,1.91,.52,.04),mk(65.5,110,2.1,.4,.1),mk(55.5,-130,1.77,.6,.02),mk(174.5,3500,36,.02,.9)]);
  const t=r.targets.find(x=>x.market==='rec_yds');assert.equal(t.line,60.5);assert.equal(t.status,'Priced research target');
- const neg=T.bettingTargets({profiles,injury:inj({a:'ACT'}),week:5,now:NOW},[mk(60.5,-110,1.91,.4,-.2)]).targets.find(x=>x.market==='rec_yds');assert.equal(neg.status,'Priced, no value at this price');
+ const neg=T.bettingTargets({profiles,injury:inj({a:'ACT'}),week:5,now:NOW},[mk(60.5,-110,1.91,.4,-.2),{...mk(60.5,-110,1.91,.6,.1),side:'Under'}]).targets.find(x=>x.market==='rec_yds');assert.equal(neg.status,'Priced, no value at this price');
+});
+
+test('value is shrunk to the de-vigged price: a 60% model on a fair 50/50 market gives about 0.15 weight, not the model EV',()=>{
+ const profiles={a:prof('a','WR',rising)};
+ const over={kind:'prop',profileId:'a',market:'rec_yds',side:'Over',line:60.5,odds:-110,dec:1.909,prob:.6,ev:.145,book:'b'},under={...over,side:'Under',prob:.4,ev:-.24};
+ const t=T.bettingTargets({profiles,injury:inj({a:'ACT'}),week:5,now:NOW},[over,under]).targets.find(x=>x.market==='rec_yds');
+ const q=.5+.15*(.6-.5);assert.ok(Math.abs(t.ev-(q*1.909-1))<1e-9);assert.ok(t.ev<t.evModelOnly);
+});
+
+test('bye teams, blank statuses and roster-snapshot fallback',()=>{
+ const P={...prof('k','TE',rising),team:'KC'},roster={bye_carry_forward_teams:['KC'],players:[{id:'k',team:'KC',roster_status:'ACT'},{id:'z',team:'AAA',roster_status:'ACT',injury:{report_status:'Out',week:5}}]};
+ const idx=T.indexInjury(inj({}),5,roster);
+ assert.equal(T.availability('k',P,idx,NOW).state,'bye');
+ assert.equal(T.availability('z',prof('z','WR',rising),idx,NOW).state,'out');
+ assert.equal(T.availability('q',prof('q','WR',rising),T.indexInjury(inj({}),5,{players:[{id:'q',team:'AAA',roster_status:'ACT'}]}),NOW).state,'active');
+ const blank=inj({x:'ACT'});blank.current_players['AAA|x'].roster_status='';assert.equal(T.availability('x',prof('x','WR',rising),T.indexInjury(blank,5),NOW).state,'unknown');
+ assert.match(T.availability('s',prof('s','WR',rising),T.indexInjury(inj({s:'SUS'}),5),NOW).detail,/Suspended/);
+ assert.equal(T.availability('x',prof('x','WR',rising),T.indexInjury(inj({x:'ACT'},{x:{report_status:'Inactive'}}),5),NOW).actionable,false);
+ assert.equal(T.availability('x',prof('x','WR',rising),T.indexInjury(inj({x:'ACT'},{x:{report_status:'Game-time decision'}}),5),NOW).caution,true);
 });

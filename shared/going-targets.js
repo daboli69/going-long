@@ -10,33 +10,40 @@
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const intel=()=>root.GoingIntel||(typeof require!=='undefined'?require('./going-intel.js'):null);
 const OUT=new Set(['RES','INA','PUP','IR','SUS','RET','EXE']),OFF=new Set(['CUT','DEV','PRA','PS']);
-const RULES={minGames:3,buyGap:-2.5,buyGapL3:-1,sellGap:3,expTop:60,expMid:25,emergingScore:40,staleDays:21,extremeProb:.85,reviewEv:.25,returnStashWeeks:4};
+const RULES={marketWeight:.15,minGames:3,buyGap:-2.5,buyGapL3:-1,sellGap:3,expTop:60,expMid:25,emergingScore:40,staleDays:21,extremeProb:.85,reviewEv:.25,returnStashWeeks:4};
 
-function indexInjury(injury,week){
- const players={},reports={};
+function indexInjury(injury,week,roster){
+ const players={},reports={},bye=new Set(roster?.bye_carry_forward_teams||[]);
  for(const v of Object.values(injury?.current_players||{}))if(v?.gsis_id)players[v.gsis_id]=v;
- for(const v of Object.values(injury?.current_reports||{}))if(v?.gsis_id&&(!finite(week)||!finite(v.week)||v.week>=week-0))reports[v.gsis_id]=v;
- return {players,reports,asOf:injury?.generated_at||null};
+ for(const v of Object.values(injury?.current_reports||{}))if(v?.gsis_id&&(!finite(week)||!finite(v.week)||v.week>=week))reports[v.gsis_id]=v;
+ // The roster snapshot covers every team (bye teams carried forward); the injury file does not. Fill gaps from it, never override.
+ for(const v of roster?.players||[])if(v?.id){
+  if(!players[v.id])players[v.id]={gsis_id:v.id,roster_status:v.roster_status,team:v.team,from_roster:true};
+  const inj=v.injury;if(inj&&!reports[v.id]&&(!finite(week)||!finite(inj.week)||inj.week>=week))reports[v.id]={gsis_id:v.id,...inj};
+ }
+ return {players,reports,bye,asOf:injury?.generated_at||roster?.generated_at||null};
 }
 // Availability for one player. actionable=false means: never a recommendation. caution=true means: show the risk beside it.
 function availability(id,profile,inj,now=Date.now()){
  const entry=inj.players[id],rep=inj.reports[id],asOf=inj.asOf;
  const rs=String(entry?.roster_status||'').toUpperCase();
+ if(inj.bye.has(profile?.team||entry?.team))return {state:'bye',actionable:false,caution:false,label:'Team on bye',detail:'This team does not play this week.',asOf};
+ if(entry&&!rs)return {state:'unknown',actionable:false,caution:false,label:'Availability unconfirmed',detail:'The roster snapshot has no status for this player; not treated as active.',asOf};
  if(entry&&OUT.has(rs)){
   const ret=finite(entry.expected_return_week)?entry.expected_return_week:null;
   const label=rs==='SUS'?'Suspended':rs==='RET'?'Retired':rs==='EXE'?'Exempt list':'Reserve / injured list';
-  return {state:ret!=null?'returning':'reserve',actionable:false,caution:false,stashOnly:ret!=null,returnWeek:ret,label,asOf,
-   detail:ret!=null?`Expected back around week ${ret} (not a start or bet until active).`:'Return date not available in our data. A reserve designation is not automatically season-ending (the minimum is four games), so check the team report; excluded until the player is active again.'};
+  const detail=ret!=null?`Expected back around week ${ret} (not a start or bet until active).`:rs==='SUS'?'Suspended; check the reinstatement date. Excluded until active.':rs==='RET'?'Retired; excluded.':rs==='EXE'?'Exempt list; excluded until reinstated.':'Return date not available in our data. A reserve designation is not automatically season-ending (the minimum is four games), so check the team report; excluded until the player is active again.';
+  return {state:ret!=null?'returning':'reserve',actionable:false,caution:false,stashOnly:ret!=null,returnWeek:ret,label,asOf,detail};
  }
  if(entry&&OFF.has(rs))return {state:'inactive_roster',actionable:false,caution:false,label:'Not on the active roster',detail:'Practice squad, development or released.',asOf};
  if(!entry)return {state:'unknown',actionable:false,caution:false,label:'Availability unconfirmed',detail:'Not found in the current roster snapshot; not treated as active.',asOf};
  const t=Date.parse(profile?.last_game);
  if(!finite(t)||now-t>RULES.staleDays*86400000)return {state:'stale',actionable:false,caution:false,label:'No recent game',detail:`No appearance in the last ${RULES.staleDays} days (injury, inactive or role loss); history is not current form.`,asOf};
  const status=String(rep?.report_status||'').toLowerCase(),practice=String(rep?.practice_status||'').toLowerCase();
- if(/^out|injured reserve|suspend/.test(status))return {state:'out',actionable:false,caution:false,label:'Ruled out',detail:`Game status: ${rep.report_status}.`,asOf};
+ if(/^out|^inactive|injured reserve|suspend/.test(status))return {state:'out',actionable:false,caution:false,label:'Ruled out',detail:`Game status: ${rep.report_status}.`,asOf};
  if(/doubtful/.test(status))return {state:'doubtful',actionable:false,caution:true,label:'Doubtful',detail:'Listed doubtful; treat as out unless upgraded.',asOf};
- if(/questionable/.test(status))return {state:'questionable',actionable:true,caution:true,label:'Questionable',detail:'Game status questionable. Inactives are announced about 90 minutes before kickoff.',asOf};
- if(/did not/.test(practice))return {state:'dnp',actionable:true,caution:true,label:'Missed practice',detail:'Did not practice this week; confirm the final report.',asOf};
+ if(/questionable|game.?time|^gtd/.test(status))return {state:'questionable',actionable:true,caution:true,label:'Questionable',detail:'Game status questionable. Inactives are announced about 90 minutes before kickoff.',asOf};
+ if(/did not|^dnp/.test(practice))return {state:'dnp',actionable:true,caution:true,label:'Missed practice',detail:'Did not practice this week; confirm the final report.',asOf};
  if(/limited/.test(practice))return {state:'limited',actionable:true,caution:true,label:'Limited in practice',detail:'Limited participation this week.',asOf};
  return {state:'active',actionable:true,caution:false,label:'Active',detail:'Active on the roster; no current report. Game-day inactives are announced about 90 minutes before kickoff.',asOf};
 }
@@ -50,7 +57,7 @@ const fmt1=x=>finite(x)?(Math.round(x*10)/10).toFixed(1):'n/a';
 
 // ctx: {ovp:{players:[...]}, profiles, score:{players:{}}, injury, week, now, window:'season'|'l3'}
 function fantasyTargets(ctx){
- const I=intel(),now=ctx.now||Date.now(),inj=indexInjury(ctx.injury,ctx.week),win=ctx.window==='l3'?'l3':'season';
+ const I=intel(),now=ctx.now||Date.now(),inj=indexInjury(ctx.injury,ctx.week,ctx.roster),win=ctx.window==='l3'?'l3':'season';
  const rows=(ctx.ovp?.players||[]).map(r=>{
   const t=r.trend3||{};
   const exp=win==='l3'&&finite(t.exp_pg)?t.exp_pg:r.exp_pg,act=win==='l3'&&finite(t.act_pg)?t.act_pg:r.act_pg;
@@ -69,7 +76,7 @@ function fantasyTargets(ctx){
   if(!av.actionable&&av.caution){ unavailable.push({...base,category:'unavailable'}); continue; }
   const push=(cat,strength,whyArr,concernArr)=>out[cat].push({...base,category:cat,strength,why:whyArr,concern:[...concernArr,...(av.caution?[`${av.label}: ${av.detail}`]:[])]});
   const gapL3=r.trend3?.res_pg;
-  if(role?.state==='up'&&scorePct!=null&&scorePct>=RULES.emergingScore){
+  if(role?.state==='up'&&scorePct!=null&&scorePct>=RULES.emergingScore&&ep!=null&&ep>=RULES.expTop){
    push('emerging',(Math.max(...role.parts.map(p=>Math.abs(p.change)/({snap_share:8,target_share:.03,carry_share:.05})[p.metric]))||1)*(ep||50)/100,
     [`Role is growing: ${role.text}.`,`Opportunity is ${fmt1(r.exp)} expected points per game (${ep!=null?Math.round(ep)+'th percentile at '+r.pos:'percentile n/a'}).`,`GOING Score ${Math.round(scorePct)}${sc.rank?` (rank ${sc.rank} of ${sc.of})`:''}.`],
     [r.g<5?`Only ${r.g} games of data.`:'Usage can reverse with one injury or game script.','Role expansion was validated for next-game volume, not for fantasy points or prices.']);
@@ -115,7 +122,7 @@ function calStatus(market,calibrated){
  return 'Raw model probability: overconfident in audits, unreliable above about 80%';
 }
 function bettingTargets(ctx,candidates=[]){
- const I=intel(),now=ctx.now||Date.now(),inj=indexInjury(ctx.injury,ctx.week),rows=[],seen=new Set(),excluded=[];
+ const I=intel(),now=ctx.now||Date.now(),inj=indexInjury(ctx.injury,ctx.week,ctx.roster),rows=[],seen=new Set(),excluded=[];
  const markets=Object.keys(MARKET_LABEL),priced=new Map();
  for(const c of candidates||[]){
   if(c.kind&&c.kind!=='prop'||!c.profileId||!MARKET_LABEL[c.market])continue;
@@ -137,7 +144,15 @@ function bettingTargets(ctx,candidates=[]){
    const best=offers.sort((a,b)=>(m==='atd'?0:Math.abs(a.line-mid)-Math.abs(b.line-mid))||(b.dec||0)-(a.dec||0))[0];
    const key=id+'|'+m;if(seen.has(key))continue;seen.add(key);
    const extreme=best&&(best.prob>=RULES.extremeProb||best.prob<=.15&&best.dec>=4),bigGap=best&&finite(best.ev)&&best.ev>RULES.reviewEv;
-   const valueShown=!!best&&finite(best.ev)&&!extreme&&!bigGap;
+   // Live receptions test (4 weeks, 48 games): the book price predicted outcomes with slope ~1.0, the model added nothing detectable beyond it (weight -0.02, upper bound ~0.26).
+   // So value is shown against the de-vigged price with only a small model weight; one-sided markets (anytime TD) cannot be de-vigged and show no value.
+   const opp=best?priced.get([id,m,th.side==='Over'?'Under':'Over',best.line].join('|')):null;
+   let evShrunk=null;
+   if(best&&opp&&finite(best.prob)&&finite(opp.prob)&&best.prob+opp.prob>0&&best.dec>1&&opp.dec>1){
+    const fair=(1/best.dec)/(1/best.dec+1/opp.dec),pm=best.prob/(best.prob+opp.prob),q=fair+RULES.marketWeight*(pm-fair);
+    evShrunk=q*best.dec-1;
+   }
+   const valueShown=!!best&&finite(evShrunk)&&!extreme&&!bigGap;
    const concerns=[];
    if(av.caution)concerns.push(`${av.label}: ${av.detail}`);
    if(!best)concerns.push('No posted line in our feed, so there is no price to compare: a research target, not a betting edge.');
@@ -147,8 +162,8 @@ function bettingTargets(ctx,candidates=[]){
    concerns.push('Role trends were validated for next-game volume, not for beating sportsbook prices.');
    rows.push({id,name:profile.name,team:profile.team,pos,market:m,marketLabel:MARKET_LABEL[m],direction:th.side,strength:th.strength+(best?.25:0),why:[th.why],concern:concerns,
     availability:av,priced:!!best,line:best?.line??null,odds:best?.odds??null,book:best?.book||null,updatedAt:best?.updatedAt||null,prob:best?.prob??null,
-    calibration:best?calStatus(m,best.calibrated):null,ev:valueShown?best.ev:null,evWithheld:!!best&&!valueShown,
-    status:best?(extreme||bigGap?'Priced, needs review':valueShown&&best.ev<-.02?'Priced, no value at this price':'Priced research target'):'Research target (no price)',
+    calibration:best?calStatus(m,best.calibrated):null,ev:valueShown?evShrunk:null,evModelOnly:best&&finite(best.ev)?best.ev:null,evWithheld:!!best&&!valueShown&&(extreme||bigGap),evUnavailable:!!best&&!finite(evShrunk),
+    status:best?(extreme||bigGap?'Priced, needs review':valueShown&&evShrunk<-.02?'Priced, no value at this price':'Priced research target'):'Research target (no price)',
     scoringTier:profile.scoring_role?.tier||null});
   }
  }
