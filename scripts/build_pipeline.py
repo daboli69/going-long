@@ -130,12 +130,33 @@ def season_fit(games, column, family, season, minimum=5, candidate=False, market
     cal = _calibration_for(market, position)
     if cal and model.get('status') == 'ready':
         model['calibration'] = cal
+        if cal['method'] == 'lognormal_refit' and model.get('family') == 'lognormal':
+            values = [r[column] for r in usable if finite(r.get(column))]
+            refit = lognormal_refit(model, sum(values) / len(values) if len(values) >= 3 else None, cal['params'])  # the research sample is starters with real history
+            if refit:
+                model['mean_raw'], model['mu_log_raw'], model['sigma_log_raw'] = model['mean'], model['mu_log'], model['sigma_log']
+                model.update(refit)
         if cal['method'] == 'mean_scale' and model.get('family') == 'poisson' and finite(model.get('lambda')):
             # TD means were ~20% too high in every chronological fold (docs/CALIBRATION_AUDIT.md); correct the mean, keep the raw value for provenance.
             model['lambda_raw'], model['mean_raw'] = model['lambda'], model['mean']
             model['lambda'] *= cal['params']['factor']
             model['mean'] *= cal['params']['factor']
     return model
+
+
+def lognormal_refit(model, mean_all, params):
+    """QB passing yards (research/yardage-variance, walk-forward 2023-25): equal-weight mean of the modelled games (a trailing mean beats the Champion), regression-to-the-mean compression in
+    log space, and a sigma that falls with the mean and ignores the Champion's own CV. Returns mu_log/sigma_log/mean, or None when the inputs are not usable."""
+    pw, sig0 = model.get('positive_weight'), model.get('sigma_log')
+    if not (finite(mean_all) and mean_all > 20 and finite(pw) and 0 < pw <= 1 and finite(sig0) and sig0 > 0):
+        return None
+    p0 = min(0.99, max(1e-4, 1 - pw))
+    l_mean = math.log(mean_all) - params['center_log_mean']
+    ls0 = math.log(sig0) - math.log(params['sig_ref'])
+    log_m = math.log(mean_all) + params['a'] + params['b'] * l_mean
+    sigma = math.exp(math.log(sig0) + params['s0'] + params['s_lM'] * l_mean + params['s_ls0'] * ls0)
+    mean = math.exp(log_m)
+    return {'mu_log': math.log(mean / (1 - p0)) - sigma ** 2 / 2, 'sigma_log': sigma, 'mean': mean}
 
 
 _CAL = {}

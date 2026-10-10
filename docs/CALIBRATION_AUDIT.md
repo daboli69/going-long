@@ -53,3 +53,14 @@ MARKET | ROOT CAUSE | CHANGE | BEFORE / AFTER | BENCHMARK | HOLDOUT | PRODUCTION
 Other changes: extreme-probability (>=85%, or <=15% at 4.0+ decimal) review flag next to the 25% EV flag; period/team-total game quotes withheld without a posted full-game line; first-TD scoring uses the posted line; td_shadow and first-TD recipes stay on the raw TD mean they were tuned on. A proposed settlement rule that voided all-zero player lines was **rejected** after independent review: results rows already require a snap or stat appearance and there is no snap/inactive flag to tell a zero-touch active player from an inactive one.
 
 Remaining uncertainty: live prop edge versus prices is unproven (live model coefficient 0.21 [-0.15, 0.36] against 0.56 on the de-vigged price, 17 games); live receptions slope (.20) versus backtest (.82) is explained by line selection, not fixed; NCAA game SDs; TD factors are global, not by position (position-specific gave no reliable gain); the pass-yards distribution still needs a real fix.
+
+## Yardage research and pass-yards promotion (2026-10-10)
+Independent researcher (`research/yardage-variance/`, walk-forward fit on seasons before each test year, 2025 not used for selection):
+| MARKET | ROOT CAUSE | CHANGE | BEFORE/AFTER (Brier, ladder lines, 2023/24/25) | HOLDOUT | STATUS |
+| --- | --- | --- | --- | --- | --- |
+| pass_yds (QB) | Champion mean loses to a plain trailing mean every year (RMSE 77.9/75.1/76.5 vs 73.5/71.4/73.8; Champion weight 0.00 in NNLS); sigma not tied to the mean | **Fixed underlying model**: equal-weight mean of modelled games, log-space regression-to-mean compression (b -0.43), sigma falling with the mean; replaces the shrink stopgap (`lognormal_refit`, policy v3) | +.0143 / +.0133 / +.0103 vs Champion | 2025 main line +.0103 [.0011,.0189]; vs deployed shrink +.0087 [.0034,.0138]; reproduced through the production function | **Production** (about 330 starter-games a year, so the main-line bound is thin) |
+| rec_yds | pooled sigma too flat in the mean, free low-mass p0 | probability-level calibration only (fitted mean is not a true mean: realised/fitted .87) | +.0025 / +.0023 (2025 main +.0023 [.0005,.0040]) | small, 2024 main interval spans 0 | **Shadow** (not wired; modest gain, complex) |
+| rush_yds | same, plus main-line gain zero in 2024 | | all-line +.0096, main +.0046 (2023 .0048, 2024 .0001, 2025 .0046) | borderline | **Shadow** |
+| tail shape | gamma vs lognormal vs mixture | none | within .0003 | null | rejected |
+| zero mass | Champion p0 .241 vs true no-target rate .117 (it absorbs low-yardage games) | logistic on activity made it worse (-.0128) | | | rejected |
+The old "sigma 1.3-1.8x too narrow" claim was partly mean error: fitted sigma is 1.38x (rec), 1.67x (rush), 1.31x (pass) the Champion's. All lines are a synthetic ladder, not real posted prices; a Brier gain is not a betting return.

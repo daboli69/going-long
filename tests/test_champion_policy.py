@@ -242,7 +242,7 @@ class CalibrationAttachmentTests(unittest.TestCase):
             cal = bp._calibration_for(market, pos)
             self.assertEqual(cal is not None, expected, (market, pos))
             if cal:
-                self.assertEqual(cal['version'], 'cal-b-2026.10.09-v2')
+                self.assertEqual(cal['version'], 'cal-b-2026.10.09-v3')
 
 
     def test_td_mean_scale_changes_lambda_and_keeps_raw(self):
@@ -252,3 +252,13 @@ class CalibrationAttachmentTests(unittest.TestCase):
         self.assertAlmostEqual(scaled['lambda'], scaled['lambda_raw'] * factor, places=9)
         self.assertAlmostEqual(scaled['mean'], scaled['mean_raw'] * factor, places=9)
         self.assertNotIn('lambda_raw', bp.season_fit(games, 'touchdowns', 'poisson', 2026, market='atd', position='QB'))
+
+
+    def test_pass_yds_lognormal_refit_uses_equal_weight_mean_and_keeps_raw(self):
+        games = [{'season': 2025, 'passing_yards': y} for y in (250, 280, 310, 190, 260, 300)] + [{'season': 2026, 'passing_yards': y} for y in (220, 240, 330)]
+        m = bp.season_fit(games, 'passing_yards', 'lognormal', 2026, market='pass_yds', position='QB')
+        self.assertEqual(m['calibration']['method'], 'lognormal_refit')
+        self.assertAlmostEqual(m['mean_raw'] > 0 and m['mean'] > 0, True)
+        self.assertLess(abs(m['mean'] - sum(g['passing_yards'] for g in games) / len(games)) / 270, 0.1)  # compressed toward the league mean, near the equal-weight mean
+        self.assertIn('sigma_log_raw', m)
+        self.assertIsNone(bp.lognormal_refit({'positive_weight': 1, 'sigma_log': .3}, 10, m['calibration']['params']))

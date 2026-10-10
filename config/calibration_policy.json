@@ -1,7 +1,7 @@
 {
  "schema": "going-calibration-policy-1",
  "active": true,
- "version": "cal-b-2026.10.09-v2",
+ "version": "cal-b-2026.10.09-v3",
  "source": "config/calibration_candidates.json (Auditor B, fit 2021-2024 for deployment; 2021-23 fit / 2024 tuned / 2025 holdout-scored once for validation)",
  "rollback": "set \"active\": false (rebuild history) or remove a market; probabilities then revert to the raw Champion output",
  "domain": "applied only for lines within +/-50% of the model mean; positions listed per market; mean_scale entries change the model mean itself at build time and apply at every line",
@@ -25,19 +25,35 @@
    }
   },
   "pass_yds": {
-   "method": "shrink_const",
+   "method": "lognormal_refit",
    "params": {
-    "w": 0.8671542174209772,
-    "target": 0.5246169084658859
+    "center_log_mean": 5.459585514144159,
+    "sig_ref": 0.8,
+    "a": 0.0113,
+    "b": -0.4288,
+    "s0": -0.5248,
+    "s_lM": -0.3962,
+    "s_ls0": -0.7218
    },
    "positions": [
     "QB"
    ],
-   "holdout_2025": {
-    "brier_raw": 0.167,
-    "brier_calibrated": 0.1653,
-    "slope_raw": 0.7,
-    "slope_calibrated": 1.01
+   "note": "Replaces shrink_const (kept below for rollback). Equal-weight trailing mean of modelled games (the Champion mean lost to it in 2023, 2024 and 2025), log-space regression-to-mean compression, sigma falling with the mean. Fit 2021-25 (research/yardage-variance); walk-forward Brier gain vs Champion +.0143/+.0133/+.0103 (2023/24/25 ladder lines), 2025 main line +.0103 [.0011,.0189]; vs the deployed shrink only +.0087 [.0034,.0138] in 2025. Replicated through the production function scripts/build_pipeline.py lognormal_refit.",
+   "superseded_shrink_const": {
+    "method": "shrink_const",
+    "params": {
+     "w": 0.8671542174209772,
+     "target": 0.5246169084658859
+    },
+    "positions": [
+     "QB"
+    ],
+    "holdout_2025": {
+     "brier_raw": 0.167,
+     "brier_calibrated": 0.1653,
+     "slope_raw": 0.7,
+     "slope_calibrated": 1.01
+    }
    }
   },
   "rec_tds": {
