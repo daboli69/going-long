@@ -1,7 +1,7 @@
 {
  "schema": "going-score-v2",
  "methodology_version": "going-score-2.0.0",
- "as_of": "2026-10-10T03:21:15Z",
+ "as_of": "2026-10-10T03:45:00Z",
  "season": 2026,
  "week": 6,
  "meaning": "Player-level situation index: opportunity, role, availability and how they are changing, from games before this week. Not a projection, a probability or a betting edge; a higher score is not a better bet.",
@@ -78,8 +78,8 @@
  "availability": {
   "ok": true,
   "reason": "",
-  "injury_as_of": "2026-10-10T02:30:14+00:00",
-  "roster_as_of": "2026-10-10T02:30:15.778036+00:00"
+  "injury_as_of": "2026-10-10T03:23:50+00:00",
+  "roster_as_of": "2026-10-10T03:23:51.979115+00:00"
  },
  "provenance": {
   "sources": [
@@ -119,7 +119,7 @@
    "week": 5
   },
   "ffopportunity_rows": 13441,
-  "history_json_generated_at": "2026-10-10T03:21:14+00:00",
+  "history_json_generated_at": "2026-10-10T03:44:59+00:00",
   "history_linked_players": 492,
   "weights_fit": {
    "experiment": "P4-1",
