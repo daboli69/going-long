@@ -145,6 +145,16 @@ test('a fresh typed price is used even when a newer-looking but stale feed quote
  assert.equal(run([stale,leg('B'),leg('C')]).options.length,0);
 });
 
+test('exact integer +2000 boundaries qualify in every multiplication order without a below-floor tolerance',()=>{
+ for(const prices of [[-150,180,350],[180,200,150]]){
+  for(const order of [prices,[prices[1],prices[0],prices[2]],[prices[2],prices[1],prices[0]]]){
+   assert.equal(run(order.map((price,i)=>leg(String(i),price,.5-i*.1))).options.length,1);
+  }
+  const below=prices.slice();below[1]-=1;
+  assert.equal(run(below.map((price,i)=>leg(String(i),price))).options.length,0);
+ }
+});
+
 test('strict clocks reject malformed dates, offsets, naive and future prices',()=>{
  for(const t of ['2026-02-30T12:00:00Z','2026-10-11T24:00:00Z','2026-10-11T11:59:00+00:60','2026-10-11T11:59:00+24:00','2026-10-11T11:59:00','bad'])assert.equal(F.timestampMs(t),null,t);
  for(const t of ['2026-10-11T12:00:00.001Z','2026-10-11T11:59:00','2026-10-11T11:59:00+00:60']){const a=leg('A');a.price.updatedAt=t;assert.equal(run([a,leg('B'),leg('C')]).options.length,0,t);}

@@ -104,10 +104,10 @@ test('names and teams are escaped (no markup injection from feed data)',()=>{
  const {w,host,ctx}=ctxFor(props);w.GoingFanaticsTDUI.render(host,ctx);
  assert.equal(host.querySelectorAll('img').length,0);
 });
-test('Jackpot integration: the promo panel hooks the new view, keeps the old engine as fallback, and adds no new network dependency',()=>{
+test('Jackpot integration hooks the verified selection view and pauses if the module is missing',()=>{
  const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
  for(const f of ['fanatics-td-terms.js','fanatics-td.js','fanatics-td-ui.js','fanatics-td.css'])assert.ok(html.includes('/shared/'+f),f);
- assert.ok(html.includes('GoingFanaticsTDUI.render($(\'promoOptions\')'));assert.ok(html.includes('GoingTouchdown.optimize'));
+ assert.ok(html.includes('GoingFanaticsTDUI.render($(\'promoOptions\')'));assert.ok(!html.includes('GoingTouchdown.optimize'));assert.match(html,/selection is paused/);
  assert.match(html,/id="btPromoPanel"/);assert.match(html,/id="promoOptions"/);assert.match(html,/id="promoStatus"/);
  const hook=html.slice(html.indexOf('GoingFanaticsTDUI.render($(\'promoOptions\')')-300,html.indexOf('GoingFanaticsTDUI.render($(\'promoOptions\')')+900);
  assert.match(hook,/bettingEligibility/);assert.match(hook,/availability:/);assert.match(hook,/return;/);

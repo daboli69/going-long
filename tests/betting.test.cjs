@@ -36,15 +36,15 @@ const future=()=>new Date(Date.now()+86400000).toISOString();
 // Rendering fixtures supply real shared-engine availability inputs as well.
 function verifyFixturePlayers(a,w){
  w.eval(fs.readFileSync(path.join(__dirname,'../shared/going-eligibility.js'),'utf8'));
- const at=new Date(Date.now()).toISOString();
- a.BET.injuryLearning={generated_at:at,current_players:{},current_reports:{}};
- a.BET.fullRoster={generated_at:at,players:Object.values(a.BET.history.profiles).map(p=>({id:p.id,name:p.name,team:p.team,position:p.position,roster_status:'ACT'}))};
+ const at=new w.Date(w.Date.now()).toISOString();
+ a.BET.injuryLearning={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,current_players:{},current_reports:{}};
+ a.BET.fullRoster={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,players:Object.values(a.BET.history.profiles).map(p=>({id:p.id,name:p.name,team:p.team,position:p.position,roster_status:'ACT'}))};
 }
 
 test('DFS pool verifies unmatched skill players and kickers against unique roster identities',t=>{
  const {api:a,w,context}=setup(t);vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-eligibility.js'),'utf8'),context);
- const at=new Date(Date.now()).toISOString();a.BET.injuryLearning={generated_at:at,current_players:{},current_reports:{}};
- a.BET.fullRoster={generated_at:at,players:[{id:'known',name:'Known Receiver',team:'BUF',position:'WR',roster_status:'ACT'},
+ const at=new w.Date(w.Date.now()).toISOString();a.BET.injuryLearning={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,current_players:{},current_reports:{}};
+ a.BET.fullRoster={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,players:[{id:'known',name:'Known Receiver',team:'BUF',position:'WR',roster_status:'ACT'},
  {id:'k',name:'Known Kicker',team:'BUF',position:'K',roster_status:'ACT'},{id:'dup1',name:'Same Name',team:'BUF',position:'WR',roster_status:'ACT'},
  {id:'dup2',name:'Same Name',team:'BUF',position:'WR',roster_status:'ACT'}]};
  w.fixturePool=[{name:'Known Receiver',team:'BUF',position:'WR'},{name:'Unknown Receiver',team:'BUF',position:'WR'},
@@ -60,13 +60,13 @@ test('ready prop models fail closed when identity or the eligibility script is m
  const {api:a,w,context}=setup(t);w.fixtureProps=[{model:{status:'ready',mean:10}}];
  vm.runInContext('markUnavailableProps(globalThis.fixtureProps)',context);assert.equal(w.fixtureProps[0].model.status,'unavailable');
  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-eligibility.js'),'utf8'),context);
- const at=new Date(Date.now()).toISOString();a.BET.injuryLearning={generated_at:at,current_players:{},current_reports:{}};
- a.BET.fullRoster={generated_at:at,players:[]};w.fixtureProps=[{profileId:'unknown',model:{status:'ready',mean:10}}];
+ const at=new w.Date(w.Date.now()).toISOString();a.BET.injuryLearning={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,current_players:{},current_reports:{}};
+ a.BET.fullRoster={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,players:[]};w.fixtureProps=[{profileId:'unknown',model:{status:'ready',mean:10}}];
  vm.runInContext('ELIG_CACHE=null;markUnavailableProps(globalThis.fixtureProps)',context);assert.equal(w.fixtureProps[0].model.status,'unavailable');
 });
 test('primary Classic callback and previously generated lineups cannot bypass availability',t=>{
  const {api:a,w,context}=setup(t);a.BET.tab='dfs';a.BET.history={profiles:{}};
- const at=new Date(Date.now()).toISOString();a.BET.injuryLearning={generated_at:at,current_players:{},current_reports:{}};a.BET.fullRoster={generated_at:at,players:[]};
+ const at=new w.Date(w.Date.now()).toISOString();a.BET.injuryLearning={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,current_players:{},current_reports:{}};a.BET.fullRoster={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,players:[]};
  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-eligibility.js'),'utf8'),context);
  w.fixturePool=[{id:'salary-unknown',name:'Unknown Player',team:'BUF',position:'RB',projection:10,source:'fixture',evidence:[],salary:5000}];
  w.GoingDfsClassicUI={mount:(host,options)=>{w.classicOptions=options;}};
@@ -207,12 +207,12 @@ test('Matchup filter and prop cards exclude future weeks and clear an obsolete s
 });
 test('First TD uses game-level Bernoulli probability and book-specific conditional vig',t=>{
   const {api:a}=setup(t),kickoff=future(),updatedAt=new Date().toISOString();
-  a.BET.history={profiles:{p:{id:'p',name:'Player One',team:'A',position:'RB',stats:{}}},derivatives:{first_td:{g:{home:'A',away:'B',kickoff,outcomes:{p:{probability:.2,fair_odds:400}}}}}};
+  a.BET.history={profiles:{p:{id:'p',name:'Player One',team:'A',position:'RB',stats:{}}},derivatives:{first_td:{g:{status:'ready',calculation_version:2,home:'A',away:'B',kickoff,outcomes:{p:{player_id:'p',team:'A',name:'Player One',probability:.2,fair_odds:400},no_td:{probability:.8}}}}}};
   const p=a.attachProjection({player:'Player One',eventId:'g',market:'first_td',eventTeams:['A','B'],kickoff,updatedAt,source:'parlay',bookKey:'book',overOdds:500},a.buildProfileIndex(a.BET.history));
-  close(a.computePropRow(p).prob,.2);close(a.computePropRow(p).ev,.2);assert.equal(p.model.fair_odds,400);
+  close(a.computePropRow(p).prob,.2);assert.equal(a.computePropRow(p).ev,null);assert.match(a.computePropRow(p).reason,/settlement is unverified/);assert.equal(p.model.fair_odds,400);
   a.BET.props=[p,{...p,profileId:'other',player:'Other Player',model:{probability:.1},overOdds:900}];
   a.firstTdVigComparison();close(p.bookConditionalProb,(1/6)/(1/6+1/10));close(p.listedModelMass,.3);
-  close(a.computePropRow(p).ev,.2);
+  assert.equal(a.computePropRow(p).ev,null);
 });
 test('Period pricing matches kickoff and distinguishes pregame, in-play and three-way draws',t=>{
   const {api:a}=setup(t),kickoff=future();
@@ -316,11 +316,15 @@ test('Stale, started and invalid quotes cannot produce a recommendation',t=>{
   assert.equal(a.quoteState({...p,updatedAt:new Date().toISOString(),kickoff:new Date(0).toISOString()}),'Started / invalid kickoff');
 });
 test('Manual imports validate fields and use automatic projections when omitted',t=>{
-  const {api:a}=setup(t);
+  const {api:a,w}=setup(t);
   assert.equal(a.parsePropsPaste('Unknown, BUF, MIA, nonsense, 1, -110').length,0);
   assert.equal(a.parsePropsPaste('Josh Allen, BUF, MIA, pass_yds, , -110').length,0);
+  assert.equal(a.computePropRow(a.parsePropsPaste('Josh Allen, BUF, MIA, pass_yds, 249.5, -110, -110, 260, 40')[0]).prob,null);
+  a.BET.history={profiles:{q:{id:'q',name:'Josh Allen',team:'BUF',position:'QB',last_game:'2026-09-07',stats:{}}}};verifyFixturePlayers(a,w);
   const p=a.parsePropsPaste('Josh Allen, BUF, MIA, pass_yds, 249.5, -110, -110, 260, 40')[0];
   assert.ok(a.computePropRow(p).prob>0);assert.ok(Number.isFinite(a.computePropRow(p).ev));
+  a.BET.injuryLearning={...a.BET.injuryLearning,current_reports:{q:{gsis_id:'q',team:'BUF',report_status:'Out',week:1}}};
+  assert.equal(a.computePropRow(a.parsePropsPaste('Josh Allen, BUF, MIA, pass_yds, 249.5, -110, -110, 260, 40')[0]).prob,null);
 });
 test('Routing hides inactive views and scopes Settings to draft',t=>{
   const {w}=setup(t);
@@ -555,7 +559,7 @@ test('Price shortlist needs no historical model and retains both opposing sides'
  const rows=a.bestPriceCandidates();assert.equal(rows.length,4);assert.equal(rows.filter(c=>c.market==='spread').length,2);assert.ok(rows.every(c=>c.reference.win>0));
 });
 
-test('Promo automatically renders from Fanatics quotes and fails closed on roster loss',async t=>{
+test('Promo fails closed when the Fanatics selection module is missing, including retained prices',async t=>{
  const {api:a,w,context}=setup(t);
  vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/touchdown-promo.js'),'utf8'),context);
  const now=Date.parse('2026-09-13T12:00:00Z');w.Date.now=()=>now;
@@ -564,13 +568,13 @@ test('Promo automatically renders from Fanatics quotes and fails closed on roste
  a.BET.props=['A','B','C','D'].map((id,i)=>({player:'Player '+id,profileId:id,team:id,market:'atd',line:.5,overOdds:200,book:'fanatics',kickoff:'2026-09-13T17:00:00Z',updatedAt:'2026-09-13T11:59:00Z',eventTeams:[id,'Opponent '+id],projMean:.5,projSd:.5,model:{status:'ready',family:'poisson',lambda:.5,mean:.5,sd:.5}}));
  vm.runInContext(`PROMO_AUTO.checked=Date.now();PROMO_AUTO.availability={checkedAt:new Date(Date.now()).toISOString(),teams:BET.props.map(p=>({team:p.team,code:p.team,players:[{key:('player'+p.team).toLowerCase(),availability:'expected'}]}))};`,context);
  await vm.runInContext('renderPromo()',context);
- assert.ok(w.document.querySelectorAll('#promoOptions article').length>0,w.document.getElementById('promoStatus').textContent);
+ assert.equal(w.document.querySelectorAll('#promoOptions article').length,0);
+ assert.match(w.document.getElementById('promoStatus').textContent,/selection is paused/);
  assert.equal(w.document.getElementById('promoPaste'),null);
  a.BET.props.forEach(p=>p.updatedAt=new Date(now-3600000).toISOString());
  await vm.runInContext('renderPromo()',context);
- assert.match(w.document.getElementById('promoStatus').textContent,/FALLBACK \/ STALE/);
- assert.ok(w.document.querySelectorAll('#promoOptions article').length>0);
- assert.match(w.document.getElementById('promoOptions').textContent,/STALE PRICE RESEARCH/);
+ assert.match(w.document.getElementById('promoStatus').textContent,/selection is paused/);
+ assert.equal(w.document.querySelectorAll('#promoOptions article').length,0);
  vm.runInContext('PROMO_AUTO.availability.teams=[]',context);
  await vm.runInContext('renderPromo()',context);
  assert.equal(w.document.querySelectorAll('#promoOptions article').length,0);
@@ -645,9 +649,41 @@ test('Parlay game selector includes scheduled SNF even without eligible odds',as
 test('First TD predictor renders historical game outcomes without inventing quote prices',t=>{
  const {api:a,w,context}=setup(t);w.Date.now=()=>Date.parse('2026-09-13T23:00:00Z');
  const outcomes=Object.fromEntries(Array.from({length:10},(_,i)=>['p'+i,{player_id:'p'+i,name:i===9?'Tenth Player':'Test Player '+i,team:'DAL',probability:.1-i*.005,fair_odds:900+i*10}]));
- a.BET.props=[];a.BET.history={derivatives:{first_td:{g:{status:'ready',home:'NYG',away:'DAL',kickoff:'2026-09-14T00:20:00Z',outcomes}}}};
+ outcomes.no_td={probability:1-Object.values(outcomes).reduce((sum,p)=>sum+p.probability,0)};
+ a.BET.props=[];a.BET.history={profiles:Object.fromEntries(Object.values(outcomes).filter(p=>p.player_id).map(p=>[p.player_id,{id:p.player_id,team:p.team,name:p.name,position:'RB',last_game:'2026-09-07'}])),derivatives:{first_td:{g:{status:'ready',calculation_version:2,home:'NYG',away:'DAL',kickoff:'2026-09-14T00:20:00Z',outcomes}}}};
+ verifyFixturePlayers(a,w);
  vm.runInContext('renderFirstTdPredictor()',context);const text=w.document.getElementById('firstTdPredictions').textContent;
  assert.match(text,/Test Player 0/);assert.match(text,/Tenth Player/);assert.match(text,/10 eligible scorers/);assert.match(text,/10.0%/);assert.match(text,/No matching sportsbook quote/);assert.doesNotMatch(text,/Top eight/);
+});
+
+test('First TD field uses shared eligibility and refuses legacy, invalid and wrong-team models',t=>{
+ const {api:a,w,context}=setup(t);const kickoff=future();
+ const profiles=Object.fromEntries(['active','out','inactive','unknown','wrong'].map(id=>[id,{id,name:id,team:'A',position:'RB',last_game:'2026-09-07'}]));
+ const outcomes=Object.fromEntries(Object.keys(profiles).map(id=>[id,{player_id:id,name:id,team:id==='wrong'?'B':'A',probability:.1,fair_odds:900}]));
+ outcomes.no_td={probability:.5};const game={status:'ready',calculation_version:2,home:'A',away:'B',kickoff,outcomes};
+ a.BET.history={profiles,derivatives:{first_td:{g:game}}};verifyFixturePlayers(a,w);
+ a.BET.fullRoster.players=a.BET.fullRoster.players.filter(p=>p.id!=='unknown').map(p=>({...p,roster_status:p.id==='inactive'?'INA':'ACT'}));
+ a.BET.injuryLearning.current_reports.out={gsis_id:'out',team:'A',report_status:'Out',week:1};
+ const ids=()=>Array.from(vm.runInContext('firstTdCandidates(BET.history.derivatives.first_td.g)',context),p=>p.player_id);
+ assert.deepEqual(ids(),['active']);
+ vm.runInContext('renderFirstTdPredictor()',context);assert.match(w.document.getElementById('firstTdPredictions').textContent,/1 eligible scorer/);
+ assert.match(vm.runInContext('firstTdStrip({model:{probability:.2,fair_odds:400}})',context),/sportsbook void\/refund rules are unverified/);
+ game.calculation_version=1;assert.deepEqual(ids(),[]);vm.runInContext('renderFirstTdPredictor()',context);assert.match(w.document.getElementById('firstTdPredictions').textContent,/paused/);
+ const quote={player:'active',market:'first_td',eventTeams:['A','B'],kickoff};
+ assert.equal(a.attachProjection({...quote},a.buildProfileIndex(a.BET.history)).model,null);
+ game.calculation_version=2;game.outcomes.no_td.probability=.6;assert.deepEqual(ids(),[]);
+ game.outcomes.no_td.probability=.5;
+ assert.equal(a.attachProjection({...quote,kickoff:new Date(Date.parse(kickoff)+3600000).toISOString()},a.buildProfileIndex(a.BET.history)).model,null);
+ a.BET.injuryLearning.generated_at='2026-01-01T00:00:00Z';vm.runInContext('ELIG_CACHE=null',context);assert.deepEqual(ids(),[]);
+});
+
+test('Score and parlay labels distinguish evidence depth and unvalidated filtered returns',t=>{
+ const {w}=setup(t);
+ assert.match(w.document.getElementById('scoreConfidence').textContent,/evidence depth/i);
+ assert.doesNotMatch(w.document.getElementById('scoreConfidence').textContent,/confidence/i);
+ assert.match(html,/positive figure follows from that filter/);
+ assert.match(html,/model-implied return per \$1 \(unvalidated\)/);
+ assert.doesNotMatch(html,/High confidence|estimated profit per \$1/);
 });
 
 

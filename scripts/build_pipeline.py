@@ -492,16 +492,14 @@ def fair_american(probability):
 UNAVAILABLE_STATUS = {'RES', 'INA', 'PUP', 'IR', 'SUS', 'RET', 'EXE'}
 
 
-def unavailable_players():
-    """Players the latest roster does NOT list as active (ACT): reserve, injured, practice squad (DEV), cut, suspended, retired. From the previous run of scripts/injury_context.py
-    (same data/ folder). Players with no roster entry are not in this set; first_td_game falls back to a 60-day recency rule for them. Missing file means no gate."""
-    path = Path(__file__).resolve().parents[1] / 'data' / 'injury_context.json'
-    try:
-        current = json.loads(path.read_text(encoding='utf-8')).get('current_players', {})
-    except (OSError, ValueError):
-        return set()
+def unavailable_players(profiles=None):
+    """Use the shared availability decision for the complete derivative pool.
+
+    Missing, stale or unverified inputs never clear a candidate. Current source
+    snapshots must precede derivative building in the refresh workflow.
+    """
     import eligibility
-    return {v['gsis_id'] for v in current.values() if v.get('gsis_id') and str(v.get('roster_status') or '').upper() != 'ACT'} | eligibility.confirmed_unavailable()
+    return eligibility.blocked_ids(profiles) if profiles is not None else eligibility.confirmed_unavailable()
 
 
 def first_td_game(game, profiles, features, unavailable=frozenset()):
@@ -511,13 +509,13 @@ def first_td_game(game, profiles, features, unavailable=frozenset()):
     stages = [defaultdict(float), defaultdict(float)]
     metadata = {}
     # Market-anchored game environment (research/calibration/GAME_LINES.md): the trailing-points model had no information beyond the posted line.
-    total = game['total'] if finite(game.get('total')) else m['total_mean']
+    game_total = game['total'] if finite(game.get('total')) else m['total_mean']
     margin = -game['spread'] if finite(game.get('spread')) else m['margin_mean']
     for team, sign in ((game['home'], 1), (game['away'], -1)):
         t = features['nfl']['teams'].get(team, {})
         # 75% of points attributed to offensive TD drives, seven points/drive.
-        expected_td = max(0, (total + sign*margin)/2) * .75 / 7
-        available = {pid: p for pid, p in profiles.items() if pid not in unavailable and p['team'] == team and p.get('position') in ('QB','RB','WR','TE','FB') and (datetime.now(timezone.utc).date()-datetime.fromisoformat(p['last_game']).date()).days <= 60}
+        expected_td = max(0, (game_total + sign*margin)/2) * .75 / 7
+        available = {pid: p for pid, p in profiles.items() if pid not in unavailable and p['team'] == team and p.get('position') in ('QB','RB','WR','TE','FB') and 0 <= (datetime.now(timezone.utc).date()-datetime.fromisoformat(p['last_game']).date()).days <= 60}
         scored, opening = {}, {}
         run_mix = 1 - (t.get('opening_pass_rate') if finite(t.get('opening_pass_rate')) else .55)
         for pid, p in available.items():
@@ -534,21 +532,22 @@ def first_td_game(game, profiles, features, unavailable=frozenset()):
             metadata[pid] = {'player_id': pid, 'name': p['name'], 'team': team}
         # Reserve mass for unmodeled/new offensive participants; never renormalize
         # only the names offered by the sportsbook.
-        total = sum(scored.values())
+        scorer_total = sum(scored.values())
         open_total = sum(opening.values())
         opening_fraction = max(.15, min(.4, (t.get('opening_snaps', 0)+25)/(t.get('snaps', 0)+100)))
         for stage, share in enumerate((opening_fraction, 1-opening_fraction)):
             offense_mass = expected_td * share
             for pid in available:
-                baseline = scored[pid]/total if total else 0
-                weight = .65*baseline + .35*opening[pid]/open_total if stage == 0 and open_total and total else baseline
+                baseline = scored[pid]/scorer_total if scorer_total else 0
+                weight = .65*baseline + .35*opening[pid]/open_total if stage == 0 and open_total and scorer_total else baseline
                 stages[stage][pid] += offense_mass * .95 * weight
-            stages[stage]['other_'+team] += offense_mass * (.05 if total else 1)
+            stages[stage]['other_'+team] += offense_mass * (.05 if scorer_total else 1)
             stages[stage]['dst_'+team] += offense_mass * .06/.94
         metadata['other_'+team] = {'name': 'Other offensive scorer', 'team': team}
         metadata['dst_'+team] = {'name': 'Defense / special teams', 'team': team}
     probabilities = competing_first_td(stages)
-    return {'status':'ready','method':'two-stage competing hazards baseline','calibrated':False,
+    return {'status':'ready','calculation_version':2,'game_id':game.get('id'),
+            'method':'two-stage competing hazards baseline','calibrated':False,
             'home':game['home'],'away':game['away'],'kickoff':game['kickoff'],
             'outcomes':{key:dict(metadata.get(key, {'name':'No touchdown'}), probability=p, fair_odds=fair_american(p)) for key,p in probabilities.items()},
             'probability_sum':sum(probabilities.values())}
@@ -573,7 +572,7 @@ def build_derivatives(profiles, game_data, features):
                     'margin_mean':m['margin_mean']*margin_fraction, 'total_sd':m['total_sd']*math.sqrt(fraction*pace) if finite(m.get('total_sd')) else None,
                     'margin_sd':m['margin_sd']*math.sqrt(margin_fraction) if finite(m.get('margin_sd')) else None,
                     'method':'scaled early-pace baseline','calibrated':False,'pace_factor':pace}
-    unavailable = unavailable_players()
+    unavailable = unavailable_players(profiles)
     first_td = {g['id']: model for g in game_data['nfl'] if (model := first_td_game(g, profiles, features, unavailable))}
     features['availability'].update(first_td_probability='baseline: two-stage competing hazards',period_probability='baseline: scaled moments and early pace')
     return {'schema_version':1, 'first_td':first_td,

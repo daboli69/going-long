@@ -17,6 +17,16 @@ const american=d=>!finite(d)||d<=1?null:d>=2?(d-1)*100:-100/(d-1);
 const roundAmerican=a=>a==null?null:Math.round(a);
 const nameKey=n=>String(n||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const fmtAmerican=a=>a==null?'n/a':(a>0?'+':'')+Math.round(a);
+// Integer American prices have exact rational decimal odds. Resolve near-floor
+// roundoff by cross multiplication, without admitting prices below the floor.
+function meetsFloor(prices,minimum,product){
+ const floor=decimal(minimum);
+ if(Math.abs(product-floor)>1e-9||![...prices,minimum].every(Number.isSafeInteger))return product>=floor;
+ const ratio=a=>{const value=BigInt(a);return a>0?[100n+value,100n]:[100n-value,-value];};
+ const [fn,fd]=ratio(minimum);let n=1n,d=1n;
+ for(const price of prices){const [pn,pd]=ratio(price);n*=pn;d*=pd;}
+ return n*fd>=fn*d;
+}
 // Accept only real calendar timestamps carrying an explicit UTC offset.
 function timestamp(t){
  if(typeof t!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(t))return null;
@@ -82,7 +92,7 @@ const better=(a,b)=>a.probability!==b.probability?a.probability>b.probability:a.
 
 function select(input,settings={}){
  const now=settings.now??Date.now(),terms=validateTerms(settings.terms);
- const floor=decimal(terms.minCombinedAmerican),excluded={},reject=w=>{excluded[w]=(excluded[w]||0)+1;};
+ const excluded={},reject=w=>{excluded[w]=(excluded[w]||0)+1;};
  const byPlayer=new Map();
  for(const leg of input||[]){
   const why=legProblem(leg,now,terms,settings.slateDate);
@@ -106,7 +116,7 @@ function select(input,settings={}){
   examined++;
   const dec=a.decimal*b.decimal*c.decimal;
   const payout=american(dec);
-  if(!finite(dec)||!finite(payout)||dec<floor)return;
+  if(!finite(dec)||!finite(payout)||!meetsFloor([a.price.american,b.price.american,c.price.american],terms.minCombinedAmerican,dec))return;
   const option={key:[a,b,c].map(l=>l.playerId).sort().join('~'),legs:[a,b,c],decimal:dec,american:payout,probability:a.probability*b.probability*c.probability};
   if(top.length>=wanted&&!better(option,top[top.length-1]))return;
   let p=top.length;while(p>0&&better(option,top[p-1]))p--;top.splice(p,0,option);if(top.length>wanted)top.pop();
