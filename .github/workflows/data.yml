@@ -175,6 +175,11 @@ jobs:
             sleep "$attempt"
           done
           exit 1
+      - name: Report Touchdown Throne failure
+        if: ${{ steps.dfs_team_td.outcome == 'failure' }}
+        run: |
+          echo 'Touchdown Throne refresh failed; previous snapshot retained and subject to freshness gates.'
+          exit 1
       - name: Report source failures
         if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' || steps.context.outcome == 'failure' || steps.injury_context.outcome == 'failure' || steps.game_validation.outcome == 'failure' || steps.season_learning.outcome == 'failure' || steps.jackpot.outcome == 'failure' || steps.slate_breaker.outcome == 'failure' || steps.tracker.outcome == 'failure' || steps.validation_ledger.outcome == 'failure' || steps.roster_public.outcome == 'failure' || steps.consumer_data.outcome == 'failure' || steps.charts.outcome == 'failure' || steps.going_score.outcome == 'failure' || steps.freeze.outcome == 'failure' }}
         run: |

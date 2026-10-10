@@ -209,7 +209,7 @@ test('nothing that writes, freezes, settles or evaluates the tracker can read th
   if(e.isDirectory())walk(rel);else if(/\.(mjs|cjs|js|jsx|py)$/.test(e.name)&&/validation[_-]ledger/.test(fs.readFileSync(path.join(root,rel),'utf8')))importers.push(rel.replace(/\\/g,'/'));
  }};
  for(const d of ['apps','scripts','shared','research','api','server'])walk(d);
- assert.deepEqual(importers.sort(),['api/snapshot.mjs','apps/validation/src.jsx','scripts/validation_ledger.mjs','server/worker.mjs','shared/validation-ledger.mjs'],'only the dashboard, its builder, the module and the two read-only path allowlists may name the ledger');
+ assert.deepEqual(importers.sort(),['apps/validation/src.jsx','scripts/validation_ledger.mjs','server/public-snapshots.mjs','server/worker.mjs','shared/validation-ledger.mjs'],'only the dashboard, its builder, the module and the two read-only path allowlists may name the ledger');
  const wf=fs.readFileSync(path.join(root,'.github/workflows/data.yml'),'utf8');
  assert.ok(wf.indexOf('scripts/build_public_tracker.mjs')<wf.indexOf('scripts/validation_ledger.mjs build'),'the ledger is built after the canonical tracker step');
 });
