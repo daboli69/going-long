@@ -1,6 +1,8 @@
 # Progress
 
 ## Completed
+- Saturday repairs ddcb51a/c6b644e/e61ffb1: corrected FirstTD game-total collision, strict shared eligibility/version/identity gates, settlement-safe research labels, exact Fanatics floor and exposure disclosure, honest Score/parlay wording. Source-content freshness, component-isolated publication, no reset/replay on concurrency, Eastern04:20 freeze. Opus audit read at supplied Claude scratchpad path; independently reproduced and reviewed. No production data/Week5/champion edits.
+- Isolated model research030dd62: complete model/feature inventory;1243ATD player-games/63games, current reconstructed Brier.13836 vs frequency.14126; matched market subset775/57games current.15266 vs market.14251. Independent metric audit/26tests; no promotion. Passing24QB replay rechecked. Details in docs/SATURDAY_MODEL_RESEARCH.md; production and research gates separate.
 - Integrated Claude Fanatics commits26fe4d1/55d1c17/a110b13 without conflicts (merge3cabb77), preserving e60100a repairs. Fixed contract/clock/expiry/focused-editor defects and removed unsupported60% filter; no production model change.
 - ABBEYS repair1471705: current-week status,60-second refresh and workflow publication. Prospective manual Week5 capturec9ac3b8:14picks from64priorgames,4records/2snapshots verified, v1/protocol unchanged. Actual local ABBEYS and Jackpot/mobile smoke;55focused tests pass. Final regression receipt: `.cache/codex-takeover/validation-fanatics-abbeys.json`.
 - Preserved takeover branch `codex/going-takeover` from verified `c9cccd6` and original checkout/user inputs. Prior validation: Node 621/621, Python 426 with five skips, both builds, npm audit zero.
@@ -10,15 +12,14 @@
 - Latest public refresh at upstream `67ed9a3` still failed: core and derivative props HTTP503, other components retained. Read-only offline health audit correctly refuses healthy status. No production actions or paid provider calls.
 
 ## Working
-- Independent final reviewer cleared overflow/floor repairs (46focused checks); exact-commit full regression; detailed integration/live-input findings in takeover report. Actual public feed113Fanatics receptions/zeroATD; manual combination test uses clearly synthetic prices only, no fabricated live quotes.
-- External release gates only: fresh upstream props, actual contest inputs, natural freeze and host scanner evidence. Local delivery results, exact commit and logs are recorded in `.cache/codex-takeover/validation-continuation.json`; detailed evidence/rollback in `docs/CODEX_TAKEOVER_PROGRESS.md`.
-
+- Final complete regression and local merge rehearsal for Saturday repairs. No deployment, push or model promotion authorized.
 
 ## Problems
-- NOT READY: continuing upstream props outage; official chosen-contest CSV/ownership input unavailable; scanner running status unverified. Twenty-four public QB-games do not replace the prior 119-game cache study or establish predictive market advantage.
+- Active betting recommendations remain blocked: current availability lacks source-content provenance and props/derivatives are FALLBACK. Automatic Fanatics ATD prices absent; actual contest CSV/ownership and scanner host evidence unavailable. Legacy FirstTD is suppressed; corrected estimates remain research-only pending source refresh and sportsbook settlement verification.
+- No demonstrated passing-yards or ATD market advantage; frequency TD challenger fails the promotion gate. Today-ranking v3 capture correctly rejects the repaired generator until separately preregistered; historical records preserved.
 
 ## Next
-- Confirm natural provider recovery and Oct11 freeze; validate supplied official contest CSV/imports/lineup exports. Larger point-in-time cohort/untouched holdout and remaining NCAA/product audits follow. Resume from the detailed takeover report without repeating completed audits.
+- Review controlled release with paused unsupported features; refresh only from provably fresh sources without replaying old data. Preserve ABBEYS14pick Week5 board. Capture immutable input/availability/quote receipts and untouched future outcomes before new model gates.
 
 ## Needs Travis
-- Supply official chosen-contest CSV and permitted matching calibrated ownership JSON privately; inspect sanitized scanner heartbeat on its actual host. Production release/model promotion/paid calls require separate approval. No unattended continuation scheduled.
+- Production push/merge/deployment and any model promotion require explicit approval. Actual Fanatics app prices/rules, official chosen-contest CSV/permitted ownership and sanitized scanner heartbeat remain external inputs.

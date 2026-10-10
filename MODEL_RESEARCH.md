@@ -25,3 +25,18 @@ These are retrospective public-source results, not synthetic line tests or bet e
 
 ### Fanatics Sunday filter audit — 2026-10-10
 Independent code review rejected default exclusion of all TD probabilities above60%: calibration slope near0.7 alone does not support that threshold. Removed only the unsupported product candidate filter; Champion probabilities/calibration unchanged, no model promotion. Joint ranking retains independence/uncalibrated uncertainty warnings. Engine exhaustive checks1000seeded pools matched; this validates arithmetic, not predictive performance or betting edge. Existing corrected24-QB public replay and market comparison remain unchanged. Actual113Fanatics quotes are receptions only; zeroATD, no synthetic-price profitability evidence.
+
+### Saturday isolated research — 2026-10-10
+
+Full active-model inventory, all requested feature availability/duplication/missingness/target checks and ranked next experiments: [complete Saturday inventory and research report](docs/SATURDAY_MODEL_RESEARCH.md). Baseline `c8164da`; separate research branch, protocols committed before their evaluations (`c28960c`, `a7a7bd1`). Production/Champions/frozen Week5 unchanged.
+
+| Hypothesis / evidence | Test / result | Decision |
+|---|---|---|
+| Existing public passing replay reproduces | Independent rerun byte-identical SHA256 `a6441f719f3a31aaa84662bfbc771fb9a608988aeef252900bd000b6a5872768`;24QB-games/16games, refit Brier.2745 vs actual market.2500; intervals cross0 | No market advantage/new promotion;119-game claim still unverified |
+| Fixed Beta(1,1) ATD scoring-frequency challenger improves current policy | New public pregame Git-receipt rolling histories:1243player-games/63games;frequency Brier.14126 vs reconstructed fixed current.13836, delta+.00290[-.00048,+.00621];logloss improves, mean probability.234 vs scoring rate.180 | Fails dual-loss/calibration gate;research-only,no fit/promotion |
+| Existing v2 ATD policy improves older published v1 | Identical public histories:current Brier.13836 vs published.14299, delta-.00463[-.00767,-.00210]. Current was not deployed at those historical decisions. Matched actual two-sided market775/57games Brier.14251 vs current.15266;current-market delta+.01015[+.00480,+.01572] | Supports inherited direction only;no new live accuracy/edge claim.334current zeros include22scorers:role-conditioned prior next hypothesis |
+| Five-slip at-least-one objective handles overlap | Exact inclusion-exclusion and finite joint-law evaluator;independent truth-table oracle plus five-entry exhaustive check;explicit player-independence assumption | Synthetic mathematical validation only;current Fanatics ranking retained,no real portfolio probability recommendation |
+
+Current2026context has0charted dropbacks/personnel observations;all985pooled route fields null. Prior-season charting is not current coverage. No private/licensed raw study rerun, paid calls, holdout re-fit, alerts or deployment. Future availability/input/price receipts and sealed later outcomes required for calibration/model gate. Research artifact arithmetic independently checked with stdlib implementation;parent owns final integration/release validation.
+
+Release repairs correct FirstTD arithmetic and suppress unverified availability/settlement outputs; they do not change TD/passing Champion coefficients or promote research. Research artifacts remain on `codex/saturday-model-research` at `030dd62`; parent independently verified metrics and 26 focused tests. Repaired production source hashes intentionally differ: original today-ranking v3 generator registration stays immutable and new capture fails until a separately registered version is approved.
