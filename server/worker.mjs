@@ -1,7 +1,7 @@
 import {fetchParlay,SPORT_KEYS} from './parlay.mjs';
+import {isLiveSnapshot} from './public-snapshots.mjs';
 const memory=new Map(),pending=new Map();
 const TTL=120000;
-const SNAPSHOTS=new Set(['/data/history.json','/data/data.json','/data/nfl_betting.json','/data/ncaa_lines.json','/data/results.json','/data/public_tracker.json','/data/football_context.json','/data/injury_context.json','/data/football_role_validation.json','/data/football_game_validation.json','/data/savant_context.json','/data/topdown_status.json','/data/players.json','/data/king-endzone.json','/data/slate-breaker.json','/data/formats/index.json','/data/formats/half-12-1.json','/data/formats/half-12-2.json','/data/formats/ppr-10-1.json','/data/formats/ppr-10-2.json','/data/formats/ppr-12-1.json','/data/formats/ppr-12-2.json','/data/formats/ppr-14-1.json','/data/formats/ppr-14-2.json','/data/formats/std-12-1.json']);
 const snapshots=new Map();
 const json=(body,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
 export async function oddsResponse(request,env,ctx={waitUntil(){}}){
@@ -36,7 +36,7 @@ export default {
     if(url.pathname==='/api/snapshot'){
       if(request.method!=='GET')return json({error:'Method not allowed'},405);
       const path='/data/'+url.searchParams.get('file');
-      if(!SNAPSHOTS.has(path)&&!/^\/data\/(public_tracker\/(manifest|segments\/seg-\d{6}(-[0-9a-f]{12})?)|derived\/validation_ledger\/(index|ledger-\d{6}-[0-9a-f]{12}-[0-9a-f]{12}))\.json$/.test(path))return json({error:'Unknown snapshot'},400);
+      if(!isLiveSnapshot(url.searchParams.get('file')))return json({error:'Unknown snapshot'},400);
       // Follow nightly GitHub snapshots without requiring a new UI deployment.
       // /api avoids the host's static-asset-first routing for /data/*.json.
       const hit=snapshots.get(path);

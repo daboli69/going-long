@@ -46,6 +46,7 @@ jobs:
           pip install -r scripts/requirements.txt
           npm ci
       - name: Validate model logic
+        id: validate_models
         run: python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Build fantasy pool and formats
         id: pool
@@ -55,11 +56,6 @@ jobs:
         id: history
         continue-on-error: true
         run: python scripts/build_history.py
-      - name: Build GOING Score v2 player situation index
-        id: going_score
-        continue-on-error: true
-        # Public nflverse/ffopportunity data only; display-only index (not a projection or edge). Needs the history build above.
-        run: python scripts/going_score_build.py --cache "$RUNNER_TEMP/going-score-cache"
       - name: Build NFL odds
         id: nfl
         continue-on-error: true
@@ -76,14 +72,6 @@ jobs:
         id: projections
         continue-on-error: true
         run: python scripts/build_pipeline.py
-      - name: Build and grade Thursday longest touchdown research
-        id: jackpot
-        continue-on-error: true
-        run: python scripts/king_endzone.py
-      - name: Build and grade Slate Breaker research
-        id: slate_breaker
-        continue-on-error: true
-        run: python scripts/slate_breaker.py
       - name: Build football opportunity and coaching context
         id: context
         continue-on-error: true
@@ -96,14 +84,31 @@ jobs:
         id: roster_public
         continue-on-error: true
         run: python scripts/build_roster.py
+      - name: Build GOING Score v2 player situation index
+        id: going_score
+        continue-on-error: true
+        # Consume this run's history, context, injuries and roster; never yesterday's availability by step order.
+        run: python scripts/going_score_build.py --cache "$RUNNER_TEMP/going-score-cache"
+      - name: Build and grade Thursday longest touchdown research
+        id: jackpot
+        continue-on-error: true
+        run: python scripts/king_endzone.py
+      - name: Build and grade Slate Breaker research
+        id: slate_breaker
+        continue-on-error: true
+        run: python scripts/slate_breaker.py
       - name: Refresh chronological NFL game-model diagnostic
         id: game_validation
         continue-on-error: true
         run: python scripts/backtest_nfl_context.py --start 2023 --end 2026
       - name: Extract public Savant context
+        id: savant
+        continue-on-error: true
         run: python scripts/extract_savant.py
       - name: Build settlement observations
-        if: ${{ !cancelled() }}
+        id: results
+        continue-on-error: true
+        if: ${{ !cancelled() && steps.validate_models.outcome == 'success' }}
         run: python scripts/build_results.py
       - name: Build DFS team touchdown budgets (Touchdown Throne)
         id: dfs_team_td
@@ -117,36 +122,38 @@ jobs:
       - name: Freeze and settle public performance tracker
         id: tracker
         continue-on-error: true
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.validate_models.outcome == 'success' }}
         run: node scripts/build_public_tracker.mjs
       - name: Build Charts data files (public nflverse, history and settled tracker; aggregate only)
         id: charts
         continue-on-error: true
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.validate_models.outcome == 'success' }}
         # After history and the tracker are built. Public data only; a failed source keeps that file's previous snapshot.
         run: python scripts/charts_build.py --cache-dir "$RUNNER_TEMP/charts-cache"
       - name: Build derived Validation light ledger
         id: validation_ledger
         continue-on-error: true
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.validate_models.outcome == 'success' }}
         # UI projection of the canonical tracker store; never an input to the tracker, calibration or audits.
         run: node scripts/validation_ledger.mjs build
       - name: Publish static opportunities and multisport signal journal
         id: consumer_data
         continue-on-error: true
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.validate_models.outcome == 'success' }}
         run: node scripts/build_consumer_data.mjs
       - name: Settle TD shadow and write the pregame freeze manifest
         id: freeze
         continue-on-error: true
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.validate_models.outcome == 'success' }}
         # Public data only. The freeze is write-once and only written before the first kickoff of the day.
         run: |
-          python scripts/sunday_freeze.py "$(date -u +%F)"
-          python scripts/td_shadow.py settle || echo 'td shadow settle skipped'
-          python scripts/nb_shadow.py settle || echo 'nb shadow settle skipped'
+          status=0
+          python scripts/sunday_freeze.py "$(date -u +%F)" || status=1
+          python scripts/td_shadow.py settle || status=1
+          python scripts/nb_shadow.py settle || status=1
+          exit "$status"
       - name: Commit generated snapshots
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && steps.validate_models.outcome == 'success' }}
         # Every consumer feature is a static artifact; no database or service added.
         shell: bash
         run: |
@@ -175,13 +182,16 @@ jobs:
             sleep "$attempt"
           done
           exit 1
-      - name: Report Touchdown Throne failure
-        if: ${{ steps.dfs_team_td.outcome == 'failure' }}
-        run: |
-          echo 'Touchdown Throne refresh failed; previous snapshot retained and subject to freshness gates.'
-          exit 1
       - name: Report source failures
-        if: ${{ steps.pool.outcome == 'failure' || steps.history.outcome == 'failure' || steps.nfl.outcome == 'failure' || steps.ncaa.outcome == 'failure' || steps.projections.outcome == 'failure' || steps.context.outcome == 'failure' || steps.injury_context.outcome == 'failure' || steps.game_validation.outcome == 'failure' || steps.season_learning.outcome == 'failure' || steps.jackpot.outcome == 'failure' || steps.slate_breaker.outcome == 'failure' || steps.tracker.outcome == 'failure' || steps.validation_ledger.outcome == 'failure' || steps.roster_public.outcome == 'failure' || steps.consumer_data.outcome == 'failure' || steps.charts.outcome == 'failure' || steps.going_score.outcome == 'failure' || steps.freeze.outcome == 'failure' }}
-        run: |
-          echo 'A data source failed. Successful snapshots were committed; inspect the failed step.'
-          exit 1
+        if: ${{ !cancelled() }}
+        env:
+          REFRESH_OUTCOMES: ${{ toJSON(steps) }}
+        run: python scripts/refresh_health.py --report "$RUNNER_TEMP/refresh-health.json" --summary "$GITHUB_STEP_SUMMARY"
+      - name: Preserve refresh diagnostics
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-refresh-health
+          path: ${{ runner.temp }}/refresh-health.json
+          if-no-files-found: warn
+          retention-days: 7
