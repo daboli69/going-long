@@ -1,7 +1,7 @@
 {
  "schema": "going-score-v2",
  "methodology_version": "going-score-2.0.0",
- "as_of": "2026-10-10T01:53:48Z",
+ "as_of": "2026-10-10T01:57:55Z",
  "season": 2026,
  "week": 6,
  "meaning": "Player-level situation index: opportunity, role, availability and how they are changing, from games before this week. Not a projection, a probability or a betting edge; a higher score is not a better bet.",
@@ -113,7 +113,7 @@
    "week": 5
   },
   "ffopportunity_rows": 13441,
-  "history_json_generated_at": "2026-10-10T01:46:29+00:00",
+  "history_json_generated_at": "2026-10-10T01:57:54+00:00",
   "history_linked_players": 492,
   "weights_fit": {
    "experiment": "P4-1",
@@ -134,7 +134,7 @@
   },
   "validation": null
  },
- "config_sha256": "5a3ef5aea506c7fca9c86b7e364129bbaf323f5995859d4c1d6e46b491afa5ec",
+ "config_sha256": "ded0cef97596bf52a4d2b1ef444cb32ee2f328ab892629fbc039db7b66d058a1",
  "counts": {
   "QB": 43,
   "RB": 113,
