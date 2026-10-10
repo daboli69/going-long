@@ -28,3 +28,17 @@ test('ABBEYS integration keeps NFL-only route, nine-tool grid and unchanged exis
   assert.match(html,/data-section="abbeys" data-tab="abbeys"/);assert.match(html,/\[data-section="abbeys"\]'\)\.hidden=BET.sport!=="nfl"/);assert.match(html,/'score','charts','dfs','abbeys','props'/);assert.match(shell,/'ABBEYS','NFL'/);
   assert.match(html,/id="btAbbeysPanel" hidden/);assert.match(html,/GoingAbbeysUI\?\.render/);
 });
+test('missing current-week capture is explicit while historical official picks remain available',async t=>{
+  const data=board();data.weeks=data.weeks.filter(w=>w.week===4);data.currentWeek={season:2026,week:5,status:'not-frozen',reason:'Week 5 has not been captured or published. No scheduled holdout catch-up is allowed.'};
+  const {dom,panel}=setup(t,async()=>Response.json(data));await dom.window.GoingAbbeysUI.render(panel);
+  assert.match(panel.textContent,/Week 5 has not been captured or published/);assert.equal(panel.querySelectorAll('.abbeys-pick').length,1);assert.equal(panel.querySelector('select').value,'2026-4');
+});
+test('successful board cache expires at 60 seconds and a newly published current week replaces automatic historical selection',async t=>{
+  let clock=100000,calls=0;const data=board();data.weeks=data.weeks.filter(w=>w.week===4);
+  const {dom,panel}=setup(t,async(url,options)=>{calls++;assert.equal(options.cache,'no-cache');return Response.json(data);});dom.window.Date.now=()=>clock;
+  dom.window.localStorage.setItem('going-abbeys-selected-week','2026-4');
+  await dom.window.GoingAbbeysUI.render(panel);assert.equal(calls,1);
+  clock+=59999;await dom.window.GoingAbbeysUI.render(panel);assert.equal(calls,1);
+  data.weeks=board().weeks;data.currentWeek={season:2026,week:5,status:'frozen'};
+  clock++;await dom.window.GoingAbbeysUI.render(panel);assert.equal(calls,2);assert.equal(panel.querySelector('select').value,'2026-5');
+});

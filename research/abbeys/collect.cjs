@@ -166,7 +166,7 @@ function materialize(root) {
     if (final && monday.predictedAway!==null && monday.predictedHome!==null) monday.settlement={...final,awayAbsoluteError:Math.abs(final.actualAway-monday.predictedAway),homeAbsoluteError:Math.abs(final.actualHome-monday.predictedHome),combinedAbsoluteError:Math.abs(final.actualAway-monday.predictedAway)+Math.abs(final.actualHome-monday.predictedHome),exact:final.actualAway===monday.predictedAway && final.actualHome===monday.predictedHome};
     weeks.push({...p.prediction,training:undefined,picks,monday:p.prediction.monday?monday:null,frozenAt:p.frozenAt,observationHash:frozen.hash,cohort:p.cohort,invalidations,source:{generatedAt:p.sourceReceipts[1].generatedAt,sourceSHA:p.inputHash,cutoff:p.frozenAt,season:p.input.season},marketContext:context?.marketContext||null});
   }
-  const board={schemaVersion:1,modelVersion:core.MODEL_VERSION,generatedAt:new Date().toISOString(),weeks,record,recordScope:'Manual official boards only. Prospective holdout aggregate evaluation is locked until the registered release; no reconstructed historical picks.'};
+  const board={schemaVersion:1,modelVersion:core.MODEL_VERSION,generatedAt:new Date().toISOString(),weeks,currentWeek:require('./status.cjs').readStatus(root,weeks),record,recordScope:'Manual official boards only. Prospective holdout aggregate evaluation is locked until the registered release; no reconstructed historical picks.'};
   const target=path.join(root,BOARD),pending=`${target}.pending-${process.pid}`;
   fs.writeFileSync(pending,JSON.stringify(board,null,2)+'\n',{flag:'wx'});fs.renameSync(pending,target);
   return board;
