@@ -2,7 +2,7 @@
 'use strict';
 const C=()=>root.GoingCharts,esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
-const state={chart:'opp',pos:'ALL',team:'ALL',min:3,player:null,host:null,ctx:{},cache:{}};
+const state={chart:'targets',pos:'ALL',team:'ALL',min:3,player:null,host:null,ctx:{},cache:{}};
 const COLORS={QB:'#7aa7ff',RB:'#35e0c3',WR:'#e0a43a',TE:'#ff7a90'};
 async function load(name){
  if(state.cache[name]!==undefined)return state.cache[name];
@@ -14,6 +14,7 @@ const asOfText=doc=>typeof doc?.as_of==='object'&&doc.as_of?(doc.as_of.through_w
 const stale=(doc)=>{const t=Date.parse(doc?.generated_at||(typeof doc?.as_of==='string'?doc.as_of:''));return !Number.isFinite(t)||Date.now()-t>9*86400000;};
 const note=(doc,kind)=>`<p class="bt-note"><span class="charts-badge ${kind==='pred'?'pred':'desc'}">${kind==='pred'?'PREDICTIVE (validated)':'DESCRIPTIVE'}</span> ${asOfText(doc)?`Data through ${esc(String(asOfText(doc)).slice(0,24))}.`:''}${doc&&stale(doc)?' <b>Older than a week: the weekly refresh may be behind.</b>':''}</p>`;
 const CHARTS={
+ targets:{label:'Players to target',file:null,kind:'desc',custom:true,help:''},
  opp:{label:'Opportunity vs production',file:'opportunity_vs_production',kind:'desc',help:'Expected fantasy points from workload and field position against actual points. Above the line = scored more than the opportunity predicts. Residuals are descriptive: they are not a promise of regression.',
   render(doc){const rows=filter(norm(doc)).filter(r=>finite(r.expected)&&finite(r.actual)&&(r.games||0)>=state.min).map(r=>({id:r.id,label:`${r.name} (${r.position} ${r.team})`,x:r.expected,y:r.actual,group:r.position,href:link(r.id),note:`${r.games} games, residual ${(r.actual-r.expected).toFixed(1)}`}));
    return C().scatter(rows,{identity:true,fit:true,xLabel:'Expected PPR (season to date)',yLabel:'Actual PPR',colors:COLORS,title:'Expected vs actual PPR'});}},
@@ -38,7 +39,9 @@ const norm=doc=>(doc?.data?.players||[]).map(p=>({id:p.id,name:p.name,position:p
 function teamsOf(rows){return [...new Set((rows||[]).map(r=>r.team).filter(Boolean))].sort();}
 function filter(rows){return (rows||[]).filter(r=>(state.pos==='ALL'||r.position===state.pos)&&(state.team==='ALL'||r.team===state.team));}
 async function draw(){
- const host=state.host;if(!host)return;const def=CHARTS[state.chart],doc=def.file?await load(def.file):{};
+ const host=state.host;if(!host)return;const def=CHARTS[state.chart];
+ if(def.custom){const chips=Object.entries(CHARTS).map(([k,v])=>`<button type="button" data-chart="${k}" aria-pressed="${k===state.chart}">${esc(v.label)}</button>`).join('');host.innerHTML=`<div class="charts-chips" role="group" aria-label="Chart">${chips}</div><div id="targetsRoot"></div>`;if(root.GoingTargetsUI)root.GoingTargetsUI.render(host.querySelector('#targetsRoot'),state.ctx);else host.querySelector('#targetsRoot').innerHTML='<p class="gc-empty">Targets module unavailable.</p>';return;}
+ const doc=def.file?await load(def.file):{};
  const teams=teamsOf(def.file==='opportunity_vs_production'?norm(doc):def.file==='weekly_roles'?(doc?.data?.players||[]).map(p=>({team:p.team})):def.file?[]:Object.values(state.ctx.profiles||{}));
  const chips=Object.entries(CHARTS).map(([k,v])=>`<button type="button" data-chart="${k}" aria-pressed="${k===state.chart}">${esc(v.label)}</button>`).join('');
  const filters=`<div class="charts-filters"><label>Position<select data-f="pos">${['ALL','QB','RB','WR','TE'].map(p=>`<option ${p===state.pos?'selected':''}>${p}</option>`).join('')}</select></label><label>Team<select data-f="team"><option>ALL</option>${teams.map(t=>`<option ${t===state.team?'selected':''}>${esc(t)}</option>`).join('')}</select></label>${def.file&&state.chart!=='calibration'?`<label>Min games<select data-f="min">${[1,2,3,4,6].map(n=>`<option ${n===state.min?'selected':''}>${n}</option>`).join('')}</select></label>`:''}</div>`;
