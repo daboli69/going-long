@@ -6,7 +6,7 @@ Owner: Claude (feature engineer). Reviewer/integrator: Codex. Nothing here was p
 - Branch `claude/fanatics-sunday-td`, worktree `C:\Users\travi\OneDrive\Documents\ChatGPT\GOING-claude-fanatics-td`.
 - Baseline `origin/main` at `3f2651e` (data refresh on top of `6716bc8`). Codex's `codex/going-takeover` (c9cccd6 when inspected, read-only) was not touched; no Codex work was cherry-picked.
 - Feature commit: see `git log --oneline -3` on the branch (the commit titled "Fanatics Sunday TD engine and Jackpot view"); the follow-up docs commit records its SHA below.
-- Feature commit SHA: FILLED-IN-BY-FOLLOWUP-COMMIT
+- Feature commits on the branch: `26fe4d1` (feature) and `55d1c17` (review fixes); a final docs-only commit records this line. Use `git log claude/fanatics-sunday-td --oneline` for the exact tip.
 
 ## 2. Files changed
 New (all Claude-owned, standalone):
