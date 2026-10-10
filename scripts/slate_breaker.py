@@ -234,14 +234,19 @@ def recent_return_shares(rows, teams, active_ids):
     return counts
 
 
-def build_selections(games, first_td, roster, events, return_counts, priors):
+def build_selections(games, first_td, roster, events, return_counts, priors, as_of=None):
+    import eligibility
+    cutoff = datetime.fromisoformat(as_of.replace('Z', '+00:00')) if as_of else datetime.now(timezone.utc)
+    availability = eligibility.freshness(cutoff)
+    if not availability['ok']:
+        raise RuntimeError('Slate Breaker availability unverified: ' + availability['reason'])
     latest = {}
     for row in roster:
         pid = row.get('gsis_id')
         if pid:
             latest[(row.get('team'), pid)] = row
     positions = {'QB', 'RB', 'FB', 'WR', 'TE'}
-    out_reported = reported_out_ids()
+    out_reported = eligibility.blocked_ids({pid: {'team': team} for (team, pid) in latest}, now=cutoff)
     active = {team: {pid: row for (club, pid), row in latest.items() if club == team and row.get('status') == 'ACT' and pid not in out_reported
                      and row.get('position') in positions} for team in {t for g in games for t in (g['home'], g['away'])}}
     inactive = sorted({row.get('full_name') for row in latest.values() if row.get('team') in active
@@ -369,7 +374,7 @@ def build_payload(config, history, schedules, rows, roster, as_of):
     active_ids = {r.get('gsis_id') for r in current_roster if r.get('status') == 'ACT' and r.get('team') in teams}
     return_counts = recent_return_shares(rows, teams, active_ids)
     priors = position_priors([record['event'] for record in records if record.get('event')], roster)
-    selections, components, inactive, return_fraction = build_selections(games, first_td, current_roster, events, return_counts, priors)
+    selections, components, inactive, return_fraction = build_selections(games, first_td, current_roster, events, return_counts, priors, as_of=as_of)
     profiles = history.get('profiles', {})
     for selection in selections:
         game = next(g for g in games if g['id'] == selection['game_id'])

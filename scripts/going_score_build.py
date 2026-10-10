@@ -412,7 +412,11 @@ def build_output(table, panel, config, cfg_sha, roster, history, players_csv, as
     pool = scored[(scored.n_prior >= config['params']['min_games'])].copy()
     now = pool[pool.key == current_key]
     # Players who cannot play (reserve/injured list, practice squad, released, retired, exempt, suspended) are not ranked: the injury file knows more than the all-ACT roster file.
-    unavailable = unavailable_ids()
+    cutoff = datetime.fromisoformat(as_of.replace('Z', '+00:00'))
+    candidates = {r.player_id: {'team': r.team} for _, r in now.iterrows()}
+    availability = eligibility.freshness(cutoff, roster=roster)
+    unavailable = eligibility.blocked_ids(candidates, roster=roster, now=cutoff,
+                                          week=current_key % 100)
     if unavailable:
         now = now[~now.player_id.isin(unavailable)]
     bye_teams = set((roster or {}).get('bye_carry_forward_teams') or [])
@@ -495,7 +499,7 @@ def build_output(table, panel, config, cfg_sha, roster, history, players_csv, as
         'score_definition': 'score = percentile (0-100) of the weighted component z-score among eligible players at the same position; absolute = the same z-score mapped to 0-100 with frozen development anchors',
         'tiers': [{'id': i, 'label': l, 'min_percentile': f} for f, i, l in TIERS], 'eligibility': {'min_prior_games': config['params']['min_games'], 'max_team_games_since_last_appearance': config['params']['max_stale_team_games']},
         'weights': {pos: {n: round(config['positions'][pos]['components'][n]['weight'], 4) for n in SCORED} for pos in POSITIONS if pos in config['positions']},
-        'availability': eligibility.freshness(), 'provenance': provenance, 'config_sha256': cfg_sha, 'counts': {pos: int((now.position == pos).sum()) for pos in POSITIONS},
+        'availability': availability, 'provenance': provenance, 'config_sha256': cfg_sha, 'counts': {pos: int((now.position == pos).sum()) for pos in POSITIONS},
         'players': players, 'risers': risers, 'fallers': fallers,
     }
 

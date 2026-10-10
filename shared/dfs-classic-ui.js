@@ -41,10 +41,20 @@ function intelSummary(){
  return `<section class="dk-analysis dk-range"><h3>Lineup range</h3><p class="dk-note"><b>Before lock:</b> check final game-day inactives for every player; that check is not automated.</p><p class="dk-intel"><span>Floor <b>${num(x.floor)}</b></span><span>Mean <b>${num(x.mean)}</b></span><span>90th <b>${num(x.p90)}</b></span></p><p class="dk-note">Approximate range of the lineup total: mean projection and a normal approximation of the spread, using measured player correlations (D/ST uses its platform-average spread and is treated as independent). ${esc(stack)}</p>${x.own?ownershipMarkup(x.own):'<p class="dk-note">Load the private ownership file (Slate &amp; salary source) to see projected ownership.</p>'}</section>`;
 }
 function retainFocus(fn){const y=window.scrollY,id=document.activeElement?.id;fn();if(id)document.getElementById(id)?.focus({preventScroll:true});window.scrollTo({top:y,behavior:'instant'});}
+function refreshPool(){
+ if(!S.parsed?.players?.length)return true;
+ try{
+  const previous=S.lineup.length?S.lineup:incumbent;
+  S.pool=context.buildPool(S.parsed.players).map(p=>{const old=previous.find(x=>x.id===p.id),usable=!p.unavailable&&p.matched===true&&fin(p.projection)&&p.projection>0;return old&&Date.parse(old.kickoff)<=Date.now()&&usable?old:p;});
+  const usable=new Set(S.pool.filter(p=>!p.unavailable&&p.matched===true&&fin(p.projection)&&p.projection>0).map(p=>p.id));
+  if(S.lineup.some(p=>!usable.has(p.id))){S.lineup=[];incumbent=[];S.swap=null;S.status='Availability changed or could not be verified. The previous lineup was cleared; rebuild with current eligible players.';return false;}
+  return true;
+ }catch(e){S.pool=[];S.lineup=[];incumbent=[];S.swap=null;S.status=e.message;return false;}
+}
 async function refreshScenario(){S.tdScenario=null;S.tdError='';try{if(!context.buildScenario)throw Error('Eight-TD team evidence is unavailable.');S.tdScenario=await context.buildScenario(S.parsed.players,S.pool,S.parsed.slate.games);if(!S.tdScenario)throw Error('Eight-TD team evidence is unavailable.');}catch(e){S.tdError=e.message;}}
 function summary(){const salary=S.lineup.reduce((a,p)=>a+p.salary,0),points=S.lineup.reduce((a,p)=>a+p.projection,0),td=S.lineup.reduce((a,p)=>a+(p.position==='DST'?0:p.tdMean),0);return {salary,points,td};}
 function exportReceipts(){const r=GoingDfsJournal.read(localStorage);if(!r.ok){S.status=r.error;return;}const url=URL.createObjectURL(new Blob([JSON.stringify(r.receipts,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='going-dfs-frozen-lineups.json';a.click();URL.revokeObjectURL(url);S.status=r.receipts.length+' frozen DFS receipts exported.';}
-function freezeLineup(){const r=GoingDfsJournal.freeze({players:S.lineup,contest:'classic',site:'draftkings',mode:S.builtMode,salaryHash:S.hash,modelGeneratedAt:context.generatedAt,injuryAt:context.injuryAt||null,now:Date.now()});if(!r.ok){S.status=r.error;return;}try{const saved=GoingDfsJournal.append(localStorage,r.receipt);S.status=saved.ok?'Pregame DFS lineup frozen on this device. This voluntary sample is separate from betting results.':saved.error;}catch(e){S.status='Local DFS receipt storage unavailable; lineup is unchanged.';}}
+function freezeLineup(){if(!refreshPool())return;const r=GoingDfsJournal.freeze({players:S.lineup,contest:'classic',site:'draftkings',mode:S.builtMode,salaryHash:S.hash,modelGeneratedAt:context.generatedAt,injuryAt:context.injuryAt||null,now:Date.now()});if(!r.ok){S.status=r.error;return;}try{const saved=GoingDfsJournal.append(localStorage,r.receipt);S.status=saved.ok?'Pregame DFS lineup frozen on this device. This voluntary sample is separate from betting results.':saved.error;}catch(e){S.status='Local DFS receipt storage unavailable; lineup is unchanged.';}}
 function render(){
  host.style.setProperty('--dk-sticky-top',Math.ceil(document.querySelector('.going-shell')?.getBoundingClientRect().height||0)+8+'px');
  const ready=S.parsed?.players?.length&&S.confirmed,usable=S.pool.filter(p=>!p.unavailable&&!S.excluded.has(p.id)),sum=summary(),games=S.parsed?.slate?.games||[];
@@ -70,7 +80,7 @@ async function generate(){
  const previous=S.lineup.length?S.lineup:incumbent;
  incumbent=previous;S.busy=true;retainFocus(render);
  try{
-  S.pool=context.buildPool(S.parsed.players).map(p=>{const old=previous.find(x=>x.id===p.id);return old&&Date.parse(old.kickoff)<=Date.now()?old:p;});
+  if(!refreshPool()&&!S.pool.length)throw Error(S.status);
   if(S.mode==='throne'){await refreshScenario();if(!S.tdScenario)throw Error(S.tdError||'Eight-TD team evidence unavailable. Best DFS remains available; no silent count-only fallback.');}
   const result=await new Promise((resolve,reject)=>{
    if(typeof Worker==='undefined'){setTimeout(()=>{try{resolve(GoingDfsClassic.optimize(S.pool,{...options(),beamWidth:400}));}catch(e){reject(e);}},20);return;}
@@ -80,6 +90,9 @@ async function generate(){
    worker.postMessage({pool:S.pool,options:{...options(),beamWidth:600}});
   });
   if(!result.lineup?.length)throw Error(result.reason||result.errors?.join(' ')||'No valid lineup fits these locks and exclusions.');
+  if(!refreshPool()&&!S.pool.length)throw Error(S.status);
+  const usable=new Set(S.pool.filter(p=>!p.unavailable&&p.matched===true&&fin(p.projection)&&p.projection>0).map(p=>p.id));
+  if(result.lineup.some(p=>!usable.has(p.id)))throw Error('Availability changed during generation. Rebuild with current eligible players.');
   const checked=GoingDfsClassic.validateLineup(result.lineup,S.pool,options());if(!checked.valid)throw Error(checked.errors.join(' '));
   // The worker returns plain copies; re-bind to the main-thread pool rows so simulated distributions and ownership stay attached.
   const byId=new Map(S.pool.map(p=>[p.id,p]));result.lineup=result.lineup.map(x=>byId.has(x.id)?{...byId.get(x.id),slot:x.slot,slotIndex:x.slotIndex}:x);
@@ -88,7 +101,7 @@ async function generate(){
  }catch(e){S.status=e.message;S.lineup=[];}
  const shouldRestore=document.activeElement===document.body;S.busy=false;retainFocus(render);if(shouldRestore&&originalFocus)document.getElementById(originalFocus)?.focus({preventScroll:true});
 }
-function mount(element,ctx){context=ctx;if(host===element)return;S.mode=ctx.defaultMode||'tournament';host=element;render();host.addEventListener('change',async e=>{if(e.target.id==='dk-field-file'){const f=e.target.files?.[0];if(f){const r=context.loadField?context.loadField(await f.text()):{ok:false,reason:'Private files are unavailable here.'};S.fieldStatus=r.ok?'Private ownership model loaded in this browser only. Projected ownership now appears on players and lineups.':r.reason;if(r.ok&&S.parsed?.players?.length){S.pool=context.buildPool(S.parsed.players);S.lineup=S.lineup.map(x=>S.pool.find(p=>p.id===x.id)?{...S.pool.find(p=>p.id===x.id),slot:x.slot,slotIndex:x.slotIndex}:x);}retainFocus(render);}return;}if(e.target.id==='dk-file'){const f=e.target.files?.[0];if(f)await load(await f.text());}if(S.busy)return;if(e.target.id==='dk-confirm'){S.confirmed=e.target.checked;if(!S.confirmed)S.lineup=[];retainFocus(render);}if(e.target.id==='dk-position'){S.filter=e.target.value;document.getElementById('dk-pool-list').innerHTML=poolMarkup();}});host.addEventListener('input',e=>{if(e.target.id==='dk-query'){S.query=e.target.value;document.getElementById('dk-pool-list').innerHTML=poolMarkup();}});host.addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b||b.disabled||S.busy)return;const act=b.dataset.act,i=Number(b.dataset.slot),id=b.dataset.id;
+function mount(element,ctx){context=ctx;if(host===element){refreshPool();retainFocus(render);return;}S.mode=ctx.defaultMode||'tournament';host=element;render();host.addEventListener('change',async e=>{if(e.target.id==='dk-field-file'){const f=e.target.files?.[0];if(f){const r=context.loadField?context.loadField(await f.text()):{ok:false,reason:'Private files are unavailable here.'};S.fieldStatus=r.ok?'Private ownership model loaded in this browser only. Projected ownership now appears on players and lineups.':r.reason;if(r.ok&&S.parsed?.players?.length){refreshPool();S.lineup=S.lineup.map(x=>S.pool.find(p=>p.id===x.id)?{...S.pool.find(p=>p.id===x.id),slot:x.slot,slotIndex:x.slotIndex}:x);}retainFocus(render);}return;}if(e.target.id==='dk-file'){const f=e.target.files?.[0];if(f)await load(await f.text());}if(S.busy)return;if(e.target.id==='dk-confirm'){S.confirmed=e.target.checked;if(!S.confirmed)S.lineup=[];retainFocus(render);}if(e.target.id==='dk-position'){S.filter=e.target.value;document.getElementById('dk-pool-list').innerHTML=poolMarkup();}});host.addEventListener('input',e=>{if(e.target.id==='dk-query'){S.query=e.target.value;document.getElementById('dk-pool-list').innerHTML=poolMarkup();}});host.addEventListener('click',e=>{const b=e.target.closest('button[data-act]');if(!b||b.disabled||S.busy)return;const act=b.dataset.act,i=Number(b.dataset.slot),id=b.dataset.id;
  if(act==='import'){load(document.getElementById('dk-paste').value);return;}if(act==='generate'){generate();return;}
  retainFocus(()=>{if(act==='mode'){S.mode=b.dataset.value;S.swap=null;S.status='Objective changed. Generate or rebuild to apply it.';}
  if(act==='clear'){S.lineup=[];incumbent=[];S.locks={};S.excluded.clear();S.swap=null;S.status='Lineup, locks and exclusions cleared; salary slate retained.';}

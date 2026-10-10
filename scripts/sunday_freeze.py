@@ -10,7 +10,9 @@ The tracker (data/public_tracker) separately freezes every GOING pick, price and
 import datetime
 import hashlib
 import json
+import os
 import subprocess
+import tempfile
 from zoneinfo import ZoneInfo
 import sys
 from pathlib import Path
@@ -18,7 +20,29 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'scripts'))
 import eligibility  # noqa: E402
-FILES = ['history.json', 'nfl_betting.json', 'football_context.json', 'injury_context.json', 'season_learning.json', 'dfs_correlations.json', 'king-endzone.json', 'slate-breaker.json']
+FILES = ['history.json', 'nfl_betting.json', 'football_context.json', 'injury_context.json', 'nfl_roster.json', 'season_learning.json', 'dfs_correlations.json', 'king-endzone.json', 'slate-breaker.json']
+
+
+def write_once(path, doc):
+    """Publish complete bytes atomically without replacing an existing freeze."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=path.parent, delete=False) as tmp:
+        pending = Path(tmp.name)
+        try:
+            tmp.write(json.dumps(doc, indent=1, allow_nan=False) + '\n')
+            tmp.flush()
+            os.fsync(tmp.fileno())
+        except BaseException:
+            tmp.close()
+            pending.unlink(missing_ok=True)
+            raise
+    try:
+        os.link(pending, path)  # Exclusive creation; same-filesystem atomic visibility.
+        return True
+    except FileExistsError:
+        return False
+    finally:
+        pending.unlink(missing_ok=True)
 
 
 def sha(path):
@@ -41,7 +65,8 @@ def main(day):
     eastern = ZoneInfo('America/New_York')
     def et_day(stamp):
         return datetime.datetime.fromisoformat(str(stamp).replace('Z', '+00:00')).astimezone(eastern).date().isoformat()
-    kickoffs = sorted(g['commence_time'] for g in games if g.get('commence_time') and et_day(g['commence_time']) == day)
+    kickoffs = sorted((g['commence_time'] for g in games if g.get('commence_time') and et_day(g['commence_time']) == day),
+                      key=lambda stamp: datetime.datetime.fromisoformat(stamp.replace('Z', '+00:00')))
     if not kickoffs:
         print('no NFL games on', day, '- nothing to freeze')
         return
@@ -77,9 +102,7 @@ def main(day):
            'data': {f: {'sha256': sha(REPO / 'data' / f), 'generated_at': generated(REPO / 'data' / f)} for f in FILES if (REPO / 'data' / f).exists()},
            'shadow_files': shadows,
            'note': 'Do not edit. Picks, prices and ratings are frozen by the tracker; ownership models, salary files and lineups stay private on the user device.'}
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text(json.dumps(doc, indent=1) + '\n', encoding='utf-8')
-    print('frozen', out)
+    print('frozen' if write_once(out, doc) else 'already frozen (write-once):', out)
 
 
 if __name__ == '__main__':
