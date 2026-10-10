@@ -23,3 +23,4 @@ Baseline 2026-10-09 20:00Z: branch `claude/phase3-weekly` = origin/main 1fa0584;
 | 14 | P2 | NB1 receptions, TD lean score, free-role challenger | prospective shadow only | SHADOW |
 | 16 | P0 | Players to Target (fantasy and betting) with injury/IR/bye/availability gating | tests/going-targets.test.cjs; independent QA found 0 unavailable players in real-data lists; mobile 375px no overflow | SHIPPED |
 | 17 | P0 | Spread key-number push mass | table-driven pushes at 3/7/10 | SHIPPED |
+| 18 | P0 | DFS real-data QA (Classic 10/04, Showdown 9/20-10/08, private ownership models, read-only) | all lineups legal, CPT 1.5x exact, ownership sums 900%/600%, no NaN; found DK Status column ignored (fixed: IR/OUT excluded in Classic and Showdown); lineup ownership understated 2.6-3.8x (known, UI says so); D/ST not negatively correlated with opposing offense; Oct 11 slate not posted, Throne mode stale snapshot; no ROI measured | VERIFIED WITH LIMITS |

@@ -89,3 +89,12 @@ test('tournament objective distinguishes observed upside from median without rel
  const best=dfs.optimize(pool,{mode:'best',now:NOW}),tournament=dfs.optimize(pool,{mode:'tournament',now:NOW});assert.equal(best.lineup[0].id,first.id);assert.equal(tournament.lineup[0].id,other.id);assert.ok(dfs.validateLineup(tournament.lineup,pool,{mode:'tournament',now:NOW}).valid);assert.equal(tournament.tournament.ownership.status,'unknown');assert.equal(tournament.tournament.objective.jointCeiling,'not-estimated');
  other.unavailable=true;assert.notEqual(dfs.optimize(pool,{mode:'tournament',now:NOW}).lineup[0].id,other.id);
 });
+
+test('the DraftKings Status column: IR/OUT players are marked unavailable and can never fill a slot; Q and blank are not blocked',()=>{
+ const rows=[csvRow(1),csvRow(2),csvRow(3),csvRow(9,'DST',3000,'KC@DEN 10/04/2026 04:25PM ET','DEN')];
+ const text=[HEADER+',Status',rows[0]+',OUT',rows[1]+',Q',rows[2]+',',rows[3]+','].join('\n');
+ const parsed=dfs.parseCsv(text);assert.deepEqual(parsed.errors,[]);
+ const by=Object.fromEntries(parsed.players.map(p=>[p.id,p]));
+ assert.equal(by[1].csvOut,true);assert.equal(by[1].unavailable,true);assert.equal(by[2].csvOut,false);assert.equal(by[2].csvStatus,'Q');assert.equal(by[3].csvOut,false);
+ const ir=dfs.parseCsv([HEADER+',Status',rows[0]+',IR',rows[3]+','].join('\n'));assert.equal(ir.players[0].csvOut,true);
+});

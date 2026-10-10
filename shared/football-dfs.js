@@ -31,7 +31,7 @@ function parseSalaryCsv(text,requestedSite){
  const players=[];
  for(const record of records){
   const suppliedName=value(record,'Name','Nickname','Name + ID'),name=(suppliedName||`${value(record,'First Name')} ${value(record,'Last Name')}`.trim()).replace(/\s*\(\d+\)\s*$/,''),rawPosition=(value(record,'Position')||value(record,'Roster Position').split('/')[0]||'').split('/')[0].toUpperCase(),position=['D','DEF'].includes(rawPosition)?'DST':rawPosition,salary=Number(String(value(record,'Salary')).replace(/[$,]/g,'')),team=canonicalTeam(value(record,'TeamAbbrev','Team','Team Abbrev')),game=value(record,'Game Info','Game'),teams=gameTeams(game),opponent=canonicalTeam(value(record,'Opponent'))||(teams.find(candidate=>candidate!==team)||''),id=value(record,'ID','Id','Player ID')||norm(name)+'|'+team,rosterPosition=value(record,'Roster Position').toUpperCase(),showdownRole=site==='draftkings'&&['CPT','FLEX'].includes(rosterPosition)?rosterPosition:null;
-  const siteProjection=Number(value(record,'AvgPointsPerGame','FPPG','FPPG Played'))||null,injury=value(record,'Injury Indicator','Injury Status','Injury');
+  const siteProjection=Number(value(record,'AvgPointsPerGame','FPPG','FPPG Played'))||null,injury=value(record,'Injury Indicator','Injury Status','Injury','Status');
   if(!name||!finite(salary)||salary<=0||!['QB','RB','WR','TE','DST','K'].includes(position))continue;
   players.push({id:String(id),name,position,salary,team,opponent,game,kickoff:gameKickoff(game),siteProjection,injury,showdownRole,sourceRow:record});
  }

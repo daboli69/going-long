@@ -60,7 +60,7 @@ function parseCsv(text){
   for(const t of [away,home]){if(teamGames.has(t)&&teamGames.get(t)!==gameId)error('NFL team appears in conflicting games.');teamGames.set(t,gameId);}
   if(r.AvgPointsPerGame!==''&&!/^-?\d+(\.\d+)?$/.test(r.AvgPointsPerGame)){error('invalid AvgPointsPerGame.');continue;}
   dates.add(date);games.set(gameId,{gameId,away,home,kickoff});
-  players.push({id,name,position,rosterPosition:r['Roster Position'],salary,team:ownTeam,opponent:ownTeam===away?home:away,gameId,kickoff,gameInfo:r['Game Info'],avgPointsPerGame:r.AvgPointsPerGame===''?null:Number(r.AvgPointsPerGame),sourceSalary:'draftkings-csv'});
+  players.push({id,name,position,rosterPosition:r['Roster Position'],salary,team:ownTeam,opponent:ownTeam===away?home:away,gameId,kickoff,gameInfo:r['Game Info'],avgPointsPerGame:r.AvgPointsPerGame===''?null:Number(r.AvgPointsPerGame),sourceSalary:'draftkings-csv',csvStatus:r.Status||'',csvOut:/^(ir|o|out|inactive|sus|susp|pup|nfi|res)$/i.test(r.Status||''),unavailable:/^(ir|o|out|inactive|sus|susp|pup|nfi|res)$/i.test(r.Status||'')||undefined});
  }
  if(dates.size!==1)errors.push('Classic import must contain exactly one slate date; mixed dates are rejected.');
  if(games.size<2)errors.push('NFL Classic requires a player pool containing at least two games.');
@@ -89,6 +89,7 @@ function context(pool,options){
 function allowed(p,index,c){
  const immutable=c.incumbent.length===9&&String(c.incumbent[index]?.id)===String(p.id)&&Date.parse(p.kickoff)<=c.now;
  if(!p||p.sourceSalary!=='draftkings-csv'||!Number.isSafeInteger(p.salary)||p.salary<=0||p.salary>CAP||!fits(p.position,SLOTS[index])||!p.gameId||!TEAMS.has(p.team)||!TEAMS.has(p.opponent)||p.team===p.opponent||!Number.isFinite(Date.parse(p.kickoff)))return false;
+ if(p.csvOut)return false;// the DraftKings Status column (IR/OUT) is authoritative even when the roster snapshot disagrees
  if(c.excluded.has(String(p.id)))return false;
  if(c.locks[index]!=null&&c.locks[index]!==String(p.id))return false;
  if(c.lockedIds.has(String(p.id))&&c.locks[index]!==String(p.id))return false;
