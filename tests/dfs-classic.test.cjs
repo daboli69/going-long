@@ -98,3 +98,25 @@ test('the DraftKings Status column: IR/OUT players are marked unavailable and ca
  assert.equal(by[1].csvOut,true);assert.equal(by[1].unavailable,true);assert.equal(by[2].csvOut,false);assert.equal(by[2].csvStatus,'Q');assert.equal(by[3].csvOut,false);
  const ir=dfs.parseCsv([HEADER+',Status',rows[0]+',IR',rows[3]+','].join('\n'));assert.equal(ir.players[0].csvOut,true);
 });
+
+test('measured and tournament builds report whether they differ from Best DFS instead of presenting duplicates',()=>{
+ require('../shared/dfs-correlations.js');
+ const pool=fixture().map(p=>({...p,distribution:undefined}));
+ const best=dfs.optimize(pool,{mode:'best',now:NOW});assert.equal(best.vsBest,undefined,'best is the baseline');
+ const flat=dfs.optimize(pool,{mode:'measured',now:NOW});
+ assert.ok(flat.vsBest&&typeof flat.vsBest.same==='boolean'&&flat.vsBest.changed>=0);
+ assert.equal(flat.vsBest.same,flat.vsBest.changed===0);
+ // a wide-spread, slightly lower-mean player must be taken by the measured objective but not by Best DFS
+ const wide=pool.map(p=>p.id==='13'?{...p,projection:p.projection-.3,distribution:{mean:p.projection-.3,sd:30,floor:0,median:p.projection,p90:p.projection+40,boom:.2}}:p);
+ const m=dfs.optimize(wide,{mode:'measured',now:NOW}),b=dfs.optimize(wide,{mode:'best',now:NOW});
+ assert.equal(m.vsBest.same,m.lineup.every(p=>b.lineup.some(q=>q.id===p.id)));
+ const t=dfs.optimize(pool,{mode:'tournament',now:NOW});assert.ok(t.vsBest&&t.vsBest.same,'without observed spread the tournament objective falls back to projection and says it matches Best DFS');
+});
+test('measured objective charges a D/ST for facing the lineup\'s own offence only through the lineup variance',()=>{
+ require('../shared/dfs-correlations.js');const sim=require('../shared/dfs-sim.js');
+ const mk=(o)=>({sourceSalary:'draftkings-csv',matched:true,...o});
+ const base=[mk({position:'QB',team:'B',opponent:'A',projection:20,distribution:{mean:20,sd:7}}),mk({position:'DST',team:'A',opponent:'B',projection:7})];
+ sim.assignRoles(base);
+ const paired=dfs.measuredMoments(base),apart=dfs.measuredMoments([base[0],{...base[1],team:'C',opponent:'D'}]);
+ assert.equal(paired.mean,apart.mean);assert.ok(paired.sd<apart.sd);
+});

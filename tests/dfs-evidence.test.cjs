@@ -30,3 +30,18 @@ test('observed multi-TD bins exclude future results and passing/defensive/return
  const p={games:[...player.games,{season:2026,date:'2026-10-04',rush_tds:5,rec_tds:5},{season:2025,date:'2025-12-28',rush_tds:2,rec_tds:0},{season:2026,date:'2026-09-13',rush_tds:0,rec_tds:0,pass_tds:8,atd:7}]};
  assert.deepEqual(observedCounts(p,now).bins,[1,1,0,1]);assert.equal(observedCounts(p,now).n,3);assert.equal(observedCounts(p,Date.parse('2027-01-01')).season,2026);
 });
+
+test('QB projections carry the measured turnover allowance; RB/WR/TE and DST are unchanged; the switch rolls it back',()=>{
+ const E=require('../shared/dfs-evidence.js'),qbOpts=o=>opts({profiles:{p:{...player,position:'QB'}},...o}),qb={...salary,position:'QB'};
+ const on=buildPool([qb],qbOpts())[0],off=buildPool([qb],qbOpts({adjustments:false}))[0],disabled=buildPool([qb],qbOpts({adjustments:{qbTurnovers:{...E.ADJUSTMENTS.qbTurnovers,enabled:false}}}))[0];
+ assert.equal(E.ADJUSTMENTS.qbTurnovers.points,-.52);
+ assert.ok(Math.abs(on.projection-(off.projection-.52))<1e-9&&on.projectionAdjustment===-.52&&on.projectionRaw===off.projection);
+ assert.equal(off.projection,disabled.projection);assert.equal(off.projectionAdjustment,0);
+ assert.match(on.concerns.join(' '),/interceptions and lost fumbles/);
+ assert.equal(buildPool([salary],opts())[0].projection,22,'RB unchanged');
+ assert.equal(buildPool([{...salary,position:'DST',avgPointsPerGame:7.5}],opts())[0].projection,7.5,'DST unchanged');
+});
+test('shiftDistribution moves every summary and the hidden sorted draws together and leaves the input intact',()=>{
+ const E=require('../shared/dfs-evidence.js'),d={mean:10,sd:5,floor:3,p25:6,median:9,p75:13,p90:17,p95:20,boom:.1};Object.defineProperty(d,'sorted',{value:Float64Array.from([1,2,3]),enumerable:false});
+ const s=E.shiftDistribution(d,-.5);assert.equal(s.mean,9.5);assert.equal(s.p90,16.5);assert.equal(s.sd,5);assert.equal(s.boom,.1);assert.deepEqual([...s.sorted],[.5,1.5,2.5]);assert.equal(d.mean,10);assert.equal(E.shiftDistribution(d,0),d);assert.equal(E.shiftDistribution(null,-1),null);
+});

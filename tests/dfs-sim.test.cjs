@@ -108,3 +108,24 @@ test('Champion v2 is its own tracker cohort and injury scaling keeps its pooled 
  assert.equal(modelCohort({model_evidence:{seasonEvidence:{method:'prior-strength blend c=2 (champion-v2)'}}}),'champion-v2');
  assert.equal(modelCohort({model_evidence:{seasonEvidence:{method:'80% current / 20% historical policy; unvalidated accuracy improvement'}}}),'current-80-20');
 });
+
+// ---- D/ST correlations and spread (estimated from archived contest points; see scripts/dfs_correlation_estimates.py) ---------------------------------------------------------
+test('D/ST is negatively correlated with the opposing offence, ~0 with its own except RB1, and gets a role',()=>{
+ const S=require('../shared/dfs-sim.js'),C=require('../shared/dfs-correlations.js');
+ const pool=[{position:'DST',team:'A',opponent:'B',projection:6},{position:'QB',team:'B',opponent:'A',projection:18},{position:'RB',team:'B',opponent:'A',projection:12},{position:'WR',team:'B',opponent:'A',projection:11},{position:'RB',team:'A',opponent:'B',projection:13},{position:'QB',team:'A',opponent:'B',projection:17}];
+ S.assignRoles(pool);assert.equal(pool[0].dfsRole,'DST');
+ const [dst,oq,orb,owr,rb,qb]=pool;
+ assert.ok(S.pairCorrelation(dst,oq,C)<-.4&&S.pairCorrelation(oq,dst,C)<-.4,'symmetric and strongly negative vs the opposing QB');
+ assert.ok(S.pairCorrelation(dst,orb,C)<-.2&&S.pairCorrelation(dst,owr,C)<-.15,'opposing RB1 and WR1 are negative');
+ assert.ok(S.pairCorrelation(dst,rb,C)>0&&S.pairCorrelation(dst,rb,C)<.2,'own RB1: small positive');
+ assert.equal(S.pairCorrelation(dst,qb,C),0);
+ assert.equal(S.pairCorrelation({...dst,dfsRole:null},oq,C),0);
+});
+test('D/ST spread is the realised 5.8 points, not a fraction of its projection, and pairing it with the opposing QB lowers lineup variance',()=>{
+ const S=require('../shared/dfs-sim.js'),C=require('../shared/dfs-correlations.js');
+ assert.equal(S.DST_SD,5.8);assert.equal(S.sdOf({position:'DST',projection:6,sd:2.5}),5.8);assert.equal(S.sdOf({position:'WR',projection:10,sd:7}),7);
+ const dst={position:'DST',dfsRole:'DST',team:'A',opponent:'B',projection:6},oppQb={position:'QB',dfsRole:'QB',team:'B',opponent:'A',projection:18,sd:7},otherQb={...oppQb,team:'C',opponent:'D'};
+ const paired=S.lineupMoments([dst,oppQb],{correlations:C}),apart=S.lineupMoments([dst,otherQb],{correlations:C});
+ assert.equal(paired.mean,apart.mean);assert.ok(paired.sd<apart.sd-1.5,`paired ${paired.sd} vs apart ${apart.sd}`);
+ assert.ok(Math.abs(apart.sd-Math.sqrt(5.8**2+7**2))<1e-9);
+});

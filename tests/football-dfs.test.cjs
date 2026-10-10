@@ -149,3 +149,38 @@ test('tournament build excludes object OUT/roster codes and started players with
  for(const injury of [{state:'out'},'INA','RES']){players[8].injury=injury;assert.ok(!dfs.optimize(players,opts).lineups[0].players.some(p=>p.id==='t8'));}delete players[8].injury;
  assert.equal(dfs.optimize(players,{...opts,now:Date.parse('2026-10-06T00:00:00Z')}).lineups.length,0);
 });
+
+// ---- distinct, stated objectives (balanced=mean, floor/measured/ceiling = lineup mean +/- z SD) -------------------------------------------------------------------------------
+function modePool(){
+ const P=[],add=(id,position,projection,sd,team='B',opponent='A')=>P.push({id,name:id,position,salary:4000,team,opponent,projection,sd});
+ add('q1','QB',20,4);add('r1','RB',16,4);add('r2','RB',15.9,4);add('r3','RB',5,4);add('t1','TE',10,4);add('t2','TE',5,4);
+ add('wA','WR',15,2);add('wB','WR',13.5,14);add('wC','WR',14,2);add('wD','WR',13.8,2);add('wE','WR',13.7,2);
+ add('dA','DST',8,5.8,'A','B');add('dC','DST',7,5.8,'C','D');
+ return P;
+}
+test('balanced maximises the mean; measured and ceiling pay for variance; floor avoids it',()=>{
+ const run=mode=>dfs.optimize(modePool(),{mode,count:1}).lineups[0].players.map(p=>p.id);
+ const balanced=run('balanced'),floor=run('floor'),measured=run('measured'),ceiling=run('ceiling');
+ assert.ok(!balanced.includes('wB')&&!floor.includes('wB'),'mean and floor builds skip the high-variance, lower-mean receiver');
+ assert.ok(measured.includes('wB')&&ceiling.includes('wB'),'ceiling styles take the extra variance');
+ assert.notDeepEqual(balanced.slice().sort(),measured.slice().sort());
+});
+test('balanced is a pure mean maximiser: no blanket penalty for a D/ST facing your own offence',()=>{
+ const pool=modePool().map(p=>p.position==='DST'?p:{...p,team:'B',opponent:'A'});
+ const lineup=dfs.optimize(pool,{mode:'balanced',count:1}).lineups[0];
+ assert.ok(lineup.players.some(p=>p.id==='dA')&&lineup.players.filter(p=>p.position!=='DST'&&p.team==='B').length>=6);
+});
+test('the measured D/ST correlation makes a ceiling build avoid its own opponent only when the trade is worth it',()=>{
+ // dA (8) faces the QB; dC (7) does not. Mean prefers dA; with the D/ST~QB correlation (-.45) the lineup SD rises by pairing away.
+ const pool=modePool().map(p=>p.position==='DST'?p:{...p,team:p.id==='q1'?'B':'B',opponent:'A'});
+ const sim=require('../shared/dfs-sim.js');require('../shared/dfs-correlations.js');sim.assignRoles(pool);
+ const meanPick=dfs.optimize(pool,{mode:'balanced',count:1}).lineups[0].players.find(p=>p.position==='DST').id;
+ assert.equal(meanPick,'dA');
+ const ceil=dfs.optimize(pool,{mode:'ceiling',count:1}).lineups[0].players.find(p=>p.position==='DST').id;
+ assert.equal(ceil,'dC');
+});
+test('duplication/ownership styles say they fell back to Measured when no private field model is loaded; identical optima are reported',()=>{
+ for(const mode of ['lowdup','leverage','best']){const r=dfs.optimize(modePool(),{mode,count:1});assert.match(r.reason,/needs the private Showdown field model/);assert.ok(r.lineups.length===1);assert.deepEqual(r.lineups[0].players.map(p=>p.id).sort(),dfs.optimize(modePool(),{mode:'measured',count:1}).lineups[0].players.map(p=>p.id).sort());}
+ const flat=modePool().map(p=>({...p,sd:3})),r=dfs.optimize(flat,{mode:'measured',count:1});
+ assert.match(r.reason,/did not change the optimum/);assert.equal(dfs.optimize(flat,{mode:'balanced',count:1}).reason,null);
+});
