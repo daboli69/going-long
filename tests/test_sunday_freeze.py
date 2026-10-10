@@ -98,6 +98,11 @@ class FreezeTests(unittest.TestCase):
                     'nfl_roster.json': {'generated_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'players': [{'id': t, 'team': t, 'roster_status': 'ACT'} for t in sorted(freeze.NFL_TEAMS)]}}
             for name, doc in docs.items(): (root / 'data' / name).write_text(json.dumps(doc))
             self.assertTrue(freeze.freeze_inputs_ok(root, now))
+            context = root / 'data/football_context.json'
+            for number in ('1e999', '-1e999', '9' * 1000):
+                context.write_text('{"generated_at":"' + stamp + '","overflow":' + number + '}')
+                self.assertFalse(freeze.freeze_inputs_ok(root, now))
+            context.write_text(json.dumps(docs['football_context.json']))
             for name, key, value in [('injury_context.json', 'source_content_at', '2026-10-08T07:00:00Z'),
                                      ('nfl_betting.json', 'feed_status', 'FALLBACK')]:
                 original = docs[name][key]; docs[name][key] = value

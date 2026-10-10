@@ -20,7 +20,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'scripts'))
 import eligibility  # noqa: E402
-from refresh_health import NFL_TEAMS  # noqa: E402
+from refresh_health import NFL_TEAMS, strict_json  # noqa: E402
 FILES = ['history.json', 'nfl_betting.json', 'football_context.json', 'injury_context.json', 'nfl_roster.json', 'season_learning.json', 'dfs_correlations.json', 'king-endzone.json', 'slate-breaker.json']
 
 
@@ -66,8 +66,7 @@ def scheduled_day(now):
 def freeze_inputs_ok(root, now):
     """A write-once freeze must wait for valid current inputs, never lock degraded data."""
     try:
-        docs = {name: json.loads((root / 'data' / name).read_text(encoding='utf-8'),
-                                parse_constant=lambda token: (_ for _ in ()).throw(ValueError(token)))
+        docs = {name: strict_json((root / 'data' / name).read_text(encoding='utf-8'))
                 for name in ('history.json', 'nfl_betting.json', 'football_context.json', 'injury_context.json', 'nfl_roster.json')}
         for name, doc in docs.items():
             if not isinstance(doc, dict):

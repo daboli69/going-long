@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import gzip
 import json
+import math
 import os
 import subprocess
 from datetime import datetime, timezone
@@ -35,6 +36,23 @@ OUTPUT_OWNERS = {
 
 def mapping(value):
     return value if isinstance(value, dict) else {}
+
+
+def _finite_json_number(token, integer=False):
+    value = int(token) if integer else float(token)
+    try:
+        if math.isfinite(value):
+            return value
+    except OverflowError:
+        pass
+    raise ValueError('JSON number overflows a finite browser number')
+
+
+def strict_json(raw):
+    """Reject nonstandard constants and overflow in otherwise valid JSON numbers."""
+    return json.loads(raw, parse_float=_finite_json_number,
+                      parse_int=lambda token: _finite_json_number(token, integer=True),
+                      parse_constant=lambda token: (_ for _ in ()).throw(ValueError(token)))
 
 
 def audit(root=ROOT, now=None, outcomes=None, changed=None):
@@ -139,8 +157,7 @@ def audit(root=ROOT, now=None, outcomes=None, changed=None):
             raw = (Path(root) / path).read_bytes()
             if path.endswith('.json.gz'):
                 raw = gzip.decompress(raw)
-            doc = json.loads(raw.decode('utf-8'),
-                             parse_constant=lambda token: (_ for _ in ()).throw(ValueError(token)))
+            doc = strict_json(raw.decode('utf-8'))
             if not isinstance(doc, (dict, list)):
                 raise ValueError('object/array required')
         except (OSError, ValueError, TypeError, UnicodeError, EOFError):

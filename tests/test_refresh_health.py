@@ -154,7 +154,8 @@ class RefreshHealthTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); fixtures(root)
             p = root / 'data/opportunities.json'
-            for text in ('{broken', '{"probability": NaN}', '42'):
+            for text in ('{broken', '{"probability": NaN}', '{"probability": 1e999}',
+                         '{"probability": -1e999}', '{"count":' + '9' * 1000 + '}', '42'):
                 with self.subTest(text=text):
                     p.write_text(text)
                     report = H.audit(root, NOW, {'validate_models': 'failure', 'nfl': 'failure', 'roster_public': 'success'},
