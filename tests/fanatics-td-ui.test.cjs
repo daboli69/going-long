@@ -31,9 +31,9 @@ test('with real Fanatics prices the Jackpot view renders ranked, valid slips wit
  assert.equal(status.dataset.level,'ok');
  const first=cards[0],text=first.textContent;
  assert.equal(first.querySelectorAll('.ft-leg').length,3);
- assert.match(text,/estimated chance all three score/);assert.match(text,/independent/);assert.match(text,/not a proven hit rate/);
+ assert.match(text,/model estimate that all three score/);assert.match(text,/independent/);assert.match(text,/not a proven hit rate/);
  assert.match(text,/\+\d+ combined/);assert.match(text,/Fanatics feed/);assert.match(text,/UNVERIFIED OFFER RULES/);assert.match(text,/Highest chance is not highest value/);
- assert.match(text,/Availability: Expected/);assert.match(text,/1:00 PM ET/);
+ assert.match(text,/Availability: Expected/);assert.match(text,/1:00 PM ET/);assert.doesNotMatch(text,/starts after 1:00 PM ET/);// a 1:00 PM kickoff is not a later game
  assert.doesNotMatch(text,/profit|guaranteed|\$\d/i);
  // ranks are in descending probability order
  const probs=[...cards].map(c=>parseFloat(c.querySelector('.ft-headline b').textContent));
@@ -116,4 +116,28 @@ test('Jackpot integration: the promo panel hooks the new view, keeps the old eng
 test('mobile layout rules exist: single column list, no fixed widths that can overflow',()=>{
  const css=fs.readFileSync(path.join(root,'shared/fanatics-td.css'),'utf8');
  assert.match(css,/@media\(max-width:600px\)/);assert.match(css,/\.ft-manual textarea\{[^}]*max-width:100%/);assert.doesNotMatch(css,/(?<!max-)(?<!min-)width:\s*\d{3,}px/);
+});
+
+test('a leg from a game after 1:00 PM ET carries the unverified later-game caveat',()=>{
+ const props=fanatics(8).map((p,i)=>i<4?p:{...p,kickoff:'2026-10-11T20:25:00Z'});
+ const {w,host,ctx}=ctxFor(props);w.GoingFanaticsTDUI.render(host,ctx);
+ assert.match(host.textContent,/starts after 1:00 PM ET\. Whether the promotion accepts legs from later games was not verified/);
+});
+test('typed prices and the open panel survive the page timer re-render, and a focused textarea is not rebuilt',()=>{
+ const {w,host,ctx}=ctxFor(fanatics(8).map(p=>({...p,book:'fanduel',bookKey:'fanduel'})));
+ w.GoingFanaticsTDUI.render(host,ctx);
+ const area=host.querySelector('#ftManual');area.value='Player F0 +250';host.querySelector('details.ft-manual').open=true;
+ w.GoingFanaticsTDUI.render(host,ctx);// timer re-render without pressing Apply
+ assert.equal(host.querySelector('#ftManual').value,'Player F0 +250');assert.equal(host.querySelector('details.ft-manual').open,true);
+ const a2=host.querySelector('#ftManual');a2.focus();a2.value='Player F1 +300';const before=host.querySelector('#ftManual');
+ w.GoingFanaticsTDUI.render(host,ctx);assert.equal(host.querySelector('#ftManual'),before,'focused textarea element must be kept');assert.equal(before.value,'Player F1 +300');
+});
+
+test('a fresh typed price beats a stale feed quote for the same player (UI precedence)',()=>{
+ const realNow=Date.now(),day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(realNow+3*3600000));
+ const props=fanatics(8).map(p=>({...p,kickoff:new Date(realNow+3*3600000).toISOString(),updatedAt:new Date(realNow-3*3600000).toISOString()}));// every Fanatics quote is 3 hours old
+ const r=ctxFor(props,{now:realNow,slateDate:day});r.ctx.availability={checkedAt:new Date(realNow).toISOString(),teams:r.ctx.availability.teams};
+ r.w.GoingFanaticsTDUI.render(r.host,r.ctx);assert.equal(r.host.querySelectorAll('.ft-card').length,0);assert.match(r.status.textContent,/price needs refreshing/);
+ r.host.querySelector('#ftManual').value=Array.from({length:8},(_,i)=>`Player F${i} +${300+i*10}`).join('\n');r.host.querySelector('#ftApply').click();
+ assert.ok(r.host.querySelectorAll('.ft-card').length>=1);assert.match(r.host.textContent,/entered by you/);
 });

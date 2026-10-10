@@ -12,7 +12,7 @@
 'use strict';
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const EPS=1e-9;
-const DEFAULT_TERMS={legs:3,minStake:5,minCombinedAmerican:2000,market:'atd',differentGames:true,quoteMaxAgeMinutes:15,manualMaxAgeMinutes:120,optionCount:5,diversify:false,maxPlayerAppearances:null,minimumLegAmerican:null,maxLegProbability:.85};
+const DEFAULT_TERMS={legs:3,minStake:5,minCombinedAmerican:2000,market:'atd',differentGames:true,quoteMaxAgeMinutes:15,manualMaxAgeMinutes:120,optionCount:5,diversify:false,maxPlayerAppearances:null,minimumLegAmerican:null,maxLegProbability:.6,maxPoolLegs:600};
 const decimal=a=>finite(a)&&Math.abs(a)>=100?(a>0?1+a/100:1+100/-a):null;
 const american=d=>!finite(d)||d<=1?null:d>=2?(d-1)*100:-100/(d-1);
 const roundAmerican=a=>a==null?null:Math.round(a);
@@ -62,7 +62,8 @@ function select(input,settings={}){
   if(!old||Date.parse(leg.price.updatedAt)>Date.parse(old.price.updatedAt))byPlayer.set(key,{...leg,decimal:decimal(leg.price.american)});
  }
  // Players excluded by the caller (e.g. user removed a player).
- const drop=new Set(settings.excludedPlayers||[]);const legs=[...byPlayer.values()].filter(l=>{if(drop.has(l.playerId)){reject('Excluded by you');return false;}return true;}).sort((a,b)=>b.probability-a.probability||a.playerId.localeCompare(b.playerId));
+ const drop=new Set(settings.excludedPlayers||[]);let legs=[...byPlayer.values()].filter(l=>{if(drop.has(l.playerId)){reject('Excluded by you');return false;}return true;}).sort((a,b)=>b.probability-a.probability||a.playerId.localeCompare(b.playerId));
+ let truncated=0;if(legs.length>terms.maxPoolLegs){truncated=legs.length-terms.maxPoolLegs;legs=legs.slice(0,terms.maxPoolLegs);}
  const n=legs.length,games=new Set(legs.map(l=>l.event)).size;
  const wanted=terms.diversify?Math.max(terms.optionCount*40,200):terms.optionCount;
  const top=[];let examined=0;
@@ -100,6 +101,7 @@ function select(input,settings={}){
  else if(n<3)reasons.push(`Only ${n} eligible player${n===1?'':'s'}; three are needed.`);
  else if(games<3)reasons.push(`Eligible players come from ${games} game${games===1?'':'s'}; three different games are needed.`);
  if(n>=3&&games>=3&&options.length<terms.optionCount)reasons.push(`Only ${options.length} distinct slip${options.length===1?'':'s'} reach ${fmtAmerican(terms.minCombinedAmerican)} from three different games; fewer than ${terms.optionCount} are shown rather than padding the list.`);
+ if(truncated)reasons.push(`The pool was capped at the ${terms.maxPoolLegs} most likely scorers (${truncated} lower-probability players were not searched).`);
  return {options,eligiblePlayers:n,eligibleGames:games,examinedCombinations:examined,excluded,exposure,terms,reasons,generatedAt:new Date(now).toISOString()};
 }
 

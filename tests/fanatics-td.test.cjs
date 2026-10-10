@@ -42,7 +42,7 @@ test('ranking is by joint probability, then lower payout, deterministically; ind
 test('branch-and-bound search equals brute force on random pools',()=>{
  let seed=7;const rnd=()=>(seed=(seed*1664525+1013904223)%4294967296)/4294967296;
  for(let round=0;round<30;round++){
-  const legs=[];for(let i=0;i<24;i++)legs.push(leg('P'+i,Math.round(150+rnd()*900),.03+rnd()*.6,'g'+Math.floor(rnd()*7)));
+  const legs=[];for(let i=0;i<24;i++)legs.push(leg('P'+i,Math.round(150+rnd()*900),.03+rnd()*.56,'g'+Math.floor(rnd()*7)));
   const r=run(legs),n=legs.length,all=[];
   for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)for(let k=j+1;k<n;k++){
    const a=legs[i],b=legs[j],c=legs[k];if(new Set([a.event,b.event,c.event]).size<3)continue;
@@ -120,4 +120,13 @@ test('the terms file separates verified, user-supplied and unverified rules and 
  for(const t of Object.values(cfg.terms))assert.ok(['verified-secondary','user-supplied','conflicting','unverified'].includes(t.status),t.status);
  assert.ok(!Object.values(cfg.terms).some(t=>t.status==='verified'),'no term may be marked officially verified');
  assert.match(cfg.read_me,/could not be retrieved/);
+});
+
+test('a pool larger than the cap is truncated to the most likely scorers and says so',()=>{
+ const legs=[];for(let i=0;i<650;i++)legs.push(leg('P'+i,300+i%50,.05+(i%50)/100,'g'+(i%9)));
+ const r=run(legs);assert.equal(r.eligiblePlayers,600);assert.match(r.reasons.join(' '),/capped at the 600/);assert.equal(r.options.length,5);
+});
+test('a fresh typed price is used even when a newer-looking but stale feed quote exists (UI precedence is in buildLegs)',()=>{
+ const stale=leg('A',300,.3,'g1',{price:{american:300,source:'feed',book:'fanatics',updatedAt:'2026-10-11T10:00:00Z'}});
+ assert.equal(run([stale,leg('B'),leg('C')]).options.length,0);
 });

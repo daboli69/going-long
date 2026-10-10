@@ -5071,7 +5071,7 @@ async function renderPromo(){
   if(new Date(day+'T12:00:00Z').getUTCDay()!==0)throw Error('Choose a Sunday slate.');
   if(now-PROMO_AUTO.checked>120000){
    if(!PROMO_AUTO.pending)PROMO_AUTO.pending=fetch('/api/promo-availability',{signal:AbortSignal.timeout(45000)}).then(async r=>{const body=await r.json();if(!r.ok)throw Error(body.error||'Automatic availability check unavailable.');PROMO_AUTO.availability=body;PROMO_AUTO.checked=Date.now();}).finally(()=>PROMO_AUTO.pending=null);
-   $('promoOptions').innerHTML='';$('promoStatus').textContent='Checking player availability automatically…';
+   if(!globalThis.GoingFanaticsTDUI)$('promoOptions').innerHTML='';$('promoStatus').textContent='Checking player availability automatically…';
    // Fanatics slips (shared/fanatics-td*.js) still render, with every player unconfirmed, when the roster screen is down.
    try{await PROMO_AUTO.pending;}catch(e){if(!globalThis.GoingFanaticsTDUI)throw e;PROMO_AUTO.error=e.message;PROMO_AUTO.checked=Date.now()-90000;}
    if(BET.tab==='promo')return renderPromo();return;
