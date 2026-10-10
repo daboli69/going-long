@@ -1,12 +1,13 @@
 import {readFile} from 'node:fs/promises';
 import {sendJson} from '../server/vercel-response.mjs';
-const allowed=new Set(['abbeys-board.json','history.json','data.json','nfl_betting.json','ncaa_lines.json','results.json','public_tracker.json','football_context.json','season_learning.json','injury_context.json','football_role_validation.json','football_game_validation.json','savant_context.json','topdown_status.json','players.json','king-endzone.json','slate-breaker.json','formats/index.json','formats/half-12-1.json','formats/half-12-2.json','formats/ppr-10-1.json','formats/ppr-10-2.json','formats/ppr-12-1.json','formats/ppr-12-2.json','formats/ppr-14-1.json','formats/ppr-14-2.json','formats/std-12-1.json']);
+const allowed=new Set(['abbeys-board.json','history.json','data.json','nfl_betting.json','ncaa_lines.json','results.json','public_tracker.json','football_context.json','season_learning.json','injury_context.json','football_role_validation.json','football_game_validation.json','savant_context.json','topdown_status.json','players.json','nfl_roster.json','dfs_team_touchdowns.json','going_score.json','opportunities.json','king-endzone.json','slate-breaker.json','formats/index.json','formats/half-12-1.json','formats/half-12-2.json','formats/ppr-10-1.json','formats/ppr-10-2.json','formats/ppr-12-1.json','formats/ppr-12-2.json','formats/ppr-14-1.json','formats/ppr-14-2.json','formats/std-12-1.json']);
 // Immutable tracker segments and their manifest (see shared/tracker-store.mjs); fixed-format names, never arbitrary paths.
+const CHARTS=/^charts\/[a-z_]+\.json$/;// published chart datasets
 const TRACKER_STORE=/^(public_tracker\/(manifest|segments\/seg-\d{6}(-[0-9a-f]{12})?)|derived\/validation_ledger\/(index|ledger-\d{6}-[0-9a-f]{12}-[0-9a-f]{12}))\.json$/;
 export default async function handler(req,res){
   if(req.method!=='GET')return sendJson(req,res,{error:'Method not allowed'},405);
   const file=new URL(req.url,'https://going-long.vercel.app').searchParams.get('file');
-  if(!allowed.has(file)&&!TRACKER_STORE.test(file||''))return sendJson(req,res,{error:'Unknown snapshot'},400);
+  if(!allowed.has(file)&&!TRACKER_STORE.test(file||'')&&!CHARTS.test(file||''))return sendJson(req,res,{error:'Unknown snapshot'},400);
   try{
     const r=await fetch(`https://raw.githubusercontent.com/daboli69/going-long/main/data/${file}`,{signal:AbortSignal.timeout(10000)});
     if(r.ok){const body=await r.json();res.setHeader('X-Snapshot-Source','nightly');return sendJson(req,res,body,200,120);}

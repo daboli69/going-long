@@ -3,6 +3,7 @@ on:
   schedule:
     - cron: '20 10,22 * * *'
     - cron: '20 8 * * 0'   # Sunday pregame: a second chance to write the write-once freeze before the 9:30 ET kickoffs
+    - cron: '5 12 * * 0'   # Sunday: inactives for the 9:30 ET game are out about 90 minutes before kickoff (12:00Z)
     - cron: '45 15 * * 0'  # Sunday: fresh injury/practice data ahead of the 1:00 ET window
     - cron: '5 19 * * 0'   # Sunday: fresh injury/practice data ahead of the 4:05/4:25 ET window
   workflow_dispatch:

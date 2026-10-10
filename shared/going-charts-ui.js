@@ -8,7 +8,7 @@ const state={chart:'targets',pos:'ALL',team:'ALL',min:3,player:null,host:null,ct
 const COLORS={QB:'#7aa7ff',RB:'#35e0c3',WR:'#e0a43a',TE:'#ff7a90'};
 async function load(name){
  if(state.cache[name]!==undefined)return state.cache[name];
- try{const r=await fetch('/data/charts/'+name+'.json',{cache:'no-cache'});if(!r.ok)throw Error('missing');state.cache[name]=await r.json();}catch{state.cache[name]=null;}
+ try{const r=await fetch('/api/snapshot?file=charts/'+name+'.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('/data/charts/'+name+'.json',{cache:'no-cache'}));if(!r.ok)throw Error('missing');state.cache[name]=await r.json();}catch{state.cache[name]=null;}
  return state.cache[name];
 }
 const link=id=>'/players/?player='+encodeURIComponent(id);

@@ -6,7 +6,7 @@ const S={doc:null,loaded:null,pos:'ALL',team:'ALL',tier:'ALL',q:'',sort:'score',
 const LABEL={opportunity:'Opportunity',team_share:'Team share',efficiency:'Efficiency',availability:'Availability',role:'Role',production:'Production',opp_trend:'Opportunity trend'};
 async function ensure(){
  if(S.loaded)return S.loaded;
- S.loaded=(async()=>{try{const r=await fetch('/data/going_score.json',{cache:'no-cache'});if(!r.ok)throw Error('missing');const doc=await r.json(),m=root.GoingScorePlayer.load(doc);if(!m.ok)throw Error(m.reason);S.doc=m;return m;}catch(e){S.doc=null;return null;}})();
+ S.loaded=(async()=>{try{const r=await fetch('/api/snapshot?file=going_score.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('/data/going_score.json',{cache:'no-cache'}));if(!r.ok)throw Error('missing');const doc=await r.json(),m=root.GoingScorePlayer.load(doc);if(!m.ok)throw Error(m.reason);S.doc=m;return m;}catch(e){S.doc=null;return null;}})();
  return S.loaded;
 }
 const delta=v=>!finite(v)?'':`<span class="gs-delta ${v>0?'up':v<0?'down':''}">${v>0?'▲':v<0?'▼':'—'} ${Math.abs(v).toFixed(1)}</span>`;

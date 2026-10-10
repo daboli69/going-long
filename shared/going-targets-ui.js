@@ -6,8 +6,8 @@ const S={mode:'fantasy',window:'season',cat:'all',pos:'ALL',team:'ALL',limit:12,
 const FCAT={all:'All',buy_low:'Buy low',emerging:'Emerging opportunity',stash:'Waiver / stash',sell_high:'Sell high / avoid',monitor:'Monitor'};
 const FNOTE={buy_low:'Scored below a real opportunity. Descriptive only: such gaps have not predicted future points in our tests.',emerging:'Role is growing and GOING Score supports it.',stash:'Growing role, modest current usage.',sell_high:'Scoring ahead of opportunity or a shrinking role. Not a prediction of a collapse.',monitor:'High opportunity, but a current injury report: check status before acting.'};
 async function load(){
- if(S.ovp===undefined){try{S.ovp=await (await fetch('/data/charts/opportunity_vs_production.json',{cache:'no-cache'})).json();}catch{S.ovp=null;}}
- if(S.score===undefined){try{S.score=await (await fetch('/data/going_score.json',{cache:'no-cache'})).json();}catch{S.score=null;}}
+ if(S.ovp===undefined){try{S.ovp=await (await fetch('/api/snapshot?file=charts/opportunity_vs_production.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('/data/charts/opportunity_vs_production.json',{cache:'no-cache'}))).json();}catch{S.ovp=null;}}
+ if(S.score===undefined){try{S.score=await (await fetch('/api/snapshot?file=going_score.json',{cache:'no-cache'}).then(r=>r.ok?r:fetch('/data/going_score.json',{cache:'no-cache'}))).json();}catch{S.score=null;}}
 }
 const ago=t=>{const ms=Date.now()-Date.parse(t);if(!Number.isFinite(ms))return 'time unknown';const h=Math.round(ms/3600000);return h<1?'under an hour ago':h<48?h+' h ago':Math.round(h/24)+' days ago';};
 const AVCLS={active:'ok',questionable:'warn',dnp:'warn',limited:'warn',doubtful:'bad',out:'bad',reserve:'bad',returning:'warn',unknown:'warn',stale:'bad',inactive_roster:'bad'};

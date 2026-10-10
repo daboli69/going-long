@@ -3395,6 +3395,12 @@ function attachProjection(p, index){
   return p;
 }
 // Props for reserve/suspended/retired/practice-squad players keep their quote row but have no usable model, so no page can rank or recommend them.
+// Data files are served live from GitHub through /api/snapshot (Vercel skips deploys for data-only commits, so static copies go stale); the packaged static file is only a fallback.
+async function liveJson(file){
+  try{const r=await fetch(new URL('api/snapshot?file='+file,document.baseURI),{cache:'no-cache'});if(r.ok)return await r.json();}catch{}
+  try{const r=await fetch(new URL('data/'+file,document.baseURI),{cache:'no-cache'});if(r.ok)return await r.json();}catch{}
+  return null;
+}
 // One eligibility decision for every surface (shared/going-eligibility.js). Built from the injury file and the all-team roster snapshot; stale or missing data fails closed.
 let ELIG_CACHE=null;
 function bettingEligibility(now=Date.now()){
@@ -3469,7 +3475,7 @@ async function propsFromRealData(raw=BET.nflData){
   return result;
 }
 async function loadBettingData(){
-  if(typeof fetch==='function')fetch(new URL('data/nfl_roster.json',document.baseURI)).then(r=>r.ok?r.json():null).then(r=>{BET.fullRoster=r;}).catch(()=>{});
+  if(typeof fetch==='function')liveJson('nfl_roster.json').then(r=>{if(r)BET.fullRoster=r;});
   BET.loading=true; $("btDataNote").textContent="Loading odds and historical projections…";
   try{
     // Fetch and JSON.parse live on a worker, including the large raw API
@@ -3489,7 +3495,7 @@ async function loadBettingData(){
     S.history=files.history; S.pipeline=files.config;
     BET.config=files.config?.betting||{};
     // The eligibility engine needs the all-team roster snapshot (bye teams, injury objects, its own timestamp); players.json is only the Sleeper pool.
-    try{const rr=await fetch(new URL('data/nfl_roster.json',document.baseURI),{cache:'no-cache'});BET.fullRoster=rr.ok?await rr.json():null;}catch{BET.fullRoster=null;}
+    BET.fullRoster=await liveJson('nfl_roster.json');
     BET.props=markUnavailableProps(await propsFromRealData());
     updateEligibilityBanner();
     BET.games=gamesFromRealData();
@@ -4086,8 +4092,8 @@ function renderDfs(){
  if(rootDfsReady())GoingDfsClassicUI.mount($('dfsClassicRoot'),{
   generatedAt:BET.history?.generated_at,injuryAt:BET.injuryContext?.generatedAt,
   buildScenario:async(salaryRows,pool,slateGames)=>{
-   const response=await fetch('/data/dfs_team_touchdowns.json',{cache:'no-cache'});if(!response.ok)throw Error('Current team TD evidence could not load; use Best DFS or retry after reloading.');
-   return GoingDfsTeamEvidence.buildScenario({teamSnapshot:await response.json(),profiles:BET.history?.profiles,context:BET.context,injuryContext:dfsAvailabilityContext(),generatedAt:BET.history?.generated_at,injuries:GoingDfsAvailability,pool,
+   const teamTouchdowns=await liveJson('dfs_team_touchdowns.json');if(!teamTouchdowns)throw Error('Current team TD evidence could not load; use Best DFS or retry after reloading.');
+   return GoingDfsTeamEvidence.buildScenario({teamSnapshot:teamTouchdowns,profiles:BET.history?.profiles,context:BET.context,injuryContext:dfsAvailabilityContext(),generatedAt:BET.history?.generated_at,injuries:GoingDfsAvailability,pool,
     slateGames,
     makeModel:(profile,market,game)=>attachProjection({player:profile.name,team:profile.team,market,kickoff:game.kickoff,eventTeams:[game.team,game.opponent],source:'projection'},buildProfileIndex(BET.history))
    });
@@ -4786,9 +4792,9 @@ function goingPicksCandidates(now=Date.now()){
   for(const side of p.market==='atd'?['Yes']:['Over','Under']){const odds=side==='Under'?p.underOdds:p.overOdds,prob=side==='Under'?probabilities.under:probabilities.over,dec=americanToDecimal(odds),c={...base,side,odds,dec,prob,push:probabilities.push,ev:evPercent(prob,dec,probabilities.push)};c.contract=opportunityIdentity(c);rows.push(c);}
  }
  for(const g of BET.games){
-  if(g.source==='manual'||!upcoming(g.kickoff)||!g.model)continue;const home=g.homeCode||g.home,away=g.awayCode||g.away,m=globalThis.GoingGameMarket?GoingGameMarket.anchor(g,g.model,g.sport):g.model;
+  if(g.source==='manual'||!upcoming(g.kickoff)||!g.model||!activeGameQuote(g))continue;const home=g.homeCode||g.home,away=g.awayCode||g.away,m=globalThis.GoingGameMarket?GoingGameMarket.anchor(g,g.model,g.sport):g.model;
   for(const [market,line,key,mean,sd,sides,odds] of [['spread',g.spread,'spreads',m.margin_mean,m.margin_sd,['Home','Away'],[g.homeSpreadOdds,g.awaySpreadOdds]],['total',g.total,'totals',m.total_mean,m.total_sd,['Over','Under'],[g.overOdds,g.underOdds]],['moneyline',0,'h2h',m.margin_mean,m.margin_sd,['Home','Away'],[g.mlHome,g.mlAway]]]){
-   const probabilities=market==='moneyline'?(globalThis.GoingGameMarket?GoingGameMarket.moneyline(normalMarket(line,mean,sd)):normalMarket(line,mean,sd)):(market==='spread'&&globalThis.GoingGameMarket?GoingGameMarket.spread(normalMarket(-line,mean,sd),m,line):normalMarket(market==='spread'?-line:line,mean,sd));if(!finiteNumber(line)||!probabilities||!odds.some(americanToDecimal))continue;
+   const probabilities=market==='moneyline'?(globalThis.GoingGameMarket?GoingGameMarket.moneyline(normalMarket(line,mean,sd)):normalMarket(line,mean,sd)):(market==='spread'&&globalThis.GoingGameMarket?GoingGameMarket.spread(normalMarket(-line,mean,sd),m,line):normalMarket(market==='spread'?-line:line,mean,sd));if(!finiteNumber(line)||!probabilities||!odds.some(americanToDecimal)||!currentGameMarket(g,key))continue;
    for(let i=0;i<2;i++){const prob=i?probabilities.under:probabilities.over,dec=americanToDecimal(odds[i]),c={kind:'game',sport:g.sport,home,away,player:`${away} @ ${home}`,team:i?away:home,kickoff:g.kickoff,market,line,side:sides[i],odds:odds[i],dec,prob,push:probabilities.push,ev:evPercent(prob,dec,probabilities.push),modelMean:mean,modelSd:sd,n:Math.min(m.home_n,m.away_n),gameSeasonEvidence:m.season_evidence,book:g.book,updatedAt:g.marketTimes?.[key]||g.updatedAt,flags:[]};c.contract=opportunityIdentity(c);rows.push(c);}
   }
  }
