@@ -19,14 +19,13 @@ PRIOR_PER_BIN = .25
 
 
 def reported_out_ids():
-    """gsis ids with a current Out/Doubtful/Inactive game status in data/injury_context.json (the roster status alone is ACT for them). Missing file: empty set."""
-    import json
+    """Everything the shared eligibility rules refuse (scripts/eligibility.py)."""
+    import sys
     from pathlib import Path
-    try:
-        reports = json.loads((Path(__file__).resolve().parents[1] / 'data' / 'injury_context.json').read_text(encoding='utf-8')).get('current_reports', {})
-    except (OSError, ValueError):
-        return set()
-    return {v['gsis_id'] for v in reports.values() if v.get('gsis_id') and str(v.get('report_status') or '').strip().lower().startswith(('out', 'doubtful', 'inactive'))}
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import eligibility
+    return eligibility.confirmed_unavailable()
+
 
 def finite(value):
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)

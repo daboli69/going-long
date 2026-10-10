@@ -12,7 +12,7 @@ const finite=v=>typeof v==='number'&&Number.isFinite(v);
 function load(doc){
  if(!doc||doc.schema!==SCHEMA||typeof doc.players!=='object')return {ok:false,players:[],meta:null,reason:'unsupported or missing going-score-v2 document'};
  const players=Object.entries(doc.players).map(([id,p])=>({id,...p}));
- return {ok:true,players,byId:Object.fromEntries(players.map(p=>[p.id,p])),meta:{methodology_version:doc.methodology_version,as_of:doc.as_of,season:doc.season,week:doc.week,meaning:doc.meaning,counts:doc.counts,weights:doc.weights}};
+ return {ok:true,players,byId:Object.fromEntries(players.map(p=>[p.id,p])),meta:{availability:doc.availability||null,methodology_version:doc.methodology_version,as_of:doc.as_of,season:doc.season,week:doc.week,meaning:doc.meaning,counts:doc.counts,weights:doc.weights}};
 }
 function hasFlag(player,flag){return (player.flags||[]).some(f=>f===flag||f.startsWith(flag+':'));}
 function filter(players,opts={}){

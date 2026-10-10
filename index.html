@@ -536,7 +536,7 @@
   @media(max-width:760px){.best-filter-panel{grid-template-columns:1fr 1fr}.best-filter-panel button{white-space:normal}}
   @media(max-width:600px){.today-summary{grid-template-columns:1fr 1fr}.best-discovery{grid-template-columns:1fr}.best-filter-panel{grid-template-columns:1fr}.best-facts{grid-template-columns:1fr 1fr}.best-section-head{align-items:start;flex-direction:column}.best-section-head span{text-align:left}.best-evidence{grid-template-columns:1fr;gap:2px}.best-evidence dd{margin-bottom:8px}.best-actions>*{flex:1}.first-td-game>summary{align-items:flex-start;flex-direction:column}.research-slip{right:12px;bottom:72px}}
 </style>
-<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/dfs-availability.js"></script><script src="/shared/dfs-upside.js"></script><script src="/shared/dfs-tournament.js"></script><script src="/shared/dfs-journal.js"></script><script src="/shared/dfs-correlations.js"></script><script src="/shared/dfs-sim.js"></script><script src="/shared/dfs-field.js"></script><script src="/shared/dfs-classic-field.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/dfs-threshold.js"></script><script src="/shared/dfs-team-evidence.js"></script><script src="/shared/dfs-classic.js"></script><script src="/shared/dfs-evidence.js"></script><script src="/shared/dfs-classic-ui.js"></script><link rel="stylesheet" href="/shared/dfs-classic.css"><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><script src="/shared/going-intel.js"></script><script src="/shared/game-market.js"></script><script src="/shared/going-score-player.js"></script><script src="/shared/going-score-ui.js"></script><script src="/shared/going-charts.js"></script><script src="/shared/going-targets.js"></script><script src="/shared/going-targets-ui.js"></script><script src="/shared/going-charts-ui.js"></script><link rel="stylesheet" href="/shared/going-charts.css"><script src="/shared/football-picks.js"></script><link rel="stylesheet" href="/shared/football-picks.css"><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script><script defer src="/shared/abbeys-ui.js"></script><link rel="stylesheet" href="/shared/abbeys.css">
+<link rel="stylesheet" href="/shared/going-shell.css"><link rel="stylesheet" href="/shared/football-cheatsheets.css"><script src="/shared/football-opportunity.js"></script><script src="/shared/football-injuries.js"></script><script src="/shared/dfs-availability.js"></script><script src="/shared/dfs-upside.js"></script><script src="/shared/dfs-tournament.js"></script><script src="/shared/dfs-journal.js"></script><script src="/shared/dfs-correlations.js"></script><script src="/shared/dfs-sim.js"></script><script src="/shared/dfs-field.js"></script><script src="/shared/dfs-classic-field.js"></script><script src="/shared/football-dfs.js"></script><script src="/shared/dfs-threshold.js"></script><script src="/shared/dfs-team-evidence.js"></script><script src="/shared/dfs-classic.js"></script><script src="/shared/dfs-evidence.js"></script><script src="/shared/dfs-classic-ui.js"></script><link rel="stylesheet" href="/shared/dfs-classic.css"><script src="/shared/touchdown-promo.js"></script><script defer src="/shared/going-shell.js" data-workspace="long"></script><script src="/shared/football-parlays.js"></script><script src="/shared/slate-breaker.js"></script><script src="/shared/king-endzone.js"></script><script src="/shared/going-score.js"></script><script src="/shared/football-confidence.js"></script><script src="/shared/going-eligibility.js"></script><script src="/shared/going-intel.js"></script><script src="/shared/game-market.js"></script><script src="/shared/going-score-player.js"></script><script src="/shared/going-score-ui.js"></script><script src="/shared/going-charts.js"></script><script src="/shared/going-targets.js"></script><script src="/shared/going-targets-ui.js"></script><script src="/shared/going-charts-ui.js"></script><link rel="stylesheet" href="/shared/going-charts.css"><script src="/shared/football-picks.js"></script><link rel="stylesheet" href="/shared/football-picks.css"><link rel="stylesheet" href="/shared/football-confidence.css"><script defer src="/shared/football-cheatsheets.js"></script><script defer src="/shared/abbeys-ui.js"></script><link rel="stylesheet" href="/shared/abbeys.css">
 <style>
 #parlayControls{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
 #parlayControls label{display:flex;flex-direction:column;gap:6px;min-width:0;font-size:13px}
@@ -3395,12 +3395,24 @@ function attachProjection(p, index){
   return p;
 }
 // Props for reserve/suspended/retired/practice-squad players keep their quote row but have no usable model, so no page can rank or recommend them.
+// One eligibility decision for every surface (shared/going-eligibility.js). Built from the injury file and the all-team roster snapshot; stale or missing data fails closed.
+let ELIG_CACHE=null;
+function bettingEligibility(now=Date.now()){
+  const i=BET.injuryLearning,r=BET.roster,key=[i?.generated_at,r?.generated_at,Math.floor(now/60000)].join('|');
+  if(ELIG_CACHE&&ELIG_CACHE.key===key)return ELIG_CACHE.engine;
+  let week=null;for(const v of Object.values(i?.current_players||{}))if(Number.isFinite(v.roster_week)&&(week==null||v.roster_week>week))week=v.roster_week;
+  const engine=globalThis.GoingEligibility?GoingEligibility.create({injury:i,roster:r,week:week??r?.week,now}):null;
+  ELIG_CACHE={key,engine};return engine;
+}
+// Props for any player the engine will not clear keep their quote row but have no usable model, so no page can rank, recommend or parlay them.
 function markUnavailableProps(list){
-  const learning=BET.injuryLearning,age=Date.parse(learning?.generated_at),stale=!learning||!Number.isFinite(age)||Date.now()-age>48*3600000;
-  const out=globalThis.GoingIntel?GoingIntel.unavailableIds(learning?.current_players):null;
+  const engine=bettingEligibility();
+  if(!engine)return list;
   for(const p of list){
-    if(stale){p.injury={...(p.injury||{}),stale:true,blockRecommendation:true,reason:'The injury and roster file is missing or more than 48 hours old, so availability is not verified; not a recommendation.'};continue;}
-    if(out&&out.size&&p.profileId&&out.has(p.profileId)&&p.model&&p.model.status!=='unavailable')p.model={...p.model,status:'unavailable',unavailable_reason:'Reserve, suspended, retired or practice-squad player'};
+    if(!p.profileId||!p.model||p.model.status==='unavailable')continue;
+    const profile=BET.history?.profiles?.[p.profileId],d=engine.decide(p.profileId,{team:profile?.team,lastGame:profile?.last_game,requireRecentGame:false,hasGame:true});
+    p.eligibility={state:d.state,label:d.label,verified:d.verified};
+    if(!d.actionable)p.model={...p.model,status:'unavailable',unavailable_reason:d.label+': '+d.detail,eligibility_state:d.state};
   }
   return list;
 }
@@ -3467,7 +3479,7 @@ async function loadBettingData(){
     BET.config=files.config?.betting||{};
     BET.props=markUnavailableProps(await propsFromRealData());
     BET.games=gamesFromRealData();
-    const stamp=BET.history?.generated_at,injuryStamp=BET.injuryContext?.generatedAt,injuryNote=BET.injuryContext?.fresh?`Injuries FRESH ${new Date(injuryStamp).toLocaleString()}`:`INJURIES STALE/FAILED — projection adjustments disabled`;
+    const stamp=BET.history?.generated_at,injuryStamp=BET.injuryContext?.generatedAt,el=bettingEligibility(),injuryNote=el&&!el.fresh.ok?`AVAILABILITY DATA STALE OR MISSING (${el.fresh.reason}) — recommendations paused until the next refresh`:BET.injuryContext?.fresh?`Injuries FRESH ${new Date(injuryStamp).toLocaleString()}`:`INJURIES STALE/FAILED — projection adjustments disabled`;
     $("btDataNote").textContent=stamp ? `Model updated ${new Date(stamp).toLocaleString()} · ${BET.history.window}-game baseline · ${injuryNote} · Research estimates; no suggested stake until validated` : "Historical projections unavailable. Manual import is available below.";
     $("btLoadPropsNote").textContent=BET.props.length ? `${BET.props.length} bookmaker quotes loaded automatically.` : "No prop quotes in this snapshot. Refresh live props to request current prices.";
   }catch(e){$("btDataNote").textContent=`Data unavailable: ${e.message}. Reload to retry; manual imports remain available.`;}

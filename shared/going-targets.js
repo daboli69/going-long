@@ -12,40 +12,16 @@ const intel=()=>root.GoingIntel||(typeof require!=='undefined'?require('./going-
 const OUT=new Set(['RES','INA','PUP','IR','SUS','RET','EXE']),OFF=new Set(['CUT','DEV','PRA','PS']);
 const RULES={marketWeight:.15,minGames:3,buyGap:-2.5,buyGapL3:-1,sellGap:3,expTop:60,expMid:25,emergingScore:40,staleDays:21,extremeProb:.85,reviewEv:.25,returnStashWeeks:4};
 
-function indexInjury(injury,week,roster){
- const players={},reports={},bye=new Set(roster?.bye_carry_forward_teams||[]);
- for(const v of Object.values(injury?.current_players||{}))if(v?.gsis_id)players[v.gsis_id]=v;
- for(const v of Object.values(injury?.current_reports||{}))if(v?.gsis_id&&(!finite(week)||!finite(v.week)||v.week>=week))reports[v.gsis_id]=v;
- // The roster snapshot covers every team (bye teams carried forward); the injury file does not. Fill gaps from it, never override.
- for(const v of roster?.players||[])if(v?.id){
-  if(!players[v.id])players[v.id]={gsis_id:v.id,roster_status:v.roster_status,team:v.team,from_roster:true};
-  const inj=v.injury;if(inj&&!reports[v.id]&&(!finite(week)||!finite(inj.week)||inj.week>=week))reports[v.id]={gsis_id:v.id,...inj};
- }
- return {players,reports,bye,asOf:injury?.generated_at||roster?.generated_at||null};
+// Availability is decided by the shared engine (shared/going-eligibility.js) so Targets agree with every other surface. indexInjury() just captures the inputs.
+const elig=()=>root.GoingEligibility||(typeof require!=='undefined'?require('./going-eligibility.js'):null);
+function indexInjury(injury,week,roster){return {injury,roster,week,asOf:injury?.generated_at||roster?.generated_at||null,engines:new Map()};}
+function engineFor(inj,now){
+ const key=Math.floor(now/60000);if(!inj.engines.has(key))inj.engines.set(key,elig().create({injury:inj.injury,roster:inj.roster,week:inj.week,now}));
+ return inj.engines.get(key);
 }
-// Availability for one player. actionable=false means: never a recommendation. caution=true means: show the risk beside it.
 function availability(id,profile,inj,now=Date.now()){
- const entry=inj.players[id],rep=inj.reports[id],asOf=inj.asOf;
- const rs=String(entry?.roster_status||'').toUpperCase();
- if(inj.bye.has(profile?.team||entry?.team))return {state:'bye',actionable:false,caution:false,label:'Team on bye',detail:'This team does not play this week.',asOf};
- if(entry&&!rs)return {state:'unknown',actionable:false,caution:false,label:'Availability unconfirmed',detail:'The roster snapshot has no status for this player; not treated as active.',asOf};
- if(entry&&OUT.has(rs)){
-  const ret=finite(entry.expected_return_week)?entry.expected_return_week:null;
-  const label=rs==='SUS'?'Suspended':rs==='RET'?'Retired':rs==='EXE'?'Exempt list':'Reserve / injured list';
-  const detail=ret!=null?`Expected back around week ${ret} (not a start or bet until active).`:rs==='SUS'?'Suspended; check the reinstatement date. Excluded until active.':rs==='RET'?'Retired; excluded.':rs==='EXE'?'Exempt list; excluded until reinstated.':'Return date not available in our data. A reserve designation is not automatically season-ending (the minimum is four games), so check the team report; excluded until the player is active again.';
-  return {state:ret!=null?'returning':'reserve',actionable:false,caution:false,stashOnly:ret!=null,returnWeek:ret,label,asOf,detail};
- }
- if(entry&&OFF.has(rs))return {state:'inactive_roster',actionable:false,caution:false,label:'Not on the active roster',detail:'Practice squad, development or released.',asOf};
- if(!entry)return {state:'unknown',actionable:false,caution:false,label:'Availability unconfirmed',detail:'Not found in the current roster snapshot; not treated as active.',asOf};
- const t=Date.parse(profile?.last_game);
- if(!finite(t)||now-t>RULES.staleDays*86400000)return {state:'stale',actionable:false,caution:false,label:'No recent game',detail:`No appearance in the last ${RULES.staleDays} days (injury, inactive or role loss); history is not current form.`,asOf};
- const status=String(rep?.report_status||'').toLowerCase(),practice=String(rep?.practice_status||'').toLowerCase();
- if(/^out|^inactive|injured reserve|suspend/.test(status))return {state:'out',actionable:false,caution:false,label:'Ruled out',detail:`Game status: ${rep.report_status}.`,asOf};
- if(/doubtful/.test(status))return {state:'doubtful',actionable:false,caution:true,label:'Doubtful',detail:'Listed doubtful; treat as out unless upgraded.',asOf};
- if(/questionable|game.?time|^gtd/.test(status))return {state:'questionable',actionable:true,caution:true,label:'Questionable',detail:'Game status questionable. Inactives are announced about 90 minutes before kickoff.',asOf};
- if(/did not|^dnp/.test(practice))return {state:'dnp',actionable:true,caution:true,label:'Missed practice',detail:'Did not practice this week; confirm the final report.',asOf};
- if(/limited/.test(practice))return {state:'limited',actionable:true,caution:true,label:'Limited in practice',detail:'Limited participation this week.',asOf};
- return {state:'active',actionable:true,caution:false,label:'Active',detail:'Active on the roster; no current report. Game-day inactives are announced about 90 minutes before kickoff.',asOf};
+ const e=engineFor(inj,now),d=e.decide(id,{team:profile?.team,lastGame:profile?.last_game});
+ return {...d,asOf:d.asOf||inj.asOf};
 }
 
 function percentileMap(rows,key){

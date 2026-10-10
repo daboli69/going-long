@@ -500,7 +500,8 @@ def unavailable_players():
         current = json.loads(path.read_text(encoding='utf-8')).get('current_players', {})
     except (OSError, ValueError):
         return set()
-    return {v['gsis_id'] for v in current.values() if v.get('gsis_id') and str(v.get('roster_status') or '').upper() != 'ACT'}
+    import eligibility
+    return {v['gsis_id'] for v in current.values() if v.get('gsis_id') and str(v.get('roster_status') or '').upper() != 'ACT'} | eligibility.confirmed_unavailable()
 
 
 def first_td_game(game, profiles, features, unavailable=frozenset()):

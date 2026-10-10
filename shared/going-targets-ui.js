@@ -41,6 +41,7 @@ function draw(){
  const head=`<div class="charts-chips" role="group" aria-label="Target type"><button type="button" data-gt-mode="fantasy" aria-pressed="${S.mode==='fantasy'}">Fantasy targets</button><button type="button" data-gt-mode="betting" aria-pressed="${S.mode==='betting'}">Betting targets</button></div>`;
  const filters=`<div class="charts-filters"><label>Position<select data-gt="pos">${(S.mode==='betting'?['ALL','RB','WR','TE']:['ALL','QB','RB','WR','TE']).map(p=>`<option ${p===S.pos?'selected':''}>${p}</option>`).join('')}</select></label><label>Team<select data-gt="team"><option>ALL</option>${teams.map(t=>`<option ${t===S.team?'selected':''}>${esc(t)}</option>`).join('')}</select></label>${S.mode==='fantasy'?`<label>Window<select data-gt="window"><option value="season" ${S.window==='season'?'selected':''}>Season to date</option><option value="l3" ${S.window==='l3'?'selected':''}>Last 3 games</option></select></label><label>Category<select data-gt="cat">${Object.entries(FCAT).map(([k,v])=>`<option value="${k}" ${k===S.cat?'selected':''}>${v}</option>`).join('')}</select></label>`:''}</div>`;
  const stamp=`<p class="bt-note"><b>Availability data:</b> injury and roster snapshot ${esc(ago(inj.generated_at))} (${esc(inj.generated_at||'unknown')}). Players on injured reserve or other reserve lists, suspended, retired, off the roster, not seen in 21+ days, or not found in the roster snapshot are excluded from recommendations. Game-day inactives are announced about 90 minutes before kickoff; re-check then. GOING Score data as of ${esc(S.score?.as_of||'unknown')}.</p>`;
+ const fr=root.GoingEligibility?root.GoingEligibility.freshness(inj,c.roster):null,warn=fr&&!fr.ok?`<p class="bt-note gt-warn"><b>Targets paused:</b> availability data is stale or missing (${esc(fr.reason)}). Nobody is treated as active until the next refresh; players already known to be on injured reserve, suspended or off the roster stay excluded.</p>`:'';
  let body;
  if(S.mode==='fantasy'){
   if(!S.ovp){body='<p class="gc-empty">Opportunity data is not published yet; it is built by the weekly refresh.</p>';}
@@ -63,7 +64,7 @@ function draw(){
   <h4>Research targets without a price <small>(${unpriced.length})</small></h4>${unpriced.length?`<div class="gs-list">${unpriced.slice(0,S.limit).map(bcard).join('')}</div>`:'<p class="gc-empty">None.</p>'}
   <details class="gt-un"><summary>Excluded for availability (${r.excluded.length})</summary>${r.excluded.slice(0,40).map(x=>`<p>${esc(x.name)} ${esc(x.pos)} · ${esc(x.team)}, ${esc(T.MARKET_LABEL[x.market])}: ${esc(x.reason)}. ${esc(x.detail)}</p>`).join('')||'<p>None.</p>'}</details>`;
  }
- host.innerHTML=head+filters+stamp+body+`<p class="bt-note">Showing up to ${S.limit} per list. <button type="button" data-gt-more>Show more</button></p>`;
+ host.innerHTML=head+filters+warn+stamp+body+`<p class="bt-note">Showing up to ${S.limit} per list. <button type="button" data-gt-more>Show more</button></p>`;
 }
 async function render(host,ctx){
  if(!host)return;S.host=host;S.ctx=ctx||{};

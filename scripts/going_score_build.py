@@ -29,6 +29,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import eligibility  # noqa: E402
+
 REPO = Path(__file__).resolve().parents[1]
 SCHEMA = 'going-score-v2'
 POSITIONS = ('QB', 'RB', 'WR', 'TE')
@@ -400,12 +403,8 @@ def history_crosscheck(history, links, table):
 
 
 def unavailable_ids():
-    """gsis ids whose roster_status in data/injury_context.json is not ACT (RES/INA/PUP/IR/SUS/RET/EXE/CUT/DEV). Missing file: nothing excluded, and the caller's output says so via counts."""
-    try:
-        cur = json.loads((REPO / 'data' / 'injury_context.json').read_text(encoding='utf-8')).get('current_players', {})
-    except (OSError, ValueError):
-        return set()
-    return {v['gsis_id'] for v in cur.values() if v.get('gsis_id') and str(v.get('roster_status') or '').upper() not in ('ACT', '')}
+    """Confirmed-unavailable gsis ids (scripts/eligibility.py, the mirror of shared/going-eligibility.js)."""
+    return eligibility.confirmed_unavailable()
 
 
 def build_output(table, panel, config, cfg_sha, roster, history, players_csv, as_of, current_key, history_keys, provenance, sleeper=None):
@@ -496,7 +495,7 @@ def build_output(table, panel, config, cfg_sha, roster, history, players_csv, as
         'score_definition': 'score = percentile (0-100) of the weighted component z-score among eligible players at the same position; absolute = the same z-score mapped to 0-100 with frozen development anchors',
         'tiers': [{'id': i, 'label': l, 'min_percentile': f} for f, i, l in TIERS], 'eligibility': {'min_prior_games': config['params']['min_games'], 'max_team_games_since_last_appearance': config['params']['max_stale_team_games']},
         'weights': {pos: {n: round(config['positions'][pos]['components'][n]['weight'], 4) for n in SCORED} for pos in POSITIONS if pos in config['positions']},
-        'provenance': provenance, 'config_sha256': cfg_sha, 'counts': {pos: int((now.position == pos).sum()) for pos in POSITIONS},
+        'availability': eligibility.freshness(), 'provenance': provenance, 'config_sha256': cfg_sha, 'counts': {pos: int((now.position == pos).sum()) for pos in POSITIONS},
         'players': players, 'risers': risers, 'fallers': fallers,
     }
 
