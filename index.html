@@ -886,8 +886,8 @@
       <h2>Fanatics Sunday TD options</h2><p>Ohio · exactly 3 anytime-touchdown scorers · $5 minimum · +2000 minimum per slip. These settings were supplied by you; the full offer terms and entry limit are not verified.</p>
       <p>Five alternatives, ranked by estimated chance of all three scoring. Different games only in this first view. The estimate assumes those games behave independently; it is not a proven hit rate. The shared prize has no estimated dollar value here.</p>
       <label>Sunday slate <input type="date" id="promoDate"></label>
-      <details><summary>Offer settings and unresolved rules</summary><label>Minimum combined American odds <input type="number" id="promoFloor" value="2000" min="100"></label><label>Minimum individual-leg American odds (if required) <input type="number" id="promoLegFloor" placeholder="Not verified"></label><p>Entry count, excluded games/players, opt-in requirements, and submission deadline still need checking in your offer. Options are not labeled promo-qualified. Same-game tickets need Fanatics’s actual combined price and a separately supported joint estimate.</p></details>
-      <p>Options update automatically from fresh Fanatics prices and Going Long touchdown estimates. Players must appear on the current active roster without an injury designation. This is an early research screen, not official game-day clearance; the scanner checks official inactive reports separately.</p>
+      <details><summary>Offer settings and unresolved rules</summary><label>Minimum combined American odds <input type="number" id="promoFloor" value="2000" min="2000"></label><label>Minimum individual-leg American odds (if required) <input type="number" id="promoLegFloor" placeholder="Not verified"></label><p>Entry count, excluded games/players, opt-in requirements, and submission deadline still need checking in your offer. Options are not labeled promo-qualified. Same-game tickets need Fanatics’s actual combined price and a separately supported joint estimate.</p></details>
+      <p>Options update automatically from fresh Fanatics prices and Going Long touchdown estimates. Players must appear on the current active roster without an injury designation. This is an early research screen, not official game-day clearance; confirm official inactive reports separately.</p>
       <p id="promoStatus" role="status">Checking Fanatics prices and player availability automatically…</p><div id="promoOptions" class="sig-grid"></div>
     </section>
     <section id="btFirstTdPanel" hidden aria-label="First touchdown scorer predictor"><h2>First TD Predictor</h2><p>Players ranked within each upcoming game by the existing first-touchdown model. It weighs early possessions and scoring-area opportunities across both teams, including other scorers and no touchdown. Prior-season data can support the estimate; current roles and availability may differ. These estimates are not validated results.</p><div id="firstTdPredictions" class="sig-grid"></div></section>
@@ -5076,6 +5076,13 @@ function wireSignals(){
 }
 
 const PROMO_AUTO={availability:null,checked:0,pending:null,timer:null};
+function promoAvailabilityClock(value){
+ if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value))return NaN;
+ const y=+value.slice(0,4),m=+value.slice(5,7),d=+value.slice(8,10),leap=y%4===0&&(y%100!==0||y%400===0),days=[31,leap?29:28,31,30,31,30,31,31,30,31,30,31];
+ if(y<1||m<1||m>12||d<1||d>days[m-1]||+value.slice(11,13)>23||+value.slice(14,16)>59||+value.slice(17,19)>59)return NaN;
+ const off=value.match(/[+-](\d{2}):(\d{2})$/);if(off&&(+off[1]>23||+off[2]>59))return NaN;
+ return Date.parse(value);
+}
 async function renderPromo(){
  if(globalThis.GoingSlateBreaker)GoingSlateBreaker.render({profiles:BET.history?.profiles});
  if(globalThis.GoingKingEndzone)GoingKingEndzone.render({profiles:BET.history?.profiles});
@@ -5092,15 +5099,15 @@ async function renderPromo(){
    try{await PROMO_AUTO.pending;}catch(e){if(!globalThis.GoingFanaticsTDUI)throw e;PROMO_AUTO.error=e.message;PROMO_AUTO.checked=Date.now()-90000;}
    if(BET.tab==='promo')return renderPromo();return;
   }
-  const info=PROMO_AUTO.availability;
+  const info=PROMO_AUTO.availability,availabilityAt=promoAvailabilityClock(info?.checkedAt),availabilityFresh=Number.isFinite(availabilityAt)&&now>=availabilityAt&&now-availabilityAt<=600000;
   if(globalThis.GoingFanaticsTDUI){
    const legFloor=$('promoLegFloor').value;
-   GoingFanaticsTDUI.render($('promoOptions'),{now,slateDate:day,props:BET.props,currentWeekProp,probability:p=>propProbabilities(p)?.over,availability:info&&now-Date.parse(info.checkedAt)<=600000?info:null,
+   GoingFanaticsTDUI.render($('promoOptions'),{now,slateDate:day,props:BET.props,currentWeekProp,probability:p=>propProbabilities(p)?.over,availability:availabilityFresh?info:null,
     eligibility:(id)=>{const e=typeof bettingEligibility==='function'?bettingEligibility():null;if(!e)return null;const pr=BET.history?.profiles?.[id];return e.decide(id,{team:pr?.team,lastGame:pr?.last_game,requireRecentGame:false,hasGame:true});},
-    profiles:BET.history?.profiles,resolveTeam:t=>resolveTeamName(t,'nfl'),statusEl:$('promoStatus'),termsOverride:{minCombinedAmerican:Number($('promoFloor').value),minimumLegAmerican:legFloor?Number(legFloor):null},onChange:()=>renderPromo()});
+    profiles:BET.history?.profiles,schedule:BET.history?.games?.nfl,resolveTeam:t=>resolveTeamName(t,'nfl'),statusEl:$('promoStatus'),termsOverride:{minCombinedAmerican:Number($('promoFloor').value),minimumLegAmerican:legFloor?Number(legFloor):null},onChange:()=>renderPromo()});
    return;
   }
-  if(!info||now-Date.parse(info.checkedAt)>10*60000)throw Error('Waiting for fresh automatic roster checks. The app will retry.');
+  if(!availabilityFresh)throw Error('Waiting for fresh automatic roster checks. The app will retry.');
   const key=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
   const rows=BET.props.filter(p=>p.market==='atd'&&String(p.bookKey||p.book).toLowerCase()==='fanatics'&&currentWeekProp(p)&&!quoteState(p)).map(p=>{
    const teams=info.teams.filter(t=>key(t.team)===key(p.team)||resolveTeamName(t.team,'nfl')===resolveTeamName(p.team,'nfl'));

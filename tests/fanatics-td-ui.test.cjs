@@ -5,13 +5,13 @@ const NOW=Date.parse('2026-10-11T12:00:00Z'),KICK='2026-10-11T17:00:00Z',FRESH='
 function load(){
  const dom=new JSDOM('<!doctype html><body><p id="status"></p><div id="host"></div></body>',{runScripts:'outside-only',url:'https://going-long.test/'});
  for(const f of ['fanatics-td-terms.js','fanatics-td.js','fanatics-td-ui.js'])dom.window.eval(fs.readFileSync(path.join(root,'shared',f),'utf8'));
- return dom;
+ dom.window.Date.now=()=>NOW;return dom;
 }
 // players: id -> {team, opp, game}
 const GAMES=[['AAA','BBB'],['CCC','DDD'],['EEE','FFF'],['GGG','HHH']];
 function prop(id,{book='fanatics',odds=300,game=0,home=true,updatedAt=FRESH,market='atd',line=.5,kickoff=KICK,name}={}){
  const [h,a]=GAMES[game];
- return {player:name||'Player '+id,profileId:id,team:home?h:a,opp:home?a:h,market,line,book,bookKey:book,overOdds:odds,updatedAt,kickoff,eventTeams:[h,a],homeName:h,awayName:a,model:{}};
+ return {player:name||'Player '+id,profileId:id,team:home?h:a,opp:home?a:h,market,line,book,bookKey:book,source:'parlay',overOdds:odds,updatedAt,kickoff,eventTeams:[h,a],homeName:h,awayName:a,model:{}};
 }
 function ctxFor(props,over={}){
  const dom=load(),w=dom.window;
@@ -76,7 +76,7 @@ test('entering Fanatics prices builds slips when the feed has none, and labels t
  let changed=0;const ctx2={...ctx,onChange:()=>{changed++;w.GoingFanaticsTDUI.render(host,{...ctx,now:NOW});}};
  w.GoingFanaticsTDUI.render(host,ctx2);host.querySelector('#ftManual').value=Array.from({length:8},(_,i)=>`Player F${i} +${300+i*10}`).join('\n');
  // the UI stamps manual entries with the real clock; use a clock close to it for the rebuild
- const realNow=Date.now(),props2=props.map(p=>({...p,kickoff:new Date(realNow+3*3600000).toISOString(),updatedAt:new Date(realNow-60000).toISOString()}));
+ const realNow=NOW,props2=props.map(p=>({...p,kickoff:new Date(realNow+3*3600000).toISOString(),updatedAt:new Date(realNow-60000).toISOString()}));
  const live=ctxFor(props2,{now:realNow,slateDate:new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(realNow+3*3600000))});
  live.ctx.availability={checkedAt:new Date(realNow).toISOString(),teams:live.ctx.availability.teams};
  live.w.GoingFanaticsTDUI.render(live.host,live.ctx);
@@ -87,7 +87,7 @@ test('entering Fanatics prices builds slips when the feed has none, and labels t
  live.host.querySelector('#ftClear').click();assert.equal(live.host.querySelectorAll('.ft-card').length,0);
 });
 test('manual lines that cannot be matched are reported, not guessed',()=>{
- const realNow=Date.now(),props=fanatics(4).map(p=>({...p,book:'fanduel',bookKey:'fanduel',kickoff:new Date(realNow+3*3600000).toISOString(),updatedAt:new Date(realNow-60000).toISOString()}));
+ const realNow=NOW,props=fanatics(4).map(p=>({...p,book:'fanduel',bookKey:'fanduel',kickoff:new Date(realNow+3*3600000).toISOString(),updatedAt:new Date(realNow-60000).toISOString()}));
  const day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(realNow+3*3600000));
  const r=ctxFor(props,{now:realNow,slateDate:day});r.w.GoingFanaticsTDUI.render(r.host,r.ctx);
  r.host.querySelector('#ftManual').value='Nobody Real +500\nPlayer F0 +10';r.host.querySelector('#ftApply').click();
@@ -134,10 +134,64 @@ test('typed prices and the open panel survive the page timer re-render, and a fo
 });
 
 test('a fresh typed price beats a stale feed quote for the same player (UI precedence)',()=>{
- const realNow=Date.now(),day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(realNow+3*3600000));
+ const realNow=NOW,day=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(realNow+3*3600000));
  const props=fanatics(8).map(p=>({...p,kickoff:new Date(realNow+3*3600000).toISOString(),updatedAt:new Date(realNow-3*3600000).toISOString()}));// every Fanatics quote is 3 hours old
  const r=ctxFor(props,{now:realNow,slateDate:day});r.ctx.availability={checkedAt:new Date(realNow).toISOString(),teams:r.ctx.availability.teams};
  r.w.GoingFanaticsTDUI.render(r.host,r.ctx);assert.equal(r.host.querySelectorAll('.ft-card').length,0);assert.match(r.status.textContent,/price needs refreshing/);
  r.host.querySelector('#ftManual').value=Array.from({length:8},(_,i)=>`Player F${i} +${300+i*10}`).join('\n');r.host.querySelector('#ftApply').click();
  assert.ok(r.host.querySelectorAll('.ft-card').length>=1);assert.match(r.host.textContent,/entered by you/);
+});
+
+test('focused editor retains text and focus while invalidated cards are removed',()=>{
+ const r=ctxFor(fanatics(4));r.w.GoingFanaticsTDUI.render(r.host,r.ctx);assert.equal(r.host.querySelectorAll('.ft-card').length,4);
+ const area=r.host.querySelector('#ftManual');area.focus();area.value='Player F0 +250';area.setSelectionRange(4,8);
+ r.w.GoingFanaticsTDUI.render(r.host,{...r.ctx,availability:null,eligibility:()=>({actionable:false})});
+ assert.equal(r.host.querySelector('#ftManual'),area);assert.equal(r.w.document.activeElement,area);assert.equal(area.value,'Player F0 +250');assert.equal(area.selectionStart,4);
+ assert.equal(r.host.querySelectorAll('.ft-card').length,0);assert.notEqual(r.status.dataset.level,'ok');
+ r.w.GoingFanaticsTDUI.render(r.host,{...r.ctx,now:NOW+3*3600000});assert.equal(r.host.querySelectorAll('.ft-card').length,0);
+});
+test('feed prices cannot borrow another game contract and equivalent clocks mean the same game',()=>{
+ const r=ctxFor([prop('A'),prop('A',{book:'fanduel',game:1,updatedAt:'2026-10-11T11:59:00Z'}),prop('B',{game:2}),prop('C',{game:3})]);
+ const built=r.w.GoingFanaticsTDUI.buildLegs(r.ctx);assert.ok(!built.legs.some(l=>l.playerId==='A'));assert.ok(!built.pool.some(l=>l.playerId==='A'));
+ const two=ctxFor([prop('A'),prop('B',{kickoff:'2026-10-11T13:00:00-04:00'}),prop('C',{game:1})]);
+ two.w.GoingFanaticsTDUI.render(two.host,two.ctx);assert.equal(two.host.querySelectorAll('.ft-card').length,0);
+});
+test('future and malformed availability clocks fail closed; fresh rows replace missing clocks',()=>{
+ for(const at of ['2027-01-01T00:00:00Z','2026-10-11T11:59:00','2026-10-11T11:59:00+00:60','2026-02-30T11:59:00Z']){const r=ctxFor(fanatics(4));r.ctx.availability.checkedAt=at;r.w.GoingFanaticsTDUI.render(r.host,r.ctx);assert.equal(r.host.querySelectorAll('.ft-card').length,0,at);}
+ const props=[prop('A',{updatedAt:undefined}),prop('A',{updatedAt:FRESH})];props[0].updatedAt=undefined;
+ const r=ctxFor(props),built=r.w.GoingFanaticsTDUI.buildLegs(r.ctx);assert.equal(built.legs[0].price.updatedAt,FRESH);
+});
+test('manual prices persist for exactly120minutes but never migrate to another game',()=>{
+ const r=ctxFor([prop('A',{book:'fanduel'})]),UI=r.w.GoingFanaticsTDUI,F=r.w.GoingFanaticsTD;
+ const pool=UI.buildLegs(r.ctx).pool,entries=F.parseManualPrices('Player A +1000',pool,NOW).entries;
+ assert.equal(entries.length,1);UI.saveManual(entries);assert.equal(UI.loadManual(NOW+120*60000,120).length,1);assert.equal(UI.loadManual(NOW+120*60000+1,120).length,0);
+ UI.saveManual(entries);const next={...r.ctx,props:[prop('A',{book:'fanduel',game:1})]};assert.equal(UI.buildLegs(next,UI.loadManual(NOW,120)).legs[0].price,null);
+ UI.saveManual([{...entries[0],enteredAt:'2026-10-11T12:00:00.001Z'}]);assert.equal(UI.loadManual(NOW,120).length,0);
+});
+test('canonical team resolver unifies book aliases and non-Sunday slates show no slips',()=>{
+ const props=[prop('A'),prop('B'),prop('C',{game:1})];props[1].eventTeams=['Alias AAA','Alias BBB'];
+ const r=ctxFor(props,{resolveTeam:t=>t.replace('Alias ', '')});r.w.GoingFanaticsTDUI.render(r.host,r.ctx);assert.equal(r.host.querySelectorAll('.ft-card').length,0);
+ const non=ctxFor(fanatics(4).map(p=>({...p,kickoff:'2026-10-12T17:00:00Z'})),{slateDate:'2026-10-12'});non.w.GoingFanaticsTDUI.render(non.host,non.ctx);assert.equal(non.host.querySelectorAll('.ft-card').length,0);
+});
+test('feed prices require a known feed source and a player team belonging to the game',()=>{
+ for(const change of [p=>delete p.source,p=>p.source='manual',p=>p.manual=true,p=>p.team='WRONG']){const props=fanatics(3);change(props[0]);const r=ctxFor(props);r.w.GoingFanaticsTDUI.render(r.host,r.ctx);assert.equal(r.host.querySelectorAll('.ft-card').length,0);}
+ const r=ctxFor(fanatics(3),{profiles:{F0:{team:'WRONG'}}});r.w.GoingFanaticsTDUI.render(r.host,r.ctx);assert.equal(r.host.querySelectorAll('.ft-card').length,0);
+});
+test('NFL abbreviations resolve idempotently across roster and event aliases',()=>{
+ for(const [code,alias] of [['LA','LAR'],['JAX','JAC'],['WAS','WSH']]){
+  const props=[prop('A'),prop('B'),prop('C',{game:1})];props[0]={...props[0],team:alias,eventTeams:[code,'BBB']};props[1]={...props[1],team:code,eventTeams:[alias,'BBB']};
+  const r=ctxFor(props,{resolveTeam:t=>t===alias?null:t,profiles:{A:{team:code},B:{team:alias}}});
+  const built=r.w.GoingFanaticsTDUI.buildLegs(r.ctx);assert.equal(built.stats.conflicts,0,alias);assert.equal(built.legs[0].event,built.legs[1].event,alias);
+ }
+});
+test('unique authoritative schedule reconciles one-minute bookmaker jitter and blocks started games',()=>{
+ const props=[prop('A'),prop('A',{book:'fanduel',kickoff:'2026-10-11T17:01:00Z'}),prop('B',{kickoff:'2026-10-11T17:01:00Z'}),prop('C',{game:1})];
+ const schedule=[{home:'AAA',away:'BBB',kickoff:KICK},{home:'CCC',away:'DDD',kickoff:KICK}];
+ const r=ctxFor(props,{schedule}),UI=r.w.GoingFanaticsTDUI;let b=UI.buildLegs(r.ctx);
+ assert.equal(b.stats.conflicts,0);assert.equal(b.legs[0].event,b.legs[1].event);assert.equal(Date.parse(b.legs[1].kickoff),Date.parse(KICK));
+ UI.render(r.host,r.ctx);assert.equal(r.host.querySelectorAll('.ft-card').length,0,'two real games cannot form three-game slip');
+ const three=ctxFor(fanatics(3).map(p=>({...p,kickoff:'2026-10-11T17:01:00Z',updatedAt:'2026-10-11T17:00:00Z'})),{now:Date.parse(KICK)+30000,schedule:[...schedule,{home:'EEE',away:'FFF',kickoff:KICK}]});three.ctx.availability.checkedAt=KICK;
+ three.w.GoingFanaticsTDUI.render(three.host,three.ctx);assert.equal(three.host.querySelectorAll('.ft-card').length,0,'actual kickoff has passed');
+ for(const kickoff of ['2026-10-11T17:01:00.001Z','2026-10-11T20:25:00Z']){b=UI.buildLegs({...r.ctx,props:[prop('A',{kickoff})]});assert.equal(b.stats.conflicts,1,kickoff);assert.equal(b.legs.length,0);}
+ b=UI.buildLegs({...r.ctx,schedule:[...schedule,schedule[0]]});assert.ok(b.stats.conflicts>0,'ambiguous schedule fails closed');
 });

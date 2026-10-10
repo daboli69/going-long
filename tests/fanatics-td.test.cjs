@@ -1,9 +1,21 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const F=require('../shared/fanatics-td.js');
 const NOW=Date.parse('2026-10-11T12:00:00Z'),KICK='2026-10-11T17:00:00Z',FRESH='2026-10-11T11:55:00Z';
-const leg=(id,american=300,p=.3,event='g'+id,over={})=>({playerId:id,player:'Player '+id,team:'T'+id,opp:'O'+id,event,gameLabel:event,kickoff:KICK,probability:p,availability:'active',
- eligibility:{actionable:true,state:'active',label:'Active'},price:{american,source:'feed',book:'fanatics',updatedAt:FRESH},...over});
+const leg=(id,american=300,p=.3,event='g'+id,over={})=>{
+ const value={playerId:id,player:'Player '+id,team:'T'+id,opp:'O'+id,eventTeams:['T'+event,'O'+event],gameLabel:event,kickoff:KICK,probability:p,availability:'active',eligibility:{actionable:true,state:'active',label:'Active'},price:{american,source:'feed',book:'fanatics',updatedAt:FRESH},...over};
+ value.event=F.gameIdentity(value);if(value.price)value.price={...value.price,contract:F.contract(id,value.event)};return value;
+};
 const run=(legs,terms={},more={})=>F.select(legs,{now:NOW,terms,...more});
+
+test('malformed extreme feed prices cannot produce infinite or unserializable slips',()=>{
+ assert.equal(run([leg('A',Number.MAX_VALUE),leg('B',Number.MAX_VALUE),leg('C',Number.MAX_VALUE)]).options.length,0);
+ assert.equal(run([leg('A',1e308),leg('B',100),leg('C',100)]).options.length,0);
+});
+test('offer controls cannot weaken the +2000 floor or show more than five alternatives',()=>{
+ for(const floor of [100,1999,-200])assert.throws(()=>F.validateTerms({minCombinedAmerican:floor}),/2000 or longer/);
+ assert.equal(F.validateTerms({minCombinedAmerican:2500}).minCombinedAmerican,2500);
+ assert.equal(run(Array.from({length:8},(_,i)=>leg(String(i))),{optionCount:20}).options.length,5);
+});
 
 test('American to decimal and back are exact',()=>{
  assert.equal(F.decimal(2000),21);assert.equal(F.decimal(-200),1.5);assert.equal(F.decimal(100),2);assert.equal(F.decimal(-100),2);
@@ -28,7 +40,7 @@ test('exactly three distinct players from three different games',()=>{
  assert.equal(sameGame.options.length,0);assert.match(sameGame.reasons.join(' '),/2 games/);
 });
 test('the same player listed twice is collapsed to the freshest price and cannot appear twice',()=>{
- const older=leg('A',300,.3,'g1',{price:{american:900,source:'feed',book:'fanatics',updatedAt:'2026-10-11T11:50:00Z'}});
+ const older=leg('A',300,.3,'gA',{price:{american:900,source:'feed',book:'fanatics',updatedAt:'2026-10-11T11:50:00Z'}});
  const r=run([older,leg('A',300),leg('B'),leg('C')]);
  assert.equal(r.eligiblePlayers,3);assert.equal(r.options.length,1);assert.equal(r.options[0].legs.find(l=>l.playerId==='A').price.american,300);
 });
@@ -86,16 +98,17 @@ test('started games, invalid model inputs and extreme estimates are excluded',()
  assert.equal(run([leg('A',300,.3,'g',{kickoff:'2026-10-11T11:00:00Z'}),...base]).excluded['Game started or time unavailable'],1);
  assert.equal(run([leg('A',300,.3,'g',{kickoff:'garbage'}),...base]).options.length,0);
  for(const p of [0,1,-.1,1.2,NaN,null,'0.3'])assert.equal(run([leg('A',300,p),...base]).options.length,0,String(p));
- assert.equal(run([leg('A',300,.9),...base]).excluded['Model estimate above the reliability ceiling'],1);
+ assert.equal(run([leg('A',300,.9),...base]).options.length,1);
+ assert.equal(run([leg('A',300,.9),...base],{maxLegProbability:.6}).excluded['Above configured probability cap'],1);
  assert.equal(run([{...leg('A'),playerId:null},...base]).excluded['Missing player or game identity'],1);
  assert.equal(run([null,undefined,...base]).options.length,0);
 });
 test('terms are validated; individual-leg minimum and excluded players are honoured',()=>{
- assert.throws(()=>F.validateTerms({legs:4}),/exactly three/);assert.throws(()=>F.validateTerms({minCombinedAmerican:50}),/valid American/);assert.throws(()=>F.validateTerms({minimumLegAmerican:10}),/Individual/);
+ assert.throws(()=>F.validateTerms({legs:4}),/exactly three/);assert.throws(()=>F.validateTerms({minCombinedAmerican:50}),/2000 or longer/);assert.throws(()=>F.validateTerms({minimumLegAmerican:10}),/Individual/);
  assert.throws(()=>F.validateTerms({quoteMaxAgeMinutes:0}),/age limits/);
  const r=run([leg('A',200),leg('B',300),leg('C',400)],{minimumLegAmerican:250});assert.equal(r.options.length,0);assert.equal(r.excluded['Below individual-leg minimum'],1);
  const x=run([leg('A'),leg('B'),leg('C')],{},{excludedPlayers:['A']});assert.equal(x.options.length,0);assert.equal(x.excluded['Excluded by you'],1);
- assert.equal(F.validateTerms({optionCount:99}).optionCount,20);
+ assert.equal(F.validateTerms({optionCount:99}).optionCount,5);
 });
 test('combined odds shown are the product of the three prices, with the combined American derived from it',()=>{
  const r=run([leg('A',250),leg('B',300),leg('C',400)]);const o=r.options[0];
@@ -109,6 +122,7 @@ test('optional diversification caps how often one player repeats, but is off by 
 });
 test('manual Fanatics price entry matches players exactly and reports anything it cannot read',()=>{
  const pool=[{playerId:'1',player:'Josh Allen'},{playerId:'2',player:'Josh Allen'},{playerId:'3',player:'Amon-Ra St. Brown'},{playerId:'4',player:'José Ramírez'}];
+ for(const p of pool)p.contract=F.contract(p.playerId,'game');
  const r=F.parseManualPrices('Amon-Ra St. Brown +120\nJose Ramirez, -150\nJosh Allen +300\nNobody Here +500\nbad line\nAmon-Ra St. Brown +10',pool,NOW);
  assert.deepEqual(r.entries.map(e=>[e.playerId,e.american]),[['3',120],['4',-150]]);
  assert.equal(r.errors.length,4);assert.match(r.errors.join(' '),/more than one player/);assert.match(r.errors.join(' '),/does not match/);assert.match(r.errors.join(' '),/Could not read/);assert.match(r.errors.join(' '),/invalid American/);
@@ -129,4 +143,28 @@ test('a pool larger than the cap is truncated to the most likely scorers and say
 test('a fresh typed price is used even when a newer-looking but stale feed quote exists (UI precedence is in buildLegs)',()=>{
  const stale=leg('A',300,.3,'g1',{price:{american:300,source:'feed',book:'fanatics',updatedAt:'2026-10-11T10:00:00Z'}});
  assert.equal(run([stale,leg('B'),leg('C')]).options.length,0);
+});
+
+test('strict clocks reject malformed dates, offsets, naive and future prices',()=>{
+ for(const t of ['2026-02-30T12:00:00Z','2026-10-11T24:00:00Z','2026-10-11T11:59:00+00:60','2026-10-11T11:59:00+24:00','2026-10-11T11:59:00','bad'])assert.equal(F.timestampMs(t),null,t);
+ for(const t of ['2026-10-11T12:00:00.001Z','2026-10-11T11:59:00','2026-10-11T11:59:00+00:60']){const a=leg('A');a.price.updatedAt=t;assert.equal(run([a,leg('B'),leg('C')]).options.length,0,t);}
+ assert.equal(F.timestampMs('2026-10-11T13:00:00-04:00'),F.timestampMs(KICK));
+});
+test('canonical game identity rejects duplicate games, mixed Sundays and wrong selected date',()=>{
+ const a=leg('A',300,.3,'same'),b=leg('B',300,.3,'same',{kickoff:'2026-10-11T13:00:00-04:00'});
+ assert.equal(run([a,b,leg('C')]).options.length,0);
+ assert.equal(run([leg('A'),leg('B'),leg('C',300,.3,'gC',{kickoff:'2026-10-18T17:00:00Z'})]).options.length,0);
+ assert.equal(run([leg('A'),leg('B'),leg('C')],{},{slateDate:'2026-10-18'}).options.length,0);
+ assert.equal(run([leg('A'),leg('B'),leg('C',300,.3,'gC',{kickoff:'2026-10-12T17:00:00Z'})]).options.length,0);
+});
+test('prices require explicit Fanatics source and matching player-game contract',()=>{
+ for(const mutate of [a=>delete a.price.book,a=>delete a.price.source,a=>a.price.source='unknown',a=>delete a.price.contract,a=>a.price.contract=leg('OTHER').price.contract]){const a=leg('A');mutate(a);assert.equal(run([a,leg('B'),leg('C')]).options.length,0);}
+ assert.equal(run([leg('A'),leg('A',300,.3,'other'),leg('B'),leg('C')]).options.length,0);
+});
+test('a below-floor price never qualifies inside an epsilon and caps are explicit only',()=>{
+ const a=leg('A',200),b=leg('B',200),c=leg('C',133.333333330);
+ assert.ok(F.decimal(a.price.american)*F.decimal(b.price.american)*F.decimal(c.price.american)<21);
+ assert.equal(run([a,b,c]).options.length,0);
+ assert.equal(F.DEFAULT_TERMS.maxLegProbability,null);
+ assert.equal(run([leg('A',300,.9),leg('B'),leg('C')]).options.length,1);
 });

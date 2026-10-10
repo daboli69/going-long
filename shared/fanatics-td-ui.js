@@ -19,7 +19,7 @@ let memory=[];
 function loadManual(now,maxMinutes){
  let list=memory;
  try{const raw=root.localStorage?.getItem(STORE_KEY);if(raw)list=JSON.parse(raw);}catch{}
- memory=(Array.isArray(list)?list:[]).filter(e=>e&&e.playerId&&Number.isFinite(e.american)&&now-Date.parse(e.enteredAt)<=maxMinutes*60000);
+ memory=(Array.isArray(list)?list:[]).filter(e=>e&&e.playerId&&typeof e.contract==='string'&&Number.isFinite(e.american)&&F().timestamp(e.enteredAt)!=null&&F().timestamp(e.enteredAt)<=now&&now-F().timestamp(e.enteredAt)<=maxMinutes*60000);
  return memory;
 }
 function saveManual(list){memory=list;try{root.localStorage?.setItem(STORE_KEY,JSON.stringify(list));}catch{}}
@@ -27,42 +27,62 @@ function saveManual(list){memory=list;try{root.localStorage?.setItem(STORE_KEY,J
 // ---- roster screen (ESPN, via /api/promo-availability): the page's existing independent check ----
 function rosterAvailability(info,p,ctx){
  const now=ctx.now;
- if(!info||!Array.isArray(info.teams)||!Number.isFinite(Date.parse(info.checkedAt))||now-Date.parse(info.checkedAt)>10*60000)return 'unknown';
- const mine=ctx.resolveTeam?ctx.resolveTeam(p.team):null,team=info.teams.filter(t=>key(t.team)===key(p.team)||(mine&&ctx.resolveTeam(t.team)===mine));
+ const checked=F().timestamp(info?.checkedAt);
+ if(!info||!Array.isArray(info.teams)||checked==null||checked>now||now-checked>10*60000)return 'unknown';
+ const mine=F().canonicalTeam(p.team,ctx.resolveTeam),team=info.teams.filter(t=>key(t.team)===key(p.team)||(mine&&F().canonicalTeam(t.team,ctx.resolveTeam)===mine));
  const hits=team.flatMap(t=>t.players||[]).filter(r=>r.key===key(p.player));
  return hits.length===1?hits[0].availability:'unknown';
 }
 
 // Build engine legs from the page's props. One leg per player; the price is a real Fanatics quote or a price the user typed from Fanatics, never another book.
 function buildLegs(ctx,manual=[]){
- const now=ctx.now,day=ctx.slateDate,byPlayer=new Map();
+ const now=ctx.now,day=ctx.slateDate,byPlayer=new Map(),terms=F().validateTerms(ctx.termsOverride);
+ const scheduled=new Map();
+ for(const g of Array.isArray(ctx.schedule)?ctx.schedule:[]){
+  const identity=F().gameIdentity({eventTeams:[g.home,g.away],kickoff:g.kickoff},ctx.resolveTeam),at=F().timestamp(g.kickoff);
+  if(!identity||at==null||F().slateDay(at)!==day)continue;
+  const pair=identity.split('|').slice(0,2).join('|');if(!scheduled.has(pair))scheduled.set(pair,[]);scheduled.get(pair).push(g);
+ }
  for(const p of ctx.props||[]){
   if(p.market!=='atd'||!p.profileId||p.dfs||!(p.line==null||p.line===.5))continue;
   if(ctx.currentWeekProp&&!ctx.currentWeekProp(p))continue;
-  const kick=Date.parse(p.kickoff);if(!Number.isFinite(kick)||etDay(kick)!==day)continue;
-  const rec=byPlayer.get(p.profileId)||{any:null,fanatics:null};
-  if(!rec.any||Date.parse(p.updatedAt)>Date.parse(rec.any.updatedAt))rec.any=p;
-  if(String(p.bookKey||p.book).toLowerCase()==='fanatics'&&Number.isFinite(p.overOdds)&&(!rec.fanatics||Date.parse(p.updatedAt)>Date.parse(rec.fanatics.updatedAt)))rec.fanatics=p;
+  let kick=F().timestamp(p.kickoff),event=F().gameIdentity(p,ctx.resolveTeam);if(kick==null||!event||!F().sunday(kick)||etDay(kick)!==day)continue;
+  let scheduleConflict=false;
+  if(ctx.schedule!=null){
+   const matches=scheduled.get(event.split('|').slice(0,2).join('|'))||[];
+   if(matches.length!==1||Math.abs(F().timestamp(matches[0].kickoff)-kick)>60000)scheduleConflict=true;
+   else {kick=F().timestamp(matches[0].kickoff);event=F().gameIdentity({...p,kickoff:matches[0].kickoff},ctx.resolveTeam);}
+  }
+  const rec=byPlayer.get(p.profileId)||{any:null,fanatics:null,event,conflict:false};
+  if(rec.event!==event||scheduleConflict)rec.conflict=true;
+  const normalized={...p,eventTeams:p.eventTeams.map(t=>F().canonicalTeam(t,ctx.resolveTeam)),kickoff:new Date(kick).toISOString()};
+  const playerTeam=F().canonicalTeam(p.team,ctx.resolveTeam),profileTeam=ctx.profiles?.[p.profileId]?.team;
+  if(!playerTeam||!normalized.eventTeams.some(t=>key(t)===key(playerTeam))||(profileTeam&&key(F().canonicalTeam(profileTeam,ctx.resolveTeam))!==key(playerTeam)))rec.conflict=true;
+  const at=F().timestamp(p.updatedAt),oldAt=F().timestamp(rec.any?.updatedAt);
+  if(!rec.any||(at!=null&&at<=now&&(oldAt==null||oldAt>now||at>oldAt)))rec.any=normalized;
+  const book=p.bookKey||p.book,oldFan=F().timestamp(rec.fanatics?.updatedAt);
+  if(typeof book==='string'&&book.toLowerCase()==='fanatics'&&['parlay','nightly'].includes(p.source)&&!p.manual&&Number.isFinite(p.overOdds)&&(!rec.fanatics||(at!=null&&at<=now&&(oldFan==null||oldFan>now||at>oldFan))))rec.fanatics=normalized;
   byPlayer.set(p.profileId,rec);
  }
  const manualBy=new Map(manual.map(m=>[m.playerId,m]));
- const legs=[],pool=[],stats={players:byPlayer.size,fanaticsFeed:0,manual:0,noPrice:0};
+ const legs=[],pool=[],stats={players:byPlayer.size,fanaticsFeed:0,manual:0,noPrice:0,conflicts:0};
  for(const [playerId,rec] of byPlayer){
-  const p=rec.any,teams=Array.isArray(p.eventTeams)&&p.eventTeams.length===2?[...p.eventTeams].sort():null;
-  pool.push({playerId,player:p.player});
+  if(rec.conflict){stats.conflicts++;continue;}
+  const p=rec.any,event=rec.event,binding=F().contract(playerId,event);
+  pool.push({playerId,player:p.player,contract:binding});
   const cands=[];
-  if(rec.fanatics){stats.fanaticsFeed++;cands.push({american:rec.fanatics.overOdds,source:'feed',book:'fanatics',updatedAt:rec.fanatics.updatedAt});}
+  if(rec.fanatics){stats.fanaticsFeed++;cands.push({american:rec.fanatics.overOdds,source:'feed',book:'fanatics',contract:binding,updatedAt:rec.fanatics.updatedAt});}
   const m=manualBy.get(playerId);
-  if(m){stats.manual++;cands.push({american:m.american,source:'manual',book:'fanatics',updatedAt:m.enteredAt});}
+  if(m&&m.contract===binding){stats.manual++;cands.push({american:m.american,source:'manual',book:'fanatics',contract:binding,updatedAt:m.enteredAt});}
   // Freshest price still inside its own age limit (a stale feed quote must not hide a fresh typed price); otherwise the freshest, so the exclusion reason is shown.
-  const within=c=>now-Date.parse(c.updatedAt)<=(c.source==='manual'?F().DEFAULT_TERMS.manualMaxAgeMinutes:(ctx.termsOverride?.quoteMaxAgeMinutes||F().DEFAULT_TERMS.quoteMaxAgeMinutes))*60000;
-  const order=(x,y)=>Date.parse(y.updatedAt)-Date.parse(x.updatedAt);
+  const within=c=>{const at=F().timestamp(c.updatedAt);return at!=null&&at<=now&&now-at<=(c.source==='manual'?terms.manualMaxAgeMinutes:terms.quoteMaxAgeMinutes)*60000;};
+  const order=(x,y)=>(F().timestamp(y.updatedAt)??-Infinity)-(F().timestamp(x.updatedAt)??-Infinity);
   const price=cands.filter(within).sort(order)[0]||cands.sort(order)[0]||null;
   if(!price)stats.noPrice++;
   const model=ctx.probability?ctx.probability(p):null;
   const dec=ctx.eligibility?ctx.eligibility(playerId,p):null;
   const profile=ctx.profiles?.[playerId];
-  legs.push({playerId,player:p.player,team:p.team,opp:p.opp,event:teams?teams.join('|')+'|'+p.kickoff:null,gameLabel:p.homeName&&p.awayName?`${p.awayName} @ ${p.homeName}`:'',kickoff:p.kickoff,
+  legs.push({playerId,player:p.player,team:p.team,opp:p.opp,event,eventTeams:p.eventTeams,gameLabel:p.homeName&&p.awayName?`${p.awayName} @ ${p.homeName}`:'',kickoff:p.kickoff,
    probability:Number.isFinite(model)?model:null,availability:rosterAvailability(ctx.availability,p,ctx),eligibility:dec,price,
    scoringRole:profile?.scoring_role||null,calibrated:!!p.model?.calibration});
  }
@@ -87,7 +107,7 @@ function optionMarkup(o,i,ctx){
  const F_=F(),now=ctx.now,oldest=Math.min(...o.legs.map(l=>Date.parse(l.price.updatedAt))),manualUsed=o.legs.some(l=>l.price.source==='manual');
  return `<article class="sig-card ft-card" data-rank="${i+1}"><div class="best-card-badges"><span class="best-badge go">#${i+1}</span><span class="best-badge">${esc(F_.fmtAmerican(o.american))} combined</span><span class="best-badge watch">UNVERIFIED OFFER RULES</span></div>
  <h3>${o.legs.map(l=>esc(l.player)).join(' + ')}</h3>
- <p class="ft-headline"><b>${pct(o.probability)}</b> model estimate that all three score <small>(assumes the three games are independent; touchdown estimates run high at the top, so this is likely overstated; not a proven hit rate)</small></p>
+ <p class="ft-headline"><b>${pct(o.probability)}</b> model estimate that all three score <small>(assumes the three games are independent; joint estimates are not independently calibrated and may be inaccurate; not a proven hit rate)</small></p>
  <p class="ft-odds-line">Combined price ${esc(F_.fmtAmerican(o.american))} = ${o.decimal.toFixed(2)}x (${o.legs.map(l=>F_.decimal(l.price.american).toFixed(2)).join(' × ')}); the minimum is ${esc(F_.fmtAmerican(ctx.terms.minCombinedAmerican))} (${F_.decimal(ctx.terms.minCombinedAmerican).toFixed(2)}x). Oldest price ${esc(ago(new Date(oldest).toISOString(),now))}${manualUsed?'; includes prices you entered':''}.</p>
  <ol class="ft-legs">${o.legs.map(l=>legMarkup(l,now,F_)).join('')}</ol>
  ${o.legs.some(l=>etMinutes(l.kickoff)>13*60)?'<p class="ft-note ft-late">Includes a game that starts after 1:00 PM ET. Whether the promotion accepts legs from later games was not verified.</p>':''}
@@ -105,8 +125,9 @@ function termsMarkup(){
 function statusFor(result,legsInfo,ctx){
  if(!legsInfo.stats.players)return {level:'none',text:'No anytime-touchdown props with a game on this Sunday are loaded yet (odds data may still be loading or unavailable). Nothing is shown.'};
  const s=legsInfo.stats,reasons=result.reasons||[],ex=Object.entries(result.excluded||{}).map(([k,v])=>`${v} ${k.toLowerCase()}`).join('; ');
+ if(s.conflicts)reasons.push(`${s.conflicts} player${s.conflicts===1?'':'s'} excluded because their game identities conflict.`);
  if(result.options.length)return {level:'ok',text:`${result.options.length} slip${result.options.length===1?'':'s'} meeting the combined-price test from ${result.eligiblePlayers} eligible players in ${result.eligibleGames} games. ${reasons.join(' ')} ${ex?'Excluded: '+ex+'.':''}`};
- if(!s.fanaticsFeed&&!s.manual)return {level:'unavailable',text:`NO FANATICS PRICES: the odds feed currently has no Fanatics anytime-touchdown prices (${s.players} players have a game this Sunday; ${s.noPrice} have no Fanatics price). Nothing qualifies and no other sportsbook's price is substituted. Enter the Fanatics prices you see in their app below to build slips.`};
+ if(!s.fanaticsFeed&&!s.manual&&!s.conflicts)return {level:'unavailable',text:`NO FANATICS PRICES: the odds feed currently has no Fanatics anytime-touchdown prices (${s.players} players have a game this Sunday; ${s.noPrice} have no Fanatics price). Nothing qualifies and no other sportsbook's price is substituted. Enter the Fanatics prices you see in their app below to build slips.`};
  return {level:'none',text:`No slip meets the price test. ${reasons.join(' ')} ${ex?'Excluded: '+ex+'.':''}`};
 }
 
@@ -114,17 +135,18 @@ function statusFor(result,legsInfo,ctx){
 const STATE={manualText:'',open:undefined,force:false,msg:'',lastStatus:null};
 function render(host,ctx){
  if(!host||!ctx)return;
- // The page re-renders every minute: keep what the user typed, keep the panel open, and never rebuild under a focused textarea (unless the user just acted).
+ // Preserve the focused editor itself while revalidating every visible result.
  const old=host.querySelector('#ftManual');
+ const preserve=!!(old&&!STATE.force&&root.document?.activeElement===old),oldPanel=old?.closest('details.ft-manual');
  if(old){STATE.manualText=old.value;STATE.open=host.querySelector('details.ft-manual')?.open;
-  if(!STATE.force&&root.document&&root.document.activeElement===old){if(ctx.statusEl&&STATE.lastStatus){ctx.statusEl.textContent=STATE.lastStatus.text;ctx.statusEl.dataset.level=STATE.lastStatus.level;}return;}}
+ }
  STATE.force=false;
  const F_=F(),now=ctx.now??Date.now();
  const terms=F_.validateTerms({...(ctx.termsOverride||{})});
  let html='';
  try{
   const manual=loadManual(now,terms.manualMaxAgeMinutes),{legs,pool,stats}=buildLegs({...ctx,now},manual);
-  const result=F_.select(legs,{now,terms,excludedPlayers:ctx.excludedPlayers||[]});
+  const result=F_.select(legs,{now,terms,slateDate:ctx.slateDate,excludedPlayers:ctx.excludedPlayers||[]});
   const st=statusFor(result,{stats},ctx),full={...ctx,now,terms};
   STATE.lastStatus=st;
   if(ctx.statusEl){ctx.statusEl.textContent=st.text;ctx.statusEl.dataset.level=st.level;}
@@ -134,19 +156,27 @@ function render(host,ctx){
    <textarea id="ftManual" rows="6" spellcheck="false" aria-label="Fanatics anytime touchdown prices">${esc(STATE.manualText)}</textarea><div class="ft-actions"><button type="button" id="ftApply">Use these prices</button><button type="button" id="ftClear">Clear saved prices</button></div><div id="ftManualMsg" role="status">${esc(STATE.msg)}</div></details>`;
   if(result.options.length)html+=`<div class="ft-list">${result.options.map((o,i)=>optionMarkup(o,i,full)).join('')}</div>`;
   else html+=`<p class="gc-empty ft-empty">${esc(st.text)}</p>`;
-  host.innerHTML=html;
+  if(preserve&&oldPanel){
+   const next=root.document.createElement('div');next.innerHTML=html;
+   const replacement=next.querySelector('details.ft-manual');
+   oldPanel.querySelector('summary').innerHTML=replacement.querySelector('summary').innerHTML;
+   oldPanel.querySelector('#ftManualMsg').textContent=STATE.msg;
+   for(const child of [...host.childNodes])if(child!==oldPanel)child.remove();
+   for(const child of [...next.childNodes]){if(child===replacement)continue;if(child.classList?.contains('ft-terms'))host.insertBefore(child,oldPanel);else host.appendChild(child);}
+  }else host.innerHTML=html;
   const area=host.querySelector('#ftManual'),msg=host.querySelector('#ftManualMsg');
-  host.querySelector('#ftApply')?.addEventListener('click',()=>{
+  host.querySelector('#ftApply').onclick=()=>{
    STATE.manualText=area.value;STATE.open=true;const parsed=F_.parseManualPrices(area.value,pool,Date.now());
    const keep=loadManual(Date.now(),terms.manualMaxAgeMinutes).filter(m=>!parsed.entries.some(e=>e.playerId===m.playerId));
    saveManual([...keep,...parsed.entries]);
    STATE.msg=`${parsed.entries.length} price${parsed.entries.length===1?'':'s'} used.${parsed.errors.length?' Problems: '+parsed.errors.join(' '):''}`;STATE.force=true;
    if(ctx.onChange)ctx.onChange();else render(host,{...ctx,now:Date.now()});
-  });
-  host.querySelector('#ftClear')?.addEventListener('click',()=>{STATE.manualText='';STATE.msg='';STATE.open=true;STATE.force=true;saveManual([]);if(ctx.onChange)ctx.onChange();else render(host,{...ctx,now:Date.now()});});
+  };
+  host.querySelector('#ftClear').onclick=()=>{STATE.manualText='';STATE.msg='';STATE.open=true;STATE.force=true;saveManual([]);if(ctx.onChange)ctx.onChange();else render(host,{...ctx,now:Date.now()});};
  }catch(e){
   if(ctx.statusEl){ctx.statusEl.textContent='Fanatics slips unavailable: '+e.message+' Nothing is shown rather than guessing.';ctx.statusEl.dataset.level='error';}
-  host.innerHTML=`<p class="gc-empty ft-empty">Fanatics slips unavailable: ${esc(e.message)}</p>`;
+  if(preserve&&oldPanel){for(const child of [...host.childNodes])if(child!==oldPanel)child.remove();const warning=root.document.createElement('p');warning.className='gc-empty ft-empty';warning.textContent='Fanatics slips unavailable: '+e.message;host.appendChild(warning);}
+  else host.innerHTML=`<p class="gc-empty ft-empty">Fanatics slips unavailable: ${esc(e.message)}</p>`;
  }
 }
 const api={buildLegs,rosterAvailability,optionMarkup,termsMarkup,statusFor,render,legWhy,loadManual,saveManual,_state:STATE};
