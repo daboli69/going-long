@@ -4319,7 +4319,10 @@ function periodQuoteResult(q){
   if(!hit){
     const home=resolveTeamName(q.home_team,BET.sport),away=resolveTeamName(q.away_team,BET.sport);
     const matches=(BET.history?.games?.[BET.sport]||[]).filter(g=>g.home===home&&g.away===away&&Math.abs(Date.parse(g.kickoff)-Date.parse(q.kickoff))<6*3600000);
-    hit={model:matches.length===1?(globalThis.GoingGameMarket?GoingGameMarket.anchorPeriod(matches[0],matches[0].model,matches[0].period_models?.[q.period_key],matches[0].sport||BET.sport):matches[0].period_models?.[q.period_key]):null};periodMatchCache.models.set(key,hit);
+    // Period probabilities are anchored to the posted full-game line (live board first, schedule file second); without one there is nothing validated to price from, so no quote.
+    const live=(BET.games||[]).find(x=>x.model&&(finiteNumber(x.spread)||finiteNumber(x.total))&&resolveTeamName(x.home,BET.sport)===home&&resolveTeamName(x.away,BET.sport)===away&&Math.abs(Date.parse(x.kickoff)-Date.parse(q.kickoff))<6*3600000);
+    const source=live||(matches.length===1?matches[0]:null),full=source?(live?live.model:matches[0].model):null,period=matches.length===1?matches[0].period_models?.[q.period_key]:null;
+    hit={model:source&&period?(globalThis.GoingGameMarket?GoingGameMarket.anchorPeriod(source,full,period,source.sport||BET.sport,{strict:true}):period):null};periodMatchCache.models.set(key,hit);
   }
   const m=hit.model;if(!m)return blank('No matched period model');
   let probabilities,win;

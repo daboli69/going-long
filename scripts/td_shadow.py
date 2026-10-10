@@ -118,7 +118,7 @@ def build_week(profiles, games, recipe, on_or_after, current=None):
                 continue
             if atd.get('status') != 'ready' or atd.get('mean') is None or not eligible(p, current, cutoff):
                 continue
-            score, used = anytime_score(atd['mean'], role, recipe)
+            score, used = anytime_score(atd.get('mean_raw', atd['mean']), role, recipe)
             candidates.append({'player_id': p['id'], 'name': p['name'], 'team': p['team'], 'position': p['position'], 'champion_rate': round(atd['mean'], 4), 'features': {k: round(v, 3) for k, v in used.items()},
                                'score': score, 'king_extra': king_extra(role, recipe), 'tier': role.get('tier')})
         probs, other = game_probabilities(candidates, recipe) if candidates else ({}, {})

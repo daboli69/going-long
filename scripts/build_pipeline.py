@@ -488,10 +488,13 @@ def first_td_game(game, profiles, features, unavailable=frozenset()):
         return None
     stages = [defaultdict(float), defaultdict(float)]
     metadata = {}
+    # Market-anchored game environment (research/calibration/GAME_LINES.md): the trailing-points model had no information beyond the posted line.
+    total = game['total'] if finite(game.get('total')) else m['total_mean']
+    margin = -game['spread'] if finite(game.get('spread')) else m['margin_mean']
     for team, sign in ((game['home'], 1), (game['away'], -1)):
         t = features['nfl']['teams'].get(team, {})
         # 75% of points attributed to offensive TD drives, seven points/drive.
-        expected_td = max(0, (m['total_mean'] + sign*m['margin_mean'])/2) * .75 / 7
+        expected_td = max(0, (total + sign*margin)/2) * .75 / 7
         available = {pid: p for pid, p in profiles.items() if pid not in unavailable and p['team'] == team and p.get('position') in ('QB','RB','WR','TE','FB') and (datetime.now(timezone.utc).date()-datetime.fromisoformat(p['last_game']).date()).days <= 60}
         scored, opening = {}, {}
         run_mix = 1 - (t.get('opening_pass_rate') if finite(t.get('opening_pass_rate')) else .55)
@@ -502,7 +505,7 @@ def first_td_game(game, profiles, features, unavailable=frozenset()):
             carries10 = max(0, f.get('inside_ten_carries', 0)-carries5)
             carries20 = max(0, f.get('red_zone_carries', 0)-carries5-carries10)
             signal = .4*carries5 + .15*carries10 + .04*carries20 + .3*f.get('end_zone_targets', 0)
-            prior = max(0, p.get('stats', {}).get('atd', {}).get('mean', 0))
+            prior = max(0, p.get('stats', {}).get('atd', {}).get('mean_raw', p.get('stats', {}).get('atd', {}).get('mean', 0)))
             scored[pid] = signal/max(1, t.get('games', 12)) + .5*prior
             sh = f.get('shares', {})
             opening[pid] = run_mix*(sh.get('opening_carries') or 0) + (1-run_mix)*(sh.get('opening_targets') or 0)

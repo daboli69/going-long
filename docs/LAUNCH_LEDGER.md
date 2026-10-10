@@ -18,5 +18,6 @@ Baseline 2026-10-09 20:00Z: branch `claude/phase3-weekly` = origin/main 1fa0584;
 | 10 | P1 | Charts section | 7 charts verified rendering on real data; auto-built by refresh | VERIFIED (mobile pass pending) |
 | 11 | P1 | Opportunity vs production research | E12: no predictive cell; descriptive only | VERIFIED |
 | 12 | P1 | Showdown field model | private-file ownership/duplication, honest bands | SHIPPED |
-| 13 | P1 | Today payload (29 MB raw first load) | lazy history/context | TODO |
+| 13 | P1 | Today payload | measured on production: 29 MB raw is 2.5 MB over the wire (brotli: history 1.18 MB, context 1.09 MB) | VERIFIED, lazy loading deferred (risk > benefit before Sunday) |
+| 15 | P0 | Calibration repair: game lines market-anchored, TD means corrected, extreme-probability guard | docs/CALIBRATION_AUDIT.md repair pass; independent QA reproduced | SHIPPED |
 | 14 | P2 | NB1 receptions, TD lean score, free-role challenger | prospective shadow only | SHADOW |

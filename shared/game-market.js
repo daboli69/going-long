@@ -8,7 +8,7 @@
 (function(root){
 'use strict';
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
-const POLICY={version:'market-anchor-v1',active:true,nfl:{total_sd:13.46,margin_sd:13.26,evidence:'2016-2025 closing lines, 2,575 games'},ncaa:{total_sd:15,margin_sd:16,evidence:'live 2026 sample only (about 100 games); weak'}};
+const POLICY={version:'market-anchor-v1',active:true,nfl:{total_sd:13.3,margin_sd:12.75,evidence:'2016-2022 closing-line residuals (fit), 2023-25 holdout; independent QA reproduced'},ncaa:{total_sd:15,margin_sd:16,evidence:'live 2026 sample only (about 100 games); weak'}};
 function active(){return POLICY.active&&root.GOING_GAME_ANCHOR!==false;}
 // g: game with posted `spread` (home line, negative when home favoured) and `total`; m: trailing-average model. Returns a model-shaped object.
 function anchor(g,m,sport){
@@ -20,9 +20,9 @@ function anchor(g,m,sport){
   anchored:{version:POLICY.version,raw_margin_mean:m.margin_mean,raw_total_mean:m.total_mean,raw_margin_sd:m.margin_sd,raw_total_sd:m.total_sd,hasMargin,hasTotal}};
 }
 // Period model derived from the same fractions the pipeline used (sd ratio squared = mean fraction).
-function anchorPeriod(g,full,period,sport){
+function anchorPeriod(g,full,period,sport,opts){
  if(!full||!period||!active())return period;
- const a=anchor(g,full,sport);if(!a||!a.anchored)return period;
+ const a=anchor(g,full,sport);if(!a||!a.anchored||(opts&&opts.strict&&!(a.anchored.hasMargin&&a.anchored.hasTotal)))return opts&&opts.strict?null:period;
  const rt=finite(period.total_sd)&&finite(full.total_sd)&&full.total_sd>0?period.total_sd/full.total_sd:null,rm=finite(period.margin_sd)&&finite(full.margin_sd)&&full.margin_sd>0?period.margin_sd/full.margin_sd:null;
  return {...period,
   total_mean:a.anchored.hasTotal&&rt?a.total_mean*rt*rt:period.total_mean,total_sd:a.anchored.hasTotal&&rt?a.total_sd*rt:period.total_sd,
