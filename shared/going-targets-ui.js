@@ -23,10 +23,13 @@ function fcard(p){
 function bcard(t){
  const price=t.priced?`${esc(t.direction)} ${esc(t.line)} at ${esc(t.odds>0?'+'+t.odds:t.odds)} (${esc(t.book||'book')}, quote ${esc(ago(t.updatedAt))})`:'No posted line in our feed';
  const prob=t.prob!=null?`${(t.prob*100).toFixed(0)}% model probability. ${esc(t.calibration)}.`:'';
- const val=t.ev!=null?`Market-shrunk value ${(t.ev*100).toFixed(1)}% on this exact price (de-vigged price with a ${Math.round(GoingTargets.RULES.marketWeight*100)}% model weight; model-only estimate ${t.evModelOnly!=null?(t.evModelOnly*100).toFixed(1)+'%':'n/a'}). Research estimate, not a validated edge.`:t.evWithheld?'Estimated value withheld: model and price disagree too much to trust.':t.evUnavailable&&t.priced?'No value estimate: the sportsbook margin cannot be removed from a one-sided price.':'No estimated value: needs a posted price.';
+ const val=t.ev!=null?`Market-shrunk value ${(t.ev*100).toFixed(1)}% on this exact price (de-vigged price with a ${Math.round(GoingTargets.RULES.marketWeight*100)}% model weight; model-only estimate ${t.evModelOnly!=null?(t.evModelOnly*100).toFixed(1)+'%':'n/a'}). A price comparison, not proof of an edge.`:t.evWithheld?'Estimated value withheld: model and price disagree too much to trust.':t.evUnavailable&&t.priced?'No value estimate: the sportsbook margin cannot be removed from a one-sided price.':'No estimated value: needs a posted price.';
  return `<article class="gs-card gt-card"><div class="gs-top"><div><h3>${esc(t.name)}</h3><small>${esc(t.pos)} · ${esc(t.team)} · ${esc(t.marketLabel)}</small></div><div class="gs-score"><strong>${esc(t.direction)}</strong><small>${esc(t.status)}</small></div></div>
- <p class="gt-line">${badge(t.availability)} <span class="gt-price">${price}</span></p><p class="gt-val">${prob} ${val}</p>
- <ul class="gt-why">${t.why.map(x=>`<li><b>Why</b> ${esc(x)}</li>`).join('')}${t.concern.map(x=>`<li class="c"><b>Concern</b> ${esc(x)}</li>`).join('')}</ul>
+ <p class="gt-line">${badge(t.availability)}</p>
+ <dl class="gt-tiers"><dt>1. Opportunity signal</dt><dd>${esc(t.opportunity.signal)} <small>${esc(t.opportunity.evidence)} ${esc(t.opportunity.beyondPrice)}</small></dd>
+ <dt>2. Price check</dt><dd><span class="gt-price">${price}</span><br>${prob} ${val}</dd>
+ <dt>3. Recommendation</dt><dd>${esc(t.recommendation.text)}</dd></dl>
+ <ul class="gt-why">${t.concern.map(x=>`<li class="c"><b>Concern</b> ${esc(x)}</li>`).join('')}</ul>
  <div class="gs-actions"><a href="${link(t.id)}">Player card</a><a href="/long/?tab=props">Markets</a><a href="/long/?tab=score">GOING Score</a></div></article>`;
 }
 function weekOf(inj){let w=0;for(const v of Object.values(inj?.current_players||{}))if(Number.isFinite(v.roster_week)&&v.roster_week>w)w=v.roster_week;return w||null;}

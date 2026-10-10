@@ -115,3 +115,10 @@ test('Champion v2 yardage keeps its mean and zero mass when injury scale/uncerta
   assert.ok(a.sigma_log>=m.sigma_log-1e-12);
  }
 });
+
+test('QB passing-yards refit keeps its fitted sigma and zero mass under an injury scale (it carries no champion-v2 policy flag)',()=>{
+ const m={family:'lognormal',status:'ready',mean:240,sd:42,mu_log:5.4,sigma_log:.2745,positive_weight:.98,nonpositive:[0],calibration:{method:'lognormal_refit'}};
+ const a=injuries.scaleModel(m,.88,1.15);
+ assert.ok(Math.abs(a.sigma_log-.2745*1.15)<1e-12);assert.ok(a.sigma_log>.3);
+ assert.ok(Math.abs(a.mean-240*.88)<1e-9);
+});

@@ -101,20 +101,27 @@ function fantasyTargets(ctx){
 
 // candidates: priced prop rows from goingPicksCandidates (kind 'prop'): {profileId,player,market,side,line,odds,dec,prob,ev,calibrated,book,updatedAt,position}
 const MARKET_LABEL={rec_yds:'Receiving yards',receptions:'Receptions',rush_yds:'Rushing yards',atd:'Anytime TD'};
+// What the out-of-sample test (champion_2021_2025, 2021-25, games 4+ of a season, top-15% vs bottom-15% change in share, ratio of actual to the Champion mean) found. It tests
+// information beyond GOING's own Champion model. It does NOT test information beyond a sportsbook price, which cannot be tested without historical posted lines.
+const EVIDENCE={
+ receptions:{metric:'target_share',text:'A rising target share beat the Champion mean by 5.6% over a falling one (90% interval +1.6% to +9.6%; same sign in all five seasons).'},
+ rush_yds:{metric:'carry_share',text:'A rising carry share beat the Champion mean by 16% over a falling one (90% interval +7% to +25%; same sign in four of five seasons).'},
+ atd:{metric:null,text:'Scoring-role tiers beat the Champion anytime-TD rate (2025 holdout log loss -4.2%).'}
+};
 const CAL_TD=new Set(['atd','rec_tds','rush_tds']);
 function thesis(profile,position,market,sr){
  const I=intel();
  if(market==='atd'){
-  if(sr&&sr.confidence!=='low'&&['PRIMARY','SECONDARY'].includes(sr.tier))return {side:'Yes',strength:sr.tier==='PRIMARY'?1:.6,why:`${sr.tier.toLowerCase()} scoring role: ${fmt1(sr.xtd_pg_l12)} expected TDs per game over the last 12.`};
+  if(sr&&sr.confidence!=='low'&&['PRIMARY','SECONDARY'].includes(sr.tier))return {side:'Yes',evidence:EVIDENCE.atd.text,strength:sr.tier==='PRIMARY'?1:.6,why:`${sr.tier.toLowerCase()} scoring role: ${fmt1(sr.xtd_pg_l12)} expected TDs per game over the last 12.`};
   return null;
  }
  const role=I&&profile?I.roleTrend(profile.role_trend,position,market==='rush_yds'?'rush_yds':'rec_yds'):null;
  if(!role||role.state==='flat')return null;
  if(market==='rush_yds'&&position!=='RB')return null;
- const parts=role.parts.filter(p=>market==='rush_yds'?['carry_share','snap_share'].includes(p.metric):['target_share','snap_share'].includes(p.metric));
- if(!parts.length)return null;
+ const parts=role.parts.filter(p=>p.metric===EVIDENCE[market]?.metric);
+ if(!parts.length||parts[0].state==='flat')return null;
  const size=Math.max(...parts.map(p=>Math.abs(p.change)/({snap_share:8,target_share:.03,carry_share:.05})[p.metric]));
- return {side:role.state==='up'?'Over':'Under',strength:Math.min(2,size),why:`${role.state==='up'?'Role growing':'Role shrinking'}: ${role.text}.`};
+ return {side:parts[0].state==='up'?'Over':'Under',strength:Math.min(2,size),why:`${parts[0].state==='up'?'Growing':'Shrinking'} ${parts[0].label.toLowerCase()}: ${parts[0].from} → ${parts[0].to} (last 6 → last 3 games).`,evidence:EVIDENCE[market].text};
 }
 function calStatus(market,calibrated){
  if(CAL_TD.has(market)&&calibrated)return 'TD mean corrected about 20% lower (walk-forward validated); TD probabilities remain uncertain';
@@ -123,7 +130,8 @@ function calStatus(market,calibrated){
 }
 function bettingTargets(ctx,candidates=[]){
  const I=intel(),now=ctx.now||Date.now(),inj=indexInjury(ctx.injury,ctx.week,ctx.roster),rows=[],seen=new Set(),excluded=[];
- const markets=Object.keys(MARKET_LABEL),priced=new Map();
+ const markets=Object.keys(EVIDENCE),priced=new Map();// receiving yards is deliberately absent: a rising target share predicted FEWER yards than the Champion mean (-9%, interval -13% to -4%), so a role trend gives no yardage direction
+ 
  for(const c of candidates||[]){
   if(c.kind&&c.kind!=='prop'||!c.profileId||!MARKET_LABEL[c.market])continue;
   const k=[c.profileId,c.market,c.side,c.line].join('|'),prev=priced.get(k);
@@ -160,7 +168,7 @@ function bettingTargets(ctx,candidates=[]){
    if(bigGap)concerns.push('The model and sportsbook disagree unusually strongly; the estimated value is likely overstated and is withheld.');
    if(best&&!best.calibrated)concerns.push('Probability is the raw model output, not recalibrated.');
    concerns.push('Role trends were validated for next-game volume, not for beating sportsbook prices.');
-   rows.push({id,name:profile.name,team:profile.team,pos,market:m,marketLabel:MARKET_LABEL[m],direction:th.side,strength:th.strength+(best?.25:0),why:[th.why],concern:concerns,
+   rows.push({opportunity:{signal:th.why,evidence:th.evidence,beyondPrice:'Unknown: no historical posted lines exist to test it.'},recommendation:{level:'research',text:best?(extreme||bigGap?'Not a recommendation: the model and price disagree beyond what has held up.':'Research only. No validated edge against sportsbook prices exists for this market; compare the price yourself.'):'Research only. No price to evaluate.'},id,name:profile.name,team:profile.team,pos,market:m,marketLabel:MARKET_LABEL[m],direction:th.side,strength:th.strength+(best?.25:0),why:[th.why],concern:concerns,
     availability:av,priced:!!best,line:best?.line??null,odds:best?.odds??null,book:best?.book||null,updatedAt:best?.updatedAt||null,prob:best?.prob??null,
     calibration:best?calStatus(m,best.calibrated):null,ev:valueShown?evShrunk:null,evModelOnly:best&&finite(best.ev)?best.ev:null,evWithheld:!!best&&!valueShown&&(extreme||bigGap),evUnavailable:!!best&&!finite(evShrunk),
     status:best?(extreme||bigGap?'Priced, needs review':valueShown&&evShrunk<-.02?'Priced, no value at this price':'Priced research target'):'Research target (no price)',
