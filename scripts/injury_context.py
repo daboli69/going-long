@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from build_pipeline import atomic_json, finite, normalize_name
+from availability_source import load_source, preserve_newer, source_stamp
 
 ROOT = Path(__file__).resolve().parents[1]
 POSITIONS = {"QB", "RB", "WR", "TE"}
@@ -187,7 +188,7 @@ def build_current(season, injury_rows, depth_rows, weekly_roster, context, pbp_r
         if row.get("season_type") != "REG" or int(row.get("week") or 0) != report_week or not row.get("gsis_id"):
             continue
         body = body_group(row.get("report_primary_injury") or row.get("practice_primary_injury"))
-        if not body:
+        if not body and not row.get('report_status') and not row.get('practice_status'):
             continue
         player = roster.get(row["gsis_id"], row)
         identity = canonical_team(row.get("team") or player.get("team")) + "|" + identity_name(row.get("full_name") or player.get("full_name"))
@@ -196,8 +197,11 @@ def build_current(season, injury_rows, depth_rows, weekly_roster, context, pbp_r
             "position": offensive_position(row), "body_part": body,
             "report_status": row.get("report_status"), "practice_status": row.get("practice_status"),
             "primary_injury": row.get("report_primary_injury") or row.get("practice_primary_injury"), "week": report_week,
+            "reported_at": source_stamp(row.get('date_modified')),
         }
-        if identity not in reports or (candidate["report_status"] and not reports[identity].get("report_status")):
+        if identity not in reports or str(candidate['reported_at'] or '') > str(reports[identity].get('reported_at') or '') or (
+                candidate['reported_at'] == reports[identity].get('reported_at') and
+                candidate["report_status"] and not reports[identity].get("report_status")):
             reports[identity] = candidate
 
     current = {}
@@ -312,23 +316,26 @@ def build():
     historical_rosters = nfl.load_rosters(history_seasons).to_dicts()
     effects, validation = build_effects(historical_injuries, historical_stats, historical_snaps, historical_rosters)
 
-    current_injuries = nfl.load_injuries([season]).to_dicts()
+    current_injuries, injury_source = load_source('injuries', season)
     depth = nfl.load_depth_charts([season]).to_dicts()
-    weekly_roster = nfl.load_rosters_weekly([season]).to_dicts()
+    weekly_roster, roster_source = load_source('rosters', season)
     pbp = nfl.load_pbp([season]).to_dicts()
     ftn = nfl.load_ftn_charting([season]).to_dicts()
     players, reports, qb, defenses, current_meta = build_current(season, current_injuries, depth, weekly_roster, context, pbp, ftn)
+    if current_meta['injury_report_week'] != current_meta['roster_week']:
+        raise RuntimeError('Injury reports do not cover the current roster week; previous snapshot retained')
 
     generated = datetime.now(timezone.utc).isoformat(timespec="seconds")
     payload = {
         "schema_version": 1, "model_version": "injury-cohort-role-1", "generated_at": generated, "season": season,
+        "source_content_at": injury_source['content_at'], "source_roster_at": roster_source['content_at'],
         "historical_seasons": history_seasons, "effects": effects, "current_players": players,
         "current_reports": reports, "qb_tendencies": qb, "defense_scheme": defenses,
         "validation": {**validation, **current_meta},
         "sources": {
-            "injuries": {"provider": "nflverse injury reports", "authentication": "none", "rows": len(historical_injuries) + len(current_injuries)},
+            "injuries": {"provider": "nflverse injury reports", "authentication": "none", "rows": len(historical_injuries) + len(current_injuries), **injury_source},
             "depth_charts": {"provider": "nflverse timestamped depth charts", "authentication": "none", "rows": len(depth)},
-            "weekly_rosters": {"provider": "nflverse weekly rosters", "authentication": "none", "rows": len(weekly_roster)},
+            "weekly_rosters": {"provider": "nflverse weekly rosters", "authentication": "none", "rows": len(weekly_roster), **roster_source},
             "snap_roles": {"provider": "GOING football_context from nflverse snap counts/PBP", "authentication": "none"},
             "qb_scheme": {"provider": "nflverse PBP + FTN charting", "authentication": "none", "pbp_rows": len(pbp), "ftn_rows": len(ftn)},
         },
@@ -340,6 +347,7 @@ def build():
             "causality": "Observed association only; not medical advice and not proof that injury caused the change.",
         },
     }
+    preserve_newer(ROOT / 'data' / 'injury_context.json', payload)
     atomic_json(ROOT / "data" / "injury_context.json", payload)
     print(f"[injury context] {len(effects)} effects; {len(players)} current players; {len(reports)} reports")
 

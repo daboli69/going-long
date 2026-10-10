@@ -83,11 +83,23 @@ def freshness(now=None, injury=_DEFAULT, roster=_DEFAULT):
         if age is None or age > limit or age < -0.5:
             ok = False
             reasons.append(label + (' has no timestamp' if age is None else f' {age:.0f} hours old'))
+        keys = ('source_content_at', 'source_roster_at') if label == 'injury file' else ('source_roster_at', 'source_injury_at')
+        for key in keys:
+            source_age = _age_hours(doc.get(key), now)
+            if source_age is None or source_age > limit or source_age < -.5:
+                ok = False
+                reasons.append(label + ': ' + key + ' missing, stale or future')
     rw = _week(roster.get('week')) if isinstance(roster, dict) else None
+    iw = _week(roster.get('injury_week')) if isinstance(roster, dict) else None
+    validation = injury.get('validation') if isinstance(injury, dict) else None
+    report_week = _week(validation.get('injury_report_week')) if isinstance(validation, dict) else None
+    if rw is not None and any(w is not None and w != rw for w in (iw, report_week)):
+        ok = False
+        reasons.append('injury report weeks disagree')
     if rw is not None and _valid_injury(injury) and any(v.get('roster_week') is not None and _week(v['roster_week']) != rw for v in injury['current_players'].values()):
         ok = False
         reasons.append('roster weeks disagree')
-    return {'ok': ok, 'reason': '; '.join(reasons), 'injury_as_of': injury.get('generated_at') if isinstance(injury, dict) else None, 'roster_as_of': roster.get('generated_at') if isinstance(roster, dict) else None}
+    return {'ok': ok, 'reason': '; '.join(reasons), 'injury_as_of': injury.get('source_content_at') if isinstance(injury, dict) else None, 'roster_as_of': roster.get('source_roster_at') if isinstance(roster, dict) else None}
 
 
 def _severity_out(report):

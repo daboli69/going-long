@@ -39,13 +39,13 @@ def fixture(showdown=False):
             flex = row(i, pos, 'BUF' if i < 4 else 'MIA', role='FLEX', salary=4000)
             captain = {**flex, 'ID': str(i + 100), 'Name + ID': f"{flex['Name']} ({i + 100})", 'Roster Position': 'CPT', 'Salary': '6000'}
             rows.extend([flex, captain])
-    roster = {'generated_at': FRESH, 'week': 5, 'players': [], 'bye_carry_forward_teams': []}
+    roster = {'generated_at': FRESH, 'source_content_at': FRESH, 'source_roster_at': FRESH, 'source_injury_at': FRESH, 'week': 5, 'players': [], 'bye_carry_forward_teams': []}
     for r in rows:
         if r['Position'] == 'DST' or r['Roster Position'] == 'CPT':
             continue
         roster['players'].append({'id': 'gsis-' + r['ID'], 'name': r['Name'], 'team': r['TeamAbbrev'],
                                   'position': r['Position'], 'roster_status': 'ACT'})
-    injury = {'generated_at': FRESH, 'current_players': {}, 'current_reports': {}}
+    injury = {'generated_at': FRESH, 'source_content_at': FRESH, 'source_roster_at': FRESH, 'source_injury_at': FRESH, 'current_players': {}, 'current_reports': {}}
     schedule = {'games': [{'away': 'BUF', 'home': 'MIA', 'kickoff': '2026-10-11T17:00:00Z'},
                           {'away': 'NYJ', 'home': 'NE', 'kickoff': '2026-10-11T17:00:00Z'}]}
     return rows, dict(contest_format='showdown' if showdown else 'classic', slate_date='2026-10-11',
@@ -78,7 +78,7 @@ class ValidateDraftKingsSlateTests(unittest.TestCase):
         self.assertFalse(V.validate(text(rows), **kwargs)['ok'])
 
     def test_stale_missing_or_malformed_availability_excludes_every_row(self):
-        for source in (None, [], {'generated_at': FRESH}, {'generated_at': '2026-10-08T10:00:00Z', 'current_players': {}, 'current_reports': {}}):
+        for source in (None, [], {'generated_at': FRESH, 'source_content_at': FRESH, 'source_roster_at': FRESH, 'source_injury_at': FRESH}, {'generated_at': '2026-10-08T10:00:00Z', 'current_players': {}, 'current_reports': {}}):
             rows, kwargs = fixture()
             kwargs['injury'] = source
             out = V.validate(text(rows), **kwargs)

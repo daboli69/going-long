@@ -137,8 +137,8 @@ class EndToEndTests(unittest.TestCase):
         keys = [202503 + k for k in range(8)]
         table = gsb.asof_table(panel, tg, {2025: list(range(1, 10))}, PARAMS, {'WR': PRIORS}, extra_keys=keys)
         stamp = '2025-11-01T00:00:00Z'
-        roster = {'generated_at': stamp, 'players': [{'id': f'p{i}', 'team': 'AAA', 'roster_status': 'ACT'} for i in range(6)]}
-        injury = {'generated_at': stamp, 'current_players': {}, 'current_reports': {}}
+        roster = {'generated_at': stamp, 'source_content_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'players': [{'id': f'p{i}', 'team': 'AAA', 'roster_status': 'ACT'} for i in range(6)]}
+        injury = {'generated_at': stamp, 'source_content_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'current_players': {}, 'current_reports': {}}
         with patch('eligibility._load', return_value=injury):
             out = gsb.build_output(table, panel, config_for({'opportunity': 0.7, 'role': 0.3}), 'sha', roster, None, None, stamp, 202510, keys, {'sources': []})
         self.assertEqual(out['schema'], 'going-score-v2')
@@ -155,8 +155,8 @@ class EndToEndTests(unittest.TestCase):
         tg = {'AAA': np.array([202500 + w for w in range(1, 11)])}
         keys = [202503 + k for k in range(8)]
         table = gsb.asof_table(panel, tg, {2025: list(range(1, 10))}, PARAMS, {'WR': PRIORS}, extra_keys=keys)
-        fresh = {'generated_at': stamp, 'current_players': {}, 'current_reports': {}}
-        active = {'generated_at': stamp, 'players': [{'id': 'p1', 'team': 'AAA', 'roster_status': 'ACT'}]}
+        fresh = {'generated_at': stamp, 'source_content_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'current_players': {}, 'current_reports': {}}
+        active = {'generated_at': stamp, 'source_content_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'players': [{'id': 'p1', 'team': 'AAA', 'roster_status': 'ACT'}]}
         cases = [(dict(fresh, generated_at='2025-10-28T00:00:00Z'), active), (fresh, dict(active, players=[])),
                  (fresh, dict(active, bye_carry_forward_teams=['AAA'])), (None, active)]
         for injury, roster in cases:

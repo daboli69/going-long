@@ -34,14 +34,15 @@ const hoursOld=(t,now)=>{
  const ms=Date.parse(t);return Number.isFinite(ms)?(now-ms)/3600000:null;
 };
 function freshness(injury,roster,now=Date.now(),limits=LIMITS){
- const iAge=hoursOld(injury?.generated_at,now),rAge=hoursOld(roster?.generated_at,now);
- const injuryOk=validInjury(injury)&&iAge!=null&&iAge>=-.5&&iAge<=limits.injuryHours,rosterOk=validRoster(roster)&&rAge!=null&&rAge>=-.5&&rAge<=limits.rosterHours;
+ const iAge=hoursOld(injury?.source_content_at,now),rAge=hoursOld(roster?.source_roster_at,now);
+ const freshStamp=(stamp,limit)=>{const age=hoursOld(stamp,now);return age!=null&&age>=-.5&&age<=limit;};
+ const injuryOk=validInjury(injury)&&['generated_at','source_content_at','source_roster_at'].every(k=>freshStamp(injury[k],limits.injuryHours)),rosterOk=validRoster(roster)&&['generated_at','source_roster_at','source_injury_at'].every(k=>freshStamp(roster[k],limits.rosterHours));
  const reasons=[];
  if(!injury)reasons.push('injury file missing');else if(!validInjury(injury))reasons.push('injury file malformed');else if(!injuryOk)reasons.push(iAge==null?'injury file has no timestamp':`injury file ${Math.round(iAge)} hours old`);
  if(!roster)reasons.push('roster snapshot missing');else if(!validRoster(roster))reasons.push('roster snapshot malformed');else if(!rosterOk)reasons.push(rAge==null?'roster snapshot has no timestamp':`roster snapshot ${Math.round(rAge)} hours old`);
- const rw=weekNumber(roster?.week),weeksAgree=rw==null||!validInjury(injury)||Object.values(injury.current_players).every(v=>v.roster_week==null||weekNumber(v.roster_week)===rw);
+ const rw=weekNumber(roster?.week),weeksAgree=rw==null||(!validInjury(injury)||Object.values(injury.current_players).every(v=>v.roster_week==null||weekNumber(v.roster_week)===rw))&&[roster?.injury_week,injury?.validation?.injury_report_week].every(w=>w==null||weekNumber(w)===rw);
  if(!weeksAgree)reasons.push('roster weeks disagree');
- return {ok:injuryOk&&rosterOk&&weeksAgree,injuryOk,rosterOk,injuryAsOf:injury?.generated_at||null,rosterAsOf:roster?.generated_at||null,injuryAgeHours:iAge,rosterAgeHours:rAge,reason:reasons.join('; ')};
+ return {ok:injuryOk&&rosterOk&&weeksAgree,injuryOk,rosterOk,injuryAsOf:injury?.source_content_at||null,rosterAsOf:roster?.source_roster_at||null,injuryAgeHours:iAge,rosterAgeHours:rAge,reason:reasons.join('; ')};
 }
 function severity(r){const s=String(r?.report_status||'').trim().toLowerCase();return /^out|^inactive|injured reserve|suspend/.test(s)?4:/doubtful/.test(s)?3:/questionable|game.?time|^gtd/.test(s)?2:/did not/.test(String(r?.practice_status||'').toLowerCase())?1:0;}
 // Merge the injury file (statuses incl. reserve/practice squad) with the all-teams roster snapshot (bye teams, injury objects).

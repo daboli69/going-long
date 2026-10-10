@@ -10,13 +10,13 @@ import king_endzone as king
 import slate_breaker as slate
 
 STAMP = '2026-10-10T12:00:00Z'
-ROSTER = {'generated_at': STAMP, 'players': [{'id': 'p', 'team': 'A', 'roster_status': 'ACT'}]}
-INJURY = {'generated_at': STAMP, 'current_players': {}, 'current_reports': {}}
+ROSTER = {'generated_at': STAMP, 'source_content_at': STAMP, 'source_roster_at': STAMP, 'source_injury_at': STAMP, 'players': [{'id': 'p', 'team': 'A', 'roster_status': 'ACT'}]}
+INJURY = {'generated_at': STAMP, 'source_content_at': STAMP, 'source_roster_at': STAMP, 'source_injury_at': STAMP, 'current_players': {}, 'current_reports': {}}
 
 
 class JackpotAvailabilityTests(unittest.TestCase):
     def test_both_builders_refuse_missing_malformed_stale_or_future_feed(self):
-        for injury in [None, {'generated_at': STAMP}, dict(INJURY, generated_at='2026-10-06T12:00:00Z'),
+        for injury in [None, {'generated_at': STAMP, 'source_content_at': STAMP, 'source_roster_at': STAMP, 'source_injury_at': STAMP}, dict(INJURY, generated_at='2026-10-06T12:00:00Z'),
                        dict(INJURY, generated_at='2026-10-12T12:00:00Z')]:
             with self.subTest(injury=injury), patch('eligibility._load', side_effect=lambda name: injury if name == 'injury_context.json' else ROSTER):
                 with self.assertRaisesRegex(RuntimeError, 'availability unverified'):

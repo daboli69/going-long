@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const T=require('../shared/going-targets.js');
-const NOW=Date.parse('2026-10-10T12:00:00Z'),recent='2026-10-04',ROSTER={generated_at:'2026-10-10T00:00:00Z',players:[]};
+const NOW=Date.parse('2026-10-10T12:00:00Z'),recent='2026-10-04',ROSTER={generated_at:'2026-10-10T00:00:00Z',source_content_at:'2026-10-10T00:00:00Z',source_roster_at:'2026-10-10T00:00:00Z',source_injury_at:'2026-10-10T00:00:00Z',players:[]};
 const prof=(id,pos,trend,extra={})=>({id,name:'P'+id,position:pos,team:'AAA',last_game:recent,role_trend:trend,...extra});
 const share=(l6,l3)=>({l6,l3,l1:l3});
 const risingRB={snap_share:share(60,60),target_share:share(.1,.1),carry_share:share(.4,.55),games:6,last6_current_season:6};
@@ -9,7 +9,7 @@ const rising={snap_share:share(60,75),target_share:share(.15,.24),carry_share:sh
 const flatT={snap_share:share(70,70),target_share:share(.2,.2),carry_share:share(0,0),games:6,last6_current_season:6};
 const falling={snap_share:share(80,60),target_share:share(.25,.15),carry_share:share(0,0),games:6,last6_current_season:6};
 const ovpRow=(id,pos,exp,act,g=5)=>({id,name:'P'+id,pos,team:'AAA',g,exp_pg:exp,act_pg:act,trend3:{exp_pg:exp,act_pg:act,res_pg:act-exp,games:[[2,exp,act],[3,exp,act],[4,exp,act]]}});
-const inj=(entries,reports={})=>({generated_at:'2026-10-10T00:00:00Z',current_players:Object.fromEntries(Object.entries(entries).map(([id,rs])=>['AAA|'+id,{gsis_id:id,roster_status:rs}])),current_reports:Object.fromEntries(Object.entries(reports).map(([id,r])=>['AAA|'+id,{gsis_id:id,week:5,...r}]))});
+const inj=(entries,reports={})=>({generated_at:'2026-10-10T00:00:00Z',source_content_at:'2026-10-10T00:00:00Z',source_roster_at:'2026-10-10T00:00:00Z',source_injury_at:'2026-10-10T00:00:00Z',current_players:Object.fromEntries(Object.entries(entries).map(([id,rs])=>['AAA|'+id,{gsis_id:id,roster_status:rs}])),current_reports:Object.fromEntries(Object.entries(reports).map(([id,r])=>['AAA|'+id,{gsis_id:id,week:5,...r}]))});
 const field=(n)=>Array.from({length:n},(_,i)=>ovpRow('f'+i,'WR',6+i,6+i));
 const base=(profiles,ovp,injury,score={})=>({profiles,ovp:{players:[...field(10),...ovp]},injury,score:{players:score},week:5,now:NOW,roster:ROSTER});
 const ids=(r,c)=>r.categories[c].map(x=>x.id);
@@ -80,11 +80,11 @@ test('value is shrunk to the de-vigged price: a 60% model on a fair 50/50 market
 });
 
 test('bye teams, blank statuses and roster-snapshot fallback',()=>{
- const P={...prof('k','TE',rising),team:'KC'},roster={generated_at:'2026-10-10T00:00:00Z',bye_carry_forward_teams:['KC'],players:[{id:'k',team:'KC',roster_status:'ACT'},{id:'z',team:'AAA',roster_status:'ACT',injury:{report_status:'Out',week:5}}]};
+ const P={...prof('k','TE',rising),team:'KC'},roster={generated_at:'2026-10-10T00:00:00Z',source_content_at:'2026-10-10T00:00:00Z',source_roster_at:'2026-10-10T00:00:00Z',source_injury_at:'2026-10-10T00:00:00Z',bye_carry_forward_teams:['KC'],players:[{id:'k',team:'KC',roster_status:'ACT'},{id:'z',team:'AAA',roster_status:'ACT',injury:{report_status:'Out',week:5}}]};
  const idx=T.indexInjury(inj({}),5,roster);
  assert.equal(T.availability('k',P,idx,NOW).state,'bye');
  assert.equal(T.availability('z',prof('z','WR',rising),idx,NOW).state,'out');
- assert.equal(T.availability('q',prof('q','WR',rising),T.indexInjury(inj({}),5,{generated_at:'2026-10-10T00:00:00Z',players:[{id:'q',team:'AAA',roster_status:'ACT'}]}),NOW).state,'active');
+ assert.equal(T.availability('q',prof('q','WR',rising),T.indexInjury(inj({}),5,{generated_at:'2026-10-10T00:00:00Z',source_content_at:'2026-10-10T00:00:00Z',source_roster_at:'2026-10-10T00:00:00Z',source_injury_at:'2026-10-10T00:00:00Z',players:[{id:'q',team:'AAA',roster_status:'ACT'}]}),NOW).state,'active');
  const blank=inj({x:'ACT'});blank.current_players['AAA|x'].roster_status='';assert.equal(T.availability('x',prof('x','WR',rising),T.indexInjury(blank,5,ROSTER),NOW).state,'unknown');
  assert.match(T.availability('s',prof('s','WR',rising),T.indexInjury(inj({s:'SUS'}),5,ROSTER),NOW).detail,/Suspended/);
  assert.equal(T.availability('x',prof('x','WR',rising),T.indexInjury(inj({x:'ACT'},{x:{report_status:'Inactive'}}),5,ROSTER),NOW).actionable,false);

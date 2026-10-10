@@ -7,6 +7,17 @@ from injury_context import body_group, build_current, build_effects, status_grou
 
 
 class InjuryContextTests(unittest.TestCase):
+    def test_unavailability_report_without_body_part_and_newer_status_are_preserved(self):
+        roster = [dict(season=2026, week=5, game_type='REG', gsis_id='p', full_name='Test Player', team='A', position='WR', status='ACT')]
+        reports = [dict(season=2026, week=5, season_type='REG', gsis_id='p', full_name='Test Player', team='A', position='WR',
+                        report_primary_injury='Illness', report_status='Out', date_modified='2026-10-10T11:00:00Z'),
+                   dict(season=2026, week=5, season_type='REG', gsis_id='p', full_name='Test Player', team='A', position='WR',
+                        report_primary_injury='Ankle', report_status='Questionable', date_modified='2026-10-09T11:00:00Z')]
+        _, current, _, _, _ = build_current(2026, reports, [], roster, {}, [], [])
+        self.assertEqual(current['A|testplayer']['report_status'], 'Out')
+        self.assertIsNone(current['A|testplayer']['body_part'])
+        self.assertEqual(current['A|testplayer']['reported_at'], '2026-10-10T11:00:00+00:00')
+
     def test_played_through_effect_uses_only_prior_healthy_active_weeks(self):
         roster = [{'pfr_id': 'TestPl00', 'gsis_id': 'p'}]
         snaps = [dict(season=2025, week=week, game_type='REG', pfr_player_id='TestPl00', offense_pct=.8)

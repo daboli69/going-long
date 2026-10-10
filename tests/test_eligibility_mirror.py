@@ -12,7 +12,7 @@ FRESH, OLD = '2026-10-11T08:00:00Z', '2026-10-08T08:00:00Z'
 
 
 def inj(entries, reports=None, at=FRESH):
-    return {'generated_at': at, 'current_players': {f'T|{k}': {'gsis_id': k, 'roster_status': v} for k, v in entries.items()},
+    return {'generated_at': at, 'source_content_at': at, 'source_roster_at': at, 'source_injury_at': at, 'current_players': {f'T|{k}': {'gsis_id': k, 'roster_status': v} for k, v in entries.items()},
             'current_reports': {f'T|{k}': {'gsis_id': k, **v} for k, v in (reports or {}).items()}}
 
 
@@ -28,7 +28,7 @@ class EligibilityMirrorTests(unittest.TestCase):
         self.assertEqual(got, {'z'})
 
     def test_freshness_fails_on_stale_or_missing_files(self):
-        roster = {'generated_at': FRESH, 'players': []}
+        roster = {'generated_at': FRESH, 'source_content_at': FRESH, 'source_roster_at': FRESH, 'source_injury_at': FRESH, 'players': []}
         self.assertTrue(E.freshness(NOW, inj({}), roster)['ok'])
         self.assertFalse(E.freshness(NOW, inj({}, at=OLD), roster)['ok'])
         self.assertIn('injury file', E.freshness(NOW, inj({}, at=OLD), roster)['reason'])
@@ -41,7 +41,7 @@ class EligibilityMirrorTests(unittest.TestCase):
 
     def test_roster_only_unknown_and_contradictory_statuses_block(self):
         for status in ('RES', 'PS', 'BOGUS', '', None):
-            roster = {'generated_at': FRESH, 'players': [{'id': 'a', 'roster_status': status}]}
+            roster = {'generated_at': FRESH, 'source_content_at': FRESH, 'source_roster_at': FRESH, 'source_injury_at': FRESH, 'players': [{'id': 'a', 'roster_status': status}]}
             self.assertIn('a', E.blocked_ids({'a': {}}, inj({'a': 'ACT'}), roster, NOW, week=5))
             self.assertIn('a', E.confirmed_unavailable(inj({'a': 'ACT'}), roster, week=5))
 
@@ -50,13 +50,18 @@ class EligibilityMirrorTests(unittest.TestCase):
         self.assertEqual(E.blocked_ids({'a': {}}, None, None, NOW), {'a'})
 
     def test_javascript_python_blocking_parity_on_adversarial_json(self):
-        roster = {'generated_at': FRESH, 'players': [], 'bye_carry_forward_teams': []}
+        roster = {'generated_at': FRESH, 'source_content_at': FRESH, 'source_roster_at': FRESH, 'source_injury_at': FRESH, 'players': [], 'bye_carry_forward_teams': []}
         cases = []
 
         def add(i, r=roster, profiles=None):
             cases.append({'injury': i, 'roster': r, 'profiles': profiles or {'a': {}, 'unknown': {}}, 'week': 5})
 
         add(inj({'a': 'ACT'}))
+        add({**inj({'a': 'ACT'}), 'source_content_at': OLD})
+        add({**inj({'a': 'ACT'}), 'source_content_at': None})
+        add(inj({'a': 'ACT'}), {**roster, 'source_injury_at': OLD})
+        add(inj({'a': 'ACT'}), {**roster, 'week': 5, 'injury_week': 4})
+        add({**inj({'a': 'ACT'}), 'validation': {'injury_report_week': 4}}, {**roster, 'week': 5})
         add(inj({'a': 'ACTIVE'}))
         add(inj({'a': ' act '}))
         for status in ('RES', 'PS', 'BOGUS', '', None, 123, ['ACT']):
@@ -66,11 +71,11 @@ class EligibilityMirrorTests(unittest.TestCase):
             add(inj({'a': 'ACT'}, {'a': {'report_status': ' Out ', 'week': week}}))
         for stamp in (OLD, 12, '12', '2026-10-11', '2026-10-11T08:00:00', '2026-10-12T08:00:00Z', '2026-02-30T08:00:00Z', '2026-10-10T24:00:00Z', '2026-10-11T08:00:00+00:99', '2026-10-11T08:00:00+01:60', '2026-10-11T08:00:00-00:60'):
             add(inj({'a': 'ACT'}, at=stamp))
-        for bad in (None, [], {'generated_at': FRESH}, {**inj({'a': 'ACT'}), 'current_reports': []},
+        for bad in (None, [], {'generated_at': FRESH, 'source_content_at': FRESH, 'source_roster_at': FRESH, 'source_injury_at': FRESH}, {**inj({'a': 'ACT'}), 'current_reports': []},
                     {**inj({'a': 'ACT'}), 'current_reports': {'bad': {'gsis_id': 'a', 'report_status': ['Out']}}},
                     {**inj({'a': 'ACT'}), 'current_players': {'bad': None}}):
             add(bad)
-        for bad in (None, [], {'generated_at': FRESH}, {**roster, 'players': 'bad'},
+        for bad in (None, [], {'generated_at': FRESH, 'source_content_at': FRESH, 'source_roster_at': FRESH, 'source_injury_at': FRESH}, {**roster, 'players': 'bad'},
                     {**roster, 'players': [None]}, {**roster, 'bye_carry_forward_teams': 'AAA'}):
             add(inj({'a': 'ACT'}), bad)
         tagged = inj({'a': 'ACT'})

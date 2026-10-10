@@ -1,8 +1,8 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../shared/going-eligibility.js');
 const NOW=Date.parse('2026-10-11T12:00:00Z'),fresh='2026-10-11T08:00:00Z',old='2026-10-08T08:00:00Z';
-const inj=(entries,reports={},generated_at=fresh)=>({generated_at,current_players:Object.fromEntries(Object.entries(entries).map(([id,rs])=>['T|'+id,{gsis_id:id,roster_status:rs,team:'AAA'}])),current_reports:Object.fromEntries(Object.entries(reports).map(([id,r])=>['T|'+id,{gsis_id:id,week:5,...r}]))});
-const roster=(players=[],extra={})=>({generated_at:fresh,week:5,players,bye_carry_forward_teams:[],...extra});
+const inj=(entries,reports={},generated_at=fresh)=>({generated_at,source_content_at:generated_at,source_roster_at:generated_at,current_players:Object.fromEntries(Object.entries(entries).map(([id,rs])=>['T|'+id,{gsis_id:id,roster_status:rs,team:'AAA'}])),current_reports:Object.fromEntries(Object.entries(reports).map(([id,r])=>['T|'+id,{gsis_id:id,week:5,...r}]))});
+const roster=(players=[],extra={})=>({generated_at:fresh,source_content_at:fresh,source_roster_at:fresh,source_injury_at:fresh,week:5,players,bye_carry_forward_teams:[],...extra});
 const eng=(i,r=roster(),o={})=>E.create({injury:i,roster:r,week:5,now:NOW,...o});
 const d=(e,id,extra={lastGame:'2026-10-04'})=>e.decide(id,extra);
 
@@ -91,10 +91,10 @@ test('team contradictions, future appearances and unknown profile IDs fail close
 });
 
 test('timestamp-only and malformed collections cannot verify availability or throw',()=>{
- for(const i of [{generated_at:fresh},[],{...inj({a:'ACT'}),current_reports:[]},{...inj({a:'ACT'}),current_players:{bad:null}},{...inj({a:'ACT'}),current_reports:{bad:{gsis_id:'a',report_status:['Out']}}}]){
+ for(const i of [{generated_at:fresh,source_content_at:fresh,source_roster_at:fresh,source_injury_at:fresh},[],{...inj({a:'ACT'}),current_reports:[]},{...inj({a:'ACT'}),current_players:{bad:null}},{...inj({a:'ACT'}),current_reports:{bad:{gsis_id:'a',report_status:['Out']}}}]){
   const e=eng(i);assert.equal(e.fresh.ok,false);assert.equal(d(e,'a').actionable,false);
  }
- for(const r of [{generated_at:fresh},[],roster('invalid'),roster([null]),roster([],{bye_carry_forward_teams:'AAA'})]){
+ for(const r of [{generated_at:fresh,source_content_at:fresh,source_roster_at:fresh,source_injury_at:fresh},[],roster('invalid'),roster([null]),roster([],{bye_carry_forward_teams:'AAA'})]){
   const e=eng(inj({a:'ACT'}),r);assert.equal(e.fresh.ok,false);assert.equal(d(e,'a').actionable,false);
  }
  for(const generated_at of [12,'12','2026-10-11','2026-10-11T08:00:00','2026-10-12T08:00:00Z'])assert.equal(d(eng(inj({a:'ACT'},{},generated_at)),'a').actionable,false);

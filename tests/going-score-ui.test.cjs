@@ -4,7 +4,7 @@ const E=require('../shared/going-eligibility.js');
 test('player score rankings, movers and comparisons use current verified eligibility',async t=>{
  const dom=new JSDOM('<div id="scores"></div>',{runScripts:'outside-only'});t.after(()=>dom.window.close());
  const w=dom.window,host=w.document.getElementById('scores'),at='2026-10-10T12:00:00Z',now=Date.parse(at);
- const injury={generated_at:at,current_players:{},current_reports:{}},roster={generated_at:at,players:[{id:'a',team:'BUF',roster_status:'ACT'}]};
+ const injury={generated_at:at,source_content_at:at,source_roster_at:at,source_injury_at:at,current_players:{},current_reports:{}},roster={generated_at:at,source_content_at:at,source_roster_at:at,source_injury_at:at,players:[{id:'a',team:'BUF',roster_status:'ACT'}]};
  let engine=E.create({injury,roster,now});
  const player=(name,score)=>({name,team:'BUF',position:'WR',score,rank:1,of:2,tier:{label:'Solid'},delta_3w:10,components:{},history:[]});
  const doc={schema:'going-score-v2',season:2026,week:5,meaning:'Situation index',players:{a:player('Verified Player',60),unknown:player('Unknown Player',99)}};
