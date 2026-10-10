@@ -13,7 +13,7 @@ const values={};for(const [name,entry] of Object.entries(frozen.files)){if(crypt
 const h=values.history.betting,c=values.football_context,roster=values.nfl_roster,inj=values.injury_context;
 const inputTimes=[values.dfs_team_touchdowns.generatedAt,h.generated_at,c.generated_at,roster.generated_at,inj.generated_at].map(Date.parse);
 const liveNow=Math.max(...inputTimes)+60000;
-const availability=require('../shared/dfs-availability.js'),classic=require('../shared/dfs-classic.js'),evidence=require('../shared/dfs-evidence.js'),sim=require('../shared/dfs-sim.js'),field=require('../shared/dfs-classic-field.js'),football=require('../shared/football-dfs.js');
+require('../shared/dfs-correlations.js');const availability=require('../shared/dfs-availability.js'),classic=require('../shared/dfs-classic.js'),evidence=require('../shared/dfs-evidence.js'),sim=require('../shared/dfs-sim.js'),field=require('../shared/dfs-classic-field.js'),football=require('../shared/football-dfs.js');
 const injuryContext=availability.createContext(roster,h.profiles,liveNow,inj);
 const source=require('../research/today-ranking/collect.cjs').openSource(root,new Date(liveNow).toISOString());
 source.w.dfsFixture={history:h,context:c,injuryContext};

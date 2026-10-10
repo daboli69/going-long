@@ -8,7 +8,7 @@ function buildScenario({teamSnapshot,profiles={},context,injuryContext,generated
  if(!finite(now))fail('current time is invalid.');
  const seasonOf=stamp=>{const d=new Date(stamp);return d.getUTCFullYear()-(d.getUTCMonth()<2?1:0);},season=seasonOf(now),fresh=(stamp,label)=>{const t=Date.parse(stamp);if(!Number.isFinite(t)||t>now||now-t>36*3600000)fail(label+' is missing, future-dated or older than 36 hours; refresh the public evidence.');return t;};
  if(teamSnapshot?.schemaVersion!==1||teamSnapshot.season!==season)fail('a current-season schema 1 team TD snapshot is required.');
- const at=fresh(teamSnapshot.generatedAt,'Team snapshot'),retrieved=fresh(teamSnapshot.retrievedAt,'Team source retrieval'),released=fresh(teamSnapshot.releaseUpdatedAt,'Team source release');
+ const at=fresh(teamSnapshot.generatedAt,'Team snapshot'),retrieved=fresh(teamSnapshot.retrievedAt,'Team source retrieval'),released=((stamp)=>{const t=Date.parse(stamp);if(!Number.isFinite(t)||t>now||now-t>8*86400000)fail('Team source release is missing, future-dated or older than 8 days.');return t;})(teamSnapshot.releaseUpdatedAt);// nflverse only republishes after games finish, so release age is not staleness within a week; our own retrieval must still be under 36 hours and the builder drops games missing from either source
  if(released>retrieved||retrieved>at)fail('team source receipt chronology is invalid.');
  if(teamSnapshot.sourceURL!==`https://github.com/nflverse/nflverse-data/releases/download/stats_team/stats_team_week_${season}.csv`||!/^[a-f0-9]{64}$/i.test(teamSnapshot.sourceSha256||''))fail('official nflverse source URL and SHA-256 receipt are required.');
  fresh(generatedAt,'GOING player models');fresh(context?.generated_at,'Current role snapshot');

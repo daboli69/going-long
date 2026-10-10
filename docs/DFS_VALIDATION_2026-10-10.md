@@ -57,3 +57,7 @@ Reproduce: `scripts/dfs_projection_backtest.py`.
 ## F. Sunday 10/11 slate
 
 No `DKSalaries*.csv` in Downloads contains 10/11/2026 (dates present: 09/20, 10/04, 10/05, 10/08). Not run.
+
+
+## Independent re-verification correction (2026-10-10)
+The first harness run did not load `shared/dfs-correlations.js`, so lineup correlations were zero and "Measured changed 1 player, 0.4 points" described that harness, not production. With the correlations loaded (as production does), on the 10/04 slate Best, Measured and Tournament all return the same roster (projection 175.1, SD 26.6, 90th percentile 209.3); the UI says so through `vsBest`. Classic styles can therefore coincide on a slate; Showdown styles differ (4-7 distinct top lineups across 7 styles with the private field model). The Touchdown Throne gate no longer treats nflverse release age as staleness (it republishes only after games finish): our own retrieval must be under 36 hours and the release under 8 days. Sums of player ownership are shown in points, not percent.
