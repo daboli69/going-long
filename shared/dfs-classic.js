@@ -124,17 +124,24 @@ function tournamentSum(players){const engine=tournamentEngine();return players.r
 const simEngine=()=>root.GoingDfsSim||(typeof require==='function'?require('./dfs-sim.js'):null);
 // Measured ceiling: mean + 1.28 SD of the lineup total, using the measured player correlations (research P3-7/P3-9). The beam uses an additive proxy; finalists are re-ranked on the exact joint moments.
 const MEASURED_Z=1.2816,TYPICAL_LINEUP_SD=19;
-const spreadOf=p=>finite(p.distribution?.sd)?p.distribution.sd:Math.max(2.5,(p.projection||0)*.42);
+const spreadOf=p=>finite(p.distribution?.sd)?p.distribution.sd:p.position==='DST'?(simEngine()?.DST_SD??5.8):Math.max(2.5,(p.projection||0)*.42);// D/ST: realised sd of D/ST points (5.8), not 42% of its projection
 // The beam needs an additive proxy. A player's marginal contribution to a lineup's 90th percentile is about z*sd_i^2/SD_lineup (not z*sd_i): variance matters in proportion to its square.
 const proxy=p=>p.projection+MEASURED_Z*spreadOf(p)**2/TYPICAL_LINEUP_SD;
 // Exact lineup mean and SD with the measured correlations. The mean is the projection itself (simulated means carry sampling noise of about 0.2-0.3 pt per player); D/ST has no simulated
 // distribution and uses the platform-average spread, independent of everyone else.
-function measuredMoments(players){const m=simEngine()?.lineupMoments(players.map(p=>({dfsRole:p.dfsRole,team:p.team,opponent:p.opponent,projection:p.projection,sd:spreadOf(p),distribution:finite(p.distribution?.sd)?{mean:p.projection,sd:p.distribution.sd}:undefined})));return m||null;}
+function measuredMoments(players){const m=simEngine()?.lineupMoments(players.map(p=>({position:p.position,dfsRole:p.dfsRole,team:p.team,opponent:p.opponent,projection:p.projection,sd:spreadOf(p),distribution:finite(p.distribution?.sd)?{mean:p.projection,sd:p.distribution.sd}:undefined})));return m||null;}
 function measuredObjective(players){const m=measuredMoments(players);return m?m.mean+MEASURED_Z*m.sd:players.reduce((s,p)=>s+p.projection,0);}
 function compare(a,b,mode){return (mode==='measured'?(b.measuredTotal??=b.players.reduce((s,p)=>s+proxy(p),0))-(a.measuredTotal??=a.players.reduce((s,p)=>s+proxy(p),0)):mode==='tournament'?(b.tournamentTotal??=tournamentSum(b.players))-(a.tournamentTotal??=tournamentSum(a.players)):mode==='throne'?b.tdMean-a.tdMean:0)||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
 function thresholdEngine(){return root.GoingDfsThreshold||(typeof require==='function'?require('./dfs-threshold.js'):null);}
 function thresholdCompare(a,b){return b.tdThreshold.tailMass-a.tdThreshold.tailMass||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
 function optimize(pool,options={}){
+ // measured and tournament are different objectives from Best DFS (mean). When they land on the same roster, say so rather than present duplicates: vsBest.same / vsBest.changed.
+ if(!options._compare&&['measured','tournament'].includes(options.mode)){
+  const result=optimize(pool,{...options,_compare:true});
+  if(result.lineup?.length){const best=optimize(pool,{...options,mode:'best',_compare:true});
+   if(best.lineup?.length){const ids=new Set(best.lineup.map(p=>String(p.id))),changed=result.lineup.filter(p=>!ids.has(String(p.id))).length;result.vsBest={same:changed===0,changed,bestProjection:best.projection,projectionGiven:best.projection-result.projection};}}
+  return result;
+ }
  const c=context(pool,options),failure=reason=>({lineup:[],reason,errors:c.errors,heuristic:true});
  if(c.errors.length)return failure(c.errors.join(' '));
  const scenario=c.mode==='throne'&&options.tdScenario,engine=scenario&&thresholdEngine();

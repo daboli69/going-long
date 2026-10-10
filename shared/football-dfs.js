@@ -55,12 +55,23 @@ function correlation(lineup,mode){
 }
 const sim=()=>root.GoingDfsSim||(typeof require==='function'?require('./dfs-sim.js'):null);
 const field=()=>root.GoingDfsField||(typeof require==='function'?require('./dfs-field.js'):null);
-// Build styles that rank complete lineups by simulated upside (measured correlations) and, in Showdown with the private field model loaded, by duplication / ownership.
-const FIELD_MODES=new Set(['measured','best','lowdup','leverage']);
-function objective(player,mode){const projection=player.projection||0,sd=finite(player.sd)?player.sd:projection*.32;return FIELD_MODES.has(mode)?projection+.28*sd:mode==='tournament'?(root.GoingDfsTournament||(typeof require==='function'?require('./dfs-tournament.js'):null))?.objective(player)??projection:mode==='floor'?projection-.18*sd:mode==='ceiling'?projection+.28*sd:projection;}
-// Measured-correlation objective: mean plus 1.28 standard deviations of the lineup total (about its 90th percentile), with the pairwise correlations measured in
-// research/trend-intelligence (P3-9). Players without a simulated distribution fall back to their projection spread and are treated as independent.
-function measuredObjective(lineup,mode='measured',entries=30000){const simulator=sim();if(!simulator)return lineup.reduce((sum,player)=>sum+(player.projection||0)*(player.multiplier||1),0);const moments=simulator.lineupMoments(lineup),f=field();if(mode!=='measured'&&f?.ready())return f.objective(mode,moments,lineup,entries);return moments.mean+1.2816*moments.sd;}
+// Build styles. Each is a distinct, stated objective on the COMPLETE lineup, using the measured correlations (research P3-9 plus the D/ST table in dfs-sim.js):
+//   balanced   mean projected points (a pure mean maximiser; correlation cannot change a mean, so there is no stack or D/ST bonus or penalty)
+//   floor      mean - 1.28 SD of the lineup total (about its 10th percentile): steadier
+//   measured   mean + 1.28 SD (about the 90th percentile): rewards QB stacks and bring-backs, charges for a D/ST opposing your own offence
+//   ceiling    mean + 2.33 SD (about the 99th percentile): same ingredients, far-right-tail weighting (large-field top-heavy payouts); unvalidated
+//   best       measured minus a duplication penalty   |  lowdup  mean minus a duplication penalty  |  leverage  mean minus a total-ownership penalty
+// best/lowdup/leverage need the private Showdown field model and a Showdown slate; otherwise they use the measured objective and the result says so (reason).
+// None of these has shown a reliable ROI edge in archived-contest backtests.
+const LINEUP_MODES=new Set(['measured','best','lowdup','leverage','ceiling','floor']),FIELD_ONLY=new Set(['best','lowdup','leverage']),FIELD_MODES=LINEUP_MODES;
+const Z={measured:1.2816,best:1.2816,ceiling:2.3263,floor:-1.2816};
+const LABEL={balanced:'Balanced projection',floor:'Floor',measured:'Measured stack ceiling',ceiling:'Ceiling',best:'Ceiling + duplication penalty',lowdup:'Lower duplication',leverage:'Ownership leverage',tournament:'Tournament research'};
+// Beam proxies are additive per-player stand-ins; the finalists are re-ranked on the exact lineup objective.
+function objective(player,mode){const projection=player.projection||0,sd=finite(player.sd)?player.sd:projection*.32;return mode==='tournament'?(root.GoingDfsTournament||(typeof require==='function'?require('./dfs-tournament.js'):null))?.objective(player)??projection:mode==='ceiling'?projection+.5*sd:mode==='floor'?projection-.28*sd:mode==='measured'||mode==='best'?projection+.28*sd:projection;}
+function fieldActive(mode,showdown){return FIELD_ONLY.has(mode)&&showdown&&Boolean(field()?.ready());}
+function penalty(player,mode,showdown,captain){const f=fieldActive(mode,showdown)?field():null;if(!f)return 0;if(mode==='leverage')return finite(player.ownership)?f.WEIGHTS.gamma*player.ownership:0;return f.WEIGHTS.lambda*(f.dupMarginal?.(player,captain)??0);}
+// Moments of the lineup total with measured correlations; the exact objective for every lineup-level style.
+function measuredObjective(lineup,mode='measured',entries=30000,showdown=false){const simulator=sim();if(!simulator)return lineup.reduce((sum,player)=>sum+(player.projection||0)*(player.multiplier||1),0);const moments=simulator.lineupMoments(lineup),f=field();if(fieldActive(mode,showdown))return f.objective(mode,moments,lineup,entries);return moments.mean+(Z[mode]??Z.measured)*moments.sd;}
 function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false,contest='classic',lockedIds=[],captainId=null,now=Date.now(),entries=30000}={}){
  const rule=RULES[site];if(!rule)return {lineups:[],reason:'Unsupported DFS platform.'};
  const showdown=contest==='showdown',multiplierSlot=site==='fanduel'?'MVP':'CPT',maxFromTeam=showdown?5:rule.maxTeam,slots=showdown?[multiplierSlot,'FLEX','FLEX','FLEX','FLEX','FLEX']:projectionOnly?rule.slots.filter(slot=>slot!=='DST'):rule.slots;
@@ -95,7 +106,7 @@ function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5
   for(const state of states)for(const player of bySlot[slot]){
    const athlete=norm(player.name)+'|'+player.team,salary=finite(player.salary)?salaryFor(player,slotIndex):0;
    if(state.ids.has(player.id)||state.athletes.has(athlete)||(!projectionOnly&&state.salary+salary+minimumRemaining[slotIndex+1]>rule.cap)||(state.teams[player.team]||0)>=maxFromTeam)continue;
-   const ids=new Set(state.ids);ids.add(player.id);const remainingLocks=new Set([...requestedLocks].filter(id=>![...ids].some(chosen=>String(chosen)===id)));if(!locksFit(remainingLocks,slots.slice(slotIndex+1)))continue;const athletes=new Set(state.athletes);athletes.add(athlete);next.push({players:[...state.players,{...player,slot,multiplier}],ids,athletes,teams:{...state.teams,[player.team]:(state.teams[player.team]||0)+1},salary:state.salary+salary,base:state.base+objective(player,mode)*multiplier});
+   const ids=new Set(state.ids);ids.add(player.id);const remainingLocks=new Set([...requestedLocks].filter(id=>![...ids].some(chosen=>String(chosen)===id)));if(!locksFit(remainingLocks,slots.slice(slotIndex+1)))continue;const athletes=new Set(state.athletes);athletes.add(athlete);next.push({players:[...state.players,{...player,slot,multiplier}],ids,athletes,teams:{...state.teams,[player.team]:(state.teams[player.team]||0)+1},salary:state.salary+salary,base:state.base+objective(player,mode)*multiplier-penalty(player,mode,showdown,multiplier>1)});
   }
   next.sort((a,b)=>b.base-a.base||b.salary-a.salary);
   if(projectionOnly||next.length<=beamWidth||slotIndex===slots.length-1)states=next.slice(0,beamWidth);
@@ -111,11 +122,16 @@ function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5
   }
   if(!states.length)return {lineups:[],reason:projectionOnly?'No position-valid offensive core could be generated.':`No legal lineup fits the ${rule.label} salary cap.`};
  }
- const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:FIELD_MODES.has(mode)?measuredObjective(state.players,mode,entries):state.base+(mode==='tournament'?0:correlation(state.players,mode)),conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
+ const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:LINEUP_MODES.has(mode)?measuredObjective(state.players,mode,entries,showdown):state.base,conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
  const lineups=[];for(const candidate of ranked){const ids=new Set(candidate.players.map(player=>player.id)),different=lineups.every(lineup=>lineup.players.filter(player=>!ids.has(player.id)).length>=minUnique);if(different)lineups.push(candidate);if(lineups.length>=Math.max(1,Math.min(20,count)))break;}
  const fieldModel=field();if(fieldModel?.ready()&&showdown)lineups.forEach(lineup=>{lineup.ownership=fieldModel.lineupOwnership(lineup.players);lineup.duplication=fieldModel.duplication(lineup.players,entries);});
  const simulator=sim();if(simulator)lineups.forEach((lineup,index)=>{const moments=simulator.lineupMoments(lineup.players),distribution=simulator.lineupDistribution(lineup.players,{draws:2000,seed:index+1});if(distribution)lineup.simulation={mean:distribution.mean,sd:distribution.sd,floor:distribution.floor,p25:distribution.p25,median:distribution.median,p75:distribution.p75,p90:distribution.p90,p95:distribution.p95,draws:2000,source:distribution.source,analyticSd:moments.sd};});
- return {lineups,reason:lineups.length?null:'No sufficiently distinct roster ideas were found.',eligible:available.length,rule:{...rule,slots},projectionOnly,contest,locked:[...requestedLocks]};
+ // Say so when a style cannot differ: no private field model for a duplication/ownership style, or the style's best roster is simply the highest-projection roster in the search.
+ const notes=[];
+ if(FIELD_ONLY.has(mode)&&!fieldActive(mode,showdown))notes.push(`${LABEL[mode]} needs the private Showdown field model and a Showdown slate; this build used the Measured objective instead.`);
+ const topProjection=ranked.reduce((best,state)=>!best||state.projection>best.projection?state:best,null),first=lineups[0];
+ if(mode!=='balanced'&&first&&topProjection&&first.players.length===topProjection.players.length&&first.players.every(p=>topProjection.ids.has(p.id)))notes.push(`The top ${LABEL[mode]||mode} roster is also the highest-projection roster the search found: this objective did not change the optimum on this slate.`);
+ return {lineups,reason:lineups.length?(notes.join(' ')||null):'No sufficiently distinct roster ideas were found.',notes,eligible:available.length,rule:{...rule,slots},projectionOnly,contest,locked:[...requestedLocks]};
 }
 
 root.GoingFootballDfs={RULES,norm,parseSalaryCsv,projectedPoints,optimize,correlation};

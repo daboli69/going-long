@@ -7,6 +7,13 @@ const SOURCE='dfs-sim-v1';
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const COMPONENTS={QB:['pass_yds','pass_tds','rush_yds','rush_tds'],RB:['rush_yds','rush_tds','receptions','rec_yds','rec_tds'],WR:['receptions','rec_yds','rec_tds'],TE:['receptions','rec_yds','rec_tds']};
 const BONUS={pass_yds:300,rush_yds:100,rec_yds:100};
+// D/ST correlations and spread, estimated from ARCHIVED DraftKings contest point totals (2021-01 .. 2026-10, 662 team-games with full Classic role coverage; scripts/dfs_correlation_estimates.py).
+// Normal-score correlation of D/ST DraftKings points with the OPPOSING offence's starters (role = salary rank within team and position, players who played). Earlier games (<=2024) and
+// later games (>=2025) agreed (QB -.48/-.53, RB1 -.27/-.27, WR1 -.22/-.18, TE1 -.11/-.08), so the table is the all-games estimate shrunk by n/(n+50). The D/ST's own offence was ~0 in both halves
+// except RB1 (+.12/+.12, rushing offence = clock control). D/ST vs opposing D/ST flipped sign between halves and is left at 0. This models EXPECTED IMPACT (a lineup holding both has
+// lower variance, so ceiling objectives pay for it); it is not a ban on pairing a D/ST against his opponent. The spread is the realised sd of D/ST points (5.9 fit, 5.8 validation).
+const DST_ROLE='DST',DST_SD=5.8;
+const DST_CROSS=Object.freeze({'DST~opp_QB':-.453,'DST~opp_RB1':-.253,'DST~opp_WR1':-.186,'DST~opp_WR2':-.153,'DST~opp_WR3':-.125,'DST~opp_TE1':-.094,'DST~RB1':.109});
 const QUANTILES={floor:.1,p25:.25,median:.5,p75:.75,p90:.9,p95:.95};
 
 function normalCDF(z){
@@ -112,7 +119,7 @@ function player(models,position,{draws=1000,site='draftkings',seed,correlations=
 // Pair correlation between two players. Same team: role pair; opposing teams: role vs opponent role. Unmeasured pairs are treated as independent.
 function pairCorrelation(a,b,correlations=root.GoingDfsCorrelations){
  if(!a.dfsRole||!b.dfsRole||!correlations?.cross_player)return 0;
- const table=correlations.cross_player,get=key=>table[key]?.r;
+ const table=correlations.cross_player,get=key=>table[key]?.r??DST_CROSS[key];
  if(a.team===b.team){const keys=[[a.dfsRole,b.dfsRole],[b.dfsRole,a.dfsRole]].map(([x,y])=>x+'~'+y);return get(keys[0])??get(keys[1])??0;}
  if(a.opponent&&a.opponent===b.team){
   const direct=get(a.dfsRole+'~opp_'+b.dfsRole),reverse=get(b.dfsRole+'~opp_'+a.dfsRole),found=[direct,reverse].filter(finite);
@@ -120,24 +127,25 @@ function pairCorrelation(a,b,correlations=root.GoingDfsCorrelations){
  }
  return 0;
 }
-// Roles from the pool itself: QB, RB1, WR1-3, TE1 by projection within team and position (the research assigned roles by pre-game targets / carries).
+// Roles from the pool itself: QB, RB1, WR1-3, TE1 by projection within team and position (the research assigned roles by pre-game targets / carries); the team's D/ST gets role DST.
 function assignRoles(players){
  const byTeam=new Map();
  for(const p of players){if(!p.team)continue;const key=p.team+'|'+p.position;if(!byTeam.has(key))byTeam.set(key,[]);byTeam.get(key).push(p);}
  for(const rows of byTeam.values()){
   rows.sort((x,y)=>(y.projection||0)-(x.projection||0));
-  rows.forEach((p,i)=>{const pos=p.position;p.dfsRole=pos==='QB'?(i===0?'QB':null):pos==='RB'?(i===0?'RB1':null):pos==='WR'?(i<3?'WR'+(i+1):null):pos==='TE'?(i===0?'TE1':null):null;});
+  rows.forEach((p,i)=>{const pos=p.position;p.dfsRole=pos==='DST'?(i===0?DST_ROLE:null):pos==='QB'?(i===0?'QB':null):pos==='RB'?(i===0?'RB1':null):pos==='WR'?(i<3?'WR'+(i+1):null):pos==='TE'?(i===0?'TE1':null):null;});
  }
  return players;
 }
 // Analytic moments of a lineup total with the measured correlations (multipliers apply to CPT/MVP).
+// Spread of one player's points: the simulated distribution when there is one; D/ST uses the realised sd of D/ST points (5.8) rather than a fraction of its projection, which understated it ~2x.
+const sdOf=p=>finite(p.distribution?.sd)?p.distribution.sd:(p.position==='DST'||p.dfsRole===DST_ROLE)?DST_SD:(finite(p.sd)?p.sd:0);
 function lineupMoments(lineup,{correlations=root.GoingDfsCorrelations}={}){
  let mean=0,variance=0;
- for(const p of lineup){const m=p.multiplier||1,sd=finite(p.distribution?.sd)?p.distribution.sd:(finite(p.sd)?p.sd:0);mean+=m*(p.distribution?.mean??p.projection??0);variance+=(m*sd)**2;}
+ for(const p of lineup){const m=p.multiplier||1,sd=sdOf(p);mean+=m*(p.distribution?.mean??p.projection??0);variance+=(m*sd)**2;}
  for(let i=0;i<lineup.length;i++)for(let j=i+1;j<lineup.length;j++){
   const a=lineup[i],b=lineup[j],r=pairCorrelation(a,b,correlations);if(!r)continue;
-  const sa=finite(a.distribution?.sd)?a.distribution.sd:(a.sd||0),sb=finite(b.distribution?.sd)?b.distribution.sd:(b.sd||0);
-  variance+=2*r*(a.multiplier||1)*sa*(b.multiplier||1)*sb;
+  variance+=2*r*(a.multiplier||1)*sdOf(a)*(b.multiplier||1)*sdOf(b);
  }
  return {mean,sd:Math.sqrt(Math.max(0,variance))};
 }
@@ -160,6 +168,6 @@ function lineupDistribution(lineup,{draws=2000,correlations=root.GoingDfsCorrela
 }
 function probabilityAtLeast(distribution,threshold){if(!distribution?.sorted)return null;let lo=0,hi=distribution.sorted.length;while(lo<hi){const mid=(lo+hi)>>1;if(distribution.sorted[mid]<threshold)lo=mid+1;else hi=mid;}return (distribution.sorted.length-lo)/distribution.sorted.length;}
 
-root.GoingDfsSim={SOURCE,COMPONENTS,normalCDF,normalPpf,ppfModel,score,player,pairCorrelation,assignRoles,lineupMoments,lineupDistribution,probabilityAtLeast,cholesky,hashSeed};
+root.GoingDfsSim={SOURCE,DST_SD,DST_CROSS,sdOf,COMPONENTS,normalCDF,normalPpf,ppfModel,score,player,pairCorrelation,assignRoles,lineupMoments,lineupDistribution,probabilityAtLeast,cholesky,hashSeed};
 if(typeof module!=='undefined')module.exports=root.GoingDfsSim;
 })(globalThis);

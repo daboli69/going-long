@@ -80,9 +80,9 @@ const MARKET_LABEL={rec_yds:'Receiving yards',receptions:'Receptions',rush_yds:'
 // What the out-of-sample test (champion_2021_2025, 2021-25, games 4+ of a season, top-15% vs bottom-15% change in share, ratio of actual to the Champion mean) found. It tests
 // information beyond GOING's own Champion model. It does NOT test information beyond a sportsbook price, which cannot be tested without historical posted lines.
 const EVIDENCE={
- receptions:{metric:'target_share',text:'A rising target share beat the Champion mean by 5.6% over a falling one (90% interval +1.6% to +9.6%; same sign in all five seasons).'},
- rush_yds:{metric:'carry_share',text:'A rising carry share beat the Champion mean by 16% over a falling one (90% interval +7% to +25%; same sign in four of five seasons).'},
- atd:{metric:null,text:'Scoring-role tiers beat the Champion anytime-TD rate (2025 holdout log loss -4.2%).'}
+ // Receptions on target share is NOT here: the earlier +5.6% finding came from zero-filled did-not-play rows. On participants (books void non-participants) it is +1.6% (90% interval -3.8% to +7.3%), a null.
+ rush_yds:{metric:'carry_share',text:'Weak evidence: for running backs, a rising carry share beat the Champion mean by 16% over a falling one on participants (95% interval +1% to +34%; positive in 4 of 5 seasons, concentrated late in the season). Not tested against a price.'},
+ atd:{metric:null,text:'Scoring-role tiers beat the Champion anytime-TD rate (2025 holdout log loss -4.2%); touchdown probabilities are still dispersed (calibration slope about 0.7), so treat them as a ranking, not exact odds.'}
 };
 const CAL_TD=new Set(['atd','rec_tds','rush_tds']);
 function thesis(profile,position,market,sr){
@@ -106,7 +106,7 @@ function calStatus(market,calibrated){
 }
 function bettingTargets(ctx,candidates=[]){
  const I=intel(),now=ctx.now||Date.now(),inj=indexInjury(ctx.injury,ctx.week,ctx.roster),rows=[],seen=new Set(),excluded=[];
- const markets=Object.keys(EVIDENCE),priced=new Map();// receiving yards is deliberately absent: a rising target share predicted FEWER yards than the Champion mean (-9%, interval -13% to -4%), so a role trend gives no yardage direction
+ const markets=Object.keys(EVIDENCE),priced=new Map();// receptions and receiving yards are deliberately absent: receptions on target share is a null for participants, and a rising target share predicted FEWER yards than the Champion mean (about -12%, interval -18% to -6%, all five seasons)
  
  for(const c of candidates||[]){
   if(c.kind&&c.kind!=='prop'||!c.profileId||!MARKET_LABEL[c.market])continue;

@@ -52,6 +52,13 @@ function duplication(lineup,entries=30000){
  return {logDup,expectedCopies:copies,decile,band,medianCopies:spec.decile_median_copies[decile-1],uniqueShare:spec.decile_unique_share[decile-1],entries:Math.min(ENTRIES_RANGE[1],Math.max(ENTRIES_RANGE[0],entries)),
   note:'Ranks lineups by predicted duplication. In archived 2025-26 contests, field lineups in this decile had the median copies and unique share shown (group statistics, not a prediction for this lineup). Field size is clamped to 11,000-90,000 entries.'};
 }
+// First-order, additive stand-in for one player's contribution to the lineup's log expected duplicates (beam search only; finalists are scored by duplication() exactly). Uses the three
+// features that are sums over players: captain ownership, sum of FLEX ownership and the log product of ownership. Other features (min FLEX ownership, salary left, team split) are ignored here.
+function dupMarginal(player,captain){
+ const spec=state.models?.duplication;if(!spec||!finite(player?.ownership))return 0;
+ const w=name=>{const i=spec.features.indexOf(name);return i<0?0:spec.coef[i]/spec.sd[i];},own=player.ownership;
+ return (captain?w('cpt_own')*own:w('sum_flex_own')*own)+w('log_prod_own')*Math.log(Math.min(100,Math.max(own,.05))/100);
+}
 function lineupOwnership(lineup){
  const captain=lineup.find(p=>p.slot==='CPT'||p.slot==='MVP'),flex=lineup.filter(p=>p!==captain);
  if(!captain||!lineup.every(p=>finite(p.ownership)))return null;
@@ -66,6 +73,6 @@ function objective(kind,moments,lineup,entries){
  if(kind==='best')return dup?ceiling-WEIGHTS.lambda*dup.logDup:ceiling;
  return ceiling;
 }
-root.GoingDfsField={SCHEMA:'going-private-showdown-models-v2',WEIGHTS,load,clear,ready,annotate,lineupFeatures,duplication,lineupOwnership,objective,state};
+root.GoingDfsField={SCHEMA:'going-private-showdown-models-v2',WEIGHTS,load,clear,ready,annotate,lineupFeatures,duplication,dupMarginal,lineupOwnership,objective,state};
 if(typeof module!=='undefined')module.exports=root.GoingDfsField;
 })(globalThis);
