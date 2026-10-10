@@ -1,0 +1,7 @@
+.ft-card h3{margin:6px 0;font-size:16px}.ft-headline{margin:4px 0}.ft-headline small{display:block;color:var(--g-muted,#8fa3ad)}
+.ft-odds-line,.ft-note{font-size:13px;margin:4px 0}.ft-note{color:var(--g-muted,#8fa3ad)}
+.ft-legs{list-style:none;margin:8px 0;padding:0;display:grid;gap:8px}.ft-leg{border:1px solid var(--g-border,#294a58);border-radius:8px;padding:8px}
+.ft-leg-top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.ft-leg-top .ft-odds{margin-left:auto;font-weight:700}.ft-leg-sub{font-size:12px;color:var(--g-muted,#8fa3ad);margin-top:2px}
+.ft-terms,.ft-manual{margin:8px 0;font-size:13px}.ft-manual textarea{width:100%;max-width:100%;box-sizing:border-box;font:inherit}.ft-actions{display:flex;gap:8px;margin:6px 0;flex-wrap:wrap}
+.ft-list{display:grid;gap:12px}.ft-empty{margin:8px 0}
+@media(max-width:600px){.ft-leg-top .ft-odds{margin-left:0}}
