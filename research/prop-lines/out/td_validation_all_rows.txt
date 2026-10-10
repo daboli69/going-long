@@ -1,0 +1,191 @@
+DNP/no-appearance rows (zero-filled): 298 of 10214 = 2.918%, TD rate among them 0.000
+
+######## atd  (policy factor 0.811, rows 10214, WF factors 2022:0.812, 2023:0.780, 2024:0.791, 2025:0.811)
+  season 2023: n=1904 games=330 base=0.288
+    p_v1    mean p 0.349 obs 0.288 ratio 0.825 | Brier 0.2040 LL 0.5961 | slope 0.674 [0.522,0.836] int -0.490 [-0.657,-0.357]
+    p_v2    mean p 0.333 obs 0.288 ratio 0.864 | Brier 0.1995 LL 0.5858 | slope 0.798 [0.618,0.975] int -0.356 [-0.502,-0.216]
+    p_dep   mean p 0.282 obs 0.288 ratio 1.020 | Brier 0.1969 LL 0.5803 | slope 0.832 [0.639,1.009] int -0.120 [-0.316,0.049]
+  season 2024: n=1980 games=309 base=0.324
+    p_v1    mean p 0.363 obs 0.324 ratio 0.894 | Brier 0.2158 LL 0.6229 | slope 0.625 [0.454,0.780] int -0.380 [-0.495,-0.260]
+    p_v2    mean p 0.348 obs 0.324 ratio 0.931 | Brier 0.2141 LL 0.6192 | slope 0.650 [0.483,0.809] int -0.322 [-0.446,-0.185]
+    p_dep   mean p 0.296 obs 0.324 ratio 1.096 | Brier 0.2132 LL 0.6190 | slope 0.677 [0.525,0.840] int -0.130 [-0.314,0.017]
+  season 2025: n=2077 games=333 base=0.304
+    p_v1    mean p 0.362 obs 0.304 ratio 0.841 | Brier 0.2128 LL 0.6157 | slope 0.585 [0.427,0.745] int -0.495 [-0.617,-0.381]
+    p_v2    mean p 0.349 obs 0.304 ratio 0.872 | Brier 0.2087 LL 0.6065 | slope 0.663 [0.524,0.829] int -0.412 [-0.537,-0.287]
+    p_dep   mean p 0.296 obs 0.304 ratio 1.027 | Brier 0.2057 LL 0.6008 | slope 0.693 [0.534,0.867] int -0.215 [-0.383,-0.067]
+  pooled 2023-25 (factor in-sample for 2023-24): n=5961 games=972 base=0.306
+    p_v1    mean p 0.358 obs 0.306 ratio 0.854 | Brier 0.2110 LL 0.6118 | slope 0.629 [0.531,0.716] int -0.454 [-0.527,-0.371]
+    p_v2    mean p 0.344 obs 0.306 ratio 0.889 | Brier 0.2076 LL 0.6041 | slope 0.699 [0.606,0.791] int -0.366 [-0.432,-0.287]
+    p_dep   mean p 0.292 obs 0.306 ratio 1.048 | Brier 0.2053 LL 0.6003 | slope 0.730 [0.640,0.827] int -0.159 [-0.263,-0.063]
+  -- 2025 holdout paired vs baselines (negative = first better)
+    dBrier p_dep-p_v2 2025: -0.0030 [-0.0050,-0.0010]   dLL -0.0057 [-0.0102,-0.0008]
+    dBrier p_dep-p_base 2025: -0.0038 [-0.0084,+0.0001]   dLL -0.0089 [-0.0198,+0.0022]
+    dBrier p_dep-p_tier 2025: +0.0023 [-0.0017,+0.0067]   dLL +0.0065 [-0.0042,+0.0165]
+    dBrier p_tier-p_base 2025: -0.0061 [-0.0089,-0.0037]   dLL -0.0154 [-0.0216,-0.0087]
+    dBrier p_combo-p_dep 2025: -0.0037 [-0.0059,-0.0013]   dLL -0.0105 [-0.0154,-0.0046]
+    dBrier p_platt-p_dep 2025: -0.0011 [-0.0021,-0.0001]   dLL -0.0029 [-0.0055,-0.0003]
+    dBrier p_dep-p_wf 2025: -0.0000 [-0.0000,+0.0000]   dLL +0.0000 [-0.0000,+0.0000]
+  -- pooled 2023-25 paired (WF baselines only use earlier seasons)
+    dBrier p_dep-p_v2 pooled: -0.0022 [-0.0034,-0.0009]   dLL -0.0038 [-0.0067,-0.0010]
+    dBrier p_dep-p_base pooled: -0.0047 [-0.0073,-0.0023]   dLL -0.0102 [-0.0166,-0.0036]
+    dBrier p_dep-p_tier pooled: +0.0020 [-0.0004,+0.0043]   dLL +0.0060 [-0.0000,+0.0125]
+    dBrier p_tier-p_base pooled: -0.0066 [-0.0083,-0.0049]   dLL -0.0162 [-0.0205,-0.0122]
+    dBrier p_combo-p_dep pooled: -0.0033 [-0.0046,-0.0021]   dLL -0.0093 [-0.0121,-0.0058]
+    dBrier p_platt-p_dep pooled: -0.0005 [-0.0011,+0.0001]   dLL -0.0016 [-0.0030,-0.0002]
+  -- by position (pooled 2023-25, deployed)
+  RB: n=2121 games=809 base=0.371
+    p_dep   mean p 0.332 obs 0.371 ratio 1.117 | Brier 0.2235 LL 0.6397 | slope 0.749 [0.615,0.896] int 0.014 [-0.116,0.153]
+  TE: n=996 games=679 base=0.227
+    p_dep   mean p 0.245 obs 0.227 ratio 0.926 | Brier 0.1743 LL 0.5312 | slope 0.629 [0.340,0.969] int -0.507 [-0.875,-0.166]
+  WR: n=2844 games=877 base=0.285
+    p_dep   mean p 0.278 obs 0.285 ratio 1.024 | Brier 0.2027 LL 0.5951 | slope 0.546 [0.383,0.726] int -0.387 [-0.576,-0.229]
+  -- by k = current-season games played (pooled 2023-25, deployed)
+  k=0: n=452 games=119 base=0.243
+    p_dep   mean p 0.290 obs 0.243 ratio 0.839 | Brier 0.1776 LL 0.5382 | slope 0.942 [0.593,1.348] int -0.302 [-0.680,0.080]
+  k1-2: n=458 games=184 base=0.299
+    p_dep   mean p 0.322 obs 0.299 ratio 0.928 | Brier 0.2066 LL 0.6023 | slope 0.619 [0.291,0.941] int -0.380 [-0.717,-0.075]
+  k3-5: n=1283 games=387 base=0.275
+    p_dep   mean p 0.271 obs 0.275 ratio 1.013 | Brier 0.1884 LL 0.5614 | slope 0.844 [0.664,1.071] int -0.124 [-0.317,0.089]
+  k6-9: n=1679 games=432 base=0.316
+    p_dep   mean p 0.288 obs 0.316 ratio 1.096 | Brier 0.2125 LL 0.6178 | slope 0.624 [0.397,0.807] int -0.195 [-0.401,0.000]
+  k10+: n=2089 games=385 base=0.331
+    p_dep   mean p 0.300 obs 0.331 ratio 1.102 | Brier 0.2157 LL 0.6232 | slope 0.717 [0.539,0.886] int -0.083 [-0.240,0.072]
+  -- predicted-probability bands (pooled 2023-25, deployed): band n meanP obs [95% cluster CI]
+    (-0.001, 0.1] n=   69 meanP 0.096 obs 0.159 [0.075,0.250] tierBase 0.174
+    (0.1, 0.2]   n= 1514 meanP 0.170 obs 0.215 [0.194,0.236] tierBase 0.233
+    (0.2, 0.3]   n= 2076 meanP 0.254 obs 0.283 [0.266,0.303] tierBase 0.275
+    (0.3, 0.4]   n= 1247 meanP 0.348 obs 0.333 [0.306,0.357] tierBase 0.311
+    (0.4, 0.5]   n=  724 meanP 0.444 obs 0.410 [0.376,0.441] tierBase 0.359
+    (0.5, 1.0]   n=  331 meanP 0.575 obs 0.559 [0.500,0.615] tierBase 0.420
+  -- scoring-role tier hit rate (pooled 2023-25) tier n obs meanP_dep
+    FRINGE     n=  500 obs 0.124  deployed meanP 0.193
+    NA         n=   35 obs 0.086  deployed meanP 0.175
+    PRIMARY    n=  379 obs 0.501  deployed meanP 0.467
+    SECONDARY  n= 2140 obs 0.382  deployed meanP 0.337
+    TERTIARY   n= 2907 obs 0.258  deployed meanP 0.254
+DNP/no-appearance rows (zero-filled): 577 of 10555 = 5.467%, TD rate among them 0.000
+
+######## rec_tds  (policy factor 0.7853, rows 10555, WF factors 2022:0.795, 2023:0.763, 2024:0.765, 2025:0.785)
+  season 2023: n=2026 games=383 base=0.203
+    p_v1    mean p 0.257 obs 0.203 ratio 0.790 | Brier 0.1647 LL 0.5064 | slope 0.585 [0.417,0.724] int -0.734 [-0.935,-0.545]
+    p_v2    mean p 0.249 obs 0.203 ratio 0.816 | Brier 0.1592 LL 0.4920 | slope 0.781 [0.611,0.943] int -0.501 [-0.725,-0.306]
+    p_dep   mean p 0.203 obs 0.203 ratio 1.000 | Brier 0.1561 LL 0.4852 | slope 0.810 [0.626,0.987] int -0.244 [-0.473,0.039]
+  season 2024: n=1981 games=343 base=0.227
+    p_v1    mean p 0.260 obs 0.227 ratio 0.870 | Brier 0.1743 LL 0.5298 | slope 0.607 [0.445,0.774] int -0.578 [-0.773,-0.364]
+    p_v2    mean p 0.254 obs 0.227 ratio 0.894 | Brier 0.1712 LL 0.5219 | slope 0.711 [0.549,0.869] int -0.447 [-0.664,-0.251]
+    p_dep   mean p 0.207 obs 0.227 ratio 1.095 | Brier 0.1698 LL 0.5204 | slope 0.736 [0.581,0.907] int -0.215 [-0.476,0.028]
+  season 2025: n=2152 games=378 base=0.211
+    p_v1    mean p 0.267 obs 0.211 ratio 0.788 | Brier 0.1692 LL 0.5169 | slope 0.584 [0.437,0.727] int -0.720 [-0.917,-0.543]
+    p_v2    mean p 0.260 obs 0.211 ratio 0.811 | Brier 0.1644 LL 0.5045 | slope 0.746 [0.608,0.887] int -0.534 [-0.702,-0.339]
+    p_dep   mean p 0.212 obs 0.211 ratio 0.992 | Brier 0.1608 LL 0.4969 | slope 0.774 [0.630,0.946] int -0.288 [-0.492,-0.052]
+  pooled 2023-25 (factor in-sample for 2023-24): n=6159 games=1104 base=0.213
+    p_v1    mean p 0.261 obs 0.213 ratio 0.815 | Brier 0.1694 LL 0.5176 | slope 0.591 [0.511,0.679] int -0.679 [-0.782,-0.576]
+    p_v2    mean p 0.254 obs 0.213 ratio 0.839 | Brier 0.1648 LL 0.5060 | slope 0.745 [0.660,0.817] int -0.496 [-0.605,-0.388]
+    p_dep   mean p 0.207 obs 0.213 ratio 1.028 | Brier 0.1621 LL 0.5006 | slope 0.772 [0.686,0.884] int -0.251 [-0.402,-0.112]
+  -- 2025 holdout paired vs baselines (negative = first better)
+    dBrier p_dep-p_v2 2025: -0.0036 [-0.0056,-0.0014]   dLL -0.0077 [-0.0123,-0.0032]
+    dBrier p_dep-p_base 2025: -0.0049 [-0.0087,-0.0015]   dLL -0.0162 [-0.0267,-0.0063]
+    dBrier p_dep-p_tier 2025: -0.0002 [-0.0031,+0.0029]   dLL -0.0014 [-0.0103,+0.0073]
+    dBrier p_tier-p_base 2025: -0.0047 [-0.0068,-0.0025]   dLL -0.0148 [-0.0218,-0.0078]
+    dBrier p_combo-p_dep 2025: -0.0018 [-0.0031,-0.0005]   dLL -0.0047 [-0.0084,-0.0004]
+    dBrier p_platt-p_dep 2025: -0.0008 [-0.0016,+0.0002]   dLL -0.0015 [-0.0043,+0.0013]
+    dBrier p_dep-p_wf 2025: +0.0000 [-0.0000,+0.0000]   dLL +0.0000 [-0.0000,+0.0000]
+  -- pooled 2023-25 paired (WF baselines only use earlier seasons)
+    dBrier p_dep-p_v2 pooled: -0.0027 [-0.0038,-0.0017]   dLL -0.0054 [-0.0082,-0.0026]
+    dBrier p_dep-p_base pooled: -0.0035 [-0.0055,-0.0016]   dLL -0.0108 [-0.0161,-0.0053]
+    dBrier p_dep-p_tier pooled: +0.0006 [-0.0014,+0.0024]   dLL +0.0004 [-0.0069,+0.0076]
+    dBrier p_tier-p_base pooled: -0.0042 [-0.0054,-0.0029]   dLL -0.0112 [-0.0164,-0.0056]
+    dBrier p_combo-p_dep pooled: -0.0013 [-0.0021,-0.0005]   dLL -0.0041 [-0.0066,-0.0012]
+    dBrier p_platt-p_dep pooled: -0.0005 [-0.0011,+0.0001]   dLL -0.0011 [-0.0028,+0.0003]
+  -- by position (pooled 2023-25, deployed)
+  RB: n=858 games=562 base=0.114
+    p_dep   mean p 0.148 obs 0.114 ratio 0.771 | Brier 0.1029 LL 0.3578 | slope 0.595 [0.213,1.005] int -0.989 [-1.769,-0.327]
+  TE: n=1616 games=867 base=0.184
+    p_dep   mean p 0.188 obs 0.184 ratio 0.981 | Brier 0.1464 LL 0.4644 | slope 0.755 [0.557,0.978] int -0.363 [-0.681,-0.021]
+  WR: n=3685 games=955 base=0.249
+    p_dep   mean p 0.230 obs 0.249 ratio 1.083 | Brier 0.1828 LL 0.5497 | slope 0.675 [0.563,0.795] int -0.264 [-0.424,-0.131]
+  -- by k = current-season games played (pooled 2023-25, deployed)
+  k=0: n=459 games=131 base=0.155
+    p_dep   mean p 0.207 obs 0.155 ratio 0.746 | Brier 0.1353 LL 0.4392 | slope 0.528 [0.180,0.899] int -0.975 [-1.543,-0.461]
+  k1-2: n=390 games=168 base=0.249
+    p_dep   mean p 0.272 obs 0.249 ratio 0.914 | Brier 0.1838 LL 0.5510 | slope 0.759 [0.369,1.255] int -0.352 [-0.858,0.070]
+  k3-5: n=1124 games=381 base=0.204
+    p_dep   mean p 0.213 obs 0.204 ratio 0.957 | Brier 0.1587 LL 0.4918 | slope 0.736 [0.524,0.950] int -0.384 [-0.698,-0.062]
+  k6-9: n=2049 games=543 base=0.205
+    p_dep   mean p 0.186 obs 0.205 ratio 1.103 | Brier 0.1536 LL 0.4787 | slope 0.931 [0.783,1.099] int 0.036 [-0.203,0.284]
+  k10+: n=2137 games=423 base=0.232
+    p_dep   mean p 0.213 obs 0.232 ratio 1.088 | Brier 0.1740 LL 0.5302 | slope 0.695 [0.524,0.864] int -0.269 [-0.513,-0.011]
+  -- predicted-probability bands (pooled 2023-25, deployed): band n meanP obs [95% cluster CI]
+    (-0.001, 0.1] n=  725 meanP 0.079 obs 0.090 [0.069,0.110] tierBase 0.140
+    (0.1, 0.2]   n= 2640 meanP 0.145 obs 0.167 [0.152,0.180] tierBase 0.177
+    (0.2, 0.3]   n= 1612 meanP 0.247 obs 0.264 [0.243,0.284] tierBase 0.226
+    (0.3, 0.4]   n=  854 meanP 0.342 obs 0.299 [0.269,0.328] tierBase 0.252
+    (0.4, 0.5]   n=  295 meanP 0.435 obs 0.383 [0.328,0.433] tierBase 0.278
+    (0.5, 1.0]   n=   33 meanP 0.547 obs 0.394 [0.242,0.546] tierBase 0.308
+  -- scoring-role tier hit rate (pooled 2023-25) tier n obs meanP_dep
+    FRINGE     n=  977 obs 0.097  deployed meanP 0.136
+    NA         n=   64 obs 0.078  deployed meanP 0.132
+    PRIMARY    n=  174 obs 0.184  deployed meanP 0.177
+    SECONDARY  n= 1487 obs 0.273  deployed meanP 0.259
+    TERTIARY   n= 3457 obs 0.224  deployed meanP 0.208
+DNP/no-appearance rows (zero-filled): 50 of 3983 = 1.255%, TD rate among them 0.000
+
+######## rush_tds  (policy factor 0.8681, rows 3983, WF factors 2022:0.858, 2023:0.839, 2024:0.849, 2025:0.868)
+  season 2023: n=768 games=282 base=0.268
+    p_v1    mean p 0.302 obs 0.268 ratio 0.889 | Brier 0.1915 LL 0.5707 | slope 0.609 [0.415,0.821] int -0.480 [-0.702,-0.238]
+    p_v2    mean p 0.301 obs 0.268 ratio 0.892 | Brier 0.1878 LL 0.5602 | slope 0.759 [0.525,1.027] int -0.358 [-0.608,-0.088]
+    p_dep   mean p 0.269 obs 0.268 ratio 0.998 | Brier 0.1861 LL 0.5569 | slope 0.778 [0.550,1.041] int -0.209 [-0.525,0.083]
+  season 2024: n=784 games=281 base=0.321
+    p_v1    mean p 0.340 obs 0.321 ratio 0.944 | Brier 0.2035 LL 0.5942 | slope 0.754 [0.556,0.958] int -0.239 [-0.431,-0.054]
+    p_v2    mean p 0.331 obs 0.321 ratio 0.970 | Brier 0.2019 LL 0.5895 | slope 0.832 [0.648,1.037] int -0.156 [-0.361,0.041]
+    p_dep   mean p 0.297 obs 0.321 ratio 1.081 | Brier 0.2019 LL 0.5903 | slope 0.856 [0.637,1.067] int 0.010 [-0.206,0.258]
+  season 2025: n=776 games=269 base=0.294
+    p_v1    mean p 0.323 obs 0.294 ratio 0.909 | Brier 0.2096 LL 0.6095 | slope 0.476 [0.297,0.678] int -0.508 [-0.711,-0.290]
+    p_v2    mean p 0.324 obs 0.294 ratio 0.908 | Brier 0.2059 LL 0.6008 | slope 0.550 [0.360,0.773] int -0.457 [-0.688,-0.248]
+    p_dep   mean p 0.290 obs 0.294 ratio 1.012 | Brier 0.2035 LL 0.5972 | slope 0.566 [0.350,0.787] int -0.347 [-0.568,-0.101]
+  pooled 2023-25 (factor in-sample for 2023-24): n=2328 games=832 base=0.295
+    p_v1    mean p 0.322 obs 0.295 ratio 0.915 | Brier 0.2016 LL 0.5916 | slope 0.621 [0.518,0.749] int -0.396 [-0.518,-0.278]
+    p_v2    mean p 0.319 obs 0.295 ratio 0.925 | Brier 0.1986 LL 0.5836 | slope 0.715 [0.586,0.852] int -0.320 [-0.455,-0.202]
+    p_dep   mean p 0.286 obs 0.295 ratio 1.032 | Brier 0.1972 LL 0.5816 | slope 0.735 [0.613,0.869] int -0.178 [-0.311,-0.042]
+  -- 2025 holdout paired vs baselines (negative = first better)
+    dBrier p_dep-p_v2 2025: -0.0024 [-0.0047,+0.0003]   dLL -0.0036 [-0.0095,+0.0017]
+    dBrier p_dep-p_base 2025: -0.0041 [-0.0134,+0.0059]   dLL -0.0086 [-0.0322,+0.0119]
+    dBrier p_dep-p_tier 2025: +0.0038 [-0.0048,+0.0120]   dLL +0.0131 [-0.0048,+0.0336]
+    dBrier p_tier-p_base 2025: -0.0079 [-0.0136,-0.0029]   dLL -0.0217 [-0.0354,-0.0089]
+    dBrier p_combo-p_dep 2025: -0.0053 [-0.0090,-0.0020]   dLL -0.0159 [-0.0253,-0.0059]
+    dBrier p_platt-p_dep 2025: -0.0027 [-0.0045,-0.0006]   dLL -0.0074 [-0.0124,-0.0029]
+    dBrier p_dep-p_wf 2025: +0.0000 [-0.0000,+0.0000]   dLL +0.0000 [-0.0000,+0.0000]
+  -- pooled 2023-25 paired (WF baselines only use earlier seasons)
+    dBrier p_dep-p_v2 pooled: -0.0014 [-0.0026,-0.0001]   dLL -0.0020 [-0.0052,+0.0008]
+    dBrier p_dep-p_base pooled: -0.0110 [-0.0157,-0.0060]   dLL -0.0257 [-0.0378,-0.0114]
+    dBrier p_dep-p_tier pooled: +0.0002 [-0.0039,+0.0049]   dLL +0.0044 [-0.0066,+0.0150]
+    dBrier p_tier-p_base pooled: -0.0113 [-0.0144,-0.0082]   dLL -0.0301 [-0.0377,-0.0225]
+    dBrier p_combo-p_dep pooled: -0.0035 [-0.0054,-0.0013]   dLL -0.0115 [-0.0168,-0.0064]
+    dBrier p_platt-p_dep pooled: -0.0008 [-0.0020,+0.0006]   dLL -0.0027 [-0.0061,+0.0005]
+  -- by position (pooled 2023-25, deployed)
+  RB: n=2328 games=832 base=0.295
+    p_dep   mean p 0.286 obs 0.295 ratio 1.032 | Brier 0.1972 LL 0.5816 | slope 0.735 [0.612,0.858] int -0.178 [-0.308,-0.039]
+  -- by k = current-season games played (pooled 2023-25, deployed)
+  k=0: n=181 games=88 base=0.265
+    p_dep   mean p 0.279 obs 0.265 ratio 0.951 | Brier 0.1850 LL 0.5522 | slope 0.791 [0.279,1.321] int -0.257 [-0.846,0.295]
+  k1-2: n=194 games=125 base=0.304
+    p_dep   mean p 0.356 obs 0.304 ratio 0.855 | Brier 0.2009 LL 0.5891 | slope 1.101 [0.518,1.815] int -0.194 [-0.656,0.236]
+  k3-5: n=450 games=251 base=0.298
+    p_dep   mean p 0.285 obs 0.298 ratio 1.046 | Brier 0.1895 LL 0.5630 | slope 0.977 [0.663,1.279] int 0.050 [-0.263,0.354]
+  k6-9: n=710 games=342 base=0.261
+    p_dep   mean p 0.256 obs 0.261 ratio 1.017 | Brier 0.1883 LL 0.5621 | slope 0.592 [0.368,0.810] int -0.381 [-0.652,-0.098]
+  k10+: n=793 games=342 base=0.328
+    p_dep   mean p 0.297 obs 0.328 ratio 1.105 | Brier 0.2114 LL 0.6144 | slope 0.701 [0.484,0.918] int -0.088 [-0.336,0.161]
+  -- predicted-probability bands (pooled 2023-25, deployed): band n meanP obs [95% cluster CI]
+    (-0.001, 0.1] n=   93 meanP 0.085 obs 0.118 [0.056,0.183] tierBase 0.169
+    (0.1, 0.2]   n=  725 meanP 0.153 obs 0.203 [0.172,0.234] tierBase 0.222
+    (0.2, 0.3]   n=  551 meanP 0.249 obs 0.265 [0.230,0.297] tierBase 0.284
+    (0.3, 0.4]   n=  484 meanP 0.346 obs 0.333 [0.291,0.370] tierBase 0.328
+    (0.4, 0.5]   n=  248 meanP 0.450 obs 0.411 [0.345,0.475] tierBase 0.357
+    (0.5, 1.0]   n=  227 meanP 0.570 obs 0.524 [0.462,0.583] tierBase 0.369
+  -- scoring-role tier hit rate (pooled 2023-25) tier n obs meanP_dep
+    FRINGE     n=  137 obs 0.051  deployed meanP 0.150
+    NA         n=    5 obs 0.000  deployed meanP 0.200
+    PRIMARY    n=  374 obs 0.414  deployed meanP 0.431
+    SECONDARY  n= 1175 obs 0.352  deployed meanP 0.312
+    TERTIARY   n=  637 obs 0.173  deployed meanP 0.181

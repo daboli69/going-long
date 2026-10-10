@@ -1,0 +1,90 @@
+
+################ receptions  (mean source: v2; rows with k>=4 and trend: 8239; trend cut-offs bottom15% <= -0.067, top15% >= +0.058; all rows incl. zero-filled DNP)
+  overall mean calibration R (all rows)   -4.1% [  -5.0,  -3.1]   (k>=4 rows)   -3.5% [  -5.1,  -1.9]
+  -- all (pooled)
+  ALL                        n= 8239 (top 1236/bot 1236) | TREND   +7.3% [  +1.6, +13.8] * | R_top   -1.8% [  -5.6,  +1.9]   | R_bot   -8.5% [ -12.6,  -4.2] * | R_all   -3.5% [  -5.0,  -1.9] *
+  -- by season (replication)
+  season 2021                n= 1743 (top  280/bot  220) | TREND   -1.8% [ -12.9, +10.1]   | R_top   -5.1% [ -12.2,  +1.8]   | R_bot   -3.4% [ -12.3,  +5.3]   | R_all   -3.1% [  -6.6,  +0.4]  
+  season 2022                n= 1695 (top  274/bot  226) | TREND   +9.2% [  -6.0, +26.5]   | R_top   -4.0% [ -13.3,  +5.2]   | R_bot  -12.0% [ -20.9,  -2.1] * | R_all   -3.2% [  -7.1,  +0.2]  
+  season 2023                n= 1610 (top  213/bot  272) | TREND   +3.5% [  -8.8, +20.1]   | R_top   -2.8% [ -10.4,  +5.2]   | R_bot   -6.1% [ -17.3,  +4.1]   | R_all   -5.2% [  -8.6,  -1.5] *
+  season 2024                n= 1630 (top  261/bot  248) | TREND  +13.3% [  +1.3, +28.6] * | R_top   +7.8% [  +0.7, +15.8] * | R_bot   -4.9% [ -14.8,  +3.8]   | R_all   -0.3% [  -4.3,  +3.4]  
+  season 2025                n= 1561 (top  208/bot  270) | TREND  +10.7% [  -1.4, +24.5]   | R_top   -5.1% [ -12.1,  +1.2]   | R_bot  -14.3% [ -22.5,  -5.3] * | R_all   -5.6% [  -9.2,  -2.0] *
+  -- by position
+  WR                         n= 4194 (top  719/bot  793) | TREND   +3.7% [  -3.5, +11.5]   | R_top   -4.2% [  -8.5,  +0.0]   | R_bot   -7.6% [ -13.3,  -2.6] * | R_all   -4.3% [  -6.5,  -2.2] *
+  TE                         n= 1991 (top  219/bot  296) | TREND  +21.7% [  +7.9, +39.0] * | R_top   +8.3% [  +0.2, +17.2] * | R_bot  -11.1% [ -20.0,  -2.2] * | R_all   -1.1% [  -4.6,  +2.1]  
+  RB                         n= 2054 (top  298/bot  147) | TREND   +6.7% [  -8.2, +27.1]   | R_top   -2.5% [ -11.5,  +6.7]   | R_bot   -8.6% [ -20.4,  +3.8]   | R_all   -3.8% [  -7.4,  -0.1] *
+  -- by role stability: games played this season (k), k>=4 only
+  k=4-5                      n= 2174 (top  304/bot  286) | TREND   +1.3% [  -9.3, +13.6]   | R_top   -5.2% [ -11.6,  +1.4]   | R_bot   -6.4% [ -14.5,  +2.2]   | R_all   -3.6% [  -6.4,  -0.9] *
+  k=6-8                      n= 3186 (top  393/bot  431) | TREND   +4.0% [  -4.9, +14.5]   | R_top   -3.0% [  -8.9,  +3.0]   | R_bot   -6.8% [ -13.0,  -0.4] * | R_all   -3.8% [  -6.3,  -1.4] *
+  k=9-12                     n= 2879 (top  539/bot  519) | TREND  +13.4% [  +3.3, +24.8] * | R_top   +0.8% [  -5.0,  +7.0]   | R_bot  -11.1% [ -17.5,  -4.2] * | R_all   -3.1% [  -5.9,  -0.4] *
+  -- by season phase (week)
+  weeks 1-6                  n= 1444 (top  213/bot  175) | TREND   -5.2% [ -16.3,  +9.3]   | R_top   -5.7% [ -13.3,  +2.1]   | R_bot   -0.6% [ -11.8, +10.9]   | R_all   -2.2% [  -5.6,  +1.1]  
+  weeks 7-12                 n= 4805 (top  676/bot  668) | TREND   +4.6% [  -2.4, +12.8]   | R_top   -1.4% [  -6.4,  +3.6]   | R_bot   -5.7% [ -10.9,  -0.6] * | R_all   -3.6% [  -5.6,  -1.6] *
+  weeks 13-18                n= 1990 (top  347/bot  393) | TREND  +21.0% [  +9.1, +34.6] * | R_top   -0.2% [  -7.3,  +6.5]   | R_bot  -17.5% [ -24.8, -10.6] * | R_all   -4.3% [  -7.5,  -0.8] *
+  -- injury-driven opportunity: share of team target mass belonging to teammates who did not play
+  teammate out (>= 0.10)     n=  968 (top  165/bot  144) | TREND   -1.0% [ -14.7, +15.2]   | R_top   -3.5% [ -13.0,  +6.6]   | R_bot   -2.6% [ -13.0,  +9.0]   | R_all   -0.9% [  -5.1,  +3.6]  
+  no major teammate out      n= 6887 (top 1041/bot  985) | TREND   +3.1% [  -2.8, +10.0]   | R_top   -0.1% [  -3.6,  +3.8]   | R_bot   -3.1% [  -7.7,  +1.8]   | R_all   -0.8% [  -2.4,  +0.8]  
+  -- by position x phase (weeks 1-6 vs later)
+  WR wk1-6                   n=  737 (top  131/bot  118) | TREND   -0.3% [ -15.2, +18.3]   | R_top   -7.9% [ -17.4,  +1.0]   | R_bot   -7.6% [ -20.9,  +5.3]   | R_all   -3.1% [  -7.4,  +1.0]  
+  WR wk7+                    n= 3457 (top  588/bot  675) | TREND   +4.7% [  -3.5, +14.1]   | R_top   -3.3% [  -8.2,  +1.8]   | R_bot   -7.6% [ -13.3,  -2.0] * | R_all   -4.5% [  -7.0,  -2.2] *
+  TE wk1-6                   n=  353 (top   40/bot   44) | TREND  -15.4% [ -38.0, +16.4]   | R_top   +1.3% [ -19.4, +27.9]   | R_bot  +19.7% [  -5.6, +46.7]   | R_all   +1.8% [  -5.1,  +9.8]  
+  TE wk7+                    n= 1638 (top  179/bot  252) | TREND  +30.8% [ +13.9, +50.8] * | R_top   +9.8% [  -0.7, +20.9]   | R_bot  -16.1% [ -24.4,  -7.6] * | R_all   -1.8% [  -5.3,  +1.9]  
+  RB wk7+                    n= 1700 (top  256/bot  134) | TREND   +9.5% [  -6.8, +29.9]   | R_top   -2.2% [ -11.1,  +7.0]   | R_bot  -10.7% [ -23.4,  +1.9]   | R_all   -3.7% [  -7.8,  +0.2]  
+
+################ rec_yds  (mean source: v2; rows with k>=4 and trend: 8529; trend cut-offs bottom15% <= -0.068, top15% >= +0.057; all rows incl. zero-filled DNP)
+  overall mean calibration R (all rows)   -4.3% [  -5.3,  -3.2]   (k>=4 rows)   -2.4% [  -4.3,  -0.6]
+  -- all (pooled)
+  ALL                        n= 8529 (top 1280/bot 1280) | TREND   -8.6% [ -14.5,  -1.8] * | R_top   -8.6% [ -12.5,  -4.6] * | R_bot   +0.0% [  -5.6,  +5.5]   | R_all   -2.4% [  -4.3,  -0.5] *
+  -- by season (replication)
+  season 2021                n= 1811 (top  286/bot  231) | TREND  -13.3% [ -24.8,  +0.4]   | R_top  -15.5% [ -23.0,  -6.6] * | R_bot   -2.6% [ -13.2,  +8.7]   | R_all   -5.3% [  -9.2,  -1.1] *
+  season 2022                n= 1752 (top  287/bot  242) | TREND   -2.6% [ -16.1, +12.3]   | R_top  -11.7% [ -21.1,  -3.3] * | R_bot   -9.4% [ -19.1,  +1.1]   | R_all   -5.1% [  -9.2,  -1.1] *
+  season 2023                n= 1668 (top  216/bot  283) | TREND  -15.6% [ -28.1,  +0.5]   | R_top   -9.6% [ -18.5,  -1.2] * | R_bot   +7.0% [  -7.4, +21.4]   | R_all   -2.6% [  -6.8,  +1.4]  
+  season 2024                n= 1694 (top  277/bot  249) | TREND   -5.6% [ -17.4, +10.0]   | R_top   +1.7% [  -6.9, +10.2]   | R_bot   +7.8% [  -5.3, +19.6]   | R_all   +2.9% [  -1.7,  +7.4]  
+  season 2025                n= 1604 (top  214/bot  275) | TREND   -3.5% [ -17.8, +11.9]   | R_top   -6.5% [ -17.4,  +4.2]   | R_bot   -3.2% [ -14.3,  +8.0]   | R_all   -1.4% [  -5.7,  +3.0]  
+  -- by position
+  WR                         n= 4536 (top  759/bot  835) | TREND   -8.5% [ -15.7,  -0.6] * | R_top   -8.9% [ -13.9,  -3.8] * | R_bot   -0.4% [  -6.7,  +6.1]   | R_all   -3.2% [  -5.6,  -0.7] *
+  TE                         n= 2130 (top  231/bot  321) | TREND   +1.3% [ -10.9, +17.0]   | R_top   +2.6% [  -7.2, +11.7]   | R_bot   +1.3% [  -8.6, +12.3]   | R_all   +2.9% [  -0.6,  +6.9]  
+  RB                         n= 1863 (top  290/bot  124) | TREND  -18.8% [ -34.1,  +1.3]   | R_top  -18.5% [ -29.2,  -7.6] * | R_bot   +0.4% [ -17.3, +17.3]   | R_all   -7.2% [ -12.0,  -2.6] *
+  -- by role stability: games played this season (k), k>=4 only
+  k=4-5                      n= 2285 (top  313/bot  308) | TREND  -17.5% [ -27.8,  -4.7] * | R_top  -11.5% [ -19.5,  -3.5] * | R_bot   +7.2% [  -4.6, +18.9]   | R_all   -1.3% [  -4.8,  +2.2]  
+  k=6-8                      n= 3305 (top  411/bot  451) | TREND  -12.2% [ -22.0,  -1.2] * | R_top  -10.8% [ -17.9,  -3.8] * | R_bot   +1.6% [  -6.9, +10.5]   | R_all   -3.0% [  -6.0,  -0.2] *
+  k=9-12                     n= 2939 (top  556/bot  521) | TREND   -0.0% [  -9.8, +12.2]   | R_top   -5.2% [ -11.3,  +1.2]   | R_bot   -5.1% [ -14.0,  +3.7]   | R_all   -2.6% [  -6.0,  +0.9]  
+  -- by season phase (week)
+  weeks 1-6                  n= 1500 (top  218/bot  187) | TREND  -25.1% [ -36.8, -11.1] * | R_top  -13.4% [ -21.9,  -4.7] * | R_bot  +15.6% [  +0.7, +32.8] * | R_all   +0.4% [  -3.9,  +4.4]  
+  weeks 7-12                 n= 4951 (top  702/bot  688) | TREND   -7.9% [ -15.9,  +1.2]   | R_top   -7.5% [ -13.4,  -1.7] * | R_bot   +0.4% [  -5.9,  +6.8]   | R_all   -2.5% [  -4.8,  -0.1] *
+  weeks 13-18                n= 2078 (top  360/bot  405) | TREND   +0.9% [ -12.2, +15.0]   | R_top   -7.4% [ -15.0,  +0.4]   | R_bot   -8.2% [ -18.3,  +1.6]   | R_all   -4.6% [  -8.6,  -0.5] *
+  -- injury-driven opportunity: share of team target mass belonging to teammates who did not play
+  teammate out (>= 0.10)     n=  979 (top  172/bot  148) | TREND  -18.9% [ -32.5,  -1.9] * | R_top  -13.0% [ -23.3,  -3.1] * | R_bot   +7.3% [  -6.9, +22.7]   | R_all   -0.2% [  -6.1,  +5.6]  
+  no major teammate out      n= 7059 (top 1066/bot 1014) | TREND  -10.7% [ -16.5,  -4.4] * | R_top   -5.9% [ -10.2,  -1.6] * | R_bot   +5.3% [  -0.1, +11.1]   | R_all   +0.7% [  -1.2,  +2.8]  
+  -- by position x phase (weeks 1-6 vs later)
+  WR wk1-6                   n=  789 (top  134/bot  127) | TREND  -19.0% [ -35.0,  +0.2]   | R_top  -13.6% [ -24.2,  -2.6] * | R_bot   +6.7% [ -11.3, +25.6]   | R_all   -0.4% [  -5.7,  +4.7]  
+  WR wk7+                    n= 3747 (top  625/bot  708) | TREND   -6.3% [ -14.4,  +3.2]   | R_top   -7.8% [ -13.4,  -2.0] * | R_bot   -1.6% [  -8.4,  +4.8]   | R_all   -3.8% [  -6.5,  -0.9] *
+  TE wk1-6                   n=  381 (top   42/bot   47) | TREND  -43.0% [ -60.2, -22.0] * | R_top  -12.5% [ -35.7,  +8.2]   | R_bot  +53.5% [ +19.6, +81.4] * | R_all   +8.1% [  -1.3, +17.3]  
+  TE wk7+                    n= 1749 (top  189/bot  274) | TREND  +13.4% [  -3.1, +34.3]   | R_top   +6.0% [  -5.5, +17.8]   | R_bot   -6.6% [ -16.8,  +5.2]   | R_all   +1.7% [  -2.5,  +6.0]  
+  RB wk7+                    n= 1533 (top  248/bot  111) | TREND  -19.6% [ -36.0,  +4.9]   | R_top  -19.5% [ -30.2,  -6.3] * | R_bot   +0.2% [ -21.1, +18.9]   | R_all   -7.0% [ -12.3,  -1.9] *
+
+################ rush_yds  (mean source: v1; rows with k>=4 and trend: 2494; trend cut-offs bottom15% <= -0.174, top15% >= +0.149; all rows incl. zero-filled DNP)
+  overall mean calibration R (all rows)   -1.8% [  -3.8,  +0.3]   (k>=4 rows)   -1.5% [  -4.9,  +1.8]
+  -- all (pooled)
+  ALL                        n= 2494 (top  374/bot  374) | TREND  +19.5% [  +2.6, +41.1] * | R_top   +7.1% [  -2.1, +16.7]   | R_bot  -10.4% [ -21.9,  +1.0]   | R_all   -1.5% [  -4.7,  +1.9]  
+  -- by season (replication)
+  season 2021                n=  518 (top   86/bot   92) | TREND  +36.2% [  -1.4, +91.5]   | R_top  +20.4% [  -2.4, +50.2]   | R_bot  -11.6% [ -29.8, +11.0]   | R_all   +1.2% [  -6.5, +10.2]  
+  season 2022                n=  488 (top   55/bot   73) | TREND   -2.4% [ -31.6, +58.1]   | R_top   -2.3% [ -18.6, +17.4]   | R_bot   +0.1% [ -39.5, +36.2]   | R_all   -4.5% [ -11.5,  +2.7]  
+  season 2023                n=  497 (top  102/bot   50) | TREND  +41.7% [ +12.8, +75.7] * | R_top   +6.5% [  -8.7, +23.7]   | R_bot  -24.9% [ -35.3, -11.2] * | R_all   -2.7% [ -10.1,  +4.9]  
+  season 2024                n=  533 (top   68/bot   76) | TREND  +30.6% [  -7.7,+118.0]   | R_top   -5.1% [ -26.4, +22.1]   | R_bot  -27.3% [ -53.5,  -8.0] * | R_all   -7.5% [ -14.1,  -0.7] *
+  season 2025                n=  458 (top   63/bot   83) | TREND   +7.0% [ -17.1, +44.1]   | R_top  +13.6% [  -0.6, +29.5]   | R_bot   +6.2% [ -19.4, +33.6]   | R_all   +6.9% [  -0.3, +14.8]  
+  -- by position
+  RB                         n= 2494 (top  374/bot  374) | TREND  +19.5% [  +3.0, +40.9] * | R_top   +7.1% [  -2.4, +16.0]   | R_bot  -10.4% [ -22.2,  +0.9]   | R_all   -1.5% [  -4.9,  +2.0]  
+  -- by role stability: games played this season (k), k>=4 only
+  k=4-5                      n=  679 (top   78/bot   99) | TREND   -4.9% [ -29.0, +33.7]   | R_top   -5.6% [ -20.0, +10.2]   | R_bot   -0.7% [ -24.5, +28.6]   | R_all   -1.8% [  -7.4,  +3.8]  
+  k=6-8                      n=  964 (top  130/bot  134) | TREND  +21.6% [  -3.5, +55.8]   | R_top   +5.9% [  -8.6, +19.4]   | R_bot  -12.9% [ -29.9,  +5.3]   | R_all   -5.6% [ -10.1,  -1.0] *
+  k=9-12                     n=  851 (top  166/bot  141) | TREND  +32.7% [  +9.2, +62.5] * | R_top  +14.1% [  +2.7, +26.0] * | R_bot  -14.0% [ -27.3,  -0.0] * | R_all   +3.2% [  -2.1,  +9.0]  
+  -- by season phase (week)
+  weeks 1-6                  n=  402 (top   49/bot   46) | TREND  -23.5% [ -48.7, +16.6]   | R_top   -9.9% [ -27.8,  +7.5]   | R_bot  +17.8% [ -20.7, +69.0]   | R_all   -2.0% [  -8.9,  +4.6]  
+  weeks 7-12                 n= 1407 (top  204/bot  203) | TREND  +18.9% [  -0.6, +44.3]   | R_top   +5.9% [  -3.5, +15.8]   | R_bot  -10.9% [ -24.7,  +5.1]   | R_all   -3.6% [  -7.5,  +0.4]  
+  weeks 13-18                n=  685 (top  121/bot  125) | TREND  +45.6% [ +12.6, +85.8] * | R_top  +17.0% [  -0.9, +36.8]   | R_bot  -19.7% [ -35.4,  -3.1] * | R_all   +3.9% [  -3.6, +11.5]  
+  -- injury-driven opportunity: share of team carry mass belonging to teammates who did not play
+  no major teammate out      n= 2407 (top  369/bot  349) | TREND  +17.1% [  +1.7, +36.3] * | R_top   +7.3% [  -1.8, +16.7]   | R_bot   -8.3% [ -19.3,  +3.2]   | R_all   -0.8% [  -4.1,  +2.4]  
+  -- by position x phase (weeks 1-6 vs later)
+  RB wk1-6                   n=  402 (top   49/bot   46) | TREND  -23.5% [ -50.1, +19.9]   | R_top   -9.9% [ -27.0,  +8.6]   | R_bot  +17.8% [ -20.2, +65.2]   | R_all   -2.0% [  -8.7,  +5.1]  
+  RB wk7+                    n= 2092 (top  325/bot  328) | TREND  +27.8% [  +9.4, +50.9] * | R_top   +9.9% [  +0.6, +19.6] * | R_bot  -14.0% [ -25.4,  -1.6] * | R_all   -1.4% [  -5.1,  +2.3]  

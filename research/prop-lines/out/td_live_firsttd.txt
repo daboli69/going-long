@@ -1,0 +1,32 @@
+LIVE tracker atd: predictions 740 | settled win/loss pregame unique contracts 545 | games 48 | weeks ['09-20', '09-21', '09-22'] ..
+  cohorts {'legacy': 454, 'current-80-20': 82, 'role-aware-equal-weight': 9} | sides {'Yes': 545}
+  all                      n= 545 meanP 0.265 obs 0.206 Brier 0.1592 baseBrier 0.1633 slope 0.65 [0.40,0.94] int -0.67
+  current-80-20            n=  82 meanP 0.316 obs 0.317 Brier 0.2026 baseBrier 0.2165 slope 0.56 [-0.13,1.44] int -0.29
+  legacy                   n= 454 meanP 0.255 obs 0.185 Brier 0.1510 baseBrier 0.1508 slope 0.64 [0.39,0.94] int -0.78
+
+FIRST/LAST-TD outcome availability (public nflverse pbp, regular season)
+  2021: games 272, games with >=1 TD 270, first-TD scorer by non-offense (def/ST) 0.044
+  2022: games 271, games with >=1 TD 269, first-TD scorer by non-offense (def/ST) 0.074
+  2023: games 272, games with >=1 TD 269, first-TD scorer by non-offense (def/ST) 0.045
+  2024: games 272, games with >=1 TD 270, first-TD scorer by non-offense (def/ST) 0.048
+  2025: games 272, games with >=1 TD 271, first-TD scorer by non-offense (def/ST) 0.052
+  2026: games 65, games with >=1 TD 64, first-TD scorer by non-offense (def/ST) 0.031
+  2021-25: games 1349, first TD by def/ST 0.053 (assumed dst_hazard_share .06/.94 of offense mass = 0.060 of first-TD mass), last TD by def/ST 0.056
+
+TEAM OFFENSIVE-TD SCALE (2021-25 + 2026 played, 2846 team-games, closing lines):
+  mean points 22.54 (closing-line implied 22.28) | mean offensive TDs 2.382 | model expected_td 2.387 | ratio actual/model 0.998
+  points from offensive TDs (7 each) / points = 0.740  (code assumes .75)
+  ratio actual/model CI [0.977, 1.017]
+  by expected-points quintile: actual vs model TDs [(17.1, 1.71, 1.83), (20.3, 2.07, 2.17), (22.3, 2.35, 2.39), (24.5, 2.62, 2.62), (27.7, 3.21, 2.96)]
+  slope of actual offensive TDs on closing-line expected points: 0.14  (code: .75/7 = 0.1071)
+
+2026 FIRST-TD priced quotes (pre-kickoff), played games with outcomes: player-games 1602 games 13 hits 62 (games with a first TD: 64 )
+                n  implied  hit_rate
+band                                
+(0.0, 0.02]   472   0.0132    0.0064
+(0.02, 0.04]  402   0.0291    0.0174
+(0.04, 0.06]  248   0.0494    0.0403
+(0.06, 0.1]   269   0.0772    0.0446
+(0.1, 0.2]    184   0.1366    0.1141
+(0.2, 1.0]     27   0.2303    0.3333
+  sum implied per game (overround across posted candidates) median: 1.31 | hits per priced-candidate set: share of games whose first scorer had a price: 0.203

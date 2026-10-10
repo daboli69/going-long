@@ -1,0 +1,31 @@
+GIT-HISTORY QUOTES (data/nfl_betting.json, last pregame quote per game/player/market/book/line); played games only
+            quotes  two_sided  player_games  books  settled_quotes  settled_player_games
+market                                                                                  
+atd          14182       1208          3489     10           11169                1718.0
+first_td     14438        543          3888     11               0                   NaN
+pass_tds      1531       1498           255     13            1364                 130.0
+pass_yds      6105       4509           252     14            4745                 131.0
+rec_tds         45          0            45      1              44                  44.0
+rec_yds      26086      18866          1583     14           20083                 953.0
+receptions   12089       9569          1652     13           10347                 960.0
+rush_tds        16          0            16      1              15                  15.0
+rush_yds     13129       9408           779     14            9856                 450.0
+weeks with settled quotes (player-games): {1: 407, 2: 439, 3: 436, 4: 433, 5: 28}
+hours between last pregame quote and kickoff: p10 2.2 median 16.8 p90 60.7
+unique quote versions seen per (game,player,market,book,line): median 4 max 225
+player-games with >1 distinct line (alternate ladders), settled: {'atd': 93, 'pass_tds': 21, 'pass_yds': 130, 'rec_yds': 866, 'receptions': 654, 'rush_yds': 398} of {'atd': 1718, 'pass_tds': 130, 'pass_yds': 131, 'rec_tds': 44, 'rec_yds': 953, 'receptions': 960, 'rush_tds': 15, 'rush_yds': 450}
+
+LIVE TRACKER (data/public_tracker via tracker_store.load_tracker)
+                        predictions  unique_contracts  settled_pregame_unique
+market                                                                       
+atd                             740               676                     545
+h2h                             137                92                      59
+player_passing_tds              310               211                     155
+player_passing_yards            621               493                     334
+player_receiving_yards         2424              2018                    1420
+player_receptions              1840              1352                     966
+player_rushing_yards           1195               995                     657
+spreads                         274               185                     122
+totals                          295               231                     138
+first/last observation 2026-09-20 14:07:01.534000+00:00 2026-10-10 01:59:38.567000+00:00 | weeks (kickoff dates): ['09-20', '09-21', '09-22', '09-25', '09-27', '09-28', '09-29', '10-02', '10-04', '10-05', '10-06', '10-09']
+record kinds {'prediction': 9775, 'settlement': 5805, 'closing': 15659, 'pick_research': 2691, 'pick_research_settlement': 249}
