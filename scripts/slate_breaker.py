@@ -17,6 +17,17 @@ MAX_SECONDS = 4200
 PRIOR_PER_BIN = .25
 
 
+
+def reported_out_ids():
+    """gsis ids with a current Out/Doubtful/Inactive game status in data/injury_context.json (the roster status alone is ACT for them). Missing file: empty set."""
+    import json
+    from pathlib import Path
+    try:
+        reports = json.loads((Path(__file__).resolve().parents[1] / 'data' / 'injury_context.json').read_text(encoding='utf-8')).get('current_reports', {})
+    except (OSError, ValueError):
+        return set()
+    return {v['gsis_id'] for v in reports.values() if v.get('gsis_id') and str(v.get('report_status') or '').strip().lower().startswith(('out', 'doubtful', 'inactive'))}
+
 def finite(value):
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
 
@@ -231,7 +242,8 @@ def build_selections(games, first_td, roster, events, return_counts, priors):
         if pid:
             latest[(row.get('team'), pid)] = row
     positions = {'QB', 'RB', 'FB', 'WR', 'TE'}
-    active = {team: {pid: row for (club, pid), row in latest.items() if club == team and row.get('status') == 'ACT'
+    out_reported = reported_out_ids()
+    active = {team: {pid: row for (club, pid), row in latest.items() if club == team and row.get('status') == 'ACT' and pid not in out_reported
                      and row.get('position') in positions} for team in {t for g in games for t in (g['home'], g['away'])}}
     inactive = sorted({row.get('full_name') for row in latest.values() if row.get('team') in active
                        and row.get('position') in positions and row.get('status') != 'ACT' and row.get('full_name')})

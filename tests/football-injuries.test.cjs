@@ -122,3 +122,9 @@ test('QB passing-yards refit keeps its fitted sigma and zero mass under an injur
  assert.ok(Math.abs(a.sigma_log-.2745*1.15)<1e-12);assert.ok(a.sigma_log>.3);
  assert.ok(Math.abs(a.mean-240*.88)<1e-9);
 });
+
+test('a doubtful player is treated as unavailable for modeled recommendations',()=>{
+ const ctx=context([{name:'Doubtful Back',team:'A',pos:'RB',injury_status:'Doubtful',depth_chart_order:1}]);
+ const result=injuries.adjustModel({model:model(70),name:'Doubtful Back',team:'A',position:'RB',market:'rush_yds',context:ctx});
+ assert.equal(result.model.status,'unavailable');assert.equal(result.injury.state,'doubtful');assert.equal(result.injury.blockRecommendation,true);assert.match(result.injury.reason,/doubtful/i);
+});

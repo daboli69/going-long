@@ -3396,9 +3396,12 @@ function attachProjection(p, index){
 }
 // Props for reserve/suspended/retired/practice-squad players keep their quote row but have no usable model, so no page can rank or recommend them.
 function markUnavailableProps(list){
-  const out=globalThis.GoingIntel?GoingIntel.unavailableIds(BET.injuryLearning?.current_players):null;
-  if(!out||!out.size)return list;
-  for(const p of list)if(p.profileId&&out.has(p.profileId)&&p.model&&p.model.status!=='unavailable')p.model={...p.model,status:'unavailable',unavailable_reason:'Reserve, suspended, retired or practice-squad player'};
+  const learning=BET.injuryLearning,age=Date.parse(learning?.generated_at),stale=!learning||!Number.isFinite(age)||Date.now()-age>48*3600000;
+  const out=globalThis.GoingIntel?GoingIntel.unavailableIds(learning?.current_players):null;
+  for(const p of list){
+    if(stale){p.injury={...(p.injury||{}),stale:true,blockRecommendation:true,reason:'The injury and roster file is missing or more than 48 hours old, so availability is not verified; not a recommendation.'};continue;}
+    if(out&&out.size&&p.profileId&&out.has(p.profileId)&&p.model&&p.model.status!=='unavailable')p.model={...p.model,status:'unavailable',unavailable_reason:'Reserve, suspended, retired or practice-squad player'};
+  }
   return list;
 }
 async function propsFromRealData(raw=BET.nflData){
@@ -3723,6 +3726,7 @@ function projectionBoard(){
       result.push(attachProjection(p,index));
     }
   }
+  markUnavailableProps(result);
   projectionCache={week,props:BET.props,games:BET.games,history:BET.history,injuries:BET.injuryContext,rows:result};
   return result;
 }

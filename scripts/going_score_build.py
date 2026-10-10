@@ -399,10 +399,24 @@ def history_crosscheck(history, links, table):
     return {'history_generated_at': history.get('generated_at'), 'linked_players': len(links)}
 
 
+def unavailable_ids():
+    """gsis ids whose roster_status in data/injury_context.json is not ACT (RES/INA/PUP/IR/SUS/RET/EXE/CUT/DEV). Missing file: nothing excluded, and the caller's output says so via counts."""
+    try:
+        cur = json.loads((REPO / 'data' / 'injury_context.json').read_text(encoding='utf-8')).get('current_players', {})
+    except (OSError, ValueError):
+        return set()
+    return {v['gsis_id'] for v in cur.values() if v.get('gsis_id') and str(v.get('roster_status') or '').upper() not in ('ACT', '')}
+
+
 def build_output(table, panel, config, cfg_sha, roster, history, players_csv, as_of, current_key, history_keys, provenance, sleeper=None):
     scored = score_table(table, config)
     pool = scored[(scored.n_prior >= config['params']['min_games'])].copy()
     now = pool[pool.key == current_key]
+    # Players who cannot play (reserve/injured list, practice squad, released, retired, exempt, suspended) are not ranked: the injury file knows more than the all-ACT roster file.
+    unavailable = unavailable_ids()
+    if unavailable:
+        now = now[~now.player_id.isin(unavailable)]
+    bye_teams = set((roster or {}).get('bye_carry_forward_teams') or [])
     by_key = {k: g.set_index('player_id') for k, g in pool.groupby('key')}
     roster_by = {p['id']: p for p in (roster or {}).get('players', [])}
     rookies = {}
@@ -445,6 +459,8 @@ def build_output(table, panel, config, cfg_sha, roster, history, players_csv, as
             d3 = round(valid[-1]['absolute'] - valid[-4]['absolute'], 1) if len(valid) >= 4 else None
             flags = []
             rr = roster_by.get(pid, {})
+            if rr.get('team') in bye_teams:
+                flags.append('BYE:' + str(rr['team']))
             if rr.get('roster_status') and rr['roster_status'] != 'ACT':
                 flags.append('ROSTER:' + str(rr['roster_status']))
             if rr.get('injury'):

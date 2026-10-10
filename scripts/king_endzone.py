@@ -15,6 +15,17 @@ VERSION = 'longest-td-1'
 RULE_SOURCE = 'https://dknetwork.draftkings.com/2026/02/08/draftkings-king-of-the-end-zone-best-bets-for-super-bowl-60/'
 
 
+
+def reported_out_ids():
+    """gsis ids with a current Out/Doubtful/Inactive game status in data/injury_context.json (the roster status alone is ACT for them). Missing file: empty set."""
+    import json
+    from pathlib import Path
+    try:
+        reports = json.loads((Path(__file__).resolve().parents[1] / 'data' / 'injury_context.json').read_text(encoding='utf-8')).get('current_reports', {})
+    except (OSError, ValueError):
+        return set()
+    return {v['gsis_id'] for v in reports.values() if v.get('gsis_id') and str(v.get('report_status') or '').strip().lower().startswith(('out', 'doubtful', 'inactive'))}
+
 def probabilities(channels):
     """Probability of sharing the longest score, including exact-distance ties.
 
@@ -76,7 +87,8 @@ def build_slate(games, profiles, roster, rows, as_of):
             if t: team_games[t][r['game_id']] = str(r['game_date'])[:10]
     windows = {t: set(sorted(g, key=g.get)[-12:]) for t, g in team_games.items()}
     team_exposure = sum(len(g) for g in team_games.values())
-    active = {r['gsis_id']: r for r in roster if r.get('gsis_id') and r.get('team') in teams and r.get('status') == 'ACT'}
+    out_reported = reported_out_ids()
+    active = {r['gsis_id']: r for r in roster if r.get('gsis_id') and r.get('team') in teams and r.get('status') == 'ACT' and r['gsis_id'] not in out_reported}
     return_counts = defaultdict(Counter)
     for r in historical:
         team = r.get('return_team')
