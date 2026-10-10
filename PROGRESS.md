@@ -1,22 +1,21 @@
 # Progress
 
 ## Completed
-- Final safety review also removed legacy JS freshness bypass and rejected unknown injury-report statuses in both languages. Fifteen focused Node tests and seven Python tests, including 60 parity cases, pass; separate reviewer found no defect in this final patch.
-- Repairs: `fbbb8f0` availability/DFS/freeze; `30cbb4b` deployment/refresh/dependency; `52c5b79` quotes/first-TD. Independent review found additional bypasses, repaired and reviewed again.
-- Verified source revision `52c5b79`: Node 620/620; Python 426 tests, five skips; both builds; npm audit zero advisories. Desktop/mobile smoke covered Today, GOING Score and Classic import. Final documentation commit receives the same required checks.
-- Takeover baseline fetched 2026-10-10: `3f2651e` (data refresh after `6716bc8`). Isolated worktree on `codex/going-takeover`; original checkout `3958ed1` and its untracked folders preserved.
-- GitHub independently reports successful application CI and Vercel Production deployment on `6716bc8`; live `/long/` returned HTTP 200. Latest data refresh reports failure; live provider/private worker health remains unverified.
-- Baseline local checks: Node 604/604; Python 401 executed, 5 skipped (private or optional inputs unavailable). No scanner, provider-credit call, alert, freeze, push or deployment executed.
+- Preserved takeover branch `codex/going-takeover` from verified `c9cccd6` and original checkout/user inputs. Prior validation: Node 621/621, Python 426 with five skips, both builds, npm audit zero.
+- Continuation repaired refresh dependency order, publication guard after failed model checks, aggregate source-health reporting/provenance, degraded coverage, failure diagnostics and Worker live snapshot parity. Targeted health 8/8, adapters Python17/17 and Node17/17, ledger/Worker12/12, isolated freeze4/4. Full pre-delivery Python465 with five skips; one obsolete Node allowlist assertion repaired, final full rerun receipt below.
+- Corrected public passing-yards replay independently reproduced identical artifact: 24 main QB-games, refit Brier .2745 vs raw .2990 / trailing .2850 / real de-vigged market .2500. Confidence intervals cross zero; no edge or production change. Ten replay tests.
+- Offline actual-CSV validator: 14 synthetic tests; independent duplicate identity, malformed clocks and status failures repaired. Actual October 11 input unavailable.
+- Latest public refresh at upstream `67ed9a3` still failed: core and derivative props HTTP503, other components retained. Read-only offline health audit correctly refuses healthy status. No production actions or paid provider calls.
 
 ## Working
-- None. Bounded takeover repair batch complete; no persistent execution configured.
+- External release gates only: fresh upstream props, actual contest inputs, natural freeze and host scanner evidence. Local delivery results, exact commit and logs are recorded in `.cache/codex-takeover/validation-continuation.json`; detailed evidence/rollback in `docs/CODEX_TAKEOVER_PROGRESS.md`.
+
 
 ## Problems
-- Release readiness is not established. Passing baseline tests missed reproducible availability and research-evidence defects.
-- October 11 actual salary slate and private ownership calibration artifacts are unavailable in this isolated public checkout; do not infer verification.
+- NOT READY: continuing upstream props outage; official chosen-contest CSV/ownership input unavailable; scanner running status unverified. Twenty-four public QB-games do not replace the prior 119-game cache study or establish predictive market advantage.
 
 ## Next
-- Resume from `docs/CODEX_TAKEOVER_PROGRESS.md`, the detailed issue ledger. Prioritize refresh recovery and actual slate validation, then corrected market evaluation.
+- Confirm natural provider recovery and Oct11 freeze; validate supplied official contest CSV/imports/lineup exports. Larger point-in-time cohort/untouched holdout and remaining NCAA/product audits follow. Resume from the detailed takeover report without repeating completed audits.
 
 ## Needs Travis
-- Production publication/model promotion and private host verification remain separate approval/manual steps. No paid service or metered API use authorized by this session.
+- Supply official chosen-contest CSV and permitted matching calibrated ownership JSON privately; inspect sanitized scanner heartbeat on its actual host. Production release/model promotion/paid calls require separate approval. No unattended continuation scheduled.

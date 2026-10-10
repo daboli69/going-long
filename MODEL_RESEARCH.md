@@ -11,3 +11,14 @@ Takeover baseline: `3f2651e`, 2026-10-10. Champion stays unchanged. Research cla
 Do not access or publish excluded private/licensed inputs, invent missing prices or treat synthetic regression fixtures as performance evidence.
 
 Before any next fit, freeze dataset hashes, exact game/player/market/book/line/side contracts, decision-time availability, push/void/nonparticipant policy, chronological folds and untouched later holdout, same-sample Champion/market/simple baselines, clustered uncertainty and acceptance thresholds. General historical joins need exact event/team/player provenance, not dates/names alone. No repeated holdout tuning. CLV/ROI require real matched timestamped prices and settlements. Failed hypotheses belong here. Champion and ABBEYS remain unchanged.
+
+
+Continuation 2026-10-10: frozen public reproduction protocol and report in `research/prop-lines/PUBLIC_REPRODUCTION.md`. No fitting or production parameters changed. Parent rerun matched result SHA256 `a6441f719f3a31aaa84662bfbc771fb9a608988aeef252900bd000b6a5872768`.
+
+| Hypothesis | Evidence / matched sample | Result | Status |
+| --- | --- | --- | --- |
+| Fixed refit improves raw/trailing probability losses | Public pregame Git receipts, complete prior-start histories; 24 main QB-games / 16 games; 2,000 paired game-cluster bootstrap draws | Brier raw .2990, refit .2745, trailing .2850; refit-raw -.02443 CI [-.09782,+.04769], refit-trailing -.01045 [-.04982,+.02424]. Median MAE refit61.22/raw68.87/trailing61.88 yards | Descriptive point-error gain; probability superiority unestablished |
+| Fixed refit adds information beyond actual market | Same intact two-sided posted prices, proportional de-vig, same eligible sample | Market Brier .2500; refit-market +.02452 CI [-.00232,+.05114]. Alternates373 contract-weighted thresholds: refit .2503 / market .2308, delta+.01946 [-.00663,+.04542] | No supported edge, no promotion |
+| Earlier 119-game result survives corrected extraction | Private excluded source cohort unavailable; public cohort excludes incomplete historical windows | Qualitative lower refit-v-raw error/no market edge persists; numeric before/after not same sample. Early weeks have zero complete recoverable windows; no untouched holdout or robustness | Prior numbers remain unverified; larger cohort blocked |
+
+These are retrospective public-source results, not synthetic line tests or bet execution. Alternate contracts are dependent and menu-weighted. Do not turn unstable/negative small-sample calibration slopes into fitted parameters. Keep Champion/ABBEYS fixed; collect complete prospective input/availability/price receipts and preserve untouched later outcomes before another model gate.
