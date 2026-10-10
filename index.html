@@ -4275,7 +4275,7 @@ function normalMarket(line, mean, sd){
 function gameQuotes(g){
   const m=globalThis.GoingGameMarket?GoingGameMarket.anchor(g,g.model,g.sport):g.model;
   if(!m||quoteState(g)) return [];
-  const spread=normalMarket(finiteNumber(g.spread)?-g.spread:null,m.margin_mean,m.margin_sd), total=normalMarket(g.total,m.total_mean,m.total_sd), ml=(globalThis.GoingGameMarket?.moneyline||(x=>x))(normalMarket(0,m.margin_mean,m.margin_sd));
+  const spread=(globalThis.GoingGameMarket?.spread||((x)=>x))(normalMarket(finiteNumber(g.spread)?-g.spread:null,m.margin_mean,m.margin_sd),m,g.spread), total=normalMarket(g.total,m.total_mean,m.total_sd), ml=(globalThis.GoingGameMarket?.moneyline||(x=>x))(normalMarket(0,m.margin_mean,m.margin_sd));
   const rows=[];
   for(const [prob,label,over,under] of [[spread,'Spread',g.homeSpreadOdds,g.awaySpreadOdds],[total,'Total',g.overOdds,g.underOdds],[ml,'Moneyline',g.mlHome,g.mlAway]]){
     if(!prob||quoteState({...g,updatedAt:g.marketTimes?.[label==='Spread'?'spreads':label==='Total'?'totals':'h2h']||g.updatedAt}))continue;
@@ -4737,7 +4737,7 @@ function goingPicksCandidates(now=Date.now()){
  for(const g of BET.games){
   if(g.source==='manual'||!upcoming(g.kickoff)||!g.model)continue;const home=g.homeCode||g.home,away=g.awayCode||g.away,m=globalThis.GoingGameMarket?GoingGameMarket.anchor(g,g.model,g.sport):g.model;
   for(const [market,line,key,mean,sd,sides,odds] of [['spread',g.spread,'spreads',m.margin_mean,m.margin_sd,['Home','Away'],[g.homeSpreadOdds,g.awaySpreadOdds]],['total',g.total,'totals',m.total_mean,m.total_sd,['Over','Under'],[g.overOdds,g.underOdds]],['moneyline',0,'h2h',m.margin_mean,m.margin_sd,['Home','Away'],[g.mlHome,g.mlAway]]]){
-   const probabilities=market==='moneyline'?(globalThis.GoingGameMarket?GoingGameMarket.moneyline(normalMarket(line,mean,sd)):normalMarket(line,mean,sd)):normalMarket(market==='spread'?-line:line,mean,sd);if(!finiteNumber(line)||!probabilities||!odds.some(americanToDecimal))continue;
+   const probabilities=market==='moneyline'?(globalThis.GoingGameMarket?GoingGameMarket.moneyline(normalMarket(line,mean,sd)):normalMarket(line,mean,sd)):(market==='spread'&&globalThis.GoingGameMarket?GoingGameMarket.spread(normalMarket(-line,mean,sd),m,line):normalMarket(market==='spread'?-line:line,mean,sd));if(!finiteNumber(line)||!probabilities||!odds.some(americanToDecimal))continue;
    for(let i=0;i<2;i++){const prob=i?probabilities.under:probabilities.over,dec=americanToDecimal(odds[i]),c={kind:'game',sport:g.sport,home,away,player:`${away} @ ${home}`,team:i?away:home,kickoff:g.kickoff,market,line,side:sides[i],odds:odds[i],dec,prob,push:probabilities.push,ev:evPercent(prob,dec,probabilities.push),modelMean:mean,modelSd:sd,n:Math.min(m.home_n,m.away_n),gameSeasonEvidence:m.season_evidence,book:g.book,updatedAt:g.marketTimes?.[key]||g.updatedAt,flags:[]};c.contract=opportunityIdentity(c);rows.push(c);}
   }
  }

@@ -34,7 +34,16 @@ function moneyline(prob,tie=.004){
  if(!prob||!(prob.over+prob.under>0))return prob;
  const total=prob.over+prob.under;return {over:prob.over/total*(1-tie),under:prob.under/total*(1-tie),push:tie};
 }
-const api={POLICY,anchor,anchorPeriod,moneyline,active};
+// Spread push mass by posted number (NFL 2012-2025, 4,100+ games; shrunk toward 3% with 40 pseudo-games). The smooth normal gives about 3% everywhere, but 3, 7 and 10 push far more often.
+const SPREAD_PUSH={1:.010,2:.026,3:.090,4:.020,5:.010,6:.033,7:.068,8:.014,9:.018,10:.072,11:.028,12:.026,13:.015,14:.038};
+function spreadPush(line){const L=Math.abs(line);return Number.isInteger(L)&&L>0?(SPREAD_PUSH[L]??.015):0;}
+// Anchored spread: each side wins (1 - push) / 2. Half-point lines keep the 50/50 split (favourite covers 49.5% of 1,825 half-point games). Non-anchored models are left alone.
+function spread(prob,model,line){
+ if(!prob||!model?.anchored?.hasMargin||!finite(line)||!active())return prob;
+ const push=Number.isInteger(Math.abs(line))&&Math.abs(line)>0?spreadPush(line):Math.max(0,1-prob.over-prob.under);
+ return {over:(1-push)/2,under:(1-push)/2,push};
+}
+const api={POLICY,anchor,anchorPeriod,moneyline,spread,spreadPush,active};
 root.GoingGameMarket=api;
 if(typeof module!=='undefined')module.exports=api;
 })(globalThis);

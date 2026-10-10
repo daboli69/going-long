@@ -31,3 +31,9 @@ test('moneyline keeps a 0.4% tie, not the ~3% a discretised normal implies',()=>
  const m=G.moneyline({over:.4,under:.57,push:.03});assert.ok(Math.abs(m.push-.004)<1e-12);assert.ok(Math.abs(m.over+m.under+m.push-1)<1e-12);assert.ok(Math.abs(m.over/m.under-.4/.57)<1e-9);
  assert.equal(G.moneyline(null),null);
 });
+test('anchored spread pushes follow the key numbers, half points stay 50/50, raw models are untouched',()=>{
+ const m=G.anchor({spread:-3,total:44},raw),n={over:.5,under:.5,push:0};
+ const s3=G.spread({over:.485,under:.485,push:.03},m,-3);assert.equal(s3.push,.09);assert.ok(Math.abs(s3.over-.455)<1e-9);
+ assert.equal(G.spread({over:.5,under:.5,push:0},G.anchor({spread:-3.5},raw),-3.5).over,.5);
+ assert.equal(G.spread(n,raw,-3),n);assert.ok(G.spreadPush(7)>G.spreadPush(5));assert.equal(G.spreadPush(3.5),0);
+});
