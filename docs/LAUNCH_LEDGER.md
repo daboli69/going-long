@@ -21,3 +21,5 @@ Baseline 2026-10-09 20:00Z: branch `claude/phase3-weekly` = origin/main 1fa0584;
 | 13 | P1 | Today payload | measured on production: 29 MB raw is 2.5 MB over the wire (brotli: history 1.18 MB, context 1.09 MB) | VERIFIED, lazy loading deferred (risk > benefit before Sunday) |
 | 15 | P0 | Calibration repair: game lines market-anchored, TD means corrected, extreme-probability guard | docs/CALIBRATION_AUDIT.md repair pass; independent QA reproduced | SHIPPED |
 | 14 | P2 | NB1 receptions, TD lean score, free-role challenger | prospective shadow only | SHADOW |
+| 16 | P0 | Players to Target (fantasy and betting) with injury/IR/bye/availability gating | tests/going-targets.test.cjs; independent QA found 0 unavailable players in real-data lists; mobile 375px no overflow | SHIPPED |
+| 17 | P0 | Spread key-number push mass | table-driven pushes at 3/7/10 | SHIPPED |
