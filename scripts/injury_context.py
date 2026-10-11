@@ -316,9 +316,9 @@ def build():
     historical_rosters = nfl.load_rosters(history_seasons).to_dicts()
     effects, validation = build_effects(historical_injuries, historical_stats, historical_snaps, historical_rosters)
 
-    current_injuries, injury_source = load_source('injuries', season)
-    depth = nfl.load_depth_charts([season]).to_dicts()
     weekly_roster, roster_source = load_source('rosters', season)
+    current_injuries, injury_source = load_source('injuries', season, roster=weekly_roster)
+    depth = nfl.load_depth_charts([season]).to_dicts()
     pbp = nfl.load_pbp([season]).to_dicts()
     ftn = nfl.load_ftn_charting([season]).to_dicts()
     players, reports, qb, defenses, current_meta = build_current(season, current_injuries, depth, weekly_roster, context, pbp, ftn)

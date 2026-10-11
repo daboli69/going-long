@@ -85,10 +85,14 @@ jobs:
         id: injury_context
         continue-on-error: true
         run: python scripts/injury_context.py
+        env:
+          NFLMETA_API_KEY: ${{ secrets.NFLMETA_API_KEY }}
       - name: Publish all-position active roster
         id: roster_public
         continue-on-error: true
         run: python scripts/build_roster.py
+        env:
+          NFLMETA_API_KEY: ${{ secrets.NFLMETA_API_KEY }}
       - name: Build historical projections and name matches
         id: projections
         continue-on-error: true

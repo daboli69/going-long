@@ -11,6 +11,7 @@ from email.utils import parsedate_to_datetime
 import requests
 
 from eligibility import _age_hours
+import nflmeta_source
 
 
 def source_stamp(value):
@@ -22,7 +23,7 @@ def source_stamp(value):
     return None
 
 
-def load_source(kind, season, now=None):
+def load_source(kind, season, now=None, roster=None):
     import polars as pl
     names = {'injuries': f'injuries/injuries_{season}',
              'rosters': f'weekly_rosters/roster_weekly_{season}'}
@@ -46,6 +47,25 @@ def load_source(kind, season, now=None):
         'url': url, 'timestamp_basis': 'HTTP Last-Modified for the exact downloaded parquet bytes'}
     if kind == 'injuries':
         week = max((int(r.get('week') or 0) for r in rows if r.get('season_type') == 'REG'), default=0)
+        # nflverse report rows carry no aware report clock. NFLMeta's verified weekly
+        # club reports supply dated designations; without them the gate stays closed.
+        try:
+            verified = None
+            weekly = nflmeta_source.fetch_week(season, week, now)
+            if weekly is not None:
+                verified = nflmeta_source.verify(weekly, week, now)
+        except (requests.RequestException, RuntimeError, ValueError, KeyError, TypeError) as exc:
+            print(f'[availability] NFLMeta verification unavailable: {exc}')
+            verified = None
+        if verified:
+            # Date merged designations no later than the nflverse bytes they join, so a
+            # report is never newer than the snapshot's own content clock on the next run.
+            as_of = min((stamp, verified['verified_at']), key=lambda t: datetime.fromisoformat(t.replace('Z', '+00:00')))
+            rows, merged = nflmeta_source.merge(rows, roster or [], weekly, season, week, as_of)
+            metadata['nflmeta'] = {'provider': 'NFLMeta weekly club game-status reports', 'verified_at': verified['verified_at'],
+                                   'club_reports': verified['clubs'], **merged}
+            # Unchanged nflverse bytes with changed verified designations are new content.
+            metadata['sha256'] = hashlib.sha256((metadata['sha256'] + merged['designation_sha256']).encode()).hexdigest()
         report_stamps = [source_stamp(r.get('date_modified')) for r in rows
                          if r.get('season_type') == 'REG' and int(r.get('week') or 0) == week]
         dated = [t for t in report_stamps if _age_hours(t, now) is not None]
@@ -57,7 +77,7 @@ def load_source(kind, season, now=None):
         metadata['uploaded_at'] = stamp
         metadata['report_content_at'] = latest
         metadata['content_at'] = max((stamp, latest), key=lambda t: _age_hours(t, now))
-        metadata['timestamp_basis'] = 'Earlier of exact-byte HTTP Last-Modified and latest dated current-week report'
+        metadata['timestamp_basis'] = 'Earlier of exact-byte HTTP Last-Modified and latest dated current-week report' + (' (NFLMeta club-report verification)' if 'nflmeta' in metadata else '')
     return rows, metadata
 
 

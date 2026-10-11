@@ -62,7 +62,7 @@ def build():
     import nflreadpy as nfl
     season=int(os.getenv('SEASON',datetime.now().year))
     roster, roster_source=load_source('rosters',season)
-    injuries, injury_source=load_source('injuries',season)
+    injuries, injury_source=load_source('injuries',season,roster=roster)
     bye=bye_teams_for(nfl.load_schedules([season]).to_dicts(),season,latest_week(roster,season))
     result=normalize(roster,injuries,season,bye)
     if result['injury_week'] != result['week']:
