@@ -22,7 +22,7 @@ function mount(t,{buildPool=enrich,loadField,buildScenario=()=>({version:'team-b
  Object.defineProperty(w.crypto,'subtle',{value:webcrypto.subtle});w.TextEncoder=TextEncoder;
  w.fixtureNow=NOW;w.Date=class extends Date{constructor(...args){super(...(args.length?args:[w.fixtureNow]));}static now(){return w.fixtureNow;}};
  Object.defineProperty(w,'scrollY',{get:()=>240});w.scrollTo=opts=>scroll.push(opts);
- for(const file of ['shared/dfs-threshold.js','shared/dfs-journal.js','shared/dfs-matchup-csv.js','shared/dfs-tournament.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
+ for(const file of ['shared/dfs-threshold.js','shared/dfs-journal.js','shared/dfs-matchup-csv.js','shared/dfs-classic-field.js','shared/dfs-tournament.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
  w.GoingDfsClassicUI.mount(w.document.getElementById('fixture'),{defaultMode:'throne',generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool,buildScenario,loadField});
  t.after(()=>w.close());
  return {w,d:w.document,scroll};
@@ -34,6 +34,33 @@ async function load(ui,text=officialShape()){
 }
 function confirm(ui){const input=ui.d.getElementById('dk-confirm');input.checked=true;input.dispatchEvent(new ui.w.Event('change',{bubbles:true}));}
 async function generate(ui){click(ui,'#dk-generate');assert.equal(ui.d.getElementById('dk-generate').disabled,true);await waitFor(()=>!ui.d.getElementById('dk-generate').disabled);}
+test('historical JSON plus matchup CSV controls actually reach lineup generation and frozen evidence',async t=>{
+ let ui;
+ const positions=['QB','RB','WR','TE','DST'],model={schema:'going-private-classic-ownership-v1',positions,slot_totals:{QB:100,RB:240,WR:340,TE:120,DST:100},models:{salary_only:Object.fromEntries(positions.map(p=>[p,{features:['s'],beta:[-2]}]))}};
+ ui=mount(t,{buildPool:rows=>ui.w.GoingDfsClassicField.annotate(enrich(rows).map(p=>({...p,projectionSource:'dfs-current-season-empirical-v1',projectionSeason:2026}))),loadField:text=>ui.w.GoingDfsClassicField.load(text)});
+ assert.equal(ui.d.getElementById('dk-history-own').disabled,true);
+ await load(ui);await loadMatchups(ui);confirm(ui);click(ui,'#dk-tournament');
+ const input=ui.d.getElementById('dk-field-file');Object.defineProperty(input,'files',{value:[{name:'synthetic.json',text:async()=>JSON.stringify(model)}]});input.dispatchEvent(new ui.w.Event('change',{bubbles:true}));await waitFor(()=>!ui.d.getElementById('dk-history-own').disabled);
+ click(ui,'#dk-history-own');await generate(ui);
+ assert.equal(ids(ui).length,9);assert.match(ui.d.body.textContent,/Historical ownership influenced this draft/);assert.match(ui.d.body.textContent,/minimum .*2% budget/);
+ assert.match(ui.d.body.textContent,/Local opponent positional FPG adjusts/);
+ assert.equal(ui.d.querySelectorAll('#dk-history-own').length,1);
+ click(ui,'[data-act="freeze"]');
+ const receipts=ui.w.GoingDfsJournal.read(ui.w.localStorage).receipts,receipt=receipts.at(-1);
+ assert.equal(receipt.researchPolicy.ownership,true);assert.equal(receipt.historicalSelection.source,'imported-historical-classic-ownership');assert.equal(receipt.strategyVersion,'historical-ownership-construction-research-v1');
+ assert.match(receipt.historicalSelection.ownershipModelHash,/^[a-f0-9]{64}$/);
+ assert.ok(receipt.players.some(p=>p.matchupResearch));
+ click(ui,'#dk-generate');assert.equal(ui.d.getElementById('dk-history-own').disabled,true);assert.equal(ui.d.getElementById('dk-field-file').disabled,true);await waitFor(()=>!ui.d.getElementById('dk-generate').disabled);
+ assert.equal(ui.d.getElementById('dk-history-own').checked,true);
+});
+test('ownership upload blocks overlapping mutations and rejects loader errors without damaging the slate',async t=>{
+ let release;const pending=new Promise(resolve=>release=resolve),ui=mount(t,{loadField:()=>{throw Error('synthetic failure');}});
+ await load(ui);confirm(ui);
+ const input=ui.d.getElementById('dk-field-file');Object.defineProperty(input,'files',{value:[{name:'synthetic.json',size:20,text:()=>pending}]});input.dispatchEvent(new ui.w.Event('change',{bubbles:true}));
+ assert.equal(ui.d.getElementById('dk-generate').disabled,true);assert.equal(ui.d.getElementById('dk-history-stack').disabled,true);
+ release('{}');await waitFor(()=>/Import rejected/.test(ui.d.getElementById('dk-field-status').textContent));
+ assert.match(ui.d.getElementById('dk-field-status').textContent,/synthetic failure/);assert.equal(ui.d.getElementById('dk-generate').disabled,false);assert.equal(ui.d.getElementById('dk-confirm').checked,true);
+});
 function ids(ui){return [...ui.d.querySelectorAll('.dk-roster>li')].map(li=>li.querySelector('[data-act="exclude"]').dataset.id);}
 test('actual pasted-import flow gates contest confirmation then generates a valid nine-slot lineup',async t=>{
  const ui=mount(t);assert.equal(ui.d.getElementById('dk-generate').disabled,true);assert.equal(typeof ui.w.Worker,'undefined');
@@ -50,7 +77,7 @@ test('Classic salary CSV stays the only direct upload; optional ownership cannot
  const ui=mount(t),salary=ui.d.getElementById('dk-file'),ownership=ui.d.getElementById('dk-field-file');
  assert.equal(salary.getAttribute('accept'),'.csv,text/csv');
  assert.equal(salary.closest('label').className,'dk-salary-upload');
- assert.equal(ui.d.querySelectorAll('.dk-import:not(.dk-matchup-import)>label:not(.dk-confirm)').length,1);
+ assert.equal(ui.d.querySelectorAll('.dk-import:not(.dk-matchup-import):not(.dk-history-import)>label:not(.dk-confirm)').length,1);
  assert.match(salary.closest('label').textContent,/salary CSV \(\.csv\)/);
  assert.match(ui.d.getElementById(salary.getAttribute('aria-describedby')).textContent,/DKSalaries.csv/);
  const optional=ownership.closest('details');
@@ -84,7 +111,7 @@ test('separate optional ownership upload retains its JSON loader and salary slat
  input.closest('details').open=true;
  Object.defineProperty(input,'files',{value:[{name:'synthetic-ownership.json',text:async()=>'{"fixture":true}'}]});
  input.dispatchEvent(new ui.w.Event('change',{bubbles:true}));
- await waitFor(()=>/Private ownership model loaded/.test(ui.d.getElementById('dk-field-status').textContent));
+ await waitFor(()=>/Classic ownership model loaded/.test(ui.d.getElementById('dk-field-status').textContent));
  assert.equal(received,'{"fixture":true}');
  assert.equal(ui.d.getElementById('dk-field-file').closest('details').open,true);
  assert.equal(ui.d.getElementById('dk-confirm').checked,true);
@@ -146,7 +173,7 @@ test('evidence builder exceptions during rebuild report a recoverable failure',a
 test('zero eight-TD scenario support is disclosed instead of pretending the target is backed',async t=>{const ui=mount(t,{buildScenario:()=>({version:'team-budget-v1',teams:{BUF:{counts:[0,0,0],denominator:20},KC:{counts:[0,0,0],denominator:20}}})});await load(ui);confirm(ui);await generate(ui);assert.equal(ids(ui).length,9);assert.match(ui.d.getElementById('dk-status').textContent,/no eight-TD support/);assert.match(ui.d.getElementById('dk-status').textContent,/not treat this as an eight-TD recommendation/);});
 
 
-test('tournament UI explains construction, unknown leverage and progressively exposes the full pool',async t=>{const ui=mount(t);await load(ui,officialShape({QB:3,RB:16,WR:25,TE:6,DST:4}));confirm(ui);click(ui,'#dk-tournament');await generate(ui);assert.equal(ids(ui).length,9);assert.match(ui.d.body.textContent,/Your tournament thesis/);assert.match(ui.d.body.textContent,/Ownership.leverage unknown/);assert.equal(ui.d.querySelectorAll('#dk-pool-list article').length,40);click(ui,'[data-act="more-pool"]');assert.equal(ui.d.querySelectorAll('#dk-pool-list article').length,54);});
+test('tournament UI explains construction, unknown leverage and progressively exposes the full pool',async t=>{const ui=mount(t);await load(ui,officialShape({QB:3,RB:16,WR:25,TE:6,DST:4}));confirm(ui);click(ui,'#dk-tournament');await generate(ui);assert.equal(ids(ui).length,9);assert.match(ui.d.body.textContent,/Your tournament thesis/);assert.match(ui.d.body.textContent,/leverage and duplication remain unknown/);assert.equal(ui.d.querySelectorAll('#dk-pool-list article').length,40);click(ui,'[data-act="more-pool"]');assert.equal(ui.d.querySelectorAll('#dk-pool-list article').length,54);});
 
 
 test('pregame lineup can be frozen without modifying the lineup and exports stay separate from betting journals',async t=>{const ui=mount(t);await load(ui);confirm(ui);click(ui,'#dk-tournament');await generate(ui);const before=ids(ui);click(ui,'[data-act="freeze"]');assert.match(ui.d.getElementById('dk-status').textContent,/Pregame DFS lineup frozen/);assert.deepEqual(ids(ui),before);const r=ui.w.GoingDfsJournal.read(ui.w.localStorage);assert.equal(r.ok,true);assert.equal(r.receipts.length,1);assert.equal(r.receipts[0].mode,'tournament');assert.equal(r.receipts[0].players.length,9);});

@@ -4115,7 +4115,7 @@ function renderDfs(){
     makeModel:dfsProjection
    });
   },
-  loadField:loadPrivateModel,
+  loadField:text=>GoingDfsClassicField.load(text),
   buildPool:(salaryRows,{incumbentLineup=[]}={})=>classicPoolIntel(verifyDfsPool(dfsEvidencePool(salaryRows,'draftkings',incumbentLineup)))
  });
 $('dfsSite').value=DFS_STATE.site;$('dfsSource').value=DFS_STATE.source;$('dfsContest').value=DFS_STATE.contest;$('dfsCsvFields').hidden=DFS_STATE.source!=='csv';$('dfsGenerate').textContent=DFS_STATE.contest==='showdown'?'Generate single-game rosters':DFS_STATE.source==='model'?'Generate offensive cores':'Generate lineups';
