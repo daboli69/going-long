@@ -1,0 +1,533 @@
+{
+  "schema": "td-opportunity-volume-research-v1",
+  "status": "reused_retrospective_diagnostic_no_promotion",
+  "research_gate": "prospective_candidate",
+  "promotion_eligible": false,
+  "protocol_sha256": "abec9acce22f088f8127057511fe11a43de9786e6f87fee764bb6f3d1131bab8",
+  "sources": {
+    "stats_player_week_2019.csv": "a05558126b1209b80fe11a8f18938cb35816370bf9990975a87de49e9eed7376",
+    "stats_player_week_2020.csv": "05b992676faccc8940efbf6242cb76358069372d31d7c2e02c1a4acdcd3cbe18",
+    "stats_player_week_2021.csv": "41915fb49238902ad1f129ebf0405b11a1e710454ae0fe8f7b3e4f9145875f48",
+    "stats_player_week_2022.csv": "ad426c3fe5bf1cc30c3f137fdfe96d054e19d400879ee4413129da49fa7b54be",
+    "stats_player_week_2023.csv": "f19cb71a5de0dce7fd09376026237c9ee9d5a93fe13815a2ea3ec2d37204cb17",
+    "stats_player_week_2024.csv": "3ddc45a84f759aa348ce465ae001752c530575455717657cdfe1f8abfcdb4759",
+    "stats_player_week_2025.csv": "e5e0615b3d96a3eaebfaee91e55afb4a4e7fe0caf057454177bcd7d6ad4bcfc2",
+    "snap_counts_2019.csv": "0cd52be8fa57f18503b670cb8263246c4f548375b768cbcad1c7a7462c98970d",
+    "snap_counts_2020.csv": "512e35f17d076eb5d99b933c4a144eb95dcddf40c0320dbb397cae3c35683716",
+    "snap_counts_2021.csv": "8e4dae054a4749cf2d4919508d9161a6068fd67509979aefa385bfb3803d0ee5",
+    "snap_counts_2022.csv": "0018a4833fbf0f825286c1c27450c6254391b548d6c55bcde728e93e4816815a",
+    "snap_counts_2023.csv": "303b61aa5c33ffda863f93a750fc14483f397f9187ad502b1ce71e9b516a64c0",
+    "snap_counts_2024.csv": "a2aa58efe093f8aa0ad5aadf09f81d8ec690a1183bd2dde68d20e7f109a9c335",
+    "snap_counts_2025.csv": "3fc2deb0e9ad86d34d4578cb80bb21c95253e088ee22ca028adf46f7485eff1f",
+    "players.csv": "e6d430fb00bbd759e4345de6a767babaea69f8dd4ae866cd5add2e9e139afe10"
+  },
+  "fitted_conversion_rates": {
+    "carry": 0.0310903241504231,
+    "target": 0.04425638973068786
+  },
+  "attrition": {
+    "insufficient_current_team_role": 3184,
+    "unmapped_game_identity": 258,
+    "champion_incomplete": 316
+  },
+  "feature_missingness": {
+    "goal_line_detail": "absent in weeklystats;no fabricated proxy",
+    "red_zone_detail": "absent in weeklystats;no fabricated proxy",
+    "opportunity_counts": "eligible rows complete; confirmed snap-zero stat absence handled by existing Champion appearance loader"
+  },
+  "reports": {
+    "2024": {
+      "rows": 4211,
+      "games": 224,
+      "players": 436,
+      "observed_rate": 0.19187841367846117,
+      "models": {
+        "opportunity": {
+          "brier": 0.13827996792966407,
+          "log_loss": 0.4466347090898622,
+          "mean_probability": 0.16689889358536386,
+          "calibration": {
+            "intercept": -0.19179904837545003,
+            "slope": 0.7155214328372319,
+            "optimizer_success": true,
+            "diagnostic_only_never_applied": true
+          },
+          "reliability": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "n": 1648,
+              "mean_probability": 0.04218312498742208,
+              "observed_rate": 0.060072815533980584
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "n": 1080,
+              "mean_probability": 0.1475170314354157,
+              "observed_rate": 0.19444444444444445
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.4,
+              "n": 1138,
+              "mean_probability": 0.2741491057631501,
+              "observed_rate": 0.29437609841827767
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.6,
+              "n": 345,
+              "mean_probability": 0.46954601333328055,
+              "observed_rate": 0.4753623188405797
+            },
+            {
+              "lower": 0.6,
+              "upper": 1.000001,
+              "n": 0,
+              "mean_probability": null,
+              "observed_rate": null
+            }
+          ]
+        },
+        "champion_reconstructed": {
+          "brier": 0.14148535918258778,
+          "log_loss": 0.6124075902703938,
+          "mean_probability": 0.14479248285515406,
+          "calibration": {
+            "intercept": -0.8379688530295832,
+            "slope": 0.1634515629183276,
+            "optimizer_success": true,
+            "diagnostic_only_never_applied": true
+          },
+          "reliability": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "n": 2070,
+              "mean_probability": 0.02799145058385936,
+              "observed_rate": 0.0893719806763285
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "n": 882,
+              "mean_probability": 0.14667451973660683,
+              "observed_rate": 0.20861678004535147
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.4,
+              "n": 957,
+              "mean_probability": 0.28686217406779335,
+              "observed_rate": 0.30616509926854757
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.6,
+              "n": 271,
+              "mean_probability": 0.47243287682908885,
+              "observed_rate": 0.46863468634686345
+            },
+            {
+              "lower": 0.6,
+              "upper": 1.000001,
+              "n": 31,
+              "mean_probability": 0.6405001930069796,
+              "observed_rate": 0.6129032258064516
+            }
+          ]
+        },
+        "current_frequency": {
+          "brier": 0.14647433548281766,
+          "log_loss": 0.4592663345546383,
+          "mean_probability": 0.2506761987537128,
+          "calibration": {
+            "intercept": -0.530348936928504,
+            "slope": 0.847093289524382,
+            "optimizer_success": true,
+            "diagnostic_only_never_applied": true
+          },
+          "reliability": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "n": 495,
+              "mean_probability": 0.07594244370536705,
+              "observed_rate": 0.06464646464646465
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "n": 1410,
+              "mean_probability": 0.14075983934713596,
+              "observed_rate": 0.10709219858156029
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.4,
+              "n": 1494,
+              "mean_probability": 0.2668574592520376,
+              "observed_rate": 0.2101740294511379
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.6,
+              "n": 624,
+              "mean_probability": 0.46853839492060645,
+              "observed_rate": 0.3573717948717949
+            },
+            {
+              "lower": 0.6,
+              "upper": 1.000001,
+              "n": 188,
+              "mean_probability": 0.6834126983258709,
+              "observed_rate": 0.46808510638297873
+            }
+          ]
+        }
+      },
+      "paired": {
+        "champion_reconstructed": {
+          "game_id": {
+            "brier": {
+              "delta": -0.0032053912529237403,
+              "lower": -0.005712086457806202,
+              "upper": -0.0005384084124518654,
+              "clusters": 224
+            },
+            "log_loss": {
+              "delta": -0.16577288118053163,
+              "lower": -0.21149930070654704,
+              "upper": -0.12350361820544192,
+              "clusters": 224
+            }
+          },
+          "player_id": {
+            "brier": {
+              "delta": -0.0032053912529237403,
+              "lower": -0.006050687936011757,
+              "upper": -0.0005676367255391219,
+              "clusters": 436
+            },
+            "log_loss": {
+              "delta": -0.16577288118053163,
+              "lower": -0.20686855754077754,
+              "upper": -0.12515732579634262,
+              "clusters": 436
+            }
+          }
+        },
+        "current_frequency": {
+          "game_id": {
+            "brier": {
+              "delta": -0.008194367553153618,
+              "lower": -0.011838075303884704,
+              "upper": -0.004441461160168472,
+              "clusters": 224
+            },
+            "log_loss": {
+              "delta": -0.012631625464776081,
+              "lower": -0.028126035463947426,
+              "upper": 0.003203513845991416,
+              "clusters": 224
+            }
+          },
+          "player_id": {
+            "brier": {
+              "delta": -0.008194367553153618,
+              "lower": -0.011364878902072379,
+              "upper": -0.004248042788358499,
+              "clusters": 436
+            },
+            "log_loss": {
+              "delta": -0.012631625464776081,
+              "lower": -0.028529023195031412,
+              "upper": 0.005969404364960718,
+              "clusters": 436
+            }
+          }
+        }
+      },
+      "positions": {
+        "RB": {
+          "rows": 1122,
+          "brier": {
+            "opportunity": 0.1687841900721023,
+            "champion_reconstructed": 0.1728099397996777,
+            "current_frequency": 0.17763371186154872
+          }
+        },
+        "TE": {
+          "rows": 1208,
+          "brier": {
+            "opportunity": 0.09979442185901508,
+            "champion_reconstructed": 0.10140488951040279,
+            "current_frequency": 0.10635360934831131
+          }
+        },
+        "WR": {
+          "rows": 1881,
+          "brier": {
+            "opportunity": 0.14480033072048185,
+            "champion_reconstructed": 0.14854066376080394,
+            "current_frequency": 0.15365403610671316
+          }
+        }
+      }
+    },
+    "2025": {
+      "rows": 4182,
+      "games": 224,
+      "players": 453,
+      "observed_rate": 0.18579626972740315,
+      "models": {
+        "opportunity": {
+          "brier": 0.1339677576179486,
+          "log_loss": 0.4303204883376805,
+          "mean_probability": 0.1655313274749982,
+          "calibration": {
+            "intercept": -0.15136813077092354,
+            "slope": 0.7668262651240966,
+            "optimizer_success": true,
+            "diagnostic_only_never_applied": true
+          },
+          "reliability": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "n": 1687,
+              "mean_probability": 0.04125138182555799,
+              "observed_rate": 0.05749851807943094
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "n": 1010,
+              "mean_probability": 0.1502506862808083,
+              "observed_rate": 0.1712871287128713
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.4,
+              "n": 1176,
+              "mean_probability": 0.27546181757265503,
+              "observed_rate": 0.30952380952380953
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.6,
+              "n": 295,
+              "mean_probability": 0.46880478241969853,
+              "observed_rate": 0.44745762711864406
+            },
+            {
+              "lower": 0.6,
+              "upper": 1.000001,
+              "n": 14,
+              "mean_probability": 0.619087781275471,
+              "observed_rate": 0.7857142857142857
+            }
+          ]
+        },
+        "champion_reconstructed": {
+          "brier": 0.13894898061285624,
+          "log_loss": 0.605978225405975,
+          "mean_probability": 0.15254594972720542,
+          "calibration": {
+            "intercept": -0.9366757372041089,
+            "slope": 0.15198611168948187,
+            "optimizer_success": true,
+            "diagnostic_only_never_applied": true
+          },
+          "reliability": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "n": 1933,
+              "mean_probability": 0.028276048054121893,
+              "observed_rate": 0.0817382307294361
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "n": 934,
+              "mean_probability": 0.1487214174168299,
+              "observed_rate": 0.18201284796573874
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.4,
+              "n": 996,
+              "mean_probability": 0.29070490573860563,
+              "observed_rate": 0.31224899598393574
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.6,
+              "n": 283,
+              "mean_probability": 0.46341120767245797,
+              "observed_rate": 0.4169611307420495
+            },
+            {
+              "lower": 0.6,
+              "upper": 1.000001,
+              "n": 36,
+              "mean_probability": 0.6582305310077641,
+              "observed_rate": 0.5555555555555556
+            }
+          ]
+        },
+        "current_frequency": {
+          "brier": 0.14800430406251483,
+          "log_loss": 0.4628682430483471,
+          "mean_probability": 0.2578790994469533,
+          "calibration": {
+            "intercept": -0.6370126692837315,
+            "slope": 0.8116190907920652,
+            "optimizer_success": true,
+            "diagnostic_only_never_applied": true
+          },
+          "reliability": [
+            {
+              "lower": 0,
+              "upper": 0.1,
+              "n": 459,
+              "mean_probability": 0.07605584836938163,
+              "observed_rate": 0.06100217864923747
+            },
+            {
+              "lower": 0.1,
+              "upper": 0.2,
+              "n": 1329,
+              "mean_probability": 0.14099384204615914,
+              "observed_rate": 0.09556057185854025
+            },
+            {
+              "lower": 0.2,
+              "upper": 0.4,
+              "n": 1536,
+              "mean_probability": 0.2714797054669527,
+              "observed_rate": 0.20833333333333334
+            },
+            {
+              "lower": 0.4,
+              "upper": 0.6,
+              "n": 669,
+              "mean_probability": 0.47172964202771644,
+              "observed_rate": 0.336322869955157
+            },
+            {
+              "lower": 0.6,
+              "upper": 1.000001,
+              "n": 189,
+              "mean_probability": 0.6538623560448957,
+              "observed_rate": 0.4074074074074074
+            }
+          ]
+        }
+      },
+      "paired": {
+        "champion_reconstructed": {
+          "game_id": {
+            "brier": {
+              "delta": -0.004981222994907677,
+              "lower": -0.007406271175267516,
+              "upper": -0.0023441230339067455,
+              "clusters": 224
+            },
+            "log_loss": {
+              "delta": -0.17565773706829454,
+              "lower": -0.21786193948202295,
+              "upper": -0.13432934787128076,
+              "clusters": 224
+            }
+          },
+          "player_id": {
+            "brier": {
+              "delta": -0.004981222994907677,
+              "lower": -0.00753974574254697,
+              "upper": -0.002475963729395434,
+              "clusters": 453
+            },
+            "log_loss": {
+              "delta": -0.17565773706829454,
+              "lower": -0.22024580325638357,
+              "upper": -0.13600077601541005,
+              "clusters": 453
+            }
+          }
+        },
+        "current_frequency": {
+          "game_id": {
+            "brier": {
+              "delta": -0.014036546444566226,
+              "lower": -0.017150469017328453,
+              "upper": -0.010753526315452202,
+              "clusters": 224
+            },
+            "log_loss": {
+              "delta": -0.03254775471066663,
+              "lower": -0.0457766353366673,
+              "upper": -0.018139846898652483,
+              "clusters": 224
+            }
+          },
+          "player_id": {
+            "brier": {
+              "delta": -0.014036546444566226,
+              "lower": -0.017556776254772654,
+              "upper": -0.011026058624648444,
+              "clusters": 453
+            },
+            "log_loss": {
+              "delta": -0.03254775471066663,
+              "lower": -0.04606353303100129,
+              "upper": -0.017617410521902733,
+              "clusters": 453
+            }
+          }
+        }
+      },
+      "positions": {
+        "RB": {
+          "rows": 1097,
+          "brier": {
+            "opportunity": 0.16993387782971936,
+            "champion_reconstructed": 0.17629178774252285,
+            "current_frequency": 0.17868880955988178
+          }
+        },
+        "TE": {
+          "rows": 1215,
+          "brier": {
+            "opportunity": 0.10500309194424465,
+            "champion_reconstructed": 0.11046604921862492,
+            "current_frequency": 0.11954054935093322
+          }
+        },
+        "WR": {
+          "rows": 1870,
+          "brier": {
+            "opportunity": 0.1316882040998939,
+            "champion_reconstructed": 0.13554882137368346,
+            "current_frequency": 0.14849765135875015
+          }
+        }
+      }
+    }
+  },
+  "market_comparison": {
+    "status": "blocked",
+    "reason": "No matched historical sportsbook ATD quotes for2019\u20132025 supplied; do not substitute synthetic prices"
+  },
+  "limitations": [
+    "Conditioned on retrospectively confirmed appearances; no historical pregame availability/execution validation.",
+    "Historical source receipts are retrospectively loaded public releases, not immutable contemporaneous feed receipts.",
+    "2024/2025 already used in prior model research; not an untouched holdout.",
+    "Champion reconstructed with current fixed policy on public stats/snap appearance windows, not archived exact historical forecasts.",
+    "Zero-touch appearances require positive offensive snap receipts; unmapped PFR identities omitted by inherited appearance builder.",
+    "Offensive team/opponent TD forecasts and exact red-zone detail not in this simpler volume challenger.",
+    "No2026 outcomes accessed; no betting profit or production accuracy claim."
+  ]
+}

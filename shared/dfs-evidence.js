@@ -42,7 +42,7 @@ function preservedIncumbent(s,previous,{profiles,context,injuryContext,generated
  }
  return {...old,incumbentLocked:true,concerns:[...(old.concerns||[]).filter(x=>x!=='Game started: pregame projection retained only for this exact existing roster spot; no new selection.'),'Game started: pregame projection retained only for this exact existing roster spot; no new selection.']};
 }
-function buildPool(salaries,{profiles={},context=null,injuryContext=null,generatedAt,now=Date.now(),makeModel,bonusProbability,points,injuries,adjustments=ADJUSTMENTS,currentSeasonOnly=true,teamSnapshot=null,site='draftkings',incumbentLineup=[]}={}){
+function buildPool(salaries,{profiles={},context=null,injuryContext=null,generatedAt,now=Date.now(),makeModel,bonusProbability,points,injuries,adjustments=ADJUSTMENTS,currentSeasonOnly=true,allowPriorSeasonQB=false,teamSnapshot=null,site='draftkings',incumbentLineup=[]}={}){
  const all=Object.values(profiles),fresh=age(generatedAt,now)>=0&&age(generatedAt,now)<=36;
  return salaries.map(s=>{
   const base={...s,matched:false,unavailable:true,projection:null,tdMean:null,reasons:[],concerns:[],evidence:[],modelGeneratedAt:generatedAt};
@@ -64,12 +64,15 @@ function buildPool(salaries,{profiles={},context=null,injuryContext=null,generat
   base.matched=true;base.athleteId=p.id;base.profileId=p.id;base.counts=observedCounts(p,now);
   if(!fresh)return {...base,concerns:['GOING model snapshot missing, future-dated or older than 36 hours; excluded.']};
   if(currentSeasonOnly&&(!root.GoingDfsCurrentSeason||Number(context?.season)!==root.GoingDfsCurrentSeason.seasonOf(now)||!Number.isFinite(age(context?.generated_at,now))||age(context.generated_at,now)<0||age(context.generated_at,now)>36))return {...base,concerns:['Verified current-season context unavailable; no historical fallback.']};
-  if(!Number.isFinite(age(p.last_game,now))||age(p.last_game,now)<0||age(p.last_game,now)>28*24)return {...base,concerns:['No recent player game within 28 days; excluded.']};
+  const fallbackAllowed=currentSeasonOnly&&allowPriorSeasonQB===true&&site==='draftkings'&&['CPT','FLEX'].includes(s.showdownRole)&&s.position==='QB'&&starter?.known===true&&starter.eligible===true;
+  const sample=currentSeasonOnly?root.GoingDfsCurrentSeason.projectionSample(p,{now,kickoff:s.kickoff,allowPriorSeasonQB:fallbackAllowed}):null;
+  const qbFallback=!!sample&&sample.source===root.GoingDfsCurrentSeason?.QB_FALLBACK_SOURCE;
+  if(!qbFallback&&(!Number.isFinite(age(p.last_game,now))||age(p.last_game,now)<0||age(p.last_game,now)>28*24))return {...base,concerns:['No recent player game within 28 days; excluded.']};
   if(availability?.block)return {...base,concerns:['Roster reports unavailable: '+availability.state]};
   if(s.position==='QB'&&(!starter?.known||!starter.eligible))return {...base,concerns:[starter?.reason||'Starting QB identity is not verified; excluded.']};
   if(s.position!=='QB'&&(!current||current.player_id!==p.id||team(current.team)!==team(p.team)||Number(current.season)!==Number(context.season)||!Number.isFinite(age(context.generated_at,now))||age(context.generated_at,now)<0||age(context.generated_at,now)>36||!Number.isFinite(age(current.last_game,now))||age(current.last_game,now)<0||age(current.last_game,now)>28*24||!(current.targets>0||current.rush_attempts>0)))return {...base,concerns:['No verified current-season targets/carries; excluded rather than selected merely for price.']};
   const stats={},models={},keys=['pass_yds','pass_tds','rush_yds','rec_yds','receptions','rush_tds','rec_tds'];
-  for(const key of keys){const row=makeModel(p,key,s),m=row?.model;models[key]=row;if(m?.status==='ready'&&(!currentSeasonOnly||(m.source===root.GoingDfsCurrentSeason?.SOURCE&&m.season===Number(context.season)&&m.season_evidence?.historical_games===0))&&finite(row.projMean)&&row.projMean>=0)stats[key]=row.projMean;}
+  for(const key of keys){const row=makeModel(p,key,{...s,allowPriorSeasonQB:fallbackAllowed}),m=row?.model;models[key]=row;const verifiedModel=m?.source===sample?.source&&m.season===Number(context?.season)&&(qbFallback?m.sampleSeason===sample.sampleSeason&&m.season_evidence?.historical_games===sample.rows.length:m.season_evidence?.historical_games===0);if(m?.status==='ready'&&(!currentSeasonOnly||verifiedModel)&&finite(row.projMean)&&(/_yds$/.test(key)||row.projMean>=0))stats[key]=row.projMean;}
   const required=s.position==='QB'?['pass_yds','pass_tds','rush_yds','rush_tds']:['rush_yds','rec_yds','receptions','rush_tds','rec_tds'];
   const missing=required.filter(k=>!finite(stats[k]));
   if(missing.length)return {...base,concerns:['Missing ready components: '+missing.join(', ')]};
@@ -93,14 +96,15 @@ function buildPool(salaries,{profiles={},context=null,injuryContext=null,generat
   if(!injuryContext?.fresh)base.concerns.push('Roster/injury snapshot is stale; final participation is not verified.');
   else base.concerns.push('Final game-day inactives and workload still need checking.');
   base.concerns.push('Count models are uncalibrated for multi-TD tails; no eight-TD lineup probability.');
-  const sample=currentSeasonOnly?root.GoingDfsCurrentSeason.sample(p,{now,kickoff:s.kickoff}):null;
-  const upside=root.GoingDfsUpside?.observed(currentSeasonOnly?{...p,games:sample.rows}:p,projection,{now,kickoff:s.kickoff,points,site})||null;
+  if(qbFallback)base.evidence.push(`Prior-season QB fallback: ${sample.rows.length} verified ${sample.sampleSeason} starts; current-season qualifying starts ${sample.currentGames}. No prior seasons are mixed into a supported current-season projection.`);
+  const upside=qbFallback?null:root.GoingDfsUpside?.observed(currentSeasonOnly?{...p,games:sample.rows}:p,projection,{now,kickoff:s.kickoff,points,site})||null;
   if(upside)base.evidence.push(`Current-season partial DFS scoring spread: ${upside.n} completed games; small sample, not a validated future ceiling.`);
   // Simulated outcome distribution (floor/median/90th/boom/bust) from the same component models, with measured within-player correlations.
-  const rawDistribution=currentSeasonOnly?root.GoingDfsCurrentSeason.distribution(p,{now,kickoff:s.kickoff,site,points}):root.GoingDfsSim?.player(Object.fromEntries(Object.entries(models).map(([k,row])=>[k,row?.model])),p.position,{id:p.id,site}),distribution=shiftDistribution(rawDistribution,finite(rawProjection)?projection-rawProjection:0);
+  const rawDistribution=currentSeasonOnly?root.GoingDfsCurrentSeason.distribution(p,{now,kickoff:s.kickoff,site,points,allowPriorSeasonQB:fallbackAllowed}):root.GoingDfsSim?.player(Object.fromEntries(Object.entries(models).map(([k,row])=>[k,row?.model])),p.position,{id:p.id,site}),distribution=shiftDistribution(rawDistribution,finite(rawProjection)?projection-rawProjection:0);
   if(currentSeasonOnly)base.concerns.push('Current-season sample-mean baseline only; observed ranges from a few games are not validated future percentiles. Interceptions, lost fumbles and two-point conversions are absent from the player stat feed.');
+  if(qbFallback){base.concerns=base.concerns.filter(x=>!x.startsWith('Current-season sample-mean baseline only;'));base.concerns.push(`Prior-season ${sample.sampleSeason} QB fallback from ${sample.rows.length} starts; old roles/opponents may differ. Small sample is unvalidated. Interceptions, lost fumbles and two-point conversions are omitted.`);}
   if(delta)base.concerns.push(`Projection includes a ${delta.toFixed(2)} point allowance for interceptions and lost fumbles that the modelled components omit (measured on archived QB games).`);
-  return {...base,distribution,sd:distribution?.sd,roleTrend:currentSeasonOnly?null:p.role_trend||null,projection,projectionRaw:rawProjection,projectionAdjustment:delta,projectionSource:currentSeasonOnly?root.GoingDfsCurrentSeason.SOURCE:null,projectionSeason:currentSeasonOnly?Number(context.season):null,tdMean,stats,upside,unavailable:!finite(projection)||projection<=0,source:currentSeasonOnly?'Current-season GOING sample-mean baseline':'Existing injury-adjusted GOING component models',injury,modelAgeHours:age(generatedAt,now),value:projection*1000/s.salary};
+  return {...base,distribution,sd:distribution?.sd,roleTrend:currentSeasonOnly?null:p.role_trend||null,projection,projectionRaw:rawProjection,projectionAdjustment:delta,projectionSource:currentSeasonOnly?sample.source:null,projectionSeason:currentSeasonOnly?Number(context.season):null,projectionSampleSeason:sample?.sampleSeason,tdMean,stats,upside,unavailable:!finite(projection)||projection<=0,source:qbFallback?`GOING prior-season ${sample.sampleSeason} QB-start fallback`:currentSeasonOnly?'Current-season GOING sample-mean baseline':'Existing injury-adjusted GOING component models',injury,modelAgeHours:age(generatedAt,now),value:projection*1000/s.salary};
  });
 }
 root.GoingDfsEvidence={buildPool,observedCounts,nameKey,ADJUSTMENTS,shiftDistribution};if(typeof module!=='undefined')module.exports=root.GoingDfsEvidence;

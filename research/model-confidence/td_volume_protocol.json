@@ -1,0 +1,50 @@
+{
+  "id": "td-current-opportunity-volume-v1",
+  "status": "preregistered_research_only",
+  "formula": "lambda = mean current-season earlier carries * development rushing TD/carry rate + mean current-season earlier targets * development receiving TD/target rate; p=1-exp(-lambda)",
+  "features": [
+    "prior same-season carries per observed appearance",
+    "prior same-season targets per observed appearance"
+  ],
+  "population": "RB/WR/TE regular-season verified positive offensive-snap or offensive-stat appearances; >=3 strictly earlier same-season/same-team appearances, >=5 complete prior appearances for reconstructed Champion. NoQB until starterreceiptcohort; no gameday availability validation.",
+  "splits": {
+    "development": [
+      2021,
+      2022,
+      2023
+    ],
+    "validation": [
+      2024
+    ],
+    "test": [
+      2025
+    ],
+    "history_only": [
+      2019,
+      2020
+    ],
+    "sealed": "No2026 outcome loading;2024/2025 reused by existingresearchnotuntouched"
+  },
+  "rates": "One globalcarry andtarget conversion rate fitted on development; no fitting byposition or threshold after results",
+  "comparators": [
+    "production season_fit ATD with prior12 appearances andcurrentfixed policy",
+    "same-season Beta(1,1) offensive TD scoringfrequency"
+  ],
+  "acceptance": "Validation and test Brier improvements>=0.002, paired game andplayer-cluster95% upperCI<0 for challenger-minusChampion; nonworsening logloss. Research evidence only until prospectively repeated withavailabilityreceipts. Market edge blockedunless matchedrealodds tested.",
+  "bootstrap": {
+    "replications": 1000,
+    "seed": 20261011
+  },
+  "minimum_current_appearances": 3,
+  "calibration": "Report intercept/slope on fixed probabilities; neverapplytestfit.",
+  "allowed_source": "Public nflverse stats_player_week_2019..2025.csv endpoint from existingchampion.py; no private,paid or2026data",
+  "future_gate": "Register prospective2027 ATD opportunity/availability/price receipts beforelater outcomes; nopromotionfromreused2025",
+  "role_team_change": "Use only same currentteam for opportunity averages; historicalChampion keeps own last12appearances consistentproduction. Team changes canshorteneligiblecurrentrole sample.",
+  "minimum_champion_appearances": 5,
+  "sources_sha256": {
+    "scripts\\trend_research\\champion.py": "d268b72efcd9d224ea35ab9d7421bd651f5e980f4d33468b35aba20db8dd7ef1",
+    "scripts\\build_pipeline.py": "6a23dd6e5897c91b61885607e1eae4152428faaab8f6c0f4dee2912849480ee3",
+    "config\\champion_policy.json": "29711dc97852b130e52e4a187e646f157a7c5115b13b38397e6bb43eea1458a5",
+    "config\\calibration_policy.json": "ad7bbd183f304ba9a674044c0fc445dbae4d24925f027d47a9a42c3cfb8d200f"
+  }
+}

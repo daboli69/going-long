@@ -1,0 +1,40 @@
+{
+  "schema": "going-props-opportunity-protocol-v1",
+  "status": "research-only; not promoted",
+  "frozen_before_fitting": true,
+  "hypothesis": "Separate exact-player current-team current-season opportunity from positional efficiency shrinkage may improve projection error relative to current raw means and deployed distributions.",
+  "markets": [
+    "pass_yds",
+    "pass_tds",
+    "receptions",
+    "rec_yds",
+    "rush_yds"
+  ],
+  "features": "completed REG appearances with exact player/team/game and receipt times; QB passing uses verified starts only",
+  "prior_training": "aggregate demand/efficiency priors from supplied earlier training rows only; artifact cutoff precedes forecast; no paid providers or raw private archives",
+  "regularization": {
+    "demand_prior_games": 2,
+    "efficiency_prior_opportunities": 20,
+    "interpretation": "Frozen sensitivity strengths, not fitted performance claims. Stored in supplied training artifact; never substituted when artifact absent."
+  },
+  "split": {
+    "development": "2016-2022 if complete permitted rows available",
+    "diagnostic": "2023",
+    "locked_retrospective": "2024-2025 reused datasets, not an untouched promotion holdout",
+    "prospective": "2026 Week 6+ sealed before kickoff; no post-outcome tuning"
+  },
+  "benchmarks": [
+    "same-sample current-season exact-team mean",
+    "deployed Champion projection",
+    "opportunity-only ablation",
+    "unshrunk efficiency ablation"
+  ],
+  "acceptance": [
+    "Require current-team history >=2 complete appearances and explicit feature/receipt support; no older player form fallback.",
+    "Report MAE/RMSE/bias per market and position on identical eligible samples, clustered paired intervals by game/player and coverage exclusions.",
+    "Claim accuracy improvement only if locked/prospective evidence supports it with uncertainty; no event probabilities without separately validated residual distribution.",
+    "Never equate score projections, demand shrinkage or sample count with calibrated win confidence; pushes/voids and real matched lines required for probability/market claims.",
+    "Reject malformed or contradictory identity, duplicates, missing feature rows, unknown participant, stale/missing receipts and future outcomes."
+  ],
+  "reproduction_limit": "Current public profile.games lacks per-appearance team/ID/available_at receipt. Strict demonstration withholds rather than fabricates those fields."
+}

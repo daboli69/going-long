@@ -1,5 +1,18 @@
 # Model research
 
+October11 full-engine experiments (`codex/model-confidence-research`, base d990931):
+fixed protocols and reproducible aggregate artifacts in `research/model-confidence/REPORT.md`.
+Opponent-adjusted ridge rejected: 448 games, margin MAE10.3936 vs10.3848 current PF/PA,
+total10.4061 vs10.3345. Carry/target ATD promising: 2024 n4211 Brier.13828 vs reconstructed
+Champion.14149; 2025 n4182 .13397 vs.13895, paired game/player CIs exclude zero; slopes.716/.767
+still require calibration. General opportunity/efficiency QB yardage n400 MAE58.28 vs60.00
+current mean, raw weighted Champion58.50 (not refit); receptions/receiving/rushing challengers
+did not improve. Revised public data, reused retrospective seasons, retrospective availability
+cohort; no real matched props prices, no2026 outcomes used, no promotion/edge. Supplied paid
+defensive CSVs currently reach DFS research, not betting models. Independent review interrupted
+by account limit; 20 root offline contract tests. Next: exact zone/team opportunities and a sealed
+prospective gate; all markets share input contracts but need separate outcome/calibration checks.
+
 October11 Today forecast separation: existing current-season scoring estimator forecasts home=(home PF/game + away PA/game)/2 and away=(away PF/game + home PA/game)/2. Total=sum, margin=home−away; compare independently with posted total / negative home spread for the directional lean. This is a visible descriptive baseline, not fitted or promoted probability model. Fresh completed-score provenance, exact teams/season, original eligibility and quote checks retained. Four directional tests plus actual public snapshot-to-DOM reproduce both market families. Existing 10-season trailing-model audit remains unchanged; no new calibrated-accuracy claim. Next model experiment must preregister opponent-adjustment/variance hypothesis and chronological holdout before fitting.
 
 Today 1/100 reproduction: 14NFL spreads and14 totals have model forecast anchored exactly at market, +1 current-production support maps to heuristic tier1 floor; ATD lacks directional projection gap. Presentation changed without frozen score/version/journal mutation. Parlay -500 floor is a product guardrail, not empirical calibration. Evidence-first ranking leaves individual probabilities invariant; 40 seeded small exhaustive search comparisons passed, larger search remains bounded.

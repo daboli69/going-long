@@ -121,7 +121,7 @@ function player(models,position,{draws=1000,site='draftkings',seed,correlations=
 function pairCorrelation(a,b,correlations=root.GoingDfsCorrelations){
  // Current-season DFS does not import archived covariance coefficients.
  // Until paired current-game observations are validated, independence is explicit.
- if(a.projectionSource==='dfs-current-season-empirical-v1'||b.projectionSource==='dfs-current-season-empirical-v1')return 0;
+ if([a.projectionSource,b.projectionSource].some(s=>s==='dfs-current-season-empirical-v1'||s==='dfs-prior-season-qb-fallback-v1'))return 0;
  if(!a.dfsRole||!b.dfsRole||!correlations?.cross_player)return 0;
  const table=correlations.cross_player,get=key=>table[key]?.r??DST_CROSS[key];
  if(a.team===b.team){const keys=[[a.dfsRole,b.dfsRole],[b.dfsRole,a.dfsRole]].map(([x,y])=>x+'~'+y);return get(keys[0])??get(keys[1])??0;}
