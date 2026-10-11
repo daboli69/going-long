@@ -24,11 +24,14 @@ function playerObjective(player,options={}){
  const projection=finite(player?.projection)?player.projection:null;
  const supplied=validUpside(player);
  const upside=supplied?supplied.value:null;
- const score=upside??projection;
+ const baseline=upside??projection;
+ const matchupDelta=root.GoingDfsMatchupCsv?.adjustment(player)||0;
+ const score=finite(baseline)?baseline+matchupDelta:null;
  return {
   version:VERSION,
   score:finite(score)?score*multiplier:null,
-  basis:upside==null?(projection==null?'unavailable':'projection-fallback'):'supplied-upside',
+  matchupAdjustment:matchupDelta,
+  basis:matchupDelta?'experimental-opponent-scenario':upside==null?(projection==null?'unavailable':'projection-fallback'):'supplied-upside',
   projection:projection==null?null:projection*multiplier,
   upside:upside==null?null:upside*multiplier,
   ceilingStatus:upside==null?'unknown':'provided-unvalidated',
@@ -82,7 +85,7 @@ function evaluate(lineup,{contest='classic',site='draftkings'}={}){
    teamComposition:teams
   }:null,
   salary:{cap,salaryUsed,salaryRemaining,interpretation:'context-only; no uniqueness inference'},
-  objective:{value:objectiveValue,basis:objectiveRows.some(row=>row.basis==='supplied-upside')?'sum-of-player-upside-with-projection-fallback':'sum-of-available-projections',jointCeiling:'not-estimated',coverage:{provided:objectiveRows.filter(row=>row.basis==='supplied-upside').length,missing:objectiveRows.filter(row=>row.basis!=='supplied-upside').length,players:objectiveRows}},
+  objective:{value:objectiveValue,basis:objectiveRows.some(row=>row.matchupAdjustment)?'sum-of-experimental-opponent-scenarios':objectiveRows.some(row=>row.basis==='supplied-upside')?'sum-of-player-upside-with-projection-fallback':'sum-of-available-projections',jointCeiling:'not-estimated',coverage:{provided:objectiveRows.filter(row=>row.upsideEvidence).length,missing:objectiveRows.filter(row=>!row.upsideEvidence).length,players:objectiveRows}},
   ownership:{status:'unknown',values:null,uniqueness:'unknown'},
   ceiling:{status:players.every(p=>validUpside(p))?'provided-unvalidated':'unknown-with-projection-fallback',source:'caller-supplied observed-partial-fantasy-residual-v1 only; no estimate is created'},
   constraints:{hardCorrelationRules:[],hardOwnershipRules:[],hardSalaryRemainingRules:[]},

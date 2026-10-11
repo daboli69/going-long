@@ -22,7 +22,7 @@ function mount(t,{buildPool=enrich,loadField,buildScenario=()=>({version:'team-b
  Object.defineProperty(w.crypto,'subtle',{value:webcrypto.subtle});w.TextEncoder=TextEncoder;
  w.fixtureNow=NOW;w.Date=class extends Date{constructor(...args){super(...(args.length?args:[w.fixtureNow]));}static now(){return w.fixtureNow;}};
  Object.defineProperty(w,'scrollY',{get:()=>240});w.scrollTo=opts=>scroll.push(opts);
- for(const file of ['shared/dfs-threshold.js','shared/dfs-journal.js','shared/dfs-tournament.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
+ for(const file of ['shared/dfs-threshold.js','shared/dfs-journal.js','shared/dfs-matchup-csv.js','shared/dfs-tournament.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
  w.GoingDfsClassicUI.mount(w.document.getElementById('fixture'),{defaultMode:'throne',generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool,buildScenario,loadField});
  t.after(()=>w.close());
  return {w,d:w.document,scroll};
@@ -50,7 +50,7 @@ test('Classic salary CSV stays the only direct upload; optional ownership cannot
  const ui=mount(t),salary=ui.d.getElementById('dk-file'),ownership=ui.d.getElementById('dk-field-file');
  assert.equal(salary.getAttribute('accept'),'.csv,text/csv');
  assert.equal(salary.closest('label').className,'dk-salary-upload');
- assert.equal(ui.d.querySelectorAll('.dk-import>label:not(.dk-confirm)').length,1);
+ assert.equal(ui.d.querySelectorAll('.dk-import:not(.dk-matchup-import)>label:not(.dk-confirm)').length,1);
  assert.match(salary.closest('label').textContent,/salary CSV \(\.csv\)/);
  assert.match(ui.d.getElementById(salary.getAttribute('aria-describedby')).textContent,/DKSalaries.csv/);
  const optional=ownership.closest('details');
@@ -61,6 +61,20 @@ test('Classic salary CSV stays the only direct upload; optional ownership cannot
  assert.doesNotMatch(css,/\.dk-import>label:not\(\.dk-confirm\)\{position:absolute/);
  // Presentation adapter selects the first nested disclosure as the paste guide.
  assert.equal(ui.d.querySelector('.dk-import>details button').id,'dk-load');
+});
+
+function matchupCsv(w){const at=new Date(w.Date.now()-60000).toISOString().slice(0,16).replace('T',' '),teams='ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC LAC LA LV MIA MIN NE NO NYG NYJ PHI PIT SEA SF TB TEN WAS'.split(' ');return ['TEAM,TEAM,TEAM,TEAM,FP','Rank,Name,POS,G,FP/G',',,,,10',...teams.map((t,i)=>`${i+1},${t},vs. WR,4,20`),`Exported from Data Suite 2.0 on ${at} UTC,,,,`].join('\n');}
+async function loadMatchups(ui){const confirmation=ui.d.getElementById('dk-matchup-confirm');confirmation.checked=true;confirmation.dispatchEvent(new ui.w.Event('change',{bubbles:true}));const input=ui.d.getElementById('dk-matchup-files');Object.defineProperty(input,'files',{value:[{name:'fantasy-points-allowed-wr.csv',size:500,text:async()=>matchupCsv(ui.w)}]});input.dispatchEvent(new ui.w.Event('change',{bubbles:true}));await waitFor(()=>/Opponent data loaded/.test(ui.d.getElementById('dk-matchup-status').textContent));}
+test('local matchup CSV controls import, persist across refresh and revoke inputs when season confirmation is withdrawn',async t=>{
+ const ui=mount(t);assert.equal(ui.d.getElementById('dk-matchup-files').disabled,true);await load(ui);await loadMatchups(ui);
+ assert.equal(ui.d.querySelector('.dk-matchup-import').open,true);assert.equal(ui.d.getElementById('dk-matchup-enabled').checked,true);assert.ok(ui.w.localStorage.getItem('going-dfs-matchups-v1'));assert.match(ui.d.body.textContent,/unfitted sensitivity scenario/);
+ ui.w.GoingDfsClassicUI.mount(ui.d.getElementById('fixture'),{generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool:enrich});assert.equal(ui.d.getElementById('dk-matchup-enabled').checked,true);
+ const checkbox=ui.d.getElementById('dk-matchup-confirm');checkbox.checked=false;checkbox.dispatchEvent(new ui.w.Event('change',{bubbles:true}));assert.equal(ui.w.localStorage.getItem('going-dfs-matchups-v1'),null);assert.equal(ui.d.getElementById('dk-matchup-enabled'),null);assert.equal(ui.d.getElementById('dk-matchup-files').disabled,true);
+});
+test('matchup inputs cannot change while a lineup build is running',async t=>{
+ const ui=mount(t);await load(ui);await loadMatchups(ui);confirm(ui);click(ui,'#dk-generate');
+ assert.equal(ui.d.getElementById('dk-matchup-confirm').disabled,true);assert.equal(ui.d.getElementById('dk-matchup-enabled').disabled,true);assert.equal(ui.d.getElementById('dk-matchup-files').disabled,true);
+ const enabled=ui.d.getElementById('dk-matchup-enabled');enabled.checked=false;enabled.dispatchEvent(new ui.w.Event('change',{bubbles:true}));await waitFor(()=>!ui.d.getElementById('dk-generate').disabled);assert.equal(ui.d.getElementById('dk-matchup-enabled').checked,true);
 });
 
 test('separate optional ownership upload retains its JSON loader and salary slate',async t=>{

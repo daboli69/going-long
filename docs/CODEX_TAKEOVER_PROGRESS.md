@@ -1,3 +1,11 @@
+## Defensive CSV integration — October 11 continuation
+
+Branch `codex/dfs-matchup-csv`, preserves PR5/main04d49f8 public-data history. New browser-only multi-CSV importer validates32teams+league, strict export clocks/current-season assertion and36-hour freshness. QB/RB/WR/TE FPG ratio affects explicit experimental Tournament ranking only. WR(1)outside/WR(2)slot, receiving alignment, pace and team defense appear as opponent evidence. Player alignment not guessed; D/ST baseline and all eligibility gates preserved. Raw licensed inputs stay Downloads/browser storage, never server/Git.
+
+Actual-file/public-snapshot integration:239supported,217rank adjustments,22DST unchanged;$49,900 legal draft changedfive members. Baseline point/SD/availability tuples exactly invariant. Browser actual salary import + allnine defensive imports restore afterfullreload and60-secondrefresh;390/1280px nohorizontaloverflow. Contest verification leftunchecked in real browser; synthetic fixture controls and offline actual-slate legality exercise generation. Screenshot `.cache/matchup-mobile.png`.
+
+Independent reviewer found/control-race, withdrawn-season-confirmation, mislabeled coverage, stale/prior-season receipt holes; repaired with regressions. Browser review also caught a collapsing importpanel and pool-card grid ordering; repaired. Final suite/build/release receipt `.cache/matchup-validation.json`. Research method is unfitted scenario, no forecast-accuracy/ROI claim and no Champion/ABBEYS change. Revert bounded integration commit to roll back. Existing degraded upstream props remain separate.
+
 # Independent takeover — 2026-10-10
 
 ## October 11 current-season DFS and starter repair

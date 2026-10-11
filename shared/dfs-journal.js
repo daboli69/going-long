@@ -51,6 +51,7 @@ function receiptId(receipt){const payload={...receipt};delete payload.id;return 
 function size(textValue){return textValue.length*2;}
 function validUpside(value,now){
  if(value==null)return true;
+ if(value?.source==='observed-current-season-fantasy-residual-v2'){const at=time(value.asOf),d=new Date(at),season=d.getUTCFullYear()-(d.getUTCMonth()<2?1:0);return plain(value)&&finite(value.value)&&value.value>=0&&Number.isInteger(value.n)&&value.n>=3&&value.currentGames===value.n&&value.season===season&&value.season===new Date(now).getUTCFullYear()-(new Date(now).getUTCMonth()<2?1:0)&&Number.isFinite(at)&&at<=now&&now-at<=36*3600000;}
  if(!plain(value)||value.source!==UPSIDE_SOURCE||!finite(value.value)||value.value<0||!Number.isInteger(value.n)||value.n<8||!Number.isInteger(value.currentGames)||value.currentGames<0||value.currentGames>value.n)return false;
  const asOf=time(value.asOf);return Number.isFinite(asOf)&&asOf<=now;
 }
@@ -97,12 +98,13 @@ function freeze(input){
    const clean={slot,slotIndex:Number.isInteger(p.slotIndex)?p.slotIndex:null,id,name,team,position,game,gameId,kickoff,salary:p.salary,salaryCost,projection:p.projection,upside:cloneJson(p.upside??null,`${name} upside`),opportunityStats:cloneJson(p.opportunityStats??p.stats??null,`${name} opportunity stats`),opportunitySource:cloneJson(p.opportunitySource??p.source??null,`${name} opportunity source`),modelAgeHours:cloneJson(p.modelAgeHours??null,`${name} model age`),evidence:cloneJson(p.evidence??null,`${name} evidence`),injury:cloneJson(p.injury??null,`${name} injury`),concern:cloneJson(p.concern??null,`${name} concern`),concerns:cloneJson(p.concerns??null,`${name} concerns`),multiplier,showdownRole:p.showdownRole??null,sourceSalary:p.sourceSalary??null};
    // Pre-lock intelligence frozen with the lineup: simulated range, projected ownership (a model estimate) and role trend, so Sunday can be scored against what GOING said.
    clean.intel=cloneJson({ownership:finite(p.ownership)?+p.ownership.toFixed(2):null,floor:finite(p.distribution?.floor)?+p.distribution.floor.toFixed(2):null,median:finite(p.distribution?.median)?+p.distribution.median.toFixed(2):null,p90:finite(p.distribution?.p90)?+p.distribution.p90.toFixed(2):null,boom:finite(p.distribution?.boom)?+p.distribution.boom.toFixed(3):null,roleTrend:p.roleTrend?{snap:p.roleTrend.snap_share?.l3??null,target:p.roleTrend.target_share?.l3??null,carry:p.roleTrend.carry_share?.l3??null,flags:p.roleTrend.flags||[]}:null},`${name} intel`);
+   clean.matchupResearch=cloneJson(p.matchupResearch??null,`${name} matchup research`);clean.matchupContext=cloneJson(p.matchupContext??null,`${name} matchup context`);
    captured.push(clean);
   }
   for(const slot of new Set(slots))if(slotCounts.get(slot)!==slots.filter(s=>s===slot).length)return fail(`The lineup does not fill every required ${slot} slot.`);
   if(salaryUsed>cap)return fail(`Lineup exceeds the ${site==='draftkings'?'$50,000':'$60,000'} salary cap.`);
   if(contest==='classic'&&games.size<2)return fail('Classic lineups must include at least two games.');
-  const createdAt=new Date(now).toISOString(),receipt={version:VERSION,strategyVersion:mode==='tournament'?STRATEGY_VERSION:`legacy-${mode}`,availabilityVersion:AVAILABILITY_VERSION,createdAt,contest,site,mode,salaryHash:salaryHash.toLowerCase(),modelGeneratedAt,injuryAt:injuryAt??null,salaryCap:cap,salaryUsed,projectionTotal,upsideTotal:allUpside?upsideTotal:null,players:captured};
+  const createdAt=new Date(now).toISOString(),receipt={version:VERSION,strategyVersion:mode==='tournament'?(players.some(p=>p.matchupResearch)?'local-opponent-csv-research-v1':STRATEGY_VERSION):`legacy-${mode}`,availabilityVersion:AVAILABILITY_VERSION,createdAt,contest,site,mode,salaryHash:salaryHash.toLowerCase(),modelGeneratedAt,injuryAt:injuryAt??null,salaryCap:cap,salaryUsed,projectionTotal,upsideTotal:allUpside?upsideTotal:null,players:captured};
   const encoded=canonical(receipt);if(size(encoded)>MAX_RECEIPT_BYTES)return fail('Receipt evidence exceeds the local storage limit.');
   receipt.id=receiptId(receipt);return {ok:true,receipt:deepFreeze(receipt),error:null};
  }catch(error){return fail(error?.message||'Could not validate lineup receipt.');}
@@ -112,7 +114,7 @@ function validReceipt(receipt){
  try{
   if(!plain(receipt)||receipt.version!==VERSION||receipt.availabilityVersion!==AVAILABILITY_VERSION||!text(receipt.strategyVersion,100)||!['classic','showdown'].includes(receipt.contest)||!['draftkings','fanduel'].includes(receipt.site)||!Array.isArray(receipt.players)||receipt.players.length!==(receipt.contest==='classic'?9:6)||!text(receipt.id,100)||!Number.isFinite(time(receipt.createdAt))||receipt.id!==receiptId(receipt)||size(canonical(receipt))>MAX_RECEIPT_BYTES)return false;
   if(!Number.isSafeInteger(receipt.salaryUsed)||!finite(receipt.projectionTotal)||!(receipt.upsideTotal===null||finite(receipt.upsideTotal)))return false;
-  return receipt.players.every(p=>plain(p)&&text(p.id,120)&&text(p.name,180)&&validUpside(p.upside,Number.MAX_SAFE_INTEGER)&&['opportunityStats','opportunitySource','modelAgeHours','evidence','injury','concern','concerns'].every(key=>Object.hasOwn(p,key)&&jsonSafe(p[key],key)));
+  return receipt.players.every(p=>plain(p)&&text(p.id,120)&&text(p.name,180)&&validUpside(p.upside,time(receipt.createdAt))&&['opportunityStats','opportunitySource','modelAgeHours','evidence','injury','concern','concerns'].every(key=>Object.hasOwn(p,key)&&jsonSafe(p[key],key)));
  }
  catch(_){return false;}
 }

@@ -22,6 +22,15 @@ function showdownPlayers({pricedCaptain=true}={}){
 function showdown(extra={}){return journal.freeze({...input({players:showdownPlayers(),contest:'showdown'}),...extra});}
 function storage(){const data=new Map();return {data,getItem:key=>data.has(key)?data.get(key):null,setItem:(key,value)=>data.set(key,String(value))};}
 
+test('current-season tournament receipt preserves local matchup scenario separately from baseline points',()=>{
+ const players=classicPlayers();players[0].upside={source:'observed-current-season-fantasy-residual-v2',n:4,currentGames:4,season:2026,asOf:modelGeneratedAt,value:15};players[0].matchupResearch={source:'local-opponent-csv-research-v1',ratio:1.2,scenario:12,baseline:10,season:2026};players[0].matchupContext=['Synthetic opponent context'];
+ const result=freeze({players,mode:'tournament'});assert.equal(result.ok,true,result.error);assert.equal(result.receipt.strategyVersion,'local-opponent-csv-research-v1');assert.deepEqual(result.receipt.players[0].matchupResearch,players[0].matchupResearch);assert.equal(result.receipt.players[0].projection,10);assert.deepEqual(result.receipt.players[0].matchupContext,['Synthetic opponent context']);assert.equal(journal.append(storage(),JSON.parse(JSON.stringify(result.receipt))).ok,true);
+});
+
+test('current-season receipt cannot capture prior-season or stale upside as current evidence',()=>{
+ for(const asOf of ['2026-10-02T16:00:00Z','2025-10-05T18:00:00Z']){const players=classicPlayers();players[0].upside={source:'observed-current-season-fantasy-residual-v2',n:4,currentGames:4,season:asOf.startsWith('2025')?2025:2026,asOf,value:15};assert.equal(freeze({players,mode:'tournament'}).ok,false);}
+});
+
 test('freeze makes a pure, immutable exact Classic lineup receipt',()=>{
  const source=input(),before=JSON.stringify(source),result=journal.freeze(source);assert.equal(result.ok,true,result.error);
  assert.equal(JSON.stringify(source),before);assert.equal(Object.isFrozen(result.receipt),true);assert.equal(Object.isFrozen(result.receipt.players[0]),true);
