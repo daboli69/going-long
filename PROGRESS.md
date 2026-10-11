@@ -17,7 +17,7 @@
 - Latest public refresh at upstream `67ed9a3` still failed: core and derivative props HTTP503, other components retained. Read-only offline health audit correctly refuses healthy status. No production actions or paid provider calls.
 
 ## Working
-- None for this bounded DFS repair. PR5 deployed at `bc6ef50042443a4ec67b9c84a0eb356959f7b1f2`; exact mainCI38152062188 passes720Node/515Pythonrun5skip/bothbuilds. Production deployment6997788972 succeeds. Live CSV241supported/22DST, Caleb exclusion and390px overflow check verified. Receipt `.cache/dfs-current-season/validation.json`. Existing external/model limitations remain below.
+- None for this bounded DFS repair. PR5 deployed at `bc6ef50042443a4ec67b9c84a0eb356959f7b1f2`; exact mainCI38152062188 passes720Node/515Pythonrun5skip/bothbuilds. Production deployment6997788972 succeeds. Live CSV241supported/22DST, Caleb exclusion and390px overflow check verified. Receipt `.cache/dfs-current-season/validation.json`. Natural refreshed data04d49f8 independently rechecked:239supported/22DST and3legalmode drafts; D/ST producer succeeds. Refresh38152062192 staysred onlyforDEGRADEDprops/derivatives. Existing external/model limitations remain below.
 
 ## Problems
 - Inspected manual refresh38139354271 also reported incomplete/degraded upstream props and derivatives. Local workflow repairs address reproducible application defects; provider coverage can still leave the final health step red. No degraded source is relabeled FRESH; unrelated valid outputs can publish independently.
