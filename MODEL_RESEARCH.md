@@ -1,5 +1,9 @@
 # Model research
 
+October11 Today forecast separation: existing current-season scoring estimator forecasts home=(home PF/game + away PA/game)/2 and away=(away PF/game + home PA/game)/2. Total=sum, margin=home−away; compare independently with posted total / negative home spread for the directional lean. This is a visible descriptive baseline, not fitted or promoted probability model. Fresh completed-score provenance, exact teams/season, original eligibility and quote checks retained. Four directional tests plus actual public snapshot-to-DOM reproduce both market families. Existing 10-season trailing-model audit remains unchanged; no new calibrated-accuracy claim. Next model experiment must preregister opponent-adjustment/variance hypothesis and chronological holdout before fitting.
+
+Today 1/100 reproduction: 14NFL spreads and14 totals have model forecast anchored exactly at market, +1 current-production support maps to heuristic tier1 floor; ATD lacks directional projection gap. Presentation changed without frozen score/version/journal mutation. Parlay -500 floor is a product guardrail, not empirical calibration. Evidence-first ranking leaves individual probabilities invariant; 40 seeded small exhaustive search comparisons passed, larger search remains bounded.
+
 October 11 historical DFS construction integration: hypothesis is that archived-contest salary-based ownership can change selection within a user-selected current research-score loss budget; engineering acceptance is legal rosters, preserved current-season means/spreads, identical eligibility/locks/matchup inputs in reference, no unknown ownership treated as zero, and exhaustive agreement on small synthetic slates. This is a preference policy, not a fitted forecast or a promotion. No ROI/duplication/winning-pattern acceptance claim or tuning on held-out outcomes.
 
 | Experiment | Evidence / test | Result | Status |

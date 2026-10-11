@@ -101,3 +101,44 @@ test('v3: missed time and an injured higher-depth teammate are surfaced; game li
  const game=P.assess({...c,kind:'game',sport:'nfl',market:'total',side:'Over',line:41.5,modelMean:50,modelSd:8,profileId:null},{...o,currentRoleEvidence:null,currentGameEvidence:{sport:'nfl',home:'NO',away:'ATL',season:2026,totalContext:50,homeGames:4,awayGames:4}});
  assert.ok(game.evidenceTier<=3);assert.match(game.concern,/Game script|moves|line/i);
 });
+
+
+test('presentation never represents ungraded ATD or neutral game score floors as confidence',()=>{
+ const td={...c,market:'atd',side:'Yes',line:.5,prob:.95},opts={...o,currentRoleEvidence:{...o.currentRoleEvidence,tdAppearances:2}};
+ const e=P.assess(td,opts),before=structuredClone(e),html=P.card({candidate:td,evidence:e},{label:'Anytime TD'});
+ assert.equal(e.rating,1);assert.match(html,/TD role research/);assert.doesNotMatch(html,/1\/100|95\/100/);assert.match(html,/95.0% win/);assert.deepEqual(e,before);
+ const game={...c,kind:'game',market:'spread',side:'Home',line:-3.5,modelMean:3.5,modelSd:14},gopts={...o,currentGameEvidence:{sport:'nfl',home:'NO',away:'ATL',season:2026,marginContext:5,homeGames:4,awayGames:4}};
+ const ge=P.assess(game,gopts);assert.equal(ge.rating,1);assert.equal(P.ratingPresentation(game,ge).label,'Current-season forecast lean');
+ assert.doesNotMatch(P.card({candidate:game,evidence:ge},{label:'Home -3.5'}),/1\/100/);
+ const unknown=P.assess(game,{...o,currentGameEvidence:null});assert.equal(P.ratingPresentation(game,unknown).label,'No model lean');
+ const directional=P.assess({...game,modelMean:8},gopts);assert.equal(P.ratingPresentation(game,directional).numeric,true);assert.match(P.card({candidate:{...game,modelMean:8},evidence:directional},{label:'Home -3.5'}),/GOING <b>\d+\/100/);
+});
+
+
+test('anchored moneyline favorites never acquire a numerical independent-confidence headline',()=>{
+ const ml={...c,kind:'game',market:'moneyline',side:'Home',line:0,modelMean:8,modelSd:12.75,gameAnchor:{version:'market-anchor-v1',applicable:true}},e=P.assess(ml,{...o,currentRoleEvidence:null});
+ assert.equal(e.components.find(x=>x.id==='model').points,2);assert.equal(P.ratingPresentation(ml,e).numeric,false);assert.equal(P.ratingPresentation(ml,e).label,'Market baseline');
+ const html=P.card({candidate:ml,evidence:e},{label:'Home moneyline'});assert.match(html,/market information, not independent model confidence/);assert.doesNotMatch(html,/GOING <b>\d+\/100/);
+ assert.equal(P.ratingPresentation({...ml,gameAnchor:{applicable:false}},e).numeric,true);
+});
+
+
+test('all-market display exposes positive spread and total without changing frozen ranks or inventing rows',()=>{
+ const mk=(id,market,interesting=true)=>({candidate:{kind:'game',market,contract:id},evidence:{key:id,rating:market==='moneyline'?50:1,interesting}}),rows=[...Array.from({length:7},(_,i)=>mk('ml'+i,'moneyline')),mk('spread','spread'),mk('total','total')],original=structuredClone(rows);
+ assert.deepEqual(P.displayMix(rows,{mix:true,limit:6}).map(x=>x.evidence.key),['spread','total','ml0','ml1','ml2','ml3']);assert.deepEqual(rows,original);
+ assert.deepEqual(P.displayMix(rows,{mix:false,limit:6}),rows.slice(0,6));
+ assert.equal(P.displayMix([...rows,rows[7]],{limit:99}).length,9);assert.deepEqual(P.displayMix(rows,{limit:0}),[]);
+ const absent=[...rows.slice(0,7),mk('no-support','total',false)];assert.deepEqual(P.displayMix(absent,{limit:6}),absent.slice(0,6));
+ const totalOnly=[...rows.slice(0,7),rows[8]];assert.equal(P.displayMix(totalOnly,{limit:6})[0],rows[8]);
+ assert.equal(P.displayMix(rows,{limit:99}).length,rows.length);assert.deepEqual(P.displayMix(null),[]);
+});
+
+
+test('current-season scoring facts show forecast and exact total/spread direction without changing probabilities',()=>{
+ const base={...c,kind:'game',modelMean:46,modelSd:13.3,gameAnchor:{applicable:true}},g={sport:'nfl',home:'NO',away:'ATL',season:2026,totalContext:47,marginContext:2,homeGames:4,awayGames:4};
+ for(const [market,line,side,expected] of [['total',44.5,'Over','supports'],['total',44.5,'Under','opposes'],['spread',-3.5,'Home','opposes'],['spread',-3.5,'Away','supports']]){
+  const candidate={...base,market,line,side},e=P.assess(candidate,{...o,currentGameEvidence:g}),fact=e.facts.find(x=>x[0]==='Forecast lean vs this line');
+  assert.match(fact[1],new RegExp(expected+' '+side));const html=P.card({candidate,evidence:e},{label:'test'});assert.ok(html.indexOf('CURRENT-SEASON FORECAST')<html.indexOf('<details'));assert.match(html,new RegExp(expected+' '+side));assert.equal(candidate.prob,.6);assert.ok(e.facts.some(x=>x[0]==='Current-season total estimate'&&x[1].includes('47.0 points')));assert.ok(e.facts.some(x=>x[0]==='Current-season margin estimate'&&x[1].includes('2.0 points')));assert.match(e.facts.find(x=>x[0]==='Scoring estimator')[1],/home team points scored/);
+ }
+ const missing=P.assess({...base,market:'total',line:44.5,side:'Over'},{...o,currentGameEvidence:null});assert.equal(missing.facts.some(x=>x[0]==='Forecast lean vs this line'),false);
+});

@@ -6,8 +6,17 @@ function profitBoost(probability,decimal,boostPercent=0,stake=10){
  return {boostedDecimal,returnPerDollar:probability*boostedDecimal-1,baseReturn:probability*decimal-1,breakEvenBoost:Math.max(0,100*((1/probability-1)/(decimal-1)-1)),profitIfWin:stake*(boostedDecimal-1),expectedProfit:stake*(probability*boostedDecimal-1)};
 }
 
+// A product constraint on suggested tickets, not a fitted probability/calibration rule.
+// Very short prices buy almost no payout and let trivial alternative lines dominate a chance-first search.
+const MIN_LEG_AMERICAN=-500;
 const contractKey=r=>r.canonicalContract||r.contract||r.key||[r.event,r.kind,r.profileId||'',r.market,r.line??'',r.side].join('|');
 const entity=r=>r.kind==='prop'?'player:'+r.profileId:'game:'+(['spread','moneyline'].includes(r.market)?'result':r.market);
+// Evidence-first research ordering does not alter any probability or claim validated edge.
+// A model/price gap by itself is not corroborating football or market evidence.
+const supportedLeg=r=>Boolean(r.parlayEvidence?.supported===true&&Array.isArray(r.parlayEvidence.reasons)&&r.parlayEvidence.reasons.some(x=>typeof x==='string'&&x.trim()))||Boolean(r.flags?.some(f=>['market','role','matchup'].includes(f?.family)&&typeof f.why==='string'&&f.why.trim()));
+const evidenceLegs=legs=>legs.reduce((n,r)=>n+Number(supportedLeg(r)),0);
+const compareLegs=(a,b)=>Number(supportedLeg(b))-Number(supportedLeg(a))||b.prob-a.prob||b.ev-a.ev;
+const compareTickets=(a,b)=>evidenceLegs(b.legs)-evidenceLegs(a.legs)||b.probability-a.probability;
 const weakestLeg=legs=>legs.reduce((weak,row)=>!weak||row.prob<weak.prob?row:weak,null);
 
 function bestReplacement(ticket,pool,{sameGame,lower=1,upper=Infinity,boostPercent=0,stake=10}){
@@ -17,11 +26,11 @@ function bestReplacement(ticket,pool,{sameGame,lower=1,upper=Infinity,boostPerce
  let best=null;
  for(const row of candidates){
   const legs=[...remaining,row];
-  if(sameGame){if(!best||row.prob>best.add.prob)best={remove:weak,add:row,legs,probability:null,decimal:null};continue;}
+  if(sameGame){if(!best||compareLegs(row,best.add)<0)best={remove:weak,add:row,legs,probability:null,decimal:null};continue;}
   const probability=legs.reduce((value,leg)=>value*leg.prob,1),decimal=legs.reduce((value,leg)=>value*leg.dec,1);
   if(decimal<lower||decimal>upper)continue;
   const boost=profitBoost(probability,decimal,boostPercent,stake);if(boost.returnPerDollar<0)continue;
-  if(!best||probability>best.probability)best={remove:weak,add:row,legs,probability,decimal,estimatedReturn:probability*decimal-1,boost};
+  if(!best||compareTickets({legs,probability},best)<0)best={remove:weak,add:row,legs,probability,decimal,estimatedReturn:probability*decimal-1,boost};
  }
  return best;
 }
@@ -32,17 +41,13 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
  const lower=decimal(minOdds)??1,upper=decimal(maxOdds)??Infinity;
  if(!Number.isInteger(legs)||legs<2||legs>6)throw Error('Choose between 2 and 6 legs.');
  if(!Number.isFinite(lower)||Number.isNaN(upper)||upper<lower)throw Error('Enter valid American odds, with the maximum at least the minimum.');
- const day=t=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(t));
+ const context=editContext(rows,{sport,now,start,last,legs,minOdds,maxOdds,book:chosenBook,kind,events,boostPercent,stake});
+ if(context.error)throw Error(context.error);
  const books=new Map();
- for(const r of rows){
-  const kick=Date.parse(r.kickoff),at=Date.parse(r.updatedAt);
-  if((events!==null&&!events.includes(r.event))||(chosenBook!=='all'&&r.book!==chosenBook)||(kind!=='all'&&r.kind!==kind)||r.sport!==sport||!r.event||!r.book||r.manual||r.dfs||r.trust?.review||!Number.isFinite(kick)||kick<=now||day(kick)<start||day(kick)>last||!Number.isFinite(at)||at>now||now-at>86400000||!(r.n>=5)||!(r.prob>0&&r.prob<1)||!(r.dec>1)||!Number.isFinite(r.ev)||(boostPercent===0&&r.ev<0)||r.ev>.25||r.push!==0||r.market==='first_td'||/_1[hq]$/.test(r.market)||r.flags?.some(f=>f.id==='check'&&!f.historicalOnly))continue;
-  if(r.kind==='prop'&&!r.profileId)continue;
-  if(!books.has(r.book))books.set(r.book,[]);books.get(r.book).push(r);
- }
+ for(const r of context.pool){if(!books.has(r.book))books.set(r.book,[]);books.get(r.book).push(r);}
  let parlay=null,sgp=null;
  for(const [book,pool] of books){
-  pool.sort((a,b)=>b.prob-a.prob||b.ev-a.ev);
+  pool.sort(compareLegs);
   const events=new Map();for(const r of pool){if(!events.has(r.event))events.set(r.event,[]);events.get(r.event).push(r);}
   // Bounded search keeps larger weekly slates responsive. It is not an exhaustive optimum.
   let states=[{legs:[],probability:1,decimal:1}];
@@ -55,7 +60,7 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
    }}
    states=[];
    for(let n=0;n<=legs;n++){
-    const candidates=next.filter(x=>x.legs.length===n).sort((a,b)=>b.probability-a.probability);
+    const candidates=next.filter(x=>x.legs.length===n).sort(compareTickets);
     // Retain both high-chance and longer-price branches for target-odds searches.
     const kept=candidates.slice(0,100);if(lower>1)kept.push(...candidates.slice(100).sort((a,b)=>b.decimal-a.decimal).slice(0,60));
     states.push(...kept);
@@ -64,19 +69,21 @@ function select(rows,{sport,now=Date.now(),start,last,legs=2,minOdds=null,maxOdd
   for(const candidate of states.filter(x=>x.legs.length===legs&&x.decimal>=lower&&x.decimal<=upper)){
    const boost=profitBoost(candidate.probability,candidate.decimal,boostPercent,stake);
    if(boost.returnPerDollar<0)continue;
-   if(!parlay||candidate.probability>parlay.probability)parlay={book,...candidate,estimatedReturn:candidate.probability*candidate.decimal-1,boost,pool};
+   if(!parlay||compareTickets(candidate,parlay)<0)parlay={book,...candidate,estimatedReturn:candidate.probability*candidate.decimal-1,boost,pool};
   }
   for(const rawGroup of events.values()){
    const group=rawGroup.filter(r=>r.ev>=0);
    const chosen=[],seen=new Set();for(const r of group){if(seen.has(entity(r)))continue;seen.add(entity(r));chosen.push(r);if(chosen.length===legs)break;}
    if(chosen.length!==legs)continue;
    const weakest=Math.min(...chosen.map(r=>r.prob));
-   if(!sgp||weakest>sgp.weakest)sgp={book,legs:chosen,weakest,probability:null,decimal:null,pool};
+   if(!sgp||evidenceLegs(chosen)>evidenceLegs(sgp.legs)||evidenceLegs(chosen)===evidenceLegs(sgp.legs)&&weakest>sgp.weakest)sgp={book,legs:chosen,weakest,probability:null,decimal:null,pool};
   }
  }
  if(parlay){parlay.weakestLeg=weakestLeg(parlay.legs);parlay.replacement=bestReplacement(parlay,parlay.pool,{sameGame:false,lower,upper,boostPercent,stake});delete parlay.pool;}
  if(sgp){sgp.weakestLeg=weakestLeg(sgp.legs);sgp.replacement=bestReplacement(sgp,sgp.pool,{sameGame:true});delete sgp.pool;}
- return {parlay,sgp};
+ if(parlay)parlay.evidenceLegs=evidenceLegs(parlay.legs);
+ if(sgp)sgp.evidenceLegs=evidenceLegs(sgp.legs);
+ return {parlay,sgp,diagnostics:{...context.diagnostics,ranking:'Supporting-evidence legs first, then estimated joint chance; supporting flags are research evidence, not validated edge.'}};
 }
 // User edits share the builder's eligibility policy, without changing its search.
 // A retained leg must still match an eligible observed quote in the supplied pool.
@@ -94,13 +101,17 @@ function editContext(rows,options={}){
  const formatter=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}),day=t=>formatter.format(new Date(t));
  const eligible=r=>{
   if(!r||typeof r!=='object'||typeof r.event!=='string'||!r.event||typeof r.book!=='string'||!r.book||!['game','prop'].includes(r.kind)||typeof r.market!=='string'||!r.market)return false;
+  if(r.odds<MIN_LEG_AMERICAN||r.injury?.stale||r.injury?.blockRecommendation||r.availability?.eligible===false)return false;
   if([r.canonicalContract,r.contract,r.key,r.line,r.side,r.profileId,r.kickoff,r.updatedAt].some(v=>v!=null&&!['string','number'].includes(typeof v))||![r.n,r.prob,r.dec,r.ev,r.odds].every(Number.isFinite))return false;
   const kick=Date.parse(r.kickoff),at=Date.parse(r.updatedAt),priced=decimal(r.odds);
   if((o.events!==null&&!o.events.includes(r.event))||(o.book!=='all'&&r.book!==o.book)||(o.kind!=='all'&&r.kind!==o.kind)||r.sport!==o.sport||(o.sport==='ncaa'&&r.kind==='prop')||r.manual||r.dfs||r.trust?.review||!Number.isFinite(kick)||kick<=o.now||day(kick)<o.start||day(kick)>o.last||!Number.isFinite(at)||at>o.now||o.now-at>86400000||!(r.n>=5)||!(r.prob>0&&r.prob<1)||!(r.dec>1)||!Number.isFinite(r.dec)||!Number.isFinite(priced)||Math.abs(priced-r.dec)>1e-9||!Number.isFinite(r.ev)||((o.boostPercent===0||o.sameGame)&&r.ev<0)||r.ev>.25||r.push!==0||r.market==='first_td'||/_1[hq]$/.test(r.market)||(!Array.isArray(r.flags)&&r.flags!=null)||r.flags?.some(f=>f?.id==='check'&&!f.historicalOnly))return false;
   return !(r.kind==='prop'&&!r.profileId);
  };
- const pool=(Array.isArray(rows)?rows:[]).filter(eligible);
- return {o,lower,upper,pool,eligible,quotes:new Set(pool.map(quoteKey)),error:null};
+ const input=Array.isArray(rows)?rows:[],pool=input.filter(eligible);
+ const shortPrices=input.filter(r=>r&&Number.isFinite(r.odds)&&r.odds<MIN_LEG_AMERICAN).length;
+ const diagnostics={input:input.length,eligible:pool.length,excluded:input.length-pool.length,shortPrices,minLegAmerican:MIN_LEG_AMERICAN,
+  reason:pool.length?'Eligible quotes remain; selected game, sportsbook and combined-price constraints may still prevent a ticket.':'No supported current quotes pass the data, availability, model-review and price checks. Suggestions exclude leg prices shorter than -500.'};
+ return {o,lower,upper,pool,eligible,quotes:new Set(pool.map(quoteKey)),error:null,diagnostics};
 }
 function summarizeEdit(legs,context){
  const list=Array.isArray(legs)?legs:[],{o}=context;
@@ -160,7 +171,7 @@ function alternatives(legs,pool,options={},request={}){
  if(context.error||!Array.isArray(legs)||(index!==null&&(!Number.isInteger(index)||index<0||index>=list.length))||(index===null&&list.length>=6))return [];
  if(!summarizeEdit(index===null?list:list.filter((_,i)=>i!==index),context).valid)return [];
  const limit=Math.max(0,Math.min(6,Number.isInteger(request?.limit)?request.limit:6));
- const candidates=context.pool.slice().sort((a,b)=>b.prob-a.prob||b.ev-a.ev),found=[],seen=new Set();
+ const candidates=context.pool.slice().sort(compareLegs),found=[],seen=new Set();
  for(const row of candidates){
   if(found.length>=limit)break;
   const key=contractKey(row);if(seen.has(key))continue;
@@ -168,5 +179,5 @@ function alternatives(legs,pool,options={},request={}){
  }
  return found;
 }
-root.GoingFootballParlays={select,profitBoost,summarize,manage,alternatives};if(typeof module!=='undefined')module.exports=root.GoingFootballParlays;
+root.GoingFootballParlays={select,profitBoost,summarize,manage,alternatives,MIN_LEG_AMERICAN};if(typeof module!=='undefined')module.exports=root.GoingFootballParlays;
 })(globalThis);
