@@ -19,7 +19,7 @@
 - Latest public refresh at upstream `67ed9a3` still failed: core and derivative props HTTP503, other components retained. Read-only offline health audit correctly refuses healthy status. No production actions or paid provider calls.
 
 ## Working
-- Final verification/release for `codex/dfs-matchup-release`; preserves current-season DFS baseline and licensed local-only inputs. No validated projection/model promotion.
+- None for this bounded task. PR6 deployed at975a2e325e3f510b14a439bec9e1fa9917228781; exactmainCI38154631554 passes731Node/515Pythonrun5skip/bothbuilds. Deployment6998235900 succeeds. Live supplied CSVs9/9fresh,239supported players, experimental ranking/evidence and390px nooverflow verified. Licensed local data remains on-device; no model promotion.
 
 ## Problems
 - Inspected manual refresh38139354271 also reported incomplete/degraded upstream props and derivatives. Local workflow repairs address reproducible application defects; provider coverage can still leave the final health step red. No degraded source is relabeled FRESH; unrelated valid outputs can publish independently.
