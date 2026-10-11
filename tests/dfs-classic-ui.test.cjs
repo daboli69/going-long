@@ -17,13 +17,13 @@ function officialShape(counts={QB:3,RB:7,WR:9,TE:4,DST:3}){
  return rows.join('\n');
 }
 function enrich(rows){return rows.map((p,i)=>({...p,matched:true,unavailable:false,athleteId:'fixture-'+p.id,projection:10+(i%7),tdMean:p.position==='DST'?0:.2+(i%6)/10,reasons:['Synthetic verified opportunity for construction testing only.'],evidence:['Synthetic fixture evidence.'],concerns:['Synthetic fixture; no real recommendation.']}));}
-function mount(t,{buildPool=enrich,buildScenario=()=>({version:'team-budget-v1',releaseUpdatedAt:'2026-10-03T16:00:00Z',teams:{BUF:{counts:[4,4,4],denominator:20},KC:{counts:[4,4,4],denominator:20}}})}={}){
+function mount(t,{buildPool=enrich,loadField,buildScenario=()=>({version:'team-budget-v1',releaseUpdatedAt:'2026-10-03T16:00:00Z',teams:{BUF:{counts:[4,4,4],denominator:20},KC:{counts:[4,4,4],denominator:20}}})}={}){
  const dom=new JSDOM('<main id="fixture"></main>',{url:'https://going.test/',runScripts:'outside-only',pretendToBeVisual:true}),w=dom.window,scroll=[];
  Object.defineProperty(w.crypto,'subtle',{value:webcrypto.subtle});w.TextEncoder=TextEncoder;
  w.fixtureNow=NOW;w.Date=class extends Date{constructor(...args){super(...(args.length?args:[w.fixtureNow]));}static now(){return w.fixtureNow;}};
  Object.defineProperty(w,'scrollY',{get:()=>240});w.scrollTo=opts=>scroll.push(opts);
  for(const file of ['shared/dfs-threshold.js','shared/dfs-journal.js','shared/dfs-tournament.js','shared/dfs-classic.js','shared/dfs-classic-ui.js'])w.eval(fs.readFileSync(path.join(ROOT,file),'utf8'));
- w.GoingDfsClassicUI.mount(w.document.getElementById('fixture'),{defaultMode:'throne',generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool,buildScenario});
+ w.GoingDfsClassicUI.mount(w.document.getElementById('fixture'),{defaultMode:'throne',generatedAt:'2026-10-03T16:00:00Z',injuryAt:'2026-10-03T16:00:00Z',buildPool,buildScenario,loadField});
  t.after(()=>w.close());
  return {w,d:w.document,scroll};
 }
@@ -44,6 +44,39 @@ test('actual pasted-import flow gates contest confirmation then generates a vali
 });
 test('actual file input uses the same official parser, confirmation and generation gate',async t=>{
  const ui=mount(t),input=ui.d.getElementById('dk-file');Object.defineProperty(input,'files',{value:[{name:'synthetic-fixture.csv',text:async()=>officialShape()}]});input.dispatchEvent(new ui.w.Event('change',{bubbles:true}));await waitFor(()=>ui.d.getElementById('dk-confirm'));assert.equal(ui.d.getElementById('dk-generate').disabled,true);confirm(ui);await generate(ui);assert.equal(ids(ui).length,9);
+});
+
+test('Classic salary CSV stays the only direct upload; optional ownership cannot cover it',t=>{
+ const ui=mount(t),salary=ui.d.getElementById('dk-file'),ownership=ui.d.getElementById('dk-field-file');
+ assert.equal(salary.getAttribute('accept'),'.csv,text/csv');
+ assert.equal(salary.closest('label').className,'dk-salary-upload');
+ assert.equal(ui.d.querySelectorAll('.dk-import>label:not(.dk-confirm)').length,1);
+ assert.match(salary.closest('label').textContent,/salary CSV \(\.csv\)/);
+ assert.match(ui.d.getElementById(salary.getAttribute('aria-describedby')).textContent,/DKSalaries.csv/);
+ const optional=ownership.closest('details');
+ assert.equal(optional.className,'dk-ownership-import');assert.equal(optional.open,false);
+ assert.match(optional.textContent,/Not required to import salaries or build a lineup/);
+ const css=fs.readFileSync(path.join(ROOT,'shared/reference-workspace.css'),'utf8');
+ assert.match(css,/\.dk-import>label\.dk-salary-upload\{position:absolute/);
+ assert.doesNotMatch(css,/\.dk-import>label:not\(\.dk-confirm\)\{position:absolute/);
+ // Presentation adapter selects the first nested disclosure as the paste guide.
+ assert.equal(ui.d.querySelector('.dk-import>details button').id,'dk-load');
+});
+
+test('separate optional ownership upload retains its JSON loader and salary slate',async t=>{
+ let received;const ui=mount(t,{loadField:text=>{received=text;return {ok:true};}});
+ await load(ui);confirm(ui);
+ const input=ui.d.getElementById('dk-field-file');
+ input.closest('details').open=true;
+ Object.defineProperty(input,'files',{value:[{name:'synthetic-ownership.json',text:async()=>'{"fixture":true}'}]});
+ input.dispatchEvent(new ui.w.Event('change',{bubbles:true}));
+ await waitFor(()=>/Private ownership model loaded/.test(ui.d.getElementById('dk-field-status').textContent));
+ assert.equal(received,'{"fixture":true}');
+ assert.equal(ui.d.getElementById('dk-field-file').closest('details').open,true);
+ assert.equal(ui.d.getElementById('dk-confirm').checked,true);
+ assert.equal(ui.d.getElementById('dk-generate').disabled,false);
+ assert.match(ui.d.body.textContent,/26 imported players/);
+ assert.equal(ui.d.getElementById('dk-file').getAttribute('accept'),'.csv,text/csv');
 });
 test('lock, objective switch, rebuild, swap, exclusion and clear work together through real controls',async t=>{
  const ui=mount(t);await load(ui);confirm(ui);await generate(ui);const initial=ids(ui),locked=initial[1];
