@@ -7,7 +7,7 @@ const now=Date.parse('2026-10-03T17:00:00Z'),stamp='2026-10-03T15:00:00Z';
 const player={id:'p',name:'Fixture Player Jr.',team:'BUF',position:'RB',last_game:'2026-09-27',games:[{season:2026,date:'2026-09-20',rush_tds:2,rec_tds:1},{season:2026,date:'2026-09-27',rush_tds:0,rec_tds:1}]};
 const salary={id:'1',name:player.name,team:'BUF',opponent:'MIA',position:'RB',salary:5000,kickoff:'2026-10-04T17:00:00Z'};
 const stats={pass_yds:0,pass_tds:0,rush_yds:80,rush_tds:1.2,rec_yds:20,rec_tds:.3,receptions:3};
-function opts(patch={}){return {profiles:{p:player},generatedAt:stamp,now,context:{season:2026,generated_at:stamp,scopes:{2026:{players:{p:{player_id:'p',team:'BUF',season:2026,games:3,last_game:'2026-09-27',targets:8,rush_attempts:25,target_share:.2,rush_share:.7}}}}},injuryContext:{fresh:true,byIdentity:new Map()},injuries:{normalize:x=>x,starterEligibility:()=>({known:true,eligible:true}),availability:()=>({block:false})},makeModel:(p,key,s)=>({projMean:stats[key],model:{status:'ready',mean:stats[key]}}),bonusProbability:()=>0,points:dfs.projectedPoints,...patch};}
+function opts(patch={}){return {currentSeasonOnly:false,profiles:{p:player},generatedAt:stamp,now,context:{season:2026,generated_at:stamp,scopes:{2026:{players:{p:{player_id:'p',team:'BUF',season:2026,games:3,last_game:'2026-09-27',targets:8,rush_attempts:25,target_share:.2,rush_share:.7}}}}},injuryContext:{fresh:true,byIdentity:new Map()},injuries:{normalize:x=>x,starterEligibility:()=>({known:true,eligible:true}),availability:()=>({block:false})},makeModel:(p,key,s)=>({projMean:stats[key],model:{status:'ready',mean:stats[key]}}),bonusProbability:()=>0,points:dfs.projectedPoints,...patch};}
 test('partial DraftKings scoring and qualifying TD count remain distinct from passing TDs/ATD/Score',()=>{
  const [p]=buildPool([salary],opts());assert.equal(p.unavailable,false);assert.equal(p.tdMean,1.5);assert.equal(p.projection,22);assert.equal(p.value,4.4);assert.match(p.evidence.join(' '),/current-season/);assert.deepEqual(p.counts.bins,[0,1,0,1]);
  const [q]=buildPool([{...salary,position:'QB'}],opts({profiles:{p:{...player,position:'QB'}},makeModel:(p,key)=>({projMean:{...stats,pass_tds:5,pass_yds:300}[key],model:{status:'ready'}})}));assert.equal(q.tdMean,1.5);assert.ok(q.projection>p.projection);assert.ok(!('goingScore' in q));
@@ -21,6 +21,16 @@ test('stale/future model data, old profile, missing current opportunity and inco
 test('confirmed out and unknown/backup QB cannot become salary relief',()=>{
  assert.equal(buildPool([salary],opts({injuryContext:{fresh:true,byIdentity:new Map([['BUF|'+player.name,{}]])},injuries:{normalize:x=>x,availability:()=>({block:true,state:'out'})}}))[0].unavailable,true);
  for(const starter of [{known:false,eligible:true},{known:true,eligible:false}])assert.equal(buildPool([{...salary,position:'QB'}],opts({profiles:{p:{...player,position:'QB'}},injuries:{starterEligibility:()=>starter}}))[0].unavailable,true);
+});
+
+test('model projections never clear explicit imported OUT, doubtful or unavailable flags',()=>{
+ const injuries=require('../shared/dfs-availability.js');
+ for(const patch of [{csvOut:true},{unavailable:true},{csvStatus:'OUT'},{injuryStatus:'O'},{injury:'Doubtful'}]){
+  let calls=0;
+  const [row]=buildPool([{...salary,...patch}],opts({injuries,makeModel:()=>{calls++;throw Error('Blocked player should not be modeled');}}));
+  assert.equal(row.unavailable,true);assert.equal(row.projection,null);assert.equal(calls,0);assert.match(row.concerns.join(' '),/Imported salary availability/);
+ }
+ const [dst]=buildPool([{...salary,position:'DST',avgPointsPerGame:8,csvOut:true}],opts());assert.equal(dst.unavailable,true);assert.equal(dst.projection,null);
 });
 test('DST preserves explicit imported average, contributes zero qualifying TDs and invents no fallback',()=>{
  const [p]=buildPool([{...salary,position:'DST',avgPointsPerGame:7.5}],opts());assert.equal(p.projection,7.5);assert.equal(p.tdMean,0);assert.match(p.concerns[0],/no current DST matchup/);

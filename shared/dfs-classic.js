@@ -8,6 +8,7 @@ const team=value=>({JAC:'JAX',LAR:'LA',WSH:'WAS'})[value]||value;
 // Preserve suffixes: stripping Jr./II can silently merge distinct identities.
 const matchName=value=>String(value||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const fits=(position,slot)=>position===slot||(slot==='FLEX'&&['RB','WR','TE'].includes(position));
+const salaryStatusBlocked=value=>/^(d|doubtful|ir|o|out|inactive|ina|sus|susp|suspended|pup|nfi|res|reserve|dev|development|cut|ret|retired|exe|exempt|injured reserve(?:.*)?|physically unable to perform)$/i.test(String(value||'').trim().replace(/[_-]+/g,' '));
 function csvRows(text){
  const rows=[];let row=[],field='',quoted=false,closed=false;
  for(let i=0;i<text.length;i++){
@@ -60,7 +61,9 @@ function parseCsv(text){
   for(const t of [away,home]){if(teamGames.has(t)&&teamGames.get(t)!==gameId)error('NFL team appears in conflicting games.');teamGames.set(t,gameId);}
   if(r.AvgPointsPerGame!==''&&!/^-?\d+(\.\d+)?$/.test(r.AvgPointsPerGame)){error('invalid AvgPointsPerGame.');continue;}
   dates.add(date);games.set(gameId,{gameId,away,home,kickoff});
-  players.push({id,name,position,rosterPosition:r['Roster Position'],salary,team:ownTeam,opponent:ownTeam===away?home:away,gameId,kickoff,gameInfo:r['Game Info'],avgPointsPerGame:r.AvgPointsPerGame===''?null:Number(r.AvgPointsPerGame),sourceSalary:'draftkings-csv',csvStatus:r.Status||'',csvOut:/^(ir|o|out|inactive|sus|susp|pup|nfi|res)$/i.test(r.Status||''),unavailable:/^(ir|o|out|inactive|sus|susp|pup|nfi|res)$/i.test(r.Status||'')||undefined});
+  // Both optional status columns carry availability, even if they disagree.
+  const csvStatuses=[r.Status,r['Injury Status']].filter(Boolean),csvOut=csvStatuses.some(salaryStatusBlocked),csvStatus=csvStatuses.find(salaryStatusBlocked)||csvStatuses[0]||'';
+  players.push({id,name,position,rosterPosition:r['Roster Position'],salary,team:ownTeam,opponent:ownTeam===away?home:away,gameId,kickoff,gameInfo:r['Game Info'],avgPointsPerGame:r.AvgPointsPerGame===''?null:Number(r.AvgPointsPerGame),sourceSalary:'draftkings-csv',csvStatus,csvOut,unavailable:csvOut||undefined});
  }
  if(dates.size!==1)errors.push('Classic import must contain exactly one slate date; mixed dates are rejected.');
  if(games.size<2)errors.push('NFL Classic requires a player pool containing at least two games.');
@@ -129,7 +132,7 @@ const spreadOf=p=>finite(p.distribution?.sd)?p.distribution.sd:p.position==='DST
 const proxy=p=>p.projection+MEASURED_Z*spreadOf(p)**2/TYPICAL_LINEUP_SD;
 // Exact lineup mean and SD with the measured correlations. The mean is the projection itself (simulated means carry sampling noise of about 0.2-0.3 pt per player); D/ST has no simulated
 // distribution and uses the platform-average spread, independent of everyone else.
-function measuredMoments(players){const m=simEngine()?.lineupMoments(players.map(p=>({position:p.position,dfsRole:p.dfsRole,team:p.team,opponent:p.opponent,projection:p.projection,sd:spreadOf(p),distribution:finite(p.distribution?.sd)?{mean:p.projection,sd:p.distribution.sd}:undefined})));return m||null;}
+function measuredMoments(players){const m=simEngine()?.lineupMoments(players.map(p=>({position:p.position,dfsRole:p.dfsRole,team:p.team,opponent:p.opponent,projection:p.projection,projectionSource:p.projectionSource,sd:spreadOf(p),distribution:finite(p.distribution?.sd)?{mean:p.projection,sd:p.distribution.sd}:undefined})));return m||null;}
 function measuredObjective(players){const m=measuredMoments(players);return m?m.mean+MEASURED_Z*m.sd:players.reduce((s,p)=>s+p.projection,0);}
 function compare(a,b,mode){return (mode==='measured'?(b.measuredTotal??=b.players.reduce((s,p)=>s+proxy(p),0))-(a.measuredTotal??=a.players.reduce((s,p)=>s+proxy(p),0)):mode==='tournament'?(b.tournamentTotal??=tournamentSum(b.players))-(a.tournamentTotal??=tournamentSum(a.players)):mode==='throne'?b.tdMean-a.tdMean:0)||b.projection-a.projection||a.salary-b.salary||a.key.localeCompare(b.key);}
 function thresholdEngine(){return root.GoingDfsThreshold||(typeof require==='function'?require('./dfs-threshold.js'):null);}

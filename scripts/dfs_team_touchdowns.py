@@ -1,4 +1,4 @@
-"""Refresh data/dfs_team_touchdowns.json (Touchdown Throne team evidence) from the public NFLverse team-stat release.
+"""Refresh current-season team TD and partial DFS defense evidence from public NFLverse team stats.
 
 Why this exists: research/dfs/build-team-budgets.py is an offline reproducer that needs a saved CSV, a SHA receipt and explicit timestamps. Nothing ever called it on a
 schedule, so the committed snapshot froze at its 2026-10-03 build and the 36-hour freshness gate in shared/dfs-team-evidence.js then refused every Throne build. This script
@@ -8,6 +8,10 @@ Safety rules kept from the reproducer: the snapshot is built only from completed
 team rows, TD counts are bounded by final scores, and the output is written atomically only if the build succeeds. On ANY failure the existing file is left untouched and the
 exit code is non-zero (the workflow should treat that as a warning, not delete the old snapshot). Rows for games the results snapshot does not yet list (or that finished after the
 release was last updated) are dropped before the build and counted in `droppedRows`; `downloadedSourceSha256` is the hash of the unmodified download.
+
+When all defensive source columns are present, paired final results also support current-season sacks, interceptions, opponent fumble recoveries, defensive/return TDs,
+safeties and blocked kicks. Fumble TDs in the aggregate source mix offense and defense: the partial DST baseline omits those TD points and conservatively retains ambiguous
+opposing fumble TDs in points allowed. Missing columns never become zero; legacy TD-only snapshots remain valid for Throne and explicitly lack defensive evidence.
 
 Usage (CI):  python scripts/dfs_team_touchdowns.py [--results data/results.json] [--output data/dfs_team_touchdowns.json] [--season 2026]
 """
@@ -128,6 +132,7 @@ def main(argv=None):
         temp = handle.name
     os.replace(temp, args.output)
     print(f"Refreshed {sum(len(rows) for rows in output['teams'].values())} team-game rows for {len(output['teams'])} teams (dropped {output['droppedRows']}).")
+    print(f"Defensive evidence: {output['defenseStatus']}; missing fields: {', '.join(output['defenseMissingFields']) or 'none'}.")
     return 0
 
 

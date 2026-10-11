@@ -17,7 +17,7 @@ function injuryContext(status,{reportStatus=null,practice=null}={}){
 }
 function dfsPool(context){
  return buildPool([{id:'salary-id',name:profile.name,team:'BUF',opponent:'MIA',position:'RB',salary:5000,kickoff:'2026-10-06T17:00:00Z'}],{
-  profiles:{[profile.id]:profile},context:{season:2026,generated_at:generatedAt,scopes:{2026:{players:{[profile.id]:current}}}},injuryContext:context,generatedAt,now,injuries:availability,
+  profiles:{[profile.id]:profile},context:{season:2026,generated_at:generatedAt,scopes:{2026:{players:{[profile.id]:current}}}},injuryContext:context,generatedAt,now,injuries:availability,currentSeasonOnly:false, // Archived component fixture; availability assertions remain independent of forecast policy.
   makeModel:(p,key)=>({projMean:modelStats[key],model:{status:'ready',mean:modelStats[key]}}),bonusProbability:()=>0,points:dfs.projectedPoints,
  });
 }
@@ -57,3 +57,12 @@ test('DFS QB starter requires a verified current role and skips explicit nonacti
 
 
 test('salary-file medical abbreviations cannot hide an OUT and do not call Q confirmed out',()=>{assert.equal(availability.availability({injury_status:'O'}).block,true);assert.equal(availability.availability({injury_status:'D'}).block,true);assert.equal(availability.availability({injury_status:'Q'}).state,'questionable');assert.equal(availability.availability({injury_status:'Q'}).block,false);});
+
+test('nested public roster injury objects and contradictory report snapshots cannot hide unavailable players',()=>{
+ for(const status of ['OUT','Doubtful']){
+  const row={name:profile.name,team:'BUF',position:'RB',roster_status:'ACT',injury:{report_status:status}};
+  assert.equal(availability.availability(row).block,true);
+  const context=availability.createContext({generated_at:generatedAt,players:[row]},{},now,{current_reports:{'BUF|rosterstatusback':{report_status:'Questionable'}},current_players:{'BUF|rosterstatusback':{roster_status:'ACT'}}});
+  assert.equal(availability.availability(context.byIdentity.get('BUF|rosterstatusback')).block,true);assert.equal(dfsPool(context)[0].unavailable,true);
+ }
+});

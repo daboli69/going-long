@@ -4,7 +4,7 @@
 // Transparent descriptive tournament research helpers. No ownership model,
 // covariance estimate, correlation bonus, or contest-win probability is implied.
 const VERSION='dfs-tournament-research-v1';
-const UPSIDE_SOURCE='observed-partial-fantasy-residual-v1';
+const UPSIDE_SOURCE='observed-current-season-fantasy-residual-v2';
 const finite=value=>typeof value==='number'&&Number.isFinite(value);
 const text=value=>String(value==null?'':value).trim();
 const teamKey=p=>text(p?.team).toUpperCase();
@@ -14,7 +14,9 @@ const role=p=>text(p?.position).toUpperCase();
 const captainRole=p=>['CPT','MVP'].includes(text(p?.slot||p?.rosterPosition||p?.showdownRole).toUpperCase())||p?.captain===true;
 function validUpside(player){
  const u=player?.upside;
- return u&&u.source===UPSIDE_SOURCE&&finite(u.value)&&u.value>=0&&Number.isInteger(u.n)&&u.n>=8&&Number.isInteger(u.currentGames)&&u.currentGames>=0&&u.currentGames<=u.n&&Number.isFinite(Date.parse(u.asOf))?u:null;
+ const d=new Date(u?.asOf),season=d.getUTCFullYear()-(d.getUTCMonth()<2?1:0);
+ const current=new Date(),currentSeason=current.getUTCFullYear()-(current.getUTCMonth()<2?1:0),at=Date.parse(u?.asOf);
+ return u&&u.source===UPSIDE_SOURCE&&finite(u.value)&&u.value>=0&&Number.isInteger(u.n)&&u.n>=3&&u.currentGames===u.n&&u.season===season&&season===(player.projectionSeason??currentSeason)&&Number.isFinite(at)&&at<=Date.now()&&Date.now()-at<=36*3600000?u:null;
 }
 
 function playerObjective(player,options={}){

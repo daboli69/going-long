@@ -97,7 +97,7 @@ test('actual official artifact and inline attachProjection match the primary evi
  // Salary-free model rows verify parity with the existing evidence adapter;
  // these are not a fabricated DraftKings pool or a contest-valid lineup.
  const modelRows=Object.values(h.profiles).flatMap(p=>{const g=slate.find(g=>g.home===p.team||g.away===p.team);return g?[{...p,gameId:g.gameId,kickoff:g.kickoff,opponent:g.home===p.team?g.away:g.home}]:[];});
- const pool=require('../shared/dfs-evidence.js').buildPool(modelRows,{profiles:h.profiles,context:c,injuryContext,generatedAt:h.generated_at,now:liveNow,injuries,makeModel,bonusProbability:()=>0,points:require('../shared/football-dfs.js').projectedPoints});
+ const pool=require('../shared/dfs-evidence.js').buildPool(modelRows,{currentSeasonOnly:false,profiles:h.profiles,context:c,injuryContext,generatedAt:h.generated_at,now:liveNow,injuries,makeModel,bonusProbability:()=>0,points:require('../shared/football-dfs.js').projectedPoints});
  const s=buildScenario({teamSnapshot:snapshot,profiles:h.profiles,context:c,injuryContext,generatedAt:h.generated_at,now:liveNow,injuries,slateGames:slate,makeModel,pool});
  assert.equal(Object.keys(s.teams).length,slate.length*2);for(const t of Object.values(s.teams)){assert.ok(t.n>=3);assert.ok(t.denominator>=t.allVerifiedPlayerMean);assert.ok(t.otherShare>=0&&t.otherShare<=1);assert.ok(Object.values(t.playerShares).reduce((sum,p)=>sum+p,0)<=1+1e-12);}
  assert.ok(pool.some(p=>p.matched&&!p.unavailable));
