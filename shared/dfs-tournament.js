@@ -41,6 +41,30 @@ function playerObjective(player,options={}){
 }
 function objective(player,options={}){return playerObjective(player,options).score;}
 
+// Historical contest ownership is an input to an optional construction policy,
+// never a prior-season fantasy projection or an estimate of tournament equity.
+function ownershipSum(players){return players.length&&players.every(p=>p.ownershipSource==='classic-salary-model'&&finite(p.ownership)&&p.ownership>=0&&p.ownership<=100)?players.reduce((s,p)=>s+p.ownership,0):null;}
+function policyErrors(policy){
+ if(policy==null)return [];
+ if(typeof policy!=='object'||Array.isArray(policy))return ['Invalid tournament construction settings.'];
+ const errors=[];
+ if(![0,1,2].includes(policy.stack??0))errors.push('QB stack must be zero, one or two pass catchers.');
+ for(const key of ['ownership','bringback','avoidDst'])if(policy[key]!=null&&typeof policy[key]!=='boolean')errors.push('Invalid tournament '+key+' setting.');
+ if(!finite(policy.lossPct??0)||(policy.lossPct??0)<0||(policy.lossPct??0)>5)errors.push('Research-score tradeoff must be between 0% and 5%.');
+ return errors;
+}
+function constructionErrors(players,policy={}){
+ const errors=policyErrors(policy);if(errors.length)return errors;
+ policy=policy??{};
+ const qb=players.find(p=>role(p)==='QB'),dst=players.find(p=>role(p)==='DST');
+ const sameGame=(p,q)=>p.gameId&&p.gameId===q?.gameId;
+ if((policy.stack??0)>0&&(!qb||players.filter(p=>['WR','TE'].includes(role(p))&&teamKey(p)===teamKey(qb)&&sameGame(p,qb)).length<policy.stack))errors.push('Requested QB/pass-catcher stack is not satisfied.');
+ if(policy.bringback&&(!qb||!players.some(p=>['RB','WR','TE'].includes(role(p))&&teamKey(p)===opponentKey(qb)&&sameGame(p,qb))))errors.push('Requested opposing offensive return player is missing.');
+ if(policy.avoidDst&&dst&&players.some(p=>role(p)!=='DST'&&teamKey(p)===opponentKey(dst)&&sameGame(p,dst)))errors.push('An offensive player opposes the selected D/ST.');
+ if(policy.ownership&&ownershipSum(players)==null)errors.push('Historical Classic ownership estimates are missing or invalid; import the Classic JSON or disable ownership selection.');
+ return errors;
+}
+
 function evaluate(lineup,{contest='classic',site='draftkings'}={}){
  const players=Array.isArray(lineup)?lineup:[];
  const showdown=contest==='showdown';
@@ -120,7 +144,7 @@ function compare(a,b,{contest='classic'}={}){
  return {version:VERSION,contest,method:ordered.some(x=>x.upsideCovered)?'sum-of-player-upside-with-projection-fallback':'sum-of-available-projections',jointCeiling:'not-estimated',tieBreak:'construction descriptor only; used only for exact objective ties',ranked:ordered.map(x=>({score:x.score,basis:x.basis,ceilingStatus:x.ceilingStatus,upsideCovered:x.upsideCovered,playerCount:x.playerCount,constructionTie:x.tie,lineup:x.lineup}))};
 }
 
-const api={VERSION,UPSIDE_SOURCE,objective,playerObjective,evaluate,compare};
+const api={VERSION,UPSIDE_SOURCE,objective,playerObjective,evaluate,compare,ownershipSum,policyErrors,constructionErrors};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;
 root.GoingDfsTournament=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

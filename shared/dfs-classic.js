@@ -76,6 +76,7 @@ const td=p=>p.position==='DST'?0:p.tdMean;
 function context(pool,options){
  const errors=[],byId=new Map(),now=options.now==null?Date.now():Date.parse(options.now),excluded=new Set((options.excludedIds||[]).map(String)),locks={...options.lockedSlots},incumbent=options.incumbentLineup||[],mode=options.mode||'best';
  if(!['best','throne','tournament','measured'].includes(mode))errors.push('Unsupported DFS mode.');
+ if(mode==='tournament')errors.push(...(tournamentEngine()?.policyErrors(options.tournamentPolicy)||[]));
  if(!Number.isFinite(now))errors.push('Invalid current time.');
  for(const p of pool||[]){const id=String(p.id);if(byId.has(id))errors.push('Duplicate DraftKings IDs in player pool.');byId.set(id,p);}
  // Game locks are immutable only when supplied with an existing complete roster.
@@ -120,6 +121,7 @@ function validateLineup(lineup,pool,options={}){
  const result=canonical.every(Boolean)?totals(canonical):{salaryUsed:null,salaryRemaining:null,projection:null,tdMean:null};
  if(!Number.isFinite(result.salaryUsed)||result.salaryUsed>CAP)errors.push('Salary exceeds $50,000.');
  if(games.size<2)errors.push('Lineup must represent at least two NFL games.');
+ if(c.mode==='tournament'&&canonical.every(Boolean))errors.push(...(tournamentEngine()?.constructionErrors(canonical,options.tournamentPolicy)||[]));
  return {valid:errors.length===0,errors,...result};
 }
 function tournamentEngine(){return root.GoingDfsTournament||(typeof require==='function'?require('./dfs-tournament.js'):null);}
@@ -147,12 +149,19 @@ function optimize(pool,options={}){
  }
  const c=context(pool,options),failure=reason=>({lineup:[],reason,errors:c.errors,heuristic:true});
  if(c.errors.length)return failure(c.errors.join(' '));
+ const policy=c.mode==='tournament'?options.tournamentPolicy:null,history=policy?.ownership===true;
  const scenario=c.mode==='throne'&&options.tdScenario,engine=scenario&&thresholdEngine();
  if(c.mode==='throne'&&Object.hasOwn(options,'tdScenario')&&!scenario)return failure('Eight-TD scenario support is missing; no count-only fallback is allowed.');
  if(scenario&&!engine)return failure('The eight-TD scenario module is unavailable. Reload before building.');
  const width=Math.max(50,Math.min(3000,Number.isInteger(options.beamWidth)?options.beamWidth:800));
  const candidates=SLOTS.map((slot,i)=>[...c.byId.values()].filter(p=>allowed(p,i,c)).sort((a,b)=>String(a.id).localeCompare(String(b.id))));
  if(candidates.some(ps=>!ps.length))return failure('No eligible matched players with current evidence fit every required slot.');
+ if(history&&candidates.flat().some(p=>tournamentEngine().ownershipSum([p])==null))return failure('Historical Classic ownership is incomplete for this pool. Import the Classic JSON or disable ownership selection; no unknown ownership is treated as zero.');
+ // Identical locks, availability, matchups and construction rules in reference.
+ const reference=history?optimize(pool,{...options,_compare:true,tournamentPolicy:{...policy,ownership:false}}):null;
+ if(history&&!reference.lineup?.length)return failure(reference.reason||'No reference lineup satisfies the construction rules.');
+ const referenceScore=history?tournamentSum(reference.lineup):null;
+ const scoreFloor=history?referenceScore*(1-(policy.lossPct??0)/100):null;
  if(scenario){const check=engine.evaluate([...new Map(candidates.flat().map(p=>[String(p.id),p])).values()],scenario);if(!check.valid)return failure(check.reason);}
  const minRemaining=new Array(10).fill(0);
  for(let i=8;i>=0;i--)minRemaining[i]=minRemaining[i+1]+Math.min(...candidates[i].map(p=>p.salary));
@@ -176,6 +185,8 @@ function optimize(pool,options={}){
   else{
    // Reserve beam space across salary bands so cheap opportunity stays available for later slots.
    const keep=next.slice(0,Math.floor(width/2)),keys=new Set(keep.map(s=>s.key)),bands=new Map();
+   // Preserve an ownership frontier; complete rosters still meet the score floor.
+   if(history){const diverse=next.slice().sort((a,b)=>tournamentEngine().ownershipSum(a.players)-tournamentEngine().ownershipSum(b.players)||compare(a,b,c.mode));for(const state of diverse.slice(0,Math.floor(width/4)))if(!keys.has(state.key)){keep.push(state);keys.add(state.key);}}
    for(const state of next){const band=Math.floor(state.salary/100);if(!bands.has(band))bands.set(band,state);}
    for(const state of [...bands.values()].sort((a,b)=>a.salary-b.salary))if(keep.length<width&&!keys.has(state.key)){keep.push(state);keys.add(state.key);}
    for(const state of next)if(keep.length<width&&!keys.has(state.key)){keep.push(state);keys.add(state.key);}
@@ -212,9 +223,18 @@ function optimize(pool,options={}){
   states.sort(thresholdCompare);
  }else if(c.mode==='measured'){for(const state of states)state.exact=measuredObjective(state.players);states.sort((a,b)=>(b.exact-a.exact)||compare(a,b,'best'));}
  else states.sort((a,b)=>compare(a,b,c.mode));
+ let historicalSelection=null;
+ if(history){
+  // Retain the reference so bounded pruning cannot violate the score budget.
+  const players=reference.lineup,values=totals(players);
+  states.push({players,projection:values.projection,salary:values.salaryUsed,key:players.map(p=>String(p.id)).sort().join('|')});
+  states=states.filter(s=>tournamentSum(s.players)+1e-9>=scoreFloor&&tournamentEngine().constructionErrors(s.players,policy).length===0);
+  states.sort((a,b)=>tournamentEngine().ownershipSum(a.players)-tournamentEngine().ownershipSum(b.players)||compare(a,b,'tournament'));
+  historicalSelection={source:'imported-historical-classic-ownership',referenceScore,scoreFloor,lossPct:policy.lossPct??0,referenceOwnership:tournamentEngine().ownershipSum(reference.lineup),policy:{...policy},notEstimated:['duplication','win probability','ROI']};
+ }
  for(const state of states){
   const lineup=state.players.map((p,i)=>({...p,slot:SLOTS[i],slotIndex:i})),validation=validateLineup(lineup,pool,options);
-  if(validation.valid)return {lineup,...totals(lineup),tournament:c.mode==='tournament'?tournamentEngine()?.evaluate(lineup,{contest:'classic',site:'draftkings'}):null,tdThreshold:state.tdThreshold||null,reason:null,errors:[],heuristic:true,method:scenario?'Eight-plus rushing/receiving TD scenario mass; DFS points break ties. Finite shared team budgets, independent teams; bounded uncalibrated scenario search.':c.mode==='throne'?'Expected rushing/receiving TD sum; DFS points break ties. Bounded search; no calibrated threshold probability.':c.mode==='tournament'?'Observed current-season scoring-spread proxy plus current-season means; unknown upside falls back to projection. Not a joint lineup ceiling or contest-win forecast.':'Projected DraftKings point sum. Bounded search; global optimum is not guaranteed.'};
+  if(validation.valid)return {lineup,...totals(lineup),historicalSelection:historicalSelection?{...historicalSelection,selectedScore:tournamentSum(lineup),selectedOwnership:tournamentEngine().ownershipSum(lineup)}:null,tournament:c.mode==='tournament'?tournamentEngine()?.evaluate(lineup,{contest:'classic',site:'draftkings'}):null,tdThreshold:state.tdThreshold||null,reason:null,errors:[],heuristic:true,method:scenario?'Eight-plus rushing/receiving TD scenario mass; DFS points break ties. Finite shared team budgets, independent teams; bounded uncalibrated scenario search.':c.mode==='throne'?'Expected rushing/receiving TD sum; DFS points break ties. Bounded search; no calibrated threshold probability.':c.mode==='tournament'?'Observed current-season scoring-spread proxy plus current-season means; unknown upside falls back to projection. Not a joint lineup ceiling or contest-win forecast.':'Projected DraftKings point sum. Bounded search; global optimum is not guaranteed.'};
  }
  return failure('No independently valid lineup survived the search.');
 }
@@ -223,6 +243,10 @@ function alternatives(lineup,slotIndex,pool,options={}){
  const baseline=validateLineup(lineup,pool,options);
  if(!baseline.valid)return {alternatives:[],errors:baseline.errors};
  const c=context(pool,options),results=[];
+ const history=c.mode==='tournament'&&options.tournamentPolicy?.ownership===true;
+ const reference=history?optimize(pool,{...options,_compare:true,tournamentPolicy:{...options.tournamentPolicy,ownership:false}}):null;
+ if(history&&!reference.lineup?.length)return {alternatives:[],errors:[reference.reason||'Historical reference unavailable.']};
+ const scoreFloor=history?tournamentSum(reference.lineup)*(1-(options.tournamentPolicy.lossPct??0)/100):null;
  const scenario=c.mode==='throne'&&options.tdScenario,engine=scenario&&thresholdEngine(),baselineThreshold=scenario&&engine?.evaluate(lineup,scenario);
  if(c.mode==='throne'&&Object.hasOwn(options,'tdScenario')&&!scenario)return {alternatives:[],errors:['Eight-TD scenario support is missing.']};
  if(scenario&&!baselineThreshold?.valid)return {alternatives:[],errors:[baselineThreshold?.reason||'Eight-TD scenario support is unavailable.']};
@@ -231,9 +255,10 @@ function alternatives(lineup,slotIndex,pool,options={}){
   if(String(p.id)===String(lineup[slotIndex].id)||!allowed(p,slotIndex,c))continue;
   const replaced=lineup.map((entry,i)=>i===slotIndex?{...p,slot:SLOTS[i],slotIndex:i}:entry),check=validateLineup(replaced,pool,options);
   const tdThreshold=scenario&&check.valid?engine.evaluate(replaced,scenario):null;
-  if(check.valid&&(!scenario||tdThreshold.valid))results.push({player:p,lineup:replaced,salaryDelta:check.salaryUsed-baseline.salaryUsed,projectionDelta:check.projection-baseline.projection,tdMeanDelta:check.tdMean-baseline.tdMean,tdThreshold,tdThresholdDelta:scenario?tdThreshold.tailMass-baselineThreshold.tailMass:null,salaryRemaining:check.salaryRemaining});
+  if(check.valid&&(!history||tournamentSum(replaced)+1e-9>=scoreFloor)&&(!scenario||tdThreshold.valid))results.push({player:p,lineup:replaced,salaryDelta:check.salaryUsed-baseline.salaryUsed,projectionDelta:check.projection-baseline.projection,tdMeanDelta:check.tdMean-baseline.tdMean,tdThreshold,tdThresholdDelta:scenario?tdThreshold.tailMass-baselineThreshold.tailMass:null,salaryRemaining:check.salaryRemaining});
  }
  results.sort((a,b)=>(c.mode==='tournament'?tournamentSum(b.lineup)-tournamentSum(a.lineup):scenario?b.tdThresholdDelta-a.tdThresholdDelta:c.mode==='throne'?b.tdMeanDelta-a.tdMeanDelta:0)||b.projectionDelta-a.projectionDelta||a.salaryDelta-b.salaryDelta||String(a.player.id).localeCompare(String(b.player.id)));
+ if(history)results.sort((a,b)=>tournamentEngine().ownershipSum(a.lineup)-tournamentEngine().ownershipSum(b.lineup)||tournamentSum(b.lineup)-tournamentSum(a.lineup));
  return {alternatives:results,errors:[]};
 }
 root.GoingDfsClassic={SLOTS,CAP,matchName,kickoffET,parseCsv,validateLineup,optimize,alternatives,measuredMoments};

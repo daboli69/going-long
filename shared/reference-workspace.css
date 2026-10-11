@@ -199,6 +199,7 @@ body[data-reference-active=true] #dfsClassicRoot #dk-pool-list{min-height:245px}
 body[data-reference-active=true] #dfsClassicRoot .dk-import,body[data-reference-active=true] #dfsClassicRoot .dk-pool,body[data-reference-active=true] .r-dfs-options{border:1px solid var(--r-border);border-radius:8px;background:#01172266;padding:14px;margin:0}
 body[data-reference-active=true] #dfsClassicRoot .dk-import summary,body[data-reference-active=true] #dfsClassicRoot .dk-pool summary{font-size:14px;font-weight:650}body[data-reference-active=true] #dfsClassicRoot p{font-size:12px;margin:9px 0;line-height:1.5}
 body[data-reference-active=true] #dfsClassicRoot label{font-size:11px}body[data-reference-active=true] #dfsClassicRoot input,body[data-reference-active=true] #dfsClassicRoot select{min-height:33px;font-size:12px;padding:8px}
+body[data-reference-active=true] #dfsClassicRoot details.dk-history-import>summary{max-width:100%}
 body[data-reference-active=true] #dfsClassicRoot input[type=file]{font-size:11px}body[data-reference-active=true] #dfsClassicRoot input::file-selector-button{background:var(--r-teal);color:#002827;border:0;border-radius:5px;padding:9px;margin-right:12px;font-weight:650}
 body[data-reference-active=true] #dfsClassicRoot .dk-modes{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0}
 body[data-reference-active=true] #dfsClassicRoot .dk-modes button{padding:12px!important;min-height:56px;font-size:12px}body[data-reference-active=true] #dfsClassicRoot .dk-modes small{font-size:10px;margin:5px 0 0}

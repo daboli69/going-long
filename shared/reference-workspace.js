@@ -107,12 +107,13 @@ if(dfs)observe(dfs,()=>{
  if(!dfs.querySelector('.dk-heading')||dfs.querySelector('.r-dfs-workspace'))return;
  const workspace=make('div','r-dfs-workspace'),left=make('section','r-dfs-source'),middle=make('section','r-dfs-options'),right=make('section','r-dfs-lineup r-surface','<h3>Your lineup <small>DraftKings Classic</small></h3>');
  const heading=dfs.querySelector('.dk-heading');heading.classList.add('r-dfs-intro');
- const matchup=dfs.querySelector('.dk-matchup-import');
+ const matchup=dfs.querySelector('.dk-matchup-import'),history=dfs.querySelector('.dk-history-import');
  const nodes=[...dfs.children];const pool=dfs.querySelector('.dk-pool'),importer=dfs.querySelector('.dk-import'),modes=dfs.querySelector('.dk-modes'),roster=dfs.querySelector('.dk-roster'),budget=dfs.querySelector('.dk-budget'),toolbar=dfs.querySelector('.dk-toolbar');
  if(importer){const guide=importer.querySelector(':scope > p');if(guide){const disclosure=make('details','r-import-guide','<summary>Contest verification · CSV instructions · paste import</summary>'),paste=importer.querySelector(':scope>details');disclosure.append(guide);if(paste)disclosure.append(paste);importer.append(disclosure);importer.querySelector('summary').after(make('p','r-import-brief','Upload the official DraftKings salary CSV for accurate salaries and player pool.'));}left.append(importer);}if(pool){pool.open=matchMedia('(min-width:1000px)').matches;const list=pool.querySelector('#dk-pool-list');if(list)list.before(make('div','r-pool-columns','<b>Player</b><span>Position · Team · Salary · DFS points · Rush/rec TD mean</span>'));left.append(pool);}
  if(matchup)left.append(matchup);
  middle.innerHTML='<h3>Quick build options</h3>';if(modes)middle.append(modes);
- for(const n of nodes){if(n===heading||n===importer||n===matchup||n===pool||n===modes||n===roster||n===budget||n===toolbar)continue;if(n.matches('details.dk-analysis'))middle.append(n);else if(n.matches('p'))middle.append(n);}
+ if(history)middle.append(history);
+ for(const n of nodes){if(n===heading||n===importer||n===matchup||n===history||n===pool||n===modes||n===roster||n===budget||n===toolbar)continue;if(n.matches('details.dk-analysis'))middle.append(n);else if(n.matches('p'))middle.append(n);}
  if(budget)right.append(budget);else right.insertAdjacentHTML('beforeend','<div class="dk-budget r-empty-budget"><strong>$50,000<small>Salary remaining</small></strong><span>0 / 9<small>Roster spots filled</small></span></div>');
  if(roster)right.append(roster);else right.insertAdjacentHTML('beforeend',`<ol class="r-empty-roster">${['QB','RB','RB','WR','WR','WR','TE','FLEX','DST'].map(s=>`<li><b>${s}</b><span>Select a player</span><span aria-hidden="true">＋</span></li>`).join('')}</ol>`);
  if(toolbar)right.append(toolbar);workspace.append(left,middle,right);dfs.append(workspace);

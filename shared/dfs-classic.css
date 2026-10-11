@@ -8,3 +8,6 @@
 .dk-intel>.dk-role-up{color:var(--g-accent);border-color:var(--g-accent)}
 .dk-intel>.dk-role-down{color:#e0a43a;border-color:#e0a43a}
 .dk-range h3{margin:0 0 4px;font-size:16px}
+.dk-history-import select{width:100%;min-height:44px;max-width:100%;padding:8px;border:1px solid var(--g-border);border-radius:6px;background:var(--g-bg);color:var(--g-text)}
+#dfsClassicRoot select:focus-visible{outline:3px solid var(--g-accent);outline-offset:2px}
+body[data-reference-active=true] #dfsClassicRoot .dk-history-import>summary{max-width:100%}

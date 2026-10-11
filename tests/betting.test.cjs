@@ -181,7 +181,7 @@ test('Closing comparison distinguishes a late sample from an earlier observation
 });
 
 test('Two-leg ideas reject same-game and cross-book combinations and price refunds correctly',t=>{
-  const {api:a}=setup(t),r={key:'a',event:'one',book:'A',prob:.6,push:0,dec:2,ev:.2,kickoff:future(),flags:[{id:'gap'}]};
+  const {api:a}=setup(t),r={key:'a',event:'one',book:'A',prob:.6,push:0,odds:100,dec:2,ev:.2,updatedAt:new Date(Date.now()-1000).toISOString(),kickoff:future(),flags:[{id:'gap'}]};
   assert.equal(a.signalBuild([r,{...r,key:'b'}]),null);
   assert.equal(a.signalBuild([r,{...r,key:'b',event:'two',book:'B'}]),null);
   assert.equal(a.signalBuild([{...r,market:'first_td'},{...r,key:'b',event:'two',market:'first_td'}]),null);

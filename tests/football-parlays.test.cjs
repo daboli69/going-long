@@ -1,7 +1,7 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {select}=require('../shared/football-parlays.js');
 const now=Date.parse('2026-09-13T12:00:00Z'),settings={sport:'nfl',now,start:'2026-09-08',last:'2026-09-14'};
-const leg=(id,event=id,book='fanatics')=>({sport:'nfl',kind:'prop',profileId:id,event,book,kickoff:'2026-09-13T17:00:00Z',updatedAt:new Date(now).toISOString(),market:'rec_yds',n:12,prob:.6,dec:2,ev:.2,push:0,flags:[]});
+const leg=(id,event=id,book='fanatics')=>({sport:'nfl',kind:'prop',profileId:id,event,book,kickoff:'2026-09-13T17:00:00Z',updatedAt:new Date(now).toISOString(),market:'rec_yds',n:12,prob:.6,odds:100,dec:2,ev:.2,push:0,flags:[]});
 test('Different-game best parlay uses a single book and actual per-leg prices',()=>{
  const result=select([leg('a'),leg('b'),{...leg('c'),prob:.5}],settings).parlay;
  assert.equal(result.probability,.36);assert.equal(result.decimal,4);
@@ -46,7 +46,7 @@ test('Game selections constrain both builders and clearing games returns no sugg
 test('Profit boost applies to winnings only and can turn a negative ticket positive',()=>{
  const {profitBoost}=require('../shared/football-parlays.js');
  const b=profitBoost(.3,3,50,10);assert.equal(b.boostedDecimal,4);assert.ok(Math.abs(b.returnPerDollar-.2)<1e-10);assert.equal(b.profitIfWin,30);assert.ok(Math.abs(b.breakEvenBoost-16.6666666667)<1e-6);
- const pool=[{...leg('a'),prob:.5,dec:1.9,ev:-.05},{...leg('b'),prob:.5,dec:1.9,ev:-.05}];
+ const pool=[{...leg('a'),prob:.5,odds:-100/.9,dec:1.9,ev:-.05},{...leg('b'),prob:.5,odds:-100/.9,dec:1.9,ev:-.05}];
  assert.equal(select(pool,settings).parlay,null);assert.ok(select(pool,{...settings,boostPercent:50}).parlay.boost.returnPerDollar>0);
  assert.throws(()=>profitBoost(.5,2,-1),/boost/);
 });
@@ -203,4 +203,61 @@ test('Parlay relations follow football logic: Under+Under fits, Under total fits
  assert.equal(I.legRelations([under,td])[0].kind,'conflict');assert.equal(I.legRelations([{...under,side:'Over'},td])[0].kind,'complement');
  assert.equal(I.legRelations([td,{...td,market:'rush_tds'}])[0].kind,'same-thesis');
  const smallFav={event:'e',home:'NO',away:'MIN',kind:'game',market:'moneyline',side:'Away',dec:1.8};assert.deepEqual(I.legRelations([smallFav,rb]),[]);// a small favourite says nothing about script
+});
+
+
+test('Extreme short favorites cannot enter builds, same-game ideas, alternatives, edits or restored drafts',()=>{
+ const a=quote('a','one'),b=quote('b','two'),extreme={...quote('extreme','three'),odds:-40000,dec:1.0025,prob:.999,ev:.0015};
+ const pool=[a,b,extreme],built=select(pool,settings);
+ assert.deepEqual(built.parlay.legs.map(r=>r.profileId),['a','b']);
+ assert.equal(built.diagnostics.shortPrices,1);assert.equal(built.diagnostics.minLegAmerican,-500);
+ assert.equal(select([a,extreme],settings).parlay,null);
+ assert.equal(select([a,{...extreme,event:'one'}],settings).sgp,null);
+ assert.equal(manage([a],pool,settings,{type:'add',row:extreme}).ok,false);
+ assert.equal(manage([a,b],pool,settings,{type:'swap',index:1,row:extreme}).ok,false);
+ assert.equal(summarize([a,extreme],pool,settings).valid,false);
+ assert.deepEqual(alternatives([a],pool,settings).map(r=>r.profileId),['b']);
+ const boundary={...quote('boundary'),odds:-500,dec:1.2,prob:.84,ev:.008};
+ assert.ok(select([a,boundary],settings).parlay);
+ assert.equal(select([a,{...boundary,odds:-501,dec:1+100/501}],settings).parlay,null);
+});
+
+test('Automatic builds share exact price, malformed metadata and unresolved availability gates with edits',()=>{
+ const a=quote('a'),b=quote('b');
+ for(const change of [{odds:undefined},{odds:0},{odds:100,dec:3},{canonicalContract:{}},{injury:{stale:true}},{injury:{blockRecommendation:true}},{availability:{eligible:false}},{flags:{id:'check'}}]){
+  const bad={...b,...change};assert.equal(select([a,bad],settings).parlay,null,JSON.stringify(change));
+  assert.equal(select([{...a,event:'same'},{...bad,event:'same'}],settings).sgp,null,JSON.stringify(change));
+ }
+ const empty=select([],settings);assert.equal(empty.diagnostics.eligible,0);assert.match(empty.diagnostics.reason,/No supported current quotes/);
+ assert.throws(()=>select([a,b],{...settings,start:'invalid'}),/valid football sport/);
+});
+
+test('Supporting football/price evidence ranks ahead of raw modeled chance without boosting probabilities',()=>{
+ const high={...quote('high','one'),prob:.8},a=quote('a','two'),b=quote('b','three');
+ a.flags=[{id:'pressure',family:'matchup',why:'Observed current pressure matchup.'}];
+ b.parlayEvidence={supported:true,reasons:['Current-season team totals support this direction.']};
+ const result=select([high,a,b],settings).parlay;
+ assert.deepEqual(result.legs.map(r=>r.profileId),['a','b']);assert.equal(result.evidenceLegs,2);
+ assert.equal(result.probability,.36);assert.equal(result.decimal,4);
+ assert.deepEqual(alternatives([a],[a,high,b],settings).map(r=>r.profileId),['b','high']);
+ const modelOnly={...high,flags:[{id:'gap',family:'model',why:'Modeled price gap.'}]};
+ assert.equal(select([modelOnly,a,b],settings).parlay.evidenceLegs,2);
+ const sgp=select([high,a,b].map(r=>({...r,event:'same'})),settings).sgp;
+ assert.deepEqual(sgp.legs.map(r=>r.profileId),['a','b']);assert.equal(sgp.probability,null);
+});
+
+
+test('Small randomized evidence-first searches match exhaustive different-game enumeration',()=>{
+ let seed=20261011;const random=()=>((seed=Math.imul(seed,1664525)+1013904223>>>0)/4294967296);
+ for(let trial=0;trial<40;trial++){
+  const pool=Array.from({length:12},(_,i)=>{const prob=.51+random()*.11;return {...quote('p'+i,'g'+Math.floor(i/2)),prob,ev:prob*2-1,flags:random()<.5?[{id:'pace',family:'role',why:'Observed current pace.'}]:[]};});
+  let expected=null;
+  for(let i=0;i<pool.length;i++)for(let j=i+1;j<pool.length;j++)for(let k=j+1;k<pool.length;k++){
+   const legs=[pool[i],pool[j],pool[k]];if(new Set(legs.map(r=>r.event)).size!==3)continue;
+   const support=legs.filter(r=>r.flags.length).length,probability=legs.reduce((p,r)=>p*r.prob,1);
+   if(!expected||support>expected.support||support===expected.support&&probability>expected.probability)expected={support,probability};
+  }
+  const actual=select(pool,{...settings,legs:3,minOdds:600,maxOdds:800}).parlay;
+  assert.equal(actual.evidenceLegs,expected.support);assert.ok(Math.abs(actual.probability-expected.probability)<1e-12);
+ }
 });

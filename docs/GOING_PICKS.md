@@ -108,3 +108,18 @@ Adversarial football review of the Oct 11 board (550 positive cards) found that 
 
 Display-only (no points, no cohort effect): role trend and scoring role from the public builds, the same-thesis grouping on the Today board, the stale-price age pill.
 Tracker: new group `going_picks_v3`; receipts validate by their own version (`evidenceTier(points, components, market, version)`).
+
+
+## October 11 display correction (frozen policy preserved)
+
+The 1/100 floor is an arithmetic evidence-band floor, not a 1% win chance. Anytime TD has no comparable directional projection-gap grade: even its +1 observed TD-role component remains in tier 1. Game cases with no graded model direction can similarly land at the floor from neutral or small forecast gaps plus descriptive scoring context. These are not reasons to multiply probabilities or manufacture confidence.
+
+`ratingPresentation()` now displays **TD role research** for anytime TD, and **Current-season forecast lean** / **No model lean** for game cases without a graded model-direction component. Explicitly market-anchored game forecasts also use descriptive labels, including **Market baseline** where scoring context does not support the selected direction; market-favorite moneyline probability is not independent model confidence. An unanchored qualifying directional model case retains its numeric football-case rating. View research keeps model chance, exact evidence, uncertainties and the no-established-market-advantage disclosure separate. The preserved `assess()` values, sorting, policy version and frozen journal inputs do not change; this is a presentation contract, not a model promotion.
+
+Verification: 19 focused football-picks tests include immutable score/probability assertions, ATD 1/100-floor regression, neutral spread context versus missing context, and a graded directional spread retaining its numeric rating. The public-data offline reconstruction at 2026-10-11T19:55Z had game totals available; missing rendered totals must be traced through generation/published quotes, freshness and selected-game discovery rather than attributed to a universal unsupported market.
+
+
+The all-market display page now seeds the first available positive spread and total before the remaining original-ranked cases. This bounded discovery mix uses only existing eligible board rows and preserves their underlying ratings and frozen ranks. Market-specific filters retain the ordinary ranking; Show more expands the visible page without inventing cases. This solves hidden totals when the initial six-card page was occupied by moneyline favorites.
+
+
+Current-game research now exposes the existing current-season symmetric scoring estimator directly: home points = (home PF/game + away PA/game)/2, away points = (away PF/game + home PA/game)/2. Their sum and difference give an interpretable total and home-margin lean versus the exact selected contract, alongside both team sample counts. These are transparent descriptive forecasting estimates with unmodeled schedule strength/lineup changes, not a new calibrated probability, accuracy claim or production model promotion; preserved signed evidence points do not change.
