@@ -11,10 +11,12 @@ test('malformed extreme feed prices cannot produce infinite or unserializable sl
  assert.equal(run([leg('A',Number.MAX_VALUE),leg('B',Number.MAX_VALUE),leg('C',Number.MAX_VALUE)]).options.length,0);
  assert.equal(run([leg('A',1e308),leg('B',100),leg('C',100)]).options.length,0);
 });
-test('offer controls cannot weaken the +2000 floor or show more than five alternatives',()=>{
+test('offer controls cannot weaken the +2000 floor; alternatives default to five and cap at fifty',()=>{
  for(const floor of [100,1999,-200])assert.throws(()=>F.validateTerms({minCombinedAmerican:floor}),/2000 or longer/);
  assert.equal(F.validateTerms({minCombinedAmerican:2500}).minCombinedAmerican,2500);
- assert.equal(run(Array.from({length:8},(_,i)=>leg(String(i))),{optionCount:20}).options.length,5);
+ assert.equal(run(Array.from({length:8},(_,i)=>leg(String(i)))).options.length,5);
+ assert.equal(run(Array.from({length:8},(_,i)=>leg(String(i))),{optionCount:20}).options.length,20);
+ assert.equal(run(Array.from({length:12},(_,i)=>leg(String(i))),{optionCount:500}).options.length,50);
 });
 
 test('American to decimal and back are exact',()=>{
@@ -108,7 +110,8 @@ test('terms are validated; individual-leg minimum and excluded players are honou
  assert.throws(()=>F.validateTerms({quoteMaxAgeMinutes:0}),/age limits/);
  const r=run([leg('A',200),leg('B',300),leg('C',400)],{minimumLegAmerican:250});assert.equal(r.options.length,0);assert.equal(r.excluded['Below individual-leg minimum'],1);
  const x=run([leg('A'),leg('B'),leg('C')],{},{excludedPlayers:['A']});assert.equal(x.options.length,0);assert.equal(x.excluded['Excluded by you'],1);
- assert.equal(F.validateTerms({optionCount:99}).optionCount,5);
+ assert.equal(F.validateTerms({optionCount:99}).optionCount,50);assert.equal(F.validateTerms({}).optionCount,5);
+ assert.throws(()=>F.validateTerms({maxPlayerAppearances:0}),/repeat limit/);
 });
 test('combined odds shown are the product of the three prices, with the combined American derived from it',()=>{
  const r=run([leg('A',250),leg('B',300),leg('C',400)]);const o=r.options[0];
@@ -177,4 +180,51 @@ test('a below-floor price never qualifies inside an epsilon and caps are explici
  assert.equal(run([a,b,c]).options.length,0);
  assert.equal(F.DEFAULT_TERMS.maxLegProbability,null);
  assert.equal(run([leg('A',300,.9),leg('B'),leg('C')]).options.length,1);
+});
+
+// Independent reference: enumerate every valid slip, rank, then apply locks and the repeat cap greedily.
+function reference(legs,{count=5,cap=null,locks=[],exclude=[]}={}){
+ const ok=legs.filter(l=>!exclude.includes(l.playerId)||locks.includes(l.playerId)),all=[];
+ for(let i=0;i<ok.length;i++)for(let j=i+1;j<ok.length;j++)for(let k=j+1;k<ok.length;k++){
+  const t=[ok[i],ok[j],ok[k]];if(new Set(t.map(l=>l.event)).size<3)continue;if(!locks.every(id=>t.some(l=>l.playerId===id)))continue;
+  const d=t.reduce((a,l)=>a*F.decimal(l.price.american),1);if(d<21-1e-9)continue;
+  all.push({key:t.map(l=>l.playerId).sort().join('~'),p:t.reduce((a,l)=>a*l.probability,1),d});
+ }
+ all.sort((a,b)=>b.p-a.p||a.d-b.d||(a.key<b.key?-1:1));
+ const seen={},out=[];for(const o of all){const ids=o.key.split('~');if(cap!=null&&ids.some(id=>!locks.includes(id)&&(seen[id]||0)>=cap))continue;out.push(o.key);ids.forEach(id=>seen[id]=(seen[id]||0)+1);if(out.length===count)break;}
+ return out;
+}
+test('locked players build slips around them; at most three locks from different, usable games',()=>{
+ const legs=[leg('A',300,.6),leg('B',300,.5),leg('C',300,.45),leg('D',300,.44),leg('E',300,.43),leg('F',300,.42)];
+ const one=run(legs,{optionCount:10},{lockedPlayers:['E']});
+ assert.equal(one.options.length,10);assert.ok(one.options.every(o=>o.legs.some(l=>l.playerId==='E')));assert.deepEqual(one.locked,['E']);
+ const two=run(legs,{optionCount:10},{lockedPlayers:['E','F']});assert.equal(two.options.length,4);assert.ok(two.options.every(o=>['E','F'].every(id=>o.legs.some(l=>l.playerId===id))));
+ const three=run(legs,{},{lockedPlayers:['D','E','F']});assert.deepEqual(three.options.map(o=>o.key),['D~E~F']);
+ assert.match(run(legs,{},{lockedPlayers:['A','B','C','D']}).reasons.join(' '),/at most 3/);
+ assert.match(run(legs,{},{lockedPlayers:['ZZ']}).reasons.join(' '),/not currently usable/);
+ assert.equal(run(legs,{},{lockedPlayers:['ZZ']}).options.length,0);
+ const same=[leg('A',300,.6,'x'),leg('B',300,.5,'x'),leg('C',300,.4),leg('D',300,.3)];
+ assert.match(run(same,{},{lockedPlayers:['A','B']}).reasons.join(' '),/different games/);
+ const lockedButExcluded=run(legs,{},{lockedPlayers:['A'],excludedPlayers:['A','B']});assert.ok(lockedButExcluded.options.every(o=>o.legs.some(l=>l.playerId==='A')&&!o.legs.some(l=>l.playerId==='B')));
+ const pool=run(legs,{},{lockedPlayers:['A'],excludedPlayers:['B']}).pool;assert.equal(pool.length,6);assert.equal(pool.find(p=>p.playerId==='A').locked,true);assert.equal(pool.find(p=>p.playerId==='B').excluded,true);
+});
+test('repeat limit caps every non-locked player and keeps the best slips that fit',()=>{
+ const legs=[leg('A',300,.7),leg('B',300,.6),leg('C',300,.5),leg('D',300,.4),leg('E',300,.35),leg('F',300,.3),leg('G',300,.25),leg('H',300,.2)];
+ for(const cap of [1,2,3]){const r=run(legs,{optionCount:20,maxPlayerAppearances:cap});assert.ok(Object.values(r.exposure).every(v=>v<=cap),String(cap));assert.deepEqual(r.options.map(o=>o.key),reference(legs,{count:20,cap}));}
+ const locked=run(legs,{optionCount:6,maxPlayerAppearances:1},{lockedPlayers:['H']});
+ assert.equal(locked.exposure.H,locked.options.length);assert.ok(Object.entries(locked.exposure).every(([id,v])=>id==='H'||v<=1));
+ assert.match(run(legs,{optionCount:20,maxPlayerAppearances:1}).reasons.join(' '),/no player more than 1 time/);
+});
+test('engine matches the independent reference on random pools with locks, exclusions, counts and caps',()=>{
+ let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+ for(let t=0;t<300;t++){
+  const n=4+Math.floor(rnd()*14),legs=[];
+  for(let i=0;i<n;i++)legs.push(leg('P'+i,[150,200,250,300,400,600,900,-120][Math.floor(rnd()*8)],Math.round(rnd()*900+50)/1000,'g'+Math.floor(rnd()*6)));
+  const ids=legs.map(l=>l.playerId),pickId=()=>ids[Math.floor(rnd()*ids.length)];
+  const count=[1,5,10,25][Math.floor(rnd()*4)],cap=[null,1,2,3][Math.floor(rnd()*4)];
+  const locks=rnd()<.5?[]:[...new Set(Array.from({length:1+Math.floor(rnd()*2)},pickId))],exclude=rnd()<.3?[pickId()]:[];
+  const r=run(legs,{optionCount:count,maxPlayerAppearances:cap},{lockedPlayers:locks,excludedPlayers:exclude});
+  if(r.lockError){assert.equal(r.options.length,0);continue;}
+  assert.deepEqual(r.options.map(o=>o.key),reference(legs,{count,cap,locks,exclude}),JSON.stringify({t,count,cap,locks,exclude}));
+ }
 });

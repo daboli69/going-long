@@ -11,6 +11,7 @@
 (function(root){
 'use strict';
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
+const MAX_OPTIONS=50,MAX_LOCKS=3,FULL_SEARCH=2000;
 const DEFAULT_TERMS={legs:3,minStake:5,minCombinedAmerican:2000,market:'atd',differentGames:true,quoteMaxAgeMinutes:15,manualMaxAgeMinutes:120,optionCount:5,diversify:false,maxPlayerAppearances:null,minimumLegAmerican:null,maxLegProbability:null,maxPoolLegs:600};
 const decimal=a=>finite(a)&&Math.abs(a)>=100?(a>0?1+a/100:1+100/-a):null;
 const american=d=>!finite(d)||d<=1?null:d>=2?(d-1)*100:-100/(d-1);
@@ -60,7 +61,8 @@ function validateTerms(t){
  if(!finite(terms.quoteMaxAgeMinutes)||!finite(terms.manualMaxAgeMinutes)||!(terms.quoteMaxAgeMinutes>0)||!(terms.manualMaxAgeMinutes>0))throw Error('Price age limits must be finite and positive.');
  if(terms.maxLegProbability!=null&&(!finite(terms.maxLegProbability)||terms.maxLegProbability<=0||terms.maxLegProbability>=1))throw Error('Probability cap must be between zero and one.');
  if(!finite(terms.optionCount)||!finite(terms.maxPoolLegs)||terms.maxPoolLegs<3)throw Error('Pool and option counts must be finite.');
- terms.optionCount=Math.max(1,Math.min(5,Math.trunc(terms.optionCount)));
+ terms.optionCount=Math.max(1,Math.min(MAX_OPTIONS,Math.trunc(terms.optionCount)));
+ if(terms.maxPlayerAppearances!=null){if(!finite(terms.maxPlayerAppearances)||terms.maxPlayerAppearances<1)throw Error('Player repeat limit must be at least one.');terms.maxPlayerAppearances=Math.trunc(terms.maxPlayerAppearances);}
  return terms;
 }
 
@@ -102,50 +104,91 @@ function select(input,settings={}){
   if(byPlayer.has(key)&&old===null){reject('Conflicting player game identity');continue;}
   if(!old||timestamp(leg.price.updatedAt)>timestamp(old.price.updatedAt))byPlayer.set(key,{...leg,event:gameIdentity(leg),slateDate:slateDay(timestamp(leg.kickoff)),decimal:decimal(leg.price.american)});
  }
- // Players excluded by the caller (e.g. user removed a player).
- const drop=new Set(settings.excludedPlayers||[]);let legs=[...byPlayer.values()].filter(Boolean).filter(l=>{if(drop.has(l.playerId)){reject('Excluded by you');return false;}return true;}).sort((a,b)=>b.probability-a.probability||a.playerId.localeCompare(b.playerId));
- let truncated=0;if(legs.length>terms.maxPoolLegs){truncated=legs.length-terms.maxPoolLegs;legs=legs.slice(0,terms.maxPoolLegs);}
- const n=legs.length,games=new Set(legs.map(l=>l.event)).size;
- const wanted=terms.diversify?Math.max(terms.optionCount*40,200):terms.optionCount;
- const top=[];let examined=0;
- const kth=()=>top.length>=wanted?top[top.length-1].probability:-1;
- const consider=(i,j,k)=>{
-  const a=legs[i],b=legs[j],c=legs[k];
+ const order=(a,b)=>b.probability-a.probability||a.playerId.localeCompare(b.playerId);
+ const usable=[...byPlayer.values()].filter(Boolean).sort(order);
+ // Players the caller excluded or locked. A locked player is never excluded.
+ const locked=[...new Set((settings.lockedPlayers||[]).filter(id=>typeof id==='string'&&id))],lockSet=new Set(locked);
+ const drop=new Set((settings.excludedPlayers||[]).filter(id=>!lockSet.has(id)));
+ let legs=usable.filter(l=>{if(drop.has(l.playerId)){reject('Excluded by you');return false;}return true;});
+ let truncated=0;
+ if(legs.length>terms.maxPoolLegs){const keep=legs.slice(0,terms.maxPoolLegs);for(const l of legs.slice(terms.maxPoolLegs))if(lockSet.has(l.playerId))keep.push(l);truncated=legs.length-keep.length;legs=keep.sort(order);}
+ const n=legs.length,games=new Set(legs.map(l=>l.event)).size,P=legs.map(l=>l.probability);
+ const reasons=[],index=new Map(legs.map((l,i)=>[l.playerId,i]));
+ const missingLocks=locked.filter(id=>!index.has(id)),must=locked.filter(id=>index.has(id)).map(id=>index.get(id)).sort((a,b)=>a-b);
+ let lockError=null;
+ if(locked.length>MAX_LOCKS)lockError=`Lock at most ${MAX_LOCKS} players.`;
+ else if(missingLocks.length)lockError=`${missingLocks.length} locked player${missingLocks.length===1?' is':'s are'} not currently usable (no fresh Fanatics price, no model estimate or availability not confirmed).`;
+ else if(new Set(must.map(i=>legs[i].event)).size<must.length)lockError='Locked players must come from different games.';
+ else if(new Set(must.map(i=>legs[i].slateDate)).size>1)lockError='Locked players must play on the same slate day.';
+ let examined=0;
+ const consider=(ids,list,limit)=>{
+  const [i,j,k]=[...ids].sort((x,y)=>x-y),a=legs[i],b=legs[j],c=legs[k];
   if(a.event===b.event||a.event===c.event||b.event===c.event)return;
   if(a.slateDate!==b.slateDate||a.slateDate!==c.slateDate)return;
   examined++;
-  const dec=a.decimal*b.decimal*c.decimal;
-  const payout=american(dec);
+  const dec=a.decimal*b.decimal*c.decimal,payout=american(dec);
   if(!finite(dec)||!finite(payout)||!meetsFloor([a.price.american,b.price.american,c.price.american],terms.minCombinedAmerican,dec))return;
   const option={key:[a,b,c].map(l=>l.playerId).sort().join('~'),legs:[a,b,c],decimal:dec,american:payout,probability:a.probability*b.probability*c.probability};
-  if(top.length>=wanted&&!better(option,top[top.length-1]))return;
-  let p=top.length;while(p>0&&better(option,top[p-1]))p--;top.splice(p,0,option);if(top.length>wanted)top.pop();
+  if(limit==null){list.push(option);return;}
+  if(list.length>=limit&&!better(option,list[list.length-1]))return;
+  let lo=0,hi=list.length;while(lo<hi){const mid=(lo+hi)>>1;if(better(option,list[mid]))hi=mid;else lo=mid+1;}
+  list.splice(lo,0,option);if(list.length>limit)list.pop();
  };
- // Branch and bound on probability: legs are sorted descending, so for fixed (i,j) no later leg can beat p_i*p_j*p_(j+1).
- for(let i=0;i<n-2;i++){
-  if(top.length>=wanted&&legs[i].probability*legs[i+1].probability*legs[i+2].probability<kth())break;
-  for(let j=i+1;j<n-1;j++){
-   if(top.length>=wanted&&legs[i].probability*legs[j].probability*legs[j+1].probability<kth())break;
-   for(let k=j+1;k<n;k++){
-    if(top.length>=wanted&&legs[i].probability*legs[j].probability*legs[k].probability<kth())break;
-    consider(i,j,k);
+ // Best slips containing every locked leg (limit null: every valid slip). Free legs are in descending
+ // probability, so the optimistic completion from position s only falls as s grows (branch and bound).
+ const rank=limit=>{
+  const list=[],mustEvents=new Set(must.map(i=>legs[i].event)),free=[];
+  for(let i=0;i<n;i++)if(!must.includes(i)&&!mustEvents.has(legs[i].event))free.push(i);
+  const fixed=must.reduce((p,i)=>p*P[i],1);
+  const kth=()=>limit!=null&&list.length>=limit?list[list.length-1].probability*(1-1e-12):-1;
+  const walk=(start,chosen,product,remaining)=>{
+   if(remaining===0){consider([...must,...chosen],list,limit);return;}
+   for(let s=start;s<=free.length-remaining;s++){
+    let bound=product;for(let t=0;t<remaining;t++)bound*=P[free[s+t]];
+    if(bound<kth())break;
+    walk(s+1,[...chosen,free[s]],product*P[free[s]],remaining-1);
    }
+  };
+  walk(0,[],fixed,3-must.length);
+  if(limit==null)list.sort((x,y)=>better(x,y)?-1:better(y,x)?1:0);
+  return list;
+ };
+ // Repeat limit: walk the ranked slips best-first and skip any that would push a non-locked player past the cap.
+ const cap=terms.maxPlayerAppearances??(terms.diversify?Math.max(1,Math.ceil(terms.optionCount*.6)):null);
+ const pick=ranked=>{
+  if(cap==null)return ranked.slice(0,terms.optionCount);
+  const seen=new Map(),picked=[];
+  for(const o of ranked){
+   if(o.legs.some(l=>!lockSet.has(l.playerId)&&(seen.get(l.playerId)||0)>=cap))continue;
+   picked.push(o);for(const l of o.legs)seen.set(l.playerId,(seen.get(l.playerId)||0)+1);
+   if(picked.length===terms.optionCount)break;
+  }
+  return picked;
+ };
+ let options=[];
+ if(!lockError&&n>=3){
+  // Deepen the ranked list until the request is filled or every valid slip has been seen.
+  let limit=cap==null?terms.optionCount:Math.max(terms.optionCount*20,200);
+  for(;;){
+   const ranked=rank(limit>FULL_SEARCH?null:limit);options=pick(ranked);
+   if(cap==null||options.length>=terms.optionCount||limit>FULL_SEARCH||ranked.length<limit)break;
+   limit*=4;
   }
  }
- let options=top;
- if(terms.diversify){
-  const cap=terms.maxPlayerAppearances??Math.max(1,Math.ceil(terms.optionCount*.6)),exposure=new Map(),picked=[];
-  for(const o of top){if(o.legs.some(l=>(exposure.get(l.playerId)||0)>=cap))continue;picked.push(o);for(const l of o.legs)exposure.set(l.playerId,(exposure.get(l.playerId)||0)+1);if(picked.length===terms.optionCount)break;}
-  options=picked;
- }else options=top.slice(0,terms.optionCount);
  const exposure={};for(const o of options)for(const l of o.legs)exposure[l.playerId]=(exposure[l.playerId]||0)+1;
- const reasons=[];
+ if(lockError)reasons.push(lockError);
  if(!n)reasons.push('No leg has a usable Fanatics price, a model estimate and confirmed availability.');
  else if(n<3)reasons.push(`Only ${n} eligible player${n===1?'':'s'}; three are needed.`);
  else if(games<3)reasons.push(`Eligible players come from ${games} game${games===1?'':'s'}; three different games are needed.`);
- if(n>=3&&games>=3&&options.length<terms.optionCount)reasons.push(`Only ${options.length} distinct slip${options.length===1?'':'s'} reach ${fmtAmerican(terms.minCombinedAmerican)} from three different games; fewer than ${terms.optionCount} are shown rather than padding the list.`);
+ if(!lockError&&n>=3&&games>=3&&options.length<terms.optionCount){
+  const limits=[must.length?'include your locked player'+(must.length===1?'':'s'):'',cap!=null?`use no player more than ${cap} time${cap===1?'':'s'}${must.length?' (locked players excepted)':''}`:''].filter(Boolean).join(' and ');
+  reasons.push(`Only ${options.length} distinct slip${options.length===1?'':'s'} reach ${fmtAmerican(terms.minCombinedAmerican)} from three different games${limits?' and '+limits:''}; fewer than ${terms.optionCount} are shown rather than padding the list.`);
+ }
  if(truncated)reasons.push(`The pool was capped at the ${terms.maxPoolLegs} most likely scorers (${truncated} lower-probability players were not searched).`);
- return {options,eligiblePlayers:n,eligibleGames:games,examinedCombinations:examined,excluded,exposure,terms,reasons,generatedAt:new Date(now).toISOString()};
+ const pool=usable.map(l=>({playerId:l.playerId,player:l.player,team:l.team,opp:l.opp,gameLabel:l.gameLabel,event:l.event,kickoff:l.kickoff,probability:l.probability,
+  price:{american:l.price.american,source:l.price.source,updatedAt:l.price.updatedAt},eligibility:l.eligibility?{label:l.eligibility.label,caution:!!l.eligibility.caution}:null,
+  locked:lockSet.has(l.playerId),excluded:drop.has(l.playerId)}));
+ return {options,eligiblePlayers:n,eligibleGames:games,examinedCombinations:examined,excluded,exposure,terms,reasons,pool,locked:must.map(i=>legs[i].playerId),missingLocks,lockError,cap,generatedAt:new Date(now).toISOString()};
 }
 
 // "Player Name +250" or "Player Name, +250" per line. Names must match exactly one player in the pool; anything else is reported, not guessed.
@@ -171,7 +214,7 @@ function describeTerms(config){
  return {verified:rows.filter(r=>r.status==='verified-secondary'||r.status==='verified'),userSupplied:rows.filter(r=>r.status==='user-supplied'),unverified:rows.filter(r=>r.status==='unverified'||r.status==='conflicting')};
 }
 
-const api={DEFAULT_TERMS,timestamp,timestampMs:timestamp,slateDay,sunday,canonicalTeam,gameIdentity,contract,decimal,american,roundAmerican,fmtAmerican,nameKey,validateTerms,legProblem,select,parseManualPrices,describeTerms};
+const api={DEFAULT_TERMS,MAX_OPTIONS,MAX_LOCKS,timestamp,timestampMs:timestamp,slateDay,sunday,canonicalTeam,gameIdentity,contract,decimal,american,roundAmerican,fmtAmerican,nameKey,validateTerms,legProblem,select,parseManualPrices,describeTerms};
 root.GoingFanaticsTD=api;
 if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis==='undefined'?this:globalThis);

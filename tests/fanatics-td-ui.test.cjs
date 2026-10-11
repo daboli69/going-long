@@ -195,3 +195,68 @@ test('unique authoritative schedule reconciles one-minute bookmaker jitter and b
  for(const kickoff of ['2026-10-11T17:01:00.001Z','2026-10-11T20:25:00Z']){b=UI.buildLegs({...r.ctx,props:[prop('A',{kickoff})]});assert.equal(b.stats.conflicts,1,kickoff);assert.equal(b.legs.length,0);}
  b=UI.buildLegs({...r.ctx,schedule:[...schedule,schedule[0]]});assert.ok(b.stats.conflicts>0,'ambiguous schedule fails closed');
 });
+
+// ---- slip builder: suggestion count, repeat limit, locked and excluded players ----
+const keysOf=host=>[...host.querySelectorAll('.ft-card h3')].map(h=>h.textContent);
+const click=(host,sel)=>{const b=host.querySelector(sel);assert.ok(b,sel);b.click();};
+test('builder lists usable players and controls the number of suggestions up to fifty',()=>{
+ const {w,host,ctx}=ctxFor(fanatics(16));w.GoingFanaticsTDUI.render(host,ctx);
+ assert.equal(host.querySelectorAll('.ft-card').length,5);
+ assert.equal(host.querySelectorAll('.ft-pool .ft-row').length,16);
+ const count=host.querySelector('#ftCount');count.value='20';count.dispatchEvent(new w.Event('change',{bubbles:true}));
+ assert.equal(host.querySelectorAll('.ft-card').length,20);
+ assert.equal(w.GoingFanaticsTDUI.loadBuilder().count,20);
+ assert.match(host.querySelector('details.ft-builder summary').textContent,/20 suggestions/);
+});
+test('locking a player builds every suggestion around them and marks the leg',()=>{
+ const {w,host,ctx}=ctxFor(fanatics(16));w.GoingFanaticsTDUI.render(host,ctx);
+ click(host,'button[data-ft-lock="F9"]');
+ const cards=[...host.querySelectorAll('.ft-card')];assert.equal(cards.length,5);
+ assert.ok(cards.every(c=>c.querySelector('h3').textContent.includes('Player F9')));
+ assert.ok(cards.every(c=>c.querySelector('.ft-leg.is-locked .ft-lock-tag')));
+ assert.match(host.querySelector('.ft-exposure').textContent,/Built around Player F9/);
+ // Another player in F9's game cannot be locked with it; a player from a different game can.
+ assert.ok(host.querySelector('button[data-ft-lock="F13"]').disabled);
+ click(host,'button[data-ft-lock="F10"]');
+ assert.ok([...host.querySelectorAll('.ft-card h3')].every(h=>/Player F9/.test(h.textContent)&&/Player F10/.test(h.textContent)));
+ click(host,'.ft-chip-lock button[data-ft-lock="F9"]');
+ assert.equal(JSON.stringify(w.GoingFanaticsTDUI.loadBuilder().locked.map(x=>x.id)),'["F10"]');
+});
+test('excluded players never appear and the repeat limit caps every unlocked player',()=>{
+ const {w,host,ctx}=ctxFor(fanatics(16).map((p,i)=>({...p,odds:300+i*7})),{probability:p=>.6-Number(p.profileId.slice(1))*.02});
+ w.GoingFanaticsTDUI.render(host,ctx);
+ click(host,'button[data-ft-exclude="F0"]');
+ assert.ok(keysOf(host).every(k=>!/Player F0\b/.test(k)));
+ const cap=host.querySelector('#ftCap');cap.value='1';cap.dispatchEvent(new w.Event('change',{bubbles:true}));
+ const count=host.querySelector('#ftCount');count.value='10';count.dispatchEvent(new w.Event('change',{bubbles:true}));
+ const seen={};for(const k of keysOf(host))for(const name of k.split(' + '))seen[name]=(seen[name]||0)+1;
+ assert.ok(Object.values(seen).every(v=>v<=1),JSON.stringify(seen));
+ assert.match(host.querySelector('.ft-exposure').textContent,/limit 1 per player/);
+ assert.match(host.querySelector('.ft-exposure').textContent+' '+ctx.statusEl.textContent,/no player more than 1 time|no repeated players/);
+ click(host,'button[data-ft-reset]');
+ const b=w.GoingFanaticsTDUI.loadBuilder();assert.deepEqual([b.count,b.cap,b.locked.length,b.excluded.length],[5,null,0,0]);
+});
+test('a locked player who loses a usable price produces no slips and a clear reason',()=>{
+ const props=fanatics(16),{w,host,ctx}=ctxFor(props);w.GoingFanaticsTDUI.render(host,ctx);
+ click(host,'button[data-ft-lock="F3"]');assert.equal(host.querySelectorAll('.ft-card').length,5);
+ ctx.props=props.filter(p=>p.profileId!=='F3');w.GoingFanaticsTDUI._state.force=true;w.GoingFanaticsTDUI.render(host,ctx);
+ assert.equal(host.querySelectorAll('.ft-card').length,0);
+ assert.match(ctx.statusEl.textContent,/locked player is not currently usable/);
+ assert.match(host.querySelector('.ft-chip-lock').textContent,/not usable now/);
+});
+test('pool search filters rows and survives the periodic re-render while focused',()=>{
+ const {w,host,ctx}=ctxFor(fanatics(16));w.GoingFanaticsTDUI.render(host,ctx);
+ const input=host.querySelector('#ftSearch');input.focus();input.value='player f1';input.dispatchEvent(new w.Event('input',{bubbles:true}));
+ const visible=()=>[...host.querySelectorAll('.ft-row')].filter(r=>!r.hidden).length;
+ assert.equal(visible(),7);// F1, F10..F15
+ w.GoingFanaticsTDUI.render(host,ctx);
+ assert.equal(w.document.activeElement,host.querySelector('#ftSearch'));assert.equal(host.querySelector('#ftSearch').value,'player f1');assert.equal(visible(),7);
+});
+test('builder settings in storage are validated and pool rows escape names',()=>{
+ const props=fanatics(8);props[0]={...props[0],player:'<img src=x onerror=alert(1)>'};
+ const {w,host,ctx}=ctxFor(props);
+ w.localStorage.setItem('going.fanatics.builder.v1',JSON.stringify({count:999,cap:-2,locked:[{id:'F1',name:'<b>x</b>'},{id:5},{id:'F2'},{id:'F3'},{id:'F4'}],excluded:'nope'}));
+ const b=w.GoingFanaticsTDUI.loadBuilder();assert.deepEqual([b.count,b.cap,b.locked.length,b.excluded.length],[5,null,3,0]);
+ w.localStorage.removeItem('going.fanatics.builder.v1');w.GoingFanaticsTDUI.render(host,ctx);
+ assert.equal(host.querySelectorAll('.ft-pool img').length,0);assert.match(host.querySelector('.ft-pool').innerHTML,/&lt;img/);
+});

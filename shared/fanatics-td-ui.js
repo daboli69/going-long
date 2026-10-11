@@ -96,9 +96,9 @@ function legWhy(l){
  return parts.join('; ');
 }
 const LEG_STATE={active:'Active',expected:'Expected (roster screen)'};
-function legMarkup(l,now,F_){
+function legMarkup(l,now,F_,locked=false){
  const src=l.price.source==='manual'?`entered by you ${esc(ago(l.price.updatedAt,now))}`:`Fanatics feed ${esc(ago(l.price.updatedAt,now))}`;
- return `<li class="ft-leg"><div class="ft-leg-top"><b>${esc(l.player)}</b> <span>${esc(l.team||'')}${l.opp?' vs '+esc(l.opp):''}</span><span class="ft-odds">${esc(F_.fmtAmerican(l.price.american))}</span></div>
+ return `<li class="ft-leg${locked?' is-locked':''}"><div class="ft-leg-top"><b>${esc(l.player)}</b>${locked?' <span class="ft-lock-tag">Locked by you</span>':''} <span>${esc(l.team||'')}${l.opp?' vs '+esc(l.opp):''}</span><span class="ft-odds">${esc(F_.fmtAmerican(l.price.american))}</span></div>
  <div class="ft-leg-sub">${l.gameLabel?esc(l.gameLabel)+' · ':''}${esc(etTime(l.kickoff))} · price: ${src}</div>
  <div class="ft-leg-sub">${esc(legWhy(l))}</div>
  <div class="ft-leg-sub">Availability: ${esc(LEG_STATE[l.availability]||l.availability)} · ${esc(l.eligibility?.label||'')}${l.eligibility?.caution?' (caution)':''}. Not official game-day clearance.</div></li>`;
@@ -109,7 +109,7 @@ function optionMarkup(o,i,ctx){
  <h3>${o.legs.map(l=>esc(l.player)).join(' + ')}</h3>
  <p class="ft-headline"><b>${pct(o.probability)}</b> model estimate that all three score <small>(assumes the three games are independent; joint estimates are not independently calibrated and may be inaccurate; not a proven hit rate)</small></p>
  <p class="ft-odds-line">Combined price ${esc(F_.fmtAmerican(o.american))} = ${o.decimal.toFixed(2)}x (${o.legs.map(l=>F_.decimal(l.price.american).toFixed(2)).join(' × ')}); the minimum is ${esc(F_.fmtAmerican(ctx.terms.minCombinedAmerican))} (${F_.decimal(ctx.terms.minCombinedAmerican).toFixed(2)}x). Oldest price ${esc(ago(new Date(oldest).toISOString(),now))}${manualUsed?'; includes prices you entered':''}.</p>
- <ol class="ft-legs">${o.legs.map(l=>legMarkup(l,now,F_)).join('')}</ol>
+ <ol class="ft-legs">${o.legs.map(l=>legMarkup(l,now,F_,!!ctx.lockedSet?.has(l.playerId))).join('')}</ol>
  ${o.legs.some(l=>etMinutes(l.kickoff)>13*60)?'<p class="ft-note ft-late">Includes a game that starts after 1:00 PM ET. Whether the promotion accepts legs from later games was not verified.</p>':''}
  <p class="ft-note">Highest chance is not highest value: a likelier slip also pays less. No prize value is assumed and no betting edge has been validated. Confirm every price and the final ticket in the Fanatics app, and place it before 1:00 PM ET Sunday (per Fanatics' blog; not confirmed in official rules).</p></article>`;
 }
@@ -131,55 +131,128 @@ function statusFor(result,legsInfo,ctx){
  return {level:'none',text:`No slip meets the price test. ${reasons.join(' ')} ${ex?'Excluded: '+ex+'.':''}`};
 }
 
+// ---- slip builder settings (browser only): suggestion count, repeat limit, locked and excluded players ----
+const BUILDER_KEY='going.fanatics.builder.v1',COUNTS=[5,10,15,20,25,30,40,50],CAPS=[1,2,3,4,5,6,8,10];
+const ids=list=>(Array.isArray(list)?list:[]).filter(x=>x&&typeof x.id==='string'&&x.id).map(x=>({id:x.id,name:String(x.name||x.id).slice(0,80)}));
+function loadBuilder(){
+ let raw=null;try{raw=JSON.parse(root.localStorage?.getItem(BUILDER_KEY)||'null');}catch{}
+ const b=raw&&typeof raw==='object'?raw:{};
+ return {count:COUNTS.includes(b.count)?b.count:5,cap:CAPS.includes(b.cap)?b.cap:null,locked:ids(b.locked).slice(0,3),excluded:ids(b.excluded),open:b.open!==false};
+}
+function saveBuilder(b){try{root.localStorage?.setItem(BUILDER_KEY,JSON.stringify(b));}catch{}}
+
+function builderMarkup(b,result,F_,now){
+ const lockedIds=new Set(b.locked.map(x=>x.id)),excludedIds=new Set(b.excluded.map(x=>x.id));
+ const lockedGames=new Set(result.pool.filter(p=>lockedIds.has(p.playerId)).map(p=>p.event));
+ const usable=new Set(result.pool.map(p=>p.playerId));
+ const chip=(x,kind)=>`<span class="ft-chip ft-chip-${kind}">${esc(x.name)}${usable.has(x.id)?'':' <small>(not usable now)</small>'} <button type="button" data-ft-${kind==='lock'?'lock':'exclude'}="${esc(x.id)}" data-ft-name="${esc(x.name)}" aria-label="Remove ${esc(x.name)} from ${kind==='lock'?'locked':'excluded'} players">✕</button></span>`;
+ const rows=result.pool.map(p=>{
+  const isLocked=lockedIds.has(p.playerId),isExcluded=excludedIds.has(p.playerId);
+  const lockBlocked=!isLocked&&(lockedIds.size>=3?'Three players are already locked':lockedGames.has(p.event)?'A locked player is already in this game':'');
+  const src=p.price.source==='manual'?'entered by you':'Fanatics feed';
+  return `<div class="ft-row${isLocked?' is-locked':''}${isExcluded?' is-excluded':''}" role="listitem" data-ft-search="${esc([p.player,p.team,p.opp,p.gameLabel].join(' ').toLowerCase())}">
+   <div class="ft-row-who"><b>${esc(p.player)}</b><small>${esc(p.team||'')}${p.gameLabel?' · '+esc(p.gameLabel):''} · ${esc(etTime(p.kickoff))}</small></div>
+   <div class="ft-row-num"><b>${esc(F_.fmtAmerican(p.price.american))}</b><small>${src} ${esc(ago(p.price.updatedAt,now))}</small></div>
+   <div class="ft-row-num"><b>${pct(p.probability)}</b><small>model${p.eligibility?.caution?' · caution':''}</small></div>
+   <div class="ft-row-act"><button type="button" data-ft-lock="${esc(p.playerId)}" data-ft-name="${esc(p.player)}" aria-pressed="${isLocked}"${lockBlocked?` disabled title="${esc(lockBlocked)}"`:''}>${isLocked?'Unlock':'Lock'}</button><button type="button" data-ft-exclude="${esc(p.playerId)}" data-ft-name="${esc(p.player)}" aria-pressed="${isExcluded}"${isLocked?' disabled title="Unlock this player first"':''}>${isExcluded?'Include':'Exclude'}</button></div></div>`;
+ }).join('');
+ const opt=(v,label,cur)=>`<option value="${v??''}"${v===cur?' selected':''}>${label}</option>`;
+ return `<details class="ft-builder"${b.open?' open':''}><summary>Build your slips (${b.count} suggestions · ${b.cap==null?'no repeat limit':'max '+b.cap+' per player'} · ${b.locked.length} locked · ${b.excluded.length} excluded)</summary>
+  <div class="ft-controls"><label>Suggestions <select id="ftCount">${COUNTS.map(c=>opt(c,c,b.count)).join('')}</select></label>
+  <label>Max slips per player <select id="ftCap">${opt(null,'No limit',b.cap)}${CAPS.map(c=>opt(c,c,b.cap)).join('')}</select></label>
+  <button type="button" data-ft-reset>Reset builder</button></div>
+  <p class="bt-note">Lock up to three players from different games and every suggestion is built around them. Exclude players you do not want. Locked players are exempt from the repeat limit. Only players with a usable Fanatics price, a model estimate and confirmed availability are listed.</p>
+  ${b.locked.length?`<div class="ft-chips"><span>Locked:</span>${b.locked.map(x=>chip(x,'lock')).join('')}</div>`:''}
+  ${b.excluded.length?`<div class="ft-chips"><span>Excluded:</span>${b.excluded.map(x=>chip(x,'exclude')).join('')}</div>`:''}
+  <label class="ft-search"><span class="sr-only">Search the player pool</span><input type="search" id="ftSearch" placeholder="Search ${result.pool.length} usable players, teams or games" value="${esc(STATE.search)}" autocomplete="off"></label>
+  <div class="ft-pool" role="list" aria-label="Usable players">${rows||'<p class="ft-note">No player currently has a usable Fanatics price, model estimate and confirmed availability.</p>'}</div></details>`;
+}
+function applySearch(host){
+ const q=STATE.search.trim().toLowerCase();
+ for(const row of host.querySelectorAll('.ft-row'))row.hidden=!!q&&!row.dataset.ftSearch.includes(q);
+}
+
 // ---- DOM ----
-const STATE={manualText:'',open:undefined,force:false,msg:'',lastStatus:null};
+const STATE={manualText:'',open:undefined,force:false,msg:'',lastStatus:null,search:''};
 function render(host,ctx){
  if(!host||!ctx)return;
- // Preserve the focused editor itself while revalidating every visible result.
+ // Keep a focused editor (manual prices, builder search or selects) in place while every result revalidates.
+ const active=root.document?.activeElement,keepSel=['details.ft-manual','details.ft-builder'];
  const old=host.querySelector('#ftManual');
- const preserve=!!(old&&!STATE.force&&root.document?.activeElement===old),oldPanel=old?.closest('details.ft-manual');
- if(old){STATE.manualText=old.value;STATE.open=host.querySelector('details.ft-manual')?.open;
- }
+ if(old){STATE.manualText=old.value;STATE.open=host.querySelector('details.ft-manual')?.open;}
+ const search=host.querySelector('#ftSearch');if(search)STATE.search=search.value;
+ const focusPanel=!STATE.force&&active&&host.contains(active)?keepSel.map(s=>active.closest?.(s)).find(Boolean)||null:null;
+ const focusId=active&&host.contains(active)?active.id:'';
  STATE.force=false;
- const F_=F(),now=ctx.now??Date.now();
- const terms=F_.validateTerms({...(ctx.termsOverride||{})});
+ const F_=F(),now=ctx.now??Date.now(),B=loadBuilder();
+ const terms=F_.validateTerms({...(ctx.termsOverride||{}),optionCount:B.count,maxPlayerAppearances:B.cap});
  let html='';
  try{
   const manual=loadManual(now,terms.manualMaxAgeMinutes),{legs,pool,stats}=buildLegs({...ctx,now},manual);
-  const result=F_.select(legs,{now,terms,slateDate:ctx.slateDate,excludedPlayers:ctx.excludedPlayers||[]});
-  const st=statusFor(result,{stats},ctx),full={...ctx,now,terms};
+  const result=F_.select(legs,{now,terms,slateDate:ctx.slateDate,excludedPlayers:[...(ctx.excludedPlayers||[]),...B.excluded.map(x=>x.id)],lockedPlayers:B.locked.map(x=>x.id)});
+  const st=statusFor(result,{stats},ctx),lockedSet=new Set(result.locked),full={...ctx,now,terms,lockedSet};
   STATE.lastStatus=st;
   if(ctx.statusEl){ctx.statusEl.textContent=st.text;ctx.statusEl.dataset.level=st.level;}
   html+=termsMarkup();
   html+=`<details class="ft-manual" ${(STATE.open!==undefined?STATE.open:st.level==='unavailable')?'open':''}><summary>Enter Fanatics prices you can see (${manual.length} saved, valid ${terms.manualMaxAgeMinutes} min)</summary>
    <p class="bt-note">One player per line, anytime-TD American odds from the Fanatics app, for example <code>Amon-Ra St. Brown +120</code>. Prices stay in this browser only and expire after ${terms.manualMaxAgeMinutes} minutes; they are labelled "entered by you" on every slip.</p>
    <textarea id="ftManual" rows="6" spellcheck="false" aria-label="Fanatics anytime touchdown prices">${esc(STATE.manualText)}</textarea><div class="ft-actions"><button type="button" id="ftApply">Use these prices</button><button type="button" id="ftClear">Clear saved prices</button></div><div id="ftManualMsg" role="status">${esc(STATE.msg)}</div></details>`;
-  if(result.options.length){const names=new Map(result.options.flatMap(o=>o.legs.map(l=>[l.playerId,l.player])));html+=`<p class="ft-note">Shared-player exposure across these ${result.options.length} slips: ${Object.entries(result.exposure).filter(([,n])=>n>1).map(([id,n])=>`${esc(names.get(id))} ${n}/${result.options.length}`).join(' · ')||'no repeated players'}. A shared player failing to score removes every slip containing them. This ranking maximizes each slip separately; it does not optimize the chance that at least one entry wins.</p><div class="ft-list">${result.options.map((o,i)=>optionMarkup(o,i,full)).join('')}</div>`;}
-  else html+=`<p class="gc-empty ft-empty">${esc(st.text)}</p>`;
-  if(preserve&&oldPanel){
-   const next=root.document.createElement('div');next.innerHTML=html;
-   const replacement=next.querySelector('details.ft-manual');
-   oldPanel.querySelector('summary').innerHTML=replacement.querySelector('summary').innerHTML;
-   oldPanel.querySelector('#ftManualMsg').textContent=STATE.msg;
-   for(const child of [...host.childNodes])if(child!==oldPanel)child.remove();
-   for(const child of [...next.childNodes]){if(child===replacement)continue;if(child.classList?.contains('ft-terms'))host.insertBefore(child,oldPanel);else host.appendChild(child);}
-  }else host.innerHTML=html;
-  const area=host.querySelector('#ftManual'),msg=host.querySelector('#ftManualMsg');
+  html+=builderMarkup(B,result,F_,now);
+  if(result.options.length){
+   const names=new Map(result.options.flatMap(o=>o.legs.map(l=>[l.playerId,l.player])));
+   const repeated=Object.entries(result.exposure).filter(([id,n])=>n>1&&!lockedSet.has(id)).map(([id,n])=>`${esc(names.get(id))} ${n}/${result.options.length}`).join(' · ')||'no repeated players';
+   html+=`<p class="ft-note ft-exposure">${result.locked.length?`Built around ${result.locked.map(id=>esc(names.get(id))).join(' + ')} (locked, in every slip). `:''}Shared-player exposure across these ${result.options.length} slips: ${repeated}${result.cap!=null?` (limit ${result.cap} per player)`:''}. A shared player failing to score removes every slip containing them. This ranking maximizes each slip separately; it does not optimize the chance that at least one entry wins.</p><div class="ft-list">${result.options.map((o,i)=>optionMarkup(o,i,full)).join('')}</div>`;
+  }else html+=`<p class="gc-empty ft-empty">${esc(st.text)}</p>`;
+  const next=root.document.createElement('div');next.innerHTML=html;
+  const keep=focusPanel&&host.contains(focusPanel)?focusPanel:null;
+  if(keep){
+   const sel=keepSel.find(s=>keep.matches(s)),replacement=next.querySelector(sel);
+   keep.querySelector('summary').innerHTML=replacement.querySelector('summary').innerHTML;
+   if(sel==='details.ft-manual')keep.querySelector('#ftManualMsg').textContent=STATE.msg;
+   const nodes=[...next.childNodes].map(n=>n===replacement?keep:n),at=nodes.indexOf(keep);
+   for(const child of [...host.childNodes])if(child!==keep)child.remove();
+   nodes.forEach((n,i)=>{if(n===keep)return;if(i<at)host.insertBefore(n,keep);else host.appendChild(n);});
+  }else{
+   host.replaceChildren(...next.childNodes);
+   if(focusId)host.querySelector('#'+focusId)?.focus({preventScroll:true});
+  }
+  applySearch(host);
+  const area=host.querySelector('#ftManual');
+  const rerender=()=>{STATE.force=true;if(ctx.onChange)ctx.onChange();else render(host,{...ctx,now:Date.now()});};
   host.querySelector('#ftApply').onclick=()=>{
    STATE.manualText=area.value;STATE.open=true;const parsed=F_.parseManualPrices(area.value,pool,Date.now());
-   const keep=loadManual(Date.now(),terms.manualMaxAgeMinutes).filter(m=>!parsed.entries.some(e=>e.playerId===m.playerId));
-   saveManual([...keep,...parsed.entries]);
-   STATE.msg=`${parsed.entries.length} price${parsed.entries.length===1?'':'s'} used.${parsed.errors.length?' Problems: '+parsed.errors.join(' '):''}`;STATE.force=true;
-   if(ctx.onChange)ctx.onChange();else render(host,{...ctx,now:Date.now()});
+   const keepManual=loadManual(Date.now(),terms.manualMaxAgeMinutes).filter(m=>!parsed.entries.some(e=>e.playerId===m.playerId));
+   saveManual([...keepManual,...parsed.entries]);
+   STATE.msg=`${parsed.entries.length} price${parsed.entries.length===1?'':'s'} used.${parsed.errors.length?' Problems: '+parsed.errors.join(' '):''}`;
+   rerender();
   };
-  host.querySelector('#ftClear').onclick=()=>{STATE.manualText='';STATE.msg='';STATE.open=true;STATE.force=true;saveManual([]);if(ctx.onChange)ctx.onChange();else render(host,{...ctx,now:Date.now()});};
+  host.querySelector('#ftClear').onclick=()=>{STATE.manualText='';STATE.msg='';STATE.open=true;saveManual([]);rerender();};
+  host.onclick=e=>{
+   const btn=e.target.closest?.('button[data-ft-lock],button[data-ft-exclude],button[data-ft-reset]');if(!btn||btn.disabled)return;
+   const b=loadBuilder(),id=btn.dataset.ftLock||btn.dataset.ftExclude,name=btn.dataset.ftName||id;
+   if(btn.hasAttribute('data-ft-reset')){saveBuilder({count:5,cap:null,locked:[],excluded:[],open:true});STATE.search='';rerender();return;}
+   const list=btn.hasAttribute('data-ft-lock')?'locked':'excluded',other=list==='locked'?'excluded':'locked';
+   if(b[list].some(x=>x.id===id))b[list]=b[list].filter(x=>x.id!==id);
+   else{if(list==='locked'&&b.locked.length>=3)return;b[list].push({id,name});b[other]=b[other].filter(x=>x.id!==id);}
+   b.open=true;saveBuilder(b);rerender();
+  };
+  host.onchange=e=>{
+   if(e.target.id!=='ftCount'&&e.target.id!=='ftCap')return;
+   const b=loadBuilder(),v=e.target.value===''?null:Number(e.target.value);
+   if(e.target.id==='ftCount')b.count=COUNTS.includes(v)?v:5;else b.cap=CAPS.includes(v)?v:null;
+   b.open=true;saveBuilder(b);rerender();
+  };
+  host.oninput=e=>{if(e.target.id==='ftSearch'){STATE.search=e.target.value;applySearch(host);}};
+  host.ontoggle=null;const builder=host.querySelector('details.ft-builder');
+  if(builder)builder.ontoggle=()=>{const b=loadBuilder();if(b.open!==builder.open){b.open=builder.open;saveBuilder(b);}};
  }catch(e){
   if(ctx.statusEl){ctx.statusEl.textContent='Fanatics slips unavailable: '+e.message+' Nothing is shown rather than guessing.';ctx.statusEl.dataset.level='error';}
-  if(preserve&&oldPanel){for(const child of [...host.childNodes])if(child!==oldPanel)child.remove();const warning=root.document.createElement('p');warning.className='gc-empty ft-empty';warning.textContent='Fanatics slips unavailable: '+e.message;host.appendChild(warning);}
+  const keep=focusPanel&&host.contains(focusPanel)?focusPanel:null;
+  if(keep){for(const child of [...host.childNodes])if(child!==keep)child.remove();const warning=root.document.createElement('p');warning.className='gc-empty ft-empty';warning.textContent='Fanatics slips unavailable: '+e.message;host.appendChild(warning);}
   else host.innerHTML=`<p class="gc-empty ft-empty">Fanatics slips unavailable: ${esc(e.message)}</p>`;
  }
 }
-const api={buildLegs,rosterAvailability,optionMarkup,termsMarkup,statusFor,render,legWhy,loadManual,saveManual,_state:STATE};
+const api={buildLegs,rosterAvailability,optionMarkup,termsMarkup,statusFor,render,legWhy,loadManual,saveManual,loadBuilder,saveBuilder,_state:STATE};
 root.GoingFanaticsTDUI=api;
 if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis==='undefined'?this:globalThis);

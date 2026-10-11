@@ -3,6 +3,16 @@
 .ft-legs{list-style:none;margin:8px 0;padding:0;display:grid;gap:8px}.ft-leg{border:1px solid var(--g-border,#294a58);border-radius:8px;padding:8px}
 .ft-leg-top{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.ft-leg-top .ft-odds{margin-left:auto;font-weight:700}.ft-leg-sub{font-size:12px;color:var(--g-muted,#8fa3ad);margin-top:2px}
 .ft-terms,.ft-manual{margin:8px 0;font-size:13px}.ft-manual textarea{width:100%;max-width:100%;box-sizing:border-box;font:inherit}.ft-actions{display:flex;gap:8px;margin:6px 0;flex-wrap:wrap}
-.ft-terms,.ft-manual,.ft-empty{grid-column:1/-1}
+.ft-terms,.ft-manual,.ft-builder,.ft-exposure,.ft-empty{grid-column:1/-1}
 .ft-list{display:grid;gap:12px;grid-column:1/-1;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr))}.ft-empty{margin:8px 0}
-@media(max-width:600px){.ft-leg-top .ft-odds{margin-left:0}}
+.ft-builder{margin:8px 0;font-size:13px}.ft-controls{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:8px 0}.ft-controls select{margin-left:6px}
+.ft-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:6px 0}.ft-chip{display:inline-flex;gap:4px;align-items:center;border:1px solid var(--g-border,#294a58);border-radius:999px;padding:2px 4px 2px 10px}
+.ft-chip-lock{border-color:var(--g-accent,#2ee6c5)}.ft-chip button{border:0;background:none;color:inherit;cursor:pointer;min-width:28px;min-height:28px}
+.ft-search input{width:100%;box-sizing:border-box;font:inherit;font-size:16px;margin:6px 0;padding:8px}
+.ft-pool{max-height:420px;overflow:auto;border:1px solid var(--g-border,#294a58);border-radius:8px}
+.ft-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;gap:8px 12px;align-items:center;padding:8px;border-bottom:1px solid var(--g-border,#294a58)}
+.ft-row:last-child{border-bottom:0}.ft-row small{display:block;color:var(--g-muted,#8fa3ad);font-size:11px}.ft-row-who{min-width:0}.ft-row-who b{overflow-wrap:anywhere}.ft-row-num{text-align:right;white-space:nowrap}
+.ft-row-act{display:flex;gap:6px}.ft-row-act button{min-height:32px;min-width:64px}.ft-row-act button[aria-pressed=true]{outline:2px solid var(--g-accent,#2ee6c5)}
+.ft-row.is-locked{background:rgba(46,230,197,.08)}.ft-row.is-excluded{opacity:.55}.ft-lock-tag{font-size:11px;border:1px solid var(--g-accent,#2ee6c5);border-radius:999px;padding:0 6px}
+#ftManual{font-size:16px}
+@media(max-width:600px){.ft-leg-top .ft-odds{margin-left:0}.ft-row{grid-template-columns:minmax(0,1fr) auto auto}.ft-row-act{grid-column:1/-1}.ft-row-act button{flex:1}}
