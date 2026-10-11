@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "hypothesis": "Current-season opponent-adjusted offense and prevention ratings with partial pooling reduce margin/total forecast error relative to symmetric current-season PF/PA averages.",
+  "frozen_before_execution": "2026-10-11",
+  "production_change": false,
+  "inputs": "Public nflverse regular-season games, 2016–2025; current-season completed games only for team ratings. Both teams require three prior completed games. Whole weekly folds; scores available conservatively kickoff+12h before first fold kickoff.",
+  "formula": "score(team, opponent) = current league mean + venue/2 + ridge offense(team) + ridge allowed(opponent). Venue is current observed home margin shrunk by 64 games; offense/defense zero-centered with a three-game zero prior, 24 fixed coordinate updates.",
+  "coefficient_tuning": "None. Alpha=3, venue prior=64 and 24 iterations fixed before run. No recency/efficiency/weather/injury coefficients invented.",
+  "splits": {"noise_training": [2016,2022], "development_diagnostic": [2023,2023], "locked_retrospective_evaluation": [2024,2025]},
+  "holdout_warning": "2024–25 outcomes have been used in previous unrelated audits. This is a locked retrospective comparison, not a pristine untouched promotion holdout. Sealed prospective 2026 Week6 onward is required before production probability promotion; no Week5 ABBEYS holdout scoring.",
+  "comparators": ["Existing current-season symmetric scoring estimator", "Actual public closing total/spread only as a diagnostic benchmark, not executable decision-time quote"],
+  "metrics": ["paired MAE", "RMSE", "season-week cluster bootstrap paired improvement 95% CI", "80% prediction interval coverage using 2016–22 out-of-sample residual quantiles"],
+  "acceptance": "Research contender only if held retrospective MAE improvement >=0.25 points and paired 95% lower bound >0, no season MAE deterioration >0.25, and interval coverage within 75–85%. Failure is retained/reported; production stays unchanged. Markets evaluated independently.",
+  "scope": "First bounded game-score challenger within all-market opportunity/efficiency rebuild. Player markets have separate targets, distributions and data gates. A model lean does not need to outperform the closing line; confidence must be supported by calibrated error."
+}

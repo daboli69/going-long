@@ -1,0 +1,46 @@
+{
+  "id": "td-opportunity-current-v1",
+  "status": "research_only_formula_no_fit",
+  "frozen_before_fit": true,
+  "fit_performed": false,
+  "hypothesis": "Current-season zone-specific carries and targets allocate a team touchdown forecast more stably than individual historical touchdown counts.",
+  "formula": "lambda = (sum player opportunity conversion mass / sum team opportunity conversion mass) * 0.5 * (team earlier offensive TD per game + opponent earlier offensive TD allowed per game); P(ATD)=1-exp(-lambda)",
+  "opportunity_mass": "Designed carry/target counts in yard-line zones1,2,3-5,6-10,11-20,21+ multiplied by fixed development league conversion rates; kneels/spikes/no-plays/2PT excluded. Verified positive offensive participation establishes an observed zero; omitted rows are unknown.",
+  "rates_source": "config/td_zone_rates.json",
+  "rates_sha256": "3e5c1b8a694f2f432a98709f3ba92ed98583f34ad3af50844bcde078197301dc",
+  "rate_development_seasons": [
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "eligibility": "Current-season only; >=3 complete prior player/team opportunity observations and >=3 opponent defensive observations; exact player/current team; all dates strictly before decision and target; receipt clock<=decision; source max24h; played-through availability cohort limitation explicit.",
+  "historical_plan": {
+    "fit": "2021-2023 development for any added coefficients only; fixed inherited zone rates already use2019-2023",
+    "validation": "2024 reused retrospective",
+    "diagnostic_test": "2025 reused retrospective, no untouched holdout claim",
+    "sealed": "Do not read or score2026ABBEYS holdout outcomes",
+    "future_gate": "Prospective newly frozen ATD opportunities/availability/quote receipt and later outcomes; no retrospective backfill"
+  },
+  "acceptance": {
+    "minimum_rows": 500,
+    "minimum_games": 100,
+    "metrics": [
+      "Brier",
+      "log_loss",
+      "calibration intercept and slope",
+      "game/player-cluster bootstrap95%intervals"
+    ],
+    "comparators": [
+      "production Champion on identical rows",
+      "current-season scoring-frequency shrink baseline",
+      "intact actual two-sided sportsbook de-vigged prices where available"
+    ],
+    "gain": "Brier improvement>=0.002 with game/player clustered upper95%CI of challenger-minus-Champion below0 and nonworsening logloss; future prospective replication required beforepromotion",
+    "edge": "No edge claim without independent identical-sample market comparison and prospective execution/settlement receipts"
+  },
+  "missingness": "Missing per-game zone/team/opponent observations reject; no aggregate current snapshot backfill, no inferred player alignment, no fabricated zero, no historical median fill.",
+  "fitted_coefficients": [],
+  "production_promotion": false
+}
