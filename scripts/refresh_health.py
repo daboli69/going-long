@@ -20,7 +20,7 @@ NFL_TEAMS = set('ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC L
 OUTPUT_OWNERS = {
     'validate_projection_logic': ('data/history.json', 'data/going_score.json', 'data/king-endzone.json',
         'data/slate-breaker.json', 'data/jackpot/', 'data/opportunities.json', 'data/signal_tracker.json',
-        'data/signal_archive/', 'data/freezes/', 'data/td_shadow/', 'data/nb_shadow/', 'data/charts/', 'data/dfs_team_touchdowns.json',
+        'data/signal_archive/', 'data/freezes/', 'data/td_shadow/', 'data/nb_shadow/', 'data/charts/', 'data/dfs_team_touchdowns.json', 'data/dfs_kickers.json',
         'data/public_tracker.json', 'data/public_tracker/', 'data/derived/'),
     'nfl': ('data/nfl_betting.json',), 'ncaa': ('data/ncaa_lines.json',),
     'pool': ('data/players.json', 'data/formats/', 'data/data.json'),
@@ -30,7 +30,7 @@ OUTPUT_OWNERS = {
     'tracker': ('data/public_tracker.json', 'data/public_tracker/'), 'charts': ('data/charts/',),
     'validation_ledger': ('data/derived/',), 'consumer_data': ('data/opportunities.json', 'data/signal_tracker.json', 'data/signal_archive/'),
     'freeze': ('data/freezes/', 'data/td_shadow/', 'data/nb_shadow/'), 'abbeys_board': ('data/abbeys-board.json',),
-    'dfs_team_td': ('data/dfs_team_touchdowns.json',), 'season_learning': ('data/season_learning.json',),
+    'dfs_team_td': ('data/dfs_team_touchdowns.json',), 'dfs_kickers': ('data/dfs_kickers.json',), 'season_learning': ('data/season_learning.json',),
     'savant': ('data/savant_context.json',), 'jackpot': ('data/king-endzone.json', 'data/jackpot/'),
     'slate_breaker': ('data/slate-breaker.json', 'data/jackpot/'), 'game_validation': ('data/football_game_validation.json',),
 }

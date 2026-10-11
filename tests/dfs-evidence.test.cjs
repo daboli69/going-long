@@ -55,3 +55,31 @@ test('shiftDistribution moves every summary and the hidden sorted draws together
  const E=require('../shared/dfs-evidence.js'),d={mean:10,sd:5,floor:3,p25:6,median:9,p75:13,p90:17,p95:20,boom:.1};Object.defineProperty(d,'sorted',{value:Float64Array.from([1,2,3]),enumerable:false});
  const s=E.shiftDistribution(d,-.5);assert.equal(s.mean,9.5);assert.equal(s.p90,16.5);assert.equal(s.sd,5);assert.equal(s.boom,.1);assert.deepEqual([...s.sorted],[.5,1.5,2.5]);assert.equal(d.mean,10);assert.equal(E.shiftDistribution(d,0),d);assert.equal(E.shiftDistribution(null,-1),null);
 });
+const K=require('../shared/dfs-current-kicker.js');
+global.GoingDfsCurrentKicker=K;
+test('known source-name variants require their exact verified player ID',()=>{
+ for(const [id,canonical,imported] of [['00-0036970','Kyle Pitts','Kyle Pitts Sr.'],['00-0037746','Brian Robinson','Brian Robinson Jr.']]){
+  const profile={...player,id,name:canonical};
+  const o=opts({profiles:{[id]:profile},context:{season:2026,generated_at:stamp,scopes:{2026:{players:{[id]:{player_id:id,team:'BUF',season:2026,games:3,last_game:'2026-09-27',targets:8}}}}}});
+  const row=buildPool([{...salary,name:imported}],o)[0];assert.equal(row.unavailable,false);assert.equal(row.canonicalName,canonical);assert.equal(row.profileId,id);
+  assert.equal(buildPool([{...salary,name:imported}],{...o,profiles:{fake:{...profile,id:'fake'}}})[0].matched,false);
+  assert.equal(buildPool([{...salary,name:imported}],{...o,profiles:{[id]:profile,q:{...profile}}})[0].matched,false);
+ }
+});
+function kickerOpts(){
+ const at=Date.parse('2026-10-11T23:00:00Z'),id='00-0025565',generated='2026-10-11T22:00:00Z';
+ const counts={fg_made_0_19:0,fg_made_20_29:1,fg_made_30_39:0,fg_made_40_49:1,fg_made_50_59:1,fg_made_60_:0,fg_made:3,fg_att:3,pat_made:2,pat_att:2};
+ const snapshot={schemaVersion:1,season:2026,status:'current-season-kickers',generatedAt:generated,retrievedAt:'2026-10-11T21:00:00Z',releaseUpdatedAt:'2026-10-11T20:00:00Z',resultsGeneratedAt:'2026-10-11T21:00:00Z',resultsCheckedAt:'2026-10-11T20:59:00Z',sourceURL:'https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2026.csv',sourceSha256:'a'.repeat(64),resultsSHA256:'b'.repeat(64),players:{[id]:{playerId:id,name:'Nick Folk',games:[1,2].map(w=>({gameId:`2026_0${w}_ATL_PIT`,team:'ATL',opponent:'PIT',kickoff:`2026-09-${w===1?'13':'20'}T17:00:00Z`,teamFinalScore:20,counts,points:14}))}}};
+ const roster={id,name:'Nick Folk',team:'ATL',position:'K',roster_status:'ACT'};
+ return opts({now:at,kickerSnapshot:snapshot,rosterSnapshot:{generated_at:generated,players:[roster]},injuryContext:{generatedAt:generated,fresh:true,byIdentity:new Map([['ATL|Nick Folk',roster]])},injuries:{normalize:x=>x,availability:r=>r.injury_status?require('../shared/dfs-availability.js').availability(r):({state:'available',block:false})}});
+}
+const kickerSalary={id:'k',name:'Nick Folk',position:'K',team:'ATL',opponent:'BAL',kickoff:'2026-10-12T00:20:00Z',showdownRole:'FLEX',salary:4000,avgPointsPerGame:999};
+test('Showdown kicker integration uses verified current evidence and preserves availability warnings',()=>{
+ const o=kickerOpts(),r=buildPool([kickerSalary],o)[0];assert.equal(r.unavailable,false);assert.equal(r.projection,14);assert.equal(r.tdMean,0);assert.equal(r.profileId,'00-0025565');assert.equal(r.projectionSource,K.SOURCE);
+ const uncertain=buildPool([kickerSalary],{...o,injuries:{normalize:x=>x,availability:()=>({state:'questionable',block:false,reason:'Questionable ankle'})}})[0];assert.equal(uncertain.injury.state,'questionable');assert.match(uncertain.concerns.join(' '),/Questionable ankle/);
+});
+test('Showdown kicker integration rejects OUT, unknown, stale and ambiguous identities without salary fallback',()=>{
+ for(const mutate of [o=>o.injuryContext.generatedAt='2026-10-01T00:00:00Z',o=>o.injuryContext.generatedAt=null,o=>o.rosterSnapshot.generated_at='2026-10-01T00:00:00Z',o=>o.rosterSnapshot.players.push({...o.rosterSnapshot.players[0]}),o=>o.rosterSnapshot.players[0].roster_status='IR',o=>o.injuryContext.byIdentity.clear(),o=>o.injuries.availability=()=>({state:'unknown',block:false}),o=>o.injuries.availability=()=>({state:'out',block:true}),o=>o.kickerSnapshot.generatedAt='2026-10-01T00:00:00Z']){const o=kickerOpts();mutate(o);const row=buildPool([kickerSalary],o)[0];assert.equal(row.unavailable,true);assert.equal(row.projection,null);}
+ assert.equal(buildPool([{...kickerSalary,csvStatus:'OUT'}],kickerOpts())[0].unavailable,true);
+ assert.equal(buildPool([{...kickerSalary,showdownRole:undefined}],kickerOpts())[0].unavailable,true);
+});

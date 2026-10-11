@@ -873,3 +873,16 @@ test('Validated calibration moves overconfident probabilities toward the middle,
  const sh=a.propProbabilities({...base,model:{...base.model,calibration:{method:'shrink_const',params:{w:.8,target:.5}}}});assert.ok(sh.over>0&&sh.over<1);
  const bad=a.propProbabilities({...base,model:{...base.model,calibration:{method:'platt',params:{a:NaN,b:1}}}});assert.equal(bad.over,raw.over);
 });
+test('Showdown renders every supported Captain and FLEX position with missing-value protection',t=>{
+ const {api:a,w,context}=setup(t,null,'2026-10-11T23:00:00Z');a.BET.tab='dfs';a.wireBetting();
+ const rows=[];for(let i=0;i<12;i++){const position=i===10?'K':i===11?'DST':'WR';for(const role of ['CPT','FLEX'])rows.push({id:String(i)+'-'+role,athleteId:'athlete'+i,name:'Fixture '+position+' '+i,team:i%2?'MIA':'BUF',opponent:i%2?'BUF':'MIA',position,showdownRole:role,game:'fixture',kickoff:'2026-10-12T00:20:00Z',salary:role==='CPT'?1500:1000,projection:20-i,sd:2,unavailable:false,matched:true,evidence:['Synthetic current-season evidence'],concerns:[],coverage:'Current evidence',source:'Current-season public scoring baseline'});}
+ rows.push({...rows[1],id:'excluded',athleteId:'excluded',name:'Fixture OUT',unavailable:true,concerns:['Roster reports unavailable: out']});w.syntheticShowdown=rows;
+ vm.runInContext("DFS_STATE.source='csv';DFS_STATE.contest='showdown';DFS_STATE.site='draftkings';DFS_STATE.game='fixture';DFS_STATE.salaryPlayers=syntheticShowdown;dfsPlayerPool=()=>syntheticShowdown;renderDfs();",context);
+ assert.equal(w.document.querySelectorAll('#dfsCaptains .dfs-captain').length,12);
+ assert.equal(w.document.querySelectorAll('#dfsPool .dfs-player').length,12,'missing value cannot crash entire FLEX pool');
+ assert.match(w.document.querySelector('#dfsCaptains .dfs-method').textContent,/Fixture K 10/);assert.match(w.document.querySelector('#dfsCaptains .dfs-method').textContent,/Fixture DST 11/);
+ assert.match(w.document.querySelector('#dfsSummary').textContent,/12Projected players/);assert.match(w.document.querySelector('#dfsSummary').textContent,/2Current D\/ST \/ kicker baselines/);
+ assert.equal(w.document.querySelector('#dfsExcluded').hidden,false);assert.match(w.document.querySelector('#dfsExcludedRows').textContent,/Fixture OUT.*Roster reports unavailable: out/);
+ const kicker=w.document.querySelector('#dfsCaptains [data-dfs-captain="10-CPT"]');kicker.click();assert.match(w.document.querySelector('#dfsPicks').textContent,/Fixture K 10.*Captain/s);
+ assert.equal(w.document.querySelector('#dfsCaptains [data-dfs-captain="10-CPT"]').getAttribute('aria-pressed'),'true');
+});
