@@ -208,6 +208,13 @@ body[data-reference-active=true] #dfsClassicRoot #dk-pool-list article>b{grid-co
 body[data-reference-active=true] #dfsClassicRoot .dk-budget{position:static;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;border:0;background:none;padding:8px 0;margin:8px 0;box-shadow:none}body[data-reference-active=true] #dfsClassicRoot .dk-budget strong{font-size:21px}body[data-reference-active=true] #dfsClassicRoot .dk-budget span{font-size:17px}body[data-reference-active=true] #dfsClassicRoot .dk-budget small{font-size:10px}
 body[data-reference-active=true] #dfsClassicRoot .dk-toolbar{display:grid;gap:7px;grid-template-columns:1fr;margin-top:18px}body[data-reference-active=true] #dfsClassicRoot .dk-toolbar button{min-height:38px;font-size:12px}
 body[data-reference-active=true] #dfsClassicRoot .dk-roster{gap:8px}body[data-reference-active=true] #dfsClassicRoot .dk-roster>li{padding:10px;border-radius:5px}body[data-reference-active=true] #dfsClassicRoot .dk-player-top{gap:6px}body[data-reference-active=true] #dfsClassicRoot .dk-player-top b{font-size:12px}body[data-reference-active=true] #dfsClassicRoot .dk-player-top strong{font-size:12px}body[data-reference-active=true] #dfsClassicRoot .dk-player-top small{font-size:10px}body[data-reference-active=true] #dfsClassicRoot .dk-leg-actions{display:flex;gap:3px;flex-wrap:wrap}body[data-reference-active=true] #dfsClassicRoot .dk-leg-actions button{min-height:30px;font-size:10px;padding:5px!important}
+/* The lineup lives in a narrow sidebar, even on wide desktop screens. */
+body[data-reference-active=true] #dfsClassicRoot .r-dfs-lineup .dk-roster{grid-template-columns:minmax(0,1fr)}
+body[data-reference-active=true] #dfsClassicRoot .r-dfs-lineup .dk-player-top{grid-template-columns:minmax(0,1fr) auto}
+body[data-reference-active=true] #dfsClassicRoot .r-dfs-lineup .dk-slot{grid-column:1;grid-row:1}
+body[data-reference-active=true] #dfsClassicRoot .r-dfs-lineup .dk-player-top>strong{grid-column:2;grid-row:1;white-space:nowrap}
+body[data-reference-active=true] #dfsClassicRoot .r-dfs-lineup .dk-player-top>div{grid-column:1/-1;grid-row:2;min-width:0}
+body[data-reference-active=true] #dfsClassicRoot .r-dfs-lineup .dk-player-top b{overflow-wrap:break-word}
 
 /* Parlays / Jackpot */
 body[data-reference-active=true] #btParlaysPanel>h2,body[data-reference-active=true] #btParlaysPanel>p{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
