@@ -16,6 +16,9 @@ from pathlib import Path
 TEAMS = set('ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC LAC LA LV MIA MIN NE NO NYG NYJ PHI PIT SEA SF TB TEN WAS'.split())
 ALIASES = {'LAR': 'LA', 'JAC': 'JAX', 'WSH': 'WAS'}
 REQUIRED = {'season', 'season_type', 'week', 'team', 'game_id', 'opponent_team', 'rushing_tds', 'receiving_tds'}
+DST_FIELDS = {'sacks_suffered', 'passing_interceptions', 'def_interceptions', 'fumble_recovery_opp', 'def_tds',
+              'special_teams_tds', 'def_safeties', 'def_punt_blocks', 'def_pat_blocks',
+              'def_fg_blocks', 'def_2pt_made', 'fumble_recovery_tds'}
 
 
 def stamp(value, label):
@@ -109,6 +112,7 @@ def build(csv_bytes, results_bytes, *, season, generated_at, retrieved_at,
     reader = csv.DictReader(io.StringIO(text), strict=True)
     if not reader.fieldnames or len(reader.fieldnames) != len(set(reader.fieldnames)) or not REQUIRED.issubset(reader.fieldnames):
         raise ValueError('CSV requires unique official team-stat headers')
+    has_defense = DST_FIELDS.issubset(reader.fieldnames)
     pairs = defaultdict(dict)
     team_rows = defaultdict(list)
     for line, record in enumerate(reader, start=2):
@@ -134,6 +138,24 @@ def build(csv_bytes, results_bytes, *, season, generated_at, retrieved_at,
             raise ValueError(f'CSV row {line}: rushing/receiving TD count exceeds final team score')
         row = {'team': own, 'gameId': identity, 'opponent': opponent, 'kickoff': game['kickoff'],
                'rushTDs': rush, 'recTDs': receive, 'qualifyingTDs': count}
+        if has_defense:
+            stats = {field: integer(record[field], field) for field in DST_FIELDS}
+            # nflfastR def_tds excludes fumble-recovery TDs. The latter includes
+            # offensive and defensive recoveries, which this aggregate cannot split.
+            # Preserve the ambiguity instead of assigning every recovery TD to DST.
+            row['dst'] = {
+                'sacksSuffered': stats['sacks_suffered'], 'interceptionsThrown': stats['passing_interceptions'],
+                'interceptions': stats['def_interceptions'],
+                'fumbleRecoveries': stats['fumble_recovery_opp'], 'defensiveTDs': stats['def_tds'],
+                'returnTDs': stats['special_teams_tds'], 'safeties': stats['def_safeties'],
+                'blockedKicks': sum(stats[field] for field in ('def_punt_blocks', 'def_pat_blocks', 'def_fg_blocks')),
+                'conversionReturns': stats['def_2pt_made'],
+                'unclassifiedFumbleTDs': stats['fumble_recovery_tds'],
+                'teamFinalScore': final_score,
+                'opponentFinalScore': game['homeScore'] if own == game['away'] else game['awayScore'],
+            }
+            if 6 * (count + row['dst']['defensiveTDs'] + row['dst']['returnTDs']) + 2 * (row['dst']['safeties'] + row['dst']['conversionReturns']) > final_score:
+                raise ValueError(f'CSV row {line}: known defensive/special-team points exceed final team score')
         pairs[identity][own] = row
         team_rows[own].append(row)
     if set(pairs) != set(completed):
@@ -141,12 +163,34 @@ def build(csv_bytes, results_bytes, *, season, generated_at, retrieved_at,
     for identity, game in completed.items():
         if set(pairs[identity]) != {game['away'], game['home']}:
             raise ValueError('Every completed game requires exactly two opposing team rows')
+        if has_defense:
+            for own, row in pairs[identity].items():
+                opposing = pairs[identity][row['opponent']]['dst']
+                dst = row['dst']
+                # Whole-team sacks include sacks not credited to an individual
+                # defender, which the aggregate def_sacks column can omit.
+                dst['sacks'] = opposing['sacksSuffered']
+                if dst['interceptions'] != opposing['interceptionsThrown']:
+                    raise ValueError('Opposing interception counts disagree')
+                dst['opponentDefensiveTDs'] = opposing['defensiveTDs']
+                dst['opponentSafeties'] = opposing['safeties']
+                dst['opponentUnclassifiedFumbleTDs'] = opposing['unclassifiedFumbleTDs']
+                # Opponent defensive TDs/safeties are scored against the offense.
+                # Opponent PATs/conversions and special-teams TDs still count as PA.
+                # Ambiguous opponent fumble TDs remain counted, conservatively.
+                dst['pointsAllowed'] = dst['opponentFinalScore'] - 6 * opposing['defensiveTDs'] - 2 * opposing['safeties']
+                if dst['pointsAllowed'] < 0:
+                    raise ValueError('Opposing defensive scores exceed the final score')
     return {
         'schemaVersion': 1, 'season': season, 'generatedAt': iso(generated),
         'retrievedAt': iso(retrieved), 'releaseUpdatedAt': iso(released), 'sourceURL': source_url,
         'sourceSha256': digest, 'resultsSHA256': hashlib.sha256(results_bytes).hexdigest(),
         'teams': {team: sorted(rows, key=lambda row: (row['kickoff'], row['gameId']))
                   for team, rows in sorted(team_rows.items())},
+        'defenseStatus': 'current-season-partial' if has_defense else 'missing-components',
+        'defenseMissingFields': sorted(DST_FIELDS - set(reader.fieldnames)),
+        'defenseMethod': 'Current-season observed DST scoring mean; unclassified fumble TDs omitted from scored TDs and retained in opposing points allowed. No matchup fit or calibration.',
+        'defenseDefinitionsURL': 'https://github.com/nflverse/nflfastR/blob/master/R/calculate_stats.R',
         'limitations': [
             'Observed completed regular-season team rushing/receiving TD counts, including all scorer positions and overtime.',
             'Passing, defensive and special-teams TDs are not added to the qualifying counts.',

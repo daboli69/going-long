@@ -1,5 +1,7 @@
 """Synthetic offline fixtures only: no network, no provider calls."""
 import importlib.util
+import csv
+import io
 import json
 import pathlib
 import tempfile
@@ -25,7 +27,66 @@ RESULTS = {'generated_at': '2026-10-03T16:00:00Z', 'games': {'nfl|2026_01_BUF_MI
 NOW = datetime(2026, 10, 4, 12, 0, tzinfo=timezone.utc)
 
 
+def defense_csv(changes=None, missing=None):
+    """Complete synthetic team-stat columns, with no prior-season defaults."""
+    fields = HEADER.strip().split(',') + sorted(MODULE._builder().DST_FIELDS - set(HEADER.strip().split(',')))
+    if missing:
+        fields.remove(missing)
+    source = io.StringIO()
+    writer = csv.DictWriter(source, fieldnames=fields)
+    writer.writeheader()
+    for i, text in enumerate(ROWS[:2]):
+        row = dict(zip(HEADER.strip().split(','), text.split(',')))
+        row.update({field: '0' for field in MODULE._builder().DST_FIELDS})
+        row.update(sacks_suffered='2', passing_interceptions='1', def_interceptions='1', fumble_recovery_opp='1')
+        row.update((changes or {}).get(i, {}))
+        if missing:
+            del row[missing]
+        writer.writerow(row)
+    return source.getvalue().encode()
+
+
 class TeamTouchdownRefreshTests(unittest.TestCase):
+    def test_complete_current_team_source_preserves_defensive_scoring_components(self):
+        out = MODULE.refresh(defense_csv(), RESULTS, season=2026, now=NOW, retrieved_at=NOW, release_updated_at='2026-10-04T08:00:00Z')
+        self.assertEqual(out['defenseStatus'], 'current-season-partial')
+        d = out['teams']['BUF'][0]['dst']
+        self.assertEqual((d['sacks'], d['interceptions'], d['fumbleRecoveries']), (2, 1, 1))
+        self.assertEqual(d['pointsAllowed'], 14)
+        self.assertEqual(out['teams']['MIA'][0]['dst']['pointsAllowed'], 21)
+        self.assertEqual(out['teams']['BUF'][0]['qualifyingTDs'], 3)
+
+    def test_missing_components_never_become_zero_or_break_existing_td_refresh(self):
+        out = MODULE.refresh(defense_csv(missing='def_interceptions'), RESULTS, season=2026, now=NOW, retrieved_at=NOW, release_updated_at='2026-10-04T08:00:00Z')
+        self.assertEqual(out['defenseStatus'], 'missing-components')
+        self.assertIn('def_interceptions', out['defenseMissingFields'])
+        self.assertNotIn('dst', out['teams']['BUF'][0])
+        self.assertEqual(out['teams']['BUF'][0]['qualifyingTDs'], 3)
+
+    def test_invalid_complete_defensive_rows_fail_closed(self):
+        for value in ['-1', '', '1.5', 'NaN']:
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                MODULE.refresh(defense_csv({0: {'sacks_suffered': value}}), RESULTS, season=2026, now=NOW, retrieved_at=NOW, release_updated_at='2026-10-04T08:00:00Z')
+        with self.assertRaises(ValueError):
+            MODULE.refresh(defense_csv({0: {'def_tds': '5'}}), RESULTS, season=2026, now=NOW, retrieved_at=NOW, release_updated_at='2026-10-04T08:00:00Z')
+        with self.assertRaises(ValueError):
+            MODULE.refresh(defense_csv({0: {'def_interceptions': '2'}}), RESULTS, season=2026, now=NOW, retrieved_at=NOW, release_updated_at='2026-10-04T08:00:00Z')
+
+    def test_whole_team_sacks_come_from_opponents_sacks_suffered(self):
+        source = defense_csv({1: {'sacks_suffered': '4'}})
+        out = MODULE.refresh(source, RESULTS, season=2026, now=NOW, retrieved_at=NOW, release_updated_at='2026-10-04T08:00:00Z')
+        self.assertEqual(out['teams']['BUF'][0]['dst']['sacks'], 4)
+        self.assertEqual(out['teams']['MIA'][0]['dst']['sacksSuffered'], 4)
+
+    def test_points_allowed_excludes_known_defensive_scores_but_not_returns_or_conversions(self):
+        result = {**RESULTS, 'games': {'nfl|2026_01_BUF_MIA': {**GAME, 'homeScore': 28}}}
+        source = defense_csv({1: {'def_tds': '1', 'def_safeties': '1', 'special_teams_tds': '1', 'def_2pt_made': '1', 'fumble_recovery_tds': '1'}})
+        out = MODULE.refresh(source, result, season=2026, now=NOW, retrieved_at=NOW, release_updated_at='2026-10-04T08:00:00Z')
+        d = out['teams']['BUF'][0]['dst']
+        self.assertEqual(d['pointsAllowed'], 20)  # 28 minus a defensive TD(6) and safety(2), not ST/conversion/fumble TD.
+        self.assertEqual(d['opponentUnclassifiedFumbleTDs'], 1)
+        self.assertEqual(out['teams']['MIA'][0]['dst']['unclassifiedFumbleTDs'], 1)
+
     def test_builds_from_games_present_in_both_sources_and_records_dropped_rows(self):
         out = MODULE.refresh(CSV, RESULTS, season=2026, now=NOW, retrieved_at=NOW, release_updated_at='2026-10-04T08:00:00Z')
         self.assertEqual(sorted(out['teams']), ['BUF', 'MIA'])

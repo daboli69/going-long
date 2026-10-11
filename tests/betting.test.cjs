@@ -5,8 +5,8 @@ const path=require('node:path');
 const vm=require('node:vm');
 const {JSDOM}=require('jsdom');
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
-function setup(t,parlaySaved=null){
-  t.mock.timers.enable({apis:['Date'],now:Date.parse('2026-09-09T12:00:00Z')});
+function setup(t,parlaySaved=null,clock='2026-09-09T12:00:00Z'){
+  t.mock.timers.enable({apis:['Date'],now:Date.parse(clock)});
   const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true});
   const BrowserDate=dom.window.Date;
   dom.window.Date=class extends BrowserDate{constructor(...args){super(...(args.length?args:[Date.now()]));}static now(){return Date.now();}};
@@ -17,7 +17,7 @@ function setup(t,parlaySaved=null){
   const context=dom.getInternalVMContext();
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-score.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-injuries.js'),'utf8'),context);
-  for(const f of ['dfs-availability','dfs-upside','dfs-tournament','dfs-journal','dfs-correlations','dfs-sim','dfs-field','dfs-classic','dfs-evidence'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/'+f+'.js'),'utf8'),context);
+  for(const f of ['dfs-starter-confirmations','dfs-availability','dfs-current-season','dfs-current-defense','dfs-upside','dfs-tournament','dfs-journal','dfs-correlations','dfs-sim','dfs-field','dfs-classic','dfs-evidence'])vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/'+f+'.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-dfs.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/football-slate.js'),'utf8'),context);
   vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/score-tracker.js'),'utf8'),context);
@@ -33,6 +33,16 @@ function setup(t,parlaySaved=null){
 }
 const close=(actual,expected,tol=1e-7)=>assert.ok(Math.abs(actual-expected)<tol,`${actual} != ${expected}`);
 const future=()=>new Date(Date.now()+86400000).toISOString();
+// Synthetic completed current-season rows for DFS, separate from the older
+// component fixtures retained for GOING Score/betting assertions.
+function currentDfsProfile(player){
+ const keys=['pass_yds','pass_tds','rush_yds','rush_tds','rec_yds','rec_tds','receptions'];
+ return {...player,last_game:'2026-10-04',games:['2026-09-13','2026-09-20','2026-09-27','2026-10-04'].map((date,i)=>({season:2026,week:i+1,date,attempts:player.position==='QB'?20:0,...Object.fromEntries(keys.map(k=>[k,player.stats?.[k]?.mean||0]))}))};
+}
+function currentDfsContext(a){
+ const at=new Date().toISOString(),profiles=Object.values(a.BET.history.profiles);
+ a.BET.context={season:2026,generated_at:at,scopes:{2026:{players:Object.fromEntries(profiles.map(p=>[p.id,{player_id:p.id,team:p.team,position:p.position,season:2026,last_game:p.last_game,games:4,targets:p.position==='QB'?0:8,rush_attempts:20}])),teams:Object.fromEntries([...new Set(profiles.map(p=>p.team))].map(team=>[team,{games:4,dropbacks:35,plays:60,pass_actual:35}]))}}};
+}
 // Rendering fixtures supply real shared-engine availability inputs as well.
 function verifyFixturePlayers(a,w){
  w.eval(fs.readFileSync(path.join(__dirname,'../shared/going-eligibility.js'),'utf8'));
@@ -377,15 +387,16 @@ test('GOING SCORE renders an auditable score apart from probability',t=>{
  assert.equal(w.document.querySelectorAll('#scoreMarket button').length,5);
  const game=w.document.querySelector('#scoreBoard .score-game');assert.ok(game);assert.equal(game.open,false);game.open=true;a.renderGoingScore();assert.equal(w.document.querySelector('#scoreBoard .score-game').open,true);
 });
-test('DFS opens projections freely and exposes Captain/MVP only after an official salary slate loads',t=>{
- const {api:a,w}=setup(t),kickoff=future(),model=(mean,sd)=>({family:'normal',status:'ready',mean,sd,n:12});a.BET.tab='dfs';a.BET.games=[{id:'g',sport:'nfl',home:'B',away:'A',homeCode:'B',awayCode:'A',kickoff,source:'schedule'}];
- a.BET.history={generated_at:'2026-09-09T10:00:00Z',profiles:{p:{id:'p',name:'Runner One',team:'A',position:'RB',last_game:'2026-09-01',stats:{rush_yds:model(65,18),rec_yds:model(28,12),receptions:model(3.5,1.4),rush_tds:model(.45,.3),rec_tds:model(.12,.2)}},q:{id:'q',name:'Receiver Two',team:'B',position:'WR',last_game:'2026-09-01',stats:{rush_yds:model(4,4),rec_yds:model(72,20),receptions:model(5.5,1.8),rush_tds:model(.03,.1),rec_tds:model(.4,.3)}}}};
- verifyFixturePlayers(a,w);a.wireBetting();a.renderBetting();const panel=w.document.querySelector('#btDfsPanel');assert.equal(panel.hidden,false);assert.equal(w.document.querySelector('#dfsSource').value,'model');assert.equal(w.document.querySelector('#dfsCsvFields').hidden,true);assert.match(panel.textContent,/Runner One/);assert.match(panel.textContent,/Salary not loaded/);assert.match(panel.textContent,/no CSV/i);
+test('DFS opens projections freely and exposes Captain/MVP only after an official salary slate loads',async t=>{
+ const {api:a,w}=setup(t,null,'2026-10-11T14:00:00Z'),kickoff=future(),model=(mean,sd)=>({family:'normal',status:'ready',mean,sd,n:12});a.BET.tab='dfs';a.BET.games=[{id:'g',sport:'nfl',home:'MIA',away:'BUF',homeCode:'MIA',awayCode:'BUF',kickoff,source:'schedule'}];
+ a.BET.history={generated_at:'2026-10-11T13:00:00Z',profiles:{p:{id:'p',name:'Runner One',team:'BUF',position:'RB',last_game:'2026-09-01',stats:{rush_yds:model(65,18),rec_yds:model(28,12),receptions:model(3.5,1.4),rush_tds:model(.45,.3),rec_tds:model(.12,.2)}},q:{id:'q',name:'Receiver Two',team:'MIA',position:'WR',last_game:'2026-09-01',stats:{rush_yds:model(4,4),rec_yds:model(72,20),receptions:model(5.5,1.8),rush_tds:model(.03,.1),rec_tds:model(.4,.3)}}}};
+ a.BET.history.profiles=Object.fromEntries(Object.entries(a.BET.history.profiles).map(([id,p])=>[id,currentDfsProfile(p)]));currentDfsContext(a);verifyFixturePlayers(a,w);a.wireBetting();a.renderBetting();const panel=w.document.querySelector('#btDfsPanel');assert.equal(panel.hidden,false);assert.equal(w.document.querySelector('#dfsSource').value,'model');assert.equal(w.document.querySelector('#dfsCsvFields').hidden,true);assert.match(panel.textContent,/Runner One/);assert.match(panel.textContent,/Salary not loaded/);assert.match(panel.textContent,/no CSV/i);
  const addRunner=[...w.document.querySelectorAll('#dfsPool [data-dfs-toggle]')].find(button=>button.closest('.dfs-player').textContent.includes('Runner One'));addRunner.click();assert.match(w.document.querySelector('#dfsPicks').textContent,/Runner One/);assert.match(w.document.querySelector('#dfsSuggestions').textContent,/Receiver Two/);assert.doesNotMatch(w.document.querySelector('#dfsSuggestions').textContent,/Runner One/);
- const contest=w.document.querySelector('#dfsContest');assert.equal(contest.querySelector('option[value="showdown"]').disabled,false);contest.value='showdown';contest.dispatchEvent(new w.Event('change',{bubbles:true}));assert.equal(w.document.querySelector('#dfsCaptainSection').hidden,true);w.document.querySelector('#dfsGenerate').click();assert.match(w.document.querySelector('#dfsStatus').textContent,/official salary CSV/);assert.equal(w.document.querySelector('#dfsLineups').children.length,0);
+ w.fetch=async url=>({ok:true,json:async()=>String(url).includes('injury_context.json')?a.BET.injuryLearning:a.BET.fullRoster});
+ const contest=w.document.querySelector('#dfsContest');assert.equal(contest.querySelector('option[value="showdown"]').disabled,false);contest.value='showdown';contest.dispatchEvent(new w.Event('change',{bubbles:true}));assert.equal(w.document.querySelector('#dfsCaptainSection').hidden,true);await w.document.querySelector('#dfsGenerate').onclick();assert.match(w.document.querySelector('#dfsStatus').textContent,/official salary CSV/);assert.equal(w.document.querySelector('#dfsLineups').children.length,0);
  w.document.querySelector('#dfsCaptainAccess').click();assert.equal(w.document.querySelector('#dfsAdvanced').open,true);assert.equal(w.document.querySelector('#dfsSource').value,'csv');assert.equal(contest.value,'showdown');assert.equal(w.document.querySelector('#dfsCsvFields').hidden,false);assert.equal(w.document.querySelector('#dfsCaptainSection').hidden,true);
- const date=new Date(kickoff),stamp=`${String(date.getUTCMonth()+1).padStart(2,'0')}/${String(date.getUTCDate()).padStart(2,'0')}/${date.getUTCFullYear()} 01:00PM ET`,header='Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame';w.document.querySelector('#dfsPaste').value=[header,`RB,"Runner One (1)",Runner One,1,RB,5000,A@B ${stamp},A,12`,`WR,"Receiver Two (2)",Receiver Two,2,WR,5000,A@B ${stamp},B,10`].join('\n');w.document.querySelector('#dfsLoad').click();
- assert.equal(contest.value,'showdown');assert.equal(w.document.querySelector('#dfsCaptainSection').hidden,false);assert.match(w.document.querySelector('#dfsCaptainTitle').textContent,/Captain candidates · A@B/);assert.match(w.document.querySelector('#dfsCaptains').textContent,/Runner One/);assert.equal([...w.document.querySelectorAll('#dfsCaptains .dfs-captain')].filter(card=>card.querySelector('strong')?.textContent.includes('Runner One')).length,1,'role-coded athlete appears once in Captain list');assert.match([...w.document.querySelectorAll('#dfsCaptains .dfs-captain')].find(card=>card.querySelector('strong')?.textContent.includes('Runner One')).textContent,/\,500/,'Captain card uses imported CPT salary without multiplying again');assert.equal([...w.document.querySelectorAll('#dfsPool .dfs-player')].filter(card=>card.textContent.includes('Runner One')).length,1,'role-coded athlete appears once in FLEX pool');assert.match([...w.document.querySelectorAll('#dfsPool .dfs-player')].find(card=>card.textContent.includes('Runner One')).textContent,/\,000/,'FLEX pool shows imported FLEX salary');
+ const date=new Date(kickoff),stamp=`${String(date.getUTCMonth()+1).padStart(2,'0')}/${String(date.getUTCDate()).padStart(2,'0')}/${date.getUTCFullYear()} 01:00PM ET`,header='Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame';w.document.querySelector('#dfsPaste').value=[header,`RB,"Runner One (1)",Runner One,1,RB,5000,BUF@MIA ${stamp},BUF,12`,`WR,"Receiver Two (2)",Receiver Two,2,WR,5000,BUF@MIA ${stamp},MIA,10`].join('\n');w.document.querySelector('#dfsLoad').click();
+ assert.equal(contest.value,'showdown');assert.equal(w.document.querySelector('#dfsCaptainSection').hidden,false);assert.match(w.document.querySelector('#dfsCaptainTitle').textContent,/Captain candidates · BUF@MIA/);assert.match(w.document.querySelector('#dfsCaptains').textContent,/Runner One/);assert.equal([...w.document.querySelectorAll('#dfsCaptains .dfs-captain')].filter(card=>card.querySelector('strong')?.textContent.includes('Runner One')).length,1,'role-coded athlete appears once in Captain list');assert.match([...w.document.querySelectorAll('#dfsCaptains .dfs-captain')].find(card=>card.querySelector('strong')?.textContent.includes('Runner One')).textContent,/\,500/,'Captain card uses imported CPT salary without multiplying again');assert.equal([...w.document.querySelectorAll('#dfsPool .dfs-player')].filter(card=>card.textContent.includes('Runner One')).length,1,'role-coded athlete appears once in FLEX pool');assert.match([...w.document.querySelectorAll('#dfsPool .dfs-player')].find(card=>card.textContent.includes('Runner One')).textContent,/\,000/,'FLEX pool shows imported FLEX salary');
  const captain=[...w.document.querySelectorAll('#dfsCaptains [data-dfs-captain]')].find(button=>button.closest('.dfs-captain').textContent.includes('Runner One'));captain.click();assert.match(w.document.querySelector('#dfsPicks').textContent,/Runner One.*Captain/s);assert.equal([...w.document.querySelectorAll('#dfsCaptains [data-dfs-captain]')].find(button=>button.closest('.dfs-captain').textContent.includes('Runner One')).getAttribute('aria-pressed'),'true');
 });
 test('Any TD calibration shrinks short windows and rejects a disputed sportsbook market',t=>{
@@ -405,9 +416,10 @@ test('GOING SCORE risks use the actual market evidence instead of one matchup fa
  const watch=a.goingScoreRisk({...base,market:'receptions',projection:6.5,projectionLabel:'6.5 rec',projectionSd:3,line:5.5,components:{...base.components,role:{label:'Role',percentile:70,evidence:'supported'},environment:{label:'Environment',percentile:60,evidence:'supported'},matchup:{label:'Conditional coverage watch',percentile:null,watch:true,evidence:'Cover 3 chain is real but current weakness is uncertain.'}}});assert.match(watch,/not yet promoted/);assert.match(watch,/Cover 3 chain/);
 });
 test('backup quarterbacks are excluded from GOING SCORE and DFS',t=>{
- const {api:a,w}=setup(t),kickoff=future(),model=(mean,sd)=>({family:'normal',status:'ready',mean,sd,n:12}),stats={pass_yds:model(250,30),pass_tds:model(1.7,.7),rush_yds:model(20,12),rush_tds:model(.2,.2)};
- a.BET.games=[{id:'g',sport:'nfl',home:'B',away:'A',homeCode:'B',awayCode:'A',kickoff,source:'schedule'}];a.BET.props=[];a.BET.history={generated_at:new Date().toISOString(),profiles:{q1:{id:'q1',name:'QB One',team:'A',position:'QB',stats},q2:{id:'q2',name:'QB Two',team:'A',position:'QB',stats}}};a.BET.context={season:2026,scopes:{'2026':{players:{q1:{games:1},q2:{games:1}},teams:{A:{games:1,dropbacks:35,plays:60,pass_actual:35}}}}};
- a.BET.roster={generated_at:new Date().toISOString(),players:[{name:'QB One',team:'A',pos:'QB',depth_chart_order:1},{name:'QB Two',team:'A',pos:'QB',depth_chart_order:2}]};a.BET.injuryContext=w.GoingFootballInjuries.createContext(a.BET.roster,a.BET.history.profiles);
+ const {api:a,w}=setup(t,null,'2026-10-11T14:00:00Z'),kickoff=future(),model=(mean,sd)=>({family:'normal',status:'ready',mean,sd,n:12}),stats={pass_yds:model(250,30),pass_tds:model(1.7,.7),rush_yds:model(20,12),rush_tds:model(.2,.2)};
+ a.BET.games=[{id:'g',sport:'nfl',home:'MIA',away:'BUF',homeCode:'MIA',awayCode:'BUF',kickoff,source:'schedule'}];a.BET.props=[];a.BET.history={generated_at:new Date().toISOString(),profiles:{q1:{id:'q1',name:'QB One',team:'BUF',position:'QB',stats},q2:{id:'q2',name:'QB Two',team:'BUF',position:'QB',stats}}};a.BET.context={season:2026,scopes:{'2026':{players:{q1:{games:1},q2:{games:1}},teams:{A:{games:1,dropbacks:35,plays:60,pass_actual:35}}}}};
+ a.BET.history.profiles=Object.fromEntries(Object.entries(a.BET.history.profiles).map(([id,p])=>[id,currentDfsProfile(p)]));currentDfsContext(a);
+ a.BET.roster={generated_at:new Date().toISOString(),players:[{name:'QB One',team:'BUF',pos:'QB',depth_chart_order:1},{name:'QB Two',team:'BUF',pos:'QB',depth_chart_order:2}]};a.BET.injuryContext=w.GoingFootballInjuries.createContext(a.BET.roster,a.BET.history.profiles);
  verifyFixturePlayers(a,w);assert.equal(a.goingScoreCandidates('pass_yds').map(row=>row.player).join(','),'QB One');a.BET.tab='dfs';a.renderBetting();assert.match(w.document.querySelector('#dfsPool').textContent,/QB One/);assert.doesNotMatch(w.document.querySelector('#dfsPool').textContent,/QB Two/);
 });
 test('Betting view preferences preserve the research context',t=>{
@@ -840,9 +852,11 @@ test('An open parlay swap chooser survives background refresh with stable contra
 
 
 test('DFS feed nonactive status wins over imported FPPG and stale generic ACT',t=>{
- const {api:a,context}=setup(t); a.BET.history={profiles:{}};a.BET.roster={generated_at:'2026-09-09T10:00:00Z',players:[{name:'Reserve One',team:'NO',position:'RB',roster_status:'ACT'}]};a.BET.injuryLearning={current_players:{'NO|reserveone':{name:'Reserve One',team:'NO',position:'RB',roster_status:'RES'}}};
- vm.runInContext("DFS_STATE.source='csv';DFS_STATE.salaryPlayers=[{id:'res',name:'Reserve One',team:'NO',position:'RB',siteProjection:20,salary:5000,injury:''},{id:'out',name:'Imported Out',team:'ATL',position:'WR',siteProjection:25,salary:5000,injury:'O'}];",context);
- const pool=vm.runInContext('dfsPlayerPool()',context);assert.equal(pool.length,2);assert.ok(pool.every(p=>p.unavailable));assert.ok(pool.every(p=>p.projection===null));assert.ok(pool.every(p=>p.source==='Unavailable'));
+ const {api:a,w,context}=setup(t,null,'2026-10-11T14:00:00Z'),at=new Date().toISOString();
+ a.BET.history={generated_at:at,profiles:{res:currentDfsProfile({id:'res',name:'Reserve One',team:'NO',position:'RB',stats:{rush_yds:{mean:60}}}),out:currentDfsProfile({id:'out',name:'Imported Out',team:'ATL',position:'WR',stats:{rec_yds:{mean:80}}})}};
+ currentDfsContext(a);verifyFixturePlayers(a,w);a.BET.roster={generated_at:at,players:[{name:'Reserve One',team:'NO',position:'RB',roster_status:'ACT'}]};a.BET.injuryLearning.current_players={'NO|reserveone':{name:'Reserve One',team:'NO',position:'RB',roster_status:'RES'}};
+ vm.runInContext("DFS_STATE.source='csv';DFS_STATE.salaryPlayers=[{id:'res',name:'Reserve One',team:'NO',opponent:'ATL',kickoff:'2026-10-12T17:00:00Z',position:'RB',siteProjection:20,salary:5000,injury:''},{id:'out',name:'Imported Out',team:'ATL',opponent:'NO',kickoff:'2026-10-12T17:00:00Z',position:'WR',siteProjection:25,salary:5000,injury:'O'}];",context);
+ const pool=vm.runInContext('dfsPlayerPool()',context);assert.equal(pool.length,2);assert.ok(pool.every(p=>p.unavailable));assert.ok(pool.every(p=>p.projection===null));assert.match(pool[0].concerns.join(' '),/Roster reports unavailable/);assert.match(pool[1].concerns.join(' '),/Imported salary availability excludes/);
 });
 
 test('Validated calibration moves overconfident probabilities toward the middle, only inside its line domain, keeps bounds, and is a no-op without data',t=>{

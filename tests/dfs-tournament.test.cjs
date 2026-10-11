@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const T=require('../shared/dfs-tournament.js');
 
-const upside=(value,n=10,currentGames=3,asOf='2026-10-04T16:00:00Z')=>({value,source:T.UPSIDE_SOURCE,n,currentGames,asOf});
+const upside=(value,n=10,currentGames=n,asOf=new Date().toISOString())=>({value,source:T.UPSIDE_SOURCE,n,currentGames,asOf,season:2026});
 
 test('classic review describes stack, opponent bring-back, DST conflict and unknown ownership',()=>{
  const lineup=[
@@ -43,7 +43,7 @@ test('showdown describes captain pairings and team split without restrictions',(
 });
 
 test('objective only uses correctly sourced, sufficiently sampled upside; malformed evidence falls back',()=>{
- const supported={projection:15,upside:upside(23,8,3)};
+ const supported={projection:15,upside:upside(23,8,8)};
  assert.equal(T.objective(supported),23);
  assert.equal(T.objective(supported,{multiplier:1.5}),34.5);
  assert.equal(T.objective(supported,1.5),34.5);

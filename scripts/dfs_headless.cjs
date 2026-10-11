@@ -23,7 +23,7 @@ if(arg('showdown')!==null&&process.argv.includes('--showdown')){showdown();proce
 const parsed=classic.parseCsv(text);
 if(parsed.errors.length){console.error(parsed.errors.join('\n'));process.exit(1);}
 const ownPath=arg('own');if(ownPath){const r=field.load(fs.readFileSync(ownPath,'utf8'));if(!r.ok)throw Error(r.reason);}
-const pool=evidence.buildPool(parsed.players,{profiles:h.profiles,context:c,injuryContext,generatedAt:h.generated_at,now:liveNow,injuries:availability,makeModel:source.w.dfsInlineModel,
+const pool=evidence.buildPool(parsed.players,{currentSeasonOnly:false,profiles:h.profiles,context:c,injuryContext,generatedAt:h.generated_at,now:liveNow,injuries:availability,makeModel:source.w.dfsInlineModel,
  bonusProbability:(row,line)=>row?source.w.propProbabilities({...row,line})?.over:null,points:football.projectedPoints});
 sim.assignRoles(pool);if(field.ready())field.annotate(pool);
 const slim=p=>({id:p.id,name:p.name,position:p.position,team:p.team,opponent:p.opponent,salary:p.salary,projection:p.projection,matched:p.matched,unavailable:!!p.unavailable,sd:p.distribution?.sd??null,p90:p.distribution?.p90??null,boom:p.distribution?.boom??null,tdMean:p.tdMean,ownership:p.ownership??null,role:p.dfsRole??null,avgPointsPerGame:p.avgPointsPerGame});
@@ -44,7 +44,7 @@ process.exit(0);
 function showdown(){
  const rows=football.parseSalaryCsv(text).players;if(!rows.length)throw Error('no Showdown rows');
  const flex=rows.filter(r=>r.showdownRole==='FLEX');
- const evid=evidence.buildPool(flex.map(r=>({...r,avgPointsPerGame:r.siteProjection??0,kickoff:r.kickoff})),{profiles:h.profiles,context:c,injuryContext,generatedAt:h.generated_at,now:liveNow,injuries:availability,makeModel:source.w.dfsInlineModel,bonusProbability:(row,line)=>row?source.w.propProbabilities({...row,line})?.over:null,points:football.projectedPoints});
+ const evid=evidence.buildPool(flex.map(r=>({...r,avgPointsPerGame:r.siteProjection??0,kickoff:r.kickoff})),{currentSeasonOnly:false,profiles:h.profiles,context:c,injuryContext,generatedAt:h.generated_at,now:liveNow,injuries:availability,makeModel:source.w.dfsInlineModel,bonusProbability:(row,line)=>row?source.w.propProbabilities({...row,line})?.over:null,points:football.projectedPoints});
  const info=new Map(evid.map(p=>[p.name+'|'+p.team,p]));
  const players=rows.flatMap(r=>{const e=info.get(r.name+'|'+r.team);let projection=null,sd=null;
   if(r.position==='DST'||r.position==='K'){projection=r.siteProjection>0?r.siteProjection:null;sd=r.position==='DST'?sim.DST_SD:3.5;}

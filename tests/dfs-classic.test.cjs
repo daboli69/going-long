@@ -85,7 +85,7 @@ test('representative 300-player pool search is bounded and returns a valid lineu
 
 
 test('tournament objective distinguishes observed upside from median without relaxing any roster rules',()=>{
- const pool=fixture();const first=pool.find(p=>p.position==='QB'),other=pool.filter(p=>p.position==='QB').at(-1);other.upside={value:75,source:'observed-partial-fantasy-residual-v1',n:12,currentGames:4,asOf:NOW};
+ const pool=fixture();const first=pool.find(p=>p.position==='QB'),other=pool.filter(p=>p.position==='QB').at(-1);other.upside={value:75,source:'observed-current-season-fantasy-residual-v2',n:4,currentGames:4,season:2026,asOf:new Date().toISOString()};
  const best=dfs.optimize(pool,{mode:'best',now:NOW}),tournament=dfs.optimize(pool,{mode:'tournament',now:NOW});assert.equal(best.lineup[0].id,first.id);assert.equal(tournament.lineup[0].id,other.id);assert.ok(dfs.validateLineup(tournament.lineup,pool,{mode:'tournament',now:NOW}).valid);assert.equal(tournament.tournament.ownership.status,'unknown');assert.equal(tournament.tournament.objective.jointCeiling,'not-estimated');
  other.unavailable=true;assert.notEqual(dfs.optimize(pool,{mode:'tournament',now:NOW}).lineup[0].id,other.id);
 });
@@ -97,6 +97,18 @@ test('the DraftKings Status column: IR/OUT players are marked unavailable and ca
  const by=Object.fromEntries(parsed.players.map(p=>[p.id,p]));
  assert.equal(by[1].csvOut,true);assert.equal(by[1].unavailable,true);assert.equal(by[2].csvOut,false);assert.equal(by[2].csvStatus,'Q');assert.equal(by[3].csvOut,false);
  const ir=dfs.parseCsv([HEADER+',Status',rows[0]+',IR',rows[3]+','].join('\n'));assert.equal(ir.players[0].csvOut,true);
+});
+
+test('both optional salary status columns retain unavailable designations and aliases on disagreement',()=>{
+ const other=csvRow(2,'DST',3000,'KC@DEN 10/04/2026 04:25PM ET','DEN');
+ for(const status of ['O','OUT','IR','D','Doubtful','Inactive','Suspended','Injured Reserve','Physically Unable to Perform']){
+  const parsed=dfs.parseCsv([HEADER+',Injury Status',csvRow(1)+','+status,other+','].join('\n'));
+  assert.deepEqual(parsed.errors,[]);assert.equal(parsed.players[0].csvOut,true);assert.equal(parsed.players[0].unavailable,true);
+  const contradictory=dfs.parseCsv([HEADER+',Status,Injury Status',csvRow(1)+',Q,'+status,other+',,'].join('\n'));
+  assert.equal(contradictory.players[0].csvOut,true);assert.equal(contradictory.players[0].csvStatus,status);
+ }
+ const reversed=dfs.parseCsv([HEADER+',Status,Injury Status',csvRow(1)+',OUT,Q',other+',,'].join('\n'));assert.equal(reversed.players[0].csvOut,true);assert.equal(reversed.players[0].csvStatus,'OUT');
+ const questionable=dfs.parseCsv([HEADER+',Injury Status',csvRow(1)+',Q',other+','].join('\n'));assert.equal(questionable.players[0].csvOut,false);
 });
 
 test('measured and tournament builds report whether they differ from Best DFS instead of presenting duplicates',()=>{

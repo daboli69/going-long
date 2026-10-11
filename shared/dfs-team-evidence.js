@@ -51,7 +51,7 @@ function buildScenario({teamSnapshot,profiles={},context,injuryContext,generated
    const recent=stamp=>{const n=Date.parse(stamp);return Number.isFinite(n)&&n<=now&&now-n<=28*86400000;};
    if(!recent(p.last_game)||(p.position!=='QB'&&!recent(c.last_game)))continue;
    const roster=injuryContext.byIdentity?.get(t+'|'+injuries.normalize(p.name));if(roster&&injuries.availability(roster)?.block)continue;
-   if(p.position==='QB'){const starter=injuries.starterEligibility({name:p.name,team:t,position:p.position,context:injuryContext});if(!starter?.known||!starter.eligible)continue;}
+   if(p.position==='QB'){const starter=injuries.starterEligibility({name:p.name,team:t,position:p.position,context:injuryContext,kickoff:game.kickoff,opponent:game.opponent,now});if(!starter?.known||!starter.eligible)continue;}
    const rush=makeModel(p,'rush_tds',game),rec=makeModel(p,'rec_tds',game),ready=row=>row?.model?.status==='ready'&&finite(row.projMean)&&row.projMean>=0;
    if(!ready(rush)||(p.position!=='QB'&&!ready(rec))||[rush,rec].some(row=>row&&((row.profileId!=null&&row.profileId!==p.id)||row.injury?.state==='out'||row.injury?.blockRecommendation)))continue;
    if(p.position==='QB'&&!ready(rec))missingQBReceiving.push(p.id);

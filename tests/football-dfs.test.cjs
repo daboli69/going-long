@@ -143,7 +143,7 @@ test('affordable showdown candidates survive score cutoff with multiplier lock',
 
 test('tournament build excludes object OUT/roster codes and started players without fake uncertainty fallback',()=>{
  const players=[];for(let i=0;i<9;i++)players.push({id:'t'+i,name:'Fixture '+i,position:i===0?'QB':'WR',team:i<5?'BUF':'MIA',opponent:i<5?'MIA':'BUF',game:'BUF@MIA',salary:4000,projection:20-i,kickoff:'2026-10-05T23:30:00Z'});
- players[8].upside={value:100,source:'observed-partial-fantasy-residual-v1',n:12,currentGames:4,asOf:'2026-10-05T22:00:00Z'};
+ players[8].upside={value:100,source:'observed-current-season-fantasy-residual-v2',n:4,currentGames:4,season:2026,asOf:new Date().toISOString()};
  const opts={contest:'showdown',mode:'tournament',count:1,now:Date.parse('2026-10-05T23:00:00Z')};
  const result=dfs.optimize(players,opts);assert.equal(result.lineups.length,1);assert.ok(result.lineups[0].players.some(p=>p.id==='t8'));
  for(const injury of [{state:'out'},'INA','RES']){players[8].injury=injury;assert.ok(!dfs.optimize(players,opts).lineups[0].players.some(p=>p.id==='t8'));}delete players[8].injury;

@@ -57,6 +57,7 @@ function cholesky(matrix){
 // Inverse CDF of a stat model at probability u (rows of the betting stat models: poisson lambda, or lognormal with an empirical nonpositive mass).
 function ppfModel(model,u){
  if(!model||model.status!=='ready')return 0;
+ if(model.family==='empirical'&&Array.isArray(model.values)&&model.values.length)return model.values[Math.max(0,Math.min(model.values.length-1,Math.ceil(u*model.values.length)-1))];
  if(model.family==='poisson'){
   const lambda=Math.max(0,model.lambda??model.mean??0);if(lambda<=1e-9)return 0;
   let k=0,term=Math.exp(-lambda),cdf=term;
@@ -118,6 +119,9 @@ function player(models,position,{draws=1000,site='draftkings',seed,correlations=
 
 // Pair correlation between two players. Same team: role pair; opposing teams: role vs opponent role. Unmeasured pairs are treated as independent.
 function pairCorrelation(a,b,correlations=root.GoingDfsCorrelations){
+ // Current-season DFS does not import archived covariance coefficients.
+ // Until paired current-game observations are validated, independence is explicit.
+ if(a.projectionSource==='dfs-current-season-empirical-v1'||b.projectionSource==='dfs-current-season-empirical-v1')return 0;
  if(!a.dfsRole||!b.dfsRole||!correlations?.cross_player)return 0;
  const table=correlations.cross_player,get=key=>table[key]?.r??DST_CROSS[key];
  if(a.team===b.team){const keys=[[a.dfsRole,b.dfsRole],[b.dfsRole,a.dfsRole]].map(([x,y])=>x+'~'+y);return get(keys[0])??get(keys[1])??0;}
