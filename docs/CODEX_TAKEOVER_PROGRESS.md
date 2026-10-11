@@ -1,3 +1,28 @@
+## Model research and Showdown quarterbacks — October 11 continuation
+
+Branch `codex/model-confidence-research`, base d990931; isolated research commit5e95373.
+All-market input inventory, fixed protocols, actual public retrospective replays and
+aggregate results in `research/model-confidence/REPORT.md`. Carry/target ATD candidate
+improves Brier against reconstructed fixed Champion in2024/25; calibration and prospective
+validation still required. Ridge game forecasts and general receiving/rushing shrinkage
+fail; QB volume/efficiency improves simple-mean error, not proved better than refit.
+No2026outcomes used, private archives opened, paid calls, betting model promotion or deployment.
+Both specialists hit account limit; root reviewed partial code and added20contracttests.
+
+User canceled new Showdown section (already exists), then reported missing Penix/Huntley
+with actual salaryCSV9 and authorized prior-season fallback when current QB data is insufficient.
+Penix's two real2026starts were silently discarded for -2rushing yards. Fixed signed yards,
+preserving integer nonnegative counts. Showdown-only fallback requires current verified starter,
+fresh identity/availability, >=2verified starts from immediately prior season; no mixing or
+older-year search, platform FPPG, matchup multiplier, archived covariance or fake current ceiling.
+Actual file through production model/eligibility/DOM: Penix13.38current basepoints;
+Huntley15.51base from2verified2025starts; both Captain/FLEX and visible Captain cards.
+LamarOUT and Tua backup remain excluded.40supportedrows; legal$49,900six-player draft.
+Huntley's small prior-start sample is explicitly unvalidated; started-game fallback projections
+are withdrawn rather than revived as incumbents. Existing inactives/refresh limits remain.
+Raw user CSV stays Downloads/cache, never Git/server. Final local revision/check receipt:
+`.cache/model-confidence-validation.json`. No push/deployment; review exact diff before release.
+
 ## Defensive CSV integration — October 11 continuation
 
 Release branch `codex/dfs-matchup-release`; original implementation6195db7 preserved on`codex/dfs-matchup-csv`. Applied only14code/test/doc paths to main04d49f8, preserving newer data. PR6 merged/deployed at975a2e325e3f510b14a439bec9e1fa9917228781. ExactmainCI38154631554 passes731Node/515Pythonrun5skip/bothbuilds; dependency audit0advisories. Production deployment6998235900 succeeds. Live importer verifies9/9fresh exports/239supported/390px nooverflow; CSVs loaded in in-app browser only, not server. New browser-only multi-CSV importer validates32teams+league, strict export clocks/current-season assertion and36-hour freshness. QB/RB/WR/TE FPG ratio affects explicit experimental Tournament ranking only. WR(1)outside/WR(2)slot, receiving alignment, pace and team defense appear as opponent evidence. Player alignment not guessed; D/ST baseline and all eligibility gates preserved. Raw licensed inputs stay Downloads/browser storage, never server/Git.
@@ -197,3 +222,6 @@ Independent specialist failed due usage limit; no purchase attempted. Own failur
 
 
 October11 Today/parlay continuation (`codex/today-parlay-repair`, base f033045): current-season PF/PA forecast now visibly supplies exact spread/total lean separately from anchored market probabilities. Fixed misleading TD/game1/100 headings, exposed spread/total filters and initial market mix without frozen-policy changes. Parlay builders/edits/restore reject <−500, validate matching quotes and prioritize supporting evidence; actual GoingPicks evidence joins on exact opportunity identity. Independent review found/fixed missing parlay evidence integration. Actual saved-data DOM: initial LAC+3.5 and Over42 alongside other cases, six totals/six spreads, current-source sample counts visible. No live-provider call, paid use, alert, production freeze, push or deployment. Exact check receipt `.cache/today-validation.json`; current progress in PROGRESS.md.
+
+
+October11 authorized release: PR7 merged at ca5b9c40fc59d70ad7a06969d295666684e390af; exact-main CI38171354435 passed, both PR CI runs passed, Production7001163202 succeeded. Normalized live asset hashes match tested source. Live browser verifies spread/total filters, forecasts and quote timestamps; Totals view left open. Screenshot `.cache/today-live-totals.png`. JAX/PHI Under41.5 traced to immutable Oct6/Oct9 GOING Picks records with current scoring40.625; started games correctly leave current suggestions. Squash-history conflicts reconciled without losing refreshed data or CSV/history DFS safeguards; targeted54DFS tests pass. No TD probability/model promotion. Existing provider-health limits remain.
