@@ -17,7 +17,7 @@
 - Latest public refresh at upstream `67ed9a3` still failed: core and derivative props HTTP503, other components retained. Read-only offline health audit correctly refuses healthy status. No production actions or paid provider calls.
 
 ## Working
-- Publishing verified DFS current-season repair under existing push/deploy authorization, owner Codex: reported12-game mixed-year tournament sample and unannounced starter inference. Acceptance: all production DFS projections/spreads/DST use completed2026games only; unavailable/nonstarter players excluded; actual salary CSV, regressions, builds and independent review pass. Supplied WR(1)=outside, WR(2)=slot; licensed rows stay outside Git. Sidebar is deployed atb54b675.
+- None for this bounded DFS repair. PR5 deployed at `bc6ef50042443a4ec67b9c84a0eb356959f7b1f2`; exact mainCI38152062188 passes720Node/515Pythonrun5skip/bothbuilds. Production deployment6997788972 succeeds. Live CSV241supported/22DST, Caleb exclusion and390px overflow check verified. Receipt `.cache/dfs-current-season/validation.json`. Existing external/model limitations remain below.
 
 ## Problems
 - Inspected manual refresh38139354271 also reported incomplete/degraded upstream props and derivatives. Local workflow repairs address reproducible application defects; provider coverage can still leave the final health step red. No degraded source is relabeled FRESH; unrelated valid outputs can publish independently.
