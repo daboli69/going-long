@@ -4,6 +4,9 @@ const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const team=x=>({LAR:'LA',JAC:'JAX',WSH:'WAS'})[String(x||'').toUpperCase()]||String(x||'').toUpperCase();
 // Preserve suffixes: two similar names are not permission to guess an identity.
 const nameKey=x=>String(x||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+// Explicit source-name variants bound to verified NFL identity, never global suffix stripping.
+const NAME_VARIANTS={'00-0036970':['Kyle Pitts','Kyle Pitts Sr.'],'00-0037746':['Brian Robinson','Brian Robinson Jr.']};
+const matchesName=(profile,name)=>nameKey(profile.name)===nameKey(name)||(NAME_VARIANTS[profile.id]?.some(n=>nameKey(n)===nameKey(profile.name))&&NAME_VARIANTS[profile.id].some(n=>nameKey(n)===nameKey(name)));
 const age=(stamp,now)=>(now-Date.parse(stamp))/3600000;
 function observedCounts(profile,now){
  const games=(profile?.games||[]).filter(g=>Date.parse(g.date)<=now&&Number.isSafeInteger(g.rush_tds)&&g.rush_tds>=0&&Number.isSafeInteger(g.rec_tds)&&g.rec_tds>=0);
@@ -35,14 +38,14 @@ function preservedIncumbent(s,previous,{profiles,context,injuryContext,generated
   if(site!=='draftkings'||!receiptValid(old.provenance,at)||Date.parse(old.provenance.generatedAt)>=at||teamSnapshot?.season!==season||teamSnapshot.defenseStatus!=='current-season-partial'||!receiptValid(teamSnapshot,now))return null;
  }
  if(s.position!=='DST'){
-  const candidates=Object.values(profiles).filter(p=>nameKey(p.name)===nameKey(s.name)&&team(p.team)===team(s.team)&&p.position===s.position);
+  const candidates=Object.values(profiles).filter(p=>matchesName(p,s.name)&&team(p.team)===team(s.team)&&p.position===s.position);
   if(candidates.length!==1||candidates[0].id!==old.profileId||candidates[0].id!==old.athleteId)return null;
   const roster=injuryContext.byIdentity?.get(team(s.team)+'|'+injuries?.normalize?.(s.name)),status=String(roster?.roster_status||roster?.status||'').trim().toLowerCase(),available=roster&&injuries?.availability?.(roster);
   if(!roster||nameKey(roster.name)!==nameKey(s.name)||team(roster.team)!==team(s.team)||String(roster.position||roster.pos||'').toUpperCase()!==s.position||!['act','active','active roster','healthy','available'].includes(status)||!available||available.block||!['available','questionable','probable','limited','practice_dnp'].includes(available.state))return null;
  }
  return {...old,incumbentLocked:true,concerns:[...(old.concerns||[]).filter(x=>x!=='Game started: pregame projection retained only for this exact existing roster spot; no new selection.'),'Game started: pregame projection retained only for this exact existing roster spot; no new selection.']};
 }
-function buildPool(salaries,{profiles={},context=null,injuryContext=null,generatedAt,now=Date.now(),makeModel,bonusProbability,points,injuries,adjustments=ADJUSTMENTS,currentSeasonOnly=true,allowPriorSeasonQB=false,teamSnapshot=null,site='draftkings',incumbentLineup=[]}={}){
+function buildPool(salaries,{profiles={},context=null,injuryContext=null,generatedAt,now=Date.now(),makeModel,bonusProbability,points,injuries,adjustments=ADJUSTMENTS,currentSeasonOnly=true,allowPriorSeasonQB=false,teamSnapshot=null,kickerSnapshot=null,rosterSnapshot=null,site='draftkings',incumbentLineup=[]}={}){
  const all=Object.values(profiles),fresh=age(generatedAt,now)>=0&&age(generatedAt,now)<=36;
  return salaries.map(s=>{
   const base={...s,matched:false,unavailable:true,projection:null,tdMean:null,reasons:[],concerns:[],evidence:[],modelGeneratedAt:generatedAt};
@@ -54,14 +57,22 @@ function buildPool(salaries,{profiles={},context=null,injuryContext=null,generat
    if(currentSeasonOnly){
     const defense=root.GoingDfsCurrentDefense?.project(s,teamSnapshot,{now});
     if(site!=='draftkings'||defense?.status!=='ready')return {...base,matched:true,concerns:[defense?.concerns?.[0]||'Current-season defense scoring evidence unavailable; platform average is not substituted.']};
-    return {...base,...defense,sd:defense.distribution?.sd,matched:true,unavailable:false,tdMean:0,projectionSource:'dfs-current-season-empirical-v1',reasons:['Current-season partial D/ST scoring average; no prior-year platform average.'],source:'Current-season public D/ST scoring baseline'};
+    return {...base,...defense,value:finite(s.salary)?defense.projection/(s.salary/1000):null,sd:defense.distribution?.sd,matched:true,unavailable:false,tdMean:0,projectionSource:'dfs-current-season-empirical-v1',reasons:['Current-season partial D/ST scoring average; no prior-year platform average.'],source:'Current-season public D/ST scoring baseline'};
    }
    return {...base,matched:true,unavailable:!finite(s.avgPointsPerGame)||s.avgPointsPerGame<=0,projection:s.avgPointsPerGame,tdMean:0,reasons:['Imported DraftKings average fantasy points; salary competes with offensive upgrades.'],concerns:['Historical platform average only: no current DST matchup projection. DST contributes zero promotional rushing/receiving TDs.'],source:'DraftKings DST average (fallback)'};
   }
-  const matches=all.filter(p=>nameKey(p.name)===nameKey(s.name)&&team(p.team)===team(s.team)&&p.position===s.position);
+  if(s.position==='K'){
+   const records=(rosterSnapshot?.players||[]).filter(p=>nameKey(p.name)===nameKey(s.name)&&team(p.team)===team(s.team)&&p.position==='K'),record=records.length===1?records[0]:null;
+   const roster=injuryContext?.byIdentity?.get(team(s.team)+'|'+injuries?.normalize?.(s.name)),state=roster&&injuries?.availability?.(roster);
+   if(site!=='draftkings'||!['CPT','FLEX'].includes(s.showdownRole)||!injuryContext?.fresh||!finite(age(injuryContext.generatedAt,now))||age(injuryContext.generatedAt,now)<0||age(injuryContext.generatedAt,now)>36||!record||!finite(age(rosterSnapshot.generated_at,now))||age(rosterSnapshot.generated_at,now)<0||age(rosterSnapshot.generated_at,now)>36||record.roster_status!=='ACT'||!roster||nameKey(roster.name)!==nameKey(s.name)||team(roster.team)!==team(s.team)||String(roster.position||roster.pos)!=='K'||state?.block||!['available','questionable','probable','limited','practice_dnp'].includes(state?.state))return {...base,concerns:['Fresh unique active kicker identity and availability required; no imported FPPG substitution.']};
+   const kicking=root.GoingDfsCurrentKicker?.project(s,kickerSnapshot,{now,playerId:record.id});
+   if(kicking?.status!=='ready')return {...base,matched:true,concerns:kicking?.concerns||['Current-season kicking evidence unavailable.']};
+   return {...base,...kicking,injury:state.state==='available'?null:{...state,status:state.status||state.state},concerns:[...(kicking.concerns||[]),...(state.state==='available'?[]:[state.reason||state.state+' kicker: verify final availability.'])],projectionSource:root.GoingDfsCurrentKicker.SOURCE,projectionSeason:kicking.season,canonicalName:record.name,athleteId:record.id,profileId:record.id,modelGeneratedAt:kickerSnapshot.generatedAt,matched:true,unavailable:false,tdMean:0,sd:kicking.distribution?.sd,value:finite(s.salary)?kicking.projection/(s.salary/1000):null,reasons:['Current-season distance-scored kicking average; no historical platform average.'],source:'Current-season public kicker scoring baseline'};
+  }
+  const matches=all.filter(p=>matchesName(p,s.name)&&team(p.team)===team(s.team)&&p.position===s.position);
   if(matches.length!==1)return {...base,concerns:[matches.length?'Ambiguous GOING identity; excluded.':'No exact name/team/position GOING match; excluded.']};
   const p=matches[0],current=context?.scopes?.[String(context.season)]?.players?.[p.id],roster=injuryContext?.byIdentity?.get(team(s.team)+'|'+injuries?.normalize?.(s.name)),availability=roster&&injuries?.availability?.(roster),starter=injuries?.starterEligibility?.({name:p.name,team:p.team,position:p.position,context:injuryContext,kickoff:s.kickoff,opponent:s.opponent,now});
-  base.matched=true;base.athleteId=p.id;base.profileId=p.id;base.counts=observedCounts(p,now);
+  base.matched=true;base.canonicalName=p.name;base.athleteId=p.id;base.profileId=p.id;base.counts=observedCounts(p,now);
   if(!fresh)return {...base,concerns:['GOING model snapshot missing, future-dated or older than 36 hours; excluded.']};
   if(currentSeasonOnly&&(!root.GoingDfsCurrentSeason||Number(context?.season)!==root.GoingDfsCurrentSeason.seasonOf(now)||!Number.isFinite(age(context?.generated_at,now))||age(context.generated_at,now)<0||age(context.generated_at,now)>36))return {...base,concerns:['Verified current-season context unavailable; no historical fallback.']};
   const fallbackAllowed=currentSeasonOnly&&allowPriorSeasonQB===true&&site==='draftkings'&&['CPT','FLEX'].includes(s.showdownRole)&&s.position==='QB'&&starter?.known===true&&starter.eligible===true;
