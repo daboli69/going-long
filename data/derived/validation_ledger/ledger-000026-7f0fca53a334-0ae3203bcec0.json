@@ -1,1 +1,0 @@
-{"schema_version":1,"layout":"validation-ledger-v1","projection_version":"validation-light-v3","derived":true,"not_for_evaluation":true,"source":{"segment_file":"segments/seg-000026-7f0fca53a334.json","segment_sha256":"7f0fca53a3347d10fb35caba3dc5fb94d00333be4b95d6982ef1343a572a8be8","first_record":56219,"records":388},"rows":[]}
