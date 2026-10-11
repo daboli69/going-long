@@ -1,6 +1,7 @@
 # Progress
 
 ## Completed
+- Classic CSV repair on `codex/dk-classic-csv`: desktop reference CSS placed salary/ownership uploads at identical coordinates; JSON overlay intercepted CSV clicks. Position only the salary upload; separate optional ownership in a closed disclosure, preserve paste/JSON handlers. Actual supplied Oct11 CSV imports587players/11games; offline slate audit passes349availability-eligible rows and browser shows215model-supported rows. Browser picker tested at1280px and390px without overlap/overflow. Node692passed; Python510run/5existing skips; both builds. Receipt `.cache/dk-csv/validation.json`; source CSV stays outside Git.
 - Oct11 Actions repair on `codex/going-actions-repair`, based on actual main4aedf4e: full Git checkout for immutable ABBEYS receipts; nullable QB depth-order crash; verified tracker/ledger shard retirement and deletion staging. Independent review exposed observation rewrite/type-equality holes, repaired with expanded JSON prefix checks. Node690passed; Python510run/5existing skips; both builds passed. Exact final revision/check receipt: `.cache/actions-repair/validation.json`. No push/provider calls.
 - Saturday full verification: Node681passed; Python485run/5skipped; both production builds, zero dependency advisories. Conflict-free local main rehearsal preserves all35upstream-changed data paths and8ABBEYS paths; journal4records/2snapshots verifies. Exact final revision/logs in `.cache/saturday-validation.json`; health intentionally fails for missing source provenance/STALEprops.
 - Saturday repairs ddcb51a/c6b644e/e61ffb1: corrected FirstTD game-total collision, strict shared eligibility/version/identity gates, settlement-safe research labels, exact Fanatics floor and exposure disclosure, honest Score/parlay wording. Source-content freshness, component-isolated publication, no reset/replay on concurrency, Eastern04:20 freeze. Opus audit read at supplied Claude scratchpad path; independently reproduced and reviewed. No production data/Week5/champion edits.
@@ -14,11 +15,11 @@
 - Latest public refresh at upstream `67ed9a3` still failed: core and derivative props HTTP503, other components retained. Read-only offline health audit correctly refuses healthy status. No production actions or paid provider calls.
 
 ## Working
-- None. Actions repair prepared locally; production publication requires approval.
+- Classic CSV repair verified; publishing under Travis's push-and-deploy authorization. No model or roster changes.
 
 ## Problems
 - Inspected manual refresh38139354271 also reported incomplete/degraded upstream props and derivatives. Local workflow repairs address reproducible application defects; provider coverage can still leave the final health step red. No degraded source is relabeled FRESH; unrelated valid outputs can publish independently.
-- Active betting recommendations remain blocked: current availability lacks source-content provenance and props/derivatives are FALLBACK. Automatic Fanatics ATD prices absent; actual contest CSV/ownership and scanner host evidence unavailable. Legacy FirstTD is suppressed; corrected estimates remain research-only pending source refresh and sportsbook settlement verification.
+- Upstream props/derivatives remain degraded. Automatic Fanatics ATD prices absent; ownership file, selected contest association and scanner host evidence unverified. Actual Oct11 salary CSV now supplied and validated; it does not prove contest ownership, lineup performance or profitability. Legacy FirstTD remains research-only pending sportsbook settlement verification.
 - No demonstrated passing-yards or ATD market advantage; frequency TD challenger fails the promotion gate. Today-ranking v3 capture correctly rejects the repaired generator until separately preregistered; historical records preserved.
 
 ## Next

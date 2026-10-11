@@ -1,5 +1,14 @@
 # Independent takeover — 2026-10-10
 
+## October 11 Classic CSV upload repair
+
+- User supplied `DKSalaries (7).csv` outside the repository. Actual parser accepts **587 rows / 11 October 11 games**, including the Status column; **96 CSV OUT/IR rows** remain blocked. No salary file or ownership/private inputs copied into Git.
+- Reproduced exact desktop defect in the deployed browser at1280px: both `dk-file` and `dk-field-file` had rectangle `(381.6875,513,220,44)`; hit testing the CSV picker returned the JSON picker. `reference-workspace.css` absolutely positioned every direct non-confirmation label, overlaying the second ownership control on the salary upload.
+- Fix: scope desktop positioning to `.dk-salary-upload`; label the official `.csv` clearly with accessible help; place optional ownership JSON inside a separate, initially closed disclosure. Keep the paste disclosure first so the existing reference adapter continues to move the paste instructions correctly. Ownership handler/model formats, CSV parser, eligibility and optimization untouched.
+- Actual file-chooser import succeeds in local full application:587players/11games;215model-supported rows with existing public evidence. Separate offline salary/availability validator passes without format errors,349availability-eligible rows; selected contest association remains user-confirmed. No fabricated projections, lineups or profitability validation.
+- Desktop and390px mobile browser checks: CSV remains visible/clickable, optional JSON hidden until expanded, no horizontal overflow; expanded desktop JSON and CSV hit their own controls. Images/logs in ignored `.cache/dk-csv/`; actual CSV never uploaded to a server.
+- Two regressions cover sole direct salary upload/desktop selector and retained optional JSON loading without losing salary confirmation. Full Node692passed; Python510run/505passed/5existing skips; both builds passed. Final revision and publication/CI evidence go in `.cache/dk-csv/validation.json`. Publishing under existing user push/deploy approval; rollback is a revert of the focused UI commit.
+
 ## October 11 GitHub Actions repair
 
 - Request: repair the failed manual **Refresh Going Long data** run [38139354271](https://github.com/daboli69/going-long/actions/runs/38139354271), started 12:27:57Z (08:27 Eastern) on `d138d4127889df8da2ef1f4eb51ad2f5eea9e3ed`. The final health step failed after partial publication. This is separate from earlier repaired provider HTTP503 handling.
