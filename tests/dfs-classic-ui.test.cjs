@@ -103,3 +103,31 @@ test('tournament UI explains construction, unknown leverage and progressively ex
 
 
 test('pregame lineup can be frozen without modifying the lineup and exports stay separate from betting journals',async t=>{const ui=mount(t);await load(ui);confirm(ui);click(ui,'#dk-tournament');await generate(ui);const before=ids(ui);click(ui,'[data-act="freeze"]');assert.match(ui.d.getElementById('dk-status').textContent,/Pregame DFS lineup frozen/);assert.deepEqual(ids(ui),before);const r=ui.w.GoingDfsJournal.read(ui.w.localStorage);assert.equal(r.ok,true);assert.equal(r.receipts.length,1);assert.equal(r.receipts[0].mode,'tournament');assert.equal(r.receipts[0].players.length,9);});
+
+test('same-host refresh clears newly unavailable lineups and keeps historical frozen receipts',async t=>{
+ let unavailable=false;const buildPool=rows=>enrich(rows).map(p=>({...p,unavailable})),ui=mount(t,{buildPool});
+ await load(ui);confirm(ui);click(ui,'#dk-best');await generate(ui);click(ui,'[data-act="freeze"]');
+ const before=JSON.stringify(ui.w.GoingDfsJournal.read(ui.w.localStorage).receipts);unavailable=true;
+ ui.w.GoingDfsClassicUI.mount(ui.d.getElementById('fixture'),{buildPool});
+ assert.equal(ids(ui).length,0);assert.equal(ui.d.querySelector('[data-act="freeze"]').disabled,true);
+ assert.match(ui.d.getElementById('dk-status').textContent,/Availability changed/);
+ assert.equal(ui.d.querySelectorAll('#dk-pool-list article').length,0);
+ assert.equal(JSON.stringify(ui.w.GoingDfsJournal.read(ui.w.localStorage).receipts),before);
+});
+
+test('freeze checks current availability without needing a background refresh',async t=>{
+ let unavailable=false;const ui=mount(t,{buildPool:rows=>enrich(rows).map(p=>({...p,unavailable}))});
+ await load(ui);confirm(ui);click(ui,'#dk-best');await generate(ui);unavailable=true;click(ui,'[data-act="freeze"]');
+ assert.equal(ids(ui).length,0);assert.match(ui.d.getElementById('dk-status').textContent,/Availability changed/);
+ assert.equal(ui.w.GoingDfsJournal.read(ui.w.localStorage).receipts.length,0);
+});
+
+test('availability changing while asynchronous generation runs rejects the stale result',async t=>{
+ let unavailable=false,calls=0;const ui=mount(t,{
+  buildPool:rows=>enrich(rows).map(p=>({...p,unavailable})),
+  buildScenario:async()=>{if(++calls>1){await new Promise(resolve=>setTimeout(resolve,10));unavailable=true;}return {version:'team-budget-v1',teams:{BUF:{counts:[4,4,4],denominator:20},KC:{counts:[4,4,4],denominator:20}}};}
+ });
+ await load(ui);confirm(ui);await generate(ui);assert.equal(ids(ui).length,0);
+ assert.match(ui.d.getElementById('dk-status').textContent,/Availability changed during generation/);
+ assert.equal(ui.d.querySelector('[data-act="freeze"]').disabled,true);
+});

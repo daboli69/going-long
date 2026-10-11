@@ -99,8 +99,12 @@ class SlateBreakerTests(unittest.TestCase):
         roster = [{'gsis_id': 'p1', 'team': 'A', 'status': 'ACT', 'position': 'RB', 'full_name': 'Known'},
                   {'gsis_id': 'p2', 'team': 'A', 'status': 'ACT', 'position': 'WR', 'full_name': 'New'},
                   {'gsis_id': 'p3', 'team': 'A', 'status': 'INA', 'position': 'WR', 'full_name': 'Inactive'}]
-        selections, components, inactive, _ = build_selections(games, first, roster, [], defaultdict_counter(),
-                                                                 {'QB': .1, 'RB': .3, 'FB': .05, 'WR': .4, 'TE': .15})
+        stamp = '2026-09-18T12:00:00Z'
+        injury = {'generated_at': stamp, 'source_content_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'current_players': {}, 'current_reports': {}}
+        public_roster = {'generated_at': stamp, 'source_content_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'players': [{'id': r['gsis_id'], 'team': r['team'], 'roster_status': r['status']} for r in roster]}
+        with patch('eligibility._load', side_effect=lambda name: injury if name == 'injury_context.json' else public_roster):
+            selections, components, inactive, _ = build_selections(games, first, roster, [], defaultdict_counter(),
+                                                                     {'QB': .1, 'RB': .3, 'FB': .05, 'WR': .4, 'TE': .15}, as_of=stamp)
         ids = {x['id'] for x in selections}
         self.assertIn('p1', ids); self.assertIn('p2', ids); self.assertNotIn('p3', ids)
         self.assertIn('Inactive', inactive)

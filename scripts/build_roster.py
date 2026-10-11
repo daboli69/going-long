@@ -4,6 +4,7 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 from build_pipeline import atomic_json
+from availability_source import load_source, preserve_newer, source_stamp
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -31,7 +32,7 @@ def normalize(roster, injuries, season, bye_teams=()):
         report = { 'report_status': r.get('report_status'), 'practice_status': r.get('practice_status'),
                    'primary_injury': r.get('report_primary_injury') or r.get('practice_primary_injury'),
                    'secondary_injury': r.get('report_secondary_injury') or r.get('practice_secondary_injury'),
-                   'week': report_week, 'reported_at': str(r.get('date_modified') or '') or None }
+                   'week': report_week, 'reported_at': source_stamp(r.get('date_modified')) }
         parts = [str(report.get(k) or '').lower() for k in ('primary_injury','secondary_injury')]
         if not report['report_status'] and all(not p or 'not injury related' in p or p == 'rest' for p in parts):
             continue
@@ -60,13 +61,19 @@ def normalize(roster, injuries, season, bye_teams=()):
 def build():
     import nflreadpy as nfl
     season=int(os.getenv('SEASON',datetime.now().year))
-    roster=nfl.load_rosters_weekly([season]).to_dicts()
+    roster, roster_source=load_source('rosters',season)
+    injuries, injury_source=load_source('injuries',season,roster=roster)
     bye=bye_teams_for(nfl.load_schedules([season]).to_dicts(),season,latest_week(roster,season))
-    result=normalize(roster,nfl.load_injuries([season]).to_dicts(),season,bye)
+    result=normalize(roster,injuries,season,bye)
+    if result['injury_week'] != result['week']:
+        raise RuntimeError('Injury reports do not cover the current roster week; previous snapshot retained')
     if len({p['team'] for p in result['players']})!=32:raise RuntimeError('Incomplete active roster source; previous snapshot retained')
     result.update(schema_version=1,generated_at=datetime.now(timezone.utc).isoformat(),status='FRESH',
+                  source_roster_at=roster_source['content_at'],source_injury_at=injury_source['content_at'],
+                  sources={'rosters':roster_source,'injuries':injury_source},
                   source='nflverse weekly rosters and injury reports',source_url='https://github.com/nflverse/nflverse-data',
                   note='Active roster at the published weekly snapshot; teams on bye keep their latest earlier active roster (flagged bye_carry_forward, true week per player); game-day inactive status is separate. Injury report week is shown explicitly.')
+    preserve_newer(ROOT/'data/nfl_roster.json',result)
     atomic_json(ROOT/'data/nfl_roster.json',result)
     print(f"Roster: {len(result['players'])} players, 32 teams, week {result['week']}")
 

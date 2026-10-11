@@ -31,19 +31,23 @@ function compareMarkup(){
 function draw(){
  const G=root.GoingScorePlayer,doc=S.doc;if(!S.host)return;
  if(!doc){S.host.innerHTML='<p class="gc-empty">The player score file is not available yet. It is built by the weekly refresh.</p>';return;}
- const teams=[...new Set(doc.players.map(p=>p.team).filter(Boolean))].sort();
- let rows=G.filter(doc.players,{position:S.pos==='ALL'?null:S.pos,team:S.team==='ALL'?null:S.team,tier:S.tier==='ALL'?null:S.tier,search:S.q});
+ const engine=S.getEligibility?.(),eligible=S.getEligibility?doc.players.filter(p=>engine?.decide(p.id,{team:p.team,requireRecentGame:false}).actionable):doc.players;
+ const teams=[...new Set(eligible.map(p=>p.team).filter(Boolean))].sort();
+ let rows=G.filter(eligible,{position:S.pos==='ALL'?null:S.pos,team:S.team==='ALL'?null:S.team,tier:S.tier==='ALL'?null:S.tier,search:S.q});
  rows=G.rank(rows,S.sort);
- const mv=G.movers(doc.players.filter(p=>(S.pos==='ALL'||p.position===S.pos)),{limit:5,minAbsChange:5});
+ S.compare=S.compare.filter(id=>eligible.some(p=>p.id===id));
+ const mv=G.movers(eligible.filter(p=>(S.pos==='ALL'||p.position===S.pos)),{limit:5,minAbsChange:5});
  const m=doc.meta,av=m.availability,avWarn=av&&av.ok===false?`<p class="bt-note gt-warn"><b>Availability data was stale when this was built</b> (${esc(av.reason)}). Players known to be unavailable are excluded; others are not confirmed active.</p>`:'';
- S.host.innerHTML=`${avWarn}<p class="bt-note"><b>What this is:</b> ${esc(m.meaning)} Season ${m.season}, through week ${m.week-1}. Method ${esc(m.methodology_version)}. Validated modestly: it matches trailing expected points for QB/RB/WR and beats it only for TE (docs/GOING_SCORE.md).</p>
+ const paused=S.getEligibility&&(!engine||!engine.fresh.ok)?`<p class="bt-note gt-warn" role="status"><b>Player rankings paused:</b> ${esc(engine?.fresh.reason||'availability engine unavailable')}. Refresh current roster and injury data to resume.</p>`:'';
+ S.host.innerHTML=`${paused}${avWarn}<p class="bt-note"><b>What this is:</b> ${esc(m.meaning)} Season ${m.season}, through week ${m.week-1}. Method ${esc(m.methodology_version)}. Validated modestly: it matches trailing expected points for QB/RB/WR and beats it only for TE (docs/GOING_SCORE.md).</p>
  <div class="gs-filters"><label>Position<select data-gs="pos">${['ALL','QB','RB','WR','TE'].map(x=>`<option ${x===S.pos?'selected':''}>${x}</option>`).join('')}</select></label><label>Team<select data-gs="team"><option>ALL</option>${teams.map(t=>`<option ${t===S.team?'selected':''}>${esc(t)}</option>`).join('')}</select></label><label>Tier<select data-gs="tier">${['ALL','elite','strong','solid','modest','low'].map(x=>`<option ${x===S.tier?'selected':''}>${x}</option>`).join('')}</select></label><label>Sort<select data-gs="sort">${[['score','Score'],['delta_3w','3-week change'],['opportunity','Opportunity'],['availability','Availability']].map(([k,l])=>`<option value="${k}" ${k===S.sort?'selected':''}>${l}</option>`).join('')}</select></label><label>Search<input type="search" data-gs="q" value="${esc(S.q)}" placeholder="Player name"></label></div>
  <div class="gs-movers"><div><h4>Biggest risers (3 weeks)</h4>${mv.risers.map(p=>`<span>${esc(p.name)} ${delta(p.delta_3w)}</span>`).join('')||'<small>None</small>'}</div><div><h4>Biggest fallers</h4>${mv.fallers.map(p=>`<span>${esc(p.name)} ${delta(p.delta_3w)}</span>`).join('')||'<small>None</small>'}</div></div>
  ${compareMarkup()}<p class="bt-note">${rows.length} players. A higher score means a better underlying situation, not a better bet.</p>
  <div class="gs-list">${rows.slice(0,S.limit).map(card).join('')}</div>${rows.length>S.limit?`<button type="button" data-gs-more>Show 25 more</button>`:''}`;
 }
-function render(host){
+function render(host,{eligibility=null}={}){
  if(!host||!root.GoingScorePlayer)return;S.host=host;
+ S.getEligibility=eligibility;
  if(!host.dataset.bound){host.dataset.bound='1';
   host.addEventListener('change',e=>{const k=e.target.dataset?.gs;if(k){S[k]=e.target.value;S.limit=25;draw();return;}const c=e.target.dataset?.compare;if(c){S.compare=e.target.checked?[...S.compare,c].slice(-2):S.compare.filter(x=>x!==c);draw();}});
   host.addEventListener('input',e=>{if(e.target.dataset?.gs==='q'){S.q=e.target.value;S.limit=25;const pos=e.target.selectionStart;draw();const el=host.querySelector('[data-gs="q"]');el?.focus();el?.setSelectionRange(pos,pos);}});

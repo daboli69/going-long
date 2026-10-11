@@ -75,6 +75,11 @@ def distance_mix(own, pool, prior=5):
 
 
 def build_slate(games, profiles, roster, rows, as_of):
+    import eligibility
+    cutoff = datetime.fromisoformat(as_of.replace('Z', '+00:00'))
+    availability = eligibility.freshness(cutoff)
+    if not availability['ok']:
+        raise RuntimeError('King Endzone availability unverified: ' + availability['reason'])
     date = games[0]['date']
     teams = {g[k] for g in games for k in ('home', 'away')}
     historical = [r for r in rows if str(r.get('game_date', ''))[:10] < as_of[:10]]
@@ -86,7 +91,8 @@ def build_slate(games, profiles, roster, rows, as_of):
             if t: team_games[t][r['game_id']] = str(r['game_date'])[:10]
     windows = {t: set(sorted(g, key=g.get)[-12:]) for t, g in team_games.items()}
     team_exposure = sum(len(g) for g in team_games.values())
-    out_reported = reported_out_ids()
+    out_reported = eligibility.blocked_ids({r['gsis_id']: {'team': r.get('team')}
+        for r in roster if r.get('gsis_id')}, now=cutoff)
     active = {r['gsis_id']: r for r in roster if r.get('gsis_id') and r.get('team') in teams and r.get('status') == 'ACT' and r['gsis_id'] not in out_reported}
     return_counts = defaultdict(Counter)
     for r in historical:

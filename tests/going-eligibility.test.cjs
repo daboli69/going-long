@@ -1,8 +1,8 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const E=require('../shared/going-eligibility.js');
 const NOW=Date.parse('2026-10-11T12:00:00Z'),fresh='2026-10-11T08:00:00Z',old='2026-10-08T08:00:00Z';
-const inj=(entries,reports={},generated_at=fresh)=>({generated_at,current_players:Object.fromEntries(Object.entries(entries).map(([id,rs])=>['T|'+id,{gsis_id:id,roster_status:rs,team:'AAA'}])),current_reports:Object.fromEntries(Object.entries(reports).map(([id,r])=>['T|'+id,{gsis_id:id,week:5,...r}]))});
-const roster=(players=[],extra={})=>({generated_at:fresh,week:5,players,bye_carry_forward_teams:[],...extra});
+const inj=(entries,reports={},generated_at=fresh)=>({generated_at,source_content_at:generated_at,source_roster_at:generated_at,current_players:Object.fromEntries(Object.entries(entries).map(([id,rs])=>['T|'+id,{gsis_id:id,roster_status:rs,team:'AAA'}])),current_reports:Object.fromEntries(Object.entries(reports).map(([id,r])=>['T|'+id,{gsis_id:id,week:5,...r}]))});
+const roster=(players=[],extra={})=>({generated_at:fresh,source_content_at:fresh,source_roster_at:fresh,source_injury_at:fresh,week:5,players,bye_carry_forward_teams:[],...extra});
 const eng=(i,r=roster(),o={})=>E.create({injury:i,roster:r,week:5,now:NOW,...o});
 const d=(e,id,extra={lastGame:'2026-10-04'})=>e.decide(id,extra);
 
@@ -56,12 +56,55 @@ test('IR with a published return week is stash-only and never actionable; blank 
  const x=d(eng(i),'a');assert.equal(x.state,'returning');assert.equal(x.stashOnly,true);assert.equal(x.actionable,false);
  const b=inj({a:'ACT'});b.current_players['T|a'].roster_status='';assert.equal(d(eng(b),'a').state,'unknown');
 });
-test('roster snapshot fills teams missing from the injury file; rollback switch drops only the freshness rule',()=>{
+test('roster snapshot fills missing teams; legacy rollback switch cannot bypass freshness',()=>{
  const r=roster([{id:'q',team:'BBB',roster_status:'ACT'}]);
  assert.equal(d(eng(inj({}),r),'q').state,'active');
- globalThis.GOING_ELIGIBILITY_STRICT=false;try{assert.equal(d(eng(inj({a:'ACT'},{},old)),'a').actionable,true);assert.equal(d(eng(inj({a:'RES'},{},old)),'a').actionable,false);}finally{delete globalThis.GOING_ELIGIBILITY_STRICT;}
+ globalThis.GOING_ELIGIBILITY_STRICT=false;try{assert.equal(d(eng(inj({a:'ACT'},{},old)),'a').actionable,false);assert.equal(d(eng(inj({a:'RES'},{},old)),'a').actionable,false);}finally{delete globalThis.GOING_ELIGIBILITY_STRICT;}
+});
+
+test('unrecognized injury reports cannot clear fresh active players',()=>{
+ for(const report_status of ['UNKNOWN','BOGUS','uncertain']){
+  assert.equal(d(eng(inj({a:'ACT'},{a:{report_status,week:5}})),'a').actionable,false);
+  assert.equal(d(eng(inj({a:'ACT'}),roster([{id:'a',roster_status:'ACT',injury:{report_status,week:5}}])),'a').actionable,false);
+ }
 });
 test('blockedIds includes everyone when data is stale',()=>{
  const e=eng(inj({a:'ACT',r:'RES'},{},old));const b=e.blockedIds({a:{},z:{}});assert.ok(b.has('a')&&b.has('r')&&b.has('z'));
- const f=eng(inj({a:'ACT',r:'RES'}));const c=f.blockedIds({a:{},z:{}});assert.ok(c.has('r')&&!c.has('a')&&!c.has('z'));
+ const f=eng(inj({a:'ACT',r:'RES'}));const c=f.blockedIds({a:{},z:{}});assert.ok(c.has('r')&&!c.has('a')&&c.has('z'));
+});
+
+test('unrecognized statuses and contradictory roster rows never clear an active injury row',()=>{
+ for(const rs of ['BOGUS','',null,'RES','PS','IR']){
+  const e=eng(inj({a:'ACT'}),roster([{id:'a',team:'AAA',roster_status:rs}]));
+  assert.equal(d(e,'a').actionable,false,String(rs));
+ }
+ for(const rs of ['UNKNOWN','123',{},['ACT']])assert.equal(d(eng(inj({a:rs})),'a').actionable,false);
+ assert.equal(d(eng(inj({a:' act '})),'a').actionable,true);
+});
+
+test('team contradictions, future appearances and unknown profile IDs fail closed',()=>{
+ const e=eng(inj({a:'ACT'}),roster([{id:'a',team:'BBB',roster_status:'ACT'}]));
+ assert.equal(d(e,'a').actionable,false);
+ assert.equal(d(eng(inj({a:'ACT'})),'a',{team:'BBB',lastGame:'2026-10-04'}).actionable,false);
+ assert.equal(d(eng(inj({a:'ACT'})),'a',{lastGame:'2026-10-12'}).actionable,false);
+ assert.ok(eng(inj({a:'ACT'})).blockedIds({a:{},missing:{}}).has('missing'));
+});
+
+test('timestamp-only and malformed collections cannot verify availability or throw',()=>{
+ for(const i of [{generated_at:fresh,source_content_at:fresh,source_roster_at:fresh,source_injury_at:fresh},[],{...inj({a:'ACT'}),current_reports:[]},{...inj({a:'ACT'}),current_players:{bad:null}},{...inj({a:'ACT'}),current_reports:{bad:{gsis_id:'a',report_status:['Out']}}}]){
+  const e=eng(i);assert.equal(e.fresh.ok,false);assert.equal(d(e,'a').actionable,false);
+ }
+ for(const r of [{generated_at:fresh,source_content_at:fresh,source_roster_at:fresh,source_injury_at:fresh},[],roster('invalid'),roster([null]),roster([],{bye_carry_forward_teams:'AAA'})]){
+  const e=eng(inj({a:'ACT'}),r);assert.equal(e.fresh.ok,false);assert.equal(d(e,'a').actionable,false);
+ }
+ for(const generated_at of [12,'12','2026-10-11','2026-10-11T08:00:00','2026-10-12T08:00:00Z'])assert.equal(d(eng(inj({a:'ACT'},{},generated_at)),'a').actionable,false);
+});
+
+test('whitespace statuses, old string weeks and duplicate rows retain conservative decisions',()=>{
+ assert.equal(d(eng(inj({a:'ACT'},{a:{report_status:' Out '}})),'a').actionable,false);
+ assert.equal(d(eng(inj({a:'ACT'},{a:{report_status:'Out',week:'2'}})),'a').actionable,true);
+ const i=inj({a:'ACT'});i.current_players.duplicate={gsis_id:'a',roster_status:'RES',team:'AAA'};
+ assert.equal(d(eng(i),'a').actionable,false);
+ const r=roster([{id:'a',team:'AAA',roster_status:'RES'},{id:'a',team:'AAA',roster_status:'ACT'}]);
+ assert.equal(d(eng(inj({}),r),'a').actionable,false);
 });

@@ -64,10 +64,15 @@ test('January retains the previous football season rather than misclassifying cu
  const jan='2027-01-02T12:00:00Z',opts={...options,now:Date.parse(jan),historyAt:jan,contextAt:jan,learningAt:jan};
  const c=role({profileDate:'2026-12-27',kickoff:'2027-01-03T17:00:00Z',updatedAt:jan,evidence:{opportunity:{season:2026,last_game:'2026-12-27',adjustedShare:.7,average:.5}}});assert.equal(assess(c,opts).group,'support');
 });
-test('Confidence presentation preserves the registered Champion/generator/C1/C2 hashes (today-ranking-v3)',t=>{
+test('Saturday safety repairs preserve ranking policies and keep the old generator registration immutable',t=>{
  const root=path.resolve(__dirname,'..'),s=openSource(root,at);t.after(()=>s.dom.window.close());
  const registry=require('../research/today-ranking/experiment-v3.json');
- assert.equal(s.codeHashes.policy,registry.policyCodeHash);assert.equal(s.codeHashes.generator,registry.generatorCodeHash);
+ assert.equal(s.codeHashes.policy,registry.policyCodeHash);
+ // First TD identity/version and manual availability fixes change the generator.
+ // Do not rewrite the historical v3 registration or collect new rows under it.
+ assert.equal(registry.generatorCodeHash,'0704a5f658e943a2a3a6b73f2364d091f79d6ac9e45d5f2858af25260fb205e4');
+ assert.equal(s.codeHashes.generator,'f7780aa0bafddf4b7518e37d3eb7bd8e642c198dca5be74ab7ee26d074438227');
+ assert.match(fs.readFileSync(path.join(root,'research/today-ranking/collect.cjs'),'utf8'),/source.codeHashes.generator!==experiment.generatorCodeHash/);
  assert.equal(require('../research/today-ranking/collect.cjs').textHash(fs.readFileSync(path.join(root,'shared/ranking-policies.cjs'))),registry.challengersSourceHash);
 });
 test('Today integration handles empty state, unlimited pagination, league separation, details and focus',t=>{

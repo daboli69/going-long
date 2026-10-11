@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from parlay_feed import normalize_props, normalize_periods, request_rows, fetch_parlay, _fetch_parlay
+from parlay_feed import normalize_props, normalize_periods, request_rows, fetch_parlay, _fetch_parlay, ProviderRows, retry_after_seconds
 
 
 class ParlayTests(unittest.TestCase):
@@ -132,6 +132,135 @@ class ParlayTests(unittest.TestCase):
                                 {**quote, 'market_key': 'player_longest_reception'}])
         self.assertEqual(len(rows), 1)
         self.assertIsNone(rows[0]['kickoff'])
+
+    def test_retry_after_http_dates_and_invalid_values_are_bounded(self):
+        now = datetime(2026, 10, 10, 12, tzinfo=timezone.utc)
+        self.assertEqual(retry_after_seconds('Sat, 10 Oct 2026 12:00:30 GMT', now), 30)
+        self.assertEqual(retry_after_seconds('Sat, 10 Oct 2026 12:10:00 GMT', now), 60)
+        for value in ('NaN', 'Infinity', '-5', 'bad', None):
+            self.assertEqual(retry_after_seconds(value, now), 0)
+
+    def test_offset_clocks_and_invalid_timestamps_do_not_replace_newer_quote(self):
+        quote = dict(player='QB', bookmaker='book', market_key='player_pass_yds', line=200.5,
+                     commence_time='2030-01-01T00:00:00Z')
+        rows = normalize_props([
+            dict(quote, last_update='2026-10-10T12:00:00+02:00', over_price=110),
+            dict(quote, last_update='2026-10-10T10:30:00Z', over_price=120),
+            dict(quote, last_update=1e40, over_price=130),
+            dict(quote, last_update='2026-10-10T11:00:00', over_price=140),
+            dict(quote, commence_time='2030-01-01T00:00:00', over_price=150),
+            dict(quote, commence_time='2030-01-01T00:00:00+00:60', over_price=160),
+            dict(quote, last_update='2026-10-10T11:00:00+00:60', over_price=170),
+            dict(quote, commence_time='2030-02-30T17:00:00Z', over_price=180),
+            dict(quote, commence_time='2030-10-11T24:00:00Z', over_price=190),
+        ])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['overOdds'], 120)
+        period = dict(match_id='g', source='book', market='total', period_key='1H', side='over',
+                      line=20.5, price=-110, kickoff='2030-01-01T00:00:00', updatedAt='bad', last_observed_ms=1e40)
+        normalized = normalize_periods([period])[0]
+        self.assertTrue(normalized['inPlay'])
+        self.assertIsNone(normalized['updatedAt'])
+
+    def test_malformed_nested_odds_preserve_other_boards_without_retry(self):
+        malformed = [
+            {'id': 'broken', 'bookmakers': {}},
+            {'id': 'broken', 'bookmakers': [None]},
+            {'id': 'broken', 'bookmakers': [{'markets': {}}]},
+            {'id': 'broken', 'bookmakers': [{'markets': [{'outcomes': [None]}]}]},
+            {'id': 'broken', 'bookmakers': [{'key': 'b', 'markets': [{'key': 42, 'outcomes': []}]}]},
+            {'id': 'broken', 'home_team': {}},
+            {'id': 'broken', 'bookmakers': [{'key': {}}]},
+            {'id': 'broken', 'bookmakers': [{'markets': [{'key': '1h_total', 'outcomes': [{'name': []}]}]}]},
+        ]
+        quote = dict(player='QB', bookmaker='book', market_key='player_pass_yds', line=200.5,
+                     commence_time='2030-01-01T00:00:00Z', last_update='2026-10-10T10:30:00Z')
+        for event in malformed:
+            def get(url, **kwargs):
+                core = url.endswith('/props') and 'player_pass_yds' in kwargs['params']['markets'].split(',')
+                return self.response(200, [event] if url.endswith('/odds') else [quote] if core else [])
+            with self.subTest(event=event), patch.dict('os.environ', {'PARLAY_API_KEY': 'fixture'}), patch('parlay_feed.requests.get', side_effect=get) as requests, patch('parlay_feed.time.sleep') as sleep:
+                result = _fetch_parlay('nfl')
+                self.assertEqual(requests.call_count, 4)
+                sleep.assert_not_called()
+                self.assertEqual(len(result['props']), 1)
+                self.assertEqual(result['source_states']['odds'], 'FAILED')
+                self.assertEqual(result['source_states']['props'], 'FRESH')
+                self.assertEqual(result['feed_status'], 'FALLBACK')
+                self.assertIn('odds', result['source_errors'])
+
+    def test_malformed_scalar_identities_fail_only_their_source(self):
+        quote = dict(player='QB', bookmaker='book', market_key='player_pass_yds', line=200.5)
+        cases = [('props', dict(quote, market_key={})), ('props', dict(quote, bookmaker={'bad': 'book'})),
+                 ('periods', {'match_id': {}, 'source': 'book'}), ('periods', {'match_id': 'game', 'source': {}})]
+        for source, malformed in cases:
+            def get(url, **kwargs):
+                core = url.endswith('/props') and 'player_pass_yds' in kwargs['params']['markets'].split(',')
+                if source == 'props' and core or source == 'periods' and url.endswith('/period_markets'):
+                    rows = [malformed]
+                elif url.endswith('/props'):
+                    rows = [quote] if core else [dict(quote, market_key='player_first_td', line=.5)]
+                else:
+                    rows = []
+                return self.response(200, rows)
+            with self.subTest(source=source, malformed=malformed), patch.dict('os.environ', {'PARLAY_API_KEY': 'fixture'}), patch('parlay_feed.requests.get', side_effect=get) as requests:
+                result = _fetch_parlay('nfl')
+                self.assertEqual(requests.call_count, 4)
+                self.assertEqual(result['source_states'][source], 'FAILED')
+                self.assertEqual(result['source_states']['derivatives'], 'FRESH')
+                self.assertTrue(result['props'])
+                self.assertEqual(result['feed_status'], 'FALLBACK')
+
+    def test_partial_refresh_preserves_original_quote_clocks_and_malformed_provenance(self):
+        retained = {'quoteKey': 'retained', 'market': 'pass_yds', 'updatedAt': '2026-10-09T12:00:00Z'}
+        previous = {'props': [retained], 'source_observed_at': {'props': '2026-10-09T12:00:00Z'},
+                    'last_fresh_at': '2026-10-09T12:00:00Z'}
+        def get(sport, endpoint, params, key):
+            if endpoint == 'props' and 'player_pass_yds' in params['markets'].split(','):
+                raise RuntimeError('core unavailable')
+            return [{'id': 'current'}] if endpoint == 'odds' else []
+        with patch.dict('os.environ', {'PARLAY_API_KEY': 'fixture'}), patch('parlay_feed.request_rows', side_effect=get) as requests:
+            result = _fetch_parlay('nfl', previous)
+            malformed = _fetch_parlay('nfl', dict(previous, source_observed_at=None))
+        self.assertEqual(requests.call_count, 8)  # Four existing boards per refresh; no added retries.
+        self.assertEqual(result['props'], [retained])
+        self.assertEqual(result['source_states']['props'], 'STALE')
+        self.assertEqual(result['source_observed_at']['props'], retained['updatedAt'])
+        self.assertIsNone(malformed['source_observed_at']['props'])
+        self.assertEqual(result['last_fresh_at'], previous['last_fresh_at'])
+        self.assertEqual(result['feed_status'], 'FALLBACK')
+
+    def test_degraded_provider_coverage_is_never_fresh_and_ncaa_props_not_applicable(self):
+        def get(sport, endpoint, params, key):
+            return ProviderRows([], truncated=endpoint == 'props')
+        with patch.dict('os.environ', {'PARLAY_API_KEY': 'fixture'}), patch('parlay_feed.request_rows', side_effect=get):
+            result = _fetch_parlay('nfl')
+            ncaa = _fetch_parlay('ncaa')
+        self.assertEqual(result['feed_status'], 'FALLBACK')
+        self.assertEqual(result['source_states']['props'], 'DEGRADED')
+        self.assertTrue(result['coverage']['possibly_truncated'])
+        self.assertIn('props', result['source_errors'])
+        self.assertEqual(ncaa['source_states']['props'], 'NOT_APPLICABLE')
+        self.assertEqual(ncaa['source_states']['derivatives'], 'NOT_APPLICABLE')
+        self.assertIsNone(ncaa['source_observed_at']['props'])
+
+    def test_malformed_period_rows_are_rejected_without_retry_and_false_degraded_flag_is_healthy(self):
+        with patch('parlay_feed.requests.get', return_value=self.response(200, {'results': [None]})) as get:
+            with self.assertRaisesRegex(RuntimeError, 'unexpected response schema'):
+                request_rows('nfl', 'live/period_markets', {}, 'fixture')
+            self.assertEqual(get.call_count, 1)
+        with patch('parlay_feed.requests.get', return_value=self.response(200, [], {'x-result-degraded': ' false '})):
+            self.assertFalse(request_rows('nfl', 'props', {}, 'fixture').truncated)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); (root / 'data').mkdir()
+            path = root / 'data/ncaa_lines.json'
+            path.write_text(json.dumps({'generated_at': '2026-10-09T12:00:00Z', 'games_raw': [{'id': 'old'}]}))
+            with patch('parlay_feed.ROOT', root), patch('parlay_feed._fetch_parlay', side_effect=RuntimeError('odds unavailable')):
+                with self.assertRaises(RuntimeError):
+                    fetch_parlay('ncaa')
+            states = json.loads(path.read_text())['source_states']
+            self.assertEqual(states['props'], 'NOT_APPLICABLE')
+            self.assertEqual(states['derivatives'], 'NOT_APPLICABLE')
 
 
 if __name__ == '__main__':

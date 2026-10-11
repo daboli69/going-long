@@ -8,6 +8,7 @@ warnings.filterwarnings('ignore')
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts'))
 import calibration_audit_a as A  # noqa: E402
+from first_td_quote_summary import summarize_quotes  # noqa: E402
 CACHE = ROOT.parent / 'GOING' / 'FantasyPoints' / 'research' / 'cache'
 rng = np.random.default_rng(1)
 
@@ -81,16 +82,11 @@ print('  slope of actual offensive TDs on closing-line expected points:', round(
 q = pd.read_parquet(sys.argv[1])
 q = q[(q.market == 'first_td') & (q.gameday <= '2026-10-08') & q.over.notna() & q.pid.notna()].copy()
 first = td[td.game_id.str.startswith('2026')].groupby('game_id').first().reset_index()
-gm = sched26[['game_id', 'gameday']]
-first = first.merge(gm, on='game_id')
-fid = {(r.gameday, r.td_player_id) for r in first.itertuples()}
-q['hit'] = [(g, p) in fid for g, p in zip(q.gameday, q.pid)]
-dec = lambda a: 1 + a / 100 if a > 0 else 1 + 100 / -a
-q['imp'] = 1 / q.over.map(dec)
-c = q.groupby(['gameday', 'pid', 'book']).last().reset_index()
-cons = c.groupby(['gameday', 'pid']).agg(imp=('imp', 'mean'), hit=('hit', 'max'), nb=('book', 'nunique')).reset_index()
-print('\n2026 FIRST-TD priced quotes (pre-kickoff), played games with outcomes: player-games', len(cons), 'games', cons.gameday.nunique(), 'hits', int(cons.hit.sum()), '(games with a first TD:', len(first), ')')
+with (ROOT / 'data' / 'history.json').open(encoding='utf-8') as source:
+    team_names = json.load(source)['betting'].get('team_names', {})
+cons, coverage = summarize_quotes(q, sched26, first, team_names)
+print('\n2026 FIRST-TD priced quotes (pre-kickoff), played games with outcomes: player-games', len(cons), 'games', coverage['quoted_games'], 'hits', int(cons.hit.sum()), '(games with a first TD:', coverage['outcome_games'], ')')
 cons['band'] = pd.cut(cons.imp, [0, .02, .04, .06, .1, .2, 1])
 t = cons.groupby('band', observed=True).agg(n=('hit', 'size'), implied=('imp', 'mean'), hit_rate=('hit', 'mean'))
 print(t.round(4).to_string())
-print('  sum implied per game (overround across posted candidates) median:', round(cons.groupby('gameday').imp.sum().median(), 2), '| hits per priced-candidate set: share of games whose first scorer had a price:', round(cons[cons.hit].gameday.nunique() / max(1, len(first)), 3))
+print('  sum implied per game (overround across posted candidates) median:', round(cons.groupby('game_id').imp.sum().median(), 2), '| share of outcome games whose first scorer had a price:', round(coverage['scorer_coverage'], 3) if coverage['scorer_coverage'] is not None else 'unavailable')

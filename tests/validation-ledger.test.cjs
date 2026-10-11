@@ -209,7 +209,12 @@ test('nothing that writes, freezes, settles or evaluates the tracker can read th
   if(e.isDirectory())walk(rel);else if(/\.(mjs|cjs|js|jsx|py)$/.test(e.name)&&/validation[_-]ledger/.test(fs.readFileSync(path.join(root,rel),'utf8')))importers.push(rel.replace(/\\/g,'/'));
  }};
  for(const d of ['apps','scripts','shared','research','api','server'])walk(d);
- assert.deepEqual(importers.sort(),['api/snapshot.mjs','apps/validation/src.jsx','scripts/validation_ledger.mjs','server/worker.mjs','shared/validation-ledger.mjs'],'only the dashboard, its builder, the module and the two read-only path allowlists may name the ledger');
+ assert.deepEqual(importers.sort(),['apps/validation/src.jsx','scripts/refresh_health.py','scripts/validation_ledger.mjs','server/public-snapshots.mjs','shared/validation-ledger.mjs'],'only dashboard/builder/module/read-only snapshot allowlist and refresh output ownership may name the ledger');
+ const health=fs.readFileSync(path.join(root,'scripts/refresh_health.py'),'utf8');
+ assert.doesNotMatch(health,/import\s+validation[_-]ledger|from\s+.*validation[_-]ledger|require\(.*validation[_-]ledger/,'refresh health names output ownership only; it must never consume the ledger as canonical data');
+ const worker=fs.readFileSync(path.join(root,'server/worker.mjs'),'utf8');
+ assert.match(worker,/import\s*\{isLiveSnapshot\}\s*from\s*['"]\.\/public-snapshots\.mjs['"]/,'Worker must consume the shared allowlist');
+ assert.match(worker,/if\(!isLiveSnapshot\(url\.searchParams\.get\('file'\)\)\)/,'Worker must validate the requested path before fetching');
  const wf=fs.readFileSync(path.join(root,'.github/workflows/data.yml'),'utf8');
  assert.ok(wf.indexOf('scripts/build_public_tracker.mjs')<wf.indexOf('scripts/validation_ledger.mjs build'),'the ledger is built after the canonical tracker step');
 });

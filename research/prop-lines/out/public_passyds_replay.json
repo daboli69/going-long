@@ -1,0 +1,2115 @@
+{
+  "schema": "going-public-prop-reproduction-v1",
+  "protocol_sha256": "fe818b48746adb2fe03343c79cecec888c6bcad07995e514fc704baa3ea3b774",
+  "baseline_revision": "c9cccd68619fac73a5c0c5c11fbff08f5b0be532",
+  "text_receipt_policy": "Frozen text receipts accept LF/CRLF transport only; protocol receipt uses registered CRLF, executed research source hashes use LF. Git snapshot receipts retain exact blob bytes.",
+  "cohort": "matched published-snapshot retrospective replay; distinct from original cache-based cohort",
+  "extraction_counts": {
+    "raw": 70954,
+    "priced": 35325,
+    "pregame": 34183
+  },
+  "attrition": {
+    "collapsed_quotes": 7153,
+    "incomplete_public_start_window": 2570,
+    "not_valid_intact_two_sided_quote": 1632,
+    "no_unique_QB_game_identity": 337,
+    "invalid_overround": 152,
+    "no_exact_completed_game": 1326,
+    "fewer_than_five_verified_starts": 101,
+    "main_lines_before_outcome_or_model_exclusion": 127,
+    "player_games_before_outcome_or_model_exclusion": 127,
+    "ineligible_model_or_outcome_lines": 1104,
+    "pushes": 0
+  },
+  "quote_sources": [
+    {
+      "revision": "f2cf1cd1cf484bb8d248d427230b7694cca7230d",
+      "observed_at": "2026-09-09T18:09:04Z",
+      "sha256": "5ed014e0651bf4d53cba82223b6e72368de9430d4c6098b0959d4441ff4f4239",
+      "status": "loaded",
+      "rows": 0,
+      "generated_at": "2026-09-09T18:08:51+00:00"
+    },
+    {
+      "revision": "99c243e2fbebac0367b89f9e6ec5f595ea11c306",
+      "observed_at": "2026-09-09T18:19:22Z",
+      "sha256": "0ac2a42ea5c114aab4092053c9479a844bf0ac49b3b340bf441d214dadc297e0",
+      "status": "loaded",
+      "rows": 0,
+      "generated_at": "2026-09-09T18:19:05+00:00"
+    },
+    {
+      "revision": "ebaf8f26e1108a7817e7000155f60c9f6e7b46e2",
+      "observed_at": "2026-09-09T18:23:11Z",
+      "sha256": "29db0c0b16ef7ee23a5d96cf64a943e673f3d4043513a35c330d36a79e3822b3",
+      "status": "loaded",
+      "rows": 0,
+      "generated_at": "2026-09-09T18:22:57+00:00"
+    },
+    {
+      "revision": "66b8ebc5311b74d7a76f325bffa925899fe8cfdb",
+      "observed_at": "2026-09-09T20:26:43-04:00",
+      "sha256": "cd476fc1b83c8c2928eb2af0a88f3c955bbad7209e08e97c2ac9545b8070a336",
+      "status": "loaded",
+      "rows": 0,
+      "generated_at": "2026-09-10T00:22:36+00:00"
+    },
+    {
+      "revision": "fe2f87e705964fc9988cbc0dcee9e75f0e9067d0",
+      "observed_at": "2026-09-10T14:27:59Z",
+      "sha256": "cdf9637bcd97006780e0b9dc016509d6d77b4ef7f2ba716cbf097f21a17f24e2",
+      "status": "loaded",
+      "rows": 0,
+      "generated_at": "2026-09-10T14:27:46+00:00"
+    },
+    {
+      "revision": "e6fd1b1dbe002ec96ef16dfaeaa4dd71867753b7",
+      "observed_at": "2026-09-10T15:43:48-04:00",
+      "sha256": "35da0bf6d71ced77953a553a3d7c9e74a06922995012d5c24e15ff11727a6dbd",
+      "status": "loaded",
+      "rows": 6261,
+      "generated_at": "2026-09-10T11:02:14.787325+00:00"
+    },
+    {
+      "revision": "793813c6c7353d0560b51de940a0d241e4a369d2",
+      "observed_at": "2026-09-10T15:44:03-04:00",
+      "sha256": "c1aad3ba39f86d43e9ec0c3cf993976f6aafb6167d1fea3891ac8cdd87384163",
+      "status": "loaded",
+      "rows": 6261,
+      "generated_at": "2026-09-10T11:02:14.787325+00:00"
+    },
+    {
+      "revision": "3746dc772abb1b2eff62da2ac36dfa3c79b54b45",
+      "observed_at": "2026-09-10T19:47:46Z",
+      "sha256": "bdf4bbea177e399c0ca5ff8f8923faa0832aa8f087622d7b58813f4d64571ade",
+      "status": "loaded",
+      "rows": 6938,
+      "generated_at": "2026-09-10T19:47:21.324394+00:00"
+    },
+    {
+      "revision": "fcd0f9dc4d6d58197191060141b695c761251cbf",
+      "observed_at": "2026-09-10T21:55:24Z",
+      "sha256": "25819884c6ed9e8ff42c76249af635685fd9c6efcff3f878356a4bc63b70dc3e",
+      "status": "loaded",
+      "rows": 6349,
+      "generated_at": "2026-09-10T21:55:04.129398+00:00"
+    },
+    {
+      "revision": "268a116fad782225ec4617bafd0d454f27d1ef51",
+      "observed_at": "2026-09-10T22:25:51Z",
+      "sha256": "82b43dffae8a1953f4b59bfe9cca15b2b10b7da480ae1dbc4551f37d3891aca6",
+      "status": "loaded",
+      "rows": 6773,
+      "generated_at": "2026-09-10T22:24:51.448852+00:00"
+    },
+    {
+      "revision": "8157f6600c0d0c3efa00707b073e15ed0c3082ed",
+      "observed_at": "2026-09-10T21:13:02-04:00",
+      "sha256": "624aa061651030059be53ed0dcdc19eed6cd5b72db86d8628c71b91a0d7a19df",
+      "status": "loaded",
+      "rows": 8310,
+      "generated_at": "2026-09-11T01:06:35.285117+00:00"
+    },
+    {
+      "revision": "5506698be504f1a7173248f353601ff895fbb8b1",
+      "observed_at": "2026-09-11T01:15:51Z",
+      "sha256": "00028f8f352f9a70d472b95fa0783018de036fea4e4623139a1988b80db80766",
+      "status": "loaded",
+      "rows": 8607,
+      "generated_at": "2026-09-11T01:14:49.741440+00:00"
+    },
+    {
+      "revision": "3553d5ec806585f50e1cc81214e6ab3a88f10638",
+      "observed_at": "2026-09-11T11:03:28Z",
+      "sha256": "386e0d219360ced94bdac3f42762c69318e970f36cf4216a530e02673b0d1c49",
+      "status": "loaded",
+      "rows": 11115,
+      "generated_at": "2026-09-11T11:02:17.481588+00:00"
+    },
+    {
+      "revision": "831194633ac9d1de058ed29075af9fb3656a0595",
+      "observed_at": "2026-09-11T14:28:53Z",
+      "sha256": "ed8605ff071ba8e480035a29fcfddf90f8dba1a70369525f9f27528e4501c1b6",
+      "status": "loaded",
+      "rows": 11201,
+      "generated_at": "2026-09-11T14:27:56.939513+00:00"
+    },
+    {
+      "revision": "2ed851d782a1c33181fafd5be4e240b0fe9d69e1",
+      "observed_at": "2026-09-12T01:56:28Z",
+      "sha256": "c7b1e838921f8dbf8a48d2dc9011701ad718a1962492e2aacb9cbcfa1bdbdff0",
+      "status": "loaded",
+      "rows": 11727,
+      "generated_at": "2026-09-12T01:55:22.885071+00:00"
+    },
+    {
+      "revision": "fb449ec74e0981e3b0329ec8ba295d983d955ec4",
+      "observed_at": "2026-09-12T02:33:30Z",
+      "sha256": "b9c42a2baa967955605d8a5397de05c9c8d983fa972470b623e3ec9f99784eb2",
+      "status": "loaded",
+      "rows": 11888,
+      "generated_at": "2026-09-12T02:32:28.438503+00:00"
+    },
+    {
+      "revision": "0df8af4823ca0a4c21613bdd1b74f9123c551ae3",
+      "observed_at": "2026-09-12T02:55:36Z",
+      "sha256": "a0642448d77ce356c3d11acde638554a69e241ca8171a0f63b444bfcce9fc767",
+      "status": "loaded",
+      "rows": 11702,
+      "generated_at": "2026-09-12T02:54:33.041336+00:00"
+    },
+    {
+      "revision": "fa7063d4a38f7b502856cf83f5d5f3b8e03d666f",
+      "observed_at": "2026-09-12T03:11:53Z",
+      "sha256": "47507e555c0b5ae9fe2de3270135c03900eadb8988ec1de56dee8a346eda4b06",
+      "status": "loaded",
+      "rows": 11666,
+      "generated_at": "2026-09-12T03:10:39.606099+00:00"
+    },
+    {
+      "revision": "79f0c7e81dc980dedf3385a174e484babf929ace",
+      "observed_at": "2026-09-12T03:21:23Z",
+      "sha256": "b33a7fbeb12af87f4e533a08fb7b27a365b30186fc54ee24de660ba5309158d4",
+      "status": "loaded",
+      "rows": 9734,
+      "generated_at": "2026-09-12T03:20:14.543688+00:00"
+    },
+    {
+      "revision": "3f823db6cda99c93f779fee7f1d6aca577fc53f7",
+      "observed_at": "2026-09-12T13:39:25Z",
+      "sha256": "c4eb8d33edaa93d9e231898c75a946042417e7a0162ad9110da6a55595c5b385",
+      "status": "loaded",
+      "rows": 11560,
+      "generated_at": "2026-09-12T13:38:38.410144+00:00"
+    },
+    {
+      "revision": "52bb91e51e35ccae21b154078df52e2bae6bc6df",
+      "observed_at": "2026-09-12T15:42:43Z",
+      "sha256": "a43a26aae116e285cf7f4558a502a84c59720ed12c603e173bd73f30c2fee424",
+      "status": "loaded",
+      "rows": 9967,
+      "generated_at": "2026-09-12T15:41:35.152223+00:00"
+    },
+    {
+      "revision": "a887017afc43a8dbcedc5b6bf66861c6c8110df8",
+      "observed_at": "2026-09-12T15:52:29Z",
+      "sha256": "1e01c767ab96047ef95bd088864c0718bb56fc12b5ad48ddac3a076de32021f6",
+      "status": "loaded",
+      "rows": 11615,
+      "generated_at": "2026-09-12T15:51:18.876933+00:00"
+    },
+    {
+      "revision": "1dd87a3de40686ff074f0c8b108e9ca87b1f02cf",
+      "observed_at": "2026-09-12T15:55:30Z",
+      "sha256": "872bd49063d61b258507d5d9f6dd7e0ae8143d1c6f58d397cc607576e6215797",
+      "status": "loaded",
+      "rows": 11587,
+      "generated_at": "2026-09-12T15:54:21.022543+00:00"
+    },
+    {
+      "revision": "0bd43323a7c5e4fc70a820b1b861fdffa4a85d50",
+      "observed_at": "2026-09-12T21:47:02Z",
+      "sha256": "72952a1c89782eb59567425071672c603b2750ae291399b82e9362f408ebd8aa",
+      "status": "loaded",
+      "rows": 11572,
+      "generated_at": "2026-09-12T21:45:52.893873+00:00"
+    },
+    {
+      "revision": "ac78932961f9e84c1298d8353792120ea502569e",
+      "observed_at": "2026-09-12T21:59:06Z",
+      "sha256": "a3cb9629ff25349f9fd12d047595f040dbcd52367518cc78a6777a8bf86c8a04",
+      "status": "loaded",
+      "rows": 11200,
+      "generated_at": "2026-09-12T21:58:06.022807+00:00"
+    },
+    {
+      "revision": "a5edb35535383620695c323908e631c7cdb1bddf",
+      "observed_at": "2026-09-13T00:02:48Z",
+      "sha256": "fa0e21cf24e71d028f8048a250979e3e1078799533a7bbe91f237cb844cdeedb",
+      "status": "loaded",
+      "rows": 11982,
+      "generated_at": "2026-09-13T00:01:45.835702+00:00"
+    },
+    {
+      "revision": "a8d56b4783dd0a832763974c2342046af189f2e7",
+      "observed_at": "2026-09-13T02:55:15Z",
+      "sha256": "e6000ae0a3c5b7b476446fa05551917dd2a72206537d20862c5cefca8c7c5cd0",
+      "status": "loaded",
+      "rows": 11662,
+      "generated_at": "2026-09-13T02:54:06.131962+00:00"
+    },
+    {
+      "revision": "86558475dcbf7f57126ed9b83425e6646581dc3d",
+      "observed_at": "2026-09-13T14:25:50Z",
+      "sha256": "df35084629f61912fb303dc7c94142380be7dab4a5afbe233fbb31c56e50e447",
+      "status": "loaded",
+      "rows": 9736,
+      "generated_at": "2026-09-13T14:24:53.630048+00:00"
+    },
+    {
+      "revision": "4b1b807842a4a8447deb84a528dca021ef04ba1f",
+      "observed_at": "2026-09-14T00:14:39Z",
+      "sha256": "eb18bb6b62d97d140e3d3122ae59c40d66436d196be42018f2a69b0b5c0c8585",
+      "status": "loaded",
+      "rows": 2894,
+      "generated_at": "2026-09-14T00:13:35.025828+00:00"
+    },
+    {
+      "revision": "05d762ebd90462d7eaa732181291d931b1afa57b",
+      "observed_at": "2026-09-15T00:48:08Z",
+      "sha256": "16a0e4b3462b444aff51c287443211c4abbcee499882d673d1e8b7ff1b7e6f42",
+      "status": "loaded",
+      "rows": 888,
+      "generated_at": "2026-09-15T00:46:57.612341+00:00"
+    },
+    {
+      "revision": "9f744b5d0a0cc4477f4b7db31b9338e22deea9d1",
+      "observed_at": "2026-09-15T15:03:35Z",
+      "sha256": "7a87e10a9891c896ec50a3e6b6609df4ccbd2d513226e627e7ae64dc2ad985f9",
+      "status": "loaded",
+      "rows": 3207,
+      "generated_at": "2026-09-15T15:02:27.706186+00:00"
+    },
+    {
+      "revision": "65032169a669183b49f90fa2e9250e918ac32857",
+      "observed_at": "2026-09-17T21:13:41Z",
+      "sha256": "8287974958700e080a4936035077a53abf1b425f6b61482df485ccff5a8fca41",
+      "status": "loaded",
+      "rows": 11411,
+      "generated_at": "2026-09-17T21:12:30.648305+00:00"
+    },
+    {
+      "revision": "cd3288465477be17ec297a75c95b111cfff3b0f5",
+      "observed_at": "2026-09-18T20:27:07Z",
+      "sha256": "4afb755de83a7d99da3f81ac46ad60322b50563f55691d76c60c46e0087567b7",
+      "status": "loaded",
+      "rows": 11411,
+      "generated_at": "2026-09-17T21:12:30.648305+00:00"
+    },
+    {
+      "revision": "3f475766176e7991fa746354522cc268271870b0",
+      "observed_at": "2026-09-18T20:33:24Z",
+      "sha256": "9cc759175ede13b89f544ff32d83a0896c5821055ab20fb6c05805e834c774bf",
+      "status": "loaded",
+      "rows": 11411,
+      "generated_at": "2026-09-17T21:12:30.648305+00:00"
+    },
+    {
+      "revision": "e05a05132590a4d7ca1b032f4668df8b1bc484ea",
+      "observed_at": "2026-09-18T20:50:27Z",
+      "sha256": "1c34dfd743dbf18c84b4b285d7b668665f9b401c60a25d3a8eacbf9e5b956296",
+      "status": "loaded",
+      "rows": 12659,
+      "generated_at": "2026-09-18T20:48:33.704607+00:00"
+    },
+    {
+      "revision": "e8514183f124b5bb672eb29b8f69aa2523f827eb",
+      "observed_at": "2026-09-18T21:38:36Z",
+      "sha256": "12b9190685edb3a2ce0d09b88259152cc709ad93eaad4277ebf1367cb9cdb8cb",
+      "status": "loaded",
+      "rows": 12916,
+      "generated_at": "2026-09-18T21:36:58.630165+00:00"
+    },
+    {
+      "revision": "094270a8f98babf0dcbb2bf89eee66135c7ecf24",
+      "observed_at": "2026-09-18T21:49:32Z",
+      "sha256": "379fe0bcfdd565aee176f082779c15ff06ea8da9e0807059c676796f1ad6988d",
+      "status": "loaded",
+      "rows": 13074,
+      "generated_at": "2026-09-18T21:47:51.287236+00:00"
+    },
+    {
+      "revision": "11195ea6bf0c6e7734230827f43459c6a3b8639a",
+      "observed_at": "2026-09-19T00:24:38Z",
+      "sha256": "6175927cd5bcf9588324b7219cd6f85388ae6c124027f9260d57138140e6cd96",
+      "status": "loaded",
+      "rows": 13297,
+      "generated_at": "2026-09-19T00:23:23.501180+00:00"
+    },
+    {
+      "revision": "3df56ca4ef1950b5af1370fddc20a9e20afedfca",
+      "observed_at": "2026-09-19T13:58:37Z",
+      "sha256": "8075d9401b6e658f695a552291e20dab2a94c763fcd4d0b735af4c30de3044e4",
+      "status": "loaded",
+      "rows": 13222,
+      "generated_at": "2026-09-19T13:57:02.800387+00:00"
+    },
+    {
+      "revision": "905f1c48f06973098b9fe01ac80a21280619db92",
+      "observed_at": "2026-09-20T00:12:32Z",
+      "sha256": "ddb76cbc846432b4755814527890cc925fc34d0456b0f05778973bb8585f52e3",
+      "status": "loaded",
+      "rows": 13222,
+      "generated_at": "2026-09-20T00:10:54.640960+00:00"
+    },
+    {
+      "revision": "7f6d09c58907d0587d6226f5c793bb7fbafa4612",
+      "observed_at": "2026-09-20T00:16:22Z",
+      "sha256": "af48c6b87e4ff17a8b41054c81002ee97803030693dc7970e228286152e4cf73",
+      "status": "loaded",
+      "rows": 13599,
+      "generated_at": "2026-09-20T00:14:40.799304+00:00"
+    },
+    {
+      "revision": "4229ed67103f377480a72b5bb31270d2f8694f4c",
+      "observed_at": "2026-09-20T00:40:42Z",
+      "sha256": "596d86cb1d0a2ccbc404bc39374ed49bdf02b35704f07924e7abdbc4d9b4de20",
+      "status": "loaded",
+      "rows": 13424,
+      "generated_at": "2026-09-20T00:39:34.566859+00:00"
+    },
+    {
+      "revision": "6f04ea790de1633703dda7abe9e0c8578e514b38",
+      "observed_at": "2026-09-20T14:13:13Z",
+      "sha256": "a4569599d5ea139a0896be9926e5f67e76176db04c4ac2833689e4806afdf1d6",
+      "status": "loaded",
+      "rows": 13522,
+      "generated_at": "2026-09-20T14:11:33.004620+00:00"
+    },
+    {
+      "revision": "94b55606380512ba9ac1eb24f41c161eb5e42bf4",
+      "observed_at": "2026-09-20T14:18:04Z",
+      "sha256": "84eddc2c91b7fd0e988f6ec9765ec6b46adf934c6375601fdaa7a0bd853ecbe2",
+      "status": "loaded",
+      "rows": 13513,
+      "generated_at": "2026-09-20T14:16:18.015551+00:00"
+    },
+    {
+      "revision": "754ac2b3b770ac511330ba164d6cc03b60353487",
+      "observed_at": "2026-09-20T14:54:36Z",
+      "sha256": "0dce73683167192822eaa798aeef753de2f9a12508dafcadaa67e0814b75252d",
+      "status": "loaded",
+      "rows": 13411,
+      "generated_at": "2026-09-20T14:53:06.030325+00:00"
+    },
+    {
+      "revision": "d356e293ea36f06746df9dffd53e6b7b37aaa034",
+      "observed_at": "2026-09-21T00:20:01Z",
+      "sha256": "0237807b85472023664ca27272d2b1c0ea64f8bf45f596ad024046ca386be066",
+      "status": "loaded",
+      "rows": 2419,
+      "generated_at": "2026-09-21T00:18:18.774815+00:00"
+    },
+    {
+      "revision": "d25f99009f646bd922e0a75b5b98109c6af346c2",
+      "observed_at": "2026-09-21T01:12:56Z",
+      "sha256": "1b7dacfa2e517d5682bb1edc1889e1c1426f2d26521903219118a8f4249c4f80",
+      "status": "loaded",
+      "rows": 1182,
+      "generated_at": "2026-09-21T01:11:02.176919+00:00"
+    },
+    {
+      "revision": "61099c5662b908f0f7132517bf470b9a10b3dccd",
+      "observed_at": "2026-09-21T01:44:29Z",
+      "sha256": "e89753e7155130f05828ce2c6d11568b71d92a246ede026a126e89bbd1126347",
+      "status": "loaded",
+      "rows": 1147,
+      "generated_at": "2026-09-21T01:42:45.104898+00:00"
+    },
+    {
+      "revision": "a6c259bd82c18127751f5f8542f936e90ac0dc59",
+      "observed_at": "2026-09-21T16:32:45Z",
+      "sha256": "665b0150f71d55ab80e181ea2d0ec62b166a385fa8bfebc86c1ec9e8af4f912d",
+      "status": "loaded",
+      "rows": 1187,
+      "generated_at": "2026-09-21T16:30:45.917921+00:00"
+    },
+    {
+      "revision": "397cbd5ef0e1e252ec69142c582e8a5f722e15ba",
+      "observed_at": "2026-09-21T21:24:26Z",
+      "sha256": "878fe4f0c9caefa9681f2c694fff143a88008cb22873f93e8da3d2232dee9f68",
+      "status": "loaded",
+      "rows": 2248,
+      "generated_at": "2026-09-21T21:22:31.687474+00:00"
+    },
+    {
+      "revision": "1f8501aa9ba73ca8d0def4905e61355f6c74f2a1",
+      "observed_at": "2026-09-22T00:54:05Z",
+      "sha256": "035451008e3dfdc4ad37a997c145da4fa5806ca3ee3adbc66f5e6bfe68a529d4",
+      "status": "loaded",
+      "rows": 873,
+      "generated_at": "2026-09-22T00:51:52.321931+00:00"
+    },
+    {
+      "revision": "2af1631696fcddc0188790284895ea2fa590c940",
+      "observed_at": "2026-09-22T14:58:56Z",
+      "sha256": "2888c62d0b4b8c25a9c9fb511f8899d3577f2f3f5c51e4b9d80926eea218dac6",
+      "status": "loaded",
+      "rows": 3528,
+      "generated_at": "2026-09-22T14:56:58.972217+00:00"
+    },
+    {
+      "revision": "35e8206b038c73e6a6313d61243639f22c97db04",
+      "observed_at": "2026-09-22T16:54:40Z",
+      "sha256": "6afca4c74c6f92ef01a1ee92d9df431bd80a4e89981a92c5029bf57b5299f8d2",
+      "status": "loaded",
+      "rows": 3877,
+      "generated_at": "2026-09-22T16:52:42.199753+00:00"
+    },
+    {
+      "revision": "739fe918b7eabe2bb90c48192bef30841db10c56",
+      "observed_at": "2026-09-23T00:37:24Z",
+      "sha256": "6dd70ed60f64cec1b99e42bd57b613883d229f4e8b935e61d0faf2e3f1a5980d",
+      "status": "loaded",
+      "rows": 5215,
+      "generated_at": "2026-09-23T00:35:22.527532+00:00"
+    },
+    {
+      "revision": "3649392d61d0df7260dfb8d3cb78e93c1ce4b99d",
+      "observed_at": "2026-09-23T15:05:49Z",
+      "sha256": "d582d4266476655be791e6be56b1e366551f96c099623b592a281ce3f075f72d",
+      "status": "loaded",
+      "rows": 8464,
+      "generated_at": "2026-09-23T15:03:40.571945+00:00"
+    },
+    {
+      "revision": "e8bd915df708950f93a456226a9a04c2155d26f2",
+      "observed_at": "2026-09-24T00:35:15Z",
+      "sha256": "2c7e050b342b1fd5245d05343b6e8b4579f5ce70e0bd890497c2e79c20a29499",
+      "status": "loaded",
+      "rows": 9398,
+      "generated_at": "2026-09-24T00:32:57.282122+00:00"
+    },
+    {
+      "revision": "5aac51b39168108207b28f94d88ecfa118046cfc",
+      "observed_at": "2026-09-24T15:10:31Z",
+      "sha256": "c038080a657a0b8e22b2927acf5a0cf7e59369527bdc66d03c9197b6f7a99ec2",
+      "status": "loaded",
+      "rows": 11670,
+      "generated_at": "2026-09-24T15:08:32.788005+00:00"
+    },
+    {
+      "revision": "c6814a10cfc926cd17aa5379f35f31eca870d71b",
+      "observed_at": "2026-09-25T00:38:10Z",
+      "sha256": "28ff3e62cd0c88f0886fa5d304e4b16c3e988b06aa8e0a0f4fc759bdc0ca71f9",
+      "status": "loaded",
+      "rows": 11064,
+      "generated_at": "2026-09-25T00:36:13.463368+00:00"
+    },
+    {
+      "revision": "edab5b8da9e67deb54b83431ab6d2730dcefef5c",
+      "observed_at": "2026-09-25T15:20:26Z",
+      "sha256": "a84b50acd0438f104c6fac1279e911ae8bc33aa41eaa99cef35d2075d6d430f5",
+      "status": "loaded",
+      "rows": 12112,
+      "generated_at": "2026-09-25T15:18:27.170954+00:00"
+    },
+    {
+      "revision": "7ebc805b60297eac230040623f97a4bdabceb2ba",
+      "observed_at": "2026-09-26T00:41:17Z",
+      "sha256": "c1cea76d9ca3e1c11098c08f686ebc1804468562ff796a6408f4bd3118f975ea",
+      "status": "loaded",
+      "rows": 12557,
+      "generated_at": "2026-09-26T00:39:52.976447+00:00"
+    },
+    {
+      "revision": "ee43558e6fed238e24bea757ba32531662d760f4",
+      "observed_at": "2026-09-26T14:33:13Z",
+      "sha256": "70364701ef5e36bf73d0e331599133955f661239031fdbb19f33c65930c40fb9",
+      "status": "loaded",
+      "rows": 12995,
+      "generated_at": "2026-09-26T14:31:12.777360+00:00"
+    },
+    {
+      "revision": "8ab3b839ff566179780b4d6c2371097ec7c46850",
+      "observed_at": "2026-09-27T00:39:32Z",
+      "sha256": "fcb87f7a17c9e91a836e82a262e0efb402931d7c25e7312c9cb83575a10a35b1",
+      "status": "loaded",
+      "rows": 13049,
+      "generated_at": "2026-09-27T00:37:42.787312+00:00"
+    },
+    {
+      "revision": "ef431846adf7d3d2ab49888a7aae249df3ba1dd8",
+      "observed_at": "2026-09-27T15:14:03Z",
+      "sha256": "83d82b78955267f1d0991823a2c1048deb4e41e2af2ca974a39f2754e34ce7e7",
+      "status": "loaded",
+      "rows": 13001,
+      "generated_at": "2026-09-27T15:11:22.952862+00:00"
+    },
+    {
+      "revision": "9e6910b6b86d9a0be479dbb1cffcf3eba613ecd7",
+      "observed_at": "2026-09-28T00:50:25Z",
+      "sha256": "ba7b04c54d3d1dc1e70fa67bf6001f8f7e7c648002e807974cf23f1547d98c48",
+      "status": "loaded",
+      "rows": 1277,
+      "generated_at": "2026-09-28T00:48:30.231720+00:00"
+    },
+    {
+      "revision": "8048854711d11e158c9536093aba372c56553e74",
+      "observed_at": "2026-09-28T18:13:54Z",
+      "sha256": "67a7eafc0789313692ad41559dccfc34f6eac9df111215788236201c35827312",
+      "status": "loaded",
+      "rows": 2168,
+      "generated_at": "2026-09-28T18:11:48.659688+00:00"
+    },
+    {
+      "revision": "f5075364e61043ed4934f032244541ba8e099ec2",
+      "observed_at": "2026-09-29T02:00:30Z",
+      "sha256": "05eb520bf5565e68c250efa6612468fcc7a8e6069ddd365ffa129858d479026a",
+      "status": "loaded",
+      "rows": 1183,
+      "generated_at": "2026-09-29T01:58:51.822376+00:00"
+    },
+    {
+      "revision": "719951cafb4bac7dad8cbd8c9eda9ab291ef2d0d",
+      "observed_at": "2026-09-29T16:34:38Z",
+      "sha256": "3b4d576133b790628981a22b3dbbafb1c435a40037f1853a2f88065409627d5d",
+      "status": "loaded",
+      "rows": 6616,
+      "generated_at": "2026-09-29T16:32:43.273563+00:00"
+    },
+    {
+      "revision": "5fbe1ff7242561f4b6cd2fe792db3c5be3e375cf",
+      "observed_at": "2026-09-29T20:20:16Z",
+      "sha256": "ccd1a421d8383138961417c4d12b354b68ffcb43d9a1a24464f742d0e0b83cd6",
+      "status": "loaded",
+      "rows": 7280,
+      "generated_at": "2026-09-29T20:18:14.466755+00:00"
+    },
+    {
+      "revision": "ccee486e8bde083d4a4d79495e85fed19726392b",
+      "observed_at": "2026-09-29T20:25:51Z",
+      "sha256": "4ae201cff82024a116e8a8fe87f4cf4a44a6a6b1e24a819fca9cd7b0fec6e18a",
+      "status": "loaded",
+      "rows": 7321,
+      "generated_at": "2026-09-29T20:24:04.544334+00:00"
+    },
+    {
+      "revision": "92caa348701c914e476107b803538d994cb30b70",
+      "observed_at": "2026-09-29T21:18:11Z",
+      "sha256": "f6dfe442c90f3e6d5af6b61ac5e14b63dec59fe17d8f08586a7e64ab71e43e25",
+      "status": "loaded",
+      "rows": 7959,
+      "generated_at": "2026-09-29T21:15:52.694913+00:00"
+    },
+    {
+      "revision": "71a3a8595a11e6946cdb6bac28253bb150f17c98",
+      "observed_at": "2026-09-30T01:21:22Z",
+      "sha256": "2025f4fd37385a292d50eb16cf621e3d931b958a4b6b20d9c57dd050b0046e06",
+      "status": "loaded",
+      "rows": 9404,
+      "generated_at": "2026-09-30T01:19:10.459001+00:00"
+    },
+    {
+      "revision": "1c4dc224d953961379c2e98994737ab13d73926f",
+      "observed_at": "2026-09-30T16:28:19Z",
+      "sha256": "f99d2dcf22a3ec2e872c0b551e0e383f473e7d45ec9905ed64cc220c9f2e9e5e",
+      "status": "loaded",
+      "rows": 11678,
+      "generated_at": "2026-09-30T16:26:35.836103+00:00"
+    },
+    {
+      "revision": "b0a8b2ffae982b56f066e06708feb664eb00e8ee",
+      "observed_at": "2026-10-01T01:20:51Z",
+      "sha256": "e4b280709380f6052bb93d22e4772efd5fe0cb35ad4f6107d90d6e1fd9294893",
+      "status": "loaded",
+      "rows": 12287,
+      "generated_at": "2026-10-01T01:19:11.981350+00:00"
+    },
+    {
+      "revision": "7d33e75b7eea05a52845a9fa02c203d850512da9",
+      "observed_at": "2026-10-01T17:05:38Z",
+      "sha256": "81947968694519b067ca8daa639e17ad15534cc715288d2cc9ecc89c5e0e921b",
+      "status": "loaded",
+      "rows": 13280,
+      "generated_at": "2026-10-01T17:03:51.352745+00:00"
+    },
+    {
+      "revision": "484ba6d4627a4ce7156b50052e3150bd8dc75f86",
+      "observed_at": "2026-10-02T01:45:02Z",
+      "sha256": "38947f2901d856b68ba48e7776638b4f7ad02c4f6be018f769f11699b825ce42",
+      "status": "loaded",
+      "rows": 12463,
+      "generated_at": "2026-10-02T01:43:17.219283+00:00"
+    },
+    {
+      "revision": "d6624e92820bfc57ebb254720996f093b279ca7b",
+      "observed_at": "2026-10-02T16:22:04Z",
+      "sha256": "3caf20c470f7a749ebeacbe86eada98e5b3315bc642119183b6f27bbc7514b4e",
+      "status": "loaded",
+      "rows": 12927,
+      "generated_at": "2026-10-02T16:18:47.605807+00:00"
+    },
+    {
+      "revision": "7b2633ba80177129151910e89e57de860832dd38",
+      "observed_at": "2026-10-03T01:16:33Z",
+      "sha256": "ff2b786725a7668d89e5d4b5af50862fcb9cc53cc0a7fddfb1cd21518aa0ae6d",
+      "status": "loaded",
+      "rows": 12965,
+      "generated_at": "2026-10-03T01:14:34.756687+00:00"
+    },
+    {
+      "revision": "4e5a1653acafae19cc95fd2fe69015874fd3ad75",
+      "observed_at": "2026-10-03T14:46:39Z",
+      "sha256": "9870216398d40963a6721f5e42e372b106891deef61b96c8f80f5867023fb1be",
+      "status": "loaded",
+      "rows": 4734,
+      "generated_at": "2026-10-03T14:44:43.598842+00:00"
+    },
+    {
+      "revision": "43b5ae27dd19ccb899e7a4b3fe71458f45034711",
+      "observed_at": "2026-10-04T00:40:20Z",
+      "sha256": "2b30cffe0399403dac23baf9230ec7f4b3e6486b0aa86f23b8d56909c65c19ca",
+      "status": "loaded",
+      "rows": 13341,
+      "generated_at": "2026-10-04T00:38:53.605552+00:00"
+    },
+    {
+      "revision": "72fbd52f4c8d119812a545be6b4aacb7c3b342e4",
+      "observed_at": "2026-10-04T15:26:39Z",
+      "sha256": "2eaaae9257b876af55de82b2773937340a50a9c81c1959a37eb97d62fbf73a5d",
+      "status": "loaded",
+      "rows": 12504,
+      "generated_at": "2026-10-04T15:24:35.771201+00:00"
+    },
+    {
+      "revision": "2f28e15b92a406cee0419f2a6d46592a583bbd31",
+      "observed_at": "2026-10-04T23:52:25Z",
+      "sha256": "e846ada925ff9b95f846e125c00f5ae5b657302f9064aac7aec47c1314117c70",
+      "status": "loaded",
+      "rows": 2392,
+      "generated_at": "2026-10-04T23:50:03.782214+00:00"
+    },
+    {
+      "revision": "28725471bb45df08136648602de67c4d63c5f734",
+      "observed_at": "2026-10-05T00:59:37Z",
+      "sha256": "6b725d2f1516a12f8ca73b1d3012e7ad9d259f80407cc335cb6914cf5493fc9a",
+      "status": "loaded",
+      "rows": 1250,
+      "generated_at": "2026-10-05T00:57:13.129732+00:00"
+    },
+    {
+      "revision": "81f9c4a187cb79b08409e0b3836c1bbe69966ca6",
+      "observed_at": "2026-10-05T10:42:06Z",
+      "sha256": "1efa8fb38f30b65a6590d2cc81dd9aea40f2504e3d904d476aefbbc388a554f9",
+      "status": "loaded",
+      "rows": 1859,
+      "generated_at": "2026-10-05T10:39:39.680321+00:00"
+    },
+    {
+      "revision": "1676005f9d9057c1df05d41e629e374c6b0d3310",
+      "observed_at": "2026-10-05T12:14:39Z",
+      "sha256": "a925d779c4d5618c0640a876e9d33d1523f72949df518483502cee626e348cf8",
+      "status": "loaded",
+      "rows": 1889,
+      "generated_at": "2026-10-05T12:13:08.357246+00:00"
+    },
+    {
+      "revision": "8812018628ba0baf9047b4fa0a1049aecfd0c408",
+      "observed_at": "2026-10-05T15:56:06Z",
+      "sha256": "8778096167e1fd36a0fe94d7c1fcffbeab34719a70083ab6db0849f3a82c8cec",
+      "status": "loaded",
+      "rows": 1873,
+      "generated_at": "2026-10-05T15:53:27.463628+00:00"
+    },
+    {
+      "revision": "dcf910768fcbd67c5513fc3132a01ca4cddd31bf",
+      "observed_at": "2026-10-05T18:54:45Z",
+      "sha256": "2a08bf11d4216298f9bdb2ea719b3b8b7e78a461a297318430f3d4e4ebc0632d",
+      "status": "loaded",
+      "rows": 2845,
+      "generated_at": "2026-10-05T18:52:33.686847+00:00"
+    },
+    {
+      "revision": "f39be683b484bf4dbed11b62ec995ccc3d2e1fba",
+      "observed_at": "2026-10-05T19:27:28Z",
+      "sha256": "9293a8113f055ef7b48f34a1d99535835b623f752f482a2f165d2fc956e04c47",
+      "status": "loaded",
+      "rows": 2776,
+      "generated_at": "2026-10-05T19:24:55.227136+00:00"
+    },
+    {
+      "revision": "075c66b7a0214211d13b1314ed034c72e38d2292",
+      "observed_at": "2026-10-06T02:21:26Z",
+      "sha256": "99bbc1b351595a76a1361cd9776460fa44e556b3946e2a8ef615cacf538e6101",
+      "status": "loaded",
+      "rows": 2115,
+      "generated_at": "2026-10-06T02:19:24.267776+00:00"
+    },
+    {
+      "revision": "45b8f8a1b4e05a8c024f109edf38214a37279306",
+      "observed_at": "2026-10-06T12:21:50Z",
+      "sha256": "d2b26ed032987d0be36f16134cfc1acb8a23546f3a555da374738b56265b2f96",
+      "status": "loaded",
+      "rows": 4410,
+      "generated_at": "2026-10-06T12:19:00.714117+00:00"
+    },
+    {
+      "revision": "7330034eee13dbf642d6356c6bcb1300f8aeb4a0",
+      "observed_at": "2026-10-06T16:52:36Z",
+      "sha256": "4d0053fdd6d0d3927efbb42a030a85376e439d6adf231ff8cb445bfc375448eb",
+      "status": "loaded",
+      "rows": 5556,
+      "generated_at": "2026-10-06T16:50:28.814070+00:00"
+    },
+    {
+      "revision": "859756e66841941c9e6f7b205da49a06427f242c",
+      "observed_at": "2026-10-06T22:44:52Z",
+      "sha256": "13c07a469e3b370b61016548b2dfad2e7b84b619badd5116f037ef9dd7505adb",
+      "status": "loaded",
+      "rows": 4264,
+      "generated_at": "2026-10-06T22:42:17.579071+00:00"
+    },
+    {
+      "revision": "4893331f928ba7af878b63776fea9ec848fb425e",
+      "observed_at": "2026-10-06T23:07:25Z",
+      "sha256": "c7c216d4ddb987e0801d5a6d202a199fc677eef2f53752389d127a0e329074f6",
+      "status": "loaded",
+      "rows": 4337,
+      "generated_at": "2026-10-06T23:05:05.260893+00:00"
+    },
+    {
+      "revision": "561c50a8b16324f0f953ba170148085b79038060",
+      "observed_at": "2026-10-06T23:27:05Z",
+      "sha256": "0798c789f8b895974c37b505c47c701f947bb9b28892ed006f5bdebdd4146c1a",
+      "status": "loaded",
+      "rows": 4282,
+      "generated_at": "2026-10-06T23:24:59.338063+00:00"
+    },
+    {
+      "revision": "c728cab534cfbfcd550182e623ab3d28cb4017b9",
+      "observed_at": "2026-10-07T00:59:41Z",
+      "sha256": "438d88c4e15e02d2a32961b18e3058c3d575b0285d80f16b0af535ead475ad34",
+      "status": "loaded",
+      "rows": 4358,
+      "generated_at": "2026-10-07T00:57:50.951403+00:00"
+    },
+    {
+      "revision": "36e0d0f88d929e98a46822c3beb40e6753d62eeb",
+      "observed_at": "2026-10-07T01:36:12Z",
+      "sha256": "de4e22d66630ac02a0c6f6ded01718ca10638d96cfd60e9de8e0a52df89d6675",
+      "status": "loaded",
+      "rows": 4336,
+      "generated_at": "2026-10-07T01:33:38.820973+00:00"
+    },
+    {
+      "revision": "1e87b06e44ca8ff1aa1d26a12890625a6d3a8584",
+      "observed_at": "2026-10-07T10:46:41Z",
+      "sha256": "c0396f8c5393867d974ce7104fd8ccc34f351244eb4dc1604a2324cdfdcad4fa",
+      "status": "loaded",
+      "rows": 7106,
+      "generated_at": "2026-10-07T10:43:43.047648+00:00"
+    },
+    {
+      "revision": "1195f95efaa59382beeed9a9d150aa481c288f49",
+      "observed_at": "2026-10-07T11:35:28Z",
+      "sha256": "03cfd88809491ed0b76dd4af83b07d1ab4ca425e0d398ac3b8b0a173e6918db1",
+      "status": "loaded",
+      "rows": 6972,
+      "generated_at": "2026-10-07T11:33:37.267203+00:00"
+    },
+    {
+      "revision": "a72d434e0254de7453187325f83ee3a8646ec378",
+      "observed_at": "2026-10-07T17:30:35Z",
+      "sha256": "dfa7f3c4a99f9505f4fc1dae48a8af47949fc18f5b76d63e888224326ede3547",
+      "status": "loaded",
+      "rows": 8213,
+      "generated_at": "2026-10-07T17:27:34.725019+00:00"
+    },
+    {
+      "revision": "6485969e03fa781c0f52b8e7f6903ca9b07c5dc2",
+      "observed_at": "2026-10-07T21:53:48Z",
+      "sha256": "e815eb0915e75a69f8edeaa425c95140517a955706f78c78c3e8bdeb26994fe5",
+      "status": "loaded",
+      "rows": 8213,
+      "generated_at": "2026-10-07T17:27:34.725019+00:00"
+    },
+    {
+      "revision": "a905692a0ab5251f0ae4d928c35c8ee2ec6eefa2",
+      "observed_at": "2026-10-07T22:05:49Z",
+      "sha256": "2d785be47f7f54cb2d150c56bb2ab8e285cb4a4a2fe4e6e4fd83c4b946b1c7e5",
+      "status": "loaded",
+      "rows": 8213,
+      "generated_at": "2026-10-07T17:27:34.725019+00:00"
+    },
+    {
+      "revision": "8fc555404916be05ec43b6ea647bf9f3feb9305b",
+      "observed_at": "2026-10-07T22:13:29Z",
+      "sha256": "a3d7e4f39a5e46f7d7e59608620539ae9de6f7b1edca0b669adf5f20f4d481eb",
+      "status": "loaded",
+      "rows": 8221,
+      "generated_at": "2026-10-07T22:11:05.976912+00:00"
+    },
+    {
+      "revision": "44a9dbca8c8a61c5f91dc5cdbc2a12fc263c6884",
+      "observed_at": "2026-10-07T23:53:20Z",
+      "sha256": "9865a010c2f8d7181b704d01a75ef2bd3dbbcbefbd4d6824076913e06fa1e97a",
+      "status": "loaded",
+      "rows": 9077,
+      "generated_at": "2026-10-07T23:50:42.264281+00:00"
+    },
+    {
+      "revision": "8810c5edbe02d63b2a7f544fc83e89c1ced73449",
+      "observed_at": "2026-10-08T01:19:03Z",
+      "sha256": "4d44086a7323b6606e448c7177903db6283031d63799aa5b9ac1ad07b71c1459",
+      "status": "loaded",
+      "rows": 9661,
+      "generated_at": "2026-10-08T01:16:47.154576+00:00"
+    },
+    {
+      "revision": "eefe0cc1bcb3cc1de065dbb4e3799146228cddcd",
+      "observed_at": "2026-10-08T01:24:59Z",
+      "sha256": "e707d4e0f7556f29a71884c5655ad5e9c551f020520c4357329c15392995243b",
+      "status": "loaded",
+      "rows": 9649,
+      "generated_at": "2026-10-08T01:22:36.462366+00:00"
+    },
+    {
+      "revision": "df05b795cc795d928135730909153a84f58a8559",
+      "observed_at": "2026-10-08T01:59:08Z",
+      "sha256": "fd22d42ba5b66aeb3a8547a2e834ac8f8ea548939bf0b294a2c57c65c08951e9",
+      "status": "loaded",
+      "rows": 8257,
+      "generated_at": "2026-10-08T01:56:53.287110+00:00"
+    },
+    {
+      "revision": "b595a516935784949845a3b195a67c0e624997bb",
+      "observed_at": "2026-10-08T02:05:03Z",
+      "sha256": "ce1a7ae4ea5c1e6313b3cffb6acd3f77672986f33f75dd19bcf916669a575f67",
+      "status": "loaded",
+      "rows": 8047,
+      "generated_at": "2026-10-08T02:03:04.026601+00:00"
+    },
+    {
+      "revision": "aac6716b95dc3e387701abf107aaa86bdb22d506",
+      "observed_at": "2026-10-08T11:21:24Z",
+      "sha256": "56e53b1c0639086ca93afae2c59edbce40fab6099a4fb54e95ffb26295e20ed9",
+      "status": "loaded",
+      "rows": 1120,
+      "generated_at": "2026-10-08T11:18:43.873766+00:00"
+    },
+    {
+      "revision": "e7a541e710a46c9262d22e9656f4adbc36ed6201",
+      "observed_at": "2026-10-08T17:27:52Z",
+      "sha256": "d91da53e50fcf5aed2050f5cab4fa898ca1ee2177c19ee797331b10e583bc2df",
+      "status": "loaded",
+      "rows": 1240,
+      "generated_at": "2026-10-08T17:25:42.959704+00:00"
+    },
+    {
+      "revision": "3c1063634c0ebc0079eeae9e5936ee38a7c4f806",
+      "observed_at": "2026-10-08T20:27:20Z",
+      "sha256": "1a5ced672ca1174224a347a4a47aadb52b3daf682efe8146cf1c542e68db6638",
+      "status": "loaded",
+      "rows": 1240,
+      "generated_at": "2026-10-08T20:24:18.470113+00:00"
+    },
+    {
+      "revision": "2b53b6584155d9e46244d2a12df9070aba20bcd5",
+      "observed_at": "2026-10-08T21:14:48Z",
+      "sha256": "0bf7157b5ff244c818f66065ece72475199a6501db60201febb23e4655e37fca",
+      "status": "loaded",
+      "rows": 1240,
+      "generated_at": "2026-10-08T21:12:50.711501+00:00"
+    },
+    {
+      "revision": "bc53255c11f25baf69142504ff00ef778b57a852",
+      "observed_at": "2026-10-08T22:34:34Z",
+      "sha256": "d5fe24b3b65e245ac48423deba52dddaa3e1d0e3b3f6968c4584e6bbc8fbec32",
+      "status": "loaded",
+      "rows": 1240,
+      "generated_at": "2026-10-08T22:32:04.942261+00:00"
+    },
+    {
+      "revision": "05aae81bbe16537430d769ecfc250160e80326a6",
+      "observed_at": "2026-10-08T23:23:06Z",
+      "sha256": "83bfcc9b8a6fb19b0a3a3e4320e7b324b44dccebf5b80ac309ea9c9e2bd9c8c4",
+      "status": "loaded",
+      "rows": 1240,
+      "generated_at": "2026-10-08T23:20:10.367505+00:00"
+    },
+    {
+      "revision": "c31f4e8edde132f9ab432fc8f5be9ab73af362b0",
+      "observed_at": "2026-10-08T23:27:35Z",
+      "sha256": "e5ae2b4a8949ac82fd14fe5f91f2c5bb1711396dfba2f2e05d49764cf2cce0de",
+      "status": "loaded",
+      "rows": 1240,
+      "generated_at": "2026-10-08T23:25:16.637397+00:00"
+    },
+    {
+      "revision": "b7db82f324a67b88a53733094431b4fb0f7b1652",
+      "observed_at": "2026-10-09T02:14:35Z",
+      "sha256": "783b5aafeb2dafe327161513f8d69bff5c2a288179134b7e91053aa12719bfad",
+      "status": "loaded",
+      "rows": 4210,
+      "generated_at": "2026-10-09T02:11:40.692479+00:00"
+    },
+    {
+      "revision": "aec72d2f03f65af49e53de478efcfa742ef36af9",
+      "observed_at": "2026-10-09T10:55:34Z",
+      "sha256": "6767c2e1ae5ae50ed2f38182c9130cf57f4cd6dba9c95829a15daa3c12e482cb",
+      "status": "loaded",
+      "rows": 4210,
+      "generated_at": "2026-10-09T10:52:41.702871+00:00"
+    },
+    {
+      "revision": "794b422f973b2f29f2b4887c90b0301fe83ce5cc",
+      "observed_at": "2026-10-09T11:10:38Z",
+      "sha256": "458ba95fd55bcfa6562a7b0fe773f7ee799d4cd115faf7cf30ddfb83ad3e1d73",
+      "status": "loaded",
+      "rows": 4773,
+      "generated_at": "2026-10-09T11:07:41.641877+00:00"
+    },
+    {
+      "revision": "89857081da99b695e2e0ee35e72680ee55f10190",
+      "observed_at": "2026-10-09T11:21:07Z",
+      "sha256": "3457c37630fded16d33f2d08adef11760619239da88ec3beec46db972936e91b",
+      "status": "loaded",
+      "rows": 4773,
+      "generated_at": "2026-10-09T11:18:53.159808+00:00"
+    },
+    {
+      "revision": "fbf4368cad1ca77fb5135dbf8c5047eebfee572a",
+      "observed_at": "2026-10-09T11:40:53Z",
+      "sha256": "c9f3ae2adcd6a7c703b94eed2165866139a4db3fbedece89edc24cc4b8f58cca",
+      "status": "loaded",
+      "rows": 9458,
+      "generated_at": "2026-10-09T11:37:34.395719+00:00"
+    },
+    {
+      "revision": "74afc5e1f5d008640d864090298b92d2a6d331ae",
+      "observed_at": "2026-10-09T11:46:22Z",
+      "sha256": "3405ad647dc9a7a4233e34df1fe5b18388aff7191c6b7e16968d4c287e9b6928",
+      "status": "loaded",
+      "rows": 9426,
+      "generated_at": "2026-10-09T11:43:56.319885+00:00"
+    },
+    {
+      "revision": "2d4b33c7297f9688f83c1a14faca5bbd32096986",
+      "observed_at": "2026-10-09T11:52:55Z",
+      "sha256": "a263b6c9e05347b17b451d8cdec023527a9b22d1e2efbe5d37045fb5923342d5",
+      "status": "loaded",
+      "rows": 9458,
+      "generated_at": "2026-10-09T11:49:12.416982+00:00"
+    },
+    {
+      "revision": "5ecd8995c21d3bff408a0b7bd663dbeb3e001e11",
+      "observed_at": "2026-10-09T17:04:25Z",
+      "sha256": "a02462a7d33a3c961cd688ca0895d1ca191ae76a0e62a531f8e13ed3812c5f08",
+      "status": "loaded",
+      "rows": 9458,
+      "generated_at": "2026-10-09T17:01:12.762623+00:00"
+    },
+    {
+      "revision": "8a51cb774458d9b165f82ecb6eea2330c6a6de98",
+      "observed_at": "2026-10-09T20:14:39Z",
+      "sha256": "726bb84a6eeb41248ab4d714bcbda61f079fee031e73cf3043b268e079a4cd73",
+      "status": "loaded",
+      "rows": 9458,
+      "generated_at": "2026-10-09T20:11:40.479562+00:00"
+    },
+    {
+      "revision": "0b54183be822a9bcd63e109eb3791e8a036551cc",
+      "observed_at": "2026-10-09T21:15:49Z",
+      "sha256": "398e03af79a1d80319294956beb3db06a33c428f45f1d61a3d5b45b859a77293",
+      "status": "loaded",
+      "rows": 9458,
+      "generated_at": "2026-10-09T21:13:39.409369+00:00"
+    },
+    {
+      "revision": "0799a6cb35ebe37573448a99f662237619de0efa",
+      "observed_at": "2026-10-10T00:38:47Z",
+      "sha256": "240eb2611d5dddb04561fe7c884cb152e5f0f9cb22121bc13ea07a014a6361d5",
+      "status": "loaded",
+      "rows": 9458,
+      "generated_at": "2026-10-10T00:35:36.801751+00:00"
+    },
+    {
+      "revision": "92785bc111af1011ed5bb17e20710e63935885fb",
+      "observed_at": "2026-10-10T00:50:04Z",
+      "sha256": "41dab558e9bc371bfe2a86c101969dd4dddb2cac2d3a15023f025004fded309b",
+      "status": "loaded",
+      "rows": 9458,
+      "generated_at": "2026-10-10T00:46:23.371841+00:00"
+    },
+    {
+      "revision": "7565e91c81667485f1d61f7a2cc08748e3b1ae56",
+      "observed_at": "2026-10-10T01:39:04Z",
+      "sha256": "b05a8e697c1483cc1d736c27cae323e5bc3a911802569dc0759e3c275a6b0597",
+      "status": "loaded",
+      "rows": 9010,
+      "generated_at": "2026-10-10T01:36:46.870794+00:00"
+    },
+    {
+      "revision": "6f142aadf7ae772c281eaba77fcde50438983105",
+      "observed_at": "2026-10-10T01:50:23Z",
+      "sha256": "7c1eb1c19bfad62800ab3dd816d396b56429cc8b3bc60c8d3a776ecfcae3db71",
+      "status": "loaded",
+      "rows": 9003,
+      "generated_at": "2026-10-10T01:47:03.038754+00:00"
+    },
+    {
+      "revision": "5baeb05fcda9214829c00ecbf89431007352d3e5",
+      "observed_at": "2026-10-10T02:00:12Z",
+      "sha256": "f0845044cec597500ed1834ed3d4435547834623a1ba25cbfb8108a67ad28d54",
+      "status": "loaded",
+      "rows": 8912,
+      "generated_at": "2026-10-10T01:58:07.103651+00:00"
+    },
+    {
+      "revision": "c0f09ab51ccabecd1918a3dcb3ec296fa288bedf",
+      "observed_at": "2026-10-10T02:32:03Z",
+      "sha256": "d3ef3512addb0c9762b664e0b8c7f6e0d096e88ff13c0e1f959817b1d27711e1",
+      "status": "loaded",
+      "rows": 8645,
+      "generated_at": "2026-10-10T02:28:25.624295+00:00"
+    },
+    {
+      "revision": "677158492ceb45ca4be6d0b44cd28d01aacb7551",
+      "observed_at": "2026-10-10T03:25:39Z",
+      "sha256": "ea579d4801a28bd755633697a85797345be27f6482a447a66779fb4368f0e2f3",
+      "status": "loaded",
+      "rows": 8645,
+      "generated_at": "2026-10-10T03:22:05.497207+00:00"
+    },
+    {
+      "revision": "3f2651e77689b6b525502d87047da68b58c00bc9",
+      "observed_at": "2026-10-10T03:49:33Z",
+      "sha256": "ef5309a89888a33c935e81380754639c529bb91a7945cebdca96549937900465",
+      "status": "loaded",
+      "rows": 9078,
+      "generated_at": "2026-10-10T03:46:05.279748+00:00"
+    }
+  ],
+  "history_sources": [
+    {
+      "revision": "793813c6c7353d0560b51de940a0d241e4a369d2",
+      "commit_time": "2026-09-10T19:44:03+00:00",
+      "sha256": "aae5abd4db40f3cfd49533f6026b25e502e08bc4495189f5f4cc62f3c628f243"
+    },
+    {
+      "revision": "3746dc772abb1b2eff62da2ac36dfa3c79b54b45",
+      "commit_time": "2026-09-10T19:47:46+00:00",
+      "sha256": "9e4d600d7472c82d138d369bed2aa2d267ad78ec5b6f92fd07dedde39b380788"
+    },
+    {
+      "revision": "fcd0f9dc4d6d58197191060141b695c761251cbf",
+      "commit_time": "2026-09-10T21:55:24+00:00",
+      "sha256": "0714162ecac6ac195c061b1b51ee76c68cad2b7fe0e048d0a0073ca132fd3050"
+    },
+    {
+      "revision": "268a116fad782225ec4617bafd0d454f27d1ef51",
+      "commit_time": "2026-09-10T22:25:51+00:00",
+      "sha256": "ef70c30a871d8fa7e00aca90b4e82d63427ce5c4f5f549d356ab8b69f06984d7"
+    },
+    {
+      "revision": "5506698be504f1a7173248f353601ff895fbb8b1",
+      "commit_time": "2026-09-11T01:15:51+00:00",
+      "sha256": "9af434c362aaf6c5bd30f2a1ea82f659c7862f5f1e15bd0aa6caca00fb625cb5"
+    },
+    {
+      "revision": "8157f6600c0d0c3efa00707b073e15ed0c3082ed",
+      "commit_time": "2026-09-11T01:13:02+00:00",
+      "sha256": "5868ba6c0e9a8ef0574bae7bbc03387a13b9632551811b6e4a52eca9246edf63"
+    },
+    {
+      "revision": "3553d5ec806585f50e1cc81214e6ab3a88f10638",
+      "commit_time": "2026-09-11T11:03:28+00:00",
+      "sha256": "b4fe31ef0f1ee77fb5b4ab14cc3d723f1e39b9a8ce6b20098ecefe5303c12016"
+    },
+    {
+      "revision": "831194633ac9d1de058ed29075af9fb3656a0595",
+      "commit_time": "2026-09-11T14:28:53+00:00",
+      "sha256": "9432b8ffc70636803fd4212ab683f2e2061a34ec8f6802b20abbfa3d26ecc6a6"
+    },
+    {
+      "revision": "2ed851d782a1c33181fafd5be4e240b0fe9d69e1",
+      "commit_time": "2026-09-12T01:56:28+00:00",
+      "sha256": "0f4a9ac8bbe4b3532d8aa3fc4c15f5a77f0c4890da9aeaa2d6ab5d75c392376c"
+    },
+    {
+      "revision": "fa7063d4a38f7b502856cf83f5d5f3b8e03d666f",
+      "commit_time": "2026-09-12T03:11:53+00:00",
+      "sha256": "386cf9dfc08fb11f3ab9019df0fb024b37918fa135a3f4f67f28d5dd736fc958"
+    },
+    {
+      "revision": "0df8af4823ca0a4c21613bdd1b74f9123c551ae3",
+      "commit_time": "2026-09-12T02:55:36+00:00",
+      "sha256": "4bb7b030437dbb7ec44de427d41e83989bdd4c6fdea3276afb9ec3c18603ec0f"
+    },
+    {
+      "revision": "79f0c7e81dc980dedf3385a174e484babf929ace",
+      "commit_time": "2026-09-12T03:21:23+00:00",
+      "sha256": "57f543beb5ae6ce63087f76cbbec7b479da51166c942af93be0401beb518d694"
+    },
+    {
+      "revision": "fb449ec74e0981e3b0329ec8ba295d983d955ec4",
+      "commit_time": "2026-09-12T02:33:30+00:00",
+      "sha256": "2ab701126abdb78d9a62e38cc0cbfa76290997ba2c1767002767526b4a2d1a3a"
+    },
+    {
+      "revision": "3f823db6cda99c93f779fee7f1d6aca577fc53f7",
+      "commit_time": "2026-09-12T13:39:25+00:00",
+      "sha256": "213c42a86c70cd2cdd34612736fde708b635e5f4f6c72bbf673a778ce7449f12"
+    },
+    {
+      "revision": "52bb91e51e35ccae21b154078df52e2bae6bc6df",
+      "commit_time": "2026-09-12T15:42:43+00:00",
+      "sha256": "89700a8149a7f9733b83ec905796d5ac2d8920ef8655ee8f1f479f85354c28af"
+    },
+    {
+      "revision": "a887017afc43a8dbcedc5b6bf66861c6c8110df8",
+      "commit_time": "2026-09-12T15:52:29+00:00",
+      "sha256": "fb91628a762cdc9a7a95cb34c5135478156795cb02d11f44938e7f7341537db1"
+    },
+    {
+      "revision": "1dd87a3de40686ff074f0c8b108e9ca87b1f02cf",
+      "commit_time": "2026-09-12T15:55:30+00:00",
+      "sha256": "4756b765da86cc218b4eec625d130604fe4781fa254f9461037fa87d8273b431"
+    },
+    {
+      "revision": "ac78932961f9e84c1298d8353792120ea502569e",
+      "commit_time": "2026-09-12T21:59:06+00:00",
+      "sha256": "cf18777ca89d91a2d442891da8cd430955ab727068148f3b8206086247c63a77"
+    },
+    {
+      "revision": "0bd43323a7c5e4fc70a820b1b861fdffa4a85d50",
+      "commit_time": "2026-09-12T21:47:02+00:00",
+      "sha256": "bd1a14b4e9e1e14b90c35a34417d56f1e3912ba22341bc6450dccd435fdc8f6d"
+    },
+    {
+      "revision": "a5edb35535383620695c323908e631c7cdb1bddf",
+      "commit_time": "2026-09-13T00:02:48+00:00",
+      "sha256": "7f00f2b934a56cdcaefe409875e2bbca4df1737ef57a488db41bdded05a24600"
+    },
+    {
+      "revision": "a8d56b4783dd0a832763974c2342046af189f2e7",
+      "commit_time": "2026-09-13T02:55:15+00:00",
+      "sha256": "a8278d997d6e8bd7b4b700c14f6c0a1b78f7dc14212b14a0da73bd627e6b13fd"
+    },
+    {
+      "revision": "86558475dcbf7f57126ed9b83425e6646581dc3d",
+      "commit_time": "2026-09-13T14:25:50+00:00",
+      "sha256": "1b62535eb1d86c4ba1a4782670aaa383aefaa6b0a46e1471c6332d6cd3ef9f57"
+    },
+    {
+      "revision": "4b1b807842a4a8447deb84a528dca021ef04ba1f",
+      "commit_time": "2026-09-14T00:14:39+00:00",
+      "sha256": "2f7b2bc85152cc5d6c55b3f4fad087bdba0729210a492662616ba25fc1e1e34b"
+    },
+    {
+      "revision": "05d762ebd90462d7eaa732181291d931b1afa57b",
+      "commit_time": "2026-09-15T00:48:08+00:00",
+      "sha256": "6f72496fa97872e77c124b54489bb4c0a5bbe7c9a6dd93f12f0aa8d766850278"
+    },
+    {
+      "revision": "9f744b5d0a0cc4477f4b7db31b9338e22deea9d1",
+      "commit_time": "2026-09-15T15:03:35+00:00",
+      "sha256": "c6d519dd948f50a7b55f02219de6e48f7443201b363cec7d70ce6f63c3c3ec60"
+    },
+    {
+      "revision": "3f475766176e7991fa746354522cc268271870b0",
+      "commit_time": "2026-09-18T20:33:24+00:00",
+      "sha256": "11d90f9c8dd6a07d83460b55235a2e5618490365c0c76e2e97cb3c6b8bc86026"
+    },
+    {
+      "revision": "65032169a669183b49f90fa2e9250e918ac32857",
+      "commit_time": "2026-09-17T21:13:41+00:00",
+      "sha256": "d061f78a6eb078b892b358ca286579f3e61bc1ffecb5d9ba5341149636aaf418"
+    },
+    {
+      "revision": "e05a05132590a4d7ca1b032f4668df8b1bc484ea",
+      "commit_time": "2026-09-18T20:50:27+00:00",
+      "sha256": "fc900e3f6ba353105e7fa5447ec7260d16e19167df3762937563b204ae546ea2"
+    },
+    {
+      "revision": "e8514183f124b5bb672eb29b8f69aa2523f827eb",
+      "commit_time": "2026-09-18T21:38:36+00:00",
+      "sha256": "b37a8a01873b6acc17904adf489ce20c5dfc1db57103fbbe8bba73af3cab38a5"
+    },
+    {
+      "revision": "094270a8f98babf0dcbb2bf89eee66135c7ecf24",
+      "commit_time": "2026-09-18T21:49:32+00:00",
+      "sha256": "5e48cf17ce45de229a75742e31280ffd6a1d4efddd36fa996e1a7a72f7735679"
+    },
+    {
+      "revision": "11195ea6bf0c6e7734230827f43459c6a3b8639a",
+      "commit_time": "2026-09-19T00:24:38+00:00",
+      "sha256": "19aa53e1dc4b7bac0bd76789c0202252ed410101e2af2a8df3bd1bec43cc1ad6"
+    },
+    {
+      "revision": "905f1c48f06973098b9fe01ac80a21280619db92",
+      "commit_time": "2026-09-20T00:12:32+00:00",
+      "sha256": "6b5fc63f10ccac83ebc5d7f8a8ad8bb5ecddeb039e9ac4807e3e061f7f1cba19"
+    },
+    {
+      "revision": "7f6d09c58907d0587d6226f5c793bb7fbafa4612",
+      "commit_time": "2026-09-20T00:16:22+00:00",
+      "sha256": "7ce3cbbb5fb67b69b8d0a0cc14feb080e9fcf6903d13fa71f8096ac56655ff69"
+    },
+    {
+      "revision": "754ac2b3b770ac511330ba164d6cc03b60353487",
+      "commit_time": "2026-09-20T14:54:36+00:00",
+      "sha256": "25c855cd47c28d02c311c280afa1564579698aa17d27ffac43c3164a21a925f9"
+    },
+    {
+      "revision": "d356e293ea36f06746df9dffd53e6b7b37aaa034",
+      "commit_time": "2026-09-21T00:20:01+00:00",
+      "sha256": "8f3808030f06251228e152b85ba0c0727d97339f4020b0b99d9776d49df846a1"
+    },
+    {
+      "revision": "d25f99009f646bd922e0a75b5b98109c6af346c2",
+      "commit_time": "2026-09-21T01:12:56+00:00",
+      "sha256": "e5ec6b6aac29aa15e00ab5221602ac544ae3f561f6d383612d7196a969d403da"
+    },
+    {
+      "revision": "a6c259bd82c18127751f5f8542f936e90ac0dc59",
+      "commit_time": "2026-09-21T16:32:45+00:00",
+      "sha256": "76a7a9269f17d76cc0aaa3cda0e4907e0e1bc93e53fea826ad9f0295ba8b2b0e"
+    },
+    {
+      "revision": "397cbd5ef0e1e252ec69142c582e8a5f722e15ba",
+      "commit_time": "2026-09-21T21:24:26+00:00",
+      "sha256": "12af24e370f69a7277228246a821680c38670e14dc24eb6249a46c96efe56d4b"
+    },
+    {
+      "revision": "1f8501aa9ba73ca8d0def4905e61355f6c74f2a1",
+      "commit_time": "2026-09-22T00:54:05+00:00",
+      "sha256": "aa6d09dc28afd4fb095d875e9324294400195099e5a841e2b4a145e4fedf0d88"
+    },
+    {
+      "revision": "2af1631696fcddc0188790284895ea2fa590c940",
+      "commit_time": "2026-09-22T14:58:56+00:00",
+      "sha256": "782f6e9f88b1b4986adc3412803618201a09da3c559e5aa97d09fb4603e87553"
+    },
+    {
+      "revision": "35e8206b038c73e6a6313d61243639f22c97db04",
+      "commit_time": "2026-09-22T16:54:40+00:00",
+      "sha256": "2ece29b0e7815b96875001f1048c9a60453365e6460d300ff2b462fa41672e98"
+    },
+    {
+      "revision": "739fe918b7eabe2bb90c48192bef30841db10c56",
+      "commit_time": "2026-09-23T00:37:24+00:00",
+      "sha256": "233220785b6798c12f330c7a1532e9647fbf2a77cb7d82809270b52e3090afb6"
+    },
+    {
+      "revision": "3649392d61d0df7260dfb8d3cb78e93c1ce4b99d",
+      "commit_time": "2026-09-23T15:05:49+00:00",
+      "sha256": "efe16244ea15d80210a7c61418123016be296c437dedf5e9bde477f2c403d030"
+    },
+    {
+      "revision": "e8bd915df708950f93a456226a9a04c2155d26f2",
+      "commit_time": "2026-09-24T00:35:15+00:00",
+      "sha256": "dc91a54d23b4eed989921288e3096514a5a47b521d3249beb9cc064806e474f5"
+    },
+    {
+      "revision": "5aac51b39168108207b28f94d88ecfa118046cfc",
+      "commit_time": "2026-09-24T15:10:31+00:00",
+      "sha256": "32c32d43cf1fbe2347790f5f3d34ba36f0563e86a9e1c1bc16003af137194541"
+    },
+    {
+      "revision": "c6814a10cfc926cd17aa5379f35f31eca870d71b",
+      "commit_time": "2026-09-25T00:38:10+00:00",
+      "sha256": "bef42d4e33ccce88169a7cb9cfe33f0e441713c773383cc15bef81a572fdc884"
+    },
+    {
+      "revision": "edab5b8da9e67deb54b83431ab6d2730dcefef5c",
+      "commit_time": "2026-09-25T15:20:26+00:00",
+      "sha256": "3b7013a4ee75f6cfe2641c5001ca28e05d3d6eb6c9d4eaef206426eb6e335089"
+    },
+    {
+      "revision": "7ebc805b60297eac230040623f97a4bdabceb2ba",
+      "commit_time": "2026-09-26T00:41:17+00:00",
+      "sha256": "55adb0c26030e6146f0f5ba774859608303cb6afa404528304146a83d324637d"
+    },
+    {
+      "revision": "ee43558e6fed238e24bea757ba32531662d760f4",
+      "commit_time": "2026-09-26T14:33:13+00:00",
+      "sha256": "041b595b656fc14958541843bf1baf961c6c50ee4d27213c0ce51a3f25a78163"
+    },
+    {
+      "revision": "ef431846adf7d3d2ab49888a7aae249df3ba1dd8",
+      "commit_time": "2026-09-27T15:14:03+00:00",
+      "sha256": "fe9781770407dbc0e41a5e60d3be29af67b628293be8b30a1b17147c2c30099c"
+    },
+    {
+      "revision": "9e6910b6b86d9a0be479dbb1cffcf3eba613ecd7",
+      "commit_time": "2026-09-28T00:50:25+00:00",
+      "sha256": "199ecf6f197bff7221ee739492301e6e48662a4f6d8e05cb3bdf269c191d6bed"
+    },
+    {
+      "revision": "8048854711d11e158c9536093aba372c56553e74",
+      "commit_time": "2026-09-28T18:13:54+00:00",
+      "sha256": "80dadaf39b6edc38d283770c1d4b54a8cf65c37f7c40a94152ce0ec4f40f6e53"
+    },
+    {
+      "revision": "f5075364e61043ed4934f032244541ba8e099ec2",
+      "commit_time": "2026-09-29T02:00:30+00:00",
+      "sha256": "1ce37a27416cfd25d5891748ca3daa191714b711bbfac580f28bc082c8a66811"
+    },
+    {
+      "revision": "719951cafb4bac7dad8cbd8c9eda9ab291ef2d0d",
+      "commit_time": "2026-09-29T16:34:38+00:00",
+      "sha256": "51d1273a029e3b17e5d702aa2bfda31afe164ccf54e703f504f5ab3794aaa5ef"
+    },
+    {
+      "revision": "ccee486e8bde083d4a4d79495e85fed19726392b",
+      "commit_time": "2026-09-29T20:25:51+00:00",
+      "sha256": "29885add02cd38990e68ff5c6e6e6aa36de6aec21bf4dc55d93f65e969ccfc78"
+    },
+    {
+      "revision": "92caa348701c914e476107b803538d994cb30b70",
+      "commit_time": "2026-09-29T21:18:11+00:00",
+      "sha256": "de34b79829b6603107ac4d9a1cbe00ed7e26553d3467590efa5050ec82239905"
+    },
+    {
+      "revision": "71a3a8595a11e6946cdb6bac28253bb150f17c98",
+      "commit_time": "2026-09-30T01:21:22+00:00",
+      "sha256": "8eaeeda371facb729c43d56ab8afd1a765fe0ebe647a0a3b830907d8a2162b83"
+    },
+    {
+      "revision": "1c4dc224d953961379c2e98994737ab13d73926f",
+      "commit_time": "2026-09-30T16:28:19+00:00",
+      "sha256": "25d395032f9c2f7fa96a02853fb2d7445744cc099542407657c9f8f9d7d6459f"
+    },
+    {
+      "revision": "b0a8b2ffae982b56f066e06708feb664eb00e8ee",
+      "commit_time": "2026-10-01T01:20:51+00:00",
+      "sha256": "23ad196d237193f5761f800605b527898a745391d1875a080cdf548505637f34"
+    },
+    {
+      "revision": "7d33e75b7eea05a52845a9fa02c203d850512da9",
+      "commit_time": "2026-10-01T17:05:38+00:00",
+      "sha256": "70fb53d2b9ec01af6c4c9d3476392c1c2b33128248dda71d76720c6fcac390c0"
+    },
+    {
+      "revision": "484ba6d4627a4ce7156b50052e3150bd8dc75f86",
+      "commit_time": "2026-10-02T01:45:02+00:00",
+      "sha256": "12bc26b526a0f55fcfb49d5018686927a54ae4d82591c9d74c031000a350cea7"
+    },
+    {
+      "revision": "7b2633ba80177129151910e89e57de860832dd38",
+      "commit_time": "2026-10-03T01:16:33+00:00",
+      "sha256": "f31bca01000049cb930644fd44c269700ef6d4c63410491a66d699ce34261617"
+    },
+    {
+      "revision": "4e5a1653acafae19cc95fd2fe69015874fd3ad75",
+      "commit_time": "2026-10-03T14:46:39+00:00",
+      "sha256": "ba3d808a485118e3f5e339421e1d1c159afea5bec6631f6805e0e71111393cb0"
+    },
+    {
+      "revision": "43b5ae27dd19ccb899e7a4b3fe71458f45034711",
+      "commit_time": "2026-10-04T00:40:20+00:00",
+      "sha256": "8beb467c6dd27f081c3222913ff8364e32f44252b2a50824f16fe7075c6e0196"
+    },
+    {
+      "revision": "72fbd52f4c8d119812a545be6b4aacb7c3b342e4",
+      "commit_time": "2026-10-04T15:26:39+00:00",
+      "sha256": "2feb724592b015ee5488edcadb6c912f759571998b9cee9172248841e604a6f0"
+    },
+    {
+      "revision": "2f28e15b92a406cee0419f2a6d46592a583bbd31",
+      "commit_time": "2026-10-04T23:52:25+00:00",
+      "sha256": "6f112bf0c324f10866a443e5a0270fad3f4b27e53fb0e4067b556007e1076d91"
+    },
+    {
+      "revision": "28725471bb45df08136648602de67c4d63c5f734",
+      "commit_time": "2026-10-05T00:59:37+00:00",
+      "sha256": "a592b160d661b2dfb24746988f5bb6e220d860ed9c61f27b83105c1392d449af"
+    },
+    {
+      "revision": "8812018628ba0baf9047b4fa0a1049aecfd0c408",
+      "commit_time": "2026-10-05T15:56:06+00:00",
+      "sha256": "03c0d1a88560ea97a2dc71ffa381d5b9b9ace84c43e925fb0a38df0c672b7af6"
+    },
+    {
+      "revision": "dcf910768fcbd67c5513fc3132a01ca4cddd31bf",
+      "commit_time": "2026-10-05T18:54:45+00:00",
+      "sha256": "91943d5ab010a4d1f89bda956891d21687af323b7666c30355f16011db1cb633"
+    },
+    {
+      "revision": "f39be683b484bf4dbed11b62ec995ccc3d2e1fba",
+      "commit_time": "2026-10-05T19:27:28+00:00",
+      "sha256": "ef1868109e3291077617f4a4ad15b4cffdbeec308f1c7a95d28949f9ff154ce5"
+    }
+  ],
+  "execution_source_sha256": {
+    "research/prop-lines/public_passyds_replay.py": "274ea8e218e9b204fde87fae0f375499fc830bca5b06ec643e23ed0ba926e007",
+    "research/prop-lines/extract_git_props.py": "f0ae8302f6451a567f82dc608b3ff022751c65b9d5003ea9ee7685bbcef4d6bc",
+    "research/prop-lines/build_quotes.py": "b015a61ce378a699fbfa5cfbe8c7e504268cc0d39d9d48ef41cc7736f8d31139"
+  },
+  "limitations": [
+    "Historical quote decisions were not selected/frozen prospectively for this independent experiment.",
+    "Git commit time is conservative receipt evidence, not provider first availability.",
+    "Public profile windows may omit older starter rows after relief appearances; reject incomplete inputs.",
+    "Posted quote prices do not establish execution, wager acceptance or stake capacity.",
+    "No complete historical game-day availability receipts, hence an informational forecasting cohort rather than actionable betting validation."
+  ],
+  "reports": {
+    "all_main": {
+      "lines": 24,
+      "player_games": 24,
+      "games": 16,
+      "players": 24,
+      "over_rate": 0.5833333333333334,
+      "models": {
+        "raw": {
+          "brier": 0.29895829977768956,
+          "log_loss": 0.8095259385805127,
+          "calibration": {
+            "intercept": 0.30346410399479684,
+            "slope": -0.17481929501252635,
+            "status": "converged"
+          },
+          "mae": 68.87084296162222,
+          "bias_prediction_minus_actual": -28.400110059601797,
+          "point_definition": "model distribution median"
+        },
+        "shrink": {
+          "brier": 0.29180839806645614,
+          "log_loss": 0.7923351766055325,
+          "calibration": {
+            "intercept": 0.298023241522122,
+            "slope": -0.25700509638160535,
+            "status": "converged"
+          },
+          "mae": 68.87084296162222,
+          "bias_prediction_minus_actual": -28.400110059601797,
+          "point_definition": "model distribution median"
+        },
+        "refit": {
+          "brier": 0.2745257338259122,
+          "log_loss": 0.7440232062976092,
+          "calibration": {
+            "intercept": 0.178547950156194,
+            "slope": -0.9930847797596386,
+            "status": "converged"
+          },
+          "mae": 61.21683339784877,
+          "bias_prediction_minus_actual": -27.341378511917053,
+          "point_definition": "model distribution median"
+        },
+        "trailing": {
+          "brier": 0.2849726091291813,
+          "log_loss": 0.7697762746676665,
+          "calibration": {
+            "intercept": 0.25731143693150604,
+            "slope": -0.3415063886555383,
+            "status": "converged"
+          },
+          "mae": 61.879683998261875,
+          "bias_prediction_minus_actual": -28.430533317395724,
+          "point_definition": "model distribution median"
+        },
+        "market": {
+          "brier": 0.2500073059971493,
+          "log_loss": 0.6931617928114472,
+          "calibration": {
+            "intercept": null,
+            "slope": null,
+            "status": "insufficient_outcomes_or_probability_variation"
+          },
+          "mae": 57.375,
+          "bias_prediction_minus_actual": -18.791666666666668,
+          "point_definition": "posted main-line threshold, approximate market median"
+        }
+      },
+      "paired": {
+        "refit_minus_raw": {
+          "game_id": {
+            "brier": {
+              "difference": -0.02443256595177734,
+              "ci95": [
+                -0.09781528219600841,
+                0.04768631734113104
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": -0.0655027322829033,
+              "ci95": [
+                -0.2427871799720247,
+                0.08865693051453388
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": -0.02443256595177734,
+              "ci95": [
+                -0.10358728683218152,
+                0.04405100804578652
+              ],
+              "clusters": 24
+            },
+            "log_loss": {
+              "difference": -0.0655027322829033,
+              "ci95": [
+                -0.24628481872210295,
+                0.09380293570860218
+              ],
+              "clusters": 24
+            }
+          }
+        },
+        "refit_minus_shrink": {
+          "game_id": {
+            "brier": {
+              "difference": -0.01728266424054395,
+              "ci95": [
+                -0.08585258167179526,
+                0.04598956485849868
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": -0.04831197030792311,
+              "ci95": [
+                -0.21320793619840156,
+                0.09057707789240292
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": -0.01728266424054395,
+              "ci95": [
+                -0.08861043905820358,
+                0.045240040520825184
+              ],
+              "clusters": 24
+            },
+            "log_loss": {
+              "difference": -0.04831197030792311,
+              "ci95": [
+                -0.20796518886606782,
+                0.0947354088389365
+              ],
+              "clusters": 24
+            }
+          }
+        },
+        "refit_minus_trailing": {
+          "game_id": {
+            "brier": {
+              "difference": -0.010446875303269092,
+              "ci95": [
+                -0.04981872519597373,
+                0.024244931577342456
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": -0.02575306837005713,
+              "ci95": [
+                -0.11155756029353028,
+                0.04510855343837868
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": -0.010446875303269092,
+              "ci95": [
+                -0.046914921146733686,
+                0.023828244895699346
+              ],
+              "clusters": 24
+            },
+            "log_loss": {
+              "difference": -0.02575306837005713,
+              "ci95": [
+                -0.10198208161809381,
+                0.045480670319711924
+              ],
+              "clusters": 24
+            }
+          }
+        },
+        "refit_minus_market": {
+          "game_id": {
+            "brier": {
+              "difference": 0.024518427828762887,
+              "ci95": [
+                -0.0023164421907163023,
+                0.05114096495310179
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": 0.05086141348616225,
+              "ci95": [
+                -0.006957839098441865,
+                0.10550891207176888
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": 0.024518427828762887,
+              "ci95": [
+                -0.008853911326278985,
+                0.05873897418699163
+              ],
+              "clusters": 24
+            },
+            "log_loss": {
+              "difference": 0.05086141348616225,
+              "ci95": [
+                -0.020350923378313467,
+                0.12273422417546455
+              ],
+              "clusters": 24
+            }
+          }
+        }
+      }
+    },
+    "all_alternate": {
+      "lines": 373,
+      "player_games": 25,
+      "games": 16,
+      "players": 25,
+      "over_rate": 0.5710455764075067,
+      "models": {
+        "raw": {
+          "brier": 0.2839389873966844,
+          "log_loss": 0.7735358292491803,
+          "calibration": {
+            "intercept": 0.34198676282251333,
+            "slope": 0.2430022014298794,
+            "status": "converged"
+          },
+          "mae": 70.11663842058128,
+          "bias_prediction_minus_actual": -29.109888770288272,
+          "point_definition": "model distribution median"
+        },
+        "shrink": {
+          "brier": 0.27675462397159356,
+          "log_loss": 0.7566808557967629,
+          "calibration": {
+            "intercept": 0.3337955446891536,
+            "slope": 0.23498570643366243,
+            "status": "converged"
+          },
+          "mae": 70.11663842058128,
+          "bias_prediction_minus_actual": -29.109888770288272,
+          "point_definition": "model distribution median"
+        },
+        "refit": {
+          "brier": 0.2502711199752534,
+          "log_loss": 0.6901562921618829,
+          "calibration": {
+            "intercept": 0.42594383219914556,
+            "slope": 0.7194112130245952,
+            "status": "converged"
+          },
+          "mae": 62.647560213873156,
+          "bias_prediction_minus_actual": -27.704753384973948,
+          "point_definition": "model distribution median"
+        },
+        "trailing": {
+          "brier": 0.26423780854841555,
+          "log_loss": 0.723810715872639,
+          "calibration": {
+            "intercept": 0.4296227382671283,
+            "slope": 0.45638540017906537,
+            "status": "converged"
+          },
+          "mae": 64.40187884935219,
+          "bias_prediction_minus_actual": -29.920893960166346,
+          "point_definition": "model distribution median"
+        },
+        "market": {
+          "brier": 0.23081453767426616,
+          "log_loss": 0.6496118694073285,
+          "calibration": {
+            "intercept": 0.33774029850329246,
+            "slope": 1.3296285513212165,
+            "status": "converged"
+          },
+          "mae": null,
+          "bias_prediction_minus_actual": null,
+          "point_definition": "not scored: alternate threshold is not a forecast median"
+        }
+      },
+      "paired": {
+        "refit_minus_raw": {
+          "game_id": {
+            "brier": {
+              "difference": -0.03366786742143093,
+              "ci95": [
+                -0.09786981595257203,
+                0.029436679928868444
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": -0.0833795370872974,
+              "ci95": [
+                -0.24139101063220375,
+                0.05333578841885962
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": -0.03366786742143093,
+              "ci95": [
+                -0.10396014635145118,
+                0.030731017452714914
+              ],
+              "clusters": 25
+            },
+            "log_loss": {
+              "difference": -0.0833795370872974,
+              "ci95": [
+                -0.253089002121861,
+                0.06370480552504781
+              ],
+              "clusters": 25
+            }
+          }
+        },
+        "refit_minus_shrink": {
+          "game_id": {
+            "brier": {
+              "difference": -0.02648350399634012,
+              "ci95": [
+                -0.08722831016911888,
+                0.02805458058477473
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": -0.06652456363487994,
+              "ci95": [
+                -0.21651819620487492,
+                0.05791744529377287
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": -0.02648350399634012,
+              "ci95": [
+                -0.09167994952758854,
+                0.02970372536341329
+              ],
+              "clusters": 25
+            },
+            "log_loss": {
+              "difference": -0.06652456363487994,
+              "ci95": [
+                -0.22322815574518154,
+                0.06693387496506614
+              ],
+              "clusters": 25
+            }
+          }
+        },
+        "refit_minus_trailing": {
+          "game_id": {
+            "brier": {
+              "difference": -0.01396668857316209,
+              "ci95": [
+                -0.04778698901023873,
+                0.017556757523228255
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": -0.033654423710756186,
+              "ci95": [
+                -0.11013927500658882,
+                0.038471415381817746
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": -0.01396668857316209,
+              "ci95": [
+                -0.046180212580243164,
+                0.01822911284076561
+              ],
+              "clusters": 25
+            },
+            "log_loss": {
+              "difference": -0.033654423710756186,
+              "ci95": [
+                -0.10321460710380671,
+                0.03535222645475362
+              ],
+              "clusters": 25
+            }
+          }
+        },
+        "refit_minus_market": {
+          "game_id": {
+            "brier": {
+              "difference": 0.019456582300987266,
+              "ci95": [
+                -0.006626040539327084,
+                0.04542481778291076
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": 0.04054442275455446,
+              "ci95": [
+                -0.012881036716834413,
+                0.09467313660596441
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": 0.019456582300987266,
+              "ci95": [
+                -0.010051752499213407,
+                0.04946354368516615
+              ],
+              "clusters": 25
+            },
+            "log_loss": {
+              "difference": 0.04054442275455446,
+              "ci95": [
+                -0.020431470098955885,
+                0.1075540176020421
+              ],
+              "clusters": 25
+            }
+          }
+        }
+      }
+    },
+    "early_weeks_1_3_main": {
+      "lines": 0,
+      "status": "no_eligible_comparison"
+    },
+    "later_weeks_4_5_main": {
+      "lines": 24,
+      "player_games": 24,
+      "games": 16,
+      "players": 24,
+      "over_rate": 0.5833333333333334,
+      "models": {
+        "raw": {
+          "brier": 0.29895829977768956,
+          "log_loss": 0.8095259385805127,
+          "calibration": {
+            "intercept": 0.30346410399479684,
+            "slope": -0.17481929501252635,
+            "status": "converged"
+          },
+          "mae": 68.87084296162222,
+          "bias_prediction_minus_actual": -28.400110059601797,
+          "point_definition": "model distribution median"
+        },
+        "shrink": {
+          "brier": 0.29180839806645614,
+          "log_loss": 0.7923351766055325,
+          "calibration": {
+            "intercept": 0.298023241522122,
+            "slope": -0.25700509638160535,
+            "status": "converged"
+          },
+          "mae": 68.87084296162222,
+          "bias_prediction_minus_actual": -28.400110059601797,
+          "point_definition": "model distribution median"
+        },
+        "refit": {
+          "brier": 0.2745257338259122,
+          "log_loss": 0.7440232062976092,
+          "calibration": {
+            "intercept": 0.178547950156194,
+            "slope": -0.9930847797596386,
+            "status": "converged"
+          },
+          "mae": 61.21683339784877,
+          "bias_prediction_minus_actual": -27.341378511917053,
+          "point_definition": "model distribution median"
+        },
+        "trailing": {
+          "brier": 0.2849726091291813,
+          "log_loss": 0.7697762746676665,
+          "calibration": {
+            "intercept": 0.25731143693150604,
+            "slope": -0.3415063886555383,
+            "status": "converged"
+          },
+          "mae": 61.879683998261875,
+          "bias_prediction_minus_actual": -28.430533317395724,
+          "point_definition": "model distribution median"
+        },
+        "market": {
+          "brier": 0.2500073059971493,
+          "log_loss": 0.6931617928114472,
+          "calibration": {
+            "intercept": null,
+            "slope": null,
+            "status": "insufficient_outcomes_or_probability_variation"
+          },
+          "mae": 57.375,
+          "bias_prediction_minus_actual": -18.791666666666668,
+          "point_definition": "posted main-line threshold, approximate market median"
+        }
+      },
+      "paired": {
+        "refit_minus_raw": {
+          "game_id": {
+            "brier": {
+              "difference": -0.02443256595177734,
+              "ci95": [
+                -0.09781528219600841,
+                0.04768631734113104
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": -0.0655027322829033,
+              "ci95": [
+                -0.2427871799720247,
+                0.08865693051453388
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": -0.02443256595177734,
+              "ci95": [
+                -0.10358728683218152,
+                0.04405100804578652
+              ],
+              "clusters": 24
+            },
+            "log_loss": {
+              "difference": -0.0655027322829033,
+              "ci95": [
+                -0.24628481872210295,
+                0.09380293570860218
+              ],
+              "clusters": 24
+            }
+          }
+        },
+        "refit_minus_shrink": {
+          "game_id": {
+            "brier": {
+              "difference": -0.01728266424054395,
+              "ci95": [
+                -0.08585258167179526,
+                0.04598956485849868
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": -0.04831197030792311,
+              "ci95": [
+                -0.21320793619840156,
+                0.09057707789240292
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": -0.01728266424054395,
+              "ci95": [
+                -0.08861043905820358,
+                0.045240040520825184
+              ],
+              "clusters": 24
+            },
+            "log_loss": {
+              "difference": -0.04831197030792311,
+              "ci95": [
+                -0.20796518886606782,
+                0.0947354088389365
+              ],
+              "clusters": 24
+            }
+          }
+        },
+        "refit_minus_trailing": {
+          "game_id": {
+            "brier": {
+              "difference": -0.010446875303269092,
+              "ci95": [
+                -0.04981872519597373,
+                0.024244931577342456
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": -0.02575306837005713,
+              "ci95": [
+                -0.11155756029353028,
+                0.04510855343837868
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": -0.010446875303269092,
+              "ci95": [
+                -0.046914921146733686,
+                0.023828244895699346
+              ],
+              "clusters": 24
+            },
+            "log_loss": {
+              "difference": -0.02575306837005713,
+              "ci95": [
+                -0.10198208161809381,
+                0.045480670319711924
+              ],
+              "clusters": 24
+            }
+          }
+        },
+        "refit_minus_market": {
+          "game_id": {
+            "brier": {
+              "difference": 0.024518427828762887,
+              "ci95": [
+                -0.0023164421907163023,
+                0.05114096495310179
+              ],
+              "clusters": 16
+            },
+            "log_loss": {
+              "difference": 0.05086141348616225,
+              "ci95": [
+                -0.006957839098441865,
+                0.10550891207176888
+              ],
+              "clusters": 16
+            }
+          },
+          "pid": {
+            "brier": {
+              "difference": 0.024518427828762887,
+              "ci95": [
+                -0.008853911326278985,
+                0.05873897418699163
+              ],
+              "clusters": 24
+            },
+            "log_loss": {
+              "difference": 0.05086141348616225,
+              "ci95": [
+                -0.020350923378313467,
+                0.12273422417546455
+              ],
+              "clusters": 24
+            }
+          }
+        }
+      }
+    }
+  },
+  "status": "completed_no_fit_no_promotion"
+}

@@ -5,9 +5,11 @@ import os
 import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import requests
+from eligibility import _age_hours
 
 ROOT = Path(__file__).resolve().parents[1]
 GROUPS = json.loads((ROOT / 'config/parlay-markets.json').read_text())
@@ -15,7 +17,32 @@ MARKET_MAP = {alias: market for market, aliases in GROUPS.items() for alias in a
 SPORT_KEYS = {'nfl': 'americanfootball_nfl', 'ncaa': 'americanfootball_ncaaf'}
 NON_RETRYABLE_503 = {'ENDPOINT_DISABLED', 'ASYNCAPI_NOT_LOADED', 'OPENAPI_UNAVAILABLE'}
 RETRY_DELAYS = {'DB_NOT_READY': 30, 'PRIMARY_TIER_UNAVAILABLE': 60,
-                'PROPS_BOARD_DEGRADED': 5, 'WARMING': 5}
+                'PROPS_BOARD_DEGRADED': 5, 'PROPS_TEMPORARILY_BUSY': 5, 'WARMING': 5}
+
+
+def retry_after_seconds(value, now=None):
+    """RFC Retry-After supports seconds or HTTP-date; never sleep NaN/infinity."""
+    try:
+        delay = float(value)
+        return max(0, min(60, delay)) if math.isfinite(delay) else 0
+    except (TypeError, ValueError):
+        try:
+            date = parsedate_to_datetime(value)
+            if date.tzinfo is None:
+                return 0
+            return max(0, min(60, (date - (now or datetime.now(timezone.utc))).total_seconds()))
+        except (TypeError, ValueError, OverflowError):
+            return 0
+
+
+def quote_time(value):
+    try:
+        if _age_hours(value, datetime.now(timezone.utc)) is None:
+            return 0
+        date = datetime.fromisoformat(value.replace('Z', '+00:00'))
+        return date.timestamp() if date.tzinfo else 0
+    except (TypeError, ValueError, AttributeError, OverflowError):
+        return 0
 
 
 class ProviderRows(list):
@@ -28,10 +55,19 @@ def numeric(v):
     return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
 
 
+def valid_string_fields(row, fields):
+    return all(row.get(name) is None or isinstance(row[name], str) for name in fields)
+
+
 def stamp(value):
     if numeric(value):
-        return datetime.fromtimestamp(value / 1000 if value > 1e12 else value, timezone.utc).isoformat()
-    return value or None
+        try:
+            return datetime.fromtimestamp(value / 1000 if value > 1e12 else value, timezone.utc).isoformat()
+        except (ValueError, OverflowError, OSError):
+            return None
+    if isinstance(value, str):
+        return value if _age_hours(value, datetime.now(timezone.utc)) is not None else None
+    return None
 
 
 def normalize_props(rows, now=None):
@@ -40,15 +76,20 @@ def normalize_props(rows, now=None):
         raise ValueError('Unexpected Parlay props payload')
     output = {}
     for r in rows:
+        if not isinstance(r, dict) or not valid_string_fields(r, ('market_key', 'player', 'bookmaker')):
+            continue
         market = MARKET_MAP.get(r.get('market_key'))
         if not market or not r.get('player') or not r.get('bookmaker'):
             continue
         kickoff = r.get('commence_time')
         if kickoff:
             try:
-                if datetime.fromisoformat(kickoff.replace('Z', '+00:00')) <= now:
+                if _age_hours(kickoff, now) is None:
                     continue
-            except ValueError:
+                date = datetime.fromisoformat(kickoff.replace('Z', '+00:00'))
+                if date.tzinfo is None or date <= now:
+                    continue
+            except (ValueError, TypeError, AttributeError, OverflowError):
                 continue
         line = .5 if market in ('atd', 'first_td') and r.get('line') in (None, 0) else r.get('line')
         if not numeric(line):
@@ -63,7 +104,7 @@ def normalize_props(rows, now=None):
              'overOdds': odds(r.get('over_price')), 'underOdds': odds(r.get('under_price')),
              'source': 'parlay', 'updatedAt': stamp(r.get('last_update')), 'kickoff': kickoff,
              'dfs': dfs, 'gameDate': r.get('game_date')}
-        if key not in output or (p['updatedAt'] or '') > (output[key]['updatedAt'] or ''):
+        if key not in output or quote_time(p['updatedAt']) > quote_time(output[key]['updatedAt']):
             output[key] = p
     return list(output.values())
 
@@ -71,6 +112,8 @@ def normalize_props(rows, now=None):
 def normalize_periods(rows):
     output = {}
     for r in rows:
+        if not isinstance(r, dict) or not valid_string_fields(r, ('match_id', 'source')):
+            continue
         period = str(r.get('period_key', '')).upper()
         if period not in ('Q1', '1H') or not r.get('match_id') or not r.get('source'):
             continue
@@ -87,10 +130,12 @@ def normalize_periods(rows):
         if old is None or (numeric(r.get('age_seconds')) and (not numeric(old.get('age_seconds')) or r['age_seconds'] < old['age_seconds'])):
             kickoff = r.get('kickoff') or r.get('commence_time')
             try:
+                if _age_hours(kickoff, datetime.now(timezone.utc)) is None:
+                    raise ValueError('Invalid period kickoff')
                 in_play = datetime.fromisoformat(kickoff.replace('Z','+00:00')) <= datetime.now(timezone.utc)
-            except (ValueError, AttributeError):
+            except (ValueError, TypeError, AttributeError, OverflowError):
                 in_play = True
-            output[key] = dict(r, period_key=period, quoteKey=key, kickoff=kickoff, updatedAt=r.get('updatedAt') or stamp(r.get('last_observed_ms') or r.get('timestamp_ms')), inPlay=in_play)
+            output[key] = dict(r, period_key=period, quoteKey=key, kickoff=kickoff, updatedAt=stamp(r.get('updatedAt')) or stamp(r.get('last_observed_ms') or r.get('timestamp_ms')), inPlay=in_play)
     result = list(output.values())
     three_way = {(q['match_id'],q['source'],q['period_key']) for q in result if q['market']=='h2h' and q['side']=='draw'}
     for q in result:
@@ -131,8 +176,13 @@ def request_rows(sport, endpoint, params, key):
                         raise RuntimeError(f'Parlay {endpoint}: invalid JSON response') from None
                     if endpoint == 'live/period_markets' and isinstance(rows, dict):
                         rows = rows.get('results')
-                    if not isinstance(rows, list):
+                    if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
                         raise RuntimeError(f'Parlay {endpoint}: unexpected response schema')
+                    if endpoint == 'odds' and not valid_odds_rows(rows):
+                        raise RuntimeError('Parlay odds: unexpected nested response schema')
+                    fields = ('market_key', 'player', 'bookmaker') if endpoint == 'props' else ('match_id', 'source') if endpoint == 'live/period_markets' else ()
+                    if any(not valid_string_fields(row, fields) for row in rows):
+                        raise RuntimeError(f'Parlay {endpoint}: unexpected identity schema')
                     break
                 code, message = _provider_error(response, key)
                 request_id = response.headers.get('x-request-id', 'unknown').replace(key, '[REDACTED]')[:100]
@@ -142,10 +192,7 @@ def request_rows(sport, endpoint, params, key):
                 if response.status_code == 503:
                     retryable = code not in NON_RETRYABLE_503 and code != 'INCIDENTS_PARSE_FAILED'
                     delay = RETRY_DELAYS.get(code, 5)
-                try:
-                    delay = max(delay, min(60, float(response.headers.get('Retry-After', 0))))
-                except ValueError:
-                    pass
+                delay = max(delay, retry_after_seconds(response.headers.get('Retry-After')))
             except requests.RequestException as exc:
                 retryable = isinstance(exc, (requests.Timeout, requests.ConnectionError))
                 reason = type(exc).__name__
@@ -154,10 +201,10 @@ def request_rows(sport, endpoint, params, key):
             print(f'[parlay] stage={endpoint}; {reason}; retry 2/2 in {delay:g}s', flush=True)
             time.sleep(delay)
         collected.extend(rows)
-        provider_truncated = provider_truncated or response.headers.get('x-result-truncated', '').lower() == 'true' or bool(response.headers.get('x-result-degraded'))
+        provider_truncated = provider_truncated or response.headers.get('x-result-truncated', '').strip().lower() == 'true' or response.headers.get('x-result-degraded', '').strip().lower() not in ('', 'false', '0')
         if endpoint == 'props' and 'x-result-has-more' not in response.headers and len(rows) >= int(request_params.get('limit', 10000)):
             provider_truncated = True
-        has_more = response.headers.get('x-result-has-more', '').lower() == 'true'
+        has_more = response.headers.get('x-result-has-more', '').strip().lower() == 'true'
         if endpoint != 'props' or not has_more:
             return ProviderRows(collected, truncated=provider_truncated)
         next_offset = response.headers.get('x-next-offset')
@@ -169,6 +216,30 @@ def request_rows(sport, endpoint, params, key):
             return ProviderRows(collected, truncated=True)
         request_params['offset'] = next_offset
     return ProviderRows(collected, truncated=True)
+
+
+def valid_odds_rows(rows):
+    """Reject malformed containers before a source can be labelled healthy."""
+    def children(row, name):
+        value = row.get(name, [])
+        return value if isinstance(value, list) and all(isinstance(item, dict) for item in value) else None
+    for event in rows:
+        if not valid_string_fields(event, ('id', 'canonical_event_id', 'home_team', 'away_team')):
+            return False
+        books = children(event, 'bookmakers')
+        if books is None:
+            return False
+        for book in books:
+            if not valid_string_fields(book, ('key',)):
+                return False
+            markets = children(book, 'markets')
+            if markets is None:
+                return False
+            if any(('key' in market and not isinstance(market['key'], str)) or children(market, 'outcomes') is None for market in markets):
+                return False
+            if any(not valid_string_fields(outcome, ('name', 'description')) for market in markets for outcome in market.get('outcomes', [])):
+                return False
+    return True
 
 
 def fetch_parlay(sport):
@@ -185,6 +256,8 @@ def fetch_parlay(sport):
         previous['source_states'] = {name: ('STALE' if previous.get(field) else 'FAILED')
                                      for name, field in [('odds', 'games_raw'), ('props', 'props'),
                                                          ('derivatives', 'props'), ('periods', 'period_quotes')]}
+        if sport == 'ncaa':
+            previous['source_states'].update(props='NOT_APPLICABLE', derivatives='NOT_APPLICABLE')
         atomic_json(path, previous)
         raise
 
@@ -197,7 +270,9 @@ def _fetch_parlay(sport, previous=None):
     def get(endpoint, params):
         return request_rows(sport, endpoint, params, key)
 
-    previous = previous or {}
+    previous = previous if isinstance(previous, dict) else {}
+    previous_observed = previous.get('source_observed_at')
+    previous_observed = previous_observed if isinstance(previous_observed, dict) else {}
     derivative_markets = {market for market in GROUPS if market == 'first_td' or market.endswith(('_1h', '_1q'))}
     core_keys = [aliases[0] for market, aliases in GROUPS.items() if market not in derivative_markets]
     derivative_keys = [aliases[0] for market, aliases in GROUPS.items() if market in derivative_markets]
@@ -207,7 +282,11 @@ def _fetch_parlay(sport, previous=None):
 
     def resolve(name, future, fallback):
         try:
-            return future.result(), 'FRESH'
+            rows = future.result()
+            if getattr(rows, 'truncated', False):
+                errors[name] = 'Provider returned incomplete/degraded coverage; available quotes retained'
+                return rows, 'DEGRADED'
+            return rows, 'FRESH'
         except RuntimeError as exc:
             errors[name] = str(exc)
             print(f'[parlay] stage={name}; unavailable; {exc}', flush=True)
@@ -237,8 +316,8 @@ def _fetch_parlay(sport, previous=None):
         rows.extend(source if source and 'quoteKey' in source[0] else normalize_props(source))
     period_rows = periods if periods and 'quoteKey' in periods[0] else normalize_periods(periods)
     required = [odds_state] + ([props_state, derivative_state] if sport == 'nfl' else [])
-    fresh = all(state == 'FRESH' for state in required)
-    operational = any(state == 'FRESH' for state in (odds_state, props_state, derivative_state, period_state))
+    fresh = all(state == 'FRESH' for state in required) and not errors
+    operational = any(state in ('FRESH', 'DEGRADED') for state in (odds_state, props_state, derivative_state, period_state))
     if not operational:
         raise RuntimeError('; '.join(errors.values()) or 'Parlay returned no usable sources')
     now = datetime.now(timezone.utc).isoformat()
@@ -250,6 +329,8 @@ def _fetch_parlay(sport, previous=None):
             'last_fresh_at': now if fresh else previous.get('last_fresh_at') or (previous.get('generated_at') if previous.get('feed_status') == 'FRESH' else None),
             'source_states': {'odds': odds_state, 'props': props_state,
                               'derivatives': derivative_state, 'periods': period_state},
+            'source_observed_at': {name: now if source in ('FRESH', 'DEGRADED') else previous_observed.get(name)
+                                   for name, source in (('odds', odds_state), ('props', props_state), ('derivatives', derivative_state), ('periods', period_state))},
             'props': rows, 'derivative_status': derivative_state.lower(),
             'games_raw': games, 'odds_status': odds_state.lower(),
             'period_quotes': period_rows, 'period_status': period_state.lower(),

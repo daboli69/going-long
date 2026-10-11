@@ -3,6 +3,8 @@
 
   const WEEK_KEY = 'going-abbeys-selected-week';
   let payloadPromise = null;
+  let payloadLoadedAt = 0;
+  const REFRESH_MS = 60000;
   let selectedWeekKey = null;
   const panelState = new WeakMap();
 
@@ -36,7 +38,7 @@
   }
 
   async function readBoard(url) {
-    const response = await root.fetch(url, { credentials: 'same-origin' });
+    const response = await root.fetch(url, { credentials: 'same-origin', cache: 'no-cache' });
     if (!response.ok) throw new Error(`Board data returned ${response.status}.`);
     const data = await response.json();
     if (!data || !Array.isArray(data.weeks)) throw new Error('The ABBEYS board data is incomplete.');
@@ -44,7 +46,8 @@
   }
 
   function loadPayload() {
-    if (!payloadPromise) {
+    if (!payloadPromise || Date.now() - payloadLoadedAt >= REFRESH_MS) {
+      payloadLoadedAt = Date.now();
       payloadPromise = readBoard('/api/snapshot?file=abbeys-board.json').catch(apiError =>
         readBoard('/data/abbeys-board.json').catch(() => { throw apiError; })
       );
@@ -242,6 +245,13 @@
     top.append(el('p', 'abbeys-board-intro', 'Frozen weekly NFL picks. Confidence is an uncalibrated evidence category, not a win probability.'));
     board.append(top);
 
+    const current = payload.currentWeek;
+    if (current && current.status !== 'frozen') {
+      const notice = el('p', 'abbeys-empty', current.reason || 'The current week has no published official picks.');
+      notice.setAttribute('role', 'status');
+      board.append(notice);
+    }
+
     if (!weeks.length) {
       board.append(el('p', 'abbeys-empty', 'No frozen ABBEYS weeks are available yet.'));
       panel.replaceChildren(board);
@@ -251,11 +261,9 @@
 
     let rememberedWeek = null;
     try { rememberedWeek = root.localStorage?.getItem?.(WEEK_KEY); } catch (_) { /* Storage can be disabled. */ }
-    const requested = state.selectedWeekKey || selectedWeekKey || rememberedWeek;
-    const week = weeks.find(item => weekId(item) === requested) || weeks[0];
+    const requested = state.userSelected ? state.selectedWeekKey : selectedWeekKey;
+    const week = weeks.find(item => weekId(item) === requested) || weeks.find(item => item.season === current?.season && item.week === current?.week) || weeks.find(item => weekId(item) === rememberedWeek) || weeks[0];
     state.selectedWeekKey = weekId(week);
-    selectedWeekKey = state.selectedWeekKey;
-    try { root.localStorage?.setItem?.(WEEK_KEY, selectedWeekKey); } catch (_) { /* Storage can be disabled. */ }
 
     const controls = el('div', 'abbeys-controls');
     const label = el('label', 'abbeys-week-label');
@@ -269,6 +277,7 @@
       select.append(option);
     });
     select.addEventListener('change', () => {
+      state.userSelected = true;
       state.selectedWeekKey = select.value;
       selectedWeekKey = select.value;
       try { root.localStorage?.setItem?.(WEEK_KEY, select.value); } catch (_) { /* Storage can be disabled. */ }
@@ -319,7 +328,7 @@
       state = { status: 'idle', promise: null, selectedWeekKey: null };
       panelState.set(panel, state);
     }
-    if (state.status === 'loaded' || state.status === 'failed') return state.promise || Promise.resolve();
+    if (state.status === 'failed' || (state.status === 'loaded' && Date.now() - state.loadedAt < REFRESH_MS)) return state.promise || Promise.resolve();
     if (state.status === 'loading') return state.promise;
 
     state.status = 'loading';
@@ -329,6 +338,7 @@
     state.promise = loadPayload().then(payload => {
       paint(panel, state, payload);
       state.status = 'loaded';
+      state.loadedAt = Date.now();
       return payload;
     }).catch(error => {
       state.status = 'failed';

@@ -71,7 +71,7 @@ test('Derivative identities separate first TD, anytime, periods, books and alter
   const rows=normalizePeriods([q,{...q,price:110,age_seconds:1},{...q,period_key:'Q1'},{...q,line:21.5},{...q,source:'other'}]);
   assert.equal(rows.length,4);assert.equal(rows[0].price,110);assert.equal(rows[0].inPlay,true);
   assert.equal(normalizePeriods([{...q,market:'team_total'}]).length,0);
-  const parsed=periodsFromGames([{id:'g',home_team:'A',away_team:'B',commence_time:'2099-01-01',bookmakers:[{key:'book',markets:[{key:'1h_spread',outcomes:[{name:'A',point:-3,price:-110},{name:'B',point:3,price:-110}]}]}]}]);
+  const parsed=periodsFromGames([{id:'g',home_team:'A',away_team:'B',commence_time:'2099-01-01T00:00:00Z',bookmakers:[{key:'book',markets:[{key:'1h_spread',outcomes:[{name:'A',point:-3,price:-110},{name:'B',point:3,price:-110}]}]}]}]);
   assert.equal(parsed.length,2);assert.equal(parsed[0].period_key,'1H');assert.equal(parsed[0].inPlay,false);
 });
 
@@ -137,4 +137,89 @@ test('Derivative fallback shares the original request deadline',async()=>{
   });
  },{budgetMs:150,requestMs:1000});
  assert.equal(propCalls,2);assert.equal(aborted,true);assert.equal(result.derivative_status,'unavailable');assert.equal(result.odds_status,'loaded');assert.equal(result.coverage.possibly_truncated,true);
+});
+
+test('Retry-After HTTP dates are bounded and invalid clocks do not replace newer quotes',async()=>{
+ const {retryAfterSeconds,normalizeProps,normalizePeriods}=await import('../server/parlay.mjs');
+ const now=Date.parse('2026-10-10T12:00:00Z');
+ assert.equal(retryAfterSeconds('Sat, 10 Oct 2026 12:00:30 GMT',now),30);
+ assert.equal(retryAfterSeconds('Sat, 10 Oct 2026 12:10:00 GMT',now),60);
+ for(const value of ['NaN','Infinity','-5','bad',null])assert.equal(retryAfterSeconds(value,now),0);
+ const rows=normalizeProps([
+  {...quote,last_update:'2026-10-10T12:00:00+02:00',over_price:110},
+  {...quote,last_update:'2026-10-10T10:30:00Z',over_price:120},
+  {...quote,last_update:1e40,over_price:130},
+  {...quote,last_update:'2026-10-10T11:00:00',over_price:140},
+  {...quote,commence_time:'2030-01-01T00:00:00',over_price:150},
+  {...quote,commence_time:'2030-01-01T00:00:00+00:60',over_price:160},
+  {...quote,last_update:'2026-10-10T11:00:00+00:60',over_price:170},
+  {...quote,commence_time:'2030-02-30T17:00:00Z',over_price:180},
+  {...quote,commence_time:'2030-10-11T24:00:00Z',over_price:190}
+ ]);
+ assert.equal(rows.length,1);assert.equal(rows[0].overOdds,120);
+ const period=normalizePeriods([{match_id:'g',source:'book',period_key:'1H',market:'total',side:'over',line:20.5,price:-110,kickoff:'2030-01-01T00:00:00',last_observed_ms:1e40,updatedAt:'bad'}])[0];
+ assert.equal(period.inPlay,true);assert.equal(period.updatedAt,null);
+});
+
+test('Provider partial coverage is explicit and never marked fresh without extra requests',async()=>{
+ const {fetchParlay}=await import('../server/parlay.mjs');
+ for(const header of ['x-result-truncated','x-result-has-more','x-result-degraded']){
+  let calls=0;
+  const result=await fetchParlay('nfl','fixture',async url=>{
+   calls++;const core=url.pathname.endsWith('/props')&&!url.searchParams.get('markets').includes('first_td');
+   return Response.json(url.pathname.endsWith('/props')?[quote]:[],{headers:core?{[header]:'true'}:{}});
+  });
+  assert.equal(calls,4);assert.equal(result.feed_status,'FALLBACK');assert.equal(result.source_states.props,'DEGRADED');
+  assert.equal(result.coverage.possibly_truncated,true);assert.equal(result.source_errors.props.code,'PROVIDER_COVERAGE_DEGRADED');
+ }
+ const healthy=await fetchParlay('nfl','fixture',async()=>Response.json([],{headers:{'x-result-degraded':'false','x-result-has-more':'false'}}));
+ assert.equal(healthy.feed_status,'FRESH');assert.equal(healthy.coverage.possibly_truncated,false);
+});
+
+test('Malformed optional period rows retain working quotes and missing source clocks stay unknown',async()=>{
+ const {fetchParlay}=await import('../server/parlay.mjs');let calls=0;
+ const result=await fetchParlay('nfl','fixture',async url=>{
+  calls++;return Response.json(url.pathname.endsWith('/period_markets')?{results:[null]}:url.pathname.endsWith('/props')?[quote]:[]);
+ });
+ assert.equal(calls,4);assert.equal(result.props.length,1);assert.equal(result.period_status,'unavailable');
+ assert.equal(result.feed_status,'FALLBACK');assert.equal(result.source_states.periods,'FAILED');
+ assert.equal(result.source_observed_at.periods,null);assert.ok(result.source_observed_at.props);
+ const ncaa=await fetchParlay('ncaa','fixture',async()=>Response.json([]));
+ assert.equal(ncaa.source_states.props,'NOT_APPLICABLE');assert.equal(ncaa.source_states.derivatives,'NOT_APPLICABLE');
+ assert.equal(ncaa.source_observed_at.derivatives,null);
+});
+
+test('Malformed nested game odds cannot discard working prop boards or report healthy',async()=>{
+ const {fetchParlay}=await import('../server/parlay.mjs');
+ const malformed=[{id:'broken',bookmakers:{}},{id:'broken',bookmakers:[null]},
+  {id:'broken',bookmakers:[{markets:{}}]}, {id:'broken',bookmakers:[{markets:[{outcomes:[null]}]}]},
+  {id:'broken',bookmakers:[{key:'b',markets:[{key:42,outcomes:[]}]}]},
+  {id:'broken',home_team:{}},{id:'broken',bookmakers:[{key:{}}]},
+  {id:'broken',bookmakers:[{markets:[{key:'1h_total',outcomes:[{name:[]}]}]}]}];
+ for(const event of malformed){
+  let calls=0;
+  const result=await fetchParlay('nfl','fixture',async url=>{
+   calls++;return Response.json(url.pathname.endsWith('/odds')?[event]:url.pathname.endsWith('/props')?[quote]:[]);
+  },{sleep:async()=>assert.fail('malformed schema must not retry')});
+  assert.equal(calls,4);assert.equal(result.props.length,1);assert.equal(result.source_states.props,'FRESH');
+  assert.equal(result.source_states.odds,'FAILED');assert.equal(result.feed_status,'FALLBACK');
+  assert.equal(result.source_observed_at.odds,null);assert.ok(result.source_errors.odds);
+ }
+});
+
+test('Malformed scalar identities fail only their source and prototype names are not markets',async()=>{
+ const {fetchParlay,normalizeProps}=await import('../server/parlay.mjs');
+ assert.equal(normalizeProps([{...quote,market_key:'toString'},{...quote,market_key:'constructor'}]).length,0);
+ const cases=[['props',{...quote,market_key:{}}],['props',{...quote,bookmaker:{bad:'book'}}],
+  ['periods',{match_id:{},source:'book'}],['periods',{match_id:'game',source:{}}]];
+ for(const [source,malformed] of cases){
+  let calls=0;
+  const result=await fetchParlay('nfl','fixture',async url=>{
+   calls++;const core=url.pathname.endsWith('/props')&&!url.searchParams.get('markets').includes('first_td');
+   const targeted=source==='props'&&core||source==='periods'&&url.pathname.endsWith('/period_markets');
+   return Response.json(targeted?[malformed]:url.pathname.endsWith('/props')?[quote]:[]);
+  });
+  assert.equal(calls,4);assert.equal(result.source_states[source],'FAILED');assert.equal(result.source_states.derivatives,'FRESH');
+  assert.ok(result.props.length);assert.equal(result.feed_status,'FALLBACK');
+ }
 });

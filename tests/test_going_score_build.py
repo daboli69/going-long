@@ -1,6 +1,7 @@
 """Unit tests for scripts/going_score_build.py on synthetic data (no network)."""
 import sys
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 import numpy as np
@@ -135,7 +136,11 @@ class EndToEndTests(unittest.TestCase):
         panel = pd.concat([make_player(f'p{i}', 'WR', [5 + 2 * i] * 9, [5 + 2 * i] * 9) for i in range(6)], ignore_index=True)
         keys = [202503 + k for k in range(8)]
         table = gsb.asof_table(panel, tg, {2025: list(range(1, 10))}, PARAMS, {'WR': PRIORS}, extra_keys=keys)
-        out = gsb.build_output(table, panel, config_for({'opportunity': 0.7, 'role': 0.3}), 'sha', None, None, None, '2025-11-01T00:00:00Z', 202510, keys, {'sources': []})
+        stamp = '2025-11-01T00:00:00Z'
+        roster = {'generated_at': stamp, 'source_content_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'players': [{'id': f'p{i}', 'team': 'AAA', 'roster_status': 'ACT'} for i in range(6)]}
+        injury = {'generated_at': stamp, 'source_content_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'current_players': {}, 'current_reports': {}}
+        with patch('eligibility._load', return_value=injury):
+            out = gsb.build_output(table, panel, config_for({'opportunity': 0.7, 'role': 0.3}), 'sha', roster, None, None, stamp, 202510, keys, {'sources': []})
         self.assertEqual(out['schema'], 'going-score-v2')
         top = max(out['players'].values(), key=lambda p: p['score'])
         self.assertEqual((top['name'], top['score']), ('p5', 100.0))
@@ -143,6 +148,23 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual(top['components']['production']['weight'], 0.0)
         self.assertAlmostEqual(sum(c['weight'] for c in top['components'].values()), 1.0, places=3)
         self.assertIn('not a better bet', out['meaning'])
+
+    def test_output_withholds_stale_unknown_and_bye_players(self):
+        stamp = '2025-11-01T00:00:00Z'
+        panel = make_player('p1', 'WR', [10] * 9, [10] * 9)
+        tg = {'AAA': np.array([202500 + w for w in range(1, 11)])}
+        keys = [202503 + k for k in range(8)]
+        table = gsb.asof_table(panel, tg, {2025: list(range(1, 10))}, PARAMS, {'WR': PRIORS}, extra_keys=keys)
+        fresh = {'generated_at': stamp, 'source_content_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'current_players': {}, 'current_reports': {}}
+        active = {'generated_at': stamp, 'source_content_at': stamp, 'source_roster_at': stamp, 'source_injury_at': stamp, 'players': [{'id': 'p1', 'team': 'AAA', 'roster_status': 'ACT'}]}
+        cases = [(dict(fresh, generated_at='2025-10-28T00:00:00Z'), active), (fresh, dict(active, players=[])),
+                 (fresh, dict(active, bye_carry_forward_teams=['AAA'])), (None, active)]
+        for injury, roster in cases:
+            with self.subTest(injury=injury, roster=roster), patch('eligibility._load', return_value=injury):
+                out = gsb.build_output(table, panel, config_for({'opportunity': 0.7, 'role': 0.3}), 'sha', roster, None, None, stamp, 202510, keys, {})
+                self.assertEqual(out['players'], {})
+                self.assertEqual(sum(out['counts'].values()), 0)
+                self.assertEqual((out['risers'], out['fallers']), ([], []))
 
 
 if __name__ == '__main__':
