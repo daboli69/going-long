@@ -32,6 +32,9 @@ jobs:
       PROJECTION_MIN_GAMES: '5'
     steps:
       - uses: actions/checkout@v4
+        with:
+          # ABBEYS verifies immutable receipts against their original Git commits.
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -189,12 +192,16 @@ jobs:
           # Stage only valid changed outputs from successful components. Failed
           # components and malformed/stale new snapshots stay out of the commit.
           mapfile -t publish_paths < <(python -c 'import json,os; from pathlib import Path; p=Path(os.environ["RUNNER_TEMP"])/"publication-integrity.json"; print("\n".join(json.loads(p.read_text())["publication_paths"]))')
-          existing=()
+          stage_paths=()
           for path in "${publish_paths[@]}"; do
-            if [ -n "$path" ] && [ -f "$path" ]; then existing+=("$path"); fi
+            # Include verified retired tracked shards as well as new outputs.
+            # The integrity report authorizes deletions only after checking the replacement index.
+            if [ -n "$path" ] && { [ -f "$path" ] || git ls-files --error-unmatch -- "$path" >/dev/null 2>&1; }; then
+              stage_paths+=("$path")
+            fi
           done
-          if [ "${#existing[@]}" -eq 0 ]; then exit 0; fi
-          git add -- "${existing[@]}"
+          if [ "${#stage_paths[@]}" -eq 0 ]; then exit 0; fi
+          git add -- "${stage_paths[@]}"
           if git diff --staged --quiet; then exit 0; fi
           git commit -m "data: refresh $(date -u +%Y-%m-%d)"
           # One ordinary fast-forward push. If main advances, recompute against

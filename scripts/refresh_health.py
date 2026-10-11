@@ -5,11 +5,13 @@ import gzip
 import json
 import math
 import os
+import re
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
 import eligibility as E
+from tracker_store import _expand as expand_tracker_record
 
 ROOT = Path(__file__).resolve().parents[1]
 FILES = ('nfl_betting.json', 'ncaa_lines.json', 'injury_context.json', 'nfl_roster.json',
@@ -53,6 +55,108 @@ def strict_json(raw):
     return json.loads(raw, parse_float=_finite_json_number,
                       parse_int=lambda token: _finite_json_number(token, integer=True),
                       parse_constant=lambda token: (_ for _ in ()).throw(ValueError(token)))
+
+
+def retired_shard(root, path, changed):
+    """Authorize only tracked shards retired by a complete replacement index.
+
+    The writers publish indexes last, then remove superseded content-addressed
+    files. Missing ordinary outputs and missing files still referenced by an
+    index remain errors. HEAD establishes that a deletion really is a retirement.
+    """
+    tracker = path.startswith('data/public_tracker/segments/')
+    if tracker:
+        directory, index, key, layout = ('data/public_tracker', 'manifest.json',
+                                        'segments', 'public-tracker-segments-v1')
+        pattern = r'seg-\d{6}-[0-9a-f]{12}\.json'
+        relative = 'segments/' + Path(path).name
+        if path != directory + '/' + relative:
+            return False
+    else:
+        directory, index, key, layout = ('data/derived/validation_ledger', 'index.json',
+                                        'shards', 'validation-ledger-v1')
+        pattern = r'ledger-\d{6}-[0-9a-f]{12}-[0-9a-f]{12}\.json'
+        relative = Path(path).name
+        if path != directory + '/' + relative:
+            return False
+    index_path = directory + '/' + index
+    if index_path not in changed or not re.fullmatch(pattern, Path(path).name):
+        return False
+    try:
+        old = strict_json(subprocess.check_output(
+            ['git', 'show', 'HEAD:' + index_path], cwd=root, stderr=subprocess.DEVNULL).decode('utf-8'))
+        new = strict_json((Path(root) / index_path).read_text(encoding='utf-8'))
+        for doc in (old, new):
+            if not isinstance(doc, dict) or doc.get('schema_version') != 1 or doc.get('layout') != layout:
+                return False
+            if not isinstance(doc.get(key), list) or not doc[key]:
+                return False
+        prior = [entry for entry in old[key] if isinstance(entry, dict) and entry.get('file') == relative]
+        if len(prior) != 1 or (tracker and prior[0].get('sealed') is not False):
+            return False
+        old_raw = subprocess.check_output(['git', 'show', 'HEAD:' + path], cwd=root, stderr=subprocess.DEVNULL)
+        if hashlib.sha256(old_raw).hexdigest() != prior[0].get('sha256'):
+            return False
+        old_open = strict_json(old_raw.decode('utf-8')) if tracker else None
+        open_records = []
+        refs = {}
+        records = 0
+        for entry in new[key]:
+            if not isinstance(entry, dict):
+                return False
+            name, digest = entry.get('file'), entry.get('sha256')
+            prefix = 'segments/' if tracker else ''
+            if not isinstance(name, str) or not name.startswith(prefix) or not re.fullmatch(pattern, name[len(prefix):]):
+                return False
+            if name in refs or name == relative or not isinstance(digest, str) or not re.fullmatch(r'[0-9a-f]{64}', digest):
+                return False
+            raw = (Path(root) / directory / name).read_bytes()
+            shard = strict_json(raw.decode('utf-8'))
+            if not isinstance(shard, dict) or hashlib.sha256(raw).hexdigest() != digest:
+                return False
+            if shard.get('schema_version') != 1 or shard.get('layout') != layout:
+                return False
+            if tracker:
+                if (type(entry.get('records')) is not int or entry['records'] < 0 or
+                        type(entry.get('first_record')) is not int or entry['first_record'] != records or
+                        type(entry.get('index')) is not int or entry['index'] != len(refs) + 1 or
+                        shard.get('index') != entry['index'] or shard.get('first_record') != records or
+                        not isinstance(shard.get('records'), list) or len(shard['records']) != entry['records']):
+                    return False
+                records += entry['records']
+                if entry['first_record'] >= prior[0]['first_record']:
+                    open_records.extend(expand_tracker_record(row, shard.get('dict', {})) for row in shard['records'])
+            refs[name] = entry
+        if tracker:
+            # Retiring an open segment cannot discard sealed history or records.
+            if type(new.get('total_records')) is not int or type(old.get('total_records')) is not int:
+                return False
+            if new['total_records'] < old['total_records'] or records != new['total_records']:
+                return False
+            for entry in old[key]:
+                if not isinstance(entry, dict):
+                    return False
+                if entry.get('sealed') is True and refs.get(entry.get('file')) != entry:
+                    return False
+            # Interned dictionaries can change on append, so compare expanded observations.
+            previous_records = [expand_tracker_record(row, old_open.get('dict', {})) for row in old_open['records']]
+            # JSON equality must distinguish booleans from numbers (Python True == 1).
+            canonical = lambda rows: json.dumps(rows, sort_keys=True, separators=(',', ':'), allow_nan=False)
+            if (len(previous_records) != prior[0].get('records') or
+                    canonical(open_records[:len(previous_records)]) != canonical(previous_records)):
+                return False
+        else:
+            # Derived shard cleanup must correspond to the current canonical store.
+            manifest = strict_json((Path(root) / 'data/public_tracker/manifest.json').read_text(encoding='utf-8'))
+            source = mapping(new.get('source'))
+            expected = [(s['file'], s['sha256']) for s in manifest['segments']]
+            actual = [(s['file'], s['sha256']) for s in source['segments']]
+            if (actual != expected or source.get('total_records') != manifest.get('total_records') or
+                    source.get('manifest_generated_at') != manifest.get('generated_at')):
+                return False
+        return True
+    except (OSError, ValueError, TypeError, UnicodeError, KeyError, subprocess.CalledProcessError):
+        return False
 
 
 def audit(root=ROOT, now=None, outcomes=None, changed=None):
@@ -136,7 +240,8 @@ def audit(root=ROOT, now=None, outcomes=None, changed=None):
     def source_problem(issue):
         return any(text in issue for text in (
         'provider refresh is not FRESH', ' is STALE', ' is UNKNOWN', ' is ERROR', ' is FAILED',
-        ' is FALLBACK', 'outcomes not freshly loaded', 'source check missing', 'no descriptive context source loaded'))
+        ' is FALLBACK', ' is DEGRADED', 'incomplete provider coverage',
+        'outcomes not freshly loaded', 'source check missing', 'no descriptive context source loaded'))
     integrity = [issue for issue in issues if not source_problem(issue)]
     source_issues = [issue for issue in issues if source_problem(issue)]
     # Stale retained files remain health failures. Only changed invalid snapshots
@@ -154,12 +259,15 @@ def audit(root=ROOT, now=None, outcomes=None, changed=None):
         # outside the small health contract. Non-finite values are invalid JSON.
         problem = None
         try:
-            raw = (Path(root) / path).read_bytes()
-            if path.endswith('.json.gz'):
-                raw = gzip.decompress(raw)
-            doc = strict_json(raw.decode('utf-8'))
-            if not isinstance(doc, (dict, list)):
-                raise ValueError('object/array required')
+            if not (Path(root) / path).exists() and retired_shard(root, path, changed):
+                pass  # Approved deletion; owner and companion checks still apply.
+            else:
+                raw = (Path(root) / path).read_bytes()
+                if path.endswith('.json.gz'):
+                    raw = gzip.decompress(raw)
+                doc = strict_json(raw.decode('utf-8'))
+                if not isinstance(doc, (dict, list)):
+                    raise ValueError('object/array required')
         except (OSError, ValueError, TypeError, UnicodeError, EOFError):
             problem = f'{path}: changed output is missing or not finite JSON object/array'
         if not problem and any(steps.get(owner) in ('failure', 'cancelled', 'skipped') and owns(path, prefixes)
