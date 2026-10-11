@@ -1,6 +1,7 @@
 # Progress
 
 ## Completed
+- Oct11 Actions repair on `codex/going-actions-repair`, based on actual main4aedf4e: full Git checkout for immutable ABBEYS receipts; nullable QB depth-order crash; verified tracker/ledger shard retirement and deletion staging. Independent review exposed observation rewrite/type-equality holes, repaired with expanded JSON prefix checks. Node690passed; Python510run/5existing skips; both builds passed. Exact final revision/check receipt: `.cache/actions-repair/validation.json`. No push/provider calls.
 - Saturday full verification: Node681passed; Python485run/5skipped; both production builds, zero dependency advisories. Conflict-free local main rehearsal preserves all35upstream-changed data paths and8ABBEYS paths; journal4records/2snapshots verifies. Exact final revision/logs in `.cache/saturday-validation.json`; health intentionally fails for missing source provenance/STALEprops.
 - Saturday repairs ddcb51a/c6b644e/e61ffb1: corrected FirstTD game-total collision, strict shared eligibility/version/identity gates, settlement-safe research labels, exact Fanatics floor and exposure disclosure, honest Score/parlay wording. Source-content freshness, component-isolated publication, no reset/replay on concurrency, Eastern04:20 freeze. Opus audit read at supplied Claude scratchpad path; independently reproduced and reviewed. No production data/Week5/champion edits.
 - Isolated model research030dd62: complete model/feature inventory;1243ATD player-games/63games, current reconstructed Brier.13836 vs frequency.14126; matched market subset775/57games current.15266 vs market.14251. Independent metric audit/26tests; no promotion. Passing24QB replay rechecked. Details in docs/SATURDAY_MODEL_RESEARCH.md; production and research gates separate.
@@ -13,9 +14,10 @@
 - Latest public refresh at upstream `67ed9a3` still failed: core and derivative props HTTP503, other components retained. Read-only offline health audit correctly refuses healthy status. No production actions or paid provider calls.
 
 ## Working
-- None. Local repairs and isolated research complete; production approval and external input gates remain below.
+- None. Actions repair prepared locally; production publication requires approval.
 
 ## Problems
+- Inspected manual refresh38139354271 also reported incomplete/degraded upstream props and derivatives. Local workflow repairs address reproducible application defects; provider coverage can still leave the final health step red. No degraded source is relabeled FRESH; unrelated valid outputs can publish independently.
 - Active betting recommendations remain blocked: current availability lacks source-content provenance and props/derivatives are FALLBACK. Automatic Fanatics ATD prices absent; actual contest CSV/ownership and scanner host evidence unavailable. Legacy FirstTD is suppressed; corrected estimates remain research-only pending source refresh and sportsbook settlement verification.
 - No demonstrated passing-yards or ATD market advantage; frequency TD challenger fails the promotion gate. Today-ranking v3 capture correctly rejects the repaired generator until separately preregistered; historical records preserved.
 

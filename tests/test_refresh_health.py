@@ -1,6 +1,8 @@
 import json
 import gzip
+import hashlib
 import re
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -37,6 +39,58 @@ def fixtures(root):
         p.parent.mkdir(parents=True, exist_ok=True)
         p.write_text(json.dumps(doc))
     return docs
+
+
+def shard_rotation(root, open_record='open'):
+    """Real Git baseline, then the same manifest-last cleanup as the writers."""
+    fixtures(root)
+    store = root / 'data/public_tracker'
+    ledger = root / 'data/derived/validation_ledger'
+    ledger.mkdir(parents=True)
+    (store / 'segments').mkdir()
+
+    def segment(index, rows, first):
+        raw = json.dumps({'schema_version': 1, 'layout': 'public-tracker-segments-v1',
+                          'index': index, 'first_record': first, 'records': rows}).encode()
+        digest = hashlib.sha256(raw).hexdigest()
+        name = f'seg-{index:06d}-{digest[:12]}.json'
+        (store / 'segments' / name).write_bytes(raw)
+        return {'file': 'segments/' + name, 'sha256': digest, 'sealed': index == 1,
+                'index': index, 'first_record': first, 'records': len(rows)}
+
+    def derived(tag):
+        raw = json.dumps({'schema_version': 1, 'layout': 'validation-ledger-v1', 'rows': [tag]}).encode()
+        digest = hashlib.sha256(raw).hexdigest()
+        name = f'ledger-000002-123456789abc-{digest[:12]}.json'
+        (ledger / name).write_bytes(raw)
+        return {'file': name, 'sha256': digest}
+
+    manifest = {'schema_version': 1, 'layout': 'public-tracker-segments-v1', 'generated_at': STAMP,
+                'total_records': 2, 'segments': [segment(1, ['sealed'], 0), segment(2, [open_record], 1)]}
+    old_shard = 'data/public_tracker/' + manifest['segments'][-1]['file']
+    (store / 'manifest.json').write_text(json.dumps(manifest))
+    index = {'schema_version': 1, 'layout': 'validation-ledger-v1', 'shards': [derived('old')],
+             'source': {'segments': manifest['segments'], 'total_records': 2, 'manifest_generated_at': STAMP}}
+    old_derived = 'data/derived/validation_ledger/' + index['shards'][0]['file']
+    (ledger / 'index.json').write_text(json.dumps(index))
+    subprocess.run(['git', 'init', '--quiet'], cwd=root, check=True, capture_output=True)
+    subprocess.run(['git', 'add', 'data'], cwd=root, check=True, capture_output=True)
+    subprocess.run(['git', '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid',
+                    '-c', 'commit.gpgsign=false', 'commit', '--quiet', '-m', 'fixture'],
+                   cwd=root, check=True, capture_output=True)
+    manifest['segments'][-1] = segment(2, [open_record, 'new'], 1)
+    manifest['total_records'] = 3
+    (store / 'manifest.json').write_text(json.dumps(manifest))
+    index['shards'] = [derived('new')]
+    index['source'].update(segments=manifest['segments'], total_records=3)
+    (ledger / 'index.json').write_text(json.dumps(index))
+    (root / old_shard).unlink()
+    (root / old_derived).unlink()
+    changed = [old_shard, old_derived, 'data/public_tracker/manifest.json',
+               'data/derived/validation_ledger/index.json',
+               'data/public_tracker/' + manifest['segments'][-1]['file'],
+               'data/derived/validation_ledger/' + index['shards'][0]['file']]
+    return changed, manifest, index
 
 
 class RefreshHealthTests(unittest.TestCase):
@@ -94,6 +148,7 @@ class RefreshHealthTests(unittest.TestCase):
 
     def test_workflow_dependency_order_and_independent_integrity_publication_guard(self):
         text = (Path(__file__).resolve().parents[1] / '.github/workflows/data.yml').read_text()
+        self.assertRegex(text, r'actions/checkout@v4\s+with:\s+(?:#[^\n]*\n\s+)?fetch-depth: 0')
         blocks = re.split(r'^      - name: ', text, flags=re.M)[1:]
         by_id = {}
         for i, block in enumerate(blocks):
@@ -122,6 +177,8 @@ class RefreshHealthTests(unittest.TestCase):
         self.assertIn('exit "$status"', by_id['freeze'][1])
         publication = by_id['publish'][1]
         self.assertIn('publication_paths', publication)
+        self.assertIn('git ls-files --error-unmatch -- "$path"', publication)
+        self.assertIn('git add -- "${stage_paths[@]}"', publication)
         self.assertEqual(publication.count('git push origin HEAD:main'), 1)
         self.assertNotIn('git reset', publication)
         self.assertNotIn('git restore', publication)
@@ -185,6 +242,98 @@ class RefreshHealthTests(unittest.TestCase):
             report = H.audit(root, NOW, changed=changed)
             self.assertEqual(report['publication_paths'], ['data/nfl_roster.json'])
             self.assertEqual(set(report['excluded_publication_paths']), set(changed[:2]))
+
+    def test_content_addressed_retirements_publish_atomically_with_replacements(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); changed, _, _ = shard_rotation(root)
+            report = H.audit(root, NOW, changed=changed)
+            self.assertTrue(report['publication_ready'], report['issues'])
+            self.assertEqual(report['publication_paths'], sorted(changed))
+            self.assertFalse((root / changed[0]).exists())
+            self.assertFalse((root / changed[1]).exists())
+
+    def test_retirement_never_bypasses_owner_failure(self):
+        for owner in ('tracker', 'validation_ledger', 'validate_projection_logic'):
+            with self.subTest(owner=owner), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory); changed, _, _ = shard_rotation(root)
+                report = H.audit(root, NOW, {owner: 'failure'}, changed)
+                self.assertFalse(report['publication_ready'])
+                self.assertNotIn(changed[1], report['publication_paths'])
+                if owner != 'validation_ledger':
+                    self.assertFalse(report['publication_paths'])
+
+    def test_retirement_cannot_rewrite_open_observations_even_with_valid_hashes(self):
+        for rewritten, original, replacement in ((False, 'open', 'open'), (True, 'open', 'rewritten'),
+                                                 (True, {'odds': 1}, {'odds': True}),
+                                                 (True, {'odds': 0}, {'odds': False})):
+            with self.subTest(replacement=replacement), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory); changed, manifest, index = shard_rotation(root, open_record=original)
+                entry = manifest['segments'][-1]
+                p = root / 'data/public_tracker' / entry['file']
+                shard = json.loads(p.read_text())
+                # Re-interning a preserved observation is legal; altering it is not.
+                shard['dict'] = {'x': replacement}
+                shard['records'][0] = {'$ref': 'x'}
+                raw = json.dumps(shard).encode(); digest = hashlib.sha256(raw).hexdigest()
+                entry.update(file='segments/seg-000002-' + digest[:12] + '.json', sha256=digest)
+                (root / 'data/public_tracker' / entry['file']).write_bytes(raw)
+                changed[4] = 'data/public_tracker/' + entry['file']
+                (root / 'data/public_tracker/manifest.json').write_text(json.dumps(manifest))
+                index['source']['segments'] = manifest['segments']
+                (root / 'data/derived/validation_ledger/index.json').write_text(json.dumps(index))
+                report = H.audit(root, NOW, changed=changed)
+                self.assertEqual(report['publication_ready'], not rewritten, report['issues'])
+                self.assertEqual(bool(report['publication_paths']), not rewritten)
+
+    def test_retirement_rejects_missing_referenced_corrupt_or_unsafe_shards(self):
+        for bad in ('referenced', 'checksum', 'traversal', 'sealed', 'record_loss', 'unchanged_index'):
+            with self.subTest(bad=bad), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory); changed, manifest, _ = shard_rotation(root)
+                if bad == 'referenced':
+                    manifest['segments'][-1]['file'] = changed[0].removeprefix('data/public_tracker/')
+                elif bad == 'checksum':
+                    (root / changed[4]).write_text('{}')
+                elif bad == 'traversal':
+                    manifest['segments'][-1]['file'] = '../nfl_roster.json'
+                elif bad == 'sealed':
+                    sealed = 'data/public_tracker/' + manifest['segments'][0]['file']
+                    (root / sealed).unlink(); changed.append(sealed)
+                elif bad == 'record_loss':
+                    manifest['total_records'] = 1
+                else:
+                    changed.remove('data/public_tracker/manifest.json')
+                (root / 'data/public_tracker/manifest.json').write_text(json.dumps(manifest))
+                report = H.audit(root, NOW, changed=changed)
+                self.assertFalse(report['publication_ready'])
+                self.assertFalse(report['publication_paths'], report['issues'])
+
+    def test_retirement_rejects_untracked_deletion_missing_index_and_wrong_ledger_source(self):
+        for bad in ('ordinary', 'untracked', 'index', 'source'):
+            with self.subTest(bad=bad), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory); changed, _, index = shard_rotation(root)
+                if bad == 'source':
+                    index['source']['total_records'] = 999
+                    (root / 'data/derived/validation_ledger/index.json').write_text(json.dumps(index))
+                elif bad == 'index':
+                    (root / 'data/derived/validation_ledger/index.json').unlink()
+                else:
+                    changed.append('data/public_tracker/segments/' +
+                                   ('ordinary.json' if bad == 'ordinary' else 'seg-999999-123456789abc.json'))
+                report = H.audit(root, NOW, changed=changed)
+                self.assertFalse(report['publication_ready'])
+                self.assertNotIn(changed[1], report['publication_paths'])
+
+    def test_degraded_coverage_is_a_source_failure_not_silent_success_or_corruption(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); docs = fixtures(root)
+            docs['nfl_betting.json']['source_states']['props'] = 'DEGRADED'
+            docs['nfl_betting.json']['coverage'] = {'possibly_truncated': True}
+            (root / 'data/nfl_betting.json').write_text(json.dumps(docs['nfl_betting.json']))
+            report = H.audit(root, NOW, {'nfl': 'failure'}, ['data/nfl_betting.json', 'data/nfl_roster.json'])
+            self.assertFalse(report['healthy'])
+            self.assertIn('nfl_betting.json: props is DEGRADED', report['source_failures'])
+            self.assertIn('nfl_betting.json: incomplete provider coverage', report['source_failures'])
+            self.assertEqual(report['publication_paths'], ['data/nfl_roster.json'])
 
     def test_nested_model_and_player_provenance_cannot_be_reaged(self):
         for name, nested in (('history.json', True), ('results.json', False)):

@@ -4,10 +4,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from season_learning import completeness, dynamic_blend, classify_status, build_matchups, build_coverage_matchups, carryover_validation
+from season_learning import completeness, dynamic_blend, classify_status, build_matchups, build_coverage_matchups, carryover_validation, _starting_qb
 
 
 class SeasonLearningTests(unittest.TestCase):
+    def test_nullable_depth_order_cannot_crash_refresh_or_outrank_known_starter(self):
+        for unknown in (None, 'unknown', float('nan'), float('inf'), True, -1):
+            with self.subTest(unknown=unknown):
+                rows = {'backup': {'team':'HOU','position':'QB','gsis_id':'backup','depth_rank':None,
+                                   'role_order':unknown,'snap_share':None,'roster_status':'ACT'},
+                        'starter': {'team':'HOU','position':'QB','gsis_id':'starter','depth_rank':1,
+                                    'role_order':1,'snap_share':.9,'roster_status':'ACT'}}
+                self.assertEqual(_starting_qb('HOU', {}, {'current_players':rows})[0], 'starter')
+                rows['starter']['depth_rank'] = None
+                self.assertEqual(_starting_qb('HOU', {}, {'current_players':rows})[0], 'starter')
+                self.assertEqual(_starting_qb('MIA', {}, {'current_players':rows}), (None,None))
     def test_completeness_compares_schedule_to_persisted_results(self):
         games = [
             dict(id='1', sport='nfl', home='A', away='B', kickoff='2026-09-01T00:00:00+00:00', completed=True),

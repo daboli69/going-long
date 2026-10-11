@@ -277,7 +277,11 @@ def _starting_qb(offense, current, injury):
     depth = [row for row in (injury.get('current_players') or {}).values()
              if row.get('team') == offense and row.get('position') == 'QB'
              and row.get('roster_status') not in ('RES', 'RET', 'DEV')]
-    depth.sort(key=lambda row: (row.get('depth_rank') != 1, row.get('role_order', 99), -(row.get('snap_share') or 0)))
+    # Public roster rows can explicitly contain null role_order (not just omit it).
+    # Unknown order follows known order; never compare None to a numeric rank.
+    depth.sort(key=lambda row: (row.get('depth_rank') != 1,
+                               row['role_order'] if finite(row.get('role_order')) and row['role_order'] >= 0 else 99,
+                               -row['snap_share'] if finite(row.get('snap_share')) else 0))
     if depth and depth[0].get('gsis_id'):
         return depth[0]['gsis_id'], depth[0].get('name')
     qbs = [row for row in current.get('players', {}).values()
