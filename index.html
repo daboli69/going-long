@@ -4016,14 +4016,14 @@ function dfsProjection(profile,market,salary){
  const ctx=dfsAvailabilityContext(),record=ctx.byIdentity.get(canonicalNflTeam(profile.team)+'|'+GoingDfsAvailability.normalize(profile.name)),availability=record&&GoingDfsAvailability.availability(record);
  return {model,projMean:model.status==='ready'?model.mean:null,projSd:model.sd??null,profileId:profile.id,injury:availability?{...availability,status:availability.label,reason:'Current designation: '+availability.label+'; no historical injury multiplier is applied.'}:null};
 }
-function dfsEvidencePool(rows,site='draftkings'){
- return GoingDfsEvidence.buildPool(rows,{profiles:BET.history?.profiles,context:BET.context,injuryContext:dfsAvailabilityContext(),generatedAt:BET.history?.generated_at,injuries:GoingDfsAvailability,teamSnapshot:BET.dfsTeamSnapshot,site,currentSeasonOnly:true,makeModel:dfsProjection,bonusProbability:GoingDfsCurrentSeason.bonusProbability,points:GoingFootballDfs.projectedPoints});
+function dfsEvidencePool(rows,site='draftkings',incumbentLineup=[]){
+ return GoingDfsEvidence.buildPool(rows,{profiles:BET.history?.profiles,context:BET.context,injuryContext:dfsAvailabilityContext(),generatedAt:BET.history?.generated_at,injuries:GoingDfsAvailability,teamSnapshot:BET.dfsTeamSnapshot,site,incumbentLineup,currentSeasonOnly:true,makeModel:dfsProjection,bonusProbability:GoingDfsCurrentSeason.bonusProbability,points:GoingFootballDfs.projectedPoints});
 }
 function dfsPlayerPoolRaw(){
  if(!BET.history)return [];
  let rows=DFS_STATE.source==='model'?dfsModelSlate():DFS_STATE.salaryPlayers;
  if(DFS_STATE.contest==='showdown'&&DFS_STATE.game)rows=rows.filter(player=>player.game===DFS_STATE.game);
- const pool=dfsEvidencePool(rows.map(row=>({...row,avgPointsPerGame:row.siteProjection})),DFS_STATE.site);
+ const pool=dfsEvidencePool(rows.map(row=>({...row,gameId:row.gameId||row.game+'|'+row.kickoff,sourceSalary:row.sourceSalary||(row.modelOnly?'going-model':DFS_STATE.site+'-csv'),avgPointsPerGame:row.siteProjection})),DFS_STATE.site,[...new Map(DFS_STATE.lineups.flatMap(lineup=>lineup.players).map(p=>[String(p.id),p])).values()]);
  GoingDfsSim.assignRoles(pool);
  if(DFS_STATE.contest==='showdown')GoingDfsField.annotate(pool);
  return pool;
@@ -4116,7 +4116,7 @@ function renderDfs(){
    });
   },
   loadField:loadPrivateModel,
-  buildPool:salaryRows=>classicPoolIntel(verifyDfsPool(dfsEvidencePool(salaryRows)))
+  buildPool:(salaryRows,{incumbentLineup=[]}={})=>classicPoolIntel(verifyDfsPool(dfsEvidencePool(salaryRows,'draftkings',incumbentLineup)))
  });
 $('dfsSite').value=DFS_STATE.site;$('dfsSource').value=DFS_STATE.source;$('dfsContest').value=DFS_STATE.contest;$('dfsCsvFields').hidden=DFS_STATE.source!=='csv';$('dfsGenerate').textContent=DFS_STATE.contest==='showdown'?'Generate single-game rosters':DFS_STATE.source==='model'?'Generate offensive cores':'Generate lineups';
  const games=dfsAvailableGames();if(!games.includes(DFS_STATE.game))DFS_STATE.game=games[0]||'';$('dfsGameField').hidden=DFS_STATE.contest!=='showdown';$('dfsGame').innerHTML=games.map(game=>`<option value="${esc(game)}">${esc(game)}</option>`).join('');$('dfsGame').value=DFS_STATE.game;

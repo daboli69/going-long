@@ -45,7 +45,7 @@ function refreshPool(){
  if(!S.parsed?.players?.length)return true;
  try{
   const previous=S.lineup.length?S.lineup:incumbent;
-  S.pool=context.buildPool(S.parsed.players).map(p=>{const old=previous.find(x=>x.id===p.id),usable=!p.unavailable&&p.matched===true&&fin(p.projection)&&p.projection>0;return old&&Date.parse(old.kickoff)<=Date.now()&&usable?old:p;});
+  S.pool=context.buildPool(S.parsed.players,{incumbentLineup:previous}).map(p=>{const old=previous.find(x=>x.id===p.id),usable=!p.unavailable&&p.matched===true&&fin(p.projection)&&p.projection>0;return p.incumbentLocked?p:old&&Date.parse(old.kickoff)<=Date.now()&&usable?old:p;});
   const usable=new Set(S.pool.filter(p=>!p.unavailable&&p.matched===true&&fin(p.projection)&&p.projection>0).map(p=>p.id));
   if(S.lineup.some(p=>!usable.has(p.id))){S.lineup=[];incumbent=[];S.swap=null;S.status='Availability changed or could not be verified. The previous lineup was cleared; rebuild with current eligible players.';return false;}
   return true;

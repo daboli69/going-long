@@ -10,7 +10,7 @@ function sample(profile,{now=Date.now(),kickoff}={}){
   if(g.season!==season)continue;
   if(!/^\d{4}-\d{2}-\d{2}$/.test(g.date||'')||!Number.isInteger(g.week)||g.week<1||g.week>18)continue;
   const date=Date.parse(g.date+'T00:00:00Z');
-  if(!Number.isFinite(date)||new Date(date).toISOString().slice(0,10)!==g.date||date+86400000>cutoff)continue;
+  if(!Number.isFinite(date)||new Date(date).toISOString().slice(0,10)!==g.date||seasonOf(date)!==season||date+86400000>cutoff)continue;
   if(!KEYS.every(k=>finite(g[k])&&g[k]>=0))continue;
   // A duplicate week is ambiguous evidence, never additional sample size.
   if(seen.has(g.week))return {season,rows:[],reason:'Duplicate current-season player game; projection withheld.'};

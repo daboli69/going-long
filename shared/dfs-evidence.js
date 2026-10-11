@@ -21,14 +21,35 @@ function shiftDistribution(d,delta){
  const out={...d};for(const k of ['mean','floor','p25','median','p75','p90','p95'])if(finite(out[k]))out[k]+=delta;
  const sorted=Float64Array.from(d.sorted||[],v=>v+delta);Object.defineProperty(out,'sorted',{value:sorted,enumerable:false});return out;
 }
-function buildPool(salaries,{profiles={},context=null,injuryContext=null,generatedAt,now=Date.now(),makeModel,bonusProbability,points,injuries,adjustments=ADJUSTMENTS,currentSeasonOnly=true,teamSnapshot=null,site='draftkings'}={}){
+function preservedIncumbent(s,previous,{profiles,context,injuryContext,generatedAt,now,injuries,site,teamSnapshot}){
+ const season=root.GoingDfsCurrentSeason?.seasonOf(now),at=Date.parse(s.kickoff),freshAt=(value,time)=>Number.isFinite(age(value,time))&&age(value,time)>=0&&age(value,time)<=36;
+ const matches=previous.filter(p=>String(p?.id)===String(s.id));
+ if(matches.length!==1)return null;
+ const old=matches[0],binding=['id','name','team','opponent','position','gameId','kickoff','salary','sourceSalary'];
+ if(binding.some(k=>old[k]!==s[k])||!s.gameId||!['draftkings','fanduel'].includes(site)||s.sourceSalary!==site+'-csv'||old.projectionSource!==root.GoingDfsCurrentSeason?.SOURCE||Number(old.projectionSeason??old.season)!==season||old.unavailable||old.matched!==true||!finite(old.projection)||old.projection<=0||!finite(old.distribution?.mean)||Math.abs(old.distribution.mean-old.projection)>1e-9||!finite(old.distribution?.sd)||old.distribution.sd<0||!Number.isSafeInteger(old.distribution?.n)||old.distribution.n<(s.position==='DST'?3:2)||(old.distribution.season!=null&&old.distribution.season!==season)||(old.distribution.source!=null&&old.distribution.source!==root.GoingDfsCurrentSeason?.SOURCE)||!freshAt(old.modelGeneratedAt,at)||Date.parse(old.modelGeneratedAt)>=at)return null;
+ // A frozen pregame projection is preserved only after fresh current evidence
+ // re-verifies the exact incumbent. This never opens a started game to a new pick.
+ if(!freshAt(generatedAt,now)||Number(context?.season)!==season||!freshAt(context?.generated_at,now)||!injuryContext?.fresh||!freshAt(injuryContext.generatedAt,now))return null;
+ if(s.position==='DST'){
+  const receiptValid=(receipt,time)=>receipt?.sourceURL===`https://github.com/nflverse/nflverse-data/releases/download/stats_team/stats_team_week_${season}.csv`&&['sourceSha256','resultsSHA256'].every(k=>/^[a-f0-9]{64}$/i.test(receipt[k]||''))&&freshAt(receipt.generatedAt,time)&&freshAt(receipt.retrievedAt,time)&&Number.isFinite(age(receipt.releaseUpdatedAt,time))&&age(receipt.releaseUpdatedAt,time)>=0&&age(receipt.releaseUpdatedAt,time)<=8*24&&Date.parse(receipt.releaseUpdatedAt)<=Date.parse(receipt.retrievedAt)&&Date.parse(receipt.retrievedAt)<=Date.parse(receipt.generatedAt);
+  if(site!=='draftkings'||!receiptValid(old.provenance,at)||Date.parse(old.provenance.generatedAt)>=at||teamSnapshot?.season!==season||teamSnapshot.defenseStatus!=='current-season-partial'||!receiptValid(teamSnapshot,now))return null;
+ }
+ if(s.position!=='DST'){
+  const candidates=Object.values(profiles).filter(p=>nameKey(p.name)===nameKey(s.name)&&team(p.team)===team(s.team)&&p.position===s.position);
+  if(candidates.length!==1||candidates[0].id!==old.profileId||candidates[0].id!==old.athleteId)return null;
+  const roster=injuryContext.byIdentity?.get(team(s.team)+'|'+injuries?.normalize?.(s.name)),status=String(roster?.roster_status||roster?.status||'').trim().toLowerCase(),available=roster&&injuries?.availability?.(roster);
+  if(!roster||nameKey(roster.name)!==nameKey(s.name)||team(roster.team)!==team(s.team)||String(roster.position||roster.pos||'').toUpperCase()!==s.position||!['act','active','active roster','healthy','available'].includes(status)||!available||available.block||!['available','questionable','probable','limited','practice_dnp'].includes(available.state))return null;
+ }
+ return {...old,incumbentLocked:true,concerns:[...(old.concerns||[]).filter(x=>x!=='Game started: pregame projection retained only for this exact existing roster spot; no new selection.'),'Game started: pregame projection retained only for this exact existing roster spot; no new selection.']};
+}
+function buildPool(salaries,{profiles={},context=null,injuryContext=null,generatedAt,now=Date.now(),makeModel,bonusProbability,points,injuries,adjustments=ADJUSTMENTS,currentSeasonOnly=true,teamSnapshot=null,site='draftkings',incumbentLineup=[]}={}){
  const all=Object.values(profiles),fresh=age(generatedAt,now)>=0&&age(generatedAt,now)<=36;
  return salaries.map(s=>{
   const base={...s,matched:false,unavailable:true,projection:null,tdMean:null,reasons:[],concerns:[],evidence:[],modelGeneratedAt:generatedAt};
   // A model or a newer roster cannot clear an explicit salary-file exclusion.
   const importedStatus=[s.csvStatus,s.injuryStatus,typeof s.injury==='string'?s.injury:null].filter(Boolean),importedBlock=importedStatus.find(status=>injuries?.availability?.({injury_status:status})?.block);
   if(s.csvOut||s.unavailable===true||importedBlock)return {...base,concerns:['Imported salary availability excludes this player'+(importedBlock?': '+importedBlock:'.')]};
-  if(currentSeasonOnly){const game=Date.parse(s.kickoff),season=root.GoingDfsCurrentSeason?.seasonOf(now),validTeams=new Set('ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC LAC LA LV MIA MIN NE NO NYG NYJ PHI PIT SEA SF TB TEN WAS'.split(' '));if(!Number.isFinite(game)||game<=now||root.GoingDfsCurrentSeason?.seasonOf(game)!==season||!validTeams.has(team(s.team))||!validTeams.has(team(s.opponent))||team(s.team)===team(s.opponent))return {...base,concerns:['Verified future current-season game and distinct NFL teams required; no unknown-game fallback.']};}
+  if(currentSeasonOnly){const game=Date.parse(s.kickoff),season=root.GoingDfsCurrentSeason?.seasonOf(now),validTeams=new Set('ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC LAC LA LV MIA MIN NE NO NYG NYJ PHI PIT SEA SF TB TEN WAS'.split(' '));if(!Number.isFinite(game)||root.GoingDfsCurrentSeason?.seasonOf(game)!==season||!validTeams.has(team(s.team))||!validTeams.has(team(s.opponent))||team(s.team)===team(s.opponent))return {...base,concerns:['Verified future current-season game and distinct NFL teams required; no unknown-game fallback.']};if(game<=now){const saved=preservedIncumbent(s,Array.isArray(incumbentLineup)?incumbentLineup:[],{profiles,context,injuryContext,generatedAt,now,injuries,site,teamSnapshot});return saved||{...base,concerns:['Started game excluded: an exact pregame incumbent with fresh verified availability is required.']};}}
   if(s.position==='DST'){
    if(currentSeasonOnly){
     const defense=root.GoingDfsCurrentDefense?.project(s,teamSnapshot,{now});
