@@ -1,0 +1,13 @@
+{
+  "version": "opportunity-atd-forward-v1",
+  "season": 2026,
+  "first_week": 6,
+  "last_week": 10,
+  "minimum_appearances": 3,
+  "coefficients": {"carry": 0.0310903241504231, "target": 0.04425638973068786},
+  "status": "Research only; never a recommendation or production probability",
+  "primary_gate": "At least 1000 settled player-games and 60 games; paired Brier improvement >=0.001 against frozen production and Beta(1,1) frequency, game/player clustered upper95% delta<0, nonworsening logloss. No retuning or early promotion.",
+  "settlement": "Official scorer TD including rush, receiving, special teams, defense and fumble recovery; passing TD alone excluded. Nonparticipants/inactives void; unknown outcomes pending. Book settlement requires separately verified terms.",
+  "market_benchmark": "Not captured in v1. No sportsbook edge claim; matched two-sided pregame prices required for a separate benchmark.",
+  "capture_policy": "Complete weekly slate before its first kickoff; current-season current-team prior offensive appearances, completed kickoff+12h, fresh active availability. No backfill or replacement."
+}
