@@ -3,6 +3,19 @@ from scripts.pick_evidence import build_pick_evidence, source_sha256
 
 
 class PickEvidenceTests(unittest.TestCase):
+    def test_absence_receipts_and_reception_missingness_are_explicit(self):
+        d=self.inputs();e=build_pick_evidence(**d)
+        receipts=e['teammate_out_games']['NO|focal|teammate']
+        self.assertEqual(len(receipts),2)
+        self.assertTrue(all(r['report_status']=='Out' and r['report_timing']=='retrospective' for r in receipts))
+        self.assertIsNone(e['recent_player_games']['NO|focal']['games_log'][0]['receptions'])
+        for r in d['pbp_rows']:
+            if r.get('receiver_player_id')=='focal':r['complete_pass']=1
+        e=build_pick_evidence(**d)
+        self.assertEqual(e['recent_player_games']['NO|focal']['games_log'][0]['receptions'],1)
+        d['source_meta']={'injury_reports':{'status':'unavailable'}}
+        self.assertEqual(build_pick_evidence(**d)['teammate_out_games'],{})
+
     def inputs(self):
         games=[]; pbp=[]; snaps=[]; reports=[]
         for week in range(1,5):
