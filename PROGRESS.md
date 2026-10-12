@@ -25,7 +25,7 @@
 - Latest public refresh at upstream `67ed9a3` still failed: core and derivative props HTTP503, other components retained. Read-only offline health audit correctly refuses healthy status. No production actions or paid provider calls.
 
 ## Working
-- Authorized Showdown specialist publication on codex/showdown-specialists-release; release CI, production build and live verification pending.
+- King MNF on codex/king-endzone-mnf: recurring complete Monday slate; current-season-only experimental rates/distances, source/availability gates, first-kickoff immutable archive, 60-second browser refresh, exact DraftKings ATD higher-price shortlist and visible Jackpot panel. Actual Oct12 BUF/LA34selections; Adams12.7% scenario, no fresh matching DK leader price. Defensive explosive/pass tendencies descriptive; coverage/alignment missing. Independent review defects repaired (position, payout comparison, quote clock, in-game leakage). Explicit publication authorization; final CI/live pending. Preserve upstream6ccc72e refresh; King conflict resolved by regenerating with corrected producer. After release: five model specialist roles in rounds; no automatic confidence/model promotion.
 
 ## Problems
 - Inspected manual refresh38139354271 also reported incomplete/degraded upstream props and derivatives. Local workflow repairs address reproducible application defects; provider coverage can still leave the final health step red. No degraded source is relabeled FRESH; unrelated valid outputs can publish independently.
