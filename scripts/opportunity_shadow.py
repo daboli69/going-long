@@ -11,6 +11,7 @@ import hashlib
 import json
 import math
 import os
+import re
 from pathlib import Path
 import sys
 import tempfile
@@ -108,6 +109,26 @@ def build(history, schedule, injury, roster, config, now):
     wanted = list(range(config['first_week'], config['last_week']+1))
     if any(w not in weeks for w in wanted):
         raise ValueError('Incomplete weekly schedule')
+    # The odds snapshot must not silently lose an opener or a game. Compare the
+    # complete official schedule copied into history, independent of quote coverage.
+    reference = {}
+    for g in betting.get('games', {}).get('nfl', []):
+        if g.get('season') != config['season']:
+            continue
+        match = re.fullmatch(r'\d{4}_(\d{2})_[A-Z]+_[A-Z]+', str(g.get('id', '')))
+        w = g.get('week') if g.get('week') is not None else int(match[1]) if match else None
+        if w in wanted:
+            if g['id'] in reference:
+                raise ValueError('Duplicate reference schedule game')
+            reference[g['id']] = (w,g)
+    for w in wanted:
+        expected = {gid:g for gid,(rw,g) in reference.items() if rw == w}
+        if set(expected) != {g['game_id'] for g in weeks[w]}:
+            raise ValueError('Complete schedule snapshots disagree; capture blocked')
+        for g in weeks[w]:
+            other = expected[g['game_id']]
+            if (g['home'],g['away']) != (other.get('home'),other.get('away')) or stamp(g['kickoff']) != stamp(other.get('kickoff')):
+                raise ValueError('Schedule kickoff/team receipts disagree')
     week = next((w for w in wanted if min(stamp(g['kickoff']) for g in weeks[w]) > now), None)
     if week is None:
         raise ValueError('No entirely future experiment week; backfill refused')

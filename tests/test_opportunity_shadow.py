@@ -19,7 +19,7 @@ def fixture():
     games += [{'game_id':r['game_id'],'season':2026,'week':r['week'],'home':'BUF','away':'LA','kickoff':r['kickoff'],'completed':True} for r in prior]
     policy=json.loads((shadow.ROOT/'config/calibration_policy.json').read_text()); spec=policy['markets']['atd']
     p = {'id':'p', 'name':'Player', 'team':'BUF', 'position':'RB', 'games':prior, 'stats':{'atd':{'family':'poisson','status':'ready','lambda':.5,'lambda_raw':.5/spec['params']['factor'],'calibration':{'method':spec['method'],'params':spec['params'],'version':policy['version']}}}}
-    history = {'generated_at':ts, 'betting':{'generated_at':ts,'sources':{'nflreadpy':{'2026':'loaded'}},'profiles':{'p':p}}}
+    history = {'generated_at':ts, 'betting':{'generated_at':ts,'sources':{'nflreadpy':{'2026':'loaded'}},'profiles':{'p':p},'games':{'nfl':[{**g,'id':g['game_id']} for g in games]}}}
     roster = {'generated_at':ts, 'source_roster_at':ts,'source_injury_at':ts,'season':2026,'week':6,'injury_week':6,'players':[{'id':'p','team':'BUF','position':'RB','roster_status':'ACT'}]}
     injury = {'generated_at':ts,'source_content_at':ts,'source_roster_at':ts,'current_players':{'p':{'gsis_id':'p','team':'BUF','roster_status':'ACT','roster_week':6}},'current_reports':{}}
     return [history, {'generated_at':ts,'games':games}, injury, roster, config, now]
@@ -115,6 +115,15 @@ class CaptureTests(unittest.TestCase):
         self.assertAlmostEqual(out['rows'][0]['probabilities']['production'],1-shadow.math.exp(-.5))
         args[0]['betting']['profiles']['p']['stats']['atd']['calibration']['method']='platt'
         with self.assertRaises(ValueError): shadow.build(*args)
+
+    def test_missing_opener_in_odds_schedule_cannot_allow_late_capture(self):
+        args=fixture()
+        args[0]['betting']['games']['nfl'].append({'id':'missing-opener','season':2026,'week':6,'home':'PIT','away':'KC','kickoff':(args[-1]-timedelta(hours=1)).isoformat()})
+        with self.assertRaisesRegex(ValueError,'snapshots disagree'): shadow.build(*args)
+
+    def test_reference_kickoff_conflict_blocks_capture(self):
+        args=fixture(); args[0]['betting']['games']['nfl'][0]['kickoff']=(args[-1]+timedelta(hours=4)).isoformat()
+        with self.assertRaisesRegex(ValueError,'receipts disagree'): shadow.build(*args)
 
 
 if __name__=='__main__': unittest.main()
