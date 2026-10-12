@@ -7,10 +7,21 @@
 const ENTRIES_RANGE=[11000,90000]; // field sizes seen in training; the entries feature is clamped to this range
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const state={models:null,loadedAt:null};
+function validModel(data){
+ const vector=(x,n,check=finite)=>Array.isArray(x)&&x.length===n&&x.every(check);
+ if(data?.schema!=='going-private-showdown-models-v2')return false;
+ for(const [role,total] of [['CPT',100],['FLEX',500]]){
+  const m=data.ownership?.[role];
+  if(!m||!Number.isInteger(m.bins)||m.bins<1||m.bins>1000||m.total!==total)return false;
+  for(const g of ['QB','SKILL','DK'])if(!vector(m.table?.[g],m.bins,x=>finite(x)&&x>=0))return false;
+ }
+ const d=data.duplication,n=d?.features?.length,allowed=['cpt_own','sum_flex_own','min_flex_own','log_prod_own','unused','cpt_salary_rank_pct','max_team','n_stars','cpt_pos_QB','log_entries'];
+ return !!d&&Array.isArray(d.features)&&n>0&&n<=allowed.length&&new Set(d.features).size===n&&d.features.every(x=>allowed.includes(x))&&vector(d.coef,n)&&vector(d.mean,n)&&vector(d.sd,n,x=>finite(x)&&x>0)&&finite(d.intercept)&&finite(d.resid_sd)&&d.resid_sd>=0&&vector(d.decile_edges,9,x=>finite(x)&&x>=0)&&d.decile_edges.every((x,i,a)=>!i||x>=a[i-1])&&vector(d.decile_median_copies,10,x=>finite(x)&&x>=0)&&vector(d.decile_unique_share,10,x=>finite(x)&&x>=0&&x<=1);
+}
 
 function load(json){
  let data=json;if(typeof json==='string'){try{data=JSON.parse(json);}catch{return {ok:false,reason:'The file is not valid JSON.'};}}
- if(!data||data.schema!=='going-private-showdown-models-v2'||!data.ownership?.CPT?.table||!data.ownership?.FLEX?.table||!data.duplication?.coef||!Array.isArray(data.duplication.decile_edges)||data.duplication.decile_edges.length!==9||!Array.isArray(data.duplication.decile_median_copies)||data.duplication.decile_median_copies.length!==10||!Array.isArray(data.duplication.decile_unique_share)||data.duplication.decile_unique_share.length!==10)return {ok:false,reason:'This is not a GOING private Showdown model file.'};
+ if(!validModel(data))return {ok:false,reason:'Invalid GOING Showdown model: check ownership tables and finite, matching duplication coefficients. Previous model retained.'};
  state.models=data;state.loadedAt=Date.now();return {ok:true};
 }
 function clear(){state.models=null;state.loadedAt=null;}
@@ -62,7 +73,7 @@ function dupMarginal(player,captain){
 function lineupOwnership(lineup){
  const captain=lineup.find(p=>p.slot==='CPT'||p.slot==='MVP'),flex=lineup.filter(p=>p!==captain);
  if(!captain||!lineup.every(p=>finite(p.ownership)))return null;
- return {captain:captain.ownership,flexTotal:flex.reduce((s,p)=>s+p.ownership,0),flexAverage:flex.reduce((s,p)=>s+p.ownership,0)/flex.length};
+ return {productIndex:lineup.reduce((product,p)=>product*p.ownership/100,1),captain:captain.ownership,flexTotal:flex.reduce((s,p)=>s+p.ownership,0),flexAverage:flex.reduce((s,p)=>s+p.ownership,0)/flex.length};
 }
 // Objectives used by the Showdown lineup types. Weights were chosen on contests before 2025 (lambda .5, gamma .05); the 2025-26 holdout then showed no reliable ROI difference between types.
 const WEIGHTS={lambda:.5,gamma:.05};

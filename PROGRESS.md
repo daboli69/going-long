@@ -31,6 +31,7 @@
 - Latest public refresh at upstream `67ed9a3` still failed: core and derivative props HTTP503, other components retained. Read-only offline health audit correctly refuses healthy status. No production actions or paid provider calls.
 
 ## Working
+- Showdown construction (BUILDER): implemented configurable ETR preferences, Captain-aware partner displays, ownership product vs sum, strict private-file validation. Focused tests and exhaustive randomized agreement pass; actual CSV-to-pool-to-lineup smoke with synthetic salaries/current public evidence generates WR+QB stacks and rejects infeasible salary. Full final verification/live release in progress; no projection/correlation promotion.
 - Five-role model debate: TD allocation, game lines/totals, general props, market/calibration, independent adversarial reconciliation. Isolated research files, current-season point-in-time features, fixed training/development/evaluation and clustered uncertainty; no automatic live retuning or repeated holdout selection.
 
 ## Problems
