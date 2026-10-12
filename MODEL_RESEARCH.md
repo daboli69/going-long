@@ -1,5 +1,7 @@
 # Model research
 
+Oct12 approved forward recorder release: fixed carry/target coefficients from completed offline research, current-season/current-team prior completed offensive appearances versus production calibrated ATD and Beta(1,1) frequency. Immutable experiment/config/code/source receipts, exact schedule and availability guards; no promotion/paid calls. Thursday whole-week pregame capture only after fresh target-week sources. Current week5 availability blocks week6; settlement/evaluation/market benchmark still pending. docs/OPPORTUNITY_FORWARD_COMPARISON.md.
+
 October11 King MNF scenario v2: user requires current-season-only inputs. Existing longest-TD Poisson/tie kernel retained; only season cohort and slate selection repaired. Experimental, unvalidated scenario, not a Champion promotion. Acceptance: previous-season mutations invariant, no future/same-day rows, complete Monday competition retained after early kickoff, fresh injury gates, exact DraftKings prices and no prize-value/EV claims. Current defensive explosive rates/offensive pass tendencies are descriptive only; coverage/alignment missingness explicit. The top-five higher-single-price shortlist is a disclosed product preference, not fitted probability. Next research requires chronological longest-distance outcomes and clustered comparisons before numerical matchup weighting.
 
 October11 full-engine experiments (`codex/model-confidence-research`, base d990931):

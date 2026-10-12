@@ -11,6 +11,20 @@ from build_pipeline import (fit_stat, build_profiles, normalize_name, match_play
 
 
 class ProjectionTests(unittest.TestCase):
+    def test_forward_capture_appearance_receipt_preserves_team_and_schedule(self):
+        roster=[dict(gsis_id='a',pfr_id='p',full_name='Player',position='WR',team='BUF')]
+        row=dict(player_id='a',season=2026,week=1,season_type='REG',position='WR',team='LA',carries=0,targets=3)
+        game=dict(game_id='g',season=2026,week=1,home_team='LA',away_team='BUF',gameday='2026-09-07',gametime='20:15',home_score=10,away_score=7)
+        snaps=[dict(pfr_player_id='p',season=2026,week=1,game_type='REG',offense_pct=55)]
+        p=build_profiles([row],roster,snaps,[game])['a']['games'][0]
+        self.assertEqual((p['team'],p['game_id'],p['completed'],p['offense_snap_share']),('LA','g',True,55))
+        self.assertEqual(p['kickoff'],'2026-09-08T00:15:00+00:00')
+
+    def test_duplicate_schedule_receipts_cannot_rewrite_appearance(self):
+        game=dict(season=2026,week=1,home_team='LA',away_team='BUF')
+        with self.assertRaisesRegex(ValueError,'Duplicate'):
+            build_profiles([],[],[],[game,dict(game)])
+
     def test_moments_and_nonpositive_mass(self):
         fit = fit_stat([-2, 0, 10, 20, 30], "lognormal")
         self.assertEqual(fit["n"], 5)

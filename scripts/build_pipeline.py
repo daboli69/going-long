@@ -255,6 +255,10 @@ def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
     pfr = {r['pfr_id']: r['gsis_id'] for r in roster if r.get('pfr_id') and r.get('gsis_id')}
     dates = {(r.get('season'), r.get('week'), r.get(side)): str(r.get('gameday', ''))
              for r in schedule for side in ('home_team', 'away_team')}
+    schedule_receipts = {(r.get('season'), r.get('week'), r.get(side)): r
+                         for r in schedule for side in ('home_team', 'away_team')}
+    if len(schedule_receipts) != 2*len(schedule):
+        raise ValueError('Duplicate season/week/team schedule receipt')
     games = {(r['player_id'], r['season'], r['week']): dict(r) for r in rows
              if r.get('season_type') == 'REG' and r.get('position') in {'QB', 'RB', 'WR', 'TE', 'FB'}}
     for snap in snaps:
@@ -315,6 +319,11 @@ def build_profiles(rows, roster, snaps, schedule, window=12, minimum=5):
                          'workload': {column:season_fit(modeled,column,'poisson',season,minimum)
                                       for column in ('attempts','carries','targets')},
                          'games': [{'season': r['season'], 'week': r['week'], 'date': r['date'],
+                                    'team': r.get('team') or r.get('recent_team'),
+                                    'game_id': schedule_receipts.get((r['season'], r['week'], r.get('team') or r.get('recent_team')), {}).get('game_id'),
+                                    'kickoff': nfl_kickoff(schedule_receipts.get((r['season'], r['week'], r.get('team') or r.get('recent_team')), {})),
+                                    'completed': all(finite(schedule_receipts.get((r['season'], r['week'], r.get('team') or r.get('recent_team')), {}).get(k)) for k in ('home_score', 'away_score')),
+                                    'offense_snap_share': snap_share.get((pid, r['season'], r['week'])),
                                     'verified_start':r.get('verified_start'),
                                     'attempts':r.get('attempts'), 'carries':r.get('carries'), 'targets':r.get('targets'),
                                     **{market: r.get(col) for market, (col, _) in MARKETS.items()}} for r in recent]}
