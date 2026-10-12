@@ -2,6 +2,7 @@ name: Refresh Going Long data
 on:
   schedule:
     - cron: '20 10,22 * * *'
+    - cron: '5 21 * * 1'   # Monday: pre-MNF availability and longest-TD forecast; daily refresh also runs
     - cron: '20 8,9 * * 0' # 04:20 Eastern in EDT/EST; the script guards early/duplicate runs
     - cron: '5 12 * * 0'   # Sunday: inactives for the 9:30 ET game are out about 90 minutes before kickoff (12:00Z)
     - cron: '45 15 * * 0'  # Sunday: fresh injury/practice data ahead of the 1:00 ET window
@@ -105,7 +106,7 @@ jobs:
         continue-on-error: true
         # Consume this run's history, context, injuries and roster; never yesterday's availability by step order.
         run: python scripts/going_score_build.py --cache "$RUNNER_TEMP/going-score-cache"
-      - name: Build and grade Thursday longest touchdown research
+      - name: Build and grade Monday longest touchdown research
         id: jackpot
         continue-on-error: true
         run: python scripts/king_endzone.py

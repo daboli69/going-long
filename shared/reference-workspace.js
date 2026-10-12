@@ -136,7 +136,10 @@ function updateParlay(){
 // Jackpot: visualize the existing first-TD field; never combine first/last/longest models.
 const jackpot=$('btPromoPanel');let jackpotChoice=0,jackpotFingerprint='';
 if(jackpot){
- const original=make('details','r-jackpot-offers','<summary>Fanatics manual entry · last TD & longest TD research</summary>');original.append(...jackpot.childNodes);jackpot.append(original);
+ const king=$('kingEndzone'),kingHeading=king?.previousElementSibling;
+ const original=make('details','r-jackpot-offers','<summary>Fanatics manual entry · last TD research</summary>');original.append(...jackpot.childNodes);
+ if(king){const panel=make('section','r-king-panel','');if(kingHeading?.tagName==='H2')panel.append(kingHeading);panel.append(king);jackpot.append(panel);}
+ jackpot.append(original);
  const work=make('div','r-jackpot-workspace'),left=make('section','r-jackpot-games r-surface','<h3>Games · first touchdown research</h3>'),right=make('section','r-jackpot-players r-surface'),explanation=make('section','r-jackpot-insights',section('How to use Jackpot','<p>First TD, last TD and longest touchdown answer separate questions. Their estimates cannot be multiplied into a combined jackpot probability.</p>')+section('Evidence & limitations','<p>Review the complete eligible scorer field and current role/availability. Prior-season support and unverified game-day participation can limit these estimates.</p>'));
  const filters=make('div','r-jackpot-toolbar','<label><span class="sr-only">Search selected game scorers</span><input type="search" id="rJackpotSearch" placeholder="Search selected game scorers"></label><p>First TD field · current football week · select a game below</p>');filters.addEventListener('input',filterJackpot);
  work.append(left,right);original.before(filters,work,explanation);

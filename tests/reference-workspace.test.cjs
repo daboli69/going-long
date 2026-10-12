@@ -59,3 +59,9 @@ test('DFS native import, confirmation, generation, lock and clear survive worksp
  ui.d.getElementById('dk-paste').value=rows.join('\n');ui.d.getElementById('dk-load').click();for(let i=0;i<60&&!ui.d.getElementById('dk-confirm');i++)await frame();const confirmed=ui.d.getElementById('dk-confirm');assert.ok(confirmed);confirmed.checked=true;confirmed.dispatchEvent(new ui.w.Event('change',{bubbles:true}));await frame();ui.d.getElementById('dk-best').click();await frame();ui.d.getElementById('dk-generate').click();for(let i=0;i<60&&!ui.d.querySelector('.dk-roster');i++)await frame();
  assert.equal(ui.d.querySelectorAll('.r-dfs-lineup .dk-roster>li').length,9);assert.match(ui.d.querySelector('.r-dfs-lineup .dk-budget').textContent,/\$50,000/);ui.d.getElementById('dk-lock-1').click();await frame();assert.equal(ui.d.getElementById('dk-lock-1').getAttribute('aria-pressed'),'true');ui.d.getElementById('dk-clear').click();await frame();assert.equal(ui.d.querySelectorAll('.r-empty-roster li').length,9);assert.equal(ui.d.querySelectorAll('.r-dfs-workspace').length,1);
 });
+
+test('King MNF stays visible outside the collapsed legacy offers',async t=>{
+ const ui=setup(t);await select(ui,'jackpot');
+ const king=ui.d.getElementById('kingEndzone');assert.ok(king.closest('.r-king-panel'));assert.equal(king.closest('details'),null);
+ assert.match(king.previousElementSibling.textContent,/Monday Night Football/);
+});
