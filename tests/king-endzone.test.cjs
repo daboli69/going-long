@@ -21,8 +21,8 @@ const candidates=[.2,.18,.16,.1].map((p,i)=>({id:'p'+i,name:'P'+i,team:'BUF',kin
 const slate={date:'2026-10-12',games:[game],candidates,generated_at:'2026-10-12T14:00:00Z',offer:{note:'Verify terms'}};
 const quote=(id,odds)=>({profileId:id,market:'atd',bookKey:'draftkings',overOdds:odds,kickoff:game.kickoff,eventTeams:['BUF','LA'],updatedAt:'2026-10-12T14:00:00Z'});
 const context={eligibility:()=>({actionable:true}),quoteState:()=>null,props:[quote('p0',150),quote('p1',400),quote('p2',300),quote('p3',1000)]};
-test('Highlights separate longest chance from highest actual price among top three',()=>{
- const x=K.highlights(slate,context,now);assert.equal(x.top.id,'p0');assert.equal(x.alternative.c.id,'p1');
+test('Highlights separate longest chance from highest actual price among top five',()=>{
+ const x=K.highlights(slate,context,now);assert.equal(x.top.id,'p0');assert.equal(x.alternative.c.id,'p3');
  assert.match(K.markup({slate},now,context),/Higher-paying alternative/);
 });
 test('Quotes fail closed for other books, games, identities, clocks and invalid odds',()=>{
