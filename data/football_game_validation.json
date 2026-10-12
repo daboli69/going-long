@@ -24,7 +24,7 @@
   "closing_price_advantage": null,
   "notice": "Score-only walk-forward baseline. Historical closing prices alone cannot price earlier decisions. Latest nflverse revisions; not a vintage-data archive.",
   "schema_version": 1,
-  "generated_at": "2026-10-11T23:33:57.796498+00:00",
+  "generated_at": "2026-10-12T01:23:38.691691+00:00",
   "seasons": [
     2023,
     2026
