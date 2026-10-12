@@ -49,3 +49,14 @@ test('card markup escapes imported names and prices never contaminate the model 
 test('a newer extreme or malformed price cannot resurrect an older attractive quote at the same book',()=>{
  for(const odds of [-40000,-85,NaN]){const r=row();r.offers=[{book:'Book A',odds,updatedAt:new Date(now-30000).toISOString()}];assert.equal(T.offersFor(r,now).length,0);}
 });
+test('a selected sportsbook uses its own posted line without cross-line price comparison',()=>{
+ const dom=new JSDOM('<div id="host"></div>'),host=dom.window.document.getElementById('host');
+ const global=row({kind:'game',market:'total',side:'Under',line:54,book:'Bovada',profileId:null},'global');global.evidence.family='Game';
+ const dk=row({kind:'game',market:'total',side:'Under',line:54.5,book:'DraftKings',profileId:null},'dk');dk.evidence.family='Game';
+ const requested=[],options={board:{picks:[global]},schedule:[candidate],books:['Bovada','DraftKings'],now,label:c=>c.side+' '+c.line,boardForBook:b=>{requested.push(b);return {picks:b==='DraftKings'?[dk]:[]};}};
+ T.render(host,options);assert.match(host.querySelector('h4').textContent,/54$/);
+ const select=host.querySelector('[data-tonight-control="book"]');select.value='DraftKings';select.dispatchEvent(new dom.window.Event('change',{bubbles:true}));
+ assert.deepEqual(requested,['DraftKings']);assert.equal(host.querySelector('h4').textContent,'Under 54.5');
+ assert.match(host.querySelector('.tonight-price').textContent,/DraftKings/);assert.doesNotMatch(host.querySelector('[data-tonight-detail]').textContent,/Bovada/);
+ const all=host.querySelector('[data-tonight-control="book"]');all.value='all';all.dispatchEvent(new dom.window.Event('change',{bubbles:true}));assert.equal(host.querySelector('h4').textContent,'Under 54');
+});
