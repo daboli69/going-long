@@ -72,11 +72,50 @@ function fieldActive(mode,showdown){return FIELD_ONLY.has(mode)&&showdown&&Boole
 function penalty(player,mode,showdown,captain){const f=fieldActive(mode,showdown)?field():null;if(!f)return 0;if(mode==='leverage')return finite(player.ownership)?f.WEIGHTS.gamma*player.ownership:0;return f.WEIGHTS.lambda*(f.dupMarginal?.(player,captain)??0);}
 // Moments of the lineup total with measured correlations; the exact objective for every lineup-level style.
 function measuredObjective(lineup,mode='measured',entries=30000,showdown=false){const simulator=sim();if(!simulator)return lineup.reduce((sum,player)=>sum+(player.projection||0)*(player.multiplier||1),0);const moments=simulator.lineupMoments(lineup),f=field();if(fieldActive(mode,showdown))return f.objective(mode,moments,lineup,entries);return moments.mean+(Z[mode]??Z.measured)*moments.sd;}
-function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false,contest='classic',lockedIds=[],captainId=null,now=Date.now(),entries=30000}={}){
+// Construction preferences from ETR Showdown 101, not learned probabilities or contest rules.
+const SHOWDOWN_DEFAULTS=Object.freeze({enabled:true,wrWithQb:true,qbReceivers:2,wrExtra:1,maxKD:2,dstOpponents:3,allowSpecialCaptain:false,maxSalary:50000,captainTeamCount:0,lowOwnership:null});
+function showdownPolicy(input){
+ if(!input)return {policy:null};
+ const p={...SHOWDOWN_DEFAULTS,...input};
+ if(typeof p.enabled!=='boolean')return {error:'Invalid Showdown guidance setting.'};
+ if(!p.enabled)return {policy:null};
+ for(const key of ['wrWithQb','allowSpecialCaptain'])if(typeof p[key]!=='boolean')return {error:'Invalid Showdown construction preference.'};
+ for(const [key,min,max] of [['qbReceivers',0,3],['wrExtra',0,4],['maxKD',0,4],['dstOpponents',1,5],['maxSalary',1,50000]])if(!Number.isInteger(p[key])||p[key]<min||p[key]>max)return {error:'Invalid Showdown '+key+' setting.'};
+ if(![0,1,2,3,4,5].includes(p.captainTeamCount))return {error:'Invalid Captain team split.'};
+ if(p.lowOwnership!==null&&(!finite(p.lowOwnership)||p.lowOwnership<=0||p.lowOwnership>100))return {error:'Low-ownership threshold must be above 0 and at most 100%.'};
+ return {policy:p};
+}
+function showdownChecks(lineup,p,{complete=true}={}){
+ if(!p||!lineup.length)return [];
+ const c=lineup[0],flex=lineup.slice(1),same=flex.filter(x=>x.team===c.team),receivers=same.filter(x=>['WR','TE'].includes(x.position)),errors=[];
+ if(!p.allowSpecialCaptain&&['K','DST'].includes(c.position))errors.push('Kicker/D-ST Captain is disabled by your construction preference.');
+ if(lineup.filter(x=>['K','DST'].includes(x.position)).length>p.maxKD)errors.push('Too many kickers and defenses for your construction preference.');
+ if(c.position==='WR'&&receivers.length>p.wrExtra)errors.push('Too many additional same-team WR/TE with WR Captain.');
+ if(complete&&c.position==='WR'&&p.wrWithQb&&!same.some(x=>x.position==='QB'))errors.push('WR Captain needs his same-team QB.');
+ if(complete&&c.position==='QB'&&receivers.length<p.qbReceivers)errors.push('QB Captain needs '+p.qbReceivers+' same-team WR/TE.');
+ for(const d of lineup.filter(x=>x.position==='DST'))if(lineup.filter(x=>x.team===d.opponent).length>p.dstOpponents)errors.push('Too many opponents paired with D/ST.');
+ if(p.captainTeamCount&&(same.length+1>p.captainTeamCount||(complete&&same.length+1!==p.captainTeamCount)))errors.push('Captain-team split does not match your preference.');
+ if(complete&&p.lowOwnership!==null&&!lineup.some(x=>finite(x.ownership)&&x.ownership<p.lowOwnership))errors.push('No player is below your ownership threshold.');
+ return errors;
+}
+function showdownStory(lineup){
+ if(!lineup.length)return [];
+ const c=lineup[0],same=lineup.slice(1).filter(x=>x.team===c.team),receivers=same.filter(x=>['WR','TE'].includes(x.position)),qb=same.find(x=>x.position==='QB'),notes=[];
+ if(c.position==='WR')notes.push(qb?'WR Captain paired with '+qb.name+'.':'WR Captain without his QB: deliberate unstacked exception.');
+ if(c.position==='QB')notes.push('QB Captain with '+receivers.length+' same-team WR/TE: '+(receivers.map(x=>x.name).join(', ')||'no receiver stack')+'.');
+ if(c.position==='QB'&&same.some(x=>x.position==='K'))notes.push('QB Captain and his kicker compete for touchdown versus field-goal scoring.');
+ if(['K','DST'].includes(c.position))notes.push('Kicker/defense Captain is an exception with uncertain tournament upside.');
+ if(lineup.some(x=>x.position==='DST'&&x.opponent===c.team))notes.push('Captain faces a rostered defense: conflicting paths, allowed as an exception.');
+ notes.push((same.length+1)+'–'+(5-same.length)+' split from the Captain team; no team split guarantees an advantage.');
+ return notes;
+}
+function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5000,minUnique=2,projectionOnly=false,contest='classic',lockedIds=[],captainId=null,now=Date.now(),entries=30000,showdownConstruction=null}={}){
  const rule=RULES[site];if(!rule)return {lineups:[],reason:'Unsupported DFS platform.'};
  const showdown=contest==='showdown',multiplierSlot=site==='fanduel'?'MVP':'CPT',maxFromTeam=showdown?5:rule.maxTeam,slots=showdown?[multiplierSlot,'FLEX','FLEX','FLEX','FLEX','FLEX']:projectionOnly?rule.slots.filter(slot=>slot!=='DST'):rule.slots;
+ const guidance=showdown&&site==='draftkings'?showdownPolicy(showdownConstruction):{policy:null};if(guidance.error)return {lineups:[],reason:guidance.error};const policy=guidance.policy,cap=policy&&!projectionOnly?policy.maxSalary:rule.cap;
  const available=players.filter(player=>finite(player.projection)&&player.projection>0&&(projectionOnly||(finite(player.salary)&&player.salary>0))&&!['o','out','ir','ina','res','dev','cut','ret','exe','inactive','reserve','doubtful'].includes(String(typeof player.injury==='object'?player.injury?.state:player.injury||'').toLowerCase())&&!player.unavailable&&(!player.kickoff||Date.parse(player.kickoff)>Number(now)));
  if(showdown&&new Set(available.map(player=>String(player.game||'').trim()).filter(Boolean)).size>1)return {lineups:[],reason:'Single-game lineups require players from one game.'};
+ if(policy?.lowOwnership!==null&&policy?.lowOwnership!==undefined&&(!field()?.ready()||available.some(p=>!finite(p.ownership)||p.ownership<0||p.ownership>100)))return {lineups:[],reason:'The low-ownership preference requires a loaded Showdown model and complete role-specific ownership estimates.'};
  const availableById=new Map(available.map(player=>[String(player.id),player])),requestedLocks=new Set((lockedIds||[]).map(String));if(captainId!=null)requestedLocks.add(String(captainId));
  const unavailableLocks=[...requestedLocks].filter(id=>!availableById.has(id));if(unavailableLocks.length)return {lineups:[],reason:`${unavailableLocks.length} selected player${unavailableLocks.length===1?' is':'s are'} unavailable on this slate.`};
  if(requestedLocks.size>slots.length)return {lineups:[],reason:`Select no more than ${slots.length} players for this contest.`};
@@ -105,8 +144,9 @@ function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5
   const next=[];
   for(const state of states)for(const player of bySlot[slot]){
    const athlete=norm(player.name)+'|'+player.team,salary=finite(player.salary)?salaryFor(player,slotIndex):0;
-   if(state.ids.has(player.id)||state.athletes.has(athlete)||(!projectionOnly&&state.salary+salary+minimumRemaining[slotIndex+1]>rule.cap)||(state.teams[player.team]||0)>=maxFromTeam)continue;
-   const ids=new Set(state.ids);ids.add(player.id);const remainingLocks=new Set([...requestedLocks].filter(id=>![...ids].some(chosen=>String(chosen)===id)));if(!locksFit(remainingLocks,slots.slice(slotIndex+1)))continue;const athletes=new Set(state.athletes);athletes.add(athlete);next.push({players:[...state.players,{...player,slot,multiplier}],ids,athletes,teams:{...state.teams,[player.team]:(state.teams[player.team]||0)+1},salary:state.salary+salary,base:state.base+objective(player,mode)*multiplier-penalty(player,mode,showdown,multiplier>1)});
+   if(state.ids.has(player.id)||state.athletes.has(athlete)||(!projectionOnly&&state.salary+salary+minimumRemaining[slotIndex+1]>cap)||(state.teams[player.team]||0)>=maxFromTeam)continue;
+   const built=[...state.players,{...player,slot,multiplier}];if(policy&&showdownChecks(built,policy,{complete:slotIndex===slots.length-1}).length)continue;
+   const ids=new Set(state.ids);ids.add(player.id);const remainingLocks=new Set([...requestedLocks].filter(id=>![...ids].some(chosen=>String(chosen)===id)));if(!locksFit(remainingLocks,slots.slice(slotIndex+1)))continue;const athletes=new Set(state.athletes);athletes.add(athlete);next.push({players:built,ids,athletes,teams:{...state.teams,[player.team]:(state.teams[player.team]||0)+1},salary:state.salary+salary,base:state.base+objective(player,mode)*multiplier-penalty(player,mode,showdown,multiplier>1)});
   }
   next.sort((a,b)=>b.base-a.base||b.salary-a.salary);
   if(projectionOnly||next.length<=beamWidth||slotIndex===slots.length-1)states=next.slice(0,beamWidth);
@@ -120,20 +160,21 @@ function optimize(players,{site='draftkings',mode='balanced',count=5,beamWidth=5
    for(const state of next)if(retained.length<beamWidth&&!chosen.has(state)){retained.push(state);chosen.add(state);}
    states=retained;
   }
-  if(!states.length)return {lineups:[],reason:projectionOnly?'No position-valid offensive core could be generated.':`No legal lineup fits the ${rule.label} salary cap.`};
+  if(!states.length)return {lineups:[],reason:projectionOnly?'No position-valid offensive core could be generated.':(policy?'Search found no lineup fitting your Showdown construction preferences, locks and salary limit. Adjust the rules or locks; no preferences were silently relaxed.':`No legal lineup fits the ${rule.label} salary cap.`)};
  }
  const ranked=states.filter(state=>Object.keys(state.teams).length>=2).map(state=>({...state,projection:state.players.reduce((sum,player)=>sum+player.projection*player.multiplier,0),objective:LINEUP_MODES.has(mode)?measuredObjective(state.players,mode,entries,showdown):state.base,conflicts:opponentConflict(state.players)})).sort((a,b)=>b.objective-a.objective||b.projection-a.projection||b.salary-a.salary);
  const lineups=[];for(const candidate of ranked){const ids=new Set(candidate.players.map(player=>player.id)),different=lineups.every(lineup=>lineup.players.filter(player=>!ids.has(player.id)).length>=minUnique);if(different)lineups.push(candidate);if(lineups.length>=Math.max(1,Math.min(20,count)))break;}
+ if(showdown)lineups.forEach(lineup=>{lineup.construction=policy?{...policy}:null;lineup.constructionNotes=showdownStory(lineup.players);});
  const fieldModel=field();if(fieldModel?.ready()&&showdown)lineups.forEach(lineup=>{lineup.ownership=fieldModel.lineupOwnership(lineup.players);lineup.duplication=fieldModel.duplication(lineup.players,entries);});
  const simulator=sim();if(simulator)lineups.forEach((lineup,index)=>{const moments=simulator.lineupMoments(lineup.players),distribution=simulator.lineupDistribution(lineup.players,{draws:2000,seed:index+1});if(distribution)lineup.simulation={mean:distribution.mean,sd:distribution.sd,floor:distribution.floor,p25:distribution.p25,median:distribution.median,p75:distribution.p75,p90:distribution.p90,p95:distribution.p95,draws:2000,source:distribution.source,analyticSd:moments.sd};});
  // Say so when a style cannot differ: no private field model for a duplication/ownership style, or the style's best roster is simply the highest-projection roster in the search.
- const notes=[];
+ const notes=[];if(policy)notes.push('Applied your Showdown construction preferences; these are strategic guardrails, not calibrated correlations or proven winning rules.');
  if(FIELD_ONLY.has(mode)&&!fieldActive(mode,showdown))notes.push(`${LABEL[mode]} needs the private Showdown field model and a Showdown slate; this build used the Measured objective instead.`);
  const topProjection=ranked.reduce((best,state)=>!best||state.projection>best.projection?state:best,null),first=lineups[0];
  if(mode!=='balanced'&&first&&topProjection&&first.players.length===topProjection.players.length&&first.players.every(p=>topProjection.ids.has(p.id)))notes.push(`The top ${LABEL[mode]||mode} roster is also the highest-projection roster the search found: this objective did not change the optimum on this slate.`);
  return {lineups,reason:lineups.length?(notes.join(' ')||null):'No sufficiently distinct roster ideas were found.',notes,eligible:available.length,rule:{...rule,slots},projectionOnly,contest,locked:[...requestedLocks]};
 }
 
-root.GoingFootballDfs={RULES,norm,parseSalaryCsv,projectedPoints,optimize,correlation};
+root.GoingFootballDfs={RULES,norm,parseSalaryCsv,projectedPoints,optimize,correlation,SHOWDOWN_DEFAULTS,showdownPolicy,showdownChecks,showdownStory};
 if(typeof module!=='undefined')module.exports=root.GoingFootballDfs;
 })(globalThis);
