@@ -83,6 +83,7 @@ def _summarize(games):
         "targets_per_game": _finite_mean([g["targets"] for g in games]),
         "target_share": _finite_mean([g["target_share"] for g in games]),
         "receiving_yards_per_game": _finite_mean([g["receiving_yards"] for g in games]),
+        "receptions_per_game": _finite_mean([g.get("receptions") for g in games]) if all(_number(g.get("receptions")) for g in games) else None,
         "carries_per_game": _finite_mean([g["carries"] for g in games]),
         "carry_share": _finite_mean([g["carry_share"] for g in games]),
         "rushing_yards_per_game": _finite_mean([g["rushing_yards"] for g in games]),
@@ -173,7 +174,7 @@ def build_pick_evidence(*, season, games, pbp_rows, snap_rows, roster_rows,
             "team": team, "player_id": pid, "position": pos,
             "offense_snaps": float(snaps),
             "offense_pct": float(row["offense_pct"]) if _number(row.get("offense_pct")) else None,
-            "targets": 0, "receiving_yards": 0.0, "carries": 0, "rushing_yards": 0.0,
+            "targets": 0, "receptions": 0, "receiving_yards": 0.0, "carries": 0, "rushing_yards": 0.0,
         }
         latest_team_games[(team, game["week"])].append(gid)
 
@@ -196,6 +197,11 @@ def build_pick_evidence(*, season, games, pbp_rows, snap_rows, roster_rows,
                 key = (gid, team, receiver)
                 if key in appearances:
                     appearances[key]["targets"] += 1
+                    complete = row.get("complete_pass")
+                    if complete not in (0, 1) or isinstance(complete, bool):
+                        appearances[key]["receptions"] = None
+                    elif appearances[key]["receptions"] is not None:
+                        appearances[key]["receptions"] += int(complete)
                     if _number(row.get("receiving_yards")):
                         appearances[key]["receiving_yards"] += float(row["receiving_yards"])
         if row.get("rush_attempt") == 1 and not row.get("qb_kneel"):
@@ -264,6 +270,7 @@ def build_pick_evidence(*, season, games, pbp_rows, snap_rows, roster_rows,
                 pair_games[(team, focal_id, teammate_id)][condition].append(focal)
 
     splits = {}
+    out_games = {}
     for (team, focal_id, teammate_id), groups in sorted(pair_games.items()):
         n_with, n_without = len(groups["with"]), len(groups["without"])
         if not n_without:
@@ -272,6 +279,9 @@ def build_pick_evidence(*, season, games, pbp_rows, snap_rows, roster_rows,
         id_row = next((r for r in roster_rows if str(r.get("gsis_id")) == teammate_id), {})
         focal_row = next((r for r in roster_rows if str(r.get("gsis_id")) == focal_id), {})
         key = f"{team}|{focal_id}|{teammate_id}"
+        out_games[key] = [{"game_id": g["game_id"], "team": team,
+                           "player_id": teammate_id, "report_status": "Out",
+                           "report_timing": "retrospective"} for g in groups["without"]]
         splits[key] = {
             "team": team, "player_id": focal_id, "position": positions.get(focal_id),
             "teammate_id": teammate_id, "teammate_name": id_row.get("full_name"),
@@ -366,6 +376,7 @@ def build_pick_evidence(*, season, games, pbp_rows, snap_rows, roster_rows,
         "recent_games_per_player": recent_games,
         "recent_player_games": trends if all(source_status[name] == 'loaded' for name in ('pbp','snap_counts','rosters')) else {},
         "teammate_out_splits": splits if with_without_ready else {},
+        "teammate_out_games": out_games if with_without_ready else {},
         "limitations": [
             "Public nflverse injury and snap data are refreshed snapshots, not immutable decision-time archives.",
             "A missing injury or snap row is unknown. Positive offensive snaps are required to establish WITH.",
