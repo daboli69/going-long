@@ -1,3 +1,9 @@
+## October 12 — Tonight’s Bets release
+
+User authorized agents and live release. Added a presentation-only board to Today: Eastern-day remaining games, supported spread/total leans, player/TD evidence, exact-line book comparisons and the existing local shortlist. Preserved Champion, current eligibility, research gates and frozen forward study. Newest same-book quote is selected before validity/floor gates; saves recheck exact current offer and eligibility. Saved prices remain labeled research with saving disabled.
+
+Actual public morning BUF/LA snapshot rendered40 supported leans; zero five-minute prices at local inspection, so fresh-price save validation used explicit synthetic fixtures. Independent implementation review passed;12new regressions,789Nodepassed,565Pythonrun(560passed/5existing skips),bothbuilds,audit0. Desktop1280/mobile390 nooverflow/errors. Release/source/CI/deployment receipts in ignored .cache/tonight-bets/. Final availability and live quote updates remain provider-dependent; no betting edge or guaranteed result claimed. Rollback by reverting the bounded release.
+
 ## Model research and Showdown quarterbacks — October 11 continuation
 
 Branch `codex/model-confidence-research`, base d990931; isolated research commit5e95373.
