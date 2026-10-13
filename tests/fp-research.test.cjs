@@ -1,0 +1,27 @@
+const {test}=require('node:test'),assert=require('node:assert/strict');
+const browser=require('../shared/fp-research.js');
+const now=Date.parse('2026-10-13T21:00:00Z');
+const ds=()=>({season:2026,scope:'prior_week',observed_week:5,table:'receiving_advanced',exported_at:'2026-10-13T19:00:00Z',known_at:'2026-10-13T20:00:00Z',groups:['Player Details','Receiving','FP'],columns:['Player Details.Name','Player Details.Team','Player Details.POS','Receiving.RTE %','FP.FP','FP.XFP'],records:[{'Player Details.Name':'Player','Player Details.Team':'BUF','Player Details.POS':'WR','Receiving.RTE %':80,'FP.FP':9,'FP.XFP':12}],reference_rows:[{'Receiving.RTE %':'50'}]});
+test('private source produces descriptive notes without serializing raw metric tables',async()=>{
+ const {deriveResearch}=await import('../server/fp-research.mjs');const d=deriveResearch([ds()],{season:2026,week:6,now});assert.equal(d.players.length,1);assert.match(d.players[0].notes.join(' '),/Week 5.*opportunity/);assert.match(d.players[0].notes.join(' '),/route participation/);assert.doesNotMatch(JSON.stringify(d),/records|reference_rows|80|source_path/);
+ assert.equal(deriveResearch([{...ds(),known_at:'2026-10-14T00:00:00Z'}],{season:2026,week:6,now}).players.length,0);
+});
+test('route-tree share is not mislabeled participation and duplicate player rows are withheld',async()=>{
+ const {deriveResearch}=await import('../server/fp-research.mjs');const d=ds();d.columns[3]='Slant.RTE %';d.records[0]['Slant.RTE %']=80;d.reference_rows=[{'Slant.RTE %':'50'}];assert.doesNotMatch(deriveResearch([d],{season:2026,week:6,now}).players[0].notes.join(' '),/participation/);d.records.push(d.records[0]);assert.equal(deriveResearch([d],{season:2026,week:6,now}).players.length,0);
+});
+test('private team evidence uses canonical team identity and scope-qualified descriptions',async()=>{
+ const {deriveResearch}=await import('../server/fp-research.mjs');const d={...ds(),scope:'season_to_date',table:'coverage_matrix',groups:['Team Details'],columns:['Team Details.Name','Man/Zone.ZONE %','Man/Zone.MAN %'],records:[{'Team Details.Name':'Buffalo Bills','Man/Zone.ZONE %':70,'Man/Zone.MAN %':30}],reference_rows:[]};const result=deriveResearch([d],{season:2026,week:6,now});assert.equal(result.teams[0].team,'BUF');assert.match(result.teams[0].notes[0],/Current-season coverage leaned zone/);
+});
+test('protected read endpoint is fail closed when ACL is absent and does not grant access merely on a bearer string',async t=>{
+ const {default:handler}=await import('../api/fp-research.mjs');const old=process.env.GOING_FP_ALLOWED_USERS;t.after(()=>{if(old===undefined)delete process.env.GOING_FP_ALLOWED_USERS;else process.env.GOING_FP_ALLOWED_USERS=old;});delete process.env.GOING_FP_ALLOWED_USERS;
+ let body;const res={setHeader(){},end(text){body=JSON.parse(text);}};await handler({method:'GET',headers:{authorization:'Bearer arbitrary'},query:{season:'2026',week:'6'}},res);assert.equal(res.statusCode,503);assert.equal(body.players,undefined);process.env.GOING_FP_ALLOWED_USERS='owner';await handler({method:'GET',headers:{},query:{}},res);assert.equal(res.statusCode,401);
+});
+test('browser does not fetch private data without a session; verified schedule determines week',async()=>{
+ let requests=0;await browser.refresh({season:2026,week:6,token:null,now,fetchImpl:async()=>{requests++;}});assert.equal(requests,0);assert.equal(browser.panel({player:'Player',team:'BUF'}),'');
+ assert.deepEqual(browser.predictionPeriod({games:[{id:'2026_06_SEA_DEN',kickoff:'2026-10-16T00:15:00Z'}]},now),{season:2026,week:6});assert.equal(browser.predictionPeriod({games:{}},now),null);
+});
+test('browser renders authorized notes safely and logout or a period change removes them',async()=>{
+ const envelope={schema:'going-private-fp-research-v1',season:2026,week:6,players:[{name:'Player',team:'BUF',position:'WR',notes:['<script>unsafe</script>']}],teams:[]};
+ await browser.refresh({season:2026,week:6,token:'fixture',now:now+1,fetchImpl:async()=>({ok:true,json:async()=>envelope})});assert.match(browser.panel({player:'Player',team:'BUF'}),/&lt;script&gt;/);
+ await browser.refresh({season:2026,week:7,token:null,now:now+2});assert.equal(browser.panel({player:'Player',team:'BUF'}),'');
+});
