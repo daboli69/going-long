@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "modelVersion": "abbeys-current-season-v1",
-  "generatedAt": "2026-10-12T22:14:15.943Z",
+  "generatedAt": "2026-10-13T17:42:22.842Z",
   "weeks": [
     {
       "methodology": {
@@ -1394,12 +1394,12 @@
   ],
   "currentWeek": {
     "season": 2026,
-    "week": 5,
-    "status": "frozen",
-    "captureDeadline": "2026-10-11T13:30:00+00:00",
-    "registeredOrigin": "2026-10-08T12:15:00.000Z",
-    "scheduledOriginPassed": true,
-    "reason": "Current-week official board is frozen."
+    "week": 6,
+    "status": "not-frozen",
+    "captureDeadline": "2026-10-18T13:30:00+00:00",
+    "registeredOrigin": "2026-10-15T12:15:00.000Z",
+    "scheduledOriginPassed": false,
+    "reason": "Week 6 has not been captured or published. A prospective manual board may still be captured before the first Sunday/Monday kickoff."
   },
   "record": {
     "wins": 0,
