@@ -17,7 +17,7 @@ function panel(p){
  if(!evidence)return '';
  const found=evidence.players.filter(x=>x&&Array.isArray(x.notes)&&x.notes.every(n=>typeof n==='string')&&team(x.team)===team(p.team)&&norm(x.name)===norm(p.player||p.name)&&(!p.position||x.position===p.position));
  const notes=found.length===1?found[0].notes.slice():[];
- for(const t of evidence.teams)if(t&&Array.isArray(t.notes)&&t.notes.every(n=>typeof n==='string')&&(team(t.team)===team(p.team)||team(t.team)===team(p.opponent)))notes.push(...t.notes.map(n=>`${t.team}: ${n}`));
+ for(const t of evidence.teams)if(t&&Array.isArray(t.notes)&&t.notes.every(n=>typeof n==='string')&&[p.team,p.opponent,p.home,p.away].filter(Boolean).some(x=>team(t.team)===team(x)))notes.push(...t.notes.map(n=>`${t.team}: ${n}`));
  return notes.length?`<details class="dfs-method"><summary>Private current-season research</summary><ul>${[...new Set(notes)].map(n=>'<li>'+esc(n)+'</li>').join('')}</ul><p>Source: your private FantasyPoints inputs. Descriptive evidence; no forecast adjustment or established betting edge.</p></details>`:'';
 }
 root.GoingFpResearch={refresh,panel,predictionPeriod,get status(){return status;}};
