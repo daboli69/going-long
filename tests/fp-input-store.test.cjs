@@ -22,3 +22,8 @@ test('private provenance requires zoned real calendar clocks and flat scalar row
  const d=fixture();d.datasets[0].records[0].NAME={licensed_metric:12345};assert.throws(()=>m.validateInputs(d));
  assert.ok(Number.isFinite(m.awareTime('2026-10-13T20:00:00.123456+00:00')));
 });
+
+test('sparse or absent export group headers remain compatible with normalized intake',async()=>{
+ const {validateInputs}=await import('../server/fp-input-store.mjs');for(const groups of [null,[],['Player Details','','FP']]){const d=fixture();d.datasets[0].groups=groups;assert.equal(validateInputs(d),d);}
+ for(const groups of [[null],[{raw:1}]]){const d=fixture();d.datasets[0].groups=groups;assert.throws(()=>validateInputs(d));}
+});

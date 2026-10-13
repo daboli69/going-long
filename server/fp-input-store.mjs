@@ -17,7 +17,7 @@ export function validateInputs(data){
  if(data?.schema!=='going-private-fp-inputs-v1'||data.licensed!==true||!Number.isInteger(data.season)||data.season<2026||!Number.isInteger(data.prediction_week)||data.prediction_week<1||data.prediction_week>18||!Array.isArray(data.datasets)||!data.datasets.length||data.datasets.length>256)throw Error('Invalid private input envelope');
  let rows=0;
  for(const d of data.datasets){
-  if(d.season!==data.season||!['prior_week','season_to_date'].includes(d.scope)||d.status!=='accepted'||typeof d.table!=='string'||!Array.isArray(d.records)||!d.records.length||!strings(d.columns)||!d.columns.length||(d.groups!==undefined&&!strings(d.groups))||!d.records.every(flat)||(d.reference_rows!==undefined&&(!Array.isArray(d.reference_rows)||!d.reference_rows.every(flat)))||!Number.isFinite(awareTime(d.known_at))||!Number.isFinite(awareTime(d.exported_at)))throw Error('Invalid dataset provenance');
+  if(d.season!==data.season||!['prior_week','season_to_date'].includes(d.scope)||d.status!=='accepted'||typeof d.table!=='string'||!Array.isArray(d.records)||!d.records.length||!strings(d.columns)||!d.columns.length||(d.groups!=null&&(!Array.isArray(d.groups)||!d.groups.every(v=>typeof v==='string'&&v.length<=256)))||!d.records.every(flat)||(d.reference_rows!==undefined&&(!Array.isArray(d.reference_rows)||!d.reference_rows.every(flat)))||!Number.isFinite(awareTime(d.known_at))||!Number.isFinite(awareTime(d.exported_at)))throw Error('Invalid dataset provenance');
   if(d.scope==='prior_week'&&d.observed_week!==data.prediction_week-1)throw Error('Wrong observed week');
   rows+=d.records.length;
  }
