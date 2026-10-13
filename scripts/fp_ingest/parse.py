@@ -61,22 +61,33 @@ def parse_export(data):
         raise ParseError('too_short', 'fewer than a group row, a column row and one data row')
     first = table[0][0].strip() if table[0] else ''
     second = table[1][0].strip() if table[1] else ''
-    two_row = len(table[1]) > 1 and second == 'Rank' and first != 'Rank'
+    def is_header(row):
+        labels = {cell.strip().lower() for cell in row}
+        return 'rank' in labels and bool(labels & {'name', 'team', 'coach', 'unit'})
+    two_row = len(table[1]) > 1 and is_header(table[1]) and not is_header(table[0])
     if two_row:
         group_row, header = table[0], table[1]
         body_start = 2
         if len(group_row) != len(header):
             raise ParseError('header_mismatch', f'group row has {len(group_row)} cells, column row has {len(header)}')
-    elif first == 'Rank':
+    elif is_header(table[0]):
         group_row, header, body_start = None, table[0], 1
     else:
         raise ParseError('no_header', 'first rows are not a Fantasy Points header (no Rank column)')
+    # Data Suite 2.0 puts Season before Rank, outside the repeated group labels.
+    # Preserve its identity key rather than assigning it an unrelated metric group.
+    if group_row and header[0].strip().lower() == 'season' and not group_row[0].strip():
+        group_row = list(group_row)
+        group_row[0] = next((g for g in group_row if g.endswith('Details')), 'Details')
     columns = qualify(group_row, header)
     rows, glossary, notes, line = [], {}, [], body_start
     index = body_start
     while index < len(table):
         row = table[index]
         index += 1
+        if row and row[0].strip().startswith('Exported from Data Suite'):
+            notes.append('export_receipt:' + row[0].strip())
+            continue
         if not row or all(not cell.strip() for cell in row):
             break
         if len(row) != len(header):
@@ -85,6 +96,9 @@ def parse_export(data):
     while index < len(table):
         row = table[index]
         index += 1
+        if row and row[0].strip().startswith('Exported from Data Suite'):
+            notes.append('export_receipt:' + row[0].strip())
+            continue
         if len(row) == len(header) and len(header) > 2 and any(cell.strip() for cell in row):
             raise ParseError('blank_in_data', f'data row {index} follows a blank line: rows would be silently dropped')
         if len(row) == 2 and row[0].strip():

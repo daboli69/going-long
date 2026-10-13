@@ -1,5 +1,20 @@
 # Fantasy Points Data Suite ingestion
 
+## October 13 automatic intake (development branch)
+
+`fp_autoload.py` scans the Inbox recursively, selects the prediction week from dated future NFL games, parses Data Suite2.0 headers/footer receipts, and builds **private** model inputs. `Week N` prepares the upcoming week; prior-week rows are Week N−1, kept separate from cumulative totals. Future folders, historical seasons, old receipts, stale cumulative game counts and contradictory weekly suffixes are held. Week6/2026 is the operator-confirmed initial batch; future folders use `(1)` for the prior-week counterpart. A copied weekly checksum cannot be relabeled as a different week.
+
+Actual audit:136CSVs,26Week6 files; all26accepted into separate current-season scopes. Unknown alignment/filter variants stay separate, never first-file wins. Raw accepted bytes are content-addressed under `raw/inbox-autoload`; first-known times are immutable, and normalized snapshots are under `model_inputs`. No Inbox file is moved or edited. `fp_ingest.features.player_context` is an exact-identity private model/research adapter; it never changes availability or a Champion probability. No numerical model promotion was performed.
+
+A pinned private runtime is installed under `FantasyPoints/runtime` and a verified per-user Startup watcher runs every5minutes while Windows is running. Task Scheduler denied registration on this account; the installer verified and used the reversible per-user Startup fallback. This is an actual running mechanism, not a promised future agent session. The full2026 dated schedule is copied into the pinned runtime so Week7 onward selects automatically. Closing the PC pauses intake until sign-in.
+
+**Live backend is not activated.** Prepared `api/fp-ingest.mjs` is POST-only, requires a server token, and writes normalized inputs to a service-only private Supabase bucket. No CSV GET/download endpoint or browser folder picker exists. The internal reader requires a matching season/week and decision cutoff. The publisher sends only changed input sets and validates the server acknowledgment; outage retains the previous remote object and reports failure. Required configuration:approved private-storage migration, `SUPABASE_SERVICE_ROLE_KEY` on the server, matching `GOING_FP_INGEST_TOKEN` on server/PC, and `GOING_FP_INGEST_URL=https://going-long.vercel.app/api/fp-ingest` on the PC. Do not put keys or licensed data in Git or paste credentials into chat.
+
+The local intake and model-input adapters are implemented; **the hosted Champion/browser models do not consume these inputs yet**. Deploying/activating the private storage/auth path needs approval under AGENTS.md, and any numerical forecasting change still goes through the Model Gate. Rollback:delete only the GOING-owned Startup shortcut and stop its verified recorded PID; retain raw/manifests. No migrations, cloud uploads, paid APIs, alerts or production freezes executed.
+
+Download-gap checklist: `docs/FANTASY_POINTS_WEEK6_DOWNLOADS.md`, limited to completed2026Week5/current-season updates, not historical seasons.
+
+
 Local importer for the paid Fantasy Points Data Suite CSV exports. Code, the table registry and these docs are in the repo;
 **the data is not**. The repository is public and the exports are licensed, so `FantasyPoints/` is gitignored and nothing in
 the importer publishes a licensed value. Only `--publish-status` writes a metadata-only file (table names, week, state).
@@ -33,7 +48,7 @@ The manifest is written last, atomically. A crash leaves only content-addressed 
 
 ## What an export is (found from the real files)
 
-Every export is a **season-to-date** table with a two-row header (group row, column row), data rows, one blank line and a
+Legacy initial exports were **season-to-date** tables with a two-row header (group row, column row), data rows, one blank line and a
 glossary footer. There is **no week column and no week in the filename**. The only week information is `G` (games played),
 so GOING records `through_games = max(G)`. That equals the week until all teams have had their bye (week 14), after which
 `through_week` is left empty and only `through_games` is used. Consequences:
