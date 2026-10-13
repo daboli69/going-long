@@ -6,6 +6,7 @@ not model promotion. Content and known-at receipts remain independently auditabl
 import datetime as dt
 import hashlib
 import json
+import math
 import re
 from pathlib import Path
 
@@ -72,7 +73,19 @@ def inspect_file(path, inbox, registry, season, week, now, first_seen):
         return {**info, 'problem': 'Unsupported column signature'}, None
     headers, columns = parsed['headers'], parsed['columns']
     season_ix = next((i for i, x in enumerate(headers) if x.lower() == 'season'), None)
-    years = {int(row[season_ix]) for row in parsed['rows'] if season_ix is not None and row[season_ix].isdigit()}
+    name_ix = next((i for i, x in enumerate(headers) if x.lower() in {'name', 'coach', 'unit', 'team'}), None)
+    rank_ix = next((i for i, x in enumerate(headers) if x.lower() == 'rank'), None)
+    summary_rows, detail_rows = [], []
+    for row in parsed['rows']:
+        label = row[name_ix].strip().lower() if name_ix is not None else ''
+        aggregate = (not label or label in {'league avg', 'league average'}) and rank_ix is not None and not row[rank_ix]
+        (summary_rows if aggregate else detail_rows).append(row)
+    years = set()
+    if season_ix is not None:
+        values = [to_number(row[season_ix]) for row in detail_rows]
+        if not values or any(x is None or not math.isfinite(x) or x != int(x) for x in values):
+            return {**info, 'problem': 'Invalid explicit season'}, None
+        years = {int(x) for x in values}
     folder = next((re.fullmatch(r'week\s+(\d+)', part, re.I) for part in path.relative_to(inbox).parts[:-1]
                    if re.fullmatch(r'week\s+(\d+)', part, re.I)), None)
     target = int(folder[1]) if folder else None
@@ -80,7 +93,7 @@ def inspect_file(path, inbox, registry, season, week, now, first_seen):
     if len(years) > 1:
         return {**info, 'problem': 'Mixed seasons'}, None
     exported = receipt_time(parsed)
-    if not years and folder and exported and exported.year == season:
+    if season_ix is None and folder and exported and exported.year == season:
         info['season'] = season  # User declared new weekly-folder exports current-season.
         info['season_source'] = 'operator_folder_and_export_receipt'
     if info['season'] != season:
@@ -90,13 +103,6 @@ def inspect_file(path, inbox, registry, season, week, now, first_seen):
     if not exported or exported > now or now - exported > dt.timedelta(days=8):
         return {**info, 'problem': 'Missing, future or old export receipt'}, None
     games_ix = next((i for i, x in enumerate(headers) if x.upper() == 'G'), None)
-    name_ix = next((i for i, x in enumerate(headers) if x.lower() in {'name', 'coach', 'unit', 'team'}), None)
-    rank_ix = next((i for i, x in enumerate(headers) if x.lower() == 'rank'), None)
-    summary_rows, detail_rows = [], []
-    for row in parsed['rows']:
-        label = row[name_ix].strip().lower() if name_ix is not None else ''
-        aggregate = (not label or label in {'league avg', 'league average'}) and rank_ix is not None and not row[rank_ix]
-        (summary_rows if aggregate else detail_rows).append(row)
     games = [to_number(row[games_ix]) for row in detail_rows] if games_ix is not None else []
     if not games or any(x is None or x < 1 or x != int(x) or x > week - 1 for x in games):
         return {**info, 'problem': 'Invalid or future completed-game count'}, None

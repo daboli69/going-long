@@ -22,7 +22,7 @@ export function deriveResearch(datasets,{season,week,now=Date.now()}){
    const name=metric(r,columns,'NAME'),position=metric(r,columns,'POS'),t=team(metric(r,columns,'TEAM')||(!playerTable?name:'')),entity={name,team:t,position};
    if(!t||typeof t!=='string')continue;
    if(playerTable){
-    const id=[name,metric(r,columns,'TEAM'),position].join('|');if(!name||!position||seen.get(id)!==1)continue;
+    const id=[name,metric(r,columns,'TEAM'),position].join('|');if(typeof name!=='string'||!name.trim()||name.length>128||typeof position!=='string'||!position.trim()||position.length>16||seen.get(id)!==1)continue;
     const fp=metric(r,columns,'FP'),xfp=metric(r,columns,'XFP');
     if(finite(fp)&&finite(xfp)&&fp<xfp)add(players,id,entity,`${period} production trailed provider expected fantasy opportunity. Descriptive, not a bounce-back forecast.`);
     for(const [m,label] of [['RTE %','route participation'],['BACKFIELD XFP %','backfield opportunity share']]){

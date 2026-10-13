@@ -4115,6 +4115,7 @@ function loadPrivateModel(text){
 }
 function classicPoolIntel(pool){GoingDfsSim.assignRoles(pool);try{GoingDfsClassicField.annotate(pool);}catch{GoingDfsClassicField.clear();}return pool;}
 function rootDfsReady(){return typeof GoingDfsClassicUI!=='undefined'&&!!$('dfsClassicRoot');}
+globalThis.addEventListener('going-fp-research-ready',()=>{if(BET.tab==='dfs')renderDfs();else renderBetting();});
 function renderDfs(){
  const fpPeriod=globalThis.GoingFpResearch?.predictionPeriod(BET.context);if(fpPeriod)GoingFpResearch.refresh(fpPeriod);
  const panel=$('btDfsPanel');if(!panel||BET.tab!=='dfs')return;$('dfsClassicRoot').hidden=DFS_STATE.contest==='showdown'||(DFS_STATE.source==='model'&&$('dfsAdvanced').open);$('dfsClassicAccess').setAttribute('aria-pressed',!$('dfsClassicRoot').hidden);$('dfsCaptainAccess').setAttribute('aria-pressed',DFS_STATE.contest==='showdown');$('dfsResearchAccess').setAttribute('aria-pressed',DFS_STATE.source==='model'&&$('dfsClassicRoot').hidden);

@@ -50,6 +50,12 @@ class AutoloadTests(unittest.TestCase):
     def test_future_folder_historical_season_old_receipt_and_future_games_hold(self):
         for p in [self.put(self.inbox/'Week 7'),self.put(self.week,'old.csv',season=2025),self.put(self.week,'stale.csv',exported='2026-09-30 12:00'),self.put(self.week,'future.csv',games=6),self.put(self.week,'clock.csv',exported='2026-10-14 12:00')]:
             self.assertIsNone(self.inspect(p)[1])
+    def test_explicit_invalid_or_historical_season_cannot_be_inferred(self):
+        for season in ['2025.0', '2025x', '', '2026x', '2026.5']:
+            self.assertIsNone(self.inspect(self.put(self.week, season=season))[1])
+        self.assertIsNotNone(self.inspect(self.put(self.week, season='2026.0'))[1])
+        p=self.put(self.week);p.write_bytes(p.read_bytes().replace(b'2026,,League Avg', b',,League Avg'))
+        self.assertIsNotNone(self.inspect(p)[1])
     def test_known_at_is_immutable_no_retrospective_prediction_backfill(self):
         self.put(self.week);sync(self.root,REG,2026,6,NOW);later=NOW+dt.timedelta(minutes=5);sync(self.root,REG,2026,6,later)
         d=model_inputs(self.root,2026,6,later);self.assertEqual(d[0]['known_at'],NOW.isoformat());self.assertEqual(model_inputs(self.root,2026,6,NOW-dt.timedelta(seconds=1)),[])

@@ -25,3 +25,16 @@ test('browser renders authorized notes safely and logout or a period change remo
  await browser.refresh({season:2026,week:6,token:'fixture',now:now+1,fetchImpl:async()=>({ok:true,json:async()=>envelope})});assert.match(browser.panel({player:'Player',team:'BUF'}),/&lt;script&gt;/);
  await browser.refresh({season:2026,week:7,token:null,now:now+2});assert.equal(browser.panel({player:'Player',team:'BUF'}),'');
 });
+
+test('nonscalar identities never expose input objects',async()=>{
+ const {deriveResearch}=await import('../server/fp-research.mjs');const d=ds();d.records[0]['Player Details.Name']={licensed_metric:12345};assert.equal(deriveResearch([d],{season:2026,week:6,now}).players.length,0);
+});
+test('newest period request queued during older response replaces evidence',async()=>{
+ let release;const calls=[];const fetchImpl=async url=>{calls.push(url);if(calls.length===1)await new Promise(r=>release=r);const week=url.includes('week=7')?7:6;return {ok:true,json:async()=>({schema:'going-private-fp-research-v1',season:2026,week,players:[],teams:[]})};};
+ const first=browser.refresh({season:2026,week:6,token:'old',now:now+10,fetchImpl});await browser.refresh({season:2026,week:7,token:'new',now:now+11,fetchImpl});release();await first;assert.equal(calls.length,2);assert.match(calls[1],/week=7/);assert.match(browser.status,/Week 7/);
+});
+
+test('logout cancels queued authenticated refresh',async()=>{
+ let release;let calls=0;const fetchImpl=async()=>{calls++;await new Promise(r=>release=r);return {ok:true,json:async()=>({schema:'going-private-fp-research-v1',season:2026,week:6,players:[{name:'Player',team:'BUF',position:'WR',notes:['private']}],teams:[]})};};
+ const first=browser.refresh({season:2026,week:6,token:'A',now:now+20,fetchImpl});await browser.refresh({season:2026,week:7,token:'B',now:now+21,fetchImpl});await browser.refresh({season:2026,week:7,token:null,now:now+22});release();await first;assert.equal(calls,1);assert.equal(browser.panel({player:'Player',team:'BUF'}),'');
+});

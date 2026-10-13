@@ -209,3 +209,7 @@ opener). Declare only what you filtered in Fantasy Points; a 2-week range (G=2) 
   as STALE, not as an error. Export full season-to-date tables.
 * Weekly history before 2026 is not reconstructible with point-in-time fidelity (see Leakage model).
 * Registry glossary text is not committed (vendor text); it lives in the archived raw files.
+
+Independent review repairs: explicit Season columns require valid integral current-season values (inference only when absent); backend requires zoned real-calendar timestamps and flat scalar records; nonscalar identities cannot reach derived responses; stale queued requests are canceled on logout; successful reads redraw the current view. Installer replaces only its receipt-verified reader and confirms the replacement. Storage restriction policy is recreated transactionally, rather than trusting a same-name policy.
+
+Activation prerequisite: the tracked site currently has no supported Supabase sign-in/session creation flow. Token discovery alone does not authenticate the owner. A supported owner sign-in, owner-ID allowlist and server credentials are required before the protected evidence path can be used. This authentication/storage activation is not deployed or approved.

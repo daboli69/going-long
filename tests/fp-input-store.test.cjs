@@ -15,3 +15,10 @@ test('private upload uses authenticated service storage, returns metadata and wi
 test('malformed or mixed period data cannot overwrite private inputs',async()=>{
  const m=await import('../server/fp-input-store.mjs');for(const change of [d=>d.datasets[0].season=2025,d=>d.datasets[0].observed_week=6,d=>d.datasets[0].exported_at='bad',d=>d.licensed=false]){const d=fixture();change(d);assert.throws(()=>m.validateInputs(d));}
 });
+
+test('private provenance requires zoned real calendar clocks and flat scalar rows',async()=>{
+ const m=await import('../server/fp-input-store.mjs');
+ for(const clock of ['2026-10-13T20:00:00','2026-02-30T20:00:00Z','2026-10-13T24:00:00Z','2026-10-13T20:00:00+25:00']){const d=fixture();d.datasets[0].known_at=clock;assert.throws(()=>m.validateInputs(d));}
+ const d=fixture();d.datasets[0].records[0].NAME={licensed_metric:12345};assert.throws(()=>m.validateInputs(d));
+ assert.ok(Number.isFinite(m.awareTime('2026-10-13T20:00:00.123456+00:00')));
+});
