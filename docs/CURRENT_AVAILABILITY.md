@@ -50,3 +50,20 @@ Rollback: revert the availability repair commit as a unit, including both engine
 mirrors and scope-producing builders. Do not leave new restricted snapshots in
 use with an older engine that ignores their scope; restore paired prior snapshots
 or keep availability paused during rollback.
+
+## Released verification
+
+PR22/code50135bd95d64b22b2d3f477b06c887368da26786 is deployed. Exact-code
+CI38643644775 passed888Node and619Pythonrun(614pass,5existing skips), both
+builds; dependency audit0. Natural refresh38643644513 published data commit
+1209d064d6b301f4b6106bf59e5cc4f8f6e69ae5:167verified player reports,
+74of865profile availability gates pass and69severe reports remain excluded.
+Live JavaScript/Python profile decisions and repeat-refresh guards match; the
+live banner displays limited coverage at1280/390px without overflow. Old engine
+checks against the restricted contract clear0profiles. Independent review found
+two release blockers that were repaired; follow-up independent approval was
+unavailable due to reviewer usage limits. Root reproduced both fixes.
+
+The overall refresh remains red solely because NFL props coverage is degraded
+and incomplete. Injury/roster steps and publication integrity succeeded; this
+release does not claim all odds providers are healthy or all players verified.
