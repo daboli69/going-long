@@ -39,3 +39,26 @@ Rollback: revert the provider recovery implementation commit. No database,
 credentials, availability engines, model weights or licensed CSV inputs change.
 Keep the Recovery Supabase/Vercel settings and schema2 availability contract from
 PRs19–22; see CURRENT_AVAILABILITY.md. Original paused Supabase remains intact.
+
+## Released verification
+
+PR23 merged as `c1eb439b3eef88a4bf8b2565247b4598f46fe704`. Exact-main application
+validation38646575589 passed888Node and626Pythonrun(621passed,5existing skips),
+both builds. Local full dependency audit found0advisories. Code deployment
+3aqRejugHKE2bBqqdi5Bi4rvHLGL succeeded.
+
+Ordinary refresh38646575488 finished **success**, healthy/publication_ready true,
+no issues, source failures or publication failures. Actual props query returned
+503/PROPS_TEMPORARILY_BUSY and recovered on the existing bounded retry; all four
+source states are FRESH. Data commit `34003bc5a5ca9e2c5700a25c6c7506b8a6df2e54`
+contains9356core and1358derivative quotes, possibly_truncated false. This verifies
+recovery for this run, not permanent provider reliability or a causal experiment
+proving serialization alone fixed the provider.
+
+Savant API returned HTTP403 from GitHub, versus200 from the local direct check.
+The public CSV loaded13842rows. Its partial-context warning remains visible and
+non-blocking; no access-control bypass or fabricated API success. API access from
+GitHub requires the source operator's support if needed; retries do not fix403.
+
+Ignored receipts: `.cache/refresh-provider-recovery/validation.json`,
+`exact-main-ci.log`, `hosted-refresh.log`, `hosted-health/refresh-health.json`.
