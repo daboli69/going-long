@@ -195,6 +195,7 @@ def audit(root=ROOT, now=None, outcomes=None, changed=None):
         states = states if isinstance(states, dict) else {}
         required = ('odds', 'props', 'derivatives') if sport == 'nfl' else ('odds',)
         artifacts.setdefault(name, {}).update(feed_status=doc.get('feed_status'), source_states=states,
+                                               source_errors=mapping(doc.get('source_errors')),
                                                last_attempt_at=doc.get('last_attempt_at'),
                                                last_fresh_at=doc.get('last_fresh_at'))
         if doc.get('feed_status') != 'FRESH' or doc.get('refresh_status') != 'FRESH':
@@ -337,6 +338,12 @@ def main():
                 f.write('- ' + issue + '\n')
             for warning in report['warnings']:
                 f.write('- Warning: ' + warning + '\n')
+            for name, artifact in report['artifacts'].items():
+                for source, reason in artifact.get('source_errors', {}).items():
+                    # Text only: provider diagnostics must not inject summary markup.
+                    import html
+                    detail = html.escape(str(reason)).replace('`', '&#96;')
+                    f.write(f'\n<pre>{name} / {source}: {detail}</pre>\n')
             f.write('\nSuccessful snapshots may be retained; no failed source is marked fresh.\n')
     print(text)
     if args.publication_check:

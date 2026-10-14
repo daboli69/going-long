@@ -2,6 +2,7 @@
 import csv
 import io
 import os
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 import requests
@@ -10,29 +11,53 @@ from build_pipeline import atomic_json
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def public_get(url, **kwargs):
+    """One bounded retry for transient failures of these free public sources."""
+    for attempt in range(2):
+        try:
+            response = requests.get(url, **kwargs)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as exc:
+            status = getattr(getattr(exc, 'response', None), 'status_code', None)
+            transient = isinstance(exc, (requests.Timeout, requests.ConnectionError)) or status in (429, 500, 502, 503, 504)
+            if not transient or attempt:
+                raise
+            from parlay_feed import retry_after_seconds
+            headers = getattr(getattr(exc, 'response', None), 'headers', {})
+            delay = max(2, retry_after_seconds(headers.get('Retry-After')))
+            print(f'[savant] transient {status or type(exc).__name__}; retry 2/2 in {delay:g}s', flush=True)
+            time.sleep(delay)
+
+
+def failure_reason(exc):
+    status = getattr(getattr(exc, 'response', None), 'status_code', None)
+    return f'{type(exc).__name__} HTTP {status}' if status else type(exc).__name__
+
+
 def build(season=None):
     season = season or int(os.getenv('SEASON', datetime.now().year))
     now = datetime.now(timezone.utc).isoformat()
     output = {'season':season,'observed_at':now,'sources':{},'team_context':[], 'usage':'Secondary descriptive context only. Acquisition time is not historical availability.'}
     base = 'https://nflsavant.com'
     try:
-        r = requests.get(base+'/api/league',params={'season':season},timeout=30);r.raise_for_status();body=r.json()
+        r = public_get(base+'/api/league',params={'season':season},timeout=30);body=r.json()
         if body.get('season') != season or not isinstance(body.get('teams'),list):raise ValueError('Unexpected Savant season schema')
         output['team_context']=[{'team':t['abbr'],'completed_wins_losses':t.get('wins',0)+t.get('losses',0),'metrics':{k:t.get('m',{}).get(k) for k in ('net_epa','proe','sec_play','plays_g','pass_epa','def_pass_epa','def_rush_epa')}} for t in body['teams']]
         output['sources']['savant_api']={'status':'loaded','url':r.url,'teams':len(output['team_context']),'week':body.get('week')}
     except (requests.RequestException,ValueError,KeyError) as exc:
-        output['sources']['savant_api']={'status':'unavailable','reason':type(exc).__name__}
+        output['sources']['savant_api']={'status':'unavailable','reason':failure_reason(exc)}
     url=f'https://pub-e9a6e73e336047fba26374ae44334139.r2.dev/pbp-{season}.csv'
     rows=None
     try:
-        r=requests.get(url,timeout=60);r.raise_for_status()
+        r=public_get(url,timeout=60)
         reader=csv.DictReader(io.StringIO(r.text))
         if not {'game_id','season','play_id'}.issubset(reader.fieldnames or []):raise ValueError('Not a play-by-play CSV')
         rows=list(reader)
         if not rows or any(int(x['season']) != season for x in rows):raise ValueError('Wrong season or empty file')
         output['sources']['savant_csv']={'status':'loaded','url':url,'rows':len(rows)}
     except (requests.RequestException,ValueError,KeyError) as exc:
-        output['sources']['savant_csv']={'status':'unavailable','url':url,'reason':type(exc).__name__}
+        output['sources']['savant_csv']={'status':'unavailable','url':url,'reason':failure_reason(exc)}
     if rows is None:
         try:
             import nflreadpy as nfl

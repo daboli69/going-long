@@ -37,6 +37,50 @@ class ParlayTests(unittest.TestCase):
             rows = request_rows('nfl','props',{},'secret')
         self.assertTrue(rows.truncated)
 
+    def test_partial_headers_keep_redacted_actionable_diagnostics_without_paid_retry(self):
+        response = self.response(200, [], {
+            'x-result-has-more': 'false', 'x-result-truncated': 'true',
+            'x-result-degraded': 'book-a,book-b',
+            'x-result-truncated-hint': 'internal cap; secret\n narrow query',
+            'x-request-id': 'request-secret',
+        })
+        with patch('parlay_feed.requests.get', return_value=response) as get:
+            rows = request_rows('nfl', 'props', {'limit': 10000}, 'secret')
+        self.assertTrue(rows.truncated)
+        self.assertEqual(get.call_count, 1)
+        self.assertEqual(rows.diagnostics[0]['degraded_books'], 'book-a,book-b')
+        self.assertIn('internal cap', rows.diagnostics[0]['hint'])
+        self.assertNotIn('secret', json.dumps(rows.diagnostics))
+        self.assertNotIn('\n', rows.diagnostics[0]['hint'])
+
+    def test_repeated_pagination_offset_stops_without_duplicate_request(self):
+        response = self.response(200, [{'page': 1}], {'x-result-has-more': 'true', 'x-next-offset': '0'})
+        with patch('parlay_feed.requests.get', return_value=response) as get:
+            rows = request_rows('nfl', 'props', {'limit': 10000}, 'secret')
+        self.assertTrue(rows.truncated)
+        self.assertEqual(get.call_count, 1)
+        self.assertEqual(len(rows), 1)
+
+    def test_props_boards_do_not_overlap_or_increase_request_budget(self):
+        import threading
+        active = 0
+        lock = threading.Lock()
+        def get(sport, endpoint, params, key):
+            nonlocal active
+            if endpoint == 'props':
+                with lock:
+                    active += 1
+                    self.assertEqual(active, 1)
+                # Yield long enough that the old concurrent implementation overlaps.
+                threading.Event().wait(.05)
+                with lock:
+                    active -= 1
+            return ProviderRows()
+        with patch.dict('os.environ', {'PARLAY_API_KEY': 'fixture'}), patch('parlay_feed.request_rows', side_effect=get) as calls:
+            result = _fetch_parlay('nfl')
+        self.assertEqual(calls.call_count, 4)
+        self.assertEqual(result['feed_status'], 'FRESH')
+
     def test_503_retry_policy_uses_provider_code(self):
         cases = [
             ('DB_NOT_READY', 30, True),
