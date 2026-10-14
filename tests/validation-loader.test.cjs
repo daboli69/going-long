@@ -28,3 +28,15 @@ test('Only outcomes linked to eligible predictions enter performance loading',as
 test('Automatic tracked research loads its own results without scanning unrelated closings',async()=>{
  const {loadJournal}=await import('../apps/validation/load-journal.mjs');const row=(kind,id,payload)=>({table:'market_journal',owner_id:'owner',kind,id,payload});const c=client([row('prediction','r',{actionable:false,tracking_group:'all_model'}),row('settlement','s',{prediction_id:'r'})]);const r=await loadJournal(c,'owner','2026-01-01','2026-09-12');assert.ok(r.records.some(x=>x.id==='s'));
 });
+
+test('Live and archived predictions, results and prices form one complete private review',async()=>{
+ const {loadJournal}=await import('../apps/validation/load-journal.mjs');
+ const p={id:'p',kind:'prediction',observed_at:'2026-09-01T12:00:00Z',payload:{actionable:true}};
+ const s={id:'s',kind:'settlement',observed_at:'2026-09-02T12:00:00Z',payload:{prediction_id:'p'}};
+ const close={id:'c',kind:'closing',observed_at:'2026-09-01T13:00:00Z',payload:{prediction_id:'p'}};
+ const calls=[];
+ const result=await loadJournal(client([{...p,table:'market_journal',owner_id:'owner'}]),'owner','2026-01-01','2026-10-01',{archiveReader:async(kind,since,until,options)=>{calls.push([kind,options]);return {prediction:[p],settlement:[s],closing:[close]}[kind];}});
+ assert.deepEqual(new Set(result.records.map(r=>r.id)),new Set(['p','s','c']));
+ assert.equal(calls[0][1].eligiblePreview,true);assert.ok(calls[1][1].predictionIds.has('p'));assert.ok(calls[2][1].predictionIds.has('p'));
+ await assert.rejects(loadJournal(client([]),'owner','2026-01-01','2026-10-01',{archiveReader:async()=>{throw Error('missing archive');}}),/missing archive/);
+});

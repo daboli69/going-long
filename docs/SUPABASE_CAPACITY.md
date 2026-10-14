@@ -1,8 +1,10 @@
 # Supabase capacity investigation — October 14, 2026
 
-Status: read-only diagnosis complete; recovery is not implemented. No production rows,
-indexes, policies, credentials or plans changed. The user approved resuming the existing
-Free project, but Supabase refused because its database is reported as 2.0 GB.
+Status: lossless archive and authenticated reader implemented locally. User created a
+new Free project (GOING Recovery) and submitted the prepared account/schema restoration.
+New hosted baseline after setup: 11,327,155 bytes, one restored account, no relational
+journal rows. Archive upload/hosted validation and application cutover are in progress.
+Original paused project and backup are intact. No upgrade or deletion occurred.
 
 ## Evidence
 
@@ -49,8 +51,68 @@ Recommended design to prototype before any production migration:
    hosted working set, or revisit capacity as history grows. Do not promise unlimited
    all-history cloud queries on a finite Free plan.
 
-This is an architecture proposal, not authorization to delete, migrate or create a
-replacement production database. Those steps require a concrete verified recovery plan.
+The user authorized this recovery path and personally created the new Free project and
+submitted credential-restoring setup. No original data deletion is part of the recovery.
+GOING still points at the original project until hosted checks and controlled cutover.
+
+## Implementation and reproduced results
+
+- `scripts/journal_archive.py build/verify`: exact original COPY rows, bounded 8 MiB raw
+  gzip shards, SHA-256 manifests and disk-backed ID/hash reconciliation. No network or
+  database mutations. Existing destinations are never overwritten; incomplete results
+  are never promoted. Public/build paths and nested private-directory tricks rejected.
+- Actual source: all 1,140,107 journal rows verified in 93 shards / 104,040,969 gzip bytes.
+  `received_at`, original IDs, ownership, payload text and every research observation
+  remain present. A verified persistent copy, original backup and recovery files are
+  under `%LOCALAPPDATA%/GOING/private/recovery-20261014`, outside Git and OneDrive.
+- `compact`: new private SQL backup retaining every non-journal SQL byte, recent rows
+  and bet-referenced predictions; all omitted relational journal rows remain in the
+  verified archive. Actual source has no rows since September 30 or placed bets, so the
+  candidate is 44,845 gzip bytes with zero hot journal rows. This is a recovery candidate,
+  not a blindly executable replacement for managed Supabase platform schemas.
+- `bootstrap`: empty-target guard, original auth account/identity/session records,
+  source-column checks, public append-only schema and owner-protected private buckets.
+  Populated unsupported feature tables or incomplete COPY sections stop restoration.
+  Managed platform migration histories stay in the full backup, not transplanted onto
+  a newer platform. No password reset or original-project change.
+- Real auth/schema script independently restored in an isolated PostgreSQL fixture:
+  accounts1, identities1, sessions16, refresh tokens72, AMR claims16; JSON metadata types
+  retained. Hosted setup subsequently returned account1 and 11.3 MB database size.
+- Journal-only PostgreSQL16 restore with PK/cursor indexes: 1,031,315,456 relation bytes.
+  Therefore even rebuilding only the essential indexes does not make this dataset fit
+  500 MB relationally. Isolated compact journal plus auth/schema fixture: about 8.3 MB,
+  excluding the hosted platform's baseline; hosted size must be measured separately.
+- `apps/validation/journal-archive.mjs` and loader: authenticated owner-folder reads,
+  bounded decompression, hashes/counts/ownership/time bounds checked, live/archive union
+  with semantic duplicate checking. Missing/corrupt history fails visibly rather than
+  silently scoring incomplete results. Archive enablement defaults off, configured by
+  `GOING_JOURNAL_ARCHIVE=1`; public tracker unchanged. Logout invalidates pending loads.
+- Actual offline reader parity: same 58,332 performance-view records as original source
+  (32,525 predictions, 25,807 settlements), identical sorted-ID digest. Source has no
+  actionable predictions; unused closing rows remain preserved, not invented as CLV.
+- Owner-only Storage RLS tested on isolated PostgreSQL, including an existing broad
+  permissive policy: anonymous read denied, cross-owner read denied, browser writes denied.
+  Browser upload labels gzip as `application/x-gzip`; bounded private bucket explicitly
+  allows this equivalent MIME type alongside `application/gzip` and JSON.
+- Independent review found and repaired unsafe output-path acceptance, unsupported
+  nonempty feature-table omission, and missing COPY terminator checks. Focused independent
+  verification: 9 Node + 14 Python tests passed. Final full checks use the ignored
+  `.cache/supabase-size/` receipt/logs and exact revision recorded there.
+
+## Remaining cutover and growth gates
+
+Do not point GOING at the new project until archive uploads and authenticated reads are
+verified, old/new owner IDs agree, hosted size is under quota and current code is released.
+Preserve the original Vercel URL/key configuration for rollback. Restored auth sessions
+use a new project's signing keys, so users must sign in again; original login credentials
+are preserved rather than reset.
+
+This release is one-time recovery, not an unlimited free-storage guarantee. Scanner
+`Journal.sync()` remains an unbounded mirror if reconfigured to the new project. Do not
+repoint that writer before verified ongoing archive rotation/capacity controls are ready.
+Public refreshes do not need that mirror; current private FP object is replaced in place.
+Monitor object storage and egress as well as relational growth; finite Free capacity
+cannot promise indefinitely hosted access to unlimited observation history.
 
 ## Relevant application findings
 
@@ -81,5 +143,5 @@ so a smaller replacement does not guarantee immediate removal of existing restri
 cannot exceed 50 MB per object. The 109 MB backup cannot be uploaded as one object;
 private archives require smaller shards and a separately checked storage/egress budget.
 
-Independent code reviewer checked the query/sync paths and passed 3/3 private-loader
-tests. No full suite rerun was warranted for this documentation-only investigation.
+Initial code reviewer checked query/sync paths and passed 3/3 original private-loader
+tests; implementation and additional independent review/results are recorded above.
