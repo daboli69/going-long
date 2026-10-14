@@ -18,7 +18,7 @@ from . import fields as fieldmod
 from . import identity as idmod
 from . import registry as regmod
 from .parse import ParseError, column_types, parse_export, sha256, to_number
-from .store import (GOOD, Manifest, RunLock, atomic_write, clean_temporaries, find_inbox, freshness, public_status, scope_dir, snapshot_key, write_json)
+from .store import (GOOD, Manifest, RunLock, atomic_write, clean_temporaries, find_inbox, inbox_files, freshness, public_status, scope_dir, snapshot_key, write_json)
 
 MIN_TEAMS_PLAYER = 24
 MIN_TEAMS_TEAM = 28
@@ -512,14 +512,14 @@ class Importer:
     def _run(self, inbox):
         cleaned, cleanup_failures = clean_temporaries(self.root)
         results = []
-        files = sorted((p for p in inbox.iterdir() if p.is_file() and p.suffix.lower() == '.csv'
-                        and (not self.only or any(fnmatch.fnmatch(p.name.lower(), pattern.lower()) for pattern in self.only))),
+        files = sorted((p for p in inbox_files(inbox)
+                        if not self.only or any(fnmatch.fnmatch(str(p.relative_to(inbox)).lower(), pattern.lower()) or fnmatch.fnmatch(p.name.lower(), pattern.lower()) for pattern in self.only)),
                        key=lambda p: (p.stat().st_mtime, p.name))
         for path in files:
             try:
                 data = path.read_bytes()
                 mtime = iso(datetime.datetime.fromtimestamp(path.stat().st_mtime, datetime.timezone.utc))
-                results.append(self.import_file(path.name, data, mtime))
+                results.append(self.import_file(str(path.relative_to(inbox)), data, mtime))
             except Exception as error:  # one dataset failing must not stop the others or the rest of the refresh
                 results.append({'file': path.name, 'outcome': 'error', 'reason': {'code': type(error).__name__, 'message': str(error)}})
                 if self.hooks.get('raise_errors'):

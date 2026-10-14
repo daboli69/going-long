@@ -38,6 +38,13 @@ def find_inbox(root):
     raise FileNotFoundError(f'no Inbox folder inside {root}')
 
 
+def inbox_files(inbox):
+    """All CSVs, including weekly folders; never follow a file outside the inbox."""
+    inbox = Path(inbox).resolve()
+    return sorted((p for p in inbox.rglob('*') if p.is_file() and p.suffix.lower() == '.csv'
+                   and p.resolve().is_relative_to(inbox)), key=lambda p: str(p.relative_to(inbox)).lower())
+
+
 def atomic_write(path, data):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
