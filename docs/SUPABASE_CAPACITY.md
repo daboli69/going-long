@@ -3,7 +3,7 @@
 Status: lossless archive and authenticated reader implemented locally. User created a
 new Free project (GOING Recovery) and submitted the prepared account/schema restoration.
 New hosted baseline after setup: 11,327,155 bytes, one restored account, no relational
-journal rows. Archive upload/hosted validation and application cutover are in progress.
+journal rows. All93shards+owner manifest uploaded, downloaded and SHA-256 matched. Hosted post-upload size11,679,411database bytes/104,091,099private object bytes (94objects), bucketpublic=false. Authenticated access/cutover verification remains in progress.
 Original paused project and backup are intact. No upgrade or deletion occurred.
 
 ## Evidence
