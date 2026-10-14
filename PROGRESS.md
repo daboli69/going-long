@@ -35,6 +35,7 @@
 - Latest public refresh at upstream `67ed9a3` still failed: core and derivative props HTTP503, other components retained. Read-only offline health audit correctly refuses healthy status. No production actions or paid provider calls.
 
 ## Working
+- Owner BUILDER/MODEL: user prioritizes numerical CSV impact. Frozen receiving coverage-mixture Challenger protocol config/fp_model_protocol.json; acceptance numeric output actually changes with eligible coverage inputs, exact identity/scope/time guards, private per-input receipt ledger; no arbitrary all-feature multiplier or unvalidated production promotion. Other families retained for separate feature/model gates. Intake code releasedPR16/17;4a739dd, live endpoint now safe503unconfigured, exact-mainCI successful.
 - Private hosted sync/model consumption remains blocked on backend credentials/storage deployment; only local ingestion and private adapters active. No claim live Champion uses CSVs yet.
 - Five-role model debate: TD allocation, game lines/totals, general props, market/calibration, independent adversarial reconciliation. Isolated research files, current-season point-in-time features, fixed training/development/evaluation and clustered uncertainty; no automatic live retuning or repeated holdout selection.
 
