@@ -57,3 +57,13 @@ test('missing separation reference cannot be interpreted as zero',async()=>{
 test('missing alignment counts cannot produce a dominant-role claim',async()=>{
  const {deriveResearch}=await import('../server/fp-research.mjs');for(const missing of [null,'',undefined]){const d=ds();d.table='receiving_routes_run';d.columns.push('Wide.RTE','Slot.RTE');Object.assign(d.records[0],{'Wide.RTE':10,'Slot.RTE':missing});assert.doesNotMatch(deriveResearch([d],{season:2026,week:6,now}).players[0].notes.join(' '),/most recorded routes/);}
 });
+
+test('private numeric preview is visible only for the matching player and future matchup',async()=>{
+ const kickoff=new Date(Date.now()+86400000).toISOString(),row={name:'Player',team:'BUF',position:'WR',opponent:'NE',market:'rec_yds',status:'prospective_research_not_promoted',mean:52.5,baseline:60,delta:-7.5,kickoff};
+ const data={schema:'going-private-fp-research-v1',season:2026,week:6,players:[],teams:[],challenger:{forecasts:[row]}};
+ await browser.refresh({season:2026,week:6,token:'numeric-preview',now:now+100,fetchImpl:async()=>({ok:true,json:async()=>data})});
+ assert.match(browser.panel({player:'Player',team:'BUF',opponent:'NE',kickoff}),/52.5 receiving yards/);assert.match(browser.panel({player:'Player',team:'BUF',opponent:'NE',kickoff}),/not yet validated/);
+ assert.equal(browser.panel({player:'Player',team:'BUF',opponent:'MIA',kickoff}),'');assert.equal(browser.panel({player:'Player',team:'BUF',opponent:'NE',kickoff:new Date(Date.now()+172800000).toISOString()}),'');
+ data.challenger.forecasts={};assert.equal(browser.panel({player:'Player',team:'BUF',opponent:'NE',kickoff}),'');
+ await browser.refresh({season:2026,week:6,token:null,now:now+101});
+});

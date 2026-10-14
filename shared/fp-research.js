@@ -25,7 +25,10 @@ function panel(p){
  const found=evidence.players.filter(x=>x&&Array.isArray(x.notes)&&x.notes.every(n=>typeof n==='string')&&team(x.team)===team(p.team)&&norm(x.name)===norm(p.player||p.name)&&(!p.position||x.position===p.position));
  const notes=found.length===1?found[0].notes.slice():[];
  for(const t of evidence.teams)if(t&&Array.isArray(t.notes)&&t.notes.every(n=>typeof n==='string')&&[p.team,p.opponent,p.home,p.away].filter(Boolean).some(x=>team(t.team)===team(x)))notes.push(...t.notes.map(n=>`${t.team}: ${n}`));
- return notes.length?`<details class="dfs-method"><summary>Private current-season research</summary><ul>${[...new Set(notes)].map(n=>'<li>'+esc(n)+'</li>').join('')}</ul><p>Source: your private FantasyPoints inputs. Descriptive evidence; no forecast adjustment or established betting edge.</p></details>`:'';
+ const own=team(p.team),opponent=team(p.opponent||(team(p.home)===own?p.away:team(p.away)===own?p.home:''));
+ const models=(Array.isArray(evidence.challenger?.forecasts)?evidence.challenger.forecasts:[]).filter(x=>x&&team(x.team)===own&&team(x.opponent)===opponent&&norm(x.name)===norm(p.player||p.name)&&(!p.position||x.position===p.position)&&(!p.kickoff||Date.parse(p.kickoff)===Date.parse(x.kickoff))&&x.status==='prospective_research_not_promoted'&&x.market==='rec_yds'&&[x.mean,x.baseline,x.delta].every(v=>typeof v==='number'&&Number.isFinite(v))&&Date.parse(x.kickoff)>Date.now());
+ const model=models.length===1?`<p><strong>CSV model challenger: ${models[0].mean.toFixed(1)} receiving yards</strong> · season average ${models[0].baseline.toFixed(1)} · change ${models[0].delta>=0?'+':''}${models[0].delta.toFixed(1)} yards.</p><p>Route volume × receiver performance versus the opponent's man/zone coverage mix; unclassified coverage keeps the player's overall rate. Experimental numeric forecast; not yet validated or used for recommendations.</p>`:'';
+ return notes.length||model?`<details class="dfs-method"><summary>Private current-season research</summary>${model}<ul>${[...new Set(notes)].map(n=>'<li>'+esc(n)+'</li>').join('')}</ul><p>Source: your private FantasyPoints inputs. Production forecasts unchanged; no established betting edge.</p></details>`:'';
 }
 root.GoingFpResearch={refresh,panel,predictionPeriod,get status(){return status;}};
 if(typeof module==='object')module.exports=root.GoingFpResearch;

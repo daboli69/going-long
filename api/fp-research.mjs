@@ -1,5 +1,7 @@
 import {readPrivateInputs} from '../server/fp-input-store.mjs';
 import {deriveResearch} from '../server/fp-research.mjs';
+import {buildFpModel} from '../server/fp-model.mjs';
+import {loadFpModelContext} from '../server/fp-model-context.mjs';
 export default async function handler(req,res){
  res.setHeader('Cache-Control','private, no-store');res.setHeader('Vercel-CDN-Cache-Control','no-store');
  const send=(status,data)=>{res.statusCode=status;res.setHeader('Content-Type','application/json');res.end(JSON.stringify(data));};
@@ -17,6 +19,11 @@ export default async function handler(req,res){
   if(!r.ok)return send(401,{error:'Session expired'});const user=await r.json();
   if(!allowed.includes(user.id))return send(403,{error:'Private research access denied'});
   const datasets=await readPrivateInputs({season,week,knownBy:new Date().toISOString()});
-  return send(200,deriveResearch(datasets,{season,week}));
+  const research=deriveResearch(datasets,{season,week});
+  try{
+   const context=await loadFpModelContext({season,week});
+   research.challenger={...buildFpModel(datasets,{season,week,games:context.games,profiles:context.profiles}),contextSources:context.sources,contextClocks:context.clocks};
+  }catch{research.challenger={status:'Private projection context unavailable; forecasts unchanged',forecasts:[]};}
+  return send(200,research);
  }catch{return send(503,{error:'Private research unavailable; forecasts unchanged'});}
 }
