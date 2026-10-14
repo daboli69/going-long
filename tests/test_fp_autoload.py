@@ -2,6 +2,9 @@ import csv
 import datetime as dt
 import io
 import json
+import hashlib
+import gzip
+import base64
 import sys
 import tempfile
 import unittest
@@ -9,7 +12,7 @@ from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from fp_autoload import prediction_period, main
+from fp_autoload import prediction_period, main, encode_upload, uploader_settings
 from fp_ingest.parse import parse_export
 from fp_ingest.store import inbox_files
 from fp_ingest.weekly import inspect_file, model_inputs, sync
@@ -92,10 +95,25 @@ class AutoloadTests(unittest.TestCase):
         target=self.root/'model_inputs';target.mkdir();(target/'current.json').write_text(json.dumps({'datasets':[{'sha256':'toy','scope':'prior_week'}]}))
         schedule=self.root/'schedule.json';schedule.write_text('{}')
         report={'season':2026,'prediction_week':6,'files_scanned':1,'accepted':1,'sync':'local_only_backend_not_configured'}
-        response=io.StringIO(json.dumps({'ok':True,'season':2026,'week':6,'datasets':1}));response.status=200
+        response=io.StringIO(json.dumps({'ok':True,'season':2026,'week':6,'datasets':1,'inputSha256':hashlib.sha256((target/'current.json').read_bytes()).hexdigest()}));response.status=200
         with patch('fp_autoload.prediction_period',return_value=(2026,6)),patch('fp_autoload.sync',return_value=report),patch.dict('os.environ',{'GOING_FP_INGEST_URL':'https://going-long.vercel.app/api/fp-ingest','GOING_FP_INGEST_TOKEN':'a'*32},clear=True),patch('fp_autoload.urllib.request.urlopen',return_value=response) as send:
             self.assertEqual(main(['--root',str(self.root),'--schedule',str(schedule)]),0);self.assertEqual(main(['--root',str(self.root),'--schedule',str(schedule)]),0);self.assertEqual(send.call_count,1)
             self.assertEqual(json.loads((target/'status.json').read_text())['sync'],'private_backend_unchanged_no_upload')
+            envelope=json.loads(send.call_args.args[0].data)
+            self.assertEqual(gzip.decompress(base64.b64decode(envelope['data'])),(target/'current.json').read_bytes())
+    def test_large_upload_is_lossless_and_bounded(self):
+        body=json.dumps({'note':'x'*7_500_000}).encode()
+        wire=encode_upload(body);self.assertLess(len(wire),4_000_000)
+        envelope=json.loads(wire);self.assertEqual(gzip.decompress(base64.b64decode(envelope['data'])),body)
+        self.assertEqual(envelope['sha256'],hashlib.sha256(body).hexdigest())
+        with self.assertRaises(ValueError):encode_upload(b'x'*8_000_001)
+    def test_private_local_settings_and_explicit_environment_precedence(self):
+        folder=self.root/'GOING/private';folder.mkdir(parents=True)
+        (folder/'fp-uploader.json').write_text(json.dumps({'endpoint':'https://going-long.vercel.app/api/fp-ingest','token':'a'*32}))
+        with patch.dict('os.environ',{'LOCALAPPDATA':str(self.root)},clear=True):
+            self.assertEqual(uploader_settings(),('a'*32,'https://going-long.vercel.app/api/fp-ingest'))
+        with patch.dict('os.environ',{'LOCALAPPDATA':str(self.root),'GOING_FP_INGEST_TOKEN':'b'*32},clear=True):
+            self.assertEqual(uploader_settings(),('b'*32,None))
     def test_new_folder_unnumbered_one_game_is_not_guessed_as_weekly(self):
         p=self.put(self.inbox/'Week 7');i,d=inspect_file(p,self.inbox,REG,2026,7,NOW,{});self.assertIsNone(d);self.assertIn('conflicts',i['problem'])
     def test_private_player_adapter_matches_exact_identity_and_keeps_scope_variants(self):
