@@ -7,11 +7,39 @@ import urllib.request
 import time
 import sys
 import hashlib
+import gzip
+import base64
 from pathlib import Path
 from fp_ingest.registry import load
 from fp_ingest.store import RunLock
 from fp_ingest.store import write_json
 from fp_ingest.weekly import sync
+
+
+def encode_upload(body):
+    if len(body) > 8_000_000:
+        raise ValueError('Private inputs exceed expanded storage limit')
+    encoded = json.dumps({'encoding': 'gzip-base64-v1', 'sha256': hashlib.sha256(body).hexdigest(),
+                          'data': base64.b64encode(gzip.compress(body, compresslevel=6, mtime=0)).decode('ascii')},
+                         separators=(',', ':')).encode('utf-8')
+    if len(encoded) > 4_000_000:
+        raise ValueError('Private inputs exceed compressed upload limit')
+    return encoded
+
+
+def uploader_settings():
+    token, endpoint = os.environ.get('GOING_FP_INGEST_TOKEN'), os.environ.get('GOING_FP_INGEST_URL')
+    if token or endpoint:
+        return token, endpoint
+    # Outside Git/OneDrive; only the limited ingest token belongs on this PC.
+    # Existing environment configuration remains supported.
+    local = os.environ.get('LOCALAPPDATA')
+    if local:
+        config = Path(local) / 'GOING/private/fp-uploader.json'
+        if config.exists():
+            data = json.loads(config.read_text(encoding='utf-8'))
+            return data.get('token'), data.get('endpoint')
+    return None, None
 
 
 def prediction_period(schedule, now=None):
@@ -42,8 +70,7 @@ def main(argv=None):
     season, week = prediction_period(schedule)
     with RunLock(a.root):
         report = sync(a.root, load(), season, week)
-        token = os.environ.get('GOING_FP_INGEST_TOKEN')
-        endpoint = os.environ.get('GOING_FP_INGEST_URL')
+        token, endpoint = uploader_settings()
         if token and endpoint:
             if endpoint != 'https://going-long.vercel.app/api/fp-ingest' or len(token) < 32:
                 raise ValueError('Private uploader configuration invalid')
@@ -58,11 +85,11 @@ def main(argv=None):
                 print(json.dumps({'sync':report['sync'],'accepted':report['accepted']}))
                 return 0
             try:
-                request = urllib.request.Request(endpoint, data=body, method='POST', headers={
+                request = urllib.request.Request(endpoint, data=encode_upload(body), method='POST', headers={
                     'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'})
                 with urllib.request.urlopen(request, timeout=20) as response:
                     receipt = json.load(response)
-                    if response.status != 200 or receipt.get('ok') is not True or receipt.get('season') != season or receipt.get('week') != week or receipt.get('datasets') != len(bundle['datasets']):
+                    if response.status != 200 or receipt.get('ok') is not True or receipt.get('season') != season or receipt.get('week') != week or receipt.get('datasets') != len(bundle['datasets']) or receipt.get('inputSha256') != hashlib.sha256(body).hexdigest():
                         raise RuntimeError('Private upload rejected')
                 report['sync'] = 'private_backend_updated'
                 write_json(published_path, {'fingerprint':fingerprint,'endpoint':endpoint,'at':dt.datetime.now(dt.timezone.utc).isoformat()})

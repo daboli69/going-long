@@ -146,14 +146,29 @@ private archives require smaller shards and a separately checked storage/egress 
 Initial code reviewer checked query/sync paths and passed 3/3 original private-loader
 tests; implementation and additional independent review/results are recorded above.
 
-## Credential incident and activation hold
+## Credential incident resolved; archive connection live
 
 A browser selector error included the new recovery project's legacy service-role JWT in
 a tool response. Treat it as exposed; no key is committed or repeated in these docs.
-Activation is blocked until the owner disables legacy API keys and revokes the legacy
-JWT signing key (disabling API keys alone leaves their JWT validity intact). Existing
-opaque publishable/secret keys replace legacy app keys. Browser credential changes are
-handed to the owner; do not use the exposed key or claim revocation before verifying it.
+Legacy API keys are disabled and the previous legacy JWT signing key is revoked.
+Both direct API-key and Bearer-JWT probes now return HTTP401; the current ECC signing
+key is unchanged. The exposed key was never used for recovery uploads. Original
+GOING credentials and its paused database remain intact. The published validation
+configuration now points to Recovery with private archive reading enabled.
+
+Release PR19 merged as 432fc0ab17d32dfba13231b8498d91b5136a4dbf; exact-main
+CI38632850266 and Vercel deployment succeeded. All 93 hosted shards and the manifest
+were downloaded and matched to the local hashes. Recovery uses 11,679,411 database
+bytes and 104,091,099 private Storage bytes for 94 objects. All 1,140,107 source rows
+remain preserved; the existing reader's 58,332 prediction/settlement IDs match exactly.
+SQL role checks show owner94 objects, other authenticated users0, anonymous0.
+Authenticated owner UI readback still requires signing into GOING itself.
+
+Private CSV server settings remain unconfigured. The original organization quota
+warning can persist through the prior billing-cycle average; no paid plan was enabled.
+Do not repoint the unbounded scanner mirror until future archive rotation/capacity
+controls are verified. This recovery preserves existing history; it does not establish
+unlimited ongoing Free-plan capacity.
 
 The private input storage adapter now supports SUPABASE_SECRET_KEY, sending opaque
 sb_secret keys only as apikey, not as a Bearer JWT; legacy credentials remain compatible

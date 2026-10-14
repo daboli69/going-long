@@ -1,5 +1,25 @@
 # Fantasy Points Data Suite ingestion
 
+## October 14 bounded private uploads
+
+The actual Week 6 bundle contains 38 datasets and 7,585,508 normalized bytes. Sending
+it as plain JSON exceeds Vercel's request limit. The uploader now uses a versioned
+gzip/base64 envelope: 958,831 bytes for that exact captured bundle, with no rows or
+precision removed. The server authenticates before expansion, caps the request at
+4,000,000 bytes and expanded content at 8,000,000 bytes, and checks the original-byte
+SHA-256 before validating or replacing the private object. The PC records publication
+only after the server acknowledges that same hash, season, week and dataset count.
+Corruption, over-limit inputs and outages retain the previous hosted object.
+
+Existing environment settings remain supported. Alternatively the limited uploader
+token and exact endpoint can be stored in `%LOCALAPPDATA%/GOING/private/fp-uploader.json`
+as `token` and `endpoint`; this file is outside Git and OneDrive. Supabase server keys
+belong only in Vercel, never in that PC uploader configuration. The server supports
+`SUPABASE_SECRET_KEY`; opaque keys are sent as `apikey`, not as Bearer JWTs.
+These transport checks do not establish model accuracy or promote the Challenger.
+Hosted CSV activation still requires the server-only key, owner allowlist and matching
+ingest token. Recovery storage/schema and the archive reader are deployed separately.
+
 ## October 13 automatic private intake
 
 `fp_autoload.py` scans the Inbox recursively, selects the prediction week from dated future NFL games, parses Data Suite2.0 headers/footer receipts, and builds **private** model inputs. `Week N` prepares the upcoming week; prior-week rows are Week N−1, kept separate from cumulative totals. Future folders, historical seasons, old receipts, stale cumulative game counts and contradictory weekly suffixes are held. Week6/2026 is the operator-confirmed initial batch; future folders use `(1)` for the prior-week counterpart. A copied weekly checksum cannot be relabeled as a different week.
