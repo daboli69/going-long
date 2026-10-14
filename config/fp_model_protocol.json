@@ -1,5 +1,5 @@
 {
-  "schema": "going-fp-numeric-protocol-v1",
+  "schema": "going-fp-numeric-protocol-v2",
   "frozen_on": "2026-10-13",
   "status": "prospective_research_not_promoted",
   "season": 2026,
@@ -11,7 +11,7 @@
     10
   ],
   "hypothesis": "Current-season receiver performance conditional on opposing man/zone usage improves receiving-yards means versus the same-player current-season average. Other CSV families enter a private covariate ledger for separately tested extensions, not automatic invented multipliers.",
-  "formula": "receiving_yards = (current_season_routes / games) * (opponent_man_share * player_yards_per_route_vs_man + opponent_zone_share * player_yards_per_route_vs_zone)",
+  "formula": "receiving_yards = (routes/games) * (opponent_man_share*player_man_YPRR + opponent_zone_share*player_zone_YPRR + unclassified_share*player_overall_YPRR)",
   "sources": [
     "receiving_advanced",
     "receiving_man_vs_zone",
@@ -22,9 +22,9 @@
     "Current-season source clocks known before target kickoff and export age<=8days",
     "Same player game and overall-route counts in receiving and coverage tables",
     "Man and zone route counts both positive; combined count not above overall routes",
-    "Opponent coverage shares sum to100 within1percentage point; normalize rounding only",
     "Current eligibility remains a separate mandatory recommendation gate",
-    "No derived win probability, confidence boost, ROI claim or automatic model promotion"
+    "No derived win probability, confidence boost, ROI claim or automatic model promotion",
+    "Coverage percent shares must be0..100 and sum<=100 within0.1rounding; preserve unclassified coverage mass using player overall YPRR, an explicit neutral imputation assumption. Never renormalize incomplete man/zone shares."
   ],
   "baselines": [
     "exact production Champion mean at capture",
@@ -55,5 +55,6 @@
     "passing depth/pressure",
     "expected fantasy points/expected touchdowns"
   ],
-  "next_extensions": "Pre-register opportunity/TD/game-line models separately once source units, point-in-time coverage and outcomes support fitting."
+  "next_extensions": "Pre-register opportunity/TD/game-line models separately once source units, point-in-time coverage and outcomes support fitting.",
+  "amendment_before_outcomes": "Source-schema inspection showed man+zone shares91.1..99.5, not exhaustive. V1 withheld most inputs. V2 explicitly retains unclassified mass at baseline overall rate. No future outcome, fit or score used to select this rule."
 }
