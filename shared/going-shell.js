@@ -5,9 +5,9 @@
  document.body.dataset.goingWorkspace=workspace;
  const assetRoot=new URL('.',script.src);
  for(const name of ['design-tokens.css','consumer-ui.css','visual-system.css','visual-research-cards.css','visual-pages.css',...(workspace==='long'?['reference-workspace.css']:[])]){const link=document.createElement('link');link.rel='stylesheet';link.href=new URL(name,assetRoot).href;document.head.append(link);}
- const names={home:'',long:'LONG',yard:'YARD',results:'LONG',roster:'LONG'};
+ const names={home:'',long:'LONG',missions:'LONG',yard:'YARD',results:'LONG',roster:'LONG'};
  const shell=document.createElement('div');shell.id='going-shell';shell.setAttribute('role','banner');
- const links=[['home','Home','/'],['long','Football','/long/?mode=betting'],['yard','Baseball','/yard/?mode=betting'],['roster','Players','/players/'],['results','Results','/results/']];
+ const links=[['home','Home','/'],['long','Football','/long/?mode=betting'],['missions','Missions','/missions/'],['yard','Baseball','/yard/?mode=betting'],['roster','Players','/players/'],['results','Results','/results/']];
  shell.innerHTML=`<div class="going-shell-inner"><a class="going-wordmark" href="${base}/" aria-label="GOING home"><span>GOING</span>${names[workspace]?`<span class="going-wordmark-sport">${names[workspace]}</span>`:''}<i aria-hidden="true"></i></a><nav class="going-global-nav" aria-label="GOING navigation">${links.map(([key,label,url])=>`<a href="${base}${url}"${workspace===key?' aria-current="page"':''}>${label}</a>`).join('')}</nav></div>`;
  document.body.prepend(shell);
  const visual=document.createElement('script');visual.src=new URL('visual-system.js',assetRoot).href;document.head.append(visual);
