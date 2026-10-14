@@ -56,6 +56,16 @@ class AutoloadTests(unittest.TestCase):
         self.assertIsNotNone(self.inspect(self.put(self.week, season='2026.0'))[1])
         p=self.put(self.week);p.write_bytes(p.read_bytes().replace(b'2026,,League Avg', b',,League Avg'))
         self.assertIsNotNone(self.inspect(p)[1])
+    def test_overwritten_weekly_file_survives_as_verified_separate_archive(self):
+        path=self.put(self.week);sync(self.root,REG,2026,6,NOW)
+        path.write_bytes(data(games=5));r=sync(self.root,REG,2026,6,NOW)
+        self.assertEqual(r['accepted'],2)
+        d=model_inputs(self.root,2026,6,NOW)
+        self.assertEqual({x['scope'] for x in d},{'prior_week','season_to_date'})
+        archived=next(x for x in d if x['scope']=='prior_week')
+        self.assertEqual(archived['source'],'immutable_raw_archive')
+        (self.root/'raw/inbox-autoload'/f"{archived['sha256']}.csv").write_text('corrupt')
+        self.assertEqual(sync(self.root,REG,2026,6,NOW)['accepted'],1)
     def test_known_at_is_immutable_no_retrospective_prediction_backfill(self):
         self.put(self.week);sync(self.root,REG,2026,6,NOW);later=NOW+dt.timedelta(minutes=5);sync(self.root,REG,2026,6,later)
         d=model_inputs(self.root,2026,6,later);self.assertEqual(d[0]['known_at'],NOW.isoformat());self.assertEqual(model_inputs(self.root,2026,6,NOW-dt.timedelta(seconds=1)),[])

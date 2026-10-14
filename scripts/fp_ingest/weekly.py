@@ -30,6 +30,7 @@ def kind_of(parsed, registry):
         ('efficiency', {'XFP/G', 'XFP %', 'RuXFP', 'ReXFP'}),
         ('receiving_advanced', {'1READ %', 'RTE %', 'RecXFP'}),
         ('rushing_advanced', {'RYOE', 'ZONE SUCC %', 'YACO/ATT'}),
+        ('separation_role', {'SEP SCORE', 'ADOR', 'RTE %'}) if 'X (Wide, On the Line)' in g else
         ('separation_routes', {'SEP SCORE', 'ADOR', 'RTE %'}),
         ('separation_coverage', {'SEP SCORE', 'ADOR', '+3 Rate'}),
         ('passing_advanced', {'QBSK', 'TTT', 'P2S %'}),
@@ -62,10 +63,10 @@ def receipt_time(parsed):
     return None
 
 
-def inspect_file(path, inbox, registry, season, week, now, first_seen):
+def inspect_file(path, inbox, registry, season, week, now, first_seen, source_relative=None):
     data = path.read_bytes()
     digest = hashlib.sha256(data).hexdigest()
-    rel = str(path.relative_to(inbox))
+    rel = source_relative or str(path.relative_to(inbox))
     info = {'path': rel, 'sha256': digest, 'known_at': first_seen.get(digest, now.isoformat()), 'status': 'held'}
     parsed = parse_export(data)
     kind = kind_of(parsed, registry)
@@ -86,7 +87,7 @@ def inspect_file(path, inbox, registry, season, week, now, first_seen):
         if not values or any(x is None or not math.isfinite(x) or x != int(x) for x in values):
             return {**info, 'problem': 'Invalid explicit season'}, None
         years = {int(x) for x in values}
-    folder = next((re.fullmatch(r'week\s+(\d+)', part, re.I) for part in path.relative_to(inbox).parts[:-1]
+    folder = next((re.fullmatch(r'week\s+(\d+)', part, re.I) for part in Path(rel).parts[:-1]
                    if re.fullmatch(r'week\s+(\d+)', part, re.I)), None)
     target = int(folder[1]) if folder else None
     info.update(table=kind, season=next(iter(years)) if len(years) == 1 else None, for_week=target)
@@ -110,7 +111,7 @@ def inspect_file(path, inbox, registry, season, week, now, first_seen):
     # Initial Week 6 batch already had browser collision suffixes on cumulative
     # files. Its G=1 (1) file is weekly; future folders follow the user's strict rule.
     legacy_batch = target == 6 and season == 2026
-    weekly_suffix = bool(target and (not legacy_batch or max_games == 1) and re.search(r'\(1\)\.csv$', path.name, re.I))
+    weekly_suffix = bool(target and (not legacy_batch or max_games == 1) and re.search(r'\(1\)\.csv$', Path(rel).name, re.I))
     weekly = weekly_suffix or bool(legacy_batch and kind in WEEKLY and max_games == 1)
     if weekly_suffix and max_games != 1:
         return {**info, 'problem': '(1) declares prior-week data but G exceeds one'}, None
@@ -166,12 +167,32 @@ def sync(root, registry, season, week, now=None):
         except Exception as error:
             info = {'path': str(path.relative_to(inbox)), 'status': 'held', 'problem': str(error)}
         outcomes.append(info)
+    scanned_count = len(outcomes)
+    # Previously accepted weekly inputs survive replacement by a season-total
+    # download with the same name. Reparse immutable bytes under their original
+    # receipt/path; never trust cached normalized rows or reassign another week.
+    present = {d['sha256'] for d in documents}
+    for snapshot in sorted((base / str(season) / f'week-{week:02d}').glob('*.json')):
+        prior = json.loads(snapshot.read_text(encoding='utf-8'))
+        if prior.get('season') != season or prior.get('prediction_week') != week:
+            continue
+        for old in prior.get('datasets', []):
+            digest = old.get('sha256', '')
+            if digest in present or not re.fullmatch(r'[a-f0-9]{64}', digest) or periods.get(digest) != [season, 'prior_week', week - 1]:
+                continue
+            raw_path = root / 'raw/inbox-autoload' / (digest + '.csv')
+            if not raw_path.exists() or hashlib.sha256(raw_path.read_bytes()).hexdigest() != digest:
+                continue
+            info, document = inspect_file(raw_path, raw_path.parent, registry, season, week, now, first_seen, source_relative=old['path'])
+            if document and document['scope'] == 'prior_week' and document['observed_week'] == week - 1:
+                info['source'] = document['source'] = 'immutable_raw_archive'
+                documents.append(document); outcomes.append(info); present.add(digest)
     # Repeated bytes cannot inflate samples. Weekly and season totals stay separate.
     unique = {(d['table'], d['scope'], d['sha256']): d for d in documents}
     documents = sorted(unique.values(), key=lambda d: (d['exported_at'], d['path']))
     bundle = {'schema': 'going-private-fp-inputs-v1', 'licensed': True, 'season': season, 'prediction_week': week,
               'generated_at': now.isoformat(), 'model_status': 'feature_inputs_only_not_promoted', 'datasets': documents}
-    report = {'season': season, 'prediction_week': week, 'files_scanned': len(outcomes),
+    report = {'season': season, 'prediction_week': week, 'files_scanned': scanned_count, 'archived_weekly_retained': len(outcomes) - scanned_count,
               'accepted': len(documents), 'outcomes': outcomes, 'sync': 'local_only_backend_not_configured'}
     write_json(known_path, first_seen)
     write_json(scope_path, periods)

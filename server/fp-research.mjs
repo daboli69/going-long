@@ -10,6 +10,7 @@ const key=(columns,name)=>{
  return matches.length===1?matches[0]:undefined;
 };
 const metric=(row,columns,name)=>row[key(columns,name)];
+const scoped=(row,columns,group,name)=>{const matches=columns.filter(k=>k.toLowerCase()===(group+'.'+name).toLowerCase());return matches.length===1?row[matches[0]]:undefined;};
 export function deriveResearch(datasets,{season,week,now=Date.now()}){
  const players=new Map(),teams=new Map();
  const add=(map,id,entity,note)=>{if(!map.has(id))map.set(id,{...entity,notes:[]});const notes=map.get(id).notes;if(!notes.includes(note))notes.push(note);};
@@ -23,6 +24,19 @@ export function deriveResearch(datasets,{season,week,now=Date.now()}){
    if(!t||typeof t!=='string')continue;
    if(playerTable){
     const id=[name,metric(r,columns,'TEAM'),position].join('|');if(typeof name!=='string'||!name.trim()||name.length>128||typeof position!=='string'||!position.trim()||position.length>16||seen.get(id)!==1)continue;
+    if(d.table==='receiving_man_vs_zone'){
+     const man=scoped(r,columns,'Man','TPRR'),zone=scoped(r,columns,'Zone','TPRR');
+     if(finite(man)&&finite(zone)&&man!==zone)add(players,id,entity,`${period} target rate per route was higher against ${man>zone?'man':'zone'} coverage in this export. This split is descriptive, not an opponent-specific forecast.`);
+    }
+    if(['receiving_routes_run','separation_role'].includes(d.table)){
+     const groups=d.table==='separation_role'?['X (Wide, On the Line)','Z (Wide, Off the Line)','F (Slot)','Condensed (Wide, Reduced Split)']:['Wide','Slot','Inline','Backfield'];
+     const counts=groups.map(group=>[group,scoped(r,columns,group,'RTE')]).filter(x=>finite(x[1])&&x[1]>0).sort((a,b)=>b[1]-a[1]);
+     if(counts.length&&(!counts[1]||counts[0][1]>counts[1][1]))add(players,id,entity,`${period} most recorded routes in this breakdown came from ${counts[0][0]}. Role can change with personnel and game plan.`);
+    }
+    if(d.table.startsWith('receiving_separation_')||d.table.startsWith('separation_')){
+     const win=scoped(r,columns,'Overall','WIN RATE'),avg=Number(scoped(reference,columns,'Overall','WIN RATE'));
+     if(finite(win)&&Number.isFinite(avg)&&scoped(reference,columns,'Overall','WIN RATE')!=null&&win>avg)add(players,id,entity,`${period} overall route win rate exceeded this export’s reference. It does not establish a betting advantage.`);
+    }
     const fp=metric(r,columns,'FP'),xfp=metric(r,columns,'XFP');
     if(finite(fp)&&finite(xfp)&&fp<xfp)add(players,id,entity,`${period} production trailed provider expected fantasy opportunity. Descriptive, not a bounce-back forecast.`);
     for(const [m,label] of [['RTE %','route participation'],['BACKFIELD XFP %','backfield opportunity share']]){
