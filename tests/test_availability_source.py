@@ -23,7 +23,7 @@ class SourceTests(unittest.TestCase):
     def test_source_clock_and_hash_belong_to_exact_bytes(self):
         response = self.response('Sat, 10 Oct 2026 10:00:00 GMT')
         with patch.object(S.requests, 'get', return_value=response):
-            rows, source = S.load_source('injuries', 2026, NOW)
+            rows, source = S.load_source('rosters', 2026, NOW)
         self.assertEqual(rows[0]['gsis_id'], 'synthetic-player')
         self.assertEqual(source['content_at'], '2026-10-10T10:00:00+00:00')
         self.assertEqual(source['sha256'], S.hashlib.sha256(response.content).hexdigest())

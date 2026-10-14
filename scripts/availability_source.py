@@ -53,7 +53,9 @@ def load_source(kind, season, now=None, roster=None):
             verified = None
             weekly = nflmeta_source.fetch_week(season, week, now)
             if weekly is not None:
-                verified = nflmeta_source.verify(weekly, week, now)
+                playing = {nflmeta_source.team_code(r.get('team')) for r in roster or []
+                           if r.get('season') == season and r.get('game_type') == 'REG' and r.get('week') == week and r.get('team')}
+                verified = nflmeta_source.verify(weekly, week, now, required_teams=playing)
         except (requests.RequestException, RuntimeError, ValueError, KeyError, TypeError) as exc:
             print(f'[availability] NFLMeta verification unavailable: {exc}')
             verified = None
@@ -69,16 +71,46 @@ def load_source(kind, season, now=None, roster=None):
         report_stamps = [source_stamp(r.get('date_modified')) for r in rows
                          if r.get('season_type') == 'REG' and int(r.get('week') or 0) == week]
         dated = [t for t in report_stamps if _age_hours(t, now) is not None]
-        if not dated:
-            raise RuntimeError('injuries: current report-content timestamps unavailable; previous snapshot retained')
-        latest = min(dated, key=lambda t: _age_hours(t, now))
-        if not -.5 <= _age_hours(latest, now) <= 36:
-            raise RuntimeError('injuries: current report content stale/future; previous snapshot retained')
+        latest = min(dated, key=lambda t: _age_hours(t, now)) if dated else None
+        if not verified or not latest or not -.5 <= _age_hours(latest, now) <= 36:
+            # Midweek final game-status reports can be incomplete. A public dated
+            # player report can verify that player only, never an unlisted teammate.
+            from espn_availability import fetch_explicit
+            try:
+                explicit, fallback = fetch_explicit(roster or [], season, week, now)
+            except (requests.RequestException, RuntimeError, ValueError, KeyError, TypeError) as exc:
+                raise RuntimeError('injuries: current report content stale or unavailable; explicit-player fallback unavailable; previous snapshot retained') from exc
+            rows += explicit
+            metadata['nflverse'] = {'url': metadata['url'], 'sha256': metadata['sha256'], 'uploaded_at': stamp}
+            metadata.update(fallback)
+            metadata['sha256'] = hashlib.sha256((metadata['nflverse']['sha256'] + fallback['sha256']).encode()).hexdigest()
+            metadata['uploaded_at'] = stamp
+            metadata['content_at'] = min((stamp, fallback['report_content_at']), key=lambda t: datetime.fromisoformat(t.replace('Z', '+00:00')))
+            return rows, metadata
         metadata['uploaded_at'] = stamp
         metadata['report_content_at'] = latest
         metadata['content_at'] = max((stamp, latest), key=lambda t: _age_hours(t, now))
         metadata['timestamp_basis'] = 'Earlier of exact-byte HTTP Last-Modified and latest dated current-week report' + (' (NFLMeta club-report verification)' if 'nflmeta' in metadata else '')
     return rows, metadata
+
+
+def scoped_snapshot(payload, source):
+    if 'availability_verification' not in source:
+        return
+    payload['availability_verification'] = source['availability_verification']
+    payload['schema_version'] = 2
+    payload['status'] = 'PARTIAL'
+    key = 'source_content_at' if 'current_players' in payload else 'source_injury_at'
+    payload['restricted_' + key] = payload[key]
+    # Old/open browser engines do not understand restricted scopes. Missing the
+    # legacy clock forces them to remain paused instead of clearing everyone.
+    payload[key] = None
+
+
+def content_clock(doc, key):
+    if key in ('source_content_at', 'source_injury_at') and (doc.get('availability_verification') or {}).get('mode') == 'explicit-player-reports':
+        return doc.get('restricted_' + key)
+    return doc.get(key)
 
 
 def preserve_newer(path, payload):
@@ -96,17 +128,27 @@ def preserve_newer(path, payload):
             continue
         prior_source, source = old_sources.get(source_name), new_sources.get(source_name)
         if isinstance(prior_source, dict) and isinstance(source, dict) and prior_source.get('sha256') and prior_source['sha256'] == source.get('sha256'):
-            payload[key] = old.get(key) or prior_source.get('content_at')
-            source['content_at'] = payload[key]
+            target = 'restricted_' + key if key in ('source_content_at', 'source_injury_at') and 'availability_verification' in payload else key
+            payload[target] = content_clock(old, key) or prior_source.get('content_at')
+            source['content_at'] = payload[target]
     for key in ('source_content_at', 'source_roster_at', 'source_injury_at'):
-        prior, new = old.get(key), payload.get(key)
+        prior, new = content_clock(old, key), content_clock(payload, key)
         if key in payload and (_age_hours(new, now) is None or not -.5 <= _age_hours(new, now) <= 36):
             raise RuntimeError('Source content stale/future; previous snapshot retained')
         if prior and (not new or _age_hours(new, now) is None or
                       datetime.fromisoformat(prior.replace('Z', '+00:00')) > datetime.fromisoformat(new.replace('Z', '+00:00'))):
             raise RuntimeError('Newer production availability exists; previous snapshot retained')
-    reports = list((old.get('current_reports') or {}).values()) + [p.get('injury') for p in old.get('players', []) if isinstance(p, dict)]
-    new_injury = payload.get('source_content_at') or payload.get('source_injury_at')
-    if new_injury and any(isinstance(r, dict) and _age_hours(r.get('reported_at'), now) is not None and
-                         _age_hours(r['reported_at'], now) < _age_hours(new_injury, now) for r in reports):
-        raise RuntimeError('Newer production injury reports exist; previous snapshot retained')
+    reports = [(r.get('gsis_id'), r) for r in (old.get('current_reports') or {}).values() if isinstance(r, dict)] + [(p.get('id'), p.get('injury')) for p in old.get('players', []) if isinstance(p, dict)]
+    new_injury = content_clock(payload, 'source_content_at') or content_clock(payload, 'source_injury_at')
+    incoming = {r.get('gsis_id'): r for r in (payload.get('current_reports') or {}).values() if isinstance(r, dict)}
+    incoming.update({p.get('id'): p.get('injury') for p in payload.get('players', []) if isinstance(p, dict) and isinstance(p.get('injury'), dict)})
+    restricted = (payload.get('availability_verification') or {}).get('mode') == 'explicit-player-reports'
+    for gid, report in reports:
+        if not new_injury or not isinstance(report, dict) or _age_hours(report.get('reported_at'), now) is None or _age_hours(report['reported_at'], now) >= _age_hours(new_injury, now):
+            continue
+        # In restricted mode the dated report may be newer than the paired roster
+        # file. Compare that player's actual incoming report, not the lower bound.
+        replacement = incoming.get(gid) if gid else None
+        replacement_age = _age_hours(replacement.get('reported_at'), now) if isinstance(replacement, dict) else None
+        if not restricted or replacement_age is None or replacement_age > _age_hours(report['reported_at'], now):
+            raise RuntimeError('Newer production injury reports exist; previous snapshot retained')

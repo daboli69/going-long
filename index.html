@@ -3435,9 +3435,9 @@ function updateEligibilityBanner(){
   const engine=bettingEligibility(),host=document.getElementById('btTabGroup');if(!host)return;
   let el=document.getElementById('eligBanner');
   const stale=!engine||!engine.fresh.ok;
-  if(!stale){if(el)el.remove();return;}
+  if(!stale&&!engine.fresh.limited){if(el)el.remove();return;}
   if(!el){el=document.createElement('div');el.id='eligBanner';el.className='bt-note gt-warn';el.setAttribute('role','alert');host.parentNode.insertBefore(el,host);}
-  el.innerHTML='<b>Recommendations paused:</b> availability cannot be verified ('+esc(engine?.fresh.reason||'eligibility engine unavailable')+'). Nobody is treated as active until the next refresh; players already known to be unavailable stay excluded.';
+  el.innerHTML=stale?'<b>Recommendations paused:</b> availability cannot be verified ('+esc(engine?.fresh.reason||'eligibility engine unavailable')+'). Nobody is treated as active until the next refresh; players already known to be unavailable stay excluded.':'<b>Limited availability coverage:</b> '+esc(engine.fresh.verifiedPlayerCount)+' players have recent, individually matched injury reports. Only those players can qualify; unlisted, stale and unavailable players remain excluded. Questionable players carry a caution. Final game-day inactives still require a fresh update.';
 }
 // A tab left open keeps its data; re-check freshness every 10 minutes and pause recommendations if it has gone stale (one-way: pausing is the safe direction).
 function recheckBettingEligibility(){

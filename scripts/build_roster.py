@@ -4,7 +4,8 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path
 from build_pipeline import atomic_json
-from availability_source import load_source, preserve_newer, source_stamp
+from availability_source import load_source, preserve_newer, source_stamp, scoped_snapshot
+from nflmeta_source import severity as availability_severity
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -38,7 +39,7 @@ def normalize(roster, injuries, season, bye_teams=()):
             continue
         if any(report.get(k) for k in ('report_status','practice_status','primary_injury','secondary_injury')):
             prior=reports.get(pid)
-            if not prior or str(report['reported_at'] or '') >= str(prior['reported_at'] or ''): reports[pid]=report
+            if not prior or availability_severity(report['report_status']) > availability_severity(prior['report_status']) or (availability_severity(report['report_status']) == availability_severity(prior['report_status']) and str(report['reported_at'] or '') >= str(prior['reported_at'] or '')): reports[pid]=report
     players={}
     for r in regular:
         if int(r.get('week') or 0)!=week or r.get('status')!='ACT' or not r.get('gsis_id') or not r.get('team'):continue
@@ -73,6 +74,7 @@ def build():
                   sources={'rosters':roster_source,'injuries':injury_source},
                   source='nflverse weekly rosters and injury reports',source_url='https://github.com/nflverse/nflverse-data',
                   note='Active roster at the published weekly snapshot; teams on bye keep their latest earlier active roster (flagged bye_carry_forward, true week per player); game-day inactive status is separate. Injury report week is shown explicitly.')
+    scoped_snapshot(result, injury_source)
     preserve_newer(ROOT/'data/nfl_roster.json',result)
     atomic_json(ROOT/'data/nfl_roster.json',result)
     print(f"Roster: {len(result['players'])} players, 32 teams, week {result['week']}")

@@ -16,7 +16,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from build_pipeline import atomic_json, finite, normalize_name
-from availability_source import load_source, preserve_newer, source_stamp
+from availability_source import load_source, preserve_newer, source_stamp, scoped_snapshot
+from nflmeta_source import severity as availability_severity
 
 ROOT = Path(__file__).resolve().parents[1]
 POSITIONS = {"QB", "RB", "WR", "TE"}
@@ -199,9 +200,8 @@ def build_current(season, injury_rows, depth_rows, weekly_roster, context, pbp_r
             "primary_injury": row.get("report_primary_injury") or row.get("practice_primary_injury"), "week": report_week,
             "reported_at": source_stamp(row.get('date_modified')),
         }
-        if identity not in reports or str(candidate['reported_at'] or '') > str(reports[identity].get('reported_at') or '') or (
-                candidate['reported_at'] == reports[identity].get('reported_at') and
-                candidate["report_status"] and not reports[identity].get("report_status")):
+        prior = reports.get(identity)
+        if not prior or availability_severity(candidate['report_status']) > availability_severity(prior['report_status']) or (availability_severity(candidate['report_status']) == availability_severity(prior['report_status']) and str(candidate['reported_at'] or '') >= str(prior.get('reported_at') or '')):
             reports[identity] = candidate
 
     current = {}
@@ -347,6 +347,7 @@ def build():
             "causality": "Observed association only; not medical advice and not proof that injury caused the change.",
         },
     }
+    scoped_snapshot(payload, injury_source)
     preserve_newer(ROOT / 'data' / 'injury_context.json', payload)
     atomic_json(ROOT / "data" / "injury_context.json", payload)
     print(f"[injury context] {len(effects)} effects; {len(players)} current players; {len(reports)} reports")

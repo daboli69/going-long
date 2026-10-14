@@ -181,6 +181,7 @@ def audit(root=ROOT, now=None, outcomes=None, changed=None):
         if age is None or age < -.5 or age > 36:
             issues.append(f'{name}: missing, future or older-than-36h generation timestamp')
     fresh = E.freshness(now, docs.get('injury_context.json'), docs.get('nfl_roster.json'))
+    artifacts.setdefault('injury_context.json', {})['availability'] = fresh
     if not fresh['ok']:
         issues.append('availability: ' + fresh['reason'])
     roster = docs.get('nfl_roster.json', {})

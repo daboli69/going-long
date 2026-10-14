@@ -164,7 +164,11 @@ remain preserved; the existing reader's 58,332 prediction/settlement IDs match e
 SQL role checks show owner94 objects, other authenticated users0, anonymous0.
 Authenticated owner UI readback still requires signing into GOING itself.
 
-Private CSV server settings remain unconfigured. The original organization quota
+Private CSV settings were activated October14 by the owner; the actual 38-dataset
+upload succeeded and a downloaded hosted copy matches the local normalized inputs.
+The uploaded current object is 5,648,615 bytes; original CSVs remain on the PC.
+Only a limited ingest token is held by the PC watcher, with the Supabase secret
+confined to Vercel. The original organization quota
 warning can persist through the prior billing-cycle average; no paid plan was enabled.
 Do not repoint the unbounded scanner mirror until future archive rotation/capacity
 controls are verified. This recovery preserves existing history; it does not establish

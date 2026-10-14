@@ -1,6 +1,6 @@
 # Private CSV model integration
 
-The intake code is live through PR16/17 (`4a739dd`); private hosted access/storage/uploader configuration is still missing. The separate numeric Challenger code was published through PR18 at772d79c. It remains a research projection, not the current production recommendation model. Exact-mainCI38497339527passed833Node/586Pythonrun(581pass,5existing skips), both builds; production deployment7054624610successful. Protected endpoint correctly returns503until owner access is configured; no authenticated end-to-end data claim.
+The intake and numeric Challenger code are deployed. Private storage, owner allowlist and server/uploader settings were activated October14; actual Week6 inputs uploaded and the downloaded hosted JSON matches all38datasets semantically. Production redeployment2g9F4KfDfjJ4YJRmhRvqx3M7JTh4 uses c17c2a6f87376ebea094e79fb342ee0774233752; exact-mainCI38637011758 passed887Node/602Pythonrun(597pass5existing skips), both builds. Anonymous private API calls return401 and public Storage access fails. The Challenger remains research-only; authenticated GOING UI readback still requires owner sign-in.
 
 ## What actually changes numbers
 
@@ -22,4 +22,4 @@ Protocol: `config/fp_model_protocol.json`, frozen before outcome evaluation. The
 
 `node scripts/fp_model_local.mjs <private FantasyPoints root>` evaluates existing local inputs offline. It writes only beneath ignored `model_inputs/challenger/`, including immutable code/protocol/public-context/source receipts. Those captures explicitly lack verified availability and are **not eligible forward-performance cohorts**. No CSV or numeric metric table is published. With private configuration, the protected reader can calculate and display the separate forecast next to its season baseline; this is not a replacement for production probabilities or DFS projections.
 
-The PC watcher automatically ingests changed CSVs; authenticated model requests recompute from the uploaded current bundle. Private server configuration and a successful authenticated end-to-end smoke test remain release dependencies.
+The PC watcher automatically ingests and publishes changed CSVs while Windows is running; a second actual run correctly skipped unchanged inputs. Authenticated model requests recompute from the uploaded current bundle. An October14 downloaded-cloud-input replay with current public context produced224forecasts/205changed means/88exclusions; this is sensitivity evidence, not accuracy improvement. The protected signed-in UI/API smoke test remains unverified until owner sign-in. Other feature families remain unfitted.

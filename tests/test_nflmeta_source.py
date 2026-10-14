@@ -112,6 +112,12 @@ class MergeTests(unittest.TestCase):
 
 
 class VerifyTests(unittest.TestCase):
+    def test_partial_and_missing_playing_team_cannot_clear_league(self):
+        with self.assertRaises(RuntimeError):
+            nm.verify({'availability_reports': club_reports(coverage='partial')}, 5, NOW)
+        with self.assertRaises(RuntimeError):
+            nm.verify({'availability_reports': club_reports()}, 5, NOW, required_teams={'CAR'})
+
     def test_recent_successful_club_reports_verify_with_oldest_clock(self):
         reports = club_reports()
         reports[0]['last_checked_at'] = '2026-10-10T20:00:00Z'

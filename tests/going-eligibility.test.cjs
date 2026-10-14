@@ -6,6 +6,16 @@ const roster=(players=[],extra={})=>({generated_at:fresh,source_content_at:fresh
 const eng=(i,r=roster(),o={})=>E.create({injury:i,roster:r,week:5,now:NOW,...o});
 const d=(e,id,extra={lastGame:'2026-10-04'})=>e.decide(id,extra);
 
+test('restricted dated reports clear exact players only and disclose partial coverage',()=>{
+ const i=inj({a:'ACT',b:'ACT',o:'ACT'},{o:{report_status:'Out'}}),r=roster();i.season=r.season=2026;
+ const scope={mode:'explicit-player-reports',season:2026,week:5,players:{a:{team:'AAA',reported_at:fresh},o:{team:'AAA',reported_at:fresh}}};
+ i.availability_verification=structuredClone(scope);r.availability_verification=structuredClone(scope);
+ i.restricted_source_content_at=i.source_content_at;i.source_content_at=null;r.restricted_source_injury_at=r.source_injury_at;r.source_injury_at=null;
+ let e=eng(i,r);assert.equal(e.fresh.ok,true);assert.equal(e.fresh.limited,true);assert.equal(d(e,'a').actionable,true);assert.equal(d(e,'b').actionable,false);assert.equal(d(e,'b').verified,false);assert.equal(d(e,'o').actionable,false);
+ r.availability_verification.players.a.reported_at=old;assert.equal(eng(i,r).fresh.ok,false);
+ i.availability_verification.players.a.reported_at=old;e=eng(i,r);assert.equal(d(e,'a').actionable,false);
+});
+
 test('every status class is distinguished and non-actionable when confirmed unavailable',()=>{
  const e=eng(inj({r:'RES',i:'INA',p:'PUP',s:'SUS',t:'RET',x:'EXE',c:'CUT',d:'DEV',a:'ACT'}));
  const st=Object.fromEntries(['r','i','p','s','t','x','c','d','a'].map(k=>[k,d(e,k)]));
