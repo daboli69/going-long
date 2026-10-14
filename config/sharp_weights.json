@@ -1,0 +1,28 @@
+{
+  "version": "research-weights-v1",
+  "status": "EXPERIMENTAL_UNVALIDATED",
+  "note": "Initial weights are hypotheses taken from third-party market-convergence research (not verified, not learned from GOING data). A source's tendency to limit winners is NOT evidence for a weight. Unspecified sources have weight 0 in the research-weighted consensus. Equal-weight consensus (all fresh two-way quotes) remains the default until chronological validation of learned or research weights passes.",
+  "feature_flag": "GOING_RESEARCH_WEIGHTS",
+  "default_enabled": false,
+  "game_lines": {
+    "novig": 7.5, "fanduel": 1.1, "kalshi": 1.1, "draftkings": 1.0, "prophetx": 1.0, "polymarket": 1.0,
+    "dkpredictions": 1.0, "pinnacle": 1.0, "circa": 1.0, "4cx": 1.0, "tailgate": 1.0, "betonline": 1.0,
+    "caesars": 0.3, "betmgm": 0.1, "fanatics": 0.1
+  },
+  "player_props": {
+    "novig": 7.0, "kalshi": 7.0, "draftkings": 1.4, "prophetx": 1.4, "pinnacle": 1.4, "fanduel": 1.0,
+    "caesars": 0.5, "propbuilder": 0.5, "rebet": 0.5, "shuffle": 0.5, "fliff": 0.5, "sleeper": 0.5,
+    "bet365": 0.3, "hardrock": 0.1
+  },
+  "exchanges": {
+    "novig": {"feeRate": 0, "feeNote": "Exchange commission/spread not present in the odds feed; 0 is a placeholder, not a verified fee."},
+    "kalshi": {"feeRate": 0, "feeNote": "Same placeholder; Kalshi is not in the current feed."}
+  },
+  "aliases": {
+    "hard rock": "hardrock", "hard rock bet": "hardrock", "hardrockbet": "hardrock", "hard_rock": "hardrock",
+    "bet_mgm": "betmgm", "dk": "draftkings", "draft kings": "draftkings", "fan duel": "fanduel",
+    "bet_online": "betonline", "bet online": "betonline", "dk predictions": "dkpredictions", "dk_predictions": "dkpredictions",
+    "bet_rivers": "betrivers", "bet rivers": "betrivers", "parx casino": "parx", "caesars sportsbook": "caesars",
+    "williamhill_us": "caesars", "prophet x": "prophetx", "prophet_x": "prophetx"
+  }
+}
