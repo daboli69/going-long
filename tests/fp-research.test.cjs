@@ -53,3 +53,7 @@ test('cross-tab sign-out clears private cached notes immediately',async()=>{
 test('missing separation reference cannot be interpreted as zero',async()=>{
  const {deriveResearch}=await import('../server/fp-research.mjs');for(const value of ['', '   ', null, false]){const d=ds();d.table='separation_role';d.columns.push('Overall.WIN RATE');d.records[0]['Overall.WIN RATE']=50;d.reference_rows=[{'Overall.WIN RATE':value}];assert.doesNotMatch(deriveResearch([d],{season:2026,week:6,now}).players[0].notes.join(' '),/win rate exceeded/);}
 });
+
+test('missing alignment counts cannot produce a dominant-role claim',async()=>{
+ const {deriveResearch}=await import('../server/fp-research.mjs');for(const missing of [null,'',undefined]){const d=ds();d.table='receiving_routes_run';d.columns.push('Wide.RTE','Slot.RTE');Object.assign(d.records[0],{'Wide.RTE':10,'Slot.RTE':missing});assert.doesNotMatch(deriveResearch([d],{season:2026,week:6,now}).players[0].notes.join(' '),/most recorded routes/);}
+});
