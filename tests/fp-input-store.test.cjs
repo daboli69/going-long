@@ -16,6 +16,14 @@ test('malformed or mixed period data cannot overwrite private inputs',async()=>{
  const m=await import('../server/fp-input-store.mjs');for(const change of [d=>d.datasets[0].season=2025,d=>d.datasets[0].observed_week=6,d=>d.datasets[0].exported_at='bad',d=>d.licensed=false]){const d=fixture();change(d);assert.throws(()=>m.validateInputs(d));}
 });
 
+test('opaque server keys use apikey without invalid JWT Bearer and override legacy credentials',async()=>{
+ const m=await import('../server/fp-input-store.mjs'),d=fixture();
+ const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SECRET_KEY:'sb_secret_fixture_only',SUPABASE_SERVICE_ROLE_KEY:'old-fixture'};
+ let calls=0;const fetchImpl=async(url,options)=>{calls++;assert.equal(options.headers.apikey,env.SUPABASE_SECRET_KEY);assert.equal(options.headers.Authorization,undefined);return {ok:true,json:async()=>d};};
+ await m.writePrivateInputs(d,{env,fetchImpl});assert.equal((await m.readPrivateInputs({season:2026,week:6,knownBy:'2026-10-14T00:00:00Z'},{env,fetchImpl})).length,1);assert.equal(calls,2);
+ await assert.rejects(m.writePrivateInputs(d,{env:{...env,SUPABASE_SECRET_KEY:'sb_publishable_not_a_server_key'},fetchImpl}),/not configured/);
+});
+
 test('private provenance requires zoned real calendar clocks and flat scalar rows',async()=>{
  const m=await import('../server/fp-input-store.mjs');
  for(const clock of ['2026-10-13T20:00:00','2026-02-30T20:00:00Z','2026-10-13T24:00:00Z','2026-10-13T20:00:00+25:00']){const d=fixture();d.datasets[0].known_at=clock;assert.throws(()=>m.validateInputs(d));}

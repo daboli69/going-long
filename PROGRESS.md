@@ -53,5 +53,6 @@
 - Review controlled release with paused unsupported features; refresh only from provably fresh sources without replaying old data. Preserve ABBEYS14pick Week5 board. Capture immutable input/availability/quote receipts and untouched future outcomes before new model gates.
 
 ## Needs Travis
+- Recovery activation hold: browser selector error exposed newproject legacyservice-roleJWT in tooloutput (notGit). Owner asked to disablelegacyAPIkeys; must also revokelegacyJWTsigningkey beforeactivation, because disabledAPIkeys remainvalidJWTs. Useunexposed modernserverkey; adapter support added/tested. Nooldproductionkey ordata deletion.
 - Vercel/Supabase sign-ins completed; approved Free resume blocked by provider capacity. Prepare and validate lossless capacity recovery before requesting production DB/access changes. Server-only storage credentials, owner-ID allowlist and local uploader token remain unconfigured. Numerical model changes remain subject to Model Gate.
 - Production publication authorized Oct13 for this intake update; numerical model promotion remains unapproved. Actual Fanatics app prices/rules, official chosen-contest CSV/permitted ownership and sanitized scanner heartbeat remain external inputs.

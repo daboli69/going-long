@@ -145,3 +145,17 @@ private archives require smaller shards and a separately checked storage/egress 
 
 Initial code reviewer checked query/sync paths and passed 3/3 original private-loader
 tests; implementation and additional independent review/results are recorded above.
+
+## Credential incident and activation hold
+
+A browser selector error included the new recovery project's legacy service-role JWT in
+a tool response. Treat it as exposed; no key is committed or repeated in these docs.
+Activation is blocked until the owner disables legacy API keys and revokes the legacy
+JWT signing key (disabling API keys alone leaves their JWT validity intact). Existing
+opaque publishable/secret keys replace legacy app keys. Browser credential changes are
+handed to the owner; do not use the exposed key or claim revocation before verifying it.
+
+The private input storage adapter now supports SUPABASE_SECRET_KEY, sending opaque
+sb_secret keys only as apikey, not as a Bearer JWT; legacy credentials remain compatible
+for existing installations. Supabase migration docs explicitly require this distinction:
+https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys
