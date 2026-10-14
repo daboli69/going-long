@@ -66,6 +66,13 @@ class AutoloadTests(unittest.TestCase):
         self.assertEqual(archived['source'],'immutable_raw_archive')
         (self.root/'raw/inbox-autoload'/f"{archived['sha256']}.csv").write_text('corrupt')
         self.assertEqual(sync(self.root,REG,2026,6,NOW)['accepted'],1)
+    def test_corrupt_archive_receipt_cannot_block_current_sources(self):
+        self.put(self.week);sync(self.root,REG,2026,6,NOW)
+        (self.root/'model_inputs/2026/week-06/broken.json').write_text('{')
+        r=sync(self.root,REG,2026,6,NOW)
+        self.assertEqual(r['accepted'],1);self.assertEqual(r['files_scanned'],1)
+        self.assertEqual(r['archived_weekly_retained'],0)
+        self.assertTrue(any('Unreadable archive' in x.get('problem','') for x in r['outcomes']))
     def test_known_at_is_immutable_no_retrospective_prediction_backfill(self):
         self.put(self.week);sync(self.root,REG,2026,6,NOW);later=NOW+dt.timedelta(minutes=5);sync(self.root,REG,2026,6,later)
         d=model_inputs(self.root,2026,6,later);self.assertEqual(d[0]['known_at'],NOW.isoformat());self.assertEqual(model_inputs(self.root,2026,6,NOW-dt.timedelta(seconds=1)),[])

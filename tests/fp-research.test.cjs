@@ -49,3 +49,7 @@ test('cross-tab sign-out clears private cached notes immediately',async()=>{
  const vm=require('node:vm'),fs=require('node:fs');let storage;const context={module:{exports:{}},globalThis:null,Date,Event,localStorage:{length:0},addEventListener(type,fn){if(type==='storage')storage=fn;},dispatchEvent(){}};context.globalThis=context;vm.runInNewContext(fs.readFileSync(require.resolve('../shared/fp-research.js'),'utf8'),context);
  const b=context.module.exports;await b.refresh({season:2026,week:6,token:'fixture',now,fetchImpl:async()=>({ok:true,json:async()=>({schema:'going-private-fp-research-v1',season:2026,week:6,players:[{name:'Player',team:'BUF',position:'WR',notes:['private']}],teams:[]})})});assert.match(b.panel({player:'Player',team:'BUF'}),/private/);storage({key:'sb-project-auth-token',newValue:null});assert.equal(b.panel({player:'Player',team:'BUF'}),'');
 });
+
+test('missing separation reference cannot be interpreted as zero',async()=>{
+ const {deriveResearch}=await import('../server/fp-research.mjs');for(const value of ['', '   ', null, false]){const d=ds();d.table='separation_role';d.columns.push('Overall.WIN RATE');d.records[0]['Overall.WIN RATE']=50;d.reference_rows=[{'Overall.WIN RATE':value}];assert.doesNotMatch(deriveResearch([d],{season:2026,week:6,now}).players[0].notes.join(' '),/win rate exceeded/);}
+});

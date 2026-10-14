@@ -172,27 +172,38 @@ def sync(root, registry, season, week, now=None):
     # download with the same name. Reparse immutable bytes under their original
     # receipt/path; never trust cached normalized rows or reassign another week.
     present = {d['sha256'] for d in documents}
+    retained_count = 0
     for snapshot in sorted((base / str(season) / f'week-{week:02d}').glob('*.json')):
-        prior = json.loads(snapshot.read_text(encoding='utf-8'))
-        if prior.get('season') != season or prior.get('prediction_week') != week:
+        try:
+            prior = json.loads(snapshot.read_text(encoding='utf-8'))
+            if prior.get('season') != season or prior.get('prediction_week') != week:
+                continue
+            candidates = prior.get('datasets', [])
+            if not isinstance(candidates, list):
+                raise ValueError('Invalid archive dataset list')
+        except (ValueError, TypeError, AttributeError, OSError):
+            outcomes.append({'path': str(snapshot.relative_to(root)), 'status': 'held', 'problem': 'Unreadable archive receipt; current Inbox still processed'})
             continue
-        for old in prior.get('datasets', []):
-            digest = old.get('sha256', '')
-            if digest in present or not re.fullmatch(r'[a-f0-9]{64}', digest) or periods.get(digest) != [season, 'prior_week', week - 1]:
-                continue
-            raw_path = root / 'raw/inbox-autoload' / (digest + '.csv')
-            if not raw_path.exists() or hashlib.sha256(raw_path.read_bytes()).hexdigest() != digest:
-                continue
-            info, document = inspect_file(raw_path, raw_path.parent, registry, season, week, now, first_seen, source_relative=old['path'])
-            if document and document['scope'] == 'prior_week' and document['observed_week'] == week - 1:
-                info['source'] = document['source'] = 'immutable_raw_archive'
-                documents.append(document); outcomes.append(info); present.add(digest)
+        for old in candidates:
+            try:
+                digest = old.get('sha256', '')
+                if digest in present or not re.fullmatch(r'[a-f0-9]{64}', digest) or periods.get(digest) != [season, 'prior_week', week - 1]:
+                    continue
+                raw_path = root / 'raw/inbox-autoload' / (digest + '.csv')
+                if not raw_path.exists() or hashlib.sha256(raw_path.read_bytes()).hexdigest() != digest:
+                    continue
+                info, document = inspect_file(raw_path, raw_path.parent, registry, season, week, now, first_seen, source_relative=old['path'])
+                if document and document['scope'] == 'prior_week' and document['observed_week'] == week - 1:
+                    info['source'] = document['source'] = 'immutable_raw_archive'
+                    documents.append(document); outcomes.append(info); present.add(digest); retained_count += 1
+            except (ValueError, TypeError, KeyError, AttributeError, OSError):
+                outcomes.append({'path': str(snapshot.relative_to(root)), 'status': 'held', 'problem': 'Invalid archive entry; current Inbox still processed'})
     # Repeated bytes cannot inflate samples. Weekly and season totals stay separate.
     unique = {(d['table'], d['scope'], d['sha256']): d for d in documents}
     documents = sorted(unique.values(), key=lambda d: (d['exported_at'], d['path']))
     bundle = {'schema': 'going-private-fp-inputs-v1', 'licensed': True, 'season': season, 'prediction_week': week,
               'generated_at': now.isoformat(), 'model_status': 'feature_inputs_only_not_promoted', 'datasets': documents}
-    report = {'season': season, 'prediction_week': week, 'files_scanned': scanned_count, 'archived_weekly_retained': len(outcomes) - scanned_count,
+    report = {'season': season, 'prediction_week': week, 'files_scanned': scanned_count, 'archived_weekly_retained': retained_count,
               'accepted': len(documents), 'outcomes': outcomes, 'sync': 'local_only_backend_not_configured'}
     write_json(known_path, first_seen)
     write_json(scope_path, periods)
