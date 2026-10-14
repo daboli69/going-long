@@ -48,5 +48,5 @@
 - Review controlled release with paused unsupported features; refresh only from provably fresh sources without replaying old data. Preserve ABBEYS14pick Week5 board. Capture immutable input/availability/quote receipts and untouched future outcomes before new model gates.
 
 ## Needs Travis
-- Approval for new service-only private Supabase bucket/authenticated upload endpoint and backend deployment; service-role/token configuration is missing. Numerical model changes remain subject to Model Gate.
-- Production push/merge/deployment and any model promotion require explicit approval. Actual Fanatics app prices/rules, official chosen-contest CSV/permitted ownership and sanitized scanner heartbeat remain external inputs.
+- Configure server-only private Supabase storage credentials, owner-ID allowlist and local uploader token; user authorized production publication Oct13, credentials remain unavailable. Numerical model changes remain subject to Model Gate.
+- Production publication authorized Oct13 for this intake update; numerical model promotion remains unapproved. Actual Fanatics app prices/rules, official chosen-contest CSV/permitted ownership and sanitized scanner heartbeat remain external inputs.
