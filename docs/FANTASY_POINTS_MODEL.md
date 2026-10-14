@@ -1,6 +1,6 @@
 # Private CSV model integration
 
-The intake code is live through PR16/17 (`4a739dd`); private hosted access/storage/uploader configuration is still missing. The separate numeric Challenger below is development work, not the current production recommendation model.
+The intake code is live through PR16/17 (`4a739dd`); private hosted access/storage/uploader configuration is still missing. The separate numeric Challenger code was published through PR18 at772d79c. It remains a research projection, not the current production recommendation model. Exact-mainCI38497339527passed833Node/586Pythonrun(581pass,5existing skips), both builds; production deployment7054624610successful. Protected endpoint correctly returns503until owner access is configured; no authenticated end-to-end data claim.
 
 ## What actually changes numbers
 
