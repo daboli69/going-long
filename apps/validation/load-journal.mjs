@@ -1,5 +1,7 @@
+import {createArchiveReader,mergeJournalRows} from './journal-archive.mjs';
 // Load complete eligible results, plus a bounded preview of blocked checks.
-export async function loadJournal(client,owner,since,until){
+export async function loadJournal(client,owner,since,until,{archive=false,archiveReader}={}){
+ const history=archiveReader||(archive?createArchiveReader(client,owner):async()=>[]);
  const table=kind=>client.from('market_journal').select('id,kind,observed_at,payload').eq('owner_id',owner).eq('kind',kind);
  async function pages(build){
   let rows=[],cursor=null;
@@ -14,15 +16,15 @@ export async function loadJournal(client,owner,since,until){
  // Use the owner/kind/time cursor index and filter the small private result set in the
  // browser. JSON-expression filters and large `IN` lists caused statement timeouts on
  // production Supabase even though the same review window was otherwise inexpensive.
- const predictionRows=await pages(()=>table('prediction').gte('observed_at',since).lte('observed_at',until));
+ const predictionRows=mergeJournalRows(await pages(()=>table('prediction').gte('observed_at',since).lte('observed_at',until)),await history('prediction',since,until,{eligiblePreview:true}));
  const groups=new Set(['all_model','all_projection','best_model','best_value']);
  const predictions=predictionRows.filter(row=>row.payload?.actionable||groups.has(row.payload?.tracking_group));
  const recent=predictionRows.slice(0,100),followups=[];
  if(predictions.length){
   const predictionIds=new Set(predictions.map(row=>row.id)),actionableIds=new Set(predictions.filter(row=>row.payload?.actionable).map(row=>row.id));
-  const settlements=await pages(()=>table('settlement').gte('observed_at',since).lte('observed_at',until));
+  const settlements=mergeJournalRows(await pages(()=>table('settlement').gte('observed_at',since).lte('observed_at',until)),await history('settlement',since,until,{predictionIds}));
   followups.push(...settlements.filter(row=>predictionIds.has(row.payload?.prediction_id)));
-  if(actionableIds.size){const closings=await pages(()=>table('closing').gte('observed_at',since).lte('observed_at',until));followups.push(...closings.filter(row=>actionableIds.has(row.payload?.prediction_id)));}
+  if(actionableIds.size){const closings=mergeJournalRows(await pages(()=>table('closing').gte('observed_at',since).lte('observed_at',until)),await history('closing',since,until,{predictionIds:actionableIds}));followups.push(...closings.filter(row=>actionableIds.has(row.payload?.prediction_id)));}
  }
  const bets=await client.from('placed_bets').select('*').eq('owner_id',owner).gte('placed_at',since).order('placed_at',{ascending:false}).limit(1001);
  if(bets.error)throw bets.error;if(bets.data.length>=1000)throw Error('Too many placed bets in this window; choose fewer days.');

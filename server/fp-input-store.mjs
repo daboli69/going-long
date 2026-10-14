@@ -25,8 +25,11 @@ export function validateInputs(data){
 }
 function connection(env){
  const url=new URL(env.SUPABASE_URL||'https://invalid.invalid');
- if(url.protocol!=='https:'||!url.hostname.endsWith('.supabase.co')||!env.SUPABASE_SERVICE_ROLE_KEY)throw Error('Private storage is not configured');
- return {url:new URL('/storage/v1/object/going-fp-private/current.json',url),headers:{apikey:env.SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY}};
+ const key=env.SUPABASE_SECRET_KEY||env.SUPABASE_SERVICE_ROLE_KEY;
+ if(url.protocol!=='https:'||!url.hostname.endsWith('.supabase.co')||!key||key.startsWith('sb_publishable_'))throw Error('Private storage is not configured');
+ // Opaque secret keys go on apikey only; Bearer would be parsed as an invalid JWT.
+ // Keep existing JWT credentials compatible during controlled migrations.
+ return {url:new URL('/storage/v1/object/going-fp-private/current.json',url),headers:{apikey:key,...(key.startsWith('sb_secret_')?{}:{Authorization:'Bearer '+key})}};
 }
 export async function writePrivateInputs(data,{env=process.env,fetchImpl=fetch}={}){
  validateInputs(data);const c=connection(env);
