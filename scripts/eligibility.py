@@ -66,9 +66,33 @@ def _age_hours(stamp, now):
         return None
 
 
+def _verification(injury, roster):
+    """None is the legacy full-report contract; False is malformed restricted data."""
+    if not any(isinstance(d, dict) and 'availability_verification' in d for d in (injury, roster)):
+        return None
+    a = injury.get('availability_verification') if isinstance(injury, dict) else None
+    b = roster.get('availability_verification') if isinstance(roster, dict) else None
+    if not isinstance(injury, dict) or not isinstance(roster, dict) or injury.get('source_content_at') is not None or roster.get('source_injury_at') is not None:
+        return False
+    if not isinstance(a, dict) or set(a) != {'mode', 'season', 'week', 'players'} or a != b or type(a.get('season')) is not int or a.get('mode') != 'explicit-player-reports' or a.get('season') != injury.get('season') or a.get('season') != roster.get('season') or _week(a.get('week')) is None or _week(a.get('week')) != _week(roster.get('week')) or not isinstance(a.get('players'), dict) or not a['players']:
+        return False
+    if any(not isinstance(gid, str) or not gid.strip() or not isinstance(row, dict) or set(row) != {'team', 'reported_at'} or not isinstance(row.get('team'), str) or not row['team'].strip() or _age_hours(row.get('reported_at'), datetime.now(timezone.utc)) is None for gid, row in a['players'].items()):
+        return False
+    return a['players']
+
+
+def _verified_player(gid, team, scope, now):
+    if scope is None:
+        return True
+    row = scope.get(gid) if isinstance(scope, dict) else None
+    age = _age_hours(row.get('reported_at'), now) if row else None
+    return bool(row and row['team'] == team and age is not None and 0 <= age <= INJURY_HOURS)
+
+
 def freshness(now=None, injury=_DEFAULT, roster=_DEFAULT):
     now = now or datetime.now(timezone.utc)
     injury, roster = _documents(injury, roster)
+    scope = _verification(injury, roster)
     reasons, ok = [], True
     for label, doc, limit in (('injury file', injury, INJURY_HOURS), ('roster snapshot', roster, ROSTER_HOURS)):
         if doc is None:
@@ -85,7 +109,8 @@ def freshness(now=None, injury=_DEFAULT, roster=_DEFAULT):
             reasons.append(label + (' has no timestamp' if age is None else f' {age:.0f} hours old'))
         keys = ('source_content_at', 'source_roster_at') if label == 'injury file' else ('source_roster_at', 'source_injury_at')
         for key in keys:
-            source_age = _age_hours(doc.get(key), now)
+            stamp = doc.get('restricted_' + key) if isinstance(scope, dict) and key in ('source_content_at', 'source_injury_at') else doc.get(key)
+            source_age = _age_hours(stamp, now)
             if source_age is None or source_age > limit or source_age < -.5:
                 ok = False
                 reasons.append(label + ': ' + key + ' missing, stale or future')
@@ -99,7 +124,10 @@ def freshness(now=None, injury=_DEFAULT, roster=_DEFAULT):
     if rw is not None and _valid_injury(injury) and any(v.get('roster_week') is not None and _week(v['roster_week']) != rw for v in injury['current_players'].values()):
         ok = False
         reasons.append('roster weeks disagree')
-    return {'ok': ok, 'reason': '; '.join(reasons), 'injury_as_of': injury.get('source_content_at') if isinstance(injury, dict) else None, 'roster_as_of': roster.get('source_roster_at') if isinstance(roster, dict) else None}
+    if scope is False:
+        ok = False
+        reasons.append('restricted availability verification missing or inconsistent')
+    return {'ok': ok, 'limited': isinstance(scope, dict), 'verified_player_count': len(scope) if isinstance(scope, dict) else None, 'reason': '; '.join(reasons), 'injury_as_of': injury.get('restricted_source_content_at') if isinstance(scope, dict) else injury.get('source_content_at') if isinstance(injury, dict) else None, 'roster_as_of': roster.get('source_roster_at') if isinstance(roster, dict) else None}
 
 
 def _severity_out(report):
@@ -180,9 +208,11 @@ def blocked_ids(profiles, injury=_DEFAULT, roster=_DEFAULT, now=None, week=None)
     injury, roster = _documents(injury, roster)
     players, out = _index(injury, roster, week)
     fresh = freshness(now, injury, roster)['ok']
+    scope = _verification(injury, roster)
+    now = now or datetime.now(timezone.utc)
     bye = bye_teams(roster)
     for gid, row in players.items():
-        if not fresh or row['team'] in bye:
+        if not fresh or row['team'] in bye or not _verified_player(gid, row['team'], scope, now):
             out.add(gid)
     for gid, profile in profiles.items():
         row = players.get(gid)

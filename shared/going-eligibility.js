@@ -33,16 +33,28 @@ const hoursOld=(t,now)=>{
  if(year===0||month<1||month>12||day<1||day>days[month-1]||Number(t.slice(11,13))>23||Number(t.slice(14,16))>59||Number(t.slice(17,19))>59)return null;
  const ms=Date.parse(t);return Number.isFinite(ms)?(now-ms)/3600000:null;
 };
+function verification(injury,roster){
+ if(![injury,roster].some(d=>object(d)&&Object.hasOwn(d,'availability_verification')))return null;
+ const a=injury?.availability_verification,b=roster?.availability_verification;
+ if(injury?.source_content_at!=null||roster?.source_injury_at!=null)return false;
+ const shape=x=>Object.keys(x).sort().join(',');
+ if(!object(a)||!object(b)||shape(a)!=='mode,players,season,week'||shape(b)!==shape(a)||!Number.isInteger(a.season)||a.mode!=='explicit-player-reports'||b.mode!==a.mode||a.season!==injury?.season||a.season!==roster?.season||b.season!==a.season||weekNumber(a.week)==null||weekNumber(a.week)!==weekNumber(roster?.week)||a.week!==b.week||!object(a.players)||!object(b.players)||!Object.keys(a.players).length||Object.keys(a.players).length!==Object.keys(b.players).length)return false;
+ return Object.entries(a.players).every(([id,r])=>idOk(id)&&object(r)&&shape(r)==='reported_at,team'&&idOk(r.team)&&hoursOld(r.reported_at,Date.now())!=null&&object(b.players[id])&&shape(b.players[id])===shape(r)&&r.team===b.players[id].team&&r.reported_at===b.players[id].reported_at)?a.players:false;
+}
+function verifiedPlayer(scope,id,team,now,limits){if(scope===null)return true;const row=scope&&scope[id],age=hoursOld(row?.reported_at,now);return !!row&&row.team===team&&age!=null&&age>=0&&age<=limits.injuryHours;}
 function freshness(injury,roster,now=Date.now(),limits=LIMITS){
- const iAge=hoursOld(injury?.source_content_at,now),rAge=hoursOld(roster?.source_roster_at,now);
+ const scope=verification(injury,roster),iStamp=object(scope)?injury?.restricted_source_content_at:injury?.source_content_at;
+ const clock=(doc,key)=>object(scope)&&['source_content_at','source_injury_at'].includes(key)?doc?.['restricted_'+key]:doc?.[key];
+ const iAge=hoursOld(iStamp,now),rAge=hoursOld(roster?.source_roster_at,now);
  const freshStamp=(stamp,limit)=>{const age=hoursOld(stamp,now);return age!=null&&age>=-.5&&age<=limit;};
- const injuryOk=validInjury(injury)&&['generated_at','source_content_at','source_roster_at'].every(k=>freshStamp(injury[k],limits.injuryHours)),rosterOk=validRoster(roster)&&['generated_at','source_roster_at','source_injury_at'].every(k=>freshStamp(roster[k],limits.rosterHours));
+ const injuryOk=validInjury(injury)&&['generated_at','source_content_at','source_roster_at'].every(k=>freshStamp(clock(injury,k),limits.injuryHours)),rosterOk=validRoster(roster)&&['generated_at','source_roster_at','source_injury_at'].every(k=>freshStamp(clock(roster,k),limits.rosterHours));
  const reasons=[];
  if(!injury)reasons.push('injury file missing');else if(!validInjury(injury))reasons.push('injury file malformed');else if(!injuryOk)reasons.push(iAge==null?'injury file has no timestamp':`injury file ${Math.round(iAge)} hours old`);
  if(!roster)reasons.push('roster snapshot missing');else if(!validRoster(roster))reasons.push('roster snapshot malformed');else if(!rosterOk)reasons.push(rAge==null?'roster snapshot has no timestamp':`roster snapshot ${Math.round(rAge)} hours old`);
  const rw=weekNumber(roster?.week),weeksAgree=rw==null||(!validInjury(injury)||Object.values(injury.current_players).every(v=>v.roster_week==null||weekNumber(v.roster_week)===rw))&&[roster?.injury_week,injury?.validation?.injury_report_week].every(w=>w==null||weekNumber(w)===rw);
  if(!weeksAgree)reasons.push('roster weeks disagree');
- return {ok:injuryOk&&rosterOk&&weeksAgree,injuryOk,rosterOk,injuryAsOf:injury?.source_content_at||null,rosterAsOf:roster?.source_roster_at||null,injuryAgeHours:iAge,rosterAgeHours:rAge,reason:reasons.join('; ')};
+ if(scope===false)reasons.push('restricted availability verification missing or inconsistent');
+ return {ok:injuryOk&&rosterOk&&weeksAgree&&scope!==false,limited:object(scope),verifiedPlayerCount:object(scope)?Object.keys(scope).length:null,injuryOk,rosterOk,injuryAsOf:iStamp||null,rosterAsOf:roster?.source_roster_at||null,injuryAgeHours:iAge,rosterAgeHours:rAge,reason:reasons.join('; ')};
 }
 function severity(r){const s=String(r?.report_status||'').trim().toLowerCase();return /^out|^inactive|injured reserve|suspend/.test(s)?4:/doubtful/.test(s)?3:/questionable|game.?time|^gtd/.test(s)?2:/did not/.test(String(r?.practice_status||'').toLowerCase())?1:0;}
 // Merge the injury file (statuses incl. reserve/practice squad) with the all-teams roster snapshot (bye teams, injury objects).
@@ -65,6 +77,7 @@ function index(injury,roster,week){
 function create({injury,roster,week,now=Date.now(),limits=LIMITS}={}){
  week=weekNumber(roster?.week)??weekNumber(week);
  const idx=index(injury,roster,week),fresh=freshness(injury,roster,now,limits),asOf=injury?.generated_at||roster?.generated_at||null;
+ const scope=verification(injury,roster);
  const ctxWeek=finite(week)?week:null;
  function decide(id,{team=null,lastGame=null,hasGame=null,requireRecentGame=true}={}){
   const entry=idx.players[id],rep=idx.reports[id],rs=status(entry?.roster_status),club=team||entry?.team||null;
@@ -88,6 +101,7 @@ function create({injury,roster,week,now=Date.now(),limits=LIMITS}={}){
   if(!ACTIVE.has(rs))return mk('unknown',false,'Availability unconfirmed','The roster status is not recognized as active; not treated as active.');
   if(entry.teamConflict||(team&&entry.team&&team!==entry.team))return mk('unknown',false,'Team assignment unconfirmed','Player team assignments disagree; not treated as active.');
   if(!fresh.ok)return mk('unverified',false,'Availability unverified',`Roster/injury data is stale or missing (${fresh.reason}); nothing is assumed active until the next refresh.`);
+  if(!verifiedPlayer(scope,id,club,now,limits))return mk('unverified',false,'Availability unverified','No fresh exact-player report in the limited availability source; not treated as active.',{verified:false,fresh:false});
   if(requireRecentGame){const t=Date.parse(lastGame);if(!finite(t)||t>now||now-t>limits.staleGameDays*86400000)return mk('stale',false,'No recent game',`No appearance in the last ${limits.staleGameDays} days; history is not current form.`);}
   if(/questionable|game.?time|^gtd/.test(reportStatus))return mk('questionable',true,'Questionable','Game status questionable. Inactives are announced about 90 minutes before kickoff.',{caution:true});
   if(/did not|^dnp/.test(practice))return mk('dnp',true,'Missed practice','Did not practice this week; confirm the final report.',{caution:true});

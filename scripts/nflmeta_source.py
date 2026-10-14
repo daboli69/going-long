@@ -115,7 +115,7 @@ def fetch_week(season, week, now=None, session=None, cache_dir=None):
     return doc
 
 
-def verify(doc, week, now=None):
+def verify(doc, week, now=None, required_teams=None):
     """Every club's weekly game-status report must have been checked successfully and recently."""
     now = now or datetime.now(timezone.utc)
     clubs = {}
@@ -123,7 +123,7 @@ def verify(doc, week, now=None):
         if report.get('report_kind') != 'game_status' or report.get('week') != week:
             continue
         team = team_code(report.get('team_abbr'))
-        if report.get('last_check_status') != 'succeeded' or report.get('coverage_status') not in ('complete', 'partial'):
+        if report.get('last_check_status') != 'succeeded' or report.get('coverage_status') != 'complete':
             raise RuntimeError(f'NFLMeta {team} game-status report not verified')
         checked = report.get('last_checked_at')
         if _age_hours(checked, now) is None:
@@ -132,6 +132,8 @@ def verify(doc, week, now=None):
             clubs[team] = checked
     if len(clubs) < MIN_CLUB_REPORTS:
         raise RuntimeError(f'NFLMeta covers only {len(clubs)} club reports this week')
+    if required_teams and not set(required_teams).issubset(clubs):
+        raise RuntimeError('NFLMeta does not cover every current-week playing team')
     oldest = max(clubs.values(), key=lambda t: _age_hours(t, now))
     if not -.5 <= _age_hours(oldest, now) <= MAX_AGE_HOURS:
         raise RuntimeError('NFLMeta club reports stale/future')
