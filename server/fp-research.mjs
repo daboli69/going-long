@@ -1,6 +1,6 @@
 // Derived evidence only; raw CSVs and metric tables never leave this server path.
-import {createRequire} from 'node:module';
-const {team:canonicalTeam}=createRequire(import.meta.url)('../shared/dfs-matchup-csv.js');
+import matchupCsv from '../shared/dfs-matchup-csv.js';
+const {team:canonicalTeam}=matchupCsv;
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const team=x=>canonicalTeam(({ARZ:'ARI',BLT:'BAL',CLV:'CLE',HST:'HOU'})[String(x||'').toUpperCase()]||x);
 const key=(columns,name)=>{
