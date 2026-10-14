@@ -46,9 +46,10 @@ def quote_time(value):
 
 
 class ProviderRows(list):
-    def __init__(self, rows=(), *, truncated=False):
+    def __init__(self, rows=(), *, truncated=False, diagnostics=()):
         super().__init__(rows)
         self.truncated = truncated
+        self.diagnostics = list(diagnostics)
 
 
 def numeric(v):
@@ -162,6 +163,9 @@ def _provider_error(response, key):
 def request_rows(sport, endpoint, params, key):
     """Use one bounded, response-aware retry; never log credentials or request URLs."""
     request_params, collected, provider_truncated = dict(params), [], False
+    diagnostics = []
+    def finish(truncated):
+        return ProviderRows(collected, truncated=truncated, diagnostics=diagnostics)
     for page in range(2):  # Provider currently permits offsets only through 10,000.
         for attempt in range(2):
             delay, retryable = 2, False
@@ -201,21 +205,36 @@ def request_rows(sport, endpoint, params, key):
             print(f'[parlay] stage={endpoint}; {reason}; retry 2/2 in {delay:g}s', flush=True)
             time.sleep(delay)
         collected.extend(rows)
-        provider_truncated = provider_truncated or response.headers.get('x-result-truncated', '').strip().lower() == 'true' or response.headers.get('x-result-degraded', '').strip().lower() not in ('', 'false', '0')
+        truncated = response.headers.get('x-result-truncated', '').strip().lower() == 'true'
+        degraded = response.headers.get('x-result-degraded', '').strip()
+        degraded = degraded if degraded.lower() not in ('', 'false', '0') else ''
+        provider_truncated = provider_truncated or truncated or bool(degraded)
+        if truncated or degraded:
+            # Only allowlisted headers; never persist the response body, URL or key.
+            clean = lambda value: ' '.join(str(value).replace(key, '[REDACTED]').split())[:240]
+            diagnostics.append({
+                'offset': request_params.get('offset', 0), 'rows': len(rows),
+                'truncated': truncated, 'degraded_books': clean(degraded),
+                'hint': clean(response.headers.get('x-result-truncated-hint', '')),
+                'request_id': clean(response.headers.get('x-request-id', 'unknown')),
+            })
         if endpoint == 'props' and 'x-result-has-more' not in response.headers and len(rows) >= int(request_params.get('limit', 10000)):
             provider_truncated = True
+            diagnostics.append({'reason': 'Full page without pagination metadata'})
         has_more = response.headers.get('x-result-has-more', '').strip().lower() == 'true'
         if endpoint != 'props' or not has_more:
-            return ProviderRows(collected, truncated=provider_truncated)
+            return finish(provider_truncated)
         next_offset = response.headers.get('x-next-offset')
         try:
             next_offset = int(next_offset)
         except (TypeError, ValueError):
-            return ProviderRows(collected, truncated=True)
-        if page == 1 or next_offset > 10000:
-            return ProviderRows(collected, truncated=True)
+            diagnostics.append({'reason': 'Missing or malformed continuation offset'})
+            return finish(True)
+        if next_offset <= request_params.get('offset', 0) or page == 1 or next_offset > 10000:
+            diagnostics.append({'reason': 'Continuation exceeds bounded pagination or does not advance'})
+            return finish(True)
         request_params['offset'] = next_offset
-    return ProviderRows(collected, truncated=True)
+    return finish(True)
 
 
 def valid_odds_rows(rows):
@@ -285,6 +304,10 @@ def _fetch_parlay(sport, previous=None):
             rows = future.result()
             if getattr(rows, 'truncated', False):
                 errors[name] = 'Provider returned incomplete/degraded coverage; available quotes retained'
+                details = getattr(rows, 'diagnostics', [])
+                if details:
+                    errors[name] += '; ' + json.dumps(details, separators=(',', ':'))
+                print(f'[parlay] stage={name}; {errors[name]}', flush=True)
                 return rows, 'DEGRADED'
             return rows, 'FRESH'
         except RuntimeError as exc:
@@ -296,11 +319,13 @@ def _fetch_parlay(sport, previous=None):
         odds_future = executor.submit(get, 'odds', {'markets': 'h2h,spreads,totals', 'regions': 'us', 'oddsFormat': 'american'})
         period_future = executor.submit(get, 'live/period_markets', {'period': 'all'})
         core_future = executor.submit(get, 'props', {'markets': ','.join(core_keys), 'limit': 10000}) if sport == 'nfl' else None
-        derivative_future = executor.submit(get, 'props', {'markets': ','.join(derivative_keys), 'limit': 10000}) if sport == 'nfl' else None
         games, odds_state = resolve('odds', odds_future, previous.get('games_raw', []))
         periods, period_state = resolve('periods', period_future, previous.get('period_quotes', []))
         if sport == 'nfl':
             core_raw, props_state = resolve('props', core_future, previous_core)
+            # These share the provider's expensive props-board backend. Serialize
+            # them without adding requests, retries or dropping market families.
+            derivative_future = executor.submit(get, 'props', {'markets': ','.join(derivative_keys), 'limit': 10000})
             derivative_raw, derivative_state = resolve('derivatives', derivative_future, previous_derivatives)
             if derivative_state == 'FAILED':
                 recovered = [row for row in core_raw if MARKET_MAP.get(row.get('market_key')) in derivative_markets]

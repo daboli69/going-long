@@ -94,6 +94,19 @@ def shard_rotation(root, open_record='open'):
 
 
 class RefreshHealthTests(unittest.TestCase):
+    def test_provider_details_survive_health_report_without_relaxing_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            docs = fixtures(root)
+            doc = docs['nfl_betting.json']
+            doc.update(feed_status='FALLBACK', refresh_status='FALLBACK',
+                       source_errors={'props': 'degraded_books=book-a; request_id=fixture'})
+            doc['source_states']['props'] = 'DEGRADED'
+            (root / 'data/nfl_betting.json').write_text(json.dumps(doc))
+            report = H.audit(root, NOW)
+            self.assertFalse(report['healthy'])
+            self.assertEqual(report['artifacts']['nfl_betting.json']['source_errors'], doc['source_errors'])
+
     def test_success_is_read_only_and_content_addressed(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); fixtures(root)
