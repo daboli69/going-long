@@ -53,28 +53,34 @@ class ProviderRows(list):
         self.diagnostics = list(diagnostics)
 
 
-def props_query_plan(previous_rows):
-    """Balance the existing two requests, never add paid requests to evade a cap.
+def props_query_plan(previous_rows, partitions=2):
+    """Balance a fixed, explicitly configured number of requests.
 
     Counts are planning estimates only; response headers still decide completeness.
     Retain the legacy split for small/unknown boards. Above 80% of the serving
-    cap, distribute whole markets across two disjoint bins with growth headroom.
+    cap, distribute whole markets across disjoint bins with growth headroom.
     """
+    if partitions != 'markets' and (type(partitions) is not int or partitions not in (2, 3, 4)):
+        raise ValueError('Props query partitions must be 2, 3 or 4')
     derivatives = {market for market in GROUPS if market == 'first_td' or market.endswith(('_1h', '_1q'))}
     original = [[market for market in GROUPS if market not in derivatives],
                 [market for market in GROUPS if market in derivatives]]
+    if partitions == 'markets':
+        # Explicitly approved credit budget: narrow high-volume main markets;
+        # retain the small derivative board rather than pay for empty families.
+        return [[market] for market in original[0]] + [original[1]]
     counts = Counter(row.get('market') for row in previous_rows if isinstance(row, dict)
                      and isinstance(row.get('market'), str) and row['market'] in GROUPS)
     weights = {market: max(1, counts[market]) for market in GROUPS}
     load = lambda group: sum(weights[market] for market in group)
-    if max(map(load, original)) <= 8000:
+    if partitions == 2 and max(map(load, original)) <= 8000:
         return original
-    groups, loads = [[], []], [0, 0]
+    groups, loads = [[] for _ in range(partitions)], [0] * partitions
     for market in sorted(GROUPS, key=lambda market: (-weights[market], market)):
-        index = 0 if loads[0] <= loads[1] else 1
+        index = min(range(partitions), key=lambda index: loads[index])
         groups[index].append(market)
         loads[index] += weights[market]
-    return groups if max(loads) < max(map(load, original)) else original
+    return groups if partitions > 2 or max(loads) < max(map(load, original)) else original
 
 
 def family_state(markets, groups, states):
@@ -191,13 +197,13 @@ def _provider_error(response, key):
     return clean(code).upper(), clean(message)
 
 
-def request_rows(sport, endpoint, params, key):
+def request_rows(sport, endpoint, params, key, *, max_pages=2):
     """Use one bounded, response-aware retry; never log credentials or request URLs."""
     request_params, collected, provider_truncated = dict(params), [], False
     diagnostics = []
     def finish(truncated):
         return ProviderRows(collected, truncated=truncated, diagnostics=diagnostics)
-    for page in range(2):  # Provider currently permits offsets only through 10,000.
+    for page in range(max_pages):  # Provider currently permits offsets only through 10,000.
         for attempt in range(2):
             delay, retryable = 2, False
             try:
@@ -242,11 +248,11 @@ def request_rows(sport, endpoint, params, key):
         provider_truncated = provider_truncated or truncated or bool(degraded)
         if truncated or degraded:
             # Only allowlisted headers; never persist the response body, URL or key.
-            clean = lambda value: ' '.join(str(value).replace(key, '[REDACTED]').split())[:240]
+            clean = lambda value, limit=240: ' '.join(str(value).replace(key, '[REDACTED]').split())[:limit]
             diagnostics.append({
                 'offset': request_params.get('offset', 0), 'rows': len(rows),
                 'truncated': truncated, 'degraded_books': clean(degraded),
-                'hint': clean(response.headers.get('x-result-truncated-hint', '')),
+                'hint': clean(response.headers.get('x-result-truncated-hint', ''), 2048),
                 'request_id': clean(response.headers.get('x-request-id', 'unknown')),
             })
         if endpoint == 'props' and 'x-result-has-more' not in response.headers and len(rows) >= int(request_params.get('limit', 10000)):
@@ -263,7 +269,7 @@ def request_rows(sport, endpoint, params, key):
         except (TypeError, ValueError):
             diagnostics.append({'reason': 'Missing or malformed continuation offset'})
             return finish(True)
-        if next_offset <= request_params.get('offset', 0) or page == 1 or next_offset > 10000:
+        if next_offset <= request_params.get('offset', 0) or page == max_pages - 1 or next_offset > 10000:
             diagnostics.append({'reason': 'Continuation exceeds bounded pagination or does not advance'})
             return finish(True)
         request_params['offset'] = next_offset
@@ -320,16 +326,23 @@ def _fetch_parlay(sport, previous=None):
         raise RuntimeError('PARLAY_API_KEY is not configured')
 
     def get(endpoint, params):
+        if endpoint == 'props' and configured_partitions == 'markets':
+            return request_rows(sport, endpoint, params, key, max_pages=1)
         return request_rows(sport, endpoint, params, key)
 
     previous = previous if isinstance(previous, dict) else {}
     previous_observed = previous.get('source_observed_at')
     previous_observed = previous_observed if isinstance(previous_observed, dict) else {}
     derivative_markets = {market for market in GROUPS if market == 'first_td' or market.endswith(('_1h', '_1q'))}
-    query_groups = props_query_plan(previous.get('props', []))
+    # Increasing this consumes more included/metered credits; default stays two.
+    configured_partitions = os.getenv('PARLAY_PROPS_PARTITIONS', '2')
+    if configured_partitions not in ('2', '3', '4', 'markets'):
+        raise RuntimeError('PARLAY_PROPS_PARTITIONS must be 2, 3, 4 or markets')
+    query_groups = props_query_plan(previous.get('props', []), configured_partitions if configured_partitions == 'markets' else int(configured_partitions))
     mixed_queries = any(set(group).intersection(derivative_markets) and set(group) - derivative_markets
                         for group in query_groups)
-    query_names = ['props_partition_1', 'props_partition_2'] if mixed_queries else ['props', 'derivatives']
+    query_names = ([f'props_partition_{i+1}' for i in range(len(query_groups))]
+                   if mixed_queries or len(query_groups) != 2 else ['props', 'derivatives'])
     query_keys = [[GROUPS[market][0] for market in group] for group in query_groups]
     previous_groups = [[row for row in previous.get('props', []) if row.get('market') in group]
                        for group in query_groups]
@@ -361,21 +374,25 @@ def _fetch_parlay(sport, previous=None):
             core_raw, first_state = resolve(query_names[0], core_future, previous_groups[0])
             # These share the provider's expensive props-board backend. Serialize
             # them without adding requests, retries or dropping market families.
-            derivative_future = executor.submit(get, 'props', {'markets': ','.join(query_keys[1]), 'limit': 10000})
-            derivative_raw, second_state = resolve(query_names[1], derivative_future, previous_groups[1])
-            props_state = family_state(set(GROUPS) - derivative_markets, query_groups, [first_state, second_state])
-            derivative_state = family_state(derivative_markets, query_groups, [first_state, second_state])
-            if derivative_state == 'FAILED' and not set(query_groups[0]).intersection(derivative_markets):
+            query_rows, query_states = [core_raw], [first_state]
+            for index in range(1, len(query_groups)):
+                future = executor.submit(get, 'props', {'markets': ','.join(query_keys[index]), 'limit': 10000})
+                source_rows, source_state = resolve(query_names[index], future, previous_groups[index])
+                query_rows.append(source_rows)
+                query_states.append(source_state)
+            props_state = family_state(set(GROUPS) - derivative_markets, query_groups, query_states)
+            derivative_state = family_state(derivative_markets, query_groups, query_states)
+            if len(query_groups) == 2 and derivative_state == 'FAILED' and not set(query_groups[0]).intersection(derivative_markets):
                 recovered = [row for row in core_raw if MARKET_MAP.get(row.get('market_key')) in derivative_markets]
                 if recovered:
-                    derivative_raw, derivative_state = recovered, 'FALLBACK'
+                    query_rows[1], derivative_state = recovered, 'FALLBACK'
         else:
-            core_raw, derivative_raw = [], []
+            query_rows, query_states = [], []
             props_state = derivative_state = 'NOT_APPLICABLE'
 
     # Retained rows are already normalized; provider rows are normalized once here.
     rows = []
-    for source in (core_raw, derivative_raw):
+    for source in query_rows:
         rows.extend(source if source and 'quoteKey' in source[0] else normalize_props(source))
     period_rows = periods if periods and 'quoteKey' in periods[0] else normalize_periods(periods)
     required = [odds_state] + ([props_state, derivative_state] if sport == 'nfl' else [])
@@ -385,8 +402,8 @@ def _fetch_parlay(sport, previous=None):
         raise RuntimeError('; '.join(errors.values()) or 'Parlay returned no usable sources')
     now = datetime.now(timezone.utc).isoformat()
     state = 'FRESH' if fresh else 'FALLBACK'
-    raw_markets = [row.get('market', MARKET_MAP.get(row.get('market_key')))
-                   for source in (core_raw, derivative_raw) for row in source]
+    raw_markets = [MARKET_MAP.get(row.get('market_key')) or row.get('market')
+                   for source in query_rows for row in source]
     return {'provider': 'parlay', 'sport': sport, 'generated_at': now,
             'feed_status': state, 'refresh_status': state,
             'refresh_error': '; '.join(f'{name}: {error}' for name, error in errors.items()) or None,
@@ -402,9 +419,9 @@ def _fetch_parlay(sport, previous=None):
             'coverage': {'raw_props': sum(market not in derivative_markets for market in raw_markets),
                          'derivative_props': sum(market in derivative_markets for market in raw_markets),
                          'query_partitions': [{'name': name, 'markets': group, 'rows': len(source), 'state': source_state}
-                                              for name, group, source, source_state in zip(query_names, query_groups, (core_raw, derivative_raw), (first_state, second_state))] if sport == 'nfl' else [],
-                         'possibly_truncated': bool(getattr(core_raw, 'truncated', len(core_raw) >= 10000)
-                                                    or getattr(derivative_raw, 'truncated', len(derivative_raw) >= 10000))}}
+                                              for name, group, source, source_state in zip(query_names, query_groups, query_rows, query_states)],
+                         'possibly_truncated': any(getattr(source, 'truncated', len(source) >= 10000)
+                                                   for source in query_rows)}}
 
 
 def refresh():

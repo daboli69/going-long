@@ -31,6 +31,9 @@ jobs:
       HISTORY_SEASONS: '3'
       PROJECTION_WINDOW: '12'
       PROJECTION_MIN_GAMES: '5'
+      # Owner approved Oct14: 8 individual main markets + 1 derivative query.
+      # One page each (27 credits normally); no unbounded cap-recovery requests.
+      PARLAY_PROPS_PARTITIONS: markets
     steps:
       - uses: actions/checkout@v4
         with:
