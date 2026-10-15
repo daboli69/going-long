@@ -133,6 +133,11 @@ Unknown/unsupported contract rows are separately counted and excluded. Savant AP
 414Xmo9At2FQZ7nq2fCcz7RcM7KB and data deployment8awqKbeVbcjgAi1gEERfwKRpCHoo
 succeeded. Receipts: `.cache/props-cap-partitions/market-scopes/`, including both
 isolated provider reports, exact-main CI and full hosted refresh health/logs.
+Live static and snapshot API readback both returned the new01:30:23UTC data;
+snapshot API contains11087normalized quotes, all source states FRESH and no
+truncation. GitHub raw CDN retained the older response for several minutes after
+publication; the live API was verified again after propagation, not assumed fresh
+from deployment status alone.
 
 Claude handoff: pull main including PRs24and25 before publishing other changes.
 Keep the NFL-step-only `PARLAY_PROPS_PARTITIONS: markets`, request/page bounds,
