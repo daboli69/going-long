@@ -5,9 +5,9 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const pct=(x,d=1)=>Number.isFinite(x)?(x*100).toFixed(d)+'%':'—',usd=x=>Number.isFinite(x)?'$'+x.toFixed(x%1===0?0:2):'—';
 const OBJ={survival:'Protect the bankroll: highest chance of still having funds for future weekends.',growth:'Grow the bankroll with controlled risk: ranked by a conservative, lower-bound growth rate.',parlay:'Find priced combinations whose payout can reach your target, ranked by the chance a single ticket does it.','cash-out':'Work toward a withdrawal while keeping a reserve; shows how long the approach survives.'};
 const DEFAULTS={objective:'cash-out',bankroll:50,target:150,weeks:1,maxExposure:50,acceptableDownside:60,withdrawTarget:100,reserve:50,betTypes:'both',books:[],researchWeights:false};
-let state={...DEFAULTS},feed=null,weights=null,model=null,timer=0;
+let state={...DEFAULTS,events:[]},feed=null,weights=null,model=null,timer=0;
 try{Object.assign(state,JSON.parse(localStorage.getItem('going.missions.v1')||'{}'));}catch{}
-const save=()=>{try{localStorage.setItem('going.missions.v1',JSON.stringify(state));}catch{}};
+const save=()=>{try{const {events,...rest}=state;localStorage.setItem('going.missions.v1',JSON.stringify(rest));}catch{}};
 const replay=new URLSearchParams(location.search).get('asof')==='snapshot';
 
 async function getJson(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error(url+' unavailable');return r.json();}
@@ -40,11 +40,11 @@ function validate(){
  return bad;
 }
 function compute(){
- const bad=validate(),err=$('msFormError');err.hidden=!bad.length;err.textContent=bad.join(' ');
+ const bad=validate();if(!state.events.length)bad.push('Pick at least one game.');const err=$('msFormError');err.hidden=!bad.length;err.textContent=bad.join(' ');
  if(bad.length)return null;
  const asOf=replay?Date.parse(feed.generated_at):Date.now();
  return M.runMission(feed.games_raw,{now:asOf,objective:state.objective,weights:weights.game_lines,aliases:weights.aliases,model,oddsGeneratedAt:feed.generated_at,flags:{researchWeights:state.researchWeights},
-  mission:{bankroll:state.bankroll,target:state.target,weeks:state.weeks,maxExposure:state.maxExposure/100,acceptableDownside:state.acceptableDownside/100,withdrawTarget:state.withdrawTarget,reserve:state.reserve,betTypes:state.betTypes,books:state.books,runs:10000}});
+  mission:{events:state.events.length?state.events:null,bankroll:state.bankroll,target:state.target,weeks:state.weeks,maxExposure:state.maxExposure/100,acceptableDownside:state.acceptableDownside/100,withdrawTarget:state.withdrawTarget,reserve:state.reserve,betTypes:state.betTypes,books:state.books,runs:10000}});
 }
 function ago(sec){return sec<90?Math.round(sec)+' s':sec<5400?Math.round(sec/60)+' min':(sec/3600).toFixed(1)+' h';}
 function banners(r){
@@ -64,7 +64,22 @@ function verdict(r){
  }else{
   html=`<div class="ms-verdict ok"><h2>${q} qualified ${q===1?'opportunity':'opportunities'} · ${esc(r.objectiveLabel)} mission</h2><p>Qualified means fresh quotes, at least ${M.POLICY.minSources} independent sources agreeing, an executable sportsbook price, and an estimated return of at least ${pct(M.POLICY.minEv)} versus the market consensus. That is an estimate from market prices, not a validated edge or a promise of profit.</p></div>`;
  }
- $('msVerdict').innerHTML=html+nearMisses(r);
+ $('msVerdict').innerHTML=html+targetCard(r)+nearMisses(r);
+}
+function asOf(){return replay?Date.parse(feed.generated_at):Date.now();}
+function renderSlate(){
+ const days=M.slateDays(feed.games_raw,asOf());
+ if(!state.events.length&&days.length)state.events=days[0].games.map(g=>g.id);
+ const fmt=new Intl.DateTimeFormat([],{weekday:'long',month:'short',day:'numeric',timeZone:'America/New_York'}),time=new Intl.DateTimeFormat([],{hour:'numeric',minute:'2-digit',timeZone:'America/New_York',timeZoneName:'short'});
+ $('msSlate').innerHTML=days.length?days.map(d=>`<h4>${esc(fmt.format(new Date(d.date+'T12:00:00-04:00')))}<button type="button" data-day="${esc(d.date)}">Only this day</button></h4><div>${d.games.map(g=>`<label><input type="checkbox" name="game" value="${esc(g.id)}"${state.events.includes(g.id)?' checked':''}>${esc(g.label)} · ${esc(time.format(new Date(g.kickoff)))}</label>`).join('')}</div>`).join(''):'<p class="ms-note">No upcoming games in the price feed.</p>';
+}
+const code=n=>M.TEAM_CODES[n]||n,legText=l=>`${l.selection}${l.market==='total'?' ('+code(l.away)+' @ '+code(l.home)+')':''} ${l.american}`;
+function targetCard(r){
+ const t=r.target,m=r.mission;
+ const full=m.target/m.bankroll,head=`Turning ${usd(m.bankroll)} into ${usd(m.target)} on ${r.slate.games} game${r.slate.games===1?'':'s'}`;
+ const fullNote=m.exposure<1?` Staking your whole ${usd(m.bankroll)} instead would need ${(full).toFixed(2)}x.`:'';
+ const rows=t.paths.map(p=>`<div class="ms-path"><span class="ms-pill${p.negativeEv?' neg':''}">${p.kind==='parlay'?p.legs.length+'-leg parlay':'Straight'}</span>${p.negativeEv?'<span class="ms-pill neg">Negative expected value</span>':'<span class="ms-pill">Positive estimate</span>'}<b>${p.legs.map(l=>esc(legText(l))).join(' + ')}</b><span class="ms-note">${esc(p.book)} · ${esc(p.american)} · ${usd(p.stake)} returns ${usd(p.payout)} if it hits · chance it hits ${pct(p.pSuccess)} · estimated return ${pct(p.ev)}${p.kind==='parlay'?' · confirm the live parlay price in the book':''}</span></div>`).join('');
+ return `<div class="ms-card"><h3>${esc(head)}</h3><p class="ms-note">Staking ${usd(t.stake)} (${pct(m.exposure,0)} max exposure) needs a ticket paying about ${esc(t.needAmerican)} (${t.needDec.toFixed(2)}x).${fullNote}</p>${rows||`<p>${esc(t.reason)}</p>`}${rows?'<p class="ms-note">Ranked by chance of hitting. Most paths are long shots with a negative expected return; this shows what the target costs, it is not a recommendation.</p>':''}</div>`;
 }
 function nearMisses(r){
  if(r.qualified.length||!r.nearMisses.length)return '';
@@ -90,7 +105,7 @@ function opps(r){
 function table(r){
  $('msRuns').textContent=r.strategies[0].result.runs.toLocaleString();
  const rows=[['Reach '+usd(r.mission.target)+(r.mission.weeks>1?' within '+r.mission.weeks+' weekends':''),s=>pct(s.result.pReachTarget)],['Lose the bankroll',s=>pct(s.result.pRuin)],['End below '+usd(r.mission.bankroll),s=>pct(s.result.pEndBelowStart)],['Expected ending bankroll',s=>usd(s.result.expectedEnding)],['Median ending bankroll',s=>usd(s.result.medianEnding)],['10th–90th percentile (total value)',s=>usd(s.result.totalValueP10)+'–'+usd(s.result.totalValueP90)],['Expected withdrawal',s=>usd(s.result.expectedWithdrawal)],['Still solvent after 4 / 8 / 12 weekends',s=>s.result.preservation.map(k=>pct(k.pSolvent,0)).join(' / ')],['Bankroll ≥ '+usd(r.mission.reserve)+' after 4 / 8 / 12',s=>s.result.preservation.map(k=>pct(k.p,0)).join(' / ')],['Stake per weekend',s=>usd(s.tickets.reduce((a,t)=>a+t.stake,0))],['Expected return on stakes',s=>s.tickets.length?pct(s.tickets.reduce((a,t)=>a+t.expectedProfit,0)/s.tickets.reduce((a,t)=>a+t.stake,0)):'—']];
- $('msTable').innerHTML=`<thead><tr><th scope="col">Outcome</th>${r.strategies.map(s=>`<th scope="col" class="${s.reference?'ref':''}">${esc(s.name)}${s.reference?'<br>(negative EV)':''}</th>`).join('')}</tr></thead><tbody>${rows.map(([l,f])=>`<tr><th scope="row">${esc(l)}</th>${r.strategies.map(s=>`<td>${f(s)}</td>`).join('')}</tr>`).join('')}</tbody>`;
+ $('msTable').innerHTML=`<thead><tr><th scope="col">Outcome</th>${r.strategies.map(s=>`<th scope="col" class="${s.reference?'ref':''}">${esc(s.name)}${s.reference?(s.negativeEv?'<br>(negative EV)':'<br>(long shot)'):''}</th>`).join('')}</tr></thead><tbody>${rows.map(([l,f])=>`<tr><th scope="row">${esc(l)}</th>${r.strategies.map(s=>`<td>${f(s)}</td>`).join('')}</tr>`).join('')}</tbody>`;
 }
 function method(r){
  const d=r.diagnostics;
@@ -106,6 +121,8 @@ function render(){
 }
 function schedule(){readForm();save();clearTimeout(timer);timer=setTimeout(render,250);}
 document.querySelector('.ms-tabs').addEventListener('click',e=>{const o=e.target.dataset?.objective;if(!o)return;state.objective=o;save();render();});
+$('msSlate').addEventListener('click',e=>{const d=e.target.dataset?.day;if(!d)return;const day=M.slateDays(feed.games_raw,asOf()).find(x=>x.date===d);if(!day)return;state.events=day.games.map(g=>g.id);renderSlate();render();});
+$('msForm').addEventListener('input',e=>{if(e.target.name==='game'){state.events=[...document.querySelectorAll('#msSlate input:checked')].map(i=>i.value);if(!state.events.length){$('msFormError').hidden=false;$('msFormError').textContent='Pick at least one game.';return;}clearTimeout(timer);timer=setTimeout(render,150);return;}});
 $('msForm').addEventListener('input',schedule);$('msForm').addEventListener('submit',e=>e.preventDefault());
-load().then(()=>{writeForm();bookList();$('msBooks').addEventListener('input',schedule);render();}).catch(e=>{$('msStatus').textContent='Prices could not be loaded: '+e.message+'. No mission can be evaluated without them.';});
+load().then(()=>{writeForm();bookList();renderSlate();$('msBooks').addEventListener('input',schedule);render();}).catch(e=>{$('msStatus').textContent='Prices could not be loaded: '+e.message+'. No mission can be evaluated without them.';});
 })();
