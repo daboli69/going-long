@@ -30,3 +30,18 @@ test('walk-forward on synthetic archive: learned weights find the informative bo
  assert.ok(m.pinnacleOnly.differencesVsEqual.logLoss.hi<0);
  assert.match(report.conclusion,/includes 0/);assert.equal(report.markets.spread.records,0);
 });
+test('an external forecast is compared with the market on the same records and a forecast made after the board is refused',()=>{
+ const input=synthetic(1500,11),models={};let n=0;
+ for(const r of input.records){const key=[r.gameId,r.market,r.line].join('|'),t=Date.parse(r.snapshotAt);
+  // synthetic "model": a noisy version of the truth, available an hour before the board for the first 600 games, and after it for 20
+  const quotes=Object.values(r.quotes).map(([a,b])=>{const qa=1/(a>0?1+a/100:1+100/-a),qb=1/(b>0?1+b/100:1+100/-b);return qa/(qa+qb);}),mkt=quotes.reduce((x,y)=>x+y,0)/quotes.length;
+  if(n<600)models[key]={p:Math.min(.95,Math.max(.05,mkt)),asOf:new Date(t-3600e3).toISOString()};
+  else if(n<620)models[key]={p:.99,asOf:new Date(t+60e3).toISOString()};
+  n++;}
+ const by=buildRecords(input,{models});assert.equal(by.refused.future,20);assert.equal(by.moneyline.filter(r=>'model' in r).length,600);
+ const out=run(input,{models,minTrain:150}).markets.moneyline.comparison;
+ assert.ok(out.matched&&out.matched.n>0&&out.matched.n<=600,'scored on the matched subset only');
+ assert.ok(out.matched.model.logLoss>0&&out.matched.equal.logLoss>0);
+ assert.ok(Math.abs(out.matched.model.brier-out.matched.equal.brier)<.02,'a market-copy forecast scores like the market on the same records');
+ assert.equal(buildRecords(input,{}).refused.future,0);
+});
