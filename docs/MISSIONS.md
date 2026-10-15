@@ -3,6 +3,9 @@
 Route `/missions/` (`apps/missions/`), engine in `shared/`. Football/NFL only. No paid service, no production model change.
 `?asof=snapshot` replays the saved odds file with a prominent "not live" banner.
 
+## Choosing the games
+The form lists every upcoming game grouped by Eastern kickoff day (Thursday night is Thursday, not Friday UTC). The next game day is selected by default; tick any games across days, or use "Only this day". The engine takes `mission.events` (game ids) or `mission.date` (ET day). "Paths to target" states the price a ticket must pay for the chosen exposure (for example $20 to $100 at 100% exposure needs +400), lists straights and one-book cross-game parlays that reach it ranked by chance of hitting, and says plainly when the slate cannot (one game cannot form a priced parlay; same-game parlay prices are not in the feed).
+
 ## What exists
 | Piece | File | Status |
 | --- | --- | --- |

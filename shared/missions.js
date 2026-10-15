@@ -192,20 +192,82 @@ function nearMisses(offers,limit=5){
  return out;
 }
 
+// ---- slate selection (Eastern calendar days, like the rest of GOING) ---------------------------------------------
+const ET=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'});
+const etDay=ms=>ET.format(new Date(ms));
+/* Upcoming games grouped by Eastern kickoff day. Started games are excluded, never relabelled. */
+function slateDays(raw,now=Date.now()){
+ const days=new Map();
+ for(const ev of Array.isArray(raw)?raw:[]){
+  const t=Date.parse(ev?.commence_time);if(!Number.isFinite(t)||t<=now)continue;
+  const d=etDay(t),list=days.get(d)||[];
+  list.push({id:String(ev.id),home:ev.home_team,away:ev.away_team,kickoff:ev.commence_time,
+   label:`${TEAM_CODES[ev.away_team]||ev.away_team} @ ${TEAM_CODES[ev.home_team]||ev.home_team}`});days.set(d,list);
+ }
+ return [...days].sort(([a],[b])=>a<b?-1:1).map(([date,games])=>({date,games:games.sort((a,b)=>Date.parse(a.kickoff)-Date.parse(b.kickoff))}));
+}
+function filterSlate(raw,{date=null,events=null,now=Date.now()}={}){
+ return (Array.isArray(raw)?raw:[]).filter(ev=>{
+  const t=Date.parse(ev?.commence_time);if(!Number.isFinite(t)||t<=now)return false;
+  if(Array.isArray(events)&&!events.includes(String(ev.id)))return false;
+  return !date||etDay(t)===date;
+ });
+}
+
+// ---- paths to the target ----------------------------------------------------------------------------------------------
+/* What would it take to hit the target on THIS slate? needDec is the price a ticket must pay when staking the mission's
+ * exposure. Straights need one price that long; parlays combine different games at one book (same-game parlays are not
+ * priced in the feed). Paths are ranked by chance of success and are NOT recommendations: most are negative expected value. */
+function targetPaths(offers,{bankroll,target,exposure,maxLegs=POLICY.maxLegs,limit=5}){
+ const stake=bankroll*exposure,needDec=(target-(bankroll-stake))/stake;
+ const exec=offers.filter(o=>!o.exchange&&finite(o.ev)&&finite(o.win)&&o.odds>=POLICY.minLegAmerican);
+ const out=[];
+ for(const o of exec)if(o.dec>=needDec)out.push({kind:'straight',legs:[o],book:o.book,source:o.source,dec:o.dec,pSuccess:o.win,ev:o.ev,qualifiedLegs:Number(o.qualified)});
+ const books=new Map();
+ for(const o of exec){const b=books.get(o.source)||new Map(),e=b.get(o.eventId)||[];e.push(o);b.set(o.eventId,e);books.set(o.source,b);}
+ for(const events of books.values()){
+  const groups=[...events.values()].map(list=>list.sort((a,b)=>b.ev-a.ev).slice(0,2));
+  const rec=(start,chosen)=>{
+   if(chosen.length>=2){
+    const dec=chosen.reduce((m,l)=>m*l.dec,1);
+    if(dec>=needDec)out.push({kind:'parlay',legs:chosen,book:chosen[0].book,source:chosen[0].source,dec,american:american(SC.decimalToAmerican(dec)),
+     pSuccess:chosen.reduce((m,l)=>m*l.win,1),ev:chosen.reduce((m,l)=>m*(l.win*l.dec+l.push),1)-1,qualifiedLegs:chosen.filter(l=>l.qualified).length,priceVerified:false});
+   }
+   if(chosen.length===maxLegs)return;
+   for(let i=start;i<groups.length;i++)for(const leg of groups[i])rec(i+1,[...chosen,leg]);
+  };
+  rec(0,[]);
+ }
+ // Prefer the most likely, then the least negative; drop paths that only differ by an unneeded extra leg of an already sufficient one.
+ out.sort((a,b)=>b.pSuccess-a.pSuccess||b.ev-a.ev);
+ const seen=new Set(),paths=[];
+ for(const p of out){const k=p.legs.map(l=>l.id).sort().join('+');if(seen.has(k))continue;seen.add(k);paths.push({...p,american:p.american||american(SC.decimalToAmerican(p.dec)),stake:Math.round(stake*100)/100,payout:Math.round(stake*p.dec*100)/100,negativeEv:p.ev<0});if(paths.length>=limit)break;}
+ const games=new Set(exec.map(o=>o.eventId)).size;
+ return {needDec,stake:Math.round(stake*100)/100,needAmerican:american(SC.decimalToAmerican(needDec)),paths,games,
+  reason:paths.length?null:games<2?`No single price on this slate pays ${needDec.toFixed(2)}x, and one game cannot form a priced parlay (same-game parlay prices are not in the feed).`:`No straight or ${POLICY.maxLegs}-leg parlay at one book reaches ${needDec.toFixed(2)}x from these prices.`};
+}
+
 // ---- mission orchestration ------------------------------------------------------------------------------------------
 const OBJECTIVES={survival:'Survival',growth:'Growth',parlay:'Parlay','cash-out':'Cash-Out'};
 function runMission(raw,input={}){
  const objective=OBJECTIVES[input.objective]?input.objective:'cash-out';
- const cfg={bankroll:50,target:150,withdrawTarget:100,reserve:50,weeks:1,maxExposure:.5,acceptableDownside:.6,books:[],betTypes:'both',runs:20000,seed:20261014,probShift:0,...input.mission};
+ const cfg={date:null,events:null,bankroll:50,target:150,withdrawTarget:100,reserve:50,weeks:1,maxExposure:.5,acceptableDownside:.6,books:[],betTypes:'both',runs:20000,seed:20261014,probShift:0,...input.mission};
  const exposure=Math.min(cfg.maxExposure,cfg.acceptableDownside);
- const built=buildOffers(raw,{now:input.now??Date.now(),weights:input.weights,aliases:input.aliases,model:input.model,oddsGeneratedAt:input.oddsGeneratedAt,flags:input.flags||{},policy:input.policy});
+ const now=input.now??Date.now(),slateRaw=filterSlate(raw,{date:cfg.date,events:cfg.events,now});
+ const built=buildOffers(slateRaw,{now,weights:input.weights,aliases:input.aliases,model:input.model,oddsGeneratedAt:input.oddsGeneratedAt,flags:input.flags||{},policy:input.policy});
  let offers=built.offers;
  if(cfg.books.length)offers=offers.map(o=>cfg.books.includes(o.source)?o:o.qualified?{...o,qualified:false,reasons:['Not at a preferred sportsbook.']}:o);
+ const target=targetPaths(offers,{bankroll:cfg.bankroll,target:cfg.target,exposure});
  const {parlays,rejected}=buildParlays(offers,{minEv:(input.policy?.minEv)??POLICY.minEv});
  const sc={...cfg,exposure};
  let strategies=planStrategies({offers,parlays,objective,cfg:sc,betTypes:cfg.betTypes});
  const hasQualified=strategies.some(s=>s.tickets.length>0);
  if(!hasQualified)strategies=[...strategies,...referenceStrategies({offers,cfg:sc,betTypes:cfg.betTypes})];
+ // The most likely path to the target is simulated beside the other strategies, labelled as a long shot unless every leg qualified.
+ if(target.paths.length&&cfg.betTypes!==(target.paths[0].kind==='parlay'?'straights':'parlays')){
+  const best=target.paths[0],t=best.kind==='parlay'?parlayTicket({id:best.legs.map(l=>l.id).join(' + '),legs:best.legs,book:best.book,source:best.source,dec:best.dec,american:best.american,pAllWin:best.pSuccess,ev:best.ev,priceVerified:false}):straightTicket(best.legs[0]);
+  strategies=[...strategies,{id:'target',name:'Path to target (long shot)',tickets:[t],qualified:best.qualifiedLegs===best.legs.length}];
+ }
  const legMap=new Map();
  for(const s of strategies)for(const t of s.tickets)for(const l of (t.kind==='parlay'?t.parlay.legs:[t.offer]))legMap.set(l.id,{id:l.id,eventId:l.eventId,p:l.p,push:l.push,loading:0,dec:l.dec});
  const simConfig={bankroll:cfg.bankroll,target:cfg.target,withdrawTarget:cfg.withdrawTarget,reserve:cfg.reserve,weeks:cfg.weeks,maxExposure:exposure,runs:cfg.runs,seed:cfg.seed,probShift:cfg.probShift,acceptableDownside:cfg.acceptableDownside,sigmaLeg:input.sigmaLeg,sigmaSystematic:input.sigmaSystematic};
@@ -219,10 +281,10 @@ function runMission(raw,input={}){
   return {id:s.id,name:s.name,qualified:s.qualified,reference:!s.qualified&&s.id!=='none',negativeEv:tickets.some(t=>t.ev<0),tickets,result:results[i]};
  });
  return {objective,objectiveLabel:OBJECTIVES[objective],mission:{...cfg,exposure},qualified:offers.filter(o=>o.qualified).sort((a,b)=>scoreFor(objective,b,sc)-scoreFor(objective,a,sc)),parlays:chooseParlays(parlays,objective,sc),
-  nearMisses:nearMisses(offers),strategies:strategiesOut,diagnostics:{...built.diagnostics,offerCount:offers.length,qualifiedCount:offers.filter(o=>o.qualified).length,parlayCandidates:parlays.length,parlayRejected:rejected,
+  nearMisses:nearMisses(offers),target,slate:{date:cfg.date,games:new Set(slateRaw.map(e=>e.id)).size,days:slateDays(raw,now)},strategies:strategiesOut,diagnostics:{...built.diagnostics,offerCount:offers.length,qualifiedCount:offers.filter(o=>o.qualified).length,parlayCandidates:parlays.length,parlayRejected:rejected,
    assumptions:['Each simulated weekend reuses this slate as its opportunity template; future edges are not forecast.','Cross-game parlays assume independence; same-game parlays are rejected because no executable same-game price exists in the feed.','Parlay ticket price is the product of posted leg prices and must be confirmed in the book.',`Probability uncertainty: logit sd ${simConfig.sigmaLeg??SIM.DEFAULTS.sigmaLeg} per leg-weekend plus ${simConfig.sigmaSystematic??SIM.DEFAULTS.sigmaSystematic} systematic.`,'Market consensus is not proof of profitability; no validated edge is claimed.']}};
 }
 
-const api={runMission,buildOffers,buildParlays,classifyPair,modelIndex,planStrategies,referenceStrategies,scoreFor,TEAM_CODES,EXCHANGES,POLICY,OBJECTIVES};
+const api={slateDays,filterSlate,targetPaths,runMission,buildOffers,buildParlays,classifyPair,modelIndex,planStrategies,referenceStrategies,scoreFor,TEAM_CODES,EXCHANGES,POLICY,OBJECTIVES};
 root.GoingMissions=api;if(typeof module!=='undefined')module.exports=api;
 })(globalThis);

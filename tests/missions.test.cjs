@@ -85,7 +85,7 @@ test('parlays combine only qualified legs from different games at one book; EV u
 });
 test('simulation compares the no-bet baseline with straight, parlay and mixed strategies and attaches paired results',()=>{
  const r=run([event(0),event(1),event(2)]);
- const ids=r.strategies.map(s=>s.id);assert.deepEqual(ids,['none','straights','parlays','mixed']);
+ const ids=r.strategies.map(s=>s.id).filter(x=>x!=='target');assert.deepEqual(ids,['none','straights','parlays','mixed']);
  const none=r.strategies[0].result;assert.equal(none.pReachTarget,0);assert.equal(none.expectedEnding,50);
  for(const s of r.strategies)assert.equal(s.result.runs,2000);
  assert.ok(r.strategies[1].tickets.every(t=>t.stake>0&&t.stake<=50*r.mission.exposure));
@@ -93,8 +93,9 @@ test('simulation compares the no-bet baseline with straight, parlay and mixed st
 });
 test('when nothing qualifies the result says so and simulates only labelled negative-return references',()=>{
  const r=run([event(0,{edge:false}),event(1,{edge:false})]);
- assert.equal(r.qualified.length,0);assert.deepEqual(r.strategies.map(s=>s.id).filter(x=>x!=='none').every(x=>x.startsWith('ref-')),true);
+ assert.equal(r.qualified.length,0);assert.deepEqual(r.strategies.map(s=>s.id).filter(x=>x!=='none'&&x!=='target').every(x=>x.startsWith('ref-')),true);
  assert.ok(r.strategies.filter(s=>s.reference).every(s=>s.qualified===false));
+ const tgt=r.strategies.find(s=>s.id==='target');if(tgt)assert.equal(tgt.qualified,false,'a path with negative-return legs is never presented as qualified');
  const ref=r.strategies.find(s=>s.id==='ref-parlay');assert.ok(ref&&ref.tickets[0].ev<0);
 });
 test('preferred sportsbooks and bet-type settings constrain the candidate set',()=>{
@@ -123,4 +124,31 @@ test('when nothing qualifies the closest executable prices are listed with their
  assert.ok(r.nearMisses.every(n=>n.reasons.length>0&&Number.isFinite(n.ev)&&n.sources>=4));
  assert.ok(r.nearMisses.every((n,i,a)=>i===0||a[i-1].ev>=n.ev));
  assert.equal(new Set(r.nearMisses.map(n=>n.id.split('|').slice(0,4).join('|'))).size>=1,true);
+});
+const kicked=(i,iso2,o={})=>({...event(i,o),commence_time:iso2});
+test('slates group upcoming games by Eastern kickoff day: Thursday night kicks off after midnight UTC',()=>{
+ const tnf=kicked(0,'2026-10-16T00:15:00Z'),sun=kicked(1,'2026-10-18T17:00:00Z'),late=kicked(2,'2026-10-19T00:20:00Z'),started=kicked(3,'2026-10-14T00:00:00Z');
+ const now=Date.parse('2026-10-15T15:00:00Z'),days=M.slateDays([sun,late,tnf,started],now);
+ assert.deepEqual(days.map(d=>d.date),['2026-10-15','2026-10-18'],'TNF is Thursday in New York; Sunday night 00:20Z is still Sunday');
+ assert.equal(days[1].games.length,2);assert.equal(days[0].games[0].id,'ev0');
+ assert.deepEqual(M.filterSlate([tnf,sun,late],{date:'2026-10-18',now}).map(e=>e.id),['ev1','ev2']);
+ assert.deepEqual(M.filterSlate([tnf,sun,late],{events:['ev0','ev2'],now}).map(e=>e.id),['ev0','ev2']);
+ assert.deepEqual(M.filterSlate([tnf,started],{now}).map(e=>e.id),['ev0'],'started games never appear');
+});
+test('a one-game slate cannot reach $20 -> $100 with fair prices and says so; more games open parlay paths',()=>{
+ const now=NOW,evs=[kicked(0,iso(NOW+3600e3)),kicked(1,iso(NOW+2*86400e3)),kicked(2,iso(NOW+2*86400e3+60e3))];
+ const mission={bankroll:20,target:100,maxExposure:1,acceptableDownside:1,runs:1000};
+ const one=run(evs,{mission:{...mission,events:['ev0']}});
+ assert.equal(one.slate.games,1);assert.ok(Math.abs(one.target.needDec-5)<1e-9);assert.equal(one.target.needAmerican,'+400');
+ assert.equal(one.target.paths.length,0);assert.match(one.target.reason,/one game cannot form a priced parlay/);
+ const all=run(evs,{mission});
+ assert.equal(all.slate.games,3);assert.ok(all.target.paths.length>0);
+ for(const p of all.target.paths){assert.ok(p.dec>=5-1e-9);assert.equal(new Set(p.legs.map(l=>l.eventId)).size,p.legs.length);assert.equal(new Set(p.legs.map(l=>l.source)).size,1);assert.ok(Math.abs(p.payout-20*p.dec)<=.01);}
+ assert.ok(all.target.paths.every((p,i,a)=>i===0||a[i-1].pSuccess>=p.pSuccess-1e-12),'ranked by chance of hitting');
+ assert.ok(all.strategies.some(s=>s.id==='target'),'the top path is simulated');
+ const day=run(evs,{mission:{...mission,date:M.slateDays(evs,NOW)[1].date}});assert.equal(day.slate.games,2);
+});
+test('exposure below 100% raises the price a ticket must pay',()=>{
+ const evs=[event(0)],half=run(evs,{mission:{bankroll:20,target:100,maxExposure:.5,acceptableDownside:1}}).target,full=run(evs,{mission:{bankroll:20,target:100,maxExposure:1,acceptableDownside:1}}).target;
+ assert.ok(half.needDec>full.needDec);assert.ok(Math.abs(half.needDec-9)<1e-9);
 });
