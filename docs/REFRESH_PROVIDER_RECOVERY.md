@@ -39,3 +39,55 @@ Rollback: revert the provider recovery implementation commit. No database,
 credentials, availability engines, model weights or licensed CSV inputs change.
 Keep the Recovery Supabase/Vercel settings and schema2 availability contract from
 PRs19–22; see CURRENT_AVAILABILITY.md. Original paused Supabase remains intact.
+
+## Released verification
+
+PR23 merged as `c1eb439b3eef88a4bf8b2565247b4598f46fe704`. Exact-main application
+validation38646575589 passed888Node and626Pythonrun(621passed,5existing skips),
+both builds. Local full dependency audit found0advisories. Code deployment
+3aqRejugHKE2bBqqdi5Bi4rvHLGL succeeded.
+
+Ordinary refresh38646575488 finished **success**, healthy/publication_ready true,
+no issues, source failures or publication failures. Actual props query returned
+503/PROPS_TEMPORARILY_BUSY and recovered on the existing bounded retry; all four
+source states are FRESH. Data commit `34003bc5a5ca9e2c5700a25c6c7506b8a6df2e54`
+contains9356core and1358derivative quotes, possibly_truncated false. This verifies
+recovery for this run, not permanent provider reliability or a causal experiment
+proving serialization alone fixed the provider.
+
+Savant API returned HTTP403 from GitHub, versus200 from the local direct check.
+The public CSV loaded13842rows. Its partial-context warning remains visible and
+non-blocking; no access-control bypass or fabricated API success. API access from
+GitHub requires the source operator's support if needed; retries do not fix403.
+
+Ignored receipts: `.cache/refresh-provider-recovery/validation.json`,
+`exact-main-ci.log`, `hosted-refresh.log`, `hosted-health/refresh-health.json`.
+
+## Follow-up: confirmed serving cap
+
+Run38660477354 returned explicit internal per-source cap headers, no degraded
+books, and10000rows at offset0 followed by1row at offset10000. The earlier green
+run did not establish lasting recovery; serializing requests cannot remove this
+serving cap. Pagination cannot recover the missing rows.
+
+The follow-up planner retains exactly two serialized props queries. It estimates
+market volumes from the saved normalized quotes. When the old split exceeds80%
+of the10000-row serving cap, it greedily balances whole market families between
+two disjoint requests, including every canonical market exactly once. Unknown
+market weights are planning placeholders, never probabilities or freshness proof.
+Small/unknown boards keep the original split. With the actual saved9728quotes,
+the planned loads are4872and4856; these are estimates, not live response counts.
+
+Both queries may now contain main and derivative markets. Core/derivative health
+reflects every query needed by that family; an outage cannot certify part of the
+family fresh. Fallback rows are selected by that query's markets and keep their
+original timestamps. Coverage diagnostics record each partition and its state.
+An explicitly truncated response stops immediately, saving an unproductive
+second paid page. Other genuine pagination remains supported. No extra queries,
+book exclusions, raised cap, invented quotes or relaxed health requirements.
+
+Synthetic tests reproduce an11210-row core board with1000derivative rows and
+verify complete reconstruction within two requests, unique identities, retained
+clocks and failures of either mixed query. A single market that still exceeds
+the cap remains degraded; additional requests or service spending require a
+separate decision. Receipt: `.cache/props-cap-partitions/offline-plan.json`.
