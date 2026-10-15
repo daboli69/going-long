@@ -8,7 +8,7 @@ export default defineConfig({
     name:'going-long-local-odds',
     configureServer(server){
       server.middlewares.use(async(req,res,next)=>{
-        if(!req.url?.startsWith('/api/odds'))return next();
+        if(req.url?.split('?')[0]!=='/api/odds')return next();
         try{
           const response=await oddsResponse(new Request('http://127.0.0.1:8765'+req.url,{method:req.method}),{PARLAY_API_KEY:process.env.PARLAY_API_KEY});
           res.statusCode=response.status;for(const [k,v]of response.headers)res.setHeader(k,v);

@@ -9,6 +9,7 @@ import {loadJournal} from './load-journal.mjs';
 import {recordedEvidence,settlementExplanation} from './evidence.mjs';
 import './style.css';
 import {BacktestView} from './backtests.jsx';
+import {HistoricalOdds} from './odds-history.jsx';
 
 // Preferred: the store manifest summary plus the small derived light ledger (identical dashboard math, evidence
 // fetched on demand, earlier seasons on request). Fallback: the full canonical store, exactly as before.
@@ -129,6 +130,7 @@ function App(){
  {snapshot?<>{snapshot.ledger?.skipped().length>0&&<p className="source-pill" role="status">Showing the current season. Earlier seasons ({snapshot.ledger.skipped().reduce((n,s)=>n+s.rows,0).toLocaleString()} archived rows) load on request. <button type="button" onClick={loadEarlier} disabled={earlierBusy}>{earlierBusy?'Loading…':'Load earlier seasons'}</button></p>}<TrackerDashboard records={snapshot.records} meta={snapshot} onRefresh={loadPublic} refreshing={publicBusy} loadEvidence={snapshot.ledger?.loadEvidence||null}/></>:!publicBusy&&!publicError?<div className="empty-state"><strong>Waiting for the first public snapshot.</strong></div>:publicBusy?<p role="status">Loading the preserved public tracker…</p>:null}
  <details className="evidence-page-actions"><summary>Page actions</summary><div className="evidence-refresh"><button onClick={loadPublic} disabled={publicBusy}>{publicBusy?'Refreshing...':'Refresh public tracker'}</button><a href="#private-journal">Personal journal</a></div></details>
  <details id="private-journal" className="panel private-journal"><summary><strong>Personal journal</strong><span>Optional · private · loaded only when requested</span></summary><p>This area is for your own accepted bets and private records. It is separate from the public model tracker and never blocks the page above.</p>{privateError&&<p role="alert" className="error">{privateError}</p>}{!session?(configured===null?<p>Checking the optional private connection…</p>:!configured?<p>Private account storage is not configured. The public tracker remains fully available.</p>:<form onSubmit={login}><label>Email<input type="email" autoComplete="username" required value={email} onChange={e=>setEmail(e.target.value)}/></label><label>Password<input type="password" autoComplete="current-password" required value={password} onChange={e=>setPassword(e.target.value)}/></label><button disabled={privateBusy}>Sign in</button></form>):<><div className="private-actions"><button onClick={loadPrivate} disabled={privateBusy}>{privateBusy?'Loading…':privateLoaded?'Refresh my journal':'Load my journal'}</button><button onClick={()=>client.auth.signOut()}>Sign out</button></div>{privateLoaded&&<TrackerDashboard key="private" records={privateRecords} meta={{generated_at:new Date().toISOString()}} privateMode/>}</>}</details>
+ <HistoricalOdds key={session?.user?.id||'signed-out'} session={session}/>
  <footer>Public tracking is prospective and automatic. Probability is not confidence; short samples do not prove an edge. Existing ParlayAPI and data-source costs are separate from this free GitHub-hosted tracker.</footer></main>;
 }
 
