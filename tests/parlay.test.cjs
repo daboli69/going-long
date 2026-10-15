@@ -3,6 +3,16 @@ const assert=require('node:assert/strict');
 const future=new Date(Date.now()+86400000).toISOString();
 const quote={player:'Josh Allen',bookmaker:'draftkings',bookmaker_title:'DraftKings',market_key:'player_passing_yards',line:249.5,over_price:-110,under_price:105,canonical_event_id:'event',commence_time:future,last_update:new Date().toISOString()};
 
+test('Explicit wire periods remain separate contracts and reject contradictory periods',async()=>{
+  const {normalizeProps}=await import('../server/parlay.mjs');
+  const rows=normalizeProps(['FULL','1H','Q1'].map(period=>({...quote,period})));
+  assert.deepEqual(rows.map(r=>r.market),['pass_yds','pass_yds_1h','pass_yds_1q']);
+  assert.equal(new Set(rows.map(r=>r.quoteKey)).size,3);
+  for(const period of ['UNKNOWN','','Q2',{},'HALFTIME'])assert.deepEqual(normalizeProps([{...quote,period}]),[]);
+  assert.deepEqual(normalizeProps([{...quote,market_key:'player_pass_yds_1st_half',period:'FULL'}]),[]);
+  assert.deepEqual(normalizeProps([{...quote,market_key:'player_anytime_td',period:'1H'}]),[]);
+});
+
 test('Parlay flat quotes preserve alternative TD thresholds, identities and missing prices',async()=>{
   const {normalizeProps}=await import('../server/parlay.mjs');
   const rows=normalizeProps([quote,{...quote,market_key:'player_anytime_td',line:1.5,over_price:600,under_price:null},

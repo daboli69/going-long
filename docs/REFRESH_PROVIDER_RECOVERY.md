@@ -108,3 +108,13 @@ Default standalone behavior stays two queries. Full provider hints are retained
 up to2048characters with credential redaction. Wire `market_key` takes precedence
 over the descriptive `market` field in coverage counts. Core/derivative clocks
 and freshness still reflect every relevant request.
+
+Isolated real-provider check38665006872 returned FRESH for all nine scopes, no
+truncation/errors (11124main/1189derivative raw rows before the explicit-period
+normalization follow-up). This did not write any public file. Source API defines
+`market` as descriptive and `market_key` plus `period` as the actual contract;
+the adapter now maps explicit1H/Q1 periods to the supported derivative family,
+rejects unknown/contradictory periods, and keeps FULL distinct in quote identities.
+Missing legacy period fields retain prior key-based compatibility. Synthetic
+regression proves a1H passing-yard quote cannot become a full-game quote. See
+https://parlay-api.com/docs/response-shapes and its period/market alias guidance.

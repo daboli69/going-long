@@ -58,6 +58,18 @@ class ParlayTests(unittest.TestCase):
         self.assertEqual(result['coverage']['raw_props'], 8)
         self.assertEqual(result['coverage']['derivative_props'], len(GROUPS) - 8)
 
+    def test_explicit_wire_period_cannot_be_priced_as_full_game(self):
+        quote = dict(player='QB', bookmaker='book', market_key='player_pass_yds', line=60.5,
+                     market='Descriptive provider label')
+        rows = normalize_props([dict(quote, period=period) for period in ('FULL', '1H', 'Q1')])
+        self.assertEqual([row['market'] for row in rows], ['pass_yds', 'pass_yds_1h', 'pass_yds_1q'])
+        self.assertEqual(len({row['quoteKey'] for row in rows}), 3)
+        for period in ('UNKNOWN', '', 'Q2', {}, 'HALFTIME'):
+            with self.subTest(period=period):
+                self.assertEqual(normalize_props([dict(quote, period=period)]), [])
+        self.assertEqual(normalize_props([dict(quote, market_key='player_pass_yds_1st_half', period='FULL')]), [])
+        self.assertEqual(normalize_props([dict(quote, market_key='player_anytime_td', period='1H')]), [])
+
     def test_one_page_budget_does_not_certify_unfetched_continuation(self):
         response = self.response(200, [], {'x-result-has-more': 'true', 'x-next-offset': '10000'})
         with patch('parlay_feed.requests.get', return_value=response) as get:

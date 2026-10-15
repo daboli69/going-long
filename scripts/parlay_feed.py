@@ -108,6 +108,24 @@ def stamp(value):
     return None
 
 
+def prop_market(row):
+    """Wire period is part of the contract, not merely a display annotation."""
+    market = MARKET_MAP.get(row.get('market_key'))
+    if not market or row.get('period') is None:
+        return market
+    period = row['period']
+    if not isinstance(period, str):
+        return None
+    period = period.strip().upper()
+    if market.endswith(('_1h', '_1q')):
+        return market if period == ('1H' if market.endswith('_1h') else 'Q1') else None
+    if period == 'FULL':
+        return market
+    suffix = {'1H': '_1h', 'Q1': '_1q'}.get(period)
+    scoped = market + suffix if suffix else None
+    return scoped if scoped in GROUPS else None
+
+
 def normalize_props(rows, now=None):
     now = now or datetime.now(timezone.utc)
     if not isinstance(rows, list):
@@ -116,7 +134,7 @@ def normalize_props(rows, now=None):
     for r in rows:
         if not isinstance(r, dict) or not valid_string_fields(r, ('market_key', 'player', 'bookmaker')):
             continue
-        market = MARKET_MAP.get(r.get('market_key'))
+        market = prop_market(r)
         if not market or not r.get('player') or not r.get('bookmaker'):
             continue
         kickoff = r.get('commence_time')
@@ -402,7 +420,7 @@ def _fetch_parlay(sport, previous=None):
         raise RuntimeError('; '.join(errors.values()) or 'Parlay returned no usable sources')
     now = datetime.now(timezone.utc).isoformat()
     state = 'FRESH' if fresh else 'FALLBACK'
-    raw_markets = [MARKET_MAP.get(row.get('market_key')) or row.get('market')
+    raw_markets = [row.get('market') if 'quoteKey' in row else prop_market(row)
                    for source in query_rows for row in source]
     return {'provider': 'parlay', 'sport': sport, 'generated_at': now,
             'feed_status': state, 'refresh_status': state,
@@ -416,8 +434,9 @@ def _fetch_parlay(sport, previous=None):
             'props': rows, 'derivative_status': derivative_state.lower(),
             'games_raw': games, 'odds_status': odds_state.lower(),
             'period_quotes': period_rows, 'period_status': period_state.lower(),
-            'coverage': {'raw_props': sum(market not in derivative_markets for market in raw_markets),
+            'coverage': {'raw_props': sum(market in GROUPS and market not in derivative_markets for market in raw_markets),
                          'derivative_props': sum(market in derivative_markets for market in raw_markets),
+                         'unsupported_market_rows': sum(market not in GROUPS for market in raw_markets),
                          'query_partitions': [{'name': name, 'markets': group, 'rows': len(source), 'state': source_state}
                                               for name, group, source, source_state in zip(query_names, query_groups, query_rows, query_states)],
                          'possibly_truncated': any(getattr(source, 'truncated', len(source) >= 10000)
