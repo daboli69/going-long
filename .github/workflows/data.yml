@@ -166,6 +166,12 @@ jobs:
         continue-on-error: true
         if: ${{ !cancelled() }}
         run: node scripts/build_consumer_data.mjs
+      - name: Snapshot GOING game-line model rows for Missions cross-check
+        id: missions_model
+        continue-on-error: true
+        if: ${{ !cancelled() }}
+        # Same production board math over the odds file just built; Missions reads it only as a cross-check and ignores it when stale.
+        run: node scripts/build_missions_model.cjs
       - name: Settle TD shadow and write the pregame freeze manifest
         id: freeze
         continue-on-error: true

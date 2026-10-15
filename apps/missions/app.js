@@ -64,7 +64,11 @@ function verdict(r){
  }else{
   html=`<div class="ms-verdict ok"><h2>${q} qualified ${q===1?'opportunity':'opportunities'} · ${esc(r.objectiveLabel)} mission</h2><p>Qualified means fresh quotes, at least ${M.POLICY.minSources} independent sources agreeing, an executable sportsbook price, and an estimated return of at least ${pct(M.POLICY.minEv)} versus the market consensus. That is an estimate from market prices, not a validated edge or a promise of profit.</p></div>`;
  }
- $('msVerdict').innerHTML=html;
+ $('msVerdict').innerHTML=html+nearMisses(r);
+}
+function nearMisses(r){
+ if(r.qualified.length||!r.nearMisses.length)return '';
+ return `<div class="ms-card"><h3>Closest to qualifying</h3><p class="ms-note">The best executable sportsbook prices against the market consensus, and why each fell short. Not recommendations.</p><ul>${r.nearMisses.map(n=>`<li><b>${esc(n.selection)}</b> ${esc(n.american)} @ ${esc(n.book)} — estimated return ${pct(n.ev)} (consensus ${pct(n.p)} vs ${pct(n.breakeven)} break-even, ${n.sources} sources). ${esc(n.reasons[0]||'')}</li>`).join('')}</ul><p class="ms-note">Missions currently prices NFL game lines only (moneyline, spread, total). Player props are not evaluated here yet.</p></div>`;
 }
 function oppCard(o,ticket){
  const legs=ticket.legs,isP=ticket.kind==='parlay';

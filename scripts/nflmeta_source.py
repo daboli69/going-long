@@ -141,6 +141,29 @@ def verify(doc, week, now=None, required_teams=None):
     return {'verified_at': verified_at, 'clubs': len(clubs)}
 
 
+def verify_clubs(doc, week, now=None):
+    """Per-club verification: {club: last_checked_at} for each club whose own game-status report was checked
+    successfully, is complete and is recent. A club that fails is simply absent (its players are never cleared by
+    NFLMeta); it no longer disqualifies the other clubs. Returns (verified, unverified club codes)."""
+    now = now or datetime.now(timezone.utc)
+    best, bad = {}, set()
+    for report in doc.get('availability_reports') or []:
+        if report.get('report_kind') != 'game_status' or report.get('week') != week:
+            continue
+        team = team_code(report.get('team_abbr'))
+        checked = report.get('last_checked_at')
+        age = _age_hours(checked, now)
+        if (not team or report.get('last_check_status') != 'succeeded' or report.get('coverage_status') != 'complete'
+                or age is None or not -.5 <= age <= MAX_AGE_HOURS):
+            bad.add(team)
+            continue
+        if team not in best or age < _age_hours(best[team], now):
+            best[team] = checked
+    # A later good report for the same club does not erase an earlier failed one: both must hold for the club to clear.
+    unverified = bad
+    return {t: c for t, c in best.items() if t not in unverified}, sorted(t for t in unverified if t)
+
+
 def merge(injury_rows, roster_rows, doc, season, week, verified_at):
     """Append dated NFLMeta designations to nflverse rows by unique team/name(/position) identity.
 

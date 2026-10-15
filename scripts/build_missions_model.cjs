@@ -13,5 +13,8 @@ for(const r of plays){
 }
 const snapshot={schema_version:1,generated_at:new Date().toISOString(),odds_generated_at:odds.generated_at,
  note:'Existing GOING game-line model output (market-anchored). Cross-check only; Missions never blends it into consensus probabilities.',rows};
-fs.writeFileSync(path.join(root,'data/missions_model.json'),JSON.stringify(snapshot));
+const target=path.join(root,'data/missions_model.json');
+// Unchanged inputs must not create a new commit on every refresh.
+try{const old=JSON.parse(fs.readFileSync(target,'utf8'));if(old.odds_generated_at===snapshot.odds_generated_at&&JSON.stringify(old.rows)===JSON.stringify(rows)){console.log('missions_model.json unchanged');process.exit(0);}}catch{}
+fs.writeFileSync(target,JSON.stringify(snapshot));
 console.log(`missions_model.json: ${rows.length} rows`);
