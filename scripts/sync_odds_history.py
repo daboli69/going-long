@@ -6,6 +6,7 @@ Uploads originals, acquisition receipts and per-event indexes; manifest goes las
 import argparse
 import base64
 from contextlib import closing
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 import gzip
 import hashlib
@@ -89,9 +90,9 @@ def sync(root, *, post=requests.post, token=None):
     if not isinstance(token, str) or len(token) < 32: raise ValueError('Private upload token unavailable')
     ack_path = Path(root) / 'cloud-ack.json'
     ack = json.loads(ack_path.read_text()) if ack_path.exists() else {}
-    for number, obj in enumerate(objects, 1):
+    current_ids = {obj['kind'] + '/' + obj['sha256'] for obj in objects}
+    def upload(obj):
         identity = obj['kind'] + '/' + obj['sha256']
-        if obj['kind'] != 'index' and ack.get(identity): continue
         body = {'schema': 'going-odds-history-upload-v1', 'kind': obj['kind'], 'sha256': obj['sha256'],
                 'gzip': base64.b64encode(obj['path'].read_bytes()).decode()}
         try:
@@ -102,9 +103,20 @@ def sync(root, *, post=requests.post, token=None):
             raise RuntimeError('Private archive sync interrupted; originals retained, retry is idempotent') from None
         if not result.get('ok') or result.get('sha256') != obj['sha256'] or result.get('bytes') != obj['bytes']:
             raise RuntimeError(f'Private archive write not verified (HTTP {response.status_code}); originals retained')
+        return identity, obj
+
+    def acknowledge(identity, obj):
         ack[identity] = {'bytes': obj['bytes']}
         ack_path.write_bytes(encoded(ack))
-        print(json.dumps({'uploaded': number, 'objects': len(objects), 'kind': obj['kind']}), flush=True)
+        print(json.dumps({'uploaded': len(current_ids & ack.keys()), 'objects': len(objects), 'kind': obj['kind']}), flush=True)
+
+    pending = [obj for obj in objects if obj['kind'] != 'index' and not ack.get(obj['kind'] + '/' + obj['sha256'])]
+    # Immutable, unrelated object writes may overlap. The mutable index remains
+    # strictly last; checkpoint acknowledgements are written only on this thread.
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        for future in as_completed([pool.submit(upload, obj) for obj in pending]):
+            acknowledge(*future.result())
+    acknowledge(*upload(objects[-1]))
     result = {'events': len(index['events']), 'quotes': index['quotes'], 'credits': index['credits'],
               'objects': len(objects), 'compressed_bytes': sum(o['bytes'] for o in objects), 'verified_upload': True}
     (Path(root) / 'cloud-summary.json').write_text(json.dumps(result, indent=2))

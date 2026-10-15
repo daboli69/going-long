@@ -67,7 +67,7 @@ class HistorySyncTests(unittest.TestCase):
             self.fixture(root)
             post = Mock(return_value=Mock(status_code=200, json=Mock(return_value={'ok': True, 'sha256': 'wrong'})))
             with self.assertRaises(RuntimeError): sync(root, post=post, token='t' * 32)
-            self.assertEqual(post.call_count, 1)
+            self.assertTrue(all(c.kwargs['json']['kind'] != 'index' for c in post.call_args_list))
             self.assertTrue((Path(root) / 'index.sqlite3').exists())
             self.assertFalse((Path(root) / 'cloud-summary.json').exists())
 
