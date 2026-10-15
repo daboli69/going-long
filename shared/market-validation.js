@@ -28,7 +28,7 @@ function clusterBootstrap(diffs,clusters,{iterations=2000,seed=1}={}){
 function pool(probs,weights){let s=0,w=0;for(const [k,p] of Object.entries(probs)){const x=weights[k]||0;if(x>0&&finite(p)){s+=x*p;w+=x;}}return w>0?s/w:null;}
 /* Learns non-negative source weights (sum 1) minimizing log loss of the linear pool by exponentiated gradient.
  * Sources with few training records are shrunk toward the equal-weight prior (sample-size-aware reliability). */
-function learnWeights(records,{sources,priorStrength=200,steps=400,rate=.5}={}){
+function learnWeights(records,{sources,priorStrength=200,steps=500,rate=12}={}){
  const names=sources||[...new Set(records.flatMap(r=>Object.keys(r.probs)))];
  const count=Object.fromEntries(names.map(s=>[s,records.filter(r=>finite(r.probs[s])).length]));
  let w=Object.fromEntries(names.map(s=>[s,1/names.length]));

@@ -27,10 +27,24 @@ Return hurdle 1%, at least 4 independent sources, dispersion <= 1.5 pp, offer qu
 price no shorter than -500, integer lines rejected (no push estimate), same-game parlays rejected (no executable price),
 parlay price = product of posted leg prices (unverified, labelled).
 
+## Historical odds archive (added by the Oct14 archive release; verify before relying on it)
+`docs/HISTORICAL_ODDS_ARCHIVE.md`: a private, finite The Odds API archive (649 verified NFL games 2024-2026, 353,032 observations,
+ten books: Pinnacle, DraftKings, FanDuel, BetMGM, Caesars, BetOnline, Bovada, LowVig, BetRivers, Fanatics). It lives only on the owner's
+PC and in owner-authenticated private storage, so it is **not reachable from cloud sessions** and has not been run here.
+* It has **no Novig or Kalshi** quotes, so the research claim behind the largest weights (Novig 7.5, Kalshi 7) cannot be tested on it.
+  Only equal vs research (FanDuel, DraftKings, Pinnacle, BetOnline, Caesars, BetMGM, Fanatics) vs learned weights among those books can.
+* One board about 30 minutes before kickoff per game (props: sampled). No 24h/6h/1h snapshots, so price-discovery leadership and
+  multi-horizon CLV are not testable from it; that board is not a certified closing line.
+* Run offline on the PC that holds the archive (nothing is written inside Git):
+  `python scripts/missions_history_export.py` then `node scripts/missions_backtest.cjs <root>/missions-backtest-input.json --out <outside-repo>/report.json`.
+  The exporter reuses the archive's actual-schedule gate, keeps the latest pre-kickoff board per game, pairs prices only within one
+  book/market/line, drops pushes, and joins the real final score from `data/nfl_betting.json`. Tested on synthetic fixtures only.
+
 ## Not done / blockers
-* No historical multi-book odds with outcomes and timestamps exist in the repo, so learned vs research weights, CLV, price discovery
-  and the prop over-tax cannot be evaluated on real data. Tools exist and are tested on clearly synthetic data. Next: append-only
-  snapshot capture (buckets in `market-validation.js`) from the scheduled refresh; run `walkForward` once enough weeks exist.
-* Player-prop consensus (props have per-book over/under odds, Novig/FanDuel/Caesars/DraftKings/bet365 covered) is not wired into Missions.
+* The backtest above has not been run on real data (private archive unavailable to this session); results are unknown, not positive or negative.
+  Learned vs research weights, the spread/total/moneyline split and calibration will be real once the owner runs it.
+* No stored 24h/6h/1h/close snapshots of the live feed yet; price discovery and CLV need those (`market-validation.js` has the buckets).
+* Historical prop prices exist only as a sampled archive; the prop over/under tax and prop consensus are not wired to it.
+* Player-prop consensus is not wired into Missions.
 * Missions simulate by reusing the current slate each weekend; future edges are not forecast.
 * `data/missions_model.json` is not refreshed by workflows; a stale snapshot disables the model cross-check automatically.
