@@ -31,9 +31,6 @@ jobs:
       HISTORY_SEASONS: '3'
       PROJECTION_WINDOW: '12'
       PROJECTION_MIN_GAMES: '5'
-      # Owner approved Oct14: 8 individual main markets + 1 derivative query.
-      # One page each (27 credits normally); no unbounded cap-recovery requests.
-      PARLAY_PROPS_PARTITIONS: markets
     steps:
       - uses: actions/checkout@v4
         with:
@@ -78,6 +75,9 @@ jobs:
         run: python scripts/build_nfl_betting.py
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+          # Approved within owner's 20,000/month allowance; scope this to the
+          # real builder, not unit tests or other consumers. Nine single pages.
+          PARLAY_PROPS_PARTITIONS: markets
       - name: Build NCAA odds
         id: ncaa
         continue-on-error: true
