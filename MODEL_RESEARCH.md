@@ -95,3 +95,7 @@ Implementation sensitivity check (not outcome evaluation): exact-current-team re
 ### FantasyPoints integration review - October 15
 
 No experiment run. The licensed CSVs and historical odds database were unreachable from the cloud session, so nothing was re-measured and no protocol was frozen blind. [Integration map](docs/FANTASY_POINTS_INTEGRATION_MAP.md) records, from code and the existing ledger, which families change a forecast (three, research-only), which were rejected (E1/E3/E4/E5/E9), which remain untested (separation, QB pressure) and which need 2026 prospective capture. Candidate next experiments are listed as hypotheses only; each still needs its own frozen split, baselines and acceptance rule written with the data in view. Champions unchanged.
+
+### FantasyPoints E13/E14 - October 15 (local session)
+
+Pre-registered then ran separation (WR/TE yards/g, 2024-25 folds) and QB pressure (passing yards/g, 2023-25 folds), prior season to next season. Neither beat a baseline of the player's own prior per-game production (E13 -1.2%/-1.7%, E14 -4.1%); E14 power is low (78 pairs). No model change. See docs/FANTASY_POINTS_E13_E14_HANDOFF.md.
