@@ -101,3 +101,23 @@ and cloud objects remain intact. Do not delete either as part of code rollback.
 Provider references: [historical API documentation](https://the-odds-api.com/liveapi/guides/v4/),
 [pricing](https://the-odds-api.com/#pricing),
 [retention/use terms](https://the-odds-api.com/terms-and-conditions.html).
+
+## Release and backup verification
+
+PR26/27 code `2841c3b69cd55964163d4544c98643f53850288c` is deployed. Exact-main
+CI38671767568 passed897Node tests,648Python tests run (643passed,5existing
+skips), and both builds; full npm audit found0advisories. Bulk backup acknowledged
+1,142objects (~29.8MB including conservative JSON-envelope overhead). The largest
+event object and index were read back through the server, with exact compressed
+checksums; all649referenced event objects exist. Anonymous API401 and public
+Storage400 verify access remains private. A second credential-free local backup
+is `%LOCALAPPDATA%/GOING/private/GOING-historical-odds-20261014.zip` (~49MB),
+with ZIP integrity checked. Raw acquisition, quota, upload and readback receipts
+remain beside the private local master.
+
+The actual signed-out production panel and synthetic authenticated controls were
+checked. A real owner-authenticated browser read remains unverified because the
+existing GOING login was unavailable; Supabase dashboard login is a separate
+account/session. No account or security policy was changed. The completed data
+and offline reference reader no longer need the subscription; cancellation was
+not performed on the owner's behalf.
