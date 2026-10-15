@@ -44,6 +44,9 @@ to200MB; it uses existing private Supabase Storage, not Postgres rows or a new
 paid plan. Original paused Supabase project and existing datasets are untouched.
 
 Cloud prefix: existing owner-protected `going-fp-private/odds-history/v1/`.
+The bucket accepts JSON only. Stored JSON envelopes losslessly contain original
+gzip bytes in base64 plus SHA256; no bucket MIME/security policy is weakened.
+The200MB staging guard includes envelope/base64 overhead.
 Upload uses the PC's existing constrained `GOING_FP_INGEST_TOKEN`, via fixed
 `https://going-long.vercel.app/api/odds-history`, not the sportsbook credential.
 No credential is added to Git, Vercel, client JavaScript or GitHub Actions.
@@ -74,6 +77,17 @@ Do not run `sample` merely to spend leftover credits. Odds requests generally
 cost multiples of10; an unusable remainder should stay unused.
 
 ## Research limits and rollback
+
+Oct14 acquisition completed at19,992credits (8remaining):491checksum-verified
+original replies reproduce361,802normalized observations. Raw snapshots include
+future and hypothetical playoff matchups. A separate immutable `schedule.json`
+matches exact canonical home/away teams uniquely within36hours to completed
+games in the existing public NFL schedule; quote snapshot must also precede the
+**actual** kickoff. Provider event IDs/kickoffs remain preserved alongside the
+canonical game ID/kickoff. Only649verified games/353,032observations enter the
+app index. The other source observations remain losslessly archived, not labeled
+played games or admitted to evaluation. Source schedule/hash and coverage gaps
+are included in cloud acquisition receipts. No win/loss results select this cohort.
 
 Stored quotes support future actual-price comparisons; they do not establish a
 betting edge. Verify event/player joins, settlement/push/void rules, nearest

@@ -16,11 +16,14 @@ from test_odds_history import BODY
 
 class HistorySyncTests(unittest.TestCase):
     def fixture(self, root):
-        a = Archive(root, fetch=Mock(return_value=Mock(status_code=200, json=Mock(return_value=BODY), headers={
+        body = json.loads(json.dumps(BODY)); body['data'][0].update(home_team='Kansas City Chiefs', away_team='Buffalo Bills')
+        a = Archive(root, fetch=Mock(return_value=Mock(status_code=200, json=Mock(return_value=body), headers={
             'x-requests-last': '30', 'x-requests-used': '30', 'x-requests-remaining': '19970'})))
         a.request('/v4/historical/sports/americanfootball_nfl/odds', {'date': '2025-10-12T16:00:00Z'}, 30, 'provider-private')
         (Path(root) / 'credential.json').write_text(json.dumps({'api_key': 'never-copy-this'}))
         (Path(root) / 'plan.json').write_text(json.dumps({'cutoff': '2025-10-13T00:00:00Z'}))
+        (Path(root) / 'schedule.json').write_text(json.dumps({'sourceSha256': 'a'*64, 'games': [
+            {'game_id': '2025_06_BUF_KC', 'home': 'KC', 'away': 'BUF', 'season': 2025, 'completed': True, 'kickoff': '2025-10-12T17:00:00Z'}]}))
         summary = a.status(); summary['acquisition_complete'] = True
         (Path(root) / 'summary.json').write_text(json.dumps(summary))
         return a
@@ -44,6 +47,25 @@ class HistorySyncTests(unittest.TestCase):
             self.fixture(root)
             p = Path(root) / 'summary.json'; s = json.loads(p.read_text()); s['acquisition_complete'] = False; p.write_text(json.dumps(s))
             with self.assertRaises(ValueError): stage(root)
+
+    def test_hypothetical_matchups_and_quotes_after_actual_kickoff_stay_raw_only(self):
+        with tempfile.TemporaryDirectory() as root:
+            self.fixture(root)
+            p = Path(root) / 'schedule.json'; s = json.loads(p.read_text())
+            s['games'][0]['away'] = 'PHI'; p.write_text(json.dumps(s))
+            objects, index = stage(root)
+            self.assertEqual(index['events'], [])
+            self.assertTrue(any(o['kind'] == 'raw' for o in objects))
+            s['games'][0]['away'] = 'BUF'; s['games'][0]['kickoff'] = '2025-10-12T15:50:00Z'; p.write_text(json.dumps(s))
+            self.assertEqual(stage(root)[1]['events'], [])
+            s['games'][0]['kickoff'] = '2025-10-12T16:30:00Z'; p.write_text(json.dumps(s))
+            objects, index = stage(root)
+            self.assertEqual(index['events'][0]['id'], '2025_06_BUF_KC')
+            obj = next(o for o in objects if o['kind'] == 'event')
+            q = json.loads(gzip.decompress(obj['path'].read_bytes()))['quotes'][0]
+            self.assertEqual(q['event_id'], 'event')
+            self.assertEqual(q['kickoff'], '2025-10-12T16:30:00Z')
+            self.assertEqual(q['provider_kickoff'], '2025-10-12T17:00:00+00:00')
 
     def test_verified_idempotent_upload_uses_existing_limited_token_and_fixed_endpoint(self):
         with tempfile.TemporaryDirectory() as root:

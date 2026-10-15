@@ -12,6 +12,7 @@ function connection(env){
  return {base:new URL('/storage/v1/object/going-fp-private/odds-history/v1/',url),headers:{apikey:key,...(key.startsWith('sb_secret_')?{}:{Authorization:'Bearer '+key})}};
 }
 function validateIndex(data){
+ if(data?.scheduleVerified!==true||!hex(data.scheduleSha256))bad('Verified historical schedule required');
  if(data?.schema!=='going-odds-history-index-v1'||data.historicalOnly!==true||!hex(data.archiveId)||!Number.isFinite(awareTime(data.generatedAt))||!Number.isFinite(awareTime(data.cutoff))||awareTime(data.cutoff)>Date.now()-86400000||!Number.isInteger(data.credits)||data.credits<0||data.credits>20000||!Array.isArray(data.events)||data.events.length>5000)bad('Invalid historical index');
  const seen=new Set();
  for(const e of data.events){
@@ -31,7 +32,7 @@ function validateReceipts(data){
 function validateEvent(data){
  if(data?.schema!=='going-odds-history-event-v1'||!eventId(data.id)||!Array.isArray(data.quotes)||data.quotes.length>50000)bad('Invalid historical event');
  for(const q of data.quotes){
-  if(q.event_id!==data.id||!Number.isFinite(awareTime(q.snapshot_at))||!Number.isFinite(awareTime(q.quote_at))||!Number.isFinite(awareTime(q.kickoff))||awareTime(q.snapshot_at)>=Date.now()-86400000||awareTime(q.quote_at)>awareTime(q.snapshot_at)||awareTime(q.snapshot_at)>=awareTime(q.kickoff)||!Number.isFinite(q.price)||Math.abs(q.price)<100||typeof q.market!=='string'||typeof q.book!=='string'||typeof q.side!=='string')bad('Invalid historical quote');
+  if((q.game_id||q.event_id)!==data.id||!eventId(q.event_id)||!Number.isFinite(awareTime(q.snapshot_at))||!Number.isFinite(awareTime(q.quote_at))||!Number.isFinite(awareTime(q.kickoff))||awareTime(q.snapshot_at)>=Date.now()-86400000||awareTime(q.quote_at)>awareTime(q.snapshot_at)||awareTime(q.snapshot_at)>=awareTime(q.kickoff)||!Number.isFinite(q.price)||Math.abs(q.price)<100||typeof q.market!=='string'||typeof q.book!=='string'||typeof q.side!=='string')bad('Invalid historical quote');
  }
  return data;
 }
@@ -44,46 +45,55 @@ export function decodeObject(data){
  if(data.kind==='event')validateEvent(parsed);
  if(data.kind==='receipts')validateReceipts(parsed);
  if(data.kind==='raw'&&(!Number.isFinite(awareTime(parsed.timestamp))||awareTime(parsed.timestamp)>=Date.now()-86400000||!parsed.data))bad('Invalid raw historical snapshot');
- return {bytes,parsed,path:data.kind==='index'?'index.json.gz':`${data.kind}/${data.sha256}.json.gz`};
+ return {bytes,parsed,path:data.kind==='index'?'index.json':`${data.kind}/${data.sha256}.json`};
+}
+function storedBytes(wire,path){
+ if(wire.length>4_000_000)bad('Historical object too large');
+ let value;try{value=JSON.parse(wire.toString());}catch{bad('Invalid historical storage envelope');}
+ if(value?.schema!=='going-odds-history-object-v1'||!hex(value.sha256)||typeof value.gzip!=='string'||value.gzip.length>3_800_000)bad('Invalid historical storage envelope');
+ const bytes=Buffer.from(value.gzip,'base64');
+ if(bytes.toString('base64')!==value.gzip||sha(bytes)!==value.sha256||(path!=='index.json'&&value.sha256!==path.split('/')[1].split('.')[0]))bad('Historical object checksum mismatch');
+ return bytes;
 }
 async function read(path,{env=process.env,fetchImpl=fetch}={}){
  const c=connection(env),response=await fetchImpl(new URL(path,c.base),{headers:c.headers,signal:AbortSignal.timeout(15000)});
  if(!response.ok){let detail;try{detail=await response.json();}catch{}const e=Error('Historical archive unavailable');e.notFound=response.status===404||String(detail?.statusCode)==='404';throw e;}
- const bytes=Buffer.from(await response.arrayBuffer());
- if(bytes.length>4_000_000)bad('Historical object too large');
- if(path!=='index.json.gz'&&sha(bytes)!==path.split('/')[1].split('.')[0])bad('Historical object checksum mismatch');
+ const bytes=storedBytes(Buffer.from(await response.arrayBuffer()),path);
  return JSON.parse(gunzipSync(bytes,{maxOutputLength:8_000_000}));
 }
 export async function writeHistory(data,options={}){
  const object=decodeObject(data),c=connection(options.env||process.env),fetchImpl=options.fetchImpl||fetch;
  if(data.kind==='index'){
-  let previous;try{previous=await read('index.json.gz',options);}catch(error){if(!error.notFound)throw error;}
+  let previous;try{previous=await read('index.json',options);}catch(error){if(!error.notFound)throw error;}
   if(previous&&previous.archiveId===object.parsed.archiveId&&(previous.quotes>object.parsed.quotes||awareTime(previous.generatedAt)>awareTime(object.parsed.generatedAt)))bad('Historical index regression refused');
   // Verify every referenced event exists before publishing the manifest pointer.
-  const receipts=await fetchImpl(new URL(`receipts/${object.parsed.receiptsSha256}.json.gz`,c.base),{method:'HEAD',headers:c.headers,signal:AbortSignal.timeout(10000)});
+  const receipts=await fetchImpl(new URL(`receipts/${object.parsed.receiptsSha256}.json`,c.base),{method:'HEAD',headers:c.headers,signal:AbortSignal.timeout(10000)});
   if(!receipts.ok)bad('Historical acquisition receipts missing');
   for(let offset=0;offset<object.parsed.events.length;offset+=16){
    await Promise.all(object.parsed.events.slice(offset,offset+16).map(async event=>{
-    const r=await fetchImpl(new URL(`event/${event.sha256}.json.gz`,c.base),{method:'HEAD',headers:c.headers,signal:AbortSignal.timeout(10000)});
+    const r=await fetchImpl(new URL(`event/${event.sha256}.json`,c.base),{method:'HEAD',headers:c.headers,signal:AbortSignal.timeout(10000)});
     if(!r.ok)bad('Historical manifest references missing events');
    }));
   }
  }
- const r=await fetchImpl(new URL(object.path,c.base),{method:'POST',headers:{...c.headers,'Content-Type':'application/gzip','x-upsert':data.kind==='index'?'true':'false'},body:object.bytes,signal:AbortSignal.timeout(15000)});
+ // Existing owner-protected bucket deliberately allows application/json only.
+ // Preserve the exact gzip bytes in base64 instead of loosening bucket policy.
+ const wire=JSON.stringify({schema:'going-odds-history-object-v1',sha256:data.sha256,gzip:data.gzip});
+ const r=await fetchImpl(new URL(object.path,c.base),{method:'POST',headers:{...c.headers,'Content-Type':'application/json','x-upsert':data.kind==='index'?'true':'false'},body:wire,signal:AbortSignal.timeout(15000)});
  if(!r.ok){
   if(r.status!==400&&r.status!==409)bad('Historical storage write failed');
   // Immutable objects may already exist; verify content instead of trusting409.
   if(data.kind==='index')bad('Historical index write failed');
   const existing=await fetchImpl(new URL(object.path,c.base),{headers:c.headers,signal:AbortSignal.timeout(15000)});
-  if(!existing.ok||sha(Buffer.from(await existing.arrayBuffer()))!==data.sha256)bad('Historical object conflict');
+  if(!existing.ok||sha(storedBytes(Buffer.from(await existing.arrayBuffer()),object.path))!==data.sha256)bad('Historical object conflict');
  }
  return {ok:true,sha256:data.sha256,bytes:object.bytes.length};
 }
 export async function readHistory(event,market,options={}){
- const index=validateIndex(await read('index.json.gz',options));
+ const index=validateIndex(await read('index.json',options));
  if(!event)return index;
  const entry=index.events.find(e=>e.id===event);if(!entry)bad('Unknown archived event');
- const data=validateEvent(await read(`event/${entry.sha256}.json.gz`,options));
+ const data=validateEvent(await read(`event/${entry.sha256}.json`,options));
  if(data.id!==event||data.quotes.length!==entry.quotes)bad('Historical manifest/event mismatch');
  const book=options.book,offset=Number(options.offset||0);
  if(!Number.isInteger(offset)||offset<0||offset>50000)bad('Invalid historical page');
