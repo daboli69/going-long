@@ -12,6 +12,7 @@ function connection(env){
  return {base:new URL('/storage/v1/object/going-fp-private/odds-history/v1/',url),headers:{apikey:key,...(key.startsWith('sb_secret_')?{}:{Authorization:'Bearer '+key})}};
 }
 function validateIndex(data){
+ if(data?.scheduleVerified!==true||!hex(data.scheduleSha256))bad('Verified historical schedule required');
  if(data?.schema!=='going-odds-history-index-v1'||data.historicalOnly!==true||!hex(data.archiveId)||!Number.isFinite(awareTime(data.generatedAt))||!Number.isFinite(awareTime(data.cutoff))||awareTime(data.cutoff)>Date.now()-86400000||!Number.isInteger(data.credits)||data.credits<0||data.credits>20000||!Array.isArray(data.events)||data.events.length>5000)bad('Invalid historical index');
  const seen=new Set();
  for(const e of data.events){
@@ -31,7 +32,7 @@ function validateReceipts(data){
 function validateEvent(data){
  if(data?.schema!=='going-odds-history-event-v1'||!eventId(data.id)||!Array.isArray(data.quotes)||data.quotes.length>50000)bad('Invalid historical event');
  for(const q of data.quotes){
-  if(q.event_id!==data.id||!Number.isFinite(awareTime(q.snapshot_at))||!Number.isFinite(awareTime(q.quote_at))||!Number.isFinite(awareTime(q.kickoff))||awareTime(q.snapshot_at)>=Date.now()-86400000||awareTime(q.quote_at)>awareTime(q.snapshot_at)||awareTime(q.snapshot_at)>=awareTime(q.kickoff)||!Number.isFinite(q.price)||Math.abs(q.price)<100||typeof q.market!=='string'||typeof q.book!=='string'||typeof q.side!=='string')bad('Invalid historical quote');
+  if((q.game_id||q.event_id)!==data.id||!eventId(q.event_id)||!Number.isFinite(awareTime(q.snapshot_at))||!Number.isFinite(awareTime(q.quote_at))||!Number.isFinite(awareTime(q.kickoff))||awareTime(q.snapshot_at)>=Date.now()-86400000||awareTime(q.quote_at)>awareTime(q.snapshot_at)||awareTime(q.snapshot_at)>=awareTime(q.kickoff)||!Number.isFinite(q.price)||Math.abs(q.price)<100||typeof q.market!=='string'||typeof q.book!=='string'||typeof q.side!=='string')bad('Invalid historical quote');
  }
  return data;
 }

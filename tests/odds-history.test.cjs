@@ -6,7 +6,7 @@ const quote=()=>({id:'quote',event_id:'event',snapshot_at:clock,quote_at:'2025-1
 const event=()=>({schema:'going-odds-history-event-v1',id:'event',quotes:[quote()]});
 const pack=(kind,data)=>{const b=gzipSync(JSON.stringify(data));return {schema:'going-odds-history-upload-v1',kind,sha256:createHash('sha256').update(b).digest('hex'),gzip:b.toString('base64')};};
 const stored=p=>Buffer.from(JSON.stringify({schema:'going-odds-history-object-v1',sha256:p.sha256,gzip:p.gzip}));
-const index=(digest)=>({schema:'going-odds-history-index-v1',historicalOnly:true,archiveId:hex,generatedAt:'2026-01-01T00:00:00Z',cutoff:'2025-12-31T00:00:00Z',credits:30,quotes:1,receiptsSha256:hex,events:[{id:'event',sha256:digest,home:'Home',away:'Away',kickoff:'2025-10-12T17:00:00Z',quotes:1}]});
+const index=(digest)=>({schema:'going-odds-history-index-v1',historicalOnly:true,scheduleVerified:true,scheduleSha256:hex,archiveId:hex,generatedAt:'2026-01-01T00:00:00Z',cutoff:'2025-12-31T00:00:00Z',credits:30,quotes:1,receiptsSha256:hex,events:[{id:'event',sha256:digest,home:'Home',away:'Away',kickoff:'2025-10-12T17:00:00Z',quotes:1}]});
 test('historical storage refuses corrupt, live, mixed-identity and post-kickoff records',async()=>{
  const {decodeObject}=await import('../server/odds-history-store.mjs');
  assert.equal(decodeObject(pack('event',event())).parsed.quotes.length,1);
