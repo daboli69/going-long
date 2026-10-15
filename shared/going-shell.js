@@ -8,7 +8,7 @@
  const names={home:'',long:'LONG',missions:'LONG',yard:'YARD',results:'LONG',roster:'LONG'};
  const shell=document.createElement('div');shell.id='going-shell';shell.setAttribute('role','banner');
  const links=[['home','Home','/'],['long','Football','/long/?mode=betting'],['missions','Missions','/missions/'],['yard','Baseball','/yard/?mode=betting'],['roster','Players','/players/'],['results','Results','/results/']];
- shell.innerHTML=`<div class="going-shell-inner"><a class="going-wordmark" href="${base}/" aria-label="GOING home"><span>GOING</span>${names[workspace]?`<span class="going-wordmark-sport">${names[workspace]}</span>`:''}<i aria-hidden="true"></i></a><nav class="going-global-nav" aria-label="GOING navigation">${links.map(([key,label,url])=>`<a href="${base}${url}"${workspace===key?' aria-current="page"':''}>${label}</a>`).join('')}</nav></div>`;
+ shell.innerHTML=`<div class="going-shell-inner"><a class="going-wordmark" href="${base}/" aria-label="GOING home"><span>GOING</span>${names[workspace]?`<span class="going-wordmark-sport">${names[workspace]}</span>`:''}<i aria-hidden="true"></i></a><nav class="going-global-nav" aria-label="GOING navigation">${links.map(([key,label,url])=>`<a href="${base}${url}" data-nav="${key}"${workspace===key?' aria-current="page"':''}>${label}</a>`).join('')}</nav></div>`;
  document.body.prepend(shell);
  const visual=document.createElement('script');visual.src=new URL('visual-system.js',assetRoot).href;document.head.append(visual);
  // Existing sticky controls need the actual shared-header height, including zoom.
