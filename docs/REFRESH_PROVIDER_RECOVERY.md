@@ -91,3 +91,30 @@ verify complete reconstruction within two requests, unique identities, retained
 clocks and failures of either mixed query. A single market that still exceeds
 the cap remains degraded; additional requests or service spending require a
 separate decision. Receipt: `.cache/props-cap-partitions/offline-plan.json`.
+
+The two-query hosted trial38663793308 **failed** its final health check: partition1
+returned6376rows without truncation; partition2 returned7203rows but reported a
+busy-book read-window cut. Continued workflow steps report successful conclusions
+under continue-on-error; these are not proof of source success. The final health
+artifact and step outcome are authoritative. No incomplete NFL file was published.
+
+Travis then explicitly authorized reasonable additional pulls against his20000
+monthly-credit allowance. The scheduled workflow now selects `markets`: eight
+single-main-market queries plus one small derivative query, serialized and capped
+at one page each. Normal successful props cost27credits/run, about2350/month on
+the20/week schedule (excluding other endpoints, website/manual/scanner usage and
+ambiguous transport retries). No upgrade, overage setting or new service enabled.
+Default standalone behavior stays two queries. Full provider hints are retained
+up to2048characters with credential redaction. Wire `market_key` takes precedence
+over the descriptive `market` field in coverage counts. Core/derivative clocks
+and freshness still reflect every relevant request.
+
+Isolated real-provider check38665006872 returned FRESH for all nine scopes, no
+truncation/errors (11124main/1189derivative raw rows before the explicit-period
+normalization follow-up). This did not write any public file. Source API defines
+`market` as descriptive and `market_key` plus `period` as the actual contract;
+the adapter now maps explicit1H/Q1 periods to the supported derivative family,
+rejects unknown/contradictory periods, and keeps FULL distinct in quote identities.
+Missing legacy period fields retain prior key-based compatibility. Synthetic
+regression proves a1H passing-yard quote cannot become a full-game quote. See
+https://parlay-api.com/docs/response-shapes and its period/market alias guidance.

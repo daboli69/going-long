@@ -1,0 +1,36 @@
+name: Audit NFL provider coverage (no publication)
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/props-market-scopes']
+    paths:
+      - '.github/workflows/provider-coverage.yml'
+      - 'scripts/parlay_feed.py'
+      - 'scripts/check_parlay_coverage.py'
+permissions:
+  contents: read
+concurrency:
+  group: refresh-going-long-data
+  cancel-in-progress: false
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install 'requests>=2.31,<3'
+      - name: Check nine market scopes without writing public snapshots
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+          PARLAY_PROPS_PARTITIONS: markets
+        run: python scripts/check_parlay_coverage.py --report "$RUNNER_TEMP/provider-coverage.json"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: nfl-provider-diagnostic
+          path: ${{ runner.temp }}/provider-coverage.json
+          if-no-files-found: warn
+          retention-days: 7

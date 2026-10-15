@@ -70,7 +70,18 @@ export function normalizeProps(rows, now=Date.now()){
   const out=new Map();
   for(const r of rows){
     if(!r||typeof r!=='object'||Array.isArray(r)||!validStringFields(r,['market_key','player','bookmaker']))continue;
-    const market=Object.hasOwn(MARKET_MAP,r.market_key)?MARKET_MAP[r.market_key]:null;
+    let market=Object.hasOwn(MARKET_MAP,r.market_key)?MARKET_MAP[r.market_key]:null;
+    if(market&&r.period!=null){
+      if(typeof r.period!=='string')continue;
+      const period=r.period.trim().toUpperCase();
+      if(/_1[hq]$/.test(market)){
+        if(period!==(market.endsWith('_1h')?'1H':'Q1'))continue;
+      }else if(period!=='FULL'){
+        const suffix=period==='1H'?'_1h':period==='Q1'?'_1q':null;
+        if(!suffix||!Object.hasOwn(markets,market+suffix))continue;
+        market+=suffix;
+      }
+    }
     if(!market||!r.player||!r.bookmaker)continue;
     const kickoff=r.commence_time||null;
     if(kickoff&&(!awareTime(kickoff)||Date.parse(kickoff)<=now))continue;

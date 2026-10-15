@@ -40,6 +40,53 @@ class ParlayTests(unittest.TestCase):
         self.assertTrue(rows.truncated)
         self.assertIn('internal per-source cap', rows.diagnostics[0]['hint'])
 
+    def test_approved_market_scopes_have_fixed_budget_and_wire_counts(self):
+        groups = props_query_plan([], 'markets')
+        self.assertEqual(len(groups), 9)
+        self.assertEqual(sorted(market for group in groups for market in group), sorted(GROUPS))
+        def get(sport, endpoint, params, key, **kwargs):
+            if endpoint != 'props':
+                return ProviderRows()
+            self.assertEqual(kwargs['max_pages'], 1)
+            return ProviderRows([dict(player='P', bookmaker='book', market_key=market,
+                                      market='Descriptive provider label', line=.5)
+                                 for market in params['markets'].split(',')])
+        with patch.dict('os.environ', {'PARLAY_API_KEY': 'fixture', 'PARLAY_PROPS_PARTITIONS': 'markets'}), patch('parlay_feed.request_rows', side_effect=get) as calls:
+            result = _fetch_parlay('nfl')
+        self.assertEqual(calls.call_count, 11)  # Nine props + existing odds/periods.
+        self.assertEqual(result['feed_status'], 'FRESH')
+        self.assertEqual(result['coverage']['raw_props'], 8)
+        self.assertEqual(result['coverage']['derivative_props'], len(GROUPS) - 8)
+
+    def test_explicit_wire_period_cannot_be_priced_as_full_game(self):
+        quote = dict(player='QB', bookmaker='book', market_key='player_pass_yds', line=60.5,
+                     market='Descriptive provider label')
+        rows = normalize_props([dict(quote, period=period) for period in ('FULL', '1H', 'Q1')])
+        self.assertEqual([row['market'] for row in rows], ['pass_yds', 'pass_yds_1h', 'pass_yds_1q'])
+        self.assertEqual(len({row['quoteKey'] for row in rows}), 3)
+        for period in ('UNKNOWN', '', 'Q2', {}, 'HALFTIME'):
+            with self.subTest(period=period):
+                self.assertEqual(normalize_props([dict(quote, period=period)]), [])
+        self.assertEqual(normalize_props([dict(quote, market_key='player_pass_yds_1st_half', period='FULL')]), [])
+        self.assertEqual(normalize_props([dict(quote, market_key='player_anytime_td', period='1H')]), [])
+
+    def test_one_page_budget_does_not_certify_unfetched_continuation(self):
+        response = self.response(200, [], {'x-result-has-more': 'true', 'x-next-offset': '10000'})
+        with patch('parlay_feed.requests.get', return_value=response) as get:
+            rows = request_rows('nfl', 'props', {}, 'fixture', max_pages=1)
+        self.assertEqual(get.call_count, 1)
+        self.assertTrue(rows.truncated)
+
+    def test_full_read_window_hint_is_retained_but_bounded_and_redacted(self):
+        hint = 'read window ' + 'x' * 400 + ' affected scope fixture ' + 'x' * 2000
+        response = self.response(200, [], {'x-result-truncated': 'true', 'x-result-truncated-hint': hint})
+        with patch('parlay_feed.requests.get', return_value=response):
+            rows = request_rows('nfl', 'props', {}, 'fixture')
+        captured = rows.diagnostics[0]['hint']
+        self.assertIn('affected scope', captured)
+        self.assertNotIn('fixture', captured)
+        self.assertEqual(len(captured), 2048)
+
     def test_balanced_refresh_restores_full_synthetic_board_without_more_requests(self):
         previous = self.large_board()
         def get(sport, endpoint, params, key):
