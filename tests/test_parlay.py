@@ -8,10 +8,86 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from parlay_feed import normalize_props, normalize_periods, request_rows, fetch_parlay, _fetch_parlay, ProviderRows, retry_after_seconds
+from parlay_feed import normalize_props, normalize_periods, request_rows, fetch_parlay, _fetch_parlay, ProviderRows, retry_after_seconds, props_query_plan, GROUPS, MARKET_MAP
 
 
 class ParlayTests(unittest.TestCase):
+    def large_board(self):
+        # Synthetic row-volume fixture: former core query exceeds the serving cap.
+        counts = {'rec_yds': 3400, 'atd': 3100, 'receptions': 2100, 'rush_yds': 1400,
+                  'pass_yds': 900, 'pass_tds': 310, 'first_td': 400,
+                  'receptions_1q': 300, 'pass_yds_1h': 300}
+        return [dict(quoteKey=f'{market}-{i}', market=market, player=f'P-{i}',
+                     updatedAt='2026-10-10T12:00:00Z')
+                for market, count in counts.items() for i in range(count)]
+
+    def test_large_board_balances_every_market_exactly_once_with_two_queries(self):
+        previous = self.large_board()
+        groups = props_query_plan(previous)
+        self.assertEqual(len(groups), 2)
+        self.assertEqual(sorted(market for group in groups for market in group), sorted(GROUPS))
+        counts = [sum(row['market'] in group for row in previous) for group in groups]
+        self.assertLess(max(counts), 8000)
+        self.assertEqual(groups, props_query_plan(list(reversed(previous))))
+
+    def test_internal_cap_never_spends_a_second_page_even_with_has_more(self):
+        response = self.response(200, [{'row': 1}], {'x-result-truncated': 'true',
+            'x-result-has-more': 'true', 'x-next-offset': '10000',
+            'x-result-truncated-hint': 'internal per-source cap'})
+        with patch('parlay_feed.requests.get', return_value=response) as get:
+            rows = request_rows('nfl', 'props', {'limit': 10000}, 'fixture')
+        self.assertEqual(get.call_count, 1)
+        self.assertTrue(rows.truncated)
+        self.assertIn('internal per-source cap', rows.diagnostics[0]['hint'])
+
+    def test_balanced_refresh_restores_full_synthetic_board_without_more_requests(self):
+        previous = self.large_board()
+        def get(sport, endpoint, params, key):
+            if endpoint != 'props':
+                return ProviderRows()
+            markets = {MARKET_MAP[key] for key in params['markets'].split(',')}
+            rows = [row for row in previous if row['market'] in markets]
+            return ProviderRows(rows[:10000], truncated=len(rows) > 10000)
+        with patch.dict('os.environ', {'PARLAY_API_KEY': 'fixture'}), patch('parlay_feed.request_rows', side_effect=get) as calls:
+            result = _fetch_parlay('nfl', {'props': previous})
+        self.assertEqual(calls.call_count, 4)
+        self.assertEqual(result['feed_status'], 'FRESH')
+        self.assertFalse(result['coverage']['possibly_truncated'])
+        self.assertEqual(len(result['props']), len(previous))
+        self.assertEqual(len({row['quoteKey'] for row in result['props']}), len(previous))
+        self.assertTrue(all(row['updatedAt'] == '2026-10-10T12:00:00Z' for row in result['props']))
+
+    def test_mixed_partition_outage_preserves_correct_market_fallback_and_family_states(self):
+        previous = self.large_board()
+        groups = props_query_plan(previous)
+        for fail_index in (0, 1):
+            def get(sport, endpoint, params, key):
+                if endpoint != 'props':
+                    return ProviderRows()
+                markets = {MARKET_MAP[key] for key in params['markets'].split(',')}
+                if markets == set(groups[fail_index]):
+                    raise RuntimeError('partition unavailable')
+                return ProviderRows([dict(row, updatedAt='2026-10-11T12:00:00Z') for row in previous if row['market'] in markets])
+            with self.subTest(fail_index=fail_index), patch.dict('os.environ', {'PARLAY_API_KEY': 'fixture'}), patch('parlay_feed.request_rows', side_effect=get):
+                result = _fetch_parlay('nfl', {'props': previous, 'last_fresh_at': 'original'})
+            self.assertEqual(result['feed_status'], 'FALLBACK')
+            self.assertEqual(result['last_fresh_at'], 'original')
+            self.assertNotEqual(result['source_states']['props'], 'FRESH')
+            self.assertNotEqual(result['source_states']['derivatives'], 'FRESH')
+            self.assertEqual(len(result['props']), len(previous))
+            for row in result['props']:
+                self.assertEqual(row['updatedAt'], '2026-10-10T12:00:00Z' if row['market'] in groups[fail_index] else '2026-10-11T12:00:00Z')
+
+    def test_unrecoverable_single_market_still_fails_closed(self):
+        previous = [dict(quoteKey=str(i), market='atd') for i in range(11000)]
+        def get(sport, endpoint, params, key):
+            return ProviderRows([], truncated=endpoint == 'props' and 'player_anytime_td' in params['markets'].split(','))
+        with patch.dict('os.environ', {'PARLAY_API_KEY': 'fixture'}), patch('parlay_feed.request_rows', side_effect=get):
+            result = _fetch_parlay('nfl', {'props': previous})
+        self.assertEqual(result['feed_status'], 'FALLBACK')
+        self.assertEqual(result['source_states']['props'], 'DEGRADED')
+        self.assertTrue(result['coverage']['possibly_truncated'])
+
     def response(self, status, body, headers=None):
         return Mock(ok=status < 400, status_code=status, headers=headers or {}, json=Mock(return_value=body))
 

@@ -196,6 +196,7 @@ def audit(root=ROOT, now=None, outcomes=None, changed=None):
         required = ('odds', 'props', 'derivatives') if sport == 'nfl' else ('odds',)
         artifacts.setdefault(name, {}).update(feed_status=doc.get('feed_status'), source_states=states,
                                                source_errors=mapping(doc.get('source_errors')),
+                                               coverage=mapping(doc.get('coverage')),
                                                last_attempt_at=doc.get('last_attempt_at'),
                                                last_fresh_at=doc.get('last_fresh_at'))
         if doc.get('feed_status') != 'FRESH' or doc.get('refresh_status') != 'FRESH':
