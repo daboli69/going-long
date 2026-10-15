@@ -181,6 +181,17 @@ function referenceStrategies({offers,cfg,betTypes}){
  return out;
 }
 
+// Best executable sportsbook prices that did NOT qualify, with the reason, so an empty result still explains itself.
+function nearMisses(offers,limit=5){
+ const seen=new Set(),out=[];
+ for(const o of offers.filter(x=>!x.qualified&&!x.exchange&&finite(x.ev)).sort((a,b)=>b.ev-a.ev)){
+  const key=[o.eventId,o.market,o.side].join('|');if(seen.has(key))continue;seen.add(key);
+  out.push({id:o.id,selection:o.selection,home:o.home,away:o.away,book:o.book,american:o.american,ev:o.ev,p:o.p,breakeven:o.breakeven,sources:o.consensus.sources,reasons:o.reasons});
+  if(out.length>=limit)break;
+ }
+ return out;
+}
+
 // ---- mission orchestration ------------------------------------------------------------------------------------------
 const OBJECTIVES={survival:'Survival',growth:'Growth',parlay:'Parlay','cash-out':'Cash-Out'};
 function runMission(raw,input={}){
@@ -208,7 +219,7 @@ function runMission(raw,input={}){
   return {id:s.id,name:s.name,qualified:s.qualified,reference:!s.qualified&&s.id!=='none',negativeEv:tickets.some(t=>t.ev<0),tickets,result:results[i]};
  });
  return {objective,objectiveLabel:OBJECTIVES[objective],mission:{...cfg,exposure},qualified:offers.filter(o=>o.qualified).sort((a,b)=>scoreFor(objective,b,sc)-scoreFor(objective,a,sc)),parlays:chooseParlays(parlays,objective,sc),
-  strategies:strategiesOut,diagnostics:{...built.diagnostics,offerCount:offers.length,qualifiedCount:offers.filter(o=>o.qualified).length,parlayCandidates:parlays.length,parlayRejected:rejected,
+  nearMisses:nearMisses(offers),strategies:strategiesOut,diagnostics:{...built.diagnostics,offerCount:offers.length,qualifiedCount:offers.filter(o=>o.qualified).length,parlayCandidates:parlays.length,parlayRejected:rejected,
    assumptions:['Each simulated weekend reuses this slate as its opportunity template; future edges are not forecast.','Cross-game parlays assume independence; same-game parlays are rejected because no executable same-game price exists in the feed.','Parlay ticket price is the product of posted leg prices and must be confirmed in the book.',`Probability uncertainty: logit sd ${simConfig.sigmaLeg??SIM.DEFAULTS.sigmaLeg} per leg-weekend plus ${simConfig.sigmaSystematic??SIM.DEFAULTS.sigmaSystematic} systematic.`,'Market consensus is not proof of profitability; no validated edge is claimed.']}};
 }
 

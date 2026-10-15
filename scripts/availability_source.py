@@ -49,6 +49,7 @@ def load_source(kind, season, now=None, roster=None):
         week = max((int(r.get('week') or 0) for r in rows if r.get('season_type') == 'REG'), default=0)
         # nflverse report rows carry no aware report clock. NFLMeta's verified weekly
         # club reports supply dated designations; without them the gate stays closed.
+        weekly, clubs, unverified_clubs = None, {}, []
         try:
             verified = None
             weekly = nflmeta_source.fetch_week(season, week, now)
@@ -57,8 +58,13 @@ def load_source(kind, season, now=None, roster=None):
                            if r.get('season') == season and r.get('game_type') == 'REG' and r.get('week') == week and r.get('team')}
                 verified = nflmeta_source.verify(weekly, week, now, required_teams=playing)
         except (requests.RequestException, RuntimeError, ValueError, KeyError, TypeError) as exc:
-            print(f'[availability] NFLMeta verification unavailable: {exc}')
+            print(f'[availability] NFLMeta full-league verification unavailable: {exc}')
             verified = None
+            # One unverified club must not hide every other club's complete report: verify clubs individually.
+            if weekly is not None:
+                clubs, unverified_clubs = nflmeta_source.verify_clubs(weekly, week, now)
+                if clubs:
+                    print(f'[availability] per-club NFLMeta verification: {len(clubs)} clubs verified; not verified: {", ".join(unverified_clubs) or "none reported"}')
         if verified:
             # Date merged designations no later than the nflverse bytes they join, so a
             # report is never newer than the snapshot's own content clock on the next run.
@@ -72,14 +78,45 @@ def load_source(kind, season, now=None, roster=None):
                          if r.get('season_type') == 'REG' and int(r.get('week') or 0) == week]
         dated = [t for t in report_stamps if _age_hours(t, now) is not None]
         latest = min(dated, key=lambda t: _age_hours(t, now)) if dated else None
+        club_scope = {}
+        if not verified and clubs:
+            # Designations only from verified clubs; players of other clubs never inherit them or a clearance.
+            club_doc = {**weekly, 'rows': [r for r in weekly.get('rows') or [] if nflmeta_source.team_code(r.get('team_abbr')) in clubs]}
+            oldest = max(clubs.values(), key=lambda t: _age_hours(t, now))
+            as_of = min((stamp, source_stamp(oldest)), key=lambda t: datetime.fromisoformat(t.replace('Z', '+00:00')))
+            rows, merged = nflmeta_source.merge(rows, roster or [], club_doc, season, week, as_of)
+            metadata['nflmeta'] = {'provider': 'NFLMeta weekly club game-status reports (per-club verification)', 'verified_at': source_stamp(oldest),
+                                   'club_reports': len(clubs), 'unverified_clubs': unverified_clubs, **merged}
+            for r in roster or []:
+                team = nflmeta_source.team_code(r.get('team'))
+                if (r.get('season') == season and r.get('game_type') == 'REG' and r.get('week') == week and r.get('gsis_id')
+                        and team in clubs):
+                    club_scope[r['gsis_id']] = {'team': r['team'], 'reported_at': clubs[team]}
+            report_stamps = [source_stamp(r.get('date_modified')) for r in rows
+                             if r.get('season_type') == 'REG' and int(r.get('week') or 0) == week]
+            dated = [t for t in report_stamps if _age_hours(t, now) is not None]
+            latest = min(dated, key=lambda t: _age_hours(t, now)) if dated else None
         if not verified or not latest or not -.5 <= _age_hours(latest, now) <= 36:
             # Midweek final game-status reports can be incomplete. A public dated
             # player report can verify that player only, never an unlisted teammate.
             from espn_availability import fetch_explicit
+            explicit, fallback = [], None
             try:
                 explicit, fallback = fetch_explicit(roster or [], season, week, now)
             except (requests.RequestException, RuntimeError, ValueError, KeyError, TypeError) as exc:
-                raise RuntimeError('injuries: current report content stale or unavailable; explicit-player fallback unavailable; previous snapshot retained') from exc
+                if not club_scope:
+                    raise RuntimeError('injuries: current report content stale or unavailable; explicit-player fallback unavailable; previous snapshot retained') from exc
+            if club_scope:
+                players = dict(club_scope)
+                for gid, row in ((fallback or {}).get('availability_verification') or {}).get('players', {}).items():
+                    players.setdefault(gid, row)  # ESPN adds players of clubs NFLMeta could not verify; never overrides a club entry
+                scope = {'mode': 'explicit-player-reports', 'season': season, 'week': week, 'players': players}
+                freshest = min((v['reported_at'] for v in players.values()), key=lambda t: _age_hours(t, now))
+                digest = hashlib.sha256(json.dumps({'rows': explicit, 'scope': scope, 'nflmeta': metadata['nflmeta']['designation_sha256']}, sort_keys=True).encode()).hexdigest()
+                fallback = {**(fallback or {}), 'provider': 'NFLMeta per-club verified reports' + (' plus ESPN dated player reports' if fallback else ''),
+                            'report_content_at': freshest, 'sha256': digest, 'availability_verification': scope,
+                            'timestamp_basis': 'Latest dated club or player report; each player expires independently; request time ignored',
+                            'note': 'Only players of clubs with a complete verified NFLMeta report, or with an exact dated ESPN report, are cleared.'}
             rows += explicit
             metadata['nflverse'] = {'url': metadata['url'], 'sha256': metadata['sha256'], 'uploaded_at': stamp}
             metadata.update(fallback)

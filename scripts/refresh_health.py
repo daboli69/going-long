@@ -28,7 +28,7 @@ OUTPUT_OWNERS = {
     'injury_context': ('data/injury_context.json',), 'roster_public': ('data/nfl_roster.json',),
     'going_score': ('data/going_score.json',), 'results': ('data/results.json',),
     'tracker': ('data/public_tracker.json', 'data/public_tracker/'), 'charts': ('data/charts/',),
-    'validation_ledger': ('data/derived/',), 'consumer_data': ('data/opportunities.json', 'data/signal_tracker.json', 'data/signal_archive/'),
+    'validation_ledger': ('data/derived/',), 'consumer_data': ('data/opportunities.json', 'data/signal_tracker.json', 'data/signal_archive/'), 'missions_model': ('data/missions_model.json',),
     'freeze': ('data/freezes/', 'data/td_shadow/', 'data/nb_shadow/'), 'abbeys_board': ('data/abbeys-board.json',),
     'dfs_team_td': ('data/dfs_team_touchdowns.json',), 'dfs_kickers': ('data/dfs_kickers.json',), 'season_learning': ('data/season_learning.json',),
     'savant': ('data/savant_context.json',), 'jackpot': ('data/king-endzone.json', 'data/jackpot/'),

@@ -117,3 +117,10 @@ test('real snapshot replay: every offer carries a price that exists in the feed;
  for(const o of r.qualified){assert.ok(o.ev>=M.POLICY.minEv);assert.ok(!o.exchange);}
  assert.equal(r.strategies[0].id,'none');
 });
+test('when nothing qualifies the closest executable prices are listed with their reasons',()=>{
+ const r=run([event(0,{edge:false})]);
+ assert.equal(r.qualified.length,0);assert.ok(r.nearMisses.length>0&&r.nearMisses.length<=5);
+ assert.ok(r.nearMisses.every(n=>n.reasons.length>0&&Number.isFinite(n.ev)&&n.sources>=4));
+ assert.ok(r.nearMisses.every((n,i,a)=>i===0||a[i-1].ev>=n.ev));
+ assert.equal(new Set(r.nearMisses.map(n=>n.id.split('|').slice(0,4).join('|'))).size>=1,true);
+});
