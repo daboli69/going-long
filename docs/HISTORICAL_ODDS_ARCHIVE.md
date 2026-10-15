@@ -44,6 +44,9 @@ to200MB; it uses existing private Supabase Storage, not Postgres rows or a new
 paid plan. Original paused Supabase project and existing datasets are untouched.
 
 Cloud prefix: existing owner-protected `going-fp-private/odds-history/v1/`.
+The bucket accepts JSON only. Stored JSON envelopes losslessly contain original
+gzip bytes in base64 plus SHA256; no bucket MIME/security policy is weakened.
+The200MB staging guard includes envelope/base64 overhead.
 Upload uses the PC's existing constrained `GOING_FP_INGEST_TOKEN`, via fixed
 `https://going-long.vercel.app/api/odds-history`, not the sportsbook credential.
 No credential is added to Git, Vercel, client JavaScript or GitHub Actions.

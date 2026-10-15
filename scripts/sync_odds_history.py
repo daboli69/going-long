@@ -76,7 +76,7 @@ def stage(root):
              'generatedAt': datetime.now(timezone.utc).isoformat(), 'receiptsSha256': receipt_sha,
              'credits': summary['credits_charged_or_reserved'], 'quotes': sum(e['quotes'] for e in events), 'events': events}
     add('index', index)
-    if sum(o['bytes'] for o in objects) > MAX_BYTES:
+    if sum((o['bytes'] + 2) // 3 * 4 + 256 for o in objects) > MAX_BYTES:
         raise ValueError('Additional cloud backup exceeds200MB; local data intact, no paid storage used')
     return objects, index
 
@@ -118,7 +118,8 @@ def sync(root, *, post=requests.post, token=None):
             acknowledge(*future.result())
     acknowledge(*upload(objects[-1]))
     result = {'events': len(index['events']), 'quotes': index['quotes'], 'credits': index['credits'],
-              'objects': len(objects), 'compressed_bytes': sum(o['bytes'] for o in objects), 'verified_upload': True}
+              'objects': len(objects), 'compressed_bytes': sum(o['bytes'] for o in objects),
+              'estimated_storage_bytes': sum((o['bytes'] + 2) // 3 * 4 + 256 for o in objects), 'verified_upload': True}
     (Path(root) / 'cloud-summary.json').write_text(json.dumps(result, indent=2))
     return result
 
