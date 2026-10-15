@@ -118,3 +118,24 @@ rejects unknown/contradictory periods, and keeps FULL distinct in quote identiti
 Missing legacy period fields retain prior key-based compatibility. Synthetic
 regression proves a1H passing-yard quote cannot become a full-game quote. See
 https://parlay-api.com/docs/response-shapes and its period/market alias guidance.
+
+## Final nine-scope release
+
+PR25/code `45bc7ba842ee0dd35c45edbc92e2527cfefe8447` is deployed. Final isolated
+check38665400121 passed all nine scopes. Exact-mainCI38665754413 passed889Node,
+635Pythonrun(630passed,5existing skips), both builds. Full production
+refresh38665754655 finished success: healthy/publication_ready true, no issues,
+source failures or publication failures. Data commit
+`8a14380581bfb1d3a7e05f0ab8d2fc062227622c` contains10352main/746derivative raw
+rows accepted by contract classification; all nine scopes FRESH, no truncation.
+Unknown/unsupported contract rows are separately counted and excluded. Savant API
+403/valid CSV fallback remains a truthful, non-blocking warning. Code deployment
+414Xmo9At2FQZ7nq2fCcz7RcM7KB and data deployment8awqKbeVbcjgAi1gEERfwKRpCHoo
+succeeded. Receipts: `.cache/props-cap-partitions/market-scopes/`, including both
+isolated provider reports, exact-main CI and full hosted refresh health/logs.
+
+Claude handoff: pull main including PRs24and25 before publishing other changes.
+Keep the NFL-step-only `PARLAY_PROPS_PARTITIONS: markets`, request/page bounds,
+explicit-period guards in both adapters, and strict final source health. Continued
+step conclusions are not source-health evidence. Keep Recovery Supabase/Vercel
+settings and PR22 availability scope contract unchanged. No model promotion.
