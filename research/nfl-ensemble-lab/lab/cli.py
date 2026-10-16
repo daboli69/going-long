@@ -22,6 +22,9 @@ def main(argv=None) -> None:
     p.add_argument("--week", type=int)
     sub.add_parser("report")
     sub.add_parser("readiness")
+    sc = sub.add_parser("scheduled")
+    sc.add_argument("--no-refresh", action="store_true")
+    sub.add_parser("score")
     rs = sub.add_parser("research")
     rs.add_argument("--skip-refresh", action="store_true")
     rs.add_argument("--season", type=int)
@@ -40,6 +43,15 @@ def main(argv=None) -> None:
     elif a.cmd == "report":
         from .reports import training_workbook
         print(training_workbook())
+    elif a.cmd == "scheduled":
+        from .prospective import run_scheduled
+        log = run_scheduled(refresh=not a.no_refresh)
+        print(json.dumps({k: v for k, v in log.items() if k != "actions"}, indent=2, default=str))
+        if log["errors"]:
+            raise SystemExit(1)
+    elif a.cmd == "score":
+        from .prospective import score
+        print(json.dumps(score()["overall"], indent=2))
     elif a.cmd == "readiness":
         from .readiness import run
         print(json.dumps({k: (v.get("ok") if isinstance(v, dict) else v) for k, v in run().items()}, indent=2))

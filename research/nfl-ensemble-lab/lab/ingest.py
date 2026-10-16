@@ -74,6 +74,8 @@ def load_games(path: Path, first_season: int) -> tuple[pd.DataFrame, list[str]]:
         "div_game": pd.to_numeric(raw["div_game"], errors="coerce").fillna(0).astype(int),
         "roof": raw["roof"].fillna("").astype(str),
         "stadium_id": raw["stadium_id"].fillna("").astype(str),
+        "stadium": raw["stadium"].fillna("").astype(str),
+        "home_coach": raw["home_coach"], "away_coach": raw["away_coach"],
         "home_qb_id": raw["home_qb_id"], "away_qb_id": raw["away_qb_id"],
         "home_qb_name": raw["home_qb_name"], "away_qb_name": raw["away_qb_name"],
         "spread_line": pd.to_numeric(raw["spread_line"], errors="coerce"),

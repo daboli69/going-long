@@ -88,8 +88,9 @@ def refresh_data(force: bool = False, progress=print) -> dict:
 
     progress("Step 4/5: building pregame feature store (strictly pre-kickoff)")
     games.to_parquet(GAMES_TABLE, index=False)
+    churn = availability.ol_churn(seasons, games)
     fs = features.build_feature_store(games, tstats.drop(columns=["season"]), qstats.drop(columns=["season"]),
-                                      inj, availability.report_status_lookup(valid))
+                                      inj, availability.report_status_lookup(valid), churn)
     fs.to_parquet(FEATURE_STORE, index=False)
     features.feature_catalog(fs.columns).to_csv(CACHE_DIR / "feature_catalog.csv", index=False)
 
@@ -119,7 +120,8 @@ def assemble_from_cache(games: pd.DataFrame, tstats: pd.DataFrame, qstats: pd.Da
     inj = availability.team_injury_features(games, valid, snaps, rows)
     t = tstats.drop(columns=["season"], errors="ignore")
     q = qstats.drop(columns=["season"], errors="ignore")
-    return features.build_feature_store(games, t, q, inj, availability.report_status_lookup(valid))
+    return features.build_feature_store(games, t, q, inj, availability.report_status_lookup(valid),
+                                        availability.ol_churn(seasons, games))
 
 
 def injury_coverage(games: pd.DataFrame, rows: pd.DataFrame, valid: pd.DataFrame, inj: pd.DataFrame) -> pd.DataFrame:

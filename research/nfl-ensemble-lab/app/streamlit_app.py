@@ -24,7 +24,8 @@ from lab.config import MODELS_DIR, REPORTS_DIR, SNAPSHOTS_DIR  # noqa: E402
 st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide")
 
 PAGES = ["Home", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
-         "Weekly Predictions", "Upset Discovery", "Upset Explorer", "Research Validation", "Research Runs", "Reports"]
+         "Weekly Predictions", "Prospective Performance", "Prediction Archive", "Data Freshness", "Baseline Research",
+         "Upset Discovery", "Upset Explorer", "Research Validation", "Research Runs", "Reports"]
 PCT = st.column_config.ProgressColumn
 
 
@@ -612,6 +613,136 @@ def page_runs():
             st.json(D.load_experiment(cur)["summary"]["config"])
 
 
+def page_prospective():
+    st.title("Prospective Performance")
+    st.caption("Genuinely unseen games only: predictions frozen BEFORE kickoff by the scheduled task, scored after the game. "
+               "Historical backtests are on Model Leaderboard and are not mixed in here.")
+    from lab import prospective as P
+    m = P.load_metrics()
+    if st.button("Re-score now"):
+        m = P.score()
+    n = (m.get("overall") or {}).get("games_scored", 0)
+    st.metric("Completed games with a pre-kickoff archived prediction", n)
+    if not n:
+        st.info("No archived game has finished yet. Results appear automatically after the first tracked games end.")
+        return
+    w = st.radio("Cutoff", sorted(m["by_window"]), horizontal=True,
+                 format_func=lambda x: {"final": "Final pregame (<= 30 h before kickoff)", "early": "Early week (30 h - 8 days)"}.get(x, x))
+    r = m["by_window"][w]
+    c = st.columns(4)
+    ch = r["champion"]
+    c[0].metric("Games", ch["n"])
+    c[1].metric("Accuracy", f"{ch['accuracy']:.1%}")
+    c[2].metric("Log loss", f"{ch['log_loss']:.3f}")
+    c[3].metric("Brier", f"{ch['brier']:.3f}")
+    comp = [{"forecast": k, **{x: v.get(x) for x in ("n", "accuracy", "log_loss", "brier", "ece")}} for k, v in r.items()
+            if isinstance(v, dict) and "log_loss" in v]
+    st.subheader("Champion vs individual models, market at snapshot time, experimental adjustments, shadow challengers")
+    st.dataframe(pd.DataFrame(comp), hide_index=True, use_container_width=True)
+    st.caption("market_at_snapshot uses the line nfldata showed when the snapshot was taken, a timestamp-valid benchmark.")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.subheader("Calibration")
+        cal = pd.DataFrame(r["calibration"])
+        st.altair_chart(alt.Chart(cal).mark_circle().encode(x=alt.X("mean_pred:Q", scale=alt.Scale(domain=[0, 1])),
+                        y=alt.Y("observed:Q", scale=alt.Scale(domain=[0, 1])), size="n:Q", tooltip=["range", "n", "mean_pred", "observed"])
+                        + alt.Chart(pd.DataFrame({"x": [0, 1], "y": [0, 1]})).mark_line(strokeDash=[4, 4]).encode(x="x", y="y"),
+                        use_container_width=True)
+    with c2:
+        st.subheader("Over time")
+        wk = pd.DataFrame(r["by_week"])
+        wk["label"] = wk["season"].astype(str) + "-W" + wk["week"].astype(str)
+        st.altair_chart(alt.Chart(wk).mark_bar().encode(x=alt.X("label:N", sort=None, title="week"), y="log_loss:Q",
+                        tooltip=["label", "n", "log_loss", "accuracy"]), use_container_width=True)
+    st.subheader("Favorites vs underdogs")
+    st.json(r["favorite_vs_underdog"])
+    st.subheader("By injury-report completeness (both teams' final reports available before the snapshot)")
+    st.dataframe(pd.DataFrame(r["by_injury_completeness"]).T, use_container_width=True)
+    st.subheader("Margins")
+    st.dataframe(pd.DataFrame({"ensemble margin": r["margin"], "spread at snapshot": r["spread_at_snapshot"]}).T, use_container_width=True)
+    st.caption("Small samples are noisy: with fewer than ~100 games, differences of a few points of accuracy mean little.")
+
+
+def page_archive():
+    st.title("Prediction Archive")
+    from lab import prospective as P
+    led = P.load_ledger()
+    need(len(led), "No prospective snapshots yet. They are created by the scheduled task (refresh_data.bat).")
+    st.caption("Every row is a write-once, read-only snapshot taken before kickoff. Nothing here is ever edited after the game.")
+    c = st.columns(3)
+    seasons = sorted(led["season"].unique(), reverse=True)
+    season = c[0].selectbox("Season", seasons)
+    weeks = sorted(led[led["season"] == season]["week"].unique(), reverse=True)
+    week = c[1].selectbox("Week", weeks)
+    win = c[2].multiselect("Window", ["early", "final"], default=["early", "final"])
+    v = led[(led["season"] == season) & (led["week"] == week) & led["window"].isin(win)].sort_values(["game_id", "predicted_at"])
+    v = v.assign(lead_hours=((v["kickoff_utc"] - v["predicted_at"]).dt.total_seconds() / 3600).round(1))
+    st.dataframe(v[["game_id", "window", "predicted_at", "kickoff_utc", "lead_hours", "p_champion", "model_version", "stale_data", "path"]],
+                 hide_index=True, use_container_width=True, column_config={"p_champion": PCT("P(home)", format="%.3f", min_value=0, max_value=1)})
+    pick = st.selectbox("Open snapshot", v["path"].tolist())
+    if pick:
+        snap = json.loads((SNAPSHOTS_DIR / pick).read_text(encoding="utf-8"))
+        st.json({k: snap[k] for k in ("matchup", "window", "predicted_at", "kickoff_utc", "hours_to_kickoff", "model_version", "p_champion",
+                                      "p_home", "margin_ensemble", "market_at_snapshot", "experimental", "availability", "missing",
+                                      "data_cutoff", "weather_forecast_live_only", "stale_data", "shadow_challengers")}, expanded=False)
+        st.download_button("Download snapshot JSON", (SNAPSHOTS_DIR / pick).read_bytes(), file_name=Path(pick).name)
+
+
+def page_freshness():
+    st.title("Data Freshness & Missing Predictions")
+    from lab import prospective as P
+    freshness_panel()
+    runs = P.run_history()
+    st.subheader("Scheduled runs (append-only log)")
+    if runs.empty:
+        st.warning("The scheduled task has not run the prospective routine yet.")
+    else:
+        r = runs.copy()
+        r["errors"] = r["errors"].map(lambda e: "; ".join(e) if isinstance(e, list) else e)
+        st.dataframe(r[[c for c in ("started_at", "finished_at", "refresh_ok", "eligible_games", "written", "skipped", "refused",
+                                     "stale_data", "errors") if c in r]].iloc[::-1], hide_index=True, use_container_width=True)
+        last = pd.Timestamp(r["started_at"].iloc[-1])
+        age_h = (pd.Timestamp.now(tz="UTC") - last).total_seconds() / 3600
+        (st.success if age_h < 14 else st.error)(f"Last scheduled run {age_h:.1f} hours ago.")
+    st.subheader("Prediction coverage per game and cutoff")
+    mr = P.missing_report()
+    if len(mr):
+        missed = mr[mr["status"].str.startswith("MISSED")]
+        (st.error if len(missed) else st.success)(f"{len(missed)} missed cutoffs; {int((mr['status'] == 'archived').sum())} archived.")
+        st.dataframe(mr.sort_values("kickoff_utc"), hide_index=True, use_container_width=True)
+    st.caption("If the PC is off or asleep for a whole cutoff window, that prediction is reported as MISSED and is never "
+               "back-filled after kickoff. Windows Task Scheduler runs a missed run as soon as the PC is available.")
+
+
+def page_baseline_research():
+    st.title("Baseline Research")
+    from lab import study3
+    st.caption("Nested chronological comparison of feature sets, simpler ensembles and individual models against the "
+               "current champion. 2019-2022 development, 2023-2024 previously inspected validation, 2025 diagnostic only. "
+               "No fresh historical holdout exists; promotion requires prospective evidence.")
+    st.markdown("**Pre-declared gate**  \n" + study3.__doc__.split("Pre-declared gate (written before results were seen):")[1]
+                .split("The production champion")[0].replace("\n  ", "\n"))
+    s = study3.load_study()
+    need(s, "The study has not been run yet (python -m lab.study3).")
+    sm = s["summary"]
+    c = st.columns(3)
+    c[0].metric("Candidates evaluated", sm["n_candidates"])
+    c[1].metric("Passed the gate", sm["n_passed"])
+    c[2].metric("Champion method (unchanged)", name_of(sm["champion_method"]))
+    g = s["gate"].copy()
+    st.dataframe(g, hide_index=True, use_container_width=True)
+    st.caption("Deltas are log loss vs the champion (negative = better). dev/val deltas use the mean per-season log loss.")
+    st.subheader("Do the six models carry independent information?")
+    red = sm["redundancy"]
+    st.write(f"Effective number of independent models: **{red['effective_independent_models']:.2f}** of 6 "
+             f"(mean logit correlation {red['mean_offdiag_logit_corr']:.2f}; mean error correlation {red['mean_offdiag_error_corr']:.2f}).")
+    st.dataframe(pd.DataFrame(red["error_correlation"]), use_container_width=True)
+    st.subheader("Feature stability (L1 logistic, refit on each expanding window 2019-2024)")
+    st.dataframe(s["l1"], hide_index=True, use_container_width=True)
+    from lab.prospective import challenger_versions
+    st.write(f"Shadow challengers being tracked prospectively: **{', '.join(challenger_versions()) or 'none'}**")
+
+
 def page_reports():
     st.title("Reports")
     v = training.current_version()
@@ -641,7 +772,9 @@ with st.sidebar:
 
 try:
     {"Home": page_home, "Data Manager": page_data, "Train Models": page_train, "Model Leaderboard": page_leaderboard,
-     "Model Debate": page_debate, "Weekly Predictions": page_weekly, "Upset Discovery": page_discovery,
+     "Model Debate": page_debate, "Weekly Predictions": page_weekly, "Prospective Performance": page_prospective,
+     "Prediction Archive": page_archive, "Data Freshness": page_freshness, "Baseline Research": page_baseline_research,
+     "Upset Discovery": page_discovery,
      "Upset Explorer": page_explorer, "Research Validation": page_validation, "Research Runs": page_runs,
      "Reports": page_reports}[page]()
 except FileNotFoundError as exc:

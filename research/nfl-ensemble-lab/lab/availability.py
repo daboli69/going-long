@@ -349,3 +349,37 @@ def live_monitor(games: pd.DataFrame, fs_rows: pd.DataFrame, all_games: pd.DataF
                 "espn_retrieved": espn_time, "depth_chart_time": str(depth_time) if depth_time else None,
             })
     return out
+
+
+
+def ol_churn(seasons: list[int], games: pd.DataFrame) -> pd.DataFrame:
+    """Offensive-line lineup churn before each game: number of distinct offensive linemen who
+    played >= 50% of offensive snaps in the team's last 4 completed games (5 = stable line).
+    Uses only snap counts of earlier games."""
+    parts = []
+    for s in seasons:
+        p = RAW_DIR / f"snap_counts_{s}.parquet"
+        if p.exists():
+            parts.append(pd.read_parquet(p, columns=["game_id", "pfr_player_id", "position", "team", "offense_pct"]))
+    if not parts:
+        return pd.DataFrame(columns=["game_id", "team", "ol_churn_l4"])
+    sn = pd.concat(parts, ignore_index=True)
+    sn = sn[sn["position"].isin(["T", "G", "C", "OT", "OG", "OL"]) & (sn["offense_pct"] >= 0.5)]
+    sn["team"] = sn["team"].map(_team)
+    kick = pd.concat([games.set_index("game_id")["kickoff_utc"], games.set_index("source_game_id")["kickoff_utc"]])
+    kick = kick[~kick.index.duplicated()]
+    sn["kickoff_utc"] = sn["game_id"].map(kick)
+    sn = sn.dropna(subset=["kickoff_utc", "team"])
+    per_game = sn.groupby(["team", "kickoff_utc"])["pfr_player_id"].apply(set).reset_index().sort_values(["team", "kickoff_utc"])
+    states = []
+    for team, d in per_game.groupby("team"):
+        sets = d["pfr_player_id"].tolist()
+        for i in range(len(d)):
+            states.append((team, d["kickoff_utc"].iloc[i], len(set().union(*sets[max(0, i - 3): i + 1]))))
+    st = pd.DataFrame(states, columns=["team", "_t", "ol_churn_l4"]).sort_values("_t")
+    sides = []
+    for side in ("home", "away"):
+        sides.append(games[["game_id", "kickoff_utc"]].assign(team=games[f"{side}_team"].values))
+    t = pd.concat(sides, ignore_index=True).sort_values("kickoff_utc")
+    m = pd.merge_asof(t, st, left_on="kickoff_utc", right_on="_t", by="team", direction="backward", allow_exact_matches=False)
+    return m[["game_id", "team", "ol_churn_l4"]]

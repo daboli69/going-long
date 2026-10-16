@@ -149,6 +149,22 @@ def opponent_adjusted_ratings(games: pd.DataFrame, long: pd.DataFrame) -> pd.Dat
         X[np.arange(len(hist)), hist["away_team"].map(idx)] = -1
         X[:, -1] = 1 - hist["neutral_site"].to_numpy()
         res = {"season": season, "week": week}
+        hl = long[(long["kickoff_utc"] < cutoff) & (long["season"] >= season - 1)].dropna(subset=["epa_pp"])
+        if len(hl) >= 32:
+            wl = np.where(hl["season"] == season, 1.0, RATING_PREV_WEIGHT)
+            nT = len(teams)
+            Xo = np.zeros((len(hl), 2 * nT + 1))
+            Xo[np.arange(len(hl)), hl["team"].map(idx)] = 1          # offense strength
+            Xo[np.arange(len(hl)), nT + hl["opp"].map(idx)] = 1      # defense allowed
+            home_side = hl["game_id"].map(done.set_index("game_id")["home_team"]) == hl["team"]
+            neutral = hl["game_id"].map(done.set_index("game_id")["neutral_site"]).fillna(0)
+            Xo[:, -1] = (home_side & (neutral == 0)).astype(float)
+            yo = hl["epa_pp"].to_numpy(float) - hl["epa_pp"].mean()
+            pen = np.eye(Xo.shape[1]) * 5.0
+            pen[-1, -1] = 0.0
+            bo = np.linalg.solve(Xo.T @ (Xo * wl[:, None]) + pen, Xo.T @ (wl * yo))
+            res["off_ratings"] = {t: bo[i] for t, i in idx.items()}
+            res["def_ratings"] = {t: bo[nT + i] for t, i in idx.items()}
         for target in ("margin", "epa_margin"):
             y = hist[target].to_numpy(dtype=float)
             ok = ~np.isnan(y)
@@ -165,7 +181,9 @@ def opponent_adjusted_ratings(games: pd.DataFrame, long: pd.DataFrame) -> pd.Dat
         for side, team in (("home", g.home_team), ("away", g.away_team)):
             rows.append({"game_id": g.game_id, "team": team,
                          "rating_margin": r["margin_ratings"][team] if r else np.nan,
-                         "rating_epa": r["epa_margin_ratings"][team] if r else np.nan})
+                         "rating_epa": r["epa_margin_ratings"][team] if r else np.nan,
+                         "rating_off_epa": r["off_ratings"][team] if r and "off_ratings" in r else np.nan,
+                         "rating_def_epa": r["def_ratings"][team] if r and "def_ratings" in r else np.nan})
     return pd.DataFrame(rows)
 
 
@@ -238,6 +256,35 @@ def qb_pregame(games: pd.DataFrame, qb_games: pd.DataFrame, status: dict | None 
               "qb_offseason", "qb_eff", "qb_log_exp"]]
 
 
+def travel_coach_context(games: pd.DataFrame) -> pd.DataFrame:
+    """Schedule-derived travel, time-zone and head-coach context per (game, team).
+    Team home base = most common stadium of its non-neutral home games that season."""
+    from . import geo
+    g = games.copy()
+    g["site"] = [geo.site_key(s, n) for s, n in zip(g["stadium_id"], g.get("stadium", pd.Series([""] * len(g))))]
+    homes = g[g["neutral_site"] == 0].groupby(["season", "home_team"])["site"].agg(lambda s: s.mode().iloc[0] if len(s.dropna()) else None)
+    rows = []
+    for r in g.itertuples(index=False):
+        for side, team in (("home", r.home_team), ("away", r.away_team)):
+            base = homes.get((r.season, team))
+            rows.append({"game_id": r.game_id, "team": team, "season": r.season, "kickoff_utc": r.kickoff_utc,
+                         "coach": getattr(r, f"{side}_coach", None),
+                         "travel_km": geo.km(base, r.site) if base and r.site else np.nan,
+                         "tz_shift": (geo.utc_offset_hours(r.site, r.kickoff_utc) - geo.utc_offset_hours(base, r.kickoff_utc))
+                         if base and r.site else np.nan,
+                         "body_clock_hour": geo.local_hour(base, r.kickoff_utc) if base else np.nan})
+    t = pd.DataFrame(rows).sort_values(["team", "kickoff_utc"])
+    # coaching: tenure counts only earlier games coached for this team; changes are known pregame
+    t["coach_tenure_games"] = t.groupby(["team", "coach"]).cumcount()
+    prev_coach = t.groupby("team")["coach"].shift(1)
+    prev_season = t.groupby("team")["season"].shift(1)
+    t["coach_new_this_season"] = ((t["coach"] != prev_coach) & (prev_season != t["season"]) & prev_coach.notna()).astype(int)
+    t["coach_changed_midseason"] = ((t["coach"] != prev_coach) & (prev_season == t["season"])).astype(int)
+    t["coach_log_tenure"] = np.log1p(t["coach_tenure_games"])
+    return t[["game_id", "team", "travel_km", "tz_shift", "body_clock_hour", "coach_log_tenure",
+              "coach_new_this_season", "coach_changed_midseason"]]
+
+
 META_COLUMNS = [
     "game_id", "season", "week", "game_type", "gameday", "kickoff_utc", "home_team", "away_team",
     "completed", "home_score", "away_score", "margin", "home_win", "tie", "spread_line", "total_line",
@@ -246,7 +293,8 @@ META_COLUMNS = [
 
 
 def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.DataFrame,
-                        injuries: pd.DataFrame | None = None, qb_status: dict | None = None) -> pd.DataFrame:
+                        injuries: pd.DataFrame | None = None, qb_status: dict | None = None,
+                        extra_team: pd.DataFrame | None = None) -> pd.DataFrame:
     """injuries: per (game_id, team) output of availability.team_injury_features (verified rows only).
     qb_status: (game_id, team, gsis_id) -> verified pregame report status."""
     long = _team_game_long(games, tstats)
@@ -260,6 +308,10 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
                 .merge(qb, on=["game_id", "team"], how="left"))
     if injuries is not None:
         per_team = per_team.merge(injuries, on=["game_id", "team"], how="left")
+    if {"stadium_id", "home_coach"} <= set(games.columns):
+        per_team = per_team.merge(travel_coach_context(games), on=["game_id", "team"], how="left")
+    if extra_team is not None:
+        per_team = per_team.merge(extra_team, on=["game_id", "team"], how="left")
     team_cols = [c for c in per_team.columns if c not in ("game_id", "team")]
     fs = games[META_COLUMNS + ["neutral_site", "div_game", "roof_type"]].copy()
     for side in ("home", "away"):
@@ -286,6 +338,18 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
             new[f"diff_{w}_{c}"] = fs[f"home_{w}_{c}"] - fs[f"away_{w}_{c}"]
     for c in ("rating_margin", "rating_epa", "qb_eff", "qb_log_exp"):
         new[f"diff_{c}"] = fs[f"home_{c}"] - fs[f"away_{c}"]
+    # Phase 3 context (present only when the inputs exist)
+    for c in ("rating_off_epa", "rating_def_epa", "travel_km", "tz_shift", "body_clock_hour", "coach_log_tenure",
+              "coach_new_this_season", "coach_changed_midseason", "ol_churn_l4"):
+        if f"home_{c}" in fs:
+            new[f"p3_diff_{c}"] = fs[f"home_{c}"] - fs[f"away_{c}"]
+    if "home_rating_off_epa" in fs:
+        new["p3_mx_home_off_vs_away_def"] = fs["home_rating_off_epa"] + fs["away_rating_def_epa"]
+        new["p3_mx_away_off_vs_home_def"] = fs["away_rating_off_epa"] + fs["home_rating_def_epa"]
+    if "away_travel_km" in fs:
+        new["p3_away_travel_km"] = fs["away_travel_km"]
+        new["p3_away_tz_shift"] = fs["away_tz_shift"]
+        new["p3_away_body_clock_hour"] = fs["away_body_clock_hour"]
     # offense-vs-defense matchups: home offense against away defense, and vice versa
     for c in ("epa_pp", "pass_epa", "rush_epa", "sr", "pass_sr", "rush_sr", "explosive_rate"):
         new[f"mx_home_off_vs_def_{c}"] = fs[f"home_blend_{c}"] + fs[f"away_blend_d_{c}"]
@@ -332,9 +396,11 @@ def feature_groups(columns) -> dict[str, list[str]]:
         "Volume and pace differences": [f"diff_blend_{c}" for c in volume if f"diff_blend_{c}" in cols],
         "Offense-vs-defense matchups": [c for c in cols if c.startswith("mx_")],
         INJURY_GROUP: [c for c in cols if c.startswith(("diff_inj_", "inj_mx_")) or c == "inj_available"],
+        PHASE3_GROUP: [c for c in cols if c.startswith("p3_")],
     }
 
 
+PHASE3_GROUP = "Phase 3 context (travel, time zone, coaching, opp-adjusted off/def EPA, OL churn)"
 INJURY_GROUP = "Injury availability (verified pregame reports, 2016-2024 + lab archive)"
 
 DEFAULT_GROUPS = (
@@ -374,6 +440,12 @@ def feature_catalog(columns) -> pd.DataFrame:
         elif "rating" in c:
             source, formula = "nfldata scores + pbp", (f"ridge rating (lambda={RATING_RIDGE}) fit on games before the week's first kickoff; "
                                                       f"previous season weighted {RATING_PREV_WEIGHT}")
+        elif c.startswith("p3_") or any(k in c for k in ("travel_km", "tz_shift", "body_clock", "coach_", "ol_churn", "rating_off", "rating_def")):
+            source, formula = ("nfldata schedule (stadium, coaches) + static stadium geography + pbp + PFR snap counts",
+                               "Phase 3: travel = great-circle km from the team's home stadium that season to the game site; "
+                               "tz_shift / body_clock from stadium time zones at kickoff; coach tenure = earlier games coached "
+                               "for the team; opp-adjusted off/def EPA = ridge fit on games before the week's first kickoff; "
+                               "ol_churn_l4 = distinct OL with >=50% snaps in the team's last 4 completed games")
         elif "inj_" in c:
             source, formula = ("official NFL injury report via nflverse + PFR snap counts", "sum of listed players' mean snap share over "
                                "their last 4 games, by status (out = Out/Doubtful, q = Questionable) and position group; "

@@ -34,6 +34,26 @@ if this lab saved them *before* kickoff. Double-click **`refresh_data.bat`** (or
 daily in Windows Task Scheduler) so each week's Friday/Saturday report gets archived in
 `data/raw/archive/`. Never delete that folder; it cannot be re-downloaded with timestamps.
 
+## Automatic prospective tracking (Phase 3)
+
+The Windows scheduled task **"NFL Ensemble Lab - Data Refresh"** runs `refresh_data.bat` daily at
+9:00 and 18:00. You do not need to open the dashboard. Each run:
+
+1. refreshes data and archives the official injury report;
+2. freezes a prediction for every game kicking off in the next 8 days, written once and read-only:
+   - **early** snapshot: 30 hours to 8 days before kickoff (one per game);
+   - **final** snapshot: within 30 hours of kickoff (a new one only when inputs changed). The last
+     one before kickoff is scored;
+3. scores finished games against those frozen predictions.
+
+**If the PC is off or asleep:** Windows runs the missed task as soon as the PC is back. A cutoff
+window that passes completely while the PC is off cannot be filled in afterwards. The game is marked
+**MISSED** on the **Data Freshness** page, with the reason. Predictions are never created after kickoff.
+The task runs only while you are logged in to Windows.
+
+Dashboard pages: **Prospective Performance** (unseen 2026 games only), **Prediction Archive**,
+**Data Freshness** (runs, stale data, missed cutoffs), **Baseline Research** (model-improvement study).
+
 ## Upset Discovery (Phase 2 research)
 
 - Double-click **`run_research.bat`** (a few minutes). It refreshes data, runs the readiness gate,

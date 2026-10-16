@@ -91,14 +91,14 @@ def _xy(df, cols, target):
     return df[cols].astype(float).to_numpy(), df[target].astype(float).to_numpy()
 
 
-def tune(kind: str, key: str, data: pd.DataFrame, cols: list[str], progress) -> tuple[dict, list[dict]]:
-    """Pick hyperparameters by mean score over development-only tuning folds."""
+def tune(kind: str, key: str, data: pd.DataFrame, cols: list[str], progress, folds=TUNING_FOLDS) -> tuple[dict, list[dict]]:
+    """Pick hyperparameters by mean score over tuning folds (train < fold season, score fold season)."""
     target = "home_win" if kind == "clf" else "margin"
     rows = data[data[target].notna()]
     results = []
     for params in models.grid(kind, key):
         scores = []
-        for s in TUNING_FOLDS:
+        for s in folds:
             tr, va = rows[rows["season"] < s], rows[rows["season"] == s]
             Xtr, ytr = _xy(tr, cols, target)
             Xva, yva = _xy(va, cols, target)
@@ -160,9 +160,14 @@ def select_champion(oof: pd.DataFrame, candidates: list[str], n_boot: int = 2000
 
 def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=print,
                  progress_frac=lambda f: None, training_from: int = FIRST_SEASON,
-                 production: bool = True, tag: str = "") -> dict:
+                 production: bool = True, tag: str = "", nested_tuning: bool = False, fit_margins: bool = True,
+                 set_current: bool = True) -> dict:
     """production=False runs the full chronological evaluation without refitting or
-    replacing the current production models (used for experiments)."""
+    replacing the current production models (used for experiments).
+    nested_tuning=True re-tunes hyperparameters for every walk-forward season s using only
+    seasons < s (inner folds s-3..s-1), so no evaluated season ever influenced its own
+    hyperparameters. set_current=False saves a production bundle without making it current
+    (used for shadow challengers)."""
     t0 = time.time()
     fs = load_feature_store()
     cols = select_features(fs.columns, groups)
@@ -178,8 +183,9 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
     dev = data[data["season"].isin(DEV_SEASONS)]
     params, tuning_log = {"clf": {}, "reg": {}}, []
     steps = len(model_keys) * 2
+    kinds = ("clf", "reg") if fit_margins else ("clf",)
     for i, key in enumerate(model_keys):
-        for kind in ("clf", "reg"):
+        for kind in kinds:
             progress(f"Step 1/5 tuning {models.MARGIN_NAMES[key] if kind == 'reg' else ens.MODEL_NAMES[key]} ...")
             best, res = tune(kind, key, dev, cols, progress)
             params[kind][key] = best
@@ -188,7 +194,7 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
 
     # 2. walk-forward out-of-sample predictions
     seasons = [s for s in sorted(data["season"].unique()) if s >= WALK_FORWARD_START]
-    oof_parts, importance = [], []
+    oof_parts, importance, nested_log = [], [], []
     for si, s in enumerate(seasons):
         tr, te = data[data["season"] < s], data[data["season"] == s]
         trc = tr[tr["home_win"].notna()]
@@ -200,11 +206,22 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
         out["split"] = split_of(int(s))
         out["train_seasons"] = f"{int(tr['season'].min())}-{int(tr['season'].max())}"
         progress(f"Step 2/5 walk-forward season {s} (train {out['train_seasons'].iloc[0]}, {len(te)} games)")
+        season_params = params
+        if nested_tuning:
+            inner = [f for f in (s - 3, s - 2, s - 1) if f > int(tr["season"].min())]
+            season_params = {"clf": {}, "reg": {}}
+            for key in model_keys:
+                for kind in kinds:
+                    season_params[kind][key] = tune(kind, key, tr, cols, lambda m: None, folds=inner)[0]
+            nested_log.append({"season": int(s), "inner_folds": inner, "params": season_params})
         for key in model_keys:
-            clf = models.make("clf", key, params["clf"][key]).fit(Xtr, ytr)
+            clf = models.make("clf", key, season_params["clf"][key]).fit(Xtr, ytr)
             out[f"raw_{key}"] = clf.predict_proba(Xte)[:, 1]
-            reg = models.make("reg", key, params["reg"][key]).fit(Xm, ym)
-            out[f"margin_{key}"] = reg.predict(Xte)
+            if fit_margins:
+                reg = models.make("reg", key, season_params["reg"][key]).fit(Xm, ym)
+                out[f"margin_{key}"] = reg.predict(Xte)
+            else:
+                out[f"margin_{key}"] = np.nan
             if s == VALIDATION_SEASONS[0]:
                 tec = te[te["home_win"].notna()]
                 pi = permutation_importance(clf, tec[cols].astype(float).to_numpy(), tec["home_win"].to_numpy(),
@@ -332,7 +349,10 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
 
     lb = pd.DataFrame(leaderboard)
     if not production:
-        summary = {"version": version, "tag": tag, "production": False, "n_features": len(cols), "groups": list(groups),
+        if nested_log:
+            (run_dir / "nested_tuning.json").write_text(json.dumps(nested_log, indent=1, default=str), encoding="utf-8")
+        summary = {"version": version, "tag": tag, "production": False, "nested_tuning": nested_tuning,
+                   "n_features": len(cols), "groups": list(groups),
                    "champion": champion, "params": params, "calibration": {k: v["chosen"] for k, v in cal_scores.items()},
                    "minutes": round((time.time() - t0) / 60, 1)}
         oof.to_parquet(run_dir / "oof_predictions.parquet", index=False)
@@ -384,7 +404,8 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
     pd.DataFrame(tuning_log).to_json(run_dir / "tuning_log.json", orient="records", indent=1)
     (run_dir / "summary.json").write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     (model_dir / "manifest.json").write_text(json.dumps(summary | {"features": cols}, indent=2, default=str), encoding="utf-8")
-    CURRENT.write_text(json.dumps({"version": version}), encoding="utf-8")
+    if set_current:
+        CURRENT.write_text(json.dumps({"version": version}), encoding="utf-8")
     progress_frac(1.0)
     progress(f"Finished in {summary['minutes']} min. Models: {model_dir}  Results: {run_dir}")
     return {"summary": summary, "leaderboard": lb, "run_dir": run_dir}
