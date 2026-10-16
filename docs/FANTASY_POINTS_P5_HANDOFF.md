@@ -80,3 +80,15 @@ Cloud reproduction without local files: `tests/test_p5_experiments.py`, `tests/t
 Small samples (254 games; WR/TE only for TD). No historical player-prop prices. One pregame board per game and no closing line. Small samples and no independent price source for player TD props.
 Feature definition clarification: `pts6` is the expected total (the two teams' mean points scored and allowed, halved) minus the line, and evaluation offsets use the archive line. The spec wording was ambiguous; ridge models are scale-invariant, only the CH_RAW comparator depends on it.
 
+## Final tests and revisions
+Code revision tested: `63d66594626dd7287e00f980c11048369281750d`. `python -m unittest discover -s tests -p 'test_*.py'`: 702 tests OK (5 existing skips). `npm test`: 909 of 909 pass. `npm run build` and `node scripts/build_vercel.mjs`: exit 0. Only `npm ci` and the repository's declared Python requirements were used. The earlier `204379d` run was not relied on. The commit that adds this section changes `docs/FANTASY_POINTS_P5_HANDOFF.md` only (verify with `git diff --stat 63d6659..HEAD`).
+
+Real-data checks (need the private files; run 2026-10-16): P5-1, P5-2 and P5-3 runs against `FantasyPoints/` and the odds index; `scripts/p5_data_checks.py` (13,048 rolling-feature cells, games.csv diff and hashes); the real non-dry capture attempt (0 captured, exclusions listed above); the duplicate/overwrite check with real inputs in a scratch directory.
+Synthetic-data tests (run anywhere): `tests/test_fp_shadow.py` (16), `tests/test_p5_experiments.py` (21, including the synthetic archive audit and lag/leakage tests), the node regression test for learned weights, and the existing suites.
+
+## Remaining limitations
+- No genuine shadow capture yet; no automatic scheduling (needs your approval, and a fresh board is the real blocker).
+- All experiments are INCONCLUSIVE and research-only; nothing is promoted. P5-3 PASS is an integrity result, not evidence of predictive value or a betting edge.
+- Small samples (254 games for pace; WR/TE only for TD), one pregame board per game, no closing line, no historical player-prop prices.
+- The 2026 nflverse weekly-stats and Fantasy Points weekly files end at Week 4; shadow features will carry that cutoff until they are refreshed.
+- `pts6` clarification and the shadow market being a single-provider board are described above.
