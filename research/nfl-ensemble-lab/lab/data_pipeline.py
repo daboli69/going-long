@@ -108,6 +108,20 @@ def refresh_data(force: bool = False, progress=print) -> dict:
     return status
 
 
+def assemble_from_cache(games: pd.DataFrame, tstats: pd.DataFrame, qstats: pd.DataFrame,
+                        snaps: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Rebuild the feature store from already-downloaded files (no network). Used by
+    the readiness gate to re-run leakage checks on real data."""
+    seasons = sorted(int(x) for x in games["season"].unique())
+    rows = availability.load_injury_rows([x for x in seasons if x >= 2016])
+    valid = availability.pregame_injuries(rows, games)
+    snaps = availability.player_roles(seasons) if snaps is None else snaps
+    inj = availability.team_injury_features(games, valid, snaps, rows)
+    t = tstats.drop(columns=["season"], errors="ignore")
+    q = qstats.drop(columns=["season"], errors="ignore")
+    return features.build_feature_store(games, t, q, inj, availability.report_status_lookup(valid))
+
+
 def injury_coverage(games: pd.DataFrame, rows: pd.DataFrame, valid: pd.DataFrame, inj: pd.DataFrame) -> pd.DataFrame:
     """Per season: injury rows downloaded, rows usable before kickoff, games covered (both teams)."""
     both = inj.groupby("game_id")["inj_report_available"].min()

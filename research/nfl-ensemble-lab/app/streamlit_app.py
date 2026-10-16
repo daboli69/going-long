@@ -8,6 +8,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import json  # noqa: E402
+
 import altair as alt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
@@ -22,7 +24,7 @@ from lab.config import MODELS_DIR, REPORTS_DIR, SNAPSHOTS_DIR  # noqa: E402
 st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide")
 
 PAGES = ["Home", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
-         "Weekly Predictions", "Upset Discovery Lab", "Reports"]
+         "Weekly Predictions", "Upset Discovery", "Upset Explorer", "Research Validation", "Research Runs", "Reports"]
 PCT = st.column_config.ProgressColumn
 
 
@@ -426,19 +428,198 @@ def page_weekly():
             c[i].download_button(f"Download {p.suffix}", p.read_bytes(), file_name=p.name)
 
 
-def page_upset():
-    st.title("Upset Discovery Lab")
-    st.info("Phase 2 has not been built yet. No upset patterns have been searched for, validated or displayed. "
-            "Phase 1 already saves what Phase 2 needs: the pregame feature store, walk-forward out-of-sample probabilities "
-            "for every model and ensemble, closing no-vig market probabilities, and immutable weekly snapshots.")
-    v = training.current_version()
-    if v:
-        st.write(f"Out-of-sample predictions for Phase 2: `{training.RUNS_DIR / v / 'oof_predictions.parquet'}`")
+def _exp_or_stop():
+    from lab import discovery as D
+    exps = [r["experiment"] for r in D.list_experiments() if r.get("created_at")]
+    need(exps, "No discovery experiment yet. Open Research Runs and click Run discovery experiment.")
+    exps = sorted(set(exps), reverse=True)
+    cur = D.current_experiment()
+    exp = st.selectbox("Experiment", exps, index=exps.index(cur) if cur in exps else 0)
+    return D, D.load_experiment(exp)
+
+
+def page_discovery():
+    st.title("Upset Discovery")
+    st.caption("Automated search for situations where underdogs win more or less often than a baseline probability says. "
+               "Only candidates that pass independent validation are trusted. Zero validated patterns is a legitimate result.")
+    D, e = _exp_or_stop()
+    s = e["summary"]
+    for bl, info in s["baselines"].items():
+        cols = st.columns(len(info["origins"]) + 1)
+        cols[0].markdown(f"**Baseline: {bl}**  \n{info['rows']} games  \nmodel {info['model_version']}")
+        for i, (o, v) in enumerate(info["origins"].items(), 1):
+            cols[i].metric(f"{o}: validated / carried / tested", f"{v['n_validated']} / {v['n_carried']} / {v['n_tested']}")
+    st.info("Verdicts: " + "; ".join(f"{bl}: patterns {i['verdict']['validated_patterns']}, GBM {i['verdict']['gbm_residual']}"
+                                      for bl, i in s["baselines"].items()))
+    keys = sorted(e["catalogs"])
+    c1, c2, c3 = st.columns([2, 2, 3])
+    key = c1.selectbox("Catalog (baseline_origin)", keys)
+    status = c2.multiselect("Status", ["validated", "rejected", "exploratory (not carried)"], default=["validated", "rejected"])
+    q = c3.text_input("Search descriptions / features", "")
+    cat = e["catalogs"][key]
+    view = cat[cat["status"].isin(status)]
+    if q:
+        view = view[view["description"].str.contains(q, case=False, na=False) | view["features"].str.contains(q, case=False, na=False)]
+    show = [c for c in ["status", "method", "description", "disc_n", "disc_underdog_win_rate", "disc_baseline_underdog_prob", "disc_z",
+                        "disc_q_bh_nominal", "val_n", "val_underdog_win_rate", "val_baseline_underdog_prob", "val_logodds_effect",
+                        "val_effect_ci_low", "val_effect_ci_high", "val_effect_shrunk", "val_p_holm", "val_season_sign_share",
+                        "season_effects", "rejection_reasons", "provenance"] if c in view]
+    st.dataframe(view[show], hide_index=True, use_container_width=True)
+    st.caption(f"{len(view)} rows. Click a column header to sort. Discovery p/q values are nominal (adaptive search); "
+               "val_p_holm is the multiple-testing-adjusted validation test. Effects are log-odds relative to the baseline.")
+    inter = e["interactions"].get(key)
+    if inter is not None and len(inter):
+        st.subheader("Strongest feature interactions (discovery-period residual model)")
+        st.dataframe(inter, hide_index=True, use_container_width=True)
+
+
+def page_explorer():
+    st.title("Upset Explorer")
+    fs, v = feature_store(), training.current_version()
+    need(fs is not None and v, "Download data and train models first.")
+    from lab import discovery as D
+    need(D.current_experiment(), "No discovery experiment yet. Run one from Research Runs.")
+    season, week = week_picker(fs, "ux")
+    table, _ = cached_week(v, season, week, dp.FEATURE_STORE.stat().st_mtime)
+    games = fs[(fs["season"] == season) & (fs["week"] == week)]
+    adj, signals = D.upcoming_adjustments(table, games)
+    labels = [f"{r.away_team} @ {r.home_team}" for r in adj.itertuples()]
+    i = st.selectbox("Game", range(len(adj)), format_func=lambda j: labels[j])
+    r = adj.iloc[i]
+    c = st.columns(4)
+    c[0].metric(f"Original P({r.home_team} wins)", f"{r.p_home_original:.1%}")
+    c[1].metric("Validated-pattern adjusted", f"{r.p_home_adj_patterns:.1%}", f"{r.adj_patterns:+.1%}", delta_color="off")
+    c[2].metric("GBM-residual adjusted", f"{r.p_home_adj_gbm:.1%}", f"{r.adj_gbm:+.1%}", delta_color="off")
+    c[3].metric("Underdog (baseline)", r.underdog)
+    st.info(f"Primary forecast: **{r.primary_forecast}**. Pattern layer: {r.patterns_verdict}. GBM layer: {r.gbm_verdict}.")
+    st.subheader("Why the probability changed (or did not)")
+    sig = signals[i]
+    if not any(x["status"] == "applies" for x in sig):
+        st.write("No validated discovery applies to this game, so the validated-pattern layer makes **no adjustment**.")
+    if abs(r.adj_gbm) < 1e-9:
+        st.write("The GBM residual layer's shrinkage factor chosen on validation is 0, so it makes **no adjustment**.")
+    if sig:
+        st.dataframe(pd.DataFrame(sig), hide_index=True, use_container_width=True)
+    if r.missing_gbm_inputs:
+        st.warning(f"{r.missing_gbm_inputs} residual-model inputs are missing for this game (e.g. {r.missing_examples}).")
+    st.subheader("Availability context (injury and QB)")
+    g = games.iloc[i]
+    ctx = {k: g.get(k) for k in ("home_qb_projected_out", "away_qb_projected_out", "home_qb_questionable", "away_qb_questionable",
+                                 "home_qb_offseason", "away_qb_offseason", "home_inj_report_available", "away_inj_report_available",
+                                 "home_inj_out_off", "away_inj_out_off", "home_inj_out_def", "away_inj_out_def",
+                                 "inj_mx_home_ol_out_x_opp_pass_rush", "inj_mx_away_ol_out_x_opp_pass_rush") if k in g}
+    st.dataframe(pd.Series(ctx, name="value").astype(str), use_container_width=True)
+    st.caption("Injury loads are missing (not zero) until a final official report exists before kickoff. "
+               "Injury-feature patterns are tested by the engine when historically valid (2016-2024 reports).")
+
+
+def page_validation():
+    st.title("Research Validation")
+    D, e = _exp_or_stop()
+    s = e["summary"]
+    rows = []
+    for bl, info in s["baselines"].items():
+        for o, v in info["origins"].items():
+            for period, ev in v["evals"].items():
+                for layer in ("baseline", "validated_patterns", "gbm_residual"):
+                    x = ev.get(layer, {})
+                    rows.append({"baseline": bl, "origin": o, "period": period, "seasons": str(ev.get("seasons")), "layer": layer,
+                                 "n": x.get("n"), "log_loss": x.get("log_loss"), "brier": x.get("brier"), "ece": x.get("ece"),
+                                 "delta_log_loss": x.get("delta_log_loss"), "delta_95ci": str(x.get("delta_ci", "")),
+                                 "mean_abs_adjustment": x.get("mean_abs_adjustment")})
+    st.subheader("Baseline vs adjusted (held-out seasons)")
+    st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+    st.caption("evaluation = seasons untouched by discovery, validation and shrinkage choice. diagnostic_2025 was already inspected "
+               "in Phase 1, so it is supporting evidence only. Negative delta = better than baseline.")
+    for bl, info in s["baselines"].items():
+        for o, v in info["origins"].items():
+            lam = v["layers"]["gbm_residual"]
+            st.write(f"{bl}/{o}: GBM shrinkage chosen on validation = **{lam['lambda']}** "
+                     f"(validation log loss by factor: {', '.join(f'{k}: {x:.4f}' for k, x in lam['validation_log_loss_by_lambda'].items())})")
+    st.subheader("Overfitting check: discovery strength vs validation effect")
+    key = st.selectbox("Catalog", sorted(e["catalogs"]), key="valcat")
+    cat = e["catalogs"][key]
+    car = cat[cat["carried_to_validation"].astype(bool)].copy()
+    if len(car):
+        car["disc_effect"] = car["disc_logodds_effect"]
+        chart = alt.Chart(car).mark_circle(size=70).encode(
+            x=alt.X("disc_effect:Q", title="effect in discovery seasons (log-odds)"),
+            y=alt.Y("val_logodds_effect:Q", title="effect in validation seasons (log-odds)"),
+            color="status:N", tooltip=["description", "method", "disc_n", "val_n", "val_p_holm"])
+        zero = alt.Chart(pd.DataFrame({"y": [0]})).mark_rule(strokeDash=[4, 4]).encode(y="y")
+        st.altair_chart(chart + zero, use_container_width=True)
+        st.caption("If discovered patterns were real, points would lie near the diagonal. Points collapsing toward 0 or flipping "
+                   "sign show the search found noise, which validation then rejects.")
+    cal = [pd.read_csv(f).assign(baseline=f.stem[12:]) for f in e["dir"].glob("calibration_*.csv")]
+    if cal:
+        st.subheader("Calibration of the baselines for underdogs, by season")
+        c = pd.concat(cal)
+        bl = st.selectbox("Baseline", sorted(c["baseline"].unique()), key="calbl")
+        c = c[c["baseline"] == bl]
+        st.altair_chart(alt.Chart(c).mark_line(point=True).encode(
+            x="season:O", y=alt.Y("observed:Q", title="observed underdog win rate"), color="bucket:N",
+            tooltip=["season", "bucket", "n", alt.Tooltip("expected:Q", format=".3f"), alt.Tooltip("observed:Q", format=".3f")]),
+            use_container_width=True)
+        agg = c.groupby("season").apply(lambda d: pd.Series({"underdog wins - expected": float((d["observed"] * d["n"]).sum() - (d["expected"] * d["n"]).sum()),
+                                                             "games": int(d["n"].sum())}), include_groups=False).reset_index()
+        st.dataframe(agg, hide_index=True)
+    st.subheader("Prospective evidence (predictions archived before kickoff)")
+    pc = D.prospective_check()
+    st.write(f"Completed games with a pre-kickoff archived prediction: **{pc['n_games']}**. {pc['note']}")
+    if pc["summary"]:
+        st.json(pc["summary"])
+
+
+def page_runs():
+    st.title("Research Runs")
+    st.caption("Discovery experiments run only when you start them here or with run_research.bat. The twice-daily data refresh "
+               "never runs discovery, and nothing here retrains or replaces the Phase 1 models.")
+    from lab import discovery as D, readiness, research
+    c = st.columns(3)
+    box = st.empty()
+    if c[0].button("Run readiness gate", use_container_width=True):
+        with st.status("Checking data integrity ...", expanded=True):
+            r = readiness.run(progress=logger(box))
+        (st.success if r["ok"] else st.error)(f"Readiness {'passed' if r['ok'] else 'FAILED'}")
+    if c[1].button("Run discovery experiment", type="primary", use_container_width=True):
+        with st.status("Running discovery (both baselines, two research origins) ...", expanded=True):
+            gate = readiness.run(progress=logger(box))
+            if not gate["ok"]:
+                st.error("Readiness gate failed; discovery not run. See artifacts/readiness_report.json.")
+                st.stop()
+            r = D.run_experiment(progress=logger(box))
+        st.cache_data.clear()
+        st.success(f"Experiment {r['summary']['experiment']} saved.")
+    if c[2].button("Full research workflow (refresh + discovery + reports)", use_container_width=True):
+        with st.status("Running the full research workflow ...", expanded=True):
+            research.run_research(progress=logger(box))
+        st.cache_data.clear()
+        st.success("Research workflow finished; reports are in the reports folder.")
+    st.subheader("Experiments")
+    st.dataframe(pd.DataFrame(D.list_experiments()), hide_index=True, use_container_width=True)
+    cur = D.current_experiment()
+    st.write(f"Current experiment used for upcoming-game adjustments: **{cur or 'none'}**")
+    hist = research.run_history()
+    if hist:
+        st.subheader("Workflow history")
+        st.dataframe(pd.DataFrame(hist), hide_index=True, use_container_width=True)
+    rep = readiness.REPORT
+    if rep.exists():
+        with st.expander("Latest readiness report"):
+            st.json(json.loads(rep.read_text(encoding="utf-8")))
+    if cur:
+        with st.expander("Current experiment configuration and seeds"):
+            st.json(D.load_experiment(cur)["summary"]["config"])
 
 
 def page_reports():
     st.title("Reports")
     v = training.current_version()
+    from lab import discovery as D
+    if st.button("Build NFL_Upset_Discovery.xlsx", disabled=not D.current_experiment()):
+        from lab.reports import discovery_workbook
+        with st.spinner("Writing workbook ..."):
+            st.success(f"Saved {discovery_workbook()}")
     if st.button("📘 Build NFL_Ensemble_Training_Results.xlsx", disabled=not v):
         from lab.reports import training_workbook
         with st.spinner("Writing workbook ..."):
@@ -456,11 +637,13 @@ def page_reports():
 with st.sidebar:
     st.header("NFL Ensemble Lab")
     page = st.radio("Go to", PAGES, label_visibility="collapsed")
-    st.caption("Phase 1 · research only")
+    st.caption("Phase 1 + Phase 2 research · not betting advice")
 
 try:
     {"Home": page_home, "Data Manager": page_data, "Train Models": page_train, "Model Leaderboard": page_leaderboard,
-     "Model Debate": page_debate, "Weekly Predictions": page_weekly, "Upset Discovery Lab": page_upset, "Reports": page_reports}[page]()
+     "Model Debate": page_debate, "Weekly Predictions": page_weekly, "Upset Discovery": page_discovery,
+     "Upset Explorer": page_explorer, "Research Validation": page_validation, "Research Runs": page_runs,
+     "Reports": page_reports}[page]()
 except FileNotFoundError as exc:
     st.warning(str(exc))
 except Exception as exc:  # show a readable error instead of a blank page

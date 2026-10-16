@@ -148,6 +148,24 @@ def _debate(g, keys, probs, v, exps, hist, agree, ens_winner, warns) -> dict:
             "warnings": warns, "round1": r1, "round2": {k: exps[k] for k in keys}, "round3": r3, "round4": r4, "round5": r5}
 
 
+def discovery_overlay(table: pd.DataFrame, games: pd.DataFrame) -> dict:
+    """Phase 2 experimental adjustments (if a discovery experiment exists). The original
+    ensemble probability stays the primary forecast unless an adjustment passed its
+    pre-declared out-of-sample test."""
+    from . import discovery
+    exp = discovery.current_experiment()
+    if not exp:
+        return {"experiment": None, "rows": [], "signals": [], "note": "no discovery experiment has been run"}
+    try:
+        adj, signals = discovery.upcoming_adjustments(table, games, exp)
+    except Exception as exc:  # never block weekly predictions on the research layer
+        return {"experiment": exp, "rows": [], "signals": [], "note": f"discovery overlay failed: {exc}"}
+    for c in ("p_home_adj_patterns", "p_home_adj_gbm", "adj_patterns", "adj_gbm", "n_validated_signals"):
+        table[c] = adj[c].values
+    return {"experiment": exp, "rows": json.loads(adj.to_json(orient="records")), "signals": signals,
+            "note": "experimental; original ensemble remains primary unless verdict says demonstrated"}
+
+
 def write_snapshot(season: int, week: int, table: pd.DataFrame, debates: list[dict], bundle: dict, extra: dict | None = None) -> dict:
     """Write a new, never-overwritten snapshot. Returns its paths."""
     created = datetime.now(timezone.utc)
@@ -204,9 +222,11 @@ def run_weekly(season: int | None = None, week: int | None = None, refresh: bool
         table[f"{side}_injury_report_final"] = table["game_id"].map(lambda g: m.get(g, {}).get("official_report_final", False))
     status = load_status()
     freshness = {"data_refreshed_at": status.get("refreshed_at"), **(status.get("injury") or {})}
-    paths = write_snapshot(season, week, table, debates, bundle, extra={"availability_monitor": monitor, "freshness": freshness})
+    disc = discovery_overlay(table, games)
+    paths = write_snapshot(season, week, table, debates, bundle,
+                           extra={"availability_monitor": monitor, "freshness": freshness, "discovery": disc})
     from .reports import weekly_workbook
-    paths |= weekly_workbook(season, week, table, debates, bundle, run, monitor, freshness)
+    paths |= weekly_workbook(season, week, table, debates, bundle, run, monitor, freshness, disc)
     progress(f"Saved snapshot and reports for {season} week {week}.")
     return {"season": season, "week": week, "table": table, "debates": debates, "paths": paths,
-            "monitor": monitor, "freshness": freshness}
+            "monitor": monitor, "freshness": freshness, "discovery": disc}

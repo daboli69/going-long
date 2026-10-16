@@ -21,6 +21,11 @@ def main(argv=None) -> None:
     p.add_argument("--season", type=int)
     p.add_argument("--week", type=int)
     sub.add_parser("report")
+    sub.add_parser("readiness")
+    rs = sub.add_parser("research")
+    rs.add_argument("--skip-refresh", action="store_true")
+    rs.add_argument("--season", type=int)
+    rs.add_argument("--week", type=int)
     a = ap.parse_args(argv)
     if a.cmd == "refresh":
         from .data_pipeline import refresh_data
@@ -35,6 +40,12 @@ def main(argv=None) -> None:
     elif a.cmd == "report":
         from .reports import training_workbook
         print(training_workbook())
+    elif a.cmd == "readiness":
+        from .readiness import run
+        print(json.dumps({k: (v.get("ok") if isinstance(v, dict) else v) for k, v in run().items()}, indent=2))
+    elif a.cmd == "research":
+        from .research import run_research
+        print(json.dumps(run_research(refresh=not a.skip_refresh, season=a.season, week=a.week), indent=2, default=str))
 
 
 if __name__ == "__main__":

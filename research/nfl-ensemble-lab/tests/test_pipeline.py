@@ -52,8 +52,33 @@ def test_champion_selected_on_validation_only(trained):
 
 
 @pytest.fixture(scope="module")
-def week_run(trained):
+def disc_run(trained):
+    from lab import discovery
+    cfg = {"rule_trees": 5, "pair_top_features": 6, "symbolic_top_features": 5, "gbm_top_features": 15, "n_clusters": 3,
+           "min_n_discovery": 15, "min_n_validation": 10}
+    return discovery.run_experiment(cfg, progress=lambda m: None)
+
+
+@pytest.fixture(scope="module")
+def week_run(trained, disc_run):
     return weekly.run_weekly(season=2026, week=6, refresh=False, progress=lambda m: None)
+
+
+def test_discovery_on_pipeline_outputs(disc_run, week_run):
+    s = disc_run["summary"]
+    assert set(s["baselines"]) == {"ensemble", "market"}
+    for info in s["baselines"].values():
+        assert info["origins"]["primary"]["n_tested"] > 100
+    d = week_run["discovery"]
+    assert d["experiment"] == s["experiment"] and len(d["rows"]) == 4
+    t = week_run["table"]
+    assert {"p_home_adj_patterns", "p_home_adj_gbm", "adj_patterns"} <= set(t.columns)
+    assert t["p_home_adj_gbm"].between(0, 1).all()
+    from lab.reports import discovery_workbook
+    wb = load_workbook(discovery_workbook(weekly_disc=d))
+    assert wb.sheetnames == ["Plain-English Summary", "Discovery Leaderboard", "Discovered Rules", "Feature Interactions",
+                             "Historical Matches", "Expected vs Observed", "Validation Results", "Rejected Hypotheses",
+                             "Upcoming Upset Candidates", "Methodology"]
 
 
 def test_weekly_predictions_and_debate(week_run):
@@ -118,7 +143,8 @@ def test_excel_workbooks(week_run, trained):
 
 
 @pytest.mark.parametrize("page", ["Home", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
-                                  "Weekly Predictions", "Upset Discovery Lab", "Reports"])
+                                  "Weekly Predictions", "Upset Discovery", "Upset Explorer", "Research Validation",
+                                  "Research Runs", "Reports"])
 def test_streamlit_pages_start(page, week_run):
     from pathlib import Path
 

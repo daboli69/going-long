@@ -160,7 +160,7 @@ def training_workbook(version: str | None = None) -> Path:
 
 
 def weekly_workbook(season: int, week: int, table: pd.DataFrame, debates: list[dict], bundle: dict, run: dict,
-                    monitor: list[dict] | None = None, freshness: dict | None = None) -> dict:
+                    monitor: list[dict] | None = None, freshness: dict | None = None, disc: dict | None = None) -> dict:
     keys = bundle["model_keys"]
     t = table.copy()
     wb = Workbook()
@@ -212,8 +212,24 @@ def weekly_workbook(season: int, week: int, table: pd.DataFrame, debates: list[d
                         for m in (monitor or [])])
     write_sheet(wb, "Injury & QB Monitor", mon, "LIVE MONITORING ONLY. ESPN and depth-chart data are not model inputs. "
                 "Model injury features use only the official report available before kickoff.")
-    write_sheet(wb, "Upset Signals", pd.DataFrame(), "Upset Discovery Engine is Phase 2 and has not been built. No signals exist.")
-    write_sheet(wb, "Experimental Adjusted", pd.DataFrame(), "Experimental upset-adjusted forecasts are Phase 3 and have not been built.")
+    disc = disc or {}
+    sig_rows = []
+    for r, sigs in zip(disc.get("rows", []), disc.get("signals", [])):
+        for x in sigs:
+            sig_rows.append({"game": f"{r['away_team']} @ {r['home_team']}", "underdog": r["underdog"], "pattern": x["pattern"],
+                             "status": x["status"], "logodds_contribution": x.get("logodds_contribution"),
+                             "missing_features": ", ".join(x.get("missing", []))})
+    if disc.get("rows") and not sig_rows:
+        sig_rows = [{"game": "all games", "pattern": "none", "status": "No validated discovery applies to any game this week "
+                     "(the current experiment validated none)."}]
+    write_sheet(wb, "Upset Signals", pd.DataFrame(sig_rows), "Patterns from the Upset Discovery Engine (experiment "
+                f"{disc.get('experiment')}). Only VALIDATED patterns change probabilities; exploratory matches are context only.")
+    ea = pd.DataFrame(disc.get("rows", []))
+    if len(ea):
+        ea = ea[["home_team", "away_team", "underdog", "p_home_original", "p_home_adj_patterns", "adj_patterns", "p_home_adj_gbm",
+                 "adj_gbm", "n_validated_signals", "missing_gbm_inputs", "patterns_verdict", "gbm_verdict", "primary_forecast"]]
+    write_sheet(wb, "Experimental Adjusted", ea, "EXPERIMENTAL. The original ensemble probability is the primary forecast unless "
+                "a verdict reads 'demonstrated out-of-sample improvement'.", ["p_home_original", "p_home_adj_patterns", "p_home_adj_gbm"])
     sb = t[["game_id", "home_team", "away_team", "p_champion", "market_p_home_novig", "home_moneyline", "away_moneyline", "spread_line", "margin_ensemble"]].copy()
     sb["prob_minus_market"] = sb["p_champion"] - sb["market_p_home_novig"]
     write_sheet(wb, "Sportsbook Comparison", sb, "Lines are the nfldata line at refresh time (not timestamped by the source). No bet recommendations.")
@@ -234,3 +250,102 @@ def feature_catalog_csv(fs_columns) -> Path:
     p = REPORTS_DIR / "feature_catalog.csv"
     feature_catalog(fs_columns).to_csv(p, index=False)
     return p
+
+
+DISCOVERY_METHODOLOGY = [
+    ("What this is", "An automated search for situations where underdogs win more or less often than a baseline probability "
+                     "says. It is research, not betting advice."),
+    ("Baselines", "ensemble = the Phase 1 champion's out-of-sample probability; market = closing no-vig line (benchmark only: "
+                  "no timestamps, not executable, so no profit claim is possible)."),
+    ("Why one upset proves nothing", "A 25% underdog should win about 1 in 4 times. Patterns are judged on many games using "
+                                     "likelihood statistics (observed wins minus expected wins), not on memorable results."),
+    ("Periods", "Discovery seasons search for patterns; separate later validation seasons re-test the top 30 "
+                "(Holm-corrected); a still-later evaluation season tests any probability adjustment. 2025 is diagnostic only; "
+                "2026 counts only from predictions saved before kickoff."),
+    ("Methods", "Threshold subgroups (single and paired), miscalibration buckets, RuleFit-style tree rules, symbolic "
+                "expressions, gradient-boosted residual model with SHAP interactions, k-means regimes and anomaly detection."),
+    ("Nominal vs valid significance", "Discovery-stage p/q values are nominal because the search adapts to the same games. "
+                                      "Only the validation test counts."),
+    ("Missing data", "Injury features are missing for 2025 and early 2026; a pattern needing them is reported as not "
+                     "evaluable, never as false."),
+    ("Adjustments", "Only validated patterns can adjust probabilities, through a shrunken (ridge) correction. The "
+                    "gradient-boosted adjuster is scaled by a factor chosen on validation, so 0 means no adjustment. The original "
+                    "ensemble stays primary unless an adjustment beats it on both evaluation seasons with a confidence interval "
+                    "below zero."),
+    ("Synthetic tests", "Planted-signal and null-data tests check the software only; they are not NFL findings."),
+]
+
+
+def discovery_workbook(exp: str | None = None, weekly_disc: dict | None = None) -> Path:
+    from . import discovery as D
+    e = D.load_experiment(exp)
+    if not e:
+        raise FileNotFoundError("No discovery experiment yet. Run one from Research Runs.")
+    s, d = e["summary"], e["dir"]
+    wb = Workbook()
+    wb.remove(wb.active)
+    items = [("Experiment", s["experiment"]), ("Created (UTC)", s["created_at"]), ("Runtime (minutes)", s.get("minutes"))]
+    for bl, info in s["baselines"].items():
+        for o, v in info["origins"].items():
+            ev = v["evals"].get("evaluation", {})
+            items.append((f"{bl} / {o}",
+                          f"tested {v['n_tested']} candidates over {v['n_features']} features; {v['n_carried']} carried to "
+                          f"validation; {v['n_validated']} validated. Evaluation seasons {ev.get('seasons')}: baseline log loss "
+                          f"{ev.get('baseline', {}).get('log_loss', float('nan')):.4f}, patterns delta "
+                          f"{ev.get('validated_patterns', {}).get('delta_log_loss', float('nan')):+.4f}, GBM delta "
+                          f"{ev.get('gbm_residual', {}).get('delta_log_loss', float('nan')):+.4f}"))
+        items.append((f"{bl} verdict", json.dumps(info["verdict"])))
+        items.append((f"{bl} inputs", f"model {info['model_version']} (champion {info['champion']}), {info['rows']} games, "
+                                      f"input hash {info['input_hash']}"))
+    items.append(("Bottom line", "A pattern is only trusted if it survives independent validation. Zero validated patterns "
+                                 "is a valid, honest result. Nothing here is a betting edge."))
+    _kv_sheet(wb, "Plain-English Summary", "NFL Upset Discovery: what was found", items)
+    cats = [c.assign(baseline=k.split("_", 1)[0], origin=k.split("_", 1)[1]) for k, c in e["catalogs"].items()]
+    cat = pd.concat(cats, ignore_index=True) if cats else pd.DataFrame()
+    lead_cols = ["baseline", "origin", "status", "method", "description", "disc_n", "disc_underdog_win_rate",
+                 "disc_baseline_underdog_prob", "val_n", "val_underdog_win_rate", "val_baseline_underdog_prob",
+                 "val_logodds_effect", "val_effect_ci_low", "val_effect_ci_high", "val_effect_shrunk", "val_p_holm",
+                 "val_season_sign_share", "season_effects", "rejection_reasons"]
+    carried = cat[cat["carried_to_validation"].astype(bool)] if len(cat) else cat
+    write_sheet(wb, "Discovery Leaderboard", carried[[c for c in lead_cols if c in carried]] if len(carried) else carried,
+                "Ranked by validated, shrunk out-of-sample effect. rejected = failed independent validation.")
+    rule_cols = ["baseline", "origin", "status", "method", "description", "expression", "features", "provenance",
+                 "disc_n", "disc_z", "disc_p_nominal", "disc_q_bh_nominal"]
+    write_sheet(wb, "Discovered Rules", cat[[c for c in rule_cols if c in cat]] if len(cat) else cat,
+                "Every candidate carried to validation plus nominally notable exploratory ones (discovery q < 0.5). "
+                "Discovery p/q values are nominal.")
+    write_sheet(wb, "Feature Interactions",
+                pd.concat([v.assign(source=k) for k, v in e["interactions"].items()], ignore_index=True)
+                if e["interactions"] else pd.DataFrame(),
+                "Strongest pairwise interactions in the discovery-period residual model (SHAP).")
+    m = [pd.read_csv(f).assign(source=f.stem[8:]) for f in d.glob("matches_*.csv") if f.stat().st_size > 5]
+    write_sheet(wb, "Historical Matches", pd.concat(m, ignore_index=True) if m else pd.DataFrame(),
+                "Games that matched validated patterns and the top carried patterns, with outcomes.")
+    cal = [pd.read_csv(f).assign(baseline=f.stem[12:]) for f in d.glob("calibration_*.csv")]
+    write_sheet(wb, "Expected vs Observed", pd.concat(cal, ignore_index=True) if cal else pd.DataFrame(),
+                "Underdog win rate expected by the baseline vs observed, by probability bucket and season.")
+    ev_rows = []
+    for bl, info in s["baselines"].items():
+        for o, v in info["origins"].items():
+            for period, ev in v["evals"].items():
+                for layer in ("baseline", "validated_patterns", "gbm_residual"):
+                    x = ev.get(layer, {})
+                    ev_rows.append({"baseline": bl, "origin": o, "period": period, "seasons": str(ev.get("seasons")),
+                                    "layer": layer, "n": x.get("n"), "log_loss": x.get("log_loss"), "brier": x.get("brier"),
+                                    "ece": x.get("ece"), "delta_log_loss_vs_baseline": x.get("delta_log_loss"),
+                                    "delta_ci": str(x.get("delta_ci", "")), "mean_abs_adjustment": x.get("mean_abs_adjustment")})
+    write_sheet(wb, "Validation Results", pd.DataFrame(ev_rows), "Negative delta = adjusted forecast beat the baseline. "
+                "Evaluation seasons were not used for discovery or tuning.")
+    rej = carried[carried["status"] == "rejected"] if len(carried) else carried
+    rej_cols = ["baseline", "origin", "method", "description", "disc_n", "disc_z", "val_n", "val_logodds_effect",
+                "val_p_holm", "rejection_reasons"]
+    write_sheet(wb, "Rejected Hypotheses", rej[[c for c in rej_cols if c in rej]] if len(rej) else rej)
+    write_sheet(wb, "Upcoming Upset Candidates", pd.DataFrame((weekly_disc or {}).get("rows", [])),
+                "Upcoming games with original and experimental probabilities. No game is labelled an upset pick.")
+    _kv_sheet(wb, "Methodology", "How the discovery engine works, and its limits", DISCOVERY_METHODOLOGY)
+    path = REPORTS_DIR / "NFL_Upset_Discovery.xlsx"
+    wb.save(path)
+    if len(cat):
+        cat.to_csv(REPORTS_DIR / "upset_discovery_catalog.csv", index=False)
+    (REPORTS_DIR / "upset_discovery_summary.json").write_text(json.dumps(s, indent=2, default=str), encoding="utf-8")
+    return path

@@ -34,6 +34,18 @@ if this lab saved them *before* kickoff. Double-click **`refresh_data.bat`** (or
 daily in Windows Task Scheduler) so each week's Friday/Saturday report gets archived in
 `data/raw/archive/`. Never delete that folder; it cannot be re-downloaded with timestamps.
 
+## Upset Discovery (Phase 2 research)
+
+- Double-click **`run_research.bat`** (a few minutes). It refreshes data, runs the readiness gate,
+  searches for upset/mispricing patterns, validates them on later seasons, makes experimental
+  forecasts for the upcoming week, and writes `reports/NFL_Upset_Discovery.xlsx`.
+- In the dashboard: **Upset Discovery** (catalog), **Upset Explorer** (one game: original vs
+  experimental probability and why), **Research Validation** (did anything beat the baseline?),
+  **Research Runs** (run experiments, history, settings).
+- It never retrains or replaces the main models, and the twice-daily data refresh never runs it.
+- Current result: about 30,000 candidate patterns tested, **none survived validation**, so the original
+  ensemble stays the primary forecast. See `docs/PHASE2_DISCOVERY.md`. Nothing here is a betting edge.
+
 ## Where things are saved
 
 | Folder | Contents |
@@ -42,6 +54,7 @@ daily in Windows Task Scheduler) so each week's Friday/Saturday report gets arch
 | `snapshots/` | Read-only, timestamped weekly predictions. They are never overwritten. |
 | `models/` | One folder per trained version; `CURRENT.json` names the active one |
 | `artifacts/runs/` | Out-of-sample predictions and metrics from every training run |
+| `artifacts/discovery/` | Read-only discovery experiments (inputs, config, seeds, catalog, adjusters) |
 | `data/` | Downloaded source files, the pregame feature store, and `raw/archive/` (timestamped injury snapshots; keep it) |
 
 None of these folders are committed to git.
