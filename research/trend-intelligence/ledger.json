@@ -489,6 +489,513 @@
    "spec_sha256": "316b07fc256cb7f357d59ba99a9b9c3147c393c0e80ecf3f71907ef6e41ff642",
    "status": "INCONCLUSIVE"
   },
+  "E13": {
+   "completed_at": "2026-10-15T22:48:50Z",
+   "registered_at": "2026-10-15T22:48:42Z",
+   "result": {
+    "outcomes": {
+     "receiving yards/g": {
+      "SEP_COVERAGE": {
+       "per_test_year": {
+        "2024": {
+         "B1": {
+          "mae": 11.348726836761465,
+          "rmse": 14.773870818508332,
+          "spearman": 0.7883679362688646
+         },
+         "C": {
+          "mae": 11.635743319174402,
+          "rmse": 15.233555633201421,
+          "spearman": 0.7954637720110558
+         },
+         "n": 203
+        },
+        "2025": {
+         "B1": {
+          "mae": 9.675612285472509,
+          "rmse": 12.768255127209043,
+          "spearman": 0.8259459519735122
+         },
+         "C": {
+          "mae": 9.74661486143331,
+          "rmse": 12.890764155691304,
+          "spearman": 0.8245133166523235
+         },
+         "n": 205
+        }
+       },
+       "pooled": {
+        "base_mae": 10.508068790157944,
+        "ci_high": 0.4660493529207103,
+        "ci_low": -0.09945936130427413,
+        "confidence": 0.975,
+        "delta_mae": 0.17848008333772292,
+        "n": 408,
+        "new_mae": 10.686548873495667,
+        "relative_improvement": -0.016985050907250505,
+        "years_better": 0,
+        "years_total": 2
+       },
+       "verdict": "REJECTED"
+      },
+      "SEP_OVERALL": {
+       "per_test_year": {
+        "2024": {
+         "B1": {
+          "mae": 11.348726836761465,
+          "rmse": 14.773870818508332,
+          "spearman": 0.7883679362688646
+         },
+         "C": {
+          "mae": 11.571561934524972,
+          "rmse": 15.144249731425333,
+          "spearman": 0.7932072775963248
+         },
+         "n": 203
+        },
+        "2025": {
+         "B1": {
+          "mae": 9.675612285472509,
+          "rmse": 12.768255127209043,
+          "spearman": 0.8259459519735122
+         },
+         "C": {
+          "mae": 9.696015185121725,
+          "rmse": 12.788685714854077,
+          "spearman": 0.8284316473849472
+         },
+         "n": 205
+        }
+       },
+       "pooled": {
+        "base_mae": 10.508068790157944,
+        "ci_high": 0.32346955525164195,
+        "ci_low": -0.0819607136352278,
+        "confidence": 0.975,
+        "delta_mae": 0.1211228413580443,
+        "n": 408,
+        "new_mae": 10.629191631515988,
+        "relative_improvement": -0.01152665097429608,
+        "years_better": 0,
+        "years_total": 2
+       },
+       "verdict": "REJECTED"
+      }
+     },
+     "targets/g": {
+      "SEP_COVERAGE": {
+       "per_test_year": {
+        "2024": {
+         "B1": {
+          "mae": 1.1718197192416824,
+          "rmse": 1.5245122688862638,
+          "spearman": 0.8252775307493243
+         },
+         "C": {
+          "mae": 1.190227523180537,
+          "rmse": 1.5635673181052494,
+          "spearman": 0.8285977834308795
+         },
+         "n": 203
+        },
+        "2025": {
+         "B1": {
+          "mae": 0.9599408431120315,
+          "rmse": 1.259122474144157,
+          "spearman": 0.860343362668785
+         },
+         "C": {
+          "mae": 0.9837101667002208,
+          "rmse": 1.2749041647079487,
+          "spearman": 0.8573882157120978
+         },
+         "n": 205
+        }
+       },
+       "pooled": {
+        "base_mae": 1.065360970205951,
+        "ci_high": 0.04165987606234194,
+        "ci_low": -0.0011758205928047785,
+        "confidence": 0.95,
+        "delta_mae": 0.021101704743054617,
+        "n": 408,
+        "new_mae": 1.0864626749490056,
+        "relative_improvement": -0.019807093870704992,
+        "years_better": 0,
+        "years_total": 2
+       },
+       "verdict": "REJECTED"
+      },
+      "SEP_OVERALL": {
+       "per_test_year": {
+        "2024": {
+         "B1": {
+          "mae": 1.1718197192416824,
+          "rmse": 1.5245122688862638,
+          "spearman": 0.8252775307493243
+         },
+         "C": {
+          "mae": 1.1869586919642405,
+          "rmse": 1.5581634785107201,
+          "spearman": 0.8284299417528749
+         },
+         "n": 203
+        },
+        "2025": {
+         "B1": {
+          "mae": 0.9599408431120315,
+          "rmse": 1.259122474144157,
+          "spearman": 0.860343362668785
+         },
+         "C": {
+          "mae": 0.9777105631280615,
+          "rmse": 1.2609678680579361,
+          "spearman": 0.859001950215667
+         },
+         "n": 205
+        }
+       },
+       "pooled": {
+        "base_mae": 1.065360970205951,
+        "ci_high": 0.033691553006107565,
+        "ci_low": -0.000772098348764865,
+        "confidence": 0.95,
+        "delta_mae": 0.016460794279327118,
+        "n": 408,
+        "new_mae": 1.0818217644852781,
+        "relative_improvement": -0.015450907945449689,
+        "years_better": 0,
+        "years_total": 2
+       },
+       "verdict": "REJECTED"
+      }
+     }
+    },
+    "primary": "receiving yards/g",
+    "sample_sizes": {
+     "2023": 199,
+     "2024": 203,
+     "2025": 205
+    },
+    "seconds": 1.0
+   },
+   "spec": {
+    "baselines": {
+     "B1": "ridge on prior per-game targets, receptions, yards, routes per game, targets per route, games played, TE flag"
+    },
+    "bootstrap": "cluster by player/team, 2000 draws, seed 20261008",
+    "challengers": {
+     "SEP_COVERAGE": [
+      "cov.Man.SEP SCORE",
+      "cov.Zone.SEP SCORE",
+      "cov.Man.WIN RATE",
+      "cov.Zone.WIN RATE"
+     ],
+     "SEP_OVERALL": [
+      "sep.Overall.SEP SCORE",
+      "sep.Overall.WIN RATE"
+     ]
+    },
+    "decision_rule": {
+     "INCONCLUSIVE": "anything else",
+     "PROMISING": "relative MAE improvement >= 1% over the baseline AND the Bonferroni-adjusted CI of the paired difference excludes 0 AND better in >= 2 of the 3 test seasons",
+     "REJECTED": "relative improvement < 0.25% OR the CI lies entirely on the wrong side"
+    },
+    "football_rationale": "Separation is a skill that creates targets and easier catches; but the baseline already contains the volume it would produce, so only the part of separation not already in last year's production can add anything.",
+    "hypothesis": "Separation score and win rate (overall, and against man and zone) of season N-1 improve next-season receiving yards per game beyond the player's own per-game targets, receptions, yards, routes per game and targets per route.",
+    "id": "E13",
+    "leakage": "features from season N-1 only; season N snapshot is the outcome only",
+    "limitations": "about 100-150 pairs per season; later-listed team changes are dropped; licensed inputs stay local",
+    "markets": [
+     "receiving yards",
+     "receptions"
+    ],
+    "metric": "mean absolute error (primary), RMSE and Spearman (secondary)",
+    "multiple_testing": "Bonferroni over 2 primary comparisons (97.5% CI)",
+    "primary_comparison": "B1 + each separation block vs B1 on receiving yards/g (2 comparisons)",
+    "primary_outcome": "receiving yards/g",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01,
+     "min_years_better": 2,
+     "reject_below_relative_improvement": 0.0025
+    },
+    "secondary_outcomes": [
+     "targets/g"
+    ],
+    "sources": [
+     "Fantasy Points receiving_separation_by_routes, receiving_separation_by_coverage, receiving_routes_run, receiving_basic"
+    ],
+    "splits": {
+     "note": "separation tables start in 2022, so only two test seasons exist; the 2-of-2 requirement is therefore strict and power is low",
+     "pairs": [
+      "2022->2023",
+      "2023->2024",
+      "2024->2025"
+     ],
+     "rolling_origin": true,
+     "test": [
+      "2023->2024",
+      "2024->2025"
+     ]
+    },
+    "title": "Prior-season receiver separation -> next-season receiving yards per game (WR/TE)",
+    "unit": "WR/TE single-team player-season pair (N-1 -> N), >= 8 games in both seasons"
+   },
+   "spec_sha256": "cc9f6d76e2935ff9a992dfffaccabd910d8240c5ffc472958fa7ef3464ce37a6",
+   "status": "REJECTED"
+  },
+  "E14": {
+   "completed_at": "2026-10-15T22:48:50Z",
+   "registered_at": "2026-10-15T22:48:42Z",
+   "result": {
+    "outcomes": {
+     "passing TD/g": {
+      "PRESSURE": {
+       "per_test_year": {
+        "2023": {
+         "B1": {
+          "mae": 0.32439008227826827,
+          "rmse": 0.409056487233839,
+          "spearman": 0.4018784475172286
+         },
+         "C": {
+          "mae": 0.32552175064184186,
+          "rmse": 0.4139891421885766,
+          "spearman": 0.491349540998924
+         },
+         "n": 23
+        },
+        "2024": {
+         "B1": {
+          "mae": 0.37591973458700184,
+          "rmse": 0.5164358191330816,
+          "spearman": 0.5227481159721754
+         },
+         "C": {
+          "mae": 0.4036245364285875,
+          "rmse": 0.5611809678587085,
+          "spearman": 0.39328246108187026
+         },
+         "n": 27
+        },
+        "2025": {
+         "B1": {
+          "mae": 0.2841845504452732,
+          "rmse": 0.40225575221264226,
+          "spearman": 0.23932095593180855
+         },
+         "C": {
+          "mae": 0.29961295683818945,
+          "rmse": 0.4002106792421631,
+          "spearman": 0.2606791190470043
+         },
+         "n": 28
+        }
+       },
+       "pooled": {
+        "base_mae": 0.3277945145989342,
+        "ci_high": 0.03514680788978416,
+        "ci_low": -0.0023277623679888405,
+        "confidence": 0.95,
+        "delta_mae": 0.015462223090854599,
+        "n": 78,
+        "new_mae": 0.3432567376897888,
+        "relative_improvement": -0.047170475411319995,
+        "years_better": 0,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      }
+     },
+     "passing yards/g": {
+      "PRESSURE": {
+       "per_test_year": {
+        "2023": {
+         "B1": {
+          "mae": 22.81624389594654,
+          "rmse": 30.864374335769067,
+          "spearman": 0.4871541501976285
+         },
+         "C": {
+          "mae": 24.148474060163043,
+          "rmse": 31.512138806392027,
+          "spearman": 0.5642292490118578
+         },
+         "n": 23
+        },
+        "2024": {
+         "B1": {
+          "mae": 27.878846018397528,
+          "rmse": 37.97896900454958,
+          "spearman": 0.583028083028083
+         },
+         "C": {
+          "mae": 27.4956761894444,
+          "rmse": 38.026982498627575,
+          "spearman": 0.5836385836385837
+         },
+         "n": 27
+        },
+        "2025": {
+         "B1": {
+          "mae": 29.01326237931209,
+          "rmse": 34.22598070667528,
+          "spearman": 0.03557744937055282
+         },
+         "C": {
+          "mae": 31.33106219319448,
+          "rmse": 36.276796528115376,
+          "spearman": 0.02353585112205802
+         },
+         "n": 28
+        }
+       },
+       "pooled": {
+        "base_mae": 26.793253829797976,
+        "ci_high": 3.0802710674853495,
+        "ci_low": -0.8237077945385687,
+        "confidence": 0.95,
+        "delta_mae": 1.0922320921019484,
+        "n": 78,
+        "new_mae": 27.885485921899924,
+        "relative_improvement": -0.040765190336353556,
+        "years_better": 1,
+        "years_total": 3
+       },
+       "verdict": "REJECTED"
+      },
+      "QUALITY_descriptive": {
+       "per_test_year": {
+        "2023": {
+         "B1": {
+          "mae": 22.81624389594654,
+          "rmse": 30.864374335769067,
+          "spearman": 0.4871541501976285
+         },
+         "C": {
+          "mae": 23.050383799635384,
+          "rmse": 27.651962879601268,
+          "spearman": 0.5711462450592886
+         },
+         "n": 23
+        },
+        "2024": {
+         "B1": {
+          "mae": 27.878846018397528,
+          "rmse": 37.97896900454958,
+          "spearman": 0.583028083028083
+         },
+         "C": {
+          "mae": 24.164190168022234,
+          "rmse": 35.111762819107206,
+          "spearman": 0.6623931623931624
+         },
+         "n": 27
+        },
+        "2025": {
+         "B1": {
+          "mae": 29.01326237931209,
+          "rmse": 34.22598070667528,
+          "spearman": 0.03557744937055282
+         },
+         "C": {
+          "mae": 28.873275571448886,
+          "rmse": 35.689955711465714,
+          "spearman": 0.09304871373836891
+         },
+         "n": 28
+        }
+       },
+       "pooled": {
+        "base_mae": 26.793253829797976,
+        "ci_high": 0.9371100453459956,
+        "ci_low": -3.570676770792751,
+        "confidence": 0.95,
+        "delta_mae": -1.267052830711016,
+        "n": 78,
+        "new_mae": 25.52620099908696,
+        "relative_improvement": 0.04728999466656304,
+        "years_better": 2,
+        "years_total": 3
+       },
+       "verdict": "INCONCLUSIVE"
+      }
+     }
+    },
+    "primary": "passing yards/g",
+    "sample_sizes": {
+     "2022": 30,
+     "2023": 23,
+     "2024": 27,
+     "2025": 28
+    },
+    "seconds": 0.3
+   },
+   "spec": {
+    "baselines": {
+     "B1": "ridge on prior per-game attempts, passing yards, touchdowns and games played"
+    },
+    "bootstrap": "cluster by player/team, 2000 draws, seed 20261008",
+    "challengers": {
+     "PRESSURE": [
+      "pa.Passing Advanced.PRESS %",
+      "pa.Passing Advanced.PRESS SK %",
+      "pa.Passing Advanced.TTT",
+      "pa.Passing.SACK %"
+     ]
+    },
+    "decision_rule": {
+     "INCONCLUSIVE": "anything else",
+     "PROMISING": "relative MAE improvement >= 1% over the baseline AND the Bonferroni-adjusted CI of the paired difference excludes 0 AND better in >= 2 of the 3 test seasons",
+     "REJECTED": "relative improvement < 0.25% OR the CI lies entirely on the wrong side"
+    },
+    "football_rationale": "Pressure is partly offensive-line and scheme, partly the QB; if it persists it should explain some of the year-to-year change in passing output.",
+    "hypothesis": "A QB's season N-1 pressure rate, pressure-to-sack rate, time to throw and sack rate improve next-season passing yards per game beyond his own per-game attempts, yards and touchdowns.",
+    "id": "E14",
+    "leakage": "features from season N-1 only; season N snapshot is the outcome only",
+    "limitations": "about 25-30 qualifying QBs per season: very low power, INCONCLUSIVE is the expected honest outcome unless the effect is large",
+    "markets": [
+     "passing yards",
+     "passing TDs"
+    ],
+    "metric": "mean absolute error (primary), RMSE and Spearman (secondary)",
+    "multiple_testing": "none (single primary); 95% CI",
+    "primary_comparison": "B1 + PRESSURE vs B1 on passing yards/g (1 comparison)",
+    "primary_outcome": "passing yards/g",
+    "ridge_alpha": 10,
+    "rule_numbers": {
+     "min_relative_improvement": 0.01,
+     "min_years_better": 2,
+     "reject_below_relative_improvement": 0.0025
+    },
+    "secondary_outcomes": [
+     "passing TD/g",
+     "QUALITY block (CPOE, aDOT, deep-throw %) descriptive"
+    ],
+    "sources": [
+     "Fantasy Points passing_advanced 2021-2025"
+    ],
+    "splits": {
+     "pairs": [
+      "2021->2022",
+      "2022->2023",
+      "2023->2024",
+      "2024->2025"
+     ],
+     "rolling_origin": true,
+     "test": [
+      "2022->2023",
+      "2023->2024",
+      "2024->2025"
+     ]
+    },
+    "title": "Prior-season QB pressure and time to throw -> next-season passing yards and touchdowns per game",
+    "unit": "single-team QB season pair (N-1 -> N), >= 8 games in both seasons"
+   },
+   "spec_sha256": "f0209ba5184203b3a0851ccec288ac30ad3db9ed494229016484f9d0fc2ea9b3",
+   "status": "REJECTED"
+  },
   "E2": {
    "completed_at": "2026-10-08T01:47:11Z",
    "registered_at": "2026-10-08T01:47:04Z",

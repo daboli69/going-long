@@ -74,7 +74,10 @@ function walkForward(records,{research={},folds=4,minTrain=100,seed=7}={}){
  if(!res.games.length)return {ok:false,reason:`No fold had ${minTrain}+ strictly earlier training records.`};
  const summarize=key=>{const rows=res[key];return {n:rows.filter(Boolean).length,brier:mean(rows.filter(Boolean).map(x=>x[0])),logLoss:mean(rows.filter(Boolean).map(x=>x[1]))};};
  const vs=(key,idx)=>{const d=[],c=[];res[key].forEach((x,i)=>{if(x){d.push(x[idx]-res.equal[i][idx]);c.push(res.games[i]);}});return d.length?clusterBootstrap(d,c,{seed}):null;};
- return {ok:true,n:res.games.length,equal:summarize('equal'),research:summarize('research'),learned:summarize('learned'),model:summarize('model'),
+ // A model's score is only meaningful against the market on the SAME records, so the matched subset is reported explicitly.
+ const idx=res.model.map((x,i)=>x?i:-1).filter(i=>i>=0),sub=key=>({brier:mean(idx.map(i=>res[key][i][0])),logLoss:mean(idx.map(i=>res[key][i][1]))});
+ const matched=idx.length?{n:idx.length,games:new Set(idx.map(i=>res.games[i])).size,equal:sub('equal'),model:sub('model')}:null;
+ return {ok:true,n:res.games.length,matched,equal:summarize('equal'),research:summarize('research'),learned:summarize('learned'),model:summarize('model'),
   differencesVsEqual:{research:{brier:vs('research',0),logLoss:vs('research',1)},learned:{brier:vs('learned',0),logLoss:vs('learned',1)},model:{brier:vs('model',0),logLoss:vs('model',1)}},
   weights:res.weights,note:'Negative differences mean lower loss than equal weights. A 95% cluster-bootstrap interval that includes 0 is not evidence of improvement.'};
 }

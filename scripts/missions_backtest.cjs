@@ -5,8 +5,10 @@ const fs=require('node:fs'),path=require('node:path');
 const SC=require('../shared/sharp-consensus.js'),V=require('../shared/market-validation.js'),W=require('../config/sharp_weights.json');
 const normalize=SC.makeNormalizer(W.aliases);
 
-function buildRecords(input,{devig='probit',minSources=3}={}){
- const byMarket={moneyline:[],spread:[],total:[]};
+/* Optional external forecasts: {"<gameId>|<market>|<line>": {"p": probability side A wins (home / over / home ML), "asOf": ISO time}}.
+ * A forecast made after the pricing board is future information and is refused, never silently used. */
+function buildRecords(input,{devig='probit',minSources=3,models=null}={}){
+ const byMarket={moneyline:[],spread:[],total:[]},refused={future:0,invalid:0};
  for(const r of input.records||[]){
   const t=Date.parse(r.snapshotAt),probs={};
   if(!Number.isFinite(t)||!(r.y===0||r.y===1)||!byMarket[r.market])continue;
@@ -16,12 +18,20 @@ function buildRecords(input,{devig='probit',minSources=3}={}){
    if(!d||d.overround<.985)continue;
    const s=normalize(book);if(!(s in probs))probs[s]=d.pA;
   }
-  if(Object.keys(probs).length>=minSources)byMarket[r.market].push({t,gameId:r.gameId,y:r.y,probs});
+  if(Object.keys(probs).length<minSources)continue;
+  const row={t,gameId:r.gameId,y:r.y,probs},f=models?.[[r.gameId,r.market,r.line].join('|')];
+  if(f){
+   if(!(f.p>0&&f.p<1)||!Number.isFinite(Date.parse(f.asOf)))refused.invalid++;
+   else if(Date.parse(f.asOf)>t)refused.future++;
+   else row.model=f.p;
+  }
+  byMarket[r.market].push(row);
  }
+ Object.defineProperty(byMarket,'refused',{value:refused,enumerable:false});
  return byMarket;
 }
 function run(input,opts={}){
- const by=buildRecords(input,opts),out={schema:'going-missions-backtest-v1',note:input.note,gaps:input.gaps,markets:{}};
+ const by=buildRecords(input,opts),out={schema:'going-missions-backtest-v1',note:input.note,gaps:input.gaps,externalForecastsRefused:by.refused,markets:{}};
  for(const [market,records] of Object.entries(by)){
   const research=V.walkForward(records,{research:W.game_lines,folds:opts.folds||4,minTrain:opts.minTrain||100});
   const pinnacle=V.walkForward(records,{research:{pinnacle:1},folds:opts.folds||4,minTrain:opts.minTrain||100});
@@ -36,9 +46,10 @@ function run(input,opts={}){
 }
 module.exports={buildRecords,run};
 if(require.main===module){
- const [file,flag,dest]=process.argv.slice(2);
- if(!file){console.error('usage: node scripts/missions_backtest.cjs <missions-backtest-input.json> [--out report.json]');process.exit(2);}
- const report=run(JSON.parse(fs.readFileSync(file,'utf8')));
+ const args=process.argv.slice(2),take=name=>{const i=args.indexOf(name);if(i<0)return null;const v=args[i+1];args.splice(i,2);return v;};
+ const modelFile=take('--model'),outFile=take('--out'),[file]=args,flag=outFile?'--out':null,dest=outFile;
+ if(!file){console.error('usage: node scripts/missions_backtest.cjs <missions-backtest-input.json> [--model forecasts.json] [--out report.json]');process.exit(2);}
+ const report=run(JSON.parse(fs.readFileSync(file,'utf8')),{models:modelFile?JSON.parse(fs.readFileSync(modelFile,'utf8')):null});
  if(flag==='--out'){
   const root=path.resolve(__dirname,'..'),target=path.resolve(dest);
   if(target===root||target.startsWith(root+path.sep)){console.error('Refusing to write private archive derivatives inside the repository.');process.exit(2);}

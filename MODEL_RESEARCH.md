@@ -91,3 +91,15 @@ Frozen protocol config/fp_model_protocol.json before implementation/evaluation: 
 Schema amendment before outcomes: opposing man+zone percentages are not exhaustive (32teams, sums91.1..99.5). Protocolv2 preserves unclassified mass at the player overall yards/route baseline; no redistribution of unknown coverage and no strength multiplier. This is explicit neutral imputation, not learned calibration. No Week6+ outcomes inspected.
 
 Implementation sensitivity check (not outcome evaluation): exact-current-team receiving cohorts produce224private Challenger means,203different from season average,88withheld. Detailed method/limitations docs/FANTASY_POINTS_MODEL.md. Champion/public recommendations unchanged; other CSV families remain explicitly unweighted until separate Model Gates. Independent review repaired stale packaged context, impossible conditional rates and capture-input hashing race.
+
+### FantasyPoints integration review - October 15
+
+No experiment run. The licensed CSVs and historical odds database were unreachable from the cloud session, so nothing was re-measured and no protocol was frozen blind. [Integration map](docs/FANTASY_POINTS_INTEGRATION_MAP.md) records, from code and the existing ledger, which families change a forecast (three, research-only), which were rejected (E1/E3/E4/E5/E9), which remain untested (separation, QB pressure) and which need 2026 prospective capture. Candidate next experiments are listed as hypotheses only; each still needs its own frozen split, baselines and acceptance rule written with the data in view. Champions unchanged.
+
+### FantasyPoints E13/E14 - October 15 (local session)
+
+Pre-registered then ran separation (WR/TE yards/g, 2024-25 folds) and QB pressure (passing yards/g, 2023-25 folds), prior season to next season. Neither beat a baseline of the player's own prior per-game production (E13 -1.2%/-1.7%, E14 -4.1%); E14 power is low (78 pairs). No model change. See docs/FANTASY_POINTS_E13_E14_HANDOFF.md.
+
+### Cloud review of E13/E14 - October 15
+
+Independent code and aggregate review (no data re-run): E13 stands under either decision rule; E14 pressure-on-yards reads INCONCLUSIVE under rule v2 (n=78, interval admits a ~3% gain), so it is underpowered rather than disproved. Registered verdicts preserved. Specs and results landed in one commit and 2022-2025 seasons are reused across E1-E14, P3-x, JP-x and P4-1, so there is no untouched 2022-2025 holdout; only 2026 Weeks 6+ qualifies. Season-level association tests do not answer weekly prop forecasting. See docs/FANTASY_POINTS_E13_E14_REVIEW.md; next designs (weekly end-zone TD role, pace vs matched pregame totals, prospective shadow) in docs/FANTASY_POINTS_NEXT_EXPERIMENTS.md. Champions unchanged.
