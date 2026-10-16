@@ -76,8 +76,8 @@ Cloud reproduction without local files: `tests/test_p5_experiments.py`, `tests/t
 The sections below separate facts by kind. Research conclusions are above and unchanged: all experiments INCONCLUSIVE and research-only; P5-3 PASS is an integrity audit, not predictive evidence or a betting edge.
 
 ### Scheduler registration and execution (verified)
-- Task `GoingLong-FP-Shadow-Capture` (one task; per-user, limited rights, no admin). Registered with your approval on 2026-10-16, then **replaced the same day by a durable version** after the replacement passed its own test.
-- Executable: `C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\.venv\Scripts\python.exe` (the main checkout's venv). Script and working directory: the commit-pinned runtime copy `%LOCALAPPDATA%\GOING\private\runtime\fp-shadow\b3733e891708`, made with `git archive` of commit `b3733e891708b06173555cb0851e87e3e4785ea5` (`RUNTIME_COMMIT` records it). It no longer depends on the research worktree, which can be deleted.
+- Task `GoingLong-FP-Shadow-Capture` (one task; per-user, limited rights, no admin). Registered with your approval on 2026-10-16, then **replaced twice the same day** (a durable commit-pinned runtime, then the memory-optimised commit `737ed8d`), each time only after the replacement passed its own dry-run test.
+- Executable: `C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\.venv\Scripts\python.exe` (the main checkout's venv). Script and working directory: the commit-pinned runtime copy `%LOCALAPPDATA%\GOING\private\runtime\fp-shadow\737ed8d9334a`, made with `git archive` of commit `737ed8d9334ae294351cef4241adb8eef0600bb9` (`RUNTIME_COMMIT` records it; the earlier `b3733e891708` copy is left in place and unused). It no longer depends on the research worktree, which can be deleted.
 - Arguments: `capture --root <FantasyPoints folder> --market-from-url main --weeks 6-10`. Board source: HTTPS GET of the public repository's `data/nfl_game_lines.json` and `data/nfl_betting.json`, whichever is newer (no credentials, no git, no provider request).
 - Schedule: every 30 minutes, first trigger 2 minutes after registration, only while this user is logged in; `StartWhenAvailable`; multiple instances ignored; 5-minute limit. The PC's time zone is Eastern (Task Scheduler shows local time; run reports are UTC).
 - Output: `%LOCALAPPDATA%\GOING\private\fp-shadow` (`captures/`, `ledger.jsonl`, `runs/`, `settled/`). Nothing is written inside Git.
@@ -85,9 +85,13 @@ The sections below separate facts by kind. Research conclusions are above and un
 - Duplicate prevention: one fixed task name; the installer refuses if another task runs `fp_shadow.py`, refuses a name owned by something else, uses `MultipleInstances IgnoreNew`, and replaces the existing task only after the new runtime passes a dry-run capture. Re-running the installer for the same commit reuses the runtime.
 - Reinstall or update: `powershell -File scripts\install_fp_shadow_task.ps1 -Commit <sha> -Activate` (dry run without `-Activate`). Remove: `Unregister-ScheduledTask -TaskName GoingLong-FP-Shadow-Capture -Confirm:$false`.
 
-### Successful captures: none yet, and none fabricated
-Every scheduled run so far wrote a report and no capture. Exact reasons at 2026-10-16T01:40Z: Week 6, 13 games `market_snapshot_older_than_6h` and 1 game `started_or_less_than_30_min_to_kickoff`; Week 7, 14 games `market_snapshot_older_than_6h`; Weeks 8-10, 43 games `no_matched_market_price`. The newest published board was generated 2026-10-15T15:03:47Z. The 6 h rule was not relaxed.
-Repeat execution was verified with real inputs in a scratch directory through the runtime copy (27 written, then 27 `already_captured`, ledger verified; the scratch records were deleted and are not captures) and by unit tests. Nothing is backdated: `captured_at` is the wall clock at write time, and a forecast is refused within 30 minutes of kickoff.
+### Successful captures: 24 genuine prospective captures (2026-10-16T01:50:44Z)
+After you authorized one manual refresh, run `38836759373` (workflow_dispatch, 01:44Z) **succeeded** and published a board generated at 2026-10-16T01:47:09Z (provider coverage was complete this time; the fix on this branch was not involved). The next scheduled task tick captured every eligible game at 01:50:44Z, 3.5 minutes after the board time.
+- 24 capture files: Week 6 (13 games) and Week 7 (11 games), each with CH_RAW, B_PTS, B_NFL and C_FP forecasts and the matched single-provider market price (line, odds, proportional de-vig, board time and SHA-256). All have a C_FP forecast. Lead time before kickoff: 60 to 234 hours. Code SHA `b3733e8` (the runtime then installed), protocol spec hash and input hashes recorded; feature cutoffs show Fantasy Points and nflverse weekly data through Week 4 and scores through Week 5.
+- `fp_shadow.py verify`: 24 ledger entries, no problems. The files and ledger are in `%LOCALAPPDATA%\GOING\private\fp-shadow` (not in Git, because they derive from licensed data).
+- Not captured (reasons in the run report): Week 6 Thursday game started; Week 7, 3 games without a posted total, and Weeks 8-10 (43 games) without a posted total (46 `no_matched_market_price` in total). The 6 h rule was not relaxed.
+- Repeat execution: later scheduled and manual runs reported `already_captured` for all 24 and changed nothing (ledger still verifies); the earlier scratch test showed the same with real inputs. Nothing is backdated: `captured_at` is the wall clock at write time and a forecast is refused within 30 minutes of kickoff.
+- These are internal research records, not bets, alerts or production freezes. Outcomes remain untouched until the games are played; score them with `fp_shadow.py settle` then `score`, and treat any result as a very small sample (24 games).
 
 ### Refresh health
 - Failed run `38829303688` (scheduled, 2026-10-16T00:24Z). The same signature occurred in `38809504532` (21:23Z, manual dispatch) and `38814908268` (22:07Z, push). The last success was `38756536155` (2026-10-15T15:00Z), whose board is still the published one.
@@ -98,23 +102,55 @@ Repeat execution was verified with real inputs in a scratch directory through th
 - **Not fixed (needs authorization):** the provider truncation itself. The only lever found is splitting the derivative query in two, which adds requests (roughly 3 credits per run if each of the nine queries costs about 3 of the 27 documented credits; an estimate, not measured). No such change was made.
 - **Cadence audit:** scheduled refreshes run at 10:20 and 22:20 UTC daily, plus Monday 21:05 and five Sunday times (08:20, 09:20, 12:05, 15:45, 19:05). A board is under six hours old for about six hours after each successful run, so a 30-minute poll can catch it, but only if the refresh succeeds. Sunday kickoffs are well covered; Thursday and Saturday games rely on the 22:20 run. The task polls every 30 minutes and captures at the first eligible tick; triggering it from the workflow would be a production workflow change.
 - **Provider usage (estimate, not an account reading):** in the last 30 days 159 workflow runs executed on `main` (66 scheduled, 87 push-triggered, 6 manual). At the documented 27 credits per full props refresh that is about 4,300 credits, versus the documented 2,350 for the scheduled cadence alone, against your stated 20,000 per month allowance (about 21%). Push-triggered runs are more than half of it; limiting them would save credits but is a production workflow change I did not make. I did not query the provider, since any request spends credits, so actual account usage, other endpoints and scanner usage are unknown.
-- Until this fix reaches `main`, the next scheduled refresh (10:20 UTC) will most likely truncate the same scope again and no board will be fresh.
+- Manual dispatch authorized by you: run `38836759373` succeeded (about 6 minutes) and published a fresh board, so the truncation is intermittent rather than permanent; one dispatch is about 27 credits by the documented rate. Until the game-lines fix reaches `main`, any later scheduled refresh that truncates the same scope will again leave the published board stale.
+
+### Memory and runtime of the hourly shadow capture (measured on this PC, Windows working set)
+Method: `scripts/measure_peak.py` runs a script in-process and reports the operating system's PeakWorkingSetSize and commit peak (the venv `python.exe` is a launcher, so the child must be measured); `scripts/profile_capture.py` adds per-stage peaks. No Python command in this repository reproduced a 3 GB peak:
+
+| Command (real data) | Peak working set | Peak commit | Time |
+| --- | --- | --- | --- |
+| hourly capture, before optimization (`b3733e8`) | 262 MB | 1,226 MB | 5.6 s |
+| P5-1 run | 513 MB | 1,640 MB | 3.1 s |
+| P5-2 run | 237 MB | 1,204 MB | 8.6 s |
+| cold play-by-play feature build | 543 MB | 1,623 MB | 20.2 s |
+| full Python test suite | 430 MB | 1,516 MB | 33 s |
+| archive audit | 118 MB | 583 MB | 4.6 s |
+
+**What was using more:** a long-running `pythonw.exe run_local_scanner.py` (started 2026-10-12 13:25, from a separate Codex checkout `C:\Users\travi\Documents\Codex\...\going-long`, not this branch) was sampled at 1.1 to 2.3 GB of working set, oscillating every ten seconds or so. That is a better candidate for the 3 GB peak than the shadow task. I did not stop, modify or profile its scan cycle (a scan can call providers), and have not changed it. Total memory also includes `vmmem` (WSL/Docker) and other programs.
+
+Capture stages before (`b3733e8`): imports about 114 MB (numpy, pandas, scipy), board fetch, nflverse weekly stats 6 seasons with 40 columns (peak 208 MB, 0.62 s), games.csv, the Fantasy Points table, team_games merge and lag (peak 229 MB, 1.9 s), the model fit; about 3.4 s of loading on every hourly tick even when nothing could be captured.
+
+Optimization (commit `737ed8d`, formulas unchanged):
+1. **Precheck first** (stdlib only): board freshness, eligible unstarted games and existing captures are checked before any historical data is loaded; if nothing needs capturing the run stops there and imports no pandas, numpy or scipy.
+2. **Frozen inputs cache** in `fp-shadow/cache/inputs-<key>.json` (plain JSON, no pickle): fitted model parameters, sigma, per-game features and cutoffs. The key is the SHA-256 of every input file (games.csv, nflverse weekly stats 2021-2026, the Fantasy Points manifest index and run/pass documents), the P5-2 protocol hash and the code that computes the features; any change rebuilds (tested), the two newest bundles are kept, corrupt or foreign files are ignored. Cached predictions use a pure-Python predictor.
+3. **Column-limited, per-season loading** on a rebuild: 12 columns of games.csv, 6 of the weekly stats (one season at a time, aggregated before the next), 3 Fantasy Points columns.
+4. **Overlap lock** (`capture.lock`, exclusive create, stale after 15 minutes) in addition to Task Scheduler's ignore-new-instance setting; dry runs ignore it.
+5. Research experiments remain separate (`scripts/trend_research.py`); the hourly path only imports them on a cache miss.
+
+| Hourly capture scenario | Peak working set | Peak commit | Time |
+| --- | --- | --- | --- |
+| before: every tick | 262 MB | 1,226 MB | 5.6 s |
+| after: nothing to capture, or warm cache | **56 MB** | **45 MB** | **0.5 to 0.8 s** |
+| after: cold or invalidated cache (rebuild) | 192 MB | 1,158 MB | 5.1 s |
+
+The cold rebuild still imports the research stack; its stage peak fell from 229 to 189 MB. Almost every hourly tick is now the 56 MB path. **Equivalence:** `scripts/shadow_equivalence_check.py` ran the same board at the same clock through the old tree and the new tree on real data (24 games, 4 models each): the same games and exclusions, identical feature hashes, cutoffs and market fields, and forecast differences of exactly 0.0 for both the cold rebuild and the cache hit. P5-2 re-run after the loader changes: identical result. Real-data checks need the private files; the unit tests (28 in `tests/test_fp_shadow.py`) cover the precheck, cache invalidation by data/protocol/code change, corrupt cache files, predictor equivalence with the numpy ridge, no heavy imports on the precheck path, and the lock.
 
 ### Remaining approvals and blockers
 1. Integrate this branch into `main` so the game-lines step runs in the production workflow (production workflow change; not done).
 2. Authorize provider usage if you want the truncated derivative scope split (extra requests) or a manual refresh dispatch to produce a fresh board now (each full refresh is about 27 credits). Neither was triggered.
 3. Optional: limit push-triggered refreshes to save credits (workflow change).
-4. After integration the task keeps running unchanged; reinstall only to update the pinned commit.
-No genuine prospective capture can exist until a board under six hours old is published while games remain more than 30 minutes from kickoff.
+4. Optional follow-up outside this branch: profile `run_local_scanner.py` (the 1.1-2.3 GB process above) in its own session; it may call providers, so it needs your go-ahead.
+5. After integration the task keeps running unchanged; reinstall only to update the pinned commit.
+Future captures need a board under six hours old while games remain more than 30 minutes from kickoff.
 
 ## Final tests and revisions
-Code revision tested: `b3733e891708b06173555cb0851e87e3e4785ea5`. `python -m unittest discover -s tests -p 'test_*.py'`: 713 tests OK (5 existing skips). `npm test`: 909 of 909 pass. `npm run build` and `node scripts/build_vercel.mjs`: exit 0. Only `npm ci` and the repository's declared Python requirements were used. Earlier runs (`204379d`, `63d6659`) were not relied on. The commit that adds this section changes documentation only (verify with `git diff --stat b3733e8..HEAD`).
+Code revision tested: `737ed8d9334ae294351cef4241adb8eef0600bb9`. `python -m unittest discover -s tests -p 'test_*.py'`: 722 tests OK (5 existing skips). `npm test`: 909 of 909 pass. `npm run build` and `node scripts/build_vercel.mjs`: exit 0. Only `npm ci` and the repository's declared Python requirements were used (memory measurement uses the standard library). Earlier runs (`204379d`, `63d6659`, `b3733e8`) were not relied on. The commit that adds this section changes documentation only (verify with `git diff --stat 737ed8d..HEAD`).
 
-Real-data checks (private files, 2026-10-16): the P5-1/P5-2/P5-3 runs; `scripts/p5_data_checks.py` (13,048 rolling-feature cells); the P5-2 rerun after the games.csv correction (identical); real capture attempts and scheduled task runs; the scratch duplicate/overwrite test through the runtime copy; the GitHub run-log inspection.
+Real-data checks (private files, 2026-10-16): the P5-1/P5-2/P5-3 runs; `scripts/p5_data_checks.py` (13,048 rolling-feature cells); the P5-2 rerun after the games.csv correction (identical); real capture attempts, the 24 genuine captures and scheduled task runs; peak-memory profiling and the old-versus-new equivalence run; the scratch duplicate/overwrite test through the runtime copy; the GitHub run-log inspection.
 Synthetic-data tests (run anywhere): `tests/test_fp_shadow.py` (19), `tests/test_p5_experiments.py` (21), `tests/test_publish_game_lines.py` (8), `tests/test_refresh_health.py`, the node regression test for learned weights, and the existing suites.
 
 ## Remaining limitations
-- No genuine shadow capture; the refresh blocker above is outside this branch until it is integrated.
+- 24 captures only (Weeks 6-7); Weeks 8-10 have no posted totals yet. The refresh blocker is intermittent and outside this branch until it is integrated.
 - All experiments INCONCLUSIVE and research-only; nothing promoted. P5-3 PASS is an integrity result only.
 - Small samples (254 games for pace; WR/TE only for TD), one pregame board per game, no closing line, no historical player-prop prices; the shadow market is the single-provider board with proportional de-vig.
 - Feature definition clarification: `pts6` is the expected total (the two teams' mean points scored and allowed, halved) minus the line, and evaluation offsets use the archive line; the spec wording was ambiguous, ridge models are scale-invariant and only the CH_RAW comparator depends on it.
