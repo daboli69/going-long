@@ -229,6 +229,9 @@ def _last(frame, team, col):
 
 
 def git_sha():
+    pinned = REPO / 'RUNTIME_COMMIT'  # written by install_fp_shadow_task.ps1 for a self-contained, version-pinned runtime copy
+    if pinned.exists():
+        return pinned.read_text(encoding='utf-8').strip() or None
     try:
         return subprocess.run(['git', '-C', str(REPO), 'rev-parse', 'HEAD'], capture_output=True, text=True, timeout=20, check=True).stdout.strip()
     except (OSError, subprocess.SubprocessError):
@@ -240,6 +243,69 @@ def board_from_git(ref='origin/main', path='data/nfl_betting.json', fetch=True):
     if fetch:
         subprocess.run(['git', '-C', str(REPO), 'fetch', '-q', 'origin', ref.split('/', 1)[-1]], check=True, timeout=120)
     return subprocess.run(['git', '-C', str(REPO), 'show', f'{ref}:{path}'], check=True, capture_output=True, timeout=60).stdout
+
+
+RAW_BASE = 'https://raw.githubusercontent.com/daboli69/going-long/'
+BOARD_FILES = ('data/nfl_game_lines.json', 'data/nfl_betting.json')
+
+
+def board_from_url(ref='main', fetch=None):
+    """Newest published game-line board from the project's own PUBLIC repository (HTTPS GET, no credentials, no git, no provider call).
+    Reads the independent game-lines snapshot and the full board, and returns the bytes of whichever carries the newer generated_at."""
+    import re
+    if not re.fullmatch(r'[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*', ref) or '..' in ref:
+        raise ShadowError('invalid ref')
+    if fetch is None:
+        import urllib.request
+
+        def fetch(url):
+            req = urllib.request.Request(url, headers={'User-Agent': 'going-fp-shadow/1', 'Cache-Control': 'no-cache'})
+            with urllib.request.urlopen(req, timeout=60) as response:
+                return response.read()
+    best = None
+    for path in BOARD_FILES:
+        url = f'{RAW_BASE}{ref}/{path}'
+        if not url.startswith(RAW_BASE):
+            raise ShadowError('board URL outside the project repository')
+        try:
+            body = fetch(url)
+            stamp = parse_time(json.loads(body)['generated_at'])
+        except Exception:  # missing file (404), malformed JSON or no timestamp: that candidate is simply unavailable
+            continue
+        if best is None or stamp > best[0]:
+            best = (stamp, body, path)
+    if best is None:
+        raise ShadowError('no published game-line board could be read')
+    return best[1]
+
+
+RAW_BASE = 'https://raw.githubusercontent.com/daboli69/going-long/'
+BOARD_FILES = ('data/nfl_game_lines.json', 'data/nfl_betting.json')
+
+
+def board_from_url(ref='main', fetch=None):
+    """Newest published game-line board from the project's own PUBLIC repository (HTTPS GET, no credentials, no git, no provider call).
+    Reads the independent game-lines snapshot and the full board, and returns the bytes of whichever carries the newer generated_at."""
+    if fetch is None:
+        import urllib.request
+
+        def fetch(url):
+            req = urllib.request.Request(url, headers={'User-Agent': 'going-fp-shadow/1', 'Cache-Control': 'no-cache'})
+            with urllib.request.urlopen(req, timeout=60) as response:
+                return response.read()
+    best = None
+    for path in BOARD_FILES:
+        url = f'{RAW_BASE}{ref}/{path}'
+        try:
+            body = fetch(url)
+            stamp = parse_time(json.loads(body)['generated_at'])
+        except Exception:  # missing file (404), malformed JSON or no timestamp: that candidate is simply unavailable
+            continue
+        if best is None or stamp > best[0]:
+            best = (stamp, body, path)
+    if best is None:
+        raise ShadowError('no published game-line board could be read')
+    return best[1]
 
 
 def capture(root, out, *, weeks=(6, 10), dry_run=False, now=None, results_path=REPO / 'data' / 'nfl_betting.json', max_market_age_hours=MAX_MARKET_AGE_HOURS, market_bytes=None):
@@ -341,6 +407,7 @@ def main():
     c.add_argument('--weeks', default='6-10')
     c.add_argument('--market', type=Path, default=REPO / 'data' / 'nfl_betting.json', help='fresh game-line board (default: the checkout copy; use the latest origin/main data refresh)')
     c.add_argument('--market-from-git', metavar='REF', help='read the board from a git ref (for example origin/main) after fetching it, instead of the working-tree file')
+    c.add_argument('--market-from-url', metavar='REF', help='read the newest published board from the project public repository at this ref (for example main)')
     c.add_argument('--max-market-age-hours', type=float, default=MAX_MARKET_AGE_HOURS)
     c.add_argument('--dry-run', action='store_true')
     c.add_argument('--now')
@@ -354,7 +421,7 @@ def main():
     if a.cmd == 'capture':
         lo, hi = (int(x) for x in a.weeks.split('-'))
         print(json.dumps(capture(a.root, a.out, weeks=(lo, hi), dry_run=a.dry_run, now=parse_time(a.now) if a.now else None, results_path=a.market, max_market_age_hours=a.max_market_age_hours,
-                                 market_bytes=board_from_git(a.market_from_git) if a.market_from_git else None), indent=1))
+                                 market_bytes=board_from_url(a.market_from_url) if a.market_from_url else (board_from_git(a.market_from_git) if a.market_from_git else None)), indent=1))
     elif a.cmd == 'settle':
         print(json.dumps(settle(a.out), indent=1))
     elif a.cmd == 'score':

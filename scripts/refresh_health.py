@@ -22,7 +22,7 @@ OUTPUT_OWNERS = {
         'data/slate-breaker.json', 'data/jackpot/', 'data/opportunities.json', 'data/signal_tracker.json',
         'data/signal_archive/', 'data/freezes/', 'data/td_shadow/', 'data/nb_shadow/', 'data/charts/', 'data/dfs_team_touchdowns.json', 'data/dfs_kickers.json',
         'data/public_tracker.json', 'data/public_tracker/', 'data/derived/'),
-    'nfl': ('data/nfl_betting.json',), 'ncaa': ('data/ncaa_lines.json',),
+    'nfl': ('data/nfl_betting.json',), 'game_lines': ('data/nfl_game_lines.json',), 'ncaa': ('data/ncaa_lines.json',),
     'pool': ('data/players.json', 'data/formats/', 'data/data.json'),
     'projections': ('data/history.json',), 'context': ('data/football_context.json', 'data/football_role_validation.json'),
     'injury_context': ('data/injury_context.json',), 'roster_public': ('data/nfl_roster.json',),

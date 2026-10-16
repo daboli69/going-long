@@ -78,6 +78,13 @@ jobs:
           # Approved within owner's 20,000/month allowance; scope this to the
           # real builder, not unit tests or other consumers. Nine single pages.
           PARLAY_PROPS_PARTITIONS: markets
+      - name: Publish NFL game lines independently of player-prop coverage
+        id: game_lines
+        continue-on-error: true
+        if: ${{ !cancelled() }}
+        # No provider request. Publishes data/nfl_game_lines.json only when the odds source itself is FRESH (<= 6 h); fails closed otherwise.
+        # Strict nfl_betting.json health and publication checks are unchanged.
+        run: python scripts/publish_game_lines.py
       - name: Build NCAA odds
         id: ncaa
         continue-on-error: true

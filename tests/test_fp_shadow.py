@@ -192,11 +192,36 @@ class SchedulingAndBoardSourceTests(unittest.TestCase):
         self.assertIn('[switch]$Activate', text)
         self.assertLess(text.index('if (-not $Activate)'), text.index('Register-ScheduledTask'))
         self.assertIn('-RunLevel Limited', text)
-        self.assertIn('--market-from-git origin/main', text)
+        self.assertIn('--market-from-url main', text)
         self.assertNotIn('RunLevel Highest', text)
+        self.assertIn('git -C $repoPath archive', text)  # durable, commit-pinned runtime copy
+        self.assertLess(text.index("--dry-run"), text.index('Register-ScheduledTask'))  # tested before the current task is replaced
+        self.assertIn('Another scheduled task already runs fp_shadow.py', text)  # duplicate prevention
 
     def test_capture_wrapper_uses_the_published_board_and_never_the_hand_edited_file(self):
-        self.assertIn('--market-from-git origin/main', (REPO / 'scripts' / 'run_fp_shadow_capture.cmd').read_text(encoding='utf-8'))
+        self.assertIn('--market-from-url main', (REPO / 'scripts' / 'run_fp_shadow_capture.cmd').read_text(encoding='utf-8'))
+
+
+class BoardFromUrlTests(unittest.TestCase):
+    def test_newest_published_board_wins_and_missing_files_are_skipped(self):
+        boards = {fs.RAW_BASE + 'main/data/nfl_game_lines.json': json.dumps({'generated_at': '2026-10-16T05:00:00+00:00', 'tag': 'lines'}).encode(),
+                  fs.RAW_BASE + 'main/data/nfl_betting.json': json.dumps({'generated_at': '2026-10-15T15:00:00+00:00', 'tag': 'full'}).encode()}
+        self.assertEqual(json.loads(fs.board_from_url('main', fetch=boards.__getitem__))['tag'], 'lines')
+        del boards[fs.RAW_BASE + 'main/data/nfl_game_lines.json']
+
+        def fetch(url):
+            return boards[url]
+        self.assertEqual(json.loads(fs.board_from_url('main', fetch=fetch))['tag'], 'full')  # the game-lines file does not exist yet: KeyError is treated as unavailable
+
+    def test_nothing_readable_or_a_hostile_ref_is_refused(self):
+        with self.assertRaises(fs.ShadowError):
+            fs.board_from_url('main', fetch=lambda url: b'not json')
+        for ref in ('../x', 'a b', 'main?x=1', '/etc'):
+            with self.assertRaises(fs.ShadowError):
+                fs.board_from_url(ref, fetch=lambda url: b'{}')
+
+    def test_runtime_commit_pin_is_used_for_provenance(self):
+        self.assertTrue(fs.git_sha() is None or len(fs.git_sha()) >= 7)
 
 
 if __name__ == '__main__':
