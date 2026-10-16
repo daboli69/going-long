@@ -16,9 +16,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fp_ingest.store import Manifest, find_root  # noqa: E402
-from trend_research import experiments, experiments2, experiments3, experiments4, experiments5, experiments6, experiments7, experiments8, experiments9, experiments10, experiments11, experiments12, experiments13, ledger  # noqa: E402
+from trend_research import experiments, experiments2, experiments3, experiments4, experiments5, experiments6, experiments7, experiments8, experiments9, experiments10, experiments11, experiments12, experiments13, protocol_p5, ledger  # noqa: E402
 
-SPECS = {**experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS, **experiments4.SPECS, **experiments5.SPECS, **experiments6.SPECS, **experiments7.SPECS, **experiments8.SPECS, **experiments9.SPECS, **experiments10.SPECS, **experiments11.SPECS, **experiments12.SPECS, **experiments13.SPECS}
+SPECS = {**experiments.SPECS, **experiments2.SPECS, **experiments3.SPECS, **experiments4.SPECS, **experiments5.SPECS, **experiments6.SPECS, **experiments7.SPECS, **experiments8.SPECS, **experiments9.SPECS, **experiments10.SPECS, **experiments11.SPECS, **experiments12.SPECS, **experiments13.SPECS, **protocol_p5.SPECS}
 RUNNERS = {**experiments.RUNNERS, **experiments2.RUNNERS, **experiments3.RUNNERS, **experiments4.RUNNERS, **experiments5.RUNNERS, **experiments6.RUNNERS, **experiments7.RUNNERS, **experiments8.RUNNERS, **experiments9.RUNNERS, **experiments10.RUNNERS, **experiments11.RUNNERS, **experiments12.RUNNERS, **experiments13.RUNNERS}
 
 REPO = Path(__file__).resolve().parents[1]
