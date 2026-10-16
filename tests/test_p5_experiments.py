@@ -53,6 +53,21 @@ class LagTests(unittest.TestCase):
         self.assertEqual(out.loc[out.week == 3, 'prior_kick'].item(), out.loc[out.week == 2, 'kick'].item())
 
 
+class DataCheckTests(unittest.TestCase):
+    def test_independent_recomputation_agrees_with_the_vectorised_features_on_synthetic_games(self):
+        import p5_data_checks as checks
+        tg = e14.add_lagged(team_frame([10, 20, 30, 40, 50, 60, 70, 80], seasons=(2024, 2025)))
+        out = checks.check_lag(tg)
+        self.assertEqual((out['value_mismatch'], out['prior_not_before'], out['cross_season_use']), (0, 0, 0))
+        self.assertGreater(out['feature_cells_checked'], 50)
+
+    def test_a_tampered_feature_is_caught(self):
+        import p5_data_checks as checks
+        tg = e14.add_lagged(team_frame([10, 20, 30, 40, 50, 60]))
+        tg.loc[tg.week == 5, 'r_pf'] += 1.0
+        self.assertEqual(checks.check_lag(tg)['value_mismatch'], 1)
+
+
 class ProtocolTests(unittest.TestCase):
     def setUp(self):
         self.book = json.loads((REPO / 'research' / 'trend-intelligence' / 'ledger.json').read_text(encoding='utf-8'))['experiments']

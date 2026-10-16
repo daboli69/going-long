@@ -235,12 +235,19 @@ def git_sha():
         return None
 
 
-def capture(root, out, *, weeks=(6, 10), dry_run=False, now=None, results_path=REPO / 'data' / 'nfl_betting.json', max_market_age_hours=MAX_MARKET_AGE_HOURS):
+def board_from_git(ref='origin/main', path='data/nfl_betting.json', fetch=True):
+    """Latest published game-line board without touching the working tree: fetch (read-only network call to the project's own remote) then read the blob. Returns bytes."""
+    if fetch:
+        subprocess.run(['git', '-C', str(REPO), 'fetch', '-q', 'origin', ref.split('/', 1)[-1]], check=True, timeout=120)
+    return subprocess.run(['git', '-C', str(REPO), 'show', f'{ref}:{path}'], check=True, capture_output=True, timeout=60).stdout
+
+
+def capture(root, out, *, weeks=(6, 10), dry_run=False, now=None, results_path=REPO / 'data' / 'nfl_betting.json', max_market_age_hours=MAX_MARKET_AGE_HOURS, market_bytes=None):
     out = check_out_dir(out)
     if now is not None and not dry_run:
         raise ShadowError('--now is only allowed with --dry-run: a real capture always uses the wall clock')
     now = now or datetime.now(timezone.utc)
-    market_text = Path(results_path).read_bytes()
+    market_text = market_bytes if market_bytes is not None else Path(results_path).read_bytes()
     market = json.loads(market_text)
     features, fitted, cutoffs, hashes, spec_sha = load_inputs(root)
     records, exclusions = plan_captures(market['games'], features, fitted, now, market_generated_at=market['generated_at'], market_sha256=hashlib.sha256(market_text).hexdigest(),
@@ -333,6 +340,7 @@ def main():
     c.add_argument('--out', type=Path, default=default_out())
     c.add_argument('--weeks', default='6-10')
     c.add_argument('--market', type=Path, default=REPO / 'data' / 'nfl_betting.json', help='fresh game-line board (default: the checkout copy; use the latest origin/main data refresh)')
+    c.add_argument('--market-from-git', metavar='REF', help='read the board from a git ref (for example origin/main) after fetching it, instead of the working-tree file')
     c.add_argument('--max-market-age-hours', type=float, default=MAX_MARKET_AGE_HOURS)
     c.add_argument('--dry-run', action='store_true')
     c.add_argument('--now')
@@ -345,7 +353,8 @@ def main():
     a = p.parse_args()
     if a.cmd == 'capture':
         lo, hi = (int(x) for x in a.weeks.split('-'))
-        print(json.dumps(capture(a.root, a.out, weeks=(lo, hi), dry_run=a.dry_run, now=parse_time(a.now) if a.now else None, results_path=a.market, max_market_age_hours=a.max_market_age_hours), indent=1))
+        print(json.dumps(capture(a.root, a.out, weeks=(lo, hi), dry_run=a.dry_run, now=parse_time(a.now) if a.now else None, results_path=a.market, max_market_age_hours=a.max_market_age_hours,
+                                 market_bytes=board_from_git(a.market_from_git) if a.market_from_git else None), indent=1))
     elif a.cmd == 'settle':
         print(json.dumps(settle(a.out), indent=1))
     elif a.cmd == 'score':

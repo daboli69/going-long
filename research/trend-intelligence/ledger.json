@@ -25915,7 +25915,372 @@
    "status": "INCONCLUSIVE"
   },
   "P5-2": {
-   "completed_at": "2026-10-16T00:16:04Z",
+   "completed_at": "2026-10-16T01:03:20Z",
+   "data_correction": {
+    "input_sha256": {
+     "games_csv_after": "1e6d4929896fb85e99375fec0ea9b182b92c0779cb9f37047fef2c1fe8a271de",
+     "games_csv_before": "65a36db5f65c8de72a887bc1d76514d02fe70fb8c293a05e3b123903604a5d35"
+    },
+    "metric_differences": "none: every numeric field of the P5-2 result is identical (compared leaf by leaf, tolerance 1e-12); verdict INCONCLUSIVE both times",
+    "reason": "documented data correction: the cached public games.csv (2026-10-08) lacked Week-5 scores; refreshed with owner approval 2026-10-16. Protocol, code and decision rules unchanged; not a tuning opportunity.",
+    "result_before_cache_refresh": {
+     "archive_total_records": {
+      "2024": 280,
+      "2025": 283,
+      "2026": 79
+     },
+     "calibration_C_FP": [
+      {
+       "bin": 4,
+       "mean_p": 0.47541887490693685,
+       "n": 128,
+       "observed": 0.5078125
+      },
+      {
+       "bin": 5,
+       "mean_p": 0.5257885549741838,
+       "n": 126,
+       "observed": 0.5714285714285714
+      }
+     ],
+     "common_rows": {
+      "n": 254,
+      "n_2025": 223,
+      "n_2026": 31,
+      "over_rate": 0.5393700787401575
+     },
+     "comparisons": {
+      "B_NFL vs MKT": {
+       "brier_base": 0.24938051102493572,
+       "brier_new": 0.2497761014231723,
+       "gain": [
+        -0.00039559039823653703,
+        -0.003374866149157493,
+        0.0023002924003356134
+       ],
+       "logloss_base": 0.6919081946972349,
+       "logloss_new": 0.6926998088645686,
+       "n": 254,
+       "periods": {
+        "A_2025": {
+         "brier_base": 0.24944282599201792,
+         "brier_new": 0.25050402758286844,
+         "gain": [
+          -0.0010612015908505396,
+          -0.0040354582390751716,
+          0.0017166680881608035
+         ],
+         "logloss_base": 0.6920328427226503,
+         "logloss_new": 0.6941622326013369,
+         "n": 223,
+         "relative_gain": -0.004254287877914347
+        },
+        "B_2026_wk1_5": {
+         "brier_base": 0.24893224529399008,
+         "brier_new": 0.2445397293711646,
+         "gain": [
+          0.004392515922825485,
+          -0.005244836007640799,
+          0.014015863848954003
+         ],
+         "logloss_base": 0.6910115330950526,
+         "logloss_new": 0.682179792951687,
+         "n": 31,
+         "relative_gain": 0.017645427644931672
+        }
+       },
+       "relative_gain": -0.001586292355447863
+      },
+      "B_PTS vs MKT": {
+       "brier_base": 0.24938051102493572,
+       "brier_new": 0.24998250832907762,
+       "gain": [
+        -0.000601997304141859,
+        -0.0022201997041830786,
+        0.0009637425856296506
+       ],
+       "logloss_base": 0.6919081946972349,
+       "logloss_new": 0.6931125095372345,
+       "n": 254,
+       "periods": {
+        "A_2025": {
+         "brier_base": 0.24944282599201792,
+         "brier_new": 0.25029443476621865,
+         "gain": [
+          -0.0008516087742007463,
+          -0.0024565567245055696,
+          0.0007022961579813935
+         ],
+         "logloss_base": 0.6920328427226503,
+         "logloss_new": 0.6937364832535319,
+         "n": 223,
+         "relative_gain": -0.0034140439630362326
+        },
+        "B_2026_wk1_5": {
+         "brier_base": 0.24893224529399008,
+         "brier_new": 0.24773865041028895,
+         "gain": [
+          0.0011935948837011046,
+          -0.004193293902314313,
+          0.006443712364810523
+         ],
+         "logloss_base": 0.6910115330950526,
+         "logloss_new": 0.6886239244167727,
+         "n": 31,
+         "relative_gain": 0.004794858465569472
+        }
+       },
+       "relative_gain": -0.0024139709300766686
+      },
+      "CH_RAW vs MKT": {
+       "brier_base": 0.24938051102493572,
+       "brier_new": 0.259558264360955,
+       "gain": [
+        -0.010177753336019215,
+        -0.023139997164211765,
+        0.0025341885207803825
+       ],
+       "logloss_base": 0.6919081946972349,
+       "logloss_new": 0.7135378161763175,
+       "n": 254,
+       "periods": {
+        "A_2025": {
+         "brier_base": 0.24944282599201792,
+         "brier_new": 0.2568060210728827,
+         "gain": [
+          -0.007363195080864761,
+          -0.021318008184281607,
+          0.006323903186928991
+         ],
+         "logloss_base": 0.6920328427226503,
+         "logloss_new": 0.7078424518112867,
+         "n": 223,
+         "relative_gain": -0.029518568239362317
+        },
+        "B_2026_wk1_5": {
+         "brier_base": 0.24893224529399008,
+         "brier_new": 0.2793566596267655,
+         "gain": [
+          -0.030424414332775457,
+          -0.07113777290806404,
+          0.009566402166240549
+         ],
+         "logloss_base": 0.6910115330950526,
+         "logloss_new": 0.7545076953183137,
+         "n": 31,
+         "relative_gain": -0.1222196597987701
+        }
+       },
+       "relative_gain": -0.04081214403719598
+      },
+      "C_FP vs B_NFL": {
+       "brier_base": 0.2497761014231723,
+       "brier_new": 0.2491806668942501,
+       "gain": [
+        0.0005954345289222063,
+        -0.0019613600239855346,
+        0.0031620705385112555
+       ],
+       "logloss_base": 0.6926998088645686,
+       "logloss_new": 0.6915341662432148,
+       "n": 254,
+       "periods": {
+        "A_2025": {
+         "brier_base": 0.25050402758286844,
+         "brier_new": 0.24983611432354338,
+         "gain": [
+          0.0006679132593250731,
+          -0.0020970519235338314,
+          0.0034248336988426326
+         ],
+         "logloss_base": 0.6941622326013369,
+         "logloss_new": 0.6928551006881011,
+         "n": 223,
+         "relative_gain": 0.002666277527630261
+        },
+        "B_2026_wk1_5": {
+         "brier_base": 0.2445397293711646,
+         "brier_new": 0.2444656740964307,
+         "gain": [
+          7.405527473384259e-05,
+          -0.0054271350642945025,
+          0.005360317782854889
+         ],
+         "logloss_base": 0.682179792951687,
+         "logloss_new": 0.682031960397743,
+         "n": 31,
+         "relative_gain": 0.000302835350821219
+        }
+       },
+       "relative_gain": 0.0023838730988655207
+      },
+      "C_FP vs MKT": {
+       "brier_base": 0.24938051102493572,
+       "brier_new": 0.2491806668942501,
+       "gain": [
+        0.00019984413068566983,
+        -0.003848904272569848,
+        0.0039099493703595575
+       ],
+       "logloss_base": 0.6919081946972349,
+       "logloss_new": 0.6915341662432148,
+       "n": 254,
+       "periods": {
+        "A_2025": {
+         "brier_base": 0.24944282599201792,
+         "brier_new": 0.24983611432354338,
+         "gain": [
+          -0.00039328833152546663,
+          -0.004471287911248833,
+          0.0034853948054268218
+         ],
+         "logloss_base": 0.6920328427226503,
+         "logloss_new": 0.6928551006881011,
+         "n": 223,
+         "relative_gain": -0.0015766672381191341
+        },
+        "B_2026_wk1_5": {
+         "brier_base": 0.24893224529399008,
+         "brier_new": 0.2444656740964307,
+         "gain": [
+          0.004466571197559327,
+          -0.008432476162364885,
+          0.016617573242962126
+         ],
+         "logloss_base": 0.6910115330950526,
+         "logloss_new": 0.682031960397743,
+         "n": 31,
+         "relative_gain": 0.01794291933648165
+        }
+       },
+       "relative_gain": 0.0008013622630907484
+      }
+     },
+     "coverage": {
+      "archive_total_records_unmatched_to_schedule": 25,
+      "by_season": {
+       "2024": {
+        "excluded_from_fp_models": 267,
+        "records": 267,
+        "with_fp_pace": 0,
+        "with_nfl_pace": 219,
+        "with_prior_games_pts": 219
+       },
+       "2025": {
+        "excluded_from_fp_models": 48,
+        "records": 271,
+        "with_fp_pace": 223,
+        "with_nfl_pace": 223,
+        "with_prior_games_pts": 223
+       },
+       "2026": {
+        "excluded_from_fp_models": 48,
+        "records": 79,
+        "with_fp_pace": 31,
+        "with_nfl_pace": 31,
+        "with_prior_games_pts": 31
+       }
+      },
+      "forecasts_written_for_C_FP": 254,
+      "note_2024": "no run_pass_report_weekly export exists for 2024: every 2024 game is excluded from FP-feature models (not imputed, not taken from season totals)"
+     },
+     "development": {
+      "games": 671,
+      "seasons": [
+       2021,
+       2022,
+       2023
+      ],
+      "sigma": {
+       "B_NFL": 13.296153584657908,
+       "B_PTS": 13.314444405805682,
+       "CH_RAW": 13.995218320990277,
+       "C_FP": 13.271262086580816
+      }
+     },
+     "missions_backtest_check": {
+      "comparison_total": {
+       "equal": {
+        "brier": 0.24951953421141565,
+        "logLoss": 0.6921862417235549,
+        "n": 514
+       },
+       "matched": {
+        "equal": {
+         "brier": 0.24929460666596093,
+         "logLoss": 0.6917363741937479
+        },
+        "games": 165,
+        "model": {
+         "brier": 0.24978604181985495,
+         "logLoss": 0.692742895563595
+        },
+        "n": 165
+       },
+       "model": {
+        "brier": 0.24978604181985495,
+        "logLoss": 0.692742895563595,
+        "n": 165
+       },
+       "n": 514,
+       "ok": true
+      },
+      "externalForecastsRefused": {
+       "future": 0,
+       "invalid": 0
+      }
+     },
+     "season_2024_no_fp": {
+      "B_NFL": {
+       "brier_base": 0.24931704210998562,
+       "brier_new": 0.2485097450116315,
+       "gain": [
+        0.000807297098354147,
+        -0.0031339931440531694,
+        0.004540677462294056
+       ],
+       "logloss_base": 0.6917811875279726,
+       "logloss_new": 0.6901548951391266,
+       "n": 219,
+       "relative_gain": 0.003238034157320099
+      },
+      "B_PTS": {
+       "brier_base": 0.24931704210998562,
+       "brier_new": 0.24918201576366647,
+       "gain": [
+        0.00013502634631915134,
+        -0.0017292510933102595,
+        0.0019984216439170085
+       ],
+       "logloss_base": 0.6917811875279726,
+       "logloss_new": 0.6915107671913046,
+       "n": 219,
+       "relative_gain": 0.0005415849040098301
+      }
+     },
+     "seconds": 6.9,
+     "timestamps": {
+      "asof_rule": "kickoff of the latest prior game used + 4h",
+      "forecast_asof_after_snapshot": 0,
+      "median_hours_asof_to_snapshot": 163.42666666666668,
+      "min_hours_asof_to_snapshot": 87.92722222222223
+     }
+    },
+    "rows_changed": {
+     "changed_by_season_week": {
+      "2026-5": 15,
+      "2026-6": 14,
+      "2026-7": 11
+     },
+     "changed_rows_season_le_2025": 0,
+     "rows_added_or_removed": 0,
+     "rows_changed": 40,
+     "rows_new": 7548,
+     "rows_old": 7548
+    },
+    "sample_changes": "none: archive_total_records, coverage.by_season and common_rows are identical before and after",
+    "why_unchanged": "the changed rows are 2026 Weeks 5-7 only (none <= 2025); evaluation games are 2026 Weeks 1-5 whose features use games up to Week 4, which did not change"
+   },
    "registered_at": "2026-10-16T00:04:53Z",
    "result": {
     "archive_total_records": {
@@ -26252,7 +26617,7 @@
       "relative_gain": 0.0005415849040098301
      }
     },
-    "seconds": 6.9,
+    "seconds": 7.2,
     "timestamps": {
      "asof_rule": "kickoff of the latest prior game used + 4h",
      "forecast_asof_after_snapshot": 0,
@@ -26313,6 +26678,25 @@
   },
   "P5-3": {
    "completed_at": "2026-10-16T00:48:59Z",
+   "data_correction": {
+    "after": "PASS, 0 games without an independent score",
+    "input_sha256": {
+     "games_csv_after": "1e6d4929896fb85e99375fec0ea9b182b92c0779cb9f37047fef2c1fe8a271de",
+     "games_csv_before": "65a36db5f65c8de72a887bc1d76514d02fe70fb8c293a05e3b123903604a5d35"
+    },
+    "reason": "same cache refresh",
+    "result_before_cache_refresh_summary": {
+     "independent_score_unavailable": {
+      "games": 15,
+      "share_of_games": 0.0231,
+      "weeks": [
+       "2026_05"
+      ]
+     },
+     "status": "FAIL",
+     "violations": {}
+    }
+   },
    "registered_at": "2026-10-16T00:04:53Z",
    "result": {
     "clv_note": "one pregame board per game about 30 minutes before the actual kickoff; no closing series, so only a matched pregame-price comparison is supported",

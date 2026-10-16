@@ -172,5 +172,32 @@ class WriteOnceTests(unittest.TestCase):
         self.assertNotIn('fp_snaps6', text)
 
 
+
+class SchedulingAndBoardSourceTests(unittest.TestCase):
+    def test_board_from_git_fetches_then_reads_the_blob_without_touching_the_tree(self):
+        from unittest import mock
+        calls = []
+
+        def fake(cmd, **kw):
+            calls.append(cmd)
+            return mock.Mock(stdout=b'{"games": []}')
+        with mock.patch.object(fs.subprocess, 'run', fake):
+            self.assertEqual(fs.board_from_git('origin/main'), b'{"games": []}')
+        self.assertIn('fetch', calls[0])
+        self.assertEqual(calls[1][-2:], ['show', 'origin/main:data/nfl_betting.json'][-2:])
+        self.assertTrue(all(c[0] == 'git' for c in calls))
+
+    def test_installer_is_a_dry_run_unless_explicitly_activated_and_is_not_admin(self):
+        text = (REPO / 'scripts' / 'install_fp_shadow_task.ps1').read_text(encoding='utf-8')
+        self.assertIn('[switch]$Activate', text)
+        self.assertLess(text.index('if (-not $Activate)'), text.index('Register-ScheduledTask'))
+        self.assertIn('-RunLevel Limited', text)
+        self.assertIn('--market-from-git origin/main', text)
+        self.assertNotIn('RunLevel Highest', text)
+
+    def test_capture_wrapper_uses_the_published_board_and_never_the_hand_edited_file(self):
+        self.assertIn('--market-from-git origin/main', (REPO / 'scripts' / 'run_fp_shadow_capture.cmd').read_text(encoding='utf-8'))
+
+
 if __name__ == '__main__':
     unittest.main()
