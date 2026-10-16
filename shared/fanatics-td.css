@@ -16,3 +16,4 @@
 .ft-row.is-locked{background:rgba(46,230,197,.08)}.ft-row.is-excluded{opacity:.55}.ft-lock-tag{font-size:11px;border:1px solid var(--g-accent,#2ee6c5);border-radius:999px;padding:0 6px}
 #ftManual{font-size:16px}
 @media(max-width:600px){.ft-leg-top .ft-odds{margin-left:0}.ft-row{grid-template-columns:minmax(0,1fr) auto auto}.ft-row-act{grid-column:1/-1}.ft-row-act button{flex:1}}
+.ft-board{margin:14px 0}.ft-board-grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}.ft-board-panel h4{margin:0 0 4px}.ft-unresolved{margin-top:10px}.ft-unresolved summary{cursor:pointer;min-height:32px}

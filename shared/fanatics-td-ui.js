@@ -6,6 +6,7 @@
 const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const F=()=>root.GoingFanaticsTD||(typeof require!=='undefined'?require('./fanatics-td.js'):null);
 const TERMS=()=>root.GoingFanaticsTDTerms||(typeof require!=='undefined'?require('./fanatics-td-terms.js'):null);
+const O=()=>root.GoingTDOpportunity||(typeof require!=='undefined'?require('./td-opportunity.js'):null);
 const STORE_KEY='going.fanatics.manualPrices.v1';
 const etDay=t=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(t));
 const etTime=t=>new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'short',hour:'numeric',minute:'2-digit'}).format(new Date(t))+' ET';
@@ -84,7 +85,7 @@ function buildLegs(ctx,manual=[]){
   const profile=ctx.profiles?.[playerId];
   legs.push({playerId,player:p.player,team:p.team,opp:p.opp,event,eventTeams:p.eventTeams,gameLabel:p.homeName&&p.awayName?`${p.awayName} @ ${p.homeName}`:'',kickoff:p.kickoff,
    probability:Number.isFinite(model)?model:null,availability:rosterAvailability(ctx.availability,p,ctx),eligibility:dec,price,
-   scoringRole:profile?.scoring_role||null,calibrated:!!p.model?.calibration});
+   scoringRole:profile?.scoring_role||null,opportunity:O()?O().describe(profile,{now,kickoff:p.kickoff}):null,calibrated:!!p.model?.calibration});
  }
  return {legs,pool,stats};
 }
@@ -92,6 +93,7 @@ function buildLegs(ctx,manual=[]){
 function legWhy(l){
  const sr=l.scoringRole,parts=[];
  if(sr&&sr.confidence!=='low'&&sr.tier&&Number.isFinite(sr.xtd_pg_l12))parts.push(`${String(sr.tier).toLowerCase()} scoring role (${sr.xtd_pg_l12.toFixed(2)} expected TDs per game, last 12)`);
+ if(l.opportunity&&['stale','invalid'].includes(l.opportunity.status))parts.push('opportunity data not used: '+l.opportunity.reasons.join(' '));
  parts.push(`model ${pct(l.probability)} to score${l.calibrated?' (touchdown mean corrected)':''}`);
  return parts.join('; ');
 }
@@ -122,6 +124,59 @@ function termsMarkup(){
  <h4>Conflicting or unverified</h4><ul>${d.unverified.map(row).join('')}</ul><p class="bt-note">Sources: ${T.sources.map(s=>`<a href="${esc(s.url)}" rel="noopener noreferrer" target="_blank">${esc(s.kind)}</a>`).join(' · ')}</p></details>`;
 }
 
+
+// ---- player touchdown board: three separate questions, none of which needs a Fanatics price ----
+// Confirmed availability needs BOTH the roster screen and the GOING eligibility engine. A confirmed-out player is excluded; anything unresolved is flagged,
+// never treated as active.
+const OUT_STATES=new Set(['out','doubtful','reserve','returning','suspended','retired','exempt','released','practice_squad','bye','no_game']);
+function boardClass(l){
+ if(l.eligibility&&l.eligibility.actionable===false&&OUT_STATES.has(l.eligibility.state))return {kind:'out',why:l.eligibility.label||l.eligibility.state};
+ const roster=['active','expected'].includes(l.availability),elig=!!l.eligibility&&l.eligibility.actionable===true;
+ if(roster&&elig)return {kind:'confirmed'};
+ const why=[];
+ if(!roster)why.push(l.availability==='unavailable'?'roster screen shows a non-active status or an injury listing':'roster screen did not confirm');
+ if(!elig)why.push(l.eligibility?`eligibility: ${l.eligibility.label||l.eligibility.state||'not actionable'}`:'eligibility not verified');
+ return {kind:'unresolved',why:why.join('; ')};
+}
+function boardData(legs,ctx){
+ const now=ctx.now,F_=F(),day=ctx.slateDate,out={confirmed:[],unresolved:[],excluded:{}};
+ const skip=r=>{out.excluded[r]=(out.excluded[r]||0)+1;};
+ for(const l of legs){
+  const kick=F_.timestamp(l.kickoff);
+  if(kick==null||kick<=now||!F_.sunday(kick)||(day!=null&&F_.slateDay(kick)!==day)){skip('not on this Sunday slate');continue;}
+  if(!Number.isFinite(l.probability)||l.probability<=0||l.probability>=1){skip('no model estimate');continue;}
+  const c=boardClass(l);
+  if(c.kind==='out'){skip('confirmed unavailable: '+c.why);continue;}
+  (c.kind==='confirmed'?out.confirmed:out.unresolved).push({...l,id:l.playerId,boardWhy:c.why||null});
+ }
+ out.byProbability=[...out.confirmed].sort((a,b)=>b.probability-a.probability||String(a.player).localeCompare(String(b.player)));
+ out.byOpportunity=O()?O().rankByOpportunity(out.confirmed.map(l=>({...l,opportunity:l.opportunity}))):[];
+ return out;
+}
+function boardRow(l,now,kind){
+ const o=l.opportunity,lines=o&&['ok','low_sample'].includes(o.status)?o.lines:[];
+ const fresh=o&&o.asOf?`Role data through ${esc(o.asOf)} (${o.ageDays} day${o.ageDays===1?'':'s'} old${o.games!=null?', '+o.games+' games':''}${o.status==='low_sample'?', small sample':''}).${o.status==='stale'||o.status==='invalid'?' Not used: '+esc(o.reasons.join(' ')):''}`:o?esc(o.reasons.join(' ')):'No role data.';
+ const price=l.price?`Fanatics ${esc(F().fmtAmerican(l.price.american))} (${l.price.source==='manual'?'entered by you':'feed'}, ${esc(ago(l.price.updatedAt,now))})`:'No Fanatics price';
+ const head=kind==='opportunity'&&o&&o.metrics.xtd_pg_l6.observed?`${o.metrics.xtd_pg_l6.value.toFixed(2)} expected TDs/game`:`${pct(l.probability)} model`;
+ return `<li class="ft-leg"><div class="ft-leg-top"><b>${esc(l.player)}</b> <span>${esc(l.team||'')}${l.opp?' vs '+esc(l.opp):''}</span><span class="ft-odds">${esc(head)}</span></div>
+ <div class="ft-leg-sub">${l.gameLabel?esc(l.gameLabel)+' · ':''}${esc(etTime(l.kickoff))} · ${price}</div>
+ <div class="ft-leg-sub">Model ${pct(l.probability)} to score${l.calibrated?' (touchdown mean corrected)':''}${lines.length?'; '+esc(lines.join('; ')):''}.</div>
+ ${o&&o.flags.length&&lines.length?`<div class="ft-leg-sub">${o.flags.map(esc).join(' ')}</div>`:''}
+ <div class="ft-leg-sub">${fresh} ${l.boardWhy?'Availability unresolved: '+esc(l.boardWhy)+'.':'Availability: '+esc(LEG_STATE[l.availability]||l.availability)+' · '+esc(l.eligibility?.label||'')+(l.eligibility?.caution?' (caution)':'')+'.'} Not official game-day clearance.</div></li>`;
+}
+function boardMarkup(legs,ctx){
+ const now=ctx.now,d=boardData(legs,ctx),top=8;
+ const panel=(title,sub,rows,kind)=>`<section class="ft-board-panel"><h4>${esc(title)}</h4><p class="bt-note">${esc(sub)}</p>${rows.length?`<ol class="ft-legs">${rows.slice(0,top).map(l=>boardRow(l,now,kind)).join('')}</ol>`:'<p class="gc-empty ft-empty">Nothing qualifies: no player has confirmed availability and the required data.</p>'}</section>`;
+ const unresolved=d.unresolved.length?`<details class="ft-unresolved"><summary>${d.unresolved.length} player${d.unresolved.length===1?'':'s'} with unresolved availability (not treated as active)</summary><ol class="ft-legs">${[...d.unresolved].sort((a,b)=>b.probability-a.probability).slice(0,30).map(l=>boardRow(l,now,'probability')).join('')}</ol></details>`:'';
+ const ex=Object.entries(d.excluded).map(([k,v])=>`${v} ${k}`).join('; ');
+ return `<section class="ft-board" aria-label="Touchdown player board"><h3>Touchdown player board</h3>
+ <p class="bt-note">Three different questions. They do not need a Fanatics price, and none is a proven betting edge. Only players confirmed by both the roster screen and GOING's eligibility check appear in the first two lists.</p>
+ <div class="ft-board-grid">
+ ${panel('1. Highest estimated touchdown probability','Ordered by GOING\'s existing anytime-touchdown model. Anytime-TD calibration is imperfect (slope about 0.7 on past data), so treat percentages as estimates, not hit rates.',d.byProbability,'probability')}
+ ${panel('2. Strongest opportunity profile','Ordered by expected touchdowns per game over the last 6 games (public play-by-play role data, last 12 for ties). Descriptive: opportunity is not probability. Players with stale, future-dated or missing role data are left out, and a missing value is never read as zero.',d.byOpportunity,'opportunity')}
+ <section class="ft-board-panel"><h4>3. Best jackpot selection after payout sharing</h4><p class="bt-note">Unavailable. The jackpot is shared among winning entries, but how many entries pick each player is not published and the official rules could not be verified, so no popularity or payout-share estimate is made and nothing is recommended on that basis. The slips below are ranked by estimated chance, among slips that meet the combined-price test.</p></section>
+ </div>${unresolved}${ex?`<p class="bt-note">Excluded: ${esc(ex)}.</p>`:''}</section>`;
+}
 function statusFor(result,legsInfo,ctx){
  if(!legsInfo.stats.players)return {level:'none',text:'No anytime-touchdown props with a game on this Sunday are loaded yet (odds data may still be loading or unavailable). Nothing is shown.'};
  const s=legsInfo.stats,reasons=result.reasons||[],ex=Object.entries(result.excluded||{}).map(([k,v])=>`${v} ${k.toLowerCase()}`).join('; ');
@@ -197,6 +252,7 @@ function render(host,ctx){
   html+=`<details class="ft-manual" ${(STATE.open!==undefined?STATE.open:st.level==='unavailable')?'open':''}><summary>Enter Fanatics prices you can see (${manual.length} saved, valid ${terms.manualMaxAgeMinutes} min)</summary>
    <p class="bt-note">One player per line, anytime-TD American odds from the Fanatics app, for example <code>Amon-Ra St. Brown +120</code>. Prices stay in this browser only and expire after ${terms.manualMaxAgeMinutes} minutes; they are labelled "entered by you" on every slip.</p>
    <textarea id="ftManual" rows="6" spellcheck="false" aria-label="Fanatics anytime touchdown prices">${esc(STATE.manualText)}</textarea><div class="ft-actions"><button type="button" id="ftApply">Use these prices</button><button type="button" id="ftClear">Clear saved prices</button></div><div id="ftManualMsg" role="status">${esc(STATE.msg)}</div></details>`;
+  html+=boardMarkup(legs,{...ctx,now});
   html+=builderMarkup(B,result,F_,now);
   if(result.options.length){
    const names=new Map(result.options.flatMap(o=>o.legs.map(l=>[l.playerId,l.player])));
@@ -252,7 +308,7 @@ function render(host,ctx){
   else host.innerHTML=`<p class="gc-empty ft-empty">Fanatics slips unavailable: ${esc(e.message)}</p>`;
  }
 }
-const api={buildLegs,rosterAvailability,optionMarkup,termsMarkup,statusFor,render,legWhy,loadManual,saveManual,loadBuilder,saveBuilder,_state:STATE};
+const api={boardData,boardMarkup,boardClass,buildLegs,rosterAvailability,optionMarkup,termsMarkup,statusFor,render,legWhy,loadManual,saveManual,loadBuilder,saveBuilder,_state:STATE};
 root.GoingFanaticsTDUI=api;
 if(typeof module!=='undefined')module.exports=api;
 })(typeof globalThis==='undefined'?this:globalThis);
