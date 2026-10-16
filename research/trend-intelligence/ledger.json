@@ -26312,7 +26312,7 @@
    "status": "INCONCLUSIVE"
   },
   "P5-3": {
-   "completed_at": "2026-10-16T00:16:48Z",
+   "completed_at": "2026-10-16T00:48:59Z",
    "registered_at": "2026-10-16T00:04:53Z",
    "result": {
     "clv_note": "one pregame board per game about 30 minutes before the actual kickoff; no closing series, so only a matched pregame-price comparison is supported",
@@ -26336,11 +26336,9 @@
      "unmatched_events": 213
     },
     "independent_score_unavailable": {
-     "games": 15,
-     "share_of_games": 0.023112480739599383,
-     "weeks": [
-      "2026_05"
-     ]
+     "games": 0,
+     "share_of_games": 0.0,
+     "weeks": []
     },
     "missions_backtest_equal_research_learned": {
      "moneyline": {
@@ -26596,8 +26594,8 @@
       "totals"
      ]
     },
-    "seconds": 8.3,
-    "status": "FAIL",
+    "seconds": 8.4,
+    "status": "PASS",
     "timestamps": {
      "distinction": "snapshot_at = provider board capture; quote_at = bookmaker update; neither is a forecast creation time or a feature availability time",
      "quote_minutes_before_actual_kickoff": {
@@ -26664,7 +26662,7 @@
     "title": "Real-archive audit of the game-line comparison (actual-game mapping, market/period, lines, books, paired sides, de-vig, timestamps)"
    },
    "spec_sha256": "d8e2562151d4d03cf4ab9f80974dc0b231300d23872eda11bf5b88ff4c4fc5d3",
-   "status": "FAIL"
+   "status": "PASS"
   }
  },
  "note": "Aggregate research results only (no licensed player-level values). Negative findings are kept on purpose.",
