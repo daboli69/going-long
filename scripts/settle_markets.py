@@ -22,11 +22,15 @@ def no_participation(stat):
 
 def settle(journal,root,now):
     results=json.loads((root/'data/results.json').read_text());h=json.loads((root/'data/history.json').read_text())['betting']
-    names=h.get('team_names',{});profiles=h.get('profiles',{});existing={s['prediction_id'] for s in journal.rows('settlement')}
-    for p in journal.rows('prediction'):
+    names=h.get('team_names',{});profiles=h.get('profiles',{});existing=journal.settled_prediction_ids()
+    # Stream only rows any consumer can settle, keep the unsettled past-kickoff ones, then write.
+    pending=[]
+    for p in journal.iter_rows('prediction',"COALESCE(json_extract(payload,'$.actionable'),0)!=0 OR COALESCE(json_extract(payload,'$.tracking_group'),'')!=''"):
         if not p.get('actionable') and not p.get('tracking_group'):continue
         if stamp(p.get('observed_at')) is None or stamp(p['observed_at']) >= (stamp(p['kickoff']) or 0):continue
         if p['id'] in existing or stamp(p['kickoff']) is None or now<=stamp(p['kickoff']):continue
+        pending.append(p)
+    for p in pending:
         sport=p.get('sport','nfl')
         if sport=='ncaa':
             from topdown.college import team_id

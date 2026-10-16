@@ -50,3 +50,11 @@ python scripts/profile_scanner_memory.py --db <topdown.sqlite> --data <scanner-d
 ## Needs approval
 
 Any code change in `journal.py`/`scan_markets.py`/`settle_markets.py`/`tracking.py`, restarting the scanner, and whether to push this branch.
+
+## Implemented (owner approved the fix on 2026-10-16)
+
+- `Journal.iter_rows(kind, where)` streams payloads; `tracked_prediction_ids()` and `settled_prediction_ids()` are id-only SQL.
+- `track_predictions(journal)` streams untracked history and writes after reading; `settle` streams only actionable/tracked rows and collects unsettled past-kickoff ones; the closing loop collects only due rows; `feedback()` input is limited to actionable rows (which `feedback()` already required); `collect_board` uses the id query. Selection logic in each consumer is unchanged (SQL only narrows to a superset of what the consumer kept), so journal writes are identical.
+- Tests: `tests/test_journal_streaming.py` (new) plus the full suite (`python -m unittest discover -s tests`) pass.
+- Measured on the live journal, read-only: the three post-fix loads peak at 19-20 MB (was 1,545 MB per load), taking 4.0 / 2.2 / 1.3 s. Expected scanner working set: tens to low hundreds of MB, dominated by the JSON snapshots, instead of 1.2-3.25 GB. Not yet observed in the live scanner.
+- **Not deployed.** The running worker uses the separate `going-long` checkout (`4f5164c`). To take effect, merge or copy these four files into that checkout and restart the worker; that needs the owner.

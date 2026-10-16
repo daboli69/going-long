@@ -97,11 +97,11 @@ def scan(journal, send=False):
     from settle_markets import settle
     data_root=Path(os.getenv('TOPDOWN_DATA_ROOT',str(ROOT)))
     from topdown.tracking import track_predictions
-    track_predictions(journal,journal.rows('prediction'))
+    track_predictions(journal)
     settle(journal,data_root,now)
     settlements={s['prediction_id']:s for s in journal.rows('settlement')}
     penalties={};predictions=[];arbs=[]
-    history_predictions=journal.rows('prediction')
+    history_predictions=list(journal.iter_rows('prediction',"COALESCE(json_extract(payload,'$.actionable'),0)!=0"))  # feedback() ignores non-actionable rows
     for sport in ('nfl','ncaa'):
         penalties[sport]=feedback([p for p in history_predictions if p.get('sport','nfl')==sport],settlements,now)
         picks,candidates=evaluate([q for q in quotes if q.get('sport','nfl')==sport],reports,now,bankroll=float(os.getenv('RESEARCH_BANKROLL','1000')),previous=previous,calibration_penalty=penalties[sport],min_ev=float(os.getenv('MIN_EV','0.03')),favorite_ev=float(os.getenv('FAVORITE_MIN_EV','0.025')),fallback_ev=float(os.getenv('SINGLE_SOURCE_EV_EXTRA','0.005')))
@@ -125,8 +125,8 @@ def scan(journal, send=False):
     groups={}
     for q in quotes:
         if q['book'] in SHARP and fair_pair(q['prices']):groups.setdefault(q['selection'],[]).append(q)
-    for p in journal.rows('prediction'):
-        if not (p.get('actionable') or p.get('tracking_group')=='all_model') or not 0<stamp(p['kickoff'])-now<=600:continue
+    due=[p for p in journal.iter_rows('prediction',"COALESCE(json_extract(payload,'$.actionable'),0)!=0 OR json_extract(payload,'$.tracking_group')='all_model'") if (p.get('actionable') or p.get('tracking_group')=='all_model') and 0<stamp(p['kickoff'])-now<=600]
+    for p in due:
         for q in groups.get(p['selection'],[]):
             qt=stamp(q['updated_at']);kick=stamp(p['kickoff'])
             if qt is not None and stamp(p['observed_at'])<qt<kick and 0<=now-qt<=180:

@@ -19,6 +19,16 @@ class Journal:
         self.db.execute('INSERT OR IGNORE INTO journal(id,kind,observed_at,payload) VALUES(?,?,?,?)',(id,kind,at,json.dumps(payload,allow_nan=False)));self.db.commit()
     def rows(self,kind):
         return [json.loads(r[0]) for r in self.db.execute('SELECT payload FROM journal WHERE kind=? ORDER BY observed_at',(kind,))]
+    def iter_rows(self,kind,where=''):
+        """Stream parsed payloads in observed_at order without materialising the table.
+
+        ``where`` is a trusted SQL fragment over ``payload``. Finish iterating before appending."""
+        sql='SELECT payload FROM journal WHERE kind=?'+(' AND ('+where+')' if where else '')+' ORDER BY observed_at'
+        for (body,) in self.db.execute(sql,(kind,)):yield json.loads(body)
+    def tracked_prediction_ids(self):
+        return {r[0] for r in self.db.execute("SELECT json_extract(payload,'$.id') FROM journal WHERE kind='prediction' AND COALESCE(json_extract(payload,'$.tracking_group'),'')!=''")}
+    def settled_prediction_ids(self):
+        return {r[0] for r in self.db.execute("SELECT json_extract(payload,'$.prediction_id') FROM journal WHERE kind='settlement'")}
     def sync(self):
         url,key,owner=(os.getenv(k) for k in ('SUPABASE_URL','SUPABASE_SERVICE_ROLE_KEY','GOING_OWNER_ID'))
         if not all((url,key,owner)):return {'status':'not_configured'}

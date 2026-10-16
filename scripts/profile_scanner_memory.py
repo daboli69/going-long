@@ -5,6 +5,7 @@
 
 Stages: rows_prediction rows_reference rows_settlement rows_notification
         history_json nfl_betting_json results_json ids_prediction_sql
+        stream_untracked stream_used list_actionable (the post-fix code paths)
 Each invocation is one stage in a fresh interpreter, so the OS peak is clean.
 The database is opened mode=ro / query_only; nothing is written, no network is used,
 and no scanner module is imported (the queries mirror topdown/journal.py).
@@ -46,6 +47,16 @@ def run_stage(stage, db_path, data):
         kind = stage[5:]
         obj = [json.loads(r[0]) for r in db.execute('SELECT payload FROM journal WHERE kind=? ORDER BY observed_at', (kind,))]
         n = len(obj)
+    elif stage in ('stream_untracked', 'stream_used', 'list_actionable'):
+        where = {'stream_untracked': "COALESCE(json_extract(payload,'$.tracking_group'),'')=''",
+                 'stream_used': "COALESCE(json_extract(payload,'$.actionable'),0)!=0 OR COALESCE(json_extract(payload,'$.tracking_group'),'')!=''",
+                 'list_actionable': "COALESCE(json_extract(payload,'$.actionable'),0)!=0"}[stage]
+        cur = db.execute("SELECT payload FROM journal WHERE kind='prediction' AND (" + where + ") ORDER BY observed_at")
+        if stage == 'list_actionable':
+            obj = [json.loads(r[0]) for r in cur]; n = len(obj)
+        else:
+            n = sum(1 for r in cur if json.loads(r[0]))  # streamed; nothing retained
+            obj = None
     elif stage == 'ids_prediction_sql':
         obj = {r[0] for r in db.execute("SELECT id FROM journal WHERE kind='prediction' AND json_extract(payload,'$.tracking_group') IS NOT NULL")}
         n = len(obj)
