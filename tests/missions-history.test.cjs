@@ -45,3 +45,14 @@ test('an external forecast is compared with the market on the same records and a
  assert.ok(Math.abs(out.matched.model.brier-out.matched.equal.brier)<.02,'a market-copy forecast scores like the market on the same records');
  assert.equal(buildRecords(input,{}).refused.future,0);
 });
+
+test('learned source weights stay finite and normalised when a vanishing-weight source is the only one on a board (regression: spread walk-forward returned no folds)',()=>{
+ const V=require('../shared/market-validation.js'),r=rng(5),records=[];
+ // One near-perfect source crushes the noise source's weight toward zero; boards that carry only the noise source then give an unbounded gradient.
+ for(let i=0;i<150;i++){const y=r()<.5?1:0,probs={good:y?.97:.03,noise:.5+(r()-.5)*.1};if(i%25===0)delete probs.good;records.push({t:i,gameId:'g'+i,y,probs});}
+ const {weights}=V.learnWeights(records,{sources:['good','noise']});
+ const values=Object.values(weights);
+ assert.ok(values.every(Number.isFinite),'every weight is finite');
+ assert.ok(Math.abs(values.reduce((x,y)=>x+y,0)-1)<1e-9,'weights sum to one');
+ assert.ok(weights.good>weights.noise,'the informative source still gets the larger weight');
+});

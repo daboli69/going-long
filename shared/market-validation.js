@@ -42,8 +42,10 @@ function learnWeights(records,{sources,priorStrength=200,steps=500,rate=12}={}){
    // d pool / d w_s = (p_s - pool) / total weight present
    for(const s of names)if(finite(r.probs[s]))g[s]+=dl*(r.probs[s]-p)/tot;
   }
-  let z=0;for(const s of names){w[s]*=Math.exp(-rate*g[s]/records.length);z+=w[s];}
-  for(const s of names)w[s]/=z;
+  // Never let the exponentiated-gradient update leave the simplex: an overflow/underflow would turn every weight into NaN (seen on near-50% spread boards).
+  const next={};let z=0;for(const s of names){next[s]=w[s]*Math.exp(-rate*g[s]/records.length);z+=next[s];}
+  if(!(z>0)||!Number.isFinite(z)||names.some(s=>!Number.isFinite(next[s]/z)))break;
+  for(const s of names)w[s]=next[s]/z;
  }
  const raw={...w};
  for(const s of names){const a=count[s]/(count[s]+priorStrength);w[s]=a*raw[s]+(1-a)*(1/names.length);}
