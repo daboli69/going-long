@@ -20,6 +20,7 @@ import math
 import os
 import subprocess
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -83,6 +84,44 @@ def _num(x):
 
 
 # ------------------------------------------------------------------ pure capture logic (tested without private data)
+def screen_games(games, now, *, market_generated_at, weeks=(6, 10), max_market_age_hours=MAX_MARKET_AGE_HOURS):
+    """Stdlib-only eligibility screen that needs no historical data. Yields (game, kickoff, reason) in board order; reason is None when the game is eligible.
+    Games outside the season/week scope are omitted (never captured, never reported)."""
+    market_age_h = (now - parse_time(market_generated_at)).total_seconds() / 3600
+    for g in games:
+        if g.get('season') != SEASON or not (weeks[0] <= g.get('week', 0) <= weeks[1]):
+            continue
+        if g.get('completed') or g.get('home_score') is not None or g.get('away_score') is not None:
+            yield g, None, 'already_played'
+            continue
+        kickoff = parse_time(g['kickoff'])
+        if kickoff - now < timedelta(minutes=MIN_LEAD_MINUTES):
+            yield g, kickoff, 'started_or_less_than_%d_min_to_kickoff' % MIN_LEAD_MINUTES
+            continue
+        if g.get('total') is None or g.get('over_odds') is None or g.get('under_odds') is None:
+            yield g, kickoff, 'no_matched_market_price'
+            continue
+        if market_age_h > max_market_age_hours:
+            yield g, kickoff, 'market_snapshot_older_than_%gh' % max_market_age_hours
+            continue
+        yield g, kickoff, None
+
+
+def precheck(games, out, now, *, market_generated_at, weeks=(6, 10), max_market_age_hours=MAX_MARKET_AGE_HOURS):
+    """Cheap first stage of a capture run: freshness, eligible unstarted games and existing captures, before any historical data is loaded.
+    Returns (needed_game_ids, exclusions, already_captured_ids). Nothing is written."""
+    captured_dir = Path(out) / 'captures'
+    needed, exclusions, already = [], [], []
+    for g, _kickoff, reason in screen_games(games, now, market_generated_at=market_generated_at, weeks=weeks, max_market_age_hours=max_market_age_hours):
+        if reason:
+            exclusions.append({'game_id': g['game_id'], 'week': g.get('week'), 'reason': reason})
+        elif (captured_dir / f"{g['game_id']}.json").exists():
+            already.append(g['game_id'])
+        else:
+            needed.append(g['game_id'])
+    return needed, exclusions, already
+
+
 def plan_captures(games, features, fitted, now, *, market_generated_at, market_sha256, source_hashes, cutoffs, weeks=(6, 10), code_sha=None, spec_sha=None, max_market_age_hours=MAX_MARKET_AGE_HOURS):
     """Returns (records, exclusions). Nothing is written here.
 
@@ -90,31 +129,14 @@ def plan_captures(games, features, fitted, now, *, market_generated_at, market_s
     fitted: {model: (predictor(feature_dict_without_line)->r_hat or None, sigma)}.
     """
     records, exclusions = [], []
-    market_age_h = (now - parse_time(market_generated_at)).total_seconds() / 3600
-    for g in games:
+    for g, kickoff, reason in screen_games(games, now, market_generated_at=market_generated_at, weeks=weeks, max_market_age_hours=max_market_age_hours):
         gid = g['game_id']
-
-        def skip(reason):
+        if reason:
             exclusions.append({'game_id': gid, 'week': g.get('week'), 'reason': reason})
-
-        if g.get('season') != SEASON or not (weeks[0] <= g.get('week', 0) <= weeks[1]):
-            continue
-        if g.get('completed') or g.get('home_score') is not None or g.get('away_score') is not None:
-            skip('already_played')
-            continue
-        kickoff = parse_time(g['kickoff'])
-        if kickoff - now < timedelta(minutes=MIN_LEAD_MINUTES):
-            skip('started_or_less_than_%d_min_to_kickoff' % MIN_LEAD_MINUTES)
-            continue
-        if g.get('total') is None or g.get('over_odds') is None or g.get('under_odds') is None:
-            skip('no_matched_market_price')
-            continue
-        if market_age_h > max_market_age_hours:
-            skip('market_snapshot_older_than_%gh' % max_market_age_hours)
             continue
         f = features.get(gid)
         if not f or _num(f.get('exp_total')) is None:
-            skip('fewer_than_3_prior_same_season_games')
+            exclusions.append({'game_id': gid, 'week': g.get('week'), 'reason': 'fewer_than_3_prior_same_season_games'})
             continue
         line = float(g['total'])
         p_mkt, overround = devig_over(g['over_odds'], g['under_odds'])
@@ -189,38 +211,113 @@ def verify(out):
 
 
 # ------------------------------------------------------------------ loading real inputs (private data required)
-def load_inputs(root):
-    from trend_research import experiments14 as e14, ledger
+FEATURE_COLS = {'CH_RAW': ['pts6'], 'B_PTS': ['pts6'], 'B_NFL': ['pts6', 'nfl_plays6', 'nfl_pass6'], 'C_FP': ['pts6', 'nfl_plays6', 'nfl_pass6', 'fp_snaps6', 'fp_pass6', 'fp_neutral6']}
+CACHE_SCHEMA = 'going-fp-shadow-inputs-v1'
+
+
+def make_predictor(name, params):
+    """Pure-Python predictor from frozen ridge parameters (the same arithmetic as stats.Ridge.predict). CH_RAW is the raw trailing-average offset."""
+    cols = FEATURE_COLS[name]
+    if name == 'CH_RAW':
+        def raw(feats):
+            v = feats.get('pts6')
+            return None if v is None or not math.isfinite(v) else v
+        return raw
+    mean, scale, coef, intercept = params['mean'], params['scale'], params['coef'], params['intercept']
+
+    def predict(feats):
+        vals = [feats.get(c) for c in cols]
+        if any(v is None or not math.isfinite(v) for v in vals):
+            return None
+        total = 0.0
+        for v, m, sc, w in zip(vals, mean, scale, coef):
+            total += ((v - m) / sc) * w
+        return float(intercept + total)
+    return predict
+
+
+def build_inputs(root):
+    """Heavy path: rebuilds the historical features and refits the development models (research modules, pandas, scipy). Returns a JSON-serialisable bundle."""
+    from trend_research import experiments14 as e14
     games_tbl, tg = e14.team_games(root)
     g = e14.game_features(games_tbl, tg)
     dev = g[g.season.isin([2021, 2022, 2023]) & g.total_line.notna() & g.total.notna()].copy()
     dev['pts6'] = dev.exp_total - dev.total_line
     dev = dev.dropna(subset=e14.FEATS['C_FP'])
     raw = e14._fit_totals(dev)
-    fitted = {}
+    models = {}
     for name in MODELS:
         model, sigma = raw[name]
-        cols = ['pts6'] if name == 'CH_RAW' else e14.FEATS[name]
-
-        def predictor(feats, model=model, cols=cols, name=name):
-            vals = [feats.get(c) for c in cols]
-            if any(v is None or not math.isfinite(v) for v in vals):
-                return None
-            return vals[0] if name == 'CH_RAW' else float(model.predict(__import__('numpy').array([vals], float))[0])
-        fitted[name] = (predictor, sigma)
+        entry = {'sigma': float(sigma)}
+        if model is not None:
+            entry.update(mean=[float(x) for x in model.mean_], scale=[float(x) for x in model.scale_], coef=[float(x) for x in model.coef_], intercept=float(model.intercept_))
+        models[name] = entry
     cur = g[g.season == SEASON]
     features, cutoffs = {}, {}
     for r in cur.itertuples():
-        features[r.game_id] = {'exp_total': None if r.exp_total != r.exp_total else float(r.exp_total), **{c: getattr(r, c) for c in ('nfl_plays6', 'nfl_pass6', 'fp_snaps6', 'fp_pass6', 'fp_neutral6')}}
+        features[r.game_id] = {'exp_total': None if r.exp_total != r.exp_total else float(r.exp_total),
+                               **{c: _num(getattr(r, c)) for c in ('nfl_plays6', 'nfl_pass6', 'fp_snaps6', 'fp_pass6', 'fp_neutral6')}}
         prior = tg[(tg.season == SEASON) & (tg.week < r.week) & tg.team.isin([r.home, r.away])]
         cutoffs[r.game_id] = {'scores_through_week': {t: _last(prior, t, 'pf') for t in (r.home, r.away)}, 'nflverse_weekly_through_week': {t: _last(prior, t, 'nfl_plays') for t in (r.home, r.away)},
                               'fantasy_points_run_pass_through_week': {t: _last(prior, t, 'fp_snaps') for t in (r.home, r.away)}, 'window_games': e14.WINDOW, 'min_prior_games': e14.MIN_PRIOR}
-    cache = Path(root) / 'research' / 'cache'
-    hashes = {'games_csv_sha256': sha256_file(cache / 'games.csv'), 'stats_player_week_2026_sha256': sha256_file(cache / 'stats_player_week_2026.csv'),
-              'fantasy_points_manifest_index_sha256': sha256_file(Path(root) / 'manifests' / 'index.json')}
-    book = ledger.load()
-    spec_sha = book['experiments']['P5-2']['spec_sha256']
-    return features, fitted, cutoffs, hashes, spec_sha
+    return {'models': models, 'features': features, 'cutoffs': cutoffs}
+
+
+def input_hashes(root):
+    """Hashes that control cache validity: every data file the features read, the protocol spec, and the code that computes them."""
+    root = Path(root)
+    cache = root / 'research' / 'cache'
+    scripts = Path(__file__).resolve().parent
+    code_files = [scripts / 'fp_shadow.py', scripts / 'trend_research' / 'experiments14.py', scripts / 'trend_research' / 'stats.py', scripts / 'trend_research' / 'champion.py',
+                  scripts / 'trend_research' / 'weekly.py', scripts / 'fp_ingest' / 'identity.py', scripts / 'fp_ingest' / 'store.py']
+    book = json.loads((REPO / 'research' / 'trend-intelligence' / 'ledger.json').read_text(encoding='utf-8'))
+    data = {'games_csv_sha256': sha256_file(cache / 'games.csv'), 'fantasy_points_manifest_index_sha256': sha256_file(root / 'manifests' / 'index.json')}
+    for season in range(2021, 2027):
+        data[f'stats_player_week_{season}_sha256'] = sha256_file(cache / f'stats_player_week_{season}.csv')
+    # The FP weekly run/pass files are content-addressed in the manifest index; hash the normalised documents it points to as well.
+    index = json.loads((root / 'manifests' / 'index.json').read_text(encoding='utf-8'))
+    for entry in sorted((e for e in index.get('files', {}).values() if 'run_pass_report_weekly' in str(e.get('normalized_path'))), key=lambda e: str(e.get('normalized_path'))):
+        path = root / entry['normalized_path']
+        if path.exists():
+            data['run_pass_' + path.stem] = sha256_file(path)
+    code = sha256_text(''.join(sha256_file(f) for f in code_files if f.exists()))
+    return data, book['experiments']['P5-2']['spec_sha256'], code
+
+
+def cache_key(data, spec_sha, code):
+    return sha256_text(canonical({'schema': CACHE_SCHEMA, 'data': data, 'spec': spec_sha, 'code': code}))
+
+
+def prepare_inputs(root, out, *, rebuild=False):
+    """Returns (features, fitted, cutoffs, source_hashes, spec_sha, cache_status). Rebuilds the historical features and models only when a hash that controls them changed."""
+    data, spec_sha, code = input_hashes(root)
+    key = cache_key(data, spec_sha, code)
+    cache_dir = Path(out) / 'cache'
+    path = cache_dir / f'inputs-{key[:24]}.json'
+    status = 'rebuilt'
+    bundle = None
+    if path.exists() and not rebuild:
+        try:
+            bundle = json.loads(path.read_text(encoding='utf-8'))
+            if bundle.get('key') != key or bundle.get('schema') != CACHE_SCHEMA:
+                bundle = None
+            else:
+                status = 'hit'
+        except (OSError, ValueError):
+            bundle = None
+    if bundle is None:
+        bundle = build_inputs(root)
+        bundle.update(schema=CACHE_SCHEMA, key=key, data_hashes=data, spec_sha=spec_sha, code_sha256=code)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix('.tmp')
+        tmp.write_text(json.dumps(bundle, sort_keys=True, allow_nan=False), encoding='utf-8')
+        os.replace(tmp, path)
+        for old in sorted(cache_dir.glob('inputs-*.json'), key=lambda p: p.stat().st_mtime)[:-2]:
+            old.unlink()  # keep the two newest bundles only
+    fitted = {name: (make_predictor(name, bundle['models'][name]), bundle['models'][name]['sigma']) for name in MODELS}
+    hashes = {'games_csv_sha256': data['games_csv_sha256'], 'stats_player_week_2026_sha256': data['stats_player_week_2026_sha256'],
+              'fantasy_points_manifest_index_sha256': data['fantasy_points_manifest_index_sha256'], 'inputs_cache_key': key[:24]}
+    return bundle['features'], fitted, bundle['cutoffs'], hashes, spec_sha, status
 
 
 def _last(frame, team, col):
@@ -308,20 +405,77 @@ def board_from_url(ref='main', fetch=None):
     return best[1]
 
 
-def capture(root, out, *, weeks=(6, 10), dry_run=False, now=None, results_path=REPO / 'data' / 'nfl_betting.json', max_market_age_hours=MAX_MARKET_AGE_HOURS, market_bytes=None):
+LOCK_STALE_SECONDS = 15 * 60
+
+
+class Lock:
+    """Exclusive run lock so a manual run and the scheduled run can never overlap. A lock older than 15 minutes is treated as left by a crashed run."""
+
+    def __init__(self, out):
+        self.path = Path(out) / 'capture.lock'
+        self.held = False
+
+    def __enter__(self):
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        for attempt in range(2):
+            try:
+                fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            except FileExistsError:
+                try:
+                    age = time.time() - self.path.stat().st_mtime
+                except OSError:
+                    continue
+                if attempt == 0 and age > LOCK_STALE_SECONDS:
+                    try:
+                        self.path.unlink()
+                    except OSError:
+                        pass
+                    continue
+                return self
+            with os.fdopen(fd, 'w') as f:
+                f.write(json.dumps({'pid': os.getpid(), 'started': datetime.now(timezone.utc).isoformat()}))
+            self.held = True
+            return self
+        return self
+
+    def __exit__(self, *exc):
+        if self.held:
+            try:
+                self.path.unlink()
+            except OSError:
+                pass
+
+
+def capture(root, out, *, weeks=(6, 10), dry_run=False, now=None, results_path=REPO / 'data' / 'nfl_betting.json', max_market_age_hours=MAX_MARKET_AGE_HOURS, market_bytes=None, rebuild=False):
     out = check_out_dir(out)
     if now is not None and not dry_run:
         raise ShadowError('--now is only allowed with --dry-run: a real capture always uses the wall clock')
+    if dry_run:
+        return _capture(root, out, weeks, True, now, results_path, max_market_age_hours, market_bytes, rebuild)
+    with Lock(out) as lock:
+        if not lock.held:
+            report = {'captured_at': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), 'dry_run': False, 'results': {}, 'exclusions': [], 'counts': {}, 'skipped': 'another capture run holds the lock'}
+            return report
+        return _capture(root, out, weeks, False, now, results_path, max_market_age_hours, market_bytes, rebuild)
+
+
+def _capture(root, out, weeks, dry_run, now, results_path, max_market_age_hours, market_bytes, rebuild):
     now = now or datetime.now(timezone.utc)
     market_text = market_bytes if market_bytes is not None else Path(results_path).read_bytes()
     market = json.loads(market_text)
-    features, fitted, cutoffs, hashes, spec_sha = load_inputs(root)
-    records, exclusions = plan_captures(market['games'], features, fitted, now, market_generated_at=market['generated_at'], market_sha256=hashlib.sha256(market_text).hexdigest(),
-                                        source_hashes=hashes, cutoffs=cutoffs, weeks=weeks, code_sha=git_sha(), spec_sha=spec_sha, max_market_age_hours=max_market_age_hours)
-    results = {}
-    for rec in records:
-        results[rec['game_id']] = 'dry_run' if dry_run else write_once(out, rec)
-    report = {'captured_at': now.strftime('%Y-%m-%dT%H:%M:%SZ'), 'dry_run': dry_run, 'results': results, 'exclusions': exclusions,
+    needed, exclusions, already = precheck(market['games'], out, now, market_generated_at=market['generated_at'], weeks=weeks, max_market_age_hours=max_market_age_hours)
+    results = {gid: 'already_captured' for gid in already}
+    stage = {'precheck_only': True, 'inputs_cache': 'not_needed', 'eligible_needing_capture': len(needed)}
+    if needed:
+        features, fitted, cutoffs, hashes, spec_sha, cache_status = prepare_inputs(root, out, rebuild=rebuild)
+        stage.update(precheck_only=False, inputs_cache=cache_status)
+        records, plan_excl = plan_captures([g for g in market['games'] if g['game_id'] in set(needed)], features, fitted, now, market_generated_at=market['generated_at'],
+                                           market_sha256=hashlib.sha256(market_text).hexdigest(), source_hashes=hashes, cutoffs=cutoffs, weeks=weeks, code_sha=git_sha(),
+                                           spec_sha=spec_sha, max_market_age_hours=max_market_age_hours)
+        exclusions += plan_excl
+        for rec in records:
+            results[rec['game_id']] = 'dry_run' if dry_run else write_once(out, rec)
+    report = {'captured_at': now.strftime('%Y-%m-%dT%H:%M:%SZ'), 'dry_run': dry_run, 'results': results, 'exclusions': exclusions, 'stage': stage,
               'counts': {s: sum(1 for v in results.values() if v == s) for s in set(results.values())}}
     if not dry_run:
         (out / 'runs').mkdir(parents=True, exist_ok=True)
@@ -410,6 +564,7 @@ def main():
     c.add_argument('--market-from-url', metavar='REF', help='read the newest published board from the project public repository at this ref (for example main)')
     c.add_argument('--max-market-age-hours', type=float, default=MAX_MARKET_AGE_HOURS)
     c.add_argument('--dry-run', action='store_true')
+    c.add_argument('--rebuild-inputs', action='store_true', help='ignore the cached historical features and models and rebuild them')
     c.add_argument('--now')
     for name in ('settle', 'score', 'verify'):
         s = sub.add_parser(name)
@@ -421,7 +576,8 @@ def main():
     if a.cmd == 'capture':
         lo, hi = (int(x) for x in a.weeks.split('-'))
         print(json.dumps(capture(a.root, a.out, weeks=(lo, hi), dry_run=a.dry_run, now=parse_time(a.now) if a.now else None, results_path=a.market, max_market_age_hours=a.max_market_age_hours,
-                                 market_bytes=board_from_url(a.market_from_url) if a.market_from_url else (board_from_git(a.market_from_git) if a.market_from_git else None)), indent=1))
+                                 market_bytes=board_from_url(a.market_from_url) if a.market_from_url else (board_from_git(a.market_from_git) if a.market_from_git else None),
+                                 rebuild=a.rebuild_inputs), indent=1))
     elif a.cmd == 'settle':
         print(json.dumps(settle(a.out), indent=1))
     elif a.cmd == 'score':

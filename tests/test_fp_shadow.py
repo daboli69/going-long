@@ -4,6 +4,7 @@ import os
 import stat
 import sys
 import tempfile
+import time
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -200,6 +201,151 @@ class SchedulingAndBoardSourceTests(unittest.TestCase):
 
     def test_capture_wrapper_uses_the_published_board_and_never_the_hand_edited_file(self):
         self.assertIn('--market-from-url main', (REPO / 'scripts' / 'run_fp_shadow_capture.cmd').read_text(encoding='utf-8'))
+
+
+class PrecheckAndCacheTests(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.out = Path(self.tmp.name) / 'shadow'
+        self.addCleanup(self._cleanup)
+
+    def _cleanup(self):
+        for p in Path(self.tmp.name).rglob('*'):
+            try:
+                os.chmod(p, stat.S_IWRITE | stat.S_IREAD)
+            except OSError:
+                pass
+        self.tmp.cleanup()
+
+    def board(self):
+        return [game('ok', NOW + timedelta(days=3)), game('late', NOW + timedelta(minutes=10)), game('played', NOW + timedelta(days=1), completed=True, home_score=1, away_score=0),
+                game('noprice', NOW + timedelta(days=1), total=None), game('wk5', NOW + timedelta(days=1), week=5), game('done', NOW + timedelta(days=2))]
+
+    def test_precheck_reasons_match_the_full_plan_and_skip_existing_captures(self):
+        games = self.board()
+        needed, excl, already = fs.precheck(games, self.out, NOW, market_generated_at=MARKET_AT)
+        _records, plan_excl = plan(games)
+        self.assertEqual(sorted(json.dumps(e, sort_keys=True) for e in excl), sorted(json.dumps(e, sort_keys=True) for e in plan_excl))
+        self.assertEqual((sorted(needed), already), (['done', 'ok'], []))
+        fs.write_once(self.out, plan([game('done', NOW + timedelta(days=2))])[0][0], clock=lambda: NOW)
+        needed, _excl, already = fs.precheck(games, self.out, NOW, market_generated_at=MARKET_AT)
+        self.assertEqual((needed, already), (['ok'], ['done']))
+
+    def test_stale_board_excludes_everything_before_any_history_is_needed(self):
+        needed, excl, _ = fs.precheck(self.board(), self.out, NOW, market_generated_at=(NOW - timedelta(hours=9)).isoformat())
+        self.assertEqual(needed, [])
+        self.assertIn('market_snapshot_older_than_6h', {e['reason'] for e in excl})
+
+    def test_nothing_to_capture_never_touches_historical_data_or_heavy_libraries(self):
+        import subprocess
+        code = '\n'.join([
+            'import sys, json',
+            f'sys.path.insert(0, {str(REPO / "scripts")!r})',
+            'import fp_shadow as fs',
+            'from pathlib import Path',
+            'from datetime import datetime, timezone',
+            'def boom(*a, **k): raise AssertionError("history was loaded")',
+            'fs.prepare_inputs = boom',
+            'board = json.dumps({"generated_at": "2026-10-16T11:00:00+00:00", "games": []}).encode()',
+            f'r = fs.capture(Path("/nonexistent-root"), Path({str(self.out)!r}), dry_run=True, now=datetime(2026, 10, 16, 12, tzinfo=timezone.utc), market_bytes=board)',
+            'heavy = sorted(m for m in ("pandas", "numpy", "scipy", "pyarrow") if m in sys.modules)',
+            'print(json.dumps({"counts": r["counts"], "stage": r["stage"], "heavy": heavy}))'])
+        res = subprocess.run([sys.executable, '-c', code], capture_output=True, text=True, timeout=60)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        got = json.loads(res.stdout)
+        self.assertEqual(got['heavy'], [])
+        self.assertTrue(got['stage']['precheck_only'])
+
+    def test_pure_python_predictor_matches_the_numpy_ridge_it_replaces(self):
+        import numpy as np
+        from trend_research.stats import Ridge
+        rng = np.random.default_rng(3)
+        X = rng.normal(size=(200, 3)) * [4, 1, 20] + [40, 0.5, 100]
+        y = X @ [0.3, 5, -0.1] + rng.normal(size=200)
+        model = Ridge().fit(X, y)
+        params = {'mean': list(map(float, model.mean_)), 'scale': list(map(float, model.scale_)), 'coef': list(map(float, model.coef_)), 'intercept': float(model.intercept_)}
+        predictor = fs.make_predictor('B_NFL', params)
+        for row in X[:50]:
+            got = predictor({'pts6': row[0], 'nfl_plays6': row[1], 'nfl_pass6': row[2]})
+            self.assertAlmostEqual(got, float(model.predict(row[None, :])[0]), places=10)
+        self.assertIsNone(predictor({'pts6': 1.0, 'nfl_plays6': None, 'nfl_pass6': 2.0}))
+        self.assertIsNone(predictor({'pts6': float('nan'), 'nfl_plays6': 1.0, 'nfl_pass6': 2.0}))
+        self.assertEqual(fs.make_predictor('CH_RAW', {})({'pts6': 3.5}), 3.5)
+
+    def _fake_inputs(self, state):
+        def hashes(root):
+            return dict(state['data']), state['spec'], state['code']
+
+        def build(root):
+            state['builds'] += 1
+            return {'models': {m: {'sigma': 13.0, 'mean': [0.0] * 6, 'scale': [1.0] * 6, 'coef': [0.0] * 6, 'intercept': 0.0} for m in fs.MODELS}, 'features': {'g': {'exp_total': 40.0}}, 'cutoffs': {}}
+        return hashes, build
+
+    def _state(self):
+        return {'data': {'games_csv_sha256': 'a', 'stats_player_week_2026_sha256': 'b', 'fantasy_points_manifest_index_sha256': 'c'}, 'spec': 's1', 'code': 'c1', 'builds': 0}
+
+    def test_cache_hits_until_a_data_protocol_or_code_hash_changes_then_rebuilds(self):
+        from unittest import mock
+        state = self._state()
+        hashes, build = self._fake_inputs(state)
+        with mock.patch.object(fs, 'input_hashes', hashes), mock.patch.object(fs, 'build_inputs', build):
+            self.assertEqual(fs.prepare_inputs('r', self.out)[5], 'rebuilt')
+            self.assertEqual(fs.prepare_inputs('r', self.out)[5], 'hit')
+            self.assertEqual(state['builds'], 1)
+            state['data']['games_csv_sha256'] = 'a2'  # a data file changed
+            self.assertEqual(fs.prepare_inputs('r', self.out)[5], 'rebuilt')
+            state['spec'] = 's2'  # the protocol changed
+            self.assertEqual(fs.prepare_inputs('r', self.out)[5], 'rebuilt')
+            state['code'] = 'c2'  # the code changed
+            self.assertEqual(fs.prepare_inputs('r', self.out)[5], 'rebuilt')
+            self.assertEqual(fs.prepare_inputs('r', self.out)[5], 'hit')
+            self.assertEqual(state['builds'], 4)
+            self.assertLessEqual(len(list((self.out / 'cache').glob('inputs-*.json'))), 2)  # old bundles are pruned
+
+    def test_corrupt_or_foreign_cache_files_are_never_trusted(self):
+        from unittest import mock
+        state = self._state()
+        hashes, build = self._fake_inputs(state)
+        with mock.patch.object(fs, 'input_hashes', hashes), mock.patch.object(fs, 'build_inputs', build):
+            fs.prepare_inputs('r', self.out)
+            path = next((self.out / 'cache').glob('inputs-*.json'))
+            path.write_text('{not json')
+            self.assertEqual(fs.prepare_inputs('r', self.out)[5], 'rebuilt')
+            doc = json.loads(path.read_text())
+            doc['key'] = 'x' * 64  # a bundle copied from another key
+            path.write_text(json.dumps(doc))
+            self.assertEqual(fs.prepare_inputs('r', self.out)[5], 'rebuilt')
+            self.assertEqual(fs.prepare_inputs('r', self.out, rebuild=True)[5], 'rebuilt')
+
+    def test_cache_key_covers_every_input(self):
+        base = fs.cache_key({'a': '1'}, 's', 'c')
+        self.assertNotEqual(base, fs.cache_key({'a': '2'}, 's', 'c'))
+        self.assertNotEqual(base, fs.cache_key({'a': '1'}, 's2', 'c'))
+        self.assertNotEqual(base, fs.cache_key({'a': '1'}, 's', 'c2'))
+        self.assertEqual(base, fs.cache_key({'a': '1'}, 's', 'c'))
+
+    def test_run_lock_prevents_overlap_and_recovers_from_a_crashed_run(self):
+        with fs.Lock(self.out) as first:
+            self.assertTrue(first.held)
+            with fs.Lock(self.out) as second:
+                self.assertFalse(second.held)
+        self.assertFalse((self.out / 'capture.lock').exists())
+        self.out.mkdir(parents=True, exist_ok=True)
+        stale = self.out / 'capture.lock'
+        stale.write_text('{}')
+        old = time.time() - fs.LOCK_STALE_SECONDS - 60
+        os.utime(stale, (old, old))
+        with fs.Lock(self.out) as recovered:
+            self.assertTrue(recovered.held)
+
+    def test_a_locked_run_does_nothing_and_a_dry_run_ignores_the_lock(self):
+        board = json.dumps({'generated_at': MARKET_AT, 'games': []}).encode()
+        with fs.Lock(self.out):
+            report = fs.capture(Path('x'), self.out, market_bytes=board)
+            self.assertIn('skipped', report)
+            self.assertEqual(report['counts'], {})
+        with fs.Lock(self.out):
+            self.assertNotIn('skipped', fs.capture(Path('x'), self.out, dry_run=True, now=NOW, market_bytes=board))
 
 
 class BoardFromUrlTests(unittest.TestCase):

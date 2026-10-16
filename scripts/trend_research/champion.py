@@ -48,8 +48,9 @@ def cache(root):
     return Path(root) / 'research' / 'cache'
 
 
-def load_weekly(root, seasons):
-    frames = [pd.read_csv(_download(WEEKLY_URL.format(season=s), cache(root) / f'stats_player_week_{s}.csv'), usecols=WEEKLY_COLUMNS) for s in seasons]
+def load_weekly(root, seasons, columns=None):
+    """``columns`` limits the CSV read to those columns (memory); the default is the full WEEKLY_COLUMNS set, unchanged for every existing caller."""
+    frames = [pd.read_csv(_download(WEEKLY_URL.format(season=s), cache(root) / f'stats_player_week_{s}.csv'), usecols=columns or WEEKLY_COLUMNS) for s in seasons]
     return pd.concat(frames, ignore_index=True)
 
 
@@ -63,8 +64,8 @@ def load_players(root):
     return pd.read_csv(_download(PLAYERS_URL, cache(root) / 'players.csv'), usecols=['gsis_id', 'pfr_id', 'position'])
 
 
-def load_games(root):
-    return pd.read_csv(_download(GAMES_URL, cache(root) / 'games.csv'))
+def load_games(root, columns=None):
+    return pd.read_csv(_download(GAMES_URL, cache(root) / 'games.csv'), usecols=columns)
 
 
 def load_ffopp(root, seasons):

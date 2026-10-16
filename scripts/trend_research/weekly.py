@@ -33,7 +33,7 @@ def _entries(manifest, table_id, include_superseded=False):
     return out
 
 
-def load_table(root, table_id, seasons=None):
+def load_table(root, table_id, seasons=None, columns=None):
     """Tidy frame for one by-game table: season, week, player_id (null when unmatched), name, team, position, opponent, known_at plus every metric
     as ``Group.COL``. Always the current (non-superseded) file of each season."""
     root = Path(root)
@@ -49,7 +49,8 @@ def load_table(root, table_id, seasons=None):
         for r in doc['rows']:
             e, c = r['entity'], r['context']
             rows.append({'season': season, 'week': c['week'], 'player_id': e.get('player_id'), 'name': e['name'], 'team': e.get('team'),
-                         'position': e.get('position'), 'opponent': c.get('opponent'), 'known_at': known.get(c['week']), **r['metrics']})
+                         'position': e.get('position'), 'opponent': c.get('opponent'), 'known_at': known.get(c['week']),
+                         **(r['metrics'] if columns is None else {k: v for k, v in r['metrics'].items() if k in columns})})
         frames.append(pd.DataFrame(rows))
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 

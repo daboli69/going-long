@@ -129,6 +129,9 @@ def run_p5_1(root, manifest):
 # ====================================================================== P5-2
 REPO = Path(__file__).resolve().parents[2]
 WINDOW, MIN_PRIOR, AS_OF_DELAY_H = 6, 3, 4
+GAME_COLUMNS = ['game_id', 'season', 'game_type', 'week', 'gameday', 'gametime', 'away_team', 'away_score', 'home_team', 'home_score', 'total', 'total_line']
+WEEKLY_TEAM_COLUMNS = ['team', 'season', 'season_type', 'week', 'attempts', 'carries']
+RUN_PASS_COLUMNS = ['Overall.SNAPS', 'Overall.PASS %', 'Neutral.PASS %']
 FEATS = {'B_PTS': ['pts6'], 'B_NFL': ['pts6', 'nfl_plays6', 'nfl_pass6'], 'C_FP': ['pts6', 'nfl_plays6', 'nfl_pass6', 'fp_snaps6', 'fp_pass6', 'fp_neutral6']}
 
 
@@ -159,7 +162,7 @@ def add_lagged(tg):
 
 def team_games(root):
     """Long team-game table with strictly lagged same-season rolling features. No feature crosses a season boundary."""
-    games = champion.load_games(root)
+    games = champion.load_games(root, columns=GAME_COLUMNS)
     games = games[(games.game_type == 'REG') & (games.season >= 2021)].copy()
     games['kick'] = _kick_utc(games)
     games['home'], games['away'] = games.home_team.map(_team), games.away_team.map(_team)
@@ -168,13 +171,16 @@ def team_games(root):
         rows.append(pd.DataFrame({'game_id': games.game_id, 'season': games.season, 'week': games.week, 'team': games[side], 'kick': games.kick,
                                   'pf': games[side + '_score'], 'pa': games[other + '_score']}))
     tg = pd.concat(rows, ignore_index=True)
-    w = champion.load_weekly(root, list(range(2021, 2027)))
-    w = w[w.season_type == 'REG'].copy()
-    w['team'] = w.team.map(lambda c: _team(c) if isinstance(c, str) else None)
-    nfl = w.groupby(['team', 'season', 'week'], as_index=False).agg(att=('attempts', 'sum'), car=('carries', 'sum'))
+    parts = []
+    for season in range(2021, 2027):  # one season at a time, four columns: the full multi-season frame is never held in memory
+        w = champion.load_weekly(root, [season], columns=WEEKLY_TEAM_COLUMNS)
+        w = w[w.season_type == 'REG'].copy()
+        w['team'] = w.team.map(lambda c: _team(c) if isinstance(c, str) else None)
+        parts.append(w.groupby(['team', 'season', 'week'], as_index=False).agg(att=('attempts', 'sum'), car=('carries', 'sum')))
+    nfl = pd.concat(parts, ignore_index=True)
     nfl['nfl_plays'], nfl['nfl_pass'] = nfl.att + nfl.car, nfl.att / (nfl.att + nfl.car).replace(0, np.nan)
     tg = tg.merge(nfl[['team', 'season', 'week', 'nfl_plays', 'nfl_pass']], on=['team', 'season', 'week'], how='left')
-    rp = weekly.load_table(root, 'run_pass_report_weekly').dropna(subset=['team'])
+    rp = weekly.load_table(root, 'run_pass_report_weekly', columns=RUN_PASS_COLUMNS).dropna(subset=['team'])
     rp['team'] = rp.team.map(_team)
     rp = rp.rename(columns={'Overall.SNAPS': 'fp_snaps', 'Overall.PASS %': 'fp_pass', 'Neutral.PASS %': 'fp_neutral'}).drop_duplicates(['team', 'season', 'week'])
     tg = tg.merge(rp[['team', 'season', 'week', 'fp_snaps', 'fp_pass', 'fp_neutral']], on=['team', 'season', 'week'], how='left')
