@@ -1,0 +1,174 @@
+"""Download -> normalize -> aggregate -> feature store, with incremental caching,
+validation and coverage reporting."""
+from __future__ import annotations
+
+import json
+from datetime import datetime, timezone
+
+import numpy as np
+import pandas as pd
+
+from . import features, ingest, sources
+from .config import CACHE_DIR, CARRYOVER_SEASON, RAW_DIR
+
+FEATURE_STORE = CACHE_DIR / "feature_store.parquet"
+GAMES_TABLE = CACHE_DIR / "games.parquet"
+TEAM_GAMES = CACHE_DIR / "team_game_stats.parquet"
+QB_GAMES = CACHE_DIR / "qb_game_stats.parquet"
+VALIDATION_REPORT = CACHE_DIR / "validation_report.json"
+STATUS = CACHE_DIR / "data_status.json"
+# Bump when ingest aggregation logic changes so cached seasons are re-aggregated.
+AGG_VERSION = "2"
+
+
+def current_season(today: datetime | None = None) -> int:
+    today = today or datetime.now(timezone.utc)
+    return today.year if today.month >= 8 else today.year - 1
+
+
+def refresh_data(force: bool = False, progress=print) -> dict:
+    """Download/refresh all sources, aggregate play-by-play incrementally and rebuild
+    the feature store. Completed seasons are downloaded once and reused."""
+    live = current_season()
+    progress("Step 1/4: schedule and results (nflverse/nfldata games.csv)")
+    sources.download_games(force=force, progress=progress)
+    games, warnings = ingest.load_games(RAW_DIR / "games.csv", CARRYOVER_SEASON)
+    seasons = sorted(s for s in games["season"].unique() if s <= live)
+
+    progress(f"Step 2/4: play-by-play for {seasons[0]}-{seasons[-1]} (nflverse-data pbp release)")
+    manifest = sources.load_manifest()
+    old = pd.read_parquet(TEAM_GAMES) if TEAM_GAMES.exists() else pd.DataFrame()
+    old_qb = pd.read_parquet(QB_GAMES) if QB_GAMES.exists() else pd.DataFrame()
+    agg_meta = manifest.get("_aggregated", {})
+    tparts, qparts, missing = [], [], []
+    for s in seasons:
+        try:
+            entry = sources.download_pbp(int(s), live=(s == live), force=force, progress=progress)
+        except FileNotFoundError:
+            missing.append(int(s))
+            warnings.append(f"Play-by-play for {s} is not published yet.")
+            continue
+        sha = f'{entry["sha256"]}:{AGG_VERSION}'
+        if agg_meta.get(str(s)) == sha and len(old) and (old["season"] == s).any():
+            tparts.append(old[old["season"] == s])
+            qparts.append(old_qb[old_qb["season"] == s])
+            continue
+        progress(f"  aggregating {s} play-by-play ...")
+        pbp = pd.read_parquet(RAW_DIR / f"play_by_play_{s}.parquet", columns=ingest.PBP_COLUMNS)
+        t = ingest.team_game_stats(pbp)
+        t["season"] = int(s)
+        q = ingest.qb_game_stats(pbp)
+        q["season"] = int(s)
+        tparts.append(t)
+        qparts.append(q)
+        agg_meta[str(s)] = sha
+    tstats = pd.concat(tparts, ignore_index=True)
+    qstats = pd.concat(qparts, ignore_index=True)
+    # Play-by-play game ids use the same nflverse convention; normalize relocated teams.
+    id_map = dict(zip(games["source_game_id"], games["game_id"]))
+    tstats["game_id"] = tstats["game_id"].map(lambda g: id_map.get(g, g))
+    qstats["game_id"] = qstats["game_id"].map(lambda g: id_map.get(g, g))
+    tstats.to_parquet(TEAM_GAMES, index=False)
+    qstats.to_parquet(QB_GAMES, index=False)
+    manifest = sources.load_manifest()
+    manifest["_aggregated"] = agg_meta
+    sources._save_manifest(manifest)
+
+    progress("Step 3/4: building pregame feature store (strictly pre-kickoff)")
+    games.to_parquet(GAMES_TABLE, index=False)
+    fs = features.build_feature_store(games, tstats.drop(columns=["season"]), qstats.drop(columns=["season"]))
+    fs.to_parquet(FEATURE_STORE, index=False)
+    features.feature_catalog(fs.columns).to_csv(CACHE_DIR / "feature_catalog.csv", index=False)
+
+    progress("Step 4/4: validating")
+    report = validate(games, tstats, fs, warnings, cross_check=True, progress=progress)
+    status = {"refreshed_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+              "live_season": live, "seasons": [int(s) for s in seasons], "missing_pbp": missing,
+              "games": int(len(games)), "completed_games": int(games["completed"].sum()),
+              "feature_store_rows": int(len(fs)), "warnings": report["warnings"]}
+    STATUS.write_text(json.dumps(status, indent=2), encoding="utf-8")
+    progress(f"Done: {status['completed_games']} completed games, {len(fs)} feature rows.")
+    return status
+
+
+def validate(games: pd.DataFrame, tstats: pd.DataFrame, fs: pd.DataFrame, warnings: list[str] | None = None,
+             cross_check: bool = False, progress=print) -> dict:
+    warnings = list(warnings or [])
+    errors: list[str] = []
+    dups = ingest.find_duplicates(games)
+    if len(dups):
+        errors.append(f"{len(dups)} duplicate game rows remain")
+    done = games[games["completed"]]
+    have = set(tstats["game_id"])
+    no_pbp = done[~done["game_id"].isin(have)]
+    if len(no_pbp):
+        warnings.append(f"{len(no_pbp)} completed games have no play-by-play aggregate "
+                        f"(latest: {', '.join(no_pbp['game_id'].tail(3))}).")
+    per_game = tstats.groupby("game_id").size()
+    if (per_game != 2).any():
+        errors.append(f"{int((per_game != 2).sum())} games do not have exactly two team rows in play-by-play")
+    # Leakage guard: no feature row may reference a state at/after its own kickoff.
+    if (fs["feature_cutoff_utc"] != fs["kickoff_utc"]).any():
+        errors.append("feature cutoff differs from kickoff")
+    cross = None
+    if cross_check:
+        cross = _cross_check_scores(games, progress)
+        if cross.get("mismatches"):
+            warnings.append(f"api.nfldata.org disagrees on {cross['mismatches']} final scores (see validation report)")
+    by_season = []
+    for s, d in games.groupby("season"):
+        dd = d[d["completed"]]
+        f = fs[fs["season"] == s]
+        by_season.append({
+            "season": int(s), "games": int(len(d)), "completed": int(len(dd)),
+            "with_pbp": int(dd["game_id"].isin(have).sum()), "ties": int(dd["tie"].sum()),
+            "with_moneyline": int(dd["market_p_home_novig"].notna().sum()),
+            "with_spread": int(dd["spread_line"].notna().sum()),
+            "with_starting_qb": int((d["home_qb_id"].notna() & d["away_qb_id"].notna()).sum()),
+            "feature_missing_pct": round(float(f.filter(like="diff_blend_").isna().mean().mean() * 100), 2) if len(f) else None,
+        })
+    missing = fs.filter(regex=r"^(diff_|ctx_|mx_)").isna().mean().sort_values(ascending=False)
+    report = {"validated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+              "errors": errors, "warnings": warnings, "coverage": by_season,
+              "most_missing_features": {k: round(float(v), 4) for k, v in missing.head(15).items()},
+              "cross_check": cross, "ok": not errors}
+    VALIDATION_REPORT.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")
+    return report
+
+
+def _cross_check_scores(games: pd.DataFrame, progress) -> dict:
+    """Compare final scores for the two most recent seasons with api.nfldata.org.
+    Agreement is a transport check only: that API re-serves nflverse."""
+    seasons = sorted(games.loc[games["completed"], "season"].unique())[-2:]
+    try:
+        rows = [r for s in seasons for r in sources.fetch_api_games(int(s), progress)]
+    except Exception as exc:  # network failure must not block the pipeline
+        return {"status": f"unavailable: {exc}"}
+    api = pd.DataFrame(rows)
+    if api.empty:
+        return {"status": "no rows returned"}
+    api = api.dropna(subset=["home_score"])
+    m = games.merge(api[["game_id", "home_score", "away_score"]], left_on="source_game_id", right_on="game_id",
+                    suffixes=("", "_api"))
+    bad = m[(m["home_score"] != m["home_score_api"]) | (m["away_score"] != m["away_score_api"])]
+    return {"status": "ok", "seasons": [int(s) for s in seasons], "compared": int(len(m)),
+            "mismatches": int(len(bad)), "examples": bad["game_id"].head(5).tolist(),
+            "note": "api.nfldata.org is derived from nflverse; agreement is not independent confirmation"}
+
+
+def load_feature_store() -> pd.DataFrame:
+    if not FEATURE_STORE.exists():
+        raise FileNotFoundError("No feature store yet. Run 'Download / Update NFL Data' first.")
+    return pd.read_parquet(FEATURE_STORE)
+
+
+def load_status() -> dict:
+    return json.loads(STATUS.read_text(encoding="utf-8")) if STATUS.exists() else {}
+
+
+def load_validation() -> dict:
+    return json.loads(VALIDATION_REPORT.read_text(encoding="utf-8")) if VALIDATION_REPORT.exists() else {}
+
+
+def numeric_matrix(fs: pd.DataFrame, cols: list[str]) -> np.ndarray:
+    return fs[cols].astype(float).to_numpy()

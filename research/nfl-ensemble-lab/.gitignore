@@ -1,0 +1,10 @@
+# Local environment and generated artifacts (never commit bulk data, models or reports)
+.venv/
+data/
+models/
+artifacts/
+snapshots/
+reports/
+__pycache__/
+.pytest_cache/
+*.pyc
