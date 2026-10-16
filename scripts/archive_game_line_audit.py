@@ -45,6 +45,7 @@ def audit(root, games_csv, results_path=ROOT / 'data/nfl_betting.json'):
     records = exported['records']
     games = pd.read_csv(games_csv).set_index('game_id')
     scores = {g['game_id']: g for g in json.loads(Path(results_path).read_text())['games']}
+    schedule = {g['game_id']: g for g in json.loads((root / 'schedule.json').read_text())['games']}
     out = {'records': len(records), 'games': len({r['gameId'] for r in records}), 'gaps_from_export': exported['gaps']}
     violations, unverifiable = {}, set()
 
@@ -84,8 +85,8 @@ def audit(root, games_csv, results_path=ROOT / 'data/nfl_betting.json'):
                 continue
             g = games.loc[gid]
             home, away = canonical_team(g['home_team']), canonical_team(g['away_team'])
-            sched = scores.get(gid)
-            if not sched or canonical_team(sched['home']) != home or canonical_team(sched['away']) != away:
+            sched, planned = scores.get(gid), schedule.get(gid)
+            if not planned or planned['home'] != home or planned['away'] != away:
                 bad('schedule_team_mismatch')
             independent = not pd.isna(g['home_score']) and not pd.isna(g['away_score'])
             if not independent:

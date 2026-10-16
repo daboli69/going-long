@@ -25915,7 +25915,7 @@
    "status": "INCONCLUSIVE"
   },
   "P5-2": {
-   "completed_at": "2026-10-16T00:11:57Z",
+   "completed_at": "2026-10-16T00:16:04Z",
    "registered_at": "2026-10-16T00:04:53Z",
    "result": {
     "archive_total_records": {
@@ -26252,7 +26252,7 @@
       "relative_gain": 0.0005415849040098301
      }
     },
-    "seconds": 6.8,
+    "seconds": 6.9,
     "timestamps": {
      "asof_rule": "kickoff of the latest prior game used + 4h",
      "forecast_asof_after_snapshot": 0,
@@ -26312,7 +26312,7 @@
    "status": "INCONCLUSIVE"
   },
   "P5-3": {
-   "completed_at": "2026-10-16T00:12:06Z",
+   "completed_at": "2026-10-16T00:16:48Z",
    "registered_at": "2026-10-16T00:04:53Z",
    "result": {
     "clv_note": "one pregame board per game about 30 minutes before the actual kickoff; no closing series, so only a matched pregame-price comparison is supported",
@@ -26596,7 +26596,7 @@
       "totals"
      ]
     },
-    "seconds": 8.2,
+    "seconds": 8.3,
     "status": "FAIL",
     "timestamps": {
      "distinction": "snapshot_at = provider board capture; quote_at = bookmaker update; neither is a forecast creation time or a feature availability time",

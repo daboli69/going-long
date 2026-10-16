@@ -146,6 +146,17 @@ def _kick_utc(games):
     return local.dt.tz_localize('America/New_York', ambiguous='NaT', nonexistent='shift_forward').dt.tz_convert('UTC')
 
 
+def add_lagged(tg):
+    """Strictly lagged, SAME-SEASON rolling features. A game's features use only earlier games of its own team-season (shift(1) before the rolling mean) and need >= MIN_PRIOR
+    non-missing games, so nothing carries over a season boundary (2025 never borrows 2023 when 2024 is missing) and the game's own result never enters."""
+    tg = tg.sort_values(['team', 'season', 'week']).reset_index(drop=True)
+    grp = tg.groupby(['team', 'season'], sort=False)
+    for col in ('pf', 'pa', 'nfl_plays', 'nfl_pass', 'fp_snaps', 'fp_pass', 'fp_neutral'):
+        tg['r_' + col] = grp[col].transform(lambda s: s.shift(1).rolling(WINDOW, min_periods=MIN_PRIOR).mean())
+    tg['prior_kick'] = grp['kick'].shift(1)
+    return tg
+
+
 def team_games(root):
     """Long team-game table with strictly lagged same-season rolling features. No feature crosses a season boundary."""
     games = champion.load_games(root)
@@ -167,13 +178,7 @@ def team_games(root):
     rp['team'] = rp.team.map(_team)
     rp = rp.rename(columns={'Overall.SNAPS': 'fp_snaps', 'Overall.PASS %': 'fp_pass', 'Neutral.PASS %': 'fp_neutral'}).drop_duplicates(['team', 'season', 'week'])
     tg = tg.merge(rp[['team', 'season', 'week', 'fp_snaps', 'fp_pass', 'fp_neutral']], on=['team', 'season', 'week'], how='left')
-    tg = tg.sort_values(['team', 'season', 'week']).reset_index(drop=True)
-    grp = tg.groupby(['team', 'season'], sort=False)
-    # a feature of game g uses ONLY earlier games of the same season (shift(1) before the rolling mean); needs >= MIN_PRIOR non-missing games
-    for col in ('pf', 'pa', 'nfl_plays', 'nfl_pass', 'fp_snaps', 'fp_pass', 'fp_neutral'):
-        tg['r_' + col] = grp[col].transform(lambda s: s.shift(1).rolling(WINDOW, min_periods=MIN_PRIOR).mean())
-    tg['prior_kick'] = grp['kick'].shift(1)
-    return games, tg
+    return games, add_lagged(tg)
 
 
 def game_features(games, tg):
