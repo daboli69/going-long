@@ -73,6 +73,7 @@ def load_games(path: Path, first_season: int) -> tuple[pd.DataFrame, list[str]]:
         "neutral_site": (raw["location"].astype(str) == "Neutral").astype(int),
         "div_game": pd.to_numeric(raw["div_game"], errors="coerce").fillna(0).astype(int),
         "roof": raw["roof"].fillna("").astype(str),
+        "stadium_id": raw["stadium_id"].fillna("").astype(str),
         "home_qb_id": raw["home_qb_id"], "away_qb_id": raw["away_qb_id"],
         "home_qb_name": raw["home_qb_name"], "away_qb_name": raw["away_qb_name"],
         "spread_line": pd.to_numeric(raw["spread_line"], errors="coerce"),
@@ -96,6 +97,7 @@ def load_games(path: Path, first_season: int) -> tuple[pd.DataFrame, list[str]]:
     g["home_win"] = np.where(g["completed"], np.where(g["margin"] > 0, 1.0, np.where(g["margin"] < 0, 0.0, np.nan)), np.nan)
     g["tie"] = g["completed"] & (g["margin"] == 0)
     g["market_p_home_novig"] = [no_vig_home_prob(h, a) for h, a in zip(g["home_moneyline"], g["away_moneyline"])]
+    g["roof_type"] = stadium_roof_types(g)
     dups = find_duplicates(g)
     if len(dups):
         warnings.append(f"Dropped {len(dups) - dups['game_id'].nunique()} duplicate game rows.")
@@ -169,5 +171,22 @@ def qb_game_stats(pbp: pd.DataFrame) -> pd.DataFrame:
     """Per passer per game: dropbacks and summed QB EPA (for prior-efficiency features)."""
     p = pbp[(pbp["qb_dropback"] == 1) & pbp["qb_epa"].notna() & pbp["passer_player_id"].notna()
             & (pbp["play_type"].isin(["pass", "run"]))]
-    out = p.groupby(["game_id", "passer_player_id"]).agg(qb_dropbacks=("qb_epa", "size"), qb_epa_sum=("qb_epa", "sum")).reset_index()
-    return out.rename(columns={"passer_player_id": "qb_id"})
+    out = (p.groupby(["game_id", "posteam", "passer_player_id"]).agg(qb_dropbacks=("qb_epa", "size"), qb_epa_sum=("qb_epa", "sum"))
+           .reset_index().rename(columns={"passer_player_id": "qb_id", "posteam": "team"}))
+    out["team"] = out["team"].map(normalize_team)
+    return out
+
+
+def stadium_roof_types(g: pd.DataFrame) -> pd.Series:
+    """Static roof type per stadium (dome / retractable / outdoors), from every listed game.
+    Game-day 'open'/'closed' values only reveal that a roof is retractable; the game-day
+    state itself is not used because it is decided close to kickoff."""
+    kinds = g.groupby("stadium_id")["roof"].agg(lambda r: set(r) - {""})
+    def kind(stadium, roof):
+        seen = kinds.get(stadium, set()) | ({roof} - {""})
+        if seen & {"open", "closed"}:
+            return "retractable"
+        if "dome" in seen:
+            return "dome"
+        return "outdoors" if seen else "unknown"
+    return pd.Series([kind(s, r) for s, r in zip(g["stadium_id"], g["roof"])], index=g.index)

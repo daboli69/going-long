@@ -4,37 +4,50 @@ Verified on 2026-10-16 by downloading from each endpoint. The lab records URL,
 SHA-256, size, ETag/Last-Modified and download time for every file in
 `data/raw/manifest.json`.
 
-## Integrated
+## Integrated: model inputs
 
-| Source | Endpoint | Used for | Notes |
+| Source | Endpoint | Used for | Pregame validity |
 |---|---|---|---|
-| nflverse/nfldata `games.csv` | `https://github.com/nflverse/nfldata/raw/master/data/games.csv` | Schedule, scores, neutral site, roof, listed starting QBs, closing spread/moneyline/total | Primary schedule. Future games are listed with projected QBs close to kickoff. |
-| nflverse-data `pbp` release | `https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_{season}.parquet` | Every team statistic (EPA, success, yardage, turnovers, sacks, third downs, red zone, pace) and QB EPA | 2015 is downloaded only for 2016 prior-season carryover. ~20 MB per season. |
-| api.nfldata.org | `https://api.nfldata.org/v1/games` (public, no key, OpenAPI at `/openapi.json`) | Cross-check of final scores for the two latest seasons | It describes itself as the nflverse "gold layer". It is **not independent** of nflverse, so agreement only checks the download, never confirms the data. |
+| nflverse/nfldata `games.csv` | `github.com/nflverse/nfldata/raw/master/data/games.csv` | Schedule, scores, neutral site, stadium, closing lines | Scores only for prior games. Lines are a benchmark, never a feature. Listed starting QBs are **not** used as features (since Phase 1.5). |
+| nflverse-data `pbp` | `.../releases/download/pbp/play_by_play_{season}.parquet` | Team stats, EPA, QB EPA, previous-game starter | Aggregated from games before kickoff only. |
+| nflverse-data `injuries` | `.../releases/download/injuries/injuries_{season}.parquet` | Official NFL game-status designations and practice participation | **2016–2024:** each row has `date_modified`; rows modified at or after kickoff are dropped (0–0.3% per season). **2025:** the file has no row timestamps, so it is excluded. **2026+:** used only from snapshots the lab archives with its own download time before kickoff. |
+| nflverse-data `snap_counts` | `.../releases/download/snap_counts/snap_counts_{season}.parquet` | Player role = mean snap share over his last 4 games before kickoff | Postgame stats of earlier games only. |
+| nflverse-data `players` | `.../releases/download/players/players.parquet` | ID map (gsis ↔ pfr ↔ espn) and names | Static identifiers. |
 
-`nflverse-pbp` (the GitHub repo) builds the same play-by-play files published in the
-`nflverse-data` `pbp` release. They are one source, counted once. nflverse
-`schedules/games.csv` mirrors nfldata `games.csv`, so it is also counted once.
+## Integrated: live monitoring only (never model inputs)
 
-Refresh policy: completed seasons are downloaded once and reused. The schedule and
-the live season's play-by-play are re-downloaded when older than 6 hours.
-Play-by-play aggregation is cached by file hash.
+| Source | Endpoint | Shown as |
+|---|---|---|
+| ESPN public injury feed | `site.api.espn.com/apis/site/v2/sports/football/nfl/injuries` (no key) | Out/IR/Doubtful lists and a cross-check of the projected QB's status. It includes IR and transactions-style statuses the official report lacks. It has no validated history, so it is excluded from models. |
+| nflverse `depth_charts` (2025+) | `.../depth_charts/depth_charts_{season}.parquet` (daily ESPN snapshots, `dt` timestamp) | Current QB1 cross-check. |
+| api.nfldata.org | `/v1/games` | Score cross-check. It is derived from nflverse, so it is not independent evidence. |
 
 ## Investigated, not integrated
 
 | Source | Why not |
 |---|---|
-| thadhutch/nfl-data-pipeline (redirects to `sports-quant`) | Scrapes PFF grades (paid subscription) and Pro-Football-Reference pages. The PFR content duplicates nflverse, and the PFF content breaks the $0 rule. |
-| nflverse `injuries` | Report rows carry modification timestamps that can fall after kickoff. The lab has no reliable way to tell what was known pregame. |
-| nflverse `ftn_charting` (pressure, etc.) | Coverage starts in 2022, so it cannot span the 2016+ training window. A Phase 1 feature would be missing for most training rows. |
-| nflverse `stats_team`, `nextgen_stats`, `pfr_advstats` | Team stats are derived from the same play-by-play. NGS/PFR advanced stats are season- or week-level tables whose publication time is not recorded. Candidates for later work once availability timing is checked. |
-| Weather (temp/wind in games.csv) | Values are observed at the game, not a pregame forecast. They would leak information. |
-| Existing GOING `data/*.json` | Current-season snapshots for the website. No multi-season history and no timestamped odds archive was found in this checkout. |
+| nflverse depth charts 2016–2024 | Weekly team-released charts without publication timestamps. "Pregame by process" cannot be verified, so they are excluded from history. |
+| nflverse weekly rosters / transactions | Season-week roster status is recorded retrospectively without timestamps. |
+| Official NFL.com / team injury pages | Same content as the official report already ingested through nflverse. Scraping HTML adds fragility without new information. |
+| Starting-QB announcements (press) | No free, timestamped, machine-readable archive. Projected starters come from the rule below. |
+| thadhutch/nfl-data-pipeline (`sports-quant`) | PFF grades require a subscription; the PFR data duplicates nflverse. |
+| FTN charting (pressure) | Coverage only from 2022. |
+| Weather (games.csv temp/wind) | Observed at the game, not forecast. |
+| Game-day roof open/closed | Decided near kickoff. Replaced by the static stadium roof type. |
 
-## Odds caveats
+## Projected starting QB (pregame rule)
+1. The starter (most dropbacks) of the team's previous completed game.
+2. If a verified pregame official report lists him Out or Doubtful: the team's other QB with
+   the most dropbacks for the team this season and last; otherwise an unknown replacement
+   (replacement-level efficiency prior).
+3. The first game of a season uses last season's final starter (`qb_offseason` = 1, an uncertainty flag).
 
-The nfldata lines are consensus closing numbers with no per-line timestamp. They are
-close to kickoff and therefore pregame. They are used **only** as a benchmark
-(no-vig probability, spread MAE), never as model inputs. For upcoming games, the line
-shown is whatever nfldata held at refresh time. 2016–2026 completed games all have
-moneylines (one 2017 game lacks one).
+As a diagnostic only (not used anywhere), the projection matches the recorded starter in
+88% of 2016–2026 games. The other 12% is real pregame uncertainty (offseason moves,
+benchings, late scratches) that the old feature hid by using the actual starter.
+
+## Archive
+Every refresh that sees a changed live injury file stores
+`data/raw/archive/nflverse_injuries_<UTC download time>_<hash>.parquet`, and each ESPN fetch
+is stored as JSON. These archives become the lab's own timestamped injury history for
+2026 onward. **Keep this folder.** Deleting it destroys history that cannot be re-downloaded.

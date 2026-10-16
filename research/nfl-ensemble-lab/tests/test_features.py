@@ -71,3 +71,27 @@ def test_feature_catalog_documents_every_model_feature(feature_store):
     assert set(cols) <= set(cat["feature"])
     assert (cat.loc[cat["feature"].isin(cols), "formula"].str.len() > 0).all()
     assert cat["pregame_available"].str.contains("EXCLUDED").any()
+
+
+def test_actual_starting_qb_never_used(league, feature_store):
+    """Rewriting the listed/actual starters must not change any feature."""
+    g, t, q = league
+    g2 = g.copy()
+    g2["home_qb_id"], g2["away_qb_id"] = "SOMEONE_ELSE", "SOMEONE_ELSE"
+    fs2 = features.build_feature_store(g2, t, q)
+    cols = _fcols(feature_store)
+    pd.testing.assert_frame_equal(feature_store[cols], fs2[cols])
+
+
+def test_projected_qb_switches_only_on_verified_out(league):
+    g, t, q = league
+    target = g[(g["season"] == 2021) & (g["week"] == 5)].iloc[0]
+    team = target["home_team"]
+    base = features.project_starters(g, q).set_index(["game_id", "team"])
+    assert base.loc[(target["game_id"], team), "qb_projected_id"] == f"QB_{team}"
+    status = {(target["game_id"], team, f"QB_{team}"): "Out"}
+    proj = features.project_starters(g, q, status).set_index(["game_id", "team"])
+    row = proj.loc[(target["game_id"], team)]
+    assert row["qb_projected_out"] == 1 and row["qb_projected_id"] == f"QB2_{team}"
+    first = proj[proj["season"] == 2021].sort_values("kickoff_utc").groupby(level=1).head(1)
+    assert (first["qb_offseason"] == 1).all()

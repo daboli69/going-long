@@ -159,7 +159,8 @@ def training_workbook(version: str | None = None) -> Path:
     return path
 
 
-def weekly_workbook(season: int, week: int, table: pd.DataFrame, debates: list[dict], bundle: dict, run: dict) -> dict:
+def weekly_workbook(season: int, week: int, table: pd.DataFrame, debates: list[dict], bundle: dict, run: dict,
+                    monitor: list[dict] | None = None, freshness: dict | None = None) -> dict:
     keys = bundle["model_keys"]
     t = table.copy()
     wb = Workbook()
@@ -170,10 +171,19 @@ def weekly_workbook(season: int, week: int, table: pd.DataFrame, debates: list[d
         ("Research champion", bundle["champion"]), ("Unanimous votes", int(t["unanimous"].sum())),
         ("3-3 ties", int(t["vote_tie"].sum())), ("Vote vs ensemble disagreements", int(t["vote_vs_ensemble_disagree"].sum())),
         ("Games with data warnings", int((t["data_warnings"] != "").sum())),
+        ("All predictions made before kickoff", bool(t["predicted_before_kickoff"].all()) if "predicted_before_kickoff" in t else "unknown"),
+        ("Data refreshed (UTC)", (freshness or {}).get("data_refreshed_at")),
+        ("Official injury file downloaded (UTC)", (freshness or {}).get("live_injury_file_downloaded_at")),
+        ("ESPN injury feed retrieved (UTC)", (freshness or {}).get("espn_retrieved_at")),
         ("Reminder", "Probabilities are research estimates. A 6-0 vote is not a 100% forecast."),
     ])
     gp = pd.DataFrame({
         "game": t["away_team"] + " @ " + t["home_team"], "kickoff_utc": t["kickoff_utc"].astype(str),
+        "predicted_before_kickoff": t.get("predicted_before_kickoff", pd.Series(dtype=bool)),
+        "away_projected_qb": t.get("away_projected_qb", pd.Series(dtype=object)),
+        "home_projected_qb": t.get("home_projected_qb", pd.Series(dtype=object)),
+        "qb_uncertain": t.get("home_qb_uncertain", pd.Series(False, index=t.index)) | t.get("away_qb_uncertain", pd.Series(False, index=t.index)),
+        "final_injury_reports": t.get("home_injury_report_final", pd.Series(False, index=t.index)) & t.get("away_injury_report_final", pd.Series(False, index=t.index)),
         **{ens.MODEL_NAMES[k]: np.where(t[f"p_{k}"] > 0.5, t["home_team"], t["away_team"]) for k in keys},
         "vote": t["vote_label"], "majority_winner": t["majority_winner"], "ensemble_winner": t["ensemble_winner"],
         "p_ensemble_home": t["p_champion"], "predicted_home_margin": t["margin_ensemble"].round(1),
@@ -195,6 +205,13 @@ def weekly_workbook(season: int, week: int, table: pd.DataFrame, debates: list[d
     mcols = [f"margin_{k}" for k in keys] + ["margin_ensemble"]
     pm = t[["game_id", "home_team", "away_team"] + mcols + ["spread_line"]].rename(columns={f"margin_{k}": models.MARGIN_NAMES[k] for k in keys})
     write_sheet(wb, "Predicted Margins", pm, "Expected home margin (points). spread_line = current line at data refresh, home perspective.")
+    mon = pd.DataFrame([{**{k: v for k, v in m.items() if k not in ("key_listed_players", "espn_out_or_ir", "qb_flags")},
+                         "qb_flags": "; ".join(m["qb_flags"]),
+                         "key_listed_players": "; ".join(f"{x['player']} ({x['pos']}, {x['status']}, snaps {x['recent_snap_share']:.0%})" for x in m["key_listed_players"]),
+                         "espn_out_or_ir": "; ".join(f"{x['player']} ({x['position']}, {x['status']})" for x in m["espn_out_or_ir"])}
+                        for m in (monitor or [])])
+    write_sheet(wb, "Injury & QB Monitor", mon, "LIVE MONITORING ONLY. ESPN and depth-chart data are not model inputs. "
+                "Model injury features use only the official report available before kickoff.")
     write_sheet(wb, "Upset Signals", pd.DataFrame(), "Upset Discovery Engine is Phase 2 and has not been built. No signals exist.")
     write_sheet(wb, "Experimental Adjusted", pd.DataFrame(), "Experimental upset-adjusted forecasts are Phase 3 and have not been built.")
     sb = t[["game_id", "home_team", "away_team", "p_champion", "market_p_home_novig", "home_moneyline", "away_moneyline", "spread_line", "margin_ensemble"]].copy()

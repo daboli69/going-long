@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 
-from . import features, ingest, sources
+from . import availability, features, ingest, sources
 from .config import CACHE_DIR, CARRYOVER_SEASON, RAW_DIR
 
 FEATURE_STORE = CACHE_DIR / "feature_store.parquet"
@@ -17,8 +17,10 @@ TEAM_GAMES = CACHE_DIR / "team_game_stats.parquet"
 QB_GAMES = CACHE_DIR / "qb_game_stats.parquet"
 VALIDATION_REPORT = CACHE_DIR / "validation_report.json"
 STATUS = CACHE_DIR / "data_status.json"
+INJURY_VALID = CACHE_DIR / "injury_rows_pregame.parquet"
+INJURY_COVERAGE = CACHE_DIR / "injury_coverage.csv"
 # Bump when ingest aggregation logic changes so cached seasons are re-aggregated.
-AGG_VERSION = "2"
+AGG_VERSION = "3"
 
 
 def current_season(today: datetime | None = None) -> int:
@@ -30,12 +32,12 @@ def refresh_data(force: bool = False, progress=print) -> dict:
     """Download/refresh all sources, aggregate play-by-play incrementally and rebuild
     the feature store. Completed seasons are downloaded once and reused."""
     live = current_season()
-    progress("Step 1/4: schedule and results (nflverse/nfldata games.csv)")
+    progress("Step 1/5: schedule and results (nflverse/nfldata games.csv)")
     sources.download_games(force=force, progress=progress)
     games, warnings = ingest.load_games(RAW_DIR / "games.csv", CARRYOVER_SEASON)
     seasons = sorted(s for s in games["season"].unique() if s <= live)
 
-    progress(f"Step 2/4: play-by-play for {seasons[0]}-{seasons[-1]} (nflverse-data pbp release)")
+    progress(f"Step 2/5: play-by-play for {seasons[0]}-{seasons[-1]} (nflverse-data pbp release)")
     manifest = sources.load_manifest()
     old = pd.read_parquet(TEAM_GAMES) if TEAM_GAMES.exists() else pd.DataFrame()
     old_qb = pd.read_parquet(QB_GAMES) if QB_GAMES.exists() else pd.DataFrame()
@@ -74,21 +76,51 @@ def refresh_data(force: bool = False, progress=print) -> dict:
     manifest["_aggregated"] = agg_meta
     sources._save_manifest(manifest)
 
-    progress("Step 3/4: building pregame feature store (strictly pre-kickoff)")
+    progress("Step 3/5: injury reports, snap counts, depth charts (nflverse) + ESPN live injuries")
+    avail = availability.refresh_sources([s for s in seasons], live, progress)
+    warnings += avail["errors"]
+    rows = availability.load_injury_rows([s for s in seasons if s >= 2016])
+    valid = availability.pregame_injuries(rows, games)
+    snaps = availability.player_roles(seasons)
+    inj = availability.team_injury_features(games, valid, snaps, rows)
+    valid.to_parquet(INJURY_VALID, index=False)
+    injury_coverage(games, rows, valid, inj).to_csv(INJURY_COVERAGE, index=False)
+
+    progress("Step 4/5: building pregame feature store (strictly pre-kickoff)")
     games.to_parquet(GAMES_TABLE, index=False)
-    fs = features.build_feature_store(games, tstats.drop(columns=["season"]), qstats.drop(columns=["season"]))
+    fs = features.build_feature_store(games, tstats.drop(columns=["season"]), qstats.drop(columns=["season"]),
+                                      inj, availability.report_status_lookup(valid))
     fs.to_parquet(FEATURE_STORE, index=False)
     features.feature_catalog(fs.columns).to_csv(CACHE_DIR / "feature_catalog.csv", index=False)
 
-    progress("Step 4/4: validating")
+    progress("Step 5/5: validating")
     report = validate(games, tstats, fs, warnings, cross_check=True, progress=progress)
     status = {"refreshed_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
               "live_season": live, "seasons": [int(s) for s in seasons], "missing_pbp": missing,
               "games": int(len(games)), "completed_games": int(games["completed"].sum()),
-              "feature_store_rows": int(len(fs)), "warnings": report["warnings"]}
+              "feature_store_rows": int(len(fs)), "warnings": report["warnings"],
+              "injury": {"latest_report_row_time": str(valid["available_at"].max()) if len(valid) else None,
+                         "live_injury_file_downloaded_at": sources.load_manifest().get(f"nflverse_injuries_{live}", {}).get("downloaded_at"),
+                         "espn_retrieved_at": avail.get("espn_retrieved_at"), "espn_records": avail.get("espn_records"),
+                         "archived_snapshots": len(list(availability.ARCHIVE_DIR.glob("nflverse_injuries_*.parquet")))}}
     STATUS.write_text(json.dumps(status, indent=2), encoding="utf-8")
     progress(f"Done: {status['completed_games']} completed games, {len(fs)} feature rows.")
     return status
+
+
+def injury_coverage(games: pd.DataFrame, rows: pd.DataFrame, valid: pd.DataFrame, inj: pd.DataFrame) -> pd.DataFrame:
+    """Per season: injury rows downloaded, rows usable before kickoff, games covered (both teams)."""
+    both = inj.groupby("game_id")["inj_report_available"].min()
+    fs_cov = games.assign(c=games["game_id"].map(both)).groupby("season")["c"].sum()
+    out = []
+    for s, g in games[games["season"] >= 2016].groupby("season"):
+        r, v = rows[rows["season"] == s], valid[valid["season"] == s]
+        covered = int(fs_cov.get(int(s), 0))
+        out.append({"season": int(s), "rows_downloaded": int(len(r)), "rows_with_timestamp": int(r["available_at"].notna().sum()),
+                    "rows_usable_pre_kickoff": int(len(v)), "games": int(len(g)), "games_with_verified_report": covered,
+                    "share_games_covered": round(covered / max(len(g), 1), 3),
+                    "sources": ", ".join(sorted(set(v["source"]))) if len(v) else "none (no timestamps)"})
+    return pd.DataFrame(out)
 
 
 def validate(games: pd.DataFrame, tstats: pd.DataFrame, fs: pd.DataFrame, warnings: list[str] | None = None,

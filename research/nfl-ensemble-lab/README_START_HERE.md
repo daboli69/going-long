@@ -29,6 +29,11 @@ and it is not connected to the GOING website.
 Retrain occasionally (for example monthly) so the models learn from new games. Old
 models and old predictions are kept.
 
+**Injury history (important):** official injury designations for 2025 onward are only usable
+if this lab saved them *before* kickoff. Double-click **`refresh_data.bat`** (or schedule it
+daily in Windows Task Scheduler) so each week's Friday/Saturday report gets archived in
+`data/raw/archive/`. Never delete that folder; it cannot be re-downloaded with timestamps.
+
 ## Where things are saved
 
 | Folder | Contents |
@@ -37,7 +42,7 @@ models and old predictions are kept.
 | `snapshots/` | Read-only, timestamped weekly predictions. They are never overwritten. |
 | `models/` | One folder per trained version; `CURRENT.json` names the active one |
 | `artifacts/runs/` | Out-of-sample predictions and metrics from every training run |
-| `data/` | Downloaded source files and the pregame feature store |
+| `data/` | Downloaded source files, the pregame feature store, and `raw/archive/` (timestamped injury snapshots; keep it) |
 
 None of these folders are committed to git.
 

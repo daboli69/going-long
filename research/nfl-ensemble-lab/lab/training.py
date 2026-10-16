@@ -40,7 +40,9 @@ from .features import DEFAULT_GROUPS, select_features
 RUNS_DIR = ARTIFACTS_DIR / "runs"
 CURRENT = MODELS_DIR / "CURRENT.json"
 BASELINE_FEATURES = ["diff_blend_points", "diff_blend_d_points", "ctx_home_field"]
-CAL_METHODS = ("none", "platt", "isotonic")
+# Isotonic was removed in Phase 1.5: with ~270 games per season it overfit early walk-forward
+# seasons (e.g. 2019, 2021) on development data. Calibrator.isotonic remains available for study.
+CAL_METHODS = ("none", "platt")
 
 
 def split_of(season: int) -> str:
@@ -124,14 +126,49 @@ def _baseline_pointdiff(train: pd.DataFrame, test: pd.DataFrame) -> np.ndarray:
 
 # --------------------------------------------------------------------------- main
 
+def select_champion(oof: pd.DataFrame, candidates: list[str], n_boot: int = 2000, seed: int = 0) -> dict:
+    """Champion rule (validation + earlier seasons only; test seasons never read):
+    1. best = lowest log loss on the validation seasons;
+    2. a candidate is tied with best when its paired-bootstrap log-loss difference to
+       best is within one standard error (validation games resampled);
+    3. among tied candidates, choose the lowest mean per-season log loss over all
+       walk-forward seasons before the test seasons (stability over more history)."""
+    val = oof[(oof["split"] == "validation") & oof["home_win"].notna()]
+    y = val["home_win"].to_numpy()
+    def ll_vec(p):
+        p = np.clip(p, M.EPS, 1 - M.EPS)
+        return -(y * np.log(p) + (1 - y) * np.log(1 - p))
+    losses = {c: ll_vec(val[f"p_{c}"].to_numpy()) for c in candidates if val[f"p_{c}"].notna().all()}
+    best = min(losses, key=lambda c: losses[c].mean())
+    rng = np.random.default_rng(seed)
+    idx = rng.integers(0, len(y), (n_boot, len(y)))
+    tied, details = [], {}
+    for c, l in losses.items():
+        d = l - losses[best]
+        se = float(d[idx].mean(axis=1).std())
+        details[c] = {"validation_log_loss": float(l.mean()), "diff_vs_best": float(d.mean()), "se_diff": se}
+        if d.mean() <= se:
+            tied.append(c)
+    hist = oof[(oof["split"].isin(["development", "validation"])) & (oof["season"] >= WALK_FORWARD_START + 1) & oof["home_win"].notna()]
+    stab = {c: float(hist.groupby("season").apply(lambda d: M.log_loss(d["home_win"], d[f"p_{c}"]), include_groups=False).mean()) for c in tied}
+    for c in tied:
+        details[c]["mean_season_log_loss_history"] = stab[c]
+    champion = min(stab, key=stab.get)
+    return {"best_on_validation": best, "tied_within_1se": tied, "champion": champion, "details": details,
+            "history_seasons": sorted(int(s) for s in hist["season"].unique())}
+
+
 def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=print,
-                 progress_frac=lambda f: None, training_from: int = FIRST_SEASON) -> dict:
+                 progress_frac=lambda f: None, training_from: int = FIRST_SEASON,
+                 production: bool = True, tag: str = "") -> dict:
+    """production=False runs the full chronological evaluation without refitting or
+    replacing the current production models (used for experiments)."""
     t0 = time.time()
     fs = load_feature_store()
     cols = select_features(fs.columns, groups)
     model_keys = tuple(k for k in ens.MODEL_KEYS if k in model_keys)
     data = fs[(fs["season"] >= training_from) & fs["completed"]].sort_values(["kickoff_utc", "game_id"]).reset_index(drop=True)
-    version = datetime.now(timezone.utc).strftime("v%Y%m%d_%H%M%S")
+    version = datetime.now(timezone.utc).strftime("v%Y%m%d_%H%M%S") + (f"_{tag}" if tag else "")
     run_dir = RUNS_DIR / version
     run_dir.mkdir(parents=True, exist_ok=True)
     progress(f"Training run {version}: {len(data)} completed games {data['season'].min()}-{data['season'].max()}, "
@@ -196,10 +233,15 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
                 else:
                     col[idx] = Calibrator(method).fit(hist[f"raw_{key}"], hist["home_win"]).transform(oof.loc[idx, f"raw_{key}"])
             cands[method] = col
-        val = (oof["split"] == "validation") & oof["home_win"].notna()
-        scores = {m: M.log_loss(oof.loc[val, "home_win"], c[val.to_numpy()]) for m, c in cands.items()}
+        # choose on every pre-test walk-forward season that had calibration history (not just validation)
+        sel_rows = (oof["split"].isin(["development", "validation"]) & (oof["season"] > WALK_FORWARD_START)
+                    & oof["home_win"].notna()).to_numpy()
+        seasons_sel = oof.loc[sel_rows, "season"].to_numpy()
+        y_sel = oof.loc[sel_rows, "home_win"].to_numpy()
+        scores = {m: float(np.mean([M.log_loss(y_sel[seasons_sel == s_], c[sel_rows][seasons_sel == s_]) for s_ in np.unique(seasons_sel)]))
+                  for m, c in cands.items()}
         chosen = min(scores, key=scores.get)
-        cal_scores[key] = {"validation_log_loss": scores, "chosen": chosen}
+        cal_scores[key] = {"mean_season_log_loss_2019_2024": scores, "chosen": chosen}
         oof[f"p_{key}"] = cands[chosen]
 
     # 4. walk-forward ensembles
@@ -230,11 +272,13 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
     val = oof[(oof["split"] == "validation") & oof["home_win"].notna()]
     sel = {c: {"log_loss": M.log_loss(val["home_win"], val[f"p_{c}"]), "brier": M.brier(val["home_win"], val[f"p_{c}"])}
            for c in candidates}
-    champion = min(sel, key=lambda c: (sel[c]["log_loss"], sel[c]["brier"]))
+    rule = select_champion(oof, candidates)
+    champion = rule["champion"]
     selection = {"selected_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-                 "rule": "lowest mean log loss on validation seasons (tie-break Brier); test seasons not consulted",
+                 "rule": "validation log loss; candidates within 1 paired-bootstrap SE of the best are tied; "
+                         "ties broken by mean per-season log loss over earlier walk-forward seasons; test seasons not consulted",
                  "validation_seasons": list(VALIDATION_SEASONS), "candidates": sel, "champion": champion,
-                 "calibration": cal_scores}
+                 "tie_analysis": rule, "calibration": cal_scores, "feature_groups": list(groups)}
     (run_dir / "selection.json").write_text(json.dumps(selection, indent=2), encoding="utf-8")
     progress(f"Step 5/5 research champion (validation log loss): {champion}")
 
@@ -286,6 +330,20 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
                           "vote_agreement": float(((vt[f"p_{a}"] > 0.5) == (vt[f"p_{b}"] > 0.5)).mean()),
                           "prob_correlation": float(np.corrcoef(vt[f"p_{a}"], vt[f"p_{b}"])[0, 1])})
 
+    lb = pd.DataFrame(leaderboard)
+    if not production:
+        summary = {"version": version, "tag": tag, "production": False, "n_features": len(cols), "groups": list(groups),
+                   "champion": champion, "params": params, "calibration": {k: v["chosen"] for k, v in cal_scores.items()},
+                   "minutes": round((time.time() - t0) / 60, 1)}
+        oof.to_parquet(run_dir / "oof_predictions.parquet", index=False)
+        lb.to_csv(run_dir / "leaderboard.csv", index=False)
+        pd.DataFrame(season_rows).to_csv(run_dir / "season_results.csv", index=False)
+        pd.DataFrame(margin_rows).to_csv(run_dir / "margin_results.csv", index=False)
+        pd.DataFrame(importance).to_csv(run_dir / "feature_importance.csv", index=False)
+        (run_dir / "summary.json").write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
+        progress(f"Experiment {version} finished (production models unchanged).")
+        return {"summary": summary, "leaderboard": lb, "run_dir": run_dir, "oof": oof}
+
     # production refit on every completed game
     progress("Refitting production models on all completed games ...")
     allc = data[data["home_win"].notna()]
@@ -308,9 +366,8 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
     model_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump(bundle, model_dir / "bundle.joblib")
 
-    lb = pd.DataFrame(leaderboard)
     summary = {
-        "version": version, "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "git_sha": _git_sha(),
+        "version": version, "tag": tag, "groups": list(groups), "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "git_sha": _git_sha(),
         "n_games": int(len(data)), "n_features": len(cols), "seasons": [int(data["season"].min()), int(data["season"].max())],
         "walk_forward_seasons": [int(s) for s in seasons], "champion": champion, "params": params,
         "calibration": {k: v["chosen"] for k, v in cal_scores.items()}, "weights": {k: float(v) for k, v in bundle["weights"].items()},

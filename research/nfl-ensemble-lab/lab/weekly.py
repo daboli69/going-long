@@ -11,7 +11,8 @@ from . import ensemble as ens
 from . import explain as X
 from . import models, sources
 from .config import SNAPSHOTS_DIR
-from .data_pipeline import current_season, load_feature_store, refresh_data
+from .availability import live_monitor
+from .data_pipeline import GAMES_TABLE, current_season, load_feature_store, load_status, refresh_data
 from .training import load_bundle, load_run
 
 
@@ -87,7 +88,14 @@ def _quality_warnings(row: pd.Series, cols: list[str]) -> list[str]:
         w.append(f"{missing} of {len(cols)} features missing (imputed with training medians)")
     for side in ("home", "away"):
         if row.get(f"{side}_qb_known", 1) == 0:
-            w.append(f"{side} starting QB not listed yet; QB features imputed")
+            w.append(f"{side}: no previous starter found; QB features use the replacement prior")
+        if row.get(f"{side}_qb_projected_out", 0) == 1:
+            w.append(f"{side}: projected starter listed Out/Doubtful, replacement QB projected")
+        if row.get(f"{side}_qb_questionable", 0) == 1:
+            w.append(f"{side}: projected starting QB is Questionable")
+        if row.get(f"{side}_inj_report_available", 1) != 1:
+            w.append(f"{side}: no final official injury report before kickoff (injury context unavailable; "
+                     "the default models do not use injury features)")
         if row.get(f"{side}_std_games", 1) == 0 and row["week"] > 1:
             w.append(f"{side} team has no completed games this season in the data")
     if row["kickoff_utc"] <= pd.Timestamp.now(tz="UTC"):
@@ -140,7 +148,7 @@ def _debate(g, keys, probs, v, exps, hist, agree, ens_winner, warns) -> dict:
             "warnings": warns, "round1": r1, "round2": {k: exps[k] for k in keys}, "round3": r3, "round4": r4, "round5": r5}
 
 
-def write_snapshot(season: int, week: int, table: pd.DataFrame, debates: list[dict], bundle: dict) -> dict:
+def write_snapshot(season: int, week: int, table: pd.DataFrame, debates: list[dict], bundle: dict, extra: dict | None = None) -> dict:
     """Write a new, never-overwritten snapshot. Returns its paths."""
     created = datetime.now(timezone.utc)
     d = SNAPSHOTS_DIR / f"{season}_w{week:02d}"
@@ -152,7 +160,7 @@ def write_snapshot(season: int, week: int, table: pd.DataFrame, debates: list[di
             "source_files": {k: {"sha256": v.get("sha256"), "downloaded_at": v.get("downloaded_at")}
                              for k, v in manifest.items() if k == "nfldata_games" or k.endswith(str(season))},
             "immutable": True}
-    payload = {"meta": meta, "predictions": json.loads(table.to_json(orient="records", date_format="iso")), "debates": debates}
+    payload = {"meta": meta, "predictions": json.loads(table.to_json(orient="records", date_format="iso")), "debates": debates, **(extra or {})}
     jpath = d / f"{stem}.json"
     with open(jpath, "x", encoding="utf-8") as fh:  # 'x' refuses to overwrite
         json.dump(payload, fh, indent=1, default=str)
@@ -183,10 +191,22 @@ def run_weekly(season: int | None = None, week: int | None = None, refresh: bool
     bundle = load_bundle()
     run = load_run(bundle["version"])
     table, debates = predict_games(games, bundle, run)
-    table["predicted_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    now = pd.Timestamp.now(tz="UTC")
+    table["predicted_at"] = now.isoformat()
     table["model_version"] = bundle["version"]
-    paths = write_snapshot(season, week, table, debates, bundle)
+    table["predicted_before_kickoff"] = table["kickoff_utc"] > now
+    table["feature_cutoff_utc"] = games["feature_cutoff_utc"]  # same index; keeps UTC tz
+    monitor = live_monitor(games, games, pd.read_parquet(GAMES_TABLE))
+    for side in ("home", "away"):
+        m = {x["game_id"]: x for x in monitor if x["side"] == side}
+        table[f"{side}_projected_qb"] = table["game_id"].map(lambda g: m.get(g, {}).get("projected_qb"))
+        table[f"{side}_qb_uncertain"] = table["game_id"].map(lambda g: m.get(g, {}).get("qb_uncertain", True))
+        table[f"{side}_injury_report_final"] = table["game_id"].map(lambda g: m.get(g, {}).get("official_report_final", False))
+    status = load_status()
+    freshness = {"data_refreshed_at": status.get("refreshed_at"), **(status.get("injury") or {})}
+    paths = write_snapshot(season, week, table, debates, bundle, extra={"availability_monitor": monitor, "freshness": freshness})
     from .reports import weekly_workbook
-    paths |= weekly_workbook(season, week, table, debates, bundle, run)
+    paths |= weekly_workbook(season, week, table, debates, bundle, run, monitor, freshness)
     progress(f"Saved snapshot and reports for {season} week {week}.")
-    return {"season": season, "week": week, "table": table, "debates": debates, "paths": paths}
+    return {"season": season, "week": week, "table": table, "debates": debates, "paths": paths,
+            "monitor": monitor, "freshness": freshness}

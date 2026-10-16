@@ -16,7 +16,7 @@ import streamlit as st  # noqa: E402
 from lab import data_pipeline as dp  # noqa: E402
 from lab import ensemble as ens  # noqa: E402
 from lab import features as F  # noqa: E402
-from lab import models, sources, training, weekly  # noqa: E402
+from lab import availability, models, sources, training, weekly  # noqa: E402
 from lab.config import MODELS_DIR, REPORTS_DIR, SNAPSHOTS_DIR  # noqa: E402
 
 st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide")
@@ -75,6 +75,20 @@ def need(cond, msg):
         st.stop()
 
 
+def freshness_panel():
+    """Data and injury-report freshness, shown on Home, Weekly and Debate pages."""
+    st_ = dp.load_status()
+    inj = st_.get("injury") or {}
+    c = st.columns(4)
+    c[0].metric("Data refreshed (UTC)", (st_.get("refreshed_at") or "never")[:16].replace("T", " "))
+    c[1].metric("Official injury file (UTC)", (inj.get("live_injury_file_downloaded_at") or "none")[:16].replace("T", " "))
+    c[2].metric("ESPN injury feed (UTC)", (inj.get("espn_retrieved_at") or "none")[:16].replace("T", " "))
+    c[3].metric("Archived injury snapshots", inj.get("archived_snapshots", 0))
+    ts = st_.get("refreshed_at")
+    if ts and (pd.Timestamp.now(tz="UTC") - pd.Timestamp(ts)).total_seconds() > 24 * 3600:
+        st.warning("Data is more than 24 hours old. Refresh before relying on upcoming-game predictions.")
+
+
 def fmt_metric(v, pct=False):
     if v is None or (isinstance(v, float) and np.isnan(v)):
         return "n/a"
@@ -113,6 +127,8 @@ def page_home():
     if snaps:
         st.subheader("Latest weekly snapshot")
         st.write(f"`{snaps[0].parent.name}` · {snaps[0].name}")
+    st.subheader("Freshness")
+    freshness_panel()
     warns = status.get("warnings", []) + dp.load_validation().get("errors", [])
     if warns:
         with st.expander(f"Warnings ({len(warns)})"):
@@ -162,6 +178,11 @@ def page_data():
     if man:
         with st.expander("Download manifest (provenance)"):
             st.dataframe(pd.DataFrame([v for k, v in man.items() if not k.startswith("_")]), hide_index=True, use_container_width=True)
+    if dp.INJURY_COVERAGE.exists():
+        st.subheader("Injury report coverage (rows usable only if available before kickoff)")
+        st.dataframe(pd.read_csv(dp.INJURY_COVERAGE), hide_index=True, use_container_width=True)
+        st.caption("2016-2024: nflverse rows with date_modified before kickoff. 2025: the published file has no row timestamps, "
+                   "so it is excluded. 2026+: only snapshots this lab archived before kickoff. ESPN data is live monitoring only.")
     if dp.FEATURE_STORE.exists():
         with st.expander("Feature catalog (source, formula, pregame availability)"):
             st.dataframe(pd.read_csv(dp.CACHE_DIR / "feature_catalog.csv"), hide_index=True, use_container_width=True)
@@ -271,6 +292,7 @@ def page_debate():
     fs, v = feature_store(), training.current_version()
     need(fs is not None and v, "Download data and train models first.")
     season, week = week_picker(fs, "deb")
+    freshness_panel()
     table, debates = cached_week(v, season, week, dp.FEATURE_STORE.stat().st_mtime)
     need(len(debates), "No games for this week.")
     labels = [d["matchup"] + ("  (played)" if table.iloc[i]["completed"] else "") for i, d in enumerate(debates)]
@@ -359,6 +381,7 @@ def page_weekly():
     fs, v = feature_store(), training.current_version()
     need(fs is not None and v, "Download data and train models first.")
     season, week = week_picker(fs, "wk")
+    freshness_panel()
     refresh = st.checkbox("Refresh data before predicting", value=True)
     if st.button("▶️ Generate Weekly Predictions", type="primary"):
         box = st.empty()
@@ -378,6 +401,23 @@ def page_weekly():
     st.dataframe(view, hide_index=True, use_container_width=True,
                  column_config={"P(home)": PCT(format="%.3f", min_value=0, max_value=1), "disagreement": st.column_config.NumberColumn(format="%.2f")})
     st.caption("Preview computed live. Click Generate to save a timestamped snapshot and Excel/CSV/JSON files.")
+    games = fs[(fs["season"] == season) & (fs["week"] == week)]
+    with st.expander("Injury & QB monitor (live context; ESPN and depth charts are NOT model inputs)", expanded=True):
+        try:
+            mon = availability.live_monitor(games, games, pd.read_parquet(dp.GAMES_TABLE))
+        except Exception as exc:
+            mon = []
+            st.warning(f"Availability monitor unavailable: {exc}")
+        if mon:
+            view_m = pd.DataFrame([{"team": m["team"], "projected QB": m["projected_qb"], "QB uncertain": m["qb_uncertain"],
+                                    "QB flags": "; ".join(m["qb_flags"]), "official final report": m["official_report_final"],
+                                    "key listed players": "; ".join(f"{x['player']} {x['pos']} {x['status']}" for x in m["key_listed_players"]),
+                                    "ESPN out/IR": "; ".join(f"{x['player']} {x['position']} {x['status']}" for x in m["espn_out_or_ir"][:8])}
+                                   for m in mon])
+            st.dataframe(view_m, hide_index=True, use_container_width=True)
+            if not any(m["official_report_final"] for m in mon):
+                st.warning("No final official injury designations are available for this week yet; injury features are missing "
+                           "(the models fall back to their no-injury-information behaviour).")
     paths = st.session_state.get("weekly_paths")
     if paths:
         c = st.columns(3)

@@ -39,7 +39,9 @@ def test_champion_selected_on_validation_only(trained):
     run = training.load_run()
     sel = run["selection"]
     assert sel["validation_seasons"] == list(VALIDATION_SEASONS)
-    assert sel["champion"] == min(sel["candidates"], key=lambda c: (sel["candidates"][c]["log_loss"], sel["candidates"][c]["brier"]))
+    tie = sel["tie_analysis"]
+    assert sel["champion"] in tie["tied_within_1se"] and tie["best_on_validation"] in tie["tied_within_1se"]
+    assert max(tie["history_seasons"]) <= max(VALIDATION_SEASONS)
     assert "test" in set(run["leaderboard"]["split"])
     # all six winner models and margin models produced out-of-sample results
     lb = run["leaderboard"]
@@ -81,6 +83,14 @@ def test_explanations_reconstruct_linear_models(week_run, trained):
     assert 1 / (1 + np.exp(-(sum(ex["all"].values()) + ex["base_value"]))) == pytest.approx(px, rel=1e-4)
 
 
+def test_weekly_records_pregame_metadata(week_run):
+    t = week_run["table"]
+    for c in ("predicted_at", "model_version", "predicted_before_kickoff", "feature_cutoff_utc", "home_projected_qb", "home_qb_uncertain"):
+        assert c in t.columns
+    assert (pd.to_datetime(t["feature_cutoff_utc"]) == pd.to_datetime(t["kickoff_utc"])).all()
+    assert "freshness" in json.loads(week_run["paths"]["snapshot_json"].read_text())
+
+
 def test_snapshots_are_immutable(week_run):
     p = week_run["paths"]["snapshot_json"]
     payload = json.loads(p.read_text())
@@ -95,7 +105,8 @@ def test_snapshots_are_immutable(week_run):
 def test_excel_workbooks(week_run, trained):
     wb = load_workbook(week_run["paths"]["excel"])
     assert wb.sheetnames == ["Weekly Dashboard", "Game Predictions", "Six-Model Voting", "Model Probabilities", "Model Debate",
-                             "Predicted Margins", "Upset Signals", "Experimental Adjusted", "Sportsbook Comparison", "Model Information"]
+                             "Predicted Margins", "Injury & QB Monitor", "Upset Signals", "Experimental Adjusted",
+                             "Sportsbook Comparison", "Model Information"]
     gp = wb["Game Predictions"]
     assert gp.freeze_panes == "B2" and gp.auto_filter.ref
     assert gp.max_row == 5

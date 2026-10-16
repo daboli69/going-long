@@ -169,13 +169,10 @@ def opponent_adjusted_ratings(games: pd.DataFrame, long: pd.DataFrame) -> pd.Dat
     return pd.DataFrame(rows)
 
 
-def qb_pregame(games: pd.DataFrame, qb_games: pd.DataFrame) -> pd.DataFrame:
-    """Starting-QB trailing efficiency (shrunk EPA/dropback) and QB-change flag."""
-    kick = games.set_index("game_id")["kickoff_utc"]
-    q = qb_games.copy()
-    q["kickoff_utc"] = q["game_id"].map(kick)
-    q = q.dropna(subset=["kickoff_utc"]).sort_values(["qb_id", "kickoff_utc"])
-    # trailing sums over the last QB_WINDOW dropbacks, approximated game-wise
+def _qb_states(q: pd.DataFrame) -> pd.DataFrame:
+    """Post-game efficiency state of each QB: shrunk EPA/dropback over his last QB_WINDOW dropbacks."""
+    q = q.sort_values(["qb_id", "kickoff_utc"])
+    q = q.groupby(["qb_id", "kickoff_utc"], as_index=False)[["qb_dropbacks", "qb_epa_sum"]].sum()
     q["cum_db"] = q.groupby("qb_id")["qb_dropbacks"].cumsum()
     q["cum_epa"] = q.groupby("qb_id")["qb_epa_sum"].cumsum()
     states = []
@@ -186,24 +183,59 @@ def qb_pregame(games: pd.DataFrame, qb_games: pd.DataFrame) -> pd.DataFrame:
             base_db, base_ep = (db[j], ep[j]) if j >= 0 else (0.0, 0.0)
             n, s = db[i] - base_db, ep[i] - base_ep
             states.append((qb, d["kickoff_utc"].iloc[i], (s + QB_PRIOR_K * QB_PRIOR_MEAN) / (n + QB_PRIOR_K), db[i]))
-    st = pd.DataFrame(states, columns=["qb_id", "kickoff_utc", "qb_eff", "qb_career_db"])
-    rows = []
+    return pd.DataFrame(states, columns=["qb_id", "kickoff_utc", "qb_eff", "qb_career_db"])
+
+
+def project_starters(games: pd.DataFrame, qb_games: pd.DataFrame, status: dict | None = None) -> pd.DataFrame:
+    """Pregame projected starting QB per (game, team), using only information
+    available before kickoff:
+      1. the starter of the team's previous completed game (most dropbacks);
+      2. if a verified pregame injury report lists that QB Out/Doubtful, the team's
+         other QB with the most dropbacks for the team in this and last season;
+         if none, an unknown replacement (efficiency = shrinkage prior).
+    The QB who actually started is never used."""
+    status = status or {}
+    kick = games.set_index("game_id")["kickoff_utc"]
+    q = qb_games.assign(kickoff_utc=qb_games["game_id"].map(kick)).dropna(subset=["kickoff_utc"])
+    q["season"] = q["game_id"].str[:4].astype(int)
+    starters = (q.sort_values("qb_dropbacks").groupby(["game_id", "team"]).tail(1)
+                [["team", "qb_id", "kickoff_utc", "season"]].rename(columns={"qb_id": "prev_starter", "kickoff_utc": "_t", "season": "_prev_season"}))
+    sides = []
     for side in ("home", "away"):
-        t = games[["game_id", "kickoff_utc"]].copy()
-        t["team"] = games[f"{side}_team"].values
-        t["qb_id"] = games[f"{side}_qb_id"].values
-        rows.append(t)
-    t = pd.concat(rows, ignore_index=True).sort_values(["team", "kickoff_utc"])
-    t["qb_known"] = t["qb_id"].notna().astype(int)
-    prev_qb = t.groupby("team")["qb_id"].shift(1)
-    t["qb_change"] = ((t["qb_id"] != prev_qb) & prev_qb.notna() & t["qb_id"].notna()).astype(int)
-    known = t[t["qb_id"].notna()]
-    m = _asof(known, st, "qb_id", ["qb_eff", "qb_career_db"])
+        sides.append(games[["game_id", "season", "kickoff_utc"]].assign(team=games[f"{side}_team"].values))
+    t = pd.concat(sides, ignore_index=True).sort_values("kickoff_utc")
+    t = pd.merge_asof(t, starters.sort_values("_t"), left_on="kickoff_utc", right_on="_t", by="team",
+                      direction="backward", allow_exact_matches=False)
+    t["qb_offseason"] = (t["_prev_season"] != t["season"]).astype(int)
+    st_ = [status.get((g, tm, p)) for g, tm, p in zip(t["game_id"], t["team"], t["prev_starter"])]
+    t["qb_projected_out"] = [int(s in ("Out", "Doubtful")) for s in st_]
+    t["qb_questionable"] = [int(s == "Questionable") for s in st_]
+    proj = t["prev_starter"].copy()
+    for i in np.flatnonzero(t["qb_projected_out"].to_numpy()):
+        r = t.iloc[i]
+        pool = q[(q["team"] == r["team"]) & (q["kickoff_utc"] < r["kickoff_utc"]) & (q["season"] >= r["season"] - 1)
+                 & (q["qb_id"] != r["prev_starter"])]
+        proj.iloc[i] = pool.groupby("qb_id")["qb_dropbacks"].sum().idxmax() if len(pool) else None
+    t["qb_projected_id"] = proj.values
+    t["qb_change"] = (t["qb_projected_out"] == 1).astype(int)
+    return t
+
+
+def qb_pregame(games: pd.DataFrame, qb_games: pd.DataFrame, status: dict | None = None) -> pd.DataFrame:
+    """Projected starter's trailing efficiency plus QB-uncertainty flags."""
+    kick = games.set_index("game_id")["kickoff_utc"]
+    st = _qb_states(qb_games.assign(kickoff_utc=qb_games["game_id"].map(kick)).dropna(subset=["kickoff_utc"]))
+    t = project_starters(games, qb_games, status)
+    t["qb_known"] = t["prev_starter"].notna().astype(int)
+    known = t[t["qb_projected_id"].notna()].rename(columns={"qb_projected_id": "qb_id"})
+    m = _asof(known.drop(columns=["_t"], errors="ignore"), st, "qb_id", ["qb_eff", "qb_career_db"])
     t = t.merge(m[["game_id", "team", "qb_eff", "qb_career_db"]], on=["game_id", "team"], how="left")
-    t["qb_eff"] = t["qb_eff"].where(t["qb_id"].isna(), t["qb_eff"].fillna(QB_PRIOR_MEAN))
+    # unknown replacement or no history: replacement-level prior, no experience
+    t["qb_eff"] = t["qb_eff"].where(t["qb_known"] == 0, t["qb_eff"].fillna(QB_PRIOR_MEAN))
     t["qb_career_db"] = t["qb_career_db"].fillna(0)
     t["qb_log_exp"] = np.log1p(t["qb_career_db"])
-    return t[["game_id", "team", "qb_known", "qb_change", "qb_eff", "qb_log_exp"]]
+    return t[["game_id", "team", "qb_projected_id", "qb_known", "qb_change", "qb_projected_out", "qb_questionable",
+              "qb_offseason", "qb_eff", "qb_log_exp"]]
 
 
 META_COLUMNS = [
@@ -213,18 +245,23 @@ META_COLUMNS = [
 ]
 
 
-def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.DataFrame) -> pd.DataFrame:
+def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.DataFrame,
+                        injuries: pd.DataFrame | None = None, qb_status: dict | None = None) -> pd.DataFrame:
+    """injuries: per (game_id, team) output of availability.team_injury_features (verified rows only).
+    qb_status: (game_id, team, gsis_id) -> verified pregame report status."""
     long = _team_game_long(games, tstats)
     team_state = team_pregame_states(games, long)
     rest = _rest_days(games)
     ratings = opponent_adjusted_ratings(games, long)
-    qb = qb_pregame(games, qb_games)
+    qb = qb_pregame(games, qb_games, qb_status)
     per_team = (team_state.drop(columns=["season", "kickoff_utc"])
                 .merge(rest, on=["game_id", "team"], how="left")
                 .merge(ratings, on=["game_id", "team"], how="left")
                 .merge(qb, on=["game_id", "team"], how="left"))
+    if injuries is not None:
+        per_team = per_team.merge(injuries, on=["game_id", "team"], how="left")
     team_cols = [c for c in per_team.columns if c not in ("game_id", "team")]
-    fs = games[META_COLUMNS + ["neutral_site", "div_game", "roof"]].copy()
+    fs = games[META_COLUMNS + ["neutral_site", "div_game", "roof_type"]].copy()
     for side in ("home", "away"):
         part = per_team.rename(columns={c: f"{side}_{c}" for c in team_cols}).rename(columns={"team": f"{side}_team"})
         fs = fs.merge(part, on=["game_id", f"{side}_team"], how="left")
@@ -236,7 +273,9 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
     new["ctx_div_game"] = fs["div_game"]
     new["ctx_playoff"] = (fs["game_type"] != "REG").astype(int)
     new["ctx_week"] = fs["week"]
-    new["ctx_dome"] = fs["roof"].isin(["dome", "closed"]).astype(int)
+    # Static stadium roof type; game-day open/closed status is not known pregame.
+    new["ctx_dome"] = (fs["roof_type"] == "dome").astype(int)
+    new["ctx_retractable"] = (fs["roof_type"] == "retractable").astype(int)
     new["ctx_rest_diff"] = fs["home_rest_days"] - fs["away_rest_days"]
     for side in ("home", "away"):
         new[f"ctx_{side}_short_week"] = (fs[f"{side}_rest_days"] <= 5).astype(int)
@@ -256,6 +295,18 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
     new["mx_recent_form"] = (fs["home_l3_points"] - fs["home_l3_d_points"]) - (fs["away_l3_points"] - fs["away_l3_d_points"])
     new["mx_form_vs_season"] = ((fs["home_l3_epa_pp"] - fs["home_l3_d_epa_pp"]) - (fs["home_blend_epa_pp"] - fs["home_blend_d_epa_pp"])) - \
                               ((fs["away_l3_epa_pp"] - fs["away_l3_d_epa_pp"]) - (fs["away_blend_epa_pp"] - fs["away_blend_d_epa_pp"]))
+    if "home_inj_report_available" in fs:
+        skip = ("inj_report_time", "inj_source", "inj_report_available", "inj_final_published")
+        for c in [c[5:] for c in fs.columns if c.startswith("home_inj_") and c[5:] not in skip]:
+            new[f"diff_{c}"] = fs[f"home_{c}"] - fs[f"away_{c}"]
+        new["inj_available"] = ((fs["home_inj_report_available"] == 1) & (fs["away_inj_report_available"] == 1)).astype(int)
+        # availability x opponent-strength interactions (NaN when no verified report)
+        new["inj_mx_home_ol_out_x_opp_pass_rush"] = fs["home_inj_out_OL"] * fs["away_blend_d_sack_rate"]
+        new["inj_mx_away_ol_out_x_opp_pass_rush"] = fs["away_inj_out_OL"] * fs["home_blend_d_sack_rate"]
+        new["inj_mx_home_db_out_x_opp_pass_off"] = (fs["home_inj_out_CB"] + fs["home_inj_out_S"]) * fs["away_blend_pass_epa"]
+        new["inj_mx_away_db_out_x_opp_pass_off"] = (fs["away_inj_out_CB"] + fs["away_inj_out_S"]) * fs["home_blend_pass_epa"]
+        new["inj_mx_home_dl_out_x_opp_rush_off"] = fs["home_inj_out_DL"] * fs["away_blend_rush_epa"]
+        new["inj_mx_away_dl_out_x_opp_rush_off"] = fs["away_inj_out_DL"] * fs["home_blend_rush_epa"]
     new["feature_cutoff_utc"] = fs["kickoff_utc"]
     new["features_built_at"] = pd.Series(pd.Timestamp.now(tz="UTC"), index=fs.index)
     fs = pd.concat([fs, pd.DataFrame(new, index=fs.index)], axis=1)
@@ -274,13 +325,17 @@ def feature_groups(columns) -> dict[str, list[str]]:
     return {
         "Context (home field, rest, week, dome)": [c for c in cols if c.startswith("ctx_")],
         "Opponent-adjusted ratings": [c for c in cols if c in ("diff_rating_margin", "diff_rating_epa")],
-        "Quarterback": [c for c in cols if c in ("diff_qb_eff", "diff_qb_log_exp", "home_qb_change", "away_qb_change")],
+        "Quarterback": [c for c in cols if c in ("diff_qb_eff", "diff_qb_log_exp") or
+                        (c.startswith(("home_qb_", "away_qb_")) and c.split("_", 2)[2] in ("change", "projected_out", "questionable", "offseason"))],
         "Efficiency differences (blended season)": [f"diff_blend_{c}" for c in core if f"diff_blend_{c}" in cols],
         "Recent form differences (last 3 / last 5)": [f"diff_{w}_{c}" for w in ("l3", "l5") for c in core[:8] if f"diff_{w}_{c}" in cols],
         "Volume and pace differences": [f"diff_blend_{c}" for c in volume if f"diff_blend_{c}" in cols],
         "Offense-vs-defense matchups": [c for c in cols if c.startswith("mx_")],
+        INJURY_GROUP: [c for c in cols if c.startswith(("diff_inj_", "inj_mx_")) or c == "inj_available"],
     }
 
+
+INJURY_GROUP = "Injury availability (verified pregame reports, 2016-2024 + lab archive)"
 
 DEFAULT_GROUPS = (
     "Context (home field, rest, week, dome)", "Opponent-adjusted ratings", "Quarterback",
@@ -310,7 +365,7 @@ def feature_catalog(columns) -> pd.DataFrame:
     groups = feature_groups(columns)
     member = {c: g for g, cs in groups.items() for c in cs}
     for c in columns:
-        if c in META_COLUMNS or c in ("neutral_site", "div_game", "roof", "feature_cutoff_utc", "features_built_at"):
+        if c in META_COLUMNS or c in ("neutral_site", "div_game", "roof_type", "feature_cutoff_utc", "features_built_at"):
             continue
         source, formula = "nflverse pbp + nfldata schedule", ""
         parts = c.split("_", 2)
@@ -319,9 +374,14 @@ def feature_catalog(columns) -> pd.DataFrame:
         elif "rating" in c:
             source, formula = "nfldata scores + pbp", (f"ridge rating (lambda={RATING_RIDGE}) fit on games before the week's first kickoff; "
                                                       f"previous season weighted {RATING_PREV_WEIGHT}")
+        elif "inj_" in c:
+            source, formula = ("official NFL injury report via nflverse + PFR snap counts", "sum of listed players' mean snap share over "
+                               "their last 4 games, by status (out = Out/Doubtful, q = Questionable) and position group; "
+                               "starters_out counts players with share >= 0.5; NaN when no verified pre-kickoff report exists")
         elif "qb_" in c:
-            source, formula = "nfldata starting QB + pbp qb_epa", (f"starter's last {QB_WINDOW} dropbacks EPA, shrunk toward {QB_PRIOR_MEAN} "
-                                                                   f"with k={QB_PRIOR_K:g}; starter identity is the listed/actual starter")
+            source, formula = "pbp qb_epa + verified injury report", (f"PROJECTED starter (previous game's starter, replaced only if a verified "
+                                                                      f"pregame report lists him Out/Doubtful); last {QB_WINDOW} dropbacks EPA shrunk "
+                                                                      f"toward {QB_PRIOR_MEAN} with k={QB_PRIOR_K:g}. The actual starter is never used.")
         elif c.startswith("mx_"):
             formula = "offense-vs-defense combination of blended windows (see features.py)"
         elif parts[0] in ("home", "away", "diff") and len(parts) == 3 and parts[1] in desc:
@@ -331,7 +391,12 @@ def feature_catalog(columns) -> pd.DataFrame:
                      "pregame_available": "yes: built only from games with kickoff strictly before this game's kickoff"})
     excluded = [
         ("weather temp/wind", "nfldata games.csv", "EXCLUDED: recorded at game time, not a pregame forecast"),
-        ("injuries", "nflverse injuries", "EXCLUDED: report modification dates can postdate kickoff"),
+        ("injury rows modified after kickoff", "nflverse injuries", "EXCLUDED: only rows available before kickoff are used"),
+        ("2025 injury reports / 2026 weeks before archiving", "nflverse injuries", "EXCLUDED: no row timestamps; NaN + inj_available=0"),
+        ("actual starting QB", "nfldata games.csv", "EXCLUDED from features: replaced by pregame projected starter"),
+        ("game-day roof open/closed", "nfldata games.csv", "EXCLUDED: replaced by static stadium roof type"),
+        ("depth charts 2016-2024", "nflverse depth_charts", "EXCLUDED: no publication timestamps"),
+        ("ESPN injuries / ESPN depth charts", "ESPN public API", "LIVE MONITORING ONLY: never model inputs"),
         ("pressure rate", "FTN charting", "EXCLUDED: coverage only from 2022"),
         ("spread / moneyline / total", "nfldata games.csv", "EXCLUDED as features: closing lines without timestamps; benchmark only"),
     ]

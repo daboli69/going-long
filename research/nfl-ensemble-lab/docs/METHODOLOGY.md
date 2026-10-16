@@ -17,16 +17,29 @@ previous season), and `blend = (n*std + 3*prev)/(n+3)`.
 Additional features:
 - Opponent-adjusted ridge ratings of point margin and EPA/play margin, fit per (season, week)
   on games before that week's first kickoff (previous season weighted 0.35).
-- Starting-QB efficiency: the listed starter's last 600 dropbacks of QB EPA, shrunk toward -0.05
-  with k=150. QB-change flag. Log career dropbacks.
-- Context: home field / neutral, week, playoff, divisional, dome, rest days, short week, off bye.
+- Projected-starter QB efficiency (Phase 1.5): the **pregame projected** starter is the previous
+  game's starter, replaced only if a verified pregame report lists him Out/Doubtful (rule in
+  `docs/DATA_SOURCES.md`). Last 600 dropbacks of QB EPA, shrunk toward -0.05 with k=150. Flags:
+  projected-out, questionable, first-game-of-season. **The actual starter is never used.**
+- Context: home field / neutral, week, playoff, divisional, static stadium roof type
+  (dome / retractable), rest days, short week, off bye. The game-day open/closed roof state is not used.
 - Matchups: home minus away for every window and stat, plus offense-vs-defense combinations.
+- Injury availability (optional group): per position group (QB, RB, WR, TE, OL, DL, LB, CB, S),
+  the sum of the recent snap share of players designated Out/Doubtful (`inj_out_*`) or
+  Questionable (`inj_q_*`), a count of regular starters out, offense/defense totals, and
+  interactions with opponent strength (OL out × opponent pass-rush rate, DB out × opponent passing
+  EPA, DL out × opponent rushing EPA). The weights come from observed snap shares; the model learns
+  their importance. Values are **NaN** (`inj_available` = 0) when no verified pre-kickoff report exists,
+  never zero.
 
 The full catalog (source, formula, availability) is written to `data/cache/feature_catalog.csv`
-and shown in the Data Manager. Default model input: 78 features in six groups (selectable).
+and shown in the Data Manager.
 
-**Known caveat:** historical QB identity is the starter recorded by nflverse. That is almost
-always announced pregame, but late scratches are a small source of hindsight.
+**Phase 1.5 leakage fixes:** (1) the actual starting QB was replaced by the pregame projection;
+(2) game-day roof state was replaced by the static roof type; (3) injury rows are used only when
+timestamped before kickoff. Remaining known approximations: nflfastR's EPA model was fit on
+all seasons, so per-play EPA carries a tiny amount of league-wide hindsight. nflverse can also
+apply stat corrections after games, and the lab cannot see their timing.
 
 ## Leakage tests (`tests/test_features.py`)
 Changing one game's score, team stats and QB EPA must leave every feature of every game
@@ -56,13 +69,19 @@ Their agreement is expected and is never treated as independent confirmation.
    s ∈ {2020, 2021, 2022}; lowest mean log loss (winner) or MAE (margin) wins.
 2. **Walk-forward**: every season from 2018 on is predicted by models fit on all completed
    seasons before it. These out-of-sample predictions are saved (`oof_predictions.parquet`).
-3. **Calibration**: none / Platt / isotonic per model. The calibrator for season s is fit on
-   out-of-sample predictions from seasons < s. The method is chosen on 2023–2024.
+3. **Calibration**: none or Platt per model. The calibrator for season s is fit on out-of-sample
+   predictions from seasons < s. Since Phase 1.5 the method is chosen by mean per-season log loss over
+   2019–2024. Isotonic was dropped after development data showed it overfitting early seasons
+   (e.g. logistic regression 2019: 0.645 raw → 0.669 isotonic).
 4. **Ensembles**: majority vote (3-3 broken by equal average and flagged), equal average,
    skill-weighted average (weights ∝ max(0, ln 2 − log loss) on earlier seasons), and logistic
    stacking on logits fit on earlier seasons only.
-5. **Champion**: lowest validation (2023–2024) log loss among the six models and three
-   probability ensembles. Written to `selection.json` before the 2025 test season is scored.
+5. **Champion** (Phase 1.5 rule): candidates within one paired-bootstrap standard error of the
+   best validation (2023–2024) log loss are treated as tied. Ties go to the lowest mean per-season
+   log loss over the earlier walk-forward seasons. Test seasons are never read.
+   (Phase 1 rule, kept for history: lowest validation (2023–2024) log loss among the six models and three
+   probability ensembles.) Written to `selection.json` before the 2025 test season is scored.
+   2025 has now been inspected; from Phase 1.5 on it is a diagnostic holdout, not a clean test.
 6. **Production**: all models refit on every completed game as a new version. Historical
    results stay under `artifacts/runs/<version>/`.
 
@@ -89,7 +108,14 @@ retrospective.
 
 ## Phase 2 interface (not built)
 The upset-discovery work should read, without rebuilding anything:
-- `data/cache/feature_store.parquet`: pregame features + outcome + closing no-vig probability.
+- `data/cache/feature_store.parquet`: pregame features, outcome and closing no-vig probability.
+  It also holds every injury column (`home_/away_inj_*`, `diff_inj_*`, `inj_mx_*`), missing-data
+  indicators (`inj_available`, `*_inj_report_available`, `*_inj_final_published`), injury provenance
+  (`*_inj_report_time`, `*_inj_source`), QB projection fields (`*_qb_projected_id`, flags),
+  `feature_cutoff_utc` and `features_built_at`.
+- `data/cache/feature_catalog.csv`: source, formula and pregame availability for every column.
+- `data/cache/injury_rows_pregame.parquet`: the player-level injury rows that passed the
+  timestamp filter, with `available_at` and `source`, for player-level interaction searches.
 - `artifacts/runs/<version>/oof_predictions.parquet`: walk-forward raw and calibrated
   probabilities for all six models, all ensembles, the baselines, margins, split label and
   training window.
