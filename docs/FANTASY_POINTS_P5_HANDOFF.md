@@ -68,3 +68,7 @@ Cloud reproduction without local files: `tests/test_p5_experiments.py`, `tests/t
 ## Limitations
 Small samples (254 games; WR/TE only for TD). No historical player-prop prices. One pregame board per game and no closing line. The P5-3 frozen criterion is unmet until the public score cache is refreshed.
 Feature definition clarification: `pts6` is the expected total (the two teams' mean points scored and allowed, halved) minus the line, and evaluation offsets use the archive line. The spec wording was ambiguous; ridge models are scale-invariant, only the CH_RAW comparator depends on it.
+
+## Tested commit
+All results above were produced and tested at `204379da6003fd18d2c0848110d414d69f9a175c`: `python -m unittest discover -s tests -p 'test_*.py'` 697 tests OK (5 existing skips), `npm test` 909 of 909 pass, `npm run build` and `node scripts/build_vercel.mjs` exit 0 (`npm ci` and the repository's declared Python requirements only). The commit that adds this section changes this document only.
+Environment notes: the Windows worktree needed LF line endings (CI is Linux) for one workflow-text test; and my earlier local `.git/info/exclude` entries `FantasyPoints/` and `StatApi/` were unanchored and broke the reviewer's case-insensitive StatApi ignore test, so they are now anchored.
