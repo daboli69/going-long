@@ -717,6 +717,7 @@ def page_prospective():
             st.write("**Did fresher information help?** First vs last archived forecast for the same game:")
             st.dataframe(sc.round(4), hide_index=True, use_container_width=True)
     st.caption("A single weekend is far too small for conclusions; the registered rule needs 128+ games and Holm correction.")
+    _market_research()
     if not n:
         st.info("No archived game has finished yet. Results appear automatically after the first tracked games end.")
         return
@@ -764,6 +765,43 @@ def page_prospective():
     if m.get("hypotheses"):
         st.subheader("Frozen upset hypotheses (judged only on games archived after registration)")
         st.dataframe(pd.DataFrame(m["hypotheses"]), hide_index=True, use_container_width=True)
+
+
+def _market_research():
+    """Phase 8.1 research results (pre-registered; docs/PHASE8_1_PREREGISTRATION.md)."""
+    from lab import market81_eval as ME
+    from lab import scoring81
+    r = ME.load()
+    with st.expander("Market research (Phase 8.1): champion vs betting market, hypotheses, drive simulator", expanded=False):
+        st.caption("Timestamp classes: T1 = quote time recorded before kickoff; T2 = opening line, time unrecorded; T3 = closing line, "
+                   "untimestamped. Closing-line comparisons are unequal information (the market knows inactives and late news).")
+        for k, title in (("compare_overall", "Champion vs market on identical games"), ("compare_by_season", "By season (closing line)"),
+                         ("compare_by_band", "By favourite probability (closing line)"), ("compare_agreement", "Who was right (closing line)")):
+            if k in r:
+                st.write(f"**{title}**")
+                st.dataframe(r[k].round(4), hide_index=True, use_container_width=True)
+        s = r.get("summary")
+        if s:
+            st.write("**Pre-registered hypotheses** (Holm across H1-H5):")
+            hy = s["hypotheses"]
+            st.dataframe(pd.DataFrame([
+                {"hypothesis": "H1 disagreement with the opening market predicts champion error", "p": s["primary_p"]["H1"], "p_holm": s["holm"]["H1"]},
+                {"hypothesis": "H2 line movement adds beyond the closing line (expected null)", "p": s["primary_p"]["H2"], "p_holm": s["holm"]["H2"]},
+                {"hypothesis": "H3 stale-input flags explain market-right disagreements", "p": s["primary_p"]["H3"], "p_holm": s["holm"]["H3"]},
+                {"hypothesis": "H4 opening spread beats the champion margin (MAE)", "p": s["primary_p"]["H4"], "p_holm": s["holm"]["H4"]},
+                {"hypothesis": "H5 champion + closing market beats market alone", "p": s["primary_p"]["H5"], "p_holm": s["holm"]["H5"]},
+            ]).round(4), hide_index=True, use_container_width=True)
+            st.caption(f"H5 log loss 2019-22: combination {hy['H5_close']['ll_C']:.4f}, market alone {hy['H5_close']['ll_M_raw']:.4f}, "
+                       f"champion {hy['H5_close']['ll_champion']:.4f}. A combination that beats the champion only by copying the market "
+                       "is not new football information.")
+        if "drive_sim" in r:
+            st.write("**Drive simulator (experimental scoring distributions)**")
+            st.dataframe(r["drive_sim"], hide_index=True, use_container_width=True)
+        ev = scoring81.evaluate()
+        st.write(f"**Prospective drive-simulator archive:** {len(ev)} completed archived games so far.")
+        if len(ev):
+            st.write(f"Margin MAE {ev['margin_abs_err'].mean():.2f}, total MAE {ev['total_abs_err'].mean():.2f}, "
+                     f"80% interval coverage margin {ev['margin_in_80'].mean():.0%}, total {ev['total_in_80'].mean():.0%}.")
 
 
 def page_archive():
@@ -1174,7 +1212,45 @@ def _debate_context(fs, row):
         st.caption("Agreement is not extra confidence: all six models receive the same 85 features and one shared signal explains 91% "
                    "of their variation. Historically, unanimous 50-60% favourites won 51% of games versus 55% for split votes.")
     _lineup_section(g)
+    _market_section(g)
     _specialist_section(g)
+
+
+def _market_section(g):
+    """Phase 8.1: market benchmark next to the official forecast. Market data is never a model input."""
+    from lab import market81 as MK
+    with st.expander("Market benchmark (betting market; not a model input, not an independent football prediction)", expanded=False):
+        arc = MK.espn_archive()
+        rows = []
+        if len(arc):
+            a = arc[(arc["home"] == g["home_team"]) & (arc["away"] == g["away_team"])]
+            if len(a):
+                a = a.sort_values("retrieved_at")
+                last, first = a.iloc[-1], a.iloc[0]
+                def nv(h, aw):
+                    try:
+                        return float(MK.novig(MK.american_to_prob([float(str(h).replace("+", ""))]), MK.american_to_prob([float(str(aw).replace("+", ""))]))[0])
+                    except (TypeError, ValueError):
+                        return None
+                rows.append({"source": f"{last['provider']} via ESPN (opening price)", "retrieved": "opening, time not given by source",
+                             f"P({g['home_team']}) no-vig": nv(last["home_ml_open"], last["away_ml_open"]), "spread (home)": last.get("home_spread_open"),
+                             "total": last.get("over_open")})
+                rows.append({"source": f"{last['provider']} via ESPN (current price)", "retrieved": last["retrieved_at"],
+                             f"P({g['home_team']}) no-vig": nv(last["home_ml_close"], last["away_ml_close"]),
+                             "spread (home)": last.get("spread_current"), "total": last.get("total_current")})
+                st.caption(f"{len(a)} archived ESPN/DraftKings snapshots for this game since {first['retrieved_at']}.")
+        sm = MK.snapshot_markets()
+        sm = sm[sm["game_id"] == g["game_id"]] if len(sm) else sm
+        for r in sm.itertuples(index=False):
+            rows.append({"source": f"nfldata line inside the {r.stage} forecast archive", "retrieved": r.data_refreshed_at,
+                         f"P({g['home_team']}) no-vig": r.p_home_novig, "spread (home)": r.spread_line, "total": None})
+        if rows:
+            st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+        else:
+            st.caption("No timestamped market price archived for this game yet.")
+        st.caption("History (2018-25): the closing market beat the champion (log loss 0.609 vs 0.630), but it knows late news, so "
+                   "that is an unequal comparison. Against the opening line the champion was level (0.628 vs 0.630). Combining the "
+                   "champion with the closing market did not beat the market alone. Details: Prospective Performance -> Market research.")
 
 
 def _specialist_section(g):

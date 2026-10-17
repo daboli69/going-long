@@ -342,6 +342,8 @@ def tick(now=None, progress=print, actions=None, schedule: pd.DataFrame | None =
                       else not res.get("full_failed") if r.action == "full" else not res.get("refresh_failed"))
                 _append(EVENTS, r._asdict() | {"outcome": "done" if ok else "failed", "completed_at": done_at.isoformat(),
                                                "detail": written.get(r.event_id), "recorded_at": done_at.isoformat()})
+            if actions is None:                       # research archives run strictly AFTER official forecasts are saved
+                log["research"] = _post_forecast_research(due, written)
     except Exception:
         log["errors"].append(traceback.format_exc()[-1500:])
     finally:
@@ -349,6 +351,25 @@ def tick(now=None, progress=print, actions=None, schedule: pd.DataFrame | None =
         _append(TICKS, log)
         release_lock()
     return log
+
+
+def _post_forecast_research(due: pd.DataFrame, written: dict) -> dict:
+    """Phase 8.1: market odds archive + experimental drive-simulator distributions. Never raises, never affects
+    official snapshots (they are already written when this runs)."""
+    out = {}
+    try:
+        from .market81 import archive_espn_odds
+        out["market"] = archive_espn_odds()
+    except Exception as exc:
+        out["market"] = {"ok": False, "reason": repr(exc)[:200]}
+    try:
+        ok = due[(due["action"] == "snapshot") & due["event_id"].map(lambda e: bool((written.get(e) or {}).get("ok")))]
+        if len(ok):
+            from .scoring81 import archive
+            out["drive_sim"] = archive(ok)
+    except Exception as exc:
+        out["drive_sim"] = {"ok": False, "reason": repr(exc)[:200]}
+    return out
 
 
 def _supersede(plan: pd.DataFrame, status: dict, now) -> list[dict]:
