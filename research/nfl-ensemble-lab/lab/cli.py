@@ -29,6 +29,9 @@ def main(argv=None) -> None:
     rs.add_argument("--skip-refresh", action="store_true")
     rs.add_argument("--season", type=int)
     rs.add_argument("--week", type=int)
+    sub.add_parser("errors")
+    sub.add_parser("audit")
+    sub.add_parser("phase7-test")
     a = ap.parse_args(argv)
     if a.cmd == "refresh":
         from .data_pipeline import refresh_data
@@ -54,10 +57,21 @@ def main(argv=None) -> None:
         print(json.dumps(score()["overall"], indent=2))
     elif a.cmd == "readiness":
         from .readiness import run
-        print(json.dumps({k: (v.get("ok") if isinstance(v, dict) else v) for k, v in run().items()}, indent=2))
+        print(json.dumps({k: (v.get("ok") if isinstance(v, dict) else v) for k, v in run().items()}, indent=2, default=str))
     elif a.cmd == "research":
         from .research import run_research
         print(json.dumps(run_research(refresh=not a.skip_refresh, season=a.season, week=a.week), indent=2, default=str))
+    elif a.cmd == "errors":
+        from .errors import build
+        r = build()
+        print(json.dumps({"effective_models": r["effective_models"], "all_six_wrong_share": r["all_six_wrong_share"]}, indent=2))
+    elif a.cmd == "audit":
+        from .audit7 import run
+        for c in run()["checks"]:
+            print(("OK   " if c["ok"] else "FAIL ") + c["check"] + " | " + c["detail"])
+    elif a.cmd == "phase7-test":
+        from .study7 import run
+        print(run()["results"].to_string())
 
 
 if __name__ == "__main__":

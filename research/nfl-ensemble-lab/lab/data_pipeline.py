@@ -96,6 +96,9 @@ def refresh_data(force: bool = False, progress=print) -> dict:
     progress("  player model (RAPM per week, lineups, replacements, continuity, FTN) ...")
     p5 = players.build_team_player_features(games, valid, inj, seasons, progress=progress)
     churn = churn.merge(p5, on=["game_id", "team"], how="outer")
+    progress("  snap-based player model (Phase 7 substitute for missing 2026 participation) ...")
+    from . import snap_model
+    churn = churn.merge(snap_model.build_features(games, tstats, valid, inj, seasons, progress=progress), on=["game_id", "team"], how="outer")
     fs = features.build_feature_store(games, tstats.drop(columns=["season"]), qstats.drop(columns=["season"]),
                                       inj, availability.report_status_lookup(valid), churn, advanced=True)
     fs.to_parquet(FEATURE_STORE, index=False)
@@ -135,6 +138,9 @@ def assemble_from_cache(games: pd.DataFrame, tstats: pd.DataFrame, qstats: pd.Da
     extra = availability.ol_churn(seasons, games).merge(
         players.build_team_player_features(games, valid, inj, seasons, progress=lambda m: None, plays_transform=plays_transform),
         on=["game_id", "team"], how="outer")
+    from . import snap_model
+    extra = extra.merge(snap_model.build_features(games, tstats, valid, inj, seasons, progress=lambda m: None),
+                        on=["game_id", "team"], how="outer")
     return features.build_feature_store(games, t, q, inj, availability.report_status_lookup(valid),
                                         extra, advanced=True, advanced_transform=advanced_transform)
 

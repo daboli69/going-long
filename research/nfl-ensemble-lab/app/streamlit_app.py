@@ -26,7 +26,7 @@ st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide
 
 PAGES = ["Home", "Live Readiness & Schedule", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
          "Weekly Predictions", "Prospective Performance", "Prediction Archive", "Data Freshness", "Baseline Research",
-         "Long-Run Research", "Advanced Football Intelligence", "Player Intelligence",
+         "Long-Run Research", "Advanced Football Intelligence", "Player Intelligence", "Data Coverage & Gaps",
          "Upset Discovery", "Upset Explorer", "Research Validation", "Research Runs", "Reports"]
 PCT = st.column_config.ProgressColumn
 
@@ -308,6 +308,7 @@ def page_debate():
     if row["completed"]:
         st.info(f"Final: {row['away_team']} {int(row['away_score'])} @ {row['home_team']} {int(row['home_score'])}. "
                 "Models were trained on data that includes this game; check the leaderboard for genuine out-of-sample results.")
+    _debate_context(fs, row)
     t1, t2, t3, t4, t5, t6 = st.tabs(["1 · Independent forecasts", "2 · Statistical arguments", "3 · Disagreements", "4 · Vote",
                                       "5 · Consensus", "6 · Players, matchups & uncertainty"])
     t7 = st.expander("7 · Timeline: how the forecast and football information changed across archived snapshots", expanded=False)
@@ -1083,6 +1084,124 @@ def page_afi():
         st.subheader("Out-of-sample permutation importance of new features (2023, models trained on earlier seasons)")
         st.dataframe(fi[fi["feature"].str.contains("p4|p3_")].sort_values("importance", ascending=False).head(25),
                      hide_index=True, use_container_width=True)
+    _phase7_panel()
+
+
+def _debate_context(fs, row):
+    """Phase 7: what the models assume about each QB, how sources agree, and known data gaps for this game."""
+    from lab import live
+    g = fs[fs["game_id"] == row["game_id"]]
+    if g.empty:
+        return
+    g = g.iloc[0]
+    names = availability.player_names()
+    with st.expander("Data behind this debate: quarterbacks, sources and gaps (Phase 7)", expanded=True):
+        qb1, _ = availability.depth_chart_qb1(int(g["season"]))
+        espn, _ = live.espn_full()
+        off = live.official_qb_status(int(g["season"]))
+        for side in ("away", "home"):
+            lab_, note = live._qb_certainty(g, side, qb1, espn, names, off)
+            v1 = names.get(g.get(f"{side}_qb_projected_id"), "unknown")
+            v2 = names.get(g.get(f"{side}_qb7_projected_id"), "unknown")
+            st.write(f"**{g[f'{side}_team']}**: champion models assume **{v1}**" + (f"; QB projection v2 assumes **{v2}**" if v2 != v1 else "")
+                     + f". Source check: *{lab_}*. {note}")
+        gaps = []
+        if not all(g.get(f"{s_}_inj_report_available", 0) == 1 for s_ in ("home", "away")):
+            gaps.append("no verified pregame injury report for at least one team (injury features treated as unknown)")
+        if g.get("home_p5_model_staleness_days", 0) > 14:
+            gaps.append(f"Phase 5 player model is {int(g['home_p5_model_staleness_days'])} days stale (no 2026 participation data); "
+                        "the Phase 7 snap model is current but is an approximation")
+        st.caption("Known gaps: " + ("; ".join(gaps) if gaps else "none detected") +
+                   ". The six models make highly correlated errors (residual correlation 0.97+), so their agreement is not independent confirmation.")
+
+
+def _phase7_panel():
+    from lab import audit7, errors, extra_sources as X, study7
+    st.header("Phase 7: 2026 data, QB intelligence and error analysis")
+    st.caption("Monitoring sources never enter models. Historical results below are descriptive unless marked as the pre-declared test.")
+    t = st.tabs(["QB sources", "QB projection v2", "Snap model & challenger test", "Error analysis", "Weekend audit"])
+    with t[0]:
+        from lab.data_pipeline import current_season
+        fs = feature_store()
+        wk = int(fs[(fs["season"] == current_season()) & (~fs["completed"])]["week"].min()) if fs is not None else 1
+        q = X.qb_sources(current_season(), wk)
+        st.caption(f"Week {wk}: every QB signal with its retrieval time. 'Agreement' between sources is descriptive, not confirmation.")
+        st.dataframe(q, hide_index=True, use_container_width=True)
+    with t[1]:
+        st.write("v2 adds a **returning starter** rule: the team's primary starter (most dropbacks over its last 8 games) is projected back "
+                 "when he missed the previous game but this game's verified report lists him with a status other than Out/Doubtful. "
+                 "Requiring him to be on the report matters: 'not on the report' was right only ~28% of the time (benched, IR, traded).")
+        e = errors.load()
+        if "qb_agreement" in e:
+            st.dataframe(e["qb_agreement"].round(3), hide_index=True, use_container_width=True)
+            st.caption("Share of games where both projected starters actually started (post-hoc diagnostic, never a model input).")
+    with t[2]:
+        st.write("The snap model rates players from verified PFR snap shares and team-game EPA per play: a labelled substitute for "
+                 "the play participation file nflverse has not published for 2026. It sees who played how much in each game, not who "
+                 "was on the field for each play.")
+        r = study7.load()
+        if r:
+            st.write("**Pre-declared development test** (champion hyperparameters, no tuning, equal-weight six-model ensemble; "
+                     "rule: improve 2019-21 and hold on 2022):")
+            st.dataframe(r["results"].round(4), hide_index=True, use_container_width=True)
+            if "by_family" in r:
+                st.dataframe(r["by_family"].round(4), hide_index=True, use_container_width=True)
+            st.info("The combined candidate was registered as a frozen shadow challenger (v20261017_142546_p7_qb_snap). Gains of "
+                    "0.0014-0.0039 are small; only 128+ prospective games can show whether they are real. Nothing is promoted.")
+    with t[3]:
+        e = errors.load()
+        if not e:
+            st.caption("Run `python -m lab.cli errors` to build the error analysis.")
+        else:
+            st.write(f"Effective independent models: **{e['effective_models']:.2f} of 6**. All six models were wrong together in "
+                     f"{e['all_six_wrong_share']:.0%} of games (ensemble wrong {e['ensemble_wrong_share']:.0%}).")
+            st.dataframe(e["residual_correlation"], use_container_width=True)
+            b = e["buckets"]
+            f_ = st.selectbox("Factor", b["factor"].unique().tolist(), key="p7err")
+            st.dataframe(b[b["factor"] == f_].drop(columns=["factor"]).round(4), hide_index=True, use_container_width=True)
+            st.caption("Descriptive only. Validation seasons 2023-24 were inspected before, so nothing here was used to choose anything.")
+            st.subheader("Over/under-confidence")
+            st.dataframe(e["calibration"].round(3), hide_index=True, use_container_width=True)
+            with st.expander("Worst misses (all six models wrong)"):
+                st.dataframe(e["worst_misses"].round(3), hide_index=True, use_container_width=True)
+    with t[4]:
+        a = audit7.load()
+        if st.button("Re-run weekend audit"):
+            a = audit7.run()
+        if a:
+            st.caption(f"Audited {a['audited_at']} (completed scheduler work only; unplayed games are never evaluated).")
+            st.dataframe(pd.DataFrame(a["checks"]), hide_index=True, use_container_width=True)
+
+
+def page_coverage():
+    from lab import extra_sources as X, inventory, live
+    st.title("Data Coverage & Gaps")
+    st.caption("What the lab has, what it uses each source for, and what is missing. Monitoring sources never enter models.")
+    st.subheader("Sources")
+    inv = inventory.build()
+    st.dataframe(inv, hide_index=True, use_container_width=True,
+                 column_config={"role": st.column_config.TextColumn(help="model = historically valid pregame input; model* = incomplete for "
+                                                                         "2026; monitoring = shown only")})
+    st.subheader("Not available for free (checked)")
+    st.dataframe(inventory.unavailable(), hide_index=True, use_container_width=True)
+    st.subheader("Source health (Phase 7 sources)")
+    h = X.source_health()
+    if len(h):
+        st.dataframe(h, hide_index=True, use_container_width=True)
+    else:
+        st.caption("No checks logged yet (they run with every light refresh).")
+    st.dataframe(live.source_freshness(), hide_index=True, use_container_width=True)
+    st.subheader("Per-game gaps (upcoming games)")
+    fs = feature_store()
+    need(fs is not None, "Download data first.")
+    from lab.data_pipeline import current_season
+    up = fs[(fs["season"] == current_season()) & (~fs["completed"])]
+    wk = st.selectbox("Week", sorted(up["week"].unique().tolist()), key="covwk") if len(up) else None
+    if wk is not None:
+        r = live.game_readiness(up[up["week"] == wk])
+        st.dataframe(r, hide_index=True, use_container_width=True)
+        st.caption("QB labels: consistent = projection agrees with the official report and listings (never a confirmation); "
+                   "uncertain = a source disagrees; changed = official report lists the usual starter Out/Doubtful.")
 
 
 def page_players():
@@ -1185,10 +1304,15 @@ def page_live():
         st.subheader("Scheduler runs")
         th = th.assign(errors=th["errors"].map(lambda e: "; ".join(e) if isinstance(e, list) else e))
         st.dataframe(th.iloc[::-1].head(60), hide_index=True, use_container_width=True)
+    from lab import extra_sources as X
+    h = X.source_health()
+    if len(h):
+        st.subheader("Phase 7 source health (NFL.com report, weekly rosters, Sleeper)")
+        st.dataframe(h, hide_index=True, use_container_width=True)
     ch = live.changes()
     if len(ch):
         st.subheader("Detected changes (official report, ESPN statuses, depth-chart QB1)")
-        st.dataframe(ch.head(100), hide_index=True, use_container_width=True)
+        st.dataframe(ch.head(100).astype(str), hide_index=True, use_container_width=True)
 
 
 def page_reports():
@@ -1223,7 +1347,7 @@ try:
      "Model Debate": page_debate, "Weekly Predictions": page_weekly, "Prospective Performance": page_prospective,
      "Prediction Archive": page_archive, "Data Freshness": page_freshness, "Baseline Research": page_baseline_research,
      "Long-Run Research": page_longrun, "Advanced Football Intelligence": page_afi, "Player Intelligence": page_players,
-     "Upset Discovery": page_discovery,
+     "Data Coverage & Gaps": page_coverage, "Upset Discovery": page_discovery,
      "Upset Explorer": page_explorer, "Research Validation": page_validation, "Research Runs": page_runs,
      "Reports": page_reports}[page]()
 except FileNotFoundError as exc:

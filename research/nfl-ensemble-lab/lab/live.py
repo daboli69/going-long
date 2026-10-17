@@ -207,6 +207,12 @@ def espn_full() -> tuple[pd.DataFrame, str | None]:
 
 # --------------------------------------------------------------------------- refresh (light)
 
+def _ok(h: dict) -> dict:
+    if not h.get("ok"):
+        raise RuntimeError(h.get("error") or "failed")
+    return h
+
+
 def refresh_live(progress=print) -> dict:
     """Live sources only (seconds, small downloads). Each source fails independently and keeps
     its last valid copy; failures are reported, never silently treated as 'no news'."""
@@ -215,12 +221,16 @@ def refresh_live(progress=print) -> dict:
     out = {"at": _now().isoformat(timespec="seconds"), "ok": [], "failed": {}}
     season = current_season()
     from . import availability
+    from . import extra_sources as X
     for name, fn in (("schedule (nfldata games.csv)", lambda: sources.download("nfldata_games", sources.GAMES_URL, sources.RAW_DIR / "games.csv",
                                                                                max_age_hours=0.33, validate=sources._validate_games_csv,
                                                                                progress=lambda m: None)),
                      ("espn_scoreboard", lambda: fetch_scoreboard()),
                      ("espn_transactions", lambda: fetch_transactions()),
-                     ("official_injuries+depth+espn_injuries", lambda: availability.refresh_sources([season], season, progress=lambda m: None, live_only=True))):
+                     ("official_injuries+depth+espn_injuries", lambda: availability.refresh_sources([season], season, progress=lambda m: None, live_only=True)),
+                     ("nflcom_injury_report", lambda: _ok(X.fetch_nflcom())),
+                     ("nflverse_weekly_rosters", lambda: _ok(X.fetch_weekly_rosters(season))),
+                     ("sleeper_players (monitoring)", lambda: _ok(X.fetch_sleeper()))):
         try:
             r = fn()
             if isinstance(r, dict) and r.get("errors"):
@@ -261,9 +271,22 @@ def source_freshness() -> pd.DataFrame:
     tx = _read(TRANSACTIONS)
     last_tx = max((r["retrieved_at"] for r in tx), default=None)
     rows.append({"source": "ESPN transactions", "last_success": last_tx, "age_hours": age(last_tx)})
+    from . import extra_sources as X
+    _, nf_t = X.nflcom_latest()
+    h = X.source_health().set_index("source") if X.HEALTH.exists() else pd.DataFrame()
+    # NFL.com archives only on content change, so the last successful check is the freshness signal
+    nf_ok = h.loc["NFL.com injury report", "last_ok"] if "NFL.com injury report" in h.index else nf_t
+    rows.append({"source": "NFL.com official injury report", "last_success": None if pd.isna(nf_ok) else pd.Timestamp(nf_ok).isoformat(),
+                 "age_hours": None if pd.isna(nf_ok) else age(nf_ok)})
+    ts = man.get(f"nflverse_roster_weekly_{season}", {}).get("downloaded_at")
+    rows.append({"source": "weekly rosters (nflverse)", "last_success": ts, "age_hours": age(ts)})
+    _, sl_t = X.sleeper_latest()
+    rows.append({"source": "Sleeper players (monitoring, daily)", "last_success": sl_t.isoformat() if sl_t is not None else None,
+                 "age_hours": age(sl_t) if sl_t is not None else None, "limit_hours": 30})
     df = pd.DataFrame(rows)
-    df["state"] = np.where(df["age_hours"].isna(), "unavailable", np.where(df["age_hours"] > 12, "stale", "fresh"))
-    return df
+    lim = df["limit_hours"].fillna(12) if "limit_hours" in df else 12
+    df["state"] = np.where(df["age_hours"].isna(), "unavailable", np.where(df["age_hours"] > lim, "stale", "fresh"))
+    return df.drop(columns=["limit_hours"], errors="ignore")
 
 
 # --------------------------------------------------------------------------- readiness
@@ -279,7 +302,29 @@ def last_live_refresh() -> dict:
     return json.loads(LIVE_STATUS.read_text(encoding="utf-8")) if LIVE_STATUS.exists() else {}
 
 
-def _qb_certainty(row: pd.Series, side: str, qb1: dict, espn: pd.DataFrame, names: dict) -> tuple[str, str]:
+def official_qb_status(season: int) -> dict:
+    """(team, player name) -> latest official pregame game status (nflverse/NFL.com rows, newest week)."""
+    try:
+        from .availability import load_injury_rows
+        r = load_injury_rows([season])
+    except Exception:
+        return {}
+    if not len(r):
+        return {}
+    wk = int(r["week"].max())
+    r = r[r["week"] == wk].sort_values("available_at")
+    out = {(t, n): s for t, n, s in zip(r["team"], r["full_name"], r["report_status"]) if isinstance(s, str)}
+    out["_week"] = wk                        # a report covers only its own week's games
+    return out
+
+
+def _qb_certainty(row: pd.Series, side: str, qb1: dict, espn: pd.DataFrame, names: dict,
+                  official: dict | None = None) -> tuple[str, str]:
+    """An alternative QB named by a static source (depth chart, nfldata listing) does NOT create a conflict
+    when the official report lists him Out/Doubtful: the projection already accounts for that."""
+    official = official or {}
+    if official.get("_week") != row.get("week"):
+        official = {}
     proj = names.get(row.get(f"{side}_qb_projected_id"), row.get(f"{side}_qb_projected_id"))
     team = row[f"{side}_team"]
     if not isinstance(proj, str):
@@ -292,13 +337,22 @@ def _qb_certainty(row: pd.Series, side: str, qb1: dict, espn: pd.DataFrame, name
     st = espn[(espn["team"] == team) & (espn["player"] == proj)]["status"].tolist() if len(espn) else []
     if st and st[0] not in ("Active",):
         notes.append(f"ESPN lists {proj} as {st[0]}")
-    dc = qb1.get(team, (None,))[0]
-    if dc and dc != proj:
-        notes.append(f"ESPN depth chart QB1 is {dc}")
-    listed = row.get(f"{side}_qb_name")
-    if isinstance(listed, str) and listed != proj:
-        notes.append(f"nfldata lists {listed}")
-    return ("uncertain", "; ".join(notes)) if notes else ("consistent", f"{proj}: projection, depth chart and listings agree (not a confirmation)")
+    v2 = names.get(row.get(f"{side}_qb7_projected_id"), row.get(f"{side}_qb7_projected_id"))
+    if isinstance(v2, str) and v2 != proj:
+        notes.append(f"QB projection v2 (Phase 7) expects {v2} to return" if row.get(f"{side}_qb7_returning", 0) == 1
+                     else f"QB projection v2 (Phase 7) projects {v2}")
+    explained = []
+    for src, alt_ in (("ESPN depth chart QB1", qb1.get(team, (None,))[0]), ("nfldata listing", row.get(f"{side}_qb_name"))):
+        if not isinstance(alt_, str) or alt_ == proj:
+            continue
+        if official.get((team, alt_)) in ("Out", "Doubtful"):
+            explained.append(f"{src} names {alt_}, but the official report lists him {official[(team, alt_)]}")
+        else:
+            notes.append(f"{src} is {alt_}")
+    if notes:
+        return "uncertain", "; ".join(notes + explained)
+    tail = f" ({'; '.join(explained)})" if explained else ""
+    return "consistent", f"{proj}: projection agrees with the official report and listings (not a confirmation){tail}"
 
 
 def game_readiness(games: pd.DataFrame, now=None) -> pd.DataFrame:
@@ -315,6 +369,7 @@ def game_readiness(games: pd.DataFrame, now=None) -> pd.DataFrame:
     ina = espn_inactives(espn)
     qb1, _ = depth_chart_qb1(current_season())
     names = player_names()
+    official = official_qb_status(current_season())
     snaps_latest = {}
     try:
         from .players import snap_shares
@@ -339,7 +394,7 @@ def game_readiness(games: pd.DataFrame, now=None) -> pd.DataFrame:
         r["injury_report"] = "complete (final designations, both teams)" if both else ("incomplete (one team / practice only)" if one
                                                                                       else "incomplete (no final designations yet)")
         for side in ("home", "away"):
-            lab_, note = _qb_certainty(g, side, qb1, espn, names)
+            lab_, note = _qb_certainty(g, side, qb1, espn, names, official)
             r[f"{side}_qb"] = f"{lab_}: {note}"
             t = g[f"{side}_team"]
             latest_snap, latest_game = snaps_latest.get(t), last_played.get(t)

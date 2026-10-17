@@ -34,6 +34,22 @@ if this lab saved them *before* kickoff. Double-click **`refresh_data.bat`** (or
 daily in Windows Task Scheduler) so each week's Friday/Saturday report gets archived in
 `data/raw/archive/`. Never delete that folder; it cannot be re-downloaded with timestamps.
 
+## Phase 7: 2026 data and QB intelligence
+
+- **New page, Data Coverage & Gaps:** every source, what it is used for, what is missing, source health,
+  and per-game gaps.
+- **New live sources (monitoring only):**
+  - the NFL.com official injury report
+  - nflverse weekly rosters
+  - Sleeper (QB depth and status)
+
+  All three refresh automatically with the light refresh.
+- **QB labels:** a QB listed Out on the official report no longer shows as a conflict. The Baltimore case
+  was the official report being right.
+- **New shadow challenger:** a snap-based player model (current for 2026) plus a "returning starter" QB
+  rule, registered as `v20261017_142546_p7_qb_snap`. The champion is unchanged.
+- **Details:** `docs/PHASE7_DATA_QB.md`.
+
 ## Live schedule (Phase 6): what runs automatically
 
 One Windows task, **"NFL Ensemble Lab - Data Refresh"**, runs a small scheduler every 5 minutes in the

@@ -239,6 +239,86 @@ def project_starters(games: pd.DataFrame, qb_games: pd.DataFrame, status: dict |
     return t
 
 
+PRIMARY_WINDOW = 8   # team games used to identify the team's primary starter
+
+
+def project_starters_v2(games: pd.DataFrame, qb_games: pd.DataFrame, status: dict | None = None,
+                        covered: set | None = None) -> pd.DataFrame:
+    """Phase 7 projection (pregame information only), adds the 'returning starter' case:
+      1. P = previous game's starter; S = the team's primary starter (most dropbacks over its
+         last 8 completed games).
+      2. If S != P, S already played for this team THIS season, and this game's verified pregame
+         report LISTS S with a status other than Out/Doubtful -> project S (returning starter).
+         Requiring S on the report matters: benched/IR/traded starters are absent from reports, and
+         'absent = available' was right only ~28% of the time on 2016-22 (listed: ~63%).
+      3. If the projected QB is listed Out/Doubtful -> the team's other QB with the most recent
+         dropbacks (this and last season), else an unknown replacement.
+    Without a verified report the returning case is not applied (cannot verify availability)."""
+    status, covered = status or {}, covered or set()
+    kick = games.set_index("game_id")["kickoff_utc"]
+    q = qb_games.assign(kickoff_utc=qb_games["game_id"].map(kick)).dropna(subset=["kickoff_utc"])
+    q["season"] = q["game_id"].str[:4].astype(int)
+    tg = (q.groupby(["team", "game_id", "kickoff_utc", "season"]).apply(
+        lambda d: (d.sort_values("qb_dropbacks").iloc[-1]["qb_id"], dict(zip(d["qb_id"], d["qb_dropbacks"]))), include_groups=False)
+        .reset_index(name="info").sort_values("kickoff_utc"))
+    by_team = {t: d.reset_index(drop=True) for t, d in tg.groupby("team")}
+    rows = []
+    for g in games.itertuples(index=False):
+        for team in (g.home_team, g.away_team):
+            d = by_team.get(team)
+            r = {"game_id": g.game_id, "team": team, "qb7_projected_id": None, "qb7_returning": 0, "qb7_projected_out": 0,
+                 "qb7_questionable": 0, "qb7_offseason": 0}
+            if d is None:
+                rows.append(r)
+                continue
+            prior = d[d["kickoff_utc"] < g.kickoff_utc]
+            if prior.empty:
+                rows.append(r)
+                continue
+            last = prior.iloc[-1]
+            P = last["info"][0]
+            r["qb7_offseason"] = int(last["season"] != g.season)
+            window = prior.iloc[-PRIMARY_WINDOW:]
+            tot = {}
+            for _, x in window.iterrows():
+                for qb, db in x["info"][1].items():
+                    tot[qb] = tot.get(qb, 0) + db
+            S = max(tot, key=tot.get) if tot else P
+            this_season = set().union(*[set(x[1]) for x in prior[prior["season"] == g.season]["info"]]) if (prior["season"] == g.season).any() else set()
+            proj = P
+            verified = (g.game_id, team) in covered
+            if S != P and S in this_season and verified and (g.game_id, team, S) in status and status[(g.game_id, team, S)] not in ("Out", "Doubtful"):
+                proj, r["qb7_returning"] = S, 1
+            st = status.get((g.game_id, team, proj))
+            if st in ("Out", "Doubtful"):
+                r["qb7_projected_out"] = 1
+                recent = prior[prior["season"] >= g.season - 1]
+                pool = {}
+                for _, x in recent.iterrows():
+                    for qb, db in x["info"][1].items():
+                        if qb != proj and status.get((g.game_id, team, qb)) not in ("Out", "Doubtful"):
+                            pool[qb] = pool.get(qb, 0) + db
+                proj = max(pool, key=pool.get) if pool else None
+            elif st == "Questionable":
+                r["qb7_questionable"] = 1
+            r["qb7_projected_id"] = proj
+            rows.append(r)
+    return pd.DataFrame(rows)
+
+
+def qb_pregame_v2(games, qb_games, status=None, covered=None) -> pd.DataFrame:
+    kick = games.set_index("game_id")["kickoff_utc"]
+    st = _qb_states(qb_games.assign(kickoff_utc=qb_games["game_id"].map(kick)).dropna(subset=["kickoff_utc"]))
+    t = project_starters_v2(games, qb_games, status, covered).merge(games[["game_id", "kickoff_utc"]], on="game_id")
+    known = t[t["qb7_projected_id"].notna()].rename(columns={"qb7_projected_id": "qb_id"})
+    m = _asof(known, st, "qb_id", ["qb_eff", "qb_career_db"]) if len(known) else known.assign(qb_eff=np.nan, qb_career_db=np.nan)
+    t = t.merge(m[["game_id", "team", "qb_eff", "qb_career_db"]].rename(columns={"qb_eff": "qb7_eff", "qb_career_db": "_db"}),
+                on=["game_id", "team"], how="left")
+    t["qb7_eff"] = t["qb7_eff"].fillna(QB_PRIOR_MEAN)
+    t["qb7_log_exp"] = np.log1p(t["_db"].fillna(0))
+    return t.drop(columns=["_db", "kickoff_utc"])
+
+
 def qb_pregame(games: pd.DataFrame, qb_games: pd.DataFrame, status: dict | None = None) -> pd.DataFrame:
     """Projected starter's trailing efficiency plus QB-uncertainty flags."""
     kick = games.set_index("game_id")["kickoff_utc"]
@@ -309,6 +389,10 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
                 .merge(qb, on=["game_id", "team"], how="left"))
     if injuries is not None:
         per_team = per_team.merge(injuries, on=["game_id", "team"], how="left")
+        covered = set(zip(injuries.loc[injuries["inj_report_available"] == 1, "game_id"],
+                          injuries.loc[injuries["inj_report_available"] == 1, "team"]))
+        if "team" in qb_games.columns:
+            per_team = per_team.merge(qb_pregame_v2(games, qb_games, qb_status, covered), on=["game_id", "team"], how="left")
     if {"stadium_id", "home_coach"} <= set(games.columns):
         per_team = per_team.merge(travel_coach_context(games), on=["game_id", "team"], how="left")
     if extra_team is not None:
@@ -342,6 +426,9 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
             new[f"diff_{w}_{c}"] = fs[f"home_{w}_{c}"] - fs[f"away_{w}_{c}"]
     for c in ("rating_margin", "rating_epa", "qb_eff", "qb_log_exp"):
         new[f"diff_{c}"] = fs[f"home_{c}"] - fs[f"away_{c}"]
+    for c in ("qb7_eff", "qb7_log_exp"):
+        if f"home_{c}" in fs:
+            new[f"diff_{c}"] = fs[f"home_{c}"] - fs[f"away_{c}"]
     # Phase 3 context (present only when the inputs exist)
     for c in ("rating_off_epa", "rating_def_epa", "travel_km", "tz_shift", "body_clock_hour", "coach_log_tenure",
               "coach_new_this_season", "coach_changed_midseason", "ol_churn_l4"):
@@ -351,7 +438,7 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
         new["p3_mx_home_off_vs_away_def"] = fs["home_rating_off_epa"] + fs["away_rating_def_epa"]
         new["p3_mx_away_off_vs_home_def"] = fs["away_rating_off_epa"] + fs["home_rating_def_epa"]
     # Phase 4 advanced groups: home-minus-away for every windowed team feature, plus matchups
-    for c in [c[5:] for c in fs.columns if c.startswith(("home_p4", "home_p5"))]:
+    for c in [c[5:] for c in fs.columns if c.startswith(("home_p4", "home_p5", "home_p7s"))]:
         new[f"diff_{c}"] = fs[f"home_{c}"] - fs[f"away_{c}"]
     # Phase 5 player-model matchups (offense values: EPA added; defense values: EPA allowed)
     if "home_p5_off_proj" in fs:
@@ -363,6 +450,10 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
             new[f"p5mx_{side}_pass_game"] = fs[f"{side}_p5_unit_QB"] + fs[f"{side}_p5_unit_SKILL"] + fs[f"{opp}_p5_unit_DB"] + fs[f"{opp}_p5_unit_LB"]
         new["p5mx_net_trenches"] = new["p5mx_home_trenches"] - new["p5mx_away_trenches"]
         new["p5mx_net_pass_game"] = new["p5mx_home_pass_game"] - new["p5mx_away_pass_game"]
+    if "home_p7s_off_proj" in fs:          # Phase 7 snap model: expected EPA/play for each offense
+        h7 = fs["home_p7s_off_proj"] + fs["away_p7s_def_proj"]
+        a7 = fs["away_p7s_off_proj"] + fs["home_p7s_def_proj"]
+        new["p7smx_net_expected_epa"] = h7 - a7
     pairs = {"pressure": ("p4pfr_blend_pfr_pressured_rate", "p4pfr_blend_def_pfr_def_pressure_rate"),
              "run_block": ("p4pfr_blend_pfr_ybc_per_carry", "p4pfr_blend_def_pfr_ybc_allowed"),
              "separation": ("p4ngs_blend_ngs_separation", "p4ngs_blend_def_ngs_separation_allowed")}
@@ -423,6 +514,10 @@ def feature_groups(columns) -> dict[str, list[str]]:
         INJURY_GROUP: [c for c in cols if c.startswith(("diff_inj_", "inj_mx_")) or c == "inj_available"],
         PHASE3_GROUP: [c for c in cols if c.startswith("p3_")],
         **{name: [c for c in cols if c.startswith(pfx)] for name, pfx in P4_GROUPS.items()},
+        P7_SNAP: [c for c in cols if c == "p7smx_net_expected_epa" or
+                  (c.startswith("diff_p7s_") and not c.endswith("staleness_days"))],
+        P7_QB: [c for c in cols if c in ("diff_qb7_eff", "diff_qb7_log_exp") or
+                (c.startswith(("home_qb7_", "away_qb7_")) and c.split("_", 2)[2] in ("returning", "projected_out", "questionable", "offseason"))],
         P5_PLAYER: [c for c in cols if (c.startswith("diff_p5_") and any(k in c for k in ("_full", "_proj", "_loss", "unit_")))
                     or c.startswith("p5mx_net")],
         P5_CONTINUITY: [c for c in cols if c.startswith("diff_p5_") and any(k in c for k in ("coplays", "_info", "_lowexp"))],
@@ -430,6 +525,9 @@ def feature_groups(columns) -> dict[str, list[str]]:
     }
 
 
+P7_QB = "Phase 7: QB projection v2 (returning starters)"
+P7_SNAP = "Phase 7: snap-based player model (2026-capable substitute)"
+P7_GROUPS = (P7_QB, P7_SNAP)
 P5_PLAYER = "Phase 5: player model (lineup value, injuries & replacements, unit strength)"
 P5_CONTINUITY = "Phase 5: lineup continuity, chemistry & player-information uncertainty"
 P5_FTN = "Phase 5: FTN scheme tendencies (2022+)"
