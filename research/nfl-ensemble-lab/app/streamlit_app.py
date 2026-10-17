@@ -62,6 +62,12 @@ def feature_store():
     return cached_fs(dp.FEATURE_STORE.stat().st_mtime)
 
 
+@st.cache_data(show_spinner=False, ttl=300)
+def scheduler_code_version() -> str:
+    from lab import release
+    return release.summary_line()
+
+
 @st.cache_resource(show_spinner=False)
 def cached_bundle(version):
     return training.load_bundle(version)
@@ -1168,6 +1174,48 @@ def _debate_context(fs, row):
         st.caption("Agreement is not extra confidence: all six models receive the same 85 features and one shared signal explains 91% "
                    "of their variation. Historically, unanimous 50-60% favourites won 51% of games versus 55% for split votes.")
     _lineup_section(g)
+    _specialist_section(g)
+
+
+def _specialist_section(g):
+    """Phase 8 (experimental): independent specialists. Never an official or tracked forecast."""
+    from lab.specialists import core as SC
+    from lab.specialists import evaluate as SE
+    oof = SC.OUT / "specialist_oof.parquet"
+    if not oof.exists():
+        return
+    sp = pd.read_parquet(oof)
+    sp = sp[sp["game_id"] == g["game_id"]]
+    if sp.empty:
+        return
+    res = SE.load_results()
+    stand = res.get("standalone", pd.DataFrame())
+    dev = stand[stand["window"].str.startswith("development")].set_index("model") if len(stand) else pd.DataFrame()
+    with st.expander("Specialist debate (experimental research; not an official or tracked forecast)", expanded=False):
+        st.caption("Six independent specialists, each limited to one kind of football information and fitted only on earlier "
+                   "seasons. In the pre-registered development test none added reliable information beyond the champion, "
+                   "so they are shown for discussion only. Signals are statistical associations, not reasons a team will win.")
+        champ = float(g.get("p_champion", np.nan)) if "p_champion" in g else np.nan
+        rows = []
+        names = {s_.key: s_ for s_ in SC.SPECIALISTS}
+        for r in sp.itertuples(index=False):
+            spec = names[r.specialist]
+            d = dev.loc[r.specialist] if r.specialist in dev.index else None
+            rows.append({"specialist": f"{r.specialist} · {spec.name}",
+                         f"P({g['home_team']} wins)": None if r.abstained else round(float(r.p_home), 3),
+                         "status": "abstained (inputs missing)" if r.abstained else "available",
+                         "main signals": getattr(r, "signals", "") if not r.abstained else "",
+                         "historical corr. with champion": None if d is None else round(float(d.get("pred_corr_with_champion", np.nan)), 2),
+                         "adds info beyond champion? (dev p)": None if d is None or pd.isna(d.get("incremental_p")) else round(float(d["incremental_p"]), 2)})
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+        e = sp[sp["specialist"] == "E"]
+        if len(e) and pd.notna(e["margin"].iloc[0]):
+            e = e.iloc[0]
+            st.write(f"Drive simulation: expected margin {g['home_team']} {e['margin']:+.1f} (10-90%: {e.get('margin_p10', np.nan):+.0f} to "
+                     f"{e.get('margin_p90', np.nan):+.0f}); expected total {e['total']:.1f} ({e.get('total_p10', np.nan):.0f}-{e.get('total_p90', np.nan):.0f}).")
+        st.caption("'Historical corr.' near 1 means the specialist mostly repeats the champion; near 0 means different information, "
+                   "which was not predictive here. Specialist F needs the champion's out-of-fold probability, which does not exist "
+                   "for upcoming games, so it abstains.")
 
 
 def _lineup_summary(t):
@@ -1425,6 +1473,7 @@ def page_live():
         st.info("No upcoming games in the next 9 days.")
     st.subheader("Source freshness (last successful retrieval; last valid data is kept on failures)")
     st.dataframe(live.source_freshness(), hide_index=True, use_container_width=True)
+    st.info("Scheduler code version: " + scheduler_code_version() + "  (see docs/RELEASES.md)")
     st.subheader("Scheduled events (next 48 hours and last 48 hours)")
     ev = S.upcoming_events(48)
     if len(ev):

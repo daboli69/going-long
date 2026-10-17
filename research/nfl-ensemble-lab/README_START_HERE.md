@@ -112,6 +112,12 @@ inactives (partial) and labels them that way.
 
 `refresh_data.bat` now means "refresh now by hand" (full refresh, then one scheduler run).
 
+**Which code the task runs:** the task should run a pinned, tested release (`releasesun_tick.pyw`),
+not this development checkout, so code edits can never break a live pregame forecast. Use
+`release_lab.bat release <tag>` to ship, `release_lab.bat rollback` to go back, and
+`release_lab.bat status` to see which code runs. The Live Readiness page shows the same thing
+("Scheduler code version"). Full procedure: `docs/RELEASES.md`.
+
 ## Automatic prospective tracking (Phase 3)
 
 The Windows scheduled task **"NFL Ensemble Lab - Data Refresh"** runs `refresh_data.bat` daily at

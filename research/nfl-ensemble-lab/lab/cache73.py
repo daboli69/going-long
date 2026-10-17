@@ -21,7 +21,8 @@ import pandas as pd
 
 from .config import CACHE_DIR
 
-DIR = CACHE_DIR / "phase73"
+# a pinned scheduler release (lab/release.py) gets its own slot so development edits never cold its caches
+DIR = Path(os.environ["NFL_LAB_CACHE73_DIR"]) if os.environ.get("NFL_LAB_CACHE73_DIR") else CACHE_DIR / "phase73"
 LAB_DIR = Path(__file__).resolve().parent
 STATS: dict = {}            # per-process hit/miss accounting for the dashboard and benchmarks
 DISABLED = os.environ.get("NFL_LAB_NO_CACHE") == "1"   # the leakage gate always runs uncached
