@@ -446,7 +446,14 @@ def load_bundle(version: str | None = None) -> dict:
     version = version or current_version()
     if not version:
         raise FileNotFoundError("No trained models yet. Use 'Train All Six Models' first.")
-    return joblib.load(MODELS_DIR / version / "bundle.joblib")
+    p = MODELS_DIR / version / "bundle.joblib"
+    key = (str(p), p.stat().st_mtime_ns, p.stat().st_size)
+    if key not in _BUNDLES:                   # bundles are immutable files; memoise per process (Phase 7.3)
+        _BUNDLES[key] = joblib.load(p)
+    return _BUNDLES[key]
+
+
+_BUNDLES: dict = {}
 
 
 def load_run(version: str | None = None) -> dict:

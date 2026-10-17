@@ -231,6 +231,18 @@ def pfr_team_games(games, seasons, tstats: pd.DataFrame) -> pd.DataFrame:
 
 
 def roster_team_games(games, seasons) -> pd.DataFrame:
+    """Season-cached wrapper (Phase 7.3): season s uses snap counts of s and s-1 and players' rookie seasons."""
+    from .cache73 import by_season, frame_hash
+    from .players import _file_sig
+    pl = pd.read_parquet(RAW_DIR / "players.parquet", columns=["pfr_id", "rookie_season"]).dropna().drop_duplicates("pfr_id")
+
+    def h(s):
+        return "|".join([_file_sig([RAW_DIR / f"snap_counts_{s}.parquet"]), frame_hash(games[games["season"] == s][["game_id", "source_game_id"]])])
+    return by_season("roster_team_games", sorted(int(s) for s in seasons), h,
+                     lambda need: _roster_team_games(games, seasons, set(need)), params=frame_hash(pl))
+
+
+def _roster_team_games(games, seasons, only_seasons=None) -> pd.DataFrame:
     """Per completed team-game, from that game's snap counts: snap-weighted experience of the
     offensive line and defense, group depth, and the share of snaps by players who also
     played for the team the previous season. Used only for LATER games."""
@@ -253,6 +265,8 @@ def roster_team_games(games, seasons) -> pd.DataFrame:
     grp = {"OL": ("T", "G", "C", "OT", "OG", "OL"), "DL": ("DE", "DT", "NT", "DL"), "LB": ("LB", "ILB", "OLB", "MLB"),
            "DB": ("CB", "S", "SS", "FS", "DB"), "WR": ("WR",)}
     rows = []
+    if only_seasons is not None:
+        sn = sn[sn["season"].isin(only_seasons)]
     for (g, t), d in sn.groupby(["game_id", "team"]):
         r = {"game_id": g, "team": t}
         ol = d[d["position"].isin(grp["OL"])]

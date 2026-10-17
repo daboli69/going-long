@@ -95,15 +95,36 @@ def _deterministic(key: str) -> float:
 
 
 def build(games: pd.DataFrame, valid: pd.DataFrame, inj_team: pd.DataFrame, seasons: list, progress=print) -> pd.DataFrame:
-    from .snap_model import SAPM, choose_lambda, team_rows
+    """Season-cached wrapper (Phase 7.3)."""
+    from .cache73 import by_season, frame_hash
     tstats = pd.read_parquet(CACHE_DIR / "team_game_stats.parquet")
     shares = snap_shares(games, seasons)
+    ss = shares["game_id"].str[:4].astype(int)
+    pos = pd.Series(_positions())
+
+    def h(s):
+        ids = shares.loc[ss == s, "gsis_id"].unique()
+        ro = RAW_DIR / f"roster_weekly_{s}.parquet"
+        return "|".join([frame_hash(games[games["season"] == s]), frame_hash(shares[ss == s]),
+                         frame_hash(tstats[tstats["game_id"].str[:4].astype(int) == s]),
+                         frame_hash(valid[valid["season"] == s]) if len(valid) else "none",
+                         frame_hash(inj_team[inj_team["game_id"].str[:4].astype(int) == s]),
+                         frame_hash(pos.reindex(ids).astype(str).to_frame("p").assign(i=ids)),
+                         frame_hash(pd.read_parquet(ro)) if ro.exists() else "noroster"])
+    from .snap_model import fitted
+    fit = fitted(games, tstats, shares, progress=lambda m: None)
+    return by_season("p72_lineups", [s for s in seasons if s >= 2016], h,
+                     lambda need: _build(games, valid, inj_team, seasons, progress, set(need), fit, tstats),
+                     params=f"fits={fit['n_rows']}|{fit['lam']}|{frame_hash(games[['season', 'week', 'kickoff_utc']])}")
+
+
+def _build(games: pd.DataFrame, valid: pd.DataFrame, inj_team: pd.DataFrame, seasons: list, progress=print,
+           only_seasons=None, fit=None, tstats=None) -> pd.DataFrame:
+    from .cache73 import frame_hash, memo
+    shares = snap_shares(games, seasons)
     played = shares.assign(played=(shares["offense_pct"].fillna(0) + shares["defense_pct"].fillna(0)) > 0)
-    rows_ = team_rows(games[games["season"] >= 2016], tstats, shares)
-    lam, _ = choose_lambda(rows_, shares, progress=lambda m: None)
-    model = SAPM(rows_, shares, lam)
-    cut = games[games["season"] >= 2016].groupby(["season", "week"])["kickoff_utc"].min().reset_index(name="cutoff_utc")
-    fits = model.fit_schedule(cut, progress=lambda m: None)
+    lam, fits = fit["lam"], fit["fits"]
+    model = type("M", (), {"pid": fit["pid"], "P": fit["P"]})()
     pos = _positions()
     rates = {s: availability_rates(valid, played, s) for s in sorted(games["season"].unique()) if s >= 2016}
     roster = {}
@@ -120,6 +141,8 @@ def build(games: pd.DataFrame, valid: pd.DataFrame, inj_team: pd.DataFrame, seas
     by_team = {t: d.sort_values("kickoff_utc") for t, d in shares.groupby("team")}
     out = []
     for g in games[games["season"] >= 2016].itertuples(index=False):
+        if only_seasons is not None and g.season not in only_seasons:
+            continue
         fit = fits.get((g.season, g.week))
         prev_roster = None
         if g.season in roster and g.week > 1:
@@ -198,7 +221,9 @@ def build(games: pd.DataFrame, valid: pd.DataFrame, inj_team: pd.DataFrame, seas
     pd.DataFrame({"gsis_id": [inv[i] for i in range(model.P)], "off_value": fits[latest]["off"], "def_value": fits[latest]["def"],
                   "fit_season": latest[0], "fit_week": latest[1]}).to_parquet(VALUES, index=False)
     live_season = int(games["season"].max())
-    rr = role_rates(games, valid, played, live_season)
+    rr = memo("p72_role_rates", f"{live_season}|{frame_hash(valid[valid['season'] < live_season])}|"
+                                f"{frame_hash(played[played['game_id'].str[:4].astype(int) < live_season])}|{STARTER}",
+              lambda: role_rates(games, valid, played, live_season))
     META.write_text(json.dumps({"rates_by_season": {str(k): v for k, v in rates.items()}, "role_rates_live": rr,
                                 "role_rates_season": live_season, "starter_share": STARTER,
                                 "reserve_statuses": list(RESERVE), "lambda": lam}, indent=2))

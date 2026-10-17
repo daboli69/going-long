@@ -127,6 +127,11 @@ def load() -> dict:
 
 # --------------------------------------------------------------------------- Phase 7.1: per game x stage
 
+def _timeliness(scheduled, archived, kickoff):
+    from .scheduler import timeliness
+    return timeliness(scheduled, archived, kickoff)
+
+
 def stage_table(now=None) -> pd.DataFrame:
     """Every planned kickoff-relative stage with its outcome, archive time and what the forecast assumed.
     Future stages are shown as 'pending' (never evaluated)."""
@@ -162,7 +167,9 @@ def stage_table(now=None) -> pd.DataFrame:
                     "home_qb": names.get((av.get("home") or {}).get("qb_projected_id")),
                     "away_qb": names.get((av.get("away") or {}).get("qb_projected_id")),
                     "final_report_both": all((av.get(x) or {}).get("inj_report_available") == 1 for x in ("home", "away")),
-                    "stale_data": s.get("stale_data")}
+                    "stale_data": s.get("stale_data"),
+                    "compute_seconds": (s.get("timing") or {}).get("compute_seconds"),
+                    "timeliness": (s.get("timing") or {}).get("timeliness") or _timeliness(t, pa, row["kickoff_utc"])}
         rows.append(row)
     df = pd.DataFrame(rows).sort_values(["kickoff_utc", "game_id", "scheduled_utc"])
     # QB / injury-report changes between consecutive archived stages of the same game

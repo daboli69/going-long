@@ -87,11 +87,11 @@ def refresh_data(force: bool = False, progress=print) -> dict:
     warnings += advanced.refresh(seasons, live, progress)
     from . import players
     warnings += players.refresh_ftn(seasons, live, progress)
-    valid.to_parquet(INJURY_VALID, index=False)
+    _save(INJURY_VALID, valid)
     injury_coverage(games, rows, valid, inj).to_csv(INJURY_COVERAGE, index=False)
 
     progress("Step 4/5: building pregame feature store (strictly pre-kickoff)")
-    games.to_parquet(GAMES_TABLE, index=False)
+    _save(GAMES_TABLE, games)
     churn = availability.ol_churn(seasons, games)
     progress("  player model (RAPM per week, lineups, replacements, continuity, FTN) ...")
     p5 = players.build_team_player_features(games, valid, inj, seasons, progress=progress)
@@ -104,7 +104,7 @@ def refresh_data(force: bool = False, progress=print) -> dict:
     churn = churn.merge(lineup72.build(games, valid, inj, seasons, progress=progress), on=["game_id", "team"], how="outer")
     fs = features.build_feature_store(games, tstats.drop(columns=["season"]), qstats.drop(columns=["season"]),
                                       inj, availability.report_status_lookup(valid), churn, advanced=True)
-    fs.to_parquet(FEATURE_STORE, index=False)
+    _save(FEATURE_STORE, fs)
     features.feature_catalog(fs.columns).to_csv(CACHE_DIR / "feature_catalog.csv", index=False)
 
     progress("Step 5/5: validating")
@@ -121,7 +121,7 @@ def refresh_data(force: bool = False, progress=print) -> dict:
     status["model_inputs"] = {k: man_.get(k, {}).get("sha256") for k in ("nfldata_games", f"nflverse_injuries_{live}")} | \
         {"archives": len(list(availability.ARCHIVE_DIR.glob("nflverse_injuries_*.parquet")))}
     status["features_rebuilt_at"] = status["refreshed_at"]
-    STATUS.write_text(json.dumps(status, indent=2), encoding="utf-8")
+    _save_json(STATUS, status)
     progress(f"Done: {status['completed_games']} completed games, {len(fs)} feature rows.")
     return status
 
@@ -249,6 +249,36 @@ def numeric_matrix(fs: pd.DataFrame, cols: list[str]) -> np.ndarray:
 
 
 
+def _save(path, df):
+    """Atomic parquet write: an interrupted refresh can never leave a half-written store (Phase 7.3)."""
+    from .cache73 import save_frame
+    save_frame(path, df)
+
+
+def _save_json(path, obj):
+    from .cache73 import _atomic_write_bytes
+    _atomic_write_bytes(path, json.dumps(obj, indent=2, default=str).encode("utf-8"))
+
+
+BUILD_LEDGER = CACHE_DIR / "build_ledger.jsonl"
+
+
+def _log_build(kind: str, started: float, inputs: dict, rebuilt: bool, error: str | None = None):
+    """One line per feature build: when it ran, how long, and which injury-report versions it contained."""
+    import time
+    try:
+        nv = sorted(availability.ARCHIVE_DIR.glob("nflverse_injuries_*.parquet"))
+        from . import cache73
+        line = {"kind": kind, "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "seconds": round(time.perf_counter() - started, 1), "rebuilt": rebuilt, "error": error,
+                "latest_nflverse_archive": nv[-1].name if nv else None, "inputs": inputs,
+                "cache": {k: (v.get("computed_seasons") if "computed_seasons" in v else v.get("hit")) for k, v in cache73.STATS.items()}}
+        with BUILD_LEDGER.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(line, default=str) + chr(10))
+    except Exception:
+        pass
+
+
 def rebuild_features(progress=print) -> dict:
     """Light rebuild after a live refresh: re-read the (already downloaded) schedule and injury
     files and rebuild the feature store from cached aggregates. Skipped when no model input
@@ -258,19 +288,26 @@ def rebuild_features(progress=print) -> dict:
     live = current_season()
     inputs = {k: man.get(k, {}).get("sha256") for k in ("nfldata_games", f"nflverse_injuries_{live}")}
     inputs["archives"] = len(list(availability.ARCHIVE_DIR.glob("nflverse_injuries_*.parquet")))
+    import time
+    t0 = time.perf_counter()
     status = load_status()
     if status.get("model_inputs") == inputs and FEATURE_STORE.exists():
-        return {"rebuilt": False, "reason": "no model input changed"}
+        try:
+            pd.read_parquet(FEATURE_STORE, columns=["game_id"])          # a corrupt store is rebuilt, never trusted
+            return {"rebuilt": False, "reason": "no model input changed"}
+        except Exception:
+            progress("  feature store unreadable: rebuilding")
     games, warnings = ingest.load_games(RAW_DIR / "games.csv", CARRYOVER_SEASON)
     tstats, qstats = pd.read_parquet(TEAM_GAMES), pd.read_parquet(QB_GAMES)
     seasons = sorted(int(s) for s in games["season"].unique() if s <= live)
     rows = availability.load_injury_rows([s for s in seasons if s >= 2016])
     valid = availability.pregame_injuries(rows, games)
-    valid.to_parquet(INJURY_VALID, index=False)
-    games.to_parquet(GAMES_TABLE, index=False)
+    _save(INJURY_VALID, valid)
+    _save(GAMES_TABLE, games)
     fs = assemble_from_cache(games, tstats, qstats)
-    fs.to_parquet(FEATURE_STORE, index=False)
+    _save(FEATURE_STORE, fs)
     status = load_status() | {"features_rebuilt_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "model_inputs": inputs}
-    STATUS.write_text(json.dumps(status, indent=2, default=str), encoding="utf-8")
+    _save_json(STATUS, status)
     progress("  feature store rebuilt (light)")
-    return {"rebuilt": True}
+    _log_build("light", t0, inputs, True)
+    return {"rebuilt": True, "seconds": round(time.perf_counter() - t0, 1)}

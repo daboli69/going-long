@@ -161,6 +161,7 @@ def _clean(v):
 
 
 def build_records(games: pd.DataFrame, now: pd.Timestamp, data_status: dict, stale: bool, stale_reason: str | None) -> list[dict]:
+    _LIVE_QB_CTX.clear()                      # fresh monitoring sources for every batch
     from .availability import live_monitor
     from .data_pipeline import GAMES_TABLE
     from .training import load_bundle, load_run
@@ -234,16 +235,28 @@ def build_records(games: pd.DataFrame, now: pd.Timestamp, data_status: dict, sta
     return records
 
 
+_LIVE_QB_CTX: dict = {}
+
+
 def _live_qb(T, g) -> dict:
-    """Monitoring-only QB view stored beside (never inside) the forecast; excluded from the content hash."""
+    """Monitoring-only QB view stored beside (never inside) the forecast; excluded from the content hash.
+    Sources are loaded once per season per process (they are files on disk, refreshed between runs)."""
     try:
-        return {side: T.live_qb(g[f"{side}_team"], int(g["season"]), int(g["week"]), g, side) for side in ("home", "away")}
+        season = int(g["season"])
+        if season not in _LIVE_QB_CTX:
+            from . import extra_sources as X
+            from .availability import player_names
+            from .live import official_qb_status
+            _LIVE_QB_CTX.clear()
+            _LIVE_QB_CTX[season] = (player_names(), official_qb_status(season), X.sleeper_latest()[0], X.weekly_rosters(season))
+        names, off, sl, ro = _LIVE_QB_CTX[season]
+        return {side: T.live_qb(g[f"{side}_team"], season, int(g["week"]), g, side, names, off, sl, ro) for side in ("home", "away")}
     except Exception as exc:
         return {"error": repr(exc)[:200]}
 
 
 def _content_hash(rec: dict) -> str:
-    keep = {k: v for k, v in rec.items() if k not in ("hours_to_kickoff", "data_cutoff", "availability_monitor", "live_qb_monitoring_only",
+    keep = {k: v for k, v in rec.items() if k not in ("hours_to_kickoff", "data_cutoff", "availability_monitor", "live_qb_monitoring_only", "timing",
                                                        "weather_forecast_live_only", "provenance", "code_version",
                                                        "live_context_monitoring_only", "scheduled_for", "event_id")}
     return hashlib.sha256(json.dumps(keep, sort_keys=True, default=str).encode()).hexdigest()[:20]
@@ -529,10 +542,14 @@ def live_context(game_row: pd.Series) -> dict:
     return out
 
 
+TICK_STARTED_AT = None          # set by the scheduler tick that triggered the snapshot (Phase 7.3)
+
+
 def write_stage_snapshots(due: pd.DataFrame, progress=print, stale_refresh: bool = False, now=None) -> dict:
     """One immutable snapshot per (game, stage) for scheduler stage events that are due."""
     from .data_pipeline import GAMES_TABLE, load_feature_store, load_status
     now = now or _now()
+    real0 = _now()                                  # elapsed real time is added to `now` (works with simulated clocks)
     fs = load_feature_store()
     gt = pd.read_parquet(GAMES_TABLE)
     gt = gt[[c for c in ("game_id", "stadium_id", "stadium") if c in gt.columns]]
@@ -559,8 +576,24 @@ def write_stage_snapshots(due: pd.DataFrame, progress=print, stale_refresh: bool
         if len(prev):
             by_event[ev.event_id] = {"ok": True, "action": "already archived for this stage"}
             continue
+        from .scheduler import timeliness
+        archived = now + (_now() - real0)
+        if archived >= kick:                              # never archive a "pregame" forecast after kickoff
+            by_event[ev.event_id] = {"ok": False, "reason": "kickoff passed before the forecast was ready"}
+            continue
+        started = TICK_STARTED_AT or now
+        if pd.Timestamp(started) > now or now - pd.Timestamp(started) > pd.Timedelta(hours=1):
+            started = now                               # stale value from another (simulated) run
+        rec["timing"] = {"scheduled_for": str(ev.time_utc), "deadline": str(getattr(ev, "deadline_utc", None)),
+                         "processing_started_at": pd.Timestamp(started).isoformat(), "inputs_ready_at": now.isoformat(),
+                         "archived_at": archived.isoformat(),
+                         "compute_seconds": round((archived - pd.Timestamp(started)).total_seconds(), 1),
+                         "minutes_before_kickoff": round((kick - archived).total_seconds() / 60, 1),
+                         "timeliness": timeliness(ev.time_utc, archived, kick),
+                         "data_age_note": reason}
         act, path = write_record(rec, ev.stage, now, ledger, force_new=True)
-        by_event[ev.event_id] = {"ok": act == "written", "action": act, "path": path}
+        by_event[ev.event_id] = {"ok": act == "written", "action": act, "path": path, "timeliness": rec["timing"]["timeliness"],
+                                 "compute_seconds": rec["timing"]["compute_seconds"]}
     progress(f"stage snapshots: {sum(v['ok'] for v in by_event.values())}/{len(by_event)} ok")
     return {"by_event": by_event}
 

@@ -1407,6 +1407,7 @@ def page_live():
         with st.spinner("Running due refreshes and snapshots ..."):
             r = S.tick(progress=lambda m: None)
         st.write(r)
+    _operations_panel()
     fs = feature_store()
     need(fs is not None, "Download data first.")
     sched = S.current_schedule()
@@ -1472,6 +1473,96 @@ def page_live():
     if len(ch):
         st.subheader("Detected changes (official report, ESPN statuses, depth-chart QB1)")
         st.dataframe(ch.head(100).astype(str), hide_index=True, use_container_width=True)
+
+
+def _operations_panel():
+    """Phase 7.3: is the live pipeline healthy and on time right now?"""
+    import json as _json
+    from lab import audit7, cache73, freshness73, live, scheduler as S
+    from lab import extra_sources as X
+    from lab.data_pipeline import BUILD_LEDGER, load_status
+    st.subheader("Operations")
+    now = pd.Timestamp.now(tz="UTC")
+    ticks = S.tick_history()
+    lock = S.LOCK.exists()
+    stt = audit7.stage_table()
+    arc = stt[stt["archived_at"].notna()] if "archived_at" in stt else stt.iloc[:0]
+    c = st.columns(5)
+    last_tick = pd.Timestamp(ticks["started_at"].iloc[-1]) if len(ticks) else None
+    c[0].metric("Last scheduler run", S.et(last_tick) if last_tick is not None else "never",
+                help="The Windows task runs every 5 minutes.")
+    c[1].metric("Processing now", "yes (lock held)" if lock else "idle")
+    status = load_status()
+    c[2].metric("Last feature build", S.et(pd.Timestamp(status.get("features_rebuilt_at"))) if status.get("features_rebuilt_at") else "-")
+    tl = arc["timeliness"].value_counts() if len(arc) and "timeliness" in arc else pd.Series(dtype=int)
+    c[3].metric("Stage forecasts on time", f"{int(tl.get('on_time', 0))} of {len(arc)}",
+                help="on time = archived within 5 minutes of the scheduled stage time; late but valid = later, still before kickoff")
+    c[4].metric("Missed stages", int((stt["outcome"] == "missed").sum()) if len(stt) else 0,
+                help="Missed stages are never back-filled after kickoff.")
+    if len(tl):
+        st.caption("Timeliness of archived stage forecasts: " + ", ".join(f"{k.replace('_', ' ')} {v}" for k, v in tl.items()) +
+                   ". Policy: on time = within one scheduler interval (5 min) of the scheduled time; late but valid = later "
+                   "but before kickoff; missed = no forecast before the stage deadline; unavailable = the game, model or data "
+                   "could not produce a forecast. A forecast is never archived after kickoff.")
+    tabs = st.tabs(["Processing times", "Injury propagation", "Source failures", "Cache health", "Archive integrity"])
+    with tabs[0]:
+        if BUILD_LEDGER.exists():
+            b = pd.DataFrame([_json.loads(x) for x in BUILD_LEDGER.read_text(encoding="utf-8").splitlines() if x.strip()])
+            if len(b):
+                st.dataframe(b[["finished_at", "kind", "seconds", "rebuilt", "latest_nflverse_archive"]].iloc[::-1].head(20),
+                             hide_index=True, use_container_width=True)
+        if len(arc) and "compute_seconds" in arc:
+            st.write("Stage forecasts: scheduled vs actual archive time")
+            show = arc[["game_id", "stage", "scheduled_utc", "archived_at", "lag_min", "compute_seconds", "timeliness"]].copy()
+            for col in ("scheduled_utc", "archived_at"):
+                show[col] = show[col].map(S.et)
+            st.dataframe(show.iloc[::-1].head(40), hide_index=True, use_container_width=True)
+        pb = Path(__file__).resolve().parents[1] / "artifacts" / "phase73" / "benchmark.csv"
+        if pb.exists():
+            st.write("Benchmark (cold vs warm caches)")
+            st.dataframe(pd.read_csv(pb), hide_index=True, use_container_width=True)
+    with tabs[1]:
+        st.caption(freshness73.cadence_note())
+        pr = freshness73.propagation()
+        if len(pr):
+            st.dataframe(pr, hide_index=True, use_container_width=True)
+        sl = freshness73.source_lead()
+        if len(sl):
+            st.write("First retrieval carrying the week's game statuses, per source")
+            st.dataframe(sl, hide_index=True, use_container_width=True)
+        off = live.official_qb_status(int(status.get("live_season") or now.year))
+        st.caption(f"Live monitoring currently uses: {off.get('_source')} (retrieved {off.get('_retrieved')}, week {off.get('_week')}). "
+                   "Model inputs keep using the nflverse copy, which is what the frozen models were built on.")
+    with tabs[2]:
+        h = X.source_health()
+        if len(h):
+            st.dataframe(h, hide_index=True, use_container_width=True)
+        if len(ticks):
+            err = ticks[ticks["errors"].map(lambda e: bool(e) if isinstance(e, list) else bool(e))]
+            st.write(f"Scheduler runs with errors: {len(err)} of {len(ticks)}")
+            if len(err):
+                st.dataframe(err.tail(20), hide_index=True, use_container_width=True)
+        st.dataframe(live.source_freshness(), hide_index=True, use_container_width=True)
+    with tabs[3]:
+        st.caption("Each cache is keyed on every input up to and including its season plus the feature code; any change "
+                   "recomputes the affected seasons. The leakage gate always runs without caches.")
+        hc = cache73.health()
+        if len(hc):
+            st.dataframe(hc, hide_index=True, use_container_width=True)
+        else:
+            st.caption("No caches yet (first build will create them).")
+    with tabs[4]:
+        a = audit7.load()
+        if st.button("Re-run integrity audit", key="ops_audit"):
+            a = audit7.run()
+        if a:
+            st.dataframe(pd.DataFrame(a["checks"]), hide_index=True, use_container_width=True)
+    up = S.upcoming_events(hours=24)
+    if len(up):
+        nxt = up[(up["status"] == "pending") & (up["time_utc"] >= now)].sort_values("time_utc").head(8)
+        if len(nxt):
+            st.write("Next scheduled forecasts and refreshes")
+            st.dataframe(nxt[["time_et", "kind", "stage", "game_id", "action"]], hide_index=True, use_container_width=True)
 
 
 def page_reports():

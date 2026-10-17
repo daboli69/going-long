@@ -244,6 +244,26 @@ PRIMARY_WINDOW = 8   # team games used to identify the team's primary starter
 
 def project_starters_v2(games: pd.DataFrame, qb_games: pd.DataFrame, status: dict | None = None,
                         covered: set | None = None) -> pd.DataFrame:
+    """Season-cached wrapper (Phase 7.3): season s depends only on games/QB games/reports up to s."""
+    from .cache73 import by_season, frame_hash
+    status, covered = status or {}, covered or set()
+    st = pd.DataFrame([(g, t, p, v) for (g, t, p), v in status.items()], columns=["g", "t", "p", "v"])
+    cv = pd.DataFrame(sorted(covered), columns=["g", "t"]) if covered else pd.DataFrame(columns=["g", "t"])
+    qs = qb_games["game_id"].str[:4].astype(int)
+
+    def h(s):
+        k = str(s)
+        return "|".join([frame_hash(games[games["season"] == s][["game_id", "season", "home_team", "away_team", "kickoff_utc"]]),
+                         frame_hash(qb_games[qs == s]), frame_hash(st[st["g"].str[:4] == k]), frame_hash(cv[cv["g"].str[:4] == k])])
+    out = by_season("qb_v2_projection", sorted(games["season"].unique()), h,
+                    lambda need: _project_starters_v2(games, qb_games, status, covered, set(need)))
+    order = pd.DataFrame([(g, t) for g, h_, a in zip(games["game_id"], games["home_team"], games["away_team"]) for t in (h_, a)],
+                         columns=["game_id", "team"])
+    return order.merge(out, on=["game_id", "team"], how="left")
+
+
+def _project_starters_v2(games: pd.DataFrame, qb_games: pd.DataFrame, status: dict | None = None,
+                         covered: set | None = None, only_seasons=None) -> pd.DataFrame:
     """Phase 7 projection (pregame information only), adds the 'returning starter' case:
       1. P = previous game's starter; S = the team's primary starter (most dropbacks over its
          last 8 completed games).
@@ -264,6 +284,8 @@ def project_starters_v2(games: pd.DataFrame, qb_games: pd.DataFrame, status: dic
     by_team = {t: d.reset_index(drop=True) for t, d in tg.groupby("team")}
     rows = []
     for g in games.itertuples(index=False):
+        if only_seasons is not None and g.season not in only_seasons:
+            continue
         for team in (g.home_team, g.away_team):
             d = by_team.get(team)
             r = {"game_id": g.game_id, "team": team, "qb7_projected_id": None, "qb7_returning": 0, "qb7_projected_out": 0,

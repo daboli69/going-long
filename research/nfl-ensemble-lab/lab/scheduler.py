@@ -212,14 +212,51 @@ def classify(plan: pd.DataFrame, status: dict, now, ticks: list[dict], tracking_
     return pd.DataFrame(due), missed
 
 
+ON_TIME_GRACE = pd.Timedelta(minutes=5)     # one scheduler interval
+
+
+def timeliness(scheduled, archived, kickoff, grace=ON_TIME_GRACE) -> str:
+    """Policy (Phase 7.3). on_time: archived within one scheduler interval of the scheduled stage time;
+    late_valid: later than that but still before kickoff; invalid_after_kickoff never happens (refused).
+    'missed' (no archive before the stage deadline) and 'unavailable' (game/model/data could not produce a
+    forecast) are recorded by the scheduler, never back-filled."""
+    scheduled, archived, kickoff = _utc(scheduled), _utc(archived), _utc(kickoff)
+    if archived >= kickoff:
+        return "invalid_after_kickoff"
+    return "on_time" if archived <= scheduled + grace else "late_valid"
+
+
 def run_actions(due: pd.DataFrame, now, progress=print, actions=None) -> dict:
-    """Execute merged actions once: full refresh > live refresh, then snapshots for due stages."""
+    """Execute merged actions once. Time-critical stage snapshots come first: when a snapshot and the daily
+    full refresh are due in the same tick, the snapshot runs after a light refresh and the full refresh runs
+    afterwards (Phase 7.3), so a multi-minute download never delays a pregame forecast."""
     actions = actions or {}
     full = actions.get("full", _do_full)
     live = actions.get("live", _do_live)
     snap = actions.get("snapshot", _do_snapshots)
     result = {"errors": []}
     kinds = set(due["action"])
+    snaps = due[due["action"] == "snapshot"]
+    # stored in lab.prospective: the scheduler runs as __main__, so a global here would be a different module object
+    from . import prospective as _P
+    _P.TICK_STARTED_AT = _utc(now)
+    if len(snaps):
+        try:
+            result["refresh"] = live(progress)
+        except Exception as exc:
+            result["errors"].append(f"refresh failed: {exc!r}")
+            result["refresh_failed"] = True
+        try:
+            result["snapshots"] = snap(snaps, progress, stale=result.get("refresh_failed", False))
+        except Exception as exc:
+            result["errors"].append(f"snapshot failed: {exc!r}")
+        if "full" in kinds:
+            try:
+                result["refresh_full"] = full(progress)
+            except Exception as exc:
+                result["errors"].append(f"full refresh failed: {exc!r}")
+                result["full_failed"] = True
+        return result
     try:
         if "full" in kinds:
             result["refresh"] = full(progress)
@@ -228,12 +265,7 @@ def run_actions(due: pd.DataFrame, now, progress=print, actions=None) -> dict:
     except Exception as exc:
         result["errors"].append(f"refresh failed: {exc!r}")
         result["refresh_failed"] = True
-    snaps = due[due["action"] == "snapshot"]
-    if len(snaps):
-        try:
-            result["snapshots"] = snap(snaps, progress, stale=result.get("refresh_failed", False))
-        except Exception as exc:
-            result["errors"].append(f"snapshot failed: {exc!r}")
+        result["full_failed"] = "full" in kinds
     return result
 
 
@@ -306,7 +338,8 @@ def tick(now=None, progress=print, actions=None, schedule: pd.DataFrame | None =
             written = (res.get("snapshots") or {}).get("by_event", {})
             done_at = pd.Timestamp.now(tz="UTC") if actions is None else now
             for r in due.itertuples(index=False):
-                ok = bool(written.get(r.event_id, {}).get("ok")) if r.action == "snapshot" else not res.get("refresh_failed")
+                ok = (bool(written.get(r.event_id, {}).get("ok")) if r.action == "snapshot"
+                      else not res.get("full_failed") if r.action == "full" else not res.get("refresh_failed"))
                 _append(EVENTS, r._asdict() | {"outcome": "done" if ok else "failed", "completed_at": done_at.isoformat(),
                                                "detail": written.get(r.event_id), "recorded_at": done_at.isoformat()})
     except Exception:

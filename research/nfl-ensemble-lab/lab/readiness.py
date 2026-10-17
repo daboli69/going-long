@@ -152,12 +152,19 @@ def check_refresh_task() -> dict:
     return out
 
 
+def _uncached(fn, *a):
+    """The leakage gate never relies on Phase 7.3 caches: it recomputes every feature from raw inputs."""
+    from . import cache73
+    with cache73.disabled():
+        return fn(*a)
+
+
 def run(progress=print) -> dict:
     games = pd.read_parquet(GAMES_TABLE)
     fs = load_feature_store()
     report = {"generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "model_version": current_version()}
     for name, fn in (("injury_timestamps", lambda: check_injury_timestamps(games)),
-                     ("real_data_perturbation", lambda: check_perturbation(games, fs)),
+                     ("real_data_perturbation", lambda: _uncached(check_perturbation, games, fs)),
                      ("missing_injuries", lambda: check_missing_injuries(fs)),
                      ("out_of_sample_predictions", check_oof),
                      ("market_odds", lambda: check_market(games)),

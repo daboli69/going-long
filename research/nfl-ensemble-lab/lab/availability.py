@@ -199,9 +199,15 @@ def player_roles(seasons: list[int]) -> pd.DataFrame:
     return snaps[["game_id", "gsis_id", "role"]]
 
 
-def role_asof(snaps: pd.DataFrame, games: pd.DataFrame, targets: pd.DataFrame) -> pd.Series:
-    """Mean snap share over each player's last ROLE_GAMES games before the target kickoff.
-    targets: DataFrame with gsis_id and kickoff_utc."""
+_ROLE_MEMO: dict = {}
+
+
+def _role_states(snaps: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
+    """Rolling role state per player (identical computation; memoised on the inputs' content within a process)."""
+    from .cache73 import frame_hash
+    key = (frame_hash(snaps), frame_hash(games[[c for c in ("game_id", "source_game_id", "kickoff_utc") if c in games]]))
+    if key in _ROLE_MEMO:
+        return _ROLE_MEMO[key]
     # snap files use source ids (e.g. OAK before relocation); accept both id forms
     kick = pd.concat([games.set_index("game_id")["kickoff_utc"],
                       games.set_index("source_game_id")["kickoff_utc"]]) if "source_game_id" in games else games.set_index("game_id")["kickoff_utc"]
@@ -209,6 +215,15 @@ def role_asof(snaps: pd.DataFrame, games: pd.DataFrame, targets: pd.DataFrame) -
     s = snaps.assign(kickoff_utc=snaps["game_id"].map(kick)).dropna(subset=["kickoff_utc"]).sort_values(["gsis_id", "kickoff_utc"])
     s["role_state"] = s.groupby("gsis_id")["role"].transform(lambda r: r.rolling(ROLE_GAMES, min_periods=1).mean())
     s = s.sort_values("kickoff_utc")
+    _ROLE_MEMO.clear()
+    _ROLE_MEMO[key] = s
+    return s
+
+
+def role_asof(snaps: pd.DataFrame, games: pd.DataFrame, targets: pd.DataFrame) -> pd.Series:
+    """Mean snap share over each player's last ROLE_GAMES games before the target kickoff.
+    targets: DataFrame with gsis_id and kickoff_utc."""
+    s = _role_states(snaps, games)
     t = targets.reset_index().sort_values("kickoff_utc")
     m = pd.merge_asof(t, s[["gsis_id", "kickoff_utc", "role_state"]].rename(columns={"kickoff_utc": "_t"}),
                       left_on="kickoff_utc", right_on="_t", by="gsis_id", direction="backward", allow_exact_matches=False)

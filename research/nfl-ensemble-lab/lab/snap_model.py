@@ -117,23 +117,61 @@ def choose_lambda(rows, shares, progress=print) -> tuple[float, dict]:
     return best, scores
 
 
+def fitted(games: pd.DataFrame, tstats: pd.DataFrame, shares: pd.DataFrame, progress=print):
+    """(lambda, lambda scores, player index, weekly as-of fits), cached on an exact key of every input
+    (team-game rows, snap shares, weekly cutoffs, code). Shared by the snap features and the 7.2 lineups."""
+    from .cache73 import frame_hash, memo
+    rows = team_rows(games[games["season"] >= 2016], tstats, shares)
+    cut = games[games["season"] >= 2016].groupby(["season", "week"])["kickoff_utc"].min().reset_index(name="cutoff_utc")
+    key = f"{frame_hash(rows)}|{frame_hash(shares)}|{frame_hash(cut)}|{PLAY_SCALE}|{LAMBDA_GRID}"
+
+    def compute():
+        lam, scores = choose_lambda(rows, shares, progress)
+        m = SAPM(rows, shares, lam)
+        return {"lam": lam, "scores": scores, "pid": m.pid, "P": m.P, "fits": m.fit_schedule(cut, progress),
+                "n_rows": len(rows), "last_row": rows["kickoff_utc"].max()}
+    return memo("snap_fits", key, compute)
+
+
 def build_features(games: pd.DataFrame, tstats: pd.DataFrame, valid_inj: pd.DataFrame, inj_team: pd.DataFrame,
                    seasons: list, progress=print) -> pd.DataFrame:
+    """Season-cached wrapper (Phase 7.3)."""
+    from .cache73 import by_season, frame_hash
+    shares = snap_shares(games, seasons)
+    ss = shares["game_id"].str[:4].astype(int)
+    pos = pd.Series(_positions())
+
+    def h(s):
+        ids = shares.loc[ss == s, "gsis_id"].unique()
+        return "|".join([frame_hash(games[games["season"] == s]), frame_hash(shares[ss == s]),
+                         frame_hash(tstats[tstats["game_id"].str[:4].astype(int) == s]),
+                         frame_hash(valid_inj[valid_inj["season"] == s]) if len(valid_inj) else "none",
+                         frame_hash(inj_team[inj_team["game_id"].str[:4].astype(int) == s]),
+                         frame_hash(pos.reindex(ids).astype(str).to_frame("p").assign(i=ids))])
+    fit = fitted(games, tstats, shares, progress)
+    return by_season("p7_snap_features", [s for s in seasons if s >= 2016], h,
+                     lambda need: _build_features(games, tstats, valid_inj, inj_team, seasons, progress, set(need), fit),
+                     params=f"fits={fit['n_rows']}|{fit['lam']}|{frame_hash(games[['season', 'week', 'kickoff_utc']])}")
+
+
+def _build_features(games: pd.DataFrame, tstats: pd.DataFrame, valid_inj: pd.DataFrame, inj_team: pd.DataFrame,
+                    seasons: list, progress=print, only_seasons=None, fit=None) -> pd.DataFrame:
     """One row per (game_id, team) with p7s_* columns, pregame only (same lineup and injury rules as Phase 5)."""
     shares = snap_shares(games, seasons)
-    rows = team_rows(games[games["season"] >= 2016], tstats, shares)
-    lam, scores = choose_lambda(rows, shares, progress)
-    model = SAPM(rows, shares, lam)
-    cut = games[games["season"] >= 2016].groupby(["season", "week"])["kickoff_utc"].min().reset_index(name="cutoff_utc")
-    fits = model.fit_schedule(cut, progress)
+    fit = fit or fitted(games, tstats, shares, progress)
+    lam, scores, fits = fit["lam"], fit["scores"], fit["fits"]
+    model = type("M", (), {"pid": fit["pid"], "P": fit["P"]})()
     pos = _positions()
     by_team = {t: d.sort_values("kickoff_utc") for t, d in shares.groupby("team")}
     vi = valid_inj if len(valid_inj) else pd.DataFrame(columns=["game_id", "team", "gsis_id", "report_status"])
     status = {(g, t, p): s for g, t, p, s in zip(vi["game_id"], vi["team"], vi["gsis_id"], vi["report_status"])}
     avail = {(g, t): a for g, t, a in zip(inj_team["game_id"], inj_team["team"], inj_team["inj_report_available"])}
-    last_row = rows["kickoff_utc"].max()
+    last_row = fit["last_row"]
+    n_rows = fit["n_rows"]
     out = []
     for g in games[games["season"] >= 2016].itertuples(index=False):
+        if only_seasons is not None and g.season not in only_seasons:
+            continue
         fit = fits.get((g.season, g.week))
         for team in (g.home_team, g.away_team):
             r = {"game_id": g.game_id, "team": team}
@@ -171,6 +209,6 @@ def build_features(games: pd.DataFrame, tstats: pd.DataFrame, valid_inj: pd.Data
             r["p7s_staleness_days"] = float(max((g.kickoff_utc - last_row).days, 0))
             out.append(r)
     META.write_text(json.dumps({"lambda": lam, "lambda_scores": {str(k): v for k, v in scores.items()},
-                                "team_games": int(len(rows)), "players": model.P, "fits": len(fits),
+                                "team_games": int(n_rows), "players": model.P, "fits": len(fits),
                                 "last_game": str(last_row), "label": "snap-share approximation (not play participation)"}, indent=2))
     return pd.DataFrame(out)

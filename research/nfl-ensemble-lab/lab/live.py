@@ -314,8 +314,21 @@ def official_qb_status(season: int) -> dict:
     wk = int(r["week"].max())
     r = r[r["week"] == wk].sort_values("available_at")
     out = {(t, n): s for t, n, s in zip(r["team"], r["full_name"], r["report_status"]) if isinstance(s, str)}
-    out["_week"] = wk                        # a report covers only its own week's games
-    return out
+    nv_t = pd.to_datetime(r["available_at"], utc=True, errors="coerce").max()
+    out["_week"], out["_source"], out["_retrieved"] = wk, "nflverse official report", str(nv_t)
+    # Phase 7.3: prefer the NFL.com copy of the same league report when it is newer (monitoring only)
+    try:
+        from . import extra_sources as X
+        nf, nf_t = X.nflcom_latest()
+        if len(nf) and nf_t is not None and int(nf["season"].max()) == season:
+            nwk = int(nf["week"].max())
+            if nwk > wk or (nwk == wk and (pd.isna(nv_t) or nf_t > nv_t)):
+                n = nf[nf["week"] == nwk]
+                out = {(t, nm): st for t, nm, st in zip(n["team"], n["full_name"], n["report_status"]) if isinstance(st, str)}
+                out["_week"], out["_source"], out["_retrieved"] = nwk, "NFL.com official report", str(nf_t)
+    except Exception:
+        pass
+    return out                               # a report covers only its own week's games (_week)
 
 
 def _qb_certainty(row: pd.Series, side: str, qb1: dict, espn: pd.DataFrame, names: dict,

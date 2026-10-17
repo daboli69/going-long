@@ -50,6 +50,15 @@ daily in Windows Task Scheduler) so each week's Friday/Saturday report gets arch
   rule, registered as `v20261017_142546_p7_qb_snap`. The champion is unchanged.
 - **Details:** `docs/PHASE7_DATA_QB.md`.
 
+## Phase 7.3: faster, on-time forecasts
+
+- **Faster pregame forecasts:** about 45 seconds instead of about 3 minutes. Unchanged history is now reused
+  from safe caches instead of being recomputed.
+- **Timing labels:** each archived forecast records its scheduled time, actual time and whether it was on time.
+- **Operations panel:** the **Live Readiness** page now has one.
+
+After changing any lab code, run one refresh before game time so the caches are warm. Details: `docs/PHASE7_3_PERFORMANCE.md`.
+
 ## Phase 7.2: expected lineups and injuries
 
 The **Model Debate** page has a new "Expected lineups and injuries" section for each team: starters expected out, confirmed

@@ -18,6 +18,7 @@ Player model: regularised adjusted plus-minus (RAPM) on per-play EPA
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -229,8 +230,25 @@ def choose_lambda(plays: pd.DataFrame, progress=print) -> tuple[float, dict]:
 UNITS = {"QB": ("QB",), "OL": ("OL",), "SKILL": ("RB", "WR", "TE"), "DL": ("DL",), "LB": ("LB",), "DB": ("DB",)}
 
 
+_SNAP_MEMO: dict = {}
+
+
 def snap_shares(games: pd.DataFrame, seasons: list[int]) -> pd.DataFrame:
-    """Per completed team-game: each player's offensive/defensive snap share (gsis ids)."""
+    """Per completed team-game: each player's offensive/defensive snap share (gsis ids).
+    Memoised in-process on the games table, the seasons and the snap/player files' size+mtime."""
+    from .cache73 import frame_hash
+    files = [RAW_DIR / f"snap_counts_{s}.parquet" for s in seasons] + [RAW_DIR / "players.parquet"]
+    key = (frame_hash(games[["game_id", "source_game_id", "kickoff_utc"]]), tuple(int(s) for s in seasons),
+           tuple((f.name, f.stat().st_size, f.stat().st_mtime_ns) for f in files if f.exists()))
+    if key in _SNAP_MEMO:
+        return _SNAP_MEMO[key].copy()
+    out = _snap_shares(games, seasons)
+    _SNAP_MEMO.clear()
+    _SNAP_MEMO[key] = out
+    return out.copy()
+
+
+def _snap_shares(games: pd.DataFrame, seasons: list[int]) -> pd.DataFrame:
     parts = []
     for s in seasons:
         p = RAW_DIR / f"snap_counts_{s}.parquet"
@@ -282,12 +300,53 @@ def _coplay_counts(team_plays: dict, team: str, side: str, t_cut, season: int, p
     return out
 
 
+def _file_sig(paths) -> str:
+    from . import sources
+    man = sources.load_manifest()
+    by_name = {Path(v.get("path", "")).name: v.get("sha256") for v in man.values() if isinstance(v, dict) and v.get("path")}
+    parts = []
+    for p in paths:
+        if p.exists():
+            parts.append(f"{p.name}:{by_name.get(p.name) or ''}:{p.stat().st_size}:{p.stat().st_mtime_ns}")
+    return "|".join(parts)
+
+
 def build_team_player_features(games: pd.DataFrame, valid_inj: pd.DataFrame, inj_team: pd.DataFrame, seasons: list,
                                progress=print, plays_transform=None) -> pd.DataFrame:
+    """Season-cached wrapper (Phase 7.3). Transforms (leakage gate) always bypass the cache."""
+    if plays_transform is not None:
+        return _build_team_player_features(games, valid_inj, inj_team, seasons, progress, plays_transform)
+    from .cache73 import by_season, frame_hash
+    sh = snap_shares(games, seasons)
+    sh_season = sh["game_id"].str[:4].astype(int)
+    pos = pd.Series(_positions())
+
+    def h(s):
+        files = [RAW_DIR / f"{k}_{s}.parquet" for k in ("participation", "play_by_play", "ftn")]
+        ids = sh.loc[sh_season == s, "gsis_id"].unique()
+        return "|".join([frame_hash(games[games["season"] == s]), frame_hash(sh[sh_season == s]),
+                         frame_hash(valid_inj[valid_inj["season"] == s]) if len(valid_inj) else "none",
+                         frame_hash(inj_team[inj_team["game_id"].str[:4].astype(int) == s]),
+                         frame_hash(pos.reindex(ids).astype(str).to_frame("p").assign(i=ids)), _file_sig(files)])
+    return by_season("p5_player_features", [s for s in seasons if s >= 2016], h,
+                     lambda need: _build_team_player_features(games, valid_inj, inj_team, seasons, progress, None, set(need)),
+                     params=f"cut={frame_hash(games[['season', 'week', 'kickoff_utc']])}")
+
+
+def _build_plays_cached(games, seasons, progress):
+    from .cache73 import frame_hash, memo
+    files = [RAW_DIR / f"{k}_{s}.parquet" for s in seasons for k in ("participation", "play_by_play")]
+    key = f"{_file_sig(files)}|{frame_hash(games[['game_id', 'source_game_id', 'kickoff_utc', 'home_team']])}"
+    return memo("player_plays", key, lambda: build_plays(games, seasons, progress))
+
+
+def _build_team_player_features(games: pd.DataFrame, valid_inj: pd.DataFrame, inj_team: pd.DataFrame, seasons: list,
+                                progress=print, plays_transform=None, only_seasons=None) -> pd.DataFrame:
     """One row per (game_id, team) with p5_* features, all from information before kickoff:
     expected lineup = snap shares over the team's last 4 completed games; injuries applied only
     from verified pregame reports; player values from the RAPM fit for that week."""
-    plays = build_plays(games, [s for s in seasons if s >= 2016], progress=lambda m: None)
+    plays = (build_plays(games, [s for s in seasons if s >= 2016], progress=lambda m: None) if plays_transform is not None
+             else _build_plays_cached(games, [s for s in seasons if s >= 2016], lambda m: None))
     if plays_transform is not None:
         plays = plays_transform(plays)
     plays.to_parquet(PLAYS_CACHE, index=False)
@@ -295,10 +354,23 @@ def build_team_player_features(games: pd.DataFrame, valid_inj: pd.DataFrame, inj
     import hashlib
 
     import joblib
-    sig = hashlib.sha256(f"{len(plays)}|{plays['epa'].sum():.8f}|{plays['kickoff_utc'].max()}|"
-                         f"{pd.util.hash_pandas_object(cut, index=False).sum()}".encode()).hexdigest()[:20]
+    # A weekly fit depends only on WHICH plays precede its cutoff (prior seasons in full + current-season plays
+    # before the cutoff), not on the cutoff time itself. Keying on those play counts (Phase 7.3) means a moved
+    # future kickoff with no new plays no longer forces a ~100 s refit; the result is bit-identical.
+    def _naive(x):
+        x = pd.to_datetime(x, utc=True)
+        return (x.dt.tz_localize(None) if hasattr(x, "dt") else x.tz_localize(None))
+    kick_by_season = {s_: np.sort(_naive(d["kickoff_utc"]).to_numpy(dtype="datetime64[ns]")) for s_, d in plays.groupby("season")}
+    empty = np.array([], dtype="datetime64[ns]")
+    seen = [(int(r.season), int(r.week), int(np.searchsorted(kick_by_season.get(r.season, empty),
+                                                             np.datetime64(_naive(r.cutoff_utc), "ns"), side="left")))
+            for r in cut.itertuples(index=False)]
+    sig = hashlib.sha256(f"{len(plays)}|{plays['epa'].sum():.8f}|{plays['kickoff_utc'].max()}|{seen}".encode()).hexdigest()[:20]
     fit_cache = CACHE_DIR / "rapm_fits.joblib"
-    cached = joblib.load(fit_cache) if fit_cache.exists() and plays_transform is None else None
+    try:
+        cached = joblib.load(fit_cache) if fit_cache.exists() and plays_transform is None else None
+    except Exception:                                   # corrupt cache: refit rather than fail (Phase 7.3)
+        cached = None
     if cached and cached.get("sig") == sig:
         lam, lam_scores, fits = cached["lam"], cached["lam_scores"], cached["fits"]
         model = type("M", (), {"pos": cached["pos"], "pid": cached["pid"], "P": cached["P"]})()
@@ -308,8 +380,12 @@ def build_team_player_features(games: pd.DataFrame, valid_inj: pd.DataFrame, inj
         model = RAPM(plays, lam, progress)
         fits = model.fit_schedule(cut, progress)
         if plays_transform is None:
+            import io
+            from .cache73 import _atomic_write_bytes
+            buf = io.BytesIO()
             joblib.dump({"sig": sig, "lam": lam, "lam_scores": lam_scores, "fits": fits, "pos": model.pos, "pid": model.pid,
-                         "P": model.P}, fit_cache)
+                         "P": model.P}, buf)
+            _atomic_write_bytes(fit_cache, buf.getvalue())
     last_play = plays["kickoff_utc"].max()
     shares = snap_shares(games, seasons)
     by_team = {t: d.sort_values("kickoff_utc") for t, d in shares.groupby("team")}
@@ -320,6 +396,8 @@ def build_team_player_features(games: pd.DataFrame, valid_inj: pd.DataFrame, inj
     pos, pid = model.pos, model.pid
     rows = []
     for g in games[games["season"] >= 2016].itertuples(index=False):
+        if only_seasons is not None and g.season not in only_seasons:
+            continue
         fit = fits.get((g.season, g.week))
         for team in (g.home_team, g.away_team):
             r = {"game_id": g.game_id, "team": team}
