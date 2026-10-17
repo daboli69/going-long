@@ -30,6 +30,8 @@ def main(argv=None) -> None:
     rs.add_argument("--season", type=int)
     rs.add_argument("--week", type=int)
     sub.add_parser("errors")
+    sub.add_parser("shared-errors")
+    sub.add_parser("compare")
     sub.add_parser("audit")
     sub.add_parser("phase7-test")
     a = ap.parse_args(argv)
@@ -65,6 +67,15 @@ def main(argv=None) -> None:
         from .errors import build
         r = build()
         print(json.dumps({"effective_models": r["effective_models"], "all_six_wrong_share": r["all_six_wrong_share"]}, indent=2))
+    elif a.cmd == "shared-errors":
+        from .shared_errors import build
+        print(json.dumps(build()["all_six_wrong"], indent=2))
+    elif a.cmd == "compare":
+        from .compare7 import collect, compare
+        c = compare(collect())
+        print(c.get("note") or c["by_version"].to_string())
+        if c["games"]:
+            print(c["paired"].to_string())
     elif a.cmd == "audit":
         from .audit7 import run
         for c in run()["checks"]:

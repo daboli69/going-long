@@ -50,6 +50,20 @@ daily in Windows Task Scheduler) so each week's Friday/Saturday report gets arch
   rule, registered as `v20261017_142546_p7_qb_snap`. The champion is unchanged.
 - **Details:** `docs/PHASE7_DATA_QB.md`.
 
+## Phase 7.1: what each model knew
+
+The **Model Debate** page shows, for each game:
+- the QB and injury report that the champion and each challenger used;
+- what live monitoring knows now (monitoring only);
+- every archived pregame forecast.
+
+A warning appears when live news conflicts with the champion's QB assumption.
+
+The **Live Readiness** page shows every kickoff-relative stage (archived, missed or pending) and the three-model
+prospective comparison, with sample sizes.
+
+Details: `docs/PHASE7_1_LIVE.md`.
+
 ## Live schedule (Phase 6): what runs automatically
 
 One Windows task, **"NFL Ensemble Lab - Data Refresh"**, runs a small scheduler every 5 minutes in the

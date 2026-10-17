@@ -164,6 +164,7 @@ def build_records(games: pd.DataFrame, now: pd.Timestamp, data_status: dict, sta
     from .availability import live_monitor
     from .data_pipeline import GAMES_TABLE
     from .training import load_bundle, load_run
+    from . import transparency as T
     from .weekly import discovery_overlay, predict_games
     bundle = load_bundle()
     run = load_run(bundle["version"])
@@ -179,8 +180,11 @@ def build_records(games: pd.DataFrame, now: pd.Timestamp, data_status: dict, sta
         try:
             cb = load_bundle(v)
             ct, _ = predict_games(games, cb, load_run(v), explain=False, challengers=False)
+            gi = games.set_index("game_id")
             chall[v] = {g_: {"p_champion": _clean(r_["p_champion"]),
-                             "p_home": {k: _clean(r_[f"p_{k}"]) for k in cb["model_keys"] if f"p_{k}" in r_}}
+                             "p_home": {k: _clean(r_[f"p_{k}"]) for k in cb["model_keys"] if f"p_{k}" in r_},
+                             "margin_ensemble": _clean(r_.get("margin_ensemble")),
+                             "inputs": T.version_inputs(gi.loc[g_], cb["features"])}
                         for g_, (_, r_) in zip(ct["game_id"], ct.iterrows())}
         except Exception as exc:
             chall[v] = {"error": str(exc)}
@@ -217,6 +221,8 @@ def build_records(games: pd.DataFrame, now: pd.Timestamp, data_status: dict, sta
             "shadow_challengers": {v: (c.get(g["game_id"]) if isinstance(c, dict) and "error" not in c else c) for v, c in chall.items()},
             "availability": {side: {c: _clean(g.get(f"{side}_{c}")) for c in AVAIL_COLS} for side in ("home", "away")},
             "availability_monitor": mon,
+            "champion_inputs": T.version_inputs(g, bundle["features"]),
+            "live_qb_monitoring_only": _live_qb(T, g),
             "weather_forecast_live_only": weather.get(g["game_id"]),
             "missing": {"features_missing": int(g[bundle["features"]].isna().sum()), "n_features": len(bundle["features"]),
                         "injury_report_final_both": bool(g.get("home_inj_report_available") == 1 and g.get("away_inj_report_available") == 1),
@@ -228,8 +234,16 @@ def build_records(games: pd.DataFrame, now: pd.Timestamp, data_status: dict, sta
     return records
 
 
+def _live_qb(T, g) -> dict:
+    """Monitoring-only QB view stored beside (never inside) the forecast; excluded from the content hash."""
+    try:
+        return {side: T.live_qb(g[f"{side}_team"], int(g["season"]), int(g["week"]), g, side) for side in ("home", "away")}
+    except Exception as exc:
+        return {"error": repr(exc)[:200]}
+
+
 def _content_hash(rec: dict) -> str:
-    keep = {k: v for k, v in rec.items() if k not in ("hours_to_kickoff", "data_cutoff", "availability_monitor",
+    keep = {k: v for k, v in rec.items() if k not in ("hours_to_kickoff", "data_cutoff", "availability_monitor", "live_qb_monitoring_only",
                                                        "weather_forecast_live_only", "provenance", "code_version",
                                                        "live_context_monitoring_only", "scheduled_for", "event_id")}
     return hashlib.sha256(json.dumps(keep, sort_keys=True, default=str).encode()).hexdigest()[:20]

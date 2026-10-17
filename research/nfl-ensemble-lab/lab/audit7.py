@@ -100,6 +100,21 @@ def run(now=None) -> dict:
         check("10 frozen upset hypotheses unchanged", n == 10 and ref.read_text().strip() == digest,
               f"{n} hypotheses; file hash {digest} (reference {ref.read_text().strip()}); last modified "
               f"{pd.Timestamp(hp.stat().st_mtime, unit='s', tz='UTC'):%Y-%m-%d %H:%M} UTC")
+    try:
+        stt = stage_table(now)
+        arc = stt[stt["archived_at"].notna()] if "archived_at" in stt else stt.iloc[:0]
+        if len(arc):
+            by = arc.groupby("stage").agg(n=("game_id", "size"), no_final_report=("final_report_both", lambda x: int((~x.astype(bool)).sum())),
+                                          max_lag=("lag_min", "max"), challengers_complete=("challengers_saved", lambda x: int(sum(
+                                              a_.split("/")[0] == a_.split("/")[1] for a_ in x))))
+            check("forecast inputs by stage", True, "; ".join(
+                f"{k}: {int(r.n)} archived, {int(r.no_final_report)} without a verified final injury report, max lag {r.max_lag:.0f} min, "
+                f"champion+all challengers saved together {int(r.challengers_complete)}/{int(r.n)}" for k, r in by.iterrows()))
+            check("all archived stages before kickoff and read-only", bool(arc["before_kickoff"].all() and arc["read_only"].all()),
+                  f"{len(arc)} stage snapshots")
+        stt.to_csv(ARTIFACTS_DIR / "phase7" / "stage_table.csv", index=False)
+    except Exception as exc:
+        check("stage table", False, repr(exc)[:200])
     (ARTIFACTS_DIR / "phase7").mkdir(parents=True, exist_ok=True)
     (ARTIFACTS_DIR / "phase7" / "weekend_audit.json").write_text(json.dumps(out, indent=2, default=str))
     return out
@@ -108,3 +123,57 @@ def run(now=None) -> dict:
 def load() -> dict:
     p = ARTIFACTS_DIR / "phase7" / "weekend_audit.json"
     return json.loads(p.read_text()) if p.exists() else {}
+
+
+# --------------------------------------------------------------------------- Phase 7.1: per game x stage
+
+def stage_table(now=None) -> pd.DataFrame:
+    """Every planned kickoff-relative stage with its outcome, archive time and what the forecast assumed.
+    Future stages are shown as 'pending' (never evaluated)."""
+    from .availability import player_names
+    from .prospective import challenger_registry
+    now = pd.Timestamp(now or pd.Timestamp.now(tz="UTC"))
+    plan = pd.DataFrame(_jsonl(SCHED / "planned.jsonl"))
+    if plan.empty:
+        return plan
+    plan = plan.drop_duplicates("event_id", keep="last")
+    ev = pd.DataFrame(_jsonl(SCHED / "events.jsonl"))
+    ev = ev.drop_duplicates("event_id", keep="last").set_index("event_id") if len(ev) else pd.DataFrame()
+    names = player_names()
+    reg = {h["version"]: pd.Timestamp(h["registered_at"]) for h in challenger_registry()["hypotheses"]}
+    rows = []
+    for r in plan.itertuples(index=False):
+        t = pd.Timestamp(r.time_utc)
+        e = ev.loc[r.event_id] if len(ev) and r.event_id in ev.index else None
+        row = {"game_id": r.game_id, "stage": r.stage, "scheduled_utc": t, "kickoff_utc": pd.Timestamp(r.kickoff_utc),
+               "outcome": (e["outcome"] if e is not None else ("pending" if t > now else "not yet processed"))}
+        det = (e.get("detail") if e is not None else None) or {}
+        path = det.get("path") if isinstance(det, dict) else None
+        if path and os.path.exists(path):
+            s = json.loads(open(path, encoding="utf-8").read())
+            pa = pd.Timestamp(s["predicted_at"])
+            av = s.get("availability", {})
+            due = [v for v, at in reg.items() if at < pa]
+            ch = s.get("shadow_challengers") or {}
+            row |= {"archived_at": pa, "lag_min": round((pa - t).total_seconds() / 60, 1),
+                    "before_kickoff": pa < row["kickoff_utc"], "read_only": not (os.stat(path).st_mode & stat.S_IWRITE),
+                    "p_home_champion": s.get("p_champion"),
+                    "challengers_saved": f"{sum(isinstance(ch.get(v), dict) and ch[v].get('p_champion') is not None for v in due)}/{len(due)}",
+                    "home_qb": names.get((av.get("home") or {}).get("qb_projected_id")),
+                    "away_qb": names.get((av.get("away") or {}).get("qb_projected_id")),
+                    "final_report_both": all((av.get(x) or {}).get("inj_report_available") == 1 for x in ("home", "away")),
+                    "stale_data": s.get("stale_data")}
+        rows.append(row)
+    df = pd.DataFrame(rows).sort_values(["kickoff_utc", "game_id", "scheduled_utc"])
+    # QB / injury-report changes between consecutive archived stages of the same game
+    df["changed_since_previous_stage"] = None
+    for gid, d in df[df.get("archived_at").notna()].groupby("game_id") if "archived_at" in df else []:
+        prev = None
+        for i, r in d.iterrows():
+            if prev is not None:
+                ch = [k for k in ("home_qb", "away_qb", "final_report_both") if r[k] != prev[k]]
+                if r["p_home_champion"] is not None and prev["p_home_champion"] is not None:
+                    ch.append(f"p {prev['p_home_champion']:.3f}->{r['p_home_champion']:.3f}")
+                df.at[i, "changed_since_previous_stage"] = ", ".join(ch)
+            prev = r
+    return df

@@ -698,6 +698,19 @@ def page_prospective():
         m = P.score()
     n = (m.get("overall") or {}).get("games_scored", 0)
     st.metric("Completed games with a pre-kickoff archived prediction", n)
+    from lab import compare7
+    df7 = compare7.collect()
+    stage7 = st.selectbox("Stage", ["final", "t60", "t90", "t24h", "friday", "early_week", "early"], key="cmp7")
+    c7 = compare7.compare(df7, stage7)
+    st.subheader(f"Champion vs challengers on identical games ({c7['games']} games at stage '{stage7}')")
+    if c7["games"]:
+        st.dataframe(c7["by_version"].round(4), hide_index=True, use_container_width=True)
+        st.dataframe(c7["paired"].round(4), hide_index=True, use_container_width=True)
+        sc = compare7.stage_changes(df7)
+        if len(sc):
+            st.write("**Did fresher information help?** First vs last archived forecast for the same game:")
+            st.dataframe(sc.round(4), hide_index=True, use_container_width=True)
+    st.caption("A single weekend is far too small for conclusions; the registered rule needs 128+ games and Holm correction.")
     if not n:
         st.info("No archived game has finished yet. Results appear automatically after the first tracked games end.")
         return
@@ -1087,39 +1100,100 @@ def page_afi():
     _phase7_panel()
 
 
+@st.cache_resource(show_spinner=False)
+def _bundle_features(version):
+    return training.load_bundle(version)["features"]
+
+
 def _debate_context(fs, row):
-    """Phase 7: what the models assume about each QB, how sources agree, and known data gaps for this game."""
+    """Phase 7.1: (1) what the champion knew, (2) what each challenger knew, (3) what live monitoring knows now."""
     from lab import live
+    from lab import prospective as P
+    from lab import transparency as T
     g = fs[fs["game_id"] == row["game_id"]]
     if g.empty:
         return
     g = g.iloc[0]
     names = availability.player_names()
-    with st.expander("Data behind this debate: quarterbacks, sources and gaps (Phase 7)", expanded=True):
-        qb1, _ = availability.depth_chart_qb1(int(g["season"]))
-        espn, _ = live.espn_full()
+    nm = lambda i: names.get(i, i) if isinstance(i, str) else "unknown"
+    lives = {}
+    if not bool(g["completed"]):
         off = live.official_qb_status(int(g["season"]))
-        for side in ("away", "home"):
-            lab_, note = live._qb_certainty(g, side, qb1, espn, names, off)
-            v1 = names.get(g.get(f"{side}_qb_projected_id"), "unknown")
-            v2 = names.get(g.get(f"{side}_qb7_projected_id"), "unknown")
-            st.write(f"**{g[f'{side}_team']}**: champion models assume **{v1}**" + (f"; QB projection v2 assumes **{v2}**" if v2 != v1 else "")
-                     + f". Source check: *{lab_}*. {note}")
-        gaps = []
-        if not all(g.get(f"{s_}_inj_report_available", 0) == 1 for s_ in ("home", "away")):
-            gaps.append("no verified pregame injury report for at least one team (injury features treated as unknown)")
-        if g.get("home_p5_model_staleness_days", 0) > 14:
-            gaps.append(f"Phase 5 player model is {int(g['home_p5_model_staleness_days'])} days stale (no 2026 participation data); "
-                        "the Phase 7 snap model is current but is an approximation")
-        st.caption("Known gaps: " + ("; ".join(gaps) if gaps else "none detected") +
-                   ". The six models make highly correlated errors (residual correlation 0.97+), so their agreement is not independent confirmation.")
+        for side in ("home", "away"):
+            try:
+                lives[side] = T.live_qb(g[f"{side}_team"], int(g["season"]), int(g["week"]), g, side, names, off)
+                w = T.conflict_warning(g, side, lives[side], names)
+                if w:
+                    st.warning("QB conflict: " + w)
+            except Exception as exc:
+                lives[side] = {"live_qb": None, "status": f"unavailable ({exc.__class__.__name__})", "sources": {}}
+    with st.expander("What each model version knew (and what live monitoring knows now)", expanded=True):
+        st.caption("Rows 1-3 are model inputs computed from the current feature store for this game. The live row is "
+                   "monitoring only and never changes a prediction. Archived pregame forecasts are listed below separately.")
+        rows = []
+        versions = [(training.current_version(), "1 · Champion")] + \
+                   [(v, f"2 · Challenger {v.split('_', 2)[-1]}") for v in P.challenger_versions()]
+        for v, label in versions:
+            try:
+                vi = T.version_inputs(g, _bundle_features(v))
+            except Exception:
+                continue
+            rows.append({"version": label, "QB rule": vi["qb_rule"],
+                         f"{g['away_team']} QB": nm(vi["away_qb_id"]), f"{g['home_team']} QB": nm(vi["home_qb_id"]),
+                         "injury report": f"{g['away_team']}: {vi['away_injury_report']}; {g['home_team']}: {vi['home_injury_report']}",
+                         "report retrieved": vi["home_injury_report_time"], "player model": vi["player_model"],
+                         "missing features": f"{vi['features_missing']} of {vi['n_features']}" +
+                                             (f" ({', '.join(vi['features_missing_names'][:4])})" if vi["features_missing"] else "")})
+        if lives:
+            rows.append({"version": "3 · Live monitoring (not a model input)", "QB rule": "official report + rosters + Sleeper + v2",
+                         f"{g['away_team']} QB": f"{lives['away'].get('live_qb')} [{lives['away']['status']}]",
+                         f"{g['home_team']} QB": f"{lives['home'].get('live_qb')} [{lives['home']['status']}]",
+                         "injury report": f"official report week {lives['home'].get('official_report_week')}",
+                         "report retrieved": None, "player model": "n/a", "missing features": "n/a"})
+        if bool(g["completed"]):
+            rows.append({"version": "Confirmed after the game (play-by-play)", "QB rule": "actual starters",
+                         f"{g['away_team']} QB": T.confirmed_qb(g["game_id"], "away"), f"{g['home_team']} QB": T.confirmed_qb(g["game_id"], "home"),
+                         "injury report": "", "report retrieved": None, "player model": "", "missing features": ""})
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+        if lives:
+            if st.toggle("Show live QB sources", key=f"lqs_{g['game_id']}"):
+                st.json({s_: {k: lives[s_].get(k) for k in ("sources", "official_out_or_doubtful", "roster_reserve_or_inactive", "status")}
+                         for s_ in lives})
+        hist = T.snapshot_history(g["game_id"])
+        st.write("**Archived pregame forecasts** (immutable; what each version actually predicted at each stage):")
+        if len(hist):
+            st.dataframe(hist, hide_index=True, use_container_width=True)
+        else:
+            st.caption("None archived for this game. The forecasts on this page are newly calculated analysis, not archived predictions.")
+        st.caption("Agreement is not extra confidence: all six models receive the same 85 features and one shared signal explains 91% "
+                   "of their variation. Historically, unanimous 50-60% favourites won 51% of games versus 55% for split votes.")
 
 
 def _phase7_panel():
     from lab import audit7, errors, extra_sources as X, study7
     st.header("Phase 7: 2026 data, QB intelligence and error analysis")
     st.caption("Monitoring sources never enter models. Historical results below are descriptive unless marked as the pre-declared test.")
-    t = st.tabs(["QB sources", "QB projection v2", "Snap model & challenger test", "Error analysis", "Weekend audit"])
+    t = st.tabs(["QB sources", "QB projection v2", "Snap model & challenger test", "Error analysis", "Weekend audit",
+                 "Why the models agree"])
+    with t[5]:
+        from lab import shared_errors as SE
+        r = SE.load()
+        if not r:
+            st.caption("Run `python -m lab.cli shared-errors`.")
+        else:
+            st.write(r["inputs"])
+            st.write(f"One shared component explains **{r['first_component_share_of_prediction_variance']:.0%}** of the six models' "
+                     "prediction variance.")
+            st.dataframe(r["shared_signal"].round(3), hide_index=True, use_container_width=True)
+            st.write("**Is agreement confidence?** Observed favourite win rate by vote split, and unanimity within the same probability band:")
+            st.dataframe(r["vote_split"].round(3), hide_index=True, use_container_width=True)
+            st.dataframe(r["unanimity_within_band"].round(3), hide_index=True, use_container_width=True)
+            a6 = r["all_six_wrong"]
+            st.write(f"**Games all six got wrong:** {a6['games']} ({a6['share']:.0%}). The closing market was also wrong in "
+                     f"{a6['market_also_wrong']:.0%} of them, which suggests most shared misses were not predictable before kickoff. "
+                     f"In {a6['market_right_models_wrong']:.0%} the market was right: candidates for missing pregame information.")
+            st.dataframe(r["by_qb"].round(3), hide_index=True, use_container_width=True)
+            st.caption("Descriptive, all walk-forward seasons including the inspected 2023-24; nothing here selects a model.")
     with t[0]:
         from lab.data_pipeline import current_season
         fs = feature_store()
@@ -1304,6 +1378,28 @@ def page_live():
         st.subheader("Scheduler runs")
         th = th.assign(errors=th["errors"].map(lambda e: "; ".join(e) if isinstance(e, list) else e))
         st.dataframe(th.iloc[::-1].head(60), hide_index=True, use_container_width=True)
+    from lab import audit7, compare7
+    stt = audit7.stage_table()
+    if len(stt):
+        st.subheader("Kickoff-relative forecasts: completed, missed and pending")
+        st.caption("One immutable archive per game and stage. Pending stages are never evaluated; missed stages are never back-filled.")
+        o = stt["outcome"].value_counts()
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Archived", int(o.get("done", 0)))
+        c2.metric("Missed", int(o.get("missed", 0)))
+        c3.metric("Pending", int(o.get("pending", 0)))
+        show = stt[stt["outcome"] != "pending"].copy()
+        for c in ("scheduled_utc", "kickoff_utc", "archived_at"):
+            if c in show:
+                show[c] = show[c].map(lambda t: S.et(t) if pd.notna(t) else None)
+        st.dataframe(show, hide_index=True, use_container_width=True)
+    cmp_ = compare7.compare(compare7.collect())
+    st.subheader("Prospective comparison (identical archived games)")
+    if cmp_["games"]:
+        st.dataframe(cmp_["by_version"].round(4), hide_index=True, use_container_width=True)
+        st.dataframe(cmp_["paired"].round(4), hide_index=True, use_container_width=True)
+    else:
+        st.caption("No archived game has finished yet; results appear automatically after games end (128+ games needed for any conclusion).")
     from lab import extra_sources as X
     h = X.source_health()
     if len(h):
