@@ -294,7 +294,8 @@ META_COLUMNS = [
 
 def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.DataFrame,
                         injuries: pd.DataFrame | None = None, qb_status: dict | None = None,
-                        extra_team: pd.DataFrame | None = None) -> pd.DataFrame:
+                        extra_team: pd.DataFrame | None = None, advanced: bool = False,
+                        advanced_transform=None) -> pd.DataFrame:
     """injuries: per (game_id, team) output of availability.team_injury_features (verified rows only).
     qb_status: (game_id, team, gsis_id) -> verified pregame report status."""
     long = _team_game_long(games, tstats)
@@ -312,6 +313,9 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
         per_team = per_team.merge(travel_coach_context(games), on=["game_id", "team"], how="left")
     if extra_team is not None:
         per_team = per_team.merge(extra_team, on=["game_id", "team"], how="left")
+    if advanced:
+        from . import advanced as adv
+        per_team = per_team.merge(adv.build_team_features(games, tstats, ratings, advanced_transform), on=["game_id", "team"], how="left")
     team_cols = [c for c in per_team.columns if c not in ("game_id", "team")]
     fs = games[META_COLUMNS + ["neutral_site", "div_game", "roof_type"]].copy()
     for side in ("home", "away"):
@@ -346,6 +350,17 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
     if "home_rating_off_epa" in fs:
         new["p3_mx_home_off_vs_away_def"] = fs["home_rating_off_epa"] + fs["away_rating_def_epa"]
         new["p3_mx_away_off_vs_home_def"] = fs["away_rating_off_epa"] + fs["home_rating_def_epa"]
+    # Phase 4 advanced groups: home-minus-away for every windowed team feature, plus matchups
+    for c in [c[5:] for c in fs.columns if c.startswith("home_p4")]:
+        new[f"diff_{c}"] = fs[f"home_{c}"] - fs[f"away_{c}"]
+    pairs = {"pressure": ("p4pfr_blend_pfr_pressured_rate", "p4pfr_blend_def_pfr_def_pressure_rate"),
+             "run_block": ("p4pfr_blend_pfr_ybc_per_carry", "p4pfr_blend_def_pfr_ybc_allowed"),
+             "separation": ("p4ngs_blend_ngs_separation", "p4ngs_blend_def_ngs_separation_allowed")}
+    for name, (o, d) in pairs.items():
+        if f"home_{o}" in fs and f"away_{d}" in fs:
+            new[f"p4mx_home_{name}"] = fs[f"home_{o}"] + fs[f"away_{d}"]
+            new[f"p4mx_away_{name}"] = fs[f"away_{o}"] + fs[f"home_{d}"]
+            new[f"p4mx_net_{name}"] = new[f"p4mx_home_{name}"] - new[f"p4mx_away_{name}"]
     if "away_travel_km" in fs:
         new["p3_away_travel_km"] = fs["away_travel_km"]
         new["p3_away_tz_shift"] = fs["away_tz_shift"]
@@ -397,9 +412,18 @@ def feature_groups(columns) -> dict[str, list[str]]:
         "Offense-vs-defense matchups": [c for c in cols if c.startswith("mx_")],
         INJURY_GROUP: [c for c in cols if c.startswith(("diff_inj_", "inj_mx_")) or c == "inj_available"],
         PHASE3_GROUP: [c for c in cols if c.startswith("p3_")],
+        **{name: [c for c in cols if c.startswith(pfx)] for name, pfx in P4_GROUPS.items()},
     }
 
 
+P4_GROUPS = {
+    "Phase 4: personnel & pressure (participation)": "diff_p4pers_",
+    "Phase 4: Next Gen Stats": "diff_p4ngs_",
+    "Phase 4: PFR advanced (pressure, contact, tackling)": "diff_p4pfr_",
+    "Phase 4: roster experience, depth & continuity": "diff_p4roster_",
+    "Phase 4: strength of schedule faced": "diff_p4sos_",
+    "Phase 4: advanced matchups (pressure, run blocking, separation)": "p4mx_",
+}
 PHASE3_GROUP = "Phase 3 context (travel, time zone, coaching, opp-adjusted off/def EPA, OL churn)"
 INJURY_GROUP = "Injury availability (verified pregame reports, 2016-2024 + lab archive)"
 
@@ -440,6 +464,11 @@ def feature_catalog(columns) -> pd.DataFrame:
         elif "rating" in c:
             source, formula = "nfldata scores + pbp", (f"ridge rating (lambda={RATING_RIDGE}) fit on games before the week's first kickoff; "
                                                       f"previous season weighted {RATING_PREV_WEIGHT}")
+        elif "p4" in c:
+            source, formula = ("nflverse participation / Next Gen Stats / PFR advanced weekly / snap counts + players",
+                               "Phase 4: per team-game aggregate from earlier games only; blend = (n*season-to-date + 3*previous "
+                               "season)/(n+3), l5 = last 5 games; def_ = what this team's defense allowed; NaN where the source "
+                               "does not cover the season")
         elif c.startswith("p3_") or any(k in c for k in ("travel_km", "tz_shift", "body_clock", "coach_", "ol_churn", "rating_off", "rating_def")):
             source, formula = ("nfldata schedule (stadium, coaches) + static stadium geography + pbp + PFR snap counts",
                                "Phase 3: travel = great-circle km from the team's home stadium that season to the game site; "

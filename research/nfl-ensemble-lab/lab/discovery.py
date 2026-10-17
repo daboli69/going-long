@@ -106,6 +106,8 @@ def orient(fs_rows: pd.DataFrame, p_home: np.ndarray) -> tuple[pd.DataFrame, np.
             cols["dmf_" + c[5:]] = v * s
         elif c.startswith("mx_net_") or c in ("mx_turnover_margin", "mx_recent_form", "mx_form_vs_season"):
             cols["dmf_" + c[3:]] = v * s
+        elif c.startswith(("p3_diff_", "p4mx_net_")):   # Phase 3/4 matchup differences (home minus away)
+            cols["dmf_" + c.split("_", 2)[2] if c.startswith("p3_diff_") else "dmf_" + c] = v * s
         elif c.startswith("mx_home_off_vs_def_"):
             other = fs_rows[c.replace("mx_home_", "mx_away_")].astype(float).to_numpy()
             k = c[len("mx_home_"):]
@@ -803,7 +805,15 @@ def run_experiment(cfg: dict | None = None, progress=print, base_loader=load_bas
     """Run discovery for every baseline and origin; write immutable artifacts.
     Note: discovery-stage p/q values are NOMINAL. Rules and pairs are searched adaptively on the
     same discovery games, so only the independent validation test (Holm) is a valid significance test."""
-    cfg = {**DEFAULT_CONFIG, **(cfg or {})}
+    user_cfg = cfg or {}
+    cfg = {**DEFAULT_CONFIG, **user_cfg}
+    # Every experiment re-uses the same validation seasons. Count the looks and divide the
+    # validation alpha so repeated mining is not treated as new independent evidence.
+    base_dir = out_dir or DISCOVERY_DIR
+    looks = 1 + sum(1 for d in base_dir.glob("d*") if (d / "summary.json").exists())
+    if "validation_alpha" not in user_cfg:
+        cfg["validation_alpha"] = DEFAULT_CONFIG["validation_alpha"] / looks
+    cfg["validation_look"] = looks
     t0 = time.time()
     exp_id = datetime.now(timezone.utc).strftime("d%Y%m%d_%H%M%S")
     out = (out_dir or DISCOVERY_DIR) / exp_id

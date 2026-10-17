@@ -36,7 +36,8 @@ def _hist_metrics(run: dict) -> dict:
     return out
 
 
-def predict_games(games: pd.DataFrame, bundle: dict, run: dict | None = None, explain: bool = True) -> tuple[pd.DataFrame, list[dict]]:
+def predict_games(games: pd.DataFrame, bundle: dict, run: dict | None = None, explain: bool = True,
+                  challengers: bool = True) -> tuple[pd.DataFrame, list[dict]]:
     """Run all six models + ensembles + margins on feature-store rows.
     Returns a flat table and one debate record per game."""
     run = run or {}
@@ -46,8 +47,10 @@ def predict_games(games: pd.DataFrame, bundle: dict, run: dict | None = None, ex
     agree = run.get("agreement", pd.DataFrame())
     out = games[["game_id", "season", "week", "kickoff_utc", "home_team", "away_team", "home_qb_name", "away_qb_name",
                  "spread_line", "home_moneyline", "away_moneyline", "market_p_home_novig", "completed", "home_score", "away_score"]].copy()
+    fbm = bundle.get("features_by_model") or {}
     for k in keys:
-        raw = bundle["clf"][k].predict_proba(Xall)[:, 1]
+        ck = fbm.get(k, cols)
+        raw = bundle["clf"][k].predict_proba(games[ck].astype(float).to_numpy())[:, 1]
         out[f"raw_{k}"] = raw
         out[f"p_{k}"] = bundle["calibrators"][k].transform(raw)
         out[f"margin_{k}"] = bundle["reg"][k].predict(Xall)
@@ -59,6 +62,17 @@ def predict_games(games: pd.DataFrame, bundle: dict, run: dict | None = None, ex
     out["champion_method"] = champ
     out["p_champion"] = out[f"p_{champ}"]
     out["margin_ensemble"] = out[[f"margin_{k}" for k in keys]].mean(axis=1)
+    chall = {}
+    if challengers:
+        from .prospective import challenger_versions
+        from .training import load_bundle as _lb, load_run as _lr
+        for cv in challenger_versions():
+            try:
+                ct, _ = predict_games(games, _lb(cv), _lr(cv), explain=False, challengers=False)
+                out[f"challenger_{cv}"] = ct["p_champion"].values
+                chall[cv] = ct
+            except Exception as exc:  # a broken challenger never blocks the champion
+                out[f"challenger_{cv}"] = np.nan
     warn_cols = []
     debates = []
     for i, (_, g) in enumerate(out.iterrows()):
@@ -75,7 +89,8 @@ def predict_games(games: pd.DataFrame, bundle: dict, run: dict | None = None, ex
         warn_cols.append("; ".join(warns))
         if not explain:
             continue
-        exps = {k: X.explain(k, bundle["clf"][k], Xall[i:i + 1], cols) for k in keys}
+        exps = {k: X.explain(k, bundle["clf"][k], games.iloc[[i]][fbm.get(k, cols)].astype(float).to_numpy(), fbm.get(k, cols))
+                for k in keys}
         debates.append(_debate(g, keys, probs, v, exps, hist, agree, ens_winner, warns))
     out["data_warnings"] = warn_cols
     return out, debates
@@ -114,8 +129,8 @@ def _debate(g, keys, probs, v, exps, hist, agree, ens_winner, warns) -> dict:
     away_bloc = [k for k in keys if probs[k] < 0.5]
     split_feats = []
     if home_bloc and away_bloc:
-        feats = shares[keys[0]].keys()
-        diff = {f: np.mean([shares[k][f] for k in home_bloc]) - np.mean([shares[k][f] for k in away_bloc]) for f in feats}
+        feats = set().union(*[shares[k].keys() for k in keys])
+        diff = {f: np.mean([shares[k].get(f, 0.0) for k in home_bloc]) - np.mean([shares[k].get(f, 0.0) for k in away_bloc]) for f in feats}
         split_feats = [{"feature": f, "home_bloc_minus_away_bloc_share": float(d)}
                        for f, d in sorted(diff.items(), key=lambda kv: -abs(kv[1]))[:6]]
     fam = {}
@@ -126,7 +141,24 @@ def _debate(g, keys, probs, v, exps, hist, agree, ens_winner, warns) -> dict:
     if len(agree):
         a = agree[agree["model_a"] < agree["model_b"]].sort_values("vote_agreement")
         hist_agree = a.to_dict("records")
-    r3 = {"dissenters": [ens.MODEL_NAMES[k] for k in (away_bloc if v["winner"] == "home" else home_bloc)],
+    fshares = {k: X.factor_shares(exps[k]) for k in keys}
+    factors = sorted({f for k in keys for f in fshares[k]})
+    factor_rows = [{"model": ens.MODEL_NAMES[k], "vote": "home" if probs[k] > 0.5 else "away",
+                    **{f: round(fshares[k].get(f, {}).get("net", 0.0), 4) for f in factors}} for k in keys]
+    factor_split = []
+    if home_bloc and away_bloc:
+        for f in factors:
+            h = np.mean([fshares[k].get(f, {}).get("net", 0.0) for k in home_bloc])
+            a = np.mean([fshares[k].get(f, {}).get("net", 0.0) for k in away_bloc])
+            factor_split.append({"factor": f, "home_bloc_net": round(float(h), 4), "away_bloc_net": round(float(a), 4),
+                                 "difference": round(float(h - a), 4)})
+        factor_split.sort(key=lambda r: -abs(r["difference"]))
+    pv_range = float(max(probs.values()) - min(probs.values()))
+    agreement = ("All six models agree on the winner and their probabilities are within "
+                 f"{pv_range:.1%} of each other; there is no meaningful disagreement to explain."
+                 if v["unanimous"] and pv_range < 0.10 else None)
+    r3 = {"factor_net_by_model": factor_rows, "factors_separating_blocs_by_factor": factor_split, "agreement_note": agreement,
+          "dissenters": [ens.MODEL_NAMES[k] for k in (away_bloc if v["winner"] == "home" else home_bloc)],
           "prob_range": float(pv.max() - pv.min()), "prob_std": float(pv.std()),
           "features_separating_blocs": split_feats,
           "family_votes": {f: {"votes": vs, "consistent": len(set(vs)) == 1} for f, vs in fam.items()},
@@ -141,6 +173,7 @@ def _debate(g, keys, probs, v, exps, hist, agree, ens_winner, warns) -> dict:
           "vote_vs_ensemble_disagree": r4["winner_team"] != ens_winner,
           "margin_models": {models.MARGIN_NAMES[k]: float(g[f"margin_{k}"]) for k in keys},
           "margin_ensemble": float(g["margin_ensemble"]),
+          "challengers": {c[len("challenger_"):]: (None if pd.isna(g[c]) else float(g[c])) for c in g.index if str(c).startswith("challenger_")},
           "market_p_home_novig": None if pd.isna(g["market_p_home_novig"]) else float(g["market_p_home_novig"]),
           "spread_line": None if pd.isna(g["spread_line"]) else float(g["spread_line"]),
           **{f"{k}_val": hist.get(k, {}) for k in ("equal_average", "weighted_average", "stacking")}}

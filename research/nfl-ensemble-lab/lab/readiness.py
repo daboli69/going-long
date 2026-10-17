@@ -78,7 +78,13 @@ def check_perturbation(games: pd.DataFrame, fs: pd.DataFrame) -> dict:
     t2.loc[t2["game_id"] == gid, num] = t2.loc[t2["game_id"] == gid, num] * 3 + 1
     q2.loc[q2["game_id"] == gid, "qb_epa_sum"] = 500.0
     s2.loc[s2["game_id"].isin([gid, target["source_game_id"]]), "role"] = 0.0
-    pert = assemble_from_cache(g2, t2, q2, s2)
+    def scramble(tg):  # perturb every advanced source (participation, NGS, PFR, roster) for the target game
+        tg = tg.copy()
+        num = [c for c in tg.columns if c not in ("game_id", "team")]
+        m = tg["game_id"] == gid
+        tg.loc[m, num] = tg.loc[m, num].astype(float) * 5 + 3
+        return tg
+    pert = assemble_from_cache(g2, t2, q2, s2, advanced_transform=scramble)
     cols = [c for c in base.columns if c not in META_COLUMNS and base[c].dtype.kind in "fi"
             and not c.endswith(("_report_time",))]
     a = base.set_index("game_id")

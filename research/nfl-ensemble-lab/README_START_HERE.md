@@ -54,6 +54,21 @@ The task runs only while you are logged in to Windows.
 Dashboard pages: **Prospective Performance** (unseen 2026 games only), **Prediction Archive**,
 **Data Freshness** (runs, stale data, missed cutoffs), **Baseline Research** (model-improvement study).
 
+## Overnight model research (Phase 4)
+
+1. Double-click **`run_overnight_research.bat`**, type `8` and press Enter (or 1, 4, 12).
+2. You can close that window. Research keeps running in the background at low priority, using
+   about 6 of your 16 CPU threads, so the PC stays usable.
+3. In the morning, open the dashboard (**`launch_lab.bat`**) → **Long-Run Research**. You'll see
+   trials per model, the best version of each of the six models, and the one-time validation check.
+4. To stop early: **`stop_research.bat`** or the Stop button. Completed trials are always kept. A stopped
+   or interrupted job can be resumed from the same page ("Resume").
+
+Only one research job can run at a time. Research never replaces the champion: a model that wins its
+validation check can only become a *shadow challenger*, and promotion needs 128+ real future games.
+The **Advanced Football Intelligence** page shows the new data (Next Gen Stats, PFR pressure and contact
+stats, personnel, roster experience), matchup views, and whether those features helped.
+
 ## Upset Discovery (Phase 2 research)
 
 - Double-click **`run_research.bat`** (a few minutes). It refreshes data, runs the readiness gate,

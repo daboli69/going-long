@@ -81,3 +81,40 @@ def normalized_shares(expl: dict) -> dict[str, float]:
     allc = expl["all"]
     tot = sum(abs(v) for v in allc.values()) or 1.0
     return {k: v / tot for k, v in allc.items()}
+
+
+FACTOR_RULES = [
+    ("Player availability / injuries", ("inj_",)),
+    ("Quarterback", ("qb_",)),
+    ("Coaching", ("coach",)),
+    ("Roster experience & depth", ("p4roster", "ol_churn")),
+    ("Next Gen Stats", ("p4ngs",)),
+    ("Personnel, pressure & tackling", ("p4pers", "p4pfr", "p4mx_")),
+    ("Opponent-adjusted strength", ("rating", "p4sos")),
+    ("Recent form", ("_l3_", "_l5_", "recent_form", "form_vs_season")),
+    ("Travel, rest & schedule", ("travel", "tz_shift", "body_clock", "rest", "short_week", "off_bye", "ctx_week", "playoff")),
+    ("Home field & venue", ("home_field", "neutral", "dome", "retractable", "div_game")),
+    ("Volume & pace", ("plays", "sec_per_play", "pass_rate", "_yds", "_td")),
+    ("Season efficiency (EPA / success)", ("blend_", "prev_", "mx_")),
+]
+
+
+def factor_of(feature: str) -> str:
+    """Football factor a feature belongs to (for summarising real model attributions)."""
+    for name, keys in FACTOR_RULES:
+        if any(k in feature for k in keys):
+            return name
+    return "Other"
+
+
+def factor_shares(expl: dict) -> dict[str, dict]:
+    """Per football factor: share of the model's total |attribution| and the net direction
+    (positive = pushes toward the home team). Computed from the model's own attributions."""
+    shares = normalized_shares(expl)
+    out: dict[str, dict] = {}
+    for f, v in shares.items():
+        k = factor_of(f)
+        d = out.setdefault(k, {"share": 0.0, "net": 0.0})
+        d["share"] += abs(v)
+        d["net"] += v
+    return out

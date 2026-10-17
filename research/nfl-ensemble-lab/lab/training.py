@@ -161,13 +161,28 @@ def select_champion(oof: pd.DataFrame, candidates: list[str], n_boot: int = 2000
 def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=print,
                  progress_frac=lambda f: None, training_from: int = FIRST_SEASON,
                  production: bool = True, tag: str = "", nested_tuning: bool = False, fit_margins: bool = True,
-                 set_current: bool = True) -> dict:
+                 set_current: bool = True, model_overrides: dict | None = None) -> dict:
     """production=False runs the full chronological evaluation without refitting or
     replacing the current production models (used for experiments).
     nested_tuning=True re-tunes hyperparameters for every walk-forward season s using only
     seasons < s (inner folds s-3..s-1), so no evaluated season ever influenced its own
     hyperparameters. set_current=False saves a production bundle without making it current
-    (used for shadow challengers)."""
+    (used for shadow challengers). model_overrides={family: long-run config} replaces that
+    family's classifier with a long-run research configuration (its own feature groups,
+    in-fold feature filter, calibration and hyperparameters)."""
+    overrides = model_overrides or {}
+    from . import longrun as LR
+    from .features import feature_groups as _fg
+
+    def _cols_for(key, train_df):
+        if key not in overrides:
+            return cols
+        g = _fg(fs.columns)
+        pool = sorted({c for grp in overrides[key]["groups"] for c in g.get(grp, [])})
+        return LR._select(train_df, pool, overrides[key].get("max_features", 0))
+
+    def _clf(key, prm):
+        return LR.make_estimator(key, overrides[key], 4) if key in overrides else models.make("clf", key, prm)
     t0 = time.time()
     fs = load_feature_store()
     cols = select_features(fs.columns, groups)
@@ -187,6 +202,9 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
     for i, key in enumerate(model_keys):
         for kind in kinds:
             progress(f"Step 1/5 tuning {models.MARGIN_NAMES[key] if kind == 'reg' else ens.MODEL_NAMES[key]} ...")
+            if kind == "clf" and key in overrides:
+                params[kind][key] = {"long_run_override": True}
+                continue
             best, res = tune(kind, key, dev, cols, progress)
             params[kind][key] = best
             tuning_log += [{"kind": kind, "model": key, **r} for r in res]
@@ -212,11 +230,13 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
             season_params = {"clf": {}, "reg": {}}
             for key in model_keys:
                 for kind in kinds:
-                    season_params[kind][key] = tune(kind, key, tr, cols, lambda m: None, folds=inner)[0]
+                    season_params[kind][key] = ({"long_run_override": True} if kind == "clf" and key in overrides
+                                                else tune(kind, key, tr, cols, lambda m: None, folds=inner)[0])
             nested_log.append({"season": int(s), "inner_folds": inner, "params": season_params})
         for key in model_keys:
-            clf = models.make("clf", key, season_params["clf"][key]).fit(Xtr, ytr)
-            out[f"raw_{key}"] = clf.predict_proba(Xte)[:, 1]
+            ck = _cols_for(key, trc)
+            clf = _clf(key, season_params["clf"][key]).fit(trc[ck].astype(float).to_numpy(), ytr)
+            out[f"raw_{key}"] = clf.predict_proba(te[ck].astype(float).to_numpy())[:, 1]
             if fit_margins:
                 reg = models.make("reg", key, season_params["reg"][key]).fit(Xm, ym)
                 out[f"margin_{key}"] = reg.predict(Xte)
@@ -224,11 +244,11 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
                 out[f"margin_{key}"] = np.nan
             if s == VALIDATION_SEASONS[0]:
                 tec = te[te["home_win"].notna()]
-                pi = permutation_importance(clf, tec[cols].astype(float).to_numpy(), tec["home_win"].to_numpy(),
+                pi = permutation_importance(clf, tec[ck].astype(float).to_numpy(), tec["home_win"].to_numpy(),
                                             scoring="neg_log_loss", n_repeats=5, random_state=0, n_jobs=1)
                 importance += [{"model": key, "feature": c, "importance": float(m), "std": float(sd),
                                 "scope": f"global: permutation importance (log loss) on {s} games, model trained on seasons < {s}"}
-                               for c, m, sd in zip(cols, pi.importances_mean, pi.importances_std)]
+                               for c, m, sd in zip(ck, pi.importances_mean, pi.importances_std)]
         out["base_home_prior"] = _baseline_home_prior(tr, te)
         out["base_pointdiff"] = _baseline_pointdiff(tr, te)
         oof_parts.append(out)
@@ -258,6 +278,8 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
         scores = {m: float(np.mean([M.log_loss(y_sel[seasons_sel == s_], c[sel_rows][seasons_sel == s_]) for s_ in np.unique(seasons_sel)]))
                   for m, c in cands.items()}
         chosen = min(scores, key=scores.get)
+        if key in overrides:   # long-run configs carry their own calibration choice (made on dev folds)
+            chosen = overrides[key].get("calibration", "none")
         cal_scores[key] = {"mean_season_log_loss_2019_2024": scores, "chosen": chosen}
         oof[f"p_{key}"] = cands[chosen]
 
@@ -373,9 +395,12 @@ def run_training(groups=DEFAULT_GROUPS, model_keys=ens.MODEL_KEYS, progress=prin
     bundle = {"version": version, "features": cols, "groups": list(groups), "model_keys": list(model_keys),
               "params": params, "clf": {}, "reg": {}, "calibrators": {},
               "train_means": dict(zip(cols, np.nanmean(X_all, axis=0))),
-              "trained_through": str(data["kickoff_utc"].max()), "n_train_games": int(len(data))}
+              "trained_through": str(data["kickoff_utc"].max()), "n_train_games": int(len(data)),
+              "features_by_model": {}, "model_overrides": overrides}
     for key in model_keys:
-        bundle["clf"][key] = models.make("clf", key, params["clf"][key]).fit(X_all, y_all)
+        ck = _cols_for(key, allc)
+        bundle["features_by_model"][key] = ck
+        bundle["clf"][key] = _clf(key, params["clf"][key]).fit(allc[ck].astype(float).to_numpy(), y_all)
         bundle["reg"][key] = models.make("reg", key, params["reg"][key]).fit(Xm_all, ym_all)
         method = cal_scores[key]["chosen"]
         bundle["calibrators"][key] = Calibrator(method).fit(hist[f"raw_{key}"], hist["home_win"])

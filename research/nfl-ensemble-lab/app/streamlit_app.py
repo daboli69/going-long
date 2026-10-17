@@ -25,6 +25,7 @@ st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide
 
 PAGES = ["Home", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
          "Weekly Predictions", "Prospective Performance", "Prediction Archive", "Data Freshness", "Baseline Research",
+         "Long-Run Research", "Advanced Football Intelligence",
          "Upset Discovery", "Upset Explorer", "Research Validation", "Research Runs", "Reports"]
 PCT = st.column_config.ProgressColumn
 
@@ -334,7 +335,18 @@ def page_debate():
                              column_config={"value": st.column_config.NumberColumn(format="%.3f"), "contribution": st.column_config.NumberColumn(format="%+.4f")})
     with t3:
         r3 = d["round3"]
+        if r3.get("agreement_note"):
+            st.success(r3["agreement_note"])
         st.write(f"Probability range across models: **{r3['prob_range']:.1%}** (std {r3['prob_std']:.1%}).")
+        if r3.get("factor_net_by_model"):
+            st.write("**Football factors behind each model's forecast** (net share of the model's own attributions; "
+                     "positive = toward the home team):")
+            st.dataframe(pd.DataFrame(r3["factor_net_by_model"]), hide_index=True, use_container_width=True)
+        if r3.get("factors_separating_blocs_by_factor"):
+            top = r3["factors_separating_blocs_by_factor"][0]
+            st.write(f"The factor that most separates the two voting blocs is **{top['factor']}** "
+                     f"(home-voting models {top['home_bloc_net']:+.3f} vs away-voting models {top['away_bloc_net']:+.3f}).")
+            st.dataframe(pd.DataFrame(r3["factors_separating_blocs_by_factor"]), hide_index=True, use_container_width=True)
         st.write("Dissenting from the majority: " + (", ".join(r3["dissenters"]) or "none (unanimous)"))
         if r3["features_separating_blocs"]:
             st.write("Features weighted most differently by the two voting blocs (share of each model's total attribution):")
@@ -372,6 +384,11 @@ def page_debate():
         st.dataframe(pd.DataFrame({"method": ["Equal-weight average", "Validation-weighted average", "Out-of-fold stacking", "Sportsbook no-vig (current line)"],
                                    "p_home": [r5["equal_average"], r5["weighted_average"], r5["stacking"], r5["market_p_home_novig"]]}),
                      hide_index=True, column_config={"p_home": PCT("P(home wins)", format="%.3f", min_value=0, max_value=1)})
+        if r5.get("challengers"):
+            st.write("Shadow challengers (experimental, not the primary forecast):")
+            st.dataframe(pd.DataFrame([{"challenger": k, "p_home": v} for k, v in r5["challengers"].items()]), hide_index=True)
+        else:
+            st.caption("No shadow challenger is registered; the champion is the only ensemble.")
         st.write("Margin models (expected home margin):")
         st.dataframe(pd.Series(r5["margin_models"], name="points").round(1), use_container_width=True)
         if r5["spread_line"] is not None:
@@ -743,6 +760,169 @@ def page_baseline_research():
     st.write(f"Shadow challengers being tracked prospectively: **{', '.join(challenger_versions()) or 'none'}**")
 
 
+def page_longrun():
+    st.title("Long-Run Research")
+    from lab import longrun as LR
+    from lab.prospective import challenger_versions
+    st.caption("Extended, resumable optimisation of all six model families on your CPU. Runs as its own background process, "
+               "so you can close the dashboard. Search uses development seasons 2019-2022 only; validation 2023-24 is looked at "
+               "once per finished job and every look is counted. Longer searches are not assumed to be better.")
+    hw = LR.hardware()
+    c = st.columns(4)
+    c[0].metric("CPU cores (physical / logical)", f"{hw['physical_cpus']} / {hw['logical_cpus']}")
+    c[1].metric("Memory", f"{hw['memory_gb']} GB")
+    c[2].metric("Default research threads", hw["default_threads"])
+    active = LR.active_job()
+    c[3].metric("Active job", active or "none")
+    st.subheader("Start a research session")
+    dur = st.radio("Duration", ["1 hour", "4 hours", "8 hours (overnight)", "12 hours", "Custom"], horizontal=True, index=2)
+    hours = {"1 hour": 1, "4 hours": 4, "8 hours (overnight)": 8, "12 hours": 12}.get(dur)
+    if dur == "Custom":
+        hours = st.number_input("Hours", min_value=0.1, max_value=72.0, value=2.0, step=0.5)
+    threads = st.slider("CPU threads for research (fewer = more responsive PC)", 1, hw["logical_cpus"], hw["default_threads"])
+    if st.button("Start research", type="primary", disabled=bool(active)):
+        jid = LR.create_job(hours=hours, threads=threads)
+        pid = LR.launch_detached(jid)
+        st.success(f"Started job {jid} (process {pid}). It keeps running if you close this page.")
+    jobs = LR.list_jobs()
+    need(jobs, "No research jobs yet.")
+    names = [j["job"] for j in jobs]
+    jid = st.selectbox("Job", names, index=names.index(active) if active in names else 0)
+    job = LR.Job(jid)
+    stt, meta = job.status(), job.meta
+    b = st.columns(5)
+    if b[0].button("Pause", disabled=jid != active):
+        job.set_control("pause")
+    if b[1].button("Continue", disabled=jid != active):
+        job.set_control("run")
+    if b[2].button("Stop", disabled=jid != active):
+        job.set_control("stop")
+        st.info("Stop requested; the job ends after the current trial and then runs its validation check.")
+    if b[3].button("Resume (new process)", disabled=bool(active) or stt.get("state") in ("completed",)):
+        LR.launch_detached(jid, resume=True)
+        st.success("Resumed. Completed trials are kept; the remaining time budget continues.")
+    if b[4].button("Refresh status"):
+        st.rerun()
+    if stt:
+        m = st.columns(5)
+        m[0].metric("State", stt.get("state"))
+        m[1].metric("Trials", stt.get("trials_total"))
+        m[2].metric("Elapsed / budget", f"{stt.get('elapsed_seconds', 0) / 3600:.2f} / {stt.get('budget_seconds', 0) / 3600:.1f} h"
+                    if stt.get("budget_seconds", 0) < 10 ** 8 else f"{stt.get('elapsed_seconds', 0) / 3600:.2f} h")
+        m[3].metric("CPU (system / job)", f"{stt.get('cpu_percent_system', 0):.0f}% / {stt.get('cpu_percent_process', 0):.0f}%")
+        m[4].metric("Memory (job / free)", f"{stt.get('memory_process_gb', 0)} / {stt.get('memory_available_gb', 0)} GB")
+        if stt.get("est_remaining_trials") is not None:
+            st.caption(f"About {stt['est_remaining_trials']} more trials expected (avg {stt.get('avg_trial_seconds')} s per trial). "
+                       f"Errors so far: {stt.get('errors', 0)}.")
+        fam = pd.DataFrame(stt.get("per_family", {})).T
+        best = {f: v.get("dev_log_loss") for f, v in stt.get("best", {}).items()}
+        fam["best_dev_log_loss"] = pd.Series(best)
+        fam.index = [name_of(i) for i in fam.index]
+        st.subheader("Best candidate per model family (development folds)")
+        st.dataframe(fam, use_container_width=True)
+    tf = job.dir / "trials.csv"
+    if tf.exists():
+        t = pd.read_csv(tf)
+        t = t[t["dev_log_loss"].notna()].sort_values(["family", "trial"])
+        if len(t):
+            t["best_so_far"] = t.groupby("family")["dev_log_loss"].cummin()
+            st.altair_chart(alt.Chart(t).mark_line().encode(x="trial:Q", y=alt.Y("best_so_far:Q", scale=alt.Scale(zero=False)),
+                            color="family:N"), use_container_width=True)
+    fin = LR.load_final(jid)
+    st.subheader("Validation check and promotion status")
+    if fin:
+        st.write(f"Validation look #{fin['validation_look']} on 2023-24 (required level after look adjustment: {fin['alpha_after_look_adjustment']:.4f}).")
+        r = pd.DataFrame(fin["results"])
+        st.dataframe(r, hide_index=True, use_container_width=True)
+        passing = r[r.get("passes", False) == True]["family"].tolist() if "passes" in r else []  # noqa: E712
+        if passing:
+            st.success(f"Families that beat the champion's version on validation: {', '.join(passing)}. They can be tracked as a "
+                       "shadow challenger; promotion still needs 128+ prospective games.")
+            if st.button("Register shadow challenger (champion unchanged)"):
+                from lab import training as _tr
+                from lab.prospective import CHALLENGERS
+                ov = {f: fin["best_configs"][f] for f in passing}
+                res = _tr.run_training(production=True, set_current=False, tag="lr_shadow", model_overrides=ov, progress=lambda m: None)
+                CHALLENGERS.write_text(json.dumps({"versions": challenger_versions() + [res["summary"]["version"]]}, indent=2))
+                st.success(f"Registered {res['summary']['version']} for prospective shadow tracking.")
+        else:
+            st.info("No family's best configuration beat the champion's version of that family on validation. Champion unchanged.")
+    else:
+        st.write("Not finalized yet (happens automatically when the job completes or is stopped).")
+    st.write(f"Current champion: **{training.current_version()}** ({name_of(training.load_run()['selection'].get('champion', ''))}). "
+             f"Shadow challengers: {', '.join(challenger_versions()) or 'none'}.")
+    if LR.VAL_LEDGER.exists():
+        with st.expander("Validation look ledger"):
+            st.code(LR.VAL_LEDGER.read_text(encoding="utf-8"))
+    lf = job.dir / "log.txt"
+    if lf.exists():
+        with st.expander("Job log"):
+            st.code("\n".join(lf.read_text(encoding="utf-8").splitlines()[-60:]))
+    st.subheader("All jobs")
+    st.dataframe(pd.DataFrame(jobs), hide_index=True, use_container_width=True)
+
+
+def page_afi():
+    st.title("Advanced Football Intelligence")
+    from lab import advanced, study4
+    from lab.features import P4_GROUPS, feature_groups
+    fs = feature_store()
+    need(fs is not None, "Download data first.")
+    st.subheader("Historical data sources")
+    st.dataframe(pd.DataFrame(advanced.SOURCE_INFO), hide_index=True, use_container_width=True)
+    with st.expander("Investigated but not used"):
+        st.dataframe(pd.DataFrame(advanced.INVESTIGATED_NOT_USED, columns=["source", "reason"]), hide_index=True, use_container_width=True)
+    groups = feature_groups(fs.columns)
+    st.subheader("New feature groups and coverage (share of games with a value)")
+    rows = []
+    for g in P4_GROUPS:
+        cols = groups.get(g, [])
+        cov = fs[fs["season"] >= 2016].groupby("season")[cols].apply(lambda d: d.notna().mean().mean()) if cols else pd.Series(dtype=float)
+        rows.append({"group": g, "features": len(cols), **{str(k): round(float(v), 2) for k, v in cov.items()}})
+    st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+    st.caption("Every value comes from games played before kickoff; seasons a source does not cover stay missing.")
+    season, week = week_picker(fs, "afi")
+    games = fs[(fs["season"] == season) & (fs["week"] == week)]
+    labels = [f"{r.away_team} @ {r.home_team}" for r in games.itertuples()]
+    i = st.selectbox("Game", range(len(games)), format_func=lambda j: labels[j], key="afi_game")
+    g = games.iloc[i]
+    st.subheader("Player and position-group availability")
+    avail = {}
+    for side in ("home", "away"):
+        avail[g[f"{side}_team"]] = {k: g.get(f"{side}_{k}") for k in (
+            "qb_projected_out", "qb_questionable", "inj_report_available", "inj_out_off", "inj_out_def",
+            "p4roster_blend_ol_exp", "p4roster_blend_def_exp", "p4roster_blend_returning_snap_share",
+            "p4roster_l5_depth_OL", "p4roster_l5_depth_DB", "ol_churn_l4")}
+    st.dataframe(pd.DataFrame(avail), use_container_width=True)
+    st.subheader("Offense vs defense matchups (from earlier games only)")
+    mx = {}
+    for name, (o, d) in {"pressure rate (OL allowed + opp. pass rush)": ("p4pfr_blend_pfr_pressured_rate", "p4pfr_blend_def_pfr_def_pressure_rate"),
+                         "yards before contact (run blocking vs run defense)": ("p4pfr_blend_pfr_ybc_per_carry", "p4pfr_blend_def_pfr_ybc_allowed"),
+                         "receiver separation vs coverage": ("p4ngs_blend_ngs_separation", "p4ngs_blend_def_ngs_separation_allowed"),
+                         "CPOE vs CPOE allowed": ("p4ngs_blend_ngs_cpoe", "p4ngs_blend_def_ngs_cpoe_allowed")}.items():
+        mx[name] = {f"{g['home_team']} offense": g.get(f"home_{o}"), f"{g['away_team']} defense allows": g.get(f"away_{d}"),
+                    f"{g['away_team']} offense": g.get(f"away_{o}"), f"{g['home_team']} defense allows": g.get(f"home_{d}")}
+    st.dataframe(pd.DataFrame(mx).T, use_container_width=True)
+    st.subheader("Do the new groups improve predictions? (nested chronological study)")
+    sd = study4.load_study()
+    if not sd:
+        st.info("The Phase 4 feature-group study has not been run yet (python -m lab.study4).")
+        return
+    sm = sd["summary"]
+    st.write(f"{sm['n_candidates']} candidates vs the champion; **{sm['n_passed']} passed** the pre-declared gate.")
+    st.dataframe(sd["gate"], hide_index=True, use_container_width=True)
+    ps = sd["per_season"]
+    if len(ps):
+        ps = ps.assign(delta=ps["config_ll"] - ps["champion_ll"])
+        st.altair_chart(alt.Chart(ps).mark_line(point=True).encode(x="season:O", y=alt.Y("delta:Q", title="log loss vs champion (lower = better)"),
+                        color="config:N", tooltip=["config", "season", alt.Tooltip("delta:Q", format="+.4f")]), use_container_width=True)
+    fi = sd["feature_importance"]
+    if len(fi):
+        st.subheader("Out-of-sample permutation importance of new features (2023, models trained on earlier seasons)")
+        st.dataframe(fi[fi["feature"].str.contains("p4|p3_")].sort_values("importance", ascending=False).head(25),
+                     hide_index=True, use_container_width=True)
+
+
 def page_reports():
     st.title("Reports")
     v = training.current_version()
@@ -774,6 +954,7 @@ try:
     {"Home": page_home, "Data Manager": page_data, "Train Models": page_train, "Model Leaderboard": page_leaderboard,
      "Model Debate": page_debate, "Weekly Predictions": page_weekly, "Prospective Performance": page_prospective,
      "Prediction Archive": page_archive, "Data Freshness": page_freshness, "Baseline Research": page_baseline_research,
+     "Long-Run Research": page_longrun, "Advanced Football Intelligence": page_afi,
      "Upset Discovery": page_discovery,
      "Upset Explorer": page_explorer, "Research Validation": page_validation, "Research Runs": page_runs,
      "Reports": page_reports}[page]()
