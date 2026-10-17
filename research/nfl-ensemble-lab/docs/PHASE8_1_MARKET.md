@@ -121,8 +121,9 @@ Run in a terminal in the lab folder, between scheduler ticks and not within 20 m
 ```
 - **Check:** `status` should then show `task_mode: pinned`, and `last_launcher_tick` should update within 5 minutes.
 - **Rollback:** `python -m lab.release switch-task development --confirm`. A backup of the old task action is saved first.
-- **Rebuild first:** pinned release d9a650e predates the Phase 8.1 hook, so the market and drive-simulator archives would pause
-  until a new release is built (`release_lab.bat release <tag>`).
+- **Release included:** release `lab-v8.1.0-ec56eb3` (this phase's commit) was then built, tested (169 passed), prewarmed (cold
+  129 s, warm 13.5 s) and activated, with `lab-v7.3.1-d9a650e` as its rollback. Switching the task therefore runs the
+  Phase 8.1 code, including the market and drive-simulator archives.
 
 ## Phase 8.2 priorities
 1. Prospective, equal-information champion vs market evaluation at each stage, using the new T1 archive. That is the only clean
