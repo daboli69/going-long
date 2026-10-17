@@ -391,6 +391,10 @@ def score(progress=print) -> dict:
     out["by_window"] = by_window
     out["paired"] = paired_comparisons(lab)
     try:
+        out["challengers"] = evaluate_challengers().to_dict("records")
+    except Exception as exc:
+        out["challengers_error"] = repr(exc)[:200]
+    try:
         from .discovery import evaluate_prospective_hypotheses
         hyp = evaluate_prospective_hypotheses()
         out["hypotheses"] = hyp.to_dict("records") if len(hyp) else []
@@ -545,3 +549,55 @@ def write_stage_snapshots(due: pd.DataFrame, progress=print, stale_refresh: bool
         by_event[ev.event_id] = {"ok": act == "written", "action": act, "path": path}
     progress(f"stage snapshots: {sum(v['ok'] for v in by_event.values())}/{len(by_event)} ok")
     return {"by_event": by_event}
+
+
+
+def record_considered(source: str, candidates: list[dict]) -> None:
+    """Audit trail: candidates considered for prospective tracking, whether they qualified, why."""
+    r = challenger_registry()
+    r.setdefault("considered", [])
+    r["considered"] = [c for c in r["considered"] if c.get("source") != source]
+    for c in candidates:
+        r["considered"].append({"source": source, **{k: (float(v) if isinstance(v, (np.floating,)) else v) for k, v in c.items()},
+                                "recorded_at": pd.Timestamp.now(tz="UTC").isoformat()})
+    CHALLENGERS.write_text(json.dumps(r, indent=2, default=str), encoding="utf-8")
+
+
+MIN_PROSPECTIVE_GAMES = 128
+
+
+def evaluate_challengers(stage: str = "final") -> pd.DataFrame:
+    """Prospective test of every tracked challenger vs the champion on identical archived games
+    (after its registration), with Holm correction across all challengers. A challenger is only
+    'supported' after >= 128 games AND a Holm-adjusted p < 0.05 with a negative mean difference."""
+    from .discovery import holm
+    reg = challenger_registry()
+    t = scored_table()
+    rows = []
+    entries = [{"version": v, "label": "shadow (gate passed)", "registered_at": None} for v in reg["versions"]] + \
+              [{"version": h["version"], "label": h["label"], "registered_at": h["registered_at"]} for h in reg["hypotheses"]]
+    for e in entries:
+        col = f"chall_{e['version']}"
+        d = t[(t["window"] == stage)] if len(t) else t
+        if len(d) and e["registered_at"]:
+            d = d[d["predicted_at"] > pd.Timestamp(e["registered_at"])]
+        if not len(d) or col not in d or d[col].notna().sum() == 0:
+            rows.append({"challenger": e["version"], "label": e["label"], "games": 0, "status": "no scored games yet"})
+            continue
+        d = d[d[col].notna() & d["home_win"].notna()]
+        r = _paired(d["home_win"].to_numpy(float), d["p_home"].to_numpy(float), d[col].to_numpy(float))
+        y = d["home_win"].to_numpy(float)
+        pa, pb = np.clip(d["p_home"].to_numpy(float), 1e-6, 1 - 1e-6), np.clip(d[col].to_numpy(float), 1e-6, 1 - 1e-6)
+        diff = -(y * np.log(pb) + (1 - y) * np.log(1 - pb)) + (y * np.log(pa) + (1 - y) * np.log(1 - pa))
+        boots = diff[np.random.default_rng(0).integers(0, len(diff), (4000, len(diff)))].mean(axis=1)
+        rows.append({"challenger": e["version"], "label": e["label"], "games": r["n"], "delta_log_loss": r["delta_log_loss"],
+                     "ci": r["ci"], "p_one_sided": float((boots >= 0).mean())})
+    df = pd.DataFrame(rows)
+    if "p_one_sided" in df:
+        ok = df["p_one_sided"].notna()
+        df.loc[ok, "p_holm"] = holm(df.loc[ok, "p_one_sided"].to_numpy())
+        df["status"] = np.where(df["games"] < MIN_PROSPECTIVE_GAMES, df.get("status", "accumulating").fillna(
+            "accumulating (" + df["games"].astype(str) + f"/{MIN_PROSPECTIVE_GAMES} games)"),
+            np.where((df["p_holm"] < 0.05) & (df["delta_log_loss"] < 0), "supported: eligible for a promotion review (never automatic)",
+                     "not supported"))
+    return df

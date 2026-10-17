@@ -738,6 +738,9 @@ def page_prospective():
     if m.get("paired"):
         st.subheader("Paired comparisons on identical games (negative = better than the champion / than final)")
         st.dataframe(pd.DataFrame(m["paired"]), hide_index=True, use_container_width=True)
+    if m.get("challengers"):
+        st.subheader("Challengers vs champion (Holm-corrected across all tracked challengers; 128+ games required)")
+        st.dataframe(pd.DataFrame(m["challengers"]), hide_index=True, use_container_width=True)
     if m.get("hypotheses"):
         st.subheader("Frozen upset hypotheses (judged only on games archived after registration)")
         st.dataframe(pd.DataFrame(m["hypotheses"]), hide_index=True, use_container_width=True)
@@ -931,8 +934,94 @@ def page_longrun():
     if lf.exists():
         with st.expander("Job log"):
             st.code("\n".join(lf.read_text(encoding="utf-8").splitlines()[-60:]))
+    _job_analysis(jid)
     st.subheader("All jobs")
     st.dataframe(pd.DataFrame(jobs), hide_index=True, use_container_width=True)
+
+
+def _job_analysis(jid):
+    """Plain-language inspection of a completed research job (development-only analysis)."""
+    from lab import analyze_longrun as AL
+    from lab import longrun as LR
+    st.subheader("What did this job learn?")
+    an = AL.load(jid)
+    if not an:
+        if (LR.LR_DIR / jid / "final.json").exists() and st.button("Analyze this job (about 1 minute)"):
+            with st.spinner("Analysing saved trials (no re-optimisation) ..."):
+                AL.analyze(jid, progress=lambda m: None)
+            st.rerun()
+        st.caption("The analysis reads the saved trials and uses development seasons (2019-2022) only for every selection.")
+        return
+    sm = an["summary"]
+    fin = LR.load_final(jid)
+    chk = an.get("selection_noise_check", pd.DataFrame())
+    if len(chk):
+        held = int((chk["gain_2022_holdout"] > 0).sum())
+        st.info(f"**Selection-noise check:** each model's best trial was picked using 2019-2021 only, then tested on 2022, "
+                f"which the pick never saw. {held} of {len(chk)} models kept any improvement on 2022. "
+                "Gains that vanish on the unseen fold are mostly noise from searching many configurations.")
+        st.dataframe(chk[["family", "gain_2019_21", "gain_2022_holdout", "selected_mean_2019_21", "champion_mean_2019_21",
+                          "selected_2022", "champion_2022"]].rename(columns={"gain_2019_21": "gain where picked (2019-21)",
+                                                                           "gain_2022_holdout": "gain on unseen 2022"}),
+                     hide_index=True, use_container_width=True)
+    cands = an.get("candidates", pd.DataFrame())
+    if len(cands):
+        st.write("**Ensemble challengers considered** (rule fixed before results: improve 2019-21 and hold on 2022):")
+        st.dataframe(cands, hide_index=True, use_container_width=True)
+        if not cands["qualifies_for_prospective_tracking"].any():
+            st.warning("No ensemble combination qualified, so no new shadow challenger was registered from this job.")
+    tabs = st.tabs(["Best configurations", "Feature groups", "Dev vs validation", "Seasons & calibration", "Curves",
+                    "Correlations", "Ensemble combinations"])
+    with tabs[0]:
+        tt = an.get("top_trials", pd.DataFrame())
+        st.dataframe(tt[tt["rank"] == 1][["family", "trial", "dev_log_loss", "n_groups", "groups", "max_features", "calibration",
+                                          "hyperparameters"]] if len(tt) else tt, hide_index=True, use_container_width=True)
+        with st.expander("Top 10 trials per model"):
+            st.dataframe(tt, hide_index=True, use_container_width=True)
+    with tabs[1]:
+        g = an.get("group_frequency", pd.DataFrame())
+        if len(g):
+            st.caption("Share of each model's 25 best trials that used a feature group. 'Enrichment' compares with all completed "
+                       "trials. The search concentrates on what scored well, so high shares are not independent evidence.")
+            piv = g.pivot(index="group", columns="family", values="share_in_top")
+            piv["mean"] = piv.mean(axis=1)
+            st.dataframe(piv.sort_values("mean", ascending=False).round(2), use_container_width=True)
+            st.dataframe(g.groupby("group")["enrichment"].mean().sort_values(ascending=False).round(3), use_container_width=True)
+    with tabs[2]:
+        if fin:
+            r = pd.DataFrame(fin["results"])
+            st.caption(f"One-time validation look #{fin['validation_look']} (required level {fin['alpha_after_look_adjustment']:.4f}). "
+                       "2023-2025 have been inspected before; these numbers check, they do not select.")
+            st.dataframe(r[[c for c in ("family", "trials", "challenger_dev", "champion_dev", "challenger_val", "champion_val",
+                                        "val_delta", "val_delta_ci", "p_holm", "challenger_diag_2025", "champion_diag_2025",
+                                        "status") if c in r]], hide_index=True, use_container_width=True)
+    with tabs[3]:
+        vm = an.get("version_metrics", pd.DataFrame())
+        st.caption("Development out-of-fold results (each season predicted by models trained on earlier seasons).")
+        st.dataframe(vm.round(4), hide_index=True, use_container_width=True)
+    with tabs[4]:
+        cu = an.get("improvement_curves", pd.DataFrame())
+        if len(cu):
+            st.altair_chart(alt.Chart(cu).mark_line().encode(x="trial:Q", y=alt.Y("best_so_far:Q", scale=alt.Scale(zero=False),
+                            title="best development log loss so far"), color="family:N"), use_container_width=True)
+            st.caption("Flat curves mean extra trials stopped finding better development scores (diminishing returns).")
+    with tabs[5]:
+        pc = an.get("prediction_correlations", pd.DataFrame())
+        if len(pc):
+            m_ = pc.reset_index().melt(id_vars=pc.index.name or "index", var_name="b", value_name="r")
+            m_.columns = ["a", "b", "r"]
+            st.altair_chart(alt.Chart(m_).mark_rect().encode(x="a:N", y="b:N", color=alt.Color("r:Q", scale=alt.Scale(domain=[0.5, 1])),
+                            tooltip=["a", "b", alt.Tooltip("r:Q", format=".3f")]), use_container_width=True)
+            st.write(f"Effective number of independent models: champion versions {sm['effective_models_champion_versions']:.2f}, "
+                     f"overnight versions {sm['effective_models_overnight_versions']:.2f} (of 6).")
+    with tabs[6]:
+        co = an.get("ensemble_combinations", pd.DataFrame())
+        if len(co):
+            st.caption("All 64 keep/replace combinations x 2 weightings, ranked on 2019-2021; the 2022 column is the check.")
+            st.dataframe(co.round(4), hide_index=True, use_container_width=True)
+            st.altair_chart(alt.Chart(co).mark_circle().encode(x=alt.X("gain_2019_21:Q", title="gain where selected (2019-21)"),
+                            y=alt.Y("gain_2022_check:Q", title="gain on 2022 check"), color="n_replaced:O",
+                            tooltip=["replaced", "weighting"]), use_container_width=True)
 
 
 def page_afi():
