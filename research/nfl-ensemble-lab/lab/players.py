@@ -291,10 +291,25 @@ def build_team_player_features(games: pd.DataFrame, valid_inj: pd.DataFrame, inj
     if plays_transform is not None:
         plays = plays_transform(plays)
     plays.to_parquet(PLAYS_CACHE, index=False)
-    lam, lam_scores = choose_lambda(plays, progress)
-    model = RAPM(plays, lam, progress)
     cut = games[games["season"] >= 2016].groupby(["season", "week"])["kickoff_utc"].min().reset_index(name="cutoff_utc")
-    fits = model.fit_schedule(cut, progress)
+    import hashlib
+
+    import joblib
+    sig = hashlib.sha256(f"{len(plays)}|{plays['epa'].sum():.8f}|{plays['kickoff_utc'].max()}|"
+                         f"{pd.util.hash_pandas_object(cut, index=False).sum()}".encode()).hexdigest()[:20]
+    fit_cache = CACHE_DIR / "rapm_fits.joblib"
+    cached = joblib.load(fit_cache) if fit_cache.exists() and plays_transform is None else None
+    if cached and cached.get("sig") == sig:
+        lam, lam_scores, fits = cached["lam"], cached["lam_scores"], cached["fits"]
+        model = type("M", (), {"pos": cached["pos"], "pid": cached["pid"], "P": cached["P"]})()
+        progress("  player model unchanged (no new plays): using cached weekly fits")
+    else:
+        lam, lam_scores = choose_lambda(plays, progress)
+        model = RAPM(plays, lam, progress)
+        fits = model.fit_schedule(cut, progress)
+        if plays_transform is None:
+            joblib.dump({"sig": sig, "lam": lam, "lam_scores": lam_scores, "fits": fits, "pos": model.pos, "pid": model.pid,
+                         "P": model.P}, fit_cache)
     last_play = plays["kickoff_utc"].max()
     shares = snap_shares(games, seasons)
     by_team = {t: d.sort_values("kickoff_utc") for t, d in shares.groupby("team")}

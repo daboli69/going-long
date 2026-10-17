@@ -24,7 +24,7 @@ from lab.config import MODELS_DIR, REPORTS_DIR, SNAPSHOTS_DIR  # noqa: E402
 
 st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide")
 
-PAGES = ["Home", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
+PAGES = ["Home", "Live Readiness & Schedule", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
          "Weekly Predictions", "Prospective Performance", "Prediction Archive", "Data Freshness", "Baseline Research",
          "Long-Run Research", "Advanced Football Intelligence", "Player Intelligence",
          "Upset Discovery", "Upset Explorer", "Research Validation", "Research Runs", "Reports"]
@@ -310,6 +310,42 @@ def page_debate():
                 "Models were trained on data that includes this game; check the leaderboard for genuine out-of-sample results.")
     t1, t2, t3, t4, t5, t6 = st.tabs(["1 · Independent forecasts", "2 · Statistical arguments", "3 · Disagreements", "4 · Vote",
                                       "5 · Consensus", "6 · Players, matchups & uncertainty"])
+    t7 = st.expander("7 · Timeline: how the forecast and football information changed across archived snapshots", expanded=False)
+    with t7:
+        from lab import live as _live
+        from lab import prospective as _P
+        led = _P.load_ledger()
+        gl = led[led["game_id"] == d["game_id"]].sort_values("predicted_at") if len(led) else led
+        if len(gl):
+            rows_ = []
+            for rr in gl.itertuples(index=False):
+                sn = json.loads((SNAPSHOTS_DIR / rr.path).read_text(encoding="utf-8"))
+                av = sn.get("availability", {})
+                rows_.append({"stage": _P.STAGE_LABELS.get(rr.window, rr.window), "archived (ET)": pd.Timestamp(rr.predicted_at).tz_convert("America/New_York").strftime("%a %I:%M %p"),
+                              "champion P(home)": sn["p_champion"], **{name_of(k): v for k, v in sn["p_home"].items()},
+                              "margin": sn.get("margin_ensemble"),
+                              "home QB out flag": av.get("home", {}).get("qb_projected_out"), "away QB out flag": av.get("away", {}).get("qb_projected_out"),
+                              "home off. inj. load": av.get("home", {}).get("inj_out_off"), "away off. inj. load": av.get("away", {}).get("inj_out_off"),
+                              "challengers": json.dumps({k: (v.get("p_champion") if isinstance(v, dict) else v) for k, v in sn.get("shadow_challengers", {}).items()})})
+            st.dataframe(pd.DataFrame(rows_), hide_index=True, use_container_width=True)
+        else:
+            st.info("No archived snapshots for this game yet.")
+        teams = d["matchup"].split(" @ ")
+        since = gl["predicted_at"].min() if len(gl) else pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=7)
+        ch = _live.changes(since=since)
+        ch = ch[ch["team"].isin(teams)] if len(ch) else ch
+        st.write("**Changes detected since the first snapshot** (official report, ESPN status, depth-chart QB1):")
+        if len(ch):
+            st.dataframe(ch, hide_index=True, use_container_width=True)
+        else:
+            st.caption("none detected")
+        tx = _live.transactions(since=pd.Timestamp.now(tz="UTC") - pd.Timedelta(days=10))
+        tx = tx[tx["team"].isin(teams)] if len(tx) else tx
+        st.write("**Recent transactions** (ESPN; monitoring only):")
+        if len(tx):
+            st.dataframe(tx, hide_index=True, use_container_width=True)
+        else:
+            st.caption("none")
     with t6:
         st.caption("Verified football data behind this matchup. Player values are statistical estimates from earlier plays only.")
         if d.get("player_context"):
@@ -665,7 +701,7 @@ def page_prospective():
         st.info("No archived game has finished yet. Results appear automatically after the first tracked games end.")
         return
     w = st.radio("Cutoff", sorted(m["by_window"]), horizontal=True,
-                 format_func=lambda x: {"final": "Final pregame (<= 30 h before kickoff)", "early": "Early week (30 h - 8 days)"}.get(x, x))
+                 format_func=lambda x: __import__("lab.prospective", fromlist=["STAGE_LABELS"]).STAGE_LABELS.get(x, x))
     r = m["by_window"][w]
     c = st.columns(4)
     ch = r["champion"]
@@ -699,6 +735,12 @@ def page_prospective():
     st.subheader("Margins")
     st.dataframe(pd.DataFrame({"ensemble margin": r["margin"], "spread at snapshot": r["spread_at_snapshot"]}).T, use_container_width=True)
     st.caption("Small samples are noisy: with fewer than ~100 games, differences of a few points of accuracy mean little.")
+    if m.get("paired"):
+        st.subheader("Paired comparisons on identical games (negative = better than the champion / than final)")
+        st.dataframe(pd.DataFrame(m["paired"]), hide_index=True, use_container_width=True)
+    if m.get("hypotheses"):
+        st.subheader("Frozen upset hypotheses (judged only on games archived after registration)")
+        st.dataframe(pd.DataFrame(m["hypotheses"]), hide_index=True, use_container_width=True)
 
 
 def page_archive():
@@ -1011,6 +1053,55 @@ def page_players():
                      use_container_width=True)
 
 
+def page_live():
+    st.title("Live Readiness & Schedule")
+    from lab import live, scheduler as S
+    st.caption("All times are America/New_York. The Windows task runs a scheduler tick every 5 minutes (no dashboard needed). "
+               "Labels describe freshness and completeness only; they are not confidence scores.")
+    if st.button("Run a scheduler tick now"):
+        with st.spinner("Running due refreshes and snapshots ..."):
+            r = S.tick(progress=lambda m: None)
+        st.write(r)
+    fs = feature_store()
+    need(fs is not None, "Download data first.")
+    sched = S.current_schedule()
+    now = pd.Timestamp.now(tz="UTC")
+    upc = sched[(pd.to_datetime(sched["kickoff_utc"], utc=True) > now) & (pd.to_datetime(sched["kickoff_utc"], utc=True) < now + pd.Timedelta(days=9))]
+    rows = fs[fs["game_id"].isin(upc["game_id"])].drop(columns=["kickoff_utc"]).merge(upc[["game_id", "kickoff_utc", "kickoff_moved"]], on="game_id")
+    st.subheader("Prediction readiness for upcoming games")
+    if len(rows):
+        rd = live.game_readiness(rows.sort_values("kickoff_utc"))
+        st.dataframe(rd, hide_index=True, use_container_width=True)
+        moved = rows[rows["kickoff_moved"]]
+        if len(moved):
+            st.warning("Kickoff times changed per ESPN: " + ", ".join(moved["game_id"]))
+    else:
+        st.info("No upcoming games in the next 9 days.")
+    st.subheader("Source freshness (last successful retrieval; last valid data is kept on failures)")
+    st.dataframe(live.source_freshness(), hide_index=True, use_container_width=True)
+    st.subheader("Scheduled events (next 48 hours and last 48 hours)")
+    ev = S.upcoming_events(48)
+    if len(ev):
+        st.dataframe(ev[["time_et", "kind", "stage", "game_id", "action", "status"]], hide_index=True, use_container_width=True)
+    else:
+        st.info("The scheduler has not built a plan yet (it does on its first tick).")
+    hist = S.event_history()
+    if len(hist):
+        missed = hist[hist["outcome"] == "missed"]
+        st.subheader(f"Missed events ({len(missed)})")
+        st.caption("A missed pregame snapshot is never back-filled after kickoff.")
+        st.dataframe(missed[["time_et", "kind", "stage", "game_id", "reason"]].tail(50), hide_index=True, use_container_width=True)
+    th = S.tick_history()
+    if len(th):
+        st.subheader("Scheduler runs")
+        th = th.assign(errors=th["errors"].map(lambda e: "; ".join(e) if isinstance(e, list) else e))
+        st.dataframe(th.iloc[::-1].head(60), hide_index=True, use_container_width=True)
+    ch = live.changes()
+    if len(ch):
+        st.subheader("Detected changes (official report, ESPN statuses, depth-chart QB1)")
+        st.dataframe(ch.head(100), hide_index=True, use_container_width=True)
+
+
 def page_reports():
     st.title("Reports")
     v = training.current_version()
@@ -1039,7 +1130,7 @@ with st.sidebar:
     st.caption("Phase 1 + Phase 2 research · not betting advice")
 
 try:
-    {"Home": page_home, "Data Manager": page_data, "Train Models": page_train, "Model Leaderboard": page_leaderboard,
+    {"Home": page_home, "Live Readiness & Schedule": page_live, "Data Manager": page_data, "Train Models": page_train, "Model Leaderboard": page_leaderboard,
      "Model Debate": page_debate, "Weekly Predictions": page_weekly, "Prospective Performance": page_prospective,
      "Prediction Archive": page_archive, "Data Freshness": page_freshness, "Baseline Research": page_baseline_research,
      "Long-Run Research": page_longrun, "Advanced Football Intelligence": page_afi, "Player Intelligence": page_players,

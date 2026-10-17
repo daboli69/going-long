@@ -52,18 +52,26 @@ def _team(code):
 
 # --------------------------------------------------------------------------- downloads
 
-def refresh_sources(seasons: list[int], live: int, progress=print) -> dict:
+LIVE_ONLY_MAX_AGE_HOURS = 0.33   # light (game-day) refreshes re-check live files after ~20 minutes
+
+
+def refresh_sources(seasons: list[int], live: int, progress=print, live_only: bool = False) -> dict:
     """Download injury, snap-count and player files. The live season's injury file
-    is archived with our retrieval time whenever its content changes."""
+    is archived with our retrieval time whenever its content changes. live_only=True
+    re-checks only the live injury report, depth chart and ESPN feed (light refresh)."""
     status = {"injury_seasons": [], "snap_seasons": [], "errors": []}
-    sources.download("nflverse_players", PLAYERS_URL, RAW_DIR / "players.parquet", max_age_hours=24 * 7,
-                     validate=sources._validate_parquet, progress=progress)
-    for s in seasons:
+    live_age = LIVE_ONLY_MAX_AGE_HOURS if live_only else sources.LIVE_MAX_AGE_HOURS
+    if not live_only:
+        sources.download("nflverse_players", PLAYERS_URL, RAW_DIR / "players.parquet", max_age_hours=24 * 7,
+                         validate=sources._validate_parquet, progress=progress)
+    for s in ([live] if live_only else seasons):
         is_live = s == live
-        for kind, url, key in (("injuries", INJURY_URL, "injury_seasons"), ("snap_counts", SNAP_URL, "snap_seasons")):
+        kinds = (("injuries", INJURY_URL, "injury_seasons"),) if live_only else \
+            (("injuries", INJURY_URL, "injury_seasons"), ("snap_counts", SNAP_URL, "snap_seasons"))
+        for kind, url, key in kinds:
             try:
                 e = sources.download(f"nflverse_{kind}_{s}", url.format(season=s), RAW_DIR / f"{kind}_{s}.parquet",
-                                     max_age_hours=sources.LIVE_MAX_AGE_HOURS if is_live else None,
+                                     max_age_hours=live_age if is_live else None,
                                      validate=sources._validate_parquet, progress=progress)
                 status[key].append(int(s))
                 if kind == "injuries" and is_live:
@@ -72,14 +80,17 @@ def refresh_sources(seasons: list[int], live: int, progress=print) -> dict:
                 status["errors"].append(f"{kind} {s}: {exc}")
     try:
         sources.download(f"nflverse_depth_{live}", DEPTH_URL.format(season=live), RAW_DIR / f"depth_charts_{live}.parquet",
-                         max_age_hours=sources.LIVE_MAX_AGE_HOURS, validate=sources._validate_parquet, progress=progress)
+                         max_age_hours=live_age, validate=sources._validate_parquet, progress=progress)
     except Exception as exc:
         status["errors"].append(f"depth chart {live}: {exc}")
     try:
         body, _ = sources._fetch(ESPN_INJURIES, timeout=60)
         payload = json.loads(body)
-        path = ARCHIVE_DIR / f"espn_injuries_{_stamp()}.json"
-        path.write_bytes(body)
+        prev = sorted(ARCHIVE_DIR.glob("espn_injuries_*.json"))
+        # keep a new archive file only when the feed content changed (ignore its own timestamp field)
+        strip = lambda p_: json.dumps({k: v for k, v in p_.items() if k != "timestamp"}, sort_keys=True)
+        if not prev or strip(json.loads(prev[-1].read_text(encoding="utf-8"))) != strip(payload):
+            (ARCHIVE_DIR / f"espn_injuries_{_stamp()}.json").write_bytes(body)
         status["espn_retrieved_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
         status["espn_records"] = sum(len(t.get("injuries", [])) for t in payload.get("injuries", []))
     except Exception as exc:

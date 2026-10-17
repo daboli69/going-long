@@ -230,12 +230,14 @@ def build_records(games: pd.DataFrame, now: pd.Timestamp, data_status: dict, sta
 
 def _content_hash(rec: dict) -> str:
     keep = {k: v for k, v in rec.items() if k not in ("hours_to_kickoff", "data_cutoff", "availability_monitor",
-                                                       "weather_forecast_live_only", "provenance", "code_version")}
+                                                       "weather_forecast_live_only", "provenance", "code_version",
+                                                       "live_context_monitoring_only", "scheduled_for", "event_id")}
     return hashlib.sha256(json.dumps(keep, sort_keys=True, default=str).encode()).hexdigest()[:20]
 
 
-def write_record(rec: dict, window: str, now: pd.Timestamp, ledger: pd.DataFrame) -> tuple[str, str | None]:
-    """Write one snapshot unless a safeguard says otherwise. Returns (action, path)."""
+def write_record(rec: dict, window: str, now: pd.Timestamp, ledger: pd.DataFrame, force_new: bool = False) -> tuple[str, str | None]:
+    """Write one snapshot unless a safeguard says otherwise. Returns (action, path).
+    force_new: stage snapshots are written once per stage even if inputs did not change."""
     kick = pd.Timestamp(rec["kickoff_utc"])
     if now >= kick - pd.Timedelta(minutes=MIN_LEAD_MIN):
         return "refused: too close to or after kickoff", None
@@ -243,7 +245,7 @@ def write_record(rec: dict, window: str, now: pd.Timestamp, ledger: pd.DataFrame
     prev = ledger[(ledger["game_id"] == rec["game_id"]) & (ledger["window"] == window)] if len(ledger) else ledger
     if window == "early" and len(prev):
         return "skipped: early snapshot already exists", None
-    if len(prev) and prev.sort_values("predicted_at")["content_hash"].iloc[-1] == h:
+    if not force_new and len(prev) and prev.sort_values("predicted_at")["content_hash"].iloc[-1] == h:
         return "skipped: inputs unchanged since last snapshot", None
     rec = {**rec, "window": window, "predicted_at": now.isoformat(), "content_hash": h, "immutable": True}
     d = PROSP_DIR / f"{rec['season']}_w{rec['week']:02d}" / rec["game_id"]
@@ -387,8 +389,49 @@ def score(progress=print) -> dict:
         res["by_week"] = wk.to_dict("records")
         by_window[w] = res
     out["by_window"] = by_window
+    out["paired"] = paired_comparisons(lab)
+    try:
+        from .discovery import evaluate_prospective_hypotheses
+        hyp = evaluate_prospective_hypotheses()
+        out["hypotheses"] = hyp.to_dict("records") if len(hyp) else []
+    except Exception as exc:
+        out["hypotheses_error"] = repr(exc)[:200]
     (SCORE_DIR / "metrics.json").write_text(json.dumps(out, indent=2, default=str), encoding="utf-8")
     return out
+
+
+def _paired(y, a, b, n_boot=2000, seed=0):
+    """Mean log-loss difference b - a on the same games, with a bootstrap 95% CI."""
+    pa, pb = np.clip(a, 1e-6, 1 - 1e-6), np.clip(b, 1e-6, 1 - 1e-6)
+    d = -(y * np.log(pb) + (1 - y) * np.log(1 - pb)) + (y * np.log(pa) + (1 - y) * np.log(1 - pa))
+    if len(d) == 0:
+        return {"n": 0}
+    boots = d[np.random.default_rng(seed).integers(0, len(d), (n_boot, len(d)))].mean(axis=1)
+    return {"n": int(len(d)), "delta_log_loss": float(d.mean()), "ci": (float(np.quantile(boots, .025)), float(np.quantile(boots, .975)))}
+
+
+def paired_comparisons(lab: pd.DataFrame) -> list[dict]:
+    """Paired log-loss differences on identical games: each model / challenger / market vs the
+    champion within a stage, and each stage vs the final pregame stage."""
+    rows = []
+    for w, d in lab.groupby("window"):
+        y = d["home_win"].to_numpy(float)
+        for c in [c for c in d.columns if c.startswith(("p_logreg", "p_xgboost", "p_decision_tree", "p_random_forest", "p_mlp",
+                                                       "p_single_layer", "chall_", "p_market_at_snapshot", "p_adj_"))]:
+            ok = d[c].notna().to_numpy()
+            if ok.sum():
+                rows.append({"stage": w, "comparison": f"{c} vs champion", **_paired(y[ok], d["p_home"].to_numpy(float)[ok],
+                                                                                   d[c].to_numpy(float)[ok])})
+    if "final" in set(lab["window"]):
+        fin = lab[lab["window"] == "final"].set_index("game_id")
+        for w, d in lab[lab["window"] != "final"].groupby("window"):
+            d = d.set_index("game_id")
+            common = d.index.intersection(fin.index)
+            if len(common):
+                y = fin.loc[common, "home_win"].to_numpy(float)
+                rows.append({"stage": w, "comparison": f"{w} vs final (champion)",
+                             **_paired(y, fin.loc[common, "p_home"].to_numpy(float), d.loc[common, "p_home"].to_numpy(float))})
+    return rows
 
 
 def load_metrics() -> dict:
@@ -437,3 +480,68 @@ def missing_report(now: pd.Timestamp | None = None) -> pd.DataFrame:
             rows.append({"game_id": r.game_id, "matchup": f"{r.away_team} @ {r.home_team}", "kickoff_utc": r.kickoff_utc,
                          "window": w, "status": status, "snapshots": int(len(have))})
     return pd.DataFrame(rows)
+
+
+# --------------------------------------------------------------------------- Phase 6 stage snapshots
+
+STAGE_LABELS = {"early_week": "early-week forecast", "friday": "Friday injury-report forecast", "t24h": "24 h before kickoff",
+                "t90": "90 min (inactives)", "t60": "60 min", "final": "final pregame (30 min)",
+                "early": "early (Phase 3 window)"}
+
+
+def live_context(game_row: pd.Series) -> dict:
+    """Monitoring-only live information for a game (never a model input)."""
+    from . import live
+    out = {}
+    try:
+        espn, espn_t = live.espn_full()
+        ina = live.espn_inactives(espn)
+        tx = live.transactions(since=_now() - pd.Timedelta(days=7))
+        for side in ("home", "away"):
+            team = game_row[f"{side}_team"]
+            out[team] = {
+                "espn_reported_inactives_partial": ina[ina["team"] == team][["player", "position"]].to_dict("records") if len(ina) else [],
+                "espn_out_or_ir": espn[(espn["team"] == team) & espn["status"].isin(["Out", "Injured Reserve", "Doubtful"])][
+                    ["player", "position", "status"]].to_dict("records") if len(espn) else [],
+                "transactions_last_7_days": tx[tx["team"] == team][["date", "type", "description"]].astype(str).to_dict("records") if len(tx) else []}
+        out["espn_retrieved"] = espn_t
+        out["official_inactive_list"] = "not available from free sources; ESPN-reported inactives above are partial"
+    except Exception as exc:
+        out["error"] = repr(exc)[:200]
+    return out
+
+
+def write_stage_snapshots(due: pd.DataFrame, progress=print, stale_refresh: bool = False, now=None) -> dict:
+    """One immutable snapshot per (game, stage) for scheduler stage events that are due."""
+    from .data_pipeline import GAMES_TABLE, load_feature_store, load_status
+    now = now or _now()
+    fs = load_feature_store()
+    gt = pd.read_parquet(GAMES_TABLE)
+    gt = gt[[c for c in ("game_id", "stadium_id", "stadium") if c in gt.columns]]
+    ids = due["game_id"].dropna().unique().tolist()
+    games = fs[fs["game_id"].isin(ids)].merge(gt, on="game_id", how="left")
+    status = load_status()
+    by_event = {}
+    if games.empty:
+        return {"by_event": {e: {"ok": False, "reason": "game not in feature store"} for e in due["event_id"]}}
+    stale = stale_refresh
+    reason = "refresh before this snapshot failed; last valid data used" if stale_refresh else None
+    recs = {r["game_id"]: r for r in build_records(games, now, status, stale, reason)}
+    ledger = load_ledger()
+    for ev in due.itertuples(index=False):
+        rec = recs.get(ev.game_id)
+        if rec is None:
+            by_event[ev.event_id] = {"ok": False, "reason": "no record"}
+            continue
+        kick = pd.Timestamp(ev.kickoff_utc) if getattr(ev, "kickoff_utc", None) is not None and not pd.isna(ev.kickoff_utc) else pd.Timestamp(rec["kickoff_utc"])
+        rec = {**rec, "kickoff_utc": kick.isoformat(), "stage": ev.stage, "stage_label": STAGE_LABELS.get(ev.stage, ev.stage),
+               "scheduled_for": str(ev.time_utc), "event_id": ev.event_id,
+               "live_context_monitoring_only": live_context(games[games["game_id"] == ev.game_id].iloc[0])}
+        prev = ledger[(ledger["game_id"] == ev.game_id) & (ledger["window"] == ev.stage)] if len(ledger) else ledger
+        if len(prev):
+            by_event[ev.event_id] = {"ok": True, "action": "already archived for this stage"}
+            continue
+        act, path = write_record(rec, ev.stage, now, ledger, force_new=True)
+        by_event[ev.event_id] = {"ok": act == "written", "action": act, "path": path}
+    progress(f"stage snapshots: {sum(v['ok'] for v in by_event.values())}/{len(by_event)} ok")
+    return {"by_event": by_event}

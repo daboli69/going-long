@@ -34,6 +34,36 @@ if this lab saved them *before* kickoff. Double-click **`refresh_data.bat`** (or
 daily in Windows Task Scheduler) so each week's Friday/Saturday report gets archived in
 `data/raw/archive/`. Never delete that folder; it cannot be re-downloaded with timestamps.
 
+## Live schedule (Phase 6): what runs automatically
+
+One Windows task, **"NFL Ensemble Lab - Data Refresh"**, runs a small scheduler every 5 minutes in the
+background (no window pops up, no dashboard needed). It is safe to leave on permanently. All times are
+New York time and DST is handled automatically.
+
+- **Every day:** data refresh at 6:00 AM, 9:00 AM, 12:00 PM, 3:00 PM, 6:00 PM and 9:00 PM.
+- **Game days:** live refresh every 30 minutes, from 3 hours before the first kickoff to the last kickoff.
+- **Each game** (follows the real kickoff, including Thursday, Monday, international and moved games):
+  - early-week forecast (Tuesday noon);
+  - Friday injury-report forecast (Friday 6 PM);
+  - 24 hours before;
+  - 3 hours before (live refresh);
+  - 90 minutes (inactives);
+  - 60 minutes;
+  - final at 30 minutes.
+
+Each forecast is saved once, read-only. If the PC is off or asleep when a step is due, that step is
+marked **missed** (with the reason) and never filled in after kickoff. The schedule continues
+automatically when the PC wakes. See **Live Readiness & Schedule** for:
+- every game's data status;
+- upcoming and missed events;
+- source freshness;
+- detected injury, QB and transaction changes.
+
+Official game-day inactive lists are not freely available as data; the lab shows ESPN-reported
+inactives (partial) and labels them that way.
+
+`refresh_data.bat` now means "refresh now by hand" (full refresh, then one scheduler run).
+
 ## Automatic prospective tracking (Phase 3)
 
 The Windows scheduled task **"NFL Ensemble Lab - Data Refresh"** runs `refresh_data.bat` daily at

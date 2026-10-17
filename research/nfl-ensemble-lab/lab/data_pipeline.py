@@ -111,6 +111,10 @@ def refresh_data(force: bool = False, progress=print) -> dict:
                          "live_injury_file_downloaded_at": sources.load_manifest().get(f"nflverse_injuries_{live}", {}).get("downloaded_at"),
                          "espn_retrieved_at": avail.get("espn_retrieved_at"), "espn_records": avail.get("espn_records"),
                          "archived_snapshots": len(list(availability.ARCHIVE_DIR.glob("nflverse_injuries_*.parquet")))}}
+    man_ = sources.load_manifest()
+    status["model_inputs"] = {k: man_.get(k, {}).get("sha256") for k in ("nfldata_games", f"nflverse_injuries_{live}")} | \
+        {"archives": len(list(availability.ARCHIVE_DIR.glob("nflverse_injuries_*.parquet")))}
+    status["features_rebuilt_at"] = status["refreshed_at"]
     STATUS.write_text(json.dumps(status, indent=2), encoding="utf-8")
     progress(f"Done: {status['completed_games']} completed games, {len(fs)} feature rows.")
     return status
@@ -231,3 +235,31 @@ def load_validation() -> dict:
 
 def numeric_matrix(fs: pd.DataFrame, cols: list[str]) -> np.ndarray:
     return fs[cols].astype(float).to_numpy()
+
+
+
+def rebuild_features(progress=print) -> dict:
+    """Light rebuild after a live refresh: re-read the (already downloaded) schedule and injury
+    files and rebuild the feature store from cached aggregates. Skipped when no model input
+    changed since the last build."""
+    from . import sources as _src
+    man = _src.load_manifest()
+    live = current_season()
+    inputs = {k: man.get(k, {}).get("sha256") for k in ("nfldata_games", f"nflverse_injuries_{live}")}
+    inputs["archives"] = len(list(availability.ARCHIVE_DIR.glob("nflverse_injuries_*.parquet")))
+    status = load_status()
+    if status.get("model_inputs") == inputs and FEATURE_STORE.exists():
+        return {"rebuilt": False, "reason": "no model input changed"}
+    games, warnings = ingest.load_games(RAW_DIR / "games.csv", CARRYOVER_SEASON)
+    tstats, qstats = pd.read_parquet(TEAM_GAMES), pd.read_parquet(QB_GAMES)
+    seasons = sorted(int(s) for s in games["season"].unique() if s <= live)
+    rows = availability.load_injury_rows([s for s in seasons if s >= 2016])
+    valid = availability.pregame_injuries(rows, games)
+    valid.to_parquet(INJURY_VALID, index=False)
+    games.to_parquet(GAMES_TABLE, index=False)
+    fs = assemble_from_cache(games, tstats, qstats)
+    fs.to_parquet(FEATURE_STORE, index=False)
+    status = load_status() | {"features_rebuilt_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "model_inputs": inputs}
+    STATUS.write_text(json.dumps(status, indent=2, default=str), encoding="utf-8")
+    progress("  feature store rebuilt (light)")
+    return {"rebuilt": True}

@@ -36,7 +36,7 @@ def test_snapshots_written_once_and_read_only(sched):
     assert sched["first"]["written"] > 0 and not sched["first"]["errors"]
     assert sched["second"]["written"] == 0 and sched["second"]["skipped"] == sched["first"]["written"]
     led = P.load_ledger()
-    assert set(led["window"]) == {"early", "final"}
+    assert {"early", "final"} <= set(led["window"])
     assert (led["predicted_at"] < led["kickoff_utc"]).all()
     for rel in led["path"]:
         f = P.SNAPSHOTS_DIR / rel
