@@ -1649,6 +1649,30 @@ def page_live():
         st.dataframe(ch.head(100).astype(str), hide_index=True, use_container_width=True)
 
 
+def _publication_health(arc):
+    """Phase 9: GOING website feed status (publication is separate from forecasting and never blocks it)."""
+    from lab import publish_going as PG
+    h = PG.health()
+    last_fc = arc["archived_at"].max() if len(arc) and "archived_at" in arc else None
+    c = st.columns(3)
+    c[0].metric("Last local forecast", S_et(last_fc) if last_fc is not None and pd.notna(last_fc) else "-")
+    lp = h.get("last_published")
+    c[1].metric("Last published to website", (lp or {}).get("at", "never"))
+    la = h.get("last_attempt") or {}
+    c[2].metric("Last attempt", ("OK" if la.get("ok") else f"failed ({la.get('stage')})") if la else "none")
+    if lp:
+        age = (pd.Timestamp.now(tz="UTC") - pd.Timestamp(lp["at"])).total_seconds() / 3600
+        (st.warning if age > 36 else st.caption)(f"Published feed age: {age:.1f} h (the website marks it stale after 36 h).")
+    if la and not la.get("ok"):
+        st.error(f"Last publication failed at {la.get('stage')}: {la.get('error') or la.get('errors')}")
+    st.caption(h["note"] + " Run publish_going.bat for a local dry run, or publish_going.bat --push to update the website feed.")
+
+
+def S_et(t):
+    from lab import scheduler as S
+    return S.et(pd.Timestamp(t))
+
+
 def _operations_panel():
     """Phase 7.3: is the live pipeline healthy and on time right now?"""
     import json as _json
@@ -1678,7 +1702,9 @@ def _operations_panel():
                    ". Policy: on time = within one scheduler interval (5 min) of the scheduled time; late but valid = later "
                    "but before kickoff; missed = no forecast before the stage deadline; unavailable = the game, model or data "
                    "could not produce a forecast. A forecast is never archived after kickoff.")
-    tabs = st.tabs(["Processing times", "Injury propagation", "Source failures", "Cache health", "Archive integrity"])
+    tabs = st.tabs(["Processing times", "Injury propagation", "Source failures", "Cache health", "Archive integrity", "Website feed"])
+    with tabs[5]:
+        _publication_health(arc)
     with tabs[0]:
         if BUILD_LEDGER.exists():
             b = pd.DataFrame([_json.loads(x) for x in BUILD_LEDGER.read_text(encoding="utf-8").splitlines() if x.strip()])

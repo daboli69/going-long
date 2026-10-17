@@ -271,12 +271,17 @@ def archive_espn_odds(scoreboard: dict | None = None) -> dict:
         return {"ok": False, "reason": repr(exc)[:200]}
 
 
+ESPN_TO_LAB = {"LAR": "LA", "WSH": "WAS", "JAC": "JAX", "LVR": "LV", "OAK": "LV", "SD": "LAC", "STL": "LA"}
+
+
 def espn_archive() -> pd.DataFrame:
+    """All archived ESPN odds rows, with ESPN team codes mapped to lab codes at read time (files are never edited)."""
     rows = []
     for f in sorted(MKT_ARCHIVE.glob("espn_odds_*.json")):
         d = json.loads(f.read_text(encoding="utf-8"))
         for r in d["rows"]:
-            rows.append(r | {"retrieved_at": d.get("retrieved_at"), "file": f.name})
+            rows.append(r | {"retrieved_at": d.get("retrieved_at"), "file": f.name,
+                             "home": ESPN_TO_LAB.get(r.get("home"), r.get("home")), "away": ESPN_TO_LAB.get(r.get("away"), r.get("away"))})
     return pd.DataFrame(rows)
 
 
