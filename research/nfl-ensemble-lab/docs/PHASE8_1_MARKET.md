@@ -132,3 +132,22 @@ Run in a terminal in the lab folder, between scheduler ticks and not within 20 m
    to information the lab already has.
 3. Decide whether a market-informed forecast is wanted as a separate, clearly labelled product. If so, pre-register it against
    the market alone, prospectively.
+
+## Erratum (added 2026-10-17 in Phase 8.2; the table above is left as originally published)
+**The 77-game 2026 comparison was recomputed from source data:**
+- `artifacts/phase81/timestamped_2026_games.csv`: 77 unique completed games, with outcomes re-verified against the games table.
+
+| Market quote | Market log loss | Champion log loss | Market minus champion [95% CI] |
+|---|---|---|---|
+| 24 h before kickoff | 0.649 | 0.659 | −0.010 [−0.059, +0.038] |
+| Last pregame quote | 0.650 | 0.659 | −0.010 [−0.059, +0.039] |
+
+Brier is 0.228 for the market and 0.234 for the champion.
+
+**Corrections:**
+1. **Lower log loss is better, so on these games the market was slightly better than the champion, not the reverse.** The
+   difference is not statistically distinguishable from zero.
+2. **The row was mislabelled "equal".** The champion's 2026 walk-forward probabilities use every pregame input up to kickoff,
+   including the final injury report. A 24-hour-old market quote has *less* recent information, so this is approximately
+   equal, slightly favouring the champion. It is not an exact equal-information contest. Exact stage-matched comparisons start
+   with the prospective archive (Phase 8.2 hypothesis P3).

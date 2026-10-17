@@ -718,6 +718,7 @@ def page_prospective():
             st.dataframe(sc.round(4), hide_index=True, use_container_width=True)
     st.caption("A single weekend is far too small for conclusions; the registered rule needs 128+ games and Holm correction.")
     _market_research()
+    _blindspot_research()
     if not n:
         st.info("No archived game has finished yet. Results appear automatically after the first tracked games end.")
         return
@@ -765,6 +766,54 @@ def page_prospective():
     if m.get("hypotheses"):
         st.subheader("Frozen upset hypotheses (judged only on games archived after registration)")
         st.dataframe(pd.DataFrame(m["hypotheses"]), hide_index=True, use_container_width=True)
+
+
+def _blindspot_research():
+    """Phase 8.2: where is the champion measurably wrong about its own probabilities? (exploratory; seasons research-exposed)"""
+    from lab import blindspots82 as BS
+    r = BS.load()
+    if not r:
+        return
+    with st.expander("Blind-spot research (Phase 8.2): calibration by situation, shared errors, prospective hypotheses", expanded=False):
+        st.caption("A favourite losing is not a model failure. 'Excess log loss' = log loss minus what a perfectly calibrated forecaster "
+                   "stating the same probability expects; above 0 means worse than its own confidence. All 2018-25 numbers are "
+                   "exploratory (every season has been examined before).")
+        ov = r.get("audit_overall")
+        if ov is not None and len(ov):
+            o = ov.iloc[0]
+            st.write(f"2018-25, {int(o['games'])} games: favourites predicted to win {o['pred_fav']:.1%}, actually won {o['obs_fav']:.1%}; "
+                     f"log loss {o['log_loss']:.3f}, excess {o['excess_ll']:+.4f}, margin MAE {o['margin_mae']:.2f}.")
+        tabs = st.tabs(["Calibration", "Situations ranked", "Shared errors", "Market vs situations", "Prospective hypotheses"])
+        with tabs[0]:
+            for k, t in (("audit_by_fav_band", "By favourite probability"), ("audit_by_week_group", "By week"), ("audit_by_season", "By season"),
+                         ("audit_by_home_away_fav", "Home vs away favourite (1 = home)"), ("audit_by_spread_band", "By predicted margin"),
+                         ("audit_by_completeness", "By injury-report completeness"), ("audit_by_team", "By team (sorted by excess)")):
+                if k in r:
+                    st.write(f"**{t}**")
+                    st.dataframe(r[k].round(4), hide_index=True, use_container_width=True)
+        with tabs[1]:
+            sc = r.get("screen")
+            if sc is not None:
+                st.caption("Ranked by evidence (p, given the champion probability; Holm across all situations). 'Recal gain' = walk-forward "
+                           "recalibration inside the situation: negative means a targeted correction would have hurt.")
+                st.dataframe(sc.sort_values("lr_p_given_champion").round(4), hide_index=True, use_container_width=True)
+        with tabs[2]:
+            if "shared_groups" in r:
+                st.dataframe(r["shared_groups"].round(4), hide_index=True, use_container_width=True)
+                st.dataframe(r["shared_conditions"].round(4), hide_index=True, use_container_width=True)
+            dg = r.get("disagreement")
+            if dg:
+                st.write(f"Does the six models' disagreement add information beyond their probability? Walk-forward gain {dg['gain']:+.4f} "
+                         f"(95% CI {dg['ci'][0]:+.4f} to {dg['ci'][1]:+.4f}, {dg['games']} games): no.")
+        with tabs[3]:
+            st.caption("Market-informed (closing line, unequal information). Large disagreements cluster in QB and injury situations, but the "
+                       "market's accuracy edge there is about the same as everywhere else.")
+            for k in ("market_disagreement", "market_advantage_by_condition"):
+                if k in r:
+                    st.dataframe(r[k].round(4), hide_index=True, use_container_width=True)
+        with tabs[4]:
+            st.caption("Registered 2026-10-17 (docs/PHASE8_2_PREREGISTRATION.md); judged only on games archived afterwards, once each.")
+            st.dataframe(BS.prospective_eval(), hide_index=True, use_container_width=True)
 
 
 def _market_research():
