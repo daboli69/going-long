@@ -438,7 +438,7 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
         new["p3_mx_home_off_vs_away_def"] = fs["home_rating_off_epa"] + fs["away_rating_def_epa"]
         new["p3_mx_away_off_vs_home_def"] = fs["away_rating_off_epa"] + fs["home_rating_def_epa"]
     # Phase 4 advanced groups: home-minus-away for every windowed team feature, plus matchups
-    for c in [c[5:] for c in fs.columns if c.startswith(("home_p4", "home_p5", "home_p7s"))]:
+    for c in [c[5:] for c in fs.columns if c.startswith(("home_p4", "home_p5", "home_p7s", "home_p72_"))]:
         new[f"diff_{c}"] = fs[f"home_{c}"] - fs[f"away_{c}"]
     # Phase 5 player-model matchups (offense values: EPA added; defense values: EPA allowed)
     if "home_p5_off_proj" in fs:
@@ -454,6 +454,14 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
         h7 = fs["home_p7s_off_proj"] + fs["away_p7s_def_proj"]
         a7 = fs["away_p7s_off_proj"] + fs["home_p7s_def_proj"]
         new["p7smx_net_expected_epa"] = h7 - a7
+    if "home_p72_OL_delta" in fs:           # Phase 7.2 lineup-change matchups (offense delta + opposing defense delta)
+        for side, opp in (("home", "away"), ("away", "home")):
+            new[f"p72mx_{side}_trenches"] = fs[f"{side}_p72_OL_delta"] + fs[f"{opp}_p72_DL_delta"]
+            new[f"p72mx_{side}_pass"] = fs[f"{side}_p72_QB_delta"] + fs[f"{side}_p72_SKILL_delta"] + fs[f"{opp}_p72_DB_delta"]
+            new[f"p72mx_{side}_total"] = (fs[[f"{side}_p72_{u}_delta" for u in ("QB", "OL", "SKILL")]].sum(axis=1, min_count=1) +
+                                          fs[[f"{opp}_p72_{u}_delta" for u in ("DL", "LB", "DB")]].sum(axis=1, min_count=1))
+        for k in ("trenches", "pass", "total"):
+            new[f"p72mx_net_{k}"] = new[f"p72mx_home_{k}"] - new[f"p72mx_away_{k}"]
     pairs = {"pressure": ("p4pfr_blend_pfr_pressured_rate", "p4pfr_blend_def_pfr_def_pressure_rate"),
              "run_block": ("p4pfr_blend_pfr_ybc_per_carry", "p4pfr_blend_def_pfr_ybc_allowed"),
              "separation": ("p4ngs_blend_ngs_separation", "p4ngs_blend_def_ngs_separation_allowed")}
@@ -514,6 +522,8 @@ def feature_groups(columns) -> dict[str, list[str]]:
         INJURY_GROUP: [c for c in cols if c.startswith(("diff_inj_", "inj_mx_")) or c == "inj_available"],
         PHASE3_GROUP: [c for c in cols if c.startswith("p3_")],
         **{name: [c for c in cols if c.startswith(pfx)] for name, pfx in P4_GROUPS.items()},
+        P72_LINEUP: [c for c in cols if c.startswith("diff_p72_") and not c.endswith("report_known")],
+        P72_MATCHUP: [c for c in cols if c.startswith("p72mx_net_")],
         P7_SNAP: [c for c in cols if c == "p7smx_net_expected_epa" or
                   (c.startswith("diff_p7s_") and not c.endswith("staleness_days"))],
         P7_QB: [c for c in cols if c in ("diff_qb7_eff", "diff_qb7_log_exp") or
@@ -528,6 +538,8 @@ def feature_groups(columns) -> dict[str, list[str]]:
 P7_QB = "Phase 7: QB projection v2 (returning starters)"
 P7_SNAP = "Phase 7: snap-based player model (2026-capable substitute)"
 P7_GROUPS = (P7_QB, P7_SNAP)
+P72_LINEUP = "Phase 7.2: injury-adjusted lineup changes (units, starters, OL continuity, uncertainty)"
+P72_MATCHUP = "Phase 7.2: lineup-change matchups (trenches, passing, total)"
 P5_PLAYER = "Phase 5: player model (lineup value, injuries & replacements, unit strength)"
 P5_CONTINUITY = "Phase 5: lineup continuity, chemistry & player-information uncertainty"
 P5_FTN = "Phase 5: FTN scheme tendencies (2022+)"

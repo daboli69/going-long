@@ -50,6 +50,15 @@ daily in Windows Task Scheduler) so each week's Friday/Saturday report gets arch
   rule, registered as `v20261017_142546_p7_qb_snap`. The champion is unchanged.
 - **Details:** `docs/PHASE7_DATA_QB.md`.
 
+## Phase 7.2: expected lineups and injuries
+
+The **Model Debate** page has a new "Expected lineups and injuries" section for each team: starters expected out, confirmed
+absences, uncertain starters with their probabilities, and the offensive line. It is analysis only: the champion and
+challengers don't use it.
+
+A pre-declared development test found the lineup features slightly helpful but not reliably so, so no new
+challenger was added. Details: `docs/PHASE7_2_INJURY_LINEUPS.md`.
+
 ## Phase 7.1: what each model knew
 
 The **Model Debate** page shows, for each game:

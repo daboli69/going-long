@@ -139,9 +139,9 @@ def parse_nflcom(text: str) -> tuple[pd.DataFrame, int | None, int | None]:
     m = re.search(r"Week (\d+) of the (\d{4}) Season", text)
     week, season = (int(m.group(1)), int(m.group(2))) if m else (None, None)
     rows = []
-    for nick, tbl in re.findall(r'd3-o-section-sub-title"><span>([^<]+)</span>.*?(<table.*?</table>)', text, flags=re.S):
+    for nick, tbl in re.findall(r'd3-o-section-sub-title"\s*>\s*<span>\s*([^<]+?)\s*</span>.*?(<table.*?</table>)', text, flags=re.S):
         team = NICK.get(html.unescape(nick).strip())
-        for tr in re.findall(r"<tr>(.*?)</tr>", tbl, flags=re.S)[1:]:
+        for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", tbl, flags=re.S)[1:]:
             c = [html.unescape(_TAG.sub("", x)).strip() for x in re.findall(r"<td[^>]*>(.*?)</td>", tr, flags=re.S)]
             if len(c) >= 5:
                 rows.append({"season": season, "week": week, "team": team, "full_name": c[0], "position": c[1],
@@ -211,4 +211,62 @@ def qb_sources(season: int, week: int) -> pd.DataFrame:
             r["roster_week"] = int(lw["week"].iloc[0])
             r["roster_qbs_unavailable"] = ", ".join(lw[lw["status"].isin(["RES", "INA"])]["full_name"])
         rows.append(r)
+    return pd.DataFrame(rows)
+
+
+# --------------------------------------------------------------------------- Phase 7.2: weekly timeline & source priority
+
+SOURCE_PRIORITY = ("NFL.com official report", "nflverse official report", "weekly roster (reserve/inactive)", "ESPN injuries")
+PRIORITY_NOTE = ("Game status: the newest official report wins (NFL.com and nflverse carry the same league report; the later "
+                 "retrieval is used). Reserve/IR comes from the weekly roster or an ESPN 'Injured Reserve' status. A verified inactive "
+                 "exists only once ESPN/rosters mark the player inactive (about 90 minutes before kickoff). A player missing from a "
+                 "report that exists is listed as 'not on report'; a team with no report is 'unknown', never 'healthy'.")
+
+
+def report_timeline(season: int, week: int) -> pd.DataFrame:
+    """Every archived official-report version for one week (NFL.com and nflverse), one row per player and version."""
+    from .availability import ARCHIVE_DIR
+    parts = []
+    for f in sorted(ARCHIVE.glob("nflcom_injuries_*.parquet")):
+        d = pd.read_parquet(f)
+        d = d[(d["season"] == season) & (d["week"] == week)]
+        if len(d):
+            parts.append(d.assign(source="NFL.com official report", retrieved_at=retrieved_at(f)))
+    for f in sorted(ARCHIVE_DIR.glob(f"nflverse_injuries_*.parquet")):
+        d = pd.read_parquet(f)
+        if "season" not in d or "week" not in d:
+            continue
+        d = d[(pd.to_numeric(d["season"]) == season) & (pd.to_numeric(d["week"]) == week)]
+        if len(d):
+            ts = pd.Timestamp(datetime.strptime(f.stem.split("_")[2], "%Y%m%dT%H%M%SZ"), tz="UTC")
+            parts.append(d[["team", "full_name", "position", "report_status", "practice_status"]].assign(
+                source="nflverse official report", retrieved_at=ts))
+    return pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+
+
+def source_lag(season: int, week: int, min_statuses: int = 50) -> pd.DataFrame:
+    """First retrieval at which each source carried the week's game statuses (>= min_statuses Out/Doubtful/Questionable)."""
+    t = report_timeline(season, week)
+    if t.empty:
+        return t
+    g = t.groupby(["source", "retrieved_at"])["report_status"].apply(lambda s: int(s.isin(["Out", "Doubtful", "Questionable"]).sum()))
+    g = g.reset_index(name="game_statuses")
+    first = g[g["game_statuses"] >= min_statuses].groupby("source")["retrieved_at"].min()
+    return g.assign(first_with_statuses=g["source"].map(first))
+
+
+def status_changes(season: int, week: int) -> pd.DataFrame:
+    """Players whose game or practice status changed between consecutive versions of the same source."""
+    t = report_timeline(season, week)
+    if t.empty:
+        return t
+    rows = []
+    for (src, team, name), d in t.sort_values("retrieved_at").groupby(["source", "team", "full_name"]):
+        prev = None
+        for r in d.itertuples(index=False):
+            cur = (r.report_status, r.practice_status)
+            if prev is not None and cur != prev:
+                rows.append({"source": src, "team": team, "player": name, "at": r.retrieved_at, "from": " / ".join(map(str, prev)),
+                             "to": " / ".join(map(str, cur))})
+            prev = cur
     return pd.DataFrame(rows)

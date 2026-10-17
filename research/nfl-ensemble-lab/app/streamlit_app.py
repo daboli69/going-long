@@ -1167,6 +1167,48 @@ def _debate_context(fs, row):
             st.caption("None archived for this game. The forecasts on this page are newly calculated analysis, not archived predictions.")
         st.caption("Agreement is not extra confidence: all six models receive the same 85 features and one shared signal explains 91% "
                    "of their variation. Historically, unanimous 50-60% favourites won 51% of games versus 55% for split votes.")
+    _lineup_section(g)
+
+
+def _lineup_summary(t):
+    st_ = t[t["starter"]]
+    return {"starters expected out": round(float((1 - st_["availability"]).sum()), 1),
+            "confirmed absences (starters)": ", ".join(f"{r.player} ({r.unit})" for r in st_[st_["status_type"] == "confirmed absence"].itertuples()) or "none",
+            "uncertain starters": ", ".join(f"{r.player} ({r.unit}, {r.availability:.0%})" for r in st_[(st_["status_type"] != "confirmed absence") &
+                                                                                                  (st_["availability"] < 0.95)].itertuples()) or "none",
+            "offensive line": f"{int((st_[st_['unit'] == 'OL']['availability'] > 0.5).sum())} of {int((st_['unit'] == 'OL').sum())} regular OL starters expected"}
+
+
+def _lineup_section(g):
+    from lab import lineup72
+    with st.expander("Expected lineups and injuries (analysis: not an input of the champion or the registered challengers)",
+                     expanded=not bool(g["completed"])):
+        st.caption("Usual snap share = last 4 games (verified PFR snap counts). Availability: Out and reserve/IR (last week's roster) are "
+                   "confirmed absences; Questionable and listed players get a probability estimated from past seasons by status, practice "
+                   "and starter role. Without a verified report a team is 'unknown', never 'healthy'. Player values are the Phase 7 "
+                   "snap-model ratings (EPA/play, heavily shrunk); they are approximate and not a point value per player.")
+        cols = st.columns(2)
+        for col, side in zip(cols, ("away", "home")):
+            team = g[f"{side}_team"]
+            with col:
+                st.write(f"**{team}**")
+                try:
+                    t = lineup72.player_table(g, team)
+                except Exception as exc:
+                    st.caption(f"unavailable ({exc.__class__.__name__})")
+                    continue
+                if t.empty:
+                    st.caption("No snap history.")
+                    continue
+                for k, v in _lineup_summary(t).items():
+                    st.write(f"- {k}: {v}")
+                if st.toggle("Show players", key=f"lu_{g['game_id']}_{team}"):
+                    st.dataframe(t, hide_index=True, use_container_width=True)
+        p72 = {c: g.get(c) for c in ("diff_p72_OL_missing_share", "diff_p72_SKILL_starters_out", "diff_p72_QB_missing_share",
+                                     "diff_p72_ol_expected_continuity", "p72mx_net_total")}
+        if any(pd.notna(v) for v in p72.values()):
+            st.caption("Phase 7.2 lineup-change features for this game (home minus away; tested in development, not adopted by any model): " +
+                       ", ".join(f"{k} {v:+.3f}" for k, v in p72.items() if pd.notna(v)))
 
 
 def _phase7_panel():
@@ -1174,7 +1216,28 @@ def _phase7_panel():
     st.header("Phase 7: 2026 data, QB intelligence and error analysis")
     st.caption("Monitoring sources never enter models. Historical results below are descriptive unless marked as the pre-declared test.")
     t = st.tabs(["QB sources", "QB projection v2", "Snap model & challenger test", "Error analysis", "Weekend audit",
-                 "Why the models agree"])
+                 "Why the models agree", "Injury-adjusted lineups (7.2)"])
+    with t[6]:
+        from lab import study72
+        r = study72.load()
+        st.write("Expected lineups from verified snap shares, official reports (probabilities estimated from past seasons) and "
+                 "reserve/IR status. Features are changes versus the recent lineup, so absences already reflected in team ratings "
+                 "are not counted twice.")
+        if "independence" in r:
+            ind = r["independence"]
+            st.write("**Overlap with the champion's features and incremental information** (development 2018-22): R² from the "
+                     "champion's 85 features, and correlation of the unexplained part with the champion's margin error.")
+            st.dataframe(ind.groupby("group")[["r2_explained_by_champion_features", "residual_corr_with_champion_margin_error"]].agg(
+                ["mean", "max"]).round(3), use_container_width=True)
+            st.dataframe(ind.reindex(ind["residual_corr_with_champion_margin_error"].abs().sort_values(ascending=False).index).head(15).round(3),
+                         hide_index=True, use_container_width=True)
+            st.caption("About 60 features were examined, so a few nominal 95% intervals excluding zero are expected by chance.")
+        if "dev_experiment" in r:
+            st.write("**Pre-declared development-only experiment** (rule: improve 2019-21, hold on 2022, Holm-adjusted p < 0.05):")
+            st.dataframe(r["dev_experiment"].round(4), hide_index=True, use_container_width=True)
+            st.dataframe(r["dev_experiment_by_family"].round(4), hide_index=True, use_container_width=True)
+            if not r["dev_experiment"]["qualifies"].any():
+                st.warning("No candidate met the pre-declared standard; no new challenger was registered.")
     with t[5]:
         from lab import shared_errors as SE
         r = SE.load()
