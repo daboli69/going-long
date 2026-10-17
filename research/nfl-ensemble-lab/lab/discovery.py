@@ -532,14 +532,15 @@ def run_origin(base: dict, origin: dict, cfg: dict, progress=print) -> dict:
     rng = np.random.default_rng(cfg["seed"])
     meta, X = base["meta"], base["X"]
     y, p = meta["y_dog"].to_numpy(float), meta["p_dog"].to_numpy(float)
-    D, V, E = _split(meta, origin["discovery"]), _split(meta, origin["validation"]), _split(meta, origin["evaluation"])
-    assert not (D & V).any() and not (V & E).any() and not (D & E).any()
-    assert meta.loc[D, "season"].max() < meta.loc[V, "season"].min() <= meta.loc[V, "season"].max() < meta.loc[E, "season"].min()
+    D = _split(meta, origin["discovery"])
+    if not origin.get("discovery_only"):
+        V, E = _split(meta, origin["validation"]), _split(meta, origin["evaluation"])
+        assert not (D & V).any() and not (V & E).any() and not (D & E).any()
+        assert meta.loc[D, "season"].max() < meta.loc[V, "season"].min() <= meta.loc[V, "season"].max() < meta.loc[E, "season"].min()
     XD, yD, pD = X[D].reset_index(drop=True), y[D], p[D]
     feats_all = [c for c in X.columns if X.loc[D, c].notna().mean() > 0.5 and X.loc[D, c].nunique() > 1]
     XD = XD[feats_all]
-    progress(f"  [{origin['name']}] discovery {origin['discovery']} n={D.sum()}, validation {origin['validation']} n={V.sum()}, "
-             f"evaluation {origin['evaluation']} n={E.sum()}, {len(feats_all)} candidate input features")
+    progress(f"  [{origin['name']}] discovery {origin['discovery']} n={D.sum()}, {len(feats_all)} candidate input features")
 
     # univariate screening (also used to choose features for pair / symbolic / GBM searches)
     cands = gen_univariate(XD, cfg)
@@ -641,6 +642,9 @@ def run_origin(base: dict, origin: dict, cfg: dict, progress=print) -> dict:
     progress(f"  [{origin['name']}] tested {len(allc)} candidates; {int((q < cfg['fdr_q']).sum())} pass BH q<{cfg['fdr_q']} "
              f"in discovery; carrying top {len(carried)} de-duplicated to validation")
 
+    if origin.get("discovery_only"):
+        return {"origin": origin, "candidates": allc, "carried": carried, "models": models, "n_tested": len(allc),
+                "features": feats_all, "tau2": tau2}
     # ---- validation (independent seasons)
     XV, yV, pV = X[V].reset_index(drop=True), y[V], p[V]
     sv = meta.loc[V, "season"].to_numpy()
@@ -1020,3 +1024,60 @@ def prospective_check(exp: str | None = None) -> dict:
     df = df[df["y"].notna()] if len(df) else df
     return {"n_games": int(len(df)), "summary": M.prob_summary(df["y"], df["p"], ci=False) if len(df) else None,
             "note": "Only predictions saved before kickoff count. Adjusted forecasts are archived in discovery snapshots from Phase 2 onward."}
+
+
+
+# --------------------------------------------------------------------------- prospective hypotheses
+
+HYP_FILE = DISCOVERY_DIR / "prospective_hypotheses.joblib"
+
+
+def register_prospective_hypotheses(k: int = 10, progress=print) -> dict:
+    """Generate hypotheses from ALL completed historical seasons (no historical validation look is
+    consumed) and freeze them. They are tested only on games archived before kickoff AFTER this
+    registration, with Holm correction across the k hypotheses."""
+    if HYP_FILE.exists():
+        raise FileExistsError("Prospective hypotheses are already registered; they are frozen by design.")
+    cfg = {**DEFAULT_CONFIG, "carry_top_k": k}
+    base = load_base("ensemble")
+    seasons = sorted(int(s) for s in base["meta"]["season"].unique() if s <= 2025)
+    res = run_origin(base, {"name": "hypothesis_generation", "discovery": [seasons[0], seasons[-1]], "discovery_only": True}, cfg, progress)
+    hyps = [{"id": c.cid, "description": c.description, "method": c.method, "kind": c.kind, "features": c.features,
+             "direction": float(np.sign(c.disc.get("beta", 0.0))), "historical_effect": c.disc.get("beta"),
+             "historical_z_nominal": c.disc.get("z")} for c in res["carried"]]
+    payload = {"registered_at": pd.Timestamp.now(tz="UTC").isoformat(), "generated_from_seasons": [seasons[0], seasons[-1]],
+               "n_candidates_searched": res["n_tested"], "hypotheses": hyps, "candidates": res["carried"], "models": res["models"]}
+    joblib.dump(payload, HYP_FILE)
+    return {k_: v for k_, v in payload.items() if k_ not in ("candidates", "models")}
+
+
+def evaluate_prospective_hypotheses(min_matches: int = 30) -> pd.DataFrame:
+    """Score frozen hypotheses on archived pregame predictions of games completed after registration."""
+    from .data_pipeline import load_feature_store
+    from .prospective import scored_table
+    if not HYP_FILE.exists():
+        return pd.DataFrame()
+    payload = joblib.load(HYP_FILE)
+    t = scored_table()
+    if t.empty:
+        return pd.DataFrame([{"hypothesis": h["description"], "status": "no scored prospective games yet"} for h in payload["hypotheses"]])
+    t = t[(t["window"] == "final") & (t["predicted_at"] > pd.Timestamp(payload["registered_at"]))]
+    fs = load_feature_store().drop_duplicates("game_id").set_index("game_id")
+    rows = fs.loc[t["game_id"]].reset_index()
+    X, dog_home = orient(rows, t["p_home"].to_numpy())
+    y = np.where(dog_home, t["home_win"].to_numpy(), 1 - t["home_win"].to_numpy())
+    p = X["base_p_dog"].to_numpy()
+    out = []
+    for h, c in zip(payload["hypotheses"], payload["candidates"]):
+        v = candidate_values(c, X, payload["models"])
+        n = int(np.nansum(v > 0)) if c.kind == "mask" else int((~np.isnan(v)).sum())
+        b, se = offset_effect(v, y, p) if n else (np.nan, np.nan)
+        z = b / se if se and not np.isnan(se) else np.nan
+        p_one = float(stats.norm.sf(z * h["direction"])) if not np.isnan(z) else 1.0
+        out.append({"hypothesis": h["description"], "direction": h["direction"], "prospective_matches": n, "effect": b,
+                    "z": z, "p_one_sided": p_one})
+    df = pd.DataFrame(out)
+    df["p_holm"] = holm(df["p_one_sided"].fillna(1).to_numpy())
+    df["status"] = np.where(df["prospective_matches"] < min_matches, "accumulating evidence",
+                            np.where(df["p_holm"] < 0.05, "supported prospectively", "not supported so far"))
+    return df

@@ -69,6 +69,18 @@ validation check can only become a *shadow challenger*, and promotion needs 128+
 The **Advanced Football Intelligence** page shows the new data (Next Gen Stats, PFR pressure and contact
 stats, personnel, roster experience), matchup views, and whether those features helped.
 
+## Player-level intelligence (Phase 5)
+
+- **Player Intelligence** page: pick a game to see each team's projected lineup value, which players are
+  out (from verified pregame injury reports) and who replaces them, unit strengths (QB, OL, receivers,
+  DL, LB, secondary), how often the projected units have played together, and how much history each
+  lineup has. All of it is built only from games before kickoff.
+- **Model Debate** has a sixth tab, "Players, matchups & uncertainty". It shows the same context plus any
+  *statistically supported* evidence that a model does better or worse in this kind of game.
+- Run the Phase 5 study from **Long-Run Research** → "Phase 5 experiments" (about 40-60 minutes, background).
+- No 2026 player-participation file is published yet, so player ratings for 2026 games use data through
+  2025. The pages show how stale they are.
+
 ## Upset Discovery (Phase 2 research)
 
 - Double-click **`run_research.bat`** (a few minutes). It refreshes data, runs the readiness gate,

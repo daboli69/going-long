@@ -85,12 +85,17 @@ def refresh_data(force: bool = False, progress=print) -> dict:
     inj = availability.team_injury_features(games, valid, snaps, rows)
     from . import advanced
     warnings += advanced.refresh(seasons, live, progress)
+    from . import players
+    warnings += players.refresh_ftn(seasons, live, progress)
     valid.to_parquet(INJURY_VALID, index=False)
     injury_coverage(games, rows, valid, inj).to_csv(INJURY_COVERAGE, index=False)
 
     progress("Step 4/5: building pregame feature store (strictly pre-kickoff)")
     games.to_parquet(GAMES_TABLE, index=False)
     churn = availability.ol_churn(seasons, games)
+    progress("  player model (RAPM per week, lineups, replacements, continuity, FTN) ...")
+    p5 = players.build_team_player_features(games, valid, inj, seasons, progress=progress)
+    churn = churn.merge(p5, on=["game_id", "team"], how="outer")
     fs = features.build_feature_store(games, tstats.drop(columns=["season"]), qstats.drop(columns=["season"]),
                                       inj, availability.report_status_lookup(valid), churn, advanced=True)
     fs.to_parquet(FEATURE_STORE, index=False)
@@ -112,7 +117,7 @@ def refresh_data(force: bool = False, progress=print) -> dict:
 
 
 def assemble_from_cache(games: pd.DataFrame, tstats: pd.DataFrame, qstats: pd.DataFrame,
-                        snaps: pd.DataFrame | None = None, advanced_transform=None) -> pd.DataFrame:
+                        snaps: pd.DataFrame | None = None, advanced_transform=None, plays_transform=None) -> pd.DataFrame:
     """Rebuild the feature store from already-downloaded files (no network). Used by
     the readiness gate to re-run leakage checks on real data."""
     seasons = sorted(int(x) for x in games["season"].unique())
@@ -122,9 +127,12 @@ def assemble_from_cache(games: pd.DataFrame, tstats: pd.DataFrame, qstats: pd.Da
     inj = availability.team_injury_features(games, valid, snaps, rows)
     t = tstats.drop(columns=["season"], errors="ignore")
     q = qstats.drop(columns=["season"], errors="ignore")
+    from . import players
+    extra = availability.ol_churn(seasons, games).merge(
+        players.build_team_player_features(games, valid, inj, seasons, progress=lambda m: None, plays_transform=plays_transform),
+        on=["game_id", "team"], how="outer")
     return features.build_feature_store(games, t, q, inj, availability.report_status_lookup(valid),
-                                        availability.ol_churn(seasons, games), advanced=True,
-                                        advanced_transform=advanced_transform)
+                                        extra, advanced=True, advanced_transform=advanced_transform)
 
 
 def injury_coverage(games: pd.DataFrame, rows: pd.DataFrame, valid: pd.DataFrame, inj: pd.DataFrame) -> pd.DataFrame:

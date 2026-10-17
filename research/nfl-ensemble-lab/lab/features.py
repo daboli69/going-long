@@ -351,8 +351,18 @@ def build_feature_store(games: pd.DataFrame, tstats: pd.DataFrame, qb_games: pd.
         new["p3_mx_home_off_vs_away_def"] = fs["home_rating_off_epa"] + fs["away_rating_def_epa"]
         new["p3_mx_away_off_vs_home_def"] = fs["away_rating_off_epa"] + fs["home_rating_def_epa"]
     # Phase 4 advanced groups: home-minus-away for every windowed team feature, plus matchups
-    for c in [c[5:] for c in fs.columns if c.startswith("home_p4")]:
+    for c in [c[5:] for c in fs.columns if c.startswith(("home_p4", "home_p5"))]:
         new[f"diff_{c}"] = fs[f"home_{c}"] - fs[f"away_{c}"]
+    # Phase 5 player-model matchups (offense values: EPA added; defense values: EPA allowed)
+    if "home_p5_off_proj" in fs:
+        h_exp = fs["home_p5_off_proj"] + fs["away_p5_def_proj"]
+        a_exp = fs["away_p5_off_proj"] + fs["home_p5_def_proj"]
+        new["p5mx_home_expected_epa"], new["p5mx_away_expected_epa"], new["p5mx_net_expected_epa"] = h_exp, a_exp, h_exp - a_exp
+        for side, opp in (("home", "away"), ("away", "home")):
+            new[f"p5mx_{side}_trenches"] = fs[f"{side}_p5_unit_OL"] + fs[f"{opp}_p5_unit_DL"]
+            new[f"p5mx_{side}_pass_game"] = fs[f"{side}_p5_unit_QB"] + fs[f"{side}_p5_unit_SKILL"] + fs[f"{opp}_p5_unit_DB"] + fs[f"{opp}_p5_unit_LB"]
+        new["p5mx_net_trenches"] = new["p5mx_home_trenches"] - new["p5mx_away_trenches"]
+        new["p5mx_net_pass_game"] = new["p5mx_home_pass_game"] - new["p5mx_away_pass_game"]
     pairs = {"pressure": ("p4pfr_blend_pfr_pressured_rate", "p4pfr_blend_def_pfr_def_pressure_rate"),
              "run_block": ("p4pfr_blend_pfr_ybc_per_carry", "p4pfr_blend_def_pfr_ybc_allowed"),
              "separation": ("p4ngs_blend_ngs_separation", "p4ngs_blend_def_ngs_separation_allowed")}
@@ -413,9 +423,17 @@ def feature_groups(columns) -> dict[str, list[str]]:
         INJURY_GROUP: [c for c in cols if c.startswith(("diff_inj_", "inj_mx_")) or c == "inj_available"],
         PHASE3_GROUP: [c for c in cols if c.startswith("p3_")],
         **{name: [c for c in cols if c.startswith(pfx)] for name, pfx in P4_GROUPS.items()},
+        P5_PLAYER: [c for c in cols if (c.startswith("diff_p5_") and any(k in c for k in ("_full", "_proj", "_loss", "unit_")))
+                    or c.startswith("p5mx_net")],
+        P5_CONTINUITY: [c for c in cols if c.startswith("diff_p5_") and any(k in c for k in ("coplays", "_info", "_lowexp"))],
+        P5_FTN: [c for c in cols if c.startswith("diff_p5ftn_")],
     }
 
 
+P5_PLAYER = "Phase 5: player model (lineup value, injuries & replacements, unit strength)"
+P5_CONTINUITY = "Phase 5: lineup continuity, chemistry & player-information uncertainty"
+P5_FTN = "Phase 5: FTN scheme tendencies (2022+)"
+P5_GROUPS = (P5_PLAYER, P5_CONTINUITY, P5_FTN)
 P4_GROUPS = {
     "Phase 4: personnel & pressure (participation)": "diff_p4pers_",
     "Phase 4: Next Gen Stats": "diff_p4ngs_",
@@ -464,6 +482,11 @@ def feature_catalog(columns) -> pd.DataFrame:
         elif "rating" in c:
             source, formula = "nfldata scores + pbp", (f"ridge rating (lambda={RATING_RIDGE}) fit on games before the week's first kickoff; "
                                                       f"previous season weighted {RATING_PREV_WEIGHT}")
+        elif "p5" in c:
+            source, formula = ("nflverse participation player IDs + pbp EPA (RAPM), PFR snap counts, verified injury reports, FTN charting",
+                               "Phase 5: player effects from a ridge RAPM refit each week on earlier plays only; lineup = snap shares "
+                               "over the last 4 completed games; verified Out/Doubtful players replaced by bench or data-driven "
+                               "replacement level; coplays = earlier plays the projected unit shared the field; FTN rates windowed pregame")
         elif "p4" in c:
             source, formula = ("nflverse participation / Next Gen Stats / PFR advanced weekly / snap counts + players",
                                "Phase 4: per team-game aggregate from earlier games only; blend = (n*season-to-date + 3*previous "

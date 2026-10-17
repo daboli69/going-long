@@ -9,6 +9,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import json  # noqa: E402
+import os  # noqa: E402
 
 import altair as alt  # noqa: E402
 import numpy as np  # noqa: E402
@@ -25,7 +26,7 @@ st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide
 
 PAGES = ["Home", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
          "Weekly Predictions", "Prospective Performance", "Prediction Archive", "Data Freshness", "Baseline Research",
-         "Long-Run Research", "Advanced Football Intelligence",
+         "Long-Run Research", "Advanced Football Intelligence", "Player Intelligence",
          "Upset Discovery", "Upset Explorer", "Research Validation", "Research Runs", "Reports"]
 PCT = st.column_config.ProgressColumn
 
@@ -307,7 +308,27 @@ def page_debate():
     if row["completed"]:
         st.info(f"Final: {row['away_team']} {int(row['away_score'])} @ {row['home_team']} {int(row['home_score'])}. "
                 "Models were trained on data that includes this game; check the leaderboard for genuine out-of-sample results.")
-    t1, t2, t3, t4, t5 = st.tabs(["1 · Independent forecasts", "2 · Statistical arguments", "3 · Disagreements", "4 · Vote", "5 · Consensus"])
+    t1, t2, t3, t4, t5, t6 = st.tabs(["1 · Independent forecasts", "2 · Statistical arguments", "3 · Disagreements", "4 · Vote",
+                                      "5 · Consensus", "6 · Players, matchups & uncertainty"])
+    with t6:
+        st.caption("Verified football data behind this matchup. Player values are statistical estimates from earlier plays only.")
+        if d.get("player_context"):
+            st.write("**Projected lineups, availability and replacements**")
+            st.dataframe(pd.DataFrame(d["player_context"]), use_container_width=True)
+        if d.get("matchups"):
+            st.write("**Matchup indicators (home minus away; positive favours the home team)**")
+            st.dataframe(pd.Series(d["matchups"], name="value"), use_container_width=True)
+        if d.get("uncertainty"):
+            u = d["uncertainty"]
+            st.write(f"**Uncertainty:** the six models span {u['model_probability_range']:.1%} (std {u['model_probability_std']:.1%}). "
+                     + u["note"])
+            for w in u["missing_information"]:
+                st.write("- " + w)
+        sp = d.get("specialization") or {}
+        st.write("**Model-specific historical evidence for this game's situation**")
+        if sp.get("evidence"):
+            st.dataframe(pd.DataFrame(sp["evidence"]), hide_index=True, use_container_width=True)
+        st.caption(sp.get("note") or sp.get("status", ""))
     with t1:
         r1 = pd.DataFrame(d["round1"])
         st.caption("Each model forecast on its own; no model sees another model's prediction for this game.")
@@ -784,6 +805,16 @@ def page_longrun():
         jid = LR.create_job(hours=hours, threads=threads)
         pid = LR.launch_detached(jid)
         st.success(f"Started job {jid} (process {pid}). It keeps running if you close this page.")
+    with st.expander("Phase 5 experiments (player-level features, specialized challengers, adaptive ensemble)"):
+        st.write("Runs the nested Phase 5 study in the background (about 40-60 minutes). It never changes the champion.")
+        if st.button("Run Phase 5 study", disabled=bool(active)):
+            import subprocess
+            flags = (subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP | 0x08000000) if os.name == "nt" else 0
+            log = open(LR.LR_DIR / "study5_process.log", "a")
+            subprocess.Popen([sys.executable, "-W", "ignore", "-m", "lab.study5"], cwd=str(ROOT), stdout=log, stderr=log,
+                             stdin=subprocess.DEVNULL, creationflags=flags)
+            st.success("Phase 5 study started in the background; results appear on Player Intelligence when done.")
+        st.caption("The long-run optimiser above also searches the Phase 5 feature groups automatically.")
     jobs = LR.list_jobs()
     need(jobs, "No research jobs yet.")
     names = [j["job"] for j in jobs]
@@ -923,6 +954,63 @@ def page_afi():
                      hide_index=True, use_container_width=True)
 
 
+def page_players():
+    st.title("Player Intelligence")
+    from lab import players as PL
+    from lab.features import P5_GROUPS, feature_groups
+    fs = feature_store()
+    need(fs is not None, "Download data first.")
+    st.caption("Player effects come from a regularised adjusted plus-minus model on per-play EPA, refit every week using only "
+               "earlier plays and shrunk toward each position group. They are statistical associations given teammates, "
+               "opponents and situation, not causal player values. Teammates who always play together cannot be separated.")
+    meta = json.loads(PL.META_CACHE.read_text()) if PL.META_CACHE.exists() else {}
+    c = st.columns(4)
+    c[0].metric("Plays with full on-field lists", f"{meta.get('plays', 0):,}")
+    c[1].metric("Players rated", f"{meta.get('players', 0):,}")
+    c[2].metric("Weekly refits", meta.get("fits", 0))
+    c[3].metric("Newest play in model", str(meta.get("last_play_kickoff", "n/a"))[:10])
+    st.caption(f"Shrinkage chosen on 2016-17 -> 2018 plays only: lambda = {meta.get('lambda')}. "
+               "No 2026 participation file exists yet, so 2026 games use ratings through 2025 (staleness is shown per game).")
+    groups = feature_groups(fs.columns)
+    cov = []
+    for gname in P5_GROUPS:
+        cols = groups.get(gname, [])
+        r = fs[fs["season"] >= 2016].groupby("season")[cols].apply(lambda d: d.notna().mean().mean()) if cols else pd.Series(dtype=float)
+        cov.append({"group": gname, "features": len(cols), **{str(k): round(float(v), 2) for k, v in r.items()}})
+    st.subheader("Coverage by season")
+    st.dataframe(pd.DataFrame(cov), hide_index=True, use_container_width=True)
+    season, week = week_picker(fs, "pi")
+    games = fs[(fs["season"] == season) & (fs["week"] == week)]
+    labels = [f"{r.away_team} @ {r.home_team}" for r in games.itertuples()]
+    i = st.selectbox("Game", range(len(games)), format_func=lambda j: labels[j], key="pi_game")
+    g = games.iloc[i]
+    from lab.weekly import P5_SIDE
+    st.subheader("Lineups, availability and replacements (pregame)")
+    tbl = {g[f"{sd}_team"]: {lbl: g.get(f"{sd}_{k}") for k, lbl in P5_SIDE.items()} for sd in ("home", "away")}
+    st.dataframe(pd.DataFrame(tbl), use_container_width=True)
+    st.caption("Lineup = snap shares over each team's last 4 completed games. Players listed Out/Doubtful in a verified pregame "
+               "report are replaced by the team's bench at that position (or a data-driven replacement level). Low-information "
+               "players (< 300 prior plays) have estimates shrunk strongly toward their position group.")
+    st.subheader("Unit matchups (expected EPA per play; positive favours the home team)")
+    st.dataframe(pd.Series({k: g.get(k) for k in ("p5mx_net_expected_epa", "p5mx_net_trenches", "p5mx_net_pass_game",
+                                                  "p5mx_home_expected_epa", "p5mx_away_expected_epa")}, name="value"), use_container_width=True)
+    from lab import study5
+    sd = study5.load_study()
+    st.subheader("Did player-level information improve forecasts?")
+    if not sd:
+        st.info("Phase 5 study not run yet (Long-Run Research page, or python -m lab.study5).")
+        return
+    sm = sd["summary"]
+    st.write(f"{sm['n_candidates']} candidates vs the champion; **{sm['n_passed']} passed** the pre-declared gate. "
+             f"Specialized family challengers that beat their own family: {', '.join(sm['families_improved']) or 'none'}.")
+    st.dataframe(sd["gate_results"], hide_index=True, use_container_width=True)
+    if len(sd["margins"]):
+        st.subheader("Margin models: original vs enhanced (MAE, points)")
+        mg = sd["margins"]
+        st.dataframe(mg[mg["model"].isin(["ensemble", "closing spread"])].pivot_table(index=["config", "model"], columns="period", values="mae"),
+                     use_container_width=True)
+
+
 def page_reports():
     st.title("Reports")
     v = training.current_version()
@@ -954,7 +1042,7 @@ try:
     {"Home": page_home, "Data Manager": page_data, "Train Models": page_train, "Model Leaderboard": page_leaderboard,
      "Model Debate": page_debate, "Weekly Predictions": page_weekly, "Prospective Performance": page_prospective,
      "Prediction Archive": page_archive, "Data Freshness": page_freshness, "Baseline Research": page_baseline_research,
-     "Long-Run Research": page_longrun, "Advanced Football Intelligence": page_afi,
+     "Long-Run Research": page_longrun, "Advanced Football Intelligence": page_afi, "Player Intelligence": page_players,
      "Upset Discovery": page_discovery,
      "Upset Explorer": page_explorer, "Research Validation": page_validation, "Research Runs": page_runs,
      "Reports": page_reports}[page]()

@@ -58,6 +58,11 @@ def predict_games(games: pd.DataFrame, bundle: dict, run: dict | None = None, ex
     out["p_equal_average"] = ens.equal_average(P)
     out["p_weighted_average"] = ens.weighted_average(P, np.array([bundle["weights"][k] for k in keys]))
     out["p_stacking"] = ens.stack_predict(bundle["stacker"], P)
+    if bundle.get("adaptive"):
+        from .study5 import context_frame
+        ad = bundle["adaptive"]
+        ctx = context_frame(out, games, medians=ad["medians"])
+        out["p_adaptive"] = ad["model"].predict(P, ctx)
     champ = bundle["champion"]
     out["champion_method"] = champ
     out["p_champion"] = out[f"p_{champ}"]
@@ -91,7 +96,10 @@ def predict_games(games: pd.DataFrame, bundle: dict, run: dict | None = None, ex
             continue
         exps = {k: X.explain(k, bundle["clf"][k], games.iloc[[i]][fbm.get(k, cols)].astype(float).to_numpy(), fbm.get(k, cols))
                 for k in keys}
-        debates.append(_debate(g, keys, probs, v, exps, hist, agree, ens_winner, warns))
+        dbt = _debate(g, keys, probs, v, exps, hist, agree, ens_winner, warns)
+        dbt["player_context"], dbt["matchups"], dbt["uncertainty"] = _player_context(games.iloc[i], g, P[i], warns)
+        dbt["specialization"] = _specialization_for(out.iloc[[i]], games.iloc[[i]])
+        debates.append(dbt)
     out["data_warnings"] = warn_cols
     return out, debates
 
@@ -263,3 +271,52 @@ def run_weekly(season: int | None = None, week: int | None = None, refresh: bool
     progress(f"Saved snapshot and reports for {season} week {week}.")
     return {"season": season, "week": week, "table": table, "debates": debates, "paths": paths,
             "monitor": monitor, "freshness": freshness, "discovery": disc}
+
+
+
+P5_SIDE = {"p5_off_proj": "projected offensive lineup value (EPA/play added)", "p5_off_full": "full-strength offensive value",
+           "p5_off_loss": "offensive value lost to listed absences", "p5_def_proj": "projected defensive lineup value (EPA/play allowed)",
+           "p5_def_loss": "defensive value lost to listed absences", "p5_n_out_removed": "players removed (Out/Doubtful, verified)",
+           "p5_inj_applied": "verified injury report applied", "p5_off_lowexp": "offensive snaps by low-information players",
+           "p5_def_lowexp": "defensive snaps by low-information players", "p5_unit_QB": "QB unit", "p5_unit_OL": "offensive line unit",
+           "p5_unit_SKILL": "RB/WR/TE unit", "p5_unit_DL": "defensive line unit (allowed)", "p5_unit_LB": "linebacker unit (allowed)",
+           "p5_unit_DB": "secondary unit (allowed)", "p5_ol_unit_coplays": "log plays the projected OL five shared",
+           "p5_qb_wr_coplays": "log plays QB + top receivers shared", "p5_def_core_coplays": "log plays the defensive core shared",
+           "p5_model_staleness_days": "days since the newest play in the player model"}
+
+
+def _player_context(frow, g, pvec, warns):
+    pc = {}
+    for side in ("home", "away"):
+        pc[g[f"{side}_team"]] = {lbl: (None if pd.isna(frow.get(f"{side}_{k}", np.nan)) else round(float(frow.get(f"{side}_{k}")), 4))
+                                 for k, lbl in P5_SIDE.items() if f"{side}_{k}" in frow}
+    mx = {k: (None if pd.isna(frow.get(k, np.nan)) else round(float(frow.get(k)), 4))
+          for k in ("p5mx_net_expected_epa", "p5mx_net_trenches", "p5mx_net_pass_game", "p4mx_net_pressure", "p4mx_net_run_block",
+                    "p4mx_net_separation", "mx_net_epa_pp", "diff_rating_margin") if k in frow}
+    miss = [w for w in warns]
+    unc = {"model_probability_range": float(np.max(pvec) - np.min(pvec)), "model_probability_std": float(np.std(pvec)),
+           "missing_information": miss,
+           "low_information_lineup_share": {g[f"{s}_team"]: frow.get(f"{s}_p5_off_lowexp") for s in ("home", "away")},
+           "note": "Uncertainty here describes disagreement and missing inputs; it is not a confidence interval."}
+    return pc, mx, unc
+
+
+_SPEC_CACHE = {}
+
+
+def _specialization_for(row_out, row_fs):
+    try:
+        from .study5 import context_frame, context_thresholds, game_specialization_evidence, load_study
+        if "thr" not in _SPEC_CACHE:
+            s = load_study()
+            _SPEC_CACHE["thr"] = context_thresholds() if s else {}
+            _SPEC_CACHE["spec"] = s.get("specialization") if s else None
+        if not _SPEC_CACHE["thr"]:
+            return {"status": "specialization study not run", "evidence": []}
+        ctx = context_frame(row_out.reset_index(drop=True), row_fs.reset_index(drop=True)).iloc[0]
+        ev = game_specialization_evidence(ctx, _SPEC_CACHE["thr"], _SPEC_CACHE["spec"])
+        return {"status": "ok", "evidence": ev,
+                "note": "Only differences that survived Holm correction on 2019-2024 out-of-sample games are listed."
+                        if ev else "No model has a statistically supported advantage or weakness in this game's situations."}
+    except Exception as exc:
+        return {"status": f"unavailable: {exc}", "evidence": []}

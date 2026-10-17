@@ -84,8 +84,33 @@ def _git_sha() -> str:
         return "unknown"
 
 
+def challenger_registry() -> dict:
+    if not CHALLENGERS.exists():
+        return {"versions": [], "hypotheses": []}
+    r = json.loads(CHALLENGERS.read_text())
+    r.setdefault("versions", [])
+    r.setdefault("hypotheses", [])
+    return r
+
+
 def challenger_versions() -> list[str]:
-    return json.loads(CHALLENGERS.read_text())["versions"] if CHALLENGERS.exists() else []
+    """Every model version archived alongside the champion: gate-passing shadow challengers and
+    pre-registered prospective hypotheses (judged only on future games)."""
+    r = challenger_registry()
+    return r["versions"] + [h["version"] for h in r["hypotheses"] if h["version"] not in r["versions"]]
+
+
+def register_hypothesis(version: str, label: str, rationale: str) -> None:
+    """Pre-register a model design for prospective evaluation. It is NOT a validated challenger:
+    the plan is fixed now and judged only on games archived after this moment."""
+    r = challenger_registry()
+    if any(h["version"] == version for h in r["hypotheses"]):
+        return
+    r["hypotheses"].append({"version": version, "label": label, "rationale": rationale,
+                            "registered_at": pd.Timestamp.now(tz="UTC").isoformat(),
+                            "plan": "Compare archived final-snapshot log loss vs the champion on games played after "
+                                    "registration; decision after >= 128 games: paired bootstrap 95% CI must lie below zero."})
+    CHALLENGERS.write_text(json.dumps(r, indent=2), encoding="utf-8")
 
 
 # --------------------------------------------------------------------------- live weather (monitoring only)
@@ -153,8 +178,10 @@ def build_records(games: pd.DataFrame, now: pd.Timestamp, data_status: dict, sta
     for v in challenger_versions():
         try:
             cb = load_bundle(v)
-            ct, _ = predict_games(games, cb, load_run(v), explain=False)
-            chall[v] = dict(zip(ct["game_id"], ct["p_champion"]))
+            ct, _ = predict_games(games, cb, load_run(v), explain=False, challengers=False)
+            chall[v] = {g_: {"p_champion": _clean(r_["p_champion"]),
+                             "p_home": {k: _clean(r_[f"p_{k}"]) for k in cb["model_keys"] if f"p_{k}" in r_}}
+                        for g_, (_, r_) in zip(ct["game_id"], ct.iterrows())}
         except Exception as exc:
             chall[v] = {"error": str(exc)}
     manifest = sources.load_manifest()
@@ -187,7 +214,7 @@ def build_records(games: pd.DataFrame, now: pd.Timestamp, data_status: dict, sta
             "experimental": {"experiment": disc.get("experiment"), **{k: _clean(v) for k, v in disc_rows.get(g["game_id"], {}).items()
                                                                      if k.startswith(("p_home_adj", "adj_", "n_validated", "patterns_verdict", "gbm_verdict"))},
                              "signals": disc_sig.get(g["game_id"], [])},
-            "shadow_challengers": {v: (_clean(c.get(g["game_id"])) if isinstance(c, dict) and "error" not in c else c) for v, c in chall.items()},
+            "shadow_challengers": {v: (c.get(g["game_id"]) if isinstance(c, dict) and "error" not in c else c) for v, c in chall.items()},
             "availability": {side: {c: _clean(g.get(f"{side}_{c}")) for c in AVAIL_COLS} for side in ("home", "away")},
             "availability_monitor": mon,
             "weather_forecast_live_only": weather.get(g["game_id"]),
@@ -314,7 +341,9 @@ def scored_table() -> pd.DataFrame:
                "p_adj_patterns": snap["experimental"].get("p_home_adj_patterns"), "p_adj_gbm": snap["experimental"].get("p_home_adj_gbm"),
                "injury_complete": snap["missing"]["injury_report_final_both"], "stale_data": snap["stale_data"],
                **{f"p_{k}": v for k, v in snap["p_home"].items()},
-               **{f"chall_{k}": v for k, v in snap.get("shadow_challengers", {}).items() if isinstance(v, (int, float))}}
+               **{f"chall_{k}": (v["p_champion"] if isinstance(v, dict) else v)
+                  for k, v in snap.get("shadow_challengers", {}).items()
+                  if isinstance(v, (int, float)) or (isinstance(v, dict) and isinstance(v.get("p_champion"), (int, float)))}}
         rows.append(row)
     return pd.DataFrame(rows)
 

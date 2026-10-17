@@ -70,7 +70,7 @@ def check_perturbation(games: pd.DataFrame, fs: pd.DataFrame) -> dict:
     snaps = availability.player_roles(seasons)
     target = games[(games["season"] == 2022) & (games["week"] == 10) & games["completed"]].iloc[0]
     gid = target["game_id"]
-    base = assemble_from_cache(games, tstats, qstats, snaps)
+    base = assemble_from_cache(games, tstats, qstats, snaps)  # includes the player model (RAPM) rebuild
     g2, t2, q2, s2 = games.copy(), tstats.copy(), qstats.copy(), snaps.copy()
     g2.loc[g2["game_id"] == gid, ["home_score", "away_score"]] = [77, 0]
     g2["margin"] = g2["home_score"] - g2["away_score"]
@@ -84,7 +84,13 @@ def check_perturbation(games: pd.DataFrame, fs: pd.DataFrame) -> dict:
         m = tg["game_id"] == gid
         tg.loc[m, num] = tg.loc[m, num].astype(float) * 5 + 3
         return tg
-    pert = assemble_from_cache(g2, t2, q2, s2, advanced_transform=scramble)
+    def scramble_plays(pl):  # perturb the target game's play EPA and on-field player lists
+        pl = pl.copy()
+        m = pl["game_id"] == gid
+        pl.loc[m, "epa"] = pl.loc[m, "epa"] * -3 + 2
+        pl.loc[m, "offense_players"] = pl.loc[m, "offense_players"].map(lambda s_: ";".join(sorted(s_.split(";"))[::-1]))
+        return pl
+    pert = assemble_from_cache(g2, t2, q2, s2, advanced_transform=scramble, plays_transform=scramble_plays)
     cols = [c for c in base.columns if c not in META_COLUMNS and base[c].dtype.kind in "fi"
             and not c.endswith(("_report_time",))]
     a = base.set_index("game_id")
