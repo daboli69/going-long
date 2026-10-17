@@ -1,7 +1,7 @@
 {
  "schema": "going-score-v2",
  "methodology_version": "going-score-2.0.0",
- "as_of": "2026-10-17T00:33:53Z",
+ "as_of": "2026-10-17T13:47:53Z",
  "season": 2026,
  "week": 7,
  "meaning": "Player-level situation index: opportunity, role, availability and how they are changing, from games before this week. Not a projection, a probability or a betting edge; a higher score is not a better bet.",
@@ -78,10 +78,10 @@
  "availability": {
   "ok": true,
   "limited": true,
-  "verified_player_count": 2057,
+  "verified_player_count": 2043,
   "reason": "",
-  "injury_as_of": "2026-10-16T12:16:44+00:00",
-  "roster_as_of": "2026-10-16T12:22:28+00:00"
+  "injury_as_of": "2026-10-17T11:33:31+00:00",
+  "roster_as_of": "2026-10-17T11:35:26+00:00"
  },
  "provenance": {
   "sources": [
@@ -121,8 +121,8 @@
    "week": 6
   },
   "ffopportunity_rows": 13763,
-  "history_json_generated_at": "2026-10-17T00:31:13+00:00",
-  "history_linked_players": 482,
+  "history_json_generated_at": "2026-10-17T13:45:20+00:00",
+  "history_linked_players": 480,
   "weights_fit": {
    "experiment": "P4-1",
    "development_seasons": [
@@ -3953,7 +3953,7 @@
    "delta_1w": 0.0,
    "delta_3w": -3.6,
    "flags": [
-    "INJURY:Questionable"
+    "INJURY:Questionable Hamstring"
    ]
   },
   "00-0040668": {
@@ -6078,7 +6078,7 @@
    "delta_1w": 0.0,
    "delta_3w": -2.0,
    "flags": [
-    "INJURY:Questionable",
+    "INJURY:Questionable Toe",
     "AVAILABILITY_RISK"
    ]
   },
@@ -11250,7 +11250,7 @@
    "delta_1w": 0.0,
    "delta_3w": 0.9,
    "flags": [
-    "INJURY:Questionable"
+    "INJURY:Questionable Quad"
    ]
   },
   "00-0039021": {
@@ -11554,7 +11554,7 @@
    "delta_1w": 0.0,
    "delta_3w": -0.1,
    "flags": [
-    "INJURY:Questionable"
+    "INJURY:Questionable Knee"
    ]
   },
   "00-0039299": {
@@ -15353,7 +15353,7 @@
    "delta_1w": 0.0,
    "delta_3w": -13.7,
    "flags": [
-    "INJURY:Questionable",
+    "INJURY:Questionable Ankle",
     "ROLE_DOWN"
    ]
   },
@@ -15506,7 +15506,7 @@
    "delta_1w": 0.0,
    "delta_3w": 4.2,
    "flags": [
-    "INJURY:Questionable"
+    "INJURY:Questionable Ankle"
    ]
   },
   "00-0040878": {
@@ -18255,7 +18255,7 @@
    "delta_1w": 0.0,
    "delta_3w": -7.6,
    "flags": [
-    "INJURY:Questionable",
+    "INJURY:Questionable Shoulder",
     "ROLE_DOWN"
    ]
   },
@@ -19318,7 +19318,7 @@
    "delta_1w": 0.0,
    "delta_3w": -2.2,
    "flags": [
-    "INJURY:Questionable"
+    "INJURY:Questionable Illness"
    ]
   },
   "00-0035659": {
@@ -19622,7 +19622,7 @@
    "delta_1w": 0.0,
    "delta_3w": -1.7,
    "flags": [
-    "INJURY:Limited Participation in Practice Ankle",
+    "INJURY:Full Participation in Practice Ankle",
     "AVAILABILITY_RISK"
    ]
   },
@@ -31918,9 +31918,7 @@
    ],
    "delta_1w": 2.0,
    "delta_3w": -5.3,
-   "flags": [
-    "INJURY:active"
-   ]
+   "flags": []
   },
   "00-0040667": {
    "name": "Matthew Golden",
@@ -38309,9 +38307,7 @@
    ],
    "delta_1w": 0.0,
    "delta_3w": -3.2,
-   "flags": [
-    "INJURY:active"
-   ]
+   "flags": []
   },
   "00-0036429": {
    "name": "Charlie Woerner",
@@ -44985,7 +44981,6 @@
    "delta_1w": -1.1,
    "delta_3w": -2.4,
    "flags": [
-    "INJURY:active",
     "AVAILABILITY_RISK"
    ]
   },
@@ -47114,7 +47109,7 @@
    "delta_1w": 0.0,
    "delta_3w": -7.2,
    "flags": [
-    "INJURY:Questionable",
+    "INJURY:Questionable Concussion",
     "LIMITED_SAMPLE",
     "ROOKIE"
    ]
