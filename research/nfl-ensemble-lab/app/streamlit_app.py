@@ -784,7 +784,20 @@ def _blindspot_research():
             st.write(f"2018-25, {int(o['games'])} games: favourites predicted to win {o['pred_fav']:.1%}, actually won {o['obs_fav']:.1%}; "
                      f"log loss {o['log_loss']:.3f}, excess {o['excess_ll']:+.4f}, margin MAE {o['margin_mae']:.2f}.")
         tabs = st.tabs(["Calibration", "Situations ranked", "Shared errors", "Market vs situations", "Prospective hypotheses",
-                        "Upset identifiers (8.3)", "Underdog traits & line movement (8.4)", "Combined angles, new data (8.5)"])
+                        "Upset identifiers (8.3)", "Underdog traits & line movement (8.4)", "Combined angles, new data (8.5)", "Tracking: Big Data Bowl 2023 (8.6)"])
+        with tabs[8]:
+            from lab import tracking86 as T86
+            u = T86.load()
+            st.caption("Pre-registered (docs/PHASE8_6_PREREGISTRATION.md). Kaggle Big Data Bowl 2026 tracking, 2023 weeks 1-18 pass plays; "
+                       "arrival separation = targeted receiver to nearest tracked defender when the ball arrives. Local data only (competition rules).")
+            if u:
+                r_ = u["results"]
+                st.write(f"{r_['plays_with_separation']:,} passes, median separation {r_['median_separation_yd']:.2f} yd, {r_['games_tested']} games tested.")
+                st.dataframe(pd.DataFrame([{"test": k, **v} for k, v in r_.items() if k.startswith(("T1", "T2", "P1"))]).round(4),
+                             hide_index=True, use_container_width=True)
+                if "coverage" in u:
+                    st.write("**Team coverage profile (descriptive)**")
+                    st.dataframe(u["coverage"], hide_index=True, use_container_width=True)
         with tabs[7]:
             from lab import upsets85 as U85
             u = U85.load()
