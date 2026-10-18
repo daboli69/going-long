@@ -60,3 +60,35 @@ one-player-at-a-time model), with a one-sided game-cluster bootstrap p < 0.05. A
 - **Starting QB:** assumed to be the QB who threw the team's first pass. Starters are publicly known before kickoff.
 - **2022 development check** (60 games): the simulator had lower CRPS than the baseline on all four stats, with means 3–6% high.
   It was used for building only and is not evidence.
+
+## Result: the single pre-registered look, 2023–2025 (run 2026-10-18, 816 games, 17,740 player-game stats)
+**PASSED.**
+- Mean CRPS: simulator **13.30** vs baseline 13.96. The difference is −0.66 (−4.7%), 95% CI −0.83 to −0.50, one-sided
+  p = 0.0005.
+
+| Stat | n | CRPS sim / base | Mean sim / base / actual | 80% coverage sim / base | Over/under log loss sim / base | Big-game (> own 85th pct) Brier sim / base |
+|---|---|---|---|---|---|---|
+| Passing yards | 1,600 | **42.1** / 45.8 | 241 / 222 / 223 | 0.74 / 0.74 | **0.675** / 0.693 | **0.152** / 0.164 |
+| Receptions | 6,618 | **1.24** / 1.26 | 3.78 / 3.64 / 3.56 | 0.89 / 0.80 | **0.657** / 0.671 | 0.135 / 0.135 |
+| Receiving yards | 6,618 | **16.7** / 17.3 | 42.8 / 41.7 / 41.0 | 0.85 / 0.81 | **0.682** / 0.693 | 0.142 / 0.142 |
+| Rushing yards | 2,904 | **17.1** / 17.9 | 49.4 / 46.8 / 46.9 | 0.75 / 0.81 | **0.681** / 0.693 | **0.145** / 0.147 |
+
+- **Correlation:** the simulated within-game correlation of QB passing yards with the top receiver's yards is 0.44. The actual
+  residual correlation is 0.45. The shared-play structure reproduces real same-game correlation.
+- **Team points:** simulated 22.1 against market-implied 22.0 and actual 22.6.
+
+### Known defects (found in this look; any fix is judged prospectively only)
+1. **Overprojection.** Means run high: passing +8%, rushing +5%, receptions +6%, receiving +4%. The PIT histograms pile up in
+   the lowest bin, and the simulator overstates big games (passing: 24.3% predicted vs 19.0% actual). It still wins on CRPS
+   because its distribution shapes and correlations are better.
+2. **Calibration overshoot.** In 10.7% of games, final simulated points missed the implied total by more than 2 (median miss
+   0.4, worst about 13). `calibrate()` applies one last update without re-checking it.
+3. **Spread is uneven.** Receptions and receiving yards are too wide (80% coverage 0.89 and 0.85); passing and rushing are too
+   narrow (0.74 and 0.75).
+
+### What it means
+- **Distribution quality:** the whole-game simulation produces better player distributions than one-player-at-a-time models,
+  mostly through better shape and correlation, despite the high bias.
+- **Not a betting claim:** the over/under lines here are synthetic (baseline medians), not sportsbook lines.
+- **Under the pre-registration,** the next step is prospective only: archive pregame distributions for 2026 games and score them
+  after kickoff. A fixed version (bias, calibration re-check) would be a new version, judged only on 2026+ games.
