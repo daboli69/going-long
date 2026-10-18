@@ -783,7 +783,17 @@ def _blindspot_research():
             o = ov.iloc[0]
             st.write(f"2018-25, {int(o['games'])} games: favourites predicted to win {o['pred_fav']:.1%}, actually won {o['obs_fav']:.1%}; "
                      f"log loss {o['log_loss']:.3f}, excess {o['excess_ll']:+.4f}, margin MAE {o['margin_mae']:.2f}.")
-        tabs = st.tabs(["Calibration", "Situations ranked", "Shared errors", "Market vs situations", "Prospective hypotheses"])
+        tabs = st.tabs(["Calibration", "Situations ranked", "Shared errors", "Market vs situations", "Prospective hypotheses",
+                        "Upset identifiers (8.3)"])
+        with tabs[5]:
+            from lab import upsets83 as U83
+            u = U83.load()
+            st.caption("Nine pre-registered upset metrics (luck regression, scheduling spots, officiating crew, coaching aggressiveness), "
+                       "one historical look 2018-25, controlling for the champion's probability (docs/PHASE8_3_PREREGISTRATION.md).")
+            if u:
+                st.dataframe(u["results"].round(4), hide_index=True, use_container_width=True)
+                if not u["results"]["passes"].any():
+                    st.info("None passed; none was registered for prospective tracking, and none will be re-tried with new thresholds.")
         with tabs[0]:
             for k, t in (("audit_by_fav_band", "By favourite probability"), ("audit_by_week_group", "By week"), ("audit_by_season", "By season"),
                          ("audit_by_home_away_fav", "Home vs away favourite (1 = home)"), ("audit_by_spread_band", "By predicted margin"),
