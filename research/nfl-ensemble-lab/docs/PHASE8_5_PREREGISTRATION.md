@@ -89,3 +89,32 @@ challenger or GOING change.
 - Adding angles or changing thresholds after any discovery result is seen.
 - Scoring confirmation seasons for angles that were not carried.
 - Using 2026 for anything but prospective evaluation.
+
+## Amendment A (2026-10-18, after outcome-free data checks, before any outcome was computed)
+
+### What the data checks found
+- **2006–2013:** ASB has one line per game, stored in the "Open" columns. It matches the nflverse *closing* spread (median absolute
+  difference 0.0, against 1.0 for genuine openers), so it is a closing line. **There is no line-movement data before 2014.**
+- **2014–2024:** ≥ 96% of games have both opening and closing spreads and moneylines.
+- **2025:** 72.6% coverage, so it fails the ≥ 90% rule and is excluded from every movement test.
+- **Closing lines:** ASB closing lines agree with nflverse closing lines (median absolute difference 0.0).
+
+### Revised families (the angles themselves are unchanged)
+- **p_close definition (all families):** the nflverse closing no-vig moneyline probability, falling back to
+  Φ(nflverse closing spread / 13.5). The ASB closing moneyline is used only for flat-bet returns on the movement family.
+- **EM (movement): E1–E6.**
+  - Line favourite = the ASB opening favourite.
+  - Discovery 2014–2018, confirmation 2019–2024.
+  - Seasons need ≥ 90% of games with ASB opening and closing lines.
+  - The SBR-agreement check still applies.
+  - Caveat: the main movement effect was examined on SBR 2016–21 in Phases 8.1 and 8.4.
+- **ES (static and football): E7–E13.**
+  - Line favourite = the closing favourite (nflverse spread; pick'em excluded).
+  - Discovery 2006–2015, confirmation 2016–2025.
+  - E8 uses the nflverse closing total.
+  - These seasons were never examined for these angles, and 1999–2014 play-by-play supplies E9 and E10 for the old seasons.
+- **C (champion × market):** opening-favourite orientation as before. Discovery 2018–2021, confirmation 2022–2024.
+- **R1:** S2 replication on 2022–2024 (2025 excluded by the coverage rule).
+
+### Decision rule
+Holm applies within each family (EM, ES, C). Everything else in the decision rule is unchanged.
