@@ -784,7 +784,21 @@ def _blindspot_research():
             st.write(f"2018-25, {int(o['games'])} games: favourites predicted to win {o['pred_fav']:.1%}, actually won {o['obs_fav']:.1%}; "
                      f"log loss {o['log_loss']:.3f}, excess {o['excess_ll']:+.4f}, margin MAE {o['margin_mae']:.2f}.")
         tabs = st.tabs(["Calibration", "Situations ranked", "Shared errors", "Market vs situations", "Prospective hypotheses",
-                        "Upset identifiers (8.3)", "Underdog traits & line movement (8.4)", "Combined angles, new data (8.5)", "Tracking: Big Data Bowl 2023 (8.6)"])
+                        "Upset identifiers (8.3)", "Underdog traits & line movement (8.4)", "Combined angles, new data (8.5)", "Tracking: Big Data Bowl 2023 (8.6)",
+                        "NGS separation, multi-season (8.7)"])
+        with tabs[9]:
+            from lab import ngs87 as N87
+            u = N87.load()
+            st.caption("Pre-registered (docs/PHASE8_7_PREREGISTRATION.md), one look. NGS target-weighted avg_separation as the weekly stand-in "
+                       "for BDB separation; edge = as-of OffSep - DefSep, angle = underdog - favourite. Discovery 2018-20, confirmation 2021, 22, 24, 25 (2023 excluded).")
+            if u:
+                r_ = u["results"]
+                st.write(f"Primary (confirmation, beyond the champion) passes: **{r_['passes']}**")
+                st.dataframe(pd.DataFrame([{"test": k, **v} for k, v in r_.items() if k.startswith(("primary", "secondary"))]).round(4),
+                             hide_index=True, use_container_width=True)
+                if "quintiles" in u:
+                    st.write("**Confirmation upset rate by angle quintile (descriptive)**")
+                    st.dataframe(u["quintiles"].round(4), hide_index=True, use_container_width=True)
         with tabs[8]:
             from lab import tracking86 as T86
             u = T86.load()
