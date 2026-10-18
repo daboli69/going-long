@@ -784,7 +784,23 @@ def _blindspot_research():
             st.write(f"2018-25, {int(o['games'])} games: favourites predicted to win {o['pred_fav']:.1%}, actually won {o['obs_fav']:.1%}; "
                      f"log loss {o['log_loss']:.3f}, excess {o['excess_ll']:+.4f}, margin MAE {o['margin_mae']:.2f}.")
         tabs = st.tabs(["Calibration", "Situations ranked", "Shared errors", "Market vs situations", "Prospective hypotheses",
-                        "Upset identifiers (8.3)"])
+                        "Upset identifiers (8.3)", "Underdog traits & line movement (8.4)"])
+        with tabs[6]:
+            from lab import upsets84 as U84
+            u = U84.load()
+            st.caption("Two pre-registered tests (docs/PHASE8_4_PREREGISTRATION.md), one historical look, Holm across V and S2. "
+                       "V: high-variance underdogs, 2018-25. S2: opening-to-closing line movement toward the underdog, beyond the champion, 2018-21.")
+            if u:
+                rows = [{"test": k, **{a: b for a, b in u[k].items()}} for k in ("V", "S2", "V_secondary_dog_minus_fav", "S1_vs_open", "S3_vs_close")]
+                st.dataframe(pd.DataFrame(rows).round(4), hide_index=True, use_container_width=True)
+                st.write(f"Holm: {u['holm']} | passes: {u['passes']}")
+                st.write("**Lines that moved 1.5+ points toward the underdog**")
+                st.json(u["flag_table"])
+                if "V_quintiles" in u:
+                    st.write("**Underdog variance index quintiles (descriptive)**")
+                    st.dataframe(u["V_quintiles"].round(4), hide_index=True, use_container_width=True)
+                st.write("**Prospective S2 flag (judged only after registration)**")
+                st.json(U84.prospective_eval())
         with tabs[5]:
             from lab import upsets83 as U83
             u = U83.load()
