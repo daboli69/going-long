@@ -26,7 +26,7 @@ STUDIES = [
     ("8.5", "lab.upsets85", "phase85/results.json", {"n_perm": 10_000, "log": lambda m: None},
      ["R1.p_one_sided", "R1.coef_per_sd", "carried"]),
     ("8.6", "lab.tracking86", "phase86/results.json", {}, ["T1_beyond_champion.p_one_sided", "P1_ngs_proxy.pearson_r"]),
-    ("8.7", "lab.ngs87", "phase87/results.json", {}, []),
+    ("8.7", "lab.ngs87", "phase87/results.json", {}, ["primary_confirmation.p_one_sided", "primary_confirmation.coef_per_sd", "passes"]),
 ]
 PROSPECTIVE = [
     ("8.4 S2P line-movement flag", "lab.upsets84", "prospective_eval", {}),
