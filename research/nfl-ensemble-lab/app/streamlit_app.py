@@ -784,7 +784,28 @@ def _blindspot_research():
             st.write(f"2018-25, {int(o['games'])} games: favourites predicted to win {o['pred_fav']:.1%}, actually won {o['obs_fav']:.1%}; "
                      f"log loss {o['log_loss']:.3f}, excess {o['excess_ll']:+.4f}, margin MAE {o['margin_mae']:.2f}.")
         tabs = st.tabs(["Calibration", "Situations ranked", "Shared errors", "Market vs situations", "Prospective hypotheses",
-                        "Upset identifiers (8.3)", "Underdog traits & line movement (8.4)"])
+                        "Upset identifiers (8.3)", "Underdog traits & line movement (8.4)", "Combined angles, new data (8.5)"])
+        with tabs[7]:
+            from lab import upsets85 as U85
+            u = U85.load()
+            st.caption("Pre-registered (docs/PHASE8_5_PREREGISTRATION.md + Amendment A). AusSportsBetting lines 2006-25 (openers only from 2014), "
+                       "nflverse play-by-play 1999-2025. Discovery seasons choose what is carried; confirmation seasons are scored once, Holm per family.")
+            if "discovery" in u:
+                rows = [{"family": f, "angle": a, **{k: v for k, v in t.items() if k in ("games", "coef_per_sd", "p_one_sided", "carried", "status")}}
+                        for f, r_ in u["discovery"].items() if isinstance(r_, dict) for a, t in r_.items() if isinstance(t, dict)]
+                st.write("**Discovery**")
+                st.dataframe(pd.DataFrame(rows).round(4), hide_index=True, use_container_width=True)
+            res = u.get("results")
+            if res:
+                rows = [{"family": f, "angle": a, **t} for f, r_ in res["confirmation"].items() for a, t in r_.items()]
+                st.write("**Confirmation (carried angles only)**")
+                st.dataframe(pd.DataFrame(rows).round(4), hide_index=True, use_container_width=True)
+                st.write("**R1: Phase 8.4 S2 replicated on 2022-24 line movement**")
+                st.json(res["R1"])
+                st.write("**S2 robustness (descriptive)**")
+                st.json(res["robustness_s2"])
+            elif "status" in u:
+                st.info(f"Run status: {u['status'].get('stage')}")
         with tabs[6]:
             from lab import upsets84 as U84
             u = U84.load()
