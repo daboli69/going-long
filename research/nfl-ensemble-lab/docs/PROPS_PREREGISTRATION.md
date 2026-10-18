@@ -83,3 +83,23 @@ equal his receivers' yards.
 ## Not allowed
 - Tuning any sub-model, bin, shrinkage or calibration choice on 2023–25 results.
 - Re-scoring 2023–25 after changes. A changed simulator is evaluated only prospectively (2026 onward).
+
+## Amendment A (2026-10-18): development changes, all made on 2016–21 training data and the 2022 development season only, before any 2023–25 evaluation run
+- **Penalties added**, as in the DraftKings flow. A no-play penalty is drawn at the empirical rate (6.8% of snaps). It ends the
+  play: field position moves (capped at half the distance), and the down is replayed or becomes an automatic first down.
+- **Red zone:** inside the 20, gains are drawn from the empirical outcomes at that exact yard line. Coarse bins undercount
+  touchdowns because gains are truncated at the goal line.
+- **Clock:** runoff samples now use only the next snap, excluding timeout and end-of-quarter rows. A clock scale (about 1.06) is
+  fitted so that simulated scrimmage plays per team match the training seasons (about 62).
+- **Scoring calibration at neutral strength:** a red-zone finishing boost (best of two draws with probability ρ) is fitted by
+  bisection so that a neutral simulated game matches training points per team.
+  - It also absorbs defensive and special-teams touchdowns, which are not simulated, so simulated red-zone touchdown rates run
+    high.
+  - Yardage is unaffected. Touchdown props are not evaluated.
+- **Parameter uncertainty:** each simulated game draws its own offense efficiency (normal, σ = 0.15 in logit units) and its own
+  player shares (Dirichlet with concentration κ = 30). Both values were set before the 2022 check and were not tuned on it.
+- **Timeouts are not simulated** (deviation from "Method"). Every other rule above stands.
+- **2022 development check** (60 games, 2,000 simulations; for building only):
+  - The simulator had lower CRPS than baseline B for all four stats, with means 3–6% above actual.
+  - 80% coverage: 0.72–0.85.
+  - These numbers are not evidence. Only the single 2023–25 look counts.

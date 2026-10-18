@@ -785,7 +785,23 @@ def _blindspot_research():
                      f"log loss {o['log_loss']:.3f}, excess {o['excess_ll']:+.4f}, margin MAE {o['margin_mae']:.2f}.")
         tabs = st.tabs(["Calibration", "Situations ranked", "Shared errors", "Market vs situations", "Prospective hypotheses",
                         "Upset identifiers (8.3)", "Underdog traits & line movement (8.4)", "Combined angles, new data (8.5)", "Tracking: Big Data Bowl 2023 (8.6)",
-                        "NGS separation, multi-season (8.7)"])
+                        "NGS separation, multi-season (8.7)", "Player props simulator"])
+        with tabs[10]:
+            import json as _json
+            from lab.props import evaluate as PE
+            st.caption("Play-by-play Monte Carlo (DraftKings-style chain of play models, market-anchored team strength, 10,000 sims/game) vs "
+                       "an independent one-player-at-a-time baseline. Pre-registered in docs/PROPS_PREREGISTRATION.md; 2023-25 is a single look. "
+                       "Distribution quality only: no historical prop odds, so no betting return is claimed.")
+            for tag, label in (("eval", "Evaluation 2023-25 (single pre-registered look)"), ("dev", "Development 2022 (building only, not evidence)")):
+                f = PE.OUT / tag / "analysis.json"
+                if f.exists():
+                    a_ = _json.loads(f.read_text())
+                    st.write(f"**{label}**: {a_['player_game_stats']:,} player-game stats, {a_['games']} games")
+                    st.json(a_["primary"])
+                    st.dataframe(pd.DataFrame(a_["by_stat"]).T.drop(columns=["pit_hist_sim", "pit_hist_base"]).round(3), use_container_width=True)
+                    st.write("QB-WR1 correlation and team points", {"correlation": a_["correlation_qb_wr1"], "points": a_["team_points"]})
+                elif tag == "eval":
+                    st.info("Evaluation not run yet: python -m lab.props.evaluate eval (several hours; Travis starts it).")
         with tabs[9]:
             from lab import ngs87 as N87
             u = N87.load()
