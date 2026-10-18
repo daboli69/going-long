@@ -24,6 +24,7 @@ HISTORY = PUB_DIR / "history.jsonl"
 BRANCH = "nfl-lab-feed"
 REMOTE_PATH = "nfl_lab_feed.json"
 GIT_ROOT = LAB_ROOT.parents[1]
+VERCEL_CONFIG = '{"git": {"deploymentEnabled": false}, "ignoreCommand": "exit 0"}\n'
 
 
 def _log(entry: dict) -> dict:
@@ -44,9 +45,12 @@ def _git(*args, cwd=GIT_ROOT, input_=None, env=None) -> str:
 
 
 def push_feed(path: Path, remote: str = "origin", branch: str = BRANCH, repo=GIT_ROOT) -> str:
-    """Commit `path` as the only file on `branch` (parent = current remote tip, if any) and push it. Returns the commit."""
+    """Commit `path` (plus a deploy guard) on `branch` (parent = current remote tip, if any) and push it. Returns the commit."""
     blob = _git("hash-object", "-w", str(path), cwd=repo)
-    tree = _git("mktree", cwd=repo, input_=f"100644 blob {blob}\t{REMOTE_PATH}\n")
+    # Vercel builds every pushed branch and reads vercel.json from the deployed commit itself, so a data-only feed
+    # commit must disable deployment for this branch; otherwise each publication creates a failed Preview deployment.
+    cfg = _git("hash-object", "-w", "--stdin", cwd=repo, input_=VERCEL_CONFIG)
+    tree = _git("mktree", cwd=repo, input_=f"100644 blob {blob}\t{REMOTE_PATH}\n100644 blob {cfg}\tvercel.json\n")
     parent = None
     try:
         _git("fetch", "--quiet", remote, f"+refs/heads/{branch}:refs/remotes/{remote}/{branch}", cwd=repo)

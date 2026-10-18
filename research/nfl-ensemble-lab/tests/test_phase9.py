@@ -54,7 +54,9 @@ def test_push_feed_uses_a_separate_branch_and_never_touches_the_checkout(tmp_pat
     c3 = P.push_feed(f, repo=work)
     assert c3 != c1 and _git(remote, "rev-parse", f"{c3}^") == c1   # history kept
     assert json.loads(_git(remote, "show", f"{P.BRANCH}:{P.REMOTE_PATH}"))["generated_at"] == "2026-10-18T11:00:00+00:00"
-    assert _git(remote, "ls-tree", "--name-only", P.BRANCH) == P.REMOTE_PATH   # only the feed file is published
+    assert _git(remote, "ls-tree", "--name-only", P.BRANCH).split() == [P.REMOTE_PATH, "vercel.json"]   # feed + deploy guard only
+    guard = json.loads(_git(remote, "show", f"{P.BRANCH}:vercel.json"))
+    assert guard == {"git": {"deploymentEnabled": False}, "ignoreCommand": "exit 0"}
     assert _git(work, "rev-parse", "HEAD") == head and _git(work, "status", "--porcelain") == status
 
 

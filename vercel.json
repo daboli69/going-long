@@ -2,7 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
     "deploymentEnabled": {
-      "codex/going-long-daily-review": false
+      "codex/going-long-daily-review": false,
+      "nfl-lab-feed": false
     }
   },
   "framework": null,
