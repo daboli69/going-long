@@ -27,7 +27,7 @@ st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide
 PAGES = ["Home", "Live Readiness & Schedule", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
          "Weekly Predictions", "Prospective Performance", "Prediction Archive", "Data Freshness", "Baseline Research",
          "Long-Run Research", "Advanced Football Intelligence", "Player Intelligence", "Data Coverage & Gaps",
-         "Upset Discovery", "Upset Explorer", "Research Validation", "Research Runs", "Reports"]
+         "Upset Discovery", "Upset Explorer", "Player Props", "Research Validation", "Research Runs", "Reports"]
 PCT = st.column_config.ProgressColumn
 
 
@@ -814,18 +814,7 @@ def _blindspot_research():
                                                               "fix_1a": sel_.get("fix_1a"), "calibration_2022": sel_["calibration_v2"]})
             sm_ = PW.summary()
             st.write(f"Archived games: **{sm_['archived_games']}**, scored: **{sm_['scored_games']}**")
-            ar_ = PW.load_archive()
-            if len(ar_):
-                st.markdown("**Player projections by game (offense)**")
-                st.caption("Pregame archived distributions for every archived game of the week. Players shown: starting QB, receivers "
-                           "with >= 10% of targets, rushers with >= 20% of carries. Median = the middle outcome; 10-90% = the range "
-                           "8 times in 10. Distribution quality is tested; betting value is not.")
-                wks_ = sorted(ar_["week"].unique())
-                wk_ = st.selectbox("Week", wks_, index=len(wks_) - 1, key="props_week")
-                sc_ = PW.load_scores()
-                for gm_ in sorted(ar_.loc[ar_["week"] == wk_, "game_id"].unique()):
-                    st.markdown(f"**{gm_.split('_')[2]} @ {gm_.split('_')[3]}**")
-                    st.dataframe(PW.projection_table(ar_[ar_["game_id"] == gm_], sc_).round(1), hide_index=True, use_container_width=True)
+            st.caption("Per-game player projections have their own page: sidebar → Player Props.")
             arch_ = sorted(PW.OUT.glob(f"{PW.SEASON}_w*/*.json"))
             if arch_:
                 st.dataframe(pd.DataFrame([{k: m_.get(k) for k in ("game_id", "created_utc", "kickoff_et", "versions", "availability", "commit")}
@@ -1909,6 +1898,33 @@ def page_reports():
     st.caption(f"Folder: {REPORTS_DIR} · Snapshots: {SNAPSHOTS_DIR}")
 
 
+def page_props():
+    from lab.props import weekly as PW
+    st.title("Player Props")
+    st.caption("Play-by-play Monte Carlo player projections (10,000 simulated games each), offense only. Model docs: docs/PROPS_SIMULATOR.md. Refresh upcoming games with `python -m lab.props.weekly preview`; archive pregame with `python -m lab.props.weekly`; score with `python -m lab.props.weekly score`.")
+    ar_ = PW.load_archive()
+    pv_ = PW.load_archive(preview=True)
+    if len(pv_) and len(ar_):                      # a preview is shown only until that game is officially archived
+        pv_ = pv_[~pv_["game_id"].isin(ar_["game_id"].unique())]
+    parts_ = [x.assign(_src=lab) for x, lab in ((ar_, "archived"), (pv_, "preview")) if len(x)]
+    ar_ = pd.concat(parts_, ignore_index=True) if parts_ else ar_
+    if len(ar_):
+        st.subheader("Projections by game")
+        st.caption("Pregame distributions for every game of the week. Players shown: starting QB, receivers "
+                   "with >= 10% of targets, rushers with >= 20% of carries. Median = the middle outcome; 10-90% = the range "
+                   "8 times in 10. Distribution quality is tested; betting value is not.")
+        wks_ = sorted(ar_["week"].unique())
+        wk_ = st.selectbox("Week", wks_, index=len(wks_) - 1, key="props_week")
+        sc_ = PW.load_scores()
+        for gm_ in sorted(ar_.loc[ar_["week"] == wk_, "game_id"].unique()):
+            prev_ = ar_.loc[ar_["game_id"] == gm_, "_src"].iloc[0] == "preview"
+            st.markdown(f"**{gm_.split('_')[2]} @ {gm_.split('_')[3]}**" +
+                        (" · _preview (re-run `python -m lab.props.weekly preview` for fresher rosters)_" if prev_ else " · archived pregame"))
+            st.dataframe(PW.projection_table(ar_[ar_["game_id"] == gm_].drop(columns="_src"), sc_).round(1), hide_index=True, use_container_width=True)
+    else:
+        st.info("No projections yet. Run: .venv/Scripts/python.exe -m lab.props.weekly preview")
+
+
 with st.sidebar:
     st.header("NFL Ensemble Lab")
     page = st.radio("Go to", PAGES, label_visibility="collapsed")
@@ -1920,7 +1936,7 @@ try:
      "Prediction Archive": page_archive, "Data Freshness": page_freshness, "Baseline Research": page_baseline_research,
      "Long-Run Research": page_longrun, "Advanced Football Intelligence": page_afi, "Player Intelligence": page_players,
      "Data Coverage & Gaps": page_coverage, "Upset Discovery": page_discovery,
-     "Upset Explorer": page_explorer, "Research Validation": page_validation, "Research Runs": page_runs,
+     "Upset Explorer": page_explorer, "Player Props": page_props, "Research Validation": page_validation, "Research Runs": page_runs,
      "Reports": page_reports}[page]()
 except FileNotFoundError as exc:
     st.warning(str(exc))

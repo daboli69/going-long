@@ -122,6 +122,20 @@ class TestWeekly(unittest.TestCase):
         self.assertEqual(r["archived"], [])
         self.assertEqual(dict(r["skipped"]), {"g1": "kicked off", "g2": "no spread/total yet"})
 
+    def test_preview_never_touches_the_archive(self):
+        g = pd.DataFrame({"game_id": ["g1"], "season": [2026], "week": [7], "gameday": ["2026-10-25"], "gametime": ["13:00"],
+                          "home_team": ["A"], "away_team": ["C"], "home_score": [np.nan], "spread_line": [1.0], "total_line": [40.0],
+                          "home_qb_id": [None], "away_qb_id": [None]})
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            (d / "2026_w07").mkdir()
+            (d / "2026_w07" / "g1.parquet").write_bytes(b"archived")
+            with mock.patch.object(W, "load_games", return_value=g), mock.patch.object(W.M, "fit", side_effect=AssertionError("no sim")):
+                r = W.archive(2026, 7, now=pd.Timestamp("2026-10-20", tz=W.TZ), out=d, log=lambda m: None, preview=True)
+            self.assertEqual(dict(r["skipped"]), {"g1": "already archived"})       # officially archived games are not previewed
+            self.assertTrue((d / "preview" / "2026_w07").is_dir())
+            self.assertEqual((d / "2026_w07" / "g1.parquet").read_bytes(), b"archived")
+
     def test_projection_table(self):
         q = {c: v for c, v in zip(G.QCOLS, np.linspace(10, 108, 99))}             # q50 = 59, q10 = 19, q90 = 99
         arch = pd.DataFrame([{"game_id": "g1", "team": "A", "pid": "wr", "name": "W R", "stat": "rec_yds", "version": v, "mean": 60.0, **q}

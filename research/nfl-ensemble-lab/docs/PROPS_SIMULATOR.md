@@ -42,6 +42,7 @@ python -m lab.props.evaluate eval      # 2023-2025, THE single pre-registered lo
 python -m lab.props.evaluate analyze eval
 ```
 - **Results:** `artifacts/props/<tag>/` (`player_games.parquet`, `analysis.json`), with a log in `artifacts/props/<tag>_run.log`.
+- **Viewing:** sidebar → **Player Props**. Each game shows the official pregame archive once written, otherwise the latest preview.
 - **Dashboard:** Blind-spot research → "Player props simulator".
 
 ## Pass rule
@@ -132,6 +133,7 @@ v2 is judged only on 2026 games, against v1.
 ```
 python -m lab.props.weekly                     # coming week, unstarted games only (best run after inactives, ~90 min before kickoff)
 python -m lab.props.weekly archive --week 7 --game 2026_07_NE_CHI
+python -m lab.props.weekly preview --week 7      # view-only projections for every game with lines; re-run any time (artifacts/props/prospective/preview/, never scored)
 python -m lab.props.weekly score               # after games are final AND play-by-play is refreshed
 python -m lab.props.weekly summary             # interim, descriptive
 ```

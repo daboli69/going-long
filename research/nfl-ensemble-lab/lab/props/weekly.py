@@ -3,6 +3,7 @@ pinned scheduler does not.
 
   python -m lab.props.weekly                 archive v1 / v2 / baseline-B quantiles for the coming week's unstarted games
   python -m lab.props.weekly archive --week 7
+  python -m lab.props.weekly preview         same projections for every upcoming game with lines; re-runnable, not archived or scored
   python -m lab.props.weekly score           score archived games that are final and have play-by-play (written once)
   python -m lab.props.weekly summary         descriptive interim table (not the pre-registered test)
 
@@ -93,7 +94,8 @@ def _qrow(version, x_mean, q):
     return {"version": version, "mean": float(x_mean), **dict(zip(G.QCOLS, np.asarray(q, float)))}
 
 
-def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=print, only=None) -> dict:
+def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=print, only=None, preview=False) -> dict:
+    """preview=True: overwritable projections under <out>/preview/ for viewing only; never part of the pre-registered test."""
     now = now or pd.Timestamp.now(tz=TZ)
     games = load_games()
     week = week or pick_week(games, season, now)
@@ -101,12 +103,13 @@ def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=prin
         log("No unplayed games left this season.")
         return {"week": None, "archived": [], "skipped": []}
     wk = games[(games["season"] == season) & (games["week"] == week)].sort_values("game_id")
-    wdir = out / f"{season}_w{week:02d}"
+    odir = out / f"{season}_w{week:02d}"
+    wdir = out / "preview" / f"{season}_w{week:02d}" if preview else odir
     wdir.mkdir(parents=True, exist_ok=True)
     todo, skipped = [], []
     for g in wk.itertuples(index=False):
         ko = kickoff(g.gameday, g.gametime)
-        why = ("already archived" if (wdir / f"{g.game_id}.parquet").exists() else "kicked off" if ko <= now
+        why = ("already archived" if (odir / f"{g.game_id}.parquet").exists() else "kicked off" if ko <= now
                else "no spread/total yet" if pd.isna(g.spread_line) or pd.isna(g.total_line) else None)
         if only and g.game_id not in only:
             why = why or "not selected"
@@ -187,6 +190,13 @@ def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=prin
                 "efficiency": {v: [float(e[0]), float(e[1])] for v, (e, _) in res.items()},
                 "pbp_games_this_season": pbp_games, "completed_games_before_week": done_games,
                 "player_stats": int(df[["pid", "stat"]].drop_duplicates().shape[0]) if len(df) else 0, "sha256": hashlib.sha256(data).hexdigest()}
+        if preview:
+            meta["preview"] = True
+            (wdir / f"{g.game_id}.parquet").write_bytes(data)
+            (wdir / f"{g.game_id}.json").write_text(json.dumps(meta, indent=2))
+            archived.append(g.game_id)
+            log(f"previewed {g.game_id} ({meta['player_stats']} player-stats) {time.time() - t0:.0f}s")
+            continue
         _write_once(wdir / f"{g.game_id}.parquet", data)
         _write_once(wdir / f"{g.game_id}.json", json.dumps(meta, indent=2).encode())
         with open(out / "archive_log.jsonl", "a", encoding="utf-8") as fh:
@@ -256,8 +266,8 @@ def load_scores(out=OUT) -> pd.DataFrame:
 STAT_LABEL = {"pass_yds": "Passing yards", "rush_yds": "Rushing yards", "rec_yds": "Receiving yards", "rec": "Receptions"}
 
 
-def load_archive(out=OUT, season=SEASON) -> pd.DataFrame:
-    fs = sorted(out.glob(f"{season}_w*/*.parquet"))
+def load_archive(out=OUT, season=SEASON, preview=False) -> pd.DataFrame:
+    fs = sorted((out / "preview" if preview else out).glob(f"{season}_w*/*.parquet"))
     return pd.concat([pd.read_parquet(f) for f in fs], ignore_index=True) if fs else pd.DataFrame()
 
 
@@ -300,14 +310,14 @@ def summary(out=OUT) -> dict:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(prog="python -m lab.props.weekly")
-    ap.add_argument("cmd", nargs="?", default="archive", choices=["archive", "score", "summary"])
+    ap.add_argument("cmd", nargs="?", default="archive", choices=["archive", "preview", "score", "summary"])
     ap.add_argument("--week", type=int)
     ap.add_argument("--season", type=int, default=SEASON)
     ap.add_argument("--sims", type=int, default=N_SIMS)
     ap.add_argument("--game", action="append", help="archive only these game_ids (repeatable)")
     args = ap.parse_args()
-    if args.cmd == "archive":
-        r = archive(args.season, args.week, n_sims=args.sims, only=args.game)
+    if args.cmd in ("archive", "preview"):
+        r = archive(args.season, args.week, n_sims=args.sims, only=args.game, preview=args.cmd == "preview")
         print(json.dumps(r, indent=2, default=str))
     elif args.cmd == "score":
         print(score(args.season))
