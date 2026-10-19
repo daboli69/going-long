@@ -6,6 +6,8 @@ from the authorized local GOING archive; missing benchmarks stay missing.
 from __future__ import annotations
 
 import argparse
+import hashlib
+import io
 import json
 import time
 import zlib
@@ -29,19 +31,26 @@ def local_game_lines(games, now):
     as full-game lines. No fallback to nfldata closing lines or live odds services.
     """
     quotes = []
+    targets = {(g.home_team, g.away_team, str(g.kickoff_utc)[:10]) for g in games.itertuples(index=False)}
     for path in (ARCHIVE / "market").glob("going_*.json"):
         d = json.loads(path.read_text(encoding="utf-8"))
         av = d.get("available_at")
         if not av or pd.Timestamp(av) > now:
             continue
         for r in d["content"]:
+            if (r.get("home"), r.get("away"), str(r.get("kickoff"))[:10]) not in targets:
+                continue
             if r.get("period") != "FULL" or r.get("in_play"):
                 continue
             if not temporal(r.get("quote_time"), av, r.get("kickoff"))["pregame_verified"]:
                 continue
             if r["market"] == "spreads" and r["side"] == "home":
+                if r.get("point") is None:
+                    continue
                 value, stat = -float(r["point"]), "margin"
             elif r["market"] == "totals" and str(r["side"]).lower() == "over":
+                if r.get("point") is None:
+                    continue
                 value, stat = float(r["point"]), "total"
             else:
                 continue
@@ -54,52 +63,97 @@ def local_game_lines(games, now):
         d = q[(q["home"] == g.home_team) & (q["away"] == g.away_team)].copy()
         if d.empty:
             continue
-        d = d[(pd.to_datetime(d["kickoff"], utc=True) - g.kickoff_utc).abs() <= pd.Timedelta(minutes=15)]
+        d = d[(pd.to_datetime(d["kickoff"], utc=True, format="mixed") - g.kickoff_utc).abs() <= pd.Timedelta(minutes=15)]
         d = d.sort_values("quote_time").groupby(["book", "stat"]).tail(1)
         values = d.groupby("stat")["value"].median().to_dict()
-        if {"margin", "total"} <= values.keys():
-            result[g.game_id] = values | {"quote_time": d["quote_time"].max(), "books": sorted(d["book"].unique())}
+        if values:
+            times = {stat + "_quote_time": z["quote_time"].min() for stat, z in d.groupby("stat")}
+            result[g.game_id] = values | times | {"quote_time": d["quote_time"].max(), "books": sorted(d["book"].unique())}
     return result
 
 
-def tables(log=print):
-    path = OUT / "simulator_tables_through_2021.joblib"
+def tables(log=print, production=False):
+    cutoff, frozen = None, None
+    if production:
+        from .frozen import load
+        frozen = load()
+        cutoff = json.loads((OUT / "production_fit.json").read_text())
+    path = OUT / (f"simulator_tables_production_2026_w{cutoff['training_last_completed_week']:02d}.joblib" if production else "simulator_tables_through_2021.joblib")
     if path.exists():
         result = joblib.load(path)
-        if result.get("phase10_train_max_season") != 2021:
+        if result.get("phase10_train_max_season") != (2026 if production else 2021):
             raise ValueError("Unsafe structural cache")
+        if production and result.get("frozen_config_sha256") != frozen["config_sha256"]:
+            raise ValueError("Structural cache config differs from frozen config")
         return result
-    log("fit simulator submodels on 2016–2021 only")
-    result = M.fit(range(2016, 2022))
+    log("fit structural submodels using committed recent-data configuration" if production else "fit simulator submodels on 2016–2021 only")
+    if production:
+        from .production import season_weight_map
+        result = M.fit(range(2016, 2027), cutoff_week=cutoff["training_last_completed_week"],
+                       season_weights=season_weight_map(range(2016, 2027)))
+        result.update(frozen_config_sha256=frozen["config_sha256"], training_cutoff_date=cutoff["training_cutoff_date"])
+    else:
+        result = M.fit(range(2016, 2022))
     S.calibrate_clock(result)
-    result["phase10_train_max_season"] = 2021
+    result["phase10_train_max_season"] = 2026 if production else 2021
     OUT.mkdir(parents=True, exist_ok=True)
     joblib.dump(result, path)
     return result
 
 
-def run(season=2022, week=None, n_sims=1000, limit=None, log=print, deadline=None):
+def build_inputs(frame, panel, season, game):
+    candidate = frame[frame["game_id"] == game.game_id]
+    a = PL.asof(panel, season, game.week)
+    sides = [game.home_team, game.away_team]
+    avail, hist, qbs = {}, {}, {}
+    for team in sides:
+        c = candidate[candidate["team"] == team]
+        avail[team] = c[["pid", "position"]]
+        qbs[team] = c["projected_qb"].dropna().iloc[0] if c["projected_qb"].notna().any() else None
+        if qbs[team] is None:
+            raise ValueError(f"No verified as-of projected QB for {team}; no player assignment guessed")
+        tp = panel[panel["posteam"] == team]
+        hist[team] = (tp[(tp["season"] == season) & (tp["week"] < game.week)].drop_duplicates("game_id"),
+                      tp[tp["season"] == season - 1].drop_duplicates("game_id"))
+    return (*G.build(a, avail, hist, game.week, qbs, sides), a)
+
+
+def run(season=2022, week=None, n_sims=1000, limit=None, log=print, deadline=None, min_week=None, production=False):
     if season not in (2022, 2026):
         raise ValueError("Only 2022 development and 2026 prospective allowed")
-    frame = pd.read_parquet(OUT / "features.parquet")
+    if production:
+        from .frozen import load
+        load()
+        if season != 2026:
+            raise ValueError("Recent fit is prospective-only; no past-game predictions")
+    frame = pd.read_parquet(OUT / ("features_production.parquet" if production else "features.parquet"))
     fs = pd.read_parquet(FEATURE_STORE)
     now = pd.Timestamp.now(tz="UTC")
     games = fs[(fs["season"] == season) & fs["game_type"].eq("REG")].sort_values(["week", "game_id"])
+    if season == 2022:
+        games = games[games["completed"]]
     if week is not None:
         games = games[games["week"] == week]
+    if min_week is not None:
+        games = games[games["week"] >= min_week]
     if season == 2026:
         games = games[(games["kickoff_utc"] > now) & ~games["completed"]]
+        games = games[games["game_id"].isin(frame["game_id"])]
     if limit:
         games = games.head(limit)
     markets = local_game_lines(games, now)
     # In 2022 the authorized GOING source has no quotes. No closing-line fallback.
-    table = tables(log)
-    p = M.load_pbp([2021, 2022] + ([2026] if season == 2026 else []))
-    p = p[(p["season"] < 2026) | (p["week"] < (week or 1))]
+    table = tables(log, production=production)
+    p = M.load_pbp([2025, 2026] if production else [2021, 2022] + ([2026] if season == 2026 else []))
+    cutoff = json.loads((OUT / "production_fit.json").read_text()) if production else None
+    if production:
+        p = p[(p["season"] < 2026) | (p["week"] <= cutoff["training_last_completed_week"])]
+    else:
+        p = p[(p["season"] < 2026) | (p["week"] < (week or 1))]
     panel = PL.panel(p, table)
     del p
     anchor = IndependentAnchor().fit(fs)
-    directory = OUT / ("structural_dev2022" if season == 2022 else "structural_prospective2026")
+    directory = OUT / ("structural_dev2022" if season == 2022 else "structural_prospective2026_recent" if production else "structural_prospective2026")
     directory.mkdir(parents=True, exist_ok=True)
     errors = []
     for g in games.itertuples(index=False):
@@ -113,23 +167,12 @@ def run(season=2022, week=None, n_sims=1000, limit=None, log=print, deadline=Non
             continue
         started = time.perf_counter()
         try:
-            candidate = frame[frame["game_id"] == g.game_id]
-            a = PL.asof(panel, season, g.week)
-            sides = [g.home_team, g.away_team]
-            avail, hist, qbs = {}, {}, {}
-            for team in sides:
-                c = candidate[candidate["team"] == team]
-                avail[team] = c[["pid", "position"]]
-                qbs[team] = c["projected_qb"].dropna().iloc[0] if c["projected_qb"].notna().any() else None
-                tp = panel[panel["posteam"] == team]
-                hist[team] = (tp[(tp["season"] == season) & (tp["week"] < g.week)].drop_duplicates("game_id"),
-                              tp[tp["season"] == season - 1].drop_duplicates("game_id"))
-            teams, players, cols, info = G.build(a, avail, hist, g.week, qbs, sides)
+            teams, players, cols, info, a = build_inputs(frame, panel, season, g)
             if any(not len(t["recv_cols"]) or not len(t["rush_cols"]) for t in teams):
                 raise ValueError("Missing eligible receiver/rusher pool")
             pred = anchor.predict(fs[fs["game_id"] == g.game_id]).iloc[0]
             modes = {"sim_independent": [pred.home_points, pred.away_points]}
-            if g.game_id in markets:
+            if g.game_id in markets and {"margin", "total"} <= markets[g.game_id].keys():
                 line = markets[g.game_id]
                 modes["simulator_v1"] = [(line["total"] + line["margin"]) / 2, (line["total"] - line["margin"]) / 2]
             rows, game_rows = [], []
@@ -160,11 +203,22 @@ def run(season=2022, week=None, n_sims=1000, limit=None, log=print, deadline=Non
                     "margin_mean": float(margin.mean()), "margin_q10_50_90": np.quantile(margin, [.1, .5, .9]).tolist(),
                     "total_mean": float(total.mean()), "total_q10_50_90": np.quantile(total, [.1, .5, .9]).tolist(),
                     "margin_samples": margin.tolist(), "total_samples": total.tolist(), "first_td": first, "no_offensive_td": no_td})
-            pd.DataFrame(rows).to_parquet(path, index=False)
             meta = {"game_id": g.game_id, "season": season, "week": g.week, "n_sims": n_sims,
                     "generated_at": pd.Timestamp.now(tz="UTC").isoformat(), "kickoff": g.kickoff_utc.isoformat(),
-                    "training_max_season": 2021, "market_available": g.game_id in markets, "games": game_rows,
+                    "training_max_season": 2026 if production else 2021, "market_available": g.game_id in markets, "games": game_rows,
                     "td_definition": "first offensive rushing/receiving TD; passing/defensive/special-teams TDs excluded"}
+            if production:
+                meta.update({k: cutoff[k] for k in ("training_cutoff_date", "training_last_completed_week", "frozen_config_sha256")})
+                meta["structural_definition"] = "Frozen v1 play engine with Phase10 recent weighted tables; independent or market anchor. Original v1 saved fits/results untouched."
+                meta["feature_cutoff"] = pd.Timestamp.now(tz="UTC").isoformat()
+                if g.kickoff_utc <= pd.Timestamp.now(tz="UTC"):
+                    raise ValueError("Game kicked off during simulation; forecast not archived")
+            buffer = io.BytesIO()
+            pd.DataFrame(rows).to_parquet(buffer, index=False)
+            data = buffer.getvalue()
+            meta["parquet_sha256"] = hashlib.sha256(data).hexdigest()
+            with path.open("xb") as fh:
+                fh.write(data)
             with path.with_suffix(".json").open("x", encoding="utf-8") as fh:
                 json.dump(meta, fh)
             log(f"{g.game_id}: {len(rows)} structural rows; {time.perf_counter() - started:.1f}s")
@@ -182,5 +236,7 @@ if __name__ == "__main__":
     parser.add_argument("--sims", type=int, default=1000)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--deadline")
+    parser.add_argument("--min-week", type=int)
+    parser.add_argument("--production", action="store_true")
     a = parser.parse_args()
-    print(json.dumps(run(a.season, a.week, a.sims, a.limit, deadline=a.deadline), indent=2))
+    print(json.dumps(run(a.season, a.week, a.sims, a.limit, deadline=a.deadline, min_week=a.min_week, production=a.production), indent=2))

@@ -144,10 +144,10 @@ def test_qb_certainty_never_confirms_from_missing_data():
     assert live._qb_certainty(row, "home", {"KC": ("Other", "x")}, pd.DataFrame(), {"Q1": "Pat"})[0] == "uncertain"
 
 
-def test_stage_snapshots_immutable_and_scored_by_stage(trained):
+def test_stage_snapshots_immutable_and_scored_by_stage(trained, monkeypatch):
     from lab import prospective as P
     from lab.data_pipeline import load_feature_store
-    P.fetch_weather = lambda games: {g: {"status": "test"} for g in games["game_id"]}
+    monkeypatch.setattr(P, "fetch_weather", lambda games: {g: {"status": "test"} for g in games["game_id"]})
     fs = load_feature_store()
     games = fs[(fs["season"] == 2026) & (fs["week"] == 2)]         # completed in the synthetic league
     k = games["kickoff_utc"].min()

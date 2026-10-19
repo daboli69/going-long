@@ -62,6 +62,16 @@ def test_props_exact_identity_and_unknowns(tmp_path, quotes):
     assert archived_lines(root=tmp_path, asof="2026-09-30T00:00Z").empty
 
 
+def test_explicit_team_and_period_labels_never_become_full_game_lines(quotes):
+    from lab.props.lines import line_rows
+    quotes["props"][0].update(player="Test Player (CHI) - 1H", market="rec_yds_1h")
+    rows, unknown = line_rows(quotes, {"testplayer": "p1"})
+    assert unknown == []
+    assert rows[0]["gsis_id"] == "p1"
+    assert rows[0]["period"] == "1H"
+    assert rows[0]["player_raw"] == "Test Player (CHI) - 1H"
+
+
 def test_weather_archives_every_pull(tmp_path, monkeypatch):
     from lab import archive10, geo, prospective
     original = save

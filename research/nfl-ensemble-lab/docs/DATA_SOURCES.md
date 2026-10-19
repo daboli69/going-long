@@ -1,5 +1,14 @@
 # Data sources and provenance
 
+Phase 10 (2026-10-19): local GOING game/prop quotes and git history are archived
+read-only with book/source/quote/observation times and content hashes. The freshest
+committed copy is read via `git show origin/main:data/nfl_betting.json` after an
+explicit fetch; the stale working-tree copy is preserved. Quotes >24 hours old
+are labelled stale, and T1 requires verified pregame observation. No odds API,
+credentials or paid service is used. Every Open-Meteo pull is archived with
+retrieval/valid times (context only); official inactive-list parsing is reused
+read-only. Details and manual scheduling: `docs/PHASE10_DATA_ARCHIVE.md`.
+
 Verified on 2026-10-16 by downloading from each endpoint. The lab records URL,
 SHA-256, size, ETag/Last-Modified and download time for every file in
 `data/raw/manifest.json`.

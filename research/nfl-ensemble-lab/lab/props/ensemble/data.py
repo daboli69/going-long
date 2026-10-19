@@ -15,8 +15,11 @@ from . import features as F
 OUT = ARTIFACTS_DIR / "props" / "phase10"
 
 
-def load_rosters(seasons):
-    if any(int(s) not in F.ALLOWED_SEASONS for s in seasons):
+def load_rosters(seasons, production=False):
+    if production:
+        from .frozen import load
+        load()
+    if not production and any(int(s) not in F.ALLOWED_SEASONS for s in seasons):
         raise ValueError("Forbidden player seasons")
     parts = []
     for s in seasons:
@@ -78,11 +81,16 @@ def candidates(games, rosters, now=None):
     return result
 
 
-def prepare(prospective_week=None, log=print):
-    seasons = list(range(2015, 2023)) + ([2026] if prospective_week is not None else [])
+def prepare(prospective_week=None, log=print, production=False, completed_week=None):
+    if production:
+        from .frozen import load
+        load()
+        if completed_week is None or completed_week < 1:
+            raise ValueError("A verified last completed 2026 week is required")
+    seasons = list(range(2015, 2027)) if production else list(range(2015, 2023)) + ([2026] if prospective_week is not None else [])
     log("load permitted play-by-play only: " + str(seasons))
-    plays = F.load_plays(seasons, prospective_week)
-    rosters = load_rosters(seasons)
+    plays = F.load_plays(seasons, completed_week + 1 if production else prospective_week, production=production)
+    rosters = load_rosters(seasons, production=production)
     history = F.aggregate(plays, rosters)
     del plays
     # Snap shares are completed-game observations; join to history before shifting.
@@ -94,7 +102,13 @@ def prepare(prospective_week=None, log=print):
     except Exception as exc:
         log(f"snap shares unavailable: {exc}")
     games = pd.read_parquet(FEATURE_STORE)
-    games = games[(games["season"] <= 2022) | ((games["season"] == 2026) & (games["week"] == prospective_week))].copy()
+    if production:
+        now = pd.Timestamp.now(tz="UTC")
+        train = (games["season"] <= 2025) | ((games["season"] == 2026) & (games["week"] <= completed_week))
+        future = (games["season"] == 2026) & (games["kickoff_utc"] > now) & (games["kickoff_utc"] <= now + pd.Timedelta(days=9))
+        games = games[train | future].copy()
+    else:
+        games = games[(games["season"] <= 2022) | ((games["season"] == 2026) & (games["week"] == prospective_week))].copy()
     games = games[games["game_type"] == "REG"]
     log("build chronological football-only game context")
     context = chronological_context(games)
@@ -105,7 +119,8 @@ def prepare(prospective_week=None, log=print):
     target_cols = ["pass_yds", "pass_tds", "rec", "rec_yds", "rush_yds", "anytime_td"]
     observed = history[["game_id", "pid"] + target_cols].copy()
     # Prospective outcomes never enter the training/development result frame.
-    observed = observed[~observed["game_id"].str.startswith("2026_")]
+    if not production:
+        observed = observed[~observed["game_id"].str.startswith("2026_")]
     frame = frame.merge(observed, on=["game_id", "pid"], how="left", validate="one_to_one")
     # Verified injury rows: exclude Out candidates only when publication predates
     # this decision. Current untimestamped injuries files are never read here.
@@ -120,8 +135,8 @@ def prepare(prospective_week=None, log=print):
             valid_out = frame["report_status"].eq("Out") & (frame["available_at"] < pd.to_datetime(frame["decision_time"], utc=True, format="mixed"))
             frame = frame[~valid_out]
     OUT.mkdir(parents=True, exist_ok=True)
-    frame.to_parquet(OUT / "features.parquet", index=False)
-    history.to_parquet(OUT / "observations_allowed.parquet", index=False)
+    frame.to_parquet(OUT / ("features_production.parquet" if production else "features.parquet"), index=False)
+    history.to_parquet(OUT / ("observations_production.parquet" if production else "observations_allowed.parquet"), index=False)
     metadata = {"loaded_player_seasons": seasons, "rows": len(frame), "columns": F.FEATURES,
                 "missing_fraction": {c: float(frame[c].isna().mean()) for c in F.FEATURES},
                 "formulas": {"hist_*": "mean over last 8 completed eligible player-games, strictly earlier weeks",
@@ -135,6 +150,7 @@ def prepare(prospective_week=None, log=print):
                     "context": "lab feature store as-of QB, rest, dome; earlier-season independent ridge margin/total"},
                 "excluded_features": ["routes/participation (timestamp-consistent feature pipeline unavailable)",
                     "weather (no historical forecast archive)", "market implied points (no timestamped 2022 history)"]}
-    (OUT / "feature_provenance.json").write_text(json.dumps(metadata, indent=2), encoding="utf-8")
+    metadata |= {"production_refit": production, "training_last_completed_week": completed_week}
+    (OUT / ("feature_provenance_production.json" if production else "feature_provenance.json")).write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     log(f"prepared {len(frame)} rows")
     return frame

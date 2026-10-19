@@ -6,6 +6,7 @@ import json
 import os
 import stat
 from pathlib import Path
+from functools import lru_cache
 
 import pandas as pd
 
@@ -46,6 +47,7 @@ def save(kind: str, prefix: str, content, metadata: dict, *, root: Path = ARCHIV
     return {"new": True, "file": str(path), "sha256": digest}
 
 
+@lru_cache(maxsize=100000)
 def utc(value):
     if value is None or value == "":
         return None

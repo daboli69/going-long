@@ -47,11 +47,15 @@ class TorchNet(BaseEstimator):
         layers.append(torch.nn.Linear(prev, 1))
         return torch.nn.Sequential(*layers)
 
-    def fit(self, X, y):
+    def fit(self, X, y, sample_weight=None):
         torch.manual_seed(self.seed)
         torch.use_deterministic_algorithms(True)
         X = np.asarray(X, np.float32)
         y = np.asarray(y, np.float32)
+        weights = None if sample_weight is None else np.asarray(sample_weight, np.float32)
+        if weights is not None and (weights.shape != y.shape or not np.isfinite(weights).all() or
+                                    np.any(weights < 0) or weights.sum() <= 0):
+            raise ValueError("Invalid sample weights")
         if self.task == "reg":
             self.y_mean_, self.y_std_ = float(y.mean()), float(y.std() or 1.0)
             y = (y - self.y_mean_) / self.y_std_
@@ -63,6 +67,10 @@ class TorchNet(BaseEstimator):
         net = self._build(X.shape[1])
         opt = torch.optim.Adam(net.parameters(), lr=self.lr, weight_decay=self.weight_decay)
         loss_fn = torch.nn.BCEWithLogitsLoss() if self.task == "clf" else torch.nn.MSELoss()
+        weighted_loss = (torch.nn.BCEWithLogitsLoss(reduction="none") if self.task == "clf" else
+                         torch.nn.MSELoss(reduction="none")) if weights is not None else None
+        wt = torch.from_numpy(weights[:len(y) - n_val]) if weights is not None else None
+        wv = torch.from_numpy(weights[len(y) - n_val:]) if weights is not None else None
         gen = torch.Generator().manual_seed(self.seed)
         best, best_state, bad = np.inf, copy.deepcopy(net.state_dict()), 0
         self.epochs_ = 0
@@ -70,14 +78,16 @@ class TorchNet(BaseEstimator):
             net.train()
             for idx in torch.randperm(len(Xtr), generator=gen).split(self.batch_size):
                 opt.zero_grad()
-                loss = loss_fn(net(Xtr[idx]).squeeze(1), ytr[idx])
+                output = net(Xtr[idx]).squeeze(1)
+                loss = loss_fn(output, ytr[idx]) if wt is None else (weighted_loss(output, ytr[idx]) * wt[idx]).sum() / wt[idx].sum().clamp_min(1e-12)
                 loss.backward()
                 opt.step()
             self.epochs_ = epoch + 1
             if n_val:
                 net.eval()
                 with torch.no_grad():
-                    v = float(loss_fn(net(Xva).squeeze(1), yva))
+                    output = net(Xva).squeeze(1)
+                    v = float(loss_fn(output, yva)) if wv is None else float((weighted_loss(output, yva) * wv).sum() / wv.sum().clamp_min(1e-12))
                 if v < best - 1e-5:
                     best, best_state, bad = v, copy.deepcopy(net.state_dict()), 0
                 else:

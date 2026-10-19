@@ -354,14 +354,19 @@ def tick(now=None, progress=print, actions=None, schedule: pd.DataFrame | None =
 
 
 def _post_forecast_research(due: pd.DataFrame, written: dict) -> dict:
-    """Phase 8.1: market odds archive + experimental drive-simulator distributions. Never raises, never affects
+    """Local market/prop and forecast context archives + experimental drive distributions. Never raises, never affects
     official snapshots (they are already written when this runs)."""
     out = {}
     try:
-        from .market81 import archive_espn_odds
-        out["market"] = archive_espn_odds()
+        from .archive_scheduler10 import collect_local
+        out["market"] = collect_local()
     except Exception as exc:
         out["market"] = {"ok": False, "reason": repr(exc)[:200]}
+    try:
+        from .archive_scheduler10 import collect_context
+        out["context"] = collect_context(current_schedule())
+    except Exception as exc:
+        out["context"] = {"ok": False, "reason": repr(exc)[:200]}
     try:
         ok = due[(due["action"] == "snapshot") & due["event_id"].map(lambda e: bool((written.get(e) or {}).get("ok")))]
         if len(ok):

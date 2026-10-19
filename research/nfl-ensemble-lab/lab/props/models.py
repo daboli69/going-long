@@ -85,9 +85,29 @@ def _empirical_by(keys, values, n_keys):
     return [np.asarray(values[keys == k], float) for k in range(n_keys)]
 
 
-def fit(train_seasons, kick_season=None) -> dict:
+def recency_resample_games(p, season_weights, seed=20261019):
+    """Importance sample WHOLE games, preserving every within-game play/clock pair."""
+    games = p[["game_id", "season"]].drop_duplicates("game_id")
+    weights = games["season"].map(season_weights).to_numpy(float)
+    if not np.isfinite(weights).all() or np.any(weights < 0) or weights.sum() <= 0:
+        raise ValueError("Invalid structural season weights")
+    selection = np.random.default_rng(seed).choice(len(games), len(games), replace=True, p=weights / weights.sum())
+    copies = games.iloc[selection][["game_id"]].copy()
+    copies["_copy"] = np.arange(len(copies))
+    result = p.merge(copies, on="game_id", how="inner")
+    result["game_id"] = result["game_id"].astype(str) + "__phase10_" + result["_copy"].astype(str)
+    return result.drop(columns="_copy").sort_values(["game_id", "play_id"])
+
+
+def fit(train_seasons, kick_season=None, cutoff_week=None, season_weights=None) -> dict:
     """All sub-models from REG-season plays of train_seasons (strictly earlier than any evaluated season)."""
     p = load_pbp(train_seasons)
+    if cutoff_week is not None:
+        p = p[(p["season"] < max(train_seasons)) | (p["week"] <= cutoff_week)]
+    if season_weights is not None:
+        # Optional shadow-only importance resampling for empirical tables that
+        # cannot accept likelihood weights. Default v1 takes neither branch.
+        p = recency_resample_games(p, season_weights)
     p = p[(p["qb_kneel"] == 0) & (p["qb_spike"] == 0)]
     scrim = p[p["play_type"].isin(["pass", "run"]) & p["down"].notna() & (p["two_point_attempt"] == 0)]
     G = _grid()
@@ -163,7 +183,13 @@ def fit(train_seasons, kick_season=None) -> dict:
     T["rz_boost"] = 0.0
     g = pd.read_csv(RAW_DIR / "games.csv")
     g = g[g["season"].isin(list(train_seasons)) & (g["game_type"] == "REG") & g["home_score"].notna()]
-    T["real_points_per_team"] = float(np.r_[g["home_score"], g["away_score"]].mean())
+    if cutoff_week is not None:
+        g = g[(g["season"] < max(train_seasons)) | (g["week"] <= cutoff_week)]
+    if season_weights is None:
+        T["real_points_per_team"] = float(np.r_[g["home_score"], g["away_score"]].mean())
+    else:
+        T["real_points_per_team"] = float(np.average((g["home_score"] + g["away_score"]) / 2,
+                                                      weights=g["season"].map(season_weights)))
     T["sigma_e"], T["kappa"] = 0.15, 30.0
     T["clock"] = {(k, h): dt[(klass == k) & (hurry == h) & dt.notna()].to_numpy(float) for k in range(3) for h in (False, True)}
     return T

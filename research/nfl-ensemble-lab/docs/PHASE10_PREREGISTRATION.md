@@ -29,4 +29,13 @@ Independent game anchor: ridge home margin and total on explicitly selected foot
 
 ## Deadline and rollback
 
+Implementation clarification (2026-10-19 17:03, before any recent-player-file read):
+market-anchored v1 is a structural member only of the explicitly labelled
+market-informed variant. It cannot enter independent averages, weights, stacking,
+features or intervals. The independent structural member uses only football
+anchors. This enforces the original market-benchmark rule; thresholds and splits
+are unchanged. No authorized 2022 quote history means the historical v1 benchmark
+and implied-points feature ablation are blocked rather than filled with closing
+lines from another source.
+
 Start 16:35 local; build budget shortened to preserve research and 18:30–19:00 wrap-up. Check clock each step. Prioritize A1–A3 > A5 > A4 > A6 > A7 > A8. Stop starting new work at 18:30. Generated archives are never deleted. Revert code commits to roll back; champion/simulator v1 remain unchanged. Commit/push this branch only, roughly every 45 minutes. No Windows scheduled tasks are created.

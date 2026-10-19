@@ -38,7 +38,8 @@ def run(history=False, remote_main=False):
                    "latest_usable_quote": verified["quote_time"].max() if len(verified) else None}
     directory = REPORTS_DIR / "run_20261019"
     directory.mkdir(parents=True, exist_ok=True)
-    (directory / "archive_status.json").write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
+    name = "archive_status_remote_main.json" if remote_main else "archive_status.json"
+    (directory / name).write_text(json.dumps(result, indent=2, default=str), encoding="utf-8")
     return result
 
 

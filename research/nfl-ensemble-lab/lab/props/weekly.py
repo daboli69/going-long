@@ -310,13 +310,16 @@ def summary(out=OUT) -> dict:
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(prog="python -m lab.props.weekly")
-    ap.add_argument("cmd", nargs="?", default="archive", choices=["archive", "preview", "score", "summary"])
+    ap.add_argument("cmd", nargs="?", default="archive", choices=["archive", "preview", "score", "summary", "projections"])
     ap.add_argument("--week", type=int)
     ap.add_argument("--season", type=int, default=SEASON)
     ap.add_argument("--sims", type=int, default=N_SIMS)
     ap.add_argument("--game", action="append", help="archive only these game_ids (repeatable)")
     args = ap.parse_args()
-    if args.cmd in ("archive", "preview"):
+    if args.cmd == "projections":
+        from .projections10 import forecast
+        print(json.dumps(forecast(args.week, args.season), indent=2, default=str))
+    elif args.cmd in ("archive", "preview"):
         r = archive(args.season, args.week, n_sims=args.sims, only=args.game, preview=args.cmd == "preview")
         print(json.dumps(r, indent=2, default=str))
     elif args.cmd == "score":

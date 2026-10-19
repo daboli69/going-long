@@ -5,6 +5,7 @@ import json
 import re
 import unicodedata
 from collections import defaultdict
+from functools import lru_cache
 
 import pandas as pd
 
@@ -28,6 +29,22 @@ def normalized_name(name):
     return re.sub(r"[^a-z0-9]", "", s)
 
 
+@lru_cache(maxsize=20000)
+def player_label(label):
+    """Remove only explicit, recognized source team/period decorations; no fuzzy names."""
+    raw = str(label or "").strip()
+    name, period, team = raw, "FULL", None
+    match = re.search(r"\s*-\s*(1H|1Q)$", name, flags=re.I)
+    if match:
+        period, name = match[1].upper(), name[:match.start()].strip()
+    match = re.search(r"\s*\(([A-Z]{2,3})\)$", name)
+    if match:
+        code = {"LAR": "LA", "WSH": "WAS", "JAC": "JAX"}.get(match[1], match[1])
+        if code in set(NAME_TO_ABBR.values()):
+            team, name = code, name[:match.start()].strip()
+    return name, period, team
+
+
 def player_map(players=None):
     """Only exact normalized full-name aliases in existing map; ambiguous names stay unmatched."""
     players = pd.read_parquet(RAW_DIR / "players.parquet") if players is None else players
@@ -47,16 +64,24 @@ def line_rows(data, mapping):
     if not isinstance(props, list):
         return [], ["unsupported props container: " + type(props).__name__]
     for q in props:
-        stat = MARKETS.get(q.get("market"))
+        market_key = str(q.get("market") or "")
+        suffix = re.search(r"_(1h|1q)$", market_key, flags=re.I)
+        market_period = suffix[1].upper() if suffix else "FULL"
+        base_market = market_key[:suffix.start()] if suffix else market_key
+        stat = MARKETS.get(base_market)
         if stat is None:
             unknown.add(str(q.get("market")))
             continue
-        name = q.get("player") or q.get("description")
+        raw_name = q.get("player") or q.get("description")
+        name, label_period, team = player_label(raw_name)
+        period = market_period if market_period != "FULL" else label_period
+        if market_period != "FULL" and label_period != "FULL" and market_period != label_period:
+            period = "conflict"
         pid = mapping.get(normalized_name(name))
-        rows.append({"event_id": q.get("eventId"), "player": name, "gsis_id": pid,
+        rows.append({"event_id": q.get("eventId"), "player": name, "player_raw": raw_name, "gsis_id": pid, "period": period,
                      "home": NAME_TO_ABBR.get(q.get("homeName"), q.get("homeName")),
                      "away": NAME_TO_ABBR.get(q.get("awayName"), q.get("awayName")),
-                     "team": q.get("team"), "stat": stat, "market_raw": q.get("market"),
+                     "team": q.get("team") or team, "stat": stat, "market_raw": q.get("market"),
                      "line": q.get("line"), "over_odds": q.get("overOdds"), "under_odds": q.get("underOdds"),
                      "book": q.get("bookKey") or q.get("book"), "source": q.get("source"),
                      "quote_time": utc(q.get("updatedAt")), "kickoff": utc(q.get("kickoff")),
@@ -81,9 +106,35 @@ def archived_lines(*, root=ARCHIVE, asof=None):
     for path in sorted((root / "props").glob("going_*.json")):
         d = json.loads(path.read_text(encoding="utf-8"))
         for r in d["content"]:
-            time = temporal(r.get("quote_time"), d.get("available_at"), r.get("kickoff"))
-            if asof is not None and (not time["available_at"] or pd.Timestamp(time["available_at"]) > pd.Timestamp(asof)):
-                continue
-            rows.append(r | time | freshness(r.get("quote_time"), asof) | {"pregame_verified": time["pregame_verified"] and not r["in_play"],
-                                    "archive": path.name, "generated_at": d.get("generated_at")})
-    return pd.DataFrame(rows)
+            rows.append(r | {"available_at": d.get("available_at"), "archive": path.name,
+                             "generated_at": d.get("generated_at")})
+    frame = pd.DataFrame(rows)
+    if frame.empty:
+        return frame
+    # Improve interpretation of older immutable records without modifying them.
+    # Decorations are parsed exactly; ambiguous/unknown identities remain null.
+    labels = frame["player"].fillna("").map(player_label)
+    if "period" not in frame:
+        frame["period"] = labels.map(lambda x: x[1])
+    else:
+        frame["period"] = frame["period"].fillna(labels.map(lambda x: x[1]))
+    if (RAW_DIR / "players.parquet").exists():
+        mapping = player_map()
+        recovered = labels.map(lambda x: mapping.get(normalized_name(x[0])))
+        frame["gsis_id"] = frame["gsis_id"].fillna(recovered)
+    frame["player_raw"] = frame["player_raw"].fillna(frame["player"]) if "player_raw" in frame else frame["player"]
+    frame["player"] = labels.map(lambda x: x[0])
+    q = pd.to_datetime(frame["quote_time"], utc=True, errors="coerce", format="mixed")
+    av = pd.to_datetime(frame["available_at"], utc=True, errors="coerce", format="mixed")
+    ko = pd.to_datetime(frame["kickoff"], utc=True, errors="coerce", format="mixed")
+    frame["pregame_verified"] = q.notna() & av.notna() & ko.notna() & (q <= av) & (av < ko) & ~frame["in_play"]
+    frame["timestamp_class"] = frame["pregame_verified"].map({True: "T1", False: "unverified"})
+    decision = pd.Timestamp.now(tz="UTC") if asof is None else pd.Timestamp(asof)
+    frame["line_age_hours"] = (decision - q).dt.total_seconds() / 3600
+    frame["line_status"] = "current"
+    frame.loc[frame["line_age_hours"] > 24, "line_status"] = "stale"
+    frame.loc[frame["line_age_hours"] < 0, "line_status"] = "future timestamp"
+    frame.loc[q.isna(), "line_status"] = "unknown timestamp"
+    if asof is not None:
+        frame = frame[av.notna() & (av <= decision)]
+    return frame

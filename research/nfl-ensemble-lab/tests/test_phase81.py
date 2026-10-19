@@ -75,10 +75,11 @@ def test_research_hook_only_after_forecasts_and_never_in_mocked_ticks(monkeypatc
 
 
 def test_post_forecast_research_never_raises(monkeypatch):
-    import lab.market81 as MM
-    monkeypatch.setattr(MM, "archive_espn_odds", lambda: (_ for _ in ()).throw(RuntimeError("network down")))
+    import lab.archive_scheduler10 as MM
+    monkeypatch.setattr(MM, "collect_local", lambda: (_ for _ in ()).throw(RuntimeError("local archive unavailable")))
+    monkeypatch.setattr(MM, "collect_context", lambda games: {})
     r = S._post_forecast_research(pd.DataFrame({"event_id": ["e"], "action": ["live"]}), {})
-    assert r["market"]["ok"] is False and "network down" in r["market"]["reason"]
+    assert r["market"]["ok"] is False and "local archive unavailable" in r["market"]["reason"]
 
 
 def test_drive_sim_evaluate_empty_archive(tmp_path, monkeypatch):

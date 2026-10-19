@@ -33,8 +33,11 @@ def make_quantile(q):
 
 
 class Members:
-    def fit(self, frame, stat, columns, threads=1, log=print):
-        if not len(frame) or frame["season"].max() > 2021:
+    def fit(self, frame, stat, columns, threads=1, log=print, sample_weight=None, production=False):
+        if production:
+            from .frozen import load
+            load()
+        if not len(frame) or (not production and frame["season"].max() > 2021):
             raise ValueError("Member fitting is restricted to seasons <=2021")
         self.stat, self.columns = stat, list(columns)
         self.models, self.errors, self.quantiles = {}, {}, {}
@@ -44,14 +47,16 @@ class Members:
         for key in KEYS:
             try:
                 log(f"fit {stat}/{key} n={len(y)}")
-                self.models[key] = make_member(stat, key, threads).fit(X, y)
+                fit_params = {"model__sample_weight": sample_weight} if sample_weight is not None else {}
+                self.models[key] = make_member(stat, key, threads).fit(X, y, **fit_params)
             except Exception as exc:
                 self.errors[key] = repr(exc)
                 log(f"FAILED {stat}/{key}: {exc}; skipped")
         if stat in YARDS:
             for q in (.10, .50, .90):
                 try:
-                    self.quantiles[q] = make_quantile(q).fit(X, y)
+                    fit_params = {"model__sample_weight": sample_weight} if sample_weight is not None else {}
+                    self.quantiles[q] = make_quantile(q).fit(X, y, **fit_params)
                 except Exception as exc:
                     self.errors[f"quantile_{q}"] = repr(exc)
         if not self.models:

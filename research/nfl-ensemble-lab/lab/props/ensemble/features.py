@@ -26,9 +26,14 @@ FEATURES = ["hist_" + c for c in RAW_STATS] + ["hist_games", "adot", "yac_rate",
             "opp_position_yards", "opp_position_td", "opp_adjustment"]
 
 
-def load_plays(seasons, prospective_week=None):
+def load_plays(seasons, prospective_week=None, production=False):
     seasons = tuple(int(s) for s in seasons)
-    if any(s not in ALLOWED_SEASONS for s in seasons):
+    if production:
+        from .frozen import load
+        load()
+        if any(s < 2015 or s > 2026 for s in seasons):
+            raise ValueError("Production seasons must be 2015–2026 with an explicit 2026 week cutoff")
+    if not production and any(s not in ALLOWED_SEASONS for s in seasons):
         raise ValueError("2023–25 player outcomes are forbidden for Phase 10")
     parts = []
     for season in seasons:

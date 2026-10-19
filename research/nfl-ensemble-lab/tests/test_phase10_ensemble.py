@@ -91,3 +91,21 @@ def test_longrun_dev_only_disables_later_finalization(monkeypatch):
     monkeypatch.setattr(longrun, "launch_detached", lambda *a, **kw: 1)
     longrun.main(["start", "--hours", "1", "--threads", "7", "--dev-only"])
     assert captured["finalize_after"] is False
+
+
+def test_combinations_report_actual_available_members_only():
+    from lab.props.ensemble.run import chronological_combinations
+    frame = pd.DataFrame({"game_id": ["g1", "g2"], "pid": ["p1", "p2"], "season": 2022,
+                          "week": [1, 2], "stat": "rec", "actual": [1, 2],
+                          "logreg": [1., 2.], "random_forest": [3., 4.], "sim_independent": [np.nan, 3.]})
+    out = chronological_combinations(frame).set_index("game_id")
+    assert out.loc["g1", "equal"] == 2
+    assert out.loc["g1", "members"] == "logreg,random_forest"
+    assert out.loc["g2", "members"].endswith("sim_independent")
+    assert out.loc["g2", "meta_rows"] == 0  # no structural history to weight this member set
+    frame["simulator_v1"] = [1000., 1000.]
+    independent = chronological_combinations(frame).set_index("game_id")
+    assert independent.loc["g1", "equal"] == 2
+    assert "simulator_v1" not in independent.loc["g1", "members"]
+    market = chronological_combinations(frame, variant="market-informed").set_index("game_id")
+    assert market.loc["g1", "equal"] > 100
