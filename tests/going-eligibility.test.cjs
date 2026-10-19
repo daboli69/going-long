@@ -6,6 +6,16 @@ const roster=(players=[],extra={})=>({generated_at:fresh,source_content_at:fresh
 const eng=(i,r=roster(),o={})=>E.create({injury:i,roster:r,week:5,now:NOW,...o});
 const d=(e,id,extra={lastGame:'2026-10-04'})=>e.decide(id,extra);
 
+test('Emergency QB is a valid report that excludes only the emergency player',()=>{
+ const e=eng(inj({a:'ACT',b:'ACT'},{a:{report_status:'Emergency QB'}}));
+ assert.equal(e.fresh.ok,true);
+ assert.equal(d(e,'a').actionable,false);assert.equal(d(e,'a').label,'Emergency QB');
+ assert.equal(d(e,'b').actionable,true);
+ assert.deepEqual([...e.blockedIds()].sort(),['a']);
+ const oldReport=eng(inj({a:'ACT'},{a:{report_status:'Emergency QB',week:2}}));
+ assert.equal(d(oldReport,'a').actionable,true);
+});
+
 test('restricted dated reports clear exact players only and disclose partial coverage',()=>{
  const i=inj({a:'ACT',b:'ACT',o:'ACT'},{o:{report_status:'Out'}}),r=roster();i.season=r.season=2026;
  const scope={mode:'explicit-player-reports',season:2026,week:5,players:{a:{team:'AAA',reported_at:fresh},o:{team:'AAA',reported_at:fresh}}};

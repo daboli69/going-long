@@ -17,6 +17,13 @@ def inj(entries, reports=None, at=FRESH):
 
 
 class EligibilityMirrorTests(unittest.TestCase):
+    def test_emergency_qb_keeps_contract_valid_and_only_that_player_blocked(self):
+        i = inj({'a': 'ACT', 'b': 'ACT'}, {'a': {'report_status': 'Emergency QB', 'week': 5}})
+        r = {'generated_at': FRESH, 'source_roster_at': FRESH, 'source_injury_at': FRESH, 'week': 5, 'players': []}
+        self.assertTrue(E.freshness(NOW, i, r)['ok'])
+        self.assertEqual(E.blocked_ids({'a': {}, 'b': {}}, i, r, NOW, week=5), {'a'})
+        self.assertEqual(E.confirmed_unavailable(i, r, week=5), {'a'})
+
     def test_confirmed_unavailable_covers_every_status_and_reports(self):
         i = inj({'r': 'RES', 's': 'SUS', 't': 'RET', 'x': 'EXE', 'c': 'CUT', 'd': 'DEV', 'a': 'ACT', 'o': 'ACT', 'q': 'ACT', 'b': ''},
                 {'o': {'report_status': 'Inactive'}, 'q': {'report_status': 'Questionable'}})
@@ -57,6 +64,8 @@ class EligibilityMirrorTests(unittest.TestCase):
             cases.append({'injury': i, 'roster': r, 'profiles': profiles or {'a': {}, 'unknown': {}}, 'week': 5})
 
         add(inj({'a': 'ACT'}))
+        add(inj({'a': 'ACT', 'b': 'ACT'}, {'a': {'report_status': 'Emergency QB', 'week': 5}}), profiles={'a': {}, 'b': {}})
+        add(inj({'a': 'ACT'}, {'a': {'report_status': 'Emergency QB', 'week': 2}}))
         add({**inj({'a': 'ACT'}), 'source_content_at': OLD})
         add({**inj({'a': 'ACT'}), 'source_content_at': None})
         add(inj({'a': 'ACT'}), {**roster, 'source_injury_at': OLD})

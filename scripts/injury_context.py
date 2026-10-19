@@ -286,7 +286,7 @@ def build_current(season, injury_rows, depth_rows, weekly_roster, context, pbp_r
     for team, profiles in profiles_by_team.items():
         candidates = sorted((p for p in current.values() if p['team']==team and p['position']=='QB' and p.get('role_order')), key=lambda p:p['role_order'])
         selected = next((p for p in candidates if str(p.get('roster_status','')).upper() in ('ACT','ACTIVE')
-                         and str(reports.get(team+'|'+identity_name(p['name']),{}).get('report_status','')).lower() not in ('out','doubtful')), None)
+                         and str(reports.get(team+'|'+identity_name(p['name']),{}).get('report_status','')).lower() not in ('out','doubtful','emergency qb')), None)
         chosen = profiles.get(selected['gsis_id']) if selected else None
         qb_tendencies[team] = {**(chosen or {'supported_for_model':False}),
             'selection_basis':'first available current depth role, never cumulative passing volume',
@@ -347,6 +347,9 @@ def build():
             "causality": "Observed association only; not medical advice and not proof that injury caused the change.",
         },
     }
+    import eligibility as E
+    if not E._valid_injury(payload):
+        raise RuntimeError('Generated injury contract invalid; previous snapshot retained')
     scoped_snapshot(payload, injury_source)
     preserve_newer(ROOT / 'data' / 'injury_context.json', payload)
     atomic_json(ROOT / "data" / "injury_context.json", payload)
