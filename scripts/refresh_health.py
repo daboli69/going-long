@@ -314,7 +314,7 @@ def audit(root=ROOT, now=None, outcomes=None, changed=None):
         if outcome in ('failure', 'cancelled'):
             issue = f'workflow step {name}: {outcome}'
             issues.append(issue)
-            (tests if name in ('validate_models', 'validate_projection_logic') else publication if name in ('publish', 'data_integrity') else sources).append(issue)
+            (tests if name in ('validate_models', 'validate_projection_logic') else publication if name in ('publish', 'data_integrity', 'public_delivery') else sources).append(issue)
     if outcomes is not None and steps.get('validate_models') != 'success':
         issues.append('workflow model validation did not succeed')
     return {'schema_version': 1, 'checked_at': now.isoformat(), 'healthy': not issues,
