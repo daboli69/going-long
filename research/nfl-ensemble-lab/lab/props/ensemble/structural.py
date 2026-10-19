@@ -147,7 +147,8 @@ def run(season=2022, week=None, n_sims=1000, limit=None, log=print, deadline=Non
     p = M.load_pbp([2025, 2026] if production else [2021, 2022] + ([2026] if season == 2026 else []))
     cutoff = json.loads((OUT / "production_fit.json").read_text()) if production else None
     if production:
-        p = p[(p["season"] < 2026) | (p["week"] <= cutoff["training_last_completed_week"])]
+        known = fs[(fs["season"] == 2026) & fs["completed"] & (fs["kickoff_utc"] < now)]
+        p = p[(p["season"] < 2026) | p["game_id"].isin(known["game_id"])]
     else:
         p = p[(p["season"] < 2026) | (p["week"] < (week or 1))]
     panel = PL.panel(p, table)
@@ -211,6 +212,7 @@ def run(season=2022, week=None, n_sims=1000, limit=None, log=print, deadline=Non
                 meta.update({k: cutoff[k] for k in ("training_cutoff_date", "training_last_completed_week", "frozen_config_sha256")})
                 meta["structural_definition"] = "Frozen v1 play engine with Phase10 recent weighted tables; independent or market anchor. Original v1 saved fits/results untouched."
                 meta["feature_cutoff"] = pd.Timestamp.now(tz="UTC").isoformat()
+                meta["role_history_rule"] = "completed games before decision, strictly earlier weeks per forecast; structural fit cutoff remains unchanged"
                 if g.kickoff_utc <= pd.Timestamp.now(tz="UTC"):
                     raise ValueError("Game kicked off during simulation; forecast not archived")
             buffer = io.BytesIO()

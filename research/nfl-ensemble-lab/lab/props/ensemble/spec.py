@@ -34,6 +34,7 @@ def runtime_spec():
                                 "normalization": "unit-mean sample weights for learned members"},
             "structural_recent_fit": "whole-game importance resampling with these weights, seed 20261019, same count of training games",
             "training_cutoff": "all seasons 2016 through the last fully completed 2026 week; never current partial week",
+            "role_feature_cutoff": "completed prior games in strictly earlier weeks; partial current-week observations may inform later-week forecasts but never training beyond its cutoff",
             "game_anchor": "independent ridge alpha300 coefficients and OOF residuals fitted <=2021; current as-of football features only",
             "probability_calibration": "Platt fitted on earlier emitted 2022 predictions; >=100 rows and both classes",
             "predictive_distribution": "equal mixture: centered 2022 OOF residuals for learned yards, Poisson rates for learned counts, structural samples",

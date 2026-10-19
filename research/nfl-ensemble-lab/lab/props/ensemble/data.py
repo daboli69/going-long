@@ -82,14 +82,24 @@ def candidates(games, rosters, now=None):
 
 
 def prepare(prospective_week=None, log=print, production=False, completed_week=None):
+    source_games = None
+    feature_week_limit = prospective_week
     if production:
         from .frozen import load
         load()
         if completed_week is None or completed_week < 1:
             raise ValueError("A verified last completed 2026 week is required")
+        source_games = pd.read_parquet(FEATURE_STORE)
+        now = pd.Timestamp.now(tz="UTC")
+        upcoming = source_games[(source_games["season"] == 2026) & (source_games["kickoff_utc"] > now)
+                                & (source_games["kickoff_utc"] <= now + pd.Timedelta(days=9))]
+        feature_week_limit = max(int(upcoming["week"].max()) if len(upcoming) else completed_week + 1, completed_week + 1)
     seasons = list(range(2015, 2027)) if production else list(range(2015, 2023)) + ([2026] if prospective_week is not None else [])
     log("load permitted play-by-play only: " + str(seasons))
-    plays = F.load_plays(seasons, completed_week + 1 if production else prospective_week, production=production)
+    plays = F.load_plays(seasons, feature_week_limit, production=production)
+    if production:
+        known = source_games[(source_games["season"] == 2026) & source_games["completed"] & (source_games["kickoff_utc"] < now)]
+        plays = plays[(plays["season"] < 2026) | plays["game_id"].isin(known["game_id"])]
     rosters = load_rosters(seasons, production=production)
     history = F.aggregate(plays, rosters)
     del plays
@@ -101,7 +111,7 @@ def prepare(prospective_week=None, log=print, production=False, completed_week=N
                                                           on=["game_id", "pid"], how="left")
     except Exception as exc:
         log(f"snap shares unavailable: {exc}")
-    games = pd.read_parquet(FEATURE_STORE)
+    games = source_games if source_games is not None else pd.read_parquet(FEATURE_STORE)
     if production:
         now = pd.Timestamp.now(tz="UTC")
         train = (games["season"] <= 2025) | ((games["season"] == 2026) & (games["week"] <= completed_week))
@@ -150,7 +160,9 @@ def prepare(prospective_week=None, log=print, production=False, completed_week=N
                     "context": "lab feature store as-of QB, rest, dome; earlier-season independent ridge margin/total"},
                 "excluded_features": ["routes/participation (timestamp-consistent feature pipeline unavailable)",
                     "weather (no historical forecast archive)", "market implied points (no timestamped 2022 history)"]}
-    metadata |= {"production_refit": production, "training_last_completed_week": completed_week}
+    metadata |= {"production_refit": production, "training_last_completed_week": completed_week,
+                 "feature_history_max_week_exclusive": feature_week_limit,
+                 "feature_cutoff_rule": "completed prior games in strictly earlier weeks; recent partial-week observations may inform later-week forecasts, never same-week forecasts or training after the fit cutoff"}
     (OUT / ("feature_provenance_production.json" if production else "feature_provenance.json")).write_text(json.dumps(metadata, indent=2), encoding="utf-8")
     log(f"prepared {len(frame)} rows")
     return frame
