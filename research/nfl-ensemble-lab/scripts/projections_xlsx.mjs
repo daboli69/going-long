@@ -15,7 +15,7 @@ const definitions = [
   {name: 'Games', type: 'game', columns: [
     ['Game','game_id',27], ['Market','stat',12], ['Independent','projection',15], ['Spread','spread_display',16],
     ['10%','q10',12], ['50%','q50',12], ['90%','q90',12], ['Simulation independent','sim_independent_projection',19],
-    ['Simulation market anchor','market_anchored_projection',20], ['Market line','market_line',14], ['P cover / over','p_over',15],
+    ['Simulation market anchor','market_anchored_projection',20], ['Market margin / total','market_line',18], ['P cover / over','p_over',15],
     ['Projection gap','gap',16], ['Line status','line_status',18]]},
   {name: 'Players', type: 'player', columns: [
     ['Game','game_id',27], ['Team','team',10], ['Player','name',25], ['Stat','stat',15], ['Independent','projection',15],
@@ -50,7 +50,7 @@ for (const definition of definitions) {
   sheet.getRange('A4').values = [[definition.type === 'first_td'
     ? 'First offensive rushing/receiving TD. Passing, defensive and special-teams TDs excluded.'
     : definition.type === 'player' ? 'Regulation-only player targets. Source: archived forecasts and timestamped local GOING quotes.'
-    : 'Source: archived lab forecasts and timestamped local GOING quotes. Market lines are benchmarks.']];
+    : 'Margin intervals: home minus away. Source: archived forecasts and timestamped local GOING benchmarks.']];
   sheet.getRange('A3:A4').format.font = {name:'Arial',size:10,color:'#526271'};
   const headers = definition.columns.map(c=>c[0]);
   const matrix = [headers, ...rows.map(row => definition.columns.map(([,key]) => {

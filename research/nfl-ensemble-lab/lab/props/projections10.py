@@ -155,6 +155,7 @@ def forecast(week=None, season=2026, log=print):
                      "projection": value, "spread_display": spread_label(game.home_team, game.away_team, value) if stat == "margin" else None,
                      "q10": float(pred[f"{stat}_q10"]), "q50": float(pred[f"{stat}_q50"]), "q90": float(pred[f"{stat}_q90"]),
                      "interval_source": "chronological pre-2022 game-anchor residuals", "market_line": line,
+                     "interval_units": "home-minus-away points" if stat == "margin" else "total points",
                      "gap": value - line if line is not None else None, "line_status": "unavailable",
                      "training_cutoff_date": fit["training_cutoff_date"], "game_anchor_fit_max_season": 2021}
                 if line is not None:
@@ -184,6 +185,7 @@ def forecast(week=None, season=2026, log=print):
                     "market_informed_projection": float(market_values.loc[(game.game_id, row["pid"], row["stat"])]),
                     "training_cutoff_date": fit["training_cutoff_date"], "market_line": None, "line_status": "unavailable"}
                 base["scope"] = "regulation-only player targets; no overtime"
+                base["market_informed_status"] = "structural-member comparison only; unvalidated without 2022 quote history"
                 base["member_projections"] = {k: float(row[k]) for k in row["members"].split(",")}
                 if row["stat"] == "anytime_td":
                     agreement = vote({k: float(row[k]) for k in row["members"].split(",")})
@@ -272,6 +274,7 @@ def write_sheet(frame, week):
     columns = ["name", "stat", "projection", "q10", "q50", "q90", "market_line", "p_over", "gap", "line_status"]
     lines = [f"# NFL shadow projections — 2026 week {week}", "", "Training cutoff: " + str(frame["training_cutoff_date"].iloc[0]), "",
         "Independent projections exclude market inputs. Market-anchored outputs are benchmarks. Unpromoted experimental forecasts.", "",
+        "Margin intervals use home-minus-away points; the spread display is the favored team's handicap. Player intervals describe outcomes; anytime-TD quantiles are binary outcomes, not confidence bounds on the probability.", "",
         "First TD means the first offensive rushing/receiving TD in regulation; excludes passing, defensive and special-teams TDs.", ""]
     for gid, game in frame.groupby("game_id", sort=False):
         lines += ["## " + gid, "", "| " + " | ".join(columns) + " |", "| " + " | ".join(["---"] * len(columns)) + " |"]

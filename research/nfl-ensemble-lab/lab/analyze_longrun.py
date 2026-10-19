@@ -5,12 +5,15 @@
 Every selection decision uses DEVELOPMENT seasons only (2019-2022, walk-forward):
   * selection-noise check: pick each family's best trial on folds 2019-2021 (mean of the
     first three fold losses recorded during the search) and check that pick on the 2022
-    fold, which played no role in the pick;
+    fold, which played no role in this ranking but was used by the adaptive search;
   * ensemble replacement study: out-of-fold dev predictions (train on seasons < s) for each
     family's champion version and overnight best; all 64 replace/keep combinations are ranked
     on 2019-2021 and checked on 2022 (equal-weight and walk-forward skill-weighted averages).
 2023-2025 numbers are the job's own one-time validation look (already recorded) or are
 labelled EXPLORATORY; they never select anything.
+
+The 2022 check is development evidence, not an untouched holdout: the adaptive
+optimizer used all DEV_FOLDS, including 2022, to propose configurations.
 """
 from __future__ import annotations
 
@@ -180,7 +183,8 @@ def analyze(job_id: str, top_k: int = 25, progress=print, record=True, max_candi
 
     # pre-declared candidate rule (dev only): distinct designs that improve 2019-21 AND do not get
     # worse on the untouched-by-selection 2022 fold; at most 3, chosen as:
-    #   A) best single-family replacement, B) best combination, C) all six replaced
+    #   A) best single-family replacement, B) best combination, C) all six replaced.
+    # 2022 was excluded from this ranking, but not from the adaptive search.
     cands = []
     for label, sub in (("best single replacement", combos[combos["n_replaced"] == 1]),
                        ("best combination", combos[combos["n_replaced"] >= 2]),
@@ -201,6 +205,7 @@ def analyze(job_id: str, top_k: int = 25, progress=print, record=True, max_candi
                "complete_trials": {f: int(len([t for t in optuna.load_study(study_name=f, storage=storage).trials
                                                                 if t.state.name == "COMPLETE"])) for f in FAMILIES},
                "final_validation_look": final.get("validation_look"), "selection_configs": sel_cfg, "best_configs": best_cfg,
+               "selection_limitation": "2022 is a development check, not untouched: adaptive search used all DEV_FOLDS. No promotion from these results.",
                "effective_models_champion_versions": eff([f"{f}|champion" for f in FAMILIES]),
                "effective_models_overnight_versions": eff([f"{f}|overnight" for f in FAMILIES if (f, "overnight") in preds]),
                "candidates": cands.to_dict("records"), "protocol": __doc__.split("Every selection decision")[1].strip()}
