@@ -66,9 +66,15 @@ def props_query_plan(previous_rows, partitions=2):
     original = [[market for market in GROUPS if market not in derivatives],
                 [market for market in GROUPS if market in derivatives]]
     if partitions == 'markets':
-        # Explicitly approved credit budget: narrow high-volume main markets;
-        # retain the small derivative board rather than pay for empty families.
-        return [[market] for market in original[0]] + [original[1]]
+        # Keep the approved nine-query budget, but avoid the derivative query
+        # that hit the provider's per-book read window on Sunday. Low-volume
+        # full-game TD counts share a request; first-TD, halves and quarters get
+        # independent scopes. Every market is still requested exactly once.
+        counts = [market for market in original[0] if market.endswith('_tds')]
+        main = [[market] for market in original[0] if market not in counts]
+        return main + [counts, ['first_td'],
+                       [market for market in original[1] if market.endswith('_1h')],
+                       [market for market in original[1] if market.endswith('_1q')]]
     counts = Counter(row.get('market') for row in previous_rows if isinstance(row, dict)
                      and isinstance(row.get('market'), str) and row['market'] in GROUPS)
     weights = {market: max(1, counts[market]) for market in GROUPS}

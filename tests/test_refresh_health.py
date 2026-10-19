@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from datetime import datetime, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import refresh_health as H
@@ -18,6 +19,7 @@ STAMP = '2026-10-10T10:00:00Z'
 
 def fixtures(root):
     docs = {
+        'opportunities.json': {'sources': {'football': {'status': 'FRESH'}, 'mlb': {'status': 'FRESH'}}, 'opportunities': []},
         'injury_context.json': {'current_players': {}, 'current_reports': {}},
         'nfl_roster.json': {'players': [{'id': t, 'team': t, 'roster_status': 'ACT'} for t in sorted(H.NFL_TEAMS)], 'week': 5},
         'history.json': {'betting': {'schema_version': 1, 'profiles': {}, 'generated_at': STAMP, 'source_content_at': STAMP, 'source_roster_at': STAMP, 'source_injury_at': STAMP}},
@@ -94,6 +96,26 @@ def shard_rotation(root, open_record='open'):
 
 
 class RefreshHealthTests(unittest.TestCase):
+    def test_oversize_consumer_output_cannot_block_independent_snapshot_push(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); fixtures(root)
+            (root / 'data/opportunities.json').write_text(json.dumps({'rows': ['x' * 8192]}))
+            with patch.object(H, 'MAX_PUBLICATION_BYTES', 4096):
+                report = H.audit(root, NOW, changed=['data/opportunities.json', 'data/nfl_roster.json'])
+            self.assertEqual(report['publication_paths'], ['data/nfl_roster.json'])
+            self.assertEqual(report['excluded_publication_paths'], ['data/opportunities.json'])
+            self.assertTrue(any('size limit' in issue for issue in report['data_integrity_issues']))
+
+    def test_partial_consumer_sources_publish_but_never_report_healthy(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); docs = fixtures(root)
+            docs['opportunities.json']['sources']['mlb']['status'] = 'FAILED'
+            (root / 'data/opportunities.json').write_text(json.dumps(docs['opportunities.json']))
+            report = H.audit(root, NOW, {'consumer_data': 'success'}, changed=['data/opportunities.json'])
+            self.assertEqual(report['publication_paths'], ['data/opportunities.json'])
+            self.assertFalse(report['healthy'])
+            self.assertIn('opportunities.json: mlb is FAILED', report['source_failures'])
+
     def test_provider_details_survive_health_report_without_relaxing_failure(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

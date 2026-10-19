@@ -2,4 +2,5 @@ const allowed=new Set(['abbeys-board.json','history.json','data.json','nfl_betti
 // Immutable tracker segments and their manifest (see shared/tracker-store.mjs); fixed-format names, never arbitrary paths.
 const CHARTS=/^charts\/[a-z_]+\.json$/;// published chart datasets
 const TRACKER_STORE=/^(public_tracker\/(manifest|segments\/seg-\d{6}(-[0-9a-f]{12})?)|derived\/validation_ledger\/(index|ledger-\d{6}-[0-9a-f]{12}-[0-9a-f]{12}))\.json$/;
-export function isLiveSnapshot(file){return allowed.has(file)||TRACKER_STORE.test(file||'')||CHARTS.test(file||'');}
+const SIGNAL_STORE=/^(signal_tracker|signal_archive\/\d{4}-\d{2}-\d{2})\.json$/;
+export function isLiveSnapshot(file){return allowed.has(file)||TRACKER_STORE.test(file||'')||CHARTS.test(file||'')||SIGNAL_STORE.test(file||'');}

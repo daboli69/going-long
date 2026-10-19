@@ -8,7 +8,7 @@ test('Worker serves fresh roster and research snapshots through the deployment a
   const env={ASSETS:{fetch:async()=>assert.fail('Unexpected packaged fallback')}};
   global.fetch=async url=>{calls.push(url);return Response.json({receipt:'fresh-public-fixture'});};
   try{
-    for(const file of ['nfl_roster.json','dfs_team_touchdowns.json','going_score.json','opportunities.json','charts/calibration.json','public_tracker/manifest.json','derived/validation_ledger/index.json','derived/validation_ledger/ledger-000001-0123456789ab-fedcba987654.json']){
+    for(const file of ['nfl_roster.json','dfs_team_touchdowns.json','going_score.json','opportunities.json','signal_tracker.json','signal_archive/2026-10-18.json','charts/calibration.json','public_tracker/manifest.json','derived/validation_ledger/index.json','derived/validation_ledger/ledger-000001-0123456789ab-fedcba987654.json']){
       assert.ok(isLiveSnapshot(file));
       const response=await worker.fetch(new Request('https://worker.test/api/snapshot?file='+encodeURIComponent(file)),env,{});
       assert.equal(response.status,200);assert.equal(response.headers.get('X-Snapshot-Source'),'nightly');
@@ -16,7 +16,7 @@ test('Worker serves fresh roster and research snapshots through the deployment a
       assert.ok(calls.at(-1).endsWith('/data/'+file));
     }
     const before=calls.length;
-    for(const file of ['../secret.json','private/model.json','charts/../../secret.json','nfl_roster.json/extra','derived/validation_ledger/../../secret.json','derived/validation_ledger/ledger-1-a-b.json','']){
+    for(const file of ['../secret.json','private/model.json','charts/../../secret.json','nfl_roster.json/extra','signal_archive/../../secret.json','signal_archive/arbitrary.json','derived/validation_ledger/../../secret.json','derived/validation_ledger/ledger-1-a-b.json','']){
       const response=await worker.fetch(new Request('https://worker.test/api/snapshot?file='+encodeURIComponent(file)),env,{});
       assert.equal(response.status,400);
     }

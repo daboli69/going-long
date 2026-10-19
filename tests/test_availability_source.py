@@ -69,5 +69,29 @@ class SourceTests(unittest.TestCase):
                     S.preserve_newer(path, payload)
             self.assertEqual(payload['source_content_at'], old['source_content_at'])
 
+    def test_new_same_player_verification_is_not_blocked_by_paired_upload_lower_bound(self):
+        from copy import deepcopy
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'fixture.json'
+            old = {'season': 2026, 'source_content_at': '2026-10-10T08:00:00Z',
+                   'current_reports': {'BUF|fixture': {'gsis_id': 'p', 'team': 'BUF', 'week': 5,
+                       'report_status': 'Out', 'reported_at': '2026-10-10T10:00:00Z'}}}
+            path.write_text(json.dumps(old)); before = path.read_bytes()
+            payload = {'season': 2026, 'source_content_at': None, 'restricted_source_content_at': '2026-10-10T09:00:00Z',
+                       'availability_verification': {'mode': 'explicit-player-reports', 'season': 2026, 'week': 5,
+                           'players': {'p': {'team': 'BUF', 'reported_at': '2026-10-10T11:00:00Z'}}}, 'current_reports': {}}
+            with patch.object(S, 'datetime', wraps=datetime) as clock:
+                clock.now.return_value = NOW
+                S.preserve_newer(path, deepcopy(payload))
+                for fields in ({'team': 'NYJ'}, {'reported_at': '2026-10-10T09:00:00Z'}, {'reported_at': None}):
+                    bad = deepcopy(payload); bad['availability_verification']['players']['p'].update(fields)
+                    with self.assertRaisesRegex(RuntimeError, 'Newer production injury'):
+                        S.preserve_newer(path, bad)
+                for field, value in [('week', 4), ('season', 2025)]:
+                    bad = deepcopy(payload); bad['availability_verification'][field] = value
+                    with self.assertRaisesRegex(RuntimeError, 'Newer production injury'):
+                        S.preserve_newer(path, bad)
+            self.assertEqual(path.read_bytes(), before)
+
 
 if __name__ == '__main__': unittest.main()

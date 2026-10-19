@@ -483,6 +483,7 @@ test('Background loader parses real snapshots and connects shared history',async
   assert.ok(a.BET.games.some(g=>g.sport==='nfl'));
   assert.ok(a.BET.games.some(g=>g.sport==='ncaa'));
   assert.ok(a.BET.roster.players.length>0);
+  assert.equal(new Set(a.BET.fullRoster.players.map(p=>p.team)).size,32,'the same background load must include every NFL club');
   assert.ok(a.BET.injuryContext);
   assert.equal(blobs.size,0);
   assert.doesNotMatch(w.document.getElementById('btDataNote').textContent,/unavailable/i);
@@ -529,6 +530,16 @@ test('Partial live refresh keeps failed categories dated while successful quotes
  const {api:a}=setup(t),old={props:[{quoteKey:'q',updatedAt:'old',overOdds:100},{quoteKey:'r',updatedAt:'older'}],games_raw:[{id:'saved'}]};
  const merged=a.mergePartialLive(old,{props_status:'unavailable',odds_status:'unavailable',props:[{quoteKey:'q',updatedAt:'new',overOdds:120}],games_raw:[]});
  assert.equal(merged.props.length,2);assert.equal(merged.props[0].updatedAt,'new');assert.equal(merged.props[1].updatedAt,'older');assert.equal(merged.games_raw[0].id,'saved');
+});
+
+test('Degraded props retain missing quotes only in their incomplete market family',t=>{
+ const {api:a}=setup(t),old={props:[{quoteKey:'old-core',market:'rec_yds',updatedAt:'original-core'},
+  {quoteKey:'old-derivative',market:'first_td',updatedAt:'original-derivative'}]};
+ const fresh={props_status:'loaded',derivative_status:'degraded',props:[{quoteKey:'new-core',market:'rec_yds',updatedAt:'new'}]};
+ const merged=a.mergePartialLive(old,fresh);
+ assert.deepEqual(Array.from(merged.props,p=>p.quoteKey),['old-derivative','new-core']);
+ assert.equal(merged.props[0].updatedAt,'original-derivative');
+ assert.equal(old.props.length,2);
 });
 
 

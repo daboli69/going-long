@@ -180,6 +180,9 @@ def preserve_newer(path, payload):
     incoming = {r.get('gsis_id'): r for r in (payload.get('current_reports') or {}).values() if isinstance(r, dict)}
     incoming.update({p.get('id'): p.get('injury') for p in payload.get('players', []) if isinstance(p, dict) and isinstance(p.get('injury'), dict)})
     restricted = (payload.get('availability_verification') or {}).get('mode') == 'explicit-player-reports'
+    verification = payload.get('availability_verification') or {}
+    verified_players = verification.get('players') or {}
+    old_teams = {p.get('id'): p.get('team') for p in old.get('players', []) if isinstance(p, dict)}
     for gid, report in reports:
         if not new_injury or not isinstance(report, dict) or _age_hours(report.get('reported_at'), now) is None or _age_hours(report['reported_at'], now) >= _age_hours(new_injury, now):
             continue
@@ -187,5 +190,18 @@ def preserve_newer(path, payload):
         # file. Compare that player's actual incoming report, not the lower bound.
         replacement = incoming.get(gid) if gid else None
         replacement_age = _age_hours(replacement.get('reported_at'), now) if isinstance(replacement, dict) else None
+        # The paired nflverse upload is a conservative lower bound. A complete
+        # club report (or exact ESPN player report) may verify this player later,
+        # including a cleared designation absent from the incoming injury map.
+        # Use only that same player's dated, same-club/week verification.
+        verified = verified_players.get(gid) if gid and restricted else None
+        team = report.get('team') or old_teams.get(gid)
+        verified_age = _age_hours(verified.get('reported_at'), now) if isinstance(verified, dict) else None
+        if (team and isinstance(verified, dict) and
+                nflmeta_source.team_code(verified.get('team')) == nflmeta_source.team_code(team) and
+                report.get('week') == verification.get('week') and payload.get('season') == verification.get('season') and
+                verified_age is not None and -.5 <= verified_age <= 36 and
+                verified_age <= _age_hours(report['reported_at'], now)):
+            continue
         if not restricted or replacement_age is None or replacement_age > _age_hours(report['reported_at'], now):
             raise RuntimeError('Newer production injury reports exist; previous snapshot retained')

@@ -13,9 +13,9 @@ async function openResults(fetchImpl){
  const {JSDOM,VirtualConsole}=require('jsdom'),vm=require('node:vm');
  const html=fs.readFileSync(path.join(root,'apps/results/index.html'),'utf8').replace(/<script[^>]*><\/script>/g,'');
  const dom=new JSDOM(html,{url:'https://going-long.test/results/',runScripts:'outside-only',pretendToBeVisual:true,virtualConsole:new VirtualConsole()});
- const w=dom.window;w.fetch=fetchImpl;
+ const w=dom.window;w.fetch=fetchImpl;w.AbortSignal=AbortSignal;
  const ctx=dom.getInternalVMContext();
- for(const file of ['shared/evidence-ui.js','apps/results/results.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx);
+ for(const file of ['shared/evidence-ui.js','shared/live-snapshot.js','apps/results/results.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx);
  const status=()=>w.document.getElementById('status').textContent;
  for(let i=0;i<80&&!status().includes('Published');i++)await new Promise(r=>setTimeout(r,25));
  return {dom,w,status,button:()=>[...w.document.querySelectorAll('button')].find(b=>b.textContent==='Load older observations')};
@@ -77,22 +77,22 @@ test('a record leaving the current window moves to its day shard without loss',a
 
 test('Results page shows the current window, then lazily loads archived days without double counting',async()=>{
  const files={
-  '../data/signal_tracker.json':{schema_version:1,generated_at:'2026-10-07T00:00:00Z',sources:{football:{status:'FRESH'}},records:[rec('c1','2026-10-07T01:00:00Z')],
+  '/api/snapshot?file=signal_tracker.json':{schema_version:1,generated_at:'2026-10-07T00:00:00Z',sources:{football:{status:'FRESH'}},records:[rec('c1','2026-10-07T01:00:00Z')],
    archive:{layout:'daily-shards-v1',current_window_days:7,total_records:3,archived_records:2,shards:[{date:'2026-09-20',file:'signal_archive/2026-09-20.json',records:2}]}},
-  '../data/signal_archive/2026-09-20.json':{schema_version:1,date:'2026-09-20',records:[rec('o1','2026-09-20T05:00:00Z'),rec('o2','2026-09-20T06:00:00Z',{outcome:{values:{r:'w'}}})]}};
+  '/api/snapshot?file=signal_archive%2F2026-09-20.json':{schema_version:1,date:'2026-09-20',records:[rec('o1','2026-09-20T05:00:00Z'),rec('o2','2026-09-20T06:00:00Z',{outcome:{values:{r:'w'}}})]}};
  const calls=[];
  const {dom,w,status,button}=await openResults(async u=>{calls.push(u);const body=files[u];return {ok:!!body,json:async()=>body};});
  assert.match(status(),/1 matching signal observations/);
  assert.match(status(),/2 older observations are archived and not loaded/);
  assert.equal(button().hidden,false);
- assert.deepEqual(calls,['../data/signal_tracker.json']);
+ assert.deepEqual(calls,['/api/snapshot?file=signal_tracker.json']);
  button().click();
  for(let i=0;i<80&&!status().includes('Full archive loaded');i++)await new Promise(r=>setTimeout(r,50));
  assert.match(status(),/3 matching signal observations/);
  assert.match(status(),/Full archive loaded/);
  assert.equal(button().hidden,true);
  assert.equal(w.document.querySelectorAll('#records article').length,3);
- assert.deepEqual(calls,['../data/signal_tracker.json','../data/signal_archive/2026-09-20.json']);
+ assert.deepEqual(calls,['/api/snapshot?file=signal_tracker.json','/api/snapshot?file=signal_archive%2F2026-09-20.json']);
  dom.window.close();
 });
 
@@ -116,9 +116,9 @@ test('size guard refuses to write an oversized shard, leaving the last good file
 });
 
 test('a partial archive-load failure keeps the days that did load and shows the error',async()=>{
- const files={'../data/signal_tracker.json':{schema_version:1,generated_at:'2026-10-07T00:00:00Z',sources:{},records:[rec('c1','2026-10-07T01:00:00Z')],
+ const files={'/api/snapshot?file=signal_tracker.json':{schema_version:1,generated_at:'2026-10-07T00:00:00Z',sources:{},records:[rec('c1','2026-10-07T01:00:00Z')],
   archive:{layout:'daily-shards-v1',current_window_days:7,total_records:3,archived_records:2,shards:[{date:'2026-09-21',file:'signal_archive/2026-09-21.json',records:1},{date:'2026-09-20',file:'signal_archive/2026-09-20.json',records:1}]}},
-  '../data/signal_archive/2026-09-21.json':{schema_version:1,date:'2026-09-21',records:[rec('o1','2026-09-21T05:00:00Z')]}};
+  '/api/snapshot?file=signal_archive%2F2026-09-21.json':{schema_version:1,date:'2026-09-21',records:[rec('o1','2026-09-21T05:00:00Z')]}};
  const {dom,w,status,button}=await openResults(async u=>{const body=files[u];return {ok:!!body,json:async()=>body};});
  button().click();
  for(let i=0;i<80&&!status().includes('unavailable');i++)await new Promise(r=>setTimeout(r,25));
