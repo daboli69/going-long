@@ -228,7 +228,7 @@ jobs:
       - name: Verify published snapshots reached the public application
         id: public_delivery
         if: ${{ !cancelled() && steps.publish.outcome == 'success' }}
-        timeout-minutes: 5
+        timeout-minutes: 12
         # Checks only the changed public snapshots, never the paid odds provider.
         run: node scripts/check_public_refresh.mjs "$RUNNER_TEMP/publication-integrity.json"
       - name: Report source failures

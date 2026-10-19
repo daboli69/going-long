@@ -8,7 +8,7 @@ const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const CRITICAL=new Set(['nfl_betting.json','ncaa_lines.json','history.json','nfl_roster.json','injury_context.json','opportunities.json']);
 const digest=value=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 
-export async function checkPublicRefresh({root=ROOT,report,fetcher=fetch,sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms)),attempts=4}={}){
+export async function checkPublicRefresh({root=ROOT,report,fetcher=fetch,sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms)),attempts=10}={}){
  const paths=report?.publication_paths;
  if(!Array.isArray(paths))throw Error('Publication report is required');
  const files=[...new Set(paths.filter(p=>typeof p==='string'&&p.startsWith('data/')).map(p=>p.slice(5)).filter(p=>CRITICAL.has(p)&&isLiveSnapshot(p)))];
@@ -16,7 +16,8 @@ export async function checkPublicRefresh({root=ROOT,report,fetcher=fetch,sleep=m
   const expected=digest(JSON.parse(await readFile(path.join(root,'data',file),'utf8')));
   let error;
   for(let attempt=0;attempt<attempts;attempt++){
-   if(attempt)await sleep(45000); // Allow the existing 120-second CDN entry to expire.
+   // Allow both GitHub's raw-file cache and the 120-second Site CDN to expire.
+   if(attempt)await sleep(45000);
    try{
     const response=await fetcher('https://going-long.vercel.app/api/snapshot?file='+encodeURIComponent(file),{signal:AbortSignal.timeout(20000),headers:{'Accept':'application/json'}});
     if(!response.ok)throw Error('HTTP '+response.status);
