@@ -5,6 +5,7 @@ on:
       - 'scripts/availability_source.py'
       - 'scripts/eligibility.py'
       - 'scripts/nflmeta_source.py'
+      - 'scripts/github_release_metadata.py'
       - 'scripts/injury_context.py'
       - 'scripts/check_availability_contract.py'
       - '.github/workflows/availability-contract.yml'
@@ -22,6 +23,10 @@ jobs:
           cache: pip
           cache-dependency-path: scripts/requirements.txt
       - run: pip install -r scripts/requirements.txt
+      - name: Verify official release metadata authentication
+        run: python -c 'from scripts.github_release_metadata import release_metadata; [print(tag, len(release_metadata(tag)["assets"])) for tag in ("stats_team", "stats_player")]'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - name: Verify source schemas without writing model or journal records
         run: python scripts/check_availability_contract.py
         env:
