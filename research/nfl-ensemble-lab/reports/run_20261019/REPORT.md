@@ -23,3 +23,14 @@
 **Next:** optional frozen 2023–25 single look skipped for the 18:15 deadline; run once in a separately budgeted session. Never invoke `lab.props.evaluate eval`. Continue quotes/inactives; improve prior-roster coverage.
 
 **Needs Travis:** manual Task Scheduler steps: `../../docs/PHASE10_DATA_ARCHIVE.md`; no tasks created. Tonight's T-90 window follows the 18:30 cutoff; inactives parser fixture passed, live pull remains undone. Release activation/promotion requires approval.
+
+**Saved-output follow-up — 2026-10-19.** B2 REG DEV 2019–22; paired game-cluster bootstrap (2,000 draws, seed 20261019). Delta = independent error minus closing-line error, in points; RMSE differences are recalculated within each bootstrap draw. This resolves the earlier B2 closing-line blocker; timestamped pregame snapshots remain unavailable. Closing lines are benchmarks only; no features/fits changed. Initial raw-ID join failed completeness; existing canonical IDs resolve 16 OAK/LV aliases, recovering all 1,055 games. Spread uses home-margin convention (weekly.py team-point formula).
+
+| Metric (independent / closing error) | n games | Delta vs closing | 95% CI | Decision |
+|---|---:|---:|---|---|
+| Margin MAE: independent 10.1909; closing 9.8882 | 1055 | +0.3027 | [+0.1339, +0.4857] | closing lower error; descriptive |
+| Margin RMSE: independent 13.1389; closing 12.7726 | 1055 | +0.3662 | [+0.1811, +0.5613] | closing lower error; descriptive |
+| Total MAE: independent 10.8133; closing 10.5412 | 1055 | +0.2721 | [+0.0840, +0.4505] | closing lower error; descriptive |
+| Total RMSE: independent 13.5830; closing 13.2003 | 1055 | +0.3827 | [+0.1918, +0.5648] | closing lower error; descriptive |
+| B3 original v1 / baseline B | requested 8,576 rows / 271 games | unavailable | unavailable | Saved 2022 v1/B outputs do not exist; skipped. |
+| Frozen refit / next-week archive | cutoff 2026 week 5 / Oct 12 | unchanged | n/a | Week 6 incomplete; reuse existing week-7 forecasts. |
