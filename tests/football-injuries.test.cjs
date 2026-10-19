@@ -6,12 +6,6 @@ const generatedAt='2026-09-20T12:00:00Z';
 const now=Date.parse('2026-09-20T18:00:00Z');
 const model=(mean=100)=>({family:'lognormal',status:'ready',mean,sd:mean/5,mu_log:4.5,sigma_log:.2,nonpositive:[],n:12});
 const context=(players,profiles={})=>injuries.createContext({generated_at:generatedAt,players},profiles,now);
-test('Emergency QB never receives a regular playing-time projection',()=>{
- const ctx=context([{name:'Emergency Fixture',team:'A',pos:'QB',injury_status:'Emergency QB',depth_chart_order:3}]);
- const result=injuries.adjustModel({model:model(70),name:'Emergency Fixture',team:'A',position:'QB',market:'pass_yds',context:ctx});
- assert.equal(result.model.status,'unavailable');assert.equal(result.model.mean,null);
- assert.equal(result.injury.status,'Emergency QB');assert.equal(result.injury.blockRecommendation,true);
-});
 test('a missing depth rank cannot select a starting QB alphabetically',()=>{
  const ctx=context([{name:'Alphabetical Backup',team:'A',pos:'QB'}]);
  assert.equal(injuries.starterEligibility({name:'Alphabetical Backup',team:'A',position:'QB',context:ctx}).eligible,false);

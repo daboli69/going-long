@@ -75,6 +75,19 @@ test('ready prop models fail closed when identity or the eligibility script is m
  a.BET.fullRoster={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,players:[]};w.fixtureProps=[{profileId:'unknown',model:{status:'ready',mean:10}}];
  vm.runInContext('ELIG_CACHE=null;markUnavailableProps(globalThis.fixtureProps)',context);assert.equal(w.fixtureProps[0].model.status,'unavailable');
 });
+test('Emergency QB is withheld at the shared recommendation gate without pausing other players',t=>{
+ const {api:a,w,context}=setup(t),at=new w.Date(w.Date.now()).toISOString();
+ vm.runInContext(fs.readFileSync(path.join(__dirname,'../shared/going-eligibility.js'),'utf8'),context);
+ a.BET.injuryLearning={generated_at:at,source_content_at:at,source_roster_at:at,current_players:{},
+  current_reports:{emergency:{gsis_id:'emergency',report_status:'Emergency QB',week:5}}};
+ a.BET.fullRoster={generated_at:at,source_roster_at:at,source_injury_at:at,week:5,
+  players:['emergency','healthy'].map(id=>({id,team:'AAA',roster_status:'ACT'}))};
+ w.fixtureProps=['emergency','healthy'].map(profileId=>({profileId,model:{status:'ready',mean:100}}));
+ vm.runInContext('markUnavailableProps(globalThis.fixtureProps)',context);
+ assert.equal(w.fixtureProps[0].model.status,'unavailable');
+ assert.match(w.fixtureProps[0].model.unavailable_reason,/Emergency QB/);
+ assert.equal(w.fixtureProps[1].model.status,'ready');
+});
 test('primary Classic callback and previously generated lineups cannot bypass availability',t=>{
  const {api:a,w,context}=setup(t);a.BET.tab='dfs';a.BET.history={profiles:{}};
  const at=new w.Date(w.Date.now()).toISOString();a.BET.injuryLearning={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,current_players:{},current_reports:{}};a.BET.fullRoster={generated_at:at,source_content_at:at,source_roster_at:at,source_roster_at:at,source_injury_at:at,players:[]};
