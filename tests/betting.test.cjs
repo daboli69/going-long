@@ -531,6 +531,16 @@ test('Partial live refresh keeps failed categories dated while successful quotes
  assert.equal(merged.props.length,2);assert.equal(merged.props[0].updatedAt,'new');assert.equal(merged.props[1].updatedAt,'older');assert.equal(merged.games_raw[0].id,'saved');
 });
 
+test('Degraded props retain missing quotes only in their incomplete market family',t=>{
+ const {api:a}=setup(t),old={props:[{quoteKey:'old-core',market:'rec_yds',updatedAt:'original-core'},
+  {quoteKey:'old-derivative',market:'first_td',updatedAt:'original-derivative'}]};
+ const fresh={props_status:'loaded',derivative_status:'degraded',props:[{quoteKey:'new-core',market:'rec_yds',updatedAt:'new'}]};
+ const merged=a.mergePartialLive(old,fresh);
+ assert.deepEqual(Array.from(merged.props,p=>p.quoteKey),['old-derivative','new-core']);
+ assert.equal(merged.props[0].updatedAt,'original-derivative');
+ assert.equal(old.props.length,2);
+});
+
 
 test('Weekly best plays retain saved-line research while value requires fresh aligned prices',t=>{
  const {api:a}=setup(t),now=Date.parse('2026-09-12T18:00:00Z');

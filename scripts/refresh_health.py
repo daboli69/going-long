@@ -15,7 +15,8 @@ from tracker_store import _expand as expand_tracker_record
 
 ROOT = Path(__file__).resolve().parents[1]
 FILES = ('nfl_betting.json', 'ncaa_lines.json', 'injury_context.json', 'nfl_roster.json',
-         'history.json', 'results.json', 'public_tracker/manifest.json', 'savant_context.json')
+         'history.json', 'results.json', 'public_tracker/manifest.json', 'savant_context.json', 'opportunities.json')
+MAX_PUBLICATION_BYTES = 95 * 1024 * 1024  # Leave headroom below GitHub's 100 MiB hard limit.
 NFL_TEAMS = set('ARI ATL BAL BUF CAR CHI CIN CLE DAL DEN DET GB HOU IND JAX KC LAC LA LV MIA MIN NE NO NYG NYJ PHI PIT SEA SF TB TEN WAS'.split())
 OUTPUT_OWNERS = {
     'validate_projection_logic': ('data/history.json', 'data/going_score.json', 'data/king-endzone.json',
@@ -238,6 +239,13 @@ def audit(root=ROOT, now=None, outcomes=None, changed=None):
         issues.append('savant_context.json: no descriptive context source loaded')
     elif any(mapping(source).get('status') != 'loaded' for source in sources.values()):
         warnings.append('savant_context.json: partial descriptive context; loaded sources: ' + ', '.join(loaded))
+    consumer = mapping(docs.get('opportunities.json'))
+    consumer_sources = mapping(consumer.get('sources'))
+    artifacts.setdefault('opportunities.json', {})['source_states'] = {name: mapping(source).get('status') for name, source in consumer_sources.items()}
+    for name in ('football', 'mlb'):
+        state = mapping(consumer_sources.get(name)).get('status', 'UNKNOWN')
+        if state != 'FRESH':
+            issues.append(f'opportunities.json: {name} is {state}')
     steps = {name: detail.get('outcome') if isinstance(detail, dict) else detail
              for name, detail in (outcomes or {}).items()}
     def source_problem(issue):
@@ -265,12 +273,16 @@ def audit(root=ROOT, now=None, outcomes=None, changed=None):
             if not (Path(root) / path).exists() and retired_shard(root, path, changed):
                 pass  # Approved deletion; owner and companion checks still apply.
             else:
+                if (Path(root) / path).stat().st_size > MAX_PUBLICATION_BYTES:
+                    raise OverflowError('publication file exceeds safe GitHub size limit')
                 raw = (Path(root) / path).read_bytes()
                 if path.endswith('.json.gz'):
                     raw = gzip.decompress(raw)
                 doc = strict_json(raw.decode('utf-8'))
                 if not isinstance(doc, (dict, list)):
                     raise ValueError('object/array required')
+        except OverflowError:
+            problem = f'{path}: changed output exceeds safe GitHub publication size limit'
         except (OSError, ValueError, TypeError, UnicodeError, EOFError):
             problem = f'{path}: changed output is missing or not finite JSON object/array'
         if not problem and any(steps.get(owner) in ('failure', 'cancelled', 'skipped') and owns(path, prefixes)

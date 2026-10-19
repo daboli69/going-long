@@ -3656,11 +3656,13 @@ function updateBetFilters(){
 function mergePartialLive(previous,fresh){
  if(!previous)return fresh;
  const result={...fresh};
- if(fresh.odds_status==='unavailable')result.games_raw=previous.games_raw||[];
- if(fresh.period_status==='unavailable')result.period_quotes=[...(previous.period_quotes||[]),...(fresh.period_quotes||[])];
- if(fresh.props_status==='unavailable'||fresh.derivative_status==='unavailable'){
+ const incomplete=status=>['unavailable','degraded','stale','failed','fallback'].includes(String(status).toLowerCase());
+ if(incomplete(fresh.odds_status)&&!fresh.games_raw?.length)result.games_raw=previous.games_raw||[];
+ if(incomplete(fresh.period_status))result.period_quotes=[...(previous.period_quotes||[]),...(fresh.period_quotes||[])];
+ if(incomplete(fresh.props_status)||incomplete(fresh.derivative_status)){
   const key=p=>p.quoteKey||JSON.stringify([p.book,p.player,p.market,p.line,p.kickoff,p.overOdds,p.underOdds]);
-  result.props=[...new Map([...(previous.props||[]),...(fresh.props||[])].map(p=>[key(p),p])).values()];
+  const saved=(previous.props||[]).filter(p=>incomplete(p.market==='first_td'||/_1[hq]$/.test(p.market)?fresh.derivative_status:fresh.props_status));
+  result.props=[...new Map([...saved,...(fresh.props||[])].map(p=>[key(p),p])).values()];
  }
  return result;
 }
@@ -3679,7 +3681,8 @@ async function refreshLiveOdds(sport=BET.sport){
       worker.onerror=()=>{clearTimeout(timer);reject(new Error('Live connection failed'));};
       worker.postMessage(new URL(`api/odds?sport=${sport}`,document.baseURI).href);
     });
-    const partial=[fresh.props_status,fresh.odds_status,fresh.period_status,fresh.derivative_status].includes('unavailable');
+    const stale=['STALE','FAILED'].includes(fresh.feed_status)||['STALE','FAILED'].includes(fresh.refresh_status);
+    const partial=stale||fresh.feed_status==='FALLBACK'||fresh.coverage?.possibly_truncated||[fresh.props_status,fresh.odds_status,fresh.period_status,fresh.derivative_status].some(status=>['unavailable','degraded','stale','failed','fallback'].includes(String(status).toLowerCase()));
     fresh=mergePartialLive(BET[sport==='nfl'?'nflData':'ncaaData'],fresh);
     if(sport==='nfl'){
       BET.nflData=fresh;
@@ -3688,9 +3691,9 @@ async function refreshLiveOdds(sport=BET.sport){
       BET.props=BET.props.filter(p=>p.source==='manual').concat(markUnavailableProps(incoming));
     }else BET.ncaaData=fresh;
     BET.games=BET.games.filter(g=>g.source==='manual').concat(gamesFromRealData());
-    BET.liveLoaded[sport]=true;BET.liveStatus=partial?'partial':'live';BET.page=0;
-    $('btDataNote').textContent=`Parlay connected · refreshed ${new Date(fresh.generated_at).toLocaleTimeString()} · historical model ${BET.history?.window||12} games`;
-    $('btLoadPropsNote').textContent=sport==='nfl'?`${BET.props.length.toLocaleString()} current quotes · ${fresh.coverage?.possibly_truncated?'Provider row limit reached; coverage may be partial.':'Auto-refresh every 5 minutes while visible.'}`:`${(fresh.games_raw||[]).length} ${sport.toUpperCase()} events refreshed. Auto-refresh every 5 minutes while visible.`;
+    BET.liveLoaded[sport]=true;BET.liveStatus=stale?'snapshot':partial?'partial':'live';BET.page=0;
+    $('btDataNote').textContent=`${stale?'Saved prices':partial?'Partial provider update':'Parlay connected'} · snapshot ${new Date(fresh.generated_at).toLocaleTimeString()} · historical model ${BET.history?.window||12} games`;
+    $('btLoadPropsNote').textContent=sport==='nfl'?`${BET.props.length.toLocaleString()} available quotes · ${fresh.coverage?.possibly_truncated?'Provider row limit reached; coverage may be partial.':'Auto-refresh every 5 minutes while visible.'}`:`${(fresh.games_raw||[]).length} ${sport.toUpperCase()} events available. Auto-refresh every 5 minutes while visible.`;
     if(partial)$('btLoadPropsNote').textContent='Some provider categories are unavailable. Successful quotes refreshed; saved categories keep their original timestamps.';
     if(fresh.feed_notice)$('btLoadPropsNote').textContent=fresh.feed_notice;
     updateBetFilters();

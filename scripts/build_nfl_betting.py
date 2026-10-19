@@ -143,7 +143,9 @@ def build():
     atomic_json(OUT, payload)
     print(f"\nwrote {OUT} — {OUT.stat().st_size/1024:.0f}KB")
     if live.get("refresh_status") != "FRESH":
-        raise RuntimeError(f"Parlay partial refresh persisted as {live.get('refresh_status')}: {live.get('refresh_error')}")
+        # The payload is valid and contains independent successful categories.
+        # Publication must keep these; refresh_health separately reports outages.
+        print(f"Parlay partial refresh published as {live.get('refresh_status')}: {live.get('refresh_error')}", file=sys.stderr)
 
 
 if __name__ == "__main__":
