@@ -483,6 +483,7 @@ test('Background loader parses real snapshots and connects shared history',async
   assert.ok(a.BET.games.some(g=>g.sport==='nfl'));
   assert.ok(a.BET.games.some(g=>g.sport==='ncaa'));
   assert.ok(a.BET.roster.players.length>0);
+  assert.equal(new Set(a.BET.fullRoster.players.map(p=>p.team)).size,32,'the same background load must include every NFL club');
   assert.ok(a.BET.injuryContext);
   assert.equal(blobs.size,0);
   assert.doesNotMatch(w.document.getElementById('btDataNote').textContent,/unavailable/i);

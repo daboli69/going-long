@@ -3406,8 +3406,8 @@ function attachProjection(p, index){
 // Props for reserve/suspended/retired/practice-squad players keep their quote row but have no usable model, so no page can rank or recommend them.
 // Data files are served live from GitHub through /api/snapshot (Vercel skips deploys for data-only commits, so static copies go stale); the packaged static file is only a fallback.
 async function liveJson(file){
-  try{const r=await fetch(new URL('api/snapshot?file='+file,document.baseURI),{cache:'no-cache'});if(r.ok)return await r.json();}catch{}
-  try{const r=await fetch(new URL('data/'+file,document.baseURI),{cache:'no-cache'});if(r.ok)return await r.json();}catch{}
+  try{const r=await fetch(new URL('api/snapshot?file='+file,document.baseURI),{cache:'no-cache',signal:AbortSignal.timeout(15000)});if(r.ok)return await r.json();}catch{}
+  try{const r=await fetch(new URL('data/'+file,document.baseURI),{cache:'no-cache',signal:AbortSignal.timeout(15000)});if(r.ok)return await r.json();}catch{}
   return null;
 }
 // One eligibility decision for every surface (shared/going-eligibility.js). Built from the injury file and the all-team roster snapshot; stale or missing data fails closed.
@@ -3488,27 +3488,26 @@ async function propsFromRealData(raw=BET.nflData){
   return result;
 }
 async function loadBettingData(){
-  if(typeof fetch==='function')liveJson('nfl_roster.json').then(r=>{if(r)BET.fullRoster=r;});
   BET.loading=true; $("btDataNote").textContent="Loading odds and historical projections…";
   try{
     // Fetch and JSON.parse live on a worker, including the large raw API
     // payload. Only structured data crosses back to the main thread.
-      const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url,fallback])=>{try{const r=await fetch(url,{signal:AbortSignal.timeout(key==='context'?3000:8000)});if(r.ok)return[key,await r.json()];}catch{}try{const r=await fetch(fallback,{signal:AbortSignal.timeout(key==='context'?3000:8000)});return[key,r.ok?await r.json():null]}catch{return[key,null]}}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
+      const workerSource=`onmessage=async({data})=>{try{const entries=await Promise.all(data.map(async([key,url,fallback])=>{try{const r=await fetch(url,{signal:AbortSignal.timeout(15000)});if(r.ok)return[key,await r.json()];}catch{}try{const r=await fetch(fallback,{signal:AbortSignal.timeout(15000)});return[key,r.ok?await r.json():null]}catch{return[key,null]}}));postMessage({ok:true,files:Object.fromEntries(entries)});}catch(e){postMessage({ok:false,error:e.message});}};`;
     const blob=URL.createObjectURL(new Blob([workerSource],{type:"text/javascript"}));
     let worker;
     const files=await new Promise((resolve,reject)=>{
-      const timer=setTimeout(()=>reject(new Error("Data request timed out")),18000);
+      const timer=setTimeout(()=>reject(new Error("Data request timed out")),32000);
       try{worker=new Worker(blob);}catch(e){clearTimeout(timer);reject(e);return;}
       worker.onmessage=({data})=>{clearTimeout(timer); data.ok?resolve(data.files):reject(new Error(data.error));};
       worker.onerror=()=>{clearTimeout(timer);reject(new Error("Background data loader failed"));};
-      worker.postMessage([['nfl','nfl_betting.json'],['ncaa','ncaa_lines.json'],['history','history.json'],['config','data.json'],['context','football_context.json'],['learning','season_learning.json'],['injuryLearning','injury_context.json'],['roleValidation','football_role_validation.json'],['gameValidation','football_game_validation.json'],['roster','players.json'],['dfsTeams','dfs_team_touchdowns.json'],['dfsKickers','dfs_kickers.json']].map(([k,p])=>[k,new URL('api/snapshot?file='+p,document.baseURI).href,new URL('data/'+p,document.baseURI).href]));
+      worker.postMessage([['nfl','nfl_betting.json'],['ncaa','ncaa_lines.json'],['history','history.json'],['config','data.json'],['context','football_context.json'],['learning','season_learning.json'],['injuryLearning','injury_context.json'],['roleValidation','football_role_validation.json'],['gameValidation','football_game_validation.json'],['roster','players.json'],['fullRoster','nfl_roster.json'],['dfsTeams','dfs_team_touchdowns.json'],['dfsKickers','dfs_kickers.json']].map(([k,p])=>[k,new URL('api/snapshot?file='+p,document.baseURI).href,new URL('data/'+p,document.baseURI).href]));
     }).finally(()=>{worker?.terminate();URL.revokeObjectURL(blob);});
     BET.nflData=files.nfl; BET.ncaaData=files.ncaa; BET.history=files.history?.betting; BET.context=files.context; BET.learning=files.learning; BET.injuryLearning=files.injuryLearning; BET.roleValidation=files.roleValidation; BET.gameValidation=files.gameValidation; BET.roster=files.roster; BET.dfsTeamSnapshot=files.dfsTeams; BET.dfsKickerSnapshot=files.dfsKickers;
     BET.injuryContext=GoingFootballInjuries.createContext(BET.roster,BET.history?.profiles,Date.now(),BET.injuryLearning);
     S.history=files.history; S.pipeline=files.config;
     BET.config=files.config?.betting||{};
     // The eligibility engine needs the all-team roster snapshot (bye teams, injury objects, its own timestamp); players.json is only the Sleeper pool.
-    BET.fullRoster=await liveJson('nfl_roster.json');
+    BET.fullRoster=files.fullRoster;
     BET.props=markUnavailableProps(await propsFromRealData());
     updateEligibilityBanner();
     BET.games=gamesFromRealData();
