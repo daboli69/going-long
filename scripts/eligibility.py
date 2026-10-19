@@ -15,7 +15,7 @@ REPO = Path(__file__).resolve().parents[1]
 INJURY_HOURS = ROSTER_HOURS = 36
 NOT_ACTIVE = {'RES', 'INA', 'PUP', 'IR', 'NFI', 'SUS', 'RET', 'EXE', 'CUT', 'REL', 'WAIVED', 'DEV', 'PRA', 'PS', 'PSQ'}
 ACTIVE = {'ACT', 'ACTIVE'}
-REPORT_STATUS = {'', 'none', 'not listed', 'active', 'available', 'healthy', 'probable', 'questionable', 'game-time decision', 'game time decision', 'gtd', 'doubtful', 'out', 'inactive', 'injured reserve', 'suspended'}
+REPORT_STATUS = {'', 'none', 'not listed', 'active', 'available', 'healthy', 'probable', 'questionable', 'game-time decision', 'game time decision', 'gtd', 'doubtful', 'out', 'inactive', 'injured reserve', 'suspended', 'emergency qb'}
 _DEFAULT = object()
 
 
@@ -134,7 +134,7 @@ def _severity_out(report):
     if not isinstance(report, dict):
         return False
     s = str((report or {}).get('report_status') or '').strip().lower()
-    return bool(re.search(r'^out|^inactive|injured reserve|suspend|doubtful', s))
+    return bool(re.search(r'^out|^inactive|injured reserve|suspend|doubtful|^emergency qb$', s))
 
 
 def _week(value):

@@ -74,6 +74,9 @@ def build():
                   sources={'rosters':roster_source,'injuries':injury_source},
                   source='nflverse weekly rosters and injury reports',source_url='https://github.com/nflverse/nflverse-data',
                   note='Active roster at the published weekly snapshot; teams on bye keep their latest earlier active roster (flagged bye_carry_forward, true week per player); game-day inactive status is separate. Injury report week is shown explicitly.')
+    import eligibility as E
+    if not E._valid_roster(result):
+        raise RuntimeError('Generated roster contract invalid; previous snapshot retained')
     scoped_snapshot(result, injury_source)
     preserve_newer(ROOT/'data/nfl_roster.json',result)
     atomic_json(ROOT/'data/nfl_roster.json',result)

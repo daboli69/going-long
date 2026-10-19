@@ -3,6 +3,8 @@ on:
   push:
     paths:
       - 'scripts/availability_source.py'
+      - 'scripts/eligibility.py'
+      - 'scripts/nflmeta_source.py'
       - 'scripts/injury_context.py'
       - 'scripts/check_availability_contract.py'
       - '.github/workflows/availability-contract.yml'

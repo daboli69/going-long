@@ -16,7 +16,7 @@
 const finite=x=>typeof x==='number'&&Number.isFinite(x);
 const RESERVE=new Set(['RES','INA','PUP','IR','NFI']),REMOVED=new Set(['CUT','REL','WAIVED']),PRACTICE=new Set(['DEV','PRA','PS','PSQ']);
 const ACTIVE=new Set(['ACT','ACTIVE']);
-const REPORT_STATUS=new Set(['','none','not listed','active','available','healthy','probable','questionable','game-time decision','game time decision','gtd','doubtful','out','inactive','injured reserve','suspended']);
+const REPORT_STATUS=new Set(['','none','not listed','active','available','healthy','probable','questionable','game-time decision','game time decision','gtd','doubtful','out','inactive','injured reserve','suspended','emergency qb']);
 const object=x=>x!=null&&typeof x==='object'&&!Array.isArray(x);
 const status=x=>typeof x==='string'?x.trim().toUpperCase():'';
 const idOk=x=>typeof x==='string'&&x.trim().length>0;
@@ -56,7 +56,7 @@ function freshness(injury,roster,now=Date.now(),limits=LIMITS){
  if(scope===false)reasons.push('restricted availability verification missing or inconsistent');
  return {ok:injuryOk&&rosterOk&&weeksAgree&&scope!==false,limited:object(scope),verifiedPlayerCount:object(scope)?Object.keys(scope).length:null,injuryOk,rosterOk,injuryAsOf:iStamp||null,rosterAsOf:roster?.source_roster_at||null,injuryAgeHours:iAge,rosterAgeHours:rAge,reason:reasons.join('; ')};
 }
-function severity(r){const s=String(r?.report_status||'').trim().toLowerCase();return /^out|^inactive|injured reserve|suspend/.test(s)?4:/doubtful/.test(s)?3:/questionable|game.?time|^gtd/.test(s)?2:/did not/.test(String(r?.practice_status||'').toLowerCase())?1:0;}
+function severity(r){const s=String(r?.report_status||'').trim().toLowerCase();return /^out|^inactive|injured reserve|suspend|^emergency qb$/.test(s)?4:/doubtful/.test(s)?3:/questionable|game.?time|^gtd/.test(s)?2:/did not/.test(String(r?.practice_status||'').toLowerCase())?1:0;}
 // Merge the injury file (statuses incl. reserve/practice squad) with the all-teams roster snapshot (bye teams, injury objects).
 function index(injury,roster,week){
  const players=Object.create(null),reports=Object.create(null),bye=new Set(Array.isArray(roster?.bye_carry_forward_teams)?roster.bye_carry_forward_teams:[]);
@@ -95,6 +95,7 @@ function create({injury,roster,week,now=Date.now(),limits=LIMITS}={}){
   if(entry&&REMOVED.has(rs))return mk('released',false,'Released','Released or waived; excluded.');
   if(entry&&PRACTICE.has(rs))return mk('practice_squad',false,'Practice squad','Practice squad or development roster; not on the active roster.');
   const reportStatus=String(rep?.report_status||'').trim().toLowerCase(),practice=String(rep?.practice_status||'').trim().toLowerCase();
+  if(reportStatus==='emergency qb')return mk('out',false,'Emergency QB','Emergency-only quarterback; excluded from normal playing-time recommendations.');
   if(/^out|^inactive|injured reserve|suspend/.test(reportStatus))return mk('out',false,'Ruled out',`Game status: ${rep.report_status}.`);
   if(/doubtful/.test(reportStatus))return mk('doubtful',false,'Doubtful','Listed doubtful; treated as out unless upgraded.');
   if(!entry)return mk('unknown',false,'Availability unconfirmed','Not found in the current roster snapshot; not treated as active.');

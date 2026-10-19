@@ -54,7 +54,7 @@ def surname_key(value):
 
 def severity(status):
     s = str(status or '').strip().lower()
-    if re.match(r'^(out|inactive)', s) or 'injured reserve' in s or 'suspend' in s:
+    if re.match(r'^(out|inactive)', s) or 'injured reserve' in s or 'suspend' in s or s == 'emergency qb':
         return 4
     if 'doubtful' in s:
         return 3

@@ -3,7 +3,7 @@
 
 const VERSION='injury-role-3';
 const MAX_AGE_HOURS=36;
-const HARD_OUT=new Set(['out','ir','pup','inactive','suspended','nfi','reserve']);
+const HARD_OUT=new Set(['out','ir','pup','inactive','suspended','nfi','reserve','emergency qb']);
 const MARKET_ROLE={
  RB:{rush_yds:[.45,.30],rush_tds:[.40,.28],rec_yds:[.25,.20],receptions:[.25,.20],rec_tds:[.22,.18],atd:[.35,.25],first_td:[.25,.20]},
  WR:{rec_yds:[.25,.18],receptions:[.25,.18],rec_tds:[.20,.15],rush_yds:[.15,.12],rush_tds:[.12,.10],atd:[.20,.15],first_td:[.15,.12]},
