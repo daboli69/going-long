@@ -57,7 +57,7 @@ def _choose_sim(rng, off, teams, shares, key):
     return out
 
 
-def simulate(T: dict, teams: list, players: dict, n: int, e, rng, record=True, diag=None) -> dict:
+def simulate(T: dict, teams: list, players: dict, n: int, e, rng, record=True, diag=None, record_td=False) -> dict:
     e = np.asarray(e, float)
     P = len(players["coff"])
     e_sim = e[None, :] + rng.normal(0, T.get("sigma_e", 0.0), (n, 2)) if T.get("sigma_e", 0) > 0 else np.repeat(e[None, :], n, 0)
@@ -77,6 +77,9 @@ def simulate(T: dict, teams: list, players: dict, n: int, e, rng, record=True, d
     score = np.zeros((n, 2))
     rows = np.arange(n)
     st = {k: np.zeros((n, P)) for k in ("rec_yds", "rec", "rush_yds", "pass_yds")} if record else None
+    if record_td and record:
+        st.update({k: np.zeros((n, P)) for k in ("pass_tds", "rush_tds", "rec_tds")})
+    first_td = np.full(n, -1, dtype=int) if record_td else None
     pass_off = np.array([teams[0]["pass_off"], teams[1]["pass_off"]])
     qb_col = np.array([teams[0]["qb_col"], teams[1]["qb_col"]])
     c0, c1 = T["fg_coef"]
@@ -152,6 +155,15 @@ def simulate(T: dict, teams: list, players: dict, n: int, e, rng, record=True, d
             np.add.at(st["pass_yds"], (rows[m], qb_col[off[m]]), gain[m])
             m = isr
             np.add.at(st["rush_yds"], (rows[m], ru[m]), gain[m])
+            if record_td:
+                m = td & comp
+                np.add.at(st["pass_tds"], (rows[m], qb_col[off[m]]), 1.0)
+                np.add.at(st["rec_tds"], (rows[m], rc[m]), 1.0)
+                m = td & isr
+                np.add.at(st["rush_tds"], (rows[m], ru[m]), 1.0)
+        if record_td:
+            first = td & (first_td == -1)
+            first_td[first] = np.where(comp[first], rc[first], ru[first])
         score[rows[td], off[td]] += 6 + (u[8][td] < T["pat"])
         fgp = _sig(c0 + c1 * (yl + 17))
         fgm = fg & (u[9] < fgp)
@@ -220,7 +232,12 @@ def simulate(T: dict, teams: list, players: dict, n: int, e, rng, record=True, d
             new_sec[cross] = 1800.0
         sec = new_sec
         alive = sec > 0
-    return {"points": score, "stats": st}
+    result = {"points": score, "stats": st}
+    if record_td:
+        result["first_td_col"] = first_td
+        if record:
+            st["anytime_td"] = ((st["rush_tds"] + st["rec_tds"]) >= 1).astype(float)
+    return result
 
 
 def neutral_game():

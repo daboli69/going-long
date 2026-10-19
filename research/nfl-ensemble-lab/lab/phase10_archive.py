@@ -9,16 +9,17 @@ import json
 
 import pandas as pd
 
-from .archive10 import going_versions
+from .archive10 import going_versions, going_remote_main
 from .config import REPORTS_DIR
 from .market81 import archive_local_markets
 from .props.lines import archive_lines, archived_lines, player_map
 
 
-def run(history=False):
+def run(history=False, remote_main=False):
     mapping = player_map()
     result = {"versions": 0, "market_files_new": 0, "props_files_new": 0, "errors": []}
-    for data, meta in going_versions(history=history):
+    versions = [going_remote_main()] if remote_main else going_versions(history=history)
+    for data, meta in versions:
         result["versions"] += 1
         for name, fn in (("market", lambda: archive_local_markets(data, meta)),
                          ("props", lambda: archive_lines(data, meta, mapping))):
@@ -44,5 +45,6 @@ def run(history=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--history", action="store_true")
+    parser.add_argument("--remote-main", action="store_true", help="Read latest fetched origin/main copy without switching branches")
     args = parser.parse_args()
-    print(json.dumps(run(args.history), indent=2, default=str))
+    print(json.dumps(run(args.history, args.remote_main), indent=2, default=str))

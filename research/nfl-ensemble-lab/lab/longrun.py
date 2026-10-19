@@ -547,13 +547,14 @@ def main(argv=None):
     s.add_argument("--max-trials", type=int)
     s.add_argument("--threads", type=int)
     s.add_argument("--foreground", action="store_true")
+    s.add_argument("--dev-only", action="store_true", help="Search DEV_FOLDS only; never finalize on later seasons")
     for c in ("run", "resume", "pause", "continue", "stop", "finalize"):
         x = sub.add_parser(c)
         x.add_argument("job", nargs="?")
     sub.add_parser("status")
     a = ap.parse_args(argv)
     if a.cmd == "start":
-        jid = create_job(a.hours, a.minutes, a.max_trials, a.threads)
+        jid = create_job(a.hours, a.minutes, a.max_trials, a.threads, finalize_after=not a.dev_only)
         if a.foreground:
             print(json.dumps(run_job(jid), indent=2, default=str))
         else:

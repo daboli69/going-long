@@ -8,7 +8,7 @@ from collections import defaultdict
 
 import pandas as pd
 
-from ..archive10 import ARCHIVE, save, temporal, utc
+from ..archive10 import ARCHIVE, save, temporal, utc, freshness
 from ..config import RAW_DIR
 from ..market81 import NAME_TO_ABBR
 
@@ -84,6 +84,6 @@ def archived_lines(*, root=ARCHIVE, asof=None):
             time = temporal(r.get("quote_time"), d.get("available_at"), r.get("kickoff"))
             if asof is not None and (not time["available_at"] or pd.Timestamp(time["available_at"]) > pd.Timestamp(asof)):
                 continue
-            rows.append(r | time | {"pregame_verified": time["pregame_verified"] and not r["in_play"],
+            rows.append(r | time | freshness(r.get("quote_time"), asof) | {"pregame_verified": time["pregame_verified"] and not r["in_play"],
                                     "archive": path.name, "generated_at": d.get("generated_at")})
     return pd.DataFrame(rows)

@@ -15,6 +15,7 @@ Updated: 2026-10-01. Initial audit: `7d33e75`; manual heartbeat test (cycle 3): 
 - Review pipeline preparation: added local exact Vercel Git-deployment exclusion for `codex/going-long-daily-review` and `docs/DAILY_REVIEW_PIPELINE.md`. Config/path checks, 8/8 Vercel/API tests and local Vercel build passed; existing build warnings remain. GitHub metadata confirms public repo; standard Ubuntu Actions minutes free, existing cache/billing settings not verified. No workflow, automation or external settings changed; no pushes, remote branch, merge or deployment.
 
 ## Working
+- Phase 10 NFL lab projections (2026-10-19, Codex, `codex/projections-20261019`): immutable local GOING game/prop archives and weather-pull archive implemented; fixture checks 4 passed, ensemble/simulator checks 27 passed. Development <=2021 / 2022 only; user Amendment 1 authorizes a committed frozen configuration before a newer-data prospective refit. Hard stop 19:00 ET; no promotion, production effects or spend. Detailed run status: `research/nfl-ensemble-lab/reports/run_20261019/STATUS.md`. Baseline active lab suite: 217 passed, 1 existing skip.
 - Review publication disabled. Local exclusion prepared; external project/root/hooks, approved baseline/commit set and reviewer access remain prerequisites. No current claim of end-to-end deployment protection or cloud visibility.
 
 ## Problems

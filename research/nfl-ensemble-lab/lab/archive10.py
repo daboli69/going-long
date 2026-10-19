@@ -66,6 +66,31 @@ def temporal(quote_time, available_at, kickoff) -> dict:
             "pregame_verified": valid}
 
 
+def freshness(quote_time, asof=None):
+    asof = pd.Timestamp.now(tz="UTC") if asof is None else pd.Timestamp(asof)
+    q = utc(quote_time)
+    age = (asof - pd.Timestamp(q)).total_seconds() / 3600 if q else None
+    return {"line_age_hours": age, "line_status": "unknown timestamp" if age is None else
+            "future timestamp" if age < 0 else "stale" if age > 24 else "current"}
+
+
+def going_remote_main(root=None):
+    """Latest committed authorized file after an explicit user-authorized fetch.
+
+    This reader never fetches, switches branches or reads any other remote file.
+    """
+    import subprocess
+    from .market81 import GOING_ROOT
+    root = Path(root or GOING_ROOT)
+    args = ["git", "-C", str(root)]
+    body = subprocess.run(args + ["show", "origin/main:data/nfl_betting.json"], capture_output=True,
+                          text=True, encoding="utf-8", check=True).stdout
+    last = subprocess.run(args + ["log", "-1", "--format=%H %cI", "origin/main", "--", "data/nfl_betting.json"],
+                          capture_output=True, text=True, check=True).stdout.strip().split(maxsplit=1)
+    return json.loads(body), {"source": "origin/main:data/nfl_betting.json (read-only git show)",
+                              "commit": last[0], "available_at": utc(last[1])}
+
+
 def going_versions(*, history=True, root=None):
     """Read only the authorized JSON path and git blobs; never inspect credentials."""
     import subprocess
