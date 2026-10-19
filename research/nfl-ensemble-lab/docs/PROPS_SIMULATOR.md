@@ -92,3 +92,60 @@ one-player-at-a-time model), with a one-sided game-cluster bootstrap p < 0.05. A
 - **Not a betting claim:** the over/under lines here are synthetic (baseline medians), not sportsbook lines.
 - **Under the pre-registration,** the next step is prospective only: archive pregame distributions for 2026 games and score them
   after kickoff. A fixed version (bias, calibration re-check) would be a new version, judged only on 2026+ games.
+
+## v2 and the 2026 prospective stage
+**Pre-registration:** `docs/PROPS_V2_PREREGISTRATION.md`, committed (3a4d617) before any v2 code. v1 is frozen as evaluated;
+v2 is judged only on 2026 games, against v1.
+
+**Code:**
+- `lab/props/v2.py`: settings and the mean-correction layer.
+- `lab/props/sim.py`: `calibrate_v2` and `fit_gains`, plus per-kind `kappa_recv` / `kappa_rush`. With these keys absent, v1 is
+  bit-identical; a test checks this.
+- `lab/props/tune_v2.py`: the 2022 tuning grid.
+- `lab/props/game.py`: shared per-game inputs, baseline B and quantile CRPS.
+- `lab/props/weekly.py`: the weekly archive.
+
+### Tuned values (2022 development season only; sub-models 2016–21; 136 games; `artifacts/props/v2_tuning/selection.json`)
+| Fix | Setting | Value |
+|---|---|---|
+| 1(a) gain correction (training seasons) | yards per completion / per carry multipliers | 0.978 / 0.925 (neutral sim was 11.37 vs real 11.24 per completion, 4.72 vs 4.45 per carry) |
+| 1(a) | red-zone boost refit | 0.996 (v1 0.824) |
+| 1(b) per-stat mean correction | passing / rushing / receiving yards / receptions | 0.940 / 1.043 / 0.974 / 0.965 |
+| 2 verified calibration | games missing implied points by > 2 | 0 of 136 (median 0.18, worst 0.94) |
+| 3 dispersion | sigma_e / kappa_recv / kappa_rush | 0.25 / 30 / 10 |
+
+**Implementation notes, recorded honestly:**
+- Scaled gains are rounded to whole yards. Unrounded, a 0.998 multiplier turns 10-yard gains into 9.98, which fails 10-to-go
+  conversions and drops neutral points from 23.0 to 19.6. That bug was caught in the first tuning attempt and fixed before
+  any selection.
+- After fix 1(a), the red-zone boost reaches its cap (1.0), so neutral points sit slightly below training. Market calibration
+  sets every game's points anyway.
+- **Selection:**
+  - The lowest-CRPS point (sigma_e 0.25, kappa_rush 30; CRPS 13.655) and the pick (13.662) tied within 0.5%. The pick is
+    closer to 0.80 coverage on all four stats.
+  - Its 2022 80% coverage after correction is 0.80 / 0.81 / 0.82 / 0.81 (passing / receptions / receiving / rushing).
+  - kappa_recv stayed at v1's 30, so the 2023–25 receiving width (0.85–0.89) is not addressed by share noise. Raising
+    kappa_recv was worse on 2022 CRPS.
+- These 2022 numbers are tuning, not evidence.
+
+### Weekly command (manual; the pinned scheduler and Windows task are unchanged)
+```
+python -m lab.props.weekly                     # coming week, unstarted games only (best run after inactives, ~90 min before kickoff)
+python -m lab.props.weekly archive --week 7 --game 2026_07_NE_CHI
+python -m lab.props.weekly score               # after games are final AND play-by-play is refreshed
+python -m lab.props.weekly summary             # interim, descriptive
+```
+- **Archive:** `artifacts/props/prospective/<season>_w<week>/<game_id>.parquet` with v1, v2 and baseline-B mean plus
+  quantiles 1–99% per eligible player-stat, and a `.json` sidecar (lines, availability rule per team, QB, commit, SHA-256).
+  Files are created exclusively and never overwritten.
+- **Scores:** `artifacts/props/prospective/scores/<game_id>.parquet`, written once.
+- **Availability:**
+  - The ACT roster once that team's inactives are published.
+  - Otherwise ACT minus injury-report Out (Doubtful and Questionable stay in).
+  - With no roster rows for that week, the latest earlier roster minus Out.
+
+  Each team's rule is recorded per game. Running closer to kickoff gets the better rule.
+- **Dashboard:** Blind-spot research → "Player props simulator" → "2026 prospective archive".
+- **First archive (2026-10-18):** `2026_06_DAL_GB` was archived before kickoff with v1 and baseline B only; v2 had not been
+  tuned yet. It is excluded from the paired v2-vs-v1 test. `2026_06_WAS_SF` (Monday) is left for Travis to archive after the
+  inactives are out.

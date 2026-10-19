@@ -802,6 +802,26 @@ def _blindspot_research():
                     st.write("QB-WR1 correlation and team points", {"correlation": a_["correlation_qb_wr1"], "points": a_["team_points"]})
                 elif tag == "eval":
                     st.info("Evaluation not run yet: python -m lab.props.evaluate eval (several hours; Travis starts it).")
+            st.subheader("2026 prospective archive: v1 vs v2")
+            st.caption("Pre-registered in docs/PROPS_V2_PREREGISTRATION.md. Pregame quantiles archived by hand "
+                       "(python -m lab.props.weekly, then python -m lab.props.weekly score). The v2-vs-v1 test is taken once, after "
+                       "week 18; the numbers below are interim and descriptive only.")
+            from lab.props import weekly as PW
+            sel_f = PE.OUT / "v2_tuning" / "selection.json"
+            if sel_f.exists():
+                sel_ = _json.loads(sel_f.read_text())
+                st.write("v2 settings (tuned on 2022 only)", {"dispersion": sel_["selected"], "mean_corr": sel_["selected_mean_corr"],
+                                                              "fix_1a": sel_.get("fix_1a"), "calibration_2022": sel_["calibration_v2"]})
+            sm_ = PW.summary()
+            st.write(f"Archived games: **{sm_['archived_games']}**, scored: **{sm_['scored_games']}**")
+            arch_ = sorted(PW.OUT.glob(f"{PW.SEASON}_w*/*.json"))
+            if arch_:
+                st.dataframe(pd.DataFrame([{k: m_.get(k) for k in ("game_id", "created_utc", "kickoff_et", "versions", "availability", "commit")}
+                                           for m_ in (_json.loads(f.read_text()) for f in arch_)]).astype(str),
+                             hide_index=True, use_container_width=True)
+            if "by_version_stat" in sm_:
+                st.dataframe(sm_["by_version_stat"].round(3), hide_index=True, use_container_width=True)
+                st.write("Paired v2 - v1 CRPS (interim, descriptive)", sm_.get("paired_v2_minus_v1"))
         with tabs[9]:
             from lab import ngs87 as N87
             u = N87.load()

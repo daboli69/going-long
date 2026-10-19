@@ -122,6 +122,8 @@ def fit(train_seasons, kick_season=None) -> dict:
     # red zone: exact-yardline empirical gains (goal-line truncation makes coarse bins undercount touchdowns)
     T["rz_rush"] = {y: runs.loc[runs["yardline_100"] == y, "yards_gained"].to_numpy(float) for y in range(1, 21)}
     T["rz_pass"] = {y: comp.loc[comp["yardline_100"] == y, "yards_gained"].to_numpy(float) for y in range(1, 21)}
+    T["real_yds_per_comp"] = float(comp["yards_gained"].mean())           # v2 fix 1(a) targets (training seasons only)
+    T["real_yds_per_carry"] = float(np.nanmean(rv))
     T["sack_vals"] = dbk.loc[dbk["sack"] == 1, "yards_gained"].fillna(-7).to_numpy(float)
     T["fum_comp"] = float(comp["fumble_lost"].mean())
     T["fum_run"] = float(runs["fumble_lost"].mean())

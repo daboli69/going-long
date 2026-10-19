@@ -65,8 +65,9 @@ def simulate(T: dict, teams: list, players: dict, n: int, e, rng, record=True, d
     for s_ in (0, 1):
         for key in ("recv", "rush"):
             base = np.diff(np.r_[0.0, teams[s_][f"{key}_cum"]])
-            if T.get("kappa", 0) > 0 and len(base) > 1:
-                shares[(s_, key)] = np.cumsum(rng.dirichlet(np.maximum(base, 1e-3) * T["kappa"], n), 1)
+            kap = T.get(f"kappa_{key}", T.get("kappa", 0))       # v2: per-kind concentration; v1: one kappa
+            if kap > 0 and len(base) > 1:
+                shares[(s_, key)] = np.cumsum(rng.dirichlet(np.maximum(base, 1e-3) * kap, n), 1)
             else:
                 shares[(s_, key)] = np.repeat(teams[s_][f"{key}_cum"][None, :], n, 0)
     poss = rng.integers(0, 2, n)
@@ -118,11 +119,15 @@ def simulate(T: dict, teams: list, players: dict, n: int, e, rng, record=True, d
         inc = att & (outc == 1)
         yacb = _cat(_tilt(T["yac"][airb * 7 + b_yl(yl)], eo, YAC_G), u[5])
         gp = airv + _vals(rng, T["yac_vals"], yacb)
+        if T.get("g_comp", 1.0) != 1.0:                                   # v2 fix 1(a); whole yards so conversions stay exact
+            gp = np.round(gp * T["g_comp"])
         # run
         ru = _choose_sim(rng, off, teams, shares, "rush")
         wu = players["w_rush"][ru][:, None]
         rb = _cat(_tilt((1 - wu) * T["rush"][sidx] + wu * players["dist_rush"][ru], eo, RUSH_G), u[6])
         rv = _vals(rng, T["rush_vals"], rb)
+        if T.get("g_rush", 1.0) != 1.0:
+            rv = np.round(rv * T["g_rush"])
         for y_ in np.unique(yl[alive & (yl <= 20)]).astype(int):
             mk = alive & (yl.astype(int) == y_)
             for arr, tgt in ((T["rz_rush"].get(y_), "r"), (T["rz_pass"].get(y_), "p")):
@@ -157,6 +162,8 @@ def simulate(T: dict, teams: list, players: dict, n: int, e, rng, record=True, d
                          ("fga", fg), ("fgm", fgm), ("punt", punt), ("pen", pen), ("sack", sack), ("go4", is4 & play)):
                 diag[k] = diag.get(k, 0) + int(v.sum())
             diag["yds"] = diag.get("yds", 0.0) + float(gain[play | pen].sum())
+            diag["comp_yds"] = diag.get("comp_yds", 0.0) + float(gain[comp].sum())
+            diag["run_yds"] = diag.get("run_yds", 0.0) + float(gain[isr].sum())
             new_rz = alive & ~rz & (yl <= 20)
             rz |= new_rz
             diag["rz_trips"] = diag.get("rz_trips", 0) + int(new_rz.sum())
@@ -216,25 +223,51 @@ def simulate(T: dict, teams: list, players: dict, n: int, e, rng, record=True, d
     return {"points": score, "stats": st}
 
 
-def calibrate_clock(T, n=3000, iters=3, seed=11):
-    """Training-data structural calibration at neutral strength (e = 0):
-    clock scale -> scrimmage plays per team; red-zone finishing boost -> points per team."""
+def neutral_game():
     P = 4
     pl = {"w_recv": np.zeros(P), "dist_recv": np.full((P, 7), 1 / 7), "coff": np.zeros(P), "w_rush": np.zeros(P), "dist_rush": np.full((P, 7), 1 / 7)}
     tm = [{"pass_off": 0.0, "recv_cols": np.array([0]), "recv_cum": np.array([1.0]), "rush_cols": np.array([1]), "rush_cum": np.array([1.0]), "qb_col": 1},
           {"pass_off": 0.0, "recv_cols": np.array([2]), "recv_cum": np.array([1.0]), "rush_cols": np.array([3]), "rush_cum": np.array([1.0]), "qb_col": 3}]
-    for _ in range(iters):
-        d = {}
-        simulate(T, tm, pl, n, [0, 0], np.random.default_rng(seed), record=False, diag=d)
-        sim_plays = (d["pass"] + d["run"]) / n / 2
-        T["clock_scale"] *= sim_plays / T["real_scrimmage_per_team"]
+    return tm, pl
+
+
+def fit_rz_boost(T, n=3000, seed=11):
+    tm, pl = neutral_game()
     lo, hi = 0.0, 1.0
     for _ in range(7):
         T["rz_boost"] = (lo + hi) / 2
         pts = simulate(T, tm, pl, n, [0, 0], np.random.default_rng(seed), record=False)["points"].mean()
         lo, hi = (T["rz_boost"], hi) if pts < T["real_points_per_team"] else (lo, T["rz_boost"])
     T["rz_boost"] = (lo + hi) / 2
+    return T["rz_boost"]
+
+
+def calibrate_clock(T, n=3000, iters=3, seed=11):
+    """Training-data structural calibration at neutral strength (e = 0):
+    clock scale -> scrimmage plays per team; red-zone finishing boost -> points per team."""
+    tm, pl = neutral_game()
+    for _ in range(iters):
+        d = {}
+        simulate(T, tm, pl, n, [0, 0], np.random.default_rng(seed), record=False, diag=d)
+        sim_plays = (d["pass"] + d["run"]) / n / 2
+        T["clock_scale"] *= sim_plays / T["real_scrimmage_per_team"]
+    fit_rz_boost(T, n, seed)
     return T["clock_scale"], T["rz_boost"]
+
+
+def fit_gains(T, n=3000, rounds=2, seed=11):
+    """v2 fix 1(a): scale completion / carry gains (outside the red zone) so neutral simulated yards per completion and per
+    carry match the training seasons; then refit the red-zone boost so neutral points still match training points."""
+    tm, pl = neutral_game()
+    T.setdefault("g_comp", 1.0)
+    T.setdefault("g_rush", 1.0)
+    for _ in range(rounds):
+        d = {}
+        simulate(T, tm, pl, n, [0, 0], np.random.default_rng(seed), record=False, diag=d)
+        T["g_comp"] *= T["real_yds_per_comp"] / (d["comp_yds"] / d["comp"])
+        T["g_rush"] *= T["real_yds_per_carry"] / (d["run_yds"] / d["run"])
+    fit_rz_boost(T, n, seed)
+    return T["g_comp"], T["g_rush"], T["rz_boost"]
 
 
 def calibrate(T, teams, players, targets, rng, n=2000, iters=6):
@@ -253,3 +286,25 @@ def calibrate(T, teams, players, targets, rng, n=2000, iters=6):
         prev = (e.copy(), pts)
         e = np.clip(e + (np.asarray(targets) - pts) / slope, -2.0, 2.0)
     return e, pts
+
+
+def calibrate_v2(T, teams, players, targets, rng, n=2000, iters=8):
+    """v2 fix 2: the same secant search, but every update is re-simulated and the best evaluated iterate is returned
+    (smallest worst-side miss), so the final step is never unverified."""
+    seed = int(rng.integers(0, 2**31))
+    tgt = np.asarray(targets, float)
+    e = np.zeros(2)
+    slope = np.array([10.0, 10.0])
+    prev, best = None, None
+    for _ in range(iters + 1):
+        pts = simulate(T, teams, players, n, e, np.random.default_rng(seed), record=False)["points"].mean(0)
+        miss = float(np.max(np.abs(pts - tgt)))
+        if best is None or miss < best[2]:
+            best = (e.copy(), pts, miss)
+        if prev is not None:
+            de, dp = e - prev[0], pts - prev[1]
+            ok = np.abs(de) > 1e-3
+            slope[ok] = np.clip(dp[ok] / de[ok], 5.0, 30.0)
+        prev = (e.copy(), pts)
+        e = np.clip(e + (tgt - pts) / slope, -2.0, 2.0)
+    return best[0], best[1]
