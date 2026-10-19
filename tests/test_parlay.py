@@ -44,6 +44,10 @@ class ParlayTests(unittest.TestCase):
         groups = props_query_plan([], 'markets')
         self.assertEqual(len(groups), 9)
         self.assertEqual(sorted(market for group in groups for market in group), sorted(GROUPS))
+        self.assertIn(['first_td'], groups)
+        for suffix in ('_1h', '_1q'):
+            self.assertIn([market for market in GROUPS if market.endswith(suffix)], groups)
+        self.assertIn(['pass_tds', 'rush_tds', 'rec_tds'], groups)
         def get(sport, endpoint, params, key, **kwargs):
             if endpoint != 'props':
                 return ProviderRows()
