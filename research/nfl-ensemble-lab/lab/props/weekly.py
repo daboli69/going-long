@@ -253,6 +253,34 @@ def load_scores(out=OUT) -> pd.DataFrame:
     return pd.concat([pd.read_parquet(f) for f in fs], ignore_index=True) if fs else pd.DataFrame()
 
 
+STAT_LABEL = {"pass_yds": "Passing yards", "rush_yds": "Rushing yards", "rec_yds": "Receiving yards", "rec": "Receptions"}
+
+
+def load_archive(out=OUT, season=SEASON) -> pd.DataFrame:
+    fs = sorted(out.glob(f"{season}_w*/*.parquet"))
+    return pd.concat([pd.read_parquet(f) for f in fs], ignore_index=True) if fs else pd.DataFrame()
+
+
+def projection_table(arch: pd.DataFrame, scores: pd.DataFrame | None = None) -> pd.DataFrame:
+    """One row per offensive player-stat of one game: median / mean / 80% range per version, plus the actual once scored."""
+    out = arch[["team", "pid", "name", "stat"]].drop_duplicates().set_index(["team", "pid", "name", "stat"])
+    for v, lab in (("v2", "v2"), ("v1", "v1"), ("base", "Baseline")):
+        s = arch[arch["version"] == v].set_index(["team", "pid", "name", "stat"])
+        if not len(s):
+            continue
+        out[f"{lab} median"] = s["q50"]
+        out[f"{lab} mean"] = s["mean"]
+        if v != "base":
+            out[f"{lab} 10-90%"] = s["q10"].round(1).astype(str) + " - " + s["q90"].round(1).astype(str)
+    out = out.reset_index()
+    if scores is not None and len(scores):
+        act = scores.drop_duplicates(["game_id", "pid", "stat"])
+        act = act[act["game_id"].isin(arch["game_id"].unique())][["pid", "stat", "actual"]]
+        out = out.merge(act.rename(columns={"actual": "Actual"}), on=["pid", "stat"], how="left")
+    out["stat"] = pd.Categorical(out["stat"].map(STAT_LABEL), list(STAT_LABEL.values()))
+    return out.sort_values(["team", "stat", "name"]).drop(columns="pid").rename(columns={"team": "Team", "name": "Player", "stat": "Stat"})
+
+
 def summary(out=OUT) -> dict:
     """Descriptive interim numbers only; the pre-registered v2-vs-v1 test is taken once, after week 18."""
     arch = sorted(out.glob(f"{SEASON}_w*/*.json"))

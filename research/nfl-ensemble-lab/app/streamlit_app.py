@@ -814,6 +814,18 @@ def _blindspot_research():
                                                               "fix_1a": sel_.get("fix_1a"), "calibration_2022": sel_["calibration_v2"]})
             sm_ = PW.summary()
             st.write(f"Archived games: **{sm_['archived_games']}**, scored: **{sm_['scored_games']}**")
+            ar_ = PW.load_archive()
+            if len(ar_):
+                st.markdown("**Player projections by game (offense)**")
+                st.caption("Pregame archived distributions for every archived game of the week. Players shown: starting QB, receivers "
+                           "with >= 10% of targets, rushers with >= 20% of carries. Median = the middle outcome; 10-90% = the range "
+                           "8 times in 10. Distribution quality is tested; betting value is not.")
+                wks_ = sorted(ar_["week"].unique())
+                wk_ = st.selectbox("Week", wks_, index=len(wks_) - 1, key="props_week")
+                sc_ = PW.load_scores()
+                for gm_ in sorted(ar_.loc[ar_["week"] == wk_, "game_id"].unique()):
+                    st.markdown(f"**{gm_.split('_')[2]} @ {gm_.split('_')[3]}**")
+                    st.dataframe(PW.projection_table(ar_[ar_["game_id"] == gm_], sc_).round(1), hide_index=True, use_container_width=True)
             arch_ = sorted(PW.OUT.glob(f"{PW.SEASON}_w*/*.json"))
             if arch_:
                 st.dataframe(pd.DataFrame([{k: m_.get(k) for k in ("game_id", "created_utc", "kickoff_et", "versions", "availability", "commit")}

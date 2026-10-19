@@ -122,6 +122,15 @@ class TestWeekly(unittest.TestCase):
         self.assertEqual(r["archived"], [])
         self.assertEqual(dict(r["skipped"]), {"g1": "kicked off", "g2": "no spread/total yet"})
 
+    def test_projection_table(self):
+        q = {c: v for c, v in zip(G.QCOLS, np.linspace(10, 108, 99))}             # q50 = 59, q10 = 19, q90 = 99
+        arch = pd.DataFrame([{"game_id": "g1", "team": "A", "pid": "wr", "name": "W R", "stat": "rec_yds", "version": v, "mean": 60.0, **q}
+                             for v in ("v1", "v2", "base")])
+        t = W.projection_table(arch, pd.DataFrame({"game_id": ["g1"], "pid": ["wr"], "stat": ["rec_yds"], "actual": [71.0]}))
+        r = t.iloc[0]
+        self.assertEqual((r["Player"], r["Stat"], r["v2 median"], r["Actual"]), ("W R", "Receiving yards", 59.0, 71.0))
+        self.assertEqual(r["v1 10-90%"], "19.0 - 99.0")
+
     def test_actuals_and_score_once(self):
         p = pd.DataFrame({"game_id": ["g1"] * 4, "qtr": [1, 2, 4, 5], "play_type": ["pass", "run", "pass", "pass"],
                           "two_point_attempt": 0, "qb_kneel": 0, "qb_spike": 0, "sack": 0, "complete_pass": [1, 0, 1, 1],
