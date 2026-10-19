@@ -14,6 +14,10 @@ import re
 import tempfile
 import urllib.request
 from datetime import datetime, timezone, timedelta
+if __package__:
+    from .github_release_metadata import release_metadata
+else:
+    from github_release_metadata import release_metadata
 
 ROOT = Path(__file__).resolve().parents[1]
 URL = 'https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_{season}.csv'
@@ -110,7 +114,7 @@ def main():
     args = parser.parse_args()
     try:
         name = f'stats_player_week_{args.season}.csv'
-        assets = json.loads(get(API))['assets']
+        assets = release_metadata('stats_player')['assets']
         matching = [a for a in assets if a.get('name') == name]
         if len(matching) != 1:
             raise ValueError('No unique official weekly player asset')

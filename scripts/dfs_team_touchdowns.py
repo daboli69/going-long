@@ -27,6 +27,10 @@ import sys
 import tempfile
 import urllib.request
 from datetime import datetime, timezone
+if __package__:
+    from .github_release_metadata import release_metadata
+else:
+    from github_release_metadata import release_metadata
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 RELEASE_API = 'https://api.github.com/repos/nflverse/nflverse-data/releases/tags/stats_team'
@@ -103,7 +107,7 @@ def _get(url, accept=None):
 
 def release_updated_at(season):
     name = f'stats_team_week_{season}.csv'
-    meta = json.loads(_get(RELEASE_API, 'application/vnd.github+json'))
+    meta = release_metadata('stats_team')
     for asset in meta.get('assets', []):
         if asset.get('name') == name and asset.get('updated_at'):
             return asset['updated_at']
