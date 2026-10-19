@@ -15,7 +15,7 @@ const definitions = [
   {name: 'Games', type: 'game', columns: [
     ['Game','game_id',27], ['Market','stat',12], ['Independent','projection',15], ['Spread','spread_display',16],
     ['10%','q10',12], ['50%','q50',12], ['90%','q90',12], ['Simulation independent','sim_independent_projection',19],
-    ['Simulation market anchor','simulator_v1_projection',20], ['Market line','market_line',14], ['P cover / over','p_over',15],
+    ['Simulation market anchor','market_anchored_projection',20], ['Market line','market_line',14], ['P cover / over','p_over',15],
     ['Projection gap','gap',16], ['Line status','line_status',18]]},
   {name: 'Players', type: 'player', columns: [
     ['Game','game_id',27], ['Team','team',10], ['Player','name',25], ['Stat','stat',15], ['Independent','projection',15],
@@ -49,6 +49,7 @@ for (const definition of definitions) {
   sheet.getRange('A3').values = [[`Unpromoted shadow forecasts. Training cutoff: ${data.training_cutoff_date}.`]];
   sheet.getRange('A4').values = [[definition.type === 'first_td'
     ? 'First offensive rushing/receiving TD. Passing, defensive and special-teams TDs excluded.'
+    : definition.type === 'player' ? 'Regulation-only player targets. Source: archived forecasts and timestamped local GOING quotes.'
     : 'Source: archived lab forecasts and timestamped local GOING quotes. Market lines are benchmarks.']];
   sheet.getRange('A3:A4').format.font = {name:'Arial',size:10,color:'#526271'};
   const headers = definition.columns.map(c=>c[0]);
@@ -69,7 +70,7 @@ for (const definition of definitions) {
     const column = sheet.getRangeByIndexes(5,j,matrix.length,1);
     column.format.columnWidth = width;
     if (rows.length && ['projection','member_min','member_max','q10','q50','q90','market_line','gap',
-                       'sim_independent_projection','simulator_v1_projection','market_informed_projection'].includes(key)) {
+                       'sim_independent_projection','market_anchored_projection','market_informed_projection'].includes(key)) {
       sheet.getRangeByIndexes(6,j,rows.length,1).setNumberFormat('0.0');
     }
     if (rows.length && (key.startsWith('p_') || key === 'market_probability' || key === 'structural_probability' ||
@@ -81,6 +82,13 @@ for (const definition of definitions) {
         text:'stale',format:{fill:'#FFF0C2',font:{color:'#765400',bold:true}}});
     }
   });
+  if (definition.type === 'player') {
+    rows.forEach((row,i) => {
+      if (row.stat === 'anytime_td') {
+        for (const column of [4,5,6,13,17]) sheet.getRangeByIndexes(i+6,column,1,1).setNumberFormat('0.0%');
+      }
+    });
+  }
   if (rows.length) {
     const table = sheet.tables.add(`A6:${String.fromCharCode(64+headers.length)}${rows.length+6}`, true,
                                    `Projections${definition.name.replaceAll(' ','')}`);

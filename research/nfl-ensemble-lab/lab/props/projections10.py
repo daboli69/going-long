@@ -58,7 +58,7 @@ def distribution(row, development, structural, n=1000):
     stat = row["stat"]
     pools = []
     if stat == "anytime_td":
-        return rng.binomial(1, float(row["equal"]), n), "calibrated binary ensemble probability"
+        return rng.binomial(1, float(row["equal"]), n), "Bernoulli outcome quantiles; ensemble projection is the TD probability, not a probability confidence interval"
     for member in row["members"].split(","):
         if member in ("sim_independent", "simulator_v1"):
             match = structural[(structural["game_id"] == row["game_id"]) & (structural["pid"] == row["pid"])
@@ -119,6 +119,12 @@ def forecast(week=None, season=2026, log=print):
     market = chronological_combinations(learned, previous=development, variant="market-informed")
     market_values = market.set_index(["game_id", "pid", "stat"])["equal"]
     lines = archived_lines(asof=now)
+    if len(lines):
+        quote_kickoffs = pd.to_datetime(lines["kickoff"], utc=True, errors="coerce", format="mixed")
+        # Historical archives can contain nearly a million rows. Filter to the
+        # actual upcoming horizon once before per-player/book matching.
+        lines = lines[(quote_kickoffs >= upcoming["kickoff_utc"].min() - pd.Timedelta(minutes=15)) &
+                      (quote_kickoffs <= upcoming["kickoff_utc"].max() + pd.Timedelta(minutes=15))].copy()
     game_lines = local_game_lines(upcoming, now)
     anchor = IndependentAnchor().fit(games)
     rows, archived, errors = [], [], []
@@ -161,8 +167,10 @@ def forecast(week=None, season=2026, log=print):
                     r["probability_source"] = "independent structural distribution; strict cover/over; pushes separate"
                 for mode in ("sim_independent", "simulator_v1"):
                     if mode in simulations:
-                        r[mode + "_projection"] = simulations[mode][stat + "_mean"]
-                        r[mode + "_q10_50_90"] = simulations[mode][stat + "_q10_50_90"]
+                        label = "market_anchored" if mode == "simulator_v1" else mode
+                        r[label + "_projection"] = simulations[mode][stat + "_mean"]
+                        r[label + "_q10_50_90"] = simulations[mode][stat + "_q10_50_90"]
+                r["structural_fit"] = "frozen v1 engine with separate Phase10 recent weighted tables; original v1 evaluation unchanged"
                 game_rows.append(r)
             for row in combined[combined["game_id"] == game.game_id].to_dict("records"):
                 samples, source = distribution(row, development, structural)
@@ -175,6 +183,8 @@ def forecast(week=None, season=2026, log=print):
                     "q90": float(q[2]), "interval_source": source, "calibration": row["calibration"],
                     "market_informed_projection": float(market_values.loc[(game.game_id, row["pid"], row["stat"])]),
                     "training_cutoff_date": fit["training_cutoff_date"], "market_line": None, "line_status": "unavailable"}
+                base["scope"] = "regulation-only player targets; no overtime"
+                base["member_projections"] = {k: float(row[k]) for k in row["members"].split(",")}
                 if row["stat"] == "anytime_td":
                     agreement = vote({k: float(row[k]) for k in row["members"].split(",")})
                     base["agreement_description"] = f"{agreement['home_votes']} of {agreement['n_models']} members above 50% TD probability; descriptive only"
@@ -193,6 +203,7 @@ def forecast(week=None, season=2026, log=print):
                         r = base | {"market_line": line_value, "book": line["book"], "quote_time": line["quote_time"],
                             "line_status": line["line_status"], "line_age_hours": line["line_age_hours"], "dfs": line["dfs"],
                             "over_odds": line["over_odds"], "under_odds": line["under_odds"], "market_archive": line["archive"]}
+                        r["identity_mapping_source"] = line.get("identity_mapping_source")
                         if line_value is not None and np.isfinite(line_value):
                             r.update(probability_summary(samples, float(line_value)))
                             r["gap"] = base["projection"] - float(line_value)
@@ -237,6 +248,7 @@ def forecast(week=None, season=2026, log=print):
                 "kickoff": game.kickoff_utc.isoformat(), "training_cutoff_date": fit["training_cutoff_date"],
                 "training_last_completed_week": fit["training_last_completed_week"], "frozen_config_sha256": config["config_sha256"],
                 "code_revision": revision, "status": "unpromoted shadow reference; historical primary comparison blocked",
+                "scope": "player targets/simulations regulation-only; defensive/special-teams TDs excluded; independent game heads fit final scores",
                 "feature_cutoff": now.isoformat(), "rows": json.loads(pd.DataFrame(game_rows).to_json(orient="records"))}
             payload["rows_sha256"] = hashlib.sha256(json.dumps(payload["rows"], sort_keys=True).encode()).hexdigest()
             with archive_path.open("x", encoding="utf-8") as fh:

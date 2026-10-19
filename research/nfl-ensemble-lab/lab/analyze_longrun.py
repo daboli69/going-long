@@ -42,7 +42,7 @@ def _params(t, groups) -> dict:
     return p
 
 
-def analyze(job_id: str, top_k: int = 25, progress=print) -> dict:
+def analyze(job_id: str, top_k: int = 25, progress=print, record=True, max_candidates=None) -> dict:
     import optuna
     optuna.logging.set_verbosity(optuna.logging.WARNING)
     job = Job(job_id)
@@ -194,8 +194,11 @@ def analyze(job_id: str, top_k: int = 25, progress=print) -> dict:
                           "reason": "improves 2019-21 and holds on the 2022 check fold" if ok else
                           ("does not improve 2019-21" if r["gain_2019_21"] <= 0 else "gain disappears on the 2022 check fold")})
     cands = pd.DataFrame(cands).drop_duplicates("replaced")
+    if max_candidates is not None and len(cands) > max_candidates:
+        cands = cands.sort_values(["gain_2019_21", "gain_2022_check"], ascending=False).head(max_candidates)
     cands.to_csv(out_dir / "candidates.csv", index=False)
-    summary = {"job": job_id, "complete_trials": {f: int(len([t for t in optuna.load_study(study_name=f, storage=storage).trials
+    summary = {"job": job_id, "prospective_registry_updated": bool(record), "candidate_limit": max_candidates,
+               "complete_trials": {f: int(len([t for t in optuna.load_study(study_name=f, storage=storage).trials
                                                                 if t.state.name == "COMPLETE"])) for f in FAMILIES},
                "final_validation_look": final.get("validation_look"), "selection_configs": sel_cfg, "best_configs": best_cfg,
                "effective_models_champion_versions": eff([f"{f}|champion" for f in FAMILIES]),
@@ -203,11 +206,12 @@ def analyze(job_id: str, top_k: int = 25, progress=print) -> dict:
                "candidates": cands.to_dict("records"), "protocol": __doc__.split("Every selection decision")[1].strip()}
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     progress("analysis written to " + str(out_dir))
-    try:
-        from .prospective import record_considered
-        record_considered(job_id, cands.to_dict("records"))
-    except Exception:
-        pass
+    if record:
+        try:
+            from .prospective import record_considered
+            record_considered(job_id, cands.to_dict("records"))
+        except Exception:
+            pass
     return summary
 
 
@@ -225,5 +229,10 @@ def load(job_id: str) -> dict:
 
 
 if __name__ == "__main__":
-    import sys
-    analyze(sys.argv[1])
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("job")
+    parser.add_argument("--no-record", action="store_true", help="Write dev analysis only; do not register considered prospective configurations")
+    parser.add_argument("--max-candidates", type=int)
+    args = parser.parse_args()
+    analyze(args.job, record=not args.no_record, max_candidates=args.max_candidates)

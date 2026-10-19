@@ -42,6 +42,42 @@ the last fetched copy, then weather and official inactives in the T-90 window.
 The old automatic ESPN odds request is replaced by this local-file hook. This is
 development code only: the pinned release is not updated or activated here.
 
+## Shadow projections after the committed freeze
+
+```powershell
+# Fit the frozen statistical configuration with permitted recent data.
+.venv\Scripts\python.exe -m lab.props.ensemble.production --threads 7
+# Fit recent structural tables and archive unstarted games in the prepared horizon.
+.venv\Scripts\python.exe -m lab.props.ensemble.structural --season 2026 --production --sims 1000
+# Archive combined forecasts and write weekly CSV/Markdown sheets.
+.venv\Scripts\python.exe -m lab.props.weekly projections
+```
+
+The first command refuses to read 2023–25 player data until Amendment 1 and its
+runtime settings are committed. It trains through the last **fully completed**
+2026 week; a partial week is excluded. The recent fit is a local shadow artifact,
+not a champion promotion or a deployment. Every prospective JSON records the
+training cutoff date, frozen configuration hash, revision and pregame creation
+time. Existing forecast files are reused without alteration. The independent
+ensemble never includes the market-anchored member; that member appears only in
+the separately labelled market-informed comparison.
+
+`run_weekly_predictions.bat` writes these sheets after the existing winner report.
+CSV/Markdown work with the lab environment alone. A local Artifact Tool runtime
+can also export `.xlsx` using `scripts/projections_xlsx.mjs` when
+`NFL_LAB_ARTIFACT_NODE` names its Node executable and `NFL_LAB_ARTIFACT_WORKSPACE`
+names a directory with a `node_modules` junction to the provided runtime. No
+package download or service is used by the exporter. The CSV retains every
+book-line comparison; the first-TD Excel view deduplicates player/game rows so
+its categorical probabilities can be summed without counting books twice.
+
+Yard intervals include an explicit quantile-head view and an equal-member mixture
+view. Learned-member predictive samples use centered 2022 out-of-fold residuals
+for yards and Poisson rate approximations for counts; structural distributions
+come from simulated plays. These are experimental distribution assumptions,
+not a guarantee of calibrated coverage. Probability pushes are separate from
+strict over/under/cover events. Member agreement is descriptive, never a probability.
+
 ## Exact Windows Task Scheduler steps (manual review required)
 
 1. Keep the existing pinned forecast task as-is until the development changes are

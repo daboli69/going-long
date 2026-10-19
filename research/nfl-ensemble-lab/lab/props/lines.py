@@ -45,16 +45,21 @@ def player_label(label):
     return name, period, team
 
 
-def player_map(players=None):
+def player_map(players=None, eligible_ids=None):
     """Only exact normalized full-name aliases in existing map; ambiguous names stay unmatched."""
     players = pd.read_parquet(RAW_DIR / "players.parquet") if players is None else players
+    if eligible_ids is not None:
+        players = players[players["gsis_id"].isin(eligible_ids)]
     mapping = defaultdict(set)
     for r in players.dropna(subset=["gsis_id"]).to_dict("records"):
-        for key in ("display_name", "football_name"):
-            if isinstance(r.get(key), str):
-                mapping[normalized_name(r[key])].add(r["gsis_id"])
-        if isinstance(r.get("first_name"), str) and isinstance(r.get("last_name"), str):
-            mapping[normalized_name(r["first_name"] + " " + r["last_name"])].add(r["gsis_id"])
+        if isinstance(r.get("display_name"), str) and len(r["display_name"].split()) >= 2:
+            mapping[normalized_name(r["display_name"])].add(r["gsis_id"])
+        if isinstance(r.get("last_name"), str):
+            # nflverse football_name is a FIRST-name alias, not a full name.
+            # Never map a one-token quote to a player just because it is unique.
+            for key in ("first_name", "common_first_name", "football_name"):
+                if isinstance(r.get(key), str):
+                    mapping[normalized_name(r[key] + " " + r["last_name"])].add(r["gsis_id"])
     return {k: next(iter(v)) for k, v in mapping.items() if len(v) == 1}
 
 
@@ -121,7 +126,8 @@ def archived_lines(*, root=ARCHIVE, asof=None):
     if (RAW_DIR / "players.parquet").exists():
         mapping = player_map()
         recovered = labels.map(lambda x: mapping.get(normalized_name(x[0])))
-        frame["gsis_id"] = frame["gsis_id"].fillna(recovered)
+        frame["gsis_id"] = recovered
+        frame["identity_mapping_source"] = "existing full-name player-map alias"
     frame["player_raw"] = frame["player_raw"].fillna(frame["player"]) if "player_raw" in frame else frame["player"]
     frame["player"] = labels.map(lambda x: x[0])
     q = pd.to_datetime(frame["quote_time"], utc=True, errors="coerce", format="mixed")
@@ -130,6 +136,20 @@ def archived_lines(*, root=ARCHIVE, asof=None):
     frame["pregame_verified"] = q.notna() & av.notna() & ko.notna() & (q <= av) & (av < ko) & ~frame["in_play"]
     frame["timestamp_class"] = frame["pregame_verified"].map({True: "T1", False: "unverified"})
     decision = pd.Timestamp.now(tz="UTC") if asof is None else pd.Timestamp(asof)
+    roster_path = RAW_DIR / "roster_weekly_2026.parquet"
+    if asof is not None and roster_path.exists() and (RAW_DIR / "players.parquet").exists():
+        observed = pd.Timestamp(roster_path.stat().st_mtime, unit="s", tz="UTC")
+        if observed <= decision:
+            roster = pd.read_parquet(roster_path, columns=["gsis_id", "status", "team"])
+            # A unique exact alias within the as-of 2026 roster resolves retired
+            # namesakes. No fuzzy spelling, initials or position guesses.
+            ids = set(roster.loc[roster["status"] == "ACT", "gsis_id"].dropna())
+            live_map = player_map(eligible_ids=ids)
+            mapped = labels.map(lambda x: live_map.get(normalized_name(x[0])))
+            valid = frame["gsis_id"].isna() & (ko > decision) & ko.dt.year.eq(2026) & mapped.notna()
+            frame.loc[valid, "gsis_id"] = mapped[valid]
+            frame.loc[valid, "identity_mapping_source"] = "unique exact full-name alias among locally observed 2026 ACT roster IDs"
+            frame.loc[valid, "identity_roster_observed_at"] = observed.isoformat()
     frame["line_age_hours"] = (decision - q).dt.total_seconds() / 3600
     frame["line_status"] = "current"
     frame.loc[frame["line_age_hours"] > 24, "line_status"] = "stale"

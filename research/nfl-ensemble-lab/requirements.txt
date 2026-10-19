@@ -9,6 +9,7 @@ torch==2.5.1
 streamlit==1.40.2
 openpyxl==3.1.5
 joblib==1.4.2
+beautifulsoup4==4.12.3  # read-only reuse of GOING's official inactive-list parser
 pytest==8.3.4
 optuna==4.1.0
 psutil==6.1.0

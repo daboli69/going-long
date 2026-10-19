@@ -72,6 +72,16 @@ def test_explicit_team_and_period_labels_never_become_full_game_lines(quotes):
     assert rows[0]["player_raw"] == "Test Player (CHI) - 1H"
 
 
+def test_first_name_alias_is_not_a_full_player_identity():
+    mapping = player_map(pd.DataFrame([{"gsis_id": "p", "display_name": "William Fixture", "football_name": "Will",
+                                       "first_name": "William", "last_name": "Fixture"}]))
+    assert mapping["willfixture"] == "p"
+    assert "will" not in mapping
+    players = pd.DataFrame([{"gsis_id": "old", "display_name": "Same Name"}, {"gsis_id": "current", "display_name": "Same Name"}])
+    assert "samename" not in player_map(players)
+    assert player_map(players, eligible_ids={"current"})["samename"] == "current"
+
+
 def test_weather_archives_every_pull(tmp_path, monkeypatch):
     from lab import archive10, geo, prospective
     original = save

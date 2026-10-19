@@ -29,7 +29,10 @@ def clustered_difference(game_ids, difference, boot=2000):
     sampled = rng.integers(0, len(group), (boot, len(group)))
     means = group["sum"].to_numpy()[sampled].sum(1) / group["size"].to_numpy()[sampled].sum(1)
     ci = np.quantile(means, [.025, .975]).tolist()
-    return {"n": len(d), "games": len(group), "difference": float(d["difference"].mean()), "ci95": ci}
+    observed = float(d["difference"].mean())
+    p = float((np.sum((means - observed) <= observed) + 1) / (boot + 1))
+    return {"n": len(d), "games": len(group), "difference": observed, "ci95": ci,
+            "p_improvement_one_sided": p}
 
 
 def analyze():
