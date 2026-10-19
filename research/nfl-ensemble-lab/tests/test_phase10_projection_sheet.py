@@ -5,6 +5,33 @@ import pytest
 from lab.props.projections10 import probability_summary, price_gap, matching_lines
 
 
+def test_binary_td_count_contract_is_unavailable_not_zero_probability():
+    from lab.props.projections10 import binary_contract_corrections
+    frame = pd.DataFrame([{"stat": "anytime_td", "market_line": 1.5, "projection": .38, "p_over": 0., "gap": -.12},
+                          {"stat": "anytime_td", "market_line": .5, "projection": .38, "p_over": .38, "gap": -.12}])
+    before = frame.copy(deep=True)
+    result, corrections = binary_contract_corrections(frame)
+    assert len(corrections) == 1
+    assert result.loc[0, "projection"] == .38
+    assert pd.isna(result.loc[0, "p_over"]) and pd.isna(result.loc[0, "gap"])
+    assert result.loc[1, "p_over"] == .38
+    pd.testing.assert_frame_equal(frame, before)
+
+
+def test_first_td_unknown_market_settlement_does_not_create_a_comparable_gap():
+    from lab.props.projections10 import first_td_contract_corrections
+    frame = pd.DataFrame([{"stat": "first_td", "book": "fixture", "projection": .12, "market_probability": .15, "gap": -.03},
+                          {"stat": "first_td", "book": None, "projection": .2},
+                          {"stat": "anytime_td", "book": "fixture", "projection": .4, "gap": .1}])
+    before = frame.copy(deep=True)
+    result, corrections = first_td_contract_corrections(frame)
+    assert len(corrections) == 1
+    assert result.loc[0, "projection"] == .12
+    assert pd.isna(result.loc[0, "gap"]) and pd.isna(result.loc[0, "market_probability"])
+    assert result.loc[1, "projection"] == .2 and result.loc[2, "gap"] == .1
+    pd.testing.assert_frame_equal(frame, before)
+
+
 def test_real_line_probability_pushes_are_separate():
     p = probability_summary([0, 1, 2, 3], 1)
     assert p == {"p_over": .5, "p_under": .25, "p_push": .25, "p_over_no_push": 2/3}

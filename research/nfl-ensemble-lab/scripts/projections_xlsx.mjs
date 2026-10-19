@@ -18,11 +18,11 @@ const definitions = [
     ['Simulation market anchor','market_anchored_projection',20], ['Market margin / total','market_line',18], ['P cover / over','p_over',15],
     ['Projection gap','gap',16], ['Line status','line_status',18]]},
   {name: 'Players', type: 'player', columns: [
-    ['Game','game_id',27], ['Team','team',10], ['Player','name',25], ['Stat','stat',15], ['Independent','projection',15],
+    ['Game','game_id',27], ['Team','team',10], ['Player','name',25], ['Book','book',18], ['Stat','stat',15], ['Independent','projection',15],
     ['Member min','member_min',14], ['Member max','member_max',14], ['10%','q10',12], ['50%','q50',12], ['90%','q90',12],
-    ['Market line','market_line',14], ['P over','p_over',13], ['P push','p_push',13], ['Gap','gap',13], ['Book','book',18],
+    ['Market line','market_line',14], ['P over','p_over',13], ['P push','p_push',13], ['Gap','gap',13],
     ['Line status','line_status',18], ['Market probability','market_probability',18], ['Market-informed','market_informed_projection',18],
-    ['Members','members',62], ['Interval method','interval_source',74]]},
+    ['Members','members',62], ['Interval method','interval_source',74], ['Benchmark scope','benchmark_scope_status',78]]},
   {name: 'First TD', type: 'first_td', columns: [
     ['Game','game_id',27], ['Team','team',10], ['Player','name',32], ['Ensemble-informed','projection',19],
     ['Structural','structural_probability',15], ['Book','book',18], ['Market probability','market_probability',19], ['Gap','gap',13],
@@ -52,6 +52,10 @@ for (const definition of definitions) {
     : definition.type === 'player' ? 'Regulation-only player targets. Source: archived forecasts and timestamped local GOING quotes.'
     : 'Margin intervals: home minus away. Source: archived forecasts and timestamped local GOING benchmarks.']];
   sheet.getRange('A3:A4').format.font = {name:'Arial',size:10,color:'#526271'};
+  if (definition.type === 'first_td') {
+    sheet.getRange('A5').values = [['Quote settlement is unverified for our offensive-only regulation target; price comparisons are unavailable.']];
+    sheet.getRange('A5').format.font = {name:'Arial',size:10,color:'#765400'};
+  }
   const headers = definition.columns.map(c=>c[0]);
   const matrix = [headers, ...rows.map(row => definition.columns.map(([,key]) => {
     const value = row[key];
@@ -85,7 +89,10 @@ for (const definition of definitions) {
   if (definition.type === 'player') {
     rows.forEach((row,i) => {
       if (row.stat === 'anytime_td') {
-        for (const column of [4,5,6,13,17]) sheet.getRangeByIndexes(i+6,column,1,1).setNumberFormat('0.0%');
+        for (const key of ['projection','member_min','member_max','gap','market_informed_projection']) {
+          const column = definition.columns.findIndex(c=>c[1]===key);
+          sheet.getRangeByIndexes(i+6,column,1,1).setNumberFormat('0.0%');
+        }
       }
     });
   }
@@ -104,7 +111,7 @@ for (const definition of definitions) {
   }
   sheet.freezePanes.freezeRows(6);
   sheet.freezePanes.freezeColumns(definition.type === 'game' ? 1 : 3);
-  previews.push({name:definition.name,range:`A1:${definition.type === 'player' ? 'N' : definition.type === 'game' ? 'M' : 'I'}${Math.min(rows.length+6,18)}`});
+  previews.push({name:definition.name,range:`A1:${definition.type === 'player' ? 'O' : definition.type === 'game' ? 'M' : 'I'}${Math.min(rows.length+6,18)}`});
 }
 workbook.recalculate();
 const errors = await workbook.inspect({kind:'match',searchTerm:'#REF!|#DIV/0!|#VALUE!|#NAME\\?|#NUM!|#NULL!',

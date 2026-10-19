@@ -71,6 +71,13 @@ package download or service is used by the exporter. The CSV retains every
 book-line comparison; the first-TD Excel view deduplicates player/game rows so
 its categorical probabilities can be summed without counting books twice.
 
+The first-TD target is the first offensive rushing/receiving TD in regulation.
+Archived quote rows do not establish matching settlement rules, so first-TD
+price-probability gaps are unavailable. Binary anytime-TD forecasts likewise
+cannot price multi-TD count thresholds such as 1.5. Derived reports suppress
+these comparisons; append-only correction records preserve the original
+immutable forecasts and the reason for each display correction.
+
 Yard intervals include an explicit quantile-head view and an equal-member mixture
 view. Learned-member predictive samples use centered 2022 out-of-fold residuals
 for yards and Poisson rate approximations for counts; structural distributions

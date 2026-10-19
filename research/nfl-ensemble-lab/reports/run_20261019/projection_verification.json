@@ -1,0 +1,41 @@
+{
+  "forecast_games": 15,
+  "weeks": {
+    "6": {
+      "games": 1,
+      "rows": 528,
+      "player_stat_rows": 37
+    },
+    "7": {
+      "games": 14,
+      "rows": 1001,
+      "player_stat_rows": 477
+    }
+  },
+  "forecast_timestamp_violations": 0,
+  "independence_member_violations": 0,
+  "probability_mass_violations": 0,
+  "binary_contracts_suppressed": 14,
+  "workbooks": [
+    {
+      "file": "projections_2026_w6.xlsx",
+      "sheets": [
+        "Games",
+        "Players",
+        "First TD"
+      ],
+      "first_td_rows": 26,
+      "cached_gap_value": 2.1206850195999998
+    },
+    {
+      "file": "projections_2026_w7.xlsx",
+      "sheets": [
+        "Games",
+        "Players",
+        "First TD"
+      ],
+      "first_td_rows": 354,
+      "cached_gap_value": -1.0320157774
+    }
+  ]
+}

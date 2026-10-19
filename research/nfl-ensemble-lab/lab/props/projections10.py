@@ -91,6 +91,42 @@ def matching_lines(lines, game, pid, stat):
     return d.sort_values(["quote_time", "available_at"]).groupby("book").tail(1)
 
 
+def binary_contract_corrections(frame):
+    """A binary TD>=1 model cannot price a TD-count threshold such as 1.5.
+
+    Preserve model projections and quote provenance. Never turn an unsupported
+    market into a spurious zero probability. Older immutable forecasts are
+    corrected in derived reports through an explicit append-only correction.
+    """
+    result = frame.copy()
+    if "market_line" not in result or "stat" not in result:
+        return result, result.iloc[:0]
+    point = pd.to_numeric(result["market_line"], errors="coerce")
+    bad = result["stat"].isin(["anytime_td", "first_td"]) & point.notna() & ~np.isclose(point, .5)
+    corrections = result[bad].copy()
+    if bad.any():
+        for key in ("p_over", "p_under", "p_push", "p_over_no_push", "gap", "market_probability"):
+            if key in result:
+                result.loc[bad, key] = None
+        result.loc[bad, "benchmark_scope_status"] = "unsupported TD-count threshold; binary anytime/first-TD model is not comparable"
+    return result, corrections
+
+
+def first_td_contract_corrections(frame):
+    """Quoted first-TD settlement is unknown; our offensive-only target is explicit."""
+    result = frame.copy()
+    if "stat" not in result or "book" not in result:
+        return result, result.iloc[:0]
+    bad = result["stat"].eq("first_td") & result["book"].notna()
+    corrections = result[bad].copy()
+    if bad.any():
+        for key in ("p_over", "p_under", "p_push", "p_over_no_push", "gap", "market_probability"):
+            if key in result:
+                result.loc[bad, key] = None
+        result.loc[bad, "benchmark_scope_status"] = "first-TD quote settlement unverified against offensive-only regulation target"
+    return result, corrections
+
+
 def forecast(week=None, season=2026, log=print):
     config = frozen_config()
     if season != 2026:
@@ -252,6 +288,9 @@ def forecast(week=None, season=2026, log=print):
                 "code_revision": revision, "status": "unpromoted shadow reference; historical primary comparison blocked",
                 "scope": "player targets/simulations regulation-only; defensive/special-teams TDs excluded; independent game heads fit final scores",
                 "feature_cutoff": now.isoformat(), "rows": json.loads(pd.DataFrame(game_rows).to_json(orient="records"))}
+            corrected, _ = binary_contract_corrections(pd.DataFrame(payload["rows"]))
+            corrected, _ = first_td_contract_corrections(corrected)
+            payload["rows"] = json.loads(corrected.to_json(orient="records"))
             payload["rows_sha256"] = hashlib.sha256(json.dumps(payload["rows"], sort_keys=True).encode()).hexdigest()
             with archive_path.open("x", encoding="utf-8") as fh:
                 json.dump(payload, fh, allow_nan=False)
@@ -269,12 +308,40 @@ def forecast(week=None, season=2026, log=print):
 
 
 def write_sheet(frame, week):
+    frame, corrections = binary_contract_corrections(frame)
+    if len(corrections):
+        directory = OUT / "forecast_corrections"
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / f"binary_contract_scope_v1_2026_w{week}.json"
+        if not path.exists():
+            record = {"recorded_at": pd.Timestamp.now(tz="UTC").isoformat(), "correction": "benchmark comparison only; model forecasts unchanged",
+                      "reason": "Binary TD>=1 / first-TD targets cannot price a TD-count line other than 0.5",
+                      "record_key_fields": ["game_id", "pid", "stat", "book", "market_line"],
+                      "cleared_fields": {k: None for k in ("p_over", "p_under", "p_push", "p_over_no_push", "gap", "market_probability")},
+                      "original_rows": json.loads(corrections.to_json(orient="records"))}
+            with path.open("x", encoding="utf-8") as fh:
+                json.dump(record, fh, allow_nan=False)
+    frame, first_corrections = first_td_contract_corrections(frame)
+    if len(first_corrections):
+        directory = OUT / "forecast_corrections"
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / f"first_td_settlement_scope_v1_2026_w{week}.json"
+        if not path.exists():
+            record = {"recorded_at": pd.Timestamp.now(tz="UTC").isoformat(), "correction": "benchmark comparison only; model forecasts unchanged",
+                      "reason": "Quote settlement is not verified to match first offensive rushing/receiving TD in regulation",
+                      "record_key_fields": ["game_id", "pid", "stat", "book"],
+                      "cleared_fields": {k: None for k in ("p_over", "p_under", "p_push", "p_over_no_push", "gap", "market_probability")},
+                      "original_rows": json.loads(first_corrections.to_json(orient="records"))}
+            with path.open("x", encoding="utf-8") as fh:
+                json.dump(record, fh, allow_nan=False)
     stem = REPORTS_DIR / f"projections_2026_w{week}"
     frame.to_csv(stem.with_suffix(".csv"), index=False)
     columns = ["name", "stat", "projection", "q10", "q50", "q90", "market_line", "p_over", "gap", "line_status"]
     lines = [f"# NFL shadow projections — 2026 week {week}", "", "Training cutoff: " + str(frame["training_cutoff_date"].iloc[0]), "",
         "Independent projections exclude market inputs. Market-anchored outputs are benchmarks. Unpromoted experimental forecasts.", "",
         "Margin intervals use home-minus-away points; the spread display is the favored team's handicap. Player intervals describe outcomes; anytime-TD quantiles are binary outcomes, not confidence bounds on the probability.", "",
+        "TD-count quote thresholds other than 0.5 are not comparable to binary anytime/first-TD forecasts; their over probabilities and gaps are unavailable.", "",
+        "First-TD quote settlement rules are unverified against our offensive-only regulation target; price comparisons are unavailable.", "",
         "First TD means the first offensive rushing/receiving TD in regulation; excludes passing, defensive and special-teams TDs.", ""]
     for gid, game in frame.groupby("game_id", sort=False):
         lines += ["## " + gid, "", "| " + " | ".join(columns) + " |", "| " + " | ".join(["---"] * len(columns)) + " |"]
