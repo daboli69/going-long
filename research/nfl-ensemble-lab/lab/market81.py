@@ -303,3 +303,49 @@ def snapshot_markets() -> pd.DataFrame:
                      "spread_line": m.get("spread_line"), "p_home_novig": m.get("p_home_novig"), "home_ml": m.get("home_moneyline"),
                      "away_ml": m.get("away_moneyline")})
     return pd.DataFrame(rows)
+
+
+def local_market_rows(data: dict) -> list[dict]:
+    """Normalize authorized local full-game and period quotes, retaining book/source time.
+
+    Raw spreads use the quoted team's signed handicap (unlike nfldata's home-margin
+    convention). Never reverse it silently. No network is used here.
+    """
+    from .archive10 import utc
+    rows = []
+    for event in data.get("games_raw") or []:
+        home, away = event.get("home_team"), event.get("away_team")
+        for book in event.get("bookmakers") or []:
+            for market in book.get("markets") or []:
+                if market.get("key") not in ("spreads", "totals", "h2h"):
+                    continue
+                for outcome in market.get("outcomes") or []:
+                    name = outcome.get("name")
+                    rows.append({"event_id": event.get("id"), "home": NAME_TO_ABBR.get(home, home),
+                                 "away": NAME_TO_ABBR.get(away, away), "kickoff": utc(event.get("commence_time")),
+                                 "book": book.get("key"), "market": market["key"], "period": "FULL",
+                                 "side": "home" if name == home else "away" if name == away else name,
+                                 "point": outcome.get("point"), "price": outcome.get("price"),
+                                 "quote_time": utc(market.get("last_update") or book.get("last_update")),
+                                 "in_play": bool(event.get("inPlay", False))})
+    for q in data.get("period_quotes") or []:
+        if q.get("market") not in ("spreads", "totals", "h2h"):
+            continue
+        rows.append({"event_id": q.get("match_id"), "home": NAME_TO_ABBR.get(q.get("home_team"), q.get("home_team")),
+                     "away": NAME_TO_ABBR.get(q.get("away_team"), q.get("away_team")),
+                     "kickoff": utc(q.get("kickoff") or q.get("commence_time")), "book": q.get("source"),
+                     "market": q.get("market"), "period": q.get("period_key"), "side": q.get("side"),
+                     "point": q.get("line"), "price": q.get("price"), "quote_time": utc(q.get("updatedAt")),
+                     "in_play": bool(q.get("inPlay", False))})
+    return sorted(rows, key=lambda r: json.dumps(r, sort_keys=True))
+
+
+def archive_local_markets(data: dict, metadata: dict, *, root=None) -> dict:
+    from .archive10 import save
+    rows = local_market_rows(data)
+    if not rows:
+        return {"new": False, "rows": 0}
+    args = {"root": root} if root is not None else {}
+    return save("market", "going", rows, metadata | {"generated_at": data.get("generated_at"),
+                "timestamp_policy": "T1 only if quote_time <= available_at < kickoff and not in_play; no inferred T2/T3",
+                "books": sorted({str(r["book"]) for r in rows}), "rows": len(rows)}, **args) | {"rows": len(rows)}

@@ -129,10 +129,19 @@ def fetch_weather(games: pd.DataFrame) -> dict:
         try:
             body, _ = sources._fetch(f"{OPEN_METEO}?latitude={lat}&longitude={lon}&hourly=temperature_2m,wind_speed_10m,"
                                      f"precipitation_probability&forecast_days=10&timezone=UTC", timeout=30, retries=1)
-            h = json.loads(body)["hourly"]
+            forecast = json.loads(body)
+            retrieved_at = _now().isoformat()
+            from .archive10 import save
+            save("weather", "open_meteo", forecast,
+                 {"source": OPEN_METEO, "game_id": r.game_id,
+                  "forecast_retrieved_at": retrieved_at,
+                  "valid_time": forecast.get("hourly", {}).get("time", []),
+                  "latitude_requested": lat, "longitude_requested": lon,
+                  "context_only": True}, every_pull=True)
+            h = forecast["hourly"]
             times = pd.to_datetime(h["time"]).tz_localize("UTC")
             i = int(np.argmin(np.abs((times - r.kickoff_utc).total_seconds())))
-            out[r.game_id] = {"status": "ok", "forecast_retrieved_at": _now().isoformat(), "valid_time": str(times[i]),
+            out[r.game_id] = {"status": "ok", "forecast_retrieved_at": retrieved_at, "valid_time": str(times[i]),
                               "temperature_c": h["temperature_2m"][i], "wind_kmh": h["wind_speed_10m"][i],
                               "precip_probability": h["precipitation_probability"][i], "roof_type": getattr(r, "roof_type", "")}
         except Exception as exc:
