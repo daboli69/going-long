@@ -41,3 +41,4 @@
 - 2026-10-20T08:28:41.844229-04:00: Optional DEV-only longrun started lr20261020_122841; seven cores; no final validation or promotion
 - 2026-10-20T08:28:44.214458-04:00: FAILED ['C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\.venv\\Scripts\\python.exe', '-m', 'lab.analyze_longrun', 'lr20261020_122841'] exit=1; skipped; log=longrun_analysis.log
 - 2026-10-20T08:28:44.214458-04:00: DEV-only longrun analysis finished; no prospective registry update
+- 2026-10-20T09:01:44.266759-04:00: Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=1.50
