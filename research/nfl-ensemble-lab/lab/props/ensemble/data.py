@@ -93,6 +93,8 @@ def prepare(prospective_week=None, log=print, production=False, completed_week=N
         now = pd.Timestamp.now(tz="UTC")
         upcoming = source_games[(source_games["season"] == 2026) & (source_games["kickoff_utc"] > now)
                                 & (source_games["kickoff_utc"] <= now + pd.Timedelta(days=9))]
+        if prospective_week is not None:
+            upcoming = source_games[(source_games["season"] == 2026) & source_games.week.eq(prospective_week) & ~source_games.completed & (source_games.kickoff_utc > now)]
         feature_week_limit = max(int(upcoming["week"].max()) if len(upcoming) else completed_week + 1, completed_week + 1)
     seasons = list(range(2015, 2027)) if production else list(range(2015, 2023)) + ([2026] if prospective_week is not None else [])
     log("load permitted play-by-play only: " + str(seasons))
@@ -116,6 +118,8 @@ def prepare(prospective_week=None, log=print, production=False, completed_week=N
         now = pd.Timestamp.now(tz="UTC")
         train = (games["season"] <= 2025) | ((games["season"] == 2026) & (games["week"] <= completed_week))
         future = (games["season"] == 2026) & (games["kickoff_utc"] > now) & (games["kickoff_utc"] <= now + pd.Timedelta(days=9))
+        if prospective_week is not None:
+            future = games.season.eq(2026) & games.week.eq(prospective_week) & ~games.completed & games.kickoff_utc.gt(now)
         games = games[train | future].copy()
     else:
         games = games[(games["season"] <= 2022) | ((games["season"] == 2026) & (games["week"] == prospective_week))].copy()

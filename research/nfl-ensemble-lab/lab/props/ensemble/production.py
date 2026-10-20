@@ -43,12 +43,12 @@ def season_weight_map(seasons, reference_season=2026):
     return {int(s): SEASON_WEIGHTS[min(reference_season - int(s), max(SEASON_WEIGHTS))] for s in seasons}
 
 
-def fit(threads=7, prepare_data=True, log=print):
+def fit(threads=7, prepare_data=True, log=print, prospective_week=None):
     frozen = load()  # Must succeed before any 2023–25 player file can be read.
     games = pd.read_parquet(FEATURE_STORE)
     cutoff = completed_cutoff(games)
     week = cutoff["training_last_completed_week"]
-    frame = prepare(production=True, completed_week=week, log=log) if prepare_data else pd.read_parquet(OUT / "features_production.parquet")
+    frame = prepare(production=True, completed_week=week, log=log, prospective_week=prospective_week) if prepare_data else pd.read_parquet(OUT / "features_production.parquet")
     tr = frame[(frame["season"] >= 2016) & ((frame["season"] < 2026) | (frame["week"] <= week))].sort_values(["season", "week", "game_id"])
     directory = OUT / f"members_production_2026_w{week:02d}"
     directory.mkdir(parents=True, exist_ok=True)

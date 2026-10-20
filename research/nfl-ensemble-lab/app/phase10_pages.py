@@ -239,6 +239,7 @@ def render(kind="projections", reports=None):
         source = companion if companion.exists() else (candidates[-1] if candidates else None)
         if source:
             s = load(source)
+            st.caption(f"Scenario source: {source.name}. Only matching slate games are shown; these are separate role assumptions, not updated forecasts.")
             if "game_id" in s:
                 s = s[s.game_id.isin(d.game_id)]
                 if not s.empty:
@@ -246,6 +247,11 @@ def render(kind="projections", reports=None):
                     s = s[s.game_id.eq(selected)]
                 else:
                     st.info("No scenario game matches this slate; unrelated runs are excluded.")
+            if {"pid","game_id","name"} <= set(d) and {"pid","game_id"} <= set(s) and "name" not in s:
+                names=d[["game_id","pid","name"]].drop_duplicates(["game_id","pid"])
+                s=s.merge(names,on=["game_id","pid"],how="left",validate="many_to_one")
+                anonymous=s.pid.astype(str).str.startswith("assumption:")
+                s.loc[anonymous,"name"]="Assumed replacement; real identity unknown"
             show_table(s,kind+"_scenarios")
         else:
             st.info("No scenario output is available for this sheet.")
@@ -255,5 +261,9 @@ def render(kind="projections", reports=None):
         if source and source.exists():
             st.caption("Team projection versus eligible-player sum, by game/team. Missing players and expected-distinct-scorer accounting matter. Originals are not replaced.")
             show_table(load(source),kind+"_coherence")
+            remainder=projection.with_name(projection.stem+"_reconciliation.csv")
+            if remainder.exists():
+                st.caption("Separate shadow reconciliation: original eligible sum, reconciled sum and explicit other-player remainder. This accounting does not establish accuracy or replace the original forecast.")
+                show_table(load(remainder),kind+"_remainder")
         else:
             st.info("No matching per-team coherence file is available.")

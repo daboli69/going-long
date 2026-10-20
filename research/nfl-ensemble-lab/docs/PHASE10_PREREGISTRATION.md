@@ -1044,3 +1044,14 @@ all-player team totals/distinct-scorer mass. No old artifact is overwritten.
 Compare regenerated eligible means to their saved counterparts; discrepancies
 are logged, and that game is blocked rather than silently substituted. Outcomes
 are never used to construct reconciliation/scaling targets. Thresholds unchanged.
+
+Operational clarification before A3-D/F execution (16:41 ET): weekly defaults
+use1,000 simulations (the frozen recommendation) with the three existing fixed
+seeds; seed/scenario tolerances stay unchanged, so extra instability remains
+visible. Explicit future-week requests prepare that scheduled week from current
+as-of rosters/history, including when beyond the older nine-day automatic
+horizon; training still stops at the last wholly completed week. Missing QB
+history uses existing neutral no-history efficiency and position-share priors
+under an anonymous assumption:ROLE:TEAM identifier, never a GSIS ID. All affected
+scenario sensitivity stays unknown: assumption-based replacement, never robust
+verified lineup evidence. No change to A3-A/B/C thresholds or probabilities.

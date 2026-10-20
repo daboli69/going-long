@@ -54,3 +54,28 @@ def collect(games, now=None):
         files.append(save("inactives", "official", report, {"source": "NFL.com official reports",
                      "retrieved_at": report["observed_at"], "parser": module.METHOD, "read_only_context": True}))
     return {"ok": not failures, "games": len(events), "files": files, "failures": failures}
+
+
+def main(argv=None):
+    import argparse
+    import json
+    from .data_pipeline import FEATURE_STORE
+    p = argparse.ArgumentParser(description="Read-only hashed T-90 official inactive archive; never sends notifications")
+    p.add_argument("command", choices=["collect"])
+    p.add_argument("--season", type=int, default=2026)
+    p.add_argument("--week", type=int)
+    a = p.parse_args(argv)
+    games = pd.read_parquet(FEATURE_STORE)
+    games = games[games.season.eq(a.season) & ~games.completed]
+    if a.week is not None:
+        games = games[games.week.eq(a.week)]
+    result = collect(games)
+    print(json.dumps(result, indent=2))
+    return 0 if result.get("ok") else 1
+
+
+if __name__ == "__main__":
+    import psutil
+    psutil.Process().nice(psutil.IDLE_PRIORITY_CLASS)
+    psutil.Process().cpu_affinity(list(range(max(1, psutil.cpu_count()-2))))
+    raise SystemExit(main())

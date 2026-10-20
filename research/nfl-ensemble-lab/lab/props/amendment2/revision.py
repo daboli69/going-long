@@ -69,24 +69,24 @@ def create(log=print):
     return meta
 
 
-def games():
+def games(season=2026, week=7):
     d = pd.read_parquet(FEATURE_STORE)
     now = pd.Timestamp.now(tz="UTC")
-    return d[d.season.eq(2026)&d.week.eq(7)&~d.completed&(d.kickoff_utc>now)].copy()
+    return d[d.season.eq(season)&d.week.eq(week)&~d.completed&(d.kickoff_utc>now)].copy()
 
 
-def fixed():
-    files = sorted((REV/"forecasts2026").glob("*.json"))
+def fixed(revision_directory=REV, season=2026, week=7):
+    files = sorted((revision_directory/"forecasts2026").glob(f"{season}_{week:02d}_*.json"))
     payloads = [json.loads(p.read_text()) for p in files]
     if not payloads:
-        raise ValueError("Revision 2 forecasts unavailable")
+        raise ValueError("Requested forecast revision unavailable")
     frame = pd.DataFrame([r|{"forecast_created_at":p["generated_at"],"frozen_config_sha256":p["frozen_config_sha256"]}
                           for p in payloads for r in p["rows"]])
     frame["pid"] = frame.pid.fillna("")
     frame = frame.drop_duplicates(KEY).copy()
-    distributions = {(r.game_id,str(r.pid),r.stat):np.asarray(r.samples) for r in pd.read_parquet(REV/"distributions.parquet").itertuples()}
+    distributions = {(r.game_id,str(r.pid),r.stat):np.asarray(r.samples) for r in pd.read_parquet(revision_directory/"distributions.parquet").itertuples()}
     totals = {}
-    for path in (REV/"structural_prospective2026_recent").glob("2026_07_*.json"):
+    for path in (revision_directory/"structural_prospective2026_recent").glob(f"{season}_{week:02d}_*.json"):
         meta = json.loads(path.read_text())
         independent = next(r for r in meta["games"] if r["member"]=="sim_independent")
         totals[meta["game_id"]] = independent.get("team_totals",{})
@@ -120,7 +120,7 @@ def contextual_identity(quotes,candidates,mapping_fn=player_map):
     return result
 
 
-def latest_props(targets, now):
+def latest_props(targets, now, revision_directory=REV):
     d = archived_lines(asof=now)
     if d.empty:
         return d
@@ -138,7 +138,7 @@ def latest_props(targets, now):
             rows.append(r|{"game_id":g.game_id,"pid":r["gsis_id"],"market_line":r["line"],
                 "market_archive":r["archive"],"quote_available_at":r["available_at"]})
     result=pd.DataFrame(rows)
-    roster=REV/"features_production.parquet"
+    roster=revision_directory/"features_production.parquet"
     if len(result) and pd.Timestamp(roster.stat().st_mtime,unit="s",tz="UTC")<=now:
         candidates=pd.read_parquet(roster,columns=["game_id","pid"])
         result=contextual_identity(result,candidates)
@@ -183,11 +183,12 @@ def latest_games(targets,now):
     return pd.DataFrame(rows).groupby(["game_id","pid","stat","book","market_line"],dropna=False,as_index=False).first()
 
 
-def refresh_sheet(stamp=None):
-    base,distributions,totals=fixed()
+def refresh_sheet(stamp=None, *, revision_directory=REV, season=2026, week=7, revision=2, shadow_columns=None):
+    base,distributions,totals=fixed(revision_directory,season,week)
+    fit=json.loads((revision_directory/"production_fit.json").read_text())
     base=base.rename(columns={"agreement_description":"forecast_snapshot_agreement_description"})
-    targets,now=games(),pd.Timestamp.now(tz="UTC")
-    props=latest_props(targets,now)
+    targets,now=games(season,week),pd.Timestamp.now(tz="UTC")
+    props=latest_props(targets,now,revision_directory)
     market=latest_games(targets,now)
     if len(props):
         keys=set(base[KEY].itertuples(index=False,name=None))
@@ -222,16 +223,21 @@ def refresh_sheet(stamp=None):
             mask=~d.stat.eq("margin")
             d.loc[mask,col]=pd.to_numeric(d.loc[mask,col],errors="coerce").clip(lower=0)
     d,ct=coherence(d,totals)
+    if shadow_columns is not None:
+        d=d.merge(shadow_columns,on=KEY,how="left",validate="many_to_one")
     d["comparison_created_at"]=now.isoformat()
-    d["forecast_revision"]=2
+    d["forecast_revision"]=revision
     d["market"]=d.stat
     d["consensus_spread_display"]=None
     for g in targets.itertuples():
         indices=d.index[d.game_id.eq(g.game_id)&d.stat.eq("margin")&d.consensus_line.notna()]
         d.loc[indices,"consensus_spread_display"]=[P.spread_label(g.home_team,g.away_team,v) for v in d.loc[indices,"consensus_line"]]
     d["quote_settlement_scope"]="regulation-only model vs quote settlement unverified"
-    stem=REPORTS_DIR/f"projections_2026_w7_r02_{stamp or now.strftime('%Y%m%dT%H%M%S%fZ')}"
-    export(d,stem,heading="Week 7 shadow projections, revision 2",context="Frozen model refit cutoff 2026-10-19 / completed week 6. Market prices are benchmarks only; forecast distributions are unchanged by this comparison refresh.")
+    stem=REPORTS_DIR/f"projections_{season}_w{week}_r{revision:02d}_{stamp or now.strftime('%Y%m%dT%H%M%S%fZ')}"
+    for suffix in (".csv",".md"):
+        if stem.with_suffix(suffix).exists():
+            raise FileExistsError("Comparison revision already exists; prior files retained")
+    export(d,stem,heading=f"Week {week} shadow projections, revision {revision}",context=f"Frozen model refit cutoff {fit['training_cutoff_date']} / completed week {fit['training_last_completed_week']}. Market prices are benchmarks only; forecast distributions are unchanged by this comparison refresh.")
     ct.to_csv(stem.with_name(stem.name+"_coherence").with_suffix(".csv"),index=False)
     with stem.with_suffix(".md").open("a",encoding="utf-8") as f:
         cols=["game_id","team","coherence_flag","atd_vs_td_count_gap"]

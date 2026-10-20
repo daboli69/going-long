@@ -1,5 +1,35 @@
 # Phase 10 local archives
 
+## Amendment 3: reviewable scheduler script and weekly command
+
+Launch the local app with `launch_lab.bat`, then choose **Projections** or
+**Leans**. Generate a fresh append-only shadow revision with
+`run_week_projections.bat --week 8` (omit week to use the next week after the
+last wholly completed week). `--plan` prints the planned slate/cutoff without
+refreshing or fitting. Default runtime cap is150 minutes; `--max-minutes` changes
+the operational budget, never model parameters. Default simulations are1,000
+with three fixed seeds; unstable outputs stay flagged. Explicit future-week
+features use only observations available now, so distant lineup uncertainty
+remains. The original forecast and reconciled accounting remain side by side.
+
+The standalone T-90 command is:
+`.venv\Scripts\python.exe -m lab.low_priority -m lab.inactives10 collect`.
+Outside T-90 it reports no due games and fetches no official lists.
+
+**No task has been created or script executed by Codex.** Travis can review:
+
+```powershell
+.\scripts\register_archive_tasks.ps1 -WhatIf
+```
+
+The script prints each proposed action and creates two interactive-user tasks
+only when Travis runs it without `-WhatIf`: daily quotes repeating every3 hours
+(git fetch main, then remote-main archive), and daily inactive polling every5
+minutes (collector only retrieves inside T-90). Actions run hidden, at idle
+Python priority with two logical cores free, with no elevated privileges.
+Review names/actions in Task Scheduler afterward; these are local archives,
+not publishing/notification jobs. Runtime task registration remains unverified.
+
 All paths below are inside `research/nfl-ensemble-lab`. Nothing is deployed, no
 Windows tasks are created by this work, and no odds API is contacted. The game
 champion and simulator v1 numerical outputs remain unchanged by default.

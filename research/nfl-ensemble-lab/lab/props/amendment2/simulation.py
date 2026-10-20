@@ -48,14 +48,24 @@ def summarize(result,cols,team_for,gid,mode,seed,case,all_ids):
     return rows
 
 
-def run(directory,log=print,deadline=None):
+def anonymous_replacement(available, team, position):
+    """Existing neutral/position priors, never a fabricated GSIS identity."""
+    result={t:v.copy() for t,v in available.items()}
+    pid=f"assumption:{position}:{team}"
+    result[team]=pd.concat([result[team],pd.DataFrame([{"pid":pid,"position":position}])],ignore_index=True)
+    return result,pid
+
+
+def run(directory,log=print,deadline=None,*,revision_directory=REV,season=2026,week=7,n_sims=10000,assumption_replacements=False):
+    if season != 2026:
+        raise ValueError("This diagnostic runner is prospective 2026 only")
     directory.mkdir(parents=True,exist_ok=True)
-    frame=pd.read_parquet(REV/"features_production.parquet")
-    fs=games()
-    fit=json.loads((REV/"production_fit.json").read_text())
+    frame=pd.read_parquet(revision_directory/"features_production.parquet")
+    fs=games(season,week)
+    fit=json.loads((revision_directory/"production_fit.json").read_text())
     plan_path=directory.parent/"plan.json"
     implementation=json.loads(plan_path.read_text()).get("implementation_revision") if plan_path.exists() else None
-    with relocated(REV):
+    with relocated(revision_directory):
         table=structural.tables(log,production=True)
     p=M.load_pbp([2025,2026])
     p=p[p.season.lt(2026)|(p.week.le(fit["training_last_completed_week"]))]
@@ -67,7 +77,7 @@ def run(directory,log=print,deadline=None):
     # player. Never carry an old week's Out designation into a later matchup.
     injury_path=RAW_DIR/"injuries_2026.parquet"
     injury=pd.read_parquet(injury_path,columns=["season","week","gsis_id","report_status"])
-    injury=injury[injury.season.eq(2026)&injury.week.eq(7)]
+    injury=injury[injury.season.eq(season)&injury.week.eq(week)]
     outs=set(injury.loc[injury.report_status.astype(str).str.lower().isin(["out","ir","injured reserve"]),"gsis_id"].dropna())
     injury_observed=pd.Timestamp(injury_path.stat().st_mtime,unit="s",tz="UTC")
     if injury_observed>pd.Timestamp.now(tz="UTC"):
@@ -84,7 +94,7 @@ def run(directory,log=print,deadline=None):
         if path.exists():
             continue
         try:
-            base_teams,players,cols,info,a=structural.build_inputs(frame,panel,2026,game)
+            base_teams,players,cols,info,a=structural.build_inputs(frame,panel,season,game)
             candidates=frame[frame.game_id.eq(game.game_id)].drop_duplicates("pid")
             team_for=candidates.set_index("pid").team.to_dict()
             available={team:candidates[candidates.team.eq(team)&~candidates.pid.isin(outs)][["pid","position"]] for team in (game.home_team,game.away_team)}
@@ -92,12 +102,12 @@ def run(directory,log=print,deadline=None):
             hist={}
             for team in available:
                 z=panel[panel.posteam.eq(team)]
-                hist[team]=(z[z.season.eq(2026)&z.week.lt(7)].drop_duplicates("game_id"),z[z.season.eq(2025)].drop_duplicates("game_id"))
+                hist[team]=(z[z.season.eq(season)&z.week.lt(week)].drop_duplicates("game_id"),z[z.season.eq(season-1)].drop_duplicates("game_id"))
                 if qbs[team] in outs:
                     qbs[team]=backup(available[team],a,outs)
                     if qbs[team] is None:
                         raise ValueError("Verified expected QB out; no prior eligible replacement")
-            base_teams,players,cols,info=G.build(a,available,hist,7,qbs,[game.home_team,game.away_team])
+            base_teams,players,cols,info=G.build(a,available,hist,week,qbs,[game.home_team,game.away_team])
             diagnostic_ids=set(cols)|set(candidates.loc[candidates.position.isin(["QB","RB","FB","WR","TE"]),"pid"])
             independent=anchor.predict(pd.DataFrame([game._asdict()])).iloc[0]
             modes={"sim_independent":[independent.home_points,independent.away_points]}
@@ -105,7 +115,7 @@ def run(directory,log=print,deadline=None):
                 m=market[game.game_id];modes["market_anchored"]=[(m["total"]+m["margin"])/2,(m["total"]-m["margin"])/2]
             else:
                 errors.append({"game_id":game.game_id,"case":"market_anchored","error":"no verified market anchor"})
-            rows=[]
+            rows=[];assumptions=[]
             for mode,points in modes.items():
                 calibrate=S.calibrate_v2 if mode=="sim_independent" else S.calibrate
                 for seed in SEEDS:
@@ -114,7 +124,7 @@ def run(directory,log=print,deadline=None):
                         break
                     rng=np.random.default_rng(seed)
                     efficiency,_=calibrate(table,base_teams,players,points,rng)
-                    r=S.simulate(table,base_teams,players,10000,efficiency,rng,record_td=True)
+                    r=S.simulate(table,base_teams,players,n_sims,efficiency,rng,record_td=True)
                     rows+=summarize(r,cols,team_for,game.game_id,mode,seed,"expected",diagnostic_ids)
                     log(f"stability {game.game_id} {mode} seed={seed}")
                 for case in SCENARIOS:
@@ -131,7 +141,10 @@ def run(directory,log=print,deadline=None):
                                 removed=qb[team]
                                 qb[team]=backup(av[team],a,{removed})
                                 if qb[team] is None:
-                                    raise ValueError("no roster QB with prior passing history; replacement not guessed")
+                                    if not assumption_replacements:
+                                        raise ValueError("no roster QB with prior passing history; replacement not guessed")
+                                    av,pid=anonymous_replacement(av,team,"QB");qb[team]=pid;team_for[pid]=team
+                                    assumptions.append({"mode":mode,"scenario":case,"team":team,"role":pid,"real_replacement":"unknown","basis":"existing position-share and neutral no-history efficiency priors; no QB-specific efficiency model"})
                             else:
                                 kind,pos=("rush","RB") if "rb_out" in case else ("recv","WR")
                                 ti=next(ti for t,_,ti in info if t==team)
@@ -141,12 +154,17 @@ def run(directory,log=print,deadline=None):
                                     raise ValueError("no prior eligible "+pos)
                                 removed=pool.share.idxmax()
                             av[team]=av[team][~av[team].pid.eq(removed)]
-                        tm,pl,cl,_=G.build(a,av,hist,7,qb,[game.home_team,game.away_team])
+                            if assumption_replacements and "qb_out" not in case and not av[team].position.eq(pos).any():
+                                av,pid=anonymous_replacement(av,team,pos);team_for[pid]=team
+                                assumptions.append({"mode":mode,"scenario":case,"team":team,"role":pid,"real_replacement":"unknown","basis":"existing position-share and neutral no-history efficiency priors"})
+                        tm,pl,cl,_=G.build(a,av,hist,week,qb,[game.home_team,game.away_team])
                         if any(not len(t["recv_cols"]) or not len(t["rush_cols"]) for t in tm):
                             raise ValueError("scenario removes an entire receiver/rusher pool")
                         rng=np.random.default_rng(SEEDS[0]);efficiency,_=calibrate(table,tm,pl,pt,rng)
-                        r=S.simulate(table,tm,pl,10000,efficiency,rng,record_td=True)
-                        rows+=summarize(r,cl,team_for,game.game_id,mode,SEEDS[0],case,diagnostic_ids)
+                        r=S.simulate(table,tm,pl,n_sims,efficiency,rng,record_td=True)
+                        case_rows=summarize(r,cl,team_for,game.game_id,mode,SEEDS[0],case,diagnostic_ids)
+                        assumed=any(v["mode"]==mode and v["scenario"]==case for v in assumptions)
+                        rows += [v|{"assumption_based":assumed,"scenario_scope":"scenario, not forecast","real_replacement_status":"unknown" if assumed else "prior-role intervention"} for v in case_rows]
                         log(f"scenario {game.game_id} {mode} {case}")
                     except Exception as exc:
                         errors.append({"game_id":game.game_id,"mode":mode,"case":case,"error":repr(exc)})
@@ -154,8 +172,8 @@ def run(directory,log=print,deadline=None):
             pd.DataFrame(rows).to_parquet(path,index=False)
             exclusive_json(path.with_suffix(".json"),{"created_at":pd.Timestamp.now(tz="UTC").isoformat(),"game_id":game.game_id,"training_cutoff_date":fit["training_cutoff_date"],
                 "implementation_revision":implementation,
-                "training_last_completed_week":6,"frozen_config_sha256":fit["frozen_config_sha256"],"sims":10000,"seeds":list(SEEDS),"scenario_names":list(SCENARIOS),
-                "expected_out_ids":sorted(outs & set(candidates.pid)),"injury_report_week7_rows":len(injury),"injury_observed_at":injury_observed.isoformat(),
+                "training_last_completed_week":fit["training_last_completed_week"],"frozen_config_sha256":fit["frozen_config_sha256"],"sims":n_sims,"seeds":list(SEEDS),"scenario_names":list(SCENARIOS),"assumptions":assumptions,
+                "expected_out_ids":sorted(outs & set(candidates.pid)),"injury_report_week":week,"injury_report_rows":len(injury),"injury_observed_at":injury_observed.isoformat(),
                 "limitations":"Structural role interventions only; team anchors held fixed except +/-7 script. QB efficiency/learned-member means not refitted. Final inactives unavailable outside T-90. No scenario is a forecast."})
         except Exception as exc:
             errors.append({"game_id":game.game_id,"case":"game","error":repr(exc)})
@@ -179,14 +197,17 @@ def analyze(directory):
             "stability_flag":"stable" if z.seed.nunique()==3 and spread<=tolerance(stat) else "unstable" if z.seed.nunique()==3 else "unknown"})
     stability=pd.DataFrame(stable)
     baseline=expected[expected.seed.eq(SEEDS[0])][groups+["mean"]].rename(columns={"mean":"baseline_mean"})
-    scenarios=d[~d.scenario.eq("expected")].merge(baseline,on=groups,validate="many_to_one")
+    scenarios=d[~d.scenario.eq("expected")].merge(baseline,on=groups,validate="many_to_one",how="left")
+    anonymous=scenarios.pid.astype(str).str.startswith("assumption:")
+    scenarios.loc[anonymous,"baseline_mean"]=scenarios.loc[anonymous,"baseline_mean"].fillna(0.)
     scenarios["change"]=scenarios["mean"]-scenarios.baseline_mean
     flags=[]
     for key,z in scenarios.groupby(groups,dropna=False):
         stat=key[2];floor=5 if stat.endswith("yds") else .5
         limits=np.full(len(z),3.) if stat in ("margin","total") else np.full(len(z),.10) if stat in ("anytime_td","first_td") else .2*np.maximum(abs(z.baseline_mean),floor)
         complete=z.scenario.nunique()==len(SCENARIOS)
-        flag="unknown: incomplete scenarios" if not complete else "sensitive" if (abs(z.change)>limits).any() else "robust"
+        assumed="assumption_based" in z and z.assumption_based.fillna(False).astype(bool).any()
+        flag="unknown: assumption-based replacement" if assumed else "unknown: incomplete scenarios" if not complete or z.baseline_mean.isna().any() else "sensitive" if (abs(z.change)>limits).any() else "robust"
         flags.append(dict(zip(groups,key))|{"scenario_count":z.scenario.nunique(),"max_absolute_change":float(abs(z.change).max()),"scenario_sensitivity":flag})
     stability.to_csv(directory/"stability_summary.csv",index=False)
     pd.DataFrame(flags).to_csv(directory/"scenario_summary.csv",index=False)
