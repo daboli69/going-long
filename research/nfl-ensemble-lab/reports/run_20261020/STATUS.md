@@ -42,3 +42,5 @@
 - 2026-10-20T08:28:44.214458-04:00: FAILED ['C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\.venv\\Scripts\\python.exe', '-m', 'lab.analyze_longrun', 'lr20261020_122841'] exit=1; skipped; log=longrun_analysis.log
 - 2026-10-20T08:28:44.214458-04:00: DEV-only longrun analysis finished; no prospective registry update
 - 2026-10-20T09:01:44.266759-04:00: Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=1.50
+
+- 2026-10-20T09:06:05.451182-04:00: appended completed Amendment-2 experiment rows to root MODEL_RESEARCH.md using saved results; no fits/simulations rerun. Final search/refresh/test rows remain wrap-up work. Usage 61% primary / 9% weekly at 09:01, included allowance available and credit balance unchanged.
