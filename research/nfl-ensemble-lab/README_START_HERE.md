@@ -21,6 +21,29 @@ and it is not connected to the GOING website.
 
 ## Every week
 
+### Phase 10 shadow projections and leans (local app)
+
+Run `launch_lab.bat` from this folder, then open **Projections** or **Leans** in
+the sidebar. Players default to one current representative consensus line;
+Leans also hides mean/median skew flags. Tabs show games, first offensive TD,
+scenarios (not forecasts), and team/player coherence. Use the glossary, slate
+diagnostics, optional venue/stale toggles, and filtered CSV downloads.
+
+These pages read immutable `reports/projections_*.csv` / `reports/leans_*.csv`
+and their diagnostic companions. Selection uses season/week, forecast revision,
+and filename creation time; file mtime only invalidates the read cache. Missing
+evidence remains unknown. No page render refreshes data, fits or promotes a model.
+
+One command for a new weekly shadow revision (run from this folder):
+
+```powershell
+.\run_week_projections.bat --week 8
+```
+
+Omit `--week` to use the next week after the last wholly completed week. The
+runner stops on any failed phase and prints a manifest plus sheet paths; earlier
+forecasts are never replaced. This is separate from the champion workflow below.
+
 - Double-click **`launch_lab.bat`**, open **Weekly Predictions**, click **Generate Weekly Predictions**,
   then download the Excel file. Or
 - double-click **`run_weekly_predictions.bat`**: it refreshes data, predicts the next week with

@@ -10,6 +10,16 @@ DFS = ("underdog", "prizepicks", "sleeper", "chalkboard", "pick6")
 KEY = ["game_id", "pid", "stat"]
 
 
+def skew_flags(frame):
+    """Presentation guard only; never changes an archived prediction."""
+    d = frame.copy()
+    mean = pd.to_numeric(d.get("our_mean", d.get("projection", pd.Series(index=d.index, dtype=float))), errors="coerce")
+    median = pd.to_numeric(d.get("our_median", d.get("q50", pd.Series(index=d.index, dtype=float))), errors="coerce")
+    line = pd.to_numeric(d.get("market_line", d.get("consensus_line", pd.Series(index=d.index, dtype=float))), errors="coerce")
+    d["skew_artifact_flag"] = ((mean-line)*(median-line)).lt(0).fillna(False)
+    return d
+
+
 def classify(book, dfs=False):
     name = str(book or "").lower().replace(" ", "")
     if bool(dfs) or any(k in name for k in DFS):
@@ -164,6 +174,7 @@ def leans(frame, stability, scenarios):
 
 
 def export(frame, stem, *, heading, context=""):
+    frame = skew_flags(frame)
     stem.parent.mkdir(parents=True, exist_ok=True)
     # CSV is the lab's machine-readable data contract, not a workbook redesign.
     frame.to_csv(stem.with_suffix(".csv"), index=False)

@@ -310,7 +310,8 @@ def forecast(week=None, season=2026, log=print, distribution_sink=None):
 
 
 def write_sheet(frame, week):
-    frame = frame.copy()
+    from .amendment2.sheets import skew_flags
+    frame = skew_flags(frame)
     nonnegative = frame["stat"].isin(["pass_yds", "pass_tds", "rush_yds", "rec_yds", "rec", "anytime_td", "total"])
     for key in ("q10", "q50", "q90", "quantile_head_q10", "quantile_head_q50", "quantile_head_q90"):
         if key in frame:
