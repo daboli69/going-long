@@ -104,7 +104,10 @@ def coherence(frame, team_totals):
     """Report player eligibility gaps; never reconcile model outputs."""
     players = frame[frame.row_type.eq("player")].drop_duplicates(KEY)
     rows = []
-    for (gid, team), d in players.groupby(["game_id", "team"]):
+    keys=set(players.groupby(["game_id","team"]).groups)
+    keys.update((gid,team) for gid,sides in team_totals.items() for team in sides)
+    for gid,team in sorted(keys):
+        d=players[players.game_id.eq(gid)&players.team.eq(team)]
         totals = team_totals.get(gid, {}).get(team)
         if not totals:
             rows.append({"game_id": gid, "team": team, "coherence_flag": "unknown: team totals unavailable"})

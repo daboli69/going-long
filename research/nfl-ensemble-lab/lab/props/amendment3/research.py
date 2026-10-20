@@ -117,8 +117,9 @@ def scale_scorers(probabilities, target, other):
 def reconcile(predictions, structural, totals, include_unmatched=False):
     d=predictions.merge(structural[KEY+["mean"]].rename(columns={"mean":"structural_mean"}),on=KEY,validate="one_to_one",how="left" if include_unmatched else "inner")
     d['structural_eligibility_missing']=d.structural_mean.isna()
-    d["reconciled"]=np.nan;team_rows=[];errors=[]
+    d["reconciled"]=np.nan;team_rows=[];errors=[];seen=set()
     for (gid,team,stat),g in d.groupby(["game_id","team","stat"]):
+        seen.add((gid,team,stat))
         t=totals.get(gid,{}).get(team,{})
         target=t.get(stat)
         if target is None:
@@ -138,6 +139,13 @@ def reconcile(predictions, structural, totals, include_unmatched=False):
             team_rows.append({"game_id":gid,"team":team,"stat":stat,"team_total":target,"original_eligible_sum":float(g.equal.sum()),"reconciled_eligible_sum":float(transformed.sum()),"other_players_projection":float(other),"remainder_fraction":float(other/max(target,1e-12)),"structural_missing_rows":int(g.structural_eligibility_missing.sum()),"remainder_basis":"other/unresolved structural eligibility mass; missing members are not zero-volume evidence" if g.structural_eligibility_missing.any() else "structural other-player mass","definition":"expected distinct scorers" if stat=="anytime_td" else "simulated team total"})
         except ValueError as exc:
             errors.append({"game_id":gid,"team":team,"stat":stat,"reason":str(exc)})
+    for gid,sides in totals.items():
+        for team,values in sides.items():
+            for stat in ('pass_yds','rush_yds','rec_yds','rec','pass_tds','anytime_td'):
+                if (gid,team,stat) in seen or stat not in values:
+                    continue
+                target=float(values[stat])
+                team_rows.append({'game_id':gid,'team':team,'stat':stat,'team_total':target,'original_eligible_sum':0.,'reconciled_eligible_sum':0.,'other_players_projection':target,'remainder_fraction':1. if target else 0.,'structural_missing_rows':0,'remainder_basis':'no eligible learned players; entire structural mass in other','definition':'expected distinct scorers' if stat=='anytime_td' else 'simulated team total'})
     return d,pd.DataFrame(team_rows),errors
 
 

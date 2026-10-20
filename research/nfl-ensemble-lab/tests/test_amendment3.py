@@ -135,3 +135,14 @@ def test_td_count_cannot_trigger_distinct_scorer_coherence_failure():
     row=pd.DataFrame([dict(game_id='g',pid='p',stat='rec',projection=6.,q10=2.,q50=5.,q90=9.,market_line=3.5,line_type='consensus',line_status='current',gap=2.5,member_min=4.,member_max=7.,coherence_flag='coherent',reconciliation_coverage='assumption: incomplete structural eligibility')])
     result=leans(row,{('g','p','rec'):'stable'},{('g','p','rec'):'robust'})
     assert result.confidence_tier.iloc[0]=='B'
+
+
+def test_no_eligible_players_places_entire_team_quantity_in_other():
+    from lab.props.amendment3.research import reconcile
+    p=pd.DataFrame([dict(game_id='g',team='NE',pid='p',stat='rush_yds',equal=10.,q10=0.,q50=10.,q90=20.)])
+    s=pd.DataFrame([dict(game_id='g',pid='p',stat='rush_yds',mean=10.)])
+    out,teams,errors=reconcile(p,s,{'g':{'NE':{'rush_yds':20.,'pass_yds':200.},'CHI':{'pass_yds':240.}}},include_unmatched=True)
+    assert not errors and len(out)==1
+    passing=teams[teams.stat.eq('pass_yds')]
+    assert len(passing)==2 and (passing.other_players_projection==passing.team_total).all()
+    assert (passing.reconciled_eligible_sum==0).all()

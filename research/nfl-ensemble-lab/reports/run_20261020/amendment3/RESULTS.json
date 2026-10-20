@@ -1,0 +1,2378 @@
+{
+  "preregistration": [
+    "20acf6a",
+    "5a8c862",
+    "d8f1278",
+    "b152953"
+  ],
+  "primary_holm_family": 8,
+  "primary_gates_changed": false,
+  "primary": {
+    "results": [
+      {
+        "stat": "pass_yds",
+        "metric": "mae",
+        "comparison": {
+          "n": 507,
+          "games": 267,
+          "difference": 6.184915591007964,
+          "ci95": [
+            4.001169810441402,
+            8.486708911493778
+          ],
+          "p_improvement_one_sided": 1.0
+        },
+        "holm_p": 1.0,
+        "passes_metric_gate": false,
+        "decision": "Rejected"
+      },
+      {
+        "stat": "pass_yds",
+        "metric": "pinball",
+        "comparison": {
+          "n": 507,
+          "games": 267,
+          "difference": 1.5575776954815437,
+          "ci95": [
+            1.0564605026137934,
+            2.1007044334199745
+          ],
+          "p_improvement_one_sided": 1.0
+        },
+        "holm_p": 1.0,
+        "passes_metric_gate": false,
+        "decision": "Rejected"
+      },
+      {
+        "stat": "rush_yds",
+        "metric": "mae",
+        "comparison": {
+          "n": 825,
+          "games": 271,
+          "difference": 0.7188434827172644,
+          "ci95": [
+            0.19516199408689947,
+            1.244089286258623
+          ],
+          "p_improvement_one_sided": 0.9945027486256871
+        },
+        "holm_p": 1.0,
+        "passes_metric_gate": false,
+        "decision": "Rejected"
+      },
+      {
+        "stat": "rush_yds",
+        "metric": "pinball",
+        "comparison": {
+          "n": 825,
+          "games": 271,
+          "difference": 0.0022981716496587095,
+          "ci95": [
+            -0.16908604990404416,
+            0.16515537706191089
+          ],
+          "p_improvement_one_sided": 0.504247876061969
+        },
+        "holm_p": 1.0,
+        "passes_metric_gate": false,
+        "decision": "Rejected"
+      },
+      {
+        "stat": "rec_yds",
+        "metric": "mae",
+        "comparison": {
+          "n": 1765,
+          "games": 271,
+          "difference": 0.7629147077159185,
+          "ci95": [
+            0.48061379940247084,
+            1.0588170632018574
+          ],
+          "p_improvement_one_sided": 1.0
+        },
+        "holm_p": 1.0,
+        "passes_metric_gate": false,
+        "decision": "Rejected"
+      },
+      {
+        "stat": "rec_yds",
+        "metric": "pinball",
+        "comparison": {
+          "n": 1765,
+          "games": 271,
+          "difference": 0.05601449503498577,
+          "ci95": [
+            -0.01261168723539244,
+            0.12317397945264753
+          ],
+          "p_improvement_one_sided": 0.9495252373813093
+        },
+        "holm_p": 1.0,
+        "passes_metric_gate": false,
+        "decision": "Rejected"
+      },
+      {
+        "stat": "anytime_td",
+        "metric": "brier",
+        "comparison": {
+          "n": 2398,
+          "games": 271,
+          "difference": 0.0034325646281012914,
+          "ci95": [
+            0.0009332452860651862,
+            0.0059118225503484315
+          ],
+          "p_improvement_one_sided": 0.9960019990004998
+        },
+        "holm_p": 1.0,
+        "passes_metric_gate": false,
+        "decision": "Rejected"
+      },
+      {
+        "stat": "anytime_td",
+        "metric": "log_loss",
+        "comparison": {
+          "n": 2398,
+          "games": 271,
+          "difference": 0.008138209123654023,
+          "ci95": [
+            0.002293455586821685,
+            0.013820674392020131
+          ],
+          "p_improvement_one_sided": 0.9975012493753124
+        },
+        "holm_p": 1.0,
+        "passes_metric_gate": false,
+        "decision": "Rejected"
+      }
+    ],
+    "reliability_atd": [
+      {
+        "method": "equal",
+        "bins": [
+          {
+            "range": "10%-20%",
+            "n": 560,
+            "mean_pred": 0.1694637921443312,
+            "observed": 0.15178571428571427
+          },
+          {
+            "range": "20%-30%",
+            "n": 973,
+            "mean_pred": 0.24761216658088459,
+            "observed": 0.2579650565262076
+          },
+          {
+            "range": "30%-40%",
+            "n": 565,
+            "mean_pred": 0.3407861456915748,
+            "observed": 0.35929203539823007
+          },
+          {
+            "range": "40%-50%",
+            "n": 214,
+            "mean_pred": 0.4445822642153069,
+            "observed": 0.45794392523364486
+          },
+          {
+            "range": "50%-60%",
+            "n": 81,
+            "mean_pred": 0.5357095925021909,
+            "observed": 0.4444444444444444
+          },
+          {
+            "range": "60%-70%",
+            "n": 5,
+            "mean_pred": 0.6109265646260461,
+            "observed": 1.0
+          }
+        ]
+      },
+      {
+        "method": "reconciled",
+        "bins": [
+          {
+            "range": "0%-10%",
+            "n": 1,
+            "mean_pred": 0.09662513659701935,
+            "observed": 0.0
+          },
+          {
+            "range": "10%-20%",
+            "n": 246,
+            "mean_pred": 0.17586548842425243,
+            "observed": 0.17073170731707318
+          },
+          {
+            "range": "20%-30%",
+            "n": 824,
+            "mean_pred": 0.24983487527791257,
+            "observed": 0.20509708737864077
+          },
+          {
+            "range": "30%-40%",
+            "n": 722,
+            "mean_pred": 0.34490322890990466,
+            "observed": 0.28254847645429365
+          },
+          {
+            "range": "40%-50%",
+            "n": 373,
+            "mean_pred": 0.4462424664062796,
+            "observed": 0.40214477211796246
+          },
+          {
+            "range": "50%-60%",
+            "n": 169,
+            "mean_pred": 0.5435677320834303,
+            "observed": 0.47928994082840237
+          },
+          {
+            "range": "60%-70%",
+            "n": 49,
+            "mean_pred": 0.6398280077609256,
+            "observed": 0.4489795918367347
+          },
+          {
+            "range": "70%-80%",
+            "n": 14,
+            "mean_pred": 0.7333883669398843,
+            "observed": 0.7142857142857143
+          }
+        ]
+      }
+    ],
+    "scope": "Shadow only. Distinct-scorer target, explicit other-player mass. No 2026 selection."
+  },
+  "approximate_calibration": {
+    "results": [
+      {
+        "stat": "anytime_td",
+        "threshold": "model_mean",
+        "n": 2637,
+        "games": 271,
+        "average_probability": 0.27077595097821383,
+        "observed_frequency": 0.27189988623435724,
+        "bias": {
+          "n": 2637,
+          "games": 271,
+          "difference": 0.0011239352561433931,
+          "ci95": [
+            -0.015082932381449409,
+            0.018386795890821584
+          ],
+          "p_improvement_one_sided": 0.5627186406796602
+        },
+        "brier": 0.18725381932978635,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 727,
+            "mean_pred": 0.1670010171628471,
+            "observed": 0.14718019257221457
+          },
+          {
+            "range": "20%-30%",
+            "n": 1035,
+            "mean_pred": 0.2463113678993516,
+            "observed": 0.2541062801932367
+          },
+          {
+            "range": "30%-40%",
+            "n": 574,
+            "mean_pred": 0.3409383448234473,
+            "observed": 0.3623693379790941
+          },
+          {
+            "range": "40%-50%",
+            "n": 215,
+            "mean_pred": 0.44441143131099836,
+            "observed": 0.4558139534883721
+          },
+          {
+            "range": "50%-60%",
+            "n": 81,
+            "mean_pred": 0.5357095925021909,
+            "observed": 0.4444444444444444
+          },
+          {
+            "range": "60%-70%",
+            "n": 5,
+            "mean_pred": 0.6109265646260461,
+            "observed": 1.0
+          }
+        ],
+        "source": "frozen equal binary probability",
+        "adequate_diagnostic": true
+      },
+      {
+        "stat": "anytime_td",
+        "threshold": "model_median",
+        "n": 2637,
+        "games": 271,
+        "average_probability": 0.2531623333006227,
+        "observed_frequency": 0.2563519150549867,
+        "bias": {
+          "n": 2637,
+          "games": 271,
+          "difference": 0.0031895817543639835,
+          "ci95": [
+            -0.013223570848309628,
+            0.020236505442016803
+          ],
+          "p_improvement_one_sided": 0.6601699150424788
+        },
+        "brier": 0.1792246603016886,
+        "reliability": [
+          {
+            "range": "0%-10%",
+            "n": 86,
+            "mean_pred": 0.0,
+            "observed": 0.0
+          },
+          {
+            "range": "10%-20%",
+            "n": 727,
+            "mean_pred": 0.1670010171628471,
+            "observed": 0.14718019257221457
+          },
+          {
+            "range": "20%-30%",
+            "n": 1035,
+            "mean_pred": 0.2463113678993516,
+            "observed": 0.2541062801932367
+          },
+          {
+            "range": "30%-40%",
+            "n": 574,
+            "mean_pred": 0.3409383448234473,
+            "observed": 0.3623693379790941
+          },
+          {
+            "range": "40%-50%",
+            "n": 215,
+            "mean_pred": 0.44441143131099836,
+            "observed": 0.4558139534883721
+          }
+        ],
+        "source": "frozen equal binary probability",
+        "adequate_diagnostic": true
+      },
+      {
+        "stat": "anytime_td",
+        "threshold": "rolling_pseudo_line",
+        "n": 2637,
+        "games": 271,
+        "average_probability": 0.27077595097821383,
+        "observed_frequency": 0.27189988623435724,
+        "bias": {
+          "n": 2637,
+          "games": 271,
+          "difference": 0.0011239352561433931,
+          "ci95": [
+            -0.015082932381449409,
+            0.018386795890821584
+          ],
+          "p_improvement_one_sided": 0.5627186406796602
+        },
+        "brier": 0.18725381932978635,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 727,
+            "mean_pred": 0.1670010171628471,
+            "observed": 0.14718019257221457
+          },
+          {
+            "range": "20%-30%",
+            "n": 1035,
+            "mean_pred": 0.2463113678993516,
+            "observed": 0.2541062801932367
+          },
+          {
+            "range": "30%-40%",
+            "n": 574,
+            "mean_pred": 0.3409383448234473,
+            "observed": 0.3623693379790941
+          },
+          {
+            "range": "40%-50%",
+            "n": 215,
+            "mean_pred": 0.44441143131099836,
+            "observed": 0.4558139534883721
+          },
+          {
+            "range": "50%-60%",
+            "n": 81,
+            "mean_pred": 0.5357095925021909,
+            "observed": 0.4444444444444444
+          },
+          {
+            "range": "60%-70%",
+            "n": 5,
+            "mean_pred": 0.6109265646260461,
+            "observed": 1.0
+          }
+        ],
+        "source": "frozen equal binary probability",
+        "adequate_diagnostic": true
+      },
+      {
+        "stat": "pass_tds",
+        "threshold": "model_mean",
+        "n": 504,
+        "games": 267,
+        "average_probability": 0.43490698428904756,
+        "observed_frequency": 0.4087301587301587,
+        "bias": {
+          "n": 504,
+          "games": 267,
+          "difference": -0.026176825558888873,
+          "ci95": [
+            -0.06900817156609729,
+            0.01755820096426442
+          ],
+          "p_improvement_one_sided": 0.12693653173413294
+        },
+        "brier": 0.2292294550087166,
+        "reliability": [
+          {
+            "range": "20%-30%",
+            "n": 35,
+            "mean_pred": 0.2839352772642041,
+            "observed": 0.2
+          },
+          {
+            "range": "30%-40%",
+            "n": 156,
+            "mean_pred": 0.3524867412245853,
+            "observed": 0.28205128205128205
+          },
+          {
+            "range": "40%-50%",
+            "n": 180,
+            "mean_pred": 0.44659094610452743,
+            "observed": 0.45
+          },
+          {
+            "range": "50%-60%",
+            "n": 109,
+            "mean_pred": 0.5416845306465533,
+            "observed": 0.5412844036697247
+          },
+          {
+            "range": "60%-70%",
+            "n": 24,
+            "mean_pred": 0.618227900296178,
+            "observed": 0.625
+          }
+        ],
+        "source": "Poisson approximation",
+        "adequate_diagnostic": true
+      },
+      {
+        "stat": "pass_tds",
+        "threshold": "model_median",
+        "n": 504,
+        "games": 267,
+        "average_probability": 0.35714066660332877,
+        "observed_frequency": 0.3253968253968254,
+        "bias": {
+          "n": 504,
+          "games": 267,
+          "difference": -0.03174384120650336,
+          "ci95": [
+            -0.07425047786253085,
+            0.010674375582750195
+          ],
+          "p_improvement_one_sided": 0.0734632683658171
+        },
+        "brier": 0.21190311764844336,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 2,
+            "mean_pred": 0.17011271014157978,
+            "observed": 0.5
+          },
+          {
+            "range": "20%-30%",
+            "n": 151,
+            "mean_pred": 0.2625145272355243,
+            "observed": 0.2052980132450331
+          },
+          {
+            "range": "30%-40%",
+            "n": 171,
+            "mean_pred": 0.3487286937802071,
+            "observed": 0.2982456140350877
+          },
+          {
+            "range": "40%-50%",
+            "n": 180,
+            "mean_pred": 0.44659094610452743,
+            "observed": 0.45
+          }
+        ],
+        "source": "Poisson approximation",
+        "adequate_diagnostic": true
+      },
+      {
+        "stat": "pass_tds",
+        "threshold": "rolling_pseudo_line",
+        "n": 504,
+        "games": 267,
+        "average_probability": 0.4381774806768684,
+        "observed_frequency": 0.3869047619047619,
+        "bias": {
+          "n": 504,
+          "games": 267,
+          "difference": -0.0512727187721065,
+          "ci95": [
+            -0.09422755587405471,
+            -0.008356003467127492
+          ],
+          "p_improvement_one_sided": 0.00849575212393803
+        },
+        "brier": 0.2220500919984505,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 36,
+            "mean_pred": 0.16893508836098237,
+            "observed": 0.2222222222222222
+          },
+          {
+            "range": "20%-30%",
+            "n": 106,
+            "mean_pred": 0.25265820609712764,
+            "observed": 0.2169811320754717
+          },
+          {
+            "range": "30%-40%",
+            "n": 98,
+            "mean_pred": 0.34948468809516137,
+            "observed": 0.29591836734693877
+          },
+          {
+            "range": "40%-50%",
+            "n": 97,
+            "mean_pred": 0.44048550788356094,
+            "observed": 0.4845360824742268
+          },
+          {
+            "range": "50%-60%",
+            "n": 34,
+            "mean_pred": 0.5400558395642574,
+            "observed": 0.3235294117647059
+          },
+          {
+            "range": "60%-70%",
+            "n": 77,
+            "mean_pred": 0.6552007227455563,
+            "observed": 0.5064935064935064
+          },
+          {
+            "range": "70%-80%",
+            "n": 46,
+            "mean_pred": 0.7404322168879568,
+            "observed": 0.6304347826086957
+          },
+          {
+            "range": "80%-90%",
+            "n": 10,
+            "mean_pred": 0.8129187362380945,
+            "observed": 0.9
+          }
+        ],
+        "source": "Poisson approximation",
+        "adequate_diagnostic": false
+      },
+      {
+        "stat": "pass_yds",
+        "threshold": "model_mean",
+        "n": 386,
+        "games": 205,
+        "average_probability": 0.5213441229968179,
+        "observed_frequency": 0.422279792746114,
+        "bias": {
+          "n": 386,
+          "games": 205,
+          "difference": -0.09906433025070385,
+          "ci95": [
+            -0.14891720285963406,
+            -0.04762093280744548
+          ],
+          "p_improvement_one_sided": 0.0004997501249375312
+        },
+        "brier": 0.25382836163981354,
+        "reliability": [
+          {
+            "range": "50%-60%",
+            "n": 386,
+            "mean_pred": 0.5213441229968179,
+            "observed": 0.422279792746114
+          }
+        ],
+        "source": "earlier-week centered OOF residuals",
+        "adequate_diagnostic": false
+      },
+      {
+        "stat": "pass_yds",
+        "threshold": "model_median",
+        "n": 386,
+        "games": 205,
+        "average_probability": 0.5401871388443894,
+        "observed_frequency": 0.45595854922279794,
+        "bias": {
+          "n": 386,
+          "games": 205,
+          "difference": -0.08422858962159134,
+          "ci95": [
+            -0.13637055243142954,
+            -0.032613863157930106
+          ],
+          "p_improvement_one_sided": 0.0014992503748125937
+        },
+        "brier": 0.2554287156288283,
+        "reliability": [
+          {
+            "range": "40%-50%",
+            "n": 91,
+            "mean_pred": 0.46723818785581356,
+            "observed": 0.43956043956043955
+          },
+          {
+            "range": "50%-60%",
+            "n": 249,
+            "mean_pred": 0.5486293731855192,
+            "observed": 0.44176706827309237
+          },
+          {
+            "range": "60%-70%",
+            "n": 45,
+            "mean_pred": 0.6371773815351396,
+            "observed": 0.5555555555555556
+          },
+          {
+            "range": "70%-80%",
+            "n": 1,
+            "mean_pred": 0.711864406779661,
+            "observed": 1.0
+          }
+        ],
+        "source": "earlier-week centered OOF residuals",
+        "adequate_diagnostic": false,
+        "observed_minus_nominal_half": {
+          "n": 386,
+          "games": 205,
+          "difference": -0.04404145077720207,
+          "ci95": [
+            -0.0959190843456948,
+            0.008906991273110633
+          ],
+          "p_improvement_one_sided": 0.04997501249375312
+        }
+      },
+      {
+        "stat": "pass_yds",
+        "threshold": "rolling_pseudo_line",
+        "n": 386,
+        "games": 205,
+        "average_probability": 0.6458781532341483,
+        "observed_frequency": 0.538860103626943,
+        "bias": {
+          "n": 386,
+          "games": 205,
+          "difference": -0.10701804960720528,
+          "ci95": [
+            -0.15368754766589895,
+            -0.05984869507978002
+          ],
+          "p_improvement_one_sided": 0.0004997501249375312
+        },
+        "brier": 0.2281424501822869,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 2,
+            "mean_pred": 0.17988700564971752,
+            "observed": 0.5
+          },
+          {
+            "range": "20%-30%",
+            "n": 7,
+            "mean_pred": 0.2711852619629577,
+            "observed": 0.0
+          },
+          {
+            "range": "30%-40%",
+            "n": 30,
+            "mean_pred": 0.3654234271302605,
+            "observed": 0.36666666666666664
+          },
+          {
+            "range": "40%-50%",
+            "n": 76,
+            "mean_pred": 0.4499200854967953,
+            "observed": 0.3684210526315789
+          },
+          {
+            "range": "50%-60%",
+            "n": 87,
+            "mean_pred": 0.550534658137221,
+            "observed": 0.5057471264367817
+          },
+          {
+            "range": "60%-70%",
+            "n": 37,
+            "mean_pred": 0.6521768540575362,
+            "observed": 0.3783783783783784
+          },
+          {
+            "range": "70%-80%",
+            "n": 40,
+            "mean_pred": 0.7432967027440097,
+            "observed": 0.575
+          },
+          {
+            "range": "80%-90%",
+            "n": 27,
+            "mean_pred": 0.8379998221096229,
+            "observed": 0.7777777777777778
+          },
+          {
+            "range": "90%-100%",
+            "n": 80,
+            "mean_pred": 0.9688668103361197,
+            "observed": 0.825
+          }
+        ],
+        "source": "earlier-week centered OOF residuals",
+        "adequate_diagnostic": false
+      },
+      {
+        "stat": "rec",
+        "threshold": "model_mean",
+        "n": 1990,
+        "games": 271,
+        "average_probability": 0.4692716542375487,
+        "observed_frequency": 0.43467336683417085,
+        "bias": {
+          "n": 1990,
+          "games": 271,
+          "difference": -0.03459828740337781,
+          "ci95": [
+            -0.05871514379597638,
+            -0.012502843980581721
+          ],
+          "p_improvement_one_sided": 0.0009995002498750624
+        },
+        "brier": 0.2428703097560245,
+        "reliability": [
+          {
+            "range": "30%-40%",
+            "n": 332,
+            "mean_pred": 0.3798534958616348,
+            "observed": 0.32831325301204817
+          },
+          {
+            "range": "40%-50%",
+            "n": 949,
+            "mean_pred": 0.45091841309780056,
+            "observed": 0.4172813487881981
+          },
+          {
+            "range": "50%-60%",
+            "n": 709,
+            "mean_pred": 0.5357089665399807,
+            "observed": 0.5077574047954866
+          }
+        ],
+        "source": "Poisson approximation",
+        "adequate_diagnostic": false
+      },
+      {
+        "stat": "rec",
+        "threshold": "model_median",
+        "n": 1990,
+        "games": 271,
+        "average_probability": 0.3972117616120701,
+        "observed_frequency": 0.36683417085427134,
+        "bias": {
+          "n": 1990,
+          "games": 271,
+          "difference": -0.030377590757798736,
+          "ci95": [
+            -0.05333914075684622,
+            -0.010094920919510862
+          ],
+          "p_improvement_one_sided": 0.0034982508745627187
+        },
+        "brier": 0.23001330664348577,
+        "reliability": [
+          {
+            "range": "20%-30%",
+            "n": 90,
+            "mean_pred": 0.28985828814305503,
+            "observed": 0.23333333333333334
+          },
+          {
+            "range": "30%-40%",
+            "n": 951,
+            "mean_pred": 0.353777692581842,
+            "observed": 0.3291272344900105
+          },
+          {
+            "range": "40%-50%",
+            "n": 949,
+            "mean_pred": 0.45091841309780056,
+            "observed": 0.4172813487881981
+          }
+        ],
+        "source": "Poisson approximation",
+        "adequate_diagnostic": false
+      },
+      {
+        "stat": "rec",
+        "threshold": "rolling_pseudo_line",
+        "n": 1990,
+        "games": 271,
+        "average_probability": 0.5115416465381224,
+        "observed_frequency": 0.4758793969849246,
+        "bias": {
+          "n": 1990,
+          "games": 271,
+          "difference": -0.03566224955319783,
+          "ci95": [
+            -0.058313025260787014,
+            -0.013166524291838072
+          ],
+          "p_improvement_one_sided": 0.0009995002498750624
+        },
+        "brier": 0.2388656279439587,
+        "reliability": [
+          {
+            "range": "0%-10%",
+            "n": 12,
+            "mean_pred": 0.06495336752140705,
+            "observed": 0.08333333333333333
+          },
+          {
+            "range": "10%-20%",
+            "n": 87,
+            "mean_pred": 0.16845081053322736,
+            "observed": 0.2988505747126437
+          },
+          {
+            "range": "20%-30%",
+            "n": 239,
+            "mean_pred": 0.25496525434076767,
+            "observed": 0.26778242677824265
+          },
+          {
+            "range": "30%-40%",
+            "n": 328,
+            "mean_pred": 0.3508017431976142,
+            "observed": 0.3445121951219512
+          },
+          {
+            "range": "40%-50%",
+            "n": 310,
+            "mean_pred": 0.45049195710206846,
+            "observed": 0.4612903225806452
+          },
+          {
+            "range": "50%-60%",
+            "n": 341,
+            "mean_pred": 0.5475023504508305,
+            "observed": 0.5542521994134897
+          },
+          {
+            "range": "60%-70%",
+            "n": 266,
+            "mean_pred": 0.6490492780695171,
+            "observed": 0.5902255639097744
+          },
+          {
+            "range": "70%-80%",
+            "n": 232,
+            "mean_pred": 0.748401520681192,
+            "observed": 0.5775862068965517
+          },
+          {
+            "range": "80%-90%",
+            "n": 108,
+            "mean_pred": 0.8433285112100847,
+            "observed": 0.6296296296296297
+          },
+          {
+            "range": "90%-100%",
+            "n": 67,
+            "mean_pred": 0.9377164171248271,
+            "observed": 0.7761194029850746
+          }
+        ],
+        "source": "Poisson approximation",
+        "adequate_diagnostic": false
+      },
+      {
+        "stat": "rec_yds",
+        "threshold": "model_mean",
+        "n": 1775,
+        "games": 239,
+        "average_probability": 0.4265647290135747,
+        "observed_frequency": 0.40394366197183096,
+        "bias": {
+          "n": 1775,
+          "games": 239,
+          "difference": -0.022621067041743624,
+          "ci95": [
+            -0.04596763801372222,
+            0.0007828209282753165
+          ],
+          "p_improvement_one_sided": 0.029985007496251874
+        },
+        "brier": 0.24141707489898637,
+        "reliability": [
+          {
+            "range": "40%-50%",
+            "n": 1775,
+            "mean_pred": 0.4265647290135747,
+            "observed": 0.40394366197183096
+          }
+        ],
+        "source": "earlier-week centered OOF residuals",
+        "adequate_diagnostic": true
+      },
+      {
+        "stat": "rec_yds",
+        "threshold": "model_median",
+        "n": 1775,
+        "games": 239,
+        "average_probability": 0.5181671647212549,
+        "observed_frequency": 0.49183098591549296,
+        "bias": {
+          "n": 1775,
+          "games": 239,
+          "difference": -0.026336178805761928,
+          "ci95": [
+            -0.05030731237142421,
+            -0.0025857261434718
+          ],
+          "p_improvement_one_sided": 0.017491254372813594
+        },
+        "brier": 0.24743674822079317,
+        "reliability": [
+          {
+            "range": "30%-40%",
+            "n": 2,
+            "mean_pred": 0.3854625550660793,
+            "observed": 0.0
+          },
+          {
+            "range": "40%-50%",
+            "n": 628,
+            "mean_pred": 0.47001176160472624,
+            "observed": 0.4410828025477707
+          },
+          {
+            "range": "50%-60%",
+            "n": 1064,
+            "mean_pred": 0.5383801116308987,
+            "observed": 0.5084586466165414
+          },
+          {
+            "range": "60%-70%",
+            "n": 77,
+            "mean_pred": 0.6247191819172092,
+            "observed": 0.6753246753246753
+          },
+          {
+            "range": "70%-80%",
+            "n": 4,
+            "mean_pred": 0.7171475498564881,
+            "observed": 0.75
+          }
+        ],
+        "source": "earlier-week centered OOF residuals",
+        "adequate_diagnostic": false,
+        "observed_minus_nominal_half": {
+          "n": 1775,
+          "games": 239,
+          "difference": -0.008169014084507042,
+          "ci95": [
+            -0.03249767227834037,
+            0.016384644144489605
+          ],
+          "p_improvement_one_sided": 0.23338330834582707
+        }
+      },
+      {
+        "stat": "rec_yds",
+        "threshold": "rolling_pseudo_line",
+        "n": 1775,
+        "games": 239,
+        "average_probability": 0.5573982944080623,
+        "observed_frequency": 0.5385915492957747,
+        "bias": {
+          "n": 1775,
+          "games": 239,
+          "difference": -0.018806745112287703,
+          "ci95": [
+            -0.04090919387390498,
+            0.0037939193077437417
+          ],
+          "p_improvement_one_sided": 0.049475262368815595
+        },
+        "brier": 0.2372889555377314,
+        "reliability": [
+          {
+            "range": "0%-10%",
+            "n": 3,
+            "mean_pred": 0.09324089604073971,
+            "observed": 0.0
+          },
+          {
+            "range": "10%-20%",
+            "n": 6,
+            "mean_pred": 0.14952346751838028,
+            "observed": 0.16666666666666666
+          },
+          {
+            "range": "20%-30%",
+            "n": 58,
+            "mean_pred": 0.27204024264096643,
+            "observed": 0.29310344827586204
+          },
+          {
+            "range": "30%-40%",
+            "n": 276,
+            "mean_pred": 0.3574109913136672,
+            "observed": 0.39855072463768115
+          },
+          {
+            "range": "40%-50%",
+            "n": 375,
+            "mean_pred": 0.445162032293169,
+            "observed": 0.4533333333333333
+          },
+          {
+            "range": "50%-60%",
+            "n": 389,
+            "mean_pred": 0.5509509820903116,
+            "observed": 0.5552699228791774
+          },
+          {
+            "range": "60%-70%",
+            "n": 287,
+            "mean_pred": 0.6460902697185417,
+            "observed": 0.627177700348432
+          },
+          {
+            "range": "70%-80%",
+            "n": 210,
+            "mean_pred": 0.7478668058178036,
+            "observed": 0.6285714285714286
+          },
+          {
+            "range": "80%-90%",
+            "n": 106,
+            "mean_pred": 0.8419227629864344,
+            "observed": 0.7452830188679245
+          },
+          {
+            "range": "90%-100%",
+            "n": 65,
+            "mean_pred": 0.9354138116113562,
+            "observed": 0.7846153846153846
+          }
+        ],
+        "source": "earlier-week centered OOF residuals",
+        "adequate_diagnostic": true
+      },
+      {
+        "stat": "rush_yds",
+        "threshold": "model_mean",
+        "n": 766,
+        "games": 239,
+        "average_probability": 0.4262841158035912,
+        "observed_frequency": 0.4516971279373368,
+        "bias": {
+          "n": 766,
+          "games": 239,
+          "difference": 0.02541301213374558,
+          "ci95": [
+            -0.009394913582371633,
+            0.05734158612640689
+          ],
+          "p_improvement_one_sided": 0.9365317341329336
+        },
+        "brier": 0.2484197588820981,
+        "reliability": [
+          {
+            "range": "40%-50%",
+            "n": 766,
+            "mean_pred": 0.4262841158035912,
+            "observed": 0.4516971279373368
+          }
+        ],
+        "source": "earlier-week centered OOF residuals",
+        "adequate_diagnostic": true
+      },
+      {
+        "stat": "rush_yds",
+        "threshold": "model_median",
+        "n": 766,
+        "games": 239,
+        "average_probability": 0.5109384579411826,
+        "observed_frequency": 0.5221932114882507,
+        "bias": {
+          "n": 766,
+          "games": 239,
+          "difference": 0.011254753547067972,
+          "ci95": [
+            -0.022767787330069806,
+            0.0441538270140281
+          ],
+          "p_improvement_one_sided": 0.7561219390304847
+        },
+        "brier": 0.24927532356073923,
+        "reliability": [
+          {
+            "range": "30%-40%",
+            "n": 10,
+            "mean_pred": 0.37327449371124,
+            "observed": 0.3
+          },
+          {
+            "range": "40%-50%",
+            "n": 305,
+            "mean_pred": 0.4640552401352747,
+            "observed": 0.5344262295081967
+          },
+          {
+            "range": "50%-60%",
+            "n": 401,
+            "mean_pred": 0.5355445238104668,
+            "observed": 0.513715710723192
+          },
+          {
+            "range": "60%-70%",
+            "n": 50,
+            "mean_pred": 0.6271182311315511,
+            "observed": 0.56
+          }
+        ],
+        "source": "earlier-week centered OOF residuals",
+        "adequate_diagnostic": true,
+        "observed_minus_nominal_half": {
+          "n": 766,
+          "games": 239,
+          "difference": 0.022193211488250653,
+          "ci95": [
+            -0.012166246747346248,
+            0.05498403296289126
+          ],
+          "p_improvement_one_sided": 0.9045477261369316
+        }
+      },
+      {
+        "stat": "rush_yds",
+        "threshold": "rolling_pseudo_line",
+        "n": 766,
+        "games": 239,
+        "average_probability": 0.5209948864124988,
+        "observed_frequency": 0.5261096605744126,
+        "bias": {
+          "n": 766,
+          "games": 239,
+          "difference": 0.00511477416191371,
+          "ci95": [
+            -0.02543157362783835,
+            0.03474624229120638
+          ],
+          "p_improvement_one_sided": 0.6176911544227887
+        },
+        "brier": 0.2314313917788131,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 3,
+            "mean_pred": 0.1756088349071296,
+            "observed": 0.3333333333333333
+          },
+          {
+            "range": "20%-30%",
+            "n": 91,
+            "mean_pred": 0.2605593551754664,
+            "observed": 0.25274725274725274
+          },
+          {
+            "range": "30%-40%",
+            "n": 91,
+            "mean_pred": 0.3489554051057429,
+            "observed": 0.42857142857142855
+          },
+          {
+            "range": "40%-50%",
+            "n": 159,
+            "mean_pred": 0.4524096629783069,
+            "observed": 0.5408805031446541
+          },
+          {
+            "range": "50%-60%",
+            "n": 166,
+            "mean_pred": 0.5452905286912862,
+            "observed": 0.5
+          },
+          {
+            "range": "60%-70%",
+            "n": 168,
+            "mean_pred": 0.6515562284949583,
+            "observed": 0.5892857142857143
+          },
+          {
+            "range": "70%-80%",
+            "n": 46,
+            "mean_pred": 0.7479285402838733,
+            "observed": 0.8043478260869565
+          },
+          {
+            "range": "80%-90%",
+            "n": 28,
+            "mean_pred": 0.8436866460913427,
+            "observed": 0.75
+          },
+          {
+            "range": "90%-100%",
+            "n": 14,
+            "mean_pred": 0.9391902710421107,
+            "observed": 1.0
+          }
+        ],
+        "source": "earlier-week centered OOF residuals",
+        "adequate_diagnostic": true
+      }
+    ],
+    "scope": "Synthetic rolling player medians; no real prop lines or market-performance claim. Quantiles are saved quantile-head outputs, not mixture medians."
+  },
+  "exact_calibration": {
+    "results": [
+      {
+        "stat": "anytime_td",
+        "threshold": "displayed_mixture_median",
+        "n": 2637,
+        "games": 271,
+        "average_p_over": 0.25392296088612015,
+        "observed_frequency": 0.2578687902919985,
+        "bias": {
+          "n": 2637,
+          "games": 271,
+          "difference": 0.003945829405878318,
+          "ci95": [
+            -0.012409757660886086,
+            0.02072940080768688
+          ],
+          "p_improvement_one_sided": 0.6891554222888556
+        },
+        "brier": 0.1796016931073068,
+        "reliability": [
+          {
+            "range": "0%-10%",
+            "n": 82,
+            "mean_pred": 0.0,
+            "observed": 0.0
+          },
+          {
+            "range": "10%-20%",
+            "n": 727,
+            "mean_pred": 0.1670010171628471,
+            "observed": 0.14718019257221457
+          },
+          {
+            "range": "20%-30%",
+            "n": 1035,
+            "mean_pred": 0.2463113678993516,
+            "observed": 0.2541062801932367
+          },
+          {
+            "range": "30%-40%",
+            "n": 574,
+            "mean_pred": 0.3409383448234473,
+            "observed": 0.3623693379790941
+          },
+          {
+            "range": "40%-50%",
+            "n": 215,
+            "mean_pred": 0.44441143131099836,
+            "observed": 0.4558139534883721
+          },
+          {
+            "range": "50%-60%",
+            "n": 4,
+            "mean_pred": 0.5014437357391748,
+            "observed": 1.0
+          }
+        ]
+      },
+      {
+        "stat": "anytime_td",
+        "threshold": "published_mean",
+        "n": 2637,
+        "games": 271,
+        "average_p_over": 0.27077595097821383,
+        "observed_frequency": 0.27189988623435724,
+        "bias": {
+          "n": 2637,
+          "games": 271,
+          "difference": 0.0011239352561433931,
+          "ci95": [
+            -0.015082932381449409,
+            0.018386795890821584
+          ],
+          "p_improvement_one_sided": 0.5627186406796602
+        },
+        "brier": 0.18725381932978635,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 727,
+            "mean_pred": 0.1670010171628471,
+            "observed": 0.14718019257221457
+          },
+          {
+            "range": "20%-30%",
+            "n": 1035,
+            "mean_pred": 0.2463113678993516,
+            "observed": 0.2541062801932367
+          },
+          {
+            "range": "30%-40%",
+            "n": 574,
+            "mean_pred": 0.3409383448234473,
+            "observed": 0.3623693379790941
+          },
+          {
+            "range": "40%-50%",
+            "n": 215,
+            "mean_pred": 0.44441143131099836,
+            "observed": 0.4558139534883721
+          },
+          {
+            "range": "50%-60%",
+            "n": 81,
+            "mean_pred": 0.5357095925021909,
+            "observed": 0.4444444444444444
+          },
+          {
+            "range": "60%-70%",
+            "n": 5,
+            "mean_pred": 0.6109265646260461,
+            "observed": 1.0
+          }
+        ]
+      },
+      {
+        "stat": "anytime_td",
+        "threshold": "rolling_pseudo_line",
+        "n": 2637,
+        "games": 271,
+        "average_p_over": 0.27077595097821383,
+        "observed_frequency": 0.27189988623435724,
+        "bias": {
+          "n": 2637,
+          "games": 271,
+          "difference": 0.0011239352561433931,
+          "ci95": [
+            -0.015082932381449409,
+            0.018386795890821584
+          ],
+          "p_improvement_one_sided": 0.5627186406796602
+        },
+        "brier": 0.18725381932978635,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 727,
+            "mean_pred": 0.1670010171628471,
+            "observed": 0.14718019257221457
+          },
+          {
+            "range": "20%-30%",
+            "n": 1035,
+            "mean_pred": 0.2463113678993516,
+            "observed": 0.2541062801932367
+          },
+          {
+            "range": "30%-40%",
+            "n": 574,
+            "mean_pred": 0.3409383448234473,
+            "observed": 0.3623693379790941
+          },
+          {
+            "range": "40%-50%",
+            "n": 215,
+            "mean_pred": 0.44441143131099836,
+            "observed": 0.4558139534883721
+          },
+          {
+            "range": "50%-60%",
+            "n": 81,
+            "mean_pred": 0.5357095925021909,
+            "observed": 0.4444444444444444
+          },
+          {
+            "range": "60%-70%",
+            "n": 5,
+            "mean_pred": 0.6109265646260461,
+            "observed": 1.0
+          }
+        ]
+      },
+      {
+        "stat": "pass_tds",
+        "threshold": "displayed_mixture_median",
+        "n": 504,
+        "games": 267,
+        "average_p_over": 0.34946587301587295,
+        "observed_frequency": 0.32142857142857145,
+        "bias": {
+          "n": 504,
+          "games": 267,
+          "difference": -0.028037301587301583,
+          "ci95": [
+            -0.06871392559502508,
+            0.01499723232861272
+          ],
+          "p_improvement_one_sided": 0.09895052473763119
+        },
+        "brier": 0.20818669174603174,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 5,
+            "mean_pred": 0.1874,
+            "observed": 0.2
+          },
+          {
+            "range": "20%-30%",
+            "n": 170,
+            "mean_pred": 0.2581482352941176,
+            "observed": 0.21176470588235294
+          },
+          {
+            "range": "30%-40%",
+            "n": 166,
+            "mean_pred": 0.3507710843373494,
+            "observed": 0.3072289156626506
+          },
+          {
+            "range": "40%-50%",
+            "n": 163,
+            "mean_pred": 0.4483472392638037,
+            "observed": 0.4539877300613497
+          }
+        ]
+      },
+      {
+        "stat": "pass_tds",
+        "threshold": "published_mean",
+        "n": 504,
+        "games": 267,
+        "average_p_over": 0.43758293650793645,
+        "observed_frequency": 0.4087301587301587,
+        "bias": {
+          "n": 504,
+          "games": 267,
+          "difference": -0.028852777777777776,
+          "ci95": [
+            -0.0716081616600186,
+            0.01492891126753931
+          ],
+          "p_improvement_one_sided": 0.10094952523738131
+        },
+        "brier": 0.2289457646825397,
+        "reliability": [
+          {
+            "range": "20%-30%",
+            "n": 37,
+            "mean_pred": 0.2821297297297297,
+            "observed": 0.21621621621621623
+          },
+          {
+            "range": "30%-40%",
+            "n": 157,
+            "mean_pred": 0.35321019108280255,
+            "observed": 0.2929936305732484
+          },
+          {
+            "range": "40%-50%",
+            "n": 163,
+            "mean_pred": 0.4483472392638037,
+            "observed": 0.4539877300613497
+          },
+          {
+            "range": "50%-60%",
+            "n": 119,
+            "mean_pred": 0.5403142857142856,
+            "observed": 0.5126050420168067
+          },
+          {
+            "range": "60%-70%",
+            "n": 28,
+            "mean_pred": 0.6168214285714286,
+            "observed": 0.6071428571428571
+          }
+        ]
+      },
+      {
+        "stat": "pass_tds",
+        "threshold": "rolling_pseudo_line",
+        "n": 504,
+        "games": 267,
+        "average_p_over": 0.43809126984126984,
+        "observed_frequency": 0.3869047619047619,
+        "bias": {
+          "n": 504,
+          "games": 267,
+          "difference": -0.05118650793650794,
+          "ci95": [
+            -0.09438058777915632,
+            -0.008231567626401157
+          ],
+          "p_improvement_one_sided": 0.00849575212393803
+        },
+        "brier": 0.22204808142857144,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 37,
+            "mean_pred": 0.16559459459459458,
+            "observed": 0.21621621621621623
+          },
+          {
+            "range": "20%-30%",
+            "n": 110,
+            "mean_pred": 0.25139090909090905,
+            "observed": 0.22727272727272727
+          },
+          {
+            "range": "30%-40%",
+            "n": 96,
+            "mean_pred": 0.35165416666666666,
+            "observed": 0.3125
+          },
+          {
+            "range": "40%-50%",
+            "n": 91,
+            "mean_pred": 0.44462857142857143,
+            "observed": 0.4725274725274725
+          },
+          {
+            "range": "50%-60%",
+            "n": 37,
+            "mean_pred": 0.5385567567567567,
+            "observed": 0.35135135135135137
+          },
+          {
+            "range": "60%-70%",
+            "n": 73,
+            "mean_pred": 0.6546383561643836,
+            "observed": 0.5205479452054794
+          },
+          {
+            "range": "70%-80%",
+            "n": 47,
+            "mean_pred": 0.7341446808510639,
+            "observed": 0.5531914893617021
+          },
+          {
+            "range": "80%-90%",
+            "n": 13,
+            "mean_pred": 0.8136923076923076,
+            "observed": 0.9230769230769231
+          }
+        ]
+      },
+      {
+        "stat": "pass_yds",
+        "threshold": "displayed_mixture_median",
+        "n": 386,
+        "games": 205,
+        "average_p_over": 0.49953782383419687,
+        "observed_frequency": 0.42487046632124353,
+        "bias": {
+          "n": 386,
+          "games": 205,
+          "difference": -0.07466735751295339,
+          "ci95": [
+            -0.12421738517903774,
+            -0.0232255481537614
+          ],
+          "p_improvement_one_sided": 0.0014992503748125937
+        },
+        "brier": 0.24996838735751295,
+        "reliability": [
+          {
+            "range": "40%-50%",
+            "n": 280,
+            "mean_pred": 0.4993628571428571,
+            "observed": 0.4392857142857143
+          },
+          {
+            "range": "50%-60%",
+            "n": 106,
+            "mean_pred": 0.5,
+            "observed": 0.3867924528301887
+          }
+        ]
+      },
+      {
+        "stat": "pass_yds",
+        "threshold": "published_mean",
+        "n": 386,
+        "games": 205,
+        "average_p_over": 0.49731036269430046,
+        "observed_frequency": 0.422279792746114,
+        "bias": {
+          "n": 386,
+          "games": 205,
+          "difference": -0.07503056994818652,
+          "ci95": [
+            -0.12489517208639923,
+            -0.023586122574745554
+          ],
+          "p_improvement_one_sided": 0.0014992503748125937
+        },
+        "brier": 0.250247818134715,
+        "reliability": [
+          {
+            "range": "40%-50%",
+            "n": 228,
+            "mean_pred": 0.4914429824561404,
+            "observed": 0.4473684210526316
+          },
+          {
+            "range": "50%-60%",
+            "n": 158,
+            "mean_pred": 0.5057772151898734,
+            "observed": 0.3860759493670886
+          }
+        ]
+      },
+      {
+        "stat": "pass_yds",
+        "threshold": "rolling_pseudo_line",
+        "n": 386,
+        "games": 205,
+        "average_p_over": 0.6370378238341969,
+        "observed_frequency": 0.538860103626943,
+        "bias": {
+          "n": 386,
+          "games": 205,
+          "difference": -0.0981777202072539,
+          "ci95": [
+            -0.1451311793031166,
+            -0.05134512171425495
+          ],
+          "p_improvement_one_sided": 0.0004997501249375312
+        },
+        "brier": 0.2264401136787565,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 1,
+            "mean_pred": 0.1982,
+            "observed": 0.0
+          },
+          {
+            "range": "20%-30%",
+            "n": 8,
+            "mean_pred": 0.267925,
+            "observed": 0.125
+          },
+          {
+            "range": "30%-40%",
+            "n": 39,
+            "mean_pred": 0.36704102564102564,
+            "observed": 0.358974358974359
+          },
+          {
+            "range": "40%-50%",
+            "n": 83,
+            "mean_pred": 0.45185783132530116,
+            "observed": 0.37349397590361444
+          },
+          {
+            "range": "50%-60%",
+            "n": 78,
+            "mean_pred": 0.5471179487179487,
+            "observed": 0.5512820512820513
+          },
+          {
+            "range": "60%-70%",
+            "n": 35,
+            "mean_pred": 0.6524057142857143,
+            "observed": 0.37142857142857144
+          },
+          {
+            "range": "70%-80%",
+            "n": 40,
+            "mean_pred": 0.7546,
+            "observed": 0.575
+          },
+          {
+            "range": "80%-90%",
+            "n": 22,
+            "mean_pred": 0.8383909090909092,
+            "observed": 0.7727272727272727
+          },
+          {
+            "range": "90%-100%",
+            "n": 80,
+            "mean_pred": 0.9699775,
+            "observed": 0.825
+          }
+        ]
+      },
+      {
+        "stat": "rec",
+        "threshold": "displayed_mixture_median",
+        "n": 1990,
+        "games": 271,
+        "average_p_over": 0.39988577889447235,
+        "observed_frequency": 0.37336683417085426,
+        "bias": {
+          "n": 1990,
+          "games": 271,
+          "difference": -0.02651894472361809,
+          "ci95": [
+            -0.04920433000411454,
+            -0.005214102197148065
+          ],
+          "p_improvement_one_sided": 0.012993503248375811
+        },
+        "brier": 0.23198093080402013,
+        "reliability": [
+          {
+            "range": "20%-30%",
+            "n": 67,
+            "mean_pred": 0.2915276119402985,
+            "observed": 0.34328358208955223
+          },
+          {
+            "range": "30%-40%",
+            "n": 957,
+            "mean_pred": 0.3554539184952978,
+            "observed": 0.3207941483803553
+          },
+          {
+            "range": "40%-50%",
+            "n": 963,
+            "mean_pred": 0.4512678608515057,
+            "observed": 0.4288681204569055
+          },
+          {
+            "range": "50%-60%",
+            "n": 3,
+            "mean_pred": 0.5,
+            "observed": 0.0
+          }
+        ]
+      },
+      {
+        "stat": "rec",
+        "threshold": "published_mean",
+        "n": 1990,
+        "games": 271,
+        "average_p_over": 0.46455120603015077,
+        "observed_frequency": 0.43467336683417085,
+        "bias": {
+          "n": 1990,
+          "games": 271,
+          "difference": -0.0298778391959799,
+          "ci95": [
+            -0.05401750979752662,
+            -0.007733126981322762
+          ],
+          "p_improvement_one_sided": 0.005997001499250375
+        },
+        "brier": 0.24281339120100504,
+        "reliability": [
+          {
+            "range": "30%-40%",
+            "n": 364,
+            "mean_pred": 0.3779685439560439,
+            "observed": 0.3159340659340659
+          },
+          {
+            "range": "40%-50%",
+            "n": 961,
+            "mean_pred": 0.4512834027055151,
+            "observed": 0.4287200832466181
+          },
+          {
+            "range": "50%-60%",
+            "n": 665,
+            "mean_pred": 0.5311172932330827,
+            "observed": 0.5082706766917293
+          }
+        ]
+      },
+      {
+        "stat": "rec",
+        "threshold": "rolling_pseudo_line",
+        "n": 1990,
+        "games": 271,
+        "average_p_over": 0.5066861306532663,
+        "observed_frequency": 0.4758793969849246,
+        "bias": {
+          "n": 1990,
+          "games": 271,
+          "difference": -0.03080673366834171,
+          "ci95": [
+            -0.0535332483579797,
+            -0.008360779166555126
+          ],
+          "p_improvement_one_sided": 0.0034982508745627187
+        },
+        "brier": 0.2381331133643216,
+        "reliability": [
+          {
+            "range": "0%-10%",
+            "n": 10,
+            "mean_pred": 0.06864,
+            "observed": 0.0
+          },
+          {
+            "range": "10%-20%",
+            "n": 77,
+            "mean_pred": 0.17147987012987015,
+            "observed": 0.2857142857142857
+          },
+          {
+            "range": "20%-30%",
+            "n": 236,
+            "mean_pred": 0.2563648305084746,
+            "observed": 0.2754237288135593
+          },
+          {
+            "range": "30%-40%",
+            "n": 356,
+            "mean_pred": 0.35112191011235955,
+            "observed": 0.3398876404494382
+          },
+          {
+            "range": "40%-50%",
+            "n": 315,
+            "mean_pred": 0.4519490476190476,
+            "observed": 0.473015873015873
+          },
+          {
+            "range": "50%-60%",
+            "n": 362,
+            "mean_pred": 0.5462400552486187,
+            "observed": 0.5662983425414365
+          },
+          {
+            "range": "60%-70%",
+            "n": 258,
+            "mean_pred": 0.6483414728682171,
+            "observed": 0.5658914728682171
+          },
+          {
+            "range": "70%-80%",
+            "n": 219,
+            "mean_pred": 0.7493063926940638,
+            "observed": 0.6027397260273972
+          },
+          {
+            "range": "80%-90%",
+            "n": 98,
+            "mean_pred": 0.8404989795918367,
+            "observed": 0.6122448979591837
+          },
+          {
+            "range": "90%-100%",
+            "n": 59,
+            "mean_pred": 0.9334169491525425,
+            "observed": 0.7966101694915254
+          }
+        ]
+      },
+      {
+        "stat": "rec_yds",
+        "threshold": "displayed_mixture_median",
+        "n": 1775,
+        "games": 239,
+        "average_p_over": 0.4996588450704225,
+        "observed_frequency": 0.48056338028169016,
+        "bias": {
+          "n": 1775,
+          "games": 239,
+          "difference": -0.019095464788732405,
+          "ci95": [
+            -0.04313672063052414,
+            0.004313255948061107
+          ],
+          "p_improvement_one_sided": 0.057971014492753624
+        },
+        "brier": 0.2500123662577465,
+        "reliability": [
+          {
+            "range": "40%-50%",
+            "n": 842,
+            "mean_pred": 0.4992808194774347,
+            "observed": 0.4916864608076009
+          },
+          {
+            "range": "50%-60%",
+            "n": 933,
+            "mean_pred": 0.5,
+            "observed": 0.4705251875669882
+          }
+        ]
+      },
+      {
+        "stat": "rec_yds",
+        "threshold": "published_mean",
+        "n": 1775,
+        "games": 239,
+        "average_p_over": 0.4274261126760564,
+        "observed_frequency": 0.40394366197183096,
+        "bias": {
+          "n": 1775,
+          "games": 239,
+          "difference": -0.023482450704225354,
+          "ci95": [
+            -0.0468093735715145,
+            -3.485005685050256e-05
+          ],
+          "p_improvement_one_sided": 0.025487256371814093
+        },
+        "brier": 0.24149580973943663,
+        "reliability": [
+          {
+            "range": "30%-40%",
+            "n": 7,
+            "mean_pred": 0.3964,
+            "observed": 0.42857142857142855
+          },
+          {
+            "range": "40%-50%",
+            "n": 1768,
+            "mean_pred": 0.4275489536199095,
+            "observed": 0.40384615384615385
+          }
+        ]
+      },
+      {
+        "stat": "rec_yds",
+        "threshold": "rolling_pseudo_line",
+        "n": 1775,
+        "games": 239,
+        "average_p_over": 0.5533682253521126,
+        "observed_frequency": 0.5385915492957747,
+        "bias": {
+          "n": 1775,
+          "games": 239,
+          "difference": -0.014776676056338029,
+          "ci95": [
+            -0.036917576716326395,
+            0.007447159664915609
+          ],
+          "p_improvement_one_sided": 0.10444777611194403
+        },
+        "brier": 0.237005340628169,
+        "reliability": [
+          {
+            "range": "0%-10%",
+            "n": 2,
+            "mean_pred": 0.0943,
+            "observed": 0.0
+          },
+          {
+            "range": "10%-20%",
+            "n": 7,
+            "mean_pred": 0.14514285714285716,
+            "observed": 0.14285714285714285
+          },
+          {
+            "range": "20%-30%",
+            "n": 46,
+            "mean_pred": 0.27261847826086955,
+            "observed": 0.3695652173913043
+          },
+          {
+            "range": "30%-40%",
+            "n": 294,
+            "mean_pred": 0.35763571428571433,
+            "observed": 0.37755102040816324
+          },
+          {
+            "range": "40%-50%",
+            "n": 376,
+            "mean_pred": 0.4476974734042553,
+            "observed": 0.45478723404255317
+          },
+          {
+            "range": "50%-60%",
+            "n": 418,
+            "mean_pred": 0.5506053827751196,
+            "observed": 0.5765550239234449
+          },
+          {
+            "range": "60%-70%",
+            "n": 269,
+            "mean_pred": 0.6485868029739777,
+            "observed": 0.6245353159851301
+          },
+          {
+            "range": "70%-80%",
+            "n": 213,
+            "mean_pred": 0.749718544600939,
+            "observed": 0.6244131455399061
+          },
+          {
+            "range": "80%-90%",
+            "n": 106,
+            "mean_pred": 0.846720754716981,
+            "observed": 0.7547169811320755
+          },
+          {
+            "range": "90%-100%",
+            "n": 44,
+            "mean_pred": 0.9304329545454546,
+            "observed": 0.7727272727272727
+          }
+        ]
+      },
+      {
+        "stat": "rush_yds",
+        "threshold": "displayed_mixture_median",
+        "n": 766,
+        "games": 239,
+        "average_p_over": 0.4994439295039165,
+        "observed_frequency": 0.5130548302872062,
+        "bias": {
+          "n": 766,
+          "games": 239,
+          "difference": 0.0136109007832898,
+          "ci95": [
+            -0.02011478565963274,
+            0.0449946807517013
+          ],
+          "p_improvement_one_sided": 0.792103948025987
+        },
+        "brier": 0.24998157817558747,
+        "reliability": [
+          {
+            "range": "40%-50%",
+            "n": 509,
+            "mean_pred": 0.499163163064833,
+            "observed": 0.5265225933202358
+          },
+          {
+            "range": "50%-60%",
+            "n": 257,
+            "mean_pred": 0.5,
+            "observed": 0.48638132295719844
+          }
+        ]
+      },
+      {
+        "stat": "rush_yds",
+        "threshold": "published_mean",
+        "n": 766,
+        "games": 239,
+        "average_p_over": 0.4276770234986945,
+        "observed_frequency": 0.4516971279373368,
+        "bias": {
+          "n": 766,
+          "games": 239,
+          "difference": 0.024020104438642297,
+          "ci95": [
+            -0.011109846663023141,
+            0.05606270822211728
+          ],
+          "p_improvement_one_sided": 0.9255372313843079
+        },
+        "brier": 0.24865941522193213,
+        "reliability": [
+          {
+            "range": "40%-50%",
+            "n": 766,
+            "mean_pred": 0.4276770234986945,
+            "observed": 0.4516971279373368
+          }
+        ]
+      },
+      {
+        "stat": "rush_yds",
+        "threshold": "rolling_pseudo_line",
+        "n": 766,
+        "games": 239,
+        "average_p_over": 0.5230666449086162,
+        "observed_frequency": 0.5261096605744126,
+        "bias": {
+          "n": 766,
+          "games": 239,
+          "difference": 0.003043015665796343,
+          "ci95": [
+            -0.027448843146429553,
+            0.032379935218470005
+          ],
+          "p_improvement_one_sided": 0.5707146426786607
+        },
+        "brier": 0.23031351059725846,
+        "reliability": [
+          {
+            "range": "10%-20%",
+            "n": 4,
+            "mean_pred": 0.1886,
+            "observed": 0.0
+          },
+          {
+            "range": "20%-30%",
+            "n": 77,
+            "mean_pred": 0.2568376623376623,
+            "observed": 0.2597402597402597
+          },
+          {
+            "range": "30%-40%",
+            "n": 109,
+            "mean_pred": 0.3538862385321101,
+            "observed": 0.42201834862385323
+          },
+          {
+            "range": "40%-50%",
+            "n": 152,
+            "mean_pred": 0.4550786184210526,
+            "observed": 0.5263157894736842
+          },
+          {
+            "range": "50%-60%",
+            "n": 175,
+            "mean_pred": 0.5479117142857143,
+            "observed": 0.5028571428571429
+          },
+          {
+            "range": "60%-70%",
+            "n": 150,
+            "mean_pred": 0.6511636666666667,
+            "observed": 0.6
+          },
+          {
+            "range": "70%-80%",
+            "n": 57,
+            "mean_pred": 0.7418342105263158,
+            "observed": 0.7543859649122807
+          },
+          {
+            "range": "80%-90%",
+            "n": 30,
+            "mean_pred": 0.8420416666666667,
+            "observed": 0.8
+          },
+          {
+            "range": "90%-100%",
+            "n": 12,
+            "mean_pred": 0.9406416666666666,
+            "observed": 1.0
+          }
+        ]
+      }
+    ],
+    "scope": "Exact frozen weekly member mixture, strictly earlier-week 2022 residuals. Binary ATD uses the published analytic probability. Synthetic lines; no market, returns or selection claim. Binary median is an outcome median, not a displayed probability median."
+  },
+  "mixture_pinball": {
+    "results": [
+      {
+        "stat": "pass_yds",
+        "metric": "displayed mixture pinball",
+        "comparison": {
+          "n": 386,
+          "games": 205,
+          "difference": 2.1151419017186464,
+          "ci95": [
+            1.4307042105209253,
+            2.8313544142132696
+          ],
+          "p_improvement_one_sided": 1.0
+        },
+        "decision": "descriptive supplement; original quantile-head primary gate unchanged"
+      },
+      {
+        "stat": "rec_yds",
+        "metric": "displayed mixture pinball",
+        "comparison": {
+          "n": 1774,
+          "games": 239,
+          "difference": 0.16191786309809206,
+          "ci95": [
+            0.08597385747168246,
+            0.24257297910929462
+          ],
+          "p_improvement_one_sided": 1.0
+        },
+        "decision": "descriptive supplement; original quantile-head primary gate unchanged"
+      },
+      {
+        "stat": "rush_yds",
+        "metric": "displayed mixture pinball",
+        "comparison": {
+          "n": 764,
+          "games": 239,
+          "difference": 0.19381322442070528,
+          "ci95": [
+            0.03631164575737333,
+            0.356433338943928
+          ],
+          "p_improvement_one_sided": 0.9910044977511244
+        },
+        "decision": "descriptive supplement; original quantile-head primary gate unchanged"
+      }
+    ]
+  },
+  "full_scope_accounting": {
+    "results": [
+      {
+        "stat": "pass_yds",
+        "metric": "mae",
+        "comparison": {
+          "n": 507,
+          "games": 267,
+          "difference": 6.184915591007964,
+          "ci95": [
+            4.001169810441402,
+            8.486708911493778
+          ],
+          "p_improvement_one_sided": 1.0
+        },
+        "decision": "descriptive full-scope supplement; matched primary gates unchanged"
+      },
+      {
+        "stat": "pass_yds",
+        "metric": "pinball",
+        "comparison": {
+          "n": 507,
+          "games": 267,
+          "difference": 1.5575776954815437,
+          "ci95": [
+            1.0564605026137934,
+            2.1007044334199745
+          ],
+          "p_improvement_one_sided": 1.0
+        },
+        "decision": "descriptive full-scope supplement; matched primary gates unchanged"
+      },
+      {
+        "stat": "rush_yds",
+        "metric": "mae",
+        "comparison": {
+          "n": 891,
+          "games": 271,
+          "difference": 0.793214768449144,
+          "ci95": [
+            0.16655551745052702,
+            1.4009732656481682
+          ],
+          "p_improvement_one_sided": 0.9950024987506247
+        },
+        "decision": "descriptive full-scope supplement; matched primary gates unchanged"
+      },
+      {
+        "stat": "rush_yds",
+        "metric": "pinball",
+        "comparison": {
+          "n": 891,
+          "games": 271,
+          "difference": 0.20220269148241293,
+          "ci95": [
+            -0.025082949907400672,
+            0.4260734092612566
+          ],
+          "p_improvement_one_sided": 0.9620189905047476
+        },
+        "decision": "descriptive full-scope supplement; matched primary gates unchanged"
+      },
+      {
+        "stat": "rec_yds",
+        "metric": "mae",
+        "comparison": {
+          "n": 2017,
+          "games": 271,
+          "difference": 0.24161093275693318,
+          "ci95": [
+            -0.07040526719243,
+            0.5567915095588347
+          ],
+          "p_improvement_one_sided": 0.9305347326336831
+        },
+        "decision": "descriptive full-scope supplement; matched primary gates unchanged"
+      },
+      {
+        "stat": "rec_yds",
+        "metric": "pinball",
+        "comparison": {
+          "n": 2017,
+          "games": 271,
+          "difference": 0.15310052041004102,
+          "ci95": [
+            0.0567909129051384,
+            0.24949483548838225
+          ],
+          "p_improvement_one_sided": 0.9985007496251874
+        },
+        "decision": "descriptive full-scope supplement; matched primary gates unchanged"
+      },
+      {
+        "stat": "anytime_td",
+        "metric": "brier",
+        "comparison": {
+          "n": 2637,
+          "games": 271,
+          "difference": 0.002557399028932622,
+          "ci95": [
+            0.0005018597993192218,
+            0.0045455166526709185
+          ],
+          "p_improvement_one_sided": 0.991504247876062
+        },
+        "decision": "descriptive full-scope supplement; matched primary gates unchanged"
+      },
+      {
+        "stat": "anytime_td",
+        "metric": "log_loss",
+        "comparison": {
+          "n": 2637,
+          "games": 271,
+          "difference": 0.006314858790098603,
+          "ci95": [
+            0.001458867370936218,
+            0.010818399760710678
+          ],
+          "p_improvement_one_sided": 0.9950024987506247
+        },
+        "decision": "descriptive full-scope supplement; matched primary gates unchanged"
+      }
+    ],
+    "rows": 8576,
+    "games": 271,
+    "structural_missing_rows": 809,
+    "errors": [],
+    "scope": "Descriptive full-eligible allocation with explicit other/unresolved structural mass; no new acceptance gate or primary result substitution. Missing structural rows are not evidence of zero actual volume."
+  },
+  "push_metadata_correction": {
+    "rows": 2637,
+    "scope": "A3-A Bernoulli outcome-median push-mass metadata only. Original file retained. P(over), events, Brier/bias and thresholds unchanged. No forecast file affected."
+  },
+  "metadata_only_completion": {
+    "empty_team_stat_groups_added": 85,
+    "team_stat_rows": 3252,
+    "conservation_tolerance": 1e-08,
+    "note": "Only empty-eligible team-stat remainder records added; predictions, losses and CIs not rerun/changed."
+  },
+  "scope": "2022 development; synthetic lines, no market/return/promotion claim; original forecasts unchanged."
+}
