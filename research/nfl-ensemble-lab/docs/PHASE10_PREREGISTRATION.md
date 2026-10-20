@@ -944,3 +944,65 @@ The machine-readable settings below are checked against the committed file and r
   }
 }
 <!-- PHASE10_FROZEN_CONFIG_END -->
+
+## Amendment 2 — 2026-10-20 (committed before new experiments)
+
+Start: 06:34:55 ET; Part 1 deadline 09:04:55; hard stop 17:34:55.
+Part 2 starts immediately after Part 1 and lasts eight hours, including its last
+45-minute wrap-up. Its exact start/end will be recorded, never backdated.
+Sixteen logical cores: use at most fourteen at idle priority; a concurrent game
+longrun, only if capacity is available, receives seven and other work seven.
+All work is local shadow research; no promotion, odds API, keys, spending,
+messages, database writes, deployment or scheduled-task registration.
+
+This amendment explicitly permits historical games.csv **closing lines** for
+the following labelled development benchmarks/market-informed ablation only.
+Closing lines are not timestamped decision-time quotes. The independent default
+still excludes all market features. Prospective prices come only from fetched
+origin/main:data/nfl_betting.json through the existing archive collector.
+
+### Part 1 experiments and fixed decisions
+
+| ID | Hypothesis / fixed configuration | Data / split | Metric / acceptance |
+|---|---|---|---|
+| A2-P1 | Frozen equal/weighted/stacked ensembles improve original v1 and baseline B | Run original `lab.props.evaluate dev`, 2022 only; learned fits <=2021, earlier-week 2022 meta-learning; exact game/player/stat intersection, no eligibility/outcome substitutions | Per-target paired loss vs BOTH: yards MAE, reception Poisson deviance, TD Brier/count deviance only if original outputs exist; 2,000 game-cluster bootstrap draws, seed 20261020, CI upper <0, >=100 games, Holm control. Report missing rows and v1's retrospective QB/eligibility information. Never claim all 8,576 rows if coverage differs. |
+| A2-P2a | Closing-implied team points improve props with otherwise unchanged model families | Saved feature rows 2016–2021 fit, 2022 week-forward evaluation; add exactly closing_team_points=(total +/- home-margin line)/2; same four learned families, quantile heads and independent structural member | Same six primary losses vs independent equal reference; CI upper <0, >=100 games; binary log loss non-increasing; Holm. Closing-information advantage limits interpretation. No prospective configuration change. |
+| A2-P2b | Earlier-season fitted convex market/independent blend improves closing benchmark | Saved REG DEV 2019–22 independent predictions. For each season fit scalar w in [0,1] by least squares on strictly earlier saved DEV seasons; first season w=0. No current-season fit | Margin/total MAE and empirical-residual CRPS primary: CI upper <0, Holm; RMSE secondary. CRPS uses earlier-season residuals for both distributions (first season not scoreable for CRPS). Report matched n, fitted w and all metrics, no retrospective selection of w. |
+| A2-P3 | Recent-data refit yields an auditable week-7 revision | Committed Amendment-1 frozen config; all permitted seasons through last fully completed 2026 week, expected week 6; existing recency weights | Operational: all fits/errors documented; archive revision 2 with actual creation/cutoff/hash; preserve every revision-1 byte. No performance acceptance or selection on 2026. |
+| A2-P4 | Coherence diagnostics reveal accounting gaps | Each prospective game/team; compare eligible-player sums against all-player independent structural expectations; separately flag incomplete eligibility coverage | Flag if relative gap >15% for yards/receptions or >0.5 expected TDs; near-zero denominator floor 1. Pass yards vs receive yards / completions vs receptions accounting tolerances 1 yard / .01 count. Diagnostics only, no reconciliation or probability changes. Sum ATD probabilities is expected TD scorers, not expected TD count; report this semantic difference. |
+| A2-P5 | Consistent quote contracts and nonnegative intervals improve usability | Exact player IDs, full-game quotes, pregame observation times | Consensus = mode across latest unique non-DFS/non-exchange books; ties choose smallest numerical line. All books at the modal line labelled consensus; deterministic representative book alphabetically. DFS-pickem/exchange retain separate labels; other traditional lines alternate. Gaps only consensus, settlement-compatible; no-vig only with both real sides. Floor nonnegative-stat quantiles at zero. Never map Defense to a person. |
+| A2-P6 | Frozen configuration transports to 2023–25 | OPTIONAL one weekly walk-forward pass; all earlier-week fits; saved original v1 results read-only, never original evaluator eval | Report all metrics/CIs once, no decisions or changes. Start only with >1 hour in Part 1 AND credible runtime estimate below remaining budget. Otherwise skip explicitly; no partial look. |
+
+Primary multiplicity family: 22 slots: six targets x two specified benchmarks
+(12), six market-feature comparisons, four blend MAE/CRPS comparisons. Missing
+comparisons count as p=1. Method-specific weighted/stacked comparisons and RMSE,
+pinball, calibration, first-TD and coherence are descriptive; equal is primary.
+Thresholds are frozen here; nothing qualifies for production promotion.
+
+### Part 2: eight-hour prospective investigation, not a backtest
+
+Use the same frozen independent props fit; no tuning/selection from 2026 results.
+Archive every experiment/scenario in a new run/revision directory exclusively.
+Seeds: 20261020, 20261021, 20261022; 10,000 simulations/game/seed for both
+independent and market anchors. Unplayed week 7 only, based on pregame inputs.
+
+| ID | Hypothesis / fixed procedure | Data and metric | Acceptance / action |
+|---|---|---|---|
+| A2-B1 | Prospective Monte Carlo precision is adequate | All week-7 games, both anchors, 3 seeds; report max-min ranges of margin/total means, player medians, ATD and first-TD probabilities | Unstable if margin or total range >1 point, yard median range >5 yards, reception/pass-TD median >1 count, ATD/first-TD range >.03 absolute probability; unavailable is unknown, never stable. These are precision tolerances, not accuracy claims. |
+| A2-B2 | Role/lineup scenarios expose fragile projections | Expected lineup; starting QB out; top RB out and WR1 out separately; independent margin +/-7 game-script cases. Use verified pregame injuries; remove specified role and renormalize remaining shares, use prior eligible QB replacement only, unavailable replacement => blocked scenario. Each scenario 10,000 sims, seed 20261020 | Report changes vs same-seed expected baseline; scenario-sensitive if >20% mean yards/receptions (floor 5 yards / .5 count), >.10 ATD/first-TD absolute probability, or >3 points margin/total. These interventions hold unmodelled efficiencies fixed and are scenarios, not forecasts. Learned-model means are not falsely represented as scenario-refitted. |
+| A2-B3 | Timestamped refreshes maintain benchmark freshness | At Part-2 start and about +2h,+4h,+6h, final refresh within last 45 minutes: fetch main/local archive plus archived weather/inactives; only quote comparisons/stale flags update | >24h stale; unknown time unverified. New forecast distributions not fitted because of price movement. No T-90 inactive list available => report unavailable, never infer active. |
+| A2-B4 | Optional additional game search yields development evidence | DEV_FOLDS only, `--dev-only`, seven cores; run only after B1/B2 CPU demand ends, terminate budget before wrap; no final holdout or registry update | Descriptive DEV results only. Recalibration acceptance remains original B1; no new search winner accepted without untouched evidence. Skip if capacity/time/usage is insufficient. |
+| A2-B5/B6 | Transparent evidence ranks useful investigation spots | Consensus-only comparable quotes; rank within game by confidence tier then absolute projection/line gap divided by predictive interval width (floor 1), binary by absolute probability-price gap; no synthetic prices | Tier A requires current consensus, stable, coherent, all named member means on same side, all required scenarios available and robust, compatible settlement. B: current consensus and compatible, at least one uncertainty; C: stale/missing/nonconsensus/unknown definition. Tiers are investigation-readiness, never win probability or staking advice. Missing evidence cannot satisfy A. Explain invalidators and unvalidated methods at top of Markdown. |
+
+Expected accounting: first offensive rushing/receiving TD in regulation only;
+market settlement is unverified unless explicit source evidence matches it, so
+first-TD price gaps remain unavailable. Defensive/special-teams and passing TDs
+are not scoring identities for this first-scorer market. ATD counts rushing or
+receiving TDs only. No ROI, profit, betting recommendation or stake is produced.
+
+Operational failures are logged and skipped; after a second identical test
+failure stop retrying it, without weakening/skipping tests. If usage becomes low,
+finish the current bounded step, report and stop. Optional Streamlit view is
+read-only and receives no promotion controls. Final full active suite, report,
+root MODEL_RESEARCH rows, commit/push only this codex branch. No new experiments
+start in Part 2's last 45 minutes; final refresh and wrap-up checks are preplanned.
