@@ -235,6 +235,14 @@ def planned_window(start):
     return end,wrap
 
 
+def search_lifecycle(own_job,seen_running,current_job):
+    """A detached worker's absent startup lock is not a completed search."""
+    if not own_job:
+        return False,False
+    seen=seen_running or current_job==own_job
+    return seen,bool(seen and current_job is None)
+
+
 def run_eight_hours():
     start=pd.Timestamp.now(tz="UTC");end,wrap=planned_window(start)
     directory=ROOT/"part2"/start.strftime("%Y%m%dT%H%M%S%fZ")
@@ -247,7 +255,7 @@ def run_eight_hours():
     log=(directory/"simulations.log").open("w")
     sim=subprocess.Popen([sys.executable,"-u","-m","lab.props.amendment2.run","simulation","--directory",str(directory/"simulations"),"--deadline",wrap.isoformat()],cwd=LAB_ROOT,stdout=log,stderr=subprocess.STDOUT)
     next_refresh=start+pd.Timedelta(hours=2);next_commit=start+pd.Timedelta(minutes=45)
-    longrun_id=None;longrun_checked=False;analyzed=False;finalized=False;partial=False
+    longrun_id=None;longrun_checked=False;longrun_seen_running=False;analyzed=False;finalized=False;partial=False
     while pd.Timestamp.now(tz="UTC")<end:
         now=pd.Timestamp.now(tz="UTC")
         if (directory/"STOP_AFTER_CURRENT.json").exists():
@@ -276,10 +284,11 @@ def run_eight_hours():
                     psutil.Process().cpu_affinity(old_aff)
             else:
                 note("Optional game longrun skipped: CPU/job/time availability condition not met")
-        if longrun_id and not analyzed and active_job()!=longrun_id and now<wrap-pd.Timedelta(minutes=15):
+        longrun_seen_running,search_done=search_lifecycle(longrun_id,longrun_seen_running,active_job())
+        if longrun_id and not analyzed and search_done and now<wrap-pd.Timedelta(minutes=15):
             analyzed=True
-            command([sys.executable,"-m","lab.analyze_longrun",longrun_id,"--no-record","--max-candidates","2"],directory/"longrun_analysis.log",900)
-            note("DEV-only longrun analysis finished; no prospective registry update")
+            code=command([sys.executable,"-m","lab.analyze_longrun",longrun_id,"--no-record","--max-candidates","2"],directory/"longrun_analysis.log",900)
+            note("DEV-only longrun analysis finished; no prospective registry update" if code==0 else "DEV analysis failed and skipped; no result claimed")
         if now>=next_commit:
             note(f"Timed checkpoint: simulation_exit={sim.poll()}; active_own_longrun={bool(longrun_id and active_job()==longrun_id)}; elapsed_hours={(now-start).total_seconds()/3600:.2f}")
             try:commit_status()

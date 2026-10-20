@@ -171,3 +171,13 @@ def test_exact_game_roster_alias_can_disambiguate_but_never_guess_or_map_defense
     assert result.pid.iloc[0]=="right"
     assert pd.isna(result.pid.iloc[1]) and pd.isna(result.pid.iloc[2])
     assert quotes.pid.isna().all()
+
+
+def test_detached_search_startup_lock_absence_is_not_completion():
+    from lab.props.amendment2.run import search_lifecycle
+    seen=False;ready=[]
+    for active in (None,None,"owned","owned",None):
+        seen,done=search_lifecycle("owned",seen,active)
+        ready.append(done)
+    assert ready==[False,False,False,False,True]
+    assert search_lifecycle("owned",True,"another")== (True,False)
