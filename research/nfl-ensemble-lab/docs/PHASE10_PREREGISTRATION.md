@@ -1055,3 +1055,18 @@ history uses existing neutral no-history efficiency and position-share priors
 under an anonymous assumption:ROLE:TEAM identifier, never a GSIS ID. All affected
 scenario sensitivity stays unknown: assumption-based replacement, never robust
 verified lineup evidence. No change to A3-A/B/C thresholds or probabilities.
+
+A3 probability-definition addendum (16:47 ET, before exact-CDF diagnostic;
+no metric results inspected and all original gates retained): A3-A's declared
+mean/residual and Poisson approximations are retained as diagnostics. To test
+the exact P(over) shown by the weekly app, additionally reuse
+lab.props.projections10.distribution on each saved2022 row, with ONLY strictly
+earlier2022 weeks supplied as the residual pool, existing saved structural
+samples and the existing deterministic seed/draw count. Yards require>=100
+prior-week residual rows. Synthetic rolling lines remain unchanged. Report
+bias/Brier/reliability and exceedance at the published mean and the displayed
+mixture median, with the same game-cluster CIs; these are descriptive, no new
+selection gate. Also report paired pinball deltas for reconciled vs original
+mixture quantiles, separately from the preregistered quantile-head primary
+pinball metrics. No gate, split, family correction or frozen configuration is
+changed, and the approximations are not silently relabelled as exact mixtures.
