@@ -185,7 +185,7 @@ def refresh_sheet(stamp=None):
     d["comparison_created_at"]=now.isoformat()
     d["forecast_revision"]=2
     d["market"]=d.stat
-    d["quote_settlement_scope"]="regulation-only model vs quote settlement unverified" 
+    d["quote_settlement_scope"]="regulation-only model vs quote settlement unverified"
     stem=REPORTS_DIR/f"projections_2026_w7_r02_{stamp or now.strftime('%Y%m%dT%H%M%S%fZ')}"
     export(d,stem,heading="Week 7 shadow projections, revision 2",context="Frozen model refit cutoff 2026-10-19 / completed week 6. Market prices are benchmarks only; forecast distributions are unchanged by this comparison refresh.")
     ct.to_csv(stem.with_name(stem.name+"_coherence").with_suffix(".csv"),index=False)
