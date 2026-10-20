@@ -118,9 +118,11 @@ def build_inputs(frame, panel, season, game):
     return (*G.build(a, avail, hist, game.week, qbs, sides), a)
 
 
-def run(season=2022, week=None, n_sims=1000, limit=None, log=print, deadline=None, min_week=None, production=False):
+def run(season=2022, week=None, n_sims=1000, limit=None, log=print, deadline=None, min_week=None, production=False, anchor_overrides=None):
     if season not in (2022, 2026):
         raise ValueError("Only 2022 development and 2026 prospective allowed")
+    if anchor_overrides is not None and (season != 2022 or production):
+        raise ValueError("Saved-anchor recovery is 2022-only")
     if production:
         from .frozen import load
         load()
@@ -171,7 +173,13 @@ def run(season=2022, week=None, n_sims=1000, limit=None, log=print, deadline=Non
             teams, players, cols, info, a = build_inputs(frame, panel, season, g)
             if any(not len(t["recv_cols"]) or not len(t["rush_cols"]) for t in teams):
                 raise ValueError("Missing eligible receiver/rusher pool")
-            pred = anchor.predict(fs[fs["game_id"] == g.game_id]).iloc[0]
+            if anchor_overrides is not None:
+                points = np.asarray(anchor_overrides[g.game_id], float)
+                if points.shape != (2,) or not np.isfinite(points).all() or (points < 0).any():
+                    raise ValueError("Invalid saved independent anchor")
+                pred = pd.Series({"home_points": points[0], "away_points": points[1]})
+            else:
+                pred = anchor.predict(fs[fs["game_id"] == g.game_id]).iloc[0]
             modes = {"sim_independent": [pred.home_points, pred.away_points]}
             if g.game_id in markets and {"margin", "total"} <= markets[g.game_id].keys():
                 line = markets[g.game_id]
