@@ -1,0 +1,16 @@
+{
+  "projection": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\projections_2026_w7_r03_20261020T214325731600Z",
+  "leans": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\leans_2026_w07_r03_20261020T214325731600Z",
+  "coherence": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\projections_2026_w7_r03_20261020T214325731600Z_coherence.csv",
+  "tiers": {
+    "C": 2329,
+    "B": 1199
+  },
+  "eligible_player_rows": 504,
+  "structural_missing_rows": 58,
+  "unknown_real_replacements": true,
+  "training_cutoff_date": "2026-10-19",
+  "forecast_revision": 3,
+  "created_at": "2026-10-20T21:43:47.686152+00:00",
+  "scope": "Comparison/accounting only; forecast distributions unchanged"
+}

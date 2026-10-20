@@ -1,0 +1,18 @@
+{
+  "pipeline_exit": 0,
+  "games": 14,
+  "sims": 1000,
+  "seeds": 3,
+  "errors": [],
+  "assumption_based_cases": 16,
+  "stability": {
+    "stable": 5971,
+    "unstable": 189
+  },
+  "scenario_sensitivity": {
+    "unknown: assumption-based replacement": 2724,
+    "robust": 2451,
+    "sensitive": 1097
+  },
+  "initial_pipeline_manifest": "artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\MANIFEST.json"
+}

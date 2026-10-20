@@ -1,0 +1,1836 @@
+{
+  "created_at": "2026-10-20T21:45:49.256272+00:00",
+  "tested_source_revision": "f409dfa",
+  "loaded_pipeline_revision": "6387a27a08783fe7027a6879858bdd5d41470566",
+  "forecast_revision": 3,
+  "training_cutoff_date": "2026-10-19",
+  "champion": "v20261016_212540",
+  "prior_forecasts_verified_unchanged": 29,
+  "new_forecasts": 14,
+  "initial_pipeline_files_verified_unchanged": 105,
+  "full_tests": "284 passed, 1 pre-existing skip, 519 warnings",
+  "report_preservation": {
+    "previous_report": "reports\\run_20261020\\REPORT.md",
+    "preserved_copy": "reports\\run_20261020\\REPORT_amendment2_preserved.md",
+    "preserved_sha256": "bd3ce6499cb2f1885ddd83c2fa73967a07f9981024cc2fe06fb5bd4c375d2162",
+    "reason": "Requested latest run-date REPORT.md will describe Amendment 3; preserve prior eight-hour report byte-for-byte."
+  },
+  "files": [
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\MODEL_RESEARCH.md",
+      "bytes": 25789,
+      "sha256": "526739b747e7727e2eae42314ec805717a180f57cfff197592fa32ebed7aadda"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\app\\phase10_pages.py",
+      "bytes": 21695,
+      "sha256": "e238df3f1b6eeab8de89ce1130961139b6ca7748200cedebf8954274659b5d64"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\app\\streamlit_app.py",
+      "bytes": 128882,
+      "sha256": "a56e537fc4b055a3dd8ef6bee0551d98af2ed0b78e663c89c7941dbbadea99d2"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\accounting2022.json",
+      "bytes": 5872,
+      "sha256": "ae0f6150f29cb1991ae41a13205028d3a92dd4c58e406b44377b096004b00471"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\errors.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\pseudo_calibration.json",
+      "bytes": 27354,
+      "sha256": "4f70f9c4caa2581fe9a2fecbd024427eb2ca7d2117cd229122ed5edbf59a9bac"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_BAL_NYJ.json",
+      "bytes": 13715,
+      "sha256": "f1924f8c229e1fcac73b9b079928d1c6332f84b9cc23db8f3767b755619ab509"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_BUF_LA.json",
+      "bytes": 13674,
+      "sha256": "864e4e9cf9d8dc3355cb5e26157b6f756943766e86514ee9090d864a37522439"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_CLE_CAR.json",
+      "bytes": 13769,
+      "sha256": "301db77f45623d73c00c92683202e025f65baff882279023b2d84d2a51491d0b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_DEN_SEA.json",
+      "bytes": 13596,
+      "sha256": "5a9a90892570de6c50ae231067708abe1151869d247052855821667b8b4a714c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_GB_MIN.json",
+      "bytes": 13805,
+      "sha256": "e70d38e778e04fa7189db4a028e4cea635da0a0db029a0f3ce5cbd58298cbc16"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_IND_HOU.json",
+      "bytes": 13903,
+      "sha256": "bbefed101d8e9b4d065d90243050ec8ef87c92293ff87173168dafd392ce6c81"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_JAX_WAS.json",
+      "bytes": 13569,
+      "sha256": "31ff5bc7ac0f5451faf392f28769959d88f0e61a2a0fa733a354f8a16a99a34c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_KC_ARI.json",
+      "bytes": 13687,
+      "sha256": "61587dc5bbfaa25daf3f850e61625e50626d4b0079e9db8d94f11fba5dda3b86"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_LV_LAC.json",
+      "bytes": 13547,
+      "sha256": "46e34f2babc9565d06c11b37c7db899a6b2d318c2456c4a49b4dd0dd76cc30a1"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_NE_MIA.json",
+      "bytes": 13759,
+      "sha256": "289ae20b1fe2a46bab6ac757a78e43b4a7ce71bcf0f2ec1be8d68304173ae6e1"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_NO_ATL.json",
+      "bytes": 13776,
+      "sha256": "6a335bdf116ad282c583b31c9e8d1d57abe17717a982e0001b9a04729b312a20"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_NYG_TEN.json",
+      "bytes": 13440,
+      "sha256": "3efff2eac4a7f165c96c603ff4cb271be9b33e546c657a00b3b3b4006767b117"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_PHI_DET.json",
+      "bytes": 13831,
+      "sha256": "77c045c825928983a8680adf2a5ea88fc839d56155545a7ecbae6dbb781ac086"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_PIT_CIN.json",
+      "bytes": 13613,
+      "sha256": "0bf0a95a469e64466e5f843f99daa80d7db94c3ac47d2eda78b9c6908e1d607e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_SF_CHI.json",
+      "bytes": 13885,
+      "sha256": "76625e2c96b18ddab6464eb9556d0549cb1bfc36ba8614f50ae82c1ef94b8062"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_01_TB_DAL.json",
+      "bytes": 13785,
+      "sha256": "df3e910c534191dc70a72df2f072713c773c4f71d7ce8f452d42f9c12428cfb8"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_ARI_LV.json",
+      "bytes": 13731,
+      "sha256": "d1dc6abdc232f9d2bbc1fe880cbac29a937213b59f546ca5ff486087f7a13812"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_ATL_LA.json",
+      "bytes": 13434,
+      "sha256": "1673d5e0aa7258d09c40ea3a6132a81ea886316ed965835112e4298051c515df"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_CAR_NYG.json",
+      "bytes": 13578,
+      "sha256": "3df8da307a4b4aa775ad5a4ecce52dbb84cf0825071cfc3883b62955da7cc2b5"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_CHI_GB.json",
+      "bytes": 13499,
+      "sha256": "a1a3ed3cfd98a873a57dea68e5f119ed5f4094831cac4463d5bbb195802c586c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_CIN_DAL.json",
+      "bytes": 13569,
+      "sha256": "a15d9555e10c2f048686a065f67cf6d44790a7f426e41d371321244f00526e43"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_HOU_DEN.json",
+      "bytes": 13486,
+      "sha256": "01e387766878ba6b4728cbcb2ced2a9fb4834acc8592b71d614cede16703b216"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_IND_JAX.json",
+      "bytes": 13770,
+      "sha256": "012150a8e2b9d18a4e07b36fc3d5dcabfed7c33948a6c814f13260ea7b5ef063"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_LAC_KC.json",
+      "bytes": 13601,
+      "sha256": "66dc5cdcbefac484aecc335588f5275e50eeec0fb86549b32cb2dbbb786783a9"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_MIA_BAL.json",
+      "bytes": 13625,
+      "sha256": "44b286f27be2b0135d86c832c8c9394571f82c9b9487bf2c7d2ad7d5cc67aa96"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_MIN_PHI.json",
+      "bytes": 13577,
+      "sha256": "1cf373c3cbf176772a7a86add9a49fe8dfafa591bc88781c42c2a3c1ad2aaefa"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_NE_PIT.json",
+      "bytes": 13615,
+      "sha256": "3fa45bb3273524dfe2007e3fd3e10cdbfa7f6d81f0c7347e85ee65f8d0c14d5b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_NYJ_CLE.json",
+      "bytes": 13450,
+      "sha256": "5e5d3f348149a27a82f25183f28087eca35685b132a7c417d853b4c51a3a0ca4"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_SEA_SF.json",
+      "bytes": 13617,
+      "sha256": "b0a0c5b2bc7da9bb99ca4d4b069561fd353ad3ee2b05f8d5ec03e383076b4feb"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_TB_NO.json",
+      "bytes": 13772,
+      "sha256": "752f34da40880529639ceb53158df551239a6edd259fe598a2da4ad77482b40e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_TEN_BUF.json",
+      "bytes": 13511,
+      "sha256": "c779ee755d03eaf5df3fcd06bcef9eff6077d73302d78fd5f95db1cce39e79ba"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_02_WAS_DET.json",
+      "bytes": 13689,
+      "sha256": "3d23c6cdaaed3ab63d026176362c66e2b1ff2bd781bdb05a7f154f7f1c724bfd"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_ATL_SEA.json",
+      "bytes": 13645,
+      "sha256": "2d548f817f7d86613caf33b026ea879335ce1b0208579112f1c1101447e759c5"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_BAL_NE.json",
+      "bytes": 13510,
+      "sha256": "c23d7d0723e401cd1d7acd19f8c961f292aff84dfc03aa66806f7928d37b6d8b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_BUF_MIA.json",
+      "bytes": 13858,
+      "sha256": "80b580ed9869ce936ae72660b2a06071da1e2f93be70fdea04ab370c409dcde0"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_CIN_NYJ.json",
+      "bytes": 13801,
+      "sha256": "de8117e329068534a2ca65b61242a591f34e60df2de97d9cb910acef839392bd"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_DAL_NYG.json",
+      "bytes": 13773,
+      "sha256": "f17b76a1553e9b53d54f4b9dbf899c381c4cc02af16a53854c5fa3d353bb3648"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_DET_MIN.json",
+      "bytes": 13537,
+      "sha256": "a15856b95cd9b31ef462f4d419961fdb5842e3490960cf9c9f2b08a0a2502f93"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_GB_TB.json",
+      "bytes": 13546,
+      "sha256": "c40d247f8df3344e49ad6c56156cbf3777bd674c80ed275174eaa21dc3ee36c4"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_HOU_CHI.json",
+      "bytes": 13517,
+      "sha256": "79f7765cd2c5e50376bd75283d421ddd1c0800ba9af3cfae5a0d38c6e9e16c0b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_JAX_LAC.json",
+      "bytes": 13522,
+      "sha256": "dece53b9c730beb9f0119db51a223f7da8962b203959ad256218059ba0d1ee67"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_KC_IND.json",
+      "bytes": 13861,
+      "sha256": "dca32014ba30f1d1d4f82b03f0dc79c3ec139346f6cecc91994fdfe60557c0cb"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_LA_ARI.json",
+      "bytes": 13667,
+      "sha256": "31bbf4a90a196dc4acd0846229e82264794b5cecff9338e42d7f6f7b0b9dad42"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_LV_TEN.json",
+      "bytes": 13625,
+      "sha256": "442847ce9b35f1f90c27e7efd4c62ffc14cdfeec076653e805e6be88fdaca9c6"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_NO_CAR.json",
+      "bytes": 13710,
+      "sha256": "f56205f5a489ac47c0e96c50d7b89fd3e61be31e9873240beccf68a03e52b3a8"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_PHI_WAS.json",
+      "bytes": 13777,
+      "sha256": "612db9d92ac14b8c29be6c02b6acd5423473428c4aff71a45d86b39f8fe6e06f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_PIT_CLE.json",
+      "bytes": 13570,
+      "sha256": "eb352cb223d1844673aeffb76987afa5ae74812cba972a5e483b05acca506542"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_03_SF_DEN.json",
+      "bytes": 13617,
+      "sha256": "293ab038e2fad059c061246589b205446aa6f8c13b4463e896bfd556d59ad65a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_ARI_CAR.json",
+      "bytes": 13726,
+      "sha256": "1e60be77fd40def9f9af0da78ca49fef1d8e8697519d0d85c537de8f2add154a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_BUF_BAL.json",
+      "bytes": 13845,
+      "sha256": "359ae24b659aea60a4d8dd60f4c16ba0a24a75e94ff754ebcd192a3eae7899f8"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_CHI_NYG.json",
+      "bytes": 13577,
+      "sha256": "db25cb75569c8d175739da605563f48a6a1ce0f7e300dd0386bdf0c73f5b51c0"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_CLE_ATL.json",
+      "bytes": 13735,
+      "sha256": "f81cb7bc9d57bac274655ba7d5d1ba209033c58715b8e786b83cf2f2956a3e01"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_DEN_LV.json",
+      "bytes": 13697,
+      "sha256": "707c024f0f0a75af092c06c1755ee01e9c9c597ad9e0f663f768945536c63584"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_JAX_PHI.json",
+      "bytes": 13497,
+      "sha256": "74eeb5fa2c1525d2ccd80f5f15d4e4b63825c0d2dbc30d0adbebea0b62168edc"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_KC_TB.json",
+      "bytes": 13649,
+      "sha256": "6489fb99690c669a2a489171a6b967bff86c2f1a3e8d7d5262ad9242c8d191f2"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_LA_SF.json",
+      "bytes": 13539,
+      "sha256": "7034e80ab4f800e681f83a14720f9768a2802f9c8171448e0b183dd2130ca595"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_LAC_HOU.json",
+      "bytes": 13831,
+      "sha256": "ea2af3222de9626e4800bfb9ba93eb186225f2d9d7f0135a348eb2e70e15e454"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_MIA_CIN.json",
+      "bytes": 13596,
+      "sha256": "c782fe961ab417c8af54270fc44ef56f8d25777ae21cad32cc9659507266a13a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_MIN_NO.json",
+      "bytes": 13634,
+      "sha256": "a087d6469da01e4c16e5329c1c9e2ea4795fedfdc1f00c640bbd61019048311c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_NE_GB.json",
+      "bytes": 13557,
+      "sha256": "b0dd04e90a4d5ac0f6044a6ab0b149da1f1c57e55f2fed4b0b9cc2ddd080cbbb"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_NYJ_PIT.json",
+      "bytes": 13504,
+      "sha256": "c3057bac7d623ea0e0b61da7f477b0c57ba4c8176459d31f795b6b14ba5f791f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_SEA_DET.json",
+      "bytes": 13625,
+      "sha256": "c9819fd54c62d3efb91e838c8cee394e69fb4bfc3ba88689e716da55bb4c2543"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_TEN_IND.json",
+      "bytes": 13654,
+      "sha256": "cf99745bc98b94792679a5e3f09753318421c690a30b42958cbaacc2d9d14e60"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_04_WAS_DAL.json",
+      "bytes": 13509,
+      "sha256": "4191f6f97250838339dbf0d53f009f35579c26f53a27ade15a6935afb5c509e0"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_ATL_TB.json",
+      "bytes": 13484,
+      "sha256": "37f44d407b5ffba970bfb5151b2091726e2748de029a19338e73dcfdf916d290"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_CHI_MIN.json",
+      "bytes": 13499,
+      "sha256": "0c3a3a3f641d0f45bfad84f8d4d1e871da6b8a927001066e4260d198897af7d8"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_CIN_BAL.json",
+      "bytes": 13644,
+      "sha256": "3256dec11df7246643bf59a1202971fae36b92f9254d2b1a91402fa37aa29ea2"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_DAL_LA.json",
+      "bytes": 13622,
+      "sha256": "23ae6354ab82e892de600bf968053a7ad32f1ea0225b7cf2aac752fa8e35080e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_DET_NE.json",
+      "bytes": 13384,
+      "sha256": "f491618cc345f2773eced6450013792124c850f5bb54b6d9b6403c77ce3fc397"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_HOU_JAX.json",
+      "bytes": 13485,
+      "sha256": "3851af4d005ef99a0a097e4d4db8bef6ab38386e1a55de9aa97d7a2359823ab7"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_IND_DEN.json",
+      "bytes": 13618,
+      "sha256": "4b409e5315b261f2ee316f2497ab0ebad796817e1fb0942690c1e1467b45ae77"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_LAC_CLE.json",
+      "bytes": 13642,
+      "sha256": "f39f01df938acbb2abd7c15d4071ee7c02f3c083c2d020bda394a875ce45183e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_LV_KC.json",
+      "bytes": 13501,
+      "sha256": "8b5de139637468f4831058db62e97c361331b791d513adeb1fe6e5b357db8e07"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_MIA_NYJ.json",
+      "bytes": 13757,
+      "sha256": "8f0945dd427f346707825f73ddbb8f4daf98065e41033220f30016edde539755"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_NYG_GB.json",
+      "bytes": 13515,
+      "sha256": "db35850df77ae7dbc139fd47b0cf892ff46d5210f2212b135c0fef2565f76a3a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_PHI_ARI.json",
+      "bytes": 13644,
+      "sha256": "aa9d9fe707bf46422cbcf8102f15f1e812175aa94dd1aaa39b1eeda1d5f01ac6"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_PIT_BUF.json",
+      "bytes": 13446,
+      "sha256": "6863329e2a546c21d6abe98fb5435ee638192b2af92699038c32e399c2224b9c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_SEA_NO.json",
+      "bytes": 13680,
+      "sha256": "38e6550fef167b437361aa556d2c06a496883a89137afe04edce4b0e0191bf92"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_SF_CAR.json",
+      "bytes": 13759,
+      "sha256": "7418dbf332d8a413b49a6d3e72ef2f02ac282a3c80dbab3baa61bfa2166c1686"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_05_TEN_WAS.json",
+      "bytes": 13670,
+      "sha256": "182dbf475c385b8564df5f1e0f6195aeccb8f9db3a3e03046a165cabe3428510"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_ARI_SEA.json",
+      "bytes": 13581,
+      "sha256": "439d314195acd41264f03fe0e40f707cae7c38c91138c84ecd0e6026ee1fbf2e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_BAL_NYG.json",
+      "bytes": 13763,
+      "sha256": "c596ec089bf877ef84f766dc23366de4225d989f59be9dd0d3dac7101a7e1a9b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_BUF_KC.json",
+      "bytes": 13688,
+      "sha256": "0dcb85d430cdd6d6884b1c3d907b500cf4e0c05c5bffa31d2da6450922ecbc11"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_CAR_LA.json",
+      "bytes": 13451,
+      "sha256": "a5479b59a2188b5d4376aa3fcaf2da5216df63fd1abf53b77832f991f0843e80"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_CIN_NO.json",
+      "bytes": 13602,
+      "sha256": "9267fa6564c51187792e4f7f6ccdecd25f4802bf99ace0ae64301d6a7c75a42c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_DAL_PHI.json",
+      "bytes": 13550,
+      "sha256": "40ee2420560980596700d6b798d1593686bbfe307e9b651e8867850b8e9cfa44"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_DEN_LAC.json",
+      "bytes": 13598,
+      "sha256": "6352a1757cdde78fba52fc0086955f3fee87df0a034b07b82794482da6fac448"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_JAX_IND.json",
+      "bytes": 13600,
+      "sha256": "f46d601492321d05ebaf94b1a68b4698f5cb0aeebbf87234bb7c50468df8b391"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_MIN_MIA.json",
+      "bytes": 13637,
+      "sha256": "18441fa95f3309f8f09b777a0c58a6bb3eae7470a9b5183c42369013825e3dac"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_NE_CLE.json",
+      "bytes": 13629,
+      "sha256": "5504a2b4d46085ff1304fb4e85f769df14635cc50bd3a146e1e4770b3408324e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_NYJ_GB.json",
+      "bytes": 13495,
+      "sha256": "269cdfd68d43a05a7f2693778c512f90eec9006bb933e9f4aeb5af544c7f6356"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_SF_ATL.json",
+      "bytes": 13861,
+      "sha256": "98c4a4a148457d4daa897b5a76ae493934e5fa78f4a2f64ac6412bd32728050f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_TB_PIT.json",
+      "bytes": 13827,
+      "sha256": "53aa4b55e24397d70b3f00beede18f872cc58aa9ba5015d02ba9a870dbde5e8c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_06_WAS_CHI.json",
+      "bytes": 13609,
+      "sha256": "7af72eff75a28e9d8dd6894871c04c81cb4809f57afbc2dde4dc01f841855c0b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_ATL_CIN.json",
+      "bytes": 13546,
+      "sha256": "6719800994594a041c8e686338f164392ff44f589443606aefc2ee7e1b0cd718"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_CHI_NE.json",
+      "bytes": 13463,
+      "sha256": "00c9ae2ab9d2c024213a33fd06ec2e1ab75df96c3e68416e0e10fef1f0c00dd6"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_CLE_BAL.json",
+      "bytes": 13538,
+      "sha256": "433b5406353c8e79a7edf1e07c4b8e1ff3ab216a0575ba0fba73b9d7d8c16217"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_DET_DAL.json",
+      "bytes": 13414,
+      "sha256": "bd746cf3e27230d02f70c2ecb31e51450b7217f924f11c1e063ed7e1589212dd"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_GB_WAS.json",
+      "bytes": 13641,
+      "sha256": "abfd6f9434f78710388e13f01056b3db947e6cf4589875e3283a2599a33fa06d"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_HOU_LV.json",
+      "bytes": 13442,
+      "sha256": "5f0d505c81a21848dfbdd511b78ded2df1bc7558757011f0627dac69c85198b7"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_IND_TEN.json",
+      "bytes": 13561,
+      "sha256": "72f0d4e0e7809a0df2b787c6033a847545177deb77a96589a27977ee6054a437"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_KC_SF.json",
+      "bytes": 13751,
+      "sha256": "1f62f04d35ef7a5f685fb45723c2f8d2b862930da2b219605f7c18b83ab51160"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_NO_ARI.json",
+      "bytes": 13540,
+      "sha256": "87e675583f8baac33876fc4c2175882b0994cc177dd466cae05f96f446310946"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_NYG_JAX.json",
+      "bytes": 13589,
+      "sha256": "bdc72b15e97d6e5e8fed725592e938c6ceabdf7235b648f714e0b96017e3d91e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_NYJ_DEN.json",
+      "bytes": 13579,
+      "sha256": "9e106fb3ecafd7eb00c336b5c4f3263c14f7cb4efa21bca4ed4d9023d049e117"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_PIT_MIA.json",
+      "bytes": 13592,
+      "sha256": "e9e2802bd1ce79ea0c312cc3183f7956d1583165bcc256e3f732bccf5c34cc0a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_SEA_LAC.json",
+      "bytes": 13531,
+      "sha256": "14ec86e5be60c3676291e2b3137190dcd7ccf980bd72a2cb5f284429b7cd0ac6"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_07_TB_CAR.json",
+      "bytes": 13952,
+      "sha256": "6a9f7709039a309a263dcae596934cbd280dcc0d6ab1aed458432b3346741642"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_ARI_MIN.json",
+      "bytes": 13646,
+      "sha256": "16a40baf12520c63954a06c8ac4322e99ca299482c01430f2b8856457774ee6a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_BAL_TB.json",
+      "bytes": 13583,
+      "sha256": "c229ed8d53d8038730cd314cc20a9eb3539aa0a37eab5a37718c14523fdeee61"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_CAR_ATL.json",
+      "bytes": 13672,
+      "sha256": "fac429ac0dc6a640c6fb6b14d364b4162aae2b389ae28ee7aedbe30e6d1d366b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_CHI_DAL.json",
+      "bytes": 13511,
+      "sha256": "f9ffd46120132458f9018f202a261c62698204782ea682506dac4cfe23a50c1f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_CIN_CLE.json",
+      "bytes": 13758,
+      "sha256": "18430f3b65351d8f9c506b6ff931eb78b7fa19c64ba26c91f71a008e1cca1d07"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_DEN_JAX.json",
+      "bytes": 13640,
+      "sha256": "d5bcc1442475de3eea17fb3e06e267af5e3545465a468594f21f102c35e19ddf"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_GB_BUF.json",
+      "bytes": 13472,
+      "sha256": "dcf57b22ec1a77692ec9a7b688f4c2cc1385a8216f79e443db1c18f6e88c6de6"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_LV_NO.json",
+      "bytes": 13644,
+      "sha256": "c34606d6984c495f00141aefb381ec95d7754ee2e13e8ee3683ae9cc040ab6a8"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_MIA_DET.json",
+      "bytes": 13774,
+      "sha256": "cf4bd15cb0eaf8715e9e69c968e36bae1ce60d4f47c39aed5554b5061296f9cc"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_NE_NYJ.json",
+      "bytes": 13668,
+      "sha256": "dbaa6688187bcb3051346ded0932745ea51f7cbeab81df4d69662368b26cd5b6"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_NYG_SEA.json",
+      "bytes": 13544,
+      "sha256": "84c5cb5be5025df8ee1b54675c56e2aee006414565d4031e6b9512793db1cde0"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_PIT_PHI.json",
+      "bytes": 13453,
+      "sha256": "143ff7a2ebe1531400cd570a55441af6b05bacb432013de4fea720ed44e5f2f8"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_SF_LA.json",
+      "bytes": 13615,
+      "sha256": "4d1da927b9f5e3ec15c58fe3d0a1e710b1e1c1af4a2dcd1ecbfcb58fdcb81cd2"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_TEN_HOU.json",
+      "bytes": 13792,
+      "sha256": "f8b3ee7dd379a8eaeb2e3fac701cb2062136079c304756f695edea03ed86587b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_08_WAS_IND.json",
+      "bytes": 13548,
+      "sha256": "31c03168e2e0ae516f5cf9628c634bb779f4e8ad659dbc87a4d29d305ec428a9"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_BAL_NO.json",
+      "bytes": 13566,
+      "sha256": "c4df9a4cb05e494c7e6a75170747f199bf460e09d66f4b2667a27b432971d6f7"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_BUF_NYJ.json",
+      "bytes": 14032,
+      "sha256": "c2a64886f274cf56029b9d4862bc8e8e9b3f138172bad60e87dc3a0bfb83452f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_CAR_CIN.json",
+      "bytes": 13471,
+      "sha256": "51798e0cb6b81ad82970891737aec02c3d26f209e7f2993f238e10e9d1299741"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_GB_DET.json",
+      "bytes": 13828,
+      "sha256": "3b797ca08c652d32d2283cea01f1f5d21341ece0cedc6e7289feda33a90abb2d"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_IND_NE.json",
+      "bytes": 13453,
+      "sha256": "cec2809dd783002256af650839818ef36609f4dcb3114e526d01c6f824aa8498"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_LA_TB.json",
+      "bytes": 13591,
+      "sha256": "013595f6dd9b79e9dd5b839c01be67fac67c80e6a27735f127af523384584f7e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_LAC_ATL.json",
+      "bytes": 13731,
+      "sha256": "a8e84629750ebcaa8606955eca23ffb350c30bb1adaabd7bbc7af105f0e21f8f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_LV_JAX.json",
+      "bytes": 13618,
+      "sha256": "9c83bb648be9a8f38dc83d5383ee36c4f086b0b67cef8851d7963b98ee9633c3"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_MIA_CHI.json",
+      "bytes": 13813,
+      "sha256": "fd11e555b2ab80762b4eb0336612893e63ba5e34093116c03cd957b8229d3d3a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_MIN_WAS.json",
+      "bytes": 13685,
+      "sha256": "a829358ad296e56bdd0a72cc758fab1a0b13621474c1a018eac0ff74741e588e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_PHI_HOU.json",
+      "bytes": 14035,
+      "sha256": "1e8d3dbf05b888c88c4b5240b6362362143358e7367247cbb21881c752eb427b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_SEA_ARI.json",
+      "bytes": 13540,
+      "sha256": "97e45dd44056178bb548514c1a70d7b974303fa2a2d1359cf29b1fc50f911d7e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_09_TEN_KC.json",
+      "bytes": 13485,
+      "sha256": "0776e66683a5839ba3ef71b5d0f5c7b09a6b1454f81d28bb06105fd01a8ac84d"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_ARI_LA.json",
+      "bytes": 13553,
+      "sha256": "2a519f31da095473270edb85f640f11ee0b33d433c6753d5ade781ecc07c0355"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_ATL_CAR.json",
+      "bytes": 13630,
+      "sha256": "5fbdb8cb48509d72c61d6e3b7b78062a32d1de25ca1cccf14fda57fd717fcff8"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_CLE_MIA.json",
+      "bytes": 13611,
+      "sha256": "9443219fad7a9f1d41abcbe84858a8f28e718619989e5679dd62efbd6de262eb"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_DAL_GB.json",
+      "bytes": 13771,
+      "sha256": "0a8a5047c719935afca2d8686968ef2cd61986a19a58b2b575b82315b064da3d"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_DEN_TEN.json",
+      "bytes": 13545,
+      "sha256": "b0ca226f17f20299392ccf5f7de7e42790e491cb3e27a7b8b1985bffddc20476"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_DET_CHI.json",
+      "bytes": 13599,
+      "sha256": "8592d44e2ed260051a93a59f4b18c0b3736ae8ab8df128d3bb9c3363730dc1a6"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_HOU_NYG.json",
+      "bytes": 13545,
+      "sha256": "ef780ce23478fe297350a320bd13b8fac6bea0283dedf71642d24a19973240ca"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_IND_LV.json",
+      "bytes": 13543,
+      "sha256": "70bd3d63f79e2d69f54a325ed3535a2a58a23ef900c4e2d7f2613382f6c399b7"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_JAX_KC.json",
+      "bytes": 13505,
+      "sha256": "01fc10eed58ae1ff4fd39dc33dd741d701a3f8119a988d60fb8785d3e53feb3c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_LAC_SF.json",
+      "bytes": 13572,
+      "sha256": "0a2b7b9fbfb1e6f2ecb8af67b1215d4bc4b4df06d91b6c81f92b1b41fd7517d8"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_MIN_BUF.json",
+      "bytes": 13478,
+      "sha256": "47b4d5727a449bc2db549cff606b835249c11c1a1b4cfde3e9bdc4104a963e39"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_NO_PIT.json",
+      "bytes": 13742,
+      "sha256": "bfe8fe2cb8dc012bf93cad6f32d4914b457f1d7e7f7cf9b3a1c6745b3be150a4"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_SEA_TB.json",
+      "bytes": 13592,
+      "sha256": "c87b9fc9193f1d7bbc9aacac7b36eeaaa9177b36204d48d14dcbf4209d47c288"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_10_WAS_PHI.json",
+      "bytes": 13455,
+      "sha256": "76c126c97667ed09eabba1ebb5ad9ca39973aac94ec1d2e8bedea1aa3c751552"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_CAR_BAL.json",
+      "bytes": 13487,
+      "sha256": "1797e36e2c83b0ee86282f8730a5af9a1e43c3440e8016d4449e79dbb3a1840a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_CHI_ATL.json",
+      "bytes": 13635,
+      "sha256": "f417304374e0cc6da675cdd98056b74a7af5d4c125bc49c44d6a403bdfa906c2"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_CIN_PIT.json",
+      "bytes": 13883,
+      "sha256": "6a13ce0e637ebc4a182c165ef6a6c8f8fa45cec0b687dd3aed1962ed82792367"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_CLE_BUF.json",
+      "bytes": 13485,
+      "sha256": "d3bcda7c41110741129bae8c99bb8ba2827a3632dbc0c3f25a23ced6f49b124c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_DAL_MIN.json",
+      "bytes": 13693,
+      "sha256": "cdcd80698cd3ba549f65c4fbc44645a7c7d79c1ccf7d1564c31c22f73f103037"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_DET_NYG.json",
+      "bytes": 13597,
+      "sha256": "1812e792b845d53ad680ce11dbd55c4d2387babab68514fd8366068d3341d8bb"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_KC_LAC.json",
+      "bytes": 13841,
+      "sha256": "3357a1573d01c990e81d3f89e2edb82a27e9f480889579a3bf43529f5ab46059"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_LA_NO.json",
+      "bytes": 13625,
+      "sha256": "cad1492c617ff1603e063b7630b0e5ca6050958d3b967cadabebdb6aaf4f556e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_LV_DEN.json",
+      "bytes": 13597,
+      "sha256": "67a6d00b1677258bed6c079462b1774e274e78b2f0c3f8e10e684949d0073eba"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_NYJ_NE.json",
+      "bytes": 13452,
+      "sha256": "c08b107adf3adafb8b9f4ca4936fe6f328709b4a7863c7a75e757335444939b7"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_PHI_IND.json",
+      "bytes": 13808,
+      "sha256": "ec000a7a32d84dc8ab24e0fb1e84f073e2f0e7fa00fbeefc2c88eb19edab05bb"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_SF_ARI.json",
+      "bytes": 13611,
+      "sha256": "c58a4804d6103aff43b841f525e9a56ee73aa9de4fbd0e0233d827c5b6c22398"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_TEN_GB.json",
+      "bytes": 13583,
+      "sha256": "e1e4f6562b3a1be01e1003d7ece0723a4f304e50c08ae15720557c9b7aaf9ccc"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_11_WAS_HOU.json",
+      "bytes": 13716,
+      "sha256": "7d50b40a452f960152f5cfde138d14cca876c12e09b6a543b05a17afd53c5d16"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_ATL_WAS.json",
+      "bytes": 13571,
+      "sha256": "5718af25384c08e7560fe2220a17404b717ddd4b7f39df9f05000b46eff14384"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_BAL_JAX.json",
+      "bytes": 13716,
+      "sha256": "551017979fc88dd2dfa973460133fbbe83cea87d97e0e5cc69efe6521b052c1f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_BUF_DET.json",
+      "bytes": 13949,
+      "sha256": "9da547ccb0c75bdceba360d3925129f176fea350008f8c353a0cafa1f085176c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_CHI_NYJ.json",
+      "bytes": 13622,
+      "sha256": "d28e6b2f56e59bf24b223af41f3507f7a261f20d52f3cc6ce7ed976e4f3dd6f2"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_CIN_TEN.json",
+      "bytes": 13649,
+      "sha256": "0de846cf438b98f28f5ff8c2a7f46b31e26974e9e0112ccbc275fb0e8251421b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_DEN_CAR.json",
+      "bytes": 13639,
+      "sha256": "14528f73e8e0941cbec329b3b8ec4b95e9888d080ad9ee1fcf41a83640218431"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_GB_PHI.json",
+      "bytes": 13564,
+      "sha256": "c5b832af6b3cb1d5a7bca8a8f4e497b60a1c92394359abfd4ba3fd5052f1c178"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_HOU_MIA.json",
+      "bytes": 13457,
+      "sha256": "12a49b4704824eac9c9ce1f095ce46cc905f05f72af3312e95dd6d07667d0245"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_LA_KC.json",
+      "bytes": 13492,
+      "sha256": "5acde8b549339a74aa62314a545a42a37d57559a4f4cf6aebc7567e20996925a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_LAC_ARI.json",
+      "bytes": 13659,
+      "sha256": "a8b17a0f20111cfbd0555cb9a579e8c6543dcd7278997aa5198073a8d79c3389"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_LV_SEA.json",
+      "bytes": 13534,
+      "sha256": "df35680671538606f56964d56fd8057e79386a36b072df3840451189c1b04bff"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_NE_MIN.json",
+      "bytes": 13666,
+      "sha256": "cf975b6a2a5e5942df2ed47cc993b37a662fbe6d8ebf5fc9a4711e06406cc3fd"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_NO_SF.json",
+      "bytes": 13555,
+      "sha256": "bba1918b2a8a6aff45127105f0a081c99a2b39b8940c2b4d9a034b4305098de2"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_NYG_DAL.json",
+      "bytes": 13521,
+      "sha256": "ba18208823f1efec2c23c879b78c9e3c2a40add9c5afe16252576d30f91a84bd"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_PIT_IND.json",
+      "bytes": 13569,
+      "sha256": "aa8008564bdc8a96ca884ad47c06d00c8794e6f7d3b991d9aaeb6cd55be589d7"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_12_TB_CLE.json",
+      "bytes": 13765,
+      "sha256": "94a0ab24b01cbbc68292988a4223d1041076bcaab865b572a4a22a26e06c907f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_BUF_NE.json",
+      "bytes": 13713,
+      "sha256": "fb05cd0f325f3d0d0ddde525509dd6d247468a89b288949b7243ddd9b0fecb90"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_CLE_HOU.json",
+      "bytes": 13770,
+      "sha256": "08fdd377088ecff816555088bf66d8d45b568cd39ea9636d9516dee57df3df1c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_DEN_BAL.json",
+      "bytes": 13487,
+      "sha256": "a560608191e1dbc44a816be65dd0c68e506cc24501fabceb5565f543caffcc47"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_GB_CHI.json",
+      "bytes": 13829,
+      "sha256": "5aad4d0af0ebcd05619706daf86778cf5ebc5c9f5924d5a8deb6ce87dbcea64b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_IND_DAL.json",
+      "bytes": 13497,
+      "sha256": "0f50eae6fdd1d87859ccd4d87adaab5f50c361796adb4edfab4af043d676e85e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_JAX_DET.json",
+      "bytes": 13634,
+      "sha256": "f99dacd512ee65f82a4ab7491da0bc4489cb907d3191810f626b577e4713d234"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_KC_CIN.json",
+      "bytes": 13697,
+      "sha256": "1cc4439ed6706d6e6f127b1f6bcea5e49a281774aafceaeb616fd06df4b71b44"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_LAC_LV.json",
+      "bytes": 13598,
+      "sha256": "594a2cc93d7430b47df6c1a437f15aa949cd3355edabf3e7ef3eb2654a8273f5"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_MIA_SF.json",
+      "bytes": 13593,
+      "sha256": "cee49e52c9431b8d09a7b33b8632e88aedf6b0cc4aca2c4cf83fe382b31e8db9"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_NO_TB.json",
+      "bytes": 13569,
+      "sha256": "f56631d992bec474ee7e55a70562e0de04e33774fb7ca22d48198279a507c284"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_NYJ_MIN.json",
+      "bytes": 13593,
+      "sha256": "06f45768b46b9eeb394f0a7f45ebfb727523ec1f2f70336e13a122bb559e2f41"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_PIT_ATL.json",
+      "bytes": 13680,
+      "sha256": "09fce502b5a5b8f72151c4985bc3cafa87ec3d7a13dfb067b6262225207fddaf"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_SEA_LA.json",
+      "bytes": 13586,
+      "sha256": "d6081f934ae825aac29df3ded9398e6428a299da93d700c9d753eb8419bf6c7f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_TEN_PHI.json",
+      "bytes": 13499,
+      "sha256": "7014d3864123c1bb96aed166b659c1bf047cc902a08af10b6f9141860eee8c6e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_13_WAS_NYG.json",
+      "bytes": 13684,
+      "sha256": "49ea23e5dfc758013c2a485a8a140ada76f74c40e1866a7fa9932f0f790be6f0"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_BAL_PIT.json",
+      "bytes": 13671,
+      "sha256": "0a0e12ceac3c0624a2db6619015614e0599b5afaa2111300da3dd0ffdbe8fe24"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_CAR_SEA.json",
+      "bytes": 13570,
+      "sha256": "a8129c96a23557aaa86035890898445f1d8b48befc263c78451316552731900a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_CLE_CIN.json",
+      "bytes": 13510,
+      "sha256": "8ad0758579170a3b35b05c4484f3e1366d3b29c9ab68625eb906f8b0ed986bb4"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_HOU_DAL.json",
+      "bytes": 13451,
+      "sha256": "bda5cc7ecafc0bfb149f0db249690ce8672589ae30720e124d595fede3d1a062"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_JAX_TEN.json",
+      "bytes": 13529,
+      "sha256": "13a3ea545439a61d63f35a40c7ec0918d09b1b3db26a57dd2e6a1c137a3401c6"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_KC_DEN.json",
+      "bytes": 13904,
+      "sha256": "edfc07f527ed08ab210631e9efae553cd423d0b45ae324a0919a1f3098706a9f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_LV_LA.json",
+      "bytes": 13578,
+      "sha256": "3c8781b77f5f7157a61a5f8fcb9068e0ee92a8074b72eb48c0bea119f0259682"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_MIA_LAC.json",
+      "bytes": 13734,
+      "sha256": "b9c62212467970915e6a0a9874e1d910bf924378217788687bc5ca3c97c4f8e3"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_MIN_DET.json",
+      "bytes": 13685,
+      "sha256": "572b5e2df78c17e36d2c3d2a9420d490bcb4cbea08acf9ced8f661bdf1c4964e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_NE_ARI.json",
+      "bytes": 13666,
+      "sha256": "d8b8ed7c5aeb11614fae279fc0aea40e65c0cafa4352e8fb25f43d764d46f963"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_NYJ_BUF.json",
+      "bytes": 13447,
+      "sha256": "857d5ec8963dd76dcbdc15835e44a38cb95cf006cb3dab280cafafd96ed8334f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_PHI_NYG.json",
+      "bytes": 13789,
+      "sha256": "0727bfd5edec0edf251f1e1e476d01e6aee73e50ebbb72a7a631532f725b4bcc"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_14_TB_SF.json",
+      "bytes": 13631,
+      "sha256": "3e368915a2a7af0587692916591284d63e5a506fc4ea45e178d186f29d922296"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_ARI_DEN.json",
+      "bytes": 13608,
+      "sha256": "354108649089e0e390cbd6fad3bbec445bb85cf1b1a187feba38d9b7797999df"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_ATL_NO.json",
+      "bytes": 13606,
+      "sha256": "b247454bb764f69b382789a0e8e69a4cc759621dfe2eade8fa936f4fdd4d48f6"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_BAL_CLE.json",
+      "bytes": 13644,
+      "sha256": "01f2586c6a5a406270d597d186bfdc9ff610881d05281f8f6a4d468e9c6d6f4d"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_CIN_TB.json",
+      "bytes": 13661,
+      "sha256": "769d517204c0e0bdb33860db02afcd12e8c47540ef545bd2a5f18b08e24d1791"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_DAL_JAX.json",
+      "bytes": 13840,
+      "sha256": "7b50d33a2255ee90c3572f0f53853944e4cd0f60c836d27ec2aa4ac00eb51c3f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_DET_NYJ.json",
+      "bytes": 13610,
+      "sha256": "bc3bca3b6c5d7d431850a17ff769248fc69d7577d94116ab91b43916066acc32"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_IND_MIN.json",
+      "bytes": 13502,
+      "sha256": "bf07e1679c2b4eb274fbaf5c123b463b4a2ef5f29a679787f437b0b5f41f4e88"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_KC_HOU.json",
+      "bytes": 14104,
+      "sha256": "a1d7e85391bf49b01d793d13b3a985b5ad281c60ca4dd103b630f9e61bb0217c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_LA_GB.json",
+      "bytes": 13572,
+      "sha256": "be956060c6ed8b289df8a0062e607d98ddd5ef8b8b9bf4404b2d5f5f3d08bf18"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_MIA_BUF.json",
+      "bytes": 13533,
+      "sha256": "1762c95b6f841b135c8dab5553818e8d1bde836919eb49579df5c61ea121d4ed"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_NE_LV.json",
+      "bytes": 13661,
+      "sha256": "9d72c148bc2b8f79b7c72a02b190dd60b022da9176cfd37d36787f83c9b094af"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_NYG_WAS.json",
+      "bytes": 13547,
+      "sha256": "fb415e2e6e9e377db5699fdbd432b148bbdfbf83df4b8fbed94ad6fb904506a1"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_PHI_CHI.json",
+      "bytes": 13838,
+      "sha256": "b402f741013d032425657c1579e999e13d7c89a24cf7aa4a7890bd7a95b20b9e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_PIT_CAR.json",
+      "bytes": 13662,
+      "sha256": "63f8db6adfff868d7070b84997c805757318c315e43e7e8de0277b924247631b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_SF_SEA.json",
+      "bytes": 13679,
+      "sha256": "dfac9c35b47014c60b9d6802dcb23fbf3865ef187ab1169e3f903d7218278452"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_15_TEN_LAC.json",
+      "bytes": 13562,
+      "sha256": "45faddef97aeb3d09bf54dc07b07977e1e1ec15b738df0c4957ead40317e148a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_ATL_BAL.json",
+      "bytes": 13561,
+      "sha256": "d6ecf4aba55087fd8d547f9b5892b642177e6fda3770efd7d16fc2e80af22b8f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_BUF_CHI.json",
+      "bytes": 13972,
+      "sha256": "6f1258721416d3b7885abde38ff18abb97dd8d9fabd65e5e1954d64f5ade6e4f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_CIN_NE.json",
+      "bytes": 13645,
+      "sha256": "59b720683de87d10b57b340d30cbf036e4efe4d877f6508d42db3526672d48b6"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_DEN_LA.json",
+      "bytes": 13585,
+      "sha256": "6a31aba46b15a944091e1a8fe09ccd1f6d80baef92e05845cd7213e2235b9e61"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_DET_CAR.json",
+      "bytes": 13633,
+      "sha256": "c26e8a2e5679252746d570ee0c561b7a99e5008033f2b1c6cde6317a4182f28e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_GB_MIA.json",
+      "bytes": 13671,
+      "sha256": "23a858462b1ec93fc4fd24d8792338ebdb4b00094c4535c5ed422c580b0beb9d"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_HOU_TEN.json",
+      "bytes": 13501,
+      "sha256": "a1ce53086e349de780fe8d94b7c904cec7ebb39d53778e54edc5cb5614fcf90a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_JAX_NYJ.json",
+      "bytes": 13575,
+      "sha256": "5ef8db27c2eaf7223dbd6b3dc3ca515ba793babe5c9c871c6513fee022381e50"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_LAC_IND.json",
+      "bytes": 13689,
+      "sha256": "e19e8d01ec84c98cbf2b04fde896a24548b2e6a7b5dfd55bf0d67de833eb82f0"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_LV_PIT.json",
+      "bytes": 13632,
+      "sha256": "120f7bbd1feb3c8fd010fa232e7958709f9bf701844b354bba859c5157e94567"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_NO_CLE.json",
+      "bytes": 13478,
+      "sha256": "2b5d95d6195ba9a38ef77dc332aabe5b8b46a3eaa37e685a488ce2351ff558c9"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_NYG_MIN.json",
+      "bytes": 13578,
+      "sha256": "05d54505c58eebedab05cbc068da0faaddd3a6587f107ed2d1ffde8d6bef3fed"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_PHI_DAL.json",
+      "bytes": 13588,
+      "sha256": "004b3e48d5ac857e07a4b4f199966e069bcb74ebdf3515f1a5ff784386bdb668"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_SEA_KC.json",
+      "bytes": 13475,
+      "sha256": "17da7b303b6a9a491c26e18766c20a2328d00385dfdd95255be7dd5531a77144"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_TB_ARI.json",
+      "bytes": 13809,
+      "sha256": "bf53e6da5d063b0c49364805dd655c4752485d3a29668458879ddd3efd3c5c6f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_16_WAS_SF.json",
+      "bytes": 13517,
+      "sha256": "36730079199bce9210018197aec53c1f1f9cb47ed2eb2966b4a35951b4419c2a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_ARI_ATL.json",
+      "bytes": 13661,
+      "sha256": "ba1c707832efdd651d4fc7437e6d7c455f3b2e03182af2d7bf2c52e163445036"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_CAR_TB.json",
+      "bytes": 13555,
+      "sha256": "fe6b815c2d2e8189f41b2cff2dcc3b302e84342c2c56dd444cd244ad42e7ea1f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_CHI_DET.json",
+      "bytes": 13603,
+      "sha256": "adf2cf79c66760efab2c36e09173e2bf753c139de06fcdd257be616b62d5dd43"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_CLE_WAS.json",
+      "bytes": 13610,
+      "sha256": "bb1a12c2a596917d63f49e0855d5e968a935456f583b854f5b54ecd73e51aaf5"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_DAL_TEN.json",
+      "bytes": 13894,
+      "sha256": "a1f456050cc2b5b1841105e69bcba30bb1e7588256ae9de7b6cf254eb0cca28b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_DEN_KC.json",
+      "bytes": 13506,
+      "sha256": "c5736b208211c1df7d4beac64ef4688c834a899dd75d662a6a1a3ca64cc2f9bc"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_IND_NYG.json",
+      "bytes": 13498,
+      "sha256": "c8e5766e5473a89ac6b718ddb8ece9793258f48d5068a9b6b099f16e46495575"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_JAX_HOU.json",
+      "bytes": 13764,
+      "sha256": "db99992f88817a7bfcd0fc91c62576b5ac6e1a185f07b37b0fbf4d197a066639"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_LA_LAC.json",
+      "bytes": 13600,
+      "sha256": "1dc3fe7c6243bcd38056ee72a359c373770d1765ec3809c71b851c871ed5c16a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_MIA_NE.json",
+      "bytes": 13550,
+      "sha256": "a28edc1e242329a8f61bced7be6e67b39eeae63f7eed59800ac4d166db90bcce"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_MIN_GB.json",
+      "bytes": 13530,
+      "sha256": "85bbcb9169af218d149d8116d8d3b2fa324c03c2e54ce5155e02a6c5e2084f53"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_NO_PHI.json",
+      "bytes": 13506,
+      "sha256": "6a83522d34f8fd814427db353c6b343152d732f95e15724545870f20f2dc3ffb"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_NYJ_SEA.json",
+      "bytes": 13563,
+      "sha256": "92b8ac08776f37d1193faade6c27c3805609337d99124d093fd26c9192cc25fb"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_PIT_BAL.json",
+      "bytes": 13597,
+      "sha256": "50cccbc4a07ee25b9b6aff0d256f00f445008a5d75ec3292b8d44a9c7f236b72"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_17_SF_LV.json",
+      "bytes": 13794,
+      "sha256": "5dc731c572f784f929a8e8054add868d561154feaadc521fecfdcd6839849b19"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_ARI_SF.json",
+      "bytes": 13455,
+      "sha256": "903e64ffab2511eecc89706aac70f3eb608869a0a2c791c7cfc6c877b0a6d33b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_BAL_CIN.json",
+      "bytes": 13550,
+      "sha256": "103e0a1d4512d9087daa80b37ebd3b687e59c6d3781daafe32df49d02db541fe"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_CAR_NO.json",
+      "bytes": 13549,
+      "sha256": "332ae6e055bcb236153c1f5e1b50b82aba7550fe0845929ca9786dab4c17cb91"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_CLE_PIT.json",
+      "bytes": 13676,
+      "sha256": "83b4a3265fa810ef827e510b916f5505372da0f71d400982a6fe3e1552e493ab"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_DAL_WAS.json",
+      "bytes": 13811,
+      "sha256": "abd14815ad6c19ed1924111a4f4f5ded439c8a2fa045756e0c5ddf217b76dc81"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_DET_GB.json",
+      "bytes": 13556,
+      "sha256": "c66228d0b814af729f8057bf4c1d1ed64025ebace4cd8b6cb0d1d640db124f65"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_HOU_IND.json",
+      "bytes": 13467,
+      "sha256": "a18c4165031c6de33591541e7ee486aaf57dda1c13d1d44f08408aae86c7eaf7"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_KC_LV.json",
+      "bytes": 13880,
+      "sha256": "b166d84ed091573ad9ae608a6c7d5c9b17dea1b1dab201b3e04778094f91084b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_LA_SEA.json",
+      "bytes": 13566,
+      "sha256": "7f201c3cdd31ac74d20eaffacca4a0b399809f4cb5046052f307e3f3589f5634"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_LAC_DEN.json",
+      "bytes": 13644,
+      "sha256": "fef74e33b6992d24ed284c50e08b54fc772f2285d569b11f10ae0c0020b9d21a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_MIN_CHI.json",
+      "bytes": 13702,
+      "sha256": "98fcee0175bc800db233d32b6fb8f4302cac02e4f8b9b8e26cb6aaed2bd77581"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_NE_BUF.json",
+      "bytes": 13440,
+      "sha256": "91f5cb4ac74b435d61c6593e58b9673e4e654fa83c0182447ba49960bb8532e8"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_NYG_PHI.json",
+      "bytes": 13459,
+      "sha256": "c4a9ceb76c6602fecbcb2a1cc45118310dde37d1a14b19d81652cce2401c3cf9"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_NYJ_MIA.json",
+      "bytes": 13618,
+      "sha256": "fe3bd0ddc87282377e04220bc68e2e0c4de9d7b838ac77face970b10d61d3dac"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_TB_ATL.json",
+      "bytes": 13846,
+      "sha256": "c542ae07af53895d054a708fd8243772e8e6df378b20ec01f896b3b6937bf101"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\2022_18_TEN_JAX.json",
+      "bytes": 13562,
+      "sha256": "035e09a37cf9267b16582fddee6613227999b8b59da1f5b6b68b7120d2b7d417"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\dev_20261020T202800Z\\structural_recovery\\structural_dev2022\\errors.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\exact_20261020T211808806151Z\\approximate_push_metadata_correction.json",
+      "bytes": 195,
+      "sha256": "530f749443dd2eabc502ef8d11f2ca9bef305ee95d9144c50c6a6e87369bf2e0"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\exact_20261020T211808806151Z\\exact_calibration.json",
+      "bytes": 24461,
+      "sha256": "ca55b4add614b9fcf2844c575d9edd28bc6729d08c8e8ee94623f4164d34493e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\exact_20261020T211808806151Z\\full_scope_accounting.json",
+      "bytes": 3692,
+      "sha256": "fd9f3ec225c838484c4a96e87b933479598726adc4902f40c6e600b9c92206e3"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment3\\exact_20261020T211808806151Z\\mixture_pinball.json",
+      "bytes": 1330,
+      "sha256": "7e7a09db5682a07255edfae61344a6fae791f71699067870d1aec026e36b3d0a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\CODE_PROVENANCE.json",
+      "bytes": 558,
+      "sha256": "68442ae9e1097842141fe1ad5f6f02301efbe994dbb4677e35440d4b9aac45bb"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\distributions.json",
+      "bytes": 308,
+      "sha256": "ea8623e5b24d6849ec749aa7f3efa797e19cf0adb46315e883272c6ebb545d32"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\distributions.parquet",
+      "bytes": 6004040,
+      "sha256": "901d71fa3a38f55eabf38afe2436c3a85fe5051ae2edc21836e2c44c9e842294"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_CIN_BAL.json",
+      "bytes": 187011,
+      "sha256": "aed7ce211112ab83ad6af3ae150ce93a10b53af48f3c0f14180cde42b846df60"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_CLE_TEN.json",
+      "bytes": 311100,
+      "sha256": "8ac7ff3561521276c7e591a3022ac6bc79a817b6dc147a3b2ee82739260df1f9"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_DAL_PHI.json",
+      "bytes": 256151,
+      "sha256": "32adb1d44f7f657c5c4f3c083054381c5b1c9d48bf21dbddba6eca2ae1a95ab3"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_DEN_ARI.json",
+      "bytes": 267858,
+      "sha256": "66ddb587afbce936676ef70b5fac50fb3c7d562cbe58106f0c575b47877b400b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_GB_DET.json",
+      "bytes": 501078,
+      "sha256": "f656fc70f8ce0c6883d320e02cb2eb53ad7fdd5af04dbbf94c2e6e7ab95f1e34"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_IND_MIN.json",
+      "bytes": 220549,
+      "sha256": "6b9dfd58d9c90946334a099b81e182b31c0cf51a564e189a87477c56c3c3a98a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_KC_SEA.json",
+      "bytes": 436003,
+      "sha256": "0b51cf9b0382c13028319788a8550c6a5361fec1dc50921248a8d1074545da43"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_LA_LV.json",
+      "bytes": 323969,
+      "sha256": "045814300b6024a5015aa5ae3bf3fd4db2eaf5a4bf254e7d2dffebc1fb3d11e4"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_MIA_NYJ.json",
+      "bytes": 266107,
+      "sha256": "bc3fce005feb07242db106231d8a3468c4d98d3ac5f7b2ff4fc9a4b68f064793"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_NE_CHI.json",
+      "bytes": 985260,
+      "sha256": "a2351ffba64053a9a2e6a227be3daab96683f25452b9781b1fd90ac683df1af0"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_NYG_HOU.json",
+      "bytes": 208395,
+      "sha256": "d3ca6cc998c34b71115ed9a7dcb97ad512e2cbb9d928a2cefa55d0ad66dbf48f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_PIT_NO.json",
+      "bytes": 640350,
+      "sha256": "fcd2c6f9192e1d8cc2a11e00af3446d553923e89a3517c33e4ce7570311f6169"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_SF_ATL.json",
+      "bytes": 118093,
+      "sha256": "5d3970ff99c13a33c2b23a2710ebf37a4e62d3a1d5d001a42b6f1fb0f71300a7"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\forecasts2026\\2026_07_TB_CAR.json",
+      "bytes": 279803,
+      "sha256": "3580e4bd661e95a5cb74a2c46b0d1973eb098f3de133e50f01ed871011297879"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\weekly\\2026_w07_r03_20261020T204312344118Z\\MANIFEST.json",
+      "bytes": 24902,
+      "sha256": "394474ce07ce127dd5218eea71f9c0a67cc8f4803bccdb55937759c56e44ac20"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_CIN_BAL.json",
+      "bytes": 100797,
+      "sha256": "89a7a34b3ca2d65c098fbf79dfec4190b8f85a3b403318263dbdc5292ae7cd47"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_CLE_TEN.json",
+      "bytes": 151785,
+      "sha256": "08727a19e8b6aabc1ca1130079e6fdefe03889aeb32405ce626226c40af0ff24"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_DAL_PHI.json",
+      "bytes": 109498,
+      "sha256": "d05b3041b627d805c08ac8e7672afd2dd93525bbf83326a8196e00a82328e76f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_DEN_ARI.json",
+      "bytes": 164388,
+      "sha256": "98c1f18ff6983c0bf7dc0aa0c7bbff14836595ae796a50060c51380293cd46fa"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_GB_DET.json",
+      "bytes": 167745,
+      "sha256": "bd7743aa4f5cdab33fac614b0f9863612625c65db65d0c20e528567ab0b8a79f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_IND_MIN.json",
+      "bytes": 124221,
+      "sha256": "f73073e6131ea8077001a6564829901a502ce3bc2176be12f7b1eb9ea224570d"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_KC_SEA.json",
+      "bytes": 113902,
+      "sha256": "f9e63fd0cf101b6cba4ecc543663a83a4891cbbeae842beefa2500335b3fb6c7"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_LA_LV.json",
+      "bytes": 120498,
+      "sha256": "c24ced1c653500076da6af7a25d0078dc03c7d6e58289bf78a18e79f49f6c40e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_MIA_NYJ.json",
+      "bytes": 159708,
+      "sha256": "7ee6588347cce87db2c9ab0a3f24b95fd954d81c0479cbdadd6dbc1c35499dc8"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_NE_CHI.json",
+      "bytes": 562072,
+      "sha256": "bb51bf282d39bd9d663cde2380d47b6b55fff56bf0bd5467b7ff39fbaa4b5b16"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_NYG_HOU.json",
+      "bytes": 128655,
+      "sha256": "66c6d81b13e88b57f879968e855716d98aa3f0a82292276b5fe1e63fa79df8f3"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_PIT_NO.json",
+      "bytes": 162112,
+      "sha256": "4ff3ef39195b9624ba174479d01c56ee1f21b565df6bf1030cf416ae388df31e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_SF_ATL.json",
+      "bytes": 101245,
+      "sha256": "d2c7c2c85f9e0e1d272e25c78fee8835302f49634b4bdff0344f0e711b7eea2a"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\amendment2\\revisions\\r02_20261020\\forecasts2026\\2026_07_TB_CAR.json",
+      "bytes": 149909,
+      "sha256": "2b9b174740d0ee8d50ba67fc36f45940a9a88f01f34cc97b612d7d0b2c115b68"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_06_WAS_SF.json",
+      "bytes": 1110815,
+      "sha256": "672b7980eed193d73efaea310a2f18cb8095a6a39a8f62b17c7d286e39413b8e"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_CIN_BAL.json",
+      "bytes": 99123,
+      "sha256": "9ae4f7c2a6f45000a50e31746989bf4e6d2efe8b15cf465546afd89646c75ca4"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_CLE_TEN.json",
+      "bytes": 122905,
+      "sha256": "cb327d0fd799f9022ddad3a440e7afcb9d50168ff101f86ffa6407c3670f19b5"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_DAL_PHI.json",
+      "bytes": 100736,
+      "sha256": "cd81e2cacf57f9142415fe0a2373b1f22b8ae62aa330d06b2fe8d6858889de12"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_DEN_ARI.json",
+      "bytes": 114976,
+      "sha256": "d1180d89d3be6f629acc0e0d39dd5a6ed12cc430ed2a1fcb8e5dc85e6c717f89"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_GB_DET.json",
+      "bytes": 91405,
+      "sha256": "621d51daf6f794c78f4440bad372358e816f49d27c0aededf60c618dede0030f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_IND_MIN.json",
+      "bytes": 94108,
+      "sha256": "97b323edde97e371ac124d73ccc98adb6162eacac3b972e12c1f252ad1476233"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_KC_SEA.json",
+      "bytes": 97569,
+      "sha256": "93b3acd885ebe545cd6b9e1a8ce5b75d44aaa6dddee41ef3112c7a0aac597f0c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_LA_LV.json",
+      "bytes": 112260,
+      "sha256": "60f75f5dbb213afea7d484725ad83739bc73790368321e13dbb47b9577f8e009"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_MIA_NYJ.json",
+      "bytes": 117612,
+      "sha256": "83ee77a76f573df6044225526e2351669d7d603b5c981928b1b4b0b7d5d8de15"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_NE_CHI.json",
+      "bytes": 397628,
+      "sha256": "4d9407a3d9eaa0ca2958be2b392783f7e7ce2d7af4a39e7806cb323d0f8acb33"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_NYG_HOU.json",
+      "bytes": 127479,
+      "sha256": "8d19ac811c5ebc71c677617a295a3aece52e9c29413c9d26dab1da2eb67cde3f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_PIT_NO.json",
+      "bytes": 120252,
+      "sha256": "c2b4f49cc4c2aebb341367370cc29fdba7a4fbd97ce495a058e7f069f04349ea"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_SF_ATL.json",
+      "bytes": 106397,
+      "sha256": "2af5aaa486b5f1241d5cf206a8ca5600c6d587098ce74bbc157dd0d55fdc2f94"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\artifacts\\props\\phase10\\forecasts2026\\2026_07_TB_CAR.json",
+      "bytes": 110479,
+      "sha256": "b551b19fa82b2fa16b8a85478aca9fff378067b39e19a5bc4cf076d0c348414f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\leans_2026_w07_r03_20261020T214325731600Z.csv",
+      "bytes": 7823980,
+      "sha256": "5c0a0bfb4c58d75f2fb62cad6a892b5f15f06b404afddda144d29aa2ce5a4dcc"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\leans_2026_w07_r03_20261020T214325731600Z.md",
+      "bytes": 3133264,
+      "sha256": "cbbd79c9819e83993fd5023ee4c0bfc03541707483e2a1c8c5eda244812e8916"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\leans_2026_w07_r03_20261020T214325731600Z_reconciliation.csv",
+      "bytes": 34279,
+      "sha256": "656b78e55b133c2a0db6f2711df9c6cc4b7d2b9e4f577f00a214fb3001aaa412"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\leans_2026_w07_r03_20261020T214325731600Z_scenarios.csv",
+      "bytes": 10416527,
+      "sha256": "f8f4e0d37f63531f6a2ee20e1946cd119b95f5725a39076a79bacfeb36cb6a29"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\projections_2026_w7_r03_20261020T214325731600Z.csv",
+      "bytes": 5784496,
+      "sha256": "38c6c86ff5085bfac6c225b19da38353ce0ac0ffdc014ebc6b9c52a531787871"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\projections_2026_w7_r03_20261020T214325731600Z.md",
+      "bytes": 1293425,
+      "sha256": "7572597109d94e22a8bc8c9e35cf695500d90a9eb814413e17b36decce22f34d"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\projections_2026_w7_r03_20261020T214325731600Z_coherence.csv",
+      "bytes": 17247,
+      "sha256": "b6c0f68da875c3fe1440ce992ba3e1940c93e1ecfdcd9c83e02da611422b7e7b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\projections_2026_w7_r03_20261020T214325731600Z_reconciliation.csv",
+      "bytes": 34279,
+      "sha256": "656b78e55b133c2a0db6f2711df9c6cc4b7d2b9e4f577f00a214fb3001aaa412"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\projections_2026_w7_r03_20261020T214325731600Z_scenarios.csv",
+      "bytes": 10416527,
+      "sha256": "f8f4e0d37f63531f6a2ee20e1946cd119b95f5725a39076a79bacfeb36cb6a29"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\projections_2026_w7_r03_20261020T214325731600Z_unmatched.csv",
+      "bytes": 146262,
+      "sha256": "2dfb17f710881f3b31acf9ef03733fb385590db5e86002ad10e2be71d266e6e4"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\docs\\PHASE10_DATA_ARCHIVE.md",
+      "bytes": 10122,
+      "sha256": "ba86a31a6137b12dc3bb6e6b0c36ec6aa60b3e31c544465632d53e02549ee66c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\docs\\PHASE10_PREREGISTRATION.md",
+      "bytes": 61465,
+      "sha256": "d9b345d866c293604dcd37da171780f1c8a043fcd1ae0084beaae81ba7ea994f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\lab\\inactives10.py",
+      "bytes": 3464,
+      "sha256": "9131c2ed668b04668d53b6fb68ec3dd18a64e723b6facdcfe3df686684cb841b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\lab\\low_priority.py",
+      "bytes": 685,
+      "sha256": "f2d741b19fd77a1ef05cf92bf2e5842693f15c3be16cac317ab49ee3c415dec9"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\lab\\props\\weekly10.py",
+      "bytes": 15969,
+      "sha256": "7bcacca19334dcaf9717e7c828cbac46f65fbd1a20a141a5aa7905534cfd2a42"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\launch_lab.bat",
+      "bytes": 899,
+      "sha256": "9c52a43e3fba82caf24154dda0fb11fccf15ba24ec295ca62b77d1ca92b00bda"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\models\\CURRENT.json",
+      "bytes": 31,
+      "sha256": "4ad542360a558cbedd88c52ca69fe01fdf75e18226ea394b222bf42a85f8eddb"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\README_START_HERE.md",
+      "bytes": 13223,
+      "sha256": "cd7ebd9fb09d64a28a68cc5776d7d14cccc5c41f472554957faa5087ea88646d"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\DELIVERY_QA.json",
+      "bytes": 572,
+      "sha256": "1980e78e0c6b4c5841707a64b85b463ebe257bb9520ea7c8ef278fc21900b66b"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\FINAL_TESTS.txt",
+      "bytes": 3959,
+      "sha256": "097115fd8ea4a4d4cc90de04d7a74f2d7261a735bdd881749506f4a3e532bb5f"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\final_tests_complete.log",
+      "bytes": 3972,
+      "sha256": "7faaa1cb58e34af414b3245142790cac525fc3dc1f8f6539afd5ed4cdf04e2fe"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\FINAL_VIEWS.json",
+      "bytes": 835,
+      "sha256": "8003353a462b8ac98b20f2685329efd2c1d78b3121c49a5567dc87da6e9e2fa4"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\OPERATIONS.json",
+      "bytes": 442,
+      "sha256": "368fba65a731f988b6e16ebf860b496a051711e1c39220cbe3cb9dfec84996f2"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\OTHER_PLAYERS_2022.csv",
+      "bytes": 505843,
+      "sha256": "49c6596273d86b4188fd14ba40a4a2fba30b4fac5b4f8b772a76075f5b8b8025"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\REPORT.md",
+      "bytes": 4035,
+      "sha256": "36cc9515636e61ec5d87e4e4256f1572014bab8f8843a793f0774a68a2ca1177"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\REPORT_PROVENANCE.json",
+      "bytes": 357,
+      "sha256": "018699f6dd150d4281b6ac1225c5e90903fa6e78216cfa9b101e644f18c9dbed"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\RESULTS.json",
+      "bytes": 68315,
+      "sha256": "cbd012b1849b57e2dad7f31fab1474361209e643e070c5c0c57835fd666948f5"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\STATUS.md",
+      "bytes": 6364,
+      "sha256": "405bbcc4576ceda2ee7456b44306f0fb30ba5dd3a8b3037d975b03b87920908c"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\amendment3\\TEST_PROVENANCE.json",
+      "bytes": 439,
+      "sha256": "e43f39a193812b550e5f4d3c88af2169bc7cb933b704901b198dc0e8f4c40edc"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\REPORT.md",
+      "bytes": 4035,
+      "sha256": "36cc9515636e61ec5d87e4e4256f1572014bab8f8843a793f0774a68a2ca1177"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\reports\\run_20261020\\REPORT_amendment2_preserved.md",
+      "bytes": 3914,
+      "sha256": "bd3ce6499cb2f1885ddd83c2fa73967a07f9981024cc2fe06fb5bd4c375d2162"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\run_week_projections.bat",
+      "bytes": 509,
+      "sha256": "e422d2143fab108ccb23143d268f0c581ec221cceefca0cbcf9098a93b9fe732"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\scripts\\archive_tick.ps1",
+      "bytes": 706,
+      "sha256": "1bd4ff65cc33f38fa3349783506c341be9bf6a9cb90feeb6ae6ef97afbe1b113"
+    },
+    {
+      "path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\scripts\\register_archive_tasks.ps1",
+      "bytes": 2116,
+      "sha256": "6b97e9ec45f13ffb393e6419cef92ec6b47e1e4a00ea58eb9bdf6f6bf1d1ae35"
+    }
+  ],
+  "scope": "All forecasts remain immutable; final comparison appends accounting only. Bulk data/models/simulations remain local, referenced by hashed pipeline manifest. Scheduler script not executed. No eval, promotion, spend, deployment, sends or database writes."
+}

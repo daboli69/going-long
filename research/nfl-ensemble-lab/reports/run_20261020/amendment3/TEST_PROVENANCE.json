@@ -1,0 +1,8 @@
+{
+  "source_revision": "f409dfa",
+  "tests": "284 passed, 1 pre-existing skip, 519 warnings; 328.77 seconds",
+  "raw_log": "reports\\run_20261020\\amendment3\\final_tests_complete.log",
+  "raw_sha256": "7faaa1cb58e34af414b3245142790cac525fc3dc1f8f6539afd5ed4cdf04e2fe",
+  "normalized_transcript": "reports\\run_20261020\\amendment3\\FINAL_TESTS.txt",
+  "normalization": "Only trailing whitespace removed; no result lines omitted."
+}

@@ -1,0 +1,23 @@
+{
+  "Projections": {
+    "exceptions": 0,
+    "tabs": 5,
+    "tables": 8
+  },
+  "Leans": {
+    "exceptions": 0,
+    "tabs": 5,
+    "tables": 8
+  },
+  "rows": 3528,
+  "eligible_player_stat_rows": 504,
+  "remainder_groups": 168,
+  "conservation_max_absolute_error": 5.684341886080802e-14,
+  "tiers": {
+    "C": 2329,
+    "B": 1199
+  },
+  "final_files_match_filename_selector": true,
+  "training_cutoff": "2026-10-19",
+  "warnings": "Existing American-odds np.where branch warning; all delivered nonmissing probabilities verified finite and in [0,1]."
+}
