@@ -1,0 +1,355 @@
+2026-10-20T07:31:35.066265-04:00 Part 2 START 2026-10-20T07:31:34.986114-04:00; END 2026-10-20T15:31:34.986114-04:00; wrap 2026-10-20T14:46:34.986114-04:00; directory=C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\artifacts\props\phase10\amendment2\part2\20261020T113134986114Z
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+2026-10-20T07:32:06.852336-04:00 Refresh start: 14 games; tiers={'C': 1750, 'B': 158}; errors=0; fixed forecasts unchanged
+2026-10-20T08:16:36.924257-04:00 Timed checkpoint: simulation_exit=None; active_own_longrun=False; elapsed_hours=0.75
+2026-10-20T08:28:09.164891-04:00 Stability/scenario child finished exit=0
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+2026-10-20T08:28:41.040278-04:00 Refresh diagnostics_complete: 14 games; tiers={'C': 1750, 'B': 158}; errors=0; fixed forecasts unchanged
+2026-10-20T08:28:41.844229-04:00 Optional DEV-only longrun started lr20261020_122841; seven cores; no final validation or promotion
+2026-10-20T08:28:44.214458-04:00 FAILED ['C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\.venv\\Scripts\\python.exe', '-m', 'lab.analyze_longrun', 'lr20261020_122841'] exit=1; skipped; log=longrun_analysis.log
+2026-10-20T08:28:44.214458-04:00 DEV-only longrun analysis finished; no prospective registry update
+2026-10-20T09:01:44.266759-04:00 Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=1.50
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+2026-10-20T09:32:15.821914-04:00 Refresh scheduled: 14 games; tiers={'C': 1750, 'B': 158}; errors=0; fixed forecasts unchanged
+2026-10-20T09:46:45.845140-04:00 Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=2.25
+2026-10-20T10:31:48.226063-04:00 Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=3.00
+2026-10-20T11:16:57.460795-04:00 Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=3.76
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+2026-10-20T11:32:36.983650-04:00 Refresh scheduled: 14 games; tiers={'C': 2256, 'B': 1177}; errors=0; fixed forecasts unchanged
+2026-10-20T12:01:37.029863-04:00 Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=4.50
+2026-10-20T12:46:39.649407-04:00 Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=5.25
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+2026-10-20T13:32:16.339375-04:00 Refresh scheduled: 14 games; tiers={'C': 2256, 'B': 1177}; errors=0; fixed forecasts unchanged
+2026-10-20T13:32:16.343374-04:00 Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=6.00
+2026-10-20T14:16:49.705074-04:00 Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=6.75
+2026-10-20T14:46:52.036868-04:00 Final 45-minute wrap-up: no new experiments
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\market81.py:50: RuntimeWarning: divide by zero encountered in scalar divide
+  return np.where(o < 0, -o / (-o + 100), 100 / (o + 100))
+2026-10-20T14:47:27.252065-04:00 Refresh final: 14 games; tiers={'C': 2256, 'B': 1177}; errors=0; fixed forecasts unchanged
+2026-10-20T14:52:49.998617-04:00 Wrap-up report/test outputs saved; holding original eight-hour end time
+2026-10-20T15:01:50.013188-04:00 Timed checkpoint: simulation_exit=0; active_own_longrun=False; elapsed_hours=7.50
+2026-10-20T15:31:34.994589-04:00 Part 2 complete; final deliverables ready for review, commit and branch push
+C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\artifacts\props\phase10\amendment2\part2\20261020T113134986114Z

@@ -64,3 +64,8 @@
 
 - 14:55 wrap checks: full suite 261 passed / 1 pre-existing skip / 518 warnings, 321.02s. Final refresh ended 14:47, no collector errors, no T-90 inactive lists yet. New final presentation completed without fit/simulation: leans_2026_w07_r02_20261020T185328300076Z and projections_2026_w7_r02_20261020T185308983029Z; A=0/B=1184/C=2259. Required columns, consensus-only gaps, nonnegative quantiles, cutoff and UTF-8 checks passed. Canonical first-write copies remain scheduled for eight-hour completion; final manifest/commit then.
 - 2026-10-20T15:01:50.013188-04:00: Timed checkpoint: simulation_exit=0; active_own_longrun=False; elapsed_hours=7.50
+- 2026-10-20T15:31:34.994589-04:00: Part 2 complete; final deliverables ready for review, commit and branch push
+
+- Final completion verified: controller exit 0; Part 2 ran 07:31:34.986114-15:31:34.994589 ET (8h plus 0.008475s), partial=false. Original 15 forecast SHA256s and fixed revision-2 predictive-sample hash match. Champion v20261016_212540 unchanged. DEV search completed finalize=false, no final.json, no validation look or registry update. Canonical first-write leans copies retained; deliver the later complete presentation revision named in REPORT.md. Usage at 15:29: 11% primary / 12% weekly, included allowance available; credit balance unchanged. No further experiment or refresh started.
+
+- 15:33 final staged whitespace check failed on spaces emitted in third-party warning text in final_tests.log. Original raw log preserved locally and hashed; excluded that raw log from commit and exported FINAL_TESTS.txt with trailing spaces removed only. No tests or results changed/rerun, no whitespace rule bypassed.

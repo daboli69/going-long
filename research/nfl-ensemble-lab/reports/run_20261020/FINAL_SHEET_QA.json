@@ -1,0 +1,66 @@
+{
+  "created_at": "2026-10-20T14:54:30.538058-04:00",
+  "forecast_revision": 2,
+  "training_cutoff_date": "2026-10-19",
+  "final_lean": "reports\\leans_2026_w07_r02_20261020T185328300076Z.csv",
+  "final_projection": "reports\\projections_2026_w7_r02_20261020T185308983029Z.csv",
+  "rows": 3443,
+  "games": 14,
+  "tiers": {
+    "C": 2259,
+    "B": 1184
+  },
+  "line_status": {
+    "current": 3090,
+    "unavailable": 353
+  },
+  "line_type": {
+    "consensus": 1185,
+    "DFS-pickem": 952,
+    "exchange": 677,
+    "alternate": 629
+  },
+  "quoted_rows_stability": {
+    "stable": 3421,
+    "unstable": 22
+  },
+  "scenario_sensitivity": {
+    "unknown: incomplete scenarios": 2177,
+    "sensitive": 936,
+    "robust": 330
+  },
+  "unmatched_rows": 1364,
+  "unmatched_reasons": {
+    "no eligible frozen projection for this player/stat": 1293,
+    "identity unresolved/non-player": 71
+  },
+  "unresolved_identities": {
+    "Defense": 32,
+    "Chris Olave (NOR)": 10,
+    "KC Concepcion Jr.": 10,
+    "Juwan Johnson (NOR)": 3,
+    "Drew Ogletree": 2,
+    "Kendre Miller (NOR)": 2,
+    "Chicago Defense": 1,
+    "Alvin Kamara (NOR)": 1,
+    "Tyler Shough (NOR)": 1,
+    "New England Defense": 1,
+    "Pittsburgh Defense": 1,
+    "Devaughn Vele (NOR)": 1,
+    "CJ Donaldson Jr.": 1,
+    "New Orleans Defense": 1,
+    "Kyle Pitts Sr.": 1,
+    "Green Bay Defense": 1,
+    "Detroit Defense": 1,
+    "Hollywood Brown": 1
+  },
+  "coherence_team_rows": 28,
+  "checks": [
+    "required investigation columns present",
+    "gaps only consensus",
+    "nonnegative-stat quantiles floored",
+    "all nonmissing training cutoffs 2026-10-19",
+    "UTF-8 Markdown has no replacement characters"
+  ],
+  "scope": "artifact formatting/provenance checks only; no new fit/simulation/outcome scoring"
+}

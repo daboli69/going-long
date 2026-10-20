@@ -1,0 +1,57 @@
+........................................................................ [ 27%]
+........................................................................ [ 54%]
+..........................................s............................. [ 82%]
+..............................................                           [100%]
+============================== warnings summary ===============================
+tests/test_phase4.py: 184 warnings
+tests/test_phase61.py: 73 warnings
+  C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\.venv\Lib\site-packages\numpy\lib\_function_base_impl.py:2999: RuntimeWarning: invalid value encountered in divide
+    c /= stddev[:, None]
+
+tests/test_phase4.py: 184 warnings
+tests/test_phase61.py: 73 warnings
+  C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\.venv\Lib\site-packages\numpy\lib\_function_base_impl.py:3000: RuntimeWarning: invalid value encountered in divide
+    c /= stddev[None, :]
+
+tests/test_phase6.py::test_stage_snapshots_immutable_and_scored_by_stage
+  C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\.venv\Lib\site-packages\xgboost\core.py:158: UserWarning: [14:51:15] WARNING: C:\buildkite-agent\builds\buildkite-windows-cpu-autoscaling-group-i-0c55ff5f71b100e98-1\xgboost\xgboost-ci-windows\src\common\error_msg.cc:52: Empty dataset at worker: 0
+    warnings.warn(smsg, UserWarning)
+
+tests/test_phase83.py::test_metrics_are_as_of
+tests/test_phase83.py::test_metrics_are_as_of
+  C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\lab\upsets83.py:93: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+    long = long[["game_id", "season", "kickoff_utc", "team", "pf", "pa", "home"]].merge(tg, on=["game_id", "team"], how="left").fillna(0)
+
+tests/test_pipeline.py::test_streamlit_pages_start[Model Leaderboard]
+  C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\.venv\Lib\site-packages\streamlit\elements\vega_charts.py:358: AltairDeprecationWarning:
+  Deprecated since `altair=5.5.0`. Use altair.theme instead.
+  Most cases require only the following change:
+
+      # Deprecated
+      alt.themes.enable('quartz')
+
+      # Updated
+      alt.theme.enable('quartz')
+
+  If your code registers a theme, make the following change:
+
+      # Deprecated
+      def custom_theme():
+          return {'height': 400, 'width': 700}
+      alt.themes.register('theme_name', custom_theme)
+      alt.themes.enable('theme_name')
+
+      # Updated
+      @alt.theme.register('theme_name', enable=True)
+      def custom_theme():
+          return alt.theme.ThemeConfig(
+              {'height': 400, 'width': 700}
+          )
+
+  See the updated User Guide for further details:
+      https://altair-viz.github.io/user_guide/api.html#theme
+      https://altair-viz.github.io/user_guide/customization.html#chart-themes
+    with alt.themes.enable("none") if alt.themes.active == "default" else nullcontext():  # type: ignore[attr-defined,unused-ignore]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+261 passed, 1 skipped, 518 warnings in 321.02s (0:05:21)
