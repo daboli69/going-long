@@ -46,3 +46,4 @@
 - 2026-10-20T09:06:05.451182-04:00: appended completed Amendment-2 experiment rows to root MODEL_RESEARCH.md using saved results; no fits/simulations rerun. Final search/refresh/test rows remain wrap-up work. Usage 61% primary / 9% weekly at 09:01, included allowance available and credit balance unchanged.
 - 2026-10-20T09:32:15.821914-04:00: Refresh scheduled: 14 games; tiers={'C': 1750, 'B': 158}; errors=0; fixed forecasts unchanged
 - 2026-10-20T09:46:45.845140-04:00: Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=2.25
+- 2026-10-20T10:31:48.226063-04:00: Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=3.00
