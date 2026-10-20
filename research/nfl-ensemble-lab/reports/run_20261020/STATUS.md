@@ -54,3 +54,5 @@
 - 2026-10-20T13:32:16.339375-04:00: Refresh scheduled: 14 games; tiers={'C': 2256, 'B': 1177}; errors=0; fixed forecasts unchanged
 - 2026-10-20T13:32:16.343374-04:00: Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=6.00
 - 2026-10-20T14:16:49.705074-04:00: Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=6.75
+- 2026-10-20T14:28:32.513857-04:00: Actual DEV search completed; starting bounded saved-result analysis, no-record/max-candidates=2; earlier startup failure retained
+- 2026-10-20T14:29:13.691986-04:00: Completed DEV search analysis exit=0; no finalization, later-season scoring or registry update

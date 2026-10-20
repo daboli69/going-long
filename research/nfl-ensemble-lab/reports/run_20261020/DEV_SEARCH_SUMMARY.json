@@ -1,0 +1,37 @@
+{
+  "job": "lr20261020_122841",
+  "complete_trials": {
+    "logreg": 261,
+    "xgboost": 377,
+    "decision_tree": 423,
+    "random_forest": 265,
+    "mlp": 166,
+    "single_layer": 169
+  },
+  "prospective_registry_updated": false,
+  "final_validation_look": null,
+  "selection_limitation": "2022 is a development check, not untouched: adaptive search used all DEV_FOLDS. No promotion from these results.",
+  "candidates": [
+    {
+      "label": "best single replacement",
+      "replaced": "mlp",
+      "weighting": "skill-weighted (walk-forward)",
+      "gain_2019_21": 0.004337765813134942,
+      "gain_2022_check": 0.0004960319046617423,
+      "qualifies_for_prospective_tracking": true,
+      "reason": "improves 2019-21 and holds on the 2022 check fold"
+    },
+    {
+      "label": "best combination",
+      "replaced": "logreg+xgboost+decision_tree+random_forest+mlp+single_layer",
+      "weighting": "equal",
+      "gain_2019_21": 0.014720377592016387,
+      "gain_2022_check": -0.0012726534403406653,
+      "qualifies_for_prospective_tracking": false,
+      "reason": "gain disappears on the 2022 check fold"
+    }
+  ],
+  "analysis_log": "reports/run_20261020/longrun_analysis_completed.log",
+  "startup_failure_retained": "artifacts/props/phase10/amendment2/part2/20261020T113134986114Z/longrun_analysis.log",
+  "ci_limitation": "Not estimated for adaptive search; no untouched-validation or acceptance claim."
+}
