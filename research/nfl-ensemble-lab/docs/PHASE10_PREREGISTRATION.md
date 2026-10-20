@@ -1035,3 +1035,12 @@ New data outputs use exclusive timestamped amendment3 directories. Existing save
 forecasts and prior reports are retained; session report is
 reports/run_20261020/amendment3/REPORT.md. Root MODEL_RESEARCH receives experiment
 rows at wrap; no duplicate lab tracker.
+
+Pre-execution coverage clarification (16:23 ET, before A3-A/B/C): the original
+2022 structural JSONs predate team_totals instrumentation. A3-B/C may regenerate
+these same frozen independent structural simulations (1,000 draws, existing
+CRC32 game seeds, fit<=2021) into an exclusive amendment3 directory to retain
+all-player team totals/distinct-scorer mass. No old artifact is overwritten.
+Compare regenerated eligible means to their saved counterparts; discrepancies
+are logged, and that game is blocked rather than silently substituted. Outcomes
+are never used to construct reconciliation/scaling targets. Thresholds unchanged.
