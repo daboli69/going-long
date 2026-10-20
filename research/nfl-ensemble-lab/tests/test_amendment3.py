@@ -110,3 +110,28 @@ def test_week8_diagnostics_keep_assumption_sensitivity_unknown(tmp_path):
     assert result['games']==1
     flags=pd.read_csv(tmp_path/'scenario_summary.csv')
     assert flags.scenario_sensitivity.eq('unknown: assumption-based replacement').all()
+
+
+def test_full_allocation_retains_unmatched_players_and_marks_unknown():
+    from lab.props.amendment3.research import reconcile
+    p=pd.DataFrame([dict(game_id='g',team='NE',pid=pid,stat='rush_yds',equal=value,q10=0.,q50=value,q90=value*2) for pid,value in [('known',30.),('unresolved',10.)]])
+    s=pd.DataFrame([dict(game_id='g',pid='known',stat='rush_yds',mean=60.)])
+    out,teams,errors=reconcile(p,s,{'g':{'NE':{'rush_yds':100.}}},include_unmatched=True)
+    assert not errors and len(out)==2
+    assert out.structural_eligibility_missing.sum()==1
+    assert abs(out.reconciled.sum()+teams.other_players_projection.iloc[0]-100)<1e-8
+    assert teams.other_players_projection.iloc[0]==40.
+    assert out.reconciliation_coverage.str.startswith('assumption:').all()
+
+
+def test_td_count_cannot_trigger_distinct_scorer_coherence_failure():
+    from lab.props.amendment2.sheets import coherence,leans
+    totals=dict(pass_yds=200.,rec_yds=200.,rush_yds=100.,rec=20.,pass_tds=2.,rec_tds=2.,rush_tds=1.,anytime_td=1.5)
+    frame=pd.DataFrame([dict(row_type='player',game_id='g',team='NE',pid='p',stat=s,projection=v) for s,v in [('pass_yds',200),('rec_yds',200),('rush_yds',100),('rec',20),('pass_tds',2),('anytime_td',1.5)]])
+    _,table=coherence(frame,{'g':{'NE':totals}})
+    assert table.atd_vs_td_count_gap.iloc[0]==-1.5
+    assert table.atd_vs_distinct_scorer_gap.iloc[0]==0.
+    assert table.coherence_flag.iloc[0]=='coherent'
+    row=pd.DataFrame([dict(game_id='g',pid='p',stat='rec',projection=6.,q10=2.,q50=5.,q90=9.,market_line=3.5,line_type='consensus',line_status='current',gap=2.5,member_min=4.,member_max=7.,coherence_flag='coherent',reconciliation_coverage='assumption: incomplete structural eligibility')])
+    result=leans(row,{('g','p','rec'):'stable'},{('g','p','rec'):'robust'})
+    assert result.confidence_tier.iloc[0]=='B'

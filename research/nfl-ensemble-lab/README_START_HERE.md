@@ -28,6 +28,9 @@ the sidebar. Players default to one current representative consensus line;
 Leans also hides mean/median skew flags. Tabs show games, first offensive TD,
 scenarios (not forecasts), and team/player coherence. Use the glossary, slate
 diagnostics, optional venue/stale toggles, and filtered CSV downloads.
+The launcher opens Projections directly on loopback only, at idle priority with
+two logical cores free. Use **Reload saved sheets** after a pipeline completes;
+the snapshot selector also lets you inspect older weeks/revisions.
 
 These pages read immutable `reports/projections_*.csv` / `reports/leans_*.csv`
 and their diagnostic companions. Selection uses season/week, forecast revision,

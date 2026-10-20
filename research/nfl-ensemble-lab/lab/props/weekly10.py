@@ -100,6 +100,44 @@ def select_slate(frame,season,week,now=None):
     return target,games,cutoff
 
 
+def write_comparison(destination,season,week,revision,stamp=None):
+    """Append a quote/accounting view of fixed distributions; never refit."""
+    from .amendment2 import revision as R
+    from .amendment2.sheets import leans,export,KEY
+    from .amendment3.research import reconcile
+    destination=Path(destination)
+    stable=pd.read_csv(destination/'simulations/stability_summary.csv').fillna({'pid':''})
+    sensitivity=pd.read_csv(destination/'simulations/scenario_summary.csv').fillna({'pid':''})
+    scenario=pd.read_parquet(destination/'simulations/scenario_changes.parquet')
+    stamp=stamp or pd.Timestamp.now(tz='UTC').strftime('%Y%m%dT%H%M%S%fZ')
+    fit=json.loads((destination/'production_fit.json').read_text())
+    base,distributions,totals=R.fixed(destination,season,week)
+    player=base[base.row_type.eq('player')].rename(columns={'projection':'equal'})
+    raw=pd.concat([pd.read_parquet(p) for p in (destination/'structural_prospective2026_recent').glob('*.parquet')],ignore_index=True)
+    raw=raw[raw.member.eq('sim_independent')]
+    reconciled,others,errors=reconcile(player,raw,totals,include_unmatched=True)
+    if errors or len(reconciled)!=len(player) or reconciled.reconciled.isna().any():
+        raise RuntimeError('Full eligible shadow accounting incomplete; no comparison published')
+    extras=reconciled[KEY+['reconciled','reconciliation_coverage','structural_eligibility_missing','reconciled_q10','reconciled_q50','reconciled_q90']].rename(columns={'reconciled':'reconciled_projection'})
+    remainder=others[['game_id','team','stat','other_players_projection']].merge(player[KEY+['team']],on=['game_id','team','stat'],validate='one_to_many')
+    extras=extras.merge(remainder[KEY+['other_players_projection']],on=KEY,validate='one_to_one')
+    frame,coherence,projection=R.refresh_sheet(stamp,revision_directory=destination,season=season,week=week,revision=revision,shadow_columns=extras)
+    def mapping(d,column):return {(r.game_id,str(r.pid),r.stat):getattr(r,column) for r in d[d['mode'].eq('sim_independent')].itertuples()}
+    ranked=leans(frame,mapping(stable,'stability_flag'),mapping(sensitivity,'scenario_sensitivity'))
+    lean=REPORTS_DIR/f'leans_{season}_w{week:02d}_r{revision:02d}_{stamp}'
+    if lean.with_suffix('.csv').exists() or lean.with_suffix('.md').exists():raise FileExistsError('Leans revision already exists')
+    context=f'Unvalidated shadow output; no model promotion. Trained through {fit["training_cutoff_date"]}; comparison created {pd.Timestamp.now(tz="UTC").isoformat()}. Structural precision is not accuracy. Original/reconciled values remain separate. Other/unresolved mass is conservative where structural eligibility is missing; real replacements remain unknown. Confidence tiers are investigation readiness, never win probabilities. No bet recommendation or stake.'
+    export(ranked,lean,heading=f'Week {week} shadow leans to investigate',context=context)
+    for data in (others,scenario):
+        data['training_cutoff_date']=fit['training_cutoff_date'];data['forecast_revision']=revision;data['comparison_created_at']=pd.Timestamp.now(tz='UTC').isoformat()
+    for stem in (projection,lean):
+        others.to_csv(stem.with_name(stem.name+'_reconciliation').with_suffix('.csv'),index=False)
+        scenario.to_csv(stem.with_name(stem.name+'_scenarios').with_suffix('.csv'),index=False)
+    result={'projection':str(projection),'leans':str(lean),'coherence':str(projection.with_name(projection.name+'_coherence.csv')),'tiers':ranked.confidence_tier.value_counts().to_dict(),'eligible_player_rows':len(player),'structural_missing_rows':int(reconciled.structural_eligibility_missing.sum()),'unknown_real_replacements':True,'training_cutoff_date':fit['training_cutoff_date'],'forecast_revision':revision,'created_at':pd.Timestamp.now(tz='UTC').isoformat(),'scope':'Comparison/accounting only; forecast distributions unchanged'}
+    exclusive(destination/f'COMPARISON_{stamp}.json',result)
+    return result
+
+
 def run(season=2026,week=None,max_minutes=150,sims=1000,plan_only=False):
     from .ensemble.frozen import load
     from .ensemble import production,structural
@@ -180,26 +218,7 @@ def run(season=2026,week=None,max_minutes=150,sims=1000,plan_only=False):
         def sheets():
             if any(hashlib.sha256(Path(p).read_bytes()).hexdigest()!=value for p,value in originals.items()):
                 raise AssertionError('An earlier forecast changed; no new sheet published')
-            base,distributions,totals=R.fixed(destination,season,target)
-            player=base[base.row_type.eq('player')].rename(columns={'projection':'equal'})
-            raw=pd.concat([pd.read_parquet(p) for p in (destination/'structural_prospective2026_recent').glob('*.parquet')],ignore_index=True)
-            raw=raw[raw.member.eq('sim_independent')]
-            reconciled,others,errors=reconcile(player,raw,totals)
-            if errors:raise RuntimeError(f'{len(errors)} shadow accounting groups unavailable')
-            extras=reconciled[KEY+['reconciled']].rename(columns={'reconciled':'reconciled_projection'})
-            extras=extras.merge(others[['game_id','team','stat','other_players_projection']].merge(player[KEY+['team']],on=['game_id','team','stat'],validate='one_to_many')[KEY+['other_players_projection']],on=KEY,validate='one_to_one')
-            frame,coherence,projection=R.refresh_sheet(stamp,revision_directory=destination,season=season,week=target,revision=revision,shadow_columns=extras)
-            stable=pd.read_csv(destination/'simulations/stability_summary.csv').fillna({'pid':''})
-            sensitivity=pd.read_csv(destination/'simulations/scenario_summary.csv').fillna({'pid':''})
-            def mapping(d,column):return {(r.game_id,str(r.pid),r.stat):getattr(r,column) for r in d[d['mode'].eq('sim_independent')].itertuples()}
-            ranked=leans(frame,mapping(stable,'stability_flag'),mapping(sensitivity,'scenario_sensitivity'))
-            lean=REPORTS_DIR/f'leans_{season}_w{target:02d}_r{revision:02d}_{stamp}'
-            if lean.with_suffix('.csv').exists() or lean.with_suffix('.md').exists():raise FileExistsError('Leans revision already exists')
-            export(ranked,lean,heading=f'Week {target} shadow leans to investigate',context=f'Unvalidated shadow output; no model promotion. Trained through {state["fit"]["training_cutoff_date"]}; created {pd.Timestamp.now(tz="UTC").isoformat()}. Simulation precision is not accuracy. Original/reconciled values remain separate. Assumption-based replacements retain unknown real identities; confidence tiers are investigation readiness, never win probabilities.')
-            for stem in (projection,lean):
-                others.to_csv(stem.with_name(stem.name+'_reconciliation').with_suffix('.csv'),index=False)
-                pd.read_parquet(destination/'simulations/scenario_changes.parquet').to_csv(stem.with_name(stem.name+'_scenarios').with_suffix('.csv'),index=False)
-            return {'projection':str(projection),'leans':str(lean),'coherence':str(projection.with_name(projection.name+'_coherence.csv')),'tiers':ranked.confidence_tier.value_counts().to_dict(),'unknown_real_replacements':True}
+            return write_comparison(destination,season,target,revision,stamp)
         with outputs(destination):
             phases=[('refresh',600,refresh),('archives',180,archives),('context',120,context),('fit',900,fit),('structural',600,structural_forecasts),('forecast',900,forecast),('diagnostics',3600,diagnostics),('sheets',180,sheets)]
             completed=execute(phases,destination,deadline)

@@ -114,8 +114,9 @@ def scale_scorers(probabilities, target, other):
     return np.minimum(hi*p,1.)
 
 
-def reconcile(predictions, structural, totals):
-    d=predictions.merge(structural[KEY+["mean"]].rename(columns={"mean":"structural_mean"}),on=KEY,validate="one_to_one")
+def reconcile(predictions, structural, totals, include_unmatched=False):
+    d=predictions.merge(structural[KEY+["mean"]].rename(columns={"mean":"structural_mean"}),on=KEY,validate="one_to_one",how="left" if include_unmatched else "inner")
+    d['structural_eligibility_missing']=d.structural_mean.isna()
     d["reconciled"]=np.nan;team_rows=[];errors=[]
     for (gid,team,stat),g in d.groupby(["game_id","team","stat"]):
         t=totals.get(gid,{}).get(team,{})
@@ -127,13 +128,14 @@ def reconcile(predictions, structural, totals):
                 other=max(0.,target-g.structural_mean.sum())
                 transformed=scale_scorers(g.equal,target,other);scale=np.nan
             else:
-                transformed,other,scale=allocate(g.equal,g.structural_mean,target)
+                transformed,other,scale=allocate(g.equal,g.structural_mean.fillna(0),target)
             assert abs(transformed.sum()+other-target)<=1e-8
             d.loc[g.index,"reconciled"]=transformed
+            d.loc[g.index,'reconciliation_coverage']='assumption: incomplete structural eligibility' if g.structural_eligibility_missing.any() else 'matched structural scope'
             for q in ("q10","q50","q90"):
                 if q in d and stat in YARDS:
                     d.loc[g.index,"reconciled_"+q]=np.maximum(g[q].to_numpy(float),0.)*scale
-            team_rows.append({"game_id":gid,"team":team,"stat":stat,"team_total":target,"original_eligible_sum":float(g.equal.sum()),"reconciled_eligible_sum":float(transformed.sum()),"other_players_projection":float(other),"remainder_fraction":float(other/max(target,1e-12)),"definition":"expected distinct scorers" if stat=="anytime_td" else "simulated team total"})
+            team_rows.append({"game_id":gid,"team":team,"stat":stat,"team_total":target,"original_eligible_sum":float(g.equal.sum()),"reconciled_eligible_sum":float(transformed.sum()),"other_players_projection":float(other),"remainder_fraction":float(other/max(target,1e-12)),"structural_missing_rows":int(g.structural_eligibility_missing.sum()),"remainder_basis":"other/unresolved structural eligibility mass; missing members are not zero-volume evidence" if g.structural_eligibility_missing.any() else "structural other-player mass","definition":"expected distinct scorers" if stat=="anytime_td" else "simulated team total"})
         except ValueError as exc:
             errors.append({"game_id":gid,"team":team,"stat":stat,"reason":str(exc)})
     return d,pd.DataFrame(team_rows),errors
@@ -145,7 +147,7 @@ def pinball(y,quantiles):
     return np.maximum(tau*error,(tau-1)*error).mean(1)
 
 
-def accounting_scores(d):
+def accounting_scores(d,primary=True):
     results=[]
     for stat in (*YARDS,"anytime_td"):
         g=d[d.stat.eq(stat)].dropna(subset=["reconciled","equal","actual"])
@@ -160,6 +162,8 @@ def accounting_scores(d):
                 a=np.clip(g.reconciled,1e-6,1-1e-6);b=np.clip(g.equal,1e-6,1-1e-6)
                 delta=-y*np.log(a)-(1-y)*np.log(1-a)+y*np.log(b)+(1-y)*np.log(1-b)
             results.append({"stat":stat,"metric":metric,"comparison":ci(g.game_id,delta)})
+    if not primary:
+        return [r|{'decision':'descriptive full-scope supplement; matched primary gates unchanged'} for r in results]
     tests={(r["stat"],r["metric"]):r for r in results}
     slots=[tests.get((s,m)) for s in (*YARDS,"anytime_td") for m in (("mae","pinball") if s in YARDS else ("brier","log_loss"))]
     order=sorted(range(8),key=lambda i:slots[i]["comparison"].get("p_improvement_one_sided",1) if slots[i] else 1)

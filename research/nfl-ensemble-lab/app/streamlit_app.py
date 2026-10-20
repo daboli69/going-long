@@ -1937,7 +1937,8 @@ def page_leans():
 
 with st.sidebar:
     st.header("NFL Ensemble Lab")
-    page = st.radio("Go to", PAGES, label_visibility="collapsed")
+    requested_page = st.query_params.get("page", "Home")
+    page = st.radio("Go to", PAGES, index=PAGES.index(requested_page) if requested_page in PAGES else 0, label_visibility="collapsed")
     st.caption("Phase 1 + Phase 2 research · not betting advice")
 
 try:

@@ -238,9 +238,12 @@ def refresh_sheet(stamp=None, *, revision_directory=REV, season=2026, week=7, re
         if stem.with_suffix(suffix).exists():
             raise FileExistsError("Comparison revision already exists; prior files retained")
     export(d,stem,heading=f"Week {week} shadow projections, revision {revision}",context=f"Frozen model refit cutoff {fit['training_cutoff_date']} / completed week {fit['training_last_completed_week']}. Market prices are benchmarks only; forecast distributions are unchanged by this comparison refresh.")
+    ct['training_cutoff_date']=fit['training_cutoff_date']
+    ct['forecast_revision']=revision
+    ct['comparison_created_at']=now.isoformat()
     ct.to_csv(stem.with_name(stem.name+"_coherence").with_suffix(".csv"),index=False)
     with stem.with_suffix(".md").open("a",encoding="utf-8") as f:
-        cols=["game_id","team","coherence_flag","atd_vs_td_count_gap"]
+        cols=["game_id","team","coherence_flag","atd_vs_distinct_scorer_gap","atd_vs_td_count_gap"]
         lines=["\n## Team coherence\n", "| "+" | ".join(cols)+" |", "| "+" | ".join(["---"]*len(cols))+" |"]
         lines += ["| "+" | ".join(str(row[c]).replace("|","/") for c in cols)+" |" for _,row in ct.iterrows()]
         f.write("\n".join(lines)+"\n")

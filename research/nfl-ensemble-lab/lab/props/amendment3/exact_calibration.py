@@ -7,7 +7,7 @@ import pandas as pd
 from ... import metrics
 from ..ensemble.data import OUT
 from ..projections10 import distribution
-from .research import rolling_lines,ci,save,pinball,YARDS
+from .research import rolling_lines,ci,save,pinball,YARDS,reconcile,accounting_scores
 
 
 def exact_rows(predictions, observations, structural):
@@ -72,6 +72,17 @@ def run(destination,accounting):
             supplemental.append({'stat':stat,'metric':'displayed mixture pinball','comparison':ci(z.game_id,delta),'decision':'descriptive supplement; original quantile-head primary gate unchanged'})
         q.to_parquet(destination/'mixture_quantiles2022.parquet',index=False)
         save(destination/'mixture_pinball.json',{'results':supplemental})
+        import json
+        valid=set(a.game_id)
+        totals={}
+        for path in (accounting.parent/'structural_recovery/structural_dev2022').glob('*.json'):
+            if path.stem not in valid:continue
+            meta=json.loads(path.read_text())
+            totals[path.stem]=next(v['team_totals'] for v in meta['games'] if v['member']=='sim_independent')
+        full,teams,errors=reconcile(predictions[predictions.game_id.isin(valid)],structural[structural.member.eq('sim_independent') & structural.game_id.isin(valid)],totals,include_unmatched=True)
+        full.to_parquet(destination/'full_scope_accounting2022.parquet',index=False)
+        teams.to_csv(destination/'full_scope_other_players2022.csv',index=False)
+        save(destination/'full_scope_accounting.json',{'results':accounting_scores(full,primary=False),'rows':len(full),'games':full.game_id.nunique(),'structural_missing_rows':int(full.structural_eligibility_missing.sum()),'errors':errors,'scope':'Descriptive full-eligible allocation with explicit other/unresolved structural mass; no new acceptance gate or primary result substitution. Missing structural rows are not evidence of zero actual volume.'})
     print('Exact-CDF diagnostic saved:',destination,flush=True)
 
 

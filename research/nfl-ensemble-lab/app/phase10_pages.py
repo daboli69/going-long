@@ -71,7 +71,10 @@ def prepare(frame):
 def filter_players(frame, *, include_types=(), include_stale=False, include_skew=True):
     d = frame.copy()
     if "line_type" in d:
-        d = d[d.line_type.isin(["consensus", *include_types])]
+        allowed=d.line_type.isin(["consensus", *include_types])
+        if include_stale and 'line_status' in d:
+            allowed |= d.line_status.eq('unavailable') & d.get('market_line',pd.Series(np.nan,index=d.index)).isna()
+        d = d[allowed]
         if "is_consensus_representative" in d:
             d = d[~d.line_type.eq("consensus") | truth(d.is_consensus_representative)]
     if not include_stale and "line_status" in d:
@@ -87,7 +90,7 @@ def filter_players(frame, *, include_types=(), include_stale=False, include_skew
 PLAYER_COLUMNS = ["name", "team", "stat", "book", "consensus_line", "our_mean", "our_median", "q10", "q50", "q90",
     "p_over", "p_under", "p_push", "gap", "no_vig_market_probability", "member_min", "member_max",
     "skew_artifact_flag", "stability_flag", "coherence_flag", "scenario_sensitivity", "confidence_tier",
-    "line_type", "line_status", "line_age_hours", "reconciled_projection", "other_players_projection"]
+    "line_type", "line_status", "line_age_hours", "reconciled_projection", "other_players_projection", "reconciliation_coverage"]
 
 LABELS={"name":"Player","book":"Book / venue","our_mean":"Our mean","our_median":"Our median","q10":"10th percentile","q50":"50th percentile","q90":"90th percentile","consensus_line":"Consensus market line","p_over":"P(over), 0-1","p_under":"P(under), 0-1","p_push":"P(push), 0-1","confidence_tier":"Readiness tier","line_age_hours":"Line age (hours)","market_margin":"Market spread","independent_margin":"Our independent spread","market_anchored_margin":"Market-anchored sim spread","market_total":"Market total","independent_total":"Our independent total","market_anchored_total":"Market-anchored sim total","reconciled_projection":"Reconciled shadow value","other_players_projection":"Other-player remainder"}
 
@@ -155,6 +158,10 @@ GLOSSARY = {
     "market-informed":"Labelled retrospective ablation adding closing-implied team points; never the independent default.",
     "game ranges":"Margin quantiles use home-minus-away points; displayed spreads use favored team plus signed handicap. Total quantiles are combined points. Game P(cover) refers to the home side; market is shown first.",
     "reconciled_projection / other_players_projection":"Separate shadow accounting values and explicit unlisted-player remainder; originals remain visible.",
+    "reconciliation_coverage":"Matched structural scope or assumption-based unresolved eligibility. Missing structural members do not imply zero real volume; other/unresolved mass remains explicit. This flag cannot satisfy Tier A.",
+    "slate diagnostic columns":"Under-side share is the fraction of current representative rows whose mean is below the line; ATD compares its probability with the quoted implied probability instead of .5. Median-under share excludes binary rows and missing medians. Average P(over) is the arithmetic mean of strict over probabilities; rows is the sample count. Expected distinct eligible scorers sums unique player ATD probabilities per game.",
+    "scenario columns":"pid is a recorded player ID or explicit anonymous assumption, never a guessed identity. mode identifies the anchor. seed identifies reproducible random draws. mean/q10/q50/q90 describe the simulated outcome; baseline_mean is the expected-lineup reference and change is scenario minus baseline. assumption_based means a neutral position prior, with the real replacement still unknown.",
+    "coherence columns":"player_* is the sum of eligible original player means; team_* is the structural all-player total. gap_* is player sum minus team total. Original/reconciled eligible sums and the other-player remainder are separate. Remainder fraction is a share of the team quantity, not a win probability. Expected offensive TD count and expected distinct scorers have different meanings.",
 }
 
 
@@ -166,8 +173,12 @@ def diagnostics(frame):
     players = filter_players(frame[frame.row_type.eq("player")])
     if not players.empty:
         z = players.copy()
-        z["mean_under_line"] = z.our_mean < z.get("market_line", z.get("consensus_line", np.nan))
-        z["median_under_line"] = z.our_median < z.get("market_line", z.get("consensus_line", np.nan))
+        z["mean_under_line"] = (z.our_mean < z.get("market_line", z.get("consensus_line", np.nan))).astype(float)
+        z["median_under_line"] = (z.our_median < z.get("market_line", z.get("consensus_line", np.nan))).astype(float).where(z.our_median.notna())
+        binary=z.stat.eq("anytime_td")
+        quoted=z.get("market_probability",pd.Series(np.nan,index=z.index))
+        z.loc[binary,"mean_under_line"]=(z.our_mean<quoted).where(quoted.notna()).astype(float)
+        z.loc[binary,"median_under_line"]=np.nan
         st.dataframe(z.groupby("stat").agg(under_side_share=("mean_under_line","mean"), median_under_side_share=("median_under_line","mean"), average_P_over=("p_over","mean"), skew_share=("skew_artifact_flag","mean"), rows=("stat","size")), use_container_width=True)
         atd = z[z.stat.eq("anytime_td")]
         if not atd.empty:
@@ -195,6 +206,7 @@ def render(kind="projections", reports=None):
     warning = st.empty()
     warning_text="Phase 10 shadow research, unvalidated (initial review 2026-10-20): no preregistered acceptance gate passed in that review. Game spread/total gaps are not signals: total blend weight was 0, margin blend failed, and closing lines beat independent projections. Anytime-TD probabilities ran below market on average; every reviewed team failed coherence. Many under-side rows reflect mean/median skew. Later shadow accounting is separate and never replaces originals. Not betting advice."
     warning.warning(warning_text)
+    st.button("Reload saved sheets",help="Reload the file inventory only; no fetch, fit or promotion.",key=kind+"_reload")
     path = latest_sheet(reports, kind)
     if path is None:
         st.info(f"No {kind} sheets available. Run run_week_projections.bat after reviewing its options.")
@@ -252,6 +264,8 @@ def render(kind="projections", reports=None):
                 if selection:
                     z = z[z[col].astype(str).isin(selection)]
         st.caption(f"{len(z)} rows. Default: current representative consensus, one row per player/stat/game. Optional venue rows remain separate.")
+        if z.empty:
+            st.info("No player rows match. Include stale/unavailable or optional line types, clear filters, or reload newly saved sheets.")
         show_table(z,kind+"_players",None if full else PLAYER_COLUMNS)
     with games:
         st.caption("Market first, independent model second. Gaps are diagnostics, not validated signals. Home-side P(cover); margin ranges are home minus away.")

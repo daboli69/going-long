@@ -87,3 +87,24 @@ def test_cache_invalidates_changed_file(tmp_path):
     assert len(load(p))==1
     p.write_text("a\n1\n2\n");os.utime(p,ns=(p.stat().st_atime_ns,p.stat().st_mtime_ns+1000000))
     assert len(load(p))==2
+
+
+def test_atd_under_share_compares_probability_to_market_not_half(sheets):
+    path=latest_sheet(sheets,'projections');d=pd.read_csv(path)
+    td=d.iloc[0].to_dict()|dict(name='TD',pid='TD',stat='anytime_td',projection=.2,q10=0.,q50=0.,q90=1.,market_line=.5,consensus_line=.5,market_probability=.1,p_over=.2,p_under=.8)
+    pd.concat([d,pd.DataFrame([td])],ignore_index=True).to_csv(path,index=False)
+    at=app(sheets)
+    assert not at.exception
+    diagnostic=next(x.value for x in at.dataframe if 'under_side_share' in x.value.columns)
+    assert diagnostic.loc['anytime_td','under_side_share']==0.
+    assert pd.isna(diagnostic.loc['anytime_td','median_under_side_share'])
+
+
+def test_unavailable_toggle_includes_projection_without_a_market(sheets):
+    path=latest_sheet(sheets,'projections');d=pd.read_csv(path)
+    missing=d.iloc[0].to_dict()|dict(name='No line',pid='missing',book=None,quote_time=None,market_line=float('nan'),line_type='alternate',line_status='unavailable',p_over=float('nan'),p_under=float('nan'))
+    pd.concat([d,pd.DataFrame([missing])],ignore_index=True).to_csv(path,index=False)
+    at=app(sheets)
+    assert 'No line' not in set(players(at).name)
+    checkbox(at,'Include stale / unavailable rows').check().run()
+    assert not at.exception and 'No line' in set(players(at).name)

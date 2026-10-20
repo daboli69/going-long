@@ -123,11 +123,12 @@ def coherence(frame, team_totals):
         row["all_player_expected_td_scorers"] = totals["anytime_td"]
         row["eligible_player_atd_sum"] = float(d.loc[d.stat.eq("anytime_td"), "projection"].sum())
         row["atd_vs_td_count_gap"] = row["eligible_player_atd_sum"]-row["expected_offensive_td_count"]
+        row["atd_vs_distinct_scorer_gap"] = row["eligible_player_atd_sum"]-row["all_player_expected_td_scorers"]
         row["atd_semantics"] = "sum P(TD>=1) is expected unique scorers, not TD count; multiple TDs per player explain part of gap"
         if abs(row["team_passing_receiving_gap"]) > 1:
             flags.append("simulator passing/receiving accounting")
-        if abs(row["atd_vs_td_count_gap"]) > .5:
-            flags.append("ATD scorer/count definition or calibration gap")
+        if abs(row["atd_vs_distinct_scorer_gap"]) > .5:
+            flags.append("ATD expected-distinct-scorer gap; includes missing eligibility")
         row["coherence_flag"] = "; ".join(flags) if flags else "coherent"
         rows.append(row)
     table = pd.DataFrame(rows)
@@ -159,6 +160,8 @@ def leans(frame, stability, scenarios):
     compatible = d.get("benchmark_scope_status", pd.Series(index=d.index, dtype=object)).isna()
     ready = d.line_type.eq("consensus") & d.line_status.eq("current") & compatible & d.gap.notna()
     strong = ready & d.stability_flag.eq("stable") & d.coherence_flag.eq("coherent") & d.members_agree & d.scenario_sensitivity.eq("robust")
+    if 'reconciliation_coverage' in d:
+        strong &= ~d.reconciliation_coverage.fillna('').str.startswith('assumption:')
     d["confidence_tier"] = np.select([strong, ready], ["A", "B"], default="C")
     d["investigation_note"] = ["; ".join(["projection differs from consensus; investigate assumptions" if pd.notna(r.gap) else "no compatible consensus comparison",
         "invalidators: late lineup news, role changes, stale prices, overtime/settlement mismatch, model/distribution error",
@@ -181,7 +184,7 @@ def export(frame, stem, *, heading, context=""):
     candidates=("rank_in_game", "name", "stat", "spread_display", "consensus_spread_display", "consensus_line",
         "our_mean" if "our_mean" in frame else "projection", "our_median" if "our_median" in frame else "q50", "q10", "q90",
         "p_over", "p_under", "no_vig_market_probability", "member_min", "member_max", "member_agreement", "stability_flag",
-        "line_type", "line_status", "confidence_tier", "coherence_flag", "scenario_sensitivity", "investigation_note")
+        "line_type", "line_status", "confidence_tier", "skew_artifact_flag", "reconciled_projection", "other_players_projection", "reconciliation_coverage", "coherence_flag", "scenario_sensitivity", "investigation_note")
     cols = [c for c in candidates if c in frame]
     lines = ["# "+heading, "", context, "", "Confidence is investigation-readiness, not predictive accuracy. No validated advantage over closing markets has been established. Structural seed stability does not validate learned-member error or calibration.", "",
         "A: current compatible consensus, stable, coherent, all member means on one side, all required scenarios available and robust. B: current compatible consensus with uncertainty. C: stale, missing, nonconsensus or incompatible. First TD is offensive rushing/receiving in regulation; quote settlement is unverified, so price gaps are unavailable. Binary outcome quantiles are not confidence intervals on probabilities.", "",

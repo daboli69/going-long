@@ -6,7 +6,7 @@ import psutil
 
 
 def main():
-    if len(sys.argv)<3 or sys.argv[1]!="-m" or not sys.argv[2].startswith("lab."):
+    if len(sys.argv)<3 or sys.argv[1]!="-m" or not (sys.argv[2].startswith("lab.") or sys.argv[2]=="streamlit"):
         raise SystemExit("Usage: python -m lab.low_priority -m lab.<module> [arguments]")
     n=max(1,psutil.cpu_count()-2)
     p=psutil.Process();p.nice(psutil.IDLE_PRIORITY_CLASS);p.cpu_affinity(list(range(n)))
