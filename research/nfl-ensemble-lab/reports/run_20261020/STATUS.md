@@ -32,3 +32,4 @@
 - Usage at 08:01: 48% five-hour / 8% weekly; included allowance still available, credit balance unchanged. No additional experiments planned; monitor the already-running jobs and preplanned refreshes.
 - 2026-10-20T07:31:35.066265-04:00: Part 2 START 2026-10-20T07:31:34.986114-04:00; END 2026-10-20T15:31:34.986114-04:00; wrap 2026-10-20T14:46:34.986114-04:00; directory=C:\Users\travi\OneDrive\Documents\ChatGPT\GOING\research\nfl-ensemble-lab\artifacts\props\phase10\amendment2\part2\20261020T113134986114Z
 - 2026-10-20T07:32:06.852336-04:00: Refresh start: 14 games; tiers={'C': 1750, 'B': 158}; errors=0; fixed forecasts unchanged
+- 2026-10-20T08:16:36.924257-04:00: Timed checkpoint: simulation_exit=None; active_own_longrun=False; elapsed_hours=0.75
