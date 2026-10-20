@@ -12,7 +12,7 @@ from ...data_pipeline import FEATURE_STORE
 from .. import projections10 as P
 from ..ensemble import structural as S
 from ..ensemble.data import OUT as BASE
-from ..lines import archived_lines
+from ..lines import archived_lines, player_map, normalized_name
 from .sheets import consensus, compare, coherence, export, KEY
 
 ROOT = BASE / "amendment2"
@@ -95,6 +95,31 @@ def fixed():
     return frame,distributions,totals
 
 
+def contextual_identity(quotes,candidates,mapping_fn=player_map):
+    """An exact alias plus an observed game roster can disambiguate names.
+
+    No nicknames/suffixes/spellings are inferred. An alias must already exist in
+    the map, be unique within that game's frozen roster, and return a roster ID.
+    """
+    result=quotes.copy()
+    for gid,z in result.groupby("game_id"):
+        ids=set(candidates.loc[candidates.game_id.eq(gid),"pid"])
+        mapping=mapping_fn(eligible_ids=ids)
+        for index,row in z.iterrows():
+            label=str(row.player).lower()
+            if any(token in label for token in ("defense","defence","d/st","def/st")):
+                result.loc[index,"pid"]=None
+                result.loc[index,"identity_mapping_source"]="non-player defense label; never assigned a GSIS ID"
+                continue
+            if pd.notna(row.pid):
+                continue
+            pid=mapping.get(normalized_name(row.player))
+            if pid in ids:
+                result.loc[index,"pid"]=pid
+                result.loc[index,"identity_mapping_source"]="unique exact existing alias within frozen as-of game roster"
+    return result
+
+
 def latest_props(targets, now):
     d = archived_lines(asof=now)
     if d.empty:
@@ -112,7 +137,12 @@ def latest_props(targets, now):
         for r in z[delta<=pd.Timedelta(minutes=15)].to_dict("records"):
             rows.append(r|{"game_id":g.game_id,"pid":r["gsis_id"],"market_line":r["line"],
                 "market_archive":r["archive"],"quote_available_at":r["available_at"]})
-    return pd.DataFrame(rows)
+    result=pd.DataFrame(rows)
+    roster=REV/"features_production.parquet"
+    if len(result) and pd.Timestamp(roster.stat().st_mtime,unit="s",tz="UTC")<=now:
+        candidates=pd.read_parquet(roster,columns=["game_id","pid"])
+        result=contextual_identity(result,candidates)
+    return result
 
 
 def latest_games(targets,now):
@@ -155,10 +185,19 @@ def latest_games(targets,now):
 
 def refresh_sheet(stamp=None):
     base,distributions,totals=fixed()
+    base=base.rename(columns={"agreement_description":"forecast_snapshot_agreement_description"})
     targets,now=games(),pd.Timestamp.now(tz="UTC")
     props=latest_props(targets,now)
     market=latest_games(targets,now)
-    unmatched=props[props.pid.isna()][[c for c in ("game_id","player","stat","book","market_line") if c in props]] if len(props) else props
+    if len(props):
+        keys=set(base[KEY].itertuples(index=False,name=None))
+        unknown_identity=props.pid.isna()
+        unknown_projection=pd.Series([tuple(r) not in keys for r in props[KEY].itertuples(index=False,name=None)],index=props.index)
+        unmatched=props[unknown_identity|unknown_projection].copy()
+        unmatched["unmatched_reason"]=np.where(unmatched.pid.isna(),"identity unresolved/non-player", "no eligible frozen projection for this player/stat")
+        unmatched=unmatched[[c for c in ("game_id","player","pid","stat","book","market_line","unmatched_reason") if c in unmatched]]
+    else:
+        unmatched=props
     props=props[props.pid.notna()] if len(props) else props
     selected=["game_id","pid","stat","book","market_line","over_odds","under_odds","quote_time","line_status","line_age_hours","dfs",
               "market_archive","quote_available_at","identity_mapping_source"]

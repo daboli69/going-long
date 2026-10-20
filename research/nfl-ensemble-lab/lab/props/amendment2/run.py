@@ -119,6 +119,34 @@ def refresh(directory,label):
         return None
 
 
+def final_presentation(directory):
+    """New comparison/presentation revision; never replaces a prior forecast."""
+    frame,ct,projection=refresh_sheet()
+    stability,scenarios=diagnostic_maps(directory)
+    ranked=leans(frame,stability,scenarios)
+    now=pd.Timestamp.now(tz="UTC")
+    summary_path=directory/"simulations"/"summary.json"
+    precision=json.loads(summary_path.read_text()).get("stability_counts",{}) if summary_path.exists() else {"unknown":"no completed summary"}
+    tiers=ranked.confidence_tier.value_counts().to_dict()
+    lines=ranked.line_status.value_counts().to_dict()
+    context=(f"Comparison revision created {now.isoformat()}; forecasts remain immutable revision 2, trained through October 19 / completed week 6. "
+        f"What is supported: three-seed structural precision diagnostics {precision}, including zero-role outputs; this measures Monte Carlo precision, not forecast accuracy. "
+        f"What is uncertain: team coherence gaps, unavailable QB replacements, role/script sensitivity and price/settlement freshness ({lines}). "
+        f"What is unvalidated: no target passed Amendment-2 model gates; game point forecasts did not beat closing benchmarks; scenario efficiencies are held fixed. "
+        f"Investigation-readiness tiers {tiers}; A/B/C are not win probabilities. No bet recommendation or stake. "
+        "Exact game-roster aliases may resolve names; no suffix/nickname or defensive-player inference. "
+        "Market comparison/stale flags alone were refreshed; no fit, simulation, or 2026 outcome scoring was performed.")
+    stem=REPORTS_DIR/("leans_2026_w07_r02_"+now.strftime("%Y%m%dT%H%M%S%fZ"))
+    if stem.with_suffix(".csv").exists() or stem.with_suffix(".md").exists():
+        raise FileExistsError("Presentation revision already exists")
+    export(ranked,stem,heading="Week 7: ranked leans to investigate — comparison revision 2",context=context)
+    exclusive_json(directory/("presentation_"+now.strftime("%Y%m%dT%H%M%S%fZ")+".json"),
+        {"created_at":now.isoformat(),"training_cutoff_date":"2026-10-19","forecast_revision":2,
+         "projection_sheet":str(projection),"leans_sheet":str(stem),"tiers":tiers,"price_status":lines,
+         "scope":"presentation and fixed-distribution quote comparison only; prior files unchanged"})
+    return stem
+
+
 def finalize_research():
     from .research import DEST
     path=DEST/"multiplicity.json"
@@ -284,11 +312,13 @@ def run_eight_hours():
 
 
 if __name__=="__main__":
-    p=argparse.ArgumentParser();p.add_argument("command",choices=["part2","simulation"]);p.add_argument("--directory",type=Path);p.add_argument("--deadline");a=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument("command",choices=["part2","simulation","presentation"]);p.add_argument("--directory",type=Path);p.add_argument("--deadline");a=p.parse_args()
     psutil.Process().nice(psutil.IDLE_PRIORITY_CLASS);psutil.Process().cpu_affinity(list(range(14)))
     os.environ.update(OMP_NUM_THREADS="14",MKL_NUM_THREADS="14")
     if a.command=="simulation":
         from .simulation import run
         print(json.dumps(run(a.directory,deadline=a.deadline),indent=2))
+    elif a.command=="presentation":
+        print(final_presentation(a.directory))
     else:
         print(run_eight_hours())

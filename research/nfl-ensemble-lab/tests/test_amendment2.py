@@ -158,3 +158,16 @@ def test_projection_markdown_contains_forecast_point_interval_and_signed_spread(
     text=(tmp_path/"projection.md").read_text()
     assert "projection" in text and "q10" in text and "q90" in text
     assert "2.500" in text and "-9.000" in text and "SF -2.5" in text and "SF -3.0" in text
+
+
+def test_exact_game_roster_alias_can_disambiguate_but_never_guess_or_map_defense():
+    from lab.props.amendment2.revision import contextual_identity
+    quotes=pd.DataFrame([{"game_id":"g","player":name,"pid":None} for name in ("Same Name","Unknown Name","Team Defense")])
+    candidates=pd.DataFrame([{"game_id":"g","pid":"right"},{"game_id":"other","pid":"wrong"}])
+    def mapping_fn(eligible_ids):
+        assert eligible_ids=={"right"}
+        return {"samename":"right","teamdefense":"right"}
+    result=contextual_identity(quotes,candidates,mapping_fn)
+    assert result.pid.iloc[0]=="right"
+    assert pd.isna(result.pid.iloc[1]) and pd.isna(result.pid.iloc[2])
+    assert quotes.pid.isna().all()
