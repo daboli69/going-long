@@ -127,7 +127,7 @@ def first_td_contract_corrections(frame):
     return result, corrections
 
 
-def forecast(week=None, season=2026, log=print, distribution_sink=None):
+def forecast(week=None, season=2026, log=print, distribution_sink=None, source_revision=None):
     config = frozen_config()
     if season != 2026:
         raise ValueError("Phase 10 projection archives are prospective 2026 only")
@@ -166,7 +166,7 @@ def forecast(week=None, season=2026, log=print, distribution_sink=None):
     rows, archived, errors = [], [], []
     directory = OUT / "forecasts2026"
     directory.mkdir(parents=True, exist_ok=True)
-    revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=LAB_ROOT, capture_output=True, text=True, check=True).stdout.strip()
+    revision = source_revision or subprocess.run(["git", "rev-parse", "HEAD"], cwd=LAB_ROOT, capture_output=True, text=True, check=True).stdout.strip()
     for game in upcoming.sort_values(["week", "game_id"]).itertuples(index=False):
         archive_path = directory / f"{game.game_id}.json"
         if archive_path.exists():

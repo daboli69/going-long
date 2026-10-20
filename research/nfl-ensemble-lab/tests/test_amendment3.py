@@ -98,3 +98,15 @@ def test_explicit_future_week_plan_keeps_completed_cutoff():
     rows.append(dict(season=2026,week=8,game_type='REG',completed=False,kickoff_utc=now+pd.Timedelta(days=12),gameday='2026-11-01'))
     week,slate,cutoff=select_slate(pd.DataFrame(rows),2026,8,now)
     assert week==8 and len(slate)==1 and cutoff['training_last_completed_week']==6
+
+
+def test_week8_diagnostics_keep_assumption_sensitivity_unknown(tmp_path):
+    from lab.props.amendment2.simulation import analyze,SEEDS,SCENARIOS
+    base=dict(game_id='2026_08_NE_CHI',pid='p',stat='pass_yds',mode='sim_independent',mean=100.,q50=100.)
+    rows=[base|dict(scenario='expected',seed=s) for s in SEEDS]
+    rows += [base|dict(scenario=s,seed=SEEDS[0],assumption_based=(i==0)) for i,s in enumerate(SCENARIOS)]
+    pd.DataFrame(rows).to_parquet(tmp_path/'2026_08_NE_CHI.parquet',index=False)
+    result=analyze(tmp_path,week=8)
+    assert result['games']==1
+    flags=pd.read_csv(tmp_path/'scenario_summary.csv')
+    assert flags.scenario_sensitivity.eq('unknown: assumption-based replacement').all()

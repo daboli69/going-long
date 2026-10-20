@@ -84,16 +84,18 @@ def filter_players(frame, *, include_types=(), include_stale=False, include_skew
     return d
 
 
-PLAYER_COLUMNS = ["name", "team", "stat", "consensus_line", "our_mean", "our_median", "q10", "q50", "q90",
+PLAYER_COLUMNS = ["name", "team", "stat", "book", "consensus_line", "our_mean", "our_median", "q10", "q50", "q90",
     "p_over", "p_under", "p_push", "gap", "no_vig_market_probability", "member_min", "member_max",
     "skew_artifact_flag", "stability_flag", "coherence_flag", "scenario_sensitivity", "confidence_tier",
     "line_type", "line_status", "line_age_hours", "reconciled_projection", "other_players_projection"]
+
+LABELS={"name":"Player","book":"Book / venue","our_mean":"Our mean","our_median":"Our median","q10":"10th percentile","q50":"50th percentile","q90":"90th percentile","consensus_line":"Consensus market line","p_over":"P(over), 0-1","p_under":"P(under), 0-1","p_push":"P(push), 0-1","confidence_tier":"Readiness tier","line_age_hours":"Line age (hours)","market_margin":"Market spread","independent_margin":"Our independent spread","market_anchored_margin":"Market-anchored sim spread","market_total":"Market total","independent_total":"Our independent total","market_anchored_total":"Market-anchored sim total","reconciled_projection":"Reconciled shadow value","other_players_projection":"Other-player remainder"}
 
 
 def show_table(d, key, columns=None):
     selected = [c for c in (columns or list(d.columns)) if c in d]
     view = d[selected].copy()
-    st.dataframe(view, hide_index=True, use_container_width=True)
+    st.dataframe(view, hide_index=True, use_container_width=True,column_config={c:LABELS.get(c,c.replace('_',' ').capitalize()) for c in selected})
     st.download_button("Download filtered CSV", view.to_csv(index=False).encode("utf-8"), key+".csv", "text/csv", key=key)
 
 
@@ -130,6 +132,7 @@ def game_table(frame):
 
 GLOSSARY = {
     "name":"Player name; unresolved identities are not guessed.", "team":"Player's frozen as-of team.",
+    "book":"Book or venue providing this actual line; not an ensemble member.",
     "stat":"Passing/rushing/receiving yards, receptions, passing TDs, rushing/receiving anytime TD, or first offensive TD.",
     "consensus_line":"Most common latest traditional-book line; DFS and exchanges excluded. Lowest line breaks a tie.",
     "our_mean":"Average of the predictive distribution; can differ substantially from its median.",
@@ -157,6 +160,7 @@ GLOSSARY = {
 
 def diagnostics(frame):
     st.subheader("Slate diagnostics")
+    st.caption("Uses all current representative consensus rows, including skew rows hidden from the Leans table. Probabilities are on a 0-1 scale.")
     if "row_type" not in frame:
         return
     players = filter_players(frame[frame.row_type.eq("player")])
@@ -175,7 +179,7 @@ def diagnostics(frame):
     atd = frame[frame.row_type.eq("player") & frame.stat.eq("anytime_td")].drop_duplicates(["game_id","pid","stat"])
     if not atd.empty:
         st.caption("Sum of anytime probabilities = expected distinct eligible scorers, not expected TD count; missing players excluded.")
-        st.dataframe(atd.groupby(["game_id","team"]).our_mean.sum().rename("expected_distinct_eligible_scorers"), use_container_width=True)
+        st.dataframe(atd.groupby("game_id").our_mean.sum().rename("expected_distinct_eligible_scorers"), use_container_width=True)
     st.write("Raw source line-status counts:", frame.get("line_status", pd.Series(dtype=str)).fillna("unavailable").value_counts().to_dict())
     dates = pd.to_datetime(frame.get("quote_time", pd.Series(dtype=str)), utc=True, errors="coerce", format="mixed")
     if dates.notna().any():

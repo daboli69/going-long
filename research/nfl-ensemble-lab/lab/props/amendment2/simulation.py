@@ -68,7 +68,13 @@ def run(directory,log=print,deadline=None,*,revision_directory=REV,season=2026,w
     with relocated(revision_directory):
         table=structural.tables(log,production=True)
     p=M.load_pbp([2025,2026])
-    p=p[p.season.lt(2026)|(p.week.le(fit["training_last_completed_week"]))]
+    if assumption_replacements:
+        from ...data_pipeline import FEATURE_STORE
+        observed=pd.read_parquet(FEATURE_STORE)
+        known=observed[observed.season.eq(season)&observed.completed&observed.week.lt(week)&observed.kickoff_utc.lt(pd.Timestamp.now(tz="UTC"))]
+        p=p[p.season.lt(season)|p.game_id.isin(known.game_id)]
+    else:
+        p=p[p.season.lt(2026)|(p.week.le(fit["training_last_completed_week"]))]
     panel=PL.panel(p,table)
     del p
     anchor=IndependentAnchor().fit(pd.read_parquet(__import__("lab.data_pipeline",fromlist=["FEATURE_STORE"]).FEATURE_STORE))
@@ -179,11 +185,11 @@ def run(directory,log=print,deadline=None,*,revision_directory=REV,season=2026,w
             errors.append({"game_id":game.game_id,"case":"game","error":repr(exc)})
             log(f"FAILED simulation {game.game_id}: {exc}; skipped")
     exclusive_json(directory/"errors.json",errors)
-    return analyze(directory)
+    return analyze(directory,season=season,week=week)
 
 
-def analyze(directory):
-    files=list(directory.glob("2026_07_*.parquet"))
+def analyze(directory,season=2026,week=7):
+    files=list(directory.glob(f"{season}_{week:02d}_*.parquet"))
     if not files:
         raise ValueError("No completed prospective simulation games")
     d=pd.concat([pd.read_parquet(p) for p in files],ignore_index=True)

@@ -47,6 +47,15 @@ def run(destination,accounting):
     for (stat,threshold),g in data.groupby(['stat','threshold']):
         results.append({'stat':stat,'threshold':threshold,'n':len(g),'games':g.game_id.nunique(),'average_p_over':float(g.p_over.mean()),'observed_frequency':float(g.actual_over.mean()),'bias':ci(g.game_id,g.actual_over-g.p_over),'brier':metrics.brier(g.actual_over,g.p_over),'reliability':metrics.calibration_table(g.actual_over,g.p_over).to_dict('records')})
     save(destination/'exact_calibration.json',{'results':results,'scope':'Exact frozen weekly member mixture, strictly earlier-week 2022 residuals. Binary ATD uses the published analytic probability. Synthetic lines; no market, returns or selection claim. Binary median is an outcome median, not a displayed probability median.'})
+    approximate=accounting.parent/'pseudo_lines2022.parquet'
+    if approximate.exists():
+        original=pd.read_parquet(approximate)
+        correction=original[original.stat.eq('anytime_td') & original.line.isin([0.,1.])].merge(predictions[['game_id','pid','stat','equal']],on=['game_id','pid','stat'],validate='many_to_one')
+        correction['original_p_push']=correction.p_push
+        correction['p_push']=np.where(correction.line.eq(0),1-correction.equal,correction.equal)
+        correction=correction[abs(correction.p_push-correction.original_p_push)>1e-12]
+        correction.to_parquet(destination/'approximate_push_metadata_correction.parquet',index=False)
+        save(destination/'approximate_push_metadata_correction.json',{'rows':len(correction),'scope':'A3-A Bernoulli outcome-median push-mass metadata only. Original file retained. P(over), events, Brier/bias and thresholds unchanged. No forecast file affected.'})
     if accounting.exists():
         a=pd.read_parquet(accounting)
         a=a[a.stat.isin(YARDS)].dropna(subset=['reconciled'])

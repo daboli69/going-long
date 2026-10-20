@@ -134,7 +134,8 @@ def run(season=2026,week=None,max_minutes=150,sims=1000,plan_only=False):
     try:
         originals={str(p):hashlib.sha256(p.read_bytes()).hexdigest() for p in BASE.glob('**/forecasts2026/*.json') if destination not in p.parents}
         plan['preserved_forecast_hashes']=originals
-        exclusive(destination/'plan.json',plan|{"implementation_revision":subprocess.check_output(['git','rev-parse','HEAD'],cwd=LAB_ROOT,text=True).strip()})
+        plan['implementation_revision']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=LAB_ROOT,text=True).strip()
+        exclusive(destination/'plan.json',plan)
         def refresh():
             return command([sys.executable,'-m','lab.cli','refresh'],600)
         def archives():
@@ -163,7 +164,7 @@ def run(season=2026,week=None,max_minutes=150,sims=1000,plan_only=False):
         def forecast():
             samples=[]
             def capture(row,values):samples.append({k:row[k] for k in KEY}|{'samples':values.astype('float32').tolist()})
-            result=P.forecast(target,season,log=lambda s:print(s,flush=True),distribution_sink=capture)
+            result=P.forecast(target,season,log=lambda s:print(s,flush=True),distribution_sink=capture,source_revision=plan['implementation_revision'])
             if set(result.get('archived',[]))!=set(state['games'].game_id):raise RuntimeError('Forecast game coverage incomplete')
             data=pd.DataFrame(samples).drop_duplicates(KEY)
             data.to_parquet(destination/'distributions.parquet',index=False)
