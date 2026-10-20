@@ -27,7 +27,7 @@ st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide
 PAGES = ["Home", "Live Readiness & Schedule", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
          "Weekly Predictions", "Prospective Performance", "Prediction Archive", "Data Freshness", "Baseline Research",
          "Long-Run Research", "Advanced Football Intelligence", "Player Intelligence", "Data Coverage & Gaps",
-         "Upset Discovery", "Upset Explorer", "Player Props", "Research Validation", "Research Runs", "Reports"]
+         "Upset Discovery", "Upset Explorer", "Player Props", "Projections", "Research Validation", "Research Runs", "Reports"]
 PCT = st.column_config.ProgressColumn
 
 
@@ -1925,6 +1925,31 @@ def page_props():
         st.info("No projections yet. Run: .venv/Scripts/python.exe -m lab.props.weekly preview")
 
 
+def page_projections():
+    st.title("Projections")
+    st.caption("View-only shadow forecasts. Markets are benchmarks; confidence tiers describe investigation readiness, not betting value.")
+    paths = [p for p in REPORTS_DIR.glob("projections_*.csv") if not p.stem.endswith(("_coherence", "_unmatched"))]
+    if not paths:
+        st.info("No projection sheets available.")
+        return
+    path = max(paths, key=lambda p: p.stat().st_mtime)
+    frame = pd.read_csv(path)
+    if "row_type" not in frame:
+        st.warning("Latest file has no game/player row classification.")
+        return
+    st.caption(f"Source: {path.name}. Training cutoff: {frame.get('training_cutoff_date', pd.Series(['unknown'])).iloc[0]}.")
+    for column, label in (("team", "Team"), ("stat", "Stat"), ("line_type", "Line type"), ("coherence_flag", "Coherence flag")):
+        if column in frame:
+            choices = sorted(frame[column].dropna().astype(str).unique())
+            selected = st.multiselect(label, choices, key="projections_"+column)
+            if selected:
+                frame = frame[frame[column].astype(str).isin(selected)]
+    st.subheader("Games")
+    st.dataframe(frame[frame.row_type.eq("game")], hide_index=True, use_container_width=True)
+    st.subheader("Players and first TD")
+    st.dataframe(frame[~frame.row_type.eq("game")], hide_index=True, use_container_width=True)
+
+
 with st.sidebar:
     st.header("NFL Ensemble Lab")
     page = st.radio("Go to", PAGES, label_visibility="collapsed")
@@ -1936,7 +1961,7 @@ try:
      "Prediction Archive": page_archive, "Data Freshness": page_freshness, "Baseline Research": page_baseline_research,
      "Long-Run Research": page_longrun, "Advanced Football Intelligence": page_afi, "Player Intelligence": page_players,
      "Data Coverage & Gaps": page_coverage, "Upset Discovery": page_discovery,
-     "Upset Explorer": page_explorer, "Player Props": page_props, "Research Validation": page_validation, "Research Runs": page_runs,
+     "Upset Explorer": page_explorer, "Player Props": page_props, "Projections": page_projections, "Research Validation": page_validation, "Research Runs": page_runs,
      "Reports": page_reports}[page]()
 except FileNotFoundError as exc:
     st.warning(str(exc))

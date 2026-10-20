@@ -200,7 +200,14 @@ def run(season=2022, week=None, n_sims=1000, limit=None, log=print, deadline=Non
                 no_td = float((result["first_td_col"] == -1).mean())
                 points_array = result["points"]
                 margin, total = points_array[:, 0] - points_array[:, 1], points_array.sum(1)
+                team_totals = {}
+                for team, qb, ti in info:
+                    ids = set(ti["recv"].index) | set(ti["rush"].index) | ({qb} if qb else set())
+                    indices = [cols[pid] for pid in ids if pid in cols]
+                    team_totals[team] = {stat: float(values[:, indices].sum(1).mean())
+                                         for stat, values in result["stats"].items()}
                 game_rows.append({"member": mode, "anchor_points": list(map(float, points)), "calibrated_points": list(map(float, calibrated)),
+                    "team_totals": team_totals,
                     "margin_mean": float(margin.mean()), "margin_q10_50_90": np.quantile(margin, [.1, .5, .9]).tolist(),
                     "total_mean": float(total.mean()), "total_q10_50_90": np.quantile(total, [.1, .5, .9]).tolist(),
                     "margin_samples": margin.tolist(), "total_samples": total.tolist(), "first_td": first, "no_offensive_td": no_td})

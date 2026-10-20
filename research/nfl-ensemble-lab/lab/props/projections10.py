@@ -127,7 +127,7 @@ def first_td_contract_corrections(frame):
     return result, corrections
 
 
-def forecast(week=None, season=2026, log=print):
+def forecast(week=None, season=2026, log=print, distribution_sink=None):
     config = frozen_config()
     if season != 2026:
         raise ValueError("Phase 10 projection archives are prospective 2026 only")
@@ -211,6 +211,8 @@ def forecast(week=None, season=2026, log=print):
                 game_rows.append(r)
             for row in combined[combined["game_id"] == game.game_id].to_dict("records"):
                 samples, source = distribution(row, development, structural)
+                if distribution_sink is not None:
+                    distribution_sink(row, samples)
                 q = np.quantile(samples, [.1, .5, .9])
                 base = {"row_type": "player", "game_id": game.game_id, "week": game.week, "team": row["team"],
                     "pid": row["pid"], "name": row["name"], "stat": row["stat"], "variant": "independent",
@@ -308,6 +310,11 @@ def forecast(week=None, season=2026, log=print):
 
 
 def write_sheet(frame, week):
+    frame = frame.copy()
+    nonnegative = frame["stat"].isin(["pass_yds", "pass_tds", "rush_yds", "rec_yds", "rec", "anytime_td", "total"])
+    for key in ("q10", "q50", "q90", "quantile_head_q10", "quantile_head_q50", "quantile_head_q90"):
+        if key in frame:
+            frame.loc[nonnegative, key] = pd.to_numeric(frame.loc[nonnegative, key], errors="coerce").clip(lower=0)
     frame, corrections = binary_contract_corrections(frame)
     if len(corrections):
         directory = OUT / "forecast_corrections"

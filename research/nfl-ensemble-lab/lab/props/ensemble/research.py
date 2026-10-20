@@ -20,12 +20,12 @@ def paired_ci(frame, first, second, target="actual", stat=None, boot=2000):
     return clustered_difference(d["game_id"], loss, boot)
 
 
-def clustered_difference(game_ids, difference, boot=2000):
+def clustered_difference(game_ids, difference, boot=2000, seed=20261019):
     d = pd.DataFrame({"game": np.asarray(game_ids), "difference": np.asarray(difference, float)}).dropna()
     group = d.groupby("game")["difference"].agg(["sum", "size"])
     if not len(group):
         return {"n": 0, "games": 0, "difference": None, "ci95": None}
-    rng = np.random.default_rng(20261019)
+    rng = np.random.default_rng(seed)
     sampled = rng.integers(0, len(group), (boot, len(group)))
     means = group["sum"].to_numpy()[sampled].sum(1) / group["size"].to_numpy()[sampled].sum(1)
     ci = np.quantile(means, [.025, .975]).tolist()
