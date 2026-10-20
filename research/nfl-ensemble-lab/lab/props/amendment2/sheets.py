@@ -167,10 +167,14 @@ def export(frame, stem, *, heading, context=""):
     stem.parent.mkdir(parents=True, exist_ok=True)
     # CSV is the lab's machine-readable data contract, not a workbook redesign.
     frame.to_csv(stem.with_suffix(".csv"), index=False)
-    cols = [c for c in ("rank_in_game", "name", "stat", "consensus_line", "our_mean", "our_median", "p_over", "p_under", "no_vig_market_probability", "line_type", "line_status", "confidence_tier", "coherence_flag", "scenario_sensitivity", "investigation_note") if c in frame]
+    candidates=("rank_in_game", "name", "stat", "spread_display", "consensus_spread_display", "consensus_line",
+        "our_mean" if "our_mean" in frame else "projection", "our_median" if "our_median" in frame else "q50", "q10", "q90",
+        "p_over", "p_under", "no_vig_market_probability", "member_min", "member_max", "member_agreement", "stability_flag",
+        "line_type", "line_status", "confidence_tier", "coherence_flag", "scenario_sensitivity", "investigation_note")
+    cols = [c for c in candidates if c in frame]
     lines = ["# "+heading, "", context, "", "Confidence is investigation-readiness, not predictive accuracy. No validated advantage over closing markets has been established. Structural seed stability does not validate learned-member error or calibration.", "",
         "A: current compatible consensus, stable, coherent, all member means on one side, all required scenarios available and robust. B: current compatible consensus with uncertainty. C: stale, missing, nonconsensus or incompatible. First TD is offensive rushing/receiving in regulation; quote settlement is unverified, so price gaps are unavailable. Binary outcome quantiles are not confidence intervals on probabilities.", "",
-        "Consensus rule: modal latest line across traditional books, excluding DFS/exchanges; lowest line breaks ties, alphabetical representative. Only consensus rows have gaps. Sum ATD probabilities counts expected distinct scorers, not total TDs.", ""]
+        "Consensus rule: modal latest line across traditional books, excluding DFS/exchanges; lowest line breaks ties, alphabetical representative. Only consensus rows have gaps. Sum ATD probabilities counts expected distinct scorers, not total TDs. Game margins/lines use home minus away; spread_display gives team plus signed handicap. P(over/under) is strict; p_over_no_push conditions on no push.", ""]
     for gid, group in frame.groupby("game_id", sort=False):
         lines += ["## "+gid, "", "| "+" | ".join(cols)+" |", "| "+" | ".join(["---"]*len(cols))+" |"]
         for _, row in group.iterrows():

@@ -186,6 +186,10 @@ def refresh_sheet(stamp=None):
     d["comparison_created_at"]=now.isoformat()
     d["forecast_revision"]=2
     d["market"]=d.stat
+    d["consensus_spread_display"]=None
+    for g in targets.itertuples():
+        indices=d.index[d.game_id.eq(g.game_id)&d.stat.eq("margin")&d.consensus_line.notna()]
+        d.loc[indices,"consensus_spread_display"]=[P.spread_label(g.home_team,g.away_team,v) for v in d.loc[indices,"consensus_line"]]
     d["quote_settlement_scope"]="regulation-only model vs quote settlement unverified"
     stem=REPORTS_DIR/f"projections_2026_w7_r02_{stamp or now.strftime('%Y%m%dT%H%M%S%fZ')}"
     export(d,stem,heading="Week 7 shadow projections, revision 2",context="Frozen model refit cutoff 2026-10-19 / completed week 6. Market prices are benchmarks only; forecast distributions are unchanged by this comparison refresh.")

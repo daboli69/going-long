@@ -148,3 +148,13 @@ def test_expected_zero_role_for_backup_remains_available_for_scenario_deltas():
     d=pd.DataFrame(rows)
     assert d.loc[d.pid.eq("backup")&d.stat.eq("pass_yds"),"mean"].iloc[0]==0
     assert d.loc[d.stat.eq("first_td"),"mean"].sum()==pytest.approx(1)
+
+
+def test_projection_markdown_contains_forecast_point_interval_and_signed_spread(tmp_path):
+    from lab.props.amendment2.sheets import export
+    d=pd.DataFrame([{"game_id":"g","name":"away at home","stat":"margin","projection":2.5,
+        "q10":-9.,"q50":2.,"q90":13.,"spread_display":"SF -2.5","consensus_line":3.,"consensus_spread_display":"SF -3.0"}])
+    export(d,tmp_path/"projection",heading="fixture")
+    text=(tmp_path/"projection.md").read_text()
+    assert "projection" in text and "q10" in text and "q90" in text
+    assert "2.500" in text and "-9.000" in text and "SF -2.5" in text and "SF -3.0" in text
