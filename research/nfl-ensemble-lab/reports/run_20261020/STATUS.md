@@ -56,3 +56,11 @@
 - 2026-10-20T14:16:49.705074-04:00: Timed checkpoint: simulation_exit=0; active_own_longrun=True; elapsed_hours=6.75
 - 2026-10-20T14:28:32.513857-04:00: Actual DEV search completed; starting bounded saved-result analysis, no-record/max-candidates=2; earlier startup failure retained
 - 2026-10-20T14:29:13.691986-04:00: Completed DEV search analysis exit=0; no finalization, later-season scoring or registry update
+- 2026-10-20T14:46:52.036868-04:00: Final 45-minute wrap-up: no new experiments
+- 2026-10-20T14:47:27.252065-04:00: Refresh final: 14 games; tiers={'C': 2256, 'B': 1177}; errors=0; fixed forecasts unchanged
+
+- 14:47: optional final-test-log probe ran before the controller created the file and returned shell exit 1; inspection skipped, no test result inferred. Final suite follows final refresh. Integrity check: all 15 revision-1 forecast SHA256s match original recorded hashes.
+- 2026-10-20T14:52:49.998617-04:00: Wrap-up report/test outputs saved; holding original eight-hour end time
+
+- 14:55 wrap checks: full suite 261 passed / 1 pre-existing skip / 518 warnings, 321.02s. Final refresh ended 14:47, no collector errors, no T-90 inactive lists yet. New final presentation completed without fit/simulation: leans_2026_w07_r02_20261020T185328300076Z and projections_2026_w7_r02_20261020T185308983029Z; A=0/B=1184/C=2259. Required columns, consensus-only gaps, nonnegative quantiles, cutoff and UTF-8 checks passed. Canonical first-write copies remain scheduled for eight-hour completion; final manifest/commit then.
+- 2026-10-20T15:01:50.013188-04:00: Timed checkpoint: simulation_exit=0; active_own_longrun=False; elapsed_hours=7.50
