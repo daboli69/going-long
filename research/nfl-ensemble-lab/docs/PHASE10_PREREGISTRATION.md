@@ -1006,3 +1006,32 @@ finish the current bounded step, report and stop. Optional Streamlit view is
 read-only and receives no promotion controls. Final full active suite, report,
 root MODEL_RESEARCH rows, commit/push only this codex branch. No new experiments
 start in Part 2's last 45 minutes; final refresh and wrap-up checks are preplanned.
+
+## Amendment 3 - 2026-10-20 (16:13 ET session)
+
+Local app and shadow diagnostics only. Start 16:13:27 ET; Part 1 <=17:43:27,
+hard stop22:13:27; no new work after21:43:27. Existing archives remain immutable.
+No original evaluator eval, holdout reuse, model promotion, spend, deployment,
+messages or Windows-task registration. Baseline and fixture tests are not model
+experiments. Production refits reuse the Amendment-1 frozen configuration only.
+
+| ID | Hypothesis / procedure | Data / split | Metric and fixed acceptance |
+|---|---|---|---|
+| A3-UI | Cached curated local views make saved shadow outputs inspectable | Existing week-7 CSV/JSON only; fixture AppTest, no network | Filename season/week/revision/timestamp ordering, path+mtime cache, representative current consensus defaults, skew guard, five tabs, glossary/diagnostics/warnings/download; all fixture and full tests pass. Operational, no accuracy claim. |
+| A3-A | Rolling player medians reveal over/under calibration and skew | Saved frozen 2022 predictions; pseudo-line = nearest half-yard/count to strictly prior player/stat games' median, minimum 3 earlier observations; no real 2022 lines implied. Learned yard probabilities use strictly earlier-week OOF residuals (>=100 rows); counts Poisson approximation; binary ATD line .5 | Per-stat P(over), observed frequency, bias observed-minus-predicted, Brier/reliability bins and outcomes above model mean/median with paired game-cluster 95% CIs, 2,000 draws seed20261020. Diagnostic adequacy only if >=100 games, abs bias<=.05 and bias CI contains0. No calibration/model selection from this diagnostic. |
+| A3-B | Structural allocation with an explicit other-player remainder improves coherence and yards | Saved 2022 independent structural per-player means and team totals; eligible prior-roster rows only. Structural other fraction=max(0,1-eligible structural sum/team total); rescale eligible learned means to remaining team mass; apply same nonnegative multiplicative transform to learned predictive quantiles. Original values retained | Three yard targets: paired MAE and mean pinball(.1/.5/.9) loss deltas vs unreconciled, same exact rows; CI upper<0 for both, >=100 games, Holm family below. Conservation abs error<=1e-8. Missing structural total blocks that game; never fill from outcomes. Prospective shadow sidecar shows original/reconciled/other separately. |
+| A3-C | Distinct-scorer accounting improves ATD calibration | Same saved 2022 ATD rows; target=sum of structural player P(TD>=1), not TD count. Structural other-player expected distinct-scorer mass retained. Solve capped proportional scaling of eligible ensemble probabilities to remaining target, p in[0,1]. No outcomes in scaling | Paired Brier and log-loss CIs vs current equal ensemble; >=100 games; both CI upper<0 with Holm. Reliability bins and other mass reported. Infeasible target remains flagged, never silently altered. No production acceptance. |
+| A3-D | Explicit replacement assumptions complete role scenarios without invented identities | Existing 26 blocked prospective QB-out cases; prior roster/role evidence only. Anonymous replacement-level role absorbs removed QB role with team baseline efficiency fixed; RB/WR-out use existing redistribution, unknown real replacement retained | Operational conservation and explicit assumption-based/scenario-not-forecast labels; no fabricated GSIS ID, no inferred inactive/active status, no predictive accuracy claim. If simulator cannot express anonymous role safely, retain unknown and report blocked. |
+| A3-E | Standalone read-only archive entry points support manual scheduling | Existing official parser/collector; no odds API. Author script only, never execute/register | Fixture CLI selection/hash path; PowerShell SupportsShouldProcess/-WhatIf, every proposed task printed, quoted absolute lab paths, every-3-hour fetch/archive and T-90 collector polling. No script execution in this session. |
+| A3-F | One command safely produces an append-only weekly shadow revision | Refresh -> source archives/context -> frozen fit through last wholly completed week -> new exclusive revision -> both anchors/distributions/sheets -> coherence/three-seed structural precision -> leans; target season/week arguments, no hardcoded week7 path | Mocked phase ordering/fail-fast tests; preserve older hashes, capture creation/cutoff/config/source, no overwrite. Missing required phase/data stops clearly. Default no model selection, task registration or promotion. Runtime bounded by explicit deadline; no long live week8 fit required to establish CLI safety. |
+| A3-G | Frozen transport check describes 2023-25 performance | Once-only earlier-week refits, original saved v1 results read-only; never original eval | Start only with >90min AND credible full runtime within remaining budget. No partial peek; report once, no selection. If estimated 54 refits exceed budget, defer. |
+| A3-H | Prospective archive supports descriptive accountability | Only already-played week7 games with refresh-confirmed outcomes after forecast creation | n/MAE/Brier only, no decisions/tuning; if no completed week7 game, skip without scoring. |
+
+Multiplicity family: eight A3-B/C primary slots (3 yard targets x MAE/pinball,
+ATD Brier/log loss). Missing slots p=1. Holm .05; thresholds never revised after
+results. A/D/E/F/H are diagnostics/operations, never proof of betting advantage.
+Historical sources can be revised; no real 2022 prop-market performance claimed.
+New data outputs use exclusive timestamped amendment3 directories. Existing saved
+forecasts and prior reports are retained; session report is
+reports/run_20261020/amendment3/REPORT.md. Root MODEL_RESEARCH receives experiment
+rows at wrap; no duplicate lab tracker.
