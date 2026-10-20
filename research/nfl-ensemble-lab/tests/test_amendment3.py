@@ -76,3 +76,25 @@ def test_standalone_inactives_cli_is_read_only(monkeypatch):
     monkeypatch.setattr(inactives10.pd,'read_parquet',lambda p:frame)
     monkeypatch.setattr(inactives10,'parser_module',lambda:pytest.fail('No game in T90; must not retrieve'))
     assert inactives10.main(['collect','--week','8'])==0
+
+
+def test_exact_cdf_residual_pool_never_uses_current_or_future_outcomes():
+    from lab.props.amendment3.exact_calibration import exact_rows
+    history=[dict(game_id=f'h{i}',pid=f'h{i}',team='NE',season=2022,week=1,stat='pass_yds',actual=200+i-75,equal=200.,logreg=200.,members='logreg') for i in range(150)]
+    target=dict(game_id='target',pid='p',team='NE',season=2022,week=4,stat='pass_yds',actual=220.,equal=200.,logreg=200.,members='logreg')
+    predictions=pd.DataFrame(history+[target])
+    observations=pd.DataFrame([dict(season=2021,week=w,pid='p',pass_yds=20+w) for w in (1,2,3)])
+    structural=pd.DataFrame(columns=['game_id','pid','stat','member','samples'])
+    first,_=exact_rows(predictions,observations,structural)
+    predictions.loc[predictions.game_id.eq('target'),'actual']=9999
+    second,_=exact_rows(predictions,observations,structural)
+    assert first.p_over.equals(second.p_over)
+    assert (first.max_residual_week<first.week).all()
+
+
+def test_explicit_future_week_plan_keeps_completed_cutoff():
+    now=pd.Timestamp.now(tz='UTC')
+    rows=[dict(season=2026,week=w,game_type='REG',completed=True,kickoff_utc=now-pd.Timedelta(days=7),gameday='2026-10-19') for w in range(1,7)]
+    rows.append(dict(season=2026,week=8,game_type='REG',completed=False,kickoff_utc=now+pd.Timedelta(days=12),gameday='2026-11-01'))
+    week,slate,cutoff=select_slate(pd.DataFrame(rows),2026,8,now)
+    assert week==8 and len(slate)==1 and cutoff['training_last_completed_week']==6

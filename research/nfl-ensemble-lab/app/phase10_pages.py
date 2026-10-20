@@ -45,6 +45,11 @@ def load(path):
     return read_table(str(path), path.stat().st_mtime_ns)
 
 
+@st.cache_data(show_spinner=False)
+def read_review(path: str, mtime_ns: int):
+    return Path(path).read_text(encoding="utf-8")
+
+
 def truth(series):
     return series.astype(str).str.lower().isin(("true", "1", "1.0"))
 
@@ -183,11 +188,16 @@ def render(kind="projections", reports=None):
     reports = Path(reports) if reports is not None else REPORTS_DIR
     title = "Leans" if kind == "leans" else "Projections"
     st.title(title)
-    st.warning("Phase 10 shadow research, unvalidated (review 2026-10-20): no preregistered gate passed. Game spread/total gaps are not signals: total blend weight was 0, margin blend failed, and closing lines beat independent projections. Anytime-TD probabilities ran below market on average; every reviewed team failed coherence. Many under-side rows reflect mean/median skew. Not betting advice.")
+    warning = st.empty()
+    warning_text="Phase 10 shadow research, unvalidated (initial review 2026-10-20): no preregistered acceptance gate passed in that review. Game spread/total gaps are not signals: total blend weight was 0, margin blend failed, and closing lines beat independent projections. Anytime-TD probabilities ran below market on average; every reviewed team failed coherence. Many under-side rows reflect mean/median skew. Later shadow accounting is separate and never replaces originals. Not betting advice."
+    warning.warning(warning_text)
     path = latest_sheet(reports, kind)
     if path is None:
         st.info(f"No {kind} sheets available. Run run_week_projections.bat after reviewing its options.")
         return
+    choices=sorted([p for p in reports.glob(kind+"_*.csv") if sheet_key(p) is not None],key=sheet_key,reverse=True)
+    chosen=st.selectbox("Forecast sheet (newest revision first)",[p.name for p in choices],key=kind+"_snapshot")
+    path=reports/chosen
     d = prepare(load(path))
     if d.empty:
         st.info("The latest sheet is empty; no projections are available.")
@@ -205,6 +215,20 @@ def render(kind="projections", reports=None):
                 for r in source.itertuples()} if column in source else {})
         d["pid"] = d.pid.fillna("")
         d = skew_flags(leans(d, *maps))
+    reviews=sorted(reports.glob("run_*/REPORT.md"))
+    if reviews:
+        review=reviews[-1];text=read_review(str(review),review.stat().st_mtime_ns)
+        no_gate="no gate passed" in text.lower() or "no target passed" in text.lower()
+        st.caption(f"Review source: {review.parent.name}/{review.name}. Recorded no-passing-gate statement: {'yes' if no_gate else 'see report; no promotion inferred'}.")
+    if {"row_type","team","coherence_flag"}<=set(d):
+        teams=d[d.row_type.eq("player")][["game_id","team","coherence_flag"]].drop_duplicates()
+        flagged=teams.loc[~teams.coherence_flag.eq("coherent"),["game_id","team"]].drop_duplicates()
+        detail=f" Current slate: {len(flagged)} of {len(teams[['game_id','team']].drop_duplicates())} teams flagged or unknown."
+        atd=filter_players(d[d.row_type.eq("player") & d.stat.eq("anytime_td")])
+        if not atd.empty and "market_probability" in atd:
+            delta=(atd.our_mean-atd.market_probability).mean()
+            if pd.notna(delta):detail+=f" Original ATD minus available implied market average {delta:+.3f} (one-sided vig may remain)."
+        warning.warning(warning_text+detail)
     st.caption(f"Source: {path.name}; training cutoff: {', '.join(d.get('training_cutoff_date',pd.Series(['unknown'])).dropna().astype(str).unique())}. View only; no fetch, fit or promotion on rerun.")
     with st.expander("Glossary: columns and model variants"):
         for label, explanation in GLOSSARY.items():

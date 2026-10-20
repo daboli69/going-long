@@ -21,6 +21,6 @@ foreach ($spec in @(@{Name='Quote Archive'; Mode='Quotes'; Interval='PT3H'}, @{N
     Write-Host "  $powershellPath $arguments"
     Write-Host "  Working directory: $labPath"
     if ($PSCmdlet.ShouldProcess($taskName, 'Register local read-only archive task')) {
-        Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Description 'Local Phase 10 read-only archives. No odds API, alerts, database writes or deployment.' -Force | Out-Null
+        Register-ScheduledTask -TaskName $taskName -Action $action -Trigger $trigger -Settings $settings -Principal $principal -Description 'Local Phase 10 read-only archives. No odds API, alerts, database writes or deployment.' | Out-Null
     }
 }
