@@ -30,11 +30,27 @@ def note(message):
 
 
 def command(args,log,timeout=120):
-    with log.open("w",encoding="utf-8") as f:
-        result=subprocess.run(args,cwd=LAB_ROOT,stdout=f,stderr=subprocess.STDOUT,timeout=timeout)
-    if result.returncode:
-        note(f"FAILED {args[:4]} exit={result.returncode}; skipped; log={log.name}")
-    return result.returncode
+    try:
+        with log.open("w",encoding="utf-8") as f:
+            process=subprocess.Popen(args,cwd=LAB_ROOT,stdout=f,stderr=subprocess.STDOUT)
+            try:
+                code=process.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                # Windows venv launchers have an interpreter child: stop only
+                # this owned command tree, rather than leaving it orphaned.
+                descendants=psutil.Process(process.pid).children(recursive=True)
+                for child in reversed(descendants):
+                    try:child.terminate()
+                    except psutil.NoSuchProcess:pass
+                process.terminate();process.wait(timeout=15)
+                note(f"FAILED {args[:4]} timed out; skipped; partial log={log.name}")
+                return 124
+        if code:
+            note(f"FAILED {args[:4]} exit={code}; skipped; log={log.name}")
+        return code
+    except Exception as exc:
+        note(f"FAILED command {args[:4]}: {exc}; skipped")
+        return 1
 
 
 def commit_status():
@@ -92,7 +108,7 @@ def refresh(directory,label):
         ranked=leans(frame,stable,scenarios)
         lean_stem=REPORTS_DIR/("leans_2026_w07_"+now.strftime("%Y%m%dT%H%M%S%fZ"))
         export(ranked,lean_stem,heading="Week 7: leans to investigate",context=
-            f"Comparison created {now.isoformat()}; training cutoff 2026-10-19 / week 6. Tiers: {ranked.confidence_tier.value_counts().to_dict()}. This ranks research questions, not bets. Seed/scenario evidence covers the structural member, not independent proof of ensemble accuracy. Missing uncertainty evidence stays unknown.")
+            f"Comparison created {ranked.comparison_created_at.iloc[0]}; training cutoff 2026-10-19 / week 6. Tiers: {ranked.confidence_tier.value_counts().to_dict()}. This ranks research questions, not bets. Seed/scenario evidence covers the structural member, not independent proof of ensemble accuracy. Missing uncertainty evidence stays unknown.")
         exclusive_json(snapshot/"comparison.json",{"created_at":now.isoformat(),"projection_sheet":str(stem),"leans_sheet":str(lean_stem),
             "rows":len(ranked),"games":ranked.game_id.nunique(),"tiers":ranked.confidence_tier.value_counts().to_dict(),"errors":errors})
         note(f"Refresh {label}: {ranked.game_id.nunique()} games; tiers={ranked.confidence_tier.value_counts().to_dict()}; errors={len(errors)}; fixed forecasts unchanged")
@@ -195,7 +211,8 @@ def run_eight_hours():
     start=pd.Timestamp.now(tz="UTC");end,wrap=planned_window(start)
     directory=ROOT/"part2"/start.strftime("%Y%m%dT%H%M%S%fZ")
     directory.mkdir(parents=True,exist_ok=False)
-    exclusive_json(directory/"plan.json",{"start_at":start.isoformat(),"end_at":end.isoformat(),"wrap_at":wrap.isoformat(),"hard_stop":HARD_STOP.isoformat(),"duration_hours":8,"revision":str(REV),"training_cutoff_date":"2026-10-19"})
+    exclusive_json(directory/"plan.json",{"start_at":start.isoformat(),"end_at":end.isoformat(),"wrap_at":wrap.isoformat(),"hard_stop":HARD_STOP.isoformat(),"duration_hours":8,"revision":str(REV),"training_cutoff_date":"2026-10-19",
+        "implementation_revision":subprocess.check_output(["git","rev-parse","HEAD"],cwd=LAB_ROOT,text=True).strip()})
     note(f"Part 2 START {start.tz_convert('America/New_York').isoformat()}; END {end.tz_convert('America/New_York').isoformat()}; wrap {wrap.tz_convert('America/New_York').isoformat()}; directory={directory}")
     commit_status()
     last_lean=refresh(directory,"start")
@@ -231,7 +248,7 @@ def run_eight_hours():
                     psutil.Process().cpu_affinity(old_aff)
             else:
                 note("Optional game longrun skipped: CPU/job/time availability condition not met")
-        if longrun_id and not analyzed and active_job()!=longrun_id and now<wrap:
+        if longrun_id and not analyzed and active_job()!=longrun_id and now<wrap-pd.Timedelta(minutes=15):
             analyzed=True
             command([sys.executable,"-m","lab.analyze_longrun",longrun_id,"--no-record","--max-candidates","2"],directory/"longrun_analysis.log",900)
             note("DEV-only longrun analysis finished; no prospective registry update")
@@ -246,7 +263,8 @@ def run_eight_hours():
             if longrun_id and active_job()==longrun_id:
                 command([sys.executable,"-m","lab.longrun","stop",longrun_id],directory/"longrun_stop.log",60)
             last_lean=refresh(directory,"final") or last_lean
-            command([sys.executable,"-m","pytest","tests","-q"],REPORTS_DIR/"run_20261020"/"final_tests.log",1800)
+            test_budget=max(1,min(1800,int((end-pd.Timestamp.now(tz="UTC")).total_seconds()-120)))
+            command([sys.executable,"-m","pytest","tests","-q"],REPORTS_DIR/"run_20261020"/"final_tests.log",test_budget)
             finalize_research();final_report(directory)
             note("Wrap-up report/test outputs saved; holding original eight-hour end time")
         time.sleep(min(30,max(1,(end-pd.Timestamp.now(tz="UTC")).total_seconds())))

@@ -161,10 +161,64 @@ def blends():
     return write("game_blends.json", results)
 
 
+def secondary_metrics():
+    """Saved-output diagnostics only; never fit a new model or rerun a simulator."""
+    from ... import metrics
+    from ..ensemble import YARDS
+    from ..ensemble.probability_research import run as probabilities
+    independent=pd.read_parquet(OUT/"dev_predictions.parquet")
+    informed=pd.read_parquet(DEST/"market_feature_predictions2022.parquet")
+    summaries=[]
+    for label,frame in (("independent",independent),("closing_feature",informed)):
+        for stat,d in frame.groupby("stat"):
+            for method in ("equal","weighted","stacked","logreg","random_forest","xgboost","mlp","sim_independent"):
+                a=d.dropna(subset=[method,"actual"])
+                r={"variant":label,"stat":stat,"method":method,"n":len(a),"primary_loss":float(loss_rows(stat,a.actual,a[method]).mean())}
+                if stat=="anytime_td":
+                    r["log_loss"]=metrics.log_loss(a.actual,a[method])
+                    r["reliability"]=metrics.calibration_table(a.actual,a[method]).to_dict("records")
+                summaries.append(r)
+            if stat in YARDS:
+                for q in (10,50,90):
+                    error=d.actual-d[f"q{q}"]
+                    summaries.append({"variant":label,"stat":stat,"method":"quantile_head","quantile":q,"n":len(d),
+                        "pinball":float(np.maximum(q/100*error,(q/100-1)*error).mean()),"note":"raw frozen head; zero floor is a display rule only"})
+    # Both ablation variants use exactly the same prior-mean synthetic thresholds.
+    ou=[]
+    for label,frame in (("independent",independent),("closing_feature",informed)):
+        destination=DEST/(label+"_ou")
+        if not (destination/"synthetic_ou_research2022.json").exists():
+            probabilities(frame,destination,seed=20261020)
+        data=pd.read_parquet(destination/"synthetic_ou2022.parquet")
+        data["variant"]=label;ou.append(data)
+    pair=ou[1].merge(ou[0],on=["game_id","pid","stat","method","week","line","over"],suffixes=("_market","_ind"),validate="one_to_one")
+    comparisons=[]
+    for (stat,method),d in pair.groupby(["stat","method"]):
+        comparisons.append({"stat":stat,"method":method,"n":len(d),"brier_delta":clustered_difference(d.game_id,
+            (d.p_over_market-d.over)**2-(d.p_over_ind-d.over)**2,seed=20261020),
+            "log_loss_delta":metrics.log_loss(d.over,d.p_over_market)-metrics.log_loss(d.over,d.p_over_ind)})
+    original=pd.read_parquet(OUT.parent/"dev"/"player_games.parquet")
+    supplied=independent.merge(original[["game_id","pid","stat","line"]].rename(columns={"line":"evaluation_line"}),
+        on=["game_id","pid","stat"],how="left",validate="one_to_one")
+    dest=DEST/"original_line_ensemble_ou"
+    if not (dest/"synthetic_ou_research2022.json").exists():
+        probabilities(supplied,dest,seed=20261020,line_column="evaluation_line")
+    evaluated=pd.read_parquet(dest/"synthetic_ou2022.parquet").merge(original[["game_id","pid","stat","line","p_over_sim","p_over_base"]],on=["game_id","pid","stat","line"],validate="many_to_one")
+    original_ou=[]
+    for (stat,method),d in evaluated.groupby(["stat","method"]):
+        row={"stat":stat,"method":method,"n":len(d),"brier":metrics.brier(d.over,d.p_over),"log_loss":metrics.log_loss(d.over,d.p_over)}
+        for b in ("p_over_sim","p_over_base"):
+            row["brier_vs_"+b]=clustered_difference(d.game_id,(d.p_over-d.over)**2-(d[b]-d.over)**2,seed=20261020)
+            row["log_loss_vs_"+b]=metrics.log_loss(d.over,d.p_over)-metrics.log_loss(d.over,d[b])
+        original_ou.append(row)
+    return write("secondary_metrics2022.json",{"point_and_head_metrics":summaries,"ablation_synthetic_ou":comparisons,"original_line_ou":original_ou,
+        "limitations":["Synthetic thresholds, not actual player-prop quotes; never betting returns", "Yard O/U warm-up excluded until >=100 strictly earlier-week residual rows; counts use Poisson approximation", "Original v1 saves no quantile bounds or full samples, so matched v1 pinball cannot be reconstructed; TD markets unsupported", "All secondary comparisons descriptive, not extra acceptance tests"]})
+
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
-    p.add_argument("command", choices=["benchmarks", "market", "blends"])
+    p.add_argument("command", choices=["benchmarks", "market", "blends", "secondary"])
     p.add_argument("--threads", type=int, default=14)
     a = p.parse_args()
     DEST.mkdir(parents=True, exist_ok=True)
-    print(json.dumps(market_ablation(a.threads) if a.command == "market" else benchmarks() if a.command == "benchmarks" else blends(), indent=2))
+    print(json.dumps(market_ablation(a.threads) if a.command == "market" else benchmarks() if a.command == "benchmarks" else secondary_metrics() if a.command == "secondary" else blends(), indent=2))

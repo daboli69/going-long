@@ -114,3 +114,37 @@ def test_saved_seed_and_scenario_diagnostics_keep_instability_visible(tmp_path):
     sensitivity=pd.read_csv(tmp_path/"scenario_summary.csv")
     assert stability.stability_flag.iloc[0]=="unstable" and stability.range.iloc[0]==10
     assert sensitivity.scenario_sensitivity.iloc[0]=="sensitive"
+
+
+def test_saved_benchmark_line_diagnostics_use_supplied_line_and_isolated_output(tmp_path):
+    from lab.props.ensemble.probability_research import run
+    from scipy.stats import poisson
+    frame=pd.DataFrame([{"season":2022,"game_id":"g","pid":"p","week":1,"stat":"rec","actual":2.,
+                         "equal":2.,"recent_mean":3.,"fixed_line":1.5}])
+    destination=tmp_path/"secondary"
+    result=run(frame,destination,seed=20261020,line_column="fixed_line")
+    data=pd.read_parquet(destination/"synthetic_ou2022.parquet")
+    assert data.line.eq(1.5).all()
+    assert data.loc[data.method.eq("equal"),"p_over"].iloc[0]==pytest.approx(poisson.sf(1,2))
+    assert "not actual market" in result["line_definition"]
+
+
+def test_controller_logs_failed_owned_command_without_aborting_following_work(tmp_path,monkeypatch):
+    import sys
+    from lab.props.amendment2 import run
+    messages=[]
+    monkeypatch.setattr(run,"note",messages.append)
+    code=run.command([sys.executable,"-c","print(123); raise SystemExit(3)"],tmp_path/"failure.log",10)
+    assert code==3 and any("FAILED" in m for m in messages)
+    assert "123" in (tmp_path/"failure.log").read_text()
+    assert run.command([sys.executable,"-c","pass"],tmp_path/"next.log",10)==0
+
+
+def test_expected_zero_role_for_backup_remains_available_for_scenario_deltas():
+    from lab.props.amendment2.simulation import summarize,STATS
+    result={"points":np.array([[7,0],[0,0]]),"first_td_col":np.array([0,-1]),
+            "stats":{s:np.zeros((2,1)) for s in STATS}}
+    rows=summarize(result,{"starter":0},{"starter":"SF","backup":"SF"},"g","sim_independent",20261020,"expected",{"starter","backup"})
+    d=pd.DataFrame(rows)
+    assert d.loc[d.pid.eq("backup")&d.stat.eq("pass_yds"),"mean"].iloc[0]==0
+    assert d.loc[d.stat.eq("first_td"),"mean"].sum()==pytest.approx(1)

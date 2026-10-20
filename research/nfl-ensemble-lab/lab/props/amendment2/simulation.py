@@ -53,6 +53,8 @@ def run(directory,log=print,deadline=None):
     frame=pd.read_parquet(REV/"features_production.parquet")
     fs=games()
     fit=json.loads((REV/"production_fit.json").read_text())
+    plan_path=directory.parent/"plan.json"
+    implementation=json.loads(plan_path.read_text()).get("implementation_revision") if plan_path.exists() else None
     with relocated(REV):
         table=structural.tables(log,production=True)
     p=M.load_pbp([2025,2026])
@@ -75,7 +77,7 @@ def run(directory,log=print,deadline=None):
         if (directory.parent/"STOP_AFTER_CURRENT.json").exists():
             log("stop-after-current request observed after previous game; no new simulation started")
             break
-        if deadline and pd.Timestamp.now(tz="UTC")>=pd.Timestamp(deadline):
+        if deadline and pd.Timestamp.now(tz="UTC")>=pd.Timestamp(deadline)-pd.Timedelta(minutes=10):
             log("simulation deadline reached; no further cases started")
             break
         path=directory/f"{game.game_id}.parquet"
@@ -96,6 +98,7 @@ def run(directory,log=print,deadline=None):
                     if qbs[team] is None:
                         raise ValueError("Verified expected QB out; no prior eligible replacement")
             base_teams,players,cols,info=G.build(a,available,hist,7,qbs,[game.home_team,game.away_team])
+            diagnostic_ids=set(cols)|set(candidates.loc[candidates.position.isin(["QB","RB","FB","WR","TE"]),"pid"])
             independent=anchor.predict(pd.DataFrame([game._asdict()])).iloc[0]
             modes={"sim_independent":[independent.home_points,independent.away_points]}
             if game.game_id in market and {"margin","total"}<=market[game.game_id].keys():
@@ -106,13 +109,16 @@ def run(directory,log=print,deadline=None):
             for mode,points in modes.items():
                 calibrate=S.calibrate_v2 if mode=="sim_independent" else S.calibrate
                 for seed in SEEDS:
+                    if deadline and pd.Timestamp.now(tz="UTC")>=pd.Timestamp(deadline)-pd.Timedelta(seconds=60):
+                        errors.append({"game_id":game.game_id,"case":"expected","seed":seed,"error":"insufficient time before deadline"})
+                        break
                     rng=np.random.default_rng(seed)
                     efficiency,_=calibrate(table,base_teams,players,points,rng)
                     r=S.simulate(table,base_teams,players,10000,efficiency,rng,record_td=True)
-                    rows+=summarize(r,cols,team_for,game.game_id,mode,seed,"expected",set(cols))
+                    rows+=summarize(r,cols,team_for,game.game_id,mode,seed,"expected",diagnostic_ids)
                     log(f"stability {game.game_id} {mode} seed={seed}")
                 for case in SCENARIOS:
-                    if deadline and pd.Timestamp.now(tz="UTC")>=pd.Timestamp(deadline):
+                    if deadline and pd.Timestamp.now(tz="UTC")>=pd.Timestamp(deadline)-pd.Timedelta(seconds=60):
                         errors.append({"game_id":game.game_id,"case":case,"error":"deadline"});break
                     try:
                         av={t:v.copy() for t,v in available.items()};qb=dict(qbs);pt=list(points)
@@ -140,13 +146,14 @@ def run(directory,log=print,deadline=None):
                             raise ValueError("scenario removes an entire receiver/rusher pool")
                         rng=np.random.default_rng(SEEDS[0]);efficiency,_=calibrate(table,tm,pl,pt,rng)
                         r=S.simulate(table,tm,pl,10000,efficiency,rng,record_td=True)
-                        rows+=summarize(r,cl,team_for,game.game_id,mode,SEEDS[0],case,set(cols))
+                        rows+=summarize(r,cl,team_for,game.game_id,mode,SEEDS[0],case,diagnostic_ids)
                         log(f"scenario {game.game_id} {mode} {case}")
                     except Exception as exc:
                         errors.append({"game_id":game.game_id,"mode":mode,"case":case,"error":repr(exc)})
                         log(f"FAILED scenario {game.game_id} {case}: {exc}; skipped")
             pd.DataFrame(rows).to_parquet(path,index=False)
             exclusive_json(path.with_suffix(".json"),{"created_at":pd.Timestamp.now(tz="UTC").isoformat(),"game_id":game.game_id,"training_cutoff_date":fit["training_cutoff_date"],
+                "implementation_revision":implementation,
                 "training_last_completed_week":6,"frozen_config_sha256":fit["frozen_config_sha256"],"sims":10000,"seeds":list(SEEDS),"scenario_names":list(SCENARIOS),
                 "expected_out_ids":sorted(outs & set(candidates.pid)),"injury_report_week7_rows":len(injury),"injury_observed_at":injury_observed.isoformat(),
                 "limitations":"Structural role interventions only; team anchors held fixed except +/-7 script. QB efficiency/learned-member means not refitted. Final inactives unavailable outside T-90. No scenario is a forecast."})

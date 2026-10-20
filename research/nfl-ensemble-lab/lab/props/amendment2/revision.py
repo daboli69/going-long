@@ -80,7 +80,8 @@ def fixed():
     payloads = [json.loads(p.read_text()) for p in files]
     if not payloads:
         raise ValueError("Revision 2 forecasts unavailable")
-    frame = pd.DataFrame([r for p in payloads for r in p["rows"]])
+    frame = pd.DataFrame([r|{"forecast_created_at":p["generated_at"],"frozen_config_sha256":p["frozen_config_sha256"]}
+                          for p in payloads for r in p["rows"]])
     frame["pid"] = frame.pid.fillna("")
     frame = frame.drop_duplicates(KEY).copy()
     distributions = {(r.game_id,str(r.pid),r.stat):np.asarray(r.samples) for r in pd.read_parquet(REV/"distributions.parquet").itertuples()}

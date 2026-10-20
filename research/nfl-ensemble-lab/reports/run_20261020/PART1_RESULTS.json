@@ -1,0 +1,1006 @@
+{
+  "recorded_at": "2026-10-20T11:30:30.601380+00:00",
+  "preregistration_commit": "a05c172",
+  "training_cutoff_date": "2026-10-19",
+  "revision": 2,
+  "benchmarks_unsupported_targets": [
+    "pass_tds",
+    "anytime_td"
+  ],
+  "full_suite": "255 passed / 1 pre-existing skip; 322.56s",
+  "latest_affected_checks": "20 passed; 3.11s",
+  "results": {
+    "benchmarks2022.json": {
+      "requested_rows": 8576,
+      "requested_games": 271,
+      "original_v1_rows": 5826,
+      "matched_rows": 4795,
+      "matched_games": 271,
+      "unmatched_ensemble_rows": 3781,
+      "limitation": "Original v1 uses closing anchors and retrospective first passer/target-week roster; only four supported stats. Not a pregame independent comparator.",
+      "results": [
+        {
+          "stat": "pass_yds",
+          "method": "equal",
+          "n": 478,
+          "games": 264,
+          "metric": "MAE",
+          "loss": 56.179921065966575,
+          "vs_sim_mean": {
+            "n": 478,
+            "games": 264,
+            "difference": -1.6248255867530952,
+            "ci95": [
+              -3.768746047573138,
+              0.5505631503167502
+            ],
+            "p_improvement_one_sided": 0.07096451774112944
+          },
+          "vs_base_mean": {
+            "n": 478,
+            "games": 264,
+            "difference": -3.220491785433208,
+            "ci95": [
+              -6.0796740850779925,
+              -0.3312998818181904
+            ],
+            "p_improvement_one_sided": 0.014492753623188406
+          }
+        },
+        {
+          "stat": "pass_yds",
+          "method": "weighted",
+          "n": 478,
+          "games": 264,
+          "metric": "MAE",
+          "loss": 56.18694140698709,
+          "vs_sim_mean": {
+            "n": 478,
+            "games": 264,
+            "difference": -1.6178052457325673,
+            "ci95": [
+              -3.7795992540856687,
+              0.5606687129762339
+            ],
+            "p_improvement_one_sided": 0.07396301849075462
+          },
+          "vs_base_mean": {
+            "n": 478,
+            "games": 264,
+            "difference": -3.213471444412679,
+            "ci95": [
+              -6.0795581598849235,
+              -0.33245561294125997
+            ],
+            "p_improvement_one_sided": 0.014492753623188406
+          }
+        },
+        {
+          "stat": "pass_yds",
+          "method": "stacked",
+          "n": 478,
+          "games": 264,
+          "metric": "MAE",
+          "loss": 56.608713901262945,
+          "vs_sim_mean": {
+            "n": 478,
+            "games": 264,
+            "difference": -1.1960327514567255,
+            "ci95": [
+              -3.860541754523489,
+              1.354828190884067
+            ],
+            "p_improvement_one_sided": 0.19890054972513743
+          },
+          "vs_base_mean": {
+            "n": 478,
+            "games": 264,
+            "difference": -2.7916989501368383,
+            "ci95": [
+              -5.847135804494374,
+              0.20976532085728178
+            ],
+            "p_improvement_one_sided": 0.033483258370814596
+          }
+        },
+        {
+          "stat": "pass_yds",
+          "method": "sim_mean",
+          "n": 478,
+          "games": 264,
+          "metric": "MAE",
+          "loss": 57.80474665271966,
+          "vs_sim_mean": {
+            "n": 478,
+            "games": 264,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "p_improvement_one_sided": 1.0
+          },
+          "vs_base_mean": {
+            "n": 478,
+            "games": 264,
+            "difference": -1.595666198680112,
+            "ci95": [
+              -4.643286528070335,
+              1.4931211629492471
+            ],
+            "p_improvement_one_sided": 0.13543228385807096
+          }
+        },
+        {
+          "stat": "pass_yds",
+          "method": "base_mean",
+          "n": 478,
+          "games": 264,
+          "metric": "MAE",
+          "loss": 59.400412851399786,
+          "vs_sim_mean": {
+            "n": 478,
+            "games": 264,
+            "difference": 1.595666198680112,
+            "ci95": [
+              -1.4931211629492471,
+              4.643286528070335
+            ],
+            "p_improvement_one_sided": 0.8650674662668666
+          },
+          "vs_base_mean": {
+            "n": 478,
+            "games": 264,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "p_improvement_one_sided": 1.0
+          }
+        },
+        {
+          "stat": "pass_tds",
+          "status": "original v1/baseline B unsupported; no values invented"
+        },
+        {
+          "stat": "anytime_td",
+          "status": "original v1/baseline B unsupported; no values invented"
+        },
+        {
+          "stat": "rec",
+          "method": "equal",
+          "n": 1749,
+          "games": 271,
+          "metric": "Poisson deviance",
+          "loss": 1.5385269657717773,
+          "vs_sim_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.08896951414347098,
+            "ci95": [
+              -0.12957260992926034,
+              -0.04796238308851997
+            ],
+            "p_improvement_one_sided": 0.0004997501249375312
+          },
+          "vs_base_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.14932077198283883,
+            "ci95": [
+              -0.2905841392874841,
+              -0.05039208656524192
+            ],
+            "p_improvement_one_sided": 0.021989005497251374
+          }
+        },
+        {
+          "stat": "rec",
+          "method": "weighted",
+          "n": 1749,
+          "games": 271,
+          "metric": "Poisson deviance",
+          "loss": 1.5383105365293999,
+          "vs_sim_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.08918594338584838,
+            "ci95": [
+              -0.13007889554485863,
+              -0.04813060933111617
+            ],
+            "p_improvement_one_sided": 0.0004997501249375312
+          },
+          "vs_base_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.14953720122521624,
+            "ci95": [
+              -0.2905886080286226,
+              -0.05052681079833017
+            ],
+            "p_improvement_one_sided": 0.021989005497251374
+          }
+        },
+        {
+          "stat": "rec",
+          "method": "stacked",
+          "n": 1749,
+          "games": 271,
+          "metric": "Poisson deviance",
+          "loss": 1.5407264372142713,
+          "vs_sim_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.08677004270097673,
+            "ci95": [
+              -0.12801212581400412,
+              -0.0455785794010836
+            ],
+            "p_improvement_one_sided": 0.0004997501249375312
+          },
+          "vs_base_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.14712130054034456,
+            "ci95": [
+              -0.28838535503031604,
+              -0.0474172913479694
+            ],
+            "p_improvement_one_sided": 0.02348825587206397
+          }
+        },
+        {
+          "stat": "rec",
+          "method": "sim_mean",
+          "n": 1749,
+          "games": 271,
+          "metric": "Poisson deviance",
+          "loss": 1.627496479915248,
+          "vs_sim_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "p_improvement_one_sided": 1.0
+          },
+          "vs_base_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.06035125783936784,
+            "ci95": [
+              -0.20721937423325087,
+              0.05167190270527685
+            ],
+            "p_improvement_one_sided": 0.1729135432283858
+          }
+        },
+        {
+          "stat": "rec",
+          "method": "base_mean",
+          "n": 1749,
+          "games": 271,
+          "metric": "Poisson deviance",
+          "loss": 1.687847737754616,
+          "vs_sim_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": 0.06035125783936784,
+            "ci95": [
+              -0.05167190270527685,
+              0.20721937423325085
+            ],
+            "p_improvement_one_sided": 0.8275862068965517
+          },
+          "vs_base_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "p_improvement_one_sided": 1.0
+          }
+        },
+        {
+          "stat": "rec_yds",
+          "method": "equal",
+          "n": 1749,
+          "games": 271,
+          "metric": "MAE",
+          "loss": 25.449635976414758,
+          "vs_sim_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.3984181402233206,
+            "ci95": [
+              -0.83479577967477,
+              0.04165003989367525
+            ],
+            "p_improvement_one_sided": 0.04097951024487756
+          },
+          "vs_base_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.4649827806220841,
+            "ci95": [
+              -0.9657409562260612,
+              0.03889050683374463
+            ],
+            "p_improvement_one_sided": 0.03548225887056472
+          }
+        },
+        {
+          "stat": "rec_yds",
+          "method": "weighted",
+          "n": 1749,
+          "games": 271,
+          "metric": "MAE",
+          "loss": 25.44841182118682,
+          "vs_sim_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.3996422954512574,
+            "ci95": [
+              -0.836179913172598,
+              0.04208723984027532
+            ],
+            "p_improvement_one_sided": 0.04097951024487756
+          },
+          "vs_base_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.4662069358500207,
+            "ci95": [
+              -0.9674066687194122,
+              0.037871432303407414
+            ],
+            "p_improvement_one_sided": 0.03498250874562719
+          }
+        },
+        {
+          "stat": "rec_yds",
+          "method": "stacked",
+          "n": 1749,
+          "games": 271,
+          "metric": "MAE",
+          "loss": 25.296894950801853,
+          "vs_sim_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.5511591658362249,
+            "ci95": [
+              -0.9689427461081015,
+              -0.1220911572482291
+            ],
+            "p_improvement_one_sided": 0.0014992503748125937
+          },
+          "vs_base_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.6177238062349881,
+            "ci95": [
+              -1.1334268407783645,
+              -0.10943132371171237
+            ],
+            "p_improvement_one_sided": 0.009495252373813094
+          }
+        },
+        {
+          "stat": "rec_yds",
+          "method": "sim_mean",
+          "n": 1749,
+          "games": 271,
+          "metric": "MAE",
+          "loss": 25.848054116638078,
+          "vs_sim_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "p_improvement_one_sided": 1.0
+          },
+          "vs_base_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": -0.06656464039876342,
+            "ci95": [
+              -0.6842958454095527,
+              0.5256451866661981
+            ],
+            "p_improvement_one_sided": 0.41879060469765117
+          }
+        },
+        {
+          "stat": "rec_yds",
+          "method": "base_mean",
+          "n": 1749,
+          "games": 271,
+          "metric": "MAE",
+          "loss": 25.914618757036845,
+          "vs_sim_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": 0.06656464039876342,
+            "ci95": [
+              -0.5256451866661982,
+              0.6842958454095522
+            ],
+            "p_improvement_one_sided": 0.5817091454272864
+          },
+          "vs_base_mean": {
+            "n": 1749,
+            "games": 271,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "p_improvement_one_sided": 1.0
+          }
+        },
+        {
+          "stat": "rush_yds",
+          "method": "equal",
+          "n": 819,
+          "games": 271,
+          "metric": "MAE",
+          "loss": 27.855387066892316,
+          "vs_sim_mean": {
+            "n": 819,
+            "games": 271,
+            "difference": -0.29722216692941394,
+            "ci95": [
+              -0.9562160964540299,
+              0.32205044679288636
+            ],
+            "p_improvement_one_sided": 0.16991504247876063
+          },
+          "vs_base_mean": {
+            "n": 819,
+            "games": 271,
+            "difference": -0.680392878181662,
+            "ci95": [
+              -1.3408439903447888,
+              -0.05645925037608663
+            ],
+            "p_improvement_one_sided": 0.02148925537231384
+          }
+        },
+        {
+          "stat": "rush_yds",
+          "method": "weighted",
+          "n": 819,
+          "games": 271,
+          "metric": "MAE",
+          "loss": 27.854029383466955,
+          "vs_sim_mean": {
+            "n": 819,
+            "games": 271,
+            "difference": -0.29857985035478124,
+            "ci95": [
+              -0.9578038536763055,
+              0.3222159183804217
+            ],
+            "p_improvement_one_sided": 0.16941529235382308
+          },
+          "vs_base_mean": {
+            "n": 819,
+            "games": 271,
+            "difference": -0.6817505616070295,
+            "ci95": [
+              -1.341583813188044,
+              -0.05816355469916064
+            ],
+            "p_improvement_one_sided": 0.02148925537231384
+          }
+        },
+        {
+          "stat": "rush_yds",
+          "method": "stacked",
+          "n": 819,
+          "games": 271,
+          "metric": "MAE",
+          "loss": 28.18918912660144,
+          "vs_sim_mean": {
+            "n": 819,
+            "games": 271,
+            "difference": 0.03657989277971036,
+            "ci95": [
+              -0.5607258827584873,
+              0.6417319164187709
+            ],
+            "p_improvement_one_sided": 0.5402298850574713
+          },
+          "vs_base_mean": {
+            "n": 819,
+            "games": 271,
+            "difference": -0.34659081847253775,
+            "ci95": [
+              -1.0272334223796526,
+              0.2699219870640541
+            ],
+            "p_improvement_one_sided": 0.15892053973013492
+          }
+        },
+        {
+          "stat": "rush_yds",
+          "method": "sim_mean",
+          "n": 819,
+          "games": 271,
+          "metric": "MAE",
+          "loss": 28.15260923382173,
+          "vs_sim_mean": {
+            "n": 819,
+            "games": 271,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "p_improvement_one_sided": 1.0
+          },
+          "vs_base_mean": {
+            "n": 819,
+            "games": 271,
+            "difference": -0.3831707112522481,
+            "ci95": [
+              -1.1769142286548466,
+              0.3242924525999504
+            ],
+            "p_improvement_one_sided": 0.16941529235382308
+          }
+        },
+        {
+          "stat": "rush_yds",
+          "method": "base_mean",
+          "n": 819,
+          "games": 271,
+          "metric": "MAE",
+          "loss": 28.535779945073983,
+          "vs_sim_mean": {
+            "n": 819,
+            "games": 271,
+            "difference": 0.3831707112522481,
+            "ci95": [
+              -0.3242924525999516,
+              1.1769142286548466
+            ],
+            "p_improvement_one_sided": 0.8310844577711144
+          },
+          "vs_base_mean": {
+            "n": 819,
+            "games": 271,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "p_improvement_one_sided": 1.0
+          }
+        }
+      ]
+    },
+    "market_feature2022.json": {
+      "split": "fit <=2021 / walk-forward 2022",
+      "results": [
+        {
+          "stat": "anytime_td",
+          "n": 2637,
+          "games": 271,
+          "difference": {
+            "n": 2637,
+            "games": 271,
+            "difference": -0.0003034584721709235,
+            "ci95": [
+              -0.0008674561697400751,
+              0.00019591762678776377
+            ],
+            "p_improvement_one_sided": 0.136431784107946
+          },
+          "log_loss_difference": -0.0005649313390684307
+        },
+        {
+          "stat": "pass_tds",
+          "n": 507,
+          "games": 267,
+          "difference": {
+            "n": 507,
+            "games": 267,
+            "difference": -0.006971192657903033,
+            "ci95": [
+              -0.01646191147577794,
+              0.001601180894730053
+            ],
+            "p_improvement_one_sided": 0.07646176911544228
+          }
+        },
+        {
+          "stat": "pass_yds",
+          "n": 507,
+          "games": 267,
+          "difference": {
+            "n": 507,
+            "games": 267,
+            "difference": -0.44427982154072665,
+            "ci95": [
+              -0.9991738565657778,
+              0.07891499961309326
+            ],
+            "p_improvement_one_sided": 0.059470264867566215
+          }
+        },
+        {
+          "stat": "rec",
+          "n": 2017,
+          "games": 271,
+          "difference": {
+            "n": 2017,
+            "games": 271,
+            "difference": 0.0013721399979846343,
+            "ci95": [
+              -0.0019813872619574946,
+              0.004672077667698786
+            ],
+            "p_improvement_one_sided": 0.7856071964017991
+          }
+        },
+        {
+          "stat": "rec_yds",
+          "n": 2017,
+          "games": 271,
+          "difference": {
+            "n": 2017,
+            "games": 271,
+            "difference": -0.04495621259465763,
+            "ci95": [
+              -0.09588834271443952,
+              0.005659126897757492
+            ],
+            "p_improvement_one_sided": 0.041979010494752625
+          }
+        },
+        {
+          "stat": "rush_yds",
+          "n": 891,
+          "games": 271,
+          "difference": {
+            "n": 891,
+            "games": 271,
+            "difference": 0.12341380612566501,
+            "ci95": [
+              0.04978517047098241,
+              0.20116358721235914
+            ],
+            "p_improvement_one_sided": 1.0
+          }
+        }
+      ],
+      "limitation": "Closing lines have retrospective information; not archived pregame prices and never independent/default features."
+    },
+    "game_blends.json": [
+      {
+        "stat": "margin",
+        "metrics": {
+          "mae": {
+            "n": 1055,
+            "games": 1055,
+            "difference": -0.000638505798843079,
+            "ci95": [
+              -0.007330525686923466,
+              0.0063170548761008
+            ],
+            "p_improvement_one_sided": 0.42528735632183906
+          },
+          "rmse": {
+            "n": 1055,
+            "difference": 0.001043487343082461,
+            "ci95": [
+              -0.005478915381422311,
+              0.008215609725208803
+            ]
+          },
+          "crps": {
+            "n": 799,
+            "games": 799,
+            "difference": 0.003226003334254252,
+            "ci95": [
+              -0.002094973941326143,
+              0.009121845636158395
+            ],
+            "p_improvement_one_sided": 0.8615692153923038
+          }
+        },
+        "weights": {
+          "2019": 0.0,
+          "2020": 0.0,
+          "2021": 0.06811893461316434,
+          "2022": 0.023330813105725098
+        },
+        "status": "development only; no promotion"
+      },
+      {
+        "stat": "total",
+        "metrics": {
+          "mae": {
+            "n": 1055,
+            "games": 1055,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "p_improvement_one_sided": 1.0
+          },
+          "rmse": {
+            "n": 1055,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ]
+          },
+          "crps": {
+            "n": 799,
+            "games": 799,
+            "difference": 0.0,
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "p_improvement_one_sided": 1.0
+          }
+        },
+        "weights": {
+          "2019": 0.0,
+          "2020": 0.0,
+          "2021": 0.0,
+          "2022": 0.0
+        },
+        "status": "development only; no promotion"
+      }
+    ],
+    "multiplicity.json": {
+      "family": 22,
+      "tests": [
+        {
+          "id": "pass_yds vs sim_mean",
+          "p": 0.07096451774112944,
+          "available": true,
+          "holm_p": 0.9935032483758122,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "pass_yds vs base_mean",
+          "p": 0.014492753623188406,
+          "available": true,
+          "holm_p": 0.30434782608695654,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "pass_tds vs sim_mean",
+          "p": 1.0,
+          "available": false,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "pass_tds vs base_mean",
+          "p": 1.0,
+          "available": false,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "anytime_td vs sim_mean",
+          "p": 1.0,
+          "available": false,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "anytime_td vs base_mean",
+          "p": 1.0,
+          "available": false,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "rec vs sim_mean",
+          "p": 0.0004997501249375312,
+          "available": true,
+          "holm_p": 0.010994502748625687,
+          "passes_multiplicity": true
+        },
+        {
+          "id": "rec vs base_mean",
+          "p": 0.021989005497251374,
+          "available": true,
+          "holm_p": 0.42978510744627685,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "rec_yds vs sim_mean",
+          "p": 0.04097951024487756,
+          "available": true,
+          "holm_p": 0.6966516741629185,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "rec_yds vs base_mean",
+          "p": 0.03548225887056472,
+          "available": true,
+          "holm_p": 0.638680659670165,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "rush_yds vs sim_mean",
+          "p": 0.16991504247876063,
+          "available": true,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "rush_yds vs base_mean",
+          "p": 0.02148925537231384,
+          "available": true,
+          "holm_p": 0.42978510744627685,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "pass_yds closing feature",
+          "p": 0.059470264867566215,
+          "available": true,
+          "holm_p": 0.8920539730134932,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "pass_tds closing feature",
+          "p": 0.07646176911544228,
+          "available": true,
+          "holm_p": 0.9940029985007497,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "anytime_td closing feature",
+          "p": 0.136431784107946,
+          "available": true,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "rec closing feature",
+          "p": 0.7856071964017991,
+          "available": true,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "rec_yds closing feature",
+          "p": 0.041979010494752625,
+          "available": true,
+          "holm_p": 0.6966516741629185,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "rush_yds closing feature",
+          "p": 1.0,
+          "available": true,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "margin blend mae",
+          "p": 0.42528735632183906,
+          "available": true,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "margin blend crps",
+          "p": 0.8615692153923038,
+          "available": true,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "total blend mae",
+          "p": 1.0,
+          "available": true,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        },
+        {
+          "id": "total blend crps",
+          "p": 1.0,
+          "available": true,
+          "holm_p": 1.0,
+          "passes_multiplicity": false
+        }
+      ],
+      "decisions": [
+        {
+          "experiment": "benchmark pass_yds",
+          "status": "Rejected/blocked under preregistered gate",
+          "passes": false
+        },
+        {
+          "experiment": "closing feature pass_yds",
+          "status": "Rejected",
+          "passes": false
+        },
+        {
+          "experiment": "benchmark pass_tds",
+          "status": "Rejected/blocked under preregistered gate",
+          "passes": false
+        },
+        {
+          "experiment": "closing feature pass_tds",
+          "status": "Rejected",
+          "passes": false
+        },
+        {
+          "experiment": "benchmark anytime_td",
+          "status": "Rejected/blocked under preregistered gate",
+          "passes": false
+        },
+        {
+          "experiment": "closing feature anytime_td",
+          "status": "Rejected",
+          "passes": false
+        },
+        {
+          "experiment": "benchmark rec",
+          "status": "Rejected/blocked under preregistered gate",
+          "passes": false
+        },
+        {
+          "experiment": "closing feature rec",
+          "status": "Rejected",
+          "passes": false
+        },
+        {
+          "experiment": "benchmark rec_yds",
+          "status": "Rejected/blocked under preregistered gate",
+          "passes": false
+        },
+        {
+          "experiment": "closing feature rec_yds",
+          "status": "Rejected",
+          "passes": false
+        },
+        {
+          "experiment": "benchmark rush_yds",
+          "status": "Rejected/blocked under preregistered gate",
+          "passes": false
+        },
+        {
+          "experiment": "closing feature rush_yds",
+          "status": "Rejected",
+          "passes": false
+        },
+        {
+          "experiment": "convex blend margin",
+          "status": "Rejected",
+          "passes": false
+        },
+        {
+          "experiment": "convex blend total",
+          "status": "Rejected",
+          "passes": false
+        }
+      ],
+      "decision": "No automatic selection or promotion; frozen equal reference remains unchanged."
+    }
+  },
+  "secondary_metrics_sha256": "bc05395e2fc64ab9fcd487466695cb45afa1a7a3bd923cf26bf1d20f5a6ce259",
+  "secondary_metrics_path": "artifacts\\props\\phase10\\amendment2\\research\\secondary_metrics2022.json"
+}
