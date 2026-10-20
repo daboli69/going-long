@@ -1070,3 +1070,25 @@ selection gate. Also report paired pinball deltas for reconciled vs original
 mixture quantiles, separately from the preregistered quantile-head primary
 pinball metrics. No gate, split, family correction or frozen configuration is
 changed, and the approximations are not silently relabelled as exact mixtures.
+
+A3 accounting coverage addendum (17:08 ET, before score inspection): code/data
+coverage inspection found58/504 prospective learned rows absent from the
+structural eligibility table. Matched-row A3-B/C primary metrics and the eight
+Holm gates remain unchanged. Add a separately labelled full-eligible accounting
+DIAGNOSTIC: retain every learned row; compute the allocatable structural budget
+from known structural eligible means only; preserve all residual team mass as
+explicit other/unresolved structural-eligibility mass. Missing structural means
+are not evidence of zero actual volume. Rescale ALL eligible learned weights
+into this conservative budget; record missing-member counts and flag the
+allocation as assumption-based where needed. Test conservation to1e-8 and
+report paired2022 loss CIs descriptively; no additional accuracy acceptance or
+selection gate. This supports operational accounting without silently dropping
+learned players. Report both matched and full-scope samples, never substitute
+one for the other. Prospective original means are never replaced.
+
+Correct future coherence flags to compare eligible original ATD sums against
+expected DISTINCT scorers. Retain the TD-count gap as explanatory reference
+only; it can never itself trigger a coherence failure. Existing forecast files
+and already emitted comparisons stay unchanged; a new comparison timestamp
+will carry the corrected definition/full-scope shadow columns. No2026 outcome
+was read to define this coverage policy; no threshold changed after results.
