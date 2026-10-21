@@ -172,7 +172,7 @@ def run(args):
     week=args.week or cutoff['training_last_completed_week']+1
     directory=revision_directory(week)
     try:
-        if pd.Timestamp(args.deadline)-pd.Timestamp.now(tz='UTC')<pd.Timedelta(minutes=15):raise TimeoutError('Weekly pipeline needs at least15min remaining')
+        if pd.Timestamp(args.deadline)-pd.Timestamp.now(tz='UTC')<pd.Timedelta(minutes=60):raise TimeoutError('Weekly pipeline needs its60min worst-case budget remaining')
         # Git fetch only; no branch switch or write to the root market file.
         command(['git','fetch','origin','main'],directory,'fetch',120)
         command([sys.executable,'-m','lab.phase10_archive','--remote-main'],directory,'market_archive',300)
@@ -234,6 +234,7 @@ def run(args):
         # Retrieve context only; archived weather/inactives never enter models without historical validity.
         from ..inactives10 import collect
         from ..prospective import fetch_weather
+        if pd.Timestamp(args.deadline)-pd.Timestamp.now(tz='UTC')<pd.Timedelta(minutes=25):raise TimeoutError('Context archive needs its25min worst-case budget remaining')
         inactive=collect(future,now=decision)
         if not inactive.get('ok'):raise RuntimeError('Inactive collector failed; no downstream comparison emitted')
         weather=fetch_weather(future)

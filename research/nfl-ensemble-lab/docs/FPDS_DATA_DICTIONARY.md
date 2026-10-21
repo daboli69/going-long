@@ -6,17 +6,17 @@ All numeric game statistics are outcome-contaminated in their source week. They 
 
 Historical exports downloaded in2026 are reconstructed event-time data. They cannot establish what a bettor could actually have observed in an earlier season. First imports cannot estimate earlier vendor revisions.
 
-|Table|Rows|Usable entity-weeks|Unmatched rows|Ambiguous rows|Export-cap flag|2026 weeks|
+|Table|Rows|Usable entity-weeks|Identity/join excluded|Ambiguous rows|Export-cap flag|2026 weeks|
 |---|---:|---:|---:|---:|---|---|
-|bell_cow_report|6300|0|6300|0|True|1,2,3,4,5,6|
-|coach_records|8570|0|0|8570|False|1,2,3,4,5,6|
-|cornerbacks|4700|0|4700|0|True|1,2,3,4,5,6|
+|bell_cow_report|6300|6300|0|0|True|1,2,3,4,5,6|
+|coach_records|8570|93|2779|5698|False|1,2,3,4,5,6|
+|cornerbacks|4700|4700|0|0|True|1,2,3,4,5,6|
 |coverage_matrix|2904|2904|0|0|False|1,2,3,4,5,6|
 |fantasy_points_allowed_qb|2904|2904|0|0|False|1,2,3,4,5,6|
 |fantasy_points_allowed_rb|2904|2904|0|0|False|1,2,3,4,5,6|
 |fantasy_points_allowed_te|2888|2888|0|0|False|1,2,3,4,5,6|
 |fantasy_points_allowed_wr|2904|2904|0|0|False|1,2,3,4,5,6|
-|injury_reports|8342|0|8342|0|False|1,2,3,4,5,6|
+|injury_reports|8342|8327|15|0|False|1,2,3,4,5,6|
 |lineup_combos_db|10600|50|0|10550|True|1,2,3,4,5,6|
 |lineup_combos_front|9700|213|0|9487|True|1,2,3,4,5,6|
 |lineup_combos_ol|6759|780|0|5979|False|1,2,3,4,5,6|
@@ -25,24 +25,24 @@ Historical exports downloaded in2026 are reconstructed event-time data. They can
 |lineup_combos_te|13600|16|0|13584|True|1,2,3,4,5,6|
 |lineup_combos_wr|12600|22|0|12578|True|1,2,3,4,5,6|
 |pace|2904|2904|0|0|False|1,2,3,4,5,6|
-|passing_basic|1200|0|1200|0|True|1,2,3,4,5,6|
-|passing_depth_of_target|1800|0|1800|0|True|1,2,3,4,5,6|
-|passing_situation|1000|0|1000|0|True|1,2,3,4,5,6|
-|passing_stats|1200|0|1200|0|True|1,2,3,4,5,6|
+|passing_basic|1200|1200|0|0|True|1,2,3,4,5,6|
+|passing_depth_of_target|1800|1800|0|0|True|1,2,3,4,5,6|
+|passing_situation|1000|1000|0|0|True|1,2,3,4,5,6|
+|passing_stats|1200|1200|0|0|True|1,2,3,4,5,6|
 |playcaller_stats|2600|2570|0|30|True|1,2,3,4,5,6|
-|rb_wr_efficiency|3200|0|3200|0|True|1,2,3,4,5,6|
-|receiving_alignment|3200|0|3200|0|True|1,2,3,4,5,6|
-|receiving_basic|1500|0|1500|0|True|1,2,3,4,5,6|
-|receiving_separation_by_alignment|2900|0|2900|0|True|1,2,3,4,5,6|
-|receiving_separation_by_breaks|2500|0|2500|0|True|1,2,3,4,5,6|
-|receiving_separation_by_coverage|2600|0|2600|0|True|1,2,3,4,5,6|
-|receiving_separation_by_role|2900|0|2900|0|True|1,2,3,4,5,6|
-|receiving_separation_by_routes|1600|0|1600|0|True|1,2,3,4,5,6|
-|receiving_situation|1700|0|1700|0|True|1,2,3,4,5,6|
-|receiving_stats|1500|0|1500|0|True|1,2,3,4,5,6|
-|rushing_basic|1600|0|1600|0|True|1,2,3,4,5,6|
-|rushing_stats|1600|0|1600|0|True|1,2,3,4,5,6|
-|shadow_index|50000|2820|24861|22319|True|1,2,3,4,5,6|
+|rb_wr_efficiency|3200|3200|0|0|True|1,2,3,4,5,6|
+|receiving_alignment|3200|3200|0|0|True|1,2,3,4,5,6|
+|receiving_basic|1500|1500|0|0|True|1,2,3,4,5,6|
+|receiving_separation_by_alignment|2900|2900|0|0|True|1,2,3,4,5,6|
+|receiving_separation_by_breaks|2500|2500|0|0|True|1,2,3,4,5,6|
+|receiving_separation_by_coverage|2600|2600|0|0|True|1,2,3,4,5,6|
+|receiving_separation_by_role|2900|2900|0|0|True|1,2,3,4,5,6|
+|receiving_separation_by_routes|1600|1600|0|0|True|1,2,3,4,5,6|
+|receiving_situation|1700|1700|0|0|True|1,2,3,4,5,6|
+|receiving_stats|1500|1500|0|0|True|1,2,3,4,5,6|
+|rushing_basic|1600|1600|0|0|True|1,2,3,4,5,6|
+|rushing_stats|1600|1600|0|0|True|1,2,3,4,5,6|
+|shadow_index|50000|5588|2476|41936|True|1,2,3,4,5,6|
 |team_defense|2300|2300|0|0|True|1,2,3,4,5,6|
 |team_offense|2300|2300|0|0|True|1,2,3,4,5,6|
 
@@ -54,7 +54,7 @@ Coverage entries are observed week:row-count, not a completeness claim.2021–25
 
 ### bell-cow-report.csv
 
-Table `bell_cow_report`; 942195 bytes; modified 2026-10-21T02:15:51.060946+00:00; SHA256 `d5e0971f8b7ec67b1c667110e6dfa80867f25d8becca40f27c0d9d760700ca65`; imported 2026-10-21T03:16:12.039639+00:00; header rows 2; raw rows 6302; valid weekly rows 6300; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `bell_cow_report`; 942195 bytes; modified 2026-10-21T02:15:51.060946+00:00; SHA256 `d5e0971f8b7ec67b1c667110e6dfa80867f25d8becca40f27c0d9d760700ca65`; imported 2026-10-21T03:58:27.248570+00:00; header rows 2; raw rows 6302; valid weekly rows 6300; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`fp__player_id`, game_id=`None`.
 
@@ -103,7 +103,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### coach-records.csv
 
-Table `coach_records`; 1007799 bytes; modified 2026-10-21T02:23:53.256834+00:00; SHA256 `01c76f2828c3f6f2c56ce6d64262885d746ccd444726821e2e1d63fc366a9fa4`; imported 2026-10-21T03:16:12.550559+00:00; header rows 2; raw rows 8572; valid weekly rows 8570; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `coach_records`; 1007799 bytes; modified 2026-10-21T02:23:53.256834+00:00; SHA256 `01c76f2828c3f6f2c56ce6d64262885d746ccd444726821e2e1d63fc366a9fa4`; imported 2026-10-21T03:58:27.909628+00:00; header rows 2; raw rows 8572; valid weekly rows 8570; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`coach__team`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -147,7 +147,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`
 
 ### cornerbacks.csv
 
-Table `cornerbacks`; 665302 bytes; modified 2026-10-21T02:25:00.412382+00:00; SHA256 `5631791eb8a71e7cb37f2c68d323ecbc95244d5d66cc4975292d8054d1b4796f`; imported 2026-10-21T03:16:13.068559+00:00; header rows 2; raw rows 4702; valid weekly rows 4700; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `cornerbacks`; 665302 bytes; modified 2026-10-21T02:25:00.412382+00:00; SHA256 `5631791eb8a71e7cb37f2c68d323ecbc95244d5d66cc4975292d8054d1b4796f`; imported 2026-10-21T03:58:28.434318+00:00; header rows 2; raw rows 4702; valid weekly rows 4700; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player__player`, team=`player__team`, position=`player__pos`, native_id=`penalties__player_id`, game_id=`None`.
 
@@ -197,7 +197,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player__playe
 
 ### coverage-matrix.csv
 
-Table `coverage_matrix`; 475940 bytes; modified 2026-10-21T02:22:20.144588+00:00; SHA256 `61c9fec1e7439467f0982a38e2b072a3acb7f17373044abad2159c8b2b829c90`; imported 2026-10-21T03:16:13.435561+00:00; header rows 2; raw rows 2906; valid weekly rows 2904; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `coverage_matrix`; 475940 bytes; modified 2026-10-21T02:22:20.144588+00:00; SHA256 `61c9fec1e7439467f0982a38e2b072a3acb7f17373044abad2159c8b2b829c90`; imported 2026-10-21T03:58:28.891195+00:00; header rows 2; raw rows 2906; valid weekly rows 2904; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details__name`, team=`None`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -250,7 +250,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details_
 
 ### fantasy-points-allowed-qb.csv
 
-Table `fantasy_points_allowed_qb`; 327973 bytes; modified 2026-10-21T02:25:46.638379+00:00; SHA256 `ea4c317d2b31d33f6d155012c639f89763dcd422c1a058190a5bf0a2b439c847`; imported 2026-10-21T03:16:13.994169+00:00; header rows 2; raw rows 2906; valid weekly rows 2904; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `fantasy_points_allowed_qb`; 327973 bytes; modified 2026-10-21T02:25:46.638379+00:00; SHA256 `ea4c317d2b31d33f6d155012c639f89763dcd422c1a058190a5bf0a2b439c847`; imported 2026-10-21T03:58:29.485072+00:00; header rows 2; raw rows 2906; valid weekly rows 2904; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details__name`, team=`None`, position=`team_details__pos`, native_id=`None`, game_id=`None`.
 
@@ -301,7 +301,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details_
 
 ### fantasy-points-allowed-rb.csv
 
-Table `fantasy_points_allowed_rb`; 291078 bytes; modified 2026-10-21T02:25:57.937393+00:00; SHA256 `15f126a75b4577d8ef71b544e6dca6378dcef17d2d246305ea23aa8bd8f3e12a`; imported 2026-10-21T03:16:14.394204+00:00; header rows 2; raw rows 2906; valid weekly rows 2904; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `fantasy_points_allowed_rb`; 291078 bytes; modified 2026-10-21T02:25:57.937393+00:00; SHA256 `15f126a75b4577d8ef71b544e6dca6378dcef17d2d246305ea23aa8bd8f3e12a`; imported 2026-10-21T03:58:29.892591+00:00; header rows 2; raw rows 2906; valid weekly rows 2904; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details__name`, team=`None`, position=`team_details__pos`, native_id=`None`, game_id=`None`.
 
@@ -345,7 +345,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details_
 
 ### fantasy-points-allowed-te.csv
 
-Table `fantasy_points_allowed_te`; 254093 bytes; modified 2026-10-21T02:26:24.888858+00:00; SHA256 `c0cc892bbcc3bec60253e2ab306219d321916845960d3ad1fc14ec097b6574e1`; imported 2026-10-21T03:16:14.759759+00:00; header rows 2; raw rows 2890; valid weekly rows 2888; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `fantasy_points_allowed_te`; 254093 bytes; modified 2026-10-21T02:26:24.888858+00:00; SHA256 `c0cc892bbcc3bec60253e2ab306219d321916845960d3ad1fc14ec097b6574e1`; imported 2026-10-21T03:58:30.259756+00:00; header rows 2; raw rows 2890; valid weekly rows 2888; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details__name`, team=`None`, position=`team_details__pos`, native_id=`None`, game_id=`None`.
 
@@ -388,7 +388,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details_
 
 ### fantasy-points-allowed-wr.csv
 
-Table `fantasy_points_allowed_wr`; 273763 bytes; modified 2026-10-21T02:26:13.049809+00:00; SHA256 `cb5b53e744090ee80ed71b659bd0c169b5aace14d65ad03bdc8351173430101c`; imported 2026-10-21T03:16:15.110757+00:00; header rows 2; raw rows 2906; valid weekly rows 2904; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `fantasy_points_allowed_wr`; 273763 bytes; modified 2026-10-21T02:26:13.049809+00:00; SHA256 `cb5b53e744090ee80ed71b659bd0c169b5aace14d65ad03bdc8351173430101c`; imported 2026-10-21T03:58:30.622756+00:00; header rows 2; raw rows 2906; valid weekly rows 2904; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details__name`, team=`None`, position=`team_details__pos`, native_id=`None`, game_id=`None`.
 
@@ -431,7 +431,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details_
 
 ### injury-reports.csv
 
-Table `injury_reports`; 1281591 bytes; modified 2026-10-21T02:27:54.232482+00:00; SHA256 `4eeea02b12cb19e00e9920cb996cc93a5ed90bdd65ef85098f6a142f2e7a111c`; imported 2026-10-21T03:16:15.516513+00:00; header rows 2; raw rows 8344; valid weekly rows 8342; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `injury_reports`; 1281591 bytes; modified 2026-10-21T02:27:54.232482+00:00; SHA256 `4eeea02b12cb19e00e9920cb996cc93a5ed90bdd65ef85098f6a142f2e7a111c`; imported 2026-10-21T03:58:31.068870+00:00; header rows 2; raw rows 8344; valid weekly rows 8342; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`season__2`, week=`wk`, name=`player`, team=`team`, position=`pos`, native_id=`None`, game_id=`None`.
 
@@ -447,7 +447,7 @@ Selected keys: season=`season__2`, week=`wk`, name=`player`, team=`team`, positi
 |Qualified column|Header / inferred definition|Type|Missing %|As-of class|Treatment|
 |---|---|---|---:|---|---|
 |`season`|Season (header inference; vendor definition unverified)|text|0.00|pregame-valid|identifier; never an outcome feature|
-|`unnamed`|# (header inference; vendor definition unverified)|numeric|0.00|outcome-contaminated|completed-week observation; numeric values permitted only after strict lag|
+|`unnamed`|# (header inference; vendor definition unverified)|numeric|0.00|outcome-contaminated|excluded ranking/index column|
 |`player`|Player (header inference; vendor definition unverified)|text|0.00|pregame-valid|identifier; never an outcome feature|
 |`pos`|POS (header inference; vendor definition unverified)|text|0.00|pregame-valid|identifier; never an outcome feature|
 |`team`|TEAM (header inference; vendor definition unverified)|text|0.00|pregame-valid|identifier; never an outcome feature|
@@ -482,7 +482,7 @@ Selected keys: season=`season__2`, week=`wk`, name=`player`, team=`team`, positi
 
 ### lineup-combos-db.csv
 
-Table `lineup_combos_db`; 1516030 bytes; modified 2026-10-21T02:23:26.389368+00:00; SHA256 `61d9278b4e8f49c1380ee32e66937e1dd9a04621570246db140ba199aebb6bc5`; imported 2026-10-21T03:16:16.112677+00:00; header rows 2; raw rows 10602; valid weekly rows 10600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `lineup_combos_db`; 1516030 bytes; modified 2026-10-21T02:23:26.389368+00:00; SHA256 `61d9278b4e8f49c1380ee32e66937e1dd9a04621570246db140ba199aebb6bc5`; imported 2026-10-21T03:58:31.816872+00:00; header rows 2; raw rows 10602; valid weekly rows 10600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`unit_details__team`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -523,7 +523,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`
 
 ### lineup-combos-front.csv
 
-Table `lineup_combos_front`; 1512072 bytes; modified 2026-10-21T02:23:19.811932+00:00; SHA256 `e65ae01733ddc0ea37770d202a8e99febfb18bd08ff9231caf591e0f9caf7882`; imported 2026-10-21T03:16:16.780254+00:00; header rows 2; raw rows 9702; valid weekly rows 9700; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `lineup_combos_front`; 1512072 bytes; modified 2026-10-21T02:23:19.811932+00:00; SHA256 `e65ae01733ddc0ea37770d202a8e99febfb18bd08ff9231caf591e0f9caf7882`; imported 2026-10-21T03:58:32.494963+00:00; header rows 2; raw rows 9702; valid weekly rows 9700; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`unit_details__team`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -562,7 +562,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`
 
 ### lineup-combos-ol.csv
 
-Table `lineup_combos_ol`; 996367 bytes; modified 2026-10-21T02:22:37.498433+00:00; SHA256 `69c258d9ab5245dbfb952a6146261c8259c3bc0b6f262e33ffc890b0d91b7c88`; imported 2026-10-21T03:16:17.294365+00:00; header rows 2; raw rows 6761; valid weekly rows 6759; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `lineup_combos_ol`; 996367 bytes; modified 2026-10-21T02:22:37.498433+00:00; SHA256 `69c258d9ab5245dbfb952a6146261c8259c3bc0b6f262e33ffc890b0d91b7c88`; imported 2026-10-21T03:58:33.018961+00:00; header rows 2; raw rows 6761; valid weekly rows 6759; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`unit_details__team`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -601,7 +601,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`
 
 ### lineup-combos-rb.csv
 
-Table `lineup_combos_rb`; 1119504 bytes; modified 2026-10-21T02:22:58.993711+00:00; SHA256 `c4f2056b42435ca50675316924fe2e66055a2238486f10a8c821a09ad277fba7`; imported 2026-10-21T03:16:17.813403+00:00; header rows 2; raw rows 11869; valid weekly rows 11867; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `lineup_combos_rb`; 1119504 bytes; modified 2026-10-21T02:22:58.993711+00:00; SHA256 `c4f2056b42435ca50675316924fe2e66055a2238486f10a8c821a09ad277fba7`; imported 2026-10-21T03:58:33.482963+00:00; header rows 2; raw rows 11869; valid weekly rows 11867; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`unit_details__team`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -642,7 +642,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`
 
 ### lineup-combos-skill.csv
 
-Table `lineup_combos_skill`; 1501419 bytes; modified 2026-10-21T02:22:52.095493+00:00; SHA256 `9dace82d5ff09e3b07e3e0a573032aa4f6330cc3f9f0b8e4e518067d927bc95e`; imported 2026-10-21T03:16:18.521496+00:00; header rows 2; raw rows 10502; valid weekly rows 10500; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `lineup_combos_skill`; 1501419 bytes; modified 2026-10-21T02:22:52.095493+00:00; SHA256 `9dace82d5ff09e3b07e3e0a573032aa4f6330cc3f9f0b8e4e518067d927bc95e`; imported 2026-10-21T03:58:34.230552+00:00; header rows 2; raw rows 10502; valid weekly rows 10500; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`unit_details__team`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -683,7 +683,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`
 
 ### lineup-combos-te.csv
 
-Table `lineup_combos_te`; 1336424 bytes; modified 2026-10-21T02:23:11.695239+00:00; SHA256 `a6de83c39a6cbf9b53969ff9ef1f29f7be1050ed05d929590fffda279bbab416`; imported 2026-10-21T03:16:19.161573+00:00; header rows 2; raw rows 13602; valid weekly rows 13600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `lineup_combos_te`; 1336424 bytes; modified 2026-10-21T02:23:11.695239+00:00; SHA256 `a6de83c39a6cbf9b53969ff9ef1f29f7be1050ed05d929590fffda279bbab416`; imported 2026-10-21T03:58:34.974300+00:00; header rows 2; raw rows 13602; valid weekly rows 13600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`unit_details__team`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -724,7 +724,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`
 
 ### lineup-combos-wr.csv
 
-Table `lineup_combos_wr`; 1384866 bytes; modified 2026-10-21T02:23:06.277370+00:00; SHA256 `ed43407d0a1db28c997211ac7fa16227ad362eb5eaa56ffb5e7786cd84c1a223`; imported 2026-10-21T03:16:19.918613+00:00; header rows 2; raw rows 12602; valid weekly rows 12600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `lineup_combos_wr`; 1384866 bytes; modified 2026-10-21T02:23:06.277370+00:00; SHA256 `ed43407d0a1db28c997211ac7fa16227ad362eb5eaa56ffb5e7786cd84c1a223`; imported 2026-10-21T03:58:35.771597+00:00; header rows 2; raw rows 12602; valid weekly rows 12600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`unit_details__team`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -765,7 +765,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`
 
 ### pace.csv
 
-Table `pace`; 602913 bytes; modified 2026-10-21T02:22:06.468297+00:00; SHA256 `4387177b580c21ece21d5e390cb69e426300ff0e7afd90265e31479065483fdd`; imported 2026-10-21T03:16:20.520228+00:00; header rows 2; raw rows 2906; valid weekly rows 2904; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `pace`; 602913 bytes; modified 2026-10-21T02:22:06.468297+00:00; SHA256 `4387177b580c21ece21d5e390cb69e426300ff0e7afd90265e31479065483fdd`; imported 2026-10-21T03:58:36.426830+00:00; header rows 2; raw rows 2906; valid weekly rows 2904; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details__name`, team=`None`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -802,7 +802,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details_
 
 ### passing-basic.csv
 
-Table `passing_basic`; 181264 bytes; modified 2026-10-21T02:12:46.461314+00:00; SHA256 `dfa3932edfc282bf7f80f50132dd6f84c9d010d50dd4237bc9b9adef64ce14ac`; imported 2026-10-21T03:16:20.977820+00:00; header rows 2; raw rows 1202; valid weekly rows 1200; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `passing_basic`; 181264 bytes; modified 2026-10-21T02:12:46.461314+00:00; SHA256 `dfa3932edfc282bf7f80f50132dd6f84c9d010d50dd4237bc9b9adef64ce14ac`; imported 2026-10-21T03:58:36.913932+00:00; header rows 2; raw rows 1202; valid weekly rows 1200; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`fp__player_id`, game_id=`None`.
 
@@ -855,7 +855,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### passing-depth-of-target.csv
 
-Table `passing_depth_of_target`; 389067 bytes; modified 2026-10-21T02:13:32.646587+00:00; SHA256 `629f907f1b99041e86e3dab8fd966edcc4d94fbb4c930ac6882b1f26cceaa59b`; imported 2026-10-21T03:16:21.143820+00:00; header rows 2; raw rows 1802; valid weekly rows 1800; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `passing_depth_of_target`; 389067 bytes; modified 2026-10-21T02:13:32.646587+00:00; SHA256 `629f907f1b99041e86e3dab8fd966edcc4d94fbb4c930ac6882b1f26cceaa59b`; imported 2026-10-21T03:58:37.156555+00:00; header rows 2; raw rows 1802; valid weekly rows 1800; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`20_yards__player_id`, game_id=`None`.
 
@@ -933,7 +933,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### passing-situation.csv
 
-Table `passing_situation`; 216593 bytes; modified 2026-10-21T02:13:46.300879+00:00; SHA256 `4c14a03b4c2aab9673ac025ef705a7eadd6adb2fb1aa9aa7e2b455d9a98c0c19`; imported 2026-10-21T03:16:21.421962+00:00; header rows 2; raw rows 1002; valid weekly rows 1000; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `passing_situation`; 216593 bytes; modified 2026-10-21T02:13:46.300879+00:00; SHA256 `4c14a03b4c2aab9673ac025ef705a7eadd6adb2fb1aa9aa7e2b455d9a98c0c19`; imported 2026-10-21T03:58:37.564539+00:00; header rows 2; raw rows 1002; valid weekly rows 1000; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`two_high__player_id`, game_id=`None`.
 
@@ -1001,7 +1001,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### passing-stats.csv
 
-Table `passing_stats`; 424659 bytes; modified 2026-10-21T02:13:09.301811+00:00; SHA256 `73a325415ce4091f2e829ed1b0c3af4e220520bdf895f852b0c7a3a9a77f4916`; imported 2026-10-21T03:16:21.628552+00:00; header rows 2; raw rows 1202; valid weekly rows 1200; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `passing_stats`; 424659 bytes; modified 2026-10-21T02:13:09.301811+00:00; SHA256 `73a325415ce4091f2e829ed1b0c3af4e220520bdf895f852b0c7a3a9a77f4916`; imported 2026-10-21T03:58:37.846536+00:00; header rows 2; raw rows 1202; valid weekly rows 1200; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`fp__player_id`, game_id=`None`.
 
@@ -1102,7 +1102,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### playcaller-stats.csv
 
-Table `playcaller_stats`; 908903 bytes; modified 2026-10-21T02:24:42.616484+00:00; SHA256 `1f2dd73f79a2e71d2fc915ab03cf46a1d47d36b8127afbb9f5309b7c7a8f44c3`; imported 2026-10-21T03:16:21.998549+00:00; header rows 2; raw rows 2602; valid weekly rows 2600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `playcaller_stats`; 908903 bytes; modified 2026-10-21T02:24:42.616484+00:00; SHA256 `1f2dd73f79a2e71d2fc915ab03cf46a1d47d36b8127afbb9f5309b7c7a8f44c3`; imported 2026-10-21T03:58:38.321133+00:00; header rows 2; raw rows 2602; valid weekly rows 2600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`coach__team`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -1194,7 +1194,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`None`, team=`
 
 ### rb-wr-efficiency.csv
 
-Table `rb_wr_efficiency`; 835573 bytes; modified 2026-10-21T02:27:35.877857+00:00; SHA256 `89abc3e4911694bc5aa6ce08c251f5ce506ce8868171315fbca000b352a4caef`; imported 2026-10-21T03:16:22.605663+00:00; header rows 2; raw rows 3202; valid weekly rows 3200; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `rb_wr_efficiency`; 835573 bytes; modified 2026-10-21T02:27:35.877857+00:00; SHA256 `89abc3e4911694bc5aa6ce08c251f5ce506ce8868171315fbca000b352a4caef`; imported 2026-10-21T03:58:38.974133+00:00; header rows 2; raw rows 3202; valid weekly rows 3200; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`fp__player_id`, game_id=`None`.
 
@@ -1281,7 +1281,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### receiving-alignment.csv
 
-Table `receiving_alignment`; 594612 bytes; modified 2026-10-21T02:17:51.820577+00:00; SHA256 `da51abced5f3535a5acbe932317500b7943430fef63e5c3414d8a18889429cf8`; imported 2026-10-21T03:16:23.088661+00:00; header rows 2; raw rows 3202; valid weekly rows 3200; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `receiving_alignment`; 594612 bytes; modified 2026-10-21T02:17:51.820577+00:00; SHA256 `da51abced5f3535a5acbe932317500b7943430fef63e5c3414d8a18889429cf8`; imported 2026-10-21T03:58:39.654374+00:00; header rows 2; raw rows 3202; valid weekly rows 3200; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`backfield__player_id`, game_id=`None`.
 
@@ -1347,7 +1347,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### receiving-basic.csv
 
-Table `receiving_basic`; 179374 bytes; modified 2026-10-21T02:16:37.405420+00:00; SHA256 `468f08c08201ecae9ef72cbb5eff2d2d1dcf4598cd3c29180be1c5fb9784985a`; imported 2026-10-21T03:16:23.480506+00:00; header rows 2; raw rows 1502; valid weekly rows 1500; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `receiving_basic`; 179374 bytes; modified 2026-10-21T02:16:37.405420+00:00; SHA256 `468f08c08201ecae9ef72cbb5eff2d2d1dcf4598cd3c29180be1c5fb9784985a`; imported 2026-10-21T03:58:40.122073+00:00; header rows 2; raw rows 1502; valid weekly rows 1500; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`fp__player_id`, game_id=`None`.
 
@@ -1390,7 +1390,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### receiving-separation-by-alignment.csv
 
-Table `receiving_separation_by_alignment`; 600022 bytes; modified 2026-10-21T02:18:47.761148+00:00; SHA256 `c02a069ba0d6ef0e7afd8569d0885e3f7bcc2bec34dd79b2f981874bdde5db02`; imported 2026-10-21T03:16:23.660507+00:00; header rows 2; raw rows 2902; valid weekly rows 2900; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `receiving_separation_by_alignment`; 600022 bytes; modified 2026-10-21T02:18:47.761148+00:00; SHA256 `c02a069ba0d6ef0e7afd8569d0885e3f7bcc2bec34dd79b2f981874bdde5db02`; imported 2026-10-21T03:58:40.350437+00:00; header rows 2; raw rows 2902; valid weekly rows 2900; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`backfield__player_id`, game_id=`None`.
 
@@ -1456,7 +1456,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### receiving-separation-by-breaks.csv
 
-Table `receiving_separation_by_breaks`; 617856 bytes; modified 2026-10-21T02:20:01.703883+00:00; SHA256 `a8362fbbae6f300bb9188b6147c84e17148110eab916e644282254adc0d01836`; imported 2026-10-21T03:16:24.033508+00:00; header rows 2; raw rows 2502; valid weekly rows 2500; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `receiving_separation_by_breaks`; 617856 bytes; modified 2026-10-21T02:20:01.703883+00:00; SHA256 `a8362fbbae6f300bb9188b6147c84e17148110eab916e644282254adc0d01836`; imported 2026-10-21T03:58:40.806265+00:00; header rows 2; raw rows 2502; valid weekly rows 2500; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`backfield__player_id`, game_id=`None`.
 
@@ -1532,7 +1532,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### receiving-separation-by-coverage.csv
 
-Table `receiving_separation_by_coverage`; 605194 bytes; modified 2026-10-21T02:20:36.450651+00:00; SHA256 `8b8ee50d40a424329c8c89cc40da7c10b41d02fbd81422e13641c152fd1de7e1`; imported 2026-10-21T03:16:24.435505+00:00; header rows 2; raw rows 2602; valid weekly rows 2600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `receiving_separation_by_coverage`; 605194 bytes; modified 2026-10-21T02:20:36.450651+00:00; SHA256 `8b8ee50d40a424329c8c89cc40da7c10b41d02fbd81422e13641c152fd1de7e1`; imported 2026-10-21T03:58:41.279839+00:00; header rows 2; raw rows 2602; valid weekly rows 2600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`cover_6__player_id`, game_id=`None`.
 
@@ -1605,7 +1605,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### receiving-separation-by-role.csv
 
-Table `receiving_separation_by_role`; 698311 bytes; modified 2026-10-21T02:21:03.270620+00:00; SHA256 `341080714cd300693e69a8b85b333dfbf5b9c8854256f8187633f5c14297b470`; imported 2026-10-21T03:16:24.867670+00:00; header rows 2; raw rows 2902; valid weekly rows 2900; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `receiving_separation_by_role`; 698311 bytes; modified 2026-10-21T02:21:03.270620+00:00; SHA256 `341080714cd300693e69a8b85b333dfbf5b9c8854256f8187633f5c14297b470`; imported 2026-10-21T03:58:41.848840+00:00; header rows 2; raw rows 2902; valid weekly rows 2900; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`condensed_wide_reduced_split__player_id`, game_id=`None`.
 
@@ -1675,7 +1675,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### receiving-separation-by-routes.csv
 
-Table `receiving_separation_by_routes`; 622979 bytes; modified 2026-10-21T02:19:26.195785+00:00; SHA256 `ba4b099af7d891dba68540004f4e0622d001d1b23b515e89e96273e57259b206`; imported 2026-10-21T03:16:25.307143+00:00; header rows 2; raw rows 1602; valid weekly rows 1600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `receiving_separation_by_routes`; 622979 bytes; modified 2026-10-21T02:19:26.195785+00:00; SHA256 `ba4b099af7d891dba68540004f4e0622d001d1b23b515e89e96273e57259b206`; imported 2026-10-21T03:58:42.358403+00:00; header rows 2; raw rows 1602; valid weekly rows 1600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`backfield__player_id`, game_id=`None`.
 
@@ -1805,7 +1805,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### receiving-situation.csv
 
-Table `receiving_situation`; 272368 bytes; modified 2026-10-21T02:18:21.820780+00:00; SHA256 `43676083b9c3c7d4343340f7436ae50100ad013500d3c971e526ded306bd8617`; imported 2026-10-21T03:16:25.774533+00:00; header rows 2; raw rows 1702; valid weekly rows 1700; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `receiving_situation`; 272368 bytes; modified 2026-10-21T02:18:21.820780+00:00; SHA256 `43676083b9c3c7d4343340f7436ae50100ad013500d3c971e526ded306bd8617`; imported 2026-10-21T03:58:42.939014+00:00; header rows 2; raw rows 1702; valid weekly rows 1700; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`two_high__player_id`, game_id=`None`.
 
@@ -1854,7 +1854,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### receiving-stats.csv
 
-Table `receiving_stats`; 468191 bytes; modified 2026-10-21T02:17:21.856091+00:00; SHA256 `3f6b623c0244742b6f64654f6c485b389dd0a57104abb0e5b2d86f4115852f28`; imported 2026-10-21T03:16:25.965534+00:00; header rows 2; raw rows 1502; valid weekly rows 1500; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `receiving_stats`; 468191 bytes; modified 2026-10-21T02:17:21.856091+00:00; SHA256 `3f6b623c0244742b6f64654f6c485b389dd0a57104abb0e5b2d86f4115852f28`; imported 2026-10-21T03:58:43.192113+00:00; header rows 2; raw rows 1502; valid weekly rows 1500; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`fp__player_id`, game_id=`None`.
 
@@ -1944,7 +1944,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### rushing-basic.csv
 
-Table `rushing_basic`; 289411 bytes; modified 2026-10-21T02:14:47.435292+00:00; SHA256 `7d06ee729c776dc463f9987c9733b1d01727793e5b7b1856f43d254720391805`; imported 2026-10-21T03:16:26.316436+00:00; header rows 2; raw rows 1602; valid weekly rows 1600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `rushing_basic`; 289411 bytes; modified 2026-10-21T02:14:47.435292+00:00; SHA256 `7d06ee729c776dc463f9987c9733b1d01727793e5b7b1856f43d254720391805`; imported 2026-10-21T03:58:43.603108+00:00; header rows 2; raw rows 1602; valid weekly rows 1600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`fp__player_id`, game_id=`None`.
 
@@ -2009,7 +2009,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### rushing-stats.csv
 
-Table `rushing_stats`; 383279 bytes; modified 2026-10-21T02:15:19.725810+00:00; SHA256 `0422b733a02094a7fc0e3982a4b7941d4b927a3959ab93ffa1cb5f6dc2ae41b3`; imported 2026-10-21T03:16:26.571053+00:00; header rows 2; raw rows 1602; valid weekly rows 1600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `rushing_stats`; 383279 bytes; modified 2026-10-21T02:15:19.725810+00:00; SHA256 `0422b733a02094a7fc0e3982a4b7941d4b927a3959ab93ffa1cb5f6dc2ae41b3`; imported 2026-10-21T03:58:43.906112+00:00; header rows 2; raw rows 1602; valid weekly rows 1600; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`player_details__name`, team=`player_details__team`, position=`player_details__pos`, native_id=`fp__player_id`, game_id=`None`.
 
@@ -2081,7 +2081,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`player_detail
 
 ### shadow-index.csv
 
-Table `shadow_index`; 5783570 bytes; modified 2026-10-21T02:25:25.199785+00:00; SHA256 `7b0c97a259ce5404a5ceb77227b2acf1a987868704a23a228c978818cc38a2b1`; imported 2026-10-21T03:16:27.487109+00:00; header rows 2; raw rows 50002; valid weekly rows 50000; malformed 0; calendar/summary exclusions 2; selector conflicts 47122.
+Table `shadow_index`; 5783570 bytes; modified 2026-10-21T02:25:25.199785+00:00; SHA256 `7b0c97a259ce5404a5ceb77227b2acf1a987868704a23a228c978818cc38a2b1`; imported 2026-10-21T03:58:44.978233+00:00; header rows 2; raw rows 50002; valid weekly rows 50000; malformed 0; calendar/summary exclusions 2; selector conflicts 47122.
 
 Selected keys: season=`matchup__sea`, week=`matchup__wk`, name=`matchup__receiver`, team=`matchup__off`, position=`matchup__pos`, native_id=`None`, game_id=`None`.
 
@@ -2097,7 +2097,7 @@ Selected keys: season=`matchup__sea`, week=`matchup__wk`, name=`matchup__receive
 |Qualified column|Header / inferred definition|Type|Missing %|As-of class|Treatment|
 |---|---|---|---:|---|---|
 |`season`|Season (header inference; vendor definition unverified)|numeric|0.00|pregame-valid|identifier; never an outcome feature|
-|`matchup`|# (header inference; vendor definition unverified)|numeric|0.00|outcome-contaminated|completed-week observation; numeric values permitted only after strict lag|
+|`matchup`|# (header inference; vendor definition unverified)|numeric|0.00|outcome-contaminated|excluded ranking/index column|
 |`matchup__sea`|SEA (header inference; vendor definition unverified)|numeric|0.00|pregame-valid|identifier; never an outcome feature|
 |`matchup__wk`|WK (header inference; vendor definition unverified)|numeric|0.00|pregame-valid|identifier; never an outcome feature|
 |`matchup__receiver`|Receiver (header inference; vendor definition unverified)|text|0.00|pregame-valid|identifier; never an outcome feature|
@@ -2131,7 +2131,7 @@ Selected keys: season=`matchup__sea`, week=`matchup__wk`, name=`matchup__receive
 
 ### team-defense.csv
 
-Table `team_defense`; 1430825 bytes; modified 2026-10-21T02:21:48.538503+00:00; SHA256 `d8559a935ddc72ec3abc05c06b590815918c37eca74e936baa21572fd66e705f`; imported 2026-10-21T03:16:30.569185+00:00; header rows 2; raw rows 2302; valid weekly rows 2300; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `team_defense`; 1430825 bytes; modified 2026-10-21T02:21:48.538503+00:00; SHA256 `d8559a935ddc72ec3abc05c06b590815918c37eca74e936baa21572fd66e705f`; imported 2026-10-21T03:58:48.310949+00:00; header rows 2; raw rows 2302; valid weekly rows 2300; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details__name`, team=`None`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -2206,7 +2206,7 @@ Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details_
 
 ### team-offense.csv
 
-Table `team_offense`; 1453083 bytes; modified 2026-10-21T02:21:23.805861+00:00; SHA256 `e09f26a2cdcc6b479ca3967dd9d60c825b6636e47aa2df6b4e446c0925cff845`; imported 2026-10-21T03:16:31.299187+00:00; header rows 2; raw rows 2302; valid weekly rows 2300; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
+Table `team_offense`; 1453083 bytes; modified 2026-10-21T02:21:23.805861+00:00; SHA256 `e09f26a2cdcc6b479ca3967dd9d60c825b6636e47aa2df6b4e446c0925cff845`; imported 2026-10-21T03:58:48.979009+00:00; header rows 2; raw rows 2302; valid weekly rows 2300; malformed 0; calendar/summary exclusions 2; selector conflicts 0.
 
 Selected keys: season=`splits__season`, week=`splits__week`, name=`team_details__name`, team=`None`, position=`None`, native_id=`None`, game_id=`None`.
 
@@ -2325,4 +2325,4 @@ The private REVISION_LOG.json includes changed-value count and mean/max absolute
 
 ## Entity and timing limitations
 
-Exact normalized full names must resolve to a unique GSIS ID and agree with the completed source-week team roster. Synthetic Defense labels are never assigned a player ID. Unmatched labels and all raw evidence remain private. Native vendor player IDs are retained as crosswalk evidence, never assumed to be GSIS. Conflicting entity/week rows are excluded from direct player joins; explicitly labelled team/split aggregates may be constructed from earlier observations. Missing history remains missing on the identical control and challenger sample. Current shadow assignments and injuries have no verified pregame timestamp and cannot enter target-week predictors.
+Exact known GSIS identifiers or unambiguous full-name aliases must resolve to a unique completed source-week roster team. Verified historical team/position evidence overrides conflicting vendor display labels, with corrections counted; ambiguous teams remain unmatched. Native identifiers are recognized only by exact existing membership, never guessed from their format. Scheduled-game/opponent/shadow contradictions are quarantined. Identity-unmatched and known-identity/quarantined counts are separate in FPDS_A6_AUDIT.json. Synthetic Defense labels are never assigned a player ID. All unmatched labels/raw evidence remain private. Overlapping split/unit rows may form explicitly labelled arithmetic means; they are never invented team totals. Missing history remains missing on identical control/challenger rows. Untimestamped current shadow assignments/injuries cannot enter target-week predictors.
