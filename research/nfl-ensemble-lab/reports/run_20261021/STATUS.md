@@ -28,3 +28,5 @@
 - A8 verification: full current suite399passed/1existing skip/522warnings in336.71s; latest13new checks passed separately after the final source-accounting/other-scorer changes. Guard passed at committed345f9a9. Starting real bounded study16:02 ET; reuse saved A7 outputs and input snapshots, no holdout/new2026 selection.
 
 - A8 first real attempt20261021T200136Z stopped during preparation before prediction blocks: saved A7 players already contain pseudo-line columns; concatenation duplicated headers and parquet refused. Preserve failed snapshot/log. Fix new working-copy column replacement only; add duplicate-header/source-immutability regression. Source rating reconstruction was counted; no predictive configuration was scored. No threshold/split change.
+
+- A8 final current regression400passed/1existing skip/522warnings in510.85s while local fit ran; additional aggregate formatter/secondary tests passed. No failed test repeated. Saved-output member/reliability/bias diagnostics implement registered secondary metrics only, with no new fitting or primary gate changes.

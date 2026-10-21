@@ -9,4 +9,7 @@ if errorlevel 1 (
   echo FPDS improvement study stopped. Private diagnostics and completed blocks were retained.
   exit /b 1
 )
+if "%~1"=="status" exit /b 0
+.venv\Scripts\python.exe -m lab.low_priority -m lab.fpds_improve_diagnostics
+if errorlevel 1 exit /b 1
 .venv\Scripts\python.exe -m lab.low_priority -m lab.fpds_improve_report
