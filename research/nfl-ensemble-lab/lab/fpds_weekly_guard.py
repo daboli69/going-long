@@ -26,6 +26,8 @@ if __name__=='__main__':
     try:print(f'Weekly admission: {check(g,week,now)} unstarted games; earliest kickoff is outside the2h fit budget')
     except ValueError as e:raise SystemExit(str(e))
     if a.run:
+        from .fpds_worker import install
+        install()
         from .fpds_research.weekly import run
         from .fpds_research.common import private_error
         a.deadline=min(pd.Timestamp(a.deadline) if a.deadline else now+pd.Timedelta(hours=2),now+pd.Timedelta(hours=2)).isoformat()
