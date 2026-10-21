@@ -1,0 +1,520 @@
+{
+  "created_at": "2026-10-21T04:03:34.903597+00:00",
+  "same_week_flags": [
+    {
+      "table": "bell_cow_report",
+      "column": "receiving__tgt",
+      "target": "rec",
+      "n": 3107,
+      "abs_rho": 0.9320788036845807
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_receiving__tgt_pct",
+      "target": "rec",
+      "n": 2093,
+      "abs_rho": 0.9037981745705531
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_receiving__tgt",
+      "target": "rec",
+      "n": 2093,
+      "abs_rho": 0.9381901088497497
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_receiving__rec",
+      "target": "rec",
+      "n": 2093,
+      "abs_rho": 0.9980709232093535
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_receiving__rec_yds",
+      "target": "rec",
+      "n": 2093,
+      "abs_rho": 0.9122688484628526
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_receiving__rec",
+      "target": "rec_yds",
+      "n": 2093,
+      "abs_rho": 0.912667114768769
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_receiving__rec_yds",
+      "target": "rec_yds",
+      "n": 2093,
+      "abs_rho": 0.9975389168778716
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_rushing__des_yds",
+      "target": "rush_yds",
+      "n": 2093,
+      "abs_rho": 0.9081220041586637
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_passing__att",
+      "target": "pass_yds",
+      "n": 2093,
+      "abs_rho": 0.9915069368309058
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_passing__cmp",
+      "target": "pass_yds",
+      "n": 2093,
+      "abs_rho": 0.997315579364209
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_passing__pass_yds",
+      "target": "pass_yds",
+      "n": 2082,
+      "abs_rho": 0.9998964060566206
+    },
+    {
+      "table": "injury_reports",
+      "column": "that_week_passing__pass_td",
+      "target": "pass_tds",
+      "n": 2082,
+      "abs_rho": 0.9999697165602771
+    },
+    {
+      "table": "passing_basic",
+      "column": "total_rushing__yds",
+      "target": "rush_yds",
+      "n": 832,
+      "abs_rho": 0.9877531933035906
+    },
+    {
+      "table": "passing_basic",
+      "column": "scrambles__scr_yds",
+      "target": "rush_yds",
+      "n": 832,
+      "abs_rho": 0.904714317051185
+    },
+    {
+      "table": "passing_basic",
+      "column": "total_rushing__td",
+      "target": "anytime_td",
+      "n": 832,
+      "abs_rho": 0.993932600431642
+    },
+    {
+      "table": "passing_basic",
+      "column": "passing__yds",
+      "target": "pass_yds",
+      "n": 832,
+      "abs_rho": 0.9616625835628742
+    },
+    {
+      "table": "passing_basic",
+      "column": "passing__td",
+      "target": "pass_tds",
+      "n": 832,
+      "abs_rho": 0.9916725662019422
+    },
+    {
+      "table": "passing_depth_of_target",
+      "column": "overall__yds",
+      "target": "pass_yds",
+      "n": 1244,
+      "abs_rho": 0.9777082016229258
+    },
+    {
+      "table": "passing_depth_of_target",
+      "column": "overall__td",
+      "target": "pass_tds",
+      "n": 1244,
+      "abs_rho": 0.9939530837175921
+    },
+    {
+      "table": "passing_situation",
+      "column": "overall__td",
+      "target": "pass_tds",
+      "n": 685,
+      "abs_rho": 0.9908367059208375
+    },
+    {
+      "table": "passing_stats",
+      "column": "rushing__scr_yds",
+      "target": "rush_yds",
+      "n": 832,
+      "abs_rho": 0.904714317051185
+    },
+    {
+      "table": "passing_stats",
+      "column": "rushing__yds",
+      "target": "rush_yds",
+      "n": 832,
+      "abs_rho": 0.9877531933035906
+    },
+    {
+      "table": "passing_stats",
+      "column": "rushing__td",
+      "target": "anytime_td",
+      "n": 832,
+      "abs_rho": 0.993932600431642
+    },
+    {
+      "table": "passing_stats",
+      "column": "passing__yds",
+      "target": "pass_yds",
+      "n": 832,
+      "abs_rho": 0.9616625835628742
+    },
+    {
+      "table": "passing_stats",
+      "column": "passing__td",
+      "target": "pass_tds",
+      "n": 832,
+      "abs_rho": 0.9916725662019422
+    },
+    {
+      "table": "passing_stats",
+      "column": "passing__td_pct",
+      "target": "pass_tds",
+      "n": 832,
+      "abs_rho": 0.9390161830752174
+    },
+    {
+      "table": "rb_wr_efficiency",
+      "column": "receiving__tgt",
+      "target": "rec",
+      "n": 2134,
+      "abs_rho": 0.917560610650923
+    },
+    {
+      "table": "rb_wr_efficiency",
+      "column": "receiving__rec",
+      "target": "rec",
+      "n": 2134,
+      "abs_rho": 0.9948902309571761
+    },
+    {
+      "table": "rb_wr_efficiency",
+      "column": "receiving__yds",
+      "target": "rec_yds",
+      "n": 2134,
+      "abs_rho": 0.9944633339973372
+    },
+    {
+      "table": "rb_wr_efficiency",
+      "column": "efficiency__rec_yds_g",
+      "target": "rec_yds",
+      "n": 2134,
+      "abs_rho": 0.9944633339973372
+    },
+    {
+      "table": "rb_wr_efficiency",
+      "column": "rushing__att",
+      "target": "rush_yds",
+      "n": 2134,
+      "abs_rho": 0.9508619097201231
+    },
+    {
+      "table": "rb_wr_efficiency",
+      "column": "rushing__att_pct",
+      "target": "rush_yds",
+      "n": 2134,
+      "abs_rho": 0.9253185950436144
+    },
+    {
+      "table": "rb_wr_efficiency",
+      "column": "rushing__yds",
+      "target": "rush_yds",
+      "n": 2134,
+      "abs_rho": 0.9988886365643798
+    },
+    {
+      "table": "rb_wr_efficiency",
+      "column": "rushing__yaco",
+      "target": "rush_yds",
+      "n": 2134,
+      "abs_rho": 0.9529935199564977
+    },
+    {
+      "table": "rb_wr_efficiency",
+      "column": "efficiency__ru_yds_g",
+      "target": "rush_yds",
+      "n": 2134,
+      "abs_rho": 0.9988886365643798
+    },
+    {
+      "table": "receiving_alignment",
+      "column": "overall__yds",
+      "target": "rec_yds",
+      "n": 2101,
+      "abs_rho": 0.9911765525265515
+    },
+    {
+      "table": "receiving_alignment",
+      "column": "overall__yprr",
+      "target": "rec_yds",
+      "n": 2101,
+      "abs_rho": 0.9704827504220266
+    },
+    {
+      "table": "receiving_basic",
+      "column": "receiving__rec",
+      "target": "rec",
+      "n": 1017,
+      "abs_rho": 0.9842205095948555
+    },
+    {
+      "table": "receiving_basic",
+      "column": "receiving__yds",
+      "target": "rec_yds",
+      "n": 1017,
+      "abs_rho": 0.9656514303526127
+    },
+    {
+      "table": "receiving_basic",
+      "column": "receiving__td",
+      "target": "anytime_td",
+      "n": 1017,
+      "abs_rho": 0.9365513513224789
+    },
+    {
+      "table": "receiving_basic",
+      "column": "receiving__tm_td_pct",
+      "target": "anytime_td",
+      "n": 1017,
+      "abs_rho": 0.9066503560010349
+    },
+    {
+      "table": "receiving_separation_by_alignment",
+      "column": "overall__rec",
+      "target": "rec",
+      "n": 1763,
+      "abs_rho": 0.9924988570286122
+    },
+    {
+      "table": "receiving_separation_by_alignment",
+      "column": "overall__yprr",
+      "target": "rec_yds",
+      "n": 1763,
+      "abs_rho": 0.9685441991938659
+    },
+    {
+      "table": "receiving_separation_by_alignment",
+      "column": "overall__yds",
+      "target": "rec_yds",
+      "n": 1763,
+      "abs_rho": 0.9918465445717545
+    },
+    {
+      "table": "receiving_separation_by_alignment",
+      "column": "overall__td",
+      "target": "anytime_td",
+      "n": 1763,
+      "abs_rho": 0.9753637113281318
+    },
+    {
+      "table": "receiving_separation_by_breaks",
+      "column": "overall__rec",
+      "target": "rec",
+      "n": 1532,
+      "abs_rho": 0.9931886014657766
+    },
+    {
+      "table": "receiving_separation_by_breaks",
+      "column": "overall__yprr",
+      "target": "rec_yds",
+      "n": 1532,
+      "abs_rho": 0.9720918166491397
+    },
+    {
+      "table": "receiving_separation_by_breaks",
+      "column": "overall__yds",
+      "target": "rec_yds",
+      "n": 1532,
+      "abs_rho": 0.9920294525442186
+    },
+    {
+      "table": "receiving_separation_by_breaks",
+      "column": "overall__td",
+      "target": "anytime_td",
+      "n": 1532,
+      "abs_rho": 0.9742356410344345
+    },
+    {
+      "table": "receiving_separation_by_coverage",
+      "column": "overall__rec",
+      "target": "rec",
+      "n": 1599,
+      "abs_rho": 0.9934013756703387
+    },
+    {
+      "table": "receiving_separation_by_coverage",
+      "column": "overall__yprr",
+      "target": "rec_yds",
+      "n": 1599,
+      "abs_rho": 0.9717940495123335
+    },
+    {
+      "table": "receiving_separation_by_coverage",
+      "column": "overall__yds",
+      "target": "rec_yds",
+      "n": 1599,
+      "abs_rho": 0.9923184249275422
+    },
+    {
+      "table": "receiving_separation_by_coverage",
+      "column": "overall__td",
+      "target": "anytime_td",
+      "n": 1599,
+      "abs_rho": 0.9750509284742135
+    },
+    {
+      "table": "receiving_separation_by_role",
+      "column": "overall__rec",
+      "target": "rec",
+      "n": 1759,
+      "abs_rho": 0.9942905593703875
+    },
+    {
+      "table": "receiving_separation_by_role",
+      "column": "overall__yprr",
+      "target": "rec_yds",
+      "n": 1759,
+      "abs_rho": 0.9665309886003286
+    },
+    {
+      "table": "receiving_separation_by_role",
+      "column": "overall__yds",
+      "target": "rec_yds",
+      "n": 1759,
+      "abs_rho": 0.993229399741451
+    },
+    {
+      "table": "receiving_separation_by_role",
+      "column": "overall__td",
+      "target": "anytime_td",
+      "n": 1759,
+      "abs_rho": 0.9725734529170978
+    },
+    {
+      "table": "receiving_separation_by_routes",
+      "column": "overall__rec",
+      "target": "rec",
+      "n": 1005,
+      "abs_rho": 0.9921238616797924
+    },
+    {
+      "table": "receiving_separation_by_routes",
+      "column": "overall__yprr",
+      "target": "rec_yds",
+      "n": 1005,
+      "abs_rho": 0.9736566001172263
+    },
+    {
+      "table": "receiving_separation_by_routes",
+      "column": "overall__yds",
+      "target": "rec_yds",
+      "n": 1005,
+      "abs_rho": 0.9898540518654284
+    },
+    {
+      "table": "receiving_separation_by_routes",
+      "column": "overall__td",
+      "target": "anytime_td",
+      "n": 1005,
+      "abs_rho": 0.971906032935847
+    },
+    {
+      "table": "receiving_situation",
+      "column": "overall__yprr",
+      "target": "rec_yds",
+      "n": 1142,
+      "abs_rho": 0.9736205849096704
+    },
+    {
+      "table": "receiving_stats",
+      "column": "receiving__rec",
+      "target": "rec",
+      "n": 1017,
+      "abs_rho": 0.9842205095948555
+    },
+    {
+      "table": "receiving_stats",
+      "column": "advanced__ctgt",
+      "target": "rec",
+      "n": 1017,
+      "abs_rho": 0.9239822283882707
+    },
+    {
+      "table": "receiving_stats",
+      "column": "receiving__yds",
+      "target": "rec_yds",
+      "n": 1017,
+      "abs_rho": 0.9656514303526127
+    },
+    {
+      "table": "receiving_stats",
+      "column": "receiving__td",
+      "target": "anytime_td",
+      "n": 1017,
+      "abs_rho": 0.9365513513224789
+    },
+    {
+      "table": "receiving_stats",
+      "column": "receiving__tm_td_pct",
+      "target": "anytime_td",
+      "n": 1017,
+      "abs_rho": 0.9066503560010349
+    },
+    {
+      "table": "rushing_basic",
+      "column": "receiving__tgt",
+      "target": "rec",
+      "n": 1040,
+      "abs_rho": 0.9287264139612076
+    },
+    {
+      "table": "rushing_basic",
+      "column": "receiving__rec",
+      "target": "rec",
+      "n": 1040,
+      "abs_rho": 0.9942192525293974
+    },
+    {
+      "table": "rushing_basic",
+      "column": "receiving__rec_yds",
+      "target": "rec_yds",
+      "n": 1040,
+      "abs_rho": 0.9926713382450921
+    },
+    {
+      "table": "rushing_basic",
+      "column": "receiving__tm_yds_pct",
+      "target": "rec_yds",
+      "n": 1040,
+      "abs_rho": 0.9512770488925663
+    },
+    {
+      "table": "rushing_basic",
+      "column": "rushing__yds",
+      "target": "rush_yds",
+      "n": 1040,
+      "abs_rho": 0.9795655788767957
+    },
+    {
+      "table": "rushing_stats",
+      "column": "rushing__yds",
+      "target": "rush_yds",
+      "n": 1040,
+      "abs_rho": 0.9795655788767957
+    }
+  ],
+  "lag_policy": "raw associations diagnostic only; no unlagged observations used",
+  "future_mutation_passed": true,
+  "shifted_week_passed": true,
+  "shuffled_week_passed": true
+}

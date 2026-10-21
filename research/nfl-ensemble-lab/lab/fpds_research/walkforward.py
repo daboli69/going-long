@@ -214,6 +214,30 @@ def canaries(meta):
     return result
 
 
+def timing_audit(meta):
+    """Check every real joined source reference, not just synthetic canaries."""
+    path=Path(meta['path'])/'TIMING_AUDIT.json'
+    if path.exists():return read(path)
+    refs=pd.read_parquet(Path(meta['path'])/'TIMING.parquet').dropna(subset=['source_season','source_week'])
+    targets=pd.read_parquet(Path(meta['path'])/'players.parquet',columns=['game_id','pid','season','week','kickoff_utc'])
+    d=refs.merge(targets,on=['game_id','pid'],validate='many_to_one')
+    games=pd.read_parquet(Path(meta['path'])/'games.parquet',columns=['season','week','kickoff_utc'])
+    games['kickoff_utc']=pd.to_datetime(games.kickoff_utc,utc=True)
+    clock=availability(games)
+    at=clock.reindex(pd.MultiIndex.from_arrays([d.source_season.astype(int),d.source_week.astype(int)]))
+    available=pd.Series(at.to_numpy(),index=d.index)
+    kickoff=pd.to_datetime(d.kickoff_utc,utc=True)
+    bad=(d.source_season*100+d.source_week).ge(d.season*100+d.week)|available.isna()|available.ge(kickoff)
+    result={'created_at':now(),'joined_source_references':len(d),'violations':int(bad.sum()),
+            'minimum_availability_lead_hours':float((kickoff-available).dt.total_seconds().min()/3600) if len(d) else None,
+            'historical_publication':'event-time reconstruction; original observation times remain unverified'}
+    if bad.any():
+        d[bad].to_parquet(Path(meta['path'])/'TIMING_VIOLATIONS_PRIVATE.parquet',index=False)
+        raise ValueError('Actual-source temporal audit failed; see private diagnostics')
+    write_once(path,result);atomic(REPORT/'FPDS_A6_TIMING_AUDIT.json',result)
+    return result
+
+
 def job_status(directory,state,force=False):
     if force or time.monotonic()-state.get('_last_status',0)>=1800:
         state['_last_status']=time.monotonic()
@@ -226,6 +250,7 @@ def job_status(directory,state,force=False):
 def run(args):
     registration=registered();meta=latest_features();protocol=read(LAB_ROOT/'docs/FPDS_AMENDMENT6_TRIALS.json')
     if not (Path(meta['path'])/'CANARIES.json').exists():canaries(meta)
+    timing_audit(meta)
     if args.command=='screen':return {'status':'canaries complete; no extra model fits or feature selection'}
     code=digest({p.name:sha(p) for p in Path(__file__).parent.glob('*.py')})
     identity=digest({'registration':registration,'features':meta['fingerprint'],'code':code})
