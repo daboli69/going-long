@@ -142,6 +142,8 @@ def test_first_td_probability_simplex():
     ids,p=probabilities(['synthetic-a','synthetic-b'],[.2,.3],.1,.2)
     assert ids[-2:]==['OTHER_PLAYERS','NO_OFFENSIVE_TD']
     assert (p>=0).all() and abs(p.sum()-1)<1e-12
+    ids,p=probabilities([],[],.1,.2)
+    assert ids==['OTHER_PLAYERS','NO_OFFENSIVE_TD'] and p.sum()==1
 
 
 def test_models_do_not_accept_unknown_family():

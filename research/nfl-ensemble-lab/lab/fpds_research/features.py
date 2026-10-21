@@ -7,7 +7,7 @@ import pandas as pd
 from ..fpds_ingest import number, slug
 from ..config import LAB_ROOT
 from ..data_pipeline import FEATURE_STORE
-from ..props.ensemble.features import FEATURES, eligible
+from ..props.ensemble.features import FEATURES, eligible, earlier_features
 from ..props.independent import FEATURES as GAME_FEATURES
 from .common import ROOT, VERSION, now, read, atomic, write_once, digest, sha
 from .audit import latest
@@ -125,20 +125,22 @@ def run(base=BASE):
         return read(directory/'FEATURES.json')
     directory.mkdir(parents=True,exist_ok=True)
     frame=pd.read_parquet(base,filters=[('season','>=',2021)])
-    union=np.zeros(len(frame),bool)
-    for stat in ('rec','rec_yds','rush_yds','anytime_td','pass_yds','pass_tds'):union |= eligible(frame,stat)
-    frame=frame[union].reset_index(drop=True)
+    frame=frame.reset_index(drop=True)
     frame['kickoff_utc']=pd.to_datetime(frame.kickoff_utc,utc=True)
     # Ignore retrospective target-week decision_time=min(kickoff,old preparation time).
     frame['decision_time']=frame.kickoff_utc
     observed_path=Path(base).with_name('observations_production.parquet')
     if observed_path.exists():
         targets=('rec','rec_yds','rush_yds','pass_yds','pass_tds')
-        observations=pd.read_parquet(observed_path,columns=['season','week','pid','snap_share','targets','carries','dropbacks']+list(targets))
+        observations=pd.read_parquet(observed_path)
         played=observations.snap_share.fillna(0).gt(0)|observations[['targets','carries','dropbacks']].fillna(0).sum(axis=1).gt(0)
         observations=observations[played].sort_values(['pid','season','week'])
+        nflgames=pd.read_parquet(FEATURE_STORE,columns=['season','week','game_type','kickoff_utc'])
+        nflgames=nflgames[nflgames.game_type.eq('REG')].copy();nflgames['kickoff_utc']=pd.to_datetime(nflgames.kickoff_utc,utc=True)
+        nflclock=availability(nflgames)
+        observations['source_available_at']=pd.to_datetime([nflclock.get((s,w),pd.NaT) for s,w in zip(observations.season,observations.week)],utc=True)
         chunks=[]
-        clock=availability(g)
+        clock=nflclock
         for pid,z in observations.groupby('pid',sort=False):
             a=z[['season','week']].copy();a['entity']=pid
             a['available_at']=[clock.get((s,w),pd.NaT) for s,w in zip(z.season,z.week)]
@@ -150,12 +152,27 @@ def run(base=BASE):
             cols=['pseudo_'+s for s in targets]
             values,_,_=join_asof(frame,p,cols,'pid')
             for c,v in zip(cols,values.T):frame[c]=v
+        # Reuse the lab's formulas, but exclude DNP rows and observations whose
+        # whole source week is not yet available. Original frozen artifacts stay untouched.
+        computed=[c for c in frame if c.startswith('hist_') or c.startswith('history_last_') or c.startswith('opp_position_') or c=='opp_adjustment' or c in ('adot','yac_rate','deep_target_rate','outside_rz_td_rate','explosive_rate','long_td_rate','is_qb','is_rb','is_wr','is_te')]
+        candidates=frame.drop(columns=computed)
+        rebuilt=[]
+        for _,target in candidates.groupby(['season','week'],sort=True):
+            h=observations[observations.source_available_at.lt(target.kickoff_utc.min())]
+            rebuilt.append(earlier_features(h,target))
+        frame=pd.concat(rebuilt,ignore_index=True)
+    union=np.zeros(len(frame),bool)
+    for stat in ('rec','rec_yds','rush_yds','anytime_td','pass_yds','pass_tds'):union |= eligible(frame,stat)
+    frame=frame[union].reset_index(drop=True)
     clock=availability(g)
     cutoff=pd.to_datetime([clock.get((s,w),pd.NaT) for s,w in zip(frame.history_last_season,frame.history_last_week)],utc=True)
     invalid=pd.Series(cutoff,index=frame.index).ge(frame.kickoff_utc)
     history_columns=[c for c in FEATURES if c.startswith('hist_') or c.startswith('opp_') or c in ('adot','yac_rate','deep_target_rate','outside_rz_td_rate','explosive_rate','long_td_rate','ind_team_margin','ind_total')]
     frame.loc[invalid,history_columns]=np.nan
     games=g.copy();games['total']=games.home_score+games.away_score;games['win']=games.home_win
+    previous_week=pd.to_datetime([clock.get((s,w-1),pd.NaT) for s,w in zip(games.season,games.week)],utc=True)
+    unsafe=pd.Series(previous_week,index=games.index).ge(games.kickoff_utc)
+    games.loc[unsafe,[c for c in GAME_FEATURES if c in games and not c.startswith('ctx_')]]=np.nan
     groups={};added={};game_added={};timing=[];coverage=[]
     model_count=0
     for table in sorted(manifest['working_tables'],key=lambda t:t['table']):
@@ -171,7 +188,9 @@ def run(base=BASE):
             continue
         rolled.to_parquet(directory/(name+'__windows.parquet'),index=False)
         # Fixed columns used by models; other windows stay in the private per-table cache.
-        cols=[c+s for c in metrics for s in ('__last3','__last8','__change','__position_adj')]
+        role=[c for c in metrics if any(k in c for k in ('share','rte','snap','tgt','att'))]
+        cols=([c+'__last3' for c in metrics]+[c+'__last8' for c in metrics[:4]]+
+              [c+'__change' for c in (role or metrics)[:2]]+[c+'__position_adj' for c in metrics[:2]])
         # Reserve a fixed equal share of the ceiling for every source table.
         # Alphabetical tables must not consume the allowance of later tables.
         remaining=max(0,768-model_count)
@@ -184,7 +203,8 @@ def run(base=BASE):
         values,sy,sw=join_asof(frame,rolled,cols,'pid' if player else ('opponent' if any(x in name for x in ('defense','allowed','coverage','cornerback')) else 'team'))
         prefix='fp__'+name+'__';names=[prefix+c for c in cols]
         for c,v in zip(names,values.T):added[c]=v
-        groups[name]={'family':table['family'],'columns':names,'metrics':metrics,'entity_kind':table['entity_kind'],
+        groups[name]={'family':table['family'],'columns':names,'metrics':metrics,'entity_kind':'player' if player else 'team',
+                      'source_entity_kind':table['entity_kind'],
                       'aggregation':'source entity/week arithmetic mean for overlapping splits; no fabricated totals'}
         model_count+=len(cols)
         timing.append(pd.DataFrame({'game_id':frame.game_id,'pid':frame.pid,'table':name,'source_season':sy,'source_week':sw}))
@@ -206,12 +226,17 @@ def run(base=BASE):
     frame.to_parquet(directory/'players.parquet',index=False)
     games.to_parquet(directory/'games.parquet',index=False)
     if timing:pd.concat(timing,ignore_index=True).to_parquet(directory/'TIMING.parquet',index=False)
+    fpcols=list(added);own=[c for g in groups.values() if g['entity_kind']=='player' for c in g['columns']]
+    any_history=frame[fpcols].notna().any(axis=1);own_history=frame[own].notna().any(axis=1)
     metadata={'created_at':now(),'fingerprint':fingerprint,'path':str(directory),'rows':len(frame),
+              'rows_without_any_fpds_history':int((~any_history).sum()),'rows_without_player_fpds_history':int((~own_history).sum()),
+              'history_by_season':{str(s):{'rows':len(ix),'no_any_history':int((~any_history.iloc[ix]).sum()),'no_player_history':int((~own_history.iloc[ix]).sum())} for s,ix in frame.groupby('season').indices.items()},
               'base_source':str(base),'groups':groups,'coverage':coverage,'base_columns':[c for c in FEATURES if c in frame],
               'game_base_columns':[c for c in GAME_FEATURES if c in games],
               'game_fp_columns':list(game_added),'source_observed_at':max(t.get('first_observed_at',t['imported_at']) for t in manifest['working_tables']),
               'historical_publication':'event-time reconstruction only; original vendor publication/revisions unverified'}
     write_once(directory/'FEATURES.json',metadata)
+    atomic(LAB_ROOT/'docs'/'FPDS_FEATURE_COVERAGE.json',{k:metadata[k] for k in ('created_at','fingerprint','rows','rows_without_any_fpds_history','rows_without_player_fpds_history','history_by_season','coverage')})
     atomic(ROOT/'LATEST_FEATURES.json',{'path':str(directory),'fingerprint':fingerprint})
     return metadata
 

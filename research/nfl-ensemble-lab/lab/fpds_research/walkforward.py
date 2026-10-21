@@ -34,7 +34,9 @@ def columns_for(spec,meta):
 def data_for(spec,frame,games):
     stat=spec['stat']
     if stat in ('margin','total','win'):
-        return games[games[stat].notna()].copy()
+        valid=games[stat].notna()
+        if stat=='win' and 'tie' in games:valid &= ~games.tie.fillna(False).astype(bool)
+        return games[valid].copy()
     return frame[eligible(frame,stat)&frame[stat].notna()].copy()
 
 
@@ -187,7 +189,7 @@ def canaries(meta):
         if not cols:continue
         numeric=d[['season','week','pid']].copy()
         from ..fpds_ingest import number
-        for c in cols:numeric[c]=d[c].map(number)
+        numeric=pd.concat([numeric,pd.DataFrame({c:d[c].map(number) for c in cols},index=d.index)],axis=1)
         j=numeric.merge(base,on=['season','week','pid'])
         for stat in STATS:
             for flag in association(j,stat,cols):result['same_week_flags'].append(dict(table=t['table'],**flag))

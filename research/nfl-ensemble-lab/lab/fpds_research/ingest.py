@@ -13,7 +13,7 @@ from .protocol import title, family
 
 IDENTITY = {'rank','ranking','season','year','sea','week','wk','player','name','receiver','defender','team','tm',
             'off','def','pos','position','opponent','opp','player_id','game_id','g','gp','men','unit','coach'}
-FORBIDDEN = re.compile(r'fantasy|(^|_)(fp|fpg|fppg|fpts)($|_)|salary|ownership|projection|projected|draftkings|fanduel|(^|_)rank($|_)|odds|moneyline|spread|betting',re.I)
+FORBIDDEN = re.compile(r'fantasy|(^|_)(fp|xfp|fpg|fppg|fpts|ppr|dkpts|fdpts)($|_)|salary|ownership|projection|projected|draftkings|fanduel|(^|_)rank($|_)|odds|moneyline|spread|betting|implied|vegas|closing_line',re.I)
 _EXACT = None
 _KNOWN = None
 
@@ -63,6 +63,7 @@ def parsed(path):
 
 def column_class(header, qualified):
     slug = old.slug(header)
+    if str(header).strip()=='#':return 'outcome-contaminated','excluded ranking/index column'
     if slug in IDENTITY or slug.endswith('_id'): return 'pregame-valid', 'identifier; never an outcome feature'
     if FORBIDDEN.search(qualified): return 'outcome-contaminated', 'excluded fantasy/market/ranking/projection field'
     if re.search(r'season.to.date|cumulative|ytd|std', qualified,re.I): return 'unknown', 'cumulative: excluded unless units can be verified'
@@ -148,7 +149,7 @@ def schema(d,m):
         cls,rule=column_class(h,c)
         if cls=='outcome-contaminated' and fraction<.8:
             cls,rule='unknown','unverified text/units; excluded from numeric model features'
-        selected=cls=='outcome-contaminated' and not FORBIDDEN.search(c) and fraction>=.8
+        selected=cls=='outcome-contaminated' and str(h).strip()!='#' and not FORBIDDEN.search(c) and fraction>=.8
         coverage={f'{int(season)}:{int(week)}':int(n) for (season,week),n in present.groupby([d._season,d._week]).sum().items()}
         columns.append({'header':h,'column':c,'type':'numeric' if fraction>=.8 else 'text',
                         'missing_fraction':float((~present).mean()) if len(s) else 1.,

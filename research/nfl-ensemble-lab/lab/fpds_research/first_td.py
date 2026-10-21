@@ -24,6 +24,7 @@ def labels(seasons):
 
 def probabilities(player_ids,atd,no_td,other):
     h=-np.log1p(-np.clip(np.asarray(atd,float),0,1-1e-6))
+    if not len(h):return ['OTHER_PLAYERS','NO_OFFENSIVE_TD'],np.array([1-no_td,no_td])
     share=h/h.sum() if h.sum()>0 else np.full(len(h),1/max(1,len(h)))
     values=(1-no_td)*(1-other)*share
     return list(player_ids)+['OTHER_PLAYERS','NO_OFFENSIVE_TD'],np.r_[values,(1-no_td)*other,no_td]
