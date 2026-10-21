@@ -6,7 +6,14 @@ import csv
 from pathlib import Path
 import pandas as pd
 from .data_pipeline import FEATURE_STORE
-from .props.ensemble.production import completed_cutoff
+
+
+def next_week(games,now):
+    """Use the future schedule even when completed flags await the refresh."""
+    future=games[games.season.eq(2026)&games.week.between(1,18)&
+                 ~games.completed.fillna(False).astype(bool)&games.kickoff_utc.gt(now)]
+    if future.empty:raise ValueError('No future regular-season games in the local schedule; refresh NFL data before retrying')
+    return int(future.sort_values('kickoff_utc').iloc[0].week)
 
 
 def check(games,week,now):
@@ -42,9 +49,11 @@ if __name__=='__main__':
     if not branch.startswith('codex/projections-'):raise SystemExit('STOP: weekly research requires the authorized codex/projections branch')
     if a.branch_only:print('Authorized local research branch confirmed');raise SystemExit(0)
     g=pd.read_parquet(FEATURE_STORE);g['kickoff_utc']=pd.to_datetime(g.kickoff_utc,utc=True);now=pd.Timestamp.now(tz='UTC')
-    week=a.week or completed_cutoff(g)['training_last_completed_week']+1
-    try:print(f'Weekly admission: {check(g,week,now)} unstarted games; earliest kickoff is outside the2h fit budget')
+    try:
+        week=a.week if a.week is not None else next_week(g,now)
+        print(f'Weekly admission: {check(g,week,now)} unstarted games; earliest kickoff is outside the2h fit budget')
     except ValueError as e:raise SystemExit(str(e))
+    a.week=week
     if a.run:
         from .fpds_worker import install
         install()
