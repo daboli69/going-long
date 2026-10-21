@@ -1,0 +1,43 @@
+{
+  "season_types": {
+    "note": "Original audit overtime_games counts include postseason; changed_targets were regular season only. This supplement clarifies the denominator, no model fit or result changes.",
+    "seasons": [
+      {
+        "season": 2021,
+        "regular_season_overtime_games": 21,
+        "all_season_types_overtime_games": 23
+      },
+      {
+        "season": 2022,
+        "regular_season_overtime_games": 20,
+        "all_season_types_overtime_games": 20
+      },
+      {
+        "season": 2023,
+        "regular_season_overtime_games": 13,
+        "all_season_types_overtime_games": 14
+      },
+      {
+        "season": 2024,
+        "regular_season_overtime_games": 16,
+        "all_season_types_overtime_games": 16
+      }
+    ]
+  },
+  "interval_widths": {
+    "widths": [
+      {
+        "stat": "rec_yds",
+        "old_mean_width": 70.3327521369599,
+        "new_mean_width": 73.48991758450327,
+        "point_predictions_unchanged": true
+      },
+      {
+        "stat": "rush_yds",
+        "old_mean_width": 69.97168389126635,
+        "new_mean_width": 75.15048458375557,
+        "point_predictions_unchanged": true
+      }
+    ]
+  }
+}

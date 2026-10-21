@@ -157,3 +157,20 @@ Fixed2022–24 already-examined discovery; original147 output versions plus sepa
 |A8 receiving-yard quantile companion|n=6196/815games; MAE24.116744→23.659364;delta−0.457380[−0.764554,−0.175212];3/3seasons;80%coverage75.36%,reference79.81%|Rejected for qualified adoption; exploratory median signal only; never promoted|
 
 Saved champion/closing benchmarks did not show a new winner. Full aggregate report: `research/nfl-ensemble-lab/reports/run_20261021/FPDS_IMPROVEMENT_REPORT.md`. Original/repair full tables and private row-level outputs remain separate and immutable.
+
+### Amendment9 six follow-ups — 2026-10-21
+
+Pre-fit protocol/source016e7fc; local run20261021T221222Z,23outputs/25comparisons/129fits/0failures.2022–24 previously examined discovery only,2000 whole-game draws,family-corrected95%CI/Holm; no2025/2026 pass or promotion. All original inputs unchanged.
+
+|Family|Evidence / sample|Decision|
+|---|---|---|
+|A9 target audit|2022–24 OT changes149rec-yard/121rush-yard/70pass-yard/7ATD labels;845candidate keys missing exact observations,10other-team matches,835unresolved. No guessed IDs.|Challenger: audit-only target-definition finding; official settlement/box-score verification pending|
+|A9 matched quantile|NFL-only recMAE24.12161→23.79987,n6196/815games,delta−0.32174[−0.53709,−0.09445],3/3seasons; FPDS increment−0.14051[−0.31453,+0.03814]. NFL-only rushCI crosses0.|Challenger: receiving point nominee; provider increment uncertain; intervals under-cover; future confirmation required|
+|A9 residual|Strict A8NFL control: winBrier0.22724→0.23217,marginMAE9.88206→10.08354(+0.20147[+0.06622,+0.33441]),total10.50728→10.56225. Exact champion residual blocked by later calibration-method selection.|Rejected: correction worsens; no champion inference|
+|A9 soft coherence|FPDSrushMAE25.06160→24.73854,n2740/814games,delta−0.32306[−0.51316,−0.12321],3/3seasons,−1.29%.|Challenger: own-baseline nominee, still worse than quantile forecasts; partial consistency only|
+|A9 conformal|Rec/rush80%coverage75.36→80.47%/73.25→79.49%;interval-score deltas−0.43488[−0.64123,−0.22558]/−0.72759[−1.23306,−0.21546];medians unchanged.|Rejected by fixed1% primary-gain gate; useful coverage diagnostic, no MAE improvement claim|
+|A9 prior shrinkage/decomposition|NFL-onlyATDBrier0.18984→0.19502;FPDS0.19229→0.19661;gameBrier also slightly worsens. Exact binned decomposition includes within-bin residual.|Rejected: no probability gain|
+
+Aggregate report: research/nfl-ensemble-lab/reports/run_20261021/FPDS_FOLLOWUP_REPORT.md. No price-edge claim, promotion or source-data changes. Target audit excludes kneels/spikes and is not official settlement validation.
+
+A9 QA:415passed/1existing skip/522warnings; nine new targeted tests passed before fits.1448frozen source hashes unchanged; no raw or row-level FPDS committed. No production/forecast changes.

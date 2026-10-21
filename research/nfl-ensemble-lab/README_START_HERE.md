@@ -277,3 +277,7 @@ For developers: `.venv\Scripts\python.exe -m pytest` runs the test suite;
 ### Test the five FPDS improvement families locally
 
 Run `run_fpds_improvements.bat` for the committed, checkpointed Amendment8 shadow study. It reuses the completed A7 snapshot and tests stronger game features, target-specific FPDS, earlier-only combinations, coherent opportunity models and distribution/calibration changes. View aggregates under **Research → FPDS Research → Model improvements — Amendment 8**. No champion change or new2025 evaluation. See `docs/FPDS_IMPROVEMENTS.md` for exact status/resume commands and limitations.
+
+### Review the six follow-up tests
+
+The completed Amendment9 report is `reports/run_20261021/FPDS_FOLLOWUP_REPORT.md`. It audits target definitions and tests matched NFL-only quantiles, earlier-OOF residual corrections, soft team constraints, interval calibration and probability shrinkage. `run_fpds_followups.bat status` shows saved run states; completed runs are immutable. New runs consume the same examined discovery data and do not create independent confirmation. See `docs/FPDS_FOLLOWUP_TESTS.md` for the bounded manual run/resume commands. All outputs remain shadow; neither the champion nor weekly forecasts change.
