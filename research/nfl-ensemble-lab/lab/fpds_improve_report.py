@@ -15,6 +15,7 @@ def render(summary,run_id):
            f"{len(trials.get('fit_configurations',[]))} internal fit configurations and {trials.get('fit_calls',0)} fit dispatches. "
            'The fixed ceiling is147 outputs /300 internal configurations /4500 dispatches. No grid search.','',
            'Lower loss is better. Negative delta means improvement against the named reference. Intervals are registered family-corrected paired whole-game95% intervals. A discovery nominee requires >=1% reduction, corrected interval below zero, >=200 games, two improving seasons, identical complete samples, no failed blocks and Holm p<.05. It still requires future confirmation.','',
+           'Primary loss is MAE for yards/margin/total, Poisson deviance for receptions/passing TDs, and Brier for winners/anytime TD. Median quantile heads are point forecasts; they are not means.','',
            '## Best observed change per family','',
            'These are exploratory rankings within the fixed study; the complete table below includes regressions. Different rows have different references and are not automatically comparable.','',
            '|Family|Target / variant / inputs|n / games|Reference → new loss|Change|Corrected95% CI|Nominee|',
@@ -57,6 +58,33 @@ def render(summary,run_id):
     return '\n'.join(lines)+'\n'
 
 
+def render_secondary(data):
+    lines=['# Saved-output secondary diagnostics','',data['note'],'',
+           '## Current champion / closing benchmarks','',
+           'Negative delta means lower model loss than the benchmark. These secondary comparisons never change nominations. The saved champion used longer training history and was selected on previously examined years. Closing prices can reflect later information. Champion total predictions are unavailable.','',
+           '|Variant|Target|Benchmark|n / games|Benchmark loss|Model loss|Delta [corrected95% CI]|',
+           '|---|---|---|---:|---:|---:|---|']
+    for r in data.get('game_benchmarks',[]):
+        lo,hi=r['corrected_ci95']
+        lines.append(f"|{r['variant']}|{r['stat']}|{r['benchmark']}|{r['n']} / {r['games']}|{r['benchmark_loss']:.6f}|{r['model_loss']:.6f}|{r['delta']:+.6f} [{lo:+.6f},{hi:+.6f}]|")
+    lines+=['','## Pseudo-line reliability and bias','',
+            'Pseudo-lines are diagnostic thresholds, not real historical prop prices. Bias=prediction minus actual. These95% intervals are secondary and unadjusted; no selection is allowed.','',
+            '|Variant|Mean bias [95% CI]|Above point / equal point|Above median / equal median|Pseudo-line Brier delta [95% CI]|','|---|---|---|---|---|']
+    for r in data.get('secondary',[]):
+        bias=r['mean_bias'];lo,hi=bias['ci95']
+        point=f"{r['fraction_above_point']:.1%} / {r['fraction_equal_point']:.1%}"
+        median=f"{r['fraction_above_q50']:.1%} / {r['fraction_equal_q50']:.1%}" if 'fraction_above_q50' in r else 'n/a'
+        effect=r.get('pseudo_brier_delta_secondary_unadjusted95')
+        delta=f"{effect['delta']:+.6f} [{effect['ci95'][0]:+.6f},{effect['ci95'][1]:+.6f}]" if effect else 'unavailable'
+        lines.append(f"|{r['variant']}|{bias['delta']:+.5f} [{lo:+.5f},{hi:+.5f}]|{point}|{median}|{delta}|")
+    lines+=['','## Registered individual members','',
+            '|Variant / member|n / games|Reference loss|New loss|Delta [corrected95% CI]|','|---|---:|---:|---:|---|']
+    for r in data.get('member_diagnostics',[]):
+        lo,hi=r['corrected_ci95']
+        lines.append(f"|{r['variant']} / {r['member']}|{r['n']} / {r['games']}|{r['control_loss']:.6f}|{r['new_loss']:.6f}|{r['delta']:+.6f} [{lo:+.6f},{hi:+.6f}]|")
+    return '\n'.join(lines)+'\n'
+
+
 def main():
     parser=argparse.ArgumentParser(__doc__);parser.add_argument('--run');args=parser.parse_args()
     if args.run and not args.run.isalnum():raise SystemExit('Invalid run identifier')
@@ -76,6 +104,14 @@ def main():
     if aggregate.exists():
         if read(aggregate)!=data:raise SystemExit('Existing aggregate report is immutable')
     else:write_once(aggregate,data)
+    if (path/'SECONDARY.json').exists():
+        secondary=read(path/'SECONDARY.json');text=render_secondary(secondary)
+        target=folder/'SECONDARY.md'
+        if target.exists() and target.read_text(encoding='utf-8')!=text:raise SystemExit('Existing secondary report is immutable')
+        if not target.exists():target.write_text(text,encoding='utf-8')
+        target=folder/'AGGREGATE_SECONDARY.json'
+        if target.exists() and read(target)!=secondary:raise SystemExit('Existing secondary aggregate is immutable')
+        if not target.exists():write_once(target,secondary)
     print('Saved aggregate report:',report)
 
 
