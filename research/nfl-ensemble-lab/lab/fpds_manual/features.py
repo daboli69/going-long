@@ -17,6 +17,7 @@ def capped_candidates(frame,asof):
 
 def matched_windows(players,games,observations,asof=None):
     players=players.copy();games=games.copy();observations=observations.copy()
+    if 'team' not in observations and 'posteam' in observations:observations=observations.rename(columns={'posteam':'team'})
     played=observations.snap_share.fillna(0).gt(0)|observations[['targets','carries','dropbacks']].fillna(0).sum(axis=1).gt(0)
     observations=observations[played & observations.season.ge(2021)].drop_duplicates(['game_id','pid'])
     asof=pd.Timestamp.now(tz='UTC') if asof is None else asof

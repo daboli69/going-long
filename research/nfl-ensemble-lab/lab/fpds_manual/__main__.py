@@ -37,7 +37,14 @@ def main():
         print('Private outputs: '+str(jobs.directory(job)))
         return 0
     except Exception as error:
-        print('STOP: '+str(error))
+        # Parser errors can contain source values: diagnostics stay private.
+        import traceback
+        from datetime import datetime,timezone
+        folder=jobs.ROOT/'errors';folder.mkdir(parents=True,exist_ok=True)
+        path=folder/(datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')+'_PRIVATE.log')
+        path.write_text(traceback.format_exc(),encoding='utf-8')
+        safe=(a.action!='plan' and isinstance(error,ValueError)) or str(error).startswith(('Authoritative FPDS full-history folder','A newer FPDS export changed schema','A newer loose FPDS export is incomplete'))
+        print('STOP: '+(str(error) if safe else type(error).__name__+'; details retained in the local private diagnostic'))
         return 1
 
 

@@ -1,5 +1,6 @@
 """Synthetic fixtures only; no subscription files, network, or real model fits."""
 import json
+import sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -126,7 +127,8 @@ def test_manual_compare_protocol_has_no_holdout_selector():
     assert '2025' in p['confirmation'] and 'No new' in p['confirmation']
 
 
-def test_matched_windows_exclude_a_finished_week_until_plus24h():
+@pytest.mark.parametrize('team_column',['team','posteam'])
+def test_matched_windows_exclude_a_finished_week_until_plus24h(team_column):
     now=pd.Timestamp('2026-09-21T12:00Z')
     games=pd.DataFrame({'season':[2026]*3,'week':[1,2,3],
         'kickoff_utc':pd.to_datetime(['2026-09-13T20:20Z','2026-09-20T20:20Z','2026-09-27T20:20Z'],utc=True),
@@ -134,12 +136,32 @@ def test_matched_windows_exclude_a_finished_week_until_plus24h():
     players=pd.DataFrame({'season':[2026],'week':[3],'pid':['synthetic'],'kickoff_utc':[games.kickoff_utc.iloc[-1]]})
     obs=pd.DataFrame({'season':[2026]*2,'week':[1,2],'game_id':['a','b'],'pid':['synthetic']*2,'team':['BUF']*2,
         'snap_share':[1.,1.],'targets':[1.,999.],'carries':[0.,0.],'dropbacks':[0.,0.],'rec':[1.,999.]})
+    obs=obs.rename(columns={'team':team_column})
     a,g,_,_=matched_windows(players,games,obs,now)
     assert a.nflw__rec__last1.iloc[0]==1
     assert g.loc[g.week.eq(3),'nflw_home__rec__last1'].iloc[0]==1
     changed=obs.copy();changed.loc[changed.week.eq(2),'rec']=-999
     b,_,_,_=matched_windows(players,games,changed,now)
     assert a.nflw__rec__last1.equals(b.nflw__rec__last1)
+
+
+def test_plan_parser_errors_do_not_print_source_values(tmp_path,monkeypatch,capsys):
+    from lab.fpds_manual import __main__ as cli
+    import lab.fpds_sources as sources
+    monkeypatch.setattr(jobs,'ROOT',tmp_path)
+    monkeypatch.setattr(sys,'argv',['manual','plan'])
+    def bad_source():raise ValueError('sensitive-synthetic-row-value')
+    monkeypatch.setattr(sources,'select_sources',bad_source)
+    assert cli.main()==1
+    assert 'sensitive-synthetic-row-value' not in capsys.readouterr().out
+    assert list((tmp_path/'errors').glob('*PRIVATE.log'))
+
+
+def test_probability_reliability_counts_exact_edges_and_one():
+    from lab.fpds_manual.run import score_diagnostics
+    d=pd.DataFrame({'game_id':['a','b','c'],'actual':[1.,0.,1.],'pred':[.6,0.,1.]})
+    result=score_diagnostics(d,'win')
+    assert sum(x['n'] for x in result['reliability'])==3
 
 
 def fake_game_fit(train,target,stat,cols,key,threads,weights):

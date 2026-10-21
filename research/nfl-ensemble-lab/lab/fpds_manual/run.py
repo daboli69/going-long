@@ -15,6 +15,16 @@ from ..fpds_research import models as M
 def remaining(deadline):return (deadline-pd.Timestamp.now(tz='UTC')).total_seconds()
 
 
+def score_diagnostics(frame,stat):
+    from ..fpds_research.report import diagnostics
+    result=diagnostics(frame,stat)
+    if M.binary(stat):
+        p=frame.pred.to_numpy(float);y=frame.actual.to_numpy(float)
+        bins=np.minimum((np.clip(p,0,1)*10).astype(int),9)
+        result['reliability']=[{'low':i/10,'n':int((bins==i).sum()),'predicted':float(p[bins==i].mean()),'observed':float(y[bins==i].mean())} for i in range(10) if (bins==i).any()]
+    return result
+
+
 def admitted(path,deadline):
     return remaining(deadline)>=180 and not (path/'STOP_REQUESTED.json').exists()
 
@@ -139,7 +149,6 @@ def compare(path,config,meta,deadline):
             control=M.loss(stat,joined.actual_control,joined[col+'_control']);new=M.loss(stat,joined.actual_fpds,joined[col+'_fpds'])
             effect=E.paired(new-control,joined.game_id,21 if stat in E.GAME_STATS else 30)
             byseason={str(s):float(np.mean((new-control)[joined.season_control.eq(s)])) for s in sorted(joined.season_control.unique())}
-            from ..fpds_research.report import diagnostics
             diag=b.copy();diag['pred']=diag[col]
             control_diag=a.copy();control_diag['pred']=control_diag[col]
             if method!='equal_average':
@@ -149,7 +158,7 @@ def compare(path,config,meta,deadline):
             expected=expected[expected.season.isin(protocol['discovery_seasons'])&expected[stat].notna()]
             row={'stat':stat,'method':method,'control_loss':float(control.mean()),'fpds_loss':float(new.mean()),**effect,
                  'seasons':byseason,'seasons_agreeing':sum(v<0 for v in byseason.values()),'identical_sample':len(joined)==len(a)==len(b)==len(expected),
-                 'diagnostics_control':diagnostics(control_diag,stat),'diagnostics_fpds':diagnostics(diag,stat),'primary_metric':'Brier' if M.binary(stat) else 'Poisson deviance' if stat in ('rec','pass_tds') else 'MAE'}
+                 'diagnostics_control':score_diagnostics(control_diag,stat),'diagnostics_fpds':score_diagnostics(diag,stat),'primary_metric':'Brier' if M.binary(stat) else 'Poisson deviance' if stat in ('rec','pass_tds') else 'MAE'}
             if method=='equal_average' and not M.binary(stat):
                 row['secondary_paired']={}
                 for quantile,key in ((.1,'q10'),(.5,'q50'),(.9,'q90')):
