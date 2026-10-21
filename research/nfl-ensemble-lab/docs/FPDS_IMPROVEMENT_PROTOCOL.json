@@ -1,0 +1,177 @@
+{
+  "amendment": 8,
+  "date": "2026-10-21",
+  "source_job": "eb191266fa1449c1817980abe1878bb9",
+  "discovery": [
+    2022,
+    2023,
+    2024
+  ],
+  "refit_weeks": [
+    1,
+    5,
+    9,
+    13,
+    17
+  ],
+  "training_start": 2021,
+  "bootstrap_draws": 2000,
+  "seed": 20261021,
+  "minimum_relative_reduction": 0.01,
+  "minimum_games": 200,
+  "minimum_seasons_agreeing": 2,
+  "families": {
+    "strong_games": {
+      "hypothesis": "verified earlier efficiency, pace, opponent ratings and projected-QB history strengthen baseline; task-specific FPDS adds value",
+      "targets": [
+        "win",
+        "margin",
+        "total"
+      ],
+      "arms": [
+        "control",
+        "fpds"
+      ],
+      "members": "same six A7 factories and first grid parameters",
+      "outputs": 42
+    },
+    "target_features": {
+      "hypothesis": "schema-selected target-specific FPDS groups reduce irrelevant input noise",
+      "targets": [
+        "pass_yds",
+        "pass_tds",
+        "rec",
+        "rec_yds",
+        "rush_yds",
+        "anytime_td"
+      ],
+      "members": [
+        "linear",
+        "hist",
+        "xgboost",
+        "mlp"
+      ],
+      "outputs": 30
+    },
+    "combination": {
+      "hypothesis": "earlier OOF weights/regularized stacking improve equal averaging",
+      "targets": [
+        "win",
+        "margin",
+        "total",
+        "pass_yds",
+        "pass_tds",
+        "rec",
+        "rec_yds",
+        "rush_yds",
+        "anytime_td"
+      ],
+      "arms": [
+        "control",
+        "fpds"
+      ],
+      "variants": [
+        "weighted",
+        "stacked"
+      ],
+      "outputs": 36
+    },
+    "opportunity": {
+      "hypothesis": "team opportunities, player usage shares and efficiency with explicit other remainder improve coherent prop means",
+      "targets": [
+        "pass_yds",
+        "pass_tds",
+        "rec",
+        "rec_yds",
+        "rush_yds",
+        "anytime_td"
+      ],
+      "arms": [
+        "control",
+        "fpds"
+      ],
+      "outputs": 12
+    },
+    "distribution": {
+      "hypothesis": "direct quantile heads improve yardage/game intervals and medians; hurdle/NB improve counts; earlier-only recalibration improves binary probabilities",
+      "quantile_targets": [
+        "margin",
+        "total",
+        "pass_yds",
+        "rec_yds",
+        "rush_yds"
+      ],
+      "quantiles": [
+        0.1,
+        0.5,
+        0.9
+      ],
+      "count_targets": [
+        "rec",
+        "pass_tds"
+      ],
+      "binary_targets": [
+        "win",
+        "anytime_td"
+      ],
+      "outputs": 27
+    }
+  },
+  "output_configuration_ceiling": 147,
+  "runtime_hours": 3,
+  "confirmation": "None:2022-24 previously examined; no2025 pass or2026 selection; future forecasts only confirm.",
+  "threshold": "Primary loss >=1% lower, Bonferroni family95%CI excludes0,Holm p<.05,>=200games,>=2of3seasons; nomination only; no promotion",
+  "metrics": "MAE,RMSE,pinball10/50/90,80%coverage,CRPS,Brier,logloss,Poissondeviance; fixed pseudo-lines from lagged player median, calibration secondary only",
+  "target_groups": {
+    "pass_yds": [
+      "H4",
+      "H6"
+    ],
+    "pass_tds": [
+      "H4",
+      "H6"
+    ],
+    "rec": [
+      "H1",
+      "H5"
+    ],
+    "rec_yds": [
+      "H1",
+      "H5"
+    ],
+    "rush_yds": [
+      "H2",
+      "H6"
+    ],
+    "anytime_td": [
+      "H1",
+      "H2",
+      "H4",
+      "H6"
+    ]
+  },
+  "game_groups": {
+    "win": [
+      "H4",
+      "H6"
+    ],
+    "margin": [
+      "H4",
+      "H6"
+    ],
+    "total": [
+      "H4",
+      "H6"
+    ]
+  },
+  "parameters": {
+    "quantile": "HistGradientBoostingRegressor(loss=quantile,max_iter80,max_depth3,l2=10),3fixedheads; sorted quantiles, floor0 exceptmargin",
+    "opportunity": "Poisson alpha1 for team counts; Ridge alpha100 for usage shares and conditional rates; identical control/FPDS inputs except fixed task groups; other share learned only from prior eligible cohorts; reconciliation only new output",
+    "combination": "inverse earlier OOF primary loss weights,50%shrink to equal; stack Ridge alpha100 positive,50%shrink to equal, binary logistic C0.1;>=100 earlier rows or equal warmup; calibration uses earlier emitted raw outputs only",
+    "calibration": "sigmoid C1 and isotonic out_of_bounds=clip;>=200 earlier rows,both classes,else unchanged",
+    "counts": "hurdle logistic C0.1 + Poisson alpha1 on positive counts minus1; NB alpha=max((sum((y-mu)^2-y)/sum(mu^2)),0.001) from earlier OOF only; no primary mean gain claimed for NB-only",
+    "strong_game": "reconstruct lab rolling team states, ridge margin/EPA offense-defense ratings alpha2 previous-seasonweight0.35; prior projected starter history, verified injury availability; all source games available after sourceweek finalkickoff+24h; no undated future inputs; no markets"
+  },
+  "comparisons": "strongcontrol vs A7control; strongFPDS vs strongcontrol; targetedprops vs A7allFPDS; comb/opportunity/calibration vs A7samearm equal; quantile vs strongFPDS or targetedprops; counts vs targetedprops; NB primary unchanged, probability secondary only",
+  "limits": "All new outputs private append-only and checkpointed; failed block logged/skipped, never silently excluded from nomination; no champion/source/oldarchive modifications; no grid search or data-driven group selection"
+}

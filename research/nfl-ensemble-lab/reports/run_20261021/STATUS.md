@@ -20,3 +20,5 @@
 - 09:23 ET: real local session20261021T132259Z launched successfully; job5ef33f32d6ed4d2b98372932728fb416 preparing inputs. Deadline15:30 local Eastern/19:30 UTC; graceful checkpoint15:20. Supervisor persists independently of chat. Results pending; see LOCAL_SESSION.md and private session status.
 
 - 15:33 ET audit: session actually completed09:55 ET, after forecast09:33 ET.14 games/1446 output rows;270 development blocks;0 failures;1344 fit calls across production+development,104 unique registered output configurations. No ensemble nominated; anytime-TD ensemble worse; one isolated MLP nominee remains exploratory. No active manual worker. See LOCAL_SESSION_RESULTS.md.
+
+- Working15:45 ET: owner Codex; implement Amendment8 five-family shadow study. Acceptance: same eligible A7 rows, chronological earlier-week-only learning,147fixed output slots,0holdout reuse or promotion, fixtures/full regression then bounded run. Source A7 snapshot unchanged.
