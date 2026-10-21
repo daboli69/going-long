@@ -31,6 +31,10 @@ Use the included environment at idle priority, leaving2 logical cores free:
 
 `run_fpds_research.bat` runs import/audit/features/screen and discovery. `screen` runs preregistered leakage diagnostics only; it adds no model configurations. The exact269 target-specific trial slots are in `FPDS_AMENDMENT6_TRIALS.json`. No parameter search beyond that inventory is allowed. Before a validation command, commit the discovery-selected `FPDS_AMENDMENT6_FROZEN.json`; then run `walkforward --phase validation --resume` once. Resume reuses exact configuration/season/block checkpoints under the same registration/data/code fingerprint; changing that fingerprint cannot silently reuse a frozen validation. A validation lock records the frozen hash.2025 was previously examined for the old simulator and is not a pristine holdout.2026 is descriptive only.
 
+For sustained jobs on Windows use `run_fpds_research.bat walkforward --phase discovery --resume --deadline <UTC-ISO-deadline>` (or the same arguments with `python -m lab.low_priority -m lab.fpds_worker`). The external worker retries transient PermissionError only on mutable atomic JSON pointer writes. It never changes fitting, study fingerprints or immutable archives; failed configurations stay logged/skipped. This avoids losing the worker to a temporary file-sharing lock while preserving exact saved-block resume.
+
+The weekly admission check also compares every latest CSV header to the frozen study schema. New/removed/renamed fields stop for schema review before any refit; weekly drops may add rows but cannot silently change the selected feature definitions. No scheduled task or watcher is installed.
+
 ## Provenance and feature definitions
 
 - Raw copies are named by SHA256 beneath `data/raw/fpds/amendment6/<table>/`. Import manifests preserve source path, file size, original modified time, export-through marker, import time and first observation time. Latest working views point at the highest export-through week, then modified time/hash. Identical input snapshots are idempotent.

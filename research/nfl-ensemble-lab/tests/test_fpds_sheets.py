@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from lab.fpds_sheets import correct_comparisons
-from lab.fpds_weekly_guard import check
+from lab.fpds_weekly_guard import check,validate_headers
 
 
 def test_fixed_empirical_probabilities_and_binary_gap_guard():
@@ -25,3 +25,12 @@ def test_near_kickoff_refit_is_blocked():
     with pytest.raises(ValueError,match='2h refit budget'):check(games,7,now)
     games['kickoff_utc']=now+pd.Timedelta(hours=3)
     assert check(games,7,now)==1
+
+
+def test_weekly_header_additions_cannot_silently_change_frozen_features(tmp_path):
+    path=tmp_path/'receiving-stats week 8.csv'
+    path.write_text('Name,SEASON,WEEK,YDS\nSynthetic,2026,7,1\n')
+    expected={'receiving_stats':{'header_rows':1,'header':['Name','SEASON','WEEK','YDS'],'group_header':[]}}
+    assert validate_headers([path],expected)==1
+    path.write_text('Name,SEASON,WEEK,YDS,NEW\nSynthetic,2026,7,1,2\n')
+    with pytest.raises(ValueError,match='header changed'):validate_headers([path],expected)
