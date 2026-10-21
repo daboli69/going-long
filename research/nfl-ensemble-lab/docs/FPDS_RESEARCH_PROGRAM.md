@@ -1,5 +1,7 @@
 # Local FPDS research and weekly runbook
 
+**Manual controls (Amendment 7):** open `launch_lab.bat` → Research → FPDS Research, or `run_manual_fpds.bat`. See [manual runs](FPDS_MANUAL_RUNS.md) for current/future-week simulations and matched six-family game/four-family prop comparisons. The complete-history subfolder is authoritative; later loose exports must retain full historical coverage. The Amendment6 commands and results below document the completed frozen study; its discovery/2025 pass must not be started again as a new experiment. The supported worker/import/weekly paths apply the new source precedence without modifying that study's package or archives.
+
 The subscription Inbox is read-only. No website, API, account or key is used. Raw exports, unmatched identities, exact crosswalks, features, fitted models and forecast rows stay in ignored `data/raw/fpds/` and `data/cache/fpds/`. Git contains code, headers/counts/coverage and aggregated metrics only. All models are shadow challengers; the champion, v1 and earlier forecasts are unchanged.
 
 ## Weekly use

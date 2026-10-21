@@ -1,4 +1,4 @@
-"""View-only aggregate FPDS results. Never reads subscription rows or runs jobs."""
+"""Local manual controls plus saved aggregate FPDS results; never source rows."""
 from pathlib import Path
 import json
 import pandas as pd
@@ -39,11 +39,13 @@ def render(directory=REPORTS_DIR):
     audit=latest(directory,'FPDS_A6_AUDIT.json')
     timing=latest(directory,'FPDS_A6_TIMING_AUDIT.json')
     qualified=result.get('accepted_shadow_count',0)
-    state=f'{qualified} frozen changes passed the reported discovery/confirmation gates.' if result else 'Completed research results are not saved yet.'
+    state=f'Saved Amendment 6: {qualified} frozen changes passed its reported discovery/confirmation gates. New manual runs remain separate and exploratory.' if result else 'Completed research results are not saved yet.'
     st.warning(f'Shadow research only. {state} Nothing is promoted. '
                'Historical publication times and revisions are unverified, exports may be capped, and2025 was examined for an older simulator. '
                'Historical prop prices are absent. Forecast-error gains do not establish a tradable price edge. Not betting advice.')
-    st.caption('Aggregated metrics and metadata only · view-only · no model fitting or source-data controls')
+    from app.fpds_controls import render as manual_controls
+    manual_controls(enabled=Path(directory).resolve()==Path(REPORTS_DIR).resolve())
+    st.caption('Saved research below is aggregated metadata; source CSV rows are never displayed.')
     if not result and not audit:
         st.info('No saved FPDS audit or research report yet. Run import_fpds.bat to prepare the local metadata audit.')
         return
@@ -85,6 +87,6 @@ def render(directory=REPORTS_DIR):
                 st.caption('Negative delta means lower forecast loss. Corrected intervals account for the registered family tests. A discovery gate is only a nomination; the frozen confirmation and data limitations still apply.2026 never selects a model.')
     with tabs[2]:
         st.markdown('Drop the same full-history CSV titles with a trailing **week N** into the read-only subscription Inbox, then run **`run_weekly_fpds.bat`** from the lab folder. The command prints a new private revision directory. It stops on failure and keeps earlier forecasts.')
-        st.info('Do not upload or commit the private source files, features, models or forecast rows. This page reads public aggregate reports only.')
+        st.info('Do not upload or commit the private source files, features, models or forecast rows. Historical results below are aggregates; manual output tables show local derived forecasts, never source CSV rows.')
         with st.expander('Interpret the evidence'):
             st.markdown('Historical exports are reconstructed using strictly earlier source weeks after the final kickoff plus24h. Exact GSIS/week roster evidence corrects stale team labels. Capped exports, earlier holdout exposure, unresolved identities and unverified publication times limit inference. Counts and intervals may use labelled distribution approximations; structural members here are analytical proxies. Causal injury/on-off effects and current shadow assignments remain unvalidated. Game closing lines are benchmarks; pseudo prop lines test calibration only. No production model or frozen forecast is changed.')

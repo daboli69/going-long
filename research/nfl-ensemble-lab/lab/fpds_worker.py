@@ -25,12 +25,14 @@ def retry_atomic(operation,path,value,*,sleep=time.sleep,retries=10,logpath=None
 
 def install():
     from .fpds_research import common as C
-    if getattr(C.atomic,'_fpds_io_retry',False):return
-    original=C.atomic
-    log=C.ROOT/'operational_io'/f'retries_{os.getpid()}.jsonl'
-    def adapter(path,value):return retry_atomic(original,path,value,logpath=log)
-    adapter._fpds_io_retry=True
-    C.atomic=adapter
+    if not getattr(C.atomic,'_fpds_io_retry',False):
+        original=C.atomic
+        log=C.ROOT/'operational_io'/f'retries_{os.getpid()}.jsonl'
+        def adapter(path,value):return retry_atomic(original,path,value,logpath=log)
+        adapter._fpds_io_retry=True
+        C.atomic=adapter
+    from .fpds_sources import install as source_policy
+    source_policy()
 
 
 def main():

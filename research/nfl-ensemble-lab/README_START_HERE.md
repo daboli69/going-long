@@ -1,5 +1,13 @@
 # NFL Ensemble Lab: start here
 
+## Manually run FPDS simulations and comparisons
+
+Open **`launch_lab.bat` → Research → FPDS Research**. Choose the future week and **Games + props**, **Games**, or **Player props**, then click **Run projections**. This trains on all eligible available years from 2021 through the valid completed-week cutoff, using both NFL-only and FPDS shadow ensembles. Future-week forecasts use information available today; they do not invent future results or lineups.
+
+Click **Compare FPDS** to test identical game/prop model families with and without FPDS on fixed 2022–24 development data. **Prepare data** imports/builds histories without fitting. Draw count, seed and runtime live in one settings expander. Manual runs preserve all frozen forecasts and the production champion. No new 2025 confirmation or 2026 selection is offered.
+
+For a command menu, double-click **`run_manual_fpds.bat`**. Examples: `run_manual_fpds.bat project --week 8 --scope all` and `run_manual_fpds.bat compare --scope games`. See [manual controls and source precedence](docs/FPDS_MANUAL_RUNS.md). The full-history subfolder supersedes loose legacy Inbox files; later weekly exports must retain its historical coverage.
+
 ## Local FPDS weekly refresh (Amendment 6)
 
 Drop the new full-history `week N` CSVs into `GOING\FantasyPoints\Inbox`, then run **`run_weekly_fpds.bat`** from this folder (`--week 8` selects a week explicitly). The Inbox is read-only to the program. It imports hashed versions, audits revisions, refreshes NFL inputs and authorized local lines, refits committed frozen shadow configurations, and prints the new private projection/leans paths. It requires the frozen discovery selection and completed single validation; failures stop clearly and preserve earlier files. Do not upload or commit the local subscription derivatives.
