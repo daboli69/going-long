@@ -1,0 +1,21 @@
+{
+  "amendment": 9,
+  "date": "2026-10-21",
+  "parent": "20261021T200416Z",
+  "repair": "20261021T204121Z",
+  "discovery": [2022, 2023, 2024],
+  "refit_weeks": [1, 5, 9, 13, 17],
+  "seed": 20261021,
+  "budget": {"output_versions": 25, "fit_calls": 400},
+  "families": {
+    "target_audit": "No fits. Audit regulation versus overtime-inclusive PBP targets and candidate/observation key mismatches. Keep old targets and archives unchanged. Audit is not an accuracy improvement claim; unidentified labels remain unknown.",
+    "matched_quantile": "Two NFL-only controls: receiving/rushing quantile heads, identical A8 parameters, eligibility and 15 chronological blocks. Compare saved FPDS quantiles versus new NFL-only quantiles (provider effect), and NFL-only quantiles versus A7 NFL-only equal means (objective/family effect). Four comparisons.",
+    "residual": "Three fixed Ridge(alpha=100) residual corrections for win/margin/total, 50% shrinkage, fit on earlier emitted OOF errors only; >=100 rows else zero correction. Baseline is A8 strong NFL-only, because saved production champion calibration/configuration selection used later examined seasons and cannot satisfy strict decision-time provenance. FPDS target-group features only, no market inputs. Exact champion residual experiment blocked, not silently substituted. Three surrogate comparisons.",
+    "soft_coherence": "Six props, both A7 arms, fixed 25% blend of A7 output toward saved repaired A8 opportunity output; no tuning or refits. Keep explicit other-player mass from repaired output in diagnostics; partial reconciliation is not exact coherence. Never sum scorer probabilities as TD-event counts. Twelve comparisons.",
+    "conformal": "Two saved FPDS receiving/rushing quantile outputs: expanding earlier emitted OOF nonconformity max(q10-y,y-q90,0), finite-sample 80% higher-order statistic; >=100 earlier rows else unchanged. Preserve q50. Primary interval score (alpha=.2), coverage and width; point MAE must remain exactly unchanged. Two comparisons.",
+    "probability": "Win and anytime-TD A7 NFL-only and FPDS probabilities: fixed shrinkage n/(n+20) toward earlier league prior for games and earlier position prior for props, n=4*prior-season-game-count for games (conservative fixed effective history) or strictly pregame hist_games for props. No target-week grouping/outcomes. >=100 prior OOF rows else unchanged. Report Brier, log loss, accuracy, AUC and exact binned Brier decomposition (including within-bin residual). Four comparisons. No new sigmoid/isotonic search."
+  },
+  "metrics": "MAE for yardage/margin/total; Poisson deviance for receptions/passing TD; Brier and log loss for win/anytime TD; pinball and 80% interval score, width, coverage for intervals. All comparisons identical keys and unchanged original actuals; overtime audit separately reports semantic discrepancies only.",
+  "inference": "2000 paired whole-game bootstrap draws. Family-wise Bonferroni 95% intervals and Holm one-sided p values. Fixed family sizes: matched_quantile=4,residual=3,soft_coherence=12,conformal=2,probability=4. Exploratory nomination requires >=1% relative primary loss reduction, corrected upper CI<0, Holm p<.05, >=200 games, >=2/3 seasons same sign, full identical samples and no failures in that family. Conformal additionally requires aggregate empirical coverage >=.78; width and warmup reported. No promotion and no claim of untouched validation.",
+  "limitations": "Previously examined 2022-24 discovery only. No 2025 or2026 evaluation, no new holdout use, no eval command, no new forecasts, no prices as features. Revised historical FPDS remains a limitation. Any nomination requires future prospective confirmation. No historical prop price-edge claims. Failed blocks logged/skipped, never retried or dropped silently; incomplete family cannot qualify."
+}
