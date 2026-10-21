@@ -77,7 +77,7 @@ def run(path):
     players=pd.read_parquet(path/'players.parquet')
     originals={(s,a):S.source_blocks(source,s,a) for s in E.GAME_STATS+E.PROP_STATS for a in ('control','fpds')}
     probabilities={};rows=[];members=[];game_frames=[]
-    for spec in specs():
+    for spec in read(path/'RUN.json')['specs']:
         files=sorted((path/'blocks'/spec['id']).glob('*.parquet'))
         if not files:continue
         d=pd.concat([pd.read_parquet(f) for f in files],ignore_index=True);stat=spec['stat']

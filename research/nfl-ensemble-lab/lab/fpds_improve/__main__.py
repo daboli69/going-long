@@ -9,11 +9,13 @@ from . import storage as S
 
 def main():
     parser=argparse.ArgumentParser(__doc__)
-    parser.add_argument('action',choices=['run','resume','status'])
+    parser.add_argument('action',choices=['run','resume','status','repair-opportunity'])
     parser.add_argument('--run');parser.add_argument('--hours',type=float,default=3)
+    parser.add_argument('--parent')
     args=parser.parse_args()
     if not .2<=args.hours<=3:raise SystemExit('Runtime must be0.2–3hours')
     if args.run and (not args.run.isalnum()):raise SystemExit('Invalid run identifier')
+    if args.action=='repair-opportunity' and (not args.parent or not args.parent.isalnum()):raise SystemExit('A valid repair parent is required')
     path=S.ROOT/(args.run or datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ'))
     if args.action=='status':
         for p in sorted(S.ROOT.glob('*/STATUS.json'),reverse=True):
@@ -41,7 +43,7 @@ def main():
         install()
         from .run import run
         print('Local Amendment8 run:',path.name,flush=True)
-        run(path,args.hours)
+        run(path,args.hours,repair_parent=args.parent if args.action=='repair-opportunity' else None)
         print('Status:',S.read(path/'STATUS.json')['phase'],flush=True)
     except Exception:
         path.mkdir(parents=True,exist_ok=True)

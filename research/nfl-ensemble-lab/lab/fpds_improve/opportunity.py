@@ -44,6 +44,10 @@ def predict(train,target,team_train,team_target,stat,player_cols,team_cols,weigh
 
     def fit(name,model,rows,targets,cols,y,w,binary=False):
         before_fit(name)
+        y=np.asarray(y,float);w=np.asarray(w,float)
+        known=np.isfinite(y)&np.isfinite(w)&(w>0)
+        if not known.any():raise ValueError('No verified earlier auxiliary labels; no zero imputation permitted')
+        rows=rows.iloc[np.flatnonzero(known)];y=y[known];w=w[known];w=w/w.mean()
         if len(np.unique(y))<2:return np.full(len(targets),float(np.mean(y))),None
         return predict_model(model,rows,targets,cols,y,w,binary)
 
@@ -107,4 +111,6 @@ def predict(train,target,team_train,team_target,stat,player_cols,team_cols,weigh
                             'distinct_scorer_method':'known Poisson scorer probabilities + earlier other-scorer/TD ratio approximation' if stat=='anytime_td' else None,
                             'anytime_probability_sum':float(prediction[ix].sum()) if stat=='anytime_td' else None,
                             'other_anytime_probability':float(p_other) if stat=='anytime_td' else None})
+        diagnostics[-1]['aux_training_rows']=len(train)
+        diagnostics[-1]['unknown_usage_label_rows']=int((~np.isfinite(usage_y)|~np.isfinite(denominator)).sum())
     return prediction,raw_values,pd.DataFrame(diagnostics)

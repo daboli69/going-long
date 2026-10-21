@@ -106,16 +106,29 @@ def specs():
     return entries
 
 
-def run(path,hours=3):
+def selected_specs(repair_parent=None):
+    return [s for s in specs() if not repair_parent or s['family']=='opportunity']
+
+
+def run(path,hours=3,repair_parent=None):
     protocol,signature=S.registered();deadline=time.monotonic()+hours*3600
     source=jobs.directory(protocol['source_job'])
     audit=S.audit_source(source)
     if (path/'RUN.json').exists():
         saved=read(path/'RUN.json')
         if saved['signature']!=signature or saved['source_hashes']!=audit:raise ValueError('Resume refused: source or code changed')
+        repair_parent=saved.get('repair_parent')
     else:
         path.mkdir(parents=True,exist_ok=False)
-        write_once(path/'RUN.json',{'created_at':now(),'signature':signature,'source_hashes':audit,'protocol':protocol,'specs':specs()})
+        selected=selected_specs(repair_parent)
+        write_once(path/'RUN.json',{'created_at':now(),'signature':signature,'source_hashes':audit,'protocol':protocol,'specs':selected,'repair_parent':repair_parent})
+        if repair_parent:
+            import shutil
+            parent=S.ROOT/repair_parent;old=read(parent/'RUN.json');repair=read(S.LAB_ROOT/'docs/FPDS_A8_REPAIR_PROTOCOL.json')
+            if repair_parent!=repair['parent_run'] or old['source_hashes']!=audit:raise ValueError('Repair parent/data mismatch')
+            write_once(path/'REPAIR.json',repair)
+            for name in ('strong_games.parquet','STRONG_FEATURES.json','players.parquet','PLAYER_FEATURES.json'):
+                shutil.copyfile(parent/name,path/name)
     meta=read(source/'INPUT.json');players,games=__import__('lab.fpds_manual.run',fromlist=['load']).load(meta)
     players=players[players.season.le(2024)].copy();games=games[games.season.le(2024)].copy()
     observations=pd.read_parquet(Path(meta['base_source']).with_name('observations_production.parquet'))
@@ -150,7 +163,7 @@ def run(path,hours=3):
     players=players.merge(teams[['game_id','team']+total_cols],on=['game_id','team'],how='left',validate='many_to_one')
     originals={(stat,arm):S.source_blocks(source,stat,arm) for stat in E.GAME_STATS+E.PROP_STATS for arm in ('control','fpds')}
     failures=[]
-    for spec in specs():
+    for spec in read(path/'RUN.json')['specs']:
         stat,arm,variant=spec['stat'],spec['arm'],spec['id']
         data=E.data_for(stat,players,games);data=data[data[stat].notna()]
         for season in protocol['discovery']:
@@ -274,7 +287,7 @@ def diagnostics(frame,stat):
 def summarize(path,source,originals,protocol,failures):
     rows=[]
     family_counts={'strong_games':42,'target_features':30,'combination':36,'opportunity':12,'distribution':27}
-    for spec in specs():
+    for spec in read(path/'RUN.json')['specs']:
         files=sorted((path/'blocks'/spec['id']).glob('*.parquet'))
         if not files:continue
         d=pd.concat([pd.read_parquet(f) for f in files],ignore_index=True)
@@ -308,6 +321,7 @@ def summarize(path,source,originals,protocol,failures):
     integrity=S.audit_source(source)==read(path/'RUN.json')['source_hashes']
     summary={'created_at':now(),'split':'2022-24 previously examined discovery only; no holdout pass or2026 selection','rows':rows,'failures':failures,
              'coherence':coherence,'trials':read(path/'TRIALS.json'),'source_integrity_unchanged':integrity,'status':'shadow only; no promotion'}
+    summary['repair_parent']=read(path/'RUN.json').get('repair_parent')
     write_once(path/'SUMMARY.json',summary)
     if not integrity:raise ValueError('Source snapshot changed during study; results quarantined')
     S.status(path,'complete',comparisons=len(rows),failures=len(failures),nominations=sum(r['discovery_nomination'] for r in rows))

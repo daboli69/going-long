@@ -15,7 +15,7 @@ PROTOCOL=LAB_ROOT/'docs/FPDS_IMPROVEMENT_PROTOCOL.json'
 
 
 def registered():
-    paths=[PROTOCOL,LAB_ROOT/'docs/PHASE10_PREREGISTRATION.md']+sorted(Path(__file__).parent.glob('*.py'))
+    paths=[PROTOCOL,LAB_ROOT/'docs/FPDS_A8_REPAIR_PROTOCOL.json',LAB_ROOT/'docs/PHASE10_PREREGISTRATION.md']+sorted(Path(__file__).parent.glob('*.py'))
     for p in paths:
         rel=subprocess.check_output(['git','ls-files','--full-name',str(p)],cwd=LAB_ROOT,text=True).strip()
         if not rel:raise ValueError('Commit Amendment8 implementation before fitting')
@@ -41,7 +41,9 @@ def ledger(path,variant,head=None,output=True):
     if output:d['output_configurations']=sorted(set(d['output_configurations'])|{variant})
     if head is not None:
         d['fit_configurations']=sorted(set(d['fit_configurations'])|{variant+'/'+head});d['fit_calls']+=1
-    if len(d['output_configurations'])>147 or len(d['fit_configurations'])>300 or d['fit_calls']>4500:
+    repair=read(path/'REPAIR.json') if (path/'REPAIR.json').exists() else None
+    limits=(repair['outputs'],repair['max_fit_configurations'],repair['max_fit_dispatches']) if repair else (147,300,4500)
+    if len(d['output_configurations'])>limits[0] or len(d['fit_configurations'])>limits[1] or d['fit_calls']>limits[2]:
         raise ValueError('Registered fixed budget exceeded')
     atomic(file,d)
 
@@ -52,11 +54,11 @@ def block_path(path,variant,season,week):return path/'blocks'/variant/f'{season}
 def save(path,variant,season,week,frame):
     file=block_path(path,variant,season,week);file.parent.mkdir(parents=True,exist_ok=True)
     if file.exists():raise ValueError('Completed block is immutable')
-    temporary=file.with_suffix('.pending.parquet');frame.to_parquet(temporary,index=False);temporary.replace(file)
+    temporary=file.with_suffix('.parquet.pending');frame.to_parquet(temporary,index=False);temporary.replace(file)
 
 
 def history(path,variant,decision):
-    files=sorted((path/'blocks'/variant).glob('*.parquet'))
+    files=sorted(p for p in (path/'blocks'/variant).glob('*.parquet') if '.pending.' not in p.name)
     if not files:return pd.DataFrame()
     d=pd.concat([pd.read_parquet(p) for p in files],ignore_index=True)
     return d[pd.to_datetime(d.available_at,utc=True).lt(decision)]

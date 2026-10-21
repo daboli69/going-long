@@ -186,6 +186,25 @@ def test_hierarchy_shared_passing_total_and_other_distinct_bounds():
     assert td.expected_distinct_scorers_approx.iloc[0]<=td.team_projection.iloc[0]
     assert td.other_expected_distinct_scorers_approx.iloc[0]>=td.other_anytime_probability.iloc[0]
     assert np.all((p>=0)&(p<=1))
+    missing=train.copy();missing.loc[0,'actual_targets']=np.nan
+    with patch('lab.fpds_improve.opportunity.predict_model',side_effect=fake):
+        p,_,diag=O.predict(missing,target,teams.copy(),tt.copy(),'rec_yds',['x'],['x'],np.ones(n),np.ones(60),lambda _:None)
+    assert len(p)==len(target) and np.isfinite(p).all()
+    assert diag.unknown_usage_label_rows.eq(1).all()
+    assert np.isnan(missing.actual_targets.iloc[0])  # no invented zero labels
+
+
+def test_repair_scope_and_unfinished_files_are_not_completed_blocks(tmp_path):
+    from lab.fpds_improve.run import selected_specs
+    from lab.fpds_improve.storage import save,history
+    subset=selected_specs('registeredparent')
+    assert len(subset)==12 and all(s['family']=='opportunity' for s in subset)
+    frame=pd.DataFrame({'actual':[1.],'pred':[1.],'available_at':pd.to_datetime(['2022-09-01'],utc=True)})
+    save(tmp_path,'variant',2022,1,frame)
+    (tmp_path/'blocks/variant/2022_w05.parquet.pending').write_bytes(b'unfinished')
+    out=history(tmp_path,'variant',pd.Timestamp('2022-09-02',tz='UTC'))
+    assert len(out)==1
+    with pytest.raises(ValueError,match='immutable'):save(tmp_path,'variant',2022,1,frame)
 
 
 def test_report_formats_saved_aggregates_without_new_scoring():
