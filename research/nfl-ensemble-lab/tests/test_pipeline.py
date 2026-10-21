@@ -151,7 +151,11 @@ def test_streamlit_pages_start(page, week_run):
     from streamlit.testing.v1 import AppTest
     at = AppTest.from_file(str(Path(__file__).resolve().parents[1] / "app" / "streamlit_app.py"), default_timeout=120)
     at.run()
+    from app.navigation import SECTIONS
+    section = next(section for section, pages in SECTIONS.items() if page in pages)
+    at.sidebar.selectbox[0].select(section).run()
     at.sidebar.radio[0].set_value(page).run()
+    assert at.sidebar.radio[0].value == page
     assert not at.exception, [e.value for e in at.exception]
     assert not at.error, [e.value for e in at.error]
     assert at.title[0].value

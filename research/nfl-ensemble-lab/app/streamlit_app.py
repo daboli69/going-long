@@ -24,10 +24,7 @@ from lab.config import MODELS_DIR, REPORTS_DIR, SNAPSHOTS_DIR  # noqa: E402
 
 st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide")
 
-PAGES = ["Home", "Live Readiness & Schedule", "Data Manager", "Train Models", "Model Leaderboard", "Model Debate",
-         "Weekly Predictions", "Prospective Performance", "Prediction Archive", "Data Freshness", "Baseline Research",
-         "Long-Run Research", "Advanced Football Intelligence", "Player Intelligence", "Data Coverage & Gaps",
-         "Upset Discovery", "Upset Explorer", "Player Props", "Projections", "Leans", "Research Validation", "Research Runs", "Reports"]
+from app.navigation import render_navigation
 PCT = st.column_config.ProgressColumn
 
 
@@ -1935,11 +1932,7 @@ def page_leans():
     render("leans", REPORTS_DIR)
 
 
-with st.sidebar:
-    st.header("NFL Ensemble Lab")
-    requested_page = st.query_params.get("page", "Home")
-    page = st.radio("Go to", PAGES, index=PAGES.index(requested_page) if requested_page in PAGES else 0, label_visibility="collapsed")
-    st.caption("Phase 1 + Phase 2 research · not betting advice")
+page = render_navigation()
 
 try:
     {"Home": page_home, "Live Readiness & Schedule": page_live, "Data Manager": page_data, "Train Models": page_train, "Model Leaderboard": page_leaderboard,

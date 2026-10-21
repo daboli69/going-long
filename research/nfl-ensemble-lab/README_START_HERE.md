@@ -21,10 +21,18 @@ and it is not connected to the GOING website.
 
 ## Every week
 
+### Finding your way around
+
+The sidebar has a **Section** selector: Overview, This week, Insights, Models,
+Research, and Data & history. Pick a section, then choose from its short **Page**
+list. Every original page is still available, and each section remembers your last
+page during the session. Existing direct page links still work.
+
 ### Phase 10 shadow projections and leans (local app)
 
 Run `launch_lab.bat` from this folder, then open **Projections** or **Leans** in
-the sidebar. Players default to one current representative consensus line;
+the **This week** section of the sidebar. Players default to one current
+representative consensus line;
 Leans also hides mean/median skew flags. Tabs show games, first offensive TD,
 scenarios (not forecasts), and team/player coherence. Use the glossary, slate
 diagnostics, optional venue/stale toggles, and filtered CSV downloads.
