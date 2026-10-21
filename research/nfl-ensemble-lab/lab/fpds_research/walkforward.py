@@ -84,7 +84,7 @@ def run_block(directory,spec,data,games,meta,season,week,threads):
     first=games[games.season.eq(season)&games.week.between(week,min(18,week+3))].kickoff_utc.min()
     clock=availability(games)
     train=data[(data.season>=2021)&((data.season<season)|((data.season==season)&(data.week<week)))].copy()
-    valid=np.array([clock.get((s,w),pd.Timestamp.max.tz_localize('UTC'))<first for s,w in zip(train.season,train.week)])
+    valid=clock.reindex(pd.MultiIndex.from_arrays([train.season,train.week])).lt(first).fillna(False).to_numpy()
     train=train[valid].sort_values(['season','week','kickoff_utc','game_id'])
     if len(train)<100:raise ValueError('Insufficient strictly earlier training rows')
     cols=columns_for(spec,meta)
@@ -240,6 +240,8 @@ def run(args):
         base=[s for s in protocol['trials'] if s['arm']=='control']
         dependencies=[]
         for s in selected:
+            if s['stat']=='first_td' and s['arm']=='all':
+                dependencies.extend(x for x in protocol['trials'] if x['stat']=='anytime_td' and x['arm']=='all' and x['model']=='linear')
             if s['model'] in ('equal','weighted','stacked'):
                 dependencies.extend(x for x in protocol['trials'] if x['stat']==s['stat'] and x['arm']=='all' and x['model'] in ('linear','hist','xgboost','mlp'))
             elif s['model']=='blend':

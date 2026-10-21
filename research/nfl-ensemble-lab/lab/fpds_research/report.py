@@ -44,13 +44,20 @@ def diagnostics(d,stat):
             out['crps_three_quantile_approx']=2*float(np.mean(list(out['pinball'].values())))
         if 'pseudo_line' in d:
             mask=d.pseudo_line.notna().to_numpy();line=d.pseudo_line.to_numpy(float)
-            if stat in ('rec','pass_tds'):over=poisson.sf(np.floor(line),np.maximum(p,1e-6))
+            if 'p_over_pseudo' in d:over=d.p_over_pseudo.to_numpy(float)
+            elif stat in ('rec','pass_tds'):over=poisson.sf(np.floor(line),np.maximum(p,1e-6))
             else:
                 from scipy.stats import norm
                 scale=np.maximum((d.q90-d.q10).to_numpy()/2.563,1)
                 over=norm.sf((line-p)/scale)
             actual=(y>line).astype(float)
             out['pseudo_line_brier']=float(np.mean((over[mask]-actual[mask])**2)) if mask.any() else None
+            out['pseudo_line_probability_method']='earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)'
+            if mask.any():
+                bins=np.minimum((np.clip(over[mask],0,1)*10).astype(int),9)
+                out['pseudo_line_reliability']=[{'bin':i,'n':int((bins==i).sum()),'predicted':float(over[mask][bins==i].mean()),'observed':float(actual[mask][bins==i].mean())} for i in range(10) if (bins==i).any()]
+                bias=pd.DataFrame({'game_id':d.game_id.to_numpy()[mask],'delta':over[mask]-actual[mask]})
+                out['pseudo_probability_bias']=paired(bias)
             out['above_mean_fraction']=float((y>p).mean());out['above_median_fraction']=float((y>d.q50.to_numpy()).mean())
     return out
 
@@ -100,7 +107,7 @@ def results(directory,phase='discovery'):
         stat=r['configuration']['stat']
         r['discovery_gate']=bool(phase=='discovery' and r['games']>=200 and (r['n']>=300 or stat in ('margin','total','win','first_td')) and
             r['run_status']=='complete' and r['identical_sample'] and r['relative_reduction']>=.01 and r['corrected_ci95'][1]<0 and r['holm_p']<.05 and r['seasons_agreeing']>=2 and
-            r['configuration']['model']!='distribution')
+            (r['configuration']['model']!='distribution' or stat in ('rec','pass_tds')))
     return rows
 
 

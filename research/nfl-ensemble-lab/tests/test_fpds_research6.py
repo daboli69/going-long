@@ -187,6 +187,28 @@ def test_regular_player_keeps_verified_id_without_shadow_columns(tmp_path,monkey
     assert m['mapped_rows']==1 and usable.pid.tolist()==['00-synthetic']
 
 
+def test_verified_native_id_and_unique_historical_team_override_stale_label(tmp_path,monkeypatch):
+    for key in ('_KNOWN','_EXACT','_HIST_TEAM','_HIST_POSITION','_SCHEDULE'):monkeypatch.setattr(I,key,None)
+    p=tmp_path/'receiving-stats week 6.csv'
+    with p.open('w',newline='') as f:
+        w=csv.writer(f);w.writerow(['Name','TEAM','POS','SEASON','WEEK','YDS','player_id']);w.writerow(['Unknown Label','KC','WR',2021,1,20,'00-synthetic'])
+    d,m=I.parsed(p)
+    r=pd.DataFrame({'season':[2021],'week':[1],'team':['BUF'],'normal':['syntheticperson'],'gsis_id':['00-synthetic']})
+    complete,usable=I.resolve(d,m,r,{})
+    assert usable.pid.tolist()==['00-synthetic'] and usable.team.tolist()==['BUF']
+    assert usable.source_team.tolist()==['KC'] and m['historical_team_corrections']==1
+
+
+def test_ambiguous_weekly_trade_team_is_not_guessed(tmp_path,monkeypatch):
+    for key in ('_KNOWN','_EXACT','_HIST_TEAM','_HIST_POSITION','_SCHEDULE'):monkeypatch.setattr(I,key,None)
+    p=tmp_path/'receiving-stats week 6.csv'
+    with p.open('w',newline='') as f:
+        w=csv.writer(f);w.writerow(['Name','TEAM','POS','SEASON','WEEK','YDS','player_id']);w.writerow(['Unknown Label','KC','WR',2021,1,20,'00-synthetic'])
+    r=pd.DataFrame({'season':[2021,2021],'week':[1,1],'team':['BUF','KC'],'normal':['syntheticperson']*2,'gsis_id':['00-synthetic']*2})
+    d,m=I.parsed(p);complete,usable=I.resolve(d,m,r,{})
+    assert usable.empty and m['unmatched_rows']==1
+
+
 @pytest.mark.parametrize('key',['linear','hist','xgboost','mlp'])
 @pytest.mark.parametrize('stat',['rec','rec_yds','anytime_td'])
 def test_registered_factories_accept_weighted_synthetic_rows(key,stat):

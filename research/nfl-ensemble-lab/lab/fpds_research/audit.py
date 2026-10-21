@@ -29,7 +29,7 @@ def run(manifest=None):
         column_coverage['tables'][t['table']]={c['column']:c.get('nonmissing_by_season_week',{}) for c in t['columns']}
         lines.append(f"|{t['table']}|{t['valid_rows']}|{t['usable_entity_week_rows']}|{t['unmatched_rows']}|{t['ambiguous_entity_week_rows']}|{t['possible_export_cap']}|{','.join(map(str,t['coverage'].get('2026',[])))}|")
         summary['tables'].append({k:t[k] for k in ('table','valid_rows','usable_entity_week_rows','unmatched_rows','unmatched_distinct_labels','ambiguous_entity_week_rows','possible_export_cap','coverage','selector_conflicts','defense_label_rows')})
-        summary['tables'][-1].update({k:t.get(k,0) for k in ('native_id_resolved_rows','defender_unmatched_rows','defender_unmatched_distinct_labels','valid_rows_games_gt_one')})
+        summary['tables'][-1].update({k:t.get(k,0) for k in ('native_id_resolved_rows','recognized_native_gsis_rows','historical_team_corrections','historical_defender_team_corrections','rows_without_schedule_game','opponent_conflict_rows','shadow_matchup_conflict_rows','defender_unmatched_rows','defender_unmatched_distinct_labels','valid_rows_games_gt_one')})
     lines+=['', 'Per-column nonmissing counts for every season/week are in [FPDS_COLUMN_COVERAGE.json](FPDS_COLUMN_COVERAGE.json). They distinguish absent fields from observed zeros.', '', '## File inventory and coverage grid', '',
             'Coverage entries are observed week:row-count, not a completeness claim.2021–25 expected regular-season weeks1–18;2026 expected through the export marker (currently6). Missing entire weeks are listed. Entity coverage is checked separately against NFL eligible rows.', '']
     for t in m['files']:

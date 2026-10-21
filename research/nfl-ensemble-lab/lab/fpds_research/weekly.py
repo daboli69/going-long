@@ -33,6 +33,9 @@ def quote_comparison(rows,asof):
         if r.stat=='first_td':continue  # Offensive-only model contract is not verified against book settlement.
         if r.stat=='anytime_td':d.loc[ix,['p_over','p_under']]=[r['mean'],1-r['mean']]
         z=q[q.gsis_id.eq(r.pid)&q.stat.eq(r.stat)&q.home.eq(r.home_team)&q.away.eq(r.away_team)&q.line_type.eq('alternate')]
+        if len(z) and 'kickoff_utc' in d:
+            ko=pd.to_datetime(z.kickoff,utc=True,errors='coerce')
+            z=z[(ko-pd.Timestamp(r.kickoff_utc)).abs().le(pd.Timedelta(minutes=15))]
         if z.empty:continue
         lines=pd.to_numeric(z.line,errors='coerce');votes=lines.value_counts()
         if votes.empty:
@@ -215,7 +218,7 @@ def run(args):
                 if stat!='margin':q=np.maximum(q,0)
                 if M.binary(stat):q=np.clip(q,0,1)
                 for i,r in enumerate(target.itertuples()):
-                    row={'game_id':r.game_id,'season':2026,'week':week,'stat':stat,'arm':arm,'mean':float(p[i]),'median':float(q[1,i]),
+                    row={'game_id':r.game_id,'kickoff_utc':pd.Timestamp(r.kickoff_utc).isoformat(),'season':2026,'week':week,'stat':stat,'arm':arm,'mean':float(p[i]),'median':float(q[1,i]),
                          'q10':float(q[0,i]),'q50':float(q[1,i]),'q90':float(q[2,i]),'created_at':decision.isoformat(),
                          'training_cutoff_date':cutoff['training_cutoff_date'],'training_last_completed_week':cutoff['training_last_completed_week'],
                          'config_hash':digest(spec),'data_hash':meta['fingerprint'],'source_observed_at':meta['source_observed_at'],
@@ -246,13 +249,33 @@ def run(args):
         eligible_ids=set(map(tuple,frame.loc[eligible(frame,'anytime_td'),['game_id','pid']].to_numpy()))
         scored=prior_games[prior_games.scorer.ne('NO_OFFENSIVE_TD')]
         other=(sum((r.game_id,r.scorer) not in eligible_ids for r in scored.itertuples())+1)/(len(scored)+2)
-        first=[]
-        for (game_id,arm),z in pd.DataFrame(rows).query("stat == 'anytime_td'").groupby(['game_id','arm']):
+        first=[];atd=pd.DataFrame(rows).query("stat == 'anytime_td'")
+        first_spec=specs['first_td']
+        first_sources=[atd[atd.arm.eq('control')].copy()]
+        if first_spec['arm']=='control':
+            source_first=atd[atd.arm.eq('control')].copy();source_first['arm']='frozen'
+        elif specs['anytime_td']['arm']=='all' and specs['anytime_td']['model']=='linear':
+            source_first=atd[atd.arm.eq('frozen')].copy()
+        else:
+            source_first=atd[atd.arm.eq('control')].copy();source_first['arm']='frozen'
+            train=frame[((frame.season<2026)|(frame.season.eq(2026)&frame.week.le(cutoff['training_last_completed_week'])))&frame.anytime_td.notna()]
+            train=train[eligible(train,'anytime_td')]
+            train=train[[clock.get((r.season,r.week),pd.Timestamp.max.tz_localize('UTC'))<decision for r in train.itertuples()]]
+            target=source[eligible(source,'anytime_td')]
+            dep={'id':'anytime_td__all__all__linear','stat':'anytime_td','arm':'all','group':'all','model':'linear'}
+            columns=columns_for(dep,meta);weights=train.season.map(season_weight_map(train.season.unique())).to_numpy(float);weights/=weights.mean()
+            p,_=M.fit_predict(train,target,'anytime_td',columns,'linear',args.threads or 1,weights)
+            h=completed_blocks(research,dep);p,_=M.calibrated(p,h)
+            mapping=pd.DataFrame({'game_id':target.game_id,'pid':target.pid,'value':p})
+            source_first=source_first.drop(columns='mean').merge(mapping,on=['game_id','pid'],validate='one_to_one').rename(columns={'value':'mean'})
+        first_sources.append(source_first)
+        for (game_id,arm),z in pd.concat(first_sources,ignore_index=True).groupby(['game_id','arm']):
             ids,probability=probabilities(z.pid,z['mean'],no_td,other)
             for pid,p in zip(ids,probability):
                 template=z.iloc[0].to_dict() if pid in ('OTHER_PLAYERS','NO_OFFENSIVE_TD') else z[z.pid.eq(pid)].iloc[0].to_dict()
                 template.update(stat='first_td',pid=pid,mean=float(p),median=float(p),q10=np.nan,q50=np.nan,q90=np.nan,
-                                model_family='ATD hazard normalization; exploratory',member_min=np.nan,member_max=np.nan)
+                                model_family='ATD hazard normalization; exploratory',member_min=np.nan,member_max=np.nan,
+                                config_hash=digest(first_spec if arm=='frozen' else {'id':'first_td__control__all__linear'}))
                 if pid in ('OTHER_PLAYERS','NO_OFFENSIVE_TD'):template.update(name=pid,team='GAME')
                 first.append(template)
         players=pd.concat([pd.DataFrame(rows),pd.DataFrame(first)],ignore_index=True);projections=quote_comparison(players,decision)
@@ -260,9 +283,13 @@ def run(args):
         projections.to_csv(directory/'projections.csv',index=False)
         game_sheet=game_comparison(pd.DataFrame(game_rows),future,decision)
         game_sheet.to_csv(directory/'game_projections.csv',index=False)
-        leans=projections[projections.arm.eq('frozen')].copy()
+        game_sheet['line_type']=np.where(game_sheet.consensus_line.notna(),'consensus','unavailable')
+        game_sheet['confidence_tier']='C';game_sheet['name']=game_sheet.away_team+'@'+game_sheet.home_team
+        game_sheet['coherence_flag']='not reconciled';game_sheet['stability_flag']='not tested';game_sheet['scenario_sensitivity']='not tested'
+        leans=pd.concat([projections[projections.arm.eq('frozen')],game_sheet[game_sheet.arm.eq('frozen')]],ignore_index=True)
         leans['investigation_note']='Research-only comparison; coverage/revised-data risk, stability, coherence and scenarios remain unvalidated.'
-        leans['rank_in_game']=leans.groupby('game_id').gap.rank(ascending=False,method='first',na_option='bottom')
+        leans['investigation_score']=leans.gap.abs()/(leans.q90-leans.q10).clip(lower=1)
+        leans['rank_in_game']=leans.groupby('game_id').investigation_score.rank(ascending=False,method='first',na_option='bottom')
         leans.sort_values(['game_id','rank_in_game']).to_csv(directory/'leans.csv',index=False)
         (directory/'leans.md').write_text('# FPDS shadow comparisons\n\nNo qualified investigation-readiness claim. Historical publication/revisions are unverified; no historical prop-price edge is established. Every row is tier C until stability, coherence and scenario checks are completed. See local leans.csv.\n',encoding='utf-8')
         result={'created_at':now(),'path':str(directory),'week':week,'games':len(future),'player_rows':len(projections),**cutoff,

@@ -107,8 +107,9 @@ def numeric_panel(raw,table,columns):
     # Split rows / combinations are overlapping units: mean, never a fabricated sum.
     d=d.dropna(subset=['entity'])
     out=d.groupby(['season','week','entity'],as_index=False)[columns].mean()
-    if '_position' in raw:
-        positions=raw.dropna(subset=['entity']).groupby(['season','week','entity'])['_position'].agg(lambda x:next(iter(set(x))) if len(set(x))==1 else 'UNKNOWN').reset_index(name='position')
+    pos='position_asof' if 'position_asof' in raw else '_position'
+    if pos in raw:
+        positions=raw.dropna(subset=['entity']).groupby(['season','week','entity'])[pos].agg(lambda x:next(iter(set(x.dropna()))) if x.dropna().nunique()==1 else 'UNKNOWN').reset_index(name='position')
         out=out.merge(positions,on=['season','week','entity'],how='left',validate='one_to_one')
     return out
 
@@ -195,16 +196,20 @@ def run(base=BASE):
         # Alphabetical tables must not consume the allowance of later tables.
         remaining=max(0,768-model_count)
         cols=cols[:min(remaining,768//max(1,len(manifest['working_tables']))) ]
-        player=table['entity_kind']=='player' and 'cornerback' not in name
+        qb_context=name.startswith('passing_')
+        player=table['entity_kind']=='player' and 'cornerback' not in name and not qb_context
+        defensive=any(x in name for x in ('defense','allowed','coverage','cornerback')) or name in ('lineup_combos_db','lineup_combos_front')
         if 'cornerback' in name:
             # Defensive-player histories attach to the opponent as a team mean.
-            cb=raw.copy();cb['entity']=cb.team
+            cb=raw[raw.entity.notna()].copy();cb['entity']=cb.team
             rolled=rolling_panel(numeric_panel(cb,table,metrics),metrics,g)
-        values,sy,sw=join_asof(frame,rolled,cols,'pid' if player else ('opponent' if any(x in name for x in ('defense','allowed','coverage','cornerback')) else 'team'))
+        key='projected_qb' if qb_context else 'pid' if player else 'opponent' if defensive else 'team'
+        values,sy,sw=join_asof(frame,rolled,cols,key)
         prefix='fp__'+name+'__';names=[prefix+c for c in cols]
         for c,v in zip(names,values.T):added[c]=v
         groups[name]={'family':table['family'],'columns':names,'metrics':metrics,'entity_kind':'player' if player else 'team',
                       'source_entity_kind':table['entity_kind'],
+                      'join_key':key,
                       'aggregation':'source entity/week arithmetic mean for overlapping splits; no fabricated totals'}
         model_count+=len(cols)
         timing.append(pd.DataFrame({'game_id':frame.game_id,'pid':frame.pid,'table':name,'source_season':sy,'source_week':sw}))
@@ -213,7 +218,7 @@ def run(base=BASE):
                          'matched_rows':int(matched.sum()),'eligible_rows':len(frame),
                          'by_season':{str(s):{'n':int(len(ix)),'matched':int(matched[ix].sum())} for s,ix in frame.groupby('season').indices.items()}})
         # Team aggregates include defensive players / units. Means are role/unit averages, not team totals.
-        teamraw=raw.copy();teamraw['entity']=teamraw.team
+        teamraw=raw[raw.entity.notna()].copy();teamraw['entity']=teamraw.team
         team_panel=numeric_panel(teamraw,table,metrics)
         teamroll=rolling_panel(team_panel,metrics,g)
         teamcols=[c+'__last3' for c in metrics[:4]]
@@ -229,6 +234,8 @@ def run(base=BASE):
     fpcols=list(added);own=[c for g in groups.values() if g['entity_kind']=='player' for c in g['columns']]
     any_history=frame[fpcols].notna().any(axis=1);own_history=frame[own].notna().any(axis=1)
     metadata={'created_at':now(),'fingerprint':fingerprint,'path':str(directory),'rows':len(frame),
+              'import_fingerprint':manifest['fingerprint'],'import_manifest_path':manifest['path'],
+              'base_sha256':sha(base),'observations_sha256':sha(observed_path) if observed_path.exists() else None,
               'rows_without_any_fpds_history':int((~any_history).sum()),'rows_without_player_fpds_history':int((~own_history).sum()),
               'history_by_season':{str(s):{'rows':len(ix),'no_any_history':int((~any_history.iloc[ix]).sum()),'no_player_history':int((~own_history.iloc[ix]).sum())} for s,ix in frame.groupby('season').indices.items()},
               'base_source':str(base),'groups':groups,'coverage':coverage,'base_columns':[c for c in FEATURES if c in frame],

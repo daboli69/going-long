@@ -16,6 +16,9 @@ IDENTITY = {'rank','ranking','season','year','sea','week','wk','player','name','
 FORBIDDEN = re.compile(r'fantasy|(^|_)(fp|xfp|fpg|fppg|fpts|ppr|dkpts|fdpts)($|_)|salary|ownership|projection|projected|draftkings|fanduel|(^|_)rank($|_)|odds|moneyline|spread|betting|implied|vegas|closing_line',re.I)
 _EXACT = None
 _KNOWN = None
+_HIST_TEAM = None
+_HIST_POSITION = None
+_SCHEDULE = None
 
 
 def key_index(meta, kind):
@@ -73,7 +76,7 @@ def column_class(header, qualified):
 
 
 def roster_index():
-    global _EXACT,_KNOWN
+    global _EXACT,_KNOWN,_HIST_TEAM,_HIST_POSITION,_SCHEDULE
     parts=[]
     for season in range(2021,2027):
         p=RAW_DIR/f'roster_weekly_{season}.parquet'
@@ -86,12 +89,22 @@ def roster_index():
     r=r.drop_duplicates(['season','week','team','gsis_id'])
     _EXACT=r.groupby(['season','week','team','normal']).gsis_id.agg(lambda x:next(iter(set(x))) if len(set(x))==1 else None)
     _KNOWN=set(map(tuple,r[['season','week','team','gsis_id']].to_numpy()))
+    weekly=r.groupby(['season','week','gsis_id'])
+    _HIST_TEAM=weekly.team.first().where(weekly.team.nunique().eq(1))
+    _HIST_POSITION=weekly.position.first().where(weekly.position.nunique().eq(1))
+    from ..data_pipeline import FEATURE_STORE
+    games=pd.read_parquet(FEATURE_STORE,columns=['game_id','season','week','game_type','home_team','away_team'])
+    games=games[games.game_type.eq('REG')]
+    sides=pd.concat([games.rename(columns={'home_team':'team','away_team':'opponent'}),games.rename(columns={'away_team':'team','home_team':'opponent'})],ignore_index=True)
+    sides=sides[~sides.duplicated(['season','week','team'],False)]
+    _SCHEDULE={(x.season,x.week,x.team):(x.game_id,x.opponent) for x in sides.itertuples()}
     return r
 
 
 def resolve(d,m,roster,mapping):
     d=d.copy(); d['season']=d._season;d['week']=d._week
     d['team']=d.get('_team',pd.Series('',index=d.index)).map(old.canonical_team)
+    d['source_team']=d.team
     name=d.get('_name',pd.Series('',index=d.index)).map(normalized_name)
     d['pid']=name.map(mapping)
     team_table=m['table'] in {'pace','coverage_matrix','team_offense','team_defense','playcaller_stats','coach_records'} or m['table'].startswith('fantasy_points_allowed') or m['table'].startswith('lineup_combos')
@@ -105,9 +118,24 @@ def resolve(d,m,roster,mapping):
         keys=pd.MultiIndex.from_arrays([d.season,d.week,d.team,name])
         local=pd.Series(exact.reindex(keys).to_numpy(),index=d.index)
         d['pid']=local.combine_first(d.pid)
+        if '_native_id' in d:
+            # Recognition is exact membership in the GSIS roster, not an assumed ID family.
+            recognized=d._native_id.where(d._native_id.isin(set(roster.gsis_id)))
+            d['pid']=recognized.combine_first(d.pid)
+            m['recognized_native_gsis_rows']=int(recognized.notna().sum())
+        historical=_HIST_TEAM
+        if historical is None:
+            historical=roster.groupby(['season','week','gsis_id']).team.agg(lambda x:next(iter(set(x.dropna()))) if x.dropna().nunique()==1 else None)
+        sourcekeys=pd.MultiIndex.from_arrays([d.season,d.week,d.pid])
+        verified_team=pd.Series(historical.reindex(sourcekeys).to_numpy(),index=d.index)
+        m['historical_team_corrections']=int((verified_team.notna()&verified_team.ne(d.team)).sum())
+        d['team']=verified_team.combine_first(d.team)
+        if _HIST_POSITION is not None:
+            d['position_asof']=pd.Series(_HIST_POSITION.reindex(sourcekeys).to_numpy(),index=d.index)
         known=_KNOWN
         if known is None:known=set(map(tuple,roster[['season','week','team','gsis_id']].to_numpy()))
         verified=pd.Series([tuple(x) in known for x in d[['season','week','team','pid']].to_numpy()],index=d.index)
+        verified &= verified_team.notna()
         d.loc[~verified,'pid']=None
     else:
         d['pid']=None
@@ -115,12 +143,34 @@ def resolve(d,m,roster,mapping):
         defender=d.iloc[:,m['header'].index('Defender')].map(normalized_name)
         defense=d.iloc[:,m['header'].index('DEF')].map(old.canonical_team)
         d['defender_team']=defense;d['defender_pid']=defender.map(mapping)
+        if _HIST_TEAM is not None:
+            sourcekeys=pd.MultiIndex.from_arrays([d.season,d.week,d.defender_pid])
+            verified_defense=pd.Series(_HIST_TEAM.reindex(sourcekeys).to_numpy(),index=d.index)
+            m['historical_defender_team_corrections']=int((verified_defense.notna()&verified_defense.ne(defense)).sum())
+            d['defender_team']=verified_defense.combine_first(defense)
         known=_KNOWN or set(map(tuple,roster[['season','week','team','gsis_id']].to_numpy()))
-        valid=[(s,w,t,p) in known for s,w,t,p in zip(d.season,d.week,defense,d.defender_pid)]
+        valid=[(s,w,t,p) in known for s,w,t,p in zip(d.season,d.week,d.defender_team,d.defender_pid)]
+        if _HIST_TEAM is not None:valid=np.asarray(valid)&verified_defense.notna().to_numpy()
         d.loc[~pd.Series(valid,index=d.index),'defender_pid']=None
         m['defender_unmatched_rows']=int(d.defender_pid.isna().sum())
         m['defender_unmatched_distinct_labels']=int(defender[d.defender_pid.isna()].nunique())
     d['entity']=d.pid if is_player else d.team
+    if _SCHEDULE is not None:
+        joined=[_SCHEDULE.get((s,w,t)) for s,w,t in zip(d.season,d.week,d.team)]
+        d['game_id_asof']=[x[0] if x else None for x in joined]
+        d['opponent_asof']=[x[1] if x else None for x in joined]
+        m['rows_without_schedule_game']=int(d.game_id_asof.isna().sum())
+        d.loc[d.game_id_asof.isna(),'entity']=None
+        if 'OPP' in m['header']:
+            ix=m['header'].index('OPP')
+            opponent=d.iloc[:,ix].astype(str).str.replace(r'^(?:@|vs\.?\s*)','',regex=True).str.strip().map(old.canonical_team)
+            conflict=opponent.notna()&d.opponent_asof.notna()&opponent.ne(d.opponent_asof)
+            m['opponent_conflict_rows']=int(conflict.sum())
+            d.loc[conflict,'entity']=None
+        if 'defender_team' in d:
+            conflict=d.defender_pid.notna()&d.opponent_asof.notna()&d.defender_team.ne(d.opponent_asof)
+            m['shadow_matchup_conflict_rows']=int(conflict.sum())
+            d.loc[conflict,'entity']=None
     m['entity_kind']='player' if is_player else 'team'
     m['unmatched_rows']=int(d.entity.isna().sum())
     m['unmatched_distinct_labels']=int(name[d.entity.isna()].nunique()) if is_player else int(d.loc[d.entity.isna(),'_team'].nunique()) if '_team' in d else len(d)
