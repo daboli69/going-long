@@ -8,3 +8,5 @@ private/
 .env
 .env.*
 !.env.example
+FantasyPoints/
+research/nfl-ensemble-lab/data/raw/fpds/
