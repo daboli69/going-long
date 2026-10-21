@@ -1,0 +1,16 @@
+{
+  "amendment": "8 repair1",
+  "created_date": "2026-10-21",
+  "parent_run": "20261021T200416Z",
+  "family": "opportunity",
+  "outputs": 12,
+  "max_fit_configurations": 84,
+  "max_fit_dispatches": 1500,
+  "hypothesis": "Repair missing historical auxiliary role labels without fabricating zeros, preserving every evaluation row and all model parameters.",
+  "data": "Same hashed A7 player/game snapshot and parent prepared features; no new data or entity guessing.845 of13219 historical player-game/team keys lack exact NFL observation matches.",
+  "split": "Same expanding2022\u20132024,15blocks; no2025 pass or2026 selection",
+  "handling": "Fit each auxiliary share/rate head on finite known earlier labels only; keep all target rows. Unknown historical role contribution remains in other-player remainder. Record excluded training-label count. No target-week labels determine inclusion.",
+  "metrics": "Same MAE/Poisson deviance/Brier; paired whole-game2000draws, correction12; exact coherence/remainder diagnostic.",
+  "acceptance": "Unchanged >=1% reduction, corrected CI excludes0, >=200games,2/3seasons,Holm p<.05,identical complete evaluation sample,no failed blocks in this repair; prospective confirmation required; never promote.",
+  "limits": "Run only12 repaired opportunity variants. Reuse parent prepared features; never rerun65 already-complete non-opportunity variants. Retain178 original failures and original0 nominations; repair is a separate exploratory attempt, not retroactive gate approval. Count12 additional output versions (159 including original147) plus preparation-fit attempts. No model selection or parameter/threshold changes."
+}
