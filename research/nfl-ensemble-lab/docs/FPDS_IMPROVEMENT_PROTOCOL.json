@@ -173,5 +173,9 @@
     "strong_game": "reconstruct lab rolling team states, ridge margin/EPA offense-defense ratings alpha2 previous-seasonweight0.35; prior projected starter history, verified injury availability; all source games available after sourceweek finalkickoff+24h; no undated future inputs; no markets"
   },
   "comparisons": "strongcontrol vs A7control; strongFPDS vs strongcontrol; targetedprops vs A7allFPDS; comb/opportunity/calibration vs A7samearm equal; quantile vs strongFPDS or targetedprops; counts vs targetedprops; NB primary unchanged, probability secondary only",
-  "limits": "All new outputs private append-only and checkpointed; failed block logged/skipped, never silently excluded from nomination; no champion/source/oldarchive modifications; no grid search or data-driven group selection"
+  "limits": "All new outputs private append-only and checkpointed; failed block logged/skipped, never silently excluded from nomination; no champion/source/oldarchive modifications; no grid search or data-driven group selection",
+  "submodel_configuration_ceiling": 300,
+  "fit_call_ceiling": 4500,
+  "pseudo_line": "floor(median last8 played prior player-game outcomes)+0.5; available source weeks only; diagnostic benchmark, no prices",
+  "opportunity_team_feature_policy": "same strong game and H4/H6 team features for all prop targets within each arm; passing and receiving yards share the same team passing-yard projection"
 }

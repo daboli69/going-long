@@ -273,3 +273,7 @@ None of these folders are committed to git.
 
 For developers: `.venv\Scripts\python.exe -m pytest` runs the test suite;
 `python -m lab.cli refresh|train|predict|report` runs each step without the dashboard.
+
+### Test the five FPDS improvement families locally
+
+Run `run_fpds_improvements.bat` for the committed, checkpointed Amendment8 shadow study. It reuses the completed A7 snapshot and tests stronger game features, target-specific FPDS, earlier-only combinations, coherent opportunity models and distribution/calibration changes. View aggregates under **Research → FPDS Research → Model improvements — Amendment 8**. No champion change or new2025 evaluation. See `docs/FPDS_IMPROVEMENTS.md` for exact status/resume commands and limitations.

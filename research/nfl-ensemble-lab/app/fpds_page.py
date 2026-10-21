@@ -44,7 +44,13 @@ def render(directory=REPORTS_DIR):
                'Historical publication times and revisions are unverified, exports may be capped, and2025 was examined for an older simulator. '
                'Historical prop prices are absent. Forecast-error gains do not establish a tradable price edge. Not betting advice.')
     from app.fpds_controls import render as manual_controls
-    manual_controls(enabled=Path(directory).resolve()==Path(REPORTS_DIR).resolve())
+    local=Path(directory).resolve()==Path(REPORTS_DIR).resolve()
+    studying=False
+    if local:
+        from app.fpds_improvement_view import render as improvements
+        studying=improvements()
+        if studying:st.info('The separate improvement study is using the local training worker. Wait for it to finish before another manual run.')
+    manual_controls(enabled=local and not studying)
     st.caption('Saved research below is aggregated metadata; source CSV rows are never displayed.')
     if not result and not audit:
         st.info('No saved FPDS audit or research report yet. Run import_fpds.bat to prepare the local metadata audit.')
