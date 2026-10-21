@@ -60,7 +60,8 @@ the sibling `GOING\FantasyPoints\Inbox` without changing it, preserves hashed
 copies and creates private weekly feature caches. Read `docs/FPDS_INGEST.md` for
 coverage, missing weeks and mapping counts. Subscription files and row-level
 derivatives stay ignored/local. FPDS is a shadow research input; importing it
-does not change the frozen weekly forecast configuration.
+does not change the frozen weekly forecast configuration. Development findings
+and the tentative weekly download list: `reports/run_20261020/FPDS_REPORT.md`.
 
 - Double-click **`launch_lab.bat`**, open **Weekly Predictions**, click **Generate Weekly Predictions**,
   then download the Excel file. Or
@@ -153,7 +154,8 @@ inactives (partial) and labels them that way.
 
 `refresh_data.bat` now means "refresh now by hand" (full refresh, then one scheduler run).
 
-**Which code the task runs:** the task should run a pinned, tested release (`releasesun_tick.pyw`),
+**Which code the task runs:** the task should run a pinned, tested release (`releases
+un_tick.pyw`),
 not this development checkout, so code edits can never break a live pregame forecast. Use
 `release_lab.bat release <tag>` to ship, `release_lab.bat rollback` to go back, and
 `release_lab.bat status` to see which code runs. The Live Readiness page shows the same thing

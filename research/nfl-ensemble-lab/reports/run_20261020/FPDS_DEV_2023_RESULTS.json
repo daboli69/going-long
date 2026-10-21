@@ -1,0 +1,715 @@
+{
+  "experiment": "Amendment4 FPDS incremental value",
+  "training_seasons": [
+    2021,
+    2022
+  ],
+  "development_season": 2023,
+  "confirmation_season": 2024,
+  "confirmation_status": "PENDING; not run",
+  "untouched_modeling_season": 2025,
+  "primary": [
+    {
+      "stat": "anytime_td",
+      "metric": "Brier",
+      "n": 2580,
+      "games": 272,
+      "control_loss": 0.18777672593776007,
+      "fpds_loss": 0.18790093052372037,
+      "paired": {
+        "n": 2580,
+        "games": 272,
+        "difference": 0.00012420458596027834,
+        "ci95": [
+          -0.0007581130472165416,
+          0.0009989881718900182
+        ],
+        "p_improvement_one_sided": 0.6096951524237881
+      },
+      "structural_rows": 2377,
+      "four_member_fallback_rows": 203,
+      "fpds_missing_all_rows": 105,
+      "member_losses": {
+        "base_logreg": 0.18840568428471893,
+        "base_random_forest": 0.188972033967338,
+        "base_xgboost": 0.18835775464983903,
+        "base_mlp": 0.18888737179874146,
+        "fpds_logreg": 0.18732849610901114,
+        "fpds_random_forest": 0.1887197421444784,
+        "fpds_xgboost": 0.18809588913712788,
+        "fpds_mlp": 0.1892550525414889
+      },
+      "log_loss_delta": {
+        "n": 2580,
+        "games": 272,
+        "difference": 0.00012410121936360846,
+        "ci95": [
+          -0.00196237154569159,
+          0.0022261909697328004
+        ],
+        "p_improvement_one_sided": 0.5482258870564718
+      },
+      "reliability": {
+        "base": [
+          {
+            "range": "0%-10%",
+            "n": 1,
+            "mean_pred": 0.09565422761090002,
+            "observed": 0.0
+          },
+          {
+            "range": "10%-20%",
+            "n": 924,
+            "mean_pred": 0.15923942910381805,
+            "observed": 0.15584415584415584
+          },
+          {
+            "range": "20%-30%",
+            "n": 820,
+            "mean_pred": 0.2442918949968504,
+            "observed": 0.2804878048780488
+          },
+          {
+            "range": "30%-40%",
+            "n": 503,
+            "mean_pred": 0.34674523031328464,
+            "observed": 0.3658051689860835
+          },
+          {
+            "range": "40%-50%",
+            "n": 259,
+            "mean_pred": 0.4424422548491793,
+            "observed": 0.4594594594594595
+          },
+          {
+            "range": "50%-60%",
+            "n": 68,
+            "mean_pred": 0.5271873347235488,
+            "observed": 0.6764705882352942
+          },
+          {
+            "range": "60%-70%",
+            "n": 5,
+            "mean_pred": 0.6439453734084041,
+            "observed": 0.6
+          }
+        ],
+        "fpds": [
+          {
+            "range": "0%-10%",
+            "n": 6,
+            "mean_pred": 0.09631899621931328,
+            "observed": 0.16666666666666666
+          },
+          {
+            "range": "10%-20%",
+            "n": 899,
+            "mean_pred": 0.15889413393250132,
+            "observed": 0.16017797552836485
+          },
+          {
+            "range": "20%-30%",
+            "n": 842,
+            "mean_pred": 0.24512690585523894,
+            "observed": 0.28028503562945367
+          },
+          {
+            "range": "30%-40%",
+            "n": 442,
+            "mean_pred": 0.34486084228766245,
+            "observed": 0.35294117647058826
+          },
+          {
+            "range": "40%-50%",
+            "n": 298,
+            "mean_pred": 0.443848989881014,
+            "observed": 0.4429530201342282
+          },
+          {
+            "range": "50%-60%",
+            "n": 88,
+            "mean_pred": 0.531976378209372,
+            "observed": 0.6136363636363636
+          },
+          {
+            "range": "60%-70%",
+            "n": 5,
+            "mean_pred": 0.6345055241857109,
+            "observed": 0.6
+          }
+        ]
+      },
+      "holm_p": 0.6096951524237881,
+      "passes_metric_gate": false,
+      "passes_full_ensemble_gate": false,
+      "decision": "Rejected full-ensemble gate; diagnostic only"
+    },
+    {
+      "stat": "rec",
+      "metric": "Poisson deviance",
+      "n": 2036,
+      "games": 272,
+      "control_loss": 1.4716144395224937,
+      "fpds_loss": 1.4495577162712348,
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": -0.022056723251259246,
+        "ci95": [
+          -0.033962826248083416,
+          -0.00931489557356273
+        ],
+        "p_improvement_one_sided": 0.0009995002498750624
+      },
+      "structural_rows": 1852,
+      "four_member_fallback_rows": 184,
+      "fpds_missing_all_rows": 84,
+      "member_losses": {
+        "base_logreg": 1.5036718082350211,
+        "base_random_forest": 1.4879856768639734,
+        "base_xgboost": 1.4992032908262756,
+        "base_mlp": 1.4969292635682994,
+        "fpds_logreg": 1.4913972487101625,
+        "fpds_random_forest": 1.4609342597717465,
+        "fpds_xgboost": 1.4862963991477174,
+        "fpds_mlp": 1.5260552691103084
+      },
+      "holm_p": 0.00399800099950025,
+      "passes_metric_gate": true,
+      "passes_full_ensemble_gate": false,
+      "decision": "Rejected full-ensemble gate; diagnostic only"
+    },
+    {
+      "stat": "rec_yds",
+      "metric": "MAE",
+      "n": 2036,
+      "games": 272,
+      "control_loss": 24.697751067167086,
+      "fpds_loss": 24.58702153859139,
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": -0.11072952857569562,
+        "ci95": [
+          -0.21714472750363198,
+          0.004348001848011002
+        ],
+        "p_improvement_one_sided": 0.022988505747126436
+      },
+      "structural_rows": 1852,
+      "four_member_fallback_rows": 184,
+      "fpds_missing_all_rows": 84,
+      "member_losses": {
+        "base_logreg": 24.762834048733428,
+        "base_random_forest": 24.792429274738844,
+        "base_xgboost": 24.821182540451378,
+        "base_mlp": 25.018721393206096,
+        "fpds_logreg": 24.801896038986918,
+        "fpds_random_forest": 24.756481713710745,
+        "fpds_xgboost": 24.75452595094332,
+        "fpds_mlp": 24.821120839178022
+      },
+      "quantile_head_diagnostics": {
+        "0.1": {
+          "n": 2036,
+          "games": 272,
+          "difference": -0.010594646922631592,
+          "ci95": [
+            -0.030808976838803716,
+            0.008732029410607021
+          ],
+          "p_improvement_one_sided": 0.14342828585707146
+        },
+        "0.5": {
+          "n": 2036,
+          "games": 272,
+          "difference": -0.03010295358017751,
+          "ci95": [
+            -0.11879635403507627,
+            0.05982133560876109
+          ],
+          "p_improvement_one_sided": 0.2463768115942029
+        },
+        "0.9": {
+          "n": 2036,
+          "games": 272,
+          "difference": -0.031789863090102136,
+          "ci95": [
+            -0.09297487381902346,
+            0.026143895666221818
+          ],
+          "p_improvement_one_sided": 0.15342328835582209
+        }
+      },
+      "head_interval_coverage": {
+        "base": 0.7765225933202358,
+        "fpds": 0.7799607072691552
+      },
+      "holm_p": 0.06896551724137931,
+      "passes_metric_gate": false,
+      "passes_full_ensemble_gate": false,
+      "decision": "Rejected full-ensemble gate; diagnostic only"
+    },
+    {
+      "stat": "rush_yds",
+      "metric": "MAE",
+      "n": 844,
+      "games": 271,
+      "control_loss": 24.65170510022913,
+      "fpds_loss": 24.369254405458108,
+      "paired": {
+        "n": 844,
+        "games": 271,
+        "difference": -0.282450694771022,
+        "ci95": [
+          -0.5819403791015394,
+          0.019189514405172414
+        ],
+        "p_improvement_one_sided": 0.03298350824587706
+      },
+      "structural_rows": 772,
+      "four_member_fallback_rows": 72,
+      "fpds_missing_all_rows": 29,
+      "member_losses": {
+        "base_logreg": 25.26153733028018,
+        "base_random_forest": 24.808967746870096,
+        "base_xgboost": 24.920929671463806,
+        "base_mlp": 25.384106426177897,
+        "fpds_logreg": 25.14472108768939,
+        "fpds_random_forest": 24.573962712386134,
+        "fpds_xgboost": 24.663824792156852,
+        "fpds_mlp": 24.871961558070318
+      },
+      "quantile_head_diagnostics": {
+        "0.1": {
+          "n": 844,
+          "games": 271,
+          "difference": -0.05117914917183958,
+          "ci95": [
+            -0.11191089528716215,
+            0.0031970407267156047
+          ],
+          "p_improvement_one_sided": 0.05147426286856572
+        },
+        "0.5": {
+          "n": 844,
+          "games": 271,
+          "difference": -0.14512876011639755,
+          "ci95": [
+            -0.326604447010745,
+            0.024819417089185582
+          ],
+          "p_improvement_one_sided": 0.0544727636181909
+        },
+        "0.9": {
+          "n": 844,
+          "games": 271,
+          "difference": -0.05773940888902959,
+          "ci95": [
+            -0.1394686946462276,
+            0.02560216778160587
+          ],
+          "p_improvement_one_sided": 0.08495752123938032
+        }
+      },
+      "head_interval_coverage": {
+        "base": 0.8293838862559242,
+        "fpds": 0.8293838862559242
+      },
+      "holm_p": 0.06896551724137931,
+      "passes_metric_gate": false,
+      "passes_full_ensemble_gate": false,
+      "decision": "Rejected full-ensemble gate; diagnostic only"
+    }
+  ],
+  "table_permutation": [
+    {
+      "stat": "anytime_td",
+      "table": "efficiency",
+      "metric": "Brier",
+      "paired": {
+        "n": 2580,
+        "games": 272,
+        "difference": 8.411181583057671e-05,
+        "ci95": [
+          -0.0001640290856309526,
+          0.00030989043393862397
+        ],
+        "p_improvement_one_sided": 0.7591204397801099
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "anytime_td",
+      "table": "receiving_advanced",
+      "metric": "Brier",
+      "paired": {
+        "n": 2580,
+        "games": 272,
+        "difference": 0.000804874400394865,
+        "ci95": [
+          0.00014103479833339012,
+          0.001486701680215394
+        ],
+        "p_improvement_one_sided": 0.9920039980009995
+      },
+      "tentative_useful": true
+    },
+    {
+      "stat": "anytime_td",
+      "table": "receiving_alignment",
+      "metric": "Brier",
+      "paired": {
+        "n": 2580,
+        "games": 272,
+        "difference": -6.196689267609118e-06,
+        "ci95": [
+          -0.00030128699434519174,
+          0.000302610328509707
+        ],
+        "p_improvement_one_sided": 0.4852573713143428
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "anytime_td",
+      "table": "run_pass_report",
+      "metric": "Brier",
+      "paired": {
+        "n": 2580,
+        "games": 272,
+        "difference": 0.0002557642474037255,
+        "ci95": [
+          -3.9953123641032615e-05,
+          0.0005616475452646705
+        ],
+        "p_improvement_one_sided": 0.9450274862568716
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "anytime_td",
+      "table": "rushing_advanced",
+      "metric": "Brier",
+      "paired": {
+        "n": 2580,
+        "games": 272,
+        "difference": 1.7733692541113386e-05,
+        "ci95": [
+          -0.00020822823108923287,
+          0.00023710939742797093
+        ],
+        "p_improvement_one_sided": 0.5577211394302849
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "anytime_td",
+      "table": "bell_cow",
+      "metric": "Brier",
+      "paired": {
+        "n": 2580,
+        "games": 272,
+        "difference": 0.0015040453113919108,
+        "ci95": [
+          0.0004593215267937923,
+          0.0026099806521650035
+        ],
+        "p_improvement_one_sided": 0.9950024987506247
+      },
+      "tentative_useful": true
+    },
+    {
+      "stat": "rec",
+      "table": "efficiency",
+      "metric": "Poisson deviance",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": 0.000413967455248639,
+        "ci95": [
+          -0.0021736189768840537,
+          0.0030678588876770223
+        ],
+        "p_improvement_one_sided": 0.6126936531734133
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rec",
+      "table": "receiving_advanced",
+      "metric": "Poisson deviance",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": 0.021383937478427685,
+        "ci95": [
+          0.010578676609833897,
+          0.03237981644149126
+        ],
+        "p_improvement_one_sided": 0.9995002498750625
+      },
+      "tentative_useful": true
+    },
+    {
+      "stat": "rec",
+      "table": "receiving_alignment",
+      "metric": "Poisson deviance",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": 0.02576715886169368,
+        "ci95": [
+          0.01426657094184426,
+          0.03721691361264732
+        ],
+        "p_improvement_one_sided": 0.9995002498750625
+      },
+      "tentative_useful": true
+    },
+    {
+      "stat": "rec",
+      "table": "run_pass_report",
+      "metric": "Poisson deviance",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": 0.0007264126777828886,
+        "ci95": [
+          -0.0020361067507285516,
+          0.003601564091323342
+        ],
+        "p_improvement_one_sided": 0.6811594202898551
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rec",
+      "table": "rushing_advanced",
+      "metric": "Poisson deviance",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": -0.0006390308101746055,
+        "ci95": [
+          -0.0044280882646958,
+          0.0027696817969573026
+        ],
+        "p_improvement_one_sided": 0.36481759120439783
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rec",
+      "table": "bell_cow",
+      "metric": "Poisson deviance",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": -0.0008721512208372144,
+        "ci95": [
+          -0.004397472912876939,
+          0.0028608776586047974
+        ],
+        "p_improvement_one_sided": 0.31584207896051975
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rec_yds",
+      "table": "efficiency",
+      "metric": "MAE",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": 0.04017404155824191,
+        "ci95": [
+          0.006132520111684866,
+          0.07314137356228226
+        ],
+        "p_improvement_one_sided": 0.992503748125937
+      },
+      "tentative_useful": true
+    },
+    {
+      "stat": "rec_yds",
+      "table": "receiving_advanced",
+      "metric": "MAE",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": 0.1947694276828255,
+        "ci95": [
+          0.08175286178207358,
+          0.31434291832706274
+        ],
+        "p_improvement_one_sided": 0.9995002498750625
+      },
+      "tentative_useful": true
+    },
+    {
+      "stat": "rec_yds",
+      "table": "receiving_alignment",
+      "metric": "MAE",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": 0.22866027481614556,
+        "ci95": [
+          0.08015084754773123,
+          0.3743735353090323
+        ],
+        "p_improvement_one_sided": 1.0
+      },
+      "tentative_useful": true
+    },
+    {
+      "stat": "rec_yds",
+      "table": "run_pass_report",
+      "metric": "MAE",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": 0.01748486674394883,
+        "ci95": [
+          -0.010721396268398789,
+          0.04738741206325152
+        ],
+        "p_improvement_one_sided": 0.8755622188905547
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rec_yds",
+      "table": "rushing_advanced",
+      "metric": "MAE",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": -0.01895897813880481,
+        "ci95": [
+          -0.040590696975615334,
+          0.002509071761759208
+        ],
+        "p_improvement_one_sided": 0.04247876061969016
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rec_yds",
+      "table": "bell_cow",
+      "metric": "MAE",
+      "paired": {
+        "n": 2036,
+        "games": 272,
+        "difference": -0.003302148162758813,
+        "ci95": [
+          -0.03356784163802465,
+          0.027379172112009974
+        ],
+        "p_improvement_one_sided": 0.42328835582208896
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rush_yds",
+      "table": "efficiency",
+      "metric": "MAE",
+      "paired": {
+        "n": 844,
+        "games": 271,
+        "difference": -0.04769249166147427,
+        "ci95": [
+          -0.14654315093970505,
+          0.05660393475652488
+        ],
+        "p_improvement_one_sided": 0.19390304847576212
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rush_yds",
+      "table": "receiving_advanced",
+      "metric": "MAE",
+      "paired": {
+        "n": 844,
+        "games": 271,
+        "difference": 0.2028125879201757,
+        "ci95": [
+          0.05093603355966284,
+          0.359740254752651
+        ],
+        "p_improvement_one_sided": 0.993503248375812
+      },
+      "tentative_useful": true
+    },
+    {
+      "stat": "rush_yds",
+      "table": "receiving_alignment",
+      "metric": "MAE",
+      "paired": {
+        "n": 844,
+        "games": 271,
+        "difference": -0.01811640973656716,
+        "ci95": [
+          -0.15302449741051516,
+          0.11410820755510477
+        ],
+        "p_improvement_one_sided": 0.37631184407796103
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rush_yds",
+      "table": "run_pass_report",
+      "metric": "MAE",
+      "paired": {
+        "n": 844,
+        "games": 271,
+        "difference": -0.03349809129326224,
+        "ci95": [
+          -0.09676390707983566,
+          0.02549212847453986
+        ],
+        "p_improvement_one_sided": 0.15342328835582209
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rush_yds",
+      "table": "rushing_advanced",
+      "metric": "MAE",
+      "paired": {
+        "n": 844,
+        "games": 271,
+        "difference": 0.03665771346566369,
+        "ci95": [
+          -0.12234644679099989,
+          0.1864706251265305
+        ],
+        "p_improvement_one_sided": 0.6756621689155422
+      },
+      "tentative_useful": false
+    },
+    {
+      "stat": "rush_yds",
+      "table": "bell_cow",
+      "metric": "MAE",
+      "paired": {
+        "n": 844,
+        "games": 271,
+        "difference": 0.7411955449818861,
+        "ci95": [
+          0.4049173075984516,
+          1.0758980685963357
+        ],
+        "p_improvement_one_sided": 1.0
+      },
+      "tentative_useful": true
+    }
+  ],
+  "structural_errors": [],
+  "status": "Shadow development only; no promotion",
+  "asof_limitation": "Historical weekly inputs reconstructed from earlier source games; 2026 retrieval is not proof of original publication/version timestamps. Strict observation-aware historical view is unavailable.",
+  "quantile_scope": "Fixed learned quantile-head diagnostic, not the full ensemble mixture interval; never substituted for a primary metric."
+}

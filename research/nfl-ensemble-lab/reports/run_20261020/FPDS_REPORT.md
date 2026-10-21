@@ -1,0 +1,26 @@
+# FPDS local import and 2023 development — October 20
+
+**Completed:** Root exclusions were the first action and the only file in commit15d3967.145 Inbox CSVs are Git ignored;139 unique byte-identical copies and145 source manifests are local. Inbox contents/mtimes unchanged; repeat import is idempotent. Six private weekly feature tables, exact GSIS/team mapping, append-only cache versions, source-week/observation cutoffs and `import_fpds.bat` delivered. Coverage/headers/counts only: [inventory](../../docs/FPDS_INGEST.md).
+
+**Split/protocol:** Amendment4 a539ac8 committed before fits; implementation0ee81db. Props learned members/shared simulator fit2021–22; weekly2023 development, earlier-week calibration only. Independent game context retains the lab's earlier-season anchor. No2024 confirmation or2025 modeling holdout evaluation. Four learned families plus the shared independent simulator where eligible, identical membership/sample in both arms. No parameter tuning.272 structural games/1,000 sims each, zero case failures. Four-stat sample7,496 rows/272 games;643 rows use the same four-member fallback in both arms.
+
+**Model research:** FPDS minus control loss; negative favors FPDS. Paired whole-game bootstrap95% CIs (2,000 draws); four Holm gates. Receptions passes the metric gate (1.50% loss reduction, Holm p=.004), but184/2,036 rows lack a structural member, so the preregistered full-ensemble gate is blocked. No full-ensemble acceptance or promotion.
+
+| Stat / metric | Rows / games | Control → FPDS | Delta [95% CI] | Decision |
+|---|---|---|---|---|
+| anytime_td / Brier | 2580 / 272 | 0.187777 → 0.187901 | +0.000124 [-0.000758,+0.000999] | Rejected gate |
+| rec / Poisson deviance | 2036 / 272 | 1.471614 → 1.449558 | -0.022057 [-0.033963,-0.009315] | Metric gate passed; full gate blocked |
+| rec_yds / MAE | 2036 / 272 | 24.697751 → 24.587022 | -0.110730 [-0.217145,+0.004348] | Rejected gate |
+| rush_yds / MAE | 844 / 271 | 24.651705 → 24.369254 | -0.282451 [-0.581940,+0.019190] | Rejected gate |
+
+All member scores, quantile-head pinball/coverage, ATD reliability/log loss and table-permutation CIs: [aggregate results](FPDS_DEV_2023_RESULTS.json). Quantile-head diagnostics are not full-mixture intervals.
+
+**Tentative weekly collection minimum:** Receiving Advanced; Receiving Alignment/Routes Run; Bell Cow; Efficiency. Their held-out table permutations increased loss with lower CI>0 for at least one stat. Alignment/Receiving Advanced support receptions/receiving yards; Bell Cow supports rushing yards/ATD; Efficiency's receiving-yard evidence is weaker. These are24 exploratory, unadjusted, correlated table checks—not proof that a reduced four-table model works. Keep all six original families for reproducing the frozen comparison/confirmation; Run/Pass and Rushing Advanced showed no clear incremental permutation evidence here. Current champion/frozen weekly forecasts require no FPDS downloads because FPDS remains research-only.
+
+**Download gaps:** Export explicit2026 weeks5 and6, all teams/players, for the six core tables. The explicit weekly exports currently cover1–4; weeks7+ are not yet due. Existing Week6-folder season summaries lack an explicit Week column and cannot fill those gaps without verified cutoff metadata. Re-download Run/Pass Report2024 weeks1–18 before complete-feature confirmation. Separation, Team Pace, Playcaller Stats and Coverage Matrix are present only as summaries/snapshots, without a complete historical weekly series; Injury Database and Cornerbacks/Shadow are absent by recognizable schema/name. Eight files lack explicit season and remain unassigned.
+
+**Concerns:**7,953 unmatched source rows include7,871 player-labelled/82 team rows,186 distinct unmatched player labels and724 unmatched2026 rows (not unique players). Private identity details stay in ignored cache.302 modeled stat rows have no FPDS feature history; original candidate eligibility is unchanged. Historical exports were retrieved in2026: source-week lagging prevents target-week leakage, but original publication/version timing is unverified. Strict observation-aware historical joins are unavailable. Snapshot context is kept separate. Initial unknown-team/null-JSON/glossary-footer handling failures were corrected; failed partial cache revisions remain local; no numeric development rerun or threshold change.
+
+**Next / Needs Travis:** Manually supply missing explicit-week exports, then run `import_fpds.bat`.2024 confirmation is PENDING;2025 remains untouched for modeling. Do not promote from this development result. Optional Downloads watcher not authored. Usage became low at21:18, so only the already-running pass and this wrap-up were completed; no further experiment started.
+
+**Checks:**299 passed, one pre-existing skip,519 dependency warnings (344.53s);12 new synthetic fixture/research checks. No website/login/scrape/API/key, new spend, eval CLI, promotion, alerts, scheduler creation, database write or deployment. Branch codex/projections-20261019 only. Start20:26:59 ET; development completed21:37:57 ET; hard stop22:56:59 ET. Source CSVs, row-level features, fitted models and predictions remain local/ignored and are never published.

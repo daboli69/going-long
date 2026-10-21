@@ -1,0 +1,63 @@
+{
+  "completed_at": "2026-10-21T01:41:08.044086+00:00",
+  "start_local": "2026-10-20T20:26:59-04:00",
+  "hard_stop_local": "2026-10-20T22:56:59-04:00",
+  "first_ignore_only_commit": "15d3967",
+  "preregistration_commit": "a539ac8",
+  "tested_numeric_source": "0ee81db",
+  "import_revision": "60db5c9ef7f17898ae0d",
+  "source_files_unchanged": 145,
+  "prior_forecasts_preserved": 29,
+  "r03_artifact_files_preserved": 105,
+  "champion_pointer_unchanged": true,
+  "no_subscription_files_in_git_status": true,
+  "private_research_result_path": "data\\cache\\fpds\\research\\dev2023_20261021T004722728115Z\\RESULTS.json",
+  "private_research_result_sha256": "7d014888ff866ea5628aba7bf8951a923cf3e1d989650f6e630959aa3373be44",
+  "public_results_sha256": "7d014888ff866ea5628aba7bf8951a923cf3e1d989650f6e630959aa3373be44",
+  "idempotency_verified": {
+    "same_revision": true,
+    "preserved_raw_files_and_manifests": 284,
+    "source_files": 145,
+    "sha256_manifest_unchanged": true
+  },
+  "tests": "299 passed, 1 existing skip, 519 warnings;344.53s",
+  "test_log_sha256": "c29a62bff90715bc42cb31ecbc1322f9f4c39b1638b58e779f7bd3f9b2dd1621",
+  "confirmation_2024": "pending/not run",
+  "2025": "untouched for modeling; metadata/raw import only",
+  "forecast_promotion": false,
+  "files": [
+    {
+      "path": "docs\\FPDS_INGEST.md",
+      "sha256": "408deef0f2656cc39e87bd5b475e8ad0595b98216940e900ace71cb991c78140"
+    },
+    {
+      "path": "docs\\PHASE10_PREREGISTRATION.md",
+      "sha256": "83817e681751fdca42eb5da85de2e700d5756178119646f3dca3b2f09dcd8b08"
+    },
+    {
+      "path": "lab\\fpds_ingest.py",
+      "sha256": "2d35d53aa791d8fdfb8df1ce559eed5209df805bb28d92e9bffb329b3eb30076"
+    },
+    {
+      "path": "lab\\props\\fpds_research.py",
+      "sha256": "e42de37d736d0c06e8672fe054823b20f1bab8b709b5f94449ff250bed63dbbc"
+    },
+    {
+      "path": "import_fpds.bat",
+      "sha256": "8425d4dafc699e3f237a8f7f86d7ddb13059f3b973ba7ea3d8bf98e862eb3adc"
+    },
+    {
+      "path": "reports\\run_20261020\\FPDS_DEV_2023_RESULTS.json",
+      "sha256": "7d014888ff866ea5628aba7bf8951a923cf3e1d989650f6e630959aa3373be44"
+    },
+    {
+      "path": "reports\\run_20261020\\FPDS_REPORT.md",
+      "sha256": "0d3466763bd9ceee3e7c024c27f33090707b2e9db38eeb6acc92496b02f6ff14"
+    },
+    {
+      "path": "reports\\run_20261020\\FPDS_PRIVACY_AND_INTEGRITY.json",
+      "sha256": "b476b0d2da21400dcb6bd990a4578677e657889c49877048693c51fc00375e06"
+    }
+  ],
+  "privacy": "Only hashes/counts/coverage and aggregate model losses published; source/derived rows and models remain local."
+}

@@ -92,3 +92,17 @@ Reproducible results: `research/nfl-ensemble-lab/reports/run_20261020/amendment3
 | A3-UI/B/C output accounting: preserve originals and make uncertainty visible | Final revision-3 comparison: 3,528 quote rows, 504 eligible player/stat keys; 58 structurally absent | 168 team/stat remainder records conserve within 5.7e-14; all 28 teams retain original coherence gaps. Tier A=0/B=1,199/C=2,329. Cached Projections/Leans actual entrypoint AppTests: zero exceptions, five tabs each. Full suite 284 passed, one pre-existing skip. | Challenger view-only tooling; original distributions unchanged. |
 
 Amendment 3 wrap: current report `research/nfl-ensemble-lab/reports/run_20261020/REPORT.md`; the previous eight-hour report is preserved byte-for-byte as `REPORT_amendment2_preserved.md` beside it. Frozen 2023-25 single look not started (runtime budget); week-7 descriptive scoring not due. No eval, promotion, additional spending, task registration or external publication. Forecast worker loaded 6387a27; comparison/QA source f409dfa, documented in the new provenance sidecar; future runs pin their plan revision.
+
+## Phase 10 Amendment 4 — 2026-10-20, private FPDS development
+
+Preregistered a539ac8 before fits; two-season props training2021–22, chronological2023 development,2024 confirmation pending,2025 untouched for modeling. Historical weekly inputs are event-time reconstructions; historical publication/version timing is unverified. FPDS rows/models/predictions stay local and ignored. Shared structural simulator272 games/1000 sims; same membership/fallback rows per arm. Four Holm primary slots, no full-ensemble gate passed. No promotion.
+
+| Experiment | Split / n | Result vs identical control [paired game-cluster95% CI] | Status |
+|---|---|---|---|
+| A4 FPDS incremental anytime_td |2021–22 fit /2023 dev;2580 rows/272 games |Brier delta+0.000124 [-0.000758,+0.000999]; Holm p=0.6097;203 paired fallback rows. Metric/full gate failed. |Rejected full-ensemble gate; shadow diagnostic only. |
+| A4 FPDS incremental rec |2021–22 fit /2023 dev;2036 rows/272 games |Poisson deviance delta-0.022057 [-0.033963,-0.009315]; Holm p=0.0040;184 paired fallback rows. Metric gate passed; full gate blocked by structural coverage. |Rejected full-ensemble gate; shadow diagnostic only. |
+| A4 FPDS incremental rec_yds |2021–22 fit /2023 dev;2036 rows/272 games |MAE delta-0.110730 [-0.217145,+0.004348]; Holm p=0.0690;184 paired fallback rows. Metric/full gate failed. |Rejected full-ensemble gate; shadow diagnostic only. |
+| A4 FPDS incremental rush_yds |2021–22 fit /2023 dev;844 rows/271 games |MAE delta-0.282451 [-0.581940,+0.019190]; Holm p=0.0690;72 paired fallback rows. Metric/full gate failed. |Rejected full-ensemble gate; shadow diagnostic only. |
+| A4 six-table grouped permutation |2023 dev only;24 exploratory table/stat comparisons |Receiving Advanced, Alignment, Bell Cow and Efficiency have positive importance lower CI>0 for at least one stat. Unadjusted/correlated exploratory evidence; reduced-set model not fitted or validated. Run/Pass and Rushing Advanced inconclusive. |Challenger diagnostic; tentative download priorities, no production selection. |
+
+Aggregate results and caveats: `research/nfl-ensemble-lab/reports/run_20261020/FPDS_REPORT.md`. No FPDS source values/identities uploaded. Missing2026 explicit weeks5–6 and Run/Pass2024; confirmation pending.
