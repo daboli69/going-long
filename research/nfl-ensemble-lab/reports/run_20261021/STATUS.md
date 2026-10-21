@@ -16,3 +16,5 @@
 
 - 09:22 ET: user authorized real manual all-model projections plus registered comparison until15:30 local Eastern. Adding bounded local process supervisor; no scheduled task or external publication. First forecast week7, both arms,10000 draws,seed17; remaining time fixed discovery only.
 - Supervisor targeted regression suite passed. Initial pytest invocation through the lab-only module wrapper was rejected before execution; corrected to an idle-priority Python pytest runner. No test was skipped or weakened.
+
+- 09:23 ET: real local session20261021T132259Z launched successfully; job5ef33f32d6ed4d2b98372932728fb416 preparing inputs. Deadline15:30 local Eastern/19:30 UTC; graceful checkpoint15:20. Supervisor persists independently of chat. Results pending; see LOCAL_SESSION.md and private session status.
