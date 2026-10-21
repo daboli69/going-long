@@ -87,3 +87,9 @@
 - New offline UI/navigation and quote/presentation/clock checks passed11 tests, plus4 expanded quote tests passed. The first wrong-kickoff quote fixture exposed an empty-frame column-loss bug once; fixed with a typed boolean mask, unchanged test then passed. A metadata-only _name attribute probe was corrected to bracket access; no source or model mutation. Existing benign scalar American-odds warning is disclosed. Usage66% primary/41% weekly at00:28; included usage available and credit balance unchanged. Next discovery status check is no earlier than01:06:41 ET.
 - 01:06:52 first hourly discovery check:128 configurations complete,4 failed,1 partial;1,954 saved fit-block records. Worker exited on Windows WinError5 replacing writable mutable LEDGER.json; all4 configuration failures were the same checkpoint-pointer replacement, not numerical/model errors. Private error traces retained. No metrics/selection inspected.
 - 01:11 ET: added a tested I/O-only external runner (2 fixture tests passed) retrying PermissionError on mutable atomic JSON writes only. Study package/data/config fingerprint is unchanged; complete blocks are reused, the4 failed configurations remain skipped and count against269 slots. No model settings, acceptance thresholds, immutable archives or held-out outcomes changed. Resume retains the original05:37 ET fit deadline and07:06 ET total research ceiling; next ordinary status poll >=02:11 ET.
+
+- 2026-10-21T05:11:07.006612+00:00: Amendment6 discovery; 133 configurations attempted, 0 blocks complete; failures=0. Private checkpoints retained.
+
+- 2026-10-21T05:37:04.101107+00:00: Amendment6 discovery; 269 configurations attempted, 2010 blocks complete; failures=0. Private checkpoints retained.
+
+- 2026-10-21T06:19:37.162800+00:00: STOP at included-usage exhaustion; existing credits fell40.48053→7.52892. Finished report/wrap checks only; no2025 look or2026 tuning. 349 passed, 1 skipped, 522 warnings in 325.23s (0:05:25)

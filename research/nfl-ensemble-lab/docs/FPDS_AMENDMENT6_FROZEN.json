@@ -1,0 +1,107 @@
+{
+  "created_at": "2026-10-21T06:13:17.197946+00:00",
+  "configurations": [
+    {
+      "id": "rec__all__all__stacked",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "stacked",
+      "family": "H9"
+    },
+    {
+      "id": "rec_yds__control__all__linear",
+      "stat": "rec_yds",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__all__all__stacked",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "stacked",
+      "family": "H9"
+    },
+    {
+      "id": "anytime_td__control__all__linear",
+      "stat": "anytime_td",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "pass_yds__control__all__linear",
+      "stat": "pass_yds",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "pass_tds__control__all__linear",
+      "stat": "pass_tds",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "margin__control__all__linear",
+      "stat": "margin",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "total__control__all__linear",
+      "stat": "total",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "win__control__all__linear",
+      "stat": "win",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "first_td__control__all__linear",
+      "stat": "first_td",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H3"
+    }
+  ],
+  "selection": "discovery only; control where no full gate passed",
+  "market_informed_configurations": [
+    {
+      "id": "margin__all__all__blend",
+      "stat": "margin",
+      "arm": "all",
+      "group": "all",
+      "model": "blend",
+      "family": "H6"
+    },
+    {
+      "id": "total__all__all__blend",
+      "stat": "total",
+      "arm": "all",
+      "group": "all",
+      "model": "blend",
+      "family": "H6"
+    }
+  ],
+  "validation_warning": "2025 previously examined for old simulator; one pass, no changes",
+  "trial_count": 269,
+  "research_path": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\nfl-ensemble-lab\\data\\cache\\fpds\\amendment6\\research\\96f24d3863013540f349"
+}

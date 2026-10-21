@@ -106,3 +106,16 @@ Preregistered a539ac8 before fits; two-season props training2021–22, chronolog
 | A4 six-table grouped permutation |2023 dev only;24 exploratory table/stat comparisons |Receiving Advanced, Alignment, Bell Cow and Efficiency have positive importance lower CI>0 for at least one stat. Unadjusted/correlated exploratory evidence; reduced-set model not fitted or validated. Run/Pass and Rushing Advanced inconclusive. |Challenger diagnostic; tentative download priorities, no production selection. |
 
 Aggregate results and caveats: `research/nfl-ensemble-lab/reports/run_20261020/FPDS_REPORT.md`. No FPDS source values/identities uploaded. Missing2026 explicit weeks5–6 and Run/Pass2024; confirmation pending.
+
+
+|Amendment6 family|Split / trials|Evidence vs control|Status|
+|---|---|---|---|
+|2026-10-21 A6 H1|discovery2022–24;269 total slots|n=6196, games=815; delta=-0.013587 [-0.023833,-0.0033699]; 3/3 seasons;2025 PENDING|Rejected; shadow only, confirmation pending|
+|2026-10-21 A6 H2|discovery2022–24;269 total slots|n=2740, games=814; delta=-0.38723 [-0.72998,-0.042329]; 3/3 seasons;2025 PENDING|Challenger; shadow only, confirmation pending|
+|2026-10-21 A6 H3|discovery2022–24;269 total slots|n=6196, games=815; delta=+0.016927 [+0.0024268,+0.030127]; 0/3 seasons;2025 PENDING|Rejected; shadow only, confirmation pending|
+|2026-10-21 A6 H4|discovery2022–24;269 total slots|n=620, games=330; delta=-0.01267 [-0.042659,+0.016148]; 2/3 seasons;2025 PENDING|Rejected; shadow only, confirmation pending|
+|2026-10-21 A6 H5|discovery2022–24;269 total slots|n=2037, games=271; delta=-0.074818 [-0.28893,+0.13858]; 1/3 seasons;2025 PENDING|Rejected; shadow only, confirmation pending|
+|2026-10-21 A6 H6|discovery2022–24;269 total slots|n=2037, games=271; delta=-0.10932 [-0.41951,+0.17236]; 1/3 seasons;2025 PENDING|Rejected; shadow only, confirmation pending|
+|2026-10-21 A6 H7|discovery2022–24;269 total slots|n=2037, games=271; delta=-0.10404 [-0.3102,+0.099979]; 1/3 seasons;2025 PENDING|Rejected; shadow only, confirmation pending|
+|2026-10-21 A6 H8|discovery2022–24;269 total slots|n=620, games=330; delta=+0.034356 [-0.017212,+0.087805]; 1/3 seasons;2025 PENDING|Rejected; shadow only, confirmation pending|
+|2026-10-21 A6 H9|discovery2022–24;269 total slots|n=6196, games=815; delta=-0.034398 [-0.058281,-0.012604]; 2/3 seasons;2025 PENDING|Challenger; shadow only, confirmation pending|
