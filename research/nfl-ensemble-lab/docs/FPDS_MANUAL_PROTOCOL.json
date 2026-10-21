@@ -1,0 +1,20 @@
+{
+  "amendment": 7,
+  "created_date": "2026-10-21",
+  "discovery_seasons": [2022, 2023, 2024],
+  "training_start": 2021,
+  "refit_weeks": [1, 5, 9, 13, 17],
+  "members": ["linear", "hist", "xgboost", "mlp"],
+  "ensemble": "equal_average",
+  "arms": ["control", "fpds"],
+  "games": ["win", "margin", "total"],
+  "props": ["pass_yds", "pass_tds", "rec", "rec_yds", "rush_yds", "anytime_td"],
+  "configuration_budget": 92,
+  "bootstrap_draws": 2000,
+  "bootstrap_seed": 20261021,
+  "minimum_relative_reduction": 0.01,
+  "minimum_seasons_agreeing": 2,
+  "minimum_games": 200,
+  "confirmation": "No new 2025 pass. Future archived predictions only; no automatic promotion.",
+  "source_policy": "full-history-authority-v1"
+}
