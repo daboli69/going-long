@@ -55,6 +55,13 @@ Omit `--week` to use the next week after the last wholly completed week. The
 runner stops on any failed phase and prints a manifest plus sheet paths; earlier
 forecasts are never replaced. This is separate from the champion workflow below.
 
+For manually downloaded Fantasy Points exports, run `import_fpds.bat`. It reads
+the sibling `GOING\FantasyPoints\Inbox` without changing it, preserves hashed
+copies and creates private weekly feature caches. Read `docs/FPDS_INGEST.md` for
+coverage, missing weeks and mapping counts. Subscription files and row-level
+derivatives stay ignored/local. FPDS is a shadow research input; importing it
+does not change the frozen weekly forecast configuration.
+
 - Double-click **`launch_lab.bat`**, open **Weekly Predictions**, click **Generate Weekly Predictions**,
   then download the Excel file. Or
 - double-click **`run_weekly_predictions.bat`**: it refreshes data, predicts the next week with

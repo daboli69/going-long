@@ -1,5 +1,15 @@
 # Data sources and provenance
 
+Amendment 4 (2026-10-20): manually supplied Fantasy Points CSV exports are read
+only from `GOING/FantasyPoints/Inbox`; there is no website access or new service.
+`import_fpds.bat` creates immutable hashed copies in ignored `data/raw/fpds/`
+and versioned private features in `data/cache/fpds/`. Explicit weekly records are
+lagged beyond their source week; undated season summaries remain separate.
+Historical weekly features are event-time reconstructions, with no verified
+historical publication snapshot; prospective use also respects import time.
+Coverage/headers/counts only: `docs/FPDS_INGEST.md`. No raw subscription rows,
+unmatched identities or model derivatives may be committed or uploaded.
+
 Phase 10 (2026-10-19): local GOING game/prop quotes and git history are archived
 read-only with book/source/quote/observation times and content hashes. The freshest
 committed copy is read via `git show origin/main:data/nfl_betting.json` after an
