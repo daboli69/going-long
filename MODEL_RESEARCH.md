@@ -123,3 +123,22 @@ Aggregate results and caveats: `research/nfl-ensemble-lab/reports/run_20261020/F
 A6 complete report: `research/nfl-ensemble-lab/reports/run_20261020/FPDS_FULL_REPORT.md`. ONE frozen2025 pass completed; previously examined for the older simulator. The winning stacks differ from linear controls in model family and history windows as well as FPDS inputs; isolated provider value is unproven.2026 scoring is descriptive only. All37 weekly tables remain required by the current frozen stack; no price edge or promotion.
 
 |2026-10-21 A7 manual matched FPDS controls|Registered; 2022–24 exploratory discovery only, no new 2025 pass or 2026 selection; fixed ceiling 104 output configurations|Matched NFL-only vs NFL+FPDS game winner/margin/total and six prop targets; paired whole-game intervals; real model fits=0, metrics pending manual launch|Challenger; tooling verified, research unrun, never promoted|
+
+### A7 executed matched comparison — 2026-10-21
+
+2022–24 already-examined development;104 fixed output configurations,1260 comparison fit calls;0 failed blocks. All rows below are equal ensembles. Delta=FPDS minus NFL-only loss; corrected paired whole-game95% CI. No new2025 pass or2026 selection.
+
+|Target|Metric / sample|Delta [corrected95% CI]|Status|
+|---|---|---|---|
+|A7 win|Brier; n=813,games=813|+0.000333 [-0.005125,+0.006608]|Rejected; no ensemble discovery gate passed, never promoted|
+|A7 margin|MAE; n=815,games=815|+0.241239 [-0.047027,+0.531832]|Rejected; no ensemble discovery gate passed, never promoted|
+|A7 total|MAE; n=815,games=815|+0.247484 [-0.004256,+0.497021]|Rejected; no ensemble discovery gate passed, never promoted|
+|A7 pass_yds|MAE; n=1528,games=807|-0.677475 [-2.239559,+0.829733]|Rejected; no ensemble discovery gate passed, never promoted|
+|A7 pass_tds|Poisson deviance; n=1528,games=807|+0.002397 [-0.023819,+0.028590]|Rejected; no ensemble discovery gate passed, never promoted|
+|A7 rec|Poisson deviance; n=6196,games=815|-0.011557 [-0.029850,+0.005134]|Rejected; no ensemble discovery gate passed, never promoted|
+|A7 rec_yds|MAE; n=6196,games=815|+0.001409 [-0.263948,+0.228589]|Rejected; no ensemble discovery gate passed, never promoted|
+|A7 rush_yds|MAE; n=2740,games=814|+0.225831 [-0.151654,+0.592762]|Rejected; no ensemble discovery gate passed, never promoted|
+|A7 anytime_td|Brier; n=8042,games=815|+0.002457 [+0.000455,+0.004424]|Rejected; no ensemble discovery gate passed, never promoted|
+|A7 anytime_td MLP individual|Brier; n=8042,games=815;3/3 seasons agree|0.231039→0.212933; delta−0.018106 [−0.020186,−0.016084]|Challenger; exploratory nominee only, still worse than NFL-only ensemble0.189835; never promoted|
+
+Forecasts cover14 week7 games using2021–2026 week6 training,10000 draws,seed17; warm-up residuals labelled. Closing game prices beat the FPDS ensembles; historical prop prices absent. Full aggregate report: `research/nfl-ensemble-lab/reports/run_20261021/LOCAL_SESSION_RESULTS.md`.
