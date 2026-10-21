@@ -10,10 +10,18 @@ from pathlib import Path
 from datetime import datetime,timezone
 import psutil
 from ..config import LAB_ROOT
-from ..fpds_research.common import ROOT as A6,atomic,read,now,digest,sha
+from ..fpds_research.common import ROOT as A6,read,now,digest,sha
 
 ROOT=A6/'manual'
 PROTOCOL=LAB_ROOT/'docs/FPDS_MANUAL_PROTOCOL.json'
+
+
+def atomic(path,value):
+    """Resolve the late-installed sharing-lock adapter, including UI launches."""
+    from ..fpds_research import common as C
+    if getattr(C.atomic,'_fpds_io_retry',False):return C.atomic(path,value)
+    from ..fpds_worker import retry_atomic
+    return retry_atomic(C.atomic,path,value,logpath=ROOT/'operational_io'/f'retries_{os.getpid()}.jsonl')
 
 
 def registered():

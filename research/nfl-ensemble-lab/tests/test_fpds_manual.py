@@ -120,6 +120,20 @@ def test_job_ids_and_duplicate_active_jobs_are_guarded(tmp_path,monkeypatch):
     with pytest.raises(ValueError,match='already running'):jobs.launch('project',week=7)
 
 
+def test_manual_status_writer_uses_late_bound_io_retry_without_refitting(tmp_path,monkeypatch):
+    from lab.fpds_research import common as C
+    monkeypatch.setattr(jobs,'ROOT',tmp_path)
+    calls=[]
+    def operation(path,value):
+        calls.append(value)
+        if len(calls)==1:raise PermissionError('synthetic sharing lock')
+        return value
+    monkeypatch.setattr(C,'atomic',operation)
+    payload={'phase':'running'}
+    assert jobs.atomic(tmp_path/'STATUS.json',payload)==payload and len(calls)==2
+    assert calls[0] is calls[1] is payload
+
+
 def test_manual_compare_protocol_has_no_holdout_selector():
     PROTOCOL=Path(__file__).resolve().parents[1]/'docs/FPDS_MANUAL_PROTOCOL.json'
     p=json.loads(PROTOCOL.read_text())
