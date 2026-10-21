@@ -1,0 +1,2211 @@
+{
+  "schema": 1,
+  "trial_budget": 269,
+  "refit_weeks": [
+    1,
+    5,
+    9,
+    13,
+    17
+  ],
+  "discovery": [
+    2022,
+    2023,
+    2024
+  ],
+  "validation": 2025,
+  "descriptive": 2026,
+  "tables": [
+    "bell_cow_report",
+    "coach_records",
+    "cornerbacks",
+    "coverage_matrix",
+    "fantasy_points_allowed_qb",
+    "fantasy_points_allowed_rb",
+    "fantasy_points_allowed_te",
+    "fantasy_points_allowed_wr",
+    "injury_reports",
+    "lineup_combos_db",
+    "lineup_combos_front",
+    "lineup_combos_ol",
+    "lineup_combos_rb",
+    "lineup_combos_skill",
+    "lineup_combos_te",
+    "lineup_combos_wr",
+    "pace",
+    "passing_basic",
+    "passing_depth_of_target",
+    "passing_situation",
+    "passing_stats",
+    "playcaller_stats",
+    "rb_wr_efficiency",
+    "receiving_alignment",
+    "receiving_basic",
+    "receiving_separation_by_alignment",
+    "receiving_separation_by_breaks",
+    "receiving_separation_by_coverage",
+    "receiving_separation_by_role",
+    "receiving_separation_by_routes",
+    "receiving_situation",
+    "receiving_stats",
+    "rushing_basic",
+    "rushing_stats",
+    "shadow_index",
+    "team_defense",
+    "team_offense"
+  ],
+  "trials": [
+    {
+      "id": "rec__control__all__linear",
+      "stat": "rec",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "rec__all__all__linear",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "rec_yds__control__all__linear",
+      "stat": "rec_yds",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "rec_yds__all__all__linear",
+      "stat": "rec_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__control__all__linear",
+      "stat": "rush_yds",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__all__all__linear",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "anytime_td__control__all__linear",
+      "stat": "anytime_td",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "anytime_td__all__all__linear",
+      "stat": "anytime_td",
+      "arm": "all",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "pass_yds__control__all__linear",
+      "stat": "pass_yds",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "pass_yds__all__all__linear",
+      "stat": "pass_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "pass_tds__control__all__linear",
+      "stat": "pass_tds",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "pass_tds__all__all__linear",
+      "stat": "pass_tds",
+      "arm": "all",
+      "group": "all",
+      "model": "linear",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__add__bell_cow_report__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "bell_cow_report",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rush_yds__leave__bell_cow_report__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "bell_cow_report",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "anytime_td__add__bell_cow_report__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "bell_cow_report",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "anytime_td__leave__bell_cow_report__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "bell_cow_report",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rec_yds__add__coach_records__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "coach_records",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rec_yds__leave__coach_records__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "coach_records",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__add__coach_records__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "coach_records",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__leave__coach_records__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "coach_records",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rec_yds__add__cornerbacks__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "cornerbacks",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__cornerbacks__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "cornerbacks",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__cornerbacks__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "cornerbacks",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__cornerbacks__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "cornerbacks",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__coverage_matrix__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "coverage_matrix",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__coverage_matrix__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "coverage_matrix",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__coverage_matrix__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "coverage_matrix",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__coverage_matrix__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "coverage_matrix",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__fantasy_points_allowed_qb__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "fantasy_points_allowed_qb",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__fantasy_points_allowed_qb__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "fantasy_points_allowed_qb",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__fantasy_points_allowed_qb__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "fantasy_points_allowed_qb",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__fantasy_points_allowed_qb__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "fantasy_points_allowed_qb",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__fantasy_points_allowed_rb__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "fantasy_points_allowed_rb",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__fantasy_points_allowed_rb__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "fantasy_points_allowed_rb",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__fantasy_points_allowed_rb__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "fantasy_points_allowed_rb",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__fantasy_points_allowed_rb__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "fantasy_points_allowed_rb",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__fantasy_points_allowed_te__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "fantasy_points_allowed_te",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__fantasy_points_allowed_te__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "fantasy_points_allowed_te",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__fantasy_points_allowed_te__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "fantasy_points_allowed_te",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__fantasy_points_allowed_te__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "fantasy_points_allowed_te",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__fantasy_points_allowed_wr__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "fantasy_points_allowed_wr",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__fantasy_points_allowed_wr__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "fantasy_points_allowed_wr",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__fantasy_points_allowed_wr__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "fantasy_points_allowed_wr",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__fantasy_points_allowed_wr__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "fantasy_points_allowed_wr",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__injury_reports__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "injury_reports",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__leave__injury_reports__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "injury_reports",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__add__injury_reports__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "injury_reports",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__leave__injury_reports__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "injury_reports",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__add__lineup_combos_db__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "lineup_combos_db",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__leave__lineup_combos_db__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "lineup_combos_db",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__add__lineup_combos_db__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "lineup_combos_db",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__leave__lineup_combos_db__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "lineup_combos_db",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__add__lineup_combos_front__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "lineup_combos_front",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__leave__lineup_combos_front__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "lineup_combos_front",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__add__lineup_combos_front__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "lineup_combos_front",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__leave__lineup_combos_front__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "lineup_combos_front",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__add__lineup_combos_ol__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "lineup_combos_ol",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__leave__lineup_combos_ol__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "lineup_combos_ol",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__add__lineup_combos_ol__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "lineup_combos_ol",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__leave__lineup_combos_ol__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "lineup_combos_ol",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__add__lineup_combos_rb__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "lineup_combos_rb",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__leave__lineup_combos_rb__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "lineup_combos_rb",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__add__lineup_combos_rb__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "lineup_combos_rb",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__leave__lineup_combos_rb__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "lineup_combos_rb",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__add__lineup_combos_skill__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "lineup_combos_skill",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__leave__lineup_combos_skill__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "lineup_combos_skill",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__add__lineup_combos_skill__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "lineup_combos_skill",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__leave__lineup_combos_skill__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "lineup_combos_skill",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__add__lineup_combos_te__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "lineup_combos_te",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__leave__lineup_combos_te__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "lineup_combos_te",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__add__lineup_combos_te__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "lineup_combos_te",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__leave__lineup_combos_te__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "lineup_combos_te",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__add__lineup_combos_wr__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "lineup_combos_wr",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__leave__lineup_combos_wr__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "lineup_combos_wr",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__add__lineup_combos_wr__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "lineup_combos_wr",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__leave__lineup_combos_wr__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "lineup_combos_wr",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__add__pace__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "pace",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rec_yds__leave__pace__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "pace",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__add__pace__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "pace",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__leave__pace__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "pace",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "pass_yds__add__passing_basic__linear",
+      "stat": "pass_yds",
+      "arm": "add",
+      "group": "passing_basic",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_yds__leave__passing_basic__linear",
+      "stat": "pass_yds",
+      "arm": "leave",
+      "group": "passing_basic",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_tds__add__passing_basic__linear",
+      "stat": "pass_tds",
+      "arm": "add",
+      "group": "passing_basic",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_tds__leave__passing_basic__linear",
+      "stat": "pass_tds",
+      "arm": "leave",
+      "group": "passing_basic",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_yds__add__passing_depth_of_target__linear",
+      "stat": "pass_yds",
+      "arm": "add",
+      "group": "passing_depth_of_target",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_yds__leave__passing_depth_of_target__linear",
+      "stat": "pass_yds",
+      "arm": "leave",
+      "group": "passing_depth_of_target",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_tds__add__passing_depth_of_target__linear",
+      "stat": "pass_tds",
+      "arm": "add",
+      "group": "passing_depth_of_target",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_tds__leave__passing_depth_of_target__linear",
+      "stat": "pass_tds",
+      "arm": "leave",
+      "group": "passing_depth_of_target",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_yds__add__passing_situation__linear",
+      "stat": "pass_yds",
+      "arm": "add",
+      "group": "passing_situation",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_yds__leave__passing_situation__linear",
+      "stat": "pass_yds",
+      "arm": "leave",
+      "group": "passing_situation",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_tds__add__passing_situation__linear",
+      "stat": "pass_tds",
+      "arm": "add",
+      "group": "passing_situation",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_tds__leave__passing_situation__linear",
+      "stat": "pass_tds",
+      "arm": "leave",
+      "group": "passing_situation",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_yds__add__passing_stats__linear",
+      "stat": "pass_yds",
+      "arm": "add",
+      "group": "passing_stats",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_yds__leave__passing_stats__linear",
+      "stat": "pass_yds",
+      "arm": "leave",
+      "group": "passing_stats",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_tds__add__passing_stats__linear",
+      "stat": "pass_tds",
+      "arm": "add",
+      "group": "passing_stats",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_tds__leave__passing_stats__linear",
+      "stat": "pass_tds",
+      "arm": "leave",
+      "group": "passing_stats",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "rec_yds__add__playcaller_stats__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "playcaller_stats",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rec_yds__leave__playcaller_stats__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "playcaller_stats",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__add__playcaller_stats__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "playcaller_stats",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__leave__playcaller_stats__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "playcaller_stats",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__add__rb_wr_efficiency__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "rb_wr_efficiency",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rush_yds__leave__rb_wr_efficiency__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "rb_wr_efficiency",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "anytime_td__add__rb_wr_efficiency__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "rb_wr_efficiency",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "anytime_td__leave__rb_wr_efficiency__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "rb_wr_efficiency",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rec__add__receiving_alignment__linear",
+      "stat": "rec",
+      "arm": "add",
+      "group": "receiving_alignment",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec__leave__receiving_alignment__linear",
+      "stat": "rec",
+      "arm": "leave",
+      "group": "receiving_alignment",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec_yds__add__receiving_alignment__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "receiving_alignment",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec_yds__leave__receiving_alignment__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "receiving_alignment",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec__add__receiving_basic__linear",
+      "stat": "rec",
+      "arm": "add",
+      "group": "receiving_basic",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec__leave__receiving_basic__linear",
+      "stat": "rec",
+      "arm": "leave",
+      "group": "receiving_basic",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec_yds__add__receiving_basic__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "receiving_basic",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec_yds__leave__receiving_basic__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "receiving_basic",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec_yds__add__receiving_separation_by_alignment__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "receiving_separation_by_alignment",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__receiving_separation_by_alignment__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "receiving_separation_by_alignment",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__receiving_separation_by_alignment__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "receiving_separation_by_alignment",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__receiving_separation_by_alignment__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "receiving_separation_by_alignment",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__receiving_separation_by_breaks__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "receiving_separation_by_breaks",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__receiving_separation_by_breaks__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "receiving_separation_by_breaks",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__receiving_separation_by_breaks__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "receiving_separation_by_breaks",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__receiving_separation_by_breaks__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "receiving_separation_by_breaks",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__receiving_separation_by_coverage__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "receiving_separation_by_coverage",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__receiving_separation_by_coverage__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "receiving_separation_by_coverage",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__receiving_separation_by_coverage__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "receiving_separation_by_coverage",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__receiving_separation_by_coverage__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "receiving_separation_by_coverage",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__receiving_separation_by_role__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "receiving_separation_by_role",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__receiving_separation_by_role__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "receiving_separation_by_role",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__receiving_separation_by_role__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "receiving_separation_by_role",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__receiving_separation_by_role__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "receiving_separation_by_role",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__receiving_separation_by_routes__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "receiving_separation_by_routes",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__receiving_separation_by_routes__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "receiving_separation_by_routes",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__receiving_separation_by_routes__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "receiving_separation_by_routes",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__receiving_separation_by_routes__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "receiving_separation_by_routes",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec__add__receiving_situation__linear",
+      "stat": "rec",
+      "arm": "add",
+      "group": "receiving_situation",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec__leave__receiving_situation__linear",
+      "stat": "rec",
+      "arm": "leave",
+      "group": "receiving_situation",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec_yds__add__receiving_situation__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "receiving_situation",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec_yds__leave__receiving_situation__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "receiving_situation",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec__add__receiving_stats__linear",
+      "stat": "rec",
+      "arm": "add",
+      "group": "receiving_stats",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec__leave__receiving_stats__linear",
+      "stat": "rec",
+      "arm": "leave",
+      "group": "receiving_stats",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec_yds__add__receiving_stats__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "receiving_stats",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec_yds__leave__receiving_stats__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "receiving_stats",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rush_yds__add__rushing_basic__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "rushing_basic",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rush_yds__leave__rushing_basic__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "rushing_basic",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "anytime_td__add__rushing_basic__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "rushing_basic",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "anytime_td__leave__rushing_basic__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "rushing_basic",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rush_yds__add__rushing_stats__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "rushing_stats",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rush_yds__leave__rushing_stats__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "rushing_stats",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "anytime_td__add__rushing_stats__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "rushing_stats",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "anytime_td__leave__rushing_stats__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "rushing_stats",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rec_yds__add__shadow_index__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "shadow_index",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__leave__shadow_index__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "shadow_index",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__add__shadow_index__linear",
+      "stat": "anytime_td",
+      "arm": "add",
+      "group": "shadow_index",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__leave__shadow_index__linear",
+      "stat": "anytime_td",
+      "arm": "leave",
+      "group": "shadow_index",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__add__team_defense__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "team_defense",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rec_yds__leave__team_defense__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "team_defense",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__add__team_defense__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "team_defense",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__leave__team_defense__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "team_defense",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rec_yds__add__team_offense__linear",
+      "stat": "rec_yds",
+      "arm": "add",
+      "group": "team_offense",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rec_yds__leave__team_offense__linear",
+      "stat": "rec_yds",
+      "arm": "leave",
+      "group": "team_offense",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__add__team_offense__linear",
+      "stat": "rush_yds",
+      "arm": "add",
+      "group": "team_offense",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__leave__team_offense__linear",
+      "stat": "rush_yds",
+      "arm": "leave",
+      "group": "team_offense",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rec__family__H1__linear",
+      "stat": "rec",
+      "arm": "family",
+      "group": "H1",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec__family__H2__linear",
+      "stat": "rec",
+      "arm": "family",
+      "group": "H2",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rec__family__H3__linear",
+      "stat": "rec",
+      "arm": "family",
+      "group": "H3",
+      "model": "linear",
+      "family": "H3"
+    },
+    {
+      "id": "rec__family__H4__linear",
+      "stat": "rec",
+      "arm": "family",
+      "group": "H4",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "rec__family__H5__linear",
+      "stat": "rec",
+      "arm": "family",
+      "group": "H5",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec__family__H6__linear",
+      "stat": "rec",
+      "arm": "family",
+      "group": "H6",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rec__family__H7__linear",
+      "stat": "rec",
+      "arm": "family",
+      "group": "H7",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec__all__all__hist",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "hist",
+      "family": "H9"
+    },
+    {
+      "id": "rec__all__all__xgboost",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "xgboost",
+      "family": "H9"
+    },
+    {
+      "id": "rec__all__all__mlp",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "mlp",
+      "family": "H9"
+    },
+    {
+      "id": "rec__all__all__structural_proxy",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "structural_proxy",
+      "family": "H9"
+    },
+    {
+      "id": "rec__all__all__equal",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "equal",
+      "family": "H9"
+    },
+    {
+      "id": "rec__all__all__weighted",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "weighted",
+      "family": "H9"
+    },
+    {
+      "id": "rec__all__all__stacked",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "stacked",
+      "family": "H9"
+    },
+    {
+      "id": "rec__all__all__shrink",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "shrink",
+      "family": "H8"
+    },
+    {
+      "id": "rec__all__all__distribution",
+      "stat": "rec",
+      "arm": "all",
+      "group": "all",
+      "model": "distribution",
+      "family": "H8"
+    },
+    {
+      "id": "rec_yds__family__H1__linear",
+      "stat": "rec_yds",
+      "arm": "family",
+      "group": "H1",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rec_yds__family__H2__linear",
+      "stat": "rec_yds",
+      "arm": "family",
+      "group": "H2",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rec_yds__family__H3__linear",
+      "stat": "rec_yds",
+      "arm": "family",
+      "group": "H3",
+      "model": "linear",
+      "family": "H3"
+    },
+    {
+      "id": "rec_yds__family__H4__linear",
+      "stat": "rec_yds",
+      "arm": "family",
+      "group": "H4",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "rec_yds__family__H5__linear",
+      "stat": "rec_yds",
+      "arm": "family",
+      "group": "H5",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rec_yds__family__H6__linear",
+      "stat": "rec_yds",
+      "arm": "family",
+      "group": "H6",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rec_yds__family__H7__linear",
+      "stat": "rec_yds",
+      "arm": "family",
+      "group": "H7",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rec_yds__all__all__hist",
+      "stat": "rec_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "hist",
+      "family": "H9"
+    },
+    {
+      "id": "rec_yds__all__all__xgboost",
+      "stat": "rec_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "xgboost",
+      "family": "H9"
+    },
+    {
+      "id": "rec_yds__all__all__mlp",
+      "stat": "rec_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "mlp",
+      "family": "H9"
+    },
+    {
+      "id": "rec_yds__all__all__structural_proxy",
+      "stat": "rec_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "structural_proxy",
+      "family": "H9"
+    },
+    {
+      "id": "rec_yds__all__all__equal",
+      "stat": "rec_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "equal",
+      "family": "H9"
+    },
+    {
+      "id": "rec_yds__all__all__weighted",
+      "stat": "rec_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "weighted",
+      "family": "H9"
+    },
+    {
+      "id": "rec_yds__all__all__stacked",
+      "stat": "rec_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "stacked",
+      "family": "H9"
+    },
+    {
+      "id": "rec_yds__all__all__shrink",
+      "stat": "rec_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "shrink",
+      "family": "H8"
+    },
+    {
+      "id": "rec_yds__all__all__distribution",
+      "stat": "rec_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "distribution",
+      "family": "H8"
+    },
+    {
+      "id": "rush_yds__family__H1__linear",
+      "stat": "rush_yds",
+      "arm": "family",
+      "group": "H1",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "rush_yds__family__H2__linear",
+      "stat": "rush_yds",
+      "arm": "family",
+      "group": "H2",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "rush_yds__family__H3__linear",
+      "stat": "rush_yds",
+      "arm": "family",
+      "group": "H3",
+      "model": "linear",
+      "family": "H3"
+    },
+    {
+      "id": "rush_yds__family__H4__linear",
+      "stat": "rush_yds",
+      "arm": "family",
+      "group": "H4",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "rush_yds__family__H5__linear",
+      "stat": "rush_yds",
+      "arm": "family",
+      "group": "H5",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "rush_yds__family__H6__linear",
+      "stat": "rush_yds",
+      "arm": "family",
+      "group": "H6",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "rush_yds__family__H7__linear",
+      "stat": "rush_yds",
+      "arm": "family",
+      "group": "H7",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "rush_yds__all__all__hist",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "hist",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__all__all__xgboost",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "xgboost",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__all__all__mlp",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "mlp",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__all__all__structural_proxy",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "structural_proxy",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__all__all__equal",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "equal",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__all__all__weighted",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "weighted",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__all__all__stacked",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "stacked",
+      "family": "H9"
+    },
+    {
+      "id": "rush_yds__all__all__shrink",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "shrink",
+      "family": "H8"
+    },
+    {
+      "id": "rush_yds__all__all__distribution",
+      "stat": "rush_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "distribution",
+      "family": "H8"
+    },
+    {
+      "id": "anytime_td__family__H1__linear",
+      "stat": "anytime_td",
+      "arm": "family",
+      "group": "H1",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "anytime_td__family__H2__linear",
+      "stat": "anytime_td",
+      "arm": "family",
+      "group": "H2",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "anytime_td__family__H3__linear",
+      "stat": "anytime_td",
+      "arm": "family",
+      "group": "H3",
+      "model": "linear",
+      "family": "H3"
+    },
+    {
+      "id": "anytime_td__family__H4__linear",
+      "stat": "anytime_td",
+      "arm": "family",
+      "group": "H4",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "anytime_td__family__H5__linear",
+      "stat": "anytime_td",
+      "arm": "family",
+      "group": "H5",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "anytime_td__family__H6__linear",
+      "stat": "anytime_td",
+      "arm": "family",
+      "group": "H6",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "anytime_td__family__H7__linear",
+      "stat": "anytime_td",
+      "arm": "family",
+      "group": "H7",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "anytime_td__all__all__hist",
+      "stat": "anytime_td",
+      "arm": "all",
+      "group": "all",
+      "model": "hist",
+      "family": "H9"
+    },
+    {
+      "id": "anytime_td__all__all__xgboost",
+      "stat": "anytime_td",
+      "arm": "all",
+      "group": "all",
+      "model": "xgboost",
+      "family": "H9"
+    },
+    {
+      "id": "anytime_td__all__all__mlp",
+      "stat": "anytime_td",
+      "arm": "all",
+      "group": "all",
+      "model": "mlp",
+      "family": "H9"
+    },
+    {
+      "id": "anytime_td__all__all__structural_proxy",
+      "stat": "anytime_td",
+      "arm": "all",
+      "group": "all",
+      "model": "structural_proxy",
+      "family": "H9"
+    },
+    {
+      "id": "anytime_td__all__all__equal",
+      "stat": "anytime_td",
+      "arm": "all",
+      "group": "all",
+      "model": "equal",
+      "family": "H9"
+    },
+    {
+      "id": "anytime_td__all__all__weighted",
+      "stat": "anytime_td",
+      "arm": "all",
+      "group": "all",
+      "model": "weighted",
+      "family": "H9"
+    },
+    {
+      "id": "anytime_td__all__all__stacked",
+      "stat": "anytime_td",
+      "arm": "all",
+      "group": "all",
+      "model": "stacked",
+      "family": "H9"
+    },
+    {
+      "id": "anytime_td__all__all__shrink",
+      "stat": "anytime_td",
+      "arm": "all",
+      "group": "all",
+      "model": "shrink",
+      "family": "H8"
+    },
+    {
+      "id": "anytime_td__all__all__distribution",
+      "stat": "anytime_td",
+      "arm": "all",
+      "group": "all",
+      "model": "distribution",
+      "family": "H8"
+    },
+    {
+      "id": "pass_yds__family__H1__linear",
+      "stat": "pass_yds",
+      "arm": "family",
+      "group": "H1",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "pass_yds__family__H2__linear",
+      "stat": "pass_yds",
+      "arm": "family",
+      "group": "H2",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "pass_yds__family__H3__linear",
+      "stat": "pass_yds",
+      "arm": "family",
+      "group": "H3",
+      "model": "linear",
+      "family": "H3"
+    },
+    {
+      "id": "pass_yds__family__H4__linear",
+      "stat": "pass_yds",
+      "arm": "family",
+      "group": "H4",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_yds__family__H5__linear",
+      "stat": "pass_yds",
+      "arm": "family",
+      "group": "H5",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "pass_yds__family__H6__linear",
+      "stat": "pass_yds",
+      "arm": "family",
+      "group": "H6",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "pass_yds__family__H7__linear",
+      "stat": "pass_yds",
+      "arm": "family",
+      "group": "H7",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "pass_yds__all__all__hist",
+      "stat": "pass_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "hist",
+      "family": "H9"
+    },
+    {
+      "id": "pass_yds__all__all__xgboost",
+      "stat": "pass_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "xgboost",
+      "family": "H9"
+    },
+    {
+      "id": "pass_yds__all__all__mlp",
+      "stat": "pass_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "mlp",
+      "family": "H9"
+    },
+    {
+      "id": "pass_yds__all__all__structural_proxy",
+      "stat": "pass_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "structural_proxy",
+      "family": "H9"
+    },
+    {
+      "id": "pass_yds__all__all__equal",
+      "stat": "pass_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "equal",
+      "family": "H9"
+    },
+    {
+      "id": "pass_yds__all__all__weighted",
+      "stat": "pass_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "weighted",
+      "family": "H9"
+    },
+    {
+      "id": "pass_yds__all__all__stacked",
+      "stat": "pass_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "stacked",
+      "family": "H9"
+    },
+    {
+      "id": "pass_yds__all__all__shrink",
+      "stat": "pass_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "shrink",
+      "family": "H8"
+    },
+    {
+      "id": "pass_yds__all__all__distribution",
+      "stat": "pass_yds",
+      "arm": "all",
+      "group": "all",
+      "model": "distribution",
+      "family": "H8"
+    },
+    {
+      "id": "pass_tds__family__H1__linear",
+      "stat": "pass_tds",
+      "arm": "family",
+      "group": "H1",
+      "model": "linear",
+      "family": "H1"
+    },
+    {
+      "id": "pass_tds__family__H2__linear",
+      "stat": "pass_tds",
+      "arm": "family",
+      "group": "H2",
+      "model": "linear",
+      "family": "H2"
+    },
+    {
+      "id": "pass_tds__family__H3__linear",
+      "stat": "pass_tds",
+      "arm": "family",
+      "group": "H3",
+      "model": "linear",
+      "family": "H3"
+    },
+    {
+      "id": "pass_tds__family__H4__linear",
+      "stat": "pass_tds",
+      "arm": "family",
+      "group": "H4",
+      "model": "linear",
+      "family": "H4"
+    },
+    {
+      "id": "pass_tds__family__H5__linear",
+      "stat": "pass_tds",
+      "arm": "family",
+      "group": "H5",
+      "model": "linear",
+      "family": "H5"
+    },
+    {
+      "id": "pass_tds__family__H6__linear",
+      "stat": "pass_tds",
+      "arm": "family",
+      "group": "H6",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "pass_tds__family__H7__linear",
+      "stat": "pass_tds",
+      "arm": "family",
+      "group": "H7",
+      "model": "linear",
+      "family": "H7"
+    },
+    {
+      "id": "pass_tds__all__all__hist",
+      "stat": "pass_tds",
+      "arm": "all",
+      "group": "all",
+      "model": "hist",
+      "family": "H9"
+    },
+    {
+      "id": "pass_tds__all__all__xgboost",
+      "stat": "pass_tds",
+      "arm": "all",
+      "group": "all",
+      "model": "xgboost",
+      "family": "H9"
+    },
+    {
+      "id": "pass_tds__all__all__mlp",
+      "stat": "pass_tds",
+      "arm": "all",
+      "group": "all",
+      "model": "mlp",
+      "family": "H9"
+    },
+    {
+      "id": "pass_tds__all__all__structural_proxy",
+      "stat": "pass_tds",
+      "arm": "all",
+      "group": "all",
+      "model": "structural_proxy",
+      "family": "H9"
+    },
+    {
+      "id": "pass_tds__all__all__equal",
+      "stat": "pass_tds",
+      "arm": "all",
+      "group": "all",
+      "model": "equal",
+      "family": "H9"
+    },
+    {
+      "id": "pass_tds__all__all__weighted",
+      "stat": "pass_tds",
+      "arm": "all",
+      "group": "all",
+      "model": "weighted",
+      "family": "H9"
+    },
+    {
+      "id": "pass_tds__all__all__stacked",
+      "stat": "pass_tds",
+      "arm": "all",
+      "group": "all",
+      "model": "stacked",
+      "family": "H9"
+    },
+    {
+      "id": "pass_tds__all__all__shrink",
+      "stat": "pass_tds",
+      "arm": "all",
+      "group": "all",
+      "model": "shrink",
+      "family": "H8"
+    },
+    {
+      "id": "pass_tds__all__all__distribution",
+      "stat": "pass_tds",
+      "arm": "all",
+      "group": "all",
+      "model": "distribution",
+      "family": "H8"
+    },
+    {
+      "id": "margin__control__all__linear",
+      "stat": "margin",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "margin__all__all__linear",
+      "stat": "margin",
+      "arm": "all",
+      "group": "all",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "margin__all__all__hist",
+      "stat": "margin",
+      "arm": "all",
+      "group": "all",
+      "model": "hist",
+      "family": "H6"
+    },
+    {
+      "id": "margin__all__all__blend",
+      "stat": "margin",
+      "arm": "all",
+      "group": "all",
+      "model": "blend",
+      "family": "H6"
+    },
+    {
+      "id": "total__control__all__linear",
+      "stat": "total",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "total__all__all__linear",
+      "stat": "total",
+      "arm": "all",
+      "group": "all",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "total__all__all__hist",
+      "stat": "total",
+      "arm": "all",
+      "group": "all",
+      "model": "hist",
+      "family": "H6"
+    },
+    {
+      "id": "total__all__all__blend",
+      "stat": "total",
+      "arm": "all",
+      "group": "all",
+      "model": "blend",
+      "family": "H6"
+    },
+    {
+      "id": "win__control__all__linear",
+      "stat": "win",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "win__all__all__linear",
+      "stat": "win",
+      "arm": "all",
+      "group": "all",
+      "model": "linear",
+      "family": "H6"
+    },
+    {
+      "id": "win__all__all__hist",
+      "stat": "win",
+      "arm": "all",
+      "group": "all",
+      "model": "hist",
+      "family": "H6"
+    },
+    {
+      "id": "first_td__control__all__linear",
+      "stat": "first_td",
+      "arm": "control",
+      "group": "all",
+      "model": "linear",
+      "family": "H3"
+    },
+    {
+      "id": "first_td__all__all__linear",
+      "stat": "first_td",
+      "arm": "all",
+      "group": "all",
+      "model": "linear",
+      "family": "H3"
+    }
+  ]
+}
