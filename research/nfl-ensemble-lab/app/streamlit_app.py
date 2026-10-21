@@ -1932,13 +1932,18 @@ def page_leans():
     render("leans", REPORTS_DIR)
 
 
+def page_fpds_research():
+    from app.fpds_page import render
+    render()
+
+
 page = render_navigation()
 
 try:
     {"Home": page_home, "Live Readiness & Schedule": page_live, "Data Manager": page_data, "Train Models": page_train, "Model Leaderboard": page_leaderboard,
      "Model Debate": page_debate, "Weekly Predictions": page_weekly, "Prospective Performance": page_prospective,
      "Prediction Archive": page_archive, "Data Freshness": page_freshness, "Baseline Research": page_baseline_research,
-     "Long-Run Research": page_longrun, "Advanced Football Intelligence": page_afi, "Player Intelligence": page_players,
+     "Long-Run Research": page_longrun, "FPDS Research": page_fpds_research, "Advanced Football Intelligence": page_afi, "Player Intelligence": page_players,
      "Data Coverage & Gaps": page_coverage, "Upset Discovery": page_discovery,
      "Upset Explorer": page_explorer, "Player Props": page_props, "Projections": page_projections, "Leans": page_leans, "Research Validation": page_validation, "Research Runs": page_runs,
      "Reports": page_reports}[page]()

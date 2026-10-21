@@ -18,7 +18,7 @@ def test_every_existing_page_is_available_once():
     maps = [n for n in ast.walk(tree) if isinstance(n, ast.Dict) and all(isinstance(k, ast.Constant) for k in n.keys)]
     dispatch = next(n for n in maps if "Projections" in [k.value for k in n.keys])
     assert set(PAGES) == {k.value for k in dispatch.keys}
-    assert len(PAGES) == len(set(PAGES)) == 23
+    assert len(PAGES) == len(set(PAGES)) == 24
     assert set(DESCRIPTIONS) == set(PAGES)
     assert max(map(len, SECTIONS.values())) <= 6
 

@@ -6,6 +6,8 @@ Drop the new full-history `week N` CSVs into `GOING\FantasyPoints\Inbox`, then r
 
 See [the FPDS runbook](docs/FPDS_RESEARCH_PROGRAM.md), [data dictionary](docs/FPDS_DATA_DICTIONARY.md) and [pre-registration](docs/PHASE10_PREREGISTRATION.md). All output remains shadow research, with no promotion or established betting edge.
 
+Open **`launch_lab.bat` → Section: Research → Page: FPDS Research** for aggregate coverage, errors and evidence. The page is view-only and never reads subscription rows. The weekly command prints the reviewed private presentation folder containing `projections.csv` and `leans.csv`; use that presentation rather than the intermediate computational sheets. A refit is blocked within2h of kickoff. Use **`run_weekly_fpds.bat --comparisons-only`** to refresh authorized archived prices and comparisons without changing model forecasts. Same-book pregame quote tracking is descriptive; the last archived quote is a closing proxy, not a verified actual close.
+
 A local research lab on your Windows PC. Six machine-learning models each
 forecast every NFL game. They vote, explain their reasoning, and are combined
 into one calibrated probability. Everything runs on your CPU and uses free
