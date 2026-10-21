@@ -186,3 +186,14 @@ def test_hierarchy_shared_passing_total_and_other_distinct_bounds():
     assert td.expected_distinct_scorers_approx.iloc[0]<=td.team_projection.iloc[0]
     assert td.other_expected_distinct_scorers_approx.iloc[0]>=td.other_anytime_probability.iloc[0]
     assert np.all((p>=0)&(p<=1))
+
+
+def test_report_formats_saved_aggregates_without_new_scoring():
+    from lab.fpds_improve_report import render
+    row={'family':'combination','stat':'rec','arm':'fpds','kind':'weighted','n':100,'games':25,
+         'reference':'A7/rec/fpds','control_loss':1.2,'new_loss':1.1,'delta':-.1,'relative_reduction':1/12,
+         'corrected_ci95':[-.2,.1],'seasons_agreeing':2,'discovery_nomination':False,'diagnostics':{}}
+    text=render({'rows':[row],'trials':{},'failures':[],'source_integrity_unchanged':True},'fixture')
+    assert '-8.33%' in text and 'A7/rec/fpds' in text
+    assert 'Discovery nominees: 0' in text
+    assert 'No fresh2025 pass or2026 selection' in text
