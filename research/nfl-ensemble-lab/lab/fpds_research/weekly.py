@@ -31,6 +31,7 @@ def quote_comparison(rows,asof):
     q['line_type']=[classify(b,bool(f)) for b,f in zip(q.book,q.dfs)]
     for ix,r in d.iterrows():
         if r.stat=='first_td':continue  # Offensive-only model contract is not verified against book settlement.
+        if r.stat=='anytime_td':d.loc[ix,['p_over','p_under']]=[r['mean'],1-r['mean']]
         z=q[q.gsis_id.eq(r.pid)&q.stat.eq(r.stat)&q.home.eq(r.home_team)&q.away.eq(r.away_team)&q.line_type.eq('alternate')]
         if z.empty:continue
         lines=pd.to_numeric(z.line,errors='coerce');votes=lines.value_counts()
@@ -63,6 +64,40 @@ def quote_comparison(rows,asof):
         if np.isfinite(a+b) and a+b>0:d.loc[ix,'market_probability_novig']=a/(a+b)
     d['skew_artifact_flag']=(d['mean']-d.consensus_line)*(d['median']-d.consensus_line)<0
     return d
+
+
+def append_results_log(directory,observations,games):
+    """Descriptive only; never feeds model/configuration selection."""
+    import json
+    path=ROOT/'RESULTS_LOG.jsonl';seen=set()
+    if path.exists():
+        for line in path.read_text(encoding='utf-8').splitlines():
+            if line:seen.add(read_key(json.loads(line)))
+    completed=set(games.loc[games.completed & games.kickoff_utc.lt(pd.Timestamp.now(tz='UTC')),'game_id'])
+    actual=pd.read_parquet(observations,columns=['game_id','pid']+list(STATS))
+    actual=actual[actual.game_id.isin(completed)].drop_duplicates(['game_id','pid'])
+    added=[]
+    for forecast in (ROOT/'weekly').glob('2026_w*_r*'):
+        if not (forecast/'FORECAST.json').exists():continue
+        p=pd.read_csv(forecast/'projections.csv')
+        for (game_id,stat,arm),z in p[p.stat.isin(STATS)&p.game_id.isin(completed)].groupby(['game_id','stat','arm']):
+            key=(forecast.name,game_id,stat,arm)
+            if key in seen:continue
+            joined=z.merge(actual[['game_id','pid',stat]],on=['game_id','pid'],validate='one_to_one').dropna(subset=[stat])
+            if joined.empty:continue
+            kickoff=games.loc[games.game_id.eq(game_id),'kickoff_utc'].iloc[0]
+            created=pd.to_datetime(joined.created_at,utc=True)
+            if not created.lt(kickoff).all():continue
+            value={'created_at':now(),'revision':forecast.name,'game_id':game_id,'stat':stat,'arm':arm,'n':len(joined),
+                   'primary_loss':float(M.loss(stat,joined[stat],joined['mean']).mean()),'purpose':'descriptive only; no decisions or tuning'}
+            added.append(value);seen.add(key)
+    if added:
+        with path.open('a',encoding='utf-8') as f:
+            for value in added:f.write(json.dumps(value,allow_nan=False)+'\n')
+    write_once(directory/'RESULTS_APPEND.json',{'created_at':now(),'new_descriptive_game_stat_rows':len(added),'log':str(path),'no_tuning':True})
+
+
+def read_key(row):return (row['revision'],row['game_id'],row['stat'],row['arm'])
 
 
 def game_comparison(rows,games,asof):
@@ -233,6 +268,7 @@ def run(args):
         result={'created_at':now(),'path':str(directory),'week':week,'games':len(future),'player_rows':len(projections),**cutoff,
                 'frozen_config_hash':digest(selection),'data_hash':meta['fingerprint'],'files':{p.name:sha(p) for p in directory.glob('*.csv')}}
         write_once(directory/'FORECAST.json',result)
+        append_results_log(directory,base/'observations_production.parquet',games)
         return result
     except Exception:
         write_once(directory/'FAILURE.json',{'created_at':now(),'private_error':private_error('weekly'),'status':'stopped; partial new revision retained; earlier files unchanged'})

@@ -228,6 +228,7 @@ def run(args):
     code=digest({p.name:sha(p) for p in Path(__file__).parent.glob('*.py')})
     identity=digest({'registration':registration,'features':meta['fingerprint'],'code':code})
     directory=ROOT/'research'/identity[:20];directory.mkdir(parents=True,exist_ok=True)
+    if not (directory/'JOB.json').exists():write_once(directory/'JOB.json',{'created_at':now(),'feature_metadata':meta,'registration_hash':registration,'code_hash':code,'identity':identity})
     atomic(ROOT/'LATEST_RESEARCH.json',{'path':str(directory),'fingerprint':identity})
     phase=args.phase
     if phase!='discovery':
@@ -266,6 +267,7 @@ def run(args):
             ledger[spec['id']]={'started_at':now(),'configuration':spec,'blocks':[],'status':'running'}
             atomic(directory/'LEDGER.json',ledger)
         record=ledger[spec['id']]
+        if phase!='discovery':record.setdefault('discovery_status',record['status'])
         if record['status'] in ('complete','failed') and phase=='discovery':continue
         state['attempted']=len(ledger)
         try:
@@ -287,8 +289,10 @@ def run(args):
                         state['blocks']+=int(result['status']=='complete')
                         atomic(directory/'LEDGER.json',ledger);job_status(directory,state)
             record['status']='complete';record['completed_at']=now()
+            record[phase+'_status']='complete'
         except Exception:
             record['status']='failed';record['private_error']=private_error('research');state['failures']+=1
+            record[phase+'_status']='failed'
             # Log, skip and continue; no automatic retry or alternative configuration.
         atomic(directory/'LEDGER.json',ledger)
     state['status']='complete';job_status(directory,state,True)

@@ -183,3 +183,14 @@ def test_regular_player_keeps_verified_id_without_shadow_columns(tmp_path,monkey
     r=pd.DataFrame({'season':[2021],'week':[1],'team':['BUF'],'normal':[I.normalized_name('Synthetic Person')],'gsis_id':['00-synthetic']})
     complete,usable=I.resolve(d,m,r,{})
     assert m['mapped_rows']==1 and usable.pid.tolist()==['00-synthetic']
+
+
+@pytest.mark.parametrize('key',['linear','hist','xgboost','mlp'])
+@pytest.mark.parametrize('stat',['rec','rec_yds','anytime_td'])
+def test_registered_factories_accept_weighted_synthetic_rows(key,stat):
+    from lab.fpds_research import models as M
+    rng=np.random.default_rng(17);n=120
+    d=pd.DataFrame({'x':rng.normal(size=n),'missing':np.nan,'position':['WR']*n,'hist_games':[8.]*n})
+    d[stat]=rng.integers(0,2 if stat=='anytime_td' else 5,n).astype(float)
+    p,model=M.fit_predict(d,d.iloc[:3],stat,['x','missing'],key,1,np.ones(n))
+    assert len(p)==3 and np.isfinite(p).all() and (p>=0).all()

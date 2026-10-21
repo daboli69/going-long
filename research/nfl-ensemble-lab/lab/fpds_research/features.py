@@ -115,7 +115,9 @@ def numeric_panel(raw,table,columns):
 
 def run(base=BASE):
     manifest=latest();g=schedule()
+    observed_path=Path(base).with_name('observations_production.parquet')
     fingerprint=digest({'schema':VERSION,'import':manifest['fingerprint'],'base':sha(base),
+                        'observations':sha(observed_path) if observed_path.exists() else None,
                         'games':sha(FEATURE_STORE),'implementation':sha(Path(__file__))})
     directory=ROOT/'features'/fingerprint[:20]
     if (directory/'FEATURES.json').exists():

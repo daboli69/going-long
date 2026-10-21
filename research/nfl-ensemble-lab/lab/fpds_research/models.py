@@ -32,8 +32,11 @@ def estimator(stat,key,threads=1):
         model=cls(n_estimators=100,max_depth=3,learning_rate=.05,reg_lambda=10,n_jobs=threads,
                   random_state=SEED,objective='binary:logistic' if b else 'count:poisson' if count else 'reg:squarederror')
     elif key=='mlp':
-        cls=MLPClassifier if b else MLPRegressor
-        model=cls(hidden_layer_sizes=(32,),max_iter=100,alpha=1,random_state=SEED,shuffle=False,early_stopping=False)
+        # Bundled sklearn1.5 MLP ignores sample weights. Reuse the lab's weighted,
+        # chronological neural factory rather than drop recency weights silently.
+        from ..models import TorchClassifier,TorchRegressor
+        model=(TorchClassifier if b else TorchRegressor)(hidden=(32,),dropout=0.,weight_decay=1.,
+                       max_epochs=100,patience=15,seed=SEED)
     else:raise ValueError('Unregistered model key')
     return Pipeline([('impute',SimpleImputer(strategy='median',add_indicator=True,keep_empty_features=True)),
                      ('scale',StandardScaler()),('model',model)])
