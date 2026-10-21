@@ -1,5 +1,11 @@
 # NFL Ensemble Lab: start here
 
+## Local FPDS weekly refresh (Amendment 6)
+
+Drop the new full-history `week N` CSVs into `GOING\FantasyPoints\Inbox`, then run **`run_weekly_fpds.bat`** from this folder (`--week 8` selects a week explicitly). The Inbox is read-only to the program. It imports hashed versions, audits revisions, refreshes NFL inputs and authorized local lines, refits committed frozen shadow configurations, and prints the new private projection/leans paths. It requires the frozen discovery selection and completed single validation; failures stop clearly and preserve earlier files. Do not upload or commit the local subscription derivatives.
+
+See [the FPDS runbook](docs/FPDS_RESEARCH_PROGRAM.md), [data dictionary](docs/FPDS_DATA_DICTIONARY.md) and [pre-registration](docs/PHASE10_PREREGISTRATION.md). All output remains shadow research, with no promotion or established betting edge.
+
 A local research lab on your Windows PC. Six machine-learning models each
 forecast every NFL game. They vote, explain their reasoning, and are combined
 into one calibrated probability. Everything runs on your CPU and uses free

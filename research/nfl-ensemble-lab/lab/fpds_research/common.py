@@ -13,7 +13,7 @@ ROOT = CACHE_DIR / 'fpds' / 'amendment6'
 RAW = RAW_DIR / 'fpds' / 'amendment6'
 SOURCE = LAB_ROOT.parents[1] / 'FantasyPoints' / 'Inbox'
 REPORT = LAB_ROOT / 'reports' / 'run_20261020'
-VERSION = 1
+VERSION = 2
 SEED = 20261020
 STATS = ('rec', 'rec_yds', 'rush_yds', 'anytime_td', 'pass_yds', 'pass_tds')
 
@@ -51,7 +51,7 @@ def registered():
     protocol = LAB_ROOT / 'docs' / 'FPDS_AMENDMENT6_TRIALS.json'
     rel = subprocess.check_output(['git', 'ls-files', '--full-name', str(protocol)], cwd=LAB_ROOT, text=True).strip()
     frozen = subprocess.check_output(['git', 'show', 'HEAD:' + rel], cwd=LAB_ROOT)
-    if frozen != protocol.read_bytes():
+    if frozen.decode('utf-8').replace('\r\n','\n') != protocol.read_text(encoding='utf-8'):
         raise ValueError('Trial manifest must match committed version')
     return digest({'preregistration': committed, 'trials': read(protocol)})
 
