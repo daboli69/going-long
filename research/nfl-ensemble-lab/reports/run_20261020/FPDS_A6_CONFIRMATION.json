@@ -1,0 +1,2136 @@
+{
+  "created_at": "2026-10-21T10:58:26.790214+00:00",
+  "trial_count": 269,
+  "qualified_frozen_shadow_count": 2,
+  "frozen_metrics": [
+    {
+      "configuration": {
+        "id": "rec__all__all__stacked",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "season": 2025,
+      "diagnostics": {
+        "n": 2016,
+        "games": 272,
+        "primary_loss": 1.397414897900635,
+        "mae": 1.6683864532940382,
+        "rmse": 2.122141405493558,
+        "poisson_log_loss": 2.1063488733985767,
+        "interval80_coverage": 0.8234126984126984,
+        "pinball": {
+          "0.1": 0.30950126952697243,
+          "0.5": 0.8231955471326149,
+          "0.9": 0.4249653018499713
+        },
+        "crps_three_quantile_approx": 1.0384414123397057,
+        "pseudo_line_brier": 0.22111772901945081,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 8,
+            "predicted": 0.062111991759972535,
+            "observed": 0.125
+          },
+          {
+            "bin": 1,
+            "n": 139,
+            "predicted": 0.16104391893425582,
+            "observed": 0.1366906474820144
+          },
+          {
+            "bin": 2,
+            "n": 379,
+            "predicted": 0.25629789180041446,
+            "observed": 0.2796833773087071
+          },
+          {
+            "bin": 3,
+            "n": 536,
+            "predicted": 0.35022831992272424,
+            "observed": 0.332089552238806
+          },
+          {
+            "bin": 4,
+            "n": 478,
+            "predicted": 0.45063013092770493,
+            "observed": 0.4330543933054393
+          },
+          {
+            "bin": 5,
+            "n": 315,
+            "predicted": 0.5427302833149975,
+            "observed": 0.4507936507936508
+          },
+          {
+            "bin": 6,
+            "n": 129,
+            "predicted": 0.645313175685964,
+            "observed": 0.6589147286821705
+          },
+          {
+            "bin": 7,
+            "n": 31,
+            "predicted": 0.7347102352252161,
+            "observed": 0.7419354838709677
+          },
+          {
+            "bin": 8,
+            "n": 1,
+            "predicted": 0.8209796005471417,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 2016,
+          "games": 272,
+          "delta": 0.01931791642885118,
+          "ci95": [
+            -0.001122990742199824,
+            0.03907401835918582
+          ],
+          "corrected_ci95": [
+            -0.001122990742199824,
+            0.03907401835918582
+          ],
+          "p": 0.9715142428785607,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4375,
+        "above_median_fraction": 0.4751984126984127
+      },
+      "purpose": "frozen confirmation"
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__stacked",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "season": 2026,
+      "diagnostics": {
+        "n": 708,
+        "games": 93,
+        "primary_loss": 1.6426948255648024,
+        "mae": 1.7677164366412348,
+        "rmse": 2.329415506239881,
+        "poisson_log_loss": 2.2132351427413943,
+        "interval80_coverage": 0.7994350282485876,
+        "pinball": {
+          "0.1": 0.3184785085542745,
+          "0.5": 0.8864870787143759,
+          "0.9": 0.46643765785236596
+        },
+        "crps_three_quantile_approx": 1.1142688300806776,
+        "pseudo_line_brier": 0.23462768257467453,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 9,
+            "predicted": 0.08041390772684412,
+            "observed": 0.1111111111111111
+          },
+          {
+            "bin": 1,
+            "n": 65,
+            "predicted": 0.15791466806355525,
+            "observed": 0.27692307692307694
+          },
+          {
+            "bin": 2,
+            "n": 145,
+            "predicted": 0.25313453289187837,
+            "observed": 0.3586206896551724
+          },
+          {
+            "bin": 3,
+            "n": 172,
+            "predicted": 0.34607417114176453,
+            "observed": 0.3488372093023256
+          },
+          {
+            "bin": 4,
+            "n": 172,
+            "predicted": 0.4450694458298354,
+            "observed": 0.45348837209302323
+          },
+          {
+            "bin": 5,
+            "n": 94,
+            "predicted": 0.5418226708016775,
+            "observed": 0.6170212765957447
+          },
+          {
+            "bin": 6,
+            "n": 39,
+            "predicted": 0.6412003567573217,
+            "observed": 0.717948717948718
+          },
+          {
+            "bin": 7,
+            "n": 9,
+            "predicted": 0.7174596917328944,
+            "observed": 0.6666666666666666
+          },
+          {
+            "bin": 8,
+            "n": 3,
+            "predicted": 0.847163808574618,
+            "observed": 0.3333333333333333
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 708,
+          "games": 93,
+          "delta": -0.047025195476944434,
+          "ci95": [
+            -0.08409649690813867,
+            -0.010961716695490802
+          ],
+          "corrected_ci95": [
+            -0.08409649690813867,
+            -0.010961716695490802
+          ],
+          "p": 0.0079960019990005,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4844632768361582,
+        "above_median_fraction": 0.5310734463276836
+      },
+      "purpose": "descriptive only; no decisions or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rec_yds__control__all__linear",
+        "stat": "rec_yds",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "season": 2025,
+      "diagnostics": {
+        "n": 2016,
+        "games": 272,
+        "primary_loss": 23.51334146374748,
+        "mae": 23.51334146374748,
+        "rmse": 30.40142512682229,
+        "interval80_coverage": 0.8139880952380952,
+        "pinball": {
+          "0.1": 3.9437654788153513,
+          "0.5": 11.404658812615606,
+          "0.9": 6.484536361391581
+        },
+        "crps_three_quantile_approx": 14.555307101881693,
+        "pseudo_line_brier": 0.237988822982284,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 1,
+            "n": 35,
+            "predicted": 0.17255875786967417,
+            "observed": 0.14285714285714285
+          },
+          {
+            "bin": 2,
+            "n": 149,
+            "predicted": 0.26020153876569635,
+            "observed": 0.3288590604026846
+          },
+          {
+            "bin": 3,
+            "n": 458,
+            "predicted": 0.35858053730667355,
+            "observed": 0.34279475982532753
+          },
+          {
+            "bin": 4,
+            "n": 646,
+            "predicted": 0.4543133817240397,
+            "observed": 0.42879256965944273
+          },
+          {
+            "bin": 5,
+            "n": 479,
+            "predicted": 0.5451941905517714,
+            "observed": 0.48851774530271397
+          },
+          {
+            "bin": 6,
+            "n": 211,
+            "predicted": 0.6395208883168599,
+            "observed": 0.6018957345971564
+          },
+          {
+            "bin": 7,
+            "n": 32,
+            "predicted": 0.7384664094028224,
+            "observed": 0.65625
+          },
+          {
+            "bin": 8,
+            "n": 6,
+            "predicted": 0.824324169748396,
+            "observed": 0.8333333333333334
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 2016,
+          "games": 272,
+          "delta": 0.025887753626116103,
+          "ci95": [
+            0.0032897233816178116,
+            0.04967474125583321
+          ],
+          "corrected_ci95": [
+            0.0032897233816178116,
+            0.04967474125583321
+          ],
+          "p": 0.9835082458770614,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.39732142857142855,
+        "above_median_fraction": 0.47767857142857145
+      },
+      "purpose": "frozen confirmation"
+    },
+    {
+      "configuration": {
+        "id": "rec_yds__control__all__linear",
+        "stat": "rec_yds",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "season": 2026,
+      "diagnostics": {
+        "n": 708,
+        "games": 93,
+        "primary_loss": 24.40796200973166,
+        "mae": 24.40796200973166,
+        "rmse": 31.64640318212603,
+        "interval80_coverage": 0.8022598870056498,
+        "pinball": {
+          "0.1": 3.987591058116848,
+          "0.5": 11.97936798758426,
+          "0.9": 6.559275378911508
+        },
+        "crps_three_quantile_approx": 15.017489616408412,
+        "pseudo_line_brier": 0.23295301916129346,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 1,
+            "n": 10,
+            "predicted": 0.17552756446352194,
+            "observed": 0.0
+          },
+          {
+            "bin": 2,
+            "n": 48,
+            "predicted": 0.2535872351890437,
+            "observed": 0.2916666666666667
+          },
+          {
+            "bin": 3,
+            "n": 168,
+            "predicted": 0.3565150672638309,
+            "observed": 0.3630952380952381
+          },
+          {
+            "bin": 4,
+            "n": 227,
+            "predicted": 0.4503745144143154,
+            "observed": 0.43612334801762115
+          },
+          {
+            "bin": 5,
+            "n": 173,
+            "predicted": 0.5481509216403997,
+            "observed": 0.5260115606936416
+          },
+          {
+            "bin": 6,
+            "n": 65,
+            "predicted": 0.6373129449808594,
+            "observed": 0.7230769230769231
+          },
+          {
+            "bin": 7,
+            "n": 15,
+            "predicted": 0.7275332076903261,
+            "observed": 0.8
+          },
+          {
+            "bin": 8,
+            "n": 1,
+            "predicted": 0.8314828522082408,
+            "observed": 1.0
+          },
+          {
+            "bin": 9,
+            "n": 1,
+            "predicted": 0.9797312183300286,
+            "observed": 0.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 708,
+          "games": 93,
+          "delta": 5.1796694238236326e-05,
+          "ci95": [
+            -0.034935400552429816,
+            0.03465634219594367
+          ],
+          "corrected_ci95": [
+            -0.034935400552429816,
+            0.03465634219594367
+          ],
+          "p": 0.49975012493753124,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4265536723163842,
+        "above_median_fraction": 0.5112994350282486
+      },
+      "purpose": "descriptive only; no decisions or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__stacked",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "season": 2025,
+      "diagnostics": {
+        "n": 896,
+        "games": 270,
+        "primary_loss": 24.38427441734273,
+        "mae": 24.38427441734273,
+        "rmse": 32.43898641479888,
+        "interval80_coverage": 0.8113839285714286,
+        "pinball": {
+          "0.1": 4.218645518284382,
+          "0.5": 11.97986193281863,
+          "0.9": 6.9659871012239885
+        },
+        "crps_three_quantile_approx": 15.442996368218,
+        "pseudo_line_brier": 0.22464211851260063,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 3,
+            "predicted": 0.09256181116704927,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 24,
+            "predicted": 0.15754772382717422,
+            "observed": 0.20833333333333334
+          },
+          {
+            "bin": 2,
+            "n": 95,
+            "predicted": 0.2583180256994184,
+            "observed": 0.29473684210526313
+          },
+          {
+            "bin": 3,
+            "n": 221,
+            "predicted": 0.35349983224711545,
+            "observed": 0.33031674208144796
+          },
+          {
+            "bin": 4,
+            "n": 260,
+            "predicted": 0.4475937834075277,
+            "observed": 0.4076923076923077
+          },
+          {
+            "bin": 5,
+            "n": 152,
+            "predicted": 0.5501901597510809,
+            "observed": 0.5789473684210527
+          },
+          {
+            "bin": 6,
+            "n": 81,
+            "predicted": 0.6411978969937829,
+            "observed": 0.6049382716049383
+          },
+          {
+            "bin": 7,
+            "n": 39,
+            "predicted": 0.7433583564062654,
+            "observed": 0.7692307692307693
+          },
+          {
+            "bin": 8,
+            "n": 19,
+            "predicted": 0.8357322420411694,
+            "observed": 0.7894736842105263
+          },
+          {
+            "bin": 9,
+            "n": 2,
+            "predicted": 0.9219136706195665,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 896,
+          "games": 270,
+          "delta": 0.01046488798872122,
+          "ci95": [
+            -0.019209016991905605,
+            0.04036960026598799
+          ],
+          "corrected_ci95": [
+            -0.019209016991905605,
+            0.04036960026598799
+          ],
+          "p": 0.7651174412793603,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.421875,
+        "above_median_fraction": 0.5022321428571429
+      },
+      "purpose": "frozen confirmation"
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__stacked",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "season": 2026,
+      "diagnostics": {
+        "n": 294,
+        "games": 93,
+        "primary_loss": 24.095855612910967,
+        "mae": 24.095855612910967,
+        "rmse": 31.512685290475417,
+        "interval80_coverage": 0.8231292517006803,
+        "pinball": {
+          "0.1": 3.937363844200208,
+          "0.5": 11.876433064881507,
+          "0.9": 6.652161061196902
+        },
+        "crps_three_quantile_approx": 14.977305313519077,
+        "pseudo_line_brier": 0.21640710834391963,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 2,
+            "predicted": 0.09291759358465182,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 14,
+            "predicted": 0.1752732602371804,
+            "observed": 0.14285714285714285
+          },
+          {
+            "bin": 2,
+            "n": 47,
+            "predicted": 0.2539247154763467,
+            "observed": 0.19148936170212766
+          },
+          {
+            "bin": 3,
+            "n": 80,
+            "predicted": 0.3523644996507474,
+            "observed": 0.35
+          },
+          {
+            "bin": 4,
+            "n": 79,
+            "predicted": 0.4486349343762128,
+            "observed": 0.43037974683544306
+          },
+          {
+            "bin": 5,
+            "n": 38,
+            "predicted": 0.5508320577477358,
+            "observed": 0.39473684210526316
+          },
+          {
+            "bin": 6,
+            "n": 26,
+            "predicted": 0.6370032196781005,
+            "observed": 0.5769230769230769
+          },
+          {
+            "bin": 7,
+            "n": 7,
+            "predicted": 0.7257145541337521,
+            "observed": 1.0
+          },
+          {
+            "bin": 9,
+            "n": 1,
+            "predicted": 0.905606258148631,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 294,
+          "games": 93,
+          "delta": 0.03634269485982381,
+          "ci95": [
+            -0.011813326953726737,
+            0.08366813023748931
+          ],
+          "corrected_ci95": [
+            -0.011813326953726737,
+            0.08366813023748931
+          ],
+          "p": 0.9310344827586207,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.42857142857142855,
+        "above_median_fraction": 0.4931972789115646
+      },
+      "purpose": "descriptive only; no decisions or tuning"
+    },
+    {
+      "configuration": {
+        "id": "anytime_td__control__all__linear",
+        "stat": "anytime_td",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "season": 2025,
+      "diagnostics": {
+        "n": 2622,
+        "games": 272,
+        "primary_loss": 0.19500285338874926,
+        "log_loss": 0.5756504928806815,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 10,
+            "predicted": 0.08115714145734458,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 443,
+            "predicted": 0.16995163031779795,
+            "observed": 0.17155756207674944
+          },
+          {
+            "low": 0.2,
+            "n": 1034,
+            "predicted": 0.24953464396907,
+            "observed": 0.2369439071566731
+          },
+          {
+            "low": 0.30000000000000004,
+            "n": 732,
+            "predicted": 0.3453151743161174,
+            "observed": 0.34972677595628415
+          },
+          {
+            "low": 0.4,
+            "n": 254,
+            "predicted": 0.44017946710149014,
+            "observed": 0.3858267716535433
+          },
+          {
+            "low": 0.5,
+            "n": 118,
+            "predicted": 0.540991328283978,
+            "observed": 0.5
+          },
+          {
+            "low": 0.6000000000000001,
+            "n": 29,
+            "predicted": 0.6366214033202101,
+            "observed": 0.6206896551724138
+          },
+          {
+            "low": 0.7000000000000001,
+            "n": 2,
+            "predicted": 0.7060604555728459,
+            "observed": 1.0
+          }
+        ]
+      },
+      "purpose": "frozen confirmation"
+    },
+    {
+      "configuration": {
+        "id": "anytime_td__control__all__linear",
+        "stat": "anytime_td",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "season": 2026,
+      "diagnostics": {
+        "n": 907,
+        "games": 93,
+        "primary_loss": 0.18187140029414334,
+        "log_loss": 0.5470705277516541,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 3,
+            "predicted": 0.091587159590573,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 205,
+            "predicted": 0.17154373599007156,
+            "observed": 0.13658536585365855
+          },
+          {
+            "low": 0.2,
+            "n": 361,
+            "predicted": 0.2462235110568759,
+            "observed": 0.24376731301939059
+          },
+          {
+            "low": 0.30000000000000004,
+            "n": 228,
+            "predicted": 0.34013009948632517,
+            "observed": 0.2982456140350877
+          },
+          {
+            "low": 0.4,
+            "n": 72,
+            "predicted": 0.44492459452638244,
+            "observed": 0.4166666666666667
+          },
+          {
+            "low": 0.5,
+            "n": 29,
+            "predicted": 0.5471126255870415,
+            "observed": 0.5862068965517241
+          },
+          {
+            "low": 0.6000000000000001,
+            "n": 9,
+            "predicted": 0.6239419183426645,
+            "observed": 1.0
+          }
+        ]
+      },
+      "purpose": "descriptive only; no decisions or tuning"
+    },
+    {
+      "configuration": {
+        "id": "pass_yds__control__all__linear",
+        "stat": "pass_yds",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "season": 2025,
+      "diagnostics": {
+        "n": 503,
+        "games": 269,
+        "primary_loss": 65.34653553289637,
+        "mae": 65.34653553289637,
+        "rmse": 83.39004530668946,
+        "interval80_coverage": 0.805168986083499,
+        "pinball": {
+          "0.1": 15.836695187456803,
+          "0.5": 32.817597004338715,
+          "0.9": 14.307971441978012
+        },
+        "crps_three_quantile_approx": 41.974842422515685,
+        "pseudo_line_brier": 0.247029598848153,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 1,
+            "n": 1,
+            "predicted": 0.19460916442048518,
+            "observed": 0.0
+          },
+          {
+            "bin": 2,
+            "n": 26,
+            "predicted": 0.258851393978505,
+            "observed": 0.2692307692307692
+          },
+          {
+            "bin": 3,
+            "n": 68,
+            "predicted": 0.3534830552693184,
+            "observed": 0.38235294117647056
+          },
+          {
+            "bin": 4,
+            "n": 105,
+            "predicted": 0.45430975750861113,
+            "observed": 0.44761904761904764
+          },
+          {
+            "bin": 5,
+            "n": 123,
+            "predicted": 0.5518099878519557,
+            "observed": 0.4959349593495935
+          },
+          {
+            "bin": 6,
+            "n": 104,
+            "predicted": 0.6500526173849086,
+            "observed": 0.5096153846153846
+          },
+          {
+            "bin": 7,
+            "n": 48,
+            "predicted": 0.7383196858654602,
+            "observed": 0.6666666666666666
+          },
+          {
+            "bin": 8,
+            "n": 18,
+            "predicted": 0.8497936788593483,
+            "observed": 0.7222222222222222
+          },
+          {
+            "bin": 9,
+            "n": 10,
+            "predicted": 0.927205991931935,
+            "observed": 0.8
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 503,
+          "games": 269,
+          "delta": 0.053975963178390006,
+          "ci95": [
+            0.010485576953327481,
+            0.09805822901134426
+          ],
+          "corrected_ci95": [
+            0.010485576953327481,
+            0.09805822901134426
+          ],
+          "p": 0.9900049975012494,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4850894632206759,
+        "above_median_fraction": 0.46520874751491054
+      },
+      "purpose": "frozen confirmation"
+    },
+    {
+      "configuration": {
+        "id": "pass_yds__control__all__linear",
+        "stat": "pass_yds",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "season": 2026,
+      "diagnostics": {
+        "n": 171,
+        "games": 91,
+        "primary_loss": 62.30921467563562,
+        "mae": 62.30921467563562,
+        "rmse": 79.18270191924498,
+        "interval80_coverage": 0.7894736842105263,
+        "pinball": {
+          "0.1": 15.330030509547182,
+          "0.5": 30.89940413536384,
+          "0.9": 13.26981361344544
+        },
+        "crps_three_quantile_approx": 39.66616550557097,
+        "pseudo_line_brier": 0.24619569971839478,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 1,
+            "n": 2,
+            "predicted": 0.19783977716030893,
+            "observed": 1.0
+          },
+          {
+            "bin": 2,
+            "n": 6,
+            "predicted": 0.26046340004981067,
+            "observed": 0.16666666666666666
+          },
+          {
+            "bin": 3,
+            "n": 34,
+            "predicted": 0.3539178318133918,
+            "observed": 0.35294117647058826
+          },
+          {
+            "bin": 4,
+            "n": 37,
+            "predicted": 0.4540301568366561,
+            "observed": 0.5405405405405406
+          },
+          {
+            "bin": 5,
+            "n": 51,
+            "predicted": 0.5468685937015071,
+            "observed": 0.6078431372549019
+          },
+          {
+            "bin": 6,
+            "n": 27,
+            "predicted": 0.634825065154952,
+            "observed": 0.5555555555555556
+          },
+          {
+            "bin": 7,
+            "n": 4,
+            "predicted": 0.7265933967558783,
+            "observed": 1.0
+          },
+          {
+            "bin": 8,
+            "n": 5,
+            "predicted": 0.8668984585085028,
+            "observed": 0.6
+          },
+          {
+            "bin": 9,
+            "n": 5,
+            "predicted": 0.9277481553404744,
+            "observed": 0.6
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 171,
+          "games": 91,
+          "delta": -0.01929260974584771,
+          "ci95": [
+            -0.09013018898501474,
+            0.05878716121086103
+          ],
+          "corrected_ci95": [
+            -0.09013018898501474,
+            0.05878716121086103
+          ],
+          "p": 0.3073463268365817,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.5730994152046783,
+        "above_median_fraction": 0.5555555555555556
+      },
+      "purpose": "descriptive only; no decisions or tuning"
+    },
+    {
+      "configuration": {
+        "id": "pass_tds__control__all__linear",
+        "stat": "pass_tds",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "season": 2025,
+      "diagnostics": {
+        "n": 503,
+        "games": 269,
+        "primary_loss": 1.093461224726168,
+        "mae": 0.926564963088197,
+        "rmse": 1.1334185845739704,
+        "poisson_log_loss": 1.4738524828619313,
+        "interval80_coverage": 0.7594433399602386,
+        "pinball": {
+          "0.1": 0.15871262870028413,
+          "0.5": 0.4608989535555239,
+          "0.9": 0.2207585520718582
+        },
+        "crps_three_quantile_approx": 0.5602467562184442,
+        "pseudo_line_brier": 0.21425463391851077,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 2,
+            "predicted": 0.08265707904311588,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 51,
+            "predicted": 0.16037655167343728,
+            "observed": 0.13725490196078433
+          },
+          {
+            "bin": 2,
+            "n": 109,
+            "predicted": 0.2486295803385275,
+            "observed": 0.22935779816513763
+          },
+          {
+            "bin": 3,
+            "n": 138,
+            "predicted": 0.3494581459871548,
+            "observed": 0.427536231884058
+          },
+          {
+            "bin": 4,
+            "n": 117,
+            "predicted": 0.44240662584387347,
+            "observed": 0.49572649572649574
+          },
+          {
+            "bin": 5,
+            "n": 35,
+            "predicted": 0.543770197355343,
+            "observed": 0.5142857142857142
+          },
+          {
+            "bin": 6,
+            "n": 45,
+            "predicted": 0.6434375043015845,
+            "observed": 0.7111111111111111
+          },
+          {
+            "bin": 7,
+            "n": 6,
+            "predicted": 0.7123881435396666,
+            "observed": 0.8333333333333334
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 503,
+          "games": 269,
+          "delta": -0.03241965132696242,
+          "ci95": [
+            -0.074659754063128,
+            0.011165115087105042
+          ],
+          "corrected_ci95": [
+            -0.074659754063128,
+            0.011165115087105042
+          ],
+          "p": 0.06746626686656672,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.46123260437375746,
+        "above_median_fraction": 0.5029821073558648
+      },
+      "purpose": "frozen confirmation"
+    },
+    {
+      "configuration": {
+        "id": "pass_tds__control__all__linear",
+        "stat": "pass_tds",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "season": 2026,
+      "diagnostics": {
+        "n": 171,
+        "games": 91,
+        "primary_loss": 1.0026793841221067,
+        "mae": 0.8794187078969989,
+        "rmse": 1.0865067563069246,
+        "poisson_log_loss": 1.4465828304030082,
+        "interval80_coverage": 0.7602339181286549,
+        "pinball": {
+          "0.1": 0.14990723018822258,
+          "0.5": 0.43434812229343156,
+          "0.9": 0.2081542328684824
+        },
+        "crps_three_quantile_approx": 0.528273056900091,
+        "pseudo_line_brier": 0.20175711633278523,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 3,
+            "predicted": 0.0836657769738157,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 24,
+            "predicted": 0.1635519987385606,
+            "observed": 0.16666666666666666
+          },
+          {
+            "bin": 2,
+            "n": 30,
+            "predicted": 0.25617340080477596,
+            "observed": 0.3
+          },
+          {
+            "bin": 3,
+            "n": 45,
+            "predicted": 0.351178302887535,
+            "observed": 0.3111111111111111
+          },
+          {
+            "bin": 4,
+            "n": 34,
+            "predicted": 0.43271652677032746,
+            "observed": 0.38235294117647056
+          },
+          {
+            "bin": 5,
+            "n": 13,
+            "predicted": 0.5587649122166796,
+            "observed": 0.46153846153846156
+          },
+          {
+            "bin": 6,
+            "n": 11,
+            "predicted": 0.6487608468307224,
+            "observed": 0.6363636363636364
+          },
+          {
+            "bin": 7,
+            "n": 10,
+            "predicted": 0.7505157439728684,
+            "observed": 0.8
+          },
+          {
+            "bin": 8,
+            "n": 1,
+            "predicted": 0.8101241154878067,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 171,
+          "games": 91,
+          "delta": 0.018084371895272865,
+          "ci95": [
+            -0.051713639993935565,
+            0.0836664514866158
+          ],
+          "corrected_ci95": [
+            -0.051713639993935565,
+            0.0836664514866158
+          ],
+          "p": 0.6881559220389805,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.43859649122807015,
+        "above_median_fraction": 0.49122807017543857
+      },
+      "purpose": "descriptive only; no decisions or tuning"
+    },
+    {
+      "configuration": {
+        "id": "margin__control__all__linear",
+        "stat": "margin",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "phase": "validation",
+      "season": 2025,
+      "diagnostics": {
+        "n": 272,
+        "games": 272,
+        "primary_loss": 10.438954989699756,
+        "mae": 10.438954989699756,
+        "rmse": 13.318076702329302,
+        "crps_empirical_residual": 7.488496986183478,
+        "interval80_coverage": 0.7683823529411765,
+        "pinball": {
+          "0.1": 2.295394305876073,
+          "0.5": 5.226770925171235,
+          "0.9": 2.4499854347986325
+        },
+        "crps_three_quantile_approx": 6.648100443897294
+      },
+      "purpose": "frozen confirmation"
+    },
+    {
+      "configuration": {
+        "id": "margin__control__all__linear",
+        "stat": "margin",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "phase": "descriptive",
+      "season": 2026,
+      "diagnostics": {
+        "n": 93,
+        "games": 93,
+        "primary_loss": 9.588035459159522,
+        "mae": 9.588035459159522,
+        "rmse": 12.045431587304074,
+        "crps_empirical_residual": 6.795499556556217,
+        "interval80_coverage": 0.7956989247311828,
+        "pinball": {
+          "0.1": 2.1167588440833556,
+          "0.5": 4.774515710210287,
+          "0.9": 2.1735049309012706
+        },
+        "crps_three_quantile_approx": 6.043186323463275
+      },
+      "purpose": "descriptive only; no decisions or tuning"
+    },
+    {
+      "configuration": {
+        "id": "total__control__all__linear",
+        "stat": "total",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "phase": "validation",
+      "season": 2025,
+      "diagnostics": {
+        "n": 272,
+        "games": 272,
+        "primary_loss": 10.685067471335916,
+        "mae": 10.685067471335916,
+        "rmse": 13.392090731044101,
+        "crps_empirical_residual": 7.578328846316217,
+        "interval80_coverage": 0.7794117647058824,
+        "pinball": {
+          "0.1": 2.1588251652437096,
+          "0.5": 5.344469091471503,
+          "0.9": 2.522451305389404
+        },
+        "crps_three_quantile_approx": 6.683830374736412
+      },
+      "purpose": "frozen confirmation"
+    },
+    {
+      "configuration": {
+        "id": "total__control__all__linear",
+        "stat": "total",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "phase": "descriptive",
+      "season": 2026,
+      "diagnostics": {
+        "n": 93,
+        "games": 93,
+        "primary_loss": 11.42580110283308,
+        "mae": 11.42580110283308,
+        "rmse": 14.007351089415963,
+        "crps_empirical_residual": 7.914166480474231,
+        "interval80_coverage": 0.8172043010752689,
+        "pinball": {
+          "0.1": 2.249033916842553,
+          "0.5": 5.71642219379384,
+          "0.9": 2.3965997823079426
+        },
+        "crps_three_quantile_approx": 6.90803726196289
+      },
+      "purpose": "descriptive only; no decisions or tuning"
+    },
+    {
+      "configuration": {
+        "id": "win__control__all__linear",
+        "stat": "win",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "phase": "validation",
+      "season": 2025,
+      "diagnostics": {
+        "n": 271,
+        "games": 271,
+        "primary_loss": 0.23445680817123932,
+        "log_loss": 0.6617717579503741,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 14,
+            "predicted": 0.26725613062455106,
+            "observed": 0.2857142857142857
+          },
+          {
+            "low": 0.30000000000000004,
+            "n": 28,
+            "predicted": 0.3539590286579745,
+            "observed": 0.35714285714285715
+          },
+          {
+            "low": 0.4,
+            "n": 56,
+            "predicted": 0.44861139910906295,
+            "observed": 0.48214285714285715
+          },
+          {
+            "low": 0.5,
+            "n": 63,
+            "predicted": 0.5475332740446643,
+            "observed": 0.5238095238095238
+          },
+          {
+            "low": 0.6000000000000001,
+            "n": 62,
+            "predicted": 0.6416029608980099,
+            "observed": 0.5806451612903226
+          },
+          {
+            "low": 0.7000000000000001,
+            "n": 36,
+            "predicted": 0.7534687820389779,
+            "observed": 0.7777777777777778
+          },
+          {
+            "low": 0.8,
+            "n": 12,
+            "predicted": 0.833237996039097,
+            "observed": 0.6666666666666666
+          }
+        ]
+      },
+      "purpose": "frozen confirmation"
+    },
+    {
+      "configuration": {
+        "id": "win__control__all__linear",
+        "stat": "win",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "phase": "descriptive",
+      "season": 2026,
+      "diagnostics": {
+        "n": 92,
+        "games": 92,
+        "primary_loss": 0.2352184271828508,
+        "log_loss": 0.6619143933724339,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 1,
+            "predicted": 0.29280762194738036,
+            "observed": 0.0
+          },
+          {
+            "low": 0.30000000000000004,
+            "n": 9,
+            "predicted": 0.3560794146725381,
+            "observed": 0.2222222222222222
+          },
+          {
+            "low": 0.4,
+            "n": 22,
+            "predicted": 0.44841648585242494,
+            "observed": 0.5454545454545454
+          },
+          {
+            "low": 0.5,
+            "n": 28,
+            "predicted": 0.5455673850013137,
+            "observed": 0.42857142857142855
+          },
+          {
+            "low": 0.6000000000000001,
+            "n": 23,
+            "predicted": 0.6510547845353567,
+            "observed": 0.6086956521739131
+          },
+          {
+            "low": 0.7000000000000001,
+            "n": 9,
+            "predicted": 0.7325163741316852,
+            "observed": 0.7777777777777778
+          }
+        ]
+      },
+      "purpose": "descriptive only; no decisions or tuning"
+    },
+    {
+      "configuration": {
+        "id": "first_td__control__all__linear",
+        "stat": "first_td",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H3"
+      },
+      "phase": "validation",
+      "season": 2025,
+      "diagnostics": {
+        "n": 272,
+        "games": 272,
+        "primary_loss": 2.1823451607110997,
+        "brier": 0.8588354249757061
+      },
+      "purpose": "frozen confirmation"
+    },
+    {
+      "configuration": {
+        "id": "first_td__control__all__linear",
+        "stat": "first_td",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H3"
+      },
+      "phase": "descriptive",
+      "season": 2026,
+      "diagnostics": {
+        "n": 93,
+        "games": 93,
+        "primary_loss": 2.213650435461583,
+        "brier": 0.8580323688237054
+      },
+      "purpose": "descriptive only; no decisions or tuning"
+    }
+  ],
+  "secondary_paired_diagnostics": [
+    {
+      "configuration": {
+        "id": "rec__all__all__stacked",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "metric": "pinball_0.1",
+      "n": 2016,
+      "games": 272,
+      "delta": -0.010089243996966415,
+      "ci95": [
+        -0.01645138402471792,
+        -0.004020000790642588
+      ],
+      "corrected_ci95": [
+        -0.01645138402471792,
+        -0.004020000790642588
+      ],
+      "p": 0.0014992503748125937,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__stacked",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "metric": "pinball_0.5",
+      "n": 2016,
+      "games": 272,
+      "delta": -0.021429075915635736,
+      "ci95": [
+        -0.031043639180908956,
+        -0.011999901986257014
+      ],
+      "corrected_ci95": [
+        -0.031043639180908956,
+        -0.011999901986257014
+      ],
+      "p": 0.0004997501249375312,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__stacked",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "metric": "pinball_0.9",
+      "n": 2016,
+      "games": 272,
+      "delta": -0.005555355864311956,
+      "ci95": [
+        -0.010649202231456904,
+        -0.0004679088689937411
+      ],
+      "corrected_ci95": [
+        -0.010649202231456904,
+        -0.0004679088689937411
+      ],
+      "p": 0.018490754622688656,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__stacked",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "metric": "pinball_0.1",
+      "n": 708,
+      "games": 93,
+      "delta": -0.0016632325269043927,
+      "ci95": [
+        -0.012323701232058625,
+        0.007316092202403548
+      ],
+      "corrected_ci95": [
+        -0.012323701232058625,
+        0.007316092202403548
+      ],
+      "p": 0.3728135932033983,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__stacked",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "metric": "pinball_0.5",
+      "n": 708,
+      "games": 93,
+      "delta": 0.0009465875074153687,
+      "ci95": [
+        -0.016175963440830634,
+        0.019784537013641672
+      ],
+      "corrected_ci95": [
+        -0.016175963440830634,
+        0.019784537013641672
+      ],
+      "p": 0.5472263868065967,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__stacked",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "metric": "pinball_0.9",
+      "n": 708,
+      "games": 93,
+      "delta": 0.0029761240249531282,
+      "ci95": [
+        -0.007446322897120994,
+        0.013142382316211669
+      ],
+      "corrected_ci95": [
+        -0.007446322897120994,
+        0.013142382316211669
+      ],
+      "p": 0.728135932033983,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__stacked",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "metric": "pinball_0.1",
+      "n": 896,
+      "games": 270,
+      "delta": -0.036107827605322114,
+      "ci95": [
+        -0.16325029226164484,
+        0.095784958020978
+      ],
+      "corrected_ci95": [
+        -0.16325029226164484,
+        0.095784958020978
+      ],
+      "p": 0.30184907546226886,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__stacked",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "metric": "pinball_0.5",
+      "n": 896,
+      "games": 270,
+      "delta": -0.5357800917580328,
+      "ci95": [
+        -0.8025136933250335,
+        -0.2694032473486825
+      ],
+      "corrected_ci95": [
+        -0.8025136933250335,
+        -0.2694032473486825
+      ],
+      "p": 0.0004997501249375312,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__stacked",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "validation",
+      "metric": "pinball_0.9",
+      "n": 896,
+      "games": 270,
+      "delta": -0.4079124294805427,
+      "ci95": [
+        -0.590800424143929,
+        -0.235833830031688
+      ],
+      "corrected_ci95": [
+        -0.590800424143929,
+        -0.235833830031688
+      ],
+      "p": 0.0004997501249375312,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__stacked",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "metric": "pinball_0.1",
+      "n": 294,
+      "games": 93,
+      "delta": 0.03535624026294227,
+      "ci95": [
+        -0.24718287671009204,
+        0.292112575711963
+      ],
+      "corrected_ci95": [
+        -0.24718287671009204,
+        0.292112575711963
+      ],
+      "p": 0.591704147926037,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__stacked",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "metric": "pinball_0.5",
+      "n": 294,
+      "games": 93,
+      "delta": -0.38623700444321885,
+      "ci95": [
+        -0.869358797047337,
+        0.096909928861735
+      ],
+      "corrected_ci95": [
+        -0.869358797047337,
+        0.096909928861735
+      ],
+      "p": 0.0559720139930035,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__stacked",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "phase": "descriptive",
+      "metric": "pinball_0.9",
+      "n": 294,
+      "games": 93,
+      "delta": -0.2538837985919516,
+      "ci95": [
+        -0.5484883302296335,
+        0.0634754534362617
+      ],
+      "corrected_ci95": [
+        -0.5484883302296335,
+        0.0634754534362617
+      ],
+      "p": 0.05647176411794103,
+      "family_tests": 1,
+      "tail_resolution_warning": false,
+      "decision_use": "secondary diagnostic only; no new selection or tuning"
+    }
+  ],
+  "market_validation": [
+    {
+      "configuration": {
+        "id": "margin__control__all__linear",
+        "stat": "margin",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "benchmark": "spread_line",
+      "n": 272,
+      "games": 272,
+      "delta": 0.7165285191115212,
+      "ci95": [
+        0.3419912978239796,
+        1.1088877314920809
+      ],
+      "corrected_ci95": [
+        0.17816748915608716,
+        1.2761434548350161
+      ],
+      "p": 1.0,
+      "family_tests": 11,
+      "tail_resolution_warning": false,
+      "our_loss": 10.438954989699756,
+      "benchmark_loss": 9.722426470588236,
+      "claim": "forecast loss comparison only; no betting return/price-edge inference",
+      "our_rmse": 13.318076702329302,
+      "benchmark_rmse": 12.271177672521421,
+      "crps_vs_closing_point_mass": {
+        "n": 272,
+        "games": 272,
+        "delta": -2.233929484404757,
+        "ci95": [
+          -2.619343493215454,
+          -1.8256070741019381
+        ],
+        "corrected_ci95": [
+          -2.789636776330435,
+          -1.7105179327066138
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 11,
+        "tail_resolution_warning": false
+      }
+    },
+    {
+      "configuration": {
+        "id": "margin__all__all__linear",
+        "stat": "margin",
+        "arm": "all",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "benchmark": "spread_line",
+      "n": 272,
+      "games": 272,
+      "delta": 2.1840948291561184,
+      "ci95": [
+        1.4076829060802565,
+        2.922432612726355
+      ],
+      "corrected_ci95": [
+        1.1314097859642722,
+        3.367767155759107
+      ],
+      "p": 1.0,
+      "family_tests": 11,
+      "tail_resolution_warning": false,
+      "our_loss": 11.906521299744353,
+      "benchmark_loss": 9.722426470588236,
+      "claim": "forecast loss comparison only; no betting return/price-edge inference",
+      "our_rmse": 14.938828329378184,
+      "benchmark_rmse": 12.271177672521421,
+      "crps_vs_closing_point_mass": {
+        "n": 272,
+        "games": 272,
+        "delta": -1.2820380185343223,
+        "ci95": [
+          -1.9246670599702969,
+          -0.6452454702344401
+        ],
+        "corrected_ci95": [
+          -2.159914835531687,
+          -0.35581704539728987
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 11,
+        "tail_resolution_warning": false
+      }
+    },
+    {
+      "configuration": {
+        "id": "margin__all__all__blend",
+        "stat": "margin",
+        "arm": "all",
+        "group": "all",
+        "model": "blend",
+        "family": "H6"
+      },
+      "benchmark": "spread_line",
+      "n": 272,
+      "games": 272,
+      "delta": 0.0045026623164901355,
+      "ci95": [
+        -0.008072433084508295,
+        0.016241995183049463
+      ],
+      "corrected_ci95": [
+        -0.013370310453294603,
+        0.021887852916097083
+      ],
+      "p": 0.7726136931534233,
+      "family_tests": 11,
+      "tail_resolution_warning": false,
+      "our_loss": 9.726929132904726,
+      "benchmark_loss": 9.722426470588236,
+      "claim": "forecast loss comparison only; no betting return/price-edge inference",
+      "our_rmse": 12.276016071645186,
+      "benchmark_rmse": 12.271177672521421,
+      "crps_vs_closing_point_mass": {
+        "n": 272,
+        "games": 272,
+        "delta": -2.783317991233046,
+        "ci95": [
+          -3.1063423066304576,
+          -2.4406430830869925
+        ],
+        "corrected_ci95": [
+          -3.221131536510449,
+          -2.3008268837548984
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 11,
+        "tail_resolution_warning": false
+      }
+    },
+    {
+      "configuration": {
+        "id": "total__control__all__linear",
+        "stat": "total",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "benchmark": "total_line",
+      "n": 272,
+      "games": 272,
+      "delta": 0.2916851183947395,
+      "ci95": [
+        -0.0795709052506615,
+        0.6858141296050126
+      ],
+      "corrected_ci95": [
+        -0.2176050352221504,
+        0.868252090942413
+      ],
+      "p": 0.9260369815092454,
+      "family_tests": 11,
+      "tail_resolution_warning": false,
+      "our_loss": 10.685067471335916,
+      "benchmark_loss": 10.393382352941176,
+      "claim": "forecast loss comparison only; no betting return/price-edge inference",
+      "our_rmse": 13.392090731044101,
+      "benchmark_rmse": 13.18644580397525,
+      "crps_vs_closing_point_mass": {
+        "n": 272,
+        "games": 272,
+        "delta": -2.81505350662496,
+        "ci95": [
+          -3.2909734384135407,
+          -2.364432905778551
+        ],
+        "corrected_ci95": [
+          -3.486563382474049,
+          -2.194459608887386
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 11,
+        "tail_resolution_warning": false
+      }
+    },
+    {
+      "configuration": {
+        "id": "total__all__all__linear",
+        "stat": "total",
+        "arm": "all",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "benchmark": "total_line",
+      "n": 272,
+      "games": 272,
+      "delta": 2.176965692464043,
+      "ci95": [
+        1.435656849251074,
+        2.9609496265649793
+      ],
+      "corrected_ci95": [
+        1.129952133849343,
+        3.247541217832638
+      ],
+      "p": 1.0,
+      "family_tests": 11,
+      "tail_resolution_warning": false,
+      "our_loss": 12.57034804540522,
+      "benchmark_loss": 10.393382352941176,
+      "claim": "forecast loss comparison only; no betting return/price-edge inference",
+      "our_rmse": 15.384624756773889,
+      "benchmark_rmse": 13.18644580397525,
+      "crps_vs_closing_point_mass": {
+        "n": 272,
+        "games": 272,
+        "delta": -1.628916636339179,
+        "ci95": [
+          -2.3026099793952337,
+          -0.9804286985710212
+        ],
+        "corrected_ci95": [
+          -2.581520657198595,
+          -0.6951844217238864
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 11,
+        "tail_resolution_warning": false
+      }
+    },
+    {
+      "configuration": {
+        "id": "total__all__all__blend",
+        "stat": "total",
+        "arm": "all",
+        "group": "all",
+        "model": "blend",
+        "family": "H6"
+      },
+      "benchmark": "total_line",
+      "n": 272,
+      "games": 272,
+      "delta": 0.0029488302011473084,
+      "ci95": [
+        -0.0016002443567320638,
+        0.007625980166865991
+      ],
+      "corrected_ci95": [
+        -0.003954610235322469,
+        0.010014544604654788
+      ],
+      "p": 0.8990504747626187,
+      "family_tests": 11,
+      "tail_resolution_warning": false,
+      "our_loss": 10.396331183142323,
+      "benchmark_loss": 10.393382352941176,
+      "claim": "forecast loss comparison only; no betting return/price-edge inference",
+      "our_rmse": 13.187630550247976,
+      "benchmark_rmse": 13.18644580397525,
+      "crps_vs_closing_point_mass": {
+        "n": 272,
+        "games": 272,
+        "delta": -2.963461781038432,
+        "ci95": [
+          -3.3222201085277967,
+          -2.6155210874263526
+        ],
+        "corrected_ci95": [
+          -3.4526830842282226,
+          -2.475047091644008
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 11,
+        "tail_resolution_warning": false
+      }
+    },
+    {
+      "configuration": {
+        "id": "win__control__all__linear",
+        "stat": "win",
+        "arm": "control",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "benchmark": "market_p_home_novig",
+      "n": 271,
+      "games": 271,
+      "delta": 0.02231783982044732,
+      "ci95": [
+        0.009469679421548275,
+        0.0347517126711336
+      ],
+      "corrected_ci95": [
+        0.004067871710564704,
+        0.04118483556121737
+      ],
+      "p": 1.0,
+      "family_tests": 11,
+      "tail_resolution_warning": false,
+      "our_loss": 0.23445680817123932,
+      "benchmark_loss": 0.21213896835079202,
+      "claim": "forecast loss comparison only; no betting return/price-edge inference"
+    }
+  ],
+  "weekly_archives": [
+    {
+      "revision": "2026_w07_r001_20261021T104833059637Z",
+      "created_at": "2026-10-21T10:57:14.154712+00:00",
+      "games": 14,
+      "player_rows": 1384,
+      "training_cutoff_date": "2026-10-19",
+      "training_last_completed_week": 6,
+      "forecast_files_match": true,
+      "reviewed_presentation": "data\\cache\\fpds\\amendment6\\weekly\\2026_w07_r001_20261021T104833059637Z\\presentations\\20261021T105808825692Z",
+      "checks": {
+        "all_kickoffs_after_archive": true,
+        "source_observed_before_archive": true,
+        "training_cutoff_before_archive": true,
+        "nonnegative_player_quantiles": true,
+        "nonnegative_total_quantiles": true,
+        "first_td_simplex_and_game_coverage": true,
+        "shadow_tier_only": true,
+        "forecast_files_match": true
+      }
+    }
+  ],
+  "required_weekly_tables": [
+    "bell_cow_report",
+    "coach_records",
+    "cornerbacks",
+    "coverage_matrix",
+    "fantasy_points_allowed_qb",
+    "fantasy_points_allowed_rb",
+    "fantasy_points_allowed_te",
+    "fantasy_points_allowed_wr",
+    "injury_reports",
+    "lineup_combos_db",
+    "lineup_combos_front",
+    "lineup_combos_ol",
+    "lineup_combos_rb",
+    "lineup_combos_skill",
+    "lineup_combos_te",
+    "lineup_combos_wr",
+    "pace",
+    "passing_basic",
+    "passing_depth_of_target",
+    "passing_situation",
+    "passing_stats",
+    "playcaller_stats",
+    "rb_wr_efficiency",
+    "receiving_alignment",
+    "receiving_basic",
+    "receiving_separation_by_alignment",
+    "receiving_separation_by_breaks",
+    "receiving_separation_by_coverage",
+    "receiving_separation_by_role",
+    "receiving_separation_by_routes",
+    "receiving_situation",
+    "receiving_stats",
+    "rushing_basic",
+    "rushing_stats",
+    "shadow_index",
+    "team_defense",
+    "team_offense"
+  ],
+  "confirmation": "ONE frozen2025 pass; previously examined for old simulator; no changes after results",
+  "edge": "No historical prop prices and no tradable price edge established; 2026 is descriptive only",
+  "inbox_integrity": {
+    "original_files_checked": 37,
+    "changed_files": 0
+  }
+}

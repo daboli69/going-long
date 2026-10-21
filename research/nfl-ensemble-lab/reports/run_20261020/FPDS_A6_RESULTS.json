@@ -1,8 +1,8 @@
 {
-  "created_at": "2026-10-21T06:14:09.479952+00:00",
+  "created_at": "2026-10-21T10:48:25.150771+00:00",
   "trial_count": 269,
   "trial_ceiling": 269,
-  "failed_configurations": 4,
+  "failed_configurations": 2,
   "coverage": {
     "files": 37,
     "tables": 37,
@@ -37406,8 +37406,3378 @@
       "discovery_gate": false
     }
   ],
-  "validation": [],
-  "descriptive_2026": [],
+  "validation": [
+    {
+      "configuration": {
+        "id": "rec__all__all__linear",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "n": 2016,
+      "games": 272,
+      "delta": 0.01023022114597586,
+      "ci95": [
+        -0.020803632571405956,
+        0.04314825181352336
+      ],
+      "corrected_ci95": [
+        -0.034985436867787705,
+        0.0602648190358387
+      ],
+      "p": 0.7341329335332334,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 1.4493789118687446,
+      "new_loss": 1.4596091330147203,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2025": {
+          "n": 2016,
+          "delta": 0.01023022114597586
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2016,
+        "games": 272,
+        "primary_loss": 1.4596091330147203,
+        "mae": 1.7079181643112866,
+        "rmse": 2.1881587409455303,
+        "poisson_log_loss": 2.137445990955619,
+        "interval80_coverage": 0.8283730158730159,
+        "pinball": {
+          "0.1": 0.32490165198433024,
+          "0.5": 0.8445194800711086,
+          "0.9": 0.4336441865961932
+        },
+        "crps_three_quantile_approx": 1.0687102124344214,
+        "pseudo_line_brier": 0.2291568542898166,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 48,
+            "predicted": 0.06264447894386432,
+            "observed": 0.10416666666666667
+          },
+          {
+            "bin": 1,
+            "n": 227,
+            "predicted": 0.1573116646930661,
+            "observed": 0.2599118942731278
+          },
+          {
+            "bin": 2,
+            "n": 365,
+            "predicted": 0.25335365185874115,
+            "observed": 0.3095890410958904
+          },
+          {
+            "bin": 3,
+            "n": 429,
+            "predicted": 0.35335452813853246,
+            "observed": 0.34965034965034963
+          },
+          {
+            "bin": 4,
+            "n": 412,
+            "predicted": 0.4475822939987116,
+            "observed": 0.3762135922330097
+          },
+          {
+            "bin": 5,
+            "n": 286,
+            "predicted": 0.5476070964683262,
+            "observed": 0.479020979020979
+          },
+          {
+            "bin": 6,
+            "n": 154,
+            "predicted": 0.6469450921091939,
+            "observed": 0.5454545454545454
+          },
+          {
+            "bin": 7,
+            "n": 85,
+            "predicted": 0.7397365921291756,
+            "observed": 0.6352941176470588
+          },
+          {
+            "bin": 8,
+            "n": 10,
+            "predicted": 0.8343557075016836,
+            "observed": 0.5
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 2016,
+          "games": 272,
+          "delta": 0.01619548843389162,
+          "ci95": [
+            -0.004500755434191505,
+            0.036975660681556166
+          ],
+          "corrected_ci95": [
+            -0.004500755434191505,
+            0.036975660681556166
+          ],
+          "p": 0.9365317341329336,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.43005952380952384,
+        "above_median_fraction": 0.48313492063492064
+      },
+      "relative_reduction": -0.007058348277460177,
+      "run_status": "complete",
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__linear",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "n": 896,
+      "games": 270,
+      "delta": 1.6387016304901667,
+      "ci95": [
+        0.7233800971517735,
+        2.509511494463541
+      ],
+      "corrected_ci95": [
+        0.20684924808308494,
+        3.361242241974112
+      ],
+      "p": 0.999000499750125,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 25.411308799471175,
+      "new_loss": 27.05001042996134,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2025": {
+          "n": 896,
+          "delta": 1.6387016304901667
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 896,
+        "games": 270,
+        "primary_loss": 27.05001042996134,
+        "mae": 27.05001042996134,
+        "rmse": 35.35779729911704,
+        "interval80_coverage": 0.8091517857142857,
+        "pinball": {
+          "0.1": 4.53021463985954,
+          "0.5": 13.177297166415624,
+          "0.9": 7.407003048573221
+        },
+        "crps_three_quantile_approx": 16.743009903232256,
+        "pseudo_line_brier": 0.24559398108625258,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 5,
+            "predicted": 0.08847033121792065,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 44,
+            "predicted": 0.1574243564442519,
+            "observed": 0.25
+          },
+          {
+            "bin": 2,
+            "n": 114,
+            "predicted": 0.2561678863226893,
+            "observed": 0.3157894736842105
+          },
+          {
+            "bin": 3,
+            "n": 178,
+            "predicted": 0.35330499657290954,
+            "observed": 0.38764044943820225
+          },
+          {
+            "bin": 4,
+            "n": 153,
+            "predicted": 0.452383525062563,
+            "observed": 0.48366013071895425
+          },
+          {
+            "bin": 5,
+            "n": 144,
+            "predicted": 0.5469820863453821,
+            "observed": 0.4375
+          },
+          {
+            "bin": 6,
+            "n": 123,
+            "predicted": 0.6440372553468022,
+            "observed": 0.4959349593495935
+          },
+          {
+            "bin": 7,
+            "n": 92,
+            "predicted": 0.7455775904136605,
+            "observed": 0.5869565217391305
+          },
+          {
+            "bin": 8,
+            "n": 34,
+            "predicted": 0.8463804154695075,
+            "observed": 0.6176470588235294
+          },
+          {
+            "bin": 9,
+            "n": 9,
+            "predicted": 0.9183564025703969,
+            "observed": 0.7777777777777778
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 896,
+          "games": 270,
+          "delta": 0.04050492635437344,
+          "ci95": [
+            0.010766440917258611,
+            0.07085992376351977
+          ],
+          "corrected_ci95": [
+            0.010766440917258611,
+            0.07085992376351977
+          ],
+          "p": 0.9960019990004998,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4107142857142857,
+        "above_median_fraction": 0.47433035714285715
+      },
+      "relative_reduction": -0.06448710074013461,
+      "run_status": "complete",
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__hist",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "hist",
+        "family": "H9"
+      },
+      "n": 2016,
+      "games": 272,
+      "delta": -0.0485533610046301,
+      "ci95": [
+        -0.0785171885062085,
+        -0.020133160907240464
+      ],
+      "corrected_ci95": [
+        -0.095726568248407,
+        0.00334702883508109
+      ],
+      "p": 0.0009995002498750624,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 1.4493789118687446,
+      "new_loss": 1.4008255508641145,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2025": {
+          "n": 2016,
+          "delta": -0.0485533610046301
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2016,
+        "games": 272,
+        "primary_loss": 1.4008255508641145,
+        "mae": 1.6670104578229767,
+        "rmse": 2.1258572186689797,
+        "poisson_log_loss": 2.108054199880316,
+        "interval80_coverage": 0.8229166666666666,
+        "pinball": {
+          "0.1": 0.31161003789721353,
+          "0.5": 0.8241637698247857,
+          "0.9": 0.42400662442098935
+        },
+        "crps_three_quantile_approx": 1.039853621428659,
+        "pseudo_line_brier": 0.22064840201064082,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 15,
+            "predicted": 0.08214622597080119,
+            "observed": 0.13333333333333333
+          },
+          {
+            "bin": 1,
+            "n": 149,
+            "predicted": 0.16443127422609763,
+            "observed": 0.12751677852348994
+          },
+          {
+            "bin": 2,
+            "n": 379,
+            "predicted": 0.25334235549005685,
+            "observed": 0.26649076517150394
+          },
+          {
+            "bin": 3,
+            "n": 538,
+            "predicted": 0.35000437218377234,
+            "observed": 0.36617100371747213
+          },
+          {
+            "bin": 4,
+            "n": 479,
+            "predicted": 0.44778018695720617,
+            "observed": 0.407098121085595
+          },
+          {
+            "bin": 5,
+            "n": 300,
+            "predicted": 0.5419703340990241,
+            "observed": 0.49333333333333335
+          },
+          {
+            "bin": 6,
+            "n": 126,
+            "predicted": 0.6413053383326897,
+            "observed": 0.6190476190476191
+          },
+          {
+            "bin": 7,
+            "n": 28,
+            "predicted": 0.7318339181008521,
+            "observed": 0.7142857142857143
+          },
+          {
+            "bin": 8,
+            "n": 2,
+            "predicted": 0.8170010274112629,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 2016,
+          "games": 272,
+          "delta": 0.013918250192770766,
+          "ci95": [
+            -0.006195190090629799,
+            0.0337275814576369
+          ],
+          "corrected_ci95": [
+            -0.006195190090629799,
+            0.0337275814576369
+          ],
+          "p": 0.9180409795102449,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.44246031746031744,
+        "above_median_fraction": 0.47668650793650796
+      },
+      "relative_reduction": 0.03349942558639012,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 2016,
+        "games": 272,
+        "delta": -0.05878358215060595,
+        "ci95": [
+          -0.09048658664462532,
+          -0.028240791960192146
+        ],
+        "corrected_ci95": [
+          -0.1042085889622747,
+          -0.01037282605312417
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 0.04597701149425287,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__xgboost",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "xgboost",
+        "family": "H9"
+      },
+      "n": 2016,
+      "games": 272,
+      "delta": -0.03362928328063818,
+      "ci95": [
+        -0.05497168209309644,
+        -0.01146249230444569
+      ],
+      "corrected_ci95": [
+        -0.06857432862472321,
+        0.00022855470144059916
+      ],
+      "p": 0.0024987506246876563,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 1.4493789118687446,
+      "new_loss": 1.4157496285881064,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2025": {
+          "n": 2016,
+          "delta": -0.03362928328063818
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2016,
+        "games": 272,
+        "primary_loss": 1.4157496285881064,
+        "mae": 1.682859647486891,
+        "rmse": 2.133512256087557,
+        "poisson_log_loss": 2.115516238742312,
+        "interval80_coverage": 0.8204365079365079,
+        "pinball": {
+          "0.1": 0.3067245320916649,
+          "0.5": 0.8302748472326331,
+          "0.9": 0.4303869220200512
+        },
+        "crps_three_quantile_approx": 1.0449242008962327,
+        "pseudo_line_brier": 0.22410716353929439,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 9,
+            "predicted": 0.07791531406905305,
+            "observed": 0.2222222222222222
+          },
+          {
+            "bin": 1,
+            "n": 123,
+            "predicted": 0.16345475127915501,
+            "observed": 0.15447154471544716
+          },
+          {
+            "bin": 2,
+            "n": 341,
+            "predicted": 0.2572147370404277,
+            "observed": 0.2697947214076246
+          },
+          {
+            "bin": 3,
+            "n": 540,
+            "predicted": 0.34964923327628505,
+            "observed": 0.35185185185185186
+          },
+          {
+            "bin": 4,
+            "n": 491,
+            "predicted": 0.44997314366307856,
+            "observed": 0.3971486761710794
+          },
+          {
+            "bin": 5,
+            "n": 345,
+            "predicted": 0.5409921669494796,
+            "observed": 0.45507246376811594
+          },
+          {
+            "bin": 6,
+            "n": 132,
+            "predicted": 0.6412178870551,
+            "observed": 0.6287878787878788
+          },
+          {
+            "bin": 7,
+            "n": 33,
+            "predicted": 0.7376680873196422,
+            "observed": 0.6666666666666666
+          },
+          {
+            "bin": 8,
+            "n": 2,
+            "predicted": 0.8419040860515293,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 2016,
+          "games": 272,
+          "delta": 0.02657426131696617,
+          "ci95": [
+            0.005521945298450841,
+            0.04666341074274953
+          ],
+          "corrected_ci95": [
+            0.005521945298450841,
+            0.04666341074274953
+          ],
+          "p": 0.9950024987506247,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4330357142857143,
+        "above_median_fraction": 0.47172619047619047
+      },
+      "relative_reduction": 0.02320254766041721,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 2016,
+        "games": 272,
+        "delta": -0.04385950442661405,
+        "ci95": [
+          -0.07383032416490708,
+          -0.013975066726334423
+        ],
+        "corrected_ci95": [
+          -0.08963941661704268,
+          0.004639070720787796
+        ],
+        "p": 0.0029985007496251873,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 0.10994502748625688,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__mlp",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "mlp",
+        "family": "H9"
+      },
+      "n": 2016,
+      "games": 272,
+      "delta": 0.052763289982282996,
+      "ci95": [
+        0.01940484317707745,
+        0.08837720318492229
+      ],
+      "corrected_ci95": [
+        -0.0014209668118696517,
+        0.11126957167837907
+      ],
+      "p": 0.9960019990004998,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 1.4493789118687446,
+      "new_loss": 1.5021422018510275,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2025": {
+          "n": 2016,
+          "delta": 0.052763289982282996
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2016,
+        "games": 272,
+        "primary_loss": 1.5021422018510275,
+        "mae": 1.7401434549512689,
+        "rmse": 2.192767382271061,
+        "poisson_log_loss": 2.158712525373773,
+        "interval80_coverage": 0.8263888888888888,
+        "pinball": {
+          "0.1": 0.31300399040649646,
+          "0.5": 0.8512803679845209,
+          "0.9": 0.44226798014306345
+        },
+        "crps_three_quantile_approx": 1.071034892356054,
+        "pseudo_line_brier": 0.23607989128214754,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 57,
+            "predicted": 0.06702817089349396,
+            "observed": 0.17543859649122806
+          },
+          {
+            "bin": 1,
+            "n": 149,
+            "predicted": 0.1579424618231489,
+            "observed": 0.26174496644295303
+          },
+          {
+            "bin": 2,
+            "n": 318,
+            "predicted": 0.25582110467861985,
+            "observed": 0.3081761006289308
+          },
+          {
+            "bin": 3,
+            "n": 420,
+            "predicted": 0.35305644378094503,
+            "observed": 0.32142857142857145
+          },
+          {
+            "bin": 4,
+            "n": 340,
+            "predicted": 0.4462036318452632,
+            "observed": 0.4
+          },
+          {
+            "bin": 5,
+            "n": 373,
+            "predicted": 0.5528899366006973,
+            "observed": 0.3914209115281501
+          },
+          {
+            "bin": 6,
+            "n": 215,
+            "predicted": 0.637203780352538,
+            "observed": 0.5023255813953489
+          },
+          {
+            "bin": 7,
+            "n": 100,
+            "predicted": 0.7506326375125236,
+            "observed": 0.59
+          },
+          {
+            "bin": 8,
+            "n": 43,
+            "predicted": 0.8284851857335069,
+            "observed": 0.6976744186046512
+          },
+          {
+            "bin": 9,
+            "n": 1,
+            "predicted": 0.9084408052116706,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 2016,
+          "games": 272,
+          "delta": 0.050357843118366274,
+          "ci95": [
+            0.02917295563056341,
+            0.07073733480424482
+          ],
+          "corrected_ci95": [
+            0.02917295563056341,
+            0.07073733480424482
+          ],
+          "p": 1.0,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4087301587301587,
+        "above_median_fraction": 0.49503968253968256
+      },
+      "relative_reduction": -0.0364040690465498,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 2016,
+        "games": 272,
+        "delta": 0.04253306883630712,
+        "ci95": [
+          0.00319215552315268,
+          0.08265062856809022
+        ],
+        "corrected_ci95": [
+          -0.018653890472464567,
+          0.10877021314758092
+        ],
+        "p": 0.9805097451274363,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__stacked",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "n": 2016,
+      "games": 272,
+      "delta": -0.05196401396810956,
+      "ci95": [
+        -0.07518731134964199,
+        -0.028873295675000236
+      ],
+      "corrected_ci95": [
+        -0.0888993308857057,
+        -0.012322696567554067
+      ],
+      "p": 0.0004997501249375312,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 1.4493789118687446,
+      "new_loss": 1.397414897900635,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2025": {
+          "n": 2016,
+          "delta": -0.05196401396810956
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2016,
+        "games": 272,
+        "primary_loss": 1.397414897900635,
+        "mae": 1.6683864532940382,
+        "rmse": 2.122141405493558,
+        "poisson_log_loss": 2.1063488733985767,
+        "interval80_coverage": 0.8234126984126984,
+        "pinball": {
+          "0.1": 0.30950126952697243,
+          "0.5": 0.8231955471326149,
+          "0.9": 0.4249653018499713
+        },
+        "crps_three_quantile_approx": 1.0384414123397057,
+        "pseudo_line_brier": 0.22111772901945081,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 8,
+            "predicted": 0.062111991759972535,
+            "observed": 0.125
+          },
+          {
+            "bin": 1,
+            "n": 139,
+            "predicted": 0.16104391893425582,
+            "observed": 0.1366906474820144
+          },
+          {
+            "bin": 2,
+            "n": 379,
+            "predicted": 0.25629789180041446,
+            "observed": 0.2796833773087071
+          },
+          {
+            "bin": 3,
+            "n": 536,
+            "predicted": 0.35022831992272424,
+            "observed": 0.332089552238806
+          },
+          {
+            "bin": 4,
+            "n": 478,
+            "predicted": 0.45063013092770493,
+            "observed": 0.4330543933054393
+          },
+          {
+            "bin": 5,
+            "n": 315,
+            "predicted": 0.5427302833149975,
+            "observed": 0.4507936507936508
+          },
+          {
+            "bin": 6,
+            "n": 129,
+            "predicted": 0.645313175685964,
+            "observed": 0.6589147286821705
+          },
+          {
+            "bin": 7,
+            "n": 31,
+            "predicted": 0.7347102352252161,
+            "observed": 0.7419354838709677
+          },
+          {
+            "bin": 8,
+            "n": 1,
+            "predicted": 0.8209796005471417,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 2016,
+          "games": 272,
+          "delta": 0.01931791642885118,
+          "ci95": [
+            -0.001122990742199824,
+            0.03907401835918582
+          ],
+          "corrected_ci95": [
+            -0.001122990742199824,
+            0.03907401835918582
+          ],
+          "p": 0.9715142428785607,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4375,
+        "above_median_fraction": 0.4751984126984127
+      },
+      "relative_reduction": 0.03585260799821504,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 2016,
+        "games": 272,
+        "delta": -0.06219423511408541,
+        "ci95": [
+          -0.08530421898683221,
+          -0.03943311831350412
+        ],
+        "corrected_ci95": [
+          -0.09809455754052442,
+          -0.022250920129890703
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 0.0239880059970015,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__hist",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "hist",
+        "family": "H9"
+      },
+      "n": 896,
+      "games": 270,
+      "delta": -0.7915927138824951,
+      "ci95": [
+        -1.4184664861735832,
+        -0.18925928783629828
+      ],
+      "corrected_ci95": [
+        -1.8337965917311023,
+        0.2648765496795693
+      ],
+      "p": 0.0074962518740629685,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 25.411308799471175,
+      "new_loss": 24.61971608558868,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2025": {
+          "n": 896,
+          "delta": -0.7915927138824951
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 896,
+        "games": 270,
+        "primary_loss": 24.61971608558868,
+        "mae": 24.61971608558868,
+        "rmse": 32.538059314849555,
+        "interval80_coverage": 0.8035714285714286,
+        "pinball": {
+          "0.1": 4.260265827784542,
+          "0.5": 12.043664881342483,
+          "0.9": 6.896226690733397
+        },
+        "crps_three_quantile_approx": 15.466771599906947,
+        "pseudo_line_brier": 0.22567501319207858,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 1,
+            "predicted": 0.07554744525547445,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 34,
+            "predicted": 0.1583596402856702,
+            "observed": 0.20588235294117646
+          },
+          {
+            "bin": 2,
+            "n": 108,
+            "predicted": 0.25925596845540205,
+            "observed": 0.28703703703703703
+          },
+          {
+            "bin": 3,
+            "n": 230,
+            "predicted": 0.3509452770209103,
+            "observed": 0.3521739130434783
+          },
+          {
+            "bin": 4,
+            "n": 231,
+            "predicted": 0.4503779184361871,
+            "observed": 0.4025974025974026
+          },
+          {
+            "bin": 5,
+            "n": 134,
+            "predicted": 0.5495714667792208,
+            "observed": 0.5671641791044776
+          },
+          {
+            "bin": 6,
+            "n": 84,
+            "predicted": 0.6448274609308065,
+            "observed": 0.6309523809523809
+          },
+          {
+            "bin": 7,
+            "n": 46,
+            "predicted": 0.7468561246696421,
+            "observed": 0.717391304347826
+          },
+          {
+            "bin": 8,
+            "n": 24,
+            "predicted": 0.8496592395470332,
+            "observed": 0.75
+          },
+          {
+            "bin": 9,
+            "n": 4,
+            "predicted": 0.94381282745833,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 896,
+          "games": 270,
+          "delta": 0.009536462881796019,
+          "ci95": [
+            -0.020105212354994174,
+            0.03938729674162176
+          ],
+          "corrected_ci95": [
+            -0.020105212354994174,
+            0.03938729674162176
+          ],
+          "p": 0.7451274362818591,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.41629464285714285,
+        "above_median_fraction": 0.5022321428571429
+      },
+      "relative_reduction": 0.031151198079926078,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 896,
+        "games": 270,
+        "delta": -2.430294344372662,
+        "ci95": [
+          -3.2790574753861024,
+          -1.5786856640169449
+        ],
+        "corrected_ci95": [
+          -3.795852028571097,
+          -0.9336115365547338
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 0.32233883058470764,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__xgboost",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "xgboost",
+        "family": "H9"
+      },
+      "n": 896,
+      "games": 270,
+      "delta": -0.9671600354569299,
+      "ci95": [
+        -1.519455595163875,
+        -0.4235411090969348
+      ],
+      "corrected_ci95": [
+        -1.8048180108886278,
+        -0.073627207222246
+      ],
+      "p": 0.0009995002498750624,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 25.411308799471175,
+      "new_loss": 24.444148764014244,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2025": {
+          "n": 896,
+          "delta": -0.9671600354569299
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 896,
+        "games": 270,
+        "primary_loss": 24.444148764014244,
+        "mae": 24.444148764014244,
+        "rmse": 32.37945604779467,
+        "interval80_coverage": 0.8024553571428571,
+        "pinball": {
+          "0.1": 4.242751131909235,
+          "0.5": 11.958705757345472,
+          "0.9": 6.95988015860319
+        },
+        "crps_three_quantile_approx": 15.440891365238599,
+        "pseudo_line_brier": 0.22513069523261078,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 3,
+            "predicted": 0.0894160583941606,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 29,
+            "predicted": 0.15900860649479884,
+            "observed": 0.20689655172413793
+          },
+          {
+            "bin": 2,
+            "n": 102,
+            "predicted": 0.2617902959157051,
+            "observed": 0.29411764705882354
+          },
+          {
+            "bin": 3,
+            "n": 227,
+            "predicted": 0.35385202089775536,
+            "observed": 0.32158590308370044
+          },
+          {
+            "bin": 4,
+            "n": 239,
+            "predicted": 0.4509325381869253,
+            "observed": 0.42677824267782427
+          },
+          {
+            "bin": 5,
+            "n": 160,
+            "predicted": 0.5447941389229344,
+            "observed": 0.58125
+          },
+          {
+            "bin": 6,
+            "n": 79,
+            "predicted": 0.6373160409336643,
+            "observed": 0.6075949367088608
+          },
+          {
+            "bin": 7,
+            "n": 41,
+            "predicted": 0.7486292121541921,
+            "observed": 0.7073170731707317
+          },
+          {
+            "bin": 8,
+            "n": 14,
+            "predicted": 0.8385429912754734,
+            "observed": 0.9285714285714286
+          },
+          {
+            "bin": 9,
+            "n": 2,
+            "predicted": 0.9202441455949916,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 896,
+          "games": 270,
+          "delta": 0.006103025274773059,
+          "ci95": [
+            -0.023672674809348357,
+            0.03596244934834294
+          ],
+          "corrected_ci95": [
+            -0.023672674809348357,
+            0.03596244934834294
+          ],
+          "p": 0.6476761619190404,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.41964285714285715,
+        "above_median_fraction": 0.5044642857142857
+      },
+      "relative_reduction": 0.03806022126168712,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 896,
+        "games": 270,
+        "delta": -2.6058616659470966,
+        "ci95": [
+          -3.4303611709929682,
+          -1.7789220811973827
+        ],
+        "corrected_ci95": [
+          -4.041241872553632,
+          -1.2732151212522036
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 0.04597701149425287,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__mlp",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "mlp",
+        "family": "H9"
+      },
+      "n": 896,
+      "games": 270,
+      "delta": 0.8858798434358174,
+      "ci95": [
+        0.2860799542868984,
+        1.4982484381144334
+      ],
+      "corrected_ci95": [
+        -0.29363432544847246,
+        1.8659647506644381
+      ],
+      "p": 0.9955022488755623,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 25.411308799471175,
+      "new_loss": 26.297188642906995,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2025": {
+          "n": 896,
+          "delta": 0.8858798434358174
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 896,
+        "games": 270,
+        "primary_loss": 26.297188642906995,
+        "mae": 26.297188642906995,
+        "rmse": 33.96401848434804,
+        "interval80_coverage": 0.8069196428571429,
+        "pinball": {
+          "0.1": 4.235534887150065,
+          "0.5": 12.62678028426858,
+          "0.9": 7.43356373622573
+        },
+        "crps_three_quantile_approx": 16.19725260509625,
+        "pseudo_line_brier": 0.2414899446011734,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 6,
+            "predicted": 0.05949606866220188,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 48,
+            "predicted": 0.15413844904354598,
+            "observed": 0.2916666666666667
+          },
+          {
+            "bin": 2,
+            "n": 93,
+            "predicted": 0.25219522979880615,
+            "observed": 0.3333333333333333
+          },
+          {
+            "bin": 3,
+            "n": 188,
+            "predicted": 0.3534849531558049,
+            "observed": 0.39893617021276595
+          },
+          {
+            "bin": 4,
+            "n": 176,
+            "predicted": 0.4530335047550673,
+            "observed": 0.3806818181818182
+          },
+          {
+            "bin": 5,
+            "n": 197,
+            "predicted": 0.5460553459834196,
+            "observed": 0.4873096446700508
+          },
+          {
+            "bin": 6,
+            "n": 104,
+            "predicted": 0.6493026695811376,
+            "observed": 0.5769230769230769
+          },
+          {
+            "bin": 7,
+            "n": 73,
+            "predicted": 0.7422800542718736,
+            "observed": 0.6301369863013698
+          },
+          {
+            "bin": 8,
+            "n": 9,
+            "predicted": 0.835749577858208,
+            "observed": 0.7777777777777778
+          },
+          {
+            "bin": 9,
+            "n": 2,
+            "predicted": 0.9355889014722537,
+            "observed": 0.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 896,
+          "games": 270,
+          "delta": 0.022409146348462854,
+          "ci95": [
+            -0.006905880549161645,
+            0.05225196707469945
+          ],
+          "corrected_ci95": [
+            -0.006905880549161645,
+            0.05225196707469945
+          ],
+          "p": 0.9305347326336831,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.39620535714285715,
+        "above_median_fraction": 0.4877232142857143
+      },
+      "relative_reduction": -0.03486163780175908,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 896,
+        "games": 270,
+        "delta": -0.7528217870543494,
+        "ci95": [
+          -1.6935115537336825,
+          0.19815477703975654
+        ],
+        "corrected_ci95": [
+          -2.318348285601068,
+          0.5796028673133613
+        ],
+        "p": 0.05347326336831584,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__stacked",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "n": 896,
+      "games": 270,
+      "delta": -1.027034382128446,
+      "ci95": [
+        -1.5800246964675866,
+        -0.4929173187691225
+      ],
+      "corrected_ci95": [
+        -1.896920699212332,
+        -0.18991826473304937
+      ],
+      "p": 0.0004997501249375312,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 25.411308799471175,
+      "new_loss": 24.38427441734273,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2025": {
+          "n": 896,
+          "delta": -1.027034382128446
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 896,
+        "games": 270,
+        "primary_loss": 24.38427441734273,
+        "mae": 24.38427441734273,
+        "rmse": 32.43898641479888,
+        "interval80_coverage": 0.8113839285714286,
+        "pinball": {
+          "0.1": 4.218645518284382,
+          "0.5": 11.97986193281863,
+          "0.9": 6.9659871012239885
+        },
+        "crps_three_quantile_approx": 15.442996368218,
+        "pseudo_line_brier": 0.22464211851260063,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 3,
+            "predicted": 0.09256181116704927,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 24,
+            "predicted": 0.15754772382717422,
+            "observed": 0.20833333333333334
+          },
+          {
+            "bin": 2,
+            "n": 95,
+            "predicted": 0.2583180256994184,
+            "observed": 0.29473684210526313
+          },
+          {
+            "bin": 3,
+            "n": 221,
+            "predicted": 0.35349983224711545,
+            "observed": 0.33031674208144796
+          },
+          {
+            "bin": 4,
+            "n": 260,
+            "predicted": 0.4475937834075277,
+            "observed": 0.4076923076923077
+          },
+          {
+            "bin": 5,
+            "n": 152,
+            "predicted": 0.5501901597510809,
+            "observed": 0.5789473684210527
+          },
+          {
+            "bin": 6,
+            "n": 81,
+            "predicted": 0.6411978969937829,
+            "observed": 0.6049382716049383
+          },
+          {
+            "bin": 7,
+            "n": 39,
+            "predicted": 0.7433583564062654,
+            "observed": 0.7692307692307693
+          },
+          {
+            "bin": 8,
+            "n": 19,
+            "predicted": 0.8357322420411694,
+            "observed": 0.7894736842105263
+          },
+          {
+            "bin": 9,
+            "n": 2,
+            "predicted": 0.9219136706195665,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 896,
+          "games": 270,
+          "delta": 0.01046488798872122,
+          "ci95": [
+            -0.019209016991905605,
+            0.04036960026598799
+          ],
+          "corrected_ci95": [
+            -0.019209016991905605,
+            0.04036960026598799
+          ],
+          "p": 0.7651174412793603,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.421875,
+        "above_median_fraction": 0.5022321428571429
+      },
+      "relative_reduction": 0.040416429953809355,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 896,
+        "games": 270,
+        "delta": -2.6657360126186127,
+        "ci95": [
+          -3.4318181846314295,
+          -1.9121787496988427
+        ],
+        "corrected_ci95": [
+          -3.92919375696767,
+          -1.3912665619192608
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 0.0239880059970015,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "margin__all__all__linear",
+        "stat": "margin",
+        "arm": "all",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "n": 272,
+      "games": 272,
+      "delta": 1.4675663100445973,
+      "ci95": [
+        0.6794011947424973,
+        2.1973576230270897
+      ],
+      "corrected_ci95": [
+        0.33045603500576015,
+        2.67022912086513
+      ],
+      "p": 0.9995002498750625,
+      "family_tests": 34,
+      "tail_resolution_warning": false,
+      "control_loss": 10.438954989699756,
+      "new_loss": 11.906521299744353,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2025": {
+          "n": 272,
+          "delta": 1.4675663100445973
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 272,
+        "games": 272,
+        "primary_loss": 11.906521299744353,
+        "mae": 11.906521299744353,
+        "rmse": 14.938828329378184,
+        "crps_empirical_residual": 8.440388452053913,
+        "interval80_coverage": 0.7794117647058824,
+        "pinball": {
+          "0.1": 2.6630888128543604,
+          "0.5": 5.964028358678608,
+          "0.9": 2.5824151212941193
+        },
+        "crps_three_quantile_approx": 7.473021528551391
+      },
+      "relative_reduction": -0.14058555779698856,
+      "run_status": "complete",
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "margin__all__all__blend",
+        "stat": "margin",
+        "arm": "all",
+        "group": "all",
+        "model": "blend",
+        "family": "H6"
+      },
+      "n": 272,
+      "games": 272,
+      "delta": -0.712025856795031,
+      "ci95": [
+        -1.1011333842887785,
+        -0.34006889071239993
+      ],
+      "corrected_ci95": [
+        -1.3189196745919285,
+        -0.13732370126103485
+      ],
+      "p": 0.0004997501249375312,
+      "family_tests": 34,
+      "tail_resolution_warning": false,
+      "control_loss": 10.438954989699756,
+      "new_loss": 9.726929132904726,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2025": {
+          "n": 272,
+          "delta": -0.712025856795031
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 272,
+        "games": 272,
+        "primary_loss": 9.726929132904726,
+        "mae": 9.726929132904726,
+        "rmse": 12.276016071645186,
+        "crps_empirical_residual": 6.939108479355189,
+        "interval80_coverage": 0.7830882352941176,
+        "pinball": {
+          "0.1": 2.089790386004792,
+          "0.5": 4.863464566452363,
+          "0.9": 2.26014382888415
+        },
+        "crps_three_quantile_approx": 6.142265854227536
+      },
+      "relative_reduction": 0.06820853787544784,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 272,
+        "games": 272,
+        "delta": -2.1795921668396283,
+        "ci95": [
+          -2.9073956896416666,
+          -1.4114722105347222
+        ],
+        "corrected_ci95": [
+          -3.5096925973330033,
+          -1.0969011075224988
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 34,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 0.01699150424787606,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "total__all__all__linear",
+        "stat": "total",
+        "arm": "all",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "n": 272,
+      "games": 272,
+      "delta": 1.8852805740693037,
+      "ci95": [
+        1.1887989436878876,
+        2.593714242822984
+      ],
+      "corrected_ci95": [
+        0.8397167293928486,
+        3.058263688124591
+      ],
+      "p": 1.0,
+      "family_tests": 34,
+      "tail_resolution_warning": false,
+      "control_loss": 10.685067471335916,
+      "new_loss": 12.57034804540522,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2025": {
+          "n": 272,
+          "delta": 1.8852805740693037
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 272,
+        "games": 272,
+        "primary_loss": 12.57034804540522,
+        "mae": 12.57034804540522,
+        "rmse": 15.384624756773889,
+        "crps_empirical_residual": 8.764465716601997,
+        "interval80_coverage": 0.8051470588235294,
+        "pinball": {
+          "0.1": 2.602913742766661,
+          "0.5": 6.2772118063534,
+          "0.9": 2.7701185705381275
+        },
+        "crps_three_quantile_approx": 7.766829413105459
+      },
+      "relative_reduction": -0.17644068033513258,
+      "run_status": "complete",
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "total__all__all__blend",
+        "stat": "total",
+        "arm": "all",
+        "group": "all",
+        "model": "blend",
+        "family": "H6"
+      },
+      "n": 272,
+      "games": 272,
+      "delta": -0.2887362881935922,
+      "ci95": [
+        -0.6792240091998188,
+        0.08106353875923647
+      ],
+      "corrected_ci95": [
+        -0.9353108690142179,
+        0.24350765864493518
+      ],
+      "p": 0.07546226886556721,
+      "family_tests": 34,
+      "tail_resolution_warning": false,
+      "control_loss": 10.685067471335916,
+      "new_loss": 10.396331183142323,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2025": {
+          "n": 272,
+          "delta": -0.2887362881935922
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 272,
+        "games": 272,
+        "primary_loss": 10.396331183142323,
+        "mae": 10.396331183142323,
+        "rmse": 13.187630550247976,
+        "crps_empirical_residual": 7.429920571902745,
+        "interval80_coverage": 0.7904411764705882,
+        "pinball": {
+          "0.1": 2.109612361971273,
+          "0.5": 5.210092569224729,
+          "0.9": 2.5031606025768576
+        },
+        "crps_three_quantile_approx": 6.548577022515239
+      },
+      "relative_reduction": 0.027022411320112377,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 272,
+        "games": 272,
+        "delta": -2.1740168622628957,
+        "ci95": [
+          -2.9540521801891484,
+          -1.436162472115727
+        ],
+        "corrected_ci95": [
+          -3.5005321001491865,
+          -1.0519472798178897
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 34,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 1.0,
+      "discovery_gate": false
+    }
+  ],
+  "descriptive_2026": [
+    {
+      "configuration": {
+        "id": "rec__all__all__linear",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "n": 708,
+      "games": 93,
+      "delta": 0.14743523492315008,
+      "ci95": [
+        0.060370256308766815,
+        0.2379228430673014
+      ],
+      "corrected_ci95": [
+        0.020737179743953248,
+        0.2894409196339953
+      ],
+      "p": 0.9995002498750625,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 1.6221260907042458,
+      "new_loss": 1.769561325627396,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2026": {
+          "n": 708,
+          "delta": 0.14743523492315008
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 708,
+        "games": 93,
+        "primary_loss": 1.769561325627396,
+        "mae": 1.8038633819942858,
+        "rmse": 2.415034973421701,
+        "poisson_log_loss": 2.2766683927726916,
+        "interval80_coverage": 0.7951977401129944,
+        "pinball": {
+          "0.1": 0.3330233485120488,
+          "0.5": 0.9089473376371853,
+          "0.9": 0.4847790463912252
+        },
+        "crps_three_quantile_approx": 1.151166488360306,
+        "pseudo_line_brier": 0.24745736063319193,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 38,
+            "predicted": 0.05593808875386854,
+            "observed": 0.3157894736842105
+          },
+          {
+            "bin": 1,
+            "n": 120,
+            "predicted": 0.14965579156114064,
+            "observed": 0.3333333333333333
+          },
+          {
+            "bin": 2,
+            "n": 126,
+            "predicted": 0.24472152519849996,
+            "observed": 0.3412698412698413
+          },
+          {
+            "bin": 3,
+            "n": 138,
+            "predicted": 0.3497460019403216,
+            "observed": 0.39855072463768115
+          },
+          {
+            "bin": 4,
+            "n": 123,
+            "predicted": 0.44833209226282017,
+            "observed": 0.4796747967479675
+          },
+          {
+            "bin": 5,
+            "n": 92,
+            "predicted": 0.5486846505663904,
+            "observed": 0.5543478260869565
+          },
+          {
+            "bin": 6,
+            "n": 45,
+            "predicted": 0.6396434986740387,
+            "observed": 0.6
+          },
+          {
+            "bin": 7,
+            "n": 17,
+            "predicted": 0.7506615966783634,
+            "observed": 0.5294117647058824
+          },
+          {
+            "bin": 8,
+            "n": 8,
+            "predicted": 0.8421455581875583,
+            "observed": 0.75
+          },
+          {
+            "bin": 9,
+            "n": 1,
+            "predicted": 0.9569180772528928,
+            "observed": 0.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 708,
+          "games": 93,
+          "delta": -0.06772976676580321,
+          "ci95": [
+            -0.10740540979061448,
+            -0.027406235915327284
+          ],
+          "corrected_ci95": [
+            -0.10740540979061448,
+            -0.027406235915327284
+          ],
+          "p": 0.0004997501249375312,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.5,
+        "above_median_fraction": 0.557909604519774
+      },
+      "relative_reduction": -0.09089011992843361,
+      "run_status": "complete",
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__linear",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "linear",
+        "family": "H9"
+      },
+      "n": 294,
+      "games": 93,
+      "delta": -0.36355641423439494,
+      "ci95": [
+        -1.5936038533838615,
+        0.9927546651447083
+      ],
+      "corrected_ci95": [
+        -2.53883357097008,
+        1.896730701137523
+      ],
+      "p": 0.2933533233383308,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 25.449221396932796,
+      "new_loss": 25.0856649826984,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2026": {
+          "n": 294,
+          "delta": -0.36355641423439494
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 294,
+        "games": 93,
+        "primary_loss": 25.0856649826984,
+        "mae": 25.0856649826984,
+        "rmse": 32.81340619396222,
+        "interval80_coverage": 0.8367346938775511,
+        "pinball": {
+          "0.1": 4.127308567981331,
+          "0.5": 12.309513455345517,
+          "0.9": 6.937249773375841
+        },
+        "crps_three_quantile_approx": 15.582714531135125,
+        "pseudo_line_brier": 0.22450662248635642,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 2,
+            "predicted": 0.08693314572656743,
+            "observed": 0.5
+          },
+          {
+            "bin": 1,
+            "n": 19,
+            "predicted": 0.15278837085657376,
+            "observed": 0.21052631578947367
+          },
+          {
+            "bin": 2,
+            "n": 61,
+            "predicted": 0.2533914270517398,
+            "observed": 0.21311475409836064
+          },
+          {
+            "bin": 3,
+            "n": 56,
+            "predicted": 0.3489897925814187,
+            "observed": 0.35714285714285715
+          },
+          {
+            "bin": 4,
+            "n": 72,
+            "predicted": 0.4505324967525001,
+            "observed": 0.375
+          },
+          {
+            "bin": 5,
+            "n": 39,
+            "predicted": 0.547635721516858,
+            "observed": 0.48717948717948717
+          },
+          {
+            "bin": 6,
+            "n": 21,
+            "predicted": 0.6411330634522445,
+            "observed": 0.6190476190476191
+          },
+          {
+            "bin": 7,
+            "n": 16,
+            "predicted": 0.7465393732169827,
+            "observed": 0.4375
+          },
+          {
+            "bin": 8,
+            "n": 8,
+            "predicted": 0.8388830889281887,
+            "observed": 0.875
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 294,
+          "games": 93,
+          "delta": 0.04419310439855594,
+          "ci95": [
+            -0.004528862308363346,
+            0.09352577849530522
+          ],
+          "corrected_ci95": [
+            -0.004528862308363346,
+            0.09352577849530522
+          ],
+          "p": 0.9625187406296851,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.41836734693877553,
+        "above_median_fraction": 0.5
+      },
+      "relative_reduction": 0.01428556137588601,
+      "run_status": "complete",
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__hist",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "hist",
+        "family": "H9"
+      },
+      "n": 708,
+      "games": 93,
+      "delta": 0.045577036029755214,
+      "ci95": [
+        -0.00779794301340489,
+        0.10296414269665452
+      ],
+      "corrected_ci95": [
+        -0.04004662637082947,
+        0.13760276423284754
+      ],
+      "p": 0.9465267366316842,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 1.6221260907042458,
+      "new_loss": 1.6677031267340012,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2026": {
+          "n": 708,
+          "delta": 0.045577036029755214
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 708,
+        "games": 93,
+        "primary_loss": 1.6677031267340012,
+        "mae": 1.7795028508419795,
+        "rmse": 2.3439403757632626,
+        "poisson_log_loss": 2.2257392933259945,
+        "interval80_coverage": 0.7994350282485876,
+        "pinball": {
+          "0.1": 0.32052582851794176,
+          "0.5": 0.8888899690943539,
+          "0.9": 0.4687349459691499
+        },
+        "crps_three_quantile_approx": 1.1187671623876303,
+        "pseudo_line_brier": 0.237523172191297,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 10,
+            "predicted": 0.0765300013018838,
+            "observed": 0.1
+          },
+          {
+            "bin": 1,
+            "n": 63,
+            "predicted": 0.1618929629283742,
+            "observed": 0.36507936507936506
+          },
+          {
+            "bin": 2,
+            "n": 145,
+            "predicted": 0.2577694557697576,
+            "observed": 0.31724137931034485
+          },
+          {
+            "bin": 3,
+            "n": 175,
+            "predicted": 0.34938989659145503,
+            "observed": 0.4
+          },
+          {
+            "bin": 4,
+            "n": 174,
+            "predicted": 0.4483307249106379,
+            "observed": 0.4367816091954023
+          },
+          {
+            "bin": 5,
+            "n": 93,
+            "predicted": 0.5495839050683609,
+            "observed": 0.5698924731182796
+          },
+          {
+            "bin": 6,
+            "n": 40,
+            "predicted": 0.6422657630683009,
+            "observed": 0.675
+          },
+          {
+            "bin": 7,
+            "n": 6,
+            "predicted": 0.7359261591806822,
+            "observed": 1.0
+          },
+          {
+            "bin": 8,
+            "n": 2,
+            "predicted": 0.8281813888901675,
+            "observed": 0.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 708,
+          "games": 93,
+          "delta": -0.04467830617368516,
+          "ci95": [
+            -0.08166906908758492,
+            -0.008170760791870749
+          ],
+          "corrected_ci95": [
+            -0.08166906908758492,
+            -0.008170760791870749
+          ],
+          "p": 0.01249375312343828,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4788135593220339,
+        "above_median_fraction": 0.519774011299435
+      },
+      "relative_reduction": -0.02809709817932091,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 708,
+        "games": 93,
+        "delta": -0.10185819889339484,
+        "ci95": [
+          -0.17426242784626542,
+          -0.023850573376639875
+        ],
+        "corrected_ci95": [
+          -0.22052322816858658,
+          0.01839298273040855
+        ],
+        "p": 0.004997501249375313,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__xgboost",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "xgboost",
+        "family": "H9"
+      },
+      "n": 708,
+      "games": 93,
+      "delta": 0.014226273960357074,
+      "ci95": [
+        -0.02246142106537416,
+        0.05257526398031556
+      ],
+      "corrected_ci95": [
+        -0.04393890400551339,
+        0.07790866613895514
+      ],
+      "p": 0.777111444277861,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 1.6221260907042458,
+      "new_loss": 1.636352364664603,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2026": {
+          "n": 708,
+          "delta": 0.014226273960357074
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 708,
+        "games": 93,
+        "primary_loss": 1.636352364664603,
+        "mae": 1.7844088910999945,
+        "rmse": 2.328491836186018,
+        "poisson_log_loss": 2.2100639122912953,
+        "interval80_coverage": 0.8008474576271186,
+        "pinball": {
+          "0.1": 0.31863133901593377,
+          "0.5": 0.8899105136508996,
+          "0.9": 0.4642963798672465
+        },
+        "crps_three_quantile_approx": 1.1152254883560533,
+        "pseudo_line_brier": 0.23360748210358678,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 5,
+            "predicted": 0.08579341621698507,
+            "observed": 0.2
+          },
+          {
+            "bin": 1,
+            "n": 40,
+            "predicted": 0.1606692267764175,
+            "observed": 0.275
+          },
+          {
+            "bin": 2,
+            "n": 123,
+            "predicted": 0.25391539599429086,
+            "observed": 0.34959349593495936
+          },
+          {
+            "bin": 3,
+            "n": 202,
+            "predicted": 0.3484955767081447,
+            "observed": 0.33663366336633666
+          },
+          {
+            "bin": 4,
+            "n": 163,
+            "predicted": 0.45078688164620695,
+            "observed": 0.44785276073619634
+          },
+          {
+            "bin": 5,
+            "n": 113,
+            "predicted": 0.5394198199596447,
+            "observed": 0.5575221238938053
+          },
+          {
+            "bin": 6,
+            "n": 51,
+            "predicted": 0.6483313285817746,
+            "observed": 0.7058823529411765
+          },
+          {
+            "bin": 7,
+            "n": 8,
+            "predicted": 0.7288900752074038,
+            "observed": 0.75
+          },
+          {
+            "bin": 8,
+            "n": 3,
+            "predicted": 0.8556519310151205,
+            "observed": 0.3333333333333333
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 708,
+          "games": 93,
+          "delta": -0.024888260069729815,
+          "ci95": [
+            -0.060986445640092035,
+            0.010426787404821244
+          ],
+          "corrected_ci95": [
+            -0.060986445640092035,
+            0.010426787404821244
+          ],
+          "p": 0.09095452273863068,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4675141242937853,
+        "above_median_fraction": 0.5127118644067796
+      },
+      "relative_reduction": -0.00877014064558985,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 708,
+        "games": 93,
+        "delta": -0.13320896096279297,
+        "ci95": [
+          -0.20950556059149297,
+          -0.053637950484775376
+        ],
+        "corrected_ci95": [
+          -0.26820162277572185,
+          -0.014360931000404536
+        ],
+        "p": 0.001999000499750125,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__mlp",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "mlp",
+        "family": "H9"
+      },
+      "n": 708,
+      "games": 93,
+      "delta": 0.05724959299871903,
+      "ci95": [
+        0.008061330277173411,
+        0.1064164989509783
+      ],
+      "corrected_ci95": [
+        -0.043070641676440535,
+        0.1317267200989646
+      ],
+      "p": 0.9895052473763118,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 1.6221260907042458,
+      "new_loss": 1.6793756837029652,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2026": {
+          "n": 708,
+          "delta": 0.05724959299871903
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 708,
+        "games": 93,
+        "primary_loss": 1.6793756837029652,
+        "mae": 1.8311143965057655,
+        "rmse": 2.3641412974655833,
+        "poisson_log_loss": 2.231575571810476,
+        "interval80_coverage": 0.7937853107344632,
+        "pinball": {
+          "0.1": 0.32572700134862687,
+          "0.5": 0.9085265387522817,
+          "0.9": 0.48027086924307
+        },
+        "crps_three_quantile_approx": 1.1430162728959858,
+        "pseudo_line_brier": 0.24201779412616967,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 18,
+            "predicted": 0.07336702639604464,
+            "observed": 0.16666666666666666
+          },
+          {
+            "bin": 1,
+            "n": 74,
+            "predicted": 0.1534691002907336,
+            "observed": 0.36486486486486486
+          },
+          {
+            "bin": 2,
+            "n": 106,
+            "predicted": 0.2532606326003117,
+            "observed": 0.330188679245283
+          },
+          {
+            "bin": 3,
+            "n": 125,
+            "predicted": 0.3497013782154635,
+            "observed": 0.352
+          },
+          {
+            "bin": 4,
+            "n": 123,
+            "predicted": 0.4487826486846573,
+            "observed": 0.42276422764227645
+          },
+          {
+            "bin": 5,
+            "n": 120,
+            "predicted": 0.5474301072450897,
+            "observed": 0.43333333333333335
+          },
+          {
+            "bin": 6,
+            "n": 87,
+            "predicted": 0.6508186981974027,
+            "observed": 0.6206896551724138
+          },
+          {
+            "bin": 7,
+            "n": 34,
+            "predicted": 0.744742842408658,
+            "observed": 0.6764705882352942
+          },
+          {
+            "bin": 8,
+            "n": 18,
+            "predicted": 0.8281936814991094,
+            "observed": 0.6111111111111112
+          },
+          {
+            "bin": 9,
+            "n": 3,
+            "predicted": 0.9214243304481545,
+            "observed": 0.3333333333333333
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 708,
+          "games": 93,
+          "delta": 0.0024600854946744423,
+          "ci95": [
+            -0.035937998551553246,
+            0.040231106281428494
+          ],
+          "corrected_ci95": [
+            -0.035937998551553246,
+            0.040231106281428494
+          ],
+          "p": 0.5422288855572214,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4491525423728814,
+        "above_median_fraction": 0.519774011299435
+      },
+      "relative_reduction": -0.03529293642879767,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 708,
+        "games": 93,
+        "delta": -0.09018564192443101,
+        "ci95": [
+          -0.17375911613040287,
+          -0.013594472410123366
+        ],
+        "corrected_ci95": [
+          -0.2313983398452473,
+          0.024769718603056042
+        ],
+        "p": 0.017991004497751123,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rec__all__all__stacked",
+        "stat": "rec",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "n": 708,
+      "games": 93,
+      "delta": 0.020568734860556367,
+      "ci95": [
+        -0.026188518537153392,
+        0.06841365694585083
+      ],
+      "corrected_ci95": [
+        -0.04788562707718653,
+        0.10740007555105767
+      ],
+      "p": 0.8125937031484258,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 1.6221260907042458,
+      "new_loss": 1.6426948255648024,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2026": {
+          "n": 708,
+          "delta": 0.020568734860556367
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 708,
+        "games": 93,
+        "primary_loss": 1.6426948255648024,
+        "mae": 1.7677164366412348,
+        "rmse": 2.329415506239881,
+        "poisson_log_loss": 2.2132351427413943,
+        "interval80_coverage": 0.7994350282485876,
+        "pinball": {
+          "0.1": 0.3184785085542745,
+          "0.5": 0.8864870787143759,
+          "0.9": 0.46643765785236596
+        },
+        "crps_three_quantile_approx": 1.1142688300806776,
+        "pseudo_line_brier": 0.23462768257467453,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 9,
+            "predicted": 0.08041390772684412,
+            "observed": 0.1111111111111111
+          },
+          {
+            "bin": 1,
+            "n": 65,
+            "predicted": 0.15791466806355525,
+            "observed": 0.27692307692307694
+          },
+          {
+            "bin": 2,
+            "n": 145,
+            "predicted": 0.25313453289187837,
+            "observed": 0.3586206896551724
+          },
+          {
+            "bin": 3,
+            "n": 172,
+            "predicted": 0.34607417114176453,
+            "observed": 0.3488372093023256
+          },
+          {
+            "bin": 4,
+            "n": 172,
+            "predicted": 0.4450694458298354,
+            "observed": 0.45348837209302323
+          },
+          {
+            "bin": 5,
+            "n": 94,
+            "predicted": 0.5418226708016775,
+            "observed": 0.6170212765957447
+          },
+          {
+            "bin": 6,
+            "n": 39,
+            "predicted": 0.6412003567573217,
+            "observed": 0.717948717948718
+          },
+          {
+            "bin": 7,
+            "n": 9,
+            "predicted": 0.7174596917328944,
+            "observed": 0.6666666666666666
+          },
+          {
+            "bin": 8,
+            "n": 3,
+            "predicted": 0.847163808574618,
+            "observed": 0.3333333333333333
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 708,
+          "games": 93,
+          "delta": -0.047025195476944434,
+          "ci95": [
+            -0.08409649690813867,
+            -0.010961716695490802
+          ],
+          "corrected_ci95": [
+            -0.08409649690813867,
+            -0.010961716695490802
+          ],
+          "p": 0.0079960019990005,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4844632768361582,
+        "above_median_fraction": 0.5310734463276836
+      },
+      "relative_reduction": -0.01268010851833747,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 708,
+        "games": 93,
+        "delta": -0.12686650006259367,
+        "ci95": [
+          -0.18682423387544891,
+          -0.06639393459151835
+        ],
+        "corrected_ci95": [
+          -0.2257689856893274,
+          -0.033842241851920946
+        ],
+        "p": 0.0004997501249375312,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__hist",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "hist",
+        "family": "H9"
+      },
+      "n": 294,
+      "games": 93,
+      "delta": -1.0010231353960561,
+      "ci95": [
+        -2.0826815229213436,
+        0.07268662257069078
+      ],
+      "corrected_ci95": [
+        -2.608713416518569,
+        0.9269762239652116
+      ],
+      "p": 0.03398300849575212,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 25.449221396932796,
+      "new_loss": 24.44819826153674,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2026": {
+          "n": 294,
+          "delta": -1.0010231353960561
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 294,
+        "games": 93,
+        "primary_loss": 24.44819826153674,
+        "mae": 24.44819826153674,
+        "rmse": 31.883155283342283,
+        "interval80_coverage": 0.8231292517006803,
+        "pinball": {
+          "0.1": 4.01340320493491,
+          "0.5": 12.038904798226842,
+          "0.9": 6.681637325891155
+        },
+        "crps_three_quantile_approx": 15.15596355270194,
+        "pseudo_line_brier": 0.2196804744720718,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 2,
+            "predicted": 0.07489748322941811,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 17,
+            "predicted": 0.17577347503904467,
+            "observed": 0.23529411764705882
+          },
+          {
+            "bin": 2,
+            "n": 48,
+            "predicted": 0.26065573501070227,
+            "observed": 0.16666666666666666
+          },
+          {
+            "bin": 3,
+            "n": 83,
+            "predicted": 0.3504662373056237,
+            "observed": 0.3614457831325301
+          },
+          {
+            "bin": 4,
+            "n": 76,
+            "predicted": 0.44709078821489506,
+            "observed": 0.47368421052631576
+          },
+          {
+            "bin": 5,
+            "n": 32,
+            "predicted": 0.5518660544346481,
+            "observed": 0.28125
+          },
+          {
+            "bin": 6,
+            "n": 28,
+            "predicted": 0.6394467096178792,
+            "observed": 0.5714285714285714
+          },
+          {
+            "bin": 7,
+            "n": 6,
+            "predicted": 0.7281276280605028,
+            "observed": 1.0
+          },
+          {
+            "bin": 8,
+            "n": 2,
+            "predicted": 0.8471225381990611,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 294,
+          "games": 93,
+          "delta": 0.031783161154100674,
+          "ci95": [
+            -0.01641208926112985,
+            0.07911169434566274
+          ],
+          "corrected_ci95": [
+            -0.01641208926112985,
+            0.07911169434566274
+          ],
+          "p": 0.9025487256371814,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4387755102040816,
+        "above_median_fraction": 0.4931972789115646
+      },
+      "relative_reduction": 0.03933413599508793,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 294,
+        "games": 93,
+        "delta": -0.6374667211616616,
+        "ci95": [
+          -1.947717731533229,
+          0.5890647068597433
+        ],
+        "corrected_ci95": [
+          -2.7491333512658866,
+          1.6675433436169442
+        ],
+        "p": 0.17841079460269865,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__xgboost",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "xgboost",
+        "family": "H9"
+      },
+      "n": 294,
+      "games": 93,
+      "delta": -1.1163124259637327,
+      "ci95": [
+        -2.182830718618845,
+        -0.04229102455851998
+      ],
+      "corrected_ci95": [
+        -2.7634533187122483,
+        0.6809933107741069
+      ],
+      "p": 0.02048975512243878,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 25.449221396932796,
+      "new_loss": 24.332908970969065,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2026": {
+          "n": 294,
+          "delta": -1.1163124259637327
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 294,
+        "games": 93,
+        "primary_loss": 24.332908970969065,
+        "mae": 24.332908970969065,
+        "rmse": 31.608956844163195,
+        "interval80_coverage": 0.8299319727891157,
+        "pinball": {
+          "0.1": 3.937371813326466,
+          "0.5": 11.911738640597077,
+          "0.9": 6.686226696546385
+        },
+        "crps_three_quantile_approx": 15.023558100313286,
+        "pseudo_line_brier": 0.21736345236144372,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 2,
+            "predicted": 0.08486136749268147,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 14,
+            "predicted": 0.17252378944357463,
+            "observed": 0.14285714285714285
+          },
+          {
+            "bin": 2,
+            "n": 53,
+            "predicted": 0.25656290814193716,
+            "observed": 0.20754716981132076
+          },
+          {
+            "bin": 3,
+            "n": 71,
+            "predicted": 0.34977933155160645,
+            "observed": 0.39436619718309857
+          },
+          {
+            "bin": 4,
+            "n": 73,
+            "predicted": 0.44466963583000796,
+            "observed": 0.3972602739726027
+          },
+          {
+            "bin": 5,
+            "n": 44,
+            "predicted": 0.5418664568542904,
+            "observed": 0.36363636363636365
+          },
+          {
+            "bin": 6,
+            "n": 30,
+            "predicted": 0.6362083305244909,
+            "observed": 0.6
+          },
+          {
+            "bin": 7,
+            "n": 6,
+            "predicted": 0.7316456015440744,
+            "observed": 1.0
+          },
+          {
+            "bin": 9,
+            "n": 1,
+            "predicted": 0.9170795306388527,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 294,
+          "games": 93,
+          "delta": 0.036440248407141225,
+          "ci95": [
+            -0.011620938838799211,
+            0.08372916171962977
+          ],
+          "corrected_ci95": [
+            -0.011620938838799211,
+            0.08372916171962977
+          ],
+          "p": 0.9330334832583708,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.4217687074829932,
+        "above_median_fraction": 0.48639455782312924
+      },
+      "relative_reduction": 0.043864305652127865,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 294,
+        "games": 93,
+        "delta": -0.7527560117293377,
+        "ci95": [
+          -2.0154650514908217,
+          0.40911471992689014
+        ],
+        "corrected_ci95": [
+          -2.7997488156337984,
+          1.3839497234057143
+        ],
+        "p": 0.12443778110944528,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 0.9630184907546226,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__mlp",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "mlp",
+        "family": "H9"
+      },
+      "n": 294,
+      "games": 93,
+      "delta": 0.9844970493640381,
+      "ci95": [
+        -0.16675845784316592,
+        2.1187807221799146
+      ],
+      "corrected_ci95": [
+        -0.8651030918118205,
+        2.8085024868140307
+      ],
+      "p": 0.9515242378810594,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 25.449221396932796,
+      "new_loss": 26.433718446296837,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2026": {
+          "n": 294,
+          "delta": 0.9844970493640381
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 294,
+        "games": 93,
+        "primary_loss": 26.433718446296837,
+        "mae": 26.433718446296837,
+        "rmse": 33.16065922123551,
+        "interval80_coverage": 0.8163265306122449,
+        "pinball": {
+          "0.1": 4.050099985363162,
+          "0.5": 12.678390589916349,
+          "0.9": 7.017385012755471
+        },
+        "crps_three_quantile_approx": 15.830583725356655,
+        "pseudo_line_brier": 0.2319674939490553,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 1,
+            "predicted": 0.08370273794002607,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 24,
+            "predicted": 0.16292880564675327,
+            "observed": 0.2916666666666667
+          },
+          {
+            "bin": 2,
+            "n": 47,
+            "predicted": 0.2575177561307963,
+            "observed": 0.2127659574468085
+          },
+          {
+            "bin": 3,
+            "n": 61,
+            "predicted": 0.3452805534470134,
+            "observed": 0.36065573770491804
+          },
+          {
+            "bin": 4,
+            "n": 56,
+            "predicted": 0.455918149786668,
+            "observed": 0.3392857142857143
+          },
+          {
+            "bin": 5,
+            "n": 42,
+            "predicted": 0.5537672228140428,
+            "observed": 0.47619047619047616
+          },
+          {
+            "bin": 6,
+            "n": 43,
+            "predicted": 0.65247461543098,
+            "observed": 0.46511627906976744
+          },
+          {
+            "bin": 7,
+            "n": 16,
+            "predicted": 0.7442052162354436,
+            "observed": 0.5625
+          },
+          {
+            "bin": 8,
+            "n": 3,
+            "predicted": 0.8674958847471014,
+            "observed": 1.0
+          },
+          {
+            "bin": 9,
+            "n": 1,
+            "predicted": 0.9183833116036506,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 294,
+          "games": 93,
+          "delta": 0.06269947281382567,
+          "ci95": [
+            0.01430173264263736,
+            0.10951717707306056
+          ],
+          "corrected_ci95": [
+            0.01430173264263736,
+            0.10951717707306056
+          ],
+          "p": 0.9945027486256871,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.3877551020408163,
+        "above_median_fraction": 0.5034013605442177
+      },
+      "relative_reduction": -0.03868476107810089,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 294,
+        "games": 93,
+        "delta": 1.3480534635984331,
+        "ci95": [
+          -0.08998958694963712,
+          2.7618374068584948
+        ],
+        "corrected_ci95": [
+          -0.9394568676430238,
+          3.4547218740893677
+        ],
+        "p": 0.9695152423788106,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "rush_yds__all__all__stacked",
+        "stat": "rush_yds",
+        "arm": "all",
+        "group": "all",
+        "model": "stacked",
+        "family": "H9"
+      },
+      "n": 294,
+      "games": 93,
+      "delta": -1.3533657840218312,
+      "ci95": [
+        -2.355290669714491,
+        -0.32465277606428133
+      ],
+      "corrected_ci95": [
+        -2.8165552554087117,
+        0.32844142520393943
+      ],
+      "p": 0.005997001499250375,
+      "family_tests": 48,
+      "tail_resolution_warning": false,
+      "control_loss": 25.449221396932796,
+      "new_loss": 24.095855612910967,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2026": {
+          "n": 294,
+          "delta": -1.3533657840218312
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 294,
+        "games": 93,
+        "primary_loss": 24.095855612910967,
+        "mae": 24.095855612910967,
+        "rmse": 31.512685290475417,
+        "interval80_coverage": 0.8231292517006803,
+        "pinball": {
+          "0.1": 3.937363844200208,
+          "0.5": 11.876433064881507,
+          "0.9": 6.652161061196902
+        },
+        "crps_three_quantile_approx": 14.977305313519077,
+        "pseudo_line_brier": 0.21640710834391963,
+        "pseudo_line_probability_method": "earlier empirical residual distribution for yards; Poisson approximation for count means (including hurdle mean)",
+        "pseudo_line_reliability": [
+          {
+            "bin": 0,
+            "n": 2,
+            "predicted": 0.09291759358465182,
+            "observed": 0.0
+          },
+          {
+            "bin": 1,
+            "n": 14,
+            "predicted": 0.1752732602371804,
+            "observed": 0.14285714285714285
+          },
+          {
+            "bin": 2,
+            "n": 47,
+            "predicted": 0.2539247154763467,
+            "observed": 0.19148936170212766
+          },
+          {
+            "bin": 3,
+            "n": 80,
+            "predicted": 0.3523644996507474,
+            "observed": 0.35
+          },
+          {
+            "bin": 4,
+            "n": 79,
+            "predicted": 0.4486349343762128,
+            "observed": 0.43037974683544306
+          },
+          {
+            "bin": 5,
+            "n": 38,
+            "predicted": 0.5508320577477358,
+            "observed": 0.39473684210526316
+          },
+          {
+            "bin": 6,
+            "n": 26,
+            "predicted": 0.6370032196781005,
+            "observed": 0.5769230769230769
+          },
+          {
+            "bin": 7,
+            "n": 7,
+            "predicted": 0.7257145541337521,
+            "observed": 1.0
+          },
+          {
+            "bin": 9,
+            "n": 1,
+            "predicted": 0.905606258148631,
+            "observed": 1.0
+          }
+        ],
+        "pseudo_probability_bias": {
+          "n": 294,
+          "games": 93,
+          "delta": 0.03634269485982381,
+          "ci95": [
+            -0.011813326953726737,
+            0.08366813023748931
+          ],
+          "corrected_ci95": [
+            -0.011813326953726737,
+            0.08366813023748931
+          ],
+          "p": 0.9310344827586207,
+          "family_tests": 1,
+          "tail_resolution_warning": false
+        },
+        "above_mean_fraction": 0.42857142857142855,
+        "above_median_fraction": 0.4931972789115646
+      },
+      "relative_reduction": 0.05317906441667965,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 294,
+        "games": 93,
+        "delta": -0.989809369787436,
+        "ci95": [
+          -2.1829793347842417,
+          0.0677429064930761
+        ],
+        "corrected_ci95": [
+          -2.7714086879293807,
+          0.9930455787961907
+        ],
+        "p": 0.05297351324337831,
+        "family_tests": 48,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 0.28785607196401797,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "margin__all__all__linear",
+        "stat": "margin",
+        "arm": "all",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "n": 93,
+      "games": 93,
+      "delta": 1.0460126105175223,
+      "ci95": [
+        -0.1529070425418115,
+        2.127996913367702
+      ],
+      "corrected_ci95": [
+        -0.8443282648798486,
+        2.914494778655098
+      ],
+      "p": 0.9690154922538731,
+      "family_tests": 34,
+      "tail_resolution_warning": false,
+      "control_loss": 9.588035459159522,
+      "new_loss": 10.634048069677045,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2026": {
+          "n": 93,
+          "delta": 1.0460126105175223
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 93,
+        "games": 93,
+        "primary_loss": 10.634048069677045,
+        "mae": 10.634048069677045,
+        "rmse": 13.144586494822224,
+        "crps_empirical_residual": 7.429634660397022,
+        "interval80_coverage": 0.8494623655913979,
+        "pinball": {
+          "0.1": 2.1730393896308,
+          "0.5": 5.287866739816563,
+          "0.9": 2.467318507932847
+        },
+        "crps_three_quantile_approx": 6.61881642492014
+      },
+      "relative_reduction": -0.10909561348339179,
+      "run_status": "complete",
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "margin__all__all__blend",
+        "stat": "margin",
+        "arm": "all",
+        "group": "all",
+        "model": "blend",
+        "family": "H6"
+      },
+      "n": 93,
+      "games": 93,
+      "delta": -0.2815838462562971,
+      "ci95": [
+        -0.8286765995525545,
+        0.2845154635688309
+      ],
+      "corrected_ci95": [
+        -1.1098415520996479,
+        0.6385520681182789
+      ],
+      "p": 0.14792603698150925,
+      "family_tests": 34,
+      "tail_resolution_warning": false,
+      "control_loss": 9.588035459159522,
+      "new_loss": 9.306451612903226,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2026": {
+          "n": 93,
+          "delta": -0.2815838462562971
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 93,
+        "games": 93,
+        "primary_loss": 9.306451612903226,
+        "mae": 9.306451612903226,
+        "rmse": 11.839768052072715,
+        "crps_empirical_residual": 6.72733805514965,
+        "interval80_coverage": 0.8064516129032258,
+        "pinball": {
+          "0.1": 2.080879586752873,
+          "0.5": 4.653225806451613,
+          "0.9": 2.2119239402562028
+        },
+        "crps_three_quantile_approx": 5.9640195556404585
+      },
+      "relative_reduction": 0.029368252490899787,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 93,
+        "games": 93,
+        "delta": -1.3275964567738194,
+        "ci95": [
+          -2.472230948555854,
+          -0.1064601731556739
+        ],
+        "corrected_ci95": [
+          -3.430267000486774,
+          0.7733826440546396
+        ],
+        "p": 0.010994502748625687,
+        "family_tests": 34,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "total__all__all__linear",
+        "stat": "total",
+        "arm": "all",
+        "group": "all",
+        "model": "linear",
+        "family": "H6"
+      },
+      "n": 93,
+      "games": 93,
+      "delta": 1.3333971782397198,
+      "ci95": [
+        0.08290731368526337,
+        2.601055136547293
+      ],
+      "corrected_ci95": [
+        -0.6704903142954413,
+        3.2075878803071007
+      ],
+      "p": 0.9790104947526237,
+      "family_tests": 34,
+      "tail_resolution_warning": false,
+      "control_loss": 11.42580110283308,
+      "new_loss": 12.759198281072802,
+      "seasons_agreeing": 0,
+      "by_season": {
+        "2026": {
+          "n": 93,
+          "delta": 1.3333971782397198
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 93,
+        "games": 93,
+        "primary_loss": 12.759198281072802,
+        "mae": 12.759198281072802,
+        "rmse": 15.926047284963815,
+        "crps_empirical_residual": 8.965096033028372,
+        "interval80_coverage": 0.7849462365591398,
+        "pinball": {
+          "0.1": 2.7347890681605183,
+          "0.5": 6.397024636627526,
+          "0.9": 2.567150825992708
+        },
+        "crps_three_quantile_approx": 7.7993096871871685
+      },
+      "relative_reduction": -0.11670054171598504,
+      "run_status": "complete",
+      "holm_p": 1.0,
+      "discovery_gate": false
+    },
+    {
+      "configuration": {
+        "id": "total__all__all__blend",
+        "stat": "total",
+        "arm": "all",
+        "group": "all",
+        "model": "blend",
+        "family": "H6"
+      },
+      "n": 93,
+      "games": 93,
+      "delta": -0.8290269092846942,
+      "ci95": [
+        -1.4832156365917575,
+        -0.2290512761762072
+      ],
+      "corrected_ci95": [
+        -1.8689920073743864,
+        0.06020003052771236
+      ],
+      "p": 0.0069965017491254375,
+      "family_tests": 34,
+      "tail_resolution_warning": false,
+      "control_loss": 11.42580110283308,
+      "new_loss": 10.596774193548388,
+      "seasons_agreeing": 1,
+      "by_season": {
+        "2026": {
+          "n": 93,
+          "delta": -0.8290269092846942
+        }
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 93,
+        "games": 93,
+        "primary_loss": 10.596774193548388,
+        "mae": 10.596774193548388,
+        "rmse": 13.016635344778033,
+        "crps_empirical_residual": 7.298511245994385,
+        "interval80_coverage": 0.8494623655913979,
+        "pinball": {
+          "0.1": 2.079607780476443,
+          "0.5": 5.301075268817204,
+          "0.9": 2.1967072032127386
+        },
+        "crps_three_quantile_approx": 6.384926835004257
+      },
+      "relative_reduction": 0.07255744274063489,
+      "run_status": "complete",
+      "vs_full_feature_linear": {
+        "n": 93,
+        "games": 93,
+        "delta": -2.162424087524414,
+        "ci95": [
+          -3.539199536333802,
+          -0.8038425563484111
+        ],
+        "corrected_ci95": [
+          -4.291242449800852,
+          -0.07666882859385808
+        ],
+        "p": 0.0014992503748125937,
+        "family_tests": 34,
+        "tail_resolution_warning": false
+      },
+      "holm_p": 0.2378810594702649,
+      "discovery_gate": false
+    }
+  ],
   "market": [
     {
       "configuration": {
@@ -37866,18 +41236,18 @@
     {
       "stat": "rec",
       "table": "bell_cow_report",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.003913877888535293,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.004283022487854299,
       "ci95": [
-        -0.000700305962196411,
-        0.00894401866857684
+        0.0004916445739483924,
+        0.008012146090727727
       ],
       "corrected_ci95": [
-        -0.000700305962196411,
-        0.00894401866857684
+        0.0004916445739483924,
+        0.008012146090727727
       ],
-      "p": 0.9310344827586207,
+      "p": 0.9875062468765617,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -37885,18 +41255,18 @@
     {
       "stat": "rec",
       "table": "coach_records",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.006213073121666352,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.003823713487692567,
       "ci95": [
-        0.0010280950425324226,
-        0.011224586146423642
+        9.119566000546934e-05,
+        0.00786026917326563
       ],
       "corrected_ci95": [
-        0.0010280950425324226,
-        0.011224586146423642
+        9.119566000546934e-05,
+        0.00786026917326563
       ],
-      "p": 0.993503248375812,
+      "p": 0.9725137431284357,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -37904,18 +41274,18 @@
     {
       "stat": "rec",
       "table": "cornerbacks",
-      "n": 6196,
-      "games": 815,
-      "delta": -0.0016975273107820048,
+      "n": 8920,
+      "games": 1180,
+      "delta": -0.0025845562989229077,
       "ci95": [
-        -0.007408311503186505,
-        0.004167412842077548
+        -0.006684451601480539,
+        0.0017413724791321332
       ],
       "corrected_ci95": [
-        -0.007408311503186505,
-        0.004167412842077548
+        -0.006684451601480539,
+        0.0017413724791321332
       ],
-      "p": 0.27436281859070466,
+      "p": 0.111944027986007,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -37923,18 +41293,18 @@
     {
       "stat": "rec",
       "table": "coverage_matrix",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.0073130463184513965,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.004079404033054326,
       "ci95": [
-        0.0013801767311068182,
-        0.012709829160242282
+        -0.00031158775712536484,
+        0.008396027336259201
       ],
       "corrected_ci95": [
-        0.0013801767311068182,
-        0.012709829160242282
+        -0.00031158775712536484,
+        0.008396027336259201
       ],
-      "p": 0.9940029985007496,
+      "p": 0.9675162418790605,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -37942,18 +41312,18 @@
     {
       "stat": "rec",
       "table": "fantasy_points_allowed_qb",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.0007019346707672471,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.0007891904864620166,
       "ci95": [
-        -0.002609117199406025,
-        0.003982499555280303
+        -0.0020730901778643392,
+        0.0035036785675175213
       ],
       "corrected_ci95": [
-        -0.002609117199406025,
-        0.003982499555280303
+        -0.0020730901778643392,
+        0.0035036785675175213
       ],
-      "p": 0.6596701649175413,
+      "p": 0.7156421789105447,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -37961,18 +41331,18 @@
     {
       "stat": "rec",
       "table": "fantasy_points_allowed_rb",
-      "n": 6196,
-      "games": 815,
-      "delta": -0.0027096347535234895,
+      "n": 8920,
+      "games": 1180,
+      "delta": -0.0007714993155954089,
       "ci95": [
-        -0.0068392959763384055,
-        0.001546121803986501
+        -0.004182808220247905,
+        0.0024774227135486147
       ],
       "corrected_ci95": [
-        -0.0068392959763384055,
-        0.001546121803986501
+        -0.004182808220247905,
+        0.0024774227135486147
       ],
-      "p": 0.09895052473763119,
+      "p": 0.3058470764617691,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -37980,18 +41350,18 @@
     {
       "stat": "rec",
       "table": "fantasy_points_allowed_te",
-      "n": 6196,
-      "games": 815,
-      "delta": -0.0034709650291933295,
+      "n": 8920,
+      "games": 1180,
+      "delta": -0.0029671574638973144,
       "ci95": [
-        -0.014384978639733361,
-        0.006352508074100552
+        -0.010234311681068238,
+        0.004080117272392927
       ],
       "corrected_ci95": [
-        -0.014384978639733361,
-        0.006352508074100552
+        -0.010234311681068238,
+        0.004080117272392927
       ],
-      "p": 0.25787106446776614,
+      "p": 0.1854072963518241,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -37999,18 +41369,18 @@
     {
       "stat": "rec",
       "table": "fantasy_points_allowed_wr",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.0019827304447717986,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.0012515906361564274,
       "ci95": [
-        -0.0028272070038731943,
-        0.006590423677720937
+        -0.002273792687629322,
+        0.004559949255897139
       ],
       "corrected_ci95": [
-        -0.0028272070038731943,
-        0.006590423677720937
+        -0.002273792687629322,
+        0.004559949255897139
       ],
-      "p": 0.792103948025987,
+      "p": 0.7781109445277361,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38018,18 +41388,18 @@
     {
       "stat": "rec",
       "table": "injury_reports",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.0062669165029114295,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.007353613808011956,
       "ci95": [
-        -0.0007868141074974265,
-        0.013267566017832959
+        0.0015531007871827614,
+        0.012541027724689654
       ],
       "corrected_ci95": [
-        -0.0007868141074974265,
-        0.013267566017832959
+        0.0015531007871827614,
+        0.012541027724689654
       ],
-      "p": 0.9635182408795602,
+      "p": 0.9955022488755623,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38037,18 +41407,18 @@
     {
       "stat": "rec",
       "table": "lineup_combos_db",
-      "n": 6196,
-      "games": 815,
-      "delta": -0.004466499613807902,
+      "n": 8920,
+      "games": 1180,
+      "delta": -0.0032466231107956636,
       "ci95": [
-        -0.012000897744632437,
-        0.0027184643235814328
+        -0.008267591966222008,
+        0.002121300914715181
       ],
       "corrected_ci95": [
-        -0.012000897744632437,
-        0.0027184643235814328
+        -0.008267591966222008,
+        0.002121300914715181
       ],
-      "p": 0.10094952523738131,
+      "p": 0.1024487756121939,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38056,18 +41426,18 @@
     {
       "stat": "rec",
       "table": "lineup_combos_front",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.003444472580536796,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.0029823666510121853,
       "ci95": [
-        -0.0032031626493035674,
-        0.010191902532719411
+        -0.00204870305454183,
+        0.007848631517687155
       ],
       "corrected_ci95": [
-        -0.0032031626493035674,
-        0.010191902532719411
+        -0.00204870305454183,
+        0.007848631517687155
       ],
-      "p": 0.8500749625187406,
+      "p": 0.8910544727636182,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38075,18 +41445,18 @@
     {
       "stat": "rec",
       "table": "lineup_combos_ol",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.00010270165317434507,
+      "n": 8920,
+      "games": 1180,
+      "delta": -0.000375315017148683,
       "ci95": [
-        -0.00477513423562218,
-        0.0052166696226422634
+        -0.004097549952962056,
+        0.003507900657532467
       ],
       "corrected_ci95": [
-        -0.00477513423562218,
-        0.0052166696226422634
+        -0.004097549952962056,
+        0.003507900657532467
       ],
-      "p": 0.49975012493753124,
+      "p": 0.41829085457271364,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38094,18 +41464,18 @@
     {
       "stat": "rec",
       "table": "lineup_combos_rb",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.008150577518722706,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.006198424680432786,
       "ci95": [
-        0.002023439923618293,
-        0.014629746063140034
+        0.0014687474810584978,
+        0.011044042525771368
       ],
       "corrected_ci95": [
-        0.002023439923618293,
-        0.014629746063140034
+        0.0014687474810584978,
+        0.011044042525771368
       ],
-      "p": 0.9920039980009995,
+      "p": 0.9930034982508745,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38113,18 +41483,18 @@
     {
       "stat": "rec",
       "table": "lineup_combos_skill",
-      "n": 6196,
-      "games": 815,
-      "delta": -0.0012600990483595876,
+      "n": 8920,
+      "games": 1180,
+      "delta": -0.001305077224279121,
       "ci95": [
-        -0.008538338889554879,
-        0.005760433146990968
+        -0.006971897947936138,
+        0.0038111791205170126
       ],
       "corrected_ci95": [
-        -0.008538338889554879,
-        0.005760433146990968
+        -0.006971897947936138,
+        0.0038111791205170126
       ],
-      "p": 0.3563218390804598,
+      "p": 0.3183408295852074,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38132,18 +41502,18 @@
     {
       "stat": "rec",
       "table": "lineup_combos_te",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.005000504343838969,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.0034676992037865257,
       "ci95": [
-        7.660749019014927e-05,
-        0.009868598902548336
+        -1.006483921835749e-06,
+        0.0072163742709120795
       ],
       "corrected_ci95": [
-        7.660749019014927e-05,
-        0.009868598902548336
+        -1.006483921835749e-06,
+        0.0072163742709120795
       ],
-      "p": 0.9775112443778111,
+      "p": 0.967016491754123,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38151,18 +41521,18 @@
     {
       "stat": "rec",
       "table": "lineup_combos_wr",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.0036062440609754315,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.001647003672764202,
       "ci95": [
-        -0.0021698752862873674,
-        0.009379855894832943
+        -0.0024359529866219537,
+        0.005674468111053153
       ],
       "corrected_ci95": [
-        -0.0021698752862873674,
-        0.009379855894832943
+        -0.0024359529866219537,
+        0.005674468111053153
       ],
-      "p": 0.8970514742628686,
+      "p": 0.7886056971514243,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38170,18 +41540,18 @@
     {
       "stat": "rec",
       "table": "pace",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.005002123841731415,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.005363625303187727,
       "ci95": [
-        -0.0014935490351035896,
-        0.011494123424636024
+        0.0004719158565767669,
+        0.01043144963598313
       ],
       "corrected_ci95": [
-        -0.0014935490351035896,
-        0.011494123424636024
+        0.0004719158565767669,
+        0.01043144963598313
       ],
-      "p": 0.936031984007996,
+      "p": 0.9795102448775612,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38189,18 +41559,18 @@
     {
       "stat": "rec",
       "table": "passing_basic",
-      "n": 6196,
-      "games": 815,
-      "delta": -0.0010035251095535402,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.000488575668866382,
       "ci95": [
-        -0.005517786541537276,
-        0.0034989364656272167
+        -0.0030079822013383403,
+        0.004011258209017194
       ],
       "corrected_ci95": [
-        -0.005517786541537276,
-        0.0034989364656272167
+        -0.0030079822013383403,
+        0.004011258209017194
       ],
-      "p": 0.33033483258370816,
+      "p": 0.5992003998001,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38208,18 +41578,18 @@
     {
       "stat": "rec",
       "table": "passing_depth_of_target",
-      "n": 6196,
-      "games": 815,
-      "delta": -0.00029008114004215835,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.0008341690246504762,
       "ci95": [
-        -0.007206130783744371,
-        0.00650197840381192
+        -0.004638822133904894,
+        0.00594875949395397
       ],
       "corrected_ci95": [
-        -0.007206130783744371,
-        0.00650197840381192
+        -0.004638822133904894,
+        0.00594875949395397
       ],
-      "p": 0.47726136931534235,
+      "p": 0.6331834082958521,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38227,18 +41597,18 @@
     {
       "stat": "rec",
       "table": "passing_situation",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.006313738435190772,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.00522830701438028,
       "ci95": [
-        -0.00042518080699521197,
-        0.013690592515662178
+        7.330725487069263e-05,
+        0.010528396459030958
       ],
       "corrected_ci95": [
-        -0.00042518080699521197,
-        0.013690592515662178
+        7.330725487069263e-05,
+        0.010528396459030958
       ],
-      "p": 0.9525237381309345,
+      "p": 0.9735132433783108,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38246,18 +41616,18 @@
     {
       "stat": "rec",
       "table": "passing_stats",
-      "n": 6196,
-      "games": 815,
-      "delta": -0.0006014522967809333,
+      "n": 8920,
+      "games": 1180,
+      "delta": -0.0011910686128119947,
       "ci95": [
-        -0.006481297152467691,
-        0.00493948973471001
+        -0.005810224930045009,
+        0.003314371052633238
       ],
       "corrected_ci95": [
-        -0.006481297152467691,
-        0.00493948973471001
+        -0.005810224930045009,
+        0.003314371052633238
       ],
-      "p": 0.42628685657171417,
+      "p": 0.2978510744627686,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38265,18 +41635,18 @@
     {
       "stat": "rec",
       "table": "playcaller_stats",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.006428048706885604,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.0038652702185968143,
       "ci95": [
-        -0.00013151249612485474,
-        0.01258969187359389
+        -0.0010081538909313536,
+        0.008728482371267792
       ],
       "corrected_ci95": [
-        -0.00013151249612485474,
-        0.01258969187359389
+        -0.0010081538909313536,
+        0.008728482371267792
       ],
-      "p": 0.9800099950024987,
+      "p": 0.9390304847576212,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38284,18 +41654,18 @@
     {
       "stat": "rec",
       "table": "rb_wr_efficiency",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.010864519647973976,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.00801378011859635,
       "ci95": [
-        0.004326586492478377,
-        0.017177967634187084
+        0.003024983741983963,
+        0.012901216420954374
       ],
       "corrected_ci95": [
-        0.004326586492478377,
-        0.017177967634187084
+        0.003024983741983963,
+        0.012901216420954374
       ],
-      "p": 0.9985007496251874,
+      "p": 0.999000499750125,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38303,18 +41673,18 @@
     {
       "stat": "rec",
       "table": "receiving_alignment",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.014767626498992025,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.012312731081151065,
       "ci95": [
-        0.006355801725257089,
-        0.023349317275356184
+        0.005734544479598923,
+        0.018862948241395575
       ],
       "corrected_ci95": [
-        0.006355801725257089,
-        0.023349317275356184
+        0.005734544479598923,
+        0.018862948241395575
       ],
-      "p": 0.9995002498750625,
+      "p": 1.0,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38322,16 +41692,16 @@
     {
       "stat": "rec",
       "table": "receiving_basic",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.022234680214436524,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.0216407132262878,
       "ci95": [
-        0.010368023566284624,
-        0.033620117076829624
+        0.012988179099740982,
+        0.030872710571425387
       ],
       "corrected_ci95": [
-        0.010368023566284624,
-        0.033620117076829624
+        0.012988179099740982,
+        0.030872710571425387
       ],
       "p": 1.0,
       "family_tests": 1,
@@ -38341,18 +41711,18 @@
     {
       "stat": "rec",
       "table": "receiving_separation_by_alignment",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.015671033986849013,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.01349398968478513,
       "ci95": [
-        0.004765044931034119,
-        0.027248674270066924
+        0.004716587220405515,
+        0.02175432269541637
       ],
       "corrected_ci95": [
-        0.004765044931034119,
-        0.027248674270066924
+        0.004716587220405515,
+        0.02175432269541637
       ],
-      "p": 0.9960019990004998,
+      "p": 0.9985007496251874,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38360,18 +41730,18 @@
     {
       "stat": "rec",
       "table": "receiving_separation_by_breaks",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.012960075029504836,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.013355704303454903,
       "ci95": [
-        -0.0005853878231344675,
-        0.026723008429305185
+        0.003222775340697528,
+        0.0235064047920944
       ],
       "corrected_ci95": [
-        -0.0005853878231344675,
-        0.026723008429305185
+        0.003222775340697528,
+        0.0235064047920944
       ],
-      "p": 0.9695152423788106,
+      "p": 0.9970014992503748,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38379,18 +41749,18 @@
     {
       "stat": "rec",
       "table": "receiving_separation_by_coverage",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.013577665055324636,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.008977685428081618,
       "ci95": [
-        -1.7993311942935054e-05,
-        0.027186721688968324
+        -0.0007618095434283834,
+        0.019220036853032724
       ],
       "corrected_ci95": [
-        -1.7993311942935054e-05,
-        0.027186721688968324
+        -0.0007618095434283834,
+        0.019220036853032724
       ],
-      "p": 0.974512743628186,
+      "p": 0.9560219890054973,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38398,16 +41768,16 @@
     {
       "stat": "rec",
       "table": "receiving_separation_by_role",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.03856816685705666,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.029497765368111172,
       "ci95": [
-        0.026218004225978787,
-        0.051831743477081985
+        0.020254626999121974,
+        0.038850274874357084
       ],
       "corrected_ci95": [
-        0.026218004225978787,
-        0.051831743477081985
+        0.020254626999121974,
+        0.038850274874357084
       ],
       "p": 1.0,
       "family_tests": 1,
@@ -38417,16 +41787,16 @@
     {
       "stat": "rec",
       "table": "receiving_separation_by_routes",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.02905740822602311,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.021947841034686392,
       "ci95": [
-        0.016208032639464378,
-        0.04192649564535104
+        0.012654381932499383,
+        0.03094636847697728
       ],
       "corrected_ci95": [
-        0.016208032639464378,
-        0.04192649564535104
+        0.012654381932499383,
+        0.03094636847697728
       ],
       "p": 1.0,
       "family_tests": 1,
@@ -38436,18 +41806,18 @@
     {
       "stat": "rec",
       "table": "receiving_situation",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.008330484881332752,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.006295804083112625,
       "ci95": [
-        -0.001700877861770639,
-        0.018289359428428936
+        -0.001492755886708717,
+        0.013506857451231018
       ],
       "corrected_ci95": [
-        -0.001700877861770639,
-        0.018289359428428936
+        -0.001492755886708717,
+        0.013506857451231018
       ],
-      "p": 0.9420289855072463,
+      "p": 0.952023988005997,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38455,18 +41825,18 @@
     {
       "stat": "rec",
       "table": "receiving_stats",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.012787050028158197,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.010791722411788753,
       "ci95": [
-        0.005289915390436583,
-        0.02037368242325928
+        0.005134914729324999,
+        0.016290859509534825
       ],
       "corrected_ci95": [
-        0.005289915390436583,
-        0.02037368242325928
+        0.005134914729324999,
+        0.016290859509534825
       ],
-      "p": 0.9995002498750625,
+      "p": 1.0,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38474,18 +41844,18 @@
     {
       "stat": "rec",
       "table": "rushing_basic",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.0033936951392276268,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.0028798772097950787,
       "ci95": [
-        -0.003078333373857106,
-        0.009464117899222683
+        -0.001795164937724684,
+        0.007433277833829991
       ],
       "corrected_ci95": [
-        -0.003078333373857106,
-        0.009464117899222683
+        -0.001795164937724684,
+        0.007433277833829991
       ],
-      "p": 0.8705647176411794,
+      "p": 0.8845577211394303,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38493,18 +41863,18 @@
     {
       "stat": "rec",
       "table": "rushing_stats",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.0005792223637451332,
+      "n": 8920,
+      "games": 1180,
+      "delta": -0.0006615603529239266,
       "ci95": [
-        -0.004753834498011,
-        0.0059637972789495465
+        -0.004642236154984512,
+        0.003420656039363552
       ],
       "corrected_ci95": [
-        -0.004753834498011,
-        0.0059637972789495465
+        -0.004642236154984512,
+        0.003420656039363552
       ],
-      "p": 0.6021989005497251,
+      "p": 0.3713143428285857,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38512,16 +41882,16 @@
     {
       "stat": "rec",
       "table": "shadow_index",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.03414468666164893,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.035441516403777136,
       "ci95": [
-        0.02075929886976373,
-        0.04750975338290637
+        0.025374016093291343,
+        0.04548639781106432
       ],
       "corrected_ci95": [
-        0.02075929886976373,
-        0.04750975338290637
+        0.025374016093291343,
+        0.04548639781106432
       ],
       "p": 1.0,
       "family_tests": 1,
@@ -38531,18 +41901,18 @@
     {
       "stat": "rec",
       "table": "team_defense",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.00570373376623978,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.0051732997096930015,
       "ci95": [
-        -0.0014678953973932764,
-        0.012925767238558813
+        -0.00014067324703067474,
+        0.010641787659015488
       ],
       "corrected_ci95": [
-        -0.0014678953973932764,
-        0.012925767238558813
+        -0.00014067324703067474,
+        0.010641787659015488
       ],
-      "p": 0.9365317341329336,
+      "p": 0.9690154922538731,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -38550,18 +41920,18 @@
     {
       "stat": "rec",
       "table": "team_offense",
-      "n": 6196,
-      "games": 815,
-      "delta": 0.0032562996516525868,
+      "n": 8920,
+      "games": 1180,
+      "delta": 0.0033616728784153552,
       "ci95": [
-        -0.0033691489140501647,
-        0.009538594820239376
+        -0.001752309874126738,
+        0.008264479827784837
       ],
       "corrected_ci95": [
-        -0.0033691489140501647,
-        0.009538594820239376
+        -0.001752309874126738,
+        0.008264479827784837
       ],
-      "p": 0.8435782108945528,
+      "p": 0.9075462268865567,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39272,16 +42642,16 @@
     {
       "stat": "rush_yds",
       "table": "bell_cow_report",
-      "n": 2740,
-      "games": 814,
-      "delta": 1.3427388713307624,
+      "n": 3930,
+      "games": 1177,
+      "delta": 1.2695396525259237,
       "ci95": [
-        0.9621407062582727,
-        1.725273222938709
+        0.9734642600631731,
+        1.5801874636991922
       ],
       "corrected_ci95": [
-        0.9621407062582727,
-        1.725273222938709
+        0.9734642600631731,
+        1.5801874636991922
       ],
       "p": 1.0,
       "family_tests": 1,
@@ -39291,18 +42661,18 @@
     {
       "stat": "rush_yds",
       "table": "coach_records",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.07264242798742587,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.07913023970509303,
       "ci95": [
-        -0.14050005086842038,
-        0.29963383841036817
+        -0.07399531350899842,
+        0.2505593737596155
       ],
       "corrected_ci95": [
-        -0.14050005086842038,
-        0.29963383841036817
+        -0.07399531350899842,
+        0.2505593737596155
       ],
-      "p": 0.7371314342828585,
+      "p": 0.8290854572713643,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39310,18 +42680,18 @@
     {
       "stat": "rush_yds",
       "table": "cornerbacks",
-      "n": 2740,
-      "games": 814,
-      "delta": -0.004456859087421946,
+      "n": 3930,
+      "games": 1177,
+      "delta": -0.010990199120596771,
       "ci95": [
-        -0.19917042801340964,
-        0.1995826754924506
+        -0.16715352051760024,
+        0.1419740165350672
       ],
       "corrected_ci95": [
-        -0.19917042801340964,
-        0.1995826754924506
+        -0.16715352051760024,
+        0.1419740165350672
       ],
-      "p": 0.4877561219390305,
+      "p": 0.45377311344327836,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39329,18 +42699,18 @@
     {
       "stat": "rush_yds",
       "table": "coverage_matrix",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.14163753968955828,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.08033002897073295,
       "ci95": [
-        -0.03511660022652018,
-        0.33533753022136054
+        -0.07424080598552697,
+        0.23602890600448312
       ],
       "corrected_ci95": [
-        -0.03511660022652018,
-        0.33533753022136054
+        -0.07424080598552697,
+        0.23602890600448312
       ],
-      "p": 0.9345327336331835,
+      "p": 0.8430784607696152,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39348,18 +42718,18 @@
     {
       "stat": "rush_yds",
       "table": "fantasy_points_allowed_qb",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.06954407517927406,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.07714638746421756,
       "ci95": [
-        -0.07925654556763657,
-        0.21446501399479276
+        -0.0428176402203676,
+        0.20423636277846444
       ],
       "corrected_ci95": [
-        -0.07925654556763657,
-        0.21446501399479276
+        -0.0428176402203676,
+        0.20423636277846444
       ],
-      "p": 0.815592203898051,
+      "p": 0.8845577211394303,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39367,18 +42737,18 @@
     {
       "stat": "rush_yds",
       "table": "fantasy_points_allowed_rb",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.1295014374447565,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.09923880094183614,
       "ci95": [
-        -0.07400927554465572,
-        0.3325556170381033
+        -0.07909250476566769,
+        0.2803918729941887
       ],
       "corrected_ci95": [
-        -0.07400927554465572,
-        0.3325556170381033
+        -0.07909250476566769,
+        0.2803918729941887
       ],
-      "p": 0.889055472263868,
+      "p": 0.872063968015992,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39386,18 +42756,18 @@
     {
       "stat": "rush_yds",
       "table": "fantasy_points_allowed_te",
-      "n": 2740,
-      "games": 814,
-      "delta": -0.10606128038281072,
+      "n": 3930,
+      "games": 1177,
+      "delta": -0.06046944441079487,
       "ci95": [
-        -0.3193255173299682,
-        0.09981588546202728
+        -0.21507631271337202,
+        0.09179674668833122
       ],
       "corrected_ci95": [
-        -0.3193255173299682,
-        0.09981588546202728
+        -0.21507631271337202,
+        0.09179674668833122
       ],
-      "p": 0.16391804097951024,
+      "p": 0.22188905547226387,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39405,18 +42775,18 @@
     {
       "stat": "rush_yds",
       "table": "fantasy_points_allowed_wr",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.1203608269238994,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.10101700168832871,
       "ci95": [
-        -0.06944367245915564,
-        0.31296854662780577
+        -0.037779073514197826,
+        0.24097439878517288
       ],
       "corrected_ci95": [
-        -0.06944367245915564,
-        0.31296854662780577
+        -0.037779073514197826,
+        0.24097439878517288
       ],
-      "p": 0.8925537231384307,
+      "p": 0.9240379810094953,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39424,18 +42794,18 @@
     {
       "stat": "rush_yds",
       "table": "injury_reports",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.35236760717238824,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.2116450865456773,
       "ci95": [
-        0.16697646185900383,
-        0.542990225060464
+        0.0690050619018154,
+        0.3491464966021095
       ],
       "corrected_ci95": [
-        0.16697646185900383,
-        0.542990225060464
+        0.0690050619018154,
+        0.3491464966021095
       ],
-      "p": 1.0,
+      "p": 0.9975012493753124,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39443,18 +42813,18 @@
     {
       "stat": "rush_yds",
       "table": "lineup_combos_db",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.06519436522991988,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.11544459248317107,
       "ci95": [
-        -0.1347342512505752,
-        0.279542174746315
+        -0.039872365494183985,
+        0.26818919975070726
       ],
       "corrected_ci95": [
-        -0.1347342512505752,
-        0.279542174746315
+        -0.039872365494183985,
+        0.26818919975070726
       ],
-      "p": 0.7246376811594203,
+      "p": 0.9240379810094953,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39462,18 +42832,18 @@
     {
       "stat": "rush_yds",
       "table": "lineup_combos_front",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.07587260155782212,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.07656862001685999,
       "ci95": [
-        -0.1533432465418897,
-        0.3028865726625162
+        -0.11177328135263223,
+        0.26365541598406517
       ],
       "corrected_ci95": [
-        -0.1533432465418897,
-        0.3028865726625162
+        -0.11177328135263223,
+        0.26365541598406517
       ],
-      "p": 0.7491254372813593,
+      "p": 0.7781109445277361,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39481,18 +42851,18 @@
     {
       "stat": "rush_yds",
       "table": "lineup_combos_ol",
-      "n": 2740,
-      "games": 814,
-      "delta": -0.01426633709538592,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.02941982667258071,
       "ci95": [
-        -0.19584623031293777,
-        0.17743248416601454
+        -0.12152082262958983,
+        0.18069853450300138
       ],
       "corrected_ci95": [
-        -0.19584623031293777,
-        0.17743248416601454
+        -0.12152082262958983,
+        0.18069853450300138
       ],
-      "p": 0.43778110944527737,
+      "p": 0.6691654172913544,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39500,18 +42870,18 @@
     {
       "stat": "rush_yds",
       "table": "lineup_combos_rb",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.2912987722967663,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.27391141110097483,
       "ci95": [
-        -0.010689122982095381,
-        0.5741414259590908
+        0.044927072300593826,
+        0.5047056505597486
       ],
       "corrected_ci95": [
-        -0.010689122982095381,
-        0.5741414259590908
+        0.044927072300593826,
+        0.5047056505597486
       ],
-      "p": 0.9805097451274363,
+      "p": 0.9910044977511244,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39519,18 +42889,18 @@
     {
       "stat": "rush_yds",
       "table": "lineup_combos_skill",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.15313273589976512,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.11819401855080486,
       "ci95": [
-        -0.038515692927892496,
-        0.33592124528249295
+        -0.030755952160345112,
+        0.26430823234199347
       ],
       "corrected_ci95": [
-        -0.038515692927892496,
-        0.33592124528249295
+        -0.030755952160345112,
+        0.26430823234199347
       ],
-      "p": 0.9435282358820589,
+      "p": 0.9340329835082459,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39538,18 +42908,18 @@
     {
       "stat": "rush_yds",
       "table": "lineup_combos_te",
-      "n": 2740,
-      "games": 814,
-      "delta": -0.012737738477052563,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.02643854563472835,
       "ci95": [
-        -0.17425454945398716,
-        0.16955642048488806
+        -0.10445839688576354,
+        0.16459173260312188
       ],
       "corrected_ci95": [
-        -0.17425454945398716,
-        0.16955642048488806
+        -0.10445839688576354,
+        0.16459173260312188
       ],
-      "p": 0.4172913543228386,
+      "p": 0.6416791604197901,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39557,18 +42927,18 @@
     {
       "stat": "rush_yds",
       "table": "lineup_combos_wr",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.14518905625726183,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.1586934820082958,
       "ci95": [
-        -0.05089583311942753,
-        0.33994391525641726
+        -0.00014817427280614702,
+        0.3192919252971845
       ],
       "corrected_ci95": [
-        -0.05089583311942753,
-        0.33994391525641726
+        -0.00014817427280614702,
+        0.3192919252971845
       ],
-      "p": 0.9265367316341829,
+      "p": 0.9725137431284357,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39576,18 +42946,18 @@
     {
       "stat": "rush_yds",
       "table": "pace",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.16782960682889841,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.11160563646078717,
       "ci95": [
-        -0.06917198799423142,
-        0.3997967622548403
+        -0.0703998152663609,
+        0.29834214446653234
       ],
       "corrected_ci95": [
-        -0.06917198799423142,
-        0.3997967622548403
+        -0.0703998152663609,
+        0.29834214446653234
       ],
-      "p": 0.9225387306346826,
+      "p": 0.872063968015992,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39595,18 +42965,18 @@
     {
       "stat": "rush_yds",
       "table": "passing_basic",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.04219490524626126,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.053463314629086406,
       "ci95": [
-        -0.15378636692894443,
-        0.24492342367828956
+        -0.09804277144684456,
+        0.20277785696457626
       ],
       "corrected_ci95": [
-        -0.15378636692894443,
-        0.24492342367828956
+        -0.09804277144684456,
+        0.20277785696457626
       ],
-      "p": 0.670664667666167,
+      "p": 0.7616191904047976,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39614,18 +42984,18 @@
     {
       "stat": "rush_yds",
       "table": "passing_depth_of_target",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.2685258385038724,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.13038394190276245,
       "ci95": [
-        0.022891245477423782,
-        0.4967427072407175
+        -0.06104364542791711,
+        0.32957075820923937
       ],
       "corrected_ci95": [
-        0.022891245477423782,
-        0.4967427072407175
+        -0.06104364542791711,
+        0.32957075820923937
       ],
-      "p": 0.9885057471264368,
+      "p": 0.8960519740129935,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39633,18 +43003,18 @@
     {
       "stat": "rush_yds",
       "table": "passing_situation",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.037366081154259455,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.017792863336228232,
       "ci95": [
-        -0.18889645309565095,
-        0.2744388585782532
+        -0.16536281028788255,
+        0.1986587025909285
       ],
       "corrected_ci95": [
-        -0.18889645309565095,
-        0.2744388585782532
+        -0.16536281028788255,
+        0.1986587025909285
       ],
-      "p": 0.6201899050474763,
+      "p": 0.5887056471764118,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39652,18 +43022,18 @@
     {
       "stat": "rush_yds",
       "table": "passing_stats",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.05027274389336579,
+      "n": 3930,
+      "games": 1177,
+      "delta": -0.05699319232814488,
       "ci95": [
-        -0.17529133648716855,
-        0.29635986268850106
+        -0.22600025116579647,
+        0.11983349076167447
       ],
       "corrected_ci95": [
-        -0.17529133648716855,
-        0.29635986268850106
+        -0.22600025116579647,
+        0.11983349076167447
       ],
-      "p": 0.68015992003998,
+      "p": 0.2688655672163918,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39671,18 +43041,18 @@
     {
       "stat": "rush_yds",
       "table": "playcaller_stats",
-      "n": 2740,
-      "games": 814,
-      "delta": -0.029189592208305415,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.03844574741431472,
       "ci95": [
-        -0.21594004007745052,
-        0.15506039935557403
+        -0.10780589859504304,
+        0.1817877608257254
       ],
       "corrected_ci95": [
-        -0.21594004007745052,
-        0.15506039935557403
+        -0.10780589859504304,
+        0.1817877608257254
       ],
-      "p": 0.3778110944527736,
+      "p": 0.704647676161919,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39690,18 +43060,18 @@
     {
       "stat": "rush_yds",
       "table": "rb_wr_efficiency",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.40789877202389013,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.24541404180551,
       "ci95": [
-        0.14779352240738314,
-        0.6999130318197405
+        0.03515760949588428,
+        0.4563986332618159
       ],
       "corrected_ci95": [
-        0.14779352240738314,
-        0.6999130318197405
+        0.03515760949588428,
+        0.4563986332618159
       ],
-      "p": 0.9980009995002499,
+      "p": 0.9875062468765617,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39709,18 +43079,18 @@
     {
       "stat": "rush_yds",
       "table": "receiving_alignment",
-      "n": 2740,
-      "games": 814,
-      "delta": -6.229720846579893e-05,
+      "n": 3930,
+      "games": 1177,
+      "delta": -4.343416247962389e-05,
       "ci95": [
-        -0.005689952456885648,
-        0.005442665880019625
+        -0.003984839653881948,
+        0.003761943549171599
       ],
       "corrected_ci95": [
-        -0.005689952456885648,
-        0.005442665880019625
+        -0.003984839653881948,
+        0.003761943549171599
       ],
-      "p": 0.47976011994003,
+      "p": 0.48375812093953025,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39728,8 +43098,8 @@
     {
       "stat": "rush_yds",
       "table": "receiving_basic",
-      "n": 2740,
-      "games": 814,
+      "n": 3930,
+      "games": 1177,
       "delta": 0.0,
       "ci95": [
         0.0,
@@ -39747,18 +43117,18 @@
     {
       "stat": "rush_yds",
       "table": "receiving_separation_by_alignment",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.0007512155240469605,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.0005237491986223759,
       "ci95": [
-        -0.0028804320005224766,
-        0.004830841703770486
+        -0.0019983036412826232,
+        0.0032501913310625146
       ],
       "corrected_ci95": [
-        -0.0028804320005224766,
-        0.004830841703770486
+        -0.0019983036412826232,
+        0.0032501913310625146
       ],
-      "p": 0.6721639180409795,
+      "p": 0.6586706646676662,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39766,18 +43136,18 @@
     {
       "stat": "rush_yds",
       "table": "receiving_separation_by_breaks",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.0007415103216240876,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.0005169817509541985,
       "ci95": [
-        -0.0029099918633102044,
-        0.004816647099534421
+        -0.002012446234054584,
+        0.003253301375780259
       ],
       "corrected_ci95": [
-        -0.0029099918633102044,
-        0.004816647099534421
+        -0.002012446234054584,
+        0.003253301375780259
       ],
-      "p": 0.6721639180409795,
+      "p": 0.6586706646676662,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39785,18 +43155,18 @@
     {
       "stat": "rush_yds",
       "table": "receiving_separation_by_coverage",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.0007497202740968579,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.0005227057381743997,
       "ci95": [
-        -0.0028835291419988572,
-        0.004826465478180349
+        -0.001999709421964122,
+        0.0032496996477302527
       ],
       "corrected_ci95": [
-        -0.0028835291419988572,
-        0.004826465478180349
+        -0.001999709421964122,
+        0.0032496996477302527
       ],
-      "p": 0.6721639180409795,
+      "p": 0.6586706646676662,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39804,8 +43174,8 @@
     {
       "stat": "rush_yds",
       "table": "receiving_separation_by_role",
-      "n": 2740,
-      "games": 814,
+      "n": 3930,
+      "games": 1177,
       "delta": 0.0,
       "ci95": [
         0.0,
@@ -39823,18 +43193,18 @@
     {
       "stat": "rush_yds",
       "table": "receiving_separation_by_routes",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.0007461046650461907,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.0005201849318642653,
       "ci95": [
-        -0.0029075235108637744,
-        0.004825812424697534
+        -0.0020108159949279673,
+        0.003259544005770704
       ],
       "corrected_ci95": [
-        -0.0029075235108637744,
-        0.004825812424697534
+        -0.0020108159949279673,
+        0.003259544005770704
       ],
-      "p": 0.6721639180409795,
+      "p": 0.6591704147926037,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39842,18 +43212,18 @@
     {
       "stat": "rush_yds",
       "table": "receiving_situation",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.0001621747538991218,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.00011306888881227139,
       "ci95": [
-        -0.006552647700613148,
-        0.0068786222870754225
+        -0.004567850439386425,
+        0.00473970510556222
       ],
       "corrected_ci95": [
-        -0.006552647700613148,
-        0.0068786222870754225
+        -0.004567850439386425,
+        0.00473970510556222
       ],
-      "p": 0.5747126436781609,
+      "p": 0.5757121439280359,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39861,8 +43231,8 @@
     {
       "stat": "rush_yds",
       "table": "receiving_stats",
-      "n": 2740,
-      "games": 814,
+      "n": 3930,
+      "games": 1177,
       "delta": 0.0,
       "ci95": [
         0.0,
@@ -39880,18 +43250,18 @@
     {
       "stat": "rush_yds",
       "table": "rushing_basic",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.23183300060077305,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.28478754155205105,
       "ci95": [
-        -0.025361238525421867,
-        0.4884319987628835
+        0.07111054956382067,
+        0.48505485535798976
       ],
       "corrected_ci95": [
-        -0.025361238525421867,
-        0.4884319987628835
+        0.07111054956382067,
+        0.48505485535798976
       ],
-      "p": 0.9615192403798101,
+      "p": 0.9965017491254373,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39899,16 +43269,16 @@
     {
       "stat": "rush_yds",
       "table": "rushing_stats",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.4965724624856545,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.589612469175693,
       "ci95": [
-        0.2519446703179161,
-        0.7295935979890207
+        0.39572573610275,
+        0.7827088606825809
       ],
       "corrected_ci95": [
-        0.2519446703179161,
-        0.7295935979890207
+        0.39572573610275,
+        0.7827088606825809
       ],
       "p": 1.0,
       "family_tests": 1,
@@ -39918,18 +43288,18 @@
     {
       "stat": "rush_yds",
       "table": "shadow_index",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.2521304757055575,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.17151093762036196,
       "ci95": [
-        0.07778508262325469,
-        0.4342790947720039
+        0.04420261269960053,
+        0.30692997711898085
       ],
       "corrected_ci95": [
-        0.07778508262325469,
-        0.4342790947720039
+        0.04420261269960053,
+        0.30692997711898085
       ],
-      "p": 1.0,
+      "p": 0.9960019990004998,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39937,18 +43307,18 @@
     {
       "stat": "rush_yds",
       "table": "team_defense",
-      "n": 2740,
-      "games": 814,
-      "delta": -0.0025940428685097797,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.0022433802675048205,
       "ci95": [
-        -0.18584358216375182,
-        0.18328108085482667
+        -0.13857392277369082,
+        0.1514162758875089
       ],
       "corrected_ci95": [
-        -0.18584358216375182,
-        0.18328108085482667
+        -0.13857392277369082,
+        0.1514162758875089
       ],
-      "p": 0.49975012493753124,
+      "p": 0.512743628185907,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -39956,18 +43326,18 @@
     {
       "stat": "rush_yds",
       "table": "team_offense",
-      "n": 2740,
-      "games": 814,
-      "delta": 0.2222730935925115,
+      "n": 3930,
+      "games": 1177,
+      "delta": 0.17830381223566963,
       "ci95": [
-        -0.005420467749374808,
-        0.47059736750308284
+        0.001787995259438744,
+        0.36435204611869343
       ],
       "corrected_ci95": [
-        -0.005420467749374808,
-        0.47059736750308284
+        0.001787995259438744,
+        0.36435204611869343
       ],
-      "p": 0.9650174912543729,
+      "p": 0.9710144927536232,
       "family_tests": 1,
       "tail_resolution_warning": false,
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
@@ -42082,6 +45452,6 @@
       "interpretation": "exploratory permutation loss increase; positive means fitted model relied on table"
     }
   ],
-  "accepted_shadow_count": 0,
+  "accepted_shadow_count": 2,
   "warning": "No promotion; historical publication/revisions and earlier holdout exposure limit inference."
 }

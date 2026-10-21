@@ -1,6 +1,6 @@
 {
-  "created_at": "2026-10-21T04:02:55.790311+00:00",
-  "import_fingerprint": "8f1a134d40bd96daf91fcabd1aeade77e4d25cc973e7de5fee216de7a4a9dfc5",
+  "created_at": "2026-10-21T10:49:56.591026+00:00",
+  "import_fingerprint": "4f0fa43a0beae7cc4e1032863a2d69fb9ea6bc96905fa36465fe63e9f5fdf6e5",
   "tables": [
     {
       "table": "bell_cow_report",

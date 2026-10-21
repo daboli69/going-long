@@ -93,3 +93,16 @@
 - 2026-10-21T05:37:04.101107+00:00: Amendment6 discovery; 269 configurations attempted, 2010 blocks complete; failures=0. Private checkpoints retained.
 
 - 2026-10-21T06:19:37.162800+00:00: STOP at included-usage exhaustion; existing credits fell40.48053→7.52892. Finished report/wrap checks only; no2025 look or2026 tuning. 349 passed, 1 skipped, 522 warnings in 325.23s (0:05:25)
+
+- 2026-10-21T10:41:09.513346+00:00: Amendment6 validation; 269 configurations attempted, 0 blocks complete; failures=0. Private checkpoints retained.
+
+- 2026-10-21T10:43:59.448283+00:00: Amendment6 validation; 269 configurations attempted, 115 blocks complete; failures=0. Private checkpoints retained.
+
+- 2026-10-21T10:44:04.049471+00:00: Amendment6 descriptive; 269 configurations attempted, 0 blocks complete; failures=0. Private checkpoints retained.
+
+- 2026-10-21T10:45:23.957414+00:00: Amendment6 descriptive; 269 configurations attempted, 46 blocks complete; failures=0. Private checkpoints retained.
+
+- 2026-10-21T11:03:53.303371+00:00: Resumed using included allowance; ONE frozen2025 pass complete,2026 descriptive only. Qualified shadow configurations=2; weekly completed revisions=1. 349 passed, 1 skipped, 522 warnings in 324.50s (0:05:24); immutable changes=0. No promotion.
+- Resume check: Windows rg glob form failed once (corrected to -g); four new calendar-admission fixtures initially failed collection as expected because next_week was absent. No model fitting or threshold changes.
+
+- 2026-10-21T11:24:10.212469+00:00: Final post-calendar-fix suite: 353 passed, 1 skipped, 522 warnings in 324.38s (0:05:24). Original Inbox37 files unchanged; week7 archive integrity checks passed. Initial relative PROGRESS.md lookup failed once and was corrected to the root tracker; no duplicate tracker created.

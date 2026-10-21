@@ -4,7 +4,11 @@
 
 Drop the new full-history `week N` CSVs into `GOING\FantasyPoints\Inbox`, then run **`run_weekly_fpds.bat`** from this folder (`--week 8` selects a week explicitly). The Inbox is read-only to the program. It imports hashed versions, audits revisions, refreshes NFL inputs and authorized local lines, refits committed frozen shadow configurations, and prints the new private projection/leans paths. It requires the frozen discovery selection and completed single validation; failures stop clearly and preserve earlier files. Do not upload or commit the local subscription derivatives.
 
+Without `--week`, the next future regular-season kickoff selects the target week; refreshed results determine the completed-week training cutoff. Stale completion flags cannot send the default run back to last week.
+
 See [the FPDS runbook](docs/FPDS_RESEARCH_PROGRAM.md), [data dictionary](docs/FPDS_DATA_DICTIONARY.md) and [pre-registration](docs/PHASE10_PREREGISTRATION.md). All output remains shadow research, with no promotion or established betting edge.
+
+The [weekly download list](docs/FPDS_WEEKLY_DOWNLOADS.md) distinguishes frozen input requirements from exploratory table importance. The [full research report](reports/run_20261020/FPDS_FULL_REPORT.md) records the single frozen confirmation and remaining limits; complete aggregate metrics are in `FPDS_A6_RESULTS.json` and `FPDS_A6_CONFIRMATION.json` beside it.
 
 Open **`launch_lab.bat` → Section: Research → Page: FPDS Research** for aggregate coverage, errors and evidence. The page is view-only and never reads subscription rows. The weekly command prints the reviewed private presentation folder containing `projections.csv` and `leans.csv`; use that presentation rather than the intermediate computational sheets. A refit is blocked within2h of kickoff. Use **`run_weekly_fpds.bat --comparisons-only`** to refresh authorized archived prices and comparisons without changing model forecasts. Same-book pregame quote tracking is descriptive; the last archived quote is a closing proxy, not a verified actual close.
 

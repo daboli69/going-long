@@ -1,38 +1,31 @@
 # FPDS full report — Amendment 6
 
-**Completed:** append-only importer, column dictionary/coverage, exact GSIS/team/week joins, games-played rolling feature store and resumable fixed-budget program. 269/269 configurations attempted; 4 failed/skipped. Single frozen2025 pass: pending.2026 is descriptive only. All models remain shadow; no promotion.
+**Completed:** 37-file append-only ingestion/audit, as-of feature store, resumable research/weekly commands and local aggregate viewer.269 configurations attempted; 265 discovery completions, 4 recorded checkpoint failures. ONE frozen 2025 pass completed without failures; 2026 scoring is descriptive. 2 frozen configurations met the complete statistical shadow gate; nothing promoted.
 
-**Data:** 37 files / 37 tables / 210,146 weekly rows; 5,270 identity/join-excluded rows (not unique players). Exact known GSIS IDs and verified historical roster teams are used; display-label conflicts are counted, never guessed. 27 possible export caps; five separation tables start2022. Overlap revisions observed in this import: 0; pre-download revision frequency remains unknown. Historical publication times are unverified. Strict later-week/final-kickoff+24h joins and future-mutation/shifted/shuffled canaries enforced. See dictionary and aggregate JSON for full coverage.
+**Data:** 210,146 valid weekly rows;5,270 identity/join-excluded rows. 27 possible export caps; five separation tables lack 2021. All 37 exports cover 2026 weeks 1–6, but coverage is not completeness. Strict later-week/final-kickoff+24h audit and canaries passed. Original publication dates and earlier vendor revisions remain unverified.
 
-**What data improved what:** lowest relative discovery loss per family below is a selected, exploratory display; corrected intervals and all trials remain in FPDS_A6_RESULTS.json. Acceptance also requires the frozen validation direction. H3 first-TD/scoring is offensive regulation only; H7 undated target-week injury/shadow effects are unavailable.
+|Family: displayed discovery result|Metric; n / games|Delta [corrected95% CI]|Decision|
+|---|---|---|---|
+|H1: rec|Poisson deviance;6196/815|-0.01359 [-0.02383,-0.00337]|Rejected / exploratory; no confirmed frozen change|
+|H2: rush_yds|MAE;2740/814|-0.3872 [-0.73,-0.04233]|Rejected / exploratory; no confirmed frozen change|
+|H3: rec|Poisson deviance;6196/815|+0.01693 [+0.002427,+0.03013]|Rejected / exploratory; no confirmed frozen change|
+|H4: pass_tds|Poisson deviance;620/330|-0.01267 [-0.04266,+0.01615]|Rejected / exploratory; no confirmed frozen change|
+|H5: rec_yds|MAE;2037/271|-0.07482 [-0.2889,+0.1386]|Rejected / exploratory; no confirmed frozen change|
+|H6: rec_yds|MAE;2037/271|-0.1093 [-0.4195,+0.1724]|Rejected / exploratory; no confirmed frozen change|
+|H7: rec_yds|MAE;2037/271|-0.104 [-0.3102,+0.09998]|Rejected / exploratory; no confirmed frozen change|
+|H8: pass_tds|Poisson deviance;620/330|+0.03436 [-0.01721,+0.0878]|Rejected / exploratory; no confirmed frozen change|
+|H9: rec|Poisson deviance;6196/815|-0.0344 [-0.05828,-0.0126]|Challenger; 2 frozen confirmations|
 
-|Family / displayed configuration|n / games|Control → new loss|Delta [family-corrected95% CI]|Seasons agreeing / decision|
-|---|---:|---|---|---|
-|H1: rec / add / linear|6196 / 815|1.547 → 1.533|-0.01359 [-0.02383, -0.00337]|3/3; Rejected / exploratory; no full gate|
-|H2: rush_yds / add / linear|2740 / 814|25.62 → 25.23|-0.3872 [-0.73, -0.04233]|3/3; Rejected / exploratory; no full gate|
-|H3: rec / family / linear|6196 / 815|1.547 → 1.564|+0.01693 [+0.002427, +0.03013]|0/3; Rejected / exploratory; no full gate|
-|H4: pass_tds / add / linear|620 / 330|1.022 → 1.009|-0.01267 [-0.04266, +0.01615]|2/3; Rejected / exploratory; no full gate|
-|H5: rec_yds / add / linear|2037 / 271|24.44 → 24.36|-0.07482 [-0.2889, +0.1386]|1/3; Rejected / exploratory; no full gate|
-|H6: rec_yds / add / linear|2037 / 271|24.44 → 24.33|-0.1093 [-0.4195, +0.1724]|1/3; Rejected / exploratory; no full gate|
-|H7: rec_yds / add / linear|2037 / 271|24.44 → 24.33|-0.104 [-0.3102, +0.09998]|1/3; Rejected / exploratory; no full gate|
-|H8: pass_tds / all / shrink|620 / 330|1.022 → 1.056|+0.03436 [-0.01721, +0.0878]|1/3; Rejected / exploratory; no full gate|
-|H9: rec / all / stacked|6196 / 815|1.547 → 1.512|-0.0344 [-0.05828, -0.0126]|2/3; Rejected / exploratory; no full gate|
+**Frozen confirmation (2025; same selected configuration, no tuning):**
+- rec stacked: Poisson deviance 1.449 → 1.397; delta -0.05196 [-0.07519,-0.02887], n=2016/272 games. Interval shown is paired95%; all corrected diagnostics remain in JSON.
+- rush_yds stacked: MAE 25.41 → 24.38; delta -1.027 [-1.58,-0.4929], n=896/270 games. Interval shown is paired95%; all corrected diagnostics remain in JSON.
 
-**Recommended changes:** No new model change has passed the complete preregistered gate; keep the control. Positive table permutation is tentative reliance, not proof of independent value.
+**Recommended changes:** only statistically qualified frozen stacks merit further shadow review; all other target configurations retain the control. No tradable edge established: game closing lines benchmark forecast loss; historical prop prices are absent. Pseudo-lines are calibration diagnostics, not price-edge evidence.
 
-**Edge assessment:** real historical game closing lines are benchmark-only; their paired forecast-loss comparisons are in the aggregate JSON. Historical prop prices do not exist here: pseudo-lines test calibration only.2026 archived quotes support small-sample descriptive comparisons and forward tracking. No tradable price edge is established.
+**Concerns:** selected family displays are exploratory; 269 trials and finite2,000-draw bootstrap tails, revised/truncated exports, prior 2025 exposure, overlapping unit averages and unmatched identities limit inference. The winning stacks are compared with linear controls: gains combine model family, paid data and shorter windows. Same-family, matched-window free-NFL controls are untested; FPDS-specific incremental value is not isolated. H7 causal on/off and replacement effects, coherence, stability and scenarios remain unvalidated. Earlier usage exhaustion consumed existing account credits; no purchase was initiated, but this session cannot be claimed$0.
 
-**Concerns:**269-slot search/multiple testing; finite2000-draw bootstrap tail resolution; possible export truncation/selection; unverified historical publication/revisions; unmatched identities; overlapping unit means; earlier2023 development and old simulator2023–25 exposure.2025 is not a pristine holdout. Structural proxies are analytical, not v1 simulations. Training-residual interval warm-up is labelled. Causal on/off effects and current replacement assumptions are not identified by the exports.
+**2025 game benchmarks:** margin MAE 10.4 vs closing 9.72, delta +0.717 [+0.342,+1.11], n=272; total MAE 10.7 vs closing 10.4, delta +0.292 [-0.0796,+0.686], n=272; win Brier 0.234 vs closing 0.212, delta +0.0223 [+0.00947,+0.0348], n=271. Forecast loss only; separate registered market-informed blends remain labelled in the aggregate JSON.
+**Weekly / Needs Travis:** stale-schedule default selection is fixed (four fixture tests); keep all 37 full-history `week N` exports (docs/FPDS_WEEKLY_DOWNLOADS.md); run `run_weekly_fpds.bat --week 8`. Open `launch_lab.bat` → Research → FPDS Research for aggregates. Private subscription-derived rows must stay local.
+Week 7 revision archived for 14 unstarted games; completed-week training cutoff=week 6 (2026-10-19); reviewed private projections/leans available. Every row remains investigation tier C.
 
-**Next angles:** preregister uncapped coverage and real pregame publication snapshots; compare exposure-normalized role changes, timestamped injury/replacement features and true prospective calibration on matched quote contracts. No further trials on2025.
-
-**Needs Travis / weekly:** download the same full-history tables with trailing `week N`, retain them in Inbox, run `run_weekly_fpds.bat`. Outputs stay in ignored private revision folders; do not share subscription derivatives. Review missing/capped coverage before relying on apparent improvements.
-
-
-**Stopped at usage limit:** included allowance exhausted. Account-reported existing credits decreased40.48053→7.52892; no new purchase/API/subscription was initiated, but this session cannot be claimed$0. No2025 confirmation,2026 descriptive scoring or new weekly FPDS forecast was started. These remain Next. Discovery attempted269 configurations:265 complete/4 checkpoint-related failures retained/skipped.
-
-**Final checks:** 349 passed, 1 skipped, 522 warnings in 325.23s (0:05:25). No model promotion. Existing champion/forecasts unchanged.
-
-**Needs Travis:** resume only with included allowance available; commit/check the discovery-frozen configuration before the SINGLE2025 pass, then descriptive2026 and run_weekly_fpds.bat. Open launch_lab.bat → Research → FPDS Research for saved aggregate results. Weekly minimum download selection remains provisional until frozen confirmation; keep original37-table history, require every table referenced by the frozen configuration, and review27 possible export caps/five separation tables lacking2021.2026 source files coverweeks1–6; player/join gaps remain.
-
-**Interpretation:** any gain combines new data and shorter-window representation versus the8-game lab baseline; matched-window free-NFL controls and verified vendor definitions/publication times are future preregistered work. H7 covers lagged usage/lineup proxies; true on/off and current replacement effects remain unvalidated.
+**Checks:** 353 passed, 1 skipped, 522 warnings in 324.38s (0:05:24). 37 original Inbox files unchanged; forecast timing/cutoff/quantile/simplex checks passed. Existing 191 forecast/champion files checked; changed=0. No evaluation command, promotion or deployment. **Next:** verify uncapped exports/publication snapshots, preregister same-family matched-window free-NFL controls and reduced-table validation; never iterate on 2025.

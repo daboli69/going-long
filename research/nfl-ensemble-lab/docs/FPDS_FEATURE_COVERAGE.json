@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-10-21T04:03:30.809409+00:00",
-  "fingerprint": "9062ce0e683d8d709c9b0ec2d65bde10342aa324f88be6a0b1fc8ac303d67d79",
-  "rows": 17927,
+  "created_at": "2026-10-21T10:55:46.717980+00:00",
+  "fingerprint": "7f7b91575f014e3ca7562e283ea05452de1ee62f482db38e1b3578cfddee10d8",
+  "rows": 17925,
   "rows_without_any_fpds_history": 198,
   "rows_without_player_fpds_history": 937,
   "history_by_season": {
@@ -31,7 +31,7 @@
       "no_player_history": 72
     },
     "2026": {
-      "rows": 1363,
+      "rows": 1361,
       "no_any_history": 0,
       "no_player_history": 28
     }
@@ -40,8 +40,8 @@
     {
       "table": "bell_cow_report",
       "status": "usable",
-      "matched_rows": 4917,
-      "eligible_rows": 17927,
+      "matched_rows": 4916,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -64,16 +64,16 @@
           "matched": 924
         },
         "2026": {
-          "n": 1363,
-          "matched": 368
+          "n": 1361,
+          "matched": 367
         }
       }
     },
     {
       "table": "coach_records",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -96,16 +96,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "cornerbacks",
       "status": "usable",
-      "matched_rows": 17713,
-      "eligible_rows": 17927,
+      "matched_rows": 17711,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -128,16 +128,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "coverage_matrix",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -160,16 +160,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "fantasy_points_allowed_qb",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -192,16 +192,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "fantasy_points_allowed_rb",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -224,16 +224,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "fantasy_points_allowed_te",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -256,16 +256,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "fantasy_points_allowed_wr",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -288,16 +288,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "injury_reports",
       "status": "usable",
-      "matched_rows": 14481,
-      "eligible_rows": 17927,
+      "matched_rows": 14480,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -320,16 +320,16 @@
           "matched": 3045
         },
         "2026": {
-          "n": 1363,
-          "matched": 1236
+          "n": 1361,
+          "matched": 1235
         }
       }
     },
     {
       "table": "lineup_combos_db",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -352,16 +352,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "lineup_combos_front",
       "status": "usable",
-      "matched_rows": 17717,
-      "eligible_rows": 17927,
+      "matched_rows": 17715,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -384,16 +384,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "lineup_combos_ol",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -416,16 +416,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "lineup_combos_rb",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -448,16 +448,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "lineup_combos_skill",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -480,16 +480,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "lineup_combos_te",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -512,16 +512,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "lineup_combos_wr",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -544,16 +544,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "pace",
       "status": "usable",
-      "matched_rows": 17729,
-      "eligible_rows": 17927,
+      "matched_rows": 17727,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -576,16 +576,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "passing_basic",
       "status": "usable",
-      "matched_rows": 16438,
-      "eligible_rows": 17927,
+      "matched_rows": 16436,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -608,16 +608,16 @@
           "matched": 3165
         },
         "2026": {
-          "n": 1363,
-          "matched": 1314
+          "n": 1361,
+          "matched": 1312
         }
       }
     },
     {
       "table": "passing_depth_of_target",
       "status": "usable",
-      "matched_rows": 16969,
-      "eligible_rows": 17927,
+      "matched_rows": 16967,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -640,16 +640,16 @@
           "matched": 3222
         },
         "2026": {
-          "n": 1363,
-          "matched": 1320
+          "n": 1361,
+          "matched": 1318
         }
       }
     },
     {
       "table": "passing_situation",
       "status": "usable",
-      "matched_rows": 16382,
-      "eligible_rows": 17927,
+      "matched_rows": 16380,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -672,16 +672,16 @@
           "matched": 3148
         },
         "2026": {
-          "n": 1363,
-          "matched": 1283
+          "n": 1361,
+          "matched": 1281
         }
       }
     },
     {
       "table": "passing_stats",
       "status": "usable",
-      "matched_rows": 16438,
-      "eligible_rows": 17927,
+      "matched_rows": 16436,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -704,16 +704,16 @@
           "matched": 3165
         },
         "2026": {
-          "n": 1363,
-          "matched": 1314
+          "n": 1361,
+          "matched": 1312
         }
       }
     },
     {
       "table": "playcaller_stats",
       "status": "usable",
-      "matched_rows": 17713,
-      "eligible_rows": 17927,
+      "matched_rows": 17711,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -736,16 +736,16 @@
           "matched": 3345
         },
         "2026": {
-          "n": 1363,
-          "matched": 1363
+          "n": 1361,
+          "matched": 1361
         }
       }
     },
     {
       "table": "rb_wr_efficiency",
       "status": "usable",
-      "matched_rows": 10638,
-      "eligible_rows": 17927,
+      "matched_rows": 10637,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -768,16 +768,16 @@
           "matched": 2078
         },
         "2026": {
-          "n": 1363,
-          "matched": 799
+          "n": 1361,
+          "matched": 798
         }
       }
     },
     {
       "table": "receiving_alignment",
       "status": "usable",
-      "matched_rows": 8723,
-      "eligible_rows": 17927,
+      "matched_rows": 8722,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -800,16 +800,16 @@
           "matched": 1741
         },
         "2026": {
-          "n": 1363,
-          "matched": 709
+          "n": 1361,
+          "matched": 708
         }
       }
     },
     {
       "table": "receiving_basic",
       "status": "usable",
-      "matched_rows": 7474,
-      "eligible_rows": 17927,
+      "matched_rows": 7473,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -832,16 +832,16 @@
           "matched": 1592
         },
         "2026": {
-          "n": 1363,
-          "matched": 635
+          "n": 1361,
+          "matched": 634
         }
       }
     },
     {
       "table": "receiving_separation_by_alignment",
       "status": "usable",
-      "matched_rows": 7028,
-      "eligible_rows": 17927,
+      "matched_rows": 7027,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -864,16 +864,16 @@
           "matched": 1751
         },
         "2026": {
-          "n": 1363,
-          "matched": 712
+          "n": 1361,
+          "matched": 711
         }
       }
     },
     {
       "table": "receiving_separation_by_breaks",
       "status": "usable",
-      "matched_rows": 6888,
-      "eligible_rows": 17927,
+      "matched_rows": 6887,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -896,16 +896,16 @@
           "matched": 1746
         },
         "2026": {
-          "n": 1363,
-          "matched": 701
+          "n": 1361,
+          "matched": 700
         }
       }
     },
     {
       "table": "receiving_separation_by_coverage",
       "status": "usable",
-      "matched_rows": 6932,
-      "eligible_rows": 17927,
+      "matched_rows": 6931,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -928,16 +928,16 @@
           "matched": 1746
         },
         "2026": {
-          "n": 1363,
-          "matched": 707
+          "n": 1361,
+          "matched": 706
         }
       }
     },
     {
       "table": "receiving_separation_by_role",
       "status": "usable",
-      "matched_rows": 5402,
-      "eligible_rows": 17927,
+      "matched_rows": 5401,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -960,16 +960,16 @@
           "matched": 1271
         },
         "2026": {
-          "n": 1363,
-          "matched": 512
+          "n": 1361,
+          "matched": 511
         }
       }
     },
     {
       "table": "receiving_separation_by_routes",
       "status": "usable",
-      "matched_rows": 6391,
-      "eligible_rows": 17927,
+      "matched_rows": 6390,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -992,16 +992,16 @@
           "matched": 1615
         },
         "2026": {
-          "n": 1363,
-          "matched": 660
+          "n": 1361,
+          "matched": 659
         }
       }
     },
     {
       "table": "receiving_situation",
       "status": "usable",
-      "matched_rows": 7887,
-      "eligible_rows": 17927,
+      "matched_rows": 7886,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -1024,16 +1024,16 @@
           "matched": 1602
         },
         "2026": {
-          "n": 1363,
-          "matched": 622
+          "n": 1361,
+          "matched": 621
         }
       }
     },
     {
       "table": "receiving_stats",
       "status": "usable",
-      "matched_rows": 7474,
-      "eligible_rows": 17927,
+      "matched_rows": 7473,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -1056,16 +1056,16 @@
           "matched": 1592
         },
         "2026": {
-          "n": 1363,
-          "matched": 635
+          "n": 1361,
+          "matched": 634
         }
       }
     },
     {
       "table": "rushing_basic",
       "status": "usable",
-      "matched_rows": 4239,
-      "eligible_rows": 17927,
+      "matched_rows": 4238,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -1088,16 +1088,16 @@
           "matched": 861
         },
         "2026": {
-          "n": 1363,
-          "matched": 343
+          "n": 1361,
+          "matched": 342
         }
       }
     },
     {
       "table": "rushing_stats",
       "status": "usable",
-      "matched_rows": 4239,
-      "eligible_rows": 17927,
+      "matched_rows": 4238,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -1120,16 +1120,16 @@
           "matched": 861
         },
         "2026": {
-          "n": 1363,
-          "matched": 343
+          "n": 1361,
+          "matched": 342
         }
       }
     },
     {
       "table": "shadow_index",
       "status": "usable",
-      "matched_rows": 14503,
-      "eligible_rows": 17927,
+      "matched_rows": 14501,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -1152,16 +1152,16 @@
           "matched": 2721
         },
         "2026": {
-          "n": 1363,
-          "matched": 1119
+          "n": 1361,
+          "matched": 1117
         }
       }
     },
     {
       "table": "team_defense",
       "status": "usable",
-      "matched_rows": 14370,
-      "eligible_rows": 17927,
+      "matched_rows": 14368,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -1184,16 +1184,16 @@
           "matched": 2715
         },
         "2026": {
-          "n": 1363,
-          "matched": 1101
+          "n": 1361,
+          "matched": 1099
         }
       }
     },
     {
       "table": "team_offense",
       "status": "usable",
-      "matched_rows": 14409,
-      "eligible_rows": 17927,
+      "matched_rows": 14407,
+      "eligible_rows": 17925,
       "by_season": {
         "2021": {
           "n": 3345,
@@ -1216,8 +1216,8 @@
           "matched": 2685
         },
         "2026": {
-          "n": 1363,
-          "matched": 1092
+          "n": 1361,
+          "matched": 1090
         }
       }
     }

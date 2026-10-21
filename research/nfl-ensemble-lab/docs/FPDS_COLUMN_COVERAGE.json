@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-10-21T04:02:55.790311+00:00",
+  "created_at": "2026-10-21T10:49:56.591026+00:00",
   "definition": "nonmissing cell counts by source season:week; metadata only",
   "tables": {
     "bell_cow_report": {
