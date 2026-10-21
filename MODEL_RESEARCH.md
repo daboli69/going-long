@@ -142,3 +142,18 @@ A6 complete report: `research/nfl-ensemble-lab/reports/run_20261020/FPDS_FULL_RE
 |A7 anytime_td MLP individual|Brier; n=8042,games=815;3/3 seasons agree|0.231039→0.212933; delta−0.018106 [−0.020186,−0.016084]|Challenger; exploratory nominee only, still worse than NFL-only ensemble0.189835; never promoted|
 
 Forecasts cover14 week7 games using2021–2026 week6 training,10000 draws,seed17; warm-up residuals labelled. Closing game prices beat the FPDS ensembles; historical prop prices absent. Full aggregate report: `research/nfl-ensemble-lab/reports/run_20261021/LOCAL_SESSION_RESULTS.md`.
+
+### Amendment8 five-family improvements — 2026-10-21
+
+Fixed2022–24 already-examined discovery; original147 output versions plus separately pre-registered12 repaired opportunity versions;3485 fitter dispatches including144 preparation-only. No new2025 pass or2026 selection. Corrected paired whole-game95% intervals below. Original178 auxiliary-label failures remain; original study nominations0. The opportunity-only repair had0 failures,identical evalsamples,0nominees; no successful other family refit. No model promoted.
+
+|Family|Evidence / sample|Decision|
+|---|---|---|
+|A8 strong_games: win/control/equal|n=813/813games;0.234501→0.227242;delta=-0.007259[-0.016452,+0.000865]|Rejected for qualified adoption; original failure gate/prospective confirmation unresolved; never promoted|
+|A8 target_features: anytime_td/fpds/equal|n=8042/815games;0.192292→0.190125;delta=-0.002167[-0.003428,-0.000998]|Rejected for qualified adoption; original failure gate/prospective confirmation unresolved; never promoted|
+|A8 combination: margin/fpds/stacked|n=815/815games;10.275824→10.195704;delta=-0.080121[-0.177446,+0.010537]|Rejected for qualified adoption; original failure gate/prospective confirmation unresolved; never promoted|
+|A8 distribution: rush_yds/fpds/quantile|n=2740/814games;24.882371→24.273096;delta=-0.609276[-1.068017,-0.126399]; median signal only;80%range coverage73.25%,reference78.98%|Rejected for qualified adoption; original failure gate/prospective confirmation unresolved; never promoted|
+|A8 opportunity repair1|12/12 versions worse; all target rows retained; coherent sums to1.14e-13; passing-TD deviance+24.8%–45.0%; no fabricated auxiliary zeros|Rejected; arithmetic coherence did not improve accuracy|
+|A8 receiving-yard quantile companion|n=6196/815games; MAE24.116744→23.659364;delta−0.457380[−0.764554,−0.175212];3/3seasons;80%coverage75.36%,reference79.81%|Rejected for qualified adoption; exploratory median signal only; never promoted|
+
+Saved champion/closing benchmarks did not show a new winner. Full aggregate report: `research/nfl-ensemble-lab/reports/run_20261021/FPDS_IMPROVEMENT_REPORT.md`. Original/repair full tables and private row-level outputs remain separate and immutable.

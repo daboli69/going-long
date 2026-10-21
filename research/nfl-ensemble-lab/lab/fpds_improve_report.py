@@ -8,12 +8,13 @@ from .config import REPORTS_DIR
 
 def render(summary,run_id):
     rows=summary.get('rows',[]);trials=summary.get('trials',{})
+    budget=(12,84,1500) if summary.get('repair_parent') else (147,300,4500)
     lines=['# FPDS improvement study — Amendment 8','',
            f"Run `{run_id}`. {summary.get('split','Unknown split')}. All outputs shadow only; nothing promoted.",'',
            f"Completed {len(rows)} primary comparisons; {len(summary.get('failures',[]))} failed blocks. "
            f"Recorded {len(trials.get('output_configurations',[]))} member/head outputs, "
            f"{len(trials.get('fit_configurations',[]))} internal fit configurations and {trials.get('fit_calls',0)} fit dispatches. "
-           'The fixed ceiling is147 outputs /300 internal configurations /4500 dispatches. No grid search.','',
+           f'The fixed ceiling is{budget[0]} outputs /{budget[1]} internal configurations /{budget[2]} dispatches. No grid search.','',
            'Lower loss is better. Negative delta means improvement against the named reference. Intervals are registered family-corrected paired whole-game95% intervals. A discovery nominee requires >=1% reduction, corrected interval below zero, >=200 games, two improving seasons, identical complete samples, no failed blocks and Holm p<.05. It still requires future confirmation.','',
            'Primary loss is MAE for yards/margin/total, Poisson deviance for receptions/passing TDs, and Brier for winners/anytime TD. Median quantile heads are point forecasts; they are not means.','',
            '## Best observed change per family','',
@@ -27,6 +28,8 @@ def render(summary,run_id):
         best=max(group,key=lambda r:r['relative_reduction']);lo,hi=best['corrected_ci95']
         lines.append(f"|{family}|{best['stat']} / {best['kind']} / {best['arm']}|{best['n']} / {best['games']}|{best['control_loss']:.5f} → {best['new_loss']:.5f}|{-100*best['relative_reduction']:+.2f}%|[{lo:+.5f},{hi:+.5f}]|{'Yes, exploratory' if best['discovery_nomination'] else 'No'}|")
     nominees=[r for r in rows if r['discovery_nomination']]
+    if summary.get('repair_parent'):
+        lines+=['',f"Separate opportunity-only repair of `{summary['repair_parent']}`. The original failed blocks and original zero nominations remain unchanged; successful other families were not refitted."]
     lines+=['',f"Discovery nominees: {len(nominees)} of {len(rows)} primary comparisons. These do not establish provider value versus the production champion or a market-price edge.",'',
             '## Coherence','']
     coherence=summary.get('coherence',[])

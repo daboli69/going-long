@@ -1,0 +1,1099 @@
+{
+  "created_at": "2026-10-21T20:52:36.175807+00:00",
+  "split": "2022-24 previously examined discovery only; no holdout pass or2026 selection",
+  "rows": [
+    {
+      "id": "opportunity__pass_yds__control__hierarchy",
+      "family": "opportunity",
+      "stat": "pass_yds",
+      "arm": "control",
+      "kind": "hierarchy",
+      "reference": "A7/pass_yds/control",
+      "n": 1528,
+      "games": 807,
+      "delta": 4.150909743420244,
+      "ci95": [
+        2.275766695116948,
+        6.036049440373569
+      ],
+      "corrected_ci95": [
+        1.5469891683904398,
+        7.058703969048754
+      ],
+      "p": 1.0,
+      "control_loss": 65.50900653759352,
+      "new_loss": 69.65991628101375,
+      "seasons": {
+        "2022": 4.06447398264095,
+        "2023": 4.861140826076457,
+        "2024": 3.527827705378038
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 69.65991628101375,
+        "mae": 69.65991628101375,
+        "rmse": 88.59952658530376,
+        "crps": 48.7904133599845,
+        "pinball": {
+          "0.1": 17.44200132982009,
+          "0.5": 33.85401404080281,
+          "0.9": 14.321616907786863
+        },
+        "coverage80": 0.7958115183246073,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.24567210478549895,
+          "mean_p_over": 0.5047185622554811,
+          "observed_over": 0.5071989528795812
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 65.50900653759352,
+        "mae": 65.50900653759352,
+        "rmse": 83.74864043821388,
+        "pinball": {
+          "0.1": 15.943179788971792,
+          "0.5": 32.721819907067605,
+          "0.9": 14.159327017790305
+        },
+        "coverage80": 0.7833769633507853
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.06336395501644755,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__pass_yds__fpds__hierarchy",
+      "family": "opportunity",
+      "stat": "pass_yds",
+      "arm": "fpds",
+      "kind": "hierarchy",
+      "reference": "A7/pass_yds/fpds",
+      "n": 1528,
+      "games": 807,
+      "delta": 6.397740699378205,
+      "ci95": [
+        4.337894107981299,
+        8.446240720442157
+      ],
+      "corrected_ci95": [
+        3.6295842514973318,
+        9.46936650098989
+      ],
+      "p": 1.0,
+      "control_loss": 64.83153103942483,
+      "new_loss": 71.22927173880304,
+      "seasons": {
+        "2022": 10.015977802240762,
+        "2023": 3.9238331481078736,
+        "2024": 5.276892636749148
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 71.22927173880304,
+        "mae": 71.22927173880304,
+        "rmse": 89.8385236707842,
+        "crps": 49.55121973433139,
+        "pinball": {
+          "0.1": 17.42749381274168,
+          "0.5": 34.43129960776824,
+          "0.9": 14.461923487975373
+        },
+        "coverage80": 0.8075916230366492,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.2463252744003954,
+          "mean_p_over": 0.5058762456626975,
+          "observed_over": 0.5071989528795812
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 64.83153103942483,
+        "mae": 64.83153103942483,
+        "rmse": 83.23654061920833,
+        "pinball": {
+          "0.1": 15.575885570721638,
+          "0.5": 32.43609748037928,
+          "0.9": 14.675232184989214
+        },
+        "coverage80": 0.7892670157068062
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.098682548395898,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__pass_tds__control__hierarchy",
+      "family": "opportunity",
+      "stat": "pass_tds",
+      "arm": "control",
+      "kind": "hierarchy",
+      "reference": "A7/pass_tds/control",
+      "n": 1528,
+      "games": 807,
+      "delta": 0.26578455294474634,
+      "ci95": [
+        0.1105393057776125,
+        0.47684037480828184
+      ],
+      "corrected_ci95": [
+        0.0707890284484148,
+        0.5934523960797637
+      ],
+      "p": 0.9880059970014993,
+      "control_loss": 1.070237969654217,
+      "new_loss": 1.3360225225989633,
+      "seasons": {
+        "2022": 0.485271335610159,
+        "2023": 0.27675220611490664,
+        "2024": 0.037069676373032094
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.3360225225989633,
+        "mae": 0.8924196461969999,
+        "rmse": 1.1303855917779577,
+        "pinball": {
+          "0.1": 0.1341623036649215,
+          "0.5": 0.4273560209424084,
+          "0.9": 0.22774869109947643
+        },
+        "coverage80": 0.9234293193717278,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.23133139168985906,
+          "mean_p_over": 0.3421614489628758,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.070237969654217,
+        "mae": 0.8822762016143041,
+        "rmse": 1.0926504129179002,
+        "pinball": {
+          "0.1": 0.13403141361256546,
+          "0.5": 0.4257198952879581,
+          "0.9": 0.21040575916230364
+        },
+        "coverage80": 0.9482984293193717
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.24834154690906604,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__pass_tds__fpds__hierarchy",
+      "family": "opportunity",
+      "stat": "pass_tds",
+      "arm": "fpds",
+      "kind": "hierarchy",
+      "reference": "A7/pass_tds/fpds",
+      "n": 1528,
+      "games": 807,
+      "delta": 0.48312888501157386,
+      "ci95": [
+        0.251444924462155,
+        0.7497249150833374
+      ],
+      "corrected_ci95": [
+        0.1903949305916779,
+        0.9134328151487944
+      ],
+      "p": 0.9995002498750625,
+      "control_loss": 1.0726351701652737,
+      "new_loss": 1.5557640551768475,
+      "seasons": {
+        "2022": 0.9008271664698182,
+        "2023": 0.4628098713821949,
+        "2024": 0.08897950781324404
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.5557640551768475,
+        "mae": 0.890873569825221,
+        "rmse": 1.1336868035453354,
+        "pinball": {
+          "0.1": 0.13403141361256546,
+          "0.5": 0.43586387434554974,
+          "0.9": 0.23468586387434553
+        },
+        "coverage80": 0.9136125654450262,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.23154541226707892,
+          "mean_p_over": 0.3317566065808119,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.0726351701652737,
+        "mae": 0.8792422293248879,
+        "rmse": 1.0943474692977158,
+        "pinball": {
+          "0.1": 0.13455497382198955,
+          "0.5": 0.42997382198952877,
+          "0.9": 0.21119109947643977
+        },
+        "coverage80": 0.9463350785340314
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.4504130560413495,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__rec__control__hierarchy",
+      "family": "opportunity",
+      "stat": "rec",
+      "arm": "control",
+      "kind": "hierarchy",
+      "reference": "A7/rec/control",
+      "n": 6196,
+      "games": 815,
+      "delta": 0.10372854508687653,
+      "ci95": [
+        0.07806924758451018,
+        0.12954938104306013
+      ],
+      "corrected_ci95": [
+        0.0628311061707452,
+        0.14198095178391892
+      ],
+      "p": 1.0,
+      "control_loss": 1.499254717668258,
+      "new_loss": 1.6029832627551344,
+      "seasons": {
+        "2022": 0.16869852979467848,
+        "2023": 0.07582390031781151,
+        "2024": 0.06804527507652636
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.6029832627551344,
+        "mae": 1.7958075490974452,
+        "rmse": 2.3121864905135316,
+        "pinball": {
+          "0.1": 0.33190768237572627,
+          "0.5": 0.8898482892188508,
+          "0.9": 0.4718205293737895
+        },
+        "coverage80": 0.7998708844415752,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.2432071247823146,
+          "mean_p_over": 0.38974854920466945,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.499254717668258,
+        "mae": 1.745143361437101,
+        "rmse": 2.2196718169406524,
+        "pinball": {
+          "0.1": 0.3232892188508716,
+          "0.5": 0.8587798579728857,
+          "0.9": 0.44288250484183345
+        },
+        "coverage80": 0.8147191736604261
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.06918673916077593,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__rec__fpds__hierarchy",
+      "family": "opportunity",
+      "stat": "rec",
+      "arm": "fpds",
+      "kind": "hierarchy",
+      "reference": "A7/rec/fpds",
+      "n": 6196,
+      "games": 815,
+      "delta": 0.2930838632884828,
+      "ci95": [
+        0.23101601802102936,
+        0.36268408211381054
+      ],
+      "corrected_ci95": [
+        0.20509427967875532,
+        0.4005353996251158
+      ],
+      "p": 1.0,
+      "control_loss": 1.4876975550606215,
+      "new_loss": 1.7807814183491044,
+      "seasons": {
+        "2022": 0.5510062446608293,
+        "2023": 0.1783400698218815,
+        "2024": 0.15533698776463464
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.7807814183491044,
+        "mae": 1.8486315338237036,
+        "rmse": 2.384820633406751,
+        "pinball": {
+          "0.1": 0.34317301484828927,
+          "0.5": 0.915348612007747,
+          "0.9": 0.5020174306003874
+        },
+        "coverage80": 0.7842156229825694,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.2510726372224881,
+          "mean_p_over": 0.3860885383726783,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4876975550606215,
+        "mae": 1.733926029921258,
+        "rmse": 2.2065084971148523,
+        "pinball": {
+          "0.1": 0.3200290510006456,
+          "0.5": 0.8507908327953518,
+          "0.9": 0.4375242091672046
+        },
+        "coverage80": 0.8200451904454487
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.19700500433808943,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__rec_yds__control__hierarchy",
+      "family": "opportunity",
+      "stat": "rec_yds",
+      "arm": "control",
+      "kind": "hierarchy",
+      "reference": "A7/rec_yds/control",
+      "n": 6196,
+      "games": 815,
+      "delta": 0.25561120147654615,
+      "ci95": [
+        0.02325852163515591,
+        0.49263334471794806
+      ],
+      "corrected_ci95": [
+        -0.07109660124110787,
+        0.6202710399816309
+      ],
+      "p": 0.9810094952523738,
+      "control_loss": 24.1216108328482,
+      "new_loss": 24.37722203432475,
+      "seasons": {
+        "2022": 0.47505441772041235,
+        "2023": 0.13136511905274104,
+        "2024": 0.1646667548272634
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.37722203432475,
+        "mae": 24.37722203432475,
+        "rmse": 32.431688438466566,
+        "crps": 17.56573911244271,
+        "pinball": {
+          "0.1": 4.189911602091483,
+          "0.5": 12.154506853430712,
+          "0.9": 6.730591886139066
+        },
+        "coverage80": 0.8124596513879923,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.24415857559886,
+          "mean_p_over": 0.4627783080413328,
+          "observed_over": 0.45610071013557135
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.1216108328482,
+        "mae": 24.1216108328482,
+        "rmse": 31.52802251875698,
+        "pinball": {
+          "0.1": 4.098108154491985,
+          "0.5": 11.844150657494296,
+          "0.9": 6.621230029832157
+        },
+        "coverage80": 0.7971271788250485
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.010596771635518688,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__rec_yds__fpds__hierarchy",
+      "family": "opportunity",
+      "stat": "rec_yds",
+      "arm": "fpds",
+      "kind": "hierarchy",
+      "reference": "A7/rec_yds/fpds",
+      "n": 6196,
+      "games": 815,
+      "delta": 0.977704530817722,
+      "ci95": [
+        0.6627970227179303,
+        1.2968040975742023
+      ],
+      "corrected_ci95": [
+        0.5213927807062207,
+        1.42862160435421
+      ],
+      "p": 1.0,
+      "control_loss": 24.123019684835473,
+      "new_loss": 25.100724215653194,
+      "seasons": {
+        "2022": 2.087199598874792,
+        "2023": 0.6472580714201234,
+        "2024": 0.22428069367531028
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 25.100724215653194,
+        "mae": 25.100724215653194,
+        "rmse": 33.46916638514476,
+        "crps": 18.178972103947675,
+        "pinball": {
+          "0.1": 4.335863717680904,
+          "0.5": 12.541476005491255,
+          "0.9": 6.800124095942299
+        },
+        "coverage80": 0.816171723692705,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.25033031035780146,
+          "mean_p_over": 0.47332247844303466,
+          "observed_over": 0.45610071013557135
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.123019684835473,
+        "mae": 24.123019684835473,
+        "rmse": 31.440662428766302,
+        "pinball": {
+          "0.1": 4.12464523219522,
+          "0.5": 11.843409783240403,
+          "0.9": 6.560450366389086
+        },
+        "coverage80": 0.7937378954163977
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.04052993960090077,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__rush_yds__control__hierarchy",
+      "family": "opportunity",
+      "stat": "rush_yds",
+      "arm": "control",
+      "kind": "hierarchy",
+      "reference": "A7/rush_yds/control",
+      "n": 2740,
+      "games": 814,
+      "delta": 0.6315842595346369,
+      "ci95": [
+        0.15957225348299656,
+        1.101205645445413
+      ],
+      "corrected_ci95": [
+        -0.02307361057396371,
+        1.2839122983091573
+      ],
+      "p": 0.9970014992503748,
+      "control_loss": 24.835768873784627,
+      "new_loss": 25.467353133319264,
+      "seasons": {
+        "2022": 0.9535315954804239,
+        "2023": 0.40562613810180864,
+        "2024": 0.5118379144918733
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 25.467353133319264,
+        "mae": 25.467353133319264,
+        "rmse": 33.850888966785085,
+        "crps": 18.51486555806019,
+        "pinball": {
+          "0.1": 4.803494173203054,
+          "0.5": 12.705215014668502,
+          "0.9": 6.821546597647716
+        },
+        "coverage80": 0.8160583941605839,
+        "pseudo_line": {
+          "n": 2740,
+          "brier": 0.2447024333992964,
+          "mean_p_over": 0.4724813384692493,
+          "observed_over": 0.4408759124087591
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 24.835768873784627,
+        "mae": 24.835768873784627,
+        "rmse": 32.28268599500825,
+        "pinball": {
+          "0.1": 4.294697000139227,
+          "0.5": 12.227627510046863,
+          "0.9": 6.836432695737887
+        },
+        "coverage80": 0.795985401459854
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.025430429101846938,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__rush_yds__fpds__hierarchy",
+      "family": "opportunity",
+      "stat": "rush_yds",
+      "arm": "fpds",
+      "kind": "hierarchy",
+      "reference": "A7/rush_yds/fpds",
+      "n": 2740,
+      "games": 814,
+      "delta": 0.6875968451973559,
+      "ci95": [
+        0.20850137008931618,
+        1.1939404776152456
+      ],
+      "corrected_ci95": [
+        -0.009744129238935412,
+        1.4539810901511803
+      ],
+      "p": 0.9950024987506247,
+      "control_loss": 25.06160013309705,
+      "new_loss": 25.749196978294407,
+      "seasons": {
+        "2022": 1.0509355166475813,
+        "2023": 0.1434281103325415,
+        "2024": 0.8292635706954751
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 25.749196978294407,
+        "mae": 25.749196978294407,
+        "rmse": 34.33753487711104,
+        "crps": 18.780477182556805,
+        "pinball": {
+          "0.1": 4.842125610142884,
+          "0.5": 12.884644790799552,
+          "0.9": 6.8922732242355105
+        },
+        "coverage80": 0.8222627737226277,
+        "pseudo_line": {
+          "n": 2740,
+          "brier": 0.24531818188955073,
+          "mean_p_over": 0.47513102852013794,
+          "observed_over": 0.4408759124087591
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 25.06160013309705,
+        "mae": 25.06160013309705,
+        "rmse": 32.1933259385754,
+        "pinball": {
+          "0.1": 4.38409336925342,
+          "0.5": 12.246961133670215,
+          "0.9": 6.795653109271645
+        },
+        "coverage80": 0.7912408759124088
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.027436270690844526,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__anytime_td__control__hierarchy",
+      "family": "opportunity",
+      "stat": "anytime_td",
+      "arm": "control",
+      "kind": "hierarchy",
+      "reference": "A7/anytime_td/control",
+      "n": 8042,
+      "games": 815,
+      "delta": 0.005720791432417909,
+      "ci95": [
+        0.00399588654195809,
+        0.007559976091065925
+      ],
+      "corrected_ci95": [
+        0.0030366662122864253,
+        0.008254440961668713
+      ],
+      "p": 1.0,
+      "control_loss": 0.18983513428576626,
+      "new_loss": 0.19555592571818417,
+      "seasons": {
+        "2022": 0.008966533005384596,
+        "2023": 0.00384296316925857,
+        "2024": 0.004280651954715334
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.19555592571818417,
+        "log_loss": 0.6222223177865024,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 669,
+            "predicted": 0.05893854104428985,
+            "observed": 0.16741405082212257
+          },
+          {
+            "low": 0.1,
+            "n": 2282,
+            "predicted": 0.15470414763982504,
+            "observed": 0.2007011393514461
+          },
+          {
+            "low": 0.2,
+            "n": 2345,
+            "predicted": 0.24636168915076065,
+            "observed": 0.25884861407249465
+          },
+          {
+            "low": 0.3,
+            "n": 1537,
+            "predicted": 0.34624549544428024,
+            "observed": 0.35068314899154196
+          },
+          {
+            "low": 0.4,
+            "n": 745,
+            "predicted": 0.44349221586140164,
+            "observed": 0.3838926174496644
+          },
+          {
+            "low": 0.5,
+            "n": 350,
+            "predicted": 0.5416818404186482,
+            "observed": 0.5142857142857142
+          },
+          {
+            "low": 0.6,
+            "n": 93,
+            "predicted": 0.6348266356514556,
+            "observed": 0.5376344086021505
+          },
+          {
+            "low": 0.7,
+            "n": 18,
+            "predicted": 0.7358882465804232,
+            "observed": 0.5
+          },
+          {
+            "low": 0.8,
+            "n": 3,
+            "predicted": 0.8265809681038233,
+            "observed": 0.3333333333333333
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.18983513428576626,
+        "log_loss": 0.5636466172095358,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 8,
+            "predicted": 0.0956621418502221,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 2032,
+            "predicted": 0.16756755206254836,
+            "observed": 0.15354330708661418
+          },
+          {
+            "low": 0.2,
+            "n": 3344,
+            "predicted": 0.2450534356724779,
+            "observed": 0.2535885167464115
+          },
+          {
+            "low": 0.3,
+            "n": 1625,
+            "predicted": 0.3443990719798144,
+            "observed": 0.3686153846153846
+          },
+          {
+            "low": 0.4,
+            "n": 730,
+            "predicted": 0.4417672109608911,
+            "observed": 0.4397260273972603
+          },
+          {
+            "low": 0.5,
+            "n": 274,
+            "predicted": 0.5365028495267499,
+            "observed": 0.5401459854014599
+          },
+          {
+            "low": 0.6,
+            "n": 28,
+            "predicted": 0.6420973371798882,
+            "observed": 0.5
+          },
+          {
+            "low": 0.7,
+            "n": 1,
+            "predicted": 0.7101793351694414,
+            "observed": 0.0
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.030135577662911323,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__anytime_td__fpds__hierarchy",
+      "family": "opportunity",
+      "stat": "anytime_td",
+      "arm": "fpds",
+      "kind": "hierarchy",
+      "reference": "A7/anytime_td/fpds",
+      "n": 8042,
+      "games": 815,
+      "delta": 0.012291575513995078,
+      "ci95": [
+        0.00962459245698021,
+        0.014825176706983712
+      ],
+      "corrected_ci95": [
+        0.008598919030840589,
+        0.015837260714406835
+      ],
+      "p": 1.0,
+      "control_loss": 0.19229212948992905,
+      "new_loss": 0.20458370500392414,
+      "seasons": {
+        "2022": 0.015886636216818732,
+        "2023": 0.01152611028072571,
+        "2024": 0.00940547063502632
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.20458370500392414,
+        "log_loss": 0.810039557215228,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 1548,
+            "predicted": 0.03752042559180931,
+            "observed": 0.20607235142118863
+          },
+          {
+            "low": 0.1,
+            "n": 1893,
+            "predicted": 0.1524030920483069,
+            "observed": 0.2208135235076598
+          },
+          {
+            "low": 0.2,
+            "n": 1879,
+            "predicted": 0.24755155487757843,
+            "observed": 0.2682277807344332
+          },
+          {
+            "low": 0.3,
+            "n": 1273,
+            "predicted": 0.3455871883531774,
+            "observed": 0.3157894736842105
+          },
+          {
+            "low": 0.4,
+            "n": 794,
+            "predicted": 0.44652183162897685,
+            "observed": 0.3702770780856423
+          },
+          {
+            "low": 0.5,
+            "n": 439,
+            "predicted": 0.5463873944245884,
+            "observed": 0.4533029612756264
+          },
+          {
+            "low": 0.6,
+            "n": 156,
+            "predicted": 0.641490379743599,
+            "observed": 0.46794871794871795
+          },
+          {
+            "low": 0.7,
+            "n": 55,
+            "predicted": 0.7332434605115524,
+            "observed": 0.5636363636363636
+          },
+          {
+            "low": 0.8,
+            "n": 5,
+            "predicted": 0.8503211366499851,
+            "observed": 0.4
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.19229212948992905,
+        "log_loss": 0.5698155803311444,
+        "reliability": [
+          {
+            "low": 0.1,
+            "n": 1941,
+            "predicted": 0.1744066408649049,
+            "observed": 0.16950025759917567
+          },
+          {
+            "low": 0.2,
+            "n": 3639,
+            "predicted": 0.2446919796704184,
+            "observed": 0.2522671063478978
+          },
+          {
+            "low": 0.3,
+            "n": 1699,
+            "predicted": 0.34344364561746016,
+            "observed": 0.37728075338434375
+          },
+          {
+            "low": 0.4,
+            "n": 616,
+            "predicted": 0.4403399370366617,
+            "observed": 0.4642857142857143
+          },
+          {
+            "low": 0.5,
+            "n": 132,
+            "predicted": 0.5336225469121018,
+            "observed": 0.4621212121212121
+          },
+          {
+            "low": 0.6,
+            "n": 15,
+            "predicted": 0.6238071343894073,
+            "observed": 0.4666666666666667
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.06392136561490848,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    }
+  ],
+  "failures": [],
+  "coherence": [
+    {
+      "variant": "opportunity__anytime_td__control__hierarchy",
+      "team_games": 1628,
+      "max_abs_coherence_error": 8.881784197001252e-16,
+      "mean_other_fraction": 0.3227313275488413
+    },
+    {
+      "variant": "opportunity__anytime_td__fpds__hierarchy",
+      "team_games": 1628,
+      "max_abs_coherence_error": 8.881784197001252e-16,
+      "mean_other_fraction": 0.3489381330781646
+    },
+    {
+      "variant": "opportunity__pass_tds__control__hierarchy",
+      "team_games": 1528,
+      "max_abs_coherence_error": 4.440892098500626e-16,
+      "mean_other_fraction": 0.15968796108942718
+    },
+    {
+      "variant": "opportunity__pass_tds__fpds__hierarchy",
+      "team_games": 1528,
+      "max_abs_coherence_error": 4.440892098500626e-16,
+      "mean_other_fraction": 0.18753670493188032
+    },
+    {
+      "variant": "opportunity__pass_yds__control__hierarchy",
+      "team_games": 1528,
+      "max_abs_coherence_error": 5.684341886080802e-14,
+      "mean_other_fraction": 0.1493546217003639
+    },
+    {
+      "variant": "opportunity__pass_yds__fpds__hierarchy",
+      "team_games": 1528,
+      "max_abs_coherence_error": 5.684341886080802e-14,
+      "mean_other_fraction": 0.15545205585821814
+    },
+    {
+      "variant": "opportunity__rec__control__hierarchy",
+      "team_games": 1628,
+      "max_abs_coherence_error": 7.105427357601002e-15,
+      "mean_other_fraction": 0.3804451259147162
+    },
+    {
+      "variant": "opportunity__rec__fpds__hierarchy",
+      "team_games": 1628,
+      "max_abs_coherence_error": 7.105427357601002e-15,
+      "mean_other_fraction": 0.38440438995506915
+    },
+    {
+      "variant": "opportunity__rec_yds__control__hierarchy",
+      "team_games": 1628,
+      "max_abs_coherence_error": 1.1368683772161603e-13,
+      "mean_other_fraction": 0.3678517217014635
+    },
+    {
+      "variant": "opportunity__rec_yds__fpds__hierarchy",
+      "team_games": 1628,
+      "max_abs_coherence_error": 8.526512829121202e-14,
+      "mean_other_fraction": 0.37456179591542615
+    },
+    {
+      "variant": "opportunity__rush_yds__control__hierarchy",
+      "team_games": 1573,
+      "max_abs_coherence_error": 5.684341886080802e-14,
+      "mean_other_fraction": 0.33904822330902756
+    },
+    {
+      "variant": "opportunity__rush_yds__fpds__hierarchy",
+      "team_games": 1573,
+      "max_abs_coherence_error": 2.842170943040401e-14,
+      "mean_other_fraction": 0.33654209337743307
+    }
+  ],
+  "trials": {
+    "output_configurations": [
+      "opportunity__anytime_td__control__hierarchy",
+      "opportunity__anytime_td__fpds__hierarchy",
+      "opportunity__pass_tds__control__hierarchy",
+      "opportunity__pass_tds__fpds__hierarchy",
+      "opportunity__pass_yds__control__hierarchy",
+      "opportunity__pass_yds__fpds__hierarchy",
+      "opportunity__rec__control__hierarchy",
+      "opportunity__rec__fpds__hierarchy",
+      "opportunity__rec_yds__control__hierarchy",
+      "opportunity__rec_yds__fpds__hierarchy",
+      "opportunity__rush_yds__control__hierarchy",
+      "opportunity__rush_yds__fpds__hierarchy"
+    ],
+    "fit_configurations": [
+      "opportunity__anytime_td__control__hierarchy/player_efficiency",
+      "opportunity__anytime_td__control__hierarchy/player_usage_share",
+      "opportunity__anytime_td__control__hierarchy/team_count",
+      "opportunity__anytime_td__control__hierarchy/team_usage",
+      "opportunity__anytime_td__fpds__hierarchy/player_efficiency",
+      "opportunity__anytime_td__fpds__hierarchy/player_usage_share",
+      "opportunity__anytime_td__fpds__hierarchy/team_count",
+      "opportunity__anytime_td__fpds__hierarchy/team_usage",
+      "opportunity__pass_tds__control__hierarchy/player_efficiency",
+      "opportunity__pass_tds__control__hierarchy/player_usage_share",
+      "opportunity__pass_tds__control__hierarchy/team_count",
+      "opportunity__pass_tds__control__hierarchy/team_usage",
+      "opportunity__pass_tds__fpds__hierarchy/player_efficiency",
+      "opportunity__pass_tds__fpds__hierarchy/player_usage_share",
+      "opportunity__pass_tds__fpds__hierarchy/team_count",
+      "opportunity__pass_tds__fpds__hierarchy/team_usage",
+      "opportunity__pass_yds__control__hierarchy/player_efficiency",
+      "opportunity__pass_yds__control__hierarchy/player_usage_share",
+      "opportunity__pass_yds__control__hierarchy/team_efficiency",
+      "opportunity__pass_yds__control__hierarchy/team_usage",
+      "opportunity__pass_yds__fpds__hierarchy/player_efficiency",
+      "opportunity__pass_yds__fpds__hierarchy/player_usage_share",
+      "opportunity__pass_yds__fpds__hierarchy/team_efficiency",
+      "opportunity__pass_yds__fpds__hierarchy/team_usage",
+      "opportunity__rec__control__hierarchy/player_efficiency",
+      "opportunity__rec__control__hierarchy/player_usage_share",
+      "opportunity__rec__control__hierarchy/team_count",
+      "opportunity__rec__control__hierarchy/team_usage",
+      "opportunity__rec__fpds__hierarchy/player_efficiency",
+      "opportunity__rec__fpds__hierarchy/player_usage_share",
+      "opportunity__rec__fpds__hierarchy/team_count",
+      "opportunity__rec__fpds__hierarchy/team_usage",
+      "opportunity__rec_yds__control__hierarchy/player_efficiency",
+      "opportunity__rec_yds__control__hierarchy/player_usage_share",
+      "opportunity__rec_yds__control__hierarchy/shared_team_passing_opportunities",
+      "opportunity__rec_yds__control__hierarchy/team_efficiency",
+      "opportunity__rec_yds__control__hierarchy/team_usage",
+      "opportunity__rec_yds__fpds__hierarchy/player_efficiency",
+      "opportunity__rec_yds__fpds__hierarchy/player_usage_share",
+      "opportunity__rec_yds__fpds__hierarchy/shared_team_passing_opportunities",
+      "opportunity__rec_yds__fpds__hierarchy/team_efficiency",
+      "opportunity__rec_yds__fpds__hierarchy/team_usage",
+      "opportunity__rush_yds__control__hierarchy/player_efficiency",
+      "opportunity__rush_yds__control__hierarchy/player_usage_share",
+      "opportunity__rush_yds__control__hierarchy/team_efficiency",
+      "opportunity__rush_yds__control__hierarchy/team_usage",
+      "opportunity__rush_yds__fpds__hierarchy/player_efficiency",
+      "opportunity__rush_yds__fpds__hierarchy/player_usage_share",
+      "opportunity__rush_yds__fpds__hierarchy/team_efficiency",
+      "opportunity__rush_yds__fpds__hierarchy/team_usage"
+    ],
+    "fit_calls": 750
+  },
+  "source_integrity_unchanged": true,
+  "status": "shadow only; no promotion",
+  "repair_parent": "20261021T200416Z"
+}

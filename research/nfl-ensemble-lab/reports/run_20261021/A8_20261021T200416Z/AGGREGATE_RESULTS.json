@@ -1,0 +1,6230 @@
+{
+  "created_at": "2026-10-21T20:36:05.419055+00:00",
+  "split": "2022-24 previously examined discovery only; no holdout pass or2026 selection",
+  "rows": [
+    {
+      "id": "strong_games__win__control__equal",
+      "family": "strong_games",
+      "stat": "win",
+      "arm": "control",
+      "kind": "equal",
+      "reference": "A7/win/control",
+      "n": 813,
+      "games": 813,
+      "delta": -0.00725922404491641,
+      "ci95": [
+        -0.012641240364070473,
+        -0.0018353809230866138
+      ],
+      "corrected_ci95": [
+        -0.016452183872326664,
+        0.0008646454669016516
+      ],
+      "p": 0.00399800099950025,
+      "control_loss": 0.2345014982047823,
+      "new_loss": 0.2272422741598659,
+      "seasons": {
+        "2022": -0.00627213113789052,
+        "2023": -0.0008722066793167569,
+        "2024": -0.014622447263420348
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2272422741598659,
+        "log_loss": 0.6460260108388614,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 15,
+            "predicted": 0.27187418018179177,
+            "observed": 0.4666666666666667
+          },
+          {
+            "low": 0.3,
+            "n": 93,
+            "predicted": 0.3655188487503024,
+            "observed": 0.3763440860215054
+          },
+          {
+            "low": 0.4,
+            "n": 208,
+            "predicted": 0.45618012773866623,
+            "observed": 0.3798076923076923
+          },
+          {
+            "low": 0.5,
+            "n": 193,
+            "predicted": 0.5463435720353554,
+            "observed": 0.5595854922279793
+          },
+          {
+            "low": 0.6,
+            "n": 176,
+            "predicted": 0.649777117570106,
+            "observed": 0.7102272727272727
+          },
+          {
+            "low": 0.7,
+            "n": 109,
+            "predicted": 0.7436173316783707,
+            "observed": 0.7064220183486238
+          },
+          {
+            "low": 0.8,
+            "n": 18,
+            "predicted": 0.8374217721281725,
+            "observed": 0.8333333333333334
+          },
+          {
+            "low": 0.9,
+            "n": 1,
+            "predicted": 0.9006215092699321,
+            "observed": 1.0
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2345014982047823,
+        "log_loss": 0.6613857201156566,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 3,
+            "predicted": 0.2813087444812529,
+            "observed": 0.0
+          },
+          {
+            "low": 0.3,
+            "n": 44,
+            "predicted": 0.3635779885439004,
+            "observed": 0.36363636363636365
+          },
+          {
+            "low": 0.4,
+            "n": 212,
+            "predicted": 0.45724582738506236,
+            "observed": 0.4056603773584906
+          },
+          {
+            "low": 0.5,
+            "n": 310,
+            "predicted": 0.5475718903111677,
+            "observed": 0.5774193548387097
+          },
+          {
+            "low": 0.6,
+            "n": 185,
+            "predicted": 0.6478197839010832,
+            "observed": 0.654054054054054
+          },
+          {
+            "low": 0.7,
+            "n": 56,
+            "predicted": 0.7353056740259679,
+            "observed": 0.7678571428571429
+          },
+          {
+            "low": 0.8,
+            "n": 3,
+            "predicted": 0.8153611752253974,
+            "observed": 0.6666666666666666
+          }
+        ]
+      },
+      "holm_p": 0.1679160419790105,
+      "relative_reduction": 0.03095598152032774,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "strong_games__win__fpds__equal",
+      "family": "strong_games",
+      "stat": "win",
+      "arm": "fpds",
+      "kind": "equal",
+      "reference": "strong_games__win__control__equal",
+      "n": 813,
+      "games": 813,
+      "delta": -0.0005866581187422354,
+      "ci95": [
+        -0.0024572056928773016,
+        0.0012667282716347253
+      ],
+      "corrected_ci95": [
+        -0.003717559893201326,
+        0.002245768550732797
+      ],
+      "p": 0.26936531734132935,
+      "control_loss": 0.2272422741598659,
+      "new_loss": 0.2266556160411237,
+      "seasons": {
+        "2022": 0.0020894492324430927,
+        "2023": -0.004065355119425451,
+        "2024": 0.00024544742065843103
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2266556160411237,
+        "log_loss": 0.6445470799246118,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 10,
+            "predicted": 0.27915913757758176,
+            "observed": 0.4
+          },
+          {
+            "low": 0.3,
+            "n": 91,
+            "predicted": 0.36302685085027997,
+            "observed": 0.3956043956043956
+          },
+          {
+            "low": 0.4,
+            "n": 209,
+            "predicted": 0.45122077355961354,
+            "observed": 0.37320574162679426
+          },
+          {
+            "low": 0.5,
+            "n": 206,
+            "predicted": 0.548719834904678,
+            "observed": 0.5485436893203883
+          },
+          {
+            "low": 0.6,
+            "n": 168,
+            "predicted": 0.6506240349798522,
+            "observed": 0.6964285714285714
+          },
+          {
+            "low": 0.7,
+            "n": 108,
+            "predicted": 0.7402718979768926,
+            "observed": 0.75
+          },
+          {
+            "low": 0.8,
+            "n": 21,
+            "predicted": 0.8368419200681403,
+            "observed": 0.8571428571428571
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2272422741598659,
+        "log_loss": 0.6460260108388614,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 15,
+            "predicted": 0.27187418018179177,
+            "observed": 0.4666666666666667
+          },
+          {
+            "low": 0.3,
+            "n": 93,
+            "predicted": 0.3655188487503024,
+            "observed": 0.3763440860215054
+          },
+          {
+            "low": 0.4,
+            "n": 208,
+            "predicted": 0.45618012773866623,
+            "observed": 0.3798076923076923
+          },
+          {
+            "low": 0.5,
+            "n": 193,
+            "predicted": 0.5463435720353554,
+            "observed": 0.5595854922279793
+          },
+          {
+            "low": 0.6,
+            "n": 176,
+            "predicted": 0.649777117570106,
+            "observed": 0.7102272727272727
+          },
+          {
+            "low": 0.7,
+            "n": 109,
+            "predicted": 0.7436173316783707,
+            "observed": 0.7064220183486238
+          },
+          {
+            "low": 0.8,
+            "n": 18,
+            "predicted": 0.8374217721281725,
+            "observed": 0.8333333333333334
+          },
+          {
+            "low": 0.9,
+            "n": 1,
+            "predicted": 0.9006215092699321,
+            "observed": 1.0
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": 0.0025816416461732776,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "strong_games__margin__control__equal",
+      "family": "strong_games",
+      "stat": "margin",
+      "arm": "control",
+      "kind": "equal",
+      "reference": "A7/margin/control",
+      "n": 815,
+      "games": 815,
+      "delta": -0.15252263357257384,
+      "ci95": [
+        -0.3698918807246615,
+        0.08580627559476048
+      ],
+      "corrected_ci95": [
+        -0.5412127863657056,
+        0.22757261691505282
+      ],
+      "p": 0.08995502248875563,
+      "control_loss": 10.034585282344393,
+      "new_loss": 9.88206264877182,
+      "seasons": {
+        "2022": -0.07016632137191411,
+        "2023": -0.20453511322242665,
+        "2024": -0.18256368556381958
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 9.88206264877182,
+        "mae": 9.88206264877182,
+        "rmse": 12.855045565335075,
+        "crps": 7.188348377782976,
+        "pinball": {
+          "0.1": 2.2890460788602707,
+          "0.5": 4.952316863525634,
+          "0.9": 2.3937362329251366
+        },
+        "coverage80": 0.7680981595092025
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.034585282344393,
+        "mae": 10.034585282344393,
+        "rmse": 13.086317721706822,
+        "crps": 7.29714997063052,
+        "pinball": {
+          "0.1": 2.2810392193311237,
+          "0.5": 5.013462009526512,
+          "0.9": 2.4452380621023075
+        },
+        "coverage80": 0.7754601226993865
+      },
+      "holm_p": 1,
+      "relative_reduction": 0.015199694783693122,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "strong_games__margin__fpds__equal",
+      "family": "strong_games",
+      "stat": "margin",
+      "arm": "fpds",
+      "kind": "equal",
+      "reference": "strong_games__margin__control__equal",
+      "n": 815,
+      "games": 815,
+      "delta": 0.06986946875695495,
+      "ci95": [
+        -0.010551433780507047,
+        0.14892000063405603
+      ],
+      "corrected_ci95": [
+        -0.05317065807649187,
+        0.20101818436545627
+      ],
+      "p": 0.95952023988006,
+      "control_loss": 9.88206264877182,
+      "new_loss": 9.951932117528775,
+      "seasons": {
+        "2022": 0.1234248231867811,
+        "2023": -0.04117590797216898,
+        "2024": 0.12755638574165645
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 9.951932117528775,
+        "mae": 9.951932117528775,
+        "rmse": 12.887893671819095,
+        "crps": 7.220918871415268,
+        "pinball": {
+          "0.1": 2.289872173254584,
+          "0.5": 4.982211710414257,
+          "0.9": 2.4062599969627754
+        },
+        "coverage80": 0.7619631901840491
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 9.88206264877182,
+        "mae": 9.88206264877182,
+        "rmse": 12.855045565335075,
+        "crps": 7.188348377782976,
+        "pinball": {
+          "0.1": 2.2890460788602707,
+          "0.5": 4.952316863525634,
+          "0.9": 2.3937362329251366
+        },
+        "coverage80": 0.7680981595092025
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.007070332504483625,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "strong_games__total__control__equal",
+      "family": "strong_games",
+      "stat": "total",
+      "arm": "control",
+      "kind": "equal",
+      "reference": "A7/total/control",
+      "n": 815,
+      "games": 815,
+      "delta": 0.11548608486497501,
+      "ci95": [
+        -0.03594496601192055,
+        0.2653140179155496
+      ],
+      "corrected_ci95": [
+        -0.11595625627519487,
+        0.3341865053120875
+      ],
+      "p": 0.9395302348825587,
+      "control_loss": 10.391796399584935,
+      "new_loss": 10.50728248444991,
+      "seasons": {
+        "2022": -0.031554894562885606,
+        "2023": 0.20143295578340856,
+        "2024": 0.17603960153827028
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.50728248444991,
+        "mae": 10.50728248444991,
+        "rmse": 13.495507267169545,
+        "crps": 7.574995715212208,
+        "pinball": {
+          "0.1": 2.2778347712639824,
+          "0.5": 5.281203805916105,
+          "0.9": 2.598530936950653
+        },
+        "coverage80": 0.7840490797546013
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.391796399584935,
+        "mae": 10.391796399584935,
+        "rmse": 13.317713316730913,
+        "crps": 7.456105437977838,
+        "pinball": {
+          "0.1": 2.205697131583097,
+          "0.5": 5.200154425763185,
+          "0.9": 2.571489415614247
+        },
+        "coverage80": 0.7926380368098159
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.011113197413065917,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "strong_games__total__fpds__equal",
+      "family": "strong_games",
+      "stat": "total",
+      "arm": "fpds",
+      "kind": "equal",
+      "reference": "strong_games__total__control__equal",
+      "n": 815,
+      "games": 815,
+      "delta": 0.0054235935908106625,
+      "ci95": [
+        -0.08238504133870911,
+        0.08914218129273865
+      ],
+      "corrected_ci95": [
+        -0.1385712170444347,
+        0.13936020232787644
+      ],
+      "p": 0.5477261369315343,
+      "control_loss": 10.50728248444991,
+      "new_loss": 10.512706078040722,
+      "seasons": {
+        "2022": 0.10381372152050107,
+        "2023": 0.08862738438277429,
+        "2024": -0.17580859671933716
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.512706078040722,
+        "mae": 10.512706078040722,
+        "rmse": 13.488531848668723,
+        "crps": 7.587968035907058,
+        "pinball": {
+          "0.1": 2.2970642950238913,
+          "0.5": 5.278221372513152,
+          "0.9": 2.585891471529338
+        },
+        "coverage80": 0.7803680981595092
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.50728248444991,
+        "mae": 10.50728248444991,
+        "rmse": 13.495507267169545,
+        "crps": 7.574995715212208,
+        "pinball": {
+          "0.1": 2.2778347712639824,
+          "0.5": 5.281203805916105,
+          "0.9": 2.598530936950653
+        },
+        "coverage80": 0.7840490797546013
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.0005161747196610756,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "target_features__pass_yds__fpds__equal",
+      "family": "target_features",
+      "stat": "pass_yds",
+      "arm": "fpds",
+      "kind": "equal",
+      "reference": "A7/pass_yds/fpds",
+      "n": 1528,
+      "games": 807,
+      "delta": -0.24291157005689187,
+      "ci95": [
+        -0.9713467240920697,
+        0.49222303664567485
+      ],
+      "corrected_ci95": [
+        -1.3528063315987249,
+        0.9230192641615077
+      ],
+      "p": 0.26186906546726635,
+      "control_loss": 64.83153103942483,
+      "new_loss": 64.58861946936796,
+      "seasons": {
+        "2022": -0.32267693541130926,
+        "2023": -1.1150240748879339,
+        "2024": 0.7066352356153607
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 64.58861946936796,
+        "mae": 64.58861946936796,
+        "rmse": 82.5486311498655,
+        "pinball": {
+          "0.1": 15.379617747657065,
+          "0.5": 32.27837756301814,
+          "0.9": 14.361829816939716
+        },
+        "coverage80": 0.7866492146596858,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.2342532454863706,
+          "mean_p_over": 0.520070127055795,
+          "observed_over": 0.5071989528795812
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 64.83153103942483,
+        "mae": 64.83153103942483,
+        "rmse": 83.23654061920833,
+        "pinball": {
+          "0.1": 15.575885570721638,
+          "0.5": 32.43609748037928,
+          "0.9": 14.675232184989214
+        },
+        "coverage80": 0.7892670157068062
+      },
+      "holm_p": 1,
+      "relative_reduction": 0.0037468121786168283,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "target_features__pass_tds__fpds__equal",
+      "family": "target_features",
+      "stat": "pass_tds",
+      "arm": "fpds",
+      "kind": "equal",
+      "reference": "A7/pass_tds/fpds",
+      "n": 1528,
+      "games": 807,
+      "delta": -0.013553204665578201,
+      "ci95": [
+        -0.023095384687774796,
+        -0.0028898192287891145
+      ],
+      "corrected_ci95": [
+        -0.028893099113967764,
+        0.004092140947506544
+      ],
+      "p": 0.004497751124437781,
+      "control_loss": 1.0726351701652737,
+      "new_loss": 1.0590819654996955,
+      "seasons": {
+        "2022": -0.013509650349249976,
+        "2023": -0.022520948164697595,
+        "2024": -0.004646223948998003
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.0590819654996955,
+        "mae": 0.8718853699618759,
+        "rmse": 1.0880403041443825,
+        "pinball": {
+          "0.1": 0.1342277486910995,
+          "0.5": 0.42539267015706805,
+          "0.9": 0.2089659685863874
+        },
+        "coverage80": 0.9476439790575916,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.2207652783408327,
+          "mean_p_over": 0.3734932824818244,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.0726351701652737,
+        "mae": 0.8792422293248879,
+        "rmse": 1.0943474692977158,
+        "pinball": {
+          "0.1": 0.13455497382198955,
+          "0.5": 0.42997382198952877,
+          "0.9": 0.21119109947643977
+        },
+        "coverage80": 0.9463350785340314
+      },
+      "holm_p": 0.13043478260869565,
+      "relative_reduction": 0.01263542818896186,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "target_features__rec__fpds__equal",
+      "family": "target_features",
+      "stat": "rec",
+      "arm": "fpds",
+      "kind": "equal",
+      "reference": "A7/rec/fpds",
+      "n": 6196,
+      "games": 815,
+      "delta": -0.004435872077053053,
+      "ci95": [
+        -0.011459196176985608,
+        0.0027191289205419594
+      ],
+      "corrected_ci95": [
+        -0.01407369695615028,
+        0.006507142343835229
+      ],
+      "p": 0.09895052473763119,
+      "control_loss": 1.4876975550606215,
+      "new_loss": 1.4832616829835688,
+      "seasons": {
+        "2022": 0.002535868286511041,
+        "2023": -0.009119495291301433,
+        "2024": -0.006599077990690661
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4832616829835688,
+        "mae": 1.7351131383233196,
+        "rmse": 2.20364512506147,
+        "pinball": {
+          "0.1": 0.3198192382182053,
+          "0.5": 0.8536152356358941,
+          "0.9": 0.43784699806326655
+        },
+        "coverage80": 0.8203679793415106,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.22968043044520922,
+          "mean_p_over": 0.42118953055631153,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4876975550606215,
+        "mae": 1.733926029921258,
+        "rmse": 2.2065084971148523,
+        "pinball": {
+          "0.1": 0.3200290510006456,
+          "0.5": 0.8507908327953518,
+          "0.9": 0.4375242091672046
+        },
+        "coverage80": 0.8200451904454487
+      },
+      "holm_p": 1,
+      "relative_reduction": 0.002981702874998875,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "target_features__rec_yds__fpds__equal",
+      "family": "target_features",
+      "stat": "rec_yds",
+      "arm": "fpds",
+      "kind": "equal",
+      "reference": "A7/rec_yds/fpds",
+      "n": 6196,
+      "games": 815,
+      "delta": -0.0062754067861936795,
+      "ci95": [
+        -0.10850053937921594,
+        0.09290873296189857
+      ],
+      "corrected_ci95": [
+        -0.17047799891785123,
+        0.1425445514878839
+      ],
+      "p": 0.46026986506746626,
+      "control_loss": 24.123019684835473,
+      "new_loss": 24.116744278049282,
+      "seasons": {
+        "2022": 0.07951882435241274,
+        "2023": 0.03674245321222077,
+        "2024": -0.13215636654076252
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.116744278049282,
+        "mae": 24.116744278049282,
+        "rmse": 31.39277941968153,
+        "pinball": {
+          "0.1": 4.131343832935219,
+          "0.5": 11.818498995288943,
+          "0.9": 6.545560101339538
+        },
+        "coverage80": 0.7980955455132344,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.23677760847831714,
+          "mean_p_over": 0.4625173165514831,
+          "observed_over": 0.45610071013557135
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.123019684835473,
+        "mae": 24.123019684835473,
+        "rmse": 31.440662428766302,
+        "pinball": {
+          "0.1": 4.12464523219522,
+          "0.5": 11.843409783240403,
+          "0.9": 6.560450366389086
+        },
+        "coverage80": 0.7937378954163977
+      },
+      "holm_p": 1,
+      "relative_reduction": 0.0002601418424468064,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "target_features__rush_yds__fpds__equal",
+      "family": "target_features",
+      "stat": "rush_yds",
+      "arm": "fpds",
+      "kind": "equal",
+      "reference": "A7/rush_yds/fpds",
+      "n": 2740,
+      "games": 814,
+      "delta": -0.17922875594955331,
+      "ci95": [
+        -0.3526283245361204,
+        -0.0049590323932207575
+      ],
+      "corrected_ci95": [
+        -0.42677770910233015,
+        0.07108047538132724
+      ],
+      "p": 0.02348825587206397,
+      "control_loss": 25.06160013309705,
+      "new_loss": 24.8823713771475,
+      "seasons": {
+        "2022": -0.3557411062630062,
+        "2023": -0.2158309210429877,
+        "2024": 0.0400555399325741
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 24.8823713771475,
+        "mae": 24.8823713771475,
+        "rmse": 32.05287086743504,
+        "pinball": {
+          "0.1": 4.281538313868257,
+          "0.5": 12.166938335067961,
+          "0.9": 6.790649416773117
+        },
+        "coverage80": 0.7897810218978102,
+        "pseudo_line": {
+          "n": 2740,
+          "brier": 0.2331285041467878,
+          "mean_p_over": 0.44517332415981165,
+          "observed_over": 0.4408759124087591
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 25.06160013309705,
+        "mae": 25.06160013309705,
+        "rmse": 32.1933259385754,
+        "pinball": {
+          "0.1": 4.38409336925342,
+          "0.5": 12.246961133670215,
+          "0.9": 6.795653109271645
+        },
+        "coverage80": 0.7912408759124088
+      },
+      "holm_p": 0.6576711644177912,
+      "relative_reduction": 0.007151528832864061,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "target_features__anytime_td__fpds__equal",
+      "family": "target_features",
+      "stat": "anytime_td",
+      "arm": "fpds",
+      "kind": "equal",
+      "reference": "A7/anytime_td/fpds",
+      "n": 8042,
+      "games": 815,
+      "delta": -0.002167217654054827,
+      "ci95": [
+        -0.0029799262104062882,
+        -0.0013531949507158605
+      ],
+      "corrected_ci95": [
+        -0.0034278767385651147,
+        -0.0009983689106960502
+      ],
+      "p": 0.0004997501249375312,
+      "control_loss": 0.19229212948992905,
+      "new_loss": 0.1901249118358742,
+      "seasons": {
+        "2022": -0.0026455059105229715,
+        "2023": -0.00289844230145745,
+        "2024": -0.0009650739083628925
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.1901249118358742,
+        "log_loss": 0.5644047006749813,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 5,
+            "predicted": 0.09423326057049765,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 2167,
+            "predicted": 0.17009593522861144,
+            "observed": 0.1587448084910014
+          },
+          {
+            "low": 0.2,
+            "n": 3263,
+            "predicted": 0.24521138614108817,
+            "observed": 0.2552865461231995
+          },
+          {
+            "low": 0.3,
+            "n": 1669,
+            "predicted": 0.3435612467066416,
+            "observed": 0.3732774116237268
+          },
+          {
+            "low": 0.4,
+            "n": 712,
+            "predicted": 0.4444644546389828,
+            "observed": 0.4691011235955056
+          },
+          {
+            "low": 0.5,
+            "n": 205,
+            "predicted": 0.5338562730981927,
+            "observed": 0.4682926829268293
+          },
+          {
+            "low": 0.6,
+            "n": 20,
+            "predicted": 0.6263748961186311,
+            "observed": 0.55
+          },
+          {
+            "low": 0.7,
+            "n": 1,
+            "predicted": 0.7058209689262552,
+            "observed": 1.0
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.19229212948992905,
+        "log_loss": 0.5698155803311444,
+        "reliability": [
+          {
+            "low": 0.1,
+            "n": 1941,
+            "predicted": 0.1744066408649049,
+            "observed": 0.16950025759917567
+          },
+          {
+            "low": 0.2,
+            "n": 3639,
+            "predicted": 0.2446919796704184,
+            "observed": 0.2522671063478978
+          },
+          {
+            "low": 0.3,
+            "n": 1699,
+            "predicted": 0.34344364561746016,
+            "observed": 0.37728075338434375
+          },
+          {
+            "low": 0.4,
+            "n": 616,
+            "predicted": 0.4403399370366617,
+            "observed": 0.4642857142857143
+          },
+          {
+            "low": 0.5,
+            "n": 132,
+            "predicted": 0.5336225469121018,
+            "observed": 0.4621212121212121
+          },
+          {
+            "low": 0.6,
+            "n": 15,
+            "predicted": 0.6238071343894073,
+            "observed": 0.4666666666666667
+          }
+        ]
+      },
+      "holm_p": 0.014992503748125937,
+      "relative_reduction": 0.011270443880379052,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__win__control__weighted",
+      "family": "combination",
+      "stat": "win",
+      "arm": "control",
+      "kind": "weighted",
+      "reference": "A7/win/control",
+      "n": 813,
+      "games": 813,
+      "delta": -5.871146340447813e-05,
+      "ci95": [
+        -0.00011412143811235015,
+        -6.300168687430106e-06
+      ],
+      "corrected_ci95": [
+        -0.00013834603848920335,
+        3.570053863530793e-05
+      ],
+      "p": 0.01899050474762619,
+      "control_loss": 0.2345014982047823,
+      "new_loss": 0.2344427867413778,
+      "seasons": {
+        "2022": -2.7623230775286074e-05,
+        "2023": 3.0322579344914577e-06,
+        "2024": -0.00015120053245393545
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2344427867413778,
+        "log_loss": 0.6612567199889073,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 3,
+            "predicted": 0.28118580759284334,
+            "observed": 0.0
+          },
+          {
+            "low": 0.3,
+            "n": 44,
+            "predicted": 0.3637576477645917,
+            "observed": 0.36363636363636365
+          },
+          {
+            "low": 0.4,
+            "n": 212,
+            "predicted": 0.4571924346871157,
+            "observed": 0.4056603773584906
+          },
+          {
+            "low": 0.5,
+            "n": 309,
+            "predicted": 0.5474694803819932,
+            "observed": 0.5792880258899676
+          },
+          {
+            "low": 0.6,
+            "n": 184,
+            "predicted": 0.6469587525006558,
+            "observed": 0.6521739130434783
+          },
+          {
+            "low": 0.7,
+            "n": 57,
+            "predicted": 0.7332517374380593,
+            "observed": 0.7543859649122807
+          },
+          {
+            "low": 0.8,
+            "n": 4,
+            "predicted": 0.8118268485741933,
+            "observed": 0.75
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2345014982047823,
+        "log_loss": 0.6613857201156566,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 3,
+            "predicted": 0.2813087444812529,
+            "observed": 0.0
+          },
+          {
+            "low": 0.3,
+            "n": 44,
+            "predicted": 0.3635779885439004,
+            "observed": 0.36363636363636365
+          },
+          {
+            "low": 0.4,
+            "n": 212,
+            "predicted": 0.45724582738506236,
+            "observed": 0.4056603773584906
+          },
+          {
+            "low": 0.5,
+            "n": 310,
+            "predicted": 0.5475718903111677,
+            "observed": 0.5774193548387097
+          },
+          {
+            "low": 0.6,
+            "n": 185,
+            "predicted": 0.6478197839010832,
+            "observed": 0.654054054054054
+          },
+          {
+            "low": 0.7,
+            "n": 56,
+            "predicted": 0.7353056740259679,
+            "observed": 0.7678571428571429
+          },
+          {
+            "low": 0.8,
+            "n": 3,
+            "predicted": 0.8153611752253974,
+            "observed": 0.6666666666666666
+          }
+        ]
+      },
+      "holm_p": 0.37981009495252377,
+      "relative_reduction": 0.0002503671142996595,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__win__control__stacked",
+      "family": "combination",
+      "stat": "win",
+      "arm": "control",
+      "kind": "stacked",
+      "reference": "A7/win/control",
+      "n": 813,
+      "games": 813,
+      "delta": 0.0006863790939631413,
+      "ci95": [
+        -0.0001863778359606377,
+        0.001504371056589263
+      ],
+      "corrected_ci95": [
+        -0.000648869788934127,
+        0.001974564755742745
+      ],
+      "p": 0.9550224887556222,
+      "control_loss": 0.2345014982047823,
+      "new_loss": 0.23518787729874543,
+      "seasons": {
+        "2022": 0.0015993973831276264,
+        "2023": 0.0009764352196896704,
+        "2024": -0.0005066252662679698
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.23518787729874543,
+        "log_loss": 0.6627926880001013,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 3,
+            "predicted": 0.28449365539581256,
+            "observed": 0.0
+          },
+          {
+            "low": 0.3,
+            "n": 34,
+            "predicted": 0.36237502722267223,
+            "observed": 0.4117647058823529
+          },
+          {
+            "low": 0.4,
+            "n": 199,
+            "predicted": 0.45902309344133424,
+            "observed": 0.41708542713567837
+          },
+          {
+            "low": 0.5,
+            "n": 336,
+            "predicted": 0.5466153541835698,
+            "observed": 0.5386904761904762
+          },
+          {
+            "low": 0.6,
+            "n": 188,
+            "predicted": 0.6437234206741683,
+            "observed": 0.6914893617021277
+          },
+          {
+            "low": 0.7,
+            "n": 47,
+            "predicted": 0.7341293303030563,
+            "observed": 0.7446808510638298
+          },
+          {
+            "low": 0.8,
+            "n": 6,
+            "predicted": 0.8143572052297688,
+            "observed": 0.6666666666666666
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2345014982047823,
+        "log_loss": 0.6613857201156566,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 3,
+            "predicted": 0.2813087444812529,
+            "observed": 0.0
+          },
+          {
+            "low": 0.3,
+            "n": 44,
+            "predicted": 0.3635779885439004,
+            "observed": 0.36363636363636365
+          },
+          {
+            "low": 0.4,
+            "n": 212,
+            "predicted": 0.45724582738506236,
+            "observed": 0.4056603773584906
+          },
+          {
+            "low": 0.5,
+            "n": 310,
+            "predicted": 0.5475718903111677,
+            "observed": 0.5774193548387097
+          },
+          {
+            "low": 0.6,
+            "n": 185,
+            "predicted": 0.6478197839010832,
+            "observed": 0.654054054054054
+          },
+          {
+            "low": 0.7,
+            "n": 56,
+            "predicted": 0.7353056740259679,
+            "observed": 0.7678571428571429
+          },
+          {
+            "low": 0.8,
+            "n": 3,
+            "predicted": 0.8153611752253974,
+            "observed": 0.6666666666666666
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.002926971039493101,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__win__fpds__weighted",
+      "family": "combination",
+      "stat": "win",
+      "arm": "fpds",
+      "kind": "weighted",
+      "reference": "A7/win/fpds",
+      "n": 813,
+      "games": 813,
+      "delta": -3.72007027657371e-05,
+      "ci95": [
+        -0.00013197591665454667,
+        5.958072741402686e-05
+      ],
+      "corrected_ci95": [
+        -0.00017824519459640732,
+        0.00011495560353332724
+      ],
+      "p": 0.22788605697151423,
+      "control_loss": 0.2348342618376527,
+      "new_loss": 0.234797061134887,
+      "seasons": {
+        "2022": -3.712563705564107e-05,
+        "2023": -0.0001201508780438884,
+        "2024": 4.567523473294421e-05
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.234797061134887,
+        "log_loss": 0.6621853417253672,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 9,
+            "predicted": 0.2646517486933311,
+            "observed": 0.4444444444444444
+          },
+          {
+            "low": 0.3,
+            "n": 48,
+            "predicted": 0.36194118649157997,
+            "observed": 0.3958333333333333
+          },
+          {
+            "low": 0.4,
+            "n": 183,
+            "predicted": 0.4530144363732998,
+            "observed": 0.3770491803278688
+          },
+          {
+            "low": 0.5,
+            "n": 318,
+            "predicted": 0.5491708404175986,
+            "observed": 0.5849056603773585
+          },
+          {
+            "low": 0.6,
+            "n": 197,
+            "predicted": 0.6472588324111105,
+            "observed": 0.649746192893401
+          },
+          {
+            "low": 0.7,
+            "n": 48,
+            "predicted": 0.7372551670674894,
+            "observed": 0.6458333333333334
+          },
+          {
+            "low": 0.8,
+            "n": 10,
+            "predicted": 0.8311030095291733,
+            "observed": 1.0
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2348342618376527,
+        "log_loss": 0.6622592830116133,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 9,
+            "predicted": 0.2651770680128129,
+            "observed": 0.4444444444444444
+          },
+          {
+            "low": 0.3,
+            "n": 48,
+            "predicted": 0.3620257166763848,
+            "observed": 0.3958333333333333
+          },
+          {
+            "low": 0.4,
+            "n": 184,
+            "predicted": 0.45324690780624916,
+            "observed": 0.3804347826086957
+          },
+          {
+            "low": 0.5,
+            "n": 320,
+            "predicted": 0.5497895102613961,
+            "observed": 0.58125
+          },
+          {
+            "low": 0.6,
+            "n": 194,
+            "predicted": 0.6479797423673556,
+            "observed": 0.654639175257732
+          },
+          {
+            "low": 0.7,
+            "n": 48,
+            "predicted": 0.7374905843929179,
+            "observed": 0.6458333333333334
+          },
+          {
+            "low": 0.8,
+            "n": 10,
+            "predicted": 0.8305301209707171,
+            "observed": 1.0
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": 0.0001584125862837466,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__win__fpds__stacked",
+      "family": "combination",
+      "stat": "win",
+      "arm": "fpds",
+      "kind": "stacked",
+      "reference": "A7/win/fpds",
+      "n": 813,
+      "games": 813,
+      "delta": 0.0018610589219382322,
+      "ci95": [
+        0.0008477196068859515,
+        0.0028347585985019743
+      ],
+      "corrected_ci95": [
+        0.0002467346024814571,
+        0.0034064924447783957
+      ],
+      "p": 1.0,
+      "control_loss": 0.2348342618376527,
+      "new_loss": 0.236695320759591,
+      "seasons": {
+        "2022": 0.0026625824168006237,
+        "2023": 0.0008358267399048264,
+        "2024": 0.0020936079417731702
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.236695320759591,
+        "log_loss": 0.6661669673889108,
+        "reliability": [
+          {
+            "low": 0.1,
+            "n": 1,
+            "predicted": 0.19591566782649847,
+            "observed": 1.0
+          },
+          {
+            "low": 0.2,
+            "n": 7,
+            "predicted": 0.27065577232808524,
+            "observed": 0.5714285714285714
+          },
+          {
+            "low": 0.3,
+            "n": 40,
+            "predicted": 0.36371012434722416,
+            "observed": 0.35
+          },
+          {
+            "low": 0.4,
+            "n": 175,
+            "predicted": 0.45752765509590543,
+            "observed": 0.37714285714285717
+          },
+          {
+            "low": 0.5,
+            "n": 352,
+            "predicted": 0.5497519087630903,
+            "observed": 0.5795454545454546
+          },
+          {
+            "low": 0.6,
+            "n": 188,
+            "predicted": 0.6446274113303005,
+            "observed": 0.6595744680851063
+          },
+          {
+            "low": 0.7,
+            "n": 42,
+            "predicted": 0.7378818418683855,
+            "observed": 0.6190476190476191
+          },
+          {
+            "low": 0.8,
+            "n": 8,
+            "predicted": 0.8331156595235593,
+            "observed": 1.0
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2348342618376527,
+        "log_loss": 0.6622592830116133,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 9,
+            "predicted": 0.2651770680128129,
+            "observed": 0.4444444444444444
+          },
+          {
+            "low": 0.3,
+            "n": 48,
+            "predicted": 0.3620257166763848,
+            "observed": 0.3958333333333333
+          },
+          {
+            "low": 0.4,
+            "n": 184,
+            "predicted": 0.45324690780624916,
+            "observed": 0.3804347826086957
+          },
+          {
+            "low": 0.5,
+            "n": 320,
+            "predicted": 0.5497895102613961,
+            "observed": 0.58125
+          },
+          {
+            "low": 0.6,
+            "n": 194,
+            "predicted": 0.6479797423673556,
+            "observed": 0.654639175257732
+          },
+          {
+            "low": 0.7,
+            "n": 48,
+            "predicted": 0.7374905843929179,
+            "observed": 0.6458333333333334
+          },
+          {
+            "low": 0.8,
+            "n": 10,
+            "predicted": 0.8305301209707171,
+            "observed": 1.0
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.00792498891505377,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__margin__control__weighted",
+      "family": "combination",
+      "stat": "margin",
+      "arm": "control",
+      "kind": "weighted",
+      "reference": "A7/margin/control",
+      "n": 815,
+      "games": 815,
+      "delta": -0.000909367592862863,
+      "ci95": [
+        -0.002532255491325496,
+        0.0007573976920129481
+      ],
+      "corrected_ci95": [
+        -0.0035399699979089126,
+        0.0017141422237430533
+      ],
+      "p": 0.12743628185907047,
+      "control_loss": 10.034585282344393,
+      "new_loss": 10.033675914751532,
+      "seasons": {
+        "2022": -0.0009674622895051205,
+        "2023": -0.0006527360754442548,
+        "2024": -0.0011081179970827513
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.033675914751532,
+        "mae": 10.033675914751532,
+        "rmse": 13.086245737148808,
+        "crps": 7.308562641107077,
+        "pinball": {
+          "0.1": 2.2916256684940177,
+          "0.5": 5.015197386041836,
+          "0.9": 2.462328003442861
+        },
+        "coverage80": 0.7914110429447853
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.034585282344393,
+        "mae": 10.034585282344393,
+        "rmse": 13.086317721706822,
+        "crps": 7.29714997063052,
+        "pinball": {
+          "0.1": 2.2810392193311237,
+          "0.5": 5.013462009526512,
+          "0.9": 2.4452380621023075
+        },
+        "coverage80": 0.7754601226993865
+      },
+      "holm_p": 1,
+      "relative_reduction": 9.062333592030683e-05,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__margin__control__stacked",
+      "family": "combination",
+      "stat": "margin",
+      "arm": "control",
+      "kind": "stacked",
+      "reference": "A7/margin/control",
+      "n": 815,
+      "games": 815,
+      "delta": 0.02095131716006488,
+      "ci95": [
+        -0.014495932723897776,
+        0.05637697567685558
+      ],
+      "corrected_ci95": [
+        -0.034566903586183424,
+        0.08245655466996421
+      ],
+      "p": 0.8565717141429285,
+      "control_loss": 10.034585282344393,
+      "new_loss": 10.05553659950446,
+      "seasons": {
+        "2022": 0.033989230076166416,
+        "2023": 0.017013153453800094,
+        "2024": 0.011899501453596155
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.05553659950446,
+        "mae": 10.05553659950446,
+        "rmse": 13.105934939347387,
+        "crps": 7.317730082381328,
+        "pinball": {
+          "0.1": 2.2919395808492062,
+          "0.5": 5.0214092851060235,
+          "0.9": 2.4707265658371456
+        },
+        "coverage80": 0.7938650306748466
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.034585282344393,
+        "mae": 10.034585282344393,
+        "rmse": 13.086317721706822,
+        "crps": 7.29714997063052,
+        "pinball": {
+          "0.1": 2.2810392193311237,
+          "0.5": 5.013462009526512,
+          "0.9": 2.4452380621023075
+        },
+        "coverage80": 0.7754601226993865
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.002087910618182518,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__margin__fpds__weighted",
+      "family": "combination",
+      "stat": "margin",
+      "arm": "fpds",
+      "kind": "weighted",
+      "reference": "A7/margin/fpds",
+      "n": 815,
+      "games": 815,
+      "delta": -0.011642308202794554,
+      "ci95": [
+        -0.01816439408652184,
+        -0.005041355326031155
+      ],
+      "corrected_ci95": [
+        -0.023685322426150193,
+        -0.0009296439235808566
+      ],
+      "p": 0.001999000499750125,
+      "control_loss": 10.275824215412465,
+      "new_loss": 10.264181907209672,
+      "seasons": {
+        "2022": -0.01280287214357534,
+        "2023": -0.007123550771460829,
+        "2024": -0.015004768472541544
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.264181907209672,
+        "mae": 10.264181907209672,
+        "rmse": 13.275397787862662,
+        "crps": 7.431771376759548,
+        "pinball": {
+          "0.1": 2.2812546209609783,
+          "0.5": 5.124174595391123,
+          "0.9": 2.5180450703470787
+        },
+        "coverage80": 0.7963190184049079
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.275824215412465,
+        "mae": 10.275824215412465,
+        "rmse": 13.285271609776938,
+        "crps": 7.447193029714188,
+        "pinball": {
+          "0.1": 2.3199696585610052,
+          "0.5": 5.1288707888644955,
+          "0.9": 2.5176573078613225
+        },
+        "coverage80": 0.7558282208588957
+      },
+      "holm_p": 0.05397301349325337,
+      "relative_reduction": 0.0011329804752140983,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__margin__fpds__stacked",
+      "family": "combination",
+      "stat": "margin",
+      "arm": "fpds",
+      "kind": "stacked",
+      "reference": "A7/margin/fpds",
+      "n": 815,
+      "games": 815,
+      "delta": -0.08012050990724093,
+      "ci95": [
+        -0.1368508748617981,
+        -0.025614814081070483
+      ],
+      "corrected_ci95": [
+        -0.17744586056171976,
+        0.010536780289902315
+      ],
+      "p": 0.0034982508745627187,
+      "control_loss": 10.275824215412465,
+      "new_loss": 10.195703705505226,
+      "seasons": {
+        "2022": 0.01668502528872633,
+        "2023": -0.05398449570206139,
+        "2024": -0.2027061566054614
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.195703705505226,
+        "mae": 10.195703705505226,
+        "rmse": 13.2218560131896,
+        "crps": 7.407929592945148,
+        "pinball": {
+          "0.1": 2.2783709171883535,
+          "0.5": 5.100319226879251,
+          "0.9": 2.5015871085462087
+        },
+        "coverage80": 0.8
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.275824215412465,
+        "mae": 10.275824215412465,
+        "rmse": 13.285271609776938,
+        "crps": 7.447193029714188,
+        "pinball": {
+          "0.1": 2.3199696585610052,
+          "0.5": 5.1288707888644955,
+          "0.9": 2.5176573078613225
+        },
+        "coverage80": 0.7558282208588957
+      },
+      "holm_p": 0.08045977011494253,
+      "relative_reduction": 0.007796991095572662,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__total__control__weighted",
+      "family": "combination",
+      "stat": "total",
+      "arm": "control",
+      "kind": "weighted",
+      "reference": "A7/total/control",
+      "n": 815,
+      "games": 815,
+      "delta": -0.0004110951067637944,
+      "ci95": [
+        -0.0012145732092597394,
+        0.0004666064020319935
+      ],
+      "corrected_ci95": [
+        -0.0015907550889592646,
+        0.0010026126650973983
+      ],
+      "p": 0.14942528735632185,
+      "control_loss": 10.391796399584935,
+      "new_loss": 10.391385304478172,
+      "seasons": {
+        "2022": -0.0009854386169984139,
+        "2023": -0.0005426948635986375,
+        "2024": 0.0002927366032827466
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.391385304478172,
+        "mae": 10.391385304478172,
+        "rmse": 13.317678673611349,
+        "crps": 7.449482454565846,
+        "pinball": {
+          "0.1": 2.191928340392401,
+          "0.5": 5.201653424354751,
+          "0.9": 2.5642174930283472
+        },
+        "coverage80": 0.8024539877300614
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.391796399584935,
+        "mae": 10.391796399584935,
+        "rmse": 13.317713316730913,
+        "crps": 7.456105437977838,
+        "pinball": {
+          "0.1": 2.205697131583097,
+          "0.5": 5.200154425763185,
+          "0.9": 2.571489415614247
+        },
+        "coverage80": 0.7926380368098159
+      },
+      "holm_p": 1,
+      "relative_reduction": 3.955958055338865e-05,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__total__control__stacked",
+      "family": "combination",
+      "stat": "total",
+      "arm": "control",
+      "kind": "stacked",
+      "reference": "A7/total/control",
+      "n": 815,
+      "games": 815,
+      "delta": 0.023424051096724813,
+      "ci95": [
+        -0.01757958153049715,
+        0.06581135725332884
+      ],
+      "corrected_ci95": [
+        -0.035527046907630984,
+        0.09152023014245109
+      ],
+      "p": 0.8620689655172413,
+      "control_loss": 10.391796399584935,
+      "new_loss": 10.41522045068166,
+      "seasons": {
+        "2022": 0.035351841416603615,
+        "2023": 0.018324952085724867,
+        "2024": 0.016639211958139635
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.41522045068166,
+        "mae": 10.41522045068166,
+        "rmse": 13.352974413912168,
+        "crps": 7.4692170513514125,
+        "pinball": {
+          "0.1": 2.204827989482349,
+          "0.5": 5.221123765732771,
+          "0.9": 2.5795155362100286
+        },
+        "coverage80": 0.8012269938650307
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.391796399584935,
+        "mae": 10.391796399584935,
+        "rmse": 13.317713316730913,
+        "crps": 7.456105437977838,
+        "pinball": {
+          "0.1": 2.205697131583097,
+          "0.5": 5.200154425763185,
+          "0.9": 2.571489415614247
+        },
+        "coverage80": 0.7926380368098159
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.0022540906495878235,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__total__fpds__weighted",
+      "family": "combination",
+      "stat": "total",
+      "arm": "fpds",
+      "kind": "weighted",
+      "reference": "A7/total/fpds",
+      "n": 815,
+      "games": 815,
+      "delta": -0.01621578615275157,
+      "ci95": [
+        -0.023270170330906847,
+        -0.008564682143850389
+      ],
+      "corrected_ci95": [
+        -0.02969840407386095,
+        -0.0056851504262466265
+      ],
+      "p": 0.0004997501249375312,
+      "control_loss": 10.639280167072902,
+      "new_loss": 10.62306438092015,
+      "seasons": {
+        "2022": -0.023747784606994768,
+        "2023": -0.013968439270061521,
+        "2024": -0.01095882575198608
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.62306438092015,
+        "mae": 10.62306438092015,
+        "rmse": 13.546842255533935,
+        "crps": 7.607064225512271,
+        "pinball": {
+          "0.1": 2.2636781066377227,
+          "0.5": 5.325962378999993,
+          "0.9": 2.588651355599222
+        },
+        "coverage80": 0.807361963190184
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.639280167072902,
+        "mae": 10.639280167072902,
+        "rmse": 13.56090148112245,
+        "crps": 7.63995636208943,
+        "pinball": {
+          "0.1": 2.312384667729134,
+          "0.5": 5.333509039596982,
+          "0.9": 2.6032722993917257
+        },
+        "coverage80": 0.7877300613496933
+      },
+      "holm_p": 0.017991004497751123,
+      "relative_reduction": 0.0015241431655251623,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__total__fpds__stacked",
+      "family": "combination",
+      "stat": "total",
+      "arm": "fpds",
+      "kind": "stacked",
+      "reference": "A7/total/fpds",
+      "n": 815,
+      "games": 815,
+      "delta": -0.0658292003374875,
+      "ci95": [
+        -0.13688134612401812,
+        0.00970809681396909
+      ],
+      "corrected_ci95": [
+        -0.19273236000801083,
+        0.046623799330905234
+      ],
+      "p": 0.03398300849575212,
+      "control_loss": 10.639280167072902,
+      "new_loss": 10.573450966735415,
+      "seasons": {
+        "2022": -0.0723385606821727,
+        "2023": -0.09803196507375193,
+        "2024": -0.02714100672839331
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.573450966735415,
+        "mae": 10.573450966735415,
+        "rmse": 13.515005048875908,
+        "crps": 7.586022625950506,
+        "pinball": {
+          "0.1": 2.256796904456683,
+          "0.5": 5.312800943770286,
+          "0.9": 2.5924991600508807
+        },
+        "coverage80": 0.8061349693251534
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.639280167072902,
+        "mae": 10.639280167072902,
+        "rmse": 13.56090148112245,
+        "crps": 7.63995636208943,
+        "pinball": {
+          "0.1": 2.312384667729134,
+          "0.5": 5.333509039596982,
+          "0.9": 2.6032722993917257
+        },
+        "coverage80": 0.7877300613496933
+      },
+      "holm_p": 0.6116941529235382,
+      "relative_reduction": 0.0061873735162290165,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__pass_yds__control__weighted",
+      "family": "combination",
+      "stat": "pass_yds",
+      "arm": "control",
+      "kind": "weighted",
+      "reference": "A7/pass_yds/control",
+      "n": 1528,
+      "games": 807,
+      "delta": -0.0013191693675773152,
+      "ci95": [
+        -0.004229952596374297,
+        0.0015716890620897075
+      ],
+      "corrected_ci95": [
+        -0.0060096846344085885,
+        0.004361133018547694
+      ],
+      "p": 0.20389805097451275,
+      "control_loss": 65.50900653759352,
+      "new_loss": 65.50768736822593,
+      "seasons": {
+        "2022": 0.0017669681685324645,
+        "2023": -0.0036758934145187175,
+        "2024": -0.002029037208805384
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 65.50768736822593,
+        "mae": 65.50768736822593,
+        "rmse": 83.74718886918686,
+        "crps": 46.87562776365507,
+        "pinball": {
+          "0.1": 15.947492082722063,
+          "0.5": 32.721174626011354,
+          "0.9": 14.048042530201387
+        },
+        "coverage80": 0.7925392670157068,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.23880027963829237,
+          "mean_p_over": 0.5237167224843912,
+          "observed_over": 0.5071989528795812
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 65.50900653759352,
+        "mae": 65.50900653759352,
+        "rmse": 83.74864043821388,
+        "pinball": {
+          "0.1": 15.943179788971792,
+          "0.5": 32.721819907067605,
+          "0.9": 14.159327017790305
+        },
+        "coverage80": 0.7833769633507853
+      },
+      "holm_p": 1,
+      "relative_reduction": 2.013722138833362e-05,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__pass_yds__control__stacked",
+      "family": "combination",
+      "stat": "pass_yds",
+      "arm": "control",
+      "kind": "stacked",
+      "reference": "A7/pass_yds/control",
+      "n": 1528,
+      "games": 807,
+      "delta": -0.05380951943141772,
+      "ci95": [
+        -0.19033051700986117,
+        0.0843354171113716
+      ],
+      "corrected_ci95": [
+        -0.24823768509561217,
+        0.1741034320015367
+      ],
+      "p": 0.22688655672163918,
+      "control_loss": 65.50900653759352,
+      "new_loss": 65.45519701816208,
+      "seasons": {
+        "2022": 0.06937599293035053,
+        "2023": -0.10958325909427241,
+        "2024": -0.1203661682364287
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 65.45519701816208,
+        "mae": 65.45519701816208,
+        "rmse": 83.79616339153543,
+        "crps": 46.93356951082533,
+        "pinball": {
+          "0.1": 15.971948728640657,
+          "0.5": 32.775444112696654,
+          "0.9": 14.062001691576274
+        },
+        "coverage80": 0.7918848167539267,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.23879205752043836,
+          "mean_p_over": 0.5221405255520228,
+          "observed_over": 0.5071989528795812
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 65.50900653759352,
+        "mae": 65.50900653759352,
+        "rmse": 83.74864043821388,
+        "pinball": {
+          "0.1": 15.943179788971792,
+          "0.5": 32.721819907067605,
+          "0.9": 14.159327017790305
+        },
+        "coverage80": 0.7833769633507853
+      },
+      "holm_p": 1,
+      "relative_reduction": 0.0008214064336411232,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__pass_yds__fpds__weighted",
+      "family": "combination",
+      "stat": "pass_yds",
+      "arm": "fpds",
+      "kind": "weighted",
+      "reference": "A7/pass_yds/fpds",
+      "n": 1528,
+      "games": 807,
+      "delta": -0.024908052379425758,
+      "ci95": [
+        -0.05269048535932413,
+        0.002454440991018652
+      ],
+      "corrected_ci95": [
+        -0.0701589059000879,
+        0.018774110691514193
+      ],
+      "p": 0.03948025987006497,
+      "control_loss": 64.83153103942483,
+      "new_loss": 64.80662298704543,
+      "seasons": {
+        "2022": -0.009520718533430129,
+        "2023": -0.02958323648843957,
+        "2024": -0.0355089024074546
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 64.80662298704543,
+        "mae": 64.80662298704543,
+        "rmse": 83.18372017614374,
+        "crps": 46.5717971435068,
+        "pinball": {
+          "0.1": 15.535174322789906,
+          "0.5": 32.43543429561761,
+          "0.9": 14.377755455442609
+        },
+        "coverage80": 0.800392670157068,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.2356325333469731,
+          "mean_p_over": 0.5121041541420658,
+          "observed_over": 0.5071989528795812
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 64.83153103942483,
+        "mae": 64.83153103942483,
+        "rmse": 83.23654061920833,
+        "pinball": {
+          "0.1": 15.575885570721638,
+          "0.5": 32.43609748037928,
+          "0.9": 14.675232184989214
+        },
+        "coverage80": 0.7892670157068062
+      },
+      "holm_p": 0.6711644177911045,
+      "relative_reduction": 0.0003841965781168869,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__pass_yds__fpds__stacked",
+      "family": "combination",
+      "stat": "pass_yds",
+      "arm": "fpds",
+      "kind": "stacked",
+      "reference": "A7/pass_yds/fpds",
+      "n": 1528,
+      "games": 807,
+      "delta": -0.1274205132824605,
+      "ci95": [
+        -0.39777024204025985,
+        0.1491849410632767
+      ],
+      "corrected_ci95": [
+        -0.5333833764246013,
+        0.2842506379050974
+      ],
+      "p": 0.1854072963518241,
+      "control_loss": 64.83153103942483,
+      "new_loss": 64.70411052614239,
+      "seasons": {
+        "2022": 0.05851400181825034,
+        "2023": -0.1655285122848945,
+        "2024": -0.27386614863435693
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 64.70411052614239,
+        "mae": 64.70411052614239,
+        "rmse": 82.98898013220992,
+        "crps": 46.475906148641855,
+        "pinball": {
+          "0.1": 15.622978519041926,
+          "0.5": 32.39899560616216,
+          "0.9": 14.239720086444208
+        },
+        "coverage80": 0.8017015706806283,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.23522188522613258,
+          "mean_p_over": 0.5112475643827008,
+          "observed_over": 0.5071989528795812
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 64.83153103942483,
+        "mae": 64.83153103942483,
+        "rmse": 83.23654061920833,
+        "pinball": {
+          "0.1": 15.575885570721638,
+          "0.5": 32.43609748037928,
+          "0.9": 14.675232184989214
+        },
+        "coverage80": 0.7892670157068062
+      },
+      "holm_p": 1,
+      "relative_reduction": 0.0019654095968360606,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__pass_tds__control__weighted",
+      "family": "combination",
+      "stat": "pass_tds",
+      "arm": "control",
+      "kind": "weighted",
+      "reference": "A7/pass_tds/control",
+      "n": 1528,
+      "games": 807,
+      "delta": 1.7509902725039622e-05,
+      "ci95": [
+        -9.806495581272548e-06,
+        4.58205221085637e-05
+      ],
+      "corrected_ci95": [
+        -2.701584206531429e-05,
+        6.060338730746078e-05
+      ],
+      "p": 0.8865567216391804,
+      "control_loss": 1.070237969654217,
+      "new_loss": 1.070255479556942,
+      "seasons": {
+        "2022": 7.702549359108791e-05,
+        "2023": 1.9827211033945802e-06,
+        "2024": -2.604301692671677e-05
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.070255479556942,
+        "mae": 0.8822985148117517,
+        "rmse": 1.092661698881438,
+        "pinball": {
+          "0.1": 0.1340968586387435,
+          "0.5": 0.4257198952879581,
+          "0.9": 0.21047120418848161
+        },
+        "coverage80": 0.9482984293193717,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.22257291435044815,
+          "mean_p_over": 0.37664833579678425,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.070237969654217,
+        "mae": 0.8822762016143041,
+        "rmse": 1.0926504129179002,
+        "pinball": {
+          "0.1": 0.13403141361256546,
+          "0.5": 0.4257198952879581,
+          "0.9": 0.21040575916230364
+        },
+        "coverage80": 0.9482984293193717
+      },
+      "holm_p": 1,
+      "relative_reduction": -1.636075641261064e-05,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__pass_tds__control__stacked",
+      "family": "combination",
+      "stat": "pass_tds",
+      "arm": "control",
+      "kind": "stacked",
+      "reference": "A7/pass_tds/control",
+      "n": 1528,
+      "games": 807,
+      "delta": 0.0029299336967325475,
+      "ci95": [
+        -0.0017484860621308795,
+        0.00755014939884958
+      ],
+      "corrected_ci95": [
+        -0.00396737557818104,
+        0.010124046665218796
+      ],
+      "p": 0.888055972013993,
+      "control_loss": 1.070237969654217,
+      "new_loss": 1.0731679033509496,
+      "seasons": {
+        "2022": 0.007402640456026086,
+        "2023": 0.001894539853125602,
+        "2024": -0.0004743940267944239
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.0731679033509496,
+        "mae": 0.8847911126601044,
+        "rmse": 1.0942110314849474,
+        "pinball": {
+          "0.1": 0.1340968586387435,
+          "0.5": 0.4257198952879581,
+          "0.9": 0.2090314136125654
+        },
+        "coverage80": 0.9509162303664922,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.22296920646824342,
+          "mean_p_over": 0.37867843122180167,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.070237969654217,
+        "mae": 0.8822762016143041,
+        "rmse": 1.0926504129179002,
+        "pinball": {
+          "0.1": 0.13403141361256546,
+          "0.5": 0.4257198952879581,
+          "0.9": 0.21040575916230364
+        },
+        "coverage80": 0.9482984293193717
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.0027376469344282182,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__pass_tds__fpds__weighted",
+      "family": "combination",
+      "stat": "pass_tds",
+      "arm": "fpds",
+      "kind": "weighted",
+      "reference": "A7/pass_tds/fpds",
+      "n": 1528,
+      "games": 807,
+      "delta": -0.0001885805583704553,
+      "ci95": [
+        -0.0003194514102938166,
+        -6.550847325960645e-05
+      ],
+      "corrected_ci95": [
+        -0.00037806903512529723,
+        1.4342572361219202e-05
+      ],
+      "p": 0.001999000499750125,
+      "control_loss": 1.0726351701652737,
+      "new_loss": 1.072446589606903,
+      "seasons": {
+        "2022": -0.00014298740235228372,
+        "2023": -0.00019077836710649243,
+        "2024": -0.00023162331305897601
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.072446589606903,
+        "mae": 0.87921301624416,
+        "rmse": 1.0942376383865673,
+        "pinball": {
+          "0.1": 0.13455497382198955,
+          "0.5": 0.42997382198952877,
+          "0.9": 0.2113219895287958
+        },
+        "coverage80": 0.9463350785340314,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.22213650030907314,
+          "mean_p_over": 0.37337894345269323,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.0726351701652737,
+        "mae": 0.8792422293248879,
+        "rmse": 1.0943474692977158,
+        "pinball": {
+          "0.1": 0.13455497382198955,
+          "0.5": 0.42997382198952877,
+          "0.9": 0.21119109947643977
+        },
+        "coverage80": 0.9463350785340314
+      },
+      "holm_p": 0.05397301349325337,
+      "relative_reduction": 0.00017581053056595045,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__pass_tds__fpds__stacked",
+      "family": "combination",
+      "stat": "pass_tds",
+      "arm": "fpds",
+      "kind": "stacked",
+      "reference": "A7/pass_tds/fpds",
+      "n": 1528,
+      "games": 807,
+      "delta": -6.657527311643777e-05,
+      "ci95": [
+        -0.006516722942434143,
+        0.0062313075333158925
+      ],
+      "corrected_ci95": [
+        -0.010152590766014807,
+        0.00913905514328672
+      ],
+      "p": 0.4912543728135932,
+      "control_loss": 1.0726351701652737,
+      "new_loss": 1.0725685948921573,
+      "seasons": {
+        "2022": 0.0044498132237512054,
+        "2023": -0.0025822066741588976,
+        "2024": -0.0020369019920601574
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.0725685948921573,
+        "mae": 0.8809266133253163,
+        "rmse": 1.0942982134473747,
+        "pinball": {
+          "0.1": 0.13448952879581152,
+          "0.5": 0.43160994764397903,
+          "0.9": 0.21125654450261777
+        },
+        "coverage80": 0.9463350785340314,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.2221659143941339,
+          "mean_p_over": 0.37719643270809344,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.0726351701652737,
+        "mae": 0.8792422293248879,
+        "rmse": 1.0943474692977158,
+        "pinball": {
+          "0.1": 0.13455497382198955,
+          "0.5": 0.42997382198952877,
+          "0.9": 0.21119109947643977
+        },
+        "coverage80": 0.9463350785340314
+      },
+      "holm_p": 1,
+      "relative_reduction": 6.206702424849609e-05,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rec__control__weighted",
+      "family": "combination",
+      "stat": "rec",
+      "arm": "control",
+      "kind": "weighted",
+      "reference": "A7/rec/control",
+      "n": 6196,
+      "games": 815,
+      "delta": -3.969824154438011e-05,
+      "ci95": [
+        -6.6819228368986e-05,
+        -1.148870490523884e-05
+      ],
+      "corrected_ci95": [
+        -8.348507427901598e-05,
+        7.636404931425648e-06
+      ],
+      "p": 0.001999000499750125,
+      "control_loss": 1.499254717668258,
+      "new_loss": 1.4992150194267133,
+      "seasons": {
+        "2022": 7.5971165851551815e-06,
+        "2023": -3.669422465253251e-05,
+        "2024": -8.866860419553995e-05
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4992150194267133,
+        "mae": 1.745100138345163,
+        "rmse": 2.2196492210711236,
+        "pinball": {
+          "0.1": 0.3232892188508716,
+          "0.5": 0.8587798579728857,
+          "0.9": 0.44288250484183334
+        },
+        "coverage80": 0.8147191736604261,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.23147367041856332,
+          "mean_p_over": 0.4194836651504202,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.499254717668258,
+        "mae": 1.745143361437101,
+        "rmse": 2.2196718169406524,
+        "pinball": {
+          "0.1": 0.3232892188508716,
+          "0.5": 0.8587798579728857,
+          "0.9": 0.44288250484183345
+        },
+        "coverage80": 0.8147191736604261
+      },
+      "holm_p": 0.05397301349325337,
+      "relative_reduction": 2.647865040979927e-05,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rec__control__stacked",
+      "family": "combination",
+      "stat": "rec",
+      "arm": "control",
+      "kind": "stacked",
+      "reference": "A7/rec/control",
+      "n": 6196,
+      "games": 815,
+      "delta": -0.00165059984348948,
+      "ci95": [
+        -0.0032797291733770435,
+        -7.336406611038148e-05
+      ],
+      "corrected_ci95": [
+        -0.004215714993844246,
+        0.000726076669435429
+      ],
+      "p": 0.0239880059970015,
+      "control_loss": 1.499254717668258,
+      "new_loss": 1.497604117824768,
+      "seasons": {
+        "2022": 0.0031436467913723135,
+        "2023": -0.0025093217051216643,
+        "2024": -0.005467514719775541
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.497604117824768,
+        "mae": 1.7430885832154088,
+        "rmse": 2.219012450954108,
+        "pinball": {
+          "0.1": 0.3226597805035507,
+          "0.5": 0.8581342801807618,
+          "0.9": 0.44257585539057454
+        },
+        "coverage80": 0.8142349903163331,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.23121235913131938,
+          "mean_p_over": 0.4165096656157325,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.499254717668258,
+        "mae": 1.745143361437101,
+        "rmse": 2.2196718169406524,
+        "pinball": {
+          "0.1": 0.3232892188508716,
+          "0.5": 0.8587798579728857,
+          "0.9": 0.44288250484183345
+        },
+        "coverage80": 0.8147191736604261
+      },
+      "holm_p": 0.45577211394302847,
+      "relative_reduction": 0.0011009469065113926,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rec__fpds__weighted",
+      "family": "combination",
+      "stat": "rec",
+      "arm": "fpds",
+      "kind": "weighted",
+      "reference": "A7/rec/fpds",
+      "n": 6196,
+      "games": 815,
+      "delta": -0.00032626471966128704,
+      "ci95": [
+        -0.0005726056317195377,
+        -7.40999949691235e-05
+      ],
+      "corrected_ci95": [
+        -0.0007386398539064322,
+        0.00011687242973264274
+      ],
+      "p": 0.006496751624187906,
+      "control_loss": 1.4876975550606215,
+      "new_loss": 1.4873712903409606,
+      "seasons": {
+        "2022": -0.0005964142274465577,
+        "2023": -0.00021309265518519352,
+        "2024": -0.0001750735858430144
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4873712903409606,
+        "mae": 1.7337891372738894,
+        "rmse": 2.2061943963244794,
+        "pinball": {
+          "0.1": 0.3200129115558425,
+          "0.5": 0.8512750161394448,
+          "0.9": 0.4375242091672046
+        },
+        "coverage80": 0.8202065848934796,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.22987813017367226,
+          "mean_p_over": 0.41715595656933646,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4876975550606215,
+        "mae": 1.733926029921258,
+        "rmse": 2.2065084971148523,
+        "pinball": {
+          "0.1": 0.3200290510006456,
+          "0.5": 0.8507908327953518,
+          "0.9": 0.4375242091672046
+        },
+        "coverage80": 0.8200451904454487
+      },
+      "holm_p": 0.14292853573213393,
+      "relative_reduction": 0.00021930850027376177,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rec__fpds__stacked",
+      "family": "combination",
+      "stat": "rec",
+      "arm": "fpds",
+      "kind": "stacked",
+      "reference": "A7/rec/fpds",
+      "n": 6196,
+      "games": 815,
+      "delta": -0.0024249932234272917,
+      "ci95": [
+        -0.004637405224634054,
+        -0.00017669843756693866
+      ],
+      "corrected_ci95": [
+        -0.006145406141961322,
+        0.0011736386332059452
+      ],
+      "p": 0.017491254372813594,
+      "control_loss": 1.4876975550606215,
+      "new_loss": 1.4852725618371947,
+      "seasons": {
+        "2022": 0.0011391797443473782,
+        "2023": -0.0035021374679118874,
+        "2024": -0.004829920382212543
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4852725618371947,
+        "mae": 1.732512954420745,
+        "rmse": 2.2046802547413624,
+        "pinball": {
+          "0.1": 0.31978695932859913,
+          "0.5": 0.8500645577792124,
+          "0.9": 0.438896061975468
+        },
+        "coverage80": 0.8192382182052937,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.2296232597560271,
+          "mean_p_over": 0.4165753484993099,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4876975550606215,
+        "mae": 1.733926029921258,
+        "rmse": 2.2065084971148523,
+        "pinball": {
+          "0.1": 0.3200290510006456,
+          "0.5": 0.8507908327953518,
+          "0.9": 0.4375242091672046
+        },
+        "coverage80": 0.8200451904454487
+      },
+      "holm_p": 0.36731634182908546,
+      "relative_reduction": 0.0016300310605326476,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rec_yds__control__weighted",
+      "family": "combination",
+      "stat": "rec_yds",
+      "arm": "control",
+      "kind": "weighted",
+      "reference": "A7/rec_yds/control",
+      "n": 6196,
+      "games": 815,
+      "delta": -0.0004732371895647705,
+      "ci95": [
+        -0.000747820873894683,
+        -0.00021525064840364485
+      ],
+      "corrected_ci95": [
+        -0.0009006324892756011,
+        -8.424948889400042e-05
+      ],
+      "p": 0.0009995002498750624,
+      "control_loss": 24.1216108328482,
+      "new_loss": 24.121137595658634,
+      "seasons": {
+        "2022": -0.0004478524745736571,
+        "2023": -0.00025934285606895463,
+        "2024": -0.0007088630076668515
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.121137595658634,
+        "mae": 24.121137595658634,
+        "rmse": 31.528091979270172,
+        "crps": 17.052628602574163,
+        "pinball": {
+          "0.1": 4.060415501350833,
+          "0.5": 11.839266442688078,
+          "0.9": 6.6307093853352965
+        },
+        "coverage80": 0.8084247901872176,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.23675136821194423,
+          "mean_p_over": 0.45341347744472743,
+          "observed_over": 0.45610071013557135
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.1216108328482,
+        "mae": 24.1216108328482,
+        "rmse": 31.52802251875698,
+        "pinball": {
+          "0.1": 4.098108154491985,
+          "0.5": 11.844150657494296,
+          "0.9": 6.621230029832157
+        },
+        "coverage80": 0.7971271788250485
+      },
+      "holm_p": 0.028985507246376812,
+      "relative_reduction": 1.9618805429044068e-05,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rec_yds__control__stacked",
+      "family": "combination",
+      "stat": "rec_yds",
+      "arm": "control",
+      "kind": "stacked",
+      "reference": "A7/rec_yds/control",
+      "n": 6196,
+      "games": 815,
+      "delta": -0.043372185501373686,
+      "ci95": [
+        -0.0662206372225373,
+        -0.01924455727557671
+      ],
+      "corrected_ci95": [
+        -0.07805035229809976,
+        -0.006189943620610161
+      ],
+      "p": 0.0004997501249375312,
+      "control_loss": 24.1216108328482,
+      "new_loss": 24.07823864734683,
+      "seasons": {
+        "2022": -0.031008658826418175,
+        "2023": -0.04993926310467521,
+        "2024": -0.04892303964944757
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.07823864734683,
+        "mae": 24.07823864734683,
+        "rmse": 31.530523247893214,
+        "crps": 17.070059010575697,
+        "pinball": {
+          "0.1": 4.071058204413802,
+          "0.5": 11.843873254692948,
+          "0.9": 6.612969754495675
+        },
+        "coverage80": 0.8085861846352486,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.23681828747628023,
+          "mean_p_over": 0.45370482002922613,
+          "observed_over": 0.45610071013557135
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.1216108328482,
+        "mae": 24.1216108328482,
+        "rmse": 31.52802251875698,
+        "pinball": {
+          "0.1": 4.098108154491985,
+          "0.5": 11.844150657494296,
+          "0.9": 6.621230029832157
+        },
+        "coverage80": 0.7971271788250485
+      },
+      "holm_p": 0.017991004497751123,
+      "relative_reduction": 0.001798063396425853,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rec_yds__fpds__weighted",
+      "family": "combination",
+      "stat": "rec_yds",
+      "arm": "fpds",
+      "kind": "weighted",
+      "reference": "A7/rec_yds/fpds",
+      "n": 6196,
+      "games": 815,
+      "delta": -0.007012409547122333,
+      "ci95": [
+        -0.010690657777275745,
+        -0.003496491301546524
+      ],
+      "corrected_ci95": [
+        -0.012886699788725791,
+        -0.0014550295100228803
+      ],
+      "p": 0.0004997501249375312,
+      "control_loss": 24.123019684835473,
+      "new_loss": 24.116007275288354,
+      "seasons": {
+        "2022": -0.010593790010255741,
+        "2023": -0.003206348361142223,
+        "2024": -0.007281867209799592
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.116007275288354,
+        "mae": 24.116007275288354,
+        "rmse": 31.429317005555948,
+        "crps": 17.042290137906306,
+        "pinball": {
+          "0.1": 4.083316384856576,
+          "0.5": 11.839376525451959,
+          "0.9": 6.5609085305345545
+        },
+        "coverage80": 0.8079406068431246,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.23716822390816267,
+          "mean_p_over": 0.46339743648542364,
+          "observed_over": 0.45610071013557135
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.123019684835473,
+        "mae": 24.123019684835473,
+        "rmse": 31.440662428766302,
+        "pinball": {
+          "0.1": 4.12464523219522,
+          "0.5": 11.843409783240403,
+          "0.9": 6.560450366389086
+        },
+        "coverage80": 0.7937378954163977
+      },
+      "holm_p": 0.017991004497751123,
+      "relative_reduction": 0.0002906936875539908,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rec_yds__fpds__stacked",
+      "family": "combination",
+      "stat": "rec_yds",
+      "arm": "fpds",
+      "kind": "stacked",
+      "reference": "A7/rec_yds/fpds",
+      "n": 6196,
+      "games": 815,
+      "delta": -0.1122155573250304,
+      "ci95": [
+        -0.15476456019118998,
+        -0.06876619488969783
+      ],
+      "corrected_ci95": [
+        -0.18230173382830228,
+        -0.040995085236043956
+      ],
+      "p": 0.0004997501249375312,
+      "control_loss": 24.123019684835473,
+      "new_loss": 24.01080412751044,
+      "seasons": {
+        "2022": -0.12112046307657046,
+        "2023": -0.0817572023763346,
+        "2024": -0.13358958309063199
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.01080412751044,
+        "mae": 24.01080412751044,
+        "rmse": 31.353416076277462,
+        "crps": 17.009009473784893,
+        "pinball": {
+          "0.1": 4.092279932053093,
+          "0.5": 11.81331579141524,
+          "0.9": 6.537887010191103
+        },
+        "coverage80": 0.8058424790187217,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.23615198354358943,
+          "mean_p_over": 0.4621421083807983,
+          "observed_over": 0.45610071013557135
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.123019684835473,
+        "mae": 24.123019684835473,
+        "rmse": 31.440662428766302,
+        "pinball": {
+          "0.1": 4.12464523219522,
+          "0.5": 11.843409783240403,
+          "0.9": 6.560450366389086
+        },
+        "coverage80": 0.7937378954163977
+      },
+      "holm_p": 0.017991004497751123,
+      "relative_reduction": 0.004651803911413827,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rush_yds__control__weighted",
+      "family": "combination",
+      "stat": "rush_yds",
+      "arm": "control",
+      "kind": "weighted",
+      "reference": "A7/rush_yds/control",
+      "n": 2740,
+      "games": 814,
+      "delta": -0.0009607013523295086,
+      "ci95": [
+        -0.0016690680567846153,
+        -0.0002798881454037592
+      ],
+      "corrected_ci95": [
+        -0.001990987264469575,
+        3.9441843099575435e-05
+      ],
+      "p": 0.0024987506246876563,
+      "control_loss": 24.835768873784627,
+      "new_loss": 24.834808172432297,
+      "seasons": {
+        "2022": -0.0006267462118315729,
+        "2023": -0.0007020860045773564,
+        "2024": -0.001556855857072021
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 24.834808172432297,
+        "mae": 24.834808172432297,
+        "rmse": 32.282309602567224,
+        "crps": 17.58568941193293,
+        "pinball": {
+          "0.1": 4.223605441280642,
+          "0.5": 12.227853349512493,
+          "0.9": 6.804893326383312
+        },
+        "coverage80": 0.8156934306569343,
+        "pseudo_line": {
+          "n": 2740,
+          "brier": 0.23383938448698738,
+          "mean_p_over": 0.44594225707346025,
+          "observed_over": 0.4408759124087591
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 24.835768873784627,
+        "mae": 24.835768873784627,
+        "rmse": 32.28268599500825,
+        "pinball": {
+          "0.1": 4.294697000139227,
+          "0.5": 12.227627510046863,
+          "0.9": 6.836432695737887
+        },
+        "coverage80": 0.795985401459854
+      },
+      "holm_p": 0.05997001499250375,
+      "relative_reduction": 3.868216672541094e-05,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rush_yds__control__stacked",
+      "family": "combination",
+      "stat": "rush_yds",
+      "arm": "control",
+      "kind": "stacked",
+      "reference": "A7/rush_yds/control",
+      "n": 2740,
+      "games": 814,
+      "delta": 0.05691459430600618,
+      "ci95": [
+        0.02460927163384361,
+        0.09022801447368252
+      ],
+      "corrected_ci95": [
+        0.008533810510896477,
+        0.10770690801240017
+      ],
+      "p": 1.0,
+      "control_loss": 24.835768873784627,
+      "new_loss": 24.892683468090627,
+      "seasons": {
+        "2022": 0.11180248686490175,
+        "2023": 0.0853648665339467,
+        "2024": -0.02761300649996041
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 24.892683468090627,
+        "mae": 24.892683468090627,
+        "rmse": 32.293992810478315,
+        "crps": 17.60417379889959,
+        "pinball": {
+          "0.1": 4.235703365837713,
+          "0.5": 12.250870834293647,
+          "0.9": 6.789067609977373
+        },
+        "coverage80": 0.8127737226277372,
+        "pseudo_line": {
+          "n": 2740,
+          "brier": 0.2340845742303194,
+          "mean_p_over": 0.44472716560707,
+          "observed_over": 0.4408759124087591
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 24.835768873784627,
+        "mae": 24.835768873784627,
+        "rmse": 32.28268599500825,
+        "pinball": {
+          "0.1": 4.294697000139227,
+          "0.5": 12.227627510046863,
+          "0.9": 6.836432695737887
+        },
+        "coverage80": 0.795985401459854
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.002291638104511527,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rush_yds__fpds__weighted",
+      "family": "combination",
+      "stat": "rush_yds",
+      "arm": "fpds",
+      "kind": "weighted",
+      "reference": "A7/rush_yds/fpds",
+      "n": 2740,
+      "games": 814,
+      "delta": -0.012789472360024659,
+      "ci95": [
+        -0.02083681038287222,
+        -0.004736959982074256
+      ],
+      "corrected_ci95": [
+        -0.02552232982328599,
+        0.0002622294784153908
+      ],
+      "p": 0.0009995002498750624,
+      "control_loss": 25.06160013309705,
+      "new_loss": 25.048810660737026,
+      "seasons": {
+        "2022": -0.011615270861555017,
+        "2023": -0.02034362162443289,
+        "2024": -0.006783653708270852
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 25.048810660737026,
+        "mae": 25.048810660737026,
+        "rmse": 32.17475570899164,
+        "crps": 17.55126795793693,
+        "pinball": {
+          "0.1": 4.190940759436052,
+          "0.5": 12.230908757861744,
+          "0.9": 6.733435351448198
+        },
+        "coverage80": 0.8226277372262774,
+        "pseudo_line": {
+          "n": 2740,
+          "brier": 0.23195173060601434,
+          "mean_p_over": 0.4445738477538365,
+          "observed_over": 0.4408759124087591
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 25.06160013309705,
+        "mae": 25.06160013309705,
+        "rmse": 32.1933259385754,
+        "pinball": {
+          "0.1": 4.38409336925342,
+          "0.5": 12.246961133670215,
+          "0.9": 6.795653109271645
+        },
+        "coverage80": 0.7912408759124088
+      },
+      "holm_p": 0.028985507246376812,
+      "relative_reduction": 0.000510321459607622,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__rush_yds__fpds__stacked",
+      "family": "combination",
+      "stat": "rush_yds",
+      "arm": "fpds",
+      "kind": "stacked",
+      "reference": "A7/rush_yds/fpds",
+      "n": 2740,
+      "games": 814,
+      "delta": -0.1540068452092749,
+      "ci95": [
+        -0.22197596240215772,
+        -0.0880626315302565
+      ],
+      "corrected_ci95": [
+        -0.25790206510094066,
+        -0.05128929724884376
+      ],
+      "p": 0.0004997501249375312,
+      "control_loss": 25.06160013309705,
+      "new_loss": 24.907593287887778,
+      "seasons": {
+        "2022": -0.053952355970837355,
+        "2023": -0.229759891821335,
+        "2024": -0.1859277274713674
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 24.907593287887778,
+        "mae": 24.907593287887778,
+        "rmse": 32.08699801654691,
+        "crps": 17.510919501056993,
+        "pinball": {
+          "0.1": 4.180776588258706,
+          "0.5": 12.19575107712683,
+          "0.9": 6.719863314708754
+        },
+        "coverage80": 0.8211678832116789,
+        "pseudo_line": {
+          "n": 2740,
+          "brier": 0.2312120661391512,
+          "mean_p_over": 0.44104604262878255,
+          "observed_over": 0.4408759124087591
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 25.06160013309705,
+        "mae": 25.06160013309705,
+        "rmse": 32.1933259385754,
+        "pinball": {
+          "0.1": 4.38409336925342,
+          "0.5": 12.246961133670215,
+          "0.9": 6.795653109271645
+        },
+        "coverage80": 0.7912408759124088
+      },
+      "holm_p": 0.017991004497751123,
+      "relative_reduction": 0.006145132169988187,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__anytime_td__control__weighted",
+      "family": "combination",
+      "stat": "anytime_td",
+      "arm": "control",
+      "kind": "weighted",
+      "reference": "A7/anytime_td/control",
+      "n": 8042,
+      "games": 815,
+      "delta": -6.658909539391734e-06,
+      "ci95": [
+        -2.9135602164179147e-05,
+        1.564681919419384e-05
+      ],
+      "corrected_ci95": [
+        -4.072250824995864e-05,
+        2.8946679295366282e-05
+      ],
+      "p": 0.28285857071464265,
+      "control_loss": 0.18983513428576626,
+      "new_loss": 0.18982847537622685,
+      "seasons": {
+        "2022": -8.266874087269745e-07,
+        "2023": -1.309411910884565e-05,
+        "2024": -6.240405037130884e-06
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.18982847537622685,
+        "log_loss": 0.5636133568104211,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 8,
+            "predicted": 0.09417802317897751,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 2094,
+            "predicted": 0.1669996178170946,
+            "observed": 0.15520534861509075
+          },
+          {
+            "low": 0.2,
+            "n": 3287,
+            "predicted": 0.24509270262163735,
+            "observed": 0.25524794645573473
+          },
+          {
+            "low": 0.3,
+            "n": 1621,
+            "predicted": 0.34437641995171775,
+            "observed": 0.3676742751388032
+          },
+          {
+            "low": 0.4,
+            "n": 729,
+            "predicted": 0.4417590406965094,
+            "observed": 0.4403292181069959
+          },
+          {
+            "low": 0.5,
+            "n": 273,
+            "predicted": 0.5361806147032894,
+            "observed": 0.5384615384615384
+          },
+          {
+            "low": 0.6,
+            "n": 29,
+            "predicted": 0.6400299737315711,
+            "observed": 0.4827586206896552
+          },
+          {
+            "low": 0.7,
+            "n": 1,
+            "predicted": 0.7098351777304613,
+            "observed": 0.0
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.18983513428576626,
+        "log_loss": 0.5636466172095358,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 8,
+            "predicted": 0.0956621418502221,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 2032,
+            "predicted": 0.16756755206254836,
+            "observed": 0.15354330708661418
+          },
+          {
+            "low": 0.2,
+            "n": 3344,
+            "predicted": 0.2450534356724779,
+            "observed": 0.2535885167464115
+          },
+          {
+            "low": 0.3,
+            "n": 1625,
+            "predicted": 0.3443990719798144,
+            "observed": 0.3686153846153846
+          },
+          {
+            "low": 0.4,
+            "n": 730,
+            "predicted": 0.4417672109608911,
+            "observed": 0.4397260273972603
+          },
+          {
+            "low": 0.5,
+            "n": 274,
+            "predicted": 0.5365028495267499,
+            "observed": 0.5401459854014599
+          },
+          {
+            "low": 0.6,
+            "n": 28,
+            "predicted": 0.6420973371798882,
+            "observed": 0.5
+          },
+          {
+            "low": 0.7,
+            "n": 1,
+            "predicted": 0.7101793351694414,
+            "observed": 0.0
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": 3.5077329412414335e-05,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__anytime_td__control__stacked",
+      "family": "combination",
+      "stat": "anytime_td",
+      "arm": "control",
+      "kind": "stacked",
+      "reference": "A7/anytime_td/control",
+      "n": 8042,
+      "games": 815,
+      "delta": 8.609513148696008e-05,
+      "ci95": [
+        -0.00016086792732261903,
+        0.0003200670254195565
+      ],
+      "corrected_ci95": [
+        -0.0002693771804373081,
+        0.00045175220656925116
+      ],
+      "p": 0.7671164417791104,
+      "control_loss": 0.18983513428576626,
+      "new_loss": 0.1899212294172532,
+      "seasons": {
+        "2022": 0.0004753259376712289,
+        "2023": -0.00019679867157102392,
+        "2024": -2.9934458513740053e-05
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.1899212294172532,
+        "log_loss": 0.563762589870198,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 52,
+            "predicted": 0.0925768919871639,
+            "observed": 0.09615384615384616
+          },
+          {
+            "low": 0.1,
+            "n": 2233,
+            "predicted": 0.16315663927728494,
+            "observed": 0.15584415584415584
+          },
+          {
+            "low": 0.2,
+            "n": 3178,
+            "predicted": 0.24544659414736858,
+            "observed": 0.25896790434235367
+          },
+          {
+            "low": 0.3,
+            "n": 1554,
+            "predicted": 0.34491435763824635,
+            "observed": 0.37966537966537967
+          },
+          {
+            "low": 0.4,
+            "n": 694,
+            "predicted": 0.44152155481345384,
+            "observed": 0.4322766570605187
+          },
+          {
+            "low": 0.5,
+            "n": 291,
+            "predicted": 0.5389711105452205,
+            "observed": 0.5395189003436426
+          },
+          {
+            "low": 0.6,
+            "n": 37,
+            "predicted": 0.6386651620181242,
+            "observed": 0.5135135135135135
+          },
+          {
+            "low": 0.7,
+            "n": 3,
+            "predicted": 0.7140622543843825,
+            "observed": 0.0
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.18983513428576626,
+        "log_loss": 0.5636466172095358,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 8,
+            "predicted": 0.0956621418502221,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 2032,
+            "predicted": 0.16756755206254836,
+            "observed": 0.15354330708661418
+          },
+          {
+            "low": 0.2,
+            "n": 3344,
+            "predicted": 0.2450534356724779,
+            "observed": 0.2535885167464115
+          },
+          {
+            "low": 0.3,
+            "n": 1625,
+            "predicted": 0.3443990719798144,
+            "observed": 0.3686153846153846
+          },
+          {
+            "low": 0.4,
+            "n": 730,
+            "predicted": 0.4417672109608911,
+            "observed": 0.4397260273972603
+          },
+          {
+            "low": 0.5,
+            "n": 274,
+            "predicted": 0.5365028495267499,
+            "observed": 0.5401459854014599
+          },
+          {
+            "low": 0.6,
+            "n": 28,
+            "predicted": 0.6420973371798882,
+            "observed": 0.5
+          },
+          {
+            "low": 0.7,
+            "n": 1,
+            "predicted": 0.7101793351694414,
+            "observed": 0.0
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.00045352580180103917,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__anytime_td__fpds__weighted",
+      "family": "combination",
+      "stat": "anytime_td",
+      "arm": "fpds",
+      "kind": "weighted",
+      "reference": "A7/anytime_td/fpds",
+      "n": 8042,
+      "games": 815,
+      "delta": -0.00027510353779324896,
+      "ci95": [
+        -0.0003494275533122034,
+        -0.0002033809288934853
+      ],
+      "corrected_ci95": [
+        -0.00038350031556679557,
+        -0.0001614438719157929
+      ],
+      "p": 0.0004997501249375312,
+      "control_loss": 0.19229212948992905,
+      "new_loss": 0.1920170259521358,
+      "seasons": {
+        "2022": -0.00020889190695156897,
+        "2023": -0.0003814750108727578,
+        "2024": -0.00023763342113053163
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.1920170259521358,
+        "log_loss": 0.5691333634702403,
+        "reliability": [
+          {
+            "low": 0.1,
+            "n": 2004,
+            "predicted": 0.17320089401391822,
+            "observed": 0.17115768463073852
+          },
+          {
+            "low": 0.2,
+            "n": 3556,
+            "predicted": 0.24458397080506566,
+            "observed": 0.250281214848144
+          },
+          {
+            "low": 0.3,
+            "n": 1687,
+            "predicted": 0.3427522965202218,
+            "observed": 0.3787788974510966
+          },
+          {
+            "low": 0.4,
+            "n": 633,
+            "predicted": 0.4408351507929075,
+            "observed": 0.4660347551342812
+          },
+          {
+            "low": 0.5,
+            "n": 146,
+            "predicted": 0.5338037089946446,
+            "observed": 0.4589041095890411
+          },
+          {
+            "low": 0.6,
+            "n": 16,
+            "predicted": 0.6232122778590543,
+            "observed": 0.5
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.19229212948992905,
+        "log_loss": 0.5698155803311444,
+        "reliability": [
+          {
+            "low": 0.1,
+            "n": 1941,
+            "predicted": 0.1744066408649049,
+            "observed": 0.16950025759917567
+          },
+          {
+            "low": 0.2,
+            "n": 3639,
+            "predicted": 0.2446919796704184,
+            "observed": 0.2522671063478978
+          },
+          {
+            "low": 0.3,
+            "n": 1699,
+            "predicted": 0.34344364561746016,
+            "observed": 0.37728075338434375
+          },
+          {
+            "low": 0.4,
+            "n": 616,
+            "predicted": 0.4403399370366617,
+            "observed": 0.4642857142857143
+          },
+          {
+            "low": 0.5,
+            "n": 132,
+            "predicted": 0.5336225469121018,
+            "observed": 0.4621212121212121
+          },
+          {
+            "low": 0.6,
+            "n": 15,
+            "predicted": 0.6238071343894073,
+            "observed": 0.4666666666666667
+          }
+        ]
+      },
+      "holm_p": 0.017991004497751123,
+      "relative_reduction": 0.0014306541745779408,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "combination__anytime_td__fpds__stacked",
+      "family": "combination",
+      "stat": "anytime_td",
+      "arm": "fpds",
+      "kind": "stacked",
+      "reference": "A7/anytime_td/fpds",
+      "n": 8042,
+      "games": 815,
+      "delta": -0.001089295684906592,
+      "ci95": [
+        -0.001518126444544293,
+        -0.0006971391373807078
+      ],
+      "corrected_ci95": [
+        -0.0017556232721707568,
+        -0.00034585939979024584
+      ],
+      "p": 0.0004997501249375312,
+      "control_loss": 0.19229212948992905,
+      "new_loss": 0.19120283380502245,
+      "seasons": {
+        "2022": -0.0004078101846570024,
+        "2023": -0.001502121327003742,
+        "2024": -0.0013734518821612845
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.19120283380502245,
+        "log_loss": 0.5669650497976244,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 6,
+            "predicted": 0.09543081470811161,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 2182,
+            "predicted": 0.16909117770212403,
+            "observed": 0.16636113657195234
+          },
+          {
+            "low": 0.2,
+            "n": 3403,
+            "predicted": 0.24479307437074332,
+            "observed": 0.25712606523655596
+          },
+          {
+            "low": 0.3,
+            "n": 1591,
+            "predicted": 0.34317562289516007,
+            "observed": 0.3808925204274041
+          },
+          {
+            "low": 0.4,
+            "n": 651,
+            "predicted": 0.44345422364044734,
+            "observed": 0.45161290322580644
+          },
+          {
+            "low": 0.5,
+            "n": 190,
+            "predicted": 0.5381181584608822,
+            "observed": 0.5052631578947369
+          },
+          {
+            "low": 0.6,
+            "n": 19,
+            "predicted": 0.6276707258676134,
+            "observed": 0.42105263157894735
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.19229212948992905,
+        "log_loss": 0.5698155803311444,
+        "reliability": [
+          {
+            "low": 0.1,
+            "n": 1941,
+            "predicted": 0.1744066408649049,
+            "observed": 0.16950025759917567
+          },
+          {
+            "low": 0.2,
+            "n": 3639,
+            "predicted": 0.2446919796704184,
+            "observed": 0.2522671063478978
+          },
+          {
+            "low": 0.3,
+            "n": 1699,
+            "predicted": 0.34344364561746016,
+            "observed": 0.37728075338434375
+          },
+          {
+            "low": 0.4,
+            "n": 616,
+            "predicted": 0.4403399370366617,
+            "observed": 0.4642857142857143
+          },
+          {
+            "low": 0.5,
+            "n": 132,
+            "predicted": 0.5336225469121018,
+            "observed": 0.4621212121212121
+          },
+          {
+            "low": 0.6,
+            "n": 15,
+            "predicted": 0.6238071343894073,
+            "observed": 0.4666666666666667
+          }
+        ]
+      },
+      "holm_p": 0.017991004497751123,
+      "relative_reduction": 0.005664795994490466,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__rush_yds__control__hierarchy",
+      "family": "opportunity",
+      "stat": "rush_yds",
+      "arm": "control",
+      "kind": "hierarchy",
+      "reference": "A7/rush_yds/control",
+      "n": 241,
+      "games": 64,
+      "delta": 1.3260826668240124,
+      "ci95": [
+        -0.21189082571364826,
+        2.873946270074623
+      ],
+      "corrected_ci95": [
+        -0.9025068607279946,
+        3.463694339619171
+      ],
+      "p": 0.9570214892553723,
+      "control_loss": 26.94050021377424,
+      "new_loss": 28.266582880598254,
+      "seasons": {
+        "2022": 1.3260826668240124
+      },
+      "identical_sample": false,
+      "diagnostics": {
+        "n": 241,
+        "games": 64,
+        "primary_loss": 28.266582880598254,
+        "mae": 28.266582880598254,
+        "rmse": 37.040198163382016,
+        "crps": 20.86901287499515,
+        "pinball": {
+          "0.1": 4.560197991938136,
+          "0.5": 14.36832657341674,
+          "0.9": 7.574862760161813
+        },
+        "coverage80": 0.8008298755186722,
+        "pseudo_line": {
+          "n": 241,
+          "brier": 0.24060926229144428,
+          "mean_p_over": 0.37087037597243977,
+          "observed_over": 0.43568464730290457
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 24.835768873784627,
+        "mae": 24.835768873784627,
+        "rmse": 32.28268599500825,
+        "pinball": {
+          "0.1": 4.294697000139227,
+          "0.5": 12.227627510046863,
+          "0.9": 6.836432695737887
+        },
+        "coverage80": 0.795985401459854
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.04922264457977688,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "opportunity__rush_yds__fpds__hierarchy",
+      "family": "opportunity",
+      "stat": "rush_yds",
+      "arm": "fpds",
+      "kind": "hierarchy",
+      "reference": "A7/rush_yds/fpds",
+      "n": 241,
+      "games": 64,
+      "delta": 1.5245832358410971,
+      "ci95": [
+        -0.41305860068749495,
+        3.4563598957590194
+      ],
+      "corrected_ci95": [
+        -1.1446196532707058,
+        4.066915083680182
+      ],
+      "p": 0.9405297351324338,
+      "control_loss": 27.605366481936542,
+      "new_loss": 29.129949717777638,
+      "seasons": {
+        "2022": 1.5245832358410971
+      },
+      "identical_sample": false,
+      "diagnostics": {
+        "n": 241,
+        "games": 64,
+        "primary_loss": 29.129949717777638,
+        "mae": 29.129949717777638,
+        "rmse": 38.0170486546194,
+        "crps": 21.314881174346638,
+        "pinball": {
+          "0.1": 4.471892465208964,
+          "0.5": 14.732796560253732,
+          "0.9": 7.811998777006769
+        },
+        "coverage80": 0.7842323651452282,
+        "pseudo_line": {
+          "n": 241,
+          "brier": 0.2421009995023023,
+          "mean_p_over": 0.3711548273199716,
+          "observed_over": 0.43568464730290457
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 25.06160013309705,
+        "mae": 25.06160013309705,
+        "rmse": 32.1933259385754,
+        "pinball": {
+          "0.1": 4.38409336925342,
+          "0.5": 12.246961133670215,
+          "0.9": 6.795653109271645
+        },
+        "coverage80": 0.7912408759124088
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.055227784671458786,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__margin__fpds__quantile",
+      "family": "distribution",
+      "stat": "margin",
+      "arm": "fpds",
+      "kind": "quantile",
+      "reference": "strong_games__margin__fpds__equal",
+      "n": 815,
+      "games": 815,
+      "delta": 0.03882262025214325,
+      "ci95": [
+        -0.15726549117938468,
+        0.24039511715053688
+      ],
+      "corrected_ci95": [
+        -0.2710365702746771,
+        0.34468873939506106
+      ],
+      "p": 0.6526736631684158,
+      "control_loss": 9.951932117528775,
+      "new_loss": 9.990754737780918,
+      "seasons": {
+        "2022": -0.15046822483791805,
+        "2023": 0.30074776792035723,
+        "2024": -0.03450760455060525
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 9.990754737780918,
+        "mae": 9.990754737780918,
+        "rmse": 13.126103964171632,
+        "pinball": {
+          "0.1": 2.403534236154759,
+          "0.5": 4.995377368890459,
+          "0.9": 2.52782429104067
+        },
+        "coverage80": 0.7116564417177914
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 9.951932117528775,
+        "mae": 9.951932117528775,
+        "rmse": 12.887893671819095,
+        "crps": 7.220918871415268,
+        "pinball": {
+          "0.1": 2.289872173254584,
+          "0.5": 4.982211710414257,
+          "0.9": 2.4062599969627754
+        },
+        "coverage80": 0.7619631901840491
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.003901013370435201,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__total__fpds__quantile",
+      "family": "distribution",
+      "stat": "total",
+      "arm": "fpds",
+      "kind": "quantile",
+      "reference": "strong_games__total__fpds__equal",
+      "n": 815,
+      "games": 815,
+      "delta": 0.0849955557786077,
+      "ci95": [
+        -0.11316441567376763,
+        0.2877557261335858
+      ],
+      "corrected_ci95": [
+        -0.24631661501749916,
+        0.3645673304887153
+      ],
+      "p": 0.7916041979010495,
+      "control_loss": 10.512706078040722,
+      "new_loss": 10.597701633819328,
+      "seasons": {
+        "2022": 0.1840521843622001,
+        "2023": -0.20778443083313697,
+        "2024": 0.2790830925883173
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.597701633819328,
+        "mae": 10.597701633819328,
+        "rmse": 13.65578186031132,
+        "pinball": {
+          "0.1": 2.271987794438966,
+          "0.5": 5.298850816909664,
+          "0.9": 2.691488471766001
+        },
+        "coverage80": 0.7153374233128834
+      },
+      "baseline_diagnostics": {
+        "n": 815,
+        "games": 815,
+        "primary_loss": 10.512706078040722,
+        "mae": 10.512706078040722,
+        "rmse": 13.488531848668723,
+        "crps": 7.587968035907058,
+        "pinball": {
+          "0.1": 2.2970642950238913,
+          "0.5": 5.278221372513152,
+          "0.9": 2.585891471529338
+        },
+        "coverage80": 0.7803680981595092
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.00808503111831017,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__pass_yds__fpds__quantile",
+      "family": "distribution",
+      "stat": "pass_yds",
+      "arm": "fpds",
+      "kind": "quantile",
+      "reference": "target_features__pass_yds__fpds__equal",
+      "n": 1528,
+      "games": 807,
+      "delta": 0.5435923392098179,
+      "ci95": [
+        -0.4543866694605239,
+        1.505587340177312
+      ],
+      "corrected_ci95": [
+        -0.8499462783805999,
+        2.1529442103378202
+      ],
+      "p": 0.8715642178910544,
+      "control_loss": 64.58861946936796,
+      "new_loss": 65.13221180857776,
+      "seasons": {
+        "2022": 1.319894148837096,
+        "2023": 1.085312124802342,
+        "2024": -0.7672924125185923
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 65.13221180857776,
+        "mae": 65.13221180857776,
+        "rmse": 83.43051587905676,
+        "pinball": {
+          "0.1": 15.31936804782057,
+          "0.5": 32.56610590428888,
+          "0.9": 14.442017978696212
+        },
+        "coverage80": 0.7140052356020943,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.2371402958388545,
+          "mean_p_over": 0.5282358308608761,
+          "observed_over": 0.5071989528795812
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 64.58861946936796,
+        "mae": 64.58861946936796,
+        "rmse": 82.5486311498655,
+        "pinball": {
+          "0.1": 15.379617747657065,
+          "0.5": 32.27837756301814,
+          "0.9": 14.361829816939716
+        },
+        "coverage80": 0.7866492146596858,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.2342532454863706,
+          "mean_p_over": 0.520070127055795,
+          "observed_over": 0.5071989528795812
+        }
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.00841622477265711,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__rec_yds__fpds__quantile",
+      "family": "distribution",
+      "stat": "rec_yds",
+      "arm": "fpds",
+      "kind": "quantile",
+      "reference": "target_features__rec_yds__fpds__equal",
+      "n": 6196,
+      "games": 815,
+      "delta": -0.4573801536723839,
+      "ci95": [
+        -0.6665872817747996,
+        -0.2587489302379809
+      ],
+      "corrected_ci95": [
+        -0.7645542675799684,
+        -0.1752121721315592
+      ],
+      "p": 0.0004997501249375312,
+      "control_loss": 24.116744278049282,
+      "new_loss": 23.659364124376896,
+      "seasons": {
+        "2022": -0.592901228072756,
+        "2023": -0.4311624125135209,
+        "2024": -0.3514026975785415
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 23.659364124376896,
+        "mae": 23.659364124376896,
+        "rmse": 31.962458467091402,
+        "pinball": {
+          "0.1": 3.945022049765169,
+          "0.5": 11.829682062188448,
+          "0.9": 6.483761342814645
+        },
+        "coverage80": 0.7535506778566817,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.2369199980564191,
+          "mean_p_over": 0.4594652948531278,
+          "observed_over": 0.45610071013557135
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 24.116744278049282,
+        "mae": 24.116744278049282,
+        "rmse": 31.39277941968153,
+        "pinball": {
+          "0.1": 4.131343832935219,
+          "0.5": 11.818498995288943,
+          "0.9": 6.545560101339538
+        },
+        "coverage80": 0.7980955455132344,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.23677760847831714,
+          "mean_p_over": 0.4625173165514831,
+          "observed_over": 0.45610071013557135
+        }
+      },
+      "holm_p": 0.013493253373313342,
+      "relative_reduction": 0.018965252871577895,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__rush_yds__fpds__quantile",
+      "family": "distribution",
+      "stat": "rush_yds",
+      "arm": "fpds",
+      "kind": "quantile",
+      "reference": "target_features__rush_yds__fpds__equal",
+      "n": 2740,
+      "games": 814,
+      "delta": -0.609275678410966,
+      "ci95": [
+        -0.9165411579534308,
+        -0.32820910106240425
+      ],
+      "corrected_ci95": [
+        -1.0680170564436584,
+        -0.12639919261152496
+      ],
+      "p": 0.0004997501249375312,
+      "control_loss": 24.8823713771475,
+      "new_loss": 24.273095698736537,
+      "seasons": {
+        "2022": -0.6614638602253513,
+        "2023": -0.6645751234521888,
+        "2024": -0.5018637920636079
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 24.273095698736537,
+        "mae": 24.273095698736537,
+        "rmse": 32.46446078642068,
+        "pinball": {
+          "0.1": 4.1202563337528,
+          "0.5": 12.136547849368268,
+          "0.9": 6.824297398862555
+        },
+        "coverage80": 0.7324817518248176,
+        "pseudo_line": {
+          "n": 2740,
+          "brier": 0.23140189228697827,
+          "mean_p_over": 0.4415206464944238,
+          "observed_over": 0.4408759124087591
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 2740,
+        "games": 814,
+        "primary_loss": 24.8823713771475,
+        "mae": 24.8823713771475,
+        "rmse": 32.05287086743504,
+        "pinball": {
+          "0.1": 4.281538313868257,
+          "0.5": 12.166938335067961,
+          "0.9": 6.790649416773117
+        },
+        "coverage80": 0.7897810218978102,
+        "pseudo_line": {
+          "n": 2740,
+          "brier": 0.2331285041467878,
+          "mean_p_over": 0.44517332415981165,
+          "observed_over": 0.4408759124087591
+        }
+      },
+      "holm_p": 0.013493253373313342,
+      "relative_reduction": 0.024486238436684446,
+      "seasons_agreeing": 3,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__rec__fpds__hurdle",
+      "family": "distribution",
+      "stat": "rec",
+      "arm": "fpds",
+      "kind": "hurdle",
+      "reference": "target_features__rec__fpds__equal",
+      "n": 6196,
+      "games": 815,
+      "delta": 0.15860129308913853,
+      "ci95": [
+        0.1235463890459652,
+        0.19591143755694415
+      ],
+      "corrected_ci95": [
+        0.10660836132645636,
+        0.21833810614390076
+      ],
+      "p": 1.0,
+      "control_loss": 1.4832616829835688,
+      "new_loss": 1.6418629760727075,
+      "seasons": {
+        "2022": 0.283345533356617,
+        "2023": 0.13393726099926387,
+        "2024": 0.06157512730152515
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.6418629760727075,
+        "mae": 1.7882262916292613,
+        "rmse": 2.2999593233132947,
+        "pinball": {
+          "0.1": 0.34417366042608133,
+          "0.5": 0.8852485474499677,
+          "0.9": 0.4771626856036152
+        },
+        "coverage80": 0.7880890897353131,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.24017352024185684,
+          "mean_p_over": 0.41369934114034496,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4832616829835688,
+        "mae": 1.7351131383233196,
+        "rmse": 2.20364512506147,
+        "pinball": {
+          "0.1": 0.3198192382182053,
+          "0.5": 0.8536152356358941,
+          "0.9": 0.43784699806326655
+        },
+        "coverage80": 0.8203679793415106,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.22968043044520922,
+          "mean_p_over": 0.42118953055631153,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.10692738503843323,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__rec__fpds__nb",
+      "family": "distribution",
+      "stat": "rec",
+      "arm": "fpds",
+      "kind": "nb",
+      "reference": "target_features__rec__fpds__equal",
+      "n": 6196,
+      "games": 815,
+      "delta": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "corrected_ci95": [
+        0.0,
+        0.0
+      ],
+      "p": 1.0,
+      "control_loss": 1.4832616829835688,
+      "new_loss": 1.4832616829835688,
+      "seasons": {
+        "2022": 0.0,
+        "2023": 0.0,
+        "2024": 0.0
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4832616829835688,
+        "mae": 1.7351131383233196,
+        "rmse": 2.20364512506147,
+        "pinball": {
+          "0.1": 0.3123305358295675,
+          "0.5": 0.8530503550677857,
+          "0.9": 0.43429632020658493
+        },
+        "coverage80": 0.8705616526791479,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.22884366530626427,
+          "mean_p_over": 0.41207707582773406,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 6196,
+        "games": 815,
+        "primary_loss": 1.4832616829835688,
+        "mae": 1.7351131383233196,
+        "rmse": 2.20364512506147,
+        "pinball": {
+          "0.1": 0.3198192382182053,
+          "0.5": 0.8536152356358941,
+          "0.9": 0.43784699806326655
+        },
+        "coverage80": 0.8203679793415106,
+        "pseudo_line": {
+          "n": 6196,
+          "brier": 0.22968043044520922,
+          "mean_p_over": 0.42118953055631153,
+          "observed_over": 0.40994189799870884
+        }
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.0,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__pass_tds__fpds__hurdle",
+      "family": "distribution",
+      "stat": "pass_tds",
+      "arm": "fpds",
+      "kind": "hurdle",
+      "reference": "target_features__pass_tds__fpds__equal",
+      "n": 1528,
+      "games": 807,
+      "delta": 0.20805794932887345,
+      "ci95": [
+        0.15152936710794163,
+        0.2698374890499851
+      ],
+      "corrected_ci95": [
+        0.11936578263028866,
+        0.3010700542530665
+      ],
+      "p": 1.0,
+      "control_loss": 1.0590819654996955,
+      "new_loss": 1.267139914828569,
+      "seasons": {
+        "2022": 0.2132919407943524,
+        "2023": 0.1898443403722872,
+        "2024": 0.22104289432860166
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.267139914828569,
+        "mae": 0.9147766005101522,
+        "rmse": 1.15020437583174,
+        "pinball": {
+          "0.1": 0.16106020942408378,
+          "0.5": 0.46138743455497383,
+          "0.9": 0.24123036649214658
+        },
+        "coverage80": 0.8540575916230366,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.23961569603698607,
+          "mean_p_over": 0.3632802785918172,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.0590819654996955,
+        "mae": 0.8718853699618759,
+        "rmse": 1.0880403041443825,
+        "pinball": {
+          "0.1": 0.1342277486910995,
+          "0.5": 0.42539267015706805,
+          "0.9": 0.2089659685863874
+        },
+        "coverage80": 0.9476439790575916,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.2207652783408327,
+          "mean_p_over": 0.3734932824818244,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.19645122484047556,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__pass_tds__fpds__nb",
+      "family": "distribution",
+      "stat": "pass_tds",
+      "arm": "fpds",
+      "kind": "nb",
+      "reference": "target_features__pass_tds__fpds__equal",
+      "n": 1528,
+      "games": 807,
+      "delta": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "corrected_ci95": [
+        0.0,
+        0.0
+      ],
+      "p": 1.0,
+      "control_loss": 1.0590819654996955,
+      "new_loss": 1.0590819654996955,
+      "seasons": {
+        "2022": 0.0,
+        "2023": 0.0,
+        "2024": 0.0
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.0590819654996955,
+        "mae": 0.8718853699618759,
+        "rmse": 1.0880403041443825,
+        "pinball": {
+          "0.1": 0.1342277486910995,
+          "0.5": 0.425065445026178,
+          "0.9": 0.20863874345549735
+        },
+        "coverage80": 0.9482984293193717,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.22075170797941404,
+          "mean_p_over": 0.37327964830984767,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "baseline_diagnostics": {
+        "n": 1528,
+        "games": 807,
+        "primary_loss": 1.0590819654996955,
+        "mae": 0.8718853699618759,
+        "rmse": 1.0880403041443825,
+        "pinball": {
+          "0.1": 0.1342277486910995,
+          "0.5": 0.42539267015706805,
+          "0.9": 0.2089659685863874
+        },
+        "coverage80": 0.9476439790575916,
+        "pseudo_line": {
+          "n": 1528,
+          "brier": 0.2207652783408327,
+          "mean_p_over": 0.3734932824818244,
+          "observed_over": 0.38219895287958117
+        }
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.0,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__win__control__sigmoid",
+      "family": "distribution",
+      "stat": "win",
+      "arm": "control",
+      "kind": "sigmoid",
+      "reference": "A7/win/control",
+      "n": 813,
+      "games": 813,
+      "delta": -0.0006086166702055277,
+      "ci95": [
+        -0.001571324133303641,
+        0.0003984176425939727
+      ],
+      "corrected_ci95": [
+        -0.0020476614583695807,
+        0.0009444769853915342
+      ],
+      "p": 0.11144427786106946,
+      "control_loss": 0.2345014982047823,
+      "new_loss": 0.23389288153457677,
+      "seasons": {
+        "2022": -0.00183942510363232,
+        "2023": 0.0,
+        "2024": 0.0
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.23389288153457677,
+        "log_loss": 0.6599977297498418,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 4,
+            "predicted": 0.28060198115851637,
+            "observed": 0.0
+          },
+          {
+            "low": 0.3,
+            "n": 48,
+            "predicted": 0.36164072338594533,
+            "observed": 0.3958333333333333
+          },
+          {
+            "low": 0.4,
+            "n": 228,
+            "predicted": 0.456584703942128,
+            "observed": 0.40789473684210525
+          },
+          {
+            "low": 0.5,
+            "n": 278,
+            "predicted": 0.5490907311877588,
+            "observed": 0.579136690647482
+          },
+          {
+            "low": 0.6,
+            "n": 186,
+            "predicted": 0.6478595129038776,
+            "observed": 0.6505376344086021
+          },
+          {
+            "low": 0.7,
+            "n": 66,
+            "predicted": 0.7349348779796389,
+            "observed": 0.7727272727272727
+          },
+          {
+            "low": 0.8,
+            "n": 3,
+            "predicted": 0.8153611752253974,
+            "observed": 0.6666666666666666
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2345014982047823,
+        "log_loss": 0.6613857201156566,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 3,
+            "predicted": 0.2813087444812529,
+            "observed": 0.0
+          },
+          {
+            "low": 0.3,
+            "n": 44,
+            "predicted": 0.3635779885439004,
+            "observed": 0.36363636363636365
+          },
+          {
+            "low": 0.4,
+            "n": 212,
+            "predicted": 0.45724582738506236,
+            "observed": 0.4056603773584906
+          },
+          {
+            "low": 0.5,
+            "n": 310,
+            "predicted": 0.5475718903111677,
+            "observed": 0.5774193548387097
+          },
+          {
+            "low": 0.6,
+            "n": 185,
+            "predicted": 0.6478197839010832,
+            "observed": 0.654054054054054
+          },
+          {
+            "low": 0.7,
+            "n": 56,
+            "predicted": 0.7353056740259679,
+            "observed": 0.7678571428571429
+          },
+          {
+            "low": 0.8,
+            "n": 3,
+            "predicted": 0.8153611752253974,
+            "observed": 0.6666666666666666
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": 0.0025953636751354274,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__win__control__isotonic",
+      "family": "distribution",
+      "stat": "win",
+      "arm": "control",
+      "kind": "isotonic",
+      "reference": "A7/win/control",
+      "n": 813,
+      "games": 813,
+      "delta": 0.0013673638802115056,
+      "ci95": [
+        -0.0023567767187562118,
+        0.005454915034815281
+      ],
+      "corrected_ci95": [
+        -0.004425511763156911,
+        0.008482455651029149
+      ],
+      "p": 0.7541229385307346,
+      "control_loss": 0.2345014982047823,
+      "new_loss": 0.2358688620849938,
+      "seasons": {
+        "2022": -0.00440642811090995,
+        "2023": 0.010529709350061598,
+        "2024": -0.0020848711278309683
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2358688620849938,
+        "log_loss": 0.7325778780940729,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 13,
+            "predicted": 1.0000000000000002e-06,
+            "observed": 0.3076923076923077
+          },
+          {
+            "low": 0.1,
+            "n": 3,
+            "predicted": 0.1348180440962794,
+            "observed": 0.3333333333333333
+          },
+          {
+            "low": 0.2,
+            "n": 2,
+            "predicted": 0.2840804269646888,
+            "observed": 0.0
+          },
+          {
+            "low": 0.3,
+            "n": 25,
+            "predicted": 0.3743963108555335,
+            "observed": 0.44
+          },
+          {
+            "low": 0.4,
+            "n": 238,
+            "predicted": 0.4572609991418408,
+            "observed": 0.4369747899159664
+          },
+          {
+            "low": 0.5,
+            "n": 242,
+            "predicted": 0.5370493244997215,
+            "observed": 0.5247933884297521
+          },
+          {
+            "low": 0.6,
+            "n": 188,
+            "predicted": 0.6387500066245259,
+            "observed": 0.6648936170212766
+          },
+          {
+            "low": 0.7,
+            "n": 72,
+            "predicted": 0.7341992651672692,
+            "observed": 0.6805555555555556
+          },
+          {
+            "low": 0.8,
+            "n": 26,
+            "predicted": 0.8600112140560164,
+            "observed": 0.8846153846153846
+          },
+          {
+            "low": 0.9,
+            "n": 4,
+            "predicted": 0.9995821021287727,
+            "observed": 0.75
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2345014982047823,
+        "log_loss": 0.6613857201156566,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 3,
+            "predicted": 0.2813087444812529,
+            "observed": 0.0
+          },
+          {
+            "low": 0.3,
+            "n": 44,
+            "predicted": 0.3635779885439004,
+            "observed": 0.36363636363636365
+          },
+          {
+            "low": 0.4,
+            "n": 212,
+            "predicted": 0.45724582738506236,
+            "observed": 0.4056603773584906
+          },
+          {
+            "low": 0.5,
+            "n": 310,
+            "predicted": 0.5475718903111677,
+            "observed": 0.5774193548387097
+          },
+          {
+            "low": 0.6,
+            "n": 185,
+            "predicted": 0.6478197839010832,
+            "observed": 0.654054054054054
+          },
+          {
+            "low": 0.7,
+            "n": 56,
+            "predicted": 0.7353056740259679,
+            "observed": 0.7678571428571429
+          },
+          {
+            "low": 0.8,
+            "n": 3,
+            "predicted": 0.8153611752253974,
+            "observed": 0.6666666666666666
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.005830938781540033,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__win__fpds__sigmoid",
+      "family": "distribution",
+      "stat": "win",
+      "arm": "fpds",
+      "kind": "sigmoid",
+      "reference": "A7/win/fpds",
+      "n": 813,
+      "games": 813,
+      "delta": -0.0018002626135295765,
+      "ci95": [
+        -0.0029443692995483974,
+        -0.0005476372551196787
+      ],
+      "corrected_ci95": [
+        -0.003648181944829009,
+        0.00023119569031833647
+      ],
+      "p": 0.0024987506246876563,
+      "control_loss": 0.2348342618376527,
+      "new_loss": 0.23303399922412313,
+      "seasons": {
+        "2022": -0.005440942397024333,
+        "2023": 0.0,
+        "2024": 0.0
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.23303399922412313,
+        "log_loss": 0.6584763795961621,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 10,
+            "predicted": 0.26106110935766463,
+            "observed": 0.4
+          },
+          {
+            "low": 0.3,
+            "n": 57,
+            "predicted": 0.36229669119203955,
+            "observed": 0.3684210526315789
+          },
+          {
+            "low": 0.4,
+            "n": 187,
+            "predicted": 0.45213038822281004,
+            "observed": 0.39572192513368987
+          },
+          {
+            "low": 0.5,
+            "n": 291,
+            "predicted": 0.5518098238028325,
+            "observed": 0.570446735395189
+          },
+          {
+            "low": 0.6,
+            "n": 200,
+            "predicted": 0.6473369112543728,
+            "observed": 0.66
+          },
+          {
+            "low": 0.7,
+            "n": 58,
+            "predicted": 0.737022524188223,
+            "observed": 0.6896551724137931
+          },
+          {
+            "low": 0.8,
+            "n": 10,
+            "predicted": 0.8305301209707171,
+            "observed": 1.0
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2348342618376527,
+        "log_loss": 0.6622592830116133,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 9,
+            "predicted": 0.2651770680128129,
+            "observed": 0.4444444444444444
+          },
+          {
+            "low": 0.3,
+            "n": 48,
+            "predicted": 0.3620257166763848,
+            "observed": 0.3958333333333333
+          },
+          {
+            "low": 0.4,
+            "n": 184,
+            "predicted": 0.45324690780624916,
+            "observed": 0.3804347826086957
+          },
+          {
+            "low": 0.5,
+            "n": 320,
+            "predicted": 0.5497895102613961,
+            "observed": 0.58125
+          },
+          {
+            "low": 0.6,
+            "n": 194,
+            "predicted": 0.6479797423673556,
+            "observed": 0.654639175257732
+          },
+          {
+            "low": 0.7,
+            "n": 48,
+            "predicted": 0.7374905843929179,
+            "observed": 0.6458333333333334
+          },
+          {
+            "low": 0.8,
+            "n": 10,
+            "predicted": 0.8305301209707171,
+            "observed": 1.0
+          }
+        ]
+      },
+      "holm_p": 0.062468765617191405,
+      "relative_reduction": 0.007666098632465082,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__win__fpds__isotonic",
+      "family": "distribution",
+      "stat": "win",
+      "arm": "fpds",
+      "kind": "isotonic",
+      "reference": "A7/win/fpds",
+      "n": 813,
+      "games": 813,
+      "delta": -0.000561841297324749,
+      "ci95": [
+        -0.004010250021424146,
+        0.003118009625560761
+      ],
+      "corrected_ci95": [
+        -0.005583683962068081,
+        0.00496194018882952
+      ],
+      "p": 0.3873063468265867,
+      "control_loss": 0.2348342618376527,
+      "new_loss": 0.23427242054032799,
+      "seasons": {
+        "2022": -0.004179524775788271,
+        "2023": 0.0063878767725374114,
+        "2024": -0.003933776809441734
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.23427242054032799,
+        "log_loss": 0.7184254031359893,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 9,
+            "predicted": 0.012321575212143486,
+            "observed": 0.5555555555555556
+          },
+          {
+            "low": 0.1,
+            "n": 4,
+            "predicted": 0.16666666666666666,
+            "observed": 0.25
+          },
+          {
+            "low": 0.2,
+            "n": 6,
+            "predicted": 0.2729695611001991,
+            "observed": 0.16666666666666666
+          },
+          {
+            "low": 0.3,
+            "n": 106,
+            "predicted": 0.3760474617399425,
+            "observed": 0.3584905660377358
+          },
+          {
+            "low": 0.4,
+            "n": 167,
+            "predicted": 0.450400967597362,
+            "observed": 0.41916167664670656
+          },
+          {
+            "low": 0.5,
+            "n": 143,
+            "predicted": 0.549935228250161,
+            "observed": 0.5384615384615384
+          },
+          {
+            "low": 0.6,
+            "n": 304,
+            "predicted": 0.6438471132169127,
+            "observed": 0.6776315789473685
+          },
+          {
+            "low": 0.7,
+            "n": 65,
+            "predicted": 0.7216076891459654,
+            "observed": 0.6461538461538462
+          },
+          {
+            "low": 0.8,
+            "n": 2,
+            "predicted": 0.8297817574224446,
+            "observed": 0.5
+          },
+          {
+            "low": 0.9,
+            "n": 7,
+            "predicted": 0.999999,
+            "observed": 0.8571428571428571
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 813,
+        "games": 813,
+        "primary_loss": 0.2348342618376527,
+        "log_loss": 0.6622592830116133,
+        "reliability": [
+          {
+            "low": 0.2,
+            "n": 9,
+            "predicted": 0.2651770680128129,
+            "observed": 0.4444444444444444
+          },
+          {
+            "low": 0.3,
+            "n": 48,
+            "predicted": 0.3620257166763848,
+            "observed": 0.3958333333333333
+          },
+          {
+            "low": 0.4,
+            "n": 184,
+            "predicted": 0.45324690780624916,
+            "observed": 0.3804347826086957
+          },
+          {
+            "low": 0.5,
+            "n": 320,
+            "predicted": 0.5497895102613961,
+            "observed": 0.58125
+          },
+          {
+            "low": 0.6,
+            "n": 194,
+            "predicted": 0.6479797423673556,
+            "observed": 0.654639175257732
+          },
+          {
+            "low": 0.7,
+            "n": 48,
+            "predicted": 0.7374905843929179,
+            "observed": 0.6458333333333334
+          },
+          {
+            "low": 0.8,
+            "n": 10,
+            "predicted": 0.8305301209707171,
+            "observed": 1.0
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": 0.002392501387694293,
+      "seasons_agreeing": 2,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__anytime_td__control__sigmoid",
+      "family": "distribution",
+      "stat": "anytime_td",
+      "arm": "control",
+      "kind": "sigmoid",
+      "reference": "A7/anytime_td/control",
+      "n": 8042,
+      "games": 815,
+      "delta": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "corrected_ci95": [
+        0.0,
+        0.0
+      ],
+      "p": 1.0,
+      "control_loss": 0.18983513428576626,
+      "new_loss": 0.18983513428576626,
+      "seasons": {
+        "2022": 0.0,
+        "2023": 0.0,
+        "2024": 0.0
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.18983513428576626,
+        "log_loss": 0.5636466172095358,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 8,
+            "predicted": 0.0956621418502221,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 2032,
+            "predicted": 0.16756755206254836,
+            "observed": 0.15354330708661418
+          },
+          {
+            "low": 0.2,
+            "n": 3344,
+            "predicted": 0.2450534356724779,
+            "observed": 0.2535885167464115
+          },
+          {
+            "low": 0.3,
+            "n": 1625,
+            "predicted": 0.3443990719798144,
+            "observed": 0.3686153846153846
+          },
+          {
+            "low": 0.4,
+            "n": 730,
+            "predicted": 0.4417672109608911,
+            "observed": 0.4397260273972603
+          },
+          {
+            "low": 0.5,
+            "n": 274,
+            "predicted": 0.5365028495267499,
+            "observed": 0.5401459854014599
+          },
+          {
+            "low": 0.6,
+            "n": 28,
+            "predicted": 0.6420973371798882,
+            "observed": 0.5
+          },
+          {
+            "low": 0.7,
+            "n": 1,
+            "predicted": 0.7101793351694414,
+            "observed": 0.0
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.18983513428576626,
+        "log_loss": 0.5636466172095358,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 8,
+            "predicted": 0.0956621418502221,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 2032,
+            "predicted": 0.16756755206254836,
+            "observed": 0.15354330708661418
+          },
+          {
+            "low": 0.2,
+            "n": 3344,
+            "predicted": 0.2450534356724779,
+            "observed": 0.2535885167464115
+          },
+          {
+            "low": 0.3,
+            "n": 1625,
+            "predicted": 0.3443990719798144,
+            "observed": 0.3686153846153846
+          },
+          {
+            "low": 0.4,
+            "n": 730,
+            "predicted": 0.4417672109608911,
+            "observed": 0.4397260273972603
+          },
+          {
+            "low": 0.5,
+            "n": 274,
+            "predicted": 0.5365028495267499,
+            "observed": 0.5401459854014599
+          },
+          {
+            "low": 0.6,
+            "n": 28,
+            "predicted": 0.6420973371798882,
+            "observed": 0.5
+          },
+          {
+            "low": 0.7,
+            "n": 1,
+            "predicted": 0.7101793351694414,
+            "observed": 0.0
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.0,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__anytime_td__control__isotonic",
+      "family": "distribution",
+      "stat": "anytime_td",
+      "arm": "control",
+      "kind": "isotonic",
+      "reference": "A7/anytime_td/control",
+      "n": 8042,
+      "games": 815,
+      "delta": 0.0003366688779198865,
+      "ci95": [
+        -0.00011993150545022374,
+        0.0007934845567156313
+      ],
+      "corrected_ci95": [
+        -0.0003006033882264431,
+        0.0011069494852099168
+      ],
+      "p": 0.9240379810094953,
+      "control_loss": 0.18983513428576626,
+      "new_loss": 0.19017180316368615,
+      "seasons": {
+        "2022": 0.0007020051303527498,
+        "2023": -2.420783555147442e-05,
+        "2024": 0.0003214078339976707
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.19017180316368615,
+        "log_loss": 0.5698140788295034,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 232,
+            "predicted": 0.08384876667016139,
+            "observed": 0.10775862068965517
+          },
+          {
+            "low": 0.1,
+            "n": 2080,
+            "predicted": 0.15826881185384123,
+            "observed": 0.16153846153846155
+          },
+          {
+            "low": 0.2,
+            "n": 2792,
+            "predicted": 0.25512079281005096,
+            "observed": 0.251432664756447
+          },
+          {
+            "low": 0.3,
+            "n": 1596,
+            "predicted": 0.33934672641616254,
+            "observed": 0.36215538847117795
+          },
+          {
+            "low": 0.4,
+            "n": 1162,
+            "predicted": 0.43635970705519933,
+            "observed": 0.43717728055077454
+          },
+          {
+            "low": 0.5,
+            "n": 146,
+            "predicted": 0.5320191133086097,
+            "observed": 0.5068493150684932
+          },
+          {
+            "low": 0.6,
+            "n": 25,
+            "predicted": 0.6292533875206966,
+            "observed": 0.6
+          },
+          {
+            "low": 0.7,
+            "n": 9,
+            "predicted": 0.7583774250440917,
+            "observed": 0.4444444444444444
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.18983513428576626,
+        "log_loss": 0.5636466172095358,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 8,
+            "predicted": 0.0956621418502221,
+            "observed": 0.0
+          },
+          {
+            "low": 0.1,
+            "n": 2032,
+            "predicted": 0.16756755206254836,
+            "observed": 0.15354330708661418
+          },
+          {
+            "low": 0.2,
+            "n": 3344,
+            "predicted": 0.2450534356724779,
+            "observed": 0.2535885167464115
+          },
+          {
+            "low": 0.3,
+            "n": 1625,
+            "predicted": 0.3443990719798144,
+            "observed": 0.3686153846153846
+          },
+          {
+            "low": 0.4,
+            "n": 730,
+            "predicted": 0.4417672109608911,
+            "observed": 0.4397260273972603
+          },
+          {
+            "low": 0.5,
+            "n": 274,
+            "predicted": 0.5365028495267499,
+            "observed": 0.5401459854014599
+          },
+          {
+            "low": 0.6,
+            "n": 28,
+            "predicted": 0.6420973371798882,
+            "observed": 0.5
+          },
+          {
+            "low": 0.7,
+            "n": 1,
+            "predicted": 0.7101793351694414,
+            "observed": 0.0
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.001773480336959573,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__anytime_td__fpds__sigmoid",
+      "family": "distribution",
+      "stat": "anytime_td",
+      "arm": "fpds",
+      "kind": "sigmoid",
+      "reference": "A7/anytime_td/fpds",
+      "n": 8042,
+      "games": 815,
+      "delta": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "corrected_ci95": [
+        0.0,
+        0.0
+      ],
+      "p": 1.0,
+      "control_loss": 0.19229212948992905,
+      "new_loss": 0.19229212948992905,
+      "seasons": {
+        "2022": 0.0,
+        "2023": 0.0,
+        "2024": 0.0
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.19229212948992905,
+        "log_loss": 0.5698155803311444,
+        "reliability": [
+          {
+            "low": 0.1,
+            "n": 1941,
+            "predicted": 0.1744066408649049,
+            "observed": 0.16950025759917567
+          },
+          {
+            "low": 0.2,
+            "n": 3639,
+            "predicted": 0.2446919796704184,
+            "observed": 0.2522671063478978
+          },
+          {
+            "low": 0.3,
+            "n": 1699,
+            "predicted": 0.34344364561746016,
+            "observed": 0.37728075338434375
+          },
+          {
+            "low": 0.4,
+            "n": 616,
+            "predicted": 0.4403399370366617,
+            "observed": 0.4642857142857143
+          },
+          {
+            "low": 0.5,
+            "n": 132,
+            "predicted": 0.5336225469121018,
+            "observed": 0.4621212121212121
+          },
+          {
+            "low": 0.6,
+            "n": 15,
+            "predicted": 0.6238071343894073,
+            "observed": 0.4666666666666667
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.19229212948992905,
+        "log_loss": 0.5698155803311444,
+        "reliability": [
+          {
+            "low": 0.1,
+            "n": 1941,
+            "predicted": 0.1744066408649049,
+            "observed": 0.16950025759917567
+          },
+          {
+            "low": 0.2,
+            "n": 3639,
+            "predicted": 0.2446919796704184,
+            "observed": 0.2522671063478978
+          },
+          {
+            "low": 0.3,
+            "n": 1699,
+            "predicted": 0.34344364561746016,
+            "observed": 0.37728075338434375
+          },
+          {
+            "low": 0.4,
+            "n": 616,
+            "predicted": 0.4403399370366617,
+            "observed": 0.4642857142857143
+          },
+          {
+            "low": 0.5,
+            "n": 132,
+            "predicted": 0.5336225469121018,
+            "observed": 0.4621212121212121
+          },
+          {
+            "low": 0.6,
+            "n": 15,
+            "predicted": 0.6238071343894073,
+            "observed": 0.4666666666666667
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.0,
+      "seasons_agreeing": 0,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    },
+    {
+      "id": "distribution__anytime_td__fpds__isotonic",
+      "family": "distribution",
+      "stat": "anytime_td",
+      "arm": "fpds",
+      "kind": "isotonic",
+      "reference": "A7/anytime_td/fpds",
+      "n": 8042,
+      "games": 815,
+      "delta": 0.0003022042457745548,
+      "ci95": [
+        -9.922223485389441e-05,
+        0.0007047178242170622
+      ],
+      "corrected_ci95": [
+        -0.0002726055956624552,
+        0.0009723266285945069
+      ],
+      "p": 0.9345327336331835,
+      "control_loss": 0.19229212948992905,
+      "new_loss": 0.1925943337357036,
+      "seasons": {
+        "2022": 0.0009346701956423733,
+        "2023": -0.0003080325701674572,
+        "2024": 0.0002615349489444348
+      },
+      "identical_sample": true,
+      "diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.1925943337357036,
+        "log_loss": 0.5732178080298697,
+        "reliability": [
+          {
+            "low": 0.0,
+            "n": 38,
+            "predicted": 0.04658177034805596,
+            "observed": 0.13157894736842105
+          },
+          {
+            "low": 0.1,
+            "n": 2145,
+            "predicted": 0.16731642288607448,
+            "observed": 0.17762237762237762
+          },
+          {
+            "low": 0.2,
+            "n": 2714,
+            "predicted": 0.23717794732120764,
+            "observed": 0.24502579218865145
+          },
+          {
+            "low": 0.3,
+            "n": 2332,
+            "predicted": 0.3327307806337279,
+            "observed": 0.34948542024013723
+          },
+          {
+            "low": 0.4,
+            "n": 663,
+            "predicted": 0.4463366470639917,
+            "observed": 0.4675716440422323
+          },
+          {
+            "low": 0.5,
+            "n": 132,
+            "predicted": 0.543886842784643,
+            "observed": 0.44696969696969696
+          },
+          {
+            "low": 0.6,
+            "n": 18,
+            "predicted": 0.6347437196049822,
+            "observed": 0.3888888888888889
+          }
+        ]
+      },
+      "baseline_diagnostics": {
+        "n": 8042,
+        "games": 815,
+        "primary_loss": 0.19229212948992905,
+        "log_loss": 0.5698155803311444,
+        "reliability": [
+          {
+            "low": 0.1,
+            "n": 1941,
+            "predicted": 0.1744066408649049,
+            "observed": 0.16950025759917567
+          },
+          {
+            "low": 0.2,
+            "n": 3639,
+            "predicted": 0.2446919796704184,
+            "observed": 0.2522671063478978
+          },
+          {
+            "low": 0.3,
+            "n": 1699,
+            "predicted": 0.34344364561746016,
+            "observed": 0.37728075338434375
+          },
+          {
+            "low": 0.4,
+            "n": 616,
+            "predicted": 0.4403399370366617,
+            "observed": 0.4642857142857143
+          },
+          {
+            "low": 0.5,
+            "n": 132,
+            "predicted": 0.5336225469121018,
+            "observed": 0.4621212121212121
+          },
+          {
+            "low": 0.6,
+            "n": 15,
+            "predicted": 0.6238071343894073,
+            "observed": 0.4666666666666667
+          }
+        ]
+      },
+      "holm_p": 1,
+      "relative_reduction": -0.0015715892614855162,
+      "seasons_agreeing": 1,
+      "discovery_nomination": false,
+      "decision": "no discovery gate passed"
+    }
+  ],
+  "failures": [
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2022_w01.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__pass_yds__control__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2022_w01.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__pass_yds__fpds__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2022_w01.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__pass_tds__control__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2022_w01.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__pass_tds__fpds__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2022_w01.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__rec__control__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2022_w01.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__rec__fpds__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2022_w01.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__rec_yds__control__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2022_w01.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__rec_yds__fpds__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__rush_yds__control__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__rush_yds__fpds__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2022_w01.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__anytime_td__control__hierarchy\\2024_w17.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2022_w01.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2022_w05.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2022_w09.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2022_w13.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2022_w17.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2023_w01.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2023_w05.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2023_w09.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2023_w13.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2023_w17.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2024_w01.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2024_w05.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2024_w09.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2024_w13.FAILED.json",
+    "blocks\\opportunity__anytime_td__fpds__hierarchy\\2024_w17.FAILED.json"
+  ],
+  "coherence": [
+    {
+      "variant": "opportunity__rush_yds__control__hierarchy",
+      "team_games": 127,
+      "max_abs_coherence_error": 5.684341886080802e-14,
+      "mean_other_fraction": 0.3504649301088074
+    },
+    {
+      "variant": "opportunity__rush_yds__fpds__hierarchy",
+      "team_games": 127,
+      "max_abs_coherence_error": 2.842170943040401e-14,
+      "mean_other_fraction": 0.3454085575404427
+    }
+  ],
+  "trials": {
+    "output_configurations": [
+      "combination__anytime_td__control__stacked",
+      "combination__anytime_td__control__weighted",
+      "combination__anytime_td__fpds__stacked",
+      "combination__anytime_td__fpds__weighted",
+      "combination__margin__control__stacked",
+      "combination__margin__control__weighted",
+      "combination__margin__fpds__stacked",
+      "combination__margin__fpds__weighted",
+      "combination__pass_tds__control__stacked",
+      "combination__pass_tds__control__weighted",
+      "combination__pass_tds__fpds__stacked",
+      "combination__pass_tds__fpds__weighted",
+      "combination__pass_yds__control__stacked",
+      "combination__pass_yds__control__weighted",
+      "combination__pass_yds__fpds__stacked",
+      "combination__pass_yds__fpds__weighted",
+      "combination__rec__control__stacked",
+      "combination__rec__control__weighted",
+      "combination__rec__fpds__stacked",
+      "combination__rec__fpds__weighted",
+      "combination__rec_yds__control__stacked",
+      "combination__rec_yds__control__weighted",
+      "combination__rec_yds__fpds__stacked",
+      "combination__rec_yds__fpds__weighted",
+      "combination__rush_yds__control__stacked",
+      "combination__rush_yds__control__weighted",
+      "combination__rush_yds__fpds__stacked",
+      "combination__rush_yds__fpds__weighted",
+      "combination__total__control__stacked",
+      "combination__total__control__weighted",
+      "combination__total__fpds__stacked",
+      "combination__total__fpds__weighted",
+      "combination__win__control__stacked",
+      "combination__win__control__weighted",
+      "combination__win__fpds__stacked",
+      "combination__win__fpds__weighted",
+      "distribution__anytime_td__control__isotonic",
+      "distribution__anytime_td__control__sigmoid",
+      "distribution__anytime_td__fpds__isotonic",
+      "distribution__anytime_td__fpds__sigmoid",
+      "distribution__margin__fpds__quantile/quantile_0.1",
+      "distribution__margin__fpds__quantile/quantile_0.5",
+      "distribution__margin__fpds__quantile/quantile_0.9",
+      "distribution__pass_tds__fpds__hurdle",
+      "distribution__pass_tds__fpds__nb",
+      "distribution__pass_yds__fpds__quantile/quantile_0.1",
+      "distribution__pass_yds__fpds__quantile/quantile_0.5",
+      "distribution__pass_yds__fpds__quantile/quantile_0.9",
+      "distribution__rec__fpds__hurdle",
+      "distribution__rec__fpds__nb",
+      "distribution__rec_yds__fpds__quantile/quantile_0.1",
+      "distribution__rec_yds__fpds__quantile/quantile_0.5",
+      "distribution__rec_yds__fpds__quantile/quantile_0.9",
+      "distribution__rush_yds__fpds__quantile/quantile_0.1",
+      "distribution__rush_yds__fpds__quantile/quantile_0.5",
+      "distribution__rush_yds__fpds__quantile/quantile_0.9",
+      "distribution__total__fpds__quantile/quantile_0.1",
+      "distribution__total__fpds__quantile/quantile_0.5",
+      "distribution__total__fpds__quantile/quantile_0.9",
+      "distribution__win__control__isotonic",
+      "distribution__win__control__sigmoid",
+      "distribution__win__fpds__isotonic",
+      "distribution__win__fpds__sigmoid",
+      "opportunity__anytime_td__control__hierarchy",
+      "opportunity__anytime_td__fpds__hierarchy",
+      "opportunity__pass_tds__control__hierarchy",
+      "opportunity__pass_tds__fpds__hierarchy",
+      "opportunity__pass_yds__control__hierarchy",
+      "opportunity__pass_yds__fpds__hierarchy",
+      "opportunity__rec__control__hierarchy",
+      "opportunity__rec__fpds__hierarchy",
+      "opportunity__rec_yds__control__hierarchy",
+      "opportunity__rec_yds__fpds__hierarchy",
+      "opportunity__rush_yds__control__hierarchy",
+      "opportunity__rush_yds__fpds__hierarchy",
+      "strong_games__margin__control__equal/decision_tree",
+      "strong_games__margin__control__equal/equal_average",
+      "strong_games__margin__control__equal/logreg",
+      "strong_games__margin__control__equal/mlp",
+      "strong_games__margin__control__equal/random_forest",
+      "strong_games__margin__control__equal/single_layer",
+      "strong_games__margin__control__equal/xgboost",
+      "strong_games__margin__fpds__equal/decision_tree",
+      "strong_games__margin__fpds__equal/equal_average",
+      "strong_games__margin__fpds__equal/logreg",
+      "strong_games__margin__fpds__equal/mlp",
+      "strong_games__margin__fpds__equal/random_forest",
+      "strong_games__margin__fpds__equal/single_layer",
+      "strong_games__margin__fpds__equal/xgboost",
+      "strong_games__total__control__equal/decision_tree",
+      "strong_games__total__control__equal/equal_average",
+      "strong_games__total__control__equal/logreg",
+      "strong_games__total__control__equal/mlp",
+      "strong_games__total__control__equal/random_forest",
+      "strong_games__total__control__equal/single_layer",
+      "strong_games__total__control__equal/xgboost",
+      "strong_games__total__fpds__equal/decision_tree",
+      "strong_games__total__fpds__equal/equal_average",
+      "strong_games__total__fpds__equal/logreg",
+      "strong_games__total__fpds__equal/mlp",
+      "strong_games__total__fpds__equal/random_forest",
+      "strong_games__total__fpds__equal/single_layer",
+      "strong_games__total__fpds__equal/xgboost",
+      "strong_games__win__control__equal/decision_tree",
+      "strong_games__win__control__equal/equal_average",
+      "strong_games__win__control__equal/logreg",
+      "strong_games__win__control__equal/mlp",
+      "strong_games__win__control__equal/random_forest",
+      "strong_games__win__control__equal/single_layer",
+      "strong_games__win__control__equal/xgboost",
+      "strong_games__win__fpds__equal/decision_tree",
+      "strong_games__win__fpds__equal/equal_average",
+      "strong_games__win__fpds__equal/logreg",
+      "strong_games__win__fpds__equal/mlp",
+      "strong_games__win__fpds__equal/random_forest",
+      "strong_games__win__fpds__equal/single_layer",
+      "strong_games__win__fpds__equal/xgboost",
+      "target_features__anytime_td__fpds__equal/equal_average",
+      "target_features__anytime_td__fpds__equal/hist",
+      "target_features__anytime_td__fpds__equal/linear",
+      "target_features__anytime_td__fpds__equal/mlp",
+      "target_features__anytime_td__fpds__equal/xgboost",
+      "target_features__pass_tds__fpds__equal/equal_average",
+      "target_features__pass_tds__fpds__equal/hist",
+      "target_features__pass_tds__fpds__equal/linear",
+      "target_features__pass_tds__fpds__equal/mlp",
+      "target_features__pass_tds__fpds__equal/xgboost",
+      "target_features__pass_yds__fpds__equal/equal_average",
+      "target_features__pass_yds__fpds__equal/hist",
+      "target_features__pass_yds__fpds__equal/linear",
+      "target_features__pass_yds__fpds__equal/mlp",
+      "target_features__pass_yds__fpds__equal/xgboost",
+      "target_features__rec__fpds__equal/equal_average",
+      "target_features__rec__fpds__equal/hist",
+      "target_features__rec__fpds__equal/linear",
+      "target_features__rec__fpds__equal/mlp",
+      "target_features__rec__fpds__equal/xgboost",
+      "target_features__rec_yds__fpds__equal/equal_average",
+      "target_features__rec_yds__fpds__equal/hist",
+      "target_features__rec_yds__fpds__equal/linear",
+      "target_features__rec_yds__fpds__equal/mlp",
+      "target_features__rec_yds__fpds__equal/xgboost",
+      "target_features__rush_yds__fpds__equal/equal_average",
+      "target_features__rush_yds__fpds__equal/hist",
+      "target_features__rush_yds__fpds__equal/linear",
+      "target_features__rush_yds__fpds__equal/mlp",
+      "target_features__rush_yds__fpds__equal/xgboost"
+    ],
+    "fit_configurations": [
+      "combination__anytime_td__control__stacked/stacked",
+      "combination__anytime_td__control__weighted/weighted",
+      "combination__anytime_td__fpds__stacked/stacked",
+      "combination__anytime_td__fpds__weighted/weighted",
+      "combination__margin__control__stacked/stacked",
+      "combination__margin__control__weighted/weighted",
+      "combination__margin__fpds__stacked/stacked",
+      "combination__margin__fpds__weighted/weighted",
+      "combination__pass_tds__control__stacked/stacked",
+      "combination__pass_tds__control__weighted/weighted",
+      "combination__pass_tds__fpds__stacked/stacked",
+      "combination__pass_tds__fpds__weighted/weighted",
+      "combination__pass_yds__control__stacked/stacked",
+      "combination__pass_yds__control__weighted/weighted",
+      "combination__pass_yds__fpds__stacked/stacked",
+      "combination__pass_yds__fpds__weighted/weighted",
+      "combination__rec__control__stacked/stacked",
+      "combination__rec__control__weighted/weighted",
+      "combination__rec__fpds__stacked/stacked",
+      "combination__rec__fpds__weighted/weighted",
+      "combination__rec_yds__control__stacked/stacked",
+      "combination__rec_yds__control__weighted/weighted",
+      "combination__rec_yds__fpds__stacked/stacked",
+      "combination__rec_yds__fpds__weighted/weighted",
+      "combination__rush_yds__control__stacked/stacked",
+      "combination__rush_yds__control__weighted/weighted",
+      "combination__rush_yds__fpds__stacked/stacked",
+      "combination__rush_yds__fpds__weighted/weighted",
+      "combination__total__control__stacked/stacked",
+      "combination__total__control__weighted/weighted",
+      "combination__total__fpds__stacked/stacked",
+      "combination__total__fpds__weighted/weighted",
+      "combination__win__control__stacked/stacked",
+      "combination__win__control__weighted/weighted",
+      "combination__win__fpds__stacked/stacked",
+      "combination__win__fpds__weighted/weighted",
+      "distribution__anytime_td__control__isotonic/isotonic",
+      "distribution__anytime_td__control__sigmoid/sigmoid",
+      "distribution__anytime_td__fpds__isotonic/isotonic",
+      "distribution__anytime_td__fpds__sigmoid/sigmoid",
+      "distribution__margin__fpds__quantile/quantile_0.1/quantile_0.1",
+      "distribution__margin__fpds__quantile/quantile_0.5/quantile_0.5",
+      "distribution__margin__fpds__quantile/quantile_0.9/quantile_0.9",
+      "distribution__pass_tds__fpds__hurdle/hurdle_gate",
+      "distribution__pass_tds__fpds__hurdle/positive_minus_one",
+      "distribution__pass_tds__fpds__nb/earlier_OOF_dispersion",
+      "distribution__pass_yds__fpds__quantile/quantile_0.1/quantile_0.1",
+      "distribution__pass_yds__fpds__quantile/quantile_0.5/quantile_0.5",
+      "distribution__pass_yds__fpds__quantile/quantile_0.9/quantile_0.9",
+      "distribution__rec__fpds__hurdle/hurdle_gate",
+      "distribution__rec__fpds__hurdle/positive_minus_one",
+      "distribution__rec__fpds__nb/earlier_OOF_dispersion",
+      "distribution__rec_yds__fpds__quantile/quantile_0.1/quantile_0.1",
+      "distribution__rec_yds__fpds__quantile/quantile_0.5/quantile_0.5",
+      "distribution__rec_yds__fpds__quantile/quantile_0.9/quantile_0.9",
+      "distribution__rush_yds__fpds__quantile/quantile_0.1/quantile_0.1",
+      "distribution__rush_yds__fpds__quantile/quantile_0.5/quantile_0.5",
+      "distribution__rush_yds__fpds__quantile/quantile_0.9/quantile_0.9",
+      "distribution__total__fpds__quantile/quantile_0.1/quantile_0.1",
+      "distribution__total__fpds__quantile/quantile_0.5/quantile_0.5",
+      "distribution__total__fpds__quantile/quantile_0.9/quantile_0.9",
+      "distribution__win__control__isotonic/isotonic",
+      "distribution__win__control__sigmoid/sigmoid",
+      "distribution__win__fpds__isotonic/isotonic",
+      "distribution__win__fpds__sigmoid/sigmoid",
+      "feature_reconstruction/margin_rating",
+      "feature_reconstruction/offense_defense_EPA_rating",
+      "opportunity__anytime_td__control__hierarchy/player_usage_share",
+      "opportunity__anytime_td__control__hierarchy/team_count",
+      "opportunity__anytime_td__control__hierarchy/team_usage",
+      "opportunity__anytime_td__fpds__hierarchy/player_usage_share",
+      "opportunity__anytime_td__fpds__hierarchy/team_count",
+      "opportunity__anytime_td__fpds__hierarchy/team_usage",
+      "opportunity__pass_tds__control__hierarchy/player_usage_share",
+      "opportunity__pass_tds__control__hierarchy/team_count",
+      "opportunity__pass_tds__control__hierarchy/team_usage",
+      "opportunity__pass_tds__fpds__hierarchy/player_usage_share",
+      "opportunity__pass_tds__fpds__hierarchy/team_count",
+      "opportunity__pass_tds__fpds__hierarchy/team_usage",
+      "opportunity__pass_yds__control__hierarchy/player_usage_share",
+      "opportunity__pass_yds__control__hierarchy/team_efficiency",
+      "opportunity__pass_yds__control__hierarchy/team_usage",
+      "opportunity__pass_yds__fpds__hierarchy/player_usage_share",
+      "opportunity__pass_yds__fpds__hierarchy/team_efficiency",
+      "opportunity__pass_yds__fpds__hierarchy/team_usage",
+      "opportunity__rec__control__hierarchy/player_usage_share",
+      "opportunity__rec__control__hierarchy/team_count",
+      "opportunity__rec__control__hierarchy/team_usage",
+      "opportunity__rec__fpds__hierarchy/player_usage_share",
+      "opportunity__rec__fpds__hierarchy/team_count",
+      "opportunity__rec__fpds__hierarchy/team_usage",
+      "opportunity__rec_yds__control__hierarchy/player_usage_share",
+      "opportunity__rec_yds__control__hierarchy/shared_team_passing_opportunities",
+      "opportunity__rec_yds__control__hierarchy/team_efficiency",
+      "opportunity__rec_yds__control__hierarchy/team_usage",
+      "opportunity__rec_yds__fpds__hierarchy/player_usage_share",
+      "opportunity__rec_yds__fpds__hierarchy/shared_team_passing_opportunities",
+      "opportunity__rec_yds__fpds__hierarchy/team_efficiency",
+      "opportunity__rec_yds__fpds__hierarchy/team_usage",
+      "opportunity__rush_yds__control__hierarchy/player_efficiency",
+      "opportunity__rush_yds__control__hierarchy/player_usage_share",
+      "opportunity__rush_yds__control__hierarchy/team_efficiency",
+      "opportunity__rush_yds__control__hierarchy/team_usage",
+      "opportunity__rush_yds__fpds__hierarchy/player_efficiency",
+      "opportunity__rush_yds__fpds__hierarchy/player_usage_share",
+      "opportunity__rush_yds__fpds__hierarchy/team_efficiency",
+      "opportunity__rush_yds__fpds__hierarchy/team_usage",
+      "strong_games__margin__control__equal/decision_tree/decision_tree",
+      "strong_games__margin__control__equal/logreg/logreg",
+      "strong_games__margin__control__equal/mlp/mlp",
+      "strong_games__margin__control__equal/random_forest/random_forest",
+      "strong_games__margin__control__equal/single_layer/single_layer",
+      "strong_games__margin__control__equal/xgboost/xgboost",
+      "strong_games__margin__fpds__equal/decision_tree/decision_tree",
+      "strong_games__margin__fpds__equal/logreg/logreg",
+      "strong_games__margin__fpds__equal/mlp/mlp",
+      "strong_games__margin__fpds__equal/random_forest/random_forest",
+      "strong_games__margin__fpds__equal/single_layer/single_layer",
+      "strong_games__margin__fpds__equal/xgboost/xgboost",
+      "strong_games__total__control__equal/decision_tree/decision_tree",
+      "strong_games__total__control__equal/logreg/logreg",
+      "strong_games__total__control__equal/mlp/mlp",
+      "strong_games__total__control__equal/random_forest/random_forest",
+      "strong_games__total__control__equal/single_layer/single_layer",
+      "strong_games__total__control__equal/xgboost/xgboost",
+      "strong_games__total__fpds__equal/decision_tree/decision_tree",
+      "strong_games__total__fpds__equal/logreg/logreg",
+      "strong_games__total__fpds__equal/mlp/mlp",
+      "strong_games__total__fpds__equal/random_forest/random_forest",
+      "strong_games__total__fpds__equal/single_layer/single_layer",
+      "strong_games__total__fpds__equal/xgboost/xgboost",
+      "strong_games__win__control__equal/decision_tree/decision_tree",
+      "strong_games__win__control__equal/logreg/logreg",
+      "strong_games__win__control__equal/mlp/mlp",
+      "strong_games__win__control__equal/random_forest/random_forest",
+      "strong_games__win__control__equal/single_layer/single_layer",
+      "strong_games__win__control__equal/xgboost/xgboost",
+      "strong_games__win__fpds__equal/decision_tree/decision_tree",
+      "strong_games__win__fpds__equal/logreg/logreg",
+      "strong_games__win__fpds__equal/mlp/mlp",
+      "strong_games__win__fpds__equal/random_forest/random_forest",
+      "strong_games__win__fpds__equal/single_layer/single_layer",
+      "strong_games__win__fpds__equal/xgboost/xgboost",
+      "target_features__anytime_td__fpds__equal/hist/hist",
+      "target_features__anytime_td__fpds__equal/linear/linear",
+      "target_features__anytime_td__fpds__equal/mlp/mlp",
+      "target_features__anytime_td__fpds__equal/xgboost/xgboost",
+      "target_features__pass_tds__fpds__equal/hist/hist",
+      "target_features__pass_tds__fpds__equal/linear/linear",
+      "target_features__pass_tds__fpds__equal/mlp/mlp",
+      "target_features__pass_tds__fpds__equal/xgboost/xgboost",
+      "target_features__pass_yds__fpds__equal/hist/hist",
+      "target_features__pass_yds__fpds__equal/linear/linear",
+      "target_features__pass_yds__fpds__equal/mlp/mlp",
+      "target_features__pass_yds__fpds__equal/xgboost/xgboost",
+      "target_features__rec__fpds__equal/hist/hist",
+      "target_features__rec__fpds__equal/linear/linear",
+      "target_features__rec__fpds__equal/mlp/mlp",
+      "target_features__rec__fpds__equal/xgboost/xgboost",
+      "target_features__rec_yds__fpds__equal/hist/hist",
+      "target_features__rec_yds__fpds__equal/linear/linear",
+      "target_features__rec_yds__fpds__equal/mlp/mlp",
+      "target_features__rec_yds__fpds__equal/xgboost/xgboost",
+      "target_features__rush_yds__fpds__equal/hist/hist",
+      "target_features__rush_yds__fpds__equal/linear/linear",
+      "target_features__rush_yds__fpds__equal/mlp/mlp",
+      "target_features__rush_yds__fpds__equal/xgboost/xgboost"
+    ],
+    "fit_calls": 2591
+  },
+  "source_integrity_unchanged": true,
+  "status": "shadow only; no promotion"
+}

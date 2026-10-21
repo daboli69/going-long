@@ -216,3 +216,16 @@ def test_report_formats_saved_aggregates_without_new_scoring():
     assert '-8.33%' in text and 'A7/rec/fpds' in text
     assert 'Discovery nominees: 0' in text
     assert 'No fresh2025 pass or2026 selection' in text
+
+
+def test_combined_view_keeps_completed_families_and_repair_separate(tmp_path):
+    import json
+    from app.fpds_improvement_view import combine_saved_studies
+    p=tmp_path/'parent';p.mkdir()
+    old={'rows':[{'family':'strong_games','id':'keep'},{'family':'opportunity','id':'failedpartial'}],
+         'failures':['retained'],'trials':{'output_configurations':['a','b']}}
+    (p/'SUMMARY.json').write_text(json.dumps(old))
+    value=combine_saved_studies(tmp_path/'repair',{'repair_parent':'parent','rows':[{'family':'opportunity','id':'repaired'}]})
+    assert [r['id'] for r in value['rows']]==['keep','repaired']
+    assert value['original_failed_blocks']==1
+    assert json.loads((p/'SUMMARY.json').read_text())==old
