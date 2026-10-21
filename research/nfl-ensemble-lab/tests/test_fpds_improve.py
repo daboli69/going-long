@@ -106,9 +106,11 @@ def test_pseudo_lines_skip_unknown_source_week_and_byewindows():
                         'kickoff_utc':pd.to_datetime(['2022-09-01','2022-09-15','2022-09-22'],utc=True)})
     obs=pd.DataFrame({'pid':['p']*3,'game_id':['a','b','c'],'season':[2022]*3,'week':[1,3,4],
                       **{k:[10,20,999] for k in ('pass_yds','pass_tds','rec','rec_yds','rush_yds')}})
-    players=pd.DataFrame({'pid':['p'],'kickoff_utc':pd.to_datetime(['2022-09-22'],utc=True)})
+    players=pd.DataFrame({'pid':['p'],'kickoff_utc':pd.to_datetime(['2022-09-22'],utc=True),'pseudo_rec':[999.]})
     p=pseudo_lines(players,obs,games)
     assert p.pseudo_rec.iloc[0]==15.5
+    assert p.columns.is_unique
+    assert players.pseudo_rec.iloc[0]==999  # source frame remains unchanged
 
 
 def test_spec_budget_and_no_holdout_selection():
@@ -161,3 +163,26 @@ def test_opportunity_actual_target_labels_not_used_and_coherence():
     np.testing.assert_allclose(p,q)
     assert diag.coherence_error.abs().max()<1e-8
     assert diag.other_players.iloc[0]>=0
+
+
+def test_hierarchy_shared_passing_total_and_other_distinct_bounds():
+    n=120
+    train=pd.DataFrame({'x':np.arange(n)%5,'game_id':[f'g{i//2}' for i in range(n)],'team':['A']*n,
+                        'actual_targets':5.,'actual_carries':2.,'actual_dropbacks':10.,
+                        'actual_team_targets':20.,'actual_team_carries':10.,'actual_team_dropbacks':30.,
+                        'actual_off_td':np.arange(n)%2,'rec_yds':30.,'pass_yds':60.})
+    teams=pd.DataFrame({'x':np.arange(60)%5,'is_home':1,'game_id':[f'g{i}' for i in range(60)],'team':'A',
+                        'actual_team_targets':20.,'actual_team_carries':10.,'actual_team_dropbacks':30.,
+                        'actual_team_pass_yds':200.,'actual_team_off_td':3.,'actual_team_distinct_scorers':2.})
+    target=pd.DataFrame({'game_id':['future']*2,'team':['A']*2,'x':[1,2]})
+    tt=teams.iloc[:1].copy();tt['game_id']='future'
+    def fake(model,tr,ta,cols,y,w,binary=False):return np.full(len(ta),float(np.mean(y))),None
+    with patch('lab.fpds_improve.opportunity.predict_model',side_effect=fake):
+        _,_,rec=O.predict(train,target,teams.copy(),tt.copy(),'rec_yds',['x'],['x'],np.ones(n),np.ones(60),lambda _:None)
+        _,_,pas=O.predict(train,target,teams.copy(),tt.copy(),'pass_yds',['x'],['x'],np.ones(n),np.ones(60),lambda _:None)
+        p,_,td=O.predict(train,target,teams.copy(),tt.copy(),'anytime_td',['x'],['x'],np.ones(n),np.ones(60),lambda _:None)
+    assert rec.team_projection.iloc[0]==pytest.approx(pas.team_projection.iloc[0])
+    assert td.coherence_error.abs().max()<1e-9
+    assert td.expected_distinct_scorers_approx.iloc[0]<=td.team_projection.iloc[0]
+    assert td.other_expected_distinct_scorers_approx.iloc[0]>=td.other_anytime_probability.iloc[0]
+    assert np.all((p>=0)&(p<=1))

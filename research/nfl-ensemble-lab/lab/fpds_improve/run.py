@@ -68,7 +68,7 @@ def pseudo_lines(players,observations,games):
             prior=panel[panel.available_at.lt(r.kickoff_utc)].tail(8)[stat]
             values.append(np.floor(float(prior.median()))+.5 if len(prior) else np.nan)
         result['pseudo_'+stat]=values
-    return pd.concat([players.reset_index(drop=True),pd.DataFrame(result)],axis=1)
+    return pd.concat([players.drop(columns=list(result),errors='ignore').reset_index(drop=True),pd.DataFrame(result)],axis=1)
 
 
 def probability_columns(out,stat,target,bank,kind='poisson',alpha=.001,gate=None,mu=None):
