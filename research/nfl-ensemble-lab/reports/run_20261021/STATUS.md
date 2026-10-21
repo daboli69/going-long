@@ -13,3 +13,6 @@
 - Verification: final full suite 382 passed, 1 existing skip, 522 warnings (326.35 seconds); committed launch guard passed; no active manual model job. All 37 Inbox files unchanged; prepared hashes and previous FPDS forecast hashes match. Champion and prior forecasts preserved.
 - Minor command failure: low-priority wrapper rejected an unsupported -c diagnostic; no model/data action occurred. No repeat test failures or new skips.
 - Next: Travis manually selects week and scope in Research → FPDS Research; matched development evidence remains pending. All outputs shadow only.
+
+- 09:22 ET: user authorized real manual all-model projections plus registered comparison until15:30 local Eastern. Adding bounded local process supervisor; no scheduled task or external publication. First forecast week7, both arms,10000 draws,seed17; remaining time fixed discovery only.
+- Supervisor targeted regression suite passed. Initial pytest invocation through the lab-only module wrapper was rejected before execution; corrected to an idle-priority Python pytest runner. No test was skipped or weakened.
