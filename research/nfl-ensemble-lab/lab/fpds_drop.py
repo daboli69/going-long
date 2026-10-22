@@ -305,16 +305,25 @@ def main():
             print(json.dumps(result,indent=2));return 0
         with workflow_lock():
             if a.action=='injuries':
-                if not any(title(f)[0]=='injury_reports' for f in drop_folder(week).glob('*.csv')):
-                    raise DropError('No injury-reports CSV in the selected Week folder')
-                # Keep all original injury/live sources. Do not introduce a new provider.
+                has_csv=any(title(f)[0]=='injury_reports' for f in drop_folder(week).glob('*.csv'))
+                # Keep original feeds even when a post-week subscription CSV is absent.
                 from .live import refresh_live,record_live_refresh
                 refresh=refresh_live(progress=lambda _:None)
                 record_live_refresh(refresh)
-                result=archive_injuries(week)
+                if has_csv:
+                    result=archive_injuries(week)
+                else:
+                    from .nflmeta_injuries import refresh as refresh_nflmeta
+                    fallback=refresh_nflmeta(2026,week)
+                    print('No injury CSV: original feeds retained; NFL Meta fallback: '+fallback['state']+'.')
+                    if fallback.get('possibly_truncated'):
+                        print('NFL Meta coverage may be partial (100-row cap); missing players are not confirmed healthy.')
                 from .fpds_injury_confirmation import update_week
-                confirmation=update_week(week,state=STATE)
-                print(f"Week {week} injury context imported: {result['current_week_rows']} rows; {result['unmatched_rows']} unmatched. Frozen projections unchanged.")
+                confirmation=update_week(week,state=STATE,use_csv=has_csv)
+                if has_csv:
+                    print(f"Week {week} injury context imported: {result['current_week_rows']} rows; {result['unmatched_rows']} unmatched. Frozen projections unchanged.")
+                else:
+                    print(f'Week {week} live injury comparison updated. Frozen projections unchanged.')
                 print(f"Source comparison: {confirmation['confirmed']} confirmed, {confirmation['conflicts']} conflicts, {confirmation['fpds_only']} CSV-only. Original-feed refresh failures: {len(refresh.get('failed',{}))}.")
             else:
                 result=run_weekly(week,a.deadline,a.threads)

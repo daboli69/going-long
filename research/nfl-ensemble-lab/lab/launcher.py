@@ -12,7 +12,7 @@ ACTIONS = {
     "project": ("Create FPDS game + player projections (may take time)", TOOLS / "run_manual_fpds.bat", ("project",)),
     "weekly": ("Weekly FPDS refresh + frozen shadow projections (may take time)", TOOLS / "run_weekly_fpds.bat", ()),
     "import": ("Import + audit downloaded FPDS files", TOOLS / "import_fpds.bat", ()),
-    "injuries": ("Update this week's FPDS injury context; forecasts stay frozen", TOOLS / "update_fpds_injuries.bat", ()),
+    "injuries": ("Update live injury context + optional FPDS CSV; forecasts stay frozen", TOOLS / "update_fpds_injuries.bat", ()),
     "refresh": ("Refresh NFL data", ROOT / "refresh_data.bat", ()),
     "legacy": ("Saved-model weekly winner predictions", TOOLS / "run_weekly_predictions.bat", ()),
     "phase10": ("Phase 10 weekly shadow pipeline", TOOLS / "run_week_projections.bat", ()),

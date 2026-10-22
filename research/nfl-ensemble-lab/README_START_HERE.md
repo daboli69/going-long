@@ -4,7 +4,7 @@
 
 Double-click **`START_HERE.bat`**. Press **Enter** to open the dashboard, or choose:
 
-**Weekly routine:** put exports in the matching Week 7–18 folder inside the authoritative FPDS history folder. **Week 8 = forecast Week 8 using completed Week 7 data.** Tuesday night: choose **3**. During the week: choose **6** for injury context only (frozen probabilities stay unchanged). [Folder runbook](docs/FPDS_WEEKLY_FOLDERS.md).
+**Weekly routine:** put exports in the matching Week 7–18 folder inside the authoritative FPDS history folder. **Week 8 = forecast Week 8 using completed Week 7 data.** Tuesday night: choose **3**. During the week: choose **6** for live injury context, with or without a CSV (frozen probabilities stay unchanged). Without a CSV it retains the original feeds and tries the optional NFL Meta fallback. Configure with `.venv\Scripts\python.exe -m lab.nflmeta_injuries configure` at a hidden prompt; Free-plan checks enforce $0. Post-week injury CSVs are historical context. [Folder runbook](docs/FPDS_WEEKLY_FOLDERS.md).
 
 | Option | Purpose |
 | --- | --- |

@@ -59,7 +59,7 @@ def render(root=None):
             st.caption(f"Source file modified: {saved.get('source_modified_at','unknown')}. First observed: {saved.get('source_first_observed_at','unknown')}. Vendor publication time is unverified; importing again does not establish fresh information.")
             if not saved['current_week_rows']:st.warning('The supplied injury file has no rows for the forecast week; current injuries remain unavailable.')
             st.warning(saved['warning'])
-        else:st.info('No injury-only folder import yet. Add injury-reports.csv to the appropriate Week folder, then choose START_HERE option 6.')
+        else:st.info('No injury CSV imported. START_HERE option 6 still refreshes the original live feeds and tries the configured NFL Meta fallback. A post-week CSV is historical context, not current availability.')
         confirmation=root/'LATEST_CONFIRMATION.json'
         if confirmation.exists():
             saved=metadata(str(confirmation),confirmation.stat().st_mtime_ns)

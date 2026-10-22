@@ -73,9 +73,10 @@ def source_rows(week,summary,games):
     from .fpds_ingest import canonical_team
     from .props.lines import normalized_name
     rows=[];errors=[]
-    context=pd.read_parquet(Path(summary['path'])/'CONTEXT_PRIVATE.parquet')
-    first=summary.get('source_first_observed_at',summary['created_at'])
-    rows += [{'team':r.team,'pid':r.pid,'status':r.status,'available_at':first,'source':'fpds'} for r in context.itertuples()]
+    if summary is not None:
+        context=pd.read_parquet(Path(summary['path'])/'CONTEXT_PRIVATE.parquet')
+        first=summary.get('source_first_observed_at',summary['created_at'])
+        rows += [{'team':r.team,'pid':r.pid,'status':r.status,'available_at':first,'source':'fpds'} for r in context.itertuples()]
     roster_path=RAW_DIR/'roster_weekly_2026.parquet'
     roster=pd.read_parquet(roster_path) if roster_path.exists() else pd.DataFrame()
     mapping={};known=set()
@@ -87,6 +88,9 @@ def source_rows(week,summary,games):
             if len(ids)==1:mapping[key]=ids[0]
         known=set(zip(roster.canonical_team,roster.gsis_id))
     asof=pd.Timestamp.now(tz='UTC')
+    if summary is None:
+        from .nflmeta_injuries import source_rows as nflmeta_rows
+        rows += nflmeta_rows(2026,week,mapping,asof=asof)
     try:
         official=A.load_injury_rows([2026])
         if len(official):
@@ -111,13 +115,12 @@ def source_rows(week,summary,games):
     return pd.DataFrame(rows),errors
 
 
-def update_week(week,state=None,games=None):
+def update_week(week,state=None,games=None,use_csv=True):
     from .fpds_drop import STATE
     from .data_pipeline import FEATURE_STORE
     state=Path(state) if state is not None else STATE
     pointer=state/f'INJURIES_W{week:02d}.json'
-    if not pointer.exists():return None
-    summary=read(pointer)
+    summary=read(pointer) if use_csv and pointer.exists() else None
     games=pd.read_parquet(FEATURE_STORE) if games is None else games
     games=games[games.season.eq(2026)&games.week.eq(week)].copy()
     games['kickoff_utc']=pd.to_datetime(games.kickoff_utc,utc=True)
@@ -130,7 +133,7 @@ def update_week(week,state=None,games=None):
         result['sources']=result.sources.map(lambda x:json.dumps(x,sort_keys=True))
     result.to_parquet(destination/'CONFIRMATION_PRIVATE.parquet',index=False)
     metadata={'created_at':now(),'forecast_week':week,'path':str(destination),**counts,'source_errors':errors,
-              'fpds_source_sha256':summary['source_sha256'],'model_input':False,
+              'fpds_source_sha256':summary['source_sha256'] if summary else None,'model_input':False,
               'policy':'Latest observed official status first. FPDS confirms or supplies provisional missing context. Secondary conflicts stay unresolved. Missing report rows never imply healthy; no automatic model override.',
               'by_team':result.groupby('team').agg(players=('pid','size'),confirmed=('fpds_confirmed','sum'),conflicts=('conflict','sum')).reset_index().to_dict('records') if len(result) else []}
     write_once(destination/'SUMMARY.json',metadata)

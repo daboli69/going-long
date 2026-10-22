@@ -23,13 +23,23 @@ Prior frozen forecasts/simulations are **scored against actual outcomes**, never
 
 ## Injury updates during the week
 
-1. Put updated **injury-reports.csv** in the active Week folder. The file may contain current-week injury rows and historical rows. You may replace your downloaded copy yourself; this program never modifies/moves/deletes it and copies every imported content version privately by hash.
+1. If available, put **injury-reports.csv** in the active Week folder. If the vendor publishes it after games, it is historical research context only; do not treat it as pregame evidence. You may replace your downloaded copy yourself; this program never modifies/moves/deletes it and copies every imported content version privately by hash. A CSV is optional for option 6.
 2. Choose **START_HERE → 6: Update this week's injuries only**. It refreshes the existing official/ESPN/live feeds first, imports the CSV, then compares their statuses. Explicit week: `scripts\launchers\update_fpds_injuries.bat --week 7`.
 3. Reload FPDS Research. It shows the import date, source modification/first-observation dates, current-week row count, pregame exact-roster matches and unmatched count, plus source agreement/conflicts/CSV-only counts by team. No current-week rows produces a warning. No raw subscription rows are displayed.
 
 The original official injury feed remains the model-input path; ESPN and other existing monitoring feeds remain active. The combined monitoring view prefers the latest observed official report. FPDS corroborates known statuses, or supplies provisional context if official information is missing. Conflicting secondary reports stay unresolved. A newer CSV download cannot blindly override an official designation. Re-imported CSV content supersedes the previous CSV view, with every prior version retained. Existing live refreshes automatically recompute comparisons for imported, unstarted weeks; no new task is created. Failures in the supplemental comparison are private diagnostics and do not disable original refreshes. Agreement may reflect shared provider information, and rows older than24h are counted separately; agreement is not proof of freshness or independence.
 
 **Injury updates are context, not adjustments to frozen probabilities.** Existing frozen configurations lack a validated mapping from live FPDS status text to forecast changes. Current-week snaps, fantasy points, yards and other outcomes never enter status context or same-week training. Only player/team/status/observation metadata are retained in private derived context. Unknown statuses/IDs stay unknown; vendor publication time remains unverified. Re-importing does not establish fresh vendor information. No forecast is rewritten or labelled injury-adjusted.
+
+### NFL Meta fallback (2026-10-22)
+
+With no CSV in the selected Week folder, option 6 retains the original feeds and tries NFL Meta, then writes the same source comparison view. It ignores any old CSV pointer for this run. Original official reports remain preferred; NFL Meta is secondary evidence, and disagreements remain visible. This does not rerun simulations or change archived projections.
+
+Configure once from the lab folder: `.venv\Scripts\python.exe -m lab.nflmeta_injuries configure`. Enter the key at the hidden prompt, never in command arguments. Alternatively set `NFLMETA_KEY` locally. The local credential file is under ignored `data/private/`; it is not encrypted. Rotate a key shared in chat before entering its replacement. No secret is stored in tracked code or printed.
+
+The collector checks `/usage`, allows only a reported Free plan, and requires at least one remaining request and 100 remaining rows. It requests at most 100 current-season weekly injury rows, caches for 30 minutes, refuses redirects, performs no retries, and stops on quota/auth/payment failures without upgrading or purchasing anything. A 100-row response is labelled possibly truncated. Partial/empty responses never mean everyone else is healthy. A paid-plan key is blocked pending a separate cost policy; Free supports private noncommercial research according to [pricing](https://nflmeta.org/pricing).
+
+Append-only snapshots go to ignored `data/raw/archive/nflmeta/`. Exact normalized team/name matches on the selected week's roster resolve GSIS IDs; absent/ambiguous identities remain unmatched. Both source observation age and local retrieval age must be <=24h; source timestamps must not be in the future. Local retrieval is the earliest usable time, never a historical publication time. Missing source timestamps are excluded. See the [official OpenAPI contract](https://nflmeta.org/openapi.yaml): a date filter is explicitly not a historical as-of snapshot. No new backtest, fit, eval or promotion is performed.
 
 ## Operations
 
