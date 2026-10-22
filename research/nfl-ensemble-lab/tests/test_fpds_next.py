@@ -44,6 +44,13 @@ def test_roster_only_unknown_is_never_zero_and_wrong_team_not_reassigned():
     assert d.team.tolist()==['BUF','NYJ']
 
 
+def test_unknown_team_is_quarantined_without_guessing():
+    p=plays();p.loc[0,'posteam']=None
+    out,r=T.reconstruct(p,roster(),snaps())
+    assert r['unknown_team_play_rows']==1
+    assert out.team.notna().all()
+
+
 def test_lateral_yards_and_missing_td_ids_are_quarantined():
     p=plays();p.loc[1,'lateral_receiver_player_id']='z';p.loc[1,'lateral_receiving_yards']=5
     p.loc[1,'pass_touchdown']=1

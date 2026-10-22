@@ -1,7 +1,7 @@
 """Discrete score pairs from earlier verified scoreboard-consistent drives."""
 import numpy as np
 import pandas as pd
-from ..ingest import normalize_team
+from .targets import team_code
 
 COLS=['game_id','play_id','season','week','season_type','qtr','fixed_drive','posteam','home_team','away_team',
       'total_home_score','total_away_score','home_score','away_score','play_deleted']
@@ -14,7 +14,7 @@ def extract(plays):
         before=score.groupby(p.game_id).shift().fillna(0)
         p['delta_'+side]=score-before
     p['period']=np.where(p.qtr.gt(4),'OT','REG')
-    for c in ('posteam','home_team','away_team'):p[c]=p[c].map(normalize_team)
+    for c in ('posteam','home_team','away_team'):p[c]=p[c].map(team_code)
     p=p[p.fixed_drive.notna()|(p.delta_home+p.delta_away).gt(0)].copy()
     # Missing drive labels retain a unique event; unknown offensive teams with
     # points are quarantined rather than assigned to a team by guesswork.

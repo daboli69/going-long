@@ -8,10 +8,16 @@ EXTRA=['pass_attempt','rush_attempt','play_deleted','td_player_id','td_team','re
        'lateral_receiver_player_id','lateral_receiving_yards','lateral_rusher_player_id','lateral_rushing_yards']
 
 
+def team_code(value):
+    if pd.isna(value):return None
+    try:return normalize_team(value)
+    except ValueError:return None  # Unknown team is quarantined, never guessed.
+
+
 def reconstruct(plays,rosters,snaps):
     p=plays[plays.season_type.eq('REG') & plays.two_point_attempt.fillna(0).eq(0)
             & plays.play_deleted.fillna(0).eq(0) & plays.play_type.ne('no_play')].copy()
-    p['team']=p.posteam.map(normalize_team)
+    p['team']=p.posteam.map(team_code)
     chunks=[]
     def add(mask,idcol,values):
         d=p.loc[mask & p[idcol].notna(),['game_id','season','week','team',idcol]].rename(columns={idcol:'pid'}).copy()
@@ -33,11 +39,11 @@ def reconstruct(plays,rosters,snaps):
         if c not in observed:observed[c]=0.
     observed[values]=observed[values].fillna(0)
     observed=observed.groupby(['game_id','season','week','team','pid'],as_index=False)[values].sum()
-    r=rosters.copy();r['team']=r.team.map(normalize_team)
+    r=rosters.copy();r['team']=r.team.map(team_code);r=r[r.team.notna()]
     mapping=r.dropna(subset=['pfr_id','gsis_id'])[['season','week','team','pfr_id','gsis_id']].drop_duplicates()
     unique=~mapping.duplicated(['season','week','team','pfr_id'],keep=False)
     mapping=mapping[unique]
-    sn=snaps[snaps.game_type.eq('REG') & snaps.offense_snaps.gt(0)].copy();sn['team']=sn.team.map(normalize_team)
+    sn=snaps[snaps.game_type.eq('REG') & snaps.offense_snaps.gt(0)].copy();sn['team']=sn.team.map(team_code)
     sn=sn.merge(mapping,left_on=['season','week','team','pfr_player_id'],right_on=['season','week','team','pfr_id'],how='left',validate='many_to_one')
     participants=sn.dropna(subset=['gsis_id'])[['game_id','season','week','team','gsis_id']].rename(columns={'gsis_id':'pid'})
     participants=pd.concat([observed[['game_id','season','week','team','pid']],participants],ignore_index=True).drop_duplicates()
@@ -60,6 +66,7 @@ def reconstruct(plays,rosters,snaps):
     out['target_source']='local PBP + verified offensive snaps; not independently box-score certified'
     report={'known_participant_rows':len(out),'offensive_snap_rows':len(sn),
             'unmatched_snap_rows':int(sn.gsis_id.isna().sum()),
+            'unknown_team_play_rows':int(p.team.isna().sum()),
             'quarantined_games':{'receiving_laterals':len(lateral_rec),'rushing_laterals_or_missing_id':len(lateral_rush|missing_rush),
                                  'missing_scorer_id':len(missing_td),'missing_passer_id':len(missing_pass)},
             'unknown_labels':{s:int(out[s].isna().sum()) for s in STATS},
