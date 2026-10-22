@@ -25,6 +25,9 @@ def rng_for(*tokens):
 
 def prepare(path,protocol,production=False):
     if (path/'PREPARED.json').exists():
+        saved=read(path/'PREPARED.json')
+        if not saved.get('files') or any(S.sha(path/f)!=v for f,v in saved['files'].items()):
+            raise ValueError('Prepared target/feature snapshot changed; resume refused')
         return tuple(pd.read_parquet(path/f) for f in ('players.parquet','games.parquet','observations.parquet','drives.parquet'))
     from ..props.ensemble.features import PBP_COLS
     import pyarrow.parquet as pq
@@ -64,6 +67,7 @@ def prepare(path,protocol,production=False):
             'pregame_injury_known_rows':int(players.r10_injury_known.sum()),'pregame_role_changed_rows':int(players.r10_changed.sum()),
             'rule':'new target version; unknowns excluded per stat identically for all arms. Postgame participation never a feature or pregame eligibility filter. No official player box-score source present locally.'}
     for name,d in [('players',players),('games',games),('observations',obs),('drives',drive)]:d.to_parquet(path/(name+'.parquet'),index=False)
+    report['files']={name+'.parquet':S.sha(path/(name+'.parquet')) for name in ('players','games','observations','drives')}
     write_once(path/'PREPARED.json',report)
     return players,games,obs,drive
 
@@ -164,7 +168,8 @@ def run_block(path,protocol,old,meta,players,games,drives,season,week):
     decision=min(pd.to_datetime(d.kickoff_utc,utc=True).min() for d in current.values())
     histories={s:C.earlier(base_history(path,s,'fpds'),decision) for s in T.STATS}
     parent=A8.ROOT/protocol['parent']
-    for stat in E.GAME_STATS:histories[stat]=C.earlier(load_blocks(parent,f'strong_games__{stat}__control__equal'),decision)
+    game_references={stat:load_blocks(parent,f'strong_games__{stat}__control__equal') for stat in E.GAME_STATS}
+    for stat in E.GAME_STATS:histories[stat]=C.earlier(game_references[stat],decision)
     aux=path/f'AUX_{season}_w{week:02d}.json'
     if aux.exists():corr=np.asarray(read(aux)['correlation'])
     else:
@@ -204,7 +209,7 @@ def run_block(path,protocol,old,meta,players,games,drives,season,week):
             scale=max(scale if np.isfinite(scale) else 1,1)
             scales.append(scale)
             if stat in E.GAME_STATS:
-                ref=load_blocks(parent,f'strong_games__{stat}__control__equal')
+                ref=game_references[stat]
                 row=ref[ref.game_id.eq(g.game_id)]
                 if row.empty:break
                 gen=rng_for('game_energy',g.game_id,stat);z=gen.normal(size=sims)
@@ -302,9 +307,9 @@ def summarize(path,protocol,hashes):
     S.status(path,'complete',comparisons=len(rows),failures=len(failures)+len(errors),nominations=sum(r['nomination'] for r in rows))
 
 
-def project(path,season,week,sims=2000):
+def project(path,season,week,sims=2000,hours=2):
     """Explicit frozen shadow refit, never a production pointer/default change."""
-    protocol,signature=S.registered();hashes=S.inputs(protocol,production=True)
+    protocol,signature=S.registered();hashes=S.inputs(protocol,production=True);deadline=time.monotonic()+hours*3600
     creation=pd.Timestamp.now(tz='UTC')
     write_once(path/'RUN.json',{'created_at':creation.isoformat(),'signature':signature,'protocol':protocol,'inputs':hashes,'action':'project'})
     S.status(path,'preparing',step='explicit frozen shadow refit; no scoring')
@@ -323,6 +328,7 @@ def project(path,season,week,sims=2000):
              **cutoff,'source_feature_cutoff':meta.get('feature_creation_cutoff','unknown; frozen A7 snapshot'),'shadow_only':True}
     output=[];scenarios=[]
     for stat in T.STATS:
+        if time.monotonic()>deadline-300:raise TimeoutError('Insufficient budget for another projection head; partial snapshot retained')
         tr=E.data_for(stat,training,games);tr=tr[tr[stat].notna()]
         target=E.data_for(stat,target_players,games)
         if target.empty:continue
@@ -352,6 +358,7 @@ def project(path,season,week,sims=2000):
     write_once(path/'SCENARIOS_PRIVATE.json',{'metadata':headers,'rows':scenarios})
     past=drives[pd.to_datetime(drives.available_at,utc=True).lt(creation)];game_rows=[]
     for g in target_games.itertuples():
+        if time.monotonic()>deadline-300:raise TimeoutError('Insufficient budget for another game; partial snapshot retained')
         score,info=V.simulate(past,g.home_team,g.away_team,sims,rng_for('project_drive',g.game_id))
         margin=score[:,0]-score[:,1];total=score.sum(1);ties=margin==0
         game_rows.append({'game_id':g.game_id,'home_team':g.home_team,'away_team':g.away_team,

@@ -174,3 +174,21 @@ Pre-fit protocol/source016e7fc; local run20261021T221222Z,23outputs/25comparison
 Aggregate report: research/nfl-ensemble-lab/reports/run_20261021/FPDS_FOLLOWUP_REPORT.md. No price-edge claim, promotion or source-data changes. Target audit excludes kneels/spikes and is not official settlement validation.
 
 A9 QA:415passed/1existing skip/522warnings; nine new targeted tests passed before fits.1448frozen source hashes unchanged; no raw or row-level FPDS committed. No production/forecast changes.
+
+### Amendment10 target/role/joint-simulation study — 2026-10-21
+
+Fixed pre-fit protocol365948d, scientific source4bbc59c; run20261022T004905095944Z.2022–24 previously examined discovery,2021+ earlier training,15blocks,43output configurations/390fit-estimation dispatches/31comparisons/0model failures. Corrected known-label cohorts,2000whole-game draws, family-corrected95%CI/Holm; no2025/2026 evaluation, real2026fit or promotion.
+
+|Family|Evidence / sample|Decision|
+|---|---|---|
+|A10 target reconstruction|1073/13219candidate records unknown; OT/kneels/spikes/scorer IDs included, ambiguous lateral and wrong-team cases quarantined;21/1087drive-source games fail scoreboard checks. Offensive participation establishes known0, rosterACT alone does not.|Challenger: new private target version; independent official certification absent; no claim of accuracy from changing targets/cohort|
+|A10 FPDS provider control|Reception deviance1.493225→1.474132,delta−.019093[−.039334,−.001037],n6153/815games,−1.28%,Holm.03898;2023/24improve,2022worsens. Passing-yard point gain2.07%CI crosses0; otherstatsfail.|Challenger: reception only exploratory nominee; future confirmation required; no price edge/promotion|
+|A10 role-change features|Rec-yardMAE24.254060→24.233924,delta−.020137[−.085619,+.052936],n5848/774games; no target passes.|Rejected for adoption; tiny uncertain changes|
+|A10 empirical role mixture|Passing CRPS43.299773→44.431098,delta+1.131324[+.606159,+1.746260],n1464/795games; rushing CRPS also worsens, no target passes.|Rejected; excessive distribution width; unknown scenario occurrence probabilities/replacement identities never invented|
+|A10 shared conditions|Joint energy1.716023→1.724723,delta+.008701[+.002824,+.014629],n746games; no meaningful marginal gain, ATD probabilities unchanged by construction.|Rejected; statistical copula prototype is not a physically reconciled simulator|
+|A10 discrete drives|Winner Brier.227242→.239636,n813; marginMAE9.882063→10.485729,delta+.603667[+.232814,+.997077],n815; total10.507283→10.762716.|Rejected versus earlier-OOF NFL control; defensive/ST/OT score realism did not improve accuracy|
+|A10 group intervals|Stable WR rec-yard coverage74.24→79.32%,n2481/761games; stable RB stays96.21%,n765/563. Overall interval-score gain.40%<1%gate.|Rejected by fixed adoption gate; useful descriptive subgroup diagnosis only|
+
+New-cohort losses cannot be compared directly with prior reports. Known-label evaluation does not establish inactive/void accuracy. Full report: research/nfl-ensemble-lab/reports/run_20261021/FPDS_TARGET_ROLE_SIMULATION_REPORT.md. Local app view/manual command added; real2026refit not executed. Nothing promoted.
+
+A10 final QA:436passed/1existing skip/522warnings;21targetedpassed; actual aggregate/group app view and completed-resume refusal verified.19actual input hashes unchanged. A prior-run mutable games cache changed in the existing21:00ET scheduler refresh and was not consumed by this study;1447other prior hashes and champion version unchanged. No task created/invoked, source restoration, promotion or2026scoring.

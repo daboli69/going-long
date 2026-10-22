@@ -14,7 +14,8 @@ PROTOCOL=LAB_ROOT/'docs/FPDS_A10_PROTOCOL.json'
 def registered():
     paths=[PROTOCOL,LAB_ROOT/'docs/PHASE10_PREREGISTRATION.md']+sorted(Path(__file__).parent.glob('*.py'))
     paths+=[LAB_ROOT/p for p in ['lab/fpds_manual/engine.py','lab/fpds_research/models.py','lab/fpds_improve/core.py',
-                               'lab/fpds_improve/run.py','lab/fpds_research/features.py','lab/props/ensemble/production.py']]
+                               'lab/fpds_improve/run.py','lab/fpds_research/features.py','lab/props/ensemble/production.py',
+                               'lab/props/ensemble/features.py','lab/props/ensemble/combine.py','lab/fpds_followup.py','lab/ingest.py','lab/players.py']]
     for p in paths:
         rel=subprocess.check_output(['git','ls-files','--full-name',str(p)],cwd=LAB_ROOT,text=True).strip()
         if not rel:raise ValueError('Commit Amendment10 implementation before fitting')
@@ -29,6 +30,10 @@ def inputs(protocol,production=False):
     parent=A8.ROOT/protocol['parent']
     paths=[source/'INPUT.json',parent/'players.parquet',parent/'strong_games.parquet',parent/'RUN.json']
     paths+=[Path(meta['path'])/f for f in meta['files']]
+    for stat in ('win','margin','total'):
+        files=sorted((parent/'blocks'/f'strong_games__{stat}__control__equal').glob('*.parquet'))
+        if len(files)!=15:raise ValueError('Expected complete saved chronological game references')
+        paths+=files
     from ..data_pipeline import INJURY_VALID
     paths+=[INJURY_VALID]
     for s in range(2021,2027 if production else 2025):

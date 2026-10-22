@@ -39,6 +39,14 @@ def render(root=ROOT):
             st.dataframe(frame,hide_index=True,use_container_width=True)
         audit=data.get('audit',{})
         st.caption('Unknown candidate labels by stat: '+str(audit.get('unknown_candidate_labels',{}))+'. Unknowns were excluded identically, never replaced with zeros.')
+        group_file=file.parent/'GROUP_INTERVAL_DIAGNOSTICS.json'
+        if group_file.exists() and st.checkbox('Show interval coverage by position and role',key='a10_coverage'):
+            groups=metadata(str(group_file),group_file.stat().st_mtime_ns).get('rows',[])
+            if groups:
+                table=pd.DataFrame(groups)
+                table['coverage80']=100*table.coverage80
+                st.dataframe(table.rename(columns={'coverage80':'Coverage % (target 80)','role_changed':'Earlier role change'}),hide_index=True,use_container_width=True)
+            st.caption('Overall coverage can hide weak groups. These are descriptive subgroup checks; small samples and widening alone do not establish improved projections.')
         trials=data.get('trials',{})
         st.caption(f"{len(trials.get('outputs',[]))} output configurations; {trials.get('fit_calls',0)} fit calls; {len(data.get('failures',[]))} failed blocks. Scenario occurrence probabilities remain unknown. Manual commands: docs/FPDS_TARGET_ROLE_SIMULATION.md.")
     return active
