@@ -87,6 +87,7 @@ def test_run_writes_new_revision_and_leaves_original_bytes(tmp_path,monkeypatch)
     (job/'REQUEST.json').write_text(json.dumps({'game_id':GAME.game_id,'created_at':pd.Timestamp.now(tz='UTC').isoformat(),
                                               'comparison_sha256':'fixture'}))
     evidence().to_parquet(job/'AVAILABILITY.parquet',index=False)
+    pd.DataFrame({'week':[7],'gsis_id':['starter'],'full_name':['Synthetic Runner'],'position':['RB']}).to_parquet(job/'ROSTER.parquet',index=False)
     monkeypatch.setattr(I,'game_row',lambda *a:GAME)
     monkeypatch.setattr(I.W,'kickoff',lambda *a:pd.Timestamp.now(tz='UTC')+pd.Timedelta(hours=1))
     def archive(**kw):
@@ -94,6 +95,10 @@ def test_run_writes_new_revision_and_leaves_original_bytes(tmp_path,monkeypatch)
         frame=pd.DataFrame({'pid':['qb','missing','starter'],'position':['QB','RB','RB']})
         adjusted,_=kw['availability_adjuster'](GAME,'CHI',frame,'qb')
         assert 'missing' not in set(adjusted.pid)
+        inputs={'rush':pd.DataFrame({'share':[1.]},index=['starter']),
+                'recv':pd.DataFrame({'share':[1.]},index=['starter'])}
+        history=pd.DataFrame({'games_total':[6]},index=['starter'])
+        kw['input_observer'](GAME,[('CHI','qb',inputs)],history)
         directory=kw['out']/'2026_w07';directory.mkdir(parents=True)
         pd.DataFrame([{'team':'CHI','pid':'starter','name':'Synthetic Runner','stat':'rush_yds','version':'v1',
                        'mean':60,'q10':10,'q50':55,'q90':100}]).to_parquet(directory/(GAME.game_id+'.parquet'))
@@ -102,6 +107,8 @@ def test_run_writes_new_revision_and_leaves_original_bytes(tmp_path,monkeypatch)
     assert I.run(job)==0
     assert I.read(job/'STATUS.json')['state']=='complete'
     assert original.read_bytes()==b'immutable original' and (job/'PROJECTIONS.csv').exists()
+    assert I.read(job/'RESULT.json')['workload_path']
+    assert pd.read_csv(job/'PROJECTIONS.csv').carry_share.iloc[0]==1
     saved=(job/'RESULT.json').read_bytes(),(job/'PROJECTIONS.csv').read_bytes()
     assert I.run(job)==0
     assert saved==((job/'RESULT.json').read_bytes(),(job/'PROJECTIONS.csv').read_bytes())
@@ -130,3 +137,34 @@ def test_page_has_manual_controls_and_empty_message(tmp_path):
     assert not at.exception
     assert any('No injury-adjusted simulation' in x.value for x in at.info)
     assert any(x.label=='Refresh simulation status' for x in at.button)
+
+
+def test_reporting_includes_modeled_backup_below_original_cutoff():
+    inputs={'rush':pd.DataFrame({'share':[.7,.108,.192]},index=['starter','backup','qb']),
+            'recv':pd.DataFrame({'share':[1.]},index=['starter'])}
+    rows=I.participants([('CHI','qb',inputs)],pd.DataFrame())
+    assert ('CHI','backup','rush_yds') in rows
+    assert sum(r==('CHI','qb','pass_yds') for r in rows)==1
+    from lab.props.game import eligible
+    assert ('CHI','backup','rush_yds') not in eligible([('CHI','qb',inputs)],pd.DataFrame(index=['starter','backup','qb']))
+
+
+def test_main_game_table_uses_new_revision_and_collapses_original(tmp_path):
+    from streamlit.testing.v1 import AppTest
+    job=tmp_path/'revision';job.mkdir()
+    table=pd.DataFrame({'Team':['CHI'],'Player':['Synthetic Backup'],'Stat':['Rushing yards'],'v1 median':[12.]})
+    table.to_csv(job/'PROJECTIONS.csv',index=False)
+    pd.DataFrame({'team':['CHI'],'pid':['backup'],'player':['Synthetic Backup'],'position':['RB'],
+                  'carry_share':[.108],'target_share':[.02],'limited_history':[False]}).to_csv(job/'WORKLOAD.csv',index=False)
+    result={'state':'complete','game_id':GAME.game_id,'created_at':NOW.isoformat(),'warning':'shadow scenario',
+            'projection_path':str(job/'PROJECTIONS.csv'),'workload_path':str(job/'WORKLOAD.csv')}
+    (job/'RESULT.json').write_text(json.dumps(result))
+    old=[{'team':'CHI','pid':'missing','name':'Synthetic Out Runner','stat':'rush_yds','version':'v1',
+          'mean':40,'q10':10,'q50':35,'q90':80}]
+    at=AppTest.from_string(f'import pandas as pd\nfrom app.props_injury_view import render_game\nrender_game({GAME.game_id!r},pd.DataFrame({old!r}),root={str(tmp_path)!r})').run()
+    assert not at.exception
+    shown=[x.value for x in at.dataframe if 'Player' in x.value.columns]
+    assert 'Synthetic Backup' in shown[0].Player.tolist()
+    assert 'Synthetic Out Runner' not in shown[0].Player.tolist()
+    assert at.dataframe[0].value.carry_share.iloc[0]==pytest.approx(.108)
+    assert any('Original saved forecast' in x.label for x in at.expander)

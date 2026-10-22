@@ -1906,8 +1906,8 @@ def page_props():
     from lab.props import weekly as PW
     st.title("Player Props")
     from app.props_injury_view import render as injury_simulations
-    injury_simulations()
-    st.caption("Play-by-play Monte Carlo player projections (10,000 simulated games each), offense only. Model docs: docs/PROPS_SIMULATOR.md. Refresh upcoming games with `python -m lab.props.weekly preview`; archive pregame with `python -m lab.props.weekly`; score with `python -m lab.props.weekly score`.")
+    injury_simulations(show_results=False)
+    st.caption("Play-by-play player projections, offense only. Use Run injury-adjusted simulation above for refreshed availability. Each game's latest completed shadow copy appears first; original forecasts remain in its historical expander. Model docs: docs/PROPS_SIMULATOR.md.")
     ar_ = PW.load_archive()
     pv_ = PW.load_archive(preview=True)
     if len(pv_) and len(ar_):                      # a preview is shown only until that game is officially archived
@@ -1916,17 +1916,14 @@ def page_props():
     ar_ = pd.concat(parts_, ignore_index=True) if parts_ else ar_
     if len(ar_):
         st.subheader("Projections by game")
-        st.caption("Pregame distributions for every game of the week. Players shown: starting QB, receivers "
-                   "with >= 10% of targets, rushers with >= 20% of carries. Median = the middle outcome; 10-90% = the range "
-                   "8 times in 10. Distribution quality is tested; betting value is not.")
+        st.caption("Original tables use >=10% target / >=20% carry display cutoffs. Injury-adjusted copies also show modeled backups below those cutoffs. Median is the middle simulated outcome; 10-90% is the simulated range, not guaranteed coverage. New lineup assumptions are unvalidated.")
         wks_ = sorted(ar_["week"].unique())
         wk_ = st.selectbox("Week", wks_, index=len(wks_) - 1, key="props_week")
         sc_ = PW.load_scores()
         for gm_ in sorted(ar_.loc[ar_["week"] == wk_, "game_id"].unique()):
             prev_ = ar_.loc[ar_["game_id"] == gm_, "_src"].iloc[0] == "preview"
-            st.markdown(f"**{gm_.split('_')[2]} @ {gm_.split('_')[3]}**" +
-                        (" · _preview (re-run `python -m lab.props.weekly preview` for fresher rosters)_" if prev_ else " · archived pregame"))
-            st.dataframe(PW.projection_table(ar_[ar_["game_id"] == gm_].drop(columns="_src"), sc_).round(1), hide_index=True, use_container_width=True)
+            from app.props_injury_view import render_game
+            render_game(gm_,ar_[ar_["game_id"] == gm_].drop(columns="_src"),sc_,preview=prev_)
     else:
         st.info("No projections yet. Run: .venv/Scripts/python.exe -m lab.props.weekly preview")
 

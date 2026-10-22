@@ -95,7 +95,8 @@ def _qrow(version, x_mean, q):
 
 
 def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=print, only=None, preview=False,
-            availability_adjuster=None, availability_snapshot=None, revision_metadata=None) -> dict:
+            availability_adjuster=None, availability_snapshot=None, revision_metadata=None,
+            player_selector=None, input_observer=None) -> dict:
     """preview=True: overwritable projections under <out>/preview/ for viewing only; never part of the pre-registered test."""
     now = now or pd.Timestamp.now(tz=TZ)
     games = load_games()
@@ -159,7 +160,9 @@ def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=prin
             tp = pan[pan["posteam"] == t]
             hist[t] = (tp[(tp["season"] == season) & (tp["week"] < week)].drop_duplicates("game_id"), tp[tp["season"] == season - 1].drop_duplicates("game_id"))
         teams, pl, cols, info = G.build(a, avail, hist, week, qbs, sides)
-        elig = G.eligible(info, a)
+        elig = (player_selector or G.eligible)(info, a)
+        if input_observer is not None:
+            input_observer(g, info, a)
         imp = [(g.total_line + g.spread_line) / 2, (g.total_line - g.spread_line) / 2]
         seed = zlib.crc32(g.game_id.encode())
         rng = np.random.default_rng(seed)
@@ -182,7 +185,7 @@ def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=prin
                 if v == "v2":
                     x = V2.correct(x, k)
                 rows.append(base | _qrow(v, x.mean(), np.quantile(x, G.LEVELS)))
-            b = G.baseline(a, pid, k, ratio, possd)
+            b = G.baseline(a, pid, k, ratio, possd) if pid in a.index else None
             if b is not None:
                 rows.append(base | _qrow("base", *G.baseline_quantiles(b)))
         df = pd.DataFrame(rows)
@@ -280,7 +283,7 @@ def load_archive(out=OUT, season=SEASON, preview=False) -> pd.DataFrame:
     return pd.concat([pd.read_parquet(f) for f in fs], ignore_index=True) if fs else pd.DataFrame()
 
 
-def projection_table(arch: pd.DataFrame, scores: pd.DataFrame | None = None) -> pd.DataFrame:
+def projection_table(arch: pd.DataFrame, scores: pd.DataFrame | None = None, keep_pid=False) -> pd.DataFrame:
     """One row per offensive player-stat of one game: median / mean / 80% range per version, plus the actual once scored."""
     out = arch[["team", "pid", "name", "stat"]].drop_duplicates().set_index(["team", "pid", "name", "stat"])
     for v, lab in (("v2", "v2"), ("v1", "v1"), ("base", "Baseline")):
@@ -297,7 +300,8 @@ def projection_table(arch: pd.DataFrame, scores: pd.DataFrame | None = None) -> 
         act = act[act["game_id"].isin(arch["game_id"].unique())][["pid", "stat", "actual"]]
         out = out.merge(act.rename(columns={"actual": "Actual"}), on=["pid", "stat"], how="left")
     out["stat"] = pd.Categorical(out["stat"].map(STAT_LABEL), list(STAT_LABEL.values()))
-    return out.sort_values(["team", "stat", "name"]).drop(columns="pid").rename(columns={"team": "Team", "name": "Player", "stat": "Stat"})
+    if not keep_pid:out=out.drop(columns='pid')
+    return out.sort_values(["team", "stat", "name"]).rename(columns={"team": "Team", "name": "Player", "stat": "Stat", "pid":"Player ID"})
 
 
 def summary(out=OUT) -> dict:

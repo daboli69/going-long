@@ -20,6 +20,29 @@ OUT_STATUSES={'out','inactive','ir','pup'}
 def read(path):return json.loads(Path(path).read_text(encoding='utf-8'))
 
 
+def participants(info,a):
+    """Report every already-modeled participant; does not change simulation inputs."""
+    result=[]
+    for team,qb,inputs in info:
+        if qb:result.append((team,qb,'pass_yds'))
+        for pid in inputs['rush'].index[inputs['rush']['share']>0]:result.append((team,pid,'rush_yds'))
+        for pid in inputs['recv'].index[inputs['recv']['share']>0]:
+            result.extend((team,pid,stat) for stat in ('rec','rec_yds'))
+    return list(dict.fromkeys(result))
+
+
+def latest_completed(root=None):
+    """One immutable completed copy per game; creation timestamp, never file mtime."""
+    root=Path(root) if root is not None else ROOT
+    selected={}
+    for path in root.glob('*/RESULT.json'):
+        item=read(path)
+        if item.get('state')!='complete':continue
+        game=item['game_id']
+        if game not in selected or pd.Timestamp(item['created_at'])>pd.Timestamp(selected[game]['created_at']):selected[game]=item
+    return selected
+
+
 def context(game, now, state=None):
     from ..fpds_drop import STATE
     state=Path(state) if state is not None else STATE
@@ -127,22 +150,40 @@ def run(job):
         # A queued job cannot consume a snapshot which has gone stale since launch.
         if now-pd.Timestamp(request['created_at'])>pd.Timedelta(minutes=30):raise ValueError('Queued injury snapshot expired; start a new run.')
         rows=pd.read_parquet(job/'AVAILABILITY.parquet')
+        workload=[]
+        roster=pd.read_parquet(job/'ROSTER.parquet')
+        names=roster[roster.week.eq(game.week)].drop_duplicates('gsis_id').set_index('gsis_id')['full_name'].to_dict()
+        def observe(g,info,history):
+            for team,qb,inputs in info:
+                if inputs['rush'].empty or inputs['recv'].empty:
+                    raise ValueError(f'{team}: no positive-share rushing/receiving allocation; replacement role unknown.')
+                for pid in dict.fromkeys(list(inputs['rush'].index)+list(inputs['recv'].index)):
+                    workload.append({'team':team,'pid':pid,'player':names.get(pid,pid),
+                        'position':roster.loc[roster.gsis_id.eq(pid),'position'].iloc[-1],
+                        'carry_share':float(inputs['rush'].loc[pid,'share']) if pid in inputs['rush'].index else 0.0,
+                        'target_share':float(inputs['recv'].loc[pid,'share']) if pid in inputs['recv'].index else 0.0,
+                        'limited_history':pid not in history.index or float(history.loc[pid].get('games_total',0))<4})
         provenance={'simulation_revision':job.name,'decision_at':now.isoformat(),'anchor_mode':'market-anchored',
                     'simulator_training_through_season':int(game.season)-1,'player_training_through_week':int(game.week)-1,
                     'player_training_season':int(game.season),'availability_snapshot_sha256':request['comparison_sha256']}
         result=W.archive(season=int(game.season),week=int(game.week),now=now,n_sims=10000,out=job/'forecasts',
                          only=[game.game_id],availability_adjuster=adjuster(rows),availability_snapshot=job,
-                         revision_metadata=provenance)
+                         revision_metadata=provenance,player_selector=participants,input_observer=observe)
         if game.game_id not in result['archived']:raise ValueError('Selected game was not simulated.')
         if pd.Timestamp.now(tz='UTC')>=W.kickoff(game.gameday,game.gametime):
             raise ValueError('Run finished after kickoff; withheld, not a pregame forecast.')
         forecast=job/'forecasts'/f'{game.season}_w{int(game.week):02d}'/f'{game.game_id}.parquet'
-        table=W.projection_table(pd.read_parquet(forecast))
+        table=W.projection_table(pd.read_parquet(forecast),keep_pid=True)
+        roles=pd.DataFrame(workload)
+        if len(roles):
+            roles.to_csv(job/'WORKLOAD.csv',index=False,mode='x')
+            table=table.merge(roles.drop(columns='player'),left_on=['Team','Player ID'],right_on=['team','pid'],how='left').drop(columns=['team','pid'])
         for key,value in provenance.items():table[key]=value
         table.to_csv(job/'PROJECTIONS.csv',index=False,mode='x')
         excluded=rows[rows.effective_status.isin(OUT_STATUSES)][['team','pid','effective_status']].to_dict('records')
         done={'state':'complete','created_at':pd.Timestamp.now(tz='UTC').isoformat(),'game_id':game.game_id,
               'projection_path':str(job/'PROJECTIONS.csv'),'excluded':excluded,'n_sims':10000,
+              'workload_path':str(job/'WORKLOAD.csv') if len(roles) else None,
               'training_cutoff':'Simulator: 2025 season end; player roles: weeks before '+str(game.week)+' of '+str(game.season),
               'warning':'Assumption-based market-anchored shadow. V1/v2 workload redistribution; baseline B unchanged. No winner/FPDS/Phase10 sheet update.',
               'source_snapshot':request['comparison_sha256']}

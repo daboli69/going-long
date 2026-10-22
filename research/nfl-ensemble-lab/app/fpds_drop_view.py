@@ -15,6 +15,7 @@ def sheet(path,mtime):return pd.read_csv(path)
 
 
 def render(root=None):
+    isolated_root=Path(root)/'injury_simulations' if root is not None else None
     root=Path(root) if root is not None else STATE
     with st.expander('Weekly folders and injury updates',expanded=True):
         st.caption('Week 8 means predict Week 8 using completed Week 7 statistics. START_HERE: 3 = Tuesday refresh; 6 = injury-only import. Source CSVs are never modified.')
@@ -71,4 +72,4 @@ def render(root=None):
             if saved.get('conflicts'):st.warning('Injury sources disagree. Official status stays preferred; secondary conflicts remain unresolved. Review before interpreting forecasts.')
             if saved.get('source_errors'):st.warning('Some cached comparison feeds were unavailable: '+', '.join(saved['source_errors']))
     from app.props_injury_view import render as injury_simulations
-    injury_simulations()
+    injury_simulations(root=isolated_root)
