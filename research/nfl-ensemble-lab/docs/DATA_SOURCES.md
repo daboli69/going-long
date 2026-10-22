@@ -2,7 +2,7 @@
 
 Amendment 4 (2026-10-20): manually supplied Fantasy Points CSV exports are read
 only from `GOING/FantasyPoints/Inbox`; there is no website access or new service.
-`import_fpds.bat` creates immutable hashed copies in ignored `data/raw/fpds/`
+`scripts\launchers\import_fpds.bat` creates immutable hashed copies in ignored `data/raw/fpds/`
 and versioned private features in `data/cache/fpds/`. Explicit weekly records are
 lagged beyond their source week; undated season summaries remain separate.
 Historical weekly features are event-time reconstructions, with no verified

@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 title NFL Ensemble Lab
 if not exist ".venv\Scripts\python.exe" (
-    echo [ERROR] The lab is not installed yet. Double-click setup_windows.bat first.
+    echo [ERROR] The lab is not installed yet. Double-click scripts\launchers\setup_windows.bat first.
     pause
     exit /b 1
 )
@@ -16,6 +16,6 @@ if errorlevel 1 (
     echo.
     echo [ERROR] The dashboard stopped with an error, shown above.
     echo   - If port 8501 is busy, close other lab windows and try again.
-    echo   - If a package is missing, run setup_windows.bat again.
+    echo   - If a package is missing, run scripts\launchers\setup_windows.bat again.
     pause
 )

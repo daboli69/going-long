@@ -1,6 +1,6 @@
 # Six follow-up tests (Amendment9)
 
-Run locally with `run_fpds_followups.bat`. The command uses Idle priority and leaves two logical cores free. The default budget is two hours. Inspect `run_fpds_followups.bat status`; resume an incomplete frozen snapshot with `run_fpds_followups.bat resume --run RUN_ID --hours 2`. Completed studies cannot be overwritten. Failed blocks are retained and skipped; their family cannot qualify. Stop with Ctrl+C and retain the checkpoint.
+Run locally with `scripts\launchers\run_fpds_followups.bat`. The command uses Idle priority and leaves two logical cores free. The default budget is two hours. Inspect `scripts\launchers\run_fpds_followups.bat status`; resume an incomplete frozen snapshot with `scripts\launchers\run_fpds_followups.bat resume --run RUN_ID --hours 2`. Completed studies cannot be overwritten. Failed blocks are retained and skipped; their family cannot qualify. Stop with Ctrl+C and retain the checkpoint.
 
 The committed `FPDS_A9_PROTOCOL.json` fixes every formula, split, metric and threshold before fits. These are already examined 2022–2024 discovery seasons, not a new holdout. The program does not refresh providers, run the spent props evaluation, score 2025/2026, change the champion or write forecasts.
 

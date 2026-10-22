@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 title NFL Ensemble Lab - Refresh Now
 if not exist ".venv\Scripts\python.exe" (
-    echo [ERROR] Run setup_windows.bat first.
+    echo [ERROR] Run scripts\launchers\setup_windows.bat first.
     exit /b 1
 )
 rem Manual "refresh now": full data refresh, then one scheduler tick (runs any refresh or

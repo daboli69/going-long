@@ -1,6 +1,6 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 title NFL Ensemble Lab - Upset Research Run
 if not exist ".venv\Scripts\python.exe" (
     echo [ERROR] Run setup_windows.bat first.
@@ -18,6 +18,6 @@ if errorlevel 1 (
     echo If it says the readiness gate failed, open artifacts\readiness_report.json
 ) else (
     echo Done. Opening the reports folder.
-    start "" "%~dp0reports"
+    start "" "reports"
 )
 pause

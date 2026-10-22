@@ -1,6 +1,6 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 if not exist ".venv\Scripts\python.exe" exit /b 1
 echo Local FPDS shadow pipeline. Never promotes, publishes or overwrites earlier forecasts.
 ".venv\Scripts\python.exe" -m lab.low_priority -m lab.fpds_weekly_guard --branch-only

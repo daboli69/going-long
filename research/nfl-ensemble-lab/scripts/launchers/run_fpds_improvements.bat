@@ -1,5 +1,5 @@
 @echo off
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 if "%~1"=="" (
   .venv\Scripts\python.exe -m lab.low_priority -m lab.fpds_improve run --hours 3
 ) else (

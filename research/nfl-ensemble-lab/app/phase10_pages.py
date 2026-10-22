@@ -209,7 +209,7 @@ def render(kind="projections", reports=None):
     st.button("Reload saved sheets",help="Reload the file inventory only; no fetch, fit or promotion.",key=kind+"_reload")
     path = latest_sheet(reports, kind)
     if path is None:
-        st.info(f"No {kind} sheets available. Run run_week_projections.bat after reviewing its options.")
+        st.info(f"No {kind} sheets available. Run scripts/launchers/run_week_projections.bat after reviewing its options.")
         return
     choices=sorted([p for p in reports.glob(kind+"_*.csv") if sheet_key(p) is not None],key=sheet_key,reverse=True)
     chosen=st.selectbox("Forecast sheet (newest revision first)",[p.name for p in choices],key=kind+"_snapshot")

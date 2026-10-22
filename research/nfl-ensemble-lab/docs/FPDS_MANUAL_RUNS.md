@@ -14,23 +14,23 @@ Choose **Games + props**, **Games**, or **Player props**. The week selector appl
 
 `GOING/FantasyPoints/Inbox/All historical data from 2021-2026 week 6` is authoritative. Loose legacy exports cannot replace it because of a newer modified date. A later matching `week7`, `week8`, etc. export can update a table only if its headers match and it retains the base export's historical season/week coverage. Partial newer exports stop with a clear error instead of dropping historical seasons. Unknown loose tables are not silently added. No Inbox file is modified, moved or deleted. Earlier hashed copies remain available.
 
-Use `import_fpds.bat` or the supported worker/manual commands below; the archived Amendment6 package remains unchanged for reproducibility. Old raw-package discovery commands are not the manual workflow. `run_fpds_research.bat` now opens the manual menu by default rather than accidentally starting another269-trial Amendment6 study.
+Use `scripts\launchers\import_fpds.bat` or the supported worker/manual commands below; the archived Amendment6 package remains unchanged for reproducibility. Old raw-package discovery commands are not the manual workflow. `scripts\launchers\run_fpds_research.bat` now opens the manual menu by default rather than accidentally starting another269-trial Amendment6 study.
 
 ## Commands
 
 From this lab folder:
 
 ```bat
-run_manual_fpds.bat
-run_manual_fpds.bat project --week 7 --scope all --sims 10000 --seed 17
-run_manual_fpds.bat project --week 8 --scope games
-run_manual_fpds.bat compare --scope games --hours 2
-run_manual_fpds.bat compare --scope props --hours 2
-run_manual_fpds.bat prepare --week 7
-run_manual_fpds.bat plan
-run_manual_fpds.bat status
-run_manual_fpds.bat resume --job <saved-job-id> --hours 2
-run_manual_fpds.bat stop --job <saved-job-id>
+scripts\launchers\run_manual_fpds.bat
+scripts\launchers\run_manual_fpds.bat project --week 7 --scope all --sims 10000 --seed 17
+scripts\launchers\run_manual_fpds.bat project --week 8 --scope games
+scripts\launchers\run_manual_fpds.bat compare --scope games --hours 2
+scripts\launchers\run_manual_fpds.bat compare --scope props --hours 2
+scripts\launchers\run_manual_fpds.bat prepare --week 7
+scripts\launchers\run_manual_fpds.bat plan
+scripts\launchers\run_manual_fpds.bat status
+scripts\launchers\run_manual_fpds.bat resume --job <saved-job-id> --hours 2
+scripts\launchers\run_manual_fpds.bat stop --job <saved-job-id>
 ```
 
 `--no-refresh` uses the existing prepared NFL/FPDS cache only if its source selection still matches the authoritative files. A later week needs prepared player rows for that week; leave refresh enabled to create them. Missing future rows stop clearly. Forecast workers have a2h admission window before the first selected kickoff and a2h runtime cap; comparison jobs can be budgeted up to6h. Budgets stop before another model block; a current fit finishes before the next checkpoint. Use exact resume for a held data/configuration snapshot, or start a new run to incorporate fresh data.
@@ -51,4 +51,4 @@ Jobs, checkpoints, private logs and derived forecasts live under ignored `data/c
 
 Market lines enter after independent fitting, as benchmarks. Closing game lines support historical forecast-loss comparisons; historical prop prices are absent. No tradable edge or return is inferred. All forecasts remain tier C until stability, coherence, scenarios and genuine prospective validation are established. Revised/capped exports and unverified historical publication dates still limit conclusions.
 
-`run_weekly_fpds.bat` remains the separate Amendment6 frozen archival workflow. It is preserved; use the manual page/menu above to force matched FPDS challengers for games and props rather than silently replacing its frozen control choices.
+`scripts\launchers\run_weekly_fpds.bat` remains the separate Amendment6 frozen archival workflow. It is preserved; use the manual page/menu above to force matched FPDS challengers for games and props rather than silently replacing its frozen control choices.

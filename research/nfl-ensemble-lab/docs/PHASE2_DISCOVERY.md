@@ -2,7 +2,7 @@
 
 Experiment **d20261016_230432**, inputs frozen from Phase 1 model **v20261016_212540**
 (champion: validation-weighted average). Artifacts: `artifacts/discovery/d20261016_230432/`
-(read-only). Reproduce: `run_research.bat`, or the Research Runs page.
+(read-only). Reproduce: `scripts\launchers\run_research.bat`, or the Research Runs page.
 
 ## Readiness gate (real data, `python -m lab.readiness`)
 | Check | Result |
@@ -69,7 +69,7 @@ season**, and the original ensemble remains the primary forecast.
 Baseline log loss on the evaluation seasons for reference: ensemble 0.6091 (2024), 0.6539 (2023);
 closing market 0.5888 (2024), 0.6265 (2023).
 
-**Reproducibility:** a second full run via `run_research.bat` (experiment d20261016_230826) had identical input hashes and identical counts.
+**Reproducibility:** a second full run via `scripts\launchers\run_research.bat` (experiment d20261016_230826) had identical input hashes and identical counts.
 
 **Prospective:** 0 completed games so far have a prediction archived before kickoff. Week 6 snapshots
 exist and will count once those games finish.

@@ -10,7 +10,7 @@ all archives are unchanged.
 
 ## 1. Live scheduler isolation
 This is handled in a separate linked session ("Run NFL lab scheduler from a pinned release copy"). It is building
-`lab/release.py`, `release_lab.bat` and `docs/RELEASES.md`: a pinned release copy with its own cache slot, tests, pre-warm and
+`lab/release.py`, `scripts\launchers\release_lab.bat` and `docs/RELEASES.md`: a pinned release copy with its own cache slot, tests, pre-warm and
 rollback.
 - **Current state:** the real Windows task still points at the development checkout.
 - **Why it isn't switched:** a cross-session message relaying approval to switch it was blocked by the permission system, so

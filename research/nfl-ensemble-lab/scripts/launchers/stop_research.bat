@@ -1,6 +1,6 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 title NFL Ensemble Lab - Stop Research
 if not exist ".venv\Scripts\python.exe" (
     echo [ERROR] Run setup_windows.bat first.

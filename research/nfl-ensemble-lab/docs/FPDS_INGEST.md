@@ -266,7 +266,7 @@ Inventory: 145 files; imported unique CSV copies 139; weekly feature tables 6. I
 - Missing/ambiguous player/team mapping rows: 7953; malformed rows: 0; source files without explicit season: 8. Private identity details: `data/cache/fpds/imports/60db5c9ef7f17898ae0d/unmatched.json` (never commit or print).
 - No GSIS/player/game IDs are guessed. Source-native IDs are kept distinct from GSIS. Team/season/week schedule joins require one exact regular-season game. Conflicting duplicates are excluded, not averaged.
 - Weekly features use last8 known source games (rates averaged as rates; not pooled event rates); cumulative weekly snapshots use the latest value. Source-week w enters only later weeks and after the final scheduled kickoff in w plus24h. Explicit observation-aware mode also requires actual import before decision; it is unavailable retrospectively.
-- Import command: `import_fpds.bat`. It copies, never moves; existing raw imports/manifests/caches are never overwritten. Exact repeat returns the saved import. Changing source content appends a new cache revision. All model-facing row data remain ignored/local.
+- Import command: `scripts\launchers\import_fpds.bat`. It copies, never moves; existing raw imports/manifests/caches are never overwritten. Exact repeat returns the saved import. Changing source content appends a new cache revision. All model-facing row data remain ignored/local.
 
 ## Header schemas (no data rows)
 

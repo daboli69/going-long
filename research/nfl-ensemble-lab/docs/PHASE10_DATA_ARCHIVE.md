@@ -4,7 +4,7 @@
 
 Launch the local app with `launch_lab.bat`, then choose **Projections** or
 **Leans**. Generate a fresh append-only shadow revision with
-`run_week_projections.bat --week 8` (omit week to use the next week after the
+`scripts\launchers\run_week_projections.bat --week 8` (omit week to use the next week after the
 last wholly completed week). `--plan` prints the planned slate/cutoff without
 refreshing or fitting. Default runtime cap is150 minutes; `--max-minutes` changes
 the operational budget, never model parameters. Default simulations are1,000
@@ -92,7 +92,7 @@ time. Existing forecast files are reused without alteration. The independent
 ensemble never includes the market-anchored member; that member appears only in
 the separately labelled market-informed comparison.
 
-`run_weekly_predictions.bat` writes these sheets after the existing winner report.
+`scripts\launchers\run_weekly_predictions.bat` writes these sheets after the existing winner report.
 CSV/Markdown work with the lab environment alone. A local Artifact Tool runtime
 can also export `.xlsx` using `scripts/projections_xlsx.mjs` when
 `NFL_LAB_ARTIFACT_NODE` names its Node executable and `NFL_LAB_ARTIFACT_WORKSPACE`

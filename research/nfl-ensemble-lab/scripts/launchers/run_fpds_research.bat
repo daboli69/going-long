@@ -1,9 +1,9 @@
 @echo off
 setlocal
-cd /d "%~dp0"
+cd /d "%~dp0..\.."
 if not exist ".venv\Scripts\python.exe" exit /b 1
 if not "%~1"=="" goto command
-call run_manual_fpds.bat
+call "%~dp0run_manual_fpds.bat"
 exit /b %errorlevel%
 :command
 if "%~1"=="compare" goto manual

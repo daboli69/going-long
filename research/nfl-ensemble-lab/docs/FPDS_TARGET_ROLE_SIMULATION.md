@@ -5,11 +5,11 @@ Open `launch_lab.bat` → Research → FPDS Research → **Targets, roles & simu
 Manual commands from the lab directory:
 
 ```bat
-run_fpds_simulation.bat status
-run_fpds_simulation.bat audit
-run_fpds_simulation.bat research --hours 2
-run_fpds_simulation.bat resume --run EXACT_RUN_ID --hours 2
-run_fpds_simulation.bat project --season 2026 --week 7 --sims 2000
+scripts\launchers\run_fpds_simulation.bat status
+scripts\launchers\run_fpds_simulation.bat audit
+scripts\launchers\run_fpds_simulation.bat research --hours 2
+scripts\launchers\run_fpds_simulation.bat resume --run EXACT_RUN_ID --hours 2
+scripts\launchers\run_fpds_simulation.bat project --season 2026 --week 7 --sims 2000
 ```
 
 Research uses the committed fixed trial budget and previously examined2022–2024 discovery. A completed run cannot be resumed or overwritten. Do not repeat a study as new evidence. Interrupted runs retain immutable blocks; resume requires the exact source/code/library fingerprints. Failed blocks remain skipped and disqualify the family. No2025/2026 model selection or spent evaluation command occurs. Commands set Idle priority and use cores minus two. A separate worker does the fitting; the app never fits on render. Stop with Ctrl+C to retain completed checkpoints. Models and row-level outputs stay ignored under `data/cache/fpds/amendment6/simulation10/`.

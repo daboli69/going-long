@@ -1,16 +1,36 @@
 # NFL Ensemble Lab: start here
 
+## What should I click?
+
+Double-click **`START_HERE.bat`**. Press **Enter** to open the dashboard, or choose:
+
+| Option | Purpose |
+| --- | --- |
+| 1 — Dashboard | Browse projections, leans and research; manually start simulations in Research → FPDS Research. |
+| 2 — Generate FPDS projections | Run the manual shadow game/player projection workflow for the next unstarted week. |
+| 3 — Weekly FPDS refresh | Import new downloads, refresh inputs and produce a new frozen shadow forecast revision. |
+| 4 — Import downloads | Import/audit FPDS only; no model training. |
+| 5 — Reports | Open saved reports. |
+| A — Advanced | Data refresh, older weekly workflows, job status, setup and specialist scripts. |
+
+The 15 specialist batch files now live in **`scripts\launchers\`**. Run their commands from this lab folder with that prefix; existing command arguments still work. Research scripts may start long studies when double-clicked, so use the dashboard to review saved evidence first. Maintenance/publication tools are retained there for reference, outside the menu. This reorganization does not run them.
+
+`launch_lab.bat` still opens the dashboard directly. `refresh_data.bat` stays in place for existing scheduled tasks; no task was changed. Older immutable research reports may show the former batch paths.
+
+Command-line shortcut: `START_HERE.bat dashboard`, `START_HERE.bat project`, or `START_HERE.bat status`.
+
+
 ## Manually run FPDS simulations and comparisons
 
 Open **`launch_lab.bat` → Research → FPDS Research**. Choose the future week and **Games + props**, **Games**, or **Player props**, then click **Run projections**. This trains on all eligible available years from 2021 through the valid completed-week cutoff, using both NFL-only and FPDS shadow ensembles. Future-week forecasts use information available today; they do not invent future results or lineups.
 
 Click **Compare FPDS** to test identical game/prop model families with and without FPDS on fixed 2022–24 development data. **Prepare data** imports/builds histories without fitting. Draw count, seed and runtime live in one settings expander. Manual runs preserve all frozen forecasts and the production champion. No new 2025 confirmation or 2026 selection is offered.
 
-For a command menu, double-click **`run_manual_fpds.bat`**. Examples: `run_manual_fpds.bat project --week 8 --scope all` and `run_manual_fpds.bat compare --scope games`. See [manual controls and source precedence](docs/FPDS_MANUAL_RUNS.md). The full-history subfolder supersedes loose legacy Inbox files; later weekly exports must retain its historical coverage.
+For a command menu, double-click **`scripts\launchers\run_manual_fpds.bat`**. Examples: `scripts\launchers\run_manual_fpds.bat project --week 8 --scope all` and `scripts\launchers\run_manual_fpds.bat compare --scope games`. See [manual controls and source precedence](docs/FPDS_MANUAL_RUNS.md). The full-history subfolder supersedes loose legacy Inbox files; later weekly exports must retain its historical coverage.
 
 ## Local FPDS weekly refresh (Amendment 6)
 
-Drop the new full-history `week N` CSVs into `GOING\FantasyPoints\Inbox`, then run **`run_weekly_fpds.bat`** from this folder (`--week 8` selects a week explicitly). The Inbox is read-only to the program. It imports hashed versions, audits revisions, refreshes NFL inputs and authorized local lines, refits committed frozen shadow configurations, and prints the new private projection/leans paths. It requires the frozen discovery selection and completed single validation; failures stop clearly and preserve earlier files. Do not upload or commit the local subscription derivatives.
+Drop the new full-history `week N` CSVs into `GOING\FantasyPoints\Inbox`, then run **`scripts\launchers\run_weekly_fpds.bat`** from this folder (`--week 8` selects a week explicitly). The Inbox is read-only to the program. It imports hashed versions, audits revisions, refreshes NFL inputs and authorized local lines, refits committed frozen shadow configurations, and prints the new private projection/leans paths. It requires the frozen discovery selection and completed single validation; failures stop clearly and preserve earlier files. Do not upload or commit the local subscription derivatives.
 
 Without `--week`, the next future regular-season kickoff selects the target week; refreshed results determine the completed-week training cutoff. Stale completion flags cannot send the default run back to last week.
 
@@ -18,7 +38,7 @@ See [the FPDS runbook](docs/FPDS_RESEARCH_PROGRAM.md), [data dictionary](docs/FP
 
 The [weekly download list](docs/FPDS_WEEKLY_DOWNLOADS.md) distinguishes frozen input requirements from exploratory table importance. The [full research report](reports/run_20261020/FPDS_FULL_REPORT.md) records the single frozen confirmation and remaining limits; complete aggregate metrics are in `FPDS_A6_RESULTS.json` and `FPDS_A6_CONFIRMATION.json` beside it.
 
-Open **`launch_lab.bat` → Section: Research → Page: FPDS Research** for aggregate coverage, errors and evidence. The page is view-only and never reads subscription rows. The weekly command prints the reviewed private presentation folder containing `projections.csv` and `leans.csv`; use that presentation rather than the intermediate computational sheets. A refit is blocked within2h of kickoff. Use **`run_weekly_fpds.bat --comparisons-only`** to refresh authorized archived prices and comparisons without changing model forecasts. Same-book pregame quote tracking is descriptive; the last archived quote is a closing proxy, not a verified actual close.
+Open **`launch_lab.bat` → Section: Research → Page: FPDS Research** for aggregate coverage, errors and evidence. The page is view-only and never reads subscription rows. The weekly command prints the reviewed private presentation folder containing `projections.csv` and `leans.csv`; use that presentation rather than the intermediate computational sheets. A refit is blocked within2h of kickoff. Use **`scripts\launchers\run_weekly_fpds.bat --comparisons-only`** to refresh authorized archived prices and comparisons without changing model forecasts. Same-book pregame quote tracking is descriptive; the last archived quote is a closing proxy, not a verified actual close.
 
 A local research lab on your Windows PC. Six machine-learning models each
 forecast every NFL game. They vote, explain their reasoning, and are combined
@@ -31,7 +51,7 @@ and it is not connected to the GOING website.
 1. Install **Python 3.12** from <https://www.python.org/downloads/windows/>.
    In the installer, tick **"Add python.exe to PATH"**.
 2. Open this folder (`GOING\research\nfl-ensemble-lab`) and double-click
-   **`setup_windows.bat`**. Wait for "Setup complete".
+   **`scripts\launchers\setup_windows.bat`**. Wait for "Setup complete".
 3. Double-click **`launch_lab.bat`**. Your browser opens the lab at
    <http://localhost:8501>. Keep the black window open while you use it.
 4. In the lab:
@@ -68,14 +88,14 @@ evidence remains unknown. No page render refreshes data, fits or promotes a mode
 One command for a new weekly shadow revision (run from this folder):
 
 ```powershell
-.\run_week_projections.bat --week 8
+.\scripts\launchers\run_week_projections.bat --week 8
 ```
 
 Omit `--week` to use the next week after the last wholly completed week. The
 runner stops on any failed phase and prints a manifest plus sheet paths; earlier
 forecasts are never replaced. This is separate from the champion workflow below.
 
-For manually downloaded Fantasy Points exports, run `import_fpds.bat`. It reads
+For manually downloaded Fantasy Points exports, run `scripts\launchers\import_fpds.bat`. It reads
 the sibling `GOING\FantasyPoints\Inbox` without changing it, preserves hashed
 copies and creates private weekly feature caches. Read `docs/FPDS_INGEST.md` for
 coverage, missing weeks and mapping counts. Subscription files and row-level
@@ -85,7 +105,7 @@ and the tentative weekly download list: `reports/run_20261020/FPDS_REPORT.md`.
 
 - Double-click **`launch_lab.bat`**, open **Weekly Predictions**, click **Generate Weekly Predictions**,
   then download the Excel file. Or
-- double-click **`run_weekly_predictions.bat`**: it refreshes data, predicts the next week with
+- double-click **`scripts\launchers\run_weekly_predictions.bat`**: it refreshes data, predicts the next week with
   the saved models (no retraining), and opens the `reports` folder.
 
 Retrain occasionally (for example monthly) so the models learn from new games. Old
@@ -177,8 +197,8 @@ inactives (partial) and labels them that way.
 **Which code the task runs:** the task should run a pinned, tested release (`releases
 un_tick.pyw`),
 not this development checkout, so code edits can never break a live pregame forecast. Use
-`release_lab.bat release <tag>` to ship, `release_lab.bat rollback` to go back, and
-`release_lab.bat status` to see which code runs. The Live Readiness page shows the same thing
+`scripts\launchers\release_lab.bat release <tag>` to ship, `scripts\launchers\release_lab.bat rollback` to go back, and
+`scripts\launchers\release_lab.bat status` to see which code runs. The Live Readiness page shows the same thing
 ("Scheduler code version"). Full procedure: `docs/RELEASES.md`.
 
 ## Automatic prospective tracking (Phase 3)
@@ -203,12 +223,12 @@ Dashboard pages: **Prospective Performance** (unseen 2026 games only), **Predict
 
 ## Overnight model research (Phase 4)
 
-1. Double-click **`run_overnight_research.bat`**, type `8` and press Enter (or 1, 4, 12).
+1. Double-click **`scripts\launchers\run_overnight_research.bat`**, type `8` and press Enter (or 1, 4, 12).
 2. You can close that window. Research keeps running in the background at low priority, using
    about 6 of your 16 CPU threads, so the PC stays usable.
 3. In the morning, open the dashboard (**`launch_lab.bat`**) → **Long-Run Research**. You'll see
    trials per model, the best version of each of the six models, and the one-time validation check.
-4. To stop early: **`stop_research.bat`** or the Stop button. Completed trials are always kept. A stopped
+4. To stop early: **`scripts\launchers\stop_research.bat`** or the Stop button. Completed trials are always kept. A stopped
    or interrupted job can be resumed from the same page ("Resume").
 
 Only one research job can run at a time. Research never replaces the champion: a model that wins its
@@ -230,7 +250,7 @@ stats, personnel, roster experience), matchup views, and whether those features 
 
 ## Upset Discovery (Phase 2 research)
 
-- Double-click **`run_research.bat`** (a few minutes). It refreshes data, runs the readiness gate,
+- Double-click **`scripts\launchers\run_research.bat`** (a few minutes). It refreshes data, runs the readiness gate,
   searches for upset/mispricing patterns, validates them on later seasons, makes experimental
   forecasts for the upcoming week, and writes `reports/NFL_Upset_Discovery.xlsx`.
 - In the dashboard: **Upset Discovery** (catalog), **Upset Explorer** (one game: original vs
@@ -276,12 +296,12 @@ For developers: `.venv\Scripts\python.exe -m pytest` runs the test suite;
 
 ### Test the five FPDS improvement families locally
 
-Run `run_fpds_improvements.bat` for the committed, checkpointed Amendment8 shadow study. It reuses the completed A7 snapshot and tests stronger game features, target-specific FPDS, earlier-only combinations, coherent opportunity models and distribution/calibration changes. View aggregates under **Research → FPDS Research → Model improvements — Amendment 8**. No champion change or new2025 evaluation. See `docs/FPDS_IMPROVEMENTS.md` for exact status/resume commands and limitations.
+Run `scripts\launchers\run_fpds_improvements.bat` for the committed, checkpointed Amendment8 shadow study. It reuses the completed A7 snapshot and tests stronger game features, target-specific FPDS, earlier-only combinations, coherent opportunity models and distribution/calibration changes. View aggregates under **Research → FPDS Research → Model improvements — Amendment 8**. No champion change or new2025 evaluation. See `docs/FPDS_IMPROVEMENTS.md` for exact status/resume commands and limitations.
 
 ### Review the six follow-up tests
 
-The completed Amendment9 report is `reports/run_20261021/FPDS_FOLLOWUP_REPORT.md`. It audits target definitions and tests matched NFL-only quantiles, earlier-OOF residual corrections, soft team constraints, interval calibration and probability shrinkage. `run_fpds_followups.bat status` shows saved run states; completed runs are immutable. New runs consume the same examined discovery data and do not create independent confirmation. See `docs/FPDS_FOLLOWUP_TESTS.md` for the bounded manual run/resume commands. All outputs remain shadow; neither the champion nor weekly forecasts change.
+The completed Amendment9 report is `reports/run_20261021/FPDS_FOLLOWUP_REPORT.md`. It audits target definitions and tests matched NFL-only quantiles, earlier-OOF residual corrections, soft team constraints, interval calibration and probability shrinkage. `scripts\launchers\run_fpds_followups.bat status` shows saved run states; completed runs are immutable. New runs consume the same examined discovery data and do not create independent confirmation. See `docs/FPDS_FOLLOWUP_TESTS.md` for the bounded manual run/resume commands. All outputs remain shadow; neither the champion nor weekly forecasts change.
 
 ### Corrected targets, role uncertainty and joint simulations
 
-Open **Research → FPDS Research → Targets, roles & simulations — Amendment10** for the saved aggregate study. `run_fpds_simulation.bat status` shows its state. `run_fpds_simulation.bat` starts the bounded, checkpointed fixed discovery study; `run_fpds_simulation.bat project --season 2026 --week 7 --sims 2000` explicitly creates a new private shadow revision from prepared candidates and the frozen experimental configuration. Neither command changes default forecasts or the champion. Future weeks need an updated prepared pregame source snapshot. Unknown outcomes/scenario probabilities stay unknown. See `docs/FPDS_TARGET_ROLE_SIMULATION.md` for target exclusions, source age, exact commands and limitations.
+Open **Research → FPDS Research → Targets, roles & simulations — Amendment10** for the saved aggregate study. `scripts\launchers\run_fpds_simulation.bat status` shows its state. `scripts\launchers\run_fpds_simulation.bat` starts the bounded, checkpointed fixed discovery study; `scripts\launchers\run_fpds_simulation.bat project --season 2026 --week 7 --sims 2000` explicitly creates a new private shadow revision from prepared candidates and the frozen experimental configuration. Neither command changes default forecasts or the champion. Future weeks need an updated prepared pregame source snapshot. Unknown outcomes/scenario probabilities stay unknown. See `docs/FPDS_TARGET_ROLE_SIMULATION.md` for target exclusions, source age, exact commands and limitations.

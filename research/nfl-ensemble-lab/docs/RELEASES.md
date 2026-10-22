@@ -5,7 +5,7 @@ from this development checkout. An in-progress edit could break or slow live pre
 happened on 2026-10-17 at 16:40 UTC. A code edit also changes the Phase 7.3 cache key, so the next
 tick cold-rebuilds for about 135 s. The fix is to have the task run a frozen, tested copy of one commit.
 
-Tool: `lab/release.py` (`release_lab.bat <command>` is the same thing). Nothing here changes model
+Tool: `lab/release.py` (`scripts\launchers\release_lab.bat <command>` is the same thing). Nothing here changes model
 logic, archives, snapshots or the challenger registry.
 
 ## Layout
@@ -36,9 +36,9 @@ back to development code.
 
 ```bat
 git tag lab-v7.3.1 <commit>                 :: optional; any ref works, tags give readable labels
-release_lab.bat release lab-v7.3.1 --dry-run
-release_lab.bat release lab-v7.3.1
-release_lab.bat status
+scripts\launchers\release_lab.bat release lab-v7.3.1 --dry-run
+scripts\launchers\release_lab.bat release lab-v7.3.1
+scripts\launchers\release_lab.bat status
 ```
 
 `release` runs these steps in order and stops at the first failure. Nothing goes live unless every
@@ -56,9 +56,9 @@ step passes.
 ## Rollback
 
 ```bat
-release_lab.bat rollback              :: back to CURRENT.previous (instant; its cache slot is normally warm)
-release_lab.bat rollback <label>      :: any release that passed its tests
-release_lab.bat rollback --prewarm    :: re-warm under the lock first (if its slot was pruned)
+scripts\launchers\release_lab.bat rollback              :: back to CURRENT.previous (instant; its cache slot is normally warm)
+scripts\launchers\release_lab.bat rollback <label>      :: any release that passed its tests
+scripts\launchers\release_lab.bat rollback --prewarm    :: re-warm under the lock first (if its slot was pruned)
 ```
 
 Emergency fallback to the old behaviour (the task runs the dev checkout again):
@@ -67,7 +67,7 @@ line from `task-commands`.
 
 ## Switching the Windows task (one time, Travis approves)
 
-`release_lab.bat task-commands` prints the exact PowerShell for both directions. To apply it:
+`scripts\launchers\release_lab.bat task-commands` prints the exact PowerShell for both directions. To apply it:
 
 ```bat
 .venv\Scripts\python.exe -m lab.release switch-task release --confirm
@@ -78,7 +78,7 @@ This saves the current action to `releases/task_action_backup_<utc>.json` first.
 `pythonw.exe -W ignore "<lab>\releases\run_tick.pyw"`, working directory `<lab>\releases`. Later
 releases only flip `CURRENT.json`, so the task never needs editing again.
 
-Check after switching: `release_lab.bat status` should show `task_mode: pinned`, and
+Check after switching: `scripts\launchers\release_lab.bat status` should show `task_mode: pinned`, and
 `last_launcher_tick` should update within 5 min. `.venv\Scripts\python.exe releases\run_tick.pyw --check`
 prints which package and cache slot a tick would use, without running one.
 
@@ -86,7 +86,7 @@ prints which package and cache slot a tick would use, without running one.
 
 - Dashboard, **Live Readiness & Schedule**: an info line "Scheduler code version". It shows either
   "pinned release X (commit …)" or "development checkout (unpinned)".
-- `release_lab.bat status`: JSON with current/previous release, every release's test/prewarm
+- `scripts\launchers\release_lab.bat status`: JSON with current/previous release, every release's test/prewarm
   result, the live task action and the last launcher stamp.
 
 ## Caveats

@@ -10,7 +10,7 @@ Two interfaces share the same research:
 ```
 Windows PC (lab)                                     GitHub (public repo)                   GOING on Vercel
   pinned scheduler -> immutable stage snapshots
-  publish_going.bat [--push]
+  scripts\launchers\publish_going.bat [--push]
     going_feed.build()  (read-only, sanitised)
     validate()  -> publish/nfl_lab_feed.json
     --push: git plumbing commit -------------------> branch nfl-lab-feed   <------- api/nfl-lab.mjs (8 s timeout,
@@ -52,13 +52,13 @@ Windows PC (lab)                                     GitHub (public repo)       
   The two are kept separate.
 
 ## One-time setup (needs Travis)
-1. **First publication:** run `publish_going.bat --push` in the lab folder. It uses your existing git credentials and creates
+1. **First publication:** run `scripts\launchers\publish_going.bat --push` in the lab folder. It uses your existing git credentials and creates
    branch `nfl-lab-feed` containing only `nfl_lab_feed.json`. This publishes the sanitised forecasts in a public repository, so it
    was **not** run automatically.
 2. **Deployment:** merge or deploy this branch through the normal GOING process. The NFL Intelligence section appears once deployed.
    Not done; it needs your approval.
 3. **Automatic updates (optional):** either
-   - add a separate Windows task that runs `publish_going.bat --push` (for example every 30 minutes on game days, or hourly), or
+   - add a separate Windows task that runs `scripts\launchers\publish_going.bat --push` (for example every 30 minutes on game days, or hourly), or
    - include the publisher in a future pinned release.
 
    **Neither is active.** Until one is set up, the website shows the last published feed and marks it stale after 36 h.

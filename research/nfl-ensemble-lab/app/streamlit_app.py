@@ -651,7 +651,7 @@ def page_validation():
 
 def page_runs():
     st.title("Research Runs")
-    st.caption("Discovery experiments run only when you start them here or with run_research.bat. The twice-daily data refresh "
+    st.caption("Discovery experiments run only when you start them here or with scripts/launchers/run_research.bat. The twice-daily data refresh "
                "never runs discovery, and nothing here retrains or replaces the Phase 1 models.")
     from lab import discovery as D, readiness, research
     c = st.columns(3)
@@ -1773,7 +1773,7 @@ def _publication_health(arc):
         (st.warning if age > 36 else st.caption)(f"Published feed age: {age:.1f} h (the website marks it stale after 36 h).")
     if la and not la.get("ok"):
         st.error(f"Last publication failed at {la.get('stage')}: {la.get('error') or la.get('errors')}")
-    st.caption(h["note"] + " Run publish_going.bat for a local dry run, or publish_going.bat --push to update the website feed.")
+    st.caption(h["note"] + " Run scripts/launchers/publish_going.bat for a local dry run, or scripts/launchers/publish_going.bat --push to update the website feed.")
 
 
 def S_et(t):
