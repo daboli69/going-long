@@ -168,3 +168,18 @@ def test_main_game_table_uses_new_revision_and_collapses_original(tmp_path):
     assert 'Synthetic Out Runner' not in shown[0].Player.tolist()
     assert at.dataframe[0].value.carry_share.iloc[0]==pytest.approx(.108)
     assert any('Original saved forecast' in x.label for x in at.expander)
+
+
+def test_live_reload_recovers_backend_without_new_helper(tmp_path,monkeypatch):
+    from streamlit.testing.v1 import AppTest
+    # Reproduce an already-open server: page code updated, backend module cached.
+    monkeypatch.delattr(I,'latest_completed')
+    job=tmp_path/'revision';job.mkdir()
+    pd.DataFrame({'Team':['CHI'],'Player':['Synthetic Backup'],'Stat':['Rushing yards'],'v1 median':[10]}).to_csv(job/'PROJECTIONS.csv',index=False)
+    (job/'RESULT.json').write_text(json.dumps({'state':'complete','game_id':GAME.game_id,
+        'created_at':NOW.isoformat(),'warning':'shadow copy','projection_path':str(job/'PROJECTIONS.csv')}))
+    old=[{'team':'CHI','pid':'out','name':'Synthetic Out','stat':'rush_yds','version':'v1',
+          'mean':40,'q10':10,'q50':35,'q90':80}]
+    at=AppTest.from_string(f'import pandas as pd\nfrom app.props_injury_view import render_game\nrender_game({GAME.game_id!r},pd.DataFrame({old!r}),root={str(tmp_path)!r})').run()
+    assert not at.exception and callable(I.latest_completed)
+    assert at.dataframe[0].value.Player.tolist()==['Synthetic Backup']

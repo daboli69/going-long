@@ -5,7 +5,21 @@ from pathlib import Path
 from lab.props import injury_adjusted as I
 
 
+def current_backend():
+    """An open Streamlit session may retain the pre-update module object.
+
+    This module only defines helpers; live simulations run in separate processes.
+    Refresh this one stale import instead of requiring another simulation.
+    """
+    if not callable(getattr(I,'latest_completed',None)):
+        import importlib
+        importlib.invalidate_caches()
+        importlib.reload(I)
+    return I
+
+
 def render(root=None,show_results=True):
+    current_backend()
     root=I.ROOT if root is None else Path(root)
     with st.expander('Rerun simulations with refreshed injuries',expanded=True):
         st.caption('Refresh injuries with START_HERE option 6 first. Then select one unstarted game and run. '
@@ -70,7 +84,7 @@ def show_workload(status):
 
 def render_game(game,original,scores=None,preview=False,root=None):
     """Default to an explicitly labelled shadow copy, not an obsolete preview."""
-    latest=I.latest_completed(root).get(game)
+    latest=current_backend().latest_completed(root).get(game)
     label=f"{game.split('_')[2]} @ {game.split('_')[3]}"
     if latest:
         st.markdown(f"**{label} · latest injury-adjusted shadow revision**")
