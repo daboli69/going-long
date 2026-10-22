@@ -281,3 +281,7 @@ Run `run_fpds_improvements.bat` for the committed, checkpointed Amendment8 shado
 ### Review the six follow-up tests
 
 The completed Amendment9 report is `reports/run_20261021/FPDS_FOLLOWUP_REPORT.md`. It audits target definitions and tests matched NFL-only quantiles, earlier-OOF residual corrections, soft team constraints, interval calibration and probability shrinkage. `run_fpds_followups.bat status` shows saved run states; completed runs are immutable. New runs consume the same examined discovery data and do not create independent confirmation. See `docs/FPDS_FOLLOWUP_TESTS.md` for the bounded manual run/resume commands. All outputs remain shadow; neither the champion nor weekly forecasts change.
+
+### Corrected targets, role uncertainty and joint simulations
+
+Open **Research → FPDS Research → Targets, roles & simulations — Amendment10** for the saved aggregate study. `run_fpds_simulation.bat status` shows its state. `run_fpds_simulation.bat` starts the bounded, checkpointed fixed discovery study; `run_fpds_simulation.bat project --season 2026 --week 7 --sims 2000` explicitly creates a new private shadow revision from prepared candidates and the frozen experimental configuration. Neither command changes default forecasts or the champion. Future weeks need an updated prepared pregame source snapshot. Unknown outcomes/scenario probabilities stay unknown. See `docs/FPDS_TARGET_ROLE_SIMULATION.md` for target exclusions, source age, exact commands and limitations.

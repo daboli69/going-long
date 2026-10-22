@@ -49,6 +49,8 @@ def render(directory=REPORTS_DIR):
     if local:
         from app.fpds_improvement_view import render as improvements
         studying=improvements()
+        from app.fpds_next_view import render as target_simulations
+        studying=target_simulations() or studying
         if studying:st.info('The separate improvement study is using the local training worker. Wait for it to finish before another manual run.')
     manual_controls(enabled=local and not studying)
     st.caption('Saved research below is aggregated metadata; source CSV rows are never displayed.')
