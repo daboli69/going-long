@@ -23,10 +23,10 @@ def reconstruct(plays,rosters,snaps):
         d=p.loc[mask & p[idcol].notna(),['game_id','season','week','team',idcol]].rename(columns={idcol:'pid'}).copy()
         for c,v in values.items():d[c]=v.loc[d.index].fillna(0) if isinstance(v,pd.Series) else v
         chunks.append(d)
-    passing=p.pass_attempt.fillna(0).eq(1) & p.sack.fillna(0).eq(0)
+    passing=p.pass_attempt.fillna(0).eq(1)|p.qb_spike.fillna(0).eq(1)|p.sack.fillna(0).eq(1)
     rushing=p.rush_attempt.fillna(0).eq(1)|p.qb_kneel.fillna(0).eq(1)
     add(passing,'passer_player_id',{'pass_yds':p.passing_yards,'pass_tds':p.pass_touchdown,'dropbacks':1})
-    add(passing,'receiver_player_id',{'targets':1,'rec':p.complete_pass,'rec_yds':p.receiving_yards})
+    add(passing & p.sack.fillna(0).eq(0),'receiver_player_id',{'targets':1,'rec':p.complete_pass,'rec_yds':p.receiving_yards})
     add(rushing,'rusher_player_id',{'carries':1,'rush_yds':p.rushing_yards})
     for kind in ('receiving','rushing'):
         col='lateral_receiver_player_id' if kind=='receiving' else 'lateral_rusher_player_id'

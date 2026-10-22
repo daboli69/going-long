@@ -36,6 +36,13 @@ def test_targets_include_overtime_kneels_and_verified_zero():
     assert report['unmatched_snap_rows']==0
 
 
+def test_sack_counts_as_dropback_not_negative_passer_yards():
+    p=plays();p.loc[1,'sack']=1;p.loc[1,'receiver_player_id']=None;p.loc[1,'passing_yards']=np.nan
+    out,_=T.reconstruct(p,roster(),snaps())
+    q=out.set_index('pid').loc['q']
+    assert q.dropbacks==1 and q.pass_yds==0
+
+
 def test_roster_only_unknown_is_never_zero_and_wrong_team_not_reassigned():
     out,_=T.reconstruct(plays(),roster(),snaps().iloc[:0])
     c=pd.DataFrame({'game_id':['g','g'],'pid':['z','p'],'team':['BUF','NYJ']})
