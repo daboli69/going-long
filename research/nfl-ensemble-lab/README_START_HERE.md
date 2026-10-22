@@ -13,7 +13,7 @@ Double-click **`START_HERE.bat`**. Press **Enter** to open the dashboard, or cho
 | 3 — Tuesday refresh | Read the upcoming Week folder, refit frozen shadow configs, score prior forecasts, write new sheets. |
 | 4 — Import downloads | Import/audit FPDS only; no model training. |
 | 5 — Reports | Open saved reports. |
-| 6 — Injuries only | Import the active Week folder’s injury CSV as context; preserve forecasts. |
+| 6 — Injuries only | Refresh original feeds, import the Week folder’s CSV, confirm statuses/flag conflicts; preserve forecasts. |
 | A — Advanced | Data refresh, older weekly workflows, job status, setup and specialist scripts. |
 
 The specialist batch files now live in **`scripts\launchers\`**. Run their commands from this lab folder with that prefix; existing command arguments still work. Research scripts may start long studies when double-clicked, so use the dashboard to review saved evidence first. Maintenance/publication tools are retained there for reference, outside the menu. This reorganization does not run them.

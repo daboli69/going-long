@@ -92,6 +92,13 @@ def freshness_panel():
     c[1].metric("Official injury file (UTC)", (inj.get("live_injury_file_downloaded_at") or "none")[:16].replace("T", " "))
     c[2].metric("ESPN injury feed (UTC)", (inj.get("espn_retrieved_at") or "none")[:16].replace("T", " "))
     c[3].metric("Archived injury snapshots", inj.get("archived_snapshots", 0))
+    from lab.fpds_drop import STATE as fpds_state
+    fpds_confirmation=fpds_state/'LATEST_CONFIRMATION.json'
+    if fpds_confirmation.exists():
+        try:
+            check=json.loads(fpds_confirmation.read_text(encoding='utf-8'))
+            st.caption(f"FPDS injury cross-check: Week {check['forecast_week']} · {check['confirmed']} confirmed · {check['conflicts']} conflicts · {check['fpds_only']} CSV-only. Original injury feeds/model inputs retained; details in FPDS Research.")
+        except (OSError,ValueError,KeyError):st.caption('FPDS injury cross-check unavailable; original injury feeds remain active.')
     ts = st_.get("refreshed_at")
     if ts and (pd.Timestamp.now(tz="UTC") - pd.Timestamp(ts)).total_seconds() > 24 * 3600:
         st.warning("Data is more than 24 hours old. Refresh before relying on upcoming-game predictions.")

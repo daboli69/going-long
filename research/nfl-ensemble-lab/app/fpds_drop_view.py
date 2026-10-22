@@ -60,3 +60,13 @@ def render(root=None):
             if not saved['current_week_rows']:st.warning('The supplied injury file has no rows for the forecast week; current injuries remain unavailable.')
             st.warning(saved['warning'])
         else:st.info('No injury-only folder import yet. Add injury-reports.csv to the appropriate Week folder, then choose START_HERE option 6.')
+        confirmation=root/'LATEST_CONFIRMATION.json'
+        if confirmation.exists():
+            saved=metadata(str(confirmation),confirmation.stat().st_mtime_ns)
+            st.markdown('**Original feeds + FPDS confirmation**')
+            st.caption(f"Week {saved['forecast_week']} · checked {saved['created_at']} · {saved['confirmed']} confirmed · {saved['conflicts']} conflicts · {saved['fpds_only']} CSV-only · {saved['excluded_rows']} excluded/unmatched/postkickoff source rows.")
+            st.caption(f"Source rows older than 24h: {saved.get('stale_source_rows',0)}. Agreement alone does not establish freshness.")
+            st.caption(saved['policy']+' Agreement does not prove independent confirmation; providers may share information.')
+            if saved.get('by_team'):st.dataframe(pd.DataFrame(saved['by_team']),hide_index=True,use_container_width=True)
+            if saved.get('conflicts'):st.warning('Injury sources disagree. Official status stays preferred; secondary conflicts remain unresolved. Review before interpreting forecasts.')
+            if saved.get('source_errors'):st.warning('Some cached comparison feeds were unavailable: '+', '.join(saved['source_errors']))

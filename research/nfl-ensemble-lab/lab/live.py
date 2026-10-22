@@ -248,6 +248,14 @@ def refresh_live(progress=print) -> dict:
         out["changes_detected"] = track_changes(latest, espn, qb1)
     except Exception as exc:
         out["failed"]["change_tracking"] = repr(exc)[:300]
+    try:
+        from .fpds_injury_confirmation import update_imported_weeks
+        out['fpds_injury_confirmation']=update_imported_weeks()
+    except Exception as exc:
+        # Subscription error details stay private; original refreshes remain independent.
+        from .fpds_research.common import private_error
+        private_error('fpds_injury_confirmation')
+        out['fpds_injury_confirmation_error']=type(exc).__name__
     return out
 
 

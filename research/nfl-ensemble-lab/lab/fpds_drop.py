@@ -169,8 +169,8 @@ def archive_injuries(week,source=SOURCE,games=None):
     records=[]
     for _,row in current.iterrows():
         team=old.canonical_team(row.iloc[tix]);pid=identities.get((team,normalized_name(row.iloc[nix])))
-        status=str(row.iloc[status_ix]).strip().lower()
-        status=status if status in {'out','doubtful','questionable','probable','active','inactive','ir','pup'} else 'unknown'
+        from .fpds_injury_confirmation import normalize_status
+        status=normalize_status(row.iloc[status_ix])
         kickoff=kickoffs.get(team)
         if kickoff is not None and kickoff.tzinfo is None:kickoff=kickoff.tz_localize('UTC')
         records.append({'pid':pid,'team':team,'status':status,'observed_at':created.isoformat(),
@@ -276,6 +276,9 @@ def run_weekly(week,deadline=None,threads=None):
             tracking()
             injury_files=[p for p in drop_folder(week).glob('*.csv') if title(p)[0]=='injury_reports']
             injury=archive_injuries(week,games=g) if injury_files else None
+            if injury is not None:
+                from .fpds_injury_confirmation import update_week
+                update_week(week,state=STATE,games=g)
             if any(sha(Path(p))!=h for p,h in inventory.items()):raise DropError('A protected forecast changed; stop')
             result={'created_at':now(),'forecast_week':week,'statistics_through_week':week-1,'path':str(destination),
                     'forecast':forecast,'presentation':presentation,'previous_results':str(destination/'PREVIOUS_WEEK_RESULTS.json'),
@@ -302,8 +305,17 @@ def main():
             print(json.dumps(result,indent=2));return 0
         with workflow_lock():
             if a.action=='injuries':
+                if not any(title(f)[0]=='injury_reports' for f in drop_folder(week).glob('*.csv')):
+                    raise DropError('No injury-reports CSV in the selected Week folder')
+                # Keep all original injury/live sources. Do not introduce a new provider.
+                from .live import refresh_live,record_live_refresh
+                refresh=refresh_live(progress=lambda _:None)
+                record_live_refresh(refresh)
                 result=archive_injuries(week)
+                from .fpds_injury_confirmation import update_week
+                confirmation=update_week(week,state=STATE)
                 print(f"Week {week} injury context imported: {result['current_week_rows']} rows; {result['unmatched_rows']} unmatched. Frozen projections unchanged.")
+                print(f"Source comparison: {confirmation['confirmed']} confirmed, {confirmation['conflicts']} conflicts, {confirmation['fpds_only']} CSV-only. Original-feed refresh failures: {len(refresh.get('failed',{}))}.")
             else:
                 result=run_weekly(week,a.deadline,a.threads)
                 print(f'Week {week} ready. Private sheets: '+result['presentation']['path'])
