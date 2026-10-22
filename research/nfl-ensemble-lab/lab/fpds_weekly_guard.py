@@ -54,6 +54,7 @@ if __name__=='__main__':
         print(f'Weekly admission: {check(g,week,now)} unstarted games; earliest kickoff is outside the2h fit budget')
     except ValueError as e:raise SystemExit(str(e))
     a.week=week
+    os.environ['NFL_FPDS_TARGET_WEEK']=str(week)
     if a.run:
         from .fpds_worker import install
         install()

@@ -78,7 +78,7 @@ def results(job):
 
 def render(enabled=True):
     st.subheader('Manual FPDS runs')
-    st.caption('Authoritative source: Inbox / All historical data from 2021–2026 week 6. Legacy loose exports cannot replace it; later exports must retain full historical coverage.')
+    st.caption('Authoritative source: Inbox / All historical data from 2021–2026 week 6. Week 7–18 subfolders name the forecast week; completed prior-week exports may contain 2026 only. Earlier history is retained.')
     if not enabled:st.caption('Manual controls are available on the local lab page; this fixture/report view is read-only.');return
     available=weeks();active=jobs.active();history=jobs.list_jobs()
     c1,c2=st.columns(2)

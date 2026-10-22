@@ -50,6 +50,8 @@ def prepare(path,config,deadline):
                 subprocess.run(args,cwd=jobs.LAB_ROOT,stdout=log,stderr=subprocess.STDOUT,timeout=budget,check=True)
     g=pd.read_parquet(FEATURE_STORE);g['kickoff_utc']=pd.to_datetime(g.kickoff_utc,utc=True)
     week=week or next_week(g,pd.Timestamp.now(tz='UTC'))
+    import os
+    os.environ['NFL_FPDS_TARGET_WEEK']=str(week)
     if config['refresh']:
         from ..props.ensemble.production import completed_cutoff
         from ..props.weekly10 import outputs

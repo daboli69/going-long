@@ -6,11 +6,12 @@ echo Local FPDS shadow pipeline. Never promotes, publishes or overwrites earlier
 ".venv\Scripts\python.exe" -m lab.low_priority -m lab.fpds_weekly_guard --branch-only
 if errorlevel 1 exit /b 1
 if "%~1"=="--comparisons-only" goto comparisons
-".venv\Scripts\python.exe" -m lab.low_priority -m lab.fpds_weekly_guard --run %*
+".venv\Scripts\python.exe" -m lab.low_priority -m lab.fpds_drop weekly %*
 if errorlevel 1 (
   echo STOPPED. See private data\cache\fpds\amendment6\errors and the new partial revision. Earlier forecasts are unchanged.
   exit /b 1
 )
+exit /b 0
 :present
 ".venv\Scripts\python.exe" -m lab.low_priority -m lab.fpds_sheets
 if errorlevel 1 exit /b 1

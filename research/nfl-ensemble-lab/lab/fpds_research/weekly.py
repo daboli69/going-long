@@ -179,6 +179,9 @@ def run(args):
         command([sys.executable,'-m','lab.cli','refresh'],directory,'refresh',1200)
         games=pd.read_parquet(FEATURE_STORE);games['kickoff_utc']=pd.to_datetime(games.kickoff_utc,utc=True)
         cutoff=completed_cutoff(games)
+        if getattr(args,'strict_drop',False):
+            from ..fpds_drop import validate_completed_week
+            validate_completed_week(games,week)
         if week<=cutoff['training_last_completed_week']:raise ValueError('Requested week is already completed')
         ingest_manifest=ingest();audit(ingest_manifest)
         # Existing feature builder is scoped to a new private path; old artifacts never overwritten.

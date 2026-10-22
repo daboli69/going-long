@@ -5,6 +5,7 @@ For normal use, open **`START_HERE.bat` in the lab folder**. These scripts remai
 | Group | Scripts | Purpose |
 | --- | --- | --- |
 | FPDS | `run_manual_fpds.bat`, `run_weekly_fpds.bat`, `import_fpds.bat` | Manual projections/comparisons, frozen weekly refresh, import/audit. |
+| Injury context | `update_fpds_injuries.bat` | Import current Week folder injury statuses without changing forecasts. |
 | Earlier weekly tools | `run_weekly_predictions.bat`, `run_week_projections.bat` | Saved winner models and Phase 10 shadow pipeline. |
 | Research | `run_fpds_research.bat`, `run_fpds_improvements.bat`, `run_fpds_followups.bat`, `run_fpds_simulation.bat`, `run_overnight_research.bat`, `run_research.bat`, `stop_research.bat` | Specialized studies and controls. Several start lengthy work when opened; use explicit `status` commands where supported to inspect saved work. |
 | Setup | `setup_windows.bat` | Install/repair the local environment. |

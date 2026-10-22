@@ -45,6 +45,9 @@ def render(directory=REPORTS_DIR):
                'Historical prop prices are absent. Forecast-error gains do not establish a tradable price edge. Not betting advice.')
     from app.fpds_controls import render as manual_controls
     local=Path(directory).resolve()==Path(REPORTS_DIR).resolve()
+    if local:
+        from app.fpds_drop_view import render as weekly_folders
+        weekly_folders()
     studying=False
     if local:
         from app.fpds_improvement_view import render as improvements
@@ -94,7 +97,7 @@ def render(directory=REPORTS_DIR):
                 st.dataframe(frame,hide_index=True,use_container_width=True)
                 st.caption('Negative delta means lower forecast loss. Corrected intervals account for the registered family tests. A discovery gate is only a nomination; the frozen confirmation and data limitations still apply.2026 never selects a model.')
     with tabs[2]:
-        st.markdown('Drop the same full-history CSV titles with a trailing **week N** into the read-only subscription Inbox, then run **`scripts/launchers/run_weekly_fpds.bat`** from the lab folder. The command prints a new private revision directory. It stops on failure and keeps earlier forecasts.')
+        st.markdown('Put exports in the matching **Week 7–18** subfolder of the authoritative history folder. **Week 8 predicts Week 8 using completed Week 7 data.** Use **START_HERE → 3** for Tuesday refresh/results/new forecasts, or **6** for injury context only. Original filenames and 2026-only weekly-history drops are supported; older seasons are retained. Failures stop clearly and earlier forecasts stay frozen.')
         st.info('Do not upload or commit the private source files, features, models or forecast rows. Historical results below are aggregates; manual output tables show local derived forecasts, never source CSV rows.')
         with st.expander('Interpret the evidence'):
             st.markdown('Historical exports are reconstructed using strictly earlier source weeks after the final kickoff plus24h. Exact GSIS/week roster evidence corrects stale team labels. Capped exports, earlier holdout exposure, unresolved identities and unverified publication times limit inference. Counts and intervals may use labelled distribution approximations; structural members here are analytical proxies. Causal injury/on-off effects and current shadow assignments remain unvalidated. Game closing lines are benchmarks; pseudo prop lines test calibration only. No production model or frozen forecast is changed.')

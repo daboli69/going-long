@@ -101,6 +101,8 @@ def _launch(action,week=None,scope='all',sims=10000,seed=17,hours=2,refresh=True
     _,signature=registered()
     ROOT.mkdir(parents=True,exist_ok=True)
     if active():raise ValueError('A manual job is already running; refresh its status')
+    from ..fpds_drop import workflow_active
+    if workflow_active():raise ValueError('A weekly/injury folder update is running; wait before starting a manual job')
     lock=ROOT/'ACTIVE.json'
     if lock.exists():lock.unlink()  # Stale operational lock only; never source/archive data.
     job=resume or uuid.uuid4().hex;path=directory(job)

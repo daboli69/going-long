@@ -12,6 +12,7 @@ ACTIONS = {
     "project": ("Create FPDS game + player projections (may take time)", TOOLS / "run_manual_fpds.bat", ("project",)),
     "weekly": ("Weekly FPDS refresh + frozen shadow projections (may take time)", TOOLS / "run_weekly_fpds.bat", ()),
     "import": ("Import + audit downloaded FPDS files", TOOLS / "import_fpds.bat", ()),
+    "injuries": ("Update this week's FPDS injury context; forecasts stay frozen", TOOLS / "update_fpds_injuries.bat", ()),
     "refresh": ("Refresh NFL data", ROOT / "refresh_data.bat", ()),
     "legacy": ("Saved-model weekly winner predictions", TOOLS / "run_weekly_predictions.bat", ()),
     "phase10": ("Phase 10 weekly shadow pipeline", TOOLS / "run_week_projections.bat", ()),
@@ -46,9 +47,9 @@ def menu():
             print("Advanced tools\n1  Refresh NFL data\n2  Saved-model weekly predictions\n3  Phase 10 weekly pipeline\n4  Price comparisons only\n5  Saved FPDS job status\n6  Setup / repair\n7  Open specialist scripts folder\nB  Back\nQ  Quit")
             print("Specialist scripts include long research and maintenance tools; opening the folder starts nothing.")
         else:
-            choices = {"1": "dashboard", "2": "project", "3": "weekly", "4": "import", "5": "reports"}
-            print("1  Open dashboard [recommended; Enter]\n2  Generate FPDS projections / simulations\n3  Weekly FPDS refresh + projections\n4  Import downloaded FPDS files\n5  Open reports folder\nA  Advanced tools\nQ  Quit")
-            print("Projections are shadow research. Options 2-4 start local work; the menu itself starts nothing.")
+            choices = {"1": "dashboard", "2": "project", "3": "weekly", "4": "import", "5": "reports", "6": "injuries"}
+            print("1  Open dashboard [recommended; Enter]\n2  Generate FPDS projections / simulations\n3  Tuesday weekly refresh + projections\n4  Import downloaded FPDS files\n5  Open reports folder\n6  Update this week's injuries only\nA  Advanced tools\nQ  Quit")
+            print("Projections are shadow research. Options 2-4 and 6 start local work; the menu itself starts nothing.")
         try:
             answer = input("Choose: ").strip().lower()
         except (EOFError, KeyboardInterrupt):

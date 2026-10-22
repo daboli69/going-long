@@ -35,6 +35,11 @@ def key_index(meta, kind):
 def parsed(path):
     d,m = old.parse(path)
     table, marker = title(Path(path)); m['table'] = table
+    from ..fpds_sources import folder_week
+    forecast_week=folder_week(path)
+    if forecast_week is not None:
+        marker=forecast_week-1
+        m['drop_forecast_week']=forecast_week
     if marker is None:
         hit = re.search(r'week\s*(\d+)\s*$', str(Path(path).parent), re.I)
         marker = int(hit.group(1)) if hit else None
@@ -52,6 +57,8 @@ def parsed(path):
             other = pd.to_numeric(d.iloc[:,i],errors='coerce')
             m['selector_conflicts'] += int((other.notna() & d._season.notna() & other.ne(d._season)).sum())
     valid = d._season.between(2021,2026) & d._week.between(1,18)
+    if forecast_week is not None and table!='injury_reports' and ((d._season==2026)&d._week.ge(forecast_week)).any():
+        raise ValueError('Weekly statistics contain forecast-week or later outcomes; stop before fitting')
     valid &= ~((d._season == 2026) & (d._week > (marker or 6)))
     m['invalid_calendar_rows'] = int((~valid).sum())
     d = d[valid].copy()
@@ -230,13 +237,51 @@ def revision(previous,current,m):
 
 
 def source_files(source=SOURCE):
-    source=Path(source)
-    folder=source/'All historical data from 2021-2026 week 6'
-    files=list(folder.glob('*.csv'))
-    # Future full-history drops use the same titles followed by week N.
-    canonical={title(p)[0] for p in files}
-    files.extend(p for p in source.rglob('*.csv') if p.parent!=folder and title(p)[1] is not None and title(p)[0] in canonical)
-    return sorted(set(files))
+    from ..fpds_sources import select_sources
+    return select_sources(source)
+
+
+def overlay_weeks(versions):
+    """Newest whole source-week wins; absent historical weeks remain intact."""
+    frames=[]
+    for order,frame in versions:
+        z=frame.copy();z['_drop_order']=order;frames.append(z)
+    combined=pd.concat(frames,ignore_index=True)
+    newest=combined.groupby(['season','week'])['_drop_order'].transform('max')
+    return combined[combined._drop_order.eq(newest)].drop(columns='_drop_order').reset_index(drop=True)
+
+
+def weekly_working(inventory,working,target):
+    for table in list(working):
+        versions=[m for m in inventory if m['table']==table]
+        if not any(m.get('drop_forecast_week') for m in versions):continue
+        versions=sorted(versions,key=lambda m:(m.get('drop_forecast_week',0),m['export_through_week'] or 0,m['modified_ns'],m['sha256']))
+        d=overlay_weeks([(i,pd.read_parquet(m['private_path'])) for i,m in enumerate(versions)])
+        m=versions[-1].copy()
+        private=target/(table+'__working.parquet')
+        if private.exists():
+            if not pd.read_parquet(private).equals(d):raise ValueError('Existing import working rows differ; refuse overwrite')
+        else:d.to_parquet(private,index=False)
+        eligible=d[d.entity.notna()].drop_duplicates()
+        ambiguous=eligible.duplicated(['season','week','entity'],False)
+        usable=eligible[~ambiguous]
+        upath=target/(table+'__working_usable.parquet')
+        if upath.exists():
+            if not pd.read_parquet(upath).equals(usable):raise ValueError('Existing import usable rows differ; refuse overwrite')
+        else:usable.to_parquet(upath,index=False)
+        m.update(private_path=str(private),usable_path=str(upath),valid_rows=len(d),usable_entity_week_rows=len(usable),
+                 unmatched_rows=int(d.entity.isna().sum()),ambiguous_entity_week_rows=int(ambiguous.sum()),
+                 mapped_rows=int(d.entity.notna().sum()),
+                 possible_export_cap=any(x['possible_export_cap'] for x in versions),
+                 valid_rows_games_gt_one=max(x.get('valid_rows_games_gt_one',0) for x in versions),
+                 unmatched_distinct_labels=int(d.loc[d.entity.isna(),'_name'].nunique()) if '_name' in d else int(d.entity.isna().sum()),
+                 coverage={str(int(s)):sorted(int(w) for w in z.week.unique()) for s,z in d.groupby('season')},
+                 coverage_counts={f'{int(s)}:{int(w)}':int(n) for (s,w),n in d.groupby(['season','week']).size().items()},
+                 columns=schema(d,m),working_hash=digest([x['sha256'] for x in versions]),
+                 components=[{'sha256':x['sha256'],'source_path':x['source_path']} for x in versions],
+                 first_observed_at=max(x['first_observed_at'] for x in versions))
+        working[table]=m
+    return working
 
 
 def run(source=SOURCE):
@@ -317,12 +362,15 @@ def run(source=SOURCE):
                 m['native_id_resolved_rows']=int(fill.sum());m['unmatched_rows']=int(d.entity.isna().sum())
                 m['mapped_rows']=int(d.entity.notna().sum());m['usable_entity_week_rows']=len(usable)
                 m['unmatched_distinct_labels']=int(d.loc[d.entity.isna(),'_name'].map(normalized_name).nunique())
+    working=weekly_working(inventory,working,target)
     for table,m in sorted(working.items()):
         oldm=previous.get(table)
-        oldframe=pd.read_parquet(oldm['private_path']) if oldm and oldm['sha256']!=m['sha256'] else None
+        oldhash=oldm.get('working_hash',oldm['sha256']) if oldm else None
+        newhash=m.get('working_hash',m['sha256'])
+        oldframe=pd.read_parquet(oldm['private_path']) if oldm and oldhash!=newhash else None
         rev=revision(oldframe,pd.read_parquet(m['private_path']),m)
-        if oldm and oldm['sha256']==m['sha256']:rev={'status':'unchanged hash','overlap_rows':m['valid_rows'],'columns':[]}
-        revisions.append(dict(table=table,previous_hash=oldm['sha256'] if oldm else None,new_hash=m['sha256'],**rev))
+        if oldm and oldhash==newhash:rev={'status':'unchanged hash','overlap_rows':m['valid_rows'],'columns':[]}
+        revisions.append(dict(table=table,previous_hash=oldhash,new_hash=newhash,**rev))
     result={'schema':VERSION,'created_at':now(),'fingerprint':fingerprint,'path':str(target),
             'files':inventory,'working_tables':list(working.values()),'revisions':revisions,
             'privacy':'All subscription rows, identities, models and derivatives remain in ignored local data directories.'}

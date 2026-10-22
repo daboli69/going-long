@@ -4,16 +4,19 @@
 
 Double-click **`START_HERE.bat`**. Press **Enter** to open the dashboard, or choose:
 
+**Weekly routine:** put exports in the matching Week 7–18 folder inside the authoritative FPDS history folder. **Week 8 = forecast Week 8 using completed Week 7 data.** Tuesday night: choose **3**. During the week: choose **6** for injury context only (frozen probabilities stay unchanged). [Folder runbook](docs/FPDS_WEEKLY_FOLDERS.md).
+
 | Option | Purpose |
 | --- | --- |
 | 1 — Dashboard | Browse projections, leans and research; manually start simulations in Research → FPDS Research. |
 | 2 — Generate FPDS projections | Run the manual shadow game/player projection workflow for the next unstarted week. |
-| 3 — Weekly FPDS refresh | Import new downloads, refresh inputs and produce a new frozen shadow forecast revision. |
+| 3 — Tuesday refresh | Read the upcoming Week folder, refit frozen shadow configs, score prior forecasts, write new sheets. |
 | 4 — Import downloads | Import/audit FPDS only; no model training. |
 | 5 — Reports | Open saved reports. |
+| 6 — Injuries only | Import the active Week folder’s injury CSV as context; preserve forecasts. |
 | A — Advanced | Data refresh, older weekly workflows, job status, setup and specialist scripts. |
 
-The 15 specialist batch files now live in **`scripts\launchers\`**. Run their commands from this lab folder with that prefix; existing command arguments still work. Research scripts may start long studies when double-clicked, so use the dashboard to review saved evidence first. Maintenance/publication tools are retained there for reference, outside the menu. This reorganization does not run them.
+The specialist batch files now live in **`scripts\launchers\`**. Run their commands from this lab folder with that prefix; existing command arguments still work. Research scripts may start long studies when double-clicked, so use the dashboard to review saved evidence first. Maintenance/publication tools are retained there for reference, outside the menu. This reorganization does not run them.
 
 `launch_lab.bat` still opens the dashboard directly. `refresh_data.bat` stays in place for existing scheduled tasks; no task was changed. Older immutable research reports may show the former batch paths.
 
@@ -30,7 +33,7 @@ For a command menu, double-click **`scripts\launchers\run_manual_fpds.bat`**. Ex
 
 ## Local FPDS weekly refresh (Amendment 6)
 
-Drop the new full-history `week N` CSVs into `GOING\FantasyPoints\Inbox`, then run **`scripts\launchers\run_weekly_fpds.bat`** from this folder (`--week 8` selects a week explicitly). The Inbox is read-only to the program. It imports hashed versions, audits revisions, refreshes NFL inputs and authorized local lines, refits committed frozen shadow configurations, and prints the new private projection/leans paths. It requires the frozen discovery selection and completed single validation; failures stop clearly and preserve earlier files. Do not upload or commit the local subscription derivatives.
+Put the weekly CSVs into the appropriate `Week N` folder inside the authoritative history folder (Week N predicts N using completed N−1 data), then run **`scripts\launchers\run_weekly_fpds.bat`** from this folder (`--week 8` selects a week explicitly). The Inbox is read-only to the program. It imports hashed versions, audits revisions, refreshes NFL inputs and authorized local lines, refits committed frozen shadow configurations, and prints the new private projection/leans paths. It requires the frozen discovery selection and completed single validation; failures stop clearly and preserve earlier files. Do not upload or commit the local subscription derivatives.
 
 Without `--week`, the next future regular-season kickoff selects the target week; refreshed results determine the completed-week training cutoff. Stale completion flags cannot send the default run back to last week.
 
