@@ -94,7 +94,8 @@ def _qrow(version, x_mean, q):
     return {"version": version, "mean": float(x_mean), **dict(zip(G.QCOLS, np.asarray(q, float)))}
 
 
-def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=print, only=None, preview=False) -> dict:
+def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=print, only=None, preview=False,
+            availability_adjuster=None, availability_snapshot=None, revision_metadata=None) -> dict:
     """preview=True: overwritable projections under <out>/preview/ for viewing only; never part of the pre-registered test."""
     now = now or pd.Timestamp.now(tz=TZ)
     games = load_games()
@@ -127,10 +128,11 @@ def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=prin
     pan = PL.panel(p, T1)
     a = PL.asof(pan, season, week)
     possd = E._pos_sd(pan, season)
-    ros = pd.read_parquet(RAW_DIR / f"roster_weekly_{season}.parquet", columns=["week", "team", "gsis_id", "status", "position", "full_name"])
+    roster_file = Path(availability_snapshot) / 'ROSTER.parquet' if availability_snapshot else RAW_DIR / f"roster_weekly_{season}.parquet"
+    ros = pd.read_parquet(roster_file, columns=["week", "team", "gsis_id", "status", "position", "full_name"])
     ros = ros.rename(columns={"gsis_id": "pid", "team": "posteam"}).assign(posteam=lambda d: d["posteam"].map(normalize_team))
     names = ros.drop_duplicates("pid", keep="last").set_index("pid")["full_name"]
-    inj_f = RAW_DIR / f"injuries_{season}.parquet"
+    inj_f = Path(availability_snapshot) / 'INJURIES.parquet' if availability_snapshot else RAW_DIR / f"injuries_{season}.parquet"
     inj = pd.read_parquet(inj_f) if inj_f.exists() else pd.DataFrame(columns=["team", "week", "gsis_id", "report_status"])
     inj = inj.assign(team=inj["team"].map(normalize_team))
     ps = p[p["season"] == season]
@@ -151,6 +153,9 @@ def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=prin
             else:
                 last = first_qb[first_qb["posteam"] == t].sort_values("week")
                 qbs[t], qsrc[t] = (last["passer_player_id"].iloc[-1], "most recent starter") if len(last) else (None, "none")
+            if availability_adjuster is not None:
+                avail[t], note = availability_adjuster(g, t, avail[t], qbs[t])
+                rules[t] += '; ' + note
             tp = pan[pan["posteam"] == t]
             hist[t] = (tp[(tp["season"] == season) & (tp["week"] < week)].drop_duplicates("game_id"), tp[tp["season"] == season - 1].drop_duplicates("game_id"))
         teams, pl, cols, info = G.build(a, avail, hist, week, qbs, sides)
@@ -170,6 +175,8 @@ def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=prin
             si = sides.index(t)
             ratio = float(np.clip(imp[si] / max(E._team_ppg(games, season, week, t), 1.0), 0.6, 1.6))
             base = {"game_id": g.game_id, "season": season, "week": week, "team": t, "pid": pid, "name": names.get(pid, ""), "stat": k}
+            if revision_metadata is not None:
+                base.update(revision_metadata)
             for v, (_, r) in res.items():
                 x = r["stats"][k][:, cols[pid]]
                 if v == "v2":
@@ -190,6 +197,8 @@ def archive(season=SEASON, week=None, now=None, n_sims=N_SIMS, out=OUT, log=prin
                 "efficiency": {v: [float(e[0]), float(e[1])] for v, (e, _) in res.items()},
                 "pbp_games_this_season": pbp_games, "completed_games_before_week": done_games,
                 "player_stats": int(df[["pid", "stat"]].drop_duplicates().shape[0]) if len(df) else 0, "sha256": hashlib.sha256(data).hexdigest()}
+        if revision_metadata is not None:
+            meta.update(revision_metadata)
         if preview:
             meta["preview"] = True
             (wdir / f"{g.game_id}.parquet").write_bytes(data)

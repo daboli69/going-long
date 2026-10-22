@@ -1905,6 +1905,8 @@ def page_reports():
 def page_props():
     from lab.props import weekly as PW
     st.title("Player Props")
+    from app.props_injury_view import render as injury_simulations
+    injury_simulations()
     st.caption("Play-by-play Monte Carlo player projections (10,000 simulated games each), offense only. Model docs: docs/PROPS_SIMULATOR.md. Refresh upcoming games with `python -m lab.props.weekly preview`; archive pregame with `python -m lab.props.weekly`; score with `python -m lab.props.weekly score`.")
     ar_ = PW.load_archive()
     pv_ = PW.load_archive(preview=True)

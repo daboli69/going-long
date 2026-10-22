@@ -70,3 +70,5 @@ def render(root=None):
             if saved.get('by_team'):st.dataframe(pd.DataFrame(saved['by_team']),hide_index=True,use_container_width=True)
             if saved.get('conflicts'):st.warning('Injury sources disagree. Official status stays preferred; secondary conflicts remain unresolved. Review before interpreting forecasts.')
             if saved.get('source_errors'):st.warning('Some cached comparison feeds were unavailable: '+', '.join(saved['source_errors']))
+    from app.props_injury_view import render as injury_simulations
+    injury_simulations()
