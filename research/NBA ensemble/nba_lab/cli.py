@@ -53,10 +53,12 @@ def main():
         elif args.action=='predict':_,out=engine.predict(args.date)
         elif args.action=='score':
             from .outcomes import score
-            out=score()
+            from .shadow_results import score as shadow_score
+            out={'original':score(),'shadows':shadow_score()}
         elif args.action=='daily':
             from .outcomes import score
-            sources.refresh(args.start,args.end);score();features.run();engine.train(threads)
+            from .shadow_results import score as shadow_score
+            sources.refresh(args.start,args.end);score();shadow_score();features.run();engine.train(threads)
             _,out=engine.predict(args.date)
             from .extra_data import collect
             collect(end=args.end)
@@ -70,7 +72,8 @@ def main():
             if not args.source:raise ValueError('Specify --source nba_api or pbpstats')
             out=sources.optional_context(args.source,args.season)
         elif args.action=='report':
-            path=REPORTS/'INITIAL_RESEARCH.md'
+            path=ROOT/'docs/IMPROVEMENTS_RESULTS.md'
+            if not path.exists():path=REPORTS/'INITIAL_RESEARCH.md'
             print(path.read_text(encoding='utf-8') if path.exists() else 'No completed confirmation report yet.')
             return 0
         else:

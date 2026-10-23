@@ -225,3 +225,24 @@ Preregistered4c6a1a2 before fitting. Hypothesis: additional chronological calibr
 | isotonic_1200 | 0.61483 -> 0.67033 | +0.05550 [+0.01856,+0.10105] | 0.21626 | 0/2 | Rejected for adoption |
 
 No operational model, forecast or initial frozen configuration changed;9protected file hashes verified.27offline tests and actual local research page/cached-run control passed. OneDrive status replacement error logged; resumed final2candidates without repeating4completed checkpoints. Recorded0.45s is the final invocation only; total earlier compute time was not retained. Stopped after fixed grid, no threshold changes or extra search. Details: research/NBA ensemble/docs/CALIBRATION_RESULTS.md. Nothing promoted.
+
+## NBA individual hypotheses and scores - 2026-10-23
+
+Preregistered165fcfc before fits. Seven fixed winner configurations/21final fits+21calibrators+3internal neural sequences;2learned score configurations/8scalar-regressor fits. Same2460reused2024/2025discovery games;2023OOF stack warmup. No confirmation/current-season outcomes for selection. Whole-game bootstrap2000draws,Bonferroni8winner/4score comparisons. Threshold>=1%primary-loss improvement,corrected CI<0,both seasons improve,secondary probability/distribution loss no worse. Exploratory only,no fresh holdout,no promotion.
+
+| Experiment | Metric control -> new | Delta [corrected95%CI] | Seasons | Status |
+|---|---|---|---:|---|
+| logistic_adjusted | LL 0.60829->0.60828 | -0.00001[-0.00029,+0.00028] | 1/2 | Rejected by fixed gate |
+| logistic_recent | LL 0.60829->0.60872 | +0.00042[-0.00188,+0.00250] | 1/2 | Rejected by fixed gate |
+| random_forest_simple | LL 0.61525->0.61422 | -0.00103[-0.00505,+0.00263] | 1/2 | Rejected by fixed gate |
+| xgboost_regularized | LL 0.61562->0.61235 | -0.00327[-0.00609,-0.00044] | 2/2 | Rejected by fixed gate |
+| hist_native_missing | LL 0.62293->0.61637 | -0.00656[-0.01137,-0.00148] | 2/2 | Challenger; exploratory development pass |
+| svm_simple | LL 0.62824->0.62018 | -0.00806[-0.01433,-0.00208] | 2/2 | Challenger; exploratory development pass |
+| mlp_small | LL 0.66078->0.61294 | -0.04784[-0.06191,-0.03318] | 2/2 | Challenger; exploratory development pass |
+| new_stacked | LL 0.61483->0.61363 | -0.00120[-0.00386,+0.00137] | 2/2 | Rejected by fixed gate |
+| ridge margin | MAE 11.334->11.024 | -0.310[-0.445,-0.174] | 2/2 | Challenger; exploratory target pass |
+| ridge total | MAE 14.956->14.775 | -0.181[-0.287,-0.070] | 2/2 | Challenger; exploratory target pass |
+| hist margin | MAE 11.334->11.131 | -0.203[-0.353,-0.052] | 2/2 | Challenger; exploratory target pass |
+| hist total | MAE 14.956->15.028 | +0.072[-0.089,+0.235] | 0/2 | Rejected by fixed gate |
+
+Ridge qualified both score targets;histogram score model failed total gate. Original logistic remains stronger in discovery LL than the improved individual candidates. Current shadow models frozen34f526f/4adeafc:12score games/36per-member rows;original9protected hashes unchanged. Free189445player-box records/7246games and official injury-index metadata archived;not active injury/prop features. DNP34574,missing minutes when marked played81,unmatched IDs33(no guessed crosswalk).50tests/actual app views passed;one audit-count test failure logged/fixed without weakening. Full report: research/NBA ensemble/docs/IMPROVEMENTS_RESULTS.md.

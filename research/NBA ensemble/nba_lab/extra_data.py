@@ -59,6 +59,10 @@ def player_boxes(frame,games):
               'unmatched_id_rows':unmatched_ids,'wrong_team_rows':unmatched_teams,
               'negative_stat_rows':int(d[['minutes','points','rebounds','assists']].lt(0).any(axis=1).sum()),
               'columns':list(frame.columns),'id_namespace':'ESPN athlete_id; no inferred NBA Stats crosswalk'}
+    if 'did_not_play' in d:
+        coverage['marked_did_not_play_rows']=int(d.did_not_play.eq(True).sum())
+        coverage['missing_minutes_when_marked_played']=int((d.minutes.isna()&d.did_not_play.eq(False)).sum())
+    coverage['availability_warning']='DNP/active/starter are retrospective box fields, not verified pregame availability. Do not use target-game flags as features.'
     return d,coverage
 
 

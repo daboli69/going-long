@@ -9,6 +9,18 @@ Double-click **START_NBA.bat**, press Enter, and open **http://localhost:8502**.
 - **Research & Calibration:** discovery/confirmation results, uncertainty and reliability. Read sample sizes and data caveats before trusting a percentage.
 - **Data & Sources:** actual source usage, missing data and feature audit. Source availability is not proof a feature entered the model.
 
+## New shadow outputs and individual-model tests
+
+**Today** now includes expandable tables for the three development-qualified individual modifications and a separate **Spreads & totals** score distribution. Original six-model winner predictions remain first and unchanged. The Ridge score model projects coherent home/away points, home margin, favorite spread display, total,10/50/90ranges and its own implied win probability. That probability can disagree with the separate classifier ensemble. These are independent model projections, not sportsbook lines; no NBA market prices or advantage claims.
+
+**Research & Calibration** shows all seven fixed individual modifications, the prespecified new stack and the score comparisons. The smaller MLP, simpler SVM and revised histogram booster passed the exploratory development gate versus their own original versions. The changed stack did not pass. Ridge passed both score-target development gates versus a simple rolling-score baseline. All used already-examined discovery; none has new independent confirmation or promotion. See docs/IMPROVEMENTS_PREREGISTRATION.md and docs/IMPROVEMENTS_RESULTS.md.
+
+Launcher **option5** runs the fixed study, returning identical-input checkpoints; it never reopens the spent confirmation season. Changed inputs are refused under the frozen study rather than launching another search. Read saved results on the app page after future daily data changes. To generate only the new frozen shadow forecasts from current cached data: `python -m nba_lab.cli shadow-forecast`.
+
+Launcher **option2** / the existing Today refresh button now also collects free supplemental data, refits the separately frozen shadow score/individual models and appends their forecasts. It does not rerun research. Earlier original and shadow forecasts are scored descriptively after tipoff+24h; earliest revision per game/candidate/configuration prevents duplicate counting. New shadow results are on the research page; none is used to retune settings automatically.
+
+Automatic supplemental collection: SportsDataverse player boxes for ending-seasons2021onward, plus the official current NBA injury-report index/links. Raw files are hashed and archived; processed boxes carry a conservative available_at timestamp and identity/coverage audit. **These player boxes do not yet feed winner or prop projections.** Target-game DNP/active/starter flags are retrospective, not verified pregame availability. The injury PDF link is context only: statuses have not been parsed or applied. Props remain gated on a tested minutes/rotation model and verified availability. `python -m nba_lab.cli extra-data` runs this collector alone.
+
 Launcher option2 runs the daily refresh → score earlier archived forecasts descriptively → earlier-game feature build → frozen configuration refit → today's unstarted-game archive. Option3 displays saved research. No research search or confirmation rerun occurs during daily refresh. Results include training/calibration cutoffs, config/model version and source hashes. Saved forecast history stays visible after games start. Results use the earliest saved revision per game, so multiple revisions do not inflate sample size; use `python -m nba_lab.cli score` to score saved forecasts without refitting.
 
 ## Bounded calibration run
@@ -45,7 +57,7 @@ Optional context archives: `python -m nba_lab.cli context --source nba_api --sea
 
 **Current injury/lineup/rest-day decisions are NOT modeled as verified live player availability in v1.** Rest/back-to-back schedule features are included, but are not a substitute for injury reports. Current outcomes may be descriptively logged, never used to retune the frozen experiment. No NBA odds are downloaded; no market/ROI/profit claim. No deployment, alerts, database writes or paid services.
 
-Winners are the first evaluated target. Spreads/totals require separate score-distribution targets/calibration; props require player minutes, rotations, trades and availability with historical timestamps. Those are not safely established by copying the NFL simulator. They remain deferred, not fabricated.
+Winners were the first evaluated target; the separate shadow margin/total distribution is now implemented. Player props still require player minutes, rotations, trades and availability with historical timestamps. Those are not established by copying the NFL simulator. Props remain deferred, not fabricated.
 
 ## Verification and storage
 

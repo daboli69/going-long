@@ -183,6 +183,9 @@ elif page=='Research & Calibration':
     prospective=REPORTS/'PROSPECTIVE.json'
     if prospective.exists():st.json(read(prospective))
     else:st.info('Daily refresh scores previously archived forecasts after results are available. No retrospective forecasts are inserted.')
+    if (REPORTS/'SHADOW_PROSPECTIVE.json').exists():
+        with st.expander('Descriptive prospective results · individual and score shadows'):
+            st.json(read(REPORTS/'SHADOW_PROSPECTIVE.json'))
 else:
     st.subheader('Free sources and actual usage')
     st.dataframe(pd.DataFrame([
