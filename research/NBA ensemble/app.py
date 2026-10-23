@@ -103,7 +103,7 @@ elif page=='Research & Calibration':
     calibration=REPORTS/'calibration_v1/RESULT.json'
     if calibration.exists():
         result=read(calibration);st.write(result['decision'])
-        st.caption(f"{result['trial_count']} candidates · {result['calibrator_fits']} monthly fits · {result['elapsed_seconds']:.1f}s elapsed · reused discovery data, exploratory only")
+        st.caption(f"{result['trial_count']} candidates · {result['calibrator_fits']} monthly fits · latest invocation {result['elapsed_seconds']:.1f}s (completed checkpoints included) · reused discovery data, exploratory only")
         table=[]
         for t in result['trials']:
             table.append({'candidate':t['name'],**t['candidate'],
@@ -111,6 +111,12 @@ elif page=='Research & Calibration':
                           'corrected_CI_low':t['log_loss_delta']['ci_low'],'corrected_CI_high':t['log_loss_delta']['ci_high'],
                           'accepted_exploratory':t['accepted_exploratory']})
         st.dataframe(pd.DataFrame(table),hide_index=True,use_container_width=True)
+        with st.expander('Calibration reliability · predicted versus observed wins'):
+            options={'Existing control':result['control_reliability']}
+            options.update({t['name']:t['reliability'] for t in result['trials']})
+            view=st.selectbox('Reliability series',list(options))
+            st.dataframe(pd.DataFrame(options[view]),hide_index=True,use_container_width=True)
+            st.caption('For example, forecasts averaging60% should win about60% over enough games. Small bins fluctuate. Discovery has already been examined; these bins are exploratory.')
     discovery=REPORTS/'DISCOVERY.json';confirmation=REPORTS/'CONFIRMATION.json'
     if discovery.exists():
         d=read(discovery);st.subheader('Discovery ·2024/2025 ending seasons')

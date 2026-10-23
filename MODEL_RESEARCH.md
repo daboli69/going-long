@@ -210,3 +210,18 @@ Travis authorized a separate local NBA lab. Frozen protocol: research/NBA ensemb
 | stacked | -0.00152 [-0.00950,+0.00681] | 1/2 | 0.59908 / 0.20589 / 68.46% | Challenger; exploratory, discovery gate failed |
 
 Stacked confirmation delta-0.00948[-0.01825,-0.00108] does not undo its failed discovery gate. No model promoted, no market prices/edge claim. Source history revised/backfilled;24h availability proxy, not historical snapshots.2017-18 box coverage incomplete. MLP convergence warnings retained; no post-confirmation tuning. Current injuries/lineups not modeled.21offline tests and real-artifact four-page UI verified;12unstarted games archived prospectively. Detailed report: research/NBA ensemble/docs/INITIAL_RESULTS.md.
+
+## NBA bounded post-calibration - 2026-10-23
+
+Preregistered4c6a1a2 before fitting. Hypothesis: additional chronological calibration improves frozen stacked probability versus itself. Exactly6fixed candidates,84monthly calibrator fits,0base refits. Discovery ending-seasons2024/2025(n2460),earlier2023OOF calibration history. Reused discovery, not untouched validation; no confirmation/prospective outcomes used. Fixed gate:>=1%LL gain,Bonferroni-corrected2000draw paired-game CI<0,both seasons improve,Brier no worse. No candidate passed.
+
+| Candidate | LL control -> candidate | Delta [corrected95%CI] | Brier | Seasons improving | Decision |
+|---|---|---|---:|---:|---|
+| platt_300 | 0.61483 -> 0.61454 | -0.00029 [-0.00665,+0.00667] | 0.21273 | 1/2 | Rejected for adoption |
+| platt_600 | 0.61483 -> 0.61436 | -0.00047 [-0.00682,+0.00577] | 0.21286 | 1/2 | Rejected for adoption |
+| platt_1200 | 0.61483 -> 0.61781 | +0.00297 [-0.00269,+0.00931] | 0.21438 | 1/2 | Rejected for adoption |
+| isotonic_300 | 0.61483 -> 0.70097 | +0.08614 [+0.03891,+0.14452] | 0.21672 | 0/2 | Rejected for adoption |
+| isotonic_600 | 0.61483 -> 0.68996 | +0.07513 [+0.03061,+0.12451] | 0.21705 | 0/2 | Rejected for adoption |
+| isotonic_1200 | 0.61483 -> 0.67033 | +0.05550 [+0.01856,+0.10105] | 0.21626 | 0/2 | Rejected for adoption |
+
+No operational model, forecast or initial frozen configuration changed;9protected file hashes verified.27offline tests and actual local research page/cached-run control passed. OneDrive status replacement error logged; resumed final2candidates without repeating4completed checkpoints. Recorded0.45s is the final invocation only; total earlier compute time was not retained. Stopped after fixed grid, no threshold changes or extra search. Details: research/NBA ensemble/docs/CALIBRATION_RESULTS.md. Nothing promoted.
