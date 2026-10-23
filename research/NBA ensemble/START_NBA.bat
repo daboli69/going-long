@@ -13,6 +13,7 @@ echo NBA Ensemble - separate NBA data and models; no NFL predictions used.
 echo 1  Open NBA dashboard [Enter]
 echo 2  Daily refresh + frozen-model refit + archive winners
 echo 3  Show saved research report
+echo 4  Bounded calibration check [cached after completion]
 echo Q  Quit
 set "NBA_ACTION="
 set /p "NBA_ACTION=Choose: "
@@ -25,6 +26,12 @@ if "%NBA_ACTION%"=="2" (
 )
 if "%NBA_ACTION%"=="3" (
  "%NBA_PYTHON%" -m nba_lab.cli report
+ set "NBA_RESULT=!errorlevel!"
+ pause
+ exit /b !NBA_RESULT!
+)
+if "%NBA_ACTION%"=="4" (
+ "%NBA_PYTHON%" -m nba_lab.cli calibrate
  set "NBA_RESULT=!errorlevel!"
  pause
  exit /b !NBA_RESULT!

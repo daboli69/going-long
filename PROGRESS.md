@@ -17,6 +17,7 @@ Updated: 2026-10-23 (NBA lab added; NFL unchanged). Initial audit: `7d33e75`; ma
 - Review pipeline preparation: added local exact Vercel Git-deployment exclusion for `codex/going-long-daily-review` and `docs/DAILY_REVIEW_PIPELINE.md`. Config/path checks, 8/8 Vercel/API tests and local Vercel build passed; existing build warnings remain. GitHub metadata confirms public repo; standard Ubuntu Actions minutes free, existing cache/billing settings not verified. No workflow, automation or external settings changed; no pushes, remote branch, merge or deployment.
 
 ## Working
+- NBA bounded calibration (Codex,2026-10-23): owner/data/model/QA; evidence: individual calibrators already exist, so repeated six-model fitting adds no experiment. Acceptance: six preregistered monthly as-of post-calibration checks, same2460discovery games, corrected paired CIs,20minute cap/checkpoints and unchanged operational models/forecasts.27offline tests pass; real run pending. Protocol committed4c6a1a2; confirmation/prospective outcomes excluded.
 - Review publication disabled. Local exclusion prepared; external project/root/hooks, approved baseline/commit set and reviewer access remain prerequisites. No current claim of end-to-end deployment protection or cloud visibility.
 
 ## Problems

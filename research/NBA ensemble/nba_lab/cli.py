@@ -11,7 +11,7 @@ from .config import ROOT,REPORTS,DATA,now,atomic,low_priority
 def main():
     threads=low_priority()
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','score','context','report','app'])
+    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','score','context','report','app'])
     parser.add_argument('--date');parser.add_argument('--start',type=int,default=2015);parser.add_argument('--end',type=int)
     parser.add_argument('--source',choices=['nba_api','pbpstats']);parser.add_argument('--season',type=int,default=2026)
     args=parser.parse_args()
@@ -23,6 +23,10 @@ def main():
         elif args.action=='develop':out=engine.develop(threads)
         elif args.action=='confirm':out=engine.confirm(threads)
         elif args.action=='train':out={'version':engine.train(threads)['version']}
+        elif args.action=='calibrate':
+            from .calibration import run
+            result=run()
+            out={k:result[k] for k in ('trial_count','successful_candidates','calibrator_fits','elapsed_seconds','decision')}
         elif args.action=='predict':_,out=engine.predict(args.date)
         elif args.action=='score':
             from .outcomes import score

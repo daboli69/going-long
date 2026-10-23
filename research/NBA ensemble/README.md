@@ -11,6 +11,12 @@ Double-click **START_NBA.bat**, press Enter, and open **http://localhost:8502**.
 
 Launcher option2 runs the daily refresh → score earlier archived forecasts descriptively → earlier-game feature build → frozen configuration refit → today's unstarted-game archive. Option3 displays saved research. No research search or confirmation rerun occurs during daily refresh. Results include training/calibration cutoffs, config/model version and source hashes. Saved forecast history stays visible after games start. Results use the earliest saved revision per game, so multiple revisions do not inflate sample size; use `python -m nba_lab.cli score` to score saved forecasts without refitting.
 
+## Bounded calibration run
+
+Use launcher **option4**, or **Research & Calibration → Run / load bounded calibration check**. Command: `python -m nba_lab.cli calibrate`. It tests six fixed combined-probability calibrators on saved discovery predictions, with a20minute cap and an earlier stop when all six finish. No source downloads or base-model refits; completed candidates are checkpointed and a finished run is cached. Repeated clicks do not launch a broader search. Results are exploratory because discovery was already examined. This does not touch the spent confirmation season, change current forecasts or promote a model. See docs/CALIBRATION_PREREGISTRATION.md; results live in reports/calibration_v1/REPORT.md and on the research page.
+
+An interrupted process may leave reports/calibration_v1/RUN_LOCK.json. Verify no calibration process is still running before removing that lock and resuming the same command. Changed inputs/code are refused under this protocol. A useful run finishes its fixed scientific checks; it does not spend extra hours generating simulated wins from an already calculated probability.
+
 ## Six initial candidates
 
 Regularized logistic regression, random forest, XGBoost, histogram gradient boosting, RBF support-vector classifier and MLP neural network. They are candidates, not asserted to be the six best NBA algorithms. Equal, earlier-OOF weighted and chronological stacked combinations are evaluated; the selected combination is frozen before a single later confirmation season. Model/correlation agreement is descriptive. No model is automatically promoted.

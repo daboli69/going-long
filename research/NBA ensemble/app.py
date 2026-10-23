@@ -96,6 +96,21 @@ if page in ('Today','Model Debate'):
             st.dataframe(saved[['away','home','tipoff','winner','p_home','home_votes','away_votes','model_version']],hide_index=True,use_container_width=True)
             st.download_button('Download saved revision',saved.to_csv(index=False).encode(),'nba_'+chosen.parent.name+'.csv')
 elif page=='Research & Calibration':
+    st.subheader('Bounded combined-probability calibration')
+    st.caption('Six fixed tests on saved discovery predictions;20minute cap, ends sooner when complete. No confirmation rerun, base-model refits or changes to saved forecasts. Completed runs return cached results.')
+    if st.button('Run / load bounded calibration check'):
+        run_action('calibrate')
+    calibration=REPORTS/'calibration_v1/RESULT.json'
+    if calibration.exists():
+        result=read(calibration);st.write(result['decision'])
+        st.caption(f"{result['trial_count']} candidates · {result['calibrator_fits']} monthly fits · {result['elapsed_seconds']:.1f}s elapsed · reused discovery data, exploratory only")
+        table=[]
+        for t in result['trials']:
+            table.append({'candidate':t['name'],**t['candidate'],
+                          'log_loss_delta':t['log_loss_delta']['delta'],
+                          'corrected_CI_low':t['log_loss_delta']['ci_low'],'corrected_CI_high':t['log_loss_delta']['ci_high'],
+                          'accepted_exploratory':t['accepted_exploratory']})
+        st.dataframe(pd.DataFrame(table),hide_index=True,use_container_width=True)
     discovery=REPORTS/'DISCOVERY.json';confirmation=REPORTS/'CONFIRMATION.json'
     if discovery.exists():
         d=read(discovery);st.subheader('Discovery ·2024/2025 ending seasons')
