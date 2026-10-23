@@ -122,6 +122,14 @@ if page in ('Today','Model Debate'):
                 else:st.info('Prespecified context research copies; development results are not independent validation or promotion.')
                 st.dataframe(context[['away','home','method','p_home','development_gate_passed','home_current_season_games','away_current_season_games','home_prior_season_fraction','away_prior_season_fraction']],hide_index=True,use_container_width=True)
             else:st.info('No saved context research copies for this date.')
+        with st.expander('Strength shadow · six models + margin ratings, travel, recent roster',expanded=True):
+            saved_strength=sorted((ARCHIVES/'strength_forecasts').glob(str(date)+'_*/META.json'),reverse=True)
+            if saved_strength:
+                strength=pd.read_parquet(saved_strength[0].parent/'predictions.parquet')
+                st.caption('Passed a fixed retrospective gate on 2022-23 to 2025-26 (log loss 0.6247 to 0.6199, all four seasons better). Shadow only: the original ensemble above is unchanged. Roster strength uses earlier released box scores, not the current injury report.')
+                st.dataframe(strength[['away','home','p_home','winner','home_votes','away_votes','diff_ridge_net','diff_roster_gmsc','diff_absent_gmsc']],hide_index=True,use_container_width=True)
+                st.download_button('Download strength shadow',strength.to_csv(index=False).encode(),'nba_strength_shadow_'+str(date)+'.csv')
+            else:st.info('No saved strength shadow for this date; daily refresh or shadow-forecast appends it.')
         with st.expander('Experimental individual-model forecasts · three shadow copies'):
             saved_individual=sorted((ARCHIVES/'individual_forecasts').glob(str(date)+'_*/META.json'),reverse=True)
             if saved_individual:

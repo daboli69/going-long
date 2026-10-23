@@ -1,0 +1,65 @@
+{
+  "created_at": "2026-10-23T20:00:07.849779+00:00",
+  "candidate": "all",
+  "study_protocol": "a5da7d942f275ab227a523d80c7735af17a19eff3bd4c0e7251afd973828913c",
+  "result": {
+    "study": "B",
+    "candidate": "all",
+    "control": "control_b",
+    "n": 4920,
+    "log_loss": 0.6199031706398364,
+    "control_log_loss": 0.6247026566164239,
+    "brier_delta": -0.0021277688036008824,
+    "accuracy": 0.6613821138211382,
+    "control_accuracy": 0.6502032520325203,
+    "relative_loss_reduction": 0.007682832665676487,
+    "delta": -0.0047994859765875305,
+    "ci_low": -0.008638931012036714,
+    "ci_high": -0.0007580191819043955,
+    "season_deltas": {
+      "2023": -0.00453100435433873,
+      "2024": -0.0021077661040300733,
+      "2025": -0.005039757481955065,
+      "2026": -0.007519415966026011
+    },
+    "seasons_improving": 4,
+    "passed": true,
+    "members": {
+      "logistic": {
+        "delta": -0.0034432789067614412,
+        "ci_high": 0.0009260397571246047
+      },
+      "random_forest": {
+        "delta": -0.007198620914204189,
+        "ci_high": -0.004097053636811421
+      },
+      "xgboost": {
+        "delta": -0.009518181956114416,
+        "ci_high": -0.004709130510661656
+      },
+      "hist_gradient_boosting": {
+        "delta": -0.011296801403108462,
+        "ci_high": -0.0057975427876562026
+      },
+      "rbf_svm": {
+        "delta": -0.0047085756762490815,
+        "ci_high": -0.0007140234065426683
+      },
+      "mlp": {
+        "delta": -0.0023802340129836378,
+        "ci_high": 0.004735284457950486
+      },
+      "equal": {
+        "delta": -0.007272184259984458,
+        "ci_high": -0.004056122032839212
+      }
+    }
+  },
+  "code_hashes": {
+    "strength.py": "6f14aa1edf3ebb2a104b39497a22d4acf5e313815046f0615c419cec5868b2ef",
+    "strength_shadow.py": "fd7b761cf5e198bc478ec694528ea690a1992211a914a6ec59d0e4a161e6dc29",
+    "models.py": "cd437cfbf9f913d8c407535013ff022a57128068a7f1926bb8a720975c168c57",
+    "features.py": "da3f3ba7137b81cbac4e5b793b90b39333e781c1cdb69fca6be934a08b96499c"
+  },
+  "status": "Shadow only. Original frozen ensemble and forecasts unchanged; promotion needs prospective 2026-27 evidence."
+}
