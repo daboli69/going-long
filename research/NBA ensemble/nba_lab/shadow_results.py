@@ -12,7 +12,7 @@ def score(asof=None):
     games=pd.read_parquet(CACHE/'games.parquet')
     ready=games[games.completed&(games.tipoff+pd.Timedelta(hours=24)).lt(time)].set_index('game_id')
     records=[];pending=0
-    for kind,folder in [('individual','individual_forecasts'),('scores','score_forecasts')]:
+    for kind,folder in [('individual','individual_forecasts'),('scores','score_forecasts'),('context','context_forecasts')]:
         for meta in sorted((ARCHIVES/folder).glob('*/META.json')):
             for row in pd.read_parquet(meta.parent/'predictions.parquet').to_dict('records'):
                 created=pd.Timestamp(row['created_at']);tipoff=pd.Timestamp(row['tipoff'])
@@ -33,7 +33,9 @@ def score(asof=None):
                     record={'kind':kind,'candidate':candidate,'config_hash':row['config_hash'],'game_id':game_id,
                             'created_at':row['created_at'],'scored_at':now(),'archive':meta.parent.name,
                             'home_win':int(actual.home_score>actual.away_score)}
-                    if kind=='individual':record['p_home']=row['p_home']
+                    if kind in ('individual','context'):
+                        record['p_home']=row['p_home']
+                        if kind=='context':record['development_gate_passed']=bool(row['development_gate_passed'])
                     else:
                         margin=float(actual.home_score-actual.away_score);total=float(actual.home_score+actual.away_score)
                         record.update({'p_home':row['p_home_score_model'],'margin_abs_error':abs(row['home_margin']-margin),
@@ -48,6 +50,7 @@ def score(asof=None):
         d=pd.DataFrame(records).sort_values(['created_at','archive']).drop_duplicates(['kind','candidate','config_hash','game_id'],keep='first')
         for (kind,candidate,config),group in d.groupby(['kind','candidate','config_hash']):
             row={'kind':kind,'candidate':candidate,'config_hash':config,**scores(group.home_win,group.p_home)}
+            if kind=='context':row['development_gate_passed']=bool(group.development_gate_passed.iloc[0])
             if kind=='scores':
                 for target in ('margin','total'):
                     row[target+'_mae']=float(group[target+'_abs_error'].mean())

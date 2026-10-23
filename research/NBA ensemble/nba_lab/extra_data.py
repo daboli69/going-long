@@ -66,6 +66,16 @@ def player_boxes(frame,games):
     return d,coverage
 
 
+def refresh_injury_index(end=None):
+    end=end or ending_season();season_label=f'{end-1}-{str(end)[-2:]}'
+    url=f'https://official.nba.com/nba-injury-report-{season_label}-season';key='official_injury_index_'+str(end)
+    path=fetch(url,key,'html',ttl_hours=.25)
+    actual_retrieval=read(DATA/'SOURCES.json')[key]['checked_at']
+    injury=injury_index(Path(path).read_text(encoding='utf-8'),actual_retrieval)
+    injury.update({'source_url':url,'processed_at':now()})
+    update(DATA/'INJURY_CONTEXT.json',injury);return injury
+
+
 def collect(start=2021,end=None,log=print):
     end=end or ending_season()
     games=pd.read_parquet(CACHE/'games.parquet');frames=[];coverage={};issues=[]
@@ -81,14 +91,7 @@ def collect(start=2021,end=None,log=print):
         if players.duplicated(['game_id','athlete_id']).any():raise ValueError('Cross-export player/game duplicates')
         players.to_parquet(CACHE/'player_boxes.parquet',index=False)
     try:
-        season_label=f'{end-1}-{str(end)[-2:]}'
-        url=f'https://official.nba.com/nba-injury-report-{season_label}-season'
-        key='official_injury_index_'+str(end)
-        path=fetch(url,key,'html',ttl_hours=.25)
-        actual_retrieval=read(DATA/'SOURCES.json')[key]['checked_at']
-        injury=injury_index(Path(path).read_text(encoding='utf-8'),actual_retrieval);injury['source_url']=url
-        injury['processed_at']=now()
-        update(DATA/'INJURY_CONTEXT.json',injury)
+        injury=refresh_injury_index(end)
     except Exception as error:
         issues.append({'source':'official_injury_index','error':type(error).__name__,'message':str(error)[:200]});injury=None
     report={'created_at':now(),'coverage':coverage,'issues':issues,'injury_context':injury,

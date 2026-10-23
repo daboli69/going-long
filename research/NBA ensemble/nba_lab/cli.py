@@ -53,8 +53,11 @@ def main():
         elif args.action=='pregame-refresh':
             from .availability import collect
             from .context_research import archive
+            from .extra_data import refresh_injury_index
             report=collect(args.date)
-            out={'availability_snapshot':report['snapshot_path'],'issues':report['issues'],'context_forecasts':archive(args.date)}
+            try:official={'latest_report':refresh_injury_index()['latest_report']}
+            except Exception as error:official={'error':type(error).__name__,'message':str(error)[:200]}
+            out={'availability_snapshot':report['snapshot_path'],'issues':report['issues'],'official_report':official,'context_forecasts':archive(args.date)}
         elif args.action=='shadow-forecast':
             from .score_models import archive as score_archive
             from .winner_shadow import archive as individual_archive
@@ -90,7 +93,8 @@ def main():
             if not args.source:raise ValueError('Specify --source nba_api or pbpstats')
             out=sources.optional_context(args.source,args.season)
         elif args.action=='report':
-            path=ROOT/'docs/IMPROVEMENTS_RESULTS.md'
+            path=ROOT/'docs/PREGAME_CONTEXT_RESULTS.md'
+            if not path.exists():path=ROOT/'docs/IMPROVEMENTS_RESULTS.md'
             if not path.exists():path=REPORTS/'INITIAL_RESEARCH.md'
             print(path.read_text(encoding='utf-8') if path.exists() else 'No completed confirmation report yet.')
             return 0

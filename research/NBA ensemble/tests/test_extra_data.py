@@ -34,3 +34,14 @@ def test_float_encoded_integer_ids_are_normalized_without_rounding():
     row={'game_id':0.,'season':2024,'season_type':2,'athlete_id':123.,'team_id':1.,'minutes':30,'points':12,'rebounds':5,'assists':3}
     out,meta=player_boxes(pd.DataFrame([row,row|{'athlete_id':123.5}]),games(1))
     assert out.athlete_id.tolist()==['123'] and meta['unmatched_id_rows']==1
+
+
+def test_lightweight_official_index_refresh_preserves_actual_retrieval_time(tmp_path,monkeypatch):
+    from nba_lab import extra_data as E
+    from nba_lab.config import atomic
+    monkeypatch.setattr(E,'DATA',tmp_path)
+    html=tmp_path/'fixture.html';html.write_text('<a href="https://ak-static.cms.nba.com/referee/injury/Injury-Report_2026-10-23_01_00PM.pdf">report</a>')
+    monkeypatch.setattr(E,'fetch',lambda *a,**k:html)
+    atomic(tmp_path/'SOURCES.json',{'official_injury_index_2027':{'checked_at':'2026-10-23T18:00:00+00:00'}})
+    result=E.refresh_injury_index(2027)
+    assert result['retrieved_at']=='2026-10-23T18:00:00+00:00' and not result['model_input']

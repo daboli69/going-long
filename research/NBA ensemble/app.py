@@ -87,6 +87,41 @@ if page in ('Today','Model Debate'):
                     st.caption('Stacking coefficients operate on calibrated log-odds. They are not vote shares or win probabilities.')
         except Exception as error:st.error(type(error).__name__+': '+str(error)[:300])
     if page=='Today':
+        with st.expander('Pregame availability & roster continuity',expanded=True):
+            st.caption('Current source context only; injury statuses do not change the model probabilities. Empty reports are unknown, and current roster membership does not confirm who will play.')
+            if st.button('Refresh availability + save context research copies'):
+                run_action('pregame-refresh',date)
+            availability_path=DATA/'AVAILABILITY.json'
+            if availability_path.exists() and read(availability_path)['date']==str(date):
+                availability=read(availability_path)
+                age=(pd.Timestamp.now(tz='UTC')-pd.Timestamp(availability['created_at'])).total_seconds()/60
+                st.caption(f"Saved snapshot {availability['created_at']} · age {age:.0f}minutes · lineups not confirmed")
+                if age>60:st.warning('Saved availability is over60minutes old. Refresh before treating it as current context.')
+                if availability['issues']:st.warning(f"{len(availability['issues'])} source issues. Missing data remains unknown.")
+                teams=pd.DataFrame(availability['teams'])
+                if not teams.empty:
+                    wanted=['team','released_current_season_games','history_games','roster_retained_minutes_share','known_out_last20_minutes_share','continuity_status']
+                    st.dataframe(teams[[c for c in wanted if c in teams]],hide_index=True,use_container_width=True,
+                        column_config={k:st.column_config.NumberColumn(format='percent') for k in ('roster_retained_minutes_share','known_out_last20_minutes_share')})
+                    st.caption('Retained minutes: share of prior20released team-game minutes from players on today’s roster. Known-Out minutes: share belonging to source-listed Out players; newcomers can have zero prior team minutes. Neither is a predicted point loss. Current-season sample is distinct from82total history games.')
+                injuries=pd.DataFrame(availability['rows'])
+                if not injuries.empty:
+                    wanted=['team','player','status','injury_published_at','retrieved_at','conflict','verification']
+                    st.dataframe(injuries[[c for c in wanted if c in injuries]],hide_index=True,use_container_width=True)
+                else:st.info('No usable injury entries returned. This does not confirm healthy lineups.')
+                if st.checkbox('Show report completeness / source errors'):
+                    st.dataframe(pd.DataFrame(availability['reports']),hide_index=True,use_container_width=True)
+                    if availability['issues']:st.json(availability['issues'])
+            else:st.info('No availability snapshot for this date. Refresh to collect prospective context.')
+        with st.expander('Season-continuity / shared-possession research copies'):
+            contexts=sorted((ARCHIVES/'context_forecasts').glob(str(date)+'_*/META.json'),reverse=True)
+            if contexts:
+                context=pd.read_parquet(contexts[0].parent/'predictions.parquet')
+                if not context.development_gate_passed.any():
+                    st.warning('Both context hypotheses failed their development gates. These fixed copies are saved for prospective research; they are not recommended replacements.')
+                else:st.info('Prespecified context research copies; development results are not independent validation or promotion.')
+                st.dataframe(context[['away','home','method','p_home','development_gate_passed','home_current_season_games','away_current_season_games','home_prior_season_fraction','away_prior_season_fraction']],hide_index=True,use_container_width=True)
+            else:st.info('No saved context research copies for this date.')
         with st.expander('Experimental individual-model forecasts · three shadow copies'):
             saved_individual=sorted((ARCHIVES/'individual_forecasts').glob(str(date)+'_*/META.json'),reverse=True)
             if saved_individual:
@@ -106,7 +141,7 @@ if page in ('Today','Model Debate'):
                 st.download_button('Download shadow score projections',score_view.to_csv(index=False).encode(),'nba_scores_'+str(date)+'.csv')
         if (DATA/'INJURY_CONTEXT.json').exists():
             injury=read(DATA/'INJURY_CONTEXT.json')
-            st.caption('Official injury report: '+injury['latest_report']['report_time']+' · context only; statuses do not adjust forecasts.')
+            st.caption('Official index lists report: '+injury['latest_report']['report_time']+' · fetched '+injury['retrieved_at']+' · the index may lag newer releases; statuses do not adjust forecasts.')
             st.link_button('Open official injury report',injury['latest_report']['url'])
     with st.expander('Saved forecast history · originals remain unchanged'):
         archives=sorted((ARCHIVES/'forecasts').glob('*/META.json'),reverse=True)
@@ -118,6 +153,16 @@ if page in ('Today','Model Debate'):
             st.dataframe(saved[['away','home','tipoff','winner','p_home','home_votes','away_votes','model_version']],hide_index=True,use_container_width=True)
             st.download_button('Download saved revision',saved.to_csv(index=False).encode(),'nba_'+chosen.parent.name+'.csv')
 elif page=='Research & Calibration':
+    context_result=REPORTS/'pregame_context_v1/RESULT.json'
+    if context_result.exists():
+        with st.expander('Agent-reviewed pregame hypotheses · development only'):
+            rows=[]
+            for r in read(context_result)['results']:
+                rows.append({'hypothesis':r['method'],'n':r['candidate']['n'],'control_log_loss':r['control']['log_loss'],
+                             'new_log_loss':r['candidate']['log_loss'],'delta':r['delta']['delta'],
+                             'corrected_CI_low':r['delta']['ci_low'],'corrected_CI_high':r['delta']['ci_high'],'development_pass':r['accepted_exploratory']})
+            st.dataframe(pd.DataFrame(rows),hide_index=True,use_container_width=True)
+            st.caption('Two fixed tests; same reused development seasons. No confirmation rerun or automatic promotion. Early-season subset is descriptive only.')
     st.subheader('Individual-model hypotheses and score research')
     tabs=st.tabs(['Winner model changes','Spreads & totals'])
     with tabs[0]:

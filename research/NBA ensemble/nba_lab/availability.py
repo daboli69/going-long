@@ -7,9 +7,10 @@ import hashlib
 import json
 import uuid
 from pathlib import Path
+import numpy as np
 import pandas as pd
 import requests
-from .config import CACHE,DATA,RAW,now,stamp,once
+from .config import CACHE,DATA,RAW,now,stamp,once,digest
 from .research_io import update
 
 BASE='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/'
@@ -96,7 +97,8 @@ def continuity(players,team,roster_ids,retrieved,season,out_ids=None):
     available=pd.to_datetime(d.available_at,utc=True)
     d=d[available.lt(retrieved)]
     # Rows with zero/missing/negative minutes carry no denominator mass.
-    d['usable_minutes']=pd.to_numeric(d.minutes,errors='coerce').clip(lower=0).fillna(0)
+    minutes=pd.to_numeric(d.minutes,errors='coerce')
+    d['usable_minutes']=minutes.where(np.isfinite(minutes)&minutes.gt(0),0.)
     games=d[['game_id','tipoff']].drop_duplicates().sort_values('tipoff').tail(20).game_id
     hist=d[d.game_id.isin(games)];total=float(hist.usable_minutes.sum())
     retained=float(hist[hist.athlete_id.astype(str).isin(roster_ids or set())].usable_minutes.sum())
@@ -174,6 +176,8 @@ def collect(date=None,session=None):
             teams.append(metric)
     result={'created_at':now(),'date':str(date),'games':int(len(slate)),'rows':rows,
         'teams':teams,'reports':reports,'rosters':list(r for r in rosters.values() if r),'issues':issues,
+        'games_sha256':digest(CACHE/'games.parquet'),
+        'player_history_sha256':digest(CACHE/'player_boxes.parquet') if (CACHE/'player_boxes.parquet').exists() else None,
         'model_input':False,'lineup_verified':False,
         'warning':'Availability context only. Empty reports are unknown; no probability adjustment or confirmed lineup.'}
     body=json.dumps(result,sort_keys=True,default=str,allow_nan=False).encode();checksum=hashlib.sha256(body).hexdigest()

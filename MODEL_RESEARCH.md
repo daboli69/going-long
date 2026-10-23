@@ -246,3 +246,14 @@ Preregistered165fcfc before fits. Seven fixed winner configurations/21final fits
 | hist total | MAE 14.956->15.028 | +0.072[-0.089,+0.235] | 0/2 | Rejected by fixed gate |
 
 Ridge qualified both score targets;histogram score model failed total gate. Original logistic remains stronger in discovery LL than the improved individual candidates. Current shadow models frozen34f526f/4adeafc:12score games/36per-member rows;original9protected hashes unchanged. Free189445player-box records/7246games and official injury-index metadata archived;not active injury/prop features. DNP34574,missing minutes when marked played81,unmatched IDs33(no guessed crosswalk).50tests/actual app views passed;one audit-count test failure logged/fixed without weakening. Full report: research/NBA ensemble/docs/IMPROVEMENTS_RESULTS.md.
+
+## NBA pregame context - 2026-10-23
+
+Two agents identified unmarked offseason carryover and inconsistent per-team possession denominators. Frozen4584179 before4base fits/4calibrators;2configurations,2460reused2024/25discovery games,original logistic controls. PrimaryLL,Bonferroni2,paired whole-game bootstrap2000draws;gate>=1%gain,CI<0,both seasons,Brier no worse. Opening-season315game subgroup descriptive only. No spent confirmation/current-outcome selection.
+
+| Hypothesis | LL control -> candidate | Delta [corrected95%CI] | Seasons | Status |
+|---|---|---|---:|---|
+| season_continuity | 0.608294->0.608490 | +0.000197[-0.000926,+0.001286] | 1/2 | Rejected |
+| shared_possessions | 0.608294->0.608297 | +0.000003[-0.000139,+0.000144] | 1/2 | Rejected |
+
+Both failed;no more configurations tried. Saved both prespecified research copies for prospective comparison,not replacements(12games/24rows). Availability diagnostics:24current exact-ID rosters/58injury rows;5empty summaries unknown;CHI/MIL retained62.6%/74.6%prior20game minutes and each has1released current-season game. No causal injury/roster adjustment claimed.70 tests and actual UI passed;22original protected hashes unchanged;one UI QA issue logged/fixed. Full report: research/NBA ensemble/docs/PREGAME_CONTEXT_RESULTS.md. Nothing promoted.

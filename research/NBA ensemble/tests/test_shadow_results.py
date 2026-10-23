@@ -39,3 +39,13 @@ def test_shadow_scoring_refuses_postgame_prediction(tmp_path,monkeypatch):
     path=R.ARCHIVES/'individual_forecasts/first/predictions.parquet'
     d=pd.read_parquet(path);d['created_at']='2026-10-24T00:00Z';d.to_parquet(path,index=False)
     with pytest.raises(ValueError,match='Non-pregame'):R.score('2026-10-26T12:00Z')
+
+
+def test_prespecified_rejected_context_copy_is_scored_descriptively_without_promotion(tmp_path,monkeypatch):
+    setup(tmp_path,monkeypatch)
+    source=R.ARCHIVES/'individual_forecasts/first/predictions.parquet'
+    d=pd.read_parquet(source).rename(columns={'candidate':'method'});d['method']='season_continuity';d['development_gate_passed']=False
+    directory=R.ARCHIVES/'context_forecasts/first';directory.mkdir(parents=True)
+    once(directory/'META.json',{'fixture':True});d.to_parquet(directory/'predictions.parquet',index=False)
+    result=R.score('2026-10-26T12:00Z');context=next(r for r in result['summary'] if r['kind']=='context')
+    assert context['n']==1 and context['candidate']=='season_continuity' and not context['development_gate_passed']

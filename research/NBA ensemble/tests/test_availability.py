@@ -49,7 +49,7 @@ def test_conflicts_are_unknown_without_guessed_name_join():
 
 def test_continuity_uses_released_rows_positive_minutes_and_exact_ids():
     rows=[]
-    for player,minutes in [('100',30),('200',10),('300',-5),('400',None)]:
+    for player,minutes in [('100',30),('200',10),('300',-5),('400',None),('500',float('inf'))]:
         rows.append({'team_id':'1','athlete_id':player,'minutes':minutes,'game_id':'prior','tipoff':TIME-pd.Timedelta(days=3),
                      'available_at':TIME-pd.Timedelta(days=2),'season':2027})
     rows.append(rows[0]|{'minutes':100,'game_id':'future','available_at':TIME+pd.Timedelta(hours=1)})
@@ -76,6 +76,7 @@ def test_collect_skips_started_games_and_archives_only_selected(tmp_path,monkeyp
     monkeypatch.setattr(A,'_get',get)
     result=A.collect('2026-10-23')
     assert result['games']==1 and all('started' not in call for call in calls)
+    assert len(result['games_sha256'])==64 and result['player_history_sha256'] is None
     assert not result['rows'] and not result['lineup_verified']
     snapshot=json.loads(open(result['snapshot_path']).read())
     assert 'odds' not in str(snapshot) and 'forbidden' not in str(snapshot)
