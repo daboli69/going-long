@@ -1,0 +1,59 @@
+{
+  "created_at": "2026-10-23T18:55:41.414602+00:00",
+  "methods": [
+    "season_continuity",
+    "shared_possessions"
+  ],
+  "base_columns": [
+    "neutral",
+    "elo_diff",
+    "diff_rest_days",
+    "diff_back_to_back",
+    "diff_games_last4days",
+    "diff_win_5",
+    "diff_margin_5",
+    "diff_points_5",
+    "diff_allowed_5",
+    "diff_poss_5",
+    "diff_ortg_5",
+    "diff_drtg_5",
+    "diff_efg_5",
+    "diff_tov_rate_5",
+    "diff_orb_rate_5",
+    "diff_ft_rate_5",
+    "diff_win_10",
+    "diff_margin_10",
+    "diff_points_10",
+    "diff_allowed_10",
+    "diff_poss_10",
+    "diff_ortg_10",
+    "diff_drtg_10",
+    "diff_efg_10",
+    "diff_tov_rate_10",
+    "diff_orb_rate_10",
+    "diff_ft_rate_10",
+    "diff_win_20",
+    "diff_margin_20",
+    "diff_points_20",
+    "diff_allowed_20",
+    "diff_poss_20",
+    "diff_ortg_20",
+    "diff_drtg_20",
+    "diff_efg_20",
+    "diff_tov_rate_20",
+    "diff_orb_rate_20",
+    "diff_ft_rate_20"
+  ],
+  "development_gate": {
+    "season_continuity": false,
+    "shared_possessions": false
+  },
+  "research_fingerprint": "5921faab9a9641b3beac089a14c959f4a3a83cda057d0849711057a75a8d36cb",
+  "code_hashes": {
+    "context_research.py": "93e647b80fa3fb97f5fb255b5affa971685e361ae47f4191d8b5e3103f94964b",
+    "context_features.py": "08297dbcae67d98fcf07dfa213f3c3341bc96074d21f1518946a3d4ef518bd0a",
+    "models.py": "cd437cfbf9f913d8c407535013ff022a57128068a7f1926bb8a720975c168c57",
+    "research_io.py": "f92072389e6688999a0453f195ae0ceeee9c02b00bead74f603a95f375e706e8"
+  },
+  "status": "Both fixed candidates archived for prospective comparison; never replace original forecasts."
+}
