@@ -6,9 +6,9 @@ Protocol `docs/INJURY_PREREGISTRATION.md` was committed (43e7d42d) before any fi
 
 | | Log loss | Brier | Accuracy |
 |---|---:|---:|---:|
-| Strength shadow inputs (control) | 0.61816 | | 67.3% |
-| + official injury report | **0.61014** | -0.00289 | **67.6%** |
-| Elo benchmark, same games | 0.61380 | | |
+| Strength shadow inputs (control) | 0.61816 | 0.21321 | 67.3% |
+| + official injury report | **0.61014** | 0.21032 | **67.6%** |
+| Elo benchmark, same games | 0.61380 | n/a | n/a |
 
 Change -0.00803, 95% interval [-0.01171, -0.00427]. Better in all three seasons (-0.0065, -0.0101, -0.0074). Relative gain 1.30%, which also clears the original project's 1% bar. **Passed.**
 
