@@ -1,0 +1,44 @@
+{
+  "created_at": "2026-10-23T21:18:06.136603+00:00",
+  "candidate": "strength_injury",
+  "study_protocol": "cb5709b2782ca8f4f862316d7e81a84bcc4d01e501db350bf5f13357aa7ddf80",
+  "result": {
+    "candidate": "strength_injury",
+    "control": "strength",
+    "n": 3690,
+    "log_loss": 0.610135432528821,
+    "control_log_loss": 0.6181638956665729,
+    "brier_delta": -0.002890565276416568,
+    "accuracy": 0.675880758807588,
+    "control_accuracy": 0.67289972899729,
+    "relative_loss_reduction": 0.012987596321999306,
+    "delta": -0.008028463137751983,
+    "ci_low": -0.011712624825046996,
+    "ci_high": -0.004268121207000004,
+    "season_deltas": {
+      "2024": -0.006527048059290497,
+      "2025": -0.010111399158459156,
+      "2026": -0.007446942195506456
+    },
+    "seasons_improving": 3,
+    "passed": true,
+    "members": {
+      "logistic": -0.006363962792557691,
+      "random_forest": -0.004505112494418956,
+      "xgboost": -0.0033565367237707337,
+      "hist_gradient_boosting": -0.004443272442148597,
+      "rbf_svm": -0.005721894411022503,
+      "mlp": -0.007393242826329428,
+      "equal": -0.005303474451167652
+    }
+  },
+  "code_hashes": {
+    "injury_features.py": "881b3694dd2a75ae05fd7b05f12143a58fefd053bf786c7ee5411c99ff042a55",
+    "injury_shadow.py": "e6e60d950d7906c425648e796277d7e7149f7ee18f466946154656b1945223c8",
+    "injury_reports.py": "7f39c401b6255154e08b9d137d3af728ff891ad27990dda871d486318869b1e2",
+    "strength.py": "6f14aa1edf3ebb2a104b39497a22d4acf5e313815046f0615c419cec5868b2ef",
+    "models.py": "cd437cfbf9f913d8c407535013ff022a57128068a7f1926bb8a720975c168c57",
+    "features.py": "da3f3ba7137b81cbac4e5b793b90b39333e781c1cdb69fca6be934a08b96499c"
+  },
+  "status": "Shadow only. Original ensemble and strength shadow unchanged; promotion needs prospective 2026-27 evidence."
+}

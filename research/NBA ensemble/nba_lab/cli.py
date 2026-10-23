@@ -11,7 +11,7 @@ from .config import ROOT,REPORTS,DATA,now,atomic,low_priority
 def main():
     threads=low_priority()
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','pregame-research','pregame-refresh','availability','score-forecast','shadow-forecast','extra-data','score','context','report','app','strength-research','strength-freeze','injury-research'])
+    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','pregame-research','pregame-refresh','availability','score-forecast','shadow-forecast','extra-data','score','context','report','app','strength-research','strength-freeze','injury-research','injury-freeze'])
     parser.add_argument('--date');parser.add_argument('--start',type=int,default=2015);parser.add_argument('--end',type=int)
     parser.add_argument('--source',choices=['nba_api','pbpstats']);parser.add_argument('--season',type=int,default=2026)
     args=parser.parse_args()
@@ -29,6 +29,9 @@ def main():
         elif args.action=='injury-research':
             from . import injury_research
             out={k:v for k,v in injury_research.research(threads).items() if k!='descriptive'}
+        elif args.action=='injury-freeze':
+            from .injury_shadow import freeze
+            out={k:v for k,v in freeze().items() if k!='result'}
         elif args.action=='develop':out=engine.develop(threads)
         elif args.action=='confirm':out=engine.confirm(threads)
         elif args.action=='train':out={'version':engine.train(threads)['version']}
@@ -74,6 +77,9 @@ def main():
             if (ROOT/'docs/STRENGTH_SHADOW_CONFIG.json').exists():
                 from .strength_shadow import archive as strength_archive
                 out['strength']=strength_archive(args.date,threads)
+            if (ROOT/'docs/INJURY_SHADOW_CONFIG.json').exists():
+                from .injury_shadow import archive as injury_archive
+                out['injury']=injury_archive(args.date,threads)
         elif args.action=='extra-data':
             from .extra_data import collect
             report=collect(end=args.end)
@@ -103,6 +109,9 @@ def main():
                 archive(args.date)
             if (ROOT/'docs/STRENGTH_SHADOW_CONFIG.json').exists():
                 from .strength_shadow import archive
+                archive(args.date,threads)
+            if (ROOT/'docs/INJURY_SHADOW_CONFIG.json').exists():
+                from .injury_shadow import archive
                 archive(args.date,threads)
         elif args.action=='context':
             if not args.source:raise ValueError('Specify --source nba_api or pbpstats')

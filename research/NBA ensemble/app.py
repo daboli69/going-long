@@ -122,6 +122,16 @@ if page in ('Today','Model Debate'):
                 else:st.info('Prespecified context research copies; development results are not independent validation or promotion.')
                 st.dataframe(context[['away','home','method','p_home','development_gate_passed','home_current_season_games','away_current_season_games','home_prior_season_fraction','away_prior_season_fraction']],hide_index=True,use_container_width=True)
             else:st.info('No saved context research copies for this date.')
+        with st.expander('Injury shadow · strength shadow + official pregame injury report',expanded=True):
+            saved_injury=sorted((ARCHIVES/'injury_forecasts').glob(str(date)+'_*/META.json'),reverse=True)
+            if saved_injury:
+                meta=read(saved_injury[0]);injury_view=pd.read_parquet(saved_injury[0].parent/'predictions.parquet')
+                st.caption('Passed a fixed retrospective gate on 2023-24 to 2025-26 (log loss 0.6182 to 0.6101, all three seasons better). Shadow only; nothing above is replaced. One official report per day, so later scratches are not seen.')
+                if not meta.get('injury_report_url'):st.warning('No official report was published yet when this was saved. Injury inputs are unknown, not healthy. Refresh closer to tipoff.')
+                else:st.caption(f"Report {meta['injury_report_url']} · published {meta['injury_report_published_at']} · unmatched rows {meta['unmatched_rows']} · teams not yet submitted {meta['not_yet_submitted_teams']}")
+                st.dataframe(injury_view[['away','home','p_home','winner','home_votes','away_votes','diff_out_gmsc','listed_out']],hide_index=True,use_container_width=True)
+                st.download_button('Download injury shadow',injury_view.to_csv(index=False).encode(),'nba_injury_shadow_'+str(date)+'.csv')
+            else:st.info('No saved injury shadow for this date; daily refresh or shadow-forecast appends it.')
         with st.expander('Strength shadow · six models + margin ratings, travel, recent roster',expanded=True):
             saved_strength=sorted((ARCHIVES/'strength_forecasts').glob(str(date)+'_*/META.json'),reverse=True)
             if saved_strength:

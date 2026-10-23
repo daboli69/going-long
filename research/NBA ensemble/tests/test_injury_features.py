@@ -31,3 +31,13 @@ def test_late_report_and_unknown_team_are_refused_or_unknown():
     with pytest.raises(AssertionError):make(d,reports(d,[('13','1','1-0','Out',0)]))
     x=make(d,reports(d,[('13','1',None,'NOT YET SUBMITTED',2)]))
     assert np.isnan(x.loc[13,'home_out_gmsc']) and np.isnan(x.loc[13,'diff_out_gmsc'])
+
+
+def test_live_report_does_not_cache_missing_future_slots(tmp_path,monkeypatch):
+    from unittest.mock import Mock
+    from nba_lab import injury_reports as R,injury_shadow as H
+    monkeypatch.setattr(R,'MANIFEST',tmp_path/'MANIFEST.json');monkeypatch.setattr(R.time,'sleep',lambda _:None)
+    session=Mock();session.get.return_value=Mock(status_code=403)
+    report=H.live_report('2026-10-24',pd.Timestamp('2026-10-24T23:00Z'),pd.Timestamp('2026-10-24T20:00Z'),session)
+    assert report['url'] is None and session.get.called
+    assert R._manifest()=={}
