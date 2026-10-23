@@ -11,7 +11,7 @@ from .config import ROOT,REPORTS,DATA,now,atomic,low_priority
 def main():
     threads=low_priority()
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','score-forecast','extra-data','score','context','report','app'])
+    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','score-forecast','shadow-forecast','extra-data','score','context','report','app'])
     parser.add_argument('--date');parser.add_argument('--start',type=int,default=2015);parser.add_argument('--end',type=int)
     parser.add_argument('--source',choices=['nba_api','pbpstats']);parser.add_argument('--season',type=int,default=2026)
     args=parser.parse_args()
@@ -42,6 +42,10 @@ def main():
         elif args.action=='score-forecast':
             from .score_models import archive
             out=archive(args.date)
+        elif args.action=='shadow-forecast':
+            from .score_models import archive as score_archive
+            from .winner_shadow import archive as individual_archive
+            out={'scores':score_archive(args.date),'individuals':individual_archive(args.date,threads)}
         elif args.action=='extra-data':
             from .extra_data import collect
             report=collect(end=args.end)
@@ -59,6 +63,9 @@ def main():
             if (ROOT/'docs/SCORE_FROZEN_CONFIG.json').exists():
                 from .score_models import archive
                 archive(args.date)
+            if (ROOT/'docs/INDIVIDUAL_SHADOW_CONFIG.json').exists():
+                from .winner_shadow import archive
+                archive(args.date,threads)
         elif args.action=='context':
             if not args.source:raise ValueError('Specify --source nba_api or pbpstats')
             out=sources.optional_context(args.source,args.season)

@@ -35,7 +35,13 @@ def injury_index(html,retrieved=None):
 def player_boxes(frame,games):
     required={'game_id','season','athlete_id','team_id','minutes','points','rebounds','assists'}
     if required-set(frame):raise ValueError('Player box schema incomplete: '+','.join(sorted(required-set(frame))))
-    d=frame.copy();d['game_id']=d.game_id.astype(str);d['athlete_id']=d.athlete_id.astype(str);d['team_id']=d.team_id.astype(str)
+    d=frame.copy()
+    # Some exports encode integer IDs as floats because other rows are missing IDs.
+    # Strip only a verified zero fractional part; never round a noninteger identity.
+    for key in ('game_id','athlete_id','team_id'):
+        labels=d[key].astype('string').str.strip()
+        valid=labels.str.fullmatch(r'\d+(?:\.0+)?').fillna(False)
+        d[key]=labels.where(valid).str.replace(r'\.0+$','',regex=True)
     if 'season_type' in d:d=d[d.season_type.eq(2)]
     d=d[d.game_id.isin(games.game_id)]
     invalid_id=d.athlete_id.isna()|~d.athlete_id.str.fullmatch(r'\d+')
@@ -44,7 +50,7 @@ def player_boxes(frame,games):
     if d.duplicated(['game_id','athlete_id']).any():raise ValueError('Conflicting player/game duplicates; no silent identity resolution')
     identity=games[['game_id','home_id','away_id','tipoff']]
     d=d.merge(identity,on='game_id',validate='many_to_one')
-    bad_team=~(d.team_id.eq(d.home_id)|d.team_id.eq(d.away_id))
+    bad_team=~(d.team_id.eq(d.home_id)|d.team_id.eq(d.away_id)).fillna(False)
     unmatched_teams=int(bad_team.sum());d=d[~bad_team]
     for col in ('minutes','points','rebounds','assists'):d[col]=pd.to_numeric(d[col],errors='coerce')
     d['available_at']=d.tipoff+pd.Timedelta(hours=24)
@@ -73,8 +79,11 @@ def collect(start=2021,end=None,log=print):
     try:
         season_label=f'{end-1}-{str(end)[-2:]}'
         url=f'https://official.nba.com/nba-injury-report-{season_label}-season'
-        path=fetch(url,'official_injury_index_'+str(end),'html',ttl_hours=.25)
-        injury=injury_index(Path(path).read_text(encoding='utf-8'));injury['source_url']=url
+        key='official_injury_index_'+str(end)
+        path=fetch(url,key,'html',ttl_hours=.25)
+        actual_retrieval=read(DATA/'SOURCES.json')[key]['checked_at']
+        injury=injury_index(Path(path).read_text(encoding='utf-8'),actual_retrieval);injury['source_url']=url
+        injury['processed_at']=now()
         update(DATA/'INJURY_CONTEXT.json',injury)
     except Exception as error:
         issues.append({'source':'official_injury_index','error':type(error).__name__,'message':str(error)[:200]});injury=None

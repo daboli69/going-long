@@ -86,6 +86,28 @@ if page in ('Today','Model Debate'):
                         'stacking_logit_coefficient':bundle['stacker'].coef_[0] if bundle['stacker'] is not None else [None]*6}),hide_index=True,use_container_width=True)
                     st.caption('Stacking coefficients operate on calibrated log-odds. They are not vote shares or win probabilities.')
         except Exception as error:st.error(type(error).__name__+': '+str(error)[:300])
+    if page=='Today':
+        with st.expander('Experimental individual-model forecasts · three shadow copies'):
+            saved_individual=sorted((ARCHIVES/'individual_forecasts').glob(str(date)+'_*/META.json'),reverse=True)
+            if saved_individual:
+                shadow=pd.read_parquet(saved_individual[0].parent/'predictions.parquet')
+                st.caption('P(home) for the three development-qualified modifications. Original six-model ensemble above is unchanged. These have no new independent confirmation or current injury adjustment.')
+                st.dataframe(shadow.pivot(index=['away','home'],columns='candidate',values='p_home'),use_container_width=True)
+                st.download_button('Download individual shadows',shadow.to_csv(index=False).encode(),'nba_individual_shadows_'+str(date)+'.csv')
+            else:st.info('No saved individual shadows for this date; daily refresh appends them after configuration freeze.')
+        with st.expander('Experimental spreads & totals · separate score model',expanded=True):
+            saved_scores=sorted((ARCHIVES/'score_forecasts').glob(str(date)+'_*/META.json'),reverse=True)
+            if not saved_scores:st.info('No saved score projection for this date. Daily refresh saves a new revision after score research is frozen.')
+            else:
+                meta=read(saved_scores[0]);score_view=pd.read_parquet(saved_scores[0].parent/'predictions.parquet')
+                st.caption('Independent projected spread, not a sportsbook line. Development-tested shadow model; no live injury adjustment or market comparison. Its win probability belongs to this score distribution, separate from the six-model winner ensemble.')
+                st.dataframe(score_view[['away','home','spread','home_points','away_points','total','margin_p10','margin_p50','margin_p90','total_p10','total_p50','total_p90','p_home_score_model']],hide_index=True,use_container_width=True)
+                st.caption(f"Saved {meta['created_at']} · method {meta['method']} · outcomes available through {meta['calibration_available_through']}")
+                st.download_button('Download shadow score projections',score_view.to_csv(index=False).encode(),'nba_scores_'+str(date)+'.csv')
+        if (DATA/'INJURY_CONTEXT.json').exists():
+            injury=read(DATA/'INJURY_CONTEXT.json')
+            st.caption('Official injury report: '+injury['latest_report']['report_time']+' · context only; statuses do not adjust forecasts.')
+            st.link_button('Open official injury report',injury['latest_report']['url'])
     with st.expander('Saved forecast history · originals remain unchanged'):
         archives=sorted((ARCHIVES/'forecasts').glob('*/META.json'),reverse=True)
         if not archives:st.info('No saved NBA forecasts yet.')
@@ -96,6 +118,29 @@ if page in ('Today','Model Debate'):
             st.dataframe(saved[['away','home','tipoff','winner','p_home','home_votes','away_votes','model_version']],hide_index=True,use_container_width=True)
             st.download_button('Download saved revision',saved.to_csv(index=False).encode(),'nba_'+chosen.parent.name+'.csv')
 elif page=='Research & Calibration':
+    st.subheader('Individual-model hypotheses and score research')
+    tabs=st.tabs(['Winner model changes','Spreads & totals'])
+    with tabs[0]:
+        path=REPORTS/'individual_v1/RESULT.json'
+        if path.exists():
+            result=read(path);table=[]
+            for r in result['results']:
+                table.append({'candidate':r['name'],'n':r['candidate']['n'],'control_log_loss':r['control']['log_loss'],
+                              'new_log_loss':r['candidate']['log_loss'],'new_brier':r['candidate']['brier'],'new_accuracy':r['candidate']['accuracy'],
+                              'delta':r['delta']['delta'],'corrected_CI_low':r['delta']['ci_low'],'corrected_CI_high':r['delta']['ci_high'],
+                              'seasons_improving':r['seasons_improving'],'exploratory_pass':r['accepted_exploratory']})
+            st.dataframe(pd.DataFrame(table),hide_index=True,use_container_width=True)
+            st.caption(result['status']+' Each individual is compared with its original family; stacked is compared with original stacked. A family improvement does not establish that it beats logistic regression.')
+        else:st.info('Run START_NBA option5 for the fixed study; completed work is cached.')
+    with tabs[1]:
+        path=REPORTS/'scores_v1/RESULT.json'
+        if path.exists():
+            result=read(path);table=[]
+            for r in result['results']:
+                table.append({k:r[k] for k in ('method','target','n','mae','rmse','crps','bias','coverage_80','accepted_exploratory')}|r['mae_delta'])
+            st.dataframe(pd.DataFrame(table),hide_index=True,use_container_width=True)
+            st.caption('Selected shadow method: '+result['selected_shadow_method']+'. '+result['status']+' Delta compares MAE with the structural rolling-score baseline; nominal10–90coverage is80%.')
+        else:st.info('No completed score-distribution research.')
     st.subheader('Bounded combined-probability calibration')
     st.caption('Six fixed tests on saved discovery predictions;20minute cap, ends sooner when complete. No confirmation rerun, base-model refits or changes to saved forecasts. Completed runs return cached results.')
     if st.button('Run / load bounded calibration check'):
@@ -147,7 +192,7 @@ else:
         ['pbpstats package','NBA PBP parser','Future possession/lineup features; not installed or active in v1'],
         ['PBP Stats site/API','Derived possession statistics','Optional archived context; not historical model features']
     ],columns=['Source','Origin','Current status']),hide_index=True,use_container_width=True)
-    for filename,title in [('HEALTH.json','Source coverage/errors'),('FEATURE_AUDIT.json','Feature/leakage audit')]:
+    for filename,title in [('HEALTH.json','Source coverage/errors'),('FEATURE_AUDIT.json','Feature/leakage audit'),('EXTRA_DATA.json','Player-box prerequisite coverage and injury-index archive')]:
         path=DATA/filename
         if path.exists():
             with st.expander(title):st.json(read(path))

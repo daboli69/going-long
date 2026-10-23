@@ -28,3 +28,9 @@ def test_ending_season_does_not_freeze_current_year_after_january():
     assert ending_season('2026-10-23')==2027
     assert ending_season('2027-01-10')==2027
     assert ending_season('2027-07-10')==2028
+
+
+def test_float_encoded_integer_ids_are_normalized_without_rounding():
+    row={'game_id':0.,'season':2024,'season_type':2,'athlete_id':123.,'team_id':1.,'minutes':30,'points':12,'rebounds':5,'assists':3}
+    out,meta=player_boxes(pd.DataFrame([row,row|{'athlete_id':123.5}]),games(1))
+    assert out.athlete_id.tolist()==['123'] and meta['unmatched_id_rows']==1

@@ -8,5 +8,13 @@
   "fixed_mlp_epochs": 26,
   "research_fingerprint": "80faf72d02dfd3f68b477e8c7184fcc97fdd19469e593bde60f11a2df2fd04ec",
   "rule": "Separate per-member shadow copies only; no new combined ensemble and no replacement of original winner predictions. Each uses original chronological train/last300calibration split with24h embargo. MLP epoch26 is frozen from discovery, never reselected using2026confirmation/current-season outcomes. Same fixed models/feature groups as the committed protocol.",
-  "status": "Reused-development qualification only; no untouched validation or promotion."
+  "status": "Reused-development qualification only; no untouched validation or promotion.",
+  "code_hashes": {
+    "winner_shadow.py": "1fbe3848ea00c672e7953793eebaed11a7f7d3fdcfa6075be3cc49d9d8e1c4b3",
+    "individual.py": "53221425427696a4aa5e4eb0f5d8bba0e3e1f0ba6b19b56aae162fb5be2cb8f8",
+    "models.py": "cd437cfbf9f913d8c407535013ff022a57128068a7f1926bb8a720975c168c57",
+    "adjusted.py": "c7f2595537cc034d982b78b9a4c9e602c5ab7da5b2fa6962f9672f3d8bf438a5",
+    "score_models.py": "ecb4de0c6625df3b034b934005d8261eb6a927d2593462bd53bf5afd8bbb917a",
+    "research_io.py": "f92072389e6688999a0453f195ae0ceeee9c02b00bead74f603a95f375e706e8"
+  }
 }
