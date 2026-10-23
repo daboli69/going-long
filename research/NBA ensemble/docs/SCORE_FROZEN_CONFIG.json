@@ -1,0 +1,11 @@
+{
+  "created_at": "2026-10-23T18:21:52.660916+00:00",
+  "selected_method": "ridge",
+  "research_fingerprint": "f95e90c5252a3d93b523b80d4b3afbb9a042d775c72fa06758e9f8b223e6184f",
+  "code_hashes": {
+    "score_models.py": "ecb4de0c6625df3b034b934005d8261eb6a927d2593462bd53bf5afd8bbb917a",
+    "adjusted.py": "c7f2595537cc034d982b78b9a4c9e602c5ab7da5b2fa6962f9672f3d8bf438a5",
+    "research_io.py": "f92072389e6688999a0453f195ae0ceeee9c02b00bead74f603a95f375e706e8"
+  },
+  "status": "Separate shadow score distribution; never replaces winner ensemble."
+}

@@ -1,0 +1,12 @@
+{
+  "created_at": "2026-10-23T18:27:25.142508+00:00",
+  "accepted_development_candidates": [
+    "hist_native_missing",
+    "svm_simple",
+    "mlp_small"
+  ],
+  "fixed_mlp_epochs": 26,
+  "research_fingerprint": "80faf72d02dfd3f68b477e8c7184fcc97fdd19469e593bde60f11a2df2fd04ec",
+  "rule": "Separate per-member shadow copies only; no new combined ensemble and no replacement of original winner predictions. Each uses original chronological train/last300calibration split with24h embargo. MLP epoch26 is frozen from discovery, never reselected using2026confirmation/current-season outcomes. Same fixed models/feature groups as the committed protocol.",
+  "status": "Reused-development qualification only; no untouched validation or promotion."
+}
