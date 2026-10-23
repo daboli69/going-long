@@ -5,11 +5,11 @@ Double-click **START_NBA.bat**, press Enter, and open **http://localhost:8502**.
 ## What to click
 
 - **Today:** select a date; view six-model votes, the frozen combined win probability and disagreement. Refresh/refit/save creates new immutable archives, not replacements.
-- **Model Debate:** the six predictions, real input sensitivities, disagreement, vote and ensemble comparison. This is a comparison of statistical models, not invented AI arguments. A3–3vote remains a tie;6–0is not100%probability.
+- **Model Debate:** the six predictions, real input sensitivities, disagreement, vote and ensemble comparison. This is a comparison of statistical models, not invented AI arguments. A 3–3 vote remains a tie;6–0 is not 100% probability.
 - **Research & Calibration:** discovery/confirmation results, uncertainty and reliability. Read sample sizes and data caveats before trusting a percentage.
 - **Data & Sources:** actual source usage, missing data and feature audit. Source availability is not proof a feature entered the model.
 
-Launcher option2 runs the daily refresh → earlier-game feature build → frozen configuration refit → today's unstarted-game archive. Option3 displays saved research. No research search or confirmation rerun occurs during daily refresh. Results include training/calibration cutoffs, config/model version and source hashes.
+Launcher option2 runs the daily refresh → score earlier archived forecasts descriptively → earlier-game feature build → frozen configuration refit → today's unstarted-game archive. Option3 displays saved research. No research search or confirmation rerun occurs during daily refresh. Results include training/calibration cutoffs, config/model version and source hashes. Saved forecast history stays visible after games start. Results use the earliest saved revision per game, so multiple revisions do not inflate sample size; use `python -m nba_lab.cli score` to score saved forecasts without refitting.
 
 ## Six initial candidates
 
@@ -39,7 +39,7 @@ Optional context archives: `python -m nba_lab.cli context --source nba_api --sea
 
 **Current injury/lineup/rest-day decisions are NOT modeled as verified live player availability in v1.** Rest/back-to-back schedule features are included, but are not a substitute for injury reports. Current outcomes may be descriptively logged, never used to retune the frozen experiment. No NBA odds are downloaded; no market/ROI/profit claim. No deployment, alerts, database writes or paid services.
 
-Winners are the first validated target. Spreads/totals require separate score-distribution targets/calibration; props require player minutes, rotations, trades and availability with historical timestamps. Those are not safely established by copying the NFL simulator. They remain deferred, not fabricated.
+Winners are the first evaluated target. Spreads/totals require separate score-distribution targets/calibration; props require player minutes, rotations, trades and availability with historical timestamps. Those are not safely established by copying the NFL simulator. They remain deferred, not fabricated.
 
 ## Verification and storage
 

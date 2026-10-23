@@ -192,3 +192,21 @@ Fixed pre-fit protocol365948d, scientific source4bbc59c; run20261022T00490509594
 New-cohort losses cannot be compared directly with prior reports. Known-label evaluation does not establish inactive/void accuracy. Full report: research/nfl-ensemble-lab/reports/run_20261021/FPDS_TARGET_ROLE_SIMULATION_REPORT.md. Local app view/manual command added; real2026refit not executed. Nothing promoted.
 
 A10 final QA:436passed/1existing skip/522warnings;21targetedpassed; actual aggregate/group app view and completed-resume refusal verified.19actual input hashes unchanged. A prior-run mutable games cache changed in the existing21:00ET scheduler refresh and was not consumed by this study;1447other prior hashes and champion version unchanged. No task created/invoked, source restoration, promotion or2026scoring.
+
+## NBA winners v1 - 2026-10-23
+
+Travis authorized a separate local NBA lab. Frozen protocol: research/NBA ensemble/docs/PREREGISTRATION.md; frozen selection committed73b62e3 before confirmation. Six fixed configurations,24research base fits/24calibrators;6additional shadow operational fits. Discovery ending-seasons2024/2025(n2460), confirmation2026(n1230). No NFL training/data changes. Negative log-loss delta versus fixed Elo is better. Discovery CIs Bonferroni-corrected across9outputs; confirmation95%paired-game bootstrap2000draws. Only stacked was selected before confirmation; individual/member and other combination confirmation scores are descriptive.
+
+| Hypothesis/method | Discovery LL delta [corrected CI] | Seasons improving | Confirmation LL / Brier / accuracy | Decision |
+|---|---|---:|---|---|
+| logistic | -0.00806 [-0.01464,-0.00122] | 2/2 | 0.59961 / 0.20617 / 68.62% | Challenger; descriptive individual, not selected |
+| random_forest | -0.00111 [-0.00969,+0.00726] | 1/2 | 0.60465 / 0.20834 / 68.21% | Rejected for frozen selection; descriptive only |
+| xgboost | -0.00074 [-0.00840,+0.00707] | 1/2 | 0.60764 / 0.20973 / 67.56% | Rejected for frozen selection; descriptive only |
+| hist_gradient_boosting | +0.00658 [-0.00405,+0.01613] | 1/2 | 0.61530 / 0.21316 / 65.61% | Rejected for frozen selection; descriptive only |
+| rbf_svm | +0.01189 [+0.00064,+0.02335] | 0/2 | 0.61883 / 0.21404 / 67.56% | Rejected for frozen selection; descriptive only |
+| mlp | +0.04442 [+0.02808,+0.06102] | 0/2 | 0.66125 / 0.23371 / 60.73% | Rejected for frozen selection; descriptive only |
+| equal | +0.00161 [-0.00688,+0.01001] | 1/2 | 0.60766 / 0.20950 / 67.24% | Rejected for frozen selection; descriptive only |
+| weighted | -0.00082 [-0.00866,+0.00700] | 1/2 | 0.60517 / 0.20848 / 67.64% | Rejected for frozen selection; descriptive only |
+| stacked | -0.00152 [-0.00950,+0.00681] | 1/2 | 0.59908 / 0.20589 / 68.46% | Challenger; exploratory, discovery gate failed |
+
+Stacked confirmation delta-0.00948[-0.01825,-0.00108] does not undo its failed discovery gate. No model promoted, no market prices/edge claim. Source history revised/backfilled;24h availability proxy, not historical snapshots.2017-18 box coverage incomplete. MLP convergence warnings retained; no post-confirmation tuning. Current injuries/lineups not modeled.21offline tests and real-artifact four-page UI verified;12unstarted games archived prospectively. Detailed report: research/NBA ensemble/docs/INITIAL_RESULTS.md.

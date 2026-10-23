@@ -30,6 +30,11 @@ if "%NBA_ACTION%"=="3" (
  exit /b !NBA_RESULT!
 )
 if not "%NBA_ACTION%"=="" if not "%NBA_ACTION%"=="1" exit /b 1
+powershell -NoProfile -Command "try { if ((Invoke-WebRequest -UseBasicParsing -Uri 'http://127.0.0.1:8502/_stcore/health' -TimeoutSec 2).StatusCode -eq 200) { exit 0 } } catch {}; exit 1" >nul 2>&1
+if not errorlevel 1 (
+ start "" http://localhost:8502
+ exit /b 0
+)
 start "" /b cmd /c "timeout /t 4 /nobreak >nul & start http://localhost:8502"
 "%NBA_PYTHON%" -m nba_lab.cli app
 pause

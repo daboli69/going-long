@@ -12,6 +12,8 @@ st.title('NBA Ensemble')
 st.caption('Separate local NBA winners lab. Six statistical models, not six independent opinions.')
 st.warning('Shadow research. Current injury/lineup changes are not modeled in v1. Historical results use revised reconstructed data. No demonstrated advantage over betting markets; no market prices are used.')
 page=st.sidebar.radio('Page',['Today','Model Debate','Research & Calibration','Data & Sources'])
+if (REPORTS/'CONFIRMATION.json').exists():
+    st.caption('Evaluation status: '+read(REPORTS/'CONFIRMATION.json')['decision'])
 
 
 def run_action(action,date=None):
@@ -43,6 +45,9 @@ if page in ('Today','Model Debate'):
             predictions,_=engine.predict(date,save=False)
             bundle=engine.load()
             st.caption(f"Model {bundle['version']} · base training through {bundle['trained_through']} · calibration through {bundle['calibrated_through']} · selected ensemble: {bundle['selected_method']}")
+            if bundle['warnings']:
+                with st.expander('Model fitting warnings'):
+                    st.dataframe(pd.DataFrame(bundle['warnings']),hide_index=True,use_container_width=True)
             if predictions.empty:st.info('No unstarted NBA regular-season games on this date. Started/final games are not regenerated as pregame predictions.')
             elif page=='Today':
                 view=predictions[['away','home','tipoff','winner','p_home','home_votes','away_votes','vote','member_min','member_max']].copy()
@@ -76,7 +81,20 @@ if page in ('Today','Model Debate'):
                     st.metric('P('+row.home+' wins)',f'{row.p_home:.1%}')
                     st.dataframe(pd.DataFrame([{'method':m,'P(home)':row[m]} for m in ('equal','weighted','stacked')]),hide_index=True,use_container_width=True)
                     st.caption('The selected method was frozen using discovery seasons only. No method is promoted automatically.')
+                    st.dataframe(pd.DataFrame({'model':[NAMES[k] for k in KEYS],
+                        'weighted_average_weight':bundle['weights'],
+                        'stacking_logit_coefficient':bundle['stacker'].coef_[0] if bundle['stacker'] is not None else [None]*6}),hide_index=True,use_container_width=True)
+                    st.caption('Stacking coefficients operate on calibrated log-odds. They are not vote shares or win probabilities.')
         except Exception as error:st.error(type(error).__name__+': '+str(error)[:300])
+    with st.expander('Saved forecast history · originals remain unchanged'):
+        archives=sorted((ARCHIVES/'forecasts').glob('*/META.json'),reverse=True)
+        if not archives:st.info('No saved NBA forecasts yet.')
+        else:
+            chosen=st.selectbox('Saved revision',archives,format_func=lambda p:p.parent.name)
+            saved=pd.read_parquet(chosen.parent/'predictions.parquet')
+            st.caption('Saved pregame forecast, including games that have since started. This is not a live re-prediction.')
+            st.dataframe(saved[['away','home','tipoff','winner','p_home','home_votes','away_votes','model_version']],hide_index=True,use_container_width=True)
+            st.download_button('Download saved revision',saved.to_csv(index=False).encode(),'nba_'+chosen.parent.name+'.csv')
 elif page=='Research & Calibration':
     discovery=REPORTS/'DISCOVERY.json';confirmation=REPORTS/'CONFIRMATION.json'
     if discovery.exists():
@@ -95,6 +113,10 @@ elif page=='Research & Calibration':
             reliability=pd.DataFrame({'bin':bins.astype(str),'forecast':selected,'outcome':d.home_win}).groupby('bin').agg(n=('outcome','size'),forecast=('forecast','mean'),observed=('outcome','mean'))
             st.subheader('Confirmation reliability');st.dataframe(reliability,use_container_width=True)
     else:st.info('No completed confirmation. It is not silently run by opening this page.')
+    st.subheader('Prospective saved-forecast results')
+    prospective=REPORTS/'PROSPECTIVE.json'
+    if prospective.exists():st.json(read(prospective))
+    else:st.info('Daily refresh scores previously archived forecasts after results are available. No retrospective forecasts are inserted.')
 else:
     st.subheader('Free sources and actual usage')
     st.dataframe(pd.DataFrame([
@@ -108,4 +130,9 @@ else:
         path=DATA/filename
         if path.exists():
             with st.expander(title):st.json(read(path))
+    if (CACHE/'features.parquet').exists():
+        with st.expander('Historical box-score feature coverage'):
+            coverage=pd.read_parquet(CACHE/'features.parquet',columns=['season','home_box_history','away_box_history'])
+            st.dataframe(coverage.groupby('season').agg(games=('season','size'),home_prior_boxes=('home_box_history','mean'),away_prior_boxes=('away_box_history','mean')),use_container_width=True)
+            st.caption('Prior boxes are counts out of the last20 eligible games. Missing boxes remain unknown; train-only median imputation is used. The2017–18 export has substantial missing box detail.')
     st.info('Missing current lineup information is a material NBA limitation. Seeing injury news elsewhere does not mean the winner model used it.')
