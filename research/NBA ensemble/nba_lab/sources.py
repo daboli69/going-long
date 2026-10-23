@@ -13,7 +13,7 @@ BASE='https://github.com/sportsdataverse/sportsdataverse-data/releases/download/
 URLS={'schedule':BASE+'espn_nba_schedules/nba_schedule_{season}.parquet',
       'team_box':BASE+'espn_nba_team_boxscores/team_box_{season}.parquet'}
 ALLOWED=('https://github.com/sportsdataverse/','https://site.api.espn.com/',
-         'https://stats.nba.com/','https://api.pbpstats.com/')
+         'https://stats.nba.com/','https://api.pbpstats.com/','https://official.nba.com/')
 
 
 def fetch(url,key,extension='json',ttl_hours=12,session=None):
@@ -91,8 +91,13 @@ def scoreboard(payload):
     return pd.DataFrame(result)
 
 
+def ending_season(time=None):
+    time=pd.Timestamp(time or pd.Timestamp.now(tz='America/New_York'))
+    return time.year+int(time.month>=7)
+
+
 def refresh(start=2015,end=None,log=print):
-    end=end or pd.Timestamp.now(tz='America/New_York').year+1
+    end=end or ending_season()
     frames=[];team_frames=[];issues=[]
     directory=read(fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams','nba_team_directory',ttl_hours=24*30))
     teams=[r['team'] for r in directory['sports'][0]['leagues'][0]['teams']]

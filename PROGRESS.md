@@ -18,6 +18,7 @@ Updated: 2026-10-23 (NBA lab added; NFL unchanged). Initial audit: `7d33e75`; ma
 - Review pipeline preparation: added local exact Vercel Git-deployment exclusion for `codex/going-long-daily-review` and `docs/DAILY_REVIEW_PIPELINE.md`. Config/path checks, 8/8 Vercel/API tests and local Vercel build passed; existing build warnings remain. GitHub metadata confirms public repo; standard Ubuntu Actions minutes free, existing cache/billing settings not verified. No workflow, automation or external settings changed; no pushes, remote branch, merge or deployment.
 
 ## Working
+- NBA individual hypotheses/scores (Codex,2026-10-23; owner model/data/UI/QA): protocol165fcfc freezes7individual configurations/one prespecified stack, identical2024/2025development rows and corrected CIs; no spent confirmation/prospective selection. Acceptance: test each family, independent coherent score distribution, automated free player-box/injury-index audits, immutable shadow archives and unchanged original winner hashes.35initial tests passed; real fitting pending. Props await minutes/availability audit, no unsupported numbers.
 - Review publication disabled. Local exclusion prepared; external project/root/hooks, approved baseline/commit set and reviewer access remain prerequisites. No current claim of end-to-end deployment protection or cloud visibility.
 
 ## Problems

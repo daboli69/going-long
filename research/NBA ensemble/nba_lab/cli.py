@@ -11,7 +11,7 @@ from .config import ROOT,REPORTS,DATA,now,atomic,low_priority
 def main():
     threads=low_priority()
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','score','context','report','app'])
+    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','score-forecast','extra-data','score','context','report','app'])
     parser.add_argument('--date');parser.add_argument('--start',type=int,default=2015);parser.add_argument('--end',type=int)
     parser.add_argument('--source',choices=['nba_api','pbpstats']);parser.add_argument('--season',type=int,default=2026)
     args=parser.parse_args()
@@ -27,6 +27,25 @@ def main():
             from .calibration import run
             result=run()
             out={k:result[k] for k in ('trial_count','successful_candidates','calibrator_fits','elapsed_seconds','decision')}
+        elif args.action=='research-next':
+            from .individual import run
+            from .score_models import research
+            from .config import once
+            lock=REPORTS/'IMPROVEMENTS_RUN_LOCK.json'
+            try:once(lock,{'created_at':now(),'action':'research-next'})
+            except FileExistsError:raise ValueError('Research already running or interrupted; review IMPROVEMENTS_RUN_LOCK.json before resuming')
+            try:individual=run(threads);score_result=research()
+            finally:lock.unlink(missing_ok=True)
+            out={'individual_results':individual['results'],'individual_failures':individual['failures'],
+                 'score_results':score_result['results'],'score_failures':score_result['failures'],
+                 'selected_shadow_score_method':score_result['selected_shadow_method']}
+        elif args.action=='score-forecast':
+            from .score_models import archive
+            out=archive(args.date)
+        elif args.action=='extra-data':
+            from .extra_data import collect
+            report=collect(end=args.end)
+            out={'seasons':list(report['coverage']),'issues':report['issues'],'injury_context':report['injury_context']}
         elif args.action=='predict':_,out=engine.predict(args.date)
         elif args.action=='score':
             from .outcomes import score
@@ -35,6 +54,11 @@ def main():
             from .outcomes import score
             sources.refresh(args.start,args.end);score();features.run();engine.train(threads)
             _,out=engine.predict(args.date)
+            from .extra_data import collect
+            collect(end=args.end)
+            if (ROOT/'docs/SCORE_FROZEN_CONFIG.json').exists():
+                from .score_models import archive
+                archive(args.date)
         elif args.action=='context':
             if not args.source:raise ValueError('Specify --source nba_api or pbpstats')
             out=sources.optional_context(args.source,args.season)
