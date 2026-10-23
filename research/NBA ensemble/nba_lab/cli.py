@@ -11,7 +11,7 @@ from .config import ROOT,REPORTS,DATA,now,atomic,low_priority
 def main():
     threads=low_priority()
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','score-forecast','shadow-forecast','extra-data','score','context','report','app'])
+    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','pregame-research','pregame-refresh','availability','score-forecast','shadow-forecast','extra-data','score','context','report','app'])
     parser.add_argument('--date');parser.add_argument('--start',type=int,default=2015);parser.add_argument('--end',type=int)
     parser.add_argument('--source',choices=['nba_api','pbpstats']);parser.add_argument('--season',type=int,default=2026)
     args=parser.parse_args()
@@ -42,6 +42,19 @@ def main():
         elif args.action=='score-forecast':
             from .score_models import archive
             out=archive(args.date)
+        elif args.action=='pregame-research':
+            from .context_research import research
+            result=research()
+            out={'results':result['results'],'failures':result['failures'],'elapsed_seconds':result['elapsed_seconds']}
+        elif args.action=='availability':
+            from .availability import collect
+            report=collect(args.date)
+            out={k:report[k] for k in ('created_at','games','issues','snapshot_path')}
+        elif args.action=='pregame-refresh':
+            from .availability import collect
+            from .context_research import archive
+            report=collect(args.date)
+            out={'availability_snapshot':report['snapshot_path'],'issues':report['issues'],'context_forecasts':archive(args.date)}
         elif args.action=='shadow-forecast':
             from .score_models import archive as score_archive
             from .winner_shadow import archive as individual_archive
@@ -62,12 +75,17 @@ def main():
             _,out=engine.predict(args.date)
             from .extra_data import collect
             collect(end=args.end)
+            from .availability import collect as collect_availability
+            collect_availability(args.date)
             if (ROOT/'docs/SCORE_FROZEN_CONFIG.json').exists():
                 from .score_models import archive
                 archive(args.date)
             if (ROOT/'docs/INDIVIDUAL_SHADOW_CONFIG.json').exists():
                 from .winner_shadow import archive
                 archive(args.date,threads)
+            if (ROOT/'docs/PREGAME_CONTEXT_FROZEN.json').exists():
+                from .context_research import archive
+                archive(args.date)
         elif args.action=='context':
             if not args.source:raise ValueError('Specify --source nba_api or pbpstats')
             out=sources.optional_context(args.source,args.season)

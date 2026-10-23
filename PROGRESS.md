@@ -19,6 +19,7 @@ Updated: 2026-10-23 (NBA lab added; NFL unchanged). Initial audit: `7d33e75`; ma
 - Review pipeline preparation: added local exact Vercel Git-deployment exclusion for `codex/going-long-daily-review` and `docs/DAILY_REVIEW_PIPELINE.md`. Config/path checks, 8/8 Vercel/API tests and local Vercel build passed; existing build warnings remain. GitHub metadata confirms public repo; standard Ubuntu Actions minutes free, existing cache/billing settings not verified. No workflow, automation or external settings changed; no pushes, remote branch, merge or deployment.
 
 ## Working
+- NBA pregame context (Codex+2bounded agents,2026-10-23; owner root model/UI/QA): verified earliest tip16:00ET; prereg4584179 freezes2logistic context hypotheses/4fits,shared-possession andseason-continuity groups,pre15:30research cutoff. Acceptance: strict24h lag/same2460development games/corrected CIs,filtered exact-ID availability/roster snapshots,immutable before-tip shadow copies,unchanged original models. Agents'13targeted fixtures pass; integrated run pending. No guessed injury impact,confirmation use,promotion or spend.
 - Review publication disabled. Local exclusion prepared; external project/root/hooks, approved baseline/commit set and reviewer access remain prerequisites. No current claim of end-to-end deployment protection or cloud visibility.
 
 ## Problems
