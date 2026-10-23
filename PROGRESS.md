@@ -16,6 +16,7 @@ Updated: 2026-10-19 (Phase 10 lab only). Initial audit: `7d33e75`; manual heartb
 - Review pipeline preparation: added local exact Vercel Git-deployment exclusion for `codex/going-long-daily-review` and `docs/DAILY_REVIEW_PIPELINE.md`. Config/path checks, 8/8 Vercel/API tests and local Vercel build passed; existing build warnings remain. GitHub metadata confirms public repo; standard Ubuntu Actions minutes free, existing cache/billing settings not verified. No workflow, automation or external settings changed; no pushes, remote branch, merge or deployment.
 
 ## Working
+- NBA Ensemble (Codex,2026-10-23; explicitly authorized by Travis): separate research/NBA ensemble, winners-first six fixed families, no NFL imports/data/model changes. Evidence: free SportsDataverse schedules/team boxes reachable,15offline leakage/schema/UI tests passed. Acceptance: frozen chronological discovery/confirmation, honest metrics versus Elo, six-model debate, standalone local dashboard/one launcher and immutable prospective forecasts. Actual data refresh/research in progress; no promotion/deployment/spend.
 - Review publication disabled. Local exclusion prepared; external project/root/hooks, approved baseline/commit set and reviewer access remain prerequisites. No current claim of end-to-end deployment protection or cloud visibility.
 
 ## Problems
