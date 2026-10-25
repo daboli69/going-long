@@ -1,7 +1,7 @@
 {
  "schema": "going-score-v2",
  "methodology_version": "going-score-2.0.0",
- "as_of": "2026-10-25T13:18:44Z",
+ "as_of": "2026-10-25T14:26:23Z",
  "season": 2026,
  "week": 8,
  "meaning": "Player-level situation index: opportunity, role, availability and how they are changing, from games before this week. Not a projection, a probability or a betting edge; a higher score is not a better bet.",
@@ -78,7 +78,7 @@
  "availability": {
   "ok": true,
   "limited": true,
-  "verified_player_count": 109,
+  "verified_player_count": 103,
   "reason": "",
   "injury_as_of": "2026-10-25T12:30:27+00:00",
   "roster_as_of": "2026-10-25T12:34:24+00:00"
@@ -121,7 +121,7 @@
    "week": 7
   },
   "ffopportunity_rows": 14050,
-  "history_json_generated_at": "2026-10-25T13:16:23+00:00",
+  "history_json_generated_at": "2026-10-25T14:24:08+00:00",
   "history_linked_players": 501,
   "weights_fit": {
    "experiment": "P4-1",
@@ -144,8 +144,8 @@
  },
  "config_sha256": "ded0cef97596bf52a4d2b1ef444cb32ee2f328ab892629fbc039db7b66d058a1",
  "counts": {
-  "QB": 2,
-  "RB": 12,
+  "QB": 1,
+  "RB": 13,
   "WR": 10,
   "TE": 3
  },
@@ -163,19 +163,19 @@
     "id": "low",
     "label": "Low"
    },
-   "rank": 2,
-   "of": 2,
+   "rank": 1,
+   "of": 1,
    "games_used": 11,
    "components": {
     "production": {
      "raw": 14.5544,
-     "percentile": 100.0,
+     "percentile": 50.0,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 14.8422,
-     "percentile": 0.0,
+     "percentile": 50.0,
      "weight": 0.4814,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": -1.019,
@@ -183,7 +183,7 @@
     },
     "team_share": {
      "raw": 0.2081,
-     "percentile": 0.0,
+     "percentile": 50.0,
      "weight": 0.205,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": -0.91,
@@ -191,7 +191,7 @@
     },
     "efficiency": {
      "raw": 0.1171,
-     "percentile": 100.0,
+     "percentile": 50.0,
      "weight": 0.2043,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.715,
@@ -199,7 +199,7 @@
     },
     "role": {
      "raw": 90.8485,
-     "percentile": 0.0,
+     "percentile": 50.0,
      "weight": 0.0,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": -1.166,
@@ -207,7 +207,7 @@
     },
     "availability": {
      "raw": 0.47,
-     "percentile": 0.0,
+     "percentile": 50.0,
      "weight": 0.1094,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": -1.674,
@@ -215,7 +215,7 @@
     },
     "opp_trend": {
      "raw": 2.9622,
-     "percentile": 100.0,
+     "percentile": 50.0,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 1.22,
@@ -223,7 +223,7 @@
     },
     "role_trend": {
      "raw": 16.4444,
-     "percentile": 100.0,
+     "percentile": 50.0,
      "weight": 0.0,
      "explanation": "Last three games of snap share versus the six before.",
      "z": 2.947,
@@ -303,160 +303,6 @@
     "AVAILABILITY_RISK"
    ]
   },
-  "00-0041251": {
-   "name": "Jalon Daniels",
-   "position": "QB",
-   "team": "TB",
-   "sleeper_id": "13425",
-   "season": 2026,
-   "week": 8,
-   "score": 51.1,
-   "absolute": 39.8,
-   "tier": {
-    "id": "solid",
-    "label": "Solid"
-   },
-   "rank": 1,
-   "of": 2,
-   "games_used": 3,
-   "components": {
-    "production": {
-     "raw": 13.9325,
-     "percentile": 0.0,
-     "weight": 0.0,
-     "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
-    },
-    "opportunity": {
-     "raw": 16.6356,
-     "percentile": 100.0,
-     "weight": 0.4814,
-     "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
-     "z": -0.301,
-     "contribution": -0.1451
-    },
-    "team_share": {
-     "raw": 0.2288,
-     "percentile": 100.0,
-     "weight": 0.205,
-     "explanation": "Share of the team's expected fantasy points this player commands.",
-     "z": 0.043,
-     "contribution": 0.0088
-    },
-    "efficiency": {
-     "raw": -1.0795,
-     "percentile": 0.0,
-     "weight": 0.2043,
-     "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
-     "z": -0.658,
-     "contribution": -0.1344
-    },
-    "role": {
-     "raw": 96.7698,
-     "percentile": 100.0,
-     "weight": 0.0,
-     "explanation": "Share of offensive snaps (deployment level).",
-     "z": 0.528,
-     "contribution": 0.0
-    },
-    "availability": {
-     "raw": 0.94,
-     "percentile": 100.0,
-     "weight": 0.1094,
-     "explanation": "Share of the team's last 8 games the player appeared in.",
-     "z": 0.489,
-     "contribution": 0.0535
-    },
-    "opp_trend": {
-     "raw": 0.0,
-     "percentile": 0.0,
-     "weight": 0.0,
-     "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
-     "z": 0.077,
-     "contribution": 0.0
-    },
-    "role_trend": {
-     "raw": 0.0,
-     "percentile": 0.0,
-     "weight": 0.0,
-     "explanation": "Last three games of snap share versus the six before.",
-     "z": 0.016,
-     "contribution": 0.0
-    }
-   },
-   "history": [
-    {
-     "season": 2026,
-     "week": 1,
-     "score": null,
-     "absolute": null,
-     "played": false,
-     "ppr": null
-    },
-    {
-     "season": 2026,
-     "week": 2,
-     "score": null,
-     "absolute": null,
-     "played": false,
-     "ppr": null
-    },
-    {
-     "season": 2026,
-     "week": 3,
-     "score": null,
-     "absolute": null,
-     "played": false,
-     "ppr": null
-    },
-    {
-     "season": 2026,
-     "week": 4,
-     "score": null,
-     "absolute": null,
-     "played": true,
-     "ppr": 11.4
-    },
-    {
-     "season": 2026,
-     "week": 5,
-     "score": null,
-     "absolute": null,
-     "played": true,
-     "ppr": 13.9
-    },
-    {
-     "season": 2026,
-     "week": 6,
-     "score": null,
-     "absolute": null,
-     "played": true,
-     "ppr": 11.2
-    },
-    {
-     "season": 2026,
-     "week": 7,
-     "score": 51.1,
-     "absolute": 39.8,
-     "played": false,
-     "ppr": null
-    },
-    {
-     "season": 2026,
-     "week": 8,
-     "score": 51.1,
-     "absolute": 39.8,
-     "played": false,
-     "ppr": null
-    }
-   ],
-   "delta_1w": 0.0,
-   "delta_3w": null,
-   "flags": [
-    "INJURY:active",
-    "LIMITED_SAMPLE",
-    "ROOKIE"
-   ]
-  },
   "00-0034844": {
    "name": "Saquon Barkley",
    "position": "RB",
@@ -471,18 +317,18 @@
     "label": "Solid"
    },
    "rank": 4,
-   "of": 12,
+   "of": 13,
    "games_used": 12,
    "components": {
     "production": {
      "raw": 8.127,
-     "percentile": 81.8,
+     "percentile": 83.3,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 9.9651,
-     "percentile": 90.9,
+     "percentile": 91.7,
      "weight": 0.3811,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": 0.607,
@@ -490,7 +336,7 @@
     },
     "team_share": {
      "raw": 0.1447,
-     "percentile": 90.9,
+     "percentile": 91.7,
      "weight": 0.2225,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": 0.796,
@@ -506,7 +352,7 @@
     },
     "role": {
      "raw": 47.908,
-     "percentile": 90.9,
+     "percentile": 91.7,
      "weight": 0.1321,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": 0.808,
@@ -514,7 +360,7 @@
     },
     "availability": {
      "raw": 0.67,
-     "percentile": 45.5,
+     "percentile": 41.7,
      "weight": 0.0506,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": -0.741,
@@ -624,18 +470,18 @@
     "label": "Solid"
    },
    "rank": 3,
-   "of": 12,
+   "of": 13,
    "games_used": 12,
    "components": {
     "production": {
      "raw": 8.0569,
-     "percentile": 72.7,
+     "percentile": 75.0,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 9.1773,
-     "percentile": 72.7,
+     "percentile": 75.0,
      "weight": 0.3811,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": 0.383,
@@ -643,7 +489,7 @@
     },
     "team_share": {
      "raw": 0.1376,
-     "percentile": 72.7,
+     "percentile": 75.0,
      "weight": 0.2225,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": 0.648,
@@ -651,7 +497,7 @@
     },
     "efficiency": {
      "raw": -0.6682,
-     "percentile": 9.1,
+     "percentile": 8.3,
      "weight": 0.1116,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": -1.056,
@@ -659,7 +505,7 @@
     },
     "role": {
      "raw": 44.1218,
-     "percentile": 72.7,
+     "percentile": 75.0,
      "weight": 0.1321,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": 0.508,
@@ -667,7 +513,7 @@
     },
     "availability": {
      "raw": 0.5875,
-     "percentile": 36.4,
+     "percentile": 33.3,
      "weight": 0.0506,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": -1.154,
@@ -675,7 +521,7 @@
     },
     "opp_trend": {
      "raw": -0.9878,
-     "percentile": 27.3,
+     "percentile": 25.0,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": -0.348,
@@ -683,7 +529,7 @@
     },
     "role_trend": {
      "raw": -13.2222,
-     "percentile": 9.1,
+     "percentile": 8.3,
      "weight": 0.1021,
      "explanation": "Last three games of snap share versus the six before.",
      "z": -1.425,
@@ -777,8 +623,8 @@
     "id": "low",
     "label": "Low"
    },
-   "rank": 11,
-   "of": 12,
+   "rank": 12,
+   "of": 13,
    "games_used": 12,
    "components": {
     "production": {
@@ -805,7 +651,7 @@
     },
     "efficiency": {
      "raw": 0.0927,
-     "percentile": 81.8,
+     "percentile": 83.3,
      "weight": 0.1116,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.189,
@@ -813,7 +659,7 @@
     },
     "role": {
      "raw": 21.624,
-     "percentile": 18.2,
+     "percentile": 16.7,
      "weight": 0.1321,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": -1.275,
@@ -821,7 +667,7 @@
     },
     "availability": {
      "raw": 0.9571,
-     "percentile": 72.7,
+     "percentile": 66.7,
      "weight": 0.0506,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": 0.697,
@@ -829,7 +675,7 @@
     },
     "opp_trend": {
      "raw": -0.0556,
-     "percentile": 36.4,
+     "percentile": 33.3,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.014,
@@ -837,7 +683,7 @@
     },
     "role_trend": {
      "raw": 0.7619,
-     "percentile": 54.5,
+     "percentile": 50.0,
      "weight": 0.1021,
      "explanation": "Last three games of snap share versus the six before.",
      "z": 0.107,
@@ -930,18 +776,18 @@
     "label": "Solid"
    },
    "rank": 5,
-   "of": 12,
+   "of": 13,
    "games_used": 12,
    "components": {
     "production": {
      "raw": 7.3997,
-     "percentile": 54.5,
+     "percentile": 58.3,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 6.8005,
-     "percentile": 63.6,
+     "percentile": 66.7,
      "weight": 0.3811,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": -0.291,
@@ -949,7 +795,7 @@
     },
     "team_share": {
      "raw": 0.1015,
-     "percentile": 63.6,
+     "percentile": 66.7,
      "weight": 0.2225,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": -0.108,
@@ -957,7 +803,7 @@
     },
     "efficiency": {
      "raw": 0.3909,
-     "percentile": 90.9,
+     "percentile": 91.7,
      "weight": 0.1116,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.677,
@@ -965,7 +811,7 @@
     },
     "role": {
      "raw": 35.295,
-     "percentile": 63.6,
+     "percentile": 66.7,
      "weight": 0.1321,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": -0.192,
@@ -973,7 +819,7 @@
     },
     "availability": {
      "raw": 0.47,
-     "percentile": 13.6,
+     "percentile": 12.5,
      "weight": 0.0506,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": -1.742,
@@ -981,7 +827,7 @@
     },
     "opp_trend": {
      "raw": 1.2344,
-     "percentile": 72.7,
+     "percentile": 66.7,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.514,
@@ -989,7 +835,7 @@
     },
     "role_trend": {
      "raw": 2.3333,
-     "percentile": 72.7,
+     "percentile": 66.7,
      "weight": 0.1021,
      "explanation": "Last three games of snap share versus the six before.",
      "z": 0.28,
@@ -1083,7 +929,7 @@
     "label": "Strong"
    },
    "rank": 1,
-   "of": 12,
+   "of": 13,
    "games_used": 12,
    "components": {
     "production": {
@@ -1110,7 +956,7 @@
     },
     "efficiency": {
      "raw": 0.0639,
-     "percentile": 72.7,
+     "percentile": 75.0,
      "weight": 0.1116,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.142,
@@ -1126,7 +972,7 @@
     },
     "availability": {
      "raw": 0.57,
-     "percentile": 27.3,
+     "percentile": 25.0,
      "weight": 0.0506,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": -1.242,
@@ -1134,7 +980,7 @@
     },
     "opp_trend": {
      "raw": 2.7344,
-     "percentile": 90.9,
+     "percentile": 91.7,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 1.095,
@@ -1142,7 +988,7 @@
     },
     "role_trend": {
      "raw": -6.5556,
-     "percentile": 27.3,
+     "percentile": 25.0,
      "weight": 0.1021,
      "explanation": "Last three games of snap share versus the six before.",
      "z": -0.694,
@@ -1236,18 +1082,18 @@
     "label": "Modest"
    },
    "rank": 8,
-   "of": 12,
+   "of": 13,
    "games_used": 12,
    "components": {
     "production": {
      "raw": 5.2429,
-     "percentile": 27.3,
+     "percentile": 33.3,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 5.3962,
-     "percentile": 27.3,
+     "percentile": 33.3,
      "weight": 0.3811,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": -0.69,
@@ -1255,7 +1101,7 @@
     },
     "team_share": {
      "raw": 0.066,
-     "percentile": 27.3,
+     "percentile": 25.0,
      "weight": 0.2225,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": -0.852,
@@ -1263,7 +1109,7 @@
     },
     "efficiency": {
      "raw": -0.0714,
-     "percentile": 45.5,
+     "percentile": 50.0,
      "weight": 0.1116,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": -0.08,
@@ -1271,7 +1117,7 @@
     },
     "role": {
      "raw": 27.0041,
-     "percentile": 27.3,
+     "percentile": 25.0,
      "weight": 0.1321,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": -0.849,
@@ -1279,7 +1125,7 @@
     },
     "availability": {
      "raw": 0.77,
-     "percentile": 59.1,
+     "percentile": 54.2,
      "weight": 0.0506,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": -0.24,
@@ -1389,18 +1235,18 @@
     "label": "Solid"
    },
    "rank": 6,
-   "of": 12,
+   "of": 13,
    "games_used": 12,
    "components": {
     "production": {
      "raw": 7.5563,
-     "percentile": 63.6,
+     "percentile": 66.7,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 6.7767,
-     "percentile": 54.5,
+     "percentile": 58.3,
      "weight": 0.3811,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": -0.298,
@@ -1408,7 +1254,7 @@
     },
     "team_share": {
      "raw": 0.0909,
-     "percentile": 45.5,
+     "percentile": 50.0,
      "weight": 0.2225,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": -0.331,
@@ -1424,7 +1270,7 @@
     },
     "role": {
      "raw": 31.1503,
-     "percentile": 45.5,
+     "percentile": 41.7,
      "weight": 0.1321,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": -0.52,
@@ -1440,7 +1286,7 @@
     },
     "opp_trend": {
      "raw": -2.6011,
-     "percentile": 18.2,
+     "percentile": 16.7,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": -0.973,
@@ -1448,7 +1294,7 @@
     },
     "role_trend": {
      "raw": -6.0,
-     "percentile": 36.4,
+     "percentile": 33.3,
      "weight": 0.1021,
      "explanation": "Last three games of snap share versus the six before.",
      "z": -0.633,
@@ -1542,18 +1388,18 @@
     "label": "Solid"
    },
    "rank": 7,
-   "of": 12,
+   "of": 13,
    "games_used": 12,
    "components": {
     "production": {
      "raw": 5.7791,
-     "percentile": 45.5,
+     "percentile": 50.0,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 6.0276,
-     "percentile": 45.5,
+     "percentile": 50.0,
      "weight": 0.3811,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": -0.511,
@@ -1561,7 +1407,7 @@
     },
     "team_share": {
      "raw": 0.0975,
-     "percentile": 54.5,
+     "percentile": 58.3,
      "weight": 0.2225,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": -0.191,
@@ -1569,7 +1415,7 @@
     },
     "efficiency": {
      "raw": -0.1226,
-     "percentile": 36.4,
+     "percentile": 41.7,
      "weight": 0.1116,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": -0.164,
@@ -1577,7 +1423,7 @@
     },
     "role": {
      "raw": 34.1285,
-     "percentile": 54.5,
+     "percentile": 58.3,
      "weight": 0.1321,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": -0.284,
@@ -1585,7 +1431,7 @@
     },
     "availability": {
      "raw": 0.47,
-     "percentile": 13.6,
+     "percentile": 12.5,
      "weight": 0.0506,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": -1.742,
@@ -1593,7 +1439,7 @@
     },
     "opp_trend": {
      "raw": 0.6922,
-     "percentile": 54.5,
+     "percentile": 50.0,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.304,
@@ -1601,7 +1447,7 @@
     },
     "role_trend": {
      "raw": 8.2222,
-     "percentile": 90.9,
+     "percentile": 83.3,
      "weight": 0.1021,
      "explanation": "Last three games of snap share versus the six before.",
      "z": 0.925,
@@ -1694,19 +1540,19 @@
     "id": "low",
     "label": "Low"
    },
-   "rank": 12,
-   "of": 12,
+   "rank": 13,
+   "of": 13,
    "games_used": 6,
    "components": {
     "production": {
      "raw": 3.6043,
-     "percentile": 9.1,
+     "percentile": 8.3,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 3.6806,
-     "percentile": 9.1,
+     "percentile": 8.3,
      "weight": 0.3811,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": -1.177,
@@ -1714,7 +1560,7 @@
     },
     "team_share": {
      "raw": 0.0509,
-     "percentile": 9.1,
+     "percentile": 8.3,
      "weight": 0.2225,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": -1.167,
@@ -1722,7 +1568,7 @@
     },
     "efficiency": {
      "raw": -0.0115,
-     "percentile": 63.6,
+     "percentile": 66.7,
      "weight": 0.1116,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.018,
@@ -1746,7 +1592,7 @@
     },
     "opp_trend": {
      "raw": 0.0933,
-     "percentile": 45.5,
+     "percentile": 41.7,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.071,
@@ -1754,7 +1600,7 @@
     },
     "role_trend": {
      "raw": 0.0,
-     "percentile": 45.5,
+     "percentile": 41.7,
      "weight": 0.1021,
      "explanation": "Last three games of snap share versus the six before.",
      "z": 0.024,
@@ -1847,19 +1693,19 @@
     "id": "modest",
     "label": "Modest"
    },
-   "rank": 10,
-   "of": 12,
+   "rank": 11,
+   "of": 13,
    "games_used": 11,
    "components": {
     "production": {
      "raw": 4.2622,
-     "percentile": 18.2,
+     "percentile": 25.0,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 4.5652,
-     "percentile": 18.2,
+     "percentile": 16.7,
      "weight": 0.3811,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": -0.926,
@@ -1867,7 +1713,7 @@
     },
     "team_share": {
      "raw": 0.0632,
-     "percentile": 18.2,
+     "percentile": 16.7,
      "weight": 0.2225,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": -0.909,
@@ -1875,7 +1721,7 @@
     },
     "efficiency": {
      "raw": -0.1663,
-     "percentile": 27.3,
+     "percentile": 33.3,
      "weight": 0.1116,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": -0.235,
@@ -1883,7 +1729,7 @@
     },
     "role": {
      "raw": 21.0862,
-     "percentile": 9.1,
+     "percentile": 8.3,
      "weight": 0.1321,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": -1.318,
@@ -1891,7 +1737,7 @@
     },
     "availability": {
      "raw": 0.9667,
-     "percentile": 90.9,
+     "percentile": 91.7,
      "weight": 0.0506,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": 0.745,
@@ -1899,7 +1745,7 @@
     },
     "opp_trend": {
      "raw": 1.17,
-     "percentile": 63.6,
+     "percentile": 58.3,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.489,
@@ -1907,7 +1753,7 @@
     },
     "role_trend": {
      "raw": 3.8889,
-     "percentile": 81.8,
+     "percentile": 75.0,
      "weight": 0.1021,
      "explanation": "Last three games of snap share versus the six before.",
      "z": 0.45,
@@ -2000,18 +1846,18 @@
     "label": "Strong"
    },
    "rank": 2,
-   "of": 12,
+   "of": 13,
    "games_used": 12,
    "components": {
     "production": {
      "raw": 9.1086,
-     "percentile": 90.9,
+     "percentile": 91.7,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 9.4794,
-     "percentile": 81.8,
+     "percentile": 83.3,
      "weight": 0.3811,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": 0.469,
@@ -2019,7 +1865,7 @@
     },
     "team_share": {
      "raw": 0.1381,
-     "percentile": 81.8,
+     "percentile": 83.3,
      "weight": 0.2225,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": 0.658,
@@ -2027,7 +1873,7 @@
     },
     "efficiency": {
      "raw": -0.2095,
-     "percentile": 18.2,
+     "percentile": 25.0,
      "weight": 0.1116,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": -0.306,
@@ -2035,7 +1881,7 @@
     },
     "role": {
      "raw": 47.4141,
-     "percentile": 81.8,
+     "percentile": 83.3,
      "weight": 0.1321,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": 0.769,
@@ -2043,7 +1889,7 @@
     },
     "availability": {
      "raw": 0.77,
-     "percentile": 59.1,
+     "percentile": 54.2,
      "weight": 0.0506,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": -0.24,
@@ -2051,7 +1897,7 @@
     },
     "opp_trend": {
      "raw": -4.5944,
-     "percentile": 9.1,
+     "percentile": 8.3,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": -1.746,
@@ -2059,7 +1905,7 @@
     },
     "role_trend": {
      "raw": -8.7778,
-     "percentile": 18.2,
+     "percentile": 16.7,
      "weight": 0.1021,
      "explanation": "Last three games of snap share versus the six before.",
      "z": -0.938,
@@ -2153,18 +1999,18 @@
     "label": "Modest"
    },
    "rank": 9,
-   "of": 12,
+   "of": 13,
    "games_used": 6,
    "components": {
     "production": {
      "raw": 5.7018,
-     "percentile": 36.4,
+     "percentile": 41.7,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 5.8034,
-     "percentile": 36.4,
+     "percentile": 41.7,
      "weight": 0.3811,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": -0.574,
@@ -2172,7 +2018,7 @@
     },
     "team_share": {
      "raw": 0.0745,
-     "percentile": 36.4,
+     "percentile": 41.7,
      "weight": 0.2225,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": -0.673,
@@ -2180,7 +2026,7 @@
     },
     "efficiency": {
      "raw": -0.0319,
-     "percentile": 54.5,
+     "percentile": 58.3,
      "weight": 0.1116,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": -0.015,
@@ -2188,7 +2034,7 @@
     },
     "role": {
      "raw": 27.1555,
-     "percentile": 36.4,
+     "percentile": 33.3,
      "weight": 0.1321,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": -0.837,
@@ -2196,7 +2042,7 @@
     },
     "availability": {
      "raw": 0.9625,
-     "percentile": 81.8,
+     "percentile": 79.2,
      "weight": 0.0506,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": 0.724,
@@ -2204,7 +2050,7 @@
     },
     "opp_trend": {
      "raw": 1.3333,
-     "percentile": 81.8,
+     "percentile": 75.0,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.552,
@@ -2212,7 +2058,7 @@
     },
     "role_trend": {
      "raw": 1.6667,
-     "percentile": 63.6,
+     "percentile": 58.3,
      "weight": 0.1021,
      "explanation": "Last three games of snap share versus the six before.",
      "z": 0.206,
@@ -2292,6 +2138,160 @@
     "ROOKIE"
    ]
   },
+  "00-0041326": {
+   "name": "CJ Donaldson",
+   "position": "RB",
+   "team": "NO",
+   "sleeper_id": "13277",
+   "season": 2026,
+   "week": 8,
+   "score": 45.4,
+   "absolute": 22.0,
+   "tier": {
+    "id": "modest",
+    "label": "Modest"
+   },
+   "rank": 10,
+   "of": 13,
+   "games_used": 6,
+   "components": {
+    "production": {
+     "raw": 4.2151,
+     "percentile": 16.7,
+     "weight": 0.0,
+     "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
+    },
+    "opportunity": {
+     "raw": 5.2058,
+     "percentile": 25.0,
+     "weight": 0.3811,
+     "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
+     "z": -0.744,
+     "contribution": -0.2835
+    },
+    "team_share": {
+     "raw": 0.0705,
+     "percentile": 33.3,
+     "weight": 0.2225,
+     "explanation": "Share of the team's expected fantasy points this player commands.",
+     "z": -0.757,
+     "contribution": -0.1685
+    },
+    "efficiency": {
+     "raw": -0.5613,
+     "percentile": 16.7,
+     "weight": 0.1116,
+     "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
+     "z": -0.881,
+     "contribution": -0.0984
+    },
+    "role": {
+     "raw": 33.2982,
+     "percentile": 50.0,
+     "weight": 0.1321,
+     "explanation": "Share of offensive snaps (deployment level).",
+     "z": -0.35,
+     "contribution": -0.0462
+    },
+    "availability": {
+     "raw": 0.9625,
+     "percentile": 79.2,
+     "weight": 0.0506,
+     "explanation": "Share of the team's last 8 games the player appeared in.",
+     "z": 0.724,
+     "contribution": 0.0366
+    },
+    "opp_trend": {
+     "raw": 1.7517,
+     "percentile": 83.3,
+     "weight": 0.0,
+     "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
+     "z": 0.714,
+     "contribution": 0.0
+    },
+    "role_trend": {
+     "raw": 8.5,
+     "percentile": 91.7,
+     "weight": 0.1021,
+     "explanation": "Last three games of snap share versus the six before.",
+     "z": 0.955,
+     "contribution": 0.0975
+    }
+   },
+   "history": [
+    {
+     "season": 2026,
+     "week": 1,
+     "score": null,
+     "absolute": null,
+     "played": true,
+     "ppr": 1.2
+    },
+    {
+     "season": 2026,
+     "week": 2,
+     "score": null,
+     "absolute": null,
+     "played": true,
+     "ppr": 0.2
+    },
+    {
+     "season": 2026,
+     "week": 3,
+     "score": null,
+     "absolute": null,
+     "played": true,
+     "ppr": 0.5
+    },
+    {
+     "season": 2026,
+     "week": 4,
+     "score": 36.9,
+     "absolute": 15.4,
+     "played": true,
+     "ppr": 4.3
+    },
+    {
+     "season": 2026,
+     "week": 5,
+     "score": 42.1,
+     "absolute": 17.2,
+     "played": true,
+     "ppr": 3.0
+    },
+    {
+     "season": 2026,
+     "week": 6,
+     "score": 43.8,
+     "absolute": 18.3,
+     "played": true,
+     "ppr": 1.9
+    },
+    {
+     "season": 2026,
+     "week": 7,
+     "score": 45.8,
+     "absolute": 22.0,
+     "played": false,
+     "ppr": null
+    },
+    {
+     "season": 2026,
+     "week": 8,
+     "score": 45.4,
+     "absolute": 22.0,
+     "played": false,
+     "ppr": null
+    }
+   ],
+   "delta_1w": 0.0,
+   "delta_3w": 4.8,
+   "flags": [
+    "INJURY:Questionable",
+    "ROLE_UP",
+    "ROOKIE"
+   ]
+  },
   "00-0032464": {
    "name": "Kalif Raymond",
    "position": "WR",
@@ -2305,19 +2305,19 @@
     "id": "solid",
     "label": "Solid"
    },
-   "rank": 3,
+   "rank": 2,
    "of": 10,
    "games_used": 12,
    "components": {
     "production": {
      "raw": 6.6186,
-     "percentile": 77.8,
+     "percentile": 88.9,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 6.0777,
-     "percentile": 77.8,
+     "percentile": 88.9,
      "weight": 0.51,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": -0.286,
@@ -2325,7 +2325,7 @@
     },
     "team_share": {
      "raw": 0.0732,
-     "percentile": 77.8,
+     "percentile": 88.9,
      "weight": 0.222,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": -0.473,
@@ -2333,7 +2333,7 @@
     },
     "efficiency": {
      "raw": 0.3506,
-     "percentile": 66.7,
+     "percentile": 77.8,
      "weight": 0.1135,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.608,
@@ -2349,7 +2349,7 @@
     },
     "availability": {
      "raw": 0.9667,
-     "percentile": 77.8,
+     "percentile": 88.9,
      "weight": 0.0419,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": 0.621,
@@ -2463,7 +2463,7 @@
    "components": {
     "production": {
      "raw": 4.0284,
-     "percentile": 44.4,
+     "percentile": 55.6,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
@@ -2485,7 +2485,7 @@
     },
     "efficiency": {
      "raw": 0.0547,
-     "percentile": 44.4,
+     "percentile": 55.6,
      "weight": 0.1135,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.116,
@@ -2598,6 +2598,158 @@
     "AVAILABILITY_RISK"
    ]
   },
+  "00-0035208": {
+   "name": "Olamide Zaccheaus",
+   "position": "WR",
+   "team": "ATL",
+   "sleeper_id": "6271",
+   "season": 2026,
+   "week": 8,
+   "score": 32.0,
+   "absolute": 12.7,
+   "tier": {
+    "id": "modest",
+    "label": "Modest"
+   },
+   "rank": 6,
+   "of": 10,
+   "games_used": 12,
+   "components": {
+    "production": {
+     "raw": 3.1537,
+     "percentile": 0.0,
+     "weight": 0.0,
+     "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
+    },
+    "opportunity": {
+     "raw": 4.4291,
+     "percentile": 66.7,
+     "weight": 0.51,
+     "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
+     "z": -0.777,
+     "contribution": -0.3962
+    },
+    "team_share": {
+     "raw": 0.062,
+     "percentile": 66.7,
+     "weight": 0.222,
+     "explanation": "Share of the team's expected fantasy points this player commands.",
+     "z": -0.732,
+     "contribution": -0.1624
+    },
+    "efficiency": {
+     "raw": -0.8043,
+     "percentile": 0.0,
+     "weight": 0.1135,
+     "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
+     "z": -1.313,
+     "contribution": -0.1491
+    },
+    "role": {
+     "raw": 46.1321,
+     "percentile": 66.7,
+     "weight": 0.048,
+     "explanation": "Share of offensive snaps (deployment level).",
+     "z": -0.427,
+     "contribution": -0.0205
+    },
+    "availability": {
+     "raw": 0.9625,
+     "percentile": 77.8,
+     "weight": 0.0419,
+     "explanation": "Share of the team's last 8 games the player appeared in.",
+     "z": 0.598,
+     "contribution": 0.0251
+    },
+    "opp_trend": {
+     "raw": -0.7478,
+     "percentile": 22.2,
+     "weight": 0.0,
+     "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
+     "z": -0.268,
+     "contribution": -0.0
+    },
+    "role_trend": {
+     "raw": -4.0,
+     "percentile": 22.2,
+     "weight": 0.0645,
+     "explanation": "Last three games of snap share versus the six before.",
+     "z": -0.33,
+     "contribution": -0.0213
+    }
+   },
+   "history": [
+    {
+     "season": 2026,
+     "week": 1,
+     "score": 54.2,
+     "absolute": 27.1,
+     "played": true,
+     "ppr": 1.5
+    },
+    {
+     "season": 2026,
+     "week": 2,
+     "score": 46.7,
+     "absolute": 20.9,
+     "played": true,
+     "ppr": 1.3
+    },
+    {
+     "season": 2026,
+     "week": 3,
+     "score": 40.1,
+     "absolute": 17.2,
+     "played": true,
+     "ppr": 2.9
+    },
+    {
+     "season": 2026,
+     "week": 4,
+     "score": 37.7,
+     "absolute": 16.5,
+     "played": true,
+     "ppr": 0.0
+    },
+    {
+     "season": 2026,
+     "week": 5,
+     "score": 31.6,
+     "absolute": 13.2,
+     "played": true,
+     "ppr": 0.0
+    },
+    {
+     "season": 2026,
+     "week": 6,
+     "score": 24.0,
+     "absolute": 9.7,
+     "played": true,
+     "ppr": 0.0
+    },
+    {
+     "season": 2026,
+     "week": 7,
+     "score": 31.6,
+     "absolute": 12.7,
+     "played": false,
+     "ppr": null
+    },
+    {
+     "season": 2026,
+     "week": 8,
+     "score": 32.0,
+     "absolute": 12.7,
+     "played": false,
+     "ppr": null
+    }
+   ],
+   "delta_1w": 0.0,
+   "delta_3w": -0.5,
+   "flags": [
+    "INJURY:Questionable"
+   ]
+  },
   "00-0036775": {
    "name": "Brandon Smith",
    "position": "WR",
@@ -2617,7 +2769,7 @@
    "components": {
     "production": {
      "raw": 3.3977,
-     "percentile": 0.0,
+     "percentile": 11.1,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
@@ -2639,7 +2791,7 @@
     },
     "efficiency": {
      "raw": 0.0,
-     "percentile": 11.1,
+     "percentile": 22.2,
      "weight": 0.1135,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.025,
@@ -2663,7 +2815,7 @@
     },
     "opp_trend": {
      "raw": 0.0,
-     "percentile": 55.6,
+     "percentile": 66.7,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.065,
@@ -2671,7 +2823,7 @@
     },
     "role_trend": {
      "raw": 0.0,
-     "percentile": 44.4,
+     "percentile": 55.6,
      "weight": 0.0645,
      "explanation": "Last three games of snap share versus the six before.",
      "z": 0.025,
@@ -2770,7 +2922,7 @@
    "components": {
     "production": {
      "raw": 3.7128,
-     "percentile": 22.2,
+     "percentile": 33.3,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
@@ -2792,7 +2944,7 @@
     },
     "efficiency": {
      "raw": 0.0209,
-     "percentile": 33.3,
+     "percentile": 44.4,
      "weight": 0.1135,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.059,
@@ -2816,7 +2968,7 @@
     },
     "opp_trend": {
      "raw": 0.0,
-     "percentile": 55.6,
+     "percentile": 66.7,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.065,
@@ -2824,7 +2976,7 @@
     },
     "role_trend": {
      "raw": 0.0,
-     "percentile": 44.4,
+     "percentile": 55.6,
      "weight": 0.0645,
      "explanation": "Last three games of snap share versus the six before.",
      "z": 0.025,
@@ -2905,158 +3057,6 @@
     "AVAILABILITY_RISK"
    ]
   },
-  "00-0038621": {
-   "name": "DeMario Douglas",
-   "position": "WR",
-   "team": "NE",
-   "sleeper_id": "9501",
-   "season": 2026,
-   "week": 8,
-   "score": 77.1,
-   "absolute": 45.7,
-   "tier": {
-    "id": "strong",
-    "label": "Strong"
-   },
-   "rank": 2,
-   "of": 10,
-   "games_used": 12,
-   "components": {
-    "production": {
-     "raw": 8.1077,
-     "percentile": 88.9,
-     "weight": 0.0,
-     "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
-    },
-    "opportunity": {
-     "raw": 7.2449,
-     "percentile": 88.9,
-     "weight": 0.51,
-     "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
-     "z": 0.062,
-     "contribution": 0.0315
-    },
-    "team_share": {
-     "raw": 0.0989,
-     "percentile": 88.9,
-     "weight": 0.222,
-     "explanation": "Share of the team's expected fantasy points this player commands.",
-     "z": 0.12,
-     "contribution": 0.0266
-    },
-    "efficiency": {
-     "raw": 0.556,
-     "percentile": 100.0,
-     "weight": 0.1135,
-     "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
-     "z": 0.949,
-     "contribution": 0.1078
-    },
-    "role": {
-     "raw": 50.5611,
-     "percentile": 77.8,
-     "weight": 0.048,
-     "explanation": "Share of offensive snaps (deployment level).",
-     "z": -0.162,
-     "contribution": -0.0078
-    },
-    "availability": {
-     "raw": 0.97,
-     "percentile": 94.4,
-     "weight": 0.0419,
-     "explanation": "Share of the team's last 8 games the player appeared in.",
-     "z": 0.639,
-     "contribution": 0.0268
-    },
-    "opp_trend": {
-     "raw": 2.2233,
-     "percentile": 88.9,
-     "weight": 0.0,
-     "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
-     "z": 1.057,
-     "contribution": 0.0
-    },
-    "role_trend": {
-     "raw": 10.3333,
-     "percentile": 66.7,
-     "weight": 0.0645,
-     "explanation": "Last three games of snap share versus the six before.",
-     "z": 0.942,
-     "contribution": 0.0608
-    }
-   },
-   "history": [
-    {
-     "season": 2026,
-     "week": 1,
-     "score": 51.4,
-     "absolute": 25.0,
-     "played": true,
-     "ppr": 7.0
-    },
-    {
-     "season": 2026,
-     "week": 2,
-     "score": 60.3,
-     "absolute": 30.0,
-     "played": true,
-     "ppr": 1.9
-    },
-    {
-     "season": 2026,
-     "week": 3,
-     "score": 60.8,
-     "absolute": 29.3,
-     "played": true,
-     "ppr": 4.8
-    },
-    {
-     "season": 2026,
-     "week": 4,
-     "score": 65.8,
-     "absolute": 33.2,
-     "played": true,
-     "ppr": 3.5
-    },
-    {
-     "season": 2026,
-     "week": 5,
-     "score": 61.0,
-     "absolute": 29.3,
-     "played": true,
-     "ppr": 22.5
-    },
-    {
-     "season": 2026,
-     "week": 6,
-     "score": 72.1,
-     "absolute": 39.4,
-     "played": true,
-     "ppr": 19.6
-    },
-    {
-     "season": 2026,
-     "week": 7,
-     "score": 78.4,
-     "absolute": 47.0,
-     "played": true,
-     "ppr": 5.3
-    },
-    {
-     "season": 2026,
-     "week": 8,
-     "score": 77.1,
-     "absolute": 45.7,
-     "played": false,
-     "ppr": null
-    }
-   ],
-   "delta_1w": -1.3,
-   "delta_3w": 16.4,
-   "flags": [
-    "INJURY:active"
-   ]
-  },
   "00-0038979": {
    "name": "Cedric Tillman",
    "position": "WR",
@@ -3076,7 +3076,7 @@
    "components": {
     "production": {
      "raw": 3.598,
-     "percentile": 11.1,
+     "percentile": 22.2,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
@@ -3098,7 +3098,7 @@
     },
     "efficiency": {
      "raw": 0.0042,
-     "percentile": 22.2,
+     "percentile": 33.3,
      "weight": 0.1135,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.032,
@@ -3122,7 +3122,7 @@
     },
     "opp_trend": {
      "raw": -0.7167,
-     "percentile": 22.2,
+     "percentile": 33.3,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": -0.254,
@@ -3250,7 +3250,7 @@
     },
     "efficiency": {
      "raw": 0.4256,
-     "percentile": 77.8,
+     "percentile": 88.9,
      "weight": 0.1135,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.733,
@@ -3375,13 +3375,13 @@
     "id": "modest",
     "label": "Modest"
    },
-   "rank": 5,
+   "rank": 4,
    "of": 10,
    "games_used": 12,
    "components": {
     "production": {
      "raw": 5.0405,
-     "percentile": 55.6,
+     "percentile": 66.7,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
@@ -3403,7 +3403,7 @@
     },
     "efficiency": {
      "raw": 0.4399,
-     "percentile": 88.9,
+     "percentile": 100.0,
      "weight": 0.1135,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.756,
@@ -3419,7 +3419,7 @@
     },
     "availability": {
      "raw": 0.97,
-     "percentile": 94.4,
+     "percentile": 100.0,
      "weight": 0.0419,
      "explanation": "Share of the team's last 8 games the player appeared in.",
      "z": 0.639,
@@ -3427,7 +3427,7 @@
     },
     "opp_trend": {
      "raw": -0.09,
-     "percentile": 33.3,
+     "percentile": 44.4,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.025,
@@ -3435,7 +3435,7 @@
     },
     "role_trend": {
      "raw": -0.4444,
-     "percentile": 22.2,
+     "percentile": 33.3,
      "weight": 0.0645,
      "explanation": "Last three games of snap share versus the six before.",
      "z": -0.014,
@@ -3527,13 +3527,13 @@
     "id": "modest",
     "label": "Modest"
    },
-   "rank": 6,
+   "rank": 5,
    "of": 10,
    "games_used": 3,
    "components": {
     "production": {
      "raw": 3.8757,
-     "percentile": 33.3,
+     "percentile": 44.4,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
@@ -3555,7 +3555,7 @@
     },
     "efficiency": {
      "raw": -0.0787,
-     "percentile": 0.0,
+     "percentile": 11.1,
      "weight": 0.1135,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": -0.106,
@@ -3579,7 +3579,7 @@
     },
     "opp_trend": {
      "raw": 0.0,
-     "percentile": 55.6,
+     "percentile": 66.7,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.065,
@@ -3587,7 +3587,7 @@
     },
     "role_trend": {
      "raw": 0.0,
-     "percentile": 44.4,
+     "percentile": 55.6,
      "weight": 0.0645,
      "explanation": "Last three games of snap share versus the six before.",
      "z": 0.025,
@@ -3680,19 +3680,19 @@
     "id": "solid",
     "label": "Solid"
    },
-   "rank": 4,
+   "rank": 3,
    "of": 10,
    "games_used": 12,
    "components": {
     "production": {
      "raw": 5.1524,
-     "percentile": 66.7,
+     "percentile": 77.8,
      "weight": 0.0,
      "explanation": "Recent PPR points per game (recency-weighted, shrunk). Context only: it is opportunity plus efficiency, so it carries no weight of its own."
     },
     "opportunity": {
      "raw": 4.9282,
-     "percentile": 66.7,
+     "percentile": 77.8,
      "weight": 0.51,
      "explanation": "Expected fantasy points per game from the volume and quality of touches/targets (recency-weighted, shrunk to the position average).",
      "z": -0.628,
@@ -3700,7 +3700,7 @@
     },
     "team_share": {
      "raw": 0.0647,
-     "percentile": 66.7,
+     "percentile": 77.8,
      "weight": 0.222,
      "explanation": "Share of the team's expected fantasy points this player commands.",
      "z": -0.671,
@@ -3708,7 +3708,7 @@
     },
     "efficiency": {
      "raw": 0.1477,
-     "percentile": 55.6,
+     "percentile": 66.7,
      "weight": 0.1135,
      "explanation": "Actual minus expected points per game. Shrunk heavily because it is mostly luck; small weight.",
      "z": 0.27,
@@ -3716,7 +3716,7 @@
     },
     "role": {
      "raw": 47.9616,
-     "percentile": 66.7,
+     "percentile": 77.8,
      "weight": 0.048,
      "explanation": "Share of offensive snaps (deployment level).",
      "z": -0.317,
@@ -3732,7 +3732,7 @@
     },
     "opp_trend": {
      "raw": 1.5978,
-     "percentile": 77.8,
+     "percentile": 88.9,
      "weight": 0.0,
      "explanation": "Last three games of expected points versus the six before: is the opportunity rising or falling.",
      "z": 0.778,
@@ -4294,12 +4294,6 @@
    "delta_3w": 16.4
   },
   {
-   "id": "00-0038621",
-   "name": "DeMario Douglas",
-   "position": "WR",
-   "delta_3w": 16.4
-  },
-  {
    "id": "00-0039384",
    "name": "Tyrone Tracy Jr.",
    "position": "RB",
@@ -4328,6 +4322,12 @@
    "name": "Corey Kiner",
    "position": "RB",
    "delta_3w": 5.2
+  },
+  {
+   "id": "00-0041326",
+   "name": "CJ Donaldson",
+   "position": "RB",
+   "delta_3w": 4.8
   },
   {
    "id": "00-0040131",
@@ -4408,6 +4408,12 @@
    "name": "Jordan Mason",
    "position": "RB",
    "delta_3w": -1.0
+  },
+  {
+   "id": "00-0035208",
+   "name": "Olamide Zaccheaus",
+   "position": "WR",
+   "delta_3w": -0.5
   }
  ]
 }

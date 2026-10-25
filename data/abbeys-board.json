@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "modelVersion": "abbeys-current-season-v1",
-  "generatedAt": "2026-10-25T13:23:13.711Z",
+  "generatedAt": "2026-10-25T14:30:01.436Z",
   "weeks": [
     {
       "methodology": {
@@ -1399,7 +1399,7 @@
     "captureDeadline": "2026-10-25T13:30:00+00:00",
     "registeredOrigin": "2026-10-22T12:15:00.000Z",
     "scheduledOriginPassed": true,
-    "reason": "Week 7 has not been captured or published. A prospective manual board may still be captured before the first Sunday/Monday kickoff. The registered scheduled origin has passed; no scheduled holdout catch-up is allowed."
+    "reason": "Week 7 has not been captured or published. The first applicable kickoff has passed; official picks cannot be backfilled. The registered scheduled origin has passed; no scheduled holdout catch-up is allowed."
   },
   "record": {
     "wins": 0,
