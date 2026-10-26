@@ -419,6 +419,7 @@ def ledger_md() -> str:
     L = json.loads(LEDGER.read_text())
     items = sorted(L["items"], key=lambda r: (not r.get("pinned", False), -(r.get("score") or 0)))
     lines = ["# Research ledger and backlog", "", f"Generated from `research_ledger.json`. Score = {L['score_formula']}.", "",
+             (f"Program stopping rule: {L['program_stopping_rule']['rule']}" if L.get("program_stopping_rule") else ""), "",
              L.get("note", ""), "",
              "| Rank | ID | Hypothesis | Status | Score | Gap targeted | Games to detect | Cost (h) | Kill rule |", "|---|---|---|---|---|---|---|---|---|"]
     for i, r in enumerate(items, 1):

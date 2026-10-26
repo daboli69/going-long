@@ -5,7 +5,7 @@
     {
       "id": "Q14-QB",
       "title": "QB value adjustment for starter changes (Phase 14)",
-      "status": "prospective monitor (M6); Q1 passed r=0.22, Q2 failed p=0.074",
+      "status": "prospective monitor (M6, M7); point-in-time signal r=0.15-0.19 (about half was hindsight); 2025 vault V1 failed on scale (slope CI 0.26-0.70), V2 untestable (coverage)",
       "gap": 0.032,
       "share": 0.19,
       "cost_h": 6,
@@ -14,7 +14,14 @@
       "p_detect_2_seasons": 0.506,
       "games_needed": 1222,
       "score": 5.13,
-      "pinned": true
+      "pinned": true,
+      "phase15": {
+        "scale_c_deming": 1.057,
+        "c_ci95": [
+          0.88,
+          1.26
+        ]
+      }
     },
     {
       "id": "P11-BLEND",
@@ -179,7 +186,25 @@
       "kill_rule": "-",
       "registered_commit": null,
       "score": 0
+    },
+    {
+      "id": "QB-538-PRIOR",
+      "title": "Adopt a transparent public QB-value method (538-style) as the QB prior",
+      "status": "backlog (not registered)",
+      "gap": 0.032,
+      "share": 0.19,
+      "cost_h": 6,
+      "kill_rule": "pre-register before testing; judge only on 2026+ prospective QB-change games",
+      "registered_commit": null,
+      "score": 5.13,
+      "p_detect_2_seasons": 0.506,
+      "games_needed": 1222
     }
   ],
-  "note": "Q14-QB is pinned first by construction of Phase 14 (pre-registered); all other items are ranked by score. By raw score, P11-BLEND is higher because it is cheap and already running."
+  "note": "Q14-QB is pinned first by construction of Phase 14 (pre-registered); all other items are ranked by score. By raw score, P11-BLEND is higher because it is cheap and already running.",
+  "program_stopping_rule": {
+    "registered_commit": "ec12b3b2",
+    "rule": "If no monitor reaches e >= 20 by the end of the 2026 regular season (week 18), the QB and late-news program is paused ('paused: no prospective evidence') and effort moves to the next ranked item. Futility stops are recorded when they occur.",
+    "status": "active, checked weekly via python -m lab.phase14 monitor"
+  }
 }
