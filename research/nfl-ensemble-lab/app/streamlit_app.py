@@ -789,7 +789,35 @@ def _blindspot_research():
                      f"log loss {o['log_loss']:.3f}, excess {o['excess_ll']:+.4f}, margin MAE {o['margin_mae']:.2f}.")
         tabs = st.tabs(["Calibration", "Situations ranked", "Shared errors", "Market vs situations", "Prospective hypotheses",
                         "Upset identifiers (8.3)", "Underdog traits & line movement (8.4)", "Combined angles, new data (8.5)", "Tracking: Big Data Bowl 2023 (8.6)",
-                        "NGS separation, multi-season (8.7)", "Player props simulator"])
+                        "NGS separation, multi-season (8.7)", "Player props simulator", "Market-blend shadow (11)"])
+        with tabs[11]:
+            from lab import market_blend11 as MB11
+            u = MB11.load()
+            st.caption("Pre-registered (docs/PHASE11_MARKET_BLEND_PREREGISTRATION.md), shadow only, never promoted without Travis's approval. "
+                       "p = sigmoid(a + b_c·logit(champion) + b_o·logit(DraftKings opener)), weights frozen on 2018-21 openers. Uses market "
+                       "input, so it is not independent football intelligence. Refresh: python -m lab.market_blend11")
+            st.write(", ".join(f"{k} {v:+.4f}" for k, v in MB11.WEIGHTS.items()))
+            r_ = u.get("results")
+            if r_:
+                pr = r_["primary"]
+                st.write(f"Primary (final stage, games after registration): **{pr['games']}/{MB11.MIN_GAMES}**, {pr.get('status', '')}")
+
+                def _row(label, b):
+                    d = b.get("challenger_minus_champion", {})
+                    return {"block": label, "games": b.get("games", 0), "fallback": b.get("fallback_games"),
+                            "challenger_ll": b.get("challenger", {}).get("log_loss"), "champion_ll": b.get("champion", {}).get("log_loss"),
+                            "delta": d.get("delta_log_loss"), "ci": str(tuple(round(c, 4) for c in d.get("ci", ())))}
+                rows = [_row("primary (counted)", pr), _row("pre-registration final (descriptive)", r_.get("descriptive_pre_registration_final", {}))]
+                rows += [_row(f"stage {k} (descriptive)", b) for k, b in r_.get("by_stage_all_games", {}).items()]
+                st.dataframe(pd.DataFrame(rows).round(4), hide_index=True, use_container_width=True)
+                sec = r_.get("descriptive_pre_registration_final", {}).get("secondary_vs_closing")
+                if sec:
+                    st.write(f"Secondary, descriptive: challenger {sec['challenger']['log_loss']:.3f} vs DraftKings closing "
+                             f"{sec['closing_market']['log_loss']:.3f} on {sec['games']} games")
+                rt = r_.get("retrospective_2022_25")
+                if rt:
+                    st.write("**Frozen weights on 2022-25 openers (descriptive; exposed seasons, not a gate)**")
+                    st.dataframe(pd.DataFrame(rt["by_season"]).round(4), hide_index=True, use_container_width=True)
         with tabs[10]:
             import json as _json
             from lab.props import evaluate as PE
