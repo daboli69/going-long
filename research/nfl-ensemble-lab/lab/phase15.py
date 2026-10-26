@@ -234,10 +234,10 @@ def history() -> dict:
     x["kickoff"] = pd.to_datetime(x["gameday"] + " " + x["gametime"]).dt.tz_localize(ET).dt.tz_convert("UTC")
     x = classify(x)
     x["d_open"], x["d_mid"] = pit_delta(x, "open"), pit_delta(x, "mid")
-    mv = (_logit(x["p_close"]) - _logit(x["p_open"])).to_numpy()
+    mv = np.asarray(_logit(x["p_close"]) - _logit(x["p_open"]))
     lm = (x["close_margin_asb"] - x["open_margin"]).to_numpy()
     def clv(d):
-        return (_logit(x["p_champ"]) + gamma * d) - _logit(x["p_open"])
+        return pd.Series(np.asarray((_logit(x["p_champ"]) + gamma * np.asarray(d)) - _logit(x["p_open"])), index=x.index)
     a1 = _corr_test(clv(x["d_open"]), mv)
     a2 = _corr_test(x["d_open"], lm)
     a3 = _corr_test(x["d_open"], x["market_qb_adj"])
