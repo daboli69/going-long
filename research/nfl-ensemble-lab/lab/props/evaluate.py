@@ -106,6 +106,7 @@ def run_season(season: int, n_sims: int = N_SIMS, log=print, limit=None) -> pd.D
         act = pan[pan["game_id"] == g.game_id].set_index("pid")
         team_rows.append({"game_id": g.game_id, "season": season, "week": g.week, "imp_home": imp[0], "imp_away": imp[1],
                           "sim_home": float(r["points"][:, 0].mean()), "sim_away": float(r["points"][:, 1].mean()),
+                          "sim_p_home": float((r["points"][:, 0] > r["points"][:, 1]).mean() + 0.5 * (r["points"][:, 0] == r["points"][:, 1]).mean()),
                           "act_home": g.home_score, "act_away": g.away_score, "e_home": e[0], "e_away": e[1]})
         for si, (t, qb, ti) in enumerate(info):
             ratio = float(np.clip(imp[si] / max(_team_ppg(games, season, g.week, t), 1.0), 0.6, 1.6))
