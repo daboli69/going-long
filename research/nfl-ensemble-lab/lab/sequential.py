@@ -28,3 +28,22 @@ def e_process(x) -> dict:
         s2 += xi * xi
     return {"n": int(len(x)), "mean": float(x.mean()) if len(x) else None, "e_value": float(wealth),
             "max_e": float(max(path)) if path else 1.0, "crossed": bool(path and max(path) >= THRESHOLD), "path": path}
+
+
+def cs_upper(x, alpha: float = 0.05, rho2: float = 0.079) -> float | None:
+    """One-sided Robbins normal-mixture confidence sequence upper bound on the running mean of x in [-1, 1]
+    (sub-Gaussian with sigma = 1; rho2 tuned for n near 100). Valid simultaneously at all n (Phase 15 futility bound)."""
+    x = np.clip(np.asarray(x, float), -1.0, 1.0)
+    t = len(x)
+    if t == 0:
+        return None
+    radius = np.sqrt((t * rho2 + 1) / rho2 * 2 * np.log(np.sqrt(t * rho2 + 1) / alpha))
+    return float((x.sum() + radius) / t)
+
+
+def monitor_summary(x, min_effect: float) -> dict:
+    """e-process (evidence for improvement) plus futility (upper confidence bound below the minimum meaningful effect)."""
+    e = {k: v for k, v in e_process(x).items() if k != "path"}
+    up = cs_upper(x)
+    e |= {"cs_upper": up, "min_effect": min_effect, "futile": bool(up is not None and up < min_effect)}
+    return e

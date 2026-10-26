@@ -23,7 +23,7 @@ from .config import ARTIFACTS_DIR, RAW_DIR
 
 ROOT = Path(__file__).resolve().parents[1]
 from .ingest import normalize_team
-from .sequential import e_process
+from .sequential import e_process, monitor_summary
 
 OUT = ARTIFACTS_DIR / "phase14"
 LEDGER = ROOT / "research_ledger.json"
@@ -359,20 +359,20 @@ def monitor() -> dict:
         lc = _ll(y, piv[champ])
         for name, v in (("M2_p5_vs_champion", next((v for v in vers if "p5" in v), None)), ("M3_p7_vs_champion", next((v for v in vers if "p7" in v), None))):
             if v:
-                res[name] = {k: vv for k, vv in e_process(lc - _ll(y, piv[v])).items() if k != "path"}
+                res[name] = monitor_summary(lc - _ll(y, piv[v]), 0.005)
         g = pd.read_csv(RAW_DIR / "games.csv").set_index("game_id")
         from .market81 import american_to_prob, novig
         gg = g.reindex(piv["game_id"])
         pc = np.asarray(novig(american_to_prob(pd.to_numeric(gg["home_moneyline"], errors="coerce").to_numpy()),
                               american_to_prob(pd.to_numeric(gg["away_moneyline"], errors="coerce").to_numpy())), float)
         k = ~np.isnan(pc)
-        res["M4_close_vs_champion"] = {kk: vv for kk, vv in e_process((lc - _ll(y, pc))[k]).items() if kk != "path"}
+        res["M4_close_vs_champion"] = monitor_summary((lc - _ll(y, pc))[k], 0.005)
         try:
             from . import market_blend11 as MB
             sc = MB.score() if hasattr(MB, "score") else None
             if isinstance(sc, pd.DataFrame) and {"game_id", "p_blend"}.issubset(sc.columns):
                 m = piv.merge(sc[["game_id", "p_blend"]], on="game_id")
-                res["M1_blend_vs_champion"] = {kk: vv for kk, vv in e_process(_ll(m["home_win"], m[champ]) - _ll(m["home_win"], m["p_blend"])).items() if kk != "path"}
+                res["M1_blend_vs_champion"] = monitor_summary(_ll(m["home_win"], m[champ]) - _ll(m["home_win"], m["p_blend"]), 0.005)
         except Exception as e:  # noqa: BLE001
             res["M1_blend_vs_champion"] = {"error": repr(e)}
     try:
@@ -382,6 +382,10 @@ def monitor() -> dict:
         pass
     fz = sorted((OUT / "prospective").glob("qb_values_*.parquet")) if (OUT / "prospective").exists() else []
     res["M6_qb_adjustment"] = {"frozen_files": len(fz), "note": "scored once 2026 QB-change games with frozen values complete"}
+    res["program_stopping_rule"] = ("Phase 15: if no monitor reaches e >= 20 by the end of the 2026 regular season (week 18), "
+                                    "the QB and late-news program is paused in the ledger and effort moves to the next ranked item")
+    res["any_crossed"] = any(isinstance(v, dict) and v.get("crossed") for v in res.values())
+    res["futile"] = [k for k, v in res.items() if isinstance(v, dict) and v.get("futile")]
     (OUT / "monitor.json").write_text(json.dumps(res, indent=2, default=str))
     return res
 
