@@ -11,7 +11,7 @@ from .config import ROOT,REPORTS,DATA,now,atomic,low_priority
 def main():
     threads=low_priority()
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','pregame-research','pregame-refresh','availability','score-forecast','shadow-forecast','extra-data','score','context','report','app','strength-research','strength-freeze','injury-research','injury-freeze'])
+    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','pregame-research','pregame-refresh','availability','score-forecast','shadow-forecast','extra-data','score','context','report','app','strength-research','strength-freeze','injury-research','injury-freeze','codex-verify','codex-tests','codex-forecast'])
     parser.add_argument('--date');parser.add_argument('--start',type=int,default=2015);parser.add_argument('--end',type=int)
     parser.add_argument('--source',choices=['nba_api','pbpstats']);parser.add_argument('--season',type=int,default=2026)
     args=parser.parse_args()
@@ -32,6 +32,11 @@ def main():
         elif args.action=='injury-freeze':
             from .injury_shadow import freeze
             out={k:v for k,v in freeze().items() if k!='result'}
+        elif args.action in ('codex-verify','codex-tests','codex-forecast'):
+            from . import codex_research as CR
+            if args.action=='codex-verify':out=CR.verify()
+            elif args.action=='codex-tests':out=CR.tests()
+            else:out={'output':str(CR.forecast()),**(CR.latest_status() or {})}
         elif args.action=='develop':out=engine.develop(threads)
         elif args.action=='confirm':out=engine.confirm(threads)
         elif args.action=='train':out={'version':engine.train(threads)['version']}
@@ -113,6 +118,11 @@ def main():
             if (ROOT/'docs/INJURY_SHADOW_CONFIG.json').exists():
                 from .injury_shadow import archive
                 archive(args.date,threads)
+            from . import codex_research as CR
+            if CR.PYTHON.exists():
+                # Separate research package; its failure never blocks the original daily forecasts.
+                try:CR.forecast()
+                except Exception as error:print('Codex forecast skipped: '+type(error).__name__+': '+str(error)[:200])
         elif args.action=='context':
             if not args.source:raise ValueError('Specify --source nba_api or pbpstats')
             out=sources.optional_context(args.source,args.season)

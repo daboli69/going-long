@@ -1,0 +1,2556 @@
+{
+  "kind": "reused_postgame_field_distribution_diagnostic_NOT_predictive_validation",
+  "overall_predictive_verdict": "inconclusive",
+  "adoption_verdict": "unsupported_do_not_replace_v1",
+  "mechanism_verdict": "conditional_FGA_variance_discrepancy_supported_single_candidate_corrects_it_without_establishing_better_PRA_or_leader_predictions",
+  "registration_sha256": "98618a519da19dd1c6c0248ef016e82a91e7be99594926e9ce1adaba2c0b2738",
+  "code_lock_sha256": "36848acaf7be52acdf4e0718db21dd1d4a9c126ee60498b7af3a21b038777e16",
+  "full_comparison_sha256": "2047f27251947a56b39983a5a402f8a0e1709fe5c18491cf291304abf678a9a3",
+  "raw_event_audit_sha256": "a2e9e9392b21c5999a542ad37b28e026cf9da58fcee951c550bb997a8887298e",
+  "history_sha256": "3dd59188f5f245bfebf0e7b41b8effd7409cabbeee04aa88eb62d29c03841f4d",
+  "parameter_choice": {
+    "kind": "conditional_reused_data_parameter_choice_NOT_v1_selection_receipt",
+    "parameters": {
+      "season_decay": 0.65,
+      "game_half_life_days": 90,
+      "prior_games": 5
+    },
+    "candidates": [
+      {
+        "parameters": {
+          "season_decay": 0.65,
+          "game_half_life_days": 90,
+          "prior_games": 5
+        },
+        "mean_crps": 4.403025722747043,
+        "mean_mae": 6.49309467789246,
+        "slates": [
+          {
+            "date": "2025-10-28",
+            "crps": 5.013967577777779,
+            "mae": 7.472111111111111
+          },
+          {
+            "date": "2025-11-04",
+            "crps": 4.05467072611465,
+            "mae": 5.883796178343948
+          },
+          {
+            "date": "2025-11-11",
+            "crps": 4.3658294064516125,
+            "mae": 6.465858064516128
+          },
+          {
+            "date": "2025-11-18",
+            "crps": 4.349126074999999,
+            "mae": 6.390750000000001
+          },
+          {
+            "date": "2025-11-25",
+            "crps": 4.735582911392404,
+            "mae": 6.679544303797468
+          },
+          {
+            "date": "2025-12-02",
+            "crps": 4.379727635220126,
+            "mae": 6.491584905660379
+          },
+          {
+            "date": "2025-12-09",
+            "crps": 3.9222757272727278,
+            "mae": 6.068018181818181
+          }
+        ]
+      },
+      {
+        "parameters": {
+          "season_decay": 0.35,
+          "game_half_life_days": 90,
+          "prior_games": 5
+        },
+        "mean_crps": 4.432451572528634,
+        "mean_mae": 6.544671346640958,
+        "slates": [
+          {
+            "date": "2025-10-28",
+            "crps": 5.092586948148147,
+            "mae": 7.522607407407406
+          },
+          {
+            "date": "2025-11-04",
+            "crps": 4.091463401273886,
+            "mae": 6.003719745222929
+          },
+          {
+            "date": "2025-11-11",
+            "crps": 4.421060329032258,
+            "mae": 6.532458064516129
+          },
+          {
+            "date": "2025-11-18",
+            "crps": 4.355329906250001,
+            "mae": 6.4293562500000005
+          },
+          {
+            "date": "2025-11-25",
+            "crps": 4.779793329113923,
+            "mae": 6.785151898734176
+          },
+          {
+            "date": "2025-12-02",
+            "crps": 4.326476748427673,
+            "mae": 6.428333333333334
+          },
+          {
+            "date": "2025-12-09",
+            "crps": 3.9604503454545457,
+            "mae": 6.111072727272728
+          }
+        ]
+      },
+      {
+        "parameters": {
+          "season_decay": 0.65,
+          "game_half_life_days": 30,
+          "prior_games": 5
+        },
+        "mean_crps": 4.505574738093094,
+        "mean_mae": 6.689365362964353,
+        "slates": [
+          {
+            "date": "2025-10-28",
+            "crps": 5.10270162962963,
+            "mae": 7.596459259259261
+          },
+          {
+            "date": "2025-11-04",
+            "crps": 4.137386089171975,
+            "mae": 6.067414012738854
+          },
+          {
+            "date": "2025-11-11",
+            "crps": 4.483550670967742,
+            "mae": 6.621832258064516
+          },
+          {
+            "date": "2025-11-18",
+            "crps": 4.42938891875,
+            "mae": 6.583406249999999
+          },
+          {
+            "date": "2025-11-25",
+            "crps": 4.813914443037976,
+            "mae": 6.887075949367088
+          },
+          {
+            "date": "2025-12-02",
+            "crps": 4.43884441509434,
+            "mae": 6.6311698113207544
+          },
+          {
+            "date": "2025-12-09",
+            "crps": 4.133237000000001,
+            "mae": 6.4382
+          }
+        ]
+      },
+      {
+        "parameters": {
+          "season_decay": 0.35,
+          "game_half_life_days": 30,
+          "prior_games": 5
+        },
+        "mean_crps": 4.560737218682919,
+        "mean_mae": 6.768179179159892,
+        "slates": [
+          {
+            "date": "2025-10-28",
+            "crps": 5.204057799999999,
+            "mae": 7.716007407407408
+          },
+          {
+            "date": "2025-11-04",
+            "crps": 4.165696942675159,
+            "mae": 6.141528662420383
+          },
+          {
+            "date": "2025-11-11",
+            "crps": 4.513701309677419,
+            "mae": 6.674083870967743
+          },
+          {
+            "date": "2025-11-18",
+            "crps": 4.46203706875,
+            "mae": 6.660218750000001
+          },
+          {
+            "date": "2025-11-25",
+            "crps": 4.906067556962026,
+            "mae": 6.9773291139240525
+          },
+          {
+            "date": "2025-12-02",
+            "crps": 4.440740616352201,
+            "mae": 6.632377358490566
+          },
+          {
+            "date": "2025-12-09",
+            "crps": 4.232859236363635,
+            "mae": 6.575709090909092
+          }
+        ]
+      },
+      {
+        "parameters": {
+          "season_decay": 0.65,
+          "game_half_life_days": 90,
+          "prior_games": 15
+        },
+        "mean_crps": 5.138640530342106,
+        "mean_mae": 7.600194203035273,
+        "slates": [
+          {
+            "date": "2025-10-28",
+            "crps": 5.892010637037037,
+            "mae": 8.642800000000001
+          },
+          {
+            "date": "2025-11-04",
+            "crps": 4.845460101910827,
+            "mae": 7.093923566878981
+          },
+          {
+            "date": "2025-11-11",
+            "crps": 5.101587425806452,
+            "mae": 7.513670967741935
+          },
+          {
+            "date": "2025-11-18",
+            "crps": 5.020207475,
+            "mae": 7.53365
+          },
+          {
+            "date": "2025-11-25",
+            "crps": 5.248272531645569,
+            "mae": 7.463721518987342
+          },
+          {
+            "date": "2025-12-02",
+            "crps": 5.023418377358491,
+            "mae": 7.45148427672956
+          },
+          {
+            "date": "2025-12-09",
+            "crps": 4.8395271636363635,
+            "mae": 7.502109090909092
+          }
+        ]
+      },
+      {
+        "parameters": {
+          "season_decay": 0.35,
+          "game_half_life_days": 90,
+          "prior_games": 15
+        },
+        "mean_crps": 5.230227837439791,
+        "mean_mae": 7.739253922052697,
+        "slates": [
+          {
+            "date": "2025-10-28",
+            "crps": 6.081289237037036,
+            "mae": 8.863592592592592
+          },
+          {
+            "date": "2025-11-04",
+            "crps": 4.928619076433121,
+            "mae": 7.2641974522293
+          },
+          {
+            "date": "2025-11-11",
+            "crps": 5.2426178451612895,
+            "mae": 7.733316129032256
+          },
+          {
+            "date": "2025-11-18",
+            "crps": 5.126377962499999,
+            "mae": 7.681300000000002
+          },
+          {
+            "date": "2025-11-25",
+            "crps": 5.284318392405064,
+            "mae": 7.485506329113923
+          },
+          {
+            "date": "2025-12-02",
+            "crps": 5.05273058490566,
+            "mae": 7.524119496855345
+          },
+          {
+            "date": "2025-12-09",
+            "crps": 4.895641763636363,
+            "mae": 7.622745454545454
+          }
+        ]
+      },
+      {
+        "parameters": {
+          "season_decay": 0.65,
+          "game_half_life_days": 30,
+          "prior_games": 15
+        },
+        "mean_crps": 5.3547752324282865,
+        "mean_mae": 7.909219620209029,
+        "slates": [
+          {
+            "date": "2025-10-28",
+            "crps": 5.997829318518519,
+            "mae": 8.757570370370372
+          },
+          {
+            "date": "2025-11-04",
+            "crps": 4.973534535031847,
+            "mae": 7.2715286624203825
+          },
+          {
+            "date": "2025-11-11",
+            "crps": 5.290526264516129,
+            "mae": 7.81398064516129
+          },
+          {
+            "date": "2025-11-18",
+            "crps": 5.261605725,
+            "mae": 7.8870749999999985
+          },
+          {
+            "date": "2025-11-25",
+            "crps": 5.454609063291139,
+            "mae": 7.724025316455699
+          },
+          {
+            "date": "2025-12-02",
+            "crps": 5.29619848427673,
+            "mae": 7.867993710691824
+          },
+          {
+            "date": "2025-12-09",
+            "crps": 5.209123236363636,
+            "mae": 8.042363636363635
+          }
+        ]
+      },
+      {
+        "parameters": {
+          "season_decay": 0.35,
+          "game_half_life_days": 30,
+          "prior_games": 15
+        },
+        "mean_crps": 5.473718418060772,
+        "mean_mae": 8.081237226551373,
+        "slates": [
+          {
+            "date": "2025-10-28",
+            "crps": 6.186058622222221,
+            "mae": 9.015525925925926
+          },
+          {
+            "date": "2025-11-04",
+            "crps": 5.126201375796178,
+            "mae": 7.502229299363059
+          },
+          {
+            "date": "2025-11-11",
+            "crps": 5.408315193548387,
+            "mae": 7.991903225806451
+          },
+          {
+            "date": "2025-11-18",
+            "crps": 5.365714649999999,
+            "mae": 8.0544875
+          },
+          {
+            "date": "2025-11-25",
+            "crps": 5.538876037974683,
+            "mae": 7.856063291139242
+          },
+          {
+            "date": "2025-12-02",
+            "crps": 5.350330955974843,
+            "mae": 7.948578616352202
+          },
+          {
+            "date": "2025-12-09",
+            "crps": 5.3405320909090905,
+            "mae": 8.199872727272728
+          }
+        ]
+      }
+    ],
+    "complete_development_slates": 7,
+    "insufficient_for_v1_selection": true,
+    "development_slate_bootstrap_choice_frequencies": [
+      {
+        "parameters": {
+          "season_decay": 0.65,
+          "game_half_life_days": 90,
+          "prior_games": 5
+        },
+        "fraction": 0.97
+      },
+      {
+        "parameters": {
+          "season_decay": 0.35,
+          "game_half_life_days": 90,
+          "prior_games": 5
+        },
+        "fraction": 0.03
+      },
+      {
+        "parameters": {
+          "season_decay": 0.65,
+          "game_half_life_days": 30,
+          "prior_games": 5
+        },
+        "fraction": 0.0
+      },
+      {
+        "parameters": {
+          "season_decay": 0.35,
+          "game_half_life_days": 30,
+          "prior_games": 5
+        },
+        "fraction": 0.0
+      },
+      {
+        "parameters": {
+          "season_decay": 0.65,
+          "game_half_life_days": 90,
+          "prior_games": 15
+        },
+        "fraction": 0.0
+      },
+      {
+        "parameters": {
+          "season_decay": 0.35,
+          "game_half_life_days": 90,
+          "prior_games": 15
+        },
+        "fraction": 0.0
+      },
+      {
+        "parameters": {
+          "season_decay": 0.65,
+          "game_half_life_days": 30,
+          "prior_games": 15
+        },
+        "fraction": 0.0
+      },
+      {
+        "parameters": {
+          "season_decay": 0.35,
+          "game_half_life_days": 30,
+          "prior_games": 15
+        },
+        "fraction": 0.0
+      }
+    ],
+    "interpretation": "Earlier diagnostic choice only; not validated priors, not posterior parameter probabilities. No assessment tuning."
+  },
+  "development_exclusions": [
+    {
+      "date": "2025-12-16",
+      "reason": "no_completed_regular_games",
+      "missing_game_ids": []
+    }
+  ],
+  "assessment_exclusions": [
+    {
+      "date": "2026-01-13",
+      "reason": "incomplete_reconciled_slate",
+      "missing_game_ids": [
+        "espn:401810423"
+      ]
+    },
+    {
+      "date": "2026-01-20",
+      "reason": "incomplete_reconciled_slate",
+      "missing_game_ids": [
+        "espn:401810469"
+      ]
+    },
+    {
+      "date": "2026-02-03",
+      "reason": "incomplete_reconciled_slate",
+      "missing_game_ids": [
+        "espn:401810577"
+      ]
+    },
+    {
+      "date": "2026-02-17",
+      "reason": "no_completed_regular_games",
+      "missing_game_ids": []
+    },
+    {
+      "date": "2026-02-24",
+      "reason": "incomplete_reconciled_slate",
+      "missing_game_ids": [
+        "espn:401810691"
+      ]
+    },
+    {
+      "date": "2026-03-03",
+      "reason": "incomplete_reconciled_slate",
+      "missing_game_ids": [
+        "espn:401810744"
+      ]
+    }
+  ],
+  "summary": {
+    "original": {
+      "mae": 6.499959220610456,
+      "crps": 4.5385569344946495,
+      "coverage80": 0.762944486634136,
+      "q90_exceedance": 0.09574389580726313,
+      "q95_exceedance": 0.048776221563229284,
+      "mean_variance": 58.93627301725608,
+      "standardized_squared_error": 1.1503129896700444,
+      "leader_brier": 0.00790255150881405,
+      "sole_brier": 0.004599421851406104,
+      "tied_brier": 0.003389391202186405,
+      "leader_log_loss": 0.03604210609760178,
+      "slates": 6,
+      "player_games": 1046,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.3727325477530538,
+          0.28526874323463064
+        ],
+        [
+          0.3727325477530538,
+          1.0,
+          0.2563194408353642
+        ],
+        [
+          0.28526874323463064,
+          0.2563194408353642,
+          1.0
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          1.0000000000000002,
+          0.378749396094393,
+          0.26709055033620044
+        ],
+        [
+          0.378749396094393,
+          1.0,
+          0.3091589379268635
+        ],
+        [
+          0.26709055033620044,
+          0.3091589379268635,
+          1.0000000000000002
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 8.991788066666667,
+      "mean_predicted_slate_max": 53.10613333333333,
+      "mean_observed_slate_max": 58.166666666666664,
+      "slate_max_above_q90": 0.16666666666666666,
+      "mean_inclusive_leader_mc_se": 0.0006441807853526019,
+      "mean_PRA_mean_mc_se": 0.10612091632848984,
+      "simulated_dependence": {
+        "teammate": -0.02463699503141355,
+        "opponent": 0.00884947118827714
+      },
+      "observed_pair_products": {
+        "teammate": -0.051673642132554716,
+        "opponent": 0.005936987983292061
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 1046,
+          "mae": 6.663156787762906,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 49,
+          "mae": 6.141
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 8,
+          "mae": 8.199349999999999
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 472,
+          "mae": 6.905246610169491
+        },
+        "recent_minutes_up": {
+          "player_games": 517,
+          "mae": 6.467856479690522
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 914,
+          "predicted": 0.0013249452954048138,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 96,
+          "predicted": 0.0210125,
+          "actual": 0.07291666666666667
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 27,
+          "predicted": 0.06802962962962963,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 7,
+          "predicted": 0.12448571428571428,
+          "actual": 0.14285714285714285
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 2,
+          "predicted": 0.27490000000000003,
+          "actual": 0.0
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 1043,
+          "baseline_mae": 6.579463145641258,
+          "model_mae_same_players": 6.651069798657718
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 1046,
+          "baseline_mae": 6.693269816107357,
+          "model_mae_same_players": 6.663156787762906
+        }
+      }
+    },
+    "repaired_fga": {
+      "mae": 6.504681601672995,
+      "crps": 4.540594388434825,
+      "coverage80": 0.7585043346142487,
+      "q90_exceedance": 0.09790789866330751,
+      "q95_exceedance": 0.04824380690616697,
+      "mean_variance": 57.950939939111585,
+      "standardized_squared_error": 1.1705422714128675,
+      "leader_brier": 0.007913677840973013,
+      "sole_brier": 0.004596101501531401,
+      "tied_brier": 0.0033852322778221196,
+      "leader_log_loss": 0.03603367780994799,
+      "slates": 6,
+      "player_games": 1046,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.37392792054556795,
+          0.2746471155058533
+        ],
+        [
+          0.37392792054556795,
+          1.0,
+          0.25652226592604077
+        ],
+        [
+          0.2746471155058533,
+          0.25652226592604077,
+          1.0000000000000002
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          0.9999999999999999,
+          0.37950992392284,
+          0.2686453674846491
+        ],
+        [
+          0.37950992392284,
+          0.9999999999999999,
+          0.31026259658176386
+        ],
+        [
+          0.2686453674846491,
+          0.31026259658176386,
+          1.0
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 9.021779206666666,
+      "mean_predicted_slate_max": 52.658366666666666,
+      "mean_observed_slate_max": 58.166666666666664,
+      "slate_max_above_q90": 0.16666666666666666,
+      "mean_inclusive_leader_mc_se": 0.0006369982988244915,
+      "mean_PRA_mean_mc_se": 0.10528457004759609,
+      "simulated_dependence": {
+        "teammate": -0.03573394175908141,
+        "opponent": 0.0035769958477256613
+      },
+      "observed_pair_products": {
+        "teammate": -0.05237166538785604,
+        "opponent": 0.005716740817477396
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 1046,
+          "mae": 6.6666326959847035,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 49,
+          "mae": 6.1474081632653075
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 8,
+          "mae": 8.22335
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 472,
+          "mae": 6.909947881355932
+        },
+        "recent_minutes_up": {
+          "player_games": 517,
+          "mae": 6.4696181818181815
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 912,
+          "predicted": 0.0012666666666666666,
+          "actual": 0.0010964912280701754
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 101,
+          "predicted": 0.021667326732673273,
+          "actual": 0.0594059405940594
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 23,
+          "predicted": 0.07009565217391303,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 8,
+          "predicted": 0.12359999999999999,
+          "actual": 0.125
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 2,
+          "predicted": 0.289,
+          "actual": 0.0
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 1043,
+          "baseline_mae": 6.579463145641258,
+          "model_mae_same_players": 6.654449664429531
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 1046,
+          "baseline_mae": 6.693269816107357,
+          "model_mae_same_players": 6.6666326959847035
+        }
+      }
+    },
+    "observed_minutes": {
+      "mae": 3.495175415588346,
+      "crps": 2.471286244576025,
+      "coverage80": 0.8633403225509914,
+      "q90_exceedance": 0.0759312657005519,
+      "q95_exceedance": 0.030039986448382683,
+      "mean_variance": 25.868795609415216,
+      "standardized_squared_error": 0.8363605120595223,
+      "leader_brier": 0.007187758929911765,
+      "sole_brier": 0.004039629171338672,
+      "tied_brier": 0.003367316470446867,
+      "leader_log_loss": 0.028778338349310612,
+      "slates": 6,
+      "player_games": 1046,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.01482044973636591,
+          0.011288464979151019
+        ],
+        [
+          0.01482044973636591,
+          1.0,
+          0.009795415595668048
+        ],
+        [
+          0.011288464979151019,
+          0.009795415595668048,
+          1.0
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          1.0000000000000002,
+          -0.021828236680293586,
+          -0.06830828408218648
+        ],
+        [
+          -0.021828236680293586,
+          1.0,
+          0.0722227353670849
+        ],
+        [
+          -0.06830828408218648,
+          0.0722227353670849,
+          1.0
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 9.063036853333333,
+      "mean_predicted_slate_max": 50.71186666666666,
+      "mean_observed_slate_max": 58.166666666666664,
+      "slate_max_above_q90": 0.16666666666666666,
+      "mean_inclusive_leader_mc_se": 0.0003974974628387,
+      "mean_PRA_mean_mc_se": 0.0621018550686796,
+      "simulated_dependence": {
+        "teammate": 0.057452748208221494,
+        "opponent": 0.02399072729927452
+      },
+      "observed_pair_products": {
+        "teammate": -0.001092772690207195,
+        "opponent": -0.018011834586148454
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 1046,
+          "mae": 3.5353569789674952,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 49,
+          "mae": 1.9029918367346939
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 8,
+          "mae": 1.8164499999999997
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 472,
+          "mae": 3.653656779661017
+        },
+        "recent_minutes_up": {
+          "player_games": 517,
+          "mae": 3.608663829787234
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 954,
+          "predicted": 0.0005488469601677149,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 52,
+          "predicted": 0.02320384615384615,
+          "actual": 0.07692307692307693
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 25,
+          "predicted": 0.070808,
+          "actual": 0.08
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 12,
+          "predicted": 0.16196666666666668,
+          "actual": 0.08333333333333333
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 3,
+          "predicted": 0.3740666666666666,
+          "actual": 0.3333333333333333
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 1043,
+          "baseline_mae": 6.579463145641258,
+          "model_mae_same_players": 3.5400473633748804
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 1046,
+          "baseline_mae": 6.693269816107357,
+          "model_mae_same_players": 3.5353569789674952
+        }
+      }
+    },
+    "fixed_pace": {
+      "mae": 6.498206721202176,
+      "crps": 4.53808883087312,
+      "coverage80": 0.7618557525952959,
+      "q90_exceedance": 0.09596084533217114,
+      "q95_exceedance": 0.04863757123751896,
+      "mean_variance": 58.40157146931434,
+      "standardized_squared_error": 1.1597567665082187,
+      "leader_brier": 0.007939842895967253,
+      "sole_brier": 0.004626271484821456,
+      "tied_brier": 0.0033912771305230163,
+      "leader_log_loss": 0.03619171459762697,
+      "slates": 6,
+      "player_games": 1046,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.3695249326009345,
+          0.2811284825946506
+        ],
+        [
+          0.3695249326009345,
+          0.9999999999999999,
+          0.25375623334735115
+        ],
+        [
+          0.2811284825946506,
+          0.25375623334735115,
+          1.0
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          0.9999999999999999,
+          0.37910355592926104,
+          0.2673324758993728
+        ],
+        [
+          0.37910355592926104,
+          1.0,
+          0.30958996814072703
+        ],
+        [
+          0.2673324758993728,
+          0.30958996814072703,
+          1.0
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 8.962572266666667,
+      "mean_predicted_slate_max": 52.87753333333333,
+      "mean_observed_slate_max": 58.166666666666664,
+      "slate_max_above_q90": 0.16666666666666666,
+      "mean_inclusive_leader_mc_se": 0.0006430039402399198,
+      "mean_PRA_mean_mc_se": 0.10564549775519298,
+      "simulated_dependence": {
+        "teammate": -0.031111646815703383,
+        "opponent": 0.002046554463165423
+      },
+      "observed_pair_products": {
+        "teammate": -0.05165177351281835,
+        "opponent": 0.00577591182756593
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 1046,
+          "mae": 6.661138240917783,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 49,
+          "mae": 6.138004081632653
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 8,
+          "mae": 8.13485
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 472,
+          "mae": 6.901391101694915
+        },
+        "recent_minutes_up": {
+          "player_games": 517,
+          "mae": 6.468574468085107
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 913,
+          "predicted": 0.001304052573932092,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 100,
+          "predicted": 0.021486,
+          "actual": 0.07
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 22,
+          "predicted": 0.06896363636363637,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 9,
+          "predicted": 0.12022222222222223,
+          "actual": 0.1111111111111111
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 2,
+          "predicted": 0.2767,
+          "actual": 0.0
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 1043,
+          "baseline_mae": 6.579463145641258,
+          "model_mae_same_players": 6.649151294343241
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 1046,
+          "baseline_mae": 6.693269816107357,
+          "model_mae_same_players": 6.661138240917783
+        }
+      }
+    },
+    "fixed_opportunities": {
+      "mae": 6.480126724946211,
+      "crps": 4.502843038100468,
+      "coverage80": 0.7614253056893957,
+      "q90_exceedance": 0.09443103463174247,
+      "q95_exceedance": 0.038723188579829954,
+      "mean_variance": 57.372296662187665,
+      "standardized_squared_error": 1.152817031186336,
+      "leader_brier": 0.007853004174764684,
+      "sole_brier": 0.00454111827643272,
+      "tied_brier": 0.0033883870464022337,
+      "leader_log_loss": 0.035598862597845955,
+      "slates": 6,
+      "player_games": 1046,
+      "simulated_component_correlation": [
+        [
+          1.0000000000000002,
+          0.3750287557349618,
+          0.2636328371233675
+        ],
+        [
+          0.3750287557349618,
+          1.0000000000000002,
+          0.2555989129178469
+        ],
+        [
+          0.2636328371233675,
+          0.2555989129178469,
+          0.9999999999999998
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          1.0000000000000002,
+          0.3736058891392516,
+          0.2690520524097345
+        ],
+        [
+          0.3736058891392516,
+          1.0,
+          0.302198931168523
+        ],
+        [
+          0.2690520524097345,
+          0.302198931168523,
+          1.0
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 8.784527993333333,
+      "mean_predicted_slate_max": 52.90203333333333,
+      "mean_observed_slate_max": 58.166666666666664,
+      "slate_max_above_q90": 0.16666666666666666,
+      "mean_inclusive_leader_mc_se": 0.0006176948126929313,
+      "mean_PRA_mean_mc_se": 0.10476716153774283,
+      "simulated_dependence": {
+        "teammate": -0.05548779200551681,
+        "opponent": -0.009487094323350057
+      },
+      "observed_pair_products": {
+        "teammate": -0.06328668171277486,
+        "opponent": 0.0024237401355469567
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 1046,
+          "mae": 6.640108030592734,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 49,
+          "mae": 6.2802326530612245
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 8,
+          "mae": 8.2215
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 472,
+          "mae": 6.89710338983051
+        },
+        "recent_minutes_up": {
+          "player_games": 517,
+          "mae": 6.415119535783366
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 925,
+          "predicted": 0.001322162162162162,
+          "actual": 0.002162162162162162
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 88,
+          "predicted": 0.021638636363636363,
+          "actual": 0.045454545454545456
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 20,
+          "predicted": 0.06104999999999999,
+          "actual": 0.05
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 12,
+          "predicted": 0.15598333333333336,
+          "actual": 0.08333333333333333
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 1,
+          "predicted": 0.2862,
+          "actual": 0.0
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 1043,
+          "baseline_mae": 6.579463145641258,
+          "model_mae_same_players": 6.626493767976989
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 1046,
+          "baseline_mae": 6.693269816107357,
+          "model_mae_same_players": 6.640108030592734
+        }
+      }
+    },
+    "fixed_conversion": {
+      "mae": 6.499831074319872,
+      "crps": 4.538395121252911,
+      "coverage80": 0.7588334304469552,
+      "q90_exceedance": 0.0968326298461032,
+      "q95_exceedance": 0.04824380690616697,
+      "mean_variance": 58.7548123163885,
+      "standardized_squared_error": 1.1567685317698295,
+      "leader_brier": 0.00792419066297311,
+      "sole_brier": 0.004613141615001904,
+      "tied_brier": 0.0033861544385944994,
+      "leader_log_loss": 0.035923798289697516,
+      "slates": 6,
+      "player_games": 1046,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.37436524774558066,
+          0.2868715101341756
+        ],
+        [
+          0.37436524774558066,
+          1.0000000000000002,
+          0.2580714114002186
+        ],
+        [
+          0.2868715101341756,
+          0.2580714114002186,
+          1.0
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          0.9999999999999999,
+          0.37934162857848586,
+          0.2668589393672728
+        ],
+        [
+          0.37934162857848586,
+          1.0000000000000002,
+          0.30994734513699124
+        ],
+        [
+          0.2668589393672728,
+          0.30994734513699124,
+          1.0
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 8.9605865,
+      "mean_predicted_slate_max": 53.022833333333324,
+      "mean_observed_slate_max": 58.166666666666664,
+      "slate_max_above_q90": 0.16666666666666666,
+      "mean_inclusive_leader_mc_se": 0.0006425371536948059,
+      "mean_PRA_mean_mc_se": 0.10591970486209806,
+      "simulated_dependence": {
+        "teammate": -0.02491709862282547,
+        "opponent": 0.008774509528073534
+      },
+      "observed_pair_products": {
+        "teammate": -0.05133595527783836,
+        "opponent": 0.005935769716496537
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 1046,
+          "mae": 6.663729254302103,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 49,
+          "mae": 6.125910204081633
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 8,
+          "mae": 8.153675
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 472,
+          "mae": 6.903798728813559
+        },
+        "recent_minutes_up": {
+          "player_games": 517,
+          "mae": 6.4724735009671175
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 914,
+          "predicted": 0.0013072210065645513,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 97,
+          "predicted": 0.021257731958762884,
+          "actual": 0.07216494845360824
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 26,
+          "predicted": 0.0695076923076923,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 7,
+          "predicted": 0.12471428571428574,
+          "actual": 0.14285714285714285
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 2,
+          "predicted": 0.2764,
+          "actual": 0.0
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 1043,
+          "baseline_mae": 6.579463145641258,
+          "model_mae_same_players": 6.6516226270373915
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 1046,
+          "baseline_mae": 6.693269816107357,
+          "model_mae_same_players": 6.663729254302103
+        }
+      }
+    },
+    "independent_player_shuffle": {
+      "mae": 6.499959220610456,
+      "crps": 4.5385569344946495,
+      "coverage80": 0.762944486634136,
+      "q90_exceedance": 0.09574389580726313,
+      "q95_exceedance": 0.048776221563229284,
+      "mean_variance": 58.93627301725606,
+      "standardized_squared_error": 1.1503129896700446,
+      "leader_brier": 0.007901395835896672,
+      "sole_brier": 0.004583479333560531,
+      "tied_brier": 0.003391971172450618,
+      "leader_log_loss": 0.035865826390315866,
+      "slates": 6,
+      "player_games": 1046,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.3727325477530537,
+          0.28526874323463064
+        ],
+        [
+          0.3727325477530537,
+          1.0,
+          0.2563194408353642
+        ],
+        [
+          0.28526874323463064,
+          0.2563194408353642,
+          1.0
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          1.0000000000000002,
+          0.378749396094393,
+          0.26709055033620044
+        ],
+        [
+          0.378749396094393,
+          1.0,
+          0.3091589379268635
+        ],
+        [
+          0.26709055033620044,
+          0.3091589379268635,
+          1.0000000000000002
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 8.967327726666666,
+      "mean_predicted_slate_max": 53.106966666666665,
+      "mean_observed_slate_max": 58.166666666666664,
+      "slate_max_above_q90": 0.16666666666666666,
+      "mean_inclusive_leader_mc_se": 0.0006427878186119144,
+      "mean_PRA_mean_mc_se": 0.10612091632848984,
+      "simulated_dependence": {
+        "teammate": -8.03097350809989e-05,
+        "opponent": 8.122078254699331e-05
+      },
+      "observed_pair_products": {
+        "teammate": -0.05167364213255473,
+        "opponent": 0.005936987983292063
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 1046,
+          "mae": 6.663156787762906,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 49,
+          "mae": 6.141
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 8,
+          "mae": 8.199349999999999
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 472,
+          "mae": 6.905246610169491
+        },
+        "recent_minutes_up": {
+          "player_games": 517,
+          "mae": 6.467856479690522
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 912,
+          "predicted": 0.0013168859649122808,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 100,
+          "predicted": 0.0213,
+          "actual": 0.07
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 23,
+          "predicted": 0.06738260869565217,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 9,
+          "predicted": 0.12013333333333333,
+          "actual": 0.1111111111111111
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 2,
+          "predicted": 0.27749999999999997,
+          "actual": 0.0
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 1043,
+          "baseline_mae": 6.579463145641258,
+          "model_mae_same_players": 6.651069798657718
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 1046,
+          "baseline_mae": 6.693269816107357,
+          "model_mae_same_players": 6.663156787762906
+        }
+      }
+    },
+    "game_block": {
+      "mae": 7.227380234810653,
+      "crps": 5.3946485552009085,
+      "coverage80": 0.6477529905318733,
+      "q90_exceedance": 0.20637378025342087,
+      "q95_exceedance": 0.1458370349717026,
+      "mean_variance": 48.47433158613663,
+      "standardized_squared_error": 42.51381939701461,
+      "leader_brier": 0.00803219900261292,
+      "sole_brier": 0.004723110710217512,
+      "tied_brier": 0.0033889006328031365,
+      "leader_log_loss": 0.04518029571882307,
+      "slates": 6,
+      "player_games": 1046,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.13446740849115704,
+          0.14811260728397013
+        ],
+        [
+          0.13446740849115704,
+          1.0,
+          0.007035186266143815
+        ],
+        [
+          0.14811260728397013,
+          0.007035186266143815,
+          1.0000000000000002
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          1.0000000000000002,
+          0.41606899834062727,
+          0.29222936330404675
+        ],
+        [
+          0.41606899834062727,
+          1.0,
+          0.2545313639475065
+        ],
+        [
+          0.29222936330404675,
+          0.2545313639475065,
+          0.9999999999999998
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 8.98085314,
+      "mean_predicted_slate_max": 56.3971,
+      "mean_observed_slate_max": 58.166666666666664,
+      "slate_max_above_q90": 0.16666666666666666,
+      "mean_inclusive_leader_mc_se": 0.0005636019283656867,
+      "mean_PRA_mean_mc_se": 0.08762352768000727,
+      "simulated_dependence": {
+        "teammate": -0.009479263210886494,
+        "opponent": 0.012908344847129256
+      },
+      "observed_pair_products": {
+        "teammate": 0.3662626730625278,
+        "opponent": 0.6134467394055828
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 1046,
+          "mae": 7.397421032504781,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 49,
+          "mae": 6.557926530612246
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 8,
+          "mae": 7.055149999999999
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 472,
+          "mae": 7.461166949152542
+        },
+        "recent_minutes_up": {
+          "player_games": 517,
+          "mae": 7.424085106382979
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 867,
+          "predicted": 0.0008129181084198385,
+          "actual": 0.00461361014994233
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 149,
+          "predicted": 0.025816107382550333,
+          "actual": 0.006711409395973154
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 30,
+          "predicted": 0.06579333333333334,
+          "actual": 0.1
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 1043,
+          "baseline_mae": 6.579463145641258,
+          "model_mae_same_players": 7.395548418024929
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 1046,
+          "baseline_mae": 6.693269816107357,
+          "model_mae_same_players": 7.397421032504781
+        }
+      }
+    }
+  },
+  "paired": {
+    "slates": 6,
+    "paired": {
+      "mae": {
+        "repair_minus_original": 0.004722381062537195,
+        "whole_slate_95_interval": [
+          0.0011726630133398845,
+          0.008790862663907125
+        ]
+      },
+      "crps": {
+        "repair_minus_original": 0.0020374539401764777,
+        "whole_slate_95_interval": [
+          -0.0004266908910626199,
+          0.0038950525355859376
+        ]
+      },
+      "coverage80": {
+        "repair_minus_original": -0.004440152019887252,
+        "whole_slate_95_interval": [
+          -0.007182709827323964,
+          -0.0015873015873016
+        ]
+      },
+      "q90_exceedance": {
+        "repair_minus_original": 0.0021640028560443773,
+        "whole_slate_95_interval": [
+          0.0,
+          0.00533860603064755
+        ]
+      },
+      "q95_exceedance": {
+        "repair_minus_original": -0.0005324146570623231,
+        "whole_slate_95_interval": [
+          -0.006451612903225806,
+          0.004854368932038836
+        ]
+      },
+      "leader_brier": {
+        "repair_minus_original": 1.1126332158961768e-05,
+        "whole_slate_95_interval": [
+          -1.1397056557251156e-05,
+          3.4205867311136994e-05
+        ]
+      },
+      "sole_brier": {
+        "repair_minus_original": -3.3203498747029197e-06,
+        "whole_slate_95_interval": [
+          -2.376858573225612e-05,
+          2.1714048342896407e-05
+        ]
+      },
+      "tied_brier": {
+        "repair_minus_original": -4.1589243642850765e-06,
+        "whole_slate_95_interval": [
+          -1.1579276642831736e-05,
+          1.945015560914465e-06
+        ]
+      },
+      "leader_log_loss": {
+        "repair_minus_original": -8.428287653782876e-06,
+        "whole_slate_95_interval": [
+          -0.0003274971227313671,
+          0.0003864088080978792
+        ]
+      }
+    },
+    "limitations": "Reused postgame-field diagnostics; not an untouched evaluation. Whole-slate resampling does not remove longer serial/team dependence."
+  },
+  "second_seed_summary": {
+    "original": {
+      "mae": 6.50594885628898,
+      "crps": 4.542344831645732,
+      "coverage80": 0.7619678989030945,
+      "q90_exceedance": 0.09632059707600593,
+      "q95_exceedance": 0.047518015808634184,
+      "mean_variance": 58.85752919067375,
+      "standardized_squared_error": 1.1522555773402958,
+      "leader_brier": 0.007905616864998508,
+      "sole_brier": 0.004599366846420853,
+      "tied_brier": 0.003385914250876237,
+      "leader_log_loss": 0.03553800246310638,
+      "slates": 6,
+      "player_games": 1046,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.37254965021662506,
+          0.28468189016356144
+        ],
+        [
+          0.37254965021662506,
+          1.0,
+          0.2573219002729845
+        ],
+        [
+          0.28468189016356144,
+          0.2573219002729845,
+          1.0
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          0.9999999999999999,
+          0.38121064964889445,
+          0.26729358696627026
+        ],
+        [
+          0.38121064964889445,
+          1.0000000000000002,
+          0.308771924359647
+        ],
+        [
+          0.26729358696627026,
+          0.308771924359647,
+          1.0
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 8.922940126666667,
+      "mean_predicted_slate_max": 53.09383333333334,
+      "mean_observed_slate_max": 58.166666666666664,
+      "slate_max_above_q90": 0.16666666666666666,
+      "mean_inclusive_leader_mc_se": 0.0006430812161275446,
+      "mean_PRA_mean_mc_se": 0.10604844876781754,
+      "simulated_dependence": {
+        "teammate": -0.024913206391392276,
+        "opponent": 0.008685104924455735
+      },
+      "observed_pair_products": {
+        "teammate": -0.05188876624736541,
+        "opponent": 0.005719961430252063
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 1046,
+          "mae": 6.668550095602294,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 49,
+          "mae": 6.120563265306123
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 8,
+          "mae": 8.244325
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 472,
+          "mae": 6.911636440677966
+        },
+        "recent_minutes_up": {
+          "player_games": 517,
+          "mae": 6.474175628626693
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 916,
+          "predicted": 0.0013419213973799127,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 96,
+          "predicted": 0.021560416666666665,
+          "actual": 0.07291666666666667
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 25,
+          "predicted": 0.069832,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 7,
+          "predicted": 0.12722857142857144,
+          "actual": 0.14285714285714285
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 2,
+          "predicted": 0.276,
+          "actual": 0.0
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 1043,
+          "baseline_mae": 6.579463145641258,
+          "model_mae_same_players": 6.656257909875359
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 1046,
+          "baseline_mae": 6.693269816107357,
+          "model_mae_same_players": 6.668550095602294
+        }
+      }
+    },
+    "repaired_fga": {
+      "mae": 6.505372122285987,
+      "crps": 4.541815785340516,
+      "coverage80": 0.7585826338134464,
+      "q90_exceedance": 0.09920011700541981,
+      "q95_exceedance": 0.04452634957142181,
+      "mean_variance": 57.92346829511221,
+      "standardized_squared_error": 1.1693452385064427,
+      "leader_brier": 0.007951468050939528,
+      "sole_brier": 0.004627092574160797,
+      "tied_brier": 0.003389448630165284,
+      "leader_log_loss": 0.03606157750642235,
+      "slates": 6,
+      "player_games": 1046,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.3739417463865642,
+          0.27458534184699523
+        ],
+        [
+          0.3739417463865642,
+          0.9999999999999999,
+          0.2568959648074471
+        ],
+        [
+          0.27458534184699523,
+          0.2568959648074471,
+          1.0
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          1.0,
+          0.37980081956070005,
+          0.2679583853776828
+        ],
+        [
+          0.37980081956070005,
+          1.0,
+          0.30911867050031927
+        ],
+        [
+          0.2679583853776828,
+          0.30911867050031927,
+          1.0
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 8.978710193333335,
+      "mean_predicted_slate_max": 52.695899999999995,
+      "mean_observed_slate_max": 58.166666666666664,
+      "slate_max_above_q90": 0.16666666666666666,
+      "mean_inclusive_leader_mc_se": 0.0006376190549355554,
+      "mean_PRA_mean_mc_se": 0.1052495319068573,
+      "simulated_dependence": {
+        "teammate": -0.03571378021358351,
+        "opponent": 0.00352012669215398
+      },
+      "observed_pair_products": {
+        "teammate": -0.052511034760517085,
+        "opponent": 0.005797863145837051
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 1046,
+          "mae": 6.667453919694073,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 49,
+          "mae": 6.147530612244899
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 8,
+          "mae": 8.2123
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 472,
+          "mae": 6.910753389830508
+        },
+        "recent_minutes_up": {
+          "player_games": 517,
+          "mae": 6.470703675048355
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 921,
+          "predicted": 0.0013387622149837134,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 89,
+          "predicted": 0.021501123595505614,
+          "actual": 0.07865168539325842
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 26,
+          "predicted": 0.06906923076923077,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 8,
+          "predicted": 0.12237499999999998,
+          "actual": 0.125
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 2,
+          "predicted": 0.2873,
+          "actual": 0.0
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 1043,
+          "baseline_mae": 6.579463145641258,
+          "model_mae_same_players": 6.655347842761265
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 1046,
+          "baseline_mae": 6.693269816107357,
+          "model_mae_same_players": 6.667453919694073
+        }
+      }
+    }
+  },
+  "second_seed_paired": {
+    "slates": 6,
+    "paired": {
+      "mae": {
+        "repair_minus_original": -0.0005767340029936285,
+        "whole_slate_95_interval": [
+          -0.006818804346116074,
+          0.005718223939191229
+        ]
+      },
+      "crps": {
+        "repair_minus_original": -0.0005290463052158856,
+        "whole_slate_95_interval": [
+          -0.004902191534994642,
+          0.004852717671827907
+        ]
+      },
+      "coverage80": {
+        "repair_minus_original": -0.0033852650896479632,
+        "whole_slate_95_interval": [
+          -0.008398666234362195,
+          0.002703831297630225
+        ]
+      },
+      "q90_exceedance": {
+        "repair_minus_original": 0.00287951992941389,
+        "whole_slate_95_interval": [
+          -0.0005767012687427908,
+          0.006404553282413547
+        ]
+      },
+      "q95_exceedance": {
+        "repair_minus_original": -0.0029916662372123717,
+        "whole_slate_95_interval": [
+          -0.006624702241813041,
+          0.0005767012687427908
+        ]
+      },
+      "leader_brier": {
+        "repair_minus_original": 4.5851185941019565e-05,
+        "whole_slate_95_interval": [
+          1.1675013495341544e-05,
+          8.126567186156443e-05
+        ]
+      },
+      "sole_brier": {
+        "repair_minus_original": 2.7725727739942716e-05,
+        "whole_slate_95_interval": [
+          9.107983359821312e-06,
+          5.280102989852004e-05
+        ]
+      },
+      "tied_brier": {
+        "repair_minus_original": 3.5343792890464718e-06,
+        "whole_slate_95_interval": [
+          5.074452149792427e-07,
+          8.224428207953402e-06
+        ]
+      },
+      "leader_log_loss": {
+        "repair_minus_original": 0.0005235750433159742,
+        "whole_slate_95_interval": [
+          1.1295698738945462e-05,
+          0.0013097424611982187
+        ]
+      }
+    },
+    "limitations": "Reused postgame-field diagnostics; not an untouched evaluation. Whole-slate resampling does not remove longer serial/team dependence."
+  },
+  "conditional_FGA": {
+    "original": {
+      "mean_conditional_FGA_variance": 88.79459075705097,
+      "mean_FGA": 88.99617,
+      "mean_observed_residual_squared": 38.48819627660019
+    },
+    "repaired": {
+      "mean_conditional_FGA_variance": 40.53735588213972,
+      "mean_FGA": 88.98921499999999,
+      "mean_observed_residual_squared": 38.48819627660019
+    }
+  },
+  "Monte_Carlo_seed_check": {
+    "original": {
+      "player_games": 1046,
+      "mean_absolute_inclusive_probability_difference": 0.0007736137667304014,
+      "fraction_within_1_96_combined_MC_SE": 0.9562780269058296,
+      "boundary_caveat": "Zero Wald standard error for an unobserved event is not certainty; see exact zero-success bound."
+    },
+    "repaired_fga": {
+      "player_games": 1046,
+      "mean_absolute_inclusive_probability_difference": 0.0006950286806883366,
+      "fraction_within_1_96_combined_MC_SE": 0.9614074914869466,
+      "boundary_caveat": "Zero Wald standard error for an unobserved event is not certainty; see exact zero-success bound."
+    }
+  },
+  "zero_success_probability_upper_95_one_sided": 0.0005989670023148763,
+  "strict_verified_dates": [
+    "2026-01-06",
+    "2026-03-10",
+    "2026-03-17",
+    "2026-03-24"
+  ],
+  "strict_verified_summary": {
+    "original": {
+      "mae": 6.723129325222104,
+      "crps": 4.716906484705224,
+      "coverage80": 0.7491139349201481,
+      "q90_exceedance": 0.10112101969433156,
+      "q95_exceedance": 0.042561330274450554,
+      "mean_variance": 58.88569871034885,
+      "standardized_squared_error": 1.1976966735486356,
+      "leader_brier": 0.006774182774608239,
+      "sole_brier": 0.004470110428247871,
+      "tied_brier": 0.0023761364451015533,
+      "leader_log_loss": 0.031265374684817375,
+      "slates": 4,
+      "player_games": 757,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.370809179986987,
+          0.28302028909713906
+        ],
+        [
+          0.370809179986987,
+          1.0,
+          0.2529194111489872
+        ],
+        [
+          0.28302028909713906,
+          0.2529194111489872,
+          1.0
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          1.0000000000000002,
+          0.3697789289178493,
+          0.26646725057904236
+        ],
+        [
+          0.3697789289178493,
+          1.0,
+          0.3077343267097173
+        ],
+        [
+          0.26646725057904236,
+          0.3077343267097173,
+          1.0
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 10.94214833,
+      "mean_predicted_slate_max": 53.57785,
+      "mean_observed_slate_max": 62.75,
+      "slate_max_above_q90": 0.25,
+      "mean_inclusive_leader_mc_se": 0.0006141918838862781,
+      "mean_PRA_mean_mc_se": 0.10640491058119204,
+      "simulated_dependence": {
+        "teammate": -0.02448453649338058,
+        "opponent": 0.009014802958147652
+      },
+      "observed_pair_products": {
+        "teammate": -0.06341616555332803,
+        "opponent": -0.001668102465144942
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 757,
+          "mae": 6.898486393659181,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 38,
+          "mae": 6.560942105263159
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 3,
+          "mae": 9.827933333333332
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 342,
+          "mae": 7.282802339181286
+        },
+        "recent_minutes_up": {
+          "player_games": 374,
+          "mae": 6.557850802139037
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 666,
+          "predicted": 0.0012087087087087087,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 68,
+          "predicted": 0.021082352941176472,
+          "actual": 0.058823529411764705
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 15,
+          "predicted": 0.06318666666666667,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 7,
+          "predicted": 0.12448571428571428,
+          "actual": 0.14285714285714285
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 1,
+          "predicted": 0.2768,
+          "actual": 0.0
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 755,
+          "baseline_mae": 6.8213104123057295,
+          "model_mae_same_players": 6.892718410596027
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 757,
+          "baseline_mae": 6.900035688504018,
+          "model_mae_same_players": 6.898486393659181
+        }
+      }
+    },
+    "repaired_fga": {
+      "mae": 6.72494398377243,
+      "crps": 4.718476010852549,
+      "coverage80": 0.7461933549234436,
+      "q90_exceedance": 0.10198607159744576,
+      "q95_exceedance": 0.04176270828885707,
+      "mean_variance": 57.92631758404568,
+      "standardized_squared_error": 1.2183716196639467,
+      "leader_brier": 0.0067676152630123144,
+      "sole_brier": 0.004459489456230849,
+      "tied_brier": 0.002371604916215582,
+      "leader_log_loss": 0.0312511159211903,
+      "slates": 4,
+      "player_games": 757,
+      "simulated_component_correlation": [
+        [
+          1.0,
+          0.37195588376771044,
+          0.27321054172890924
+        ],
+        [
+          0.37195588376771044,
+          1.0000000000000002,
+          0.252751262814713
+        ],
+        [
+          0.27321054172890924,
+          0.252751262814713,
+          1.0000000000000002
+        ]
+      ],
+      "observed_residual_component_correlation": [
+        [
+          1.0,
+          0.3703044554939536,
+          0.2676722942792657
+        ],
+        [
+          0.3703044554939536,
+          1.0000000000000002,
+          0.3088312438508975
+        ],
+        [
+          0.2676722942792657,
+          0.3088312438508975,
+          1.0
+        ]
+      ],
+      "correlation_limit": "Observed residual covariance includes mean error and postgame-field conditioning; it is a diagnostic, not a direct estimate of every player conditional covariance.",
+      "mean_slate_max_crps": 10.998156389999998,
+      "mean_predicted_slate_max": 53.10725,
+      "mean_observed_slate_max": 62.75,
+      "slate_max_above_q90": 0.25,
+      "mean_inclusive_leader_mc_se": 0.0006102977030052843,
+      "mean_PRA_mean_mc_se": 0.10557867102964517,
+      "simulated_dependence": {
+        "teammate": -0.03577094022004635,
+        "opponent": 0.003769440960375641
+      },
+      "observed_pair_products": {
+        "teammate": -0.06416721410043857,
+        "opponent": -0.0017017543399309187
+      },
+      "experience_groups": {
+        "rookie": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "second_year": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "established": {
+          "player_games": 0,
+          "mae": null,
+          "status": "insufficient_or_missing_verified_metadata"
+        },
+        "unknown": {
+          "player_games": 757,
+          "mae": 6.899448084544254,
+          "status": "reused_diagnostic_only"
+        }
+      },
+      "role_groups": {
+        "insufficient_role_comparison": {
+          "player_games": 38,
+          "mae": 6.556726315789473
+        },
+        "new_team_or_no_current_role": {
+          "player_games": 3,
+          "mae": 9.834933333333334
+        },
+        "recent_minutes_flat_or_down": {
+          "player_games": 342,
+          "mae": 7.284253801169592
+        },
+        "recent_minutes_up": {
+          "player_games": 374,
+          "mae": 6.558842245989305
+        }
+      },
+      "reliability_bins": [
+        {
+          "lower": 0,
+          "upper": 0.01,
+          "n": 666,
+          "predicted": 0.0012003003003003,
+          "actual": 0.0015015015015015015
+        },
+        {
+          "lower": 0.01,
+          "upper": 0.05,
+          "n": 69,
+          "predicted": 0.021469565217391302,
+          "actual": 0.043478260869565216
+        },
+        {
+          "lower": 0.05,
+          "upper": 0.1,
+          "n": 14,
+          "predicted": 0.0648714285714286,
+          "actual": 0.0
+        },
+        {
+          "lower": 0.1,
+          "upper": 0.25,
+          "n": 7,
+          "predicted": 0.12574285714285716,
+          "actual": 0.14285714285714285
+        },
+        {
+          "lower": 0.25,
+          "upper": 0.5,
+          "n": 1,
+          "predicted": 0.2804,
+          "actual": 0.0
+        }
+      ],
+      "point_baselines": {
+        "season_average_error": {
+          "paired_player_games": 755,
+          "baseline_mae": 6.8213104123057295,
+          "model_mae_same_players": 6.893571655629139
+        },
+        "minutes_rate_error": {
+          "paired_player_games": 757,
+          "baseline_mae": 6.900035688504018,
+          "model_mae_same_players": 6.899448084544254
+        }
+      }
+    }
+  },
+  "repair_effective_sample_size_range": [
+    2836.17106292077,
+    3326.763845139782
+  ],
+  "sampled_negative_rate_clipping_draws": 0,
+  "prospective_evaluation": {
+    "registered_dates": [
+      "2026-12-29",
+      "2027-01-05",
+      "2027-01-12",
+      "2027-01-19",
+      "2027-01-26",
+      "2027-02-02",
+      "2027-02-09",
+      "2027-02-16",
+      "2027-02-23",
+      "2027-03-02",
+      "2027-03-09",
+      "2027-03-16",
+      "2027-03-23",
+      "2027-03-30",
+      "2027-04-06"
+    ],
+    "completed_slates": 0,
+    "status": "future_unopened_no_prediction_or_outcome_fabricated"
+  },
+  "limitations": [
+    "Historical fields are postgame conditioning, not inferred pregame availability or verified promotion eligibility.",
+    "Unknown debut metadata remains unknown; v1 verified experience priors are preserved, not falsely validated.",
+    "Shared diagnostic position priors for unknown experience are common to both comparators; this is a simulator comparison, not a valid replay of v1 live forecasts.",
+    "All assessment archives were previously inspected; later chronological dates are not an untouched holdout.",
+    "Conditional FGA residuals use a possession proxy. Event-count evidence is producer-derived from the same NBA feed.",
+    "Monte Carlo noise, game uncertainty, parameter-choice instability and model misspecification are distinct.",
+    "The role-transport empirical challenger is not identity-specific and cannot validate rookie ceilings.",
+    "No promotion, popularity estimate, expected payout or betting claim is made."
+  ],
+  "validation": {
+    "targeted_tests_passed": 48,
+    "original_sources_unchanged": true,
+    "disabled_repair_exact_sample_equality": true,
+    "AST_single_component_check": true
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "numpy": "2.5.4",
+    "polars": "1.44.2",
+    "platform": "Linux"
+  },
+  "local_full_comparison": ".cache/king-court-deepening/registered-comparison.json",
+  "sha256": "132e6159bd522accac85493810258c82792a0b20f8e25f68ba5c33c03ce80753"
+}

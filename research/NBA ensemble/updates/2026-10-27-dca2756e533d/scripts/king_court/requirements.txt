@@ -1,0 +1,5 @@
+numpy>=2,<3
+polars>=1,<3
+pyarrow>=18
+requests>=2.31,<3
+# NBA live JSON can be exported elsewhere with nba_api; this module needs no API key.

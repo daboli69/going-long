@@ -6,6 +6,7 @@ import pandas as pd
 import streamlit as st
 from nba_lab.config import ROOT,CACHE,DATA,MODELS,REPORTS,ARCHIVES,KEYS,NAMES,read
 from nba_lab import engine
+from nba_lab import codex_research as CR
 
 st.set_page_config(page_title='NBA Ensemble',page_icon='🏀',layout='wide')
 st.title('NBA Ensemble')
@@ -28,7 +29,8 @@ def run_action(action,date=None):
     return True
 
 
-SOURCES={'Original six-model ensemble (frozen)':'forecasts','Strength shadow':'strength_forecasts','Injury shadow (official report)':'injury_forecasts'}
+SOURCES={'Original six-model ensemble (frozen)':'forecasts','Strength shadow':'strength_forecasts','Injury shadow (official report)':'injury_forecasts',
+         'Codex winner research (6 different voters)':'codex'}
 
 
 def saved(folder,date):
@@ -41,7 +43,9 @@ def saved(folder,date):
 
 def board(date,live,source):
     """One row per game: what each model leans, the vote and the combined probability."""
-    frame=saved(SOURCES[source],date)
+    codex=SOURCES[source]=='codex'
+    frame=CR.saved(date) if codex else saved(SOURCES[source],date)
+    models=CR.VOTERS if codex else {k:NAMES[k] for k in KEYS}
     if source.startswith('Original') and not live.empty:
         frame=pd.concat([frame[~frame.game_id.isin(live.game_id)] if len(frame) else frame,live],ignore_index=True)
     if frame.empty:return None
@@ -51,7 +55,7 @@ def board(date,live,source):
     started=pd.to_datetime(frame.tipoff,utc=True).le(pd.Timestamp.now(tz='UTC'))
     rows=[]
     for i,r in frame.iterrows():
-        p=[float(r[k]) for k in KEYS]
+        p=[float(r[k]) for k in models]
         lean=lambda x:f'{r.home} {x:.0%}' if x>.5 else f'{r.away} {1-x:.0%}' if x<.5 else 'even 50%'
         home_votes=sum(x>.5 for x in p);away_votes=sum(x<.5 for x in p)
         vote=f'{max(home_votes,away_votes)}-{min(home_votes,away_votes)}'+(' tie' if home_votes==away_votes else '')
@@ -60,8 +64,9 @@ def board(date,live,source):
         if started[i]:warnings.append('tipoff passed: last saved pregame forecast')
         if 'diff_out_gmsc' in r and pd.isna(r.diff_out_gmsc):warnings.append('injury report not yet submitted for a team; treated as unknown')
         if r.game_id not in margin.index:warnings.append('no saved score projection')
+        if codex and r.codex_flags:warnings.append('Codex flags: '+r.codex_flags)
         rows.append({'game':f'{r.away} @ {r.home}','tipoff':pd.Timestamp(r.tipoff).tz_convert('America/New_York').strftime('%I:%M %p'),
-            **{NAMES[k]:lean(x) for k,x in zip(KEYS,p)},'vote':vote,'majority':majority,
+            **{models[k]:lean(x) for k,x in zip(models,p)},'vote':vote,'majority':majority,
             'ensemble winner':r.home if r.p_home>.5 else r.away if r.p_home<.5 else 'coin flip','P(home)':float(r.p_home),
             'home margin':float(margin.get(r.game_id,float('nan'))),'disagreement':max(p)-min(p),'warnings':'; '.join(warnings)})
     return pd.DataFrame(rows)
@@ -90,7 +95,12 @@ if page in ('Today','Model Debate'):
             if page=='Today':
                 source=st.radio('Forecast',list(SOURCES),horizontal=True)
                 table=board(date,predictions,source)
-                if table is None:st.info('No forecast for this date from this source. Unstarted games appear after a refresh; started games show only if a pregame forecast was saved.')
+                if table is None and SOURCES[source]=='codex':
+                    status=CR.latest_status()
+                    st.info('No Codex forecast saved for this date. Its predict command only covers games in the next 24 hours, and needs at least 5 completed current-season games per team.'
+                            +(f" Last run {status['origin']}: {status['forecasts']} forecast, excluded {status['excluded']}." if status else ''))
+                    if st.button('Run Codex winner forecast now'):run_action('codex-forecast')
+                elif table is None:st.info('No forecast for this date from this source. Unstarted games appear after a refresh; started games show only if a pregame forecast was saved.')
                 else:
                     st.dataframe(table,hide_index=True,use_container_width=True,height=min(38*len(table)+40,640),
                         column_config={'P(home)':st.column_config.ProgressColumn('P(home)',format='%.3f',min_value=0,max_value=1),
@@ -215,6 +225,22 @@ if page in ('Today','Model Debate'):
             st.dataframe(saved[['away','home','tipoff','winner','p_home','home_votes','away_votes','model_version']],hide_index=True,use_container_width=True)
             st.download_button('Download saved revision',saved.to_csv(index=False).encode(),'nba_'+chosen.parent.name+'.csv')
 elif page=='Research & Calibration':
+    with st.expander('Codex research package (installed 2026-10-27) · separate code, research only'):
+        check=CR.verify()
+        if not check['installed']:st.info('Package not installed under updates/.')
+        else:
+            st.write(f"Files verified: {check['files']} · problems: {len(check['problems'])} · research environment: {'present' if check['environment'] else 'missing'}")
+            if check['problems']:st.warning('; '.join(check['problems'][:10]))
+            st.caption('Codex code runs in its own environment as a separate process. Its six voters (Elo, logistic, gradient boosting, random forest, naive Bayes, ridge margin) differ from the six in this app. King of the Court stays blocked research-only; the FGA repair stays inactive; the participation/minutes study is not implemented.')
+            if st.button('Run Codex package tests'):run_action('codex-tests')
+            dev=CR.development()
+            if dev is not None:
+                st.caption('Codex development replay, 2022-23 to 2024-25, reproduced locally. Not a holdout test; the ensemble does not beat every member.')
+                st.dataframe(dev,hide_index=True,use_container_width=True)
+            audit=CR.kotc_audit()
+            if audit:
+                st.caption('King of the Court data audit (not a prediction): accepted games by season and exclusions.')
+                st.json({'games_by_season':audit['games_by_season'],'exclusions':audit['exclusions'],'reconciliation_failures':len(audit['reconciliation_failures'])})
     context_result=REPORTS/'pregame_context_v1/RESULT.json'
     if context_result.exists():
         with st.expander('Agent-reviewed pregame hypotheses · development only'):

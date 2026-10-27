@@ -1,0 +1,11 @@
+# Proposed next task — not implemented
+
+Deepen the existing model through pregame participation and minutes uncertainty. Preserve v1 and leave the unsupported FGA candidate inactive. Audit official timestamped NBA injury-report PDFs, team announcements, confirmed/projected lineup states, reconciled substitutions and exact-minute boxes. Verify source access, publication/retrieval times, historical coverage, revisions and game/player IDs before use.
+
+Separate participation, available-player DNPs, minutes conditional on participation and production rates. Retain the rolling three-prior-plus-current-season boundary, chronologically selected recency, verified rookie/second-year priors, current-team role, ESS and season contributions. Unknown experience is not a rookie label. Do not infer pregame availability from eventual participation or use later announcements after the whole-slate cutoff.
+
+Deliver the source-access audit and frozen diagnostic plan before changes. Select one supported subcomponent correction, preserving joint team-minute constraints and all other mechanisms. Do not invent questionable-status probabilities or injury multipliers. Compare the candidate with unchanged v1 and simple minute baselines on earlier development and later untouched complete Tuesday slates. Preserve existing registrations; append new experiments rather than modifying frozen definitions.
+
+Evaluate participation calibration, minute distributions/zero mass/coverage, then paired PRA distributions, tails, maxima and sole/tied/inclusive leader probabilities. Group uncertainty by slate, separate Monte Carlo/parameter/input/predictive uncertainty, and report experience/role groups only when verified and supported. Oracle-minute improvements and passing tests are not predictive validation. Popularity/prize scenarios, interfaces and markets remain outside the change. Deliver one candidate and reproducible evidence with supported/unsupported/inconclusive verdict.
+
+Free-source leads to verify: https://official.nba.com/nba-injury-report-2026-27-season/ and https://www.nba.com/players/todays-lineups . A projected lineup is not a confirmed lineup; public pages do not establish historical or machine-readable access.

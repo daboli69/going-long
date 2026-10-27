@@ -1,0 +1,7 @@
+numpy>=2.0,<3
+scikit-learn>=1.5,<2
+requests>=2.31,<3
+polars>=1,<3
+pyarrow>=18
+# Optional direct NBA.com intake: pip install nba_api
+# sportsdataverse is already in scripts/requirements.txt; hoopR runs in R.

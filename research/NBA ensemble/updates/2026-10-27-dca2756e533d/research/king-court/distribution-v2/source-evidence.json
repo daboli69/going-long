@@ -1,0 +1,111 @@
+{
+  "kind": "event_evidence_summary_not_predictive_validation",
+  "counts": {
+    "games": 1230,
+    "event_agreement": 1186,
+    "stint_agreement": 1097,
+    "event_and_stint_agreement": 1095,
+    "canonical_espn_box_agreement": 1138
+  },
+  "free_throw_miss_classification": {
+    "missed_ordinary_final_potentially_reboundable": 6175,
+    "missed_nonfinal_or_technical_not_a_live_rebound_chance": 6327,
+    "missed_ambiguous_sequence_or_retained_possession": 42
+  },
+  "development_counted_possession_check": {
+    "games": 367,
+    "mean_implied_Poisson_variance": [
+      88.86376021798365,
+      89.41144414168937
+    ],
+    "measured_counted_possession_residual_variance": [
+      46.50457835381371,
+      40.820730334054204
+    ],
+    "residual_variance_to_Poisson": [
+      0.5233244490187849,
+      0.45654927874071716
+    ],
+    "limitation": "Producer-derived possession grouping, same NBA feed; not an independent provider. Development-only matched games."
+  },
+  "event_issues": {
+    "ambiguous_assist_name": 220
+  },
+  "stint_issues": {
+    "entrant_already_on_floor": 146,
+    "ambiguous_or_inconsistent_substitution": 360,
+    "invalid_period_lineup_seed": 1
+  },
+  "stat_mismatch_counts": {
+    "ast": 61
+  },
+  "game_crosswalk_matches": 1185,
+  "sources": [
+    {
+      "kind": "nba_pbp_2026",
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/nba_stats_pbp/nba_play_by_play_2026.parquet",
+      "status": 200,
+      "retrieved_at": "2026-10-27T17:52:41.658412+00:00",
+      "sha256": "78524677282ad105b2651d511abcc0a827c1cecdbe826acc487872d1f03836ac",
+      "bytes": 19999800
+    },
+    {
+      "kind": "nba_lineups_2026",
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/nba_stats_game_lineups/nba_lineups_2026.parquet",
+      "status": 200,
+      "retrieved_at": "2026-10-27T17:52:42.344117+00:00",
+      "sha256": "87450c2edfae85320b317f0c80aa35e962344cef9db52676c9def109c5a8c399",
+      "bytes": 1051800
+    },
+    {
+      "kind": "schedule_crosswalk_2026",
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/nba_crosswalk/nba_schedule_crosswalk_2026.parquet",
+      "status": 200,
+      "retrieved_at": "2026-10-27T17:52:43.117279+00:00",
+      "sha256": "6169d3b2acdbe92a3ea84af82d999f6481ff723441236d4d8e193509436991d1",
+      "bytes": 31867
+    },
+    {
+      "kind": "player_crosswalk_2026",
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/nba_crosswalk/nba_player_crosswalk_2026.parquet",
+      "status": 200,
+      "retrieved_at": "2026-10-27T17:52:43.901731+00:00",
+      "sha256": "f8cd2afd9a08a367b7d2d9e4ef012654a952162f9255f37f0a57c20aa1dc5136",
+      "bytes": 44383
+    },
+    {
+      "kind": "nba_boxes_2026",
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/nba_stats_player_boxscores/player_boxscores_2026.parquet",
+      "status": 200,
+      "retrieved_at": "2026-10-27T17:52:44.706344+00:00",
+      "sha256": "a0b280ebb0c955e501c0e6feab3f6d726bd9f1b7c2d13f5b5c0746049459132e",
+      "bytes": 644419
+    },
+    {
+      "kind": "espn_pbp_2026",
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_pbp/play_by_play_2026.parquet",
+      "status": 200,
+      "retrieved_at": "2026-10-27T17:52:46.180637+00:00",
+      "sha256": "f7051c5c0c5b605419fcc0e0c13dd90df7803f96dab290554c1ef737433a98b2",
+      "bytes": 22274408
+    },
+    {
+      "kind": "nba_possessions_2026",
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/nba_stats_possessions/nba_possessions_2026.parquet",
+      "status": 200,
+      "retrieved_at": "2026-10-27T17:53:48.151243+00:00",
+      "sha256": "e79dd79bc892290f2f91cd146e83a4224cabba178fa44048aace8a06a47a3552",
+      "bytes": 3804011
+    }
+  ],
+  "audit_sha256": "a2e9e9392b21c5999a542ad37b28e026cf9da58fcee951c550bb997a8887298e",
+  "unavailable": [
+    "native_original_vendor_JSON",
+    "independently_observed_period_lineups",
+    "pregame_availability_receipts",
+    "verified_NBA_debut_metadata",
+    "potential_assists_tracking"
+  ],
+  "interpretation": "Native vendor JSON unavailable. Available NBA event rows and inferred lineup seeds were audited, not upgraded into independent data providers. Repeated action_number rows can encode related steals/blocks; order_index identifies records.",
+  "sha256": "b87264a5435d4e75d4c16d74eba55bae22783c7c9c4091954cf3f0bb0703117f"
+}

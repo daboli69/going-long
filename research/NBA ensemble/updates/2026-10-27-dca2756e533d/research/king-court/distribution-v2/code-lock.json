@@ -1,0 +1,36 @@
+{
+  "kind": "diagnostic_code_lock_before_comparison",
+  "recorded_at": "2026-10-27T18:05:27.249757+00:00",
+  "registration_sha256": "98618a519da19dd1c6c0248ef016e82a91e7be99594926e9ce1adaba2c0b2738",
+  "diagnostic_code_sha256": {
+    "scripts/king_court_diagnostics/__init__.py": "f37938927ee7eb84f42425b163c9fdcd5bcee7a9aca5ac955f07b4a2825d6735",
+    "scripts/king_court_diagnostics/__main__.py": "0e318c5a2474d3eeedc229f34b91655c4773bb756d58f4609a7e388db983299e",
+    "scripts/king_court_diagnostics/archive_audit.py": "e346eaf2e08e82a7e23b244ba8da4343c1253398ba75032f40b12bddca14608a",
+    "scripts/king_court_diagnostics/challengers.py": "c509663e2b7446c7a241efca080f54c02e3c1f4078c856426776b398885b633b",
+    "scripts/king_court_diagnostics/dataset.py": "f92a482979b473717aaea62e2359ebe5e413e20196574b70a6452f015f874537",
+    "scripts/king_court_diagnostics/experiment.py": "b39d51b59490a48471cea06e2fe3d6108374de472709f0e9ae36c19a434e86d1",
+    "scripts/king_court_diagnostics/metrics.py": "e40dd6d0e531e58dda8dcde8caed0a4d6acaa89300a3206c4fbedffdf2112c9d",
+    "scripts/king_court_diagnostics/pools.py": "19bd7faa4a92f9e400a3750149791e301c704008698d864d25a1512f6850603e",
+    "scripts/king_court_diagnostics/simulation.py": "818a8558f440831693558740e8b6f127e90e7d9b5d3f355c6b0668d8b5d1e8ce"
+  },
+  "baseline_files": {
+    "scripts/king_court/research.py": "cae614533574c3cede534331ab49523c5819f0df9121126a8c71e53221592c0c",
+    "scripts/king_court/events.py": "383ab7817be67a0d4639d781f2ecf0e76cdc1cfd0a5dd60ed5dc7e932daf6d2c",
+    "scripts/king_court/__init__.py": "903c2182f161722f585927199cf8d32d4929bdf463c2546b0dcb5c4109a6d30c",
+    "scripts/king_court/data.py": "9c29a6aa7874dea10cd6b94cc832e1b2b3837084fc662d6f040218d11f9a6bf3",
+    "scripts/king_court/simulation.py": "c4fe4becbe3ed4f8191cc1295024fa8b3a09840ea0f2f736783b711819aa72c9",
+    "scripts/king_court/demo.py": "870c38acd3bac2ef32df6847f66f773aa18b23a7ef7fb477a3a76bed77793b8a",
+    "scripts/king_court/history.py": "d78ebf2229a69402bb8767dcdd7538dc88a419cea808393659ff18a94c8798e4",
+    "scripts/king_court/common.py": "57e679ac8af4d6ab0b52b05e124b4ad86a9c6579afcc0102ac59cb6fb44c5664",
+    "scripts/king_court/__main__.py": "95b475ccac1029824f860c988503a9fb836607c737d051cd48885c3152199b8f",
+    "config/king_court_protocol_v1.json": "d82d599e9e3c61835e8495377bfae4e2d6c310185ff1d3aa455f583da974b3a3",
+    "config/king_court_offer_2026-10-27.json": "cbf894fda29840ad9d7776c846507b6a9fd7a09666183e6dde1bc702745db44f",
+    "scripts/nba_winners/evaluation.py": "7df735c568610021e2af9e054e72560b696156d326497a6fa9572b2dc76d9639",
+    "scripts/nba_winners/__init__.py": "5d71a2e91924e430177117039cf2e9ab744cee2fec979ecd17bbdb0ba0e9fa43",
+    "scripts/nba_winners/data.py": "a9aabb071a0f996382982c34c6ceb8d505b88f89bc2d366ec5f0f47a79236f4d",
+    "scripts/nba_winners/models.py": "dcc7db013da96506095122ae4ee83b0f8d8ee1980204c4bfbd0de614751609c0",
+    "scripts/nba_winners/features.py": "3a9327e268b530147c1bba39d9d777f373c608f40bf6fb28b2eafab36e6a2e6f",
+    "scripts/nba_winners/__main__.py": "f62bc00481cfe1713b26d488787186b62595ff22d87294a5ee9870f05c3b416e"
+  },
+  "sha256": "36848acaf7be52acdf4e0718db21dd1d4a9c126ee60498b7af3a21b038777e16"
+}

@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "offer_id": "EP70GG",
+  "date": "2026-10-27",
+  "timezone": "America/New_York",
+  "source": "Two account screenshots supplied in this conversation",
+  "status": "screenshot_confirmed_complete_terms_unverified",
+  "pool_bonus_bet_face_value": 1000000,
+  "minimum_stake": 5,
+  "minimum_leg_american_odds": -200,
+  "one_token_per_customer": true,
+  "token_required_before_placement": true,
+  "qualifying_markets": "Prematch NBA player-prop single or same-player NBA parlay, all legs on one player",
+  "entry_deadline": "Start of final October 27 NBA game; each wager must also be prematch",
+  "ties": "One pool shared equally by qualifying customers on any tied PRA leader",
+  "cash_or_dk_dollars_required": true,
+  "excluded": ["ordinary_parlays", "SGPx", "odds_boosts", "live", "cashed_out", "voided", "ineligible_games"],
+  "award_timing": "Within 24 hours/following day",
+  "bonus_expiry_days": 7,
+  "eligibility_as_shown": {
+    "age_21_plus_physically_located": "AR, AZ, CO, CT, IA, IL, IN, KS, LA (select parishes), MA, MD, ME, MI, MO, NC, NJ, NY, OH, OR, PA, TN, VA, VT, WA, WV",
+    "age_18_plus_physically_located": "DC, KY, NH, PR (residents only)",
+    "status": "Transcribed from the supplied screenshot; not independently verified jurisdiction rules"
+  },
+  "requires_prop_win": null,
+  "overtime_rule": null,
+  "postponement_rule": null,
+  "stat_correction_rule": null,
+  "eligible_game_ids": null,
+  "eligible_player_ids": null,
+  "recurrence": "Tuesday marketing corroborated by operator editorial search result; verify offer separately each date",
+  "full_terms_verified": false
+}

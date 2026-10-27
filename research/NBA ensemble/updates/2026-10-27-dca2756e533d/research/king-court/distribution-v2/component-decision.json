@@ -1,0 +1,20 @@
+{
+  "evidence_kind": "reused_development_component_check_not_PRA_validation",
+  "cutoff_exclusive": "2025-12-17",
+  "games": 4014,
+  "poisson_implied_average_conditional_variance": [
+    88.82810164424514,
+    88.8423019431988
+  ],
+  "measured_possession_conditioned_residual_variance": [
+    41.04618307982904,
+    39.11119639954297
+  ],
+  "opposing_residual_correlation": -0.047448200041637204,
+  "ratio_residual_variance_to_Poisson": [
+    0.4620855598627811,
+    0.44023168630354326
+  ],
+  "limitation": "Possessions are box-derived and share FGA algebra; raw-event reconciliation is required before interpreting this as true possession-conditional variance.",
+  "sha256": "0b648a0aa531c7d938819bfb6270b2d99d38471dbc57b35fb1efca284c085719"
+}

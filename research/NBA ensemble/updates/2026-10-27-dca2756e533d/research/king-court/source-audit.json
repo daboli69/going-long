@@ -1,0 +1,177 @@
+{
+  "kind": "real_source_audit_not_predictive_validation",
+  "season_convention": "ending_year",
+  "requested_seasons": [
+    2024,
+    2025,
+    2026,
+    2027
+  ],
+  "accepted_games_by_season": {
+    "2024": 1229,
+    "2025": 1173,
+    "2026": 1195,
+    "2027": 51
+  },
+  "accepted_games_total": 3648,
+  "withheld_games": 94,
+  "exclusion_rows": {
+    "outside_regular_NBA_field": 283,
+    "not_final_or_scheduled": 11,
+    "cup_final": 3,
+    "explicit_DNP_rows": 18000,
+    "unknown_player_minutes": 103,
+    "invalid_team_stats": 3
+  },
+  "withheld_reason_counts": {
+    "CHI_player_team_ast_mismatch": 4,
+    "CHI_player_team_dreb_mismatch": 13,
+    "CHI_player_team_fga_mismatch": 11,
+    "CHI_player_team_fgm_mismatch": 7,
+    "CHI_player_team_fta_mismatch": 3,
+    "CHI_player_team_ftm_mismatch": 1,
+    "CHI_player_team_oreb_mismatch": 9,
+    "CHI_player_team_pts_mismatch": 7,
+    "CHI_player_team_reb_mismatch": 15,
+    "CHI_player_team_tpa_mismatch": 7,
+    "CHI_player_team_tpm_mismatch": 2,
+    "CHI_rounded_minutes_incomplete": 8,
+    "WAS_player_team_tpa_mismatch": 1,
+    "missing_or_wrong_team_boxes": 2,
+    "unknown_minutes": 103
+  },
+  "history_sha256": "f2208f125d4132ec03ef6ecad1f48e1457d0894965dadec08f7de1d1657e1ad4",
+  "source_manifest_sha256": "d1a8ed90a98a4e832a23f8ce861965adb31e5dc16e0bc09a9e7cf107efbb7dde",
+  "protocol_sha256": "00464d1ca00fd92d76631d412b3129d0be65f98857467da3d768a65842f91f34",
+  "sources": [
+    {
+      "kind": "schedule",
+      "season": 2024,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_schedules/nba_schedule_2024.parquet",
+      "sha256": "2069783562b531b91ee9ad6a85358761ad6a611ce3291a60ed124bb978969b63",
+      "retrieved_at": "2026-10-27T17:07:29.022210+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "player",
+      "season": 2024,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_player_boxscores/player_box_2024.parquet",
+      "sha256": "1e500a538ec45ddbcb58d9789b5494f8db4f25658eafd01d90f2d09600921665",
+      "retrieved_at": "2026-10-27T17:07:29.903530+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "team",
+      "season": 2024,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_team_boxscores/team_box_2024.parquet",
+      "sha256": "5e4d1b7a2ccc287f212f65888dcd674e370adec8a0e32d7ae0825eecacaaa8a9",
+      "retrieved_at": "2026-10-27T17:07:30.671383+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "schedule",
+      "season": 2026,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_schedules/nba_schedule_2026.parquet",
+      "sha256": "b3884aa4aa276d1fcafc71b69394675904a968902068bff634932e5d7afacae4",
+      "retrieved_at": "2026-10-27T17:07:31.504354+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "player",
+      "season": 2026,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_player_boxscores/player_box_2026.parquet",
+      "sha256": "29a29dc9efd055a93e069a0382ac830d98a13274bee655beba69d95cff099713",
+      "retrieved_at": "2026-10-27T17:07:32.679246+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "team",
+      "season": 2026,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_team_boxscores/team_box_2026.parquet",
+      "sha256": "db846dfb39b0f75eee50ad91b1b5b7a7a62dd31d3ec0bb066a0a3bb08e366f7e",
+      "retrieved_at": "2026-10-27T17:07:33.252778+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "schedule",
+      "season": 2027,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_schedules/nba_schedule_2027.parquet",
+      "sha256": "dcb2a19ff6e4e4539b4384d49a018c49e0f99eeddbebcefc68ea0d799abe09b3",
+      "retrieved_at": "2026-10-27T17:07:34.035117+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "player",
+      "season": 2027,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_player_boxscores/player_box_2027.parquet",
+      "sha256": "79acfbfa01e3115602a2b9b717c7fcf353ca25d4a393aed53455145fd710e95e",
+      "retrieved_at": "2026-10-27T17:07:34.833958+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "team",
+      "season": 2027,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_team_boxscores/team_box_2027.parquet",
+      "sha256": "e67badd7f97e1476d49b01a4891c318707298f45b5c16ac811f53c6d0c533ee8",
+      "retrieved_at": "2026-10-27T17:07:35.735262+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "schedule",
+      "season": 2025,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_schedules/nba_schedule_2025.parquet",
+      "sha256": "239829fdcf99629ee682bca4d6d0a6709b3c095be39c39f425664754ae1a979e",
+      "retrieved_at": "2026-10-27T17:09:51.034322+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "player",
+      "season": 2025,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_player_boxscores/player_box_2025.parquet",
+      "sha256": "e89f7fbc1124092c715b722e6d72d9dd1b9d28776ca6888b508fd2831cd705e2",
+      "retrieved_at": "2026-10-27T17:09:51.960939+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    },
+    {
+      "kind": "team",
+      "season": 2025,
+      "url": "https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_team_boxscores/team_box_2025.parquet",
+      "sha256": "f735bf3b743618e50987f3e3e296734e1dba43c450a21af848d7c34f23bf2aee",
+      "retrieved_at": "2026-10-27T17:09:52.693309+00:00",
+      "upstream_publication_at": null,
+      "underlying_feed": "ESPN"
+    }
+  ],
+  "missing": [
+    "historical_pregame_rosters",
+    "injury_receipts",
+    "potential_assists",
+    "actual_rebound_tracking_chances",
+    "promotion_selection_counts",
+    "complete_date_specific_terms"
+  ],
+  "event_reconciled_games": 0,
+  "experience_metadata": "No verified historical debut metadata supplied; no real rookie prior validation claimed.",
+  "empirical_model_validation": "Not performed: no archived complete pregame Tuesday field/availability cohort.",
+  "parameter_selection": "Not performed; no silent default or claim of learned recency settings.",
+  "winner_source_preservation": {
+    "__init__.py": true,
+    "__main__.py": true,
+    "data.py": true,
+    "evaluation.py": true,
+    "features.py": true,
+    "models.py": true
+  },
+  "sha256": "435d33ce9ffb5cfb0129b6f2d53b618a82489f4bf267817b122fec47f9d0d4dd"
+}

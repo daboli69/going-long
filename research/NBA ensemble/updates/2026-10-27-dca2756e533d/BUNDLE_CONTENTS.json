@@ -1,0 +1,297 @@
+{
+  "kind": "nba_ensemble_portable_snapshot",
+  "created_at": "2026-10-27T19:58:44.112875+00:00",
+  "intended_windows_destination": "C:\\Users\\travi\\OneDrive\\Documents\\ChatGPT\\GOING\\research\\NBA ensemble",
+  "windows_destination_accessible_from_cloud": false,
+  "windows_sync_verified": false,
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 53,
+      "sha256": "0a46733feda65fb40b8ea5dfbb3734881e3d080ff2786ce60a66b2526c31fe4f"
+    },
+    {
+      "path": "AGENTS.md",
+      "bytes": 793,
+      "sha256": "3c9b958cb027f6fd73534c7ff5d2a00a8ff67016af304701866435cbc0ae2a4b"
+    },
+    {
+      "path": "NEXT_RESEARCH_TASK.md",
+      "bytes": 2226,
+      "sha256": "36153566936ebbc78fa3c3b9d94e798581ae0b7a0ef4f1cb32f3d6fed9bdddec"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1391,
+      "sha256": "d9099ab36db88b4557376ba083dd70850a78cc9366c70a2ab0bbf1f5b58e2c60"
+    },
+    {
+      "path": "config/king_court_offer_2026-10-27.json",
+      "bytes": 1616,
+      "sha256": "cbf894fda29840ad9d7776c846507b6a9fd7a09666183e6dde1bc702745db44f"
+    },
+    {
+      "path": "config/king_court_protocol_v1.json",
+      "bytes": 1217,
+      "sha256": "d82d599e9e3c61835e8495377bfae4e2d6c310185ff1d3aa455f583da974b3a3"
+    },
+    {
+      "path": "config/nba_winners_v1.json",
+      "bytes": 1819,
+      "sha256": "19662dc96014a994799cb4af414fc3f4863e563c12b479007347dbcc603236d2"
+    },
+    {
+      "path": "docs/KING_COURT_DISTRIBUTION_AUDIT.md",
+      "bytes": 4143,
+      "sha256": "98fb03c012f7e392a4cf2f940f990bef64a8239a9ba42fe3de6bcf5addc4fa57"
+    },
+    {
+      "path": "docs/KING_OF_THE_COURT.md",
+      "bytes": 14513,
+      "sha256": "7ea7e593b41e62d139bdd66c9407c300c4806bd335a3c603a27519194c849b6e"
+    },
+    {
+      "path": "docs/KING_OF_THE_COURT_SPEC.md",
+      "bytes": 13070,
+      "sha256": "c491e2757db2b2b1a7736e9a4fd67759815f426a95fee56fe2beb37f794c493f"
+    },
+    {
+      "path": "docs/NBA_WINNERS.md",
+      "bytes": 9954,
+      "sha256": "66ad21df43d8feb44b70e618a4d3ff4177ba2c41b0c106983107ff92c60fda7d"
+    },
+    {
+      "path": "requirements.txt",
+      "bytes": 95,
+      "sha256": "a00bbe8457eea7b61791bc6044f01ea0ecb3cee9e0eb4d99ecdd99a8859fe19a"
+    },
+    {
+      "path": "research/king-court/README.md",
+      "bytes": 3911,
+      "sha256": "33623141fae21d90334b16017ea317e9b533444380638c5d1c889a821aed27bd"
+    },
+    {
+      "path": "research/king-court/distribution-v2/PLAN.md",
+      "bytes": 6657,
+      "sha256": "c71f4e7f4551988062cb8405baa31e21992fa5ff3d6537e13176440ef6a3ffd1"
+    },
+    {
+      "path": "research/king-court/distribution-v2/README.md",
+      "bytes": 14520,
+      "sha256": "8f465cb1a75d59ddcd2eea81b6d7072ed37bfbd568129ad4198b967c6567e995"
+    },
+    {
+      "path": "research/king-court/distribution-v2/code-lock.json",
+      "bytes": 3216,
+      "sha256": "9472b2f0990cba4ca0c250c46709c112afbae7bf2dc0da0bb889d70ab8aabf20"
+    },
+    {
+      "path": "research/king-court/distribution-v2/comparison-summary.json",
+      "bytes": 72830,
+      "sha256": "4a509a572b30a8ec9f432f1c293075c66f7bf68458e3fcbe720a4e793ddf95cd"
+    },
+    {
+      "path": "research/king-court/distribution-v2/component-decision.json",
+      "bytes": 746,
+      "sha256": "1c1151921c561a83e48c1e02f9b12acd0fe4237520c2913050ec1389744590d9"
+    },
+    {
+      "path": "research/king-court/distribution-v2/distribution-diagnostic.png",
+      "bytes": 104331,
+      "sha256": "942ffb40a5fc892e2ea245207be0ce483a5c0dfa726b45196f5549e4c66d54bc"
+    },
+    {
+      "path": "research/king-court/distribution-v2/distribution-diagnostic.svg",
+      "bytes": 62520,
+      "sha256": "24dec5263d5507433cd3a7db9695ae4c91c584c013f25f82394019a682670e24"
+    },
+    {
+      "path": "research/king-court/distribution-v2/registration.json",
+      "bytes": 3612,
+      "sha256": "f5b847ba358c2b82cbc2136926b863a02374b1c8ba6a4046e8b10e353a439286"
+    },
+    {
+      "path": "research/king-court/distribution-v2/source-evidence.json",
+      "bytes": 4519,
+      "sha256": "2cc2e8ae4f9a4a2081bf82da22a08428f01a70f64946eecec4a4d2238e8601ce"
+    },
+    {
+      "path": "research/king-court/distribution-v2/verification.json",
+      "bytes": 3521,
+      "sha256": "4177b150aa42c1aa2a9f521c6766e5dd0b685e7e98eb31324c24b72ec8951bc0"
+    },
+    {
+      "path": "research/king-court/illustrative-output.json",
+      "bytes": 4347,
+      "sha256": "0ee8ef31f15cb5813f34645d9c8d0f891ca917fc32688347c6465a5c6212ce20"
+    },
+    {
+      "path": "research/king-court/source-audit.json",
+      "bytes": 7192,
+      "sha256": "7322dd72b147afd7166777438abc200a8e155093b65a8b0de1278b4886c21f91"
+    },
+    {
+      "path": "research/nba-winners/README.md",
+      "bytes": 771,
+      "sha256": "5bb357211ce7aca64e5c8427308f150ac4838bdf99a3f905dfc9b3017f4e9f0e"
+    },
+    {
+      "path": "scripts/__init__.py",
+      "bytes": 37,
+      "sha256": "b2f3a05ccccfb4df18dfbb3bda1b0afcc9f6d6e29eae4038d01fe64b5a9508af"
+    },
+    {
+      "path": "scripts/king_court/__init__.py",
+      "bytes": 82,
+      "sha256": "903c2182f161722f585927199cf8d32d4929bdf463c2546b0dcb5c4109a6d30c"
+    },
+    {
+      "path": "scripts/king_court/__main__.py",
+      "bytes": 13934,
+      "sha256": "95b475ccac1029824f860c988503a9fb836607c737d051cd48885c3152199b8f"
+    },
+    {
+      "path": "scripts/king_court/common.py",
+      "bytes": 1738,
+      "sha256": "57e679ac8af4d6ab0b52b05e124b4ad86a9c6579afcc0102ac59cb6fb44c5664"
+    },
+    {
+      "path": "scripts/king_court/data.py",
+      "bytes": 14046,
+      "sha256": "9c29a6aa7874dea10cd6b94cc832e1b2b3837084fc662d6f040218d11f9a6bf3"
+    },
+    {
+      "path": "scripts/king_court/demo.py",
+      "bytes": 3449,
+      "sha256": "870c38acd3bac2ef32df6847f66f773aa18b23a7ef7fb477a3a76bed77793b8a"
+    },
+    {
+      "path": "scripts/king_court/events.py",
+      "bytes": 6545,
+      "sha256": "383ab7817be67a0d4639d781f2ecf0e76cdc1cfd0a5dd60ed5dc7e932daf6d2c"
+    },
+    {
+      "path": "scripts/king_court/history.py",
+      "bytes": 12022,
+      "sha256": "d78ebf2229a69402bb8767dcdd7538dc88a419cea808393659ff18a94c8798e4"
+    },
+    {
+      "path": "scripts/king_court/requirements.txt",
+      "bytes": 141,
+      "sha256": "233525bb282f887d7c71a7d76f62f92efec4b842e05a8f34e8ca5d09b38a8865"
+    },
+    {
+      "path": "scripts/king_court/research.py",
+      "bytes": 15248,
+      "sha256": "cae614533574c3cede534331ab49523c5819f0df9121126a8c71e53221592c0c"
+    },
+    {
+      "path": "scripts/king_court/simulation.py",
+      "bytes": 14294,
+      "sha256": "c4fe4becbe3ed4f8191cc1295024fa8b3a09840ea0f2f736783b711819aa72c9"
+    },
+    {
+      "path": "scripts/king_court_diagnostics/__init__.py",
+      "bytes": 84,
+      "sha256": "f37938927ee7eb84f42425b163c9fdcd5bcee7a9aca5ac955f07b4a2825d6735"
+    },
+    {
+      "path": "scripts/king_court_diagnostics/__main__.py",
+      "bytes": 850,
+      "sha256": "0e318c5a2474d3eeedc229f34b91655c4773bb756d58f4609a7e388db983299e"
+    },
+    {
+      "path": "scripts/king_court_diagnostics/archive_audit.py",
+      "bytes": 12897,
+      "sha256": "e346eaf2e08e82a7e23b244ba8da4343c1253398ba75032f40b12bddca14608a"
+    },
+    {
+      "path": "scripts/king_court_diagnostics/challengers.py",
+      "bytes": 4610,
+      "sha256": "c509663e2b7446c7a241efca080f54c02e3c1f4078c856426776b398885b633b"
+    },
+    {
+      "path": "scripts/king_court_diagnostics/dataset.py",
+      "bytes": 7849,
+      "sha256": "f92a482979b473717aaea62e2359ebe5e413e20196574b70a6452f015f874537"
+    },
+    {
+      "path": "scripts/king_court_diagnostics/experiment.py",
+      "bytes": 11952,
+      "sha256": "b39d51b59490a48471cea06e2fe3d6108374de472709f0e9ae36c19a434e86d1"
+    },
+    {
+      "path": "scripts/king_court_diagnostics/metrics.py",
+      "bytes": 10243,
+      "sha256": "e40dd6d0e531e58dda8dcde8caed0a4d6acaa89300a3206c4fbedffdf2112c9d"
+    },
+    {
+      "path": "scripts/king_court_diagnostics/pools.py",
+      "bytes": 2746,
+      "sha256": "19bd7faa4a92f9e400a3750149791e301c704008698d864d25a1512f6850603e"
+    },
+    {
+      "path": "scripts/king_court_diagnostics/simulation.py",
+      "bytes": 8142,
+      "sha256": "818a8558f440831693558740e8b6f127e90e7d9b5d3f355c6b0668d8b5d1e8ce"
+    },
+    {
+      "path": "scripts/nba_winners/__init__.py",
+      "bytes": 83,
+      "sha256": "5d71a2e91924e430177117039cf2e9ab744cee2fec979ecd17bbdb0ba0e9fa43"
+    },
+    {
+      "path": "scripts/nba_winners/__main__.py",
+      "bytes": 7914,
+      "sha256": "f62bc00481cfe1713b26d488787186b62595ff22d87294a5ee9870f05c3b416e"
+    },
+    {
+      "path": "scripts/nba_winners/data.py",
+      "bytes": 5316,
+      "sha256": "a9aabb071a0f996382982c34c6ceb8d505b88f89bc2d366ec5f0f47a79236f4d"
+    },
+    {
+      "path": "scripts/nba_winners/evaluation.py",
+      "bytes": 4901,
+      "sha256": "7df735c568610021e2af9e054e72560b696156d326497a6fa9572b2dc76d9639"
+    },
+    {
+      "path": "scripts/nba_winners/features.py",
+      "bytes": 4608,
+      "sha256": "3a9327e268b530147c1bba39d9d777f373c608f40bf6fb28b2eafab36e6a2e6f"
+    },
+    {
+      "path": "scripts/nba_winners/models.py",
+      "bytes": 4588,
+      "sha256": "dcc7db013da96506095122ae4ee83b0f8d8ee1980204c4bfbd0de614751609c0"
+    },
+    {
+      "path": "scripts/nba_winners/requirements.txt",
+      "bytes": 207,
+      "sha256": "8fe498a016230b6f0aa09a31c2d4eb9fa2995fd6af194c56e680853b2d942057"
+    },
+    {
+      "path": "tests/__init__.py",
+      "bytes": 36,
+      "sha256": "bb18c11c01b69e2295514c73ad83428aec142ab44eba05f6f485d84b2cb82461"
+    },
+    {
+      "path": "tests/test_king_court.py",
+      "bytes": 18101,
+      "sha256": "38b9f08ab97e9d13da868b9297783bc7be6f0b91b6e376f25e4ebc44e146c759"
+    },
+    {
+      "path": "tests/test_king_court_diagnostics.py",
+      "bytes": 10469,
+      "sha256": "f621d9261738f25c04f57eab5e0cee24063dfd02b4bdc2bc933a929585aff030"
+    },
+    {
+      "path": "tests/test_nba_winners.py",
+      "bytes": 7958,
+      "sha256": "ede0e6e1cb3609b34197da690cd2b9d5b1566dc346d22421fc775de9dd595c0c"
+    }
+  ],
+  "total_bytes": 548673,
+  "status": "source_and_reports_only_no_local_app_integration_or_Windows_copy_claim",
+  "raw_data_cache_included": false
+}

@@ -1,0 +1,117 @@
+{
+  "kind": "entirely_synthetic_example_not_real_NBA_estimates",
+  "draws": 20000,
+  "origin": "2026-10-27T12:00:00+00:00",
+  "model_code_sha256": {
+    "__init__.py": "903c2182f161722f585927199cf8d32d4929bdf463c2546b0dcb5c4109a6d30c",
+    "__main__.py": "95b475ccac1029824f860c988503a9fb836607c737d051cd48885c3152199b8f",
+    "common.py": "57e679ac8af4d6ab0b52b05e124b4ad86a9c6579afcc0102ac59cb6fb44c5664",
+    "data.py": "9c29a6aa7874dea10cd6b94cc832e1b2b3837084fc662d6f040218d11f9a6bf3",
+    "demo.py": "870c38acd3bac2ef32df6847f66f773aa18b23a7ef7fb477a3a76bed77793b8a",
+    "events.py": "383ab7817be67a0d4639d781f2ecf0e76cdc1cfd0a5dd60ed5dc7e932daf6d2c",
+    "history.py": "d78ebf2229a69402bb8767dcdd7538dc88a419cea808393659ff18a94c8798e4",
+    "research.py": "cae614533574c3cede534331ab49523c5819f0df9121126a8c71e53221592c0c",
+    "simulation.py": "c4fe4becbe3ed4f8191cc1295024fa8b3a09840ea0f2f736783b711819aa72c9"
+  },
+  "protocol_sha256": "00464d1ca00fd92d76631d412b3129d0be65f98857467da3d768a65842f91f34",
+  "complete_field_players": 16,
+  "probability_accounting": {
+    "sum_inclusive": 1.11705,
+    "sum_fractional": 1.0
+  },
+  "minutes_conservation_max_error": 1.1368683772161603e-13,
+  "example_players": [
+    {
+      "name": "Synthetic BOS 0",
+      "experience": "established",
+      "expected_pra": 21.81485,
+      "pra_quantiles": {
+        "p10": 14.0,
+        "p50": 21.0,
+        "p90": 31.0
+      },
+      "expected_minutes": 35.99029284892726,
+      "sole_leader_probability": 0.0507,
+      "tied_leader_probability": 0.01405,
+      "inclusive_leader_probability": 0.06475,
+      "observed_ownership_fraction": null,
+      "evidence": {
+        "games": 24,
+        "effective_sample_size": 12.835122525617795,
+        "season_weight_shares": {
+          "2024": 0.03117958732824648,
+          "2025": 0.08908453522356138,
+          "2026": 0.25452724349588973,
+          "2027": 0.6252086339523023
+        }
+      },
+      "prior": {
+        "kind": "experience_position_stage_matched",
+        "cohort_player_games": 288,
+        "pseudo_games": 5,
+        "own_rate_evidence_share": 0.6328138213028108
+      },
+      "monte_carlo_se": {
+        "sole_leader_probability": 0.0015512818892773807,
+        "tied_leader_probability": 0.000832243879520901,
+        "inclusive_leader_probability": 0.001740078123246195
+      }
+    },
+    {
+      "name": "Synthetic BOS 1",
+      "experience": "established",
+      "expected_pra": 23.6549,
+      "pra_quantiles": {
+        "p10": 15.0,
+        "p50": 23.0,
+        "p90": 33.0
+      },
+      "expected_minutes": 34.022924086502016,
+      "sole_leader_probability": 0.09245,
+      "tied_leader_probability": 0.0196,
+      "inclusive_leader_probability": 0.11205,
+      "observed_ownership_fraction": null,
+      "evidence": {
+        "games": 24,
+        "effective_sample_size": 12.835122525617795,
+        "season_weight_shares": {
+          "2024": 0.03117958732824648,
+          "2025": 0.08908453522356138,
+          "2026": 0.25452724349588973,
+          "2027": 0.6252086339523023
+        }
+      },
+      "prior": {
+        "kind": "experience_position_stage_matched",
+        "cohort_player_games": 288,
+        "pseudo_games": 5,
+        "own_rate_evidence_share": 0.6180758916549669
+      },
+      "monte_carlo_se": {
+        "sole_leader_probability": 0.002048206502040261,
+        "tied_leader_probability": 0.0009801999795960006,
+        "inclusive_leader_probability": 0.002230412489877153
+      }
+    }
+  ],
+  "recommendation_status": "blocked_research_only",
+  "blockers": [
+    "aggregate_box_opportunity_proxies_not_exact_possessions",
+    "complete_date_specific_offer_terms_unverified",
+    "history_event_reconciliation_missing",
+    "history_lineup_reconciliation_missing",
+    "not_a_prospective_pregame_prediction",
+    "recency_parameters_are_experimental_not_selected_on_earlier_folds",
+    "research_model_not_validated_or_promoted",
+    "some_experience_priors_use_disclosed_league_fallback"
+  ],
+  "checks": {
+    "targeted_tests_passed": 35,
+    "synthetic_settlement_passed": true,
+    "pending_guard_passed": true,
+    "original_receipt_preserved": true,
+    "winner_sources_unchanged": true
+  },
+  "local_full_receipt": ".cache/king-court/validated-example.json",
+  "sha256": "8abc1b9227aeb8afd3c7ca1446aba70c9e694b2fbc533d4125438eafd8cef33a"
+}

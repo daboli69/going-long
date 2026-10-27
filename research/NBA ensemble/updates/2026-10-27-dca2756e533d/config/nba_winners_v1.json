@@ -1,0 +1,32 @@
+{
+  "version": "nba-winners-research-v1",
+  "status": "research-only",
+  "registered_at": "2026-10-23",
+  "target": "NBA regular-season outright winner, overtime included",
+  "models": ["elo", "logistic", "gradient_boosting", "random_forest", "naive_bayes", "ridge_margin"],
+  "development_seasons": [2023, 2024, 2025],
+  "untouched_holdout_seasons": [2026],
+  "season_convention": "ending year; 2025 means 2024-25",
+  "minimum_training_games": 300,
+  "minimum_team_games": 5,
+  "refit_days": 30,
+  "historical_result_lag_hours": 36,
+  "elo_k": 20,
+  "elo_home_advantage": 65,
+  "weight_prior_games": 100,
+  "disagreement_range_flag": 0.25,
+  "close_probability_flag": 0.55,
+  "random_seed": 42,
+  "evaluation": {
+    "primary": "paired Brier loss versus equal-weight blend, Elo and expanding home-win frequency",
+    "secondary": ["log loss", "winner accuracy", "reliability bins", "coverage and exclusions", "model prediction correlation"],
+    "uncertainty": "resample complete UTC game dates for paired 95% intervals",
+    "promotion_gate": "Freeze code/config/source receipts; evaluate untouched later data once; require paired Brier improvement with upper95% delta below zero versus all three baselines, nonworsening log loss, calibration review and explicit model-promotion approval. No profit claim without recorded actual prices."
+  },
+  "limitations": [
+    "Six algorithms share inputs and upstream feeds; agreement is not independent confirmation or calibrated confidence.",
+    "Historical replay assumes final results usable 36 hours after tipoff; downloaded revised archives do not establish historical publication times.",
+    "No injury, player, lineup, possession, travel, spread, odds or prop adjustments in v1.",
+    "No automatic publication, scheduled jobs or production model replacement."
+  ]
+}

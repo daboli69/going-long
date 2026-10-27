@@ -1,0 +1,28 @@
+{
+  "version": "king-court-research-v1",
+  "registered_at": "2026-10-27",
+  "status": "research_only",
+  "history_prior_seasons": 3,
+  "season_convention": "ending_year",
+  "weekday_timezone": "America/New_York",
+  "weekday": "Tuesday",
+  "seed": 271026,
+  "candidate_grid": {
+    "season_decay": [0.35, 0.65],
+    "game_half_life_days": [30, 90],
+    "prior_games": [5, 15]
+  },
+  "selection_loss": "mean_complete_slate_PRA_MAE_on_preregistered_earlier_development_folds",
+  "selection_tiebreak": "ascending_season_decay_then_half_life_then_prior_games",
+  "minimum_selection_slates": 8,
+  "minimum_evaluation_slates": 20,
+  "minimum_cohort_games": 20,
+  "experience_stage_width_appearances": 5,
+  "shooting_beta_prior": "one success and one failure; disclosed weak numerical prior, not fitted",
+  "simulations": 20000,
+  "default_parameters": null,
+  "box_possession_fta_coefficient": 0.44,
+  "historical_result_lag_hours": 36,
+  "readiness": "Block recommendations without complete pregame field/roster/availability, event reconciliation, selected earlier-fold parameters and verified date-specific terms.",
+  "holdout": "Declared in experiment manifest before selection. No automatic promotion or publication."
+}
