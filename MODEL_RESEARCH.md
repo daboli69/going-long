@@ -257,3 +257,9 @@ Two agents identified unmarked offseason carryover and inconsistent per-team pos
 | shared_possessions | 0.608294->0.608297 | +0.000003[-0.000139,+0.000144] | 1/2 | Rejected |
 
 Both failed;no more configurations tried. Saved both prespecified research copies for prospective comparison,not replacements(12games/24rows). Availability diagnostics:24current exact-ID rosters/58injury rows;5empty summaries unknown;CHI/MIL retained62.6%/74.6%prior20game minutes and each has1released current-season game. No causal injury/roster adjustment claimed.70 tests and actual UI passed;22original protected hashes unchanged;one UI QA issue logged/fixed. Full report: research/NBA ensemble/docs/PREGAME_CONTEXT_RESULTS.md. Nothing promoted.
+
+## Fixed-decision QB availability audit - 2026-10-27
+
+| Hypothesis | Sample and evidence | Result | Decision |
+|---|---|---|---|
+| Verified QB availability improves frozen champion at kickoff minus 90 minutes | Original 2026 W6-7 forecasts only: 27 games, 26 with both champion QB IDs; no full affirmative starter/replacement cohort established. Existing 2026 observations descriptive only. | Zero candidate fits. Descriptive champion vs observed DraftKings market on 23 games: LL 0.810985 vs 0.731530, delta +0.079455 [-0.002409,+0.158668]. Champion snapshot about 22.5h older than decision; causal QB attribution unavailable. Independent reproduction passed. | Inconclusive, research-only; no promotion. Protocol 9717da6b; docs/QB_ASOF_RESULTS.md. |
