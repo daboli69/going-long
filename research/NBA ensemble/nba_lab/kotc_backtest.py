@@ -17,7 +17,7 @@ from . import codex_research as CR
 from . import kotc as K
 
 OUT=REPORTS/'kotc_backtest_v1';HISTORY=CR.KOTC/'backtest-history-2026.json';SEASON=2026;DRAWS=4000
-CONFIGS=('codex_minutes','rotation_minutes')
+CONFIGS=('codex_minutes','rotation_minutes','learned_minutes')
 LAG=36  # Codex retrospective release rule: a result is usable 36 hours after tipoff
 
 
@@ -65,6 +65,14 @@ def slates():
         yield slate,actual,games
 
 
+FALLBACKS={}
+
+
+def _learned():
+    frame=pd.read_parquet(REPORTS/'minutes_v1'/'predictions_2026.parquet',columns=['game_id','athlete_id','expected','sd'])
+    return {(g,a):(e,d) for g,a,e,d in frame.itertuples(index=False)}
+
+
 def run(log=print):
     OUT.mkdir(parents=True,exist_ok=True)
     rows=[]
@@ -74,6 +82,20 @@ def run(log=print):
             path=OUT/f'{slate["date"]}_{config}.json'
             if not path.exists():
                 s=json.loads(json.dumps(slate))
+                if config=='learned_minutes':
+                    learned=_learned()
+                    minutes=minutes or K.minute_history(HISTORY,pd.Timestamp(slate['origin']),SEASON,LAG)
+                    fallback=0
+                    for p in s['players']:
+                        row=learned.get((p['game_id'].removeprefix('espn:'),p['player_id'].removeprefix('espn:')))
+                        if row is not None:
+                            p['expected_minutes']={'mean':round(max(row[0],.5),2),'sd':round(max(row[1],1.),2),'known_at':slate['origin'],
+                                                   'source':'Learned two-part minutes model trained on 2021-22 to 2024-25'}
+                        elif p['availability']=='available':
+                            fallback+=1
+                            scenario=K.expected_minutes(p['player_id'],p['team'],minutes,slate['origin'])
+                            if scenario:p['expected_minutes']=scenario
+                    FALLBACKS[slate['date']]=fallback
                 if config=='rotation_minutes':
                     minutes=minutes or K.minute_history(HISTORY,pd.Timestamp(slate['origin']),SEASON,LAG)
                     for p in s['players']:
@@ -116,9 +138,11 @@ def summarize(frame):
                      'top_pick_hits':int(x.top_pick_hit.sum()),'naive_pick_hits':int(x.naive_pick_hit.sum()),
                      'mean_top_pick_credit':x.top_pick_credit.mean(),'pra_mae':x.pra_mae.mean(),'brier_inclusive':x.brier_inclusive.mean(),
                      'slates_leader_not_in_field':int(x.missing_leader.sum())}
-    a=frame[frame.config.eq('rotation_minutes')].set_index('date');b=frame[frame.config.eq('codex_minutes')].set_index('date')
-    d=(a.log_score-b.log_score).dropna();rng=np.random.default_rng(20261027)
-    boot=[d.sample(len(d),replace=True,random_state=int(rng.integers(1<<30))).mean() for _ in range(2000)]
-    out['rotation_minus_codex_log_score']={'mean':float(d.mean()),'ci_low':float(np.quantile(boot,.025)),'ci_high':float(np.quantile(boot,.975)),
-                                           'slates_better':int((d>0).sum()),'slates':len(d)}
+    for new,old in (('rotation_minutes','codex_minutes'),('learned_minutes','rotation_minutes')):
+        if not {new,old}<=set(frame.config):continue
+        a=frame[frame.config.eq(new)].set_index('date');b=frame[frame.config.eq(old)].set_index('date')
+        d=(a.log_score-b.log_score).dropna();rng=np.random.default_rng(20261027)
+        boot=[d.sample(len(d),replace=True,random_state=int(rng.integers(1<<30))).mean() for _ in range(2000)]
+        out[f'{new.split("_")[0]}_minus_{old.split("_")[0]}_log_score']={'mean':float(d.mean()),'ci_low':float(np.quantile(boot,.025)),
+            'ci_high':float(np.quantile(boot,.975)),'slates_better':int((d>0).sum()),'slates':len(d)}
     return out

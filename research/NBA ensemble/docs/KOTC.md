@@ -66,3 +66,21 @@ The page offers both minutes models. Early in a season, Codex minutes can projec
 **Splits:** train 2021-22 to 2023-24 and measure residual SD on 2024-25, then train 2021-22 to 2024-25 and score 2025-26. The minute-level comparison against the rotation rule uses the same 2025-26 player-games.
 
 **Gate, to replace rotation minutes as the default:** rerun the same 21 backtest Tuesdays with learned minutes. Field players with no learned row fall back to rotation minutes, and that count is reported. Primary metric: the same log score of the actual leader. Pass if the paired bootstrap 95% interval for the log-score gain over rotation minutes is above 0, it's better on at least 60% of slates, and minute MAE on 2025-26 is lower. A pass makes learned minutes the default. A fail leaves rotation minutes in place, and the minute-level results are still reported.
+
+### Learned minutes results
+
+**Minutes, 2025-26** (43,474 player-games): the learned model missed by 4.07 minutes per player, against 5.07 for the rotation rule, about 20% better. It's less biased for everyone who played 15+ minutes. Players who logged 32+ still come out 5.8 low (7.2 for the rotation rule), partly because grouping by actual minutes always exaggerates this. Its P(plays) Brier score is 0.075.
+
+**King of the Court, same 21 Tuesdays:**
+
+| | Codex minutes | Rotation minutes | Learned minutes |
+|---|---:|---:|---:|
+| Average probability on the actual leader | 4.1% | 8.9% | 8.5% |
+| Mean log score | -3.31 | -2.90 | -2.86 |
+| Top pick was the leader | 2 | 3 | 4 |
+| Average PRA error per player | 7.1 | 6.1 | 5.6 |
+| Inclusive-leader Brier | 1.13 | 1.09 | 1.08 |
+
+Four field players had no learned row and fell back to rotation minutes: 3 on 2026-02-10 and 1 on 2026-03-17.
+
+Learned versus rotation: log-score gain +0.04, 95% interval [-0.22, +0.36], better on 10 of 21 slates. **The gate failed,** and not narrowly, so rotation minutes stay the default as planned. Better minutes did improve every player's PRA projection, but the leader is decided by one player's upside on one night, and 21 slates can't separate these two methods. The model and its 2025-26 predictions are saved in `reports/minutes_v1`, but they aren't wired into the live page.
