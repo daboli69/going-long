@@ -1,7 +1,7 @@
 {
  "schema": "going-score-v2",
  "methodology_version": "going-score-2.0.0",
- "as_of": "2026-10-27T00:19:20Z",
+ "as_of": "2026-10-27T01:32:49Z",
  "season": 2026,
  "week": 8,
  "meaning": "Player-level situation index: opportunity, role, availability and how they are changing, from games before this week. Not a projection, a probability or a betting edge; a higher score is not a better bet.",
@@ -121,7 +121,7 @@
    "week": 7
   },
   "ffopportunity_rows": 14300,
-  "history_json_generated_at": "2026-10-27T00:17:37+00:00",
+  "history_json_generated_at": "2026-10-27T01:30:41+00:00",
   "history_linked_players": 457,
   "weights_fit": {
    "experiment": "P4-1",
