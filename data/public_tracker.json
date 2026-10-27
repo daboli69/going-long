@@ -1,1 +1,0 @@
-{"schema_version":2,"moved_to":"public_tracker/manifest.json","layout":"public-tracker-segments-v1","generated_at":"2026-10-06T23:26:35.995Z","note":"The public tracker is stored as immutable segments. Load it with scripts/tracker_store.mjs (Node), scripts/tracker_store.py (Python) or shared/tracker-store.mjs (browser)."}
