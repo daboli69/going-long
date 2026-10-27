@@ -25,3 +25,7 @@ Your existing **app.py / nba_lab / START_NBA** application has not been integrat
 This is a transfer-only branch, not an application change intended to merge into main.
 
 ZIP SHA256: `57000fdd00c51e4903110d766144032564d7e3082270a300e20743424c5b3de9`
+
+## Continue with Claude
+
+[Read the complete NBA ensemble and King of the Court handoff](CLAUDE_HANDOFF.md). It includes the Windows installation receipt, architecture, algorithms, source audits, exact experimental results, frozen records, file hashes, missing data, integration steps and proposed next research task. The installed research has not yet been verified as integrated with the existing Windows app.
