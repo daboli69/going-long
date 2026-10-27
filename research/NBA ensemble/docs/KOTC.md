@@ -47,3 +47,22 @@ Rotation minutes scored better on 17 of 21 slates, with a log-score gain of +0.4
 The page offers both minutes models. Early in a season, Codex minutes can project stars far too low: on 2026-10-27 it gave Luka Doncic 18.7 minutes against 29.3 with rotation minutes.
 
 **Codex simulator bug (not edited).** `capped_minutes` in `scripts/king_court/simulation.py` can't converge when 6 or more players on one team each draw more than a full game in the same simulated night: 6 × 48 exceeds 240. It happened once in 20,000 draws on 2026-10-27. `kotc.simulate` retries with one fewer draw, which changes the random stream, and records the retry in the run's `META.json`. Codex should fix this at the source.
+
+## Learned minutes study (plan committed before any scoring)
+
+**Model** (`nba_lab/minutes_model.py`): two parts. A classifier gives P(plays), a regressor gives minutes if he plays, and the scenario mean is their product. The SD comes from both parts, using the regressor's residual SD on games it didn't train on. Both are gradient-boosted trees with fixed settings, no tuning.
+
+**Inputs,** all from games released before the decision time (first tipoff of the Eastern day minus one hour; results released 36 hours after tipoff):
+- Current-team minutes over the last 1, 3 and 10 games, with missed games as 0.
+- Started last game, and share of starts in the last 5.
+- Share of the last 10 team games played.
+- Recent played minutes on any team, and last season's minutes per game.
+- Days since he last played, back-to-back, and whether he's a rookie.
+- His status on that day's official report (Questionable, or Probable/Available).
+- Recent minutes of teammates ruled Out/Doubtful (vacated minutes), his share and rank of the team's available recent minutes.
+
+**Pool:** players whose latest released team is this one and who played for it in its last 82 games, plus anyone on that day's report for the team. Out and Doubtful players are excluded and their minutes count as vacated.
+
+**Splits:** train 2021-22 to 2023-24 and measure residual SD on 2024-25, then train 2021-22 to 2024-25 and score 2025-26. The minute-level comparison against the rotation rule uses the same 2025-26 player-games.
+
+**Gate, to replace rotation minutes as the default:** rerun the same 21 backtest Tuesdays with learned minutes. Field players with no learned row fall back to rotation minutes, and that count is reported. Primary metric: the same log score of the actual leader. Pass if the paired bootstrap 95% interval for the log-score gain over rotation minutes is above 0, it's better on at least 60% of slates, and minute MAE on 2025-26 is lower. A pass makes learned minutes the default. A fail leaves rotation minutes in place, and the minute-level results are still reported.
