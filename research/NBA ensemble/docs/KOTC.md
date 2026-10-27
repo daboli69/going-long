@@ -26,3 +26,5 @@ King of the Court is the Tuesday promotion that pays the player with the most po
 - **Gate for `rotation_minutes`:** paired whole-slate bootstrap (2,000 draws). The 95% interval for the log-score gain must be above 0, and it must be better on at least 60% of slates. If it fails, the live page falls back to `codex_minutes`.
 
 Limits: retrospective fields are reconstructions, not archived pregame rosters. Players returning after missing the whole season so far can be absent. 21 slates is a small sample for a rare event. The season was partly seen in earlier work.
+
+**Deviation, recorded before final results.** The first run stopped on 2025-12-16: a player traded mid-season appeared on both of his teams. The fix assigns each player to the team on that day's official report, otherwise the last team he played for. Six earlier slates had been scored by then, and their partial log was seen. All 21 slates were rerun from scratch with the fix. No model setting, metric or gate changed.

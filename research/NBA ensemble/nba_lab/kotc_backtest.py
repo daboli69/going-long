@@ -37,6 +37,12 @@ def slates():
         window=[g for g in games if g['season']==SEASON and pd.Timestamp(g['tipoff'])+pd.Timedelta(hours=LAG)<origin]
         if any(sum(code in (w['home'],w['away']) for w in window)<3 for g in target for code in (g['home'],g['away'])):continue
         listed=reports[reports.report_day.eq(str(day))&reports.game_id.notna()&reports.athlete_id.notna()]
+        # Current team = the official report's team that day, else the latest team he played for (trades).
+        current={}
+        for w in sorted(window,key=lambda w:w['tipoff']):
+            for p in w['players']:
+                if p.get('minutes'):current[p['player_id']]=p['team']
+        for r in listed.itertuples():current['espn:'+str(r.athlete_id)]=r.team_code
         players=[];actual={}
         for g in target:
             gid=g['game_id']
@@ -44,7 +50,7 @@ def slates():
                 recent={p['player_id'] for w in window for p in w['players'] if p['team']==code and p.get('minutes')}
                 mine=listed[listed.game_id.eq(gid.removeprefix('espn:'))&listed.team_code.eq(code)]
                 official={'espn:'+str(r.athlete_id):r.status for r in mine.itertuples()}
-                for pid in sorted(recent|set(official)):
+                for pid in sorted(p for p in recent|set(official) if current.get(p)==code):
                     name,position=names.get(pid,(pid,'?'))
                     players.append({'player_id':pid,'name':name,'position':position,'team':code,'game_id':gid,
                                     'debut_season':min(debut.get(pid,SEASON),SEASON),
