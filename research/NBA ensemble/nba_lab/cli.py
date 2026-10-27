@@ -11,9 +11,9 @@ from .config import ROOT,REPORTS,DATA,now,atomic,low_priority
 def main():
     threads=low_priority()
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','pregame-research','pregame-refresh','availability','score-forecast','shadow-forecast','extra-data','score','context','report','app','strength-research','strength-freeze','injury-research','injury-freeze','codex-verify','codex-tests','codex-forecast'])
+    parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','pregame-research','pregame-refresh','availability','score-forecast','shadow-forecast','extra-data','score','context','report','app','strength-research','strength-freeze','injury-research','injury-freeze','codex-verify','codex-tests','codex-forecast','kotc'])
     parser.add_argument('--date');parser.add_argument('--start',type=int,default=2015);parser.add_argument('--end',type=int)
-    parser.add_argument('--source',choices=['nba_api','pbpstats']);parser.add_argument('--season',type=int,default=2026)
+    parser.add_argument('--minutes',choices=['codex','rotation'],default='codex');parser.add_argument('--source',choices=['nba_api','pbpstats']);parser.add_argument('--season',type=int,default=2026)
     args=parser.parse_args()
     try:
         from . import sources,features,engine
@@ -37,6 +37,11 @@ def main():
             if args.action=='codex-verify':out=CR.verify()
             elif args.action=='codex-tests':out=CR.tests()
             else:out={'output':str(CR.forecast()),**(CR.latest_status() or {})}
+        elif args.action=='kotc':
+            from . import kotc
+            import pandas as pd
+            folder=kotc.simulate(args.date or pd.Timestamp.now(tz='America/New_York').date(),minutes_mode=args.minutes)
+            out={'folder':str(folder),**{k:v for k,v in json.loads((folder/'META.json').read_text()).items() if k in ('games','players','availability_source')}}
         elif args.action=='develop':out=engine.develop(threads)
         elif args.action=='confirm':out=engine.confirm(threads)
         elif args.action=='train':out={'version':engine.train(threads)['version']}

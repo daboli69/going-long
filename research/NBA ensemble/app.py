@@ -12,13 +12,13 @@ st.set_page_config(page_title='NBA Ensemble',page_icon='🏀',layout='wide')
 st.title('NBA Ensemble')
 st.caption('Separate local NBA winners lab. Six statistical models, not six independent opinions.')
 st.warning('Shadow research. Current injury/lineup changes are not modeled in v1. Historical results use revised reconstructed data. No demonstrated advantage over betting markets; no market prices are used.')
-page=st.sidebar.radio('Page',['Today','Model Debate','Research & Calibration','Data & Sources'])
+page=st.sidebar.radio('Page',['Today','Model Debate','King of the Court','Research & Calibration','Data & Sources'])
 if (REPORTS/'CONFIRMATION.json').exists():
     st.caption('Evaluation status: '+read(REPORTS/'CONFIRMATION.json')['decision'])
 
 
 def run_action(action,date=None):
-    command=[sys.executable,'-m','nba_lab.cli',action]
+    command=[sys.executable,'-m','nba_lab.cli',*action.split()]
     if date:command+=['--date',str(date)]
     with st.status('Running locally: '+action,expanded=True) as state:
         result=subprocess.run(command,cwd=ROOT,text=True,capture_output=True)
@@ -224,6 +224,66 @@ if page in ('Today','Model Debate'):
             st.caption('Saved pregame forecast, including games that have since started. This is not a live re-prediction.')
             st.dataframe(saved[['away','home','tipoff','winner','p_home','home_votes','away_votes','model_version']],hide_index=True,use_container_width=True)
             st.download_button('Download saved revision',saved.to_csv(index=False).encode(),'nba_'+chosen.parent.name+'.csv')
+elif page=='King of the Court':
+    from nba_lab import kotc
+    st.subheader('King of the Court: highest points + rebounds + assists on the Tuesday slate')
+    today=pd.Timestamp.now(tz='America/New_York').date()
+    default=today+pd.Timedelta(days=(1-today.weekday())%7)
+    day=st.date_input('Tuesday (Eastern)',default)
+    if pd.Timestamp(day).weekday()!=1:st.warning('King of the Court runs on Tuesdays only.')
+    mode=st.radio('Minutes model',['codex','rotation'],horizontal=True,format_func=lambda m:{'codex':"Codex's own minutes (default: gate result)",'rotation':'Rotation minutes (better on 17 of 21 Tuesdays, failed the strict gate)'}[m])
+    if mode=='codex':st.caption("Codex's minutes use only this season's current-team games plus a prior, so early in the season stars can be projected far below their real minutes. Compare both before relying on either.")
+    runs=sorted((ARCHIVES/'kotc').glob(str(day)+f'_*_{mode}/META.json'),reverse=True)
+    if pd.Timestamp(day).weekday()==1 and st.button('Build full slate + simulate (about 1 minute)',type='primary'):
+        run_action('kotc --minutes '+mode,day)
+    if not runs:st.info('No simulation saved for this Tuesday with this minutes model. Build one before the first game starts.')
+    else:
+        meta=read(runs[0]);folder=runs[0].parent
+        players=pd.read_csv(folder/'players.csv');field=pd.read_csv(folder/'field.csv')
+        source=meta['availability_source']
+        st.caption(f"Saved {meta['created_at']} · {meta['games']} games · {meta['players']} players · {meta['draws']:,} simulated slates · "
+                   f"official injury report {source.get('official_report_published_at') or 'not yet published'}")
+        if source.get('teams_not_submitted'):st.warning('Teams that had not submitted an injury report: '+', '.join(source['teams_not_submitted']))
+        st.warning("Research simulation, not a recommendation. Codex's module keeps it blocked: its settings were not chosen on registered pregame slates, and the backtest below is the only accuracy evidence.")
+        view=players[players.availability.eq('available')].head(25)[['name','team','minutes','pts','reb','ast','pra','pra_p10','pra_p50','pra_p90','sole_leader','tied_leader','inclusive_leader','tie_credit']]
+        st.dataframe(view,hide_index=True,use_container_width=True,column_config={
+            **{k:st.column_config.NumberColumn(format='%.1f') for k in ('minutes','pts','reb','ast','pra')},
+            **{k:st.column_config.NumberColumn(format='%d') for k in ('pra_p10','pra_p50','pra_p90')},
+            'sole_leader':st.column_config.NumberColumn('P(sole leader)',format='percent'),'tied_leader':st.column_config.NumberColumn('P(tied leader)',format='percent'),
+            'inclusive_leader':st.column_config.NumberColumn('P(leader incl. ties)',format='percent'),
+            'tie_credit':st.column_config.ProgressColumn('Leader share',format='%.3f',min_value=0,max_value=float(view.tie_credit.max()))})
+        st.caption('PRA p10/p50/p90: 80% of simulated outcomes fall between p10 and p90. Leader share splits ties evenly and sums to 1 across the slate; "incl. ties" can sum above 1.')
+        st.markdown('**Expected prize share (hypothetical crowd)**')
+        c=st.columns(3)
+        pool=c[0].number_input('Pool, bonus-bet face value ($)',min_value=1000,value=1_000_000,step=100_000)
+        entrants=c[1].number_input('Other qualifying entries (guess)',min_value=0,value=100_000,step=10_000)
+        scenario=c[2].selectbox('How the crowd picks',['Follows these leader odds','Piles onto the top 5 by projected PRA','Even across the top 15 by projected PRA'])
+        ids,pra=kotc.samples(meta['receipt'])
+        ranked=players[players.availability.eq('available')].sort_values('pra',ascending=False)
+        if scenario.startswith('Follows'):own=dict(zip(players.player_id,players.tie_credit.fillna(0)))
+        else:
+            top=ranked.head(5 if 'top 5' in scenario else 15).player_id
+            own={p:1/len(top) for p in top}
+        shares=kotc.prize_share(ids,pra,own,entrants,pool).merge(players[['player_id','name','team','pra']],on='player_id')
+        shares['crowd_share']=shares.player_id.map(own).fillna(0)
+        shares=shares.sort_values('expected_share',ascending=False).head(15)[['name','team','pra','leader_probability','crowd_share','share_if_leader','expected_share']]
+        st.dataframe(shares,hide_index=True,use_container_width=True,column_config={'pra':st.column_config.NumberColumn('Projected PRA',format='%.1f'),
+            'leader_probability':st.column_config.NumberColumn('P(leads or ties)',format='percent'),'crowd_share':st.column_config.NumberColumn('Crowd on him',format='percent'),
+            'share_if_leader':st.column_config.NumberColumn('Your share if he leads',format='dollar'),'expected_share':st.column_config.NumberColumn('Expected share',format='dollar')})
+        st.caption('Expected share = pool × P(he leads) × average of 1 / (1 + other entries on every tied leader). The crowd split and entry count are guesses: real selection counts are not public. Values are bonus-bet face value, not cash, and ignore the qualifying wager itself.')
+        out=field[field.availability.eq('out')]
+        if len(out):
+            with st.expander(f'{len(out)} players ruled out (official report Out/Doubtful)'):
+                st.dataframe(out[['name','team','official_status','espn_injury']],hide_index=True,use_container_width=True)
+        with st.expander('Full field and sources'):
+            st.dataframe(field,hide_index=True,use_container_width=True)
+            st.json(meta)
+    backtest=REPORTS/'kotc_backtest_v1'/'SUMMARY.json'
+    if backtest.exists():
+        with st.expander('Backtest: 21 Tuesdays of 2025-26',expanded=True):
+            result=read(backtest)
+            st.dataframe(pd.DataFrame(result['configs']).T,use_container_width=True)
+            st.caption(result['verdict'])
 elif page=='Research & Calibration':
     with st.expander('Codex research package (installed 2026-10-27) · separate code, research only'):
         check=CR.verify()

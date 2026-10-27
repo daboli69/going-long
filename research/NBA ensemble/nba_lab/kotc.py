@@ -86,6 +86,7 @@ def availability(report,season,games):
 
 
 def build_slate(date,session=None,at=None,minutes=None):
+    """minutes=None leaves minutes to Codex's own estimate."""
     """Complete pregame slate manifest in Codex's contract, plus a readable roster table."""
     session=session or requests.Session();at=pd.Timestamp(at or pd.Timestamp.now(tz='UTC'))
     day=pd.Timestamp(date).date()
@@ -160,21 +161,33 @@ def history():
     return CR.PACKAGE/output
 
 
-def simulate(date,draws=20000,parameters=None,at=None):
+def simulate(date,draws=20000,parameters=None,at=None,minutes_mode='codex'):
+    """minutes_mode 'codex' is the live default: the rotation scenario failed its backtest gate (docs/KOTC.md)."""
     """Builds the slate, runs Codex's simulator, saves a readable result next to its sealed receipt."""
     source=history()  # fetched first: the simulator requires its schedule receipt to predate the slate origin
     at=pd.Timestamp(at or pd.Timestamp.now(tz='UTC'))
-    slate,table=build_slate(date,at=at,minutes=minute_history(source,at,int(pd.Timestamp(date).year)+(1 if pd.Timestamp(date).month>=8 else 0)))
-    version=stamp();directory=OUT/f'{slate["date"]}_{version}';directory.mkdir(parents=True,exist_ok=False)
+    season=int(pd.Timestamp(date).year)+(1 if pd.Timestamp(date).month>=8 else 0)
+    slate,table=build_slate(date,at=at,minutes=minute_history(source,at,season) if minutes_mode=='rotation' else None)
+    version=stamp();directory=OUT/f'{slate["date"]}_{version}_{minutes_mode}';directory.mkdir(parents=True,exist_ok=False)
     (directory/'slate.json').write_text(json.dumps(slate,indent=2),encoding='utf-8')
     (directory/'parameters.json').write_text(json.dumps(parameters or DEFAULT_PARAMETERS),encoding='utf-8')
     table.to_csv(directory/'field.csv',index=False)
-    receipt=directory/'simulation.json'
-    CR.run('-m','scripts.king_court','simulate','--history',str(source),'--slate',str(directory/'slate.json'),
-           '--research-parameters',str(directory/'parameters.json'),'--draws',str(draws),'--mode','prospective','--output',str(receipt),timeout=3600)
+    # Codex's capped_minutes cannot converge when 6+ players on a team draw over a full game in the same
+    # simulated night (6 x 48 > 240). That is rare; retry with a different draw count, which changes the random
+    # stream, and record it. Codex's frozen code is not edited.
+    retries=[]
+    for attempt in range(4):
+        n=draws-attempt;receipt=directory/f'simulation_{n}.json'
+        try:
+            CR.run('-m','scripts.king_court','simulate','--history',str(source),'--slate',str(directory/'slate.json'),
+                   '--research-parameters',str(directory/'parameters.json'),'--draws',str(n),'--mode','prospective','--output',str(receipt),timeout=3600)
+            break
+        except RuntimeError as error:
+            if 'did not converge' not in str(error) or attempt==3:raise
+            retries.append({'draws':n,'error':str(error)})
     result=summary(receipt)
     result.to_csv(directory/'players.csv',index=False)
-    once(directory/'META.json',{'created_at':now(),'date':slate['date'],'draws':draws,'parameters':parameters or DEFAULT_PARAMETERS,
+    once(directory/'META.json',{'created_at':now(),'date':slate['date'],'draws':draws,'minutes_mode':minutes_mode,'codex_minutes_bug_retries':retries,'draws_used':n,'parameters':parameters or DEFAULT_PARAMETERS,
          'players':len(result),'games':len(slate['games']),'availability_source':slate['availability_source'],
          'receipt':str(receipt),'status':'Research simulation; parameters not selected by registered prospective folds.'})
     return directory

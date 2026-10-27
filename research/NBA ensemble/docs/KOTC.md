@@ -28,3 +28,20 @@ King of the Court is the Tuesday promotion that pays the player with the most po
 Limits: retrospective fields are reconstructions, not archived pregame rosters. Players returning after missing the whole season so far can be absent. 21 slates is a small sample for a rare event. The season was partly seen in earlier work.
 
 **Deviation, recorded before final results.** The first run stopped on 2025-12-16: a player traded mid-season appeared on both of his teams. The fix assigns each player to the team on that day's official report, otherwise the last team he played for. Six earlier slates had been scored by then, and their partial log was seen. All 21 slates were rerun from scratch with the fix. No model setting, metric or gate changed.
+
+## Backtest results (21 Tuesdays, 2025-26)
+
+| | Codex minutes | Rotation minutes |
+|---|---:|---:|
+| Average probability given to the actual leader | 4.1% | 8.9% |
+| Mean log score (higher is better) | -3.31 | -2.90 |
+| Top pick was the leader | 2 of 21 | 3 of 21 |
+| Naive pick (highest season-average PRA) was the leader | 5 of 21 | 5 of 21 |
+| Average PRA error per player | 7.1 | 6.1 |
+| Actual leader missing from the field | 0 | 0 |
+
+Rotation minutes scored better on 17 of 21 slates, with a log-score gain of +0.41, 95% interval [-0.03, +0.74]. The interval touches zero, so **the gate failed** and Codex minutes stay the default, as planned. For scale, an even split across a typical 250-player field scores about -5.5, so both models carry real information. Neither model's top pick beat the naive pick, though. The leader is a rare, noisy event, and 21 slates is a small sample.
+
+The page offers both minutes models. Early in a season, Codex minutes can project stars far too low: on 2026-10-27 it gave Luka Doncic 18.7 minutes against 29.3 with rotation minutes.
+
+**Codex simulator bug (not edited).** `capped_minutes` in `scripts/king_court/simulation.py` can't converge when 6 or more players on one team each draw more than a full game in the same simulated night: 6 × 48 exceeds 240. It happened once in 20,000 draws on 2026-10-27. `kotc.simulate` retries with one fewer draw, which changes the random stream, and records the retry in the run's `META.json`. Codex should fix this at the source.
