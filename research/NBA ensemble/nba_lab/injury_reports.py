@@ -351,3 +351,64 @@ def main():
 
 
 if __name__=='__main__':main()
+
+
+# ---------- every version ----------
+
+VERSIONS=CACHE/'injury_report_versions.parquet'
+
+
+def day_slots(first_tipoff,last_tipoff,from_hour=9):
+    """Every published slot from from_hour ET through the day's last tipoff."""
+    start=pd.Timestamp(first_tipoff).tz_convert(ET).normalize()+pd.Timedelta(hours=from_hour)
+    end=pd.Timestamp(last_tipoff).tz_convert(ET)
+    step=pd.Timedelta(minutes=15) if start.tz_localize(None).normalize()>=QUARTER_HOUR_FROM else pd.Timedelta(hours=1)
+    slot=start;out=[]
+    while slot<=end:out.append(slot);slot+=step
+    return out
+
+
+def collect_versions(start=2022,end=2026,workers=4,log=print):
+    """Download and parse every report version per game day. Rows keep their own game date only."""
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+    games=pd.read_parquet(CACHE/'games.parquet');players=pd.read_parquet(CACHE/'player_boxes.parquet')
+    g=games[games.season.between(start,end)].copy();g['day']=g.tipoff.dt.tz_convert(ET).dt.strftime('%Y-%m-%d')
+    days=g.groupby(['season','day']).tipoff.agg(['min','max']).reset_index()
+    manifest=_manifest();lock=threading.Lock();local=threading.local();ARCHIVE.mkdir(parents=True,exist_ok=True)
+    jobs=[(r.season,r.day,slot) for r in days.itertuples() for slot in day_slots(r.min,r.max)]
+    log(f'{len(jobs)} slots over {len(days)} game days')
+    def one(job):
+        season,day,slot=job
+        if not hasattr(local,'session'):local.session=requests.Session()
+        url=slot_url(slot)
+        with lock:prior=manifest.get(url)
+        if prior is None:
+            scratch={}
+            body,meta=fetch(url,scratch,local.session)
+            with lock:manifest.update(scratch)
+        else:
+            body=Path(prior['path']).read_bytes() if prior['status']==200 else None;meta=prior
+        if body is None:return None
+        stamp,rows,issues=parse_pdf(body)
+        modified=pd.Timestamp(meta['last_modified']).tz_convert(ET) if meta.get('last_modified') else None
+        published=max(t for t in (stamp,slot,modified) if t is not None)
+        frame=pd.DataFrame(rows)
+        if frame.empty:return None
+        frame=frame[frame.game_date.eq(pd.Timestamp(day).strftime('%m/%d/%Y'))]
+        return frame.assign(season=season,report_day=day,report_url=url,report_sha256=meta['sha256'],
+                            published_at=published.tz_convert('UTC'),parse_issues=len(issues))
+    frames=[];done=0
+    with ThreadPoolExecutor(workers) as pool:
+        for frame in pool.map(one,jobs):
+            done+=1
+            if frame is not None and len(frame):frames.append(frame)
+            if done%500==0:
+                with lock:atomic(MANIFEST,manifest)
+                log(f'{done}/{len(jobs)} slots, {len(frames)} versions with rows')
+    atomic(MANIFEST,manifest)
+    rows=pd.concat(frames,ignore_index=True);rows['player_name']=rows.player_name_raw.map(display_name)
+    rows=map_rows(rows,games,players);rows.to_parquet(VERSIONS,index=False)
+    summary={'created_at':now(),'slots_tried':len(jobs),'versions':int(rows.report_url.nunique()),'rows':len(rows),
+             'days':int(rows.report_day.nunique()),'unmatched_player_rows':int((rows.athlete_id.isna()&~rows.not_yet_submitted).sum())}
+    atomic(DATA/'INJURY_REPORT_VERSIONS.json',summary);return summary
