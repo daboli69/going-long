@@ -13,7 +13,7 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action',choices=['refresh','features','develop','confirm','train','predict','daily','calibrate','research-next','pregame-research','pregame-refresh','availability','score-forecast','shadow-forecast','extra-data','score','context','report','app','strength-research','strength-freeze','injury-research','injury-freeze','codex-verify','codex-tests','codex-forecast','kotc'])
     parser.add_argument('--date');parser.add_argument('--start',type=int,default=2015);parser.add_argument('--end',type=int)
-    parser.add_argument('--minutes',choices=['codex','rotation'],default='codex');parser.add_argument('--source',choices=['nba_api','pbpstats']);parser.add_argument('--season',type=int,default=2026)
+    parser.add_argument('--minutes',choices=['rotation','codex'],default='rotation');parser.add_argument('--source',choices=['nba_api','pbpstats']);parser.add_argument('--season',type=int,default=2026)
     args=parser.parse_args()
     try:
         from . import sources,features,engine

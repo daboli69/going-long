@@ -40,7 +40,9 @@ Limits: retrospective fields are reconstructions, not archived pregame rosters. 
 | Average PRA error per player | 7.1 | 6.1 |
 | Actual leader missing from the field | 0 | 0 |
 
-Rotation minutes scored better on 17 of 21 slates, with a log-score gain of +0.41, 95% interval [-0.03, +0.74]. The interval touches zero, so **the gate failed** and Codex minutes stay the default, as planned. For scale, an even split across a typical 250-player field scores about -5.5, so both models carry real information. Neither model's top pick beat the naive pick, though. The leader is a rare, noisy event, and 21 slates is a small sample.
+Rotation minutes scored better on 17 of 21 slates, with a log-score gain of +0.41, 95% interval [-0.03, +0.74]. The interval touches zero, so **the gate failed**. Under the plan, Codex minutes would have stayed the default; see the owner override below. For scale, an even split across a typical 250-player field scores about -5.5, so both models carry real information. Neither model's top pick beat the naive pick, though. The leader is a rare, noisy event, and 21 slates is a small sample.
+
+**Owner override, 2026-10-27.** After seeing these results, Travis chose to make rotation minutes the default on the page and the CLI (`--minutes rotation`), overriding the failed gate. The gate result above stands as recorded: this is a judgment call, not a passed test. Codex minutes remain available as the alternative.
 
 The page offers both minutes models. Early in a season, Codex minutes can project stars far too low: on 2026-10-27 it gave Luka Doncic 18.7 minutes against 29.3 with rotation minutes.
 

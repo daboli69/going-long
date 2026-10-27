@@ -231,7 +231,8 @@ elif page=='King of the Court':
     default=today+pd.Timedelta(days=(1-today.weekday())%7)
     day=st.date_input('Tuesday (Eastern)',default)
     if pd.Timestamp(day).weekday()!=1:st.warning('King of the Court runs on Tuesdays only.')
-    mode=st.radio('Minutes model',['codex','rotation'],horizontal=True,format_func=lambda m:{'codex':"Codex's own minutes (default: gate result)",'rotation':'Rotation minutes (better on 17 of 21 Tuesdays, failed the strict gate)'}[m])
+    mode=st.radio('Minutes model',['rotation','codex'],horizontal=True,format_func=lambda m:{'rotation':'Rotation minutes (default by owner choice; failed the strict gate)','codex':"Codex's own minutes (the gate's fallback)"}[m])
+    if mode=='rotation':st.caption('Rotation minutes scored better on 17 of 21 backtest Tuesdays, but the 95% interval for the gain touched zero, so the preregistered gate failed. Travis chose it as the default anyway on 2026-10-27.')
     if mode=='codex':st.caption("Codex's minutes use only this season's current-team games plus a prior, so early in the season stars can be projected far below their real minutes. Compare both before relying on either.")
     runs=sorted((ARCHIVES/'kotc').glob(str(day)+f'_*_{mode}/META.json'),reverse=True)
     if pd.Timestamp(day).weekday()==1 and st.button('Build full slate + simulate (about 1 minute)',type='primary'):

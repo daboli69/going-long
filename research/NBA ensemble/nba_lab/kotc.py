@@ -161,8 +161,8 @@ def history():
     return CR.PACKAGE/output
 
 
-def simulate(date,draws=20000,parameters=None,at=None,minutes_mode='codex'):
-    """minutes_mode 'codex' is the live default: the rotation scenario failed its backtest gate (docs/KOTC.md)."""
+def simulate(date,draws=20000,parameters=None,at=None,minutes_mode='rotation'):
+    """minutes_mode 'rotation' is the default by Travis's override of the failed backtest gate (docs/KOTC.md)."""
     """Builds the slate, runs Codex's simulator, saves a readable result next to its sealed receipt."""
     source=history()  # fetched first: the simulator requires its schedule receipt to predate the slate origin
     at=pd.Timestamp(at or pd.Timestamp.now(tz='UTC'))
