@@ -40,7 +40,8 @@ def main():
         elif args.action=='kotc':
             from . import kotc
             import pandas as pd
-            folder=kotc.simulate(args.date or pd.Timestamp.now(tz='America/New_York').date(),minutes_mode=args.minutes)
+            today=pd.Timestamp.now(tz='America/New_York').date()
+            folder=kotc.simulate(args.date or today+pd.Timedelta(days=(1-today.weekday())%7),minutes_mode=args.minutes)
             out={'folder':str(folder),**{k:v for k,v in json.loads((folder/'META.json').read_text()).items() if k in ('games','players','availability_source')}}
         elif args.action=='develop':out=engine.develop(threads)
         elif args.action=='confirm':out=engine.confirm(threads)

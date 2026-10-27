@@ -15,6 +15,7 @@ echo 2  Daily refresh + frozen-model refit + archive winners
 echo 3  Show saved research report
 echo 4  Bounded calibration check [cached after completion]
 echo 5  Model hypotheses + spread/total research [cached after completion]
+echo 6  King of the Court: simulate a Tuesday slate
 echo Q  Quit
 set "NBA_ACTION="
 set /p "NBA_ACTION=Choose: "
@@ -39,6 +40,18 @@ if "%NBA_ACTION%"=="4" (
 )
 if "%NBA_ACTION%"=="5" (
  "%NBA_PYTHON%" -m nba_lab.cli research-next
+ set "NBA_RESULT=!errorlevel!"
+ pause
+ exit /b !NBA_RESULT!
+)
+if "%NBA_ACTION%"=="6" (
+ set "KOTC_DATE="
+ set /p "KOTC_DATE=Tuesday date YYYY-MM-DD [Enter = next Tuesday]: "
+ if "!KOTC_DATE!"=="" (
+  "%NBA_PYTHON%" -m nba_lab.cli kotc
+ ) else (
+  "%NBA_PYTHON%" -m nba_lab.cli kotc --date !KOTC_DATE!
+ )
  set "NBA_RESULT=!errorlevel!"
  pause
  exit /b !NBA_RESULT!

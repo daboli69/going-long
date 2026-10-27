@@ -102,11 +102,17 @@ def build_slate(date,session=None,at=None,minutes=None):
                       'away':ALIASES.get(sides['away']['abbreviation'],sides['away']['abbreviation']),
                       'tipoff':pd.Timestamp(event['date']).isoformat(),'status':'scheduled'})
         for side in ('home','away'):teams[sides[side]['id']]=(games[-1]['game_id'],games[-1][side])
-    if not games:raise ValueError('No NBA games on this date')
+    if not games:
+        schedule=pd.read_parquet(CACHE/'games.parquet');tip=pd.to_datetime(schedule.tipoff,utc=True).dt.tz_convert('America/New_York')
+        upcoming=sorted({d for d in tip[(tip.dt.weekday==1)&(tip.dt.date>day)].dt.date})[:3]
+        raise ValueError(f'No NBA games on Tuesday {day}. Next Tuesdays with games: '+', '.join(map(str,upcoming)))
     season=int(board['leagues'][0]['season']['year'])
     first=min(pd.Timestamp(g['tipoff']) for g in games)
     if at>=first:raise ValueError('First game has started; a whole-slate pregame forecast is no longer possible')
     report=CR_report(day,first,at,session)
+    if report.get('url') and pd.Timestamp(report['slot']).date()!=day:
+        # Run ahead of the day: the latest report covers another date, so this slate has none yet.
+        report={'url':None,'error':f"Latest official report is for {pd.Timestamp(report['slot']).date()}, not {day}"}
     schedule=pd.read_parquet(CACHE/'games.parquet')
     status,pending,report=availability(report,season,schedule)
     box_first=pd.read_parquet(CACHE/'player_boxes.parquet',columns=['athlete_id','season']).assign(athlete_id=lambda d:d.athlete_id.astype(str)).groupby('athlete_id').season.min()
@@ -119,14 +125,16 @@ def build_slate(date,session=None,at=None,minutes=None):
             debut=debut_season(a.get('experience',{}).get('years'),season)
             if pid in box_first.index and (debut is None or box_first[pid]<debut):debut=int(box_first[pid])  # an earlier NBA box is conclusive
             official=status.get(pid)
-            out=official in ('Out','Doubtful') or (official is None and team_id in pending and espn_injury=='Out')
+            # No official report yet (e.g. run a day early) or team not submitted: fall back to ESPN's Out flag.
+            fallback=official is None and (not report or not report.get('url') or team_id in pending)
+            out=official in ('Out','Doubtful') or (fallback and espn_injury=='Out')
             scenario=expected_minutes('espn:'+pid,code,minutes,at.isoformat()) if minutes else None
             players.append({'player_id':'espn:'+pid,'name':a['displayName'],'position':(a.get('position') or {}).get('abbreviation','?'),
                             'team':code,'game_id':game_id,'debut_season':debut,'availability':'out' if out else 'available',
                             'selectable':True,'known_at':at.isoformat(),
-                            'source':'ESPN team roster + official NBA injury report' if report else 'ESPN team roster (no official report yet)',
+                            'source':'ESPN team roster + official NBA injury report' if report and report.get('url') else 'ESPN team roster and ESPN injury flags (no official report yet)',
                             **({'expected_minutes':scenario} if scenario else {})})
-            table.append({'player_id':'espn:'+pid,'name':a['displayName'],'team':code,'official_status':official or ('team not submitted' if team_id in pending else 'not listed'),
+            table.append({'player_id':'espn:'+pid,'name':a['displayName'],'team':code,'official_status':official or ('no official report yet' if not report or not report.get('url') else 'team not submitted' if team_id in pending else 'not listed'),
                           'espn_injury':espn_injury,'availability':players[-1]['availability'],'debut_season':debut})
     missing=[p['name'] for p in players if p['debut_season'] is None]
     if missing:raise ValueError('No experience metadata for: '+', '.join(missing))
@@ -141,7 +149,9 @@ def build_slate(date,session=None,at=None,minutes=None):
                                    'source':'Field list built from archived ESPN scoreboard and roster responses'},
            'availability_source':{'official_report_url':report.get('url') if report else None,
                                   'official_report_published_at':str(report.get('available_at')) if report else None,
-                                  'teams_not_submitted':sorted(pending)},'raw_receipts':receipts}
+                                  'teams_not_submitted':sorted(pending),
+                                  'official_report_error':(report or {}).get('error'),
+                                  'fallback':None if report and report.get('url') else "No official report yet: ESPN roster Out flags used"},'raw_receipts':receipts}
     return slate,pd.DataFrame(table)
 
 
