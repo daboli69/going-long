@@ -1,0 +1,24 @@
+{
+  "url": "https://raw.githubusercontent.com/daboli69/going-long/refs/heads/nba-research-transfer-2026-10-27/Going-Up-NBA-Points-Research-2026-10-28.zip",
+  "http_status": 200,
+  "download_bytes": 10531285,
+  "download_sha256": "af8ded87daa3dcc14a2da408755b4217713b697508ae3cc80941e420460bbc87",
+  "zip_crc_verified": true,
+  "payload_verification": {
+    "status": "verified_package_bytes",
+    "files": 115,
+    "manifest_sha256": "e58a1e976ea19272ee0002fa80e3649c36b0ee1b6b16f493d6e11d9daae8c663",
+    "existing_app_integration_verified": false,
+    "predictive_validity_established": false
+  },
+  "standalone_sample_reproduction": {
+    "game_id": "espn:401810723",
+    "exact_PMF_reproduction": {
+      "C": 29,
+      "B_reconstruction": 29
+    }
+  },
+  "local_PC_app_accessed": false,
+  "windows_installation_verified": false,
+  "production_modified": false
+}
