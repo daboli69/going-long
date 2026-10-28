@@ -75,3 +75,17 @@ Not run. The item was optional, and one spec was allowed but not required. Skipp
   `reports/homewin_v2/results.json`. **Gate readings stay provisional until Codex's numbers match** (log loss to
   4 decimals, CLV means to 4 decimals).
 - No verdict on the prospective record before N_LL / N_CLV weeks.
+
+## Power results and Amendment 1 (2026-10-28, before any H1-H4 number or CLV sign)
+Computed at commit 18e98172. Numbers are in `reports/homewin_v2/power.json`.
+- **Log loss.** SD of week-mean differences 0.0502; 250 history weeks; history MDE **0.0106** at the gate's alpha. That is
+  twice the SESOI, so 2012-2026 history cannot detect a 0.005 improvement. **N_LL = 1,126 weeks** (about 66 seasons).
+  In practice, no prospective log-loss verdict will be issued.
+- **CLV** (2026 games with quotes at both points): RMS move and the share of exactly-zero moves were open 0.0702 / 0%,
+  Wednesday 0.0309 / 4%, Friday 0.0175 / 13% and T-90 0.0021 / 90%. GOING snapshots are about 3.4 hours apart (median),
+  so T-90 and the close are usually the same snapshot.
+- **Amendment 1.** The preregistered rule (smallest MDE) picks T-90, which is degenerate. Its MDE is small only because
+  almost nothing moves, and an effect of size SESOI cannot occur when the typical move (0.002) is below the SESOI.
+  Replacement, fixed before any CLV sign is computed: the primary CLV point is the point with the smallest N_CLV among
+  points whose RMS move is at least 2 x SESOI. That gives **Friday, N_CLV = 7 frozen weeks.** T-90 CLV is reported
+  descriptively. Thursday games' Friday point is the previous Friday, per the definition above.
