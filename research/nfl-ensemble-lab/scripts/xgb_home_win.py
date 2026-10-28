@@ -4,11 +4,14 @@ Pipeline: load_data -> add_elo_pregame -> build_team_history ->
 build_feature_matrix -> train_and_evaluate (time split) -> refit on every game
 played before the target games -> predict_upcoming.
 
-Inputs are the Kaggle "spreadspoke" tables:
-  scores: schedule_date, schedule_season, schedule_week, schedule_playoff,
-          team_home, score_home, score_away, team_away, stadium_neutral, ...
-          (future games are rows with blank scores)
-  teams:  team_name, team_id  (maps every historical name to one stable ID)
+Data comes from the free api.nfldata.org JSON API (/v1/games), fetched
+automatically on every run: no files to download. Completed seasons are cached
+in data/cache/xgb_api_games/ after the first fetch; the current season is
+re-fetched each run so new results and the remaining schedule are picked up.
+Team codes are normalized to current franchise IDs (OAK->LV, SD->LAC, STL->LA)
+by the lab's own lab.ingest.normalize_team. Neutral sites combine a stadium
+check with ESPN's public scoreboard API neutralSite flag (the nfldata API lists
+some international games, e.g. 2025, at the home team's own stadium).
 
 Every feature is known before kickoff: Elo is recorded before the game's own
 update, and rolling form is shifted so a game never sees its own result.
@@ -17,13 +20,17 @@ so they are exact for the next unplayed week and only estimates beyond it.
 
 Usage:
   python scripts/xgb_home_win.py
-  python scripts/xgb_home_win.py --scores path/to/scores.csv --teams path/to/teams.csv
+  python scripts/xgb_home_win.py --refresh            # re-fetch every season
   python scripts/xgb_home_win.py --season 2026 --week 8
   python scripts/xgb_home_win.py --date 2026-10-29 --home LAC --away MIN
 """
 from __future__ import annotations
 
 import argparse
+import json
+import sys
+import urllib.request
+from datetime import date
 from pathlib import Path
 
 import numpy as np
@@ -32,13 +39,17 @@ from sklearn.metrics import accuracy_score, brier_score_loss, log_loss, roc_auc_
 from xgboost import XGBClassifier
 
 LAB = Path(__file__).resolve().parents[1]
-SCORES_PATH = LAB / "data" / "spreadspoke_scores.csv"
-TEAMS_PATH = LAB / "data" / "nfl_teams.csv"
+sys.path.insert(0, str(LAB))
+from lab.ingest import normalize_team  # noqa: E402
+from lab.sources import fetch_api_games  # noqa: E402
+
+CACHE_DIR = LAB / "data" / "cache" / "xgb_api_games"
+ESPN_SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 
 # Modern era only: older rules and styles would only add noise.
 START_SEASON = 2002
 
-# Optional single matchup ("tomorrow's game"), by team_id. None = score a whole week.
+# Optional single matchup ("tomorrow's game"), by team code. None = score a whole week.
 GAME_DATE = None  # e.g. "2026-10-29"
 HOME_TEAM = None  # e.g. "LAC"
 AWAY_TEAM = None  # e.g. "MIN"
@@ -70,35 +81,101 @@ XGB_PARAMS = dict(
 )
 
 
-def _truthy(series: pd.Series) -> pd.Series:
-    return series.astype(str).str.strip().str.upper().isin(["TRUE", "1", "YES"])
+def current_season(today: date | None = None) -> int:
+    today = today or date.today()
+    return today.year if today.month >= 3 else today.year - 1
 
 
-def load_data(scores_path=SCORES_PATH, teams_path=TEAMS_PATH, start_season=START_SEASON) -> pd.DataFrame:
-    """Raw CSVs -> one clean, time-ordered row per regular-season game."""
-    scores = pd.read_csv(scores_path)
-    teams = pd.read_csv(teams_path)
+def fetch_season(season: int, live: bool, refresh: bool = False) -> list[dict]:
+    """One season of games from the API; completed seasons come from the local cache."""
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    path = CACHE_DIR / f"{season}.json"
+    if path.exists() and not live and not refresh:
+        return json.loads(path.read_text(encoding="utf-8"))
+    try:
+        rows = fetch_api_games(season, progress=lambda m: None)
+    except (ConnectionError, FileNotFoundError) as exc:
+        if path.exists():
+            print(f"  warning: API fetch for {season} failed ({exc}); using cached copy")
+            return json.loads(path.read_text(encoding="utf-8"))
+        raise
+    if not rows:
+        raise RuntimeError(f"API returned no games for {season}")
+    path.write_text(json.dumps(rows), encoding="utf-8")
+    return rows
 
-    df = scores.copy()
-    df["date"] = pd.to_datetime(df["schedule_date"])
-    df["season"] = pd.to_numeric(df["schedule_season"]).astype(int)
-    df = df[(df["season"] >= start_season) & ~_truthy(df["schedule_playoff"])].copy()
 
-    name_to_id = dict(zip(teams["team_name"], teams["team_id"]))
-    df["home_id"] = df["team_home"].map(name_to_id)
-    df["away_id"] = df["team_away"].map(name_to_id)
-    missing = sorted(set(df.loc[df["home_id"].isna(), "team_home"]) | set(df.loc[df["away_id"].isna(), "team_away"]))
-    if missing:
-        raise ValueError(f"Team names missing from {teams_path}: {missing}")
+def fetch_espn_neutral(year: int, live: bool, refresh: bool = False) -> list[dict]:
+    """ESPN neutral-site regular-season games kicking off in calendar `year`."""
+    path = CACHE_DIR / f"espn_neutral_{year}.json"
+    if path.exists() and not live and not refresh:
+        return json.loads(path.read_text(encoding="utf-8"))
+    url = f"{ESPN_SCOREBOARD}?dates={year}&seasontype=2&limit=1000"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        events = json.load(resp)["events"]
+    rows = []
+    for e in events:
+        comp = e["competitions"][0]
+        if not comp.get("neutralSite"):
+            continue
+        try:
+            teams = sorted(normalize_team(c["team"]["abbreviation"]) for c in comp["competitors"])
+        except ValueError:  # all-star style events
+            continue
+        rows.append({"teams": teams, "date": e["date"][:10], "venue": comp.get("venue", {}).get("fullName")})
+    path.write_text(json.dumps(rows), encoding="utf-8")
+    return rows
 
-    df["week"] = pd.to_numeric(df["schedule_week"], errors="coerce")
-    df["neutral"] = _truthy(df["stadium_neutral"]).astype(int) if "stadium_neutral" in df else 0
-    df["score_home"] = pd.to_numeric(df["score_home"], errors="coerce")
-    df["score_away"] = pd.to_numeric(df["score_away"], errors="coerce")
+
+def espn_neutral_games(start_season: int, live: int, refresh: bool) -> list[dict]:
+    rows = []
+    for year in range(start_season, live + 2):
+        try:
+            rows += fetch_espn_neutral(year, live=year >= live, refresh=refresh)
+        except Exception as exc:  # optional source: the stadium check still runs
+            print(f"  warning: ESPN neutral-site fetch for {year} failed ({exc})")
+    return rows
+
+
+def load_data(start_season: int = START_SEASON, refresh: bool = False) -> pd.DataFrame:
+    """API games -> one clean, time-ordered row per regular-season game."""
+    live = current_season()
+    print(f"Fetching seasons {start_season}-{live} from api.nfldata.org ...")
+    raw = pd.DataFrame([r for s in range(start_season, live + 1)
+                        for r in fetch_season(s, live=(s == live), refresh=refresh)])
+
+    df = raw[raw["game_type"] == "REG"].copy()  # drops playoff games
+    df["date"] = pd.to_datetime(df["gameday"])
+    df["season"] = df["season"].astype(int)
+    df = df[df["season"] >= start_season]
+    df["home_id"] = df["home_team"].map(normalize_team)  # raises on an unknown code
+    df["away_id"] = df["away_team"].map(normalize_team)
+    df["week"] = df["week"].astype(int)
+
+    # The API has no neutral-site flag: a game is neutral when it is not at the
+    # home team's usual stadium that season, or when ESPN flags it neutral.
+    usual = df.groupby(["season", "home_id"])["stadium"].agg(lambda x: x.mode().iat[0])
+    off_home = df["stadium"].to_numpy() != usual.loc[list(zip(df["season"], df["home_id"]))].to_numpy()
+    espn = {}
+    for r in espn_neutral_games(start_season, live, refresh):
+        espn.setdefault(tuple(r["teams"]), []).append(pd.Timestamp(r["date"]))
+    espn_flag = [any(abs((d - t).days) <= 1 for t in espn.get(tuple(sorted((h, a))), []))
+                 for d, h, a in zip(df["date"], df["home_id"], df["away_id"])]
+    df["neutral"] = (off_home | np.array(espn_flag, dtype=bool)).astype(int)
+
+    df["score_home"] = pd.to_numeric(df["home_score"], errors="coerce")
+    df["score_away"] = pd.to_numeric(df["away_score"], errors="coerce")
     df["played"] = df["score_home"].notna() & df["score_away"].notna()
     df["tie"] = df["played"] & (df["score_home"] == df["score_away"])
     # Target. NaN for unplayed games; ties are kept for Elo/form but not trained on.
     df["y_home_win"] = np.where(df["played"], (df["score_home"] > df["score_away"]).astype(float), np.nan)
+
+    for season, g in df.groupby("season"):
+        expected = 272 if season >= 2021 else 256
+        expected -= season == 2022  # BUF-CIN week 17 was canceled, never replayed
+        if len(g) != expected:
+            print(f"  warning: {season} has {len(g)} regular-season games, expected {expected}")
 
     df = df.sort_values(["date", "home_id"]).reset_index(drop=True)
     df["game_id"] = df.index
@@ -278,8 +355,7 @@ def select_targets(games: pd.DataFrame, args) -> pd.DataFrame:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--scores", type=Path, default=SCORES_PATH)
-    ap.add_argument("--teams", type=Path, default=TEAMS_PATH)
+    ap.add_argument("--refresh", action="store_true", help="re-fetch cached completed seasons too")
     ap.add_argument("--start-season", type=int, default=START_SEASON)
     ap.add_argument("--test-start", type=int, help="first test season (default: latest season with results minus one)")
     ap.add_argument("--season", type=int)
@@ -290,7 +366,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, help="optional CSV of predictions")
     args = ap.parse_args()
 
-    games = load_data(args.scores, args.teams, args.start_season)
+    games = load_data(args.start_season, args.refresh)
     games, _ = add_elo_pregame(games)
     hist = build_team_history(games)
     X, y, seasons, dates = build_feature_matrix(games, hist)
