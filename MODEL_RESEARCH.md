@@ -263,3 +263,9 @@ Both failed;no more configurations tried. Saved both prespecified research copie
 | Hypothesis | Sample and evidence | Result | Decision |
 |---|---|---|---|
 | Verified QB availability improves frozen champion at kickoff minus 90 minutes | Original 2026 W6-7 forecasts only: 27 games, 26 with both champion QB IDs; no full affirmative starter/replacement cohort established. Existing 2026 observations descriptive only. | Zero candidate fits. Descriptive champion vs observed DraftKings market on 23 games: LL 0.810985 vs 0.731530, delta +0.079455 [-0.002409,+0.158668]. Champion snapshot about 22.5h older than decision; causal QB attribution unavailable. Independent reproduction passed. | Inconclusive, research-only; no promotion. Protocol 9717da6b; docs/QB_ASOF_RESULTS.md. |
+
+## Deep home-win model - preregistered 2026-10-28
+
+| Hypothesis | Protocol | Result | Decision |
+|---|---|---|---|
+| Opponent-adjusted play-by-play EPA/success ratings plus a kickoff-known starting-QB adjustment, as a margin model, beat the existing Elo on home-win log loss | Frozen before any fit: research/nfl-ensemble-lab/docs/HOMEWIN_DEEP_PREREGISTRATION.md. Weekly decision time = first kickoff minus 90 min. Walk-forward 2012 to latest week (reused history). Bonferroni m=4 vs elo; week-cluster bootstrap 2000; DM; Brier no worse; 9 of 15 seasons. Market 2026-only and descriptive. Prospective freeze is the untouched test. | Pending | Pending; no promotion from this study |
