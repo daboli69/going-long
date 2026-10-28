@@ -1,0 +1,50 @@
+{
+  "2025": {
+    "rows_replay": 4916,
+    "rows_batch": 4916,
+    "unmatched_rows": 0,
+    "max_abs_prediction_diff": 1.6653345369377348e-16,
+    "max_abs_feature_diff": {
+      "elo_diff": 5.684341886080802e-14,
+      "adj_off_diff": 1.7763568394002505e-15,
+      "adj_def_diff": 8.881784197001252e-16,
+      "recent_net_diff": 1.7763568394002505e-15,
+      "rest_diff": 0.0,
+      "b2b_home": 0.0,
+      "b2b_away": 0.0,
+      "home_court": 0.0,
+      "gp_min": 0.0,
+      "recent_off_diff": 1.7763568394002505e-15,
+      "recent_def_diff": 1.7763568394002505e-15,
+      "adj_net_diff": 1.7763568394002505e-15,
+      "ff_efg_diff": 9.93129189996722e-17,
+      "ff_tov_diff": 9.974659986866641e-17,
+      "ff_orb_diff": 9.93129189996722e-17,
+      "ff_ftr_diff": 9.974659986866641e-17
+    }
+  },
+  "2026": {
+    "rows_replay": 4920,
+    "rows_batch": 4920,
+    "unmatched_rows": 0,
+    "max_abs_prediction_diff": 3.3306690738754696e-16,
+    "max_abs_feature_diff": {
+      "elo_diff": 5.684341886080802e-14,
+      "adj_off_diff": 8.881784197001252e-16,
+      "adj_def_diff": 1.7763568394002505e-15,
+      "recent_net_diff": 1.7763568394002505e-15,
+      "rest_diff": 0.0,
+      "b2b_home": 0.0,
+      "b2b_away": 0.0,
+      "home_court": 0.0,
+      "gp_min": 0.0,
+      "recent_off_diff": 8.881784197001252e-16,
+      "recent_def_diff": 1.7763568394002505e-15,
+      "adj_net_diff": 1.7763568394002505e-15,
+      "ff_efg_diff": 9.974659986866641e-17,
+      "ff_tov_diff": 9.974659986866641e-17,
+      "ff_orb_diff": 9.8879238130678e-17,
+      "ff_ftr_diff": 9.93129189996722e-17
+    }
+  }
+}
