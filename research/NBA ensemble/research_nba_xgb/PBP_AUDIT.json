@@ -1,0 +1,81 @@
+{
+  "2019": {
+    "games_expected": 1230,
+    "status": {
+      "ok": 773,
+      "sub_inconsistent": 350,
+      "starters_6": 102,
+      "starters_7": 4,
+      "starters_4": 1
+    },
+    "stints": 23180
+  },
+  "2020": {
+    "games_expected": 1059,
+    "status": {
+      "ok": 681,
+      "sub_inconsistent": 284,
+      "starters_6": 87,
+      "no_pbp": 6,
+      "starters_7": 1
+    },
+    "stints": 21128
+  },
+  "2021": {
+    "games_expected": 1080,
+    "status": {
+      "ok": 1076,
+      "sub_inconsistent": 4
+    },
+    "stints": 31680
+  },
+  "2022": {
+    "games_expected": 1230,
+    "status": {
+      "ok": 1226,
+      "sub_inconsistent": 4
+    },
+    "stints": 36577
+  },
+  "2023": {
+    "games_expected": 1230,
+    "status": {
+      "ok": 1218,
+      "sub_inconsistent": 12
+    },
+    "stints": 36336
+  },
+  "2024": {
+    "games_expected": 1230,
+    "status": {
+      "ok": 1216,
+      "sub_inconsistent": 14
+    },
+    "stints": 35634
+  },
+  "2025": {
+    "games_expected": 1229,
+    "status": {
+      "ok": 1219,
+      "sub_inconsistent": 10
+    },
+    "stints": 36639
+  },
+  "2026": {
+    "games_expected": 1230,
+    "status": {
+      "ok": 1217,
+      "sub_inconsistent": 12,
+      "no_pbp": 1
+    },
+    "stints": 39021
+  },
+  "2027": {
+    "games_expected": 43,
+    "status": {
+      "ok": 39,
+      "sub_inconsistent": 4
+    },
+    "stints": 1390
+  }
+}

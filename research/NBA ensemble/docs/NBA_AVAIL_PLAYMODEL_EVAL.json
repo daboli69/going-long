@@ -1,0 +1,67 @@
+{
+  "2023": {
+    "n": 41844,
+    "model_log_loss": 0.31132140504293626,
+    "status_rate_log_loss": 0.4506789007234718,
+    "constant_log_loss": 0.671963125366619,
+    "model_brier": 0.09554066855857767,
+    "calibration": {
+      "intercept_fixed_slope": -0.0025870995766717844,
+      "intercept_se": 0.015821552960706243,
+      "slope": 0.9892148042637682,
+      "slope_se": 0.011082020018761954
+    }
+  },
+  "2024": {
+    "n": 44132,
+    "model_log_loss": 0.30630993747340507,
+    "status_rate_log_loss": 0.4554069485807269,
+    "constant_log_loss": 0.6790590695627133,
+    "model_brier": 0.0952498609298122,
+    "calibration": {
+      "intercept_fixed_slope": 0.01701192781227938,
+      "intercept_se": 0.015382502595567726,
+      "slope": 1.0085047156250884,
+      "slope_se": 0.010934398047803539
+    }
+  },
+  "2025": {
+    "n": 44405,
+    "model_log_loss": 0.30295909760317,
+    "status_rate_log_loss": 0.4357330552952179,
+    "constant_log_loss": 0.680925452914978,
+    "model_brier": 0.09356140306587403,
+    "calibration": {
+      "intercept_fixed_slope": 0.050210083374174784,
+      "intercept_se": 0.015614181245642159,
+      "slope": 0.9730072407891299,
+      "slope_se": 0.010739692032525998
+    }
+  },
+  "2026": {
+    "n": 44204,
+    "model_log_loss": 0.29250420054949827,
+    "status_rate_log_loss": 0.42490011654678617,
+    "constant_log_loss": 0.6769702664933419,
+    "model_brier": 0.09023158891665929,
+    "calibration": {
+      "intercept_fixed_slope": 0.04447083039773232,
+      "intercept_se": 0.015670831561473766,
+      "slope": 1.0330038631500569,
+      "slope_se": 0.011576520575807674
+    }
+  },
+  "2027": {
+    "n": 1646,
+    "model_log_loss": 0.8265271779825444,
+    "status_rate_log_loss": 0.8544416460795545,
+    "constant_log_loss": 0.7114394994004946,
+    "model_brier": 0.28459777998334174,
+    "calibration": {
+      "intercept_fixed_slope": -1.4826097157738327,
+      "intercept_se": 0.056410817026773336,
+      "slope": 0.6876719943703772,
+      "slope_se": 0.0490936602492531
+    }
+  }
+}
