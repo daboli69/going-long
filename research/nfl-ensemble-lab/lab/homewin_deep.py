@@ -397,9 +397,9 @@ def week_features(data: Data, season: int, week: int, cutoff: pd.Timestamp | Non
     return pd.DataFrame(rows)
 
 
-def all_week_features(data: Data, first_season: int = 2003, progress=print) -> pd.DataFrame:
+def all_week_features(data: Data, first_season: int = 2003, progress=print, prior_mean: float | None = None) -> pd.DataFrame:
     end = season_end_ratings(data.team_games[data.team_games["kickoff_utc"] < data.games["decision_utc"].max()])
-    pm = qb_prior_mean(data.qb_games[data.qb_games["season"] <= 2011])
+    pm = qb_prior_mean(data.qb_games[data.qb_games["season"] <= 2011]) if prior_mean is None else prior_mean
     rest = _rest(data.games)
     weeks = data.games[data.games["season"] >= first_season][["season", "week"]].drop_duplicates().sort_values(["season", "week"])
     parts = []
@@ -506,21 +506,24 @@ def v1_frame(data: Data) -> tuple[pd.DataFrame, pd.DataFrame]:
     return X.assign(gid=gid), hist
 
 
-def perturb_after(data: Data, cutoff: pd.Timestamp, season: int, week: int, seed: int = 0) -> Data:
-    """Corrupt every result, play aggregate, injury row, inactive and quote at or after `cutoff` (leakage tests)."""
+def perturb_after(data: Data, cutoff: pd.Timestamp, season: int, week: int, seed: int = 0,
+                  result_cutoff: pd.Timestamp | None = None) -> Data:
+    """Corrupt every injury row, inactive and quote at or after `cutoff`, and every result and play aggregate of
+    games kicking off at or after `result_cutoff` (default `cutoff`). Used by the leakage checks."""
     rng = np.random.default_rng(seed)
+    rc = cutoff if result_cutoff is None else result_cutoff
     g = data.games.copy()
-    late = g["kickoff_utc"] >= cutoff
+    late = g["kickoff_utc"] >= rc
     g.loc[late & g["played"], "score_home"] = rng.integers(0, 60, int((late & g["played"]).sum()))
     g.loc[late & g["played"], "score_away"] = rng.integers(0, 60, int((late & g["played"]).sum()))
     g["margin"] = g["score_home"] - g["score_away"]
     g, _ = _with_elo(g.drop(columns=["home_elo", "away_elo", "elo_prob_home"]))
     tg = data.team_games.copy()
-    lt = tg["kickoff_utc"] >= cutoff
+    lt = tg["kickoff_utc"] >= rc
     for c in ("pass_epa", "run_epa", "pass_sr", "run_sr"):
         tg.loc[lt, c] = rng.normal(0, 1, int(lt.sum()))
     q = data.qb_games.copy()
-    lq = q["kickoff_utc"] >= cutoff
+    lq = q["kickoff_utc"] >= rc
     q.loc[lq, "epa"] = rng.normal(0, 30, int(lq.sum()))
     q.loc[lq, "n"] = rng.integers(1, 60, int(lq.sum()))
     inj = data.injuries.copy()
