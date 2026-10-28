@@ -24,3 +24,35 @@ Code: `nba_lab/engine_availability.py`. These details fill in stage 1 of `docs/E
 **Splits.** Test 2023-24 (train 2021-22 to 2022-23), 2024-25 (train through 2023-24) and 2025-26 (train through 2024-25).
 
 **Gate (from the plan).** Primary: log loss on pooled test rows. Paired bootstrap over game nights (2,000 draws, seed 20261027). Pass if the 95% interval for the change is below zero, log loss improves in at least 2 of 3 seasons, and Brier is no more than 1% worse. Also reported: results by status, and how often a player listed as available at decision didn't play.
+
+## Results (scored once, after the details above were committed)
+
+Data: 15,060 official report versions across all 816 game days (1.17 million rows; 0.7% of player rows unmatched to an ID). Test rows: 159,384 player-games over 487 nights.
+
+| | Status-only baseline | Availability model |
+|---|---:|---:|
+| Log loss | 0.549 | **0.210** |
+| Brier | 0.195 | **0.067** |
+| Seasons improved | | 3 of 3 (2023-24, 2024-25, 2025-26) |
+
+Change -0.340, 95% interval [-0.344, -0.335]. **Stage 1 passes its gate.**
+
+By status at decision:
+
+| Status | Rows | Actually played | Baseline log loss | Model log loss |
+|---|---:|---:|---:|---:|
+| Not listed | 116,566 | 60% | 0.675 | 0.229 |
+| Questionable | 5,688 | 49% | 0.693 | 0.647 |
+| Probable | 2,034 | 91% | 0.295 | 0.242 |
+| Available | 2,270 | 78% | 0.536 | 0.326 |
+| Team not yet submitted | 3,967 | 51% | 0.694 | 0.359 |
+| Doubtful | 856 | 2% | 0.084 | 0.089 |
+| Out | 28,003 | 0.15% | 0.012 | 0.011 |
+
+**Read this carefully.** Most of the gain is in unlisted players. The baseline knows only the report status, so it gives every unlisted player the same 60%. The model separates regular rotation players (who play about 99% of the time) from deep-bench and two-way players. That's real and the engine needs it, but it's a weak baseline.
+
+The injury-specific part is smaller. Questionable players improve from 0.693 to 0.647, and their predictions are calibrated: predicted 31% → 31% played, 52% → 54%, 67% → 62%. Doubtful is slightly worse, on few rows.
+
+**Late scratches.** Of 36,677 rotation players (10+ games averaging 20+ minutes) who were not listed, Probable or Available at the decision, 402 (1.1%) didn't play. That's the error left by deciding an hour before the first tipoff.
+
+Next, under the plan: stage 2 (minutes), built on these play probabilities.
