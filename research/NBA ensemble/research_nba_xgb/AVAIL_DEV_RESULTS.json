@@ -1,0 +1,323 @@
+{
+  "dev_fold": 2024,
+  "n_train": 8287,
+  "n_train_with_avail": 1230,
+  "n_eval": 1230,
+  "logit_base": {
+    "C_scores": {
+      "0.001": 0.6164960741273936,
+      "0.003": 0.6115972158616122,
+      "0.01": 0.6100615092583169,
+      "0.03": 0.6096240199325009,
+      "0.1": 0.6094529448035022,
+      "0.3": 0.6094010824528484,
+      "1.0": 0.6093800255725128,
+      "10.0": 0.6093729234222265
+    },
+    "C": 10.0
+  },
+  "logit_avail": {
+    "C_scores": {
+      "0.001": 0.6036749221917722,
+      "0.003": 0.602321855119585,
+      "0.01": 0.6025697676284953,
+      "0.03": 0.6027420792723132,
+      "0.1": 0.6028164814359129,
+      "0.3": 0.6028416660273882,
+      "1.0": 0.6028513779099488,
+      "10.0": 0.6028552931745593
+    },
+    "C": 0.003
+  },
+  "elo_cal_loss": 0.6130837067102797,
+  "xgb_base": {
+    "params": {
+      "max_depth": 1,
+      "learning_rate": 0.05,
+      "min_child_weight": 50,
+      "subsample": 0.6,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 50,
+      "reg_alpha": 0
+    },
+    "rounds": 150,
+    "source": "carried from NBA_XGB_FROZEN.json",
+    "dev_loss": 0.6148320436313681
+  },
+  "xgb_avail": {
+    "params": {
+      "max_depth": 3,
+      "learning_rate": 0.05,
+      "min_child_weight": 50,
+      "subsample": 0.6,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 10,
+      "reg_alpha": 2
+    },
+    "rounds": 150,
+    "dev_loss": 0.6074087767011683,
+    "note": "single dev fold: deeper config adopted only if >0.0005 better than best depth<=3"
+  },
+  "xgb_avail_table": [
+    {
+      "config": {
+        "max_depth": 1,
+        "learning_rate": 0.05,
+        "min_child_weight": 50,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 10,
+        "reg_alpha": 0
+      },
+      "rounds": 275,
+      "loss": 0.6084000862393316
+    },
+    {
+      "config": {
+        "max_depth": 1,
+        "learning_rate": 0.05,
+        "min_child_weight": 50,
+        "subsample": 1.0,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 50,
+        "reg_alpha": 2
+      },
+      "rounds": 425,
+      "loss": 0.6089236202182942
+    },
+    {
+      "config": {
+        "max_depth": 2,
+        "learning_rate": 0.01,
+        "min_child_weight": 5,
+        "subsample": 0.6,
+        "colsample_bytree": 0.6,
+        "reg_lambda": 10,
+        "reg_alpha": 0.5
+      },
+      "rounds": 600,
+      "loss": 0.6088824002308052
+    },
+    {
+      "config": {
+        "max_depth": 2,
+        "learning_rate": 0.01,
+        "min_child_weight": 20,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 10,
+        "reg_alpha": 2
+      },
+      "rounds": 775,
+      "loss": 0.6091079053221953
+    },
+    {
+      "config": {
+        "max_depth": 2,
+        "learning_rate": 0.03,
+        "min_child_weight": 5,
+        "subsample": 0.8,
+        "colsample_bytree": 0.6,
+        "reg_lambda": 10,
+        "reg_alpha": 0.5
+      },
+      "rounds": 200,
+      "loss": 0.6097430510706768
+    },
+    {
+      "config": {
+        "max_depth": 2,
+        "learning_rate": 0.03,
+        "min_child_weight": 20,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 1,
+        "reg_alpha": 0
+      },
+      "rounds": 200,
+      "loss": 0.6100266284017175
+    },
+    {
+      "config": {
+        "max_depth": 2,
+        "learning_rate": 0.05,
+        "min_child_weight": 5,
+        "subsample": 0.8,
+        "colsample_bytree": 0.6,
+        "reg_lambda": 50,
+        "reg_alpha": 0.5
+      },
+      "rounds": 200,
+      "loss": 0.6089294447443373
+    },
+    {
+      "config": {
+        "max_depth": 2,
+        "learning_rate": 0.05,
+        "min_child_weight": 50,
+        "subsample": 1.0,
+        "colsample_bytree": 0.6,
+        "reg_lambda": 1,
+        "reg_alpha": 0
+      },
+      "rounds": 150,
+      "loss": 0.6094658464408816
+    },
+    {
+      "config": {
+        "max_depth": 3,
+        "learning_rate": 0.01,
+        "min_child_weight": 20,
+        "subsample": 0.6,
+        "colsample_bytree": 0.6,
+        "reg_lambda": 10,
+        "reg_alpha": 0.5
+      },
+      "rounds": 525,
+      "loss": 0.6090088409171689
+    },
+    {
+      "config": {
+        "max_depth": 3,
+        "learning_rate": 0.01,
+        "min_child_weight": 20,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 10,
+        "reg_alpha": 0.5
+      },
+      "rounds": 525,
+      "loss": 0.6103969507923135
+    },
+    {
+      "config": {
+        "max_depth": 3,
+        "learning_rate": 0.03,
+        "min_child_weight": 20,
+        "subsample": 0.6,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 50,
+        "reg_alpha": 0
+      },
+      "rounds": 225,
+      "loss": 0.610327948745486
+    },
+    {
+      "config": {
+        "max_depth": 3,
+        "learning_rate": 0.05,
+        "min_child_weight": 20,
+        "subsample": 0.8,
+        "colsample_bytree": 1.0,
+        "reg_lambda": 1,
+        "reg_alpha": 0.5
+      },
+      "rounds": 100,
+      "loss": 0.6121850691452739
+    },
+    {
+      "config": {
+        "max_depth": 3,
+        "learning_rate": 0.05,
+        "min_child_weight": 50,
+        "subsample": 0.6,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 10,
+        "reg_alpha": 2
+      },
+      "rounds": 150,
+      "loss": 0.6074087767011683
+    },
+    {
+      "config": {
+        "max_depth": 4,
+        "learning_rate": 0.05,
+        "min_child_weight": 20,
+        "subsample": 1.0,
+        "colsample_bytree": 0.6,
+        "reg_lambda": 50,
+        "reg_alpha": 0.5
+      },
+      "rounds": 125,
+      "loss": 0.6113070635398802
+    },
+    {
+      "config": {
+        "max_depth": 6,
+        "learning_rate": 0.01,
+        "min_child_weight": 5,
+        "subsample": 0.6,
+        "colsample_bytree": 0.6,
+        "reg_lambda": 10,
+        "reg_alpha": 2
+      },
+      "rounds": 400,
+      "loss": 0.6146751992051932
+    },
+    {
+      "config": {
+        "max_depth": 6,
+        "learning_rate": 0.01,
+        "min_child_weight": 50,
+        "subsample": 0.6,
+        "colsample_bytree": 1.0,
+        "reg_lambda": 50,
+        "reg_alpha": 0
+      },
+      "rounds": 725,
+      "loss": 0.6088714133158626
+    },
+    {
+      "config": {
+        "max_depth": 6,
+        "learning_rate": 0.01,
+        "min_child_weight": 50,
+        "subsample": 0.8,
+        "colsample_bytree": 1.0,
+        "reg_lambda": 50,
+        "reg_alpha": 2
+      },
+      "rounds": 775,
+      "loss": 0.6107365022152709
+    },
+    {
+      "config": {
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "min_child_weight": 20,
+        "subsample": 0.6,
+        "colsample_bytree": 0.6,
+        "reg_lambda": 10,
+        "reg_alpha": 0
+      },
+      "rounds": 75,
+      "loss": 0.613062763461648
+    },
+    {
+      "config": {
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "min_child_weight": 20,
+        "subsample": 1.0,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 10,
+        "reg_alpha": 0.5
+      },
+      "rounds": 100,
+      "loss": 0.6185579164610345
+    },
+    {
+      "config": {
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "min_child_weight": 50,
+        "subsample": 0.6,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 50,
+        "reg_alpha": 2
+      },
+      "rounds": 200,
+      "loss": 0.6077037594318108
+    }
+  ]
+}

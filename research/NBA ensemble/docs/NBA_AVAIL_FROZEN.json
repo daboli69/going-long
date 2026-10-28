@@ -1,0 +1,101 @@
+{
+  "frozen_at_utc": "2026-10-28T21:38:58.801230+00:00",
+  "note": "Selected on development fold 2024 only; calibrators evaluated on 2024 with fits on 2022-2023. No 2025/2026 outcome used here.",
+  "base_features": [
+    "elo_diff",
+    "recent_net_diff",
+    "rest_diff",
+    "b2b_home",
+    "b2b_away",
+    "home_court"
+  ],
+  "avail_features": [
+    "full_value_diff",
+    "avail_effect_diff",
+    "missing_min_diff"
+  ],
+  "logit_base_C": 10.0,
+  "logit_avail_C": 0.003,
+  "xgb_base": {
+    "params": {
+      "max_depth": 1,
+      "learning_rate": 0.05,
+      "min_child_weight": 50,
+      "subsample": 0.6,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 50,
+      "reg_alpha": 0
+    },
+    "rounds": 150,
+    "source": "carried from NBA_XGB_FROZEN.json",
+    "dev_loss": 0.6148320436313681
+  },
+  "xgb_avail": {
+    "params": {
+      "max_depth": 3,
+      "learning_rate": 0.05,
+      "min_child_weight": 50,
+      "subsample": 0.6,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 10,
+      "reg_alpha": 2
+    },
+    "rounds": 150,
+    "dev_loss": 0.6074087767011683,
+    "note": "single dev fold: deeper config adopted only if >0.0005 better than best depth<=3"
+  },
+  "folds": {
+    "train_start": 2017,
+    "dev": 2024,
+    "cal": [
+      2022,
+      2023
+    ],
+    "test": [
+      2025,
+      2026
+    ]
+  },
+  "rapm_tuning_sha256": "981ff44baa89d14f6858104b6c168b2a0a2a5e22ee03d2d1822bd722db181794",
+  "avail_features_sha256": "e331122dd41e87bb297928a07e06607ab8f809d1c6a08e37ac890d472daae581",
+  "rapm_ratings_sha256": "a7ce633bb8e8e6b5ed64ed08f79bb61eadc5b75e109ed0506a29fe7e2ba26e67",
+  "stints_sha256": "2068597e2aef2ff9d39330325d9e68bf5681488efef2221e8752a5244e6e3325",
+  "base_features_sha256": "fd141440418cc5933660d37f1fbd6aa79f562d4ac8f71dabbaa5a602397bbbf9",
+  "calibration": {
+    "elo_cal": {
+      "scores": {
+        "none": 0.6130837067102797,
+        "platt": 0.613278473699171
+      },
+      "method": "none"
+    },
+    "logit_base": {
+      "scores": {
+        "none": 0.6093729234222265,
+        "platt": 0.6098328036351739
+      },
+      "method": "none"
+    },
+    "logit_avail": {
+      "scores": {
+        "none": 0.602321855119585,
+        "platt": 0.6009826949117077
+      },
+      "method": "platt"
+    },
+    "xgb_base": {
+      "scores": {
+        "none": 0.6148320436313681,
+        "platt": 0.6149704522987129
+      },
+      "method": "none"
+    },
+    "xgb_avail": {
+      "scores": {
+        "none": 0.6074087767011683,
+        "platt": 0.6082295882698985
+      },
+      "method": "none"
+    }
+  }
+}
