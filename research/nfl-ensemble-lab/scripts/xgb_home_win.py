@@ -268,15 +268,16 @@ def _matchup_features(df: pd.DataFrame) -> pd.DataFrame:
     return out[FEATURES].astype(float)
 
 
-def build_feature_matrix(games: pd.DataFrame, hist: pd.DataFrame):
-    """One row per played, non-tied game: X, y, season, date."""
+def build_feature_matrix(games: pd.DataFrame, hist: pd.DataFrame, return_ids: bool = False):
+    """One row per played, non-tied game: X, y, season, date (and game_id if return_ids)."""
     form = hist[["game_id", "team"] + FORM_COLS]
     df = games[games["played"] & ~games["tie"]]
     df = df.merge(form.rename(columns={"team": "home_id", **{c: f"home_{c}" for c in FORM_COLS}}),
                   on=["game_id", "home_id"], how="left")
     df = df.merge(form.rename(columns={"team": "away_id", **{c: f"away_{c}" for c in FORM_COLS}}),
                   on=["game_id", "away_id"], how="left")
-    return _matchup_features(df), df["y_home_win"].astype(int), df["season"], df["date"]
+    out = (_matchup_features(df), df["y_home_win"].astype(int), df["season"], df["date"])
+    return out + (df["game_id"],) if return_ids else out
 
 
 def _report(name: str, y, p) -> None:
