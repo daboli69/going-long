@@ -29,3 +29,7 @@ ZIP SHA256: `57000fdd00c51e4903110d766144032564d7e3082270a300e20743424c5b3de9`
 ## Continue with Claude
 
 [Read the complete NBA ensemble and King of the Court handoff](CLAUDE_HANDOFF.md). It includes the Windows installation receipt, architecture, algorithms, source audits, exact experimental results, frozen records, file hashes, missing data, integration steps and proposed next research task. The installed research has not yet been verified as integrated with the existing Windows app.
+
+## October 28: Going Up independent player-points study
+
+[Download the new study and Claude merge handoff](GOING_UP_START_HERE.md). This separate package includes the code, derived inputs, forecast PMFs, report and reproducible checks. Overall verdict: inconclusive. It does not change the earlier bundle or integrate with the local Windows app.
