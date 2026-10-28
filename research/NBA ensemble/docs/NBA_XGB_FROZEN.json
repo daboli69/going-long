@@ -1,0 +1,64 @@
+{
+  "frozen_at_utc": "2026-10-28T20:52:49.573988+00:00",
+  "note": "Written from development folds 2020-2023 (+2024 for calibration only). No 2025/2026 outcome was used.",
+  "engine_params": {
+    "lag_days": 1,
+    "elo": {
+      "k": 17.105822198798016,
+      "hca": 60.51503360292087,
+      "carry": 0.6894626009315065,
+      "mov": true
+    },
+    "adj": {
+      "lam": 20,
+      "kappa": 0.25
+    },
+    "recent": {
+      "half_life": 40,
+      "n0": 20,
+      "rho": 0.5
+    }
+  },
+  "engine_params_file_sha256": "30f3309a17edeea192bafdd7e701aadf2b68358707fa3a31fb49d3f46fbfbaba",
+  "canonical_manifest_sha256": "efbf1d86f34732c7209b87b244da9187599a0d9e4fe9f99e93dec1f6083a9d03",
+  "features": [
+    "elo_diff",
+    "recent_net_diff",
+    "rest_diff",
+    "b2b_home",
+    "b2b_away",
+    "home_court"
+  ],
+  "xgb": {
+    "params": {
+      "max_depth": 1,
+      "learning_rate": 0.05,
+      "min_child_weight": 50,
+      "subsample": 0.6,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 50,
+      "reg_alpha": 0
+    },
+    "rounds": 150,
+    "seed": 20261028
+  },
+  "logit_C": 0.003,
+  "calibration": {
+    "elo_cal": "platt",
+    "logit": "platt",
+    "xgb": "none"
+  },
+  "dev_folds": [
+    2020,
+    2021,
+    2022,
+    2023
+  ],
+  "calibration_selection_fold": 2024,
+  "test_folds": [
+    2025,
+    2026
+  ],
+  "refit_schedule": "annual, before each season, on all labelled seasons >= 2016 and < target season",
+  "feature_file_sha256": "fd141440418cc5933660d37f1fbd6aa79f562d4ac8f71dabbaa5a602397bbbf9"
+}
