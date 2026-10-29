@@ -1,0 +1,284 @@
+{
+ "prereg_commit": "860324b6",
+ "filter": {
+  "bid_min": 0.02,
+  "ask_max": 0.98,
+  "spread_max": 0.05,
+  "vol24_min": 500,
+  "ladder_min_liquid_thresholds": 3
+ },
+ "series": {
+  "KXNFLANYTD": {
+   "games_in_inventory": 270,
+   "seasons": [
+    2025
+   ],
+   "markets_in_inventory": 5167,
+   "sampled": 400,
+   "no_candle_before_P": 10,
+   "liquid": 157,
+   "liquid_share": 0.3925,
+   "liquid_share_wilson95": [
+    0.34588569643429457,
+    0.44115952129463676
+   ],
+   "spread_quantiles": {
+    "p10": 0.010000000000000009,
+    "p25": 0.020000000000000004,
+    "p50": 0.04,
+    "p75": 0.06,
+    "p90": 0.13100000000000023
+   },
+   "vol24_quantiles": {
+    "p10": 0.0,
+    "p25": 70.75,
+    "p50": 550.5,
+    "p75": 2194.5,
+    "p90": 6549.800000000001
+   },
+   "markets_per_game_median": 19.0,
+   "est_liquid_markets_per_game": 7.4575000000000005,
+   "rules_primary": "If Zay Jones scores a touchdown in Dallas at Arizona professional football game originally scheduled for Nov 3, 2025, then the market resolves to Yes.",
+   "rules_secondary": "The following market refers to a player or team in Dallas at Arizona professional football game originally scheduled for Nov 3, 2025. If a player is active but never takes a snap, the market settles to the last fair market price before game start. Once a player takes at least one snap, even if nullified by penalty, the market settles based on touchdowns scored. If no touchdowns are scored in the game, the No Touchdown Scorer market resolves to Yes and all other player markets resolve to No."
+  },
+  "KXNFLPASSTDS": {
+   "games_in_inventory": 219,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "markets_in_inventory": 1701,
+   "sampled": 400,
+   "no_candle_before_P": 29,
+   "liquid": 129,
+   "liquid_share": 0.3225,
+   "liquid_share_wilson95": [
+    0.27856718806945857,
+    0.36980979934342806
+   ],
+   "spread_quantiles": {
+    "p10": 0.010000000000000002,
+    "p25": 0.010000000000000009,
+    "p50": 0.02,
+    "p75": 0.04999999999999999,
+    "p90": 0.06999999999999995
+   },
+   "vol24_quantiles": {
+    "p10": 0.0,
+    "p25": 1.99,
+    "p50": 217.67000000000002,
+    "p75": 1040.7649999999999,
+    "p90": 4983.877
+   },
+   "markets_per_game_median": 8.0,
+   "est_liquid_markets_per_game": 2.58,
+   "rules_primary": "If C.J. Stroud records 2+ Passing Touchdowns in the Arizona at Houston professional football game originally scheduled for Dec 14, 2025, then the market resolves to Yes.",
+   "rules_secondary": "The following market refers to a player in the Arizona at Houston professional football game originally scheduled for Dec 14, 2025. If a player is active but never takes a snap, the market settles to the last fair market price before game start. Once a player takes at least one snap, even if nullified by penalty, the market settles based on Passing Touchdowns."
+  },
+  "KXNFLPASSYDS": {
+   "games_in_inventory": 309,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "markets_in_inventory": 5290,
+   "sampled": 400,
+   "no_candle_before_P": 39,
+   "liquid": 114,
+   "liquid_share": 0.285,
+   "liquid_share_wilson95": [
+    0.24297004043196901,
+    0.33112039502589363
+   ],
+   "spread_quantiles": {
+    "p10": 0.010000000000000002,
+    "p25": 0.010000000000000009,
+    "p50": 0.030000000000000027,
+    "p75": 0.06,
+    "p90": 0.08000000000000002
+   },
+   "vol24_quantiles": {
+    "p10": 0.0,
+    "p25": 0.75,
+    "p50": 115.97,
+    "p75": 841.5,
+    "p90": 3040.882000000001
+   },
+   "markets_per_game_median": 18.0,
+   "est_liquid_markets_per_game": 5.13,
+   "rules_primary": "If Joe Flacco records 300+ Passing Yards in the New York J at Cincinnati professional football game originally scheduled for Oct 26, 2025, then the market resolves to Yes.",
+   "rules_secondary": "The following market refers to a player in the New York J at Cincinnati professional football game originally scheduled for Oct 26, 2025. If a player is active but never takes a snap, the market settles to the last fair market price before game start. Once a player takes at least one snap, even if nullified by penalty, the market settles based on Passing Yards."
+  },
+  "KXNFLREC": {
+   "games_in_inventory": 254,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "markets_in_inventory": 15837,
+   "sampled": 400,
+   "no_candle_before_P": 26,
+   "liquid": 83,
+   "liquid_share": 0.2075,
+   "liquid_share_wilson95": [
+    0.17063353432585826,
+    0.24993136042495495
+   ],
+   "spread_quantiles": {
+    "p10": 0.010000000000000002,
+    "p25": 0.010000000000000009,
+    "p50": 0.03,
+    "p75": 0.07,
+    "p90": 0.3569999999999999
+   },
+   "vol24_quantiles": {
+    "p10": 0.0,
+    "p25": 0.0,
+    "p50": 0.0,
+    "p75": 329.97,
+    "p90": 2153.5170000000026
+   },
+   "markets_per_game_median": 60.0,
+   "est_liquid_markets_per_game": 12.45,
+   "rules_primary": "If Jordan Addison records 2+ Receptions in the Washington at Minnesota professional football game originally scheduled for Dec 7, 2025, then the market resolves to Yes.",
+   "rules_secondary": "The following market refers to a player in the Washington at Minnesota professional football game originally scheduled for Dec 7, 2025. If a player is active but never takes a snap, the market settles to the last fair market price before game start. Once a player takes at least one snap, even if nullified by penalty, the market settles based on Receptions."
+  },
+  "KXNFLRECYDS": {
+   "games_in_inventory": 310,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "markets_in_inventory": 21744,
+   "sampled": 400,
+   "no_candle_before_P": 53,
+   "liquid": 83,
+   "liquid_share": 0.2075,
+   "liquid_share_wilson95": [
+    0.17063353432585826,
+    0.24993136042495495
+   ],
+   "spread_quantiles": {
+    "p10": 0.010000000000000009,
+    "p25": 0.010000000000000009,
+    "p50": 0.03,
+    "p75": 0.06000000000000001,
+    "p90": 0.21400000000000036
+   },
+   "vol24_quantiles": {
+    "p10": 0.0,
+    "p25": 0.0,
+    "p50": 18.0,
+    "p75": 385.8125,
+    "p90": 2627.057000000001
+   },
+   "markets_per_game_median": 60.0,
+   "est_liquid_markets_per_game": 12.45,
+   "rules_primary": "If Stefon Diggs records 50+ Receiving Yards in the New England at New York J professional football game originally scheduled for Dec 28, 2025, then the market resolves to Yes.",
+   "rules_secondary": "The following market refers to a player in the New England at New York J professional football game originally scheduled for Dec 28, 2025. If a player is active but never takes a snap, the market settles to the last fair market price before game start. Once a player takes at least one snap, even if nullified by penalty, the market settles based on Receiving Yards."
+  },
+  "KXNFLRSHYDS": {
+   "games_in_inventory": 305,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "markets_in_inventory": 10769,
+   "sampled": 400,
+   "no_candle_before_P": 40,
+   "liquid": 103,
+   "liquid_share": 0.2575,
+   "liquid_share_wilson95": [
+    0.2170975795094459,
+    0.30251605118139924
+   ],
+   "spread_quantiles": {
+    "p10": 0.010000000000000002,
+    "p25": 0.010000000000000009,
+    "p50": 0.020000000000000018,
+    "p75": 0.06000000000000001,
+    "p90": 0.19999999999999996
+   },
+   "vol24_quantiles": {
+    "p10": 0.0,
+    "p25": 0.0,
+    "p50": 84.27000000000001,
+    "p75": 792.325,
+    "p90": 3161.8000000000015
+   },
+   "markets_per_game_median": 30.0,
+   "est_liquid_markets_per_game": 7.7250000000000005,
+   "rules_primary": "If Jonathon Brooks records 50+ rushing yards in the Chicago vs Carolina professional football game originally scheduled for Sep 13, 2026, then the market resolves to Yes.",
+   "rules_secondary": "The following market refers to Jonathon Brooks in the Chicago vs Carolina professional football game originally scheduled for Sep 13, 2026. If Jonathon Brooks is active but never takes a snap, the market settles to the fair market price before game start. Once Jonathon Brooks takes at least one snap, even if nullified by penalty, the market settles based on rushing yards recorded.\n\nKalshi is not affiliated, associated, authorized, endorsed by, or in any way officially connected with the Governing League. All trademarks, logos, and brand names are the property of their respective owners."
+  },
+  "KXNFLSPREAD": {
+   "games_in_inventory": 392,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "markets_in_inventory": 8893,
+   "sampled": 400,
+   "no_candle_before_P": 41,
+   "liquid": 219,
+   "liquid_share": 0.5475,
+   "liquid_share_wilson95": [
+    0.4985002204356925,
+    0.5955960787073378
+   ],
+   "spread_quantiles": {
+    "p10": 0.009999999999999995,
+    "p25": 0.010000000000000009,
+    "p50": 0.010000000000000009,
+    "p75": 0.020000000000000018,
+    "p90": 0.06000000000000001
+   },
+   "vol24_quantiles": {
+    "p10": 0.0,
+    "p25": 19.5,
+    "p50": 915.99,
+    "p75": 4826.5,
+    "p90": 32067.924000000003
+   },
+   "markets_per_game_median": 17.0,
+   "est_liquid_markets_per_game": 9.3075,
+   "rules_primary": "If Las Vegas wins the Cleveland at Las Vegas professional football game originally scheduled for Nov 23, 2025 by more than 13.5 points, then the market resolves to Yes.",
+   "rules_secondary": ""
+  },
+  "KXNFLTOTAL": {
+   "games_in_inventory": 392,
+   "seasons": [
+    2025,
+    2026
+   ],
+   "markets_in_inventory": 6906,
+   "sampled": 400,
+   "no_candle_before_P": 14,
+   "liquid": 174,
+   "liquid_share": 0.435,
+   "liquid_share_wilson95": [
+    0.3872618167504356,
+    0.4839748265275229
+   ],
+   "spread_quantiles": {
+    "p10": 0.009999999999999995,
+    "p25": 0.010000000000000009,
+    "p50": 0.019999999999999962,
+    "p75": 0.039999999999999966,
+    "p90": 0.98
+   },
+   "vol24_quantiles": {
+    "p10": 0.0,
+    "p25": 0.0,
+    "p50": 291.0,
+    "p75": 3448.9325,
+    "p90": 20400.097000000012
+   },
+   "markets_per_game_median": 18.0,
+   "est_liquid_markets_per_game": 7.83,
+   "rules_primary": "If the teams in the Cleveland at Minnesota professional football game originally scheduled for Oct 5, 2025 collectively score more than 29.5 points, then the market resolves to Yes.",
+   "rules_secondary": ""
+  }
+ },
+ "thin_rule_triggered": false
+}

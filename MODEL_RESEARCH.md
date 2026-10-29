@@ -286,4 +286,4 @@ Both failed;no more configurations tried. Saved both prespecified research copie
 
 | Hypothesis | Protocol | Result | Decision |
 |---|---|---|---|
-| Kalshi per-game NFL player prop ladders are liquid enough at kickoff minus 90 minutes to serve as the market for prop distributions | research/nfl-ensemble-lab/docs/PROPS_KALSHI_PREREGISTRATION.md; liquidity filter and thin rule fixed before reading any price | Pending | Steps 1-5 not preregistered until Travis decides go/no-go |
+| Kalshi per-game NFL player prop ladders are liquid enough at kickoff minus 90 minutes to serve as the market for prop distributions | research/nfl-ensemble-lab/docs/PROPS_KALSHI_PREREGISTRATION.md; liquidity filter and thin rule fixed before reading any price | Thin rule not triggered, narrowly: liquid at T-90 for pass yds 28%, rush yds 26%, rec yds 21%, receptions 21%, anytime TD 39%, total 44%, spread 55%. Coverage Oct 2025-Jan 2026 plus 2026 W1-8. No-snap markets settle at a price and must be excluded. The props simulator has no historical projections. | Awaiting Travis go/no-go on steps 1-5 |
