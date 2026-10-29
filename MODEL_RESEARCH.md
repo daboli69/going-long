@@ -281,3 +281,9 @@ Both failed;no more configurations tried. Saved both prespecified research copie
 | Hypothesis | Protocol | Result | Decision |
 |---|---|---|---|
 | A drive-outcome model (team offense/defense, field position, score, time) beats a field-position baseline per drive. Its Monte Carlo game simulator improves margin RPS, total CRPS and win log loss, and adds stacking weight over Elo | research/nfl-ensemble-lab/docs/HOMEWIN_SIM_PREREGISTRATION.md, frozen before any drive fit. Power from a 2009-2011 pilot, committed before the main run. Families D, G (m=2), W (m=2), S. Provisional until Codex reproduces. | Results sha256 d0447e14. D pass (-0.169 nats/drive), but a post-look ablation shows team effects hurt (+0.0060 [+0.0043,+0.0076]); the gain is clock/score state. G margin RPS +0.051 and total CRPS -0.031, both fail. W simulator significantly worse than Elo (+0.0070 [+0.0009,+0.0129]). S weight 0.184 [-0.015,+0.395] fails. Key numbers 3/7: 23.1% actual vs 16.9% simulated; PIT non-uniform. research/nfl-ensemble-lab/docs/HOMEWIN_SIM_RESULTS.md | Rejected; Elo stays champion; W8 frozen (4e709bcd) |
+
+## Kalshi player props - step 0 preregistered 2026-10-29
+
+| Hypothesis | Protocol | Result | Decision |
+|---|---|---|---|
+| Kalshi per-game NFL player prop ladders are liquid enough at kickoff minus 90 minutes to serve as the market for prop distributions | research/nfl-ensemble-lab/docs/PROPS_KALSHI_PREREGISTRATION.md; liquidity filter and thin rule fixed before reading any price | Pending | Steps 1-5 not preregistered until Travis decides go/no-go |
