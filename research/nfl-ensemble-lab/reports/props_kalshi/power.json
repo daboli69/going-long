@@ -1,0 +1,14 @@
+{
+ "prereg": "31af0b08",
+ "pilot_ladders": 1337,
+ "pilot_weeks": 4,
+ "pilot_mean_base_crps": 0.7172674168827099,
+ "pilot_mean_v2_crps": 0.6690686683504588,
+ "pilot_ladders_per_week": 334.25,
+ "expected_scored_ladders_per_week": 176.19,
+ "sd_week_mean_rescaled": 0.04204263051528042,
+ "sesoi": 0.014345348337654199,
+ "scored_weeks": 21,
+ "history_mde": 0.0296848732671171,
+ "N_weeks_for_sesoi": 90
+}

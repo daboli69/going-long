@@ -126,3 +126,10 @@ for SESOI = 2% of the base's mean ladder CRPS. No prospective verdict before tha
 Weekly sealed freezes of prop distributions (both arms, the market ladder at freeze, SHA-256 ledger pushed). Kalshi
 settlement is the outcome source. The gate stays provisional until Codex rebuilds it from this document. Results and
 freezes go on the Home-Win Research page (Props tab).
+
+## Power results (pilot, 2026-10-29, before the scored replay)
+`reports/props_kalshi/power.json`. Pilot: 2025 weeks 1-4, arm A v2 vs base, 1,337 pseudo-ladders. Mean
+ladder CRPS: base 0.7173, v2 0.6691. Expected scored ladders per week:
+176. SESOI (2% of base) = 0.0143. **History MDE over 21
+scored weeks = 0.0297**, so the backtest can detect only effects about twice the SESOI.
+**N = 90 frozen weeks** before any prospective family-G verdict.
