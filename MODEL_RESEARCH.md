@@ -275,3 +275,9 @@ Both failed;no more configurations tried. Saved both prespecified research copie
 | Hypothesis | Protocol | Result | Decision |
 |---|---|---|---|
 | H1 walk-forward EP removes look-ahead; H2 per-game T-90 decisions; H3 new model adds stacking weight over Elo; H4 positive CLV | research/nfl-ensemble-lab/docs/HOMEWIN_V2_PREREGISTRATION.md, frozen before any v2 number. Power first (SESOI 0.005 LL and 0.005 CLV). Gate readings provisional until Codex reproduces. | Code 7fa8c37b, results sha256 83fd6ac4. Power: N_LL 1,126 weeks, N_CLV 7 (Friday, Amendment 1). H1 walk-forward EPA (team-game corr 0.987 vs nflverse): all 4 fail. H2 T-90: all 4 fail (QB flags 27 to 99, log loss moved under 0.001). H3: margin weight 0.367 [0.130,0.621] and xgb_deep 0.411 [0.128,0.721] exclude zero (provisional pass), but stacked log loss gain is 0.0003. H4 Friday/xgb_deep CLV -0.0012 [-0.0041,+0.0011]: fail. Unplanned open/margin CLV +0.0196 (n=90) is descriptive only. research/nfl-ensemble-lab/docs/HOMEWIN_V2_RESULTS.md | Elo stays champion; H3 provisional pending Codex; open-point CLV needs its own prospective preregistration |
+
+## Drive-level game simulator - preregistered 2026-10-29
+
+| Hypothesis | Protocol | Result | Decision |
+|---|---|---|---|
+| A drive-outcome model (team offense/defense, field position, score, time) beats a field-position baseline per drive. Its Monte Carlo game simulator improves margin RPS, total CRPS and win log loss, and adds stacking weight over Elo | research/nfl-ensemble-lab/docs/HOMEWIN_SIM_PREREGISTRATION.md, frozen before any drive fit. Power from a 2009-2011 pilot, committed before the main run. Families D, G (m=2), W (m=2), S. Provisional until Codex reproduces. | Pending | Pending; no promotion |
