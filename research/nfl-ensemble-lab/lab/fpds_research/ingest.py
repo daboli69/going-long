@@ -220,7 +220,8 @@ def revision(previous,current,m):
     if previous is None:return {'overlap_rows':0,'status':'first comparable snapshot; revisions not estimable','columns':[]}
     keys=['season','week','entity'];a=previous.dropna(subset=['entity']);b=current.dropna(subset=['entity'])
     a=a[~a.duplicated(keys,False)];b=b[~b.duplicated(keys,False)]
-    columns=[c['column'] for c in m['columns'] if c['column'] in a and c['column'] in b]
+    # Key columns are the join keys, not compared values (injury_reports/shadow_index carry a source column named 'season').
+    columns=[c['column'] for c in m['columns'] if c['column'] in a and c['column'] in b and c['column'] not in keys]
     j=a[keys+columns].merge(b[keys+columns],on=keys,suffixes=('_old','_new'))
     results=[]
     for c in columns:
