@@ -7,6 +7,21 @@ HISTORY_FOLDER='All historical data from 2021-2026 week 6'
 POLICY='full-history-authority-v1'
 
 
+def managed_folder(root):
+    """Where forecast-week managed folders live.
+
+    For the real Inbox (Travis, 2026-10-29), `Week N` holds single-week 2026 week-N drops (data-week naming); they are
+    converted first (lab.fpds_weekly_adapter) and read from the private converted copy as forecast week N+1.
+    Any other root (tests, an explicit source) keeps the original layout: its own `Week N` = forecast week N.
+    """
+    from .fpds_research.common import SOURCE
+    if Path(root).resolve() == Path(SOURCE).resolve():
+        from .fpds_weekly_adapter import CONVERTED_ROOT, convert_all
+        convert_all(root)
+        return CONVERTED_ROOT/HISTORY_FOLDER
+    return Path(root)/HISTORY_FOLDER
+
+
 def folder_week(path):
     """Managed folders name the FORECAST week, not the final statistics week."""
     p=Path(path)
@@ -66,7 +81,7 @@ def select_sources(source=None,parse=None,week=None):
     result=set(p for _,p in base.values())|set(selected.values())
     # Managed weekly exports may contain 2026 only. The importer overlays source
     # weeks onto the authority instead of throwing away 2021-25 history.
-    for p in folder.glob('Week */*.csv'):
+    for p in managed_folder(root).glob('Week */*.csv'):
         managed=folder_week(p)
         if managed is None or target is None or managed>target:continue
         table,marker=title(p)

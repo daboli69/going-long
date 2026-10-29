@@ -1,5 +1,21 @@
 # Tuesday drops and injury updates
 
+> **Changed 2026-10-29 (Travis): folders are named by the week the data covers.** Put the Tuesday export for 2026
+> **week N** in the Inbox folder **`Week N`**. It feeds the **week N+1** forecast. Each drop holds only that one week, in
+> FantasyPoints' season view (no WEEK/OPP columns). `lab/fpds_weekly_adapter.py` converts each table into the
+> history files' exact game-log layout before anything else reads it:
+> - SEASON = 2026, WEEK = N;
+> - OPP comes from the lab schedule;
+> - "League Avg" and blank footer rows are dropped;
+> - the one within-game share column the season view lacks (`SNAP %`, `DB %`, `RTE %`, ...) is left blank.
+>
+> The converted copies live in `data/raw/fpds/weekly_converted/` (private, git-ignored), named by forecast week, so
+> every original safety check still runs. Your Inbox files are never moved or edited. A table with `G` > 1 is refused
+> as a multi-week summary. Missing tables no longer block the run: their history stays in use, and they are listed.
+> Each conversion writes `REPORT_data_week_N.json` (counts and column names only). Example: week 7 data goes in
+> `Week 7` and is used for the week 8 forecast. The description below is the original design; where it says the
+> folder number is the forecast week, that now applies to the converted copies, not to your Inbox folders.
+
 Open **START_HERE.bat**. All twelve folders have been created inside:
 
 `GOING\FantasyPoints\Inbox\All historical data from 2021-2026 week 6\`

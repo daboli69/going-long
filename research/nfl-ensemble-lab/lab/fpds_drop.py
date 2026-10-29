@@ -12,7 +12,7 @@ from types import SimpleNamespace
 
 import pandas as pd
 
-from .fpds_sources import HISTORY_FOLDER,select_sources
+from .fpds_sources import HISTORY_FOLDER,managed_folder,select_sources
 from .fpds_research.common import ROOT,SOURCE,LAB_ROOT,now,stamp,read,sha,atomic,write_once
 from .fpds_research.protocol import title
 
@@ -74,7 +74,9 @@ def target_week(week=None):
     return int(week)
 
 
-def drop_folder(week,source=SOURCE):return Path(source)/HISTORY_FOLDER/f'Week {week}'
+def drop_folder(week,source=SOURCE):
+    """Forecast-week folder. For the real Inbox this is the private converted copy of the week-1 drop."""
+    return managed_folder(source)/f'Week {week}'
 
 
 def inspect_drop(week,source=SOURCE,parse=None):
@@ -89,12 +91,14 @@ def inspect_drop(week,source=SOURCE,parse=None):
     unknown=tables-expected
     if unknown:raise DropError('Unrecognized table names in weekly folder; use the original export titles')
     missing=sorted(expected-tables)
+    # Travis 2026-10-29: run without absent tables (their authority history stays in use); report them instead.
     if week>7 and missing:
-        raise DropError('Weekly folder is incomplete. Missing tables: '+', '.join(missing))
+        print('Weekly folder is missing tables (authority history used for these): '+', '.join(missing))
     for p in files:
         _,meta=parse(p)
-        if week>7 and not set(range(1,week)).issubset(meta['coverage'].get('2026',[])):
-            raise DropError('A weekly export lacks completed 2026 weeks; download season-to-date weekly rows through the prior week')
+        # Single-week drops cover only the prior week; earlier weeks come from the authority and earlier drops.
+        if week>7 and (week-1) not in meta['coverage'].get('2026',[]):
+            raise DropError('A weekly export lacks completed 2026 weeks; the drop must contain the prior week')
     with scope_week(week):selected=select_sources(source,parse=parse,week=week)
     return {'forecast_week':week,'statistics_through_week':week-1,'folder':str(folder),'files':len(files),
             'required_tables':len(expected),'present_tables':len(tables),'missing_tables':missing,

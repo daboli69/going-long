@@ -60,11 +60,11 @@ def test_overlay_preserves_history_and_replaces_whole_source_week():
     assert old.value.tolist()==[1,2,3]
 
 
-def test_weekly_drop_requires_all_tables_and_previous_week_coverage(tmp_path):
+def test_weekly_drop_reports_missing_tables_and_requires_previous_week(tmp_path):
     root,base,_=source(tmp_path)
     (base/'pace.csv').write_text('SEASON,WEEK,TEAM,PACE\n2026,6,BUF,30\n')
     (base/'Week 8').mkdir()
-    with pytest.raises(ValueError,match='Missing tables'):D.inspect_drop(8,root)
+    assert D.inspect_drop(8,root)['missing_tables']  # Travis 2026-10-29: missing tables are reported, not fatal
     for name in ['receiving-stats','pace']:(base/'Week 8'/f'{name}.csv').write_text('synthetic')
     fake=lambda p:(None,{'coverage':{'2026':[6]}})
     with pytest.raises(ValueError,match='lacks completed'):D.inspect_drop(8,root,parse=fake)
