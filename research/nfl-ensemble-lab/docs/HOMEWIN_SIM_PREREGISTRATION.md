@@ -77,3 +77,18 @@ the prospective freezes.
   SHA-256 archive, ledger pushed.
 - **Reproduction:** Codex rebuilds from this document. Fits are deterministic (match to 4 decimals). Simulation metrics
   must match within 3 Monte Carlo standard errors, which are reported. **Gate readings are provisional until then.**
+
+## Power results (2026-10-29, from the 2009-2011 pilot, before the main run)
+`reports/homewin_sim/power.json`. Drive rebuild: 144,198 drives, 99.0% agreement with nflverse `fixed_drive_result`
+(lowest season 98.5%), 656 OTHER drives dropped.
+
+| Family | SD of week means | SESOI | History MDE (2012-2026) | Weeks needed prospectively |
+|---|---:|---:|---:|---:|
+| D drive log loss | 0.0275 | 0.005 | 0.0049 | **237** |
+| W win log loss | 0.0396 | 0.005 | 0.0077 | **598** |
+| G margin RPS | 0.520 | 0.040 | 0.101 | **1,623** |
+| G total CRPS | 0.748 | 0.038 | 0.146 | **3,624** |
+
+Only family D is powered on history at its SESOI. No prospective verdict for a family before its week count.
+A pilot bias check on 62 games of 2010 weeks 1-4 found simulated median total 43.0 vs actual 40.6, and median margin
++2.2 vs +2.7. No spec was changed.
