@@ -186,7 +186,7 @@ def _live(st, fz):
 
 def _manual_sportsbook(st, margin, total, e):
     from . import fair_value as FV
-    with st.expander('Enter a sportsbook quote you can see (manual; nothing is fetched)'):
+    if st.checkbox('Enter a sportsbook quote you can see (manual; nothing is fetched)', key='sb_toggle' + e['event_id']):
         c = st.columns(4)
         kind = c[0].selectbox('Market', ['Moneyline', 'Spread', 'Total'], key='sb_kind' + e['event_id'])
         side = c[1].selectbox('Side', [e['home'], e['away']] if kind != 'Total' else ['Over', 'Under'], key='sb_side' + e['event_id'])
