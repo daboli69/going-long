@@ -103,7 +103,7 @@ No historical publication time can be proven for ESPN box scores or play-by-play
 
 1. **2025 and 2026 are not clean.** The earlier team-strength study already scored them, and its ablations ran there. The availability design was fixed before player features
    touched any win outcome, but the research group has seen those seasons. Only the live 2026-27 season can confirm.
-2. **Power.** 2,459 games detect about 0.0045 at 80% power; a true 0.003 effect needs about 5,600 games. The availability effect (0.012) is far above this;
+2. **Power.** 2,459 games detect about 0.0045 at 80% power; a true 0.003 effect needs about 5,600 games. **Correction (2026-10-28):** those figures came from a normal approximation at alpha 0.05. A simulation at the Bonferroni level with date clustering (`research_nba_xgb/POWER_SIMULATION.json`) puts 80% power at a true gap of about 0.008 for 2,459 games and about 0.011 for the 1,230-game live season. The observed availability gain (0.012) clears that bar; the XGBoost-minus-logistic gap (0.007) sits near it, so that conclusion is firmer in direction than in size. The availability effect (0.012) is far above this;
    the XGBoost-minus-logistic gap (0.007) is above it too; smaller effects, in either direction, are not excluded.
 3. **Short history for the new features.** Player features exist only from 2023 (injury reports start in 2021-22; the first season is needed to fit the play model).
    The development fold (2024) had one season of availability-labelled training rows; fold 2025 had two; fold 2026 had three. XGBoost may be starved of data that logistic does not need.

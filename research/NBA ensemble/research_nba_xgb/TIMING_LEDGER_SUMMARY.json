@@ -1,0 +1,59 @@
+{
+  "games": 6149,
+  "share_with_newer_version": 0.6527890713937226,
+  "mean_versions_between": 2.6732802081639293,
+  "share_with_any_status_change": 0.30460237436981624,
+  "share_with_rotation_flip": 0.14181167669539763,
+  "share_with_rotation_newly_out": 0.13758334688567248,
+  "share_with_rotation_back_in": 0.006179866644982924,
+  "median_hours_between_own_version_and_tip": 1.4991666666666668,
+  "by_season": {
+    "2022": {
+      "games": 1230,
+      "rotation_flip_share": 0.13658536585365855
+    },
+    "2023": {
+      "games": 1230,
+      "rotation_flip_share": 0.12276422764227642
+    },
+    "2024": {
+      "games": 1230,
+      "rotation_flip_share": 0.13252032520325202
+    },
+    "2025": {
+      "games": 1229,
+      "rotation_flip_share": 0.12449145646867373
+    },
+    "2026": {
+      "games": 1230,
+      "rotation_flip_share": 0.1926829268292683
+    }
+  },
+  "by_tip_hour": {
+    "by 2pm": {
+      "games": 125,
+      "rotation_flip_share": 0.024,
+      "mean_versions_between": 0.352
+    },
+    "3-6pm": {
+      "games": 594,
+      "rotation_flip_share": 0.18518518518518517,
+      "mean_versions_between": 2.936026936026936
+    },
+    "7-8pm": {
+      "games": 3910,
+      "rotation_flip_share": 0.1153452685421995,
+      "mean_versions_between": 1.8035805626598465
+    },
+    "9-10pm": {
+      "games": 1505,
+      "rotation_flip_share": 0.20398671096345514,
+      "mean_versions_between": 4.940863787375415
+    },
+    "11pm+": {
+      "games": 15,
+      "rotation_flip_share": 0.06666666666666667,
+      "mean_versions_between": 10.8
+    }
+  }
+}

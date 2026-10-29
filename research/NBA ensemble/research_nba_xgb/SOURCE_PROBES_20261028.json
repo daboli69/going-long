@@ -1,0 +1,72 @@
+[
+ {
+  "source": "cdn pbp 2024 game",
+  "status": 403,
+  "bytes": 445,
+  "seconds": 0.4,
+  "head": "<HTML><HEAD> <TITLE>Access Denied</TITLE> </HEAD><BODY> <H1>Access Denied</H1>   You don't"
+ },
+ {
+  "source": "cdn boxscore 2024 game",
+  "status": 403,
+  "bytes": 441,
+  "seconds": 0.3,
+  "head": "<HTML><HEAD> <TITLE>Access Denied</TITLE> </HEAD><BODY> <H1>Access Denied</H1>   You don't"
+ },
+ {
+  "source": "cdn schedule",
+  "status": 403,
+  "bytes": 425,
+  "seconds": 0.3,
+  "head": "<HTML><HEAD> <TITLE>Access Denied</TITLE> </HEAD><BODY> <H1>Access Denied</H1>   You don't"
+ },
+ {
+  "source": "cdn todays scoreboard",
+  "status": 403,
+  "bytes": 445,
+  "seconds": 0.3,
+  "head": "<HTML><HEAD> <TITLE>Access Denied</TITLE> </HEAD><BODY> <H1>Access Denied</H1>   You don't"
+ },
+ {
+  "source": "stats gamerotation",
+  "status": "ReadTimeout",
+  "bytes": 0,
+  "seconds": 15.3,
+  "head": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=15)"
+ },
+ {
+  "source": "stats playbyplayv3",
+  "status": "ReadTimeout",
+  "bytes": 0,
+  "seconds": 15.3,
+  "head": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=15)"
+ },
+ {
+  "source": "stats boxscoretraditionalv3",
+  "status": "ReadTimeout",
+  "bytes": 0,
+  "seconds": 15.3,
+  "head": "HTTPSConnectionPool(host='stats.nba.com', port=443): Read timed out. (read timeout=15)"
+ },
+ {
+  "source": "official.nba.com injury page",
+  "status": 200,
+  "bytes": 46937,
+  "seconds": 0.4,
+  "head": "<!DOCTYPE html> <html lang=\"en-US\" prefix=\"og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# "
+ },
+ {
+  "source": "wayback cdx injury index",
+  "status": 200,
+  "bytes": 468,
+  "seconds": 0.8,
+  "head": "[[\"urlkey\",\"timestamp\",\"original\",\"mimetype\",\"statuscode\",\"digest\",\"length\"], [\"com,nba,of"
+ },
+ {
+  "source": "sbr odds archive",
+  "status": 200,
+  "bytes": 67460,
+  "seconds": 0.6,
+  "head": "<!DOCTYPE html> <html lang=\"en-us\"> <head> <meta charset=\"utf-8\"> <meta name=\"viewport\" co"
+ }
+]

@@ -1,0 +1,46 @@
+{
+  "penalty": 3000.0,
+  "min_possessions_each_half": 300.0,
+  "seasons": {
+    "2022": {
+      "players": 402,
+      "pearson_half_corr": 0.3829762730465429,
+      "spearman_half_corr": 0.3582435895742663,
+      "spearman_brown_reliability": 0.5538435915504013,
+      "sd_half1": 1.5596910466499083,
+      "sd_half2": 1.498363914227681
+    },
+    "2023": {
+      "players": 392,
+      "pearson_half_corr": 0.36935199259310036,
+      "spearman_half_corr": 0.3343415029470135,
+      "spearman_brown_reliability": 0.539455150452105,
+      "sd_half1": 1.528464214509109,
+      "sd_half2": 1.5062083704146367
+    },
+    "2024": {
+      "players": 386,
+      "pearson_half_corr": 0.4145305449427734,
+      "spearman_half_corr": 0.4241169201525871,
+      "spearman_brown_reliability": 0.5861033491638652,
+      "sd_half1": 1.5573617531148016,
+      "sd_half2": 1.6520368993836232
+    },
+    "2025": {
+      "players": 412,
+      "pearson_half_corr": 0.43369858503476993,
+      "spearman_half_corr": 0.4001924897427745,
+      "spearman_brown_reliability": 0.6050066444394963,
+      "sd_half1": 1.5875882855759726,
+      "sd_half2": 1.6284514317010619
+    },
+    "2026": {
+      "players": 413,
+      "pearson_half_corr": 0.43447849912525266,
+      "spearman_half_corr": 0.3952650781499399,
+      "spearman_brown_reliability": 0.6057650907841399,
+      "sd_half1": 1.596895625488756,
+      "sd_half2": 1.6792191755175478
+    }
+  }
+}
