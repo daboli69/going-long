@@ -239,6 +239,18 @@ def fpi_projection(event_id: str | None, espn_home: str | None, home: str) -> di
         return {"fpi_p_home": None, "fpi_last_modified": None, "fpi_error": str(exc)[:200]}
 
 
+def kalshi_now(games: pd.DataFrame) -> dict:
+    """gid -> Kalshi de-vigged home probability observed now (raw snapshot archived by lab.kalshi). Optional source."""
+    try:
+        from . import kalshi
+        w = kalshi.live_prices(games)
+    except Exception as exc:  # optional external comparison; a Kalshi outage never blocks a freeze
+        print(f"  warning: Kalshi live prices unavailable ({str(exc)[:80]})")
+        return {}
+    return {r.gid: {"kalshi_p_home_at_freeze": float(r.p_home), "kalshi_overround": float(r.overround),
+                    "kalshi_observed_at": r.observed_at.isoformat()} for r in w.itertuples(index=False)}
+
+
 def freeze(data: h.Data, feats: pd.DataFrame, preds: pd.DataFrame, params: dict, now: pd.Timestamp | None = None) -> dict:
     """Archive every model's probability for the next week's games that have not kicked off."""
     from xgboost import XGBClassifier
@@ -274,6 +286,7 @@ def freeze(data: h.Data, feats: pd.DataFrame, preds: pd.DataFrame, params: dict,
     probs = {"elo": f["elo_prob_home"].to_numpy(), "xgb_v1": p_v1, "margin": p_margin, "xgb_deep": p_deep}
     for m in BASE_MODELS:
         probs[f"{m}_platt"] = h.platt(hist[f"p_{m}"].to_numpy(), hist["y_home_win"].to_numpy(), probs[m])
+    kal = kalshi_now(data.games)
     games = []
     for i, r in enumerate(f.itertuples(index=False)):
         mk = h.market_probability(data.quotes, r.home, r.away, r.kickoff_utc, now)
@@ -283,6 +296,7 @@ def freeze(data: h.Data, feats: pd.DataFrame, preds: pd.DataFrame, params: dict,
                       "qb_change_away": int(r.qb_change_away),
                       **{f"p_{m}": float(probs[m][i]) for m in MODELS},
                       "market_p_home_at_freeze": mk["p_home"], "market_books": mk["books"], "market_quote_time": mk["quote_time"],
+                      **kal.get(r.gid, {"kalshi_p_home_at_freeze": None}),
                       **fpi_projection(r.espn_event_id, r.espn_home, r.home)})
     content = {"season": int(s), "week": int(w), "decision_utc": T.isoformat(), "feature_cutoff_utc": cutoff.isoformat(),
                "games": games}

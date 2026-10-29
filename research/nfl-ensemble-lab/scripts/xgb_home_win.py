@@ -86,6 +86,21 @@ def current_season(today: date | None = None) -> int:
     return today.year if today.month >= 3 else today.year - 1
 
 
+def _lab_games_csv(season: int) -> list[dict]:
+    """Fallback: the nflverse/nfldata games table the lab downloads automatically (lab.sources.download_games)."""
+    try:
+        from lab import sources
+        from lab.config import RAW_DIR
+        sources.download_games(progress=lambda m: None)
+        g = pd.read_csv(RAW_DIR / "games.csv", low_memory=False)
+    except Exception:
+        return []
+    g = g[g["season"] == season]
+    cols = ["game_id", "season", "week", "game_type", "gameday", "home_team", "away_team", "home_score", "away_score", "stadium"]
+    g = g[cols].astype(object).where(g[cols].notna(), None)
+    return g.to_dict("records")
+
+
 def fetch_season(season: int, live: bool, refresh: bool = False) -> list[dict]:
     """One season of games from the API; completed seasons come from the local cache."""
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -94,13 +109,18 @@ def fetch_season(season: int, live: bool, refresh: bool = False) -> list[dict]:
         return json.loads(path.read_text(encoding="utf-8"))
     try:
         rows = fetch_api_games(season, progress=lambda m: None)
-    except (ConnectionError, FileNotFoundError) as exc:
-        if path.exists():
-            print(f"  warning: API fetch for {season} failed ({exc}); using cached copy")
+        if not rows:
+            raise ValueError("API returned no games")
+    except (ConnectionError, FileNotFoundError, ValueError) as exc:  # ValueError: non-JSON (domain parked 2026-10-29)
+        rows = _lab_games_csv(season)
+        if rows:
+            print(f"  warning: nfldata API failed for {season} ({str(exc)[:60]}); using the lab's auto-downloaded "
+                  f"nflverse/nfldata games table (same source and columns)")
+        elif path.exists():
+            print(f"  warning: API fetch for {season} failed ({str(exc)[:60]}); using cached copy")
             return json.loads(path.read_text(encoding="utf-8"))
-        raise
-    if not rows:
-        raise RuntimeError(f"API returned no games for {season}")
+        else:
+            raise
     path.write_text(json.dumps(rows), encoding="utf-8")
     return rows
 

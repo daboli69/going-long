@@ -30,6 +30,7 @@ COMMANDS = {
     "Simulator freeze (full distributions)": ["scripts/home_win_sim.py", "freeze"],
     "Per-game T-90 freeze (only inside 90-105 min of a kickoff)": ["scripts/home_win_v2.py", "freeze-game"],
     "Score v1 freezes in the terminal log": ["scripts/home_win_deep.py", "score"],
+    "Kalshi benchmark (refresh history, score saved forecasts)": ["scripts/kalshi_benchmark.py"],
 }
 LONG = {
     "v1 backtest (about 45 min)": ["scripts/home_win_deep.py", "backtest"],
@@ -91,7 +92,8 @@ def frozen_table(arch: dict) -> pd.DataFrame:
             if "p_elo" in r:
                 continue
             r |= {k: g.get(k) for k in ("p_elo", "p_xgb_v1", "p_margin_platt", "p_xgb_deep_platt", "pred_margin",
-                                        "market_p_home_at_freeze", "fpi_p_home", "qb_change_home", "qb_change_away")}
+                                        "market_p_home_at_freeze", "fpi_p_home", "qb_change_home", "qb_change_away",
+                                        "kalshi_p_home_at_freeze")}
             r["v1_frozen_at"] = d["frozen_at"]
     for d in sorted(arch.get("homewin_sim", []), key=lambda x: x["frozen_at"]):
         for g in d["content"]["games"]:
@@ -137,7 +139,7 @@ def load_results(cache_dir: Path = CACHE_DIR) -> pd.DataFrame:
 def model_columns(df: pd.DataFrame) -> dict[str, str]:
     cols = {"p_elo": "Elo", "p_xgb_v1": "XGBoost v1", "p_margin_platt": "Margin (Platt)", "p_xgb_deep_platt": "XGB deep (Platt)",
             "p_sim": "Simulator", "p_t90_xgb_deep": "XGB deep @T-90", "market_p_home_at_freeze": "Market at freeze",
-            "fpi_p_home": "ESPN FPI at freeze"}
+            "fpi_p_home": "ESPN FPI at freeze", "kalshi_p_home_at_freeze": "Kalshi at freeze"}
     return {k: v for k, v in cols.items() if k in df and df[k].notna().any()}
 
 
@@ -304,6 +306,48 @@ def _launch(label: str, args: list[str]):
     st.success(f"Started. Log: {log}")
 
 
+def tab_kalshi():
+    st.caption("Kalshi NFL game-winner markets (series KXNFLGAME), read-only public data, $0. History is hourly candles "
+               "stamped by Kalshi; a price is used only if its candle ended before the model's decision time. "
+               "Home probability = home mid / (home mid + away mid). No trading code exists in the lab.")
+    if st.button("Show current Kalshi prices (fetches now and archives the snapshot)", key="hw_kalshi_live"):
+        from lab import homewin_deep as h, kalshi
+        with st.spinner("Fetching Kalshi..."):
+            games, _ = h.load_games()
+            w = kalshi.live_prices(games)
+        if w.empty:
+            st.info("No open NFL game markets right now.")
+        else:
+            w = w.sort_values("kickoff_utc")
+            st.dataframe(pd.DataFrame({"Kickoff (UTC)": pd.to_datetime(w["kickoff_utc"]).dt.strftime("%a %m-%d %H:%M"),
+                                       "Game": w["gid"].str.split("_").str[2] + " @ " + w["gid"].str.split("_").str[3],
+                                       "Kalshi P(home)": w["p_home"].map(_pct), "Overround": w["overround"].map(lambda x: f"{x:.3f}")}),
+                         hide_index=True, use_container_width=True)
+    b = read_json(LAB_ROOT / "reports" / "kalshi" / "benchmark.json")
+    if not b:
+        st.info("No Kalshi benchmark yet. Run it from the Run tab.")
+        return
+    st.write(f"Coverage (games with both team markets): {b['coverage']['by_season']} · {b['coverage']['candles']:,} hourly candles.")
+    st.subheader("Saved walk-forward forecasts vs Kalshi (descriptive)")
+    for key, label in (("v1_weekly_vs_k_close", "Kalshi at kickoff (close)"), ("v1_weekly_vs_k_decision", "Kalshi at each model's decision time")):
+        if key in b:
+            blk = b[key]
+            ref = key.split("_vs_")[1]
+            st.markdown(f"**{label}**: {blk['n']} games, Kalshi log loss {blk[ref]:.4f}")
+            st.dataframe(pd.DataFrame([{"Model": m.replace("p_", ""), "Log loss": x["log_loss"], "Delta vs Kalshi": x["delta_vs_kalshi"],
+                                        "95% CI": f"[{x['ci95'][0]:+.4f}, {x['ci95'][1]:+.4f}]"} for m, x in blk.items() if isinstance(x, dict)]),
+                         hide_index=True, use_container_width=True)
+    if "v2_points" in b:
+        st.subheader("CLV on Kalshi prices (decision point to close)")
+        st.dataframe(pd.DataFrame([{"Point": p, "Model": m.replace("p_", ""), "Games": c["games"], "Mean CLV": c["mean_clv"],
+                                    "95% CI": f"[{c['ci95'][0]:+.4f}, {c['ci95'][1]:+.4f}]" if c["ci95"] else "",
+                                    "Toward/away": f"{c['toward']}/{c['away']}", "Zero moves": c["zero_moves"], "Sign p": c["sign_p_one_sided"]}
+                                   for p, blk in b["v2_points"].items() for m, c in blk["clv_to_close"].items()]),
+                     hide_index=True, use_container_width=True)
+        st.caption("Elo is the control: if Elo shows the same CLV as a new model, the drift is a property of early "
+                   "prices, not evidence of that model's skill.")
+
+
 def tab_run():
     st.caption("Each button starts a separate background process; the page stays usable. Freezes fetch fresh data, "
                "write a write-once archive and append the ledger. They never change the champion or the scheduler.")
@@ -329,12 +373,14 @@ def render(archive_root: Path = ARCHIVE, cache_dir: Path = CACHE_DIR):
     st.caption("Elo remains the champion. The deep model, v2 and the drive simulator are research challengers that "
                "failed their preregistered gates; they are frozen weekly so the prospective record can accumulate.")
     arch, results = load_archives(archive_root), load_results(cache_dir)
-    t1, t2, t3, t4 = st.tabs(["This week", "Prospective record", "Backtests", "Run"])
+    t1, t2, t3, t5, t4 = st.tabs(["This week", "Prospective record", "Backtests", "Kalshi", "Run"])
     with t1:
         tab_this_week(arch, results)
     with t2:
         tab_prospective(arch, results)
     with t3:
         tab_backtests()
+    with t5:
+        tab_kalshi()
     with t4:
         tab_run()

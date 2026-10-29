@@ -177,11 +177,13 @@ def freeze(args):
     tr = drives[(drives["kickoff_utc"] < R) & drives["season"].between(s - 3, s) & drives["cls"].isin(sm.CLASSES)]
     teams = sorted(set(drives["off"]) | set(drives["def"]))
     model, pace = sm.DriveModel(teams).fit(tr, R), sm.Pace(tr, int(s))
+    kal = ev.kalshi_now(data.games)
     games = []
     for g in wk.itertuples(index=False):
         sim = sm.simulate(model, pace, g.home, g.away, int(g.neutral), int(s), g.gid)
         games.append({"gid": g.gid, "kickoff_utc": g.kickoff_utc.isoformat(), "p_home": sim["p_home"], "p_tie": sim["p_tie"],
                       "median_margin": sim["median_margin"], "median_total": sim["median_total"],
+                      **kal.get(g.gid, {"kalshi_p_home_at_freeze": None}),
                       # string keys: the archive hash must survive a JSON round trip
                       "margin_pmf": {str(int(m)): round(float(p), 5) for m, p in zip(sm.MARGINS, sim["margin_pmf"]) if p > 0},
                       "total_pmf": {str(int(t)): round(float(p), 5) for t, p in zip(sm.TOTALS, sim["total_pmf"]) if p > 0}})

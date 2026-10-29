@@ -152,12 +152,14 @@ def freeze_game(args):
     probs = {"elo": f["elo_prob_home"].to_numpy(), "margin": p_m, "xgb_deep": p_d}
     for m in ("elo", "margin", "xgb_deep"):
         probs[f"{m}_platt"] = h.platt(hp[f"p_{m}"].to_numpy(), hp["y_home_win"].to_numpy(), probs[m])
+    kal = {} if args.dry else ev.kalshi_now(data.games)
     for i, g in enumerate(due.itertuples(index=False)):
         mk = h.market_probability(data.quotes, g.home, g.away, g.kickoff_utc, now)
         content = {"gid": g.gid, "kickoff_utc": g.kickoff_utc.isoformat(), "point": "t90", "feature_cutoff_utc": now.isoformat(),
                    **{f"p_{m}": float(probs[m][i]) for m in probs}, "pred_margin": float(pred[i]),
                    "qb_change_home": int(f["qb_change_home"].iloc[i]), "qb_change_away": int(f["qb_change_away"].iloc[i]),
                    "market_p_home_at_freeze": mk["p_home"], "market_quote_time": mk["quote_time"],
+                   **kal.get(g.gid, {"kalshi_p_home_at_freeze": None}),
                    **ev.fpi_projection(g.espn_event_id, g.espn_home, g.home)}
         if args.dry:
             log(f"DRY {content}")

@@ -57,3 +57,17 @@ def test_integer_key_pmf_archive_verifies(tmp_path):
             "median_margin": 3.0, "median_total": 40.0, "margin_pmf": {-10: 0.5, 3: 0.5}, "total_pmf": {40: 1.0}}]
     save("homewin_sim", "2026_w08", {"season": 2026, "week": 8, "games": sim}, {"frozen_at": "2026-10-29T01:00:00+00:00"}, root=arch)
     assert hp.load_archives(arch)["homewin_sim"][0]["_hash_ok"]
+
+
+def test_kalshi_probability_uses_only_candles_before_cutoff():
+    import numpy as np
+    import pandas as pd
+    from lab import kalshi
+    ts = pd.to_datetime(["2026-10-29 10:00", "2026-10-29 20:00"], utc=True)
+    hist = pd.DataFrame({"gid": "G", "side": ["home", "away", "home", "away"], "ts": [ts[0], ts[0], ts[1], ts[1]],
+                         "mid": [0.60, 0.42, 0.90, 0.12]})
+    p = kalshi.probability(hist, "G", pd.Timestamp("2026-10-29 12:00", tz="UTC"))
+    assert p["p_home"] == 0.60 / 1.02 and p["overround"] == 1.02
+    assert np.isnan(kalshi.probability(hist, "G", pd.Timestamp("2026-10-29 09:00", tz="UTC"))["p_home"])
+    c = kalshi.consensus_frame(hist)
+    assert list(c.columns) == ["game_id", "quote_time", "p_home_consensus", "books"] and len(c) == 2

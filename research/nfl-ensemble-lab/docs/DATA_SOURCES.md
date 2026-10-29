@@ -70,3 +70,20 @@ Every refresh that sees a changed live injury file stores
 `data/raw/archive/nflverse_injuries_<UTC download time>_<hash>.parquet`, and each ESPN fetch
 is stored as JSON. These archives become the lab's own timestamped injury history for
 2026 onward. **Keep this folder.** Deleting it destroys history that cannot be re-downloaded.
+
+## Kalshi NFL game markets (added 2026-10-29)
+- **What:** Kalshi series `KXNFLGAME`, one yes/no market per team per game. Current markets come from `/markets`, and
+  older ones (the 2025 season) from `/historical/markets`. History is hourly candlesticks.
+- **Coverage:** every 2025 regular-season game (272) and 2026 through the open schedule. Prices are stamped by Kalshi's
+  own candle end time (`T1-exchange`), and a price is used only if its candle ended before the cutoff.
+- **Access:** read-only public market data, no authentication, $0. `lab/kalshi.py` contains no trading or account
+  calls. The API key ID is stored in `data/private/kalshi.env` (git-ignored). Signed endpoints would also need the
+  matching RSA private key, which the lab does not use.
+- **Used by:** every home-win freeze (`kalshi_p_home_at_freeze`, with the raw snapshot archived write-once) and
+  `scripts/kalshi_benchmark.py` (descriptive benchmark and CLV). `kalshi.consensus_frame()` returns the same shape as
+  the GOING consensus, for any other lab module that needs a market probability.
+
+## nfldata API outage (2026-10-29)
+`api.nfldata.org` now serves a Cloudflare domain-parking page. `scripts/xgb_home_win.py` falls back to the lab's
+auto-downloaded nflverse/nfldata `games.csv` (same source and columns), then to its cache. The ESPN score cross-check
+still runs on every load.
