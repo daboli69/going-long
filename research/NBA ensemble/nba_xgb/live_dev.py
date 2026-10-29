@@ -39,6 +39,7 @@ def main():
     models['A_lineup'] = M.fit(tr, 'mu_base', use_lineup=True)
     trB = tr.dropna(subset=['mu_close'])
     models['B_close'] = M.fit(trB, 'mu_close')
+    models['B_close_L'] = M.fit(trB, 'mu_close', use_lineup=True)
     for k, p in models.items():
         print(k, {a: round(b, 4) if isinstance(b, float) else b for a, b in vars(p).items() if a in ('a1', 'aL', 'rho', 'p_home_ot')}, p.sm, p.fitted_on)
     devB = dev.dropna(subset=['mu_close', 'mu_base', 'mu_avail']).copy()
@@ -54,14 +55,14 @@ def main():
     st = LogisticRegression(C=100, max_iter=500).fit(Xs(tr), (tr.final_margin > 0).astype(int))
     devB['p_state_only'] = st.predict_proba(Xs(devB))[:, 1]
     cols = ['p_pregame', 'p_state_only', 'p_A', 'p_A_avail', 'p_B_close']
-    sub = devB.dropna(subset=cols + ['p_A_lineup']).copy()
-    for c in cols + ['p_A_lineup']:
+    sub = devB.dropna(subset=cols + ['p_A_lineup', 'p_B_close_L']).copy()
+    for c in cols + ['p_A_lineup', 'p_B_close_L']:
         sub[f'll_{c[2:]}'] = M.logloss(sub.y.values, sub[c].values)
     out = {'rows': int(len(sub)), 'games': int(sub.game_id.nunique()), 'window': f"{sub.game_date.min()}..{sub.game_date.max()}", 'mean_log_loss': {}}
-    for c in cols + ['p_A_lineup']:
+    for c in cols + ['p_A_lineup', 'p_B_close_L']:
         out['mean_log_loss'][c] = float(sub[f'll_{c[2:]}'].mean())
     print(json.dumps(out, indent=1))
-    pairs = [('A', 'pregame'), ('A', 'state_only'), ('A_avail', 'A'), ('A_lineup', 'A'), ('B_close', 'A'), ('B_close', 'A_avail')]
+    pairs = [('A', 'pregame'), ('A', 'state_only'), ('A_avail', 'A'), ('A_lineup', 'A'), ('B_close', 'A'), ('B_close', 'A_avail'), ('B_close_L', 'B_close')]
     out['paired_vs'] = {}
     for a, b in pairs:
         m, ci = boot_diff(sub, a, b)

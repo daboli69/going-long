@@ -11,8 +11,8 @@ from nba_lab import codex_research as CR
 st.set_page_config(page_title='NBA Ensemble',page_icon='🏀',layout='wide')
 st.title('NBA Ensemble')
 st.caption('Separate local NBA winners lab. Six statistical models, not six independent opinions.')
-st.warning('Shadow research. Current injury/lineup changes are not modeled in v1. Historical results use revised reconstructed data. No demonstrated advantage over betting markets; no market prices are used.')
-page=st.sidebar.radio('Page',['Today','Model Debate','King of the Court','Research & Calibration','Data & Sources'])
+st.warning('Shadow research. Current injury/lineup changes are not modeled in v1. Historical results use revised reconstructed data. No demonstrated advantage over betting markets; the winner models use no market prices (the Live Value page compares its own prices with Kalshi quotes separately).')
+page=st.sidebar.radio('Page',['Today','Model Debate','King of the Court','Live Value','Research & Calibration','Data & Sources'])
 if (REPORTS/'CONFIRMATION.json').exists():
     st.caption('Evaluation status: '+read(REPORTS/'CONFIRMATION.json')['decision'])
 
@@ -285,6 +285,9 @@ elif page=='King of the Court':
             result=read(backtest)
             st.dataframe(pd.DataFrame(result['configs']).T,use_container_width=True)
             st.caption(result['verdict'])
+elif page=='Live Value':
+    from nba_xgb import live_value_page
+    live_value_page.render()
 elif page=='Research & Calibration':
     with st.expander('Codex research package (installed 2026-10-27) · separate code, research only'):
         check=CR.verify()
