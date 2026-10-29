@@ -12,7 +12,7 @@ import stat
 import numpy as np
 import pandas as pd
 from nba_lab import sources
-from . import availability, data, engine, pbp, rapm, avail_study as S, models
+from . import availability, data, engine, pbp, rapm, live_state, avail_study as S, models
 
 LIVE = S.OUT / 'live'
 PBP_URL = 'https://github.com/sportsdataverse/sportsdataverse-data/releases/download/espn_nba_pbp/play_by_play_{s}.parquet'
@@ -88,6 +88,7 @@ def run(date: str, late=False, refresh=True, log=print):
                                   'p_home_raw': raw, 'p_home': cal.predict(raw)}))
     out = pd.concat(rows, ignore_index=True)
     assert len(out) == len(S.KINDS) * len(day_games) and out.p_home.between(0, 1).all() and out.p_home.notna().all(), 'incomplete forecast table'
+    out = out.merge(live_state.live_priors(new, games), on='game_id', how='left')    # pregame expected margin and total for live pricing
     out['forecast_date'] = date
     out['status'] = status
     out['prediction_cutoff_utc'] = cutoff.isoformat()
