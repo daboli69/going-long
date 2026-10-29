@@ -182,8 +182,9 @@ def freeze(args):
         sim = sm.simulate(model, pace, g.home, g.away, int(g.neutral), int(s), g.gid)
         games.append({"gid": g.gid, "kickoff_utc": g.kickoff_utc.isoformat(), "p_home": sim["p_home"], "p_tie": sim["p_tie"],
                       "median_margin": sim["median_margin"], "median_total": sim["median_total"],
-                      "margin_pmf": {int(m): round(float(p), 5) for m, p in zip(sm.MARGINS, sim["margin_pmf"]) if p > 0},
-                      "total_pmf": {int(t): round(float(p), 5) for t, p in zip(sm.TOTALS, sim["total_pmf"]) if p > 0}})
+                      # string keys: the archive hash must survive a JSON round trip
+                      "margin_pmf": {str(int(m)): round(float(p), 5) for m, p in zip(sm.MARGINS, sim["margin_pmf"]) if p > 0},
+                      "total_pmf": {str(int(t)): round(float(p), 5) for t, p in zip(sm.TOTALS, sim["total_pmf"]) if p > 0}})
         log(f"  {g.away} @ {g.home}: P(home) {sim['p_home']:.1%}, median margin {sim['median_margin']:+.0f}, total {sim['median_total']:.0f}")
     saved = save("homewin_sim", f"{int(s)}_w{int(w):02d}", {"season": int(s), "week": int(w), "results_cutoff_utc": R.isoformat(),
                                                             "games": games},

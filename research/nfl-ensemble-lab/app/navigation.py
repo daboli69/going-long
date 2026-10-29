@@ -7,7 +7,7 @@ SECTIONS = {
     "This week": ("Projections", "Leans", "Weekly Predictions", "Player Props"),
     "Insights": ("Model Debate", "Advanced Football Intelligence", "Player Intelligence", "Upset Explorer"),
     "Models": ("Model Leaderboard", "Train Models", "Baseline Research"),
-    "Research": ("Long-Run Research", "FPDS Research", "Research Validation", "Research Runs", "Upset Discovery"),
+    "Research": ("Long-Run Research", "FPDS Research", "Home-Win Research", "Research Validation", "Research Runs", "Upset Discovery"),
     "Data & history": ("Data Manager", "Data Freshness", "Data Coverage & Gaps", "Prediction Archive", "Prospective Performance", "Reports"),
 }
 PAGES = [page for pages in SECTIONS.values() for page in pages]
@@ -27,6 +27,7 @@ DESCRIPTIONS = {
     "Baseline Research": "Compare models against simple benchmarks.",
     "Long-Run Research": "Manage and inspect longer research runs.",
     "FPDS Research": "Review local data coverage and aggregate shadow research evidence.",
+    "Home-Win Research": "Frozen home-win forecasts, prospective record and preregistered backtests.",
     "Research Validation": "Review validation evidence and limitations.",
     "Research Runs": "Inspect saved research experiments.",
     "Upset Discovery": "Explore research into upset patterns.",
