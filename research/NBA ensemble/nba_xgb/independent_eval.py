@@ -110,11 +110,43 @@ def date_bootstrap(df, col, draws=4000, seed=7, block=None):
     b = num / den
     mean = sum(s.sum() for s, _ in blocks) / sum(c.sum() for _, c in blocks)
     return {'mean': float(mean), 'ci95': [float(x) for x in np.percentile(b, [2.5, 97.5])],
-            'ci975': [float(x) for x in np.percentile(b, [1.25, 98.75])]}
+            'ci975': [float(x) for x in np.percentile(b, [1.25, 98.75])],
+            'ci983': [float(x) for x in np.percentile(b, [0.85, 99.15])]}
+
+
+def dm_test(df, col):
+    """Diebold-Mariano on daily mean loss differentials, Newey-West (Bartlett) variance, bandwidth floor(n^(1/3))."""
+    d = df.groupby('game_date')[col].mean().sort_index().values
+    n = len(d)
+    mu = d.mean()
+    e = d - mu
+    L = int(np.floor(n ** (1 / 3)))
+    var = (e @ e) / n
+    for k in range(1, L + 1):
+        var += 2 * (1 - k / (L + 1)) * (e[k:] @ e[:-k]) / n
+    stat = mu / np.sqrt(var / n)
+    from math import erf, sqrt
+    p = 2 * (1 - 0.5 * (1 + erf(abs(stat) / sqrt(2))))
+    return {'mean_daily_diff': float(mu), 'dm_stat': float(stat), 'p_value': float(p), 'days': int(n), 'bandwidth': L}
+
+
+def brier_decomposition(y, p, bins=10):
+    b = np.minimum((p * bins).astype(int), bins - 1)
+    ybar = y.mean()
+    rel = res = 0.0
+    for k in range(bins):
+        m = b == k
+        if m.any():
+            pk, ok, nk = p[m].mean(), y[m].mean(), m.sum()
+            rel += nk * (pk - ok) ** 2
+            res += nk * (ok - ybar) ** 2
+    n = len(y)
+    return {'reliability': float(rel / n), 'resolution': float(res / n), 'uncertainty': float(ybar * (1 - ybar))}
 
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.add_argument('--pairs', default='xgb:elo_cal,xgb:logit,logit:elo_cal', help='a:b model pairs, a minus b')
     ap.add_argument('predictions', nargs='+')
     ap.add_argument('--archive', default='data/raw/archive')
     ap.add_argument('--out', default=None)
@@ -164,13 +196,15 @@ def main():
     W = P.pivot_table(index=['game_id', 'season', 'game_date'], columns='model', values='p_home').reset_index()
     y = P.drop_duplicates('game_id').set_index('game_id').home_win
     W['y'] = W.game_id.map(y).values
-    for a_m, b_m in [('xgb', 'elo_cal'), ('xgb', 'logit'), ('logit', 'elo_cal')]:
+    report['brier_decomposition'] = {m: brier_decomposition(g.home_win.values, g.p_home.values) for m, g in P.groupby('model')}
+    for a_m, b_m in [tuple(x.split(':')) for x in a.pairs.split(',')]:
         if a_m in W and b_m in W:
             W['d_ll'] = ll_vec(W.y.values, W[a_m].values) - ll_vec(W.y.values, W[b_m].values)
             W['d_br'] = (W[a_m] - W.y) ** 2 - (W[b_m] - W.y) ** 2
             entry = {}
             for scope, grp in [('all', W)] + [(f'season_{s}', W[W.season == s]) for s in seasons]:
-                entry[scope] = {'log_loss_diff_date_bootstrap': date_bootstrap(grp, 'd_ll'),
+                entry[scope] = {'diebold_mariano_newey_west': dm_test(grp, 'd_ll'),
+                                'log_loss_diff_date_bootstrap': date_bootstrap(grp, 'd_ll'),
                                 'log_loss_diff_7day_block_bootstrap': date_bootstrap(grp, 'd_ll', block=7),
                                 'brier_diff_date_bootstrap': date_bootstrap(grp, 'd_br')}
             report['paired'][f'{a_m}_minus_{b_m}'] = entry

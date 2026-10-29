@@ -114,10 +114,10 @@ def tune(design: Design, season_start='2022-11-01', season_end='2023-04-05', log
             'intercept_only_mse': base_se / base_w, 'best_mse': res[best], 'n_refits': len(days)}
 
 
-def ratings_table(design: Design, lam: float, half_life: float, start='2021-12-01', end='2026-10-31', log=print):
+def ratings_table(design: Design, lam: float, half_life: float, start='2021-12-01', end='2026-10-31', log=print, leak_days=0):
     rows = []
     for d in refit_days(start, end):
-        beta, expo = design.fit(d - 1, lam, half_life)
+        beta, expo = design.fit(d - 1 + leak_days, lam, half_life)   # leak_days > 0 only in the mutation test
         P = design.P
         off, de = beta[2:2 + P], beta[2 + P:]
         rows.append(pd.DataFrame({'refit_day': d, 'athlete_id': design.players, 'off': off, 'def': de,

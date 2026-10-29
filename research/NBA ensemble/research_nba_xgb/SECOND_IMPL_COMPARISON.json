@@ -1,0 +1,39 @@
+{
+  "games_mine": 4919,
+  "games_second": 4919,
+  "common": 4919,
+  "features": {
+    "avail_value_diff": {
+      "corr": 0.9999999999999998,
+      "mean_abs_diff": 7.555079362598896e-13,
+      "max_abs_diff": 6.2940763712049375e-12,
+      "n_gt_0.05": 0,
+      "sd_mine": 6.921218626694531,
+      "sd_second": 6.921218626694547
+    },
+    "full_value_diff": {
+      "corr": 0.9999999999999996,
+      "mean_abs_diff": 6.784733376867236e-13,
+      "max_abs_diff": 5.717648576819556e-12,
+      "n_gt_0.05": 0,
+      "sd_mine": 6.640733384943367,
+      "sd_second": 6.640733384943374
+    },
+    "avail_effect_diff": {
+      "corr": 1.0,
+      "mean_abs_diff": 2.8054400724985797e-13,
+      "max_abs_diff": 4.668265773943858e-12,
+      "n_gt_0.05": 0,
+      "sd_mine": 1.6606440189684706,
+      "sd_second": 1.6606440189685052
+    },
+    "missing_min_diff": {
+      "corr": 1.0,
+      "mean_abs_diff": 2.476354826286497e-13,
+      "max_abs_diff": 9.464429240324534e-12,
+      "n_gt_0.05": 0,
+      "sd_mine": 37.849508892492636,
+      "sd_second": 37.84950889249265
+    }
+  }
+}

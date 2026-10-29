@@ -49,9 +49,10 @@ def load_inputs():
     return games, pb, inj
 
 
-def candidate_rows(games: pd.DataFrame, pb: pd.DataFrame, inj: pd.DataFrame, labelled=True) -> pd.DataFrame:
+def candidate_rows(games: pd.DataFrame, pb: pd.DataFrame, inj: pd.DataFrame, labelled=True, leak_history=False) -> pd.DataFrame:
     """One row per (team-game, candidate player) with only information available before the game day."""
-    g = games[games.completed & games.verified | ~games.completed].copy() if not labelled else games[games.completed & games.verified]
+    # labelled: only verified completed games; otherwise also the not-yet-played schedule (used for live forecasts)
+    g = games[games.completed & games.verified].copy() if labelled else games[(games.completed & games.verified) | ~games.completed].copy()
     g = g[g.season >= 2021].sort_values(['game_date', 'tipoff_utc', 'game_id'])
     played = pb[pb.played].groupby(['team_id', 'game_id']).apply(
         lambda d: dict(zip(d.athlete_id, d.minutes)), include_groups=False).to_dict()
@@ -63,6 +64,8 @@ def candidate_rows(games: pd.DataFrame, pb: pd.DataFrame, inj: pd.DataFrame, lab
     for r in g.itertuples(index=False):
         for team, opp in ((r.home_id, r.away_id), (r.away_id, r.home_id)):
             past = history[team][-HISTORY:]
+            if leak_history:                    # planted leak used only by the mutation test
+                past = (past + [(r.game_date, r.game_id, played.get((team, r.game_id), {}))])[-HISTORY:]
             cand = {}
             for k, (_, _, mins) in enumerate(past):
                 for a in mins:
@@ -97,7 +100,7 @@ def candidate_rows(games: pd.DataFrame, pb: pd.DataFrame, inj: pd.DataFrame, lab
                 rows.append((r.game_id, r.season, r.game_date, team, a, st, reason_category(reason.get(a)), gp,
                              avgmin, streak, n_prev, lead.get(a, np.nan), float(a in actual), actual.get(a, 0.0)))
         for team in (r.home_id, r.away_id):
-            if labelled:
+            if r.completed:
                 history[team].append((r.game_date, r.game_id, played.get((team, r.game_id), {})))
     cols = ['game_id', 'season', 'game_date', 'team_id', 'athlete_id', 'status', 'reason_cat', 'gp_last10', 'avg_min',
             'streak_missed', 'team_games_before', 'report_lead_hours', 'played', 'minutes']
@@ -153,7 +156,7 @@ def team_value(cands_game: pd.DataFrame, p: np.ndarray, rating: dict, scale=240.
     return float((m / 48.0 * net).sum())
 
 
-def build_game_features(cands: pd.DataFrame, games: pd.DataFrame, ratings: pd.DataFrame, log=print) -> pd.DataFrame:
+def build_game_features(cands: pd.DataFrame, games: pd.DataFrame, ratings: pd.DataFrame, log=print, seasons=None) -> pd.DataFrame:
     """Per-game availability features. Play model for season T is fit on injury-era seasons < T only."""
     ratings = ratings.sort_values('refit_day')
     by_day = {d: dict(zip(g.athlete_id.astype(int), g.net)) for d, g in ratings.groupby('refit_day')}
@@ -162,10 +165,14 @@ def build_game_features(cands: pd.DataFrame, games: pd.DataFrame, ratings: pd.Da
     rows = []
     models_by_season = {}
     for T in sorted(cands.season.unique()):
+        if seasons is not None and T not in seasons:
+            continue
         tr = cands[(cands.season >= 2022) & (cands.season < T)]
         models_by_season[T] = fit_play_model(tr) if len(tr) > 500 else None
     for gid, grp in cands.groupby('game_id', sort=False):
         T = int(grp.season.iloc[0])
+        if seasons is not None and T not in seasons:
+            continue
         model = models_by_season[T]
         if model is None:
             continue

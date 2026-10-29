@@ -1,0 +1,13 @@
+{
+  "dates": 327,
+  "games_replayed": 2460,
+  "compared": 2459,
+  "max_abs_rating_difference": 3.5638159090467525e-14,
+  "max_abs_feature_difference": {
+    "full_value_diff": 7.460698725481052e-14,
+    "avail_effect_diff": 2.984279490192421e-13,
+    "missing_min_diff": 2.7213786779611837e-12,
+    "avail_value_diff": 3.015365734881925e-13,
+    "rapm_refit_day": 0.0
+  }
+}
