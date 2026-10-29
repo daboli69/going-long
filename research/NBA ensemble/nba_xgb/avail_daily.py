@@ -70,6 +70,11 @@ def run(date: str, late=False, refresh=True, log=print):
     # report timing: every injury row used must predate the first tipoff
     used = inj[inj.game_id.isin(day_games.game_id)]
     latest_pub = pd.to_datetime(used.available_at, utc=True).max() if len(used) else pd.NaT
+    # verification gates: a check that covers nothing must fail, not pass
+    assert len(new) == len(day_games) > 0, f'features for {len(new)} of {len(day_games)} games'
+    assert new.has_avail.sum() > 0, 'no game received availability features'
+    assert len(used) > 0, 'no injury-report rows were found for this day'
+    assert pd.isna(latest_pub) is False and latest_pub <= first_tip, 'an injury row was published after the first tipoff'
     # production models: trained on every labelled season before this one, frozen hyperparameters
     T = S.load_table()
     calP = S.oos(T, frozen, tuple(range(2022, season)))
@@ -82,6 +87,7 @@ def run(date: str, late=False, refresh=True, log=print):
         rows.append(pd.DataFrame({'game_id': new.game_id.values, 'home': new.home.values, 'away': new.away.values, 'model': k,
                                   'p_home_raw': raw, 'p_home': cal.predict(raw)}))
     out = pd.concat(rows, ignore_index=True)
+    assert len(out) == len(S.KINDS) * len(day_games) and out.p_home.between(0, 1).all() and out.p_home.notna().all(), 'incomplete forecast table'
     out['forecast_date'] = date
     out['status'] = status
     out['prediction_cutoff_utc'] = cutoff.isoformat()

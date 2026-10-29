@@ -40,6 +40,8 @@ def cmd_compare(args):
         feats = pd.read_csv(OUT / f'replay_features_{season}.csv', dtype={'game_id': str}).set_index('game_id')
         cols = [c for c in feats.columns if c in F.columns and c not in ('game_date', 'prediction_cutoff_utc')]
         fd = (feats[cols] - F.loc[feats.index, cols]).abs().max()
+        assert len(rp) > 0 and len(b) > 0 and int((m._merge == 'both').sum()) > 0, 'replay comparison would cover zero rows'
+        assert len(cols) > 0, 'no feature columns to compare'
         report[season] = {'rows_replay': len(rp), 'rows_batch': len(b), 'unmatched_rows': int((m._merge != 'both').sum()),
                           'max_abs_prediction_diff': float((m.p_home_replay - m.p_home_batch).abs().max()),
                           'max_abs_feature_diff': {k: float(v) for k, v in fd.items()}}

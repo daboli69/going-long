@@ -174,10 +174,15 @@ def main():
            'probabilities_outside_open_unit_interval': int(((P.p_home <= 0) | (P.p_home >= 1)).sum()),
            }
     report['reconciliation'] = rec
+    assert len(P) > 0 and len(o_ok) > 0 and all(v > 0 for v in rec['games_per_model'].values()), 'nothing to evaluate'
+    assert rec['predictions_without_source_outcome'] == 0, 'predictions exist that cannot be matched to a source outcome'
+    assert rec['duplicates_model_game'] == 0 and rec['game_sets_identical_across_models'], 'prediction sets differ across models'
     tip = o.set_index('game_id').tipoff_utc
     cut = pd.to_datetime(P.prediction_cutoff_utc, utc=True)
     rec['predictions_with_cutoff_at_or_after_tipoff'] = int((cut.values >= P.game_id.map(tip).values).sum())
+    n_before = len(P)
     P = P.merge(o_ok[['game_id', 'home_win']], on='game_id', how='inner')
+    assert len(P) == n_before > 0, 'joining outcomes dropped or emptied the prediction table'
     # the prediction file may legitimately omit a quarantined game; report source games with no prediction
     for s in seasons:
         src = set(o_ok[o_ok.season == s].game_id)

@@ -82,6 +82,8 @@ def main():
     batch = pd.read_parquet(S.OUT / 'avail_features.parquet').set_index('game_id')
     cols = ['full_value_diff', 'avail_effect_diff', 'missing_min_diff', 'avail_value_diff', 'rapm_refit_day']
     common = rep.index.intersection(batch.index)
+    expected = int(_G['games'][_G['games'].season.isin([2025, 2026]) & _G['games'].completed & _G['games'].verified].game_id.isin(batch.index).sum())
+    assert len(common) > 0 and len(common) == expected, f'replay compared {len(common)} games, expected {expected}'
     diff = (rep.loc[common, cols] - batch.loc[common, cols]).abs().max()
     out = {'dates': len(dates), 'games_replayed': int(len(rep)), 'compared': int(len(common)),
            'max_abs_rating_difference': worst, 'max_abs_feature_difference': {k: float(v) for k, v in diff.items()}}
