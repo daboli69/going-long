@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "modelVersion": "abbeys-current-season-v1",
-  "generatedAt": "2026-10-29T01:55:46.793Z",
+  "generatedAt": "2026-10-29T17:04:56.129Z",
   "weeks": [
     {
       "methodology": {
@@ -1398,8 +1398,8 @@
     "status": "not-frozen",
     "captureDeadline": "2026-11-01T18:00:00+00:00",
     "registeredOrigin": "2026-10-29T12:15:00.000Z",
-    "scheduledOriginPassed": false,
-    "reason": "Week 8 has not been captured or published. A prospective manual board may still be captured before the first Sunday/Monday kickoff."
+    "scheduledOriginPassed": true,
+    "reason": "Week 8 has not been captured or published. A prospective manual board may still be captured before the first Sunday/Monday kickoff. The registered scheduled origin has passed; no scheduled holdout catch-up is allowed."
   },
   "record": {
     "wins": 0,
