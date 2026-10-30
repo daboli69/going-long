@@ -1,0 +1,67 @@
+{
+ "step": "i6_pipeline",
+ "git_head": "40ed9806833a798e3a99b503a2513ccb0c6819b3",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "code_sha256": {
+  "steps.py": "d13deed9a10e3ca81295c77e8e52b5a78d73b5254444740153351e1907797f94",
+  "datasets.py": "76dc0a3bfd9d59253842ae62eceaedbb7b53194b21b5a66a83b90894ec6e0162",
+  "common.py": "95f52c728d94418cdb9a063cf47794765aa8613762b8df74de2a61f8c9eec631"
+ },
+ "scheduler_query": {
+  "tasks_scanned": 184,
+  "lab_related_tasks": [
+   "GoingLong-FP-Shadow-Capture",
+   "NFL Ensemble Lab - Data Refresh",
+   "NFL Lab Dense Capture - Sunday"
+  ]
+ },
+ "entry_points_exist": {
+  "winner_variants_freeze": true,
+  "joint_model_freeze": true,
+  "props_freeze": true,
+  "scoring": true,
+  "hash_and_order_check": true
+ },
+ "scheduler_mentions_freeze_or_score": false,
+ "freeze_scheduled": false,
+ "archives": {
+  "homewin_deep": 1,
+  "forecast_games": 1,
+  "props_kalshi": 1
+ },
+ "task_definitions_written": true,
+ "rehearsals_have_hash_and_pass": {
+  "rehearsal_step2.json": true,
+  "rehearsal_step3.json": true,
+  "rehearsal_step4.json": true,
+  "rehearsal_step5.json": true,
+  "rehearsal_step6.json": true,
+  "rehearsal_step7.json": true,
+  "i3_rehearsal.json": true,
+  "i4_rehearsal.json": true
+ },
+ "gate_accepts_current_code": {
+  "rehearsal_step2.json": true,
+  "rehearsal_step3.json": true,
+  "rehearsal_step4.json": true,
+  "rehearsal_step5.json": true,
+  "rehearsal_step6.json": true,
+  "rehearsal_step7.json": true,
+  "i3_rehearsal.json": true,
+  "i4_rehearsal.json": true
+ },
+ "planted_stale_hash": {
+  "gate_refused": true,
+  "message": "code changed since the rehearsal passed: ['steps.py']"
+ },
+ "tasks_registered_by_this_step": [],
+ "checks": {
+  "a_scheduler_queried": true,
+  "b_entry_points_located_and_schedule_status_stated": true,
+  "c_definitions_written_nothing_registered": true,
+  "d_all_rehearsals_pass_with_hash": true,
+  "d_gate_accepts_all_current": true,
+  "d_stale_hash_refused": true
+ },
+ "PASS": true
+}

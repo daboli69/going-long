@@ -5,7 +5,7 @@ from itertools import combinations
 from steps import *
 
 MODE = sys.argv[1]
-res = header(f"i3_{MODE}")
+res = header(f"i3_{MODE}", ("i3_screen.py",))
 wf = pd.read_parquet(HW / "walk_forward.parquet")
 wf = wf[(wf.season <= 2025)].dropna(subset=WIN_VARIANTS + ["y_home_win"]).reset_index(drop=True)
 wf["wk"] = wf.season.astype(str) + "_" + wf.week.astype(int).astype(str).str.zfill(2)
@@ -61,7 +61,7 @@ if MODE == "rehearsal":
     res["PASS"] = bool(all(res["conditions"].values()))
     write("i3_rehearsal.json", res); print("I3 REHEARSAL", "PASS" if res["PASS"] else "FAIL", json.dumps(res["conditions"]), res["holm_family_wise_false_positive"], res["spa_false_positive"], res["planted_detection_rate"])
 else:
-    assert json.load(open(OUT / "i3_rehearsal.json"))["PASS"], "Step 3 rehearsal has not passed"
+    gate("i3_rehearsal.json", ("i3_screen.py",))
     r = screen(wf, np.random.default_rng(SEED), B=2000)
     res.update(r)
     res["variants_counted"] = len(WIN_VARIANTS); res["pairs_counted"] = len(PAIRS); res["spa_candidates"] = len(OTHERS)

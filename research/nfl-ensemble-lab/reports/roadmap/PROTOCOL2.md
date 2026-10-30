@@ -104,3 +104,10 @@ A scoring gain is not a return. Nothing here is betting advice.
   Results (null share within 0.005; planted mean weight): 50 gives 95% and 0.59 (both conditions pass); 100 gives 97.5% and 0.47 (planted
   condition of at least 0.5 fails); 200 gives 98% and 0.33 (fails). 50 is the smallest value on the grid that passes, so it was selected
   with simulated results in view. Conditions and bands are unchanged. Real data have not been used.
+
+## Record notes (no pass condition changed)
+
+- Step 3 result and the 2025 confirmatory variant: on the 3,650-game history `p_xgb_v1` is the worst of the 8 (mean log loss 0.6438 against Elo's 0.6323). It was the 2025 best of a weak field and became the frozen confirmatory primary by the rule in `confirmatory_rules.json`. The rule is not changed. The long-history result says the 2025 choice is probably noise.
+- Step 5 data substitutions (recorded in `i5_segments.json`): `qb_change_*` in `features.parquet` is zero in every 2025 row, so quarterback change is derived from the starter ids in the games table (a hindsight flag, not knowable at decision time). `injury_rows_pregame.parquet` has no 2025 rows, so `recovered_injury_rows.parquet` is used. The heavy-injury segment has 2 games in 2 weeks and its intervals are not meaningful.
+- Step 6: the rehearsal outputs now carry SHA-256 hashes of `steps.py`, `datasets.py` and `common.py` (and of `i3_screen.py` or `i4_blend.py` for those steps). Every real-step gate compares them with the current files. Rerunning all eight rehearsals reproduced the earlier numbers exactly; the only differences were metadata added to the recorded world definitions. Old outputs are kept in `before_hash_gate/`. The real-step outputs produced before this change carry no code hash.
+- Freeze archives: besides `forecast_games` and `props_kalshi` there is a `homewin_deep` archive (the 8 winner variants, week 8, frozen 2026-10-28 21:28 UTC, 14 games). The earlier statement that only two week-8 files were frozen was incomplete.

@@ -3,7 +3,7 @@ import sys
 from steps import *
 STEP = sys.argv[1]
 SEASON = int(sys.argv[2]) if len(sys.argv) > 2 else 2025
-assert json.load(open(OUT / f"rehearsal_step{STEP}.json"))["PASS"], f"rehearsal step {STEP} has not passed"
+gate(f"rehearsal_step{STEP}.json")
 ds = real_dataset(SEASON)
 res = header(f"real_step{STEP}")
 res["sample"] = f"season {SEASON}: {len(ds['winners'])} games, {ds['winners'].wk.nunique()} weeks; ladders {len(ds['ladders'])}; props ladders {len(ds['props_lad'])}"

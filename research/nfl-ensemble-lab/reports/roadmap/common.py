@@ -31,8 +31,24 @@ def protocol_hash() -> str:
     return sha(SRC / "PROTOCOL.md")
 
 
-def header(step: str) -> dict:
-    return {"step": step, "git_head": git_head(), "protocol_sha256": protocol_hash()}
+def code_hashes(extra=()) -> dict:
+    """SHA-256 of the shared step code (and any extra files) so a gate can tell whether the code changed after a rehearsal passed."""
+    return {f: sha(SRC / f) for f in ("steps.py", "datasets.py", "common.py", *extra)}
+
+
+def header(step: str, extra=()) -> dict:
+    return {"step": step, "git_head": git_head(), "protocol_sha256": protocol_hash(), "code_sha256": code_hashes(extra)}
+
+
+def gate(rehearsal_file: str, extra=()):
+    """Refuse to run a real step unless its rehearsal passed with exactly the current code."""
+    r = json.load(open(OUT / rehearsal_file))
+    assert r["PASS"], f"{rehearsal_file}: rehearsal has not passed"
+    saved = r.get("code_sha256")
+    assert saved, f"{rehearsal_file}: no code hash recorded; rerun the rehearsal"
+    cur = code_hashes(extra)
+    bad = [f for f in saved if saved[f] != cur.get(f)]
+    assert not bad, f"code changed since the rehearsal passed: {bad}"
 
 
 def write(name: str, obj: dict):

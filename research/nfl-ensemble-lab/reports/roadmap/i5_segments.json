@@ -1,0 +1,395 @@
+{
+ "step": "i5_segments",
+ "git_head": "40ed9806833a798e3a99b503a2513ccb0c6819b3",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "missing_values": {
+  "roof": 0,
+  "div_game": 0,
+  "rest_home": 0,
+  "rest_away": 0
+ },
+ "substitutions": [
+  "qb_change: starting quarterback id differs from the team's previous game (games table, 2024 to 2025). It is a hindsight flag: the starter is not known at the decision time, so it shows where departures concentrate, not where the model could act.",
+  "injuries: recovered_injury_rows.parquet (2025 rows) because injury_rows_pregame.parquet has no 2025 rows; the segment is a team with 3 or more players listed Out or Doubtful before the decision time"
+ ],
+ "variant": "p_xgb_v1",
+ "sample": "2025: 271 games with prices at all three cutoffs, 18 weeks",
+ "segments": {
+  "qb_change": {
+   "games_in_segment": 61,
+   "games_rest": 210,
+   "weeks_in_segment": 17,
+   "flag_under_30_games": false,
+   "metrics": {
+    "departure_abs_model_minus_market": {
+     "segment": {
+      "mean": 0.10345335832931235,
+      "se": 0.01525658190494684,
+      "lo": 0.07111084950101616,
+      "hi": 0.13579586715760855,
+      "n": 61,
+      "clusters": 17
+     },
+     "rest": {
+      "mean": 0.0682438670343814,
+      "se": 0.002577811825107403,
+      "lo": 0.06280515948904722,
+      "hi": 0.07368257457971558,
+      "n": 210,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": 0.03520949129493093,
+     "lo": 0.0024027756024117136,
+     "hi": 0.06801620698745015,
+     "p": 0.036917609498405134,
+     "p_holm": 0.14767043799362053
+    },
+    "model_minus_market_log_loss": {
+     "segment": {
+      "mean": 0.05484538491272326,
+      "se": 0.031178237332269227,
+      "lo": -0.011249525628324618,
+      "hi": 0.12094029545377113,
+      "n": 61,
+      "clusters": 17
+     },
+     "rest": {
+      "mean": -0.0004891274101152252,
+      "se": 0.011301155222170333,
+      "lo": -0.024332480745360992,
+      "hi": 0.02335422592513054,
+      "n": 210,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": 0.05533451232283841,
+     "lo": -0.010497274948354188,
+     "hi": 0.12116629959403101,
+     "p": 0.09407797947467948,
+     "p_holm": 0.37631191789871793
+    },
+    "news_term_market_decision_minus_close": {
+     "segment": {
+      "mean": 0.020727921083738415,
+      "se": 0.00787830452717083,
+      "lo": 0.0040266615677120934,
+      "hi": 0.03742918059976474,
+      "n": 61,
+      "clusters": 17
+     },
+     "rest": {
+      "mean": -0.0005442091980515701,
+      "se": 0.0042892219092586295,
+      "lo": -0.009593676398988804,
+      "hi": 0.008505258002885664,
+      "n": 210,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": 0.02127213028178996,
+     "lo": 0.0034775633141578693,
+     "hi": 0.03906669724942205,
+     "p": 0.021930253140310444,
+     "p_holm": 0.08772101256124178
+    }
+   }
+  },
+  "short_rest": {
+   "games_in_segment": 128,
+   "games_rest": 143,
+   "weeks_in_segment": 17,
+   "flag_under_30_games": false,
+   "metrics": {
+    "departure_abs_model_minus_market": {
+     "segment": {
+      "mean": 0.08010604556448875,
+      "se": 0.0060365783785077615,
+      "lo": 0.06730907107072717,
+      "hi": 0.09290302005825032,
+      "n": 128,
+      "clusters": 17
+     },
+     "rest": {
+      "mean": 0.07264540631506004,
+      "se": 0.0052445568310018455,
+      "lo": 0.06158035861418093,
+      "hi": 0.08371045401593916,
+      "n": 143,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": 0.007460639249428729,
+     "lo": -0.009656637435318732,
+     "hi": 0.02457791593417619,
+     "p": 0.37066104366704167,
+     "p_holm": 0.7413220873340833
+    },
+    "model_minus_market_log_loss": {
+     "segment": {
+      "mean": -0.002917809286162227,
+      "se": 0.021862938786218377,
+      "lo": -0.04926516907561114,
+      "hi": 0.04342955050328669,
+      "n": 128,
+      "clusters": 17
+     },
+     "rest": {
+      "mean": 0.02528903015510969,
+      "se": 0.014089047798659288,
+      "lo": -0.0044362623673379585,
+      "hi": 0.055014322677557334,
+      "n": 143,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": -0.028206839441271933,
+     "lo": -0.08403593715763662,
+     "hi": 0.02762225827509275,
+     "p": 0.30135032488838753,
+     "p_holm": 0.9040509746651626
+    },
+    "news_term_market_decision_minus_close": {
+     "segment": {
+      "mean": 0.010745738859191478,
+      "se": 0.005373427087951524,
+      "lo": -0.0006454176995346825,
+      "hi": 0.022136895417917638,
+      "n": 128,
+      "clusters": 17
+     },
+     "rest": {
+      "mean": -0.0015757714647503184,
+      "se": 0.0050324900351761005,
+      "lo": -0.012193397336255105,
+      "hi": 0.009041854406754469,
+      "n": 143,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": 0.012321510323941813,
+     "lo": -0.0009671993538166463,
+     "hi": 0.025610220001700275,
+     "p": 0.06707017646277745,
+     "p_holm": 0.20121052938833234
+    }
+   }
+  },
+  "roof_closed_or_dome": {
+   "games_in_segment": 91,
+   "games_rest": 180,
+   "weeks_in_segment": 18,
+   "flag_under_30_games": false,
+   "metrics": {
+    "departure_abs_model_minus_market": {
+     "segment": {
+      "mean": 0.06769296531706691,
+      "se": 0.005055313639994521,
+      "lo": 0.05702718584857391,
+      "hi": 0.0783587447855599,
+      "n": 91,
+      "clusters": 18
+     },
+     "rest": {
+      "mean": 0.08045448384141698,
+      "se": 0.005566442549211862,
+      "lo": 0.06871031663797636,
+      "hi": 0.09219865104485761,
+      "n": 180,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": -0.012761518524350101,
+     "lo": -0.029041830635321144,
+     "hi": 0.003518793586620942,
+     "p": 0.11651247019436246,
+     "p_holm": 0.3495374105830874
+    },
+    "model_minus_market_log_loss": {
+     "segment": {
+      "mean": -0.004693454800089308,
+      "se": 0.024083555383493514,
+      "lo": -0.05550531511779208,
+      "hi": 0.04611840551761347,
+      "n": 91,
+      "clusters": 18
+     },
+     "rest": {
+      "mean": 0.020388645057555818,
+      "se": 0.01723458419474303,
+      "lo": -0.015973149153990555,
+      "hi": 0.05675043926910219,
+      "n": 180,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": -0.025082099857645142,
+     "lo": -0.09433632231097168,
+     "hi": 0.04417212259568139,
+     "p": 0.4552709655368159,
+     "p_holm": 0.9105419310736318
+    },
+    "news_term_market_decision_minus_close": {
+     "segment": {
+      "mean": 0.01784081487365054,
+      "se": 0.007581757126282701,
+      "lo": 0.0018447055812715676,
+      "hi": 0.033836924166029514,
+      "n": 91,
+      "clusters": 18
+     },
+     "rest": {
+      "mean": -0.002629971661027696,
+      "se": 0.003795558328640003,
+      "lo": -0.010637899749366846,
+      "hi": 0.005377956427311453,
+      "n": 180,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": 0.020470786534678244,
+     "lo": 0.004643880564682273,
+     "hi": 0.03629769250467421,
+     "p": 0.014286432638603465,
+     "p_holm": 0.07143216319301733
+    }
+   }
+  },
+  "divisional": {
+   "games_in_segment": 96,
+   "games_rest": 175,
+   "weeks_in_segment": 18,
+   "flag_under_30_games": false,
+   "metrics": {
+    "departure_abs_model_minus_market": {
+     "segment": {
+      "mean": 0.07783828365251973,
+      "se": 0.010025995421795334,
+      "lo": 0.05668528232833178,
+      "hi": 0.09899128497670767,
+      "n": 96,
+      "clusters": 18
+     },
+     "rest": {
+      "mean": 0.07525366688380714,
+      "se": 0.002469684537661657,
+      "lo": 0.070018169545014,
+      "hi": 0.08048916422260027,
+      "n": 175,
+      "clusters": 17
+     },
+     "difference_segment_minus_rest": 0.0025846167687125685,
+     "lo": -0.019089503036759353,
+     "hi": 0.024258736574184488,
+     "p": 0.8043715858373253,
+     "p_holm": 0.8043715858373253
+    },
+    "model_minus_market_log_loss": {
+     "segment": {
+      "mean": 0.007377163177679266,
+      "se": 0.01381053982846133,
+      "lo": -0.021760528890694027,
+      "hi": 0.03651485524605256,
+      "n": 96,
+      "clusters": 18
+     },
+     "rest": {
+      "mean": 0.014483680334255494,
+      "se": 0.016953601088902762,
+      "lo": -0.02145634845498857,
+      "hi": 0.050423709123499555,
+      "n": 175,
+      "clusters": 17
+     },
+     "difference_segment_minus_rest": -0.007106517156576229,
+     "lo": -0.05184277087925444,
+     "hi": 0.03762973656610198,
+     "p": 0.7416106456816447,
+     "p_holm": 0.9105419310736318
+    },
+    "news_term_market_decision_minus_close": {
+     "segment": {
+      "mean": 0.01031375108439823,
+      "se": 0.006997689693982719,
+      "lo": -0.0044500836408092135,
+      "hi": 0.025077585809605674,
+      "n": 96,
+      "clusters": 18
+     },
+     "rest": {
+      "mean": 0.0009142808595141909,
+      "se": 0.004759163107868527,
+      "lo": -0.009174694232713434,
+      "hi": 0.011003255951741816,
+      "n": 175,
+      "clusters": 17
+     },
+     "difference_segment_minus_rest": 0.009399470224884045,
+     "lo": -0.009043005485298121,
+     "hi": 0.027841945935066212,
+     "p": 0.2972666921481872,
+     "p_holm": 0.5945333842963744
+    }
+   }
+  },
+  "heavy_injuries_3plus_one_team": {
+   "games_in_segment": 2,
+   "games_rest": 269,
+   "weeks_in_segment": 2,
+   "flag_under_30_games": true,
+   "metrics": {
+    "departure_abs_model_minus_market": {
+     "segment": null,
+     "rest": {
+      "mean": 0.07639163781650951,
+      "se": 0.003969237671097789,
+      "lo": 0.0680172783459051,
+      "hi": 0.08476599728711393,
+      "n": 269,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": -0.030133456482967662,
+     "lo": -0.04312906200113151,
+     "hi": -0.017137850964803816,
+     "p": 0.00013740994516379384,
+     "p_holm": 0.0006870497258189692
+    },
+    "model_minus_market_log_loss": {
+     "segment": null,
+     "rest": {
+      "mean": 0.01335794736161238,
+      "se": 0.01238921782566919,
+      "lo": -0.012781017404153007,
+      "hi": 0.03949691212737776,
+      "n": 269,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": -0.18857600572251676,
+     "lo": -0.2698051608715145,
+     "hi": -0.10734685057351903,
+     "p": 0.0001357198722420735,
+     "p_holm": 0.0006785993612103676
+    },
+    "news_term_market_decision_minus_close": {
+     "segment": null,
+     "rest": {
+      "mean": 0.00414352123157481,
+      "se": 0.004048064803643442,
+      "lo": -0.004397148951230339,
+      "hi": 0.01268419141437996,
+      "n": 269,
+      "clusters": 18
+     },
+     "difference_segment_minus_rest": 0.013612500380219862,
+     "lo": -0.016503713332364837,
+     "hi": 0.04372871409280456,
+     "p": 0.353632755832174,
+     "p_holm": 0.5945333842963744
+    }
+   }
+  }
+ },
+ "tests_counted": {
+  "segments": 5,
+  "metrics": 3,
+  "tests": 15,
+  "holm_family_size_per_metric": 5
+ },
+ "checks": {
+  "all_five_segments_computed": true,
+  "intervals_present": true,
+  "tests_counted_recorded": true
+ },
+ "PASS": true
+}

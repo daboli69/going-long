@@ -1,7 +1,12 @@
 {
  "step": "rehearsal_step6",
- "git_head": "7ff7eb382277ab35c007990e8429cdfb02058247",
+ "git_head": "40ed9806833a798e3a99b503a2513ccb0c6819b3",
  "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "code_sha256": {
+  "steps.py": "d13deed9a10e3ca81295c77e8e52b5a78d73b5254444740153351e1907797f94",
+  "datasets.py": "76dc0a3bfd9d59253842ae62eceaedbb7b53194b21b5a66a83b90894ec6e0162",
+  "common.py": "95f52c728d94418cdb9a063cf47794765aa8613762b8df74de2a61f8c9eec631"
+ },
  "template": "real season 2025 structure: 271 games, 18 weeks, props ladders 191",
  "world_definitions": {
   "null": {

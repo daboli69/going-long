@@ -3,7 +3,7 @@ import sys
 from steps import *
 
 MODE = sys.argv[1]
-res = header(f"i4_{MODE}")
+res = header(f"i4_{MODE}", ("i4_blend.py",))
 import os
 K_PRIOR_GAMES = int(os.environ.get("I4_K", "50"))
 FIRST_WEEKS = 3
@@ -79,7 +79,7 @@ if MODE == "rehearsal":
     res["PASS"] = bool(all(res["conditions"].values()))
     write("i4_rehearsal.json", res); print("I4 REHEARSAL", "PASS" if res["PASS"] else "FAIL", json.dumps(res["null"]), json.dumps(res["planted_strong"]), json.dumps({k: bool(v) for k, v in res["conditions"].items()}))
 else:
-    assert json.load(open(OUT / "i4_rehearsal.json"))["PASS"], "Step 4 rehearsal has not passed"
+    gate("i4_rehearsal.json", ("i4_blend.py",))
     ds = real_dataset(2025)
     W = ds["winners"]; res["sample"] = f"2025: {len(W)} games"
     res["winners"] = {v: summarize(winners_blend(W, v), SESOI_WIN) for v in WIN_VARIANTS}

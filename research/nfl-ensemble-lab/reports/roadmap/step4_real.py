@@ -5,7 +5,7 @@ from common import *
 sys.path.insert(0, str(ROOT))
 from lab import homewin_deep as h, homewin_eval as ev, kalshi as K
 
-assert json.load(open(OUT / "rehearsal_step4.json"))["PASS"], "rehearsal step 4 has not passed"
+gate("rehearsal_step4.json")
 res = header("step4_real")
 data, _ = h.load_all(refresh=False)
 pm = h.qb_prior_mean(data.qb_games[data.qb_games["season"] <= 2011])

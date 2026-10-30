@@ -5,7 +5,7 @@ from scipy.optimize import brentq
 from steps import *
 
 for s_ in ("2", "3", "5"):
-    assert json.load(open(OUT / f"rehearsal_step{s_}.json"))["PASS"], f"rehearsal step {s_} has not passed"
+    gate(f"rehearsal_step{s_}.json")
 
 hist = pd.read_parquet(HW / "kalshi_history.parquet")
 hist = hist[hist.gid.str[:4] == "2025"]

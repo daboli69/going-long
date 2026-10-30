@@ -1,0 +1,48 @@
+{
+ "step": "rehearsal_step3",
+ "git_head": "5f4db32284c04d192fb82060a660a7ac8ac66552",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "template": "real season 2025 structure: 271 games, 18 weeks, props ladders 191",
+ "world_definitions": {
+  "null": {
+   "sA": 0.0,
+   "s_dec": 0.6,
+   "s_close": 0.0,
+   "s_var": {},
+   "planted": null
+  },
+  "exch": {
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {},
+   "planted": null
+  },
+  "planted": {
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {
+    "p_xgb_deep": 0.4,
+    "L": 0.4,
+    "K": 0.4
+   },
+   "planted": "p_xgb_deep"
+  }
+ },
+ "theta_default": 0.8,
+ "news_coverage_exch": {
+  "truth": 0.0971584911250396,
+  "coverage": 0.96
+ },
+ "news_coverage_planted": {
+  "truth": 0.0971584911250396,
+  "coverage": 0.96
+ },
+ "identity_ok": true,
+ "conditions": {
+  "identity_1e-9": true,
+  "news_coverage_ge_90": true
+ },
+ "PASS": true
+}
