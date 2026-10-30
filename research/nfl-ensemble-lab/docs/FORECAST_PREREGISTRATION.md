@@ -99,3 +99,9 @@ Realized outcomes and Kalshi settlements. The Kalshi close and, where available,
 games with the same cutoff. ESPN FPI captured at freeze time. Sealed weekly freezes (`scripts/forecast_study.py freeze`) with
 the Kalshi winner, spread and total ladders at the same instant, SHA-256 in the pushed ledger. Codex's independent rebuild of this and the five earlier
 studies (`docs/CODEX_REPRODUCTION_REQUEST.md`) before any gate is read. Results and freezes on the Streamlit page.
+
+## Amendment 1 (2026-10-29, after the first pilot power run, before any main run)
+The first pilot pooled yardage and reception counts in raw units for family T. Yardage dominated the variance, and two of the three
+groups hit the power search's upper bound (MDE reported as 0.5). **Change:** family T uses the **per-stat scaled** paired difference
+(`loss_v2 - loss_base`) / (mean `loss_base` of that stat over the replayed sample), with SESOI = 0.01 (1% of the baseline). Everything
+else is unchanged. The L and K pilot numbers from the first run are kept and are reproduced by the rerun.
