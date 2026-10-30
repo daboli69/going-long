@@ -31,13 +31,40 @@ FILTER = {"bid_min": 0.02, "ask_max": 0.98, "spread_max": 0.05, "vol24_min": 500
 
 def scope_markets(games: pd.DataFrame) -> pd.DataFrame:
     """Ladder and environment markets in regular-season games, with gid, kickoff, team, threshold and player name."""
-    inv = pd.read_parquet(CACHE_DIR / "kalshi" / "player_inventory.parquet")
-    gm = K.match_games(K.game_markets(), games)
+    return attach_games(pd.read_parquet(CACHE_DIR / "kalshi" / "player_inventory.parquet"), K.game_markets(), games)
+
+
+PROP_SERIES = ["KXNFLRECYDS", "KXNFLREC", "KXNFLRSHYDS", "KXNFLPASSYDS", "KXNFLANYTD", "KXNFLPASSTDS", "KXNFL2TD", "KXNFLPASSATT",
+               "KXNFLPASSCOMP", "KXNFLRSHATT", "KXNFLRRYDS", "KXNFLPASSINT", "KXNFLTD", "KXNFLLADDERRECYDS", "KXNFLLADDERRSHYDS",
+               "KXNFLLADDERREC", "KXNFLESCALATORRECYDS"]
+
+
+def live_markets(games: pd.DataFrame, series: list[str] | None = None) -> pd.DataFrame:
+    """Currently open markets in the given series (default: ladders + environment), parsed like scope_markets, with live quotes."""
+    rows = []
+    for s in (series or list(LADDERS) + list(ENV)):
+        cur = ""
+        while True:
+            d = K._get(f"/markets?series_ticker={s}&status=open&limit=1000" + (f"&cursor={cur}" if cur else ""))
+            for m in d.get("markets", []):
+                rows.append({"series": s, "historical": False, "ticker": m["ticker"], "event": m.get("event_ticker"), "title": m.get("title"),
+                             "yes_sub": m.get("yes_sub_title"), "strike": m.get("floor_strike"), "strike_type": m.get("strike_type"),
+                             "open": m.get("open_time"), "close": m.get("close_time"), "status": m.get("status"), "result": m.get("result"),
+                             "bid": K._f(m.get("yes_bid_dollars")), "ask": K._f(m.get("yes_ask_dollars")), "last": K._f(m.get("last_price_dollars")),
+                             "vol24": K._f(m.get("volume_24h_fp")) or 0.0, "open_interest": K._f(m.get("open_interest_fp")) or 0.0})
+            cur = d.get("cursor")
+            if not cur or not d.get("markets"):
+                break
+    return attach_games(pd.DataFrame(rows), K.game_markets("open"), games)
+
+
+def attach_games(inv: pd.DataFrame, game_mkts: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
+    gm = K.match_games(game_mkts, games)
     gm["raw"] = gm["ticker"].str.rsplit("-", n=1).str[-1]          # Kalshi's own team code (e.g. JAC)
     code = {}
     for e, d in gm.groupby("event"):
         code[e.split("-", 1)[1]] = (d["gid"].iloc[0], d["kickoff_utc"].iloc[0], dict(zip(d["raw"], d["team"])))
-    inv = inv[inv["series"].isin(list(LADDERS) + list(ENV))].copy()
+    inv = inv[inv["series"].isin(list(LADDERS) + list(ENV) + PROP_SERIES)].copy()
     inv["code"] = inv["event"].str.split("-", n=1).str[1]
     inv = inv[inv["code"].isin(code)]
     inv["gid"] = inv["code"].map(lambda c: code[c][0])
@@ -135,11 +162,20 @@ def median_from_cdf(x: np.ndarray, F: np.ndarray) -> float:
     return float(x0 + (0.5 - f0) * (x1 - x0) / (f1 - f0)) if f1 > f0 else float(x0)
 
 
-def game_environment(gm: pd.DataFrame, home: str, away: str, P: pd.Timestamp, winner_p: float) -> dict:
-    """Kalshi median home margin and total at P from the spread, total and game-winner markets."""
+def game_environment(gm: pd.DataFrame, home: str, away: str, P: pd.Timestamp, winner_p: float, live: bool = False) -> dict:
+    """Kalshi median home margin and total at P from the spread, total and game-winner markets.
+
+    live=True reads each market's current bid/ask from the frame (columns bid, ask, last) instead of candles."""
+    def _q(m):
+        if not live:
+            return quote_at(candles(pd.Series(m._asdict())), P)
+        ok = pd.notna(m.bid) and pd.notna(m.ask) and m.bid >= FILTER["bid_min"] and m.ask <= FILTER["ask_max"]
+        mid = (m.bid + m.ask) / 2 if ok else m.last
+        return {"mid": float(mid) if pd.notna(mid) else np.nan, "bid": m.bid, "ask": m.ask}
+
     rows = []
     for m in gm[gm["series"] == "KXNFLSPREAD"].itertuples(index=False):
-        q = quote_at(candles(pd.Series(m._asdict())), P)
+        q = _q(m)
         if np.isnan(q["mid"]) or pd.isna(m.strike):
             continue
         x = float(m.strike)
@@ -152,7 +188,7 @@ def game_environment(gm: pd.DataFrame, home: str, away: str, P: pd.Timestamp, wi
         rows.append((0.0, 1 - winner_p, 20.0))
     tot = []
     for m in gm[gm["series"] == "KXNFLTOTAL"].itertuples(index=False):
-        q = quote_at(candles(pd.Series(m._asdict())), P)
+        q = _q(m)
         if np.isnan(q["mid"]) or pd.isna(m.strike):
             continue
         tot.append((float(m.strike), 1 - q["mid"], 1 / max(q["ask"] - q["bid"], 0.01) if pd.notna(q["bid"]) else 1.0))

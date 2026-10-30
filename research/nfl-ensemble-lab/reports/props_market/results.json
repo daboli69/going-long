@@ -1,0 +1,219 @@
+{
+ "prereg": "4909f1ba",
+ "label": "reused history, descriptive; only prospective freezes can pass; nothing promoted",
+ "scored": {
+  "ladders": 762,
+  "thresholds": 4344,
+  "weeks": 6,
+  "by_stat": {
+   "rec_yds": 354,
+   "rush_yds": 157,
+   "rec": 147,
+   "pass_yds": 104
+  },
+  "b_by_stat_last_week": {
+   "pass_yds": 0.0,
+   "rec": 0.193,
+   "rec_yds": 0.253,
+   "rush_yds": 0.171
+  },
+  "b_range": [
+   5.9608609865491405e-06,
+   0.41318736317326166
+  ]
+ },
+ "mean_ladder_crps": {
+  "mkt": 1.0466571157771944,
+  "sim": 1.0907669596889162,
+  "stack": 1.0499652666235832,
+  "corr": 1.0473590736814975
+ },
+ "mean_logscore": {
+  "mkt": 0.5458880807854879,
+  "sim": 0.5679563496284793,
+  "stack": 0.5472653686470623,
+  "corr": 0.546729576723397
+ },
+ "sesoi_crps": 0.010466571157771944,
+ "M": {
+  "M1_corr_vs_market": {
+   "n": 762,
+   "mean_a": 1.0473590736814975,
+   "mean_b": 1.0466571157771944,
+   "delta": 0.0007019579043028569,
+   "ci": [
+    -0.0037347323462558588,
+    0.005079253068687498
+   ],
+   "ci_level": 0.9833333333333333,
+   "improves": false,
+   "material": false,
+   "game_cluster_ci_sensitivity": [
+    -0.009273833162274859,
+    0.009564048823844274
+   ]
+  },
+  "M2_corr_vs_simulator": {
+   "n": 762,
+   "mean_a": 1.0473590736814975,
+   "mean_b": 1.0907669596889162,
+   "delta": -0.043407886007419,
+   "ci": [
+    -0.0609820546548441,
+    -0.024640148637966215
+   ],
+   "ci_level": 0.9833333333333333,
+   "improves": true,
+   "material": true
+  },
+  "M3_corr_vs_stack": {
+   "n": 762,
+   "mean_a": 1.0473590736814975,
+   "mean_b": 1.0499652666235832,
+   "delta": -0.002606192942085929,
+   "ci": [
+    -0.006719948123489218,
+    0.0002935084897217312
+   ],
+   "ci_level": 0.9833333333333333,
+   "improves": false,
+   "material": false
+  }
+ },
+ "L": {
+  "L1_corr_vs_market": {
+   "n": 4344,
+   "mean_a": 0.546729576723397,
+   "mean_b": 0.5458880807854879,
+   "delta": 0.0008414959379091579,
+   "ci": [
+    -0.001721268440795261,
+    0.0023847321681570734
+   ],
+   "ci_level": 0.9833333333333333,
+   "improves": false
+  },
+  "L2_corr_vs_simulator": {
+   "n": 4344,
+   "mean_a": 0.546729576723397,
+   "mean_b": 0.5679563496284793,
+   "delta": -0.021226772905082285,
+   "ci": [
+    -0.02647680352102185,
+    -0.013499991012941233
+   ],
+   "ci_level": 0.9833333333333333,
+   "improves": true
+  },
+  "L3_corr_vs_stack": {
+   "n": 4344,
+   "mean_a": 0.546729576723397,
+   "mean_b": 0.5472653686470623,
+   "delta": -0.0005357919236653939,
+   "ci": [
+    -0.002247939405854863,
+    0.000938625747973702
+   ],
+   "ci_level": 0.9833333333333333,
+   "improves": false
+  }
+ },
+ "by_stat": {
+  "pass_yds": {
+   "ladders": 104,
+   "mkt": 1.022659375,
+   "corr": 1.029245340290783,
+   "sim": 1.0741938184359687
+  },
+  "rec": {
+   "ladders": 147,
+   "mkt": 0.8342217687074829,
+   "corr": 0.8376964067541639,
+   "sim": 0.8766230710887801
+  },
+  "rec_yds": {
+   "ladders": 354,
+   "mkt": 1.083499929378531,
+   "corr": 1.0814668863682821,
+   "sim": 1.116531225275336
+  },
+  "rush_yds": {
+   "ladders": 157,
+   "mkt": 1.1783858103326255,
+   "corr": 1.178760822852392,
+   "sim": 1.2441568214528276
+  }
+ },
+ "placebo": {
+  "permutations": 200,
+  "shufflable_thresholds_share": 0.6702735196874061,
+  "real_delta": 0.0007019579043028569,
+  "placebo_delta_mean": 0.0020144399545568405,
+  "placebo_delta_p05": 0.00021338949516949146,
+  "permutation_p": 0.11940298507462686,
+  "credible": false
+ },
+ "coherence": {
+  "exceedance_sum_simulator_minus_market": {
+   "pass_yds": {
+    "ladders": 207,
+    "mean": -0.02801495573546656,
+    "ci95": [
+     -0.0681818677020958,
+     0.01843240648009755
+    ]
+   },
+   "rec": {
+    "ladders": 295,
+    "mean": -0.030988036084917684,
+    "ci95": [
+     -0.06321489586423643,
+     0.0028139938374101337
+    ]
+   },
+   "rec_yds": {
+    "ladders": 474,
+    "mean": -0.13106885710193852,
+    "ci95": [
+     -0.17565040488647596,
+     -0.09332375401395149
+    ]
+   },
+   "rush_yds": {
+    "ladders": 266,
+    "mean": -0.01062561271299072,
+    "ci95": [
+     -0.14131150708323909,
+     0.08000579208674034
+    ]
+   }
+  },
+  "pass_yard_identity": {
+   "team_games": 358,
+   "ratio_receiving_sum_over_passing_mean_quartiles": [
+    0.6906338690597186,
+    0.7662623859394233,
+    0.8382385789124216
+   ],
+   "note": "eligible receivers are a subset of all targets, so the identity bounds the ratio at or below 1"
+  },
+  "not_testable": [
+   "market-implied same-game correlations (no joint markets)",
+   "team-total ladder agreement (needs ~3,000 more candle pulls)"
+  ]
+ },
+ "cost": {
+  "thresholds": 4344,
+  "median_spread": 0.010000000000000009,
+  "median_abs_edge": 0.01033680133526263,
+  "median_cost_to_cross_one_side": 0.019412999999999896,
+  "share_edge_exceeds_cost": 0.3360957642725598,
+  "flagged": 1460,
+  "mean_marked_pnl_per_contract_after_fee": 0.000823558219178081,
+  "marked_pnl_ci95": [
+   -0.01668285151881721,
+   0.02086733142389526
+  ],
+  "note": "marked at the posted T-90 quote; fills, depth, size and slippage not modeled; not a return"
+ }
+}
