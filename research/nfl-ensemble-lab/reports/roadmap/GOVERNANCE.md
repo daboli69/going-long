@@ -99,3 +99,15 @@ Real data does not enter a step until its rehearsal row passes.
 | Confirmatory | It does not | Keep accumulating weeks. Report the interval. |
 
 A scoring improvement is not a return. Nothing here is betting advice.
+
+## Amendment 3 (Step 7 rehearsal world), added before any rehearsal run
+
+- Flaw: the null world above sets the market equal to the truth, so no model variant can ever tie the market.
+  Reality Check and SPA test the boundary where the best variant ties the benchmark. Away from that boundary they are
+  conservative, so their false-positive rate would be near 0% and miss the 1% floor for a reason that is not a defect.
+- Change: the Step 7 rehearsal (selection test and probability of backtest overfitting) uses an exchangeable world:
+  the market and every variant are independent noisy copies of the truth with equal noise (standard deviation 1), so
+  every variant ties the market in expectation. The Step 7 false-positive band stays 1% to 9% over 400 datasets and the
+  probability-of-overfitting band stays 0.35 to 0.65. Planted-world conditions are unchanged. Steps 4, 5 and 6 keep the
+  market-equals-truth null world. Step 2's false-positive checks already use an exchangeable design.
+- Status: no rehearsal or real run has happened since the Step 2 failure. The direction of the result is not known.
