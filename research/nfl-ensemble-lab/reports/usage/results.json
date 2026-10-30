@@ -1,0 +1,81 @@
+{
+ "label": "primary 2021-2023",
+ "team_games": 1342,
+ "weeks": 45,
+ "C1_targets": {
+  "n": 1342,
+  "mean_ll_naive": -2.3298358322287185,
+  "mean_ll_availability": -2.2856799936368994,
+  "mean_ll_oracle": -2.1873000994227416,
+  "gain_vs_naive": 0.04414595305342429,
+  "ci": [
+   0.039198939921470215,
+   0.04898947509446156
+  ],
+  "ci_level": 0.975,
+  "secondary_active_prior_arm_gain": -0.008812161928660025,
+  "secondary_active_prior_arm_ci": [
+   -0.03297988575824437,
+   0.012700230153079863
+  ],
+  "news_games": {
+   "share": 0.27421758569299554,
+   "n": 368,
+   "gain": 0.14668808320110124,
+   "ci": [
+    0.13446864217015123,
+    0.15977892801731666
+   ],
+   "oracle_gain": 0.24312546680151925
+  },
+  "improves": true,
+  "material": true,
+  "oracle_gain": 0.14060851288693346,
+  "share_of_oracle_gap_captured": 0.31396358689123655,
+  "games_with_a_reported_out_player": 0.4232488822652757,
+  "by_season_gain": {
+   "2021": 0.04728326081407356,
+   "2022": 0.04600717318755264,
+   "2023": 0.0391557341771026
+  },
+  "verdict_allowed": false
+ },
+ "C2_carries": {
+  "n": 1342,
+  "mean_ll_naive": -1.4684136652396638,
+  "mean_ll_availability": -1.4162333111558532,
+  "mean_ll_oracle": -1.2805820123176452,
+  "gain_vs_naive": 0.05131873108798003,
+  "ci": [
+   0.04296542873605572,
+   0.060332365970688424
+  ],
+  "ci_level": 0.975,
+  "secondary_active_prior_arm_gain": 0.0034607542094725182,
+  "secondary_active_prior_arm_ci": [
+   -0.025089944177570923,
+   0.029563034670580045
+  ],
+  "news_games": {
+   "share": 0.14232488822652756,
+   "n": 191,
+   "gain": 0.343416838321996,
+   "ci": [
+    0.3028440088227523,
+    0.38694292616070153
+   ],
+   "oracle_gain": 0.4965452355042894
+  },
+  "improves": true,
+  "material": true,
+  "oracle_gain": 0.18579618592212643,
+  "share_of_oracle_gap_captured": 0.2762098200954969,
+  "games_with_a_reported_out_player": 0.28614008941877794,
+  "by_season_gain": {
+   "2021": 0.06138052338259376,
+   "2022": 0.04162168790121704,
+   "2023": 0.05091069160875981
+  },
+  "verdict_allowed": false
+ }
+}
