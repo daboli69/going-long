@@ -279,4 +279,72 @@ def run(args):
 # --------------------------------------------------------------------------- weekly freeze (winners, spreads, totals)
 
 def freeze(args):
-    raise SystemExit("freeze is added after the main run is committed")
+    from lab.archive10 import save
+    now = pd.Timestamp.now(tz="UTC")
+    G = fc.games_frame()
+    up = G[~G["played"] & (G["kickoff_utc"] > now)].sort_values("kickoff_utc")
+    if up.empty:
+        log("no upcoming games")
+        return
+    season, week = int(up["season"].iloc[0]), int(up["week"].iloc[0])
+    wk = up[(up["season"] == season) & (up["week"] == week)]
+    tun = json.loads((OUT / "tuning.json").read_text(encoding="utf-8"))
+    tix = {t: i for i, t in enumerate(sorted(set(G["home"]) | set(G["away"])))}
+    pred = fc.predict_week(G, wk, tun["tau_n"], tun["tau_s"], tix).set_index("gid")
+    log(f"freeze {season} week {week}: {len(wk)} games not yet kicked off")
+
+    # b per target from the Kalshi window (all earlier scored games), as in the main run
+    wf = fc.walk_forward(G, tun["tau_n"], tun["tau_s"], range(2025, 2027))
+    lad_h, wp_h = FS.kalshi_window(G)
+    rows = window_rows(G, wf, lad_h, wp_h)
+    bt, sd = {}, {}
+    for tgt in ("margin", "total"):
+        R = [r for r in rows if r["tgt"] == tgt]
+        d = np.array([r["mu_model"] - r["muK"] for r in R])
+        e = np.array([r["y"] - r["muK"] for r in R])
+        bt[tgt] = fc.fit_b(d, e) if len(R) >= 100 else 0.0
+        sd[tgt] = float(d.std()) if len(R) else 1.0
+
+    # live Kalshi ladders, same shape as the historical quote table
+    live = pk.live_markets(G, list(pk.ENV))
+    live = live[live["gid"].isin(wk["gid"])].copy()
+    ok = live["bid"].notna() & live["ask"].notna() & (live["bid"] >= 0.02) & (live["ask"] <= 0.98)
+    live["mid90"] = np.where(ok, (live["bid"] + live["ask"]) / 2, live["last"])
+    live["bid90"], live["ask90"] = live["bid"], live["ask"]
+    live["liquid90"] = ok & ((live["ask"] - live["bid"]) <= 0.05) & (live["vol24"] >= 500)
+    wp = K.live_prices(G).set_index("gid")["p_home"].to_dict()
+    lad = fc.ladder_tables(live, G, wp, "90")
+    games = []
+    for gid, p in pred.iterrows():
+        r = G.set_index("gid").loc[gid]
+        item = {"gid": gid, "kickoff_utc": r["kickoff_utc"].isoformat(), "home": r["home"], "away": r["away"],
+                "model": {k: float(p[k]) for k in ("mu_m", "sd_m", "mu_t", "sd_t", "rho", "p_win", "p_elo")},
+                "kalshi_winner_p_home": None if pd.isna(wp.get(gid, np.nan)) else float(wp[gid]), **ev.fpi_projection(r["espn_event_id"], r["espn_home"], r["home"])}
+        for tgt, mu_model in (("margin", p["mu_m"]), ("total", p["mu_t"])):
+            L = lad.get((gid, tgt))
+            if L is None:
+                item[tgt] = None
+                continue
+            muK = fc.ladder_median(L)
+            if np.isnan(muK):
+                item[tgt] = None
+                continue
+            d = float(mu_model - muK)
+            z = d / sd[tgt] if sd[tgt] > 0 else 0.0
+            delta = bt[tgt] * d
+            item[tgt] = {"mu_kalshi": float(muK), "mu_model": float(mu_model), "lean_points": d, "lean_z": float(z), "abstain": bool(abs(z) < 0.5), "b": float(bt[tgt]),
+                         "thresholds": [{"c": float(c), "p_kalshi": float(pi), "p_corrected": float(pc)} for c, pi, pc in zip(L["c"], L["p_iso"], fc.shifted(L, delta))]}
+        games.append(item)
+    content = {"season": season, "week": week, "taus": {k: tun[k] for k in ("tau_n", "tau_s")}, "b": bt, "games": games}
+    log(f"{sum(1 for g in games if g['margin'])} games with a Kalshi margin ladder, {sum(1 for g in games if g['total'])} with a total ladder; b {bt}")
+    if args.dry:
+        log("dry run: not archived")
+        return
+    meta = {"prereg": fc.PREREG, "code_commit": ev._git_sha(), "frozen_at": now.isoformat(), "timestamp_class": "T1 observed (lab retrieval time)",
+            "first_kickoff_utc": wk["kickoff_utc"].min().isoformat()}
+    saved = save("forecast_games", f"{season}_w{week:02d}", content, meta)
+    led = OUT / "freeze_ledger.jsonl"
+    if saved["new"]:
+        with led.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps({"season": season, "week": week, "games": len(games), "frozen_at": now.isoformat(), "sha256": saved["sha256"]}) + "\n")
+    log(f"Froze {len(games)} games: sha256 {saved['sha256']} ({'new' if saved['new'] else 'identical content already archived'})")

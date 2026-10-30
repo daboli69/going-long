@@ -1,6 +1,6 @@
 # Independent reproduction request for Codex
 
-Written 2026-10-29. Five studies on the branch `codex/projections-20261019` were built and run by Claude, one look each.
+Written 2026-10-29. Six studies on the branch `codex/projections-20261019` were built and run by Claude, one look each.
 **Every gate reading is provisional until you rebuild it from the protocol document alone and the numbers match.**
 Please do not read the results documents before you have your own numbers, and report disagreements without editing
 either side's files.
@@ -17,6 +17,7 @@ counts first.
 | 3 | Drive-level simulator | `docs/HOMEWIN_SIM_PREREGISTRATION.md`, `067e5583` | `8e3cdb51` | `scripts/home_win_sim.py pilot`, then `backtest` | drive log loss -0.16911; margin RPS +0.0509; win log loss 0.6401 vs elo 0.6332; stack weight 0.184; 99.0% drive agreement with nflverse |
 | 4 | Kalshi props vs simulator | `docs/PROPS_KALSHI_PREREGISTRATION.md`, `31af0b08` | `60b72455` | `scripts/props_kalshi.py pilot`, `pull`, `replay`, `score` | 1,242 ladders, 6,654 thresholds; CRPS K 1.0286, base 1.0707, market 0.9978; K vs base -0.0421; settlement agreement 99.91% |
 | 5 | Market-anchored props | `docs/PROPS_MARKET_ANCHORED_PREREGISTRATION.md`, `7964284b` + power `4909f1ba` | `6ff6e5bc` | `scripts/props_market_power.py`, then `scripts/props_market_model.py` | 762 ladders in 6 weeks; M1 +0.0007 [-0.0037, +0.0051]; placebo p 0.119; M2 -0.0434 |
+| 6 | Joint score model | `docs/FORECAST_PREREGISTRATION.md`, `94e455cc` + Amendment 1 and power `db086e43` | `cc41214a` | `scripts/forecast_study.py pilot`, then `run` | tau 4.0 / 3.0; L1 margin CRPS 7.507 vs Elo-normal 7.475 (+0.0323 [-0.0296, +0.0941]); K1 b = 0 every week; K2 +0.0044 [+0.0004, +0.0090]; total-lean Spearman -0.168 |
 
 Notes for the rebuild:
 - Studies 4 and 5 use the shared Kalshi cache under `data/cache/props_kalshi/`; a fresh pull takes several hours

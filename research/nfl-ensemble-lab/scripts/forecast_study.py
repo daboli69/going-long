@@ -197,6 +197,7 @@ def pilot(args):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("command", choices=["pilot", "run", "freeze"])
+    ap.add_argument("--dry", action="store_true")
     args = ap.parse_args()
     if args.command == "pilot":
         pilot(args)

@@ -19,7 +19,7 @@ from lab.archive10 import ARCHIVE, canonical
 from lab.config import CACHE_DIR, LAB_ROOT
 
 KINDS = {"homewin_deep": "Weekly freeze (v1 deep)", "homewin_sim": "Simulator freeze", "homewin_v2_game": "Per-game T-90 freeze (v2)",
-         "props_kalshi": "Props freeze (Kalshi-anchored)"}
+         "props_kalshi": "Props freeze (Kalshi-anchored)", "forecast_games": "Winner/spread/total freeze"}
 REPORTS = {"v1": LAB_ROOT / "reports" / "homewin_deep" / "backtest.json",
            "v2": LAB_ROOT / "reports" / "homewin_v2" / "results.json",
            "v2_power": LAB_ROOT / "reports" / "homewin_v2" / "power.json",
@@ -34,6 +34,7 @@ COMMANDS = {
     "Kalshi benchmark (refresh history, score saved forecasts)": ["scripts/kalshi_benchmark.py"],
     "Props: collect Kalshi trades, books, inactives, injuries": ["scripts/props_kalshi_collect.py", "snapshot"],
     "Props: weekly freeze (Kalshi-anchored, about 10 min)": ["scripts/props_kalshi_collect.py", "freeze"],
+    "Forecasts: winner/spread/total freeze": ["scripts/forecast_study.py", "freeze"],
 }
 LONG = {
     "v1 backtest (about 45 min)": ["scripts/home_win_deep.py", "backtest"],
@@ -412,6 +413,54 @@ def tab_props(arch: dict):
     st.caption("Settlement scoring of freezes is not built yet; freezes are scored against Kalshi's yes/no results once games settle.")
 
 
+def tab_forecasts(arch: dict):
+    st.caption("One Gaussian score model gives the winner, spread and total together. It is compared with Elo and the Kalshi ladders. "
+               "Only the L1 comparison could be decided from history; the rest wait for prospective freezes. Nothing here is a trading signal.")
+    r = read_json(LAB_ROOT / "reports" / "forecast" / "results.json")
+    pw = read_json(LAB_ROOT / "reports" / "forecast" / "power.json")
+    if r:
+        st.subheader("History and Kalshi window (descriptive except L1)")
+        rows = [{"Comparison": k, "Difference": v["mean_diff"], "Interval": _ci(v["ci"]), "Improves": v["improves"], "Verdict allowed": v["verdict_allowed"]}
+                for k, v in {**r["L"], **r["K"]}.items()]
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+        lm = r["L_means"]
+        st.write(f"Margin CRPS: model {lm['margin_crps']['model']:.3f}, Elo-normal {lm['margin_crps']['elo_normal']:.3f}, naive {lm['margin_crps']['naive']:.3f}. "
+                 f"Winner log loss: model {lm['winner_logloss']['model']:.4f}, Elo {lm['winner_logloss']['elo']:.4f}.")
+        c = r["conformal_margin_total"]
+        st.write(f"80% interval coverage: margin {c['margin']['coverage_conformal']:.1%} (conformal) vs {c['margin']['coverage_raw_normal']:.1%} raw; "
+                 f"total {c['total']['coverage_conformal']:.1%} vs {c['total']['coverage_raw_normal']:.1%}.")
+        lt = r["leans"]["total"]
+        st.write(f"Leans on totals: Spearman of lean size vs gain {lt['spearman_lean_vs_gain']:+.3f} {_ci(lt['spearman_ci95'])}. "
+                 f"Margin: no leans (the fitted weight was 0 every week). The model abstains.")
+        st.dataframe(pd.DataFrame(lt["table"]), hide_index=True, use_container_width=True)
+        pn = r.get("pinnacle_descriptive")
+        if pn:
+            st.write(f"Pinnacle check ({pn['games']} games, 2026): margin MAE " + ", ".join(f"{k} {v:.2f}" for k, v in pn["margin_mae"].items()) +
+                     "; total MAE " + ", ".join(f"{k} {v:.2f}" for k, v in pn["total_mae"].items()) + ".")
+    if pw:
+        st.subheader("What the data can decide")
+        rows = [{"Comparison": k, "Smallest detectable": v["mde_by_weeks"][str(v["available_weeks"])], "Smallest effect of interest": v["sesoi"],
+                 "Weeks needed": v["N_weeks"], "Decidable now": v["decidable_now"], "Prospective only": v["prospective_only"]} for k, v in pw["comparisons"].items()]
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+    fr = arch.get("forecast_games", [])
+    st.subheader("Prospective freezes")
+    if not fr:
+        st.info("No winner/spread/total freeze yet. Run it from the Run tab before a week's first kickoff.")
+        return
+    pick = st.selectbox("Freeze", fr, format_func=lambda d: f"{d['content']['season']} week {d['content']['week']}, frozen {d['frozen_at'][:16]}", key="hw_fc_freeze")
+    c = pick["content"]
+    st.write(f"{len(c['games'])} games · fitted b {({k: round(v, 3) for k, v in c['b'].items()})} · {'hash verified' if pick['_hash_ok'] else 'HASH MISMATCH'} · {pick['content_sha256'][:16]}")
+    rows = []
+    for g in c["games"]:
+        m, t = g.get("margin"), g.get("total")
+        rows.append({"Game": f"{g['away']} @ {g['home']}", "Model P(home)": g["model"]["p_win"], "Elo P(home)": g["model"]["p_elo"], "Kalshi P(home)": g["kalshi_winner_p_home"],
+                     "FPI P(home)": g.get("fpi_p_home"), "Model margin": g["model"]["mu_m"], "Kalshi margin": m["mu_kalshi"] if m else None,
+                     "Model total": g["model"]["mu_t"], "Kalshi total": t["mu_kalshi"] if t else None,
+                     "Margin lean (z)": m["lean_z"] if m else None, "Total lean (z)": t["lean_z"] if t else None})
+    st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+    st.caption("A lean under 0.5 in z means the model abstains and the forecast is Kalshi's.")
+
+
 def tab_run():
     st.caption("Each button starts a separate background process; the page stays usable. Freezes fetch fresh data, "
                "write a write-once archive and append the ledger. They never change the champion or the scheduler.")
@@ -437,7 +486,7 @@ def render(archive_root: Path = ARCHIVE, cache_dir: Path = CACHE_DIR):
     st.caption("Elo remains the champion. The deep model, v2 and the drive simulator are research challengers that "
                "failed their preregistered gates; they are frozen weekly so the prospective record can accumulate.")
     arch, results = load_archives(archive_root), load_results(cache_dir)
-    t1, t2, t3, t5, t6, t4 = st.tabs(["This week", "Prospective record", "Backtests", "Kalshi", "Props", "Run"])
+    t1, t2, t3, t5, t6, t7, t4 = st.tabs(["This week", "Prospective record", "Backtests", "Kalshi", "Props", "Forecasts", "Run"])
     with t1:
         tab_this_week(arch, results)
     with t2:
@@ -448,5 +497,7 @@ def render(archive_root: Path = ARCHIVE, cache_dir: Path = CACHE_DIR):
         tab_kalshi()
     with t6:
         tab_props(arch)
+    with t7:
+        tab_forecasts(arch)
     with t4:
         tab_run()
