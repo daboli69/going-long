@@ -287,3 +287,9 @@ Both failed;no more configurations tried. Saved both prespecified research copie
 | Hypothesis | Protocol | Result | Decision |
 |---|---|---|---|
 | Kalshi per-game NFL player prop ladders are liquid enough at kickoff minus 90 minutes to serve as the market for prop distributions | research/nfl-ensemble-lab/docs/PROPS_KALSHI_PREREGISTRATION.md; liquidity filter and thin rule fixed before reading any price | Thin rule not triggered, narrowly: liquid at T-90 for pass yds 28%, rush yds 26%, rec yds 21%, receptions 21%, anytime TD 39%, total 44%, spread 55%. Coverage Oct 2025-Jan 2026 plus 2026 W1-8. No-snap markets settle at a price and must be excluded. The props simulator has no historical projections. | Steps 1-5 ran 2026-10-29 (go chosen): results sha256 fa318187. 179 games, 1,242 liquid ladders, 20 weeks. Ladder CRPS K 1.0286 vs base 1.0707 (-0.042 [-0.094,+0.019], fail); market T-90 0.9978 beats K (+0.031 [+0.006,+0.051]); A vs K +0.001 (no change from Kalshi environment). Stack weight on sim 0.196 [0.051,0.378] (pass, provisional); CLV K +0.0009 [+0.0005,+0.0015] but arm A +0.0008, base +0.0004. Kalshi settles incl. overtime (99.91% vs official). N=90 weeks for G. research/nfl-ensemble-lab/docs/PROPS_KALSHI_RESULTS.md | Primary fails; nothing promoted; Codex reproduction pending |
+
+## Market-anchored player props - preregistered 2026-10-29
+
+| Hypothesis | Protocol | Result | Decision |
+|---|---|---|---|
+| Starting from Kalshi's T-90 ladder, a per-stat logit correction toward the lab simulator (b in [0,1]) improves ladder CRPS over the market, the simulator and the existing stack; availability events add CLV over a naive baseline | research/nfl-ensemble-lab/docs/PROPS_MARKET_ANCHORED_PREREGISTRATION.md, frozen before any fit. Power by week-resampling simulation first. History is reused (descriptive); only prospective freezes can pass. | Pending | Pending; no promotion |

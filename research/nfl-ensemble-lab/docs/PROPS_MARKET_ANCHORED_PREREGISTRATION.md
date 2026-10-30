@@ -25,8 +25,8 @@ prospective freezes can pass anything.
 Semi-parametric simulation using the real correlation structure. For each comparison, take the observed per-ladder (or
 per-threshold) paired differences from the 20 scored weeks. Resample **whole weeks** with replacement to build samples of W
 weeks (games stay intact inside their week), subtract a known improvement delta from every difference, and run the same
-week-cluster bootstrap test (2000... see below) at the comparison's alpha. Power = share of 300 resamples whose upper bound
-is below 0. **MDE(W)** = smallest delta with power >= 0.80, on a grid. Bootstrap draws per test: 500.
+week-cluster bootstrap test (500 draws per test) at the comparison's alpha. Power = share of 300 resamples whose upper bound
+is below 0. **MDE(W)** = smallest delta with power >= 0.80, on a grid.
 
 Proxy differences, used only to estimate variance structure: corrected = a logit blend with b = 0.2 between market and
 simulator (the earlier stack weight); existing stack = the earlier two-weight logistic stack.
