@@ -1,0 +1,168 @@
+{
+ "design": {
+  "weeks_observed": 20,
+  "ladders": 1242,
+  "thresholds": 6654,
+  "resamples": 300,
+  "bootstrap_draws": 500,
+  "proxy_blend_b": 0.2,
+  "sesoi_crps": 0.009977564993737701,
+  "sesoi_logscore": 0.005,
+  "mean_ladder_crps_market": 0.9977564993737701
+ },
+ "comparisons": {
+  "M1_corrected_vs_market": {
+   "sd_pooled_difference": 0.08562764011115732,
+   "observed_mean_difference_proxy": -0.0029315478057853808,
+   "sesoi": 0.009977564993737701,
+   "mde_by_weeks": {
+    "20": 0.00537109375,
+    "40": 0.00390625,
+    "60": 0.003173828125,
+    "90": 0.00244140625,
+    "150": 0.001953125,
+    "250": 0.001708984375,
+    "400": 0.001220703125
+   },
+   "N_weeks": 20,
+   "decidable_now": true,
+   "prospective_only": false
+  },
+  "M2_corrected_vs_simulator": {
+   "sd_pooled_difference": 0.3438994203173297,
+   "observed_mean_difference_proxy": -0.03382080210309884,
+   "sesoi": 0.009977564993737701,
+   "mde_by_weeks": {
+    "20": 0.02734375,
+    "40": 0.0185546875,
+    "60": 0.0146484375,
+    "90": 0.01171875,
+    "150": 0.0087890625,
+    "250": 0.006591796875,
+    "400": 0.00537109375
+   },
+   "N_weeks": 151,
+   "decidable_now": false,
+   "prospective_only": false
+  },
+  "M3_corrected_vs_existing_stack": {
+   "sd_pooled_difference": 0.027511707162152264,
+   "observed_mean_difference_proxy": 0.0004474915080314544,
+   "sesoi": 0.009977564993737701,
+   "mde_by_weeks": {
+    "20": 0.00146484375,
+    "40": 0.001220703125,
+    "60": 0.0009765625,
+    "90": 0.000732421875,
+    "150": 0.000732421875,
+    "250": 0.00048828125,
+    "400": 0.00048828125
+   },
+   "N_weeks": 20,
+   "decidable_now": true,
+   "prospective_only": false
+  },
+  "L1_logscore_corrected_vs_market": {
+   "sd_pooled_difference": 0.05590174026815559,
+   "observed_mean_difference_proxy": -0.001324483038244345,
+   "sesoi": 0.005,
+   "mde_by_weeks": {
+    "20": 0.00244140625,
+    "40": 0.001708984375,
+    "60": 0.00146484375,
+    "90": 0.001220703125,
+    "150": 0.0009765625,
+    "250": 0.000732421875,
+    "400": 0.000732421875
+   },
+   "N_weeks": 20,
+   "decidable_now": true,
+   "prospective_only": false
+  },
+  "L2_logscore_corrected_vs_simulator": {
+   "sd_pooled_difference": 0.22481164771252016,
+   "observed_mean_difference_proxy": -0.017629340764813022,
+   "sesoi": 0.005,
+   "mde_by_weeks": {
+    "20": 0.012939453125,
+    "40": 0.00830078125,
+    "60": 0.00634765625,
+    "90": 0.0048828125,
+    "150": 0.003662109375,
+    "250": 0.0029296875,
+    "400": 0.002197265625
+   },
+   "N_weeks": 134,
+   "decidable_now": false,
+   "prospective_only": true
+  },
+  "L3_logscore_corrected_vs_existing_stack": {
+   "sd_pooled_difference": 0.028592879784358535,
+   "observed_mean_difference_proxy": 0.00038948653208190954,
+   "sesoi": 0.005,
+   "mde_by_weeks": {
+    "20": 0.0009765625,
+    "40": 0.000732421875,
+    "60": 0.000732421875,
+    "90": 0.00048828125,
+    "150": 0.00048828125,
+    "250": 0.00048828125,
+    "400": 0.000244140625
+   },
+   "N_weeks": 20,
+   "decidable_now": true,
+   "prospective_only": false
+  }
+ },
+ "events": {
+  "sesoi_clv": 0.005,
+  "games": 175,
+  "sd_pooled_difference": 0.018054642152557077,
+  "mde_by_rate_and_weeks": {
+   "0.03": {
+    "mde": {
+     "20": 0.2,
+     "40": 0.005859375,
+     "90": 0.003125,
+     "150": 0.0023437500000000003,
+     "250": 0.001953125
+    },
+    "N_weeks": 32000,
+    "decidable_now": false
+   },
+   "0.05": {
+    "mde": {
+     "20": 0.0078125,
+     "40": 0.00390625,
+     "90": 0.0023437500000000003,
+     "150": 0.0015625,
+     "250": 0.0015625
+    },
+    "N_weeks": 49,
+    "decidable_now": false
+   },
+   "0.1": {
+    "mde": {
+     "20": 0.00390625,
+     "40": 0.0027343750000000003,
+     "90": 0.0015625,
+     "150": 0.0011718750000000002,
+     "250": 0.0011718750000000002
+    },
+    "N_weeks": 20,
+    "decidable_now": true
+   },
+   "0.2": {
+    "mde": {
+     "20": 0.0027343750000000003,
+     "40": 0.001953125,
+     "90": 0.0011718750000000002,
+     "150": 0.00078125,
+     "250": 0.00078125
+    },
+    "N_weeks": 20,
+    "decidable_now": true
+   }
+  }
+ }
+}

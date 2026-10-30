@@ -107,3 +107,37 @@ fills, depth, size and slippage are not modeled.
   props) from their protocol documents. The requests and expected numbers are in `docs/CODEX_REPRODUCTION_REQUEST.md`.
   Gate readings stay provisional until the numbers match.
 - No promotion without the Champion/Challenger gate and Travis's approval.
+
+## Power results and pass rules (2026-10-29, before any model fit)
+`reports/props_market/power.json`, file SHA-256 `f57b4d42df988a643c62ce9386e50af163a1d195824f3ded06ebc2248a3408f1`.
+20 weeks, 1,242 ladders, 6,654 thresholds. SESOI for ladder CRPS is 0.00998 (1% of the market's 0.9978).
+
+| Comparison | MDE at 20 weeks | MDE at 90 weeks | N_weeks | Class |
+|---|---:|---:|---:|---|
+| M1 corrected vs market | 0.0054 | 0.0024 | 20 | decidable now |
+| M2 corrected vs simulator | 0.0273 | 0.0117 | 151 | **not decidable** (just over 150) |
+| M3 corrected vs existing stack | 0.0015 | 0.0007 | 20 | decidable now |
+| L1 log score vs market | 0.0024 | 0.0012 | 20 | decidable now |
+| L2 log score vs simulator | 0.0129 | 0.0049 | 134 | prospective only |
+| L3 log score vs existing stack | 0.0010 | 0.0005 | 20 | decidable now |
+| E events at a 3% event rate | above 0.2 | 0.0031 | about 32,000 | **not decidable** |
+| E events at a 5% event rate | 0.0078 | 0.0023 | 49 | prospective only |
+| E events at a 10% event rate | 0.0039 | 0.0016 | 20 | decidable now (needs 10% of games to have events) |
+| E events at a 20% event rate | 0.0027 | 0.0012 | 20 | decidable now |
+
+Caveats fixed in advance:
+- The b = 0.2 proxy blend shows a mean difference vs the market of only -0.0029 in ladder CRPS. That is **below** both the 20-week
+  MDE (0.0054) and the SESOI (0.0100). So even a true improvement of that size would probably be flagged "not detectable",
+  and "decidable" means only that an effect of the SESOI's size would be caught.
+- M3 and L3 compare nearly identical functions of the same two inputs. They can detect tiny differences, and a difference that
+  small is not useful.
+- Whether events cover 10% of games is unknown until timestamped availability is archived.
+
+**Pass rules (new, committed before any fit).**
+- **M1 (primary):** *improves* if the 98.33% CI upper bound is below 0; *material* if, in addition, the point estimate is at or below
+  -SESOI. The history result is descriptive either way. A prospective pass needs both the CI condition on frozen data and at
+  least N_weeks (20) frozen weeks.
+- **M2, M3 and the L family:** same CI rule, reported as descriptive; a not-decidable comparison gets no verdict.
+- **E:** the rule in section 3, only after the committed N_weeks for the observed event rate.
+- **Placebo:** M1 is credible only if its real delta is below the placebo distribution's 5th percentile.
+- The cost, coherence and event-collection sections are descriptive and cannot pass or fail anything.
