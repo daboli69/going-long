@@ -113,3 +113,16 @@ by a wide margin; that does not change the classification.
 - **Winner series.** Kalshi's winner value is the hourly home mid divided by the sum of the home and away mids (logit scale).
 - **Experiment B.** Event reaction uses the existing hourly Kalshi winner series (history file built 2026-10-29); events with no market data in the window are counted and excluded. The lab's
   update is reduced to the **direction** test; magnitude regressions wait for prospective data.
+
+### Power for Experiments A and B (`reports/market_news/power.json`, SHA-256 `993702a6be8508bca7cea13bd9ce47c3f8d8da1084f848ab7d1cd42684c208ed`)
+Panel: 120 games, hourly grid, 17,109 rows. Only standard errors were computed, not the estimates.
+
+| Quantity | Result | Class |
+|---|---|---|
+| A1 winner: SE of kappa_K 0.0101, MDE 0.033 vs SESOI 0.10 (8 weeks) | decidable now | verdict allowed |
+| A1 spread: SE 0.0018, MDE 0.006 | decidable now | verdict allowed |
+| A1 total: SE 0.0166, MDE 0.054 | decidable now | verdict allowed |
+| B: SD of 6-hour winner-logit change 0.0358; 5 events needed for SESOI 0.05 logit; 20 key-player events archived in 2 weeks (10 per week) | decidable now for the pooled direction test; per-type tests have fewer events | verdict allowed for pooled mean reaction and each type with at least 5 events |
+
+Caveat: the A standard errors come from a game-clustered bootstrap over hourly rows. Rows within a game are highly autocorrelated, so the effective sample is closer
+to the number of games (about 106), not the row count. A kappa_K claim therefore needs its interval to exclude zero **and** to exceed 0.10, as already written.

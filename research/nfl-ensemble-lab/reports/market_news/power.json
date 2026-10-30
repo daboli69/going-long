@@ -1,0 +1,45 @@
+{
+ "prereg": "396af66a",
+ "A": {
+  "winner": {
+   "rows": 4365,
+   "games": 107,
+   "se_kappa_K": 0.01014529270444266,
+   "mde": 0.032826119558553156,
+   "sesoi": 0.1,
+   "available_weeks": 8,
+   "decidable_now": true,
+   "N_weeks": 8
+  },
+  "spread": {
+   "rows": 4185,
+   "games": 106,
+   "se_kappa_K": 0.0018002677866544336,
+   "mde": 0.005824948310880378,
+   "sesoi": 0.1,
+   "available_weeks": 8,
+   "decidable_now": true,
+   "N_weeks": 8
+  },
+  "total": {
+   "rows": 4252,
+   "games": 106,
+   "se_kappa_K": 0.016602377150980795,
+   "mde": 0.053718668666467635,
+   "sesoi": 0.1,
+   "available_weeks": 8,
+   "decidable_now": true,
+   "N_weeks": 8
+  }
+ },
+ "B": {
+  "sd_6h_winner_logit_change": 0.035809123232637234,
+  "sesoi_logit": 0.05,
+  "events_needed_for_sesoi": 5,
+  "key_events_so_far": 20,
+  "weeks_of_snapshots": 2,
+  "events_per_week": 10.0,
+  "weeks_needed": 0.5,
+  "mde_at_current_events": 0.022432750554013864
+ }
+}

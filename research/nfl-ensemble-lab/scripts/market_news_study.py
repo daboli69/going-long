@@ -141,7 +141,7 @@ def build_panel(G):
         w = d.pivot_table(index="ts", columns="side", values="mid", aggfunc="last").sort_index()
         if {"home", "away"} <= set(w.columns):
             w = w.dropna()
-            wprice[gid] = (w.index.asi8, logit(w["home"] / (w["home"] + w["away"])).to_numpy())
+            wprice[gid] = (w.index.asi8, logit(w["home"] / (w["home"] + w["away"])))
     gi = G.set_index("gid")
     rows = []
     gids = sorted({g for g, _, _ in going} & set(gi.index))
@@ -346,7 +346,7 @@ def winner_series():
     for gid, d in hist.groupby("gid"):
         w = d.pivot_table(index="ts", columns="side", values="mid", aggfunc="last").sort_index().dropna()
         if {"home", "away"} <= set(w.columns):
-            out[gid] = (w.index.asi8, logit(w["home"] / (w["home"] + w["away"])).to_numpy())
+            out[gid] = (w.index.asi8, logit(w["home"] / (w["home"] + w["away"])))
     return out
 
 
