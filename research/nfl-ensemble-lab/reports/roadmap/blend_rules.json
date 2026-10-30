@@ -1,0 +1,16 @@
+{
+ "written": "2026-10-30, from 2025 and simulated data only; pushed before any 2026 blend result is computed",
+ "definition": "blend = m + w (q - m); m = T-90 Kalshi market (probability for winners, ladder mean for margin and total); q = model; code in reports/roadmap/i4_blend.py with K_PRIOR_GAMES = 50 (Amendment P2-2)",
+ "weight": "w for each game uses only completed earlier weeks of the 2026 sample: w = clip(sum(x u) / (sum(x^2) + K), 0, 1), x = q - m, u = outcome minus m, K = 50 x mean(x^2) over the games of the first 3 weeks of 2026; w = 0 in the first week",
+ "primary": {
+  "winners": "p_xgb_v1",
+  "margin": "L",
+  "total": "L"
+ },
+ "statistic": "paired loss difference blend minus market (log loss for winners, normal CRPS with the ladder spread for margin and total), cluster-robust t interval, week is the cluster",
+ "claim_tested": "non-inferiority: the 90% interval for blend minus market lies below +0.005 log loss (winners) or +1% of the market's mean CRPS (margin, total). Equivalence status is also reported. No claim of beating the market is made.",
+ "looks": "same schedule and validity rule as confirmatory_rules.json: first valid look after 10 completed 2026 weeks; spending alpha*(t) = 2(1 - Phi(1.96/sqrt(t))), t = weeks/18",
+ "descriptive": "blend minus raw model, final weight per target, share of weeks with w above 0.1",
+ "2025_result_for_reference": "i4_blend.json: winners p_xgb_v1 final w 0.21, blend minus market +0.0027 [-0.0055, +0.0110], undetermined; margin L w 0.00; total L w 0.05 to 0.11, blend minus market +0.0172 [+0.0003, +0.0342], equivalent within +-0.0728 CRPS",
+ "decision": "the Champion/Challenger gate in MODEL_RESEARCH.md and Travis's approval are still required for any promotion"
+}
