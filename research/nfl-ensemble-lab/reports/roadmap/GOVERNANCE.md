@@ -204,3 +204,36 @@ were started. Files from that first real run are in `reports/roadmap/attempt3/`.
   variant beats the benchmark the observed statistic is 0 and every bootstrap statistic is at least 0, so the p-value
   must count at or above. With ">" the margin family showed p = 0.0015 although every margin variant is worse than the
   market. Fixed to ">=". The rehearsal of Step 7 is rerun, and the first real Step 7 result is superseded.
+
+## Record corrections after independent review (no pass condition changed)
+
+The review is in `INDEPENDENT_REVIEW.md`. Travis instructed that the amendments are accepted if the review passes. The reviewer's
+verdict was "pass, with concerns". The corrections below change the record and one check, not any band.
+
+1. Amendment 8 said "Real Step 2 passed all its conditions". That was wrong: condition (d) was not checked. `run_real.py` now checks
+   it and real Step 2 was rerun (the earlier file is kept as `attempt3/real_step2_before_review.json`). It reports that the smallest
+   detectable gain at 80% power was not reached on any of the eight designs. Condition (d) asks only for the value to be reported.
+2. The "about 97% power" claim in Amendment 7 now has a file: `planted_strong_calibration.json` (96.7% at an expected gain of 0.116
+   log loss, 300 simulations, seed 3).
+3. The smoke test cited in Amendment 5 (103 of 160 rejections) was one interactive run on a single simulated dataset and is not in the
+   record. The amendment stands on the logic that the market price stays in the dependent variable, which the reviewer confirmed.
+4. Power limit of the rehearsal: the planted worlds cover gains of about 0.05 and 0.12 log loss per game. Real-data negative results
+   are therefore "unresolved at this sample", not "no edge". The same holds for margin, total and props.
+5. Run order: real Steps 3, 4 and 5 ran before real Step 2, because Step 2's rehearsal was still failing; each depends only on its own
+   rehearsal. Real Step 7 ran after a failed Step 6 and was superseded.
+6. Side effects of `step4_real.py` and `repro_check.py` (through `lab.homewin_deep.load_all`): they rewrite the 2026 play-aggregate
+   cache, refresh `espn_events_2026.json` from ESPN (an outbound request) and try `api.nfldata.org` (a parked domain that fails and
+   falls back). No 2025 result depends on the 2026 files, and the repeat runs were byte-identical.
+7. The gate in `run_real.py` checks only that the step's rehearsal file says PASS, not which code produced it. Rehearsals 3, 4 and 5
+   ran before later edits to `steps.py`; the functions they use were not changed. Open item: record a code hash in every rehearsal output.
+8. Step 5's "converged in at least 98% of draws" was replaced by "every wild p-value is finite" without an amendment. Recorded here.
+9. The Step 3 floor of 250 and the props floor of 150 were set without a formula, close to the counts available (271 and 191).
+   The 10-cluster rule is unchanged.
+10. Statistical limits reported by the reviewer and not independently verified here: the wild tests use symmetric sign flips and may
+    mis-size on skewed differences (the reviewer's simulation: upper tail 0.7% and lower tail 7.6% against 2.5% nominal; our detection
+    and selection tests look at the "model better" tail); the Step 2 simulation has no week effects; PBO on 8 blocks of about 13 weeks is
+    one noisy statistic; the Step 3 identity cannot fail.
+11. Decision table addition: a model weight whose interval excludes 0 on the negative side (real margin joint model: -0.42 [-0.82, -0.02],
+    wild p 0.023, not corrected for the 18 comparisons) means the model's departures from the market are noise or worse. It is not a
+    candidate edge and is never "frozen" as one.
+12. `sensitivity.py` now includes `p_xgb_v1`. The rerun (`sensitivity.json`, earlier file kept in `attempt3/`) still shows no flips.

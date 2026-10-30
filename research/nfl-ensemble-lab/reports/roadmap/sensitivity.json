@@ -1,6 +1,6 @@
 {
  "step": "sensitivity",
- "git_head": "7ff7eb382277ab35c007990e8429cdfb02058247",
+ "git_head": "ff55de895a33d08da7c5c1f8220ea37fbf35fce4",
  "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
  "base_price_reproduction_max_abs_error_first60": 0.0,
  "counts": {
@@ -87,6 +87,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -120,6 +121,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -153,6 +155,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -186,6 +189,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -219,6 +223,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -252,6 +257,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -285,6 +291,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -318,6 +325,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -351,6 +359,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -384,6 +393,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -417,6 +427,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },
@@ -450,6 +461,7 @@
    "winners_any_variant_p_wild_lt_0.05": false,
    "winners_equivalence": {
     "p_elo": "worse_than_margin",
+    "p_xgb_v1": "undetermined",
     "p_xgb_deep": "undetermined",
     "p_margin": "worse_than_margin"
    },

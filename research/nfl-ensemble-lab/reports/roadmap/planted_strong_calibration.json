@@ -1,0 +1,41 @@
+{
+ "step": "planted_strong_calibration",
+ "git_head": "ff55de895a33d08da7c5c1f8220ea37fbf35fce4",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "theta_0.8": [
+  {
+   "sB": 1.0,
+   "expected_gain": 0.0017085041773158894,
+   "power": 0.02666666666666667
+  },
+  {
+   "sB": 0.2,
+   "expected_gain": 0.05833503674356103,
+   "power": 0.7333333333333333
+  }
+ ],
+ "theta_1.2": [
+  {
+   "sB": 1.0,
+   "expected_gain": 0.0017466193256835572,
+   "power": 0.03333333333333333
+  },
+  {
+   "sB": 0.2,
+   "expected_gain": 0.11603520144211865,
+   "power": 0.9666666666666667
+  }
+ ],
+ "theta_1.6": [
+  {
+   "sB": 1.0,
+   "expected_gain": 0.0014259705879380883,
+   "power": 0.043333333333333335
+  },
+  {
+   "sB": 0.2,
+   "expected_gain": 0.18066714809694948,
+   "power": 0.99
+  }
+ ]
+}

@@ -1,0 +1,480 @@
+{
+ "step": "sensitivity",
+ "git_head": "7ff7eb382277ab35c007990e8429cdfb02058247",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "base_price_reproduction_max_abs_error_first60": 0.0,
+ "counts": {
+  "none|proportional": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "none|power": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "none|shin": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "spread|proportional": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "spread|power": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "spread|shin": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "volume|proportional": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "volume|power": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "volume|shin": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "both|proportional": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "both|power": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  },
+  "both|shin": {
+   "winners_with_t90_price": 271,
+   "margin_ladders": 207,
+   "total_ladders": 204,
+   "props_ladders": 191
+  }
+ },
+ "signatures": {
+  "none|proportional": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "none|power": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "none|shin": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "spread|proportional": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "spread|power": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "spread|shin": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "volume|proportional": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "volume|power": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "volume|shin": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "both|proportional": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "both|power": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  },
+  "both|shin": {
+   "winners_gap_includes_0": true,
+   "winners_mz_slope_includes_1": true,
+   "margin_gap_includes_0": true,
+   "total_gap_includes_0": true,
+   "props_gap_includes_0": true,
+   "winners_any_variant_p_wild_lt_0.05": false,
+   "winners_equivalence": {
+    "p_elo": "worse_than_margin",
+    "p_xgb_deep": "undetermined",
+    "p_margin": "worse_than_margin"
+   },
+   "margin_L_p_wild_lt_0.05": true,
+   "ladder_equivalence": {
+    "margin_L": "worse_than_margin",
+    "margin_naive": "worse_than_margin",
+    "margin_elo": "worse_than_margin",
+    "total_L": "undetermined",
+    "total_naive": "worse_than_margin"
+   },
+   "props_any_arm_p_wild_lt_0.05": false,
+   "props_equivalence": {
+    "K": "undetermined",
+    "A": "undetermined",
+    "base": "undetermined",
+    "K_v1": "undetermined",
+    "A_v1": "undetermined"
+   },
+   "news_term_includes_0": true,
+   "xgb_deep_vs_market_at_decision_includes_0": true,
+   "step3_games": 271,
+   "winners_games": 271
+  }
+ },
+ "conclusions_that_differ_from_base": {},
+ "conclusion_flips": false
+}

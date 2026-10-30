@@ -1,6 +1,6 @@
 {
  "step": "real_step2",
- "git_head": "8bba7da6cc3ed8a8a21659deee561b3d4b5b4d5f",
+ "git_head": "ff55de895a33d08da7c5c1f8220ea37fbf35fce4",
  "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
  "sample": "season 2025: 271 games, 18 weeks; ladders 411; props ladders 191",
  "winners": {
@@ -473,7 +473,18 @@
    "props_theta0.15": 0.03,
    "props_theta0.3": 0.0325
   },
-  "fp_in_band": true
+  "fp_in_band": true,
+  "d_min_detectable_reported_for_each_target": true
+ },
+ "min_detectable_gain_80pct": {
+  "winners_theta0.3": "not reached on the grid; power at the top gain is in power.*.curve",
+  "winners_theta0.6": "not reached on the grid; power at the top gain is in power.*.curve",
+  "margin_theta0.15": "not reached on the grid; power at the top gain is in power.*.curve",
+  "margin_theta0.3": "not reached on the grid; power at the top gain is in power.*.curve",
+  "total_theta0.15": "not reached on the grid; power at the top gain is in power.*.curve",
+  "total_theta0.3": "not reached on the grid; power at the top gain is in power.*.curve",
+  "props_theta0.15": "not reached on the grid; power at the top gain is in power.*.curve",
+  "props_theta0.3": "not reached on the grid; power at the top gain is in power.*.curve"
  },
  "conditional_on_market_is_truth": [
   "entropy and sigma/sqrt(pi) ceilings",

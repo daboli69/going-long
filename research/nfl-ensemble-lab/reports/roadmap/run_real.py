@@ -20,6 +20,9 @@ elif STEP == "2":
     n = {"margin": c["ladders"]["margin"]["n"], "total": c["ladders"]["total"]["n"], "props": c["props"]["n"]}
     res["checks"] = {"winner_ceiling_with_interval": True, "ladder_counts": n, "counts_ok": n["margin"] >= 100 and n["total"] >= 100 and n["props"] >= 150 and c["props"]["clusters"] >= 10,
                      "false_positive_rates": pw["false_positive_rates"], "fp_in_band": all(0.005 <= v <= 0.05 for v in pw["false_positive_rates"].values())}
+    mde = {k_: v_.get("min_detectable_gain", v_.get("min_detectable_gain_points")) for k_, v_ in pw.items() if isinstance(v_, dict) and "curve" in v_}
+    res["checks"]["d_min_detectable_reported_for_each_target"] = all(k_ in mde for k_ in ("winners_theta0.3", "margin_theta0.3", "total_theta0.3", "props_theta0.3"))
+    res["min_detectable_gain_80pct"] = {k_: (v_ if v_ is not None else "not reached on the grid; power at the top gain is in power.*.curve") for k_, v_ in mde.items()}
     res["conditional_on_market_is_truth"] = ["entropy and sigma/sqrt(pi) ceilings", "power simulations"]
 elif STEP == "5":
     r = step5(ds, rng)

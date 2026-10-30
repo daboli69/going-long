@@ -59,7 +59,7 @@ def signature(ds):
     out["props_gap_includes_0"] = bool(c["props"]["gap"]["lo"] <= 0 <= c["props"]["gap"]["hi"])
     r5 = step5(ds, np.random.default_rng(SEED))
     out["winners_any_variant_p_wild_lt_0.05"] = bool(any(v["encompassing"]["p_wild"] < 0.05 for v in r5["winners"]["variants"].values()))
-    out["winners_equivalence"] = {v: r5["winners"]["variants"][v]["equivalence"]["status"] for v in ("p_elo", "p_xgb_deep", "p_margin")}
+    out["winners_equivalence"] = {v: r5["winners"]["variants"][v]["equivalence"]["status"] for v in ("p_elo", "p_xgb_v1", "p_xgb_deep", "p_margin")}
     out["margin_L_p_wild_lt_0.05"] = bool(r5["ladders"]["margin"]["variants"]["L"]["encompassing"]["p_wild"] < 0.05)
     out["ladder_equivalence"] = {f"{t}_{v}": r5["ladders"][t]["variants"][v]["equivalence"]["status"] for t in ("margin", "total") for v in r5["ladders"][t]["variants"]}
     out["props_any_arm_p_wild_lt_0.05"] = bool(any(v["encompassing"]["p_wild"] < 0.05 for v in r5["props"].values()))
