@@ -1,9 +1,18 @@
-# Independent reproduction request for Codex
+# Verifying the studies
 
-Written 2026-10-29. Seven studies on the branch `codex/projections-20261019` were built and run by Claude, one look each.
-**Every gate reading is provisional until you rebuild it from the protocol document alone and the numbers match.**
-Please do not read the results documents before you have your own numbers, and report disagreements without editing
-either side's files.
+Seven studies on this branch were built and run by Claude, one look each. Until a second, independent rebuild
+matches, every gate reading is provisional. Codex is no longer part of this process. Anyone can do the check: a fresh
+Claude session, a human reader, or Codex if Travis wants its help.
+
+## Two checks
+
+1. **Mechanical check (automatic).** Run `.venv\Scripts\python.exe scripts/verify_results.py`. For each study below it
+   confirms that the protocol commit exists, that the code commit exists, and that the protocol was committed before the
+   code that produced the results. It also confirms the saved forecast freezes still match their recorded SHA-256 hashes.
+   It exits non-zero if any check fails.
+2. **Independent rebuild (manual).** Start a fresh session with no memory of the earlier work. Give it only the protocol
+   document and the rebuild command from the table, and ask for its own numbers before it reads the results document.
+   Compare the two sets of numbers. Report disagreements without editing either side's files.
 
 **Tolerances.** Deterministic fits: match to 4 decimals. Simulation metrics: within 3 Monte Carlo standard errors (state
 yours). Live-data inputs can differ: Kalshi history is archived but its listings change, and the nfldata API at
@@ -20,6 +29,7 @@ counts first.
 | 6 | Joint score model | `docs/FORECAST_PREREGISTRATION.md`, `94e455cc` + Amendment 1 and power `db086e43` | `cc41214a` | `scripts/forecast_study.py pilot`, then `run` | tau 4.0 / 3.0; L1 margin CRPS 7.507 vs Elo-normal 7.475 (+0.0323 [-0.0296, +0.0941]); K1 b = 0 every week; K2 +0.0044 [+0.0004, +0.0090]; total-lean Spearman -0.168 |
 | 7 | Market lag, availability events, usage | `docs/MARKET_NEWS_PREREGISTRATION.md`, `396af66a` + Amendments 1 and 2 | `5bb093a1` and `d7c047c9` | `scripts/usage_study.py pilot`, `run`, `confirm`; `scripts/market_news_study.py power`, `run` | usage gain targets +0.0441 [0.0392, 0.0490], carries +0.0513, 2024 confirmation +0.0555 and +0.0585; kappa_K winner +0.010, spread 0.000, total -0.023; kappa_P winner +0.111, total +0.223; 29 key-player events |
 
+
 Notes for the rebuild:
 - Studies 4 and 5 use the shared Kalshi cache under `data/cache/props_kalshi/`; a fresh pull takes several hours
   (about 63,000 candle requests, polite pacing).
@@ -28,4 +38,5 @@ Notes for the rebuild:
 - Open questions I would like a second opinion on: whether the walk-forward training minimum (500 thresholds) is what
   leaves only 6 scorable weeks in study 5, and whether the Kalshi spread/total median interpolation is sound.
 
-**Update 2026-10-30.** The ready-to-paste message for Codex is `docs/CODEX_MESSAGE.md`. The Doubtful change (`a8e04c68`) is also up for review.
+Earlier protocol documents refer to this file by its old name, `docs/CODEX_REPRODUCTION_REQUEST.md`. They are frozen
+and were not edited. The old handoff note `docs/HANDOFF_CODEX_2026-10-26.md` is history only.

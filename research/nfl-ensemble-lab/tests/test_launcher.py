@@ -35,7 +35,7 @@ def test_every_action_exists_and_uses_fixed_arguments():
 
 def test_specialists_resolve_lab_root_and_internal_call():
     scripts = list(launcher.TOOLS.glob('*.bat'))
-    assert len(scripts) == 16
+    assert len(scripts) == 17
     for script in scripts:
         content = script.read_text()
         assert 'cd /d "%~dp0..\\.."' in content, script.name

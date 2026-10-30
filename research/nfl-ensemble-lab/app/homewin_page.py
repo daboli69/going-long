@@ -463,7 +463,7 @@ def tab_forecasts(arch: dict):
 
 
 def tab_market_news():
-    st.caption("Where the market is slow, how news moves it, and how availability changes who gets the ball. Everything here is provisional: Codex has not reproduced the earlier studies. "
+    st.caption("Where the market is slow, how news moves it, and how availability changes who gets the ball. Everything here is provisional: no one has independently rebuilt the earlier studies yet (see docs/VERIFICATION.md). "
                "Hourly data only; minute-level lead and lag is not measurable yet.")
     u, c = read_json(LAB_ROOT / "reports" / "usage" / "results.json"), read_json(LAB_ROOT / "reports" / "usage" / "confirmation.json")
     if u:

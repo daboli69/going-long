@@ -34,7 +34,7 @@
 
 ## Cost, safety and completion
 - **$0 additional spending.** Never activate paid APIs, usage credits, hosting, subscriptions, datasets or other paid services without Travis's approval. Existing credentials do not authorize consuming metered credits.
-- Work on `codex/` branches; preserve user edits, small commits and a revert path. No force pushes, destructive resets or major rewrite.
+- Work on `codex/` or `claude/` branches; preserve user edits, small commits and a revert path. No force pushes, destructive resets or major rewrite.
 - Prepare a concrete reviewable change, then ask before risky production, database, authentication, major architecture or paid changes. No unattended deployment, main-branch push, migrations or model promotion.
 - Do not send alerts, run `--send`/`scripts/smoke_alerts.py`, expose secrets or access excluded private inputs. Use mocks/offline fixtures for ordinary tests.
 - Test before claiming completion: targeted regressions, then affected build/integration checks. Use `.venv/Scripts/python.exe` on Windows. Standard checks: `npm test`; `python -m unittest discover -s tests -p 'test_*.py'`; `npm run build`; `node scripts/build_vercel.mjs`.

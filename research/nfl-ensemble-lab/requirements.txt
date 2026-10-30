@@ -14,3 +14,6 @@ pytest==8.3.4
 optuna==4.1.0
 psutil==6.1.0
 kagglehub>=1.0  # optional: Big Data Bowl download (lab/kaggle_bdb.py)
+fastapi==0.162.0      # Game Center web app (web/server.py), local and read-only
+uvicorn==0.54.0
+httpx==0.28.1         # test client for the API

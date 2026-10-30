@@ -46,7 +46,7 @@ if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--week',type=int);p.add_argument('--deadline');p.add_argument('--threads',type=int)
     p.add_argument('--branch-only',action='store_true');p.add_argument('--run',action='store_true');a=p.parse_args()
     branch=subprocess.check_output(['git','branch','--show-current'],text=True).strip()
-    if not branch.startswith('codex/projections-'):raise SystemExit('STOP: weekly research requires the authorized codex/projections branch')
+    if not branch.startswith(('codex/projections-','claude/projections-')):raise SystemExit('STOP: weekly research requires the authorized projections branch (codex/projections-* or claude/projections-*)')
     if a.branch_only:print('Authorized local research branch confirmed');raise SystemExit(0)
     g=pd.read_parquet(FEATURE_STORE);g['kickoff_utc']=pd.to_datetime(g.kickoff_utc,utc=True);now=pd.Timestamp.now(tz='UTC')
     try:

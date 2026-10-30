@@ -50,13 +50,13 @@ Single tests:
 
 ## Roles and rules
 
-- **Codex is the primary developer. Claude is the independent reviewer and
-  progress reporter.** Do not modify application code unless Travis asks.
+- **Claude is the primary developer, reviewer and progress reporter.** Codex is
+  an optional helper only; no workflow, gate or deliverable may depend on it.
 - Football (NFL/NCAA) is primary; baseball (Going Yard) is regression-only;
   basketball is off limits until the owner authorizes it.
 - Model experiments follow the Champion/Challenger gate in `MODEL_RESEARCH.md`;
   no promotion without chronological out-of-sample evidence.
-- Work on `codex/` branches; no pushes to main, deployments, migrations or force
+- Work on `codex/projections-*` or `claude/` branches (the current branch keeps its name); no pushes to main, deployments, migrations or force
   pushes without asking.
 - Never enable paid APIs, extra credits, or paid services ($0 additional spend).
 

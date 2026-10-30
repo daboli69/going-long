@@ -10,3 +10,7 @@ __pycache__/
 *.pyc
 releases/
 publish/
+# Game Center web app: dependencies, build output and screenshots are rebuilt locally
+web/ui/node_modules/
+web/ui/dist/
+web/ui/test-results/
