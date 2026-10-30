@@ -1,0 +1,21 @@
+{
+ "written": "2026-10-30, from the 2025 exploratory sample only; pushed before any 2026 model-versus-market result is computed in this protocol",
+ "governance": "GOVERNANCE.md and amendments 1 to 8",
+ "sample": "season 2026 completed non-tied games; only fully completed weeks count as clusters; a partly played week is excluded until it ends",
+ "primary_comparison": {
+  "variant": "p_xgb_v1",
+  "rule": "lowest 2025 mean log loss among the 8 winner variants (2025 values: p_xgb_v1 0.6241, p_xgb_v1_platt 0.6247, p_xgb_deep_platt 0.6325, p_xgb_deep 0.6331, p_elo_platt 0.6382, p_elo 0.6403, p_margin 0.6423, p_margin_platt 0.6428; market at T-90 0.6121)",
+  "statistic": "weight lambda on (model minus market) in u = lambda * x, u = outcome minus T-90 market probability, x = model minus T-90 market probability",
+  "test": "null-imposed wild cluster bootstrap p-value, Rademacher weights, 1,999 draws, two-sided; week is the cluster"
+ },
+ "weekly_looks": {
+  "spending_function": "alpha*(t) = 2 * (1 - Phi(1.96 / sqrt(t))), t = completed weeks / 18 (O'Brien-Fleming-type; from memory, check before use)",
+  "nominal_level_at_look_k": "alpha*(t_k) - alpha*(t_{k-1}), a conservative Bonferroni split of the increments",
+  "validity": "a look is valid only with at least 10 completed weeks; at 10 weeks the smallest attainable two-sided wild p-value is 2/1024 and the nominal level is about 0.0085",
+  "first_valid_look": "when week 10 of 2026 is complete"
+ },
+ "descriptive_only": "paired log-loss difference against the market with the 0.005 equivalence margin (GOVERNANCE.md); never used for the look decision",
+ "decision": "crossing the boundary is reported as confirmed at that look; promotion still needs the Champion/Challenger gate in MODEL_RESEARCH.md and Travis's approval; not crossing means keep accumulating weeks",
+ "disclosure_of_what_2026_has_already_shown": "the first Step 2 run (commit 93d57d54) and q1_winner_ceiling.json pooled 2025 and 2026 games. They report the market's calibration on both seasons and pooled paired differences of Elo (+0.0207) and deep XGBoost (+0.0131) against the market on 377 games. So the 2026 data have been seen in pooled form and are not untouched. The 2026 numbers for p_xgb_v1 specifically have not been computed in this protocol.",
+ "cleaner_prospective_sample": "forecasts frozen in data/raw/archive/forecast_games from week 8 on, scored on games that had not been played when they were saved; the week 8 file was saved 2026-10-30 02:23 UTC; only one week 8 game (CAR at GB) was complete when this was written, which shows nothing"
+}

@@ -1,0 +1,137 @@
+{
+ "step": "step1",
+ "git_head": "c78bb6429ab0a5393c851cd57c80455f0015b04e",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "inputs": {
+  "data/cache/games.parquet": {
+   "sha256": "830d478a8c88ca17ebb17132b9c7f01eed8c029e8e0f00cf0ea355155074f20d",
+   "bytes": 181642,
+   "modified_utc": "2026-10-30T19:00:18.224880+00:00"
+  },
+  "data/cache/homewin_deep/kalshi_history.parquet": {
+   "sha256": "1353c8968636d7be30ea70417b016c39a8d8e46d50719253dce0c06ced5a1208",
+   "bytes": 1802934,
+   "modified_utc": "2026-10-29T14:44:22.286042+00:00"
+  },
+  "data/cache/homewin_deep/walk_forward.parquet": {
+   "sha256": "eb3ccaa0f6b690334ec6469ceda4af40720212bd219edd412256ad472845b8d5",
+   "bytes": 373769,
+   "modified_utc": "2026-10-28T21:28:22.173751+00:00"
+  },
+  "data/cache/homewin_deep/forecast_wf.parquet": {
+   "sha256": "ce83f4c659338a83d10b905c80bad368cf65db8e77fab99d9bde5c13d5aaa8c3",
+   "bytes": 332757,
+   "modified_utc": "2026-10-30T02:17:56.171295+00:00"
+  },
+  "data/cache/homewin_deep/features.parquet": {
+   "sha256": "45ebfa9cf3028bd901bf61fd80944c32b561b4191ac892802cbfbd0a34766494",
+   "bytes": 638969,
+   "modified_utc": "2026-10-28T21:28:21.537975+00:00"
+  },
+  "data/cache/homewin_deep/going_quotes.parquet": {
+   "sha256": "e8c15b876ad48353a12919c036a0578cac5ab4acb8d1c00b4d25bb58f0a93a23",
+   "bytes": 1468314,
+   "modified_utc": "2026-10-29T01:44:12.907844+00:00"
+  },
+  "data/cache/props_kalshi/quotes.parquet": {
+   "sha256": "92c4625c4aa0077ac8095f7c3545c9b2855a5bbfca22a55f19156b24169ba8fb",
+   "bytes": 1573769,
+   "modified_utc": "2026-10-29T20:59:38.022051+00:00"
+  },
+  "data/cache/props_kalshi/scored_ladders.parquet": {
+   "sha256": "6af0b91da1bbccf48f70050f9e267e033d079913f459a6caf528927fddfaf667",
+   "bytes": 94278,
+   "modified_utc": "2026-10-30T00:07:34.940490+00:00"
+  },
+  "data/cache/props_kalshi/scored_thresholds.parquet": {
+   "sha256": "d28324279b08956ee55e7bc689ed7aa5e208ee02d06b06a75203e675edccfbd9",
+   "bytes": 217646,
+   "modified_utc": "2026-10-30T00:07:34.952491+00:00"
+  },
+  "data/cache/props_kalshi_scope.parquet": {
+   "sha256": "4cd702288d0e7a4040b32324d4b719118663c7b0affe1265b4f1514f44066d30",
+   "bytes": 1380105,
+   "modified_utc": "2026-10-29T16:19:56.865857+00:00"
+  },
+  "data/cache/injury_rows_pregame.parquet": {
+   "sha256": "2341a91e752b4cd72a158ad2a4f776b03b81dc442223cbe5247c31436a6d749c",
+   "bytes": 707267,
+   "modified_utc": "2026-10-30T19:00:18.165367+00:00"
+  },
+  "data/cache/team_game_stats.parquet": {
+   "sha256": "31269c48513aaab85292e8632a153afaa6118032ec1700f7a88180e0c9d723f9",
+   "bytes": 453704,
+   "modified_utc": "2026-10-30T19:00:08.517687+00:00"
+  },
+  "lab/forecast_core.py": {
+   "sha256": "cd616a1306129ef3019c31cb13e5efa6e4922f509e33e02e11fdf45bf97ba01b",
+   "bytes": 9043,
+   "modified_utc": "2026-10-30T02:10:03.387624+00:00"
+  },
+  "lab/kalshi.py": {
+   "sha256": "fb1c3d29e69305b89c0b01808fb3251d892173ee74df98106c3c4a035010403b",
+   "bytes": 12261,
+   "modified_utc": "2026-10-30T13:14:10.075579+00:00"
+  },
+  "lab/homewin_deep.py": {
+   "sha256": "7ef6376287ca5d0470c2b18ec1c49314952ec30ea752d6a3e134d55eeca2ec32",
+   "bytes": 29326,
+   "modified_utc": "2026-10-28T21:55:27.460786+00:00"
+  },
+  "lab/homewin_eval.py": {
+   "sha256": "e7e97960a66e9d80b8b4b45b99d24bd53fa8c79cbe8bb94fc72863ad703c4952",
+   "bytes": 18574,
+   "modified_utc": "2026-10-29T14:42:42.222627+00:00"
+  },
+  "lab/props_kalshi.py": {
+   "sha256": "1de14db4dace7f750eba0670f7194a529bb13cdec4cced9d62b4c316c091dd38",
+   "bytes": 16778,
+   "modified_utc": "2026-10-30T00:31:54.898947+00:00"
+  },
+  "scripts/props_kalshi.py": {
+   "sha256": "eff700d242bca642a45ffe91ddaa7dc9040b72d7c616585871ddafb3003a0505",
+   "bytes": 6550,
+   "modified_utc": "2026-10-29T16:21:49.313947+00:00"
+  },
+  "pbp_agg_parquets": {
+   "sha256": "50600a347486fa5d382411b397392247b58aaef0fdd2d005fb999416a047854f",
+   "files": 25,
+   "pattern": "data/cache/homewin_deep/pbp_agg_*.parquet",
+   "latest_modified_utc": "2026-10-28T20:57:38.419833+00:00"
+  },
+  "espn_injury_snapshots": {
+   "sha256": "a8ad4def132d7e999a55555b4def865866d023af4d133e953ff32d3b180c35e1",
+   "files": 249,
+   "pattern": "data/raw/archive/espn_injuries_*.json",
+   "latest_modified_utc": "2026-10-30T19:00:05.294306+00:00"
+  },
+  "forecast_freeze_archive": {
+   "sha256": "9a816188f0b4e27fc8a9dc9c00d8d9867233946bb908776c121e9e37a4db81d0",
+   "files": 1,
+   "pattern": "data/raw/archive/forecast_games/*.json",
+   "latest_modified_utc": "2026-10-30T02:23:32.846771+00:00"
+  },
+  "props_freeze_archive": {
+   "sha256": "46915715dcb685a54114962136f667b69e99364ab1fc8eb4a2a88aa8b15dd861",
+   "files": 1,
+   "pattern": "data/raw/archive/props_kalshi/*.json",
+   "latest_modified_utc": "2026-10-30T00:40:11.953164+00:00"
+  },
+  "fantasypoints_manifests": {
+   "sha256": "fd5d1bcf5d498bcc72eabe7fad4354ff2f2af3dbb6b7b02fc07e1a437e9a1742",
+   "files": 10,
+   "pattern": "../../FantasyPoints/manifests/*",
+   "latest_modified_utc": "2026-10-14T20:58:38.941571+00:00"
+  }
+ },
+ "missing": [],
+ "changed_vs_previous_manifest": "no previous manifest (this is the first)",
+ "earlier_run_time_utc": "2026-10-30T14:10:18.348970+00:00",
+ "modified_after_earlier_winner_ceiling_run": [
+  "data/cache/games.parquet",
+  "data/cache/injury_rows_pregame.parquet",
+  "data/cache/team_game_stats.parquet",
+  "espn_injury_snapshots"
+ ],
+ "PASS": true
+}

@@ -1,6 +1,6 @@
 {
  "step": "step1",
- "git_head": "c78bb6429ab0a5393c851cd57c80455f0015b04e",
+ "git_head": "7ff7eb382277ab35c007990e8429cdfb02058247",
  "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
  "inputs": {
   "data/cache/games.parquet": {
@@ -94,10 +94,10 @@
    "modified_utc": "2026-10-29T16:21:49.313947+00:00"
   },
   "pbp_agg_parquets": {
-   "sha256": "50600a347486fa5d382411b397392247b58aaef0fdd2d005fb999416a047854f",
-   "files": 25,
+   "sha256": "d40438d3e0a07cc363c035e9683baf075978c68ab25ee56e393be7c572858ba3",
+   "files": 26,
    "pattern": "data/cache/homewin_deep/pbp_agg_*.parquet",
-   "latest_modified_utc": "2026-10-28T20:57:38.419833+00:00"
+   "latest_modified_utc": "2026-10-30T20:05:47.355025+00:00"
   },
   "espn_injury_snapshots": {
    "sha256": "a8ad4def132d7e999a55555b4def865866d023af4d133e953ff32d3b180c35e1",
@@ -125,12 +125,15 @@
   }
  },
  "missing": [],
- "changed_vs_previous_manifest": "no previous manifest (this is the first)",
+ "changed_vs_previous_manifest": [
+  "pbp_agg_parquets"
+ ],
  "earlier_run_time_utc": "2026-10-30T14:10:18.348970+00:00",
  "modified_after_earlier_winner_ceiling_run": [
   "data/cache/games.parquet",
   "data/cache/injury_rows_pregame.parquet",
   "data/cache/team_game_stats.parquet",
+  "pbp_agg_parquets",
   "espn_injury_snapshots"
  ],
  "PASS": true
