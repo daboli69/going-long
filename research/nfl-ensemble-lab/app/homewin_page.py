@@ -36,6 +36,7 @@ COMMANDS = {
     "Props: weekly freeze (Kalshi-anchored, about 10 min)": ["scripts/props_kalshi_collect.py", "freeze"],
     "Forecasts: winner/spread/total freeze": ["scripts/forecast_study.py", "freeze"],
 }
+LONG_CAPTURE = ["scripts/market_news_study.py", "capture", "--hours", "6", "--interval", "5"]
 LONG = {
     "v1 backtest (about 45 min)": ["scripts/home_win_deep.py", "backtest"],
     "v2 backtest (about 1.5 h)": ["scripts/home_win_v2.py", "backtest"],
@@ -461,6 +462,37 @@ def tab_forecasts(arch: dict):
     st.caption("A lean under 0.5 in z means the model abstains and the forecast is Kalshi's.")
 
 
+def tab_market_news():
+    st.caption("Where the market is slow, how news moves it, and how availability changes who gets the ball. Everything here is provisional: Codex has not reproduced the earlier studies. "
+               "Hourly data only; minute-level lead and lag is not measurable yet.")
+    u, c = read_json(LAB_ROOT / "reports" / "usage" / "results.json"), read_json(LAB_ROOT / "reports" / "usage" / "confirmation.json")
+    if u:
+        st.subheader("Usage before yards (history): availability weights vs naive recent share")
+        rows = []
+        for lab_, r in (("2021-2023", u), ("2024 untouched confirmation", c)):
+            if r:
+                for k, name in (("C1_targets", "Targets"), ("C2_carries", "Carries")):
+                    v = r[k]
+                    rows.append({"Period": lab_, "Stat": name, "Team-games": v["n"], "Gain (nats per target)": v["gain_vs_naive"], "Interval": _ci(v["ci"]),
+                                 "Share of oracle gap": v["share_of_oracle_gap_captured"], "Gain when a key player is out": (v["news_games"] or {}).get("gain")})
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+        st.caption("A formal verdict needs 75 weeks for targets; the intervals are far from zero and the untouched season agrees.")
+    m = read_json(LAB_ROOT / "reports" / "market_news" / "results.json")
+    if m:
+        st.subheader("Venue lag (Experiment A): the fraction of a gap to the other venues that closes in 3 hours")
+        rows = [{"Target": t, "Kalshi": f"{a['K']['kappa']:+.3f}", "Pinnacle": f"{a['P']['kappa']:+.3f}", "Other books": f"{a['O']['kappa']:+.3f}"} for t, a in m["A"].items()]
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+        st.caption("Kalshi does not catch up to the others; Pinnacle and the books move toward Kalshi. On winners Kalshi's hourly move leads Pinnacle's by about an hour.")
+        b = m["B"]
+        st.subheader(f"Availability events (Experiment B): {b.get('events_total', 0)} key-player events in 2 weeks")
+        if b.get("by_type"):
+            st.dataframe(pd.DataFrame([{"Type": k, "Events": v["events"], "Moved expected way": v["moved_expected_direction"], "Sign test p": v["sign_test_p_one_sided"],
+                                        "Mean reaction (logit)": v["mean_signed_reaction_logit"], "Placebo p": v["placebo_p"]} for k, v in b["by_type"].items()]),
+                         hide_index=True, use_container_width=True)
+    st.info("Dense capture (every 5 minutes, 6 hours before kickoff) is run by hand: `scripts/market_news_study.py capture --hours 6 --interval 5`. "
+            "Start it at 7:00 AM ET on game Sundays for the 1:00 PM games.")
+
+
 def tab_run():
     st.caption("Each button starts a separate background process; the page stays usable. Freezes fetch fresh data, "
                "write a write-once archive and append the ledger. They never change the champion or the scheduler.")
@@ -486,7 +518,7 @@ def render(archive_root: Path = ARCHIVE, cache_dir: Path = CACHE_DIR):
     st.caption("Elo remains the champion. The deep model, v2 and the drive simulator are research challengers that "
                "failed their preregistered gates; they are frozen weekly so the prospective record can accumulate.")
     arch, results = load_archives(archive_root), load_results(cache_dir)
-    t1, t2, t3, t5, t6, t7, t4 = st.tabs(["This week", "Prospective record", "Backtests", "Kalshi", "Props", "Forecasts", "Run"])
+    t1, t2, t3, t5, t6, t7, t8, t4 = st.tabs(["This week", "Prospective record", "Backtests", "Kalshi", "Props", "Forecasts", "Market & news", "Run"])
     with t1:
         tab_this_week(arch, results)
     with t2:
@@ -499,5 +531,7 @@ def render(archive_root: Path = ARCHIVE, cache_dir: Path = CACHE_DIR):
         tab_props(arch)
     with t7:
         tab_forecasts(arch)
+    with t8:
+        tab_market_news()
     with t4:
         tab_run()

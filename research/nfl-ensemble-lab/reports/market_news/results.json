@@ -1,0 +1,684 @@
+{
+ "prereg": "396af66a",
+ "label": "provisional; Codex has not reproduced earlier studies",
+ "A": {
+  "winner": {
+   "K": {
+    "kappa": 0.010353339749906534,
+    "ci": [
+     -0.013493361203154221,
+     0.03525383967101965
+    ],
+    "half_life_hours": 199.80589235712472,
+    "rows": 4365,
+    "games": 107
+   },
+   "P": {
+    "kappa": 0.11079849000419957,
+    "ci": [
+     0.05609120467155743,
+     0.20056781795248374
+    ],
+    "half_life_hours": 17.707713302789994,
+    "rows": 4322,
+    "games": 107
+   },
+   "O": {
+    "kappa": 0.09058209933463647,
+    "ci": [
+     0.030696698310417755,
+     0.19954327084269435
+    ],
+    "half_life_hours": 21.90025713015468,
+    "rows": 4323,
+    "games": 107
+   },
+   "lead_lag_hours_corr_K_with_P_at_lag": {
+    "-3": {
+     "corr": 0.013524708505621234,
+     "n": 4260
+    },
+    "-2": {
+     "corr": 0.0661546970829521,
+     "n": 4354
+    },
+    "-1": {
+     "corr": 0.02940866799371898,
+     "n": 4449
+    },
+    "0": {
+     "corr": 0.016069712140223794,
+     "n": 4543
+    },
+    "1": {
+     "corr": 0.11331693268066884,
+     "n": 4438
+    },
+    "2": {
+     "corr": 0.059169005957438146,
+     "n": 4333
+    },
+    "3": {
+     "corr": 0.03435314516861295,
+     "n": 4228
+    }
+   },
+   "lean_table_kalshi": {
+    "sigma": 0.04300493483973517,
+    "rows": [
+     {
+      "threshold_sigma": 0,
+      "coverage": 1.0,
+      "n": 4365,
+      "share_moving_toward_consensus": 0.06575028636884307,
+      "mean_signed_convergence": 0.0005867654455765344
+     },
+     {
+      "threshold_sigma": 0.5,
+      "coverage": 0.4813287514318442,
+      "n": 2101,
+      "share_moving_toward_consensus": 0.06949071870537839,
+      "mean_signed_convergence": 0.001021415963636244
+     },
+     {
+      "threshold_sigma": 1.0,
+      "coverage": 0.22955326460481099,
+      "n": 1002,
+      "share_moving_toward_consensus": 0.054890219560878244,
+      "mean_signed_convergence": 0.0008045308838316805
+     },
+     {
+      "threshold_sigma": 1.5,
+      "coverage": 0.09736540664375716,
+      "n": 425,
+      "share_moving_toward_consensus": 0.058823529411764705,
+      "mean_signed_convergence": 0.0005403643288843523
+     },
+     {
+      "threshold_sigma": 2.0,
+      "coverage": 0.06002290950744559,
+      "n": 262,
+      "share_moving_toward_consensus": 0.022900763358778626,
+      "mean_signed_convergence": -0.0008016650122289947
+     }
+    ]
+   },
+   "placebo_K": {
+    "real": 0.010353339749906534,
+    "placebo_mean": -0.0006110195561249041,
+    "placebo_p95": 0.0059788264522455566,
+    "permutation_p": 0.004975124378109453
+   },
+   "settlement_pinnacle_gap_coef": {
+    "coef": 5.408682129305968,
+    "ci95": [
+     -7.542277489158662,
+     20.649468141521726
+    ],
+    "games": 93
+   }
+  },
+  "spread": {
+   "K": {
+    "kappa": -0.0004318010859872145,
+    "ci": [
+     -0.0045487786706142974,
+     0.004246628570478001
+    ],
+    "half_life_hours": null,
+    "rows": 4185,
+    "games": 106
+   },
+   "P": {
+    "kappa": 0.08516705331974751,
+    "ci": [
+     0.015246712345255228,
+     0.142667148818905
+    ],
+    "half_life_hours": 23.360888848002965,
+    "rows": 4086,
+    "games": 106
+   },
+   "O": {
+    "kappa": 0.02293619334517143,
+    "ci": [
+     0.006274913632664755,
+     0.059660124883306825
+    ],
+    "half_life_hours": 89.61827503095412,
+    "rows": 4144,
+    "games": 106
+   },
+   "lead_lag_hours_corr_K_with_P_at_lag": {
+    "-3": {
+     "corr": 0.013687128400344212,
+     "n": 4069
+    },
+    "-2": {
+     "corr": 0.004143245350497047,
+     "n": 4158
+    },
+    "-1": {
+     "corr": 0.05947331646202059,
+     "n": 4247
+    },
+    "0": {
+     "corr": 0.020658358451840615,
+     "n": 4328
+    },
+    "1": {
+     "corr": 0.009314777311863018,
+     "n": 4225
+    },
+    "2": {
+     "corr": -0.021922950363371902,
+     "n": 4122
+    },
+    "3": {
+     "corr": 0.026358531185406583,
+     "n": 4019
+    }
+   },
+   "lean_table_kalshi": {
+    "sigma": 1.0410124676137658,
+    "rows": [
+     {
+      "threshold_sigma": 0,
+      "coverage": 1.0,
+      "n": 4185,
+      "share_moving_toward_consensus": 0.16654719235364396,
+      "mean_signed_convergence": 0.002010091296571649
+     },
+     {
+      "threshold_sigma": 0.5,
+      "coverage": 0.2064516129032258,
+      "n": 864,
+      "share_moving_toward_consensus": 0.23032407407407407,
+      "mean_signed_convergence": -0.0029505102042296115
+     },
+     {
+      "threshold_sigma": 1.0,
+      "coverage": 0.18016726403823177,
+      "n": 754,
+      "share_moving_toward_consensus": 0.22679045092838196,
+      "mean_signed_convergence": -0.002992491656926665
+     },
+     {
+      "threshold_sigma": 1.5,
+      "coverage": 0.17897252090800478,
+      "n": 749,
+      "share_moving_toward_consensus": 0.22830440587449932,
+      "mean_signed_convergence": -0.002160455026149349
+     },
+     {
+      "threshold_sigma": 2.0,
+      "coverage": 0.17897252090800478,
+      "n": 749,
+      "share_moving_toward_consensus": 0.22830440587449932,
+      "mean_signed_convergence": -0.002160455026149349
+     }
+    ]
+   },
+   "placebo_K": {
+    "real": -0.0004318010859872145,
+    "placebo_mean": 0.00021479156367207284,
+    "placebo_p95": 0.002785070402344188,
+    "permutation_p": 0.6567164179104478
+   }
+  },
+  "total": {
+   "K": {
+    "kappa": -0.022640954804264965,
+    "ci": [
+     -0.061057398150129186,
+     0.013650143979469873
+    ],
+    "half_life_hours": null,
+    "rows": 4252,
+    "games": 106
+   },
+   "P": {
+    "kappa": 0.2226764424866268,
+    "ci": [
+     0.16699861815386938,
+     0.29970485062870955
+    ],
+    "half_life_hours": 8.255073953391792,
+    "rows": 4171,
+    "games": 106
+   },
+   "O": {
+    "kappa": 0.10454182513794039,
+    "ci": [
+     0.06377886271970137,
+     0.16718959581766263
+    ],
+    "half_life_hours": 18.832149765274526,
+    "rows": 4211,
+    "games": 106
+   },
+   "lead_lag_hours_corr_K_with_P_at_lag": {
+    "-3": {
+     "corr": 0.03153958687069559,
+     "n": 4139
+    },
+    "-2": {
+     "corr": 0.04085934977965557,
+     "n": 4228
+    },
+    "-1": {
+     "corr": 0.057023905280475864,
+     "n": 4318
+    },
+    "0": {
+     "corr": 0.06621989764549445,
+     "n": 4400
+    },
+    "1": {
+     "corr": 0.04890866651291426,
+     "n": 4303
+    },
+    "2": {
+     "corr": 0.062071305330553744,
+     "n": 4206
+    },
+    "3": {
+     "corr": 0.044848273587558725,
+     "n": 4108
+    }
+   },
+   "lean_table_kalshi": {
+    "sigma": 0.30757374364206935,
+    "rows": [
+     {
+      "threshold_sigma": 0,
+      "coverage": 1.0,
+      "n": 4252,
+      "share_moving_toward_consensus": 0.13005644402634053,
+      "mean_signed_convergence": -0.0034794664913671775
+     },
+     {
+      "threshold_sigma": 0.5,
+      "coverage": 0.4821260583254939,
+      "n": 2050,
+      "share_moving_toward_consensus": 0.14,
+      "mean_signed_convergence": -0.010696279686652044
+     },
+     {
+      "threshold_sigma": 1.0,
+      "coverage": 0.24506114769520226,
+      "n": 1042,
+      "share_moving_toward_consensus": 0.14683301343570057,
+      "mean_signed_convergence": -0.012416886017754713
+     },
+     {
+      "threshold_sigma": 1.5,
+      "coverage": 0.09642521166509878,
+      "n": 410,
+      "share_moving_toward_consensus": 0.16341463414634147,
+      "mean_signed_convergence": -0.020932384409787567
+     },
+     {
+      "threshold_sigma": 2.0,
+      "coverage": 0.06302916274694262,
+      "n": 268,
+      "share_moving_toward_consensus": 0.16791044776119404,
+      "mean_signed_convergence": -0.012176096693765778
+     }
+    ]
+   },
+   "placebo_K": {
+    "real": -0.022640954804264965,
+    "placebo_mean": 0.000984309753777367,
+    "placebo_p95": 0.010672330097509647,
+    "permutation_p": 1.0
+   }
+  }
+ },
+ "B": {
+  "events_total": 29,
+  "events_with_market_data": 27,
+  "by_type": {
+   "QB": {
+    "events": 7,
+    "moved_expected_direction": 4,
+    "sign_test_p_one_sided": 0.5,
+    "mean_signed_reaction_logit": 0.01955191499669027,
+    "placebo_mean": 0.019513521588674174,
+    "placebo_p95": 0.057971210218034516,
+    "placebo_p": 0.47761194029850745,
+    "bh_significant_q05": false
+   },
+   "RB": {
+    "events": 3,
+    "moved_expected_direction": 0,
+    "sign_test_p_one_sided": 1.0,
+    "mean_signed_reaction_logit": -0.006173015922412465,
+    "placebo_mean": -0.0015818904888218219,
+    "placebo_p95": 0.006410344214530683,
+    "placebo_p": 0.7412935323383084,
+    "bh_significant_q05": false
+   },
+   "WR": {
+    "events": 17,
+    "moved_expected_direction": 11,
+    "sign_test_p_one_sided": 0.1661529541015625,
+    "mean_signed_reaction_logit": 0.050971826410489064,
+    "placebo_mean": 0.008680978728896789,
+    "placebo_p95": 0.026450617863169705,
+    "placebo_p": 0.004975124378109453,
+    "bh_significant_q05": false
+   }
+  },
+  "weeks_covered": 2,
+  "event_rate_per_week": 14.5,
+  "table": [
+   {
+    "time": "2026-10-16 22:49:50+00:00",
+    "name": "Lamar Jackson",
+    "pos": "QB",
+    "status": "Out",
+    "team": "BAL",
+    "gid": "2026_06_BAL_CLE",
+    "react": "0.0"
+   },
+   {
+    "time": "2026-10-17 01:38:07+00:00",
+    "name": "Tre' Harris",
+    "pos": "WR",
+    "status": "Out",
+    "team": "LAC",
+    "gid": "2026_06_LAC_KC",
+    "react": "0.0"
+   },
+   {
+    "time": "2026-10-17 15:39:16+00:00",
+    "name": "Jalen Hurts",
+    "pos": "QB",
+    "status": "Out",
+    "team": "PHI",
+    "gid": "2026_06_CAR_PHI",
+    "react": "-0.0"
+   },
+   {
+    "time": "2026-10-17 16:59:56+00:00",
+    "name": "Jacory Croskey-Merritt",
+    "pos": "RB",
+    "status": "Out",
+    "team": "WAS",
+    "gid": "2026_06_WAS_SF",
+    "react": "0.0"
+   },
+   {
+    "time": "2026-10-17 20:24:54+00:00",
+    "name": "Jalen Hurts",
+    "pos": "QB",
+    "status": "Injured Reserve",
+    "team": "PHI",
+    "gid": "2026_06_CAR_PHI",
+    "react": "-0.0"
+   },
+   {
+    "time": "2026-10-18 18:59:56+00:00",
+    "name": "Rashod Bateman",
+    "pos": "WR",
+    "status": "Out",
+    "team": "BAL",
+    "gid": "2026_07_CIN_BAL",
+    "react": "0.04970926110844942"
+   },
+   {
+    "time": "2026-10-18 18:59:56+00:00",
+    "name": "Romeo Doubs",
+    "pos": "WR",
+    "status": "Out",
+    "team": "NE",
+    "gid": "2026_07_NE_CHI",
+    "react": "0.27067072662524405"
+   },
+   {
+    "time": "2026-10-18 19:04:59+00:00",
+    "name": "Rashod Bateman",
+    "pos": "WR",
+    "status": "Out",
+    "team": "BAL",
+    "gid": "2026_07_CIN_BAL",
+    "react": "0.004973367267057938"
+   },
+   {
+    "time": "2026-10-19 15:59:58+00:00",
+    "name": "Jalen Hurts",
+    "pos": "QB",
+    "status": "Injured Reserve",
+    "team": "PHI",
+    "gid": "2026_07_DAL_PHI",
+    "react": "0.014598799421152275"
+   },
+   {
+    "time": "2026-10-19 18:59:55+00:00",
+    "name": "Lamar Jackson",
+    "pos": "QB",
+    "status": "Out",
+    "team": "BAL",
+    "gid": "2026_07_CIN_BAL",
+    "react": "0.07536388053973611"
+   },
+   {
+    "time": "2026-10-19 18:59:55+00:00",
+    "name": "Quinshon Judkins",
+    "pos": "RB",
+    "status": "Out",
+    "team": "CLE",
+    "gid": "2026_07_CLE_TEN",
+    "react": "-0.018519047767237395"
+   },
+   {
+    "time": "2026-10-19 20:36:00+00:00",
+    "name": "Lamar Jackson",
+    "pos": "QB",
+    "status": "Out",
+    "team": "BAL",
+    "gid": "2026_07_CIN_BAL",
+    "react": "0.00584826988771886"
+   },
+   {
+    "time": "2026-10-19 20:36:00+00:00",
+    "name": "Romeo Doubs",
+    "pos": "WR",
+    "status": "Injured Reserve",
+    "team": "NE",
+    "gid": "2026_07_NE_CHI",
+    "react": "0.0"
+   },
+   {
+    "time": "2026-10-19 21:15:03+00:00",
+    "name": "Davante Adams",
+    "pos": "WR",
+    "status": "Out",
+    "team": "LA",
+    "gid": "2026_07_LA_LV",
+    "react": "0.05993714710170006"
+   },
+   {
+    "time": "2026-10-19 21:15:03+00:00",
+    "name": "Romeo Doubs",
+    "pos": "WR",
+    "status": "Injured Reserve",
+    "team": "NE",
+    "gid": "2026_07_NE_CHI",
+    "react": "-0.01666705248521161"
+   },
+   {
+    "time": "2026-10-19 21:30:39+00:00",
+    "name": "Davante Adams",
+    "pos": "WR",
+    "status": "Out",
+    "team": "LA",
+    "gid": "2026_07_LA_LV",
+    "react": "0.05993714710170006"
+   },
+   {
+    "time": "2026-10-19 22:00:01+00:00",
+    "name": "Davante Adams",
+    "pos": "WR",
+    "status": "Out",
+    "team": "LA",
+    "gid": "2026_07_LA_LV",
+    "react": "0.04523099971200473"
+   },
+   {
+    "time": "2026-10-20 00:59:55+00:00",
+    "name": "Romeo Doubs",
+    "pos": "WR",
+    "status": "Injured Reserve",
+    "team": "NE",
+    "gid": "2026_07_NE_CHI",
+    "react": "-0.01666705248521161"
+   },
+   {
+    "time": "2026-10-20 10:00:04+00:00",
+    "name": "Mike Evans",
+    "pos": "WR",
+    "status": "Doubtful",
+    "team": "SF",
+    "gid": "2026_07_SF_ATL",
+    "react": "0.12954365070221363"
+   },
+   {
+    "time": "2026-10-20 22:00:01+00:00",
+    "name": "Davante Adams",
+    "pos": "WR",
+    "status": "Injured Reserve",
+    "team": "LA",
+    "gid": "2026_07_LA_LV",
+    "react": "0.029413885206293178"
+   },
+   {
+    "time": "2026-10-23 18:59:59+00:00",
+    "name": "Emeka Egbuka",
+    "pos": "WR",
+    "status": "Out",
+    "team": "TB",
+    "gid": "2026_07_TB_CAR",
+    "react": "0.0"
+   },
+   {
+    "time": "2026-10-23 22:00:00+00:00",
+    "name": "Mike Evans",
+    "pos": "WR",
+    "status": "Out",
+    "team": "SF",
+    "gid": "2026_07_SF_ATL",
+    "react": "0.0"
+   },
+   {
+    "time": "2026-10-24 20:05:01+00:00",
+    "name": "Lamar Jackson",
+    "pos": "QB",
+    "status": "Out",
+    "team": "BAL",
+    "gid": "2026_07_CIN_BAL",
+    "react": "0.04105245512822464"
+   },
+   {
+    "time": "2026-10-24 20:05:01+00:00",
+    "name": "Dontayvion Wicks",
+    "pos": "WR",
+    "status": "Out",
+    "team": "PHI",
+    "gid": "2026_07_DAL_PHI",
+    "react": "0.11837006238295611"
+   },
+   {
+    "time": "2026-10-24 20:24:58+00:00",
+    "name": "Dontayvion Wicks",
+    "pos": "WR",
+    "status": "Out",
+    "team": "PHI",
+    "gid": "2026_07_DAL_PHI",
+    "react": "0.11837006238295611"
+   },
+   {
+    "time": "2026-10-26 21:15:03+00:00",
+    "name": "Mike Evans",
+    "pos": "WR",
+    "status": "Out",
+    "team": "SF",
+    "gid": "2026_09_LV_SF",
+    "react": "nan"
+   },
+   {
+    "time": "2026-10-26 22:29:58+00:00",
+    "name": "Mike Evans",
+    "pos": "WR",
+    "status": "Out",
+    "team": "SF",
+    "gid": "2026_09_LV_SF",
+    "react": "nan"
+   },
+   {
+    "time": "2026-10-28 21:59:58+00:00",
+    "name": "Davante Adams",
+    "pos": "WR",
+    "status": "Injured Reserve",
+    "team": "LA",
+    "gid": "2026_08_LAC_LA",
+    "react": "0.013698844358162043"
+   },
+   {
+    "time": "2026-10-28 21:59:58+00:00",
+    "name": "Dameon Pierce",
+    "pos": "RB",
+    "status": "Injured Reserve",
+    "team": "PHI",
+    "gid": "2026_08_PHI_WAS",
+    "react": "0.0"
+   }
+  ]
+ },
+ "power": {
+  "prereg": "396af66a",
+  "A": {
+   "winner": {
+    "rows": 4365,
+    "games": 107,
+    "se_kappa_K": 0.01014529270444266,
+    "mde": 0.032826119558553156,
+    "sesoi": 0.1,
+    "available_weeks": 8,
+    "decidable_now": true,
+    "N_weeks": 8
+   },
+   "spread": {
+    "rows": 4185,
+    "games": 106,
+    "se_kappa_K": 0.0018002677866544336,
+    "mde": 0.005824948310880378,
+    "sesoi": 0.1,
+    "available_weeks": 8,
+    "decidable_now": true,
+    "N_weeks": 8
+   },
+   "total": {
+    "rows": 4252,
+    "games": 106,
+    "se_kappa_K": 0.016602377150980795,
+    "mde": 0.053718668666467635,
+    "sesoi": 0.1,
+    "available_weeks": 8,
+    "decidable_now": true,
+    "N_weeks": 8
+   }
+  },
+  "B": {
+   "sd_6h_winner_logit_change": 0.035809123232637234,
+   "sesoi_logit": 0.05,
+   "events_needed_for_sesoi": 5,
+   "key_events_so_far": 20,
+   "weeks_of_snapshots": 2,
+   "events_per_week": 10.0,
+   "weeks_needed": 0.5,
+   "mde_at_current_events": 0.022432750554013864
+  }
+ }
+}

@@ -1,0 +1,77 @@
+{
+ "label": "untouched confirmation 2024",
+ "team_games": 448,
+ "weeks": 15,
+ "C1_targets": {
+  "n": 448,
+  "mean_ll_naive": -2.2688551046352043,
+  "mean_ll_availability": -2.2148462295063136,
+  "mean_ll_oracle": -2.13096976994495,
+  "gain_vs_naive": 0.05545710246907086,
+  "ci": [
+   0.0449882132252591,
+   0.0716081893136735
+  ],
+  "ci_level": 0.975,
+  "secondary_active_prior_arm_gain": 0.004167664988080188,
+  "secondary_active_prior_arm_ci": [
+   -0.02696072133247044,
+   0.03311566145186125
+  ],
+  "news_games": {
+   "share": 0.2924107142857143,
+   "n": 131,
+   "gain": 0.1800315379425637,
+   "ci": [
+    0.15227525413385862,
+    0.2209448314254759
+   ],
+   "oracle_gain": 0.2786962086565777
+  },
+  "improves": true,
+  "material": true,
+  "oracle_gain": 0.139928667621553,
+  "share_of_oracle_gap_captured": 0.3963240943525491,
+  "games_with_a_reported_out_player": 0.4330357142857143,
+  "by_season_gain": {
+   "2024": 0.05545710246907086
+  },
+  "verdict_allowed": false
+ },
+ "C2_carries": {
+  "n": 448,
+  "mean_ll_naive": -1.429478024136502,
+  "mean_ll_availability": -1.366766464391289,
+  "mean_ll_oracle": -1.2562101926648555,
+  "gain_vs_naive": 0.05848046730200252,
+  "ci": [
+   0.03508139326636337,
+   0.08815178538833864
+  ],
+  "ci_level": 0.975,
+  "secondary_active_prior_arm_gain": 0.00871267753555842,
+  "secondary_active_prior_arm_ci": [
+   -0.0369433646185194,
+   0.050183690271963954
+  ],
+  "news_games": {
+   "share": 0.16071428571428573,
+   "n": 72,
+   "gain": 0.35519599939148905,
+   "ci": [
+    0.2721482164756144,
+    0.4169752283479261
+   ],
+   "oracle_gain": 0.49712869496538403
+  },
+  "improves": true,
+  "material": true,
+  "oracle_gain": 0.1657488136072484,
+  "share_of_oracle_gap_captured": 0.35282585756888396,
+  "games_with_a_reported_out_player": 0.25223214285714285,
+  "by_season_gain": {
+   "2024": 0.05848046730200252
+  },
+  "verdict_allowed": false
+ }
+}

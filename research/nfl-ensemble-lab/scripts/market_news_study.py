@@ -328,7 +328,7 @@ def espn_events(G):
     # key player = top season-to-date offense snaps in the position group on that team (games before the event)
     keep = []
     for r in ev_.itertuples(index=False):
-        nxt = G[(~G["played"]) & ((G["home"] == r.team) | (G["away"] == r.team)) & (G["kickoff_utc"] > r.time)].sort_values("kickoff_utc")
+        nxt = G[((G["home"] == r.team) | (G["away"] == r.team)) & (G["kickoff_utc"] > r.time)].sort_values("kickoff_utc")   # next game after the news, played since or not
         if nxt.empty:
             continue
         wk = int(nxt["week"].iloc[0])

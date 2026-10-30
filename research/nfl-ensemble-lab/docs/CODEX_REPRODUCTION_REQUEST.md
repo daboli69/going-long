@@ -1,6 +1,6 @@
 # Independent reproduction request for Codex
 
-Written 2026-10-29. Six studies on the branch `codex/projections-20261019` were built and run by Claude, one look each.
+Written 2026-10-29. Seven studies on the branch `codex/projections-20261019` were built and run by Claude, one look each.
 **Every gate reading is provisional until you rebuild it from the protocol document alone and the numbers match.**
 Please do not read the results documents before you have your own numbers, and report disagreements without editing
 either side's files.
@@ -18,6 +18,7 @@ counts first.
 | 4 | Kalshi props vs simulator | `docs/PROPS_KALSHI_PREREGISTRATION.md`, `31af0b08` | `60b72455` | `scripts/props_kalshi.py pilot`, `pull`, `replay`, `score` | 1,242 ladders, 6,654 thresholds; CRPS K 1.0286, base 1.0707, market 0.9978; K vs base -0.0421; settlement agreement 99.91% |
 | 5 | Market-anchored props | `docs/PROPS_MARKET_ANCHORED_PREREGISTRATION.md`, `7964284b` + power `4909f1ba` | `6ff6e5bc` | `scripts/props_market_power.py`, then `scripts/props_market_model.py` | 762 ladders in 6 weeks; M1 +0.0007 [-0.0037, +0.0051]; placebo p 0.119; M2 -0.0434 |
 | 6 | Joint score model | `docs/FORECAST_PREREGISTRATION.md`, `94e455cc` + Amendment 1 and power `db086e43` | `cc41214a` | `scripts/forecast_study.py pilot`, then `run` | tau 4.0 / 3.0; L1 margin CRPS 7.507 vs Elo-normal 7.475 (+0.0323 [-0.0296, +0.0941]); K1 b = 0 every week; K2 +0.0044 [+0.0004, +0.0090]; total-lean Spearman -0.168 |
+| 7 | Market lag, availability events, usage | `docs/MARKET_NEWS_PREREGISTRATION.md`, `396af66a` + Amendments 1 and 2 | `5bb093a1` and `d7c047c9` | `scripts/usage_study.py pilot`, `run`, `confirm`; `scripts/market_news_study.py power`, `run` | usage gain targets +0.0441 [0.0392, 0.0490], carries +0.0513, 2024 confirmation +0.0555 and +0.0585; kappa_K winner +0.010, spread 0.000, total -0.023; kappa_P winner +0.111, total +0.223; 29 key-player events |
 
 Notes for the rebuild:
 - Studies 4 and 5 use the shared Kalshi cache under `data/cache/props_kalshi/`; a fresh pull takes several hours
