@@ -1,0 +1,101 @@
+# Governance for the research checklist protocol (written 2026-10-30, before any run after the Step 2 failure)
+
+This file is committed and pushed alone before Steps 1 to 7 are run again. It does not edit `PROTOCOL.md`
+(commit `c78bb642`, SHA-256 of the file is recorded in every output). Where this file changes a rule, it says so.
+
+## What the timestamps can and cannot show
+
+`PROTOCOL.md` was pushed to GitHub in the same push as the Step 1 and Step 2 results (`93d57d54`). GitHub's
+server time for that push therefore cannot show the protocol came first. Local commit times prove nothing to a third
+party. What the record does show: the protocol is in git history one commit before the results, and the Step 2 failure
+was reported before any later run. This file and everything below it is pushed alone, so GitHub's time for it does
+precede every later run.
+
+## Amendment rule
+
+1. A pass condition may change only for a design flaw that does not depend on which way the result went (a check that
+   is too coarse to tell pass from fail, a sample the new rules no longer allow, a method that cannot work with the
+   data's structure).
+2. Every change is written here and committed and pushed before the step it changes is run again.
+3. The failed or superseded run stays in the record, with its file and commit. Nothing is overwritten.
+4. A change may not be made because the result came out the wrong way. If a diagnostic has already shown the likely
+   direction, the amendment says so.
+5. Simulation counts follow the tolerance: the binomial standard error of a checked rate, evaluated at the edge of its
+   band, may not exceed one quarter of the band's width.
+
+## Amendment 1 (Step 2 condition c, simulation counts)
+
+- Flaw: the props false-positive check used 100 simulations. A band of 0.5% to 5% is 4.5 points wide, so a quarter is
+  1.125 points. At the 5% edge, 100 simulations give a standard error of 2.2 points, about twice what the rule allows.
+  The check could not tell 5% from 10%.
+- Change: every false-positive check in Step 2 uses at least 400 simulations (standard error 1.09 points at the 5%
+  edge). Band, test, seeds and everything else are unchanged. The change applies to all four targets, not only props.
+- Disclosure: the 400-simulation props diagnostic (`step2_diag_props.json`, 4.25%) was run before this amendment, so the
+  direction is known. The rerun can still fail, and if it does the chain stops.
+- Record: the failed run is `step2_ceiling_power.json` at commit `93d57d54`.
+
+## Amendment 2 (sample split)
+
+- Change: real-data runs of Steps 2 to 7 use season 2025 only (the exploratory sample). The 2026 weeks are held for the
+  confirmatory analysis below. Sample floors scale to match: Step 2(b) is unchanged (at least 100 margin ladders, 100
+  total ladders and 500 prop ladders within 2025), and Step 3's floor of 300 games becomes 250. No step has been run
+  on the 2025-only sample yet.
+- Reason: the split was requested after the protocol was written. It does not depend on any result.
+
+## Choices fixed before the next run
+
+| Item | Fixed choice |
+|---|---|
+| Exploratory sample | Season 2025, completed non-tied games. |
+| Confirmatory sample | Season 2026 completed games, analyzed only after `confirmatory_rules.json` is pushed. These predictions were rebuilt by a walk-forward run on 2026-10-28, not frozen at the time. Only the week 8 files in `data/raw/archive/forecast_games` and `props_kalshi` are frozen records. |
+| Small-cluster method | Intervals for a mean of paired differences or a regression coefficient use the cluster-robust t interval with clusters minus 1 degrees of freedom (week is the cluster). A null-imposed wild cluster bootstrap (Rademacher weights, 1,999 draws) is reported beside every coefficient test as a cross-check. Decisions use the t interval. Step 2's power simulations keep the protocol's percentile week bootstrap. |
+| Smallest effect of interest | Winners 0.005 log loss; margin and total 1% of the mean market normal CRPS; props 1% of the mean market threshold score. The first three follow `scripts/forecast_study.py` lines 182 to 184. |
+| Equivalence rule | Paired difference is model loss minus market loss. Equivalent if the 90% interval lies inside the margin; worse by more than the margin if the 90% interval's lower end is above it; better by more than the margin if its upper end is below minus the margin; otherwise undetermined. |
+| Quote filters | None (base); spread (ask minus bid) at most 0.05 on both sides; volume above 0 in the used candle on at least one side; both. |
+| De-vig methods | Proportional (base), power, Shin. |
+| Variants | As in `PROTOCOL.md`: 8 winner columns, 3 margin, 2 total, 5 props arms. |
+| Weekly looks | Lan-DeMets O'Brien-Fleming-type spending, two-sided total 0.05, information fraction = completed weeks / 18; the nominal level at each look is the increment of spent error (conservative, Bonferroni over increments). From memory, check before use. |
+| Confirmatory primary | One comparison: the winner variant with the lowest 2025 mean log loss, tested by the coefficient on the model in the encompassing regression against the T-90 market. Set in `confirmatory_rules.json` before 2026 is read. |
+| Seeds and versions | Real runs seed 0; rehearsal dataset i uses seed 1000 + i. Python, numpy, pandas, scipy and pyarrow versions are recorded in the step 1 output. No installs. |
+
+## Rehearsal pass conditions (written before any rehearsal run)
+
+Simulated worlds reuse the real data's structure (week clusters, market prices, ladder shapes). Null world: the market
+equals the truth and every model variant is a noisy copy with no extra information. Planted world: the market is a noisy
+copy of the truth and exactly one variant is a better copy.
+
+| Step | Rehearsal passes if |
+|---|---|
+| 2 | On a null world, every false-positive check at 400 simulations is in 0.5% to 5%; the ceiling-gap interval covers the known gap in at least 90% of 100 datasets. |
+| 3 | The decomposition identity holds to 1e-9, and the news term's interval covers its known value in at least 90% of 100 datasets. |
+| 4 | The knowledge-time detector flags every planted leak of 24 hours or more and none of the clean tables; the beats-the-market detector has at most 5% false positives over 400 null datasets and flags at least 95% of planted leaks. |
+| 5 | The t-interval test of the model coefficient has a false-positive rate between 1% and 9% over 400 null datasets (the wild bootstrap is reported); in the planted world the interval covers the known coefficient in at least 90% of 100 datasets. |
+| 6 | Over 100 datasets per world, shuffled-label and time-shift placebos show a false-positive rate between 1% and 9%; junk columns reach nominal p below 0.05 in 2% to 9% of cases; the planted-edge detection rate is within 0.15 of the Step 2 power curve for the same gain. |
+| 7 | The selection test (Reality Check and SPA) has a false-positive rate between 1% and 9% over 400 null datasets and rejects in at least 80% of planted datasets; probability of backtest overfitting is between 0.35 and 0.65 in the null world and below 0.25 in the planted world. |
+
+Real data does not enter a step until its rehearsal row passes.
+
+## Decision table
+
+| Step | Outcome | Action |
+|---|---|---|
+| 2 | A false-positive check is outside its band | Stop. |
+| 2 | Gap interval includes 0, or the minimum detectable gain is above the smallest effect of interest | Record "unresolved at this sample". Continue. No claim about headroom. |
+| 2 | Interval excludes 0 and the minimum detectable gain is within the smallest effect | Treat the market as miscalibrated at the ceiling. Check the calibration slope and the quote filters before saying more. Continue. |
+| 3 | Model worse than the market at decision time, interval excluding 0 | The model is worse at equal information. Continue to Step 5. |
+| 3 | Model gap vs the market at decision time includes 0 and the news term is above 0 | The gap against close is explained by news the model could not see. Use only the matched-time design from here on. |
+| 3 | Fewer than 250 games with all three prices | Stop. |
+| 4 | A planted leak of 24 hours or more is not detected | Stop. |
+| 4 | A real input is flagged | Drop that input. Rerun Steps 3 and 5 without it. |
+| 5 | Coefficient interval includes 0 and equivalence is shown | Record "the market encompasses the model". Stop work on that target. |
+| 5 | Coefficient interval includes 0 and equivalence is not shown | Record "undetermined". Do not claim an edge. |
+| 5 | Coefficient interval excludes 0 | Freeze that variant as the confirmatory candidate. No promotion. |
+| 6 | Any placebo rate is outside its band | Stop. |
+| 7 | SPA p-value 0.05 or above | Negative result: no variant beats the market after allowing for the search. |
+| 7 | PBO above 0.5 | Selection is unreliable. No variant is carried forward. |
+| Price quality | A conclusion flips under a filter or de-vig method | Report it as fragile. Treat the conclusion as undetermined. |
+| Label audit | Disagreement above 0.5% of labels | Stop. Reconcile first. |
+| Confirmatory | The statistic crosses the look's boundary | Report as confirmed at that look. Promotion still needs the Champion/Challenger gate in `MODEL_RESEARCH.md` and Travis's approval. |
+| Confirmatory | It does not | Keep accumulating weeks. Report the interval. |
+
+A scoring improvement is not a return. Nothing here is betting advice.
