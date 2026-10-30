@@ -293,3 +293,9 @@ Both failed;no more configurations tried. Saved both prespecified research copie
 | Hypothesis | Protocol | Result | Decision |
 |---|---|---|---|
 | Starting from Kalshi's T-90 ladder, a per-stat logit correction toward the lab simulator (b in [0,1]) improves ladder CRPS over the market, the simulator and the existing stack; availability events add CLV over a naive baseline | research/nfl-ensemble-lab/docs/PROPS_MARKET_ANCHORED_PREREGISTRATION.md, frozen before any fit. Power by week-resampling simulation first. History is reused (descriptive); only prospective freezes can pass. | Ran 2026-10-29, results sha256 961ca243. Only 6 of 20 weeks scorable (500-threshold training minimum): 762 ladders. M1 corrected vs market +0.0007 [-0.0037,+0.0051] (no improvement); placebo p=0.12 (not credible); M2 vs simulator -0.043 (improves). Walk-forward stack is worse than the market (1.0500 vs 1.0467), so the earlier stack pass was partly in-sample. Cost: edge exceeds cost on 34% of thresholds, marked P&L +0.0008 [-0.017,+0.021]. E not runnable (no timestamped availability). research/nfl-ensemble-lab/docs/PROPS_MARKET_ANCHORED_RESULTS.md | Primary not improved; nothing promoted; prospective freezes next |
+
+## One joint score model: winners, spreads, totals, props - preregistered 2026-10-29
+
+| Hypothesis | Protocol | Result | Decision |
+|---|---|---|---|
+| A closed-form Gaussian team-strength model for margin and total, anchored to Kalshi ladders where liquid, gives more accurate and better calibrated winner/spread/total/prop projections and leans than Kalshi, Elo and naive baselines | research/nfl-ensemble-lab/docs/FORECAST_PREREGISTRATION.md, frozen before any fit (tau chosen on 2008-2011 only). Power first by week-resampling. Families L, K, T; history descriptive; no undated lines. | Pending | Pending; no promotion |
