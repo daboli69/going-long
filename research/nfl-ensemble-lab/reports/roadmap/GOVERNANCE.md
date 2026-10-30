@@ -143,3 +143,27 @@ A scoring improvement is not a return. Nothing here is betting advice.
   detectable gain from Step 2 (above 0.035), so the planted edge is detectable by design. It was chosen from the Step 2
   power results and a one-dataset smoke test, not from any real-model result.
 - Status: no rehearsal and no real-data step has run since the Step 2 failure.
+
+## Amendment 6 (after rehearsal attempt 1; no real-data step has been run), added before rehearsal attempt 2
+
+Attempt 1 passed for Steps 3 and 4 and failed for Steps 2, 5, 6 and 7. The files are in `reports/roadmap/attempt1/` with
+the code that produced them (`steps_attempt1.py`, `rehearsal_attempt1.py`). Real data has not been used by any step.
+
+| Step | Attempt 1 result | Cause | Change |
+|---|---|---|---|
+| 2 | False-positive rates 4.25% to 5.75% (limit 5%); gap coverage 98% and 96% | The percentile week bootstrap is liberal with 13 to 18 clusters (nominal one-sided 2.5%, observed about 5%) | Step 2 detection becomes the lower end of the cluster-robust t interval (clusters minus 1 degrees of freedom, 95% two-sided) being above 0. Band, sample counts and seeds unchanged. |
+| 5 | t-interval false positives: winners 5.2%, margin 5.5%, total 7.6%, props 11.6%; wild bootstrap 4.9%, 4.8%, 8.1%, 5.1% | The cluster t test is liberal for props at 13 clusters | Coefficient decisions use the null-imposed wild cluster bootstrap p-value below 0.05. The t interval is still reported but is not used for decisions. The 1% to 9% band applies to the wild test. This replaces the "decisions use the t interval" row of the choices table. |
+| 6 | Label placebo 5.4%, time-shift 5.75%, interval covers 0 in 94%, junk 5.35%, no-discovery share 94% (needed 95%); planted edge detected 65% against 60% predicted | The "no Benjamini-Hochberg discovery in at least 95% of reps" limit equals the expected value under a correct procedure, so it fails about half the time by construction | Limit becomes 90% (standard error at 100 datasets is 2.2 points, a quarter of a 10-point band). Placebo tests use the wild p-value with 499 draws. Planted-edge detection uses the same t rule as Step 2. |
+| 7 | Reality Check false positives 5.5%, 7.0%, 8.0%, 10.2%; SPA 0% everywhere and 0% rejection in the planted world; probability of overfitting 0.50, 0.68, 0.47, 0.62 | SPA code bug: the bootstrap was not centered before applying Hansen's recentering. Separately, the null probability of overfitting depends on the number of variants m: exactly 0.5 for m = 8 and m = 2, 0.6 for m = 5, and 2/3 for m = 3, so a fixed 0.35 to 0.65 band cannot hold for 3 variants. Props Reality Check is liberal at 13 clusters. | Bug fixed. The cluster bootstrap becomes Rademacher cluster multipliers. Decisions use the SPA p-value; Reality Check is reported. The null probability-of-overfitting band is the exact value for m plus or minus 0.10. False-positive band stays 1% to 9% for SPA. |
+
+Real-data note on placebos. The label and time-shift placebos have a true model weight of zero only when the market is
+calibrated. In the planted rehearsal world, where the market is noisy, the time-shift placebo rejected 39% of the time.
+On real data, a time-shift placebo outside its band can therefore mean the market is miscalibrated at that sample and not
+that the machinery is broken. The protocol's rule still applies: outside the band, the chain stops, and the report says
+which explanation the diagnostics support.
+
+Audit sensitivity note. In rehearsal the beats-the-market detector found a leak of 0.5 logit units in 100% of datasets,
+0.2 units in 8.75% and 0.1 units in 0.25%. Subtle leaks need the structural audit (perturbation of data after the cutoff),
+which Step 4 on real data uses.
+
+Status: rehearsal attempt 2 will rerun Steps 2, 5, 6 and 7. Steps 3 and 4 passed in attempt 1 and are not rerun.

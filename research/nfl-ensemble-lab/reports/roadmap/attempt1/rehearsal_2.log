@@ -1,0 +1,5 @@
+REHEARSAL 2: FAIL
+{
+ "fp_in_band_0.5_to_5pct": false,
+ "gap_coverage_ge_90": true
+}

@@ -5,7 +5,9 @@ import numpy as np, pandas as pd
 from scipy.stats import norm
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "reports" / "roadmap"
+import os
+OUT = Path(os.environ["ROADMAP_OUT"]) if os.environ.get("ROADMAP_OUT") else ROOT / "reports" / "roadmap"
+SRC = ROOT / "reports" / "roadmap"
 CACHE = ROOT / "data" / "cache"
 HW = CACHE / "homewin_deep"
 PK = CACHE / "props_kalshi"
@@ -26,7 +28,7 @@ def git_head() -> str:
 
 
 def protocol_hash() -> str:
-    return sha(OUT / "PROTOCOL.md")
+    return sha(SRC / "PROTOCOL.md")
 
 
 def header(step: str) -> dict:

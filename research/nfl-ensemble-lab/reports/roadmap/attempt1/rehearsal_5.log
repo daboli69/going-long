@@ -1,0 +1,5 @@
+REHEARSAL 5: FAIL
+{
+ "fp_t_in_1_to_9pct": false,
+ "planted_coverage_ge_90": true
+}

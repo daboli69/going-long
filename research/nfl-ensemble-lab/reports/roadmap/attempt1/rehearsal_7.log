@@ -1,0 +1,7 @@
+REHEARSAL 7: FAIL
+{
+ "spa_fp_1_to_9": false,
+ "pbo_null_035_065": false,
+ "planted_winners_rejects_ge_80": false,
+ "planted_winners_pbo_lt_025": true
+}
