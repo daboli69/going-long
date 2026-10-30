@@ -82,3 +82,15 @@ where no real source exists.
 ## What none of this is
 
 A scoring gain is not a return. Nothing here is betting advice.
+
+## Amendment P2-1 (Step 1 condition d), added before the Step 1 re-run
+
+- Found: the first Step 1 run reported PASS because my code applied condition (d) only to designs with at least two grid points
+  between 20% and 95% power. Condition (d) as written says each of four designs. The props design has one such point (its power
+  reaches only 24%), so the check could not be computed, and the code did not say so. By the letter, (d) was not met for props.
+  The first run is kept as `i1_detectability_first_run.json`.
+- Flaw in the condition: a coefficient of variation cannot be computed from one point, which has nothing to do with which way any
+  result came out.
+- Change: (d) applies to every design with at least two usable points (winners, margin, total). The props design is marked
+  "formula not validated" and its rows are labelled unvalidated and are not used to claim any props candidate is testable or not.
+  The report states this plainly.
