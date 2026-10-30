@@ -56,8 +56,11 @@ def pick_week(games: pd.DataFrame, season: int, now: pd.Timestamp):
     return int(g["week"].min()) if len(g) else None
 
 
-def availability(ros: pd.DataFrame, inj: pd.DataFrame, week: int, team: str):
-    """(DataFrame pid/position, rule). ros/inj are one season with normalised team codes."""
+def availability(ros: pd.DataFrame, inj: pd.DataFrame, week: int, team: str, out_statuses=("Out",)):
+    """(DataFrame pid/position, rule). ros/inj are one season with normalised team codes.
+
+    out_statuses defaults to the preregistered prospective rule (Out only). Adding "Doubtful" is evidence-supported (docs/MARKET_NEWS_RESULTS.md)
+    but would change the preregistered stream, so it requires Travis to amend docs/PROPS_V2_PREREGISTRATION.md first."""
     r = ros[(ros["posteam"] == team) & (ros["week"] == week)]
     rule = "ACT (game-day inactives published)"
     if not len(r) or not (r["status"] == "INA").any():
@@ -69,7 +72,7 @@ def availability(ros: pd.DataFrame, inj: pd.DataFrame, week: int, team: str):
             rule = f"week {int(r['week'].iloc[0])} ACT roster minus injury-report Out (no week {week} roster yet)"
         else:
             rule = "ACT roster minus injury-report Out (inactives not yet published)"
-        out = set(inj.loc[(inj["team"] == team) & (inj["week"] == week) & (inj["report_status"] == "Out"), "gsis_id"])
+        out = set(inj.loc[(inj["team"] == team) & (inj["week"] == week) & inj["report_status"].isin(out_statuses), "gsis_id"])
         r = r[r["status"] == "ACT"]
         return r[~r["pid"].isin(out)][["pid", "position"]], rule
     return r[r["status"] == "ACT"][["pid", "position"]], rule

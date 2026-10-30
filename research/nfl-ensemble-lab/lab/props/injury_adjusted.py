@@ -14,7 +14,12 @@ from ..config import ARTIFACTS_DIR, LAB_ROOT
 from ..fpds_research.common import atomic
 
 ROOT=ARTIFACTS_DIR/'props'/'injury_adjusted'
-OUT_STATUSES={'out','inactive','ir','pup'}
+# Doubtful added 2026-10-30 (Travis approved). On 2021-2024 history, treating Doubtful as unavailable improved the log likelihood of who gets targets
+# (+0.0071 nats, 98.75% CI 0.0017 to 0.0125) and carries (+0.0121, 0.0069 to 0.0184), positive in both 2021-2023 and 2024:
+# docs/MARKET_NEWS_PREREGISTRATION.md Amendment 3, docs/MARKET_NEWS_RESULTS.md. Questionable and unknown are still never removed.
+# To restore the earlier rule, delete 'doubtful' from this set. The preregistered weekly archive (weekly.py) is not affected.
+OUT_STATUSES={'out','inactive','ir','pup','doubtful'}
+AVAILABILITY_RULE='Out, inactive, IR, PUP and Doubtful treated as unavailable (Doubtful added 2026-10-30, usage evidence in docs/MARKET_NEWS_RESULTS.md); Questionable and unknown are not removed'
 
 
 def read(path):return json.loads(Path(path).read_text(encoding='utf-8'))
@@ -185,7 +190,7 @@ def run(job):
               'projection_path':str(job/'PROJECTIONS.csv'),'excluded':excluded,'n_sims':10000,
               'workload_path':str(job/'WORKLOAD.csv') if len(roles) else None,
               'training_cutoff':'Simulator: 2025 season end; player roles: weeks before '+str(game.week)+' of '+str(game.season),
-              'warning':'Assumption-based market-anchored shadow. V1/v2 workload redistribution; baseline B unchanged. No winner/FPDS/Phase10 sheet update.',
+              'availability_rule':AVAILABILITY_RULE,'warning':'Assumption-based market-anchored shadow. V1/v2 workload redistribution; baseline B unchanged. No winner/FPDS/Phase10 sheet update.',
               'source_snapshot':request['comparison_sha256']}
         with (job/'RESULT.json').open('x',encoding='utf-8') as stream:json.dump(done,stream,indent=2)
         atomic(job/'STATUS.json',done)

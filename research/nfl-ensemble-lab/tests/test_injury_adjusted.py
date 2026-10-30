@@ -40,7 +40,15 @@ def test_unavailable_removed_and_existing_redistribution_conserves_shares():
     assert updated['recv']['share'].sum()==pytest.approx(1)
 
 
-@pytest.mark.parametrize('status',['questionable','doubtful','unknown'])
+def test_doubtful_is_removed_as_unavailable():
+    # Changed 2026-10-30: usage evidence (docs/MARKET_NEWS_RESULTS.md, Amendment 3) supports treating Doubtful as unavailable.
+    av=pd.DataFrame({'pid':['qb','missing','starter','wr'],'position':['QB','RB','RB','WR']})
+    result,_=I.adjuster(evidence('doubtful'))(GAME,'CHI',av,'qb')
+    assert 'missing' not in set(result.pid) and 'starter' in set(result.pid)
+    assert 'doubtful' in I.OUT_STATUSES and 'questionable' not in I.OUT_STATUSES
+
+
+@pytest.mark.parametrize('status',['questionable','unknown'])
 def test_uncertain_not_silently_removed(status):
     av=pd.DataFrame({'pid':['qb','missing','wr'],'position':['QB','RB','WR']})
     result,_=I.adjuster(evidence(status))(GAME,'CHI',av,'qb')

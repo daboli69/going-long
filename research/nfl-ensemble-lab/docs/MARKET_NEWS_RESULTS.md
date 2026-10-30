@@ -74,3 +74,19 @@ Split conformal coverage for the prop distributions and the margin and total int
 - Hourly sampling only; Codex reproduction unavailable.
 - **Dense capture is built but must be run by hand.** `scripts/market_news_study.py capture --hours 6 --interval 5` polls Kalshi winner, spread and total books and trades every 5 minutes and saves the ESPN injury feed.
   Next Sunday, start it at **7:00 AM ET** for the 1:00 PM games, and again at about 12:30 PM for the 4:05 and 4:25 PM games. I have not scheduled anything.
+
+## Amendment 3 result and the change it caused (2026-10-30)
+Question: should the props simulator treat **Doubtful** players as unavailable? Until now it removed only Out (and, in the manual injury-adjusted path, inactive, IR and PUP).
+Protocol and decision rule were committed first (`cf518c31`), then run once on 2021 to 2024 (`reports/usage/doubtful.json`, SHA-256 `f26a1ab870fa0941e808aa20c90fce9d3684ecdc38e06a5fae5231391e399f1f`).
+
+| Gain of "Doubtful = unavailable" over the lab's rule (nats) | Pooled | 98.75% interval | 2021 to 2023 | 2024 | Doubtful candidates present in |
+|---|---:|---|---:|---:|---:|
+| Targets | +0.0071 | [+0.0017, +0.0125] | +0.0047 | +0.0143 | 4.2% of team-games |
+| Carries | +0.0121 | [+0.0069, +0.0184] | +0.0107 | +0.0164 | 2.8% of team-games |
+
+In the games where a Doubtful candidate with at least 5% prior share was present, the gain is +0.151 per target and +0.419 per carry. A 0.05 weight is about as good as zero.
+**The rule passed**, so the change was made:
+- `lab/props/injury_adjusted.py`: `OUT_STATUSES` now includes `doubtful`; each revision's result records an `availability_rule` field. Questionable and unknown are still never removed.
+- `tests/test_injury_adjusted.py`: the old test that required Doubtful players to stay was replaced.
+- `lab/props/weekly.py`: `availability()` gained an optional `out_statuses` argument whose default is unchanged (Out only).
+- **Not changed:** the preregistered prospective props archive. Switching it would alter a registered procedure (`docs/PROPS_V2_PREREGISTRATION.md`), which needs Travis to amend that document first.
