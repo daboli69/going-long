@@ -105,3 +105,11 @@ Pilot 2018 to 2020: 1,248 team-games. Available weeks for the primary look: 54 (
 **Consequence fixed now.** The 2021 to 2023 primary look is **descriptive** (verdict not allowed by the power rule). A verdict on C1 is allowed only on the pooled
 2021 to 2024 sample once it reaches 75 weeks. C2 gets no verdict. The pilot gain is far above the MDE, so the descriptive interval is expected to exclude zero
 by a wide margin; that does not change the classification.
+
+## Amendment 2 (2026-10-29, before any Experiment A or B quantity was computed)
+- **Experiment A clock.** The GOING quote snapshots were committed about every 3.4 hours, so enforcing `committed_at <= t` would make Pinnacle and the other books
+  update only at commit times and create a false lag against Kalshi's hourly candles. A is a description of the **venues' own clocks**, not a tradable forecast,
+  so a venue's value at hour t uses `quote_time <= t` (staleness cap 24 hours; Kalshi candles 3 hours). The `committed_at` rule is dropped for A and applies to nothing here.
+- **Winner series.** Kalshi's winner value is the hourly home mid divided by the sum of the home and away mids (logit scale).
+- **Experiment B.** Event reaction uses the existing hourly Kalshi winner series (history file built 2026-10-29); events with no market data in the window are counted and excluded. The lab's
+  update is reduced to the **direction** test; magnitude regressions wait for prospective data.
