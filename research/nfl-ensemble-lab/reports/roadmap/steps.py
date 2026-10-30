@@ -123,21 +123,28 @@ def step2_ceilings(ds) -> dict:
     return out
 
 
-def _power_curve(sim_diff, cod, kk, grid, n_sims, seed):
-    """Amendment 6: detection is the lower end of the cluster-robust t interval (df = clusters - 1, two-sided 95%) above 0."""
-    n_cl = np.bincount(cod, minlength=kk).astype(float)
-    crit = tdist.ppf(0.975, kk - 1)
+def wild_t_one_sided(d, cod, kk, w) -> bool:
+    """Amendment 7: one-sided 2.5% test that the mean of d is above 0 using a null-imposed wild cluster bootstrap-t (Rademacher weights w, B x kk)."""
+    n = len(d)
+    S = np.bincount(cod, weights=d, minlength=kk)
+    nc = np.bincount(cod, minlength=kk).astype(float)
+    m = d.mean()
+    se = np.sqrt(kk / (kk - 1) * ((S - nc * m) ** 2).sum()) / n
+    ms = (w @ S) / n
+    R = w * S - nc * ms[:, None]
+    seb = np.sqrt(kk / (kk - 1) * (R ** 2).sum(1)) / n
+    return float(((ms / seb) >= (m / se)).mean()) < 0.025
+
+
+def _power_curve(sim_diff, cod, kk, grid, n_sims, seed, boots=499):
     rr = np.random.default_rng(seed)
     rows = []
     for sB in grid:
         det, gains = [], []
         for _ in range(n_sims):
             d = sim_diff(sB, rr)
-            m = d.mean()
-            gains.append(m)
-            r = np.bincount(cod, weights=d - m, minlength=kk)
-            se = np.sqrt(kk / (kk - 1) * (r ** 2).sum()) / len(d)
-            det.append(m - crit * se > 0)
+            gains.append(d.mean())
+            det.append(wild_t_one_sided(d, cod, kk, rr.choice([-1.0, 1.0], size=(boots, kk))))
         rows.append({"sB": float(sB), "expected_gain": float(np.mean(gains)), "power_one_sided_2.5pct": float(np.mean(det)), "fp_standard_error": float(np.sqrt(np.mean(det) * (1 - np.mean(det)) / n_sims))})
     return rows
 
@@ -151,7 +158,7 @@ def _mde(rows):
 def step2_power(ds, n_sims=400, seed=1, theta_w=(0.3, 0.6), theta_l=(0.15, 0.3)) -> dict:
     """Simulation-based power with an exchangeable null (sB = 1). Detection: one-sided 2.5% week-clustered percentile bootstrap (protocol)."""
     grid = [1.0, 0.8, 0.6, 0.4, 0.2, 0.0]
-    out = {"design": "exchangeable null at sB=1; cluster-robust t detection (Amendment 6); n_sims=%d" % n_sims}
+    out = {"design": "exchangeable null at sB=1; wild cluster bootstrap-t detection (Amendment 7); n_sims=%d" % n_sims}
     W = ds["winners"]
     codes, k = codes_of(W)
     L0 = logit(W.p_t90.to_numpy(float))
@@ -313,21 +320,26 @@ def step6_placebos(ds, rng, n_draw=100, n_shift=20, n_junk=20) -> dict:
 
 # ------------------------------------------------------------------ step 7
 def spa_rc(D, codes, k, rng, B=1000) -> dict:
-    """D: n x m, positive means the variant beats the benchmark. White Reality Check and Hansen SPA using Rademacher cluster multipliers
-    (Amendment 6) and Hansen's recentering Z* = sqrt(n) (dbar* - dbar + g) / omega. From memory, check before use."""
+    """D: n x m, positive means the variant beats the benchmark. Amendment 7: Hansen SPA and White Reality Check with a studentized
+    (bootstrap-t) wild cluster bootstrap: each draw is divided by its own cluster-robust standard error. From memory, check before use."""
     n, m = D.shape
     dbar = D.mean(0)
-    sums = np.stack([np.bincount(codes, weights=D[:, j], minlength=k) for j in range(m)], 1)
-    cnt = np.bincount(codes, minlength=k).astype(float)
+    S = np.stack([np.bincount(codes, weights=D[:, j], minlength=k) for j in range(m)], 1)       # k x m cluster sums
+    nc = np.bincount(codes, minlength=k).astype(float)
+    E = S - nc[:, None] * dbar                                                                  # centered cluster sums
+    se = np.sqrt(k / (k - 1) * (E ** 2).sum(0)) / n
+    se = np.where(se > 0, se, 1e-12)
+    t_obs = dbar / se
     w = rng.choice([-1.0, 1.0], size=(B, k))
-    dev = (w @ (sums - cnt[:, None] * dbar)) / n
-    om = np.sqrt(n) * dev.std(0)
-    om = np.where(om > 0, om, 1e-12)
-    T_rc = np.sqrt(n) * dbar.max()
-    p_rc = float((np.sqrt(n) * dev.max(1) >= T_rc).mean())
-    T = max(float((np.sqrt(n) * dbar / om).max()), 0.0)
-    g = np.where(np.sqrt(n) * dbar / om <= -np.sqrt(2 * np.log(np.log(n))), dbar, 0.0)
-    Tb = np.maximum((np.sqrt(n) * (dev + g) / om).max(1), 0.0)
+    dev = np.einsum("bk,km->bm", w, E) / n                                                      # B x m centered bootstrap means
+    R = w[:, :, None] * E[None] - nc[None, :, None] * dev[:, None, :]                           # B x k x m
+    seb = np.sqrt(k / (k - 1) * (R ** 2).sum(1)) / n
+    seb = np.where(seb > 0, seb, 1e-12)
+    T = max(float(t_obs.max()), 0.0)
+    g = np.where(t_obs <= -np.sqrt(2 * np.log(np.log(n))), dbar, 0.0)
+    Tb = np.maximum(((dev + g) / seb).max(1), 0.0)
+    T_rc = float(t_obs.max())
+    p_rc = float(((dev / seb).max(1) >= T_rc).mean())
     return {"p_rc": p_rc, "p_spa": float((Tb > T).mean()), "best_variant_index": int(np.argmax(dbar)), "best_mean_gain": float(dbar.max())}
 
 

@@ -167,3 +167,18 @@ Audit sensitivity note. In rehearsal the beats-the-market detector found a leak 
 which Step 4 on real data uses.
 
 Status: rehearsal attempt 2 will rerun Steps 2, 5, 6 and 7. Steps 3 and 4 passed in attempt 1 and are not rerun.
+
+## Amendment 7 (after rehearsal attempt 2; no real-data step 2, 5, 6 or 7 has been run), added before attempt 3
+
+Attempt 2 (files in `reports/roadmap/attempt2/`, with `steps_attempt2.py` and `rehearsal_attempt2.py`) passed Steps 5 and 6
+and failed Steps 2 and 7. Steps 3 and 4 passed in attempt 1.
+
+| Step | Attempt 2 result | Cause | Change |
+|---|---|---|---|
+| 2 | False positives: winners 1.25%, 1.0%; margin 5.0%, 5.25%; total 2.75%, 2.75%; props 6.5%, 7.5% (limit 5%) | The cluster-robust t interval is still liberal for margin and props at 13 to 14 clusters with heavy-tailed per-unit differences | Detection is a one-sided 2.5% null-imposed wild cluster bootstrap-t (Rademacher weights, 499 draws) on the paired mean difference, the same family of method the Step 5 decisions already use. Band, sample and seeds unchanged. |
+| 7 | SPA false positives 12.8%, 10.7%, 10.0%, 25.3%; Reality Check 6.5%, 7.2%, 8.0%, 13.5%; planted rejection 41% on winners | The bootstrap divided every draw by one fixed standard error, so it ignored the sampling error of the standard error, which matters at 13 to 18 clusters. | The selection tests become studentized: each wild bootstrap draw is divided by its own cluster-robust standard error (bootstrap-t). Hansen's recentering is unchanged. Decisions use SPA; Reality Check is reported. |
+| 7 (power) | Planted winners rejection 41% against a limit of 80% | My Amendment 5 claim that the 0.049 planted gain was detectable by design was wrong: at 271 games and 18 clusters the Step 2 design gives about 50% power at that gain | The Step 7 planted conditions use a stronger world (`planted_strong`: theta 1.2, planted variant noise 0.2). Step 2's detection design predicts about 97% power at its gain of about 0.116 log loss per game, from a separate calibration run. Steps 5 and 6 keep the `planted` world. |
+| 6 | Passed in attempt 2 | Not applicable | Step 6's planted-edge comparison uses the Step 2 detection rule, so it is rerun with the new rule, with unchanged conditions. |
+
+Rehearsal attempt 3 reruns Steps 2, 6 and 7. Steps 3, 4 and 5 stand. Status: no real-data run of Steps 2, 5, 6 or 7 yet.
+Real Step 3 and Step 4 were run (their rehearsals had passed) and are not affected by these changes.

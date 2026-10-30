@@ -122,9 +122,10 @@ elif STEP == "6":
         return ll(sigmoid(L0 + THETA * (z + r.standard_normal(n))), yy) - ll(sigmoid(L0 + THETA * (z + sB * r.standard_normal(n))), yy)
     cur = _power_curve(mk, *cluster_index(TEMPLATE["winners"].wk.to_numpy()), [0.4], 400, seed=2)[0]
     obs = 0
+    rr = np.random.default_rng(55)
     for d in sims("planted", 100, 9000):
         W = d["winners"]; c, kk = codes_of(W); y = W.y_home_win.to_numpy(float)
-        dd = ll(W.p_t90.to_numpy(), y) - ll(W.p_xgb_deep.to_numpy(), y); ci = cl_mean(dd, c, kk); obs += ci["lo"] > 0
+        dd = ll(W.p_t90.to_numpy(), y) - ll(W.p_xgb_deep.to_numpy(), y); obs += wild_t_one_sided(dd, c, kk, rr.choice([-1.0, 1.0], size=(499, kk)))
     res["planted_edge"] = {"true_gain_per_game": tr, "step2_design_gain": cur["expected_gain"], "step2_predicted_power": cur["power_one_sided_2.5pct"], "observed_detection": obs / 100}
     n_ = agg["null"]
     res["conditions"] = {"label_fp_1_to_9": 0.01 <= n_["label_placebo_rate"] <= 0.09, "time_shift_fp_1_to_9": 0.01 <= n_["time_shift_rate"] <= 0.09,
@@ -143,7 +144,7 @@ elif STEP == "7":
     res["exchangeable_false_positive_rates"] = {f: {"spa": v[0] / v[2], "reality_check": v[1] / v[2]} for f, v in fp.items()}
     res["exchangeable_pbo_mean"] = {f: float(np.mean(v)) for f, v in pbo_null.items()}
     rej, pbo_pl = {}, {}
-    for i, d in enumerate(sims("planted", 100, 4000)):
+    for i, d in enumerate(sims("planted_strong", 100, 4000)):
         r = step7(d, np.random.default_rng(i), B=500)
         for f, e in r["families"].items():
             rej.setdefault(f, [0, 0]); rej[f][0] += e["p_spa"] < 0.05; rej[f][1] += 1
@@ -159,4 +160,4 @@ elif STEP == "7":
 res["PASS"] = bool(all(res["conditions"].values()))
 write(f"rehearsal_step{STEP}.json", res)
 print(f"REHEARSAL {STEP}:", "PASS" if res["PASS"] else "FAIL")
-print(json.dumps(res["conditions"], indent=1))
+print(json.dumps({k: bool(v) for k, v in res["conditions"].items()}, indent=1))

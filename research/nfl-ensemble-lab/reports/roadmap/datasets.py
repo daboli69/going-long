@@ -13,7 +13,10 @@ WORLDS = {
     "null": dict(sA=0.0, s_dec=0.6, s_close=0.0, s_var={}, planted=None),                    # market equals the truth
     "exch": dict(sA=1.0, s_dec=1.5, s_close=0.7, s_var={}, planted=None),                    # market and variants exchangeable
     "planted": dict(sA=1.0, s_dec=1.5, s_close=0.7, s_var={"p_xgb_deep": 0.4, "L": 0.4, "K": 0.4}, planted="p_xgb_deep"),
+    # Amendment 7: a stronger planted edge for the Step 7 power condition (Step 2 design predicts about 97% power at this gain)
+    "planted_strong": dict(theta=1.2, sA=1.0, s_dec=1.5, s_close=0.7, s_var={"p_xgb_deep": 0.2, "L": 0.2, "K": 0.2}, planted="p_xgb_deep"),
 }
+WORLDS["planted"]["theta"] = 0.8
 
 
 # ------------------------------------------------------------------ real data
