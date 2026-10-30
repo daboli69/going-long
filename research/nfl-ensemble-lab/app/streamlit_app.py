@@ -25,6 +25,8 @@ from lab.config import MODELS_DIR, REPORTS_DIR, SNAPSHOTS_DIR  # noqa: E402
 st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide")
 
 from app.navigation import render_navigation
+from app import ui as lab_ui
+lab_ui.inject_css()
 PCT = st.column_config.ProgressColumn
 
 
@@ -1971,6 +1973,11 @@ def page_fpds_research():
     render()
 
 
+def page_game_center():
+    from app.game_center import render
+    render()
+
+
 def page_homewin_research():
     from app.homewin_page import render
     render()
@@ -1979,7 +1986,7 @@ def page_homewin_research():
 page = render_navigation()
 
 try:
-    {"Home": page_home, "Live Readiness & Schedule": page_live, "Data Manager": page_data, "Train Models": page_train, "Model Leaderboard": page_leaderboard,
+    {"Game Center": page_game_center, "Home": page_home, "Live Readiness & Schedule": page_live, "Data Manager": page_data, "Train Models": page_train, "Model Leaderboard": page_leaderboard,
      "Model Debate": page_debate, "Weekly Predictions": page_weekly, "Prospective Performance": page_prospective,
      "Prediction Archive": page_archive, "Data Freshness": page_freshness, "Baseline Research": page_baseline_research,
      "Long-Run Research": page_longrun, "FPDS Research": page_fpds_research, "Home-Win Research": page_homewin_research, "Advanced Football Intelligence": page_afi, "Player Intelligence": page_players,
