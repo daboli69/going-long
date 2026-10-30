@@ -18,7 +18,8 @@ import streamlit as st
 from lab.archive10 import ARCHIVE, canonical
 from lab.config import CACHE_DIR, LAB_ROOT
 
-KINDS = {"homewin_deep": "Weekly freeze (v1 deep)", "homewin_sim": "Simulator freeze", "homewin_v2_game": "Per-game T-90 freeze (v2)"}
+KINDS = {"homewin_deep": "Weekly freeze (v1 deep)", "homewin_sim": "Simulator freeze", "homewin_v2_game": "Per-game T-90 freeze (v2)",
+         "props_kalshi": "Props freeze (Kalshi-anchored)"}
 REPORTS = {"v1": LAB_ROOT / "reports" / "homewin_deep" / "backtest.json",
            "v2": LAB_ROOT / "reports" / "homewin_v2" / "results.json",
            "v2_power": LAB_ROOT / "reports" / "homewin_v2" / "power.json",
@@ -31,6 +32,8 @@ COMMANDS = {
     "Per-game T-90 freeze (only inside 90-105 min of a kickoff)": ["scripts/home_win_v2.py", "freeze-game"],
     "Score v1 freezes in the terminal log": ["scripts/home_win_deep.py", "score"],
     "Kalshi benchmark (refresh history, score saved forecasts)": ["scripts/kalshi_benchmark.py"],
+    "Props: collect Kalshi trades, books, inactives, injuries": ["scripts/props_kalshi_collect.py", "snapshot"],
+    "Props: weekly freeze (Kalshi-anchored, about 10 min)": ["scripts/props_kalshi_collect.py", "freeze"],
 }
 LONG = {
     "v1 backtest (about 45 min)": ["scripts/home_win_deep.py", "backtest"],
@@ -348,6 +351,67 @@ def tab_kalshi():
                    "prices, not evidence of that model's skill.")
 
 
+def _ci(x):
+    return "" if not x else f"[{x[0]:+.4f}, {x[1]:+.4f}]"
+
+
+def tab_props(arch: dict):
+    st.caption("Kalshi is the baseline forecast; the lab's simulator is a small correction toward it (b between 0 and 1, per stat). "
+               "History is descriptive. Only prospective freezes can pass. Nothing here is a trading signal.")
+    mkt, pw = read_json(LAB_ROOT / "reports" / "props_market" / "results.json"), read_json(LAB_ROOT / "reports" / "props_market" / "power.json")
+    old = read_json(LAB_ROOT / "reports" / "props_kalshi" / "results.json")
+    if mkt:
+        sc = mkt["scored"]
+        st.subheader("Market-anchored backtest (reused history, descriptive)")
+        st.write(f"{sc['ladders']:,} ladders, {sc['thresholds']:,} thresholds, {sc['weeks']} scorable weeks. Mean ladder CRPS (lower is better): "
+                 + ", ".join(f"{k} {v:.4f}" for k, v in mkt["mean_ladder_crps"].items()))
+        rows = [{"Comparison": k, "Difference": v["delta"], "Interval": _ci(v["ci"]), "Improves": v["improves"]} for k, v in {**mkt["M"], **mkt["L"]}.items()]
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+        pl = mkt["placebo"]
+        st.write(f"Placebo (shuffle players within game): real delta {pl['real_delta']:+.4f}, placebo 5th percentile {pl['placebo_delta_p05']:+.4f}, "
+                 f"permutation p = {pl['permutation_p']:.2f} → {'credible' if pl['credible'] else 'not credible'}.")
+        c = mkt["cost"]
+        st.write(f"Cost: median spread {c['median_spread']:.3f}, median cost to cross {c['median_cost_to_cross_one_side']:.4f}; the model's edge exceeds "
+                 f"it on {c['share_edge_exceeds_cost']:.0%} of thresholds. Marked at the posted quote after fees: "
+                 f"{c['mean_marked_pnl_per_contract_after_fee']:+.4f} per contract {_ci(c['marked_pnl_ci95'])}. {c['note']}.")
+        st.caption("Coherence: receiving-yard exceedance is lower in the simulator than the market (see docs/PROPS_MARKET_ANCHORED_RESULTS.md).")
+    if pw:
+        st.subheader("What the data can decide (power)")
+        rows = [{"Comparison": k, "Smallest detectable at 20 weeks": v["mde_by_weeks"]["20"], "Smallest effect of interest": v["sesoi"],
+                 "Weeks needed": v["N_weeks"], "Decidable now": v["decidable_now"]} for k, v in pw["comparisons"].items()]
+        st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+    if old:
+        st.subheader("Earlier study: simulator vs Kalshi")
+        g = old["G"]
+        st.write("Ladder CRPS: " + ", ".join(f"{k} {v['mean_a']:.4f} vs {v['mean_b']:.4f}" for k, v in g.items()) +
+                 ". The blend pass in that study used in-sample weights; fitted walk-forward it did not beat the market.")
+    st.subheader("Prospective freezes")
+    fr = arch.get("props_kalshi", [])
+    if not fr:
+        st.info("No props freeze yet. Run the weekly freeze on the Run tab before the week's first kickoff.")
+        return
+    pick = st.selectbox("Freeze", fr, format_func=lambda d: f"{d['content']['season']} week {d['content']['week']}, frozen {d['frozen_at'][:16]}", key="hw_props_freeze")
+    ok = "hash verified" if pick["_hash_ok"] else "HASH MISMATCH"
+    c = pick["content"]
+    st.write(f"{len(c['ladders'])} liquid ladders in {len(c['environments'])} games · fitted b by stat: "
+             + ", ".join(f"{k} {v:.2f}" for k, v in c["b_by_stat"].items()) + f" · {ok} · {pick['content_sha256'][:16]}")
+    gids = sorted({x["gid"] for x in c["ladders"]})
+    gid = st.selectbox("Game", gids, format_func=lambda g: g.split("_")[2] + " @ " + g.split("_")[3], key="hw_props_game")
+    env = c["environments"].get(gid, {})
+    if env.get("margin") is not None:
+        st.caption(f"Kalshi game environment: home margin median {env['margin']:+.1f}, total median {env['total']:.1f}.")
+    rows = []
+    for lad in [x for x in c["ladders"] if x["gid"] == gid]:
+        for th in lad["thresholds"]:
+            if th.get("mid") is None:
+                continue
+            rows.append({"Player": lad["player"], "Stat": lad["stat"], "At least": th["k"], "Bid": th["bid"], "Ask": th["ask"], "Market": th["mid"],
+                         "Simulator": th.get("p_sim"), "Corrected": th.get("p_corr"), "Naive base": th.get("p_base")})
+    st.dataframe(pd.DataFrame(rows), hide_index=True, use_container_width=True)
+    books = len(arch.get("props_kalshi_books", [])) if "props_kalshi_books" in arch else 0
+    st.caption("Settlement scoring of freezes is not built yet; freezes are scored against Kalshi's yes/no results once games settle.")
+
+
 def tab_run():
     st.caption("Each button starts a separate background process; the page stays usable. Freezes fetch fresh data, "
                "write a write-once archive and append the ledger. They never change the champion or the scheduler.")
@@ -373,7 +437,7 @@ def render(archive_root: Path = ARCHIVE, cache_dir: Path = CACHE_DIR):
     st.caption("Elo remains the champion. The deep model, v2 and the drive simulator are research challengers that "
                "failed their preregistered gates; they are frozen weekly so the prospective record can accumulate.")
     arch, results = load_archives(archive_root), load_results(cache_dir)
-    t1, t2, t3, t5, t4 = st.tabs(["This week", "Prospective record", "Backtests", "Kalshi", "Run"])
+    t1, t2, t3, t5, t6, t4 = st.tabs(["This week", "Prospective record", "Backtests", "Kalshi", "Props", "Run"])
     with t1:
         tab_this_week(arch, results)
     with t2:
@@ -382,5 +446,7 @@ def render(archive_root: Path = ARCHIVE, cache_dir: Path = CACHE_DIR):
         tab_backtests()
     with t5:
         tab_kalshi()
+    with t6:
+        tab_props(arch)
     with t4:
         tab_run()

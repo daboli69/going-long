@@ -67,3 +67,10 @@ captures Kalshi ladders and the K-arm distributions is not built yet.
 - No official inactives are archived, so availability is the game-week roster minus injury-report Out.
 - About three-quarters of player-prop thresholds fail the liquidity filter. Receiving yards and receptions are the
   thinnest series.
+
+## Update 2026-10-29 (later): the stack "pass" was in-sample
+The blend weight above (0.196, interval above zero) came from a logistic fit on **all 20 weeks**, then scored on the same weeks.
+The follow-up study (`docs/PROPS_MARKET_ANCHORED_RESULTS.md`) refit it walk-forward, using only earlier weeks. Out of sample,
+the same two-input blend scored 1.0500 against the market's 1.0467, so it was slightly worse than Kalshi, and a shuffle test
+could not distinguish it from chance (permutation p = 0.12). Read the family S "pass" in the table above as in-sample, not as
+evidence that the simulator adds information. I should have flagged that when I reported it.
