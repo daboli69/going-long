@@ -123,3 +123,23 @@ A scoring improvement is not a return. Nothing here is betting advice.
   larger but has 7 week clusters, which is below the protocol's 10-cluster validity rule, so confirmatory props results
   stay marked invalid until 10 weeks of 2026 exist. Margin, total and winner floors are unchanged.
 - Status: no real-data step has been run on 2025 and no rehearsal has run. The direction of any result is not known.
+
+## Amendment 5 (Step 6 placebo definitions and planted-edge strength), added before any rehearsal run
+
+- Flaw: a smoke test on one simulated dataset (not a result about any real model) showed the shuffled-label placebo
+  rejected 103 of 160 tests at the 5% level. The encompassing regression uses the outcome minus the market price as
+  its dependent variable, so shuffling outcomes leaves the market price inside it and creates a model weight that is not
+  zero. Rolling outcomes in time does the same. Neither placebo has a true weight of zero, so a band of 1% to 9% cannot
+  be a fair test of the machinery.
+- Change: (a) the label placebo replaces outcomes by independent draws from the T-90 market probability (the market is
+  the truth, so the true model weight is zero by construction; real model forecasts, week clusters and prices are
+  kept); (b) the time-shift placebo keeps each game's market and outcome and gives it the model forecast of another game,
+  9 to 28 places away in (season, week, game) order, which is the "time-shifted features" placebo; (c) the junk
+  placebo is unchanged. The bands are unchanged: rejection rate 1% to 9% for (a) and (b), the (b) interval covers 0 in at
+  least 90% of shifts, junk reaches nominal significance in 2% to 9% of cases with no Benjamini-Hochberg discovery in
+  at least 95% of reps.
+- Planted-edge strength: rehearsal worlds use a signal scale theta = 0.8 and the planted variant has noise 0.4, which
+  gives an expected log-loss gain over the market of about 0.049 per game. That is above the sample's smallest
+  detectable gain from Step 2 (above 0.035), so the planted edge is detectable by design. It was chosen from the Step 2
+  power results and a one-dataset smoke test, not from any real-model result.
+- Status: no rehearsal and no real-data step has run since the Step 2 failure.
