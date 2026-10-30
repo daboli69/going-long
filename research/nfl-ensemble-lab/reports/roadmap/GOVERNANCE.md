@@ -111,3 +111,15 @@ A scoring improvement is not a return. Nothing here is betting advice.
   probability-of-overfitting band stays 0.35 to 0.65. Planted-world conditions are unchanged. Steps 4, 5 and 6 keep the
   market-equals-truth null world. Step 2's false-positive checks already use an exchangeable design.
 - Status: no rehearsal or real run has happened since the Step 2 failure. The direction of the result is not known.
+
+## Amendment 4 (props floor under the sample split), added before any run on the 2025 sample
+
+- Flaw: Amendment 2 kept Step 2(b)'s floor of 500 prop ladders but applied it to season 2025 alone. I did not check how
+  props split by season. The scored ladders are 191 in 13 weeks (weeks 6 to 18) for 2025 and 1,051 in 7 weeks (weeks 1 to
+  7) for 2026 (`data/cache/props_kalshi/scored_ladders.parquet`). A floor of 500 cannot be met in 2025 for a reason that
+  says nothing about the results.
+- Change: Step 2(b)'s props floor in the exploratory sample is 150 ladders in at least 10 weeks. Props inference is
+  therefore limited to what 2025 can support: 191 ladders, 13 week clusters, wide intervals. The 2026 props sample is
+  larger but has 7 week clusters, which is below the protocol's 10-cluster validity rule, so confirmatory props results
+  stay marked invalid until 10 weeks of 2026 exist. Margin, total and winner floors are unchanged.
+- Status: no real-data step has been run on 2025 and no rehearsal has run. The direction of any result is not known.
