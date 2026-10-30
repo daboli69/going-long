@@ -79,3 +79,29 @@ injected, 300 resamples, 500 bootstrap draws, seed 0. **Decidable now** = MDE(av
 The market's own later price (the convergence tests) is the fast judge; Kalshi settlements and realized outcomes are the slow one. Placebos for every
 claimed effect. Dense capture (`scripts/market_news_study.py capture`) and sealed weekly freezes with GitHub's commit time as the clock. The 2024 confirmation for C. Codex's
 rebuild before any gate counts (not yet available). Results and freezes go on the Streamlit page.
+
+## Amendment 1 (2026-10-29, after the Experiment C pilot on 2018 to 2020, before any 2021 to 2023 result)
+The pilot (used for power only) showed that the preregistered availability arm **A1 does worse than the naive prior** (-0.013 nats per target) because its
+"share when active" prior, not the availability weights, is the problem. A diagnostic arm that applies only the availability weights to the naive prior did better:
+| Arm (pilot 2018 to 2020, gain over A0 in nats per target) | all team-games | games with a reported-out candidate (>= 5% prior share, 27% of games) |
+|---|---:|---:|
+| A1 (preregistered: active-game prior x availability weights) | -0.013 | +0.102 |
+| **A1b (naive prior x availability weights)** | **+0.046** | **+0.153** |
+| A2 oracle (active-game prior x game-day ACT list) | +0.136 | +0.204 |
+| A2b oracle on the naive prior | +0.116 | +0.180 |
+
+Carries show the same pattern (A1 +0.005, A1b +0.061 overall; +0.396 and +0.410 in news games). **Change:** the primary arm for C1 and C2 becomes
+**A1b**; A1 is reported as a secondary, descriptive arm; the oracle for C3 is A2b. Games with a reported-out candidate are reported as a descriptive subgroup.
+SESOI stays 0.005 nats per target, alpha 0.05 / 2, and the 2024 confirmation stays untouched until the primary result is committed.
+
+### Power for Experiment C after Amendment 1 (`reports/usage/power.json`, SHA-256 `c03e46dbe997be742c4387f8a8da12ba55ea79163b5d166da48e2e31ceb23637`)
+Pilot 2018 to 2020: 1,248 team-games. Available weeks for the primary look: 54 (2021 to 2023).
+
+| Comparison | Pilot gain | MDE at 54 weeks | SESOI | Weeks needed | Class |
+|---|---:|---:|---:|---:|---|
+| C1 targets, A1b vs A0 | +0.0462 | 0.0059 | 0.005 | 75 | not decidable at 54 weeks (boundary case); the pooled 2021 to 2024 sample (about 72 weeks) is nearly enough |
+| C2 carries, A1b vs A0 | +0.0592 | 0.0146 | 0.005 | 464 | not decidable |
+
+**Consequence fixed now.** The 2021 to 2023 primary look is **descriptive** (verdict not allowed by the power rule). A verdict on C1 is allowed only on the pooled
+2021 to 2024 sample once it reaches 75 weeks. C2 gets no verdict. The pilot gain is far above the MDE, so the descriptive interval is expected to exclude zero
+by a wide margin; that does not change the classification.
