@@ -126,3 +126,12 @@ Panel: 120 games, hourly grid, 17,109 rows. Only standard errors were computed, 
 
 Caveat: the A standard errors come from a game-clustered bootstrap over hourly rows. Rows within a game are highly autocorrelated, so the effective sample is closer
 to the number of games (about 106), not the row count. A kappa_K claim therefore needs its interval to exclude zero **and** to exceed 0.10, as already written.
+
+## Amendment 3 (2026-10-30, before any Doubtful comparison was computed): should the simulator treat Doubtful as unavailable?
+The lab's props simulator excludes only players reported **Out** (`lab/props/weekly.py`), and its manual injury-adjusted path excludes only out, inactive, IR and PUP. Doubtful and
+Questionable players keep their full workload share. Experiment C used a 0.05 weight for Doubtful without testing it separately. This amendment tests it.
+- **Arms** (naive prior x weights, same data and metric as Experiment C, 2021 to 2024): **D1** the lab's rule (Out and IR 0, Doubtful 1.0); **D0** Doubtful 0; D05 Doubtful 0.05 (already in Experiment C).
+- **Comparisons:** D0 - D1 and D05 - D1, in nats per target and per carry, week-cluster bootstrap, alpha = 0.05 / 4 (two stats, two arms).
+- **Decision rule, fixed now.** Treat Doubtful as unavailable in the manual injury-adjusted shadow path if, for **both** targets and carries, the pooled 2021 to 2024 D0 - D1 gain has a
+  98.75% interval above zero and each of 2021 to 2023 and 2024 is positive on its own. Otherwise leave the rule unchanged and say so.
+- **Scope of any change.** The preregistered prospective props archive (`weekly.py archive`) is not changed. Only the sanctioned manual shadow path is, with the assumption recorded in each revision's metadata.

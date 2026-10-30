@@ -160,6 +160,13 @@ def evaluate(eval_seasons):
                 row[f"n_{stat}"] = n
                 row[f"ll0_{stat}"], row[f"ll1_{stat}"], row[f"ll2_{stat}"] = ll(realized, p0) / n, ll(realized, p1) / n, ll(realized, p2) / n
                 row[f"ll1b_{stat}"], row[f"ll2b_{stat}"] = ll(realized, p1b) / n, ll(realized, p2b) / n
+                rep_ = rep   # Amendment 3: Doubtful arms on the naive prior
+                a_d1 = {i: (0.0 if rep_.get(i) in ("Out", "Injured Reserve") else 1.0) for i in cand}
+                a_d0 = {i: (0.0 if rep_.get(i) in ("Out", "Injured Reserve", "Doubtful") else 1.0) for i in cand}
+                pd1, pd0 = probs(s0, a_d1, p_other), probs(s0, a_d0, p_other)
+                if pd1 is not None and pd0 is not None:
+                    row[f"lld1_{stat}"], row[f"lld0_{stat}"] = ll(realized, pd1) / n, ll(realized, pd0) / n
+                row[f"dbt_{stat}"] = bool(any(rep_.get(i) == "Doubtful" and s0[i] >= 0.05 for i in cand))
                 row[f"n_out_{stat}"] = int(sum(1 for i in cand if a1[i] < 1))
                 row[f"news_{stat}"] = bool(any(a1[i] < 1 and s0[i] >= 0.05 for i in cand))          # a candidate with >= 5% prior share is reported out
             if "ll0_tgt" in row or "ll0_car" in row:
@@ -196,11 +203,42 @@ def summarize(df, label):
     return res
 
 
+def doubtful(args):
+    """Amendment 3: Doubtful weight 0 / 0.05 vs the lab's rule (1.0), 2021-2024."""
+    df = evaluate(range(2021, 2025))
+    df.to_parquet(OUT / "doubtful_frame.parquet")
+    alpha = 0.05 / 4
+    cl = lambda x: (x["season"].astype(str) + "_" + x["week"].astype(str)).to_numpy()  # noqa: E731
+    res = {"prereg": "396af66a Amendment 3", "decision_rule": "both stats: pooled D0-D1 98.75% CI > 0 and each of 2021-2023, 2024 positive", "stats": {}}
+    ok = True
+    for stat, name in (("tgt", "targets"), ("car", "carries")):
+        d = df.dropna(subset=[f"lld1_{stat}", f"lld0_{stat}", f"ll1b_{stat}"]).copy()
+        w = d[f"n_{stat}"].to_numpy()
+        gain = lambda a, b: (d[a] - d[b]).to_numpy() * w / w.mean()  # noqa: E731
+        g0, g05 = gain(f"lld0_{stat}", f"lld1_{stat}"), gain(f"ll1b_{stat}", f"lld1_{stat}")
+        early = (d["season"] <= 2023).to_numpy()
+        r = {"team_games": int(len(d)), "games_with_doubtful_candidate": float(d[f"dbt_{stat}"].mean()),
+             "D0_minus_D1": {"pooled": float(g0.mean()), "ci": ev.cluster_boot(g0, cl(d), alpha), "2021_2023": float(g0[early].mean()), "2024": float(g0[~early].mean())},
+             "D05_minus_D1": {"pooled": float(g05.mean()), "ci": ev.cluster_boot(g05, cl(d), alpha), "2021_2023": float(g05[early].mean()), "2024": float(g05[~early].mean())},
+             "doubtful_games_only_D0_minus_D1": float(g0[d[f"dbt_{stat}"].to_numpy()].mean()) if d[f"dbt_{stat}"].any() else None}
+        r["passes"] = bool(r["D0_minus_D1"]["ci"][0] > 0 and r["D0_minus_D1"]["2021_2023"] > 0 and r["D0_minus_D1"]["2024"] > 0)
+        ok &= r["passes"]
+        res["stats"][name] = r
+        log(f"{name}: games with a Doubtful candidate {r['games_with_doubtful_candidate']:.1%}; D0-D1 pooled {r['D0_minus_D1']['pooled']:+.5f} {r['D0_minus_D1']['ci']} "
+            f"(21-23 {r['D0_minus_D1']['2021_2023']:+.5f}, 24 {r['D0_minus_D1']['2024']:+.5f}); D05-D1 {r['D05_minus_D1']['pooled']:+.5f}; Doubtful-games-only {r['doubtful_games_only_D0_minus_D1']} -> passes {r['passes']}")
+    res["adopt_doubtful_as_unavailable"] = bool(ok)
+    body = json.dumps(res, indent=1, default=str)
+    (OUT / "doubtful.json").write_bytes(body.encode("utf-8"))
+    log(f"adopt: {ok}. Wrote reports/usage/doubtful.json sha256 {hashlib.sha256(body.encode()).hexdigest()}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("command", choices=["pilot", "run", "confirm"])
+    ap.add_argument("command", choices=["pilot", "run", "confirm", "doubtful"])
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    if args.command == "doubtful":
+        return doubtful(args)
     if args.command == "pilot":
         from props_market_power import mde, week_arrays
         df = evaluate(range(2018, 2021))
