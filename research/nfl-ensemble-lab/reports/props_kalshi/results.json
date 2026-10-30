@@ -1,0 +1,414 @@
+{
+ "prereg": "31af0b08",
+ "label": "one look; provisional until Codex reproduces; nothing promoted",
+ "settlement_vs_actual_full": {
+  "compared": 49687,
+  "agree": 0.9990540785316079,
+  "disagree": 47,
+  "no_official_stat": 1238
+ },
+ "settlement_vs_actual_reg": {
+  "compared": 49687,
+  "agree": 0.9943445971783363,
+  "disagree": 281,
+  "no_official_stat": 1238
+ },
+ "settlement_disagreements_examples": [
+  {
+   "ticker": "KXNFLRSHYDS-26OCT25DENARI-DENBNIX10-75",
+   "player": "Bo Nix",
+   "stat": "rush_yds",
+   "threshold": 75.0,
+   "actual_full": 75.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26OCT25INDMIN-MINKMURRAY1-40",
+   "player": "Kyler Murray",
+   "stat": "rush_yds",
+   "threshold": 40.0,
+   "actual_full": 41.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26OCT18NONYG-NYGJWINSTON19-5",
+   "player": "Jameis Winston",
+   "stat": "rush_yds",
+   "threshold": 5.0,
+   "actual_full": 5.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26OCT18NYJNE-NEDMAYE10-25",
+   "player": "Drake Maye",
+   "stat": "rush_yds",
+   "threshold": 25.0,
+   "actual_full": 25.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26OCT08TBDAL-TBJDANIELS10-25",
+   "player": "Jalon Daniels",
+   "stat": "rush_yds",
+   "threshold": 25.0,
+   "actual_full": 25.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26OCT04DETCAR-CARBYOUNG9-5",
+   "player": "Bryce Young",
+   "stat": "rush_yds",
+   "threshold": 5.0,
+   "actual_full": 7.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26OCT04INDWAS-INDDJONES17-5",
+   "player": "Daniel Jones",
+   "stat": "rush_yds",
+   "threshold": 5.0,
+   "actual_full": 5.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26OCT04MIAMIN-MINKMURRAY1-20",
+   "player": "Kyler Murray",
+   "stat": "rush_yds",
+   "threshold": 20.0,
+   "actual_full": 21.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26OCT04DENSF-SFBPURDY13-30",
+   "player": "Brock Purdy",
+   "stat": "rush_yds",
+   "threshold": 30.0,
+   "actual_full": 31.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26SEP27LVNO-LVKCOUSINS8-5",
+   "player": "Kirk Cousins",
+   "stat": "rush_yds",
+   "threshold": 5.0,
+   "actual_full": 5.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26SEP27TENNYG-NYGJWINSTON19-15",
+   "player": "Jameis Winston",
+   "stat": "rush_yds",
+   "threshold": 15.0,
+   "actual_full": 15.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26SEP20PITNE-NEDMAYE10-20",
+   "player": "Drake Maye",
+   "stat": "rush_yds",
+   "threshold": 20.0,
+   "actual_full": 20.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26SEP17DETBUF-BUFJALLEN17-70",
+   "player": "Josh Allen",
+   "stat": "rush_yds",
+   "threshold": 70.0,
+   "actual_full": 72.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26SEP14DENKC-KCPMAHOMES15-25",
+   "player": "Patrick Mahomes",
+   "stat": "rush_yds",
+   "threshold": 25.0,
+   "actual_full": 27.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26SEP13ARILAC-ARIJBRISSETT7-15",
+   "player": "Jacoby Brissett",
+   "stat": "rush_yds",
+   "threshold": 15.0,
+   "actual_full": 17.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26SEP13NYJTEN-NYJGSMITH7-10",
+   "player": "Geno Smith",
+   "stat": "rush_yds",
+   "threshold": 10.0,
+   "actual_full": 10.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-26JAN04BALPIT-BALLJACKSON8-10",
+   "player": "Lamar Jackson",
+   "stat": "rush_yds",
+   "threshold": 10.0,
+   "actual_full": 11.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-25DEC28SEACAR-CARBYOUNG9-30",
+   "player": "Bryce Young",
+   "stat": "rush_yds",
+   "threshold": 30.0,
+   "actual_full": 30.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-25DEC28NYGLV-NYGJDART6-50",
+   "player": "Jaxson Dart",
+   "stat": "rush_yds",
+   "threshold": 50.0,
+   "actual_full": 50.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-25DEC21ATLARI-ATLKCOUSINS18-1",
+   "player": "Kirk Cousins",
+   "stat": "rush_yds",
+   "threshold": 1.0,
+   "actual_full": 3.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-25DEC21KCTEN-TENCWARD1-10",
+   "player": "Cam Ward",
+   "stat": "rush_yds",
+   "threshold": 10.0,
+   "actual_full": 11.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-25DEC21NEBAL-NEDMAYE10-30",
+   "player": "Drake Maye",
+   "stat": "rush_yds",
+   "threshold": 30.0,
+   "actual_full": 31.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-25DEC14BUFNE-BUFJALLEN17-50",
+   "player": "Josh Allen",
+   "stat": "rush_yds",
+   "threshold": 50.0,
+   "actual_full": 51.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-25DEC07PITBAL-PITARODGERS8-1",
+   "player": "Aaron Rodgers",
+   "stat": "rush_yds",
+   "threshold": 1.0,
+   "actual_full": 1.0,
+   "result": "no"
+  },
+  {
+   "ticker": "KXNFLRSHYDS-25DEC07WASMIN-MINJMCCARTHY9-20",
+   "player": "J.J. McCarthy",
+   "stat": "rush_yds",
+   "threshold": 20.0,
+   "actual_full": 23.0,
+   "result": "no"
+  }
+ ],
+ "non_binary_settlements": 538,
+ "trades_check": {
+  "markets": 11135,
+  "with_trades_24h": 11128,
+  "last_print_inside_book": 0.8691588785046729
+ },
+ "scored": {
+  "ladders": 1242,
+  "thresholds": 6654,
+  "games": 175,
+  "weeks": 20,
+  "by_stat": {
+   "rec_yds": 474,
+   "rec": 295,
+   "rush_yds": 266,
+   "pass_yds": 207
+  }
+ },
+ "G": {
+  "K_vs_base": {
+   "n": 1242,
+   "mean_a": 1.0286457536710834,
+   "mean_b": 1.0707115174158026,
+   "delta": -0.0420657637447193,
+   "ci": [
+    -0.09371908063220886,
+    0.019041313523460574
+   ],
+   "ci_level": 0.9833333333333333,
+   "sd_week_mean": 0.1285237093145581,
+   "weeks": 20,
+   "pass": false,
+   "primary": true
+  },
+  "K_vs_market90": {
+   "n": 1242,
+   "mean_a": 1.0286457536710834,
+   "mean_b": 0.9977564993737701,
+   "delta": 0.030889254297313457,
+   "ci": [
+    0.006260771173028043,
+    0.051257095361745414
+   ],
+   "ci_level": 0.9833333333333333,
+   "sd_week_mean": 0.06408088143543558,
+   "weeks": 20,
+   "pass": false
+  },
+  "A_vs_K": {
+   "n": 1242,
+   "mean_a": 1.029598340351331,
+   "mean_b": 1.0286457536710834,
+   "delta": 0.0009525866802475348,
+   "ci": [
+    -0.0016586334614001246,
+    0.0028757783078473104
+   ],
+   "ci_level": 0.9833333333333333,
+   "sd_week_mean": 0.012783457527471245,
+   "weeks": 20,
+   "pass": false,
+   "note": "A uses undated games.csv lines (possible look-ahead); descriptive"
+  }
+ },
+ "descriptive_crps_means": {
+  "K": 1.0286457536710834,
+  "A": 1.029598340351331,
+  "base": 1.0707115174158026,
+  "market90": 0.9977564993737701,
+  "marketC": 0.9934022941607279,
+  "K_v1": 1.0346803713172714,
+  "A_v1": 1.0309403426351993
+ },
+ "threshold_log_loss": {
+  "K": 0.5677055294298778,
+  "A": 0.5668156184591172,
+  "base": 0.6265347219295143,
+  "market90": 0.5514006712524523,
+  "K_v1": 0.570005507319166,
+  "A_v1": 0.5680304508718251
+ },
+ "S": {
+  "n": 6654,
+  "inputs": [
+   "p_mkt",
+   "p_sim"
+  ],
+  "intercept": 0.006560064565017278,
+  "ci_level": 0.95,
+  "weights": {
+   "p_mkt": {
+    "w": 0.745499519903674,
+    "ci": [
+     0.6206229634053652,
+     0.8546604950915616
+    ]
+   },
+   "p_sim": {
+    "w": 0.19632651072836446,
+    "ci": [
+     0.05050610769830395,
+     0.3783393562047773
+    ]
+   }
+  },
+  "pass": true
+ },
+ "C": {
+  "K": {
+   "n": 6646,
+   "mean_clv": 0.0009148359915738789,
+   "ci95": [
+    0.00046114491867533153,
+    0.001510605726518598
+   ],
+   "toward": 1906,
+   "away": 1687,
+   "zero_moves": 3053,
+   "sign_p_one_sided": 0.00013743312343383052,
+   "pass": true
+  },
+  "base": {
+   "n": 6646,
+   "mean_clv": 0.0004198013842913028,
+   "ci95": [
+    -7.374851869764069e-05,
+    0.0010118064049613005
+   ],
+   "toward": 1814,
+   "away": 1773,
+   "zero_moves": 3053,
+   "sign_p_one_sided": 0.25210987290004616
+  },
+  "A": {
+   "n": 6646,
+   "mean_clv": 0.0008185374661450496,
+   "ci95": [
+    0.00032972939462648607,
+    0.0014607605295074285
+   ],
+   "toward": 1901,
+   "away": 1692,
+   "zero_moves": 3053,
+   "sign_p_one_sided": 0.0002593280067586621
+  }
+ },
+ "pit": {
+  "K": {
+   "n": 1234,
+   "hist": [
+    113,
+    99,
+    115,
+    120,
+    134,
+    123,
+    141,
+    134,
+    131,
+    124
+   ],
+   "chi2_p": 0.26422426974975577
+  },
+  "A": {
+   "n": 1234,
+   "hist": [
+    118,
+    89,
+    122,
+    126,
+    123,
+    124,
+    150,
+    127,
+    129,
+    126
+   ],
+   "chi2_p": 0.06587314211668224
+  },
+  "base": {
+   "n": 1234,
+   "hist": [
+    106,
+    144,
+    122,
+    130,
+    112,
+    112,
+    105,
+    94,
+    116,
+    193
+   ],
+   "chi2_p": 3.5266662633585804e-09
+  }
+ }
+}
