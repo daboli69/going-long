@@ -27,3 +27,5 @@ Notes for the rebuild:
   the bytes on checkout.
 - Open questions I would like a second opinion on: whether the walk-forward training minimum (500 thresholds) is what
   leaves only 6 scorable weeks in study 5, and whether the Kalshi spread/total median interpolation is sound.
+
+**Update 2026-10-30.** The ready-to-paste message for Codex is `docs/CODEX_MESSAGE.md`. The Doubtful change (`a8e04c68`) is also up for review.
