@@ -105,3 +105,26 @@ The first pilot pooled yardage and reception counts in raw units for family T. Y
 groups hit the power search's upper bound (MDE reported as 0.5). **Change:** family T uses the **per-stat scaled** paired difference
 (`loss_v2 - loss_base`) / (mean `loss_base` of that stat over the replayed sample), with SESOI = 0.01 (1% of the baseline). Everything
 else is unchanged. The L and K pilot numbers from the first run are kept and are reproduced by the rerun.
+
+## Power results (2026-10-29, after Amendment 1, before the main run)
+`reports/forecast/power.json`, SHA-256 `8a95152ab98ddad67974672eb6c35691c4a90676532d5e7cca2eab4ec9abf7da`; tuning
+`reports/forecast/tuning.json`: **tau_n = 4.0 and tau_s = 3.0** (frozen). Pilot: 768 games, 51 weeks (2009 to 2011).
+
+| Comparison | MDE at available weeks | SESOI | Weeks needed | Class |
+|---|---:|---:|---:|---|
+| L1 margin vs Elo-normal (CRPS) | 0.0713 (250 weeks) | 0.0799 | 250 | **decidable now** |
+| L2 margin vs naive | 0.1875 (250) | 0.0873 | 1,154 | not decidable |
+| L3 total vs naive | 0.0869 (250) | 0.0767 | 321 | not decidable |
+| L4 winner log loss vs Elo | 0.0076 (250) | 0.0050 | 573 | not decidable |
+| K1 margin ladder vs Kalshi | 0.0444 (21 weeks) | 0.0279 | 54 | prospective only |
+| K2 total ladder vs Kalshi | 0.0249 (21) | 0.0189 | 37 | prospective only |
+| K3 winner log loss vs Kalshi | 0.0054 (21) | 0.0050 | 25 | prospective only |
+| T1 thin props v2 vs base (scaled) | 0.0352 (20) | 0.0100 | 248 | not decidable |
+| T2 no-market props | 0.0898 (19) | 0.0100 | 1,534 | not decidable |
+| T3 liquid props | 0.0659 (20) | 0.0100 | 870 | not decidable |
+
+**Consequences fixed now.** Only **L1** can produce a verdict from history. The K family can be judged only on prospective freezes after the weeks
+shown (about 14 games a week; 25, 37 and 54 weeks). Every other comparison, and every history number in the K and T families, is descriptive with no
+pass or fail. Calibration (conformal coverage) and the lean reliability table are descriptive in all cases.
+Caveat: the K proxies shift Elo-normal and naive forecasts toward Kalshi at b = 0.2, which is far from a good model, so the K variance
+may be overstated (conservative).

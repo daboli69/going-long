@@ -1,0 +1,185 @@
+{
+ "prereg": "94e455cc",
+ "tuning": {
+  "tau_n": 4.0,
+  "tau_s": 3.0
+ },
+ "evaluation_weeks_long_history": 250,
+ "comparisons": {
+  "L1_margin_vs_elo_normal": {
+   "sd_pooled_difference": 1.3970293525853676,
+   "observed_mean_difference_proxy": -0.029595872741380373,
+   "sesoi": 0.07993841461840477,
+   "alpha": 0.0125,
+   "available_weeks": 250,
+   "mde_by_weeks": {
+    "40": 0.173583984375,
+    "90": 0.11865234375,
+    "150": 0.091064453125,
+    "250": 0.0712890625,
+    "400": 0.056640625
+   },
+   "decidable_now": true,
+   "N_weeks": 250,
+   "prospective_only": false
+  },
+  "L2_margin_vs_naive": {
+   "sd_pooled_difference": 3.201612926838988,
+   "observed_mean_difference_proxy": -0.7636719851685013,
+   "sesoi": 0.08727917574267599,
+   "alpha": 0.0125,
+   "available_weeks": 250,
+   "mde_by_weeks": {
+    "40": 0.461669921875,
+    "90": 0.3125,
+    "150": 0.241943359375,
+    "250": 0.1875,
+    "400": 0.15283203125
+   },
+   "decidable_now": false,
+   "N_weeks": 1154,
+   "prospective_only": false
+  },
+  "L3_total_vs_naive": {
+   "sd_pooled_difference": 2.0140138819501407,
+   "observed_mean_difference_proxy": -0.3082297156048816,
+   "sesoi": 0.07670418775538194,
+   "alpha": 0.0125,
+   "available_weeks": 250,
+   "mde_by_weeks": {
+    "40": 0.220947265625,
+    "90": 0.14306640625,
+    "150": 0.114013671875,
+    "250": 0.0869140625,
+    "400": 0.0673828125
+   },
+   "decidable_now": false,
+   "N_weeks": 321,
+   "prospective_only": false
+  },
+  "L4_winner_logloss_vs_elo": {
+   "sd_pooled_difference": 0.13280678625092324,
+   "observed_mean_difference_proxy": -0.0012359920004224834,
+   "sesoi": 0.005,
+   "alpha": 0.0125,
+   "available_weeks": 250,
+   "mde_by_weeks": {
+    "40": 0.017578125,
+    "90": 0.01220703125,
+    "150": 0.009765625,
+    "250": 0.007568359375,
+    "400": 0.006103515625
+   },
+   "decidable_now": false,
+   "N_weeks": 573,
+   "prospective_only": false
+  },
+  "K1_margin_ladder_vs_kalshi": {
+   "sd_pooled_difference": 0.2319994904354397,
+   "observed_mean_difference_proxy": 0.024287103744006285,
+   "sesoi": 0.027881982212563817,
+   "alpha": 0.016666666666666666,
+   "available_weeks": 21,
+   "mde_by_weeks": {
+    "21": 0.04443359375,
+    "40": 0.032470703125,
+    "90": 0.021484375,
+    "150": 0.017333984375,
+    "400": 0.0107421875
+   },
+   "decidable_now": false,
+   "N_weeks": 54,
+   "prospective_only": true
+  },
+  "K2_total_ladder_vs_kalshi": {
+   "sd_pooled_difference": 0.1813339208257433,
+   "observed_mean_difference_proxy": 0.010728496633318664,
+   "sesoi": 0.018944635562700967,
+   "alpha": 0.016666666666666666,
+   "available_weeks": 21,
+   "mde_by_weeks": {
+    "21": 0.02490234375,
+    "40": 0.018310546875,
+    "90": 0.012451171875,
+    "150": 0.009521484375,
+    "400": 0.005859375
+   },
+   "decidable_now": false,
+   "N_weeks": 37,
+   "prospective_only": true
+  },
+  "K3_winner_logloss_vs_kalshi": {
+   "sd_pooled_difference": 0.02537368099245336,
+   "observed_mean_difference_proxy": 0.0010602948197423656,
+   "sesoi": 0.005,
+   "alpha": 0.016666666666666666,
+   "available_weeks": 21,
+   "mde_by_weeks": {
+    "21": 0.00537109375,
+    "40": 0.003662109375,
+    "90": 0.00244140625,
+    "150": 0.001953125,
+    "400": 0.001220703125
+   },
+   "decidable_now": false,
+   "N_weeks": 25,
+   "prospective_only": true
+  },
+  "T1_thin_props_v2_vs_base": {
+   "sd_pooled_difference": 0.44850291934859166,
+   "observed_mean_difference_proxy": -0.02000285628858839,
+   "sesoi": 0.01,
+   "alpha": 0.016666666666666666,
+   "available_weeks": 20,
+   "mde_by_weeks": {
+    "20": 0.03515625,
+    "40": 0.026611328125,
+    "90": 0.017578125,
+    "150": 0.013427734375,
+    "400": 0.00830078125
+   },
+   "decidable_now": false,
+   "N_weeks": 248,
+   "prospective_only": false
+  },
+  "T2_no_market_props_v2_vs_base": {
+   "sd_pooled_difference": 0.5499714791506548,
+   "observed_mean_difference_proxy": 0.003625543050891666,
+   "sesoi": 0.01,
+   "alpha": 0.016666666666666666,
+   "available_weeks": 19,
+   "mde_by_weeks": {
+    "19": 0.08984375,
+    "40": 0.063720703125,
+    "90": 0.04296875,
+    "150": 0.034912109375,
+    "400": 0.02197265625
+   },
+   "decidable_now": false,
+   "N_weeks": 1534,
+   "prospective_only": false
+  },
+  "T3_liquid_props_v2_vs_base": {
+   "sd_pooled_difference": 0.5196299483348734,
+   "observed_mean_difference_proxy": -0.038901551159943565,
+   "sesoi": 0.01,
+   "alpha": 0.016666666666666666,
+   "available_weeks": 20,
+   "mde_by_weeks": {
+    "20": 0.06591796875,
+    "40": 0.041015625,
+    "90": 0.027099609375,
+    "150": 0.02099609375,
+    "400": 0.01220703125
+   },
+   "decidable_now": false,
+   "N_weeks": 870,
+   "prospective_only": false
+  }
+ },
+ "groups": {
+  "thin": 2171,
+  "liquid": 1234,
+  "none": 322
+ }
+}
