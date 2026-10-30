@@ -1,0 +1,78 @@
+{
+ "step": "rehearsal_step6",
+ "git_head": "8bba7da6cc3ed8a8a21659deee561b3d4b5b4d5f",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "template": "real season 2025 structure: 271 games, 18 weeks, props ladders 191",
+ "world_definitions": {
+  "null": {
+   "sA": 0.0,
+   "s_dec": 0.6,
+   "s_close": 0.0,
+   "s_var": {},
+   "planted": null
+  },
+  "exch": {
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {},
+   "planted": null
+  },
+  "planted": {
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {
+    "p_xgb_deep": 0.4,
+    "L": 0.4,
+    "K": 0.4
+   },
+   "planted": "p_xgb_deep",
+   "theta": 0.8
+  },
+  "planted_strong": {
+   "theta": 1.2,
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {
+    "p_xgb_deep": 0.2,
+    "L": 0.2,
+    "K": 0.2
+   },
+   "planted": "p_xgb_deep"
+  }
+ },
+ "theta_default": 0.8,
+ "placebos": {
+  "null": {
+   "label_placebo_rate": 0.0489,
+   "time_shift_rate": 0.055875,
+   "time_shift_cover_zero": 0.9425,
+   "junk_nominal_rate": 0.047,
+   "no_bh_discovery_share": 0.94
+  },
+  "planted": {
+   "label_placebo_rate": 0.05005,
+   "time_shift_rate": 0.3795,
+   "time_shift_cover_zero": 0.61175,
+   "junk_nominal_rate": 0.0545,
+   "no_bh_discovery_share": 0.91
+  }
+ },
+ "planted_edge": {
+  "true_gain_per_game": 0.04895046722152485,
+  "step2_design_gain": 0.047840956351100736,
+  "step2_predicted_power": 0.505,
+  "observed_detection": 0.54
+ },
+ "conditions": {
+  "label_fp_1_to_9": 1.0,
+  "time_shift_fp_1_to_9": 1.0,
+  "time_shift_cover_ge_90": 1.0,
+  "junk_2_to_9": 1.0,
+  "junk_no_bh_ge_90": 1.0,
+  "planted_within_0.15": true
+ },
+ "PASS": true
+}

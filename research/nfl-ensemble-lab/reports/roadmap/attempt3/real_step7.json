@@ -1,0 +1,101 @@
+{
+ "step": "real_step7",
+ "git_head": "8bba7da6cc3ed8a8a21659deee561b3d4b5b4d5f",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "sample": "season 2025: 271 games, 18 weeks; ladders 411; props ladders 191",
+ "variants_counted": 18,
+ "families": {
+  "winners": {
+   "p_rc": 0.9605,
+   "p_spa": 0.6765,
+   "best_variant_index": 1,
+   "best_mean_gain": -0.011966242522331812,
+   "variants": [
+    "p_elo",
+    "p_xgb_v1",
+    "p_margin",
+    "p_xgb_deep",
+    "p_elo_platt",
+    "p_xgb_v1_platt",
+    "p_margin_platt",
+    "p_xgb_deep_platt"
+   ],
+   "m": 8,
+   "clusters": 18,
+   "valid": true,
+   "pbo": {
+    "valid": true,
+    "pbo": 0.14285714285714285,
+    "blocks": 8,
+    "combinations": 70
+   }
+  },
+  "margin": {
+   "p_rc": 1.0,
+   "p_spa": 0.0015,
+   "best_variant_index": 2,
+   "best_mean_gain": -0.45811855453225997,
+   "variants": [
+    "L",
+    "naive",
+    "elo"
+   ],
+   "m": 3,
+   "clusters": 14,
+   "valid": true,
+   "pbo": {
+    "valid": true,
+    "pbo": 0.0,
+    "blocks": 8,
+    "combinations": 70
+   }
+  },
+  "total": {
+   "p_rc": 0.997,
+   "p_spa": 0.4935,
+   "best_variant_index": 0,
+   "best_mean_gain": -0.18317727154110783,
+   "variants": [
+    "L",
+    "naive"
+   ],
+   "m": 2,
+   "clusters": 14,
+   "valid": true,
+   "pbo": {
+    "valid": true,
+    "pbo": 0.0,
+    "blocks": 8,
+    "combinations": 70
+   }
+  },
+  "props": {
+   "p_rc": 0.7925,
+   "p_spa": 0.7925,
+   "best_variant_index": 1,
+   "best_mean_gain": 0.0018827336159822768,
+   "variants": [
+    "K",
+    "A",
+    "base",
+    "K_v1",
+    "A_v1"
+   ],
+   "m": 5,
+   "clusters": 13,
+   "valid": true,
+   "pbo": {
+    "valid": true,
+    "pbo": 0.9857142857142858,
+    "blocks": 8,
+    "combinations": 70
+   }
+  }
+ },
+ "checks": {
+  "variant_count_equals_list": true,
+  "pbo_computed_all": true,
+  "invalid_families_marked": []
+ },
+ "PASS": true
+}

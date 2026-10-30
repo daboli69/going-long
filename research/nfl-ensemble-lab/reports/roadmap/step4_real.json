@@ -1,0 +1,125 @@
+{
+ "step": "step4_real",
+ "git_head": "0503c0a0cfdde011d76702336797fb16228541ea",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "lab_perturbation_audit": {
+  "weeks": {
+   "2016_w3": {
+    "games": 16,
+    "pre_cutoff_injury_rows": 30,
+    "market_games": 0,
+    "unchanged": true
+   },
+   "2020_w12": {
+    "games": 16,
+    "pre_cutoff_injury_rows": 65,
+    "market_games": 0,
+    "unchanged": true
+   },
+   "2024_w9": {
+    "games": 15,
+    "pre_cutoff_injury_rows": 37,
+    "market_games": 0,
+    "unchanged": true
+   },
+   "2026_w6": {
+    "games": 14,
+    "pre_cutoff_injury_rows": 0,
+    "market_games": 14,
+    "unchanged": true
+   }
+  },
+  "negative_control_detected": true
+ },
+ "clean_run_unchanged": true,
+ "planted_late_cutoff": {
+  "1h": {
+   "detected": true,
+   "columns_that_moved": [
+    "qb_delta_home",
+    "qb_change_home",
+    "qb_delta_away",
+    "qb_change_away",
+    "qb_delta_diff"
+   ]
+  },
+  "6h": {
+   "detected": true,
+   "columns_that_moved": [
+    "pass_epa_edge",
+    "run_epa_edge",
+    "pass_sr_edge",
+    "run_sr_edge",
+    "qb_delta_home",
+    "qb_change_home",
+    "qb_delta_away",
+    "qb_change_away",
+    "qb_delta_diff"
+   ]
+  },
+  "24h": {
+   "detected": true,
+   "columns_that_moved": [
+    "pass_epa_edge",
+    "run_epa_edge",
+    "pass_sr_edge",
+    "run_sr_edge",
+    "qb_delta_home",
+    "qb_change_home",
+    "qb_delta_away",
+    "qb_change_away",
+    "qb_delta_diff"
+   ]
+  },
+  "72h": {
+   "detected": true,
+   "columns_that_moved": [
+    "pass_epa_edge",
+    "run_epa_edge",
+    "pass_sr_edge",
+    "run_sr_edge",
+    "qb_delta_home",
+    "qb_change_home",
+    "qb_delta_away",
+    "qb_change_away",
+    "qb_delta_diff"
+   ]
+  },
+  "8d": {
+   "detected": true,
+   "columns_that_moved": [
+    "pass_epa_edge",
+    "run_epa_edge",
+    "pass_sr_edge",
+    "run_sr_edge",
+    "qb_delta_home",
+    "qb_change_home",
+    "qb_delta_away",
+    "qb_change_away",
+    "qb_delta_diff"
+   ]
+  }
+ },
+ "planted_candle_leak": {
+  "games": 14,
+  "price_unchanged_at_true_cutoff": 14,
+  "price_changed_with_cutoff_plus_1h": 14
+ },
+ "input_status": {
+  "Elo": "tested clean for data flow: scores after the cutoff were corrupted and the Elo-based features did not move (lab perturbation audit, four weeks plus 2025 week 10). Not tested: whether the Elo constants were tuned on outcomes that include later games.",
+  "EPA aggregates": "tested clean for data flow: play aggregates after the cutoff were replaced with noise and the EPA edges did not move. Not tested: the play-value model behind EPA is trained on many seasons at once (from memory, small but real).",
+  "ESPN FPI": "not testable here: FPI is fetched live at freeze time (homewin_eval.fpi_projection) and no historical snapshots exist, so a past-week value cannot be checked for revision. Treat any FPI value not archived at the time as unusable for backtests.",
+  "FantasyPoints files": "not tested in this protocol: they feed the props pipeline (FPDS), not the winner, spread or total features this audit covers. The adapter note says files describe the previous week; that week mapping needs its own file-level check.",
+  "hourly Kalshi candles": "tested: candle ts is Kalshi's end_period_ts (lab/kalshi.py lines 155 to 167), corrupting candles after the cutoff left the price at the cutoff unchanged, and corrupting up to cutoff plus 1 hour changed it (planted_candle_leak).",
+  "ESPN injury snapshots": "tested in part: the lab's injury table (available_at) was corrupted after the cutoff without moving features. The raw ESPN snapshot files under data/raw/archive were not separately perturbed; their file names carry a UTC time but a later snapshot can rewrite statuses, so only the snapshot at or before the cutoff may be used."
+ },
+ "checks": {
+  "lab_audit_passed": true,
+  "negative_control_fired": true,
+  "clean_run_unchanged": true,
+  "planted_24h_72h_8d_detected": true,
+  "candle_leak_detected": true,
+  "every_input_has_a_status": true
+ },
+ "PASS": true
+}

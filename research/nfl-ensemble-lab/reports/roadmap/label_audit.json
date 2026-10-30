@@ -1,0 +1,215 @@
+{
+ "step": "label_audit",
+ "git_head": "0503c0a0cfdde011d76702336797fb16228541ea",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "nflverse_vs_espn_scores": {
+  "nflverse_games": 285,
+  "matched_to_espn": 256,
+  "unmatched": [
+   {
+    "game_id": "2025_18_CAR_TB",
+    "home": "TB",
+    "away": "CAR",
+    "day": "2026-01-03"
+   },
+   {
+    "game_id": "2025_18_SEA_SF",
+    "home": "SF",
+    "away": "SEA",
+    "day": "2026-01-03"
+   },
+   {
+    "game_id": "2025_18_CLE_CIN",
+    "home": "CIN",
+    "away": "CLE",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_DAL_NYG",
+    "home": "NYG",
+    "away": "DAL",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_GB_MIN",
+    "home": "MIN",
+    "away": "GB",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_IND_HOU",
+    "home": "HOU",
+    "away": "IND",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_NO_ATL",
+    "home": "ATL",
+    "away": "NO",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_TEN_JAX",
+    "home": "JAX",
+    "away": "TEN",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_ARI_LA",
+    "home": "LAR",
+    "away": "ARI",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_DET_CHI",
+    "home": "CHI",
+    "away": "DET",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_KC_LV",
+    "home": "LV",
+    "away": "KC",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_LAC_DEN",
+    "home": "DEN",
+    "away": "LAC",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_MIA_NE",
+    "home": "NE",
+    "away": "MIA",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_NYJ_BUF",
+    "home": "BUF",
+    "away": "NYJ",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_WAS_PHI",
+    "home": "PHI",
+    "away": "WAS",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_18_BAL_PIT",
+    "home": "PIT",
+    "away": "BAL",
+    "day": "2026-01-04"
+   },
+   {
+    "game_id": "2025_19_LA_CAR",
+    "home": "CAR",
+    "away": "LAR",
+    "day": "2026-01-10"
+   },
+   {
+    "game_id": "2025_19_GB_CHI",
+    "home": "CHI",
+    "away": "GB",
+    "day": "2026-01-10"
+   },
+   {
+    "game_id": "2025_19_BUF_JAX",
+    "home": "JAX",
+    "away": "BUF",
+    "day": "2026-01-11"
+   },
+   {
+    "game_id": "2025_19_SF_PHI",
+    "home": "PHI",
+    "away": "SF",
+    "day": "2026-01-11"
+   },
+   {
+    "game_id": "2025_19_LAC_NE",
+    "home": "NE",
+    "away": "LAC",
+    "day": "2026-01-11"
+   },
+   {
+    "game_id": "2025_19_HOU_PIT",
+    "home": "PIT",
+    "away": "HOU",
+    "day": "2026-01-12"
+   },
+   {
+    "game_id": "2025_20_BUF_DEN",
+    "home": "DEN",
+    "away": "BUF",
+    "day": "2026-01-17"
+   },
+   {
+    "game_id": "2025_20_SF_SEA",
+    "home": "SEA",
+    "away": "SF",
+    "day": "2026-01-17"
+   },
+   {
+    "game_id": "2025_20_HOU_NE",
+    "home": "NE",
+    "away": "HOU",
+    "day": "2026-01-18"
+   },
+   {
+    "game_id": "2025_20_LA_CHI",
+    "home": "CHI",
+    "away": "LAR",
+    "day": "2026-01-18"
+   },
+   {
+    "game_id": "2025_21_NE_DEN",
+    "home": "DEN",
+    "away": "NE",
+    "day": "2026-01-25"
+   },
+   {
+    "game_id": "2025_21_LA_SEA",
+    "home": "SEA",
+    "away": "LAR",
+    "day": "2026-01-25"
+   },
+   {
+    "game_id": "2025_22_SEA_NE",
+    "home": "NE",
+    "away": "SEA",
+    "day": "2026-02-08"
+   }
+  ],
+  "score_disagreements": []
+ },
+ "lab_labels_vs_nflverse": {
+  "forecast_wf_margin_checked": 272,
+  "margin_disagreements": [],
+  "total_disagreements": [],
+  "walk_forward_winner_checked": 271,
+  "winner_disagreements": [],
+  "missing_from_games_table": []
+ },
+ "kalshi_post_game_price_vs_label": {
+  "games_checked": 1,
+  "price_not_decisive_yet": 0,
+  "disagreements": [],
+  "note": "a proxy for settlement (final candle at least 5 h after kickoff), not the settlement record"
+ },
+ "prop_labels_vs_kalshi_result": {
+  "thresholds": 778,
+  "matched_to_a_kalshi_result": 778,
+  "unmatched": 0,
+  "disagreements": 0,
+  "disagreement_rate": 0.0,
+  "examples": []
+ },
+ "not_done": [
+  "prop labels against official play-by-play: lab.props actual_stats needs the nflverse play-by-play loader, which may download data; not run to keep this local",
+  "Kalshi's own settlement record for winner markets is not stored locally; the post-game price is a proxy"
+ ],
+ "total_disagreements": 0,
+ "disagreement_share_of_checked_labels": 0.0,
+ "PASS_condition_le_0.5pct": true
+}

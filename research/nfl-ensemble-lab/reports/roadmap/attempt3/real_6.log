@@ -1,0 +1,9 @@
+REAL STEP 6: FAIL
+{
+ "label_fp_1_to_9": true,
+ "time_shift_cover_ge_90": true,
+ "time_shift_fp_1_to_9": true,
+ "junk_2_to_9": false,
+ "no_bh_discovery": true,
+ "stop_conditions_written": true
+}

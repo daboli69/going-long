@@ -1,0 +1,113 @@
+{
+ "step": "price_quality",
+ "git_head": "0503c0a0cfdde011d76702336797fb16228541ea",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "winner_candles_all_hours": {
+  "candles": 252082,
+  "games": 272,
+  "share_zero_volume": 0.5877809601637562,
+  "share_spread_gt_0.05": 0.20547282233558922,
+  "spread_quantiles": {
+   "0.5": 0.020000000000000018,
+   "0.75": 0.03999999999999998,
+   "0.9": 0.12,
+   "0.99": 0.54
+  }
+ },
+ "winner_prices_at_cutoffs": {
+  "close": {
+   "games": 271,
+   "share_zero_volume_both_sides": 0.0,
+   "share_zero_volume_either_side": 0.0,
+   "share_spread_gt_0.05_either_side": 0.0,
+   "spread_median": 0.010000000000000009,
+   "hours_since_traded_candle_quantiles": {
+    "0.5": 0.0,
+    "0.75": 0.3333333333333333,
+    "0.9": 0.4166666666666667
+   },
+   "share_no_traded_candle_ever_before_cutoff": 0.0,
+   "overround_quantiles": {
+    "0.05": -0.010000000000000009,
+    "0.5": 0.0,
+    "0.95": 0.010000000000000009
+   }
+  },
+  "decision": {
+   "games": 271,
+   "share_zero_volume_both_sides": 0.0,
+   "share_zero_volume_either_side": 0.01107011070110701,
+   "share_spread_gt_0.05_either_side": 0.0,
+   "spread_median": 0.010000000000000009,
+   "hours_since_traded_candle_quantiles": {
+    "0.5": 0.75,
+    "0.75": 0.75,
+    "0.9": 0.75
+   },
+   "share_no_traded_candle_ever_before_cutoff": 0.0,
+   "overround_quantiles": {
+    "0.05": -0.0050000000000000044,
+    "0.5": 0.0,
+    "0.95": 0.010000000000000009
+   }
+  },
+  "t90": {
+   "games": 271,
+   "share_zero_volume_both_sides": 0.0,
+   "share_zero_volume_either_side": 0.0,
+   "share_spread_gt_0.05_either_side": 0.0,
+   "spread_median": 0.010000000000000009,
+   "hours_since_traded_candle_quantiles": {
+    "0.5": 0.5,
+    "0.75": 0.75,
+    "0.9": 0.9166666666666666
+   },
+   "share_no_traded_candle_ever_before_cutoff": 0.0,
+   "overround_quantiles": {
+    "0.05": -0.010000000000000009,
+    "0.5": 0.0,
+    "0.95": 0.010000000000000009
+   }
+  }
+ },
+ "ladder_quotes_t90": {
+  "thresholds_with_mid": 6252,
+  "share_liquid90_flag": 0.6063659628918746,
+  "share_zero_24h_volume": 0.07757517594369802,
+  "spread_quantiles": {
+   "0.5": 0.01999999999999999,
+   "0.75": 0.02999999999999997,
+   "0.9": 0.04000000000000001
+  },
+  "share_spread_gt_0.05": 0.05758157389635317
+ },
+ "trade_archive": {
+  "trade_files_total": 11135,
+  "tickers_2025_with_candle_mid90": 25282,
+  "share_with_trade_file": 0.06443319357645756
+ },
+ "trade_vwap_vs_candle_mid": {
+  "tickers_with_file": 1629,
+  "tickers_with_a_trade_in_3h_before_t90": 1476,
+  "median_trades_in_window_given_any": 7.0,
+  "median_abs_difference": 0.012802782819116787,
+  "p90_abs_difference": 0.025000000000000022,
+  "correlation": 0.9974113021861873,
+  "note": "winner markets (KXNFLGAME) have no trade files; trade-based prices exist only for spread, total and prop tickers"
+ },
+ "dense_archives": {
+  "dense_books": {
+   "files": 1,
+   "snapshots_times_utc": [
+    "2026-10-30T11:20:50.977958+00:00"
+   ]
+  },
+  "dense_trades": {
+   "files": 1,
+   "snapshots_times_utc": [
+    "2026-10-30T11:20:51.004587+00:00"
+   ]
+  }
+ },
+ "conclusion_inputs": "see values above; no pass or fail attached to this audit"
+}

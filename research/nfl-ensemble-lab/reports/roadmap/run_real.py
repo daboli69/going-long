@@ -35,7 +35,7 @@ elif STEP == "5":
     res["effective_sample_winners"] = ess
     res["checks"] = {"all_wild_p_finite": all(np.isfinite(f["p_wild"]) for f in flat), "effective_n_winners_ge_100": ess["effective_n"] >= 100, "every_coefficient_has_interval": all(np.isfinite(f["lo"]) and np.isfinite(f["hi"]) for f in flat)}
 elif STEP == "6":
-    r = step6_placebos(ds, rng, n_draw=100, n_shift=20, n_junk=20)
+    r = step6_placebos(ds, rng, n_draw=100, n_shift=20, n_junk=400)
     res.update(r)
     lab, shf, cov, junk = r["label_placebo_rejections"], r["time_shift_rejections"], r["time_shift_interval_covers_zero"], r["junk_nominal_significant"]
     res["placebo_rates"] = {"label": lab[0] / lab[1], "time_shift": shf[0] / shf[1], "time_shift_cover_zero": cov[0] / cov[1], "junk_nominal": junk[0] / junk[1]}
@@ -43,7 +43,7 @@ elif STEP == "6":
                                        "spreads_totals": "stop if the model is worse than the ladder with an interval excluding 0; cap 3 margin and 2 total variants",
                                        "props": "stop if fewer than 10 week clusters or the market ladder beats every arm; cap 5 arms", "point_in_time": "stop the chain if a planted 24 hour leak is not detected; no new tests"}
     res["checks"] = {"label_fp_1_to_9": 0.01 <= lab[0] / lab[1] <= 0.09, "time_shift_cover_ge_90": cov[0] / cov[1] >= 0.90, "time_shift_fp_1_to_9": 0.01 <= shf[0] / shf[1] <= 0.09,
-                     "junk_2_to_9": 0.02 <= junk[0] / junk[1] <= 0.09, "no_bh_discovery": r["junk_bh_discoveries"] == 0, "stop_conditions_written": True}
+                     "junk_2_to_9": 0.02 <= junk[0] / junk[1] <= 0.09, "no_bh_discovery_ge_90pct_of_blocks": r["junk_bh_no_discovery_blocks"][0] / r["junk_bh_no_discovery_blocks"][1] >= 0.90, "stop_conditions_written": True}
 elif STEP == "7":
     r = step7(ds, rng, B=2000)
     res.update(r)

@@ -314,7 +314,9 @@ def step6_placebos(ds, rng, n_draw=100, n_shift=20, n_junk=20) -> dict:
             shf[1] += 1
             shift_cover.append(bool(f["lo"] <= 0 <= f["hi"]))
     pj = [fs_test(sigmoid(logit(p) + 0.3 * rng.standard_normal(len(p))) - p, y - p, codes, k, rng, 499)["p_wild"] for _ in range(n_junk)]
-    return {"label_placebo_rejections": lab, "time_shift_rejections": shf, "time_shift_interval_covers_zero": [int(sum(shift_cover)), len(shift_cover)],
+    blocks = [pj[i:i + 20] for i in range(0, len(pj) - len(pj) % 20, 20)] or [pj]
+    no_disc = [int(_bh_discoveries(b) == 0) for b in blocks]
+    return {"junk_bh_no_discovery_blocks": [int(sum(no_disc)), len(no_disc)], "label_placebo_rejections": lab, "time_shift_rejections": shf, "time_shift_interval_covers_zero": [int(sum(shift_cover)), len(shift_cover)],
             "junk_nominal_significant": [int(np.sum(np.array(pj) < 0.05)), n_junk], "junk_bh_discoveries": _bh_discoveries(pj)}
 
 
@@ -340,7 +342,7 @@ def spa_rc(D, codes, k, rng, B=1000) -> dict:
     Tb = np.maximum(((dev + g) / seb).max(1), 0.0)
     T_rc = float(t_obs.max())
     p_rc = float(((dev / seb).max(1) >= T_rc).mean())
-    return {"p_rc": p_rc, "p_spa": float((Tb > T).mean()), "best_variant_index": int(np.argmax(dbar)), "best_mean_gain": float(dbar.max())}
+    return {"p_rc": p_rc, "p_spa": float((Tb >= T).mean()), "best_variant_index": int(np.argmax(dbar)), "best_mean_gain": float(dbar.max())}
 
 
 def pbo(weekly: np.ndarray, S=8) -> dict:

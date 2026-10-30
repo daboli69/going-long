@@ -1,0 +1,391 @@
+{
+ "step": "rehearsal_step2",
+ "git_head": "8bba7da6cc3ed8a8a21659deee561b3d4b5b4d5f",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "template": "real season 2025 structure: 271 games, 18 weeks, props ladders 191",
+ "world_definitions": {
+  "null": {
+   "sA": 0.0,
+   "s_dec": 0.6,
+   "s_close": 0.0,
+   "s_var": {},
+   "planted": null
+  },
+  "exch": {
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {},
+   "planted": null
+  },
+  "planted": {
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {
+    "p_xgb_deep": 0.4,
+    "L": 0.4,
+    "K": 0.4
+   },
+   "planted": "p_xgb_deep",
+   "theta": 0.8
+  },
+  "planted_strong": {
+   "theta": 1.2,
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {
+    "p_xgb_deep": 0.2,
+    "L": 0.2,
+    "K": 0.2
+   },
+   "planted": "p_xgb_deep"
+  }
+ },
+ "theta_default": 0.8,
+ "power_false_positive_rates": {
+  "winners_theta0.3": 0.0425,
+  "winners_theta0.6": 0.0325,
+  "margin_theta0.15": 0.03,
+  "margin_theta0.3": 0.0325,
+  "total_theta0.15": 0.035,
+  "total_theta0.3": 0.035,
+  "props_theta0.15": 0.0225,
+  "props_theta0.3": 0.0275
+ },
+ "power_detail": {
+  "design": "exchangeable null at sB=1; wild cluster bootstrap-t detection (Amendment 7); n_sims=400",
+  "winners_theta0.3": {
+   "curve": [
+    {
+     "sB": 1.0,
+     "expected_gain": 0.000629486496841375,
+     "power_one_sided_2.5pct": 0.0425,
+     "fp_standard_error": 0.010086345968684596
+    },
+    {
+     "sB": 0.8,
+     "expected_gain": 0.003083833111837202,
+     "power_one_sided_2.5pct": 0.055,
+     "fp_standard_error": 0.011399013115177999
+    },
+    {
+     "sB": 0.6,
+     "expected_gain": 0.005658869764802299,
+     "power_one_sided_2.5pct": 0.055,
+     "fp_standard_error": 0.011399013115177999
+    },
+    {
+     "sB": 0.4,
+     "expected_gain": 0.006747391382123349,
+     "power_one_sided_2.5pct": 0.1075,
+     "fp_standard_error": 0.015487394067434327
+    },
+    {
+     "sB": 0.2,
+     "expected_gain": 0.007423802985374862,
+     "power_one_sided_2.5pct": 0.135,
+     "fp_standard_error": 0.017086178624841776
+    },
+    {
+     "sB": 0.0,
+     "expected_gain": 0.008068344563583983,
+     "power_one_sided_2.5pct": 0.1725,
+     "fp_standard_error": 0.018890721929031722
+    }
+   ],
+   "false_positive_at_null": 0.0425,
+   "min_detectable_gain": null,
+   "n": 271,
+   "clusters": 18
+  },
+  "winners_theta0.6": {
+   "curve": [
+    {
+     "sB": 1.0,
+     "expected_gain": 0.0005328681885940209,
+     "power_one_sided_2.5pct": 0.0325,
+     "fp_standard_error": 0.008866192813152667
+    },
+    {
+     "sB": 0.8,
+     "expected_gain": 0.01148208138457259,
+     "power_one_sided_2.5pct": 0.0775,
+     "fp_standard_error": 0.013369157602481915
+    },
+    {
+     "sB": 0.6,
+     "expected_gain": 0.021781230408997758,
+     "power_one_sided_2.5pct": 0.1875,
+     "fp_standard_error": 0.019515618744994995
+    },
+    {
+     "sB": 0.4,
+     "expected_gain": 0.026833829077195812,
+     "power_one_sided_2.5pct": 0.34,
+     "fp_standard_error": 0.02368543856465402
+    },
+    {
+     "sB": 0.2,
+     "expected_gain": 0.030137953819888416,
+     "power_one_sided_2.5pct": 0.4075,
+     "fp_standard_error": 0.024568463016639848
+    },
+    {
+     "sB": 0.0,
+     "expected_gain": 0.031799808370808556,
+     "power_one_sided_2.5pct": 0.49,
+     "fp_standard_error": 0.024994999499899976
+    }
+   ],
+   "false_positive_at_null": 0.0325,
+   "min_detectable_gain": null,
+   "n": 271,
+   "clusters": 18
+  },
+  "margin_theta0.15": {
+   "curve": [
+    {
+     "sB": 1.0,
+     "expected_gain": 0.006025640660041052,
+     "power_one_sided_2.5pct": 0.03,
+     "fp_standard_error": 0.00852936105461599
+    },
+    {
+     "sB": 0.8,
+     "expected_gain": 0.026290428333528838,
+     "power_one_sided_2.5pct": 0.0525,
+     "fp_standard_error": 0.01115165346484547
+    },
+    {
+     "sB": 0.6,
+     "expected_gain": 0.04350236990956158,
+     "power_one_sided_2.5pct": 0.07,
+     "fp_standard_error": 0.012757350822173075
+    },
+    {
+     "sB": 0.4,
+     "expected_gain": 0.06509908793741577,
+     "power_one_sided_2.5pct": 0.1225,
+     "fp_standard_error": 0.016393119745795794
+    },
+    {
+     "sB": 0.2,
+     "expected_gain": 0.06383458025216544,
+     "power_one_sided_2.5pct": 0.13,
+     "fp_standard_error": 0.016815171720800236
+    },
+    {
+     "sB": 0.0,
+     "expected_gain": 0.07273106578910002,
+     "power_one_sided_2.5pct": 0.1375,
+     "fp_standard_error": 0.01721872164244489
+    }
+   ],
+   "false_positive_at_null": 0.03,
+   "min_detectable_gain_points": null,
+   "n": 207,
+   "clusters": 14
+  },
+  "margin_theta0.3": {
+   "curve": [
+    {
+     "sB": 1.0,
+     "expected_gain": 0.011879241415342743,
+     "power_one_sided_2.5pct": 0.0325,
+     "fp_standard_error": 0.008866192813152667
+    },
+    {
+     "sB": 0.8,
+     "expected_gain": 0.1030243805170063,
+     "power_one_sided_2.5pct": 0.0875,
+     "fp_standard_error": 0.014128318194321643
+    },
+    {
+     "sB": 0.6,
+     "expected_gain": 0.17870332094570712,
+     "power_one_sided_2.5pct": 0.175,
+     "fp_standard_error": 0.01899835519196333
+    },
+    {
+     "sB": 0.4,
+     "expected_gain": 0.251051671684083,
+     "power_one_sided_2.5pct": 0.355,
+     "fp_standard_error": 0.02392566613492715
+    },
+    {
+     "sB": 0.2,
+     "expected_gain": 0.2674389654423874,
+     "power_one_sided_2.5pct": 0.4075,
+     "fp_standard_error": 0.024568463016639848
+    },
+    {
+     "sB": 0.0,
+     "expected_gain": 0.28910493967644685,
+     "power_one_sided_2.5pct": 0.4775,
+     "fp_standard_error": 0.024974674672555795
+    }
+   ],
+   "false_positive_at_null": 0.0325,
+   "min_detectable_gain_points": null,
+   "n": 207,
+   "clusters": 14
+  },
+  "total_theta0.15": {
+   "curve": [
+    {
+     "sB": 1.0,
+     "expected_gain": 0.0032494789627718645,
+     "power_one_sided_2.5pct": 0.035,
+     "fp_standard_error": 0.009188987974744553
+    },
+    {
+     "sB": 0.8,
+     "expected_gain": 0.03001695916288243,
+     "power_one_sided_2.5pct": 0.0575,
+     "fp_standard_error": 0.011639775556255371
+    },
+    {
+     "sB": 0.6,
+     "expected_gain": 0.05537764390579399,
+     "power_one_sided_2.5pct": 0.085,
+     "fp_standard_error": 0.013944084767384343
+    },
+    {
+     "sB": 0.4,
+     "expected_gain": 0.06273309662021279,
+     "power_one_sided_2.5pct": 0.0875,
+     "fp_standard_error": 0.014128318194321643
+    },
+    {
+     "sB": 0.2,
+     "expected_gain": 0.07676251732425055,
+     "power_one_sided_2.5pct": 0.13,
+     "fp_standard_error": 0.016815171720800236
+    },
+    {
+     "sB": 0.0,
+     "expected_gain": 0.08047382659387853,
+     "power_one_sided_2.5pct": 0.185,
+     "fp_standard_error": 0.019414878315353924
+    }
+   ],
+   "false_positive_at_null": 0.035,
+   "min_detectable_gain_points": null,
+   "n": 204,
+   "clusters": 14
+  },
+  "total_theta0.3": {
+   "curve": [
+    {
+     "sB": 1.0,
+     "expected_gain": 0.007117533622558396,
+     "power_one_sided_2.5pct": 0.035,
+     "fp_standard_error": 0.009188987974744553
+    },
+    {
+     "sB": 0.8,
+     "expected_gain": 0.11633746082703608,
+     "power_one_sided_2.5pct": 0.085,
+     "fp_standard_error": 0.013944084767384343
+    },
+    {
+     "sB": 0.6,
+     "expected_gain": 0.21166684747094786,
+     "power_one_sided_2.5pct": 0.1775,
+     "fp_standard_error": 0.019104564245226847
+    },
+    {
+     "sB": 0.4,
+     "expected_gain": 0.2585980481060097,
+     "power_one_sided_2.5pct": 0.285,
+     "fp_standard_error": 0.02257072218605333
+    },
+    {
+     "sB": 0.2,
+     "expected_gain": 0.3065703862295053,
+     "power_one_sided_2.5pct": 0.42,
+     "fp_standard_error": 0.024677925358506134
+    },
+    {
+     "sB": 0.0,
+     "expected_gain": 0.31979461072638016,
+     "power_one_sided_2.5pct": 0.5,
+     "fp_standard_error": 0.025
+    }
+   ],
+   "false_positive_at_null": 0.035,
+   "min_detectable_gain_points": null,
+   "n": 204,
+   "clusters": 14
+  },
+  "props_theta0.15": {
+   "curve": [
+    {
+     "sB": 1.0,
+     "expected_gain": -0.0005201926260688592,
+     "power_one_sided_2.5pct": 0.0225,
+     "fp_standard_error": 0.007415144974981945
+    },
+    {
+     "sB": 0.5,
+     "expected_gain": 0.002731482586564165,
+     "power_one_sided_2.5pct": 0.05,
+     "fp_standard_error": 0.010897247358851683
+    },
+    {
+     "sB": 0.0,
+     "expected_gain": 0.0036010407631322915,
+     "power_one_sided_2.5pct": 0.065,
+     "fp_standard_error": 0.01232629303562105
+    }
+   ],
+   "false_positive_at_null": 0.0225,
+   "min_detectable_gain": null,
+   "n": 191,
+   "clusters": 13
+  },
+  "props_theta0.3": {
+   "curve": [
+    {
+     "sB": 1.0,
+     "expected_gain": -0.0014311264956900515,
+     "power_one_sided_2.5pct": 0.0275,
+     "fp_standard_error": 0.008176758220713145
+    },
+    {
+     "sB": 0.5,
+     "expected_gain": 0.007386803410578358,
+     "power_one_sided_2.5pct": 0.075,
+     "fp_standard_error": 0.013169567191065924
+    },
+    {
+     "sB": 0.0,
+     "expected_gain": 0.011128760882909958,
+     "power_one_sided_2.5pct": 0.1225,
+     "fp_standard_error": 0.016393119745795794
+    }
+   ],
+   "false_positive_at_null": 0.0275,
+   "min_detectable_gain": null,
+   "n": 191,
+   "clusters": 13
+  }
+ },
+ "gap_interval_coverage": {
+  "null": {
+   "truth_gap": 0.0,
+   "coverage": 0.98
+  },
+  "planted": {
+   "truth_gap": 0.09155611858212742,
+   "coverage": 0.96
+  }
+ },
+ "conditions": {
+  "fp_in_band_0.5_to_5pct": true,
+  "gap_coverage_ge_90": true
+ },
+ "PASS": true
+}

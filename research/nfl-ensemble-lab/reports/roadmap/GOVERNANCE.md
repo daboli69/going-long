@@ -182,3 +182,25 @@ and failed Steps 2 and 7. Steps 3 and 4 passed in attempt 1.
 
 Rehearsal attempt 3 reruns Steps 2, 6 and 7. Steps 3, 4 and 5 stand. Status: no real-data run of Steps 2, 5, 6 or 7 yet.
 Real Step 3 and Step 4 were run (their rehearsals had passed) and are not affected by these changes.
+
+## Amendment 8 and a code fix (real Steps 2, 6, 7 first run; attempt 3 rehearsals passed)
+
+Rehearsal attempt 3 passed for Steps 2, 6 and 7 (Steps 3, 4 and 5 had passed earlier), so real runs of Steps 2, 6 and 7
+were started. Files from that first real run are in `reports/roadmap/attempt3/`.
+
+- Process error (mine): the three real steps were launched in one loop that did not stop when Step 6 failed, so real
+  Step 7 ran after a failed Step 6. Real Step 7's first result is kept for the record and is not part of the valid chain.
+  Steps are now run one at a time.
+- Real Step 2 passed all its conditions (false positives 2.5% to 3.5%, counts above the floors).
+- Real Step 6 failed one condition: "junk columns reach nominal p below 0.05 in 2% to 9% of cases". With the 20 junk
+  columns my runner used on a single real dataset, the rate can only be 0%, 5%, 10% and so on, so the band could only be
+  met by exactly one hit in 20 (probability about 37% under a correct procedure). That is a design flaw in how the
+  condition was applied. The result was 0 of 20, so the direction is known.
+  - Change: on real data the junk placebo uses 400 junk columns (standard error 1.1 points at the 5% rate, a quarter of
+    the band is 1.75). The 2% to 9% condition applies to the 400. The Benjamini-Hochberg check is applied to blocks of 20
+    columns and passes if at least 90% of the 20 blocks have no discovery. All other Step 6 conditions are unchanged.
+    The rehearsal pooled 2,000 junk draws, so the real runner's change does not alter what the rehearsal tested.
+- Code fix (not a rule change): the SPA p-value counted bootstrap statistics strictly above the observed statistic. When no
+  variant beats the benchmark the observed statistic is 0 and every bootstrap statistic is at least 0, so the p-value
+  must count at or above. With ">" the margin family showed p = 0.0015 although every margin variant is worse than the
+  market. Fixed to ">=". The rehearsal of Step 7 is rerun, and the first real Step 7 result is superseded.
