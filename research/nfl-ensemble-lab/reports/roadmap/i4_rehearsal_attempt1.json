@@ -1,0 +1,24 @@
+{
+ "step": "i4_rehearsal",
+ "git_head": "aa2c74138327ff762212fec56a3b188c6dee9e8a",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "null": {
+  "mean_w_winners": 0.10643118710075505,
+  "share_within_0.005": 0.89,
+  "mean_w_margin": 0.033154910160444556,
+  "share_within_margin": 1.0
+ },
+ "planted_strong": {
+  "mean_w_winners": 0.7198860800352204,
+  "share_blend_below_market": 1.0,
+  "mean_w_margin": 0.6978250507063158,
+  "share_ladder_blend_below_market": 1.0
+ },
+ "conditions": {
+  "null_mean_w_le_0.15": true,
+  "null_within_margin_ge_90": false,
+  "planted_mean_w_ge_0.5": true,
+  "planted_below_market_ge_90": true
+ },
+ "PASS": false
+}

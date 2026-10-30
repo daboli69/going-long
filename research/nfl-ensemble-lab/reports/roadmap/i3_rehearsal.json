@@ -1,0 +1,17 @@
+{
+ "step": "i3_rehearsal",
+ "git_head": "aa2c74138327ff762212fec56a3b188c6dee9e8a",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "datasets_null": 400,
+ "holm_family_wise_false_positive": 0.04,
+ "spa_false_positive": 0.0325,
+ "planted_detection_rate": 1.0,
+ "games": 3650,
+ "clusters": 243,
+ "conditions": {
+  "spa_fp_1_to_9": true,
+  "holm_fwer_le_9": true,
+  "planted_ge_80": true
+ },
+ "PASS": true
+}

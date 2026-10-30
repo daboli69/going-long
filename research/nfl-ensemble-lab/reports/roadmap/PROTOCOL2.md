@@ -94,3 +94,13 @@ A scoring gain is not a return. Nothing here is betting advice.
 - Change: (d) applies to every design with at least two usable points (winners, margin, total). The props design is marked
   "formula not validated" and its rows are labelled unvalidated and are not used to claim any props candidate is testable or not.
   The report states this plainly.
+
+## Amendment P2-2 (Step 4 prior strength), added before the Step 4 re-run
+
+- Found in rehearsal attempt 1 (kept as `i4_rehearsal_attempt1.json`): with a prior worth 20 games, the blend was within 0.005 log loss of
+  the market in only 89% of null datasets (limit 90%). The weight estimate is too noisy early in a season. This is a property of the
+  estimator on simulated data, found before any real-data run of Step 4.
+- Change: the prior worth K_PRIOR_GAMES goes from 20 to 50. I chose it by trying the declared grid 50, 100, 200 on simulated data only.
+  Results (null share within 0.005; planted mean weight): 50 gives 95% and 0.59 (both conditions pass); 100 gives 97.5% and 0.47 (planted
+  condition of at least 0.5 fails); 200 gives 98% and 0.33 (fails). 50 is the smallest value on the grid that passes, so it was selected
+  with simulated results in view. Conditions and bands are unchanged. Real data have not been used.

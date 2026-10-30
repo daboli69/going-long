@@ -1,0 +1,852 @@
+{
+ "step": "i1_detectability",
+ "git_head": "aa2c74138327ff762212fec56a3b188c6dee9e8a",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "rows": [
+  {
+   "target": "winners",
+   "candidate": "p_elo",
+   "se_source": "real_step3 vs market at decision time",
+   "se": 0.011437680236458511,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 11117.861165654898,
+    "seasons_needed": 40.874489579613595,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2779.4652914137246,
+    "seasons_needed": 10.218622394903399,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 694.8663228534311,
+    "seasons_needed": 2.5546555987258497,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_elo (close)",
+   "se_source": "real_step3 vs market at close",
+   "se": 0.01071124434894637,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 9750.46209486178,
+    "seasons_needed": 35.84728711346242,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2437.615523715445,
+    "seasons_needed": 8.961821778365605,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 609.4038809288612,
+    "seasons_needed": 2.2404554445914013,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_xgb_v1",
+   "se_source": "real_step3 vs market at decision time",
+   "se": 0.012442499283913656,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 13157.112669212906,
+    "seasons_needed": 48.37173775445921,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 3289.2781673032264,
+    "seasons_needed": 12.092934438614803,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 822.3195418258066,
+    "seasons_needed": 3.0232336096537007,
+    "testable_on_kalshi_alone": false
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_xgb_v1 (close)",
+   "se_source": "real_step3 vs market at close",
+   "se": 0.01159870566804942,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 11433.110488179838,
+    "seasons_needed": 42.03349444183764,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2858.2776220449596,
+    "seasons_needed": 10.50837361045941,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 714.5694055112399,
+    "seasons_needed": 2.6270934026148525,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_margin",
+   "se_source": "real_step3 vs market at decision time",
+   "se": 0.012604122620089708,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 13501.144456630727,
+    "seasons_needed": 49.63656050231885,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 3375.286114157682,
+    "seasons_needed": 12.409140125579713,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 843.8215285394205,
+    "seasons_needed": 3.102285031394928,
+    "testable_on_kalshi_alone": false
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_margin (close)",
+   "se_source": "real_step3 vs market at close",
+   "se": 0.011652596744078753,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 11539.600649453076,
+    "seasons_needed": 42.42500238769513,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2884.900162363269,
+    "seasons_needed": 10.606250596923783,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 721.2250405908172,
+    "seasons_needed": 2.6515626492309456,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_xgb_deep",
+   "se_source": "real_step3 vs market at decision time",
+   "se": 0.011546442810141165,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 11330.30922034957,
+    "seasons_needed": 41.65554860422636,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2832.5773050873927,
+    "seasons_needed": 10.41388715105659,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 708.1443262718482,
+    "seasons_needed": 2.6034717877641476,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_xgb_deep (close)",
+   "se_source": "real_step3 vs market at close",
+   "se": 0.011199125268806504,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 10658.928522988006,
+    "seasons_needed": 39.18723721686767,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2664.7321307470015,
+    "seasons_needed": 9.796809304216918,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 666.1830326867504,
+    "seasons_needed": 2.4492023260542295,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_elo_platt",
+   "se_source": "real_step3 vs market at decision time",
+   "se": 0.01059590498118244,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 9541.605467356849,
+    "seasons_needed": 35.07943186528253,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2385.401366839212,
+    "seasons_needed": 8.769857966320632,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 596.350341709803,
+    "seasons_needed": 2.192464491580158,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_elo_platt (close)",
+   "se_source": "real_step3 vs market at close",
+   "se": 0.010421379187124215,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 9229.873339679256,
+    "seasons_needed": 33.93335786646785,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2307.468334919814,
+    "seasons_needed": 8.483339466616963,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 576.8670837299535,
+    "seasons_needed": 2.1208348666542407,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_xgb_v1_platt",
+   "se_source": "real_step3 vs market at decision time",
+   "se": 0.011103588560714958,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 10477.847337302874,
+    "seasons_needed": 38.52149756361351,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2619.4618343257184,
+    "seasons_needed": 9.630374390903377,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 654.8654585814296,
+    "seasons_needed": 2.4075935977258442,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_xgb_v1_platt (close)",
+   "se_source": "real_step3 vs market at close",
+   "se": 0.011141527711264369,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 10549.571853561838,
+    "seasons_needed": 38.785190638094996,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2637.3929633904595,
+    "seasons_needed": 9.696297659523749,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 659.3482408476149,
+    "seasons_needed": 2.4240744148809372,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_margin_platt",
+   "se_source": "real_step3 vs market at decision time",
+   "se": 0.012891492505308062,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 14123.806071887373,
+    "seasons_needed": 51.92575761723299,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 3530.9515179718433,
+    "seasons_needed": 12.981439404308247,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 882.7378794929608,
+    "seasons_needed": 3.245359851077062,
+    "testable_on_kalshi_alone": false
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_margin_platt (close)",
+   "se_source": "real_step3 vs market at close",
+   "se": 0.012048392369963924,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 12336.829131426122,
+    "seasons_needed": 45.35598945377251,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 3084.2072828565306,
+    "seasons_needed": 11.338997363443127,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 771.0518207141326,
+    "seasons_needed": 2.834749340860782,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_xgb_deep_platt",
+   "se_source": "real_step3 vs market at decision time",
+   "se": 0.011535433842653433,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 11308.713730981188,
+    "seasons_needed": 41.57615342272496,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2827.178432745297,
+    "seasons_needed": 10.39403835568124,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 706.7946081863242,
+    "seasons_needed": 2.59850958892031,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "winners",
+   "candidate": "p_xgb_deep_platt (close)",
+   "se_source": "real_step3 vs market at close",
+   "se": 0.011621592073681481,
+   "n_now": 271,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.005,
+    "unit": "log loss",
+    "games_needed": 11478.274313606269,
+    "seasons_needed": 42.199537917670106,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.01,
+    "unit": "log loss",
+    "games_needed": 2869.5685784015673,
+    "seasons_needed": 10.549884479417527,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.02,
+    "unit": "log loss",
+    "games_needed": 717.3921446003918,
+    "seasons_needed": 2.6374711198543817,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "margin",
+   "candidate": "L",
+   "se_source": "real_step3 vs ladder at T-90",
+   "se": 0.15242134923028527,
+   "n_now": 207,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.05730883729295344,
+    "unit": "CRPS points",
+    "games_needed": 11479.813079667283,
+    "seasons_needed": 42.2051951458356,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.11461767458590688,
+    "unit": "CRPS points",
+    "games_needed": 2869.953269916821,
+    "seasons_needed": 10.5512987864589,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.22923534917181376,
+    "unit": "CRPS points",
+    "games_needed": 717.4883174792052,
+    "seasons_needed": 2.637824696614725,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "margin",
+   "candidate": "naive",
+   "se_source": "real_step3 vs ladder at T-90",
+   "se": 0.17285734397036173,
+   "n_now": 207,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.05730883729295344,
+    "unit": "CRPS points",
+    "games_needed": 14764.504772413899,
+    "seasons_needed": 54.28126754563933,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.11461767458590688,
+    "unit": "CRPS points",
+    "games_needed": 3691.1261931034746,
+    "seasons_needed": 13.570316886409833,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.22923534917181376,
+    "unit": "CRPS points",
+    "games_needed": 922.7815482758687,
+    "seasons_needed": 3.392579221602458,
+    "testable_on_kalshi_alone": false
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "margin",
+   "candidate": "elo",
+   "se_source": "real_step3 vs ladder at T-90",
+   "se": 0.18324974936069213,
+   "n_now": 207,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.05730883729295344,
+    "unit": "CRPS points",
+    "games_needed": 16593.194045519278,
+    "seasons_needed": 61.00438987323264,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.11461767458590688,
+    "unit": "CRPS points",
+    "games_needed": 4148.2985113798195,
+    "seasons_needed": 15.25109746830816,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.22923534917181376,
+    "unit": "CRPS points",
+    "games_needed": 1037.0746278449549,
+    "seasons_needed": 3.81277436707704,
+    "testable_on_kalshi_alone": false
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "total",
+   "candidate": "L",
+   "se_source": "real_step3 vs ladder at T-90",
+   "se": 0.10036637037673295,
+   "n_now": 204,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.05943573900991906,
+    "unit": "CRPS points",
+    "games_needed": 4560.65618848935,
+    "seasons_needed": 16.767118340034376,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.11887147801983812,
+    "unit": "CRPS points",
+    "games_needed": 1140.1640471223375,
+    "seasons_needed": 4.191779585008594,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.23774295603967624,
+    "unit": "CRPS points",
+    "games_needed": 285.04101178058437,
+    "seasons_needed": 1.0479448962521485,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "total",
+   "candidate": "naive",
+   "se_source": "real_step3 vs ladder at T-90",
+   "se": 0.07506853170947458,
+   "n_now": 204,
+   "per_season": 272,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.05943573900991906,
+    "unit": "CRPS points",
+    "games_needed": 2551.3306065351035,
+    "seasons_needed": 9.379891935790821,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.11887147801983812,
+    "unit": "CRPS points",
+    "games_needed": 637.8326516337759,
+    "seasons_needed": 2.3449729839477054,
+    "testable_on_kalshi_alone": true
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.23774295603967624,
+    "unit": "CRPS points",
+    "games_needed": 159.45816290844397,
+    "seasons_needed": 0.5862432459869263,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": true
+  },
+  {
+   "target": "props",
+   "candidate": "K",
+   "se_source": "real_step5 90% interval converted to SE",
+   "se": 0.02296591711056181,
+   "n_now": 191,
+   "per_season": 2700,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.006955473548341559,
+    "unit": "threshold score",
+    "games_needed": 16325.391665278135,
+    "seasons_needed": 6.04644135751042,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.013910947096683118,
+    "unit": "threshold score",
+    "games_needed": 4081.347916319534,
+    "seasons_needed": 1.511610339377605,
+    "testable_on_kalshi_alone": true
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.027821894193366236,
+    "unit": "threshold score",
+    "games_needed": 1020.3369790798835,
+    "seasons_needed": 0.37790258484440126,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": false
+  },
+  {
+   "target": "props",
+   "candidate": "A",
+   "se_source": "real_step5 90% interval converted to SE",
+   "se": 0.02270464924248083,
+   "n_now": 191,
+   "per_season": 2700,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.006955473548341559,
+    "unit": "threshold score",
+    "games_needed": 15956.058403096515,
+    "seasons_needed": 5.909651260406116,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.013910947096683118,
+    "unit": "threshold score",
+    "games_needed": 3989.0146007741287,
+    "seasons_needed": 1.477412815101529,
+    "testable_on_kalshi_alone": true
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.027821894193366236,
+    "unit": "threshold score",
+    "games_needed": 997.2536501935322,
+    "seasons_needed": 0.3693532037753823,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": false
+  },
+  {
+   "target": "props",
+   "candidate": "base",
+   "se_source": "real_step5 90% interval converted to SE",
+   "se": 0.030194639980233286,
+   "n_now": 191,
+   "per_season": 2700,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.006955473548341559,
+    "unit": "threshold score",
+    "games_needed": 28219.917174743245,
+    "seasons_needed": 10.451821175830831,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.013910947096683118,
+    "unit": "threshold score",
+    "games_needed": 7054.979293685811,
+    "seasons_needed": 2.612955293957708,
+    "testable_on_kalshi_alone": true
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.027821894193366236,
+    "unit": "threshold score",
+    "games_needed": 1763.7448234214528,
+    "seasons_needed": 0.653238823489427,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": false
+  },
+  {
+   "target": "props",
+   "candidate": "K_v1",
+   "se_source": "real_step5 90% interval converted to SE",
+   "se": 0.020165951718025866,
+   "n_now": 191,
+   "per_season": 2700,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.006955473548341559,
+    "unit": "threshold score",
+    "games_needed": 12587.32568716074,
+    "seasons_needed": 4.661972476726199,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.013910947096683118,
+    "unit": "threshold score",
+    "games_needed": 3146.831421790185,
+    "seasons_needed": 1.1654931191815499,
+    "testable_on_kalshi_alone": true
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.027821894193366236,
+    "unit": "threshold score",
+    "games_needed": 786.7078554475462,
+    "seasons_needed": 0.29137327979538746,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": false
+  },
+  {
+   "target": "props",
+   "candidate": "A_v1",
+   "se_source": "real_step5 90% interval converted to SE",
+   "se": 0.02113182362538777,
+   "n_now": 191,
+   "per_season": 2700,
+   "gain_ll_0.005": {
+    "gain_in_unit": 0.006955473548341559,
+    "unit": "threshold score",
+    "games_needed": 13821.971009541658,
+    "seasons_needed": 5.119248522052466,
+    "testable_on_kalshi_alone": false
+   },
+   "gain_ll_0.01": {
+    "gain_in_unit": 0.013910947096683118,
+    "unit": "threshold score",
+    "games_needed": 3455.4927523854144,
+    "seasons_needed": 1.2798121305131165,
+    "testable_on_kalshi_alone": true
+   },
+   "gain_ll_0.02": {
+    "gain_in_unit": 0.027821894193366236,
+    "unit": "threshold score",
+    "games_needed": 863.8731880963536,
+    "seasons_needed": 0.3199530326282791,
+    "testable_on_kalshi_alone": true
+   },
+   "formula_validated": false
+  }
+ ],
+ "settings": {
+  "z_two_sided_5pct_80pct_power": 2.8,
+  "games_per_season": 272,
+  "props_ladders_per_season": 2700,
+  "kalshi_alone_limit_seasons": 3,
+  "market_scores_2025": {
+   "winners": 0.6120956239537555,
+   "margin": 7.015697704178918,
+   "total": 7.2760711508857945,
+   "props": 0.8514829842931937
+  },
+  "assumption": "CRPS and threshold-score gains are the same relative improvement as the log-loss gains (gain / 0.6121); a different mapping changes these rows"
+ },
+ "formula_check": {
+  "winners_theta0.6": {
+   "points_used": 3,
+   "implied_se": [
+    0.019330476986509415,
+    0.017748839824657348,
+    0.017271170856702753
+   ],
+   "cv": 0.048576706752441544
+  },
+  "margin_theta0.3": {
+   "points_used": 3,
+   "implied_se": [
+    0.15807866655287955,
+    0.1549455199348369,
+    0.15187505492597933
+   ],
+   "cv": 0.016343263498479255
+  },
+  "total_theta0.3": {
+   "points_used": 3,
+   "implied_se": [
+    0.18578133300005265,
+    0.1743753194657769,
+    0.16316051567672457
+   ],
+   "cv": 0.05294124023848743
+  },
+  "props_theta0.3": {
+   "points_used": 1,
+   "implied_se": [
+    0.0212798105394581
+   ],
+   "cv": null
+  }
+ },
+ "checks": {
+  "a_all_candidates_have_se": true,
+  "b_all_gains_present": true,
+  "c_all_classified": true,
+  "d_formula_cv_le_0.25": true,
+  "d_designs_with_two_or_more_points": [
+   "margin_theta0.3",
+   "total_theta0.3",
+   "winners_theta0.6"
+  ],
+  "d_designs_not_checkable_marked_unvalidated": [
+   "props_theta0.3"
+  ],
+  "d_all_four_designs_validated": false
+ },
+ "PASS": true
+}

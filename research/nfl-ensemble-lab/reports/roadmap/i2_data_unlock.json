@@ -1,0 +1,187 @@
+{
+ "step": "i2_data_unlock",
+ "git_head": "aa2c74138327ff762212fec56a3b188c6dee9e8a",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "counts_by_season": {
+  "2015": {
+   "completed_games": 267,
+   "spread_line": 267,
+   "total_line": 267,
+   "home_moneyline": 267,
+   "away_moneyline": 267,
+   "market_p_home_novig": 267,
+   "all_five_present": 267
+  },
+  "2016": {
+   "completed_games": 265,
+   "spread_line": 265,
+   "total_line": 265,
+   "home_moneyline": 265,
+   "away_moneyline": 265,
+   "market_p_home_novig": 265,
+   "all_five_present": 265
+  },
+  "2017": {
+   "completed_games": 267,
+   "spread_line": 267,
+   "total_line": 267,
+   "home_moneyline": 266,
+   "away_moneyline": 266,
+   "market_p_home_novig": 266,
+   "all_five_present": 266
+  },
+  "2018": {
+   "completed_games": 265,
+   "spread_line": 265,
+   "total_line": 265,
+   "home_moneyline": 265,
+   "away_moneyline": 265,
+   "market_p_home_novig": 265,
+   "all_five_present": 265
+  },
+  "2019": {
+   "completed_games": 266,
+   "spread_line": 266,
+   "total_line": 266,
+   "home_moneyline": 266,
+   "away_moneyline": 266,
+   "market_p_home_novig": 266,
+   "all_five_present": 266
+  },
+  "2020": {
+   "completed_games": 268,
+   "spread_line": 268,
+   "total_line": 268,
+   "home_moneyline": 268,
+   "away_moneyline": 268,
+   "market_p_home_novig": 268,
+   "all_five_present": 268
+  },
+  "2021": {
+   "completed_games": 284,
+   "spread_line": 284,
+   "total_line": 284,
+   "home_moneyline": 284,
+   "away_moneyline": 284,
+   "market_p_home_novig": 284,
+   "all_five_present": 284
+  },
+  "2022": {
+   "completed_games": 282,
+   "spread_line": 282,
+   "total_line": 282,
+   "home_moneyline": 282,
+   "away_moneyline": 282,
+   "market_p_home_novig": 282,
+   "all_five_present": 282
+  },
+  "2023": {
+   "completed_games": 285,
+   "spread_line": 285,
+   "total_line": 285,
+   "home_moneyline": 285,
+   "away_moneyline": 285,
+   "market_p_home_novig": 285,
+   "all_five_present": 285
+  },
+  "2024": {
+   "completed_games": 285,
+   "spread_line": 285,
+   "total_line": 285,
+   "home_moneyline": 285,
+   "away_moneyline": 285,
+   "market_p_home_novig": 285,
+   "all_five_present": 285
+  },
+  "2025": {
+   "completed_games": 284,
+   "spread_line": 284,
+   "total_line": 284,
+   "home_moneyline": 284,
+   "away_moneyline": 284,
+   "market_p_home_novig": 284,
+   "all_five_present": 284
+  }
+ },
+ "games_2015_to_2024_with_all_five": 2733,
+ "step1_requirements_vs_available": {
+  "winners:p_xgb_deep": {
+   "gain_0.005": {
+    "games_needed": 11330.30922034957,
+    "covered_by_2015_2024_lines": false
+   },
+   "gain_0.01": {
+    "games_needed": 2832.5773050873927,
+    "covered_by_2015_2024_lines": false
+   },
+   "gain_0.02": {
+    "games_needed": 708.1443262718482,
+    "covered_by_2015_2024_lines": true
+   }
+  },
+  "winners:p_elo_platt": {
+   "gain_0.005": {
+    "games_needed": 9541.605467356849,
+    "covered_by_2015_2024_lines": false
+   },
+   "gain_0.01": {
+    "games_needed": 2385.401366839212,
+    "covered_by_2015_2024_lines": true
+   },
+   "gain_0.02": {
+    "games_needed": 596.350341709803,
+    "covered_by_2015_2024_lines": true
+   }
+  },
+  "margin:L": {
+   "gain_0.005": {
+    "games_needed": 11479.813079667283,
+    "covered_by_2015_2024_lines": false
+   },
+   "gain_0.01": {
+    "games_needed": 2869.953269916821,
+    "covered_by_2015_2024_lines": false
+   },
+   "gain_0.02": {
+    "games_needed": 717.4883174792052,
+    "covered_by_2015_2024_lines": true
+   }
+  },
+  "total:L": {
+   "gain_0.005": {
+    "games_needed": 4560.65618848935,
+    "covered_by_2015_2024_lines": false
+   },
+   "gain_0.01": {
+    "games_needed": 1140.1640471223375,
+    "covered_by_2015_2024_lines": true
+   },
+   "gain_0.02": {
+    "games_needed": 285.04101178058437,
+    "covered_by_2015_2024_lines": true
+   }
+  }
+ },
+ "rough_minimum_detectable_gain_if_used": {
+  "assumption": "same per-game spread of the paired difference as in 2025 (SE scales with 1/sqrt(games)); comparison would be at the close only",
+  "se_now_271_games": 0.011546442810141165,
+  "se_with_lines": 0.003635909278882353,
+  "min_detectable_log_loss_80pct": 0.010180545980870587
+ },
+ "limits": [
+  "Undated: the table carries no quote time. The lines are labelled closing lines (from memory: nflverse schedule lines; the book or aggregator is not named in the table). A model-versus-close comparison cannot separate 'the model is worse' from 'the model saw less'.",
+  "Coverage: see counts_by_season (measured). Playoff and rare missing-line games are counted, not imputed.",
+  "De-vig: moneylines include the book's margin. The stored no-vig probability has no documented method in the table. Its method can only be checked by recomputing it from the moneylines, which is a use of the line values and waits for approval.",
+  "No ladder: a single spread and a single total per game. CRPS needs an assumed spread of outcomes. The lab's default spreads (13.5 margin, 13.0 total) are assumptions in lab/gamecenter_data.py; the 2025 Kalshi ladders imply medians of 11.7 and 12.8 (measured, real_step2.json). Margin and total comparisons would be limited to the mean or rest on that assumption.",
+  "Different venue: sportsbook closing lines versus Kalshi prices. Different margins, limits and information; the two benchmarks may not agree.",
+  "Pushes and ties: a spread equal to the final margin is a push; the table's treatment is unchecked.",
+  "Walk-forward predictions exist for 2012 to 2025, so 2015 to 2024 comparisons are possible, but the earlier seasons' prediction features were rebuilt retrospectively on 2026-10-28, not frozen at the time."
+ ],
+ "checks": {
+  "a_counts_present_2015_to_2025": true,
+  "b_limits_written": true,
+  "c_requirements_compared": true,
+  "d_question_asked_data_not_used_for_results": true
+ },
+ "PASS": true
+}

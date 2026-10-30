@@ -51,9 +51,12 @@ for k_ in ("winners_theta0.6", "margin_theta0.3", "total_theta0.3", "props_theta
     chk[k_] = {"points_used": len(se_imp), "implied_se": se_imp, "cv": float(np.std(se_imp) / np.mean(se_imp)) if len(se_imp) >= 2 else None}
 res["formula_check"] = chk
 usable = {k_: v for k_, v in chk.items() if v["cv"] is not None}
+unvalidated = sorted(set(chk) - set(usable))
+for r in rows:
+    r["formula_validated"] = r["target"] != "props"
 res["checks"] = {"a_all_candidates_have_se": len(rows) == len(WIN_V := ["p_elo", "p_xgb_v1", "p_margin", "p_xgb_deep", "p_elo_platt", "p_xgb_v1_platt", "p_margin_platt", "p_xgb_deep_platt"]) * 2 + 3 + 2 + 5,
                  "b_all_gains_present": all(all(f"gain_ll_{g}" in r for g in GAINS_LL) for r in rows), "c_all_classified": all("testable_on_kalshi_alone" in r[f"gain_ll_{GAINS_LL[0]}"] for r in rows),
-                 "d_formula_cv_le_0.25": bool(usable) and all(v["cv"] <= 0.25 for v in usable.values()), "d_designs_with_two_or_more_points": sorted(usable)}
-res["PASS"] = bool(all(v for k_, v in res["checks"].items() if isinstance(v, bool)))
+                 "d_formula_cv_le_0.25": bool(usable) and all(v["cv"] <= 0.25 for v in usable.values()), "d_designs_with_two_or_more_points": sorted(usable), "d_designs_not_checkable_marked_unvalidated": unvalidated, "d_all_four_designs_validated": len(usable) == 4}
+res["PASS"] = bool(all(v for k_, v in res["checks"].items() if isinstance(v, bool) and k_ != "d_all_four_designs_validated"))  # Amendment P2-1: props is flagged unvalidated, not a failure
 write("i1_detectability.json", res)
 print("I1", "PASS" if res["PASS"] else "FAIL", json.dumps(res["checks"], default=str)); print({k_: (len(v["implied_se"]), v["cv"]) for k_, v in chk.items()})
