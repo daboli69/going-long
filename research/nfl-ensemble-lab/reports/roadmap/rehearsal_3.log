@@ -1,0 +1,5 @@
+REHEARSAL 3: PASS
+{
+ "identity_1e-9": true,
+ "news_coverage_ge_90": true
+}

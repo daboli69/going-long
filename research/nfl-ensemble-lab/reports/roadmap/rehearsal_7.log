@@ -1,0 +1,7 @@
+REHEARSAL 7: PASS
+{
+ "spa_fp_1_to_9": true,
+ "pbo_null_within_0.10_of_exact": true,
+ "planted_winners_rejects_ge_80": true,
+ "planted_winners_pbo_lt_025": true
+}

@@ -136,11 +136,12 @@ def fit_normal(c, p, w=None):
     return float(r.x[0]), float(r.x[1]), bool(r.success)
 
 
-def ladder_frame() -> pd.DataFrame:
+def ladder_frame(qfilter=None) -> pd.DataFrame:
     """One row per (gid, target) market ladder at T-90 with its normal fit and the outcome (margin = home - away)."""
     import sys; sys.path.insert(0, str(ROOT))
     from lab import forecast_core as fc, kalshi as K
     q = pd.read_parquet(PK / "quotes.parquet"); q = q[q.series.isin(["KXNFLSPREAD", "KXNFLTOTAL"])]
+    q = qfilter(q) if qfilter else q
     hist = pd.read_parquet(HW / "kalshi_history.parquet")
     gids = sorted(q.gid.dropna().unique())
     games = pd.DataFrame({"gid": gids}); games["away"] = games.gid.str.split("_").str[2]; games["home"] = games.gid.str.split("_").str[3]

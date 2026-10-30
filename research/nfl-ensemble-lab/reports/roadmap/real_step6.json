@@ -1,0 +1,48 @@
+{
+ "step": "real_step6",
+ "git_head": "7ff7eb382277ab35c007990e8429cdfb02058247",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "sample": "season 2025: 271 games, 18 weeks; ladders 411; props ladders 191",
+ "junk_bh_no_discovery_blocks": [
+  19,
+  20
+ ],
+ "label_placebo_rejections": [
+  33,
+  800
+ ],
+ "time_shift_rejections": [
+  2,
+  160
+ ],
+ "time_shift_interval_covers_zero": [
+  159,
+  160
+ ],
+ "junk_nominal_significant": [
+  15,
+  400
+ ],
+ "junk_bh_discoveries": 0,
+ "placebo_rates": {
+  "label": 0.04125,
+  "time_shift": 0.0125,
+  "time_shift_cover_zero": 0.99375,
+  "junk_nominal": 0.0375
+ },
+ "stop_conditions_and_caps": {
+  "winners": "stop and record a negative result if the model weight's wild-bootstrap p-value is 0.05 or more and equivalence is shown; cap 8 variants",
+  "spreads_totals": "stop if the model is worse than the ladder with an interval excluding 0; cap 3 margin and 2 total variants",
+  "props": "stop if fewer than 10 week clusters or the market ladder beats every arm; cap 5 arms",
+  "point_in_time": "stop the chain if a planted 24 hour leak is not detected; no new tests"
+ },
+ "checks": {
+  "label_fp_1_to_9": true,
+  "time_shift_cover_ge_90": true,
+  "time_shift_fp_1_to_9": true,
+  "junk_2_to_9": true,
+  "no_bh_discovery_ge_90pct_of_blocks": true,
+  "stop_conditions_written": true
+ },
+ "PASS": true
+}

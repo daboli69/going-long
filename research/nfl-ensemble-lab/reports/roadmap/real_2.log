@@ -1,0 +1,21 @@
+REAL STEP 2: PASS
+{
+ "winner_ceiling_with_interval": true,
+ "ladder_counts": {
+  "margin": 207,
+  "total": 204,
+  "props": 191
+ },
+ "counts_ok": true,
+ "false_positive_rates": {
+  "winners_theta0.3": 0.025,
+  "winners_theta0.6": 0.0325,
+  "margin_theta0.15": 0.03,
+  "margin_theta0.3": 0.0325,
+  "total_theta0.15": 0.035,
+  "total_theta0.3": 0.035,
+  "props_theta0.15": 0.03,
+  "props_theta0.3": 0.0325
+ },
+ "fp_in_band": true
+}

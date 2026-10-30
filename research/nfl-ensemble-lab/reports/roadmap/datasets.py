@@ -20,10 +20,10 @@ WORLDS["planted"]["theta"] = 0.8
 
 
 # ------------------------------------------------------------------ real data
-def real_dataset(season: int = 2025) -> dict:
+def real_dataset(season: int = 2025, filt: str = "none") -> dict:
     W = winners_frame()
     W = W[(W.season == season) & W.p_t90.notna()].reset_index(drop=True)
-    L = ladder_frame()
+    L = ladder_frame(_ladder_filter(filt))
     L = L[L.season == season].reset_index(drop=True)
     wf = pd.read_parquet(HW / "forecast_wf.parquet").set_index("gid")
     for col in ("mu_L", "sd_L", "mu_naive", "sd_naive", "mu_elo"):
@@ -39,7 +39,32 @@ def real_dataset(season: int = 2025) -> dict:
     T["lad"] = T.gid + "|" + T.pid.astype(str) + "|" + T.stat
     T["wk"] = T.season.astype(str) + "_" + T.week.astype(int).astype(str).str.zfill(2)
     T = T.rename(columns={"y_home_win": "yes"})
+    if filt != "none":
+        q = pd.read_parquet(PK / "quotes.parquet")
+        q = q[(q.season == season)].drop_duplicates(["gid", "pid", "stat", "threshold"])[["gid", "pid", "stat", "threshold", "bid90", "ask90", "vol2490"]]
+        T = T.merge(q, left_on=["gid", "pid", "stat", "k"], right_on=["gid", "pid", "stat", "threshold"], how="left")
+        keep = pd.Series(True, index=T.index)
+        if filt in ("spread", "both"):
+            keep &= (T.ask90 - T.bid90) <= 0.05
+        if filt in ("volume", "both"):
+            keep &= T.vol2490 > 0
+        T = T[keep].copy()
     return {"winners": W, "ladders": L, "props_thr": T, "props_lad": props_ladders(T), "season": season}
+
+
+def _ladder_filter(filt):
+    if filt == "none":
+        return None
+    def f(q):
+        q = q.copy()
+        ok = q.liquid90.astype(bool)
+        if filt in ("spread", "both"):
+            ok &= (q.ask90 - q.bid90) <= 0.05
+        if filt in ("volume", "both"):
+            ok &= q.vol2490 > 0
+        q["liquid90"] = ok
+        return q
+    return f
 
 
 def props_ladders(T: pd.DataFrame) -> pd.DataFrame:

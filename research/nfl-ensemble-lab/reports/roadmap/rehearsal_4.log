@@ -1,0 +1,7 @@
+REHEARSAL 4: PASS
+{
+ "clean_not_flagged": true,
+ "all_planted_ge_24h_flagged": true,
+ "bmt_fp_le_5pct": true,
+ "bmt_detects_ge_95pct_at_0.5": true
+}

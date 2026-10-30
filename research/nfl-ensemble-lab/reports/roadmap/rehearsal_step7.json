@@ -1,0 +1,96 @@
+{
+ "step": "rehearsal_step7",
+ "git_head": "7ff7eb382277ab35c007990e8429cdfb02058247",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "template": "real season 2025 structure: 271 games, 18 weeks, props ladders 191",
+ "world_definitions": {
+  "null": {
+   "sA": 0.0,
+   "s_dec": 0.6,
+   "s_close": 0.0,
+   "s_var": {},
+   "planted": null
+  },
+  "exch": {
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {},
+   "planted": null
+  },
+  "planted": {
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {
+    "p_xgb_deep": 0.4,
+    "L": 0.4,
+    "K": 0.4
+   },
+   "planted": "p_xgb_deep",
+   "theta": 0.8
+  },
+  "planted_strong": {
+   "theta": 1.2,
+   "sA": 1.0,
+   "s_dec": 1.5,
+   "s_close": 0.7,
+   "s_var": {
+    "p_xgb_deep": 0.2,
+    "L": 0.2,
+    "K": 0.2
+   },
+   "planted": "p_xgb_deep"
+  }
+ },
+ "theta_default": 0.8,
+ "exchangeable_false_positive_rates": {
+  "winners": {
+   "spa": 0.0525,
+   "reality_check": 0.0525
+  },
+  "margin": {
+   "spa": 0.0625,
+   "reality_check": 0.0575
+  },
+  "total": {
+   "spa": 0.0525,
+   "reality_check": 0.05
+  },
+  "props": {
+   "spa": 0.0575,
+   "reality_check": 0.0575
+  }
+ },
+ "exchangeable_pbo_mean": {
+  "winners": 0.5037857142857143,
+  "margin": 0.6815714285714285,
+  "total": 0.46464285714285714,
+  "props": 0.6154285714285714
+ },
+ "planted_rejection_rate": {
+  "winners": 0.82,
+  "margin": 1.0,
+  "total": 1.0,
+  "props": 0.42
+ },
+ "planted_pbo_mean": {
+  "winners": 0.031428571428571424,
+  "margin": 0.0,
+  "total": 0.0,
+  "props": 0.28114285714285714
+ },
+ "null_pbo_exact": {
+  "winners": 0.5,
+  "margin": 0.6666666666666666,
+  "total": 0.5,
+  "props": 0.6
+ },
+ "conditions": {
+  "spa_fp_1_to_9": true,
+  "pbo_null_within_0.10_of_exact": true,
+  "planted_winners_rejects_ge_80": true,
+  "planted_winners_pbo_lt_025": true
+ },
+ "PASS": true
+}

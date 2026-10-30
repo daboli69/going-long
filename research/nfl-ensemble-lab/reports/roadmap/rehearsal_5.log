@@ -1,0 +1,5 @@
+REHEARSAL 5: PASS
+{
+ "fp_wild_in_1_to_9pct": true,
+ "planted_coverage_ge_90": true
+}

@@ -1,0 +1,9 @@
+REHEARSAL 6: PASS
+{
+ "label_fp_1_to_9": true,
+ "time_shift_fp_1_to_9": true,
+ "time_shift_cover_ge_90": true,
+ "junk_2_to_9": true,
+ "junk_no_bh_ge_90": true,
+ "planted_within_0.15": true
+}

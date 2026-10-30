@@ -1,0 +1,5 @@
+REHEARSAL 2: PASS
+{
+ "fp_in_band_0.5_to_5pct": true,
+ "gap_coverage_ge_90": true
+}

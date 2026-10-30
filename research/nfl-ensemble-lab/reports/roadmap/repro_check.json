@@ -1,0 +1,63 @@
+{
+ "step": "repro_check",
+ "git_head": "a3e7f6e4e7451d8673c5beb7af9e3cfe7bf9a396",
+ "protocol_sha256": "027eef8b9a8632fd71b20d99b0488c290748bbf51967d11872ed8dd4d3e9e98c",
+ "versions": {
+  "numpy": "2.1.3",
+  "pandas": "2.2.3",
+  "scipy": "1.14.1",
+  "pyarrow": "18.1.0",
+  "python": "3.12.10"
+ },
+ "seeds": {
+  "real_steps": 0,
+  "step2_power": 1,
+  "rehearsal_dataset_i": "1000 + offset + i"
+ },
+ "steps": {
+  "real_step2.json": {
+   "run_A_sha256": "2c70f78166e660ee5a75c90b12b845abdcc08ffd2970edb2d3de4c9b8960205c",
+   "run_B_sha256": "2c70f78166e660ee5a75c90b12b845abdcc08ffd2970edb2d3de4c9b8960205c",
+   "A_equals_B": true,
+   "equals_saved_ignoring_git_head": true,
+   "equals_saved_byte_for_byte": false
+  },
+  "real_step3.json": {
+   "run_A_sha256": "16d3fa2bbf6d278495d489ec8b2e9f527c1ba6e1a61cb01854891dcdfa75fc4d",
+   "run_B_sha256": "16d3fa2bbf6d278495d489ec8b2e9f527c1ba6e1a61cb01854891dcdfa75fc4d",
+   "A_equals_B": true,
+   "equals_saved_ignoring_git_head": true,
+   "equals_saved_byte_for_byte": false
+  },
+  "real_step5.json": {
+   "run_A_sha256": "a095df9e7268b155ee921518ae1c45ef0885ae605a762393e7246430897667e9",
+   "run_B_sha256": "a095df9e7268b155ee921518ae1c45ef0885ae605a762393e7246430897667e9",
+   "A_equals_B": true,
+   "equals_saved_ignoring_git_head": true,
+   "equals_saved_byte_for_byte": false
+  },
+  "real_step6.json": {
+   "run_A_sha256": "3423cf8987f33f902e7f621565bac85ba6f79ab151465a44381204f340c82cd6",
+   "run_B_sha256": "3423cf8987f33f902e7f621565bac85ba6f79ab151465a44381204f340c82cd6",
+   "A_equals_B": true,
+   "equals_saved_ignoring_git_head": true,
+   "equals_saved_byte_for_byte": false
+  },
+  "real_step7.json": {
+   "run_A_sha256": "d24a8b2de9074fa4f7f6c1251f5552bcc5b8d0a3a02d934bdd6e313aecc10fed",
+   "run_B_sha256": "d24a8b2de9074fa4f7f6c1251f5552bcc5b8d0a3a02d934bdd6e313aecc10fed",
+   "A_equals_B": true,
+   "equals_saved_ignoring_git_head": true,
+   "equals_saved_byte_for_byte": false
+  },
+  "step4_real.json": {
+   "run_A_sha256": "ea19328a311d75ee9cb6f31ec1237c351610d2f24fa68a1295f0600a95973a1c",
+   "run_B_sha256": "ea19328a311d75ee9cb6f31ec1237c351610d2f24fa68a1295f0600a95973a1c",
+   "A_equals_B": true,
+   "equals_saved_ignoring_git_head": true,
+   "equals_saved_byte_for_byte": false
+  }
+ },
+ "all_pairs_identical": true,
+ "all_equal_saved_ignoring_git_head": true
+}
