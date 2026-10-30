@@ -1,0 +1,10 @@
+{
+ "clusters": 20,
+ "ladders": 1242,
+ "sims": 400,
+ "false_positive_percentile_bootstrap": 0.0425,
+ "false_positive_t_interval_on_cluster_means": 0.0375,
+ "median_max_over_sd_of_ladder_differences": 8.222234013427428,
+ "nominal_one_sided": 0.025,
+ "mc_standard_error_at_nominal": 0.007806247497997998
+}
