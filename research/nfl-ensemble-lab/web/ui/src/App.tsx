@@ -3,7 +3,7 @@ import { api } from "./api";
 import type { Detail, GameRow, Meta } from "./types";
 import { etStamp, etTime } from "./lib";
 import { GameStrip } from "./components/GameStrip";
-import { Overview } from "./components/Overview";
+import { Overview, Scorebug } from "./components/Overview";
 import { About, Matchup, Props } from "./components/Others";
 import { SimGame } from "./components/SimGame";
 import { Callout, Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/primitives";
@@ -36,7 +36,7 @@ export default function App() {
     api.game(gid).then(setDetail).catch((e) => setError(String(e)));
   }, [gid]);
 
-  if (error) return <div className="p-8"><Callout tone="amber">Can't reach the local server ({error}). Is <code>launch_game_center.bat</code> still running?</Callout></div>;
+  if (error) return <div className="p-6"><Callout tone="amber">Can't reach the local server ({error}). Is <code>launch_game_center.bat</code> still running?</Callout></div>;
   if (!meta) return <div className="p-8 text-muted">Loading…</div>;
   if (!meta.ok) return <div className="p-8"><Callout tone="amber">{meta.reason}</Callout></div>;
 
@@ -48,25 +48,30 @@ export default function App() {
        saved ? `forecast saved ${etStamp(saved)}` : "no saved forecast, using sportsbook lines"].join(" · ");
 
   return (
-    <div className="mx-auto max-w-[1280px] space-y-5 px-4 py-6 sm:px-6">
-      <header className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">NFL Game Center</h1>
-          <p className="mt-1 text-sm text-muted">{summary}</p>
+    <>
+      <header className="bg-panel2">
+        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4 sm:px-6">
+          <div>
+            <h1 className="text-2xl font-bold text-white">NFL Game Center</h1>
+            <p className="mt-0.5 text-[15px] text-muted">{summary}</p>
+          </div>
+          <label className="flex items-center gap-3 text-[15px] text-muted">
+            Week
+            <select
+              className="min-h-[44px] bg-panel px-3 text-base text-white hover:bg-line"
+              value={week ?? ""}
+              onChange={(e) => setWeek(Number(e.target.value))}
+            >
+              {meta.weeks.map((w) => <option key={w} value={w}>Week {w}</option>)}
+            </select>
+          </label>
         </div>
-        <label className="flex items-center gap-2 text-sm text-muted">
-          Week
-          <select
-            className="rounded-lg border border-line bg-panel px-3 py-2 text-white focus:border-accent focus:outline-none"
-            value={week ?? ""}
-            onChange={(e) => setWeek(Number(e.target.value))}
-          >
-            {meta.weeks.map((w) => <option key={w} value={w}>Week {w}</option>)}
-          </select>
-        </label>
       </header>
 
+      <main className="mx-auto max-w-[1280px] space-y-5 px-4 pb-10 pt-0.5 sm:px-6">
       {games && games.length > 0 && <GameStrip games={games} selected={gid} onSelect={setGid} />}
+
+      {detail && <Scorebug d={detail} />}
 
       {detail && (
         <Tabs defaultValue="game" key={detail.gid}>
@@ -84,6 +89,7 @@ export default function App() {
           <TabsContent value="about"><About meta={meta} /></TabsContent>
         </Tabs>
       )}
-    </div>
+      </main>
+    </>
   );
 }

@@ -3,5 +3,14 @@
 @tailwind utilities;
 
 html, body, #root { min-height: 100%; }
-body { @apply bg-bg text-slate-100 antialiased; }
-* { scrollbar-color: #1e2b45 transparent; scrollbar-width: thin; }
+body { @apply bg-bg text-slate-100 antialiased; font-variant-numeric: tabular-nums; }
+* { scrollbar-color: #5a6068 transparent; scrollbar-width: thin; }
+:focus-visible { outline: 2px solid #ffcf3f; outline-offset: 2px; }
+summary, label[for], select { cursor: pointer; }
+
+/* A team's colour darkened enough that white text on it passes AA for every team. */
+.team-field { background: color-mix(in srgb, var(--team) 52%, #000); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}

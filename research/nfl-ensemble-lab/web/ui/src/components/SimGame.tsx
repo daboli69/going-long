@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { api } from "../api";
 import type { Band, Detail, PropRow, Sim, SimPlay } from "../types";
 import { num } from "../lib";
@@ -36,14 +36,14 @@ const short = (name: string) => name.replace(/^another [A-Z]+ /, "Other ");
 function TeamBox({ team, color, qb, box }: { team: string; color: string; qb: string; box: Box }) {
   const q = box.qb;
   return (
-    <div className="space-y-3 text-sm">
-      <div className="flex items-center gap-2 border-b border-line pb-1 font-bold text-white">
-        <span className="inline-block h-3 w-3 rounded-sm" style={{ background: color }} />{team}
+    <div className="space-y-3 text-[15px]">
+      <div className="flex items-center gap-2 border-b border-line pb-1 text-lg font-bold text-white">
+        <span className="inline-block h-4 w-1.5" style={{ background: color }} />{team}
       </div>
       <div>
-        <div className="text-xs text-muted">Passing</div>
+        <div className="text-sm text-muted">Passing</div>
         <div className="flex justify-between"><span className="text-slate-300">{qb}</span><span className="font-medium text-white">{q.comp}/{q.att}, {q.yds} yds</span></div>
-        <div className="text-xs text-muted">{q.td} TD · {q.int} INT · {q.sacks} sacked</div>
+        <div className="text-sm text-muted">{q.td} TD · {q.int} INT · {q.sacks} sacked</div>
       </div>
       <Leaders title="Rushing" unit="car" rows={leaders(box.rush, 3)} empty="No carries yet" />
       <Leaders title="Receiving" unit="rec" rows={leaders(box.rec, 4)} empty="No catches yet" />
@@ -54,7 +54,7 @@ function TeamBox({ team, color, qb, box }: { team: string; color: string; qb: st
 function Leaders({ title, unit, rows, empty }: { title: string; unit: string; rows: [string, [number, number, number]][]; empty: string }) {
   return (
     <div>
-      <div className="flex justify-between text-xs text-muted"><span>{title}</span><span>{unit} / yds / TD</span></div>
+      <div className="flex justify-between text-sm text-muted"><span>{title}</span><span>{unit} / yds / TD</span></div>
       {rows.length === 0 && <div className="text-muted">{empty}</div>}
       {rows.map(([name, v]) => (
         <div key={name} className="flex justify-between"><span className="truncate pr-2 text-slate-300">{short(name)}</span><span className="whitespace-nowrap text-white">{v[0]} / {v[1]} / {v[2]}</span></div>
@@ -71,8 +71,8 @@ function Field({ p, d, moved }: { p: SimPlay; d: Detail; moved: boolean }) {
   const showFirst = p.kind !== "fg" && p.kind !== "punt" && p.x_first !== p.x_start;
   const lines = Array.from({ length: 19 }, (_, i) => (i + 1) * 5);
   return (
-    <svg viewBox="0 0 120 54" className="w-full rounded-lg" role="img" aria-label={p.text}>
-      <rect x="0" y="0" width="120" height="54" fill="#14532d" />
+    <svg viewBox="0 0 120 54" className="w-full" role="img" aria-label={p.text}>
+      <rect x="0" y="0" width="120" height="54" fill="#1a5230" />
       <rect x="0" y="0" width="10" height="54" fill={d.away_color} />
       <rect x="110" y="0" width="10" height="54" fill={d.home_color} />
       <text x="5" y="27" fill="white" fontSize="4" fontWeight="700" textAnchor="middle" dominantBaseline="middle" transform="rotate(-90 5 27)">{d.away}</text>
@@ -93,7 +93,7 @@ function Field({ p, d, moved }: { p: SimPlay; d: Detail; moved: boolean }) {
       </g>
       {moved && p.event && (
         <g>
-          <rect x="35" y="19" width="50" height="16" rx="2" fill={p.event === "TD" || p.event === "FG" ? (p.team === d.home ? d.home_color : d.away_color) : "#0f1a2e"} stroke="white" strokeWidth="0.3" />
+          <rect x="35" y="19" width="50" height="16" rx="2" fill={p.event === "TD" || p.event === "FG" ? (p.team === d.home ? d.home_color : d.away_color) : "#0e0f11"} stroke="white" strokeWidth="0.3" />
           <text x="60" y="27.5" fill="white" fontSize="5" fontWeight="800" textAnchor="middle" dominantBaseline="middle">{BANNER[p.event].toUpperCase()}</text>
         </g>
       )}
@@ -132,20 +132,18 @@ function Replay({ sim, d }: { sim: Sim; d: Detail }) {
 
   return (
     <Card>
-      <div className="mb-3 grid grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-lg border border-line bg-[#0b1220] px-3 py-2">
-        <div className="flex items-center gap-2">
-          <span className="h-8 w-1.5 rounded" style={{ background: d.away_color }} />
-          <span className="font-bold text-white">{d.away}</span>
-          <span className="ml-auto text-3xl font-extrabold tabular-nums text-white">{score[d.away]}</span>
+      <div className="mb-4 grid grid-cols-[1fr_auto_1fr] items-stretch">
+        <div className="team-field flex items-center gap-2 px-3 py-2 text-white" style={{ "--team": d.away_color } as CSSProperties}>
+          <span className="text-lg font-bold">{d.away}</span>
+          <span className="ml-auto text-4xl font-bold">{score[d.away]}</span>
         </div>
-        <div className="px-3 text-center">
-          <div className="font-semibold tabular-nums text-white">{last && moved ? "Final" : `Q${p.qtr} ${p.clock}`}</div>
-          <div className="text-xs text-muted">{last && moved ? "simulated" : `${p.team} ball`}</div>
+        <div className="flex flex-col justify-center bg-panel2 px-3 text-center sm:px-5">
+          <div className="font-semibold text-white">{last && moved ? "Final" : `Q${p.qtr} ${p.clock}`}</div>
+          <div className="text-sm text-muted">{last && moved ? "simulated" : `${p.team} ball`}</div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-3xl font-extrabold tabular-nums text-white">{score[d.home]}</span>
-          <span className="ml-auto font-bold text-white">{d.home}</span>
-          <span className="h-8 w-1.5 rounded" style={{ background: d.home_color }} />
+        <div className="team-field flex items-center gap-2 px-3 py-2 text-white" style={{ "--team": d.home_color } as CSSProperties}>
+          <span className="text-4xl font-bold">{score[d.home]}</span>
+          <span className="ml-auto text-lg font-bold">{d.home}</span>
         </div>
       </div>
 
@@ -153,21 +151,21 @@ function Replay({ sim, d }: { sim: Sim; d: Detail }) {
         <div className="order-2 lg:order-1"><TeamBox team={d.away} color={d.away_color} qb={sim.replay!.qbs[d.away]} box={box[d.away]} /></div>
         <div className="order-1 lg:order-2">
           <Field p={p} d={d} moved={moved} />
-          <div className="mt-1 flex justify-between text-xs text-muted"><span>Play {i + 1} of {plays.length}</span><span>{situation}</span></div>
-          <div className="mt-2 min-h-[3rem] rounded-lg border border-line px-3 py-2 text-center text-sm font-medium text-white">{p.text}</div>
+          <div className="mt-1 flex justify-between text-sm text-muted"><span>Play {i + 1} of {plays.length}</span><span>{situation}</span></div>
+          <div className="mt-2 min-h-[3.25rem] bg-panel2 px-3 py-2 text-center text-base text-white">{p.text}</div>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <button className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-[#0b1220]" onClick={() => { if (last) setI(0); setPlaying(!playing || last); }}>
+            <button className="min-h-[44px] bg-accent px-5 text-base font-semibold text-bg hover:bg-[#ffdb70]" onClick={() => { if (last) setI(0); setPlaying(!playing || last); }}>
               {playing ? "Pause" : last ? "Watch again" : i === 0 ? "Start replay" : "Resume"}
             </button>
-            <div className="flex overflow-hidden rounded-lg border border-line" role="group" aria-label="Replay speed">
+            <div className="flex gap-0.5" role="group" aria-label="Replay speed">
               {SPEEDS.map((s) => (
-                <button key={s} className={`px-3 py-2 text-sm ${s === speed ? "bg-line text-white" : "text-muted"}`} onClick={() => setSpeed(s)}>{s}x</button>
+                <button key={s} aria-pressed={s === speed} className={`min-h-[44px] min-w-[44px] px-3 text-base ${s === speed ? "bg-white text-bg" : "bg-panel2 text-slate-300 hover:bg-line"}`} onClick={() => setSpeed(s)}>{s}x</button>
               ))}
             </div>
-            <button className="rounded-lg border border-line px-3 py-2 text-sm text-muted hover:text-white" onClick={() => { setPlaying(false); setI(plays.length - 1); }}>Skip to final</button>
+            <button className="min-h-[44px] bg-panel2 px-4 text-base text-slate-300 hover:bg-line hover:text-white" onClick={() => { setPlaying(false); setI(plays.length - 1); }}>Skip to final</button>
           </div>
           <input type="range" min={0} max={plays.length - 1} value={i} onChange={(e) => { setPlaying(false); setI(Number(e.target.value)); }}
-            className="mt-3 w-full accent-[#60a5fa]" aria-label="Replay position" />
+            className="mt-2 h-11 w-full accent-[#ffcf3f]" aria-label="Replay position" />
         </div>
         <div className="order-3"><TeamBox team={d.home} color={d.home_color} qb={sim.replay!.qbs[d.home]} box={box[d.home]} /></div>
       </div>
@@ -180,13 +178,13 @@ function Range({ title, b, lo, hi, color }: { title: string; b: Band; lo: number
   const at = (x: number) => `${((x - lo) / (hi - lo)) * 100}%`;
   return (
     <Card>
-      <div className="text-sm text-muted">{title}</div>
-      <div className="mt-1 text-3xl font-bold text-white">{b.low} to {b.high}</div>
-      <div className="relative my-3 h-2 rounded-full bg-line">
-        <div className="absolute h-2 rounded-full" style={{ left: at(b.low), width: `calc(${at(b.high)} - ${at(b.low)})`, background: color }} />
-        <div className="absolute -top-1 h-4 w-1 rounded bg-white" style={{ left: at(b.median) }} />
+      <h3 className="text-[15px] text-muted">{title}</h3>
+      <div className="mt-1 text-[34px] font-bold text-white">{b.low} to {b.high}</div>
+      <div className="relative my-3 h-2 bg-line">
+        <div className="absolute h-2" style={{ left: at(b.low), width: `calc(${at(b.high)} - ${at(b.low)})`, background: color }} />
+        <div className="absolute -top-1 h-4 w-1 bg-white" style={{ left: at(b.median) }} />
       </div>
-      <div className="text-sm text-slate-300">Middle result: <b className="text-white">{b.median}</b></div>
+      <div className="text-base text-slate-300">Middle result: <b className="text-white">{b.median}</b></div>
     </Card>
   );
 }
@@ -195,25 +193,25 @@ function Conditions({ sim, d }: { sim: Sim; d: Detail }) {
   const w = sim.weather!;
   const has = w.status === "forecast" || w.status === "recorded";
   const cell = (label: string, value: string) => (
-    <div><div className="text-xs text-muted">{label}</div><div className="font-medium text-white">{value}</div></div>
+    <div><div className="text-sm text-muted">{label}</div><div className="text-base text-white">{value}</div></div>
   );
   return (
     <Card>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div className="font-semibold text-white">{d.date_label} · {d.time_label} ET · {d.stadium}</div>
-        <div className="text-xs text-muted">{w.roof === "indoors" ? "Indoors" : w.roof === "retractable" ? "Retractable roof" : "Outdoors"}</div>
+        <div className="text-sm text-muted">{w.roof === "indoors" ? "Indoors" : w.roof === "retractable" ? "Retractable roof" : "Outdoors"}</div>
       </div>
       {has ? (
         <>
-          <div className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+          <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
             {cell("Kickoff", `${w.temp_f}°F, ${w.condition!.toLowerCase()}`)}
             {cell("Wind", `${w.wind_mph} mph, gusts ${w.gust_mph}`)}
             {cell(w.status === "recorded" ? "Rain or snow" : "Chance of rain or snow", w.status === "recorded" ? `${w.precip_in} in` : `${w.precip_chance ?? 0}%`)}
             {cell("Source", w.source)}
           </div>
-          <div className="mt-2 text-xs text-muted">{w.text} Wind and rain are the highest values in the first 3 hours. Weather is shown for context and does not change the forecast.</div>
+          <div className="mt-3 text-sm text-muted">{w.text} Wind and rain are the highest values in the first 3 hours. Weather is shown for context and does not change the forecast.</div>
         </>
-      ) : <div className="mt-2 text-sm text-slate-300">{w.text}</div>}
+      ) : <div className="mt-2 text-base text-slate-300">{w.text}</div>}
     </Card>
   );
 }
@@ -222,22 +220,22 @@ function Injuries({ sim }: { sim: Sim }) {
   const moves = sim.injury_moves ?? [];
   const moved = new Set(moves.map((m) => m.player));
   const rest = (sim.unavailable ?? []).filter((u) => !moved.has(u.player));
-  if (!moves.length && !rest.length) return <div className="text-sm text-muted">No one in either lineup is listed as out{sim.injury_source ? ` on ${sim.injury_source}` : ""}.</div>;
+  if (!moves.length && !rest.length) return <div className="text-base text-muted">No one in either lineup is listed as out{sim.injury_source ? ` on ${sim.injury_source}` : ""}.</div>;
   return (
     <Card>
       {moves.map((m) => (
-        <div key={m.player} className="border-b border-line py-2 text-sm last:border-0">
+        <div key={m.player} className="border-b border-line py-2 text-base last:border-0">
           <div><b className="text-white">{m.player}</b> <span className="text-muted">{m.team} · {m.status.toLowerCase()}</span></div>
           <div className="text-slate-300">{m.text}</div>
         </div>
       ))}
       {rest.length > 0 && (
-        <details className="pt-2 text-sm">
-          <summary className="cursor-pointer text-muted">{rest.length} other player{rest.length === 1 ? "" : "s"} out who are not among the projected players</summary>
-          <div className="mt-1 text-slate-300">{rest.map((u) => `${u.player} (${u.team}, ${u.status.toLowerCase()})`).join(", ")}</div>
+        <details className="text-base">
+          <summary className="flex min-h-[44px] items-center text-muted hover:text-white">{rest.length} other player{rest.length === 1 ? "" : "s"} out who are not among the projected players</summary>
+          <div className="pb-2 text-slate-300">{rest.map((u) => `${u.player} (${u.team}, ${u.status.toLowerCase()})`).join(", ")}</div>
         </details>
       )}
-      <div className="mt-2 text-xs text-muted">
+      <div className="mt-2 text-sm leading-relaxed text-muted">
         From {sim.injury_source}. Out and doubtful players are left out. About three quarters of their projected yards and catches go to teammates at the
         same position, in proportion to each teammate's projection; the rest goes to players not listed. A backup quarterback takes the starter's passing projection.
       </div>
@@ -254,17 +252,17 @@ function Spotlight({ sim, d }: { sim: Sim; d: Detail }) {
   };
   const row = (r: PropRow) => (
     <div key={r.player + r.stat} className="flex items-center justify-between border-b border-line py-2 last:border-0">
-      <div><div className="text-sm font-medium text-white">{r.player}</div><div className="text-xs text-muted">{r.stat.toLowerCase()}</div></div>
-      <div className="text-right"><div className="text-xl font-bold text-white">{num(r.typical, 0)}</div>
-        {r.range_low !== null && <div className="text-xs text-muted">8 in 10: {num(r.range_low, 0)} to {num(r.range_high, 0)}</div>}</div>
+      <div><div className="text-base text-white">{r.player}</div><div className="text-sm text-muted">{r.stat.toLowerCase()}</div></div>
+      <div className="text-right"><div className="text-2xl font-bold text-white">{num(r.typical, 0)}</div>
+        {r.range_low !== null && <div className="text-sm text-muted">8 in 10: {num(r.range_low, 0)} to {num(r.range_high, 0)}</div>}</div>
     </div>
   );
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-0.5 md:grid-cols-2">
       {[{ t: d.away, n: d.away_name, c: d.away_color }, { t: d.home, n: d.home_name, c: d.home_color }].map(({ t, n, c }) => (
         <Card key={t}>
-          <div className="flex items-center gap-2 font-bold text-white"><span className="inline-block h-3 w-3 rounded-sm" style={{ background: c }} />{n}</div>
-          <div className="mb-1 text-xs text-muted">From {sim.player_source?.[t]}{(sim.injury_moves ?? []).some((m) => m.team === t) ? ", adjusted for injuries" : ""}.</div>
+          <h3 className="flex items-center gap-2 text-lg font-bold text-white"><span className="inline-block h-4 w-1.5" style={{ background: c }} />{n}</h3>
+          <div className="mb-1 text-sm text-muted">From {sim.player_source?.[t]}{(sim.injury_moves ?? []).some((m) => m.team === t) ? ", adjusted for injuries" : ""}.</div>
           {pick(t).map(row)}
         </Card>
       ))}
@@ -274,13 +272,13 @@ function Spotlight({ sim, d }: { sim: Sim; d: Detail }) {
 
 function Defense({ sim, d }: { sim: Sim; d: Detail }) {
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-0.5 md:grid-cols-2">
       {sim.defense!.map((c) => (
         <Card key={c.team}>
-          <div className="font-bold text-white">{c.team === d.away ? d.away_name : d.home_name} defense</div>
-          <div className="mb-2 text-xs text-muted">This season, {c.games} games. Rank 1 allows the most.</div>
+          <h3 className="text-lg font-bold text-white">{c.team === d.away ? d.away_name : d.home_name} defense</h3>
+          <div className="mb-2 text-sm text-muted">This season, {c.games} games. Rank 1 allows the most.</div>
           {c.rows.map((r) => (
-            <div key={r.label} className="flex justify-between border-b border-line py-1.5 text-sm last:border-0">
+            <div key={r.label} className="flex justify-between border-b border-line py-1.5 text-base last:border-0">
               <span className="text-slate-300">{r.label}</span>
               <span className="text-white"><b>{r.value}</b> <span className="text-muted">({r.rank})</span></span>
             </div>
@@ -292,8 +290,8 @@ function Defense({ sim, d }: { sim: Sim; d: Detail }) {
 }
 
 const Section = ({ title, note, children }: { title: string; note?: string; children: React.ReactNode }) => (
-  <section className="space-y-2">
-    <div><h2 className="text-lg font-bold text-white">{title}</h2>{note && <p className="text-sm text-muted">{note}</p>}</div>
+  <section className="space-y-3">
+    <div><h2 className="text-xl font-bold text-white">{title}</h2>{note && <p className="mt-0.5 max-w-[75ch] text-[15px] leading-relaxed text-muted">{note}</p>}</div>
     {children}
   </section>
 );
@@ -335,10 +333,10 @@ export function SimGame({ d }: { d: Detail }) {
       </Section>
 
       <Section title="Score ranges" note={`8 in 10 of the ${r.sims.toLocaleString()} simulated games land inside each range. Spread from ${sim.source?.margin}; total from ${sim.source?.total}.`}>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-0.5 md:grid-cols-3">
           <Range title={`${d.away_name} points`} b={r.away} lo={0} hi={maxPts} color={d.away_color} />
           <Range title={`${d.home_name} points`} b={r.home} lo={0} hi={maxPts} color={d.home_color} />
-          <Range title="Total points" b={r.total} lo={Math.max(0, r.total.low - 10)} hi={r.total.high + 10} color="#60a5fa" />
+          <Range title="Total points" b={r.total} lo={Math.max(0, r.total.low - 10)} hi={r.total.high + 10} color="#8b9097" />
         </div>
       </Section>
 

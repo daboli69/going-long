@@ -1,52 +1,54 @@
 import { flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type ColumnDef, type SortingState } from "@tanstack/react-table";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { api } from "../api";
 import type { Detail, GlossaryItem, Meta, PropRow } from "../types";
-import { compactStamp, num, pct } from "../lib";
+import { cn, compactStamp, num, pct } from "../lib";
 import { Badge, Callout, Card, Segmented } from "./ui/primitives";
 
 // ------------------------------------------------------------------ Teams and injuries
 export function Matchup({ d }: { d: Detail }) {
   const teams = [
-    { abbr: d.away, name: d.away_name },
-    { abbr: d.home, name: d.home_name },
+    { abbr: d.away, name: d.away_name, color: d.away_color },
+    { abbr: d.home, name: d.home_name, color: d.home_color },
   ];
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-0.5 md:grid-cols-2">
         {teams.map((t) => {
           const s = d.matchup[t.abbr];
           const inj = d.injuries?.teams[t.abbr] ?? [];
           return (
-            <Card key={t.abbr}>
-              <div className="flex items-baseline justify-between">
-                <div className="text-lg font-bold text-white">{t.name}</div>
-                <div className="text-sm text-muted">{s.record}</div>
+            <Card key={t.abbr} className="p-0">
+              <div className="team-field flex items-baseline justify-between px-5 py-3 text-white" style={{ "--team": t.color } as CSSProperties}>
+                <h2 className="text-xl font-bold">{t.name}</h2>
+                <div className="text-base">{s.record}</div>
               </div>
+              <div className="px-5 pb-5 pt-3">
               {s.games > 0 && (
-                <div className="mt-1 text-sm text-slate-300">
+                <div className="text-base text-slate-300">
                   Scores {num(s.pf)} and allows {num(s.pa)} points a game.
                 </div>
               )}
-              <div className="mt-4 text-xs text-muted">Recent games</div>
-              {s.last.length ? s.last.map((x) => <div key={x} className="border-b border-line py-1 text-sm last:border-0">{x}</div>) : <div className="text-sm text-muted">No games played yet.</div>}
-              <div className="mt-4 text-xs text-muted">Injury report</div>
-              {inj.length === 0 && <div className="text-sm text-muted">{d.injuries?.stamp ? "No players listed." : "No injury report saved."}</div>}
+              <h3 className="mt-4 text-[15px] text-muted">Recent games</h3>
+              {s.last.length ? s.last.map((x) => <div key={x} className="border-b border-line py-1.5 text-base last:border-0">{x}</div>) : <div className="text-base text-muted">No games played yet.</div>}
+              <h3 className="mt-4 text-[15px] text-muted">Injury report</h3>
+              {inj.length === 0 && <div className="text-base text-muted">{d.injuries?.stamp ? "No players listed." : "No injury report saved."}</div>}
               {inj.map((r) => (
                 <div key={r.player} className="flex items-start justify-between gap-3 border-b border-line py-2 last:border-0">
                   <div>
-                    <div className="text-sm"><b>{r.player}</b> <span className="text-muted">{r.pos}</span></div>
-                    {r.note && <div className="text-xs leading-snug text-muted">{r.note}</div>}
+                    <div className="text-base"><b>{r.player}</b> <span className="text-muted">{r.pos}</span></div>
+                    {r.note && <div className="text-sm leading-snug text-muted">{r.note}</div>}
                   </div>
                   <Badge tone={r.tone} title={r.meaning}>{r.status}</Badge>
                 </div>
               ))}
+              </div>
             </Card>
           );
         })}
       </div>
       {d.injuries?.stamp && (
-        <p className="text-xs text-muted">
+        <p className="text-sm text-muted">
           ESPN injury list, checked {compactStamp(d.injuries.stamp)}. Out and Doubtful players are left out of player projections.
         </p>
       )}
@@ -76,36 +78,42 @@ export function Props({ d }: { d: Detail }) {
   if (!rows.length) return <Callout tone="blue">No player projections are saved for this game yet.</Callout>;
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-x-8 gap-y-2">
+      <div className="flex flex-wrap gap-x-8 gap-y-3">
         <Segmented label="Stat" options={stats} value={stat} onChange={setStat} />
         <Segmented label="Team" options={["Both", d.away, d.home]} value={team} onChange={setTeam} />
       </div>
       <Card className="overflow-x-auto p-0">
-        <table className="w-full text-sm">
+        <table className="w-full text-[15px]">
           <thead>
             {table.getHeaderGroups().map((hg) => (
-              <tr key={hg.id} className="border-b border-line text-left text-xs text-muted">
-                {hg.headers.map((h) => (
-                  <th key={h.id} className="cursor-pointer select-none whitespace-nowrap px-4 py-3 font-medium hover:text-white" onClick={h.column.getToggleSortingHandler()}>
-                    {flexRender(h.column.columnDef.header, h.getContext())}
-                    {{ asc: " ▲", desc: " ▼" }[h.column.getIsSorted() as string] ?? ""}
-                  </th>
-                ))}
+              <tr key={hg.id} className="border-b border-line text-left text-sm text-muted">
+                {hg.headers.map((h, i) => {
+                  const dir = h.column.getIsSorted();
+                  return (
+                    <th key={h.id} scope="col" aria-sort={dir === "asc" ? "ascending" : dir === "desc" ? "descending" : "none"}
+                      className={cn("whitespace-nowrap font-normal", i === 0 && "sticky left-0 z-10 bg-panel")}>
+                      <button className="min-h-[44px] w-full px-4 text-left hover:text-white" onClick={h.column.getToggleSortingHandler()}>
+                        {flexRender(h.column.columnDef.header, h.getContext())}
+                        <span aria-hidden className="text-accent">{{ asc: " ▲", desc: " ▼" }[dir as string] ?? ""}</span>
+                      </button>
+                    </th>
+                  );
+                })}
               </tr>
             ))}
           </thead>
           <tbody>
             {table.getRowModel().rows.map((r) => (
-              <tr key={r.id} className="border-b border-line last:border-0 hover:bg-panel2">
-                {r.getVisibleCells().map((c) => (
-                  <td key={c.id} className="whitespace-nowrap px-4 py-2.5">{flexRender(c.column.columnDef.cell, c.getContext())}</td>
+              <tr key={r.id} className="group border-b border-line last:border-0">
+                {r.getVisibleCells().map((c, i) => (
+                  <td key={c.id} className={cn("whitespace-nowrap px-4 py-2.5 group-hover:bg-line", i === 0 && "sticky left-0 z-10 bg-panel")}>{flexRender(c.column.columnDef.cell, c.getContext())}</td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
       </Card>
-      <p className="text-xs text-muted">
+      <p className="text-sm text-muted">
         Projection is the middle estimate; the stat lands inside the range about 8 times in 10. Market line and chance come from Kalshi prices saved before the game,
         shown only where a market exists.
       </p>
@@ -124,24 +132,24 @@ export function About({ meta }: { meta: Meta }) {
   const hit = k.range_hit?.liquid ?? k.range_hit?.thin;
   if (hit !== undefined) record.push(["Player stats inside the 8 in 10 range", `${pct(hit)} in past tests (target 80%)`]);
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-0.5 lg:grid-cols-2">
       <Card>
-        <h3 className="font-semibold text-white">Where the numbers come from</h3>
-        <p className="mt-1 text-sm text-slate-300">{meta.reality_check}</p>
-        <h3 className="mt-4 font-semibold text-white">Track record</h3>
+        <h3 className="text-lg font-semibold text-white">Where the numbers come from</h3>
+        <p className="mt-1 text-base leading-relaxed text-slate-300">{meta.reality_check}</p>
+        <h3 className="mt-5 text-lg font-semibold text-white">Track record</h3>
         {record.map(([label, value]) => (
           <div key={label} className="border-b border-line py-2 last:border-0">
-            <div className="text-xs text-muted">{label}</div>
-            <div className="text-sm text-white">{value}</div>
+            <div className="text-sm text-muted">{label}</div>
+            <div className="text-base text-white">{value}</div>
           </div>
         ))}
       </Card>
       <Card>
-        <h3 className="mb-1 font-semibold text-white">Terms</h3>
+        <h3 className="mb-1 text-lg font-semibold text-white">Terms</h3>
         {items.map((g) => (
-          <details key={g.term} className="border-b border-line py-2 last:border-0">
-            <summary className="cursor-pointer text-sm text-white">{g.term}</summary>
-            <p className="mt-1 text-sm text-slate-300">{g.text}</p>
+          <details key={g.term} className="border-b border-line last:border-0">
+            <summary className="flex min-h-[44px] items-center text-base text-white hover:text-accent">{g.term}</summary>
+            <p className="pb-3 text-base leading-relaxed text-slate-300">{g.text}</p>
           </details>
         ))}
       </Card>
