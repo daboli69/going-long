@@ -11,6 +11,10 @@ PROPS = [
     {"player": "Away RB", "team": "AAA", "stat": "Rushing yards", "typical": 70.0},
     {"player": "Home QB", "team": "HHH", "stat": "Passing yards", "typical": 260.0},
     {"player": "Home RB", "team": "HHH", "stat": "Rushing yards", "typical": 90.0},
+    {"player": "Home WR", "team": "HHH", "stat": "Receiving yards", "typical": 150.0},
+    {"player": "Home WR", "team": "HHH", "stat": "Receptions", "typical": 11.0},
+    {"player": "Home TE", "team": "HHH", "stat": "Receiving yards", "typical": 110.0},
+    {"player": "Home TE", "team": "HHH", "stat": "Receptions", "typical": 9.0},
 ]
 
 
@@ -60,31 +64,56 @@ def test_score_changes_only_on_scoring_plays():
         prev = p["score"]
 
 
-def _row(player, stat, typical, team="AAA"):
-    return {"player": player, "team": team, "stat": stat, "typical": typical, "range_low": typical / 2, "range_high": typical * 2,
-            "market_line": None, "market_chance": None, "our_chance": None}
+def _usage():
+    from lab import usage as U
+    players = pd.DataFrame([
+        {"pid": "wr1", "pos": "WR", "n": 6, "last": 6, "active": True, "share_rec_yds": 0.40, "share_rec": 0.35, "share_rush_yds": 0.0, "pass_yds": 0, "att": 0, "carries": 0, "rush_pg": 0},
+        {"pid": "wr2", "pos": "WR", "n": 6, "last": 6, "active": True, "share_rec_yds": 0.30, "share_rec": 0.30, "share_rush_yds": 0.0, "pass_yds": 0, "att": 0, "carries": 0, "rush_pg": 0},
+        {"pid": "te1", "pos": "TE", "n": 6, "last": 6, "active": True, "share_rec_yds": 0.20, "share_rec": 0.20, "share_rush_yds": 0.0, "pass_yds": 0, "att": 0, "carries": 0, "rush_pg": 0},
+        {"pid": "rb1", "pos": "RB", "n": 6, "last": 6, "active": True, "share_rec_yds": 0.10, "share_rec": 0.15, "share_rush_yds": 1.0, "pass_yds": 0, "att": 0, "carries": 18, "rush_pg": 80},
+    ])
+    return U.Usage("AAA", 6, {"rec_yds": 220.0, "rec": 20.0, "rush_yds": 110.0, "pass_yds": 230.0, "att": 34.0, "carries": 26.0}, players)
 
 
-def test_out_receiver_production_moves_to_teammates():
-    rows = [_row("QB One", "Passing yards", 250), _row("WR Out", "Receiving yards", 80), _row("WR Out", "Receptions", 6),
-            _row("WR Two", "Receiving yards", 60), _row("WR Two", "Receptions", 4), _row("TE", "Receiving yards", 20), _row("TE", "Receptions", 2),
-            _row("Other team WR", "Receiving yards", 70, team="HHH")]
-    new, moves = S.apply_injuries(rows, "AAA", {S._norm("WR Out"): ("WR Out", "Out")}, ["QB One"])
-    assert not any(r["player"] == "WR Out" for r in new)
-    got = {(r["player"], r["stat"]): r["typical"] for r in new}
-    assert got[("WR Two", "Receiving yards")] == pytest.approx(60 + 0.75 * 80 * 60 / 80)
-    assert got[("TE", "Receptions")] == pytest.approx(2 + 0.75 * 6 * 2 / 6)
-    assert got[("Other team WR", "Receiving yards")] == 70
-    assert moves[0]["player"] == "WR Out" and "WR Two" in moves[0]["text"]
+def test_usage_projection_accounts_for_every_yard():
+    from lab import usage as U
+    proj = U.Rule("all").project(_usage(), set())
+    assert proj["rec_yds"].sum() == pytest.approx(220.0) and proj["rush_yds"].sum() == pytest.approx(110.0)
 
 
-def test_out_quarterback_is_replaced_by_the_next_healthy_backup():
-    rows = [_row("Starter Jr.", "Passing yards", 250), _row("WR", "Receiving yards", 60)]
-    out = {S._norm("Starter"): ("Starter", "Injured Reserve"), S._norm("Backup One"): ("Backup One", "Out")}
-    new, moves = S.apply_injuries(rows, "AAA", out, ["Starter", "Backup One", "Backup Two"])
-    qb = [r for r in new if r["stat"] == "Passing yards"]
-    assert [r["player"] for r in qb] == ["Backup Two"] and qb[0]["typical"] == 250
-    assert "Backup Two starts" in moves[0]["text"]
+def test_missing_receiver_split_between_regulars_and_replacement():
+    from lab import usage as U
+    rule = U.Rule("r", k={"rec_yds": 0.9, "rec": 0.9, "rush_yds": 1.0}, to_new={"rec_yds": 0.2, "rec": 0.2, "rush_yds": 0.1}, m={"WR->WR": 2.0})
+    proj = rule.project(_usage(), {"wr1"}).set_index("pid")
+    lost = 0.40 * 220.0
+    assert "wr1" not in proj.index
+    assert proj.loc["NEW:WR", "rec_yds"] == pytest.approx(0.9 * 0.2 * lost)
+    regulars_gain = proj.drop(index="NEW:WR")["rec_yds"].sum() - (220.0 - lost)
+    assert regulars_gain == pytest.approx(0.9 * 0.8 * lost)
+    gain = {j: proj.at[j, "rec_yds"] - base for j, base in (("wr2", 0.30 * 220), ("te1", 0.20 * 220))}
+    assert gain["wr2"] / gain["te1"] == pytest.approx(2.0 * 0.30 / 0.20)  # position weight times usage
+    assert proj["rec_yds"].sum() == pytest.approx(220.0 - 0.1 * lost)
+
+
+def test_saved_rule_is_used_when_present(tmp_path):
+    from lab import usage as U
+    rule = U.Rule("saved", k={"rec_yds": 0.5, "rec": 0.5, "rush_yds": 0.5}, to_new={"rec_yds": 0.1}, m={"WR->WR": 1.5})
+    U.save_rule(rule, [2025, 2026], path=tmp_path / "r.json")
+    got, meta = U.current_rule(tmp_path / "r.json")
+    assert got.k == rule.k and got.m == rule.m and meta["fitted_on"] == [2025, 2026]
+    assert U.current_rule(tmp_path / "missing.json")[0].k == {s: 1.0 for s in U.STATS}
+
+
+def test_every_ball_carrier_in_a_real_game_is_named():
+    from lab import gamecenter_data as D
+    G = D.games_table()
+    if G.empty or not (S.RAW_DIR / "play_by_play_2026.parquet").exists():
+        pytest.skip("no local data")
+    g = G[(G["season"] == D.SEASON) & (G["game_type"] == "REG")]
+    for gid in list(g[g["week"] == g["week"].min() + 2]["game_id"])[:4]:
+        s = S.simulate(gid)
+        players = {p["player"] for p in s["replay"]["plays"] if p["kind"] in ("pass", "rush")}
+        assert players and not any(n.startswith("another ") or n.endswith((" receiver", " runner", " running back")) for n in players), gid
 
 
 def test_weather_indoors_too_early_and_forecast(tmp_path, monkeypatch):

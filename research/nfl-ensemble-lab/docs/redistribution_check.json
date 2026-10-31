@@ -1,0 +1,2943 @@
+{
+ "train": [
+  2025
+ ],
+ "test": [
+  2026
+ ],
+ "train_cases": 168,
+ "test_cases": 60,
+ "rule": {
+  "name": "Kept share, split to replacement, by usage and position",
+  "k": {
+   "rec_yds": 0.9,
+   "rec": 0.9,
+   "rush_yds": 1.0
+  },
+  "to_new": {
+   "rec_yds": 0.19386594151883316,
+   "rec": 0.22622390325719935,
+   "rush_yds": 0.13473673282628598
+  },
+  "m": {
+   "WR->RB": 1.303,
+   "WR->WR": 1.315,
+   "WR->TE": 0.34,
+   "RB->QB": 0.25,
+   "RB->RB": 2.094,
+   "RB->WR": 0.25,
+   "QB->RB": 0.891,
+   "QB->TE": 0.25,
+   "QB->WR": 0.25,
+   "QB->QB": 3.889,
+   "RB->TE": 0.866,
+   "TE->WR": 0.954,
+   "TE->RB": 1.583,
+   "TE->TE": 0.742,
+   "WR->QB": 0.25,
+   "OTHER->TE": 0.25,
+   "OTHER->WR": 4.0,
+   "OTHER->RB": 1.831,
+   "WR->OTHER": 0.25,
+   "TE->QB": 0.25,
+   "RB->OTHER": 0.25,
+   "TE->OTHER": 0.25
+  },
+  "team_k": {}
+ },
+ "scores": {
+  "No redistribution": {
+   "rec_yds": {
+    "rmse": 24.385579504856985,
+    "mae": 15.827338398132621,
+    "replacement_bias": -8.266666666666667,
+    "replacement_abs": 8.333333333333334,
+    "team_bias": -27.255448076978908,
+    "team_abs": 62.027832508419536
+   },
+   "rec": {
+    "rmse": 1.8029062304520969,
+    "mae": 1.2083961384556583,
+    "replacement_bias": -0.85,
+    "replacement_abs": 0.85,
+    "team_bias": -3.0620715370502736,
+    "team_abs": 5.484028603267637
+   },
+   "rush_yds": {
+    "rmse": 16.887408961851452,
+    "mae": 7.285632378603875,
+    "replacement_bias": -3.566666666666667,
+    "replacement_abs": 3.6,
+    "team_bias": -17.690439309285857,
+    "team_abs": 43.237359665804235
+   }
+  },
+  "Old rule: 75% to the regulars, by usage": {
+   "rec_yds": {
+    "rmse": 24.829620586585047,
+    "mae": 16.24244549147847,
+    "replacement_bias": -8.266666666666667,
+    "replacement_abs": 8.333333333333334,
+    "team_bias": -5.631560345300041,
+    "team_abs": 58.26519396641491
+   },
+   "rec": {
+    "rmse": 1.8112931339151894,
+    "mae": 1.232839985539314,
+    "replacement_bias": -0.85,
+    "replacement_abs": 0.85,
+    "team_bias": -1.1559345509292351,
+    "team_abs": 5.128914776508739
+   },
+   "rush_yds": {
+    "rmse": 17.27335369894726,
+    "mae": 7.687678825529042,
+    "replacement_bias": -3.566666666666667,
+    "replacement_abs": 3.6,
+    "team_bias": -3.0515681606547997,
+    "team_abs": 43.65360689107435
+   }
+  },
+  "All of it to the regulars, by usage": {
+   "rec_yds": {
+    "rmse": 25.13937391918826,
+    "mae": 16.430130281540105,
+    "replacement_bias": -8.266666666666667,
+    "replacement_abs": 8.333333333333334,
+    "team_bias": 1.576402231926248,
+    "team_abs": 57.74748665696264
+   },
+   "rec": {
+    "rmse": 1.8255154060841474,
+    "mae": 1.250095992818585,
+    "replacement_bias": -0.85,
+    "replacement_abs": 0.85,
+    "team_bias": -0.5205555555555551,
+    "team_abs": 5.109444444444446
+   },
+   "rush_yds": {
+    "rmse": 17.625605937403446,
+    "mae": 7.870143893684839,
+    "replacement_bias": -3.566666666666667,
+    "replacement_abs": 3.6,
+    "team_bias": 1.8280555555555564,
+    "team_abs": 45.146944444444436
+   }
+  },
+  "All of it to the regulars, by usage and position": {
+   "rec_yds": {
+    "rmse": 25.169716686520708,
+    "mae": 16.423240937876617,
+    "replacement_bias": -8.266666666666667,
+    "replacement_abs": 8.333333333333334,
+    "team_bias": 1.5764022319262518,
+    "team_abs": 57.74748665696265
+   },
+   "rec": {
+    "rmse": 1.8221981000455862,
+    "mae": 1.2483706463816842,
+    "replacement_bias": -0.85,
+    "replacement_abs": 0.85,
+    "team_bias": -0.5205555555555551,
+    "team_abs": 5.109444444444445
+   },
+   "rush_yds": {
+    "rmse": 17.449997438134645,
+    "mae": 7.639429834954255,
+    "replacement_bias": -3.566666666666667,
+    "replacement_abs": 3.6,
+    "team_bias": 1.8280555555555558,
+    "team_abs": 45.146944444444436
+   }
+  },
+  "Kept share, split to replacement, by usage and position": {
+   "rec_yds": {
+    "rmse": 24.809769885904586,
+    "mae": 16.20788329993152,
+    "replacement_bias": -3.236104241387301,
+    "replacement_abs": 10.056092490483488,
+    "team_bias": -1.3067827989642604,
+    "team_abs": 57.93539685692816
+   },
+   "rec": {
+    "rmse": 1.8057775396311235,
+    "mae": 1.2279488396158167,
+    "replacement_bias": -0.3325435010281415,
+    "replacement_abs": 0.9717569294049861,
+    "team_bias": -0.7747071537050272,
+    "team_abs": 5.115508662426945
+   },
+   "rush_yds": {
+    "rmse": 17.239806118702493,
+    "mae": 7.553615552735587,
+    "replacement_bias": -0.9368084388912945,
+    "replacement_abs": 4.252920135948893,
+    "team_bias": 1.828055555555558,
+    "team_abs": 45.146944444444436
+   }
+  },
+  "Same, with each team's own kept share": {
+   "rec_yds": {
+    "rmse": 24.82715199148098,
+    "mae": 16.213635391986273,
+    "replacement_bias": -3.088823659927423,
+    "replacement_abs": 10.33309885612021,
+    "team_bias": -0.5470795715380528,
+    "team_abs": 58.08145390989878
+   },
+   "rec": {
+    "rmse": 1.809805454556785,
+    "mae": 1.2317283410565658,
+    "replacement_bias": -0.3103754278343652,
+    "replacement_abs": 0.9798679737447383,
+    "team_bias": -0.6767154168699817,
+    "team_abs": 5.109134432675154
+   },
+   "rush_yds": {
+    "rmse": 17.492709454182375,
+    "mae": 7.672555063931866,
+    "replacement_bias": -1.0596472988430639,
+    "replacement_abs": 4.128720066888608,
+    "team_bias": 0.916360152415988,
+    "team_abs": 46.727182210768206
+   }
+  }
+ },
+ "per_team": {
+  "ARI": {
+   "test_cases": 2,
+   "train_cases": 7,
+   "team_k": {
+    "rec_yds": 1.087,
+    "rec": 1.087,
+    "rush_yds": 0.533
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 19.022899406533934,
+      "mae": 14.240270652314072,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -27.487208983238034,
+      "team_abs": 27.487208983238034
+     },
+     "rec": {
+      "rmse": 1.228556783102879,
+      "mae": 1.0669658116559337,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -1.1068881995286635,
+      "team_abs": 1.7829048703929669
+     },
+     "rush_yds": {
+      "rmse": 15.305898719571196,
+      "mae": 6.398981679844948,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -53.57278636770755,
+      "team_abs": 53.57278636770755
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 18.917207526235575,
+      "mae": 14.264762816561078,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -21.159302245809542,
+      "team_abs": 24.53982580323772
+     },
+     "rec": {
+      "rmse": 1.2292892461894789,
+      "mae": 1.0967393066096631,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 0.3857779501178378,
+      "team_abs": 1.73322621759824
+     },
+     "rush_yds": {
+      "rmse": 12.088879144042071,
+      "mae": 4.952559787191101,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -22.755696591926892,
+      "team_abs": 22.755696591926892
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 18.7126716880114,
+      "mae": 14.160025765555883,
+      "replacement_bias": 1.4721187169939416,
+      "replacement_abs": 1.4721187169939416,
+      "team_bias": -19.89372089832382,
+      "team_abs": 24.4859303212951
+     },
+     "rec": {
+      "rmse": 1.2028155558105287,
+      "mae": 1.0629217709176277,
+      "replacement_bias": 0.4052121151595117,
+      "replacement_abs": 0.4052121151595117,
+      "team_bias": 0.6843111800471391,
+      "team_abs": 1.7232904870393
+     },
+     "rush_yds": {
+      "rmse": 10.51325293972628,
+      "mae": 4.35140003540178,
+      "replacement_bias": 5.536258655470704,
+      "replacement_abs": 5.536258655470704,
+      "team_bias": -12.483333333333327,
+      "team_abs": 15.316666666666656
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 18.652914345924575,
+      "mae": 14.143352661307233,
+      "replacement_bias": 1.7779922726360144,
+      "replacement_abs": 1.7779922726360144,
+      "team_bias": -18.31596281845829,
+      "team_abs": 24.418740620473315
+     },
+     "rec": {
+      "rmse": 1.202282298405353,
+      "mae": 1.0620815091197797,
+      "replacement_bias": 0.4894061879759879,
+      "replacement_abs": 0.4894061879759879,
+      "team_bias": 1.056482606692331,
+      "team_abs": 1.7109039429424797
+     },
+     "rush_yds": {
+      "rmse": 12.37403616386398,
+      "mae": 5.164300125207591,
+      "replacement_bias": 2.950825863365886,
+      "replacement_abs": 2.950825863365886,
+      "team_bias": -31.672107900386095,
+      "team_abs": 31.672107900386095
+     }
+    }
+   }
+  },
+  "ATL": {
+   "test_cases": 1,
+   "train_cases": 7,
+   "team_k": {
+    "rec_yds": 1.087,
+    "rec": 1.087,
+    "rush_yds": 1.14
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 12.752178185044418,
+      "mae": 8.710937757035683,
+      "replacement_bias": -21.0,
+      "replacement_abs": 21.0,
+      "team_bias": 6.121212284365697,
+      "team_abs": 6.121212284365697
+     },
+     "rec": {
+      "rmse": 1.312560973693952,
+      "mae": 0.9962466877608931,
+      "replacement_bias": -3.0,
+      "replacement_abs": 3.0,
+      "team_bias": -8.603003523203427,
+      "team_abs": 8.603003523203427
+     },
+     "rush_yds": {
+      "rmse": 16.211823605592677,
+      "mae": 6.391410933190273,
+      "replacement_bias": -9.0,
+      "replacement_abs": 9.0,
+      "team_bias": 32.914109331902736,
+      "team_abs": 32.914109331902736
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 13.120574889750388,
+      "mae": 8.958365943744912,
+      "replacement_bias": -21.0,
+      "replacement_abs": 21.0,
+      "team_bias": 10.530303071091424,
+      "team_abs": 10.530303071091424
+     },
+     "rec": {
+      "rmse": 1.2603730358723164,
+      "mae": 0.9679507297794174,
+      "replacement_bias": -3.0,
+      "replacement_abs": 3.0,
+      "team_bias": -8.025750880800853,
+      "team_abs": 8.025750880800853
+     },
+     "rush_yds": {
+      "rmse": 23.508511653101476,
+      "mae": 8.810352733297567,
+      "replacement_bias": -9.0,
+      "replacement_abs": 9.0,
+      "team_bias": 57.10352733297569,
+      "team_abs": 57.10352733297569
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 12.684127549288013,
+      "mae": 8.649161221278012,
+      "replacement_bias": -19.97427295606729,
+      "replacement_abs": 19.97427295606729,
+      "team_bias": 11.412121228436547,
+      "team_abs": 11.412121228436547
+     },
+     "rec": {
+      "rmse": 1.256147731057098,
+      "mae": 0.9512433028399798,
+      "replacement_bias": -2.8432939848841894,
+      "replacement_abs": 2.8432939848841894,
+      "team_bias": -7.910300352320341,
+      "team_abs": 7.910300352320341
+     },
+     "rush_yds": {
+      "rmse": 24.913797178037957,
+      "mae": 9.18210624660881,
+      "replacement_bias": -4.654395799421442,
+      "replacement_abs": 4.654395799421442,
+      "team_bias": 65.16666666666666,
+      "team_abs": 65.16666666666666
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 12.675084042511306,
+      "mae": 8.636325429959475,
+      "replacement_bias": -19.76114967027238,
+      "replacement_abs": 19.76114967027238,
+      "team_bias": 12.51145453126017,
+      "team_abs": 12.51145453126017
+     },
+     "rec": {
+      "rmse": 1.2451693625395759,
+      "mae": 0.9418925995286346,
+      "replacement_bias": -2.8107339572990155,
+      "replacement_abs": 2.8107339572990155,
+      "team_bias": -7.766372026814629,
+      "team_abs": 7.766372026814629
+     },
+     "rush_yds": {
+      "rmse": 26.136475562721934,
+      "mae": 9.572803590487407,
+      "replacement_bias": -4.046011211340441,
+      "replacement_abs": 4.046011211340441,
+      "team_bias": 69.6820246935336,
+      "team_abs": 69.6820246935336
+     }
+    }
+   }
+  },
+  "BAL": {
+   "test_cases": 3,
+   "train_cases": 7,
+   "team_k": {
+    "rec_yds": 0.48,
+    "rec": 0.48,
+    "rush_yds": 1.14
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 20.714785002492437,
+      "mae": 14.769178202334576,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 17.575500247231247,
+      "team_abs": 61.131055802786825
+     },
+     "rec": {
+      "rmse": 1.5960019095427065,
+      "mae": 1.1992281125395,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -2.945583020132664,
+      "team_abs": 2.945583020132664
+     },
+     "rush_yds": {
+      "rmse": 13.842054670748606,
+      "mae": 5.922043061588473,
+      "replacement_bias": -6.333333333333333,
+      "replacement_abs": 6.333333333333333,
+      "team_bias": -1.9322414940518986,
+      "team_abs": 56.87869492082503
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 21.113351513822185,
+      "mae": 15.082465282700328,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 22.48554172847447,
+      "team_abs": 66.04109728403004
+     },
+     "rec": {
+      "rmse": 1.6170213443633392,
+      "mae": 1.2179303619669344,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -2.528062421699834,
+      "team_abs": 2.9163820227446116
+     },
+     "rush_yds": {
+      "rmse": 15.887410694466013,
+      "mae": 6.643515312641669,
+      "replacement_bias": -6.333333333333333,
+      "replacement_abs": 6.333333333333333,
+      "team_bias": 22.82110629315368,
+      "team_abs": 65.14884039687291
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 21.096581254883564,
+      "mae": 15.071327166768532,
+      "replacement_bias": 1.1422677775892927,
+      "replacement_abs": 1.1422677775892927,
+      "team_bias": 23.467550024723113,
+      "team_abs": 67.0231055802787
+     },
+     "rec": {
+      "rmse": 1.611624415084617,
+      "mae": 1.2146760689541842,
+      "replacement_bias": 0.11334376736130812,
+      "replacement_abs": 0.11334376736130812,
+      "team_bias": -2.444558302013268,
+      "team_abs": 2.9998861424311776
+     },
+     "rush_yds": {
+      "rmse": 15.833632758853893,
+      "mae": 7.023876729219424,
+      "replacement_bias": -1.8864197235188602,
+      "replacement_abs": 7.997829426936562,
+      "team_bias": 31.072222222222205,
+      "team_abs": 67.90555555555555
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 20.9122406452054,
+      "mae": 14.930324316699352,
+      "replacement_bias": 0.609209481380956,
+      "replacement_abs": 0.609209481380956,
+      "team_bias": 20.71792679522692,
+      "team_abs": 64.2734823507825
+     },
+     "rec": {
+      "rmse": 1.60381654995412,
+      "mae": 1.2040691285758705,
+      "replacement_bias": 0.060450009259364314,
+      "replacement_abs": 0.060450009259364314,
+      "team_bias": -2.678369837135653,
+      "team_abs": 2.7660746073087927
+     },
+     "rush_yds": {
+      "rmse": 16.240406721023934,
+      "mae": 7.251244730963122,
+      "replacement_bias": -1.2638518181448326,
+      "replacement_abs": 8.230858880041014,
+      "team_bias": 35.692847142500575,
+      "team_abs": 69.44931604441783
+     }
+    }
+   }
+  },
+  "BUF": {
+   "test_cases": 1,
+   "train_cases": 5,
+   "team_k": {
+    "rec_yds": 1.054,
+    "rec": 1.054,
+    "rush_yds": 0.615
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 34.23963009328935,
+      "mae": 27.935114452552096,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 24.593943328020686,
+      "team_abs": 24.593943328020686
+     },
+     "rec": {
+      "rmse": 1.5079401428974673,
+      "mae": 1.1233158784705177,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 6.896784486990676,
+      "team_abs": 6.896784486990676
+     },
+     "rush_yds": {
+      "rmse": 31.269215473597583,
+      "mae": 11.979870605456478,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -93.75,
+      "team_abs": 93.75
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 35.26431691670458,
+      "mae": 28.59034811757245,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 41.58598583200521,
+      "team_abs": 41.58598583200521
+     },
+     "rec": {
+      "rmse": 1.5628400705328152,
+      "mae": 1.1688805345227091,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 7.536696121747667,
+      "team_abs": 7.536696121747667
+     },
+     "rush_yds": {
+      "rmse": 31.269215473597583,
+      "mae": 11.979870605456478,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -93.75,
+      "team_abs": 93.75
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 34.8497916847942,
+      "mae": 28.260893372025677,
+      "replacement_bias": 3.9530139820355847,
+      "replacement_abs": 3.9530139820355847,
+      "team_bias": 44.98439433280211,
+      "team_abs": 44.98439433280211
+     },
+     "rec": {
+      "rmse": 1.552959912369916,
+      "mae": 1.1599267318024564,
+      "replacement_bias": 0.17371596930530747,
+      "replacement_abs": 0.17371596930530747,
+      "team_bias": 7.664678448699064,
+      "team_abs": 7.664678448699064
+     },
+     "rush_yds": {
+      "rmse": 31.269215473597583,
+      "mae": 11.979870605456478,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -93.75,
+      "team_abs": 93.75
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 34.97069383493209,
+      "mae": 28.31663776491338,
+      "replacement_bias": 4.6294185967394474,
+      "replacement_abs": 4.6294185967394474,
+      "team_bias": 48.47342706028695,
+      "team_abs": 48.47342706028695
+     },
+     "rec": {
+      "rmse": 1.5609714086958166,
+      "mae": 1.1661912555948106,
+      "replacement_bias": 0.20344070183088225,
+      "replacement_abs": 0.20344070183088225,
+      "team_bias": 7.796073637702502,
+      "team_abs": 7.796073637702502
+     },
+     "rush_yds": {
+      "rmse": 31.269215473597583,
+      "mae": 11.979870605456478,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -93.75,
+      "team_abs": 93.75
+     }
+    }
+   }
+  },
+  "CAR": {
+   "test_cases": 2,
+   "train_cases": 3,
+   "team_k": {
+    "rec_yds": 0.927,
+    "rec": 0.736,
+    "rush_yds": 1.082
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 36.5799966984286,
+      "mae": 22.649814700286424,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -3.7832103479192654,
+      "team_abs": 39.2681432593063
+     },
+     "rec": {
+      "rmse": 2.6220963608419123,
+      "mae": 1.5035867589773964,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -0.5065780890972142,
+      "team_abs": 5.375608527302408
+     },
+     "rush_yds": {
+      "rmse": 15.488666079198039,
+      "mae": 6.0321171933437405,
+      "replacement_bias": 0.5,
+      "replacement_abs": 0.5,
+      "team_bias": -31.722414391603543,
+      "team_abs": 31.722414391603543
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 36.506729859931205,
+      "mae": 22.921068136837906,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 6.5541974130201766,
+      "team_abs": 29.317035814826625
+     },
+     "rec": {
+      "rmse": 2.6204167100566416,
+      "mae": 1.505062154583464,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -0.03289452227430445,
+      "team_abs": 5.187652131825601
+     },
+     "rush_yds": {
+      "rmse": 14.943219452129998,
+      "mae": 5.852180444612758,
+      "replacement_bias": 0.5,
+      "replacement_abs": 0.5,
+      "team_bias": -28.243103597900884,
+      "team_abs": 28.243103597900884
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 36.49497438745583,
+      "mae": 22.960465903890377,
+      "replacement_bias": 2.4048855461263354,
+      "replacement_abs": 2.4048855461263354,
+      "team_bias": 8.621678965208048,
+      "team_abs": 27.326814325930627
+     },
+     "rec": {
+      "rmse": 2.6230428020062484,
+      "mae": 1.5146879816274677,
+      "replacement_bias": 0.12859025447456546,
+      "replacement_abs": 0.12859025447456546,
+      "team_bias": 0.06184219109027822,
+      "team_abs": 5.150060852730242
+     },
+     "rush_yds": {
+      "rmse": 14.836394346455897,
+      "mae": 5.830562953027726,
+      "replacement_bias": 1.125054625107637,
+      "replacement_abs": 1.125054625107637,
+      "team_bias": -27.08333333333333,
+      "team_abs": 27.08333333333333
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 36.49370162028044,
+      "mae": 22.96978543999849,
+      "replacement_bias": 2.4770321125101256,
+      "replacement_abs": 2.4770321125101256,
+      "team_bias": 8.993825644601912,
+      "team_abs": 26.968574457929407
+     },
+     "rec": {
+      "rmse": 2.6227840712883586,
+      "mae": 1.5126650921667877,
+      "replacement_bias": 0.10515825254808903,
+      "replacement_abs": 0.10515825254808903,
+      "team_bias": -0.04173661552166763,
+      "team_abs": 5.191160651207834
+     },
+     "rush_yds": {
+      "rmse": 14.786932797084091,
+      "mae": 5.814035505321814,
+      "replacement_bias": 1.1763091043664637,
+      "replacement_abs": 1.1763091043664637,
+      "team_bias": -26.702928686555175,
+      "team_abs": 26.702928686555175
+     }
+    }
+   }
+  },
+  "CHI": {
+   "test_cases": 5,
+   "train_cases": 5,
+   "team_k": {
+    "rec_yds": 1.054,
+    "rec": 1.054,
+    "rush_yds": 1.077
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 23.55624877202516,
+      "mae": 15.34502576128725,
+      "replacement_bias": -1.6,
+      "replacement_abs": 1.6,
+      "team_bias": -29.86165176549364,
+      "team_abs": 45.63525334300321
+     },
+     "rec": {
+      "rmse": 1.8829644782555328,
+      "mae": 1.2843209648771163,
+      "replacement_bias": -0.4,
+      "replacement_abs": 0.4,
+      "team_bias": -3.32230862663783,
+      "team_abs": 3.554379831537024
+     },
+     "rush_yds": {
+      "rmse": 17.696206312530524,
+      "mae": 8.034282683160631,
+      "replacement_bias": -4.8,
+      "replacement_abs": 4.8,
+      "team_bias": -0.7264059807874872,
+      "team_abs": 37.219154117304946
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 23.521423751200604,
+      "mae": 15.417233536884316,
+      "replacement_bias": -1.6,
+      "replacement_abs": 1.6,
+      "team_bias": -25.810412941373375,
+      "team_abs": 44.45381333575078
+     },
+     "rec": {
+      "rmse": 1.8852885184726904,
+      "mae": 1.295108062694146,
+      "replacement_bias": -0.4,
+      "replacement_abs": 0.4,
+      "team_bias": -2.7655771566594565,
+      "team_abs": 3.3735949578842552
+     },
+     "rush_yds": {
+      "rmse": 20.914023893203048,
+      "mae": 10.30482351908726,
+      "replacement_bias": -4.8,
+      "replacement_abs": 4.8,
+      "team_bias": 40.14839850480312,
+      "team_abs": 64.54064824398631
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 23.536952330289864,
+      "mae": 15.37381527248298,
+      "replacement_bias": -0.6575233252531351,
+      "replacement_abs": 2.5424766747468652,
+      "team_bias": -25.00016517654935,
+      "team_abs": 44.217525334300326
+     },
+     "rec": {
+      "rmse": 1.8722976845863846,
+      "mae": 1.279878329185403,
+      "replacement_bias": -0.248864840554449,
+      "replacement_abs": 0.551135159445551,
+      "team_bias": -2.6542308626637827,
+      "team_abs": 3.3374379831537007
+     },
+     "rush_yds": {
+      "rmse": 22.19943191489174,
+      "mae": 10.49665097631756,
+      "replacement_bias": 2.5431168150689283,
+      "replacement_abs": 6.702040419408904,
+      "team_bias": 53.773333333333355,
+      "team_abs": 73.77333333333335
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 23.53543601413199,
+      "mae": 15.383346001175445,
+      "replacement_bias": -0.49625509424089354,
+      "replacement_abs": 2.7037449057591063,
+      "team_bias": -24.168310804663314,
+      "team_abs": 43.974936319477806
+     },
+     "rec": {
+      "rmse": 1.870896437824293,
+      "mae": 1.2793089246770328,
+      "replacement_bias": -0.2230039354937658,
+      "replacement_abs": 0.5769960645062341,
+      "team_bias": -2.5399153341615572,
+      "team_abs": 3.3003168224303336
+     },
+     "rush_yds": {
+      "rmse": 22.71402657273322,
+      "mae": 10.700830028938235,
+      "replacement_bias": 3.1085368098292356,
+      "replacement_abs": 6.959073698449321,
+      "team_bias": 57.96981326052064,
+      "team_abs": 76.61700034085221
+     }
+    }
+   }
+  },
+  "CIN": {
+   "test_cases": 0,
+   "train_cases": 6,
+   "team_k": {
+    "rec_yds": 0.557,
+    "rec": 0.771,
+    "rush_yds": 1.129
+   },
+   "scores": {}
+  },
+  "CLE": {
+   "test_cases": 0,
+   "train_cases": 6,
+   "team_k": {
+    "rec_yds": 0.514,
+    "rec": 0.514,
+    "rush_yds": 1.129
+   },
+   "scores": {}
+  },
+  "DAL": {
+   "test_cases": 0,
+   "train_cases": 4,
+   "team_k": {
+    "rec_yds": 0.7,
+    "rec": 0.6,
+    "rush_yds": 0.9
+   },
+   "scores": {}
+  },
+  "DEN": {
+   "test_cases": 1,
+   "train_cases": 7,
+   "team_k": {
+    "rec_yds": 0.48,
+    "rec": 0.48,
+    "rush_yds": 0.533
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 17.368224756269555,
+      "mae": 13.055475872549042,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 12.587788136568633,
+      "team_abs": 12.587788136568633
+     },
+     "rec": {
+      "rmse": 1.215423422557158,
+      "mae": 0.9522302479708096,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 0.574540174249762,
+      "team_abs": 0.574540174249762
+     },
+     "rush_yds": {
+      "rmse": 7.902980398010185,
+      "mae": 4.729699315424684,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -16.144464147179434,
+      "team_abs": 16.144464147179434
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 17.63102616473661,
+      "mae": 13.19407806478168,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 20.771947034142215,
+      "team_abs": 20.771947034142215
+     },
+     "rec": {
+      "rmse": 1.225349007937681,
+      "mae": 0.9735880089893147,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 2.0186350435624405,
+      "team_abs": 2.0186350435624405
+     },
+     "rush_yds": {
+      "rmse": 7.417721967950319,
+      "mae": 4.634363919288828,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 0.8388839632051344,
+      "team_abs": 0.8388839632051344
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 17.530115370914007,
+      "mae": 13.153518058884286,
+      "replacement_bias": 1.9039556042613943,
+      "replacement_abs": 1.9039556042613943,
+      "team_bias": 22.408778813656852,
+      "team_abs": 22.408778813656852
+     },
+     "rec": {
+      "rmse": 1.1803076186117507,
+      "mae": 0.9622447987125556,
+      "replacement_bias": 0.39202653361153217,
+      "replacement_abs": 0.39202653361153217,
+      "team_bias": 2.307454017424977,
+      "team_abs": 2.307454017424977
+     },
+     "rush_yds": {
+      "rmse": 7.359499477124411,
+      "mae": 4.450900714621723,
+      "replacement_bias": 3.0510411157929265,
+      "replacement_abs": 3.0510411157929265,
+      "team_bias": 6.5,
+      "team_abs": 6.5
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 17.44775914997101,
+      "mae": 13.107765038594504,
+      "replacement_bias": 1.0154429889394108,
+      "replacement_abs": 1.0154429889394108,
+      "team_bias": 17.82564983101571,
+      "team_abs": 17.82564983101571
+     },
+     "rec": {
+      "rmse": 1.1937125972761016,
+      "mae": 0.9575713416997408,
+      "replacement_bias": 0.2090808179261503,
+      "replacement_abs": 0.2090808179261503,
+      "team_bias": 1.4987608906098728,
+      "team_abs": 1.4987608906098728
+     },
+     "rush_yds": {
+      "rmse": 7.393889579978223,
+      "mae": 4.581099661196705,
+      "replacement_bias": 1.6262049147176307,
+      "replacement_abs": 1.6262049147176307,
+      "team_bias": -4.074964756732797,
+      "team_abs": 4.074964756732797
+     }
+    }
+   }
+  },
+  "DET": {
+   "test_cases": 0,
+   "train_cases": 3,
+   "team_k": {
+    "rec_yds": 1.009,
+    "rec": 0.75,
+    "rush_yds": 0.727
+   },
+   "scores": {}
+  },
+  "GB": {
+   "test_cases": 2,
+   "train_cases": 4,
+   "team_k": {
+    "rec_yds": 0.6,
+    "rec": 0.95,
+    "rush_yds": 0.667
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 25.840310038440112,
+      "mae": 17.462833747344288,
+      "replacement_bias": -16.5,
+      "replacement_abs": 16.5,
+      "team_bias": -85.25273618538422,
+      "team_abs": 85.25273618538422
+     },
+     "rec": {
+      "rmse": 1.3848318458283848,
+      "mae": 1.13189410791262,
+      "replacement_bias": -3.0,
+      "replacement_abs": 3.0,
+      "team_bias": -7.616320707662293,
+      "team_abs": 7.616320707662293
+     },
+     "rush_yds": {
+      "rmse": 6.373048994119217,
+      "mae": 2.993477502231167,
+      "replacement_bias": -3.5,
+      "replacement_abs": 3.5,
+      "team_bias": 11.91482844423194,
+      "team_abs": 35.585171555768056
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 25.424069589687708,
+      "mae": 17.271897778289024,
+      "replacement_bias": -16.5,
+      "replacement_abs": 16.5,
+      "team_bias": -78.59443404634607,
+      "team_abs": 78.59443404634607
+     },
+     "rec": {
+      "rmse": 1.3301230149556436,
+      "mae": 1.0812657148500642,
+      "replacement_bias": -3.0,
+      "replacement_abs": 3.0,
+      "team_bias": -6.685330176915572,
+      "team_abs": 6.685330176915572
+     },
+     "rush_yds": {
+      "rmse": 6.17626863130537,
+      "mae": 2.7884108259005402,
+      "replacement_bias": -3.5,
+      "replacement_abs": 3.5,
+      "team_bias": 16.666207111057986,
+      "team_abs": 30.833792888942014
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 25.60029310915453,
+      "mae": 17.287958928424256,
+      "replacement_bias": -14.95101838427821,
+      "replacement_abs": 14.95101838427821,
+      "team_bias": -77.2627736185384,
+      "team_abs": 77.2627736185384
+     },
+     "rec": {
+      "rmse": 1.3426142485882078,
+      "mae": 1.098663267094957,
+      "replacement_bias": -2.7472652258867827,
+      "replacement_abs": 2.7472652258867827,
+      "team_bias": -6.499132070766228,
+      "team_abs": 6.499132070766228
+     },
+     "rush_yds": {
+      "rmse": 6.177113847803773,
+      "mae": 2.78960870777367,
+      "replacement_bias": -2.646419682681793,
+      "replacement_abs": 2.646419682681793,
+      "team_bias": 18.249999999999996,
+      "team_abs": 29.250000000000004
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 25.676311683493847,
+      "mae": 17.34625053473093,
+      "replacement_bias": -15.467345589518807,
+      "replacement_abs": 15.467345589518807,
+      "team_bias": -79.9260944741537,
+      "team_abs": 79.9260944741537
+     },
+     "rec": {
+      "rmse": 1.3406773738898705,
+      "mae": 1.0981801717143613,
+      "replacement_bias": -2.733224405102715,
+      "replacement_abs": 2.733224405102715,
+      "team_bias": -6.437066035383115,
+      "team_abs": 6.437066035383115
+     },
+     "rush_yds": {
+      "rmse": 6.194955288433809,
+      "mae": 2.7871080866319833,
+      "replacement_bias": -2.930661928348756,
+      "replacement_abs": 2.930661928348756,
+      "team_bias": 16.14038787192924,
+      "team_abs": 31.35961212807076
+     }
+    }
+   }
+  },
+  "HOU": {
+   "test_cases": 3,
+   "train_cases": 7,
+   "team_k": {
+    "rec_yds": 1.087,
+    "rec": 1.087,
+    "rush_yds": 0.72
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 21.17404780563522,
+      "mae": 13.55781967536348,
+      "replacement_bias": -28.0,
+      "replacement_abs": 28.0,
+      "team_bias": 49.34017159831884,
+      "team_abs": 79.50471147588
+     },
+     "rec": {
+      "rmse": 1.140538725651432,
+      "mae": 0.8172827487933292,
+      "replacement_bias": -1.6666666666666667,
+      "replacement_abs": 1.6666666666666667,
+      "team_bias": 3.2458877739486134,
+      "team_abs": 4.269956174058001
+     },
+     "rush_yds": {
+      "rmse": 10.359547927272317,
+      "mae": 4.943343523024692,
+      "replacement_bias": -15.0,
+      "replacement_abs": 15.0,
+      "team_bias": -20.880486799389544,
+      "team_abs": 32.1798332046183
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 22.751083437701237,
+      "mae": 14.752453219458367,
+      "replacement_bias": -28.0,
+      "replacement_abs": 28.0,
+      "team_bias": 72.48504289957974,
+      "team_abs": 97.72617786897
+     },
+     "rec": {
+      "rmse": 1.3446864399462102,
+      "mae": 0.8989957506131092,
+      "replacement_bias": -1.6666666666666667,
+      "replacement_abs": 1.6666666666666667,
+      "team_bias": 5.4698052768204874,
+      "team_abs": 5.825822376847834
+     },
+     "rush_yds": {
+      "rmse": 9.917392197683565,
+      "mae": 5.02120959355372,
+      "replacement_bias": -15.0,
+      "replacement_abs": 15.0,
+      "team_bias": -8.078455033180717,
+      "team_abs": 21.903291634487896
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 22.027600834111453,
+      "mae": 14.461857522686936,
+      "replacement_bias": -22.615597280618598,
+      "replacement_abs": 31.202610687139607,
+      "team_bias": 77.11401715983196,
+      "team_abs": 101.37047114758799
+     },
+     "rec": {
+      "rmse": 1.2474510532105618,
+      "mae": 0.8842863864605781,
+      "replacement_bias": -1.0629427090406525,
+      "replacement_abs": 1.9352027425831653,
+      "team_bias": 5.914588777394864,
+      "team_abs": 6.136995617405802
+     },
+     "rush_yds": {
+      "rmse": 9.186176212621987,
+      "mae": 4.463640034864834,
+      "replacement_bias": -12.700128088376928,
+      "replacement_abs": 13.637809387887822,
+      "team_bias": -3.811111111111108,
+      "team_abs": 19.255555555555546
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 22.27098697671208,
+      "mae": 14.670346025506493,
+      "replacement_bias": -21.49683804892491,
+      "replacement_abs": 31.868042018800832,
+      "team_bias": 82.88480507094631,
+      "team_abs": 105.91369010159843
+     },
+     "rec": {
+      "rmse": 1.2766584943738721,
+      "mae": 0.909094032836086,
+      "replacement_bias": -0.9375022867339142,
+      "replacement_abs": 1.9909985716902598,
+      "team_bias": 6.469085541444245,
+      "team_abs": 6.524924923968064
+     },
+     "rush_yds": {
+      "rmse": 9.363441578908327,
+      "mae": 4.597957011549595,
+      "replacement_bias": -13.344092223631387,
+      "replacement_abs": 13.670757469523636,
+      "team_bias": -8.590536303829074,
+      "team_abs": 22.31435329729312
+     }
+    }
+   }
+  },
+  "IND": {
+   "test_cases": 3,
+   "train_cases": 4,
+   "team_k": {
+    "rec_yds": 1.033,
+    "rec": 1.033,
+    "rush_yds": 0.667
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 19.12719744223102,
+      "mae": 12.852824523600876,
+      "replacement_bias": -5.333333333333333,
+      "replacement_abs": 5.333333333333333,
+      "team_bias": -38.02136873551495,
+      "team_abs": 82.66819903487126
+     },
+     "rec": {
+      "rmse": 1.3847725966485775,
+      "mae": 0.9777359572400153,
+      "replacement_bias": -0.3333333333333333,
+      "replacement_abs": 0.3333333333333333,
+      "team_bias": -2.299873941471663,
+      "team_abs": 4.7378241093502815
+     },
+     "rush_yds": {
+      "rmse": 11.093834216976887,
+      "mae": 5.154738909442879,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 7.454640580985886,
+      "team_abs": 36.37869275234747
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 19.291194745097425,
+      "mae": 13.291292379439545,
+      "replacement_bias": -5.333333333333333,
+      "replacement_abs": 5.333333333333333,
+      "team_bias": -14.130342183878753,
+      "team_abs": 78.79204975871781
+     },
+     "rec": {
+      "rmse": 1.418733676522751,
+      "mae": 1.0419042525298459,
+      "replacement_bias": -0.3333333333333333,
+      "replacement_abs": 0.3333333333333333,
+      "team_bias": -0.03330181870124941,
+      "team_abs": 4.976122694004239
+     },
+     "rush_yds": {
+      "rmse": 11.052945718179979,
+      "mae": 5.124353877409847,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 7.801160145246475,
+      "team_abs": 36.03217318808688
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 19.517656234458755,
+      "mae": 13.362572611746979,
+      "replacement_bias": 0.22465429420794467,
+      "replacement_abs": 6.300655548025275,
+      "team_bias": -9.352136873551501,
+      "team_abs": 78.01681990348713
+     },
+     "rec": {
+      "rmse": 1.4453848658787036,
+      "mae": 1.0486913609675452,
+      "replacement_bias": 0.28197001781916153,
+      "replacement_abs": 0.5924963985087944,
+      "team_bias": 0.4200126058528338,
+      "team_abs": 5.023782410935031
+     },
+     "rush_yds": {
+      "rmse": 11.043486933656203,
+      "mae": 5.118438842490131,
+      "replacement_bias": 0.06225188526514728,
+      "replacement_abs": 0.06225188526514728,
+      "team_bias": 7.916666666666671,
+      "team_abs": 35.91666666666668
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 19.62955634874636,
+      "mae": 13.45107525365943,
+      "replacement_bias": 1.0460013547223774,
+      "replacement_abs": 6.443604275307528,
+      "team_bias": -5.115461498394666,
+      "team_abs": 77.32944943184924
+     },
+     "rec": {
+      "rmse": 1.4595939885415319,
+      "mae": 1.0602394305896068,
+      "replacement_bias": 0.3728981797116966,
+      "replacement_abs": 0.6307949403625015,
+      "team_bias": 0.8219513956241199,
+      "team_abs": 5.066040693280335
+     },
+     "rush_yds": {
+      "rmse": 11.059961409039426,
+      "mae": 5.1305267647853965,
+      "replacement_bias": 0.041522007471853216,
+      "replacement_abs": 0.041522007471853216,
+      "team_bias": 7.762811980134974,
+      "team_abs": 36.07052135319838
+     }
+    }
+   }
+  },
+  "JAX": {
+   "test_cases": 0,
+   "train_cases": 4,
+   "team_k": {
+    "rec_yds": 0.917,
+    "rec": 0.85,
+    "rush_yds": 1.1
+   },
+   "scores": {}
+  },
+  "KC": {
+   "test_cases": 2,
+   "train_cases": 6,
+   "team_k": {
+    "rec_yds": 0.514,
+    "rec": 0.579,
+    "rush_yds": 0.571
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 21.42486318246257,
+      "mae": 14.840451545750675,
+      "replacement_bias": -10.0,
+      "replacement_abs": 10.0,
+      "team_bias": -10.522211016623459,
+      "team_abs": 57.020746502428466
+     },
+     "rec": {
+      "rmse": 1.3856545400789693,
+      "mae": 1.0298487177467115,
+      "replacement_bias": -1.0,
+      "replacement_abs": 1.0,
+      "team_bias": -4.067365126916862,
+      "team_abs": 4.067365126916862
+     },
+     "rush_yds": {
+      "rmse": 21.57610814579965,
+      "mae": 6.640512170545454,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 60.94999999999999,
+      "team_abs": 60.94999999999999
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 23.35975679667823,
+      "mae": 16.750893023310766,
+      "replacement_bias": -10.0,
+      "replacement_abs": 10.0,
+      "team_bias": 28.888197245844083,
+      "team_abs": 55.33643662560712
+     },
+     "rec": {
+      "rmse": 1.378843277231371,
+      "mae": 0.9771759614422091,
+      "replacement_bias": -1.0,
+      "replacement_abs": 1.0,
+      "team_bias": -1.2043412817292154,
+      "team_abs": 2.2721676905383195
+     },
+     "rush_yds": {
+      "rmse": 21.57610814579965,
+      "mae": 6.640512170545454,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 60.94999999999999,
+      "team_abs": 60.94999999999999
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 23.92529174967839,
+      "mae": 16.683943327156893,
+      "replacement_bias": -0.8315969158661396,
+      "replacement_abs": 2.608163615904667,
+      "team_bias": 36.770278898337594,
+      "team_abs": 54.99957465024285
+     },
+     "rec": {
+      "rmse": 1.409095329944126,
+      "mae": 1.0258278689821037,
+      "replacement_bias": -0.22277868474785784,
+      "replacement_abs": 0.22277868474785784,
+      "team_bias": -0.6317365126916865,
+      "team_abs": 2.258867076215326
+     },
+     "rush_yds": {
+      "rmse": 21.57610814579965,
+      "mae": 6.640512170545454,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 60.94999999999999,
+      "team_abs": 60.94999999999999
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 22.748102030336536,
+      "mae": 15.893290185353784,
+      "replacement_bias": -4.763823127505775,
+      "replacement_abs": 4.763823127505775,
+      "team_bias": 16.487055445920973,
+      "team_abs": 55.86643280018025
+     },
+     "rec": {
+      "rmse": 1.3911544833236633,
+      "mae": 1.027261971708147,
+      "replacement_bias": -0.499987620521122,
+      "replacement_abs": 0.499987620521122,
+      "team_bias": -1.8571107184320006,
+      "team_abs": 2.287330390866533
+     },
+     "rush_yds": {
+      "rmse": 21.57610814579965,
+      "mae": 6.640512170545454,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 60.94999999999999,
+      "team_abs": 60.94999999999999
+     }
+    }
+   }
+  },
+  "LA": {
+   "test_cases": 2,
+   "train_cases": 3,
+   "team_k": {
+    "rec_yds": 1.009,
+    "rec": 1.009,
+    "rush_yds": 0.727
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 42.62618471842057,
+      "mae": 26.010347102185573,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -134.3624276790759,
+      "team_abs": 134.3624276790759
+     },
+     "rec": {
+      "rmse": 2.9327671264615343,
+      "mae": 1.891110902655234,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -13.264352999317984,
+      "team_abs": 13.264352999317984
+     },
+     "rush_yds": {
+      "rmse": 14.279463529364442,
+      "mae": 6.598439173373386,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 28.250000000000014,
+      "team_abs": 28.250000000000014
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 41.494899982534854,
+      "mae": 25.339598355069114,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -95.27810691976896,
+      "team_abs": 95.27810691976896
+     },
+     "rec": {
+      "rmse": 2.857379691346035,
+      "mae": 1.8889617025771606,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -10.628588249829495,
+      "team_abs": 10.628588249829495
+     },
+     "rush_yds": {
+      "rmse": 14.279463529364442,
+      "mae": 6.598439173373386,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 28.250000000000014,
+      "team_abs": 28.250000000000014
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 41.25225542549137,
+      "mae": 25.053837832146666,
+      "replacement_bias": 9.092542371152545,
+      "replacement_abs": 9.092542371152545,
+      "team_bias": -87.46124276790755,
+      "team_abs": 87.46124276790755
+     },
+     "rec": {
+      "rmse": 2.8408121608349814,
+      "mae": 1.85544082153012,
+      "replacement_bias": 0.7155275876364238,
+      "replacement_abs": 0.7155275876364238,
+      "team_bias": -10.101435299931799,
+      "team_abs": 10.101435299931799
+     },
+     "rush_yds": {
+      "rmse": 14.279463529364442,
+      "mae": 6.598439173373386,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 28.250000000000014,
+      "team_abs": 28.250000000000014
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 41.16289009216653,
+      "mae": 24.937993931664177,
+      "replacement_bias": 10.193750280547674,
+      "replacement_abs": 10.193750280547674,
+      "team_bias": -81.7809881508883,
+      "team_abs": 81.7809881508883
+     },
+     "rec": {
+      "rmse": 2.8320450726044744,
+      "mae": 1.8531472167764074,
+      "replacement_bias": 0.8021859288057238,
+      "replacement_abs": 0.8021859288057238,
+      "team_bias": -9.71837082300614,
+      "team_abs": 9.71837082300614
+     },
+     "rush_yds": {
+      "rmse": 14.279463529364442,
+      "mae": 6.598439173373386,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 28.250000000000014,
+      "team_abs": 28.250000000000014
+     }
+    }
+   }
+  },
+  "LAC": {
+   "test_cases": 3,
+   "train_cases": 1,
+   "team_k": {
+    "rec_yds": 0.8,
+    "rec": 0.944,
+    "rush_yds": 0.978
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 20.538525090421818,
+      "mae": 15.641961587855945,
+      "replacement_bias": -34.666666666666664,
+      "replacement_abs": 34.666666666666664,
+      "team_bias": -17.237081903734605,
+      "team_abs": 55.168084009191325
+     },
+     "rec": {
+      "rmse": 1.7812339465836247,
+      "mae": 1.3623777972833373,
+      "replacement_bias": -3.6666666666666665,
+      "replacement_abs": 3.6666666666666665,
+      "team_bias": -4.336411065306522,
+      "team_abs": 5.724208841023231
+     },
+     "rush_yds": {
+      "rmse": 14.756748083099987,
+      "mae": 7.284167110254595,
+      "replacement_bias": -2.0,
+      "replacement_abs": 2.0,
+      "team_bias": -2.0347590812403666,
+      "team_abs": 38.83475908124036
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 21.429176152116842,
+      "mae": 16.30512776568355,
+      "replacement_bias": -34.666666666666664,
+      "replacement_abs": 34.666666666666664,
+      "team_bias": 5.915729524066336,
+      "team_abs": 45.06702100229784
+     },
+     "rec": {
+      "rmse": 1.826180645927161,
+      "mae": 1.4108621343875236,
+      "replacement_bias": -3.6666666666666665,
+      "replacement_abs": 3.6666666666666665,
+      "team_bias": -2.3966027663266316,
+      "team_abs": 4.618552210255808
+     },
+     "rush_yds": {
+      "rmse": 14.763578494911565,
+      "mae": 7.292148286063893,
+      "replacement_bias": -2.0,
+      "replacement_abs": 2.0,
+      "team_bias": -1.833689770310092,
+      "team_abs": 38.633689770310085
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 21.21105286904317,
+      "mae": 16.146707072199714,
+      "replacement_bias": -29.280416763156307,
+      "replacement_abs": 29.280416763156307,
+      "team_bias": 10.546291809626544,
+      "team_abs": 43.046808400919126
+     },
+     "rec": {
+      "rmse": 1.8021858696168522,
+      "mae": 1.395430431145212,
+      "replacement_bias": -3.1400694607075397,
+      "replacement_abs": 3.1400694607075397,
+      "team_bias": -2.008641106530654,
+      "team_abs": 4.397420884102325
+     },
+     "rush_yds": {
+      "rmse": 14.774302147004091,
+      "mae": 7.29880350397122,
+      "replacement_bias": -1.96387810396483,
+      "replacement_abs": 2.0361218960351697,
+      "team_bias": -1.7666666666666704,
+      "team_abs": 38.56666666666666
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 21.115102069655943,
+      "mae": 16.078996302653543,
+      "replacement_bias": -29.878888974657457,
+      "replacement_abs": 29.878888974657457,
+      "team_bias": 7.459250285919741,
+      "team_abs": 44.393616801838256
+     },
+     "rec": {
+      "rmse": 1.8040133284138107,
+      "mae": 1.398609846522628,
+      "replacement_bias": -3.1143247084162042,
+      "replacement_abs": 3.1143247084162042,
+      "team_bias": -1.8948390196571634,
+      "team_abs": 4.332555695097299
+     },
+     "rush_yds": {
+      "rmse": 14.77391167848745,
+      "mae": 7.298481503309454,
+      "replacement_bias": -1.964672785677604,
+      "replacement_abs": 2.035327214322396,
+      "team_bias": -1.772564699787291,
+      "team_abs": 38.572564699787286
+     }
+    }
+   }
+  },
+  "LV": {
+   "test_cases": 0,
+   "train_cases": 6,
+   "team_k": {
+    "rec_yds": 0.514,
+    "rec": 0.514,
+    "rush_yds": 1.129
+   },
+   "scores": {}
+  },
+  "MIA": {
+   "test_cases": 3,
+   "train_cases": 2,
+   "team_k": {
+    "rec_yds": 0.98,
+    "rec": 0.98,
+    "rush_yds": 0.8
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 22.163517733261227,
+      "mae": 15.999396118207049,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 12.07747734851723,
+      "team_abs": 42.404694303341564
+     },
+     "rec": {
+      "rmse": 1.6769319482864997,
+      "mae": 1.313131191921979,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -2.6711679125978356,
+      "team_abs": 5.2644372184462
+     },
+     "rush_yds": {
+      "rmse": 24.905668455262916,
+      "mae": 13.749352895437509,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -56.89315856140501,
+      "team_abs": 56.89315856140501
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 24.25463266431324,
+      "mae": 17.295346742608473,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 43.8943693371293,
+      "team_abs": 52.22617357583541
+     },
+     "rec": {
+      "rmse": 1.7039358734760461,
+      "mae": 1.3017930485680496,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -0.33445864481612614,
+      "team_abs": 4.649442637944883
+     },
+     "rush_yds": {
+      "rmse": 24.944115577615925,
+      "mae": 13.770773269703902,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -55.88995630701792,
+      "team_abs": 55.88995630701792
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 24.461208728899877,
+      "mae": 17.40845850336097,
+      "replacement_bias": 7.401854065890355,
+      "replacement_abs": 7.401854065890355,
+      "team_bias": 50.2577477348517,
+      "team_abs": 54.19046943033416
+     },
+     "rec": {
+      "rmse": 1.7141166336912796,
+      "mae": 1.3089615394737328,
+      "replacement_bias": 0.6343433896018208,
+      "replacement_abs": 0.6343433896018208,
+      "team_bias": 0.13288320874021645,
+      "team_abs": 4.526443721844619
+     },
+     "rush_yds": {
+      "rmse": 25.01767135807728,
+      "mae": 13.82556464323337,
+      "replacement_bias": 0.18022425882677462,
+      "replacement_abs": 0.18022425882677462,
+      "team_bias": -55.55555555555555,
+      "team_abs": 55.55555555555555
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 24.701097292857156,
+      "mae": 17.533708493152425,
+      "replacement_bias": 8.059796649525051,
+      "replacement_abs": 8.059796649525051,
+      "team_bias": 53.65154954697028,
+      "team_abs": 55.23809388606682
+     },
+     "rec": {
+      "rmse": 1.720216873510295,
+      "mae": 1.3085909037005554,
+      "replacement_bias": 0.6907294686775378,
+      "replacement_abs": 0.6907294686775378,
+      "team_bias": 0.3821321973035972,
+      "team_abs": 4.46084429992448
+     },
+     "rush_yds": {
+      "rmse": 24.994423148931233,
+      "mae": 13.810322293674197,
+      "replacement_bias": 0.14417940706141963,
+      "replacement_abs": 0.14417940706141963,
+      "team_bias": -55.82307615672545,
+      "team_abs": 55.82307615672545
+     }
+    }
+   }
+  },
+  "MIN": {
+   "test_cases": 1,
+   "train_cases": 6,
+   "team_k": {
+    "rec_yds": 1.071,
+    "rec": 1.071,
+    "rush_yds": 1.129
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 31.167744725045992,
+      "mae": 17.670703996189005,
+      "replacement_bias": -4.0,
+      "replacement_abs": 4.0,
+      "team_bias": -150.59624168998252,
+      "team_abs": 150.59624168998252
+     },
+     "rec": {
+      "rmse": 3.303872122044858,
+      "mae": 1.8551037439926328,
+      "replacement_bias": -1.0,
+      "replacement_abs": 1.0,
+      "team_bias": -17.356758467869575,
+      "team_abs": 17.356758467869575
+     },
+     "rush_yds": {
+      "rmse": 6.5557669832133305,
+      "mae": 3.8874981816938385,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -25.666666666666657,
+      "team_abs": 25.666666666666657
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 28.197265967196603,
+      "mae": 15.69007166334922,
+      "replacement_bias": -4.0,
+      "replacement_abs": 4.0,
+      "team_bias": -107.39906042249567,
+      "team_abs": 107.39906042249567
+     },
+     "rec": {
+      "rmse": 3.0160185968088546,
+      "mae": 1.6959734155038477,
+      "replacement_bias": -1.0,
+      "replacement_abs": 1.0,
+      "team_bias": -14.339189616967394,
+      "team_abs": 14.339189616967394
+     },
+     "rush_yds": {
+      "rmse": 6.5557669832133305,
+      "mae": 3.8874981816938385,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -25.666666666666657,
+      "team_abs": 25.666666666666657
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 29.294461447740986,
+      "mae": 15.446196025859955,
+      "replacement_bias": 6.0493546608572615,
+      "replacement_abs": 6.0493546608572615,
+      "team_bias": -98.75962416899824,
+      "team_abs": 98.75962416899824
+     },
+     "rec": {
+      "rmse": 3.1455116928492792,
+      "mae": 1.6759320908037092,
+      "replacement_bias": -0.18082455544187903,
+      "replacement_abs": 0.18082455544187903,
+      "team_bias": -13.735675846786956,
+      "team_abs": 13.735675846786956
+     },
+     "rush_yds": {
+      "rmse": 6.5557669832133305,
+      "mae": 3.8874981816938385,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -25.666666666666657,
+      "team_abs": 25.666666666666657
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 29.1393095081226,
+      "mae": 15.673213868055115,
+      "replacement_bias": 7.958732046420131,
+      "replacement_abs": 7.958732046420131,
+      "team_bias": -88.91066684001126,
+      "team_abs": 88.91066684001126
+     },
+     "rec": {
+      "rmse": 3.1198785826639504,
+      "mae": 1.6459844483913104,
+      "replacement_bias": -0.025181220975836527,
+      "replacement_abs": 0.025181220975836527,
+      "team_bias": -13.047670148781261,
+      "team_abs": 13.047670148781261
+     },
+     "rush_yds": {
+      "rmse": 6.5557669832133305,
+      "mae": 3.8874981816938385,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -25.666666666666657,
+      "team_abs": 25.666666666666657
+     }
+    }
+   }
+  },
+  "NE": {
+   "test_cases": 1,
+   "train_cases": 5,
+   "team_k": {
+    "rec_yds": 0.746,
+    "rec": 0.727,
+    "rush_yds": 1.115
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 36.049938074775106,
+      "mae": 26.260365609604804,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -189.25418103059206,
+      "team_abs": 189.25418103059206
+     },
+     "rec": {
+      "rmse": 2.0551736147745308,
+      "mae": 1.5209759105944793,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -10.615438524360389,
+      "team_abs": 10.615438524360389
+     },
+     "rush_yds": {
+      "rmse": 16.530588442151885,
+      "mae": 9.032160238561008,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -50.0,
+      "team_abs": 50.0
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 35.28575440432042,
+      "mae": 25.684201815978934,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -150.06354525764803,
+      "team_abs": 150.06354525764803
+     },
+     "rec": {
+      "rmse": 2.0096490822553634,
+      "mae": 1.5598093382770943,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -7.716359631090096,
+      "team_abs": 7.716359631090096
+     },
+     "rush_yds": {
+      "rmse": 16.530588442151885,
+      "mae": 9.032160238561008,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -50.0,
+      "team_abs": 50.0
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 35.65263877595913,
+      "mae": 26.5454154931086,
+      "replacement_bias": 9.117275403412151,
+      "replacement_abs": 9.117275403412151,
+      "team_bias": -142.22541810305924,
+      "team_abs": 142.22541810305924
+     },
+     "rec": {
+      "rmse": 2.027750115008909,
+      "mae": 1.5356238214251667,
+      "replacement_bias": 0.7870091317034008,
+      "replacement_abs": 0.7870091317034008,
+      "team_bias": -7.136543852436041,
+      "team_abs": 7.136543852436041
+     },
+     "rush_yds": {
+      "rmse": 16.530588442151885,
+      "mae": 9.032160238561008,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -50.0,
+      "team_abs": 50.0
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 35.661562779835585,
+      "mae": 26.496640290820174,
+      "replacement_bias": 7.557208278828294,
+      "replacement_abs": 7.557208278828294,
+      "team_bias": -150.27256198177042,
+      "team_abs": 150.27256198177042
+     },
+     "rec": {
+      "rmse": 2.0281108071261573,
+      "mae": 1.5293061802497345,
+      "replacement_bias": 0.6357284874981913,
+      "replacement_abs": 0.6357284874981913,
+      "team_bias": -7.805264717150383,
+      "team_abs": 7.805264717150383
+     },
+     "rush_yds": {
+      "rmse": 16.530588442151885,
+      "mae": 9.032160238561008,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -50.0,
+      "team_abs": 50.0
+     }
+    }
+   }
+  },
+  "NO": {
+   "test_cases": 0,
+   "train_cases": 5,
+   "team_k": {
+    "rec_yds": 1.054,
+    "rec": 1.054,
+    "rush_yds": 1.115
+   },
+   "scores": {}
+  },
+  "NYG": {
+   "test_cases": 0,
+   "train_cases": 9,
+   "team_k": {
+    "rec_yds": 1.032,
+    "rec": 1.059,
+    "rush_yds": 1.159
+   },
+   "scores": {}
+  },
+  "NYJ": {
+   "test_cases": 4,
+   "train_cases": 9,
+   "team_k": {
+    "rec_yds": 0.926,
+    "rec": 1.112,
+    "rush_yds": 0.868
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 32.353106193976416,
+      "mae": 21.426798763641784,
+      "replacement_bias": -14.5,
+      "replacement_abs": 14.5,
+      "team_bias": -33.64808753307632,
+      "team_abs": 56.81360172246693
+     },
+     "rec": {
+      "rmse": 2.217820400477569,
+      "mae": 1.5871690374308292,
+      "replacement_bias": -1.25,
+      "replacement_abs": 1.25,
+      "team_bias": -0.917000646601374,
+      "team_abs": 5.863638138934825
+     },
+     "rush_yds": {
+      "rmse": 17.96762728909896,
+      "mae": 7.032001175503843,
+      "replacement_bias": -2.0,
+      "replacement_abs": 2.0,
+      "team_bias": -24.98055816101871,
+      "team_abs": 51.48055816101871
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 34.66689973422784,
+      "mae": 23.589320538671434,
+      "replacement_bias": -14.5,
+      "replacement_abs": 14.5,
+      "team_bias": 3.2725032259012323,
+      "team_abs": 68.01602382391832
+     },
+     "rec": {
+      "rmse": 2.455296473341859,
+      "mae": 1.7691334225458364,
+      "replacement_bias": -1.25,
+      "replacement_abs": 1.25,
+      "team_bias": 2.455124838349656,
+      "team_abs": 6.800259449848404
+     },
+     "rush_yds": {
+      "rmse": 14.231869584698527,
+      "mae": 6.393482323451136,
+      "replacement_bias": -2.0,
+      "replacement_abs": 2.0,
+      "team_bias": -0.0420145402546801,
+      "team_abs": 37.3206971376496
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 34.350833533439626,
+      "mae": 23.262506958870453,
+      "replacement_bias": -5.910825893295137,
+      "replacement_abs": 16.456968797049882,
+      "team_bias": 10.656621377696759,
+      "team_abs": 73.50878944223108
+     },
+     "rec": {
+      "rmse": 2.409988831957354,
+      "mae": 1.7246228251510984,
+      "replacement_bias": -0.3345735326255618,
+      "replacement_abs": 1.3414406470394624,
+      "team_bias": 3.1295499353398633,
+      "team_abs": 7.241745057291082
+     },
+     "rush_yds": {
+      "rmse": 10.960045853489273,
+      "mae": 4.477728308254199,
+      "replacement_bias": 2.4801838518767494,
+      "replacement_abs": 3.730415690033702,
+      "team_bias": 8.27083333333334,
+      "team_abs": 35.39583333333333
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 34.43144066736592,
+      "mae": 23.31701127548132,
+      "replacement_bias": -5.6626941968792215,
+      "replacement_abs": 16.513503451186878,
+      "team_bias": 11.93653519067464,
+      "team_abs": 74.46086881607192
+     },
+     "rec": {
+      "rmse": 2.468751828296962,
+      "mae": 1.7705248339178534,
+      "replacement_bias": -0.11893974253291631,
+      "replacement_abs": 1.3629799994532026,
+      "team_bias": 4.082737405752688,
+      "team_abs": 7.957078869167324
+     },
+     "rush_yds": {
+      "rmse": 11.67114078468138,
+      "mae": 4.814892326731152,
+      "replacement_bias": 1.8887995834290177,
+      "replacement_abs": 3.502000818949252,
+      "team_bias": 3.8816496560788565,
+      "team_abs": 36.41216142201233
+     }
+    }
+   }
+  },
+  "PHI": {
+   "test_cases": 5,
+   "train_cases": 3,
+   "team_k": {
+    "rec_yds": 1.009,
+    "rec": 0.968,
+    "rush_yds": 1.082
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 17.807210083454894,
+      "mae": 12.261593603188945,
+      "replacement_bias": -7.6,
+      "replacement_abs": 8.4,
+      "team_bias": -37.94430039695127,
+      "team_abs": 54.46147142800284
+     },
+     "rec": {
+      "rmse": 1.5366032775360061,
+      "mae": 1.0629603489780315,
+      "replacement_bias": -1.6,
+      "replacement_abs": 1.6,
+      "team_bias": -5.887674154651961,
+      "team_abs": 6.283592521998901
+     },
+     "rush_yds": {
+      "rmse": 14.543205444913387,
+      "mae": 7.056550932482134,
+      "replacement_bias": -5.0,
+      "replacement_abs": 5.0,
+      "team_bias": 3.744821197270748,
+      "team_abs": 22.279558039376006
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 20.585680134457178,
+      "mae": 13.37584050330999,
+      "replacement_bias": -7.6,
+      "replacement_abs": 8.4,
+      "team_bias": 6.166424900762189,
+      "team_abs": 56.212867857000695
+     },
+     "rec": {
+      "rmse": 1.4669053444789695,
+      "mae": 1.1151059295500836,
+      "replacement_bias": -1.6,
+      "replacement_abs": 1.6,
+      "team_bias": -2.276918538662989,
+      "team_abs": 5.411545357666166
+     },
+     "rush_yds": {
+      "rmse": 16.2328752166481,
+      "mae": 8.445119303215604,
+      "replacement_bias": -5.0,
+      "replacement_abs": 5.0,
+      "team_bias": 18.91120529931769,
+      "team_abs": 34.31120529931768
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 20.56605362681681,
+      "mae": 13.376401124535546,
+      "replacement_bias": 2.661880749103804,
+      "replacement_abs": 9.286065731536485,
+      "team_bias": 14.988569960304892,
+      "team_abs": 56.563147142800254
+     },
+     "rec": {
+      "rmse": 1.4694875796798252,
+      "mae": 1.1226656089789058,
+      "replacement_bias": -0.6197929250117458,
+      "replacement_abs": 1.2965801856426107,
+      "team_bias": -1.5547674154651951,
+      "team_abs": 5.368618143066469
+     },
+     "rush_yds": {
+      "rmse": 16.530490701367217,
+      "mae": 8.562542746290381,
+      "replacement_bias": -2.275374609735561,
+      "replacement_abs": 5.364368127612236,
+      "team_bias": 23.966666666666665,
+      "team_abs": 39.36666666666666
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 21.128283815961222,
+      "mae": 13.540255557456895,
+      "replacement_bias": 3.904708528717483,
+      "replacement_abs": 9.39337813680034,
+      "team_bias": 21.399328703572543,
+      "team_abs": 56.81768342381463
+     },
+     "rec": {
+      "rmse": 1.470947818633245,
+      "mae": 1.1322187105828674,
+      "replacement_bias": -0.5457328349015225,
+      "replacement_abs": 1.2736551330022752,
+      "team_bias": -1.227392239615528,
+      "team_abs": 5.349157805781273
+     },
+     "rush_yds": {
+      "rmse": 16.76519634559009,
+      "mae": 8.686003249386188,
+      "replacement_bias": -2.0519553277338773,
+      "replacement_abs": 5.3942463140764385,
+      "team_bias": 25.62485799515714,
+      "team_abs": 41.02485799515713
+     }
+    }
+   }
+  },
+  "PIT": {
+   "test_cases": 4,
+   "train_cases": 2,
+   "team_k": {
+    "rec_yds": 0.98,
+    "rec": 0.98,
+    "rush_yds": 0.8
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 27.349085201673326,
+      "mae": 17.6466420249857,
+      "replacement_bias": -0.5,
+      "replacement_abs": 0.5,
+      "team_bias": -60.50183738426421,
+      "team_abs": 60.50183738426421
+     },
+     "rec": {
+      "rmse": 2.1119293805323185,
+      "mae": 1.1868562749675173,
+      "replacement_bias": -0.25,
+      "replacement_abs": 0.25,
+      "team_bias": -3.9124441653195534,
+      "team_abs": 5.308229161452577
+     },
+     "rush_yds": {
+      "rmse": 17.14162356700975,
+      "mae": 7.329700255993585,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -29.357328947987554,
+      "team_abs": 35.65732894798755
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 27.16288127485529,
+      "mae": 17.882034822316893,
+      "replacement_bias": -0.5,
+      "replacement_abs": 0.5,
+      "team_bias": -42.33483434606604,
+      "team_abs": 46.225127417618104
+     },
+     "rec": {
+      "rmse": 2.0631534619536542,
+      "mae": 1.2220118596101588,
+      "replacement_bias": -0.25,
+      "replacement_abs": 0.25,
+      "team_bias": -2.196861041329889,
+      "team_abs": 4.233307290363145
+     },
+     "rush_yds": {
+      "rmse": 15.817278609837269,
+      "mae": 6.947510060039729,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -22.164332236996888,
+      "team_abs": 28.464332236996885
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 27.07774638264248,
+      "mae": 17.83476736073116,
+      "replacement_bias": 3.7263557782909484,
+      "replacement_abs": 3.7263557782909484,
+      "team_bias": -38.70143373842642,
+      "team_abs": 44.682550967047234
+     },
+     "rec": {
+      "rmse": 2.0492973318170145,
+      "mae": 1.2235792764464488,
+      "replacement_bias": 0.21572709280534633,
+      "replacement_abs": 0.5418076256492604,
+      "team_bias": -1.8537444165319554,
+      "team_abs": 4.018322916145258
+     },
+     "rush_yds": {
+      "rmse": 15.542836259354418,
+      "mae": 6.836974309911897,
+      "replacement_bias": 1.2922145014254705,
+      "replacement_abs": 1.2922145014254705,
+      "team_bias": -19.766666666666662,
+      "team_abs": 28.73333333333333
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 27.066401816975077,
+      "mae": 17.854178938882324,
+      "replacement_bias": 4.102031847472364,
+      "replacement_abs": 4.102031847472364,
+      "team_bias": -36.76362008101863,
+      "team_abs": 43.85984352674278
+     },
+     "rec": {
+      "rmse": 2.0449088288743367,
+      "mae": 1.2274778983465726,
+      "replacement_bias": 0.2571250566102657,
+      "replacement_abs": 0.5677460812625279,
+      "team_bias": -1.6707488833063904,
+      "team_abs": 3.9036645832290526
+     },
+     "rush_yds": {
+      "rmse": 15.829763454765091,
+      "mae": 6.935519499128235,
+      "replacement_bias": 1.0337716011403764,
+      "replacement_abs": 1.0337716011403764,
+      "team_bias": -21.684799122930848,
+      "team_abs": 28.493139055031797
+     }
+    }
+   }
+  },
+  "SEA": {
+   "test_cases": 1,
+   "train_cases": 3,
+   "team_k": {
+    "rec_yds": 0.655,
+    "rec": 0.655,
+    "rush_yds": 1.082
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 24.65421923545367,
+      "mae": 16.966332861976976,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 101.03291217859294,
+      "team_abs": 101.03291217859294
+     },
+     "rec": {
+      "rmse": 1.7065065708000187,
+      "mae": 1.2965161208874945,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 8.261677329762435,
+      "team_abs": 8.261677329762435
+     },
+     "rush_yds": {
+      "rmse": 18.404204645649173,
+      "mae": 8.606600542482454,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -77.29562420469415,
+      "team_abs": 77.29562420469415
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 25.389697512222835,
+      "mae": 17.38414748226641,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 106.2582280446482,
+      "team_abs": 106.2582280446482
+     },
+     "rec": {
+      "rmse": 1.8323104306319506,
+      "mae": 1.3923108484036921,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": 9.315419332440609,
+      "team_abs": 9.315419332440609
+     },
+     "rush_yds": {
+      "rmse": 15.494432595796491,
+      "mae": 8.228034928983549,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -48.32390605117355,
+      "team_abs": 48.32390605117355
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 25.147487983505016,
+      "mae": 17.403674478834237,
+      "replacement_bias": 1.215612936127321,
+      "replacement_abs": 1.215612936127321,
+      "team_bias": 107.30329121785928,
+      "team_abs": 107.30329121785928
+     },
+     "rec": {
+      "rmse": 1.7892412953094978,
+      "mae": 1.3854645253027225,
+      "replacement_bias": 0.28605795464629735,
+      "replacement_abs": 0.28605795464629735,
+      "team_bias": 9.526167732976244,
+      "team_abs": 9.526167732976244
+     },
+     "rush_yds": {
+      "rmse": 14.496824738044673,
+      "mae": 8.010283656542594,
+      "replacement_bias": 5.204739531159151,
+      "replacement_abs": 5.204739531159151,
+      "team_bias": -38.66666666666666,
+      "team_abs": 38.66666666666666
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 25.01227112959806,
+      "mae": 17.28462037202309,
+      "replacement_bias": 0.8846960812926609,
+      "replacement_abs": 0.8846960812926609,
+      "team_bias": 105.59635470161447,
+      "team_abs": 105.59635470161447
+     },
+     "rec": {
+      "rmse": 1.766210250459033,
+      "mae": 1.3612507929896882,
+      "replacement_bias": 0.2081866225481387,
+      "replacement_abs": 0.2081866225481387,
+      "team_bias": 9.181945345434709,
+      "team_abs": 9.181945345434709
+     },
+     "rush_yds": {
+      "rmse": 14.283368854769401,
+      "mae": 7.961385671895525,
+      "replacement_bias": 5.631528172714204,
+      "replacement_abs": 5.631528172714204,
+      "team_bias": -35.4990921485484,
+      "team_abs": 35.4990921485484
+     }
+    }
+   }
+  },
+  "SF": {
+   "test_cases": 3,
+   "train_cases": 5,
+   "team_k": {
+    "rec_yds": 0.862,
+    "rec": 0.842,
+    "rush_yds": 1.115
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 18.975979815109,
+      "mae": 14.076789547236572,
+      "replacement_bias": -20.0,
+      "replacement_abs": 20.0,
+      "team_bias": -74.9104425093961,
+      "team_abs": 74.9104425093961
+     },
+     "rec": {
+      "rmse": 1.7754067849738706,
+      "mae": 1.2476731622594608,
+      "replacement_bias": -0.6666666666666666,
+      "replacement_abs": 0.6666666666666666,
+      "team_bias": -4.431678198159189,
+      "team_abs": 7.9118544096129355
+     },
+     "rush_yds": {
+      "rmse": 12.13731463102061,
+      "mae": 6.29589318862353,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -8.256724550383126,
+      "team_abs": 8.256724550383126
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 16.746921515896446,
+      "mae": 12.284440233392857,
+      "replacement_bias": -20.0,
+      "replacement_abs": 20.0,
+      "team_bias": -36.177610627349004,
+      "team_abs": 48.93475642212592
+     },
+     "rec": {
+      "rmse": 1.6297339570488336,
+      "mae": 1.1293450584317084,
+      "replacement_bias": -0.6666666666666666,
+      "replacement_abs": 0.6666666666666666,
+      "team_bias": -1.3745862162064644,
+      "team_abs": 5.994630269069899
+     },
+     "rush_yds": {
+      "rmse": 12.351539632688079,
+      "mae": 6.363745881313064,
+      "replacement_bias": 0.0,
+      "replacement_abs": 0.0,
+      "team_bias": -0.8558478042624387,
+      "team_abs": 2.810818862404209
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 17.6786106525669,
+      "mae": 12.94059537407674,
+      "replacement_bias": -10.989227695395519,
+      "replacement_abs": 24.421136665044497,
+      "team_bias": -28.43104425093959,
+      "team_abs": 45.13390256885037
+     },
+     "rec": {
+      "rmse": 1.6951302415846936,
+      "mae": 1.1714075855786996,
+      "replacement_bias": 0.16323807026169349,
+      "replacement_abs": 1.1871329808577562,
+      "team_bias": -0.7631678198159193,
+      "team_abs": 5.611185440961293
+     },
+     "rush_yds": {
+      "rmse": 12.314643507345455,
+      "mae": 6.326300641944018,
+      "replacement_bias": 1.3295599370964475,
+      "replacement_abs": 1.3295599370964475,
+      "team_bias": 1.6111111111111143,
+      "team_abs": 5.277777777777762
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 17.68817099618572,
+      "mae": 12.935581762110424,
+      "replacement_bias": -11.369682526034369,
+      "replacement_abs": 24.234466450298168,
+      "team_bias": -30.393507732963315,
+      "team_abs": 46.096785545013496
+     },
+     "rec": {
+      "rmse": 1.695783463184076,
+      "mae": 1.1689271291525463,
+      "replacement_bias": 0.10975532054853247,
+      "replacement_abs": 1.1535918183876641,
+      "team_bias": -0.9995829330869282,
+      "team_abs": 5.75945077449662
+     },
+     "rush_yds": {
+      "rmse": 12.362486433250451,
+      "mae": 6.36466312434959,
+      "replacement_bias": 1.4824593298625377,
+      "replacement_abs": 1.4824593298625377,
+      "team_bias": 2.745912212182958,
+      "team_abs": 6.412578878849605
+     }
+    }
+   }
+  },
+  "TB": {
+   "test_cases": 4,
+   "train_cases": 6,
+   "team_k": {
+    "rec_yds": 1.071,
+    "rec": 0.986,
+    "rush_yds": 0.571
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 14.977102563657732,
+      "mae": 9.856358494419835,
+      "replacement_bias": -6.0,
+      "replacement_abs": 6.0,
+      "team_bias": 43.21927098674032,
+      "team_abs": 43.21927098674032
+     },
+     "rec": {
+      "rmse": 1.465525700023537,
+      "mae": 1.046004775677505,
+      "replacement_bias": -0.5,
+      "replacement_abs": 0.5,
+      "team_bias": 2.200821966386038,
+      "team_abs": 3.3008219663860396
+     },
+     "rush_yds": {
+      "rmse": 26.438620987296275,
+      "mae": 12.669283621025729,
+      "replacement_bias": -2.5,
+      "replacement_abs": 2.5,
+      "team_bias": -86.66684035823405,
+      "team_abs": 90.38040930570858
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 15.654313815640869,
+      "mae": 10.307294614911727,
+      "replacement_bias": -6.0,
+      "replacement_abs": 6.0,
+      "team_bias": 49.64544274668508,
+      "team_abs": 49.64544274668508
+     },
+     "rec": {
+      "rmse": 1.5522350891803076,
+      "mae": 1.1019168638706136,
+      "replacement_bias": -0.5,
+      "replacement_abs": 0.5,
+      "team_bias": 3.043955491596508,
+      "team_abs": 4.143955491596509
+     },
+     "rush_yds": {
+      "rmse": 25.71333676405677,
+      "mae": 12.614183944229678,
+      "replacement_bias": -2.5,
+      "replacement_abs": 2.5,
+      "team_bias": -74.94483508955851,
+      "team_abs": 87.72322732642714
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 15.521112134644232,
+      "mae": 10.234237641225128,
+      "replacement_bias": -4.5050209936758865,
+      "replacement_abs": 7.4949790063241135,
+      "team_bias": 50.930677098674025,
+      "team_abs": 50.930677098674025
+     },
+     "rec": {
+      "rmse": 1.5331953187445355,
+      "mae": 1.0940682425991857,
+      "replacement_bias": -0.27111565155186207,
+      "replacement_abs": 0.728884348448138,
+      "team_bias": 3.2125821966386017,
+      "team_abs": 4.312582196638603
+     },
+     "rush_yds": {
+      "rmse": 25.698737922993583,
+      "mae": 12.337956744165412,
+      "replacement_bias": -0.3941537439015276,
+      "replacement_abs": 3.333745718247805,
+      "team_bias": -71.0375,
+      "team_abs": 86.83749999999998
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 15.644237624777045,
+      "mae": 10.306034679118133,
+      "replacement_bias": -4.2209749824743055,
+      "replacement_abs": 7.7790250175256945,
+      "team_bias": 52.39584425994143,
+      "team_abs": 52.39584425994143
+     },
+     "rec": {
+      "rmse": 1.5410872307049097,
+      "mae": 1.1000284245573444,
+      "replacement_bias": -0.24924448047792902,
+      "replacement_abs": 0.750755519522071,
+      "team_bias": 3.3092615075294027,
+      "team_abs": 4.409261507529404
+     },
+     "rush_yds": {
+      "rmse": 25.967560450140308,
+      "mae": 12.374272838601264,
+      "replacement_bias": -1.2975617877677734,
+      "replacement_abs": 2.976068805119496,
+      "team_bias": -77.7424870136824,
+      "team_abs": 88.35740809214897
+     }
+    }
+   }
+  },
+  "TEN": {
+   "test_cases": 0,
+   "train_cases": 5,
+   "team_k": {
+    "rec_yds": 0.958,
+    "rec": 1.035,
+    "rush_yds": 0.615
+   },
+   "scores": {}
+  },
+  "WAS": {
+   "test_cases": 4,
+   "train_cases": 13,
+   "team_k": {
+    "rec_yds": 0.962,
+    "rec": 0.683,
+    "rush_yds": 1.062
+   },
+   "scores": {
+    "No redistribution": {
+     "rec_yds": {
+      "rmse": 20.458334187378835,
+      "mae": 13.628382352134434,
+      "replacement_bias": -6.0,
+      "replacement_abs": 6.0,
+      "team_bias": -55.17928025071652,
+      "team_abs": 55.17928025071652
+     },
+     "rec": {
+      "rmse": 1.4515830796586746,
+      "mae": 0.9775414657570073,
+      "replacement_bias": -0.5,
+      "replacement_abs": 0.5,
+      "team_bias": -3.2195497684483962,
+      "team_abs": 3.2195497684483962
+     },
+     "rush_yds": {
+      "rmse": 16.02383036781123,
+      "mae": 6.51031709414301,
+      "replacement_bias": -15.5,
+      "replacement_abs": 15.5,
+      "team_bias": -16.64198618433966,
+      "team_abs": 45.619408828232864
+     }
+    },
+    "Old rule: 75% to the regulars, by usage": {
+     "rec_yds": {
+      "rmse": 20.516620142174816,
+      "mae": 13.859274089734383,
+      "replacement_bias": -6.0,
+      "replacement_abs": 6.0,
+      "team_bias": -41.982320062679136,
+      "team_abs": 41.982320062679136
+     },
+     "rec": {
+      "rmse": 1.4607665748404617,
+      "mae": 0.988882637732778,
+      "replacement_bias": -0.5,
+      "replacement_abs": 0.5,
+      "team_bias": -1.5548874421120988,
+      "team_abs": 3.5475649732286705
+     },
+     "rush_yds": {
+      "rmse": 18.876882806235976,
+      "mae": 8.269684981487112,
+      "replacement_bias": -15.5,
+      "replacement_abs": 15.5,
+      "team_bias": 17.095753453915087,
+      "team_abs": 57.97990957363655
+     }
+    },
+    "Kept share, split to replacement, by usage and position": {
+     "rec_yds": {
+      "rmse": 20.49199251720737,
+      "mae": 13.798917126598157,
+      "replacement_bias": -2.929870665551492,
+      "replacement_abs": 7.747963934681116,
+      "team_bias": -39.34292802507166,
+      "team_abs": 39.80533716784089
+     },
+     "rec": {
+      "rmse": 1.4578385301649874,
+      "mae": 0.9769647011490586,
+      "replacement_bias": -0.04809630911719175,
+      "replacement_abs": 0.6772166175117174,
+      "team_bias": -1.22195497684484,
+      "team_abs": 3.81902598929147
+     },
+     "rush_yds": {
+      "rmse": 18.87296957249013,
+      "mae": 8.32127225631993,
+      "replacement_bias": -9.439049584263564,
+      "replacement_abs": 13.540157258490602,
+      "team_bias": 28.34166666666666,
+      "team_abs": 67.59166666666667
+     }
+    },
+    "Same, with each team's own kept share": {
+     "rec_yds": {
+      "rmse": 20.49877898895052,
+      "mae": 13.810665077727881,
+      "replacement_bias": -2.7183728669561513,
+      "replacement_abs": 7.868379227959146,
+      "team_bias": -38.25197931619392,
+      "team_abs": 39.202694790446195
+     },
+     "rec": {
+      "rmse": 1.45451125609894,
+      "mae": 0.9743349532742746,
+      "replacement_bias": -0.15705531014115748,
+      "replacement_abs": 0.6344877219561145,
+      "team_bias": -1.7035972765981402,
+      "team_abs": 3.426312386053956
+     },
+     "rush_yds": {
+      "rmse": 19.12662583208309,
+      "mae": 8.453483542005173,
+      "replacement_bias": -9.063270658487909,
+      "replacement_abs": 13.418647008517024,
+      "team_bias": 31.130653143429054,
+      "team_abs": 69.97538242573812
+     }
+    }
+   }
+  }
+ }
+}

@@ -14,6 +14,7 @@ import pandas as pd
 
 from . import gamecenter_data as D
 from . import gameweather
+from . import usage as U
 from .config import CACHE_DIR, RAW_DIR
 from .ingest import normalize_team
 
@@ -23,9 +24,7 @@ TEAM_STATS = CACHE_DIR / "team_game_stats.parquet"
 SECONDS = {"pass": 30, "incomplete": 6, "rush": 36, "sack": 34}
 NOT_PLAYING = {"Out", "Doubtful", "Injured Reserve", "Suspension", "Physically Unable to Perform"}
 LONG_TERM = {"Injured Reserve", "Suspension", "Physically Unable to Perform"}
-SHARE_TO_LISTED = 0.75  # share of a missing player's production given to listed teammates; the rest goes to unlisted depth players
 HOME_EDGE = 1.5  # points of margin for the home team when no betting line exists yet
-RECENT_GAMES = 6
 
 
 def _rng(gid: str, salt: str = "") -> np.random.Generator:
@@ -105,17 +104,20 @@ def _split(total: float, n: int, r: np.random.Generator) -> list[int]:
     return [int(p) for p in parts]
 
 
-def _pool(team: str, props: list[dict], ctx_row, r: np.random.Generator) -> tuple[list[dict], str]:
-    """Every snap this team runs in the typical game, built from player median projections (team averages fill gaps)."""
+def _pool(team: str, props: list[dict], ctx_row, r: np.random.Generator) -> tuple[list[dict], str, str]:
+    """Every snap this team runs in the typical game, built from each named player's projection."""
     mine = [p for p in props if p["team"] == team]
-    by = {}
+    by, carries_of = {}, {}
     for p in mine:
         by.setdefault(p["player"], {})[p["stat"]] = p["typical"]
+        if p.get("carries"):
+            carries_of[p["player"]] = p["carries"]
     qbs = [(n, s["Passing yards"]) for n, s in by.items() if "Passing yards" in s]
     qb, pass_yds = max(qbs, key=lambda x: x[1]) if qbs else (f"{team} quarterback", float(ctx_row["pass_yds"]) if ctx_row is not None else 210.0)
     team_rushes = float(ctx_row["rushes"]) if ctx_row is not None else 26.0
     plays: list[dict] = []
 
+    # Catches: every receiver is a named player. Their yards are scaled so they add up to the quarterback's passing yards.
     recv = []
     for n, s in by.items():
         yds, rec = s.get("Receiving yards"), s.get("Receptions")
@@ -123,39 +125,41 @@ def _pool(team: str, props: list[dict], ctx_row, r: np.random.Generator) -> tupl
             continue
         yds = yds if yds is not None else rec * 9.5
         rec = rec if rec is not None else yds / 11
-        recv.append((n, max(1, int(round(rec))), yds))
-    rest = pass_yds - sum(y for _, _, y in recv)
-    if rest > 12:
-        recv.append((f"another {team} receiver", max(1, int(round(rest / 10))), rest))
-    elif rest < 0 and recv:
-        scale = pass_yds / sum(y for _, _, y in recv)
-        recv = [(n, c, y * scale) for n, c, y in recv]
+        recv.append([n, rec, yds])
+    total = sum(y for _, _, y in recv)
+    if total > 0:
+        for x in recv:
+            x[2] *= pass_yds / total
     catches = 0
-    for n, c, y in recv:
+    for n, rec, y in recv:
+        c = int(round(rec))
+        if c == 0 and y >= 6:
+            c = 1
         catches += c
         plays += [{"kind": "pass", "player": n, "yards": v} for v in _split(y, c, r)]
     plays += [{"kind": "incomplete", "player": None, "yards": 0} for _ in range(int(round(catches * 0.52)))]
     plays += [{"kind": "sack", "player": None, "yards": -int(r.integers(4, 9))} for _ in range(2)]
 
-    carries, named_yds = 0, 0.0
+    # Carries: every runner is a named player, quarterback runs included; carries come from each player's projection.
+    rushers = []
     for n, s in by.items():
         yds = s.get("Rushing yards")
-        if yds is None or n == qb:
+        if yds is None:
             continue
-        c = max(1, int(round(yds / 4.3)))
-        carries, named_yds = carries + c, named_yds + yds
-        plays += [{"kind": "rush", "player": n, "yards": v} for v in _split(yds, c, r)]
-    # Carries the named backs don't account for get the team's usual remaining rushing yards (at least 3 a carry).
-    extra = max(0, int(round(team_rushes)) - carries)
-    team_rush = float(ctx_row["rush_yds"]) if ctx_row is not None else 110.0
-    who = f"{team} running back" if carries == 0 else f"another {team} runner"
-    plays += [{"kind": "rush", "player": who, "yards": v} for v in _split(max(team_rush - named_yds, 3.0 * extra), extra, r)]
+        car = carries_of.get(n) or yds / 4.3
+        c = int(round(car))
+        if c == 0 and yds >= 3:
+            c = 1
+        if c:
+            rushers.append((n, yds))
+            plays += [{"kind": "rush", "player": n, "yards": v} for v in _split(yds, c, r)]
+    if not rushers:  # no player data at all for this team
+        yds = float(ctx_row["rush_yds"]) if ctx_row is not None else 110.0
+        plays += [{"kind": "rush", "player": f"{team} running back", "yards": v} for v in _split(yds, int(round(team_rushes)), r)]
     for p in plays:
         p["passer"] = qb if p["kind"] != "rush" else None
-    # Named players' snaps come first, so the snaps a short game leaves unused are the generic ones.
-    shuffled = [plays[i] for i in r.permutation(len(plays))]
-    generic = lambda p: p["kind"] in ("rush", "pass") and str(p["player"]).startswith(("another ", f"{team} "))
-    return sorted(shuffled, key=generic), qb
+    lead = max(rushers, key=lambda x: x[1])[0] if rushers else f"{team} running back"
+    return [plays[i] for i in r.permutation(len(plays))], qb, lead
 
 
 def _outcomes(n_td: int, n_fg: int, turnovers: int, r: np.random.Generator) -> list[str]:
@@ -182,8 +186,9 @@ def replay(gid: str, away: str, home: str, targets: dict, props: list[dict], ctx
         td, fg = reachable_score(targets[t])
         row = ctx.loc[t] if t in ctx.index else None
         to = int(round(float(row["turnovers"]))) if row is not None else 1
-        pool, qb = _pool(t, props, row, r)
-        teams[t] = {"pool": pool, "qb": qb, "outcomes": _outcomes(td, fg, to, r)}
+        pool, qb, lead = _pool(t, props, row, r)
+        rotation = [p["player"] for p in pool if p["kind"] == "rush"] or [lead]
+        teams[t] = {"pool": pool, "qb": qb, "rotation": rotation, "outcomes": _outcomes(td, fg, to, r)}
 
     score = {away: 0, home: 0}
     plays: list[dict] = []
@@ -202,9 +207,10 @@ def replay(gid: str, away: str, home: str, targets: dict, props: list[dict], ctx
 
         def take(kind_filter=None, small=False, big=False):
             cands = [j for j, p in enumerate(pool) if kind_filter is None or p["kind"] in kind_filter]
-            if not cands:
-                kind = "rush"
-                return {"kind": kind, "player": f"another {off} runner", "yards": int(r.integers(2, 7)), "passer": None}
+            if not cands:  # the pool is used up: an incompletion or a short run by someone in the rotation
+                if (kind_filter is None or "incomplete" in kind_filter) and r.random() < 0.5:
+                    return {"kind": "incomplete", "player": None, "yards": 0, "passer": T["qb"]}
+                return {"kind": "rush", "player": T["rotation"][int(r.integers(len(T["rotation"])))], "yards": int(r.integers(0, 4)), "passer": None}
             if small:
                 j = min(cands, key=lambda j: pool[j]["yards"])
             elif big:
@@ -366,45 +372,204 @@ def player_games(season: int) -> pd.DataFrame:
     return D._cached(("player_games", season), D._mt(path), build)
 
 
-def season_players(team: str, week: int, season: int = D.SEASON) -> tuple[list[dict], list[str], str]:
-    """Averages over the team's last few games before `week` (last season's if none), backup QBs by recency, and a label."""
-    g = player_games(season)
-    g = g[(g["posteam"] == team) & (g["week"] < week)] if len(g) else g
-    label = f"season averages before week {week}"
-    if g.empty:
-        g = player_games(season - 1)
-        g = g[g["posteam"] == team] if len(g) else g
-        label = f"{season - 1} season averages"
-    if g.empty:
-        return [], [], "no player data"
-    weeks = sorted(g["week"].unique())[-RECENT_GAMES:]
-    g = g[g["week"].isin(weeks)]
-    names = _names()
-    # Starter: most dropbacks over the recent games (a one-week fill-in does not take over). Backups follow, most recent first.
-    passers = g[g["att"] > 0]
-    starter = passers.groupby("pid")["att"].sum().idxmax() if len(passers) else None
-    qbs = list(dict.fromkeys([starter] + list(passers.sort_values(["week", "att"], ascending=False)["pid"]))) if starter else []
-    per = g.groupby("pid")
-    avg = per[["pass_yds", "att", "rush_yds", "carries", "rec_yds", "rec"]].mean()
-    q10 = per[["pass_yds", "rush_yds", "rec_yds", "rec"]].quantile(0.1)
-    q90 = per[["pass_yds", "rush_yds", "rec_yds", "rec"]].quantile(0.9)
-    n = per.size()
-    rows = []
+STAT_NAME = {"rec_yds": "Receiving yards", "rec": "Receptions", "rush_yds": "Rushing yards"}
+STAT_CODE = {v: k for k, v in STAT_NAME.items()}
 
-    def add(pid, stat, col):
-        ranged = n[pid] >= 4
-        rows.append({"player": names.get(pid, pid), "team": team, "stat": stat, "typical": float(avg.at[pid, col]),
-                     "range_low": float(q10.at[pid, col]) if ranged else None, "range_high": float(q90.at[pid, col]) if ranged else None,
-                     "market_line": None, "market_chance": None, "our_chance": None})
-    if qbs:
-        add(qbs[0], "Passing yards", "pass_yds")
-    non_qb = avg[~avg.index.isin(qbs)]
-    for pid in non_qb[non_qb["carries"] >= 3].sort_values("rush_yds", ascending=False).index[:2]:
-        add(pid, "Rushing yards", "rush_yds")
-    for pid in non_qb[non_qb["rec"] >= 1].sort_values("rec_yds", ascending=False).index[:5]:
-        add(pid, "Receiving yards", "rec_yds")
-        add(pid, "Receptions", "rec")
-    return rows, [names.get(q, q) for q in qbs], label
+
+def _row(name: str, team: str, stat: str, value: float, lo=None, hi=None, **extra) -> dict:
+    return {"player": name, "team": team, "stat": stat, "typical": float(value), "range_low": lo, "range_high": hi,
+            "market_line": None, "market_chance": None, "our_chance": None, **extra}
+
+
+def _replacement(team: str, pos: str, week: int, season: int, taken: set, u, names: dict) -> str | None:
+    """The player who steps in at `pos`: an active roster player outside the regular rotation (most recent snaps first, then
+    most production last season); if there is none, a practice-squad player, who would be called up."""
+    path = RAW_DIR / f"roster_weekly_{season}.parquet"
+    cands = []
+    if path.exists():
+        r = D._cached(("roster", season), D._mt(path), lambda: pd.read_parquet(path, columns=["team", "week", "position", "status", "gsis_id", "full_name"]))
+        r = r[(r["team"].map(lambda t: normalize_team(t) if isinstance(t, str) else t) == team) & r["status"].isin(["ACT", "DEV"])]
+        if len(r):
+            wk = r[r["week"] <= week]["week"].max() if (r["week"] <= week).any() else r["week"].max()
+            r = r[(r["week"] == wk) & (r["position"].map(lambda p: U.POS_GROUP.get(p, "OTHER")) == pos)]
+            for status, suffix in (("ACT", ""), ("DEV", " (practice squad)")):
+                cands = [(gid, nm + suffix) for gid, nm, st in zip(r["gsis_id"], r["full_name"], r["status"]) if st == status and _norm(nm) not in taken]
+                if cands:
+                    break
+    if not cands:
+        return None
+    seen = u.players.set_index("pid")["n"].to_dict() if u is not None else {}
+    last = player_games(season - 1)
+    prod = last.groupby("pid")[["rec_yds", "rush_yds"]].sum().sum(axis=1).to_dict() if len(last) else {}
+    return max(cands, key=lambda c: (seen.get(c[0], 0), prod.get(c[0], 0.0)))[1]
+
+
+def team_players(team: str, week: int, out: dict, saved: list[dict], expected_points: float | None = None, season: int = D.SEASON):
+    """Every player expected to touch the ball, with per-game projections after injuries.
+
+    Volume and shares come from lab.usage (last six games before `week`; last season's for week 1). Saved projections,
+    where they exist, replace the usage numbers for the players they cover. Players ruled out are removed and their
+    production moves by the measured rule in lab.usage (see docs/REDISTRIBUTION_CHECK.md), including a named replacement.
+    Returns (rows, moves, source label).
+    """
+    rule, _ = U.current_rule()
+    g = U.player_games((season - 1, season))
+    u = U.usage(g, season, team, week)
+    label = f"usage before week {week}"
+    if u is None:
+        u = U.usage(g, season - 1, team, 99)
+        label = f"{season - 1} usage"
+    names = _names()
+    saved_t = [r for r in saved if r["team"] == team]
+    if u is None:
+        return saved_t, [], "saved projections" if saved_t else "no player data"
+    p = u.players.copy()
+    p["name"] = p["pid"].map(lambda x: names.get(x, x))
+    p["key"] = p["name"].map(_norm)
+    out_ids = set(p.loc[p["key"].isin(out) & p["active"], "pid"])
+    base = rule.project(u, set()).set_index("pid")
+    adj = rule.project(u, out_ids).set_index("pid")
+    by_saved = {(_norm(r["player"]), STAT_CODE.get(r["stat"])): r for r in saved_t}
+
+    # QB: the regular starter (most dropbacks), else the next healthy passer, else the team's usual passing volume.
+    qbs = p[p["att"] > 0].assign(tot=lambda x: x["att"] * x["n"]).sort_values(["tot", "last"], ascending=False)
+    healthy = qbs[~qbs["key"].isin(out)]
+    starter = qbs.iloc[0] if len(qbs) else None
+    qb = healthy.iloc[0] if len(healthy) else None
+    rows, moves = [], []
+    if qb is not None:
+        sv = next((r for r in saved_t if r["stat"] == "Passing yards" and _norm(r["player"]) == qb["key"]), None)
+        yds = sv["typical"] if sv else (qb["pass_yds"] if starter is not None and qb["pid"] == starter["pid"] else u.totals["pass_yds"])
+        rows.append(sv or _row(qb["name"], team, "Passing yards", yds))
+        if starter is not None and starter["key"] in out:
+            moves.append({"player": starter["name"], "status": out[starter["key"]][1],
+                          "text": f"{qb['name']} starts at quarterback, projected for the team's usual {u.totals['pass_yds']:.0f} passing yards a game."})
+
+    # Everyone else: saved projection or usage, plus this game's injury shift (scaled to the saved numbers when those exist).
+    shift = {}
+    for s in U.STATS:
+        lost_usage = float(base.loc[base.index.isin(out_ids), s].sum())
+        lost_saved = sum(by_saved[(k, s)]["typical"] if (k, s) in by_saved else float(base.at[pid, s])
+                         for pid, k in p.loc[p["pid"].isin(out_ids), ["pid", "key"]].itertuples(index=False) if pid in base.index)
+        scale = lost_saved / lost_usage if lost_usage > 0 else 1.0
+        for pid in adj.index:
+            before = float(base.at[pid, s]) if pid in base.index else 0.0
+            shift[(pid, s)] = (float(adj.at[pid, s]) - before) * scale
+    taken = set(out) | set(p.loc[p["active"], "key"])
+    new_names = {}
+    for pid in [i for i in adj.index if str(i).startswith("NEW:")]:
+        pos = pid.split(":")[1]
+        nm = _replacement(team, pos, week, season, taken, u, names)
+        new_names[pid] = nm
+        if nm:
+            taken.add(_norm(nm))
+    for pid in adj.index:
+        is_new = str(pid).startswith("NEW:")
+        if is_new:
+            name = new_names.get(pid)
+            if not name:  # nobody on the roster to name: give it to the top healthy regular at that position
+                pos = pid.split(":")[1]
+                regs = adj[(adj["pos"] == pos) & ~adj.index.str.startswith("NEW:")]
+                if regs.empty:
+                    continue
+                tgt = regs["rec_yds"].add(regs["rush_yds"]).idxmax()
+                for s in U.STATS:
+                    shift[(tgt, s)] = shift.get((tgt, s), 0.0) + shift[(pid, s)]
+                continue
+            key = _norm(name)
+        else:
+            if pid not in p.set_index("pid").index:
+                continue
+            info = p.set_index("pid").loc[pid]
+            name, key = info["name"], info["key"]
+            if key in out:
+                continue
+        carries_pg = None
+        for s in U.STATS:
+            sv = by_saved.get((key, s))
+            val = (sv["typical"] if sv else (0.0 if is_new else float(base.at[pid, s]))) + shift.get((pid, s), 0.0)
+            if val < 0.5 and not (s == "rush_yds" and val > 0):
+                continue
+            lo = hi = None
+            if sv and sv.get("range_low") is not None and sv["typical"] > 0:
+                f = val / sv["typical"]
+                lo, hi = sv["range_low"] * f, (sv["range_high"] or 0) * f
+            if s == "rush_yds" and not is_new:
+                info = p.set_index("pid").loc[pid]
+                ypc = info["rush_pg"] / info["carries"] if info["carries"] > 0 else 4.3
+                carries_pg = val / float(np.clip(ypc, 2.5, 7.0))
+            elif s == "rush_yds":
+                carries_pg = val / 4.3
+            extra = {"carries": carries_pg} if s == "rush_yds" else {}
+            if is_new:
+                extra["replacement"] = True
+            rows.append(_row(name, team, STAT_NAME[s], val, lo, hi, **extra))
+
+    # Where each missing player's production went, one player at a time.
+    for pid in out_ids:
+        if starter is not None and pid == starter["pid"]:
+            continue
+        info = p.set_index("pid").loc[pid]
+        others_out = out_ids - {pid}
+        alone = rule.project(u, others_out).set_index("pid")  # everyone else already out, then remove this player too
+        solo = rule.project(u, out_ids).set_index("pid")
+        gains = {}
+        for s in ("rec_yds", "rush_yds"):
+            for j in solo.index:
+                if j in out_ids:
+                    continue
+                d = float(solo.at[j, s]) - (float(alone.at[j, s]) if j in alone.index else 0.0)
+                if d >= 1:
+                    nm = new_names.get(j) if str(j).startswith("NEW:") else names.get(j, j)
+                    if nm:
+                        gains[nm] = gains.get(nm, 0.0) + d
+        lost = {s: float(base.at[pid, s]) for s in U.STATS if pid in base.index}
+        if not lost or (lost.get("rec_yds", 0) + lost.get("rush_yds", 0)) < 3:
+            continue
+        yds = {x: lost.get(x, 0.0) for x in ("rec_yds", "rush_yds")}
+        kept = sum(rule.k_for(team, x) * v for x, v in yds.items()) / max(sum(yds.values()), 1)
+        top = sorted(gains.items(), key=lambda x: -x[1])[:5]
+        repl = {nm for j, nm in new_names.items() if nm}
+        parts = ", ".join(f"{n} +{v:.0f}{' (steps in)' if n in repl else ''}" for n, v in top)
+        what = " and ".join(f"{lost[s]:.0f} {STAT_NAME[s].lower()}" for s in ("rec_yds", "rush_yds") if lost.get(s, 0) >= 1)
+        moves.append({"player": info["name"], "status": out[info["key"]][1],
+                      "text": f"Usually {what} a game. The team keeps about {kept:.0%} of it: {parts}."})
+    # Usage numbers are per-game averages; scale them to this game's expected points, as lab/props/weekly.py does.
+    ratio = _volume_ratio(team, week, season, expected_points)
+    if ratio != 1.0:
+        saved_keys = {(_norm(r["player"]), r["stat"]) for r in saved_t}
+        for r in rows:
+            if (_norm(r["player"]), r["stat"]) not in saved_keys:
+                r["typical"] *= ratio
+                if r.get("carries"):
+                    r["carries"] *= ratio
+        label += f", scaled x{ratio:.2f} to the expected score"
+    return rows, moves, ("saved projections, " if saved_t else "") + label
+
+
+def _rule_summary() -> dict:
+    rule, meta = U.current_rule()
+    return {"kept_rec": rule.k.get("rec_yds", 1.0), "kept_rush": rule.k.get("rush_yds", 1.0), "to_new_rec": rule.to_new.get("rec_yds", 0.0),
+            "to_new_rush": rule.to_new.get("rush_yds", 0.0), "fitted_on": meta.get("fitted_on")}
+
+
+VOLUME_CLIP = (0.75, 1.35)
+
+
+def _volume_ratio(team: str, week: int, season: int, expected_points: float | None) -> float:
+    """Expected points over the team's points per game in the same window the usage comes from."""
+    if expected_points is None:
+        return 1.0
+    G = D.games_table()
+    G = G[(G["game_type"] == "REG") & G["completed"] & ((G["home_team"] == team) | (G["away_team"] == team))]
+    g = G[(G["season"] == season) & (G["week"] < week)]
+    if g.empty:
+        g = G[G["season"] == season - 1]
+    g = g.sort_values("kickoff_utc").tail(U.WINDOW)
+    if g.empty:
+        return 1.0
+    ppg = np.where(g["home_team"] == team, g["home_score"], g["away_score"]).astype(float).mean()
+    return float(np.clip(expected_points / max(ppg, 1.0), *VOLUME_CLIP))
 
 
 def current_week() -> int:
@@ -439,42 +604,6 @@ def unavailable(team: str, week: int, season: int = D.SEASON) -> tuple[dict, str
                 out.setdefault(_norm(r.player), (r.player, r.status))
             source = "the latest injury report" + ("" if week == cur else " (long-term absences only; weekly statuses come out game week)")
     return out, source
-
-
-def apply_injuries(rows: list[dict], team: str, out: dict, backups: list[str]) -> tuple[list[dict], list[dict]]:
-    """Drop players who will not play and hand their production to teammates at the same position."""
-    mine = [dict(r) for r in rows if r["team"] == team]
-    others = [r for r in rows if r["team"] != team]
-    gone = [r for r in mine if _norm(r["player"]) in out]
-    keep = [r for r in mine if _norm(r["player"]) not in out]
-    moves = []
-    for player in dict.fromkeys(r["player"] for r in gone):
-        status = out[_norm(player)][1]
-        lost = {r["stat"]: r["typical"] for r in gone if r["player"] == player}
-        if "Passing yards" in lost:
-            backup = next((b for b in backups if _norm(b) not in out and b != player), f"{team} backup quarterback")
-            keep.append({**next(r for r in gone if r["player"] == player and r["stat"] == "Passing yards"), "player": backup})
-            moves.append({"player": player, "status": status, "text": f"{backup} starts at quarterback and is given the starter's passing projection."})
-            continue
-        to = set()
-        for stat, amount in lost.items():
-            recips = [r for r in keep if r["stat"] == stat]
-            total = sum(r["typical"] for r in recips)
-            if amount <= 0 or total <= 0:
-                continue
-            for r in recips:
-                bump = SHARE_TO_LISTED * amount * r["typical"] / total
-                scale = (r["typical"] + bump) / r["typical"]
-                r["typical"] += bump
-                r["range_low"] = r["range_low"] * scale if r["range_low"] is not None else None
-                r["range_high"] = r["range_high"] * scale if r["range_high"] is not None else None
-                to.add(r["player"])
-        parts = [f"{lost[k]:.0f} {k.lower()}" for k in ("Receiving yards", "Rushing yards") if k in lost]
-        if "Receptions" in lost:
-            parts.append(f"{lost['Receptions']:.1f} catches")
-        moves.append({"player": player, "status": status,
-                      "text": f"Projected {' and '.join(parts)} go to teammates" + (f", mostly {', '.join(sorted(to))}." if to else ".")})
-    return others + keep, moves
 
 
 def fallback_lines(away: str, home: str, week: int) -> dict | None:
@@ -513,12 +642,9 @@ def simulate(gid: str) -> dict | None:
     saved = d.get("props") or []
     players, moves, gone, sources, inj_source = [], [], [], {}, None
     for t in (away, home):
-        avg_rows, backups, label = season_players(t, week)
-        rows = [r for r in saved if r["team"] == t]
-        sources[t] = "saved projections" if rows else label
         out_t, src = unavailable(t, week)
         inj_source = inj_source or src
-        rows, mv = apply_injuries(rows or avg_rows, t, out_t, backups)
+        rows, mv, sources[t] = team_players(t, week, out_t, saved, (rng["home"] if t == home else rng["away"])["median"])
         players += rows
         moves += [m | {"team": t} for m in mv]
         gone += [{"team": t, "player": n, "status": st} for n, st in out_t.values()]
@@ -529,5 +655,6 @@ def simulate(gid: str) -> dict | None:
                 "defense": defense_matchups(ctx, away, home) if not ctx.empty else [],
                 "source": {"margin": e.get("margin_label"), "total": e.get("total_label")}, "has_players": bool(players),
                 "players": players, "player_source": sources, "injury_moves": moves, "unavailable": gone, "injury_source": inj_source,
+                "redistribution": _rule_summary(),
                 "weather": gameweather.kickoff_weather(gid, row.get("stadium") or "", row.get("roof"), row["kickoff_utc"], bool(row["completed"]))})
     return D.clean(out)

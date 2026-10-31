@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { api } from "../api";
 import type { Band, Detail, PropRow, Sim, SimPlay } from "../types";
-import { num } from "../lib";
+import { num, pct } from "../lib";
 import { Callout, Card } from "./ui/primitives";
 
 const SPEEDS = [1, 2, 4];
@@ -217,6 +217,7 @@ function Conditions({ sim, d }: { sim: Sim; d: Detail }) {
 }
 
 function Injuries({ sim }: { sim: Sim }) {
+  const r = sim.redistribution;
   const moves = sim.injury_moves ?? [];
   const moved = new Set(moves.map((m) => m.player));
   const rest = (sim.unavailable ?? []).filter((u) => !moved.has(u.player));
@@ -231,13 +232,16 @@ function Injuries({ sim }: { sim: Sim }) {
       ))}
       {rest.length > 0 && (
         <details className="text-base">
-          <summary className="flex min-h-[44px] items-center text-muted hover:text-white">{rest.length} other player{rest.length === 1 ? "" : "s"} out who are not among the projected players</summary>
+          <summary className="flex min-h-[44px] items-center text-muted hover:text-white">{rest.length} other player{rest.length === 1 ? "" : "s"} out who were not part of the regular rotation</summary>
           <div className="pb-2 text-slate-300">{rest.map((u) => `${u.player} (${u.team}, ${u.status.toLowerCase()})`).join(", ")}</div>
         </details>
       )}
       <div className="mt-2 text-sm leading-relaxed text-muted">
-        From {sim.injury_source}. Out and doubtful players are left out. About three quarters of their projected yards and catches go to teammates at the
-        same position, in proportion to each teammate's projection; the rest goes to players not listed. A backup quarterback takes the starter's passing projection.
+        From {sim.injury_source}. Out and doubtful players are left out.
+        {r && <> Measured on real absences{r.fitted_on ? ` in ${r.fitted_on.join(" and ")}` : ""}: teams keep about {pct(r.kept_rec)} of a missing player's receiving yards and
+        {" "}{pct(r.kept_rush)} of his rushing yards. About {pct(r.to_new_rec)} of the receiving share goes to the player who steps in; the rest goes to the regulars by
+        their usual share, leaning toward the same position.</>}
+        {" "}A backup quarterback gets the team's usual passing volume.
       </div>
     </Card>
   );

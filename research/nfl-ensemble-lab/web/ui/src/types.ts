@@ -153,6 +153,7 @@ export interface Sim {
   unavailable?: { player: string; team: string; status: string }[];
   injury_source?: string | null;
   weather?: Weather;
+  redistribution?: { kept_rec: number; kept_rush: number; to_new_rec: number; to_new_rush: number; fitted_on: number[] | null };
 }
 
 export interface Weather {
