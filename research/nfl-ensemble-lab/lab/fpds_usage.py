@@ -49,8 +49,11 @@ def _dir() -> Path | None:
 A6_SPEC = {
     "receiving_stats": {"tgt_pct": ["receiving__tgt_pct"], "rte_pct": ["receiving__rte_pct"], "ay_share": ["receiving__ay_share"],
                         "yprr": ["receiving__yprr"], "a_dot": ["receiving__a_dot"], "yac_rec": ["receiving__yac_rec"]},
-    "receiving_basic": {"i20_tgt": ["receiving__i20_tgt"]},
-    "bell_cow_report": {"snap_pct": ["snaps__snap_pct"], "att_pct": ["rushing__att_pct"]},
+    "receiving_basic": {"tgt_pct": ["receiving__tgt_pct"], "i20_tgt": ["receiving__i20_tgt"]},
+    "receiving_situation": {"tgt_pct": ["splits__tgt_pct"], "rte_pct": ["splits__rte_pct"], "yprr": ["overall__yprr"]},
+    "receiving_alignment": {"rte_pct": ["overall__rte_pct"]},
+    "rb_wr_efficiency": {"yprr": ["efficiency__yprr"]},
+    "bell_cow_report": {"snap_pct": ["snaps__snap_pct"], "att_pct": ["rushing__att_pct"], "tgt_pct": ["receiving__tgt_pct"], "rte_pct": ["receiving__rte_pct"]},
     "rushing_stats": {"exp_run": ["advanced__exp_run_pct"], "i5_pct": ["advanced__i5_pct"], "succ": ["advanced__succ_pct"], "yaco_att": ["advanced__yaco_att"]},
 }
 
@@ -113,13 +116,16 @@ def _load(suffix: str) -> pd.DataFrame:
     return D._cached(("fpds_usage", suffix, _a6_stamp()), stamp, build)
 
 
+MIN_COVERAGE = 0.1  # a week listing fewer than this share of a normal week's players is treated as empty
+
+
 def _mask_thin_weeks(w: pd.DataFrame) -> pd.DataFrame:
-    """Blank a metric in any week whose export covers under half the players a normal week does (a partial export would
-    make the few players it lists look like the whole team)."""
+    """Blank a metric in any week that lists almost no players. Weeks with partial coverage are used as they are: each player's
+    average is over the weeks he has rows for, so a partial week adds data for the players it lists and nothing for the rest."""
     w = w.copy()
     for c in [c for c in w.columns if c not in ("season", "week", "team", "pid")]:
         n = w.groupby(["season", "week"])[c].count()
-        thin = n < 0.5 * n.groupby(level=0).transform("median")
+        thin = n < MIN_COVERAGE * n.groupby(level=0).transform("median")
         bad = thin[thin].index
         if len(bad):
             mask = pd.MultiIndex.from_frame(w[["season", "week"]]).isin(bad)
@@ -146,7 +152,12 @@ def _add_latest_weeks(base: pd.DataFrame) -> pd.DataFrame:
                 frames.append(_pick(t, table, mapping, prefixes=("",)))
     if not frames:
         return base
-    new = _merge([f.dropna(subset=["season", "week", "team", "pid"]) for f in frames])
+    # several tables carry the same metric for different players; take the first value present, tables in the order above
+    cat = pd.concat([f.dropna(subset=["season", "week", "team", "pid"]) for f in frames], ignore_index=True)
+    cat["team"] = cat["team"].map(lambda t: normalize_team(t) if isinstance(t, str) else t)
+    cat["season"] = cat["season"].astype(int)
+    cat["pid"] = cat["pid"].astype(str)
+    new = cat.groupby(["season", "week", "team", "pid"], as_index=False).first()
     for c in A6_PERCENT:  # the newer import writes these as percents (46.9); the first writes fractions (0.469)
         if c in new:
             new[c] = new[c] / 100.0

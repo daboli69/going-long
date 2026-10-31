@@ -29,11 +29,13 @@ def test_share_from_fills_missing_players_from_their_base_share():
     assert np.allclose(X.share_from(np.array([np.nan] * 3), base), base)
 
 
-def test_thin_weeks_are_masked_not_averaged():
+def test_nearly_empty_weeks_are_masked_but_partial_weeks_are_used():
     rows = [{"season": 2026, "week": float(w), "team": "T", "pid": f"p{i}", "tgt_pct": 0.1} for w in (1, 2, 3) for i in range(100)]
-    rows += [{"season": 2026, "week": 4.0, "team": "T", "pid": f"p{i}", "tgt_pct": 0.9} for i in range(10)]  # partial export
+    rows += [{"season": 2026, "week": 4.0, "team": "T", "pid": f"p{i}", "tgt_pct": 0.9} for i in range(5)]    # almost empty
+    rows += [{"season": 2026, "week": 5.0, "team": "T", "pid": f"p{i}", "tgt_pct": 0.3} for i in range(20)]   # partial but real
     out = X._mask_thin_weeks(pd.DataFrame(rows))
-    assert out.loc[out["week"] == 4, "tgt_pct"].isna().all() and out.loc[out["week"] == 1, "tgt_pct"].notna().all()
+    assert out.loc[out["week"] == 4, "tgt_pct"].isna().all()
+    assert out.loc[out["week"] == 5, "tgt_pct"].notna().all() and out.loc[out["week"] == 1, "tgt_pct"].notna().all()
 
 
 def test_blend_applies_only_to_the_group_and_keeps_the_total(monkeypatch):
@@ -107,3 +109,15 @@ def test_newer_import_percents_become_fractions_and_never_overwrite(tmp_path, mo
     assert out.loc[7.0, "tgt_pct"] == pytest.approx(0.24) and out.loc[7.0, "rte_pct"] == pytest.approx(0.90)
     assert out.loc[7.0, "ay_share"] == pytest.approx(35.0)   # air yards share is a percent in both exports
     assert out.loc[4.0, "tgt_pct"] == pytest.approx(0.20)    # the first import's value is kept
+
+
+def test_latest_weeks_take_the_first_value_present_across_tables(tmp_path, monkeypatch):
+    base = pd.DataFrame([{"season": 2026, "week": 4.0, "team": "TEN", "pid": "00-9", "tgt_pct": 0.1}])
+    pd.DataFrame([{"season": 2026, "week": 5.0, "team": "TEN", "pid": "00-1", "receiving__tgt_pct": 20.0}]).to_parquet(tmp_path / "receiving_stats__working_usable.parquet")
+    pd.DataFrame([{"season": 2026, "week": 5.0, "team": "TEN", "pid": "00-1", "receiving__tgt_pct": 99.0, "receiving__rte_pct": 80.0},
+                  {"season": 2026, "week": 5.0, "team": "TEN", "pid": "00-2", "receiving__tgt_pct": 10.0, "receiving__rte_pct": 60.0}]).to_parquet(tmp_path / "bell_cow_report__working_usable.parquet")
+    monkeypatch.setattr(X, "_a6_dir", lambda: tmp_path)
+    out = X._add_latest_weeks(base).set_index(["week", "pid"])
+    assert out.loc[(5.0, "00-1"), "tgt_pct"] == pytest.approx(0.20)   # the main receiving table wins
+    assert out.loc[(5.0, "00-1"), "rte_pct"] == pytest.approx(0.80)   # a metric only another table has still comes through
+    assert out.loc[(5.0, "00-2"), "tgt_pct"] == pytest.approx(0.10)   # players only the other table lists are kept
