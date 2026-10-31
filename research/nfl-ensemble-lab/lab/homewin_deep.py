@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 import urllib.request
 from dataclasses import dataclass, replace
 from pathlib import Path
@@ -67,11 +68,27 @@ def _get_json(url: str):
 
 
 def espn_events(year: int, live: bool, refresh: bool = False) -> list[dict]:
-    """All ESPN regular-season events kicking off in calendar `year` (cached unless live)."""
+    """All ESPN regular-season events kicking off in calendar `year` (cached unless live).
+
+    ESPN occasionally returns a partial list (2016 came back 14 games short on 2026-10-31), so a
+    response with fewer events than the cache is retried, then the cache is kept.
+    """
     CACHE.mkdir(parents=True, exist_ok=True)
     path = CACHE / f"espn_events_{year}.json"
-    if path.exists() and not live and not refresh:
-        return json.loads(path.read_text(encoding="utf-8"))
+    cached = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+    if cached is not None and not live and not refresh:
+        return cached
+    for _ in range(3):
+        rows = _fetch_espn_events(year)
+        if cached is None or len(rows) >= len(cached):
+            path.write_text(json.dumps(rows), encoding="utf-8")
+            return rows
+        time.sleep(2)
+    print(f"warning: ESPN returned {len(rows)} events for {year}, fewer than the {len(cached)} cached; keeping the cache")
+    return cached
+
+
+def _fetch_espn_events(year: int) -> list[dict]:
     rows = []
     for e in _get_json(f"{ESPN_SCOREBOARD}?dates={year}&seasontype=2&limit=1000")["events"]:
         if e.get("season", {}).get("type") != 2:
@@ -87,7 +104,6 @@ def espn_events(year: int, live: bool, refresh: bool = False) -> list[dict]:
                      "neutral": bool(comp.get("neutralSite")), "completed": done,
                      "home_score": float(side["home"]["score"]) if done else None,
                      "away_score": float(side["away"]["score"]) if done else None})
-    path.write_text(json.dumps(rows), encoding="utf-8")
     return rows
 
 

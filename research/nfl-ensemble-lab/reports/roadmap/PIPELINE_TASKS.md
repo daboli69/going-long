@@ -1,4 +1,6 @@
-# Weekly freeze and scoring: proposed scheduled tasks (not registered; waiting for Travis's approval)
+# Weekly freeze and scoring: scheduled tasks (registered 2026-10-31 with Travis's approval)
+
+Registered as written below, except each trigger's start time was saved as plain local time (no UTC offset) so the tasks keep 22:00 and 09:00 after daylight saving ends. First runs: score Tue 2026-11-03 09:00, freeze Wed 2026-11-04 22:00.
 
 ## What exists today (measured by a read-only query of Windows Task Scheduler on 2026-10-30)
 

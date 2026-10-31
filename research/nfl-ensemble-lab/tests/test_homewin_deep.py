@@ -53,3 +53,18 @@ def test_platt_needs_history_and_stats_are_sane():
     lo, hi = ev.cluster_boot(d, cl, 0.05)
     assert lo < d.mean() < hi
     assert ev.dm_test(np.zeros(2000) + rng.normal(0, 1e-9, 2000), cl, np.arange(2000))["p"] > 0.01
+
+
+def test_espn_short_response_is_retried_then_cache_kept(tmp_path, monkeypatch):
+    monkeypatch.setattr(h, "CACHE", tmp_path)
+    monkeypatch.setattr(h.time, "sleep", lambda s: None)
+    full = [{"event_id": str(i)} for i in range(5)]
+    (tmp_path / "espn_events_2016.json").write_text(__import__("json").dumps(full), encoding="utf-8")
+    calls = []
+    monkeypatch.setattr(h, "_fetch_espn_events", lambda y: calls.append(y) or full[:3])
+    assert h.espn_events(2016, live=False, refresh=True) == full
+    assert len(calls) == 3
+    replies = iter([full[:3], full + [{"event_id": "5"}]])
+    monkeypatch.setattr(h, "_fetch_espn_events", lambda y: next(replies))
+    assert len(h.espn_events(2016, live=False, refresh=True)) == 6
+    assert len(h.espn_events(2016, live=False)) == 6
