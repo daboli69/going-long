@@ -7,12 +7,15 @@ import streamlit as st
 from nba_lab.config import ROOT,CACHE,DATA,MODELS,REPORTS,ARCHIVES,KEYS,NAMES,read
 from nba_lab import engine
 from nba_lab import codex_research as CR
+from nba_lab import game_center_page,ui
+from nba_lab.navigation import render_navigation
 
 st.set_page_config(page_title='NBA Ensemble',page_icon='🏀',layout='wide')
+ui.inject_css()
 st.title('NBA Ensemble')
 st.caption('Separate local NBA winners lab. Six statistical models, not six independent opinions.')
 st.warning('Shadow research. Current injury/lineup changes are not modeled in v1. Historical results use revised reconstructed data. No demonstrated advantage over betting markets; the winner models use no market prices (the Live Value page compares its own prices with Kalshi quotes separately).')
-page=st.sidebar.radio('Page',['Today','Model Debate','King of the Court','Live Value','Research & Calibration','Data & Sources'])
+page=render_navigation()
 if (REPORTS/'CONFIRMATION.json').exists():
     st.caption('Evaluation status: '+read(REPORTS/'CONFIRMATION.json')['decision'])
 
@@ -72,7 +75,9 @@ def board(date,live,source):
     return pd.DataFrame(rows)
 
 
-if page in ('Today','Model Debate'):
+if page=='Game Center':
+    game_center_page.render()
+elif page in ('Today','Model Debate'):
     date=st.date_input('Game date (Eastern)',pd.Timestamp.now(tz='America/New_York').date())
     if page=='Today':
         c=st.columns(2)

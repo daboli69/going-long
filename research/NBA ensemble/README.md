@@ -2,6 +2,12 @@
 
 Double-click **START_NBA.bat**, press Enter, and open **http://localhost:8502**. NFL remains at8501 in its own folder. This NBA package never imports NFL code, forecasts or credentials. Initially the launcher can borrow the installed NFL Python *libraries* read-only; every NBA source/cache/model/archive/report lives here. No NFL environment files are modified.
 
+## Game Center
+
+The dashboard now opens on **Game Center**. Pick a date and a game to see the frozen six-model win chance, the model vote, the score model's spread and total with its 8-in-10 range, and the latest saved injury list. Research copies sit beside the headline and never change it. The sidebar groups pages into Today, Live, Research and Data, and `?page=` links still work.
+
+The same view is also a separate web app. Double-click **launch_game_center.bat** and open **http://localhost:8512**. The first run builds the page with Node.js. The server only reads local files, has no write endpoints and listens on 127.0.0.1 only. Code: `nba_lab/gamecenter_data.py` (data), `web/server.py` (API) and `web/ui` (React). The look is copied from the NFL lab, not imported.
+
 ## What to click
 
 - **Today:** select a date; view six-model votes, the frozen combined win probability and disagreement. Refresh/refit/save creates new immutable archives, not replacements.

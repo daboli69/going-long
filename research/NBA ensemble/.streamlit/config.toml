@@ -1,0 +1,12 @@
+# Dark theme for the local dashboard (restart Streamlit after changing). Colors match nba_lab/ui.py.
+[theme]
+base = "dark"
+primaryColor = "#34d399"
+backgroundColor = "#0b1220"
+secondaryBackgroundColor = "#111b2e"
+textColor = "#e6edf7"
+font = "sans serif"
+
+[client]
+# Hide the Deploy button and developer menu; this lab is local only.
+toolbarMode = "viewer"

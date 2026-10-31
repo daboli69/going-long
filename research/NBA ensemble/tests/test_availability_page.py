@@ -12,7 +12,7 @@ def test_today_renders_nonempty_availability_and_source_details(tmp_path,monkeyp
                  'retrieved_at':time.isoformat(),'conflict':False,'verification':'current_source_entry'}],
         'reports':[{'team_id':'1','report_status':'entries_returned'}]})
     from streamlit.testing.v1 import AppTest
-    at=AppTest.from_file(str(C.ROOT/'app.py')).run(timeout=30)
+    at=AppTest.from_file(str(C.ROOT/'app.py'));at.query_params['page']='Today';at.run(timeout=30)
     assert not at.exception
     details=next(c for c in at.checkbox if c.label=='Show report completeness / source errors')
     details.check().run(timeout=30)

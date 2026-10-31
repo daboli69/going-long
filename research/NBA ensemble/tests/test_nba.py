@@ -133,12 +133,11 @@ def test_schedule_quarantines_postponed_and_cup_final():
     assert S.schedules(d).game_id.tolist()==['1','4']
 
 
-@pytest.mark.parametrize('page',['Today','Model Debate','Research & Calibration','Data & Sources'])
+@pytest.mark.parametrize('page',['Game Center','Today','Model Debate','Research & Calibration','Data & Sources'])
 def test_app_without_data_is_safe(page,tmp_path,monkeypatch):
     # Isolate artifact paths; no live network, fits or NFL data in ordinary UI tests.
     from nba_lab import config as C
     for name in ('CACHE','DATA','MODELS','REPORTS','ARCHIVES'):monkeypatch.setattr(C,name,tmp_path/name)
     from streamlit.testing.v1 import AppTest
-    at=AppTest.from_file(str(C.ROOT/'app.py')).run(timeout=30)
-    at.sidebar.radio[0].set_value(page).run()
+    at=AppTest.from_file(str(C.ROOT/'app.py'));at.query_params['page']=page;at.run(timeout=30)
     assert not at.exception

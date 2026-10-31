@@ -31,8 +31,8 @@ def run_page(monkeypatch, **kw):
     from streamlit.testing.v1 import AppTest
     _patch(monkeypatch, **kw)
     at = AppTest.from_file(str(ROOT / 'app.py'), default_timeout=120)
+    at.query_params['page'] = 'Live Value'
     at.run()
-    at.sidebar.radio[0].set_value('Live Value').run()
     return at
 
 
@@ -60,7 +60,7 @@ def test_page_survives_missing_priors(monkeypatch):
     _patch(monkeypatch)
     monkeypatch.setattr(P, '_priors', lambda d: None)
     at = AppTest.from_file(str(ROOT / 'app.py'), default_timeout=120)
+    at.query_params['page'] = 'Live Value'
     at.run()
-    at.sidebar.radio[0].set_value('Live Value').run()
     assert not at.exception, at.exception
     assert any('No saved pregame priors' in w.value for w in at.warning)
