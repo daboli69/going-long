@@ -3,8 +3,8 @@
   .venv\Scripts\python.exe -m uvicorn web.server:app --host 127.0.0.1 --port 8510
 or double-click launch_game_center.bat.
 
-Everything it serves is read from files already on this computer (saved forecasts, reports, the games table). There are no write endpoints and
-no outside calls. It binds to 127.0.0.1 only, so other devices on the network cannot reach it.
+Everything it serves is read from files already on this computer (saved forecasts, reports, the games table), except kickoff
+weather, which the Simulated game tab fetches from Open-Meteo (free, no key) and caches in data/cache/weather. There are no write endpoints. It binds to 127.0.0.1 only, so other devices on the network cannot reach it.
 """
 from __future__ import annotations
 

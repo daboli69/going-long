@@ -58,3 +58,55 @@ def test_score_changes_only_on_scoring_plays():
         if p["score"] != prev:
             assert p["event"] in ("TD", "FG")
         prev = p["score"]
+
+
+def _row(player, stat, typical, team="AAA"):
+    return {"player": player, "team": team, "stat": stat, "typical": typical, "range_low": typical / 2, "range_high": typical * 2,
+            "market_line": None, "market_chance": None, "our_chance": None}
+
+
+def test_out_receiver_production_moves_to_teammates():
+    rows = [_row("QB One", "Passing yards", 250), _row("WR Out", "Receiving yards", 80), _row("WR Out", "Receptions", 6),
+            _row("WR Two", "Receiving yards", 60), _row("WR Two", "Receptions", 4), _row("TE", "Receiving yards", 20), _row("TE", "Receptions", 2),
+            _row("Other team WR", "Receiving yards", 70, team="HHH")]
+    new, moves = S.apply_injuries(rows, "AAA", {S._norm("WR Out"): ("WR Out", "Out")}, ["QB One"])
+    assert not any(r["player"] == "WR Out" for r in new)
+    got = {(r["player"], r["stat"]): r["typical"] for r in new}
+    assert got[("WR Two", "Receiving yards")] == pytest.approx(60 + 0.75 * 80 * 60 / 80)
+    assert got[("TE", "Receptions")] == pytest.approx(2 + 0.75 * 6 * 2 / 6)
+    assert got[("Other team WR", "Receiving yards")] == 70
+    assert moves[0]["player"] == "WR Out" and "WR Two" in moves[0]["text"]
+
+
+def test_out_quarterback_is_replaced_by_the_next_healthy_backup():
+    rows = [_row("Starter Jr.", "Passing yards", 250), _row("WR", "Receiving yards", 60)]
+    out = {S._norm("Starter"): ("Starter", "Injured Reserve"), S._norm("Backup One"): ("Backup One", "Out")}
+    new, moves = S.apply_injuries(rows, "AAA", out, ["Starter", "Backup One", "Backup Two"])
+    qb = [r for r in new if r["stat"] == "Passing yards"]
+    assert [r["player"] for r in qb] == ["Backup Two"] and qb[0]["typical"] == 250
+    assert "Backup Two starts" in moves[0]["text"]
+
+
+def test_weather_indoors_too_early_and_forecast(tmp_path, monkeypatch):
+    from lab import gameweather as W
+    monkeypatch.setattr(W, "CACHE", tmp_path)
+    now = pd.Timestamp.now(tz="UTC").floor("h")
+    assert W.kickoff_weather("g1", "Ford Field", "dome", now, False)["status"] == "indoors"
+    assert W.kickoff_weather("g2", "Lambeau Field", "outdoors", now + pd.Timedelta(days=30), False)["status"] == "too_early"
+    hours = pd.date_range(now - pd.Timedelta(hours=2), periods=8, freq="h")
+    fake = {"hourly": {"time": [t.strftime("%Y-%m-%dT%H:%M") for t in hours], "temperature_2m": [40.0] * 8, "precipitation_probability": [10, 20, 30, 60, 5, 5, 5, 5],
+                       "precipitation": [0.0] * 8, "weather_code": [61] * 8, "wind_speed_10m": [5, 6, 7, 18, 9, 30, 1, 1], "wind_gusts_10m": [9] * 8}}
+    w = W.kickoff_weather("g3", "Lambeau Field", "outdoors", now + pd.Timedelta(hours=1), False, fetch=lambda url: fake)
+    assert w["status"] == "forecast" and w["temp_f"] == 40 and w["condition"] == "Rain"
+    assert w["wind_mph"] == 30 and w["precip_chance"] == 60
+    assert W.kickoff_weather("g3", "Lambeau Field", "outdoors", now + pd.Timedelta(hours=1), False, fetch=lambda url: 1 / 0) == w  # cached
+    down = W.kickoff_weather("g4", "Lambeau Field", "outdoors", now + pd.Timedelta(hours=1), False, fetch=lambda url: 1 / 0)
+    assert down["status"] == "unavailable"
+
+
+def test_every_stadium_on_the_schedule_has_a_location():
+    from lab import gamecenter_data as D, gameweather as W
+    G = D.games_table()
+    if G.empty:
+        pytest.skip("no games table")
+    assert set(G[G["season"] == D.SEASON]["stadium"].dropna()) <= set(W.STADIUMS)

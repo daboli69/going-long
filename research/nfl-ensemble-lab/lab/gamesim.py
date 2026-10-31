@@ -13,12 +13,19 @@ import numpy as np
 import pandas as pd
 
 from . import gamecenter_data as D
-from .config import CACHE_DIR
+from . import gameweather
+from .config import CACHE_DIR, RAW_DIR
+from .ingest import normalize_team
 
 N_SIMS = 10_000
 DRIVES_PER_TEAM = 11
 TEAM_STATS = CACHE_DIR / "team_game_stats.parquet"
 SECONDS = {"pass": 30, "incomplete": 6, "rush": 36, "sack": 34}
+NOT_PLAYING = {"Out", "Doubtful", "Injured Reserve", "Suspension", "Physically Unable to Perform"}
+LONG_TERM = {"Injured Reserve", "Suspension", "Physically Unable to Perform"}
+SHARE_TO_LISTED = 0.75  # share of a missing player's production given to listed teammates; the rest goes to unlisted depth players
+HOME_EDGE = 1.5  # points of margin for the home team when no betting line exists yet
+RECENT_GAMES = 6
 
 
 def _rng(gid: str, salt: str = "") -> np.random.Generator:
@@ -45,12 +52,12 @@ def reachable_score(target: int) -> tuple[int, int]:
 
 # --------------------------------------------------------------------------- team context
 
-def team_context(season: int = D.SEASON) -> pd.DataFrame:
-    """Per-game offense averages and what each defense allowed, with ranks (1 = most allowed)."""
+def team_context(season: int = D.SEASON, before_week: int = 99) -> pd.DataFrame:
+    """Per-game offense averages and what each defense allowed before `before_week`, with ranks (1 = most allowed)."""
     if not TEAM_STATS.exists():
         return pd.DataFrame()
     s = pd.read_parquet(TEAM_STATS)
-    s = s[s["season"] == season]
+    s = s[(s["season"] == season) & (s["game_id"].str[5:7].astype(int) < before_week)]
     if s.empty:
         return pd.DataFrame()
     opp = s[["game_id", "team", "pass_yds", "rush_yds", "turnovers", "sack_rate", "dropbacks"]].rename(columns=lambda c: c if c in ("game_id",) else f"opp_{c}")
@@ -320,24 +327,207 @@ def _spot(pos: int, team: str) -> str:
 
 # --------------------------------------------------------------------------- public API
 
+# --------------------------------------------------------------------------- inputs for weeks without saved numbers
+
+def _norm(name: str) -> str:
+    parts = "".join(ch for ch in str(name).lower().replace("-", " ") if ch.isalpha() or ch == " ").split()
+    return " ".join(w for w in parts if w not in {"jr", "sr", "ii", "iii", "iv", "v"})
+
+
+def _names() -> dict:
+    path = RAW_DIR / "players.parquet"
+    if not path.exists():
+        return {}
+    return D._cached(("player_names",), D._mt(path), lambda: dict(pd.read_parquet(path, columns=["gsis_id", "display_name"]).dropna().values))
+
+
+def player_games(season: int) -> pd.DataFrame:
+    """Per player per game: passing, rushing and receiving yards and catches, from local play-by-play."""
+    path = RAW_DIR / f"play_by_play_{season}.parquet"
+    if not path.exists():
+        return pd.DataFrame()
+
+    def build():
+        cols = ["game_id", "week", "posteam", "play_type", "two_point_attempt", "qb_kneel", "qb_spike", "sack", "passer_player_id",
+                "receiver_player_id", "rusher_player_id", "passing_yards", "receiving_yards", "rushing_yards", "complete_pass"]
+        p = pd.read_parquet(path, columns=cols)
+        p = p[p["play_type"].isin(["pass", "run"]) & (p["two_point_attempt"] != 1) & (p["qb_kneel"] != 1) & (p["qb_spike"] != 1)]
+        p = p.assign(dropback=(p["sack"] != 1).astype(int))
+        k = ["game_id", "week", "posteam"]
+        pas = (p[(p["play_type"] == "pass") & p["passer_player_id"].notna()].groupby(k + ["passer_player_id"])
+               .agg(pass_yds=("passing_yards", "sum"), att=("dropback", "sum")).rename_axis(k + ["pid"]))
+        rec = (p[(p["play_type"] == "pass") & (p["sack"] != 1) & p["receiver_player_id"].notna()].groupby(k + ["receiver_player_id"])
+               .agg(rec_yds=("receiving_yards", "sum"), rec=("complete_pass", "sum")).rename_axis(k + ["pid"]))
+        rus = (p[(p["play_type"] == "run") & p["rusher_player_id"].notna()].groupby(k + ["rusher_player_id"])
+               .agg(rush_yds=("rushing_yards", "sum"), carries=("rushing_yards", "size")).rename_axis(k + ["pid"]))
+        out = pas.join(rec, how="outer").join(rus, how="outer").fillna(0).reset_index()
+        out["posteam"] = out["posteam"].map(lambda t: normalize_team(t) if isinstance(t, str) else t)
+        return out
+    return D._cached(("player_games", season), D._mt(path), build)
+
+
+def season_players(team: str, week: int, season: int = D.SEASON) -> tuple[list[dict], list[str], str]:
+    """Averages over the team's last few games before `week` (last season's if none), backup QBs by recency, and a label."""
+    g = player_games(season)
+    g = g[(g["posteam"] == team) & (g["week"] < week)] if len(g) else g
+    label = f"season averages before week {week}"
+    if g.empty:
+        g = player_games(season - 1)
+        g = g[g["posteam"] == team] if len(g) else g
+        label = f"{season - 1} season averages"
+    if g.empty:
+        return [], [], "no player data"
+    weeks = sorted(g["week"].unique())[-RECENT_GAMES:]
+    g = g[g["week"].isin(weeks)]
+    names = _names()
+    # Starter: most dropbacks over the recent games (a one-week fill-in does not take over). Backups follow, most recent first.
+    passers = g[g["att"] > 0]
+    starter = passers.groupby("pid")["att"].sum().idxmax() if len(passers) else None
+    qbs = list(dict.fromkeys([starter] + list(passers.sort_values(["week", "att"], ascending=False)["pid"]))) if starter else []
+    per = g.groupby("pid")
+    avg = per[["pass_yds", "att", "rush_yds", "carries", "rec_yds", "rec"]].mean()
+    q10 = per[["pass_yds", "rush_yds", "rec_yds", "rec"]].quantile(0.1)
+    q90 = per[["pass_yds", "rush_yds", "rec_yds", "rec"]].quantile(0.9)
+    n = per.size()
+    rows = []
+
+    def add(pid, stat, col):
+        ranged = n[pid] >= 4
+        rows.append({"player": names.get(pid, pid), "team": team, "stat": stat, "typical": float(avg.at[pid, col]),
+                     "range_low": float(q10.at[pid, col]) if ranged else None, "range_high": float(q90.at[pid, col]) if ranged else None,
+                     "market_line": None, "market_chance": None, "our_chance": None})
+    if qbs:
+        add(qbs[0], "Passing yards", "pass_yds")
+    non_qb = avg[~avg.index.isin(qbs)]
+    for pid in non_qb[non_qb["carries"] >= 3].sort_values("rush_yds", ascending=False).index[:2]:
+        add(pid, "Rushing yards", "rush_yds")
+    for pid in non_qb[non_qb["rec"] >= 1].sort_values("rec_yds", ascending=False).index[:5]:
+        add(pid, "Receiving yards", "rec_yds")
+        add(pid, "Receptions", "rec")
+    return rows, [names.get(q, q) for q in qbs], label
+
+
+def current_week() -> int:
+    G = D.games_table()
+    G = G[(G["season"] == D.SEASON) & (G["game_type"] == "REG")]
+    up = G[G["kickoff_utc"] > pd.Timestamp.now(tz="UTC")]
+    return int(up["week"].min()) if len(up) else int(G["week"].max())
+
+
+def unavailable(team: str, week: int, season: int = D.SEASON) -> tuple[dict, str | None]:
+    """{normalized name: (name, status)} for players not expected to play, and where that came from.
+
+    Past weeks use that week's official report; this week adds the latest ESPN report; later weeks keep only
+    long-term absences (injured reserve, suspension), since weekly statuses are not known yet.
+    """
+    cur = current_week()
+    out, source = {}, None
+    path = RAW_DIR / f"injuries_{season}.parquet"
+    if path.exists() and week <= cur:
+        rep = pd.read_parquet(path, columns=["team", "week", "full_name", "report_status"])
+        rep = rep[(rep["week"] == week) & rep["report_status"].isin(["Out", "Doubtful"])]
+        rep = rep[rep["team"].map(lambda t: normalize_team(t) if isinstance(t, str) else t) == team]
+        for r in rep.itertuples(index=False):
+            out[_norm(r.full_name)] = (r.full_name, r.report_status)
+        if len(rep):
+            source = f"the official injury report for week {week}"
+    if week >= cur:
+        inj, stamp = D.injuries_now()
+        if not inj.empty:
+            keep = NOT_PLAYING if week == cur else LONG_TERM
+            for r in inj[(inj["team"] == team) & inj["status"].isin(keep)].itertuples(index=False):
+                out.setdefault(_norm(r.player), (r.player, r.status))
+            source = "the latest injury report" + ("" if week == cur else " (long-term absences only; weekly statuses come out game week)")
+    return out, source
+
+
+def apply_injuries(rows: list[dict], team: str, out: dict, backups: list[str]) -> tuple[list[dict], list[dict]]:
+    """Drop players who will not play and hand their production to teammates at the same position."""
+    mine = [dict(r) for r in rows if r["team"] == team]
+    others = [r for r in rows if r["team"] != team]
+    gone = [r for r in mine if _norm(r["player"]) in out]
+    keep = [r for r in mine if _norm(r["player"]) not in out]
+    moves = []
+    for player in dict.fromkeys(r["player"] for r in gone):
+        status = out[_norm(player)][1]
+        lost = {r["stat"]: r["typical"] for r in gone if r["player"] == player}
+        if "Passing yards" in lost:
+            backup = next((b for b in backups if _norm(b) not in out and b != player), f"{team} backup quarterback")
+            keep.append({**next(r for r in gone if r["player"] == player and r["stat"] == "Passing yards"), "player": backup})
+            moves.append({"player": player, "status": status, "text": f"{backup} starts at quarterback and is given the starter's passing projection."})
+            continue
+        to = set()
+        for stat, amount in lost.items():
+            recips = [r for r in keep if r["stat"] == stat]
+            total = sum(r["typical"] for r in recips)
+            if amount <= 0 or total <= 0:
+                continue
+            for r in recips:
+                bump = SHARE_TO_LISTED * amount * r["typical"] / total
+                scale = (r["typical"] + bump) / r["typical"]
+                r["typical"] += bump
+                r["range_low"] = r["range_low"] * scale if r["range_low"] is not None else None
+                r["range_high"] = r["range_high"] * scale if r["range_high"] is not None else None
+                to.add(r["player"])
+        parts = [f"{lost[k]:.0f} {k.lower()}" for k in ("Receiving yards", "Rushing yards") if k in lost]
+        if "Receptions" in lost:
+            parts.append(f"{lost['Receptions']:.1f} catches")
+        moves.append({"player": player, "status": status,
+                      "text": f"Projected {' and '.join(parts)} go to teammates" + (f", mostly {', '.join(sorted(to))}." if to else ".")})
+    return others + keep, moves
+
+
+def fallback_lines(away: str, home: str, week: int) -> dict | None:
+    """Expected margin and total from this season's points scored and allowed before `week`, when no betting line exists."""
+    G = D.games_table()
+    G = G[(G["season"] == D.SEASON) & (G["game_type"] == "REG") & G["completed"] & (G["week"] < week)]
+    pf, pa = {}, {}
+    for t in (away, home):
+        s = D.team_summary(G, t)
+        if not s["games"]:
+            return None
+        pf[t], pa[t] = s["pf"], s["pa"]
+    hp = (pf[home] + pa[away]) / 2 + HOME_EDGE / 2
+    ap = (pf[away] + pa[home]) / 2 - HOME_EDGE / 2
+    label = "this season's scoring averages (no betting line yet)"
+    return {"margin": hp - ap, "total": hp + ap, "sd_m": D.DEFAULT_SD["margin"], "sd_t": D.DEFAULT_SD["total"], "margin_label": label, "total_label": label}
+
+
+# --------------------------------------------------------------------------- public API
+
 def simulate(gid: str) -> dict | None:
     d = D.game_detail(gid)
     if d is None:
         return None
-    away, home = d["away"], d["home"]
+    away, home, week = d["away"], d["home"], d["week"]
     out = {"gid": gid, "away": away, "home": home, "ok": False}
     e = d.get("expected") or {}
     if e.get("margin") is None or e.get("total") is None:
-        out["reason"] = "No saved spread and total for this game yet, so it cannot be simulated."
+        e = fallback_lines(away, home, week) or {}
+    if e.get("margin") is None:
+        out["reason"] = "No betting line and no games played yet this season, so there is nothing to simulate from."
         return out
     rng = score_ranges(gid, e["margin"], e["sd_m"], e["total"], e["sd_t"])
-    ctx = team_context()
-    props = d.get("props") or []
-    out_now = {r["player"] for rows in (d.get("injuries") or {}).get("teams", {}).values() for r in rows if r["status"].startswith("Out")}
-    props = [p for p in props if p["player"] not in out_now]
+    ctx = team_context(before_week=week)
+
+    saved = d.get("props") or []
+    players, moves, gone, sources, inj_source = [], [], [], {}, None
+    for t in (away, home):
+        avg_rows, backups, label = season_players(t, week)
+        rows = [r for r in saved if r["team"] == t]
+        sources[t] = "saved projections" if rows else label
+        out_t, src = unavailable(t, week)
+        inj_source = inj_source or src
+        rows, mv = apply_injuries(rows or avg_rows, t, out_t, backups)
+        players += rows
+        moves += [m | {"team": t} for m in mv]
+        gone += [{"team": t, "player": n, "status": st} for n, st in out_t.values()]
+
     targets = {away: rng["away"]["median"], home: rng["home"]["median"]}
-    out.update({"ok": True, "ranges": rng, "replay": replay(gid, away, home, targets, props, ctx),
+    row = D.games_table().set_index("game_id").loc[gid]
+    out.update({"ok": True, "ranges": rng, "replay": replay(gid, away, home, targets, players, ctx),
                 "defense": defense_matchups(ctx, away, home) if not ctx.empty else [],
-                "source": {"margin": e.get("margin_label"), "total": e.get("total_label")}, "has_players": bool(props),
-                "left_out": sorted(out_now & {p["player"] for p in d.get("props") or []})})
+                "source": {"margin": e.get("margin_label"), "total": e.get("total_label")}, "has_players": bool(players),
+                "players": players, "player_source": sources, "injury_moves": moves, "unavailable": gone, "injury_source": inj_source,
+                "weather": gameweather.kickoff_weather(gid, row.get("stadium") or "", row.get("roof"), row["kickoff_utc"], bool(row["completed"]))})
     return D.clean(out)

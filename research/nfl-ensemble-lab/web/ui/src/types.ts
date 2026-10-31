@@ -147,5 +147,24 @@ export interface Sim {
   defense?: DefenseCard[];
   source?: { margin: string | null; total: string | null };
   has_players?: boolean;
-  left_out?: string[];
+  players?: PropRow[];
+  player_source?: Record<string, string>;
+  injury_moves?: { player: string; team: string; status: string; text: string }[];
+  unavailable?: { player: string; team: string; status: string }[];
+  injury_source?: string | null;
+  weather?: Weather;
+}
+
+export interface Weather {
+  stadium: string;
+  roof: "indoors" | "outdoors" | "retractable";
+  source: string;
+  status: "indoors" | "too_early" | "unavailable" | "forecast" | "recorded";
+  text: string;
+  temp_f?: number;
+  condition?: string;
+  wind_mph?: number;
+  gust_mph?: number;
+  precip_chance?: number | null;
+  precip_in?: number;
 }

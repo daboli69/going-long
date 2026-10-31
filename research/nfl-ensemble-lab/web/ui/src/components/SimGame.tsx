@@ -191,8 +191,62 @@ function Range({ title, b, lo, hi, color }: { title: string; b: Band; lo: number
   );
 }
 
-function Spotlight({ d, out }: { d: Detail; out: string[] }) {
-  const props = (d.props ?? []).filter((r) => !out.includes(r.player));
+function Conditions({ sim, d }: { sim: Sim; d: Detail }) {
+  const w = sim.weather!;
+  const has = w.status === "forecast" || w.status === "recorded";
+  const cell = (label: string, value: string) => (
+    <div><div className="text-xs text-muted">{label}</div><div className="font-medium text-white">{value}</div></div>
+  );
+  return (
+    <Card>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div className="font-semibold text-white">{d.date_label} · {d.time_label} ET · {d.stadium}</div>
+        <div className="text-xs text-muted">{w.roof === "indoors" ? "Indoors" : w.roof === "retractable" ? "Retractable roof" : "Outdoors"}</div>
+      </div>
+      {has ? (
+        <>
+          <div className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+            {cell("Kickoff", `${w.temp_f}°F, ${w.condition!.toLowerCase()}`)}
+            {cell("Wind", `${w.wind_mph} mph, gusts ${w.gust_mph}`)}
+            {cell(w.status === "recorded" ? "Rain or snow" : "Chance of rain or snow", w.status === "recorded" ? `${w.precip_in} in` : `${w.precip_chance ?? 0}%`)}
+            {cell("Source", w.source)}
+          </div>
+          <div className="mt-2 text-xs text-muted">{w.text} Wind and rain are the highest values in the first 3 hours. Weather is shown for context and does not change the forecast.</div>
+        </>
+      ) : <div className="mt-2 text-sm text-slate-300">{w.text}</div>}
+    </Card>
+  );
+}
+
+function Injuries({ sim }: { sim: Sim }) {
+  const moves = sim.injury_moves ?? [];
+  const moved = new Set(moves.map((m) => m.player));
+  const rest = (sim.unavailable ?? []).filter((u) => !moved.has(u.player));
+  if (!moves.length && !rest.length) return <div className="text-sm text-muted">No one in either lineup is listed as out{sim.injury_source ? ` on ${sim.injury_source}` : ""}.</div>;
+  return (
+    <Card>
+      {moves.map((m) => (
+        <div key={m.player} className="border-b border-line py-2 text-sm last:border-0">
+          <div><b className="text-white">{m.player}</b> <span className="text-muted">{m.team} · {m.status.toLowerCase()}</span></div>
+          <div className="text-slate-300">{m.text}</div>
+        </div>
+      ))}
+      {rest.length > 0 && (
+        <details className="pt-2 text-sm">
+          <summary className="cursor-pointer text-muted">{rest.length} other player{rest.length === 1 ? "" : "s"} out who are not among the projected players</summary>
+          <div className="mt-1 text-slate-300">{rest.map((u) => `${u.player} (${u.team}, ${u.status.toLowerCase()})`).join(", ")}</div>
+        </details>
+      )}
+      <div className="mt-2 text-xs text-muted">
+        From {sim.injury_source}. Out and doubtful players are left out. About three quarters of their projected yards and catches go to teammates at the
+        same position, in proportion to each teammate's projection; the rest goes to players not listed. A backup quarterback takes the starter's passing projection.
+      </div>
+    </Card>
+  );
+}
+
+function Spotlight({ sim, d }: { sim: Sim; d: Detail }) {
+  const props = sim.players ?? [];
   const pick = (team: string) => {
     const mine = props.filter((r) => r.team === team);
     const best = (stat: string, n: number) => mine.filter((r) => r.stat === stat).sort((a, b) => b.typical - a.typical).slice(0, n);
@@ -209,7 +263,8 @@ function Spotlight({ d, out }: { d: Detail; out: string[] }) {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       {[{ t: d.away, n: d.away_name, c: d.away_color }, { t: d.home, n: d.home_name, c: d.home_color }].map(({ t, n, c }) => (
         <Card key={t}>
-          <div className="mb-1 flex items-center gap-2 font-bold text-white"><span className="inline-block h-3 w-3 rounded-sm" style={{ background: c }} />{n}</div>
+          <div className="flex items-center gap-2 font-bold text-white"><span className="inline-block h-3 w-3 rounded-sm" style={{ background: c }} />{n}</div>
+          <div className="mb-1 text-xs text-muted">From {sim.player_source?.[t]}{(sim.injury_moves ?? []).some((m) => m.team === t) ? ", adjusted for injuries" : ""}.</div>
           {pick(t).map(row)}
         </Card>
       ))}
@@ -259,22 +314,24 @@ export function SimGame({ d }: { d: Detail }) {
   const tgt = sim.replay!.targets;
   const fin = sim.replay!.final;
   const maxPts = Math.max(r.home.high, r.away.high) + 3;
-  const out = sim.left_out ?? [];
-  const unsure = Object.values(d.injuries?.teams ?? {}).flat().filter((x) => !out.includes(x.player) && (d.props ?? []).some((p) => p.player === x.player)).map((x) => `${x.player} (${x.status.toLowerCase()})`);
+  const noLine = (sim.source?.margin ?? "").includes("no betting line");
 
   return (
     <div className="space-y-6">
+      <Section title="Game conditions">
+        <Conditions sim={sim} d={d} />
+      </Section>
+
       <Section title="Typical game, play by play"
-        note={`One game built to end on the middle result of ${r.sims.toLocaleString()} simulations (${d.away} ${tgt[d.away]}, ${d.home} ${tgt[d.home]}${fin[d.away] !== tgt[d.away] || fin[d.home] !== tgt[d.home] ? `, rounded to ${fin[d.away]}-${fin[d.home]} so touchdowns and field goals add up` : ""}) with player totals close to each player's middle projection. The individual plays are made up to connect those numbers.`}>
+        note={`One game built to end on the middle result of ${r.sims.toLocaleString()} simulations (${d.away} ${tgt[d.away]}, ${d.home} ${tgt[d.home]}${fin[d.away] !== tgt[d.away] || fin[d.home] !== tgt[d.home] ? `, rounded to ${fin[d.away]}-${fin[d.home]} so touchdowns and field goals add up` : ""}) with player totals close to each player's middle number below. The individual plays are made up to connect those numbers.`}>
         {d.completed && <Callout tone="blue">This game is over. Actual final: {d.away} {d.away_score}, {d.home} {d.home_score}.</Callout>}
-        {(out.length > 0 || unsure.length > 0) && (
-          <Callout tone="amber">
-            {out.length > 0 && <>Ruled out, so left out of the replay: {out.join(", ")}. Their usual catches and carries go to teammates. </>}
-            {unsure.length > 0 && <>Not yet ruled out, so the replay assumes they play: {unsure.join(", ")}.</>}
-          </Callout>
-        )}
-        {!sim.has_players && <Callout tone="blue">No player projections are saved for this game, so the replay uses generic player names.</Callout>}
+        {noLine && <Callout tone="amber">No betting line exists for this game yet, so the expected score comes from each team's points scored and allowed this season. It will switch to the market line once one is posted.</Callout>}
+        {!sim.has_players && <Callout tone="blue">No player data is available for this game, so the replay uses generic player names.</Callout>}
         <Replay sim={sim} d={d} />
+      </Section>
+
+      <Section title="Injuries in this simulation">
+        <Injuries sim={sim} />
       </Section>
 
       <Section title="Score ranges" note={`8 in 10 of the ${r.sims.toLocaleString()} simulated games land inside each range. Spread from ${sim.source?.margin}; total from ${sim.source?.total}.`}>
@@ -285,9 +342,9 @@ export function SimGame({ d }: { d: Detail }) {
         </div>
       </Section>
 
-      {(d.props ?? []).length > 0 && (
-        <Section title="Player projections" note="Middle projection, with the range 8 in 10 games land in.">
-          <Spotlight d={d} out={sim.left_out ?? []} />
+      {(sim.players ?? []).length > 0 && (
+        <Section title="Player projections" note="Middle number, with the range 8 in 10 games land in where there are enough games to measure it.">
+          <Spotlight sim={sim} d={d} />
         </Section>
       )}
 
