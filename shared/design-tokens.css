@@ -1,16 +1,23 @@
-/* GOING visual contract. Shared by every sport and standalone Pages builds. */
+/* GOING visual contract. Shared by every sport and standalone Pages builds.
+   Film Room: turf-black ground, tone steps instead of outlines, one accent per sport. */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap');
 :root {
- --g-bg:#101820; --g-surface:#19242f; --g-raised:#22313f; --g-border:#354757;
- --g-text:#f1f5f9; --g-muted:#afbfcd; --g-accent:#62ddbd; --g-accent-soft:#163d39;
+ color-scheme:dark;
+ --g-bg:#0e1412; --g-surface:#151d1a; --g-raised:#1e2824; --g-raised-hover:#26332e;
+ --g-border:#2e3b35; --g-edge:#6f8479; --g-subtle:#8fa398;
+ --g-text:#e8f1ec; --g-muted:#a9b9b0; --g-accent:#62ddbd; --g-accent-soft:#16372f;
  --g-blue:#75baff; --g-purple:#bda4ff; --g-amber:#f4c675; --g-danger:#ff928c;
- --g-control:#e9eff4; --g-control-hover:#ffffff; --g-control-ink:#101820;
+ --g-turf:#17402f; --g-turf-ink:#f3f1ea; --g-clay:#7a3418; --g-clay-ink:#f3f1ea; --g-clay-accent:#f4a26b;
+ --g-control:#1e2824; --g-control-hover:#26332e; --g-control-ink:#e8f1ec; --g-primary-ink:#0e1412;
  --g-space-1:4px; --g-space-2:8px; --g-space-3:12px; --g-space-4:16px; --g-space-5:24px; --g-space-6:32px;
- --g-radius-sm:8px; --g-radius-md:12px; --g-radius-lg:18px; --g-radius-pill:999px;
- --g-shadow-button:0 2px 0 #0004,0 4px 10px #0002,inset 0 1px 0 #fff7;
- --g-shadow-card:0 4px 18px #0003; --g-shadow-nav:0 5px 20px #0004; --g-shadow-modal:0 24px 70px #0008;
- --g-font:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+ --g-radius-sm:6px; --g-radius-md:8px; --g-radius-lg:10px; --g-radius-pill:999px;
+ --g-shadow-button:none; --g-shadow-card:none; --g-shadow-nav:none; --g-shadow-modal:0 24px 70px #0009;
+ --g-font:Archivo,system-ui,-apple-system,"Segoe UI",sans-serif;
+ --g-display:"Barlow Condensed","Archivo Narrow",Archivo,system-ui,sans-serif;
  --g-text-xs:12px; --g-text-sm:14px; --g-text-base:16px; --g-text-lg:20px; --g-text-xl:28px;
- --g-weight-normal:400; --g-weight-medium:550; --g-weight-bold:650; --g-weight-display:750;
- --g-motion:140ms ease;
+ --g-weight-normal:400; --g-weight-medium:500; --g-weight-bold:600; --g-weight-display:700;
+ --g-motion:120ms ease;
  --going-bg:var(--g-bg);--going-panel:var(--g-surface);--going-panel-raised:var(--g-raised);--going-border:var(--g-border);--going-text:var(--g-text);--going-muted:var(--g-muted);--going-accent:var(--g-accent);--going-font:var(--g-font);--going-control:var(--g-control);--going-radius:var(--g-radius-lg);
 }
+/* Baseball keeps the same ground and takes clay as its accent. */
+body[data-going-workspace=yard]{--g-accent:var(--g-clay-accent);--g-accent-soft:#3a2014}
