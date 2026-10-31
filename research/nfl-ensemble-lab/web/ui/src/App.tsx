@@ -5,6 +5,7 @@ import { etStamp, etTime } from "./lib";
 import { GameStrip } from "./components/GameStrip";
 import { Overview } from "./components/Overview";
 import { About, Matchup, Props } from "./components/Others";
+import { SimGame } from "./components/SimGame";
 import { Callout, Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/primitives";
 
 export default function App() {
@@ -71,11 +72,13 @@ export default function App() {
         <Tabs defaultValue="game" key={detail.gid}>
           <TabsList>
             <TabsTrigger value="game">Game</TabsTrigger>
+            <TabsTrigger value="sim">Simulated game</TabsTrigger>
             <TabsTrigger value="players">Players</TabsTrigger>
             <TabsTrigger value="teams">Teams and injuries</TabsTrigger>
             <TabsTrigger value="about">About these numbers</TabsTrigger>
           </TabsList>
           <TabsContent value="game"><Overview d={detail} /></TabsContent>
+          <TabsContent value="sim"><SimGame d={detail} /></TabsContent>
           <TabsContent value="players"><Props d={detail} /></TabsContent>
           <TabsContent value="teams"><Matchup d={detail} /></TabsContent>
           <TabsContent value="about"><About meta={meta} /></TabsContent>

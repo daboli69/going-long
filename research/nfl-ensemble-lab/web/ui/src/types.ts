@@ -107,3 +107,45 @@ export interface GlossaryItem {
   term: string;
   text: string;
 }
+
+export interface SimPlay {
+  team: string;
+  kind: "pass" | "incomplete" | "sack" | "rush" | "fg" | "punt";
+  player: string | null;
+  passer: string | null;
+  yards: number;
+  qtr: number;
+  clock: string;
+  down: number;
+  togo: number;
+  x_start: number;
+  x_end: number;
+  x_first: number;
+  spot: string;
+  event: "TD" | "FG" | "PUNT" | "INT" | "FUMBLE" | "DOWNS" | null;
+  text: string;
+  score: Record<string, number>;
+}
+
+export interface Band { low: number; median: number; high: number }
+
+export interface DefenseCard {
+  team: string;
+  faces: string;
+  games: number;
+  rows: { label: string; value: number; rank: string }[];
+}
+
+export interface Sim {
+  gid: string;
+  away: string;
+  home: string;
+  ok: boolean;
+  reason?: string;
+  ranges?: { sims: number; home: Band; away: Band; total: Band };
+  replay?: { plays: SimPlay[]; final: Record<string, number>; qbs: Record<string, string>; targets: Record<string, number> };
+  defense?: DefenseCard[];
+  source?: { margin: string | null; total: string | null };
+  has_players?: boolean;
+  left_out?: string[];
+}

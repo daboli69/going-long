@@ -15,6 +15,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from lab import gamecenter_data as D
+from lab import gamesim
 
 DIST = Path(__file__).resolve().parent / "ui" / "dist"
 app = FastAPI(title="NFL Game Center", docs_url=None, redoc_url=None, openapi_url=None)
@@ -44,6 +45,14 @@ def game(gid: str = PathParam(pattern=D.GID_PATTERN)):
     if detail is None:
         raise HTTPException(status_code=404, detail="Unknown game")
     return JSONResponse(detail)
+
+
+@app.get("/api/sim/{gid}")
+def sim(gid: str = PathParam(pattern=D.GID_PATTERN)):
+    out = gamesim.simulate(gid)
+    if out is None:
+        raise HTTPException(status_code=404, detail="Unknown game")
+    return JSONResponse(out)
 
 
 @app.get("/api/glossary")
