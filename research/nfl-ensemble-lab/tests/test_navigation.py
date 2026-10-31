@@ -26,16 +26,16 @@ def test_every_existing_page_is_available_once():
 def test_section_switch_remembers_page_and_updates_link():
     at = app("Leans")
     assert not at.exception
-    assert at.sidebar.selectbox[0].value == "This week"
+    assert at.sidebar.selectbox[0].value == "Research tools"
     assert at.sidebar.radio[0].value == "Leans"
-    at.sidebar.selectbox[0].select("Data & history").run()
+    at.sidebar.selectbox[0].select("Data").run()
     assert not at.exception
     assert at.sidebar.radio[0].value == "Data Manager"
     at.sidebar.radio[0].set_value("Reports").run()
     assert at.query_params["page"] == ["Reports"]
-    at.sidebar.selectbox[0].select("This week").run()
+    at.sidebar.selectbox[0].select("Research tools").run()
     assert at.sidebar.radio[0].value == "Leans"
-    at.sidebar.selectbox[0].select("Data & history").run()
+    at.sidebar.selectbox[0].select("Data").run()
     assert at.sidebar.radio[0].value == "Reports"
     assert not at.exception
 

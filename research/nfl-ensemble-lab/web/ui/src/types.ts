@@ -80,6 +80,7 @@ export interface Detail {
   kickoff_utc: string;
   date_label: string;
   kickoff_label: string;
+  time_label: string;
   stadium: string;
   completed: boolean;
   away_score: number | null;

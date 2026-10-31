@@ -22,7 +22,7 @@ from lab import features as F  # noqa: E402
 from lab import availability, models, sources, training, weekly  # noqa: E402
 from lab.config import MODELS_DIR, REPORTS_DIR, SNAPSHOTS_DIR  # noqa: E402
 
-st.set_page_config(page_title="NFL Ensemble Lab", page_icon="🏈", layout="wide")
+st.set_page_config(page_title="NFL Ensemble Lab", page_icon=":material/sports_football:", layout="wide")
 
 from app.navigation import render_navigation
 from app import ui as lab_ui
@@ -115,9 +115,8 @@ def fmt_metric(v, pct=False):
 # ----------------------------------------------------------------------------- pages
 
 def page_home():
-    st.title("🏈 NFL Ensemble Lab")
-    st.caption("Local research lab: six machine-learning models forecast NFL winners and margins. "
-               "Research only. Not betting advice and not connected to GOING production.")
+    st.title("System status")
+    st.caption("Data, models and saved forecasts on this computer. This lab is separate from the GOING website.")
     status, version = dp.load_status(), training.current_version()
     c = st.columns(4)
     c[0].metric("Last data refresh (UTC)", status.get("refreshed_at", "never")[:16].replace("T", " "))
@@ -164,13 +163,13 @@ def page_data():
             dp.refresh_data(progress=logger(log_box))
         st.cache_data.clear()
         st.success("Data ready.")
-    if c[1].button("🔄 Update NFL Data", use_container_width=True, help="Forces a fresh download of the schedule and the current season"):
+    if c[1].button("Update NFL data", use_container_width=True, help="Forces a fresh download of the schedule and the current season"):
         with st.status("Updating ...", expanded=True):
             sources.download_games(force=True, progress=logger(log_box))
             dp.refresh_data(progress=logger(log_box))
         st.cache_data.clear()
         st.success("Updated.")
-    if c[2].button("✅ Validate Data", use_container_width=True):
+    if c[2].button("Check data", use_container_width=True):
         fs = feature_store()
         need(fs is not None, "Download data first.")
         rep = dp.validate(pd.read_parquet(dp.GAMES_TABLE), pd.read_parquet(dp.TEAM_GAMES), fs, cross_check=True, progress=lambda m: None)
@@ -220,7 +219,7 @@ def page_train():
     st.caption("Training settings (hyperparameter grids, calibration methods, walk-forward seasons) are fixed in lab/models.py and "
                "lab/config.py so runs stay comparable. Expect ~10-30 minutes on a Ryzen 7 3700X.")
     b = st.columns(3)
-    if b[0].button("🚀 Train All Six Models", type="primary", use_container_width=True, disabled=not picked or not chosen):
+    if b[0].button("Train all six models", type="primary", use_container_width=True, disabled=not picked or not chosen):
         bar, box = st.progress(0.0), st.empty()
         with st.status("Training (tuning, walk-forward evaluation, calibration, ensembles, production refit) ...", expanded=True):
             res = training.run_training(groups=tuple(chosen), model_keys=tuple(picked), progress=logger(box),
@@ -228,9 +227,9 @@ def page_train():
         st.cache_data.clear()
         st.cache_resource.clear()
         st.success(f"Trained version {res['summary']['version']}. Champion: {name_of(res['summary']['champion'])}")
-    if b[1].button("📊 Evaluate Models", use_container_width=True):
+    if b[1].button("Evaluate models", use_container_width=True):
         st.info("Evaluation runs as part of training (walk-forward). See Model Leaderboard for the saved results.")
-    if b[2].button("💾 Save Models", use_container_width=True):
+    if b[2].button("Save models", use_container_width=True):
         v = training.current_version()
         st.info(f"Models are saved automatically after every run: {MODELS_DIR / v}" if v else "No trained models yet.")
     v = training.current_version()
@@ -1918,7 +1917,7 @@ def page_reports():
         from lab.reports import discovery_workbook
         with st.spinner("Writing workbook ..."):
             st.success(f"Saved {discovery_workbook()}")
-    if st.button("📘 Build NFL_Ensemble_Training_Results.xlsx", disabled=not v):
+    if st.button("Build NFL_Ensemble_Training_Results.xlsx", disabled=not v):
         from lab.reports import training_workbook
         with st.spinner("Writing workbook ..."):
             st.success(f"Saved {training_workbook(v)}")

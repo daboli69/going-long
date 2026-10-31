@@ -204,36 +204,15 @@ def _kpi_fp() -> tuple:
     return tuple(f.stat().st_mtime_ns if f.exists() else 0 for f in files)
 
 
-def kpi_row(week_games: pd.DataFrame) -> None:
-    k = _kpis(_kpi_fp())
-    c = st.columns(4)
-    m = k.get("market_acc")
-    if m:
-        c[0].markdown(ui.card("Game winners picked correctly", f"{m[0]:.0%}", f"The betting market, 2025-26 ({m[1]} games). Elo ratings: {k.get('elo_acc_same', float('nan')):.0%} on the same games."), unsafe_allow_html=True)
-    elif k.get("elo_acc_long"):
-        a = k["elo_acc_long"]
-        c[0].markdown(ui.card("Game winners picked correctly", f"{a[0]:.0%}", f"Elo team ratings over {a[1]:,} games ({a[2]})."), unsafe_allow_html=True)
-    mm = k.get("margin_miss")
-    if mm:
-        c[1].markdown(ui.card("Typical miss on the final margin", f"{mm[0]:.1f} pts", f"Betting market. Our model misses by {mm[1]:.1f} pts (2026, {mm[2]} games). Lower is better.", "mut"), unsafe_allow_html=True)
-    rh = k.get("range_hit")
-    if rh:
-        c[2].markdown(ui.card("Player ranges that held", f"{rh.get('liquid', rh.get('thin', 0)):.0%}", "We say a player's stat lands in our \"likely range\" 8 times in 10. In past tests it did."), unsafe_allow_html=True)
-    n = len(week_games)
-    first = week_games[week_games["kickoff_utc"] > pd.Timestamp.now(tz="UTC")]
-    sub = f"Next kickoff: {kickoff_label(first['kickoff_et'].iloc[0])} ET" if len(first) else "All games for this week are finished."
-    c[3].markdown(ui.card("Games this week", str(n), sub), unsafe_allow_html=True)
-
-
 def reality_check() -> None:
-    ui.show(ui.callout("<b>Reality check.</b> Over the last two seasons the betting market has been at least as accurate as our model, so every headline number on this page "
-                       "follows the market and our model is shown next to it. Nothing here is betting advice. Open <b>How to read this</b> for plain-English definitions.", "info"))
+    ui.show(ui.callout("Win chances, spreads and totals come from the betting market, which has been more accurate than our model. "
+                       "Our model is listed for comparison. Not betting advice.", "info"))
 
 
 def header(row: pd.Series, summ: dict) -> None:
     away, home = row["away_team"], row["home_team"]
     done = bool(row["completed"])
-    mid = f"Final: {esc_team(away)} {int(row['away_score'])}, {esc_team(home)} {int(row['home_score'])}" if done else f"{row['kickoff_et'].strftime('%A, %b %d')} · {kickoff_label(row['kickoff_et'])} ET"
+    mid = f"Final: {esc_team(away)} {int(row['away_score'])}, {esc_team(home)} {int(row['home_score'])}" if done else f"{row['kickoff_et'].strftime('%A, %b %d').replace(' 0', ' ')} · {row['kickoff_et'].strftime('%I:%M %p').lstrip('0')} ET"
     stadium = row.get("stadium") or ""
     ui.show(f'<div class="gc-card"><div class="gc-row"><div class="gc-team">{ui.team_chip(away)}<div><div class="gc-teamname">{ui.esc(ui.TEAM_NAMES.get(away, away))}</div>'
             f'<div class="gc-meta">Record {summ[away]["record"]} · away team</div></div></div>'
@@ -300,18 +279,6 @@ def overview(row: pd.Series, fz: dict | None, summ: dict) -> None:
         if mu_m is not None and mu_t is not None:
             hp, ap = (mu_t + mu_m) / 2, (mu_t - mu_m) / 2
             c3.markdown(ui.card("Expected score", f"{ap:.0f} - {hp:.0f}", f"{away} {ap:.1f}, {home} {hp:.1f}. A typical outcome, not a guarantee."), unsafe_allow_html=True)
-        if fz and fz.get("margin"):
-            m = fz["margin"]
-            diff = m["mu_model"] - m["mu_kalshi"]
-            if m["abstain"]:
-                msg = f"<b>No strong opinion.</b> Our model expects the margin within {abs(diff):.1f} points of the market, so we go with the market."
-                kind = ""
-            else:
-                who = home if diff > 0 else away
-                msg = (f"<b>Our model disagrees with the market.</b> It likes {ui.esc(who)} by about {abs(diff):.1f} more points than the market does. "
-                       "In our tests this kind of disagreement has <i>not</i> beaten the market, so treat it as something to think about, not a tip.")
-                kind = "warn"
-            ui.show(ui.callout(msg, kind))
         if mu_m is not None:
             st.altair_chart(margin_chart(mu_m, b["sd_m"], home, away), use_container_width=True)
             st.caption(f"How the final margin could play out. Taller bars are more likely. The dashed line is the expected margin. About {p_fav:.0%} of the weight is on {favored} winning.")
@@ -319,14 +286,10 @@ def overview(row: pd.Series, fz: dict | None, summ: dict) -> None:
         st.markdown("##### How the game could play out")
         mu_m, mu_t, sm, stt = b["mu_m"], b["mu_t"], b["sd_m"], b["sd_t"]
         fav, sign = (home, 1) if mu_m >= 0 else (away, -1)
-        line_t = round(mu_t * 2) / 2
         close = norm.cdf((3.5 - mu_m) / sm) - norm.cdf((-3.5 - mu_m) / sm)
         rows = [("Game is decided by 3 points or fewer", close),
                 (f"{fav} wins by 7 or more", p_over(sign * mu_m, sm, 6.5)),
-                (f"{fav} wins by 10 or more", p_over(sign * mu_m, sm, 9.5)),
-                (f"Underdog wins outright", 1 - (p_home if fav == home else 1 - p_home)),
-                (f"Both teams combine for more than {line_t:g} points", p_over(mu_t, stt, line_t)),
-                (f"Both teams combine for fewer than {line_t:g} points", 1 - p_over(mu_t, stt, line_t))]
+                (f"{fav} wins by 10 or more", p_over(sign * mu_m, sm, 9.5))]
         t = pd.DataFrame({"What happens": [r[0] for r in rows], "Chance": [r[1] for r in rows]})
         t["Chance"] = t["Chance"].map(lambda v: f"{v:.0%}")
         a, bcol = st.columns([1, 1])
@@ -414,41 +377,9 @@ def props(row: pd.Series, props_fz: dict | None, preview: pd.DataFrame) -> None:
     st.caption("A dash means there is no active betting market for that player. Players reported Out or Doubtful are not included. Market chances come from Kalshi prices saved before the game.")
 
 
-def spread_total(row: pd.Series, fz: dict | None) -> None:
-    away, home = row["away_team"], row["home_team"]
-    if not fz or not (fz.get("margin") or fz.get("total")):
-        st.info("No market ladder was saved for this game, so there is nothing to compare yet.")
-        return
-    mod = fz["model"]
-    ui.show(ui.callout("<b>How to read this.</b> Each row asks a yes/no question about the final score. The market column is what betting-market prices imply; "
-                       "our model column is our own estimate. Big gaps are rare, and when they appear the market has usually been right.", "info"))
-    a, b = st.columns(2)
-    if fz.get("margin"):
-        m = fz["margin"]
-        th = sorted(m["thresholds"], key=lambda x: abs(x["c"] - m["mu_kalshi"]))[:9]
-        th = sorted(th, key=lambda x: x["c"])
-        d = pd.DataFrame({f"Question": [f"{home} wins by more than {t['c']:g}" if t["c"] >= 0 else f"{home} loses by fewer than {abs(t['c']):g}" for t in th],
-                          "Market says": [pct(t["p_kalshi"]) for t in th],
-                          "Our model says": [pct(p_over(mod["mu_m"], mod["sd_m"], t["c"])) for t in th]})
-        with a:
-            st.markdown("##### The spread: who wins and by how much")
-            st.dataframe(d, hide_index=True, use_container_width=True)
-    if fz.get("total"):
-        m = fz["total"]
-        th = sorted(sorted(m["thresholds"], key=lambda x: abs(x["c"] - m["mu_kalshi"]))[:9], key=lambda x: x["c"])
-        d = pd.DataFrame({"Question": [f"Total points go over {t['c']:g}" for t in th], "Market says": [pct(t["p_kalshi"]) for t in th],
-                          "Our model says": [pct(p_over(mod["mu_t"], mod["sd_t"], t["c"])) for t in th]})
-        with b:
-            st.markdown("##### The total: how many points in the game")
-            st.dataframe(d, hide_index=True, use_container_width=True)
-
-
 def guide() -> None:
     k = _kpis(_kpi_fp())
-    st.markdown("#### What is this page?")
-    st.write("Game Center shows, for every NFL game this week: who is likely to win, by how many points, how many points will be scored, and what individual players might do. "
-             "Everything comes from data saved on this computer.")
-    st.markdown("#### How much should I trust it?")
+    st.markdown("#### Track record")
     bullets = []
     if k.get("market_acc"):
         bullets.append(f"The betting market picked the winner correctly {k['market_acc'][0]:.0%} of the time in 2025-26; simple Elo ratings got {k.get('elo_acc_same', 0):.0%} on the same games.")
@@ -456,7 +387,7 @@ def guide() -> None:
         bullets.append(f"On the final margin, the market missed by {k['margin_miss'][0]:.1f} points on average and our model by {k['margin_miss'][1]:.1f}.")
     if k.get("range_hit"):
         bullets.append(f"Our \"likely range\" for players held the real result {k['range_hit'].get('liquid', 0):.0%} of the time for well-traded players.")
-    bullets.append("So: the market is the benchmark. Our model is a sensible second opinion, and it is most useful for players that no betting market covers.")
+    bullets.append("The market is the benchmark. The model's main use is player projections where no market exists.")
     for x in bullets:
         st.write("• " + x)
     st.markdown("#### Words used on this page")
@@ -472,7 +403,7 @@ def guide() -> None:
 def render(archive_root: Path = ARCHIVE, games_path: Path = GAMES_PATH) -> None:
     G = games_table(games_path)
     st.markdown("<h1 style='margin-bottom:0'>NFL Game Center</h1>", unsafe_allow_html=True)
-    st.caption("Who is likely to win, by how much, and what each player might do. Plain English, local data, no betting advice.")
+    st.caption("Win chances, expected scores, player projections and injuries for each game.")
     if G.empty:
         st.warning("The games table is missing. Open Data Manager and click Download / Update NFL Data.")
         return
@@ -487,7 +418,6 @@ def render(archive_root: Path = ARCHIVE, games_path: Path = GAMES_PATH) -> None:
     top = st.columns([1.2, 3])
     week = top[0].selectbox("Week", weeks, index=weeks.index(default_week), format_func=lambda w: f"Week {int(w)}", key="gc_week")
     wk = G[G["week"] == week].reset_index(drop=True)
-    kpi_row(wk)
     reality_check()
     fzr = fz_w.get((SEASON, int(week)))
     pfr = pr_w.get((SEASON, int(week)))
@@ -506,14 +436,12 @@ def render(archive_root: Path = ARCHIVE, games_path: Path = GAMES_PATH) -> None:
         saved = pd.Timestamp(fzr["frozen_at"]).tz_convert(ET).strftime("%a %b %d, %I:%M %p")
         st.caption(f"Forecast saved {saved} ET, before the week's first kickoff. It is never edited afterward.")
     summ = {t: team_summary(G, t) for t in (row["away_team"], row["home_team"])}
-    tabs = st.tabs(["Overview", "Team matchup", "Player props", "Spread & total", "How to read this"])
+    tabs = st.tabs(["Game", "Players", "Teams and injuries", "About these numbers"])
     with tabs[0]:
         overview(row, fz, summ)
     with tabs[1]:
-        matchup(row, G, summ)
-    with tabs[2]:
         props(row, pfr, preview_table())
+    with tabs[2]:
+        matchup(row, G, summ)
     with tabs[3]:
-        spread_total(row, fz)
-    with tabs[4]:
         guide()

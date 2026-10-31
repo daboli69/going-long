@@ -369,7 +369,13 @@ def monitor() -> dict:
         res["M4_close_vs_champion"] = monitor_summary((lc - _ll(y, pc))[k], 0.005)
         try:
             from . import market_blend11 as MB
-            sc = MB.score() if hasattr(MB, "score") else None
+            from .data_pipeline import GAMES_TABLE
+            from .market81 import espn_archive
+            from .prospective import scored_table
+            # market_blend11 exposes score_table(), not score(); its blend column is p_challenger, one row per (game, stage).
+            sc = MB.score_table(scored_table(), espn_archive(), pd.read_parquet(GAMES_TABLE)[["game_id", "home_team", "away_team"]])
+            if len(sc):
+                sc = sc[sc["counts_for_primary"]].drop_duplicates("game_id", keep="last").rename(columns={"p_challenger": "p_blend"})
             if isinstance(sc, pd.DataFrame) and {"game_id", "p_blend"}.issubset(sc.columns):
                 m = piv.merge(sc[["game_id", "p_blend"]], on="game_id")
                 res["M1_blend_vs_champion"] = monitor_summary(_ll(m["home_win"], m[champ]) - _ll(m["home_win"], m["p_blend"]), 0.005)

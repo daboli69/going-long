@@ -3,56 +3,53 @@ import streamlit as st
 
 
 SECTIONS = {
-    "Overview": ("Game Center", "Home", "Live Readiness & Schedule"),
-    "This week": ("Projections", "Leans", "Weekly Predictions", "Player Props"),
-    "Insights": ("Model Debate", "Advanced Football Intelligence", "Player Intelligence", "Upset Explorer"),
-    "Models": ("Model Leaderboard", "Train Models", "Baseline Research"),
-    "Research": ("Long-Run Research", "FPDS Research", "Home-Win Research", "Research Validation", "Research Runs", "Upset Discovery"),
-    "Data & history": ("Data Manager", "Data Freshness", "Data Coverage & Gaps", "Prediction Archive", "Prospective Performance", "Reports"),
+    "This week": ("Game Center", "Weekly Predictions", "Player Props", "Upset Explorer"),
+    "Track record": ("Prospective Performance", "Prediction Archive", "Model Leaderboard", "Baseline Research"),
+    "Data": ("Data Manager", "Data Freshness", "Data Coverage & Gaps", "Live Readiness & Schedule", "Home", "Reports"),
+    "Research": ("Home-Win Research", "FPDS Research", "Research Validation", "Research Runs", "Long-Run Research", "Upset Discovery"),
+    "Research tools": ("Projections", "Leans", "Model Debate", "Advanced Football Intelligence", "Player Intelligence", "Train Models"),
 }
 PAGES = [page for pages in SECTIONS.values() for page in pages]
 DEFAULT_PAGE = "Game Center"
-# Friendly names shown in the menu. The keys above stay the same so links and saved bookmarks keep working.
-SECTION_LABELS = {"Overview": "Start here", "This week": "This week's games", "Insights": "Why the models think that", "Models": "The models",
-                  "Research": "Research (advanced)", "Data & history": "Data & track record"}
+# Menu names. The keys above stay the same so links and saved bookmarks keep working.
+SECTION_LABELS = {}
 LABELS = {
-    "Game Center": "🏟️ Game Center", "Home": "🏠 System status", "Live Readiness & Schedule": "⏱️ Is everything up to date?",
-    "Projections": "📊 Team & player projections", "Leans": "↔️ Where we differ from the market", "Weekly Predictions": "🗓️ Weekly win forecasts",
-    "Player Props": "👤 Player stat projections", "Model Debate": "💬 How our models see a game", "Advanced Football Intelligence": "🧭 Team trends (advanced)",
-    "Player Intelligence": "🔎 Player lookup", "Upset Explorer": "⚡ Upset watch", "Model Leaderboard": "🏆 Which model is best?",
-    "Train Models": "🛠️ Re-train the models", "Baseline Research": "📏 Compared with simple rules", "Long-Run Research": "🔬 Long experiments",
-    "FPDS Research": "🔬 FantasyPoints data tests", "Home-Win Research": "🔬 Winner, spread & total research", "Research Validation": "🔬 Honesty checks",
-    "Research Runs": "🔬 Saved experiments", "Upset Discovery": "🔬 Upset patterns", "Data Manager": "⬇️ Update NFL data",
-    "Data Freshness": "🕒 How fresh is the data?", "Data Coverage & Gaps": "🧩 What data is missing?", "Prediction Archive": "🗄️ Saved forecasts",
-    "Prospective Performance": "✅ Report card", "Reports": "📄 Reports",
+    "Game Center": "Game Center", "Weekly Predictions": "Lab win forecasts", "Player Props": "Player projections", "Upset Explorer": "Upset watch",
+    "Prospective Performance": "Report card", "Prediction Archive": "Saved forecasts", "Model Leaderboard": "Model rankings",
+    "Baseline Research": "Versus simple rules", "Data Manager": "Update data", "Data Freshness": "Data freshness",
+    "Data Coverage & Gaps": "Missing data", "Live Readiness & Schedule": "Pre-game checklist", "Home": "System status", "Reports": "Reports",
+    "Home-Win Research": "Winners, spreads and totals", "FPDS Research": "FantasyPoints data tests", "Research Validation": "Result checks",
+    "Research Runs": "Saved experiments", "Long-Run Research": "Long experiments", "Upset Discovery": "Upset patterns",
+    "Projections": "Phase 10 sheets (archived)", "Leans": "Model vs market gaps", "Model Debate": "Six models on one game",
+    "Advanced Football Intelligence": "Team trends", "Player Intelligence": "Player lookup", "Train Models": "Retrain models",
 }
 DESCRIPTIONS = {
-    "Game Center": "Start here. This week's games in plain English: who is likely to win, by how much, and what each player might do.",
-    "Home": "System status: when the data was last updated and which models are loaded.",
-    "Live Readiness & Schedule": "Checks that everything is up to date before games and shows what runs automatically.",
-    "Projections": "Projected stats for every player and team this week, with checks that the numbers add up.",
-    "Leans": "Spots where our forecast and the market disagree, and how sure we are.",
-    "Weekly Predictions": "The lab's weekly win-chance forecasts for each game.",
-    "Player Props": "Projected player stats (yards, catches) for each game, with likely ranges.",
-    "Model Debate": "See how each of our six models sees one game, and where they disagree.",
-    "Advanced Football Intelligence": "A deeper look at the team and player trends behind the forecasts.",
-    "Player Intelligence": "Look up a player's role, workload and recent trend.",
-    "Upset Explorer": "Games where the underdog has a real chance, and why.",
-    "Model Leaderboard": "Which of our models has been the most accurate, ranked.",
-    "Train Models": "Re-train the models on the latest results. This takes a while.",
-    "Baseline Research": "How much better our models are than simple rules like \"always pick the home team\".",
-    "Long-Run Research": "Long experiments that run in the background, and what they found.",
-    "FPDS Research": "Advanced: tests of whether FantasyPoints data improves projections.",
-    "Home-Win Research": "Advanced: how well each method forecasts winners, spreads and totals compared with the betting market.",
-    "Research Validation": "Advanced: checks that our results are honest and not accidents.",
-    "Research Runs": "Advanced: saved experiments and their settings.",
-    "Upset Discovery": "Advanced: patterns in games where underdogs won.",
+    "Game Center": "This week's games: win chances, expected score, player projections and injuries.",
+    "Weekly Predictions": "Win chances from the lab's own models, saved each week before kickoff.",
+    "Player Props": "Player stat projections with likely ranges, adjusted for injuries.",
+    "Upset Explorer": "Underdogs with a real chance this week, and why.",
+    "Prospective Performance": "How forecasts saved before kickoff did once the games were played.",
+    "Prediction Archive": "Every saved forecast, unchanged, so results can be graded fairly.",
+    "Model Leaderboard": "The lab's models ranked by past accuracy.",
+    "Baseline Research": "How the models compare with simple rules such as always picking the home team.",
     "Data Manager": "Download or refresh the NFL data the lab uses.",
-    "Data Freshness": "How recent each data source is.",
-    "Data Coverage & Gaps": "What data we have and what is missing.",
-    "Prediction Archive": "Every forecast we have saved, kept unchanged so we can grade ourselves fairly.",
-    "Prospective Performance": "Report card: how forecasts saved before games actually did.",
+    "Data Freshness": "When each data source was last updated.",
+    "Data Coverage & Gaps": "Which data is present and which is missing.",
+    "Live Readiness & Schedule": "What has to be up to date before kickoff, and what runs on a schedule.",
+    "Home": "Last data refresh, loaded models and current warnings.",
     "Reports": "Browse and download saved reports.",
+    "Home-Win Research": "How each method forecasts winners, spreads and totals against the betting market.",
+    "FPDS Research": "Tests of whether FantasyPoints data improves projections.",
+    "Research Validation": "Checks that research results are not accidents.",
+    "Research Runs": "Saved experiments and their settings.",
+    "Long-Run Research": "Experiments that run in the background, and what they found.",
+    "Upset Discovery": "Patterns in games the underdog won.",
+    "Projections": "Archived Phase 10 forecast sheets. None passed its tests; kept for the record.",
+    "Leans": "Where the model and the market disagree. In testing these gaps have not beaten the market.",
+    "Model Debate": "How each of the six models sees one game.",
+    "Advanced Football Intelligence": "Team trends behind the forecasts.",
+    "Player Intelligence": "A player's role, workload and recent trend.",
+    "Train Models": "Retrain the models on the latest results. This takes a while.",
 }
 
 
@@ -80,12 +77,9 @@ def render_navigation():
         st.session_state["lab_nav_url"] = requested
         st.session_state.setdefault("lab_nav_history", {})[section] = requested
     with st.sidebar:
-        st.header("NFL Ensemble Lab")
-        st.caption("New here? Start with **Game Center**.")
-        section = st.selectbox("Where do you want to go?", list(SECTIONS), key="lab_nav_section", on_change=_change_section,
+        st.header("NFL Lab")
+        section = st.selectbox("Section", list(SECTIONS), key="lab_nav_section", on_change=_change_section,
                                format_func=lambda x: SECTION_LABELS.get(x, x))
         page = st.radio("Page", SECTIONS[section], key="lab_nav_page", on_change=_remember_page, format_func=lambda x: LABELS.get(x, x))
         st.caption(DESCRIPTIONS[page])
-        st.divider()
-        st.caption("Local research · not betting advice")
     return page

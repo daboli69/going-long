@@ -8,7 +8,8 @@ TOOLS = ROOT / "scripts" / "launchers"
 
 # Explicit, fixed argument lists: typed menu responses never become shell code.
 ACTIONS = {
-    "dashboard": ("Open dashboard", ROOT / "launch_lab.bat", ()),
+    "gamecenter": ("Open Game Center", TOOLS / "launch_game_center.bat", ()),
+    "dashboard": ("Open lab tools (data, track record, research)", ROOT / "launch_lab.bat", ()),
     "project": ("Create FPDS game + player projections (may take time)", TOOLS / "run_manual_fpds.bat", ("project",)),
     "weekly": ("Weekly FPDS refresh + frozen shadow projections (may take time)", TOOLS / "run_weekly_fpds.bat", ()),
     "import": ("Import + audit downloaded FPDS files", TOOLS / "import_fpds.bat", ()),
@@ -47,9 +48,10 @@ def menu():
             print("Advanced tools\n1  Refresh NFL data\n2  Saved-model weekly predictions\n3  Phase 10 weekly pipeline\n4  Price comparisons only\n5  Saved FPDS job status\n6  Setup / repair\n7  Open specialist scripts folder\nB  Back\nQ  Quit")
             print("Specialist scripts include long research and maintenance tools; opening the folder starts nothing.")
         else:
-            choices = {"1": "dashboard", "2": "project", "3": "weekly", "4": "import", "5": "reports", "6": "injuries"}
-            print("1  Open dashboard [recommended; Enter]\n2  Generate FPDS projections / simulations\n3  Tuesday weekly refresh + projections\n4  Import downloaded FPDS files\n5  Open reports folder\n6  Update this week's injuries only\nA  Advanced tools\nQ  Quit")
-            print("Projections are shadow research. Options 2-4 and 6 start local work; the menu itself starts nothing.")
+            choices = {"1": "gamecenter", "2": "dashboard", "3": "weekly", "4": "project", "5": "import", "6": "injuries", "7": "reports"}
+            print("1  Game Center: this week's games [Enter]\n2  Lab tools: data, track record, research\n3  Tuesday weekly refresh + projections\n"
+                  "4  Generate FPDS projections / simulations\n5  Import downloaded FPDS files\n6  Update this week's injuries only\n7  Open reports folder\nA  Advanced tools\nQ  Quit")
+            print("Options 3-6 start local work; the menu itself starts nothing.")
         try:
             answer = input("Choose: ").strip().lower()
         except (EOFError, KeyboardInterrupt):
@@ -74,8 +76,8 @@ def menu():
         result = run_action(action)
         if result:
             print(f"Stopped with exit code {result}. Review the message above; no later step was started.")
-        elif action == "dashboard":
-            print("Dashboard closed. Returning to menu.")
+        elif action in {"dashboard", "gamecenter"}:
+            print("Closed. Returning to menu.")
         else:
             print("Finished. Returning to menu.")
 

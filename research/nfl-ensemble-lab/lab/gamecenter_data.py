@@ -250,16 +250,13 @@ def pmf(mu: float, sd: float, lo: int, hi: int) -> list[dict]:
 
 
 def _outcomes(b: dict, home: str, away: str) -> list[dict]:
-    mu_m, mu_t, sm, stt, p_home = b["mu_m"], b["mu_t"], b["sd_m"], b["sd_t"], b["p_home"]
+    # Margin buckets only: the underdog row repeats the win chance, and over/under at the market's own total is 50/50 by construction.
+    mu_m, sm = b["mu_m"], b["sd_m"]
     fav, sign = (home, 1) if mu_m >= 0 else (away, -1)
-    line_t = round(mu_t * 2) / 2
     close = norm.cdf((3.5 - mu_m) / sm) - norm.cdf((-3.5 - mu_m) / sm)
-    return [{"label": "Game is decided by 3 points or fewer", "p": float(close)},
+    return [{"label": "Decided by 3 points or fewer", "p": float(close)},
             {"label": f"{fav} wins by 7 or more", "p": p_over(sign * mu_m, sm, 6.5)},
-            {"label": f"{fav} wins by 10 or more", "p": p_over(sign * mu_m, sm, 9.5)},
-            {"label": "Underdog wins outright", "p": float(1 - (p_home if fav == home else 1 - p_home))},
-            {"label": f"Both teams combine for more than {line_t:g} points", "p": p_over(mu_t, stt, line_t)},
-            {"label": f"Both teams combine for fewer than {line_t:g} points", "p": 1 - p_over(mu_t, stt, line_t)}]
+            {"label": f"{fav} wins by 10 or more", "p": p_over(sign * mu_m, sm, 9.5)}]
 
 
 def _lean(fz: dict | None, home: str, away: str) -> dict | None:
@@ -304,6 +301,8 @@ def _injury_lists(inj: pd.DataFrame, teams: tuple[str, str]) -> dict:
             for r in d.sort_values(["o", "p"]).head(14).itertuples(index=False):
                 label, tone, expl = STATUS_PLAIN[r.status]
                 note = (r.note[:160] + "…") if len(r.note) > 160 else r.note
+                if note.strip().lower() in {r.status.lower(), label.lower(), "injured reserve"}:
+                    note = ""  # a note that only repeats the status badge adds nothing
                 rows.append({"player": r.player, "pos": r.pos, "status": label, "tone": tone, "meaning": expl, "note": note})
         out[team] = rows
     return out
@@ -350,8 +349,8 @@ def meta() -> dict:
     fz = load_freezes("forecast_games")
     saved = {w: r["frozen_at"] for (s, w), r in fz.items() if s == SEASON}
     return {"ok": True, "season": SEASON, "weeks": weeks, "default_week": default, "forecast_saved_at": saved, "kpis": kpis(),
-            "reality_check": "Over the last two seasons the betting market has been at least as accurate as our model, so every headline number follows the market "
-                             "and our model is shown next to it. Nothing here is betting advice."}
+            "reality_check": "Win chances, spreads and totals come from the betting market, which has been more accurate than our model over the last two seasons. "
+                             "Our model is listed for comparison. Not betting advice."}
 
 
 def week_games(week: int) -> list[dict]:
@@ -385,7 +384,7 @@ def game_detail(gid: str) -> dict | None:
     summ = {t: team_summary(G, t) for t in (away, home)}
     d = {"gid": gid, "week": week, "away": away, "home": home, "away_name": TEAM_NAMES.get(away, away), "home_name": TEAM_NAMES.get(home, home),
          "away_color": TEAM_COLORS.get(away), "home_color": TEAM_COLORS.get(home), "kickoff_utc": row["kickoff_utc"],
-         "date_label": row["kickoff_et"].strftime("%A, %b %d").replace(" 0", " "), "kickoff_label": kickoff_label(row["kickoff_et"]), "stadium": row.get("stadium") or "",
+         "date_label": row["kickoff_et"].strftime("%A, %b %d").replace(" 0", " "), "kickoff_label": kickoff_label(row["kickoff_et"]), "time_label": row["kickoff_et"].strftime("%I:%M %p").lstrip("0"), "stadium": row.get("stadium") or "",
          "completed": bool(row["completed"]), "away_score": row["away_score"] if row["completed"] else None, "home_score": row["home_score"] if row["completed"] else None,
          "forecast_saved_at": fz_rec["frozen_at"] if fz_rec else None, "forecast_hash_ok": fz_rec["hash_ok"] if fz_rec else None,
          "records": {away: summ[away]["record"], home: summ[home]["record"]}, "matchup": {away: summ[away], home: summ[home]},
@@ -395,7 +394,7 @@ def game_detail(gid: str) -> dict | None:
     p_home = b["p_home"]
     favored, p_fav = (home, p_home) if p_home >= 0.5 else (away, 1 - p_home)
     srcs = [("Betting market (Kalshi)", fz and fz.get("kalshi_winner_p_home")), ("Our model", fz and fz["model"]["p_win"]), ("Elo team ratings", fz and fz["model"]["p_elo"]),
-            ("ESPN's forecast (FPI)", fz and fz.get("fpi_p_home"))]
+            ("ESPN FPI", fz and fz.get("fpi_p_home"))]
     sources = [{"name": n, "p_home": float(v)} for n, v in srcs if v is not None]
     gap = (max(s["p_home"] for s in sources) - min(s["p_home"] for s in sources)) * 100 if sources else 0.0
     d["headline"] = {"p_home": p_home, "p_label": b["p_label"], "favored": favored, "favored_name": TEAM_NAMES.get(favored, favored), "p_favored": p_fav}
