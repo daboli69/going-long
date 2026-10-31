@@ -60,6 +60,7 @@ export interface PropRow {
   market_line: number | null;
   market_chance: number | null;
   our_chance: number | null;
+  fpds?: Record<string, number>;
 }
 
 export interface Ladder {
@@ -153,6 +154,7 @@ export interface Sim {
   unavailable?: { player: string; team: string; status: string }[];
   injury_source?: string | null;
   weather?: Weather;
+  fpds?: { through_week: number | null; tested: boolean; catches_for_thin_history: boolean; receiving_yards_blend: boolean; td_red_zone: boolean; thin_players: Record<string, number> };
   redistribution?: { kept_rec: number; kept_rush: number; to_new_rec: number; to_new_rush: number; fitted_on: number[] | null };
 }
 

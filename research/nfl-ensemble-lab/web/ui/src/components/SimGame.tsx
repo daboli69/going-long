@@ -247,6 +247,18 @@ function Injuries({ sim }: { sim: Sim }) {
   );
 }
 
+function fpdsLine(r: PropRow): string | null {
+  const f = r.fpds;
+  if (!f || r.stat === "Passing yards") return null;
+  const p = (x?: number) => (x === undefined ? null : `${Math.round(x * 100)}%`);
+  const parts = r.stat === "Rushing yards"
+    ? [p(f.att_pct) && `${p(f.att_pct)} of carries`, p(f.snap_pct) && `${p(f.snap_pct)} of snaps`, p(f.exp_run) && `${p(f.exp_run)} explosive runs`]
+    : [p(f.tgt_pct) && `${p(f.tgt_pct)} of targets`, p(f.rte_pct) && `routes on ${p(f.rte_pct)} of passes`, p(f.ay_share) && `${p(f.ay_share)} of air yards`,
+       f.yprr !== undefined ? `${f.yprr.toFixed(1)} yards per route` : null, f.rz_tgt !== undefined ? `${f.rz_tgt.toFixed(1)} red-zone targets a game` : null];
+  const shown = parts.filter(Boolean);
+  return shown.length ? `FantasyPoints, last ${f.weeks} week${f.weeks === 1 ? "" : "s"}: ${shown.join(" · ")}` : null;
+}
+
 function Spotlight({ sim, d }: { sim: Sim; d: Detail }) {
   const props = sim.players ?? [];
   const pick = (team: string) => {
@@ -256,7 +268,8 @@ function Spotlight({ sim, d }: { sim: Sim; d: Detail }) {
   };
   const row = (r: PropRow) => (
     <div key={r.player + r.stat} className="flex items-center justify-between border-b border-line py-2 last:border-0">
-      <div><div className="text-base text-white">{r.player}</div><div className="text-sm text-muted">{r.stat.toLowerCase()}</div></div>
+      <div><div className="text-base text-white">{r.player}</div><div className="text-sm text-muted">{r.stat.toLowerCase()}</div>
+        {fpdsLine(r) && <div className="max-w-[28rem] text-sm text-muted">{fpdsLine(r)}</div>}</div>
       <div className="text-right"><div className="text-2xl font-bold text-white">{num(r.typical, 0)}</div>
         {r.range_low !== null && <div className="text-sm text-muted">8 in 10: {num(r.range_low, 0)} to {num(r.range_high, 0)}</div>}</div>
     </div>
@@ -299,6 +312,13 @@ const Section = ({ title, note, children }: { title: string; note?: string; chil
     {children}
   </section>
 );
+
+function fpdsNote(sim: Sim): string {
+  const f = sim.fpds;
+  if (!f?.tested) return "FantasyPoints metrics are shown but have not been tested yet, so they do not change any numbers.";
+  const used = [f.receiving_yards_blend && "receiving yards", f.catches_for_thin_history && "catches"].filter(Boolean).join(" and ");
+  return `FantasyPoints data runs through week ${f.through_week}. In tests on 2025 and 2026 games, adding its target share and routes run made ${used || "no stat"} more accurate, and its red-zone targets ${f.td_red_zone ? "improved" : "did not improve"} the pick of who catches touchdowns. Rushing and everything else stays on nflverse play-by-play.`;
+}
 
 export function SimGame({ d }: { d: Detail }) {
   const [sim, setSim] = useState<Sim | null>(null);
@@ -345,7 +365,7 @@ export function SimGame({ d }: { d: Detail }) {
       </Section>
 
       {(sim.players ?? []).length > 0 && (
-        <Section title="Player projections" note="Middle number, with the range 8 in 10 games land in where there are enough games to measure it.">
+        <Section title="Player projections" note={`Middle number, with the range 8 in 10 games land in where there are enough games to measure it. ${fpdsNote(sim)}`}>
           <Spotlight sim={sim} d={d} />
         </Section>
       )}

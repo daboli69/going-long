@@ -14,6 +14,7 @@ import pandas as pd
 
 from . import gamecenter_data as D
 from . import gameweather
+from . import fpds_usage as X
 from . import usage as U
 from .config import CACHE_DIR, RAW_DIR
 from .ingest import normalize_team
@@ -179,7 +180,7 @@ def _caption(p: dict, team: str) -> str:
     return f"{p['player']} rushes for {p['yards']} yard{'s' if abs(p['yards']) != 1 else ''}."
 
 
-def replay(gid: str, away: str, home: str, targets: dict, props: list[dict], ctx: pd.DataFrame) -> dict:
+def replay(gid: str, away: str, home: str, targets: dict, props: list[dict], ctx: pd.DataFrame, td_weights: dict | None = None) -> dict:
     r = _rng(gid, "replay")
     teams = {}
     for t in (away, home):
@@ -286,9 +287,41 @@ def replay(gid: str, away: str, home: str, targets: dict, props: list[dict], ctx
         else:
             start = max(min(100 - drive[-1]["end"], 95), 5)
 
+    swaps = _assign_scorers(plays, td_weights or {}, r)
     _clock(plays)
     return {"plays": [_public(p, away) for p in plays], "final": score, "qbs": {t: teams[t]["qb"] for t in (away, home)},
             "targets": targets}
+
+
+def _assign_scorers(plays: list[dict], td_weights: dict, r: np.random.Generator) -> int:
+    """Choose who catches each touchdown by the tested weights (yardage share, touchdown history, red-zone targets).
+
+    The chosen player swaps catches with the scorer when he has a catch within four yards, so each player's total changes by at
+    most four yards; with no such catch the play is left as it was."""
+    swaps = 0
+    for p in plays:
+        if p.get("event") != "TD" or p["kind"] != "pass":
+            continue
+        w = td_weights.get(p["team"]) or {}
+        names = [n for n in w if any(q["kind"] == "pass" and q["team"] == p["team"] and q["player"] == n for q in plays)]
+        if not names:
+            continue
+        pr = np.clip(np.array([w[n] for n in names], float), 0, None)
+        if pr.sum() <= 0:
+            continue
+        pick = names[int(r.choice(len(names), p=pr / pr.sum()))]
+        if pick == p["player"]:
+            continue
+        cands = [q for q in plays if q is not p and q["kind"] == "pass" and q["team"] == p["team"] and q["player"] == pick
+                 and q.get("event") is None and abs(q["yards"] - p["yards"]) <= 4]
+        if not cands:
+            continue
+        q = min(cands, key=lambda c: abs(c["yards"] - p["yards"]))
+        p["player"], q["player"] = pick, p["player"]
+        for x in (p, q):
+            x["text"] = _caption(x, x["team"]) + (" TOUCHDOWN. Extra point good." if x.get("event") == "TD" else "")
+        swaps += 1
+    return swaps
 
 
 def _clock(plays: list[dict]) -> None:
@@ -413,16 +446,21 @@ def team_players(team: str, week: int, out: dict, saved: list[dict], expected_po
     Returns (rows, moves, source label).
     """
     rule, _ = U.current_rule()
+    fp_rule = X.load_rule()
     g = U.player_games((season - 1, season))
     u = U.usage(g, season, team, week)
     label = f"usage before week {week}"
+    su, wk_used = season, week
     if u is None:
         u = U.usage(g, season - 1, team, 99)
-        label = f"{season - 1} usage"
+        label, su, wk_used = f"{season - 1} usage", season - 1, 99
     names = _names()
     saved_t = [r for r in saved if r["team"] == team]
     if u is None:
-        return saved_t, [], "saved projections" if saved_t else "no player data"
+        return (saved_t, [], "saved projections" if saved_t else "no player data", {"fpds": {"used": False}, "td_weights": {}})
+    keys0 = u.players["pid"].map(lambda x: _norm(names.get(x, x)))
+    out0 = set(u.players.loc[keys0.isin(out) & u.players["active"], "pid"])
+    u, fp_info = X.blend_shares(u, team, su, wk_used, out0, fp_rule)
     p = u.players.copy()
     p["name"] = p["pid"].map(lambda x: names.get(x, x))
     p["key"] = p["name"].map(_norm)
@@ -544,7 +582,25 @@ def team_players(team: str, week: int, out: dict, saved: list[dict], expected_po
                 if r.get("carries"):
                     r["carries"] *= ratio
         label += f", scaled x{ratio:.2f} to the expected score"
-    return rows, moves, ("saved projections, " if saved_t else "") + label
+    name_pid = dict(zip(p["name"], p["pid"]))
+    prof = X.profile(team, su, wk_used, [name_pid[n] for n in {r["player"] for r in rows} if n in name_pid])
+    seen = set()
+    for r in rows:
+        pid = name_pid.get(r["player"])
+        if pid in prof and r["player"] not in seen:
+            r["fpds"] = prof[pid]
+            seen.add(r["player"])
+    td_w = {names.get(pid, pid): w for pid, w in X.rec_td_weights(u, team, su, wk_used, out_ids, fp_rule).items()}
+    extra = {"fpds": {**fp_info, "players": len(prof)}, "td_weights": td_w}
+    return rows, moves, ("saved projections, " if saved_t else "") + label, extra
+
+
+def _fpds_summary(teams: dict) -> dict:
+    rule = X.load_rule()
+    td = rule.get("td", {}).get("rec_td", {})
+    return {"through_week": X.through().get("weekly_through"), "tested": bool(rule), "catches_for_thin_history": "rec" in rule.get("weights", {}),
+            "receiving_yards_blend": "rec_yds" in rule.get("weights", {}), "td_red_zone": bool(td.get("uses_fpds")),
+            "thin_players": {t: v.get("thin_players", 0) for t, v in teams.items()}}
 
 
 def _rule_summary() -> dict:
@@ -641,20 +697,22 @@ def simulate(gid: str) -> dict | None:
 
     saved = d.get("props") or []
     players, moves, gone, sources, inj_source = [], [], [], {}, None
+    td_weights, fp_teams = {}, {}
     for t in (away, home):
         out_t, src = unavailable(t, week)
         inj_source = inj_source or src
-        rows, mv, sources[t] = team_players(t, week, out_t, saved, (rng["home"] if t == home else rng["away"])["median"])
+        rows, mv, sources[t], extra = team_players(t, week, out_t, saved, (rng["home"] if t == home else rng["away"])["median"])
+        td_weights[t], fp_teams[t] = extra["td_weights"], extra["fpds"]
         players += rows
         moves += [m | {"team": t} for m in mv]
         gone += [{"team": t, "player": n, "status": st} for n, st in out_t.values()]
 
     targets = {away: rng["away"]["median"], home: rng["home"]["median"]}
     row = D.games_table().set_index("game_id").loc[gid]
-    out.update({"ok": True, "ranges": rng, "replay": replay(gid, away, home, targets, players, ctx),
+    out.update({"ok": True, "ranges": rng, "replay": replay(gid, away, home, targets, players, ctx, td_weights),
                 "defense": defense_matchups(ctx, away, home) if not ctx.empty else [],
                 "source": {"margin": e.get("margin_label"), "total": e.get("total_label")}, "has_players": bool(players),
                 "players": players, "player_source": sources, "injury_moves": moves, "unavailable": gone, "injury_source": inj_source,
-                "redistribution": _rule_summary(),
+                "redistribution": _rule_summary(), "fpds": _fpds_summary(fp_teams),
                 "weather": gameweather.kickoff_weather(gid, row.get("stadium") or "", row.get("roof"), row["kickoff_utc"], bool(row["completed"]))})
     return D.clean(out)
