@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #root { min-height: 100%; }
-body { @apply bg-bg text-slate-100 antialiased; }
-* { scrollbar-color: #1e2b45 transparent; scrollbar-width: thin; }
+@layer base {
+  html { background: #0e1014; }
+  html, body, #root { min-height: 100%; }
+  body { @apply bg-bg font-sans text-base text-ink antialiased; font-variant-numeric: tabular-nums; }
+  h1, h2, h3 { @apply font-display; }
+  button, [role="tab"], summary, select, label[for] { cursor: pointer; }
+  button:disabled, [aria-disabled="true"] { cursor: not-allowed; }
+  :focus-visible { outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 5px #0e1014; }
+  * { scrollbar-color: #39424f transparent; scrollbar-width: thin; }
+}
+
+.display-num { font-family: "Archivo Variable", system-ui, sans-serif; font-weight: 800; font-stretch: 68%; line-height: 0.9; letter-spacing: -0.01em; }
+.strip { scroll-snap-type: x mandatory; scroll-padding-inline: 1rem; }
+.strip > * { scroll-snap-align: start; }
+@media (max-width: 767px) { .strip { scrollbar-width: none; } .strip::-webkit-scrollbar { display: none; } }
+.skip { position: absolute; left: 1rem; top: -4rem; z-index: 50; background: #fff; color: #0e1014; padding: 0.75rem 1rem; border-radius: 4px; font-weight: 600; }
+.skip:focus { top: 1rem; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; } }

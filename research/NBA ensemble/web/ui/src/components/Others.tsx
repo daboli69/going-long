@@ -1,53 +1,57 @@
 import { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { api } from "../api";
 import type { Detail, GlossaryItem, Meta } from "../types";
-import { cn, etStamp, num, pct } from "../lib";
-import { Badge, Callout, Card } from "./ui/primitives";
+import { cn, etStamp, num, pairColors, pct } from "../lib";
+import { Badge, Callout, Card, PanelTitle } from "./ui/primitives";
 import { TeamChip } from "./TeamChip";
 
 // ------------------------------------------------------------------ Six models on one game
 export function Models({ d }: { d: Detail }) {
   if (!d.models || !d.headline) return <Callout tone="blue">No saved forecast for this game, so there are no model numbers to show.</Callout>;
+  const c = pairColors(d.away_color, d.home_color);
   const rows = [...d.models].sort((a, b) => b.p_home - a.p_home);
   return (
     <div className="space-y-4">
       <Card>
-        <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-          <div className="text-sm text-muted">Each model's win chance for {d.home} (left of the middle line favors {d.away})</div>
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+          <PanelTitle hint={`Left of the middle line favors ${d.away}.`}>Each model's win chance for {d.home}</PanelTitle>
           {d.disagreement_points !== undefined && (
             <Badge tone={d.disagreement_points >= 15 ? "amber" : "neutral"}>Highest and lowest differ by {d.disagreement_points.toFixed(0)} points</Badge>
           )}
         </div>
-        {rows.map((m) => (
-          <div key={m.name} className="grid grid-cols-[minmax(0,13rem)_1fr_3.5rem] items-center gap-3 py-1.5">
-            <span className="truncate text-sm text-slate-300">{m.name}</span>
-            <div className="relative h-3 rounded-full bg-line">
-              <div className="absolute inset-y-0 left-1/2 w-px bg-muted/60" />
-              <div className="absolute inset-y-0 rounded-full"
-                style={m.p_home >= 0.5
-                  ? { left: "50%", width: `${(m.p_home - 0.5) * 100}%`, background: d.home_color }
-                  : { right: "50%", width: `${(0.5 - m.p_home) * 100}%`, background: d.away_color }} />
-            </div>
-            <span className="text-right text-sm font-medium text-white">{pct(m.p_home)}</span>
-          </div>
-        ))}
-        <div className="mt-2 grid grid-cols-[minmax(0,13rem)_1fr_3.5rem] items-center gap-3 border-t border-line pt-2">
-          <span className="text-sm font-semibold text-white">Combined</span>
-          <span />
-          <span className="text-right text-sm font-bold text-white">{pct(d.headline.p_home)}</span>
+        <ul>
+          {rows.map((m) => (
+            <li key={m.name} className="grid grid-cols-[minmax(0,1fr)_3.5rem] items-center gap-x-3 gap-y-1 py-2 sm:grid-cols-[minmax(0,13rem)_1fr_3.5rem]">
+              <span className="truncate text-base text-muted sm:col-start-1">{m.name}</span>
+              <span className="text-right text-base font-bold sm:order-last">{pct(m.p_home)}</span>
+              <div className="relative col-span-2 h-4 rounded-sm bg-surface2 sm:col-span-1" aria-hidden>
+                <div className="absolute inset-y-0 left-1/2 w-0.5 bg-ink/50" />
+                <div className="absolute inset-y-0 rounded-sm"
+                  style={m.p_home >= 0.5
+                    ? { left: "50%", width: `${(m.p_home - 0.5) * 100}%`, background: c.home }
+                    : { right: "50%", width: `${(0.5 - m.p_home) * 100}%`, background: c.away }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-2 flex items-center justify-between border-t border-line pt-3">
+          <span className="text-base font-bold">Combined</span>
+          <span className="display-num text-3xl">{pct(d.headline.p_home)}</span>
         </div>
       </Card>
       <Callout tone="blue">
         All six learn from the same past games and inputs, so they often agree. Six of six agreeing does not mean a sure thing.
         The combined number comes from the frozen combination method, not from counting votes.
       </Callout>
-      {d.forecast_warning && <p className="text-xs text-muted">Saved with this note: {d.forecast_warning}</p>}
+      {d.forecast_warning && <p className="text-sm text-muted">Saved with this note: {d.forecast_warning}</p>}
     </div>
   );
 }
 
 // ------------------------------------------------------------------ Teams and injuries
 export function Matchup({ d }: { d: Detail }) {
+  const c = pairColors(d.away_color, d.home_color);
   const side = (abbr: string, name: string, color: string) => {
     const s = d.matchup[abbr];
     const injuries = d.injuries.teams[abbr] ?? [];
@@ -55,41 +59,45 @@ export function Matchup({ d }: { d: Detail }) {
       <Card key={abbr}>
         <div className="flex items-center gap-3">
           <TeamChip abbr={abbr} color={color} size="sm" />
-          <div className="font-semibold text-white">{name}</div>
+          <h2 className="text-lg font-bold">{name}</h2>
         </div>
-        <div className="mt-3 grid grid-cols-3 gap-3 text-sm">
-          <div><div className="text-xs text-muted">Record</div><div className="text-white">{s.record}</div></div>
-          <div><div className="text-xs text-muted">Points for</div><div className="text-white">{num(s.pf)}</div></div>
-          <div><div className="text-xs text-muted">Points against</div><div className="text-white">{num(s.pa)}</div></div>
-        </div>
-        <div className="mt-2 flex gap-1">
+        <dl className="mt-4 grid grid-cols-3 gap-3">
+          <div><dt className="text-sm text-muted">Record</dt><dd className="text-lg font-bold">{s.record}</dd></div>
+          <div><dt className="text-sm text-muted">Points for</dt><dd className="text-lg font-bold">{num(s.pf)}</dd></div>
+          <div><dt className="text-sm text-muted">Points against</dt><dd className="text-lg font-bold">{num(s.pa)}</dd></div>
+        </dl>
+        <div className="mt-4 flex flex-wrap items-center gap-1">
           {s.last.map((r, i) => (
-            <span key={i} className={cn("inline-flex h-6 w-6 items-center justify-center rounded text-xs font-bold", r === "W" ? "bg-emerald-950 text-emerald-300" : "bg-red-950 text-red-300")}>{r}</span>
+            <span key={i} className={cn("inline-flex h-7 w-7 items-center justify-center rounded text-sm font-bold", r === "W" ? "bg-ok-bg text-ok-fg" : "bg-bad-bg text-bad-fg")}>{r}</span>
           ))}
-          {s.last.length > 0 && <span className="ml-1 self-center text-xs text-muted">last {s.last.length}, oldest first</span>}
+          {s.last.length > 0 && <span className="ml-1 text-sm text-muted">last {s.last.length}, oldest first</span>}
         </div>
-        <div className="mt-4 text-sm font-semibold text-white">Injury list</div>
+        <h3 className="mt-5 text-base font-bold">Injury list</h3>
         {injuries.length === 0 ? (
-          <div className="mt-1 text-sm text-muted">No one listed on the latest saved check. That is not a confirmed lineup.</div>
-        ) : injuries.map((r) => (
-          <div key={r.player} className="flex items-center justify-between border-b border-line py-1.5 text-sm last:border-0">
-            <span className="text-slate-200">{r.player}</span>
-            <span className="flex items-center gap-2">
-              {r.updated && <span className="text-xs text-muted">updated {etStamp(r.updated)}</span>}
-              <Badge tone={r.tone}>{r.status}</Badge>
-            </span>
-          </div>
-        ))}
+          <p className="mt-1 text-base text-muted">No one listed on the latest saved check. That is not a confirmed lineup.</p>
+        ) : (
+          <ul className="mt-1">
+            {injuries.map((r) => (
+              <li key={r.player} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-line py-2 text-base last:border-0">
+                <span>{r.player}</span>
+                <span className="flex items-center gap-2">
+                  {r.updated && <span className="text-sm text-muted">updated {etStamp(r.updated)}</span>}
+                  <Badge tone={r.tone}>{r.status}</Badge>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </Card>
     );
   };
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        {side(d.away, d.away_name, d.away_color)}
-        {side(d.home, d.home_name, d.home_color)}
+        {side(d.away, d.away_name, c.away)}
+        {side(d.home, d.home_name, c.home)}
       </div>
-      <p className="text-xs text-muted">
+      <p className="text-sm text-muted">
         Season so far, games before this one. Injury list from ESPN{d.injuries.retrieved ? `, checked ${etStamp(d.injuries.retrieved)}` : ""}.
         The original forecast does not use injuries.
       </p>
@@ -110,23 +118,28 @@ export function About({ meta }: { meta: Meta }) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <Card>
-        <h3 className="font-semibold text-white">Where the numbers come from</h3>
-        <p className="mt-1 text-sm text-slate-300">{meta.reality_check}</p>
-        <h3 className="mt-4 font-semibold text-white">Track record</h3>
-        {record.length === 0 && <div className="py-2 text-sm text-muted">No finished games with a saved forecast yet.</div>}
-        {record.map(([label, value]) => (
-          <div key={label} className="border-b border-line py-2 last:border-0">
-            <div className="text-xs text-muted">{label}</div>
-            <div className="text-sm text-white">{value}</div>
-          </div>
-        ))}
+        <h2 className="text-lg font-bold">Where the numbers come from</h2>
+        <p className="mt-1 max-w-prose text-base leading-relaxed text-muted">{meta.reality_check}</p>
+        <h2 className="mt-5 text-lg font-bold">Track record</h2>
+        {record.length === 0 && <p className="py-2 text-base text-muted">No finished games with a saved forecast yet.</p>}
+        <dl>
+          {record.map(([label, value]) => (
+            <div key={label} className="border-b border-line py-2 last:border-0">
+              <dt className="text-sm text-muted">{label}</dt>
+              <dd className="text-base font-semibold">{value}</dd>
+            </div>
+          ))}
+        </dl>
       </Card>
       <Card>
-        <h3 className="mb-1 font-semibold text-white">Terms</h3>
+        <h2 className="mb-1 text-lg font-bold">Terms</h2>
         {items.map((g) => (
-          <details key={g.term} className="border-b border-line py-2 last:border-0">
-            <summary className="cursor-pointer text-sm text-white">{g.term}</summary>
-            <p className="mt-1 text-sm text-slate-300">{g.text}</p>
+          <details key={g.term} className="group border-b border-line last:border-0">
+            <summary className="flex min-h-11 list-none items-center justify-between gap-3 py-2 text-base font-semibold [&::-webkit-details-marker]:hidden">
+              {g.term}
+              <ChevronDown className="h-5 w-5 shrink-0 text-muted transition-transform group-open:rotate-180" aria-hidden />
+            </summary>
+            <p className="max-w-prose pb-3 text-base leading-relaxed text-muted">{g.text}</p>
           </details>
         ))}
       </Card>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BookOpen, CircleDot, Layers, Users } from "lucide-react";
 import { api } from "./api";
 import type { Detail, GameRow, Meta } from "./types";
 import { dayLabel, etTime } from "./lib";
@@ -35,9 +36,13 @@ export default function App() {
     api.game(gid).then(setDetail).catch((e) => setError(String(e)));
   }, [gid]);
 
-  if (error) return <div className="p-8"><Callout tone="amber">Can't reach the local server ({error}). Is <code>launch_game_center.bat</code> still running?</Callout></div>;
-  if (!meta) return <div className="p-8 text-muted">Loading…</div>;
-  if (!meta.ok) return <div className="p-8"><Callout tone="amber">{meta.reason}</Callout></div>;
+  useEffect(() => {
+    document.title = detail ? `${detail.away} at ${detail.home} · NBA Game Center` : "NBA Game Center";
+  }, [detail]);
+
+  if (error) return <main className="p-6"><Callout tone="amber">Can't reach the local server ({error}). Is <code>launch_game_center.bat</code> still running?</Callout></main>;
+  if (!meta) return <main className="p-6 text-muted" role="status">Loading…</main>;
+  if (!meta.ok) return <main className="p-6"><Callout tone="amber">{meta.reason}</Callout></main>;
 
   const upcoming = (games ?? []).filter((g) => new Date(g.tipoff_utc).getTime() > Date.now());
   const forecasts = (games ?? []).filter((g) => g.p_home !== null).length;
@@ -47,41 +52,54 @@ export default function App() {
        forecasts ? `${forecasts} saved forecasts` : "no saved forecast for this date"].join(" · ");
   const dates = meta.dates.includes(meta.today) ? meta.dates : [...meta.dates, meta.today].sort();
 
+  const tab = (value: string, full: string, short: string, Icon: typeof CircleDot) => (
+    <TabsTrigger value={value} aria-label={full}>
+      <Icon className="h-5 w-5 md:hidden" aria-hidden />
+      <span className="md:hidden">{short}</span>
+      <span className="hidden md:inline">{full}</span>
+    </TabsTrigger>
+  );
+
   return (
-    <div className="mx-auto max-w-[1280px] space-y-5 px-4 py-6 sm:px-6">
-      <header className="flex flex-wrap items-end justify-between gap-3 border-b border-line pb-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">NBA Game Center</h1>
-          <p className="mt-1 text-sm text-muted">{summary}</p>
-        </div>
-        <label className="flex items-center gap-2 text-sm text-muted">
-          Date
-          <select
-            className="rounded-lg border border-line bg-panel px-3 py-2 text-white focus:border-accent focus:outline-none"
-            value={day ?? ""}
-            onChange={(e) => setDay(e.target.value)}
-          >
-            {dates.map((d) => <option key={d} value={d}>{dayLabel(d)}{d === meta.today ? " (today)" : ""}</option>)}
-          </select>
-        </label>
-      </header>
+    <>
+      <a href="#main" className="skip">Skip to the game</a>
+      <div className="mx-auto max-w-[1180px] px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 md:pb-12 md:pt-8">
+        <header className="flex flex-col gap-3 pb-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-[1.75rem] font-extrabold leading-none md:text-4xl">NBA Game Center</h1>
+            <p className="mt-2 text-base text-muted" role="status">{summary}</p>
+          </div>
+          <label className="flex items-center gap-3 text-base text-muted">
+            Date
+            <select
+              className="min-h-11 flex-1 rounded border border-[#4a5461] bg-surface px-3 text-base text-ink md:flex-none"
+              value={day ?? ""}
+              onChange={(e) => setDay(e.target.value)}
+            >
+              {dates.map((d) => <option key={d} value={d}>{dayLabel(d)}{d === meta.today ? " (today)" : ""}</option>)}
+            </select>
+          </label>
+        </header>
 
-      {games && games.length > 0 && <GameStrip games={games} selected={gid} onSelect={setGid} />}
+        {games && games.length > 0 && <GameStrip games={games} selected={gid} onSelect={setGid} />}
 
-      {detail && (
-        <Tabs defaultValue="game" key={detail.gid}>
-          <TabsList>
-            <TabsTrigger value="game">Game</TabsTrigger>
-            <TabsTrigger value="models">Six models</TabsTrigger>
-            <TabsTrigger value="teams">Teams and injuries</TabsTrigger>
-            <TabsTrigger value="about">About these numbers</TabsTrigger>
-          </TabsList>
-          <TabsContent value="game"><Overview d={detail} /></TabsContent>
-          <TabsContent value="models"><Models d={detail} /></TabsContent>
-          <TabsContent value="teams"><Matchup d={detail} /></TabsContent>
-          <TabsContent value="about"><About meta={meta} /></TabsContent>
-        </Tabs>
-      )}
-    </div>
+        <main id="main" className="mt-5">
+          {detail && (
+            <Tabs defaultValue="game" key={detail.gid}>
+              <TabsList aria-label="Game views">
+                {tab("game", "Game", "Game", CircleDot)}
+                {tab("models", "Six models", "Models", Layers)}
+                {tab("teams", "Teams and injuries", "Teams", Users)}
+                {tab("about", "About these numbers", "About", BookOpen)}
+              </TabsList>
+              <TabsContent value="game"><Overview d={detail} /></TabsContent>
+              <TabsContent value="models"><Models d={detail} /></TabsContent>
+              <TabsContent value="teams"><Matchup d={detail} /></TabsContent>
+              <TabsContent value="about"><About meta={meta} /></TabsContent>
+            </Tabs>
+          )}
+        </main>
+      </div>
+    </>
   );
 }
