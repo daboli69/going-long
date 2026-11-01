@@ -198,7 +198,10 @@ def frozen_commit(path: Path) -> str:
 
 def evaluate(out: Path, tuned_path: Path) -> dict:
     tuned = json.loads(tuned_path.read_text(encoding="utf-8"))
-    commit = frozen_commit(tuned_path)
+    committed = ROOT / "docs" / "luck_tuned.json"
+    commit = frozen_commit(committed)
+    if tuned_path.resolve() != committed.resolve() and sha256_of(tuned_path) != sha256_of(committed):
+        raise SystemExit("the tuned settings rebuilt in this run differ from the committed docs/luck_tuned.json")
     num = lambda x: float("inf") if x == "inf" else float(x)
     new, ctl = tuned["new"]["chosen"], tuned["same_plays_no_luck_removal"]["chosen"]
     P = LS.Panel(last_season=LS.LAST)

@@ -1,0 +1,463 @@
+{
+ "tuned_commit": "98fc23e15dc112c3a088713ff7a6d1a17a492fd6",
+ "tuned_sha256": "20a20d5aff010715cd27c8aea03650a0d395018e84ec17348617b3d03c4de4bb",
+ "games": 3756,
+ "weeks": 250,
+ "chosen": {
+  "new": {
+   "k": 300.0,
+   "lam": 250.0,
+   "H": "inf",
+   "q": 0.0,
+   "rho": 0.5,
+   "crps": 7.995411100466087,
+   "crps_total": 7.530406418867393
+  },
+  "same_plays": {
+   "k": 0.0,
+   "lam": 250.0,
+   "H": "inf",
+   "q": 0.0,
+   "rho": 0.65,
+   "crps": 7.990491167132081,
+   "crps_total": 7.550327648181965
+  },
+  "elo": {
+   "K": 10.0,
+   "revert": 0.5,
+   "hfa": 40.0,
+   "crps": 7.9907824324822005
+  }
+ },
+ "code_files": {
+  "lab/luck_strength.py": "02f5a6868359385d20a0e6eac5e4130f3d4fffca16d486ef06c896129deb6a7a",
+  "lab/luck_eval.py": "cce1ff2f89168fb699455226a415f8cfe641b67ad4f8df45e451787bf0e55a8a",
+  "lab/luck_elo.py": "1a478cb6734552ac60306c6c1eeae4cf512c923fe561621a18ee0d580624cc3e",
+  "scripts/luck_run.py": "1ac38c997bf164303fe059f2a409a90fb498cf9db0978d9c55499d588ac9779c"
+ },
+ "means": {
+  "new": {
+   "margin": 7.601625876559784,
+   "total": 7.680952077041632,
+   "logloss": 0.6459841897777754,
+   "brier": 0.22715675622895473
+  },
+  "elo": {
+   "margin": 7.4633239664405036,
+   "total": 7.822964496357496,
+   "logloss": 0.6338009067002854,
+   "brier": 0.22156252352795805
+  },
+  "same_plays": {
+   "margin": 7.530871305971598,
+   "total": 7.673446836518716,
+   "logloss": 0.6408564019054197,
+   "brier": 0.22477547557020677
+  },
+  "current": {
+   "margin": 7.518837161986549,
+   "total": 7.666016270215434,
+   "logloss": 0.6387707350545669,
+   "brier": 0.22400745401435296
+  }
+ },
+ "comparisons": {
+  "C1": {
+   "vs": "current",
+   "metric": "margin_crps",
+   "mean": 0.08278871457323529,
+   "lo": 0.031588552934836873,
+   "hi": 0.13686322723244532,
+   "weeks": 250,
+   "games": 3756,
+   "dm": {
+    "stat": 3.03242737401791,
+    "p": 0.0024259546631564266,
+    "weeks": 250
+   },
+   "seasons": {
+    "better_in": 4,
+    "of": 15,
+    "by_season": {
+     "2012": false,
+     "2013": false,
+     "2014": false,
+     "2015": false,
+     "2016": false,
+     "2017": false,
+     "2018": false,
+     "2019": false,
+     "2020": true,
+     "2021": false,
+     "2022": true,
+     "2023": false,
+     "2024": false,
+     "2025": true,
+     "2026": true
+    }
+   }
+  },
+  "C2": {
+   "vs": "elo",
+   "metric": "margin_crps",
+   "mean": 0.13830191011928172,
+   "lo": 0.09138346925542222,
+   "hi": 0.18543334891786079,
+   "weeks": 250,
+   "games": 3756,
+   "dm": {
+    "stat": 5.666446225221952,
+    "p": 1.4578955598310017e-08,
+    "weeks": 250
+   },
+   "seasons": {
+    "better_in": 0,
+    "of": 15,
+    "by_season": {
+     "2012": false,
+     "2013": false,
+     "2014": false,
+     "2015": false,
+     "2016": false,
+     "2017": false,
+     "2018": false,
+     "2019": false,
+     "2020": false,
+     "2021": false,
+     "2022": false,
+     "2023": false,
+     "2024": false,
+     "2025": false,
+     "2026": false
+    }
+   }
+  },
+  "C3": {
+   "vs": "same_plays",
+   "metric": "margin_crps",
+   "mean": 0.07075457058818581,
+   "lo": 0.03787464030315009,
+   "hi": 0.10273102027665461,
+   "weeks": 250,
+   "games": 3756,
+   "dm": {
+    "stat": 4.13983000802176,
+    "p": 3.475632783311866e-05,
+    "weeks": 250
+   },
+   "seasons": {
+    "better_in": 4,
+    "of": 15,
+    "by_season": {
+     "2012": false,
+     "2013": false,
+     "2014": false,
+     "2015": false,
+     "2016": true,
+     "2017": false,
+     "2018": false,
+     "2019": false,
+     "2020": false,
+     "2021": true,
+     "2022": false,
+     "2023": false,
+     "2024": false,
+     "2025": true,
+     "2026": true
+    }
+   }
+  },
+  "S_total_vs_current": {
+   "vs": "current",
+   "metric": "total",
+   "mean": 0.014935806826199749,
+   "lo": -0.026465643268059703,
+   "hi": 0.06037076917336049,
+   "weeks": 250,
+   "games": 3756,
+   "dm": {
+    "stat": 0.6083851983368054,
+    "p": 0.5429320261455479,
+    "weeks": 250
+   }
+  },
+  "S_logloss_vs_current": {
+   "vs": "current",
+   "metric": "logloss",
+   "mean": 0.007213454723208527,
+   "lo": 0.001489770108912519,
+   "hi": 0.0128888430950376,
+   "weeks": 250,
+   "games": 3756,
+   "dm": {
+    "stat": 2.5000762877347595,
+    "p": 0.012416656517889813,
+    "weeks": 250
+   }
+  },
+  "S_brier_vs_current": {
+   "vs": "current",
+   "metric": "brier",
+   "mean": 0.0031493022146017852,
+   "lo": 0.0005337104998203871,
+   "hi": 0.005753821810895357,
+   "weeks": 250,
+   "games": 3756,
+   "dm": {
+    "stat": 2.4407261211163607,
+    "p": 0.014657766353443957,
+    "weeks": 250
+   }
+  },
+  "S_total_vs_elo": {
+   "vs": "elo",
+   "metric": "total",
+   "mean": -0.14201241931586434,
+   "lo": -0.1905235149300953,
+   "hi": -0.09419106046115634,
+   "weeks": 250,
+   "games": 3756,
+   "dm": {
+    "stat": -4.810455907236563,
+    "p": 1.505864211770458e-06,
+    "weeks": 250
+   }
+  },
+  "S_logloss_vs_elo": {
+   "vs": "elo",
+   "metric": "logloss",
+   "mean": 0.012183283077490038,
+   "lo": 0.0073783777580977965,
+   "hi": 0.01694623851716645,
+   "weeks": 250,
+   "games": 3756,
+   "dm": {
+    "stat": 4.641608866939999,
+    "p": 3.4570679607881516e-06,
+    "weeks": 250
+   }
+  },
+  "S_brier_vs_elo": {
+   "vs": "elo",
+   "metric": "brier",
+   "mean": 0.005594232700996689,
+   "lo": 0.003433278078450904,
+   "hi": 0.007750870860797717,
+   "weeks": 250,
+   "games": 3756,
+   "dm": {
+    "stat": 4.8228850761060995,
+    "p": 1.4149650457984109e-06,
+    "weeks": 250
+   }
+  }
+ },
+ "holm_adjusted_dm_p": {
+  "C2": 2.9157911196620034e-08,
+  "C1": 0.0024259546631564266
+ },
+ "calibration": {
+  "new": {
+   "margin_cov80": 0.8061767838125665,
+   "total_cov80": 0.8021831735889244,
+   "pit_margin": [
+    350,
+    334,
+    402,
+    406,
+    445,
+    418,
+    387,
+    323,
+    313,
+    378
+   ],
+   "brier_decomposition": {
+    "brier": 0.22715675622895473,
+    "reliability": 0.0006416480225732449,
+    "resolution": 0.01967836864051003,
+    "uncertainty": 0.24735963813950218
+   }
+  },
+  "elo": {
+   "margin_cov80": 0.8037806176783813,
+   "total_cov80": 0.799520766773163,
+   "pit_margin": [
+    356,
+    342,
+    361,
+    446,
+    436,
+    408,
+    405,
+    312,
+    309,
+    381
+   ],
+   "brier_decomposition": {
+    "brier": 0.22156252352795805,
+    "reliability": 0.001380902601965023,
+    "resolution": 0.025832664740445127,
+    "uncertainty": 0.24735963813950218
+   }
+  },
+  "same_plays": {
+   "margin_cov80": 0.8027156549520766,
+   "total_cov80": 0.8027156549520766,
+   "pit_margin": [
+    356,
+    323,
+    385,
+    429,
+    446,
+    396,
+    402,
+    345,
+    289,
+    385
+   ],
+   "brier_decomposition": {
+    "brier": 0.22477547557020677,
+    "reliability": 0.0007390437032685882,
+    "resolution": 0.022314779706689134,
+    "uncertainty": 0.24735963813950218
+   }
+  },
+  "current": {
+   "margin_cov80": 0.7894036208732694,
+   "total_cov80": 0.7933972310969116,
+   "pit_margin": [
+    380,
+    335,
+    364,
+    432,
+    426,
+    397,
+    372,
+    334,
+    305,
+    411
+   ],
+   "brier_decomposition": {
+    "brier": 0.22400745401435296,
+    "reliability": 0.00028138974216223857,
+    "resolution": 0.023111628144461112,
+    "uncertainty": 0.24735963813950218
+   }
+  }
+ },
+ "placebo_vs_current": {
+  "mean_diff": 0.9384982300398542,
+  "lo": 0.857898651450012,
+  "hi": 1.022876098219971,
+  "shuffles": 200
+ },
+ "M1_closing_line": {
+  "games": 3756,
+  "weights_by_season": {
+   "2012": {
+    "logit_weight": -0.15000000000000008,
+    "margin_weight": 0.09045081803189033,
+    "games_fit": 1023
+   },
+   "2013": {
+    "logit_weight": -0.30000000000000004,
+    "margin_weight": -0.0938560069641699,
+    "games_fit": 1278
+   },
+   "2014": {
+    "logit_weight": -0.4,
+    "margin_weight": -0.14357979758729122,
+    "games_fit": 1533
+   },
+   "2015": {
+    "logit_weight": -0.4,
+    "margin_weight": -0.1514225905965343,
+    "games_fit": 1788
+   },
+   "2016": {
+    "logit_weight": -0.30000000000000004,
+    "margin_weight": -0.12332221100052201,
+    "games_fit": 2044
+   },
+   "2017": {
+    "logit_weight": -0.30000000000000004,
+    "margin_weight": -0.0999499986835002,
+    "games_fit": 2298
+   },
+   "2018": {
+    "logit_weight": -0.30000000000000004,
+    "margin_weight": -0.13931135105174694,
+    "games_fit": 2554
+   },
+   "2019": {
+    "logit_weight": -0.25000000000000006,
+    "margin_weight": -0.11480980744477301,
+    "games_fit": 2808
+   },
+   "2020": {
+    "logit_weight": -0.30000000000000004,
+    "margin_weight": -0.11160100733990366,
+    "games_fit": 3063
+   },
+   "2021": {
+    "logit_weight": -0.25000000000000006,
+    "margin_weight": -0.07407271753874543,
+    "games_fit": 3318
+   },
+   "2022": {
+    "logit_weight": -0.20000000000000007,
+    "margin_weight": -0.06428669141089204,
+    "games_fit": 3589
+   },
+   "2023": {
+    "logit_weight": -0.25000000000000006,
+    "margin_weight": -0.06389988807979374,
+    "games_fit": 3858
+   },
+   "2024": {
+    "logit_weight": -0.25000000000000006,
+    "margin_weight": -0.07962281540821545,
+    "games_fit": 4130
+   },
+   "2025": {
+    "logit_weight": -0.30000000000000004,
+    "margin_weight": -0.10420004210609862,
+    "games_fit": 4402
+   },
+   "2026": {
+    "logit_weight": -0.30000000000000004,
+    "margin_weight": -0.10855515692490646,
+    "games_fit": 4673
+   }
+  },
+  "mean_logit_weight": -0.2833333333333333,
+  "logloss_blend_minus_line": {
+   "mean": -0.0014873777522846307,
+   "lo": -0.003150873230851012,
+   "hi": 0.00020838526672765613,
+   "weeks": 250,
+   "games": 3756
+  },
+  "margin_crps_blend_minus_line": {
+   "mean": 0.0005209715127854941,
+   "lo": -0.006543770583859814,
+   "hi": 0.007318188819154886,
+   "weeks": 250,
+   "games": 3756
+  },
+  "line_logloss": 0.6121146721919007,
+  "line_margin_crps": 7.234797417186823,
+  "new_alone_logloss_same_games": 0.6459841897777754
+ },
+ "acceptance": {
+  "criteria": {
+   "1_C1_C2_ci_below_zero_after_holm_and_gain_ge_0.035": false,
+   "2_logloss_not_worse_than_current_by_more_than_0.002": false,
+   "3_coverage_margin_and_total_75_to_85": true,
+   "4_better_than_current_in_9_of_15_seasons": false,
+   "5_placebo_no_gain_and_canary_flagged": true
+  },
+  "challenger": false
+ }
+}
