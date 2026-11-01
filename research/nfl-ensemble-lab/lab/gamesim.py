@@ -12,6 +12,7 @@ import hashlib
 import numpy as np
 import pandas as pd
 
+from . import allowed_usage as AL
 from . import gamecenter_data as D
 from . import gameweather
 from . import avail_source as AV
@@ -553,7 +554,8 @@ def _replacement(team: str, pos: str, week: int, season: int, taken: set, u, nam
     return max(cands, key=lambda c: (seen.get(c[0], 0), prod.get(c[0], 0.0)))[1]
 
 
-def team_players(team: str, week: int, out: dict, saved: list[dict], expected_points: float | None = None, season: int = D.SEASON):
+def team_players(team: str, week: int, out: dict, saved: list[dict], expected_points: float | None = None, season: int = D.SEASON,
+                 allowed_mults: dict | None = None):
     """Every player expected to touch the ball, with per-game projections after injuries.
 
     Volume and shares come from lab.usage (last six games before `week`; last season's for week 1). Saved projections,
@@ -701,6 +703,19 @@ def team_players(team: str, week: int, out: dict, saved: list[dict], expected_po
                 if r.get("carries"):
                     r["carries"] *= ratio
         label += f", scaled x{ratio:.2f} to the expected score"
+    if allowed_mults:
+        # What the opposing defense gives up to each position (lab/allowed_usage.py). Copies, so the shared saved projections stay as saved.
+        rows = [dict(r) for r in rows]
+        pos_of = dict(zip(p["name"], p["pos"]))
+        pos_of.update({nm: pid.split(":")[1] for pid, nm in new_names.items() if nm})
+        pass_f = AL.apply_to_rows(rows, pos_of, allowed_mults)["rec_yds"]
+        for r in rows:
+            if r["stat"] == "Passing yards":
+                for k in ("typical", "expected", "range_low", "range_high"):
+                    if r.get(k) is not None:
+                        r[k] *= pass_f
+                r["allowed_factor"] = pass_f
+        label += ", adjusted for what the opposing defense allows"
     name_pid = dict(zip(p["name"], p["pid"]))
     prof = X.profile(team, su, wk_used, [name_pid[n] for n in {r["player"] for r in rows} if n in name_pid])
     seen = set()
@@ -936,16 +951,24 @@ def simulate(gid: str, mode: str = "typical", draw: int = 0) -> dict | None:
     players, moves, gone, sources, inj_source = [], [], [], {}, None
     td_weights, fp_teams, rush_share, sampled, questionable = {}, {}, {}, {}, []
     rng_av = _rng(gid, f"avail|{game['mode']}|{game['draw']}")
+    allowed_rule = AL.load_rule()
+    allowed_view = []
     for t in (away, home):
         out_t, src = unavailable(t, week)
         inj_source = inj_source or src
         q_list, q_out = _questionable(t, week, game["mode"], rng_av)
         out_t = {**out_t, **q_out}
         questionable += q_list
-        rows, mv, sources[t], extra = team_players(t, week, out_t, saved, typical[t])
+        versus = home if t == away else away
+        am = AL.multipliers(versus, D.SEASON, week, allowed_rule)
+        if am:
+            allowed_view.append({"team": t, "versus": versus, "rows": AL.describe(am, versus)})
+        rows, mv, sources[t], extra = team_players(t, week, out_t, saved, typical[t], allowed_mults=am)
         flow = (max(game["points"][t], 1) / max(typical[t], 1)) ** 0.6 if game["mode"] != "typical" else 1.0
         ratio = _volume_ratio(t, week, D.SEASON, typical[t])
         sampled[t] = receiving_for_game(t, week, _out_pids(t, week, out_t), float(np.clip(ratio ** 0.6 * flow, 0.75, 1.35)), _rng(gid, f"recv|{game['mode']}|{game['draw']}|{t}"))
+        if sampled[t] and am:
+            AL.apply_to_sampled(sampled[t]["players"], am, _rng(gid, f"allowed|{game['mode']}|{game['draw']}|{t}"))
         td_weights[t], fp_teams[t] = extra["td_weights"], extra["fpds"]
         rush_share[t] = X.rush_td_share(t, D.SEASON, week)
         players += rows
@@ -961,6 +984,7 @@ def simulate(gid: str, mode: str = "typical", draw: int = 0) -> dict | None:
     out.update({"ok": True, "ranges": rng, "game": game, "own": own_out,
                 "replay": replay(gid, away, home, game["points"], players, ctx, td_weights, rush_share, volume, salt, sampled),
                 "receiving": {"model": "sampled" if all(sampled.get(t) for t in (away, home)) else "averaged"}, "questionable": questionable,
+                "allowed": {"applied": bool(allowed_view), "passed_gate": bool(allowed_rule.get("passed")), "teams": allowed_view},
                 "defense": defense_matchups(ctx, away, home) if not ctx.empty else [],
                 "source": {"margin": e.get("margin_label"), "total": e.get("total_label")}, "has_players": bool(players),
                 "players": players, "player_source": sources, "injury_moves": moves, "unavailable": gone, "injury_source": inj_source,

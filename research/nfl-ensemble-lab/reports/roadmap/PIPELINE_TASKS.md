@@ -13,6 +13,8 @@ Registered as written below, except each trigger's start time was saved as plain
 
 2026-11-01: the Weekly Score task also runs `scripts/coverage_check.py` last (approved by Travis). It re-tests whether defensive coverage mix (man, zone, Cover 1 to 6, blitz) improves receiving yard and catch predictions on completed 2025 and 2026 games, rewrites docs/COVERAGE_CHECK.md and docs/coverage_check.json, and saves data/cache/coverage_rule.json. Nothing reads that rule yet, so the simulation stays unchanged even if a family passes; a pass would be a prompt to wire it in. About 1 to 2 minutes.
 
+2026-11-01: the Weekly Score task also runs `scripts/allowed_check.py` last (approved by Travis). It re-tests whether what each defense allowed to a position (catches, yards, fantasy points, converted to stats) improves receiving and rushing predictions on completed 2025 and 2026 games, rewrites docs/ALLOWED_CHECK.md and docs/allowed_check.json, and saves data/cache/allowed_rule.json. Nothing reads that rule yet, so the simulation stays unchanged even if a variant passes. About 1 to 2 minutes.
+
 ## What exists today (measured by a read-only query of Windows Task Scheduler on 2026-10-30)
 
 | Task | Schedule | What it does |

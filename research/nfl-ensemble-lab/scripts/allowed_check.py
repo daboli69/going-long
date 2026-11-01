@@ -29,8 +29,9 @@ from lab.config import CACHE_DIR  # noqa: E402
 STATS = {"rec_yds": "Receiving yards", "rec": "Catches", "rush_yds": "Rushing yards"}
 TRAIN = ((2022, 3, 18), (2023, 3, 18), (2024, 3, 18))
 RIDGE = 0.05
-RULE_PATH = CACHE_DIR / "allowed_rule.json"
+RULE_PATH = A.RULE_PATH
 STAT_V, FP_V = "Stat allowed to the position", "Fantasy points allowed to the position"
+OWNER_APPLIES = True
 
 
 def stack(games, stat, allowed, opp, pos, positions):
@@ -86,7 +87,10 @@ def main():
             if all(r["tests"][k]["all"]["diff_hi"] < 0 for k in ("test_2025", "test_2026")):
                 rule.setdefault(stat, {})[name] = r["weights"]
         result["stats"][stat] = res
-    out = {"passed": bool(rule), "stats": rule, "created_at": pd.Timestamp.now(tz="UTC").isoformat()}
+    # Owner decision (Travis, 2026-11-01): the simulation applies the stat weights whether or not they pass the gate. `passed` records the test.
+    weights = {stat: result["stats"][stat][STAT_V]["weights"] for stat in A.STAT_COLS}
+    out = {"passed": bool(rule), "applied": OWNER_APPLIES, "applied_by": "owner decision 2026-11-01, regardless of the gate",
+           "weights": weights, "stats": rule, "created_at": pd.Timestamp.now(tz="UTC").isoformat()}
     RULE_PATH.write_text(json.dumps(out, indent=1), encoding="utf-8")
     (ROOT / "docs" / "allowed_check.json").write_text(json.dumps({"result": result, "rule": out}, indent=1, default=str), encoding="utf-8")
 
@@ -104,7 +108,9 @@ def main():
                 L.append(f"| {name} | {yr} | {t['player_games']} | {t['rmse_old']:.3f} | {t['rmse_new']:.3f} | {t['rmse_new'] - t['rmse_old']:+.3f} ({t['diff_lo']:+.3f} to {t['diff_hi']:+.3f}) | {'yes' if ok else 'no'} |")
         w = result["stats"][stat][STAT_V]["weights"]
         L += ["", "Fitted weights for the stat variant (change in a player's prediction per 100% gap to the league): " + ", ".join(f"{p} {v:+.2f}" for p, v in w.items()) + ".", ""]
-    L += ["A defense's numbers also reflect the offenses it has faced; the test does not adjust for that. Rows are each week's final export, used only for weeks before the game.", ""]
+    L += ["The simulation applies the stat weights whether or not they pass (owner decision, 2026-11-01); this report records whether they would have passed. "
+          "Each factor is held between 0.8 and 1.25.", "",
+          "A defense's numbers also reflect the offenses it has faced; the test does not adjust for that. Rows are each week's final export, used only for weeks before the game.", ""]
     (ROOT / "docs" / "ALLOWED_CHECK.md").write_text("\n".join(L), encoding="utf-8")
     print("\n".join(L))
     print("RULE passed:", out["passed"], {k: list(v) for k, v in rule.items()})

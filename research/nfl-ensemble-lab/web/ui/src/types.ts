@@ -155,6 +155,7 @@ export interface Sim {
   injury_source?: string | null;
   weather?: Weather;
   questionable?: { team: string; player: string; group: string; chance: number; plays: boolean }[];
+  allowed?: { applied: boolean; passed_gate: boolean; teams: { team: string; versus: string; rows: { defense: string; pos: string; stat: string; gap: number; factor: number }[] }[] };
   receiving?: { model: "sampled" | "averaged" };
   game?: { mode: "typical" | "random" | "upset"; draw: number; favorite: string; underdog: string; p_home: number; p_underdog: number; points: Record<string, number> };
   own?: { p_home: number; margin: number; total: number; home: number; away: number; sd_m: number; sd_t: number;

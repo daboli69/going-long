@@ -260,6 +260,37 @@ function Injuries({ sim }: { sim: Sim }) {
   );
 }
 
+const POS_NAME: Record<string, string> = { WR: "Wide receivers", TE: "Tight ends", RB: "Running backs", QB: "Quarterbacks" };
+const signed = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x * 100).toFixed(0)}%`;
+
+function AllowedCard({ sim }: { sim: Sim }) {
+  const a = sim.allowed;
+  if (!a?.teams.length) return null;
+  return (
+    <Card>
+      {a.teams.map((t) => {
+        const byPos = new Map<string, typeof t.rows>();
+        t.rows.forEach((r) => byPos.set(r.pos, [...(byPos.get(r.pos) ?? []), r]));
+        return (
+          <div key={t.team} className="border-b border-line py-2 text-base last:border-0">
+            <div className="text-white"><b>{t.team} offense</b> <span className="text-muted">against the {t.versus} defense</span></div>
+            {[...byPos.entries()].map(([pos, rs]) => (
+              <div key={pos} className="flex justify-between gap-3 py-0.5">
+                <span className="text-slate-300">{POS_NAME[pos] ?? pos}</span>
+                <span className="text-slate-300">{rs.map((r) => `${r.stat} ${signed(r.factor - 1)}`).join(" · ")}</span>
+              </div>
+            ))}
+          </div>
+        );
+      })}
+      <div className="mt-2 text-sm leading-relaxed text-muted">
+        The change applied to each player's number, from what the defense gave up to that position over its last six games compared with the league (FantasyPoints, converted to catches and yards).
+        {a.passed_gate ? "" : " On games the fit had not seen, this did not beat the plain projection, so treat it as context rather than a proven improvement."} It is applied by choice.
+      </div>
+    </Card>
+  );
+}
+
 function fpdsLine(r: PropRow): string | null {
   const f = r.fpds;
   if (!f || r.stat === "Passing yards") return null;
@@ -433,6 +464,12 @@ export function SimGame({ d }: { d: Detail }) {
       {(sim.players ?? []).length > 0 && (
         <Section title="Player projections" note={`Middle number, with the range 8 in 10 games land in where there are enough games to measure it. ${fpdsNote(sim)}`}>
           <Spotlight sim={sim} d={d} />
+        </Section>
+      )}
+
+      {(sim.allowed?.teams ?? []).length > 0 && (
+        <Section title="What each defense gives up" note="How the opposing defense moves each position's numbers in the player projections and the replay.">
+          <AllowedCard sim={sim} />
         </Section>
       )}
 

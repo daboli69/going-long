@@ -37,4 +37,6 @@ Fitted weights for the stat variant (change in a player's prediction per 100% ga
 
 Fitted weights for the stat variant (change in a player's prediction per 100% gap to the league): RB +0.47, QB +0.04.
 
+The simulation applies the stat weights whether or not they pass (owner decision, 2026-11-01); this report records whether they would have passed. Each factor is held between 0.8 and 1.25.
+
 A defense's numbers also reflect the offenses it has faced; the test does not adjust for that. Rows are each week's final export, used only for weeks before the game.
