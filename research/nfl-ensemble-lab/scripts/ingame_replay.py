@@ -127,6 +127,54 @@ def final_check(snap) -> list[dict]:
     return bad
 
 
+STAT_KEY = {"Receiving yards": "rec_yds", "Rushing yards": "rush_yds", "Passing yards": "pass_yds"}
+
+
+def feed_consistency(raw: dict, snap: dict) -> list[dict]:
+    """Not an outside check (same feed): do the play list and the box score agree on each team's pass attempts and rushes?"""
+    drv = raw.get("drives") or {}
+    plays = [p for d in (drv.get("previous") or []) + ([drv["current"]] if drv.get("current") else []) for p in d.get("plays") or []]
+    team_by_id = {c["team"]["id"]: F.normalize_team(c["team"]["abbreviation"]) for c in raw["header"]["competitions"][0]["competitors"]}
+    cnt = {t: {"pass": 0, "rush": 0} for t in team_by_id.values()}
+    for p in plays:
+        ty = (p.get("type") or {}).get("text", "")
+        tid = ((p.get("start") or {}).get("team") or {}).get("id")
+        t = team_by_id.get(tid)
+        if t is None or p.get("isPenalty") or "Penalty" in ty:
+            continue
+        txt = p.get("text", "")
+        if ty in ("Pass Reception", "Pass Incompletion", "Passing Touchdown", "Pass Interception Return", "Interception Return Touchdown") or (ty.startswith("Pass") and "sacked" not in txt):
+            cnt[t]["pass"] += 1
+        elif ty in ("Rush", "Rushing Touchdown") and "kneel" not in txt.lower():
+            cnt[t]["rush"] += 1
+    return [{"team": t, "box": snap["team_attempts"].get(t), "plays": c} for t, c in cnt.items() if snap["team_attempts"].get(t) != c]
+
+
+def score_props(gid: str, tl: list[dict], last: dict) -> dict:
+    """The app's frozen projection against the finished box score, and the same projection shifted by the live update at 30 and 40 minutes."""
+    fr = json.loads((F.FROZEN / f"{gid}.json").read_text(encoding="utf-8"))["projection"]["props"]
+    final = {(S._norm(n), t): v for (t, n), v in last["players"].items()}
+    out = {}
+    for el in (1800, 2400):
+        snapx = min((r for r in tl if r.get("players") and r["elapsed"] is not None and r["elapsed"] <= el), key=lambda r: abs(r["elapsed"] - el), default=None)
+        if snapx is None:
+            continue
+        upd = {(S._norm(p["name"]), p["team"], p["stat"]): p for p in snapx["players"]}
+        rows = []
+        for r in fr:
+            key = STAT_KEY.get(r["stat"])
+            f = final.get((S._norm(r["player"]), r["team"]))
+            m = upd.get((S._norm(r["player"]), r["team"], r["stat"]))
+            if key is None or f is None or m is None or f.get(key) is None or not r.get("typical") or not m["frozen"]:
+                continue
+            app = float(r["typical"])
+            rows.append((abs(app - f[key]), abs(app * m["updated"] / m["frozen"] - f[key]), abs(m["updated"] - f[key])))
+        if rows:
+            a = np.array(rows)
+            out[f"{el // 60}min"] = {"n": len(a), "mae_app_frozen": round(float(a[:, 0].mean()), 2), "mae_app_shifted_by_update": round(float(a[:, 1].mean()), 2), "mae_model_updated": round(float(a[:, 2].mean()), 2)}
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--event", nargs="*")
@@ -167,6 +215,11 @@ def main():
             row["frozen_before_kickoff"] = tl[0].get("frozen_before_kickoff")
             if a.final_check:
                 row["final_check"] = final_check(last)
+            row["feed_consistency_mismatches"] = feed_consistency(F.load(F.snapshots(eid)[-1][1]), last)
+            try:
+                row["prop_scores"] = score_props(tl[-1]["gid"], tl, last)
+            except FileNotFoundError:
+                row["prop_scores"] = "no frozen projection"
         report[eid] = row
         print(eid, json.dumps(row, default=float))
     (ROOT / "docs" / "ingame_replay.json").write_text(json.dumps(report, indent=1, default=float), encoding="utf-8")
