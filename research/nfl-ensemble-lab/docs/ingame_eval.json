@@ -1,0 +1,1351 @@
+{
+ "fit_seasons": [
+  2018,
+  2023
+ ],
+ "validation": {
+  "players": {
+   "rec@10min": {
+    "n": 2608,
+    "games": 272,
+    "crps_frozen": 17.309,
+    "crps_updated": 15.261,
+    "crps_gain": 2.048,
+    "gain_ci95": [
+     1.675,
+     2.456
+    ],
+    "mae_frozen": 25.98,
+    "mae_updated": 23.0,
+    "mae_pace": 33.97,
+    "brier_frozen": 0.2501,
+    "brier_updated": 0.208,
+    "brier_clock_only": 0.2188,
+    "crps_clock_only": 15.507,
+    "gain_vs_clock_only": 0.246,
+    "gain_vs_clock_only_ci95": [
+     -0.035,
+     0.551
+    ],
+    "mae_clock_only": 23.47
+   },
+   "rec@20min": {
+    "n": 2608,
+    "games": 272,
+    "crps_frozen": 17.271,
+    "crps_updated": 12.958,
+    "crps_gain": 4.314,
+    "gain_ci95": [
+     3.825,
+     4.81
+    ],
+    "mae_frozen": 25.96,
+    "mae_updated": 19.34,
+    "mae_pace": 24.0,
+    "brier_frozen": 0.2502,
+    "brier_updated": 0.1737,
+    "brier_clock_only": 0.1888,
+    "crps_clock_only": 13.534,
+    "gain_vs_clock_only": 0.576,
+    "gain_vs_clock_only_ci95": [
+     0.291,
+     0.87
+    ],
+    "mae_clock_only": 20.55
+   },
+   "rec@30min": {
+    "n": 2608,
+    "games": 272,
+    "crps_frozen": 17.275,
+    "crps_updated": 9.638,
+    "crps_gain": 7.637,
+    "gain_ci95": [
+     7.157,
+     8.122
+    ],
+    "mae_frozen": 25.99,
+    "mae_updated": 14.87,
+    "mae_pace": 17.08,
+    "brier_frozen": 0.25,
+    "brier_updated": 0.1272,
+    "brier_clock_only": 0.1387,
+    "crps_clock_only": 10.379,
+    "gain_vs_clock_only": 0.741,
+    "gain_vs_clock_only_ci95": [
+     0.517,
+     0.967
+    ],
+    "mae_clock_only": 16.51
+   },
+   "rec@40min": {
+    "n": 2608,
+    "games": 272,
+    "crps_frozen": 17.292,
+    "crps_updated": 7.349,
+    "crps_gain": 9.943,
+    "gain_ci95": [
+     9.469,
+     10.456
+    ],
+    "mae_frozen": 25.99,
+    "mae_updated": 11.27,
+    "mae_pace": 12.11,
+    "brier_frozen": 0.2501,
+    "brier_updated": 0.093,
+    "brier_clock_only": 0.1008,
+    "crps_clock_only": 7.922,
+    "gain_vs_clock_only": 0.573,
+    "gain_vs_clock_only_ci95": [
+     0.424,
+     0.728
+    ],
+    "mae_clock_only": 12.61
+   },
+   "rec@50min": {
+    "n": 2608,
+    "games": 272,
+    "crps_frozen": 17.297,
+    "crps_updated": 4.643,
+    "crps_gain": 12.654,
+    "gain_ci95": [
+     12.162,
+     13.147
+    ],
+    "mae_frozen": 26.0,
+    "mae_updated": 7.35,
+    "mae_pace": 7.58,
+    "brier_frozen": 0.2499,
+    "brier_updated": 0.051,
+    "brier_clock_only": 0.0528,
+    "crps_clock_only": 4.881,
+    "gain_vs_clock_only": 0.239,
+    "gain_vs_clock_only_ci95": [
+     0.163,
+     0.32
+    ],
+    "mae_clock_only": 8.13
+   },
+   "rush@10min": {
+    "n": 957,
+    "games": 272,
+    "crps_frozen": 20.066,
+    "crps_updated": 15.711,
+    "crps_gain": 4.355,
+    "gain_ci95": [
+     3.386,
+     5.301
+    ],
+    "mae_frozen": 29.74,
+    "mae_updated": 23.44,
+    "mae_pace": 33.97,
+    "brier_frozen": 0.2502,
+    "brier_updated": 0.1825,
+    "brier_clock_only": 0.2076,
+    "crps_clock_only": 17.496,
+    "gain_vs_clock_only": 1.785,
+    "gain_vs_clock_only_ci95": [
+     0.946,
+     2.635
+    ],
+    "mae_clock_only": 26.06
+   },
+   "rush@20min": {
+    "n": 957,
+    "games": 272,
+    "crps_frozen": 20.195,
+    "crps_updated": 12.196,
+    "crps_gain": 7.999,
+    "gain_ci95": [
+     7.186,
+     8.868
+    ],
+    "mae_frozen": 29.9,
+    "mae_updated": 17.87,
+    "mae_pace": 21.82,
+    "brier_frozen": 0.2507,
+    "brier_updated": 0.1338,
+    "brier_clock_only": 0.1609,
+    "crps_clock_only": 14.759,
+    "gain_vs_clock_only": 2.563,
+    "gain_vs_clock_only_ci95": [
+     1.924,
+     3.253
+    ],
+    "mae_clock_only": 22.38
+   },
+   "rush@30min": {
+    "n": 957,
+    "games": 272,
+    "crps_frozen": 20.08,
+    "crps_updated": 9.294,
+    "crps_gain": 10.787,
+    "gain_ci95": [
+     10.0,
+     11.644
+    ],
+    "mae_frozen": 29.73,
+    "mae_updated": 13.93,
+    "mae_pace": 15.64,
+    "brier_frozen": 0.2503,
+    "brier_updated": 0.0962,
+    "brier_clock_only": 0.1239,
+    "crps_clock_only": 11.63,
+    "gain_vs_clock_only": 2.337,
+    "gain_vs_clock_only_ci95": [
+     1.874,
+     2.807
+    ],
+    "mae_clock_only": 18.25
+   },
+   "rush@40min": {
+    "n": 957,
+    "games": 272,
+    "crps_frozen": 20.071,
+    "crps_updated": 7.303,
+    "crps_gain": 12.769,
+    "gain_ci95": [
+     12.017,
+     13.625
+    ],
+    "mae_frozen": 29.75,
+    "mae_updated": 10.99,
+    "mae_pace": 11.73,
+    "brier_frozen": 0.2507,
+    "brier_updated": 0.0744,
+    "brier_clock_only": 0.0851,
+    "crps_clock_only": 8.559,
+    "gain_vs_clock_only": 1.256,
+    "gain_vs_clock_only_ci95": [
+     0.94,
+     1.581
+    ],
+    "mae_clock_only": 13.74
+   },
+   "rush@50min": {
+    "n": 957,
+    "games": 272,
+    "crps_frozen": 20.183,
+    "crps_updated": 4.281,
+    "crps_gain": 15.902,
+    "gain_ci95": [
+     15.155,
+     16.715
+    ],
+    "mae_frozen": 29.8,
+    "mae_updated": 6.73,
+    "mae_pace": 6.98,
+    "brier_frozen": 0.2508,
+    "brier_updated": 0.0411,
+    "brier_clock_only": 0.0472,
+    "crps_clock_only": 4.781,
+    "gain_vs_clock_only": 0.5,
+    "gain_vs_clock_only_ci95": [
+     0.34,
+     0.66
+    ],
+    "mae_clock_only": 8.27
+   },
+   "pass@10min": {
+    "n": 618,
+    "games": 272,
+    "crps_frozen": 64.173,
+    "crps_updated": 32.503,
+    "crps_gain": 31.67,
+    "gain_ci95": [
+     27.568,
+     35.573
+    ],
+    "mae_frozen": 94.62,
+    "mae_updated": 48.95,
+    "mae_pace": 82.58,
+    "brier_frozen": 0.2501,
+    "brier_updated": 0.138,
+    "brier_clock_only": 0.2066,
+    "crps_clock_only": 56.314,
+    "gain_vs_clock_only": 23.811,
+    "gain_vs_clock_only_ci95": [
+     20.455,
+     27.167
+    ],
+    "mae_clock_only": 82.91
+   },
+   "pass@20min": {
+    "n": 618,
+    "games": 272,
+    "crps_frozen": 64.338,
+    "crps_updated": 26.347,
+    "crps_gain": 37.991,
+    "gain_ci95": [
+     33.593,
+     42.148
+    ],
+    "mae_frozen": 94.63,
+    "mae_updated": 38.95,
+    "mae_pace": 55.73,
+    "brier_frozen": 0.2502,
+    "brier_updated": 0.1204,
+    "brier_clock_only": 0.164,
+    "crps_clock_only": 48.015,
+    "gain_vs_clock_only": 21.668,
+    "gain_vs_clock_only_ci95": [
+     18.678,
+     24.615
+    ],
+    "mae_clock_only": 70.89
+   },
+   "pass@30min": {
+    "n": 618,
+    "games": 272,
+    "crps_frozen": 64.422,
+    "crps_updated": 22.058,
+    "crps_gain": 42.364,
+    "gain_ci95": [
+     37.773,
+     46.734
+    ],
+    "mae_frozen": 94.81,
+    "mae_updated": 31.95,
+    "mae_pace": 43.86,
+    "brier_frozen": 0.2502,
+    "brier_updated": 0.0998,
+    "brier_clock_only": 0.1182,
+    "crps_clock_only": 37.329,
+    "gain_vs_clock_only": 15.271,
+    "gain_vs_clock_only_ci95": [
+     12.919,
+     17.533
+    ],
+    "mae_clock_only": 55.56
+   },
+   "pass@40min": {
+    "n": 618,
+    "games": 272,
+    "crps_frozen": 64.33,
+    "crps_updated": 18.41,
+    "crps_gain": 45.92,
+    "gain_ci95": [
+     41.526,
+     50.112
+    ],
+    "mae_frozen": 94.88,
+    "mae_updated": 26.52,
+    "mae_pace": 32.56,
+    "brier_frozen": 0.25,
+    "brier_updated": 0.0863,
+    "brier_clock_only": 0.0938,
+    "crps_clock_only": 28.291,
+    "gain_vs_clock_only": 9.881,
+    "gain_vs_clock_only_ci95": [
+     8.296,
+     11.447
+    ],
+    "mae_clock_only": 42.65
+   },
+   "pass@50min": {
+    "n": 618,
+    "games": 272,
+    "crps_frozen": 64.463,
+    "crps_updated": 13.545,
+    "crps_gain": 50.919,
+    "gain_ci95": [
+     46.848,
+     54.959
+    ],
+    "mae_frozen": 94.87,
+    "mae_updated": 19.5,
+    "mae_pace": 22.5,
+    "brier_frozen": 0.2501,
+    "brier_updated": 0.0598,
+    "brier_clock_only": 0.0641,
+    "crps_clock_only": 18.208,
+    "gain_vs_clock_only": 4.663,
+    "gain_vs_clock_only_ci95": [
+     3.887,
+     5.462
+    ],
+    "mae_clock_only": 27.82
+   },
+   "all_checkpoints": {
+    "n": 20915,
+    "crps_gain": 13.105,
+    "ci95": [
+     12.355,
+     13.849
+    ],
+    "gain_vs_clock_only": [
+     2.907,
+     2.542,
+     3.263
+    ]
+   }
+  },
+  "game": {
+   "10min": {
+    "n": 272,
+    "brier_frozen": 0.2033,
+    "brier_updated": 0.1958,
+    "brier_nflfastR": 0.2296,
+    "gain_vs_frozen_ci95": [
+     0.0075,
+     -0.0077,
+     0.0219
+    ],
+    "gain_vs_nflfastR_ci95": [
+     0.0338,
+     0.0203,
+     0.047
+    ]
+   },
+   "20min": {
+    "n": 272,
+    "brier_frozen": 0.2033,
+    "brier_updated": 0.1799,
+    "brier_nflfastR": 0.208,
+    "gain_vs_frozen_ci95": [
+     0.0234,
+     0.0033,
+     0.0425
+    ],
+    "gain_vs_nflfastR_ci95": [
+     0.0281,
+     0.0169,
+     0.0389
+    ]
+   },
+   "30min": {
+    "n": 272,
+    "brier_frozen": 0.2033,
+    "brier_updated": 0.1455,
+    "brier_nflfastR": 0.1618,
+    "gain_vs_frozen_ci95": [
+     0.0578,
+     0.0354,
+     0.08
+    ],
+    "gain_vs_nflfastR_ci95": [
+     0.0164,
+     0.008,
+     0.0245
+    ]
+   },
+   "40min": {
+    "n": 272,
+    "brier_frozen": 0.2033,
+    "brier_updated": 0.1266,
+    "brier_nflfastR": 0.1362,
+    "gain_vs_frozen_ci95": [
+     0.0767,
+     0.0533,
+     0.1001
+    ],
+    "gain_vs_nflfastR_ci95": [
+     0.0095,
+     0.0024,
+     0.0169
+    ]
+   },
+   "50min": {
+    "n": 272,
+    "brier_frozen": 0.2033,
+    "brier_updated": 0.0857,
+    "brier_nflfastR": 0.0921,
+    "gain_vs_frozen_ci95": [
+     0.1176,
+     0.0953,
+     0.1386
+    ],
+    "gain_vs_nflfastR_ci95": [
+     0.0063,
+     0.0013,
+     0.0113
+    ]
+   }
+  },
+  "role_warnings": {
+   "p>=0.9 @30min": {
+    "warnings_per_game": 2.02,
+    "lower_n": 425,
+    "lower_precision": 0.953,
+    "higher_n": 125,
+    "higher_precision": 0.856,
+    "base_rate_lower": 0.468,
+    "base_rate_higher": 0.281
+   },
+   "p>=0.9 @40min": {
+    "warnings_per_game": 2.59,
+    "lower_n": 583,
+    "lower_precision": 0.928,
+    "higher_n": 121,
+    "higher_precision": 0.826,
+    "base_rate_lower": 0.492,
+    "base_rate_higher": 0.279
+   },
+   "p>=0.95 @30min": {
+    "warnings_per_game": 1.49,
+    "lower_n": 308,
+    "lower_precision": 0.981,
+    "higher_n": 96,
+    "higher_precision": 0.927,
+    "base_rate_lower": 0.468,
+    "base_rate_higher": 0.281
+   },
+   "p>=0.95 @40min": {
+    "warnings_per_game": 1.6,
+    "lower_n": 339,
+    "lower_precision": 0.971,
+    "higher_n": 97,
+    "higher_precision": 0.887,
+    "base_rate_lower": 0.492,
+    "base_rate_higher": 0.279
+   },
+   "p>=0.99 @30min": {
+    "warnings_per_game": 1.2,
+    "lower_n": 260,
+    "lower_precision": 0.988,
+    "higher_n": 66,
+    "higher_precision": 0.909,
+    "base_rate_lower": 0.468,
+    "base_rate_higher": 0.281
+   },
+   "p>=0.99 @40min": {
+    "warnings_per_game": 1.19,
+    "lower_n": 259,
+    "lower_precision": 0.981,
+    "higher_n": 66,
+    "higher_precision": 0.939,
+    "base_rate_lower": 0.492,
+    "base_rate_higher": 0.279
+   }
+  },
+  "reliability_updated": [
+   {
+    "bin": "0.0-0.1",
+    "n": 4097,
+    "predicted": 0.032,
+    "observed": 0.039
+   },
+   {
+    "bin": "0.1-0.2",
+    "n": 2001,
+    "predicted": 0.147,
+    "observed": 0.186
+   },
+   {
+    "bin": "0.2-0.3",
+    "n": 2090,
+    "predicted": 0.25,
+    "observed": 0.308
+   },
+   {
+    "bin": "0.3-0.4",
+    "n": 1853,
+    "predicted": 0.348,
+    "observed": 0.396
+   },
+   {
+    "bin": "0.4-0.5",
+    "n": 1209,
+    "predicted": 0.444,
+    "observed": 0.475
+   },
+   {
+    "bin": "0.5-0.6",
+    "n": 1124,
+    "predicted": 0.55,
+    "observed": 0.547
+   },
+   {
+    "bin": "0.6-0.7",
+    "n": 957,
+    "predicted": 0.65,
+    "observed": 0.627
+   },
+   {
+    "bin": "0.7-0.8",
+    "n": 827,
+    "predicted": 0.749,
+    "observed": 0.722
+   },
+   {
+    "bin": "0.8-0.9",
+    "n": 731,
+    "predicted": 0.846,
+    "observed": 0.765
+   },
+   {
+    "bin": "0.9-1.0",
+    "n": 6026,
+    "predicted": 0.994,
+    "observed": 0.989
+   }
+  ],
+  "reliability_frozen": [
+   {
+    "bin": "0.3-0.4",
+    "n": 2,
+    "predicted": 0.393,
+    "observed": 1.0
+   },
+   {
+    "bin": "0.4-0.5",
+    "n": 6758,
+    "predicted": 0.492,
+    "observed": 0.522
+   },
+   {
+    "bin": "0.5-0.6",
+    "n": 14155,
+    "predicted": 0.504,
+    "observed": 0.514
+   }
+  ],
+  "game_reliability_updated": [
+   {
+    "bin": "0.0-0.1",
+    "n": 173,
+    "predicted": 0.033,
+    "observed": 0.035
+   },
+   {
+    "bin": "0.1-0.2",
+    "n": 96,
+    "predicted": 0.151,
+    "observed": 0.115
+   },
+   {
+    "bin": "0.2-0.3",
+    "n": 87,
+    "predicted": 0.247,
+    "observed": 0.218
+   },
+   {
+    "bin": "0.3-0.4",
+    "n": 121,
+    "predicted": 0.351,
+    "observed": 0.322
+   },
+   {
+    "bin": "0.4-0.5",
+    "n": 120,
+    "predicted": 0.453,
+    "observed": 0.525
+   },
+   {
+    "bin": "0.5-0.6",
+    "n": 137,
+    "predicted": 0.556,
+    "observed": 0.54
+   },
+   {
+    "bin": "0.6-0.7",
+    "n": 142,
+    "predicted": 0.651,
+    "observed": 0.613
+   },
+   {
+    "bin": "0.7-0.8",
+    "n": 128,
+    "predicted": 0.753,
+    "observed": 0.703
+   },
+   {
+    "bin": "0.8-0.9",
+    "n": 119,
+    "predicted": 0.853,
+    "observed": 0.882
+   },
+   {
+    "bin": "0.9-1.0",
+    "n": 237,
+    "predicted": 0.969,
+    "observed": 0.975
+   }
+  ]
+ },
+ "test": {
+  "players": {
+   "rec@10min": {
+    "n": 3404,
+    "games": 380,
+    "crps_frozen": 16.978,
+    "crps_updated": 14.581,
+    "crps_gain": 2.397,
+    "gain_ci95": [
+     2.066,
+     2.738
+    ],
+    "mae_frozen": 26.27,
+    "mae_updated": 22.55,
+    "mae_pace": 32.73,
+    "brier_frozen": 0.25,
+    "brier_updated": 0.2066,
+    "brier_clock_only": 0.2168,
+    "crps_clock_only": 14.883,
+    "gain_vs_clock_only": 0.302,
+    "gain_vs_clock_only_ci95": [
+     0.059,
+     0.544
+    ],
+    "mae_clock_only": 23.07
+   },
+   "rec@20min": {
+    "n": 3404,
+    "games": 380,
+    "crps_frozen": 16.977,
+    "crps_updated": 12.204,
+    "crps_gain": 4.773,
+    "gain_ci95": [
+     4.412,
+     5.146
+    ],
+    "mae_frozen": 26.29,
+    "mae_updated": 18.63,
+    "mae_pace": 22.3,
+    "brier_frozen": 0.2498,
+    "brier_updated": 0.1679,
+    "brier_clock_only": 0.1832,
+    "crps_clock_only": 12.974,
+    "gain_vs_clock_only": 0.77,
+    "gain_vs_clock_only_ci95": [
+     0.547,
+     1.003
+    ],
+    "mae_clock_only": 20.08
+   },
+   "rec@30min": {
+    "n": 3404,
+    "games": 380,
+    "crps_frozen": 16.937,
+    "crps_updated": 9.496,
+    "crps_gain": 7.442,
+    "gain_ci95": [
+     7.051,
+     7.838
+    ],
+    "mae_frozen": 26.25,
+    "mae_updated": 14.75,
+    "mae_pace": 16.98,
+    "brier_frozen": 0.25,
+    "brier_updated": 0.1226,
+    "brier_clock_only": 0.1369,
+    "crps_clock_only": 10.129,
+    "gain_vs_clock_only": 0.634,
+    "gain_vs_clock_only_ci95": [
+     0.446,
+     0.809
+    ],
+    "mae_clock_only": 16.32
+   },
+   "rec@40min": {
+    "n": 3404,
+    "games": 380,
+    "crps_frozen": 16.986,
+    "crps_updated": 7.231,
+    "crps_gain": 9.755,
+    "gain_ci95": [
+     9.352,
+     10.198
+    ],
+    "mae_frozen": 26.25,
+    "mae_updated": 11.27,
+    "mae_pace": 12.17,
+    "brier_frozen": 0.25,
+    "brier_updated": 0.0928,
+    "brier_clock_only": 0.1013,
+    "crps_clock_only": 7.764,
+    "gain_vs_clock_only": 0.532,
+    "gain_vs_clock_only_ci95": [
+     0.405,
+     0.662
+    ],
+    "mae_clock_only": 12.67
+   },
+   "rec@50min": {
+    "n": 3404,
+    "games": 380,
+    "crps_frozen": 16.979,
+    "crps_updated": 4.631,
+    "crps_gain": 12.348,
+    "gain_ci95": [
+     11.9,
+     12.827
+    ],
+    "mae_frozen": 26.22,
+    "mae_updated": 7.31,
+    "mae_pace": 7.52,
+    "brier_frozen": 0.2499,
+    "brier_updated": 0.0535,
+    "brier_clock_only": 0.056,
+    "crps_clock_only": 4.839,
+    "gain_vs_clock_only": 0.209,
+    "gain_vs_clock_only_ci95": [
+     0.137,
+     0.284
+    ],
+    "mae_clock_only": 8.11
+   },
+   "rush@10min": {
+    "n": 1274,
+    "games": 380,
+    "crps_frozen": 19.398,
+    "crps_updated": 15.844,
+    "crps_gain": 3.554,
+    "gain_ci95": [
+     2.705,
+     4.385
+    ],
+    "mae_frozen": 28.32,
+    "mae_updated": 23.4,
+    "mae_pace": 33.36,
+    "brier_frozen": 0.2506,
+    "brier_updated": 0.1874,
+    "brier_clock_only": 0.2109,
+    "crps_clock_only": 16.783,
+    "gain_vs_clock_only": 0.939,
+    "gain_vs_clock_only_ci95": [
+     0.224,
+     1.657
+    ],
+    "mae_clock_only": 24.93
+   },
+   "rush@20min": {
+    "n": 1274,
+    "games": 380,
+    "crps_frozen": 19.429,
+    "crps_updated": 12.416,
+    "crps_gain": 7.013,
+    "gain_ci95": [
+     6.252,
+     7.74
+    ],
+    "mae_frozen": 28.4,
+    "mae_updated": 18.34,
+    "mae_pace": 21.79,
+    "brier_frozen": 0.251,
+    "brier_updated": 0.1366,
+    "brier_clock_only": 0.1678,
+    "crps_clock_only": 14.208,
+    "gain_vs_clock_only": 1.792,
+    "gain_vs_clock_only_ci95": [
+     1.256,
+     2.32
+    ],
+    "mae_clock_only": 21.55
+   },
+   "rush@30min": {
+    "n": 1274,
+    "games": 380,
+    "crps_frozen": 19.446,
+    "crps_updated": 9.533,
+    "crps_gain": 9.914,
+    "gain_ci95": [
+     9.263,
+     10.614
+    ],
+    "mae_frozen": 28.42,
+    "mae_updated": 13.96,
+    "mae_pace": 15.45,
+    "brier_frozen": 0.2509,
+    "brier_updated": 0.1027,
+    "brier_clock_only": 0.1303,
+    "crps_clock_only": 11.295,
+    "gain_vs_clock_only": 1.763,
+    "gain_vs_clock_only_ci95": [
+     1.388,
+     2.144
+    ],
+    "mae_clock_only": 17.45
+   },
+   "rush@40min": {
+    "n": 1274,
+    "games": 380,
+    "crps_frozen": 19.5,
+    "crps_updated": 7.477,
+    "crps_gain": 12.023,
+    "gain_ci95": [
+     11.351,
+     12.731
+    ],
+    "mae_frozen": 28.55,
+    "mae_updated": 11.07,
+    "mae_pace": 11.47,
+    "brier_frozen": 0.2509,
+    "brier_updated": 0.0775,
+    "brier_clock_only": 0.0926,
+    "crps_clock_only": 8.397,
+    "gain_vs_clock_only": 0.919,
+    "gain_vs_clock_only_ci95": [
+     0.667,
+     1.178
+    ],
+    "mae_clock_only": 13.29
+   },
+   "rush@50min": {
+    "n": 1274,
+    "games": 380,
+    "crps_frozen": 19.429,
+    "crps_updated": 4.593,
+    "crps_gain": 14.836,
+    "gain_ci95": [
+     14.136,
+     15.544
+    ],
+    "mae_frozen": 28.48,
+    "mae_updated": 7.16,
+    "mae_pace": 7.18,
+    "brier_frozen": 0.2508,
+    "brier_updated": 0.0424,
+    "brier_clock_only": 0.047,
+    "crps_clock_only": 4.939,
+    "gain_vs_clock_only": 0.346,
+    "gain_vs_clock_only_ci95": [
+     0.227,
+     0.47
+    ],
+    "mae_clock_only": 8.32
+   },
+   "pass@10min": {
+    "n": 829,
+    "games": 379,
+    "crps_frozen": 60.947,
+    "crps_updated": 31.353,
+    "crps_gain": 29.594,
+    "gain_ci95": [
+     26.279,
+     32.908
+    ],
+    "mae_frozen": 89.41,
+    "mae_updated": 47.62,
+    "mae_pace": 86.53,
+    "brier_frozen": 0.25,
+    "brier_updated": 0.1401,
+    "brier_clock_only": 0.2101,
+    "crps_clock_only": 53.677,
+    "gain_vs_clock_only": 22.324,
+    "gain_vs_clock_only_ci95": [
+     19.594,
+     25.061
+    ],
+    "mae_clock_only": 78.66
+   },
+   "pass@20min": {
+    "n": 829,
+    "games": 379,
+    "crps_frozen": 61.257,
+    "crps_updated": 26.705,
+    "crps_gain": 34.552,
+    "gain_ci95": [
+     31.089,
+     38.105
+    ],
+    "mae_frozen": 89.69,
+    "mae_updated": 39.09,
+    "mae_pace": 60.65,
+    "brier_frozen": 0.2499,
+    "brier_updated": 0.1213,
+    "brier_clock_only": 0.1665,
+    "crps_clock_only": 46.166,
+    "gain_vs_clock_only": 19.462,
+    "gain_vs_clock_only_ci95": [
+     17.142,
+     21.808
+    ],
+    "mae_clock_only": 67.98
+   },
+   "pass@30min": {
+    "n": 829,
+    "games": 379,
+    "crps_frozen": 61.127,
+    "crps_updated": 21.958,
+    "crps_gain": 39.169,
+    "gain_ci95": [
+     35.59,
+     42.711
+    ],
+    "mae_frozen": 89.37,
+    "mae_updated": 31.57,
+    "mae_pace": 42.87,
+    "brier_frozen": 0.2499,
+    "brier_updated": 0.1027,
+    "brier_clock_only": 0.121,
+    "crps_clock_only": 35.768,
+    "gain_vs_clock_only": 13.809,
+    "gain_vs_clock_only_ci95": [
+     11.94,
+     15.724
+    ],
+    "mae_clock_only": 53.06
+   },
+   "pass@40min": {
+    "n": 829,
+    "games": 379,
+    "crps_frozen": 61.105,
+    "crps_updated": 17.936,
+    "crps_gain": 43.169,
+    "gain_ci95": [
+     39.779,
+     46.613
+    ],
+    "mae_frozen": 89.6,
+    "mae_updated": 25.94,
+    "mae_pace": 32.97,
+    "brier_frozen": 0.25,
+    "brier_updated": 0.0816,
+    "brier_clock_only": 0.0897,
+    "crps_clock_only": 27.515,
+    "gain_vs_clock_only": 9.579,
+    "gain_vs_clock_only_ci95": [
+     8.338,
+     10.846
+    ],
+    "mae_clock_only": 41.46
+   },
+   "pass@50min": {
+    "n": 829,
+    "games": 379,
+    "crps_frozen": 61.15,
+    "crps_updated": 13.671,
+    "crps_gain": 47.479,
+    "gain_ci95": [
+     44.157,
+     50.986
+    ],
+    "mae_frozen": 89.6,
+    "mae_updated": 19.75,
+    "mae_pace": 23.64,
+    "brier_frozen": 0.2501,
+    "brier_updated": 0.0658,
+    "brier_clock_only": 0.0663,
+    "crps_clock_only": 18.155,
+    "gain_vs_clock_only": 4.484,
+    "gain_vs_clock_only_ci95": [
+     3.837,
+     5.141
+    ],
+    "mae_clock_only": 27.79
+   },
+   "all_checkpoints": {
+    "n": 27535,
+    "crps_gain": 12.569,
+    "ci95": [
+     11.974,
+     13.217
+    ],
+    "gain_vs_clock_only": [
+     2.666,
+     2.374,
+     2.968
+    ]
+   }
+  },
+  "game": {
+   "10min": {
+    "n": 378,
+    "brier_frozen": 0.2176,
+    "brier_updated": 0.2075,
+    "brier_nflfastR": 0.2299,
+    "gain_vs_frozen_ci95": [
+     0.0102,
+     -0.0024,
+     0.0218
+    ],
+    "gain_vs_nflfastR_ci95": [
+     0.0225,
+     0.0098,
+     0.035
+    ]
+   },
+   "20min": {
+    "n": 378,
+    "brier_frozen": 0.2176,
+    "brier_updated": 0.2009,
+    "brier_nflfastR": 0.2142,
+    "gain_vs_frozen_ci95": [
+     0.0168,
+     -0.0005,
+     0.0341
+    ],
+    "gain_vs_nflfastR_ci95": [
+     0.0134,
+     0.0034,
+     0.0242
+    ]
+   },
+   "30min": {
+    "n": 378,
+    "brier_frozen": 0.2176,
+    "brier_updated": 0.1657,
+    "brier_nflfastR": 0.1737,
+    "gain_vs_frozen_ci95": [
+     0.0519,
+     0.0315,
+     0.0718
+    ],
+    "gain_vs_nflfastR_ci95": [
+     0.008,
+     0.0001,
+     0.016
+    ]
+   },
+   "40min": {
+    "n": 378,
+    "brier_frozen": 0.2176,
+    "brier_updated": 0.1496,
+    "brier_nflfastR": 0.1513,
+    "gain_vs_frozen_ci95": [
+     0.068,
+     0.045,
+     0.0907
+    ],
+    "gain_vs_nflfastR_ci95": [
+     0.0017,
+     -0.0044,
+     0.0077
+    ]
+   },
+   "50min": {
+    "n": 378,
+    "brier_frozen": 0.2176,
+    "brier_updated": 0.1228,
+    "brier_nflfastR": 0.1177,
+    "gain_vs_frozen_ci95": [
+     0.0948,
+     0.0698,
+     0.1194
+    ],
+    "gain_vs_nflfastR_ci95": [
+     -0.0051,
+     -0.0121,
+     0.0015
+    ]
+   }
+  },
+  "role_warnings": {
+   "p>=0.9 @30min": {
+    "warnings_per_game": 1.83,
+    "lower_n": 544,
+    "lower_precision": 0.952,
+    "higher_n": 150,
+    "higher_precision": 0.807,
+    "base_rate_lower": 0.471,
+    "base_rate_higher": 0.261
+   },
+   "p>=0.9 @40min": {
+    "warnings_per_game": 2.27,
+    "lower_n": 713,
+    "lower_precision": 0.954,
+    "higher_n": 151,
+    "higher_precision": 0.768,
+    "base_rate_lower": 0.494,
+    "base_rate_higher": 0.26
+   },
+   "p>=0.95 @30min": {
+    "warnings_per_game": 1.3,
+    "lower_n": 383,
+    "lower_precision": 0.984,
+    "higher_n": 108,
+    "higher_precision": 0.88,
+    "base_rate_lower": 0.471,
+    "base_rate_higher": 0.261
+   },
+   "p>=0.95 @40min": {
+    "warnings_per_game": 1.4,
+    "lower_n": 419,
+    "lower_precision": 0.986,
+    "higher_n": 112,
+    "higher_precision": 0.83,
+    "base_rate_lower": 0.494,
+    "base_rate_higher": 0.26
+   },
+   "p>=0.99 @30min": {
+    "warnings_per_game": 1.03,
+    "lower_n": 321,
+    "lower_precision": 0.984,
+    "higher_n": 71,
+    "higher_precision": 0.915,
+    "base_rate_lower": 0.471,
+    "base_rate_higher": 0.261
+   },
+   "p>=0.99 @40min": {
+    "warnings_per_game": 1.06,
+    "lower_n": 331,
+    "lower_precision": 0.991,
+    "higher_n": 70,
+    "higher_precision": 0.886,
+    "base_rate_lower": 0.494,
+    "base_rate_higher": 0.26
+   }
+  },
+  "reliability_updated": [
+   {
+    "bin": "0.0-0.1",
+    "n": 5452,
+    "predicted": 0.033,
+    "observed": 0.03
+   },
+   {
+    "bin": "0.1-0.2",
+    "n": 2932,
+    "predicted": 0.148,
+    "observed": 0.169
+   },
+   {
+    "bin": "0.2-0.3",
+    "n": 2841,
+    "predicted": 0.251,
+    "observed": 0.287
+   },
+   {
+    "bin": "0.3-0.4",
+    "n": 2455,
+    "predicted": 0.348,
+    "observed": 0.368
+   },
+   {
+    "bin": "0.4-0.5",
+    "n": 1782,
+    "predicted": 0.445,
+    "observed": 0.453
+   },
+   {
+    "bin": "0.5-0.6",
+    "n": 1475,
+    "predicted": 0.549,
+    "observed": 0.54
+   },
+   {
+    "bin": "0.6-0.7",
+    "n": 1296,
+    "predicted": 0.649,
+    "observed": 0.621
+   },
+   {
+    "bin": "0.7-0.8",
+    "n": 1106,
+    "predicted": 0.751,
+    "observed": 0.7
+   },
+   {
+    "bin": "0.8-0.9",
+    "n": 943,
+    "predicted": 0.848,
+    "observed": 0.779
+   },
+   {
+    "bin": "0.9-1.0",
+    "n": 7253,
+    "predicted": 0.993,
+    "observed": 0.988
+   }
+  ],
+  "reliability_frozen": [
+   {
+    "bin": "0.4-0.5",
+    "n": 8719,
+    "predicted": 0.492,
+    "observed": 0.496
+   },
+   {
+    "bin": "0.5-0.6",
+    "n": 18816,
+    "predicted": 0.504,
+    "observed": 0.486
+   }
+  ],
+  "game_reliability_updated": [
+   {
+    "bin": "0.0-0.1",
+    "n": 226,
+    "predicted": 0.03,
+    "observed": 0.088
+   },
+   {
+    "bin": "0.1-0.2",
+    "n": 142,
+    "predicted": 0.154,
+    "observed": 0.246
+   },
+   {
+    "bin": "0.2-0.3",
+    "n": 142,
+    "predicted": 0.254,
+    "observed": 0.282
+   },
+   {
+    "bin": "0.3-0.4",
+    "n": 184,
+    "predicted": 0.351,
+    "observed": 0.315
+   },
+   {
+    "bin": "0.4-0.5",
+    "n": 154,
+    "predicted": 0.451,
+    "observed": 0.403
+   },
+   {
+    "bin": "0.5-0.6",
+    "n": 162,
+    "predicted": 0.553,
+    "observed": 0.488
+   },
+   {
+    "bin": "0.6-0.7",
+    "n": 180,
+    "predicted": 0.653,
+    "observed": 0.628
+   },
+   {
+    "bin": "0.7-0.8",
+    "n": 187,
+    "predicted": 0.749,
+    "observed": 0.695
+   },
+   {
+    "bin": "0.8-0.9",
+    "n": 166,
+    "predicted": 0.846,
+    "observed": 0.795
+   },
+   {
+    "bin": "0.9-1.0",
+    "n": 347,
+    "predicted": 0.969,
+    "observed": 0.939
+   }
+  ]
+ },
+ "params": {
+  "kappa": {
+   "rec": 8.0,
+   "rush": 1.0,
+   "pass": 1.0
+  },
+  "m_eff": {
+   "rec": 120.0,
+   "rush": 250.0,
+   "pass": 120.0
+  },
+  "m_catch": 60.0,
+  "vol_theta": {
+   "pass": 20.989144464419542,
+   "rush": 19.00745330255047
+  },
+  "sigma_m": 13.638386811780816,
+  "gamma_ep": 0.764263737308698,
+  "vol_beta": {
+   "pass": [
+    19.3335,
+    0.5154,
+    -0.1749,
+    -1.1394
+   ],
+   "rush": [
+    12.5274,
+    0.5235,
+    0.044,
+    0.5857
+   ]
+  }
+ }
+}
