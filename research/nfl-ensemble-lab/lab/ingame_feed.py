@@ -253,7 +253,37 @@ def win_probability(snap: dict, pregame_margin: float, params: G.Params, M: int 
     return {"p_home": float((draws > 0).mean() + 0.5 * (draws == 0).mean()), "margin": draws, "ep_home": ep}
 
 
-def latest(gid: str, ctx=None) -> dict | None:
+SUMMARY = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary"
+FRESH_SECONDS = 15
+
+
+def _age_seconds(stamp: str) -> float:
+    t = pd.Timestamp(f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}T{stamp[9:11]}:{stamp[11:13]}:{stamp[13:15]}Z")
+    return (pd.Timestamp.now(tz="UTC") - t).total_seconds()
+
+
+def pull(eid: str) -> str | None:
+    """Fetch the game's summary from ESPN now and store it as a new snapshot when it differs from the newest stored one. Returns the new stamp, or None if
+    nothing changed or ESPN could not be reached (the caller keeps using the stored snapshot)."""
+    import requests
+    try:
+        raw = requests.get(SUMMARY, params={"event": eid}, timeout=10).content
+    except Exception:
+        return None
+    snaps = snapshots(eid)
+    if snaps:
+        with gzip.open(snaps[-1][1], "rb") as f:
+            if hashlib.sha256(f.read()).hexdigest() == hashlib.sha256(raw).hexdigest():
+                return None
+    stamp = pd.Timestamp.now(tz="UTC").strftime("%Y%m%dT%H%M%S")
+    d = CAPTURE / eid
+    d.mkdir(parents=True, exist_ok=True)
+    with gzip.open(d / f"{stamp}.json.gz", "wb") as f:
+        f.write(raw)
+    return stamp
+
+
+def latest(gid: str, ctx=None, refresh: bool = True) -> dict | None:
     """What the tracker shows for a game right now: the newest stored snapshot, updated players, role warnings, win chance and where the frozen numbers came from.
     None when no snapshot of this game has been captured."""
     ctx = ctx or live_context()
@@ -274,6 +304,11 @@ def latest(gid: str, ctx=None) -> dict | None:
         return None
     stamp, path = snaps[-1]
     snap = parse(load(path))
+    if refresh and snap["state"] != "post" and _age_seconds(stamp) > FRESH_SECONDS:      # the recorder may be off or between polls: ask ESPN directly
+        new = pull(eid)
+        if new:
+            stamp, path = new, CAPTURE / eid / f"{new}.json.gz"
+            snap = parse(load(path))
     fr = None
     f = FROZEN / f"{gid}.json"
     if f.exists():
@@ -282,7 +317,7 @@ def latest(gid: str, ctx=None) -> dict | None:
     wp = win_probability(snap, margin.get("margin"), ctx["params"]) if margin.get("margin") is not None else None
     rows = tracked_states(snap, ctx)
     keep = ("team", "name", "stat", "yards", "targets_or_carries", "team_attempts", "frozen", "updated", "low", "high", "share_pre", "share_post")
-    return {"gid": gid, "event": eid, "snapshot": stamp, "state": snap["state"], "period": snap["period"], "clock": snap["clock"], "score": snap["score"],
+    return {"gid": gid, "event": eid, "snapshot": stamp, "age_seconds": round(_age_seconds(stamp)), "state": snap["state"], "period": snap["period"], "clock": snap["clock"], "score": snap["score"],
             "possession": snap["possession"], "last_play": snap["last_play"], "win_chance_home": None if wp is None else wp["p_home"],
             "frozen": None if fr is None else {"sha256": fr["sha256"], "frozen_at": fr["frozen_at"], "before_kickoff": fr["before_kickoff"]},
             "players": [{k: r[k] for k in keep} for r in rows if r["seen"]], "warnings": [{k: r[k] for k in keep + ("kind",)} for r in warnings(rows)],

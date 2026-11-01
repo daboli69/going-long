@@ -219,7 +219,7 @@ export interface TdMarket { week: number; fee_rate: number; value_edge: number; 
 
 export type LiveRow = { team: string; name: string; stat: string; yards: number; targets_or_carries: number; team_attempts: number; frozen: number; updated: number; low: number; high: number; share_pre: number; share_post: number; kind?: string };
 export type Live = {
-  gid: string; event: string; snapshot: string; state: string; period: number | null; clock: number | null; score: { home: number; away: number };
+  gid: string; event: string; snapshot: string; age_seconds: number; state: string; period: number | null; clock: number | null; score: { home: number; away: number };
   possession: string | null; last_play: string | null; win_chance_home: number | null;
   frozen: { sha256: string; frozen_at: string; before_kickoff: boolean } | null;
   players: LiveRow[]; warnings: LiveRow[]; not_in_feed: string[];

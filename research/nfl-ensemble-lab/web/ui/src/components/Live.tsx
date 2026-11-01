@@ -5,10 +5,11 @@ import { cn, pct } from "../lib";
 import { Callout, FilterRow, Segmented } from "./ui/primitives";
 
 const STATS = ["Passing yards", "Rushing yards", "Receiving yards"];
-const COLS = "grid-cols-[minmax(0,1fr)_3.5em_3.5em_3.5em] sm:grid-cols-[minmax(0,1fr)_4.5em_4.5em_4.5em_7em]";
+const COLS = "grid-cols-[minmax(0,1fr)_4em_4.5em_4.5em] sm:grid-cols-[minmax(0,1fr)_5em_6em_6em_7em]";
+const NOUN: Record<string, string> = { "Passing yards": "pass attempts", "Rushing yards": "carries", "Receiving yards": "targets" };
 
 const clock = (s: number | null) => (s === null ? "" : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`);
-const when = (stamp: string) => `${stamp.slice(9, 11)}:${stamp.slice(11, 13)} UTC`;
+const ago = (s: number) => (s < 5 ? "just now" : s < 90 ? `${s} seconds ago` : `${Math.round(s / 60)} minutes ago`);
 
 function status(l: Live): string {
   if (l.state === "post") return "Final";
@@ -22,7 +23,7 @@ function Row({ r }: { r: LiveRow }) {
   return (
     <div role="row" className={cn("grid min-h-[48px] items-center gap-x-3 border-t border-bg py-2", COLS)}>
       <div role="cell" className="min-w-0 text-[15px]">{r.name} <span className="text-[13px] text-muted">{r.team}</span>
-        <span className="block text-[13px] text-muted">{r.targets_or_carries} so far</span></div>
+        <span className="block text-[13px] text-muted">{r.targets_or_carries} {r.targets_or_carries === 1 ? NOUN[r.stat].replace(/s$/, "") : NOUN[r.stat]} so far</span></div>
       <div role="cell" className="text-right text-[15px]">{r.yards.toFixed(0)}</div>
       <div role="cell" className="text-right text-[15px] text-muted">{r.frozen.toFixed(0)}</div>
       <div role="cell" className="text-right text-xl font-bold">{r.updated.toFixed(0)}
@@ -50,7 +51,7 @@ export function LiveGame({ d }: { d: Detail }) {
   useEffect(() => { setLoading(true); setLive(null); setMissing(false); setError(null); load(); }, [load]);
   useEffect(() => {
     if (live?.state !== "in") return;
-    const t = window.setInterval(load, 30000);
+    const t = window.setInterval(load, 15000);
     return () => window.clearInterval(t);
   }, [live?.state, load]);
 
@@ -72,8 +73,8 @@ export function LiveGame({ d }: { d: Detail }) {
           <div className="text-xl font-bold">{d.away} {live.score.away}, {d.home} {live.score.home}</div></div>
         <div className="bg-panel p-4"><div className="text-[13px] text-muted">Win chance now</div>
           <div className="text-xl font-bold">{homeP === null ? "Not available" : homeP >= 0.5 ? `${d.home} ${pct(homeP)}` : `${d.away} ${pct(1 - homeP)}`}</div></div>
-        <div className="bg-panel p-4"><div className="text-[13px] text-muted">Last snapshot</div>
-          <div className="text-xl font-bold">{when(live.snapshot)}</div></div>
+        <div className="bg-panel p-4"><div className="text-[13px] text-muted">Data from ESPN</div>
+          <div className="text-xl font-bold">{ago(live.age_seconds)}</div></div>
       </section>
       {live.last_play && <p className="text-[15px] text-muted">Last play: {live.last_play.trim()}</p>}
       {homeP === null && <Callout tone="amber">The win chance needs a frozen pregame margin for this game, and none was saved.</Callout>}
@@ -91,15 +92,15 @@ export function LiveGame({ d }: { d: Detail }) {
       <section aria-label={`${stat} live`} className="bg-panel p-4 sm:p-6">
         <div role="table" aria-label={`${stat}, live and pregame`}>
           <div role="row" className={cn("grid gap-x-3 text-[13px] text-muted", COLS)}>
-            <div role="columnheader">Player</div><div role="columnheader" className="text-right">Now</div>
-            <div role="columnheader" className="text-right">Pregame</div><div role="columnheader" className="text-right">Updated</div>
-            <div role="columnheader" className="hidden text-right sm:block">8 in 10 range</div>
+            <div role="columnheader">Player</div><div role="columnheader" className="text-right">Yards so far</div>
+            <div role="columnheader" className="text-right">Expected final, before kickoff</div><div role="columnheader" className="text-right">Expected final, now</div>
+            <div role="columnheader" className="hidden text-right sm:block">Final yards, 8 in 10 range</div>
           </div>
           {rows.length ? rows.map((r) => <Row key={`${r.team}${r.name}${r.stat}`} r={r} />) : <p role="row" className="py-4 text-sm text-muted">No tracked {stat.toLowerCase()} for this selection.</p>}
         </div>
       </section>
       <p className="max-w-[75ch] text-sm text-muted">
-        Updated is the final total the tracker expects, given the score, the clock and what each player has done so far. Pregame is the same model at kickoff.
+        Read each row left to right: the yards the player has so far, the yards the tracker expected him to finish with before kickoff, and the yards it expects now given the score, the clock and what he has done. The small number under the last column is the change since kickoff. The line under his name counts his targets, carries or pass attempts so far.
         {live.frozen && ` Pregame numbers were frozen ${live.frozen.before_kickoff ? "before" : "after"} kickoff (hash ${live.frozen.sha256.slice(0, 10)}).`}
         {live.frozen && !live.frozen.before_kickoff && " Frozen after kickoff, so this game is not a clean pregame test."}
         {" "}Snaps and routes are not in the live feed, so opportunity means targets, carries and pass attempts.
