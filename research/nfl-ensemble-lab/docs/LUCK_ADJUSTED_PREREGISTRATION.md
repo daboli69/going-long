@@ -145,4 +145,45 @@ None. Everything above is on disk. A third-party Elo reference was considered an
 
 ## Amendments
 
-None.
+### Amendment 1 (2026-11-01, committed with the builder, before any tuning and before any score on 2012 or later)
+
+Disclosure first. Between the pre-registration and this amendment I built the pipeline and ran it for smoke tests on the tuning window only
+(2008 to 2011): four settings at luck shrink k = 300, with and without luck removal, to confirm that the units and slopes are sane (strength-to-margin
+slope about 0.95, correlation with margin 0.39 against Elo's 0.40). Nothing from 2012 on was read by any run (the plain-text loaders stop at the
+tuning season). Those four runs are the only looks at model results so far.
+
+1. **Ridge grid changed.** The registered lambda grid (5, 15, 40, 100, 250 plays) is far below the natural scale: with a per-play variance of about 2.25 and a team
+   effect spread of about 0.06, sigma^2 over tau^2 is about 600 plays. The grid is now 40, 100, 250, 600, 1500. Still five values, 960 combinations in all.
+2. **Neutral sites.** The lab's saved Elo marks a game neutral when the stadium name differs from the home team's usual one, so Seattle's renamed stadium
+   made its last four 2020 home games neutral there. The lab's Elo is reproduced to 9.8e-7 over 3,770 games when that rule is used (`luck_checks.json`), so the
+   rebuild is faithful. In this study a game is neutral when the schedule says Neutral or the stadium id differs from the home team's usual one, which handles
+   renames and the 2012 Toronto game. The lab's rule is a small bug (79 games differ by more than 0.001 in Elo win probability); it is reported, not fixed here.
+3. **Closing-line reference check.** The closing-line win probability (normal, spread fitted on earlier seasons) is within 0.031 on average of the nflverse
+   pregame value (median 0.021). The gap is a steeper curve in nflverse. 25 of 3,771 nflverse first-play values sit on the wrong side (data defect). This is explained,
+   not a failure; the benchmark for M1 is the line with the spread fitted on earlier seasons' results.
+4. **Kicking.** Field goals and extra points are not in the pass or rush units, so their luck is excluded outright instead of shrunk. No separate kicking term.
+5. **Units and plays.** Pass = dropbacks (sacks and scrambles included); rush = designed runs. Kneels, spikes, penalty-only plays and special teams are out.
+   Garbage time is out (win probability before the snap under 0.05 or over 0.95). Playoffs are out everywhere.
+6. **Luck removal, as built.** Interception rate per dropback, red-zone EPA per play and fumble outcomes use the team's own plays in this season to date and the two before,
+   shrunk toward the league (as of the target week) with k plays of league-average value. A fumble play enters at the league-expected EPA given the league rate
+   of fumbles lost. An interception count is replaced by the shrunk rate times dropbacks at the league mean interception EPA. Red-zone plays (inside the 20, not turnovers)
+   enter at the shrunk team red-zone mean. The defense view of the same plays uses the defense's own history. With no luck removal the realized EPA per play is used.
+7. **Ridge.** Weights are plays times 0.5 to the power (age in weeks over the half-life), age counting weeks since the game plus 4 for each season boundary. Rows: this season and the
+   two before. Columns: intercept, home field (not neutral), offense effect and defense effect for every team, with lambda on the team effects only.
+8. **Kalman.** Observation for an offense state = the team's adjusted EPA per play minus the ridge intercept, home term and the opponent's ridge defense effect (the defense state
+   mirrors it), with variance equal to the ridge residual variance over the play count. Process variance per game = q times the residual variance over the league's average plays
+   per game. Prior variance = residual variance over lambda. At each new season the state is multiplied by rho and its variance moves toward the prior by 1 minus rho squared.
+   Opponent effects used for a week come from ridge fits on earlier weeks only.
+9. **Scores.** Margin = h x (not neutral) + b x strength gap, with no separate intercept (a would be unidentified with h). Strength is in points per game: each unit's rating times the league's
+   average plays per game for that unit as of the week. Total = c + d x the sum of all four units across both teams. Weekly weighted least squares over earlier games from 2003 on within three seasons,
+   the same half-life weights. Predictive spread = the weighted residual spread times the square root of one plus leverage, floored at 3 points.
+10. **Controls.** B (Elo): K in {10, 15, 20, 30}, reversion in {0.25, 0.33, 0.5}, home field in {40, 55, 70} Elo points, margin-of-victory multiplier on, mapped to margin by the same weekly
+    least squares (no decay); its total forecast is the weekly weighted mean total. C (same plays, no luck removal): the same grid without k, 320 combinations.
+11. **Ties in tuning.** Combinations within 0.1 standard error (paired by game) of the best margin CRPS are near ties; the winner among them has the largest lambda, then the largest k,
+    then the smallest q, then the smallest rho, then the longest memory. Settings that land on a grid edge are reported.
+12. **Statistics.** 4,000 week-resamples at seed 20261101. Diebold-Mariano on weekly mean differences with a Newey-West variance of 4 weeks, two-sided. Holm over C1 and C2 uses those p-values.
+    Acceptance criterion 1 needs both 95% intervals below zero and both Holm-adjusted p under 0.05. Criterion 2 reads "Brier is not worse" as a mean difference at or below zero.
+    Criterion 5 reads the canary as flagged when the as-of check reports violations for the leaked feature, the check on real runs reports none, and margin CRPS with the leak falls under half of
+    the honest value. Placebo: 200 within-week shuffles of the new model's mean and spread pairs; it passes when the mean CRPS difference against the current model is at or above zero.
+13. **M1.** The blend weight is chosen on 2008 up to the season before the one scored, on a grid from -0.5 to 1.5 in steps of 0.05, in logit space for the winner and by least squares for the margin.
+14. **Tuned settings are frozen by commit.** `docs/luck_tuned.json` must be committed and unchanged before the test stage will run, and its commit hash goes into the results.

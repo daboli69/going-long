@@ -1,0 +1,33 @@
+{
+ "elo_reproduction": {
+  "games": 3770,
+  "max_gap_lab_neutral_rule": 9.789984822261566e-07,
+  "games_gap_over_1e6": 0,
+  "max_gap_stadium_id_rule": 0.07501077420645386,
+  "games_gap_over_1e3_stadium_id_rule": 79,
+  "explanation": "the lab marks a game neutral when the stadium name differs from the team's usual one; Seattle's rename in 2020 made its last four home games neutral there"
+ },
+ "closing_line_vs_nflverse_pregame_wp": {
+  "games": 3771,
+  "mae": 0.03149782473007661,
+  "median_abs_gap": 0.021451323346585283,
+  "games_gap_over_0.3": 25,
+  "mae_excluding_those": 0.028671640126550445,
+  "corr_with_spread_sign": 0.4370563353572378,
+  "explanation": "nflverse maps spread to win probability with a steeper curve than a normal fitted to earlier seasons' results; the games over 0.3 have the first-play value on the wrong side (nflverse data defect)"
+ },
+ "asof_rule": {
+  "targets": 2544,
+  "violations": 0,
+  "violating_games": []
+ },
+ "canary_asof_own_batch": {
+  "targets": 2560,
+  "violations": 2560
+ },
+ "canary_crps": {
+  "without": 8.021485472009239,
+  "with_final_margin_as_a_feature": 0.7010849317653276
+ },
+ "canary_flagged": true
+}
