@@ -72,7 +72,7 @@ def parse(raw: dict) -> dict:
         elapsed = 0.0
     out = {"event": comp.get("id"), "home": teams["home"], "away": teams["away"], "score": score, "period": period, "clock": clock, "elapsed": elapsed,
            "state": status["type"]["state"], "completed": bool(status["type"].get("completed")), "possession": team_by_id.get(poss_id),
-           "down": end.get("down"), "yards_to_go": end.get("distance"), "yardline_100": end.get("yardsToEndzone"), "last_play": (last or {}).get("text"),
+           "last_wallclock": (last or {}).get("wallclock"), "down": end.get("down"), "yards_to_go": end.get("distance"), "yardline_100": end.get("yardsToEndzone"), "last_play": (last or {}).get("text"),
            "n_plays": len(plays), "players": {}, "team_attempts": {}}
     pw = {t["team"]["abbreviation"]: t for t in raw.get("boxscore", {}).get("players", [])}
     for ab, t in pw.items():
@@ -283,6 +283,19 @@ def pull(eid: str) -> str | None:
     return stamp
 
 
+def feed_lag() -> dict | None:
+    """ESPN's measured delay (seconds from its own play timestamp to our first sight of the play) from docs/ingame_latency.json; None when never measured.
+    Dense-polling plays are used once there are 30 of them, otherwise every play, where the gap includes the polling interval."""
+    f = ROOT / "docs" / "ingame_latency.json"
+    if not f.exists():
+        return None
+    j = json.loads(f.read_text(encoding="utf-8"))
+    dense, allp = j.get("dense_polling_only", {}), j.get("all_snapshots", {})
+    if dense.get("n", 0) >= 30:
+        return {**dense, "basis": "polled every 30 seconds or faster"}
+    return {**allp, "basis": "includes the polling gap, so an upper bound"} if allp.get("n") else None
+
+
 def latest(gid: str, ctx=None, refresh: bool = True) -> dict | None:
     """What the tracker shows for a game right now: the newest stored snapshot, updated players, role warnings, win chance and where the frozen numbers came from.
     None when no snapshot of this game has been captured."""
@@ -317,7 +330,9 @@ def latest(gid: str, ctx=None, refresh: bool = True) -> dict | None:
     wp = win_probability(snap, margin.get("margin"), ctx["params"]) if margin.get("margin") is not None else None
     rows = tracked_states(snap, ctx)
     keep = ("team", "name", "stat", "yards", "targets_or_carries", "team_attempts", "frozen", "updated", "low", "high", "share_pre", "share_post")
-    return {"gid": gid, "event": eid, "snapshot": stamp, "age_seconds": round(_age_seconds(stamp)), "state": snap["state"], "period": snap["period"], "clock": snap["clock"], "score": snap["score"],
+    return {"gid": gid, "event": eid, "snapshot": stamp, "age_seconds": round(_age_seconds(stamp)),
+            "newest_play_seconds": None if not snap.get("last_wallclock") else round((pd.Timestamp.now(tz="UTC") - pd.Timestamp(snap["last_wallclock"])).total_seconds()),
+            "feed_lag": feed_lag(), "state": snap["state"], "period": snap["period"], "clock": snap["clock"], "score": snap["score"],
             "possession": snap["possession"], "last_play": snap["last_play"], "win_chance_home": None if wp is None else wp["p_home"],
             "frozen": None if fr is None else {"sha256": fr["sha256"], "frozen_at": fr["frozen_at"], "before_kickoff": fr["before_kickoff"]},
             "players": [{k: r[k] for k in keep} for r in rows if r["seen"]], "warnings": [{k: r[k] for k in keep + ("kind",)} for r in warnings(rows)],

@@ -73,10 +73,14 @@ export function LiveGame({ d }: { d: Detail }) {
           <div className="text-xl font-bold">{d.away} {live.score.away}, {d.home} {live.score.home}</div></div>
         <div className="bg-panel p-4"><div className="text-[13px] text-muted">Win chance now</div>
           <div className="text-xl font-bold">{homeP === null ? "Not available" : homeP >= 0.5 ? `${d.home} ${pct(homeP)}` : `${d.away} ${pct(1 - homeP)}`}</div></div>
-        <div className="bg-panel p-4"><div className="text-[13px] text-muted">Data from ESPN</div>
-          <div className="text-xl font-bold">{ago(live.age_seconds)}</div></div>
+        <div className="bg-panel p-4"><div className="text-[13px] text-muted">Newest play in the feed</div>
+          <div className="text-xl font-bold">{live.newest_play_seconds === null ? "Not shown" : ago(live.newest_play_seconds)}</div>
+          <div className="text-[13px] text-muted">{live.feed_lag ? `ESPN usually shows a play ${live.feed_lag.median.toFixed(0)} seconds late (9 in 10 within ${live.feed_lag.p90.toFixed(0)}), from ${live.feed_lag.n} plays` : "ESPN delay not measured yet"}</div></div>
       </section>
       {live.last_play && <p className="text-[15px] text-muted">Last play: {live.last_play.trim()}</p>}
+      {live.state === "in" && live.newest_play_seconds !== null && live.newest_play_seconds > Math.max(180, (live.feed_lag?.p90 ?? 0) + 120) && (
+        <Callout tone="amber">No new play has appeared for {ago(live.newest_play_seconds)}. That is longer than the usual ESPN delay, so this may be a timeout or review, or the feed may be behind. Treat these numbers as older than they look.</Callout>
+      )}
       {homeP === null && <Callout tone="amber">The win chance needs a frozen pregame margin for this game, and none was saved.</Callout>}
       {live.warnings.length > 0 ? (
         <Callout tone="amber">
