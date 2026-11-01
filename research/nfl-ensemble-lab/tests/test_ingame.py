@@ -128,3 +128,14 @@ def test_freeze_is_write_once_and_detects_tampering(tmp_path, monkeypatch):
     path.write_text(path.read_text().replace("50.0", "51.0"), encoding="utf-8")
     with pytest.raises(RuntimeError):
         F.freeze("g1")
+
+
+def test_a_finished_game_has_its_full_clock_and_quarterback_share_rises_are_not_warned():
+    raw = {"header": {"competitions": [{"id": "1", "status": {"period": 4, "displayClock": "0:00", "type": {"state": "post", "completed": True}},
+                                        "competitors": [{"homeAway": "home", "score": "20", "team": {"abbreviation": "DET", "id": "8"}},
+                                                        {"homeAway": "away", "score": "17", "team": {"abbreviation": "MIN", "id": "16"}}]}]}, "drives": {}, "boxscore": {"players": []}}
+    assert F.parse(raw)["elapsed"] == 3600.0
+    raw["header"]["competitions"][0]["status"]["displayClock"] = "Final"
+    assert F.parse(raw)["elapsed"] == 3600.0
+    qb = {"team": "A", "name": "qb", "fam": "pass", "team_attempts": 30, "p_lower": 0.0, "p_higher": 0.99}
+    assert F.warnings([qb]) == [] and len(F.warnings([{**qb, "fam": "rec"}])) == 1

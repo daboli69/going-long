@@ -1,6 +1,6 @@
 # In-game tracker
 
-The tracker reads raw ESPN game data while a game is on, compares each player's box score with the pregame projection, and updates the projection for the rest of the game. It also gives a live win chance. Code: `lab/ingame.py` (model), `lab/ingame_feed.py` (feed, freezing, live state), `scripts/ingame_capture.py` (recording), `scripts/ingame_replay.py` (replay and checks), `scripts/ingame_eval.py` (backtest). The route `/api/live/{gid}` serves the newest state. No new screen has been built.
+The tracker reads raw ESPN game data while a game is on, compares each player's box score with the pregame projection, and updates the projection for the rest of the game. It also gives a live win chance. Code: `lab/ingame.py` (model), `lab/ingame_feed.py` (feed, freezing, live state), `scripts/ingame_capture.py` (recording), `scripts/ingame_replay.py` (replay and checks), `scripts/ingame_eval.py` (backtest). The route `/api/live/{gid}` serves the newest state, and the Game view has a Live tab that shows it (score, win chance, role warnings, and each player pregame against updated; it refreshes every 30 seconds while a game is on).
 
 ## How it works
 

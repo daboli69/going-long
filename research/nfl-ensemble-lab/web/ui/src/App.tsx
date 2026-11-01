@@ -6,6 +6,7 @@ import { GameStrip } from "./components/GameStrip";
 import { GameTitle, Overview, Scorebug } from "./components/Overview";
 import { About, Matchup } from "./components/Others";
 import { Props } from "./components/Players";
+import { LiveGame } from "./components/Live";
 import { SimGame } from "./components/SimGame";
 import { RankingsView } from "./components/Rankings";
 import { MarketValueView } from "./components/MarketValue";
@@ -69,7 +70,7 @@ export default function App() {
           <select id="week" className="min-h-[44px] bg-panel px-4 text-base text-white hover:bg-raised" value={week ?? ""} onChange={(e) => setWeek(Number(e.target.value))}>
             {meta.weeks.map((w) => <option key={w} value={w}>Week {w}</option>)}
           </select>
-          <span className="basis-full pb-1 text-sm text-muted sm:ml-auto sm:basis-auto sm:pb-0">{status}{next ? `, next kickoff ${etTime(next.kickoff_utc)} ET` : games && games.length ? ", all games played" : ""}</span>
+          <span className="basis-full pb-1 text-sm text-muted sm:ml-auto sm:basis-auto sm:pb-0">{status}<span className="hidden sm:inline">{next ? `, next kickoff ${etTime(next.kickoff_utc)} ET` : games && games.length ? ", all games played" : ""}</span></span>
         </div>
       </header>
 
@@ -91,12 +92,14 @@ export default function App() {
                   <TabsList aria-label="Game views">
                     <TabsTrigger value="game">Game</TabsTrigger>
                     <TabsTrigger value="sim">Simulated game</TabsTrigger>
+                    <TabsTrigger value="live">Live</TabsTrigger>
                     <TabsTrigger value="players">Players</TabsTrigger>
                     <TabsTrigger value="teams">Teams and injuries</TabsTrigger>
                     <TabsTrigger value="about">About these numbers</TabsTrigger>
                   </TabsList>
                   <TabsContent value="game"><Overview d={detail} /></TabsContent>
                   <TabsContent value="sim"><SimGame d={detail} /></TabsContent>
+                  <TabsContent value="live"><LiveGame d={detail} /></TabsContent>
                   <TabsContent value="players"><Props d={detail} /></TabsContent>
                   <TabsContent value="teams"><Matchup d={detail} /></TabsContent>
                   <TabsContent value="about"><About meta={meta} /></TabsContent>

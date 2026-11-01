@@ -1,4 +1,4 @@
-import type { Detail, GameRow, GlossaryItem, Meta, Rankings, Sim, TdCardData, TdMarket } from "./types";
+import type { Detail, GameRow, GlossaryItem, Live, Meta, Rankings, Sim, TdCardData, TdMarket } from "./types";
 
 async function get<T>(path: string): Promise<T> {
   const response = await fetch(path);
@@ -6,7 +6,16 @@ async function get<T>(path: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+export class NotCaptured extends Error {}
+async function getLive(gid: string): Promise<Live> {
+  const response = await fetch(`/api/live/${gid}`);
+  if (response.status === 404) throw new NotCaptured();
+  if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+  return (await response.json()) as Live;
+}
+
 export const api = {
+  live: getLive,
   meta: () => get<Meta>("/api/meta"),
   week: (week: number) => get<GameRow[]>(`/api/week/${week}`),
   game: (gid: string) => get<Detail>(`/api/game/${gid}`),

@@ -66,6 +66,10 @@ def parse(raw: dict) -> dict:
     end = (last or {}).get("end") or {}
     poss_id = (end.get("team") or {}).get("id")
     team_by_id = {c["team"]["id"]: normalize_team(c["team"]["abbreviation"]) for c in comp["competitors"]}
+    if elapsed is None and status["type"]["state"] == "post":      # a finished game shows no running clock
+        elapsed = G.GAME if (period or 4) <= 4 else G.GAME + 1.0
+    if elapsed is None and status["type"]["state"] == "pre":
+        elapsed = 0.0
     out = {"event": comp.get("id"), "home": teams["home"], "away": teams["away"], "score": score, "period": period, "clock": clock, "elapsed": elapsed,
            "state": status["type"]["state"], "completed": bool(status["type"].get("completed")), "possession": team_by_id.get(poss_id),
            "down": end.get("down"), "yards_to_go": end.get("distance"), "yardline_100": end.get("yardsToEndzone"), "last_play": (last or {}).get("text"),
@@ -229,7 +233,7 @@ def warnings(rows: list[dict], min_attempts: int = 12, threshold: float = 0.95) 
             continue
         if r["p_lower"] >= threshold:
             out.append({**r, "kind": "role: share well below pregame"})
-        elif r["p_higher"] >= threshold:
+        elif r["p_higher"] >= threshold and r.get("fam") != "pass":      # a quarterback's share rising is a stale baseline (new team, new starter), not news
             out.append({**r, "kind": "role: share well above pregame"})
     return out
 
