@@ -29,7 +29,7 @@ MIN_HISTORY = 4
 PBP_COLS = ["game_id", "season", "week", "season_type", "qtr", "game_seconds_remaining", "posteam", "home_team", "away_team", "score_differential",
             "total_home_score", "total_away_score", "pass_attempt", "rush_attempt", "qb_kneel", "qb_spike", "complete_pass", "receiver_player_id",
             "rusher_player_id", "passer_player_id", "passing_yards", "receiving_yards", "rushing_yards", "ep", "down", "yardline_100", "spread_line",
-            "total_line", "home_wp", "result", "total"]
+            "total_line", "home_wp", "result", "total", "ydstogo", "posteam_timeouts_remaining", "defteam_timeouts_remaining"]
 
 
 # --------------------------------------------------------------------------- history

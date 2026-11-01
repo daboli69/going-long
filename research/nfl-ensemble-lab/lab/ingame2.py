@@ -71,7 +71,7 @@ def baselines2(e: pd.DataFrame, tv: pd.DataFrame, snaps: pd.DataFrame, pool: dic
     return out
 
 
-def fit_hier(df: pd.DataFrame, seed: int = 0, n: int = 6000, draws: int = 400) -> dict:
+def fit_hier(df: pd.DataFrame, seed: int = 0, n: int = 6000, draws: int = 700) -> dict:
     """Partially pooled calibration of the pregame share and its prior strength, per role group: O_game ~ BetaBinomial(A_game, p*kappa, (1-p)*kappa),
     logit p = a_g + b_g * logit(trailing share). Returns posterior means and convergence checks."""
     import arviz as az
@@ -86,11 +86,12 @@ def fit_hier(df: pd.DataFrame, seed: int = 0, n: int = 6000, draws: int = 400) -
         mu_a, sd_a = pm.Normal("mu_a", 0, 0.5), pm.HalfNormal("sd_a", 0.5)
         mu_b, sd_b = pm.Normal("mu_b", 1, 0.3), pm.HalfNormal("sd_b", 0.3)
         mu_k, sd_k = pm.Normal("mu_k", np.log(30), 1.0), pm.HalfNormal("sd_k", 0.7)
-        a, b, lk = pm.Normal("a", mu_a, sd_a, shape=ng), pm.Normal("b", mu_b, sd_b, shape=ng), pm.Normal("lk", mu_k, sd_k, shape=ng)
+        za, zb, zk = pm.Normal("za", 0, 1, shape=ng), pm.Normal("zb", 0, 1, shape=ng), pm.Normal("zk", 0, 1, shape=ng)     # non-centred: group effects as scaled offsets
+        a, b, lk = pm.Deterministic("a", mu_a + sd_a * za), pm.Deterministic("b", mu_b + sd_b * zb), pm.Deterministic("lk", mu_k + sd_k * zk)
         p = pm.math.sigmoid(a[gi] + b[gi] * x)
         kap = pm.math.exp(lk[gi])
         pm.BetaBinomial("O", n=d["A_game"].to_numpy().astype(int), alpha=p * kap, beta=(1 - p) * kap, observed=d["O_game"].to_numpy().astype(int))
-        idata = pm.sample(draws, tune=draws, chains=2, target_accept=0.9, progressbar=False, random_seed=seed)
+        idata = pm.sample(draws, tune=1000, chains=2, target_accept=0.95, progressbar=False, random_seed=seed)
     post = idata.posterior
     summ = az.summary(idata, var_names=["a", "b", "lk"])
     return {"groups": {g: {"a": float(post["a"].mean(("chain", "draw")).values[i]), "b": float(post["b"].mean(("chain", "draw")).values[i]),
