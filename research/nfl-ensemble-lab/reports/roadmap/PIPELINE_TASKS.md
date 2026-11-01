@@ -2,6 +2,17 @@
 
 Registered as written below, except each trigger's start time was saved as plain local time (no UTC offset) so the tasks keep 22:00 and 09:00 after daylight saving ends. First runs: score Tue 2026-11-03 09:00, freeze Wed 2026-11-04 22:00.
 
+2026-10-31: the Weekly Score task also runs `scripts
+2026-10-31: the Weekly Score task also runs `scripts/redistribution_check.py` after `verify_results.py` (approved by Travis). It refits where injured players' production goes, rewrites docs/REDISTRIBUTION_CHECK.md and docs/redistribution_check.json, and saves data/cache/redistribution_rule.json for the simulation. About 6 minutes.
+
+2026-10-31: the Weekly Score task also runs `scripts/fpds_usage_check.py` last (approved by Travis). It re-tests whether FantasyPoints metrics improve the simulated game, rewrites docs/FPDS_USAGE_CHECK.md and docs/fpds_usage_check.json, and saves data/cache/fpds_usage_rule.json. A blend is kept only while it passes the gate, so a stat can drop back to nflverse-only. About 3 minutes; it uses whatever FantasyPoints files were imported before Tuesday.
+
+2026-10-31: the Weekly Score task also runs `scripts/drivesim_check.py` last (approved by Travis). It re-tests the independent drive simulation against the betting market on completed 2025 and 2026 games, rewrites docs/DRIVE_SIM_CHECK.md and docs/drivesim_check.json, and saves data/cache/drivesim_rule.json. The blend weights stay at zero unless the simulation beats the market in both years, so the market keeps setting the center of the simulated games until then.
+
+2026-11-01: the Weekly Score task also runs `scripts/availability_check.py` and then `scripts/recvsim_check.py` (approved by Travis). The first re-tests whether roster absences (injured reserve and others) improve who-plays, receiving, winner and props predictions, and rewrites docs/AVAILABILITY_CHECK.md and docs/availability_check.json. The second re-scores the sampled receiving model on completed 2025 and 2026 games, rewrites docs/RECEIVING_SIM_CHECK.md and docs/recvsim_check.json, and saves data/cache/recvsim_rule.json. The replay uses the sampled receiving only while that file says it passed; otherwise it falls back to the averaged method. About 3.5 and 1 minute; the task keeps its one-hour limit.
+
+2026-11-01: the Weekly Score task also runs `scripts/coverage_check.py` last (approved by Travis). It re-tests whether defensive coverage mix (man, zone, Cover 1 to 6, blitz) improves receiving yard and catch predictions on completed 2025 and 2026 games, rewrites docs/COVERAGE_CHECK.md and docs/coverage_check.json, and saves data/cache/coverage_rule.json. Nothing reads that rule yet, so the simulation stays unchanged even if a family passes; a pass would be a prompt to wire it in. About 1 to 2 minutes.
+
 ## What exists today (measured by a read-only query of Windows Task Scheduler on 2026-10-30)
 
 | Task | Schedule | What it does |
