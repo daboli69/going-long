@@ -177,3 +177,11 @@ export interface Weather {
   precip_chance?: number | null;
   precip_in?: number;
 }
+
+export interface RankRow {
+  rank: number; player: string; team: string; opp: string; home: boolean; gid: string; kickoff_utc: string; pos: string | null; stat: string;
+  projection: number; range_low: number | null; range_high: number | null; market_line: number | null; market_chance: number | null;
+  exp_td?: number; carries?: number | null; score: number; parts: { projection: number; matchup: number | null; usage: number | null }; tags: string[];
+}
+export interface RankStat { label: string; unit: "yds" | "rec" | "chance"; rows: RankRow[]; players?: number }
+export interface Rankings { week: number; weights: Record<string, number>; stats: Record<string, RankStat> }

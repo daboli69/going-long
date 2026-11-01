@@ -743,11 +743,13 @@ def team_players(team: str, week: int, out: dict, saved: list[dict], expected_po
                 if r.get("carries"):
                     r["carries"] *= ratio
         label += f", scaled x{ratio:.2f} to the expected score"
+    rows = [dict(r) for r in rows]  # copies, so the shared saved projections stay as saved
+    pos_of = dict(zip(p["name"], p["pos"]))
+    pos_of.update({nm: pid.split(":")[1] for pid, nm in new_names.items() if nm})
+    for r in rows:
+        r["pos"] = pos_of.get(r["player"]) or ("QB" if r["stat"] == "Passing yards" else None)
     if allowed_mults:
-        # What the opposing defense gives up to each position (lab/allowed_usage.py). Copies, so the shared saved projections stay as saved.
-        rows = [dict(r) for r in rows]
-        pos_of = dict(zip(p["name"], p["pos"]))
-        pos_of.update({nm: pid.split(":")[1] for pid, nm in new_names.items() if nm})
+        # What the opposing defense gives up to each position (lab/allowed_usage.py).
         pass_f = AL.apply_to_rows(rows, pos_of, allowed_mults)["rec_yds"]
         for r in rows:
             if r["stat"] == "Passing yards":
@@ -1025,6 +1027,8 @@ def simulate(gid: str, mode: str = "typical", draw: int = 0) -> dict | None:
                 "replay": replay(gid, away, home, game["points"], players, ctx, td_weights, rush_share, volume, salt, sampled),
                 "receiving": {"model": "sampled" if all(sampled.get(t) for t in (away, home)) else "averaged"}, "questionable": questionable,
                 "allowed": {"applied": bool(allowed_view), "passed_gate": bool(allowed_rule.get("passed")), "teams": allowed_view},
+                "td_model": {t: {"exp_points": float((h if t == home else a).mean()), "rush_share": float(rush_share[t]), "rec_weights": td_weights.get(t) or {}}
+                             for t in (away, home)},
                 "defense": defense_matchups(ctx, away, home) if not ctx.empty else [],
                 "source": {"margin": e.get("margin_label"), "total": e.get("total_label")}, "has_players": bool(players),
                 "players": players, "player_source": sources, "injury_moves": moves, "unavailable": gone, "injury_source": inj_source,

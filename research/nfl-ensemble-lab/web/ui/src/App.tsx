@@ -6,9 +6,11 @@ import { GameStrip } from "./components/GameStrip";
 import { Overview, Scorebug } from "./components/Overview";
 import { About, Matchup, Props } from "./components/Others";
 import { SimGame } from "./components/SimGame";
-import { Callout, Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/primitives";
+import { RankingsView } from "./components/Rankings";
+import { Callout, Segmented, Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/primitives";
 
 export default function App() {
+  const [view, setView] = useState<"Games" | "Player rankings">("Games");
   const [meta, setMeta] = useState<Meta | null>(null);
   const [week, setWeek] = useState<number | null>(null);
   const [games, setGames] = useState<GameRow[] | null>(null);
@@ -69,11 +71,15 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-[1280px] space-y-5 px-4 pb-10 pt-0.5 sm:px-6">
-      {games && games.length > 0 && <GameStrip games={games} selected={gid} onSelect={setGid} />}
+      <Segmented label="View" options={["Games", "Player rankings"]} value={view} onChange={setView} />
 
-      {detail && <Scorebug d={detail} />}
+      {view === "Player rankings" && week !== null && <RankingsView week={week} onOpenGame={(g) => { setGid(g); setView("Games"); }} />}
 
-      {detail && (
+      {view === "Games" && games && games.length > 0 && <GameStrip games={games} selected={gid} onSelect={setGid} />}
+
+      {view === "Games" && detail && <Scorebug d={detail} />}
+
+      {view === "Games" && detail && (
         <Tabs defaultValue="game" key={detail.gid}>
           <TabsList>
             <TabsTrigger value="game">Game</TabsTrigger>

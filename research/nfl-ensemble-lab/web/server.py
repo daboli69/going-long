@@ -16,6 +16,7 @@ from fastapi.staticfiles import StaticFiles
 
 from lab import gamecenter_data as D
 from lab import gamesim
+from lab import rankings as rank_lists
 
 DIST = Path(__file__).resolve().parent / "ui" / "dist"
 app = FastAPI(title="NFL Game Center", docs_url=None, redoc_url=None, openapi_url=None)
@@ -54,6 +55,11 @@ def sim(gid: str = PathParam(pattern=D.GID_PATTERN), mode: str = Query("typical"
     if out is None:
         raise HTTPException(status_code=404, detail="Unknown game")
     return JSONResponse(out)
+
+
+@app.get("/api/rankings/{week}")
+def rankings(week: int = PathParam(ge=1, le=18)):
+    return JSONResponse(D.clean(rank_lists.week_rankings(week)))
 
 
 @app.get("/api/glossary")

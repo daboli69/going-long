@@ -1,0 +1,89 @@
+{
+ "weeks": [
+  3,
+  4,
+  5,
+  6,
+  7,
+  8
+ ],
+ "rows": 4568,
+ "stats": {
+  "rec_yds": {
+   "player_games": 812,
+   "spearman_score": 0.4259915329282344,
+   "spearman_projection_only": 0.44417127207101803,
+   "top10_mean_actual": 74.66,
+   "all_mean_actual": 36.39039408866995,
+   "top10_projection_mean": 86.42064489600962
+  },
+  "rec": {
+   "player_games": 844,
+   "spearman_score": 0.4524966759995637,
+   "spearman_projection_only": 0.44306887795280786,
+   "top10_mean_actual": 5.92,
+   "all_mean_actual": 3.197867298578199,
+   "top10_projection_mean": 6.193022093146121
+  },
+  "rush_yds": {
+   "player_games": 328,
+   "spearman_score": 0.5967784485919922,
+   "spearman_projection_only": 0.6300375443239958,
+   "top10_mean_actual": 79.5,
+   "all_mean_actual": 41.76219512195122,
+   "top10_projection_mean": 87.95383666229196
+  },
+  "pass_yds": {
+   "player_games": 138,
+   "spearman_score": 0.2599372021866161,
+   "spearman_projection_only": 0.2625831461070873,
+   "top10_mean_actual": 261.12,
+   "all_mean_actual": 234.268115942029,
+   "top10_projection_mean": 281.6172710351507
+  },
+  "td": {
+   "player_games": 1283,
+   "reliability_quintiles": [
+    {
+     "predicted": 0.0350279696952632,
+     "actual": 0.1245136186770428,
+     "n": 257
+    },
+    {
+     "predicted": 0.10406420061165679,
+     "actual": 0.15234375,
+     "n": 256
+    },
+    {
+     "predicted": 0.17147228151924945,
+     "actual": 0.19455252918287938,
+     "n": 257
+    },
+    {
+     "predicted": 0.25283081465914053,
+     "actual": 0.25390625,
+     "n": 256
+    },
+    {
+     "predicted": 0.44874604254847067,
+     "actual": 0.42412451361867703,
+     "n": 257
+    }
+   ],
+   "mean_predicted": 0.2024656441203514,
+   "mean_actual": 0.2299298519095869,
+   "best_scale": 1.1400000000000006,
+   "logloss_now": 0.5208389255457962,
+   "logloss_best_scale": 0.5190805895202596,
+   "logloss_constant": 0.5391915668797516,
+   "mean_predicted_early_late": [
+    0.2015104201516258,
+    0.2040743372057574
+   ],
+   "mean_actual_early_late": [
+    0.231055900621118,
+    0.2280334728033473
+   ]
+  }
+ }
+}
