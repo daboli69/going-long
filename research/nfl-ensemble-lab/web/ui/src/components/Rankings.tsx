@@ -3,6 +3,7 @@ import { api } from "../api";
 import type { RankRow, Rankings } from "../types";
 import { etTime, num, pct } from "../lib";
 import { Badge, Callout, Card, Segmented } from "./ui/primitives";
+import { TdCard } from "./TdCard";
 
 const day = (iso: string) => new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "America/New_York" });
 
@@ -51,6 +52,7 @@ function Row({ r, unit, open, onToggle, onOpenGame, rank }: { r: RankRow; unit: 
           {range && <div className="text-sm text-muted">Projected {show(r, unit)}; 8 in 10 games land between {range}.</div>}
           {r.exp_td !== undefined && <div className="text-sm text-muted">About {num(r.exp_td, 2)} expected touchdowns, from the team's expected points and who scores for it.</div>}
           <button className="min-h-[44px] bg-line px-4 text-[15px] text-white hover:bg-white hover:text-bg" onClick={() => onOpenGame(r.gid)}>Open the game</button>
+          {unit === "chance" && <TdCard gid={r.gid} team={r.team} player={r.player} />}
         </div>
       )}
     </li>

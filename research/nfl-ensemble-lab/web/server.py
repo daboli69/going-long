@@ -17,6 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from lab import gamecenter_data as D
 from lab import gamesim
 from lab import rankings as rank_lists
+from lab import tdmarket as td_market
 
 DIST = Path(__file__).resolve().parent / "ui" / "dist"
 app = FastAPI(title="NFL Game Center", docs_url=None, redoc_url=None, openapi_url=None)
@@ -59,7 +60,23 @@ def sim(gid: str = PathParam(pattern=D.GID_PATTERN), mode: str = Query("typical"
 
 @app.get("/api/rankings/{week}")
 def rankings(week: int = PathParam(ge=1, le=18)):
-    return JSONResponse(D.clean(rank_lists.week_rankings(week)))
+    return JSONResponse(D.clean(rank_lists.public(rank_lists.week_rankings(week))))
+
+
+@app.get("/api/tdcard/{gid}")
+def tdcard(gid: str = PathParam(pattern=D.GID_PATTERN), team: str = Query(pattern="^[A-Z]{2,3}$"), player: str = Query(min_length=3, max_length=60)):
+    out = rank_lists.td_card(gid, team, player)
+    if out is None:
+        raise HTTPException(status_code=404, detail="No touchdown card for that player")
+    return JSONResponse(D.clean(out))
+
+
+@app.get("/api/tdmarket/{week}")
+def tdmarket(week: int = PathParam(ge=1, le=18)):
+    try:
+        return JSONResponse(D.clean(td_market.week_market(week)))
+    except Exception as exc:  # Kalshi unreachable or changed: say so rather than 500
+        raise HTTPException(status_code=502, detail=f"Could not read Kalshi prices ({type(exc).__name__})")
 
 
 @app.get("/api/glossary")

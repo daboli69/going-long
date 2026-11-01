@@ -1,0 +1,53 @@
+{
+ "matches_exactly": {
+  "window is weeks 3 to 7 (five games)": true,
+  "zone counts match": true,
+  "7 touchdowns scored": true,
+  "19.8 touches a game": true,
+  "2.6 goal-line touches a game": true,
+  "25 of 34 running-back red-zone touches": true,
+  "6% target share": true,
+  "7% touchdown rate": true,
+  "Arizona's seven games of touchdowns allowed, row by row": true,
+  "Arizona totals RB 7, WR 10, TE 6, QB 2": true,
+  "matchup 1.00 TD a game": true,
+  "snap share about 75%": true,
+  "0 games since a touchdown": true
+ },
+ "ours_vs_published": {
+  "expected touchdowns": {
+   "ours": 6.18,
+   "published": 6.6
+  },
+  "red-zone role": {
+   "ours": 0.379,
+   "published": 0.34
+  },
+  "team red-zone trips a game": {
+   "ours": 4.2,
+   "published": 4.0
+  },
+  "team red-zone TD rate": {
+   "ours": 0.67,
+   "published": 0.71
+  },
+  "Arizona red-zone TD rate allowed": {
+   "ours": 0.68,
+   "published": 0.65
+  },
+  "Arizona rank, touchdowns to RB / WR / TE / QB (1 = most)": {
+   "ours": [
+    9,
+    2,
+    4,
+    5
+   ],
+   "published": [
+    10,
+    2,
+    5,
+    9
+   ]
+  }
+ }
+}

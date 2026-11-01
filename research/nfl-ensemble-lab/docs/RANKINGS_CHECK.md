@@ -41,3 +41,32 @@ always guessing the average, so no scale is applied. These weeks were also used 
 - Six weeks of one season. Differences of about 0.02 in rank correlation are noise.
 - Completed games use the quarterback who actually started, so weeks 3 to 7 are slightly easier than a forecast made before kickoff.
 - Market lines exist only for some players; the "above the line" tags use them where present and have not been checked against results.
+
+## Touchdown card and Market value tab
+
+**The card matches a published one where it can be counted.** `scripts/tdcard_check.py` rebuilds the card for Javonte Williams (weeks 3 to 7, 2026) and compares it
+with the figures printed on Venom Analytics' card for the same player, which Travis shared. All 13 countable items match exactly: the four zone counts
+(13/0, 12/0, 14/4, 47/9), 7 touchdowns, 19.8 touches and 2.6 goal-line touches a game, 25 of 34 running-back red-zone touches, 6% target share, 7% touchdown rate,
+all seven rows of Arizona's touchdowns allowed by position, the totals 7, 10, 6 and 2, the matchup of 1.00 a game, a 75% snap share and 0 games since a touchdown.
+Where definitions differ, the two sides are close but not equal: expected touchdowns 6.2 against 6.6 (their rates by zone differ from ours), red-zone role 38% against
+34%, team red-zone trips 4.2 against 4.0, Arizona's rank by position 9, 2, 4, 5 against 10, 2, 5, 9 (ties are ranked differently).
+
+**Where our touchdown chance runs high or low** (weeks 3 to 7 of 2026, 1,578 player-games, as predicted against what happened):
+
+| Group | Player-games | We said | Scored |
+|---|---|---|---|
+| Everyone | 1,578 | 17.8% | 18.7% |
+| Players whose teammate's share moved to them | 530 | 24.2% | 23.0% |
+| Running backs, not in that group | 188 | 20.7% | 20.2% |
+| Quarterbacks | 179 | 9.9% | 12.3% |
+| Wide receivers | 599 | 18.6% | 17.7% |
+| Tight ends | 364 | 14.1% | 16.8% |
+| Where we said 40% or more | 156 | 50.9% | 44.2% |
+
+The chances are close on average. At the top they run about 7 points high, so the largest gaps to Kalshi's price are the least reliable. Quarterbacks and tight ends run
+low. These weeks also shaped the table, so this is a read of the same data, not a test on new games.
+
+**Kalshi prices.** Anytime-touchdown prices (series KXNFLTD, "Player: 1+ touchdowns") were not saved before 2026-11-01, so nothing can be said yet about whether
+"our number above the price" picks win. The tab saves each pricing to `data/cache/props_kalshi/td_snapshots.jsonl`, and `scripts/td_value_check.py` scores those picks
+once the games are final. Week 8 priced 236 of 283 players; our chances and Kalshi's asks correlate at 0.90, and our average (19.9%) sits below the average ask (21.9%).
+Kalshi's market counts any touchdown by the player; ours counts rushing and receiving touchdowns.

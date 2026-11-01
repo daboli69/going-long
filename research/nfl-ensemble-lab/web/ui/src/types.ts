@@ -185,3 +185,29 @@ export interface RankRow {
 }
 export interface RankStat { label: string; unit: "yds" | "rec" | "chance"; rows: RankRow[]; players?: number }
 export interface Rankings { week: number; weights: Record<string, number>; stats: Record<string, RankStat> }
+
+export interface TdZone { zone: string; carries: number; targets: number; xtd: number }
+export interface TdCardData {
+  player: string; pid: string; team: string; opp: string; pos: string; role: string | null; tdp: number | null; score: number | null; exp_td: number | null;
+  window: { weeks: number[]; games: number; team_games: number };
+  script: { favored_by: number | null; total: number | null; implied: number | null; pace_rank: number | null; pace: number | null };
+  profile: {
+    rz_role: number | null; rz_claim: { mine: number; group: number; share: number | null; group_label: string; team_rz_touches: number };
+    rz_targets_pg: number; rz_carries_pg: number; team_rz_trips_pg: number; team_rz_td_rate: number | null; opp_rz_td_rate_allowed: number | null; opp_rz_rank: number | null;
+    touches_pg: number; gl_pg: number; target_share: number | null; td_rate: number | null;
+  };
+  cheat: { expected: number; scored: number; debt: number; zones: TdZone[] };
+  role_tax: { role: string; rows: { metric: string; him: number; allows: number; rank: number | null }[] } | null;
+  leaks: { text: string; hits_role: boolean }[];
+  opportunity: {
+    matchup_pg: number | null; table: { week: number; vs: string; RB: number; WR: number; TE: number; QB: number }[];
+    totals: Record<string, number>; ranks: Record<string, number>; adv: Record<string, number>; snap_share: number | null; games_since_td: number;
+  };
+  tags: { label: string; fired: boolean; why: string }[]; tagline: string; fired: number;
+}
+export interface MarketRow {
+  player: string; team: string; opp: string; home: boolean; gid: string; kickoff_utc: string; pos: string | null; projection: number; score: number; tags: string[];
+  market: { ticker: string; bid: number | null; ask: number | null; last: number | null; vol24: number } | null;
+  edge?: number | null; edge_after_fee?: number | null; label?: string; mid?: number | null; value?: boolean;
+}
+export interface TdMarket { week: number; fee_rate: number; value_edge: number; min_chance: number; markets_open: number; players: number; matched: number; rows: MarketRow[]; unpriced: MarketRow[] }

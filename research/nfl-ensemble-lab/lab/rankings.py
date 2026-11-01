@@ -159,7 +159,7 @@ def build_week(week: int) -> dict:
         for i, r in enumerate(rows[:TOP], 1):
             r["rank"] = i
         out[key] = {"label": STATS[key]["label"], "unit": STATS[key]["unit"], "rows": rows[:TOP], "players": len(rows)}
-    return {"week": week, "weights": WEIGHTS, "stats": out, "built_at": time.time()}
+    return {"week": week, "weights": WEIGHTS, "stats": out, "all_td": cand["td"], "built_at": time.time()}
 
 
 _CACHE: dict = {}
@@ -171,3 +171,34 @@ def week_rankings(week: int, ttl: float = 600.0) -> dict:
         return hit
     _CACHE[week] = build_week(week)
     return _CACHE[week]
+
+
+def public(payload: dict) -> dict:
+    """The rankings as the screen reads them (without the full touchdown list used by the market tab)."""
+    return {k: v for k, v in payload.items() if k != "all_td"}
+
+
+def td_card(gid: str, team: str, player: str) -> dict | None:
+    """The touchdown card for one player in one game, with his chance and score from the week's rankings."""
+    from . import tdcard as T
+    g = D.games_table()
+    row = g[g["game_id"] == gid]
+    if row.empty or team not in (row.iloc[0]["home_team"], row.iloc[0]["away_team"]):
+        return None
+    row = row.iloc[0]
+    week = int(row["week"])
+    opp = row["away_team"] if team == row["home_team"] else row["home_team"]
+    e = (D.game_detail(gid) or {}).get("expected") or {}
+    margin, total = e.get("margin"), e.get("total")
+    favored = None if margin is None else float(margin if team == row["home_team"] else -margin)
+    pid = S._pid_by_norm().get(S._norm(player))
+    if pid is None:
+        return None
+    ranked = next((r for r in week_rankings(week).get("all_td", []) if r["gid"] == gid and r["player"] == player), None)
+    c = T.card(team, pid, week, opp, favored, total, tdp=None if ranked is None else ranked["projection"])
+    if c is None:
+        return None
+    c["player"] = player
+    c["score"] = None if ranked is None else ranked["score"]
+    c["exp_td"] = None if ranked is None else ranked.get("exp_td")
+    return c
