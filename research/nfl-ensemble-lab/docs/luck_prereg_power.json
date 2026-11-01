@@ -1,0 +1,39 @@
+{
+ "games": 3756,
+ "weeks": 250,
+ "seasons": [
+  2012,
+  2026
+ ],
+ "elo_residual_sd": 13.357149171934223,
+ "seed": 20261101,
+ "draws": 4000,
+ "z_alpha_two_sided_05": 1.96,
+ "z_power_80": 0.8416,
+ "margin_crps_model_minus_elo": {
+  "mean": 0.034831657519311346,
+  "sd_per_game": 1.533253320887272,
+  "se_game_independent": 0.025017915550904848,
+  "se_week_clustered": 0.02474829443004243,
+  "min_detectable_improvement_80pct_power": 0.06933482167520687,
+  "scaled_to_prospective": {
+   "weeks 9 to 18 of 2026 (about 10 weeks)": 0.3469513368156804
+  }
+ },
+ "winner_logloss_model_minus_elo": {
+  "mean": 0.00559669245445977,
+  "sd_per_game": 0.1495664077355038,
+  "se_game_independent": 0.0024404576249759473,
+  "se_week_clustered": 0.0023561046474428033,
+  "min_detectable_improvement_80pct_power": 0.006600862780275758,
+  "scaled_to_prospective": {
+   "weeks 9 to 18 of 2026 (about 10 weeks)": 0.03303070679956011
+  }
+ },
+ "context": {
+  "margin_crps_current_model": 7.518837161986549,
+  "margin_crps_elo": 7.484005504467238,
+  "winner_logloss_current_model": 0.6387696828035905,
+  "winner_logloss_elo": 0.6331729903491308
+ }
+}
