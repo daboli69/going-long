@@ -10,7 +10,7 @@ const BANNER: Record<string, string> = { TD: "Touchdown", FG: "Field goal", INT:
 
 // ------------------------------------------------------------------ running box score
 interface Line { att: number; comp: number; yds: number; td: number; int: number; sacks: number }
-interface Box { qb: Line; rush: Map<string, [number, number, number]>; rec: Map<string, [number, number, number]> }
+interface Box { qb: Line; rush: Map<string, [number, number, number, number]>; rec: Map<string, [number, number, number, number]> }
 
 function boxScore(plays: SimPlay[], upto: number, teams: string[]): Record<string, Box> {
   const out: Record<string, Box> = {};
@@ -18,19 +18,19 @@ function boxScore(plays: SimPlay[], upto: number, teams: string[]): Record<strin
   for (const p of plays.slice(0, upto + 1)) {
     const b = out[p.team];
     const td = p.event === "TD" ? 1 : 0;
-    const add = (m: Map<string, [number, number, number]>, k: string, y: number) => {
-      const v = m.get(k) ?? [0, 0, 0];
-      m.set(k, [v[0] + 1, v[1] + y, v[2] + td]);
+    const add = (m: Map<string, [number, number, number, number]>, k: string, y: number, caught = 1) => {
+      const v = m.get(k) ?? [0, 0, 0, 0];
+      m.set(k, [v[0] + caught, v[1] + y, v[2] + td, v[3] + 1]);  // catches or carries, yards, touchdowns, targets
     };
     if (p.kind === "pass") { b.qb.att++; b.qb.comp++; b.qb.yds += p.yards; b.qb.td += td; add(b.rec, p.player!, p.yards); }
-    else if (p.kind === "incomplete") { b.qb.att++; if (p.event === "INT") b.qb.int++; }
+    else if (p.kind === "incomplete") { b.qb.att++; if (p.event === "INT") b.qb.int++; if (p.player) add(b.rec, p.player, 0, 0); }
     else if (p.kind === "sack") b.qb.sacks++;
     else if (p.kind === "rush") add(b.rush, p.player!, p.yards);
   }
   return out;
 }
 
-const leaders = (m: Map<string, [number, number, number]>, n: number) => [...m.entries()].sort((a, b) => b[1][1] - a[1][1]).slice(0, n);
+const leaders = (m: Map<string, [number, number, number, number]>, n: number, by = 1) => [...m.entries()].sort((a, b) => b[1][by] - a[1][by] || b[1][1] - a[1][1]).slice(0, n);
 const short = (name: string) => name.replace(/^another [A-Z]+ /, "Other ");
 
 function TeamBox({ team, color, qb, box }: { team: string; color: string; qb: string; box: Box }) {
@@ -46,18 +46,18 @@ function TeamBox({ team, color, qb, box }: { team: string; color: string; qb: st
         <div className="text-sm text-muted">{q.td} TD · {q.int} INT · {q.sacks} sacked</div>
       </div>
       <Leaders title="Rushing" unit="car" rows={leaders(box.rush, 3)} empty="No carries yet" />
-      <Leaders title="Receiving" unit="rec" rows={leaders(box.rec, 4)} empty="No catches yet" />
+      <Leaders title="Receiving" unit="rec/tgt" rows={leaders(box.rec, 10, 3)} empty="No targets yet" targets />
     </div>
   );
 }
 
-function Leaders({ title, unit, rows, empty }: { title: string; unit: string; rows: [string, [number, number, number]][]; empty: string }) {
+function Leaders({ title, unit, rows, empty, targets = false }: { title: string; unit: string; rows: [string, [number, number, number, number]][]; empty: string; targets?: boolean }) {
   return (
     <div>
       <div className="flex justify-between text-sm text-muted"><span>{title}</span><span>{unit} / yds / TD</span></div>
       {rows.length === 0 && <div className="text-muted">{empty}</div>}
       {rows.map(([name, v]) => (
-        <div key={name} className="flex justify-between"><span className="truncate pr-2 text-slate-300">{short(name)}</span><span className="whitespace-nowrap text-white">{v[0]} / {v[1]} / {v[2]}</span></div>
+        <div key={name} className="flex justify-between"><span className="truncate pr-2 text-slate-300">{short(name)}</span><span className="whitespace-nowrap text-white">{targets ? `${v[0]}/${v[3]}` : v[0]} / {v[1]} / {v[2]}</span></div>
       ))}
     </div>
   );
@@ -221,7 +221,8 @@ function Injuries({ sim }: { sim: Sim }) {
   const moves = sim.injury_moves ?? [];
   const moved = new Set(moves.map((m) => m.player));
   const rest = (sim.unavailable ?? []).filter((u) => !moved.has(u.player));
-  if (!moves.length && !rest.length) return <div className="text-base text-muted">No one in either lineup is listed as out{sim.injury_source ? ` on ${sim.injury_source}` : ""}.</div>;
+  const q = sim.questionable ?? [];
+  if (!moves.length && !rest.length && !q.length) return <div className="text-base text-muted">No one in either lineup is listed as out{sim.injury_source ? ` on ${sim.injury_source}` : ""}.</div>;
   return (
     <Card>
       {moves.map((m) => (
@@ -230,6 +231,17 @@ function Injuries({ sim }: { sim: Sim }) {
           <div className="text-slate-300">{m.text}</div>
         </div>
       ))}
+      {q.length > 0 && (
+        <div className="border-b border-line py-2 text-base">
+          <div className="text-sm text-muted">Listed questionable: each simulated game draws whether they play</div>
+          {q.map((x) => (
+            <div key={x.player} className="flex justify-between gap-3 py-0.5">
+              <span><b className="text-white">{x.player}</b> <span className="text-muted">{x.team} · {x.group}</span></span>
+              <span className="text-slate-300">plays {pct(x.chance)} of the time · {x.plays ? "plays in this game" : "sits in this game"}</span>
+            </div>
+          ))}
+        </div>
+      )}
       {rest.length > 0 && (
         <details className="text-base">
           <summary className="flex min-h-[44px] items-center text-muted hover:text-white">{rest.length} other player{rest.length === 1 ? "" : "s"} out who were not part of the regular rotation</summary>
@@ -237,7 +249,8 @@ function Injuries({ sim }: { sim: Sim }) {
         </details>
       )}
       <div className="mt-2 text-sm leading-relaxed text-muted">
-        From {sim.injury_source}. Out and doubtful players are left out.
+        From {sim.injury_source}. Players who are out or doubtful, on injured reserve, released, retired or inactive are left out of every game.
+        A regular listed questionable plays at the rate regulars with that status played in 2022 to 2025 (about 7 in 10 for receivers, about half for quarterbacks).
         {r && <> Measured on real absences{r.fitted_on ? ` in ${r.fitted_on.join(" and ")}` : ""}: teams keep about {pct(r.kept_rec)} of a missing player's receiving yards and
         {" "}{pct(r.kept_rush)} of his rushing yards. About {pct(r.to_new_rec)} of the receiving share goes to the player who steps in; the rest goes to the regulars by
         their usual share, leaning toward the same position.</>}
@@ -388,7 +401,7 @@ export function SimGame({ d }: { d: Detail }) {
         <Conditions sim={sim} d={d} />
       </Section>
 
-      <Section title={title} note={`${note} Player totals follow each player's number below, moving up or down with the score. The individual plays are made up to connect those numbers.`}>
+      <Section title={title} note={`${note} ${sim.receiving?.model === "sampled" ? "Every pass is drawn at random: a target for one of the players available, then a catch or not, then the yards. Some games come out lumpy and some spread out, the way real ones do. Rushing follows each player's number below, moving with the score." : "Player totals follow each player's number below, moving up or down with the score."} The individual plays are made up to connect those numbers.`}>
         <div className="flex flex-wrap items-center gap-2">
           <Segmented<string> label="Which simulated game" options={Object.keys(MODE_OF)} value={MODE_LABEL[mode]} onChange={(l) => { setMode(MODE_OF[l]); setDraw(1); }} />
           <button className="min-h-[44px] rounded-lg border border-line px-4 text-base text-white hover:bg-line disabled:opacity-40" disabled={mode === "typical" || loading}

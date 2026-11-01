@@ -154,6 +154,8 @@ export interface Sim {
   unavailable?: { player: string; team: string; status: string }[];
   injury_source?: string | null;
   weather?: Weather;
+  questionable?: { team: string; player: string; group: string; chance: number; plays: boolean }[];
+  receiving?: { model: "sampled" | "averaged" };
   game?: { mode: "typical" | "random" | "upset"; draw: number; favorite: string; underdog: string; p_home: number; p_underdog: number; points: Record<string, number> };
   own?: { p_home: number; margin: number; total: number; home: number; away: number; sd_m: number; sd_t: number;
           evidence?: { pick_accuracy?: { market: number; drive_sim: number }; same_pick?: number; used?: Record<string, boolean> } } | null;

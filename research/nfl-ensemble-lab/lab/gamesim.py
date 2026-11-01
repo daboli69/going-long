@@ -14,8 +14,10 @@ import pandas as pd
 
 from . import gamecenter_data as D
 from . import gameweather
+from . import avail_source as AV
 from . import drivesim as DS
 from . import fpds_usage as X
+from . import recvsim as RS
 from . import usage as U
 from .config import CACHE_DIR, RAW_DIR
 from .ingest import normalize_team
@@ -140,7 +142,7 @@ def _split(total: float, n: int, r: np.random.Generator) -> list[int]:
     return [int(p) for p in parts]
 
 
-def _pool(team: str, props: list[dict], ctx_row, r: np.random.Generator, scale: float = 1.0) -> tuple[list[dict], str, str]:
+def _pool(team: str, props: list[dict], ctx_row, r: np.random.Generator, scale: float = 1.0, sampled: dict | None = None) -> tuple[list[dict], str, str]:
     """Every snap this team runs in the typical game, built from each named player's projection."""
     mine = [p for p in props if p["team"] == team]
     by, carries_of = {}, {}
@@ -156,6 +158,12 @@ def _pool(team: str, props: list[dict], ctx_row, r: np.random.Generator, scale: 
     team_rushes = float(ctx_row["rushes"]) if ctx_row is not None else 26.0
     plays: list[dict] = []
 
+    if sampled is not None:
+        # A sampled game: each receiver's targets, catches and the yards of every catch were drawn at random (lab/recvsim.py).
+        for rc in sampled["players"]:
+            plays += [{"kind": "pass", "player": rc["name"], "yards": int(y)} for y in rc["yards"]]
+            plays += [{"kind": "incomplete", "player": rc["name"], "yards": 0} for _ in range(max(rc["tgt"] - len(rc["yards"]), 0))]
+        plays += [{"kind": "sack", "player": None, "yards": -int(r.integers(4, 9))} for _ in range(2)]
     # Catches: every receiver is a named player. Their yards are scaled so they add up to the quarterback's passing yards.
     recv = []
     for n, s in by.items():
@@ -170,14 +178,15 @@ def _pool(team: str, props: list[dict], ctx_row, r: np.random.Generator, scale: 
         for x in recv:
             x[2] *= pass_yds / total
     catches = 0
-    for n, rec, y in recv:
+    for n, rec, y in recv if sampled is None else []:
         c = int(round(rec))
         if c == 0 and y >= 6:
             c = 1
         catches += c
         plays += [{"kind": "pass", "player": n, "yards": v} for v in _split(y, c, r)]
-    plays += [{"kind": "incomplete", "player": None, "yards": 0} for _ in range(int(round(catches * 0.52)))]
-    plays += [{"kind": "sack", "player": None, "yards": -int(r.integers(4, 9))} for _ in range(2)]
+    if sampled is None:
+        plays += [{"kind": "incomplete", "player": None, "yards": 0} for _ in range(int(round(catches * 0.52)))]
+        plays += [{"kind": "sack", "player": None, "yards": -int(r.integers(4, 9))} for _ in range(2)]
 
     # Carries: every runner is a named player, quarterback runs included; carries come from each player's projection.
     rushers = []
@@ -212,21 +221,21 @@ def _caption(p: dict, team: str) -> str:
     if p["kind"] == "pass":
         return f"{p['passer']} completes to {p['player']} for {p['yards']} yard{'s' if abs(p['yards']) != 1 else ''}."
     if p["kind"] == "incomplete":
-        return f"{p['passer']} pass incomplete."
+        return f"{p['passer']} pass intended for {p['player']} is incomplete." if p.get("player") else f"{p['passer']} pass incomplete."
     if p["kind"] == "sack":
         return f"{p['passer']} sacked for a loss of {-p['yards']}."
     return f"{p['player']} rushes for {p['yards']} yard{'s' if abs(p['yards']) != 1 else ''}."
 
 
 def _replay_once(gid: str, away: str, home: str, targets: dict, props: list[dict], ctx: pd.DataFrame, td_weights: dict | None,
-                 rush_td_share: dict | None, drives_per_team: int, pace: float, volume: dict | None = None) -> dict:
+                 rush_td_share: dict | None, drives_per_team: int, pace: float, volume: dict | None = None, sampled: dict | None = None) -> dict:
     r = _rng(gid, f"replay{drives_per_team}-{pace}")
     teams, expect = {}, {}
     for t in (away, home):
         td, fg = reachable_score(targets[t])
         row = ctx.loc[t] if t in ctx.index else None
         to = int(round(float(row["turnovers"]))) if row is not None else 1
-        pool, qb, lead = _pool(t, props, row, r, (volume or {}).get(t, 1.0))
+        pool, qb, lead = _pool(t, props, row, r, (volume or {}).get(t, 1.0), (sampled or {}).get(t))
         ys = sorted((q["yards"] for q in pool), reverse=True)
         cut = ys[len(ys) // 2] if ys else 0
         for q in pool:  # the bigger half of the plays go to scoring drives, the rest to drives that stall
@@ -382,20 +391,20 @@ def _fit_error(res: dict) -> float:
 
 
 def replay(gid: str, away: str, home: str, targets: dict, props: list[dict], ctx: pd.DataFrame, td_weights: dict | None = None,
-           rush_td_share: dict | None = None, volume: dict | None = None, salt: str = "") -> dict:
+           rush_td_share: dict | None = None, volume: dict | None = None, salt: str = "", sampled: dict | None = None) -> dict:
     """Play the game out. Teams run between 9 and 13 drives and vary in pace, so several drive counts and paces are tried and the
     one whose passing and rushing yards land closest to the projections is kept (the same seed always gives the same game)."""
     planned = {t: 7 * reachable_score(targets[t])[0] + 3 * reachable_score(targets[t])[1] for t in (away, home)}
     best = None
     for drives in (11, 12, 10):
         for pace in (1.0, 0.85, 1.15):
-            res = _replay_once(gid + salt, away, home, targets, props, ctx, td_weights, rush_td_share, drives, pace, volume)
+            res = _replay_once(gid + salt, away, home, targets, props, ctx, td_weights, rush_td_share, drives, pace, volume, sampled)
             if res["final"] != planned:  # the drives must still end in the planned touchdowns and field goals
                 continue
             err = _fit_error({**res, "plays": res["_raw"]})
             if best is None or err < best[0]:
                 best = (err, res)
-    res = best[1] if best else _replay_once(gid + salt, away, home, targets, props, ctx, td_weights, rush_td_share, DRIVES_PER_TEAM, 1.0, volume)
+    res = best[1] if best else _replay_once(gid + salt, away, home, targets, props, ctx, td_weights, rush_td_share, DRIVES_PER_TEAM, 1.0, volume, sampled)
     res.pop("_raw", None)
     return res
 
@@ -822,6 +831,79 @@ def fallback_lines(away: str, home: str, week: int) -> dict | None:
 
 # --------------------------------------------------------------------------- public API
 
+def _pid_by_norm() -> dict:
+    path = RAW_DIR / "players.parquet"
+    return D._cached(("pid_by_norm",), D._mt(path) if path.exists() else 0, lambda: {_norm(n): pid for pid, n in _names().items()})
+
+
+def _p_questionable(group: str) -> float:
+    """Chance a regular listed Questionable plays, by position, from 2022 on (lab/avail_source.py)."""
+    table = D._cached(("p_play_q", D.SEASON), 0, lambda: AV.fit_p_play(range(2022, D.SEASON), False))
+    return float(table.get(("Questionable", group), 0.7))
+
+
+def _questionable(team: str, week: int, mode: str, rng: np.random.Generator) -> tuple[list[dict], dict]:
+    """Players the official report lists Questionable who have a role, whether each plays in this game, and the ones who sit as an `out` dict."""
+    st = AV.status_table([D.SEASON])
+    s = st[(st["season"] == D.SEASON) & (st["team"] == team) & (st["week"] == week) & (st["official"] == "Questionable") & (st["roster"] == "ACT") & st["group"].isin(AV.SKILL)]
+    if s.empty:
+        return [], {}
+    u = U.usage(U.player_games((D.SEASON - 1, D.SEASON)), D.SEASON, team, week)
+    active = set(u.players.loc[u.players["active"], "pid"]) if u is not None else set()
+    names, out, lst = _names(), {}, []
+    for r in s.sort_values("gsis_id").itertuples():
+        if r.gsis_id not in active:
+            continue
+        nm, p = names.get(r.gsis_id, r.full_name), _p_questionable(r.group)
+        plays = bool(p >= 0.5) if mode == "typical" else bool(rng.random() < p)
+        lst.append({"team": team, "player": nm, "group": r.group, "chance": p, "plays": plays})
+        if not plays:
+            out[_norm(nm)] = (nm, "Questionable, sits")
+    return lst, out
+
+
+def _out_pids(team: str, week: int, out: dict) -> set:
+    """Ids of the players not expected to play: the availability source for the week plus everyone named in `out`."""
+    st = AV.status_table([D.SEASON])
+    pids = set(RS.out_ids(st, D.SEASON, team, week, "source", False))
+    by = _pid_by_norm()
+    return pids | {by[k] for k in out if k in by}
+
+
+def receiving_for_game(team: str, week: int, out_pids: set, mu_scale: float, rng: np.random.Generator, season: int = D.SEASON) -> dict | None:
+    """A sampled receiving game for one team, with everyone named, or None when the model has not passed its check or the team has too little record."""
+    params, passed = RS.load_rule()
+    if not passed or params is None:
+        return None
+    c = RS.future_case(RS.blocks_cached(season), season, team, week, out_pids, mu_scale)
+    if c is None:
+        return None
+    g = RS.sample_game(c, params, rng)
+    names = _names()
+    players = [{"name": names.get(pid, pid), "group": grp, "tgt": t, "rec": r_, "yards": ys}
+               for pid, grp, t, r_, ys in zip(g["pids"], g["group"], g["tgt"], g["rec"], g["yards"])]
+    oth = g["other"]
+    if oth["tgt"] > 0:  # targets to players outside the usual group go to named depth players
+        taken = {_norm(p["name"]) for p in players}
+        by_group, order = {}, list(rng.choice(["WR", "TE", "RB"], size=oth["tgt"], p=[0.5, 0.25, 0.25]))
+        for k, grp in enumerate(order):
+            if grp not in by_group:
+                nm = _replacement(team, grp, week, season, taken, None, names)
+                if nm is None:
+                    continue
+                taken.add(_norm(nm))
+                by_group[grp] = {"name": nm, "group": grp, "tgt": 0, "rec": 0, "yards": []}
+            by_group[grp]["tgt"] += 1
+        ys = list(oth["yards"])
+        caught = set(rng.choice(len(order), size=min(oth["rec"], len(order)), replace=False).tolist()) if oth["rec"] else set()
+        for k, grp in enumerate(order):
+            if grp in by_group and k in caught and ys:
+                by_group[grp]["rec"] += 1
+                by_group[grp]["yards"].append(ys.pop())
+        players += list(by_group.values())
+    return {"players": players}
+
+
 def simulate(gid: str, mode: str = "typical", draw: int = 0) -> dict | None:
     """Everything the Simulated game tab shows. `mode` picks the replayed game: "typical" (the middle result), "random" (one of the
     10,000 draws) or "upset" (a random draw in which the underdog wins); `draw` numbers the random pick."""
@@ -852,11 +934,18 @@ def simulate(gid: str, mode: str = "typical", draw: int = 0) -> dict | None:
     typical = {away: rng["away"]["median"], home: rng["home"]["median"]}
     volume = {t: float(np.clip((max(game["points"][t], 1) / max(typical[t], 1)) ** 0.6, 0.8, 1.25)) for t in (away, home)} if game["mode"] != "typical" else {}
     players, moves, gone, sources, inj_source = [], [], [], {}, None
-    td_weights, fp_teams, rush_share = {}, {}, {}
+    td_weights, fp_teams, rush_share, sampled, questionable = {}, {}, {}, {}, []
+    rng_av = _rng(gid, f"avail|{game['mode']}|{game['draw']}")
     for t in (away, home):
         out_t, src = unavailable(t, week)
         inj_source = inj_source or src
+        q_list, q_out = _questionable(t, week, game["mode"], rng_av)
+        out_t = {**out_t, **q_out}
+        questionable += q_list
         rows, mv, sources[t], extra = team_players(t, week, out_t, saved, typical[t])
+        flow = (max(game["points"][t], 1) / max(typical[t], 1)) ** 0.6 if game["mode"] != "typical" else 1.0
+        ratio = _volume_ratio(t, week, D.SEASON, typical[t])
+        sampled[t] = receiving_for_game(t, week, _out_pids(t, week, out_t), float(np.clip(ratio ** 0.6 * flow, 0.75, 1.35)), _rng(gid, f"recv|{game['mode']}|{game['draw']}|{t}"))
         td_weights[t], fp_teams[t] = extra["td_weights"], extra["fpds"]
         rush_share[t] = X.rush_td_share(t, D.SEASON, week)
         players += rows
@@ -870,7 +959,8 @@ def simulate(gid: str, mode: str = "typical", draw: int = 0) -> dict | None:
         own_out = {k: own[k] for k in ("p_home", "margin", "total", "home", "away", "sd_m", "sd_t")}
         own_out["evidence"] = DS.evidence()
     out.update({"ok": True, "ranges": rng, "game": game, "own": own_out,
-                "replay": replay(gid, away, home, game["points"], players, ctx, td_weights, rush_share, volume, salt),
+                "replay": replay(gid, away, home, game["points"], players, ctx, td_weights, rush_share, volume, salt, sampled),
+                "receiving": {"model": "sampled" if all(sampled.get(t) for t in (away, home)) else "averaged"}, "questionable": questionable,
                 "defense": defense_matchups(ctx, away, home) if not ctx.empty else [],
                 "source": {"margin": e.get("margin_label"), "total": e.get("total_label")}, "has_players": bool(players),
                 "players": players, "player_source": sources, "injury_moves": moves, "unavailable": gone, "injury_source": inj_source,
