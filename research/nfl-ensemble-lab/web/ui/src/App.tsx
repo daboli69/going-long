@@ -3,25 +3,30 @@ import { api } from "./api";
 import type { Detail, GameRow, Meta } from "./types";
 import { etStamp, etTime } from "./lib";
 import { GameStrip } from "./components/GameStrip";
-import { Overview, Scorebug } from "./components/Overview";
-import { About, Matchup, Props } from "./components/Others";
+import { GameTitle, Overview, Scorebug } from "./components/Overview";
+import { About, Matchup } from "./components/Others";
+import { Props } from "./components/Players";
 import { SimGame } from "./components/SimGame";
 import { RankingsView } from "./components/Rankings";
 import { MarketValueView } from "./components/MarketValue";
-import { Callout, Segmented, Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/primitives";
+import { Callout, Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/primitives";
+
+type View = "games" | "rankings" | "market";
 
 export default function App() {
-  const [view, setView] = useState<"Games" | "Player rankings" | "Market value">("Games");
+  const [view, setView] = useState<View>("games");
   const [meta, setMeta] = useState<Meta | null>(null);
   const [week, setWeek] = useState<number | null>(null);
   const [games, setGames] = useState<GameRow[] | null>(null);
   const [gid, setGid] = useState<string | null>(null);
   const [detail, setDetail] = useState<Detail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [attempt, setAttempt] = useState(0);
+  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
-    api.meta().then((m) => { setMeta(m); if (m.ok) setWeek(m.default_week); }).catch((e) => setError(String(e)));
-  }, []);
+    api.meta().then((m) => { setMeta(m); setError(null); if (m.ok) setWeek((w) => w ?? m.default_week); }).catch((e) => setError(String(e))).finally(() => setRetrying(false));
+  }, [attempt]);
 
   useEffect(() => {
     if (week === null) return;
@@ -30,74 +35,79 @@ export default function App() {
       setGames(rows);
       const now = Date.now();
       const next = rows.find((r) => new Date(r.kickoff_utc).getTime() > now) ?? rows[0];
-      setGid(next ? next.gid : null);
+      setGid((g) => (g && rows.some((r) => r.gid === g) ? g : next ? next.gid : null));
     }).catch((e) => setError(String(e)));
-  }, [week]);
+  }, [week, attempt]);
 
   useEffect(() => {
     if (!gid) { setDetail(null); return; }
     api.game(gid).then(setDetail).catch((e) => setError(String(e)));
-  }, [gid]);
+  }, [gid, attempt]);
 
-  if (error) return <div className="p-6"><Callout tone="amber">Can't reach the local server ({error}). Is <code>launch_game_center.bat</code> still running?</Callout></div>;
+  if (error) return (
+    <div className="mx-auto max-w-[640px] space-y-3 p-6">
+      <Callout tone="amber">Can't reach the local server ({error}). Is <code>launch_game_center.bat</code> still running?</Callout>
+      <button type="button" disabled={retrying} className="min-h-[44px] bg-white px-4 font-semibold text-bg hover:bg-white disabled:opacity-70"
+        onClick={() => { setRetrying(true); setError(null); setAttempt((n) => n + 1); }}>{retrying ? "Trying…" : "Try again"}</button>
+    </div>
+  );
   if (!meta) return <div className="p-8 text-muted">Loading…</div>;
   if (!meta.ok) return <div className="p-8"><Callout tone="amber">{meta.reason}</Callout></div>;
 
   const upcoming = (games ?? []).filter((g) => new Date(g.kickoff_utc).getTime() > Date.now());
   const saved = week !== null ? meta.forecast_saved_at[String(week)] : undefined;
-  const summary = games === null ? "Loading games…"
-    : games.length === 0 ? "No games found for this week."
-    : [`${games.length} games`, upcoming.length ? `next kickoff ${etTime(upcoming[0].kickoff_utc)} ET` : "all games played",
-       saved ? `forecast saved ${etStamp(saved)}` : "no saved forecast, using sportsbook lines"].join(" · ");
+  const next = upcoming[0];
+  const status = games === null ? "Loading games…" : games.length === 0 ? "No games found for this week."
+    : saved ? `Forecast saved ${etStamp(saved)}` : "No saved forecast, using sportsbook lines";
 
   return (
     <>
       <header className="bg-panel2">
-        <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4 sm:px-6">
-          <div>
-            <h1 className="text-2xl font-bold text-white">NFL Game Center</h1>
-            <p className="mt-0.5 text-[15px] text-muted">{summary}</p>
-          </div>
-          <label className="flex items-center gap-3 text-[15px] text-muted">
-            Week
-            <select
-              className="min-h-[44px] bg-panel px-3 text-base text-white hover:bg-line"
-              value={week ?? ""}
-              onChange={(e) => setWeek(Number(e.target.value))}
-            >
-              {meta.weeks.map((w) => <option key={w} value={w}>Week {w}</option>)}
-            </select>
-          </label>
+        <div className="mx-auto flex min-h-[64px] max-w-[1320px] flex-wrap items-center gap-x-4 gap-y-1 px-4 py-2 sm:px-6">
+          <span className="text-lg font-bold text-white">NFL Game Center</span>
+          <label className="sr-only" htmlFor="week">Week</label>
+          <select id="week" className="min-h-[44px] bg-panel px-4 text-base text-white hover:bg-raised" value={week ?? ""} onChange={(e) => setWeek(Number(e.target.value))}>
+            {meta.weeks.map((w) => <option key={w} value={w}>Week {w}</option>)}
+          </select>
+          <span className="basis-full pb-1 text-sm text-muted sm:ml-auto sm:basis-auto sm:pb-0">{status}{next ? `, next kickoff ${etTime(next.kickoff_utc)} ET` : games && games.length ? ", all games played" : ""}</span>
         </div>
       </header>
 
-      <main className="mx-auto max-w-[1280px] space-y-5 px-4 pb-10 pt-0.5 sm:px-6">
-      <Segmented label="View" options={["Games", "Player rankings", "Market value"]} value={view} onChange={setView} />
-
-      {view === "Player rankings" && week !== null && <RankingsView week={week} onOpenGame={(g) => { setGid(g); setView("Games"); }} />}
-
-      {view === "Market value" && week !== null && <MarketValueView week={week} />}
-
-      {view === "Games" && games && games.length > 0 && <GameStrip games={games} selected={gid} onSelect={setGid} />}
-
-      {view === "Games" && detail && <Scorebug d={detail} />}
-
-      {view === "Games" && detail && (
-        <Tabs defaultValue="game" key={detail.gid}>
-          <TabsList>
-            <TabsTrigger value="game">Game</TabsTrigger>
-            <TabsTrigger value="sim">Simulated game</TabsTrigger>
-            <TabsTrigger value="players">Players</TabsTrigger>
-            <TabsTrigger value="teams">Teams and injuries</TabsTrigger>
-            <TabsTrigger value="about">About these numbers</TabsTrigger>
+      <main className="mx-auto max-w-[1320px] px-4 pb-12 sm:px-6">
+        <Tabs value={view} onValueChange={(v) => setView(v as View)}>
+          <TabsList aria-label="Views" className="mt-4">
+            <TabsTrigger value="games">Games</TabsTrigger>
+            <TabsTrigger value="rankings">Player rankings</TabsTrigger>
+            <TabsTrigger value="market">Market value</TabsTrigger>
           </TabsList>
-          <TabsContent value="game"><Overview d={detail} /></TabsContent>
-          <TabsContent value="sim"><SimGame d={detail} /></TabsContent>
-          <TabsContent value="players"><Props d={detail} /></TabsContent>
-          <TabsContent value="teams"><Matchup d={detail} /></TabsContent>
-          <TabsContent value="about"><About meta={meta} /></TabsContent>
+
+          <TabsContent value="games" className="mt-4">
+            {games && games.length > 0 && week !== null && <GameStrip games={games} selected={gid} onSelect={setGid} week={week} />}
+            {detail && (
+              <div className="mt-2">
+                <GameTitle d={detail} />
+                <Scorebug d={detail} />
+                <Tabs defaultValue="game" key={detail.gid} className="mt-6">
+                  <TabsList aria-label="Game views">
+                    <TabsTrigger value="game">Game</TabsTrigger>
+                    <TabsTrigger value="sim">Simulated game</TabsTrigger>
+                    <TabsTrigger value="players">Players</TabsTrigger>
+                    <TabsTrigger value="teams">Teams and injuries</TabsTrigger>
+                    <TabsTrigger value="about">About these numbers</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="game"><Overview d={detail} /></TabsContent>
+                  <TabsContent value="sim"><SimGame d={detail} /></TabsContent>
+                  <TabsContent value="players"><Props d={detail} /></TabsContent>
+                  <TabsContent value="teams"><Matchup d={detail} /></TabsContent>
+                  <TabsContent value="about"><About meta={meta} /></TabsContent>
+                </Tabs>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="rankings" className="mt-6">{week !== null && <RankingsView week={week} onOpenGame={(g) => { setGid(g); setView("games"); }} />}</TabsContent>
+          <TabsContent value="market" className="mt-6">{week !== null && <MarketValueView week={week} />}</TabsContent>
         </Tabs>
-      )}
       </main>
     </>
   );

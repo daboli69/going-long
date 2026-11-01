@@ -5,7 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: "#16181b", panel: "#1f2226", panel2: "#0e0f11", line: "#2c3036", muted: "#a9adb3",
+        bg: "#16181b", panel: "#1f2226", panel2: "#0e0f11", line: "#2c3036", raised: "#2a2e33", muted: "#a9adb3",
         accent: "#ffcf3f", warn: "#ffcf3f", bad: "#f87171", info: "#60a5fa", chart: "#8b9097",
         white: "#f2f2f0", slate: { 100: "#f2f2f0", 300: "#d0d3d7" },
       },

@@ -1,173 +1,95 @@
 import type { CSSProperties } from "react";
-import { Bar, BarChart, Cell, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { Detail } from "../types";
 import { cn, num, pct, splitPct } from "../lib";
-import { Callout, Card, Label } from "./ui/primitives";
+import { Callout } from "./ui/primitives";
+import { ForecastDots, Hist, tickEvery } from "./Charts";
 
-// The scorebug: each team as a block of its own colour with its win chance, kickoff and source in the middle.
+// The one sentence that tells you whether the forecasts agree.
+function finding(d: Detail): string | null {
+  const src = d.sources ?? [];
+  if (src.length < 2) return null;
+  const fav = (p: number) => (p >= 0.5 ? d.home : d.away);
+  const first = fav(src[0].p_home);
+  const split = src.filter((s) => fav(s.p_home) !== first);
+  if (split.length) return `${split.map((s) => s.name).join(" and ")} ${split.length > 1 ? "favor" : "favors"} ${fav(split[0].p_home)}; the other forecasts favor ${first}.`;
+  return d.agreement ? `All ${src.length} forecasts favor ${first}, within ${Math.round(d.agreement.gap_points)} points.` : null;
+}
+
+export function GameTitle({ d }: { d: Detail }) {
+  const f = d.has_forecast ? finding(d) : null;
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 pb-4 pt-2">
+      <h1 className="text-[22px] font-bold leading-tight text-white sm:text-2xl">{d.away} at {d.home}</h1>
+      {f && <p className="text-accent">{f}</p>}
+    </div>
+  );
+}
+
+// The scorebug: each team as a block of its own colour with its win chance; kickoff, expected score and lines in the middle.
 export function Scorebug({ d }: { d: Detail }) {
   const h = d.has_forecast ? d.headline : null;
+  const e = d.has_forecast ? d.expected : undefined;
   const [awayP, homeP] = h ? splitPct(h.p_home) : [null, null];
+  const fav = e?.margin == null ? null : e.margin >= 0 ? d.home : d.away;
   const team = (abbr: string, name: string, color: string, side: string, p: string | null, home = false) => (
-    <div className={cn("team-field flex items-center gap-4 px-5 py-4 text-white", home && "md:flex-row-reverse md:text-right")} style={{ "--team": color } as CSSProperties}>
-      <div className="text-4xl font-bold leading-none sm:text-[44px]">{abbr}</div>
-      <div className="min-w-0">
-        <div className="text-[17px] leading-tight">{name}</div>
-        <div className="text-[15px] opacity-90">{d.records[abbr]} · {side}</div>
+    <div className={cn("team-field flex items-center gap-4 px-4 py-4 text-white sm:px-6", home && "xl:flex-row-reverse")} style={{ "--team": color } as CSSProperties}>
+      <div className="text-[28px] font-bold leading-none sm:text-[32px]">{abbr}</div>
+      <div className={cn("min-w-0 text-[15px] leading-snug", home && "xl:text-right")}>
+        <b className="font-semibold">{name}</b>
+        <div className="opacity-85">{d.records[abbr]}, {side}</div>
       </div>
-      {p && <div className={cn("ml-auto text-5xl font-bold leading-none sm:text-[56px]", home && "md:ml-0 md:mr-auto")}>{p}</div>}
+      {p && <div className={cn("text-4xl font-bold leading-none sm:text-[40px]", home ? "ml-auto xl:ml-0 xl:mr-auto" : "ml-auto")}>{p}</div>}
     </div>
   );
   return (
-    <section aria-label="Matchup" className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr]">
+    <section aria-label="Win chance" className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr]">
       {team(d.away, d.away_name, d.away_color, "away", awayP)}
-      <div className="order-first flex flex-col justify-center bg-panel2 px-5 py-3 text-center md:order-none md:min-w-[200px]">
-        <div className="text-lg font-semibold text-white">{d.completed ? `Final: ${d.away} ${d.away_score}, ${d.home} ${d.home_score}` : `${d.date_label} · ${d.time_label} ET`}</div>
-        <div className="text-[15px] text-muted">{d.stadium}</div>
-        {h && <div className="text-[15px] text-muted">Win chance from {h.p_label}</div>}
-      </div>
+      <dl className="order-last grid grid-cols-[auto_auto] content-center gap-x-6 gap-y-0.5 bg-panel2 px-4 py-4 sm:px-6 xl:order-none">
+        <div className="col-span-full"><dt className="text-[13px] text-muted">{d.completed ? "Final" : "Kickoff"}</dt><dd className="text-lg font-semibold">{d.completed ? `${d.away} ${d.away_score}, ${d.home} ${d.home_score}` : `${d.date_label}, ${d.time_label} ET`}</dd></div>
+        {e?.home_pts !== undefined && e?.away_pts !== undefined && <div><dt className="text-[13px] text-muted">Expected score</dt><dd className="text-lg font-semibold">{d.away} {e.away_pts.toFixed(0)}, {d.home} {e.home_pts.toFixed(0)}</dd></div>}
+        {e && (e.margin !== null || e.total !== null) && <div><dt className="text-[13px] text-muted">Spread, total</dt><dd className="text-lg font-semibold">{e.margin === null ? "" : Math.abs(e.margin) < 0.25 ? "Even" : `${fav} by ${num(Math.abs(e.margin))}`}{e.margin !== null && e.total !== null ? ", " : ""}{e.total === null ? "" : num(e.total)}</dd></div>}
+        <div className="col-span-full"><dt className="sr-only">Where it comes from</dt><dd className="text-[15px] text-muted">{h ? `Win chance from ${h.p_label}, at ${d.stadium}` : d.stadium}</dd></div>
+      </dl>
       {team(d.home, d.home_name, d.home_color, "home", homeP, true)}
     </section>
   );
 }
 
-function Forecasts({ d }: { d: Detail }) {
-  const others = (d.sources ?? []).filter((s) => !s.name.startsWith("Betting market"));
-  if (!others.length) return null;
-  return (
-    <Card>
-      <Label className="mb-2">Other forecasts, {d.home} win chance</Label>
-      {others.map((s) => (
-        <div key={s.name} className="flex justify-between border-line py-1.5 text-base [&+&]:border-t">
-          <span className="text-slate-300">{s.name}</span>
-          <span className="font-semibold text-white">{pct(s.p_home)}</span>
-        </div>
-      ))}
-      {d.agreement && !d.agreement.agree && (
-        <p className="mt-2 text-[15px] text-warn">Forecasts differ by {d.agreement.gap_points.toFixed(0)} points on this game.</p>
-      )}
-    </Card>
-  );
-}
-
-function Score({ d }: { d: Detail }) {
-  const e = d.expected!;
-  if (e.margin === null && e.total === null) return null;
-  const fav = e.margin === null ? null : e.margin >= 0 ? d.home : d.away;
-  return (
-    <Card>
-      <Label>Expected score</Label>
-      {e.home_pts !== undefined && e.away_pts !== undefined && (
-        <div className="mt-1 text-[34px] font-bold leading-tight text-white">
-          {d.away} {e.away_pts.toFixed(0)} · {d.home} {e.home_pts.toFixed(0)}
-        </div>
-      )}
-      <div className="mt-2">
-        {e.margin !== null && (
-          <div className="flex justify-between py-1.5 text-base">
-            <span className="text-slate-300">Spread</span>
-            <span className="font-semibold text-white">{Math.abs(e.margin) < 0.25 ? "Even" : `${fav} by ${num(Math.abs(e.margin))}`}</span>
-          </div>
-        )}
-        {e.total !== null && (
-          <div className="flex justify-between border-t border-line py-1.5 text-base">
-            <span className="text-slate-300">Total points</span>
-            <span className="font-semibold text-white">{num(e.total)}</span>
-          </div>
-        )}
-      </div>
-      <p className="mt-2 text-[15px] text-muted">
-        {e.margin_label && e.total_label && e.margin_label !== e.total_label
-          ? `Spread: ${e.margin_label}. Total: ${e.total_label}.`
-          : `Source: ${e.margin_label ?? e.total_label}.`}
-      </p>
-    </Card>
-  );
-}
-
-const axis = { tick: { fill: "#a9adb3", fontSize: 13 }, tickLine: false };
-const tip = { cursor: { fill: "rgba(255,255,255,0.06)" }, contentStyle: { background: "#0e0f11", border: 0, borderRadius: 0, color: "#f2f2f0" } };
-
-function MarginChart({ d }: { d: Detail }) {
-  const data = d.distribution!.margin;
-  const mu = d.expected!.margin!;
-  return (
-    <Card>
-      <h2 className="text-lg font-semibold text-white">Final margin</h2>
-      <p className="mb-3 text-[15px] text-muted">Left of 0: {d.away} wins. Right of 0: {d.home} wins. Dashed line: expected margin.</p>
-      <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 4 }} barCategoryGap={1}>
-          <XAxis dataKey="x" interval={9} {...axis} axisLine={{ stroke: "#2c3036" }} />
-          <YAxis hide />
-          <Tooltip {...tip} formatter={(v: number) => [`${(v * 100).toFixed(1)}%`, "Chance"]}
-            labelFormatter={(x: number) => (x === 0 ? "Tie" : x > 0 ? `${d.home} by ${x}` : `${d.away} by ${-x}`)} />
-          <Bar dataKey="p" isAnimationActive={false}>
-            {data.map((r) => <Cell key={r.x} fill={r.x > 0 ? d.home_color : r.x < 0 ? d.away_color : "#6b7076"} />)}
-          </Bar>
-          <ReferenceLine x={Math.round(mu)} stroke="#ffcf3f" strokeDasharray="5 4" />
-        </BarChart>
-      </ResponsiveContainer>
-      {d.outcomes && (
-        <div className="mt-3">
-          {d.outcomes.map((o) => (
-            <div key={o.label} className="flex justify-between border-t border-line py-1.5 text-base">
-              <span className="text-slate-300">{o.label}</span>
-              <span className="font-semibold text-white">{pct(o.p)}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </Card>
-  );
-}
-
-function TotalChart({ d }: { d: Detail }) {
-  const data = d.distribution!.total;
-  const mu = d.expected!.total!;
-  const sd = d.expected!.sd_t;
-  return (
-    <Card>
-      <h2 className="text-lg font-semibold text-white">Total points</h2>
-      <p className="mb-3 text-[15px] text-muted">Both teams combined. Dashed line: expected total.</p>
-      <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 4 }} barCategoryGap={1}>
-          <XAxis dataKey="x" interval={9} {...axis} axisLine={{ stroke: "#2c3036" }} />
-          <YAxis hide />
-          <Tooltip {...tip} formatter={(v: number) => [`${(v * 100).toFixed(1)}%`, "Chance"]} labelFormatter={(x: number) => `${x} points`} />
-          <Bar dataKey="p" fill="#8b9097" isAnimationActive={false} />
-          <ReferenceLine x={Math.round(mu)} stroke="#ffcf3f" strokeDasharray="5 4" />
-        </BarChart>
-      </ResponsiveContainer>
-      <p className="mt-3 border-t border-line pt-2 text-base text-slate-300">
-        8 in 10 games like this land between <b className="text-white">{Math.round(mu - 1.2816 * sd)}</b> and <b className="text-white">{Math.round(mu + 1.2816 * sd)}</b> points.
-      </p>
-    </Card>
-  );
-}
+const Card = ({ className, ...p }: React.HTMLAttributes<HTMLDivElement>) => <div className={cn("bg-panel p-4 sm:p-6", className)} {...p} />;
 
 export function Overview({ d }: { d: Detail }) {
-  if (!d.has_forecast || !d.headline) {
-    return <Callout tone="blue">No lines or forecast are saved for this game yet.</Callout>;
-  }
+  if (!d.has_forecast || !d.headline) return <Callout tone="blue">No lines or forecast are saved for this game yet.</Callout>;
+  const e = d.expected!, dist = d.distribution;
+  const sources = e.margin_label && e.total_label && e.margin_label !== e.total_label ? `Spread from ${e.margin_label}, total from ${e.total_label}.` : `Spread and total from ${e.margin_label ?? e.total_label}.`;
   return (
-    <div className="space-y-0.5">
-      {d.result && (
-        <div className="pb-4">
-          <Callout tone={d.result.favorite_won ? "green" : "amber"}>
-            {d.result.winner} won. The favorite ({d.headline.favored}) {d.result.favorite_won ? "won" : "lost"}.
-          </Callout>
-        </div>
-      )}
-      <div className="grid grid-cols-1 gap-0.5 md:grid-cols-[1.1fr_1fr]">
-        <Score d={d} />
-        <Forecasts d={d} />
+    <div className="space-y-4">
+      {d.result && <Callout tone={d.result.favorite_won ? "green" : "amber"}>{d.result.winner} won. The favorite ({d.headline.favored}) {d.result.favorite_won ? "won" : "lost"}.</Callout>}
+      <div className="grid items-start gap-0.5 xl:grid-cols-[5fr_7fr] xl:[grid-template-areas:'fc_margin''total_margin'] [grid-template-areas:'fc''margin''total']">
+        <Card className="[grid-area:fc]"><ForecastDots d={d} /></Card>
+        {dist && e.margin !== null && (
+          <Card className="[grid-area:margin]">
+            <h2 className="text-xl leading-tight text-white">Final margin</h2>
+            <p className="mb-4 mt-1 text-[15px] text-muted">Share of simulated games ending at each margin. Yellow line: expected margin.</p>
+            <div className="mb-2 ml-[3.1em] flex justify-between text-[15px] font-semibold"><span>{d.away} wins</span><span>{d.home} wins</span></div>
+            <Hist bins={dist.margin} exp={e.margin} color={(x) => (x < 0 ? d.away_color : x > 0 ? d.home_color : "#8b9097")} ticks={tickEvery(dist.margin, 20)}
+              label={`Final margin distribution, expected ${d.home} by ${e.margin.toFixed(1)}`} />
+            {d.outcomes && (
+              <div className="mt-4 grid gap-0.5">
+                {d.outcomes.map((o) => <div key={o.label} className="flex justify-between bg-panel2 px-4 py-2.5 text-[15px]"><span>{o.label}</span><b>{pct(o.p)}</b></div>)}
+              </div>
+            )}
+            <p className="mt-4 text-sm text-muted">{sources}</p>
+          </Card>
+        )}
+        {dist && e.total !== null && (
+          <Card className="[grid-area:total]">
+            <h2 className="text-xl leading-tight text-white">Total points</h2>
+            <p className="mb-4 mt-1 text-[15px] text-muted">Both teams combined. Yellow line: expected total.</p>
+            <Hist bins={dist.total} exp={e.total} color={() => "#8b9097"} ticks={tickEvery(dist.total, 20)} label={`Total points distribution, expected ${e.total.toFixed(1)}`} />
+            <p className="mt-4 text-base text-slate-300">8 in 10 games like this land between <b className="text-white">{Math.round(e.total - 1.2816 * e.sd_t)}</b> and <b className="text-white">{Math.round(e.total + 1.2816 * e.sd_t)}</b> points.</p>
+          </Card>
+        )}
       </div>
-      {d.distribution && (
-        <div className="grid grid-cols-1 gap-0.5 lg:grid-cols-2">
-          <MarginChart d={d} />
-          <TotalChart d={d} />
-        </div>
-      )}
     </div>
   );
 }

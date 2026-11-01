@@ -23,16 +23,24 @@ export const Badge = ({ tone, className, ...props }: React.HTMLAttributes<HTMLSp
 
 export const Tabs = TabsPrimitive.Root;
 export const TabsList = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>) => (
-  <TabsPrimitive.List className={cn("flex gap-6 overflow-x-auto border-b-2 border-panel", className)} {...props} />
+  <TabsPrimitive.List className={cn("relative flex gap-4 overflow-x-auto before:absolute before:inset-x-0 before:bottom-0 before:h-0.5 before:bg-panel before:content-[''] sm:gap-6", className)} {...props} />
 );
 export const TabsTrigger = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>) => (
   <TabsPrimitive.Trigger
-    className={cn("-mb-0.5 min-h-[44px] shrink-0 focus-visible:outline-offset-[-3px] whitespace-nowrap border-b-[3px] border-transparent text-base text-muted transition-colors hover:text-white data-[state=active]:border-accent data-[state=active]:text-white", className)}
+    className={cn("relative z-[1] min-h-[44px] shrink-0 focus-visible:outline-offset-[-3px] whitespace-nowrap border-b-2 border-transparent text-base text-muted transition-colors hover:text-white data-[state=active]:border-accent data-[state=active]:text-white", className)}
     {...props}
   />
 );
 export const TabsContent = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>) => (
   <TabsPrimitive.Content className={cn("mt-5", className)} {...props} />
+);
+
+// A labelled control row: the label is visible, so several rows of chips do not read as one pile.
+export const FilterRow = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="grid grid-cols-1 items-center gap-x-4 gap-y-1 sm:grid-cols-[3.5rem_1fr]">
+    <span className="text-sm text-muted">{label}</span>
+    {children}
+  </div>
 );
 
 export const Callout = ({ tone = "green", children }: { tone?: "green" | "amber" | "blue"; children: React.ReactNode }) => (
