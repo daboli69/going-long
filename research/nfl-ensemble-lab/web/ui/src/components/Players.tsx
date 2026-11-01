@@ -58,10 +58,19 @@ export function Props({ d }: { d: Detail }) {
   const [team, setTeam] = useState("Both");
   const [sorts, setSorts] = useState<Record<string, Sort>>({});
   useEffect(() => { setStat("All"); setTeam("Both"); setSorts({}); }, [d.gid]);
-  if (!rows.length) return <Callout tone="blue">No player projections are saved for this game yet.</Callout>;
+  const out = d.props_left_out ?? [];
+  const quest = d.props_questionable ?? [];
+  const notice = (out.length > 0 || quest.length > 0) && (
+    <Callout tone="amber">
+      {out.length > 0 && <>Left out because they are not expected to play: {out.map((p) => `${p.player} (${p.team}, ${p.status.toLowerCase()})`).join(", ")}. Saved projections were made earlier in the week, before the final injury report and the official inactive lists.</>}
+      {quest.length > 0 && <>{out.length > 0 ? " " : ""}Still listed questionable: {quest.map((p) => `${p.player} (${p.team})`).join(", ")}.</>}
+    </Callout>
+  );
+  if (!rows.length) return <div className="space-y-4">{notice}<Callout tone="blue">No player projections are saved for this game yet.</Callout></div>;
   const shown = stats.filter((s) => stat === "All" || s === stat);
   return (
     <div className="space-y-4">
+      {notice}
       <div className="space-y-2">
         <FilterRow label="Stat"><Segmented label="Stat" options={["All", ...stats]} value={stat} onChange={setStat} /></FilterRow>
         <FilterRow label="Team"><Segmented label="Team" options={["Both", d.away, d.home]} value={team} onChange={setTeam} /></FilterRow>

@@ -101,6 +101,8 @@ export interface Detail {
   ladders?: { margin: Ladder[]; total: Ladder[] };
   injuries?: { stamp: string | null; teams: Record<string, InjuryRow[]> };
   props?: PropRow[];
+  props_left_out?: { player: string; team: string; status: string }[];
+  props_questionable?: { player: string; team: string; status: string }[];
   result?: { winner: string; favorite_won: boolean };
 }
 

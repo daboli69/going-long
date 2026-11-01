@@ -46,7 +46,7 @@ def game(gid: str = PathParam(pattern=D.GID_PATTERN)):
     detail = D.game_detail(gid)
     if detail is None:
         raise HTTPException(status_code=404, detail="Unknown game")
-    return JSONResponse(detail)
+    return JSONResponse(D.clean(gamesim.drop_unavailable_props(detail)))
 
 
 @app.get("/api/sim/{gid}")

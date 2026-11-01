@@ -48,7 +48,7 @@ export function Matchup({ d }: { d: Detail }) {
       </div>
       {d.injuries?.stamp && (
         <p className="text-sm text-muted">
-          ESPN injury list, checked {compactStamp(d.injuries.stamp)}. Out and Doubtful players are left out of player projections.
+          ESPN injury list, checked {compactStamp(d.injuries.stamp)}. Out and Doubtful players are left out of the player projections, here and on the Players tab.
         </p>
       )}
     </div>

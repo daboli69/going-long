@@ -1,0 +1,205 @@
+{
+ "week": 8,
+ "feed_stamp": "20261101T1724",
+ "games": [
+  {
+   "gid": "2026_08_LV_NYJ",
+   "minutes_to_kickoff": 30,
+   "NYJ": {
+    "ruled_out": 18,
+    "inactive_list_posted": true
+   },
+   "LV": {
+    "ruled_out": 16,
+    "inactive_list_posted": true
+   }
+  },
+  {
+   "gid": "2026_08_TEN_CIN",
+   "minutes_to_kickoff": 30,
+   "CIN": {
+    "ruled_out": 12,
+    "inactive_list_posted": true
+   },
+   "TEN": {
+    "ruled_out": 16,
+    "inactive_list_posted": true
+   }
+  },
+  {
+   "gid": "2026_08_MIN_DET",
+   "minutes_to_kickoff": 30,
+   "DET": {
+    "ruled_out": 18,
+    "inactive_list_posted": true
+   },
+   "MIN": {
+    "ruled_out": 13,
+    "inactive_list_posted": true
+   }
+  },
+  {
+   "gid": "2026_08_IND_JAX",
+   "minutes_to_kickoff": 30,
+   "JAX": {
+    "ruled_out": 19,
+    "inactive_list_posted": true
+   },
+   "IND": {
+    "ruled_out": 16,
+    "inactive_list_posted": true
+   }
+  },
+  {
+   "gid": "2026_08_BAL_BUF",
+   "minutes_to_kickoff": 30,
+   "BUF": {
+    "ruled_out": 14,
+    "inactive_list_posted": true
+   },
+   "BAL": {
+    "ruled_out": 19,
+    "inactive_list_posted": true
+   }
+  },
+  {
+   "gid": "2026_08_CLE_PIT",
+   "minutes_to_kickoff": 30,
+   "PIT": {
+    "ruled_out": 16,
+    "inactive_list_posted": true
+   },
+   "CLE": {
+    "ruled_out": 18,
+    "inactive_list_posted": true
+   }
+  },
+  {
+   "gid": "2026_08_ATL_TB",
+   "minutes_to_kickoff": 30,
+   "TB": {
+    "ruled_out": 10,
+    "inactive_list_posted": true
+   },
+   "ATL": {
+    "ruled_out": 20,
+    "inactive_list_posted": true
+   }
+  },
+  {
+   "gid": "2026_08_ARI_DAL",
+   "minutes_to_kickoff": 30,
+   "DAL": {
+    "ruled_out": 17,
+    "inactive_list_posted": true
+   },
+   "ARI": {
+    "ruled_out": 21,
+    "inactive_list_posted": true
+   }
+  },
+  {
+   "gid": "2026_08_LAC_LA",
+   "minutes_to_kickoff": 215,
+   "LA": {
+    "ruled_out": 15,
+    "inactive_list_posted": false
+   },
+   "LAC": {
+    "ruled_out": 13,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_08_KC_DEN",
+   "minutes_to_kickoff": 235,
+   "DEN": {
+    "ruled_out": 12,
+    "inactive_list_posted": false
+   },
+   "KC": {
+    "ruled_out": 11,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_08_NE_MIA",
+   "minutes_to_kickoff": 235,
+   "MIA": {
+    "ruled_out": 10,
+    "inactive_list_posted": false
+   },
+   "NE": {
+    "ruled_out": 16,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_08_PHI_WAS",
+   "minutes_to_kickoff": 470,
+   "WAS": {
+    "ruled_out": 12,
+    "inactive_list_posted": false
+   },
+   "PHI": {
+    "ruled_out": 18,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_08_CHI_SEA",
+   "minutes_to_kickoff": 1905,
+   "SEA": {
+    "ruled_out": 15,
+    "inactive_list_posted": false
+   },
+   "CHI": {
+    "ruled_out": 14,
+    "inactive_list_posted": false
+   }
+  }
+ ],
+ "leaks": [],
+ "unmatched_skill_names": [
+  {
+   "team": "CLE",
+   "player": "Audric Estime",
+   "pos": "RB"
+  }
+ ],
+ "feed_age_minutes": 6,
+ "rows_checked": {
+  "sim": 656,
+  "players_tab": 271,
+  "rankings": 266,
+  "market": 240
+ },
+ "ruled_out_by_team": {
+  "NYJ": 18,
+  "LV": 16,
+  "CIN": 12,
+  "TEN": 16,
+  "DET": 18,
+  "MIN": 13,
+  "JAX": 19,
+  "IND": 16,
+  "BUF": 14,
+  "BAL": 19,
+  "PIT": 16,
+  "CLE": 18,
+  "TB": 10,
+  "ATL": 20,
+  "DAL": 17,
+  "ARI": 21,
+  "LA": 15,
+  "LAC": 13,
+  "DEN": 12,
+  "KC": 11,
+  "MIA": 10,
+  "NE": 16,
+  "WAS": 12,
+  "PHI": 18,
+  "SEA": 15,
+  "CHI": 14
+ }
+}

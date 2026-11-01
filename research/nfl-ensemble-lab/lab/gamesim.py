@@ -838,6 +838,21 @@ def roster_out(team: str, week: int, season: int = D.SEASON) -> dict:
     return out
 
 
+MIN_INACTIVES = 4   # a team's official inactive list holds 6 or 7 names; four ESPN "inactive" notes mean the list is posted
+
+
+def inactives_final(team: str, week: int) -> bool:
+    """True once the team's official game-day inactive list is posted (about 90 minutes before kickoff), judged from the latest ESPN injury list:
+    at least MIN_INACTIVES of its players are Out with the note "inactive". From then on, anyone not on that list is playing, whatever Friday's report said."""
+    if week != current_week():
+        return False
+    inj, _ = D.injuries_now()
+    if inj.empty:
+        return False
+    x = inj[(inj["team"] == team) & (inj["status"] == "Out")]
+    return int((x["note"].fillna("").str.strip().str.lower() == "inactive").sum()) >= MIN_INACTIVES
+
+
 def unavailable(team: str, week: int, season: int = D.SEASON) -> tuple[dict, str | None]:
     """{normalized name: (name, status)} for players not expected to play, and where that came from.
 
@@ -867,7 +882,34 @@ def unavailable(team: str, week: int, season: int = D.SEASON) -> tuple[dict, str
         out.setdefault(k, v)
     if ro:
         source = f"{source} and the team roster" if source else "the team roster"
+    if inactives_final(team, week):
+        # the official inactive list is out: a player Friday's report called doubtful but who is not on it is playing
+        out = {k: v for k, v in out.items() if v[1] != "Doubtful"}
+        source = f"{source}, with the official inactive list" if source else "the official inactive list"
     return out, source
+
+
+def drop_unavailable_props(detail: dict) -> dict:
+    """The game detail with saved player projections removed for anyone not expected to play (out, doubtful, injured reserve, suspended, released).
+
+    The saved projections were made earlier in the week, before the injury report was final and before the official inactive lists (about 90 minutes
+    before kickoff). `props_left_out` lists who was removed and why, and `props_questionable` lists players still listed questionable. A new dict is returned."""
+    week, props = detail.get("week"), detail.get("props") or []
+    if not props or week is None:
+        return detail
+    out = {t: unavailable(t, week)[0] for t in (detail["away"], detail["home"])}
+    inj, _ = D.injuries_now()
+    questionable = {(r.team, _norm(r.player)) for r in inj[inj["status"] == "Questionable"].itertuples(index=False)} if not inj.empty else set()
+    keep, left, q = [], {}, {}
+    for r in props:
+        hit = (out.get(r["team"]) or {}).get(_norm(r["player"]))
+        if hit:
+            left.setdefault((r["team"], r["player"]), {"player": r["player"], "team": r["team"], "status": hit[1]})
+            continue
+        keep.append(r)
+        if (r["team"], _norm(r["player"])) in questionable:
+            q.setdefault((r["team"], r["player"]), {"player": r["player"], "team": r["team"], "status": "Questionable"})
+    return {**detail, "props": keep, "props_left_out": list(left.values()), "props_questionable": list(q.values())}
 
 
 def fallback_lines(away: str, home: str, week: int) -> dict | None:
@@ -901,6 +943,8 @@ def _p_questionable(group: str) -> float:
 
 def _questionable(team: str, week: int, mode: str, rng: np.random.Generator) -> tuple[list[dict], dict]:
     """Players the official report lists Questionable who have a role, whether each plays in this game, and the ones who sit as an `out` dict."""
+    if inactives_final(team, week):  # the official inactive list is posted: questionable players who are not on it are playing
+        return [], {}
     st = AV.status_table([D.SEASON])
     s = st[(st["season"] == D.SEASON) & (st["team"] == team) & (st["week"] == week) & (st["official"] == "Questionable") & (st["roster"] == "ACT") & st["group"].isin(AV.SKILL)]
     if s.empty:

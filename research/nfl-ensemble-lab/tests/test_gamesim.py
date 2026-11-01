@@ -206,3 +206,35 @@ def test_the_announced_starter_comes_first_then_the_depth_chart_not_the_recent_v
     assert S.starting_qbs("BAL", 8) == ["JACKSON", "HUNTLEY"]          # the schedule's name first, then the depth chart, no repeats
     assert S.starting_qbs("BUF", 8) == ["ALLEN", "BACKUP"]             # nobody announced: depth chart QB1 first
     assert S.starting_qbs("BUF", 7) == []                              # a played week has no announced starter here and the depth chart is only for the coming game
+
+
+def _feed(rows):
+    return pd.DataFrame(rows, columns=["team", "player", "pos", "status", "note"])
+
+
+def test_the_official_inactive_list_counts_as_posted_only_with_enough_inactive_notes_in_the_current_week(monkeypatch):
+    posted = _feed([("TB", f"P{i}", "WR", "Out", "inactive") for i in range(4)] + [("DEN", "Q", "QB", "Out", "inactive"), ("DEN", "R", "RB", "Out", "knee")])
+    monkeypatch.setattr(S.D, "injuries_now", lambda: (posted, "20261101T1724"))
+    monkeypatch.setattr(S, "current_week", lambda: 8)
+    assert S.inactives_final("TB", 8) is True            # four players Out with the note "inactive"
+    assert S.inactives_final("DEN", 8) is False          # one emergency-quarterback note is not a posted list
+    assert S.inactives_final("TB", 9) is False           # a later week has no list yet
+
+
+def test_saved_projections_for_players_who_are_out_are_removed_and_listed(monkeypatch):
+    detail = {"week": 8, "away": "ATL", "home": "TB", "props": [
+        {"player": "Emeka Egbuka", "team": "TB", "stat": "Receiving yards", "typical": 44.0},
+        {"player": "Emeka Egbuka", "team": "TB", "stat": "Receptions", "typical": 3.9},
+        {"player": "Chris Godwin Jr.", "team": "TB", "stat": "Receiving yards", "typical": 60.0},
+        {"player": "Drake London", "team": "ATL", "stat": "Receiving yards", "typical": 70.0}]}
+    monkeypatch.setattr(S, "unavailable", lambda team, week, season=S.D.SEASON: ({"emeka egbuka": ("Emeka Egbuka", "Out")} if team == "TB" else {}, "feed"))
+    monkeypatch.setattr(S.D, "injuries_now", lambda: (_feed([("ATL", "Drake London", "WR", "Questionable", "hip")]), "20261101T1724"))
+    out = S.drop_unavailable_props(detail)
+    assert [p["player"] for p in out["props"]] == ["Chris Godwin Jr.", "Drake London"]
+    assert out["props_left_out"] == [{"player": "Emeka Egbuka", "team": "TB", "status": "Out"}]      # listed once, though he had two projections
+    assert out["props_questionable"] == [{"player": "Drake London", "team": "ATL", "status": "Questionable"}]
+    assert len(detail["props"]) == 4                                                                   # the saved detail is not changed
+
+
+def test_name_matching_ignores_suffixes_so_jr_does_not_hide_a_ruled_out_player():
+    assert S._norm("Brian Robinson Jr.") == S._norm("Brian Robinson") and S._norm("Kenneth Walker III") == S._norm("Kenneth Walker")
