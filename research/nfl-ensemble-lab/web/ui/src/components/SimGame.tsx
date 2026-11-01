@@ -393,13 +393,16 @@ function OwnView({ sim, d }: { sim: Sim; d: Detail }) {
   );
 }
 
+// A new random game each time a game is opened or a button is pressed; the same number always replays the same game.
+const randomDraw = () => 1 + Math.floor(Math.random() * 9999);
+
 export function SimGame({ d }: { d: Detail }) {
   const [sim, setSim] = useState<Sim | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>("random");
-  const [draw, setDraw] = useState(1);
+  const [draw, setDraw] = useState(randomDraw);
   const [loading, setLoading] = useState(false);
-  useEffect(() => { setSim(null); setMode("random"); setDraw(1); }, [d.gid]);
+  useEffect(() => { setSim(null); setMode("random"); setDraw(randomDraw()); }, [d.gid]);
   useEffect(() => {
     let alive = true;
     setError(null);
@@ -421,7 +424,7 @@ export function SimGame({ d }: { d: Detail }) {
   const upsetNote = g ? `${g.underdog} wins ${pct(g.p_underdog)} of the ${r.sims.toLocaleString()} simulated games` : "";
   const title = mode === "typical" ? "Typical game, play by play" : mode === "upset" ? "Upset game, play by play" : "Simulated game, play by play";
   const note = mode === "typical"
-    ? `The middle result of ${r.sims.toLocaleString()} simulated games (${d.away} ${tgt[d.away]}, ${d.home} ${tgt[d.home]}${fin[d.away] !== tgt[d.away] || fin[d.home] !== tgt[d.home] ? `, rounded to ${fin[d.away]}-${fin[d.home]} so touchdowns and field goals add up` : ""}). ${upsetNote}.`
+    ? `The middle result of ${r.sims.toLocaleString()} simulated games (${d.away} ${tgt[d.away]}, ${d.home} ${tgt[d.home]}${fin[d.away] !== tgt[d.away] || fin[d.home] !== tgt[d.home] ? `, rounded to ${fin[d.away]}-${fin[d.home]} so touchdowns and field goals add up` : ""}). ${upsetNote}. A real game rarely lands exactly here, which is why a random game is what opens first.`
     : mode === "upset"
       ? `A random one of the simulated games that ${g?.underdog} wins (${upsetNote.replace(/^.* wins /, "")}). Scores are rounded to touchdowns and field goals.`
       : `One of the ${r.sims.toLocaleString()} simulated games, picked at random (number ${draw}). ${upsetNote}. Press "Another game" for a different one.`;
@@ -434,9 +437,9 @@ export function SimGame({ d }: { d: Detail }) {
 
       <Section title={title} note={`${note} ${sim.receiving?.model === "sampled" ? "Every pass is drawn at random: a target for one of the players available, then a catch or not, then the yards. Some games come out lumpy and some spread out, the way real ones do. Rushing follows each player's number below, moving with the score." : "Player totals follow each player's number below, moving up or down with the score."} The individual plays are made up to connect those numbers.`}>
         <div className="flex flex-wrap items-center gap-2">
-          <Segmented<string> label="Which simulated game" options={Object.keys(MODE_OF)} value={MODE_LABEL[mode]} onChange={(l) => { setMode(MODE_OF[l]); setDraw(1); }} />
+          <Segmented<string> label="Which simulated game" options={Object.keys(MODE_OF)} value={MODE_LABEL[mode]} onChange={(l) => { setMode(MODE_OF[l]); setDraw(randomDraw()); }} />
           <button className="min-h-[44px] rounded-lg border border-line px-4 text-base text-white hover:bg-line disabled:opacity-40" disabled={mode === "typical" || loading}
-            onClick={() => setDraw((x) => x + 1)}>Another game</button>
+            onClick={() => setDraw(randomDraw())}>Another game</button>
           <span className="text-sm text-muted" aria-live="polite">{loading ? "Simulating…" : `${MODE_LABEL[mode]}: ${winner} wins ${fin[winner]} to ${fin[winner === d.home ? d.away : d.home]}`}</span>
         </div>
         {d.completed && <Callout tone="blue">This game is over. Actual final: {d.away} {d.away_score}, {d.home} {d.home_score}.</Callout>}
