@@ -38,3 +38,10 @@ If version 2 fails the rule against version 1 on a stat or on the game, version 
 ## Reconciliation
 
 After each slate, every figure from the live feed is compared with the nflverse play-by-play for the same game once it is published, and mismatches are listed in `docs/ingame_replay.json`.
+
+## Amendment 1 (1 November 2026, before the test was run)
+
+- **Rows compared.** The player comparison with version 1 uses only player-games that both versions track and in which the player played at least one offensive snap. Version 2 cannot see a player who sat out, and version 1 counts him as a zero, so including those rows would reward version 2 for information the live tracker only has once the inactive list posts. A secondary table repeats the comparison on every row version 1 tracks, labelled as such.
+- **Participation data.** nflverse participation files end in 2025, so 2026 weeks have none. Version 2 uses snap counts (which cover 2026) for the baseline. Participation is not used.
+- **Efficiency shrinkage** stays a fitted constant chosen by grid search, as in version 1. Only the share update is fitted in PyMC.
+- **Draws and seeds.** 400 posterior draws, 2 chains, seed 0; 300 forecast draws per player-state with a seed derived from game, player and checkpoint, identical for both versions.

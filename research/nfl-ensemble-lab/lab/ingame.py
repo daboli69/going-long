@@ -185,13 +185,14 @@ class PlayerState:
     t: float                # elapsed seconds
     d: float                # team score differential now
     pre_vol: float          # team pregame attempts per game of this kind
+    kappa: float | None = None   # prior strength of his share; None uses the fitted constant for the family
 
 
 def predict_player(p: Params, s: PlayerState, M: int = 400, seed: int = 0) -> dict:
     """Draws of the player's final yards (and receptions) given the state, plus the pieces of the update."""
     rng = np.random.default_rng(seed)
     kind = "rush" if s.fam == "rush" else "pass"
-    kap = p.kappa[s.fam]
+    kap = s.kappa or p.kappa[s.fam]
     sh = float(np.clip(s.pre_share, 1e-4, 0.999))
     mu_A = volume_mean(p, kind, s.t, s.pre_vol, s.d)
     A_rem = nb_draw(rng, mu_A, p.vol_theta[kind], M)
@@ -219,7 +220,7 @@ def predict_player(p: Params, s: PlayerState, M: int = 400, seed: int = 0) -> di
 
 def role_check(p: Params, s: PlayerState) -> dict:
     """Probability the player's true share is well below or above his pregame share, given what the team has run so far."""
-    kap = p.kappa[s.fam]
+    kap = s.kappa or p.kappa[s.fam]
     sh = float(np.clip(s.pre_share, 1e-4, 0.999))
     a = sh * kap + s.O
     b = (1 - sh) * kap + max(s.A - s.O, 0)
@@ -230,7 +231,7 @@ def role_check(p: Params, s: PlayerState) -> dict:
 def decompose(p: Params, s: PlayerState) -> dict:
     """Change in the expected final yards (updated minus pregame), split into script, role and efficiency by swapping one input at a time."""
     kind = "rush" if s.fam == "rush" else "pass"
-    kap = p.kappa[s.fam]
+    kap = s.kappa or p.kappa[s.fam]
     sh = float(np.clip(s.pre_share, 1e-4, 0.999))
     pre_vol = max(s.pre_vol, 1e-6)
     pool_mean = p.pool[s.fam].mean()
