@@ -1,4 +1,5 @@
 """Simulated game: synthetic inputs, no network, no saved files needed."""
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -139,3 +140,59 @@ def test_every_stadium_on_the_schedule_has_a_location():
     if G.empty:
         pytest.skip("no games table")
     assert set(G[G["season"] == D.SEASON]["stadium"].dropna()) <= set(W.STADIUMS)
+
+
+def _draws(mu_m=7.0, sd=13.0):
+    return S.score_draws("2026_08_AAA_HHH", mu_m, sd, 46.0, 13.0)
+
+
+def test_pick_game_typical_is_the_middle_and_random_and_upset_are_repeatable():
+    h, a = _draws()
+    typ = S.pick_game("g", "HHH", "AAA", h, a, "typical", 0)
+    assert abs(typ["points"]["HHH"] - np.median(h)) <= 3 and abs(typ["points"]["AAA"] - np.median(a)) <= 3 and typ["favorite"] == "HHH"
+    assert all(7 * td + 3 * fg == v for v in typ["points"].values() for td, fg in [S.reachable_score(v)])  # a score football can produce
+    r1, r1b, r2 = (S.pick_game("g", "HHH", "AAA", h, a, "random", k) for k in (1, 1, 2))
+    assert r1["points"] == r1b["points"] and r1["points"] != r2["points"]
+    assert all(S.pick_game("g", "HHH", "AAA", h, a, "upset", k)["points"]["AAA"] > S.pick_game("g", "HHH", "AAA", h, a, "upset", k)["points"]["HHH"] for k in range(1, 30))
+
+
+def test_random_games_win_for_the_underdog_at_the_simulated_rate_and_never_tie():
+    h, a = _draws(mu_m=7.0)
+    picks = [S.pick_game("g", "HHH", "AAA", h, a, "random", k) for k in range(1, 801)]
+    assert all(p["points"]["HHH"] != p["points"]["AAA"] for p in picks)
+    rate = np.mean([p["points"]["AAA"] > p["points"]["HHH"] for p in picks])
+    assert abs(rate - picks[0]["p_underdog"]) < 0.05
+
+
+def test_volume_scale_moves_the_yards_in_the_pool():
+    import numpy.random as npr
+    plain = S._pool("AAA", PROPS, None, npr.default_rng(1))[0]
+    big = S._pool("AAA", PROPS, None, npr.default_rng(1), 1.25)[0]
+    y = lambda pool: sum(p["yards"] for p in pool if p["kind"] in ("pass", "rush"))
+    assert y(big) > y(plain) * 1.1
+
+
+def test_replay_realises_what_the_players_were_projected_for():
+    rp = S.replay("2026_08_AAA_HHH", "AAA", "HHH", {"AAA": 20, "HHH": 27}, PROPS, pd.DataFrame())
+    for t, (ep, er) in rp["expect"].items():
+        passing = sum(p["yards"] for p in rp["plays"] if p["team"] == t and p["kind"] == "pass")
+        rushing = sum(p["yards"] for p in rp["plays"] if p["team"] == t and p["kind"] == "rush")
+        assert abs(passing - ep) <= 0.25 * max(ep, 1) and abs(rushing - er) <= 0.25 * max(er, 1)
+
+
+def test_roster_statuses_count_as_absences(tmp_path, monkeypatch):
+    monkeypatch.setattr(S, "RAW_DIR", tmp_path)
+    pd.DataFrame([{"team": "KC", "week": 8, "status": st, "gsis_id": f"00-{i}", "full_name": nm} for i, (st, nm) in enumerate(
+        [("ACT", "Healthy Guy"), ("RES", "Tyquan Thornton"), ("INA", "Game Day Out"), ("DEV", "Practice Squad")])]).to_parquet(tmp_path / "roster_weekly_2026.parquet")
+    now = S.roster_out("KC", 8)
+    assert set(now) == {S._norm("Tyquan Thornton"), S._norm("Game Day Out")} and now[S._norm("Tyquan Thornton")][1] == "Injured Reserve"
+    later = S.roster_out("KC", 11)  # a later week keeps only the lasting statuses
+    assert set(later) == {S._norm("Tyquan Thornton")}
+
+
+def test_no_pick_ends_in_a_tie_even_in_a_pickem():
+    h, a = S.score_draws("g", 0.2, 13.0, 40.0, 12.0)
+    for mode in ("typical", "random", "upset"):
+        for k in range(1, 60):
+            pts = S.pick_game("g", "HHH", "AAA", h, a, mode, k)["points"]
+            assert pts["HHH"] != pts["AAA"]

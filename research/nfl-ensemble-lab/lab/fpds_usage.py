@@ -309,6 +309,15 @@ def rec_td_weights(u, team: str, season: int, week: int, out_ids=frozenset(), ru
     return dict(zip(pool["pid"], map(float, mix)))
 
 
+def rush_td_share(team: str, season: int, week: int, prior_tds: float = 4.0, league: float = 0.38) -> float:
+    """Share of the team's recent offensive touchdowns that were rushes, pulled toward the league share (38% in 2025 and 2026) by a prior."""
+    t = _td_table(season)
+    weeks = sorted(t.loc[(t["team"] == team) & (t["week"] < week), "week"].unique())[-WINDOW:]
+    sub = t[(t["team"] == team) & t["week"].isin(weeks)]
+    rush, rec = float(sub["rush_td"].sum()), float(sub["rec_td"].sum())
+    return float((rush + league * prior_tds) / (rush + rec + prior_tds))
+
+
 PROFILE = [("tgt_pct", "Target share"), ("rte_pct", "Routes run"), ("ay_share", "Air yards share"), ("yprr", "Yards per route"),
            ("att_pct", "Carry share"), ("snap_pct", "Snap share"), ("exp_run", "Explosive runs")]
 

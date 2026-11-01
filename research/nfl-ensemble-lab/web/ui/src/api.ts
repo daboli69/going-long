@@ -11,5 +11,5 @@ export const api = {
   week: (week: number) => get<GameRow[]>(`/api/week/${week}`),
   game: (gid: string) => get<Detail>(`/api/game/${gid}`),
   glossary: () => get<GlossaryItem[]>("/api/glossary"),
-  sim: (gid: string) => get<Sim>(`/api/sim/${gid}`),
+  sim: (gid: string, mode = "random", draw = 1) => get<Sim>(`/api/sim/${gid}?mode=${mode}&draw=${draw}`),
 };

@@ -64,3 +64,9 @@ def test_verify_results_script_lists_all_studies():
     spec.loader.exec_module(mod)
     assert len(mod.STUDIES) == 7
     assert all(len(proto) == 8 and codes for _, proto, codes in mod.STUDIES)
+
+
+def test_simulation_endpoint_only_takes_known_modes_and_sane_draw_numbers():
+    gid = "2026_08_TEN_CIN"
+    for query in ("?mode=evil", "?mode=random&draw=-1", "?mode=random&draw=100000", "?mode=random&draw=abc"):
+        assert client.get(f"/api/sim/{gid}{query}").status_code == 422

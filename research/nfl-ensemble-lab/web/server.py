@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Path as PathParam
+from fastapi import FastAPI, HTTPException, Path as PathParam, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -48,8 +48,9 @@ def game(gid: str = PathParam(pattern=D.GID_PATTERN)):
 
 
 @app.get("/api/sim/{gid}")
-def sim(gid: str = PathParam(pattern=D.GID_PATTERN)):
-    out = gamesim.simulate(gid)
+def sim(gid: str = PathParam(pattern=D.GID_PATTERN), mode: str = Query("typical", pattern="^(typical|random|upset)$"),
+        draw: int = Query(0, ge=0, le=9999)):
+    out = gamesim.simulate(gid, mode, draw)
     if out is None:
         raise HTTPException(status_code=404, detail="Unknown game")
     return JSONResponse(out)

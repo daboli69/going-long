@@ -330,7 +330,7 @@ def _props(gid: str, home: str, away: str, props_fz: dict | None) -> list[dict]:
                 th = min(cand, key=lambda x: abs(x["mid"] - 0.5))
                 line, mchance, ochance = th["k"], th["mid"], th.get("p_corr", th.get("p_sim"))
         lo, hi = (str(r["v2 10-90%"]).split(" - ") + [None, None])[:2]
-        rows.append({"player": r["Player"], "team": r["Team"], "stat": r["Stat"], "typical": float(r["v2 median"]),
+        rows.append({"player": r["Player"], "team": r["Team"], "stat": r["Stat"], "typical": float(r["v2 median"]), "expected": float(r["v2 mean"]) if "v2 mean" in r and pd.notna(r["v2 mean"]) else float(r["v2 median"]),
                      "range_low": float(lo) if lo else None, "range_high": float(hi) if hi else None, "market_line": line, "market_chance": mchance, "our_chance": ochance})
     return rows
 

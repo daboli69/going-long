@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { api } from "../api";
 import type { Band, Detail, PropRow, Sim, SimPlay } from "../types";
 import { num, pct } from "../lib";
-import { Callout, Card } from "./ui/primitives";
+import { Callout, Card, Segmented } from "./ui/primitives";
 
 const SPEEDS = [1, 2, 4];
 const MS_PER_PLAY = 1500;
@@ -320,14 +320,49 @@ function fpdsNote(sim: Sim): string {
   return `FantasyPoints data runs through week ${f.through_week}. In tests on 2025 and 2026 games, adding its target share and routes run made ${used || "no stat"} more accurate, and its red-zone targets ${f.td_red_zone ? "improved" : "did not improve"} the pick of who catches touchdowns. Rushing and everything else stays on nflverse play-by-play.`;
 }
 
+type Mode = "random" | "typical" | "upset";
+const MODE_LABEL: Record<Mode, string> = { random: "Random game", typical: "Typical game", upset: "Upset game" };
+const MODE_OF: Record<string, Mode> = { "Random game": "random", "Typical game": "typical", "Upset game": "upset" };
+
+function OwnView({ sim, d }: { sim: Sim; d: Detail }) {
+  const o = sim.own;
+  if (!o) return null;
+  const ev = o.evidence;
+  const mk = d.headline?.p_home;
+  const row = (label: string, a: string, b: string) => (
+    <div className="grid grid-cols-[1fr_auto_auto] gap-x-6 border-b border-line py-1.5 text-base last:border-0">
+      <span className="text-slate-300">{label}</span><span className="text-right text-white">{a}</span><span className="text-right text-white">{b}</span>
+    </div>
+  );
+  return (
+    <Card>
+      <div className="grid grid-cols-[1fr_auto_auto] gap-x-6 pb-1 text-sm text-muted"><span /><span className="text-right">Betting market</span><span className="text-right">Drive simulation</span></div>
+      {row(`${d.home} win chance`, mk === undefined ? "n/a" : pct(mk), pct(o.p_home))}
+      {row("Expected score", d.expected?.home_pts !== undefined ? `${d.away} ${num(d.expected.away_pts, 0)}, ${d.home} ${num(d.expected.home_pts, 0)}` : "n/a", `${d.away} ${num(o.away, 0)}, ${d.home} ${num(o.home, 0)}`)}
+      {row("Total points", num(d.expected?.total, 1), num(o.total, 1))}
+      <div className="mt-2 text-sm leading-relaxed text-muted">
+        The drive simulation uses no betting line: each team's drives per game and its touchdown and field-goal rates per drive, plus what its opponent allows, as known before the game.
+        {ev?.pick_accuracy && <> On 2025 and 2026 games the market's side won {pct(ev.pick_accuracy.market, 1)} of the time and the drive simulation's side {pct(ev.pick_accuracy.drive_sim, 1)}; they picked the same side in {pct(ev.same_pick ?? 0)} of games.</>}
+        {ev?.used && !Object.values(ev.used).some(Boolean) && <> Blending the two did not beat the market alone, so the market sets the center of the simulated games. Every game still varies: the replay is a random draw, not the market's expected score.</>}
+      </div>
+    </Card>
+  );
+}
+
 export function SimGame({ d }: { d: Detail }) {
   const [sim, setSim] = useState<Sim | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<Mode>("random");
+  const [draw, setDraw] = useState(1);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => { setSim(null); setMode("random"); setDraw(1); }, [d.gid]);
   useEffect(() => {
-    setSim(null);
+    let alive = true;
     setError(null);
-    api.sim(d.gid).then(setSim).catch((e) => setError(String(e)));
-  }, [d.gid]);
+    setLoading(true);
+    api.sim(d.gid, mode, draw).then((x) => { if (alive) { setSim(x); setLoading(false); } }).catch((e) => { if (alive) { setError(String(e)); setLoading(false); } });
+    return () => { alive = false; };
+  }, [d.gid, mode, draw]);
 
   if (error) return <Callout tone="amber">Could not load the simulation ({error}).</Callout>;
   if (!sim) return <div className="text-muted">Simulating 10,000 games…</div>;
@@ -337,6 +372,15 @@ export function SimGame({ d }: { d: Detail }) {
   const fin = sim.replay!.final;
   const maxPts = Math.max(r.home.high, r.away.high) + 3;
   const noLine = (sim.source?.margin ?? "").includes("no betting line");
+  const g = sim.game;
+  const winner = fin[d.home] >= fin[d.away] ? d.home : d.away;
+  const upsetNote = g ? `${g.underdog} wins ${pct(g.p_underdog)} of the ${r.sims.toLocaleString()} simulated games` : "";
+  const title = mode === "typical" ? "Typical game, play by play" : mode === "upset" ? "Upset game, play by play" : "Simulated game, play by play";
+  const note = mode === "typical"
+    ? `The middle result of ${r.sims.toLocaleString()} simulated games (${d.away} ${tgt[d.away]}, ${d.home} ${tgt[d.home]}${fin[d.away] !== tgt[d.away] || fin[d.home] !== tgt[d.home] ? `, rounded to ${fin[d.away]}-${fin[d.home]} so touchdowns and field goals add up` : ""}). ${upsetNote}.`
+    : mode === "upset"
+      ? `A random one of the simulated games that ${g?.underdog} wins (${upsetNote.replace(/^.* wins /, "")}). Scores are rounded to touchdowns and field goals.`
+      : `One of the ${r.sims.toLocaleString()} simulated games, picked at random (number ${draw}). ${upsetNote}. Press "Another game" for a different one.`;
 
   return (
     <div className="space-y-6">
@@ -344,12 +388,17 @@ export function SimGame({ d }: { d: Detail }) {
         <Conditions sim={sim} d={d} />
       </Section>
 
-      <Section title="Typical game, play by play"
-        note={`One game built to end on the middle result of ${r.sims.toLocaleString()} simulations (${d.away} ${tgt[d.away]}, ${d.home} ${tgt[d.home]}${fin[d.away] !== tgt[d.away] || fin[d.home] !== tgt[d.home] ? `, rounded to ${fin[d.away]}-${fin[d.home]} so touchdowns and field goals add up` : ""}) with player totals close to each player's middle number below. The individual plays are made up to connect those numbers.`}>
+      <Section title={title} note={`${note} Player totals follow each player's number below, moving up or down with the score. The individual plays are made up to connect those numbers.`}>
+        <div className="flex flex-wrap items-center gap-2">
+          <Segmented<string> label="Which simulated game" options={Object.keys(MODE_OF)} value={MODE_LABEL[mode]} onChange={(l) => { setMode(MODE_OF[l]); setDraw(1); }} />
+          <button className="min-h-[44px] rounded-lg border border-line px-4 text-base text-white hover:bg-line disabled:opacity-40" disabled={mode === "typical" || loading}
+            onClick={() => setDraw((x) => x + 1)}>Another game</button>
+          <span className="text-sm text-muted" aria-live="polite">{loading ? "Simulating…" : `${MODE_LABEL[mode]}: ${winner} wins ${fin[winner]} to ${fin[winner === d.home ? d.away : d.home]}`}</span>
+        </div>
         {d.completed && <Callout tone="blue">This game is over. Actual final: {d.away} {d.away_score}, {d.home} {d.home_score}.</Callout>}
         {noLine && <Callout tone="amber">No betting line exists for this game yet, so the expected score comes from each team's points scored and allowed this season. It will switch to the market line once one is posted.</Callout>}
         {!sim.has_players && <Callout tone="blue">No player data is available for this game, so the replay uses generic player names.</Callout>}
-        <Replay sim={sim} d={d} />
+        <Replay key={`${d.gid}-${mode}-${draw}`} sim={sim} d={d} />
       </Section>
 
       <Section title="Injuries in this simulation">
@@ -362,6 +411,10 @@ export function SimGame({ d }: { d: Detail }) {
           <Range title={`${d.home_name} points`} b={r.home} lo={0} hi={maxPts} color={d.home_color} />
           <Range title="Total points" b={r.total} lo={Math.max(0, r.total.low - 10)} hi={r.total.high + 10} color="#8b9097" />
         </div>
+      </Section>
+
+      <Section title="Our own drive simulation, with no betting line" note="Shown for comparison.">
+        <OwnView sim={sim} d={d} />
       </Section>
 
       {(sim.players ?? []).length > 0 && (

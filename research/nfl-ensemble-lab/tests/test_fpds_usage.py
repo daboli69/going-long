@@ -121,3 +121,11 @@ def test_latest_weeks_take_the_first_value_present_across_tables(tmp_path, monke
     assert out.loc[(5.0, "00-1"), "tgt_pct"] == pytest.approx(0.20)   # the main receiving table wins
     assert out.loc[(5.0, "00-1"), "rte_pct"] == pytest.approx(0.80)   # a metric only another table has still comes through
     assert out.loc[(5.0, "00-2"), "tgt_pct"] == pytest.approx(0.10)   # players only the other table lists are kept
+
+
+def test_rush_touchdown_share_leans_on_the_team_but_not_too_far(monkeypatch):
+    td = pd.DataFrame({"week": [1, 2, 3], "team": ["TEN"] * 3, "pid": ["a", "a", "b"], "rec_td": [0, 0, 1], "rush_td": [2, 3, 0], "season": [2026] * 3})
+    monkeypatch.setattr(X, "_td_table", lambda season: td)
+    share = X.rush_td_share("TEN", 2026, 4)
+    assert 0.38 < share < 5 / 6 and share == pytest.approx((5 + 0.38 * 4) / (6 + 4))
+    assert X.rush_td_share("XXX", 2026, 4) == pytest.approx(0.38)  # no history: the league share
