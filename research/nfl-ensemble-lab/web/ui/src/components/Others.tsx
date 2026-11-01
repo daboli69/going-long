@@ -68,9 +68,9 @@ export function About({ meta }: { meta: Meta }) {
   return (
     <div className="grid grid-cols-1 gap-0.5 lg:grid-cols-2">
       <Card>
-        <h3 className="text-lg font-semibold text-white">Where the numbers come from</h3>
+        <h2 className="text-lg font-semibold text-white">Where the numbers come from</h2>
         <p className="mt-1 text-base leading-relaxed text-slate-300">{meta.reality_check}</p>
-        <h3 className="mt-5 text-lg font-semibold text-white">Track record</h3>
+        <h2 className="mt-5 text-lg font-semibold text-white">Track record</h2>
         {record.map(([label, value]) => (
           <div key={label} className="border-b border-line py-2 last:border-0">
             <div className="text-sm text-muted">{label}</div>
@@ -79,7 +79,7 @@ export function About({ meta }: { meta: Meta }) {
         ))}
       </Card>
       <Card>
-        <h3 className="mb-1 text-lg font-semibold text-white">Terms</h3>
+        <h2 className="mb-1 text-lg font-semibold text-white">Terms</h2>
         {items.map((g) => (
           <details key={g.term} className="border-b border-line last:border-0">
             <summary className="flex min-h-[44px] items-center text-base text-white hover:text-accent">{g.term}</summary>

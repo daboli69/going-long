@@ -43,10 +43,10 @@ def week(week: int = PathParam(ge=1, le=18)):
 
 @app.get("/api/game/{gid}")
 def game(gid: str = PathParam(pattern=D.GID_PATTERN)):
-    detail = D.game_detail(gid)
+    detail = gamesim.game_detail_adjusted(gid, with_props=True)
     if detail is None:
         raise HTTPException(status_code=404, detail="Unknown game")
-    return JSONResponse(D.clean(gamesim.drop_unavailable_props(detail)))
+    return JSONResponse(D.clean(detail))
 
 
 @app.get("/api/sim/{gid}")

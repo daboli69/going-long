@@ -8,9 +8,11 @@ totals and say nothing the forecast does not. Local files only, read-only, deter
 from __future__ import annotations
 
 import hashlib
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy.stats import norm
 
 from . import allowed_usage as AL
 from . import gamecenter_data as D
@@ -912,6 +914,133 @@ def drop_unavailable_props(detail: dict) -> dict:
     return {**detail, "props": keep, "props_left_out": list(left.values()), "props_questionable": list(q.values())}
 
 
+# --------------------------------------------------------------------------- game numbers after new absences
+
+# Points of margin per 100% of a team's catches that go missing, and for losing its regular starting quarterback: measured on 2022 to 2026 games against a forecast
+# that knew nothing about injuries (docs/AVAILABILITY_CHECK.md, "the lab's own model", game-day availability). Used as the size of a lost player's effect on his team's scoring.
+DEFAULT_COEF = {"lost_share": -4.9, "qb": -4.78}
+OUT_NOW = {"Out", "Injured Reserve", "Suspension", "Physically Unable to Perform"}
+DOCS = Path(__file__).resolve().parents[1] / "docs"
+
+
+def injury_coefficients() -> dict:
+    import json
+    try:
+        v = json.loads((DOCS / "availability_check.json").read_text(encoding="utf-8"))["C"]["model"]["availability source, game day"]
+        return {"lost_share": float(v["coef_lost_share_points"][0]), "qb": float(v["coef_qb_out_points"][0])}
+    except Exception:
+        return dict(DEFAULT_COEF)
+
+
+def _out_keys(inj: pd.DataFrame, team: str, final: bool) -> set:
+    """Normalized names ESPN lists as not playing for a team; Doubtful counts as out until the official inactive list is posted."""
+    if inj.empty:
+        return set()
+    ok = OUT_NOW | (set() if final else {"Doubtful"})
+    return {_norm(x) for x in inj.loc[(inj["team"] == team) & inj["status"].isin(ok), "player"]}
+
+
+def _share_table(team: str, week: int) -> tuple[dict, str | None, dict]:
+    """({normalized name: share of the team's catches}, the regular starting quarterback's normalized name, {name: position}) from usage before `week`."""
+    g = U.player_games((D.SEASON - 1, D.SEASON))
+    u = U.usage(g, D.SEASON, team, week)
+    if u is None:
+        u = U.usage(g, D.SEASON - 1, team, 99)
+    if u is None:
+        return {}, None, {}
+    names = _names()
+    p = u.players[u.players["active"]]
+    share = {_norm(names.get(r.pid, r.pid)): float(r.share_rec) for r in p.itertuples(index=False)}
+    pos = {_norm(names.get(r.pid, r.pid)): r.pos for r in p.itertuples(index=False)}
+    season = g[(g["season"] == D.SEASON) & (g["posteam"] == team) & (g["week"] < week)]
+    qb = None
+    if len(season) and (season["att"] > 0).any():
+        top = season.groupby("pid")["att"].sum().sort_values(ascending=False).index[0]
+        qb = _norm(names.get(top, top))
+    return share, qb, pos
+
+
+def new_absences(team: str, week: int, saved_at) -> dict:
+    """What changed for a team's availability since the forecast was saved: players newly out or back, their share of the team's catches, and a change at quarterback."""
+    now_inj, _ = D.injuries_now()
+    then_inj, then_stamp = D.injuries_at(saved_at)
+    if then_inj.empty or now_inj.empty:
+        return {"known": False}
+    share, qb, pos = _share_table(team, week)
+    out_now, out_then = _out_keys(now_inj, team, inactives_final(team, week)), _out_keys(then_inj, team, False)
+    lost = lambda keys: sum(share.get(k, 0.0) for k in keys)
+    d_lost = lost(out_now) - lost(out_then)
+    d_qb = (float(qb in out_now) - float(qb in out_then)) if qb else 0.0
+    names = {_norm(x): x for x in now_inj.loc[now_inj["team"] == team, "player"].tolist() + then_inj.loc[then_inj["team"] == team, "player"].tolist()}
+    row = lambda k: {"player": names.get(k, k), "pos": pos.get(k), "share": share.get(k, 0.0)}
+    new_out = sorted((row(k) for k in out_now - out_then if share.get(k, 0.0) > 0 or k == qb), key=lambda r: -r["share"])
+    back = sorted((row(k) for k in out_then - out_now if share.get(k, 0.0) > 0 or k == qb), key=lambda r: -r["share"])
+    c = injury_coefficients()
+    return {"known": True, "snapshot": then_stamp, "lost_share": d_lost, "qb": d_qb, "points": c["lost_share"] * d_lost + c["qb"] * d_qb,
+            "new_out": new_out, "back": back, "starter": names.get(qb) if qb else None}
+
+
+def game_detail_adjusted(gid: str, with_props: bool = False) -> dict | None:
+    """The game detail with its numbers moved for players who became unavailable (or returned) after the forecast was saved.
+
+    The saved margin, total and win chance are the betting market's at that moment, so they already reflect every absence known then. Only the change since
+    counts: each team's scoring moves by the measured effect of the catches it lost (`injury_coefficients`) and of losing its regular quarterback. Margin moves by the
+    home change minus the away change, total by their sum, the win chance by the margin shift in standard deviations. With `with_props` the saved player projections
+    are replaced by the simulated game's, which move a missing player's work to named teammates."""
+    d0 = D.game_detail(gid)
+    if d0 is None:
+        return None
+    d = dict(d0)
+    adj = None
+    e = d.get("expected") or {}
+    if not d.get("completed") and d.get("forecast_saved_at") and e.get("margin") is not None and e.get("total") is not None:
+        home, away = d["home"], d["away"]
+        a = {t: new_absences(t, d["week"], d["forecast_saved_at"]) for t in (home, away)}
+        if all(x.get("known") for x in a.values()):
+            dh, da = a[home]["points"], a[away]["points"]
+            dm, dt = dh - da, dh + da
+            if abs(dm) > 1e-9 or abs(dt) > 1e-9:
+                e2 = dict(e)
+                e2["margin"], e2["total"] = e["margin"] + dm, e["total"] + dt
+                e2["home_pts"], e2["away_pts"] = (e2["total"] + e2["margin"]) / 2, (e2["total"] - e2["margin"]) / 2
+                d["expected"] = e2
+                d["outcomes"] = D._outcomes({"mu_m": e2["margin"], "sd_m": e["sd_m"]}, home, away)
+                d["distribution"] = {"margin": D.pmf(e2["margin"], e["sd_m"], -40, 40), "total": D.pmf(e2["total"], e["sd_t"], 10, 90)}
+                h = d0["headline"]
+                p = float(np.clip(norm.cdf(norm.ppf(np.clip(h["p_home"], 1e-4, 1 - 1e-4)) + dm / e["sd_m"]), 0.01, 0.99))
+                fav, p_fav = (home, p) if p >= 0.5 else (away, 1 - p)
+                d["headline"] = {**h, "p_home": p, "favored": fav, "favored_name": D.TEAM_NAMES.get(fav, fav), "p_favored": p_fav}
+            adj = {"since": d["forecast_saved_at"], "margin": dm, "total": dt, "coefficients": injury_coefficients(), "teams": a,
+                   "saved": {"margin": e["margin"], "total": e["total"], "p_home": d0["headline"]["p_home"]}}
+    d["injury_adjustment"] = adj
+    return adjusted_props(d) if with_props else d
+
+
+PROP_STATS = {"Passing yards", "Receiving yards", "Receptions", "Rushing yards"}
+
+
+def adjusted_props(d: dict) -> dict:
+    """Player projections for the Players tab: the simulated game's numbers (a missing player's work moved to named teammates, the opposing defense's record
+    applied), with market lines kept where a saved line exists. Players who are out are removed and listed; over-the-line chances that no longer match are cleared."""
+    sim = simulate(d["gid"], "typical", 0)
+    saved = {(_norm(r["player"]), r["stat"]): r for r in d.get("props") or []}
+    rows = []
+    for r in (sim or {}).get("players", []):
+        if r["stat"] not in PROP_STATS:
+            continue
+        old = saved.get((_norm(r["player"]), r["stat"]))
+        moved = old is not None and abs(r["typical"] - old["typical"]) > 0.03 * max(old["typical"], 1.0)
+        rows.append({"player": r["player"], "team": r["team"], "stat": r["stat"], "typical": r["typical"], "expected": r.get("expected", r["typical"]),
+                     "range_low": r.get("range_low"), "range_high": r.get("range_high"), "market_line": r.get("market_line"), "market_chance": r.get("market_chance"),
+                     "our_chance": None if (moved or old is None) else old.get("our_chance"), "fpds": r.get("fpds")})
+    out = drop_unavailable_props({**d, "props": rows if rows else (d.get("props") or [])})
+    # the simulation never includes anyone who is out, so who was left out comes from the saved list
+    saved_view = drop_unavailable_props(d)
+    out["props_left_out"], out["props_questionable"] = saved_view.get("props_left_out", []), saved_view.get("props_questionable", [])
+    out["props_moves"] = [{"player": m["player"], "team": m["team"], "text": m["text"]} for m in (sim or {}).get("injury_moves", [])]
+    return out
+
+
 def fallback_lines(away: str, home: str, week: int) -> dict | None:
     """Expected margin and total from this season's points scored and allowed before `week`, when no betting line exists."""
     G = D.games_table()
@@ -1008,7 +1137,7 @@ def receiving_for_game(team: str, week: int, out_pids: set, mu_scale: float, rng
 def simulate(gid: str, mode: str = "typical", draw: int = 0) -> dict | None:
     """Everything the Simulated game tab shows. `mode` picks the replayed game: "typical" (the middle result), "random" (one of the
     10,000 draws) or "upset" (a random draw in which the underdog wins); `draw` numbers the random pick."""
-    d = D.game_detail(gid)
+    d = game_detail_adjusted(gid)
     if d is None:
         return None
     away, home, week = d["away"], d["home"], d["week"]

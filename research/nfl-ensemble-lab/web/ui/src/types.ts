@@ -103,6 +103,9 @@ export interface Detail {
   props?: PropRow[];
   props_left_out?: { player: string; team: string; status: string }[];
   props_questionable?: { player: string; team: string; status: string }[];
+  props_moves?: { player: string; team: string; text: string }[];
+  injury_adjustment?: { since: string; margin: number; total: number; coefficients: { lost_share: number; qb: number }; saved: { margin: number; total: number; p_home: number };
+    teams: Record<string, { known: boolean; points: number; lost_share: number; qb: number; new_out: { player: string; pos: string | null; share: number }[]; back: { player: string; pos: string | null; share: number }[] }> } | null;
   result?: { winner: string; favorite_won: boolean };
 }
 

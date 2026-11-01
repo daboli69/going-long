@@ -60,9 +60,11 @@ export function Props({ d }: { d: Detail }) {
   useEffect(() => { setStat("All"); setTeam("Both"); setSorts({}); }, [d.gid]);
   const out = d.props_left_out ?? [];
   const quest = d.props_questionable ?? [];
-  const notice = (out.length > 0 || quest.length > 0) && (
+  const moves = d.props_moves ?? [];
+  const notice = (out.length > 0 || quest.length > 0 || moves.length > 0) && (
     <Callout tone="amber">
-      {out.length > 0 && <>Left out because they are not expected to play: {out.map((p) => `${p.player} (${p.team}, ${p.status.toLowerCase()})`).join(", ")}. Saved projections were made earlier in the week, before the final injury report and the official inactive lists.</>}
+      {out.length > 0 && <>Left out because they are not expected to play: {out.map((p) => `${p.player} (${p.team}, ${p.status.toLowerCase()})`).join(", ")}. Their work moves to teammates, so these projections differ from the ones saved earlier in the week.</>}
+      {moves.length > 0 && <> {moves.map((m) => m.text).join(" ")}</>}
       {quest.length > 0 && <>{out.length > 0 ? " " : ""}Still listed questionable: {quest.map((p) => `${p.player} (${p.team})`).join(", ")}.</>}
     </Callout>
   );

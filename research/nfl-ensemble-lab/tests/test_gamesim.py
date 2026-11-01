@@ -238,3 +238,49 @@ def test_saved_projections_for_players_who_are_out_are_removed_and_listed(monkey
 
 def test_name_matching_ignores_suffixes_so_jr_does_not_hide_a_ruled_out_player():
     assert S._norm("Brian Robinson Jr.") == S._norm("Brian Robinson") and S._norm("Kenneth Walker III") == S._norm("Kenneth Walker")
+
+
+def _adjust_setup(monkeypatch, then, now):
+    monkeypatch.setattr(S.D, "injuries_now", lambda: (now, "20261101T1730"))
+    monkeypatch.setattr(S.D, "injuries_at", lambda when, raw=None: (then, "20261031T1400"))
+    monkeypatch.setattr(S, "inactives_final", lambda team, week: False)
+    monkeypatch.setattr(S, "injury_coefficients", lambda: {"lost_share": -5.0, "qb": -4.0})
+    monkeypatch.setattr(S, "_share_table", lambda team, week: ({"star wr": 0.30, "slot wr": 0.10}, "starter qb", {"star wr": "WR", "slot wr": "WR"}))
+
+
+def test_only_absences_new_since_the_forecast_move_a_teams_points(monkeypatch):
+    then = _feed([("NE", "Slot WR", "WR", "Out", "knee")])
+    now = _feed([("NE", "Slot WR", "WR", "Out", "knee"), ("NE", "Star WR", "WR", "Out", "ankle")])
+    _adjust_setup(monkeypatch, then, now)
+    a = S.new_absences("NE", 8, pd.Timestamp("2026-10-31T14:07Z"))
+    assert a["known"] and a["lost_share"] == pytest.approx(0.30)           # the slot receiver was out when the line was set: not counted again
+    assert a["points"] == pytest.approx(-1.5)
+    assert [p["player"] for p in a["new_out"]] == ["Star WR"] and a["back"] == []
+
+
+def test_a_starting_quarterback_ruled_out_costs_the_qb_coefficient_and_a_return_adds_it_back(monkeypatch):
+    _adjust_setup(monkeypatch, _feed([]).iloc[0:0], _feed([("NE", "Starter QB", "QB", "Out", "ill")]))
+    out = S.new_absences("NE", 8, pd.Timestamp("2026-10-31T14:07Z"))
+    assert out["known"] is False                                             # no older snapshot: nothing is claimed
+    _adjust_setup(monkeypatch, _feed([("NE", "Other", "WR", "Questionable", "x")]), _feed([("NE", "Starter QB", "QB", "Out", "ill")]))
+    assert S.new_absences("NE", 8, pd.Timestamp("2026-10-31T14:07Z"))["points"] == pytest.approx(-4.0)
+    _adjust_setup(monkeypatch, _feed([("NE", "Starter QB", "QB", "Out", "ill")]), _feed([("NE", "Other", "WR", "Questionable", "x")]))
+    assert S.new_absences("NE", 8, pd.Timestamp("2026-10-31T14:07Z"))["points"] == pytest.approx(4.0)
+
+
+def test_game_numbers_shift_by_the_home_minus_away_change_and_win_chance_follows(monkeypatch):
+    base = {"gid": "NE_MIA", "week": 8, "home": "MIA", "away": "NE", "completed": False, "forecast_saved_at": "2026-10-31T14:07:00Z",
+            "expected": {"margin": -7.0, "total": 45.0, "sd_m": 13.0, "sd_t": 10.0, "home_pts": 19.0, "away_pts": 26.0},
+            "headline": {"p_home": 0.30, "p_label": "x"}, "props": []}
+    monkeypatch.setattr(S.D, "game_detail", lambda gid: dict(base))
+    monkeypatch.setattr(S.D, "_outcomes", lambda m, a, h: [])
+    monkeypatch.setattr(S.D, "pmf", lambda *a, **k: [])
+    pts = {"NE": -2.0, "MIA": 0.0}
+    monkeypatch.setattr(S, "new_absences", lambda t, w, s: {"known": True, "points": pts[t], "new_out": [], "back": []})
+    d = S.game_detail_adjusted("NE_MIA")
+    assert d["expected"]["margin"] == pytest.approx(-5.0) and d["expected"]["total"] == pytest.approx(43.0)   # the away team lost 2 points
+    assert d["headline"]["p_home"] > 0.30                                                                    # home chance rises
+    assert d["injury_adjustment"]["saved"]["margin"] == -7.0
+    pts["NE"] = 0.0
+    d = S.game_detail_adjusted("NE_MIA")
+    assert d["expected"]["margin"] == -7.0 and d["headline"]["p_home"] == 0.30                              # nothing new: unchanged

@@ -32,19 +32,19 @@ export function Scorebug({ d }: { d: Detail }) {
   const [awayP, homeP] = h ? splitPct(h.p_home) : [null, null];
   const fav = e?.margin == null ? null : e.margin >= 0 ? d.home : d.away;
   const team = (abbr: string, name: string, color: string, side: string, p: string | null, home = false) => (
-    <div className={cn("team-field flex items-center gap-4 px-4 py-4 text-white sm:px-6", home && "xl:flex-row-reverse")} style={{ "--team": color } as CSSProperties}>
+    <div className={cn("team-field grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1 px-4 py-4 text-white sm:px-6 xl:flex xl:gap-4", home && "xl:flex-row-reverse")} style={{ "--team": color } as CSSProperties}>
       <div className="text-[28px] font-bold leading-none sm:text-[32px]">{abbr}</div>
-      <div className={cn("min-w-0 text-[15px] leading-snug", home && "xl:text-right")}>
+      <div className={cn("col-span-2 row-start-2 min-w-0 text-[15px] leading-snug xl:col-auto xl:row-auto", home && "xl:text-right")}>
         <b className="font-semibold">{name}</b>
-        <div className="opacity-85">{d.records[abbr]}, {side}</div>
+        <div>{d.records[abbr]}, {side}</div>
       </div>
-      {p && <div className={cn("text-4xl font-bold leading-none sm:text-[40px]", home ? "ml-auto xl:ml-0 xl:mr-auto" : "ml-auto")}>{p}</div>}
+      {p && <div className={cn("col-start-2 row-start-1 justify-self-end text-[30px] font-bold leading-none min-[360px]:text-4xl sm:text-[40px] xl:justify-self-auto", home ? "xl:ml-0 xl:mr-auto" : "xl:ml-auto")}>{p}</div>}
     </div>
   );
   return (
-    <section aria-label="Win chance" className="grid grid-cols-1 xl:grid-cols-[1fr_auto_1fr]">
+    <section aria-label="Win chance" className="grid grid-cols-2 xl:grid-cols-[1fr_auto_1fr]">
       {team(d.away, d.away_name, d.away_color, "away", awayP)}
-      <dl className="order-last grid grid-cols-[auto_auto] content-center gap-x-6 gap-y-0.5 bg-panel2 px-4 py-4 sm:px-6 xl:order-none">
+      <dl className="order-last col-span-2 grid grid-cols-[auto_auto] xl:col-span-1 content-center gap-x-6 gap-y-0.5 bg-panel2 px-4 py-4 sm:px-6 xl:order-none">
         <div className="col-span-full"><dt className="text-[13px] text-muted">{d.completed ? "Final" : "Kickoff"}</dt><dd className="text-lg font-semibold">{d.completed ? `${d.away} ${d.away_score}, ${d.home} ${d.home_score}` : `${d.date_label}, ${d.time_label} ET`}</dd></div>
         {e?.home_pts !== undefined && e?.away_pts !== undefined && <div><dt className="text-[13px] text-muted">Expected score</dt><dd className="text-lg font-semibold">{d.away} {e.away_pts.toFixed(0)}, {d.home} {e.home_pts.toFixed(0)}</dd></div>}
         {e && (e.margin !== null || e.total !== null) && <div><dt className="text-[13px] text-muted">Spread, total</dt><dd className="text-lg font-semibold">{e.margin === null ? "" : Math.abs(e.margin) < 0.25 ? "Even" : `${fav} by ${num(Math.abs(e.margin))}`}{e.margin !== null && e.total !== null ? ", " : ""}{e.total === null ? "" : num(e.total)}</dd></div>}
@@ -60,12 +60,25 @@ const Card = ({ className, ...p }: React.HTMLAttributes<HTMLDivElement>) => <div
 export function Overview({ d }: { d: Detail }) {
   if (!d.has_forecast || !d.headline) return <Callout tone="blue">No lines or forecast are saved for this game yet.</Callout>;
   const e = d.expected!, dist = d.distribution;
+  const hasSources = (d.sources?.length ?? 0) > 0;
   const sources = e.margin_label && e.total_label && e.margin_label !== e.total_label ? `Spread from ${e.margin_label}, total from ${e.total_label}.` : `Spread and total from ${e.margin_label ?? e.total_label}.`;
   return (
     <div className="space-y-4">
       {d.result && <Callout tone={d.result.favorite_won ? "green" : "amber"}>{d.result.winner} won. The favorite ({d.headline.favored}) {d.result.favorite_won ? "won" : "lost"}.</Callout>}
-      <div className="grid items-start gap-0.5 xl:grid-cols-[5fr_7fr] xl:[grid-template-areas:'fc_margin''total_margin'] [grid-template-areas:'fc''margin''total']">
-        <Card className="[grid-area:fc]"><ForecastDots d={d} /></Card>
+      {d.injury_adjustment && (() => {
+        const a = d.injury_adjustment;
+        const parts = Object.entries(a.teams).filter(([, t]) => t.known && (t.new_out.length > 0 || t.back.length > 0)).map(([team, t]) =>
+          `${team} ${t.points >= 0 ? "+" : "−"}${Math.abs(t.points).toFixed(1)} points${t.new_out.length ? ` (out: ${t.new_out.slice(0, 3).map((p) => p.player).join(", ")})` : ""}${t.back.length ? ` (back: ${t.back.slice(0, 3).map((p) => p.player).join(", ")})` : ""}`);
+        return (
+          <Callout tone="amber">
+            Adjusted for players who became unavailable (or came back) after the forecast was saved: {parts.length ? parts.join("; ") : "none that change a team's scoring"}.
+            The spread, total and win chance below move by {Math.abs(a.margin).toFixed(1)} and {Math.abs(a.total).toFixed(1)} points from the saved market numbers (spread {a.saved.margin.toFixed(1)}, total {a.saved.total.toFixed(1)}).
+            A starting quarterback out is worth about {Math.abs(a.coefficients.qb).toFixed(1)} points to his team and a player with all of a team's catches about {Math.abs(a.coefficients.lost_share).toFixed(1)}, from past games. Players already out when the forecast was saved are already in the market's numbers and are not counted again.
+          </Callout>
+        );
+      })()}
+      <div className={cn("grid items-start gap-0.5 xl:grid-cols-[5fr_7fr]", hasSources ? "[grid-template-areas:'fc''margin''total'] xl:[grid-template-areas:'fc_margin''total_margin']" : "[grid-template-areas:'margin''total'] xl:[grid-template-areas:'total_margin']")}>
+        {hasSources && <Card className="[grid-area:fc]"><ForecastDots d={d} /></Card>}
         {dist && e.margin !== null && (
           <Card className="[grid-area:margin]">
             <h2 className="text-xl leading-tight text-white">Final margin</h2>

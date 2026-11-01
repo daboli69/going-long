@@ -72,7 +72,8 @@ def main():
         for p in sim["players"]:
             shown["sim"] += 1
             check("simulated game", p["team"], p["player"])
-        det = S.drop_unavailable_props(D.game_detail(r.game_id))
+        det = S.game_detail_adjusted(r.game_id, with_props=True)
+        report.setdefault("adjustments", {})[r.game_id] = None if not det.get("injury_adjustment") else {"margin": round(det["injury_adjustment"]["margin"], 2), "total": round(det["injury_adjustment"]["total"], 2)}
         for p in det["props"]:
             shown["players_tab"] += 1
             check("Players tab", p["team"], p["player"])

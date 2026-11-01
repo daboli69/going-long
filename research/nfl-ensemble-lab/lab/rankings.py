@@ -188,7 +188,7 @@ def td_card(gid: str, team: str, player: str) -> dict | None:
     row = row.iloc[0]
     week = int(row["week"])
     opp = row["away_team"] if team == row["home_team"] else row["home_team"]
-    e = (D.game_detail(gid) or {}).get("expected") or {}
+    e = (S.game_detail_adjusted(gid) or {}).get("expected") or {}
     margin, total = e.get("margin"), e.get("total")
     favored = None if margin is None else float(margin if team == row["home_team"] else -margin)
     pid = S._pid_by_norm().get(S._norm(player))

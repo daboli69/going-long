@@ -146,6 +146,41 @@ def injuries_now(raw: Path | None = None) -> tuple[pd.DataFrame, str | None]:
     return _cached(("inj", f), _mt(Path(f)), build), Path(f).name.split("_")[-1][:13]
 
 
+def injuries_at(when: pd.Timestamp, raw: Path | None = None) -> tuple[pd.DataFrame, str | None]:
+    """The ESPN injury list as it stood at `when` (the latest saved snapshot at or before it), and that snapshot's stamp; empty when none that old exists."""
+    raw = Path(raw or RAW_DIR)
+    when = pd.Timestamp(when)
+    when = when.tz_localize("UTC") if when.tzinfo is None else when.tz_convert("UTC")
+    best = None
+    for f in sorted(glob.glob(str(raw / "archive" / "espn_injuries_*.json"))):
+        stamp = Path(f).name.split("_")[-1].replace(".json", "")
+        try:
+            ts = pd.Timestamp(f"{stamp[:4]}-{stamp[4:6]}-{stamp[6:8]}T{stamp[9:11]}:{stamp[11:13]}:{stamp[13:15] or '00'}", tz="UTC")
+        except ValueError:
+            continue
+        if ts <= when:
+            best = (f, stamp)
+    if best is None:
+        return pd.DataFrame(), None
+    f = best[0]
+
+    def build():
+        c = json.loads(Path(f).read_text(encoding="utf-8"))
+        rows = []
+        for t in c.get("injuries", []):
+            for e in t.get("injuries", []):
+                a = e.get("athlete", {})
+                team = (a.get("team") or {}).get("abbreviation") if isinstance(a.get("team"), dict) else None
+                try:
+                    team = normalize_team(team) if team else team
+                except ValueError:
+                    pass
+                pos = (a.get("position") or {}).get("abbreviation") if isinstance(a.get("position"), dict) else None
+                rows.append({"team": team, "player": a.get("displayName"), "pos": pos, "status": e.get("status"), "note": e.get("shortComment") or ""})
+        return pd.DataFrame(rows)
+    return _cached(("inj_at", f), _mt(Path(f)), build), best[1]
+
+
 def preview_table() -> pd.DataFrame:
     try:
         from .props import weekly as W
