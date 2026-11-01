@@ -554,6 +554,36 @@ def _replacement(team: str, pos: str, week: int, season: int, taken: set, u, nam
     return max(cands, key=lambda c: (seen.get(c[0], 0), prod.get(c[0], 0.0)))[1]
 
 
+def depth_chart_qbs() -> dict:
+    """{team: [quarterback ids, QB1 first]} from the latest depth chart snapshot (data/raw/depth_charts_<season>.parquet)."""
+    path = RAW_DIR / f"depth_charts_{D.SEASON}.parquet"
+    if not path.exists():
+        return {}
+
+    def build():
+        d = pd.read_parquet(path, columns=["dt", "team", "gsis_id", "pos_abb", "pos_rank"])
+        d = d[(d["dt"] == d["dt"].max()) & (d["pos_abb"] == "QB") & d["gsis_id"].notna()].sort_values(["team", "pos_rank"])
+        d["team"] = d["team"].map(lambda t: normalize_team(t) if isinstance(t, str) else t)
+        return {t: list(dict.fromkeys(g["gsis_id"])) for t, g in d.groupby("team")}
+    return D._cached(("depth_chart_qbs", D.SEASON), D._mt(path), build)
+
+
+def starting_qbs(team: str, week: int, season: int = D.SEASON) -> list[str]:
+    """Quarterback ids in the order they should start: the one the schedule lists for this game, then the latest depth chart.
+    The depth chart only describes the coming game, so it is used for the current week and later."""
+    ids = []
+    G = D.games_table()
+    g = G[(G["season"] == season) & (G["week"] == week) & ((G["home_team"] == team) | (G["away_team"] == team))]
+    if len(g):
+        r = g.iloc[0]
+        pid = r["home_qb_id"] if r["home_team"] == team else r["away_qb_id"]
+        if isinstance(pid, str) and pid:
+            ids.append(pid)
+    if season == D.SEASON and week >= current_week():
+        ids += depth_chart_qbs().get(team, [])
+    return list(dict.fromkeys(ids))
+
+
 def team_players(team: str, week: int, out: dict, saved: list[dict], expected_points: float | None = None, season: int = D.SEASON,
                  allowed_mults: dict | None = None):
     """Every player expected to touch the ball, with per-game projections after injuries.
@@ -587,11 +617,21 @@ def team_players(team: str, week: int, out: dict, saved: list[dict], expected_po
     adj = rule.project(u, out_ids).set_index("pid")
     by_saved = {(_norm(r["player"]), STAT_CODE.get(r["stat"])): r for r in saved_t}
 
-    # QB: the regular starter (most dropbacks), else the next healthy passer, else the team's usual passing volume.
+    # QB: the announced starter (the quarterback the schedule lists for this game, else the depth chart's QB1), then the next healthy one
+    # in that order, then whoever threw the most in the last six games. Volume alone is not enough: a backup who started recently
+    # would outrank the real starter, so the real starter would be missing from the projections.
     qbs = p[p["att"] > 0].assign(tot=lambda x: x["att"] * x["n"]).sort_values(["tot", "last"], ascending=False)
-    healthy = qbs[~qbs["key"].isin(out)]
-    starter = qbs.iloc[0] if len(qbs) else None
-    qb = healthy.iloc[0] if len(healthy) else None
+    by_pid = {r["pid"]: r for _, r in qbs.iterrows()}
+    order = []
+    for pid in starting_qbs(team, week, season):
+        row = by_pid.get(pid)
+        if row is None and names.get(pid):  # announced, but no dropbacks in the window: he gets the team's usual passing volume
+            row = pd.Series({"pid": pid, "name": names[pid], "key": _norm(names[pid]), "pass_yds": u.totals["pass_yds"], "att": 0.0, "n": 0})
+        if row is not None and row["pid"] not in {o["pid"] for o in order}:
+            order.append(row)
+    order += [r for pid, r in by_pid.items() if pid not in {o["pid"] for o in order}]
+    starter = order[0] if order else None
+    qb = next((r for r in order if r["key"] not in out), None)
     rows, moves = [], []
     if qb is not None:
         sv = next((r for r in saved_t if r["stat"] == "Passing yards" and _norm(r["player"]) == qb["key"]), None)

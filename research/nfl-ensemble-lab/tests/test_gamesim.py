@@ -196,3 +196,13 @@ def test_no_pick_ends_in_a_tie_even_in_a_pickem():
         for k in range(1, 60):
             pts = S.pick_game("g", "HHH", "AAA", h, a, mode, k)["points"]
             assert pts["HHH"] != pts["AAA"]
+
+
+def test_the_announced_starter_comes_first_then_the_depth_chart_not_the_recent_volume_leader(monkeypatch):
+    G = pd.DataFrame({"season": [S.D.SEASON], "week": [8], "home_team": ["BAL"], "away_team": ["BUF"], "home_qb_id": ["JACKSON"], "away_qb_id": [None]})
+    monkeypatch.setattr(S.D, "games_table", lambda: G)
+    monkeypatch.setattr(S, "depth_chart_qbs", lambda: {"BAL": ["JACKSON", "HUNTLEY"], "BUF": ["ALLEN", "BACKUP"]})
+    monkeypatch.setattr(S, "current_week", lambda: 8)
+    assert S.starting_qbs("BAL", 8) == ["JACKSON", "HUNTLEY"]          # the schedule's name first, then the depth chart, no repeats
+    assert S.starting_qbs("BUF", 8) == ["ALLEN", "BACKUP"]             # nobody announced: depth chart QB1 first
+    assert S.starting_qbs("BUF", 7) == []                              # a played week has no announced starter here and the depth chart is only for the coming game
