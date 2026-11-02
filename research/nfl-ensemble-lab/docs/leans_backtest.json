@@ -1,12 +1,12 @@
 {
- "rule_sha256": "80f8ae0d904b92e2e30ea36e41d84dc6a37c4930c5068fc3fdb6167238804879",
+ "rule_sha256": "ca067e392c8d93b42880be6ff4c2f02d7793957b205114decb8af1b02d7889fc",
  "recal_compare": {
   "rows": 4331,
   "log_loss": {
    "raw": 0.56627469357926,
    "logistic": 0.5655933250644093,
    "isotonic": 0.576992292731767,
-   "market": 0.5456328452030017
+   "market": 0.545085690300062
   },
   "chosen": "logistic",
   "adopted_by": "owner choice, not by the original test",
@@ -25,311 +25,276 @@
    ]
   }
  },
- "universe_rows": 6614,
- "universe_games": 175,
- "executable_rows": 6614,
- "models": {
-  "raw": {
-   "exec": {
-    "summary": {
-     "n": 958,
-     "games": 168,
-     "effective_n": 867.5826888517545,
-     "design_effect": 1.104217514146015,
-     "icc": 0.022162711869026006,
-     "win_rate": 0.3966597077244259,
-     "stated_edge": 0.1382428201989443,
-     "realized_edge": 0.02062417432150314,
-     "realized_before_fees": 0.03581419624217119,
-     "fee": 0.01519002192066806,
-     "clv": -0.01253653444676409,
-     "need_for_2pt": 4898,
-     "need_base": 4436,
-     "realized_ci": [
-      -0.011575848691603127,
-      0.05285048228267176
-     ],
-     "p_one_sided": 0.1031,
-     "note": "Too few leans to mean anything: about 4898 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 958 (868 effective)."
-    },
-    "benchmarks": {
-     "follow_market_realized": -0.04741253862212945,
-     "random_side_realized": -0.021219540093945718
-    },
-    "dropped": {
-     "rows_over_threshold": 3563,
-     "executable": 3563,
-     "dropped_thin": 0.0
-    }
+ "market_accuracy": {
+  "rows": 4331,
+  "chosen": "devig",
+  "candidates": {
+   "model_raw": {
+    "log_loss": 0.56627469357926,
+    "brier": 0.19108582585308573
+   },
+   "model_recal": {
+    "log_loss": 0.5655933250644093,
+    "brier": 0.1912577580861877
    },
    "mid": {
-    "summary": {
-     "n": 958,
-     "games": 168,
-     "effective_n": 865.497864720966,
-     "design_effect": 1.1068773697192844,
-     "icc": 0.02272835204156934,
-     "win_rate": 0.3966597077244259,
-     "stated_edge": 0.1382428201989443,
-     "realized_edge": 0.04282359081419624,
-     "realized_before_fees": 0.04282359081419624,
-     "fee": 0.0,
-     "clv": 0.0031216730381657294,
-     "need_for_2pt": 4910,
-     "need_base": 4436,
-     "realized_ci": [
-      0.010526047476047474,
-      0.07508105132881707
-     ],
-     "p_one_sided": 0.0049,
-     "note": "Too few leans to mean anything: about 4910 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 958 (865 effective)."
-    },
-    "benchmarks": {
-     "follow_market_realized": -0.025516701461377862,
-     "random_side_realized": 0.0008321503131524
-    },
-    "dropped": {
-     "rows_over_threshold": 3563,
-     "executable": 3563,
-     "dropped_thin": 0.0
+    "log_loss": 0.5456324488238228,
+    "brier": 0.18335444470099282
+   },
+   "devig": {
+    "log_loss": 0.545085690300062,
+    "brier": 0.18326522475981455,
+    "gain_vs_mid": {
+     "gain": 0.0005467585237608389,
+     "ci": [
+      -5.304996532444631e-05,
+      0.001148207205152815
+     ]
     }
+   },
+   "calibrated": {
+    "log_loss": 0.5471036374413509,
+    "brier": 0.18401846912399605,
+    "gain_vs_mid": {
+     "gain": -0.0014711886175280818,
+     "ci": [
+      -0.004037946062532933,
+      0.0010525754737660893
+     ]
+    }
+   },
+   "chosen": {
+    "log_loss": 0.545085690300062,
+    "brier": 0.18326522475981455,
+    "gain_vs_mid": {
+     "gain": 0.0005467585237608389,
+     "ci": [
+      -5.304996532444631e-05,
+      0.001148207205152815
+     ]
+    }
+   },
+   "model_plus_market": {
+    "log_loss": 0.5494029221757236,
+    "brier": 0.18474550422128103,
+    "gain_vs_market": {
+     "gain": -0.004317231875661594,
+     "ci": [
+      -0.010416287333566043,
+      0.0016884044480628847
+     ]
+    }
+   }
+  }
+ },
+ "universe_rows": 6614,
+ "universe_games": 175,
+ "models": {
+  "raw": {
+   "summary": {
+    "n": 953,
+    "games": 167,
+    "effective_n": 874.4088748370468,
+    "design_effect": 1.08987914855919,
+    "icc": 0.019096460317283372,
+    "win_rate": 0.40293809024134314,
+    "stated_edge": 0.1377103485208355,
+    "realized_edge": 0.04281021126181525,
+    "clv": 0.0030488591506429895,
+    "need_for_2pt": 4899,
+    "need_base": 4495,
+    "realized_ci": [
+     0.010932244818403746,
+     0.07526237344983906
+    ],
+    "p_one_sided": 0.0042,
+    "note": "Too few leans to mean anything: about 4899 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 953 (874 effective)."
+   },
+   "benchmarks": {
+    "follow_market_realized": -0.027750364005540915,
+    "random_side_realized": 0.0008409435363753759
    }
   },
   "recal": {
-   "exec": {
-    "summary": {
-     "n": 1036,
-     "games": 168,
-     "effective_n": 818.6324087258,
-     "design_effect": 1.2655252698980393,
-     "icc": 0.05139198772220113,
-     "win_rate": 0.32625482625482627,
-     "stated_edge": 0.13514776884408589,
-     "realized_edge": -0.0019133079150579183,
-     "realized_before_fees": 0.01215250965250965,
-     "fee": 0.01406581756756757,
-     "clv": -0.012442084942084939,
-     "need_for_2pt": 5122,
-     "need_base": 4048,
-     "realized_ci": [
-      -0.033750712686798766,
-      0.030725587371515758
-     ],
-     "p_one_sided": 0.5525,
-     "note": "Too few leans to mean anything: about 5122 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 1036 (819 effective)."
-    },
-    "benchmarks": {
-     "follow_market_realized": -0.03134559555984557,
-     "random_side_realized": -0.02106264358590734
-    },
-    "dropped": {
-     "rows_over_threshold": 3672,
-     "executable": 3672,
-     "dropped_thin": 0.0
-    }
+   "summary": {
+    "n": 1025,
+    "games": 168,
+    "effective_n": 825.1890254475594,
+    "design_effect": 1.2421396412101684,
+    "icc": 0.047467280890674764,
+    "win_rate": 0.33170731707317075,
+    "stated_edge": 0.13446452566410427,
+    "realized_edge": 0.01898309827026775,
+    "clv": 0.003117622215183189,
+    "need_for_2pt": 5064,
+    "need_base": 4077,
+    "realized_ci": [
+     -0.012760461359595063,
+     0.0518767000028371
+    ],
+    "p_one_sided": 0.1197,
+    "note": "Too few leans to mean anything: about 5064 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 1025 (825 effective)."
    },
-   "mid": {
-    "summary": {
-     "n": 1036,
-     "games": 168,
-     "effective_n": 814.8997767501482,
-     "design_effect": 1.2713219828475202,
-     "icc": 0.05251393216403617,
-     "win_rate": 0.32625482625482627,
-     "stated_edge": 0.13514776884408589,
-     "realized_edge": 0.01913127413127413,
-     "realized_before_fees": 0.01913127413127413,
-     "fee": 0.0,
-     "clv": 0.003045910010195723,
-     "need_for_2pt": 5148,
-     "need_base": 4049,
-     "realized_ci": [
-      -0.012765389413268446,
-      0.051989395282156285
-     ],
-     "p_one_sided": 0.122,
-     "note": "Too few leans to mean anything: about 5148 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 1036 (815 effective)."
-    },
-    "benchmarks": {
-     "follow_market_realized": -0.010675675675675674,
-     "random_side_realized": -0.00020342664092664136
-    },
-    "dropped": {
-     "rows_over_threshold": 3672,
-     "executable": 3672,
-     "dropped_thin": 0.0
-    }
+   "benchmarks": {
+    "follow_market_realized": -0.01041938485444984,
+    "random_side_realized": -0.0008890659786960431
    }
   }
  },
  "placebo": {
   "draws": 200,
-  "mean_edge": -0.012430732879186527,
+  "mean_edge": 0.008344927496793268,
   "range": [
-   -0.029584785288327038,
-   0.009909661793721975
+   -0.00906544867203705,
+   0.031213603509373248
   ],
-  "abs_mean_le_1pt": false
+  "abs_mean_le_1pt": true
  },
  "subgroups": {
   "market:Passing yards": {
-   "n": 115,
-   "games": 95,
-   "effective_n": 115.0,
+   "n": 112,
+   "games": 93,
+   "effective_n": 112.0,
    "design_effect": 1.0,
    "icc": 0.0,
-   "win_rate": 0.34782608695652173,
-   "stated_edge": 0.09659988805031834,
-   "realized_edge": -0.03485805217391304,
-   "realized_before_fees": -0.019478260869565216,
-   "fee": 0.015379791304347827,
-   "clv": -0.013826086956521738,
-   "need_for_2pt": 3993,
-   "need_base": 3993,
+   "win_rate": 0.3482142857142857,
+   "stated_edge": 0.09700247858685318,
+   "realized_edge": -0.01631589393183016,
+   "clv": 0.003794642857142861,
+   "need_for_2pt": 4044,
+   "need_base": 4044,
    "realized_ci": [
-    -0.11140365459770117,
-    0.045181734291194736
+    -0.09622435214326937,
+    0.06463765238414017
    ],
-   "p_one_sided": 0.8093,
-   "note": "Too few leans to mean anything: about 3993 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 115 (115 effective).",
+   "p_one_sided": 0.661,
+   "note": "Too few leans to mean anything: about 4044 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 112 (112 effective).",
    "p_holm": 1.0,
    "claim": false
   },
   "market:Receiving yards": {
-   "n": 418,
+   "n": 413,
    "games": 137,
-   "effective_n": 354.2144242635676,
-   "design_effect": 1.1800761667711481,
-   "icc": 0.08779514180657404,
-   "win_rate": 0.3157894736842105,
-   "stated_edge": 0.13002613580744102,
-   "realized_edge": -0.014242370813397123,
-   "realized_before_fees": -0.00016746411483253655,
-   "fee": 0.014074906698564595,
-   "clv": -0.013636363636363637,
-   "need_for_2pt": 4814,
-   "need_base": 4079,
+   "effective_n": 365.5582820698144,
+   "design_effect": 1.12977880753123,
+   "icc": 0.06441919069484973,
+   "win_rate": 0.3220338983050847,
+   "stated_edge": 0.12938131900585081,
+   "realized_edge": 0.006445642496942603,
+   "clv": 0.0030764231732754734,
+   "need_for_2pt": 4586,
+   "need_base": 4059,
    "realized_ci": [
-    -0.06084224145363409,
-    0.03381456623467111
+    -0.03899309108291741,
+    0.05384380988198966
    ],
-   "p_one_sided": 0.7224,
-   "note": "Too few leans to mean anything: about 4814 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 418 (354 effective).",
+   "p_one_sided": 0.3926,
+   "note": "Too few leans to mean anything: about 4586 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 413 (366 effective).",
    "p_holm": 1.0,
    "claim": false
   },
   "market:Receptions": {
-   "n": 254,
+   "n": 251,
    "games": 86,
-   "effective_n": 248.15998626886974,
-   "design_effect": 1.0235332610181678,
-   "icc": 0.012046788378347792,
-   "win_rate": 0.35039370078740156,
-   "stated_edge": 0.14455131746226682,
-   "realized_edge": 0.01899971653543307,
-   "realized_before_fees": 0.03322834645669292,
-   "fee": 0.014228629921259844,
-   "clv": -0.011102362204724407,
-   "need_for_2pt": 4340,
-   "need_base": 4240,
+   "effective_n": 238.24338667075457,
+   "design_effect": 1.0535444593342467,
+   "icc": 0.027908021228758892,
+   "win_rate": 0.3545816733067729,
+   "stated_edge": 0.14383122944714535,
+   "realized_edge": 0.039268035209417615,
+   "clv": 0.0024302788844621464,
+   "need_for_2pt": 4523,
+   "need_base": 4293,
    "realized_ci": [
-    -0.038792465985023034,
-    0.0757316681376518
+    -0.019176957267750108,
+    0.09709219948351518
    ],
-   "p_one_sided": 0.2508,
-   "note": "Too few leans to mean anything: about 4340 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 254 (248 effective).",
-   "p_holm": 1.0,
+   "p_one_sided": 0.0913,
+   "note": "Too few leans to mean anything: about 4523 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 251 (238 effective).",
+   "p_holm": 0.6391,
    "claim": false
   },
   "market:Rushing yards": {
    "n": 249,
    "games": 130,
-   "effective_n": 220.67427463012203,
-   "design_effect": 1.128359888878554,
-   "icc": 0.1402250886908573,
-   "win_rate": 0.3092369477911647,
-   "stated_edge": 0.15195639354923787,
-   "realized_edge": 0.012666152610441767,
-   "realized_before_fees": 0.025943775100401616,
-   "fee": 0.01327762248995984,
-   "clv": -0.011164658634538154,
-   "need_for_2pt": 4338,
-   "need_base": 3845,
+   "effective_n": 225.47496499365903,
+   "design_effect": 1.1043354636156726,
+   "icc": 0.11397991823560868,
+   "win_rate": 0.3172690763052209,
+   "stated_edge": 0.15030416812582117,
+   "realized_edge": 0.03520774561682049,
+   "clv": 0.0035742971887550152,
+   "need_for_2pt": 4332,
+   "need_base": 3923,
    "realized_ci": [
-    -0.04334110146426313,
-    0.07200924338653221
+    -0.02131378489119275,
+    0.09404963541652936
    ],
-   "p_one_sided": 0.3377,
-   "note": "Too few leans to mean anything: about 4338 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 249 (221 effective).",
-   "p_holm": 1.0,
+   "p_one_sided": 0.1162,
+   "note": "Too few leans to mean anything: about 4332 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 249 (225 effective).",
+   "p_holm": 0.6972,
    "claim": false
   },
   "size:large": {
-   "n": 486,
-   "games": 145,
-   "effective_n": 399.006361938175,
-   "design_effect": 1.2180256917189316,
-   "icc": 0.09270887184529347,
-   "win_rate": 0.35802469135802467,
-   "stated_edge": 0.19375339310133313,
-   "realized_edge": 0.0171733950617284,
-   "realized_before_fees": 0.03176954732510288,
-   "fee": 0.014596152263374487,
-   "clv": -0.011543209876543208,
+   "n": 476,
+   "games": 144,
+   "effective_n": 390.8761899749571,
+   "design_effect": 1.2177769130181522,
+   "icc": 0.09445745624883707,
+   "win_rate": 0.36134453781512604,
+   "stated_edge": 0.19388548873542605,
+   "realized_edge": 0.03616710935919454,
+   "clv": 0.003476890756302517,
    "need_for_2pt": 5427,
-   "need_base": 4456,
+   "need_base": 4457,
    "realized_ci": [
-    -0.030838674206704417,
-    0.06603062092703878
+    -0.011528400111847886,
+    0.0848284289120564
    ],
-   "p_one_sided": 0.2363,
-   "note": "Too few leans to mean anything: about 5427 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 486 (399 effective).",
-   "p_holm": 1.0,
+   "p_one_sided": 0.0711,
+   "note": "Too few leans to mean anything: about 5427 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 476 (391 effective).",
+   "p_holm": 0.5688,
    "claim": false
   },
   "size:medium": {
-   "n": 296,
-   "games": 122,
-   "effective_n": 269.9510263633743,
-   "design_effect": 1.0964951828023866,
-   "icc": 0.06765754196489177,
-   "win_rate": 0.30743243243243246,
-   "stated_edge": 0.09909346769315677,
-   "realized_edge": -0.009194003378378382,
-   "realized_before_fees": 0.004493243243243239,
-   "fee": 0.013687246621621622,
-   "clv": -0.01212837837837838,
-   "need_for_2pt": 3992,
-   "need_base": 3641,
+   "n": 289,
+   "games": 121,
+   "effective_n": 284.8671720170183,
+   "design_effect": 1.0145079124200904,
+   "icc": 0.010449151207327076,
+   "win_rate": 0.32525951557093424,
+   "stated_edge": 0.09911885908674664,
+   "realized_edge": 0.018376562074681132,
+   "clv": 0.004010021120747763,
+   "need_for_2pt": 3859,
+   "need_base": 3804,
    "realized_ci": [
-    -0.059320838204817525,
-    0.04232965370561946
+    -0.029665569189385683,
+    0.06882858217883578
    ],
-   "p_one_sided": 0.6312,
-   "note": "Too few leans to mean anything: about 3992 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 296 (270 effective).",
+   "p_one_sided": 0.2298,
+   "note": "Too few leans to mean anything: about 3859 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 289 (285 effective).",
    "p_holm": 1.0,
    "claim": false
   },
   "size:small": {
-   "n": 254,
-   "games": 113,
-   "effective_n": 232.2032862712223,
-   "design_effect": 1.0938691009881674,
-   "icc": 0.07522842845151005,
-   "win_rate": 0.2874015748031496,
-   "stated_edge": 0.06502863400807343,
-   "realized_edge": -0.02994894488188977,
-   "realized_before_fees": -0.016456692913385827,
-   "fee": 0.013492251968503939,
-   "clv": -0.014527559055118109,
-   "need_for_2pt": 4093,
-   "need_base": 3741,
+   "n": 260,
+   "games": 116,
+   "effective_n": 236.04430035225965,
+   "design_effect": 1.1014881512156411,
+   "icc": 0.08175434403482199,
+   "win_rate": 0.2846153846153846,
+   "stated_edge": 0.06496652265990122,
+   "realized_edge": -0.011802672182826957,
+   "clv": 0.0014679487179487178,
+   "need_for_2pt": 4059,
+   "need_base": 3685,
    "realized_ci": [
-    -0.08603097261777935,
-    0.028433160885092477
+    -0.06620384731737809,
+    0.04603222275596028
    ],
-   "p_one_sided": 0.8464,
-   "note": "Too few leans to mean anything: about 4093 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 254 (232 effective).",
+   "p_one_sided": 0.6604,
+   "note": "Too few leans to mean anything: about 4059 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 260 (236 effective).",
    "p_holm": 1.0,
    "claim": false
   },
@@ -341,50 +306,46 @@
    "icc": 0.0,
    "win_rate": 0.4228187919463087,
    "stated_edge": 0.14146222247018286,
-   "realized_edge": 0.03881224832214764,
-   "realized_before_fees": 0.05442953020134228,
-   "fee": 0.01561728187919463,
-   "clv": -0.025906040268456373,
-   "need_for_2pt": 4613,
-   "need_base": 4613,
+   "realized_edge": 0.06714765100671141,
+   "clv": 0.0046682065138440925,
+   "need_for_2pt": 4611,
+   "need_base": 4611,
    "realized_ci": [
-    -0.0428696224633532,
-    0.11524851419254657
+    -0.014138974946120687,
+    0.1438883132624335
    ],
-   "p_one_sided": 0.1749,
-   "note": "Too few leans to mean anything: about 4613 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 149 (149 effective).",
-   "p_holm": 1.0,
+   "p_one_sided": 0.053,
+   "note": "Too few leans to mean anything: about 4611 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 149 (149 effective).",
+   "p_holm": 0.477,
    "claim": false
   },
   "season:2026": {
-   "n": 887,
+   "n": 876,
    "games": 107,
-   "effective_n": 621.5611775871062,
-   "design_effect": 1.427051804366747,
-   "icc": 0.05858274752210506,
-   "win_rate": 0.3100338218714769,
-   "stated_edge": 0.13408705453710903,
-   "realized_edge": -0.00875446674182638,
-   "realized_before_fees": 0.005050732807215333,
-   "fee": 0.013805199549041716,
-   "clv": -0.010180383314543405,
-   "need_for_2pt": 5638,
-   "need_base": 3951,
+   "effective_n": 631.9346356539954,
+   "design_effect": 1.3862193185429992,
+   "icc": 0.05373922897802458,
+   "win_rate": 0.3162100456621005,
+   "stated_edge": 0.13327427814800188,
+   "realized_edge": 0.010790725715781324,
+   "clv": 0.0028538812785388113,
+   "need_for_2pt": 5520,
+   "need_base": 3982,
    "realized_ci": [
-    -0.04435286681649178,
-    0.027345200523353336
+    -0.02510656099141442,
+    0.04649481619000268
    ],
-   "p_one_sided": 0.6912,
-   "note": "Too few leans to mean anything: about 5638 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 887 (622 effective).",
+   "p_one_sided": 0.2786,
+   "note": "Too few leans to mean anything: about 5520 are needed to detect a 2 point realized edge once leans from the same game are treated as one source of noise, and this selection has 876 (632 effective).",
    "p_holm": 1.0,
    "claim": false
   }
  },
  "pass": {
-  "realized_after_costs_ci_lower_gt_0": false,
-  "clv_exec_gt_0": false,
+  "realized_ci_lower_gt_0": false,
+  "clv_gt_0": true,
   "leans_at_least_need_corrected": false,
-  "placebo_abs_mean_le_1pt": false,
+  "placebo_abs_mean_le_1pt": true,
   "edge_found": false
  },
  "calibration": {
@@ -523,44 +484,44 @@
   "market": [
    {
     "bucket": "(-0.001, 0.1]",
-    "n": 894,
-    "stated": 0.06482289336316183,
-    "realized": 0.07606263982102908
+    "n": 896,
+    "stated": 0.06888418975767312,
+    "realized": 0.07589285714285714
    },
    {
     "bucket": "(0.1, 0.25]",
-    "n": 1435,
-    "stated": 0.17202439024390245,
-    "realized": 0.19790940766550522
+    "n": 1423,
+    "stated": 0.17430953430450297,
+    "realized": 0.19817287420941673
    },
    {
     "bucket": "(0.25, 0.4]",
-    "n": 1192,
-    "stated": 0.3251468120805369,
-    "realized": 0.32298657718120805
+    "n": 1199,
+    "stated": 0.3256051006024845,
+    "realized": 0.3219349457881568
    },
    {
     "bucket": "(0.4, 0.6]",
-    "n": 1687,
-    "stated": 0.5014107883817427,
-    "realized": 0.4878482513337285
+    "n": 1690,
+    "stated": 0.5012260587522772,
+    "realized": 0.48757396449704143
    },
    {
     "bucket": "(0.6, 0.75]",
-    "n": 771,
-    "stated": 0.6700583657587549,
-    "realized": 0.648508430609598
+    "n": 779,
+    "stated": 0.669693027768176,
+    "realized": 0.6482670089858793
    },
    {
     "bucket": "(0.75, 0.9]",
-    "n": 591,
-    "stated": 0.8166328257191202,
-    "realized": 0.8240270727580372
+    "n": 583,
+    "stated": 0.8150156160170363,
+    "realized": 0.8267581475128645
    },
    {
     "bucket": "(0.9, 1.0]",
     "n": 44,
-    "stated": 0.9168181818181819,
+    "stated": 0.914102314643229,
     "realized": 0.8863636363636364
    }
   ]
