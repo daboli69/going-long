@@ -36,3 +36,7 @@ A referee effect on a measure is claimed only if all hold: (1) the discovery Hol
 ## Prospective record
 
 `freeze_week(week)` writes, once, before kickoff, a hashed file of the week's known referee assignments with the tab numbers shown for them (shrunken home cover rate, shrunken extra home-side penalty percent). Games without an assigned referee are not written. A scoring step reports, after the games, the cover and penalty-gap result against the league-average baseline. A second call never rebuilds the file and a changed file fails its hash.
+
+## Amendment 1 (2026-11-02, before any referee statistic)
+
+The penalty test above says per-referee permutation p-values with Holm. With 200 permutations the smallest possible p is 1/201 = 0.005, and with 10 or more referees Holm would need p below 0.005 times the count, so nothing could ever pass. Replaced by the max-statistic permutation: a referee's adjusted p is the share of the 200 permuted fits in which the largest absolute referee x home coefficient across all referees (at least 20 games each in the window) is at least as large as this referee's observed coefficient. That controls the chance of any false claim across all referees at once and needs no Holm step. The confirmation check for penalties uses the per-referee share of permuted fits with a coefficient at least as large in the same direction (one-sided), referees at least 20 games. The ridge penalty is a fixed constant of 0.002 on the referee terms and 0.002/900 on the control terms; it was not tuned on outcomes.
