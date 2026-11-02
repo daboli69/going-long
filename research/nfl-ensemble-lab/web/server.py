@@ -20,6 +20,7 @@ from lab import ingame_feed
 from lab import results as week_results
 from lab import rankings as rank_lists
 from lab import kingzone
+from lab import kz2_board
 from lab import tdmarket as td_market
 
 DIST = Path(__file__).resolve().parent / "ui" / "dist"
@@ -80,10 +81,13 @@ def king_week(week: int = PathParam(ge=1, le=18)):
 
 @app.get("/api/kingzone/game/{gid}")
 def king_game(gid: str = PathParam(pattern=D.GID_PATTERN)):
-    out = kingzone.cached_board(gid)
+    try:
+        out = kz2_board.board(gid)
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=503, detail=str(e))
     if out is None:
         raise HTTPException(status_code=404, detail="No board for this game")
-    return JSONResponse(D.clean(out))
+    return JSONResponse(D.clean({**out, "frozen": kz2_board.frozen_info(gid)}))
 
 
 @app.get("/api/tdcard/{gid}")

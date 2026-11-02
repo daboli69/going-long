@@ -64,19 +64,37 @@ def _out_pids(gid: str) -> tuple[set, list[str]]:
     sim = S.simulate(gid, "typical", 0) or {}
     by = S._pid_by_norm()
     pids, names = set(), []
+    touchers = set(K.load()["touches"]["pid"])
     for u in sim.get("unavailable") or []:
         if str(u.get("status", "")).lower() in OUT_STATUS:
             pid = by.get(S._norm(u["player"]))
             if pid:
                 pids.add(pid)
-                names.append(f"{u['player']} ({u['team']})")
+                if pid in touchers:   # list only players who have carried or been targeted
+                    names.append(f"{u['player']} ({u['team']})")
     return pids, names
 
 
+def walk() -> dict:
+    """The walk-forward test summary the screen shows beside the board (empty until the test has been run)."""
+    if not WALK.exists():
+        return {}
+    w = json.loads(WALK.read_text(encoding="utf-8"))
+    t = w.get("test_2022_2025", {})
+    keep = ("games", "mean_log_model", "mean_log_b1", "mean_log_b2", "diff_vs_b1", "games_needed_80pct_power_for_0.05", "top_pick", "field", "reliability", "flagged_buckets")
+    return {"verdict": w.get("verdict", {}), "test": {k: t.get(k) for k in keep}, "holdout": (w.get("holdout_2026_w1_8") or {}).get("diff_vs_b1")}
+
+
 def verdict() -> dict:
-    if WALK.exists():
-        return json.loads(WALK.read_text(encoding="utf-8")).get("verdict", {})
-    return {}
+    return walk().get("verdict", {})
+
+
+def frozen_info(gid: str) -> dict | None:
+    p = FROZEN / f"{gid}.json"
+    if not p.exists():
+        return None
+    r = json.loads(p.read_text(encoding="utf-8"))
+    return {"frozen_at": r["frozen_at"], "before_kickoff": r["before_kickoff"], "sha256": r["sha256"]}
 
 
 def _reasons(r: dict, fit: dict, opp: str, team_lam: float) -> list[str]:
@@ -147,7 +165,8 @@ def board(gid: str, n: int = PROD_SIMS, force: bool = False) -> dict | None:
         del row["crowd_base"]
     v = verdict()
     b = {"gid": gid, "away": away, "home": home, "kickoff_utc": str(r["kickoff_utc"]), "week": week, "rows": rows, "field": res["field"], "no_touchdown": res["none"], "expected_longest": res["expected_longest"],
-         "teams": res["teams"], "listed_total": listed, "dropped_out": out_names, "fit": fit_name, "sims": n, "completed": bool(r["completed"]), "verdict": v, "built_at": time.time(),
+         "teams": res["teams"], "listed_total": listed, "dropped_out": out_names, "fit": fit_name, "sims": n, "completed": bool(r["completed"]), "verdict": v, "walk": walk(),
+         "built_at": time.time(),
          "model": "kz2", "code_sha256": hashlib.sha256((ROOT / "lab" / "kz2.py").read_bytes()).hexdigest()}
     _BOARDS[gid] = b
     return b

@@ -237,10 +237,22 @@ export type Live = {
   players: LiveRow[]; touchdowns: LiveTd[]; first_td: { text: string; period: number | null; clock: string | null } | null; warnings: LiveRow[]; not_in_feed: string[];
 };
 
-export type KingRow = { rank: number; player: string; team: string; opp: string; pos: string; chance: number; exp_td: number; p_40: number; p_60: number; why: string[]; kinds: string[] };
+export type KingPair = { anytime: number | null; two_plus: number | null; first: number | null };
+export type KingRow = {
+  rank: number; pid: string; player: string; team: string; opp: string; pos: string | null; chance: number; anytime: number; two_plus: number; first: number; p40: number; p60: number;
+  market_anytime: number | null; market_at: string | null; crowd_basis: "market" | "model"; given_longest: KingPair; pairs_best_with: keyof KingPair | null;
+  pool_index: number; pool_index_range: [number, number]; why: string[];
+};
+export type KingWalk = {
+  verdict: { P1_beats_expected_td_split?: boolean; P2_calibrated?: boolean; P3_holdout_positive?: boolean; label?: string; "have_enough_games_for_0.05"?: boolean };
+  test: { games: number; mean_log_model: number; mean_log_b1: number; mean_log_b2: number; diff_vs_b1: { mean: number; ci95: [number, number]; sd: number }; "games_needed_80pct_power_for_0.05": number;
+    top_pick: { stated: number; realized: number; se: number; n: number }; field: { stated: number; realized: number };
+    reliability: { bucket: string; n: number; stated: number; realized: number; se: number; flag: boolean }[]; flagged_buckets: number } | null;
+  holdout: { mean: number; ci95: [number, number] } | null;
+};
 export type KingBoard = {
-  gid: string; away: string; home: string; kickoff_utc: string; week: number; rows: KingRow[]; players_scored: number; listed_total: number;
-  field: { defense_special_teams: Record<string, number>; other_players: Record<string, number> };
-  no_touchdown: number; expected_longest: number; expected_td: Record<string, number>; completed: boolean;
+  gid: string; away: string; home: string; kickoff_utc: string; week: number; rows: KingRow[]; listed_total: number; field: number; no_touchdown: number; expected_longest: number;
+  teams: { team: string; lam: number; pass_rate: number; drives: number }[]; dropped_out: string[]; fit: string; sims: number; completed: boolean; walk: KingWalk | Record<string, never>;
+  frozen: { frozen_at: string; before_kickoff: boolean; sha256: string } | null;
 };
 export type KingWeek = { week: number; default_gid: string | null; games: { gid: string; away: string; home: string; kickoff_utc: string; completed: boolean; monday: boolean }[] };

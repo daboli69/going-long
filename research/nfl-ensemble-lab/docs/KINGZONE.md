@@ -1,4 +1,6 @@
-# King of the End Zone
+# King of the End Zone (version 1, retired)
+
+This is the first, heuristic version. The board now uses the version 2 model, which is tested week by week in `docs/KINGZONE_WALKFORWARD.md` and fixed in `docs/KINGZONE_PREREG.md`. On the same 119 finished 2026 games version 2's average log score is -2.83 against -2.82 for this version's check (`docs/kingzone_backtest.json`), so the rebuild is about as good on that sample while being honest about its calibration and testable on 1,079 games.
 
 A board of each player's chance to score the longest touchdown of one game, built for the Monday-night promotion that pays a share of a prize pool to that player. Code: `lab/kingzone.py`. Screen: the "King of the End Zone" tab. Check: `scripts/kingzone_backtest.py`, output in `docs/kingzone_backtest.json`.
 

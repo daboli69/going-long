@@ -1,0 +1,19 @@
+{
+ "players": 212,
+ "games": 12,
+ "touchdown_rate": 0.23113207547169812,
+ "mean_model": 0.1854638364779874,
+ "mean_market": 0.21660377358490568,
+ "log_loss_model": 0.49060744987158944,
+ "log_loss_market": 0.49172855213166267,
+ "brier_model": 0.15984950209643603,
+ "brier_market": 0.15757122641509433,
+ "log_loss_diff_model_minus_market": {
+  "mean": -0.0011211022600733922,
+  "ci95": [
+   -0.030466204192808096,
+   0.028170313938054477
+  ]
+ },
+ "note": "Lower is better. A positive difference means the model was worse than the quote. Anytime touchdowns only; no longest-play prices exist in the free archive."
+}
