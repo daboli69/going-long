@@ -14,9 +14,10 @@ import { ResultsView } from "./components/Results";
 import { KingZoneView } from "./components/KingZone";
 import { LeansView } from "./components/Leans";
 import { RefsView } from "./components/Refs";
+import { SnapSimView } from "./components/SnapSim";
 import { Callout, Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/primitives";
 
-type View = "games" | "rankings" | "king" | "leans" | "refs" | "market" | "results";
+type View = "games" | "rankings" | "king" | "leans" | "refs" | "snap" | "market" | "results";
 
 export default function App() {
   const [view, setView] = useState<View>("games");
@@ -90,6 +91,7 @@ export default function App() {
             <TabsTrigger value="king">King of the End Zone</TabsTrigger>
             <TabsTrigger value="leans">Leans</TabsTrigger>
             <TabsTrigger value="refs">Refs</TabsTrigger>
+            <TabsTrigger value="snap">Snap sim</TabsTrigger>
             <TabsTrigger value="market">Market value</TabsTrigger>
             <TabsTrigger value="results">Results</TabsTrigger>
           </TabsList>
@@ -123,6 +125,7 @@ export default function App() {
           <TabsContent value="rankings" className="mt-6">{week !== null && <RankingsHub week={week} onOpenGame={(g) => { setGid(g); setView("games"); }} />}</TabsContent>
           <TabsContent value="leans" className="mt-6"><LeansView /></TabsContent>
           <TabsContent value="refs" className="mt-6"><RefsView /></TabsContent>
+          <TabsContent value="snap" className="mt-6">{games && <SnapSimView games={games} gid={gid} onPick={setGid} />}</TabsContent>
           <TabsContent value="king" className="mt-6">{week !== null && <KingZoneView week={week} />}</TabsContent>
           <TabsContent value="results" className="mt-6"><ResultsView weeks={meta.weeks.filter((w) => w <= meta.default_week)} latest={meta.default_week} onOpenGame={(g) => { setGid(g); setView("games"); }} /></TabsContent>
           <TabsContent value="market" className="mt-6">{week !== null && <MarketValueView week={week} />}</TabsContent>

@@ -286,3 +286,17 @@ export type Refs = {
 
 export type FirstTdRow = { team: string; games: number; tds: number; counts: Record<string, number>; pct: Record<string, number | null> };
 export type FirstTdAllowed = { season: number; weeks: number[]; weeks_available: number[]; overall: boolean; seasons: number[]; positions: string[]; rows: FirstTdRow[]; league: Omit<FirstTdRow, "team"> };
+
+export type SnapDist = { mean: number; p10: number; median: number; p90: number };
+export type SnapLean = { player: string; team: string; stat: string; line: number; market_chance: number; sim_chance: number; edge: number; matchup_ratio: number | null; volume_ratio: number | null; side: string | null; signals: { sim: string | null; matchup: string | null; game: string | null } };
+export type SnapSim = {
+  gid: string; away: string; home: string; week: number; sims: number; spread_home: number; total: number; kickoff: string; created: string; frozen: boolean; frozen_ok?: boolean; sha256?: string; rule_sha256: string; rest: { away: number; home: number };
+  win: Record<string, number>; raw_win: Record<string, number>; cover: Record<string, number>; cover_raw: Record<string, number>; over: number; under: number; over_raw_push: number;
+  score: { home: SnapDist; away: SnapDist; margin: SnapDist; total: SnapDist };
+  adjustments: { home_field_points: number; rest_points_to_home: number; rest_beta_per_day: number; rest_se: number; false_start_multiplier: number; false_start_rank: number; false_start_rank_raw: number; stadiums: number; visiting_false_start_rate: number; league_rate: number };
+  team_stats: Record<string, Record<string, number>>; scenario: { star?: string; rookie?: string }; out: Record<string, string[]>;
+  scenario_runs: Record<string, { win: Record<string, number>; cover: Record<string, number>; over: number; star: SnapDist | null }>;
+  leans: { leans: SnapLean[]; sim_only: SnapLean[]; props_checked: number };
+  players: { team: string; name: string; pos: string; anytime_td: number; stats: Record<string, SnapDist> }[];
+  validation: { v1: Record<string, { sim: number; actual: number; ratio: number; within_5pct: boolean } | boolean | number>; v2: Record<string, number> } | null;
+};

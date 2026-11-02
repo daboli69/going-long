@@ -24,6 +24,7 @@ from lab import kz2_board
 from lab import leans as leans_lab
 from lab import refs as refs_lab
 from lab import first_td_allowed as ftd_lab
+from lab import snapgame as snapgame_lab
 from lab import tdmarket as td_market
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -146,6 +147,18 @@ def first_td_allowed(season: int = 2026, weeks: str = "", overall: bool = False)
     if season not in ftd_lab.seasons():
         raise HTTPException(400, "no play-by-play for that season")
     return JSONResponse(D.clean({**ftd_lab.table(season, ws, overall), "seasons": ftd_lab.seasons(), "positions": ftd_lab.POSITIONS}))
+
+
+@app.get("/api/snapsim/{gid}")
+def snapsim(gid: str = PathParam(pattern=D.GID_PATTERN), refresh: bool = False):
+    import json as _json
+    try:
+        res = snapgame_lab.get(gid, refresh)
+    except IndexError:
+        raise HTTPException(404, "no such game in the schedule file")
+    vf = ROOT / "docs" / "snapsim_validation.json"
+    res["validation"] = _json.loads(vf.read_text()) if vf.exists() else None
+    return JSONResponse(D.clean(res))
 
 
 @app.get("/api/kingzone/{week}")
