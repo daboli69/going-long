@@ -68,3 +68,15 @@ def test_rankings_route_rejects_bad_weeks_and_returns_the_shape_the_screen_reads
     monkeypatch.setattr(R, "week_rankings", lambda w: fake)
     r = client.get("/api/rankings/8")
     assert r.status_code == 200 and r.json()["stats"]["rec_yds"]["label"] == "Receiving yards" and r.json()["weights"]["projection"] == 0.5
+
+
+def test_first_touchdown_is_his_share_of_both_teams_expected_touchdowns_times_the_chance_of_any_touchdown():
+    s = _sim()
+    s["td_model"]["BBB"] = {"exp_points": 20.0, "rush_share": 0.5, "rec_weights": {"WR Z": 1.0}}
+    s["players"].append({"player": "RB Z", "team": "BBB", "stat": "Rushing yards", "typical": 50.0})
+    t = R.td_chances(s)
+    total = max(R.TD_FLOOR, R.TD_PER_POINT * 27.0 + R.TD_INTERCEPT) + max(R.TD_FLOOR, R.TD_PER_POINT * 20.0 + R.TD_INTERCEPT)
+    one = t[("WR One", "AAA")]
+    assert one["first"] == pytest.approx((1 - np.exp(-total)) * one["exp_td"] / total)
+    assert sum(v["first"] for v in t.values()) <= 1 - np.exp(-total) + 1e-9     # at most one first touchdown per game
+    assert all(v["first"] < v["chance"] for v in t.values())                  # a first touchdown is rarer than any touchdown

@@ -33,6 +33,7 @@ STATS = {
     "rush_yds": {"label": "Rushing yards", "row": "Rushing yards", "min": 12.0, "usage": "att_pct", "unit": "yds"},
     "pass_yds": {"label": "Passing yards", "row": "Passing yards", "min": 100.0, "usage": None, "unit": "yds"},
     "td": {"label": "Anytime touchdown", "row": None, "min": 0.03, "usage": "both", "unit": "chance"},
+    "first_td": {"label": "First touchdown", "row": None, "min": 0.01, "usage": "both", "unit": "chance"},
 }
 ABOVE, BELOW = 1.10, 0.90   # projection against the market line, for the Above line / Below line tags
 
@@ -54,10 +55,16 @@ def blend(parts: dict) -> float | None:
 
 
 def td_chances(sim: dict) -> dict:
-    """(player, team) -> {chance, exp_td, rec, rush} for anytime touchdown, from the simulated game's touchdown inputs and player rows."""
+    """(player, team) -> {chance, exp_td, first} for anytime and first touchdown, from the simulated game's touchdown inputs and player rows.
+
+    First touchdown treats each scorer's touchdowns as a Poisson stream: the game has a first touchdown with chance 1 - exp(-L), where L is both teams' expected
+    touchdowns, and it is his with probability his expected touchdowns over L. Touchdowns by players not listed (defense, special teams, deep reserves) are in L."""
     out = {}
+    exp_by_team = {t: max(TD_FLOOR, TD_PER_POINT * m["exp_points"] + TD_INTERCEPT) for t, m in (sim.get("td_model") or {}).items()}
+    total = sum(exp_by_team.values())
+    any_td = 1 - np.exp(-total) if total > 0 else 0.0
     for team, m in (sim.get("td_model") or {}).items():
-        exp_td = max(TD_FLOOR, TD_PER_POINT * m["exp_points"] + TD_INTERCEPT)
+        exp_td = exp_by_team[team]
         rs = float(m["rush_share"])
         rush = {r["player"]: max(r["typical"], 0.0) for r in sim["players"] if r["team"] == team and r["stat"] == "Rushing yards"}
         tot_rush = sum(rush.values())
@@ -65,7 +72,7 @@ def td_chances(sim: dict) -> dict:
         for n in names:
             lam = exp_td * ((1 - rs) * m["rec_weights"].get(n, 0.0) + (rs * rush.get(n, 0.0) / tot_rush if tot_rush > 0 else 0.0))
             if lam > 0:
-                out[(n, team)] = {"chance": float(1 - np.exp(-lam)), "exp_td": float(lam)}
+                out[(n, team)] = {"chance": float(1 - np.exp(-lam)), "exp_td": float(lam), "first": float(any_td * lam / total) if total > 0 else 0.0}
     return out
 
 
@@ -114,7 +121,7 @@ def build_week(week: int) -> dict:
                 continue
             base = {**common, "player": name, "team": team, "opp": opp, "home": home}
             for key, cfg in STATS.items():
-                if key == "td":
+                if key in ("td", "first_td"):
                     t = tdc.get((name, team))
                     if not t:
                         continue
@@ -125,7 +132,7 @@ def build_week(week: int) -> dict:
                     rush_f = (rs.get("Rushing yards") or {}).get("allowed_factor")
                     factors = [f for f in (rec_f, rush_f) if f is not None]
                     use = [v for v in (tgt, att) if v is not None]
-                    row = {**base, "stat": key, "pos": anyrow.get("pos"), "projection": t["chance"], "exp_td": t["exp_td"], "market_line": None, "market_chance": None,
+                    row = {**base, "stat": key, "pos": anyrow.get("pos"), "projection": t["chance"] if key == "td" else t["first"], "exp_td": t["exp_td"], "market_line": None, "market_chance": None,
                            "range_low": None, "range_high": None, "matchup_raw": float(np.mean(factors)) if factors else None, "usage_raw": float(max(use)) if use else None}
                 else:
                     r = rs.get(cfg["row"])

@@ -49,7 +49,7 @@ function Detail({ r, unit, weights, onOpenGame }: { r: RankRow; unit: string; we
   return (
     <div className={cn("grid gap-0.5 px-0 pb-4 sm:px-4 xl:pl-[4.5rem]", unit === "chance" ? "xl:grid-cols-[5fr_7fr]" : "xl:grid-cols-[minmax(0,640px)]")}>
       <div className="bg-panel2 p-4">
-        <h3 className="mb-2 text-base font-semibold text-white">Behind the score</h3>
+        <h2 className="mb-2 text-base font-semibold text-white">Behind the score</h2>
         <Part label="Projection" weight={weights.projection} v={r.parts.projection} />
         <Part label="Matchup" weight={weights.matchup} v={r.parts.matchup} />
         <Part label="Usage" weight={weights.usage} v={r.parts.usage} />
@@ -57,11 +57,12 @@ function Detail({ r, unit, weights, onOpenGame }: { r: RankRow; unit: string; we
         {r.tags.length > 0 && <div className="mt-4 flex flex-wrap gap-x-2 gap-y-1">{r.tags.map((t) => <span key={t} className="bg-raised px-2 py-0.5 text-sm">{t}</span>)}</div>}
         {range && unit !== "chance" && <p className="mt-4 text-sm text-muted">Projected {value(r, unit)}{unitWord(unit)}; 8 in 10 games land between {range}.</p>}
         {r.exp_td !== undefined && <p className="mt-4 text-sm text-muted">About {num(r.exp_td, 2)} expected touchdowns, from the team's expected points and who scores for it.</p>}
+        {r.stat === "first_td" && <p className="mt-2 text-sm text-muted">First touchdown is the chance the game has a touchdown at all, times his share of the game's expected touchdowns. It is an estimate that has not been checked against results.</p>}
         <button type="button" className="mt-4 min-h-[44px] bg-white px-4 font-semibold text-bg hover:bg-white" onClick={() => onOpenGame(r.gid)}>Open the game</button>
       </div>
       {unit === "chance" && (
         <div className="bg-panel2 p-4">
-          <h3 className="mb-1 text-base font-semibold text-white">Touchdown card</h3>
+          <h2 className="mb-1 text-base font-semibold text-white">Touchdown card</h2>
           <TdCard gid={r.gid} team={r.team} player={r.player} />
         </div>
       )}
@@ -104,8 +105,8 @@ export function RankingsView({ week, onOpenGame }: { week: number; onOpenGame: (
 
   // One scale per prop, so bars compare across rows and across days.
   const mx = Math.max(1, ...cur.rows.map((r) => Math.max(r.range_high ?? 0, r.market_line ?? 0, r.projection)));
-  const step = unit === "chance" ? 0.25 : mx > 400 ? 100 : mx > 150 ? 50 : mx > 60 ? 25 : mx > 12 ? 5 : 2;
-  const top = unit === "chance" ? 1 : Math.ceil(mx / step) * step;
+  const step = unit === "chance" ? (mx <= 0.3 ? 0.05 : 0.25) : mx > 400 ? 100 : mx > 150 ? 50 : mx > 60 ? 25 : mx > 12 ? 5 : 2;
+  const top = unit === "chance" ? (mx <= 0.3 ? Math.ceil(mx / step) * step : 1) : Math.ceil(mx / step) * step;
   const ticks: number[] = [];
   for (let v = 0; v <= top + 1e-9; v += step) ticks.push(v);
 
