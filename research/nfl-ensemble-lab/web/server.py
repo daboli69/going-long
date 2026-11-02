@@ -17,6 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from lab import gamecenter_data as D
 from lab import gamesim
 from lab import ingame_feed
+from lab import results as week_results
 from lab import rankings as rank_lists
 from lab import tdmarket as td_market
 
@@ -87,6 +88,12 @@ def live(gid: str = PathParam(pattern=D.GID_PATTERN)):
     if out is None:
         raise HTTPException(status_code=404, detail="No live snapshot captured for this game")
     return JSONResponse(D.clean(out))
+
+
+@app.get("/api/results/{week}")
+def results(week: int = PathParam(ge=1, le=18)):
+    """How the saved pregame forecasts did against what happened, for the finished games of a week."""
+    return JSONResponse(D.clean(week_results.week_results(week)))
 
 
 @app.get("/api/glossary")

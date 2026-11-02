@@ -663,6 +663,8 @@ def team_players(team: str, week: int, out: dict, saved: list[dict], expected_po
             taken.add(_norm(nm))
     for pid in adj.index:
         is_new = str(pid).startswith("NEW:")
+        if is_new and str(pid).split(":")[1] == "QB":    # the quarterback who starts is chosen above; a named stand-in at QB would be a second one
+            continue
         if is_new:
             name = new_names.get(pid)
             if not name:  # nobody on the roster to name: give it to the top healthy regular at that position
@@ -681,6 +683,9 @@ def team_players(team: str, week: int, out: dict, saved: list[dict], expected_po
             info = p.set_index("pid").loc[pid]
             name, key = info["name"], info["key"]
             if key in out:
+                continue
+            # a quarterback who is not playing this game gets no rushes or catches, whatever he did in the usage window
+            if "pos" in adj.columns and adj.at[pid, "pos"] == "QB" and (qb is None or key != qb["key"]):
                 continue
         carries_pg = None
         for s in U.STATS:

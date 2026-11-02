@@ -33,6 +33,10 @@ def key(name: str) -> str:
     return S._norm(name)
 
 
+_pl = pd.read_parquet(ROOT / "data" / "raw" / "players.parquet", columns=["display_name", "position"])
+QB_NAMES = {S._norm(n) for n, q in zip(_pl["display_name"], _pl["position"]) if q == "QB"}
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     week = int(args[0]) if args else S.current_week()
@@ -69,9 +73,12 @@ def main():
     shown = {"sim": 0, "players_tab": 0, "rankings": 0, "market": 0}
     for r in g.itertuples():
         sim = S.simulate(r.game_id, "typical", 0)
+        passers = {p["player"] for p in sim["players"] if p["stat"] == "Passing yards"}
         for p in sim["players"]:
             shown["sim"] += 1
             check("simulated game", p["team"], p["player"])
+            if key(p["player"]) in QB_NAMES and p["player"] not in passers and p["stat"] != "Passing yards":
+                report["leaks"].append({"where": "simulated game", "team": p["team"], "player": p["player"], "why": "a quarterback who is not the starter has rushes or catches"})
         det = S.game_detail_adjusted(r.game_id, with_props=True)
         report.setdefault("adjustments", {})[r.game_id] = None if not det.get("injury_adjustment") else {"margin": round(det["injury_adjustment"]["margin"], 2), "total": round(det["injury_adjustment"]["total"], 2)}
         for p in det["props"]:

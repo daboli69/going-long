@@ -34,7 +34,7 @@ function Row({ r }: { r: LiveRow }) {
 }
 
 // Newest captured snapshot of the game: updated player projections next to the frozen pregame ones, role warnings, and the live win chance.
-export function LiveGame({ d }: { d: Detail }) {
+export function LiveGame({ d, onFinished }: { d: Detail; onFinished?: () => void }) {
   const [live, setLive] = useState<Live | null>(null);
   const [missing, setMissing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +49,7 @@ export function LiveGame({ d }: { d: Detail }) {
   }, [d.gid]);
 
   useEffect(() => { setLoading(true); setLive(null); setMissing(false); setError(null); load(); }, [load]);
+  useEffect(() => { if (live?.state === "post") onFinished?.(); }, [live?.state, onFinished]);
   useEffect(() => {
     if (live?.state !== "in") return;
     const t = window.setInterval(load, 15000);

@@ -1,160 +1,184 @@
 {
- "week": 8,
- "feed_stamp": "20261101T1730",
+ "week": 9,
+ "feed_stamp": "20261102T0030",
  "games": [
   {
-   "gid": "2026_08_LV_NYJ",
-   "minutes_to_kickoff": 10,
-   "NYJ": {
-    "ruled_out": 18,
-    "inactive_list_posted": true
-   },
-   "LV": {
-    "ruled_out": 16,
-    "inactive_list_posted": true
-   }
-  },
-  {
-   "gid": "2026_08_TEN_CIN",
-   "minutes_to_kickoff": 10,
-   "CIN": {
-    "ruled_out": 12,
-    "inactive_list_posted": true
-   },
-   "TEN": {
-    "ruled_out": 16,
-    "inactive_list_posted": true
-   }
-  },
-  {
-   "gid": "2026_08_MIN_DET",
-   "minutes_to_kickoff": 10,
-   "DET": {
-    "ruled_out": 18,
-    "inactive_list_posted": true
-   },
-   "MIN": {
-    "ruled_out": 13,
-    "inactive_list_posted": true
-   }
-  },
-  {
-   "gid": "2026_08_IND_JAX",
-   "minutes_to_kickoff": 10,
-   "JAX": {
-    "ruled_out": 19,
-    "inactive_list_posted": true
-   },
-   "IND": {
-    "ruled_out": 16,
-    "inactive_list_posted": true
-   }
-  },
-  {
-   "gid": "2026_08_BAL_BUF",
-   "minutes_to_kickoff": 10,
-   "BUF": {
-    "ruled_out": 14,
-    "inactive_list_posted": true
-   },
+   "gid": "2026_09_JAX_BAL",
+   "minutes_to_kickoff": 5788,
    "BAL": {
-    "ruled_out": 19,
-    "inactive_list_posted": true
-   }
-  },
-  {
-   "gid": "2026_08_CLE_PIT",
-   "minutes_to_kickoff": 10,
-   "PIT": {
-    "ruled_out": 16,
-    "inactive_list_posted": true
-   },
-   "CLE": {
-    "ruled_out": 18,
-    "inactive_list_posted": true
-   }
-  },
-  {
-   "gid": "2026_08_ATL_TB",
-   "minutes_to_kickoff": 10,
-   "TB": {
-    "ruled_out": 10,
-    "inactive_list_posted": true
-   },
-   "ATL": {
-    "ruled_out": 20,
-    "inactive_list_posted": true
-   }
-  },
-  {
-   "gid": "2026_08_ARI_DAL",
-   "minutes_to_kickoff": 10,
-   "DAL": {
-    "ruled_out": 17,
-    "inactive_list_posted": true
-   },
-   "ARI": {
-    "ruled_out": 21,
-    "inactive_list_posted": true
-   }
-  },
-  {
-   "gid": "2026_08_LAC_LA",
-   "minutes_to_kickoff": 195,
-   "LA": {
-    "ruled_out": 15,
+    "ruled_out": 12,
     "inactive_list_posted": false
    },
-   "LAC": {
+   "JAX": {
     "ruled_out": 13,
     "inactive_list_posted": false
    }
   },
   {
-   "gid": "2026_08_KC_DEN",
-   "minutes_to_kickoff": 215,
-   "DEN": {
-    "ruled_out": 12,
+   "gid": "2026_09_CIN_ATL",
+   "minutes_to_kickoff": 9463,
+   "ATL": {
+    "ruled_out": 13,
     "inactive_list_posted": false
    },
+   "CIN": {
+    "ruled_out": 7,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_09_NYJ_KC",
+   "minutes_to_kickoff": 9673,
    "KC": {
+    "ruled_out": 10,
+    "inactive_list_posted": false
+   },
+   "NYJ": {
+    "ruled_out": 12,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_09_NYG_PHI",
+   "minutes_to_kickoff": 9673,
+   "PHI": {
+    "ruled_out": 13,
+    "inactive_list_posted": false
+   },
+   "NYG": {
+    "ruled_out": 14,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_09_LA_WAS",
+   "minutes_to_kickoff": 9673,
+   "WAS": {
+    "ruled_out": 10,
+    "inactive_list_posted": false
+   },
+   "LA": {
+    "ruled_out": 14,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_09_DAL_IND",
+   "minutes_to_kickoff": 9673,
+   "IND": {
+    "ruled_out": 9,
+    "inactive_list_posted": false
+   },
+   "DAL": {
     "ruled_out": 11,
     "inactive_list_posted": false
    }
   },
   {
-   "gid": "2026_08_NE_MIA",
-   "minutes_to_kickoff": 215,
+   "gid": "2026_09_DEN_CAR",
+   "minutes_to_kickoff": 9673,
+   "CAR": {
+    "ruled_out": 14,
+    "inactive_list_posted": false
+   },
+   "DEN": {
+    "ruled_out": 11,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_09_CLE_NO",
+   "minutes_to_kickoff": 9673,
+   "NO": {
+    "ruled_out": 13,
+    "inactive_list_posted": false
+   },
+   "CLE": {
+    "ruled_out": 12,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_09_DET_MIA",
+   "minutes_to_kickoff": 9673,
    "MIA": {
+    "ruled_out": 9,
+    "inactive_list_posted": false
+   },
+   "DET": {
+    "ruled_out": 13,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_09_HOU_LAC",
+   "minutes_to_kickoff": 9858,
+   "LAC": {
     "ruled_out": 10,
     "inactive_list_posted": false
    },
-   "NE": {
+   "HOU": {
     "ruled_out": 16,
     "inactive_list_posted": false
    }
   },
   {
-   "gid": "2026_08_PHI_WAS",
-   "minutes_to_kickoff": 450,
-   "WAS": {
-    "ruled_out": 12,
+   "gid": "2026_09_LV_SF",
+   "minutes_to_kickoff": 9858,
+   "SF": {
+    "ruled_out": 16,
     "inactive_list_posted": false
    },
-   "PHI": {
-    "ruled_out": 18,
+   "LV": {
+    "ruled_out": 9,
     "inactive_list_posted": false
    }
   },
   {
-   "gid": "2026_08_CHI_SEA",
-   "minutes_to_kickoff": 1885,
+   "gid": "2026_09_ARI_SEA",
+   "minutes_to_kickoff": 9878,
    "SEA": {
-    "ruled_out": 15,
+    "ruled_out": 11,
     "inactive_list_posted": false
    },
-   "CHI": {
+   "ARI": {
     "ruled_out": 14,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_09_GB_NE",
+   "minutes_to_kickoff": 9878,
+   "NE": {
+    "ruled_out": 14,
+    "inactive_list_posted": false
+   },
+   "GB": {
+    "ruled_out": 14,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_09_TB_CHI",
+   "minutes_to_kickoff": 10113,
+   "CHI": {
+    "ruled_out": 13,
+    "inactive_list_posted": false
+   },
+   "TB": {
+    "ruled_out": 5,
+    "inactive_list_posted": false
+   }
+  },
+  {
+   "gid": "2026_09_BUF_MIN",
+   "minutes_to_kickoff": 11548,
+   "MIN": {
+    "ruled_out": 7,
+    "inactive_list_posted": false
+   },
+   "BUF": {
+    "ruled_out": 7,
     "inactive_list_posted": false
    }
   }
@@ -167,93 +191,60 @@
    "pos": "RB"
   }
  ],
- "feed_age_minutes": 20,
+ "feed_age_minutes": 17,
  "adjustments": {
-  "2026_08_LV_NYJ": {
-   "margin": 0.05,
-   "total": -0.05
-  },
-  "2026_08_TEN_CIN": {
-   "margin": -0.3,
-   "total": -0.3
-  },
-  "2026_08_MIN_DET": {
-   "margin": 0.16,
-   "total": -0.16
-  },
-  "2026_08_IND_JAX": {
-   "margin": 0.0,
-   "total": -0.0
-  },
-  "2026_08_BAL_BUF": {
-   "margin": 0.0,
-   "total": -0.0
-  },
-  "2026_08_CLE_PIT": {
-   "margin": -0.23,
-   "total": -0.23
-  },
-  "2026_08_ATL_TB": {
-   "margin": 0.0,
-   "total": -0.0
-  },
-  "2026_08_ARI_DAL": {
-   "margin": 0.0,
-   "total": -0.0
-  },
-  "2026_08_LAC_LA": {
-   "margin": 0.0,
-   "total": -0.0
-  },
-  "2026_08_KC_DEN": {
-   "margin": 0.0,
-   "total": -0.0
-  },
-  "2026_08_NE_MIA": {
-   "margin": 0.9,
-   "total": -0.9
-  },
-  "2026_08_PHI_WAS": {
-   "margin": 0.0,
-   "total": -0.0
-  },
-  "2026_08_CHI_SEA": {
-   "margin": -0.43,
-   "total": -0.89
-  }
+  "2026_09_JAX_BAL": null,
+  "2026_09_CIN_ATL": null,
+  "2026_09_NYJ_KC": null,
+  "2026_09_NYG_PHI": null,
+  "2026_09_LA_WAS": null,
+  "2026_09_DAL_IND": null,
+  "2026_09_DEN_CAR": null,
+  "2026_09_CLE_NO": null,
+  "2026_09_DET_MIA": null,
+  "2026_09_HOU_LAC": null,
+  "2026_09_LV_SF": null,
+  "2026_09_ARI_SEA": null,
+  "2026_09_GB_NE": null,
+  "2026_09_TB_CHI": null,
+  "2026_09_BUF_MIN": null
  },
  "rows_checked": {
-  "sim": 656,
-  "players_tab": 656,
-  "rankings": 266,
-  "market": 240
+  "sim": 777,
+  "players_tab": 777,
+  "rankings": 269,
+  "market": 0
  },
  "ruled_out_by_team": {
-  "NYJ": 18,
-  "LV": 16,
-  "CIN": 12,
-  "TEN": 16,
-  "DET": 18,
-  "MIN": 13,
-  "JAX": 19,
-  "IND": 16,
-  "BUF": 14,
-  "BAL": 19,
-  "PIT": 16,
-  "CLE": 18,
-  "TB": 10,
-  "ATL": 20,
-  "DAL": 17,
-  "ARI": 21,
-  "LA": 15,
-  "LAC": 13,
-  "DEN": 12,
-  "KC": 11,
-  "MIA": 10,
-  "NE": 16,
-  "WAS": 12,
-  "PHI": 18,
-  "SEA": 15,
-  "CHI": 14
+  "BAL": 12,
+  "JAX": 13,
+  "ATL": 13,
+  "CIN": 7,
+  "KC": 10,
+  "NYJ": 12,
+  "PHI": 13,
+  "NYG": 14,
+  "WAS": 10,
+  "LA": 14,
+  "IND": 9,
+  "DAL": 11,
+  "CAR": 14,
+  "DEN": 11,
+  "NO": 13,
+  "CLE": 12,
+  "MIA": 9,
+  "DET": 13,
+  "LAC": 10,
+  "HOU": 16,
+  "SF": 16,
+  "LV": 9,
+  "SEA": 11,
+  "ARI": 14,
+  "NE": 14,
+  "GB": 14,
+  "CHI": 13,
+  "TB": 5,
+  "MIN": 7,
+  "BUF": 7
  }
 }

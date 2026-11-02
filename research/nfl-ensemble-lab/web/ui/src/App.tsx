@@ -10,9 +10,10 @@ import { LiveGame } from "./components/Live";
 import { SimGame } from "./components/SimGame";
 import { RankingsView } from "./components/Rankings";
 import { MarketValueView } from "./components/MarketValue";
+import { ResultsView } from "./components/Results";
 import { Callout, Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/primitives";
 
-type View = "games" | "rankings" | "market";
+type View = "games" | "rankings" | "market" | "results";
 
 export default function App() {
   const [view, setView] = useState<View>("games");
@@ -24,6 +25,9 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [retrying, setRetrying] = useState(false);
+  const [gameTab, setGameTab] = useState("game");
+  const [finished, setFinished] = useState<string[]>([]);
+  useEffect(() => { setGameTab("game"); }, [gid]);
 
   useEffect(() => {
     api.meta().then((m) => { setMeta(m); setError(null); if (m.ok) setWeek((w) => w ?? m.default_week); }).catch((e) => setError(String(e))).finally(() => setRetrying(false));
@@ -55,6 +59,7 @@ export default function App() {
   if (!meta) return <div className="p-8 text-muted">Loading…</div>;
   if (!meta.ok) return <div className="p-8"><Callout tone="amber">{meta.reason}</Callout></div>;
 
+  const liveOn = !!detail && !detail.completed && !finished.includes(detail.gid) && Date.now() >= new Date(detail.kickoff_utc).getTime();
   const upcoming = (games ?? []).filter((g) => new Date(g.kickoff_utc).getTime() > Date.now());
   const saved = week !== null ? meta.forecast_saved_at[String(week)] : undefined;
   const next = upcoming[0];
@@ -80,6 +85,7 @@ export default function App() {
             <TabsTrigger value="games">Games</TabsTrigger>
             <TabsTrigger value="rankings">Player rankings</TabsTrigger>
             <TabsTrigger value="market">Market value</TabsTrigger>
+            <TabsTrigger value="results">Results</TabsTrigger>
           </TabsList>
 
           <TabsContent value="games" className="mt-4">
@@ -88,18 +94,18 @@ export default function App() {
               <div className="mt-2">
                 <GameTitle d={detail} />
                 <Scorebug d={detail} />
-                <Tabs defaultValue="game" key={detail.gid} className="mt-6">
+                <Tabs value={gameTab} onValueChange={setGameTab} key={detail.gid} className="mt-6">
                   <TabsList aria-label="Game views">
                     <TabsTrigger value="game">Game</TabsTrigger>
                     <TabsTrigger value="sim">Simulated game</TabsTrigger>
-                    <TabsTrigger value="live">Live</TabsTrigger>
+                    {liveOn && <TabsTrigger value="live">Live</TabsTrigger>}
                     <TabsTrigger value="players">Players</TabsTrigger>
                     <TabsTrigger value="teams">Teams and injuries</TabsTrigger>
                     <TabsTrigger value="about">About these numbers</TabsTrigger>
                   </TabsList>
                   <TabsContent value="game"><Overview d={detail} /></TabsContent>
                   <TabsContent value="sim"><SimGame d={detail} /></TabsContent>
-                  <TabsContent value="live"><LiveGame d={detail} /></TabsContent>
+                  {liveOn && <TabsContent value="live"><LiveGame d={detail} onFinished={() => { setFinished((f) => (f.includes(detail.gid) ? f : [...f, detail.gid])); setGameTab("game"); }} /></TabsContent>}
                   <TabsContent value="players"><Props d={detail} /></TabsContent>
                   <TabsContent value="teams"><Matchup d={detail} /></TabsContent>
                   <TabsContent value="about"><About meta={meta} /></TabsContent>
@@ -109,6 +115,7 @@ export default function App() {
           </TabsContent>
 
           <TabsContent value="rankings" className="mt-6">{week !== null && <RankingsView week={week} onOpenGame={(g) => { setGid(g); setView("games"); }} />}</TabsContent>
+          <TabsContent value="results" className="mt-6">{week !== null && <ResultsView week={week} onOpenGame={(g) => { setGid(g); setView("games"); }} />}</TabsContent>
           <TabsContent value="market" className="mt-6">{week !== null && <MarketValueView week={week} />}</TabsContent>
         </Tabs>
       </main>

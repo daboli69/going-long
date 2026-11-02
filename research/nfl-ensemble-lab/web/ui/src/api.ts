@@ -1,4 +1,4 @@
-import type { Detail, GameRow, GlossaryItem, Live, Meta, Rankings, Sim, TdCardData, TdMarket } from "./types";
+import type { WeekResults, Detail, GameRow, GlossaryItem, Live, Meta, Rankings, Sim, TdCardData, TdMarket } from "./types";
 
 async function get<T>(path: string): Promise<T> {
   const response = await fetch(path);
@@ -16,6 +16,7 @@ async function getLive(gid: string): Promise<Live> {
 
 export const api = {
   live: getLive,
+  results: (week: number) => get<WeekResults>(`/api/results/${week}`),
   meta: () => get<Meta>("/api/meta"),
   week: (week: number) => get<GameRow[]>(`/api/week/${week}`),
   game: (gid: string) => get<Detail>(`/api/game/${gid}`),
