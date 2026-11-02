@@ -25,6 +25,13 @@ DIST = Path(__file__).resolve().parent / "ui" / "dist"
 app = FastAPI(title="NFL Game Center", docs_url=None, redoc_url=None, openapi_url=None)
 
 
+@app.on_event("startup")
+def warm_live():
+    """Build the live tracker's constants in the background so the first Live tab opened during a game does not wait half a minute."""
+    import threading
+    threading.Thread(target=lambda: ingame_feed.live_context(), daemon=True).start()
+
+
 @app.middleware("http")
 async def no_cache(request, call_next):
     response = await call_next(request)

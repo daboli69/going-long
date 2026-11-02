@@ -228,10 +228,11 @@ export type WeekResults = {
   summary: { games_played: number; games_scored: number; pending_actuals: string[]; left_out: number; picked_right: number; picked_wrong: number; accuracy: number | null; avg_confidence: number; mean_abs_margin_error: number; mean_abs_total_error: number; margin_inside_80: number; total_inside_80: number };
   player_summary: Record<string, { close_rate: number; bets: number; bets_won: number; n: number; mean_abs_error: number; bias: number; inside_range: number | null }>;
 };
+export type LiveTd = { team: string; name: string; td_so_far: number; chance_pre: number | null; chance_now: number; scored: boolean };
 export type LiveRow = { team: string; name: string; stat: string; yards: number; targets_or_carries: number; team_attempts: number; frozen: number; updated: number; low: number; high: number; share_pre: number; share_post: number; kind?: string };
 export type Live = {
   gid: string; event: string; snapshot: string; age_seconds: number; newest_play_seconds: number | null; feed_lag: { n: number; median: number; p90: number; basis: string } | null; state: string; period: number | null; clock: number | null; score: { home: number; away: number };
   possession: string | null; last_play: string | null; win_chance_home: number | null;
   frozen: { sha256: string; frozen_at: string; before_kickoff: boolean } | null;
-  players: LiveRow[]; warnings: LiveRow[]; not_in_feed: string[];
+  players: LiveRow[]; touchdowns: LiveTd[]; first_td: { text: string; period: number | null; clock: string | null } | null; warnings: LiveRow[]; not_in_feed: string[];
 };

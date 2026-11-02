@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, NotCaptured } from "../api";
-import type { Detail, Live, LiveRow } from "../types";
+import type { Detail, Live, LiveRow, LiveTd } from "../types";
 import { cn, pct } from "../lib";
 import { Callout, FilterRow, Segmented } from "./ui/primitives";
 
-const STATS = ["Passing yards", "Rushing yards", "Receiving yards"];
+const STATS = ["Passing yards", "Rushing yards", "Receiving yards", "Receptions", "Touchdowns"];
 const COLS = "grid-cols-[minmax(0,1fr)_4em_4.5em_4.5em] sm:grid-cols-[minmax(0,1fr)_5em_6em_6em_7em]";
-const NOUN: Record<string, string> = { "Passing yards": "pass attempts", "Rushing yards": "carries", "Receiving yards": "targets" };
+const NOUN: Record<string, string> = { "Passing yards": "pass attempts", "Rushing yards": "carries", "Receiving yards": "targets", Receptions: "targets" };
 
 const clock = (s: number | null) => (s === null ? "" : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`);
 const ago = (s: number) => (s < 5 ? "just now" : s < 90 ? `${s} seconds ago` : `${Math.round(s / 60)} minutes ago`);
@@ -18,17 +18,29 @@ function status(l: Live): string {
   return `${l.period <= 4 ? `Q${l.period}` : "OT"} ${clock(l.clock)}`;
 }
 
+function TdRow({ r }: { r: LiveTd }) {
+  return (
+    <div role="row" className="grid min-h-[48px] grid-cols-[minmax(0,1fr)_4em_4.5em_4.5em] items-center gap-x-3 border-t border-bg py-2 sm:grid-cols-[minmax(0,1fr)_6em_7em_7em]">
+      <div role="cell" className="min-w-0 text-[15px]">{r.name} <span className="text-[13px] text-muted">{r.team}</span></div>
+      <div role="cell" className="text-right text-[15px]">{r.td_so_far}</div>
+      <div role="cell" className="text-right text-[15px] text-muted">{r.chance_pre === null ? "Not modeled" : pct(r.chance_pre)}</div>
+      <div role="cell" className="text-right text-xl font-bold">{r.scored ? "Scored" : pct(r.chance_now)}</div>
+    </div>
+  );
+}
+
 function Row({ r }: { r: LiveRow }) {
+  const dec = r.stat === "Receptions" ? 1 : 0;
   const moved = r.updated - r.frozen;
   return (
     <div role="row" className={cn("grid min-h-[48px] items-center gap-x-3 border-t border-bg py-2", COLS)}>
       <div role="cell" className="min-w-0 text-[15px]">{r.name} <span className="text-[13px] text-muted">{r.team}</span>
         <span className="block text-[13px] text-muted">{r.targets_or_carries} {r.targets_or_carries === 1 ? NOUN[r.stat].replace(/s$/, "") : NOUN[r.stat]} so far</span></div>
-      <div role="cell" className="text-right text-[15px]">{r.yards.toFixed(0)}</div>
-      <div role="cell" className="text-right text-[15px] text-muted">{r.frozen.toFixed(0)}</div>
-      <div role="cell" className="text-right text-xl font-bold">{r.updated.toFixed(0)}
-        <span className="block text-[13px] font-normal text-muted">{moved >= 0 ? "+" : "−"}{Math.abs(moved).toFixed(0)}</span></div>
-      <div role="cell" className="hidden text-right text-[15px] text-muted sm:block">{r.low.toFixed(0)} to {r.high.toFixed(0)}</div>
+      <div role="cell" className="text-right text-[15px]">{r.yards.toFixed(dec)}</div>
+      <div role="cell" className="text-right text-[15px] text-muted">{r.frozen.toFixed(dec)}</div>
+      <div role="cell" className="text-right text-xl font-bold">{r.updated.toFixed(dec)}
+        <span className="block text-[13px] font-normal text-muted">{moved >= 0 ? "+" : "−"}{Math.abs(moved).toFixed(dec)}</span></div>
+      <div role="cell" className="hidden text-right text-[15px] text-muted sm:block">{r.low.toFixed(dec)} to {r.high.toFixed(dec)}</div>
     </div>
   );
 }
@@ -67,6 +79,8 @@ export function LiveGame({ d, onFinished }: { d: Detail; onFinished?: () => void
   }
   const homeP = live.win_chance_home;
   const rows = live.players.filter((r) => r.stat === stat && (team === "Both" || r.team === team)).sort((a, b) => b.updated - a.updated);
+  const tds = (live.touchdowns ?? []).filter((r) => team === "Both" || r.team === team);
+  const unit = stat === "Receptions" ? "Catches" : "Yards";
   return (
     <div className="space-y-4">
       <section aria-label="Game state" className="grid grid-cols-1 gap-0.5 sm:grid-cols-3">
@@ -94,18 +108,34 @@ export function LiveGame({ d, onFinished }: { d: Detail; onFinished?: () => void
         <FilterRow label="Stat"><Segmented label="Stat" options={STATS} value={stat} onChange={setStat} /></FilterRow>
         <FilterRow label="Team"><Segmented label="Team" options={["Both", d.away, d.home]} value={team} onChange={setTeam} /></FilterRow>
       </div>
+      {stat === "Touchdowns" ? (
+        <section aria-label="Touchdowns live" className="bg-panel p-4 sm:p-6">
+          <p className="mb-3 text-[15px] text-slate-300">
+            {live.first_td ? `First touchdown of the game: ${live.first_td.text}${live.first_td.period ? ` (Q${live.first_td.period}${live.first_td.clock ? ` ${live.first_td.clock}` : ""})` : ""}` : "No touchdown has been scored yet."}
+          </p>
+          <div role="table" aria-label="Touchdowns, so far and chance to score">
+            <div role="row" className="grid grid-cols-[minmax(0,1fr)_4em_4.5em_4.5em] gap-x-3 text-[13px] text-muted sm:grid-cols-[minmax(0,1fr)_6em_7em_7em]">
+              <div role="columnheader">Player</div><div role="columnheader" className="text-right">Scored so far</div>
+              <div role="columnheader" className="text-right">Chance before kickoff</div><div role="columnheader" className="text-right">Chance now</div>
+            </div>
+            {tds.length ? tds.map((r) => <TdRow key={`${r.team}${r.name}`} r={r} />) : <p role="row" className="py-4 text-sm text-muted">No touchdown chances are available for this game yet.</p>}
+          </div>
+        </section>
+      ) : (
       <section aria-label={`${stat} live`} className="bg-panel p-4 sm:p-6">
         <div role="table" aria-label={`${stat}, live and pregame`}>
           <div role="row" className={cn("grid gap-x-3 text-[13px] text-muted", COLS)}>
-            <div role="columnheader">Player</div><div role="columnheader" className="text-right">Yards so far</div>
+            <div role="columnheader">Player</div><div role="columnheader" className="text-right">{unit} so far</div>
             <div role="columnheader" className="text-right">Expected final, before kickoff</div><div role="columnheader" className="text-right">Expected final, now</div>
-            <div role="columnheader" className="hidden text-right sm:block">Final yards, 8 in 10 range</div>
+            <div role="columnheader" className="hidden text-right sm:block">Final {unit.toLowerCase()}, 8 in 10 range</div>
           </div>
           {rows.length ? rows.map((r) => <Row key={`${r.team}${r.name}${r.stat}`} r={r} />) : <p role="row" className="py-4 text-sm text-muted">No tracked {stat.toLowerCase()} for this selection.</p>}
         </div>
       </section>
+      )}
       <p className="max-w-[75ch] text-sm text-muted">
-        Read each row left to right: the yards the player has so far, the yards the tracker expected him to finish with before kickoff, and the yards it expects now given the score, the clock and what he has done. The small number under the last column is the change since kickoff. The line under his name counts his targets, carries or pass attempts so far.
+        Read each row left to right: what the player has so far, what the tracker expected him to finish with before kickoff, and what it expects now given the score, the clock and what he has done.
+        {stat === "Touchdowns" && " Touchdown chance now is his pregame chance scaled by the time left and by any change in his share of his team's attempts. It does not yet account for the score or field position, and it has not been checked against results."} The small number under the last column is the change since kickoff. The line under his name counts his targets, carries or pass attempts so far.
         {live.frozen && ` Pregame numbers were frozen ${live.frozen.before_kickoff ? "before" : "after"} kickoff (hash ${live.frozen.sha256.slice(0, 10)}).`}
         {live.frozen && !live.frozen.before_kickoff && " Frozen after kickoff, so this game is not a clean pregame test."}
         {" "}Snaps and routes are not in the live feed, so opportunity means targets, carries and pass attempts.

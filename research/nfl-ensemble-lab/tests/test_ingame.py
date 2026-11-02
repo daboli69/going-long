@@ -139,3 +139,16 @@ def test_a_finished_game_has_its_full_clock_and_quarterback_share_rises_are_not_
     assert F.parse(raw)["elapsed"] == 3600.0
     qb = {"team": "A", "name": "qb", "fam": "pass", "team_attempts": 30, "p_lower": 0.0, "p_higher": 0.99}
     assert F.warnings([qb]) == [] and len(F.warnings([{**qb, "fam": "rec"}])) == 1
+
+
+def test_a_summary_reports_touchdowns_and_the_first_one():
+    raw = {"header": {"competitions": [{"id": "1", "status": {"period": 2, "displayClock": "3:16", "type": {"state": "in", "completed": False}},
+                                        "competitors": [{"homeAway": "home", "score": "10", "team": {"abbreviation": "WAS", "id": "28"}},
+                                                        {"homeAway": "away", "score": "10", "team": {"abbreviation": "PHI", "id": "21"}}]}]},
+           "drives": {"previous": [{"plays": [{"id": "1", "text": "A.Dud pass incomplete.", "scoringPlay": False},
+                                              {"id": "2", "text": "S.Barkley right end for 3 yards, TOUCHDOWN. J.Elliott extra point is GOOD.", "scoringPlay": True, "period": {"number": 1}, "clock": {"displayValue": "4:27"}}]}]},
+           "boxscore": {"players": [{"team": {"abbreviation": "PHI"}, "statistics": [
+               {"name": "rushing", "labels": ["CAR", "YDS", "TD"], "athletes": [{"athlete": {"displayName": "Saquon Barkley", "id": "1"}, "stats": ["10", "40", "1"]}]}]}]}}
+    s = F.parse(raw)
+    assert s["players"][("PHI", "Saquon Barkley")]["rush_td"] == 1.0
+    assert s["first_td"]["text"] == "S.Barkley right end for 3 yards, TOUCHDOWN" and s["first_td"]["period"] == 1 and s["first_td"]["clock"] == "4:27"

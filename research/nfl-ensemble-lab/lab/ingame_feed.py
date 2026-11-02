@@ -9,6 +9,7 @@ import gzip
 import hashlib
 import json
 import re
+import time
 import types
 from pathlib import Path
 
@@ -50,6 +51,14 @@ def _num(x):
         return None
 
 
+def _td_sentence(text: str) -> str:
+    """The sentence of a scoring play that describes the touchdown, without the formation notes before it or the extra point after it."""
+    for sent in re.split(r"(?<=[.])\s+", text.strip()):
+        if "TOUCHDOWN" in sent.upper():
+            return re.split(r"(?<=TOUCHDOWN)", sent, flags=re.I)[0].strip()
+    return text.strip()
+
+
 def parse(raw: dict) -> dict:
     """The facts a snapshot shows: teams, clock, score, possession, and every player's box-score line."""
     comp = raw["header"]["competitions"][0]
@@ -65,6 +74,8 @@ def parse(raw: dict) -> dict:
     for d in (drv.get("previous") or []) + ([drv["current"]] if drv.get("current") else []):
         plays.extend(d.get("plays") or [])
     last = plays[-1] if plays else None
+    first_td = next(({"text": _td_sentence(p.get("text") or ""), "period": (p.get("period") or {}).get("number"), "clock": (p.get("clock") or {}).get("displayValue")}
+                     for p in plays if p.get("scoringPlay") and "TOUCHDOWN" in (p.get("text") or "").upper()), None)
     end = (last or {}).get("end") or {}
     poss_id = (end.get("team") or {}).get("id")
     team_by_id = {c["team"]["id"]: normalize_team(c["team"]["abbreviation"]) for c in comp["competitors"]}
@@ -75,7 +86,7 @@ def parse(raw: dict) -> dict:
     out = {"event": comp.get("id"), "home": teams["home"], "away": teams["away"], "score": score, "period": period, "clock": clock, "elapsed": elapsed,
            "state": status["type"]["state"], "completed": bool(status["type"].get("completed")), "possession": team_by_id.get(poss_id),
            "last_wallclock": (last or {}).get("wallclock"), "down": end.get("down"), "yards_to_go": end.get("distance"), "yardline_100": end.get("yardsToEndzone"), "last_play": (last or {}).get("text"),
-           "n_plays": len(plays), "players": {}, "team_attempts": {}}
+           "n_plays": len(plays), "first_td": first_td, "players": {}, "team_attempts": {}}
     pw = {t["team"]["abbreviation"]: t for t in raw.get("boxscore", {}).get("players", [])}
     for ab, t in pw.items():
         team = normalize_team(ab)
@@ -89,13 +100,13 @@ def parse(raw: dict) -> dict:
                 if grp["name"] == "passing":
                     c_att = str(v.get("C/ATT", "")).split("/")
                     if len(c_att) == 2:
-                        row.update(pass_comp=_num(c_att[0]), pass_att=_num(c_att[1]), pass_yds=_num(v.get("YDS")))
+                        row.update(pass_comp=_num(c_att[0]), pass_att=_num(c_att[1]), pass_yds=_num(v.get("YDS")), pass_td=_num(v.get("TD")))
                         att += int(_num(c_att[1]) or 0)
                 elif grp["name"] == "rushing":
-                    row.update(rush_att=_num(v.get("CAR")), rush_yds=_num(v.get("YDS")))
+                    row.update(rush_att=_num(v.get("CAR")), rush_yds=_num(v.get("YDS")), rush_td=_num(v.get("TD")))
                     car += int(_num(v.get("CAR")) or 0)
                 elif grp["name"] == "receiving":
-                    row.update(rec=_num(v.get("REC")), rec_yds=_num(v.get("YDS")), targets=_num(v.get("TGTS")))
+                    row.update(rec=_num(v.get("REC")), rec_yds=_num(v.get("YDS")), targets=_num(v.get("TGTS")), rec_td=_num(v.get("TD")))
         out["team_attempts"][team] = {"pass": att, "rush": car}
     return out
 
@@ -263,6 +274,9 @@ def tracked_states(snap: dict, ctx=None, week: int | None = None) -> list[dict]:
                          "targets_or_carries": int(O), "yards": float(Y), "team_attempts": int(A), "share_pre": rc["share_pre"], "share_post": rc["share_post"],
                          "frozen": float(fr["yards"].mean()), "updated": float(up["yards"].mean()), "low": float(np.percentile(up["yards"], 10)),
                          "high": float(np.percentile(up["yards"], 90)), "p_lower": rc["p_lower"], "p_higher": rc["p_higher"], "parts": parts,
+                         "catches": float(C) if fam == "rec" else None,
+                         "catches_frozen": float(fr["catches"].mean()) if fam == "rec" else None, "catches_updated": float(up["catches"].mean()) if fam == "rec" else None,
+                         "catches_low": float(np.percentile(up["catches"], 10)) if fam == "rec" else None, "catches_high": float(np.percentile(up["catches"], 90)) if fam == "rec" else None,
                          "yards_draws": up["yards"], "frozen_draws": fr["yards"]})
     return rows
 
@@ -275,6 +289,55 @@ def D_name(ctx, pid) -> str:
         if c in m.columns and len(m):
             return str(m.iloc[0][c])
     return str(pid)
+
+
+_TD_SIM: dict = {}
+
+
+def _td_model(gid: str) -> dict:
+    """(player, team) -> {chance, exp_td} for anytime touchdown from the simulated game, kept ten minutes because building it takes a few seconds."""
+    hit = _TD_SIM.get(gid)
+    if hit and time.time() - hit[0] < 600:
+        return hit[1]
+    from . import rankings as RK
+    try:
+        sim = S.simulate(gid, "typical", 0)
+        out = RK.td_chances(sim) if sim and sim.get("ok") else {}
+    except Exception:
+        out = {}
+    _TD_SIM[gid] = (time.time(), out)
+    return out
+
+
+def touchdown_rows(gid: str, snap: dict, rows: list[dict]) -> list[dict]:
+    """Touchdowns so far (from the box score) and the chance each player scores one: already scored is 100%; otherwise his pregame touchdown rate scaled by the
+    share of the game left and by how his share of his team's attempts has moved. It does not yet account for the score or the field position."""
+    td = _td_model(gid)
+    rho = max(0.0, (G.GAME - min(snap["elapsed"] or 0.0, G.GAME)) / G.GAME)
+    ratios: dict = {}
+    for r in rows:
+        if r["share_pre"] > 0:
+            ratios.setdefault((S._norm(r["name"]), r["team"]), []).append(float(np.clip(r["share_post"] / r["share_pre"], 0.2, 3.0)))
+    scored, names = {}, {}
+    for (tm, nm), pl in snap["players"].items():
+        k = (tm, S._norm(nm))
+        scored[k] = int((pl.get("rec_td") or 0) + (pl.get("rush_td") or 0))
+        names[k] = nm
+    out, seen = [], set()
+    for (nm, team), t in td.items():
+        if team not in (snap["home"], snap["away"]):
+            continue
+        k = (team, S._norm(nm))
+        seen.add(k)
+        n = scored.get(k, 0)
+        ratio = float(np.mean(ratios.get((S._norm(nm), team), [1.0])))
+        now = 1.0 if n > 0 else float(1 - np.exp(-t["exp_td"] * rho * ratio))
+        out.append({"team": team, "name": nm, "td_so_far": n, "chance_pre": float(t["chance"]), "chance_now": now, "scored": n > 0})
+    for k, n in scored.items():
+        if n > 0 and k not in seen:
+            out.append({"team": k[0], "name": names[k], "td_so_far": n, "chance_pre": None, "chance_now": 1.0, "scored": True})
+    out.sort(key=lambda r: (-r["td_so_far"], -r["chance_now"], r["name"]))
+    return out[:40] + [r for r in out[40:] if r["scored"]]
 
 
 def warnings(rows: list[dict], min_attempts: int = 12, threshold: float = 0.95) -> list[dict]:
@@ -401,10 +464,13 @@ def latest(gid: str, ctx=None, refresh: bool = True) -> dict | None:
     wp = win_probability(snap, margin.get("margin"), ctx["params"]) if margin.get("margin") is not None else None
     rows = tracked_states(snap, ctx, int(gid.split("_")[1]))
     keep = ("team", "name", "stat", "yards", "targets_or_carries", "team_attempts", "frozen", "updated", "low", "high", "share_pre", "share_post")
+    players = [{k: r[k] for k in keep + ("baseline",)} for r in rows if r["seen"]]
+    players += [{**{k: r[k] for k in keep + ("baseline",)}, "stat": "Receptions", "yards": r["catches"], "frozen": r["catches_frozen"], "updated": r["catches_updated"],
+                 "low": r["catches_low"], "high": r["catches_high"]} for r in rows if r["seen"] and r["fam"] == "rec"]
     return {"gid": gid, "event": eid, "snapshot": stamp, "age_seconds": round(_age_seconds(stamp)),
             "newest_play_seconds": None if not snap.get("last_wallclock") else round((pd.Timestamp.now(tz="UTC") - pd.Timestamp(snap["last_wallclock"])).total_seconds()),
             "feed_lag": feed_lag(), "state": snap["state"], "period": snap["period"], "clock": snap["clock"], "score": snap["score"],
             "possession": snap["possession"], "last_play": snap["last_play"], "win_chance_home": None if wp is None else wp["p_home"],
             "frozen": None if fr is None else {"sha256": fr["sha256"], "frozen_at": fr["frozen_at"], "before_kickoff": fr["before_kickoff"]},
-            "players": [{k: r[k] for k in keep + ("baseline",)} for r in rows if r["seen"]], "warnings": [{k: r[k] for k in keep + ("kind",)} for r in warnings(rows)],
+            "players": players, "touchdowns": touchdown_rows(gid, snap, rows), "first_td": snap.get("first_td"), "warnings": [{k: r[k] for k in keep + ("kind",)} for r in warnings(rows)],
             "not_in_feed": ["snaps", "routes", "red-zone touches (box score only)"]}
