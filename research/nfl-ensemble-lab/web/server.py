@@ -21,8 +21,10 @@ from lab import results as week_results
 from lab import rankings as rank_lists
 from lab import kingzone
 from lab import kz2_board
+from lab import leans as leans_lab
 from lab import tdmarket as td_market
 
+ROOT = Path(__file__).resolve().parents[1]
 DIST = Path(__file__).resolve().parent / "ui" / "dist"
 app = FastAPI(title="NFL Game Center", docs_url=None, redoc_url=None, openapi_url=None)
 
@@ -72,6 +74,30 @@ def sim(gid: str = PathParam(pattern=D.GID_PATTERN), mode: str = Query("typical"
 @app.get("/api/rankings/{week}")
 def rankings(week: int = PathParam(ge=1, le=18)):
     return JSONResponse(D.clean(rank_lists.public(rank_lists.week_rankings(week))))
+
+
+_LEANS = {}
+
+
+@app.get("/api/leans")
+def leans(market: str = "All", week_from: int | None = None, week_to: int | None = None, size: str = "All", season: int | None = None):
+    import json as _json
+    import pandas as _pd
+    f = ROOT / "data" / "leans" / "backtest_leans.parquet"
+    if not f.exists():
+        raise HTTPException(503, "Leans have not been scored yet. Run scripts/leans_run.py.")
+    if _LEANS.get("mtime") != f.stat().st_mtime:
+        _LEANS.update(mtime=f.stat().st_mtime, x=_pd.read_parquet(f), bt=_json.loads((ROOT / "docs" / "leans_backtest.json").read_text()))
+    x, bt = _LEANS["x"], _LEANS["bt"]
+    sel = leans_lab.select(x, market, week_from, week_to, size, season=season)
+    rows = sel.sort_values(["season", "week"], ascending=False).head(150)
+    pending = []
+    for fp in sorted((ROOT / "data" / "leans" / "frozen").glob("*.json")) if (ROOT / "data" / "leans" / "frozen").exists() else []:
+        rec = _json.loads(fp.read_text())
+        pending += [{**p, "week": rec["forecast"]["week"], "sha256": rec["sha256"]} for p in rec["forecast"]["leans"] if market in ("All", p["market"])]
+    return JSONResponse(D.clean({"markets": [{"name": n, "testable": True} for n in leans_lab.STAT_NAME.values()] + [{"name": n, "testable": False, "why": w} for n, w in leans_lab.NOT_TESTABLE.items()],
+                                 "weeks": sorted({f"{int(a)}-{int(b)}" for a, b in zip(x["season"], x["week"])}), "summary": leans_lab.summarize(sel), "benchmarks": bt["benchmarks"], "recal_test": bt["recal_test"],
+                                 "all": bt["all"], "calibration": bt["calibration"], "rows": rows.to_dict("records"), "pending": pending, "rule_sha256": bt["rule_sha256"]}))
 
 
 @app.get("/api/kingzone/{week}")

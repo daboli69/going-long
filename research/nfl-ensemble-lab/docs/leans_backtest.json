@@ -1,0 +1,314 @@
+{
+ "rule_sha256": "857024883f25b6c37a3135c5e9308cbe94684f9d6791928aa31d0fc6f09e7230",
+ "model_used": "p_A",
+ "recal_test": {
+  "rows": 4331,
+  "log_loss_raw": 0.56627469357926,
+  "log_loss_recal": 0.5655933250644093,
+  "log_loss_market": 0.5456328452030017,
+  "gain": 0.0006813685148507019,
+  "ci": [
+   -0.0031427858169890254,
+   0.0042984767022598075
+  ],
+  "adopted": false
+ },
+ "universe_rows": 6614,
+ "universe_games": 175,
+ "leans": 3563,
+ "no_lean": 3051,
+ "all": {
+  "n": 3563,
+  "games": 168,
+  "win_rate": 0.45579567779960706,
+  "stated_edge": 0.12479657525176076,
+  "realized_edge": 0.022046028627561044,
+  "clv": 0.0014522333312678517,
+  "need_for_2pt": 4060,
+  "realized_ci": [
+   -0.00548886555307139,
+   0.04929434672611173
+  ],
+  "finds_edge": false,
+  "note": "Too few leans to mean anything: about 4060 are needed to detect a 2 point realized edge, and this selection has 3563."
+ },
+ "benchmarks": {
+  "follow_market_realized": -0.01691271400505192,
+  "random_side_realized": -0.00017928711759753033
+ },
+ "calibration": {
+  "model": [
+   {
+    "bucket": "(-0.001, 0.1]",
+    "n": 796,
+    "stated": 0.06086738158163251,
+    "realized": 0.07788944723618091
+   },
+   {
+    "bucket": "(0.1, 0.25]",
+    "n": 1573,
+    "stated": 0.17272078210695876,
+    "realized": 0.2097902097902098
+   },
+   {
+    "bucket": "(0.25, 0.4]",
+    "n": 1381,
+    "stated": 0.3245874520019986,
+    "realized": 0.33743664011585806
+   },
+   {
+    "bucket": "(0.4, 0.6]",
+    "n": 1556,
+    "stated": 0.49328676713183317,
+    "realized": 0.5077120822622108
+   },
+   {
+    "bucket": "(0.6, 0.75]",
+    "n": 762,
+    "stated": 0.6710837340927943,
+    "realized": 0.6706036745406824
+   },
+   {
+    "bucket": "(0.75, 0.9]",
+    "n": 479,
+    "stated": 0.8147749267193791,
+    "realized": 0.7724425887265136
+   },
+   {
+    "bucket": "(0.9, 1.0]",
+    "n": 67,
+    "stated": 0.9296116774928899,
+    "realized": 0.8507462686567164
+   }
+  ],
+  "recalibrated": [
+   {
+    "bucket": "(-0.001, 0.1]",
+    "n": 627,
+    "stated": 0.06314646492431468,
+    "realized": 0.06698564593301436
+   },
+   {
+    "bucket": "(0.1, 0.25]",
+    "n": 1546,
+    "stated": 0.17426956091847232,
+    "realized": 0.1927554980595084
+   },
+   {
+    "bucket": "(0.25, 0.4]",
+    "n": 1488,
+    "stated": 0.3251891976931365,
+    "realized": 0.3279569892473118
+   },
+   {
+    "bucket": "(0.4, 0.6]",
+    "n": 1666,
+    "stated": 0.4945909164410543,
+    "realized": 0.49819927971188477
+   },
+   {
+    "bucket": "(0.6, 0.75]",
+    "n": 792,
+    "stated": 0.6709638658789421,
+    "realized": 0.6792929292929293
+   },
+   {
+    "bucket": "(0.75, 0.9]",
+    "n": 444,
+    "stated": 0.8127100003082522,
+    "realized": 0.7837837837837838
+   },
+   {
+    "bucket": "(0.9, 1.0]",
+    "n": 51,
+    "stated": 0.9301858003206016,
+    "realized": 0.8235294117647058
+   }
+  ],
+  "market": [
+   {
+    "bucket": "(-0.001, 0.1]",
+    "n": 894,
+    "stated": 0.06482289336316183,
+    "realized": 0.07606263982102908
+   },
+   {
+    "bucket": "(0.1, 0.25]",
+    "n": 1435,
+    "stated": 0.17202439024390245,
+    "realized": 0.19790940766550522
+   },
+   {
+    "bucket": "(0.25, 0.4]",
+    "n": 1192,
+    "stated": 0.3251468120805369,
+    "realized": 0.32298657718120805
+   },
+   {
+    "bucket": "(0.4, 0.6]",
+    "n": 1687,
+    "stated": 0.5014107883817427,
+    "realized": 0.4878482513337285
+   },
+   {
+    "bucket": "(0.6, 0.75]",
+    "n": 771,
+    "stated": 0.6700583657587549,
+    "realized": 0.648508430609598
+   },
+   {
+    "bucket": "(0.75, 0.9]",
+    "n": 591,
+    "stated": 0.8166328257191202,
+    "realized": 0.8240270727580372
+   },
+   {
+    "bucket": "(0.9, 1.0]",
+    "n": 44,
+    "stated": 0.9168181818181819,
+    "realized": 0.8863636363636364
+   }
+  ]
+ },
+ "by_market": {
+  "Passing yards": {
+   "n": 370,
+   "games": 86,
+   "win_rate": 0.4297297297297297,
+   "stated_edge": 0.09244550548461776,
+   "realized_edge": -0.0229054054054054,
+   "clv": 0.0020945945945945966,
+   "need_for_2pt": 3870,
+   "realized_ci": [
+    -0.09772938352995604,
+    0.052378357546089764
+   ],
+   "finds_edge": false,
+   "note": "Too few leans to mean anything: about 3870 are needed to detect a 2 point realized edge, and this selection has 370."
+  },
+  "Receiving yards": {
+   "n": 1439,
+   "games": 138,
+   "win_rate": 0.4857539958304378,
+   "stated_edge": 0.12334364827401965,
+   "realized_edge": 0.024030576789437107,
+   "clv": 0.0009585179703317286,
+   "need_for_2pt": 4288,
+   "realized_ci": [
+    -0.017482119033252887,
+    0.06486749002989735
+   ],
+   "finds_edge": false,
+   "note": "Too few leans to mean anything: about 4288 are needed to detect a 2 point realized edge, and this selection has 1439."
+  },
+  "Receptions": {
+   "n": 781,
+   "games": 84,
+   "win_rate": 0.44558258642765686,
+   "stated_edge": 0.12769474256856286,
+   "realized_edge": 0.03747759282970551,
+   "clv": 0.001927016645326503,
+   "need_for_2pt": 3911,
+   "realized_ci": [
+    -0.004340774921101278,
+    0.0770876681151492
+   ],
+   "finds_edge": false,
+   "note": "Too few leans to mean anything: about 3911 are needed to detect a 2 point realized edge, and this selection has 781."
+  },
+  "Rushing yards": {
+   "n": 973,
+   "games": 129,
+   "win_rate": 0.4295991778006166,
+   "stated_edge": 0.13692112721516256,
+   "realized_edge": 0.023818088386433706,
+   "clv": 0.001557040082219937,
+   "need_for_2pt": 3907,
+   "realized_ci": [
+    -0.024752271030843292,
+    0.0756574941489972
+   ],
+   "finds_edge": false,
+   "note": "Too few leans to mean anything: about 3907 are needed to detect a 2 point realized edge, and this selection has 973."
+  }
+ },
+ "by_size": {
+  "large": {
+   "n": 1473,
+   "games": 146,
+   "win_rate": 0.4548540393754243,
+   "stated_edge": 0.18748729505210496,
+   "realized_edge": 0.04890699253224711,
+   "clv": 0.002250509164969449,
+   "need_for_2pt": 4302,
+   "realized_ci": [
+    0.0053713810527697345,
+    0.0930804596914523
+   ],
+   "finds_edge": false,
+   "note": "Too few leans to mean anything: about 4302 are needed to detect a 2 point realized edge, and this selection has 1473."
+  },
+  "medium": {
+   "n": 995,
+   "games": 150,
+   "win_rate": 0.46030150753768845,
+   "stated_edge": 0.09895027672949816,
+   "realized_edge": 0.016869346733668338,
+   "clv": 0.0019708281668080643,
+   "need_for_2pt": 3940,
+   "realized_ci": [
+    -0.020888641730132645,
+    0.05565157774095803
+   ],
+   "finds_edge": false,
+   "note": "Too few leans to mean anything: about 3940 are needed to detect a 2 point realized edge, and this selection has 995."
+  },
+  "small": {
+   "n": 1095,
+   "games": 150,
+   "win_rate": 0.4529680365296804,
+   "stated_edge": 0.0639505814286962,
+   "realized_edge": -0.009383561643835619,
+   "clv": -9.284627092846208e-05,
+   "need_for_2pt": 3812,
+   "realized_ci": [
+    -0.04327294630137123,
+    0.025015144125260888
+   ],
+   "finds_edge": false,
+   "note": "Too few leans to mean anything: about 3812 are needed to detect a 2 point realized edge, and this selection has 1095."
+  }
+ },
+ "by_season": {
+  "2025": {
+   "n": 464,
+   "games": 61,
+   "win_rate": 0.521551724137931,
+   "stated_edge": 0.13154287878708038,
+   "realized_edge": 0.06073275862068966,
+   "clv": 0.002336869308852066,
+   "need_for_2pt": 4349,
+   "realized_ci": [
+    -0.011826816880283598,
+    0.12494385796545103
+   ],
+   "finds_edge": false,
+   "note": "Too few leans to mean anything: about 4349 are needed to detect a 2 point realized edge, and this selection has 464."
+  },
+  "2026": {
+   "n": 3099,
+   "games": 107,
+   "win_rate": 0.44595030655050016,
+   "stated_edge": 0.12378648011126761,
+   "realized_edge": 0.016253630203291382,
+   "clv": 0.0013197805743788312,
+   "need_for_2pt": 4013,
+   "realized_ci": [
+    -0.012938961284140519,
+    0.04572752397203157
+   ],
+   "finds_edge": false,
+   "note": "Too few leans to mean anything: about 4013 are needed to detect a 2 point realized edge, and this selection has 3099."
+  }
+ }
+}

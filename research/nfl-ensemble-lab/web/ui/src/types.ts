@@ -256,3 +256,12 @@ export type KingBoard = {
   frozen: { frozen_at: string; before_kickoff: boolean; sha256: string } | null;
 };
 export type KingWeek = { week: number; default_gid: string | null; games: { gid: string; away: string; home: string; kickoff_utc: string; completed: boolean; monday: boolean }[] };
+
+export type LeansSummary = { n: number; games?: number; win_rate?: number; stated_edge?: number; realized_edge?: number; clv?: number; need_for_2pt?: number; realized_ci?: [number, number]; finds_edge?: boolean; note: string };
+export type LeansRow = { gid: string; season: number; week: number; market: string; k: number; side: string; q: number; m: number; c: number; edge: number; size: string; win: number; real: number; clv: number };
+export type LeansPending = { gid: string; week: number; market: string; player: string; team: string; side: string; line: number; source: string; model_p: number; market_p: number; edge: number; kickoff_utc: string };
+export type Leans = {
+  markets: { name: string; testable: boolean; why?: string }[]; weeks: string[]; summary: LeansSummary; benchmarks: { follow_market_realized: number | null; random_side_realized: number | null };
+  recal_test: { gain: number; ci: [number, number]; adopted: boolean; log_loss_raw: number; log_loss_market: number }; all: LeansSummary;
+  calibration: Record<string, { bucket: string; n: number; stated: number; realized: number }[]>; rows: LeansRow[]; pending: LeansPending[]; rule_sha256: string;
+};
