@@ -1,0 +1,21 @@
+{
+ "version": 3,
+ "amends": "docs/leans_rule_v2.json",
+ "fees": "none; executable prices retired",
+ "market_candidates": {
+  "mid": "(bid90 + ask90) / 2",
+  "devig": "ask90 / (1 + ask90 - bid90)",
+  "calibrated": "walk-forward logistic per stat on logit(mid), trained on earlier weeks only, first test 2026 week 3"
+ },
+ "market_choice": "lowest walk-forward log loss on test weeks; must beat mid by more than 0.0005 to replace it",
+ "blend": "walk-forward logistic on logit(model) and logit(market) per stat; descriptive log loss gain over market alone, game-clustered range",
+ "clv": "close mid minus lean-time mid, signed toward the lean, on raw mids",
+ "headline": {"model": "chosen recalibration", "group": "all leans", "price": "market chance"},
+ "placebo": {"draws": 200, "seed": 3},
+ "pass": {
+  "realized_ci_lower_gt": 0,
+  "clv_gt": 0,
+  "n_at_least_need_corrected": true,
+  "placebo_abs_mean_edge_le": 0.01
+ }
+}
