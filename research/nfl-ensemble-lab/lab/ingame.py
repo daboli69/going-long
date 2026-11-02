@@ -21,6 +21,9 @@ ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data" / "raw"
 GAME = 3600.0
 CHECKPOINTS = (600, 1200, 1800, 2400, 3000)           # seconds elapsed at which a game is "paused" and scored
+# How a pass attempt and a rush are counted. "nflfastr" (versions 1 and 2) counts sacks as pass attempts and leaves quarterback kneel-downs out of the rushes.
+# "espn" counts them the way the live feed's box score does: no sacks among the attempts, kneel-downs among the rushes. Set before events() is called.
+EVENT_DEFINITION = "nflfastr"
 FAMILIES = {"rec": "Receiving yards", "rush": "Rushing yards", "pass": "Passing yards"}
 THRESH = {"rec": 2.5, "rush": 5.0, "pass": 12.0}      # minimum pregame targets, carries, attempts per game for a player to be tracked
 WINDOW = 8                                            # team games of history behind a pregame baseline
@@ -29,7 +32,7 @@ MIN_HISTORY = 4
 PBP_COLS = ["game_id", "season", "week", "season_type", "qtr", "game_seconds_remaining", "posteam", "home_team", "away_team", "score_differential",
             "total_home_score", "total_away_score", "pass_attempt", "rush_attempt", "qb_kneel", "qb_spike", "complete_pass", "receiver_player_id",
             "rusher_player_id", "passer_player_id", "passing_yards", "receiving_yards", "rushing_yards", "ep", "down", "yardline_100", "spread_line",
-            "total_line", "home_wp", "result", "total", "ydstogo", "posteam_timeouts_remaining", "defteam_timeouts_remaining"]
+            "total_line", "home_wp", "result", "total", "ydstogo", "posteam_timeouts_remaining", "defteam_timeouts_remaining", "sack"]
 
 
 # --------------------------------------------------------------------------- history
@@ -47,7 +50,11 @@ def events(plays: pd.DataFrame) -> pd.DataFrame:
     p = plays[(plays["posteam"].notna())].copy()
     p["t"] = np.where(p["qtr"] >= 5, GAME + 1.0, GAME - p["game_seconds_remaining"])
     is_pass = (p["pass_attempt"] == 1)
-    is_rush = (p["rush_attempt"] == 1) & (p["qb_kneel"].fillna(0) != 1) & ~is_pass
+    if EVENT_DEFINITION == "espn":
+        is_pass = is_pass & (p["sack"].fillna(0) != 1)
+        is_rush = (p["rush_attempt"] == 1) & ~is_pass
+    else:
+        is_rush = (p["rush_attempt"] == 1) & (p["qb_kneel"].fillna(0) != 1) & ~is_pass
     out = []
     pa = p[is_pass]
     out.append(pd.DataFrame({"gid": pa["game_id"], "season": pa["season"], "week": pa["week"], "team": pa["posteam"], "t": pa["t"], "kind": "pass",

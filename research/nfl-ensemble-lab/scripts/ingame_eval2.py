@@ -61,7 +61,7 @@ def score_v2(p1, base2, hier, tl, M=300):
                 st = G.PlayerState(fam, r.mu_O, share, r.ypo, r.cr, O, Y, C, A, c, d, pre_vol, kap)
                 st0 = G.PlayerState(fam, r.mu_O, share, r.ypo, r.cr, 0, 0.0, 0.0, 0, 0.0, 0.0, pre_vol, kap)
                 up, fr = G.predict_player(p1, st, M, seed), G.predict_player(p1, st0, M, seed + 1)
-                rows.append({"gid": r.gid, "fam": fam, "t": c, "pid": r.pid, "team": r.team, "actual": Yf, "crps_v2": G.crps_samples(up["yards"], Yf),
+                rows.append({"gid": r.gid, "fam": fam, "t": c, "pid": r.pid, "team": r.team, "pos": r.pos, "actual": Yf, "crps_v2": G.crps_samples(up["yards"], Yf),
                              "crps_v2_frozen": G.crps_samples(fr["yards"], Yf), "mean_v2": float(up["yards"].mean())})
     return pd.DataFrame(rows)
 
@@ -155,10 +155,12 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--validation-only", action="store_true")
     ap.add_argument("--train-end", type=int, default=2023)
+    ap.add_argument("--definition", default="nflfastr", choices=["nflfastr", "espn"], help="how attempts and rushes are counted (lab/ingame.py EVENT_DEFINITION)")
     ap.add_argument("--hier-draws", type=int, default=700)
     ap.add_argument("--hier-rows", type=int, default=6000)
     ap.add_argument("--tag", default="main", help="name of the cache for the hierarchical fits; a smoke test uses its own")
     a = ap.parse_args()
+    G.EVENT_DEFINITION = a.definition
     seasons = list(range(2018, 2027))
     plays = G.load_plays(seasons)
     ev = G.events(plays)
@@ -202,6 +204,7 @@ def main():
         b2 = {f: b[b["gid"].isin(gids)] for f, b in base2.items()}
         v1 = E.score_players(p1, b1, games, tl)
         v2 = score_v2(p1, b2, hier, tl)
+        v2.to_parquet(ROOT / "data" / "cache" / f"ingame_rows_v2_{a.tag}_{name}.parquet")
         report[name] = {"players": player_report(v1, v2)}
         s = score_games(plays, games, wpm, iso, p1, tl, gids)
         report[name]["game"] = game_report(s)
