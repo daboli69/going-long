@@ -17,6 +17,11 @@ from . import gamesim as S
 from . import ingame as G
 from . import ingame_feed as F
 
+def tolerance(stat: str, projected: float) -> float:
+    """How close a projection must be to count as right: within 1 catch, or within 15 yards or 20% of the projection, whichever is larger."""
+    return 1.0 if stat == "Receptions" else max(15.0, 0.2 * projected)
+
+
 STATS = {"Passing yards": ("pass", "yards"), "Rushing yards": ("rush", "yards"), "Receiving yards": ("rec", "yards"), "Receptions": ("rec", "catches")}
 _LAST_REFRESH = [0.0]
 _CACHE: dict = {}
@@ -132,9 +137,13 @@ def week_results(week: int) -> dict:
                 continue
             actual_v = float(m[col].iloc[0])
             lo, hi = p.get("range_low"), p.get("range_high")
+            tol = tolerance(p["stat"], float(p["typical"]))
+            line = p.get("market_line")
             out_players.append({"gid": r.game_id, "player": p["player"], "team": p["team"], "opp": d["home"] if p["team"] == d["away"] else d["away"], "stat": p["stat"],
                                 "projected": float(p["typical"]), "low": lo, "high": hi, "actual": actual_v, "error": actual_v - float(p["typical"]),
-                                "inside": None if lo is None or hi is None else bool(lo <= actual_v <= hi), "opps": int(m["opps"].iloc[0])})
+                                "inside": None if lo is None or hi is None else bool(lo <= actual_v <= hi), "opps": int(m["opps"].iloc[0]),
+                                "tolerance": tol, "close": bool(abs(actual_v - float(p["typical"])) <= tol), "market_line": line,
+                                "bet_won": None if line is None or actual_v == line else bool((actual_v > line) == (float(p["typical"]) > line))})
     gdf = pd.DataFrame(out_games)
     summary = {"games_played": int(len(g[g["completed"].astype(bool)])), "games_scored": int(len(gdf)), "pending_actuals": pending, "left_out": left_out}
     if len(gdf):
@@ -149,7 +158,8 @@ def week_results(week: int) -> dict:
     if len(pdf):
         for stat, x in pdf.groupby("stat"):
             ins = x["inside"].dropna()
-            pstats[stat] = {"n": int(len(x)), "mean_abs_error": float(x["error"].abs().mean()), "bias": float(x["error"].mean()),
+            bets = x["bet_won"].dropna()
+            pstats[stat] = {"close_rate": float(x["close"].mean()), "bets": int(len(bets)), "bets_won": int(bets.sum()), "n": int(len(x)), "mean_abs_error": float(x["error"].abs().mean()), "bias": float(x["error"].mean()),
                             "inside_range": float(ins.mean()) if len(ins) else None}
     res = {"week": week, "games": out_games, "players": out_players, "summary": summary, "player_summary": pstats}
     _CACHE[week] = (time.time(), res)

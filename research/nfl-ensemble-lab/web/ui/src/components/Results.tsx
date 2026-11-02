@@ -34,7 +34,7 @@ function PlayerRow({ r }: { r: ResultPlayer }) {
       <div role="cell" className="text-right text-[15px] text-muted">{r.projected.toFixed(dec)}</div>
       <div role="cell" className="text-right text-xl font-bold">{r.actual.toFixed(dec)}</div>
       <div role="cell" className="hidden text-right text-[15px] text-muted sm:block">{r.error >= 0 ? "+" : "−"}{Math.abs(r.error).toFixed(dec)}</div>
-      <div role="cell" className="text-right"><Verdict ok={r.inside} /></div>
+      <div role="cell" className="text-right"><Verdict ok={r.close} /><span className="block text-[13px] text-muted">within ±{r.tolerance.toFixed(r.stat === "Receptions" ? 0 : 0)}</span></div>
     </div>
   );
 }
@@ -95,13 +95,13 @@ export function ResultsView({ weeks, latest, onOpenGame }: { weeks: number[]; la
       {picker}
       <p className="max-w-[75ch] text-[15px] text-muted">
         Every number below was saved before the game. {s.games_played} of the week's games are final{s.games_played > s.games_scored ? `, and ${s.games_scored} have a saved forecast to score` : ""}.
-        "Right" for a winner means the team we favored won. "Right" for a player means he finished inside the 8-in-10 range we showed, which should happen about 8 times in 10.
+        "Right" for a winner means the team we favored won. "Right" for a player means the projection landed close: within 20% or 15 yards of the actual, whichever is larger, or within 1 catch. A projection of 120 against an actual 80 is wrong.
       </p>
       <section aria-label="Week summary" className="grid grid-cols-2 gap-0.5 sm:grid-cols-4">
         <Tile label="Winners picked right" value={`${s.picked_right} of ${s.picked_right + s.picked_wrong}`} note={s.accuracy === null ? undefined : `${pct(s.accuracy)}; we averaged ${pct(s.avg_confidence)} confidence`} />
         <Tile label="Margin off by, on average" value={`${num(s.mean_abs_margin_error)} points`} note={`${pct(s.margin_inside_80)} inside the 8-in-10 range`} />
         <Tile label="Total off by, on average" value={`${num(s.mean_abs_total_error)} points`} note={`${pct(s.total_inside_80)} inside the 8-in-10 range`} />
-        <Tile label="Player ranges that held" value={pct(Object.values(data.player_summary).reduce((a, v) => a + (v.inside_range ?? 0) * v.n, 0) / Math.max(1, Object.values(data.player_summary).reduce((a, v) => a + v.n, 0)))} note="Target: about 80%" />
+        <Tile label="Player projections that landed close" value={pct(Object.values(data.player_summary).reduce((a, v) => a + v.close_rate * v.n, 0) / Math.max(1, Object.values(data.player_summary).reduce((a, v) => a + v.n, 0)))} note="Within 20% or 15 yards (1 catch)" />
       </section>
       {s.pending_actuals.length > 0 && <Callout tone="amber">{s.pending_actuals.length} finished game(s) are not scored for players yet because no official or recorded box score is available for them.</Callout>}
 
@@ -131,14 +131,14 @@ export function ResultsView({ weeks, latest, onOpenGame }: { weeks: number[]; la
         {ps && (
           <p className="text-[15px] text-slate-300">
             {ps.n} players projected. Off by {num(ps.mean_abs_error, stat === "Receptions" ? 1 : 0)} on average, {ps.bias >= 0 ? "above" : "below"} the projection by {num(Math.abs(ps.bias), stat === "Receptions" ? 1 : 0)} on balance.
-            {ps.inside_range !== null && ` ${pct(ps.inside_range)} finished inside the range${ps.inside_range < 0.7 ? ", fewer than the 8 in 10 we claim" : ""}.`}
+            {` ${pct(ps.close_rate)} landed close.`}{ps.inside_range !== null && ` The wide 8-in-10 range held ${pct(ps.inside_range)} of the time, which is easy to do and not the test.`}{ps.bets >= 5 && ` Where a market line was saved, the projection's side won ${ps.bets_won} of ${ps.bets}.`}
           </p>
         )}
         <section aria-label={`${stat} results`} className="bg-panel p-4 sm:p-6">
           <div role="table" aria-label={`${stat}, projected and actual`}>
             <div role="row" className={cn("grid grid-cols-[minmax(0,1fr)_4em_4em_4.5em] gap-x-3 text-[13px] text-muted sm:grid-cols-[minmax(0,1fr)_5em_5em_5em_5em]")}>
               <div role="columnheader">Player</div><div role="columnheader" className="text-right">Projected</div><div role="columnheader" className="text-right">Actual</div>
-              <div role="columnheader" className="hidden text-right sm:block">Miss</div><div role="columnheader" className="text-right">In range?</div>
+              <div role="columnheader" className="hidden text-right sm:block">Miss</div><div role="columnheader" className="text-right">Close?</div>
             </div>
             {rows.length ? rows.map((r) => <PlayerRow key={`${r.gid}${r.team}${r.player}${r.stat}`} r={r} />) : <p role="row" className="py-4 text-sm text-muted">No projections for this stat yet.</p>}
           </div>
