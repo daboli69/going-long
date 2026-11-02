@@ -1,0 +1,53 @@
+{
+ "rows_v2": 28575,
+ "rows_v21": 28900,
+ "rows_paired": 27965,
+ "families": {
+  "rec": {
+   "n": 17880,
+   "games": 380,
+   "crps_v2": 10.082,
+   "crps_v21": 10.071,
+   "gain": 0.012,
+   "ci95": [
+    -0.001,
+    0.024
+   ],
+   "dm_p": 0.035165023137660345,
+   "dm_p_holm": 0.10549506941298104,
+   "replaces_v2": false,
+   "worse": false
+  },
+  "rush": {
+   "n": 6055,
+   "games": 379,
+   "crps_v2": 11.011,
+   "crps_v21": 11.017,
+   "gain": -0.007,
+   "ci95": [
+    -0.042,
+    0.027
+   ],
+   "dm_p": 0.3323348759218758,
+   "dm_p_holm": 0.6646697518437517,
+   "replaces_v2": false,
+   "worse": false
+  },
+  "pass": {
+   "n": 4030,
+   "games": 379,
+   "crps_v2": 28.532,
+   "crps_v21": 28.533,
+   "gain": -0.002,
+   "ci95": [
+    -0.131,
+    0.144
+   ],
+   "dm_p": 0.719962661985013,
+   "dm_p_holm": 0.719962661985013,
+   "replaces_v2": false,
+   "worse": false
+  }
+ },
+ "verdict": "v2.1 replaces v2 for: no stat. Otherwise v2 stays."
+}

@@ -107,3 +107,15 @@ The first kind is a real mismatch between the history the model learned from (sa
 - Sportsbook in-game prices, which have no free source.
 - Official inactive lists for past seasons. A player with no snaps stands in for an inactive one in the backtest, and the live tracker uses the posted list.
 - Kalshi and ESPN in-game prices for scoring: only the games recorded since 1 November 2026.
+
+## Version 2.1 (counting attempts the way the live feed does)
+
+Pre-registered in `docs/INGAME_PREREG_V21.md` before the test. The only change from version 2 was how attempts and rushes are counted (no sacks among pass attempts, kneel-downs among rushes), with everything refitted. Paired on the same player-games, 2025 and 2026 weeks 1 to 8 (`docs/ingame_eval_v21.json`):
+
+| Stat | CRPS v2 | CRPS v2.1 | Gain (95% interval) | Holm-adjusted p |
+|---|---|---|---|---|
+| Receiving yards | 10.082 | 10.071 | 0.012 (-0.001 to 0.024) | 0.11 |
+| Rushing yards | 11.011 | 11.017 | -0.007 (-0.042 to 0.027) | 0.66 |
+| Passing yards | 28.532 | 28.533 | -0.002 (-0.131 to 0.144) | 0.72 |
+
+No stat passed the rule, so version 2 stays live. The counting change did what it was meant to do for consistency (box-score count mismatches fell from 34 to 10 of 198 lines) but it did not make the forecasts more accurate.
