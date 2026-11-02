@@ -117,7 +117,7 @@ def final_check(snap) -> list[dict]:
         for (team, name), pl in snap["players"].items():
             if pl.get(col_o) is None:
                 continue
-            pid = by_norm.get(S._norm(name))
+            pid = F.player_id(pl, by_norm)
             m = tot[(tot["team"] == team) & (tot["pid"] == pid)] if pid else tot.iloc[0:0]
             o, y = (int(m["O"].iloc[0]), float(m["Y"].iloc[0])) if len(m) else (0, 0.0)
             if pid is None:

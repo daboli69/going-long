@@ -9,19 +9,99 @@
   "completed": true,
   "win_chance_brier": {
    "p_home_updated": {
-    "n": 44,
-    "brier": 0.0085
+    "n": 45,
+    "brier": 0.0083
    },
    "p_home_espn": {
-    "n": 44,
-    "brier": 0.0138
+    "n": 45,
+    "brier": 0.0135
    },
    "p_home_kalshi": {
-    "n": 43,
-    "brier": 0.0034
+    "n": 44,
+    "brier": 0.0033
    }
   },
   "frozen_before_kickoff": false,
+  "final_check": [
+   {
+    "player": "Jackson Hawes",
+    "team": "BUF",
+    "stat": "rec",
+    "box": [
+     2.0,
+     7.0
+    ],
+    "pbp": [
+     3,
+     7.0
+    ]
+   },
+   {
+    "player": "Joe Fagnano",
+    "team": "BAL",
+    "stat": "rush",
+    "box": [
+     3.0,
+     4.0
+    ],
+    "pbp": [
+     2,
+     4.0
+    ]
+   },
+   {
+    "player": "Kyle Allen",
+    "team": "BUF",
+    "stat": "rush",
+    "box": [
+     2.0,
+     -2.0
+    ],
+    "pbp": [
+     0,
+     0.0
+    ]
+   },
+   {
+    "player": "Joe Fagnano",
+    "team": "BAL",
+    "stat": "pass",
+    "box": [
+     21.0,
+     91.0
+    ],
+    "pbp": [
+     24,
+     91.0
+    ]
+   },
+   {
+    "player": "Tyler Huntley",
+    "team": "BAL",
+    "stat": "pass",
+    "box": [
+     4.0,
+     0.0
+    ],
+    "pbp": [
+     5,
+     0.0
+    ]
+   },
+   {
+    "player": "Josh Allen",
+    "team": "BUF",
+    "stat": "pass",
+    "box": [
+     34.0,
+     289.0
+    ],
+    "pbp": [
+     36,
+     289.0
+    ]
+   }
+  ],
   "feed_consistency_mismatches": [
    {
     "team": "BUF",
@@ -48,16 +128,16 @@
   ],
   "prop_scores": {
    "30min": {
-    "n": 11,
-    "mae_app_frozen": 52.69,
-    "mae_app_shifted_by_update": 31.56,
-    "mae_model_updated": 30.6
+    "n": 12,
+    "mae_app_frozen": 48.65,
+    "mae_app_shifted_by_update": 32.57,
+    "mae_model_updated": 29.96
    },
    "40min": {
     "n": 12,
-    "mae_app_frozen": 48.41,
-    "mae_app_shifted_by_update": 22.28,
-    "mae_model_updated": 21.16
+    "mae_app_frozen": 48.65,
+    "mae_app_shifted_by_update": 32.57,
+    "mae_model_updated": 29.96
    }
   }
  },
@@ -71,19 +151,73 @@
   "completed": true,
   "win_chance_brier": {
    "p_home_updated": {
-    "n": 45,
-    "brier": 0.9378
+    "n": 46,
+    "brier": 0.9174
    },
    "p_home_espn": {
-    "n": 45,
-    "brier": 0.8311
+    "n": 46,
+    "brier": 0.8131
    },
    "p_home_kalshi": {
-    "n": 44,
-    "brier": 0.8216
+    "n": 45,
+    "brier": 0.8033
    }
   },
   "frozen_before_kickoff": false,
+  "final_check": [
+   {
+    "player": "Dak Prescott",
+    "team": "DAL",
+    "stat": "rush",
+    "box": [
+     7.0,
+     20.0
+    ],
+    "pbp": [
+     6,
+     21.0
+    ]
+   },
+   {
+    "player": "Gardner Minshew II",
+    "team": "ARI",
+    "stat": "pass",
+    "box": [
+     23.0,
+     188.0
+    ],
+    "pbp": [
+     24,
+     188.0
+    ]
+   },
+   {
+    "player": "Jacoby Brissett",
+    "team": "ARI",
+    "stat": "pass",
+    "box": [
+     23.0,
+     119.0
+    ],
+    "pbp": [
+     27,
+     119.0
+    ]
+   },
+   {
+    "player": "Dak Prescott",
+    "team": "DAL",
+    "stat": "pass",
+    "box": [
+     29.0,
+     195.0
+    ],
+    "pbp": [
+     33,
+     195.0
+    ]
+   }
+  ],
   "feed_consistency_mismatches": [
    {
     "team": "DAL",
@@ -110,10 +244,10 @@
   ],
   "prop_scores": {
    "40min": {
-    "n": 11,
-    "mae_app_frozen": 47.81,
-    "mae_app_shifted_by_update": 44.18,
-    "mae_model_updated": 39.29
+    "n": 12,
+    "mae_app_frozen": 46.21,
+    "mae_app_shifted_by_update": 45.08,
+    "mae_model_updated": 38.89
    }
   }
  },
@@ -127,12 +261,12 @@
   "completed": true,
   "win_chance_brier": {
    "p_home_updated": {
-    "n": 37,
-    "brier": 0.1201
+    "n": 38,
+    "brier": 0.117
    },
    "p_home_espn": {
-    "n": 37,
-    "brier": 0.135
+    "n": 38,
+    "brier": 0.1314
    },
    "p_home_kalshi": {
     "n": 36,
@@ -140,6 +274,86 @@
    }
   },
   "frozen_before_kickoff": false,
+  "final_check": [
+   {
+    "player": "Jordan Addison",
+    "team": "MIN",
+    "stat": "rec",
+    "box": [
+     8.0,
+     66.0
+    ],
+    "pbp": [
+     9,
+     66.0
+    ]
+   },
+   {
+    "player": "Kyler Murray",
+    "team": "MIN",
+    "stat": "rush",
+    "box": [
+     4.0,
+     35.0
+    ],
+    "pbp": [
+     3,
+     36.0
+    ]
+   },
+   {
+    "player": "Jared Goff",
+    "team": "DET",
+    "stat": "rush",
+    "box": [
+     3.0,
+     0.0
+    ],
+    "pbp": [
+     1,
+     2.0
+    ]
+   },
+   {
+    "player": "Jahmyr Gibbs",
+    "team": "DET",
+    "stat": "rush",
+    "box": [
+     23.0,
+     153.0
+    ],
+    "pbp": [
+     24,
+     153.0
+    ]
+   },
+   {
+    "player": "Kyler Murray",
+    "team": "MIN",
+    "stat": "pass",
+    "box": [
+     29.0,
+     210.0
+    ],
+    "pbp": [
+     33,
+     210.0
+    ]
+   },
+   {
+    "player": "Jared Goff",
+    "team": "DET",
+    "stat": "pass",
+    "box": [
+     25.0,
+     176.0
+    ],
+    "pbp": [
+     29,
+     176.0
+    ]
+   }
+  ],
   "feed_consistency_mismatches": [
    {
     "team": "DET",
@@ -166,10 +380,10 @@
   ],
   "prop_scores": {
    "40min": {
-    "n": 12,
-    "mae_app_frozen": 22.4,
-    "mae_app_shifted_by_update": 23.64,
-    "mae_model_updated": 31.61
+    "n": 13,
+    "mae_app_frozen": 22.17,
+    "mae_app_shifted_by_update": 23.99,
+    "mae_model_updated": 29.29
    }
   }
  },
@@ -183,19 +397,60 @@
   "completed": true,
   "win_chance_brier": {
    "p_home_updated": {
-    "n": 35,
-    "brier": 0.225
+    "n": 36,
+    "brier": 0.2187
    },
    "p_home_espn": {
-    "n": 35,
-    "brier": 0.1961
+    "n": 36,
+    "brier": 0.1906
    },
    "p_home_kalshi": {
-    "n": 34,
-    "brier": 0.2021
+    "n": 35,
+    "brier": 0.1963
    }
   },
   "frozen_before_kickoff": false,
+  "final_check": [
+   {
+    "player": "Kirk Cousins",
+    "team": "LV",
+    "stat": "rush",
+    "box": [
+     5.0,
+     3.0
+    ],
+    "pbp": [
+     3,
+     5.0
+    ]
+   },
+   {
+    "player": "Kirk Cousins",
+    "team": "LV",
+    "stat": "pass",
+    "box": [
+     26.0,
+     247.0
+    ],
+    "pbp": [
+     27,
+     247.0
+    ]
+   },
+   {
+    "player": "Geno Smith",
+    "team": "NYJ",
+    "stat": "pass",
+    "box": [
+     32.0,
+     290.0
+    ],
+    "pbp": [
+     34,
+     290.0
+    ]
+   }
+  ],
   "feed_consistency_mismatches": [
    {
     "team": "NYJ",
@@ -222,10 +477,10 @@
   ],
   "prop_scores": {
    "40min": {
-    "n": 13,
-    "mae_app_frozen": 44.87,
-    "mae_app_shifted_by_update": 18.41,
-    "mae_model_updated": 15.45
+    "n": 14,
+    "mae_app_frozen": 44.68,
+    "mae_app_shifted_by_update": 27.23,
+    "mae_model_updated": 16.6
    }
   }
  },
@@ -239,11 +494,11 @@
   "completed": true,
   "win_chance_brier": {
    "p_home_updated": {
-    "n": 37,
+    "n": 38,
     "brier": 0.0002
    },
    "p_home_espn": {
-    "n": 37,
+    "n": 38,
     "brier": 0.0006
    },
    "p_home_kalshi": {
@@ -252,6 +507,47 @@
    }
   },
   "frozen_before_kickoff": false,
+  "final_check": [
+   {
+    "player": "Deshaun Watson",
+    "team": "CLE",
+    "stat": "rush",
+    "box": [
+     3.0,
+     2.0
+    ],
+    "pbp": [
+     2,
+     3.0
+    ]
+   },
+   {
+    "player": "Deshaun Watson",
+    "team": "CLE",
+    "stat": "pass",
+    "box": [
+     39.0,
+     324.0
+    ],
+    "pbp": [
+     47,
+     324.0
+    ]
+   },
+   {
+    "player": "Aaron Rodgers",
+    "team": "PIT",
+    "stat": "pass",
+    "box": [
+     25.0,
+     172.0
+    ],
+    "pbp": [
+     26,
+     172.0
+    ]
+   }
+  ],
   "feed_consistency_mismatches": [
    {
     "team": "PIT",
@@ -278,10 +574,10 @@
   ],
   "prop_scores": {
    "40min": {
-    "n": 14,
-    "mae_app_frozen": 47.5,
-    "mae_app_shifted_by_update": 27.37,
-    "mae_model_updated": 21.24
+    "n": 15,
+    "mae_app_frozen": 45.77,
+    "mae_app_shifted_by_update": 33.9,
+    "mae_model_updated": 23.97
    }
   }
  },
@@ -295,19 +591,47 @@
   "completed": true,
   "win_chance_brier": {
    "p_home_updated": {
-    "n": 29,
-    "brier": 0.0023
+    "n": 30,
+    "brier": 0.0022
    },
    "p_home_espn": {
-    "n": 29,
-    "brier": 0.0039
+    "n": 30,
+    "brier": 0.0038
    },
    "p_home_kalshi": {
-    "n": 28,
-    "brier": 0.0043
+    "n": 29,
+    "brier": 0.0041
    }
   },
   "frozen_before_kickoff": false,
+  "final_check": [
+   {
+    "player": "Baker Mayfield",
+    "team": "TB",
+    "stat": "rush",
+    "box": [
+     4.0,
+     14.0
+    ],
+    "pbp": [
+     3,
+     15.0
+    ]
+   },
+   {
+    "player": "Baker Mayfield",
+    "team": "TB",
+    "stat": "pass",
+    "box": [
+     3.0,
+     0.0
+    ],
+    "pbp": [
+     4,
+     0.0
+    ]
+   }
+  ],
   "feed_consistency_mismatches": [
    {
     "team": "TB",
@@ -334,10 +658,10 @@
   ],
   "prop_scores": {
    "40min": {
-    "n": 10,
-    "mae_app_frozen": 67.32,
-    "mae_app_shifted_by_update": 32.67,
-    "mae_model_updated": 26.36
+    "n": 11,
+    "mae_app_frozen": 72.75,
+    "mae_app_shifted_by_update": 46.0,
+    "mae_model_updated": 31.88
    }
   }
  },
@@ -351,11 +675,11 @@
   "completed": true,
   "win_chance_brier": {
    "p_home_updated": {
-    "n": 36,
+    "n": 37,
     "brier": 0.0
    },
    "p_home_espn": {
-    "n": 36,
+    "n": 37,
     "brier": 0.0
    },
    "p_home_kalshi": {
@@ -363,6 +687,73 @@
    }
   },
   "frozen_before_kickoff": false,
+  "final_check": [
+   {
+    "player": "Daniel Jones",
+    "team": "IND",
+    "stat": "rush",
+    "box": [
+     4.0,
+     7.0
+    ],
+    "pbp": [
+     3,
+     8.0
+    ]
+   },
+   {
+    "player": "Anthony Richardson Sr.",
+    "team": "IND",
+    "stat": "rush",
+    "box": [
+     2.0,
+     4.0
+    ],
+    "pbp": [
+     1,
+     5.0
+    ]
+   },
+   {
+    "player": "Daniel Jones",
+    "team": "IND",
+    "stat": "pass",
+    "box": [
+     28.0,
+     144.0
+    ],
+    "pbp": [
+     31,
+     144.0
+    ]
+   },
+   {
+    "player": "Anthony Richardson Sr.",
+    "team": "IND",
+    "stat": "pass",
+    "box": [
+     2.0,
+     8.0
+    ],
+    "pbp": [
+     3,
+     8.0
+    ]
+   },
+   {
+    "player": "Trevor Lawrence",
+    "team": "JAX",
+    "stat": "pass",
+    "box": [
+     14.0,
+     210.0
+    ],
+    "pbp": [
+     17,
+     210.0
+    ]
+   }
+  ],
   "feed_consistency_mismatches": [
    {
     "team": "JAX",
@@ -390,9 +781,9 @@
   "prop_scores": {
    "40min": {
     "n": 13,
-    "mae_app_frozen": 26.09,
-    "mae_app_shifted_by_update": 22.55,
-    "mae_model_updated": 22.44
+    "mae_app_frozen": 26.27,
+    "mae_app_shifted_by_update": 16.77,
+    "mae_model_updated": 22.53
    }
   }
  },
@@ -406,12 +797,12 @@
   "completed": true,
   "win_chance_brier": {
    "p_home_updated": {
-    "n": 48,
-    "brier": 0.2155
+    "n": 49,
+    "brier": 0.2111
    },
    "p_home_espn": {
-    "n": 48,
-    "brier": 0.1735
+    "n": 49,
+    "brier": 0.1699
    },
    "p_home_kalshi": {
     "n": 47,
@@ -419,6 +810,73 @@
    }
   },
   "frozen_before_kickoff": false,
+  "final_check": [
+   {
+    "player": "Gunnar Helm",
+    "team": "TEN",
+    "stat": "rec",
+    "box": [
+     9.0,
+     76.0
+    ],
+    "pbp": [
+     10,
+     76.0
+    ]
+   },
+   {
+    "player": "Tee Higgins",
+    "team": "CIN",
+    "stat": "rec",
+    "box": [
+     11.0,
+     155.0
+    ],
+    "pbp": [
+     12,
+     155.0
+    ]
+   },
+   {
+    "player": "Cam Ward",
+    "team": "TEN",
+    "stat": "rush",
+    "box": [
+     7.0,
+     41.0
+    ],
+    "pbp": [
+     8,
+     41.0
+    ]
+   },
+   {
+    "player": "Cam Ward",
+    "team": "TEN",
+    "stat": "pass",
+    "box": [
+     40.0,
+     304.0
+    ],
+    "pbp": [
+     43,
+     304.0
+    ]
+   },
+   {
+    "player": "Joe Burrow",
+    "team": "CIN",
+    "stat": "pass",
+    "box": [
+     48.0,
+     462.0
+    ],
+    "pbp": [
+     52,
+     462.0
+    ]
+   }
+  ],
   "feed_consistency_mismatches": [
    {
     "team": "CIN",
@@ -445,10 +903,10 @@
   ],
   "prop_scores": {
    "40min": {
-    "n": 12,
-    "mae_app_frozen": 52.12,
-    "mae_app_shifted_by_update": 27.45,
-    "mae_model_updated": 31.03
+    "n": 14,
+    "mae_app_frozen": 49.19,
+    "mae_app_shifted_by_update": 31.06,
+    "mae_model_updated": 25.83
    }
   }
  }

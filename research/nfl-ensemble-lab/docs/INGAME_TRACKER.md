@@ -65,3 +65,45 @@ Full numbers: `docs/ingame_eval.json`.
 .venv\Scripts\python.exe scripts\ingame_replay.py --final-check
 .venv\Scripts\python.exe scripts\ingame_eval.py             # chronological backtest
 ```
+
+## Version 2 (1 November 2026)
+
+Pre-registered in `docs/INGAME_PREREG_V2.md` and committed before any test was run. Fit on 2018 to 2023, calibrated on 2024, tested once on 2025 and 2026 weeks 1 to 8. Full numbers: `docs/ingame_eval_v2.json`.
+
+**What changed.** The pregame baseline now comes from snap counts and play-by-play across teams (a player's last eight games played, whatever team he played for), and games a player sat out are left out of his average. The share update is fitted by a hierarchical Bayesian model in PyMC (partial pooling by role group), with convergence checks passed (R-hat at most 1.01). The win chance has a second candidate, a gradient-boosted game-state model with isotonic calibration. Efficiency shrinkage is still a fitted constant.
+
+**Result against the pre-registered rule.**
+
+| Comparison | Gain (95% interval) | Holm-adjusted DM p | Beats? |
+|---|---|---|---|
+| Receiving yards, v2 vs v1 (CRPS) | 0.73 (0.61 to 0.85) | below 0.001 | Yes |
+| Rushing yards, v2 vs v1 (CRPS) | 0.91 (0.72 to 1.09) | below 0.001 | Yes |
+| Passing yards, v2 vs v1 (CRPS) | 0.06 (-0.08 to 0.21) | 0.28 | No |
+| Win chance, v2 vs v1 Brownian (Brier) | -0.006 (-0.013 to 0.000) | 0.17 | No, slightly worse |
+| Win chance, v2 vs nflfastR (Brier) | 0.002 (-0.011 to 0.015) | 0.74 | No, tied |
+| Win chance, v2 vs frozen pregame (Brier) | 0.042 (0.028 to 0.057) | below 0.001 | Yes |
+
+So version 2's baseline and share model is live for receiving and rushing, and passing and the win chance stay on version 1. The comparison uses only player-games both versions track and in which the player played, so version 2 gets no credit for knowing who sat out. The gain is largest early (receiving, 1.7 yards of CRPS at 10 minutes, 0.1 at 50 minutes) because that is where a better pregame number matters.
+
+**The new win model was worse than the old one out of sample.** Its isotonic calibration was fitted on 2024 and did not hold: in the test seasons, games it gave 90 to 100% won 92% of the time. Version 1's Brownian model stays.
+
+## Feed delay
+
+ESPN's own timestamp for a play versus the first time our recorder saw it, over 308 plays polled every 20 seconds: median 53 seconds, 9 in 10 within 72 seconds (`docs/ingame_latency.json`). The Live tab shows these numbers, and shows a warning when no new play has appeared for longer than the usual delay allows. The figure is measured against ESPN's timestamp, not the television picture.
+
+## Reconciliation with the official play-by-play (eight 1pm games, 1 November 2026)
+
+After matching players by ESPN id, the box scores the tracker used were compared with the nflverse play-by-play for the same games. Yards matched for every receiver and every running back. The 34 differences (listed in `docs/ingame_replay.json`) all fall into three kinds:
+
+- **Pass attempts (18 quarterbacks):** nflverse counts sacks as attempts and ESPN does not. Yards are equal.
+- **Quarterback rushes (12):** ESPN counts kneel-downs as rushes with negative yards and nflverse does not.
+- **Target and carry counts (4 receivers):** a one-target difference.
+
+The first kind is a real mismatch between the history the model learned from (sacks counted) and the live feed (sacks not counted), so a live team's attempts run a little low against the model's expectations. It has not been corrected, because that would change the pre-registered event definitions. It is the first thing to fix in the next version.
+
+## What is still missing
+
+- Routes run, which no free source gives. Snaps stand in for them in the baseline.
+- Sportsbook in-game prices, which have no free source.
+- Official inactive lists for past seasons. A player with no snaps stands in for an inactive one in the backtest, and the live tracker uses the posted list.
+- Kalshi and ESPN in-game prices for scoring: only the games recorded since 1 November 2026.

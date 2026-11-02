@@ -9,6 +9,7 @@ import gzip
 import hashlib
 import json
 import re
+import types
 from pathlib import Path
 
 import numpy as np
@@ -17,6 +18,7 @@ import pandas as pd
 from . import gamecenter_data as D
 from . import gamesim as S
 from . import ingame as G
+from . import ingame2 as I2
 from .ingest import normalize_team
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -137,6 +139,20 @@ def freeze(gid: str, adjusted: bool = True) -> dict:
 _CACHE: dict = {}
 
 
+def espn_to_gsis() -> dict:
+    """ESPN athlete id -> nflverse player id, from the players table. Names alone are ambiguous (two Justin Jeffersons) and miss suffixes."""
+    if "espn" not in _CACHE:
+        pl = pd.read_parquet(ROOT / "data" / "raw" / "players.parquet", columns=["gsis_id", "espn_id"]).dropna()
+        _CACHE["espn"] = {str(int(float(e))): g for e, g in zip(pl["espn_id"], pl["gsis_id"])}
+    return _CACHE["espn"]
+
+
+def player_id(pl: dict, by_norm: dict) -> str | None:
+    """The nflverse id for a box-score line: by ESPN athlete id first, by normalized name only when that id is unknown."""
+    g = espn_to_gsis().get(str(pl.get("id")))
+    return g or by_norm.get(S._norm(pl["name"]))
+
+
 def live_context(seasons=(2025, 2026)):
     """Params fitted on every season before the one being played, plus pregame baselines for each team's next game."""
     if "ctx" in _CACHE:
@@ -152,7 +168,7 @@ def live_context(seasons=(2025, 2026)):
     ev_mod.HOME.update({r.gid: r.home for r in games_fit.itertuples(index=False)})
     tl = ev_mod.Timeline(plays_fit, ev_fit)
     params = ev_mod.fit_params(plays_fit, ev_fit, games_fit, tl)
-    allp = G.load_plays(list(seasons))
+    allp = G.load_plays([seasons[0] - 1, *seasons])
     ev = G.events(allp)
     games = G.games_table(allp)
     tv = G.team_volume(ev, games)
@@ -167,11 +183,48 @@ def live_context(seasons=(2025, 2026)):
     next_base = {fam: b[b["gid"].str.startswith("NEXT_")] for fam, b in base.items()}
     pre_vol = {r.team: (r.pre_n_pass, r.pre_n_rush) for r in tv2[tv2["gid"].str.startswith("NEXT_")].itertuples(index=False)}
     pid_name = pd.read_parquet(ROOT / "data" / "raw" / "players.parquet")
-    _CACHE["ctx"] = {"params": params, "next": next_base, "pre_vol": pre_vol, "pid_name": pid_name}
+    # version 2 baseline (snap counts across teams, hierarchical share prior) for receiving and rushing, the stats where it beat version 1 out of sample
+    # (docs/ingame_eval_v2.json). Passing stays on version 1: it did not beat it. The share priors come from the fit through 2023 that was tested.
+    next2, hier = {}, None
+    hf = ROOT / "data" / "cache" / "ingame_hier_main_2023.json"
+    if hf.exists():
+        hier = json.loads(hf.read_text(encoding="utf-8"))
+        snaps = I2.snap_table(range(2018, 2027))
+        last = snaps[snaps["snaps"] > 0].sort_values(["season", "week"]).groupby("pid").tail(1)
+        last = last[last["season"] >= seasons[0]]
+        syn = pd.DataFrame({"gid": "NEXT_" + last["team"], "team": last["team"], "pid": last["pid"], "pos": last["pos"], "snaps": 1, "pct": 0.0, "season": 2026, "week": 99})
+        b2 = I2.baselines2(ev, tv2, pd.concat([snaps, syn], ignore_index=True), params.pool, params.pool_catch, params.m_eff, params.m_catch)
+        next2 = {fam: b2[fam][b2[fam]["gid"].str.startswith("NEXT_")] for fam in ("rec", "rush")}
+    _CACHE["ctx"] = {"params": params, "next": next_base, "next2": next2, "hier": hier, "pre_vol": pre_vol, "pid_name": pid_name}
     return _CACHE["ctx"]
 
 
-def tracked_states(snap: dict, ctx=None) -> list[dict]:
+def _candidates(snap: dict, ctx: dict, week: int | None) -> list[dict]:
+    """Who to track: version 2 rows for receiving and rushing, version 1 rows for passing and for anyone version 2 has too little history on (said so in
+    `baseline`). Players on the team's ruled-out list are left out when the week is known."""
+    out_names: dict[str, set] = {}
+    if week is not None:
+        for t in (snap["home"], snap["away"]):
+            o, _ = S.unavailable(t, week)
+            out_names[t] = set(o)
+    cands, have = [], set()
+    for fam, b in (ctx.get("next2") or {}).items():
+        for r in b.itertuples(index=False):
+            if r.team in (snap["home"], snap["away"]):
+                share, kap = I2.calibrated_share(ctx["hier"][fam], r.grp, r.share)
+                cands.append({"fam": fam, "team": r.team, "pid": r.pid, "mu_O": r.mu_O, "share": share, "ypo": r.ypo, "cr": r.cr, "kappa": kap, "baseline": "v2"})
+                have.add((fam, r.team, r.pid))
+    for fam, b in ctx["next"].items():
+        for r in b.itertuples(index=False):
+            if r.team in (snap["home"], snap["away"]) and (fam, r.team, r.pid) not in have:
+                cands.append({"fam": fam, "team": r.team, "pid": r.pid, "mu_O": r.mu_O, "share": r.share, "ypo": r.ypo, "cr": r.cr, "kappa": None,
+                              "baseline": "v1" if fam == "pass" or not ctx.get("next2") else "v1 (too little history for v2)"})
+    if week is not None:
+        cands = [c for c in cands if S._norm(D_name(ctx, c["pid"])) not in out_names.get(c["team"], set())]
+    return cands
+
+
+def tracked_states(snap: dict, ctx=None, week: int | None = None) -> list[dict]:
     """Every tracked player in a parsed snapshot with his model state, the updated and the frozen projection, the split of the change and any role warning."""
     ctx = ctx or live_context()
     p = ctx["params"]
@@ -181,15 +234,14 @@ def tracked_states(snap: dict, ctx=None) -> list[dict]:
         return []
     h, a = snap["score"]["home"], snap["score"]["away"]
     rows, seen = [], set()
-    for fam, b in ctx["next"].items():
+    for c in _candidates(snap, ctx, week):
+        fam, team, kap = c["fam"], c["team"], c["kappa"]
         kind = "rush" if fam == "rush" else "pass"
-        for r in b.itertuples(index=False):
-            team = r.team
-            if team not in (snap["home"], snap["away"]):
-                continue
+        r = types.SimpleNamespace(pid=c["pid"], mu_O=c["mu_O"], share=c["share"], ypo=c["ypo"], cr=c["cr"])
+        if True:
             name = None
             for (tm, nm), pl in snap["players"].items():
-                if tm == team and by_norm.get(S._norm(nm)) == r.pid:
+                if tm == team and player_id(pl, by_norm) == r.pid:
                     name, line = nm, pl
                     break
             d = (h - a) if team == snap["home"] else (a - h)
@@ -202,12 +254,12 @@ def tracked_states(snap: dict, ctx=None) -> list[dict]:
                 O, Y, C = line.get("rush_att") or 0, line.get("rush_yds") or 0.0, 0.0
             else:
                 O, Y, C = line.get("pass_att") or 0, line.get("pass_yds") or 0.0, line.get("pass_comp") or 0.0
-            st = G.PlayerState(fam, r.mu_O, r.share, r.ypo, r.cr, int(O), float(Y), float(C), int(A), float(el), float(d), float(pv))
-            st0 = G.PlayerState(fam, r.mu_O, r.share, r.ypo, r.cr, 0, 0.0, 0.0, 0, 0.0, 0.0, float(pv))
+            st = G.PlayerState(fam, r.mu_O, r.share, r.ypo, r.cr, int(O), float(Y), float(C), int(A), float(el), float(d), float(pv), kap)
+            st0 = G.PlayerState(fam, r.mu_O, r.share, r.ypo, r.cr, 0, 0.0, 0.0, 0, 0.0, 0.0, float(pv), kap)
             up, fr = G.predict_player(p, st, 400, 1), G.predict_player(p, st0, 400, 2)
             rc = G.role_check(p, st)
             parts = G.decompose(p, st)
-            rows.append({"team": team, "name": name or D_name(ctx, r.pid), "pid": r.pid, "fam": fam, "stat": G.FAMILIES[fam], "seen": name is not None,
+            rows.append({"team": team, "name": name or D_name(ctx, r.pid), "pid": r.pid, "fam": fam, "stat": G.FAMILIES[fam], "baseline": c["baseline"], "seen": name is not None,
                          "targets_or_carries": int(O), "yards": float(Y), "team_attempts": int(A), "share_pre": rc["share_pre"], "share_post": rc["share_post"],
                          "frozen": float(fr["yards"].mean()), "updated": float(up["yards"].mean()), "low": float(np.percentile(up["yards"], 10)),
                          "high": float(np.percentile(up["yards"], 90)), "p_lower": rc["p_lower"], "p_higher": rc["p_higher"], "parts": parts,
@@ -328,12 +380,12 @@ def latest(gid: str, ctx=None, refresh: bool = True) -> dict | None:
         fr = freeze(gid)
     margin = (fr or {}).get("projection", {}).get("expected", {}) or {}
     wp = win_probability(snap, margin.get("margin"), ctx["params"]) if margin.get("margin") is not None else None
-    rows = tracked_states(snap, ctx)
+    rows = tracked_states(snap, ctx, int(gid.split("_")[1]))
     keep = ("team", "name", "stat", "yards", "targets_or_carries", "team_attempts", "frozen", "updated", "low", "high", "share_pre", "share_post")
     return {"gid": gid, "event": eid, "snapshot": stamp, "age_seconds": round(_age_seconds(stamp)),
             "newest_play_seconds": None if not snap.get("last_wallclock") else round((pd.Timestamp.now(tz="UTC") - pd.Timestamp(snap["last_wallclock"])).total_seconds()),
             "feed_lag": feed_lag(), "state": snap["state"], "period": snap["period"], "clock": snap["clock"], "score": snap["score"],
             "possession": snap["possession"], "last_play": snap["last_play"], "win_chance_home": None if wp is None else wp["p_home"],
             "frozen": None if fr is None else {"sha256": fr["sha256"], "frozen_at": fr["frozen_at"], "before_kickoff": fr["before_kickoff"]},
-            "players": [{k: r[k] for k in keep} for r in rows if r["seen"]], "warnings": [{k: r[k] for k in keep + ("kind",)} for r in warnings(rows)],
+            "players": [{k: r[k] for k in keep + ("baseline",)} for r in rows if r["seen"]], "warnings": [{k: r[k] for k in keep + ("kind",)} for r in warnings(rows)],
             "not_in_feed": ["snaps", "routes", "red-zone touches (box score only)"]}
