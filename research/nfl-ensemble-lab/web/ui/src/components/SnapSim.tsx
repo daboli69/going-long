@@ -45,7 +45,18 @@ export function SnapSimView({ games, gid, onPick }: { games: GameRow[]; gid: str
               <div key={k} className="bg-[#12161c] p-3"><dt className="text-[13px] text-muted">{k}</dt><dd className="text-xl font-bold">{v}</dd></div>
             ))}
           </dl>
-          <p className="text-[13px] text-muted">Out of {d.sims.toLocaleString()} simulated games. With no home-field or rest adjustment the raw simulation has {d.home} winning {pct(d.raw_win[d.home])}, covering {pct(d.cover_raw[d.home])} with {pct(d.cover_raw.push)} pushes. Median score {d.home} {n1(d.score.home.median)}, {d.away} {n1(d.score.away.median)}; 8 in 10 totals fall between {n1(d.score.total.p10)} and {n1(d.score.total.p90)}.</p>
+          <p className="text-[13px] text-muted">Out of {d.sims.toLocaleString()} simulated games. With no home-field or rest adjustment the raw simulation has {d.home} winning {pct(d.raw_win[d.home])}, covering {pct(d.cover_raw[d.home])} with {pct(d.cover_raw.push)} pushes. The simulator scores {d.scoring_gap_per_team.toFixed(1)} fewer points per team than 2026 teams actually have (see the check at the bottom), so the totals above lean low. Adding that gap to both teams, the over {d.total} would be {pct(d.over_scoring_adjusted)}. Median score {d.home} {n1(d.score.home.median)}, {d.away} {n1(d.score.away.median)}; 8 in 10 totals fall between {n1(d.score.total.p10)} and {n1(d.score.total.p90)}.</p>
+
+          <div>
+            <h3 className="text-lg font-bold">Other lines</h3>
+            <p className="mt-1 text-[13px] text-muted">The schedule file's current line is {d.home} {d.spread_home > 0 ? "-" : "+"}{Math.abs(d.spread_home)} and a total of {d.total}. Books move; here is the same simulation at nearby numbers.</p>
+            <div className="mt-2 overflow-x-auto"><table className="w-full min-w-[520px] text-left text-[15px]">
+              <thead className="text-[13px] text-muted"><tr><th className="py-1">{d.home} spread</th><th className="text-right">{d.home} covers</th><th className="text-right">{d.away} covers</th><th className="pl-6">Total</th><th className="text-right">Over</th><th className="text-right">Over, scoring adjusted</th></tr></thead>
+              <tbody>{d.ladder.spreads.map((s, i) => { const t = d.ladder.totals[i]; return (
+                <tr key={s.line} className="border-t border-bg"><td className="py-1">{s.line > 0 ? "-" : "+"}{Math.abs(s.line)}</td><td className="text-right">{pct(s.home)}</td><td className="text-right">{pct(s.away)}</td><td className="pl-6">{t.line}</td><td className="text-right">{pct(t.over)}</td><td className="text-right">{pct(t.over_adjusted)}</td></tr>
+              ); })}</tbody>
+            </table></div>
+          </div>
 
           <div>
             <h3 className="text-lg font-bold">What the simulation adds for this game</h3>

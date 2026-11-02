@@ -15,7 +15,7 @@ PRIOR_WEIGHT = 0.5
 COLS = ["game_id", "season", "week", "posteam", "defteam", "home_team", "away_team", "play_id", "drive", "qtr", "down", "ydstogo", "yardline_100", "game_seconds_remaining", "half_seconds_remaining",
         "score_differential", "play_type", "pass_attempt", "rush_attempt", "complete_pass", "yards_gained", "sack", "interception", "fumble_lost", "qb_hit", "qb_scramble", "qb_dropback",
         "qb_kneel", "qb_spike", "touchdown", "field_goal_result", "kick_distance", "return_yards", "penalty", "penalty_type", "penalty_team", "penalty_yards", "run_gap", "run_location", "timeout",
-        "two_point_attempt", "passer_player_id", "receiver_player_id", "rusher_player_id", "kickoff_attempt", "punt_attempt", "drive_start_transition", "air_yards"]
+        "two_point_attempt", "passer_player_id", "receiver_player_id", "rusher_player_id", "kickoff_attempt", "punt_attempt", "return_touchdown", "drive_start_transition", "air_yards"]
 PRE_OFF = {"False Start"}   # only false starts take the crowd multiplier; other own-team penalties fall in the live class
 PRE_DEF = {"Defensive Offside", "Neutral Zone Infraction", "Encroachment", "Defensive Delay of Game", "Defensive Too Many Men on Field"}
 GAPS = ["left_end", "left_tackle", "left_guard", "middle", "right_guard", "right_tackle", "right_end"]
@@ -27,6 +27,10 @@ def shr(total, n, prior, m):
 
 def feats(down, ytg, yl, sd, gsr):
     return np.column_stack([down == 2, down == 3, down == 4, np.log(np.clip(ytg, 1, 30)), yl / 100.0, np.clip(sd, -21, 21) / 14.0, gsr / 3600.0, (gsr < 300) & (sd < 0), (gsr < 300) & (sd > 0)]).astype(float)
+
+
+def feats4(down, ytg, yl, sd, gsr):
+    return np.column_stack([feats(down, ytg, yl, sd, gsr), (yl / 100.0) ** 2, yl <= 30, yl <= 45]).astype(float)
 
 
 def hurry_state(sd, gsr, hsr, qtr):
@@ -86,7 +90,7 @@ def fit(before_week: int, season: int = SEASON) -> Params:
     # ---- fourth down: go, field goal, punt
     f4 = p[(p["down"] == 4) & (p["qb_kneel"] != 1) & (p["qb_spike"] != 1) & p["play_type"].isin(["pass", "run", "punt", "field_goal"]) & (p["penalty"] != 1)].copy()
     f4["cls"] = np.where(f4["play_type"].isin(["pass", "run"]), 0, np.where(f4["play_type"] == "field_goal", 1, 2))
-    X4 = feats(f4["down"].to_numpy(), f4["ydstogo"].to_numpy(), f4["yardline_100"].to_numpy(), f4["score_differential"].fillna(0).to_numpy(), f4["game_seconds_remaining"].to_numpy())
+    X4 = feats4(f4["down"].to_numpy(), f4["ydstogo"].to_numpy(), f4["yardline_100"].to_numpy(), f4["score_differential"].fillna(0).to_numpy(), f4["game_seconds_remaining"].to_numpy())
     m4 = LogisticRegression(C=10, max_iter=1000).fit(X4, f4["cls"], sample_weight=f4["w"])
     P.fourth_coef = (m4.coef_, m4.intercept_)
     pg = m4.predict_proba(X4)[:, 0]
@@ -206,5 +210,10 @@ def fit(before_week: int, season: int = SEASON) -> Params:
     pn = p[(p["punt_attempt"] == 1) & p["kick_distance"].notna()]
     P.yards["punt"] = (pn["kick_distance"] - pn["return_yards"].fillna(0)).to_numpy(float)
     L["xp"] = 0.95
+    rt = p["return_touchdown"].fillna(0)
+    L["ret_td_int"] = float(np.average(rt[p["interception"] == 1], weights=p.loc[p["interception"] == 1, "w"]))
+    L["ret_td_fum"] = float(np.average(rt[p["fumble_lost"] == 1], weights=p.loc[p["fumble_lost"] == 1, "w"]))
+    L["ret_td_punt"] = float(np.average(rt[p["punt_attempt"] == 1], weights=p.loc[p["punt_attempt"] == 1, "w"]))
+    L["ret_td_ko"] = float(np.average(rt[p["kickoff_attempt"] == 1], weights=p.loc[p["kickoff_attempt"] == 1, "w"]))
     L["games"] = int(p["game_id"].nunique())
     return P

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from .snapfit import GAPS, Params, feats, hurry_state
+from .snapfit import GAPS, Params, feats, feats4, hurry_state
 
 LOGIT = lambda p: np.log(np.clip(p, 1e-6, 1 - 1e-6) / (1 - np.clip(p, 1e-6, 1 - 1e-6)))
 SIG = lambda x: 1.0 / (1.0 + np.exp(-x))
@@ -72,11 +72,18 @@ def simulate(P: Params, away: str, home: str, pools: dict, n: int = 10000, seed:
     acc = [{k: np.zeros((S, np_[t])) for k in ("tgt", "rec", "recyd", "car", "rushyd", "rectd", "rushtd")} for t in (0, 1)]
     qbacc = [{k: np.zeros(S) for k in ("att", "comp", "yds", "td", "int", "sacks")} for t in (0, 1)]
 
-    def kickoff_to(sims, team):
+    def kickoff_to(sims, team, kicking=None):
         poss[sims] = team
         yl[sims] = _draw(P.ko_start, rng, len(sims))
         down[sims] = 1
         ytg[sims] = 10
+        r_ = rng.random(len(sims)) < L["ret_td_ko"]
+        if r_.any():
+            t_ = np.asarray(team)[r_] if np.ndim(team) else np.full(int(r_.sum()), team)
+            score[sims[r_], t_] += 7
+            st["tds"][sims[r_], t_] += 1
+            poss[sims[r_]] = 1 - t_
+            yl[sims[r_]] = _draw(P.ko_start, rng, int(r_.sum()))
 
     def clock(sims, cat, o_, hs_):
         gsr[sims] -= _elapsed(P, cat, hs_, pace[o_], rng)
@@ -101,7 +108,7 @@ def simulate(P: Params, away: str, home: str, pools: dict, n: int = 10000, seed:
         kick = np.zeros(n_, dtype=bool)
         is4 = dn == 4
         if is4.any():
-            lg = fx[is4] @ c4.T + i4
+            lg = feats4(dn[is4], yt[is4], y0[is4], sd[is4], np.where(ot[idx], 900.0, gs)[is4]) @ c4.T + i4
             lg[:, 0] += go_delta[o[is4]]
             pr = np.exp(lg - lg.max(1, keepdims=True))
             pr /= pr.sum(1, keepdims=True)
@@ -145,6 +152,10 @@ def simulate(P: Params, away: str, home: str, pools: dict, n: int = 10000, seed:
             poss[s] = 1 - o[pnt]
             yl[s] = opp
             down[s], ytg[s] = 1, 10
+            pr_ = rng.random(len(s)) < L["ret_td_punt"]
+            if pr_.any():
+                score[s[pr_], 1 - o[pnt][pr_]] += 7
+                kickoff_to(s[pr_], o[pnt][pr_])
             acted |= pnt
 
         # ---- pre-snap and live penalties
@@ -355,6 +366,10 @@ def simulate(P: Params, away: str, home: str, pools: dict, n: int = 10000, seed:
             poss[s[flip]] = 1 - oo[flip]
             yl[s[flip]] = opp_yl[flip]
             down[s[flip]], ytg[s[flip]] = 1, 10
+            rtd = turn & (rng.random(m_) < np.where(cat == "inc", L["ret_td_int"], L["ret_td_fum"]))
+            if rtd.any():
+                score[s[rtd], 1 - oo[rtd]] += 7
+                kickoff_to(s[rtd], oo[rtd])
             cat = np.where(tdm, "td", cat)
             for c_ in ("run", "comp", "inc", "sack", "td"):
                 mm = cat == c_

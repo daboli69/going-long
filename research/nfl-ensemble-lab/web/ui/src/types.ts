@@ -291,7 +291,7 @@ export type SnapDist = { mean: number; p10: number; median: number; p90: number 
 export type SnapLean = { player: string; team: string; stat: string; line: number; market_chance: number; sim_chance: number; edge: number; matchup_ratio: number | null; volume_ratio: number | null; side: string | null; signals: { sim: string | null; matchup: string | null; game: string | null } };
 export type SnapSim = {
   gid: string; away: string; home: string; week: number; sims: number; spread_home: number; total: number; kickoff: string; created: string; frozen: boolean; frozen_ok?: boolean; sha256?: string; rule_sha256: string; rest: { away: number; home: number };
-  win: Record<string, number>; raw_win: Record<string, number>; cover: Record<string, number>; cover_raw: Record<string, number>; over: number; under: number; over_raw_push: number;
+  win: Record<string, number>; raw_win: Record<string, number>; cover: Record<string, number>; cover_raw: Record<string, number>; over: number; under: number; over_raw_push: number; over_scoring_adjusted: number; ladder: { spreads: { line: number; home: number; away: number }[]; totals: { line: number; over: number; over_adjusted: number }[] }; scoring_gap_per_team: number;
   score: { home: SnapDist; away: SnapDist; margin: SnapDist; total: SnapDist };
   adjustments: { home_field_points: number; rest_points_to_home: number; rest_beta_per_day: number; rest_se: number; false_start_multiplier: number; false_start_rank: number; false_start_rank_raw: number; stadiums: number; visiting_false_start_rate: number; league_rate: number };
   team_stats: Record<string, Record<string, number>>; scenario: { star?: string; rookie?: string }; out: Record<string, string[]>;

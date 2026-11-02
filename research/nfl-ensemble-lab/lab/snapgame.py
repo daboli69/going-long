@@ -206,11 +206,19 @@ def summarize(sim: dict, pools: list, r, ven: dict, crowd: float, n: int, week: 
     madj = margin + shift
     spread, total = float(r["spread_line"]), float(r["total_line"])
     tot = (sc[:, 0] + sc[:, 1]).astype(float)
+    vf = ROOT / "docs" / "snapsim_validation.json"
+    gap = 0.0
+    if vf.exists():
+        pt = json.loads(vf.read_text())["v1"]["points_per_team"]
+        gap = float(pt["actual"] - pt["sim"])
     res = {"gid": r["game_id"], "away": away, "home": home, "week": week, "sims": n, "spread_home": spread, "total": total,
            "win": {home: float((madj > 0).mean()), away: float((madj < 0).mean())},
            "raw_win": {home: float((margin > 0).mean() + 0.5 * (margin == 0).mean()), away: float((margin < 0).mean() + 0.5 * (margin == 0).mean())},
            "cover": {home: float((madj > spread).mean()), away: float((madj < spread).mean())},
            "cover_raw": {home: float((margin > spread).mean()), away: float((margin < spread).mean()), "push": float((margin == spread).mean())},
+           "ladder": {"spreads": [{"line": x, "home": float((madj > x).mean()), "away": float((madj < x).mean())} for x in sorted({spread - 1, spread - 0.5, spread, spread + 0.5, spread + 1})],
+                      "totals": [{"line": x, "over": float((tot > x).mean()), "over_adjusted": float((tot + 2 * gap > x).mean())} for x in sorted({total - 1, total - 0.5, total, total + 0.5, total + 1})]},
+           "scoring_gap_per_team": gap, "over_scoring_adjusted": float((tot + 2 * gap > total).mean()),
            "over": float((tot > total).mean()), "under": float((tot < total).mean()), "over_raw_push": float((tot == total).mean()),
            "score": {"home": _dist(sc[:, 1].astype(float)), "away": _dist(sc[:, 0].astype(float)), "margin": _dist(margin), "total": _dist(tot)},
            "adjustments": {"home_field_points": hfa, "rest_points_to_home": ven["rest_points_to_home"], "rest_beta_per_day": ven["rest_beta_per_day"], "rest_se": ven["rest_se"], "false_start_multiplier": crowd,

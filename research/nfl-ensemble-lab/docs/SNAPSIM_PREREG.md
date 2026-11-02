@@ -47,3 +47,12 @@ Leans are logged write-once and hashed, and scored after the game. Earlier work 
 ## Pass rule for the simulator
 
 None is claimed beyond V1: the simulator is "calibrated" or it is not. V2 and the leans carry no claim of an edge until a pre-registered sample says so.
+
+## Amendment 1 (2026-11-02, after the first V1 and V2 run, before using any output)
+
+The first run (600 sims per game, 120 games) failed V1: points per team 21.3 against 22.9 actual (the bar is 1.0), sacks +5.3%, penalties -7.2%, fourth-down tries +10%. A diagnostic against the same plays showed offensive touchdowns, passing yards, rushing yards and snaps matching, and field-goal attempts 18% low with punts 20% high, so the miss traces to the fourth-down choice and to scoring the simulator did not model. Changes, all fixed before the next run and none tuned on the V2 outcomes:
+1. The fourth-down kick-or-go model gets nonlinear field-position terms (the square of field position and indicators for inside the 30 and inside the 45), because a straight line in field position cannot separate field-goal range from punt range.
+2. Return touchdowns are added with league rates from 2025 and 2026 play-by-play: on interceptions, lost fumbles, punts and kickoffs, the receiving or defending team scores with the league probability.
+3. Only false starts take the crowd multiplier; other own-team pre-snap penalties moved to the live class. (A defect found in testing: the multiplier was applying to every pre-snap penalty.)
+4. V2 used a wrong moneyline-to-probability formula for favorites in the check script; fixed. This does not touch the simulator.
+The V1 bar, seeds and sample sizes are unchanged. Sacks within 5% and penalties within 5% remain pass conditions and are reported even if they fail.
