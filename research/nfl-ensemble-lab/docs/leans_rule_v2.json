@@ -1,0 +1,45 @@
+{
+ "version": 2,
+ "amends": "docs/leans_rule.json",
+ "adopt_recalibration": true,
+ "adopted_by": "owner choice, not by the original rule",
+ "recal_forms": [
+  "logistic",
+  "isotonic"
+ ],
+ "recal_choice": "lower walk-forward log loss on test weeks (2026 week 3 onward); tie goes to logistic",
+ "collapse": "one lean per (game, player, stat): the strike with the largest absolute edge among strikes at or over the threshold",
+ "independent_unit": "game",
+ "design_effect": "1 + (mean leans per game - 1) * ICC of per-lean realized edge within game, ICC floored at 0",
+ "need_corrected": "base need for 2 point edge at 80% power times design effect",
+ "price_modes": {
+  "mid": "Kalshi mid at 90 minutes",
+  "exec": "over bought at ask90; under bought at 1 - bid90; both need bid and ask present, ask above bid, and the liquid90 flag"
+ },
+ "fee": "0.07 * p * (1 - p) per contract at the price paid (Kalshi taker formula from secondary sources; single-contract orders round up to the cent so true cost is a little higher)",
+ "clv_exec": "over: bidC - ask90; under: bid90 - askC",
+ "placebo": {
+  "draws": 200,
+  "seed": 3,
+  "method": "within each game and stat, shuffle model-minus-market differences across rows, rebuild model chance as market plus shuffled difference, clipped to 0.01 to 0.99"
+ },
+ "headline": {
+  "model": "chosen recalibration",
+  "price_mode": "exec",
+  "group": "all leans"
+ },
+ "subgroups": {
+  "families": [
+   "market",
+   "size",
+   "season"
+  ],
+  "correction": "Holm over all subgroup tests in those families; one-sided bootstrap p for realized edge after costs above zero; weeks are descriptive only"
+ },
+ "pass": {
+  "realized_after_costs_ci_lower_gt": 0,
+  "clv_exec_gt": 0,
+  "n_at_least_need_corrected": true,
+  "placebo_abs_mean_edge_le": 0.01
+ }
+}
