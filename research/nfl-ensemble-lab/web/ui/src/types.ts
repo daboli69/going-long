@@ -221,11 +221,11 @@ export type ResultGame = {
   gid: string; away: string; home: string; away_score: number; home_score: number; kickoff_label: string; pick: string; p_pick: number; winner: string | null; correct: boolean | null;
   exp_margin: number | null; margin: number; margin_error: number | null; exp_total: number | null; total: number; total_error: number | null; actuals_from: string | null;
 };
-export type ResultPlayer = { gid: string; player: string; team: string; opp: string; stat: string; projected: number; low: number | null; high: number | null; actual: number; error: number; inside: boolean | null; no_line: boolean };
+export type ResultPlayer = { gid: string; player: string; team: string; opp: string; stat: string; projected: number; low: number | null; high: number | null; actual: number; error: number; inside: boolean | null; opps: number };
 export type WeekResults = {
   week: number; games: ResultGame[]; players: ResultPlayer[];
-  summary: { games_played: number; games_scored: number; pending_actuals: string[]; picked_right: number; picked_wrong: number; accuracy: number | null; avg_confidence: number; mean_abs_margin_error: number; mean_abs_total_error: number; margin_inside_80: number; total_inside_80: number };
-  player_summary: Record<string, { n: number; mean_abs_error: number; bias: number; inside_range: number | null; no_line: number }>;
+  summary: { games_played: number; games_scored: number; pending_actuals: string[]; left_out: number; picked_right: number; picked_wrong: number; accuracy: number | null; avg_confidence: number; mean_abs_margin_error: number; mean_abs_total_error: number; margin_inside_80: number; total_inside_80: number };
+  player_summary: Record<string, { n: number; mean_abs_error: number; bias: number; inside_range: number | null }>;
 };
 export type LiveRow = { team: string; name: string; stat: string; yards: number; targets_or_carries: number; team_attempts: number; frozen: number; updated: number; low: number; high: number; share_pre: number; share_post: number; kind?: string };
 export type Live = {

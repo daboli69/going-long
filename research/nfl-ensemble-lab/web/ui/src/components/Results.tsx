@@ -30,7 +30,7 @@ function PlayerRow({ r }: { r: ResultPlayer }) {
   return (
     <div role="row" className="grid min-h-[48px] grid-cols-[minmax(0,1fr)_4em_4em_4.5em] items-center gap-x-3 border-t border-bg py-2 sm:grid-cols-[minmax(0,1fr)_5em_5em_5em_5em]">
       <div role="cell" className="min-w-0 text-[15px]">{r.player} <span className="text-[13px] text-muted">{r.team} vs {r.opp}</span>
-        {r.no_line && <span className="block text-[13px] text-muted">No recorded line, counted as 0</span>}</div>
+        <span className="block text-[13px] text-muted">{r.opps} {r.stat === "Passing yards" ? "pass attempts" : r.stat === "Rushing yards" ? "carries" : "targets"}</span></div>
       <div role="cell" className="text-right text-[15px] text-muted">{r.projected.toFixed(dec)}</div>
       <div role="cell" className="text-right text-xl font-bold">{r.actual.toFixed(dec)}</div>
       <div role="cell" className="hidden text-right text-[15px] text-muted sm:block">{r.error >= 0 ? "+" : "−"}{Math.abs(r.error).toFixed(dec)}</div>
@@ -144,8 +144,9 @@ export function ResultsView({ weeks, latest, onOpenGame }: { weeks: number[]; la
           </div>
         </section>
         <p className="max-w-[75ch] text-sm text-muted">
-          Actual yards and catches come from the official play-by-play, or from the last stored ESPN box score for a game it has not published. A player with no recorded line counts as zero, which includes a player who did not play.
-          Touchdown calls are not scored here yet because their pregame chances were not saved.
+          Actual yards and catches come from the official play-by-play, or from the last stored ESPN box score for a game it has not published. A player is scored only if he had at least one target, carry or pass attempt in the game.
+          {data.summary.left_out > 0 && ` ${data.summary.left_out} projected player lines were left out this week because the player had none, whether he did not play or was not used.`}
+          {" "}Touchdown calls are not scored here yet because their pregame chances were not saved.
         </p>
       </section>
     </div>

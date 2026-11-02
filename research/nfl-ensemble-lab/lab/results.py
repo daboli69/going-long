@@ -2,7 +2,8 @@
 
 Every number compared here was saved before the game: the win chance, expected margin and total from the saved forecast, and the player projections and
 8-in-10 ranges from the Players tab. Actuals come from the official nflverse play-by-play, and for games it has not published yet, from the last stored
-ESPN box score of the recorded game. A player with no recorded line counts as zero, which includes a player who did not play.
+ESPN box score of the recorded game. A projected player is scored only if he had at least one target (receiving yards, receptions), carry (rushing yards)
+or pass attempt (passing yards) in the game; one who had none is left out and counted in `left_out`, whether he did not play or simply was not used.
 """
 from __future__ import annotations
 
@@ -45,7 +46,7 @@ def _pbp_actuals(gids: list[str]) -> dict[str, pd.DataFrame]:
         rows = []
         for fam in G.FAMILIES:
             r = G._fam_rows(g, fam)
-            t = r.groupby(["team", "pid"]).agg(yards=("yards", "sum"), catches=("catch", "sum")).reset_index()
+            t = r.groupby(["team", "pid"]).agg(yards=("yards", "sum"), catches=("catch", "sum"), opps=("t", "size")).reset_index()
             t["fam"] = fam
             rows.append(t)
         a = pd.concat(rows, ignore_index=True)
@@ -75,12 +76,12 @@ def _box_actuals(gid: str, home: str, away: str) -> pd.DataFrame | None:
     for (team, name), pl in snap["players"].items():
         k = S._norm(name)
         if pl.get("pass_att") is not None:
-            rows.append((team, k, "pass", pl.get("pass_yds") or 0.0, pl.get("pass_comp") or 0.0))
+            rows.append((team, k, "pass", pl.get("pass_yds") or 0.0, pl.get("pass_comp") or 0.0, pl.get("pass_att") or 0))
         if pl.get("rush_att") is not None:
-            rows.append((team, k, "rush", pl.get("rush_yds") or 0.0, 0.0))
+            rows.append((team, k, "rush", pl.get("rush_yds") or 0.0, 0.0, pl.get("rush_att") or 0))
         if pl.get("targets") is not None:
-            rows.append((team, k, "rec", pl.get("rec_yds") or 0.0, pl.get("rec") or 0.0))
-    return pd.DataFrame(rows, columns=["team", "key", "fam", "yards", "catches"])
+            rows.append((team, k, "rec", pl.get("rec_yds") or 0.0, pl.get("rec") or 0.0, pl.get("targets") or 0))
+    return pd.DataFrame(rows, columns=["team", "key", "fam", "yards", "catches", "opps"])
 
 
 def week_results(week: int) -> dict:
@@ -97,7 +98,7 @@ def week_results(week: int) -> dict:
         refresh_pbp()
         have = set(pd.read_parquet(pbp_path, columns=["game_id"])["game_id"].unique())
     actual = _pbp_actuals([x for x in gids if x in have]) if gids else {}
-    out_games, out_players, pending = [], [], []
+    out_games, out_players, pending, left_out = [], [], [], 0
     for r in done.itertuples():
         d = D.game_detail(r.game_id)
         if d is None or not d.get("has_forecast"):
@@ -126,13 +127,16 @@ def week_results(week: int) -> dict:
                 continue
             fam, col = spec
             m = a[(a["fam"] == fam) & (a["team"] == p["team"]) & (a["key"] == S._norm(p["player"]))]
-            actual_v = float(m[col].iloc[0]) if len(m) else 0.0
+            if not len(m) or float(m["opps"].iloc[0]) < 1:      # no target, carry or attempt: not part of the results
+                left_out += 1
+                continue
+            actual_v = float(m[col].iloc[0])
             lo, hi = p.get("range_low"), p.get("range_high")
             out_players.append({"gid": r.game_id, "player": p["player"], "team": p["team"], "opp": d["home"] if p["team"] == d["away"] else d["away"], "stat": p["stat"],
                                 "projected": float(p["typical"]), "low": lo, "high": hi, "actual": actual_v, "error": actual_v - float(p["typical"]),
-                                "inside": None if lo is None or hi is None else bool(lo <= actual_v <= hi), "no_line": len(m) == 0})
+                                "inside": None if lo is None or hi is None else bool(lo <= actual_v <= hi), "opps": int(m["opps"].iloc[0])})
     gdf = pd.DataFrame(out_games)
-    summary = {"games_played": int(len(g[g["completed"].astype(bool)])), "games_scored": int(len(gdf)), "pending_actuals": pending}
+    summary = {"games_played": int(len(g[g["completed"].astype(bool)])), "games_scored": int(len(gdf)), "pending_actuals": pending, "left_out": left_out}
     if len(gdf):
         c = gdf["correct"].dropna()
         summary.update({"picked_right": int(c.sum()), "picked_wrong": int((~c.astype(bool)).sum()), "accuracy": float(c.mean()) if len(c) else None,
@@ -146,7 +150,7 @@ def week_results(week: int) -> dict:
         for stat, x in pdf.groupby("stat"):
             ins = x["inside"].dropna()
             pstats[stat] = {"n": int(len(x)), "mean_abs_error": float(x["error"].abs().mean()), "bias": float(x["error"].mean()),
-                            "inside_range": float(ins.mean()) if len(ins) else None, "no_line": int(x["no_line"].sum())}
+                            "inside_range": float(ins.mean()) if len(ins) else None}
     res = {"week": week, "games": out_games, "players": out_players, "summary": summary, "player_summary": pstats}
     _CACHE[week] = (time.time(), res)
     return res
