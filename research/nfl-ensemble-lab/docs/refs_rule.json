@@ -1,0 +1,8 @@
+{"version": 1, "seasons": [2015, 2026], "discovery": [2015, 2023], "confirmation": [2024, 2026], "game_type": "REG",
+ "home_fav_range": [0, 4], "min_games": {"ats": 20, "home_fav": 10, "year_pair": 12},
+ "shrink_m_clip": [5, 1000], "ci": "clopper-pearson 95",
+ "penalty_model": {"link": "log", "offset": "plays", "ridge_on": "referee terms", "terms": ["home", "team_line", "mean_score_diff", "referee", "referee_x_home"]},
+ "permutation": {"penalty_draws": 200, "penalty_seed": 11, "smith_draws": 1000, "smith_seed": 12, "shuffle": "within season and week"},
+ "year_to_year": {"draws": 2000, "seed": 13}, "market": {"draws": 2000, "seed": 14, "belief_min_prior_games": 20},
+ "pass": {"discovery_holm_p_lt": 0.05, "confirmation_one_sided_p_lt": 0.05, "year_corr_ci_lower_gt": 0},
+ "tweet": {"referee": "Shawn Smith", "since": 2024, "home_ats": "26-8-2", "home_fav_up_to_4_ats": "6-0", "away_minus_home_penalties_2025": 30}}
