@@ -19,6 +19,7 @@ from lab import gamesim
 from lab import ingame_feed
 from lab import results as week_results
 from lab import rankings as rank_lists
+from lab import kingzone
 from lab import tdmarket as td_market
 
 DIST = Path(__file__).resolve().parent / "ui" / "dist"
@@ -70,6 +71,19 @@ def sim(gid: str = PathParam(pattern=D.GID_PATTERN), mode: str = Query("typical"
 @app.get("/api/rankings/{week}")
 def rankings(week: int = PathParam(ge=1, le=18)):
     return JSONResponse(D.clean(rank_lists.public(rank_lists.week_rankings(week))))
+
+
+@app.get("/api/kingzone/{week}")
+def king_week(week: int = PathParam(ge=1, le=18)):
+    return JSONResponse(D.clean(kingzone.week_games(week)))
+
+
+@app.get("/api/kingzone/game/{gid}")
+def king_game(gid: str = PathParam(pattern=D.GID_PATTERN)):
+    out = kingzone.cached_board(gid)
+    if out is None:
+        raise HTTPException(status_code=404, detail="No board for this game")
+    return JSONResponse(D.clean(out))
 
 
 @app.get("/api/tdcard/{gid}")

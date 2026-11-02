@@ -11,9 +11,10 @@ import { SimGame } from "./components/SimGame";
 import { RankingsView } from "./components/Rankings";
 import { MarketValueView } from "./components/MarketValue";
 import { ResultsView } from "./components/Results";
+import { KingZoneView } from "./components/KingZone";
 import { Callout, Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/primitives";
 
-type View = "games" | "rankings" | "market" | "results";
+type View = "games" | "rankings" | "king" | "market" | "results";
 
 export default function App() {
   const [view, setView] = useState<View>("games");
@@ -84,6 +85,7 @@ export default function App() {
           <TabsList aria-label="Views" className="mt-4">
             <TabsTrigger value="games">Games</TabsTrigger>
             <TabsTrigger value="rankings">Player rankings</TabsTrigger>
+            <TabsTrigger value="king">King of the End Zone</TabsTrigger>
             <TabsTrigger value="market">Market value</TabsTrigger>
             <TabsTrigger value="results">Results</TabsTrigger>
           </TabsList>
@@ -115,6 +117,7 @@ export default function App() {
           </TabsContent>
 
           <TabsContent value="rankings" className="mt-6">{week !== null && <RankingsView week={week} onOpenGame={(g) => { setGid(g); setView("games"); }} />}</TabsContent>
+          <TabsContent value="king" className="mt-6">{week !== null && <KingZoneView week={week} />}</TabsContent>
           <TabsContent value="results" className="mt-6"><ResultsView weeks={meta.weeks.filter((w) => w <= meta.default_week)} latest={meta.default_week} onOpenGame={(g) => { setGid(g); setView("games"); }} /></TabsContent>
           <TabsContent value="market" className="mt-6">{week !== null && <MarketValueView week={week} />}</TabsContent>
         </Tabs>

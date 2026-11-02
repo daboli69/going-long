@@ -236,3 +236,11 @@ export type Live = {
   frozen: { sha256: string; frozen_at: string; before_kickoff: boolean } | null;
   players: LiveRow[]; touchdowns: LiveTd[]; first_td: { text: string; period: number | null; clock: string | null } | null; warnings: LiveRow[]; not_in_feed: string[];
 };
+
+export type KingRow = { rank: number; player: string; team: string; opp: string; pos: string; chance: number; exp_td: number; p_40: number; p_60: number; why: string[]; kinds: string[] };
+export type KingBoard = {
+  gid: string; away: string; home: string; kickoff_utc: string; week: number; rows: KingRow[]; players_scored: number; listed_total: number;
+  field: { defense_special_teams: Record<string, number>; other_players: Record<string, number> };
+  no_touchdown: number; expected_longest: number; expected_td: Record<string, number>; completed: boolean;
+};
+export type KingWeek = { week: number; default_gid: string | null; games: { gid: string; away: string; home: string; kickoff_utc: string; completed: boolean; monday: boolean }[] };

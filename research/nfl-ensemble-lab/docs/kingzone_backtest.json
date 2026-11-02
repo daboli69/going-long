@@ -1,0 +1,2354 @@
+{
+ "summary": {
+  "games": 119,
+  "winner_listed": 95,
+  "winner_not_listed_or_defense": 24,
+  "mean_log_score_model": -2.8180220288350855,
+  "mean_log_score_baseline": -2.902269746349208,
+  "mean_chance_model": 0.07369679354307923,
+  "mean_chance_baseline": 0.07179998026489164,
+  "top1": 0.14736842105263157,
+  "top3": 0.42105263157894735,
+  "top5": 0.5789473684210527,
+  "mean_field_chance": 0.14797409710327047,
+  "field_share_actual": 0.18487394957983194
+ },
+ "games": [
+  {
+   "gid": "2026_01_NE_SEA",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "J.Smith-Njigba"
+    ],
+    "pids": [
+     "00-0038543"
+    ],
+    "team": "SEA",
+    "length": 45.0,
+    "by": "player"
+   },
+   "model_chance": 0.11400778185561891,
+   "baseline_chance": 0.10859732323774222,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.15750203472110755
+  },
+  {
+   "gid": "2026_01_SF_LA",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "D.Robinson"
+    ],
+    "pids": [
+     "00-0032775"
+    ],
+    "team": "SF",
+    "length": 39.0,
+    "by": "player"
+   },
+   "model_chance": 0.05595978234487591,
+   "baseline_chance": 0.023021098914464095,
+   "rank": 7,
+   "listed": true,
+   "field_chance": 0.1556995002209554
+  },
+  {
+   "gid": "2026_01_NO_DET",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "A.St. Brown"
+    ],
+    "pids": [
+     "00-0036963"
+    ],
+    "team": "DET",
+    "length": 19.0,
+    "by": "player"
+   },
+   "model_chance": 0.10160356485035596,
+   "baseline_chance": 0.10502420743919652,
+   "rank": 3,
+   "listed": true,
+   "field_chance": 0.13930720259731497
+  },
+  {
+   "gid": "2026_01_TB_CIN",
+   "week": 1,
+   "winner": {
+    "scorer": null,
+    "team": "TB",
+    "length": 38.0,
+    "by": "defense or special teams"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.12206814422615314
+  },
+  {
+   "gid": "2026_01_CLE_JAX",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "D.Boston"
+    ],
+    "pids": [
+     "00-0041037"
+    ],
+    "team": "CLE",
+    "length": 46.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.1634230874682042
+  },
+  {
+   "gid": "2026_01_NYJ_TEN",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "E.Ayomanor"
+    ],
+    "pids": [
+     "00-0040170"
+    ],
+    "team": "TEN",
+    "length": 11.0,
+    "by": "player"
+   },
+   "model_chance": 0.0497918247651199,
+   "baseline_chance": 0.048030779893511455,
+   "rank": 8,
+   "listed": true,
+   "field_chance": 0.15532273117803044
+  },
+  {
+   "gid": "2026_01_BUF_HOU",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "D.Moore"
+    ],
+    "pids": [
+     "00-0034827"
+    ],
+    "team": "BUF",
+    "length": 43.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.1543229234279436
+  },
+  {
+   "gid": "2026_01_BAL_IND",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "Z.Flowers"
+    ],
+    "pids": [
+     "00-0039064"
+    ],
+    "team": "BAL",
+    "length": 54.0,
+    "by": "player"
+   },
+   "model_chance": 0.10757651336595232,
+   "baseline_chance": 0.09306601332948125,
+   "rank": 4,
+   "listed": true,
+   "field_chance": 0.1489973459483473
+  },
+  {
+   "gid": "2026_01_CHI_CAR",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "K.Monangai"
+    ],
+    "pids": [
+     "00-0040236"
+    ],
+    "team": "CHI",
+    "length": 61.0,
+    "by": "player"
+   },
+   "model_chance": 0.04134730144363992,
+   "baseline_chance": 0.06002451455151768,
+   "rank": 10,
+   "listed": true,
+   "field_chance": 0.15043327747271243
+  },
+  {
+   "gid": "2026_01_ATL_PIT",
+   "week": 1,
+   "winner": {
+    "scorer": null,
+    "team": "PIT",
+    "length": 35.0,
+    "by": "defense or special teams"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.13191144338423497
+  },
+  {
+   "gid": "2026_01_ARI_LAC",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "O.Hampton",
+     "L.McConkey"
+    ],
+    "pids": [
+     "00-0040666",
+     "00-0039915"
+    ],
+    "team": "LAC",
+    "length": 8.0,
+    "by": "player"
+   },
+   "model_chance": 0.07389230736818819,
+   "baseline_chance": 0.082898568147526,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.15549402488283653
+  },
+  {
+   "gid": "2026_01_GB_MIN",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "C.Watson"
+    ],
+    "pids": [
+     "00-0038124"
+    ],
+    "team": "GB",
+    "length": 81.0,
+    "by": "player"
+   },
+   "model_chance": 0.074895328304269,
+   "baseline_chance": 0.0576641027568128,
+   "rank": 4,
+   "listed": true,
+   "field_chance": 0.15185395493696469
+  },
+  {
+   "gid": "2026_01_MIA_LV",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "J.Bech"
+    ],
+    "pids": [
+     "00-0040729"
+    ],
+    "team": "LV",
+    "length": 15.0,
+    "by": "player"
+   },
+   "model_chance": 0.05886110231882066,
+   "baseline_chance": 0.039181196818462306,
+   "rank": 5,
+   "listed": true,
+   "field_chance": 0.15586088498235878
+  },
+  {
+   "gid": "2026_01_WAS_PHI",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "D.Goedert"
+    ],
+    "pids": [
+     "00-0034351"
+    ],
+    "team": "PHI",
+    "length": 43.0,
+    "by": "player"
+   },
+   "model_chance": 0.0494499436102425,
+   "baseline_chance": 0.08810080090582145,
+   "rank": 7,
+   "listed": true,
+   "field_chance": 0.14542119275811333
+  },
+  {
+   "gid": "2026_01_DAL_NYG",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "J.Williams"
+    ],
+    "pids": [
+     "00-0036997"
+    ],
+    "team": "DAL",
+    "length": 17.0,
+    "by": "player"
+   },
+   "model_chance": 0.06348267084915156,
+   "baseline_chance": 0.08132319489698717,
+   "rank": 5,
+   "listed": true,
+   "field_chance": 0.14946357223846898
+  },
+  {
+   "gid": "2026_01_DEN_KC",
+   "week": 1,
+   "winner": {
+    "scorers": [
+     "K.Walker"
+    ],
+    "pids": [
+     "00-0038134"
+    ],
+    "team": "KC",
+    "length": 60.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.1543368175098479
+  },
+  {
+   "gid": "2026_02_DET_BUF",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "J.Palmer"
+    ],
+    "pids": [
+     "00-0036988"
+    ],
+    "team": "BUF",
+    "length": 43.0,
+    "by": "player"
+   },
+   "model_chance": 0.034094479134159486,
+   "baseline_chance": 0.025009181572647622,
+   "rank": 9,
+   "listed": true,
+   "field_chance": 0.13761666452116822
+  },
+  {
+   "gid": "2026_02_PIT_NE",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "T.Henderson"
+    ],
+    "pids": [
+     "00-0040734"
+    ],
+    "team": "NE",
+    "length": 39.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.15649911379286205
+  },
+  {
+   "gid": "2026_02_PHI_TEN",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "D.Smith"
+    ],
+    "pids": [
+     "00-0036912"
+    ],
+    "team": "PHI",
+    "length": 22.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.157905578432504
+  },
+  {
+   "gid": "2026_02_NO_BAL",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "R.Bateman"
+    ],
+    "pids": [
+     "00-0036550"
+    ],
+    "team": "BAL",
+    "length": 22.0,
+    "by": "player"
+   },
+   "model_chance": 0.03359143107511647,
+   "baseline_chance": 0.006788305967654208,
+   "rank": 11,
+   "listed": true,
+   "field_chance": 0.15472820982341096
+  },
+  {
+   "gid": "2026_02_CIN_HOU",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "J.Chase"
+    ],
+    "pids": [
+     "00-0036900"
+    ],
+    "team": "CIN",
+    "length": 32.0,
+    "by": "player"
+   },
+   "model_chance": 0.058746851360630487,
+   "baseline_chance": 0.02299167232239368,
+   "rank": 5,
+   "listed": true,
+   "field_chance": 0.15162002685079062
+  },
+  {
+   "gid": "2026_02_CLE_TB",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "D.Boston"
+    ],
+    "pids": [
+     "00-0041037"
+    ],
+    "team": "CLE",
+    "length": 55.0,
+    "by": "player"
+   },
+   "model_chance": 0.04559495642468907,
+   "baseline_chance": 0.09185799360070844,
+   "rank": 8,
+   "listed": true,
+   "field_chance": 0.1580553434270455
+  },
+  {
+   "gid": "2026_02_CAR_ATL",
+   "week": 2,
+   "winner": {
+    "scorer": null,
+    "team": "CAR",
+    "length": 16.0,
+    "by": "defense or special teams"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.1295216426176724
+  },
+  {
+   "gid": "2026_02_GB_NYJ",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "M.Lloyd"
+    ],
+    "pids": [
+     "00-0039811"
+    ],
+    "team": "GB",
+    "length": 6.0,
+    "by": "player"
+   },
+   "model_chance": 0.04914383514146522,
+   "baseline_chance": 0.0690493486192593,
+   "rank": 7,
+   "listed": true,
+   "field_chance": 0.14720946551818676
+  },
+  {
+   "gid": "2026_02_JAX_DEN",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "N.Adkins"
+    ],
+    "pids": [
+     "00-0038783"
+    ],
+    "team": "DEN",
+    "length": 7.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.15190761503868072
+  },
+  {
+   "gid": "2026_02_LV_LAC",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "T.Tucker"
+    ],
+    "pids": [
+     "00-0038563"
+    ],
+    "team": "LV",
+    "length": 40.0,
+    "by": "player"
+   },
+   "model_chance": 0.048616529731457504,
+   "baseline_chance": 0.04252526070901243,
+   "rank": 9,
+   "listed": true,
+   "field_chance": 0.15718707103777763
+  },
+  {
+   "gid": "2026_02_MIA_SF",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "R.Miller"
+    ],
+    "pids": [
+     "00-0038824"
+    ],
+    "team": "MIA",
+    "length": 77.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.15843222898642959
+  },
+  {
+   "gid": "2026_02_SEA_ARI",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "J.Smith-Njigba"
+    ],
+    "pids": [
+     "00-0038543"
+    ],
+    "team": "SEA",
+    "length": 82.0,
+    "by": "player"
+   },
+   "model_chance": 0.1947557491534518,
+   "baseline_chance": 0.20098968581473395,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.1544563315154103
+  },
+  {
+   "gid": "2026_02_WAS_DAL",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "C.Lamb"
+    ],
+    "pids": [
+     "00-0036358"
+    ],
+    "team": "DAL",
+    "length": 24.0,
+    "by": "player"
+   },
+   "model_chance": 0.11745785461097023,
+   "baseline_chance": 0.10995525903510625,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.13713492645989228
+  },
+  {
+   "gid": "2026_02_IND_KC",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "J.Taylor"
+    ],
+    "pids": [
+     "00-0036223"
+    ],
+    "team": "IND",
+    "length": 24.0,
+    "by": "player"
+   },
+   "model_chance": 0.12023578911711354,
+   "baseline_chance": 0.1931987539511156,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.15235642735413651
+  },
+  {
+   "gid": "2026_02_NYG_LA",
+   "week": 2,
+   "winner": {
+    "scorers": [
+     "D.Adams"
+    ],
+    "pids": [
+     "00-0031381"
+    ],
+    "team": "LA",
+    "length": 31.0,
+    "by": "player"
+   },
+   "model_chance": 0.12292137118197048,
+   "baseline_chance": 0.06428506637974396,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.1544044165267189
+  },
+  {
+   "gid": "2026_03_ATL_GB",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "M.Golden"
+    ],
+    "pids": [
+     "00-0040667"
+    ],
+    "team": "GB",
+    "length": 15.0,
+    "by": "player"
+   },
+   "model_chance": 0.1383509771305778,
+   "baseline_chance": 0.12560212450224215,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.14749781838957063
+  },
+  {
+   "gid": "2026_03_CAR_CLE",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "H.Fannin"
+    ],
+    "pids": [
+     "00-0040663"
+    ],
+    "team": "CLE",
+    "length": 14.0,
+    "by": "player"
+   },
+   "model_chance": 0.032777328520507076,
+   "baseline_chance": 0.03442236039355536,
+   "rank": 8,
+   "listed": true,
+   "field_chance": 0.15259174285486338
+  },
+  {
+   "gid": "2026_03_CIN_PIT",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "R.Wilson"
+    ],
+    "pids": [
+     "00-0039739"
+    ],
+    "team": "PIT",
+    "length": 38.0,
+    "by": "player"
+   },
+   "model_chance": 0.061654322913680684,
+   "baseline_chance": 0.0383839616800394,
+   "rank": 6,
+   "listed": true,
+   "field_chance": 0.15117145501517262
+  },
+  {
+   "gid": "2026_03_HOU_IND",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "K.Allen"
+    ],
+    "pids": [
+     "00-0030279"
+    ],
+    "team": "IND",
+    "length": 6.0,
+    "by": "player"
+   },
+   "model_chance": 0.07481355624344897,
+   "baseline_chance": 0.03680912423655968,
+   "rank": 3,
+   "listed": true,
+   "field_chance": 0.1509581396324498
+  },
+  {
+   "gid": "2026_03_KC_MIA",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "T.Kelce"
+    ],
+    "pids": [
+     "00-0030506"
+    ],
+    "team": "KC",
+    "length": 11.0,
+    "by": "player"
+   },
+   "model_chance": 0.06545683356145073,
+   "baseline_chance": 0.07505874660839723,
+   "rank": 5,
+   "listed": true,
+   "field_chance": 0.15437027593612168
+  },
+  {
+   "gid": "2026_03_LAC_BUF",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "J.Cook"
+    ],
+    "pids": [
+     "00-0037248"
+    ],
+    "team": "BUF",
+    "length": 3.0,
+    "by": "player"
+   },
+   "model_chance": 0.10177164182387623,
+   "baseline_chance": 0.15804602034944773,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.14752782034785566
+  },
+  {
+   "gid": "2026_03_NE_JAX",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "P.Washington"
+    ],
+    "pids": [
+     "00-0038606"
+    ],
+    "team": "JAX",
+    "length": 17.0,
+    "by": "player"
+   },
+   "model_chance": 0.10589780524733408,
+   "baseline_chance": 0.091628634294619,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.1521132267916947
+  },
+  {
+   "gid": "2026_03_NYJ_DET",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "K.Sadiq"
+    ],
+    "pids": [
+     "00-0041032"
+    ],
+    "team": "NYJ",
+    "length": 24.0,
+    "by": "player"
+   },
+   "model_chance": 0.022780675102322546,
+   "baseline_chance": 0.014206221136067837,
+   "rank": 10,
+   "listed": true,
+   "field_chance": 0.14789672890279093
+  },
+  {
+   "gid": "2026_03_SEA_WAS",
+   "week": 3,
+   "winner": {
+    "scorer": null,
+    "team": "WAS",
+    "length": 50.0,
+    "by": "defense or special teams"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.1262977040388534
+  },
+  {
+   "gid": "2026_03_TEN_NYG",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "W.Robinson"
+    ],
+    "pids": [
+     "00-0038117"
+    ],
+    "team": "TEN",
+    "length": 4.0,
+    "by": "player"
+   },
+   "model_chance": 0.04141707793154075,
+   "baseline_chance": 0.02310523645811823,
+   "rank": 9,
+   "listed": true,
+   "field_chance": 0.16071222463219906
+  },
+  {
+   "gid": "2026_03_ARI_SF",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "D.Samuel"
+    ],
+    "pids": [
+     "00-0035719"
+    ],
+    "team": "SF",
+    "length": 82.0,
+    "by": "player"
+   },
+   "model_chance": 0.09464557767216848,
+   "baseline_chance": 0.09732445775570839,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.1518642500618781
+  },
+  {
+   "gid": "2026_03_MIN_TB",
+   "week": 3,
+   "winner": {
+    "scorer": null,
+    "team": "MIN",
+    "length": 86.0,
+    "by": "defense or special teams"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.12882685429043975
+  },
+  {
+   "gid": "2026_03_BAL_DAL",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "J.Ferguson"
+    ],
+    "pids": [
+     "00-0038041"
+    ],
+    "team": "DAL",
+    "length": 19.0,
+    "by": "player"
+   },
+   "model_chance": 0.02251176166308123,
+   "baseline_chance": 0.04723214457299052,
+   "rank": 14,
+   "listed": true,
+   "field_chance": 0.1373716365089567
+  },
+  {
+   "gid": "2026_03_LV_NO",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "M.Washington"
+    ],
+    "pids": [
+     "00-0040878"
+    ],
+    "team": "LV",
+    "length": 36.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.15482347341423375
+  },
+  {
+   "gid": "2026_03_LA_DEN",
+   "week": 3,
+   "winner": {
+    "scorer": null,
+    "team": "DEN",
+    "length": 66.0,
+    "by": "defense or special teams"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.12695767262172442
+  },
+  {
+   "gid": "2026_03_PHI_CHI",
+   "week": 3,
+   "winner": {
+    "scorers": [
+     "K.Raymond"
+    ],
+    "pids": [
+     "00-0032464"
+    ],
+    "team": "CHI",
+    "length": 41.0,
+    "by": "player"
+   },
+   "model_chance": 0.08006906544342156,
+   "baseline_chance": 0.033298190178821845,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.14560116603508552
+  },
+  {
+   "gid": "2026_04_PIT_CLE",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "J.McLaughlin"
+    ],
+    "pids": [
+     "00-0038794"
+    ],
+    "team": "CLE",
+    "length": 28.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.1567321028208592
+  },
+  {
+   "gid": "2026_04_IND_WAS",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "T.Burks"
+    ],
+    "pids": [
+     "00-0037742"
+    ],
+    "team": "WAS",
+    "length": 47.0,
+    "by": "player"
+   },
+   "model_chance": 0.020915392198537993,
+   "baseline_chance": 0.024077599577368037,
+   "rank": 10,
+   "listed": true,
+   "field_chance": 0.1492427311479891
+  },
+  {
+   "gid": "2026_04_ARI_NYG",
+   "week": 4,
+   "winner": {
+    "scorer": null,
+    "team": "NYG",
+    "length": 98.0,
+    "by": "defense or special teams"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.1309409221120635
+  },
+  {
+   "gid": "2026_04_DAL_HOU",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "N.Collins"
+    ],
+    "pids": [
+     "00-0036554"
+    ],
+    "team": "HOU",
+    "length": 22.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.14175343597612614
+  },
+  {
+   "gid": "2026_04_GB_TB",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "K.Gainwell"
+    ],
+    "pids": [
+     "00-0036919"
+    ],
+    "team": "TB",
+    "length": 10.0,
+    "by": "player"
+   },
+   "model_chance": 0.018954258269621913,
+   "baseline_chance": 0.02085108555218344,
+   "rank": 13,
+   "listed": true,
+   "field_chance": 0.14344595973868102
+  },
+  {
+   "gid": "2026_04_JAX_CIN",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "C.Rodriguez"
+    ],
+    "pids": [
+     "00-0038611"
+    ],
+    "team": "JAX",
+    "length": 25.0,
+    "by": "player"
+   },
+   "model_chance": 0.029285233520113963,
+   "baseline_chance": 0.025363449928862282,
+   "rank": 9,
+   "listed": true,
+   "field_chance": 0.146672348206093
+  },
+  {
+   "gid": "2026_04_LA_PHI",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "D.Cooper"
+    ],
+    "pids": [
+     "00-0040024"
+    ],
+    "team": "PHI",
+    "length": 18.0,
+    "by": "player"
+   },
+   "model_chance": 0.019253932053938726,
+   "baseline_chance": 0.0,
+   "rank": 12,
+   "listed": true,
+   "field_chance": 0.15180526499646638
+  },
+  {
+   "gid": "2026_04_NE_BUF",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "K.Coleman"
+    ],
+    "pids": [
+     "00-0039901"
+    ],
+    "team": "BUF",
+    "length": 34.0,
+    "by": "player"
+   },
+   "model_chance": 0.049958701520262334,
+   "baseline_chance": 0.018535347747110003,
+   "rank": 7,
+   "listed": true,
+   "field_chance": 0.15480907270279357
+  },
+  {
+   "gid": "2026_04_TEN_BAL",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "Z.Flowers"
+    ],
+    "pids": [
+     "00-0039064"
+    ],
+    "team": "BAL",
+    "length": 19.0,
+    "by": "player"
+   },
+   "model_chance": 0.13863997331841355,
+   "baseline_chance": 0.08645354142462751,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.1552773531826032
+  },
+  {
+   "gid": "2026_04_NYJ_CHI",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "I.Williams"
+    ],
+    "pids": [
+     "00-0039451"
+    ],
+    "team": "NYJ",
+    "length": 58.0,
+    "by": "player"
+   },
+   "model_chance": 0.05620763023356667,
+   "baseline_chance": 0.05230287164808624,
+   "rank": 7,
+   "listed": true,
+   "field_chance": 0.1561677153105151
+  },
+  {
+   "gid": "2026_04_MIA_MIN",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "O.Gordon"
+    ],
+    "pids": [
+     "00-0040198"
+    ],
+    "team": "MIA",
+    "length": 12.0,
+    "by": "player"
+   },
+   "model_chance": 0.0605123382753678,
+   "baseline_chance": 0.06831717295417943,
+   "rank": 4,
+   "listed": true,
+   "field_chance": 0.15998740746987783
+  },
+  {
+   "gid": "2026_04_LAC_SEA",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "R.Shaheed"
+    ],
+    "pids": [
+     "00-0037545"
+    ],
+    "team": "SEA",
+    "length": 28.0,
+    "by": "player"
+   },
+   "model_chance": 0.06116481033427697,
+   "baseline_chance": 0.035541916316094074,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.148510570747481
+  },
+  {
+   "gid": "2026_04_DEN_SF",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "G.Kittle"
+    ],
+    "pids": [
+     "00-0033288"
+    ],
+    "team": "SF",
+    "length": 56.0,
+    "by": "player"
+   },
+   "model_chance": 0.05609421119552822,
+   "baseline_chance": 0.08080329176676347,
+   "rank": 7,
+   "listed": true,
+   "field_chance": 0.15053167802740952
+  },
+  {
+   "gid": "2026_04_KC_LV",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "I.Thomas"
+    ],
+    "pids": [
+     "00-0034365"
+    ],
+    "team": "LV",
+    "length": 27.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.15391992587530695
+  },
+  {
+   "gid": "2026_04_DET_CAR",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "T.McMillan"
+    ],
+    "pids": [
+     "00-0040124"
+    ],
+    "team": "CAR",
+    "length": 32.0,
+    "by": "player"
+   },
+   "model_chance": 0.12912250981916185,
+   "baseline_chance": 0.09139925443874058,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.14178081409511387
+  },
+  {
+   "gid": "2026_04_ATL_NO",
+   "week": 4,
+   "winner": {
+    "scorers": [
+     "Bi.Robinson"
+    ],
+    "pids": [
+     "00-0038542"
+    ],
+    "team": "ATL",
+    "length": 59.0,
+    "by": "player"
+   },
+   "model_chance": 0.1315399443211568,
+   "baseline_chance": 0.18700105794055893,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.15168923159635045
+  },
+  {
+   "gid": "2026_05_TB_DAL",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "G.Pickens"
+    ],
+    "pids": [
+     "00-0037247"
+    ],
+    "team": "DAL",
+    "length": 18.0,
+    "by": "player"
+   },
+   "model_chance": 0.1180608349070986,
+   "baseline_chance": 0.054816974745424185,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.13775770825803435
+  },
+  {
+   "gid": "2026_05_PHI_JAX",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "D.Cooper"
+    ],
+    "pids": [
+     "00-0040024"
+    ],
+    "team": "PHI",
+    "length": 62.0,
+    "by": "player"
+   },
+   "model_chance": 0.035105381251804166,
+   "baseline_chance": 0.0380376270505644,
+   "rank": 10,
+   "listed": true,
+   "field_chance": 0.15619830589273237
+  },
+  {
+   "gid": "2026_05_NYG_WAS",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "J.Daniels"
+    ],
+    "pids": [
+     "00-0039910"
+    ],
+    "team": "WAS",
+    "length": 38.0,
+    "by": "player"
+   },
+   "model_chance": 0.028260850089424243,
+   "baseline_chance": 0.022193127396990014,
+   "rank": 12,
+   "listed": true,
+   "field_chance": 0.1581871148713402
+  },
+  {
+   "gid": "2026_05_LV_NE",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "D.Douglas"
+    ],
+    "pids": [
+     "00-0038621"
+    ],
+    "team": "NE",
+    "length": 35.0,
+    "by": "player"
+   },
+   "model_chance": 0.06755445590950108,
+   "baseline_chance": 0.040452425356289526,
+   "rank": 5,
+   "listed": true,
+   "field_chance": 0.1523440056883018
+  },
+  {
+   "gid": "2026_05_IND_PIT",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "J.Warren"
+    ],
+    "pids": [
+     "00-0037228"
+    ],
+    "team": "PIT",
+    "length": 80.0,
+    "by": "player"
+   },
+   "model_chance": 0.0997455060428385,
+   "baseline_chance": 0.10101100681231097,
+   "rank": 4,
+   "listed": true,
+   "field_chance": 0.14382884143375568
+  },
+  {
+   "gid": "2026_05_MIN_NO",
+   "week": 5,
+   "winner": {
+    "scorer": null,
+    "team": "NO",
+    "length": 87.0,
+    "by": "defense or special teams"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.1298610647389433
+  },
+  {
+   "gid": "2026_05_CLE_NYJ",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "G.Wilson"
+    ],
+    "pids": [
+     "00-0037740"
+    ],
+    "team": "NYJ",
+    "length": 32.0,
+    "by": "player"
+   },
+   "model_chance": 0.13134413522207986,
+   "baseline_chance": 0.09784633975025417,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.162385579884458
+  },
+  {
+   "gid": "2026_05_CIN_MIA",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "J.Chase"
+    ],
+    "pids": [
+     "00-0036900"
+    ],
+    "team": "CIN",
+    "length": 45.0,
+    "by": "player"
+   },
+   "model_chance": 0.11327957076558112,
+   "baseline_chance": 0.078256783850708,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.1505096782633811
+  },
+  {
+   "gid": "2026_05_CHI_GB",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "C.Watson"
+    ],
+    "pids": [
+     "00-0038124"
+    ],
+    "team": "GB",
+    "length": 53.0,
+    "by": "player"
+   },
+   "model_chance": 0.1387404845818084,
+   "baseline_chance": 0.10601753541747932,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.14225003497162847
+  },
+  {
+   "gid": "2026_05_HOU_TEN",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "J.Noel"
+    ],
+    "pids": [
+     "00-0040138"
+    ],
+    "team": "HOU",
+    "length": 9.0,
+    "by": "player"
+   },
+   "model_chance": 0.05569077819680581,
+   "baseline_chance": 0.03996228689594639,
+   "rank": 3,
+   "listed": true,
+   "field_chance": 0.1500847052727085
+  },
+  {
+   "gid": "2026_05_DEN_LAC",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "K.Vidal"
+    ],
+    "pids": [
+     "00-0039391"
+    ],
+    "team": "LAC",
+    "length": 42.0,
+    "by": "player"
+   },
+   "model_chance": 0.023319384528607257,
+   "baseline_chance": 0.03637382968735009,
+   "rank": 14,
+   "listed": true,
+   "field_chance": 0.15168803043064938
+  },
+  {
+   "gid": "2026_05_DET_ARI",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "J.Williams"
+    ],
+    "pids": [
+     "00-0037240"
+    ],
+    "team": "DET",
+    "length": 39.0,
+    "by": "player"
+   },
+   "model_chance": 0.11607690568418738,
+   "baseline_chance": 0.051507447361049674,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.13931991782890732
+  },
+  {
+   "gid": "2026_05_SF_SEA",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "J.Smith-Njigba"
+    ],
+    "pids": [
+     "00-0038543"
+    ],
+    "team": "SEA",
+    "length": 16.0,
+    "by": "player"
+   },
+   "model_chance": 0.16336984356765083,
+   "baseline_chance": 0.17015164186289453,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.15274834893649356
+  },
+  {
+   "gid": "2026_05_BAL_ATL",
+   "week": 5,
+   "winner": {
+    "scorer": null,
+    "team": "ATL",
+    "length": 36.0,
+    "by": "defense or special teams"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.12561713902653826
+  },
+  {
+   "gid": "2026_05_BUF_LA",
+   "week": 5,
+   "winner": {
+    "scorers": [
+     "J.Cook"
+    ],
+    "pids": [
+     "00-0037248"
+    ],
+    "team": "BUF",
+    "length": 17.0,
+    "by": "player"
+   },
+   "model_chance": 0.10845436543133227,
+   "baseline_chance": 0.17899582688913843,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.147197248191927
+  },
+  {
+   "gid": "2026_06_SEA_DEN",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "J.Dobbins"
+    ],
+    "pids": [
+     "00-0036158"
+    ],
+    "team": "DEN",
+    "length": 4.0,
+    "by": "player"
+   },
+   "model_chance": 0.07330547649456469,
+   "baseline_chance": 0.08108076929212765,
+   "rank": 3,
+   "listed": true,
+   "field_chance": 0.1531251223687516
+  },
+  {
+   "gid": "2026_06_HOU_JAX",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "B.Tuten"
+    ],
+    "pids": [
+     "00-0040719"
+    ],
+    "team": "JAX",
+    "length": 27.0,
+    "by": "player"
+   },
+   "model_chance": 0.06448541150918564,
+   "baseline_chance": 0.09581228194276264,
+   "rank": 3,
+   "listed": true,
+   "field_chance": 0.14455452630275098
+  },
+  {
+   "gid": "2026_06_NYJ_NE",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "O.Cooper"
+    ],
+    "pids": [
+     "00-0041511"
+    ],
+    "team": "NYJ",
+    "length": 48.0,
+    "by": "player"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.15815591019487873
+  },
+  {
+   "gid": "2026_06_TEN_IND",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "C.Tate"
+    ],
+    "pids": [
+     "00-0041438"
+    ],
+    "team": "TEN",
+    "length": 8.0,
+    "by": "player"
+   },
+   "model_chance": 0.08377563881672401,
+   "baseline_chance": 0.04127276719373293,
+   "rank": 4,
+   "listed": true,
+   "field_chance": 0.14584050124775103
+  },
+  {
+   "gid": "2026_06_NO_NYG",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "A.Kamara"
+    ],
+    "pids": [
+     "00-0033906"
+    ],
+    "team": "NO",
+    "length": 31.0,
+    "by": "player"
+   },
+   "model_chance": 0.05482464188016987,
+   "baseline_chance": 0.06606881407689086,
+   "rank": 6,
+   "listed": true,
+   "field_chance": 0.15475541259352427
+  },
+  {
+   "gid": "2026_06_PIT_TB",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "G.Bernard"
+    ],
+    "pids": [
+     "00-0041489"
+    ],
+    "team": "PIT",
+    "length": 6.0,
+    "by": "player"
+   },
+   "model_chance": 0.0719658664794925,
+   "baseline_chance": 0.047278961933004515,
+   "rank": 5,
+   "listed": true,
+   "field_chance": 0.14708824324139363
+  },
+  {
+   "gid": "2026_06_CAR_PHI",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "D.Smith",
+     "T.Tremble"
+    ],
+    "pids": [
+     "00-0036912",
+     "00-0037005"
+    ],
+    "team": "PHI",
+    "length": 19.0,
+    "by": "player"
+   },
+   "model_chance": 0.012531573946366377,
+   "baseline_chance": 0.009319202325966657,
+   "rank": 11,
+   "listed": true,
+   "field_chance": 0.1508800885527602
+  },
+  {
+   "gid": "2026_06_BAL_CLE",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "J.Cuevas",
+     "A.Estime"
+    ],
+    "pids": [
+     "00-0040887",
+     "00-0039373"
+    ],
+    "team": "BAL",
+    "length": 2.0,
+    "by": "player"
+   },
+   "model_chance": 0.005261624485603798,
+   "baseline_chance": 0.003468187387910592,
+   "rank": 17,
+   "listed": true,
+   "field_chance": 0.15362503663809599
+  },
+  {
+   "gid": "2026_06_CHI_ATL",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "C.Loveland"
+    ],
+    "pids": [
+     "00-0040126"
+    ],
+    "team": "CHI",
+    "length": 14.0,
+    "by": "player"
+   },
+   "model_chance": 0.023968266371269246,
+   "baseline_chance": 0.01902510825007333,
+   "rank": 13,
+   "listed": true,
+   "field_chance": 0.14077921172142677
+  },
+  {
+   "gid": "2026_06_ARI_LA",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "B.Corum"
+    ],
+    "pids": [
+     "00-0039738"
+    ],
+    "team": "LA",
+    "length": 15.0,
+    "by": "player"
+   },
+   "model_chance": 0.0378382805130386,
+   "baseline_chance": 0.07198789695137978,
+   "rank": 9,
+   "listed": true,
+   "field_chance": 0.14468379040344254
+  },
+  {
+   "gid": "2026_06_BUF_LV",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "T.Tucker"
+    ],
+    "pids": [
+     "00-0038563"
+    ],
+    "team": "LV",
+    "length": 44.0,
+    "by": "player"
+   },
+   "model_chance": 0.058907244607637625,
+   "baseline_chance": 0.043575217756005646,
+   "rank": 5,
+   "listed": true,
+   "field_chance": 0.14610801409361154
+  },
+  {
+   "gid": "2026_06_LAC_KC",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "K.Walker"
+    ],
+    "pids": [
+     "00-0038134"
+    ],
+    "team": "KC",
+    "length": 33.0,
+    "by": "player"
+   },
+   "model_chance": 0.15437310996759399,
+   "baseline_chance": 0.1850580179282075,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.15626055505363243
+  },
+  {
+   "gid": "2026_06_DAL_GB",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "M.Golden"
+    ],
+    "pids": [
+     "00-0040667"
+    ],
+    "team": "GB",
+    "length": 9.0,
+    "by": "player"
+   },
+   "model_chance": 0.12313338685046281,
+   "baseline_chance": 0.10522857123400024,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.12886505597249234
+  },
+  {
+   "gid": "2026_06_WAS_SF",
+   "week": 6,
+   "winner": {
+    "scorers": [
+     "G.Kittle"
+    ],
+    "pids": [
+     "00-0033288"
+    ],
+    "team": "SF",
+    "length": 11.0,
+    "by": "player"
+   },
+   "model_chance": 0.09032805804881794,
+   "baseline_chance": 0.1351892709672693,
+   "rank": 3,
+   "listed": true,
+   "field_chance": 0.1540733102378905
+  },
+  {
+   "gid": "2026_07_NE_CHI",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "R.Stevenson"
+    ],
+    "pids": [
+     "00-0036875"
+    ],
+    "team": "NE",
+    "length": 48.0,
+    "by": "player"
+   },
+   "model_chance": 0.04953216153023989,
+   "baseline_chance": 0.05518407722825986,
+   "rank": 6,
+   "listed": true,
+   "field_chance": 0.13911698594627442
+  },
+  {
+   "gid": "2026_07_PIT_NO",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "D.Washington"
+    ],
+    "pids": [
+     "00-0038558"
+    ],
+    "team": "PIT",
+    "length": 4.0,
+    "by": "player"
+   },
+   "model_chance": 0.022762569213078697,
+   "baseline_chance": 0.040449318613157224,
+   "rank": 12,
+   "listed": true,
+   "field_chance": 0.1456166523255595
+  },
+  {
+   "gid": "2026_07_TB_CAR",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "D.Waller"
+    ],
+    "pids": [
+     "00-0031610"
+    ],
+    "team": "CAR",
+    "length": 50.0,
+    "by": "player"
+   },
+   "model_chance": 0.030167938865381036,
+   "baseline_chance": 0.034444286431876456,
+   "rank": 10,
+   "listed": true,
+   "field_chance": 0.14837603477379535
+  },
+  {
+   "gid": "2026_07_SF_ATL",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "K.Black"
+    ],
+    "pids": [
+     "00-0041052"
+    ],
+    "team": "SF",
+    "length": 30.0,
+    "by": "player"
+   },
+   "model_chance": 0.042021146168455176,
+   "baseline_chance": 0.0415923788969756,
+   "rank": 8,
+   "listed": true,
+   "field_chance": 0.152768347762265
+  },
+  {
+   "gid": "2026_07_NYG_HOU",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "D.Singletary"
+    ],
+    "pids": [
+     "00-0035250"
+    ],
+    "team": "NYG",
+    "length": 30.0,
+    "by": "player"
+   },
+   "model_chance": 0.018601769254635313,
+   "baseline_chance": 0.019360415353398427,
+   "rank": 16,
+   "listed": true,
+   "field_chance": 0.1515313865620218
+  },
+  {
+   "gid": "2026_07_MIA_NYJ",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "C.Douglas"
+    ],
+    "pids": [
+     "00-0041523"
+    ],
+    "team": "MIA",
+    "length": 63.0,
+    "by": "player"
+   },
+   "model_chance": 0.046829776805865996,
+   "baseline_chance": 0.0,
+   "rank": 7,
+   "listed": true,
+   "field_chance": 0.15928258049602953
+  },
+  {
+   "gid": "2026_07_CLE_TEN",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "T.Pollard"
+    ],
+    "pids": [
+     "00-0035261"
+    ],
+    "team": "TEN",
+    "length": 36.0,
+    "by": "player"
+   },
+   "model_chance": 0.09891440656202842,
+   "baseline_chance": 0.13294956860985674,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.16222524531435256
+  },
+  {
+   "gid": "2026_07_CIN_BAL",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "Z.Flowers"
+    ],
+    "pids": [
+     "00-0039064"
+    ],
+    "team": "BAL",
+    "length": 48.0,
+    "by": "player"
+   },
+   "model_chance": 0.10182691727087244,
+   "baseline_chance": 0.053689694165155906,
+   "rank": 3,
+   "listed": true,
+   "field_chance": 0.1527394937509364
+  },
+  {
+   "gid": "2026_07_IND_MIN",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "J.Taylor"
+    ],
+    "pids": [
+     "00-0036223"
+    ],
+    "team": "IND",
+    "length": 38.0,
+    "by": "player"
+   },
+   "model_chance": 0.0815595314544425,
+   "baseline_chance": 0.16941625828353413,
+   "rank": 4,
+   "listed": true,
+   "field_chance": 0.14528114105600393
+  },
+  {
+   "gid": "2026_07_DEN_ARI",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "B.Nix"
+    ],
+    "pids": [
+     "00-0039732"
+    ],
+    "team": "DEN",
+    "length": 62.0,
+    "by": "player"
+   },
+   "model_chance": 0.01807058812198304,
+   "baseline_chance": 0.01688935946667307,
+   "rank": 14,
+   "listed": true,
+   "field_chance": 0.15064004084141663
+  },
+  {
+   "gid": "2026_07_GB_DET",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "J.Jacobs"
+    ],
+    "pids": [
+     "00-0035700"
+    ],
+    "team": "GB",
+    "length": 25.0,
+    "by": "player"
+   },
+   "model_chance": 0.0023639795572004225,
+   "baseline_chance": 0.004491536990608071,
+   "rank": 17,
+   "listed": true,
+   "field_chance": 0.1325852554192539
+  },
+  {
+   "gid": "2026_07_LA_LV",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "T.Tucker"
+    ],
+    "pids": [
+     "00-0038563"
+    ],
+    "team": "LV",
+    "length": 37.0,
+    "by": "player"
+   },
+   "model_chance": 0.07346757593570633,
+   "baseline_chance": 0.05202251192290576,
+   "rank": 3,
+   "listed": true,
+   "field_chance": 0.14029063297703026
+  },
+  {
+   "gid": "2026_07_KC_SEA",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "J.Smith-Njigba"
+    ],
+    "pids": [
+     "00-0038543"
+    ],
+    "team": "SEA",
+    "length": 28.0,
+    "by": "player"
+   },
+   "model_chance": 0.16404978427289385,
+   "baseline_chance": 0.1620803467422472,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.150842607317447
+  },
+  {
+   "gid": "2026_07_DAL_PHI",
+   "week": 7,
+   "winner": {
+    "scorers": [
+     "G.Pickens"
+    ],
+    "pids": [
+     "00-0037247"
+    ],
+    "team": "DAL",
+    "length": 21.0,
+    "by": "player"
+   },
+   "model_chance": 0.11101625997276306,
+   "baseline_chance": 0.054400762806965486,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.1486337489993981
+  },
+  {
+   "gid": "2026_08_CAR_GB",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "J.Coker"
+    ],
+    "pids": [
+     "00-0039491"
+    ],
+    "team": "CAR",
+    "length": 26.0,
+    "by": "player"
+   },
+   "model_chance": 0.09102920985912187,
+   "baseline_chance": 0.05751709611492012,
+   "rank": 3,
+   "listed": true,
+   "field_chance": 0.13842095307974275
+  },
+  {
+   "gid": "2026_08_LV_NYJ",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "B.Allen"
+    ],
+    "pids": [
+     "00-0039794"
+    ],
+    "team": "NYJ",
+    "length": 21.0,
+    "by": "player"
+   },
+   "model_chance": 0.07809941228674731,
+   "baseline_chance": 0.07342702308470155,
+   "rank": 5,
+   "listed": true,
+   "field_chance": 0.14745781438956598
+  },
+  {
+   "gid": "2026_08_TEN_CIN",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "T.Pollard"
+    ],
+    "pids": [
+     "00-0035261"
+    ],
+    "team": "TEN",
+    "length": 40.0,
+    "by": "player"
+   },
+   "model_chance": 0.06859455367005061,
+   "baseline_chance": 0.12933162900592074,
+   "rank": 4,
+   "listed": true,
+   "field_chance": 0.15050031321431578
+  },
+  {
+   "gid": "2026_08_MIN_DET",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "J.Gibbs"
+    ],
+    "pids": [
+     "00-0039139"
+    ],
+    "team": "DET",
+    "length": 30.0,
+    "by": "player"
+   },
+   "model_chance": 0.15319075988784128,
+   "baseline_chance": 0.1911699857324273,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.14242738523486576
+  },
+  {
+   "gid": "2026_08_IND_JAX",
+   "week": 8,
+   "winner": {
+    "scorer": null,
+    "team": "JAX",
+    "length": 92.0,
+    "by": "defense or special teams"
+   },
+   "model_chance": null,
+   "baseline_chance": null,
+   "rank": null,
+   "listed": false,
+   "field_chance": 0.11594843513043529
+  },
+  {
+   "gid": "2026_08_BAL_BUF",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "D.Kincaid"
+    ],
+    "pids": [
+     "00-0038933"
+    ],
+    "team": "BUF",
+    "length": 23.0,
+    "by": "player"
+   },
+   "model_chance": 0.048304984853147694,
+   "baseline_chance": 0.02988983627499501,
+   "rank": 7,
+   "listed": true,
+   "field_chance": 0.14337153860251553
+  },
+  {
+   "gid": "2026_08_CLE_PIT",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "R.Dowdle"
+    ],
+    "pids": [
+     "00-0036139"
+    ],
+    "team": "PIT",
+    "length": 9.0,
+    "by": "player"
+   },
+   "model_chance": 0.051200536551655774,
+   "baseline_chance": 0.05706548096644434,
+   "rank": 7,
+   "listed": true,
+   "field_chance": 0.1490513321945534
+  },
+  {
+   "gid": "2026_08_ATL_TB",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "B.Irving"
+    ],
+    "pids": [
+     "00-0039361"
+    ],
+    "team": "TB",
+    "length": 4.0,
+    "by": "player"
+   },
+   "model_chance": 0.1069662693658812,
+   "baseline_chance": 0.13619068820731245,
+   "rank": 3,
+   "listed": true,
+   "field_chance": 0.1495728077615353
+  },
+  {
+   "gid": "2026_08_ARI_DAL",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "T.Allgeier"
+    ],
+    "pids": [
+     "00-0037263"
+    ],
+    "team": "ARI",
+    "length": 63.0,
+    "by": "player"
+   },
+   "model_chance": 0.037632353129548726,
+   "baseline_chance": 0.026855408357009603,
+   "rank": 9,
+   "listed": true,
+   "field_chance": 0.13887532765501656
+  },
+  {
+   "gid": "2026_08_LAC_LA",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "B.Corum"
+    ],
+    "pids": [
+     "00-0039738"
+    ],
+    "team": "LA",
+    "length": 23.0,
+    "by": "player"
+   },
+   "model_chance": 0.042461756173983435,
+   "baseline_chance": 0.07236751140005755,
+   "rank": 6,
+   "listed": true,
+   "field_chance": 0.1458273776776343
+  },
+  {
+   "gid": "2026_08_KC_DEN",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "E.Johnson"
+    ],
+    "pids": [
+     "00-0041013"
+    ],
+    "team": "KC",
+    "length": 73.0,
+    "by": "player"
+   },
+   "model_chance": 0.02085993380108382,
+   "baseline_chance": 0.03274442049980067,
+   "rank": 12,
+   "listed": true,
+   "field_chance": 0.14504431408385726
+  },
+  {
+   "gid": "2026_08_NE_MIA",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "D.Douglas"
+    ],
+    "pids": [
+     "00-0038621"
+    ],
+    "team": "NE",
+    "length": 48.0,
+    "by": "player"
+   },
+   "model_chance": 0.1426052890778719,
+   "baseline_chance": 0.07598853916662121,
+   "rank": 1,
+   "listed": true,
+   "field_chance": 0.14733846630030198
+  },
+  {
+   "gid": "2026_08_PHI_WAS",
+   "week": 8,
+   "winner": {
+    "scorers": [
+     "S.Diggs"
+    ],
+    "pids": [
+     "00-0031588"
+    ],
+    "team": "WAS",
+    "length": 8.0,
+    "by": "player"
+   },
+   "model_chance": 0.08162602933958729,
+   "baseline_chance": 0.10214593020210982,
+   "rank": 2,
+   "listed": true,
+   "field_chance": 0.1560769107749575
+  }
+ ]
+}

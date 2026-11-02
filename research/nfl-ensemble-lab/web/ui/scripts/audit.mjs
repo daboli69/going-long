@@ -32,6 +32,7 @@ for (const [label, viewport] of [["desktop", { width: 1440, height: 900 }], ["ph
     ["live", async () => { const t = page.getByRole("tab", { name: "Live" }); if (await t.count()) { await t.click(); await page.waitForTimeout(2500); } else { report.push({ view: label, note: "no Live tab (no game in progress)" }); } }],
     ["results", async () => { await page.getByRole("tab", { name: "Results", exact: true }).click(); await page.waitForTimeout(4000); }],
     ["rankings", async () => { await page.getByRole("tab", { name: "Player rankings" }).click(); await page.waitForTimeout(6000); }],
+    ["king", async () => { await page.getByRole("tab", { name: "King of the End Zone" }).click(); await page.waitForTimeout(7000); }],
     ["market", async () => { await page.getByRole("tab", { name: "Market value" }).click(); await page.waitForTimeout(4000); }],
   ];
   for (const [name, go] of steps) {
