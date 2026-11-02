@@ -1,0 +1,867 @@
+{
+ "rule_sha256": "5e0d8f9b3b61c5f4d871b68defabd70f8d29ddb9db1a7a591ab323d1a2f68b66",
+ "games": 2959,
+ "referees": 29,
+ "coverage": {
+  "by_season": {
+   "2015": {
+    "games": 256,
+    "with_referee": 256,
+    "in_both": 256,
+    "same": 241
+   },
+   "2016": {
+    "games": 256,
+    "with_referee": 256,
+    "in_both": 256,
+    "same": 240
+   },
+   "2017": {
+    "games": 256,
+    "with_referee": 256,
+    "in_both": 256,
+    "same": 237
+   },
+   "2018": {
+    "games": 256,
+    "with_referee": 256,
+    "in_both": 256,
+    "same": 240
+   },
+   "2019": {
+    "games": 256,
+    "with_referee": 256,
+    "in_both": 256,
+    "same": 256
+   },
+   "2020": {
+    "games": 256,
+    "with_referee": 256,
+    "in_both": 256,
+    "same": 250
+   },
+   "2021": {
+    "games": 272,
+    "with_referee": 271,
+    "in_both": 271,
+    "same": 254
+   },
+   "2022": {
+    "games": 271,
+    "with_referee": 271,
+    "in_both": 271,
+    "same": 255
+   },
+   "2023": {
+    "games": 272,
+    "with_referee": 272,
+    "in_both": 272,
+    "same": 255
+   },
+   "2024": {
+    "games": 272,
+    "with_referee": 272,
+    "in_both": 272,
+    "same": 253
+   },
+   "2025": {
+    "games": 272,
+    "with_referee": 272,
+    "in_both": 272,
+    "same": 255
+   },
+   "2026": {
+    "games": 120,
+    "with_referee": 65,
+    "in_both": 16,
+    "same": 15
+   }
+  },
+  "mismatches": [
+   {
+    "game_id": "2015_01_CAR_JAX",
+    "referee": "Ron Torbert",
+    "official_name": "Ronald Torbert"
+   },
+   {
+    "game_id": "2015_02_NE_BUF",
+    "referee": "Ron Torbert",
+    "official_name": "Ronald Torbert"
+   },
+   {
+    "game_id": "2015_03_WAS_NYG",
+    "referee": "Ron Torbert",
+    "official_name": "Ronald Torbert"
+   },
+   {
+    "game_id": "2015_04_KC_CIN",
+    "referee": "Ron Torbert",
+    "official_name": "Ronald Torbert"
+   },
+   {
+    "game_id": "2015_05_NO_PHI",
+    "referee": "Ron Torbert",
+    "official_name": "Ronald Torbert"
+   },
+   {
+    "game_id": "2015_07_BAL_ARI",
+    "referee": "Ron Torbert",
+    "official_name": "Ronald Torbert"
+   },
+   {
+    "game_id": "2015_08_TB_ATL",
+    "referee": "Ron Torbert",
+    "official_name": "Ronald Torbert"
+   },
+   {
+    "game_id": "2015_09_STL_MIN",
+    "referee": "Ron Torbert",
+    "official_name": "Ronald Torbert"
+   },
+   {
+    "game_id": "2015_10_CLE_PIT",
+    "referee": "Ron Torbert",
+    "official_name": "Ronald Torbert"
+   },
+   {
+    "game_id": "2015_12_CAR_DAL",
+    "referee": "Ron Torbert",
+    "official_name": "Ronald Torbert"
+   }
+  ],
+  "missing": "umpire, line judge, down judge, field judge, side judge and back judge are in the officials table but are not analyzed; the gamebooks (full crew and every penalty) were not read"
+ },
+ "year_to_year": {
+  "home_ats": {
+   "pairs": 157,
+   "referees": 26,
+   "r": 0.053363554783428344,
+   "ci": [
+    -0.14342747467255418,
+    0.24561941433080198
+   ]
+  },
+  "pen_gap": {
+   "pairs": 159,
+   "referees": 27,
+   "r": -0.09576089134808181,
+   "ci": [
+    -0.23970648215032117,
+    0.05143979682746754
+   ]
+  }
+ },
+ "claims": [],
+ "any_effect_claimed": false,
+ "discovery_ats": [
+  {
+   "measure": "home_fav_ats",
+   "referee": "Clay Martin",
+   "n": 18,
+   "k": 2,
+   "rate": 0.1111111111111111,
+   "league": 0.46926536731634183,
+   "p": 0.0017884120301871183,
+   "side": "below",
+   "p_holm": 0.13949613835459523
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Adrian Hill",
+   "n": 79,
+   "k": 40,
+   "rate": 0.5063291139240507,
+   "league": 0.48378615249780893,
+   "p": 0.7360922848469174,
+   "side": "above",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Bill Vinovich",
+   "n": 133,
+   "k": 54,
+   "rate": 0.40601503759398494,
+   "league": 0.48378615249780893,
+   "p": 0.08244172083751122,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Alex Kemp",
+   "n": 94,
+   "k": 45,
+   "rate": 0.4787234042553192,
+   "league": 0.48378615249780893,
+   "p": 1.0,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Brad Rogers",
+   "n": 74,
+   "k": 37,
+   "rate": 0.5,
+   "league": 0.48378615249780893,
+   "p": 0.8166441841198688,
+   "side": "above",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Carl Cheffers",
+   "n": 135,
+   "k": 69,
+   "rate": 0.5111111111111111,
+   "league": 0.48378615249780893,
+   "p": 0.5473351786622402,
+   "side": "above",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Clay Martin",
+   "n": 89,
+   "k": 37,
+   "rate": 0.4157303370786517,
+   "league": 0.48378615249780893,
+   "p": 0.2049401939499806,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Brad Allen",
+   "n": 135,
+   "k": 75,
+   "rate": 0.5555555555555556,
+   "league": 0.48378615249780893,
+   "p": 0.10194583954237658,
+   "side": "above",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Craig Wrolstad",
+   "n": 136,
+   "k": 59,
+   "rate": 0.4338235294117647,
+   "league": 0.48378615249780893,
+   "p": 0.2649636553829937,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Ed Hochuli",
+   "n": 45,
+   "k": 22,
+   "rate": 0.4888888888888889,
+   "league": 0.48378615249780893,
+   "p": 1.0,
+   "side": "above",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Gene Steratore",
+   "n": 40,
+   "k": 20,
+   "rate": 0.5,
+   "league": 0.48378615249780893,
+   "p": 0.8752488878616926,
+   "side": "above",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Jeff Triplette",
+   "n": 45,
+   "k": 22,
+   "rate": 0.4888888888888889,
+   "league": 0.48378615249780893,
+   "p": 1.0,
+   "side": "above",
+   "p_holm": 1.0
+  }
+ ],
+ "confirmation_ats": [
+  {
+   "measure": "home_ats",
+   "referee": "Shawn Smith",
+   "n": 34,
+   "k": 27,
+   "rate": 0.7941176470588235,
+   "league": 0.5041736227045075,
+   "p": 0.0008326051810786832,
+   "side": "above",
+   "p_holm": 0.03580202278638338
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Adrian Hill",
+   "n": 34,
+   "k": 13,
+   "rate": 0.38235294117647056,
+   "league": 0.5041736227045075,
+   "p": 0.17235639591845103,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Alex Kemp",
+   "n": 34,
+   "k": 19,
+   "rate": 0.5588235294117647,
+   "league": 0.5041736227045075,
+   "p": 0.608020195898811,
+   "side": "above",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Alan Eck",
+   "n": 36,
+   "k": 18,
+   "rate": 0.5,
+   "league": 0.5041736227045075,
+   "p": 1.0,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Bill Vinovich",
+   "n": 36,
+   "k": 15,
+   "rate": 0.4166666666666667,
+   "league": 0.5041736227045075,
+   "p": 0.3205464966766164,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Brad Allen",
+   "n": 35,
+   "k": 12,
+   "rate": 0.34285714285714286,
+   "league": 0.5041736227045075,
+   "p": 0.0633314225476891,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Brad Rogers",
+   "n": 35,
+   "k": 18,
+   "rate": 0.5142857142857142,
+   "league": 0.5041736227045075,
+   "p": 1.0,
+   "side": "above",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Alex Moore",
+   "n": 21,
+   "k": 10,
+   "rate": 0.47619047619047616,
+   "league": 0.5041736227045075,
+   "p": 0.8305261263408785,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Clay Martin",
+   "n": 35,
+   "k": 19,
+   "rate": 0.5428571428571428,
+   "league": 0.5041736227045075,
+   "p": 0.7361914782493217,
+   "side": "above",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Clete Blakeman",
+   "n": 36,
+   "k": 18,
+   "rate": 0.5,
+   "league": 0.5041736227045075,
+   "p": 1.0,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "Craig Wrolstad",
+   "n": 37,
+   "k": 17,
+   "rate": 0.4594594594594595,
+   "league": 0.5041736227045075,
+   "p": 0.6246431209546054,
+   "side": "below",
+   "p_holm": 1.0
+  },
+  {
+   "measure": "home_ats",
+   "referee": "John Hussey",
+   "n": 32,
+   "k": 19,
+   "rate": 0.59375,
+   "league": 0.5041736227045075,
+   "p": 0.37762074358952447,
+   "side": "above",
+   "p_holm": 1.0
+  }
+ ],
+ "discovery_ats_tests": 78,
+ "penalty_discovery": [
+  {
+   "referee": "Walt Anderson",
+   "games": 76,
+   "extra_home_penalty_pct": 3.2659645708740026,
+   "coef": 0.03213765444167958,
+   "p_max": 0.425,
+   "p_up": 0.055,
+   "p_down": 0.945
+  },
+  {
+   "referee": "Carl Cheffers",
+   "games": 138,
+   "extra_home_penalty_pct": 2.8991454751468915,
+   "coef": 0.0285791523970895,
+   "p_max": 0.655,
+   "p_up": 0.01,
+   "p_down": 0.99
+  },
+  {
+   "referee": "Bill Vinovich",
+   "games": 138,
+   "extra_home_penalty_pct": -2.459442448567861,
+   "coef": -0.024901919591374264,
+   "p_max": 0.905,
+   "p_up": 0.985,
+   "p_down": 0.015
+  },
+  {
+   "referee": "Scott Novak",
+   "games": 78,
+   "extra_home_penalty_pct": -1.978775656487286,
+   "coef": -0.019986155832681686,
+   "p_max": 0.99,
+   "p_up": 0.755,
+   "p_down": 0.245
+  },
+  {
+   "referee": "Brad Allen",
+   "games": 138,
+   "extra_home_penalty_pct": -1.5904252391591878,
+   "coef": -0.01603208218356791,
+   "p_max": 1.0,
+   "p_up": 0.865,
+   "p_down": 0.135
+  },
+  {
+   "referee": "Brad Rogers",
+   "games": 75,
+   "extra_home_penalty_pct": 0.6528830324146639,
+   "coef": 0.006507609824728054,
+   "p_max": 1.0,
+   "p_up": 0.03,
+   "p_down": 0.97
+  },
+  {
+   "referee": "Alex Kemp",
+   "games": 94,
+   "extra_home_penalty_pct": -1.355589572801319,
+   "coef": -0.013648615771486372,
+   "p_max": 1.0,
+   "p_up": 0.685,
+   "p_down": 0.315
+  },
+  {
+   "referee": "Adrian Hill",
+   "games": 80,
+   "extra_home_penalty_pct": -1.6688965940258371,
+   "coef": -0.01682979580089486,
+   "p_max": 1.0,
+   "p_up": 0.555,
+   "p_down": 0.445
+  },
+  {
+   "referee": "Craig Wrolstad",
+   "games": 139,
+   "extra_home_penalty_pct": -0.9254050789082036,
+   "coef": -0.009297135528663644,
+   "p_max": 1.0,
+   "p_up": 0.71,
+   "p_down": 0.29
+  },
+  {
+   "referee": "Ed Hochuli",
+   "games": 46,
+   "extra_home_penalty_pct": 1.5047617403583846,
+   "coef": 0.014935525091449684,
+   "p_max": 1.0,
+   "p_up": 0.33,
+   "p_down": 0.67
+  },
+  {
+   "referee": "Gene Steratore",
+   "games": 44,
+   "extra_home_penalty_pct": -1.301860885042061,
+   "coef": -0.013104093678187387,
+   "p_max": 1.0,
+   "p_up": 0.99,
+   "p_down": 0.01
+  },
+  {
+   "referee": "Jeff Triplette",
+   "games": 45,
+   "extra_home_penalty_pct": 1.6538417450115306,
+   "coef": 0.01640314722365913,
+   "p_max": 1.0,
+   "p_up": 0.285,
+   "p_down": 0.715
+  },
+  {
+   "referee": "Jerome Boger",
+   "games": 123,
+   "extra_home_penalty_pct": 1.3530376832031177,
+   "coef": 0.013439658667993529,
+   "p_max": 1.0,
+   "p_up": 0.11,
+   "p_down": 0.89
+  },
+  {
+   "referee": "John Hussey",
+   "games": 140,
+   "extra_home_penalty_pct": -0.9595929240650225,
+   "coef": -0.009642266842815179,
+   "p_max": 1.0,
+   "p_up": 0.815,
+   "p_down": 0.185
+  },
+  {
+   "referee": "Clay Martin",
+   "games": 90,
+   "extra_home_penalty_pct": -0.15680400904541925,
+   "coef": -0.0015692707519694966,
+   "p_max": 1.0,
+   "p_up": 0.33,
+   "p_down": 0.67
+  },
+  {
+   "referee": "Clete Blakeman",
+   "games": 139,
+   "extra_home_penalty_pct": -0.36510613966816985,
+   "coef": -0.0036577427890831476,
+   "p_max": 1.0,
+   "p_up": 0.655,
+   "p_down": 0.345
+  },
+  {
+   "referee": "Land Clark",
+   "games": 63,
+   "extra_home_penalty_pct": -0.018945388877111835,
+   "coef": -0.0001894718374260899,
+   "p_max": 1.0,
+   "p_up": 0.08,
+   "p_down": 0.92
+  },
+  {
+   "referee": "John Parry",
+   "games": 60,
+   "extra_home_penalty_pct": 0.11468191046914988,
+   "coef": 0.0011461620099931763,
+   "p_max": 1.0,
+   "p_up": 0.85,
+   "p_down": 0.15
+  },
+  {
+   "referee": "Ron Torbert",
+   "games": 139,
+   "extra_home_penalty_pct": 0.4709851139812482,
+   "coef": 0.004698794494111354,
+   "p_max": 1.0,
+   "p_up": 0.31,
+   "p_down": 0.69
+  },
+  {
+   "referee": "Peter Morelli",
+   "games": 60,
+   "extra_home_penalty_pct": -0.41437468445509884,
+   "coef": -0.00415235595438528,
+   "p_max": 1.0,
+   "p_up": 0.94,
+   "p_down": 0.06
+  },
+  {
+   "referee": "Shawn Smith",
+   "games": 92,
+   "extra_home_penalty_pct": -0.1967199363479777,
+   "coef": -0.0019691368415016607,
+   "p_max": 1.0,
+   "p_up": 0.35,
+   "p_down": 0.65
+  },
+  {
+   "referee": "Terry McAulay",
+   "games": 42,
+   "extra_home_penalty_pct": 1.8672539460912407,
+   "coef": 0.018500347797143074,
+   "p_max": 1.0,
+   "p_up": 0.205,
+   "p_down": 0.795
+  },
+  {
+   "referee": "Tony Corrente",
+   "games": 107,
+   "extra_home_penalty_pct": -0.34600473222470285,
+   "coef": -0.0034660471297261655,
+   "p_max": 1.0,
+   "p_up": 0.79,
+   "p_down": 0.21
+  },
+  {
+   "referee": "Shawn Hochuli",
+   "games": 92,
+   "extra_home_penalty_pct": -0.8613334893957436,
+   "coef": -0.008650644054972756,
+   "p_max": 1.0,
+   "p_up": 0.56,
+   "p_down": 0.44
+  },
+  {
+   "referee": "Tra Blake",
+   "games": 32,
+   "extra_home_penalty_pct": -0.004879268376067891,
+   "coef": -4.879387416234812e-05,
+   "p_max": 1.0,
+   "p_up": 0.18,
+   "p_down": 0.82
+  },
+  {
+   "referee": "Walt Coleman",
+   "games": 62,
+   "extra_home_penalty_pct": 1.0276098120789001,
+   "coef": 0.01022365797193636,
+   "p_max": 1.0,
+   "p_up": 0.565,
+   "p_down": 0.435
+  }
+ ],
+ "penalty_confirmation": [
+  {
+   "referee": "Clete Blakeman",
+   "games": 36,
+   "extra_home_penalty_pct": 4.069334235837241,
+   "coef": 0.03988716636858254,
+   "p_max": 0.895,
+   "p_up": 0.025,
+   "p_down": 0.975
+  },
+  {
+   "referee": "Shawn Hochuli",
+   "games": 36,
+   "extra_home_penalty_pct": 3.9238445691364143,
+   "coef": 0.038488181158917466,
+   "p_max": 0.915,
+   "p_up": 0.05,
+   "p_down": 0.95
+  },
+  {
+   "referee": "Ron Torbert",
+   "games": 36,
+   "extra_home_penalty_pct": 3.303777659332763,
+   "coef": 0.032503759259092456,
+   "p_max": 0.99,
+   "p_up": 0.09,
+   "p_down": 0.91
+  },
+  {
+   "referee": "Scott Novak",
+   "games": 37,
+   "extra_home_penalty_pct": 2.8917126400068716,
+   "coef": 0.028506915610564208,
+   "p_max": 0.995,
+   "p_up": 0.1,
+   "p_down": 0.9
+  },
+  {
+   "referee": "Adrian Hill",
+   "games": 35,
+   "extra_home_penalty_pct": 2.686101552539233,
+   "coef": 0.02650659123865207,
+   "p_max": 1.0,
+   "p_up": 0.145,
+   "p_down": 0.855
+  },
+  {
+   "referee": "Alex Moore",
+   "games": 21,
+   "extra_home_penalty_pct": 2.1421091032832518,
+   "coef": 0.02119488415942644,
+   "p_max": 1.0,
+   "p_up": 0.22,
+   "p_down": 0.78
+  },
+  {
+   "referee": "John Hussey",
+   "games": 35,
+   "extra_home_penalty_pct": 0.1644451395388602,
+   "coef": 0.0016431007656864903,
+   "p_max": 1.0,
+   "p_up": 0.375,
+   "p_down": 0.625
+  },
+  {
+   "referee": "Alex Kemp",
+   "games": 36,
+   "extra_home_penalty_pct": 0.7578217856681668,
+   "coef": 0.0075496474149729835,
+   "p_max": 1.0,
+   "p_up": 0.385,
+   "p_down": 0.615
+  },
+  {
+   "referee": "Land Clark",
+   "games": 36,
+   "extra_home_penalty_pct": 0.8613075618185251,
+   "coef": 0.008576194703149947,
+   "p_max": 1.0,
+   "p_up": 0.405,
+   "p_down": 0.595
+  },
+  {
+   "referee": "Brad Rogers",
+   "games": 36,
+   "extra_home_penalty_pct": 0.09710881033699881,
+   "coef": 0.000970616902344934,
+   "p_max": 1.0,
+   "p_up": 0.475,
+   "p_down": 0.525
+  },
+  {
+   "referee": "Brad Allen",
+   "games": 35,
+   "extra_home_penalty_pct": -1.9637125782091314,
+   "coef": -0.019832496039979393,
+   "p_max": 1.0,
+   "p_up": 0.72,
+   "p_down": 0.28
+  },
+  {
+   "referee": "Clay Martin",
+   "games": 36,
+   "extra_home_penalty_pct": -2.699339535622447,
+   "coef": -0.027364408901620486,
+   "p_max": 0.995,
+   "p_up": 0.8,
+   "p_down": 0.2
+  },
+  {
+   "referee": "Alan Eck",
+   "games": 36,
+   "extra_home_penalty_pct": -1.8378325067509471,
+   "coef": -0.018549304602153486,
+   "p_max": 1.0,
+   "p_up": 0.83,
+   "p_down": 0.17
+  },
+  {
+   "referee": "Carl Cheffers",
+   "games": 35,
+   "extra_home_penalty_pct": -3.611131982486948,
+   "coef": -0.03677946803632579,
+   "p_max": 0.945,
+   "p_up": 0.9,
+   "p_down": 0.1
+  },
+  {
+   "referee": "Craig Wrolstad",
+   "games": 37,
+   "extra_home_penalty_pct": -2.616015391284665,
+   "coef": -0.026508417928174342,
+   "p_max": 1.0,
+   "p_up": 0.9,
+   "p_down": 0.1
+  },
+  {
+   "referee": "Bill Vinovich",
+   "games": 36,
+   "extra_home_penalty_pct": -2.8632733845588287,
+   "coef": -0.029050647235127777,
+   "p_max": 0.995,
+   "p_up": 0.91,
+   "p_down": 0.09
+  },
+  {
+   "referee": "Shawn Smith",
+   "games": 34,
+   "extra_home_penalty_pct": -4.685562631997541,
+   "coef": -0.04798889290898054,
+   "p_max": 0.7,
+   "p_up": 0.97,
+   "p_down": 0.03
+  }
+ ],
+ "penalty_dispersion": {
+  "mean_per_team_game": 6.3247718823927,
+  "var_over_mean": 1.164366586489928
+ },
+ "tweet_check": {
+  "referee": "Shawn Smith",
+  "since": 2024,
+  "tweet": {
+   "home_ats": "26-8-2",
+   "home_fav_up_to_4_ats": "6-0",
+   "away_minus_home_penalties_2025": 30
+  },
+  "rebuilt": {
+   "games": 34,
+   "home_ats": "27-7-0",
+   "home_ats_rate_ex_push": 0.7941176470588235,
+   "league_rate_since": 0.5041736227045075,
+   "home_fav_up_to_4_ats": "6-0",
+   "games_2025": 15,
+   "away_minus_home_penalties_2025": 27.0,
+   "away_minus_home_2025_league_rank": 1,
+   "referees_2025": 17
+  },
+  "exact_p_vs_league": 0.0008326051810786832,
+  "luck_check": {
+   "extreme_referees_considered": 17,
+   "share_of_shuffles_with_a_referee_this_far": 0.01
+  }
+ },
+ "market": {
+  "games": 1439,
+  "seasons": [
+   2016,
+   2017,
+   2018,
+   2019,
+   2020,
+   2021
+  ],
+  "nonzero_belief_games": 1208,
+  "spread_sign_vs_spread_line": 1.0,
+  "corr_belief_with_move": -0.027784891359166744,
+  "log_score_gain_vs_constant": {
+   "gain": -0.007880862561703108,
+   "ci": [
+    -0.014907003293675676,
+    -0.0007142885255144374
+   ]
+  },
+  "note": "sbr_lines has open and close only, with no timestamp at the referee announcement, so the move is open to close, a proxy"
+ }
+}

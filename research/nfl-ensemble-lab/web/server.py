@@ -22,6 +22,7 @@ from lab import rankings as rank_lists
 from lab import kingzone
 from lab import kz2_board
 from lab import leans as leans_lab
+from lab import refs as refs_lab
 from lab import tdmarket as td_market
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -104,6 +105,35 @@ def leans(market: str = "All", week_from: int | None = None, week_to: int | None
                                  "summary": leans_lab.summarize(sel), "benchmarks": head["benchmarks"], "headline": bt["models"]["recal"]["summary"], "raw_headline": bt["models"]["raw"]["summary"], "market_accuracy": bt["market_accuracy"],
                                  "recal_compare": bt["recal_compare"], "placebo": bt["placebo"], "pass": bt["pass"], "calibration": bt["calibration"], "rows": rows.to_dict("records"), "pending": pending,
                                  "rule_sha256": bt["rule_sha256"], "universe_rows": bt["universe_rows"]}))
+
+
+_REFS = {}
+
+
+@app.get("/api/refs")
+def refs(measure: str = "home_ats", referee: str = "All", season_from: int = 2015, season_to: int = 2026):
+    import json as _json
+    import pandas as _pd
+    if measure not in refs_lab.MEASURES:
+        raise HTTPException(400, "measure is one of " + ", ".join(refs_lab.MEASURES))
+    f_path = ROOT / "data" / "refs" / "games_refs.parquet"
+    if not f_path.exists():
+        raise HTTPException(503, "Referee tests have not been run yet. Run scripts/refs_run.py.")
+    if _REFS.get("mtime") != f_path.stat().st_mtime:
+        _REFS.update(mtime=f_path.stat().st_mtime, f=_pd.read_parquet(f_path), res=_json.loads((ROOT / "docs" / "refs_results.json").read_text()))
+    f, res = _REFS["f"], _REFS["res"]
+    t = refs_lab.table(f, measure, season_from, season_to)
+    rows = t.to_dict("records")
+    pick = [r for r in rows if r["referee"] == referee]
+    fdir = ROOT / "data" / "refs" / "frozen"
+    frozen = [_json.loads(fp.read_text())["forecast"] for fp in sorted(fdir.glob("*.json"))] if fdir.exists() else []
+    tw = refs_lab.this_week()
+    nums = refs_lab.tab_numbers(f, sorted({g["referee"] for g in tw["games"] if g["referee"]})) if tw.get("games") else {}
+    for g in tw.get("games", []):
+        g["tab"] = nums.get(g["referee"])
+    keep = ("rule_sha256", "games", "referees", "coverage", "year_to_year", "claims", "any_effect_claimed", "tweet_check", "market", "penalty_dispersion", "discovery_ats_tests")
+    return JSONResponse(D.clean({"measures": refs_lab.MEASURES, "kind": "rate" if measure in refs_lab.BINARY else "count", "referees": sorted(f["referee"].unique()), "rows": rows, "selected": pick[0] if pick else None,
+                                 "this_week": tw, "frozen": frozen, "results": {k: res[k] for k in keep}}))
 
 
 @app.get("/api/kingzone/{week}")

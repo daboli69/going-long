@@ -268,3 +268,18 @@ export type Leans = {
   placebo: { mean_edge: number; range: [number, number] }; pass: Record<string, boolean>;
   calibration: Record<string, { bucket: string; n: number; stated: number; realized: number }[]>; rows: LeansRow[]; pending: LeansPending[]; rule_sha256: string; universe_rows: number;
 };
+
+export type RefRow = { referee: string; n: number; k: number | null; rate: number; lo: number; hi: number; shrunk: number; league: number; too_few: boolean };
+export type RefGame = { gid: string; away: string; home: string; kickoff: string; referee: string | null; tab?: { games: number; home_cover_shrunk: number | null; league_home_cover: number; home_pen_per_game_shrunk: number | null; away_pen_per_game_shrunk: number | null } | null };
+export type Refs = {
+  measures: Record<string, string>; kind: "rate" | "count"; referees: string[]; rows: RefRow[]; selected: RefRow | null;
+  this_week: { season: number; week: number | null; source: string; assigned?: number; games: RefGame[] };
+  frozen: { week: number; created: string; games: RefGame[] }[];
+  results: {
+    rule_sha256: string; games: number; referees: number; any_effect_claimed: boolean; discovery_ats_tests: number; claims: { measure: string; referee: string; confirmed: boolean }[];
+    year_to_year: Record<string, { pairs: number; r: number | null; ci: [number, number] | null }>;
+    tweet_check: { referee: string; since: number; tweet: Record<string, string | number>; rebuilt: Record<string, string | number | null>; exact_p_vs_league: number | null; luck_check: { extreme_referees_considered: number; share_of_shuffles_with_a_referee_this_far: number } };
+    market: { games: number; seasons?: number[]; corr_belief_with_move?: number | null; log_score_gain_vs_constant?: { gain: number; ci: [number, number] }; note?: string };
+    coverage: { by_season: Record<string, { games: number; with_referee: number; in_both: number; same: number }>; missing: string };
+  };
+};

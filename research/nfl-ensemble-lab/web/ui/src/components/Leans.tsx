@@ -7,7 +7,7 @@ const pts = (x: number | null | undefined) => (x === null || x === undefined || 
 const plain = (x: number | null | undefined) => (x === null || x === undefined ? "n/a" : `${(x * 100).toFixed(1)}%`);
 const SEL = "min-h-[44px] w-full cursor-pointer border border-bg bg-[#12161c] px-3 text-[15px] text-white";
 
-function Pick({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: { v: string; t: string }[] }) {
+export function Pick({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: { v: string; t: string }[] }) {
   return (
     <label className="block text-[13px] text-muted">{label}
       <select className={`${SEL} mt-1`} value={value} onChange={(e) => onChange(e.target.value)}>{options.map((o) => <option key={o.v} value={o.v}>{o.t}</option>)}</select>
