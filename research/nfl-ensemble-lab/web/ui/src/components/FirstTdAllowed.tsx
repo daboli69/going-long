@@ -25,6 +25,21 @@ export function FirstTdAllowedView() {
     return [...d.rows].sort((a, b) => { const x = val(a), y = val(b); return (x < y ? -1 : x > y ? 1 : a.team.localeCompare(b.team)) * sort.dir; });
   }, [d, sort]);
 
+  // Per column, the lowest share is red and the highest is green, so a green cell is where that defense gives up the most to that position.
+  const range = useMemo(() => {
+    const out: Record<string, [number, number]> = {};
+    for (const p of d?.positions ?? []) {
+      const v = (d?.rows ?? []).map((r) => r.pct[p]).filter((x): x is number => x !== null);
+      out[p] = v.length ? [Math.min(...v), Math.max(...v)] : [0, 0];
+    }
+    return out;
+  }, [d]);
+  const tint = (p: string, x: number | null) => {
+    const [lo, hi] = range[p] ?? [0, 0];
+    if (x === null || hi === lo) return undefined;
+    return { backgroundColor: `hsl(${Math.round(((x - lo) / (hi - lo)) * 125)} 55% 28%)` };
+  };
+
   const toggle = (w: number) => setWeeks((cur) => (cur.includes(w) ? cur.filter((x) => x !== w) : [...cur, w].sort((a, b) => a - b)));
   const head = (key: string, label: string, right = true) => (
     <th scope="col" className={right ? "text-right" : ""} aria-sort={sort.key === key ? (sort.dir === 1 ? "ascending" : "descending") : "none"}>
@@ -60,11 +75,12 @@ export function FirstTdAllowedView() {
       {d && (
         <>
           <p className="text-[13px] text-muted">{season}, {chosen}. {overall ? "Each game counts once: its first touchdown, charged to the defense that gave it up." : "Each defense's first touchdown given up in each game, so a game can count for both teams."} Percentages use the touchdowns shown, not games played; a defense that shut an offense out adds nothing. Def/ST means a return or defensive score; Other is any non-QB, RB, WR or TE scorer.</p>
+          <p className="flex items-center gap-2 text-[13px] text-muted"><span>Colors compare teams within each column:</span><span className="inline-block px-2 text-white" style={{ backgroundColor: "hsl(0 55% 28%)" }}>lowest share</span><span className="inline-block px-2 text-white" style={{ backgroundColor: "hsl(125 55% 28%)" }}>highest share</span></p>
           <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-[15px]">
             <thead><tr>{head("team", "Defense", false)}<th scope="col" className="text-right text-[13px] text-muted">Games</th>{head("tds", "TDs")}{d.positions.map((p) => head(p, p))}</tr></thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.team} className="border-t border-bg"><th scope="row" className="py-1 text-left font-medium">{r.team}</th><td className="text-right">{r.games}</td><td className="text-right">{r.tds}</td>{d.positions.map((p) => <td key={p} className="text-right">{cell(r, p)}</td>)}</tr>
+                <tr key={r.team} className="border-t border-bg"><th scope="row" className="py-1 text-left font-medium">{r.team}</th><td className="text-right">{r.games}</td><td className="text-right">{r.tds}</td>{d.positions.map((p) => <td key={p} className="px-2 text-right" style={tint(p, r.pct[p])}>{cell(r, p)}</td>)}</tr>
               ))}
               <tr className="border-t-2 border-bg font-bold"><th scope="row" className="py-1 text-left">League</th><td className="text-right">{d.league.games}</td><td className="text-right">{d.league.tds}</td>{d.positions.map((p) => <td key={p} className="text-right">{cell(d.league, p)}</td>)}</tr>
             </tbody>
