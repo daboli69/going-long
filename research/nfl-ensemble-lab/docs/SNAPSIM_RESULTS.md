@@ -8,20 +8,20 @@ Rule and amendment: `docs/SNAPSIM_PREREG.md` (committed before any code, one ame
 
 ## Tonight: Chicago at Seattle (2026_08_CHI_SEA)
 
-Saved before kickoff in a write-once hashed file, `data/snapsim/frozen/2026_08_CHI_SEA.json` (hash 998caec0...).
+Saved before kickoff in a write-once hashed file, `data/snapsim/frozen/2026_08_CHI_SEA.json` (hash c2d875ee...). The first saved run, hash 998caec0..., is kept in `data/snapsim/frozen/superseded/` and noted in the ledger: it played Jadarian Price, who the roster file lists on the reserve list for week 8. The rerun excludes anyone not on the active roster..
 
 | | Seattle | Chicago |
 | --- | --- | --- |
-| Win | 74.8% | 25.2% |
-| Cover (schedule file line, Seattle -3.5) | 68.8% | 31.2% |
-| Over 46.5 / under | 44.9% / 55.1% (49.3% over when the simulator's scoring shortfall is added back) | |
+| Win | 75.2% | 24.8% |
+| Cover (schedule file line, Seattle -3.5) | 69.0% | 31.0% |
+| Over 46.5 / under | 47.5% / 52.5% (51.7% over when the simulator's scoring shortfall is added back) | |
 
 The schedule file's line moved from 3.0 to 3.5 during the day. The screen has a ladder of nearby lines (spread 2.5 to 4.5, total 45.5 to 47.5), so Seattle -3 and the 46.5 total are there too.
 
 - **Crowd.** Visiting offenses at Seattle false-started on 1.95% of snaps in 2015 to 2025 against 1.61% league-wide: third of 32 stadiums by raw rate, not second. After shrinking for noise the simulator uses 1.09 times the normal false-start rate for Chicago.
 - **Rest.** Chicago 11 days, Seattle 8. History (2015 to 2025): 0.015 points per day of rest edge, standard error 0.098. No detectable effect; the applied adjustment is about zero.
 - **Home field.** The league's average home margin, 1.7 points, is added to the final margin.
-- **Charbonnet and Price.** Charbonnet has no 2026 carries in the play-by-play, so his role is the scenario in the pre-registration, not a measurement: 40% to 65% of the backs' carries and about 95% of his 2023 to 2025 yards per carry; Price takes 55% of the rest. Seattle's win chance is 73.4% at the low end and 78.5% at the high end of that range, so the call on him moves the result by about 5 points.
+- **Charbonnet and Price.** Price is on the reserve list in the roster file (weeks 7 and 8) and has not carried since week 3, so he does not play in the simulation; his carries go to the other backs. Charbonnet is listed active for week 8 after reserve status in weeks 1 to 6. He has no 2026 carries in the play-by-play, so his role is the scenario in the pre-registration, not a measurement: 40% to 65% of the backs' carries and about 95% of his 2023 to 2025 yards per carry; The rest go to Wilson, Holani and the other backs. Seattle's win chance is 73.7% at the low end and 77.7% at the high end of that range, so the call on him moves the result by about 4 points.
 - **Leans where the simulation, the matchup and the game script agree:** one, Caleb Williams passing yards under 225.
 
 ## Does the simulator match 2026?

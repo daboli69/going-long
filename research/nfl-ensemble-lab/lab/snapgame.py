@@ -87,15 +87,19 @@ def build_pool(P: snapfit.Params, p: pd.DataFrame, team: str, week: int, scenari
     t = p[p["posteam"] == team]
     t26 = t[t["yr"] == snapfit.SEASON]
     out_ids = set(injuries[(injuries["team"] == team) & injuries["report_status"].isin(["Out", "Doubtful"])]["gsis_id"].dropna())
+    ro = pd.read_parquet(RAW / "roster_weekly_2026.parquet", columns=["team", "week", "gsis_id", "status", "full_name"])
+    ro = ro[(ro["team"] == team) & (ro["week"] == min(week, ro["week"].max()))]
+    out_ids |= set(ro.loc[ro["status"] != "ACT", "gsis_id"].dropna())     # reserve lists, suspensions and game-day inactives do not play
     elig = set(dc[dc["team"] == team]["gsis_id"]) | set(t26["receiver_player_id"].dropna()) | set(t26["rusher_player_id"].dropna())
     if scenario:
         elig |= {scenario["star"], scenario["rookie"]}
     elig -= out_ids
+    rookie_on = bool(scenario) and scenario["rookie"] in elig
     rec = t[(t["pass_attempt"] == 1) & (t["penalty"] != 1) & t["receiver_player_id"].isin(elig)]
     car = t[(t["rush_attempt"] == 1) & (t["qb_scramble"] != 1) & (t["penalty"] != 1) & t["rusher_player_id"].isin(elig)]
     dbk = t26[(t26["qb_dropback"] == 1)].groupby("passer_player_id")["w"].sum().sort_values(ascending=False)
     qb = next((q for q in dbk.index if q not in out_ids), None) or dc[(dc["team"] == team) & (dc["pos_abb"] == "QB")].sort_values("pos_rank")["gsis_id"].iloc[0]
-    ids = sorted(i for i in ((set(rec["receiver_player_id"]) | set(car["rusher_player_id"]) | {qb} | ({scenario["star"], scenario["rookie"]} if scenario else set())) & (elig | {qb})) if isinstance(i, str))
+    ids = sorted(i for i in ((set(rec["receiver_player_id"]) | set(car["rusher_player_id"]) | {qb} | ({scenario["star"]} | ({scenario["rookie"]} if rookie_on else set()) if scenario else set())) & (elig | {qb})) if isinstance(i, str))
     pos = {i: (pl["position"].get(i) or "") for i in ids}
     nm = {i: (pl["display_name"].get(i) or i) for i in ids}
     idx = {i: k for k, i in enumerate(ids)}
@@ -148,9 +152,11 @@ def build_pool(P: snapfit.Params, p: pd.DataFrame, team: str, week: int, scenari
     meta = {}
     cshare, tshare = np.broadcast_to(cs, (S, 2, Pn)).copy(), np.broadcast_to(ts, (S, 2, Pn)).copy()
     if scenario:
-        si, ri = idx[scenario["star"]], idx[scenario["rookie"]]
+        si = idx[scenario["star"]]
+        ri = idx[scenario["rookie"]] if rookie_on else None
         rbs = [k for k, i in enumerate(ids) if pos[i] in ("RB", "FB")]
         others = [k for k in rbs if k not in (si, ri)]
+        share_rookie = SCENARIO["price_of_rest"] if rookie_on else 0.0
         if fixed is None:
             u = rng.uniform(*SCENARIO["share"], S)
             m = np.clip(rng.normal(SCENARIO["mult_mean"], SCENARIO["mult_sd"], S), 0.7, 1.2)
@@ -160,13 +166,14 @@ def build_pool(P: snapfit.Params, p: pd.DataFrame, team: str, week: int, scenari
             R = arr[:, :, rbs].sum(2)
             ob = arr[:, :, others] / np.maximum(arr[:, :, others].sum(2, keepdims=True), 1e-9) if others else None
             arr[:, :, si] = u[:, None] * R
-            arr[:, :, ri] = SCENARIO["price_of_rest"] * (1 - u)[:, None] * R
+            if rookie_on:
+                arr[:, :, ri] = share_rookie * (1 - u)[:, None] * R
             if others:
-                arr[:, :, others] = (1 - SCENARIO["price_of_rest"]) * (1 - u)[:, None, None] * R[:, :, None] * ob
+                arr[:, :, others] = (1 - share_rookie) * (1 - u)[:, None, None] * R[:, :, None] * ob
         mult[:, si] = m
-        meta = {"star": nm[scenario["star"]], "rookie": nm[scenario["rookie"]]}
+        meta = {"star": nm[scenario["star"]], "rookie": nm[scenario["rookie"]] if rookie_on else None, "rookie_name": pl["display_name"].get(scenario["rookie"]), "rookie_unavailable": not rookie_on}
     return {"names": [nm[i] for i in ids], "pos": [pos[i] for i in ids], "ids": ids, "qb": qbs, "tcum": np.cumsum(tshare, axis=2), "ccum": np.cumsum(cshare, axis=2), "catch": catch, "ypr": ypr, "ypc": ypc, "rush_mult": mult,
-            "out": sorted(nm.get(i, i) for i in out_ids if i in set(pl.index)) if False else [pl["display_name"].get(i, i) for i in out_ids], "scenario": meta}
+            "out": [pl["display_name"].get(i, i) for i in out_ids if i in (set(t["receiver_player_id"].dropna()) | set(t["rusher_player_id"].dropna()) | set(t["passer_player_id"].dropna()))], "scenario": meta}
 
 
 # ---------------------------------------------------------------- run

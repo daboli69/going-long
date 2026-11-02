@@ -294,7 +294,7 @@ export type SnapSim = {
   win: Record<string, number>; raw_win: Record<string, number>; cover: Record<string, number>; cover_raw: Record<string, number>; over: number; under: number; over_raw_push: number; over_scoring_adjusted: number; ladder: { spreads: { line: number; home: number; away: number }[]; totals: { line: number; over: number; over_adjusted: number }[] }; scoring_gap_per_team: number;
   score: { home: SnapDist; away: SnapDist; margin: SnapDist; total: SnapDist };
   adjustments: { home_field_points: number; rest_points_to_home: number; rest_beta_per_day: number; rest_se: number; false_start_multiplier: number; false_start_rank: number; false_start_rank_raw: number; stadiums: number; visiting_false_start_rate: number; league_rate: number };
-  team_stats: Record<string, Record<string, number>>; scenario: { star?: string; rookie?: string }; out: Record<string, string[]>;
+  team_stats: Record<string, Record<string, number>>; scenario: { star?: string; rookie?: string | null; rookie_name?: string; rookie_unavailable?: boolean }; out: Record<string, string[]>;
   scenario_runs: Record<string, { win: Record<string, number>; cover: Record<string, number>; over: number; star: SnapDist | null }>;
   leans: { leans: SnapLean[]; sim_only: SnapLean[]; props_checked: number };
   players: { team: string; name: string; pos: string; anytime_td: number; stats: Record<string, SnapDist> }[];
