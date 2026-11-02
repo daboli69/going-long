@@ -50,3 +50,9 @@ Prediction check (weeks 4 to 8, 72 games, descriptive): home win log loss 0.674 
 - The leans rule (sim, matchup, game agree) is written and logged but has no track record. Earlier work found no edge for this model's prop chances against Kalshi.
 - Charbonnet's ACL timeline and snap count are an assumption stated by you; the injury files show only a knee report in weeks 6 and 7.
 - Seattle's 2026 depth chart is a March snapshot; injuries come from the latest report in the file.
+
+## Where it shows up in the app
+
+- The Snap sim tab, for any game in the week.
+- Each game's Simulated game tab, under the play-by-play replay: the 10,000-game percentages, other lines, the Charbonnet scenario, leans and the player table.
+- The older replay and player projections in that tab now bring back a starting back who is active this week after weeks on the reserve list. Zach Charbonnet gets 52.5% of Seattle's backs' work at 95% efficiency (the middle of the snap simulator's range, an assumption), taken from the other backs. Jadarian Price stays out while the roster file lists him on the reserve list.

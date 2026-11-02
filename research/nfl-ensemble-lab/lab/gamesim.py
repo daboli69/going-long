@@ -586,6 +586,45 @@ def starting_qbs(team: str, week: int, season: int = D.SEASON) -> list[str]:
     return list(dict.fromkeys(ids))
 
 
+RETURN_SHARE, RETURN_EFFICIENCY = 0.525, 0.95   # mid-point of the snap simulator's scenario for a starter back from injury; assumptions, not measurements
+
+
+def _returning_backs(rows: list[dict], team: str, week: int, season: int) -> tuple[list[dict], list[str]]:
+    """A back who is on this week's active roster after weeks on the reserve list has no recent games, so the usage window never sees him.
+    Give him a starter's share of the backs' carries, receptions and receiving yards (taken from the other backs) at a discount, and say so."""
+    path = RAW_DIR / f"roster_weekly_{season}.parquet"
+    if not path.exists():
+        return rows, []
+    ro = pd.read_parquet(path, columns=["team", "week", "full_name", "position", "status"])
+    ro = ro[(ro["team"] == team) & (ro["position"] == "RB")]
+    now = ro[(ro["week"] == min(week, ro["week"].max())) & (ro["status"] == "ACT")]
+    notes, have = [], {r["player"] for r in rows}
+    for nm in now["full_name"]:
+        hist = ro[(ro["full_name"] == nm) & (ro["week"] < week)]
+        if nm in have or (hist["status"] == "RES").sum() < 2:
+            continue
+        add = []
+        for stat in ("Rushing yards", "Receptions", "Receiving yards"):
+            pool = [r for r in rows if r["stat"] == stat and r.get("pos") in ("RB", "FB")]
+            tot = sum(r["typical"] for r in pool)
+            if not pool or tot <= 0:
+                continue
+            for r in pool:
+                f = 1 - RETURN_SHARE
+                for k in ("typical", "expected", "range_low", "range_high", "carries"):
+                    if r.get(k) is not None:
+                        r[k] *= f
+            new = _row(nm, team, stat, tot * RETURN_SHARE * RETURN_EFFICIENCY, None, None, expected=tot * RETURN_SHARE * RETURN_EFFICIENCY, pos="RB", returning=True)
+            if stat == "Rushing yards":
+                cars = sum((r.get("carries") or 0) for r in pool) / (1 - RETURN_SHARE)
+                new["carries"] = cars * RETURN_SHARE
+            add.append(new)
+        if add:
+            rows = rows + add
+            notes.append(nm)
+    return rows, notes
+
+
 def team_players(team: str, week: int, out: dict, saved: list[dict], expected_points: float | None = None, season: int = D.SEASON,
                  allowed_mults: dict | None = None):
     """Every player expected to touch the ball, with per-game projections after injuries.
@@ -755,6 +794,9 @@ def team_players(team: str, week: int, out: dict, saved: list[dict], expected_po
     pos_of.update({nm: pid.split(":")[1] for pid, nm in new_names.items() if nm})
     for r in rows:
         r["pos"] = pos_of.get(r["player"]) or ("QB" if r["stat"] == "Passing yards" else None)
+    rows, back = _returning_backs(rows, team, week, season)
+    if back:
+        label += f", with {', '.join(back)} back from the reserve list as a starter ({RETURN_SHARE:.0%} of the backs' work at {RETURN_EFFICIENCY:.0%} efficiency, an assumption)"
     if allowed_mults:
         # What the opposing defense gives up to each position (lab/allowed_usage.py).
         pass_f = AL.apply_to_rows(rows, pos_of, allowed_mults)["rec_yds"]
@@ -774,6 +816,11 @@ def team_players(team: str, week: int, out: dict, saved: list[dict], expected_po
             r["fpds"] = prof[pid]
             seen.add(r["player"])
     td_w = {names.get(pid, pid): w for pid, w in X.rec_td_weights(u, team, su, wk_used, out_ids, fp_rule).items()}
+    for nm in back:
+        rb_w = {k: v for k, v in td_w.items() if pos_of.get(k) in ("RB", "FB")}
+        for k in rb_w:
+            td_w[k] *= 1 - RETURN_SHARE
+        td_w[nm] = sum(rb_w.values()) * RETURN_SHARE
     extra = {"fpds": {**fp_info, "players": len(prof)}, "td_weights": td_w}
     return rows, moves, ("saved projections, " if saved_t else "") + label, extra
 

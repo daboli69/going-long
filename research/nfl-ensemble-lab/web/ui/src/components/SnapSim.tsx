@@ -8,7 +8,7 @@ const pct = (x: number | null | undefined, d = 1) => (x === null || x === undefi
 const n1 = (x: number | null | undefined) => (x === null || x === undefined ? "n/a" : x.toFixed(1));
 const COLS: [string, string][] = [["pass_yds", "Pass yds"], ["comp", "Comp"], ["rec", "Rec"], ["rec_yds", "Rec yds"], ["car", "Carries"], ["rush_yds", "Rush yds"]];
 
-export function SnapSimView({ games, gid, onPick }: { games: GameRow[]; gid: string | null; onPick: (g: string) => void }) {
+export function SnapSimBody({ gid }: { gid: string | null }) {
   const [d, setD] = useState<SnapSim | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -25,14 +25,7 @@ export function SnapSimView({ games, gid, onPick }: { games: GameRow[]; gid: str
   const a = d?.adjustments;
 
   return (
-    <section aria-labelledby="snap-h" className="space-y-6">
-      <div>
-        <h2 id="snap-h" className="text-xl font-bold">Snap simulator</h2>
-        <p className="mt-1 max-w-3xl text-[15px] text-muted">Every game is played 10,000 times one snap at a time, using each team's real 2026 tendencies: pass and run mix by down and distance, fourth-down habits, pressure and blitz, run gaps, penalties and the clock, plus the real players on each roster. It never looks at the betting line; the line is used afterward only to turn simulated scores into cover and over percentages. Past results of a model, not advice and not a staking plan.</p>
-      </div>
-      <div className="grid gap-3 sm:grid-cols-3">
-        <Pick label="Game" value={gid ?? ""} onChange={onPick} options={games.map((g) => ({ v: g.gid, t: `${g.away} at ${g.home}` }))} />
-      </div>
+    <div className="space-y-6">
       {busy && !d && <p className="text-muted">Running 10,000 simulated games. The first run takes about a minute; later views are instant.</p>}
       {err && <Callout tone="amber">Could not run the simulator: {err}</Callout>}
       {d && a && (
@@ -120,6 +113,21 @@ export function SnapSimView({ games, gid, onPick }: { games: GameRow[]; gid: str
           <p className="text-[13px] text-muted">Rule: docs/SNAPSIM_PREREG.md, hash {d.rule_sha256.slice(0, 12)}. Not modeled because free data does not have them: coverage shells (man or zone) and route types. Pressure, blitz rate and box count stand in for the defensive scheme. <button type="button" className="min-h-[44px] cursor-pointer underline" onClick={rerun} disabled={busy}>{busy ? "Running." : "Run again with today's data"}</button></p>
         </>
       )}
+    </div>
+  );
+}
+
+export function SnapSimView({ games, gid, onPick }: { games: GameRow[]; gid: string | null; onPick: (g: string) => void }) {
+  return (
+    <section aria-labelledby="snap-h" className="space-y-6">
+      <div>
+        <h2 id="snap-h" className="text-xl font-bold">Snap simulator</h2>
+        <p className="mt-1 max-w-3xl text-[15px] text-muted">Every game is played 10,000 times one snap at a time, using each team's real 2026 tendencies: pass and run mix by down and distance, fourth-down habits, pressure and blitz, run gaps, penalties and the clock, plus the real players on each roster. It never looks at the betting line; the line is used afterward only to turn simulated scores into cover and over percentages. Past results of a model, not advice and not a staking plan.</p>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Pick label="Game" value={gid ?? ""} onChange={onPick} options={games.map((g) => ({ v: g.gid, t: `${g.away} at ${g.home}` }))} />
+      </div>
+      <SnapSimBody gid={gid} />
     </section>
   );
 }

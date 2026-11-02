@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { SnapSimBody } from "./SnapSim";
 import { api } from "../api";
 import type { Band, Detail, PropRow, Sim, SimPlay } from "../types";
 import { num, pct } from "../lib";
@@ -446,6 +447,10 @@ export function SimGame({ d }: { d: Detail }) {
         {noLine && <Callout tone="amber">No betting line exists for this game yet, so the expected score comes from each team's points scored and allowed this season. It will switch to the market line once one is posted.</Callout>}
         {!sim.has_players && <Callout tone="blue">No player data is available for this game, so the replay uses generic player names.</Callout>}
         <Replay key={`${d.gid}-${mode}-${draw}`} sim={sim} d={d} />
+      </Section>
+
+      <Section title="Snap-by-snap simulation, 10,000 games" note="A second simulator that plays every game one snap at a time from each team's real 2026 tendencies and the active players, with the loud-stadium and rest effects, the running-back scenario and the leans. It does not use the betting line.">
+        <SnapSimBody gid={d.gid} />
       </Section>
 
       <Section title="Injuries in this simulation">
