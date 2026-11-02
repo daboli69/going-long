@@ -314,6 +314,20 @@ def _age_seconds(stamp: str) -> float:
     return (pd.Timestamp.now(tz="UTC") - t).total_seconds()
 
 
+def scoreboard_event(home: str, away: str) -> str | None:
+    """ESPN's event id for a game, from the live scoreboard (the game must be on it); None when it cannot be reached or the game is not there."""
+    import requests
+    try:
+        sb = requests.get("https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard", timeout=10).json()
+    except Exception:
+        return None
+    for ev in sb.get("events", []):
+        t = {c["homeAway"]: normalize_team(c["team"]["abbreviation"]) for c in ev["competitions"][0]["competitors"]}
+        if t.get("home") == home and t.get("away") == away:
+            return ev["id"]
+    return None
+
+
 def pull(eid: str) -> str | None:
     """Fetch the game's summary from ESPN now and store it as a new snapshot when it differs from the newest stored one. Returns the new stamp, or None if
     nothing changed or ESPN could not be reached (the caller keeps using the stored snapshot)."""
@@ -365,6 +379,11 @@ def latest(gid: str, ctx=None, refresh: bool = True) -> dict | None:
             if r["teams"].get("home") and normalize_team(r["teams"]["home"]) == home and normalize_team(r["teams"]["away"]) == away:
                 eid = r["event"]
     snaps = snapshots(eid) if eid else []
+    if not snaps:
+        # the recorder was not running for this game: find it on ESPN's scoreboard and take a snapshot now
+        eid = eid or scoreboard_event(home, away)
+        if eid and pull(eid):
+            snaps = snapshots(eid)
     if not snaps:
         return None
     stamp, path = snaps[-1]

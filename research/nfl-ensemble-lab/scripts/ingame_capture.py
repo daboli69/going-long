@@ -60,15 +60,19 @@ def main() -> None:
             continue
         live = 0
         soon = 0
+        later = 0                                      # games still to start today: the recorder waits for them instead of quitting in a gap between slates
         k = None if a.no_kalshi else kalshi_prices()
         for ev in sb.get("events", []):
             st = ev["status"]["type"]["state"]
             eid = ev["id"]
             if st == "pre":
                 kick = datetime.fromisoformat(ev["date"].replace("Z", "+00:00"))
-                if (kick - datetime.now(timezone.utc)).total_seconds() < 1800:
+                wait = (kick - datetime.now(timezone.utc)).total_seconds()
+                if wait < 1800:
                     soon += 1
                 else:
+                    if wait < 12 * 3600:
+                        later += 1
                     continue
             elif st == "in":
                 live += 1
@@ -103,8 +107,8 @@ def main() -> None:
                 f.write(json.dumps(row) + "\n")
             if st == "post":
                 last[eid] = "post"
-        print(stamp(), f"live={live} soon={soon}", flush=True)
-        if live == 0 and soon == 0:
+        print(stamp(), f"live={live} soon={soon} later={later}", flush=True)
+        if live == 0 and soon == 0 and later == 0:
             quiet += 1
             if quiet >= 3:
                 break
