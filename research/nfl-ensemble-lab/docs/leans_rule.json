@@ -1,0 +1,4 @@
+{"version": 1, "edge_threshold": 0.05, "size_cuts": [0.05, 0.08, 0.12], "lean_minutes_before_kickoff": 90, "model_col": "p_A", "market_col": "p_market90", "close_col": "p_marketC",
+ "recal": {"first_test_season": 2026, "first_test_week": 3, "adopt_if_ci_excludes_zero": true},
+ "bootstrap": {"draws": 10000, "seed": 1}, "random_side": {"draws": 200, "seed": 2},
+ "power": {"target_edge": 0.02, "power": 0.8}, "stats": ["pass_yds", "rec", "rec_yds", "rush_yds"]}
