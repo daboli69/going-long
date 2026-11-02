@@ -49,9 +49,12 @@ def fit_stage(season: int) -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     for w in FIT_WEEKS.get(season, DEFAULT_FIT_WEEKS):
         if not fit_path(season, w).exists():
-            f = K.fit_tail(season, w)
+            for seed in (11, 12, 13, 14):   # Amendment 1: a fit whose chains disagree (R-hat above 1.05) is refit with the next seed, up to 4 tries
+                f = K.fit_tail(season, w, seed=seed)
+                print(season, w, seed, f["n_units"], f["n_exceed"], round(f["seconds"]), f["rhat_max"], flush=True)
+                if f["rhat_max"] is not None and f["rhat_max"] <= 1.05:
+                    break
             fit_path(season, w).write_bytes(pickle.dumps(f))
-            print(season, w, f["n_units"], f["n_exceed"], round(f["seconds"]), f["rhat_max"], flush=True)
 
 
 def _game(a: tuple) -> dict:

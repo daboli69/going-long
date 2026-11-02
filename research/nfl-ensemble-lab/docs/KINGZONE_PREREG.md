@@ -37,4 +37,4 @@ It cannot show profit: no prices are used, and the promotion's pool, entries and
 
 ## Amendments
 
-(none)
+1. 2026-11-02, after all 27 tail fits ran and before any game was scored: four fits (2022 week 10, 2024 week 16, 2025 weeks 4 and 10) had a maximum R-hat near 2.2, meaning the two chains did not agree. The pre-registration did not say what to do. Rule added: a fit with maximum R-hat above 1.05 is refit with seed 12, then 13, then 14; the last try is kept if none pass and the count is reported. The fits and their R-hat values are listed in the results. No game had been scored when this was written.
