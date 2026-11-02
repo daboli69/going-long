@@ -1,38 +1,44 @@
-# Leans: results
+# Leans: results (Amendment 1)
 
-Rule and hashes: `docs/LEANS_PREREG.md`, `docs/leans_rule.json`, `docs/leans_prereg_ledger.jsonl` (committed in 60426ad5 before any lean was scored). Raw numbers: `docs/leans_backtest.json`. Code: `lab/leans.py`, `scripts/leans_run.py`. Screen: the Leans tab.
+Rule and hashes: `docs/LEANS_PREREG.md` (Amendment 1 committed in fb0b8aa8 before any new number), `docs/leans_rule_v2.json`, `docs/leans_prereg_ledger.jsonl`. Raw numbers: `docs/leans_backtest.json`. Code: `lab/leans.py`, `scripts/leans_run.py`. Screen: the Leans tab, with menus for Market, Season, From week, To week and Edge size, plus switches for Price (executable or mid) and Model (recalibrated or raw).
 
-## What was scored
+## What changed from the first run
 
-6,614 archived Kalshi prop thresholds (passing yards, receptions, receiving yards, rushing yards) from 175 games in 2025 and 2026. Each row has the model chance, the Kalshi mid 90 minutes before kickoff, the close and the real result. A lean is logged when the two chances differ by 5 points or more.
+- **Recalibration adopted by choice, not by test.** Walk-forward log loss on 4,331 test rows: raw 0.5663, logistic 0.5656, isotonic 0.5770, market 0.5456. Logistic wins the pre-written choice rule. Its gain over raw is +0.0007 (range -0.003 to +0.004). Isotonic is clearly worse than raw (gain -0.0107, range -0.0190 to -0.0033). The market is still better than any version of the model.
+- **One lean per ladder.** 3,672 threshold-passing rows collapse to 1,036 leans (recalibrated) and 958 (raw), across 168 games.
+- **Effective bets.** Leans from one game move together a little (intraclass correlation 0.051), so the design effect is 1.27 and the 1,036 leans are worth about 819 independent ones. About 5,122 leans are needed to detect a 2 point realized edge; the first run said 4,060.
+- **Real prices.** An over is bought at the 90-minute ask, an under at 1 minus the bid, with a fee of 7% x price x (1 - price) per contract.
 
-## Result: no edge found
+## Headline test: no edge found
+
+All leans, recalibrated model, executable prices.
 
 | Measure | Value |
 | --- | --- |
-| Leans / no lean | 3,563 / 3,051 |
-| Win rate | 45.6% |
-| Stated edge | 12.5% |
-| Realized edge | +2.2%, 95% range -0.5% to +4.9% |
-| Closing line value | +0.15% |
-| Leans needed to detect a 2 point edge | about 4,060 |
-| Follow the market, same rows | -1.7% |
-| Random side, same rows | -0.0% |
+| Leans / effective | 1,036 / 819 |
+| Win rate | 32.6% |
+| Stated edge | 13.5% |
+| Realized edge before fees | +1.2% |
+| Realized edge after costs | -0.2%, 95% range -3.4% to +3.1% |
+| Closing line value at executable prices | -1.2% |
+| Placebo (shuffled model) after costs | -1.2%, range -3.0% to +1.0% |
+| Follow the market / random side, same prices | -3.1% / -2.1% |
 
-The realized edge range includes zero, the closing line value is close to zero, and the pass rule needs both to be positive with enough leans. It is not met. No market type, season or size group meets it either. The only range that clears zero is the large-edge group (+4.9%, range +0.5% to +9.3%), and it fails the closing line and bet-count conditions. It is also one of several groups looked at, so it is more likely noise than an edge.
+All four pass conditions fail: the range includes zero, closing line value is negative, there are far fewer leans than the 5,122 needed, and the placebo is not within 1 point of zero. The recalibrated model's realized edge after costs sits inside the placebo's range, so it cannot be told apart from a lean with no information.
 
-## Low-end bias fix
+Raw model, for comparison: +2.1% after costs (range -1.2% to +5.3%), closing line value -1.3%. At mid prices the raw model reads +4.3% (range +1.1% to +7.5%), which clears zero, but a mid price cannot be traded: the ask, the bid and the fee take about two points of it, and the executable range includes zero.
 
-Both the model and the market give long shots too little chance. The model said 17% and 21% happened; the market said 17% and 20% happened. A recalibration trained only on earlier weeks changed the model's log loss by +0.0007 (range -0.003 to +0.004), so it was not adopted. The market's log loss (0.546) beats the model's (0.566) either way. The shared pattern suggests the low-end miss comes from how skewed player stats are, not only from our shrinkage; I did not isolate the cause further.
+Subgroups (market, size, season) are descriptive. No group has a Holm-corrected p below 0.05 (all are 1.0), so no subgroup claim stands.
 
-## Saved player results
+## Thin markets
 
-Only weeks 6 to 8 of 2026 have stored forecasts, so those are all that can be saved (543 player rows). Earlier weeks have no stored pre-game player projections and were not rebuilt, because a rebuild would use today's information.
+0% of leans were dropped. The scored set already holds only contracts that were liquid 90 minutes before kickoff and have a bid and an ask (all 6,614 rows). Of the 62,987 quotes stored, about 71% lack the liquid flag and were never scored, so thin markets are excluded before the leans, not by them.
 
 ## Concerns
 
-- Rows on one player's ladder are not independent bets, and the bet-count estimate ignores that, so the real number needed is higher.
-- Prices are Kalshi mid prices. The cost of crossing the spread is not subtracted, which flatters every lean.
-- Game totals, spreads, moneylines and touchdown props could not be tested. The app's game numbers come from the market, so the model has no independent probability, and no archived touchdown model probabilities exist.
-- Before writing the rule I looked at overall calibration of the same rows (disclosed in the pre-registration).
-- Live leans: only one prop line is archived for games that have not started this week, and it is inside the threshold, so the saved week 8 log holds zero leans and one "no lean".
+- The placebo condition (within 1 point of zero) cannot be met after costs: a lean with no information loses roughly the fee, about 1.4 points. The condition was mis-specified. It does not change the verdict, since the other three conditions fail too, but a better test is whether the real edge sits above the placebo's range. It does not.
+- The fee formula is from secondary reports of Kalshi's schedule; I could not read Kalshi's own document. One-contract orders round the fee up to the cent, so true cost is a little higher.
+- Fills are assumed at the displayed 90-minute bid or ask for any size. The `liquid90` flag is as stored; I did not verify how it was defined.
+- Raw-model results at mid prices were looked at in the first run; the executable and clustered numbers are new.
+- Game totals, spreads, moneylines and touchdown props are still not testable because the model has no independent probability for them.
+- Live leans: the saved week 8 log holds 0 leans and 1 "no lean". It is still written under the first rule's threshold, not collapsed or priced at the ask.

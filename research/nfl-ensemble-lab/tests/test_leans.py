@@ -1,4 +1,4 @@
-"""Leans: edge arithmetic, sides and sizes, the pass rule and write-once hashed files. Synthetic rows, no data files."""
+"""Leans: edge arithmetic, ladder collapse, executable prices and fees, design effect, Holm and write-once hashed files. Synthetic rows, no data files."""
 import json
 
 import numpy as np
@@ -9,38 +9,57 @@ from lab import leans as L
 
 
 def frame(rows):
-    d = pd.DataFrame(rows, columns=["gid", "stat", "p_A", "p_market90", "p_marketC", "y"])
-    d["season"], d["week"], d["k"], d["pid"] = 2026, 3, 50.0, "p"
+    d = pd.DataFrame(rows, columns=["gid", "pid", "k", "stat", "p_A", "p_market90", "p_marketC", "y", "bid90", "ask90", "bidC", "askC"])
+    d["season"], d["week"], d["key"], d["executable"] = 2026, 3, 202603, True
     return d
 
 
-def test_sides_sizes_and_the_three_edges():
-    d = frame([("g1", "rec_yds", 0.60, 0.50, 0.52, 1),    # over, +10 points, medium, won
-               ("g2", "rec_yds", 0.30, 0.40, 0.37, 1),    # under, 10 points, medium, lost
-               ("g3", "rec_yds", 0.52, 0.50, 0.50, 1)])   # inside the 5 point threshold: no lean
-    x = L.make_leans(d, "p_A")
+def test_sides_sizes_and_the_three_edges_at_mid():
+    d = frame([("g1", "a", 50, "rec_yds", 0.60, 0.50, 0.52, 1, 0.48, 0.52, 0.5, 0.54),    # over, 10 points, medium, won
+               ("g2", "b", 50, "rec_yds", 0.30, 0.40, 0.37, 1, 0.38, 0.42, 0.35, 0.39),   # under, 10 points, medium, lost
+               ("g3", "c", 50, "rec_yds", 0.52, 0.50, 0.50, 1, 0.48, 0.52, 0.48, 0.52)])  # inside the 5 point threshold
+    x = L.make_leans(d, "p_A", "mid")
     assert list(x["side"]) == ["over", "under"] and list(x["size"]) == ["medium", "medium"]
-    assert list(x["win"]) == [1.0, 0.0]
-    assert x["real"].round(3).tolist() == [0.5, -0.6]                   # win minus the price of the side taken
-    assert x["clv"].round(3).tolist() == [0.02, 0.03]                   # the price moved toward each lean
-    s = L.summarize(x, boot=False)
-    assert s["n"] == 2 and s["stated_edge"] == pytest.approx(0.10) and s["realized_edge"] == pytest.approx(-0.05)
+    assert x["real"].round(3).tolist() == [0.5, -0.6]
+    assert x["clv"].round(3).tolist() == [0.02, 0.03]
 
 
-def test_selection_filters_and_empty_selection_is_plain():
-    d = frame([("g1", "rec_yds", 0.70, 0.50, 0.55, 1), ("g2", "rush_yds", 0.20, 0.40, 0.35, 0)])
-    x = L.make_leans(d, "p_A")
-    assert len(L.select(x, "Rushing yards", None, None, "All", None)) == 1
-    assert len(L.select(x, "All", 4, None, "All", None)) == 0
-    assert L.summarize(x.iloc[0:0])["n"] == 0
-    assert set(L.NOT_TESTABLE) == {"Game total", "Spread", "Moneyline", "Touchdowns"}
+def test_a_ladder_counts_once_at_its_largest_edge():
+    d = frame([("g1", "a", 40, "rec_yds", 0.70, 0.60, 0.6, 1, 0.58, 0.62, 0.6, 0.62),
+               ("g1", "a", 50, "rec_yds", 0.60, 0.40, 0.4, 1, 0.38, 0.42, 0.38, 0.42),     # biggest gap on this ladder
+               ("g1", "a", 60, "rec_yds", 0.50, 0.35, 0.3, 0, 0.33, 0.37, 0.3, 0.34)])
+    x = L.make_leans(d, "p_A", "mid")
+    assert len(x) == 1 and x["k"].iloc[0] == 50
 
 
-def test_small_samples_never_claim_an_edge():
+def test_executable_prices_fee_and_thin_markets():
+    d = frame([("g1", "a", 50, "rec", 0.70, 0.50, 0.5, 1, 0.48, 0.54, 0.52, 0.56),         # over: buy at the ask 0.54
+               ("g2", "b", 50, "rec", 0.30, 0.50, 0.5, 0, 0.46, 0.52, 0.40, 0.44)])        # under: pay 1 - bid = 0.54
+    d.loc[1, "executable"] = False
+    x = L.make_leans(d, "p_A", "exec")
+    assert len(x) == 1                                                                      # the thin one is dropped
+    assert x["price"].iloc[0] == pytest.approx(0.54)
+    assert x["fee"].iloc[0] == pytest.approx(0.07 * 0.54 * 0.46)
+    assert x["real"].iloc[0] == pytest.approx(1 - 0.54 - 0.07 * 0.54 * 0.46)
+    assert x["clv"].iloc[0] == pytest.approx(0.52 - 0.54)                                   # sell at the close bid, bought at the ask
+    assert L.dropped_share(d, "p_A")["dropped_thin"] == pytest.approx(0.5)
+
+
+def test_design_effect_grows_when_leans_in_a_game_move_together():
+    gid = np.repeat(np.arange(20), 5)
+    shared = np.repeat(np.random.default_rng(1).normal(size=20), 5)
+    alone = np.random.default_rng(2).normal(size=100)
+    assert L._icc(shared + 0.1 * alone, gid) > 0.8
+    assert L._icc(alone, gid) < 0.2
+
+
+def test_holm_and_small_samples():
+    h = L.holm({"a": 0.01, "b": 0.04, "c": 0.5})
+    assert h["a"] == pytest.approx(0.03) and h["b"] == pytest.approx(0.08) and h["c"] == pytest.approx(0.5)
     rng = np.random.default_rng(0)
-    d = frame([(f"g{i}", "rec", 0.7, 0.5, 0.55, int(rng.random() < 0.7)) for i in range(40)])
-    s = L.summarize(L.make_leans(d, "p_A"))
-    assert s["finds_edge"] is False and "Too few leans" in s["note"]
+    d = frame([(f"g{i}", "a", 50, "rec", 0.7, 0.5, 0.55, int(rng.random() < 0.7), 0.48, 0.52, 0.5, 0.54) for i in range(40)])
+    s = L.summarize(L.make_leans(d, "p_A", "mid"))
+    assert "Too few leans" in s["note"] and s["effective_n"] <= s["n"]
 
 
 def test_frozen_leans_are_write_once_and_detect_tampering(tmp_path, monkeypatch):

@@ -80,24 +80,30 @@ _LEANS = {}
 
 
 @app.get("/api/leans")
-def leans(market: str = "All", week_from: int | None = None, week_to: int | None = None, size: str = "All", season: int | None = None):
+def leans(market: str = "All", week_from: int | None = None, week_to: int | None = None, size: str = "All", season: int | None = None, model: str = "recal", mode: str = "exec"):
     import json as _json
     import pandas as _pd
+    if model not in ("recal", "raw") or mode not in ("exec", "mid"):
+        raise HTTPException(400, "model is recal or raw; mode is exec or mid")
     f = ROOT / "data" / "leans" / "backtest_leans.parquet"
     if not f.exists():
         raise HTTPException(503, "Leans have not been scored yet. Run scripts/leans_run.py.")
     if _LEANS.get("mtime") != f.stat().st_mtime:
         _LEANS.update(mtime=f.stat().st_mtime, x=_pd.read_parquet(f), bt=_json.loads((ROOT / "docs" / "leans_backtest.json").read_text()))
     x, bt = _LEANS["x"], _LEANS["bt"]
+    x = x[(x["model"] == model) & (x["mode"] == mode)]
     sel = leans_lab.select(x, market, week_from, week_to, size, season=season)
     rows = sel.sort_values(["season", "week"], ascending=False).head(150)
     pending = []
-    for fp in sorted((ROOT / "data" / "leans" / "frozen").glob("*.json")) if (ROOT / "data" / "leans" / "frozen").exists() else []:
+    fdir = ROOT / "data" / "leans" / "frozen"
+    for fp in sorted(fdir.glob("*.json")) if fdir.exists() else []:
         rec = _json.loads(fp.read_text())
         pending += [{**p, "week": rec["forecast"]["week"], "sha256": rec["sha256"]} for p in rec["forecast"]["leans"] if market in ("All", p["market"])]
+    head = bt["models"][model][mode]
     return JSONResponse(D.clean({"markets": [{"name": n, "testable": True} for n in leans_lab.STAT_NAME.values()] + [{"name": n, "testable": False, "why": w} for n, w in leans_lab.NOT_TESTABLE.items()],
-                                 "weeks": sorted({f"{int(a)}-{int(b)}" for a, b in zip(x["season"], x["week"])}), "summary": leans_lab.summarize(sel), "benchmarks": bt["benchmarks"], "recal_test": bt["recal_test"],
-                                 "all": bt["all"], "calibration": bt["calibration"], "rows": rows.to_dict("records"), "pending": pending, "rule_sha256": bt["rule_sha256"]}))
+                                 "summary": leans_lab.summarize(sel), "benchmarks": head["benchmarks"], "dropped": head["dropped"], "headline": bt["models"]["recal"]["exec"]["summary"], "raw_headline": bt["models"]["raw"]["exec"]["summary"],
+                                 "recal_compare": bt["recal_compare"], "placebo": bt["placebo"], "pass": bt["pass"], "calibration": bt["calibration"], "rows": rows.to_dict("records"), "pending": pending,
+                                 "rule_sha256": bt["rule_sha256"], "universe_rows": bt["universe_rows"]}))
 
 
 @app.get("/api/kingzone/{week}")

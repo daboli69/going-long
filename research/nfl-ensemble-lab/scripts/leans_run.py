@@ -13,4 +13,7 @@ if __name__ == "__main__":
     out = ROOT / "data" / "leans"
     out.mkdir(parents=True, exist_ok=True)
     L.rows_for_screen(x).to_parquet(out / "backtest_leans.parquet")
-    print(json.dumps({k: res[k] for k in ("model_used", "recal_test", "universe_rows", "leans", "no_lean", "all", "benchmarks", "by_market", "by_size", "by_season")}, indent=1))
+    show = {k: res[k] for k in ("recal_compare", "universe_rows", "executable_rows", "placebo", "pass")}
+    show["models"] = {m: {md: {k: v for k, v in r.items() if k != "note"} for md, r in mm.items()} for m, mm in res["models"].items()}
+    show["subgroups"] = {k: {a: v.get(a) for a in ("n", "realized_edge", "p_holm", "claim")} for k, v in res["subgroups"].items()}
+    print(json.dumps(show, indent=1, default=float))

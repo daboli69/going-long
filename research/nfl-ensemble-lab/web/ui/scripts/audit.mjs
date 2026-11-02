@@ -33,7 +33,7 @@ for (const [label, viewport] of [["desktop", { width: 1440, height: 900 }], ["ph
     ["results", async () => { await page.getByRole("tab", { name: "Results", exact: true }).click(); await page.waitForTimeout(4000); }],
     ["rankings", async () => { await page.getByRole("tab", { name: "Player rankings" }).click(); await page.waitForTimeout(6000); }],
     ["king", async () => { await page.getByRole("tab", { name: "King of the End Zone" }).click(); await page.waitForTimeout(7000); }],
-    ["leans", async () => { await page.getByRole("tab", { name: "Leans" }).click(); await page.waitForTimeout(3000); await page.locator("section select").nth(0).selectOption("Receiving yards"); await page.waitForTimeout(1500); await page.locator("section select").nth(4).selectOption("large"); await page.waitForTimeout(1500); }],
+    ["leans", async () => { await page.getByRole("tab", { name: "Leans" }).click(); await page.waitForTimeout(3000); await page.locator("section select").nth(0).selectOption("Receiving yards"); await page.waitForTimeout(1500); await page.locator("section select").nth(4).selectOption("large"); await page.locator("section select").nth(5).selectOption("mid"); await page.waitForTimeout(1500); }],
     ["market", async () => { await page.getByRole("tab", { name: "Market value" }).click(); await page.waitForTimeout(4000); }],
   ];
   for (const [name, go] of steps) {
