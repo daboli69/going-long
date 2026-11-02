@@ -2,6 +2,7 @@ import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { cn } from "../../lib";
+import { Rise } from "../motion";
 
 // Small building blocks written by hand so the app has no generated code to maintain. Surfaces are flat and square,
 // separated by a tone step rather than borders or shadows.
@@ -32,7 +33,7 @@ export const TabsTrigger = ({ className, ...props }: React.ComponentPropsWithout
   />
 );
 export const TabsContent = ({ className, ...props }: React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>) => (
-  <TabsPrimitive.Content className={cn("mt-5", className)} {...props} />
+  <TabsPrimitive.Content className={cn("mt-5", className)} {...props}>{props.children ? <Rise>{props.children}</Rise> : null}</TabsPrimitive.Content>
 );
 
 // A labelled control row: the label is visible, so several rows of chips do not read as one pile.

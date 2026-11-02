@@ -3,9 +3,10 @@ import { api, NotCaptured } from "../api";
 import type { Detail, Live, LiveRow, LiveTd } from "../types";
 import { cn, pct } from "../lib";
 import { Callout, FilterRow, Segmented } from "./ui/primitives";
+import { Num } from "./motion";
 
 const STATS = ["Passing yards", "Rushing yards", "Receiving yards", "Receptions", "Touchdowns"];
-const COLS = "grid-cols-[minmax(0,1fr)_4em_4.5em_4.5em] sm:grid-cols-[minmax(0,1fr)_5em_6em_6em_7em]";
+const COLS = "grid-cols-[minmax(0,1fr)_4em_4.5em_4.5em] sm:grid-cols-[minmax(0,1fr)_6em_9em_9em_8em]";
 const NOUN: Record<string, string> = { "Passing yards": "pass attempts", "Rushing yards": "carries", "Receiving yards": "targets", Receptions: "targets" };
 
 const clock = (s: number | null) => (s === null ? "" : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`);
@@ -24,7 +25,7 @@ function TdRow({ r }: { r: LiveTd }) {
       <div role="cell" className="min-w-0 text-[15px]">{r.name} <span className="text-[13px] text-muted">{r.team}</span></div>
       <div role="cell" className="text-right text-[15px]">{r.td_so_far}</div>
       <div role="cell" className="text-right text-[15px] text-muted">{r.chance_pre === null ? "Not modeled" : pct(r.chance_pre)}</div>
-      <div role="cell" className="text-right text-xl font-bold">{r.scored ? "Scored" : pct(r.chance_now)}</div>
+      <div role="cell" className="text-right text-xl font-bold">{r.scored ? "Scored" : <Num value={r.chance_now} pct />}</div>
     </div>
   );
 }
@@ -36,9 +37,9 @@ function Row({ r }: { r: LiveRow }) {
     <div role="row" className={cn("grid min-h-[48px] items-center gap-x-3 border-t border-bg py-2", COLS)}>
       <div role="cell" className="min-w-0 text-[15px]">{r.name} <span className="text-[13px] text-muted">{r.team}</span>
         <span className="block text-[13px] text-muted">{r.targets_or_carries} {r.targets_or_carries === 1 ? NOUN[r.stat].replace(/s$/, "") : NOUN[r.stat]} so far</span></div>
-      <div role="cell" className="text-right text-[15px]">{r.yards.toFixed(dec)}</div>
+      <div role="cell" className="text-right text-[15px]"><Num value={r.yards} dec={dec} /></div>
       <div role="cell" className="text-right text-[15px] text-muted">{r.frozen.toFixed(dec)}</div>
-      <div role="cell" className="text-right text-xl font-bold">{r.updated.toFixed(dec)}
+      <div role="cell" className="text-right text-xl font-bold"><Num value={r.updated} dec={dec} />
         <span className="block text-[13px] font-normal text-muted">{moved >= 0 ? "+" : "−"}{Math.abs(moved).toFixed(dec)}</span></div>
       <div role="cell" className="hidden text-right text-[15px] text-muted sm:block">{r.low.toFixed(dec)} to {r.high.toFixed(dec)}</div>
     </div>
@@ -83,14 +84,21 @@ export function LiveGame({ d, onFinished }: { d: Detail; onFinished?: () => void
   const unit = stat === "Receptions" ? "Catches" : "Yards";
   return (
     <div className="space-y-4">
-      <section aria-label="Game state" className="grid grid-cols-1 gap-0.5 sm:grid-cols-3">
-        <div className="bg-panel p-4"><div className="text-[13px] text-muted">{status(live)}</div>
-          <div className="text-xl font-bold">{d.away} {live.score.away}, {d.home} {live.score.home}</div></div>
-        <div className="bg-panel p-4"><div className="text-[13px] text-muted">Win chance now</div>
-          <div className="text-xl font-bold">{homeP === null ? "Not available" : homeP >= 0.5 ? `${d.home} ${pct(homeP)}` : `${d.away} ${pct(1 - homeP)}`}</div></div>
-        <div className="bg-panel p-4"><div className="text-[13px] text-muted">Newest play in the feed</div>
+      <section aria-label="Game state" className="grid grid-cols-1 items-end gap-x-8 gap-y-3 bg-panel px-4 py-4 sm:grid-cols-[auto_1fr_1fr] sm:px-6">
+        <div>
+          <div className="text-[13px] text-muted">{status(live)}</div>
+          <div className="fig text-[44px] sm:text-[56px]"><Num value={live.score.away} /> <span className="text-muted">–</span> <Num value={live.score.home} /></div>
+          <div className="text-[13px] text-muted">{d.away} at {d.home}</div>
+        </div>
+        <div className="sm:border-l sm:border-line sm:pl-6">
+          <div className="text-[13px] text-muted">Win chance now</div>
+          <div className="text-xl font-bold">{homeP === null ? "Not available" : homeP >= 0.5 ? <>{d.home} <Num value={homeP} pct /></> : <>{d.away} <Num value={1 - homeP} pct /></>}</div>
+        </div>
+        <div className="sm:border-l sm:border-line sm:pl-6">
+          <div className="text-[13px] text-muted">Newest play in the feed</div>
           <div className="text-xl font-bold">{live.newest_play_seconds === null ? "Not shown" : ago(live.newest_play_seconds)}</div>
-          <div className="text-[13px] text-muted">{live.feed_lag ? `ESPN usually shows a play ${live.feed_lag.median.toFixed(0)} seconds late (9 in 10 within ${live.feed_lag.p90.toFixed(0)}), from ${live.feed_lag.n} plays` : "ESPN delay not measured yet"}</div></div>
+          <div className="text-[13px] text-muted">{live.feed_lag ? `ESPN usually shows a play ${live.feed_lag.median.toFixed(0)} seconds late (9 in 10 within ${live.feed_lag.p90.toFixed(0)}), from ${live.feed_lag.n} plays` : "ESPN delay not measured yet"}</div>
+        </div>
       </section>
       {live.last_play && <p className="text-[15px] text-muted">Last play: {live.last_play.trim()}</p>}
       {live.state === "in" && live.newest_play_seconds !== null && live.newest_play_seconds > Math.max(180, (live.feed_lag?.p90 ?? 0) + 120) && (

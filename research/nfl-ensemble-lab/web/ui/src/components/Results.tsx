@@ -3,6 +3,7 @@ import { api } from "../api";
 import type { ResultGame, ResultPlayer, WeekResults } from "../types";
 import { cn, num, pct } from "../lib";
 import { Badge, Callout, FilterRow, Segmented } from "./ui/primitives";
+import { Num } from "./motion";
 
 const STATS = ["Passing yards", "Rushing yards", "Receiving yards", "Receptions"];
 
@@ -13,16 +14,6 @@ function byMargin(g: ResultGame) {
   const exp = Math.abs(g.exp_margin) < 0.25 ? "even" : `${g.exp_margin > 0 ? g.home : g.away} by ${num(Math.abs(g.exp_margin))}`;
   const act = g.margin === 0 ? "tie" : `${g.margin > 0 ? g.home : g.away} by ${Math.abs(g.margin).toFixed(0)}`;
   return `Expected ${exp}, finished ${act}`;
-}
-
-function Tile({ label, value, note }: { label: string; value: string; note?: string }) {
-  return (
-    <div className="bg-panel p-4">
-      <div className="text-[13px] text-muted">{label}</div>
-      <div className="text-xl font-bold">{value}</div>
-      {note && <div className="text-[13px] text-muted">{note}</div>}
-    </div>
-  );
 }
 
 function PlayerRow({ r }: { r: ResultPlayer }) {
@@ -97,11 +88,17 @@ export function ResultsView({ weeks, latest, onOpenGame }: { weeks: number[]; la
         Every number below was saved before the game. {s.games_played} of the week's games are final{s.games_played > s.games_scored ? `, and ${s.games_scored} have a saved forecast to score` : ""}.
         "Right" for a winner means the team we favored won. "Right" for a player means the projection landed close: within 20% or 15 yards of the actual, whichever is larger, or within 1 catch. A projection of 120 against an actual 80 is wrong.
       </p>
-      <section aria-label="Week summary" className="grid grid-cols-2 gap-0.5 sm:grid-cols-4">
-        <Tile label="Winners picked right" value={`${s.picked_right} of ${s.picked_right + s.picked_wrong}`} note={s.accuracy === null ? undefined : `${pct(s.accuracy)}; we averaged ${pct(s.avg_confidence)} confidence`} />
-        <Tile label="Margin off by, on average" value={`${num(s.mean_abs_margin_error)} points`} note={`${pct(s.margin_inside_80)} inside the 8-in-10 range`} />
-        <Tile label="Total off by, on average" value={`${num(s.mean_abs_total_error)} points`} note={`${pct(s.total_inside_80)} inside the 8-in-10 range`} />
-        <Tile label="Player projections that landed close" value={pct(Object.values(data.player_summary).reduce((a, v) => a + v.close_rate * v.n, 0) / Math.max(1, Object.values(data.player_summary).reduce((a, v) => a + v.n, 0)))} note="Within 20% or 15 yards (1 catch)" />
+      <section aria-label="Week summary" className="grid grid-cols-1 gap-x-10 gap-y-4 bg-panel p-4 sm:grid-cols-[auto_1fr] sm:p-6">
+        <div>
+          <div className="text-[13px] text-muted">Winners picked right</div>
+          <div className="fig text-[64px] sm:text-[88px]">{s.picked_right}<span className="text-muted"> of </span>{s.picked_right + s.picked_wrong}</div>
+          {s.accuracy !== null && <div className="text-[15px] text-slate-300">{pct(s.accuracy)}, at {pct(s.avg_confidence)} average confidence</div>}
+        </div>
+        <dl className="grid content-end divide-y divide-line self-end text-[15px]">
+          <div className="flex items-baseline justify-between gap-4 py-2"><dt className="text-muted">Margin off by, on average</dt><dd className="text-xl font-bold"><Num value={s.mean_abs_margin_error} dec={1} /> points <span className="text-[13px] font-normal text-muted">{pct(s.margin_inside_80)} inside the range</span></dd></div>
+          <div className="flex items-baseline justify-between gap-4 py-2"><dt className="text-muted">Total off by, on average</dt><dd className="text-xl font-bold"><Num value={s.mean_abs_total_error} dec={1} /> points <span className="text-[13px] font-normal text-muted">{pct(s.total_inside_80)} inside the range</span></dd></div>
+          <div className="flex items-baseline justify-between gap-4 py-2"><dt className="text-muted">Player projections that landed close</dt><dd className="text-xl font-bold">{pct(Object.values(data.player_summary).reduce((a, v) => a + v.close_rate * v.n, 0) / Math.max(1, Object.values(data.player_summary).reduce((a, v) => a + v.n, 0)))} <span className="text-[13px] font-normal text-muted">within 20% or 15 yards</span></dd></div>
+        </dl>
       </section>
       {s.pending_actuals.length > 0 && <Callout tone="amber">{s.pending_actuals.length} finished game(s) are not scored for players yet because no official or recorded box score is available for them.</Callout>}
 

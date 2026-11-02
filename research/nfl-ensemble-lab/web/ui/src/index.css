@@ -9,8 +9,21 @@ body { @apply bg-bg text-slate-100 antialiased; font-variant-numeric: tabular-nu
 summary, label[for], select { cursor: pointer; }
 
 /* A team's colour darkened enough that white text on it passes AA for every team. */
+/* Scoreboard figure: Bahnschrift's width axis run condensed, as scoreboard digits are. */
+.fig { font-variation-settings: "wdth" 75; font-weight: 700; letter-spacing: -0.01em; line-height: 1; }
+
 .team-field { background: color-mix(in srgb, var(--team) 52%, #000); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
+
+/* Windows high contrast: the browser drops our colours, so selection has to show as a border or outline in system colours. */
+@media (forced-colors: active) {
+  button, summary, select { border: 1px solid ButtonText; }
+  [role="tab"] { border-bottom-color: Canvas; padding-inline: 0.5rem; }
+  [role="tab"][data-state="active"] { border-bottom-color: Highlight; border-bottom-width: 4px; }
+  [aria-current="true"], [aria-checked="true"] { outline: 3px solid Highlight; outline-offset: -3px; }
+  .team-field { border: 1px solid CanvasText; }
+}
+
