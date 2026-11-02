@@ -1,0 +1,15 @@
+{
+ "season_covered": 2023,
+ "weeks_for_speed": "1 to 9",
+ "weeks_scored": "10 to 18",
+ "receivers_with_speed": 331,
+ "targets_scored": 7385,
+ "exceedances": 1181,
+ "coef_prior_logit": 0.7497160764769198,
+ "coef_speed_per_sd": 0.02554066159299923,
+ "lr_chi2": 0.24199898270671838,
+ "p_value": 0.6227660574861953,
+ "loglik_without": -3186.9442972625648,
+ "loglik_with": -3186.8232977712114,
+ "note": "Covers the 2023 season only (pass plays, speed before the throw). A speed feature cannot be used for the 2022, 2024 and 2025 test seasons, so it is reported here and left out of the tested model."
+}

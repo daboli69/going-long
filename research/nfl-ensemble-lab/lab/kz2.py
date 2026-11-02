@@ -294,7 +294,7 @@ def team_inputs(season: int, week: int, team: str, opp: str, fit: dict, L: dict,
     nt = (last["kind"] == 1).sum()
     nr = (last["kind"] == 0).sum()
     pr = (nt + PASS_PRIOR * L["pass_rate"]) / (nt + nr + PASS_PRIOR)
-    return {"team": team, "units": units, "pass_rate": float(pr), "lam": float(lam), "games_seen": len(games)}
+    return {"team": team, "units": units, "pass_rate": float(pr), "lam": float(lam), "games_seen": len(games), "opp_f": opp_f}
 
 
 def _opp_factor(season: int, week: int, opp: str, kind: int) -> float:
@@ -319,12 +319,13 @@ def _gpd(u: np.ndarray, sigma: float, xi: float) -> np.ndarray:
     return sigma * ((1 - u) ** (-xi) - 1) / xi if abs(xi) > 1e-6 else -sigma * np.log(1 - u)
 
 
-def sim_team(rng, N: int, team: dict, L: dict, n_drives: float) -> tuple[np.ndarray, np.ndarray]:
+def sim_team(rng, N: int, team: dict, L: dict, n_drives: float, track: bool = False) -> tuple:
     """best[N, P]: the longest touchdown by each unit in each simulated game (0 if none); cnt[N, P]: touchdowns by each unit."""
     units = team["units"]
     P = len(units)
     best = np.zeros((N, P), np.int16)
     cnt = np.zeros((N, P), np.int8)
+    tmin = np.full((N, P), np.inf, np.float32) if track else None   # share of the game's drives elapsed at the unit's first touchdown
     lists = {}
     for kd in (0, 1):
         ids = [i for i, u in enumerate(units) if kd in u]
@@ -375,6 +376,8 @@ def sim_team(rng, N: int, team: dict, L: dict, n_drives: float) -> tuple[np.ndar
                 ti = idx[td]
                 np.maximum.at(best, (ti, who[td]), yy[td].astype(np.int16))
                 np.add.at(cnt, (ti, who[td]), 1)
+                if track:
+                    np.minimum.at(tmin, (ti, who[td]), ((d + 0.5) / nd[ti]).astype(np.float32))
                 alive[ti] = False
             keep = ~td
             turn = keep & (rng.random(m) < L["turn"])
@@ -386,10 +389,10 @@ def sim_team(rng, N: int, team: dict, L: dict, n_drives: float) -> tuple[np.ndar
             y[gi] = newy
             togo[gi] = np.where(first, np.minimum(10.0, newy), togo[gi] - gain[go])
             down[gi] = np.where(first, 1, down[gi] + 1)
-    return best, cnt
+    return (best, cnt, tmin) if track else (best, cnt)
 
 
-def predict(season: int, week: int, home: str, away: str, fit: dict, n: int = 6000, seed: int = 7, out_pids: set | None = None) -> dict:
+def predict(season: int, week: int, home: str, away: str, fit: dict, n: int = 6000, seed: int = 7, out_pids: set | None = None, extended: bool = False) -> dict:
     """Probabilities for one game as of the start of its week: per roster player the chance of the longest touchdown, any touchdown, 2+ and the field."""
     L = league(season, week)
     rng = np.random.default_rng(seed)
@@ -399,8 +402,8 @@ def predict(season: int, week: int, home: str, away: str, fit: dict, n: int = 60
         pil_b, pil_c = sim_team(rng, 1200, tm, L, BASE_DRIVES)
         mean = max(pil_c.sum(axis=1).mean(), 0.2)
         n_eff = float(np.clip(BASE_DRIVES * tm["lam"] / mean, 4.0, 22.0))
-        b, c = sim_team(rng, n, tm, L, n_eff)
-        sims.append((b, c, n_eff, mean))
+        res = sim_team(rng, n, tm, L, n_eff, track=extended)
+        sims.append((res[0], res[1], n_eff, mean, res[2] if extended else None))
     # defense and special-teams touchdowns, per team
     rets = []
     for _ in teams:
@@ -412,11 +415,20 @@ def predict(season: int, week: int, home: str, away: str, fit: dict, n: int = 60
     eq = (allbest == top[:, None]) & (top[:, None] > 0)
     w = eq / np.maximum(eq.sum(axis=1, keepdims=True), 1)
     rows, col = [], 0
-    for tm, (b, c, n_eff, mean) in zip(teams, sims):
+    first = None
+    if extended:   # who scores first: the earliest touchdown by share of drives elapsed; return touchdowns get a uniform time
+        rt = [np.where(r > 0, rng.random(n), np.inf).astype(np.float32)[:, None] for r in rets]
+        tall = np.concatenate([s[4] for s in sims] + rt, axis=1)
+        tmin_all = tall.min(axis=1)
+        first = (tall == tmin_all[:, None]) & np.isfinite(tmin_all)[:, None]
+        first = first / np.maximum(first.sum(axis=1, keepdims=True), 1)
+    for tm, (b, c, n_eff, mean, _t) in zip(teams, sims):
         for i, u in enumerate(tm["units"]):
             rows.append({"pid": u["pid"], "team": tm["team"], "chance": float(w[:, col + i].mean()), "anytime": float((c[:, i] >= 1).mean()), "two_plus": float((c[:, i] >= 2).mean()),
                          "exp_td": float(c[:, i].mean()), "win_two_plus": float((w[:, col + i] * (c[:, i] >= 2)).sum() / max((c[:, i] >= 2).sum(), 1)),
-                         "p40": float((b[:, i] >= 40).mean()), "p60": float((b[:, i] >= 60).mean()), "share": {kd: u[kd]["share"] for kd in (0, 1) if kd in u}})
+                         "p40": float((b[:, i] >= 40).mean()), "p60": float((b[:, i] >= 60).mean()), "share": {kd: u[kd]["share"] for kd in (0, 1) if kd in u},
+                         **({"first": float(first[:, col + i].mean()), "first_and_longest": float((first[:, col + i] * w[:, col + i]).mean()),
+                            "params": {kd: u[kd] for kd in (0, 1) if kd in u}, "opp_f": tm["opp_f"]} if extended else {})})
         col += len(tm["units"])
     field = float(w[:, col:].sum(axis=1).mean()) + sum(r["chance"] for r in rows if str(r["pid"]).startswith("OTHER:"))
     rows = [r for r in rows if not str(r["pid"]).startswith("OTHER:")]
