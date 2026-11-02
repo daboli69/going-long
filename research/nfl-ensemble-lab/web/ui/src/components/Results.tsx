@@ -40,16 +40,32 @@ function PlayerRow({ r }: { r: ResultPlayer }) {
 }
 
 // What the saved pregame forecasts got right and wrong in a week. Every projection shown was saved before the game.
-export function ResultsView({ week, onOpenGame }: { week: number; onOpenGame: (gid: string) => void }) {
+export function ResultsView({ weeks, latest, onOpenGame }: { weeks: number[]; latest: number; onOpenGame: (gid: string) => void }) {
+  const [week, setWeek] = useState<number | null>(null);
   const [data, setData] = useState<WeekResults | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [stat, setStat] = useState("Receiving yards");
   const [show, setShow] = useState("Biggest misses");
 
+  // Start on the most recent week that has a finished game: try the current week, then step back.
   useEffect(() => {
-    setData(null); setError(null);
-    api.results(week).then(setData).catch((e) => setError(String(e)));
-  }, [week]);
+    let live = true;
+    (async () => {
+      for (let w = latest; w >= 1; w--) {
+        try {
+          const r = await api.results(w);
+          if (!live) return;
+          if (r.games.length || w === 1) { setWeek(w); setData(r); return; }
+        } catch (e) { if (live) setError(String(e)); return; }
+      }
+    })();
+    return () => { live = false; };
+  }, [latest]);
+
+  const pick = (w: number) => {
+    setWeek(w); setData(null); setError(null);
+    api.results(w).then(setData).catch((e) => setError(String(e)));
+  };
 
   const rows = useMemo(() => {
     if (!data) return [];
@@ -60,14 +76,23 @@ export function ResultsView({ week, onOpenGame }: { week: number; onOpenGame: (g
     return [...x].sort((a, b) => b.projected - a.projected);
   }, [data, stat, show]);
 
-  if (error) return <Callout tone="amber">The results could not be loaded ({error}).</Callout>;
-  if (!data) return <Callout tone="blue">Loading the results.</Callout>;
+  const picker = (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <h1 className="text-[22px] font-bold leading-tight text-white sm:text-2xl">Results</h1>
+      <label className="sr-only" htmlFor="results-week">Week</label>
+      <select id="results-week" className="min-h-[44px] bg-panel px-4 text-base text-white hover:bg-raised" value={week ?? ""} onChange={(e) => pick(Number(e.target.value))}>
+        {weeks.map((w) => <option key={w} value={w}>Week {w}</option>)}
+      </select>
+    </div>
+  );
+  if (error) return <div className="space-y-4">{picker}<Callout tone="amber">The results could not be loaded ({error}).</Callout></div>;
+  if (!data || week === null) return <div className="space-y-4">{picker}<Callout tone="blue">Loading the results.</Callout></div>;
   const s = data.summary;
-  if (!data.games.length) return <Callout tone="blue">No games from week {week} have finished yet, so there is nothing to score. Come back after the first game ends.</Callout>;
+  if (!data.games.length) return <div className="space-y-4">{picker}<Callout tone="blue">No games from week {week} have finished yet, so there is nothing to score. Pick an earlier week, or come back after the first game ends.</Callout></div>;
   const ps = data.player_summary[stat];
   return (
     <div className="space-y-6">
-      <h1 className="text-[22px] font-bold leading-tight text-white sm:text-2xl">Week {week} results</h1>
+      {picker}
       <p className="max-w-[75ch] text-[15px] text-muted">
         Every number below was saved before the game. {s.games_played} of the week's games are final{s.games_played > s.games_scored ? `, and ${s.games_scored} have a saved forecast to score` : ""}.
         "Right" for a winner means the team we favored won. "Right" for a player means he finished inside the 8-in-10 range we showed, which should happen about 8 times in 10.

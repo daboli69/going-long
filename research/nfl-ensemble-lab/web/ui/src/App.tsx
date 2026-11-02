@@ -115,7 +115,7 @@ export default function App() {
           </TabsContent>
 
           <TabsContent value="rankings" className="mt-6">{week !== null && <RankingsView week={week} onOpenGame={(g) => { setGid(g); setView("games"); }} />}</TabsContent>
-          <TabsContent value="results" className="mt-6">{week !== null && <ResultsView week={week} onOpenGame={(g) => { setGid(g); setView("games"); }} />}</TabsContent>
+          <TabsContent value="results" className="mt-6"><ResultsView weeks={meta.weeks.filter((w) => w <= meta.default_week)} latest={meta.default_week} onOpenGame={(g) => { setGid(g); setView("games"); }} /></TabsContent>
           <TabsContent value="market" className="mt-6">{week !== null && <MarketValueView week={week} />}</TabsContent>
         </Tabs>
       </main>
