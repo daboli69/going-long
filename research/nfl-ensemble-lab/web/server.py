@@ -23,6 +23,7 @@ from lab import kingzone
 from lab import kz2_board
 from lab import leans as leans_lab
 from lab import refs as refs_lab
+from lab import first_td_allowed as ftd_lab
 from lab import tdmarket as td_market
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -134,6 +135,17 @@ def refs(measure: str = "home_ats", referee: str = "All", season_from: int = 201
     keep = ("rule_sha256", "games", "referees", "coverage", "year_to_year", "claims", "any_effect_claimed", "tweet_check", "market", "penalty_dispersion", "discovery_ats_tests")
     return JSONResponse(D.clean({"measures": refs_lab.MEASURES, "kind": "rate" if measure in refs_lab.BINARY else "count", "referees": sorted(f["referee"].unique()), "rows": rows, "selected": pick[0] if pick else None,
                                  "this_week": tw, "frozen": frozen, "results": {k: res[k] for k in keep}}))
+
+
+@app.get("/api/first-td-allowed")
+def first_td_allowed(season: int = 2026, weeks: str = "", overall: bool = False):
+    try:
+        ws = [int(w) for w in weeks.split(",") if w.strip()] or None
+    except ValueError:
+        raise HTTPException(400, "weeks is a comma list of week numbers")
+    if season not in ftd_lab.seasons():
+        raise HTTPException(400, "no play-by-play for that season")
+    return JSONResponse(D.clean({**ftd_lab.table(season, ws, overall), "seasons": ftd_lab.seasons(), "positions": ftd_lab.POSITIONS}))
 
 
 @app.get("/api/kingzone/{week}")

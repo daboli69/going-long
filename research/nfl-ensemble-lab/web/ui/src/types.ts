@@ -283,3 +283,6 @@ export type Refs = {
     coverage: { by_season: Record<string, { games: number; with_referee: number; in_both: number; same: number }>; missing: string };
   };
 };
+
+export type FirstTdRow = { team: string; games: number; tds: number; counts: Record<string, number>; pct: Record<string, number | null> };
+export type FirstTdAllowed = { season: number; weeks: number[]; weeks_available: number[]; overall: boolean; seasons: number[]; positions: string[]; rows: FirstTdRow[]; league: Omit<FirstTdRow, "team"> };

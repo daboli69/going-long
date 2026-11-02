@@ -8,7 +8,7 @@ import { About, Matchup } from "./components/Others";
 import { Props } from "./components/Players";
 import { LiveGame } from "./components/Live";
 import { SimGame } from "./components/SimGame";
-import { RankingsView } from "./components/Rankings";
+import { RankingsHub } from "./components/RankingsHub";
 import { MarketValueView } from "./components/MarketValue";
 import { ResultsView } from "./components/Results";
 import { KingZoneView } from "./components/KingZone";
@@ -120,7 +120,7 @@ export default function App() {
             )}
           </TabsContent>
 
-          <TabsContent value="rankings" className="mt-6">{week !== null && <RankingsView week={week} onOpenGame={(g) => { setGid(g); setView("games"); }} />}</TabsContent>
+          <TabsContent value="rankings" className="mt-6">{week !== null && <RankingsHub week={week} onOpenGame={(g) => { setGid(g); setView("games"); }} />}</TabsContent>
           <TabsContent value="leans" className="mt-6"><LeansView /></TabsContent>
           <TabsContent value="refs" className="mt-6"><RefsView /></TabsContent>
           <TabsContent value="king" className="mt-6">{week !== null && <KingZoneView week={week} />}</TabsContent>

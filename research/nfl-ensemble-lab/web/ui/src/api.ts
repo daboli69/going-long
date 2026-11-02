@@ -1,4 +1,4 @@
-import type { Leans, Refs, KingBoard, KingWeek, WeekResults, Detail, GameRow, GlossaryItem, Live, Meta, Rankings, Sim, TdCardData, TdMarket } from "./types";
+import type { Leans, Refs, FirstTdAllowed, KingBoard, KingWeek, WeekResults, Detail, GameRow, GlossaryItem, Live, Meta, Rankings, Sim, TdCardData, TdMarket } from "./types";
 
 async function get<T>(path: string): Promise<T> {
   const response = await fetch(path);
@@ -20,6 +20,7 @@ export const api = {
   kingWeek: (week: number) => get<KingWeek>(`/api/kingzone/${week}`),
   leans: (q: string) => get<Leans>(`/api/leans?${q}`),
   refs: (q: string) => get<Refs>(`/api/refs?${q}`),
+  firstTdAllowed: (q: string) => get<FirstTdAllowed>(`/api/first-td-allowed?${q}`),
   kingGame: (gid: string) => get<KingBoard>(`/api/kingzone/game/${gid}`),
   meta: () => get<Meta>("/api/meta"),
   week: (week: number) => get<GameRow[]>(`/api/week/${week}`),
