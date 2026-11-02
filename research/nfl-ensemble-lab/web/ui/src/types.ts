@@ -186,7 +186,7 @@ export interface Weather {
 export interface RankRow {
   rank: number; player: string; team: string; opp: string; home: boolean; gid: string; kickoff_utc: string; pos: string | null; stat: string;
   projection: number; range_low: number | null; range_high: number | null; market_line: number | null; market_chance: number | null;
-  exp_td?: number; carries?: number | null; score: number; parts: { projection: number; matchup: number | null; usage: number | null }; tags: string[];
+  exp_td?: number; red_zone?: RedZone | null; carries?: number | null; score: number; parts: { projection: number; matchup: number | null; usage: number | null }; tags: string[];
 }
 export interface RankStat { label: string; unit: "yds" | "rec" | "chance"; rows: RankRow[]; players?: number }
 export interface Rankings { week: number; weights: Record<string, number>; stats: Record<string, RankStat> }
@@ -217,6 +217,7 @@ export interface MarketRow {
 }
 export interface TdMarket { week: number; fee_rate: number; value_edge: number; min_chance: number; markets_open: number; players: number; matched: number; rows: MarketRow[]; unpriced: MarketRow[] }
 
+export type RedZone = { ez_tgt: number | null; i20_tgt: number | null; i5_carry_share: number | null; weeks: number };
 export type ResultGame = {
   gid: string; away: string; home: string; away_score: number; home_score: number; kickoff_label: string; pick: string; p_pick: number; winner: string | null; correct: boolean | null;
   exp_margin: number | null; margin: number; margin_error: number | null; exp_total: number | null; total: number; total_error: number | null; actuals_from: string | null;

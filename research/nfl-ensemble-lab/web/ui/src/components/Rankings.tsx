@@ -57,6 +57,19 @@ function Detail({ r, unit, weights, onOpenGame }: { r: RankRow; unit: string; we
         {r.tags.length > 0 && <div className="mt-4 flex flex-wrap gap-x-2 gap-y-1">{r.tags.map((t) => <span key={t} className="bg-raised px-2 py-0.5 text-sm">{t}</span>)}</div>}
         {range && unit !== "chance" && <p className="mt-4 text-sm text-muted">Projected {value(r, unit)}{unitWord(unit)}; 8 in 10 games land between {range}.</p>}
         {r.exp_td !== undefined && <p className="mt-4 text-sm text-muted">About {num(r.exp_td, 2)} expected touchdowns, from the team's expected points and who scores for it.</p>}
+        {(r.stat === "td" || r.stat === "first_td") && (
+          <div className="mt-4">
+            <h3 className="text-[15px] font-semibold text-white">Red-zone usage</h3>
+            {r.red_zone ? (
+              <dl className="mt-1 grid grid-cols-[1fr_auto] gap-x-4 gap-y-0.5 text-[15px]">
+                {r.red_zone.ez_tgt !== null && <><dt className="text-muted">End-zone targets a game</dt><dd className="text-right font-semibold">{num(r.red_zone.ez_tgt, 1)}</dd></>}
+                {r.red_zone.i20_tgt !== null && <><dt className="text-muted">Targets inside the 20 a game</dt><dd className="text-right font-semibold">{num(r.red_zone.i20_tgt, 1)}</dd></>}
+                {r.red_zone.i5_carry_share !== null && <><dt className="text-muted">Inside-5 carry share (I5%)</dt><dd className="text-right font-semibold">{pct(r.red_zone.i5_carry_share)}</dd></>}
+              </dl>
+            ) : <p className="text-sm text-muted">FantasyPoints has no red-zone numbers for this player yet.</p>}
+            <p className="mt-1 text-sm text-muted">FantasyPoints, last {r.red_zone?.weeks || 6} weeks. Receiving touchdown shares weight end-zone and inside-20 targets at 20%, which passed testing. Inside-5 carry share did not improve the rushing split, so they are shown and not used.</p>
+          </div>
+        )}
         {r.stat === "first_td" && <p className="mt-2 text-sm text-muted">First touchdown is the chance the game has a touchdown at all, times his share of the game's expected touchdowns. It is an estimate that has not been checked against results.</p>}
         <button type="button" className="mt-4 min-h-[44px] bg-white px-4 font-semibold text-bg hover:bg-white" onClick={() => onOpenGame(r.gid)}>Open the game</button>
       </div>

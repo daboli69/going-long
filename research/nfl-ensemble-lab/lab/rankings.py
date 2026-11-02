@@ -19,9 +19,11 @@ import re
 import time
 
 import numpy as np
+import pandas as pd
 from scipy.stats import rankdata
 
 from . import gamecenter_data as D
+from . import fpds_usage as X
 from . import gamesim as S
 
 TD_PER_POINT, TD_INTERCEPT, TD_FLOOR = 0.1193, -0.407, 0.3
@@ -79,6 +81,29 @@ def td_chances(sim: dict) -> dict:
 def fpds_of(rows_by_stat: dict) -> dict:
     """FantasyPoints usage metrics for a player: the simulated game attaches them to one of his rows, so take whichever has them."""
     return next((r["fpds"] for r in rows_by_stat.values() if r.get("fpds")), {})
+
+
+_RZ: dict = {}
+
+
+def red_zone(name: str, team: str, week: int) -> dict | None:
+    """FantasyPoints red-zone usage for a player over the last six weeks before `week`: end-zone and inside-20 targets a game, and the share of his carries
+    from inside the 5. None when the table has nothing for him. Receiving touchdown shares use the targets (see docs/FPDS_USAGE_CHECK.md); carries from
+    inside the 5 did not improve the rushing split in testing, so they are shown and not used."""
+    key = (team, week)
+    if key not in _RZ:
+        try:
+            _RZ[key] = X.features_asof(D.SEASON, team, week)
+        except Exception:
+            _RZ[key] = None
+    f = _RZ[key]
+    pid = S._pid_by_norm().get(S._norm(name))
+    if f is None or pid is None or pid not in f.index:
+        return None
+    r = f.loc[pid]
+    get = lambda c: float(r[c]) if c in r.index and pd.notna(r[c]) else None
+    out = {"ez_tgt": get("eztgt"), "i20_tgt": get("i20_tgt"), "i5_carry_share": get("i5_pct"), "weeks": int(r.get("fp_weeks", 0) or 0)}
+    return out if any(out[k] is not None for k in ("ez_tgt", "i20_tgt", "i5_carry_share")) else None
 
 
 def _tags(row: dict, sim: dict, team: str) -> list[str]:
@@ -142,6 +167,8 @@ def build_week(week: int) -> dict:
                     row = {**base, "stat": key, "pos": r.get("pos"), "projection": float(r["typical"]), "range_low": r.get("range_low"), "range_high": r.get("range_high"),
                            "market_line": r.get("market_line"), "market_chance": r.get("market_chance"), "our_chance": r.get("our_chance"),
                            "matchup_raw": r.get("allowed_factor"), "usage_raw": fp.get(cfg["usage"]) if cfg["usage"] else None, "carries": r.get("carries")}
+                if key in ("td", "first_td"):
+                    row["red_zone"] = red_zone(name, team, int(g.week))
                 row["tags"] = _tags(row, sim, team)
                 cand[key].append(row)
     out = {}
