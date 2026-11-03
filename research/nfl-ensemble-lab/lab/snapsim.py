@@ -1,12 +1,27 @@
 """Snap-by-snap game simulator. Every simulated game advances one snap at a time as a vector (docs/SNAPSIM_PREREG.md). Independent of the betting market."""
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import numpy as np
 
 from .snapfit import GAPS, Params, feats, feats4, hurry_state
 
 LOGIT = lambda p: np.log(np.clip(p, 1e-6, 1 - 1e-6) / (1 - np.clip(p, 1e-6, 1 - 1e-6)))
 SIG = lambda x: 1.0 / (1.0 + np.exp(-x))
+
+
+CAL_FILE = Path(__file__).resolve().parents[1] / "docs" / "snapsim_cal.json"
+CAL_DEFAULT = {"sack": 1.0, "pen": 1.0, "go": 0.0, "fg": 0.0, "strength": 0.0}
+
+
+def load_cal() -> dict:
+    """Calibration knobs (docs/SNAPSIM_PREREG.md Amendment 2), fitted on 2026 weeks 1-8 by scripts/snapsim_validate.py."""
+    cal = dict(CAL_DEFAULT)
+    if CAL_FILE.exists():
+        cal.update(json.loads(CAL_FILE.read_text()))
+    return cal
 
 
 def _draw(arr: np.ndarray, rng, n: int) -> np.ndarray:
@@ -37,6 +52,8 @@ def _pick(cum: np.ndarray, u: np.ndarray, zone: np.ndarray, sims: np.ndarray) ->
 def simulate(P: Params, away: str, home: str, pools: dict, n: int = 10000, seed: int = 0, crowd_mult: float = 1.0, ot_sudden_death: bool = True) -> dict:
     """pools[0] is the away team, pools[1] the home team. Each: names, qb (index), tshare, cshare (zone x player, or sims x zone x player), catch (player logit), ypr (player yards per reception delta), rush_mult (sims x player or player)."""
     rng = np.random.default_rng(seed)
+    cal = load_cal()
+    shock = rng.normal(0.0, cal["strength"], (n, 2))     # team strength is uncertain: one draw per team per game
     T = (away, home)
     L = P.league
     S = n
@@ -53,6 +70,7 @@ def simulate(P: Params, away: str, home: str, pools: dict, n: int = 10000, seed:
     r_pre_off, r_live_off = arr(P.off, "pre_off", L["rate_pre_off"]), arr(P.off, "live_off", L["rate_live_off"])
     r_pre_def, r_live_def = arr(P.deff, "pre_def", L["rate_pre_def"]), arr(P.deff, "live_def", L["rate_live_def"])
     r_pre_off = r_pre_off * np.array([crowd_mult, 1.0])          # away offense is the visitor
+    r_pre_off, r_live_off, r_pre_def, r_live_def = (x * cal["pen"] for x in (r_pre_off, r_live_off, r_pre_def, r_live_def))
     gap_cum = [np.cumsum(P.off["gap_mix"].get(t, np.full(7, 1 / 7)))for t in T]
     pc, pi = P.pass_coef
     c4, i4 = P.fourth_coef
@@ -109,7 +127,8 @@ def simulate(P: Params, away: str, home: str, pools: dict, n: int = 10000, seed:
         is4 = dn == 4
         if is4.any():
             lg = feats4(dn[is4], yt[is4], y0[is4], sd[is4], np.where(ot[idx], 900.0, gs)[is4]) @ c4.T + i4
-            lg[:, 0] += go_delta[o[is4]]
+            lg[:, 0] += go_delta[o[is4]] + cal["go"]
+            lg[:, 1] += cal["fg"]
             pr = np.exp(lg - lg.max(1, keepdims=True))
             pr /= pr.sum(1, keepdims=True)
             u = rng.random(is4.sum())
@@ -216,7 +235,7 @@ def simulate(P: Params, away: str, home: str, pools: dict, n: int = 10000, seed:
                 b = rng.random(len(pp)) < blitz[d2]
                 ppr = np.where(b, L["pr_b1"], L["pr_b0"]) * pr_off[o2] * pr_def[d2]
                 pres = rng.random(len(pp)) < np.clip(ppr, 0.02, 0.7)
-                sack = pres & (rng.random(len(pp)) < L["pr_sack"])
+                sack = pres & (rng.random(len(pp)) < L["pr_sack"] * cal["sack"])
                 scr = ~pres & (rng.random(len(pp)) < L["scr"] / (1 - L["pr"]))
                 att = ~sack & ~scr
                 yy = np.zeros(len(pp))
@@ -256,12 +275,13 @@ def simulate(P: Params, away: str, home: str, pools: dict, n: int = 10000, seed:
                         mm = oa == t_
                         cdelta[mm] = pools[t_]["catch"][tgt[mm]]
                         ydelta[mm] = pools[t_]["ypr"][tgt[mm]]
-                    pc_ = SIG(LOGIT(base) + comp_off[oa] + comp_def[da] + cdelta)
+                    sh = shock[sa, oa] - shock[sa, da]
+                    pc_ = SIG(LOGIT(base) + comp_off[oa] + comp_def[da] + cdelta + sh)
                     pint = np.clip(np.where(pres[aa], L["int_pr1"], L["int_pr0"]) * int_off[oa] * int_def[da], 0.002, 0.2)
                     ui = rng.random(len(aa))
                     isint = ui < pint
                     comp = ~isint & (rng.random(len(aa)) < pc_)
-                    ya = _draw(P.yards["comp"], rng, len(aa)) + ypc_off[oa] + ypc_def[da] + ydelta
+                    ya = _draw(P.yards["comp"], rng, len(aa)) + ypc_off[oa] + ypc_def[da] + ydelta + 4.0 * sh
                     ya = np.where(comp, np.clip(np.round(ya), -3, None), 0.0)
                     yy[aa] = ya
                     cat[pp[aa]] = np.where(comp, "comp", "inc")

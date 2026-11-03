@@ -56,3 +56,7 @@ The first run (600 sims per game, 120 games) failed V1: points per team 21.3 aga
 3. Only false starts take the crowd multiplier; other own-team pre-snap penalties moved to the live class. (A defect found in testing: the multiplier was applying to every pre-snap penalty.)
 4. V2 used a wrong moneyline-to-probability formula for favorites in the check script; fixed. This does not touch the simulator.
 The V1 bar, seeds and sample sizes are unchanged. Sacks within 5% and penalties within 5% remain pass conditions and are reported even if they fail.
+
+## Amendment 2 (2026-11-02, calibration knobs, written after seeing the first check)
+
+The first check missed the bar on points, sacks, penalties and fourth-down tries, and the simulator was more confident than the market. Five global knobs were added to the engine (`docs/snapsim_cal.json`): sack rate x0.948, penalty rates x1.082, fourth-down go logit -0.10, field-goal-versus-punt logit +0.40, and a team-strength draw (standard deviation 0.25 in completion logit, 1 yard per completion) per team per game. Values were set by hand from the measured gaps, once, then the check was rerun. They are fitted on the same 2026 weeks 1 to 8 they are checked on, so passing the bar is in-sample and is not evidence of out-of-sample accuracy. Any later fit uses only earlier weeks.

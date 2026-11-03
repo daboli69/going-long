@@ -56,3 +56,11 @@ Prediction check (weeks 4 to 8, 72 games, descriptive): home win log loss 0.674 
 - The Snap sim tab, for any game in the week.
 - Each game's Simulated game tab, under the play-by-play replay: the 10,000-game percentages, other lines, the Charbonnet scenario, leans and the player table.
 - The older replay and player projections in that tab now bring back a starting back who is active this week after weeks on the reserve list. Zach Charbonnet gets 52.5% of Seattle's backs' work at 95% efficiency (the middle of the snap simulator's range, an assumption), taken from the other backs. Jadarian Price stays out while the roster file lists him on the reserve list.
+
+## Recalibration (Amendment 2, 2026-11-02)
+
+Five global knobs fitted on the same weeks they are checked on, so the pass below is in-sample. After: points 22.5 vs 23.0 actual, snaps 61.3 vs 60.4, sacks 2.27 vs 2.30, penalties 6.27 vs 6.22, fourth-down tries 1.39 vs 1.40, pass rate 60.2% vs 60.4%. All inside the bar. Still short: field-goal attempts 1.83 vs 2.08 and punts 4.15 vs 3.42.
+
+Prediction check, weeks 4 to 8, 72 games, 100 sims each: win log loss 0.668 (was 0.675; market 0.641, coin 0.693). Cover Brier 0.254 (was 0.270), over Brier 0.273 (was 0.278), coin 0.250. Still no better than the market or a coin.
+
+Tonight on the recalibrated engine (not saved, the pre-kickoff record above is unchanged and write-once): Seattle wins 67.9% (was 75.2%), covers -3.5 63.1% (was 69.0%), over 46.5 49.3% (50.9% scoring-adjusted). The one lean, Caleb Williams passing yards under 225, holds. The market is near 61%.

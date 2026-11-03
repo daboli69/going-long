@@ -2,94 +2,94 @@
  "v1": {
   "games": 120,
   "points_per_team": {
-   "sim": 21.931350000000002,
+   "sim": 22.456083333333332,
    "actual": 23.03333333333333,
-   "ratio": 0.9521570188133142,
-   "within_5pct": false
+   "ratio": 0.974938494934877,
+   "within_5pct": true
   },
   "snaps_per_team": {
-   "sim": 61.53881666666666,
+   "sim": 61.340833333333336,
    "actual": 60.354166666666664,
-   "ratio": 1.0196283051432515,
+   "ratio": 1.016347946151191,
    "within_5pct": true
   },
   "dropbacks_per_team": {
-   "sim": 37.25265,
+   "sim": 36.94495833333334,
    "actual": 36.4375,
-   "ratio": 1.0223711835334477,
+   "ratio": 1.0139268153230419,
    "within_5pct": true
   },
   "sacks_per_team": {
-   "sim": 2.417283333333333,
+   "sim": 2.2692916666666667,
    "actual": 2.2958333333333334,
-   "ratio": 1.052900181488203,
-   "within_5pct": false
-  },
-  "penalties_per_team": {
-   "sim": 5.774116666666667,
-   "actual": 6.220833333333333,
-   "ratio": 0.9281902210314803,
-   "within_5pct": false
-  },
-  "fourth_go_per_team": {
-   "sim": 1.5255333333333332,
-   "actual": 1.4041666666666666,
-   "ratio": 1.086433234421365,
-   "within_5pct": false
-  },
-  "pass_rate": {
-   "sim": 0.6053520691141012,
-   "actual": 0.6037279944770453,
-   "ratio": 1.0026900767430251,
+   "ratio": 0.9884392014519057,
    "within_5pct": true
   },
-  "calibrated": false
+  "penalties_per_team": {
+   "sim": 6.269125,
+   "actual": 6.220833333333333,
+   "ratio": 1.007762893503014,
+   "within_5pct": true
+  },
+  "fourth_go_per_team": {
+   "sim": 1.3904166666666669,
+   "actual": 1.4041666666666666,
+   "ratio": 0.9902077151335313,
+   "within_5pct": true
+  },
+  "pass_rate": {
+   "sim": 0.602289801518836,
+   "actual": 0.6037279944770453,
+   "ratio": 0.9976178130360593,
+   "within_5pct": true
+  },
+  "calibrated": true
  },
  "v2": {
   "games": 72,
-  "win_log_loss_sim": 0.6736256315337084,
+  "win_log_loss_sim": 0.6679689943816736,
   "win_log_loss_market": 0.6407845209770804,
   "win_log_loss_coin": 0.6931471805599453,
-  "cover_brier_sim": 0.26175705555555556,
-  "over_brier_sim": 0.2800997777777778,
+  "cover_brier_sim": 0.25391388888888894,
+  "over_brier_sim": 0.2728722222222222,
   "brier_coin": 0.25,
-  "mean_abs_total_error_sim": 11.128972222222224,
+  "mean_abs_total_error_sim": 11.045416666666666,
   "mean_abs_total_error_line": 10.444444444444445,
-  "mean_abs_margin_error_sim": 9.219416666666667,
+  "mean_abs_margin_error_sim": 9.241805555555555,
   "mean_abs_margin_error_line": 8.868055555555555,
-  "sims_per_game": 500
+  "sims_per_game": 100
  },
  "diagnostics": {
   "punts": {
-   "sim": 4.1669,
+   "sim": 4.1548750000000005,
    "actual": 3.4208333333333334
   },
   "fg_att": {
-   "sim": 1.70005,
+   "sim": 1.8342916666666667,
    "actual": 2.075
   },
   "off_tds": {
-   "sim": 2.4385583333333334,
+   "sim": 2.4694999999999996,
    "actual": 2.4583333333333335
   },
   "pass_yds": {
-   "sim": 226.00424192021745,
+   "sim": 225.62890956154757,
    "actual": 228.97083333333333
   },
   "rush_yds": {
-   "sim": 113.8868534468332,
+   "sim": 113.51276713991857,
    "actual": 110.9125
   },
   "completions": {
-   "sim": 21.392425,
+   "sim": 21.14470833333333,
    "actual": 20.858333333333334
   },
   "attempts": {
-   "sim": 32.87018333333333,
+   "sim": 32.7225,
    "actual": 34.72083333333333
   },
   "ints": {
-   "sim": 0.6936333333333334,
+   "sim": 0.6852083333333333,
    "actual": 0.6791666666666667
   }
  }

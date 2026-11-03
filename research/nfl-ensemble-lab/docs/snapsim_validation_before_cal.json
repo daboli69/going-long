@@ -1,0 +1,96 @@
+{
+ "v1": {
+  "games": 120,
+  "points_per_team": {
+   "sim": 21.94429166666667,
+   "actual": 23.03333333333333,
+   "ratio": 0.9527188856729379,
+   "within_5pct": false
+  },
+  "snaps_per_team": {
+   "sim": 61.43483333333333,
+   "actual": 60.354166666666664,
+   "ratio": 1.0179054193993786,
+   "within_5pct": true
+  },
+  "dropbacks_per_team": {
+   "sim": 37.173125,
+   "actual": 36.4375,
+   "ratio": 1.020188679245283,
+   "within_5pct": true
+  },
+  "sacks_per_team": {
+   "sim": 2.4220416666666664,
+   "actual": 2.2958333333333334,
+   "ratio": 1.0549727767695098,
+   "within_5pct": false
+  },
+  "penalties_per_team": {
+   "sim": 5.750416666666666,
+   "actual": 6.220833333333333,
+   "ratio": 0.9243804420629604,
+   "within_5pct": false
+  },
+  "fourth_go_per_team": {
+   "sim": 1.5229166666666667,
+   "actual": 1.4041666666666666,
+   "ratio": 1.0845697329376855,
+   "within_5pct": false
+  },
+  "pass_rate": {
+   "sim": 0.6050822144874379,
+   "actual": 0.6037279944770453,
+   "ratio": 1.0022430962664994,
+   "within_5pct": true
+  },
+  "calibrated": false
+ },
+ "v2": {
+  "games": 72,
+  "win_log_loss_sim": 0.6751589810527066,
+  "win_log_loss_market": 0.6407845209770804,
+  "win_log_loss_coin": 0.6931471805599453,
+  "cover_brier_sim": 0.2696236111111111,
+  "over_brier_sim": 0.27825416666666664,
+  "brier_coin": 0.25,
+  "mean_abs_total_error_sim": 11.118611111111111,
+  "mean_abs_total_error_line": 10.444444444444445,
+  "mean_abs_margin_error_sim": 9.228333333333333,
+  "mean_abs_margin_error_line": 8.868055555555555,
+  "sims_per_game": 100
+ },
+ "diagnostics": {
+  "punts": {
+   "sim": 4.158041666666666,
+   "actual": 3.4208333333333334
+  },
+  "fg_att": {
+   "sim": 1.6854166666666666,
+   "actual": 2.075
+  },
+  "off_tds": {
+   "sim": 2.441958333333333,
+   "actual": 2.4583333333333335
+  },
+  "pass_yds": {
+   "sim": 226.01278132008525,
+   "actual": 228.97083333333333
+  },
+  "rush_yds": {
+   "sim": 113.77044286395598,
+   "actual": 110.9125
+  },
+  "completions": {
+   "sim": 21.411166666666666,
+   "actual": 20.858333333333334
+  },
+  "attempts": {
+   "sim": 32.77379166666667,
+   "actual": 34.72083333333333
+  },
+  "ints": {
+   "sim": 0.6905416666666667,
+   "actual": 0.6791666666666667
+  }
+ }
+}
