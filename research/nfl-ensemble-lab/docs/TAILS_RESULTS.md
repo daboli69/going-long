@@ -53,3 +53,23 @@ Raw numbers: `docs/tails_deep_results.json`. Run: `python scripts/tails_deep_run
 - Kalshi: settled spread markets, 8,623 in 350 historical events (close times 2025-08-21 to 2026-08-30) plus 3,298 in 136 current events; settled total markets 6,857 historical plus 2,449 current. These are market rungs as the public endpoint returns them. They are described, not used, and past order books or trade prices were not pulled.
 
 **Verdict.** Nothing passed. The tab still says no mispricing found. Kalshi's settled ladder history is the largest untouched source; a test against actual alt-line prices would need a new pre-registration.
+
+
+## Addendum: Amendment 2, Kalshi ladders (2026-11-05)
+
+Raw numbers: `docs/tails_ladder_results.json`. Run: `python scripts/tails_ladder_fetch.py`, then `python scripts/tails_ladder_run.py`. Rule: Amendment 2 in `docs/TAILS_PREREG.md`, committed before any ladder was fitted.
+
+**Counted.** Spread: 271 games in 2025 (5,619 rungs) and 121 in 2026 (3,274 rungs; 107 settled so far). Total: 271 and 121 games (4,480 and 2,426 rungs; 106 settled in 2026). Kickoffs run from 2025-09-05 to 2026-11-03, and nothing earlier exists. Every one of the 15,177 settled rungs has candlesticks. The trade tape was pulled for the six rungs per ladder nearest 0.5: 4,536 markets, 1,138,046 prints. Tape against candle mids at 1 hour before kickoff: median difference 0.5 cents, 90th percentile 1.5 cents (4,408 compared). Order books: 14 dense files and 1 prop file from 2026-10-30 to 2026-11-01, all game-winner or prop books; spread and total ladder books are archived from the weekly save forward.
+
+**Audit.** Kalshi's settled yes or no disagreed with the nflverse final score on 3 of 15,177 rungs (3 games dropped). 738 game-horizons had no usable price (mostly the strict liquidity setting at 24 hours) and none were too thin. 3,762 ladders were fitted. 2.0% had a non-monotone price before smoothing. The fitted center sits a median 0.3 to 0.6 points from the closing line.
+
+**Recovery check (before any real fit).** Median error in log scale was under 1% for every true tail weight. Median fitted degrees of freedom: 4.05 for true 4, 7.9 for true 8, 29.1 for true 30. 94% of true-4 ladders were fitted below 10 and 84% of true-30 ladders above 10. Both bars passed, so the width and tail tests ran.
+
+**Results.** Nothing passed in any of the 12 settings.
+- *Width* (actual miss over implied miss, 1.00 = as priced): spread 0.91 to 0.97 in 2025 and 0.88 to 0.94 in 2026; total 0.82 to 0.91 in 2025 and 1.00 to 1.09 in 2026. Spread results landed a little closer to the center than the ladder said. Smallest corrected p was 0.05 (total, 24 hours, loose) in 2025 and 1.0 for every setting in 2026.
+- *Tails*: the share of games in the outer 10% of the fitted curve was 6% to 9% in 2025 and 4% to 9% in 2026 (nominal 10%); in the outer 2%, 0% to 3.3% and mostly under 2% (nominal 2%). Tails were not heavier than priced. Fitted degrees of freedom: median 4 to 9 for spreads and 5 to 22 for totals. PIT uniformity: KS p 0.13 to 0.99 in every setting except total, 24 hours, strict liquidity, 2026 (30 games, p 0.03).
+- *Center*: the ladder's center was between 0.25 points closer and 0.15 points farther from the result than the closing line's (0.25 closer only in the 33-game strict 24-hour total setting), so the ladder did not add information beyond the line.
+
+**Power.** For 2025 the smallest detectable width error was 12% to 14% (loose liquidity) and the smallest detectable outer-10% excess 4.5 to 5 points. For 2026, with 107 games, they were 19% to 20% and 5 to 8 points, and none of the 12 settings reached the 15% and 5-point sizes fixed in advance. The 2026 confirmation is therefore uninformative at those sizes. 2026 will gain games each week.
+
+**Verdict.** No mispricing found. The ladders priced width and tails about right, or slightly wide, but the confirmation sample is too small to rule out a 15% error.

@@ -109,6 +109,36 @@ export function TailsView() {
         );
       })()}
 
+      {d.ladders && (() => {
+        const L = d.ladders, T = L.tests;
+        const NAME: Record<string, string> = { KXNFLSPREAD: "Spread", KXNFLTOTAL: "Total" };
+        const keys = T ? Object.keys(T.confirm_2026).filter((k) => T.confirm_2026[k].width_level !== undefined) : [];
+        const label = (k: string) => { const [s, h, l] = k.split("_"); return `${NAME[s]}, ${h.replace("h", "")} h before, ${l === "L2" ? "strict" : "loose"} liquidity`; };
+        const detect = T ? keys.filter((k) => T.confirm_2026[k].power.min_detectable_width_error <= 0.15 && T.confirm_2026[k].power.min_detectable_tail10_excess <= 0.05).length : 0;
+        const sc = L.counts;
+        return (
+          <div>
+            <h3 className="text-lg font-bold">Kalshi ladders</h3>
+            <p className="mt-1 max-w-3xl text-[14px] text-muted">Each game's spread and total ladder was turned into one curve (a Student-t, with a floor for Kalshi's 1-cent steps) at 24, 3 and 1 hours before kickoff, using only prices that existed before kickoff. Games from 2025 decide, games from 2026 confirm. Settled results were first checked against the final scores: {L.audit.rungs_where_kalshi_settlement_disagrees_with_nflverse} of {L.audit.settled_rungs.toLocaleString()} rungs disagreed. Games counted: spread {sc.KXNFLSPREAD_2025?.games ?? 0} in 2025 and {sc.KXNFLSPREAD_2026?.games ?? 0} in 2026, totals {sc.KXNFLTOTAL_2025?.games ?? 0} and {sc.KXNFLTOTAL_2026?.games ?? 0}; {L.fitted_ladders.toLocaleString()} ladder fits in all.</p>
+            {!T ? <Callout tone="amber">The fitting method failed its recovery check, so no ladder result is reported.</Callout> : (
+              <>
+                <Callout tone={T.passed.length ? "green" : "blue"}>
+                  {T.passed.length ? `Pass rule met for ${T.passed.join(", ")}.` : "Still no mispricing found."} The method recovers a known width and tail weight in simulation{L.tail_test_informative ? "" : ", except tail weight, so the tail result is not reported as informative"}. {detect ? `${detect} of ${keys.length} settings could detect a 15% width error and a 5-point tail excess in 2026.` : "No setting had the power to detect a 15% width error and a 5-point tail excess in 2026, so a null result here is uninformative at those sizes."}
+                </Callout>
+                <div className="mt-2 overflow-x-auto"><table className="w-full min-w-[820px] text-left text-[15px]">
+                  <thead className="text-[13px] text-muted"><tr><th className="py-1">Setting</th><th className="text-right">Games 2025 / 2026</th><th className="text-right">Width, actual vs implied 2025</th><th className="text-right">2026</th><th className="text-right">Outer 10% share 2026 (nominal 10%)</th><th className="text-right">Ladder beats line by (pts) 2026</th><th className="text-right">Corrected p width</th></tr></thead>
+                  <tbody>{keys.map((k) => {
+                    const a = T.decide_2025[k], b = T.confirm_2026[k];
+                    return <tr key={k} className="border-t border-bg"><td className="py-1">{label(k)}</td><td className="text-right">{a?.games ?? 0} / {b.games}</td><td className="text-right">{a?.width_level !== undefined ? num(a.width_level) : "n/a"}</td><td className="text-right">{num(b.width_level)}</td><td className="text-right">{pct(b.tail10)}</td><td className="text-right">{num(-b.center_diff)}</td><td className="text-right">{num(b.holm_width)}</td></tr>;
+                  })}</tbody>
+                </table></div>
+                <p className="mt-2 max-w-3xl text-[13px] text-muted">Width 1.00 means results landed as far from the ladder's center as the ladder implied; above 1 means wider than priced. Ladder beats line: positive means the ladder's center was closer to the result than the closing line's. A real mispricing would show the same direction in both years, beat the shuffled-results null, and pass the multiple-test correction. {L.tape_check.compared ? `Trade tape on centre rungs agrees with candle mids to a median of ${num(L.tape_check.median_abs_diff ?? 0, 3)} (${L.tape_check.compared} rungs).` : ""} {d.ladders_forward && d.ladders_forward.games_scored ? `Forward-only record: ${d.ladders_forward.games_scored} ladders scored so far.` : "Forward-only record: ladders are being saved before each week's kickoffs and are scored after the games."}</p>
+              </>
+            )}
+          </div>
+        );
+      })()}
+
       <div className="max-w-3xl text-[13px] text-muted">
         <p>Data counted: {r.inventory.games_with_result_and_closing_line.toLocaleString()} games from {r.inventory.seasons[0]} to {r.inventory.seasons[1]} with a closing spread; {r.inventory.sbr_open_and_close_games.toLocaleString()} with opening and closing lines ({r.inventory.sbr_seasons[0]} to {r.inventory.sbr_seasons[1]}). Kalshi history begins {r.inventory.kalshi_snapshots.kalshi.first?.slice(0, 10)} and is too short to price tails game by game, so the closing line is the benchmark. Standard deviation of margin around the line: {num(r.reconcile.all.sd_margin_minus_line)} over all games, {num(r.reconcile["2006_2019"].sd_margin_minus_line)} in 2006 to 2019 and {num(r.reconcile["2020_2026"].sd_margin_minus_line)} since 2020; the published figure near 13.9 comes from older seasons. Rule hash {r.rule_sha256.slice(0, 12)}.</p>
       </div>

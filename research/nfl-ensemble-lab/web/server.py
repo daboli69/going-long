@@ -116,7 +116,7 @@ _REFS = {}
 def tails_api():
     """Tail tests (docs/tails_results.json), the latest saved week of flags and the prospective score."""
     import json as _json
-    from lab import tails_week
+    from lab import tails_ladder, tails_week
     f = ROOT / "docs" / "tails_results.json"
     if not f.exists():
         raise HTTPException(503, "The tail tests have not been run yet. Run scripts/tails_run.py.")
@@ -127,7 +127,9 @@ def tails_api():
         week = _json.loads(saved[-1].read_text())
         week = {"file": saved[-1].name, "sha256": week["sha256"], "hash_ok": tails_week.verify(week), "created": week["created"], "forecast": week["forecast"]}
     df = ROOT / "docs" / "tails_deep_results.json"
-    return JSONResponse(D.clean({"results": res, "week": week, "prospective": tails_week.score(), "deep": _json.loads(df.read_text()) if df.exists() else None}))
+    return JSONResponse(D.clean({"results": res, "week": week, "prospective": tails_week.score(), "deep": _json.loads(df.read_text()) if df.exists() else None,
+                                 "ladders": _json.loads((ROOT / "docs" / "tails_ladder_results.json").read_text()) if (ROOT / "docs" / "tails_ladder_results.json").exists() else None,
+                                 "ladders_forward": tails_ladder.score_archived()}))
 
 
 @app.get("/api/refs")

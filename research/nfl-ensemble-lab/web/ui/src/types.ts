@@ -324,5 +324,20 @@ export type Tails = {
     positive_controls: { natural_detected: boolean; injected: Record<string, number>; method_has_power_at_1_20: boolean };
     dose_response: { passed: string[] };
   } | null;
+  ladders: {
+    counts: Record<string, { games?: number; events?: number; rungs?: number; settled_rungs?: number; rungs_with_candles?: number; rungs_with_trade_tape?: number; first_kickoff?: string; last_kickoff?: string }>;
+    recovery: { scale_bar_ok: boolean; tail_bar_ok: boolean };
+    audit: { settled_rungs: number; rungs_where_kalshi_settlement_disagrees_with_nflverse: number; games_dropped_for_settlement_mismatch: number };
+    fitted_ladders: number;
+    tape_check: { markets_with_tape: number; compared: number; median_abs_diff: number | null };
+    tail_test_informative?: boolean;
+    tests: null | {
+      passed: string[];
+      decide_2025: Record<string, LadderRow>; confirm_2026: Record<string, LadderRow>;
+    };
+  } | null;
+  ladders_forward: { files: number; games_scored: number; width_level?: number; tail10?: number } | null;
   prospective: { weeks: { file: string; scored_games?: number; games?: number; status?: string }[]; by_flag: Record<string, { games: number; hit14: number; hit21: number; priced14: number; priced21: number }> };
 };
+
+export type LadderRow = { games: number; note?: string; width_level: number; tail10: number; tail2: number; center_diff: number; center_ci95: [number, number]; width_ci95: [number, number]; holm_width: number; holm_tail10: number; ks_p: number; median_df: number; median_abs_gap_to_line: number; perm_percentile: { width_level: number; tail10: number; tail2: number }; power: { min_detectable_width_error: number; min_detectable_tail10_excess: number } };
