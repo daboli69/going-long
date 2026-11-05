@@ -300,3 +300,20 @@ export type SnapSim = {
   players: { team: string; name: string; pos: string; anytime_td: number; stats: Record<string, SnapDist> }[];
   validation: { v1: Record<string, { sim: number; actual: number; ratio: number; within_5pct: boolean } | boolean | number>; v2: Record<string, number> } | null;
 };
+
+export type TailTest = { flagged_games: number; observed_rate: number; priced_rate: number; ratio: number; diff: number; p_one_sided: number; p_holm: number };
+export type TailGame = { gid: string; away: string; home: string; closing_spread_home: number; elo_qb_margin: number; gap: number; u_qb: boolean; u_gap: boolean; u_any: boolean; range_90: [number, number]; baseline_tail_14: number; baseline_tail_21: number; starters: { home: { qb: string; career_dropbacks: number; changed: boolean }; away: { qb: string; career_dropbacks: number; changed: boolean } } };
+export type Tails = {
+  results: {
+    inventory: { games_with_result_and_closing_line: number; seasons: [number, number]; games_with_moneyline: number; sbr_open_and_close_games: number; sbr_seasons: [number, number]; kalshi_snapshots: Record<string, { files: number; first: string | null; last: string | null }> };
+    reconcile: Record<string, { games: number; sd_margin_minus_line: number }> & { key_numbers_share_of_games_pct: Record<string, number> };
+    power: { reference_sigma: number; flags: Record<string, { flagged_confirmation: number; expected_rate: number; smallest_detectable_rate_increase: number; relative: number }> };
+    tail_tests: { discovery: Record<string, TailTest>; confirmation: Record<string, TailTest>; passed: string[] };
+    forecast_accuracy: { games: number; brier: Record<string, number>; paired: Record<string, { mean: number; ci95: [number, number] }> };
+    range_models: { coverage_90_model: number; pinball_model_minus_constant: { mean: number; ci95: [number, number] }; t_fit_flagged: { df: number }; pit_deciles_flagged_confirmation: number[] };
+    favorite_longshot: Record<string, { implied_bin: [number, number]; games: number; implied: number; realized: number; wilson95: [number, number] }[]>;
+    rule_sha256: string;
+  };
+  week: { file: string; sha256: string; hash_ok: boolean; created: string; forecast: { season: number; week: number; games: TailGame[] } } | null;
+  prospective: { weeks: { file: string; scored_games?: number; games?: number; status?: string }[]; by_flag: Record<string, { games: number; hit14: number; hit21: number; priced14: number; priced21: number }> };
+};

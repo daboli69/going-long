@@ -18,6 +18,7 @@ HFA, SIGMA0 = 1.8, 13.5
 PRIOR_N, PRIOR_MEAN = 300, 0.02
 GRID_K, GRID_CARRY = (0.03, 0.06, 0.09), (0.6, 0.75, 0.9)
 SELECT_SEASONS = (2006, 2012)
+QB_NOW: dict = {}      # quarterback id -> (value, career dropbacks) after every game played
 
 
 def rule() -> dict:
@@ -84,6 +85,9 @@ def qb_table(g: pd.DataFrame) -> pd.DataFrame:
     pb["cn"] = pb.groupby("passer_player_id")["n"].cumsum() - pb["n"]
     pb["cs"] = pb.groupby("passer_player_id")["s"].cumsum() - pb["s"]
     pb["val"] = (pb["cs"] + PRIOR_N * PRIOR_MEAN) / (pb["cn"] + PRIOR_N)
+    last = pb.groupby("passer_player_id").tail(1)
+    QB_NOW.clear()
+    QB_NOW.update({q: ((cs + s + PRIOR_N * PRIOR_MEAN) / (cn + n + PRIOR_N), cn + n) for q, cn, n, cs, s in zip(last["passer_player_id"], last["cn"], last["n"], last["cs"], last["s"])})
     return pb.set_index(["game_id", "passer_player_id"])[["val", "cn"]]
 
 

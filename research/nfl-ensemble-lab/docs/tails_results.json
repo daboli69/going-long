@@ -1,0 +1,441 @@
+{
+ "rule_sha256": "539f9b893e12247329490560d486f682bfa02e8a197e064b15e6d46c13c19b92",
+ "inventory": {
+  "games_with_result_and_closing_line": 7088,
+  "seasons": [
+   1999,
+   2026
+  ],
+  "games_with_moneyline": 5186,
+  "games_with_starting_qb": 7088,
+  "sbr_open_and_close_games": 1622,
+  "sbr_seasons": [
+   2016,
+   2021
+  ],
+  "kalshi_snapshots": {
+   "kalshi": {
+    "files": 6,
+    "first": "2026-10-30T00:33:55.047292+00:00",
+    "last": "2026-11-05T03:02:18.753591+00:00"
+   },
+   "props_kalshi": {
+    "files": 3,
+    "first": "2026-10-30T00:40:11.953163+00:00",
+    "last": "2026-11-05T03:09:16.497284+00:00"
+   },
+   "props_kalshi_books": {
+    "files": 1,
+    "first": "2026-10-30T00:33:40.765410+00:00",
+    "last": "2026-10-30T00:33:40.765410+00:00"
+   },
+   "dense_books": {
+    "files": 14,
+    "first": "2026-10-30T11:20:50.977958+00:00",
+    "last": "2026-11-01T13:01:38.262534+00:00"
+   }
+  },
+  "note": "Kalshi history starts 2026-10-30. Spread and total ladder snapshots number a handful, so Kalshi cannot supply per-game tail prices; the closing line is the priced benchmark."
+ },
+ "reconcile": {
+  "all": {
+   "games": 7088,
+   "sd_margin_minus_line": 13.17271630005464,
+   "mean": 0.04528781038374718
+  },
+  "1999_2005": {
+   "games": 1768,
+   "sd_margin_minus_line": 13.125541633587023
+  },
+  "2006_2019": {
+   "games": 3584,
+   "sd_margin_minus_line": 13.451371866004923
+  },
+  "2020_2026": {
+   "games": 1736,
+   "sd_margin_minus_line": 12.625359707685277
+  },
+  "key_numbers_share_of_games_pct": {
+   "1": 4.15,
+   "2": 4.12,
+   "3": 15.04,
+   "4": 4.91,
+   "5": 3.6,
+   "6": 6.02,
+   "7": 9.11,
+   "8": 3.81,
+   "9": 1.61,
+   "10": 5.56,
+   "13": 2.71,
+   "14": 4.78
+  },
+  "published_reference": "Stern (1991) puts the standard deviation of NFL margin around the point spread near 13.9."
+ },
+ "fitted": {
+  "elo_k": 0.06,
+  "elo_carry": 0.6,
+  "qb_beta_points_per_epa": 12.381888906787726,
+  "gap_threshold": 3.535057118487806
+ },
+ "power": {
+  "reference_sigma": 13.485323703873862,
+  "alpha_per_test": 0.008333333333333333,
+  "flags": {
+   "u_qb_14": {
+    "flagged_discovery": 1037,
+    "flagged_confirmation": 572,
+    "expected_rate": 0.3167841131463338,
+    "smallest_detectable_rate_increase": 0.06293867937580472,
+    "relative": 0.19868003717323762
+   },
+   "u_qb_21": {
+    "flagged_discovery": 1037,
+    "flagged_confirmation": 572,
+    "expected_rate": 0.12846796702949925,
+    "smallest_detectable_rate_increase": 0.045268494767445946,
+    "relative": 0.35237184657130316
+   },
+   "u_gap_14": {
+    "flagged_discovery": 717,
+    "flagged_confirmation": 384,
+    "expected_rate": 0.3167841131463338,
+    "smallest_detectable_rate_increase": 0.07681570631391621,
+    "relative": 0.24248598059724136
+   },
+   "u_gap_21": {
+    "flagged_discovery": 717,
+    "flagged_confirmation": 384,
+    "expected_rate": 0.12846796702949925,
+    "smallest_detectable_rate_increase": 0.055249513237577694,
+    "relative": 0.43006450958230785
+   },
+   "u_any_14": {
+    "flagged_discovery": 1484,
+    "flagged_confirmation": 771,
+    "expected_rate": 0.3167841131463338,
+    "smallest_detectable_rate_increase": 0.054211128923088686,
+    "relative": 0.1711295695502465
+   },
+   "u_any_21": {
+    "flagged_discovery": 1484,
+    "flagged_confirmation": 771,
+    "expected_rate": 0.12846796702949925,
+    "smallest_detectable_rate_increase": 0.038991224956264045,
+    "relative": 0.30350931720831814
+   }
+  }
+ },
+ "tail_tests": {
+  "discovery": {
+   "u_qb_14": {
+    "flagged_games": 1037,
+    "observed_rate": 0.2806171648987464,
+    "priced_rate": 0.3167841131463338,
+    "ratio": 0.8858309279200481,
+    "diff": -0.03616694824758743,
+    "p_one_sided": 0.99625,
+    "p_holm": 1.0
+   },
+   "u_qb_21": {
+    "flagged_games": 1037,
+    "observed_rate": 0.12054001928640308,
+    "priced_rate": 0.12846796702949925,
+    "ratio": 0.9382885249419746,
+    "diff": -0.007927947743096173,
+    "p_one_sided": 0.78425,
+    "p_holm": 1.0
+   },
+   "u_gap_14": {
+    "flagged_games": 717,
+    "observed_rate": 0.2928870292887029,
+    "priced_rate": 0.3167841131463338,
+    "ratio": 0.9245635028212669,
+    "diff": -0.023897083857630896,
+    "p_one_sided": 0.9265,
+    "p_holm": 1.0
+   },
+   "u_gap_21": {
+    "flagged_games": 717,
+    "observed_rate": 0.12691771269177127,
+    "priced_rate": 0.12846796702949925,
+    "ratio": 0.9879327557400203,
+    "diff": -0.0015502543377279854,
+    "p_one_sided": 0.566,
+    "p_holm": 1.0
+   },
+   "u_any_14": {
+    "flagged_games": 1484,
+    "observed_rate": 0.29380053908355797,
+    "priced_rate": 0.3167841131463338,
+    "ratio": 0.9274472010780449,
+    "diff": -0.022983574062775847,
+    "p_one_sided": 0.976,
+    "p_holm": 1.0
+   },
+   "u_any_21": {
+    "flagged_games": 1484,
+    "observed_rate": 0.12601078167115903,
+    "priced_rate": 0.12846796702949925,
+    "ratio": 0.9808731669445973,
+    "diff": -0.0024571853583402192,
+    "p_one_sided": 0.62375,
+    "p_holm": 1.0
+   }
+  },
+  "confirmation": {
+   "u_qb_14": {
+    "flagged_games": 572,
+    "observed_rate": 0.263986013986014,
+    "priced_rate": 0.3167841131463338,
+    "ratio": 0.8333309753575601,
+    "diff": -0.0527980991603198,
+    "p_one_sided": 0.99775,
+    "p_holm": 1.0
+   },
+   "u_qb_21": {
+    "flagged_games": 572,
+    "observed_rate": 0.1048951048951049,
+    "priced_rate": 0.12846796702949925,
+    "ratio": 0.8165078604460093,
+    "diff": -0.023572862134394357,
+    "p_one_sided": 0.9655,
+    "p_holm": 1.0
+   },
+   "u_gap_14": {
+    "flagged_games": 384,
+    "observed_rate": 0.2578125,
+    "priced_rate": 0.3167841131463338,
+    "ratio": 0.8138428958427826,
+    "diff": -0.05897161314633381,
+    "p_one_sided": 0.9955,
+    "p_holm": 1.0
+   },
+   "u_gap_21": {
+    "flagged_games": 384,
+    "observed_rate": 0.09895833333333333,
+    "priced_rate": 0.12846796702949925,
+    "ratio": 0.7702957836221552,
+    "diff": -0.029509633696165924,
+    "p_one_sided": 0.96975,
+    "p_holm": 1.0
+   },
+   "u_any_14": {
+    "flagged_games": 771,
+    "observed_rate": 0.25810635538262,
+    "priced_rate": 0.3167841131463338,
+    "ratio": 0.8147705161697661,
+    "diff": -0.05867775776371381,
+    "p_one_sided": 0.99975,
+    "p_holm": 1.0
+   },
+   "u_any_21": {
+    "flagged_games": 771,
+    "observed_rate": 0.10116731517509728,
+    "priced_rate": 0.12846796702949925,
+    "ratio": 0.7874905901785376,
+    "diff": -0.027300651854401975,
+    "p_one_sided": 0.992,
+    "p_holm": 1.0
+   }
+  },
+  "passed": []
+ },
+ "forecast_accuracy": {
+  "games": 1736,
+  "brier": {
+   "closing_line": 0.21124649345825072,
+   "elo": 0.22508323501977615,
+   "elo_qb": 0.2224620620187166
+  },
+  "sigma": {
+   "closing_line": 13.451371866004923,
+   "elo": 13.7070830831834,
+   "elo_qb": 13.629631129622053
+  },
+  "paired": {
+   "elo_qb_minus_elo": {
+    "mean": -0.002621173001059567,
+    "ci95": [
+     -0.004214573822507159,
+     -0.0010143152390761924
+    ]
+   },
+   "elo_minus_closing_line": {
+    "mean": 0.013836741561525425,
+    "ci95": [
+     0.010145419190307477,
+     0.017628381254025202
+    ]
+   },
+   "elo_qb_minus_closing_line": {
+    "mean": 0.01121556856046586,
+    "ci95": [
+     0.007472890290297167,
+     0.014682199206440481
+    ]
+   }
+  }
+ },
+ "range_models": {
+  "q5_coef_const_qbflag_gap": [
+   -22.61520611297125,
+   0.07504479623498383,
+   0.12406903118299055
+  ],
+  "q95_coef_const_qbflag_gap": [
+   22.99529432608579,
+   -1.9991719328885227,
+   0.2542440475176686
+  ],
+  "pinball_model_minus_constant": {
+   "mean": 0.00240364711709203,
+   "ci95": [
+    -0.008552767012681577,
+    0.013068111693504579
+   ]
+  },
+  "coverage_90_model": 0.9205069124423964,
+  "coverage_90_model_u_qb": {
+   "games": 572,
+   "outside_rate": 0.0944055944055944,
+   "kupiec_p": 0.6528658034036651
+  },
+  "coverage_90_model_u_gap": {
+   "games": 384,
+   "outside_rate": 0.08333333333333333,
+   "kupiec_p": 0.26370265449683805
+  },
+  "coverage_90_model_u_any": {
+   "games": 771,
+   "outside_rate": 0.08819714656290532,
+   "kupiec_p": 0.2658909471010965
+  },
+  "t_fit_flagged": {
+   "df": 23.58327358240865,
+   "scale": 12.808135690179277,
+   "loglik_per_game_t_minus_normal_confirmation": 0.0016794891743248338
+  },
+  "pit_deciles_flagged_confirmation": [
+   57,
+   75,
+   67,
+   101,
+   67,
+   108,
+   78,
+   78,
+   66,
+   74
+  ]
+ },
+ "favorite_longshot": {
+  "discovery": [
+   {
+    "implied_bin": [
+     0,
+     0.15
+    ],
+    "games": 179,
+    "implied": 0.11866169784530452,
+    "realized": 0.1005586592178771,
+    "wilson95": [
+     0.06455783093677447,
+     0.15334444075631945
+    ]
+   },
+   {
+    "implied_bin": [
+     0.15,
+     0.25
+    ],
+    "games": 603,
+    "implied": 0.2058935673589122,
+    "realized": 0.1956882255389718,
+    "wilson95": [
+     0.1659904144062348,
+     0.22923891726779677
+    ]
+   },
+   {
+    "implied_bin": [
+     0.25,
+     0.35
+    ],
+    "games": 1047,
+    "implied": 0.3003924350907536,
+    "realized": 0.29608404966571156,
+    "wilson95": [
+     0.2692165075804788,
+     0.3244425177188622
+    ]
+   },
+   {
+    "implied_bin": [
+     0.35,
+     0.5
+    ],
+    "games": 1600,
+    "implied": 0.4175783795992474,
+    "realized": 0.4409375,
+    "wilson95": [
+     0.41677924245648423,
+     0.4653786963324833
+    ]
+   }
+  ],
+  "confirmation": [
+   {
+    "implied_bin": [
+     0,
+     0.15
+    ],
+    "games": 85,
+    "implied": 0.1231212626799802,
+    "realized": 0.07058823529411765,
+    "wilson95": [
+     0.03275051687715236,
+     0.14556234556566722
+    ]
+   },
+   {
+    "implied_bin": [
+     0.15,
+     0.25
+    ],
+    "games": 288,
+    "implied": 0.21175039837218648,
+    "realized": 0.2170138888888889,
+    "wilson95": [
+     0.17329875208964593,
+     0.26817909068533896
+    ]
+   },
+   {
+    "implied_bin": [
+     0.25,
+     0.35
+    ],
+    "games": 462,
+    "implied": 0.2984510476228861,
+    "realized": 0.2976190476190476,
+    "wilson95": [
+     0.25773482092828465,
+     0.34084117571950284
+    ]
+   },
+   {
+    "implied_bin": [
+     0.35,
+     0.5
+    ],
+    "games": 896,
+    "implied": 0.41891732297023065,
+    "realized": 0.4140625,
+    "wilson95": [
+     0.3822439142434638,
+     0.44661485378859866
+    ]
+   }
+  ]
+ }
+}

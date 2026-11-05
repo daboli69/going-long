@@ -112,6 +112,23 @@ def leans(market: str = "All", week_from: int | None = None, week_to: int | None
 _REFS = {}
 
 
+@app.get("/api/tails")
+def tails_api():
+    """Tail tests (docs/tails_results.json), the latest saved week of flags and the prospective score."""
+    import json as _json
+    from lab import tails_week
+    f = ROOT / "docs" / "tails_results.json"
+    if not f.exists():
+        raise HTTPException(503, "The tail tests have not been run yet. Run scripts/tails_run.py.")
+    res = _json.loads(f.read_text())
+    saved = sorted(tails_week.FROZEN.glob("*.json")) if tails_week.FROZEN.exists() else []
+    week = None
+    if saved:
+        week = _json.loads(saved[-1].read_text())
+        week = {"file": saved[-1].name, "sha256": week["sha256"], "hash_ok": tails_week.verify(week), "created": week["created"], "forecast": week["forecast"]}
+    return JSONResponse(D.clean({"results": res, "week": week, "prospective": tails_week.score()}))
+
+
 @app.get("/api/refs")
 def refs(measure: str = "home_ats", referee: str = "All", season_from: int = 2015, season_to: int = 2026):
     import json as _json
