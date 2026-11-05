@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "registered": "2026-11-05",
+  "discovery": [2006, 2019],
+  "confirmation": [2020, 2026],
+  "upcoming_season": 2026,
+  "gap_quantile": 0.80,
+  "new_qb_dropbacks": 150,
+  "tail_thresholds": [14, 21],
+  "flags": ["u_qb", "u_gap", "u_any"],
+  "n_tests": 6,
+  "alpha": 0.05,
+  "min_ratio": 1.15,
+  "bootstrap_draws": 4000,
+  "seed": 20261105
+}
