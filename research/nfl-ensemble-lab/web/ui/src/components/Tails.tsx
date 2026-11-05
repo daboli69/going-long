@@ -86,6 +86,29 @@ export function TailsView() {
         <p className="mt-3 max-w-3xl text-[14px] text-muted">Scored so far: {pro.all.games} games ({pro.u_any.games} flagged). {pro.u_any.games ? `Flagged games had a margin 14+ from the line ${pro.u_any.hit14} times against ${pro.u_any.priced14.toFixed(1)} priced.` : "Scoring starts after this week's games finish."}</p>
       </div>
 
+      {d.deep && (() => {
+        const dp = d.deep, sc = dp.same_season_control, pc = dp.positive_controls, dr = dp.dose_response;
+        const ks = Object.keys(sc.confirmation);
+        const spr = dp.kalshi_history.KXNFLSPREAD, tot = dp.kalshi_history.KXNFLTOTAL;
+        return (
+          <div>
+            <h3 className="text-lg font-bold">Deeper checks</h3>
+            <p className="mt-1 max-w-3xl text-[14px] text-muted">The first test priced tails with a spread fitted on 2006 to 2019, and margins have been tighter since 2020. These checks compare each flagged game with unflagged games in the same season, so that drift cannot leak in, and add a luck check: 10,000 random flags of the same size.</p>
+            <Callout tone={sc.passed.length || dr.passed.length ? "green" : "blue"}>
+              {sc.passed.length || dr.passed.length ? "A deeper check passed its pre-set bar." : "Still no mispricing found."} With the same-season control the ratios sit near one ({num(Math.min(...ks.map((k) => sc.confirmation[k].ratio)))} to {num(Math.max(...ks.map((k) => sc.confirmation[k].ratio)))} in 2020 to 2026), so most of the earlier shortfall was era drift, not safer games. The method can see a 20% widening of margins in flagged games {pct(pc.injected["1.2"], 0)} of the time, but only {pct(pc.injected["1.1"], 0)} of the time at 10%, so a null result rules out large effects, not small ones. {pc.natural_detected ? "" : "A natural test, wider margins when the total line is high, was not found in this data either."} A continuous uncertainty score also showed no link to big misses on margin or on totals.
+            </Callout>
+            <div className="mt-2 overflow-x-auto"><table className="w-full min-w-[720px] text-left text-[15px]">
+              <thead className="text-[13px] text-muted"><tr><th className="py-1">Flag and size</th><th className="text-right">Old ratio 2020 to 2026</th><th className="text-right">Same-season ratio 2006 to 2019</th><th className="text-right">Same-season ratio 2020 to 2026</th><th className="text-right">Beats random flags</th><th className="text-right">Corrected p</th></tr></thead>
+              <tbody>{ks.map((k) => {
+                const flag = k.slice(0, k.lastIndexOf("_")), size = k.slice(k.lastIndexOf("_") + 1), o = dp.original_ratios.confirmation[k];
+                return <tr key={k} className="border-t border-bg"><td className="py-1">{FLAG[flag]}, {size}+ points</td><td className="text-right">{o === undefined ? "not run" : num(o)}</td><td className="text-right">{num(sc.discovery[k].ratio)}</td><td className="text-right">{num(sc.confirmation[k].ratio)}</td><td className="text-right">{pct(sc.confirmation[k].placebo_percentile, 0)} of draws</td><td className="text-right">{num(sc.confirmation[k].p_holm)}</td></tr>;
+              })}</tbody>
+            </table></div>
+            <p className="mt-2 max-w-3xl text-[13px] text-muted">Beats random flags: the share of random flags that scored lower than the real one. A real effect would sit near 95% or higher in both periods. Starting quarterbacks from raw play-by-play match the schedule file in {pct(dp.starter_agreement.share)} of team-games. The raw sportsbook pages give a closing spread within one point of the schedule file in {dp.sbr_rederive.spread_within_1_point} of {dp.sbr_rederive.matched_to_games_csv_by_date_and_score} matched games. Kalshi lists {(spr["/historical/markets"].settled_yes_or_no + spr["/markets"].settled_yes_or_no).toLocaleString()} settled spread markets and {(tot["/historical/markets"].settled_yes_or_no + tot["/markets"].settled_yes_or_no).toLocaleString()} settled total markets since {spr["/historical/markets"].first_close?.slice(0, 10)}, not yet used.</p>
+          </div>
+        );
+      })()}
+
       <div className="max-w-3xl text-[13px] text-muted">
         <p>Data counted: {r.inventory.games_with_result_and_closing_line.toLocaleString()} games from {r.inventory.seasons[0]} to {r.inventory.seasons[1]} with a closing spread; {r.inventory.sbr_open_and_close_games.toLocaleString()} with opening and closing lines ({r.inventory.sbr_seasons[0]} to {r.inventory.sbr_seasons[1]}). Kalshi history begins {r.inventory.kalshi_snapshots.kalshi.first?.slice(0, 10)} and is too short to price tails game by game, so the closing line is the benchmark. Standard deviation of margin around the line: {num(r.reconcile.all.sd_margin_minus_line)} over all games, {num(r.reconcile["2006_2019"].sd_margin_minus_line)} in 2006 to 2019 and {num(r.reconcile["2020_2026"].sd_margin_minus_line)} since 2020; the published figure near 13.9 comes from older seasons. Rule hash {r.rule_sha256.slice(0, 12)}.</p>
       </div>

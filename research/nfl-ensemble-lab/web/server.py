@@ -126,7 +126,8 @@ def tails_api():
     if saved:
         week = _json.loads(saved[-1].read_text())
         week = {"file": saved[-1].name, "sha256": week["sha256"], "hash_ok": tails_week.verify(week), "created": week["created"], "forecast": week["forecast"]}
-    return JSONResponse(D.clean({"results": res, "week": week, "prospective": tails_week.score()}))
+    df = ROOT / "docs" / "tails_deep_results.json"
+    return JSONResponse(D.clean({"results": res, "week": week, "prospective": tails_week.score(), "deep": _json.loads(df.read_text()) if df.exists() else None}))
 
 
 @app.get("/api/refs")

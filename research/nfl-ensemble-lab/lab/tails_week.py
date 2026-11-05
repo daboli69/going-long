@@ -56,7 +56,9 @@ def weekly(week: int | None = None) -> dict:
         u_gap = bool(gap >= fitted["gap_threshold"])
         feat = np.array([[float(flag_qb), gap]])
         lo, hi = (float(r.spread_line + qm[q].predict(feat)[0]) for q in (0.05, 0.95))
-        rows.append({"gid": r.game_id, "away": r.away_team, "home": r.home_team, "closing_spread_home": float(r.spread_line), "elo_qb_margin": elo_qb, "gap": gap,
+        qb_unc = tails.PRIOR_N / (tails.PRIOR_N + min(info["home"]["career_dropbacks"], info["away"]["career_dropbacks"]))
+        score_ = gap / fitted["gap_threshold"] + qb_unc + 0.5 * float(info["home"]["changed"] or info["away"]["changed"])
+        rows.append({"uncertainty_score": float(score_), "gid": r.game_id, "away": r.away_team, "home": r.home_team, "closing_spread_home": float(r.spread_line), "elo_qb_margin": elo_qb, "gap": gap,
                      "u_qb": bool(flag_qb), "u_gap": u_gap, "u_any": bool(flag_qb or u_gap), "range_90": [lo, hi], "baseline_tail_14": expected_tail(sigma, 14), "baseline_tail_21": expected_tail(sigma, 21),
                      "starters": info})
     return {"season": season, "week": week, "reference_sigma": sigma, "fitted": fitted, "games": rows}

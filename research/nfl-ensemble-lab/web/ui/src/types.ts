@@ -315,5 +315,14 @@ export type Tails = {
     rule_sha256: string;
   };
   week: { file: string; sha256: string; hash_ok: boolean; created: string; forecast: { season: number; week: number; games: TailGame[] } } | null;
+  deep: {
+    starter_agreement: { team_games_compared: number; share: number };
+    sbr_rederive: { html_games_parsed: number; matched_to_games_csv_by_date_and_score: number; closing_spread_equal: number; spread_within_1_point: number };
+    kalshi_history: Record<string, Record<string, { markets: number; events: number; settled_yes_or_no: number; first_close: string | null; last_close: string | null }>>;
+    same_season_control: { discovery: Record<string, TailTest & { placebo_percentile: number }>; confirmation: Record<string, TailTest & { placebo_percentile: number }>; passed: string[] };
+    original_ratios: { discovery: Record<string, number>; confirmation: Record<string, number> };
+    positive_controls: { natural_detected: boolean; injected: Record<string, number>; method_has_power_at_1_20: boolean };
+    dose_response: { passed: string[] };
+  } | null;
   prospective: { weeks: { file: string; scored_games?: number; games?: number; status?: string }[]; by_flag: Record<string, { games: number; hit14: number; hit21: number; priced14: number; priced21: number }> };
 };

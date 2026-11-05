@@ -124,11 +124,29 @@ def elo_margins(g: pd.DataFrame, k: float, carry: float) -> np.ndarray:
     return out
 
 
-def build() -> tuple[pd.DataFrame, dict]:
+def pbp_starters(g: pd.DataFrame) -> dict:
+    """Starting quarterback per (game_id, team abbreviation as in the game id): the passer on the team's first dropback in raw play-by-play."""
+    out = {}
+    for s in sorted(g["season"].unique()):
+        f = RAW / f"play_by_play_{s}.parquet"
+        if not f.exists():
+            f = RAW / "history" / f"play_by_play_{s}.parquet"
+        p = pd.read_parquet(f, columns=["game_id", "posteam", "qb_dropback", "passer_player_id"])
+        p = p[(p["qb_dropback"] == 1) & p["passer_player_id"].notna() & p["posteam"].notna()]
+        out.update(p.groupby(["game_id", "posteam"], sort=False)["passer_player_id"].first().to_dict())
+    return out
+
+
+def build(use_pbp_starters: bool = False) -> tuple[pd.DataFrame, dict]:
     """Games from 1999 with walk-forward Elo, Elo plus starting-QB term, and the pre-game uncertainty inputs. Settings fixed by the rule or chosen on 2006-2012 margin error only."""
     R = rule()
     g = load_games()
     g = g[g["result"].notna() & g["spread_line"].notna() | (g["season"] == R["upcoming_season"])].reset_index(drop=True)
+    if use_pbp_starters:
+        st = pbp_starters(g[g["result"].notna()])
+        parts = g["game_id"].str.split("_")
+        g["home_qb_id"] = [st.get((gid, p[3]), old) for gid, p, old in zip(g["game_id"], parts, g["home_qb_id"])]
+        g["away_qb_id"] = [st.get((gid, p[2]), old) for gid, p, old in zip(g["game_id"], parts, g["away_qb_id"])]
     g = _qb_cols(g, qb_table(g[g["result"].notna()]))
     sel = g["season"].between(*SELECT_SEASONS) & g["result"].notna()
     best = None
@@ -151,6 +169,9 @@ def build() -> tuple[pd.DataFrame, dict]:
     g["u_qb"] = g["qb_changed"] | (np.minimum(g["home_qb_n"], g["away_qb_n"]) < R["new_qb_dropbacks"])
     g["u_gap"] = g["gap"] >= q80
     g["u_any"] = g["u_qb"] | g["u_gap"]
+    g["qb_unc"] = PRIOR_N / (PRIOR_N + np.minimum(g["home_qb_n"], g["away_qb_n"]))
+    g["score"] = g["gap"] / q80 + g["qb_unc"] + 0.5 * g["qb_changed"]
+    g["tot_e"] = g["total"] - g["total_line"]
     return g, {"elo_k": k, "elo_carry": c, "qb_beta_points_per_epa": beta, "gap_threshold": q80}
 
 

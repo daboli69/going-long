@@ -48,3 +48,29 @@ def test_tail_tests_find_nothing_in_pure_normal_noise():
     R = {**tails.rule(), "discovery": [2006, 2019], "confirmation": [2020, 2026]}
     out = tails_tests.tail_tests(g, 13.5, R, rng)
     assert out["passed"] == []
+
+
+def test_same_season_control_ignores_a_shift_in_spread_between_seasons():
+    from lab import tails_deep
+    import pandas as pd
+    rng = np.random.default_rng(5)
+    n = 6000
+    season = rng.integers(2006, 2020, n)
+    sd = np.where(season < 2013, 15.0, 11.0)                 # margins tighten in later seasons
+    g = pd.DataFrame({"season": season, "result": 1.0, "e": rng.normal(0, sd), "flag": rng.random(n) < 0.3})
+    H = tails_deep._hits(g)
+    _, ratio, _ = tails_deep.control_stat(tails_deep._strata(g, g["flag"].to_numpy(), H))
+    assert np.all(np.abs(ratio - 1) < 0.2)
+
+
+def test_injected_widening_is_detected_by_the_control():
+    from lab import tails_deep
+    import pandas as pd
+    rng = np.random.default_rng(6)
+    n = 5000
+    g = pd.DataFrame({"season": rng.integers(2020, 2027, n), "e": rng.normal(0, 13, n), "flag": rng.random(n) < 0.4})
+    g.loc[g["flag"], "e"] *= 1.35
+    H = tails_deep._hits(g)
+    st = tails_deep._strata(g, g["flag"].to_numpy(), H)
+    p = tails_deep.boot_p(st, rng, 400)
+    assert p[2] < 0.01
