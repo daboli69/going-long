@@ -3,8 +3,9 @@ import { api } from "../api";
 import type { OuCalls } from "../types";
 import { cn, pct } from "../lib";
 import { Badge, Callout, FilterRow, Segmented } from "./ui/primitives";
+import { Pick } from "./Leans";
 
-type Key = "player" | "projection" | "line" | "gap" | "chance" | "strength";
+type Key = "player" | "game" | "projection" | "line" | "gap" | "chance" | "strength";
 const STATS = ["All stats", "Receiving yards", "Receptions", "Rushing yards", "Passing yards", "Passing TDs"];
 const SIDES = ["All", "Over", "Under"];
 
@@ -13,6 +14,7 @@ export function OverUnderCallsView() {
   const [err, setErr] = useState<string | null>(null);
   const [stat, setStat] = useState("All stats");
   const [side, setSide] = useState("All");
+  const [game, setGame] = useState("All games");
   const [sort, setSort] = useState<{ key: Key; dir: 1 | -1 }>({ key: "strength", dir: -1 });
   useEffect(() => { api.ouCalls().then(setD).catch((e) => setErr(String(e.message ?? e))); }, []);
   const rows = useMemo(() => {
@@ -20,9 +22,15 @@ export function OverUnderCallsView() {
     let x = d.rows;
     if (stat !== "All stats") x = x.filter((r) => r.stat === stat);
     if (side !== "All") x = x.filter((r) => r.call === side);
-    const v = (r: (typeof x)[number]) => (sort.key === "player" ? r.player : sort.key === "gap" ? Math.abs(r.gap) : r[sort.key]);
+    if (game !== "All games") x = x.filter((r) => r.gid === game);
+    const v = (r: (typeof x)[number]) => (sort.key === "player" ? r.player : sort.key === "game" ? r.kickoff_utc + r.gid : sort.key === "gap" ? Math.abs(r.gap) : r[sort.key]);
     return [...x].sort((a, b) => (v(a) < v(b) ? -1 : v(a) > v(b) ? 1 : 0) * sort.dir);
-  }, [d, stat, side, sort]);
+  }, [d, stat, side, game, sort]);
+  const gameOpts = useMemo(() => {
+    const seen = new Map<string, { t: string; k: string }>();
+    [...(d?.rows ?? [])].sort((x, y) => x.kickoff_utc.localeCompare(y.kickoff_utc)).forEach((r) => { if (!seen.has(r.gid)) seen.set(r.gid, { t: r.gid.split("_").slice(2).join(" at "), k: r.kickoff_utc }); });
+    return [...seen.entries()].map(([v, o]) => ({ v, t: o.t }));
+  }, [d]);
   const onSort = (k: Key) => setSort((s) => (s.key === k ? { key: k, dir: (s.dir * -1) as 1 | -1 } : { key: k, dir: k === "player" ? 1 : -1 }));
   const Th = ({ k, label, right = true, hide = false }: { k: Key; label: string; right?: boolean; hide?: boolean }) => (
     <th scope="col" aria-sort={sort.key === k ? (sort.dir === 1 ? "ascending" : "descending") : "none"} className={cn("px-2 py-1 font-normal", right && "text-right", hide && "hidden md:table-cell")}>
@@ -43,12 +51,13 @@ export function OverUnderCallsView() {
       <div className="space-y-2">
         <FilterRow label="Stat"><Segmented label="Stat" options={STATS} value={stat} onChange={setStat} /></FilterRow>
         <FilterRow label="Call"><Segmented label="Call" options={SIDES} value={side} onChange={setSide} /></FilterRow>
+        <div className="max-w-md"><Pick label="Game" value={game} onChange={setGame} options={[{ v: "All games", t: "All games" }, ...gameOpts]} /></div>
       </div>
       <p className="text-[15px] text-slate-300">{n} calls: {over} over, {n - over} under.</p>
       <div className="overflow-x-auto bg-panel p-2 sm:p-4">
         <table className="w-full min-w-[640px] text-left text-[15px]" aria-label="Over and under calls">
           <thead><tr className="border-b border-bg">
-            <Th k="player" label="Player" right={false} /><Th k="projection" label="Projection" /><Th k="line" label="Line" /><Th k="gap" label="Gap" hide />
+            <Th k="player" label="Player" right={false} /><Th k="game" label="Game" right={false} hide /><Th k="projection" label="Projection" /><Th k="line" label="Line" /><Th k="gap" label="Gap" hide />
             <th scope="col" className="hidden px-2 py-1 text-right text-[13px] font-normal text-muted md:table-cell">8-in-10 range</th>
             <Th k="chance" label="Model chance" /><Th k="strength" label="Strength" /><th scope="col" className="px-2 py-1 text-right text-[13px] font-normal text-muted">Call</th>
           </tr></thead>
@@ -57,6 +66,7 @@ export function OverUnderCallsView() {
             return (
               <tr key={`${r.gid}${r.player}${r.stat}`} className="border-t border-bg">
                 <td className="px-2 py-2">{r.player} <span className="text-[13px] text-muted">{r.team} vs {r.opp}</span><span className="block text-[13px] text-muted">{r.stat}</span></td>
+                <td className="hidden px-2 text-muted md:table-cell">{r.gid.split("_").slice(2).join(" at ")}</td>
                 <td className="px-2 text-right">{r.projection.toFixed(dec)}</td>
                 <td className="px-2 text-right text-muted">{r.line.toFixed(1)}</td>
                 <td className="hidden px-2 text-right text-muted md:table-cell">{r.gap >= 0 ? "+" : "−"}{Math.abs(r.gap).toFixed(dec)}</td>
@@ -66,7 +76,7 @@ export function OverUnderCallsView() {
                 <td className="px-2 text-right"><Badge tone={r.call === "Over" ? "green" : "amber"}>{r.call}</Badge></td>
               </tr>
             );
-          }) : <tr><td colSpan={8} className="py-4 text-sm text-muted">No calls match these filters.</td></tr>}</tbody>
+          }) : <tr><td colSpan={9} className="py-4 text-sm text-muted">No calls match these filters.</td></tr>}</tbody>
         </table>
       </div>
       <p className="max-w-3xl text-[13px] text-muted">Touchdown props are not listed because their saved lines are prices, not numbers. This list is a record of the model's calls, not advice and not a staking plan.</p>

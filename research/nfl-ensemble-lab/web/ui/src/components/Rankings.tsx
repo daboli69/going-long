@@ -4,6 +4,7 @@ import type { RankRow, Rankings } from "../types";
 import { cn, etTime, num, pct } from "../lib";
 import { Callout, FilterRow, Segmented } from "./ui/primitives";
 import { TdCard } from "./TdCard";
+import { Pick } from "./Leans";
 
 const day = (iso: string) => new Date(iso).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "America/New_York" });
 const PAGE = 15;
@@ -88,6 +89,7 @@ export function RankingsView({ week, onOpenGame }: { week: number; onOpenGame: (
   const [error, setError] = useState<string | null>(null);
   const [stat, setStat] = useState("rec_yds");
   const [dayKey, setDayKey] = useState("All days");
+  const [gameKey, setGameKey] = useState("All games");
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [shown, setShown] = useState(PAGE);
 
@@ -105,13 +107,21 @@ export function RankingsView({ week, onOpenGame }: { week: number; onOpenGame: (
     [...(cur?.rows ?? [])].sort((x, y) => x.kickoff_utc.localeCompare(y.kickoff_utc)).forEach((r) => { const d = day(r.kickoff_utc); if (!seen.includes(d)) seen.push(d); });
     return seen;
   }, [cur]);
+  const games = useMemo(() => {
+    const seen = new Map<string, { t: string; k: string }>();
+    [...(cur?.rows ?? [])].sort((x, y) => x.kickoff_utc.localeCompare(y.kickoff_utc)).forEach((r) => {
+      if (!seen.has(r.gid)) seen.set(r.gid, { t: r.home ? `${r.opp} at ${r.team}` : `${r.team} at ${r.opp}`, k: r.kickoff_utc });
+    });
+    return [...seen.entries()].map(([v, o]) => ({ v, t: `${o.t}, ${day(o.k)}` }));
+  }, [cur]);
+  useEffect(() => { if (gameKey !== "All games" && !games.some((g) => g.v === gameKey)) setGameKey("All games"); }, [games, gameKey]);
   useEffect(() => { if (dayKey !== "All days" && !days.includes(dayKey)) setDayKey("All days"); }, [days, dayKey]);
 
   if (error) return <Callout tone="amber">Could not load the rankings ({error}).</Callout>;
   if (!data || !cur) return <p className="text-muted" role="status">Ranking every player in week {week}… the first load takes about 15 seconds.</p>;
 
   const labels = Object.fromEntries(Object.entries(data.stats).map(([k, v]) => [v.label, k]));
-  const rows = cur.rows.filter((r) => dayKey === "All days" || day(r.kickoff_utc) === dayKey);
+  const rows = cur.rows.filter((r) => (dayKey === "All days" || day(r.kickoff_utc) === dayKey) && (gameKey === "All games" || r.gid === gameKey));
   const visible = rows.slice(0, shown);
   const w = data.weights, unit = cur.unit;
   const lead = rows[0];
@@ -135,6 +145,7 @@ export function RankingsView({ week, onOpenGame }: { week: number; onOpenGame: (
 
       <div className="space-y-2">
         <FilterRow label="Prop"><Segmented label="Prop" options={Object.keys(labels)} value={cur.label} onChange={(l) => { setStat(labels[l]); setOpenKey(null); setShown(PAGE); }} /></FilterRow>
+        {games.length > 1 && <div className="max-w-md"><Pick label="Game" value={gameKey} onChange={(g) => { setGameKey(g); setOpenKey(null); setShown(PAGE); }} options={[{ v: "All games", t: "All games" }, ...games]} /></div>}
         {days.length > 1 && <FilterRow label="Day"><Segmented label="Day" options={["All days", ...days]} value={dayKey} onChange={(d) => { setDayKey(d); setOpenKey(null); setShown(PAGE); }} /></FilterRow>}
       </div>
 
