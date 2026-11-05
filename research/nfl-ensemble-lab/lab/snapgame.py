@@ -258,7 +258,9 @@ def scenarios(gid: str, n: int = 4000) -> dict:
     out = {}
     for name, fx in (("low", SCENARIO["low"]), ("high", SCENARIO["high"])):
         s = run_game(gid, n=n, fixed=fx, seed=7)
-        out[name] = {"win": s["win"], "cover": s["cover"], "over": s["over"], "star": [pl for pl in s["_players"] if pl["name"] == s["scenario"].get("star")][0]["stats"].get("rush_yds")}
+        if not s["scenario"].get("star"):
+            return {}                      # no returning-starter question in this game
+        out[name] = {"win": s["win"], "cover": s["cover"], "over": s["over"], "star": next((pl["stats"].get("rush_yds") for pl in s["_players"] if pl["name"] == s["scenario"].get("star")), None)}
     return out
 
 

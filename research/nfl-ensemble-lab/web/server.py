@@ -112,6 +112,12 @@ def leans(market: str = "All", week_from: int | None = None, week_to: int | None
 _REFS = {}
 
 
+@app.get("/api/ou-calls")
+def ou_calls_api():
+    from lab import ou_calls
+    return JSONResponse(D.clean(ou_calls.calls()))
+
+
 @app.get("/api/tails")
 def tails_api():
     """Tail tests (docs/tails_results.json), the latest saved week of flags and the prospective score."""

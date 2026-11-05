@@ -404,6 +404,24 @@ def week_games(week: int) -> list[dict]:
     return clean(out)
 
 
+def fpds_update(gid: str, week: int) -> dict | None:
+    """The newest FantasyPoints weekly run's game numbers (shadow revision, not the saved forecast), if one covers this week."""
+    import glob
+    fs = sorted(glob.glob(str(CACHE_DIR / "fpds" / "amendment6" / "weekly" / f"{SEASON}_w{week:02d}_r*" / "game_projections.csv")))
+    if not fs:
+        return None
+    t = _cached(("fpds_games", fs[-1]), _mt(Path(fs[-1])), lambda: pd.read_csv(fs[-1]))
+    x = t[(t["game_id"] == gid) & (t["arm"] == "control")]
+    if x.empty:
+        return None
+    v = {r.stat: r for r in x.itertuples()}
+    if not {"margin", "total", "win"} <= set(v):
+        return None
+    m, tt, w = v["margin"], v["total"], v["win"]
+    return {"margin": float(m.mean), "margin_low": float(m.q10), "margin_high": float(m.q90), "total": float(tt.mean), "total_low": float(tt.q10), "total_high": float(tt.q90),
+            "p_home": float(w.mean), "through_week": int(m.training_last_completed_week), "created_at": str(m.created_at), "status": "shadow revision, not promoted"}
+
+
 def game_detail(gid: str) -> dict | None:
     G = games_table()
     G = G[(G["season"] == SEASON) & (G["game_type"] == "REG")]
@@ -441,6 +459,7 @@ def game_detail(gid: str) -> dict | None:
         d["outcomes"] = _outcomes(b, home, away)
         d["distribution"] = {"margin": pmf(b["mu_m"], b["sd_m"], -40, 40), "total": pmf(b["mu_t"], b["sd_t"], 10, 90)}
     d["expected"] = exp
+    d["fpds_update"] = fpds_update(gid, week)
     d["lean"] = _lean(fz, home, away)
     d["ladders"] = _ladders(fz, home)
     inj, stamp = injuries_now()

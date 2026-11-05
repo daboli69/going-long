@@ -70,3 +70,8 @@ def test_saved_game_records_are_write_once_and_detect_tampering(tmp_path, monkey
     rec["forecast"]["win"]["A"] = 0.9
     path.write_text(json.dumps(rec))
     assert snapgame.get("g1")["frozen_ok"] is False
+
+
+def test_scenarios_are_skipped_not_crashed_when_a_game_has_no_returning_starter(monkeypatch):
+    monkeypatch.setattr(snapgame, "run_game", lambda gid, n=0, fixed=None, seed=0: {"scenario": {}, "win": {}, "cover": {}, "over": 0.5, "_players": []})
+    assert snapgame.scenarios("2026_09_JAX_BAL") == {}

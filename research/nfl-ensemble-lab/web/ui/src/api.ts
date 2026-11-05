@@ -1,4 +1,4 @@
-import type { Tails, SnapSim, Leans, Refs, FirstTdAllowed, KingBoard, KingWeek, WeekResults, Detail, GameRow, GlossaryItem, Live, Meta, Rankings, Sim, TdCardData, TdMarket } from "./types";
+import type { OuCalls, Tails, SnapSim, Leans, Refs, FirstTdAllowed, KingBoard, KingWeek, WeekResults, Detail, GameRow, GlossaryItem, Live, Meta, Rankings, Sim, TdCardData, TdMarket } from "./types";
 
 async function get<T>(path: string): Promise<T> {
   const response = await fetch(path);
@@ -19,6 +19,7 @@ export const api = {
   results: (week: number) => get<WeekResults>(`/api/results/${week}`),
   kingWeek: (week: number) => get<KingWeek>(`/api/kingzone/${week}`),
   leans: (q: string) => get<Leans>(`/api/leans?${q}`),
+  ouCalls: () => get<OuCalls>("/api/ou-calls"),
   tails: () => get<Tails>("/api/tails"),
   refs: (q: string) => get<Refs>(`/api/refs?${q}`),
   snapsim: (gid: string, refresh = false) => get<SnapSim>(`/api/snapsim/${gid}?refresh=${refresh}`),

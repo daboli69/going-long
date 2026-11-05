@@ -16,16 +16,93 @@ function byMargin(g: ResultGame) {
   return `Expected ${exp}, finished ${act}`;
 }
 
-function PlayerRow({ r }: { r: ResultPlayer }) {
-  const dec = r.stat === "Receptions" ? 1 : 0;
+type SortKey = "player" | "projected" | "line" | "actual" | "diff" | "call" | "result";
+const decOf = (stat: string) => (stat === "Receptions" ? 1 : 0);
+const callOf = (r: ResultPlayer) => (r.market_line === null ? null : r.projected > r.market_line ? "Over" : "Under");
+const resultRank = (r: ResultPlayer) => (r.bet_won === null ? 1 : r.bet_won ? 2 : 0);
+const SIDES = ["All", "Over projection", "Under projection"];
+const CALLS = ["All", "Right", "Wrong"];
+
+function SortTh({ label, k, sort, onSort, right = true, hide = false }: { label: string; k: SortKey; sort: { key: SortKey; dir: 1 | -1 }; onSort: (k: SortKey) => void; right?: boolean; hide?: boolean }) {
+  const on = sort.key === k;
   return (
-    <div role="row" className="grid min-h-[48px] grid-cols-[minmax(0,1fr)_4em_4em_4.5em] items-center gap-x-3 border-t border-bg py-2 sm:grid-cols-[minmax(0,1fr)_5em_5em_5em_5em]">
-      <div role="cell" className="min-w-0 text-[15px]">{r.player} <span className="text-[13px] text-muted">{r.team} vs {r.opp}</span>
-        <span className="block text-[13px] text-muted">{r.opps} {r.stat === "Passing yards" ? "pass attempts" : r.stat === "Rushing yards" ? "carries" : "targets"}</span></div>
-      <div role="cell" className="text-right text-[15px] text-muted">{r.projected.toFixed(dec)}</div>
-      <div role="cell" className="text-right text-xl font-bold">{r.actual.toFixed(dec)}</div>
-      <div role="cell" className="hidden text-right text-[15px] text-muted sm:block">{r.error >= 0 ? "+" : "−"}{Math.abs(r.error).toFixed(dec)}</div>
-      <div role="cell" className="text-right"><Verdict ok={r.close} /><span className="block text-[13px] text-muted">within ±{r.tolerance.toFixed(r.stat === "Receptions" ? 0 : 0)}</span></div>
+    <th scope="col" aria-sort={on ? (sort.dir === 1 ? "ascending" : "descending") : "none"} className={cn("px-2 py-1 font-normal", right && "text-right", hide && "hidden sm:table-cell")}>
+      <button type="button" onClick={() => onSort(k)} className={cn("min-h-[44px] cursor-pointer text-[13px] hover:text-white", on ? "text-white" : "text-muted")}>{label}{on ? (sort.dir === 1 ? " ▲" : " ▼") : ""}</button>
+    </th>
+  );
+}
+
+function PropTable({ players, stat }: { players: ResultPlayer[]; stat: string }) {
+  const [side, setSide] = useState("All");
+  const [call, setCall] = useState("All");
+  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: "diff", dir: -1 });
+  const onSort = (k: SortKey) => setSort((s) => (s.key === k ? { key: k, dir: (s.dir * -1) as 1 | -1 } : { key: k, dir: k === "player" ? 1 : -1 }));
+  const base = useMemo(() => (stat === "All stats" ? players : players.filter((p) => p.stat === stat)), [players, stat]);
+  const over = base.filter((p) => p.actual > p.projected).length, under = base.filter((p) => p.actual < p.projected).length;
+  const lined = base.filter((p) => p.bet_won !== null);
+  const right = lined.filter((p) => p.bet_won).length;
+  const rows = useMemo(() => {
+    let x = base;
+    if (side === "Over projection") x = x.filter((p) => p.actual > p.projected);
+    if (side === "Under projection") x = x.filter((p) => p.actual < p.projected);
+    if (call === "Right") x = x.filter((p) => p.bet_won === true);
+    if (call === "Wrong") x = x.filter((p) => p.bet_won === false);
+    const val = (p: ResultPlayer): number | string => {
+      switch (sort.key) {
+        case "player": return p.player;
+        case "projected": return p.projected;
+        case "line": return p.market_line ?? -1;
+        case "actual": return p.actual;
+        case "diff": return p.actual - p.projected;
+        case "call": return callOf(p) ?? "";
+        default: return resultRank(p);
+      }
+    };
+    return [...x].sort((a, b) => { const va = val(a), vb = val(b); return (va < vb ? -1 : va > vb ? 1 : 0) * sort.dir; });
+  }, [base, side, call, sort]);
+
+  return (
+    <div className="space-y-3">
+      <div className="space-y-2">
+        <FilterRow label="Actual vs projection"><Segmented label="Actual vs projection" options={SIDES} value={side} onChange={setSide} /></FilterRow>
+        <FilterRow label="Our call vs the line"><Segmented label="Our call vs the line" options={CALLS} value={call} onChange={setCall} /></FilterRow>
+      </div>
+      <p className="max-w-[75ch] text-[15px] text-slate-300">
+        {base.length} players: {over} finished over their projection and {under} under.
+        {lined.length > 0 && ` Where a market line was saved, our side of the line was right ${right} of ${lined.length} times (${pct(right / lined.length)}).`}
+        {" "}Our call is Over when the projection is above the line and Under when it is below. A call is Right when the player's actual landed on that side of the line: project 45, line 35, take the over, and an actual of 40 is a win even though it missed the projection.
+      </p>
+      <div className="overflow-x-auto bg-panel p-2 sm:p-4">
+        <table className="w-full min-w-[640px] text-left text-[15px]" aria-label="Player props, projection, line, actual and result">
+          <thead>
+            <tr className="border-b border-bg">
+              <SortTh label="Player" k="player" sort={sort} onSort={onSort} right={false} />
+              <SortTh label="Projected" k="projected" sort={sort} onSort={onSort} />
+              <SortTh label="Line" k="line" sort={sort} onSort={onSort} />
+              <SortTh label="Actual" k="actual" sort={sort} onSort={onSort} />
+              <SortTh label="Actual minus projection" k="diff" sort={sort} onSort={onSort} hide />
+              <SortTh label="Our call" k="call" sort={sort} onSort={onSort} />
+              <SortTh label="Result" k="result" sort={sort} onSort={onSort} />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length ? rows.map((r) => {
+              const dec = decOf(r.stat), d = r.actual - r.projected, c = callOf(r);
+              return (
+                <tr key={`${r.gid}${r.team}${r.player}${r.stat}`} className={cn("border-t border-bg", r.bet_won === true && "bg-green-500/10", r.bet_won === false && "bg-red-500/10")}>
+                  <td className="px-2 py-2">{r.player} <span className="text-[13px] text-muted">{r.team} vs {r.opp}</span>{stat === "All stats" && <span className="block text-[13px] text-muted">{r.stat}</span>}</td>
+                  <td className="px-2 text-right text-muted">{r.projected.toFixed(dec)}</td>
+                  <td className="px-2 text-right text-muted">{r.market_line === null ? "No line" : r.market_line.toFixed(dec === 0 ? 1 : 1)}</td>
+                  <td className="px-2 text-right text-lg font-bold">{r.actual.toFixed(dec)}</td>
+                  <td className="hidden px-2 text-right text-muted sm:table-cell">{d >= 0 ? "+" : "−"}{Math.abs(d).toFixed(dec)} {d > 0 ? "over" : d < 0 ? "under" : "even"}</td>
+                  <td className="px-2 text-right">{c ?? "n/a"}</td>
+                  <td className="px-2 text-right">{r.bet_won === null ? <Badge>{r.market_line === null ? "No line" : "Push"}</Badge> : <Badge tone={r.bet_won ? "green" : "red"}>{r.bet_won ? "Right" : "Wrong"}</Badge>}</td>
+                </tr>
+              );
+            }) : <tr><td colSpan={7} className="py-4 text-sm text-muted">No players match these filters.</td></tr>}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -35,8 +112,7 @@ export function ResultsView({ weeks, latest, onOpenGame }: { weeks: number[]; la
   const [week, setWeek] = useState<number | null>(null);
   const [data, setData] = useState<WeekResults | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [stat, setStat] = useState("Receiving yards");
-  const [show, setShow] = useState("Biggest misses");
+  const [stat, setStat] = useState("All stats");
 
   // Start on the most recent week that has a finished game: try the current week, then step back.
   useEffect(() => {
@@ -57,15 +133,6 @@ export function ResultsView({ weeks, latest, onOpenGame }: { weeks: number[]; la
     setWeek(w); setData(null); setError(null);
     api.results(w).then(setData).catch((e) => setError(String(e)));
   };
-
-  const rows = useMemo(() => {
-    if (!data) return [];
-    const x = data.players.filter((p) => p.stat === stat);
-    const sizable = (p: ResultPlayer) => p.projected >= (stat === "Receptions" ? 2 : 20);
-    if (show === "Biggest misses") return [...x].sort((a, b) => Math.abs(b.error) - Math.abs(a.error)).slice(0, 12);
-    if (show === "Closest calls") return x.filter(sizable).sort((a, b) => Math.abs(a.error) - Math.abs(b.error)).slice(0, 12);
-    return [...x].sort((a, b) => b.projected - a.projected);
-  }, [data, stat, show]);
 
   const picker = (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -121,25 +188,14 @@ export function ResultsView({ weeks, latest, onOpenGame }: { weeks: number[]; la
 
       <section aria-label="Players" className="space-y-3">
         <h2 className="text-xl leading-tight text-white">Players</h2>
-        <div className="space-y-2">
-          <FilterRow label="Stat"><Segmented label="Stat" options={STATS} value={stat} onChange={setStat} /></FilterRow>
-          <FilterRow label="Show"><Segmented label="Show" options={["Biggest misses", "Closest calls", "Everyone"]} value={show} onChange={setShow} /></FilterRow>
-        </div>
-        {ps && (
+        <FilterRow label="Stat"><Segmented label="Stat" options={["All stats", ...STATS]} value={stat} onChange={setStat} /></FilterRow>
+        {ps && stat !== "All stats" && (
           <p className="text-[15px] text-slate-300">
             {ps.n} players projected. Off by {num(ps.mean_abs_error, stat === "Receptions" ? 1 : 0)} on average, {ps.bias >= 0 ? "above" : "below"} the projection by {num(Math.abs(ps.bias), stat === "Receptions" ? 1 : 0)} on balance.
-            {` ${pct(ps.close_rate)} landed close.`}{ps.inside_range !== null && ` The wide 8-in-10 range held ${pct(ps.inside_range)} of the time, which is easy to do and not the test.`}{ps.bets >= 5 && ` Where a market line was saved, the projection's side won ${ps.bets_won} of ${ps.bets}.`}
+            {` ${pct(ps.close_rate)} landed close.`}{ps.inside_range !== null && ` The wide 8-in-10 range held ${pct(ps.inside_range)} of the time, which is easy to do and not the test.`}
           </p>
         )}
-        <section aria-label={`${stat} results`} className="bg-panel p-4 sm:p-6">
-          <div role="table" aria-label={`${stat}, projected and actual`}>
-            <div role="row" className={cn("grid grid-cols-[minmax(0,1fr)_4em_4em_4.5em] gap-x-3 text-[13px] text-muted sm:grid-cols-[minmax(0,1fr)_5em_5em_5em_5em]")}>
-              <div role="columnheader">Player</div><div role="columnheader" className="text-right">Projected</div><div role="columnheader" className="text-right">Actual</div>
-              <div role="columnheader" className="hidden text-right sm:block">Miss</div><div role="columnheader" className="text-right">Close?</div>
-            </div>
-            {rows.length ? rows.map((r) => <PlayerRow key={`${r.gid}${r.team}${r.player}${r.stat}`} r={r} />) : <p role="row" className="py-4 text-sm text-muted">No projections for this stat yet.</p>}
-          </div>
-        </section>
+        <PropTable players={data.players} stat={stat} />
         <p className="max-w-[75ch] text-sm text-muted">
           Actual yards and catches come from the official play-by-play, or from the last stored ESPN box score for a game it has not published. A player is scored only if he had at least one target, carry or pass attempt in the game.
           {data.summary.left_out > 0 && ` ${data.summary.left_out} projected player lines were left out this week because the player had none, whether he did not play or was not used.`}

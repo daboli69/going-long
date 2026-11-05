@@ -65,6 +65,13 @@ export function Overview({ d }: { d: Detail }) {
   return (
     <div className="space-y-4">
       {d.result && <Callout tone={d.result.favorite_won ? "green" : "amber"}>{d.result.winner} won. The favorite ({d.headline.favored}) {d.result.favorite_won ? "won" : "lost"}.</Callout>}
+      {d.fpds_update && !d.completed && (
+        <Callout tone="blue">
+          Updated with FantasyPoints data through week {d.fpds_update.through_week} (a separate revision, the saved forecast above is unchanged): {d.fpds_update.margin >= 0 ? d.home : d.away} by {Math.abs(d.fpds_update.margin).toFixed(1)}
+          (8-in-10 range {d.fpds_update.margin_low.toFixed(0)} to {d.fpds_update.margin_high.toFixed(0)} for the home margin), total {d.fpds_update.total.toFixed(1)}, {d.home} win chance {pct(d.fpds_update.p_home)}.
+          {d.expected?.margin != null && ` The saved forecast has ${d.expected.margin >= 0 ? d.home : d.away} by ${Math.abs(d.expected.margin).toFixed(1)}.`} This revision is not part of the pre-registered tests and is not promoted.
+        </Callout>
+      )}
       {d.injury_adjustment && (() => {
         const a = d.injury_adjustment;
         const parts = Object.entries(a.teams).filter(([, t]) => t.known && (t.new_out.length > 0 || t.back.length > 0)).map(([team, t]) =>

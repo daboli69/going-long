@@ -94,6 +94,7 @@ export interface Detail {
   headline?: { p_home: number; p_label: string; favored: string; favored_name: string; p_favored: number };
   sources?: { name: string; p_home: number }[];
   agreement?: { gap_points: number; agree: boolean };
+  fpds_update?: { margin: number; margin_low: number; margin_high: number; total: number; total_low: number; total_high: number; p_home: number; through_week: number; created_at: string } | null;
   expected?: { margin: number | null; margin_label: string | null; total: number | null; total_label: string | null; sd_m: number; sd_t: number; home_pts?: number; away_pts?: number };
   lean?: { abstain: boolean; diff_points: number; toward: string | null; text: string } | null;
   outcomes?: { label: string; p: number }[];
@@ -341,3 +342,6 @@ export type Tails = {
 };
 
 export type LadderRow = { games: number; note?: string; width_level: number; tail10: number; tail2: number; center_diff: number; center_ci95: [number, number]; width_ci95: [number, number]; holm_width: number; holm_tail10: number; ks_p: number; median_df: number; median_abs_gap_to_line: number; perm_percentile: { width_level: number; tail10: number; tail2: number }; power: { min_detectable_width_error: number; min_detectable_tail10_excess: number } };
+
+export type OuRow = { player: string; team: string; opp: string; pos: string | null; stat: string; gid: string; kickoff_utc: string; projection: number; mean: number; low: number; high: number; line: number; call: "Over" | "Under" | "Even"; chance: number; gap: number; strength: number; line_status: string; tier: string };
+export type OuCalls = { ok: boolean; reason?: string; week?: number; through_week?: number; created_at?: string; status?: string; rows: OuRow[] };
