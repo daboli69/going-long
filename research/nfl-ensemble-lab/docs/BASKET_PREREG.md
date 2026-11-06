@@ -77,3 +77,18 @@ Implementation details left open in section 3. None depends on a result.
 - Games are matched to results by home team, away team and kickoff date within a day. A game is final when its play-by-play reaches zero seconds remaining.
 - For the outcome test, the primary value for a team-game is the median across books of the final pre-kickoff snapshot's gap, quarterback error and basket error.
 - The gate for the outcome test uses the spread of the real gaps and the number of team-games (structure), never the relation between gaps and outcomes.
+
+## Amendment 2 (2026-11-06, committed before any closing-line-value number is computed): is the early receiver line beaten by the close
+
+Question: the closing test found that receiver lines move toward the quarterback line. If a bettor had taken the early receiver price on the side the gap points to, would the closing price have been better by more than the vig? This uses no game results, only the feed's own early and closing prices.
+
+Definitions, fixed now:
+- Early snapshot: for each book, game and team, the earliest snapshot between 48 and 18 hours before kickoff. The gap g is the one already defined for that snapshot.
+- Bets: for a team-game-book whose |g| is at or above the median |g| of the weeks 1 to 4 team-games, one bet on each listed receiver at that book and snapshot: over if g is negative (the basket sits below the value the quarterback implies), under if g is positive. Each bet uses that book's own early line L0 and the odds it posted for that side.
+- Closing value: the median across books of the odds-adjusted line at the final pre-kickoff snapshot (at least three books), M. The closing probability of the bet winning is the normal probability with median M and scale c_R x M (the receiver scale already fitted on the decide weeks): for an over, the probability that the result exceeds L0, for an under the probability that it falls below.
+- Net value of a bet = closing probability of winning minus the break-even probability of the early odds. A bet at a flat -110 with no move scores about -0.024.
+- Mean net value is the test statistic, averaged within each game first so a game with many receivers counts once. Bootstrap by game (2000 draws), one-sided: the test passes if the lower end of the one-sided 95% interval is above 0. Both the registered rule above and the gross version (closing probability minus 0.5, no vig) are reported.
+- Placebo: the same, with the sign of the bet flipped, and with g shuffled across team-games within the same week, 500 times.
+- Games: weeks 1 to 9 (no results are needed). Weeks 1 to 4 and weeks 5 to 9 are also reported separately, descriptive only.
+- Gate, before the mean is read: 2.8 times the bootstrap standard error of the mean net value must be at most 0.02 (about the break-even hold). If it is above, the result is uninformative and is not read.
+- Limits: the early price is a posted price from a twice-a-day snapshot, so it may not have been available when the bettor acted. The closing probability depends on the receiver scale. Limits and bet size caps are not modeled. This is a statement about price movement, not about whether the bets win.
