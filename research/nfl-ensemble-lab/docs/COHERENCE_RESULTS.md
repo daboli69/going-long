@@ -62,3 +62,17 @@ For description only: weeks 1 to 4 gave 0.01 and weeks 5 to 8 gave 0.10. Passing
 ## Next
 
 Rerun Test B from week 9 onward with a registered passing-ladder subset. Collect timestamped sportsbook player-prop lines weekly if a free source exists, since that is the only way to ask the original question. Test A needs roughly two seasons of games.
+
+## Addendum 1: the sportsbook version (Test C, Amendments 3 and 4)
+
+Travis asked for the GOING history to be used. The GOING repository holds every committed version of the sportsbook feed from 2026-09-09. I harvested all 201 versions into the lab archive (50 new prop files and 39 new game-market files on top of the 136 already held) with `scripts/going_harvest.py`, read-only, no network.
+
+What the history is: about 1.3 million quotes from 18 books, but only a snapshot twice a day. It is not a tick-by-tick record, and it starts in September 2026, so there is no 2025 sportsbook history. The other large GOING files (signal archive, public tracker) hold model signals and bets built from the same feed, not extra raw quotes, so they add no new line history. I did not open the private scanner journal.
+
+Test C asks the Test B question on sportsbook consensus lines, using whole snapshots at about 40, 24 and 15 hours before kickoff. Two registered fixes happened before any result: the feed's team field is empty for every prop quote (Amendment 4, team taken from the 2026 roster).
+
+Gate: 63 games have three usable game-line snapshots, but only 45 games and 559 player lines (481 receiving, 78 passing) also have three snapshots of a player line with at least three books. The smallest detectable L is 0.17 against the 0.15 of interest (docs/coherence_gate_C.json). That is just short, so by the registered rule Test C is uninformative and L was not read. I made no further change to the gate.
+
+What would fix it: each week adds about 10 to 15 qualifying games. About 20 more games should bring the smallest detectable L under 0.15, so the test can be rerun after week 11 or 12. Rerunning is the same registered procedure, and it should only be done after confirming the gate again, not by loosening the snapshot window.
+
+Concern: a snapshot sees only the quotes alive at that moment. Lines that moved twice between snapshots show only their last value. The test therefore measures changes between snapshots, not every tick.

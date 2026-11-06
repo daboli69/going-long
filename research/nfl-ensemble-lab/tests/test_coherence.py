@@ -32,3 +32,12 @@ def test_reconciliation_slope_recovers_planted_value():
     r = pd.DataFrame({"game_id": tg["game_id"], "team": "A", "season": 2022, "f": tg["Rf"], "Rf": tg["Rf"], "y": tg["Rf"] + 0.4 * c + rng.normal(0, 30, n)})
     b = C.fit_slopes(tg, r, share)
     assert abs(b["b_Q"] + 0.4) < 0.06 and abs(b["b_R"] - 0.4) < 0.06
+
+
+def test_pick_snaps_needs_three_distinct_snapshots_within_tolerance():
+    from lab import coherence_book as K
+    kick = pd.Timestamp("2026-11-08 18:00", tz="UTC")
+    mk = lambda hrs: {"gk": "A@B2026-11-08", "snap": kick - pd.Timedelta(hours=hrs), "kick": kick, "home": "A", "away": "B", "home_spread": -3.0, "total": 45.0}
+    ok = K.pick_snaps(pd.DataFrame([mk(41), mk(24), mk(15.5), mk(2)]))
+    assert len(ok) == 1
+    assert K.pick_snaps(pd.DataFrame([mk(41), mk(24), mk(10)])).empty

@@ -50,14 +50,18 @@ def game_state() -> pd.DataFrame:
 
 def prop_state() -> pd.DataFrame:
     d = L.archived_lines()
-    d = d[(d["period"] == "FULL") & d["stat"].isin(["pass_yds", "rec_yds"]) & d["line"].notna() & d["gsis_id"].notna() & d["team"].notna()
-          & (~d["in_play"].fillna(False).astype(bool)) & (~d["dfs"].fillna(False).astype(bool))].copy()
+    d = d[(d["period"] == "FULL") & d["stat"].isin(["pass_yds", "rec_yds"]) & d["line"].notna() & d["gsis_id"].notna() & (~d["in_play"].fillna(False).astype(bool)) & (~d["dfs"].fillna(False).astype(bool))].copy()
     d["snap"], d["kick"], d["qt"] = _t(d["available_at"]), _t(d["kickoff"]), _t(d["quote_time"])
     d = d[(d["qt"] <= d["snap"]) & (d["snap"] - d["qt"] <= pd.Timedelta(hours=MAX_AGE_H)) & (d["snap"] < d["kick"])]
     d = d.sort_values("qt").drop_duplicates(["snap", "home", "away", "book", "gsis_id", "stat"], keep="last")
     d["gk"] = d["home"] + "@" + d["away"] + d["kick"].dt.strftime("%Y-%m-%d")
-    agg = d.groupby(["snap", "gk", "gsis_id", "stat", "team"]).agg(line=("line", "median"), n=("book", "nunique")).reset_index()
+    agg = d.groupby(["snap", "gk", "gsis_id", "stat"]).agg(line=("line", "median"), n=("book", "nunique"), home=("home", "first"), away=("away", "first")).reset_index()
     return agg[agg["n"] >= MIN_BOOKS]
+
+
+def roster_teams() -> dict:
+    r = pd.read_parquet(RAW_DIR / "roster_weekly_2026.parquet", columns=["gsis_id", "team"]).dropna()
+    return r.groupby("gsis_id")["team"].agg(lambda s: set(s)).to_dict()
 
 
 def pick_snaps(gs: pd.DataFrame) -> pd.DataFrame:
@@ -85,9 +89,16 @@ def design() -> pd.DataFrame:
     rows = []
     for t in TARGETS:
         p = ps.merge(games[["gk", f"snap{t}"]].rename(columns={f"snap{t}": "snap"}), on=["gk", "snap"])
-        rows.append(p.rename(columns={"line": f"line{t}"})[["gk", "gsis_id", "stat", "team", f"line{t}"]])
-    m = rows[0].merge(rows[1], on=["gk", "gsis_id", "stat", "team"]).merge(rows[2], on=["gk", "gsis_id", "stat", "team"])
+        rows.append(p.rename(columns={"line": f"line{t}"})[["gk", "gsis_id", "stat", f"line{t}"]])
+    m = rows[0].merge(rows[1], on=["gk", "gsis_id", "stat"]).merge(rows[2], on=["gk", "gsis_id", "stat"])
     m = m.merge(games, on="gk")
+    rt = roster_teams()
+    def team_of(r):
+        s = rt.get(r.gsis_id, set())
+        h, a = r.home in s, r.away in s
+        return r.home if h and not a else r.away if a and not h else None
+    m["team"] = [team_of(r) for r in m.itertuples()]
+    m = m[m["team"].notna()].copy()
     is_home = m["team"] == m["home"]
     sign = np.where(is_home, 1.0, -1.0)
     tp = lambda t: (m[f"total{t}"] + sign * (-m[f"spread{t}"])) / 2
