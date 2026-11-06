@@ -91,3 +91,22 @@ Changes:
 - The first gate results are kept as docs/dependence_gate_v1.json.
 
 Reading rule for the result: passing the held-out score would show better joint calibration than independence. It would not show a mispriced bet, because no same-game-combination price is held.
+
+## Amendment 2 (2026-11-06, committed before the comparison is computed)
+
+Question: does the lab's game simulator already carry the quarterback-to-receiver link that Amendment 1 found in the data, and is it the right size?
+
+Data: `artifacts/props/dev/correlation.parquet` (2022) and `artifacts/props/eval/correlation.parquet` (2023 to 2025). One row per team-game: the simulator's own correlation between the quarterback's passing yards and the top receiver's receiving yards across its simulated games (`sim_corr`), the realized yards (`qb_act`, `wr_act`) and the simulator's mean for each (`qb_sim`, `wr_sim`). The existing `analysis.json` files hold a pooled version of this comparison. I have not opened them.
+
+Primary measure: D = actual residual correlation minus the mean `sim_corr`. The actual residual correlation is the Pearson correlation between (`qb_act` - `qb_sim`) and (`wr_act` - `wr_sim`) over team-games where both are present. Computed on 2022 to 2024 pooled. Interval: bootstrap by game, 2000 draws, 95%.
+
+Decision, fixed now:
+- The simulator has about the right amount if the whole interval for D lies inside -0.10 and +0.10.
+- Too little if the lower end is above +0.10. Too much if the upper end is below -0.10.
+- Otherwise the data cannot say.
+
+Confirmation: the same measure on 2025 alone, reported once. Nothing is fitted here, so using 2025 again does not use it to choose anything, but it is the second use of that season and is disclosed.
+
+Limits: this covers the quarterback and the top receiver only, not other receivers, tight ends or running backs. It is measured in yards, not in the normal-score space used in the copula test. The simulator's draws are not stored, so its pairs cannot be scored directly.
+
+Rule: if the simulator is about right, no dependence layer is added. If it has too little, a layer can be considered only under a separate registration. Results are reported either way.
