@@ -91,3 +91,19 @@ Test B has no tunable choice, so a decide stage had nothing to decide. The chang
 - Result rule, fixed now: "props lag the game line" if the lower end of the one-sided 95% bootstrap interval for L (by game, 2000 draws) is above 0. "No lag of the size of interest" if the upper end is below 0.15. Otherwise "cannot say".
 - A placebo is reported: the same estimate with the game-line moves shuffled across games within the same series, 500 times. It should be centered near 0.
 - Because the test is not replicated, a "lag" result is a lead to confirm on weeks 9 onward, not a finding. Nothing in the app changes on this result alone.
+
+## Amendment 3 (2026-11-06, committed before any sportsbook count or move is computed): Test C, the sportsbook version of Test B
+
+Why: Test B could only ask whether Kalshi's player ladders trail Kalshi's game ladders. The original question is about sportsbooks. The GOING repository holds every committed version of `data/nfl_betting.json` from 2026-09-09 (201 versions, harvested read-only with `scripts/going_harvest.py`, no network). Each version is a full snapshot of many books' game lines and player-prop lines. The feed is refreshed about twice a day, so the 3-hour horizon of Test B does not exist here.
+
+Data and rules, fixed now:
+- Books: every book in the feed except daily-fantasy pick'em sites (rows flagged `dfs`).
+- A snapshot's state: for each book, its quote in that snapshot, kept only if the quote time is at or before the snapshot time, within 12 hours of it, before kickoff and not in play. A line's consensus is the median across at least three books. Game lines come from the market files, player lines from the prop files.
+- Using whole snapshots, not as-of quote times, avoids a selection problem: a quote that was replaced before the next snapshot is invisible in an as-of view, which would bias moves toward zero.
+- Team implied points = (total consensus + team expected margin) / 2, with the home expected margin equal to minus the home spread consensus.
+- For each game, three snapshots, chosen as the ones closest to 40, 24 and 15 hours before kickoff, each within 4 hours of its target, and all three distinct. A game without all three is dropped.
+- Players: quarterback passing yards and receiving yards, full game, matched to a player id, with a consensus at all three snapshots. The player's team is the quote's own team field; rows without one are dropped.
+- Model, as in Test B with the horizons renamed: the move of a player's consensus line from the 24-hour snapshot to the 15-hour snapshot, regressed on the move in the team's implied points from the 40-hour to the 24-hour snapshot, controlling for the player's own move from 40 to 24. Standardized, errors clustered by game, bootstrap by game with 2000 draws. L above zero means the prop line kept moving toward a game-line move that was already visible.
+- Single stage on all qualifying 2026 games. Not replicated. The result rule, the placebo and the 0.15 size of interest are the same as Amendment 2.
+- Gate first: counts of games and player lines, and the minimum detectable L (2.8 times the bootstrap standard error). If it is above 0.15, Test C is reported as uninformative and L is not read.
+- Limits: a line is a number, so a move in juice without a move in the line is invisible. The test says nothing about price. Sportsbook props are not compared with Kalshi here.
