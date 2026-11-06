@@ -48,6 +48,7 @@ def legs() -> pd.DataFrame:
     po, pu = american_p(d["over_odds"]), american_p(d["under_odds"])
     d["p_over"] = [power_fair(a, b) for a, b in zip(po, pu)]
     d["hold"] = po + pu - 1
+    d["age"] = (d["snap"] - d["qt"]).dt.total_seconds() / 3600
     d["over_odds"], d["under_odds"] = d["over_odds"].astype(float), d["under_odds"].astype(float)
     rt = CB.roster_teams()
     def team_of(r):
@@ -59,7 +60,7 @@ def legs() -> pd.DataFrame:
     g = games()
     d = d.merge(g, on=["home", "away"], how="inner")
     d = d[(d["kick"] - d["kickoff_utc"]).abs() <= pd.Timedelta(days=1)]
-    return d[["snap", "kick", "book", "game_id", "week", "home", "away", "team", "gsis_id", "stat", "line", "over_odds", "under_odds", "p_over", "hold"]].reset_index(drop=True)
+    return d[["snap", "kick", "book", "game_id", "week", "home", "away", "team", "gsis_id", "stat", "line", "over_odds", "under_odds", "p_over", "hold", "age"]].reset_index(drop=True)
 
 
 def actuals() -> pd.DataFrame:

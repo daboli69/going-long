@@ -72,3 +72,13 @@ Each week, a write-once hashed file under `data/fusion/` with the fused line and
 ## 8. Report order and rule
 
 Completed, Model Research, Concerns, Next, Needs Travis. If nothing beats the median and the vig, the result is "no edge found". Nothing in the app changes on this result.
+
+## Amendment 1 (2026-11-06, committed before any parameter is fitted)
+
+Implementation details left open in section 3 and section 4. None depends on a result.
+- Fitting uses 25 rounds of expectation-maximization with the median book's bias fixed at zero; the weights are the Student-t scale-mixture weights with 4 degrees of freedom; the noise and drift terms are fitted by bounded maximum likelihood each round.
+- The final snapshot for a prop is the last snapshot before kickoff in which it has at least three books. Each book's last quote at or before that snapshot is used.
+- Bates-Granger error is the mean squared relative error ((result minus the book's adjusted line) divided by the line) on the decide-week props.
+- The scoring gate simulates the confirm stage 200 times with parameters fitted once to one planted decide-stage sample. Recovery is checked over 20 planted samples.
+- The bet-test gate uses a structure-only standard error, 0.5 x sqrt((1 + (m - 1) x 0.1) / n), where n is the number of outlier bets and m the average number per game, because the win outcomes are not read at the gate. A result is informative if 2.8 times this is at most 0.03.
+- The reversion test uses the bootstrap by game of the slope itself for its gate, as in the earlier tests, which reads the dispersion of the changes and not the size of the slope.
