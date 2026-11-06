@@ -1,0 +1,173 @@
+{
+ "A_qb_wr": {
+  "fit_team_games": 1589,
+  "fit_pairs": 4100,
+  "test_team_games": 537,
+  "test_pairs": 1345,
+  "test_games": 272,
+  "recovery": {
+   "0.0": {
+    "mean_rho_hat": 0.0010024584543209731,
+    "reject_es": 0.03,
+    "reject_both": 0.0
+   },
+   "0.1": {
+    "mean_rho_hat": 0.10159111334872759,
+    "reject_es": 0.2,
+    "reject_both": 0.07
+   },
+   "0.2": {
+    "mean_rho_hat": 0.2008261493158023,
+    "reject_es": 0.84,
+    "reject_both": 0.51
+   },
+   "0.3": {
+    "mean_rho_hat": 0.30222228559254183,
+    "reject_es": 1.0,
+    "reject_both": 0.92
+   },
+   "0.5": {
+    "mean_rho_hat": 0.49808808957132983,
+    "reject_es": 1.0,
+    "reject_both": 1.0
+   }
+  },
+  "recovery_ok": true,
+  "power_at_0.15_both_scores": 0.235,
+  "power_ok": false,
+  "informative": false,
+  "scan": {
+   "2": {
+    "games": 544,
+    "power_both": 0.44
+   },
+   "3": {
+    "games": 816,
+    "power_both": 0.71
+   },
+   "5": {
+    "games": 1360,
+    "power_both": 0.89
+   },
+   "8": {
+    "games": 2176,
+    "power_both": 0.98
+   }
+  },
+  "games_for_80pct_power": 1360
+ },
+ "B_qb_te": {
+  "fit_team_games": 1256,
+  "fit_pairs": 1306,
+  "test_team_games": 468,
+  "test_pairs": 513,
+  "test_games": 264,
+  "recovery": {
+   "0.0": {
+    "mean_rho_hat": -0.0021904206818841553,
+    "reject_es": 0.01,
+    "reject_both": 0.0
+   },
+   "0.1": {
+    "mean_rho_hat": 0.10395271657132307,
+    "reject_es": 0.12,
+    "reject_both": 0.03
+   },
+   "0.2": {
+    "mean_rho_hat": 0.19617020447723793,
+    "reject_es": 0.35,
+    "reject_both": 0.13
+   },
+   "0.3": {
+    "mean_rho_hat": 0.29964278130168576,
+    "reject_es": 0.68,
+    "reject_both": 0.51
+   },
+   "0.5": {
+    "mean_rho_hat": 0.5035796659554661,
+    "reject_es": 1.0,
+    "reject_both": 0.99
+   }
+  },
+  "recovery_ok": true,
+  "power_at_0.15_both_scores": 0.08,
+  "power_ok": false,
+  "informative": false,
+  "scan": {
+   "2": {
+    "games": 528,
+    "power_both": 0.18
+   },
+   "3": {
+    "games": 792,
+    "power_both": 0.32
+   },
+   "5": {
+    "games": 1320,
+    "power_both": 0.44
+   },
+   "8": {
+    "games": 2112,
+    "power_both": 0.67
+   }
+  },
+  "games_for_80pct_power": null
+ },
+ "C_qb_rb_rush": {
+  "fit_team_games": 1588,
+  "fit_pairs": 2556,
+  "test_team_games": 537,
+  "test_pairs": 846,
+  "test_games": 272,
+  "recovery": {
+   "0.0": {
+    "mean_rho_hat": -0.000992930053168016,
+    "reject_es": 0.02,
+    "reject_both": 0.0
+   },
+   "0.1": {
+    "mean_rho_hat": 0.09914161290114697,
+    "reject_es": 0.12,
+    "reject_both": 0.06
+   },
+   "0.2": {
+    "mean_rho_hat": 0.20138724144921982,
+    "reject_es": 0.44,
+    "reject_both": 0.31
+   },
+   "0.3": {
+    "mean_rho_hat": 0.2999200987903845,
+    "reject_es": 0.91,
+    "reject_both": 0.77
+   },
+   "0.5": {
+    "mean_rho_hat": 0.4977173415426902,
+    "reject_es": 1.0,
+    "reject_both": 1.0
+   }
+  },
+  "recovery_ok": true,
+  "power_at_0.15_both_scores": 0.155,
+  "power_ok": false,
+  "informative": false,
+  "scan": {
+   "2": {
+    "games": 544,
+    "power_both": 0.34
+   },
+   "3": {
+    "games": 816,
+    "power_both": 0.5
+   },
+   "5": {
+    "games": 1360,
+    "power_both": 0.87
+   },
+   "8": {
+    "games": 2176,
+    "power_both": 0.88
+   }
+  },
+  "games_for_80pct_power": 1360
+ }
+}

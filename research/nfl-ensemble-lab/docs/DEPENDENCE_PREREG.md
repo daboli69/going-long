@@ -76,3 +76,18 @@ Each week, save the fitted dependence parameters and, for each team-game pair th
 ## 8. Report order and rule
 
 Completed, Model Research, Concerns, Next, Needs Travis. If nothing beats independence, the result is "no edge found" and the simulators are left unchanged. A dependence layer may be added to the existing simulators only if a class passes both the gate and the held-out score.
+
+## Amendment 1 (2026-11-06, committed before the new gate is run)
+
+What happened: the gate in section 4 planted a correlation of 0.15 and found low power in every class, so the 2025 season was not scored (see docs/DEPENDENCE_RESULTS.md). The fit seasons, estimated afterwards for description only, showed correlations of about 0.36 (wide receivers), 0.32 (tight ends) and -0.05 (running backs).
+
+This amendment is a choice made after seeing those fit-season numbers. It is allowed only because no 2025 outcome has been read: the 2025 held-out season is still unscored, and the score stage still refuses a second run.
+
+Changes:
+- The planted size for the power gate is 0.30 for classes A and B. It is set below the fit estimates on purpose, so the gate asks whether a somewhat smaller link than the one seen would be detected.
+- Class C stays at 0.15. Its fit-season value is close to zero, so nothing supports raising it. It is expected to fail the gate again and stay unscored.
+- Everything else is unchanged: pairs, copula families, fit seasons, the scores, the pass rule (both scores, Holm-adjusted below 0.05), the gate level of 0.05/3 and the 80% power requirement.
+- The gate is rerun once with the same procedure and the same number of repetitions. If a class fails it, that class is not scored and no further amendment is made this season.
+- The first gate results are kept as docs/dependence_gate_v1.json.
+
+Reading rule for the result: passing the held-out score would show better joint calibration than independence. It would not show a mispriced bet, because no same-game-combination price is held.
