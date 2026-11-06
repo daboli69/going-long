@@ -1,0 +1,65 @@
+{
+ "scoring": {
+  "read": false,
+  "reason": "failed recovery or power gate"
+ },
+ "bet": {
+  "read": false,
+  "reason": "failed the structure gate"
+ },
+ "reversion": {
+  "pairs": 88295,
+  "games": 134,
+  "kappa": 0.49263340415812074,
+  "one_sided_90": [
+   0.44659258786411493,
+   0.5382128767007238
+  ],
+  "verdict": "closes"
+ },
+ "kalshi_check": {
+  "props": 1016,
+  "fused_closer_share": 0.5374015748031497,
+  "binomial_p_one_sided": 0.009290395002141853,
+  "mean_abs_gap_fused": 1.1027417870339626,
+  "mean_abs_gap_median": 1.1161372511512353
+ },
+ "validity": {
+  "sigma_by_book": {
+   "bet365": 0.048,
+   "betmgm": 0.0357,
+   "betrivers": 0.0258,
+   "bovada": 0.023,
+   "caesars": 0.0099,
+   "draftkings": 0.0232,
+   "fanatics": 0.027,
+   "fanduel": 0.0091,
+   "fliff": 0.0041,
+   "hardrock": 0.0102,
+   "novig": 0.0902,
+   "parx": 0.0263,
+   "pinnacle": 0.0105,
+   "prophetx": 0.015
+  },
+  "sharp_sigma_mean": 0.038562569419028254,
+  "retail_sigma_mean": 0.02202809047222273,
+  "mann_whitney_p_sharp_lower": 0.6703296703296704,
+  "beta_by_book": {
+   "bet365": -0.0055,
+   "betmgm": 0.0013,
+   "betrivers": -0.0054,
+   "bovada": -0.0005,
+   "caesars": 0.0004,
+   "draftkings": 0.0005,
+   "fanatics": -0.0062,
+   "fanduel": -0.0002,
+   "fliff": 0.0002,
+   "hardrock": 0.001,
+   "novig": -0.0164,
+   "parx": -0.0053,
+   "pinnacle": 0.0014,
+   "prophetx": 0.0003
+  },
+  "q_per_hour": 8.315287191035679e-07
+ }
+}
