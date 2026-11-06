@@ -107,3 +107,9 @@ Data and rules, fixed now:
 - Single stage on all qualifying 2026 games. Not replicated. The result rule, the placebo and the 0.15 size of interest are the same as Amendment 2.
 - Gate first: counts of games and player lines, and the minimum detectable L (2.8 times the bootstrap standard error). If it is above 0.15, Test C is reported as uninformative and L is not read.
 - Limits: a line is a number, so a move in juice without a move in the line is invisible. The test says nothing about price. Sportsbook props are not compared with Kalshi here.
+
+## Amendment 4 (2026-11-06, committed before any Test C player line is counted)
+
+What happened: the gate for Test C found 63 games with three usable game-line snapshots, but 0 player lines. The cause is a data fact, not a result: the feed's `team` field is an empty string for every prop quote, so the rule "team is the quote's own team field" drops every row.
+
+Change, fixed now: a player is assigned to the team that is one of the game's two teams and appears for that player id in `data/raw/roster_weekly_2026.parquet` in 2026. If both or neither of the game's teams appear for the player, the line is dropped. Everything else in Amendment 3 is unchanged. No move or L has been computed.
