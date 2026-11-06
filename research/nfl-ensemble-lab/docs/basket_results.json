@@ -1,0 +1,126 @@
+{
+ "outcome_test": {
+  "read": false,
+  "reason": "failed the power gate"
+ },
+ "closing_test": {
+  "pairs": 13811,
+  "games": 132,
+  "kappa": 0.3242292171718595,
+  "kappa_one_sided_90_interval": [
+   0.29049842293849115,
+   0.3620385044647776
+  ],
+  "verdict": "gap closes",
+  "legs": {
+   "gap": {
+    "slope": -0.3242292171718595,
+    "ci95": [
+     -0.36964367304374285,
+     -0.2848065816934708
+    ],
+    "one_sided_95_upper": -0.29049842293849115,
+    "one_sided_95_lower": -0.3620385044647776
+   },
+   "qb_line_move": {
+    "slope": -0.005530000068268868,
+    "ci95": [
+     -0.012626900596967135,
+     0.0004296215588419717
+    ],
+    "one_sided_95_upper": -0.0003529056528319319,
+    "one_sided_95_lower": -0.01116642188566082
+   },
+   "basket_move": {
+    "slope": 0.8690377507499287,
+    "ci95": [
+     0.6992866696929021,
+     1.0672551326158846
+    ],
+    "one_sided_95_upper": 1.028978609199986,
+    "one_sided_95_lower": 0.7256796126006785
+   }
+  },
+  "per_book_descriptive": {
+   "bet365": {
+    "pairs": 1429,
+    "games": 112,
+    "kappa": 0.17056670350388567
+   },
+   "betmgm": {
+    "pairs": 774,
+    "games": 97,
+    "kappa": 0.2969124902239864
+   },
+   "betrivers": {
+    "pairs": 1368,
+    "games": 113,
+    "kappa": 0.378874843921953
+   },
+   "bovada": {
+    "pairs": 60,
+    "games": 18,
+    "kappa": 0.551118284647743
+   },
+   "caesars": {
+    "pairs": 1240,
+    "games": 111,
+    "kappa": 0.318535383985658
+   },
+   "draftkings": {
+    "pairs": 1320,
+    "games": 121,
+    "kappa": 0.25432400807639843
+   },
+   "fanatics": {
+    "pairs": 1037,
+    "games": 109,
+    "kappa": 0.20029196545660752
+   },
+   "fanduel": {
+    "pairs": 1700,
+    "games": 123,
+    "kappa": 0.24559275897123434
+   },
+   "fliff": {
+    "pairs": 245,
+    "games": 51,
+    "kappa": 0.3907134715464908
+   },
+   "hardrock": {
+    "pairs": 203,
+    "games": 16,
+    "kappa": 0.35625896791183
+   },
+   "novig": {
+    "pairs": 706,
+    "games": 74,
+    "kappa": 0.6431414729957854
+   },
+   "parx": {
+    "pairs": 1044,
+    "games": 111,
+    "kappa": 0.42270022207294133
+   },
+   "pinnacle": {
+    "pairs": 1057,
+    "games": 120,
+    "kappa": 0.5470599694799076
+   },
+   "prophetx": {
+    "pairs": 1628,
+    "games": 114,
+    "kappa": 0.40848720021021756
+   }
+  },
+  "placebo_kappa_mean": 0.003167843914681371,
+  "placebo_kappa_sd": 0.00657247197119805,
+  "mean_abs_gap_pct": 16.025223720924963
+ },
+ "kalshi_referee_descriptive": {
+  "team_games": 182,
+  "corr_book_gap_with_kalshi_sign_of_Q_minus_Qstar": 0.992496438914318,
+  "large_gap_team_games": 91,
+  "kalshi_nearer_book_Q_share": 1.0
+ }
+}

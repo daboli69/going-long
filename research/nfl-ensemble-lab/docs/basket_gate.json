@@ -1,0 +1,50 @@
+{
+ "params": {
+  "cQ": 0.35482562599386336,
+  "cR": 1.2049169589195947,
+  "share": {
+   "2": 0.5617490451453402,
+   "3": 0.31418524548495536,
+   "4": 0.29678608944916973,
+   "5": 0.1357784576579726
+  },
+  "pooled_share": 0.23988304314362016,
+  "decide_team_games": 9886
+ },
+ "confirm_team_games": 101,
+ "confirm_games": 56,
+ "sd_G_confirm": 28.28151088515129,
+ "all_teamgames_with_gap": 18403,
+ "power_at_rho_0.25": {
+  "Q": 0.1225,
+  "B": 0.0675
+ },
+ "closing_pairs": 13811,
+ "closing_games": 132,
+ "closing_se_kappa": 0.021494662443051676,
+ "closing_min_detectable": 0.06018505484054469,
+ "outcome_informative": false,
+ "closing_informative": true,
+ "power_scan": {
+  "5": {
+   "team_games": 505,
+   "Q": 0.4666666666666667,
+   "B": 0.38666666666666666
+  },
+  "10": {
+   "team_games": 1010,
+   "Q": 0.7866666666666666,
+   "B": 0.7533333333333333
+  },
+  "20": {
+   "team_games": 2020,
+   "Q": 0.9733333333333334,
+   "B": 1.0
+  },
+  "40": {
+   "team_games": 4040,
+   "Q": 1.0,
+   "B": 1.0
+  }
+ }
+}
