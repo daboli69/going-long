@@ -90,3 +90,20 @@ What it does not show: that any price is wrong. No same-game-combination price i
 Price check against fees: not done. Kalshi's fee schedule PDF returned an error (HTTP 429) and the help page gives no formula. I did not fill the gap from memory. Even with the formula, a fee comparison needs a real combination price, which does not exist here.
 
 The simulators were not changed. The rule allows a dependence layer only if a class passes, and one did, but the game simulator already carries a link of about 0.4 to 0.56, so adding another layer on top would double count. The next step is to compare the simulator's own pairs against this result, which is not done.
+
+## Addendum 2: does the simulator already carry the link? (Amendment 2)
+
+Registered in a37a5ded before the comparison was computed. Quarterback and top receiver only, measured in yards.
+
+| Sample | Team-games | Actual residual correlation | Simulator's own correlation | Difference | 95% interval | Verdict |
+|---|---|---|---|---|---|---|
+| 2022 to 2024 (primary) | 1,630 | 0.47 | 0.44 | +0.03 | -0.01 to +0.07 | about right |
+| 2025 (confirmation) | 544 | 0.37 | 0.44 | -0.07 | -0.14 to +0.01 | cannot say |
+
+By season, for description: 2022 -0.00, 2023 +0.06, 2024 +0.01, 2025 -0.07. The simulator's own correlation stays near 0.44 every year, so the movement is in the data.
+
+What this means: the game simulator already ties the quarterback to his top receiver at about the strength the data shows, so the independent forecasts are the ones that miss it. The primary check passes. The 2025 check cannot decide, because the interval is wide and leans toward the simulator being slightly too strong that year. One season is not enough to call a drift.
+
+Decision under the rule: no dependence layer is added to the simulators. The gain found in Amendment 1 applies to forecasts that treat players as unrelated, not to the simulator.
+
+Limits: this covers the top receiver only, not other receivers, tight ends or running backs, and it is in yards, not the normal-score space of the copula test. The simulator's draws are not stored, so its pairs could not be scored directly. The tight end class still needs about twice the games and is a candidate for next season.
