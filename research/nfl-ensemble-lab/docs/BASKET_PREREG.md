@@ -67,3 +67,13 @@ Each week, save a write-once hashed file under `data/basket/` of every book's ga
 ## 8. Report order and rule
 
 Completed, Model Research, Concerns, Next, Needs Travis. If nothing beats the vig, the result is "no edge found". Nothing in the app changes on this result.
+
+## Amendment 1 (2026-11-06, committed before any gap is computed)
+
+Implementation details left open in section 3. None depends on a result.
+- The fair over probability used in the odds adjustment is clipped to 0.25 to 0.75, so a line quoted with extreme odds cannot move the adjusted line by more than a fixed amount.
+- The c factors are found by iterating the definition four times (the adjusted line depends on c, and c on the adjusted line).
+- Receiver errors use the line, floored at 5 yards, as the scale.
+- Games are matched to results by home team, away team and kickoff date within a day. A game is final when its play-by-play reaches zero seconds remaining.
+- For the outcome test, the primary value for a team-game is the median across books of the final pre-kickoff snapshot's gap, quarterback error and basket error.
+- The gate for the outcome test uses the spread of the real gaps and the number of team-games (structure), never the relation between gaps and outcomes.
