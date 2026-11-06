@@ -70,3 +70,14 @@ Each week, save a write-once hashed file of the quarterback and listed-receiver 
 ## 7. Report order and rule
 
 Completed, Model Research, Concerns, Next, Needs Travis. If neither test passes, the result is "no edge found". Reconciliation is applied to the forecasts shown in the app only if Test A passes for a group, and only after a separate decision from Travis.
+
+## Amendment 1 (2026-11-06, committed before Test B counts or moves are computed)
+
+Test A's gate has already been run (power for the quarterback group 0.57, for receivers 0.77, so neither is informative on 2025; see docs/coherence_gate_A.json). This amendment fixes implementation details of Test B that section 4 left open. None of them depends on a result.
+
+- Contracts: only ladders whose strike type is "greater" (an "over X" or "wins by over X" contract). Structured contracts are ignored.
+- Quote used at a horizon: the last hourly candle ending at or before kickoff minus the horizon. It counts as a usable price only if the bid is above 0, the ask is below 1, and the ask minus the bid is at most 0.20. The price is the mid of bid and ask.
+- A ladder is usable at an hour if at least three strikes have usable prices and the smoothed probability crosses 0.5 inside the strike range. Smoothing is an isotonic decreasing fit across strikes.
+- Game spread: each team's "wins by over X" ladder gives a crossing only for the favorite. That team's implied margin is the crossing, the other team's is minus the crossing. Team implied points = (total median + team margin) / 2.
+- Players: quarterback passing yards ladders and receiving yards ladders, pooled. A player needs a usable ladder at all three horizons and the team needs a usable total and spread at 24 and 12 hours.
+- The minimum detectable L and the counts are computed for both stages before L itself is shown.
