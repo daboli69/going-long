@@ -1,0 +1,35 @@
+{
+ "games": 97,
+ "ladders": 953,
+ "L": 0.04984409283922236,
+ "se": 0.035203995027190016,
+ "one_sided_95_interval": [
+  -0.007884638987475136,
+  0.10759631192781684
+ ],
+ "verdict": "no lag of the size of interest",
+ "descriptive": {
+  "weeks_1_4": {
+   "games": 59,
+   "ladders": 573,
+   "L": 0.005619740642355867
+  },
+  "weeks_5_8": {
+   "games": 38,
+   "ladders": 380,
+   "L": 0.09787741917403178
+  },
+  "passing": {
+   "games": 97,
+   "ladders": 188,
+   "L": 0.14612636677247146
+  },
+  "receiving": {
+   "games": 97,
+   "ladders": 765,
+   "L": 0.008817504860132554
+  }
+ },
+ "placebo_mean": 0.0011951468863685597,
+ "placebo_sd": 0.03464318992209774
+}

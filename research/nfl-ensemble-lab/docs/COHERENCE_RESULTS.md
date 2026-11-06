@@ -1,0 +1,64 @@
+# Coherence between the game line and the props: results
+
+Run 2026-11-06 against docs/COHERENCE_PREREG.md (commit 272cbed8) and its two amendments (bb4e1be5, 3de37a9d). Football only. No staking or bet sizing.
+
+## Result
+
+No edge found. Test A (forecasts forced to add up) could not be scored because the sample is too small. Test B (do player ladders trail the game ladders) found no lag of the size we were looking for.
+
+## Test A: making player forecasts add up
+
+The quarterback's passing yards should equal the sum of all his receivers' yards. Our independent forecasts do not always add up, so the plan was to shrink them toward each other using the measured error pattern, then check on 2025 whether that lowers error.
+
+Gate, using only forecast means and counts (no outcome read):
+
+| Group | Power with a planted effect (3% of error variance) | Games for 80% power |
+|---|---|---|
+| Quarterback | 0.57 | 544 |
+| Receivers | 0.77 | 544 |
+
+Both are below the 0.80 requirement, though the slopes were recovered correctly (within 25%). So neither group was scored on 2025, and 2025 is still unseen. It would take about two seasons of games.
+
+For description only, the slopes fitted on 2022 to 2024 have the expected signs: when the quarterback's forecast is above what his receivers add up to, his actual yards tend to come in lower (slope -0.40) and the receivers' higher (slope +0.44). These are in-sample numbers and not a test.
+
+## Test B: do the player ladders trail the game ladders
+
+Using Kalshi's hourly prices, I asked: after a visible move in a team's implied points between 24 and 12 hours before kickoff, does the quarterback or receiver ladder keep moving toward it between 12 and 3 hours? L is that catch-up, in standard units.
+
+Counts: player ladders exist only from 2026. The 2025 candles hold spread and total ladders but no player ladders, so the planned decide stage on 2025 had no games. Amendment 2 changed Test B to a single, unreplicated stage on 2026 weeks 1 to 8: 97 games, 953 player ladders. The minimum detectable L was 0.10 against the 0.15 of interest, so the test could see an effect of the size we cared about.
+
+Result (one-sided 95% interval from a bootstrap by game):
+
+| Measure | Value |
+|---|---|
+| L | 0.05 |
+| Interval | -0.01 to 0.11 |
+| Placebo (game-line moves shuffled) | mean 0.001, spread 0.035 |
+| Verdict under the registered rule | no lag of the size of interest |
+
+For description only: weeks 1 to 4 gave 0.01 and weeks 5 to 8 gave 0.10. Passing-yards ladders gave 0.15 (188 ladders) and receiving ladders 0.01 (765). The passing figure is the only number near the size of interest, but it was not registered, it is a subset, and it is not evidence. It is a lead to watch as weeks 9 onward arrive.
+
+## What this does and does not show
+
+- It does not show that sportsbook prop lines are slow. We hold no timestamped sportsbook player-prop lines. The 2026 sportsbook file has moneyline, spread and total only.
+- It shows Kalshi's own player ladders do not trail Kalshi's game ladders by an amount we can see at this sample size. Thin ladders may be slower to update in ways a 12-to-3 hour window misses.
+
+## Not done
+
+- Price check against Kalshi fees and spreads: no effect to price, and the fee schedule was never readable. Not run.
+- CRPS for reconciled forecasts: no stored quantile functions. Test A scored squared error of the mean instead; it was not reached.
+
+## Concerns
+
+- Test B is a single stage, not replicated. A positive result would have been a lead only.
+- The ladder medians come from thin hourly quotes. Stale or wide quotes were filtered by a rule written before the run, but some noise remains.
+- The weekly record applies slopes fitted on baseline forecasts to the newest weekly run's means, a different model. It is an approximation.
+- The lag question for sportsbooks, where the game line is sharper, cannot be tested until prop lines are collected over time.
+
+## Prospective record
+
+`python scripts/coherence_run.py freeze` saved week 9 as `data/coherence/frozen/week_2026_09.json`: 28 team-games with the incoherence, the reconciled quarterback and receiver means, and a hash in `data/coherence/ledger.jsonl` (verified). No scorer exists yet.
+
+## Next
+
+Rerun Test B from week 9 onward with a registered passing-ladder subset. Collect timestamped sportsbook player-prop lines weekly if a free source exists, since that is the only way to ask the original question. Test A needs roughly two seasons of games.
