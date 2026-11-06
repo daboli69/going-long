@@ -1,0 +1,38 @@
+{
+ "games": {
+  "decide": 511,
+  "confirm": 2422,
+  "prospective_2026": 78
+ },
+ "sigma_decide": 12.179133685684622,
+ "tests": {
+  "T1": {
+   "se": 0.020447574745149195,
+   "min_detectable": 0.05725320928641774,
+   "size_of_interest": 0.06,
+   "informative": true,
+   "n": 2422
+  },
+  "T2": {
+   "se": 0.02098307623456118,
+   "min_detectable": 0.0587526134567713,
+   "size_of_interest": 0.06,
+   "informative": true,
+   "n": 2422
+  },
+  "T3": {
+   "se": 0.05143360275395072,
+   "min_detectable": 0.14401408771106203,
+   "size_of_interest": 0.1,
+   "informative": false,
+   "n": 2422
+  },
+  "T4": {
+   "se": 0.02233089630367396,
+   "min_detectable": 0.06252650965028708,
+   "size_of_interest": 0.06,
+   "informative": false,
+   "n": 2422
+  }
+ }
+}
