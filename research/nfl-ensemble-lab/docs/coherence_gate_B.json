@@ -1,0 +1,15 @@
+{
+ "decide_2025": {
+  "games": 0,
+  "player_ladders": 0,
+  "min_detectable_L": null,
+  "informative": false
+ },
+ "confirm_2026": {
+  "games": 97,
+  "player_ladders": 953,
+  "se_L": 0.03572343965154675,
+  "min_detectable_L": 0.10002563102433089,
+  "informative": true
+ }
+}

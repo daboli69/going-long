@@ -81,3 +81,13 @@ Test A's gate has already been run (power for the quarterback group 0.57, for re
 - Game spread: each team's "wins by over X" ladder gives a crossing only for the favorite. That team's implied margin is the crossing, the other team's is minus the crossing. Team implied points = (total median + team margin) / 2.
 - Players: quarterback passing yards ladders and receiving yards ladders, pooled. A player needs a usable ladder at all three horizons and the team needs a usable total and spread at 24 and 12 hours.
 - The minimum detectable L and the counts are computed for both stages before L itself is shown.
+
+## Amendment 2 (2026-11-06, committed before L is shown)
+
+What the gate found: the Kalshi candles hold game spread and total ladders for 271 games of 2025, but no player ladders for 2025. Player ladders start in 2026. The decide stage on 2025 therefore has 0 games. The 2026 sample has 97 games and 953 player ladders with all three horizons and a usable game line, and its minimum detectable L is 0.10, below the 0.15 of interest (docs/coherence_gate_B.json). The size and sign of L have not been shown.
+
+Test B has no tunable choice, so a decide stage had nothing to decide. The change:
+- Test B is a single stage on 2026 weeks 1 to 8 pooled. It is not replicated. Weeks 1 to 4 against weeks 5 to 8, and passing against receiving ladders, are reported as descriptive only.
+- Result rule, fixed now: "props lag the game line" if the lower end of the one-sided 95% bootstrap interval for L (by game, 2000 draws) is above 0. "No lag of the size of interest" if the upper end is below 0.15. Otherwise "cannot say".
+- A placebo is reported: the same estimate with the game-line moves shuffled across games within the same series, 500 times. It should be centered near 0.
+- Because the test is not replicated, a "lag" result is a lead to confirm on weeks 9 onward, not a finding. Nothing in the app changes on this result alone.
