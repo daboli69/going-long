@@ -187,5 +187,49 @@ def freeze():
     print({"file": path.name, "rows": len(rows), "games": int(last["game_id"].nunique()), "sha256": rec["sha256"]})
 
 
+
+def clv():
+    marker = ROOT / "data" / "basket" / "clv_done.json"
+    if marker.exists():
+        sys.exit("CLV already run once. No rerun.")
+    g = json.loads((DOCS / "basket_gate.json").read_text())
+    par = g["params"]
+    par["share"] = {int(k): v for k, v in par["share"].items()}
+    tg = pd.read_parquet(CACHE)
+    bets = K.clv_bets(K.legs(), tg, par)
+    rng = np.random.default_rng(20261106)
+    gm = bets.groupby("game_id").agg(net=("net", "mean"), gross=("gross", "mean"), week=("week", "first")).reset_index()
+    def boot(col, d, b=2000):
+        v = d[col].to_numpy()
+        return np.array([v[rng.integers(0, len(v), len(v))].mean() for _ in range(b)])
+    bs = boot("net", gm)
+    gate = {"bets": int(len(bets)), "games": int(len(gm)), "se_mean_net": float(bs.std(ddof=1)), "min_detectable": float(2.8 * bs.std(ddof=1)), "informative": bool(2.8 * bs.std(ddof=1) <= 0.02)}
+    res = {"gate": gate}
+    if gate["informative"]:
+        bg = boot("gross", gm)
+        res["mean_net_value"] = float(gm["net"].mean())
+        res["net_one_sided_95_lower"] = float(np.quantile(bs, 0.05))
+        res["mean_gross_value"] = float(gm["gross"].mean())
+        res["gross_one_sided_95_lower"] = float(np.quantile(bg, 0.05))
+        res["passes"] = bool(res["net_one_sided_95_lower"] > 0)
+        res["by_stage_descriptive"] = {n: float(gm.loc[sel, "net"].mean()) for n, sel in (("weeks_1_4", gm["week"] <= 4), ("weeks_5_9", gm["week"] >= 5))}
+        res["placebo_flipped_side_gross"] = float((1 - bets["prob"] - 0.5).groupby(bets["game_id"]).mean().mean())
+        perm = []
+        for _ in range(500):
+            sh = bets.copy()
+            sh["g"] = sh.groupby("week")["g"].transform(lambda s: rng.permutation(s.to_numpy()))
+            over = sh["g"] < 0
+            z = (sh["M"] - sh["line"]) / (par["cR"] * sh["M"].clip(lower=5))
+            pr = np.where(over, stats.norm.cdf(z), stats.norm.cdf(-z))
+            perm.append(float(pd.Series(pr - 0.5).groupby(sh["game_id"].to_numpy()).mean().mean()))
+        res["placebo_shuffled_gap_gross_mean"] = float(np.mean(perm))
+        res["placebo_shuffled_gap_gross_sd"] = float(np.std(perm))
+        res["by_book_descriptive"] = {bk: {"bets": int(len(d)), "mean_net": float(d["net"].mean())} for bk, d in bets.groupby("book") if len(d) >= 100}
+    marker.parent.mkdir(parents=True, exist_ok=True)
+    marker.write_text(json.dumps(res, indent=1))
+    (DOCS / "basket_clv_results.json").write_text(json.dumps(res, indent=1))
+    print(json.dumps(res, indent=1))
+
+
 if __name__ == "__main__":
-    {"gate": gate, "run": run, "freeze": freeze}[sys.argv[1]]()
+    {"gate": gate, "run": run, "freeze": freeze, "clv": clv}[sys.argv[1]]()

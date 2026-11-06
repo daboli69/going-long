@@ -114,3 +114,27 @@ def team_games(lg: pd.DataFrame, rec: pd.DataFrame, pas: pd.DataFrame, cQ: float
                      "G": float(q["adj"]) - Qstar, "g": (float(q["adj"]) - Qstar) / float(q["adj"]), "qb_act": q["pas"], "listed_act": float(r["rec"].fillna(0).sum()),
                      "qb_over": float(q["over_odds"]), "qb_under": float(q["under_odds"]), "holds": float(g["hold"].sum()), "legs": int(len(g))})
     return pd.DataFrame(rows)
+
+
+def clv_bets(lg: pd.DataFrame, tg: pd.DataFrame, par: dict) -> pd.DataFrame:
+    """Amendment 2: one bet per listed receiver at the early snapshot, valued against the closing consensus."""
+    g = games().set_index("game_id")["kickoff_utc"]
+    tg = tg.assign(kick=tg["game_id"].map(g))
+    tg["hrs"] = (tg["kick"] - tg["snap"]).dt.total_seconds() / 3600
+    early = tg[(tg["hrs"] <= 48) & (tg["hrs"] >= 18)].sort_values("snap").groupby(["book", "game_id", "team"]).head(1)
+    thr = float(early.loc[early["week"].isin(DECIDE_WEEKS), "g"].abs().median())
+    big = early[early["g"].abs() >= thr]
+    a = adjusted(lg, par["cQ"], par["cR"])
+    r = a[a["stat"] == "rec_yds"]
+    fin = r.sort_values("snap").groupby(["book", "game_id", "gsis_id"]).tail(1)
+    cons = fin.groupby(["game_id", "gsis_id"]).agg(M=("adj", "median"), nb=("book", "nunique")).reset_index()
+    cons = cons[cons["nb"] >= CB.MIN_BOOKS]
+    b = big[["book", "game_id", "team", "snap", "g", "week"]].merge(r, on=["book", "game_id", "team", "snap"], suffixes=("", "_r"))
+    b = b.merge(cons, on=["game_id", "gsis_id"])
+    over = b["g"] < 0
+    odds = np.where(over, b["over_odds"], b["under_odds"])
+    be = american_p(odds)
+    sig = par["cR"] * b["M"].clip(lower=5)
+    z = (b["M"] - b["line"]) / sig
+    prob = np.where(over, stats.norm.cdf(z), stats.norm.cdf(-z))
+    return b.assign(side=np.where(over, "over", "under"), be=be, prob=prob, net=prob - be, gross=prob - 0.5)[["book", "game_id", "team", "week", "gsis_id", "side", "line", "M", "g", "be", "prob", "net", "gross"]]

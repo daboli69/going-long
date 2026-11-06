@@ -1,0 +1,71 @@
+{
+ "gate": {
+  "bets": 3748,
+  "games": 103,
+  "se_mean_net": 0.0026313669145521528,
+  "min_detectable": 0.007367827360746027,
+  "informative": true
+ },
+ "mean_net_value": -0.04587719055184903,
+ "net_one_sided_95_lower": -0.050279985474620974,
+ "mean_gross_value": 0.003467158715228502,
+ "gross_one_sided_95_lower": 0.00010270464905105013,
+ "passes": false,
+ "by_stage_descriptive": {
+  "weeks_1_4": -0.04056568800186928,
+  "weeks_5_9": -0.05328858945879753
+ },
+ "placebo_flipped_side_gross": -0.003467158715228502,
+ "placebo_shuffled_gap_gross_mean": 0.003716698987797203,
+ "placebo_shuffled_gap_gross_sd": 0.00028882873722756635,
+ "by_book_descriptive": {
+  "bet365": {
+   "bets": 280,
+   "mean_net": -0.0405155094817928
+  },
+  "betmgm": {
+   "bets": 227,
+   "mean_net": -0.03482026467649818
+  },
+  "betrivers": {
+   "bets": 361,
+   "mean_net": -0.03622053191609361
+  },
+  "caesars": {
+   "bets": 314,
+   "mean_net": -0.03500231948431696
+  },
+  "draftkings": {
+   "bets": 256,
+   "mean_net": -0.02689906082037581
+  },
+  "fanatics": {
+   "bets": 345,
+   "mean_net": -0.029953940004487464
+  },
+  "fanduel": {
+   "bets": 312,
+   "mean_net": -0.0352407569070788
+  },
+  "fliff": {
+   "bets": 192,
+   "mean_net": -0.04506975477912075
+  },
+  "novig": {
+   "bets": 416,
+   "mean_net": -0.11609651788949986
+  },
+  "parx": {
+   "bets": 281,
+   "mean_net": -0.036363385102584724
+  },
+  "pinnacle": {
+   "bets": 309,
+   "mean_net": -0.031798438199554066
+  },
+  "prophetx": {
+   "bets": 309,
+   "mean_net": -0.05889527109706716
+  }
+ }
+}

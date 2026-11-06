@@ -4,7 +4,7 @@ Run 2026-11-06 against docs/BASKET_PREREG.md (commit ef2f8cab) and its Amendment
 
 ## Result
 
-No edge found. The test of whether the gap predicts which leg is wrong could not be read: the sample is too small. The test of whether the market closes the gap could be read, and it found that it does. The receiver lines move toward the quarterback line, and the quarterback line stays put.
+No edge found. The test of whether the gap predicts which leg is wrong could not be read: the sample is too small. The registered closing test found the gap closing at about a third per interval, but Addendum 1 shows most of that was an artifact of receivers appearing and disappearing between snapshots. Read the addendum before using any number in this document about the gap closing.
 
 ## Data
 
@@ -39,7 +39,7 @@ Sensitivity, descriptive and not registered: with no odds adjustment at all kapp
 
 ## What this does and does not show
 
-- Receiver lines lag the quarterback line. An early gap predicts a move toward it, so a receiver line seen early in the week tends to be a worse number than the one that closes. That is a lead about line movement, not a profit.
+- (Corrected in Addendum 1.) The registered closing test suggested receiver lines lag the quarterback line. With receiver sets matched across snapshots the effect is about a tenth as large and the later value test finds nothing.
 - It does not show a bet wins. The outcome test, the one that would show which side is right in money terms, was not powered. The cost check was not run because nothing passed the outcome test.
 - A large part of the 16% average gap is probably measurement: the share of passing yards to unlisted receivers is a rough estimate, and stale quotes in one leg look like a gap.
 
@@ -58,3 +58,23 @@ Sensitivity, descriptive and not registered: with no odds adjustment at all kapp
 ## Next
 
 Keep saving weekly. The closing share can be rechecked as games accumulate. The outcome test needs about two seasons, so it will be underpowered this year.
+
+## Addendum 1: value of the early receiver line (Amendment 2) and a correction
+
+Registered in e5ef6cc1 before any value was computed. The question: if a bettor had taken the early receiver price on the side the gap pointed to, would the close have been better by more than the vig?
+
+Gate: 3,748 bets in 103 games, smallest detectable mean net value 0.007 against the 0.02 of interest. Informative.
+
+| Measure | Value |
+|---|---|
+| Mean net value (closing win probability minus the early odds' break-even) | -0.046 (one-sided 95% lower end -0.050) |
+| Mean gross value (closing win probability minus 0.5, no vig) | +0.0035 (lower end 0.0001) |
+| Placebo, gaps shuffled within week, gross | +0.0037 (spread 0.0003) |
+| Placebo, side flipped, gross | -0.0035 |
+| Passes the registered rule | no |
+
+The net value is negative for every book (from -0.027 at DraftKings to -0.116 at Novig). The tiny positive gross value is matched by the shuffled-gap placebo, so the gap does not tell us which way an individual receiver line will move. The early price is worse than the close by about the vig.
+
+The correction: the registered closing test measured the basket as the sum of whichever receivers were listed at each snapshot. When a receiver is added or dropped between snapshots the sum jumps for reasons that have nothing to do with repricing. I checked this afterwards (post hoc, `scripts/basket_matched_check.py`): keeping only pairs where the same quarterback and the same receivers are listed at both snapshots (9,243 of 13,322 pairs), the gap closes by about 4% per interval (interval about 2.7% to 6.2%), not 32%, the quarterback line moves -0.011 and the basket +0.061. So the earlier statement that receiver lines lag the quarterback line, and the memory note that said so, were mostly an artifact of the changing receiver list. A small real closing effect may remain, but it is far too small to cover a vig. The registered result stands as registered; this corrects how it should be read.
+
+Lesson for the next test: match the set of legs across snapshots before measuring any movement.
