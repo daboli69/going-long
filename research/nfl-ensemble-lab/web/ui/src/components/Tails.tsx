@@ -139,6 +139,29 @@ export function TailsView() {
         );
       })()}
 
+      {d.leadlag && (() => {
+        const L = d.leadlag, c = L.counts, ks = Object.keys(L.power).filter((k) => k.endsWith("_confirm")).sort();
+        const best = Math.min(...ks.flatMap((k) => [L.power[k].a_B_kalshi_leads?.min_detectable ?? 9, L.power[k].a_K_book_leads?.min_detectable ?? 9]));
+        const NM: Record<string, string> = { winner: "Win chance", spread: "Spread", total: "Total" };
+        return (
+          <div>
+            <h3 className="text-lg font-bold">Kalshi against the sportsbooks</h3>
+            <p className="mt-1 max-w-3xl text-[14px] text-muted">The question: does Kalshi's price, or the sportsbook consensus, 24 or 3 hours before kickoff predict where the other market ends up at the close? Raw, timestamped sportsbook quotes exist only for 2026 ({c.sportsbook.book_quote_rows.toLocaleString()} quotes from {c.sportsbook.books} books on {c.sportsbook.book_quote_games} games, {c.sportsbook.book_quote_range[0].slice(0, 10)} to {c.sportsbook.book_quote_range[1].slice(0, 10)}), so the 2025 half could not be used. Games from weeks 1 to 4 decide and weeks 5 to 8 confirm.</p>
+            <Callout tone="amber">
+              {L.any_informative ? "At least one setting had enough games to test." : "Stopped before testing: too few games to see a plausible effect."} Between {c.games_with_both_sides_and_closes.winner_3h} and {c.games_with_both_sides_and_closes.winner_24h} games have a usable price on both sides, and only about 14 fall in the confirmation weeks. The smallest loading the confirmation stage could detect was {best.toFixed(2)}, against 0.15 that was set as plausible (0.15 means 15% of the gap between the markets closes by the close). Any result here would be uninformative, so none is reported.
+            </Callout>
+            <div className="mt-2 overflow-x-auto"><table className="w-full min-w-[640px] text-left text-[15px]">
+              <thead className="text-[13px] text-muted"><tr><th className="py-1">Market and horizon</th><th className="text-right">Games, decide / confirm</th><th className="text-right">Smallest Kalshi-leads effect seen (confirm)</th><th className="text-right">Smallest book-leads effect seen (confirm)</th></tr></thead>
+              <tbody>{["winner", "spread", "total"].flatMap((m) => [24, 3].map((h) => {
+                const a = L.power[`${m}_${h}h_decide`], b = L.power[`${m}_${h}h_confirm`];
+                return <tr key={`${m}${h}`} className="border-t border-bg"><td className="py-1">{NM[m]}, {h} h before</td><td className="text-right">{a?.games ?? 0} / {b?.games ?? 0}</td><td className="text-right">{b?.a_B_kalshi_leads ? b.a_B_kalshi_leads.min_detectable.toFixed(2) : "n/a"}</td><td className="text-right">{b?.a_K_book_leads ? b.a_K_book_leads.min_detectable.toFixed(2) : "n/a"}</td></tr>;
+              }))}</tbody>
+            </table></div>
+            <p className="mt-2 max-w-3xl text-[13px] text-muted">The news study found {L.qb_events.qb_status_changes} quarterback status changes in the injury snapshots since Oct 16, but only {L.qb_events.before_that_teams_game_within_72h} came within 72 hours before that team's game and {L.qb_events.with_both_markets_priced} had both markets priced around it, so it is descriptive only. Prices are now being saved before each week's kickoffs for a forward-only check ({c.going_archive_snapshots} sportsbook snapshots and {c.kalshi_winner_games} Kalshi games so far).</p>
+          </div>
+        );
+      })()}
+
       <div className="max-w-3xl text-[13px] text-muted">
         <p>Data counted: {r.inventory.games_with_result_and_closing_line.toLocaleString()} games from {r.inventory.seasons[0]} to {r.inventory.seasons[1]} with a closing spread; {r.inventory.sbr_open_and_close_games.toLocaleString()} with opening and closing lines ({r.inventory.sbr_seasons[0]} to {r.inventory.sbr_seasons[1]}). Kalshi history begins {r.inventory.kalshi_snapshots.kalshi.first?.slice(0, 10)} and is too short to price tails game by game, so the closing line is the benchmark. Standard deviation of margin around the line: {num(r.reconcile.all.sd_margin_minus_line)} over all games, {num(r.reconcile["2006_2019"].sd_margin_minus_line)} in 2006 to 2019 and {num(r.reconcile["2020_2026"].sd_margin_minus_line)} since 2020; the published figure near 13.9 comes from older seasons. Rule hash {r.rule_sha256.slice(0, 12)}.</p>
       </div>

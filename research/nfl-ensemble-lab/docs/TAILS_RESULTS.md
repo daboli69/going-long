@@ -73,3 +73,18 @@ Raw numbers: `docs/tails_ladder_results.json`. Run: `python scripts/tails_ladder
 **Power.** For 2025 the smallest detectable width error was 12% to 14% (loose liquidity) and the smallest detectable outer-10% excess 4.5 to 5 points. For 2026, with 107 games, they were 19% to 20% and 5 to 8 points, and none of the 12 settings reached the 15% and 5-point sizes fixed in advance. The 2026 confirmation is therefore uninformative at those sizes. 2026 will gain games each week.
 
 **Verdict.** No mispricing found. The ladders priced width and tails about right, or slightly wide, but the confirmation sample is too small to rule out a 15% error.
+
+
+## Addendum: Amendment 3, Kalshi against the sportsbooks (2026-11-06)
+
+Raw numbers: `docs/leadlag_results.json`. Run: `python scripts/leadlag_run.py`. Rule: Amendment 3 in `docs/TAILS_PREREG.md`, committed before any price was aligned (`e7c00f42`).
+
+**Counted.** Raw, timestamped sportsbook quotes exist only for 2026: 150,504 quote rows from 15 books on 120 played games (2026-09-09 to 2026-10-29), from `going_quotes.parquet` plus 151 `going` archive snapshots, with 167 ESPN/DraftKings snapshots alongside. None exist for 2025, so the 2025 decide stage was impossible on the book side; weeks 1 to 4 decide and weeks 5 to 8 confirm instead. Kalshi: winner markets for 121 played games (133,609 hourly candles), spread and total ladder fits from the Amendment 2 work, 1,138,046 trade prints on the center rungs, and our own order-book snapshots from 2026-10-30. Games with a usable price on both sides and both closes: winner 68 at 24 hours and 50 at 3 hours; spread 67 and 53; total 68 and 52. In the confirmation weeks there are 14 or 15 per setting.
+
+**One clock and staleness.** The book consensus at the horizon has a median quote age of 1.6 to 2.3 hours, and 22% to 34% of consensus quotes are older than 3 hours. Quotes after kickoff or in play are dropped.
+
+**Power gate (run before any loading was read).** The smallest loading the confirmation stage could detect at 80% power was 0.19 to 2.97 across the 12 setting-direction pairs; the plausible size fixed in advance was 0.15. No setting passed the gate. Decide-stage sizes were 0.05 to 1.0, with only one direction (book leads, spread, 3 hours, 0.05) under the bar. By the stop rule fixed in Amendment 3, the lead-lag tests, the benchmark scoring, the information share, the placebo and the null were not run or reported as results.
+
+**News event study.** The injury snapshots (347 files since 2026-10-16) show 20 quarterback status changes. Only 3 came within 72 hours before that team's game, and none had both markets priced around them, so the study is descriptive only and uninformative.
+
+**Verdict.** No result. This sample cannot say whether Kalshi or the sportsbooks lead; it can only say that about 14 confirmation games per setting is far too few. Prices are saved before each week's kickoffs from week 9 (`python scripts/tails_freeze.py leadlag`), and the question can be rerun once a few more weeks of 2026, and next season, are in the archives. A 2025 version is not possible without raw 2025 sportsbook quotes.

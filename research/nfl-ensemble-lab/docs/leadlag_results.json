@@ -1,0 +1,341 @@
+{
+ "counts": {
+  "games_2026_weeks_1_to_8_played": 121,
+  "games_with_both_sides_and_closes": {
+   "winner_24h": 68,
+   "winner_3h": 50,
+   "spread_24h": 67,
+   "spread_3h": 53,
+   "total_24h": 68,
+   "total_3h": 52
+  },
+  "book_quote_age_at_horizon": {
+   "spread_3h": {
+    "median_age_h": 1.6465277777777776,
+    "share_over_3h": 0.2222222222222222
+   },
+   "spread_24h": {
+    "median_age_h": 2.2644444444444445,
+    "share_over_3h": 0.34328358208955223
+   },
+   "total_3h": {
+    "median_age_h": 1.8672222222222221,
+    "share_over_3h": 0.22641509433962265
+   },
+   "total_24h": {
+    "median_age_h": 2.2644444444444445,
+    "share_over_3h": 0.3382352941176471
+   },
+   "winner_3h": {
+    "median_age_h": 1.9333333333333331,
+    "share_over_3h": 0.24
+   },
+   "winner_24h": {
+    "median_age_h": 2.2644444444444445,
+    "share_over_3h": 0.3382352941176471
+   }
+  },
+  "sportsbook": {
+   "kalshi_history": {
+    "timestamp_class": "T1-exchange (Kalshi candle end_period_ts)",
+    "team_markets_matched": 242,
+    "games_matched": 121,
+    "games_with_both_sides": 121,
+    "by_season": {
+     "2026": 121
+    },
+    "candles": 133609
+   },
+   "book_quote_rows": 150504,
+   "book_quote_games": 120,
+   "book_quote_range": [
+    "2026-09-09 14:18:28+00:00",
+    "2026-10-29 16:57:52+00:00"
+   ],
+   "books": 15
+  },
+  "going_archive_snapshots": 151,
+  "espn_draftkings_snapshots": 167,
+  "kalshi_winner_games": 121,
+  "kalshi_winner_candles": 133609,
+  "kalshi_ladders": {
+   "KXNFLSPREAD_2025": {
+    "games": 271,
+    "events": 271,
+    "rungs": 5619,
+    "settled_rungs": 5619,
+    "rungs_with_candles": 5619,
+    "rungs_with_trade_tape": 1626,
+    "first_kickoff": "2025-09-05 00:20:00+00:00",
+    "last_kickoff": "2026-01-05 01:20:00+00:00"
+   },
+   "KXNFLSPREAD_2026": {
+    "games": 121,
+    "events": 121,
+    "rungs": 3274,
+    "settled_rungs": 2918,
+    "rungs_with_candles": 2918,
+    "rungs_with_trade_tape": 642,
+    "first_kickoff": "2026-09-10 00:20:00+00:00",
+    "last_kickoff": "2026-11-03 01:15:00+00:00"
+   },
+   "KXNFLTOTAL_2025": {
+    "games": 271,
+    "events": 271,
+    "rungs": 4480,
+    "settled_rungs": 4480,
+    "rungs_with_candles": 4480,
+    "rungs_with_trade_tape": 1626,
+    "first_kickoff": "2025-09-05 00:20:00+00:00",
+    "last_kickoff": "2026-01-05 01:20:00+00:00"
+   },
+   "KXNFLTOTAL_2026": {
+    "games": 121,
+    "events": 121,
+    "rungs": 2426,
+    "settled_rungs": 2160,
+    "rungs_with_candles": 2160,
+    "rungs_with_trade_tape": 642,
+    "first_kickoff": "2026-09-10 00:20:00+00:00",
+    "last_kickoff": "2026-11-03 01:15:00+00:00"
+   }
+  },
+  "order_book_snapshots": {
+   "dense_books_files": 14,
+   "props_kalshi_books_files": 1,
+   "first": "20261030T1119",
+   "last": "20261101T1300",
+   "note": "game-winner and prop books; spread and total ladder books are archived from the weekly save forward"
+  },
+  "trade_prints_center_rungs": 1138046,
+  "note": "Raw sportsbook quotes exist only for 2026; there are none for 2025, so 2025 cannot be a decide stage on the book side."
+ },
+ "power": {
+  "spread_3h_confirm": {
+   "games": 14,
+   "a_B_kalshi_leads": {
+    "loading": 0.10453055109977204,
+    "se": 0.13681019384284696,
+    "min_detectable": 0.38306854275997143,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": 0.01791096745471021,
+    "se": 0.06810634076698988,
+    "min_detectable": 0.19069775414757165,
+    "informative": false
+   },
+   "informative": false
+  },
+  "spread_3h_decide": {
+   "games": 39,
+   "a_B_kalshi_leads": {
+    "loading": 0.0835573779797603,
+    "se": 0.07087888720373886,
+    "min_detectable": 0.1984608841704688,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": 0.0030720257485617034,
+    "se": 0.01614787710906256,
+    "min_detectable": 0.04521405590537516,
+    "informative": true
+   },
+   "informative": false
+  },
+  "spread_24h_confirm": {
+   "games": 14,
+   "a_B_kalshi_leads": {
+    "loading": 0.12470705468917623,
+    "se": 0.21375768776657364,
+    "min_detectable": 0.5985215257464062,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": -0.06316180758631484,
+    "se": 0.1427306969241099,
+    "min_detectable": 0.3996459513875077,
+    "informative": false
+   },
+   "informative": false
+  },
+  "spread_24h_decide": {
+   "games": 53,
+   "a_B_kalshi_leads": {
+    "loading": 0.1308112543086087,
+    "se": 0.1343331695618539,
+    "min_detectable": 0.3761328747731909,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": -0.01935883085804512,
+    "se": 0.07156074097272531,
+    "min_detectable": 0.20037007472363086,
+    "informative": false
+   },
+   "informative": false
+  },
+  "total_3h_confirm": {
+   "games": 14,
+   "a_B_kalshi_leads": {
+    "loading": 1.0914042535495896,
+    "se": 0.7827973369928669,
+    "min_detectable": 2.191832543580027,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": -0.12921101758784656,
+    "se": 0.25248220093764423,
+    "min_detectable": 0.7069501626254038,
+    "informative": false
+   },
+   "informative": false
+  },
+  "total_3h_decide": {
+   "games": 38,
+   "a_B_kalshi_leads": {
+    "loading": 0.5653769979775874,
+    "se": 0.25133653736976597,
+    "min_detectable": 0.7037423046353447,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": -0.025129728474742853,
+    "se": 0.07723401337197855,
+    "min_detectable": 0.21625523744153993,
+    "informative": false
+   },
+   "informative": false
+  },
+  "total_24h_confirm": {
+   "games": 14,
+   "a_B_kalshi_leads": {
+    "loading": 0.06632697492576253,
+    "se": 1.0596583553283183,
+    "min_detectable": 2.967043394919291,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": 0.23435457039183824,
+    "se": 0.7706588299422501,
+    "min_detectable": 2.1578447238383003,
+    "informative": false
+   },
+   "informative": false
+  },
+  "total_24h_decide": {
+   "games": 54,
+   "a_B_kalshi_leads": {
+    "loading": 0.608914123968662,
+    "se": 0.3566785607136604,
+    "min_detectable": 0.9986999699982491,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": 0.11975688080395747,
+    "se": 0.18765693761145355,
+    "min_detectable": 0.5254394253120699,
+    "informative": false
+   },
+   "informative": false
+  },
+  "winner_3h_confirm": {
+   "games": 15,
+   "a_B_kalshi_leads": {
+    "loading": -0.031834145666247204,
+    "se": 0.37949858318714297,
+    "min_detectable": 1.0625960329240003,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": 0.30205344984887,
+    "se": 0.5012999358242101,
+    "min_detectable": 1.403639820307788,
+    "informative": false
+   },
+   "informative": false
+  },
+  "winner_3h_decide": {
+   "games": 35,
+   "a_B_kalshi_leads": {
+    "loading": -0.5983955632093588,
+    "se": 0.1768773636219002,
+    "min_detectable": 0.49525661814132055,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": 0.5213157960972519,
+    "se": 0.15480119149318558,
+    "min_detectable": 0.4334433361809196,
+    "informative": false
+   },
+   "informative": false
+  },
+  "winner_24h_confirm": {
+   "games": 14,
+   "a_B_kalshi_leads": {
+    "loading": 1.0478056865671,
+    "se": 0.3416101137428342,
+    "min_detectable": 0.9565083184799357,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": -0.024896739853760726,
+    "se": 0.2806917488022154,
+    "min_detectable": 0.7859368966462031,
+    "informative": false
+   },
+   "informative": false
+  },
+  "winner_24h_decide": {
+   "games": 54,
+   "a_B_kalshi_leads": {
+    "loading": -0.1957770339814889,
+    "se": 0.28985621026365976,
+    "min_detectable": 0.8115973887382473,
+    "informative": false
+   },
+   "a_K_book_leads": {
+    "loading": 0.1955441923480771,
+    "se": 0.24198552026518225,
+    "min_detectable": 0.6775594567425103,
+    "informative": false
+   },
+   "informative": false
+  }
+ },
+ "qb_events": {
+  "snapshots": 347,
+  "qb_status_changes": 20,
+  "before_that_teams_game_within_72h": 3,
+  "with_both_markets_priced": 0,
+  "events": [
+   {
+    "qb": "Jalen Hurts",
+    "team": "PHI",
+    "from": "Out",
+    "to": "Injured Reserve",
+    "seen_at": "2026-10-17 20:04:54+00:00",
+    "gid": "2026_06_CAR_PHI"
+   },
+   {
+    "qb": "Tyler Huntley",
+    "team": "BAL",
+    "from": "Questionable",
+    "to": "Doubtful",
+    "seen_at": "2026-11-03 16:59:58+00:00",
+    "gid": "2026_09_JAX_BAL"
+   },
+   {
+    "qb": "Joe Fagnano",
+    "team": "BAL",
+    "from": "Questionable",
+    "to": "Active",
+    "seen_at": "2026-11-04 02:00:03+00:00",
+    "gid": "2026_09_JAX_BAL"
+   }
+  ],
+  "study": "descriptive only"
+ },
+ "any_informative": false
+}

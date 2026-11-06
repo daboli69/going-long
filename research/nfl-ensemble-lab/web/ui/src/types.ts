@@ -337,6 +337,12 @@ export type Tails = {
       decide_2025: Record<string, LadderRow>; confirm_2026: Record<string, LadderRow>;
     };
   } | null;
+  leadlag: {
+    counts: { games_2026_weeks_1_to_8_played: number; games_with_both_sides_and_closes: Record<string, number>; going_archive_snapshots: number; kalshi_winner_games: number; trade_prints_center_rungs: number; sportsbook: { book_quote_rows: number; book_quote_games: number; books: number; book_quote_range: [string, string] } };
+    power: Record<string, { games: number; informative: boolean; a_B_kalshi_leads?: { min_detectable: number }; a_K_book_leads?: { min_detectable: number } }>;
+    qb_events: { qb_status_changes: number; before_that_teams_game_within_72h: number; with_both_markets_priced: number };
+    any_informative: boolean;
+  } | null;
   ladders_forward: { files: number; games_scored: number; width_level?: number; tail10?: number } | null;
   prospective: { weeks: { file: string; scored_games?: number; games?: number; status?: string }[]; by_flag: Record<string, { games: number; hit14: number; hit21: number; priced14: number; priced21: number }> };
 };

@@ -135,7 +135,8 @@ def tails_api():
     df = ROOT / "docs" / "tails_deep_results.json"
     return JSONResponse(D.clean({"results": res, "week": week, "prospective": tails_week.score(), "deep": _json.loads(df.read_text()) if df.exists() else None,
                                  "ladders": _json.loads((ROOT / "docs" / "tails_ladder_results.json").read_text()) if (ROOT / "docs" / "tails_ladder_results.json").exists() else None,
-                                 "ladders_forward": tails_ladder.score_archived()}))
+                                 "ladders_forward": tails_ladder.score_archived(),
+                                 "leadlag": _json.loads((ROOT / "docs" / "leadlag_results.json").read_text()) if (ROOT / "docs" / "leadlag_results.json").exists() else None}))
 
 
 @app.get("/api/refs")
