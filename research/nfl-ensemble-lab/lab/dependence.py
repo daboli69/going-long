@@ -19,6 +19,7 @@ TEST_SEASON = 2025
 CLASSES = {"A_qb_wr": ("pass_yds", "rec_yds", "WR"), "B_qb_te": ("pass_yds", "rec_yds", "TE"), "C_qb_rb_rush": ("pass_yds", "rush_yds", "RB")}
 T_NU = (4, 8, 16)
 PLANTED_RHO = 0.15
+PLANTED = {"A_qb_wr": 0.30, "B_qb_te": 0.30, "C_qb_rb_rush": 0.15}  # Amendment 1
 GATE_LEVEL = 0.05 / 3
 GATE_POWER = 0.80
 M_DRAWS = 400
@@ -191,15 +192,15 @@ def gate(pairs: pd.DataFrame, cls: str, rng: np.random.Generator, reps: int = 40
         for rho in (0.0, 0.10, 0.20, 0.30, 0.50):
             r = [sim_once(sf, st, rho, rng) for _ in range(rec_reps)]
             rec[str(rho)] = {"mean_rho_hat": float(np.mean([x["rho_hat"] for x in r])), "reject_es": float(np.mean([x["p_es"] < GATE_LEVEL for x in r])), "reject_both": float(np.mean([(x["p_es"] < GATE_LEVEL) and (x["p_vs"] < GATE_LEVEL) for x in r]))}
-        r = [sim_once(sf, st, PLANTED_RHO, rng) for _ in range(reps)]
+        r = [sim_once(sf, st, PLANTED[cls], rng) for _ in range(reps)]
         power = float(np.mean([(x["p_es"] < GATE_LEVEL) and (x["p_vs"] < GATE_LEVEL) for x in r]))
         scan = {}
         for k in multipliers:
-            rr = [sim_once(sf, scale_structure(st, k), PLANTED_RHO, rng) for _ in range(scan_reps)]
+            rr = [sim_once(sf, scale_structure(st, k), PLANTED[cls], rng) for _ in range(scan_reps)]
             scan[str(k)] = {"games": int(st["game_id"].nunique() * k), "power_both": float(np.mean([(x["p_es"] < GATE_LEVEL) and (x["p_vs"] < GATE_LEVEL) for x in rr]))}
         need = next((v["games"] for v in scan.values() if v["power_both"] >= GATE_POWER), None)
         rec_ok = abs(rec["0.2"]["mean_rho_hat"] - 0.20) <= 0.03 and rec["0.0"]["reject_both"] <= 0.07
         out[cls] = {"fit_team_games": int(len(sf)), "fit_pairs": int(sf["n"].sum()), "test_team_games": int(len(st)), "test_pairs": int(st["n"].sum()), "test_games": int(st["game_id"].nunique()),
-                    "recovery": rec, "recovery_ok": bool(rec_ok), "power_at_0.15_both_scores": power, "power_ok": bool(power >= GATE_POWER),
+                    "recovery": rec, "recovery_ok": bool(rec_ok), "planted_rho": PLANTED[cls], "power_at_planted_both_scores": power, "power_ok": bool(power >= GATE_POWER),
                     "informative": bool(rec_ok and power >= GATE_POWER), "scan": scan, "games_for_80pct_power": need}
     return out

@@ -33,27 +33,28 @@
    }
   },
   "recovery_ok": true,
-  "power_at_0.15_both_scores": 0.235,
-  "power_ok": false,
-  "informative": false,
+  "planted_rho": 0.3,
+  "power_at_planted_both_scores": 0.935,
+  "power_ok": true,
+  "informative": true,
   "scan": {
    "2": {
     "games": 544,
-    "power_both": 0.44
+    "power_both": 1.0
    },
    "3": {
     "games": 816,
-    "power_both": 0.71
+    "power_both": 1.0
    },
    "5": {
     "games": 1360,
-    "power_both": 0.89
+    "power_both": 1.0
    },
    "8": {
     "games": 2176,
-    "power_both": 0.98
+    "power_both": 1.0
    }
   },
-  "games_for_80pct_power": 1360
+  "games_for_80pct_power": 544
  }
 }

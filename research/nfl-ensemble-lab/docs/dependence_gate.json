@@ -33,28 +33,29 @@
    }
   },
   "recovery_ok": true,
-  "power_at_0.15_both_scores": 0.235,
-  "power_ok": false,
-  "informative": false,
+  "planted_rho": 0.3,
+  "power_at_planted_both_scores": 0.935,
+  "power_ok": true,
+  "informative": true,
   "scan": {
    "2": {
     "games": 544,
-    "power_both": 0.44
+    "power_both": 1.0
    },
    "3": {
     "games": 816,
-    "power_both": 0.71
+    "power_both": 1.0
    },
    "5": {
     "games": 1360,
-    "power_both": 0.89
+    "power_both": 1.0
    },
    "8": {
     "games": 2176,
-    "power_both": 0.98
+    "power_both": 1.0
    }
   },
-  "games_for_80pct_power": 1360
+  "games_for_80pct_power": 544
  },
  "B_qb_te": {
   "fit_team_games": 1256,
@@ -90,28 +91,29 @@
    }
   },
   "recovery_ok": true,
-  "power_at_0.15_both_scores": 0.08,
+  "planted_rho": 0.3,
+  "power_at_planted_both_scores": 0.4925,
   "power_ok": false,
   "informative": false,
   "scan": {
    "2": {
     "games": 528,
-    "power_both": 0.18
+    "power_both": 0.86
    },
    "3": {
     "games": 792,
-    "power_both": 0.32
+    "power_both": 0.95
    },
    "5": {
     "games": 1320,
-    "power_both": 0.44
+    "power_both": 1.0
    },
    "8": {
     "games": 2112,
-    "power_both": 0.67
+    "power_both": 1.0
    }
   },
-  "games_for_80pct_power": null
+  "games_for_80pct_power": 528
  },
  "C_qb_rb_rush": {
   "fit_team_games": 1588,
@@ -147,7 +149,8 @@
    }
   },
   "recovery_ok": true,
-  "power_at_0.15_both_scores": 0.155,
+  "planted_rho": 0.15,
+  "power_at_planted_both_scores": 0.155,
   "power_ok": false,
   "informative": false,
   "scan": {

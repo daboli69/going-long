@@ -4,6 +4,8 @@ Run 2026-11-06 against docs/DEPENDENCE_PREREG.md (commit 67ce253b). Football onl
 
 ## Result
 
+This is the first run. Amendment 1 and a scored result for class A are in the addendum at the end.
+
 The stop rule fired. For all three pair classes the power gate failed, so the 2025 held-out season was not scored and is still unseen. No test of "does a dependence model beat independence" was run, and nothing here is evidence of an edge.
 
 ## Power gate (structure only, no outcome read)
@@ -59,3 +61,32 @@ Reading this carefully:
 ## Next
 
 A rerun needs about five times the games, so roughly next season. The only faster route is a new registration that changes the planted size, which Travis should decide because it was prompted by these fit-season numbers.
+
+## Addendum 1: Amendment 1 and the 2025 score (2026-11-06)
+
+Amendment 1 was committed (57aa60bf) before the gate was rerun. It raised the planted size to 0.30 for classes A and B and kept 0.15 for class C.
+
+Gate rerun (once):
+
+| Class | Planted | Power | Result |
+|---|---|---|---|
+| A: QB passing with WR receiving | 0.30 | 0.94 | passes |
+| B: QB passing with TE receiving | 0.30 | 0.49 | fails, not scored (about 528 games for 80%) |
+| C: QB passing with RB rushing | 0.15 | 0.16 | fails, not scored |
+
+Class A was scored on 2025, once (272 games, 1,345 pairs). The chosen family was Gaussian with correlation 0.35, fitted on 2022 to 2024. Larger gain means the dependence model beat independence.
+
+| Score | Mean gain per pair | 95% interval (bootstrap by game) | Holm-adjusted p |
+|---|---|---|---|
+| Energy score | 0.0037 | 0.0025 to 0.0050 | 0.001 |
+| Variogram score | 0.0147 | 0.0107 to 0.0191 | 0.001 |
+
+Class A passed both scores. The marker file `data/dependence/heldout_scored.json` now blocks any second run on 2025.
+
+What this shows: a quarterback and his wide receivers move together in 2025 about as strongly as they did in 2022 to 2024, and a model that knows this predicts pairs of outcomes better than one that treats them as unrelated. The gain per pair is small in size but very consistent across games.
+
+What it does not show: that any price is wrong. No same-game-combination price is held. For reference only, with a correlation of 0.35, the chance that both a quarterback and a wide receiver go over is about 5.5 percentage points higher than the product of the two single chances, for legs priced between 40% and 60% (docs/dependence_price_check.json).
+
+Price check against fees: not done. Kalshi's fee schedule PDF returned an error (HTTP 429) and the help page gives no formula. I did not fill the gap from memory. Even with the formula, a fee comparison needs a real combination price, which does not exist here.
+
+The simulators were not changed. The rule allows a dependence layer only if a class passes, and one did, but the game simulator already carries a link of about 0.4 to 0.56, so adding another layer on top would double count. The next step is to compare the simulator's own pairs against this result, which is not done.

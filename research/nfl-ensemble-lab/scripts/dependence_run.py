@@ -75,14 +75,14 @@ if __name__ == "__main__":
         pairs, _ = D.load_pairs()
         out = D.gate(pairs, cls, np.random.default_rng(20261106 + list(D.CLASSES).index(cls)))
         (DOCS / f"dependence_gate_{cls}.json").write_text(json.dumps(out, indent=1))
-        print(cls, json.dumps({k: out[cls][k] for k in ("power_at_0.15_both_scores", "recovery_ok", "informative", "games_for_80pct_power")}))
+        print(cls, json.dumps({k: out[cls][k] for k in ("power_at_planted_both_scores", "recovery_ok", "informative", "games_for_80pct_power")}))
     elif st == "merge":
         g = {}
         for c in D.CLASSES:
             g.update(json.loads((DOCS / f"dependence_gate_{c}.json").read_text()))
         (DOCS / "dependence_gate.json").write_text(json.dumps(g, indent=1))
         for c, v in g.items():
-            print(c, "power", v["power_at_0.15_both_scores"], "recovery_ok", v["recovery_ok"], "informative", v["informative"], "games for 80%", v["games_for_80pct_power"])
+            print(c, "power", v["power_at_planted_both_scores"], "recovery_ok", v["recovery_ok"], "informative", v["informative"], "games for 80%", v["games_for_80pct_power"])
     elif st == "fit":
         pairs, info = D.load_pairs()
         a = D.load_marginals()

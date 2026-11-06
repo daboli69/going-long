@@ -33,7 +33,8 @@
    }
   },
   "recovery_ok": true,
-  "power_at_0.15_both_scores": 0.155,
+  "planted_rho": 0.15,
+  "power_at_planted_both_scores": 0.155,
   "power_ok": false,
   "informative": false,
   "scan": {
