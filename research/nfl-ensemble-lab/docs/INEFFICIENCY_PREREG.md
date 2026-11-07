@@ -68,3 +68,17 @@ The three game markets are the 20-year set, so the decide and confirm split is t
 ## 7. Report order and rule
 
 Completed, Model Research, Concerns, Next, Needs Travis. If no market beats its cost after the multiplicity correction, the result is "no market shown to be inefficient net of cost", with the table of what was and was not testable. Nothing in the app changes on this result.
+
+## Amendment 1 (2026-11-06, committed before any gap or calibration number is computed)
+
+Implementation details left open in sections 3 and 4. None depends on a result.
+- Side A is the home side for spread and moneyline, over for totals and sportsbook props, yes for Kalshi. The fair probability is for side A.
+- Sportsbook game lines use decimal close odds, so the price of a side is one over its odds. Spread uses the Home and Away Line Odds Close columns, total the Over and Under Close columns, moneyline the Home and Away Odds Close columns. Ties and pushes are dropped.
+- Sportsbook props: one contract per book, game, player and stat, using the book's last pre-kickoff quote. A player with no yards in the play-by-play counts as zero only if the 2026 weekly roster lists the player as ACT that week; otherwise the contract is dropped, because the book would likely void it. Games count as final when play-by-play reaches zero seconds.
+- The pooled calibration used as the prior centre is a logistic fit of the outcome on logit(fair probability) over all markets' decide data, each market weighted equally. The prior standard deviation is 0.2 on the slope and on the intercept, applied around the pooled coefficients.
+- Kalshi contracts use bid90 and ask90 (kickoff minus 90 minutes), mid as the fair probability. Ties between sides are not an issue.
+- Net gap is the mean over games of the within-game mean net; the bootstrap resamples games. Markets drawn from one source share the same resampled games (the three game-line markets; the six Kalshi series). The sportsbook-prop and Kalshi samples are resampled independently of each other and of the game lines, which ignores their overlap in 2026 games.
+- The gate uses a cluster-robust normal standard error of the mean over games for its 200 simulated runs, not a bootstrap, for speed. The real run uses the bootstrap.
+- Murphy bins are ten equal-count bins of the fair probability. Terms are in nats of log loss.
+- The between-market variance for shrinkage is the DerSimonian-Laird estimate, truncated at zero, using the bootstrap standard errors.
+- The size used in the gate is a net edge of 0.03.
