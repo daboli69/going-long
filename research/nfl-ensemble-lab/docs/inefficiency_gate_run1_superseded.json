@@ -1,0 +1,182 @@
+{
+ "b_pass_yds": {
+  "n_bets": 1069,
+  "n_games": 56,
+  "planted": 0.03,
+  "recovered": 0.030780758664877582,
+  "recovery_error": 0.000780758664877583,
+  "power": 0.615,
+  "smallest_detectable": 0.04684558917982435,
+  "informative": false,
+  "decide_n": 1398,
+  "confirm_n": 1173,
+  "coef": [
+   0.5850625518954354,
+   0.1847883693605812
+  ]
+ },
+ "b_rec_yds": {
+  "n_bets": 90,
+  "n_games": 27,
+  "planted": 0.03,
+  "recovered": 0.02504641104888317,
+  "recovery_error": -0.0049535889511168295,
+  "power": 0.13,
+  "smallest_detectable": 0.17181150570164014,
+  "informative": false,
+  "decide_n": 8124,
+  "confirm_n": 6406,
+  "coef": [
+   0.8203128482205754,
+   -0.01373160708716457
+  ]
+ },
+ "g_moneyline": {
+  "n_bets": 1191,
+  "n_games": 1191,
+  "planted": 0.03,
+  "recovered": 0.02877498533223954,
+  "recovery_error": -0.001225014667760458,
+  "power": 0.66,
+  "smallest_detectable": 0.04346102449587187,
+  "informative": false,
+  "decide_n": 511,
+  "confirm_n": 2615,
+  "coef": [
+   0.9300368433728105,
+   -0.07187452403459656
+  ]
+ },
+ "g_spread": {
+  "n_bets": 714,
+  "n_games": 714,
+  "planted": 0.03,
+  "recovered": 0.030502829667414293,
+  "recovery_error": 0.0005028296674142937,
+  "power": 0.515,
+  "smallest_detectable": 0.05361768201519732,
+  "informative": false,
+  "decide_n": 498,
+  "confirm_n": 2487,
+  "coef": [
+   0.8670870993241933,
+   -0.09038848074941368
+  ]
+ },
+ "g_total": {
+  "n_bets": 1355,
+  "n_games": 1355,
+  "planted": 0.03,
+  "recovered": 0.030679075462274906,
+  "recovery_error": 0.0006790754622749071,
+  "power": 0.68,
+  "smallest_detectable": 0.03900172757214407,
+  "informative": false,
+  "decide_n": 505,
+  "confirm_n": 2596,
+  "coef": [
+   0.934504020218166,
+   -0.0989622855993129
+  ]
+ },
+ "k_pass_yds": {
+  "n_bets": 869,
+  "n_games": 107,
+  "planted": 0.03,
+  "recovered": 0.029955242058045794,
+  "recovery_error": -4.4757941954205044e-05,
+  "power": 0.515,
+  "smallest_detectable": 0.04900774494275663,
+  "informative": false,
+  "decide_n": 396,
+  "confirm_n": 1049,
+  "coef": [
+   1.068117486428107,
+   -0.10188703744266964
+  ]
+ },
+ "k_rec_yds": {
+  "n_bets": 1973,
+  "n_games": 107,
+  "planted": 0.03,
+  "recovered": 0.031060212548557543,
+  "recovery_error": 0.0010602125485575445,
+  "power": 0.775,
+  "smallest_detectable": 0.035508244280775224,
+  "informative": false,
+  "decide_n": 601,
+  "confirm_n": 3608,
+  "coef": [
+   0.9373775912591883,
+   -0.0925300087760007
+  ]
+ },
+ "k_receptions": {
+  "n_bets": 2355,
+  "n_games": 107,
+  "planted": 0.03,
+  "recovered": 0.029412085817866664,
+  "recovery_error": -0.0005879141821333346,
+  "power": 0.82,
+  "smallest_detectable": 0.03276045105451504,
+  "informative": true,
+  "decide_n": 146,
+  "confirm_n": 2609,
+  "coef": [
+   0.9640687906238854,
+   -0.21610974257083207
+  ]
+ },
+ "k_rush_yds": {
+  "n_bets": 1960,
+  "n_games": 107,
+  "planted": 0.03,
+  "recovered": 0.03049179242408895,
+  "recovery_error": 0.0004917924240889528,
+  "power": 0.745,
+  "smallest_detectable": 0.036882618045450885,
+  "informative": false,
+  "decide_n": 486,
+  "confirm_n": 2175,
+  "coef": [
+   0.8313910009191026,
+   -0.0436049925176045
+  ]
+ },
+ "k_spread": {
+  "n_bets": 347,
+  "n_games": 101,
+  "planted": 0.03,
+  "recovered": 0.029826277270584206,
+  "recovery_error": -0.0001737227294157928,
+  "power": 0.235,
+  "smallest_detectable": 0.09310514058897135,
+  "informative": false,
+  "decide_n": 2203,
+  "confirm_n": 2046,
+  "coef": [
+   0.9715322910545359,
+   -0.021018457397441976
+  ]
+ },
+ "k_total": {
+  "n_bets": 860,
+  "n_games": 107,
+  "planted": 0.03,
+  "recovered": 0.030150450810566262,
+  "recovery_error": 0.0001504508105662633,
+  "power": 0.575,
+  "smallest_detectable": 0.04774159669937856,
+  "informative": false,
+  "decide_n": 1588,
+  "confirm_n": 1297,
+  "coef": [
+   0.9438720813778058,
+   0.008695624049627027
+  ]
+ },
+ "_pool": [
+  0.9398656963587199,
+  -0.05980025613189256
+ ]
+}

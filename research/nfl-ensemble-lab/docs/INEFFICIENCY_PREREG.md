@@ -82,3 +82,8 @@ Implementation details left open in sections 3 and 4. None depends on a result.
 - Murphy bins are ten equal-count bins of the fair probability. Terms are in nats of log loss.
 - The between-market variance for shrinkage is the DerSimonian-Laird estimate, truncated at zero, using the bootstrap standard errors.
 - The size used in the gate is a net edge of 0.03.
+
+## Amendment 2 (2026-11-06, a defect found after the first run, committed before the rerun)
+
+The first run read the k_receptions confirm result (net -0.022, interval -0.054 to +0.011) and no other market. After it, the descriptive table showed an infinite overround for the game-total market. Cause: one 2006-2015 total row has a zero over odds, which makes a price of infinity and a NaN fair probability. A single NaN made the pooled calibration fit return its starting values (slope 1, intercept 0) without fitting, so the "pooled" prior centre was not a pooled fit, and the game-total market's own fit was also unfitted.
+Fix, which uses no outcome: drop any contract whose price is not finite or whose decimal odds are at or below 1, and make the fit stop with an error on non-finite input instead of returning a start value. The gate and the run are repeated in full on the corrected data. The first-run files are kept as `*_run1_superseded.json`. The rerun reads confirm results for whatever markets pass the repeated gate, which means the k_receptions confirm result is read a second time; this is disclosed in the results. No other rule changes.

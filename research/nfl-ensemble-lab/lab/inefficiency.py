@@ -24,6 +24,11 @@ def _fair(pa, pb):
 
 def _pack(market, era, cluster, price_a, price_b, y, p=None):
     price_a, price_b = np.asarray(price_a, float), np.asarray(price_b, float)
+    keep = np.isfinite(price_a) & np.isfinite(price_b) & (price_a > 0) & (price_b > 0) & (price_a < 1) & (price_b < 1)
+    if not keep.all():
+        sel = lambda x: np.asarray(x)[keep]
+        price_a, price_b, era, cluster, y = price_a[keep], price_b[keep], sel(era), sel(cluster), sel(y)
+        p = None if p is None else sel(p)
     p = _fair(price_a, price_b) if p is None else np.asarray(p, float)
     return pd.DataFrame({"market": market, "era": np.asarray(era), "cluster": np.asarray(cluster).astype(str), "p": p, "price_a": price_a, "price_b": price_b, "y": np.asarray(y, float)})
 
@@ -93,6 +98,8 @@ def logit(p):
 def calib_fit(p, y, w=None, center=(1.0, 0.0), sd=None):
     """Logistic recalibration y ~ sigmoid(a * logit p + b); optional normal prior around `center`."""
     x, y = logit(p), np.asarray(y, float)
+    if not (np.isfinite(x).all() and np.isfinite(y).all()):
+        raise ValueError("non-finite input to calibration fit")
     w = np.ones_like(x) if w is None else np.asarray(w, float)
 
     def nll(th):
