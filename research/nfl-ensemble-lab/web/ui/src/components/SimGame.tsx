@@ -362,7 +362,8 @@ function fpdsNote(sim: Sim): string {
   const f = sim.fpds;
   if (!f?.tested) return "FantasyPoints metrics are shown but have not been tested yet, so they do not change any numbers.";
   const used = [f.receiving_yards_blend && "receiving yards", f.catches_for_thin_history && "catches"].filter(Boolean).join(" and ");
-  return `FantasyPoints data runs through week ${f.through_week}. In tests on 2025 and 2026 games, adding its target share and routes run made ${used || "no stat"} more accurate, and its red-zone targets ${f.td_red_zone ? "improved" : "did not improve"} the pick of who catches touchdowns. Rushing and everything else stays on nflverse play-by-play.`;
+  const raw = [f.rushing_yards_blend && "rushing yards", f.rush_td_goal_line && "rushing touchdowns"].filter(Boolean).join(" and ");
+  return `FantasyPoints data runs through week ${f.through_week}. In tests on 2025 and 2026 games, adding its target share and routes run made ${used || "no stat"} more accurate, and its red-zone targets ${f.td_red_zone ? "improved" : "did not improve"} the pick of who catches touchdowns. ${raw ? `Its carry share, snap share and inside-the-5 carries are also blended into ${raw}, but that did not pass testing, so those numbers are not validated. ` : ""}Passing yards stay on nflverse because the FantasyPoints export has no quarterback columns. First touchdown uses the touchdown inputs above.`;
 }
 
 type Mode = "random" | "typical" | "upset";

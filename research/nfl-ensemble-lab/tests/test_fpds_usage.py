@@ -76,6 +76,17 @@ def test_touchdown_weights_clip_negative_yards_and_use_fpds_only_when_it_passed(
     assert on["c"] > off["c"]                         # red-zone targets lift the tight end
 
 
+def test_rush_touchdown_weights_follow_goal_line_carries_only_when_the_rule_uses_fpds(monkeypatch):
+    u = _usage()
+    for c in ("share_rush_yds",):
+        u.players[c] = [0.5, 0.3, 0.2]
+    monkeypatch.setattr(X, "_td_table", lambda season: pd.DataFrame({"week": [1], "team": ["AAA"], "pid": ["a"], "rec_td": [0], "rush_td": [1]}))
+    monkeypatch.setattr(X, "features_asof", lambda *a, **k: _feats(att_pct=[0.1, 0.1, 0.8], i5_pct=[0.0, 0.0, 0.9]))
+    off = X.rush_td_weights(u, "AAA", 2026, 8, frozenset(), {"td": {"rush_td": {"uses_fpds": False, "weights": {}}}})
+    on = X.rush_td_weights(u, "AAA", 2026, 8, frozenset(), {"td": {"rush_td": {"uses_fpds": True, "weights": {"yards": 0.5, "td_history": 0.1, "fpds": 0.4}}}})
+    assert off == {} and sum(on.values()) == pytest.approx(1.0) and on["c"] > 0.2
+
+
 def _play(team, kind, player, yards, event=None):
     return {"team": team, "kind": kind, "player": player, "passer": "QB", "yards": yards, "event": event, "text": ""}
 

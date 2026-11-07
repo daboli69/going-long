@@ -42,13 +42,23 @@ def main():
             if passed:
                 chosen[stat] = {"group": name, "max_n": hi, "mix": {k: round(v, 2) for k, v in passed.items()}}
                 break
+    # Travis chose (2026-11-07) to include FantasyPoints in rushing yards and rushing touchdowns even though neither passed the gate: the best-fit
+    # weights are used and listed as unvalidated. Passing yards cannot take it: the export has no quarterback columns.
+    unvalidated = []
+    for stat in ("rush_yds",):
+        if stat not in chosen:
+            chosen[stat] = {"group": "all", "max_n": 6, "mix": {k: round(v, 2) for k, v in runs["all"]["stats"][stat]["weights"].items()}, "validated": False}
+            unvalidated.append(stat)
     td_rule = {}
     for kind, r in td["stats"].items():
         t5, t6 = r["test_2025"], r["test_2026"]
         uses = kind == "rec_td" and t5["diff_lo"] > 0 and t6["loglik_with_fpds"] >= t6["loglik_nflverse_only"]
+        if kind == "rush_td" and not uses:
+            uses = True
+            unvalidated.append("rush_td")
         td_rule[kind] = {"uses_fpds": bool(uses), "weights": {k: round(v, 2) for k, v in (r["weights_all"] if uses else r["weights_nflverse_only"]).items()}}
     through = X.through()
-    rule = {"created_at": pd.Timestamp.now(tz="UTC").isoformat(), "mode": "last6", "weights": chosen, "td": td_rule, "through": through,
+    rule = {"created_at": pd.Timestamp.now(tz="UTC").isoformat(), "mode": "last6", "weights": chosen, "td": td_rule, "unvalidated": unvalidated, "through": through,
             "evidence": {name: r["games"] for name, r in runs.items()}}
     X.RULE_PATH.parent.mkdir(parents=True, exist_ok=True)
     X.RULE_PATH.write_text(json.dumps(rule, indent=1), encoding="utf-8")
@@ -75,12 +85,14 @@ def main():
             r = runs[name]["stats"][stat]
             for k, label in (("test_2025", "2025"), ("test_2026", "2026")):
                 t = r[k]["thin_history"]
-                used = stat in chosen and chosen[stat]["group"] == name
+                used = stat in chosen and chosen[stat]["group"] == name and stat not in unvalidated
                 L.append(f"| {NAMES[stat]} | {gname} | {label} | {t['rmse_old']:.2f} | {t['rmse_new']:.2f} | {t['rmse_new'] - t['rmse_old']:+.2f} "
                          f"({t['diff_lo']:+.2f} to {t['diff_hi']:+.2f}) | {'yes' if used else 'no'} |")
     L += ["", "Blend weights, fitted on 2022 to 2024:", ""]
     for stat in X.STAT_FEATURES:
-        if stat in chosen:
+        if stat in unvalidated:
+            L.append(f"- {NAMES[stat]}: {mix(chosen[stat]['mix'])}, for everyone expected to play. **Not validated**: it did not pass the gate (no gain that held in both years, the 2026 interval includes zero), and is used because Travis asked for FantasyPoints in the projection.")
+        elif stat in chosen:
             c = chosen[stat]
             L.append(f"- {NAMES[stat]}: {mix(c['mix'])}, for {'everyone expected to play' if c['group'] == 'all' else 'players who played 3 or fewer of the last 6'}. Passed the gate and is used.")
         else:
@@ -94,14 +106,15 @@ def main():
         for k, label in (("test_2025", "2025"), ("test_2026", "2026")):
             t = r[k]
             L.append(f"| {'Receiving' if kind == 'rec_td' else 'Rushing'} | {label} | {t['games_with_td']} | {t['loglik_nflverse_only']:.3f} | {t['loglik_with_fpds']:.3f} | "
-                     f"{t['loglik_with_fpds'] - t['loglik_nflverse_only']:+.3f} ({t['diff_lo']:+.3f} to {t['diff_hi']:+.3f}) | {'yes' if td_rule[kind]['uses_fpds'] else 'no'} |")
+                     f"{t['loglik_with_fpds'] - t['loglik_nflverse_only']:+.3f} ({t['diff_lo']:+.3f} to {t['diff_hi']:+.3f}) | {('yes (not validated)' if kind in unvalidated else 'yes') if td_rule[kind]['uses_fpds'] else 'no'} |")
     L += ["", "Receiving touchdown weights used: " + mix({k.replace('td_history', 'touchdown history').replace('yards', 'yardage share').replace('fpds', 'red-zone targets'): v
                                                          for k, v in td_rule['rec_td']['weights'].items()}) + ".",
-          "Rushing touchdowns use yardage share and touchdown history only; goal-line carry share from FantasyPoints did not help.", "",
+          "Rushing touchdowns: " + mix({k.replace('td_history', 'touchdown history').replace('yards', 'yardage share').replace('fpds', 'carry share x inside-the-5 share'): v for k, v in td_rule['rush_td']['weights'].items()}) + (". **Not validated**: goal-line carry share did not improve the pick of who scores, and is used because Travis asked for FantasyPoints in the projection." if 'rush_td' in unvalidated else "."),
+          "Passing yards: no FantasyPoints blend is possible. The export has receiving and rushing columns only, with no quarterback attempts, air yards thrown or accuracy, so passing yards stay on nflverse.", "",
           "## Not tested, so not used", "",
           "- FantasyPoints stuff rate: it averages about 47% against about 17% for carries that gain 0 or fewer yards, so the definition differs. The data dictionary also calls header definitions unverified.",
           "- Pass-and-run tendencies by game state: nflverse play-by-play gives the same numbers, so FantasyPoints adds nothing new to test.",
-          "- Rushing volume from carry share and snap share: no gain that held in both years.", ""]
+          "- Rushing volume from carry share and snap share: no gain that held in both years (now used anyway, see above).", ""]
     (ROOT / "docs" / "FPDS_USAGE_CHECK.md").write_text("\n".join(L), encoding="utf-8")
     print("\n".join(L[:30]))
     print("\nRULE:", json.dumps({k: rule[k] for k in ("weights", "td")}))

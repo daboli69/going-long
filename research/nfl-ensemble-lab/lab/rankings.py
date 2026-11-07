@@ -70,9 +70,10 @@ def td_chances(sim: dict) -> dict:
         rs = float(m["rush_share"])
         rush = {r["player"]: max(r["typical"], 0.0) for r in sim["players"] if r["team"] == team and r["stat"] == "Rushing yards"}
         tot_rush = sum(rush.values())
-        names = set(m["rec_weights"]) | set(rush)
+        rw = m.get("rush_weights") or {}
+        names = set(m["rec_weights"]) | set(rush) | set(rw)
         for n in names:
-            lam = exp_td * ((1 - rs) * m["rec_weights"].get(n, 0.0) + (rs * rush.get(n, 0.0) / tot_rush if tot_rush > 0 else 0.0))
+            lam = exp_td * ((1 - rs) * m["rec_weights"].get(n, 0.0) + (rs * (rw.get(n, 0.0) if rw else (rush.get(n, 0.0) / tot_rush if tot_rush > 0 else 0.0))))
             if lam > 0:
                 out[(n, team)] = {"chance": float(1 - np.exp(-lam)), "exp_td": float(lam), "first": float(any_td * lam / total) if total > 0 else 0.0}
     return out

@@ -416,7 +416,7 @@
   }
  },
  "rule": {
-  "created_at": "2026-10-31T20:06:35.519676+00:00",
+  "created_at": "2026-11-07T21:46:32.800422+00:00",
   "mode": "last6",
   "weights": {
    "rec_yds": {
@@ -437,6 +437,16 @@
      "tgt_pct": 0.1,
      "rte_pct": 0.3
     }
+   },
+   "rush_yds": {
+    "group": "all",
+    "max_n": 6,
+    "mix": {
+     "base": 0.8,
+     "att_pct": 0.1,
+     "snap_pct": 0.1
+    },
+    "validated": false
    }
   },
   "td": {
@@ -449,16 +459,20 @@
     }
    },
    "rush_td": {
-    "uses_fpds": false,
+    "uses_fpds": true,
     "weights": {
-     "yards": 0.8,
+     "yards": 0.7,
      "td_history": 0.2,
-     "fpds": 0.0
+     "fpds": 0.1
     }
    }
   },
+  "unvalidated": [
+   "rush_yds",
+   "rush_td"
+  ],
   "through": {
-   "weekly_through": 7,
+   "weekly_through": 8,
    "snapshot_games": 4
   },
   "evidence": {

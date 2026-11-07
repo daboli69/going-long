@@ -816,12 +816,13 @@ def team_players(team: str, week: int, out: dict, saved: list[dict], expected_po
             r["fpds"] = prof[pid]
             seen.add(r["player"])
     td_w = {names.get(pid, pid): w for pid, w in X.rec_td_weights(u, team, su, wk_used, out_ids, fp_rule).items()}
+    rush_w = {names.get(pid, pid): w for pid, w in X.rush_td_weights(u, team, su, wk_used, out_ids, fp_rule).items()}
     for nm in back:
         rb_w = {k: v for k, v in td_w.items() if pos_of.get(k) in ("RB", "FB")}
         for k in rb_w:
             td_w[k] *= 1 - RETURN_SHARE
         td_w[nm] = sum(rb_w.values()) * RETURN_SHARE
-    extra = {"fpds": {**fp_info, "players": len(prof)}, "td_weights": td_w}
+    extra = {"fpds": {**fp_info, "players": len(prof)}, "td_weights": td_w, "rush_td_weights": rush_w}
     return rows, moves, ("saved projections, " if saved_t else "") + label, extra
 
 
@@ -830,6 +831,8 @@ def _fpds_summary(teams: dict) -> dict:
     td = rule.get("td", {}).get("rec_td", {})
     return {"through_week": X.through().get("weekly_through"), "tested": bool(rule), "catches_for_thin_history": "rec" in rule.get("weights", {}),
             "receiving_yards_blend": "rec_yds" in rule.get("weights", {}), "td_red_zone": bool(td.get("uses_fpds")),
+            "rushing_yards_blend": "rush_yds" in rule.get("weights", {}), "rush_td_goal_line": bool(rule.get("td", {}).get("rush_td", {}).get("uses_fpds")),
+            "unvalidated": rule.get("unvalidated", []), "passing_yards": "no quarterback columns in the FantasyPoints export",
             "thin_players": {t: v.get("thin_players", 0) for t, v in teams.items()}}
 
 
@@ -1217,6 +1220,7 @@ def simulate(gid: str, mode: str = "typical", draw: int = 0) -> dict | None:
     volume = {t: float(np.clip((max(game["points"][t], 1) / max(typical[t], 1)) ** 0.6, 0.8, 1.25)) for t in (away, home)} if game["mode"] != "typical" else {}
     players, moves, gone, sources, inj_source = [], [], [], {}, None
     td_weights, fp_teams, rush_share, sampled, questionable = {}, {}, {}, {}, []
+    rush_weights = {}
     rng_av = _rng(gid, f"avail|{game['mode']}|{game['draw']}")
     allowed_rule = AL.load_rule()
     allowed_view = []
@@ -1237,6 +1241,7 @@ def simulate(gid: str, mode: str = "typical", draw: int = 0) -> dict | None:
         if sampled[t] and am:
             AL.apply_to_sampled(sampled[t]["players"], am, _rng(gid, f"allowed|{game['mode']}|{game['draw']}|{t}"))
         td_weights[t], fp_teams[t] = extra["td_weights"], extra["fpds"]
+        rush_weights[t] = extra.get("rush_td_weights") or {}
         rush_share[t] = X.rush_td_share(t, D.SEASON, week)
         players += rows
         moves += [m | {"team": t} for m in mv]
@@ -1252,7 +1257,7 @@ def simulate(gid: str, mode: str = "typical", draw: int = 0) -> dict | None:
                 "replay": replay(gid, away, home, game["points"], players, ctx, td_weights, rush_share, volume, salt, sampled),
                 "receiving": {"model": "sampled" if all(sampled.get(t) for t in (away, home)) else "averaged"}, "questionable": questionable,
                 "allowed": {"applied": bool(allowed_view), "passed_gate": bool(allowed_rule.get("passed")), "teams": allowed_view},
-                "td_model": {t: {"exp_points": float((h if t == home else a).mean()), "rush_share": float(rush_share[t]), "rec_weights": td_weights.get(t) or {}}
+                "td_model": {t: {"exp_points": float((h if t == home else a).mean()), "rush_share": float(rush_share[t]), "rec_weights": td_weights.get(t) or {}, "rush_weights": rush_weights.get(t) or {}}
                              for t in (away, home)},
                 "defense": defense_matchups(ctx, away, home) if not ctx.empty else [],
                 "source": {"margin": e.get("margin_label"), "total": e.get("total_label")}, "has_players": bool(players),

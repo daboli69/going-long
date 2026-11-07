@@ -309,6 +309,34 @@ def rec_td_weights(u, team: str, season: int, week: int, out_ids=frozenset(), ru
     return dict(zip(pool["pid"], map(float, mix)))
 
 
+def rush_td_weights(u, team: str, season: int, week: int, out_ids=frozenset(), rule: dict | None = None) -> dict:
+    """pid -> chance weight to score a rushing touchdown: yardage share, touchdown history and (when the rule uses it) carry share times inside-the-5 share.
+
+    Empty when the rule does not use FantasyPoints for rushing touchdowns, in which case the caller falls back to rushing yardage."""
+    rule = load_rule() if rule is None else rule
+    td = rule.get("td", {}).get("rush_td", {})
+    if not td.get("uses_fpds"):
+        return {}
+    w = td["weights"]
+    p = u.players
+    pool = p[p["active"] & ~p["pid"].isin(out_ids)]
+    yd = np.clip(pool["share_rush_yds"].to_numpy(float), 0, None)
+    if len(pool) == 0 or yd.sum() <= 0:
+        return {}
+    sy = yd / yd.sum()
+    t = _td_table(season)
+    weeks = sorted(t.loc[(t["team"] == team) & (t["week"] < week), "week"].unique())[-WINDOW:]
+    hist = t[(t["team"] == team) & t["week"].isin(weeks)].groupby("pid")["rush_td"].sum().reindex(pool["pid"]).fillna(0).to_numpy(float)
+    prior = (hist + 0.5 * sy * 6) / (hist.sum() + 3.0)
+    mix = w["yards"] * sy + w["td_history"] * prior / prior.sum()
+    f = features_asof(season, team, week)
+    if w.get("fpds", 0) > 0 and {"att_pct", "i5_pct"} <= set(f.columns):
+        gl = (f["att_pct"] * f["i5_pct"]).reindex(pool["pid"]).to_numpy(float)
+        mix = mix + w["fpds"] * share_from(gl, sy)
+    mix = mix / mix.sum()
+    return dict(zip(pool["pid"], map(float, mix)))
+
+
 def rush_td_share(team: str, season: int, week: int, prior_tds: float = 4.0, league: float = 0.38) -> float:
     """Share of the team's recent offensive touchdowns that were rushes, pulled toward the league share (38% in 2025 and 2026) by a prior."""
     t = _td_table(season)
