@@ -108,5 +108,34 @@ def run():
     print(res["not_read"])
 
 
+def freeze():
+    """Write-once hashed record of sportsbook-prop contracts for unplayed games with the rule's side. Nothing is backfilled."""
+    import hashlib
+    from lab import basket as BK
+    d, dec, con, fit, bets = prepare()
+    lg = BK.legs().sort_values("snap").groupby(["book", "game_id", "gsis_id", "stat"], as_index=False).tail(1)
+    _, _, done = BK.actuals()
+    lg = lg[~lg["game_id"].isin(done)].copy()
+    if lg.empty:
+        raise SystemExit("no unplayed games in the newest feed")
+    pa, pb = BK.american_p(lg["over_odds"]), BK.american_p(lg["under_odds"])
+    rows = []
+    for st, key in (("pass_yds", "b_pass_yds"), ("rec_yds", "b_rec_yds")):
+        m = (lg["stat"] == st).to_numpy()
+        c = pd.DataFrame({"p": lg.loc[m, "p_over"].to_numpy(), "price_a": pa[m], "price_b": pb[m], "y": 0.0, "cluster": lg.loc[m, "game_id"].to_numpy()})
+        ch = I.choose(c, fit["par"][key])
+        for r, (_, o) in zip(ch.itertuples(), lg[m].iterrows()):
+            rows.append({"market": key, "game_id": o["game_id"], "book": o["book"], "gsis_id": o["gsis_id"], "line": float(o["line"]), "price_over": float(r.price_a), "price_under": float(r.price_b), "fair_over": float(r.p),
+                         "rule_side": "over" if r.side_a else "under", "rule_edge": float(r.edge), "bet": bool(r.bet), "snap": str(o["snap"])})
+    wk = int(lg["week"].min())
+    out = DATA / f"week_2026_{wk:02d}.json"
+    if out.exists():
+        raise SystemExit(f"{out.name} already frozen")
+    body = json.dumps(rows, sort_keys=True)
+    DATA.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps({"week": wk, "rows": rows, "sha256": hashlib.sha256(body.encode()).hexdigest()}), encoding="utf-8")
+    print(out.name, len(rows), hashlib.sha256(body.encode()).hexdigest()[:12])
+
+
 if __name__ == "__main__":
-    {"build": lambda: print(contracts().groupby(["market", "era"]).size().unstack()), "gate": gate, "run": run}[sys.argv[1]]()
+    {"build": lambda: print(contracts().groupby(["market", "era"]).size().unstack()), "gate": gate, "run": run, "freeze": freeze}[sys.argv[1]]()

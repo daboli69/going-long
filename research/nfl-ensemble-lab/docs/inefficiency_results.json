@@ -1,0 +1,189 @@
+{
+ "not_read": {
+  "b_pass_yds": "failed its gate",
+  "b_rec_yds": "failed its gate",
+  "g_moneyline": "failed its gate",
+  "g_spread": "failed its gate",
+  "g_total": "failed its gate",
+  "k_pass_yds": "failed its gate",
+  "k_rec_yds": "failed its gate",
+  "k_rush_yds": "failed its gate",
+  "k_spread": "failed its gate",
+  "k_total": "failed its gate"
+ },
+ "descriptive": {
+  "b_pass_yds": {
+   "n": 2571,
+   "mean_overround": 0.07540188759626706,
+   "cost_per_random_side_bet": 0.03770094379813353,
+   "log_loss": 0.690214251350963,
+   "uncertainty": 0.6854298516122413,
+   "resolution": 0.0014008749030405732,
+   "reliability": 0.009019592118986283
+  },
+  "b_rec_yds": {
+   "n": 14530,
+   "mean_overround": 0.07238969527524576,
+   "cost_per_random_side_bet": 0.03619484763762288,
+   "log_loss": 0.6887841052627443,
+   "uncertainty": 0.6921585205282461,
+   "resolution": 0.0025774027209414805,
+   "reliability": 0.0011871267649214135
+  },
+  "g_moneyline": {
+   "n": 3126,
+   "mean_overround": 0.036518863484081746,
+   "cost_per_random_side_bet": 0.018259431742040873,
+   "log_loss": 0.6108646317333456,
+   "uncertainty": 0.6883484031384817,
+   "resolution": 0.07900485054831888,
+   "reliability": 0.0016093156138184356
+  },
+  "g_spread": {
+   "n": 2985,
+   "mean_overround": 0.0417272546690696,
+   "cost_per_random_side_bet": 0.0208636273345348,
+   "log_loss": 0.6939855710790266,
+   "uncertainty": 0.692964850849984,
+   "resolution": 0.0024331559107858888,
+   "reliability": 0.0028116086632293718
+  },
+  "g_total": {
+   "n": 3100,
+   "mean_overround": 0.04030274562125617,
+   "cost_per_random_side_bet": 0.020151372810628086,
+   "log_loss": 0.6943990197964106,
+   "uncertainty": 0.6927623236936131,
+   "resolution": 0.00033377585735222645,
+   "reliability": 0.001707074676933926
+  },
+  "k_pass_yds": {
+   "n": 1445,
+   "mean_overround": 0.015681660899653983,
+   "cost_per_random_side_bet": 0.007840830449826992,
+   "log_loss": 0.5440146914759388,
+   "uncertainty": 0.6900863823366972,
+   "resolution": 0.14778766486932027,
+   "reliability": 0.0028830491971298306
+  },
+  "k_rec_yds": {
+   "n": 4209,
+   "mean_overround": 0.014910905203136144,
+   "cost_per_random_side_bet": 0.007455452601568072,
+   "log_loss": 0.5637533131651101,
+   "uncertainty": 0.6521446323545205,
+   "resolution": 0.08699650780461485,
+   "reliability": 0.0016477456077033572
+  },
+  "k_receptions": {
+   "n": 2755,
+   "mean_overround": 0.013274047186932852,
+   "cost_per_random_side_bet": 0.006637023593466426,
+   "log_loss": 0.5613546968575053,
+   "uncertainty": 0.6619099083500463,
+   "resolution": 0.10088756658088296,
+   "reliability": 0.0023590262013999104
+  },
+  "k_rush_yds": {
+   "n": 2661,
+   "mean_overround": 0.014517098835024427,
+   "cost_per_random_side_bet": 0.007258549417512214,
+   "log_loss": 0.5556842000322548,
+   "uncertainty": 0.6638466227831046,
+   "resolution": 0.10859935460927642,
+   "reliability": 0.0022223500889336735
+  },
+  "k_spread": {
+   "n": 4249,
+   "mean_overround": 0.013228995057660632,
+   "cost_per_random_side_bet": 0.006614497528830316,
+   "log_loss": 0.5577922030984691,
+   "uncertainty": 0.6267487668436595,
+   "resolution": 0.06815602913268883,
+   "reliability": 0.0013917834761553425
+  },
+  "k_total": {
+   "n": 2885,
+   "mean_overround": 0.014024263431542464,
+   "cost_per_random_side_bet": 0.007012131715771232,
+   "log_loss": 0.5938621964617902,
+   "uncertainty": 0.6930461946687536,
+   "resolution": 0.09609610590115872,
+   "reliability": 0.0016263856515320715
+  }
+ },
+ "ranking": "impossible: fewer than two markets passed the gate, no shrinkage or ranking",
+ "primary": [
+  {
+   "market": "k_receptions",
+   "bets": 2355,
+   "net": -0.021680841287937753,
+   "ci95": [
+    -0.054363611550398656,
+    0.010703630096415513
+   ],
+   "se": 0.01654431063482821,
+   "shrunken": -0.021680841287937753,
+   "shrunken_sd": 0.01654431063482821,
+   "p_one_sided": 0.908,
+   "p_romano_wolf": 0.908,
+   "q_bh": 0.908,
+   "smallest_detectable": 0.03276045105451504,
+   "gate_power": 0.82
+  }
+ ],
+ "tau2": NaN,
+ "pooled_mean": NaN,
+ "extra": {
+  "k_receptions": {
+   "favourite_net": -0.024461479494059028,
+   "longshot_net": 0.01180528938290533
+  }
+ },
+ "recalibration": {
+  "b_pass_yds": [
+   0.5850625518954354,
+   0.1847883693605812
+  ],
+  "b_rec_yds": [
+   0.8203128482205754,
+   -0.01373160708716457
+  ],
+  "g_moneyline": [
+   0.9300368433728105,
+   -0.07187452403459656
+  ],
+  "g_spread": [
+   0.8670870993241933,
+   -0.09038848074941368
+  ],
+  "g_total": [
+   0.934504020218166,
+   -0.0989622855993129
+  ],
+  "k_pass_yds": [
+   1.068117486428107,
+   -0.10188703744266964
+  ],
+  "k_rec_yds": [
+   0.9373775912591883,
+   -0.0925300087760007
+  ],
+  "k_receptions": [
+   0.9640687906238854,
+   -0.21610974257083207
+  ],
+  "k_rush_yds": [
+   0.8313910009191026,
+   -0.0436049925176045
+  ],
+  "k_spread": [
+   0.9715322910545359,
+   -0.021018457397441976
+  ],
+  "k_total": [
+   0.9438720813778058,
+   0.008695624049627027
+  ]
+ }
+}
