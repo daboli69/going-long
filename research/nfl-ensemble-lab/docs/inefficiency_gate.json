@@ -73,7 +73,7 @@
   "smallest_detectable": 0.03900172757214407,
   "informative": false,
   "decide_n": 505,
-  "confirm_n": 2596,
+  "confirm_n": 2595,
   "coef": [
    0.934504020218166,
    -0.0989622855993129
