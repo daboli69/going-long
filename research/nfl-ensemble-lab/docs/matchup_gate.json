@@ -1,0 +1,32 @@
+{
+ "games_total": 4842,
+ "games_test_2022_2025": 1084,
+ "seed": 20261108,
+ "runs": 200,
+ "planted_gain": 0.004,
+ "H1": {
+  "features": [
+   "net_eff",
+   "pass_match"
+  ],
+  "placebo_mean": -8.195144263543933e-05,
+  "placebo_sd": 0.0006901615570531262,
+  "smallest_detectable": 0.0019324523597487532,
+  "planted_b": 0.22129275358329747,
+  "planted_recovered_gain": 0.0035069765555028882,
+  "planted_power": 0.24,
+  "testable": false
+ },
+ "H2": {
+  "features": [
+   "int_prod"
+  ],
+  "placebo_mean": -0.00024717782684282143,
+  "placebo_sd": 0.00030190602389035585,
+  "smallest_detectable": 0.0008453368668929963,
+  "planted_b": 0.25475121354733476,
+  "planted_recovered_gain": 0.0035136705032923388,
+  "planted_power": 0.27,
+  "testable": false
+ }
+}
