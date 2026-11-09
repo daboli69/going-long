@@ -10,7 +10,7 @@ from .ingest import normalize_team
 K_EPA = 250.0
 K_INT = 300.0
 RIDGE = 1.0
-FIRST_FIT, FIRST_TEST, LAST_TEST = 2007, 2022, 2025
+FIRST_FIT, FIRST_TEST, LAST_TEST = 2007, 2012, 2025
 COLS = ["season", "week", "season_type", "posteam", "defteam", "play_type", "epa", "pass", "interception"]
 H1, H2 = ["net_eff", "pass_match"], ["int_prod"]
 
@@ -165,7 +165,7 @@ def week_se(d: pd.DataFrame, col: str = "dll") -> tuple[float, float]:
 
 
 def passes(d: pd.DataFrame, min_gain: float = 0.002) -> bool:
-    """The registered rule without the 2026 condition: pooled upper 97.5% bound below zero, gain of at least 0.002, 3 of 4 seasons better, Brier no worse."""
+    """The registered rule without the 2026 condition: pooled upper 97.5% bound below zero, gain of at least 0.002, 11 of 14 seasons better, Brier no worse."""
     mean, se = week_se(d)
     seasons_better = int((d.groupby("season")["dll"].mean() < 0).sum())
-    return bool(mean + 1.96 * se < 0 and mean <= -min_gain and seasons_better >= 3 and d["dbr"].mean() <= 0)
+    return bool(mean + 1.96 * se < 0 and mean <= -min_gain and seasons_better >= 11 and d["dbr"].mean() <= 0)

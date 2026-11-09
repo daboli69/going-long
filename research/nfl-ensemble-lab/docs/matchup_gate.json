@@ -1,0 +1,32 @@
+{
+ "games_total": 4842,
+ "games_test_2012_2025": 3649,
+ "seed": 20261108,
+ "runs": 200,
+ "planted_gain": 0.004,
+ "H1": {
+  "features": [
+   "net_eff",
+   "pass_match"
+  ],
+  "placebo_mean": 0.00026360908389137555,
+  "placebo_sd": 0.0003773565912298156,
+  "smallest_detectable": 0.0010565984554434837,
+  "planted_b": 0.22935238657690515,
+  "planted_recovered_gain": 0.003226954611661803,
+  "planted_power": 0.295,
+  "testable": false
+ },
+ "H2": {
+  "features": [
+   "int_prod"
+  ],
+  "placebo_mean": 2.092780307623572e-05,
+  "placebo_sd": 0.00022067237640802353,
+  "smallest_detectable": 0.0006178826539424659,
+  "planted_b": 0.21548603563102697,
+  "planted_recovered_gain": 0.0033745856649429547,
+  "planted_power": 0.33,
+  "testable": false
+ }
+}

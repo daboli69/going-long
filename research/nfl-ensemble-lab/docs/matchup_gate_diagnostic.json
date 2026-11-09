@@ -1,0 +1,42 @@
+{
+ "H1_planted_0.004": {
+  "planted_b": 0.229,
+  "mean_gain": 0.0033,
+  "sd_gain": 0.00162,
+  "interval": 0.605,
+  "min_gain": 0.755,
+  "seasons_rule": 0.44,
+  "brier": 0.975,
+  "all": 0.395
+ },
+ "H1_planted_0.008": {
+  "planted_b": 0.333,
+  "mean_gain": 0.00733,
+  "sd_gain": 0.00216,
+  "interval": 0.935,
+  "min_gain": 1.0,
+  "seasons_rule": 0.815,
+  "brier": 1.0,
+  "all": 0.805
+ },
+ "H2_planted_0.004": {
+  "planted_b": 0.215,
+  "mean_gain": 0.00334,
+  "sd_gain": 0.00158,
+  "interval": 0.565,
+  "min_gain": 0.79,
+  "seasons_rule": 0.385,
+  "brier": 1.0,
+  "all": 0.355
+ },
+ "H2_planted_0.008": {
+  "planted_b": 0.303,
+  "mean_gain": 0.00734,
+  "sd_gain": 0.00207,
+  "interval": 0.955,
+  "min_gain": 1.0,
+  "seasons_rule": 0.77,
+  "brier": 1.0,
+  "all": 0.765
+ }
+}
