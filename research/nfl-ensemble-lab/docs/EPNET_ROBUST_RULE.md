@@ -66,3 +66,21 @@ Reported beside the original; the Week 9 reading rule is unchanged (`--robust` r
 | Quarterback EPA per pass | +0.32 (0.115) | +0.24 (0.25) |
 
 Only the quarterback numbers move, and they get weaker, so the earlier right-direction reading for quarterbacks leaned partly on a few large plays. Nothing changes the earlier verdict: receiver and quarterback calls do not pass, position share stays a lead.
+
+### Part 3. The real PR 618 code (run 2026-11-09)
+
+R 4.6.2 was installed for the current user and the PR 618 build of nflfastR plus `fastrmodels` were installed from GitHub into `data/cache/rlib` (`scripts/ep_pr618/`, runner `scripts/ep_pr618.py`). The package's `add_ep_variables()` was run on a copy of each local season (2022 to 2026); nothing in `data/raw` was changed. The nflverse files do not carry every column the package builds itself, so the runner derives the model inputs with the package's own `make_model_mutations()`, adds the scoring flags from `field_goal_result`, `extra_point_result` and `two_point_conv_result`, and reads blanks as NA. A first attempt that left blanks as text gave nonsense EPA and was fixed before any result was read.
+
+The same four checks as Part 1, 2026 so far: it reproduces the PR's reported effects.
+
+| Check | Real PR code | PR reports |
+|---|---:|---:|
+| Mean ep change | -0.408 | -0.40 |
+| Mean touchdown value | 5.88 | 5.87 |
+| Mean made field goal value | 2.04 | 2.05 |
+| Largest passer EPA-per-pass shift (35 passers) | 0.049 | at most 0.06 |
+| Passer rank correlation | 0.993 | 0.996 |
+
+The mean ep change is also -0.33 to -0.41 in 2022 to 2025. This confirms the run is the PR's calculation, not that the PR is right; it is an unmerged proposal.
+
+Use in the lab: `covcard.build(pr618=True)` swaps in the PR's EPA for the quarterback and defense EPA numbers (`covcard_retro.py --pr618`, file `docs/coverage_retro_w9_pr618.json`). The Week 9 outcomes still use the published EPA. Quarterback EPA correlation: +0.32 (p 0.115) published, +0.25 (p 0.23) with the PR's EPA. Receiver edge and position share do not use EPA and are identical. Default stays the published EPA, so nothing in the app changes; this is a sensitivity result only.

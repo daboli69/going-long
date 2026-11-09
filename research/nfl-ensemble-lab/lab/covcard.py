@@ -34,7 +34,7 @@ def _cov_group(c: str) -> str:
     return c if c in ("COVER_1", "COVER_2", "COVER_3", "COVER_4") else "OTHER"
 
 
-def _passes(seasons, before: tuple[int, int] | None = None, robust: bool = False) -> pd.DataFrame:
+def _passes(seasons, before: tuple[int, int] | None = None, robust: bool = False, pr618: bool = False) -> pd.DataFrame:
     players = pd.read_parquet(RAW_DIR / "players.parquet").drop_duplicates("gsis_id").set_index("gsis_id")
     pos = players["position"].replace({"FB": "RB"})
     frames = []
@@ -43,6 +43,11 @@ def _passes(seasons, before: tuple[int, int] | None = None, robust: bool = False
         p = p[(p["pass_attempt"] == 1) & (p["play_type"] == "pass") & p["passer_id"].notna()].copy()
         if before is not None:  # as-of view: nothing from the given season's week onward
             p = p[(p["season"] < before[0]) | (p["week"] < before[1])]
+        if pr618:  # EPA from nflfastR PR 618 (scripts/ep_pr618.py); a missing season file is an error, not a silent fallback
+            e = pd.read_csv(ROOT / "data" / "cache" / f"ep_pr618_{s}.csv", usecols=["game_id", "play_id", "epa_pr"])
+            p = p.merge(e, on=["game_id", "play_id"], how="left")
+            p["epa"] = p["epa_pr"]
+            p = p.drop(columns="epa_pr")
         f = RAW_DIR / f"participation_{s}.parquet"
         if f.exists():
             t = pd.read_parquet(f, columns=["nflverse_game_id", "play_id", "defense_coverage_type", "defense_man_zone_type"])
@@ -74,9 +79,9 @@ def _group_stats(x: pd.DataFrame) -> dict:
     return out
 
 
-def build(before: tuple[int, int] | None = None, robust: bool = False) -> dict:
+def build(before: tuple[int, int] | None = None, robust: bool = False, pr618: bool = False) -> dict:
     """`before=(season, week)` drops every pass from that week on, for a retrospective that must not see the game."""
-    qb_all, players = _passes(QB_SEASONS + (2026,), before, robust)
+    qb_all, players = _passes(QB_SEASONS + (2026,), before, robust, pr618)
     name = players["display_name"] if "display_name" in players else players.index.to_series()
     qb_tag = qb_all[qb_all["tagged"] & qb_all["season"].isin(QB_SEASONS)]
 
@@ -101,7 +106,7 @@ def build(before: tuple[int, int] | None = None, robust: bool = False) -> dict:
                     "mz": {m: _group_stats(xt[xt["mz"] == m]) for m in ("MAN", "ZONE")},
                     "all": _group_stats(xt)}
 
-    dp, _ = _passes(DEF_SEASONS, before, robust)
+    dp, _ = _passes(DEF_SEASONS, before, robust, pr618)
     dtag = dp[dp["tagged"] & (dp["season"] == 2025)]
     def_league_cov = dtag["cov"].value_counts(normalize=True).to_dict()
     def_league_mz = dtag["mz"].value_counts(normalize=True).to_dict()
@@ -121,7 +126,7 @@ def build(before: tuple[int, int] | None = None, robust: bool = False) -> dict:
                       "epa": round(float(y["epa"].sum()), 3)}
         defs[team] = {"cov_n": cov_n, "tagged": int(len(xt)), "man_n": int((xt["mz"] == "MAN").sum()), "mz_n": int(xt["mz"].notna().sum()),
                       "pos": pos, "tgt_known": int(len(t)), "att_2025": int((x["season"] == 2025).sum()), "att_2026": int((x["season"] == 2026).sum())}
-    return {"params": {"K_QB_SHARE": K_QB_SHARE, "K_QB_EPA": K_QB_EPA, "K_DEF_COV": K_DEF_COV, "K_DEF_POS": K_DEF_POS, "explosive_yards": EXPLOSIVE, "robust": robust,
+    return {"params": {"K_QB_SHARE": K_QB_SHARE, "K_QB_EPA": K_QB_EPA, "K_DEF_COV": K_DEF_COV, "K_DEF_POS": K_DEF_POS, "explosive_yards": EXPLOSIVE, "robust": robust, "epa_pr618": pr618,
                        "qb_seasons": list(QB_SEASONS), "def_position_seasons": list(DEF_SEASONS), "def_coverage_season": 2025},
             "league": league, "qbs": qbs, "defs": defs,
             "def_league": {"cov": def_league_cov, "man": def_league_mz.get("MAN", 0.0), "pos": league_pos}}
