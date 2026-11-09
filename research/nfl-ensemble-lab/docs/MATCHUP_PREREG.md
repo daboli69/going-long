@@ -72,3 +72,12 @@ Implementation details left open in sections 3 and 4, and one replacement. None 
 - The gate never computes the real challenger-minus-champion difference. It runs the placebo and the planted-effect check only.
 - Replacement for the planted-effect check in section 4, whose wording could not be run as written (a random 25% of games has no link to a feature, so no model could find it). The planted check now makes the true home-win log-odds equal the champion log-odds plus b times the first standardised feature of the hypothesis (net efficiency for H1, the interception product for H2). The value of b is set so the average expected log-loss gain of the true probability over the champion is 0.004 across the 2022 to 2025 games. Outcomes are then simulated from those probabilities and the full walk-forward fit and pass rule are run 200 times. In these runs the interval is a normal one clustered by week and the 2026 condition is not applied. Power is the share of runs that pass.
 - A hypothesis is testable only if its smallest detectable effect is at most 0.006 log loss and its planted-effect power is at least 0.80. The real run uses the bootstrap by week with 2,000 draws.
+
+## Amendment 2 (2026-11-08, committed after the first gate failed and before the gate is rerun; no challenger-minus-champion number has been computed)
+
+The first gate (`docs/MATCHUP_GATE_2022_2025.md`) found that 1,084 games over 2022 to 2025 cannot detect a gain of 0.004 log loss: the planted-effect check fired the pass rule in 24% (H1) and 27% (H2) of runs against the required 80%. Nothing about outcomes was read. Changes, all made on that finding and none on any result:
+- Test seasons become 2012 to 2025 (about 3,800 games). Fitting for season S still uses 2007 through S-1, so 2012 trains on five seasons.
+- The "at least 3 of the 4 test seasons" condition becomes at least 11 of the 14 test seasons (the same 75%, rounded up).
+- The planted gain is averaged over the 2012 to 2025 games. Everything else is unchanged: features, shrinkage, ridge, the 0.002 minimum gain, the 97.5% interval clustered by week in the gate, 2,000-draw bootstrap in the real run, Brier no worse, the 2026 point-estimate condition, the 0.006 smallest-detectable limit and the 0.80 power requirement.
+- If this gate also fails, the hypotheses are reported as not testable on the available history and no outcome comparison is read. There will be no third window change.
+- The first-run gate files are kept with the suffix `_2022_2025`.
