@@ -59,3 +59,16 @@ From Week 10, before kickoff each week, a write-once file under `data/matchup/` 
 ## 7. Report order and rule
 
 Completed, Model Research, Concerns, Next, Needs Travis. If neither hypothesis passes, the result is "matchup features add nothing over the closing line", with the table of what was and was not testable. Nothing in the app or the ensemble changes on this result. A pass changes nothing either until the owner approves a Champion/Challenger promotion.
+
+## Amendment 1 (2026-11-08, committed before the gate is run and before any challenger-minus-champion number is computed)
+
+Implementation details left open in sections 3 and 4, and one replacement. None depends on a result.
+- Closing moneylines exist from 2007, so 2006 is used only to build 2007 priors. Fitting for season S uses 2007 through S-1, not 2006 through S-1.
+- Teams are mapped to current codes (OAK to LV, SD to LAC, STL to LA) in both the games file and the play-by-play. The league interception rate used for shrinkage is the previous season's league rate.
+- Overall rates use pass and run plays with a non-missing expected-points-added value. A dropback is any play flagged as a pass in the play-by-play, which includes sacks. Kneels and spikes are excluded. The prior for each rate is the team's full previous season, unshrunk.
+- The no-vig probability is the home implied probability divided by the sum of both implied probabilities. Games missing either moneyline are dropped and counted.
+- The ridge penalty is 0.5 x 1.0 x the sum of squared feature coefficients added to the negative log-likelihood. The intercept and the coefficient on the champion log-odds are not penalised. Features are standardised with the training mean and standard deviation.
+- The placebo check shuffles the home-minus-away feature values across games within the same season and week, in training and in test seasons, with seed 20261108. The smallest detectable effect is 2.8 times the standard deviation of the pooled 2022 to 2025 mean paired difference across the 200 placebo runs.
+- The gate never computes the real challenger-minus-champion difference. It runs the placebo and the planted-effect check only.
+- Replacement for the planted-effect check in section 4, whose wording could not be run as written (a random 25% of games has no link to a feature, so no model could find it). The planted check now makes the true home-win log-odds equal the champion log-odds plus b times the first standardised feature of the hypothesis (net efficiency for H1, the interception product for H2). The value of b is set so the average expected log-loss gain of the true probability over the champion is 0.004 across the 2022 to 2025 games. Outcomes are then simulated from those probabilities and the full walk-forward fit and pass rule are run 200 times. In these runs the interval is a normal one clustered by week and the 2026 condition is not applied. Power is the share of runs that pass.
+- A hypothesis is testable only if its smallest detectable effect is at most 0.006 log loss and its planted-effect power is at least 0.80. The real run uses the bootstrap by week with 2,000 draws.
