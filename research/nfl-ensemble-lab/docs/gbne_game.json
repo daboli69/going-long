@@ -1,0 +1,242 @@
+{
+ "snapshot_sha256": "32529e991afbe98f8421b8d5610e79778bcd3e0893d41add8fb0aa7abb4afd6f",
+ "snapshot_url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet",
+ "plays": 176,
+ "league_rates": {
+  "seasons": [
+   2022,
+   2023,
+   2024,
+   2025
+  ],
+  "int_per_dropback": 0.019910495235042472,
+  "iw_passes": 3007,
+  "iw_intercepted_share": 0.4619221815763219,
+  "offense_fumbles": 2176,
+  "fumble_lost_share": 0.4650735294117647,
+  "int_points_cost": 4.420721100281741,
+  "fumble_lost_points_cost": 4.088196252347087,
+  "all_turnover_points_cost": 4.285126076114768
+ },
+ "final": {
+  "NE": 27,
+  "GB": 45
+ },
+ "margin_gb": 18,
+ "turnovers": [
+  {
+   "qtr": 1,
+   "clock": "14:32",
+   "offense": "NE",
+   "yardline_100": 74.0,
+   "down": 2,
+   "kind": "interception",
+   "interception_worthy": null,
+   "qb_hit_or_sack": false,
+   "air_yards": 24.0,
+   "epa": -5.9,
+   "desc": "(14:32) 10-D.Maye pass deep left intended for 13-M.Hollins INTERCEPTED by 29-X.McKinney at 50. 29-X.McKinney pushed ob at NE 14 for 36 yards"
+  },
+  {
+   "qtr": 2,
+   "clock": "12:54",
+   "offense": "NE",
+   "yardline_100": 60.0,
+   "down": 1,
+   "kind": "interception",
+   "interception_worthy": null,
+   "qb_hit_or_sack": false,
+   "air_yards": 37.0,
+   "epa": -2.82,
+   "desc": "(12:54) (Shotgun) 10-D.Maye pass deep left intended for 18-K.Williams INTERCEPTED by 33-E.Williams (2-B.Cisse) at GB 23. 33-E.Williams ran o"
+  },
+  {
+   "qtr": 2,
+   "clock": "05:47",
+   "offense": "NE",
+   "yardline_100": 44.0,
+   "down": 2,
+   "kind": "interception",
+   "interception_worthy": null,
+   "qb_hit_or_sack": false,
+   "air_yards": 15.0,
+   "epa": -3.68,
+   "desc": "(5:47) (Shotgun) 10-D.Maye pass short left intended for 82-E.Raridon INTERCEPTED by 29-X.McKinney at GB 29. 29-X.McKinney to GB 31 for 2 yar"
+  },
+  {
+   "qtr": 3,
+   "clock": "04:27",
+   "offense": "NE",
+   "yardline_100": 63.0,
+   "down": 2,
+   "kind": "fumble lost",
+   "interception_worthy": null,
+   "qb_hit_or_sack": false,
+   "air_yards": -5.0,
+   "epa": -4.77,
+   "desc": "(4:27) (Shotgun) 10-D.Maye pass short right to 38-R.Stevenson to NE 41 for 4 yards (58-I.McDuffie; 25-K.Nixon). FUMBLES (58-I.McDuffie), tou"
+  }
+ ],
+ "charting_available_for_game": false,
+ "season_rates_through_week8": {
+  "offense_int_per_dropback": {
+   "NE": 0.024,
+   "GB": 0.0191
+  },
+  "defense_takeaway_per_dropback": {
+   "NE": 0.0186,
+   "GB": 0.0256
+  }
+ },
+ "turnover_luck": {
+  "NE": {
+   "dropbacks": 47,
+   "interceptions": 3,
+   "fumbles": 1,
+   "fumbles_lost": 1,
+   "actual_turnovers": 4,
+   "expected_turnovers": 1.4,
+   "luck_turnovers": 2.6,
+   "expected_turnovers_sensitivity": 1.63,
+   "luck_turnovers_sensitivity": 2.37
+  },
+  "GB": {
+   "dropbacks": 33,
+   "interceptions": 0,
+   "fumbles": 1,
+   "fumbles_lost": 0,
+   "actual_turnovers": 0,
+   "expected_turnovers": 1.12,
+   "luck_turnovers": -1.12,
+   "expected_turnovers_sensitivity": 1.09,
+   "luck_turnovers_sensitivity": -1.09
+  }
+ },
+ "net_luck_turnovers_against_NE": 3.72,
+ "luck_points_to_GB": 15.94,
+ "adjusted_margin_gb": 2.06,
+ "sensitivity": {
+  "net_luck_turnovers_against_NE": 3.46,
+  "luck_points_to_GB": 14.83,
+  "adjusted_margin_gb": 3.17
+ },
+ "epa_per_play": {
+  "NE": {
+   "all": -0.135,
+   "without_turnover_plays": 0.151,
+   "pass": -0.221,
+   "rush": 0.133,
+   "plays": 62
+  },
+  "GB": {
+   "all": 0.289,
+   "without_turnover_plays": 0.289,
+   "pass": 0.759,
+   "rush": -0.195,
+   "plays": 65
+  }
+ },
+ "hit_or_sack_rate_on_passes": {
+  "NE": 0.17,
+  "GB": 0.121
+ },
+ "frozen": {
+  "2026_w09_20261105T030214072435Z_da19d59e": {
+   "hash_ok": true,
+   "frozen_at": "2026-11-05T03:02:04.308404+00:00",
+   "forecast": {
+    "fpi_p_home": 0.56452,
+    "kalshi_winner_p_home": 0.615
+   }
+  },
+  "2026_w09_20261105T221549251635Z_0ab18388": {
+   "hash_ok": true,
+   "frozen_at": "2026-11-05T22:15:38.557369+00:00",
+   "forecast": {
+    "fpi_p_home": 0.56452,
+    "kalshi_winner_p_home": 0.6069651741293532
+   }
+  },
+  "2026_w09_20261105T030202179270Z_a78ed79e": {
+   "hash_ok": true,
+   "frozen_at": "2026-11-05T03:01:56.179008+00:00",
+   "forecast": {
+    "fpi_p_home": 0.56452,
+    "kalshi_p_home_at_freeze": 0.615,
+    "market_p_home_at_freeze": 0.5829926410466066,
+    "p_elo": 0.6421804832039569,
+    "p_elo_platt": 0.6182304667688874,
+    "p_margin": 0.5713126246808162,
+    "p_margin_platt": 0.5605283325627739,
+    "p_xgb_deep": 0.5863446593284607,
+    "p_xgb_deep_platt": 0.5677891263257727,
+    "p_xgb_v1": 0.5958126783370972,
+    "p_xgb_v1_platt": 0.566742838141813,
+    "pred_margin": 2.40575176977025,
+    "qb_change_away": 0,
+    "qb_change_home": 0,
+    "sigma": 13.38633427762883
+   }
+  }
+ },
+ "pregame_margin_gb": -2.41,
+ "sigma": 13.39,
+ "miss_total": 20.41,
+ "miss_after_turnover_luck": 4.47,
+ "within_one_sigma_after_luck": true,
+ "out_first_seen": [
+  {
+   "team": "GB",
+   "player": "Josh Whyle",
+   "pos": "TE",
+   "snap": "20261107T110004"
+  },
+  {
+   "team": "GB",
+   "player": "Micah Parsons",
+   "pos": "LB",
+   "snap": "20261107T110004"
+  },
+  {
+   "team": "GB",
+   "player": "Sean Rhyan",
+   "pos": "C",
+   "snap": "20261107T110004"
+  },
+  {
+   "team": "GB",
+   "player": "Travis Glover",
+   "pos": "G",
+   "snap": "20261107T110004"
+  },
+  {
+   "team": "GB",
+   "player": "Zaire Franklin",
+   "pos": "LB",
+   "snap": "20261107T110004"
+  },
+  {
+   "team": "NE",
+   "player": "A.J. Brown",
+   "pos": "WR",
+   "snap": "20261107T110004"
+  },
+  {
+   "team": "NE",
+   "player": "Greg Van Roten",
+   "pos": "G",
+   "snap": "20261108T110004"
+  },
+  {
+   "team": "NE",
+   "player": "TreVeyon Henderson",
+   "pos": "RB",
+   "snap": "20261107T110004"
+  }
+ ],
+ "freeze_times": [
+  "2026-11-05T03:01:56.179008+00:00",
+  "2026-11-05T03:02:04.308404+00:00",
+  "2026-11-05T22:15:38.557369+00:00"
+ ]
+}

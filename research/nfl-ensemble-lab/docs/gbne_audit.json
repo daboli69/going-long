@@ -1,0 +1,200 @@
+{
+ "games_2012_2025": 3649,
+ "games_2026": 106,
+ "dropped": 2,
+ "F1": {
+  "gate": {
+   "d1_testable": false,
+   "t3_testable": false,
+   "d1_planted_0.03_power": 0.395,
+   "t3_planted_0.004_power": 0.195
+  },
+  "T1": {
+   "model": {
+    "log_loss": 0.6351341940385262,
+    "uncertainty": 0.6875126040663666,
+    "resolution": 0.05345298950777616,
+    "reliability": 0.0017304846722099793
+   },
+   "market": {
+    "log_loss": 0.6094274267769724,
+    "uncertainty": 0.6875126040663666,
+    "resolution": 0.07672468628625659,
+    "reliability": 0.00108711880987029
+   },
+   "log_loss_minus_market": [
+    0.02570676726155382,
+    0.017906291961500388,
+    0.03334901205514042
+   ],
+   "brier_minus_market": [
+    0.01130295889355945,
+    0.007720827143208471,
+    0.014483306206604697
+   ],
+   "seasons_model_better_than_market": 0,
+   "seasons": 14
+  },
+  "T2": {
+   "read": false,
+   "reason": "failed its gate (not testable at the registered gap)"
+  },
+  "T2_descriptive_only": {
+   "n": 1437,
+   "mean_forecast": 0.5976304235648472,
+   "observed": 0.6144745998608212,
+   "gap": [
+    0.016844176295974,
+    -0.008414031825913187,
+    0.043524366644840475
+   ],
+   "market_gap": [
+    0.006156337001316131,
+    -0.020123992811209655,
+    0.03214019221696822
+   ],
+   "model_minus_market_gap": [
+    -0.010687839294657869,
+    -0.017240046116416035,
+    -0.0048390427322391235
+   ]
+  },
+  "T3": {
+   "read": false,
+   "reason": "failed its gate (planted gain of 0.004 not detectable)"
+  }
+ },
+ "F2": {
+  "gate": {
+   "d1_testable": false,
+   "t3_testable": false,
+   "d1_planted_0.03_power": 0.0,
+   "t3_planted_0.004_power": 0.165
+  },
+  "T1": {
+   "model": {
+    "log_loss": 0.6390836845672977,
+    "uncertainty": 0.6875126040663666,
+    "resolution": 0.04930118908761342,
+    "reliability": 0.0012531903753213549
+   },
+   "market": {
+    "log_loss": 0.6094274267769724,
+    "uncertainty": 0.6875126040663666,
+    "resolution": 0.07672468628625659,
+    "reliability": 0.00108711880987029
+   },
+   "log_loss_minus_market": [
+    0.029656257790325356,
+    0.02222888297849121,
+    0.037051061299324894
+   ],
+   "brier_minus_market": [
+    0.013046708264594479,
+    0.009623492873672042,
+    0.016406110659227053
+   ],
+   "seasons_model_better_than_market": 0,
+   "seasons": 14
+  },
+  "T2": {
+   "read": false,
+   "reason": "failed its gate (not testable at the registered gap)"
+  },
+  "T2_descriptive_only": {
+   "n": 1344,
+   "mean_forecast": 0.5984871101856202,
+   "observed": 0.5989583333333334,
+   "gap": [
+    0.0004712231477130793,
+    -0.02890409359596028,
+    0.02967248625918772
+   ],
+   "market_gap": [
+    -0.004192720876327734,
+    -0.03443024540671913,
+    0.02346147529552441
+   ],
+   "model_minus_market_gap": [
+    -0.0046639440240408125,
+    -0.01089910422204739,
+    0.0013898356406005974
+   ]
+  },
+  "T3": {
+   "read": false,
+   "reason": "failed its gate (planted gain of 0.004 not detectable)"
+  }
+ },
+ "F3": {
+  "gate": {
+   "d1_testable": false,
+   "t3_testable": false,
+   "d1_planted_0.03_power": 0.0,
+   "t3_planted_0.004_power": 0.13
+  },
+  "T1": {
+   "model": {
+    "log_loss": 0.6380323346087693,
+    "uncertainty": 0.6875126040663666,
+    "resolution": 0.05041290595564196,
+    "reliability": 0.0025995327586573087
+   },
+   "market": {
+    "log_loss": 0.6094274267769724,
+    "uncertainty": 0.6875126040663666,
+    "resolution": 0.07672468628625659,
+    "reliability": 0.00108711880987029
+   },
+   "log_loss_minus_market": [
+    0.02860490783179685,
+    0.019991915050844696,
+    0.03716907743221759
+   ],
+   "brier_minus_market": [
+    0.012658293457969018,
+    0.00854445823047599,
+    0.016925815505311657
+   ],
+   "seasons_model_better_than_market": 2,
+   "seasons": 14
+  },
+  "T2": {
+   "read": false,
+   "reason": "failed its gate (not testable at the registered gap)"
+  },
+  "T2_descriptive_only": {
+   "n": 1422,
+   "mean_forecast": 0.5979364595628398,
+   "observed": 0.6258790436005626,
+   "gap": [
+    0.02794258403772277,
+    -0.0050199639458597374,
+    0.060911307049288356
+   ],
+   "market_gap": [
+    0.028961747294535534,
+    -0.0036437420238624816,
+    0.061763553487219125
+   ],
+   "model_minus_market_gap": [
+    0.0010191632568127666,
+    -0.0062915098171499725,
+    0.008239851558918947
+   ]
+  },
+  "T3": {
+   "read": false,
+   "reason": "failed its gate (planted gain of 0.004 not detectable)"
+  }
+ },
+ "freezes": {
+  "games": 27,
+  "all_hashes_ok": true,
+  "log_loss": {
+   "p_xgb_deep_platt": 0.4775109790476184,
+   "p_margin_platt": 0.4957246140818287,
+   "market_p_home_at_freeze": 0.47856177857796245
+  }
+ }
+}

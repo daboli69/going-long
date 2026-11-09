@@ -1,0 +1,62 @@
+{
+ "games": 3755,
+ "dropped_no_close_or_forecast": 2,
+ "seed": 20261108,
+ "runs": 200,
+ "band": [
+  0.55,
+  0.65
+ ],
+ "gap_min": 0.02,
+ "F1": {
+  "band_games": 1437,
+  "d1_placebo_fire_rate": 0.025,
+  "d1_power_by_gap": {
+   "0.02": 0.17,
+   "0.03": 0.395,
+   "0.04": 0.765,
+   "0.05": 0.895,
+   "0.06": 0.995
+  },
+  "d1_planted_0.03_power": 0.395,
+  "t3_placebo_fire_rate": 0.0,
+  "t3_planted_b": 0.1902139014958622,
+  "t3_planted_0.004_power": 0.195,
+  "d1_testable": false,
+  "t3_testable": false
+ },
+ "F2": {
+  "band_games": 1344,
+  "d1_placebo_fire_rate": 0.0,
+  "d1_power_by_gap": {
+   "0.02": 0.0,
+   "0.03": 0.0,
+   "0.04": 0.0,
+   "0.05": 0.0,
+   "0.06": 0.0
+  },
+  "d1_planted_0.03_power": 0.0,
+  "t3_placebo_fire_rate": 0.0,
+  "t3_planted_b": 0.1887111307376112,
+  "t3_planted_0.004_power": 0.165,
+  "d1_testable": false,
+  "t3_testable": false
+ },
+ "F3": {
+  "band_games": 1422,
+  "d1_placebo_fire_rate": 0.0,
+  "d1_power_by_gap": {
+   "0.02": 0.0,
+   "0.03": 0.0,
+   "0.04": 0.0,
+   "0.05": 0.0,
+   "0.06": 0.0
+  },
+  "d1_planted_0.03_power": 0.0,
+  "t3_placebo_fire_rate": 0.0,
+  "t3_planted_b": 0.186736350443296,
+  "t3_planted_0.004_power": 0.13,
+  "d1_testable": false,
+  "t3_testable": false
+ }
+}
