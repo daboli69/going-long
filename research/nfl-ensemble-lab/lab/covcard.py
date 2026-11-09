@@ -20,6 +20,8 @@ DEF_SEASONS = (2025, 2026)
 COVS = ["COVER_1", "COVER_2", "COVER_3", "COVER_4", "OTHER"]
 POS = ["WR", "TE", "RB"]
 EXPLOSIVE = 20
+CAP_YARDS = 40      # robust=True: per-play passing yards capped here before any mean (docs/EPNET_ROBUST_RULE.md)
+CAP_EPA = 3.0       # robust=True: per-play EPA clipped to +/- this
 K_QB_SHARE = 40.0   # targets of prior weight toward the league share in that coverage
 K_QB_EPA = 60.0     # attempts of prior weight toward the league EPA in that coverage
 K_DEF_COV = 150.0   # tagged attempts of prior weight toward the league coverage mix
@@ -32,7 +34,7 @@ def _cov_group(c: str) -> str:
     return c if c in ("COVER_1", "COVER_2", "COVER_3", "COVER_4") else "OTHER"
 
 
-def _passes(seasons, before: tuple[int, int] | None = None) -> pd.DataFrame:
+def _passes(seasons, before: tuple[int, int] | None = None, robust: bool = False) -> pd.DataFrame:
     players = pd.read_parquet(RAW_DIR / "players.parquet").drop_duplicates("gsis_id").set_index("gsis_id")
     pos = players["position"].replace({"FB": "RB"})
     frames = []
@@ -57,6 +59,9 @@ def _passes(seasons, before: tuple[int, int] | None = None) -> pd.DataFrame:
                        d["defense_man_zone_type"].str.replace("_COVERAGE", "", regex=False), None)
     d["explosive"] = ((d["complete_pass"] == 1) & (d["yards_gained"] >= EXPLOSIVE)).astype(int)
     d["yards"] = np.where(d["complete_pass"] == 1, d["yards_gained"], 0)
+    if robust:  # explosive was set above from the raw yards, so a capped play still counts as explosive
+        d["yards"] = d["yards"].clip(upper=CAP_YARDS)
+        d["epa"] = d["epa"].clip(-CAP_EPA, CAP_EPA)
     return d, players
 
 
@@ -69,9 +74,9 @@ def _group_stats(x: pd.DataFrame) -> dict:
     return out
 
 
-def build(before: tuple[int, int] | None = None) -> dict:
+def build(before: tuple[int, int] | None = None, robust: bool = False) -> dict:
     """`before=(season, week)` drops every pass from that week on, for a retrospective that must not see the game."""
-    qb_all, players = _passes(QB_SEASONS + (2026,), before)
+    qb_all, players = _passes(QB_SEASONS + (2026,), before, robust)
     name = players["display_name"] if "display_name" in players else players.index.to_series()
     qb_tag = qb_all[qb_all["tagged"] & qb_all["season"].isin(QB_SEASONS)]
 
@@ -96,7 +101,7 @@ def build(before: tuple[int, int] | None = None) -> dict:
                     "mz": {m: _group_stats(xt[xt["mz"] == m]) for m in ("MAN", "ZONE")},
                     "all": _group_stats(xt)}
 
-    dp, _ = _passes(DEF_SEASONS, before)
+    dp, _ = _passes(DEF_SEASONS, before, robust)
     dtag = dp[dp["tagged"] & (dp["season"] == 2025)]
     def_league_cov = dtag["cov"].value_counts(normalize=True).to_dict()
     def_league_mz = dtag["mz"].value_counts(normalize=True).to_dict()
@@ -116,7 +121,7 @@ def build(before: tuple[int, int] | None = None) -> dict:
                       "epa": round(float(y["epa"].sum()), 3)}
         defs[team] = {"cov_n": cov_n, "tagged": int(len(xt)), "man_n": int((xt["mz"] == "MAN").sum()), "mz_n": int(xt["mz"].notna().sum()),
                       "pos": pos, "tgt_known": int(len(t)), "att_2025": int((x["season"] == 2025).sum()), "att_2026": int((x["season"] == 2026).sum())}
-    return {"params": {"K_QB_SHARE": K_QB_SHARE, "K_QB_EPA": K_QB_EPA, "K_DEF_COV": K_DEF_COV, "K_DEF_POS": K_DEF_POS, "explosive_yards": EXPLOSIVE,
+    return {"params": {"K_QB_SHARE": K_QB_SHARE, "K_QB_EPA": K_QB_EPA, "K_DEF_COV": K_DEF_COV, "K_DEF_POS": K_DEF_POS, "explosive_yards": EXPLOSIVE, "robust": robust,
                        "qb_seasons": list(QB_SEASONS), "def_position_seasons": list(DEF_SEASONS), "def_coverage_season": 2025},
             "league": league, "qbs": qbs, "defs": defs,
             "def_league": {"cov": def_league_cov, "man": def_league_mz.get("MAN", 0.0), "pos": league_pos}}

@@ -39,3 +39,30 @@ Fixed now, not tuned:
 ### Sensitivity (reported, not a test)
 
 Re-run the Week 9 coverage retro with the caps on and report the three Spearman correlations beside the uncapped ones. The Week 9 reading rule is not changed, and a capped pass does not upgrade the earlier result.
+
+## Results (run 2026-11-09)
+
+### Part 1. Net-of-kickoff approximation: does not reproduce the PR, stays unused
+
+`scripts/epnet_check.py`, numbers in `docs/epnet_check.json`, 2026 so far.
+
+| Check | Ours | PR | Result |
+|---|---:|---:|---|
+| 1. Mean ep change | -0.64 | -0.40 | Fails (range -0.55 to -0.25) |
+| 2. Mean touchdown value | 5.60 | 5.87 | Passes, at the bottom of the range |
+| 3. Mean made field goal value | 1.76 | 2.05 | Fails (range 1.8 to 2.3) |
+| 4. Passer EPA per pass shift, Spearman | max 0.109, rho 0.985 | max 0.06, rho 0.996 | Fails on the 0.10 cap, rank part passes |
+
+Reading: the direction and size are right, but the measured `V` (about 1.4 for the first play after a modern kickoff, taken from the file's own `ep`) is higher than the value the PR's numbers imply (about 1.1), so every score is discounted too much. The cap was not loosened after seeing this. Also, the stored `ep` does not equal the probability-weighted 7/3/2 sum on 9% of rows, so the shortcut is not exact. Real answer needs the R package and the EP model files (R is not installed here). `lab/epnet.py` is kept as a documented attempt; nothing imports it.
+
+### Part 2. Capped play values: sensitivity on the Week 9 retro
+
+Reported beside the original; the Week 9 reading rule is unchanged (`--robust` run writes `docs/coverage_retro_w9_robust.json`).
+
+| Prediction | Uncapped Spearman (p) | Capped Spearman (p) |
+|---|---:|---:|
+| Receiver edge | -0.14 (0.17) | -0.14 (0.17), identical: FantasyPoints man and zone yards per route are aggregates and cannot be capped |
+| Position share | +0.30 (0.008) | +0.30 (0.008), identical: target counts are not capped |
+| Quarterback EPA per pass | +0.32 (0.115) | +0.24 (0.25) |
+
+Only the quarterback numbers move, and they get weaker, so the earlier right-direction reading for quarterbacks leaned partly on a few large plays. Nothing changes the earlier verdict: receiver and quarterback calls do not pass, position share stays a lead.

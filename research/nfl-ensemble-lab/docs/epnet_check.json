@@ -1,0 +1,114 @@
+{
+ "season": 2026,
+ "recon_max_abs_err_ep": 6.40258,
+ "mean_ep_old": 1.977,
+ "mean_ep_net": 1.319,
+ "mean_ep_diff": -0.642,
+ "td_value_mean": 5.601,
+ "td_n": 685,
+ "fg_value_mean": 1.756,
+ "fg_n": 481,
+ "passers": 35,
+ "max_abs_epa_pass_shift": 0.109,
+ "mean_abs_epa_pass_shift": 0.033,
+ "spearman_epa_pass": 0.9852,
+ "v_table": [
+  {
+   "spot": 69.0,
+   "bin": 0,
+   "V": 0.351,
+   "n": 255
+  },
+  {
+   "spot": 69.0,
+   "bin": 1,
+   "V": 1.258,
+   "n": 363
+  },
+  {
+   "spot": 69.0,
+   "bin": 2,
+   "V": 1.364,
+   "n": 479
+  },
+  {
+   "spot": 69.0,
+   "bin": 3,
+   "V": 1.459,
+   "n": 920
+  },
+  {
+   "spot": 69.0,
+   "bin": 4,
+   "V": 1.49,
+   "n": 2246
+  },
+  {
+   "spot": 70.0,
+   "bin": 0,
+   "V": 0.356,
+   "n": 193
+  },
+  {
+   "spot": 70.0,
+   "bin": 1,
+   "V": 1.269,
+   "n": 220
+  },
+  {
+   "spot": 70.0,
+   "bin": 2,
+   "V": 1.344,
+   "n": 312
+  },
+  {
+   "spot": 70.0,
+   "bin": 3,
+   "V": 1.451,
+   "n": 650
+  },
+  {
+   "spot": 70.0,
+   "bin": 4,
+   "V": 1.472,
+   "n": 1524
+  },
+  {
+   "spot": 75.0,
+   "bin": 0,
+   "V": 0.331,
+   "n": 1349
+  },
+  {
+   "spot": 75.0,
+   "bin": 1,
+   "V": 1.039,
+   "n": 1778
+  },
+  {
+   "spot": 75.0,
+   "bin": 2,
+   "V": 1.017,
+   "n": 2441
+  },
+  {
+   "spot": 75.0,
+   "bin": 3,
+   "V": 1.169,
+   "n": 4910
+  },
+  {
+   "spot": 75.0,
+   "bin": 4,
+   "V": 1.15,
+   "n": 11518
+  }
+ ],
+ "checks": {
+  "1 mean ep diff in [-0.55,-0.25]": false,
+  "2 td value in [5.6,6.1]": true,
+  "3 fg value in [1.8,2.3]": false,
+  "4 passer shift <= 0.10 and spearman >= 0.98": false
+ },
+ "reproduces_pr": false
+}

@@ -21,6 +21,7 @@ from lab.config import RAW_DIR  # noqa: E402
 from lab.ingest import normalize_team  # noqa: E402
 
 SEASON, WEEK, SUNDAY, SEED, PERMS = 2026, 9, "2026-11-08", 20261109, 10000
+ROBUST = "--robust" in sys.argv  # sensitivity run with capped play values; writes a separate json
 POS = cc.POS
 
 
@@ -59,7 +60,7 @@ def main():
     prior = p[p["week"] < WEEK]
     played = p[p["week"] == WEEK]
 
-    data = cc.build(before=(SEASON, WEEK))
+    data = cc.build(before=(SEASON, WEEK), robust=ROBUST)
     rec_rows, pos_rows, qb_rows = [], [], []
     for gid in gids:
         _, _, away, home = gid.split("_")
@@ -137,7 +138,7 @@ def main():
         out["position_rows"] = pos.round(4).to_dict("records")
     out["receiver_rows"] = rec.sort_values("edge", ascending=False).round(3).to_dict("records")
     out["qb_rows"] = qb.round(3).to_dict("records")
-    (ROOT / "docs" / "coverage_retro_w9.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
+    (ROOT / "docs" / ("coverage_retro_w9_robust.json" if ROBUST else "coverage_retro_w9.json")).write_text(json.dumps(out, indent=1), encoding="utf-8")
     print(json.dumps({k: out[k] for k in ("games", "receivers", "position_share", "position_share_block", "position_share_by_pos", "qb_epa") if k in out}, indent=1))
 
 

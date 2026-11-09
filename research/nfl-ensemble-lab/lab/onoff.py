@@ -143,6 +143,8 @@ def game_level(pid: str, team: str, season: int = 2026, upto_week: int | None = 
             continue
         res["teammates"].append({"pid": yid, "name": str(_names().get(yid, yid)), "games_active": int(len(a)), "games_out": int(len(b)),
                                  "tgt_active": round(float(a["tgt"].mean()), 1), "tgt_out": round(float(b["tgt"].mean()), 1),
-                                 "yds_active": round(float(a["yds"].mean()), 1), "yds_out": round(float(b["yds"].mean()), 1)})
+                                 "yds_active": round(float(a["yds"].mean()), 1), "yds_out": round(float(b["yds"].mean()), 1),
+                                 "tgt_med_active": round(float(a["tgt"].median()), 1), "tgt_med_out": round(float(b["tgt"].median()), 1),
+                                 "yds_med_active": round(float(a["yds"].median()), 1), "yds_med_out": round(float(b["yds"].median()), 1)})
     res["teammates"].sort(key=lambda r: -(r["tgt_out"] - r["tgt_active"]))
     return res
