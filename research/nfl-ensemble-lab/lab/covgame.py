@@ -200,8 +200,11 @@ def _qb_epa(q: dict, c: str, lg: dict) -> float:
     return (g["att"] * (g["epa"] or 0.0) + cc.K_QB_EPA * lg[c]["epa"]) / (g["att"] + cc.K_QB_EPA)
 
 
-def _side(qb_team: str, def_team: str, season: int, week: int, data: dict, mix: pd.DataFrame, fpa: dict) -> dict:
-    qid, qname, note = _starter(qb_team, season, week)
+def _side(qb_team: str, def_team: str, season: int, week: int, data: dict, mix: pd.DataFrame, fpa: dict, qb_id: str | None = None) -> dict:
+    if qb_id:  # retrospective: the quarterback who actually played
+        qid, qname, note = qb_id, qb_id, None
+    else:
+        qid, qname, note = _starter(qb_team, season, week)
     q = data["qbs"].get(qid) if qid else None
     lg = {}
     for c in cc.COVS:
@@ -269,15 +272,18 @@ def _side(qb_team: str, def_team: str, season: int, week: int, data: dict, mix: 
     return out
 
 
-def card(gid: str) -> dict | None:
+def card(gid: str, qbs: dict | None = None, data: dict | None = None) -> dict | None:
+    """`qbs` maps team to a quarterback id (retrospective use); `data` is a covcard.build(before=...) result for an as-of view."""
     parts = gid.split("_")
     if len(parts) != 4:
         return None
     season, week, away, home = int(parts[0]), int(parts[1]), parts[2], parts[3]
-    if not cc.OUT_JSON.exists():
-        cc.OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
-        cc.OUT_JSON.write_text(json.dumps(cc.build()), encoding="utf-8")
-    data = json.loads(cc.OUT_JSON.read_text(encoding="utf-8"))
+    if data is None:
+        if not cc.OUT_JSON.exists():
+            cc.OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
+            cc.OUT_JSON.write_text(json.dumps(cc.build()), encoding="utf-8")
+        data = json.loads(cc.OUT_JSON.read_text(encoding="utf-8"))
+    qbs = qbs or {}
     if away not in data["defs"] or home not in data["defs"]:
         return None
     mix = defense_mix(season, week)
@@ -285,4 +291,4 @@ def card(gid: str) -> dict | None:
     weeks_2026 = int(_table("coverage_matrix").query("season == @season and week < @week")["week"].nunique())
     return {"gid": gid, "season": season, "week": week, "away": away, "home": home, "fpds_weeks": weeks_2026,
             "params": {"k_weeks": K_WEEKS, "shrink_routes": SHRINK_ROUTES, "k_qb_share": cc.K_QB_SHARE, "k_qb_epa": cc.K_QB_EPA, "min_routes": MIN_ROUTES},
-            "sides": [_side(away, home, season, week, data, mix, fpa), _side(home, away, season, week, data, mix, fpa)]}
+            "sides": [_side(away, home, season, week, data, mix, fpa, qbs.get(away)), _side(home, away, season, week, data, mix, fpa, qbs.get(home))]}

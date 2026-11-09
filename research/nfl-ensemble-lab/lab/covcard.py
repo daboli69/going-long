@@ -32,13 +32,15 @@ def _cov_group(c: str) -> str:
     return c if c in ("COVER_1", "COVER_2", "COVER_3", "COVER_4") else "OTHER"
 
 
-def _passes(seasons) -> pd.DataFrame:
+def _passes(seasons, before: tuple[int, int] | None = None) -> pd.DataFrame:
     players = pd.read_parquet(RAW_DIR / "players.parquet").drop_duplicates("gsis_id").set_index("gsis_id")
     pos = players["position"].replace({"FB": "RB"})
     frames = []
     for s in seasons:
         p = pd.read_parquet(RAW_DIR / f"play_by_play_{s}.parquet", columns=PLAYS)
         p = p[(p["pass_attempt"] == 1) & (p["play_type"] == "pass") & p["passer_id"].notna()].copy()
+        if before is not None:  # as-of view: nothing from the given season's week onward
+            p = p[(p["season"] < before[0]) | (p["week"] < before[1])]
         f = RAW_DIR / f"participation_{s}.parquet"
         if f.exists():
             t = pd.read_parquet(f, columns=["nflverse_game_id", "play_id", "defense_coverage_type", "defense_man_zone_type"])
@@ -67,8 +69,9 @@ def _group_stats(x: pd.DataFrame) -> dict:
     return out
 
 
-def build() -> dict:
-    qb_all, players = _passes(QB_SEASONS + (2026,))
+def build(before: tuple[int, int] | None = None) -> dict:
+    """`before=(season, week)` drops every pass from that week on, for a retrospective that must not see the game."""
+    qb_all, players = _passes(QB_SEASONS + (2026,), before)
     name = players["display_name"] if "display_name" in players else players.index.to_series()
     qb_tag = qb_all[qb_all["tagged"] & qb_all["season"].isin(QB_SEASONS)]
 
@@ -93,7 +96,7 @@ def build() -> dict:
                     "mz": {m: _group_stats(xt[xt["mz"] == m]) for m in ("MAN", "ZONE")},
                     "all": _group_stats(xt)}
 
-    dp, _ = _passes(DEF_SEASONS)
+    dp, _ = _passes(DEF_SEASONS, before)
     dtag = dp[dp["tagged"] & (dp["season"] == 2025)]
     def_league_cov = dtag["cov"].value_counts(normalize=True).to_dict()
     def_league_mz = dtag["mz"].value_counts(normalize=True).to_dict()
