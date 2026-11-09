@@ -220,7 +220,7 @@ def coverage(gid: str = PathParam(pattern=D.GID_PATTERN)):
 
 @app.get("/api/onoff/{gid}")
 def onoff(gid: str = PathParam(pattern=D.GID_PATTERN), team: str = Query(pattern="^[A-Z]{2,3}$"), player: str = Query(pattern=r"^00-\d{7}$")):
-    """Teammates with a player on and off the field (2022 to 2025) and in games he was out (2025 and 2026). Descriptive history only."""
+    """Teammates with a player on and off the field (2022 to 2025) and in games he did not play (2025 and 2026). Descriptive history only."""
     season, week = int(gid[:4]), int(gid[5:7])
     try:
         out = {"on_field": onoff_lab.on_field(player, team),

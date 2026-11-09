@@ -2,7 +2,7 @@
 
 Descriptive history only; nothing here is a forecast or feeds the simulation. Two views, kept apart because their data differ:
 - on_field(): nflverse participation (the offensive players on the field for every play), 2022 to 2025. Large samples, no 2026 file.
-- game_level(): games the injury report had him Out or Doubtful against games he was active, for a team and season (2026 and 2025 work). A few games at most.
+- game_level(): games he did not suit up (weekly roster status inactive or injured reserve, or Out or Doubtful on the injury report) against games he was active, for a team and season (2026 and 2025 work). A few games at most.
 
 Both are raw splits, not causal: the opponent, game script and other injuries move with who plays.
 """
@@ -95,12 +95,30 @@ def on_field(pid: str, team_now: str | None = None) -> dict:
             "current_team_overlap": [m["name"] for m in mates if team_now and m["team"] == team_now]}
 
 
+def _roster(season: int) -> pd.DataFrame:
+    key = ("roster", season)
+    if key not in _cache:
+        f = RAW_DIR / f"roster_weekly_{season}.parquet"
+        _cache[key] = pd.read_parquet(f, columns=["gsis_id", "team", "week", "status"]) if f.exists() else pd.DataFrame(columns=["gsis_id", "team", "week", "status"])
+    return _cache[key]
+
+
 def _out_weeks(pid: str, team: str, season: int) -> list[int]:
-    from . import availability
-    inj = availability.load_injury_rows([season])
-    x = inj[(inj["season"] == season) & (inj["team"] == team) & (inj["gsis_id"] == pid) & inj["available_at"].notna()]
-    x = x.sort_values("available_at").drop_duplicates("week", keep="last")
-    return sorted(int(w) for w in x.loc[x["report_status"].isin(OUT_STATUSES), "week"])
+    """Weeks the player did not suit up: weekly roster status other than active (inactive, injured reserve and so on), or Out or Doubtful on the injury report.
+
+    The injury report alone misses games a player sat while listed Questionable, so the roster status leads."""
+    r = _roster(season)
+    r = r[(r["gsis_id"] == pid) & (r["team"] == team)]
+    weeks = set(int(w) for w in r.loc[r["status"].fillna("") != "ACT", "week"])
+    try:
+        from . import availability
+        inj = availability.load_injury_rows([season])
+        x = inj[(inj["season"] == season) & (inj["team"] == team) & (inj["gsis_id"] == pid) & inj["available_at"].notna()]
+        x = x.sort_values("available_at").drop_duplicates("week", keep="last")
+        weeks |= set(int(w) for w in x.loc[x["report_status"].isin(OUT_STATUSES), "week"])
+    except Exception:
+        pass
+    return sorted(weeks)
 
 
 def game_level(pid: str, team: str, season: int = 2026, upto_week: int | None = None) -> dict:

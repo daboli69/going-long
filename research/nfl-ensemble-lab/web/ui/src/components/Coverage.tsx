@@ -160,10 +160,10 @@ function OnOffPanel({ gid, s }: { gid: string; s: CovSide }) {
           </div>
           <div>
             <h4 className="text-[15px] font-bold">Active or out, by game</h4>
-            {gl.length === 0 && <p className="text-[14px] text-muted">{who} has not been ruled out (Out or Doubtful on the injury report) in any {s.qb_team} game in the last two seasons, so there is no with-and-without by game.</p>}
+            {gl.length === 0 && <p className="text-[14px] text-muted">{who} has not missed a {s.qb_team} game (inactive or injured reserve on the weekly roster, or Out or Doubtful on the injury report) in the last two seasons, so there is no with-and-without by game.</p>}
             {gl.map((g) => (
               <div key={g.season} className="pb-3">
-                <p className="max-w-3xl text-[14px] text-muted">{g.season}: {s.qb_team} played {g.weeks_played_by_team} games; {who} was out in {g.weeks_out.length === 0 ? "none" : `week${g.weeks_out.length > 1 ? "s" : ""} ${g.weeks_out.join(", ")}`}.{g.teammates.length === 0 && g.weeks_out.length > 0 ? " Too few games to compare." : ""}</p>
+                <p className="max-w-3xl text-[14px] text-muted">{g.season}: {s.qb_team} played {g.weeks_played_by_team} games; {who} did not play in {g.weeks_out.length === 0 ? "none" : `week${g.weeks_out.length > 1 ? "s" : ""} ${g.weeks_out.join(", ")}`}.{g.teammates.length === 0 && g.weeks_out.length > 0 ? " Too few games to compare." : ""}</p>
                 {g.teammates.length > 0 && (
                   <div className="overflow-x-auto">
                     <table className="w-full min-w-[560px] text-left text-[15px]">
