@@ -37,3 +37,28 @@ It says nothing about touchdowns, and about 240 starter-games is a small prospec
 ## Freeze script
 
 `scripts/qb_rush_freeze.py` must exist and be tested before Week 10 kicks off (Sunday 2026-11-15). If it is not ready, the prospective window starts at the first week it is.
+
+## Results (run 2026-11-09, `scripts/qb_rush_split2.py`, numbers in `docs/qb_rush_split2_results.json`)
+
+Deviation from the registration: the development window ran 2013 to 2021, because 2012 has no earlier season with a model margin to fit the state slopes on. Nothing else changed.
+
+**Selection (development, pooled RMSE):** f = 1.0: 15.673; f = 0.5: 15.453; **f = 0.25: 15.401** (selected); controls B1 15.798, B0 15.982. The best value sits at the edge of the registered grid, so an even lower f might do better; that is not tested here.
+
+**Confirmation on 2022 to 2025 (2,164 games; contaminated, as disclosed):**
+
+| | RMSE | MAE | Bias | Top-decile bias (224 games) |
+|---|---:|---:|---:|---:|
+| B0 last-six mean | 17.64 | 12.54 | -0.17 | +1.2 |
+| B1 shrunk total, no split | 17.11 | 12.19 | -1.51 | -8.2 |
+| S (first split) | 16.94 | 12.37 | -0.25 | -5.4 |
+| **S2 (f = 0.25)** | **16.84** | **12.20** | +0.40 | **+1.7** |
+
+All four confirmation conditions hold (RMSE below S and below B1, MAE no worse than S, top-decile bias closer to zero). The sizes are small, and two of the differences are inside the noise:
+- S2 against S: RMSE -0.11 [-0.30, +0.08]. Not separable from S.
+- S2 against B1: RMSE -0.27 [-0.56, +0.01]. The interval touches zero.
+- S2 against B0: RMSE -0.81 [-1.15, -0.47].
+- The split's own contribution, S against the shrinkage-only control B1: RMSE -0.16 [-0.28, -0.05] but MAE +0.17. A small gain in squared error and a small loss in average error, so the split itself is a minor part of the story; most of the improvement over the last-six average comes from shrinking a longer history.
+
+**Status:** S2 is a candidate, not a result. The gate needs the prospective 2026 test (frozen predictions from Week 10, scored after Week 18, at least 150 starter-games). `scripts/qb_rush_freeze.py` is written and dry-run on Week 9; run it with `--write` before Week 10's first kickoff.
+
+**Allen, BUF@MIN, S2:** BUF by 1.3: designed 3.3 att / 12.0 yds, scrambles 2.7 att / 25.3 yds, kneels 0.7 / -0.7 yds, **total 36.5**; BUF by 8.5: total 35.2. (S: 32.8 and 31.8; last-six average 41.2.)

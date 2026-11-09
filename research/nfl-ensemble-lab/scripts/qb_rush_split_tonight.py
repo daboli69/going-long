@@ -19,6 +19,10 @@ from lab import homewin_deep as h  # noqa: E402
 
 
 def main(qb, gid, team, margins):
+    import os
+    f = float(os.environ.get("QB_RUSH_F", "1"))  # shrinkage factor of docs/QB_RUSH_SPLIT2_PREREG.md; 1 = the first split
+    for k in ("K_RATE_D", "K_YPA_D", "K_RATE_S", "K_YPA_S"):
+        setattr(q, k, getattr(q, k) * f)
     p = q.load_plays(range(2004, 2027))
     data, _ = h.load_all(False)
     kick = data.games.set_index("gid")["kickoff_utc"]
