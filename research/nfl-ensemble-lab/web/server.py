@@ -27,6 +27,7 @@ from lab import first_td_allowed as ftd_lab
 from lab import snapgame as snapgame_lab
 from lab import tdmarket as td_market
 from lab import covgame as coverage_lab
+from lab import onoff as onoff_lab
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = Path(__file__).resolve().parent / "ui" / "dist"
@@ -214,6 +215,19 @@ def coverage(gid: str = PathParam(pattern=D.GID_PATTERN)):
         raise HTTPException(status_code=503, detail=f"Coverage data is not available yet ({e})")
     if out is None:
         raise HTTPException(status_code=404, detail="Unknown game")
+    return JSONResponse(D.clean(out))
+
+
+@app.get("/api/onoff/{gid}")
+def onoff(gid: str = PathParam(pattern=D.GID_PATTERN), team: str = Query(pattern="^[A-Z]{2,3}$"), player: str = Query(pattern=r"^00-\d{7}$")):
+    """Teammates with a player on and off the field (2022 to 2025) and in games he was out (2025 and 2026). Descriptive history only."""
+    season, week = int(gid[:4]), int(gid[5:7])
+    try:
+        out = {"on_field": onoff_lab.on_field(player, team),
+               "game_level": [onoff_lab.game_level(player, team, season, week), onoff_lab.game_level(player, team, season - 1)],
+               "min_plays": onoff_lab.MIN_PLAYS, "min_targets": onoff_lab.MIN_TGT}
+    except (FileNotFoundError, KeyError) as e:
+        raise HTTPException(status_code=503, detail=f"With-and-without data is not available yet ({e})")
     return JSONResponse(D.clean(out))
 
 

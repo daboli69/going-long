@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
-import type { CovPosition, CovRate, CovShare, CovSide, Coverage } from "../types";
+import type { CovPosition, CovRate, CovShare, CovSide, Coverage, OnOff, OnOffGap } from "../types";
 import { cn } from "../lib";
 import { Callout, Segmented } from "./ui/primitives";
 
@@ -86,6 +86,108 @@ function PosTable({ rows, def }: { rows: CovPosition[]; def: string }) {
   );
 }
 
+const zRead = (g: OnOffGap | null, who: string, noun: string): string => {
+  if (!g || g.z === null || g.diff === null) return "Too few plays to say.";
+  if (Math.abs(g.z) < 2) return "Within noise.";
+  return g.diff < 0 ? `${noun} drop with ${who} on the field.` : `${noun} rise with ${who} on the field.`;
+};
+
+function OnOffPanel({ gid, s }: { gid: string; s: CovSide }) {
+  const people = s.receivers;
+  const [pid, setPid] = useState<string>(people[0]?.pid ?? "");
+  const [d, setD] = useState<OnOff | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  useEffect(() => {
+    if (!pid) return;
+    setD(null); setErr(null);
+    api.onoff(gid, s.qb_team, pid).then(setD).catch((e) => setErr(String(e.message ?? e)));
+  }, [gid, pid, s.qb_team]);
+  if (people.length === 0) return null;
+  const who = people.find((p) => p.pid === pid)?.name ?? "him";
+  const last = who.split(" ").slice(-1)[0];
+  const f = d?.on_field;
+  const gl = (d?.game_level ?? []).filter((g) => g.weeks_out.length > 0 || g.teammates.length > 0);
+  return (
+    <Section title={`With and without ${last}`} hint={`Pick a ${s.qb_team} player. Raw splits of what his teammates did when he was on the field and when he was not, and in games he was out. These are not causal: the opponent, game script and other injuries move with who plays.`}>
+      <div className="max-w-xs">
+        <label htmlFor={`oo-${s.qb_team}`} className="text-[13px] text-muted">Player</label>
+        <select id={`oo-${s.qb_team}`} value={pid} onChange={(e) => setPid(e.target.value)} className="mt-1 min-h-[44px] w-full bg-panel px-3 text-base text-white hover:bg-raised">
+          {people.map((p) => <option key={p.pid} value={p.pid}>{p.name} ({p.pos})</option>)}
+        </select>
+      </div>
+      {err && <Callout tone="amber">Could not load with-and-without: {err}</Callout>}
+      {!d && !err && <p className="text-muted">Loading.</p>}
+      {d && f && (
+        <div className="space-y-6 pt-2">
+          <div>
+            <h4 className="text-[15px] font-bold">On the field, 2022 to 2025</h4>
+            {f.stints.length === 0 && <p className="text-[14px] text-muted">{who} has no season with 40 or more pass plays in the 2022 to 2025 participation data.</p>}
+            {f.stints.length > 0 && (
+              <>
+                <p className="max-w-3xl text-[14px] text-muted">
+                  Seasons with {last}: {f.stints.map((x) => `${x.season} ${x.team} (${x.plays} pass plays)`).join(", ")}.
+                  {f.stints.some((x) => x.team === s.qb_team) ? "" : ` None of these were with ${s.qb_team}, so these are his old teammates, not this team's.`}
+                </p>
+                <div className="overflow-x-auto pt-1">
+                  <table className="w-full min-w-[760px] text-left text-[15px]">
+                    <caption className="sr-only">Teammates with {who} on and off the field</caption>
+                    <thead className="text-[13px] text-muted"><tr>
+                      <th scope="col" className="py-1">Teammate</th><th scope="col" className="text-right">Pass plays on / off</th>
+                      <th scope="col" className="text-right">Share of passes to him, on</th><th scope="col" className="text-right">Off</th>
+                      <th scope="col" className="text-right">Yards per target, on / off</th><th scope="col" className="pl-4">Read</th>
+                    </tr></thead>
+                    <tbody>{f.teammates.slice(0, 10).map((m) => (
+                      <tr key={m.pid} className="border-t border-bg align-top">
+                        <th scope="row" className="py-2 font-normal">{m.name} <span className="text-[13px] text-muted">{m.team}</span><div className="text-[13px] text-muted">{m.tgt_on} / {m.tgt_off} targets</div></th>
+                        <td className="py-2 text-right tabular-nums">{m.plays_on} / {m.plays_off}</td>
+                        <td className="py-2 text-right tabular-nums">{pc(m.tgt_rate.on ?? 0, 1)}</td>
+                        <td className="py-2 text-right tabular-nums">{pc(m.tgt_rate.off ?? 0, 1)}<div className="text-[13px] text-muted">{sg((m.tgt_rate.diff ?? 0) * 100)} pts</div></td>
+                        <td className="py-2 text-right tabular-nums">{m.ypt && m.ypt.on !== null ? `${m.ypt.on.toFixed(1)} / ${m.ypt.off?.toFixed(1)}` : "n/a"}<div className="text-[13px] text-muted">{m.ypt ? "" : `needs ${d.min_targets}+ targets each way`}</div></td>
+                        <td className="min-w-[180px] py-2 pl-4 text-slate-300">{zRead(m.tgt_rate, last, "His targets")}</td>
+                      </tr>
+                    ))}</tbody>
+                  </table>
+                </div>
+                <p className="pt-1 text-[13px] text-muted">Rows need {d.min_plays}+ pass plays with the teammate on the field on each side. Sorted by how far the target share moves, in standard errors. Within noise means less than two. Ten rows shown.</p>
+                <div className="pt-3">
+                  <h5 className="text-[14px] font-bold">Pass EPA per play for the whole offense</h5>
+                  <ul className="space-y-0.5 text-[14px] text-slate-300">{f.team.map((t) => (
+                    <li key={`${t.season}${t.team}`} className="tabular-nums">{t.season} {t.team}: {t.pass_epa.on === null ? "n/a" : `${sg(t.pass_epa.on, 2)} with him (${t.plays_on} plays), ${t.pass_epa.off === null ? "n/a" : sg(t.pass_epa.off, 2)} without (${t.plays_off})`}{t.plays_off < d.min_plays ? " (too few plays without him)" : ""}</li>
+                  ))}</ul>
+                </div>
+              </>
+            )}
+          </div>
+          <div>
+            <h4 className="text-[15px] font-bold">Active or out, by game</h4>
+            {gl.length === 0 && <p className="text-[14px] text-muted">{who} has not been ruled out (Out or Doubtful on the injury report) in any {s.qb_team} game in the last two seasons, so there is no with-and-without by game.</p>}
+            {gl.map((g) => (
+              <div key={g.season} className="pb-3">
+                <p className="max-w-3xl text-[14px] text-muted">{g.season}: {s.qb_team} played {g.weeks_played_by_team} games; {who} was out in {g.weeks_out.length === 0 ? "none" : `week${g.weeks_out.length > 1 ? "s" : ""} ${g.weeks_out.join(", ")}`}.{g.teammates.length === 0 && g.weeks_out.length > 0 ? " Too few games to compare." : ""}</p>
+                {g.teammates.length > 0 && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[560px] text-left text-[15px]">
+                      <caption className="sr-only">{g.season} teammate targets and yards per game with {who} active and out</caption>
+                      <thead className="text-[13px] text-muted"><tr><th scope="col" className="py-1">Teammate</th><th scope="col" className="text-right">Games (active / out)</th><th scope="col" className="text-right">Targets per game</th><th scope="col" className="text-right">Receiving yards per game</th></tr></thead>
+                      <tbody>{g.teammates.slice(0, 8).map((m) => (
+                        <tr key={m.pid} className="border-t border-bg"><th scope="row" className="py-1.5 font-normal">{m.name}</th>
+                          <td className="text-right tabular-nums">{m.games_active} / {m.games_out}</td>
+                          <td className="text-right tabular-nums">{m.tgt_active.toFixed(1)} / {m.tgt_out.toFixed(1)}</td>
+                          <td className="text-right tabular-nums">{m.yds_active.toFixed(0)} / {m.yds_out.toFixed(0)}</td></tr>
+                      ))}</tbody>
+                    </table>
+                    <p className="pt-1 text-[13px] text-muted">Each cell is active / out. With only a game or two out, this shows what happened, not a pattern.</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </Section>
+  );
+}
+
 function Side({ s, cov }: { s: CovSide; cov: Coverage }) {
   const qb = s.qb.name ?? `${s.qb_team} quarterback`;
   const reads = quickReads(s);
@@ -163,6 +265,7 @@ function Side({ s, cov }: { s: CovSide; cov: Coverage }) {
           </div>
         </Section>
       )}
+      <OnOffPanel key={s.qb_team} gid={cov.gid} s={s} />
     </div>
   );
 }

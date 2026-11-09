@@ -1,4 +1,4 @@
-import type { Coverage, OuCalls, Tails, SnapSim, Leans, Refs, FirstTdAllowed, KingBoard, KingWeek, WeekResults, Detail, GameRow, GlossaryItem, Live, Meta, Rankings, Sim, TdCardData, TdMarket } from "./types";
+import type { Coverage, OnOff, OuCalls, Tails, SnapSim, Leans, Refs, FirstTdAllowed, KingBoard, KingWeek, WeekResults, Detail, GameRow, GlossaryItem, Live, Meta, Rankings, Sim, TdCardData, TdMarket } from "./types";
 
 async function get<T>(path: string): Promise<T> {
   const response = await fetch(path);
@@ -16,6 +16,7 @@ async function getLive(gid: string): Promise<Live> {
 
 export const api = {
   live: getLive,
+  onoff: (gid: string, team: string, player: string) => get<OnOff>(`/api/onoff/${gid}?team=${team}&player=${encodeURIComponent(player)}`),
   coverage: (gid: string) => get<Coverage>(`/api/coverage/${gid}`),
   results: (week: number) => get<WeekResults>(`/api/results/${week}`),
   kingWeek: (week: number) => get<KingWeek>(`/api/kingzone/${week}`),

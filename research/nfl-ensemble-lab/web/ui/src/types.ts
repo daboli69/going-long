@@ -359,7 +359,7 @@ export type CovPosition = {
   expl: number; expl_league: number; epa: number; epa_league: number; nfl_targets: number; share: number; share_league: number; read: string;
 };
 export type CovReceiver = {
-  name: string; pos: string; routes: number; yprr: number; man_routes: number; zone_routes: number; man_yprr: number; zone_yprr: number;
+  pid: string; name: string; pos: string; routes: number; yprr: number; man_routes: number; zone_routes: number; man_yprr: number; zone_yprr: number;
   man_yprr_raw: number | null; zone_yprr_raw: number | null; man_minus_zone: number; edge?: number;
 };
 export type CovSide = {
@@ -372,3 +372,12 @@ export type CovSide = {
 };
 export type Coverage = { gid: string; season: number; week: number; away: string; home: string; fpds_weeks: number; sides: [CovSide, CovSide];
   params: { k_weeks: number; shrink_routes: number; k_qb_share: number; k_qb_epa: number; min_routes: number } };
+
+export type OnOffGap = { on: number | null; off: number | null; diff: number | null; z: number | null };
+export type OnOffMate = { pid: string; name: string; team: string; plays_on: number; plays_off: number; tgt_on: number; tgt_off: number; tgt_rate: OnOffGap; ypt: OnOffGap | null; epa_tgt: OnOffGap | null };
+export type OnOffGameMate = { pid: string; name: string; games_active: number; games_out: number; tgt_active: number; tgt_out: number; yds_active: number; yds_out: number };
+export type OnOff = {
+  min_plays: number; min_targets: number;
+  on_field: { player: string; stints: { season: number; team: string; plays: number }[]; teammates: OnOffMate[]; team: { season: number; team: string; plays_on: number; plays_off: number; pass_epa: OnOffGap }[]; current_team_overlap?: string[] };
+  game_level: { player: string; team: string; season: number; weeks_played_by_team: number; weeks_out: number[]; teammates: OnOffGameMate[] }[];
+};

@@ -84,3 +84,15 @@ def test_coverage_endpoint_validates_the_game_id_and_is_descriptive():
     for s in body["sides"]:
         assert abs(sum(s["compare"]["expected"].values()) - 1) < 1e-6 or s["qb"].get("missing")
         assert abs(sum(x["pct"] for x in s["defense_mix"]["shells"]) - 1) < 0.15
+
+
+def test_onoff_endpoint_validates_inputs_and_reports_its_sample_floors():
+    gid = "2026_09_BUF_MIN"
+    for q in ("?team=xx&player=00-0036322", "?team=MIN&player=abc", "?team=MIN", f"?team=MIN&player=00-0036322; drop"):
+        assert client.get(f"/api/onoff/{gid}{q}").status_code in (404, 422)
+    r = client.get(f"/api/onoff/{gid}?team=MIN&player=00-0036322")
+    if r.status_code == 503:
+        pytest.skip("local participation files not present")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["min_plays"] >= 40 and len(body["game_level"]) == 2
