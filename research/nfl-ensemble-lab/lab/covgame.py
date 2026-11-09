@@ -142,7 +142,7 @@ def _receivers(team: str, season: int, week: int, man_rate: float | None) -> lis
             continue
         yds = float((g["overall__yprr"] * g["overall__rte"]).sum())
         base = yds / rte
-        r = {"name": str(g.sort_values(["season", "week"])["player_details__name"].iloc[-1]),
+        r = {"pid": str(pid), "name": str(g.sort_values(["season", "week"])["player_details__name"].iloc[-1]),
              "pos": str(g.sort_values(["season", "week"])["position_asof"].iloc[-1]), "routes": int(round(rte)), "yprr": round(base, 2)}
         for k in ("man", "zone"):
             rk = float(g[f"{k}__rte"].sum())
