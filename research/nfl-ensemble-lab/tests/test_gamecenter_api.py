@@ -70,3 +70,17 @@ def test_simulation_endpoint_only_takes_known_modes_and_sane_draw_numbers():
     gid = "2026_08_TEN_CIN"
     for query in ("?mode=evil", "?mode=random&draw=-1", "?mode=random&draw=100000", "?mode=random&draw=abc"):
         assert client.get(f"/api/sim/{gid}{query}").status_code == 422
+
+
+def test_coverage_endpoint_validates_the_game_id_and_is_descriptive():
+    for path in ("/api/coverage/xx", "/api/coverage/2026_09_BUF_MIN; drop"):
+        assert client.get(path).status_code in (404, 422)
+    r = client.get("/api/coverage/2026_09_BUF_MIN")
+    if r.status_code == 503:
+        pytest.skip("local coverage files not present")
+    assert r.status_code == 200
+    body = r.json()
+    assert len(body["sides"]) == 2
+    for s in body["sides"]:
+        assert abs(sum(s["compare"]["expected"].values()) - 1) < 1e-6 or s["qb"].get("missing")
+        assert abs(sum(x["pct"] for x in s["defense_mix"]["shells"]) - 1) < 0.15

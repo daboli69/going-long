@@ -351,3 +351,24 @@ export type LadderRow = { games: number; note?: string; width_level: number; tai
 
 export type OuRow = { player: string; team: string; opp: string; pos: string | null; stat: string; gid: string; kickoff_utc: string; projection: number; mean: number; low: number; high: number; line: number; call: "Over" | "Under" | "Even"; chance: number; gap: number; strength: number; line_status: string; tier: string };
 export type OuCalls = { ok: boolean; reason?: string; week?: number; through_week?: number; created_at?: string; status?: string; rows: OuRow[] };
+
+export type CovShare = { WR: number; TE: number; RB: number };
+export type CovRate = { key: string; label: string; pct: number; league: number };
+export type CovPosition = {
+  pos: "WR" | "TE" | "RB"; tgt_pg: number; tgt_pg_league: number; tgt_rank: number; ypt: number; ypt_league: number; fp_pg: number; fp_rank: number;
+  expl: number; expl_league: number; epa: number; epa_league: number; nfl_targets: number; share: number; share_league: number; read: string;
+};
+export type CovReceiver = {
+  name: string; pos: string; routes: number; yprr: number; man_routes: number; zone_routes: number; man_yprr: number; zone_yprr: number;
+  man_yprr_raw: number | null; zone_yprr_raw: number | null; man_minus_zone: number; edge?: number;
+};
+export type CovSide = {
+  qb_team: string; defense: string; note: string | null;
+  qb: { id: string | null; name: string | null; missing?: boolean; tagged?: number; seasons?: Record<string, number>; untagged_2026?: number };
+  defense_mix: { weeks: number; prior_weeks: number; shells: CovRate[]; looks: CovRate[] };
+  positions: CovPosition[]; allowed_share: CovShare; receivers: CovReceiver[];
+  by_coverage?: { key: string; att: number; epa: number; raw_epa: number | null; shares: CovShare; defense_weight: number }[];
+  compare?: { usual: CovShare; expected: CovShare; usual_epa: number; expected_epa: number };
+};
+export type Coverage = { gid: string; season: number; week: number; away: string; home: string; fpds_weeks: number; sides: [CovSide, CovSide];
+  params: { k_weeks: number; shrink_routes: number; k_qb_share: number; k_qb_epa: number; min_routes: number } };

@@ -6,6 +6,7 @@ import { GameStrip } from "./components/GameStrip";
 import { GameTitle, Overview, Scorebug } from "./components/Overview";
 import { About, Matchup } from "./components/Others";
 import { Props } from "./components/Players";
+import { CoverageView } from "./components/Coverage";
 import { LiveGame } from "./components/Live";
 import { SimGame } from "./components/SimGame";
 import { RankingsHub } from "./components/RankingsHub";
@@ -110,6 +111,7 @@ export default function App() {
                     <TabsTrigger value="sim">Simulated game</TabsTrigger>
                     {liveOn && <TabsTrigger value="live">Live</TabsTrigger>}
                     <TabsTrigger value="players">Players</TabsTrigger>
+                    <TabsTrigger value="coverage">Coverage</TabsTrigger>
                     <TabsTrigger value="teams">Teams and injuries</TabsTrigger>
                     <TabsTrigger value="about">About these numbers</TabsTrigger>
                   </TabsList>
@@ -117,6 +119,7 @@ export default function App() {
                   <TabsContent value="sim"><SimGame d={detail} /></TabsContent>
                   {liveOn && <TabsContent value="live"><LiveGame d={detail} onFinished={() => { setFinished((f) => (f.includes(detail.gid) ? f : [...f, detail.gid])); setGameTab("game"); }} /></TabsContent>}
                   <TabsContent value="players"><Props d={detail} /></TabsContent>
+                  <TabsContent value="coverage"><CoverageView gid={detail.gid} /></TabsContent>
                   <TabsContent value="teams"><Matchup d={detail} /></TabsContent>
                   <TabsContent value="about"><About meta={meta} /></TabsContent>
                 </Tabs>

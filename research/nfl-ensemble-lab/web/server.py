@@ -26,6 +26,7 @@ from lab import refs as refs_lab
 from lab import first_td_allowed as ftd_lab
 from lab import snapgame as snapgame_lab
 from lab import tdmarket as td_market
+from lab import covgame as coverage_lab
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = Path(__file__).resolve().parent / "ui" / "dist"
@@ -202,6 +203,18 @@ def king_game(gid: str = PathParam(pattern=D.GID_PATTERN)):
     if out is None:
         raise HTTPException(status_code=404, detail="No board for this game")
     return JSONResponse(D.clean({**out, "frozen": kz2_board.frozen_info(gid)}))
+
+
+@app.get("/api/coverage/{gid}")
+def coverage(gid: str = PathParam(pattern=D.GID_PATTERN)):
+    """Each side's expected quarterback against the opposing defense's coverage mix and position profile. Descriptive history only."""
+    try:
+        out = coverage_lab.card(gid)
+    except (FileNotFoundError, KeyError) as e:
+        raise HTTPException(status_code=503, detail=f"Coverage data is not available yet ({e})")
+    if out is None:
+        raise HTTPException(status_code=404, detail="Unknown game")
+    return JSONResponse(D.clean(out))
 
 
 @app.get("/api/tdcard/{gid}")
