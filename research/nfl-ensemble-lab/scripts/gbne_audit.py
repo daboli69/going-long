@@ -52,8 +52,12 @@ def _plays(seasons) -> pd.DataFrame:
     return pd.concat(parts, ignore_index=True)
 
 
+FTN_SNAP = RAW_DIR / "gbne" / "ftn_2026_snapshot.parquet"
+FTN_URL = "https://github.com/nflverse/nflverse-data/releases/download/ftn_charting/ftn_charting_2026.parquet"
+
+
 def _ftn(seasons) -> pd.DataFrame:
-    d = pd.concat([pd.read_parquet(RAW_DIR / f"ftn_{s}.parquet", columns=["nflverse_game_id", "nflverse_play_id", "is_interception_worthy", "is_catchable_ball", "n_pass_rushers", "is_throw_away"]) for s in seasons], ignore_index=True)
+    d = pd.concat([pd.read_parquet(FTN_SNAP if (s == 2026 and FTN_SNAP.exists()) else RAW_DIR / f"ftn_{s}.parquet", columns=["nflverse_game_id", "nflverse_play_id", "is_interception_worthy", "is_catchable_ball", "n_pass_rushers", "is_throw_away"]) for s in seasons], ignore_index=True)
     return d.rename(columns={"nflverse_game_id": "game_id", "nflverse_play_id": "play_id"})
 
 
@@ -372,6 +376,18 @@ def run():
     (DOCS / "gbne_audit.json").write_text(json.dumps(res, indent=1, default=float), encoding="utf-8")
 
 
+def charting():
+    """Pull the public FTN charting; if it now covers this game, save it with its hash and rerun the game stage with the interception-worthy method."""
+    import urllib.request
+    urllib.request.urlretrieve(FTN_URL, FTN_SNAP)
+    d = pd.read_parquet(FTN_SNAP)
+    have = bool((d["nflverse_game_id"] == GID).any())
+    print({"ftn_sha256": sha(FTN_SNAP), "covers_game": have, "week9_games": d[d.week == 9].groupby("nflverse_game_id").size().to_dict()})
+    if have:
+        game()
+    return have
+
+
 def rebuild():
     """Rerun game, gate and run from raw files and compare output hashes with the committed ones."""
     names = ["gbne_game.json", "gbne_gate.json", "gbne_audit.json"]
@@ -384,4 +400,4 @@ def rebuild():
 
 
 if __name__ == "__main__":
-    {"game": game, "gate": gate, "run": run, "rebuild": rebuild}[sys.argv[1]]()
+    {"game": game, "gate": gate, "run": run, "rebuild": rebuild, "charting": charting}[sys.argv[1]]()
