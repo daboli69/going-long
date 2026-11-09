@@ -32,3 +32,13 @@ Changing the grid, the test period or the metric after seeing a result, or fitti
 ## What it cannot show
 
 It uses only EPA from games played. It does not know about age, injuries, a new offense or a new supporting cast beyond what shows up in results, and it cannot say how Wentz will do against Buffalo tonight.
+
+## Results (run 2026-11-09, `scripts/qb_drift.py`, numbers in `docs/qb_drift_results.json`)
+
+Fit period 2003 to 2015, predictive log-likelihood of next-game EPA per dropback (higher is better): q = 0: -4,023; 0.005: -4,124; 0.01: -4,279; 0.02: -4,514; 0.04: -4,864. The best value is **q = 0, no drift**, which is the champion's static shrunk average. Validation requires q above 0, so **it fails and the model is not used.** A bug in my output code (a call that only works on tables) crashed the first run after the fit step; it was fixed and the run repeated with no change to any rule or number.
+
+Test period 2016 to 2025 (6,499 quarterback-games), dropback-weighted squared error of next-game EPA per dropback: q = 0 0.10786, C2 recency weighting 0.10784. The difference is 0.00002 with a 95% interval of -0.0007 to +0.0007. Games after a long gap or a team change (465): identical, since q = 0.
+
+- This also takes the shine off C2 from `docs/QB_LEVER_PREREG.md`. Its small margin gain there does not show up here at the quarterback-game level, so I treat it as noise.
+- Reading: at the game level, a quarterback's EPA per dropback is so noisy (standard deviation about 1.6 per dropback) that a changing talent level cannot be detected, and allowing it makes predictions worse. That does not prove talent is constant; it says this data cannot see the change.
+- Wentz versus Murray, filtered talent as of now, shown for completeness and **not used** (validation failed): Wentz +0.020 (sd 0.025), Murray +0.043 (sd 0.026), difference -0.023 (80% interval -0.069 to +0.023), probability Wentz higher 0.26. This is the same static average as before, not new evidence.

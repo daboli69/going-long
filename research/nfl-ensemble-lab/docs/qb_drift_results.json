@@ -1,0 +1,152 @@
+{
+ "s2": 2.5742038235799396,
+ "prior_mean": -0.10969867921845157,
+ "fit_loglik": {
+  "0.0": -4022.8786646816284,
+  "0.005": -4124.32858764064,
+  "0.01": -4278.531658320978,
+  "0.02": -4513.94670002177,
+  "0.04": -4864.438111323911
+ },
+ "q_star": 0.0,
+ "test": {
+  "games": 6499,
+  "wmse_q0": 0.10785995212069274,
+  "wmse_qstar": 0.10785995212069274,
+  "wmse_c2": 0.10783955549108543,
+  "qstar_vs_q0": {
+   "games": 6499,
+   "delta_wmse": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "qstar_vs_c2": {
+   "games": 6499,
+   "delta_wmse": 2.0396629607322013e-05,
+   "ci95": [
+    -0.000681399192947281,
+    0.0007379752407854602
+   ]
+  },
+  "loglik_per_game_delta": 0.0,
+  "gap_or_team_change_qstar_vs_q0": {
+   "games": 465,
+   "delta_wmse": 0.0,
+   "ci95": [
+    0.0,
+    0.0
+   ]
+  }
+ },
+ "validation_pass": false,
+ "wentz_murray": {
+  "Carson Wentz": {
+   "talent": 0.0201,
+   "sd": 0.0247
+  },
+  "Kyler Murray": {
+   "talent": 0.043,
+   "sd": 0.0262
+  },
+  "difference": {
+   "wentz_minus_murray": -0.0229,
+   "lo80": -0.069,
+   "hi80": 0.0232,
+   "p_wentz_higher": 0.262
+  },
+  "verdict": "not used (validation failed)"
+ },
+ "paths": {
+  "Carson Wentz": [
+   {
+    "season": 2018,
+    "talent": 0.075,
+    "sd": 0.037
+   },
+   {
+    "season": 2019,
+    "talent": 0.065,
+    "sd": 0.032
+   },
+   {
+    "season": 2020,
+    "talent": 0.031,
+    "sd": 0.029
+   },
+   {
+    "season": 2021,
+    "talent": 0.029,
+    "sd": 0.027
+   },
+   {
+    "season": 2022,
+    "talent": 0.019,
+    "sd": 0.026
+   },
+   {
+    "season": 2023,
+    "talent": 0.02,
+    "sd": 0.026
+   },
+   {
+    "season": 2024,
+    "talent": 0.019,
+    "sd": 0.025
+   },
+   {
+    "season": 2025,
+    "talent": 0.019,
+    "sd": 0.025
+   },
+   {
+    "season": 2026,
+    "talent": 0.02,
+    "sd": 0.025
+   }
+  ],
+  "Kyler Murray": [
+   {
+    "season": 2019,
+    "talent": -0.042,
+    "sd": 0.055
+   },
+   {
+    "season": 2020,
+    "talent": 0.009,
+    "sd": 0.042
+   },
+   {
+    "season": 2021,
+    "talent": 0.045,
+    "sd": 0.036
+   },
+   {
+    "season": 2022,
+    "talent": 0.036,
+    "sd": 0.032
+   },
+   {
+    "season": 2023,
+    "talent": 0.032,
+    "sd": 0.03
+   },
+   {
+    "season": 2024,
+    "talent": 0.046,
+    "sd": 0.028
+   },
+   {
+    "season": 2025,
+    "talent": 0.048,
+    "sd": 0.027
+   },
+   {
+    "season": 2026,
+    "talent": 0.043,
+    "sd": 0.026
+   }
+  ]
+ }
+}
