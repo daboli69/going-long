@@ -23,6 +23,8 @@ First gate for comparison (2022 to 2025, 1,084 games): 24% and 27% at 0.004, 46.
 
 At a planted gain of 0.004, three conditions of the pass rule fail often (`docs/matchup_gate_diagnostic.json`, H1 / H2): the interval below zero holds in 60.5% / 56.5% of runs, the 11-of-14-seasons-better condition in 44% / 38.5%, and the 0.002 minimum gain in 75.5% / 79%. Brier no worse holds in 97.5% / 100%. The seasons condition is the strictest part of the rule: each season has only about 270 games, and a true gain of 0.004 is too small to show up in the same direction in 11 of 14 single seasons.
 
+The diagnostic uses a different random seed from the gate, so its rate at 0.004 (39.5% and 35.5%) differs from the gate's (29.5% and 33.0%) by ordinary run-to-run noise of about 3 points per 200 runs; both are far below 80%. The gate's number is the one that counts.
+
 The pass rule can reliably catch a gain of about 0.008 log loss, twice the registered size. An improvement that large over a closing line would be a very big result, so the rule as registered is sensitive only to effects well above what I expect.
 
 ## Disclosed limits
