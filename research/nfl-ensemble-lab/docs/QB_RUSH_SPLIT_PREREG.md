@@ -47,3 +47,33 @@ If S passes, report Allen's S projection beside his current projection with the 
 ## What it cannot show
 
 A pass would improve the average error by an amount that may be small against single-game noise (a quarterback's rushing in one game has a large spread), and it says nothing about touchdowns, which are not modeled here. It does not test whether sportsbooks price the split.
+
+## Results (run 2026-11-09, `scripts/qb_rush_split.py`, numbers in `docs/qb_rush_split_results.json`)
+
+Test seasons 2022 to 2025, 2,164 starter-games, mean actual rushing yards 18.0. S minus B0, paired:
+
+| | B0 (last-six average) | S (split) | Delta | 95% interval |
+|---|---:|---:|---:|---|
+| RMSE | 17.64 | 16.94 | -0.70 | -1.09 to -0.29 |
+| MAE | 12.54 | 12.37 | -0.18 | |
+| Bias | -0.17 | -0.25 | | |
+
+**S passes the registered gate** (RMSE and MAE both lower, RMSE interval below zero). It is a small gain: about 4% of RMSE.
+
+- Top quartile of rushing quarterbacks (541 games): RMSE delta -1.39 [-2.46, -0.32], MAE delta -1.66.
+- Games with predicted margin above 7 (255 games): RMSE delta -1.38 [-2.58, -0.26].
+- Kneel component alone (S against S without kneels): RMSE delta -0.004 [-0.036, +0.026], MAE delta -0.175. Kneels help the typical error, not the squared error.
+- Margin barely changes the prediction for a given quarterback; most of the gain is from the three-part rates with shrinkage, not the game-state slopes. This test did not separate the split from the shrinkage (a shrunk total-yards baseline was not registered), so it cannot say how much of the gain is the split itself.
+
+**Bias for the heavy rushers, not in the gate and found afterward:** for the top decile of prior rushing rate (224 games) the actual mean was 46.3 yards, S predicted 41.0 (-5.3) and B0 predicted 47.5 (+1.2); RMSE 29.0 against 30.6. For the top 5% (115 games): actual 48.8, S 45.1, B0 51.8. The shrinkage pulls the very best rushers toward the league, so S under-predicts them by about 4 to 5 yards on average while still scoring a lower RMSE. A less shrunk version would be a new challenger and a new registration.
+
+## Allen, BUF@MIN (`scripts/qb_rush_split_tonight.py`)
+
+History: his last 16 starts. Last-six average 41.2 yards.
+
+| Margin | Designed | Scrambles | Kneels | Total |
+|---|---:|---:|---:|---:|
+| BUF by 1.3 (model, after Wentz refresh) | 3.0 att, 10.5 yds | 2.6 att, 23.0 yds | 0.7, -0.7 yds | 32.8 |
+| BUF by 8.5 (market) | 2.9 att, 10.4 yds | 2.5 att, 22.3 yds | 0.8, -0.9 yds | 31.8 |
+
+Given the bias above, 33 is a floor-leaning number for Allen; the backtest suggests the shrunk total runs about 5 yards low for quarterbacks like him, and the last-six average of 41 runs about a yard high. Neither is the answer; both are inputs. Nothing in the app or the simulator was changed.
