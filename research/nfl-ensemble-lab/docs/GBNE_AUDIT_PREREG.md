@@ -56,3 +56,11 @@ The closing line and settled outcomes; seasons nobody tuned on (2012 to 2025 are
 ## E. Report order
 
 Completed, Model Research, Concerns, Next, Needs Travis. If the answer is "mostly luck", say so in the first line.
+
+## Amendment 1 (2026-11-08, committed before any part B number and before the fallback figures of part A are computed)
+
+The FTN charting and PFR pressure files for this game are not published yet. The nflverse releases, re-pulled today, hold week 9 only for Jacksonville at Baltimore (`data/raw/gbne/ftn_2026_snapshot.parquet`). Step 3 of part A cannot use interception-worthy flags. A first run with the flags missing counted them as zero and produced an expected-turnover figure that is wrong, so that output is discarded.
+- **Fallback, used while charting is missing:** expected turnovers for a side = its dropbacks times the 2022 to 2025 league interception rate per dropback, plus its fumbles times the league share of fumbles lost. No charting is used.
+- **Sensitivity (reported next to it):** the interception rate per dropback is replaced by the average of the offense's season-to-date rate and the opposing defense's takeaway rate through Week 8, each shrunk toward the league rate with weight n/(n+300) dropbacks.
+- The cost of a turnover is the 2022 to 2025 average EPA lost on an interception or lost fumble (about 4.3 points), unchanged.
+- When the charting for this game is published, the `game` stage reruns with the interception-worthy method of step 3 and both results are reported. The reading rule in step 6 uses the fallback now and is revisited then.
