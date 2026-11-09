@@ -27,7 +27,7 @@ So 1,084 games over four seasons cannot reliably separate a gain of 0.004 to 0.0
 
 ## Disclosed limits
 
-- Moneyline coverage is complete for 2007 to 2025 except a few games (2008 has 185 of 256, 2009 has 242). Games missing a moneyline are dropped.
+- Moneyline coverage is complete from 2010 and partial before (2007 has 255 of 256 games, 2008 has 185, 2009 has 242); 2022 to 2025 is complete. Games missing a moneyline are dropped.
 - The planted signal uses only the first feature of each hypothesis, so H1 power for its two-feature fit is, if anything, a little overstated.
 
 ## Next
