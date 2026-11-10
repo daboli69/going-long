@@ -302,7 +302,7 @@ def main():
     a=p.parse_args()
     try:
         branch=subprocess.check_output(['git','branch','--show-current'],cwd=LAB_ROOT,text=True).strip()
-        if branch not in ('codex/projections-20261019','claude/ingame-tracker'):raise DropError('Use branch codex/projections-20261019 or claude/ingame-tracker for this workflow')
+        if branch not in ('codex/projections-20261019','claude/ingame-tracker') and not branch.startswith('claude/projections-'):raise DropError('Use branch codex/projections-20261019, claude/ingame-tracker or claude/projections-* for this workflow')
         week=target_week(a.week)
         if a.action=='plan':
             result=inspect_drop(week)
