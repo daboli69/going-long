@@ -7,12 +7,15 @@ the fit never saw, that it beats the nflverse-only prediction in both 2025 and 2
 """
 from __future__ import annotations
 
+import json
+
 import numpy as np
 import pandas as pd
 
 from . import fpds_usage as X
 from . import gamecenter_data as D
 from . import usage as U
+from .config import CACHE_DIR
 from .ingest import normalize_team
 
 WINDOW = 6
@@ -133,3 +136,38 @@ FAMILIES = {
     "B. Man rate by position (does more man shift yards between wide receivers, tight ends and backs)": ["man_WR", "man_TE", "man_RB"],
     "C. Every coverage shell by position (Cover 1, 2, 3, 4, 6 and blitz)": [n for n in feature_names() if n != "matched" and not n.startswith("man_")],
 }
+
+
+# --------------------------------------------------------------------------- what the simulation reads
+
+APPLIED_PATH = CACHE_DIR / "coverage_applied.json"
+MULT_CLIP = (0.9, 1.1)
+_LAG: dict = {}
+
+
+def load_applied(path=APPLIED_PATH) -> dict:
+    """{"rec_yds": {"matched": weight}} written by scripts/coverage_check.py for the stats whose typical miss fell in both 2025 and 2026 (owner rule, 2026-11-07)."""
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def receiving_factors(season: int, week: int, versus: str, rule: dict | None = None) -> dict:
+    """pid -> factor for receiving yards against `versus`: 1 + weight x (the defense's man rate above the league x the receiver's man-minus-zone yards per route, over his overall).
+    Empty when there is no rule or the defense has fewer than two weeks on record."""
+    rule = load_applied() if rule is None else rule
+    w = (rule.get("rec_yds") or {}).get("matched")
+    if w is None:
+        return {}
+    if "lag" not in _LAG:
+        _LAG["lag"] = Lagged()
+    lag = _LAG["lag"]
+    dm = lag.defense(season, week)
+    if versus not in dm.index:
+        return {}
+    man = float(dm.loc[versus, "man"])
+    rc = lag.receivers(season, week)
+    m = rc[rc["overall"] > 0.2]
+    matched = man * (m["man"] - m["zone"]) / m["overall"]
+    return {str(pid): float(np.clip(1.0 + w * v, *MULT_CLIP)) for pid, v in matched.items()}

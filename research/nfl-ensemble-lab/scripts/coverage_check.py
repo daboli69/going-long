@@ -1,4 +1,4 @@
-"""Does defensive coverage improve the simulated game's receiving numbers? Scored on games the fit never saw.
+r"""Does defensive coverage improve the simulated game's receiving numbers? Scored on games the fit never saw.
 
     .venv\Scripts\python.exe scripts\coverage_check.py
 
@@ -84,7 +84,15 @@ def main():
             if ok:
                 rule.setdefault(stat, []).append({"family": fam, "weights": r["weights"]})
         result["stats"][stat] = res
-    out = {"passed": bool(rule), "stats": rule, "created_at": pd.Timestamp.now(tz="UTC").isoformat()}
+    # Owner rule (Travis, 2026-11-07): use anything whose typical miss fell in both years, even if the interval includes zero. Only family A is a per-receiver nudge the simulation can read.
+    fam_a = next(f for f in C.FAMILIES if f.startswith("A."))
+    applied = {}
+    for stat in STATS:
+        r = result["stats"][stat][fam_a]
+        if all(r["tests"][k]["all"]["rmse_new"] < r["tests"][k]["all"]["rmse_old"] for k in ("test_2025", "test_2026")):
+            applied[stat] = {"matched": r["weights"]["matched"]}
+    C.APPLIED_PATH.write_text(json.dumps(applied, indent=1), encoding="utf-8")
+    out = {"passed": bool(rule), "stats": rule, "applied": applied, "created_at": pd.Timestamp.now(tz="UTC").isoformat()}
     RULE_PATH.write_text(json.dumps(out, indent=1), encoding="utf-8")
     (ROOT / "docs" / "coverage_check.json").write_text(json.dumps({"result": result, "rule": out}, indent=1, default=str), encoding="utf-8")
 
