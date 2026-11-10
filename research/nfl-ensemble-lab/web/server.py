@@ -1,4 +1,4 @@
-"""NFL Game Center web server. Local, read-only, no accounts: a small JSON API plus the built React app.
+r"""NFL Game Center web server. Local, read-only, no accounts: a small JSON API plus the built React app.
 
   .venv\Scripts\python.exe -m uvicorn web.server:app --host 127.0.0.1 --port 8510
 or double-click launch_game_center.bat.

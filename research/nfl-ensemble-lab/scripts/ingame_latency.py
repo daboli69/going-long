@@ -1,4 +1,4 @@
-"""How far behind is the ESPN feed? For every play, the gap between ESPN's own timestamp for it and the first stored snapshot that contained it.
+r"""How far behind is the ESPN feed? For every play, the gap between ESPN's own timestamp for it and the first stored snapshot that contained it.
 
     .venv\Scripts\python.exe scripts\ingame_latency.py
 

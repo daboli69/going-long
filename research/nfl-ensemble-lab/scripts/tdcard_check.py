@@ -1,4 +1,4 @@
-"""Does the touchdown card reproduce a third-party card? Javonte Williams (DAL) for 2026 weeks 3 to 7, against the numbers printed on a published card.
+r"""Does the touchdown card reproduce a third-party card? Javonte Williams (DAL) for 2026 weeks 3 to 7, against the numbers printed on a published card.
 
     .venv\Scripts\python.exe scripts\tdcard_check.py
 
