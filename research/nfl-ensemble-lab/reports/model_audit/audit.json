@@ -1,0 +1,860 @@
+{
+ "summary": {
+  "n_games": 55,
+  "weeks": [
+   6,
+   7,
+   8,
+   9
+  ],
+  "stale_games": 0,
+  "brier": {
+   "model": 0.22049539721439995,
+   "market_novig": 0.19604501892607273,
+   "model_minus_market": [
+    0.024450378288327263,
+    0.007398182880165444,
+    0.042448829089031775
+   ]
+  },
+  "logloss": {
+   "model": 0.6318578959356279,
+   "market_novig": 0.5828316906194594,
+   "model_minus_market": [
+    0.04902620531616879,
+    0.01052597825638652,
+    0.08990599467872025
+   ]
+  },
+  "margin_mae": {
+   "model": 9.839270854545454,
+   "market_line": 9.027272727272727
+  },
+  "margin_bias_home": {
+   "model": -2.4865070727272736,
+   "market_line": -1.809090909090909
+  },
+  "home_win_rate": 0.45454545454545453,
+  "mean_p_home": 0.5588596,
+  "slices_tested": 72,
+  "repeatable": [
+   {
+    "slice": "market spread (home view)",
+    "value": "(-7.0, -3.0]",
+    "n": 15,
+    "bias": 0.32004620000000006,
+    "se": 0.0765515557330763,
+    "p": 0.0009244407113129238,
+    "same_sign_halves": true,
+    "metric": "win prob",
+    "p_holm": 0.06563529050321759
+   }
+  ],
+  "nominal_p05_before_holm": 13,
+  "expected_by_chance": 3.6,
+  "home_bias": {
+   "win_prob": 0.10431414545454544,
+   "margin": 2.4865070727272736
+  },
+  "disagree_ge_5pts": {
+   "n": 31,
+   "model_side_win_rate": 0.3548387096774194,
+   "avg_market_prob_of_that_side": 0.4466322258064516,
+   "avg_model_prob_of_that_side": 0.5385795161290323
+  }
+ },
+ "slices": [
+  {
+   "slice": "team",
+   "value": "ARI",
+   "n": 4,
+   "bias": -0.15863225,
+   "se": 0.3431467824011019,
+   "p": 0.675340290662219,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "ATL",
+   "n": 4,
+   "bias": 0.16165174999999998,
+   "se": 0.2920522353687707,
+   "p": 0.6184975199903602,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "BAL",
+   "n": 4,
+   "bias": 0.46853125000000007,
+   "se": 0.09564918690312618,
+   "p": 0.01628155294993161,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "CAR",
+   "n": 4,
+   "bias": 0.3298055,
+   "se": 0.23886511949302405,
+   "p": 0.2612493593390628,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "CHI",
+   "n": 4,
+   "bias": -0.46758975,
+   "se": 0.05968250618673087,
+   "p": 0.004330266348637979,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 0.29878837805602054
+  },
+  {
+   "slice": "team",
+   "value": "CLE",
+   "n": 4,
+   "bias": -0.12178824999999996,
+   "se": 0.28053451914823097,
+   "p": 0.6935219920415188,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "DAL",
+   "n": 4,
+   "bias": 0.07368649999999999,
+   "se": 0.2983317876695062,
+   "p": 0.8208499120572217,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "GB",
+   "n": 4,
+   "bias": -0.268519,
+   "se": 0.22134375205623794,
+   "p": 0.31188643112101344,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "IND",
+   "n": 4,
+   "bias": 0.46040875000000003,
+   "se": 0.10394848633848644,
+   "p": 0.02138120455067516,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "KC",
+   "n": 4,
+   "bias": 0.15477125,
+   "se": 0.220847163623917,
+   "p": 0.5338887675956034,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "LA",
+   "n": 4,
+   "bias": 0.004267250000000028,
+   "se": 0.26490008710026725,
+   "p": 0.9881589440153213,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "LV",
+   "n": 4,
+   "bias": 0.07336275,
+   "se": 0.20705309158577942,
+   "p": 0.7465417969767862,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "NE",
+   "n": 4,
+   "bias": 0.13745925,
+   "se": 0.23737701635842753,
+   "p": 0.6031545654995909,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "NYJ",
+   "n": 4,
+   "bias": 0.4290084999999999,
+   "se": 0.09924364577014491,
+   "p": 0.02281686820038331,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "PHI",
+   "n": 4,
+   "bias": 0.39889149999999995,
+   "se": 0.025357155066831397,
+   "p": 0.0005583748205386652,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 0.04020298707878389
+  },
+  {
+   "slice": "team",
+   "value": "TB",
+   "n": 4,
+   "bias": -0.10807150000000001,
+   "se": 0.29768755012330744,
+   "p": 0.7406492851583413,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "home side overall",
+   "value": "all games (home side)",
+   "n": 55,
+   "bias": 0.10431414545454544,
+   "se": 0.06230361089834198,
+   "p": 0.09985726331799372,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "home win prob range",
+   "value": "(-0.001, 0.35]",
+   "n": 9,
+   "bias": 0.0770682222222222,
+   "se": 0.1488983901205578,
+   "p": 0.6187488743257505,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "home win prob range",
+   "value": "(0.35, 0.5]",
+   "n": 11,
+   "bias": 0.25955,
+   "se": 0.11919362733827066,
+   "p": 0.054470659968967716,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "home win prob range",
+   "value": "(0.5, 0.65]",
+   "n": 17,
+   "bias": 0.03999423529411763,
+   "se": 0.12341461628968572,
+   "p": 0.7500873237971457,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "home win prob range",
+   "value": "(0.65, 1.0]",
+   "n": 18,
+   "bias": 0.08381733333333334,
+   "se": 0.11256314409272343,
+   "p": 0.4666681830683115,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "market spread (home view)",
+   "value": "(-3.0, 3.0]",
+   "n": 17,
+   "bias": 0.08072847058823529,
+   "se": 0.13453614235666972,
+   "p": 0.5568764188132704,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "market spread (home view)",
+   "value": "(-7.0, -3.0]",
+   "n": 15,
+   "bias": 0.32004620000000006,
+   "se": 0.0765515557330763,
+   "p": 0.0009244407113129238,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 0.06563529050321759
+  },
+  {
+   "slice": "market spread (home view)",
+   "value": "(3.0, 7.0]",
+   "n": 11,
+   "bias": -0.058468181818181815,
+   "se": 0.14886221687592482,
+   "p": 0.7027336403529785,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "market spread (home view)",
+   "value": "(7.0, 30.0]",
+   "n": 10,
+   "bias": -0.038917299999999974,
+   "se": 0.13572539972091113,
+   "p": 0.7808063675833281,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model side",
+   "value": "model picks away",
+   "n": 20,
+   "bias": 0.17743319999999999,
+   "se": 0.09352608566211268,
+   "p": 0.07311316529346068,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model side",
+   "value": "model picks home",
+   "n": 35,
+   "bias": 0.0625318285714286,
+   "se": 0.0821805201742178,
+   "p": 0.4519571507202411,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model minus market home prob",
+   "value": "(-0.05, 0.05]",
+   "n": 24,
+   "bias": 0.24276179166666667,
+   "se": 0.08016269237239497,
+   "p": 0.0059781238208753695,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 0.40651241981952513
+  },
+  {
+   "slice": "model minus market home prob",
+   "value": "(-0.1, -0.05]",
+   "n": 10,
+   "bias": -0.012781299999999995,
+   "se": 0.16201559876080862,
+   "p": 0.9388468545674225,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model minus market home prob",
+   "value": "(-1.001, -0.1]",
+   "n": 5,
+   "bias": -0.5529344,
+   "se": 0.06704125007530812,
+   "p": 0.0011787385773101011,
+   "same_sign_halves": true,
+   "metric": "win prob",
+   "p_holm": 0.08251170041170708
+  },
+  {
+   "slice": "model minus market home prob",
+   "value": "(0.05, 0.1]",
+   "n": 11,
+   "bias": 0.04786745454545455,
+   "se": 0.12028428515338634,
+   "p": 0.6990281113965351,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model minus market home prob",
+   "value": "(0.1, 1.0]",
+   "n": 5,
+   "bias": 0.45538760000000006,
+   "se": 0.16270148056751052,
+   "p": 0.04886557321368401,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "week",
+   "value": "6",
+   "n": 13,
+   "bias": 0.20984976923076923,
+   "se": 0.13803369108390012,
+   "p": 0.1543429517032746,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "week",
+   "value": "7",
+   "n": 14,
+   "bias": 0.16122842857142858,
+   "se": 0.1431020142722564,
+   "p": 0.2802510779018432,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "week",
+   "value": "8",
+   "n": 14,
+   "bias": -0.08571457142857142,
+   "se": 0.1132408707254417,
+   "p": 0.4625948995137168,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "week",
+   "value": "9",
+   "n": 14,
+   "bias": 0.13943121428571428,
+   "se": 0.09896688406169551,
+   "p": 0.1823420941573195,
+   "same_sign_halves": false,
+   "metric": "win prob",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "ARI",
+   "n": 4,
+   "bias": 0.1329579999999999,
+   "se": 6.4737272413762925,
+   "p": 0.9849037575604525,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "ATL",
+   "n": 4,
+   "bias": 5.855621000000001,
+   "se": 6.841611072232512,
+   "p": 0.4549787296510106,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "BAL",
+   "n": 4,
+   "bias": 17.77750025,
+   "se": 3.001602832209884,
+   "p": 0.009617246339902685,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 0.6392369656781025
+  },
+  {
+   "slice": "team",
+   "value": "CAR",
+   "n": 4,
+   "bias": 9.60995575,
+   "se": 9.458462178686304,
+   "p": 0.384432252202364,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "CHI",
+   "n": 4,
+   "bias": -7.72709725,
+   "se": 4.539049217981474,
+   "p": 0.18724113138485143,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "CLE",
+   "n": 4,
+   "bias": -0.40354725000000014,
+   "se": 5.260073814945588,
+   "p": 0.9436771479884305,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "DAL",
+   "n": 4,
+   "bias": -0.05701624999999966,
+   "se": 5.965920178931346,
+   "p": 0.9929747483079627,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "GB",
+   "n": 4,
+   "bias": -9.2529055,
+   "se": 4.403422530682781,
+   "p": 0.12640885039704752,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "IND",
+   "n": 4,
+   "bias": 11.700909750000001,
+   "se": 5.438738341918577,
+   "p": 0.12054848570895538,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "KC",
+   "n": 4,
+   "bias": 0.6382239999999999,
+   "se": 6.49910838790526,
+   "p": 0.9279656183243312,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "LA",
+   "n": 4,
+   "bias": 0.4858135000000001,
+   "se": 4.182210866061425,
+   "p": 0.9148638143585193,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "LV",
+   "n": 4,
+   "bias": 0.9347614999999996,
+   "se": 4.312987948877949,
+   "p": 0.8423193088117364,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "NE",
+   "n": 4,
+   "bias": 7.278941249999999,
+   "se": 4.892063097771044,
+   "p": 0.23350642965500046,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "NYJ",
+   "n": 4,
+   "bias": 7.19975875,
+   "se": 2.9105216971455867,
+   "p": 0.08976942984056402,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "PHI",
+   "n": 4,
+   "bias": 10.50614625,
+   "se": 2.3647992041498775,
+   "p": 0.021207260025685182,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "team",
+   "value": "TB",
+   "n": 4,
+   "bias": -11.3089025,
+   "se": 9.487981249236624,
+   "p": 0.31898608899951175,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "home side overall",
+   "value": "all games (home side)",
+   "n": 55,
+   "bias": 2.4865070727272736,
+   "se": 1.6251917461167158,
+   "p": 0.13185972331066886,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "home win prob range",
+   "value": "(-0.001, 0.35]",
+   "n": 9,
+   "bias": 1.274332888888889,
+   "se": 3.6660468639134134,
+   "p": 0.7371059494626118,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "home win prob range",
+   "value": "(0.35, 0.5]",
+   "n": 11,
+   "bias": 4.884304272727272,
+   "se": 2.7832100908226884,
+   "p": 0.10980367592874374,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "home win prob range",
+   "value": "(0.5, 0.65]",
+   "n": 17,
+   "bias": 3.128278411764706,
+   "se": 2.849441317933254,
+   "p": 0.28851459783687994,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "home win prob range",
+   "value": "(0.65, 1.0]",
+   "n": 18,
+   "bias": 1.021156277777778,
+   "se": 3.4745440735738247,
+   "p": 0.7723950200978265,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "market spread (home view)",
+   "value": "(-3.0, 3.0]",
+   "n": 17,
+   "bias": 2.5590543529411773,
+   "se": 3.6824880663698134,
+   "p": 0.49707079538443844,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "market spread (home view)",
+   "value": "(-7.0, -3.0]",
+   "n": 15,
+   "bias": 6.948517466666669,
+   "se": 2.3157375037174304,
+   "p": 0.00954085023400153,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 0.6392369656781025
+  },
+  {
+   "slice": "market spread (home view)",
+   "value": "(3.0, 7.0]",
+   "n": 11,
+   "bias": 0.21674145454545438,
+   "se": 2.7630493423620854,
+   "p": 0.9390232447938773,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "market spread (home view)",
+   "value": "(7.0, 30.0]",
+   "n": 10,
+   "bias": -2.8113803000000006,
+   "se": 3.843510838418247,
+   "p": 0.4831065214927799,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model side",
+   "value": "model picks away",
+   "n": 20,
+   "bias": 3.259817150000001,
+   "se": 2.226792045426751,
+   "p": 0.1595684809127791,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model side",
+   "value": "model picks home",
+   "n": 35,
+   "bias": 2.0446156,
+   "se": 2.2344596036744124,
+   "p": 0.36661597793394973,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model minus market home prob",
+   "value": "(-0.05, 0.05]",
+   "n": 24,
+   "bias": 3.7967819166666668,
+   "se": 2.207456433671384,
+   "p": 0.09886575333438752,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model minus market home prob",
+   "value": "(-0.1, -0.05]",
+   "n": 10,
+   "bias": 1.0444087,
+   "se": 3.0329172929564328,
+   "p": 0.7384867541628244,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model minus market home prob",
+   "value": "(-1.001, -0.1]",
+   "n": 5,
+   "bias": -10.729862800000001,
+   "se": 2.389254460839414,
+   "p": 0.010898427722010329,
+   "same_sign_halves": true,
+   "metric": "margin pts",
+   "p_holm": 0.7083978019306714
+  },
+  {
+   "slice": "model minus market home prob",
+   "value": "(0.05, 0.1]",
+   "n": 11,
+   "bias": 0.8633389090909092,
+   "se": 3.598814819777999,
+   "p": 0.8152572766545836,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "model minus market home prob",
+   "value": "(0.1, 1.0]",
+   "n": 5,
+   "bias": 15.868724400000001,
+   "se": 6.812557428471122,
+   "p": 0.08031063036796748,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "week",
+   "value": "6",
+   "n": 13,
+   "bias": 3.724351846153846,
+   "se": 2.3632771002515462,
+   "p": 0.14102590034665297,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "week",
+   "value": "7",
+   "n": 14,
+   "bias": 6.215775142857143,
+   "se": 3.781976023651082,
+   "p": 0.12422797465808078,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "week",
+   "value": "8",
+   "n": 14,
+   "bias": -4.123346071428571,
+   "se": 3.3027196993102614,
+   "p": 0.23387578045726176,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  },
+  {
+   "slice": "week",
+   "value": "9",
+   "n": 14,
+   "bias": 4.217664857142856,
+   "se": 2.886626844303157,
+   "p": 0.16773286489807337,
+   "same_sign_halves": false,
+   "metric": "margin pts",
+   "p_holm": 1.0
+  }
+ ]
+}
