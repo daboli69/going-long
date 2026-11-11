@@ -184,6 +184,9 @@ def run(args):
             validate_completed_week(games,week)
         if week<=cutoff['training_last_completed_week']:raise ValueError('Requested week is already completed')
         ingest_manifest=ingest();audit(ingest_manifest)
+        # A position entering or leaving a table breaks the match between training and prediction rows.
+        from .position_check import check as positions
+        positions(ingest_manifest)
         # Existing feature builder is scoped to a new private path; old artifacts never overwritten.
         from ..props.weekly10 import outputs
         from ..props.ensemble.data import prepare
