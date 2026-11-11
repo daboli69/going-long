@@ -28,9 +28,15 @@ def main() -> int:
         print("\n".join(p) if p else "record intact")
         return 1 if any("chain" in x or "duplicate" in x or "orphan" in x or "before kickoff" in x for x in p) else 0
     else:
-        r = tracker.performance()
-        r.pop("cumulative")
-        print(json.dumps(r, indent=1))
+        from lab import market_gate
+        g = market_gate.status()
+        out = {"market_gate": {"price_signal": g["price_signal"], "status": g["status"], "interval": g["gate"]} if g
+               else "not computed; run scripts/market_gate.py"}
+        for label, origin in (("live (the only performance claim)", "live"), ("backfill (descriptive only)", "backfill")):
+            r = tracker.performance(origin=origin)
+            r.pop("cumulative")
+            out[label] = r
+        print(json.dumps(out, indent=1))
     return 0
 
 

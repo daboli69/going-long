@@ -55,3 +55,10 @@ Expensive calls are bounded by design: the tracker makes none, Kalshi history is
 
 - Whether to run the daily steps as a scheduled task (5 and 6 above).
 - Whether to register the home-overestimate and "away favored by 3 to 7" questions as pre-registered challengers. Neither is accepted. Both need weeks 10 onward.
+
+## Changes after the 2026-11-10 pipeline audit
+
+- `scripts/track.py report` now quotes live rows only. Backfill rows (weeks 6 to 9) stay in the files and print in a separate block marked descriptive.
+- The report opens with the market gate from `scripts/market_gate.py`. On 933 walk-forward games from 2023 onward the champion's log loss is 0.0237 worse than the closing price, 95% interval +0.0114 to +0.0361. Until that interval sits below zero the champion is not a price signal and rule `ml_edge_v1` is a record, not a strategy.
+- Every result is labelled as priced at the nfldata consensus line. The report also re-prices settled bets at the best named-book moneyline in `data/raw/market/going_quotes.parquet` when a quote is under 30 minutes old at snapshot time. That archive ends on 2026-10-16, so no bet is priced this way today.
+- The gate drops odds rows with hold outside 0.5% to 8% (one row, 2020_01_LV_CAR) and reports 2016 to 2022 and 2023 onward separately.

@@ -82,3 +82,26 @@ def test_tampering_breaks_the_chain(lab):
     text = T.EVAL_CSV.read_text(encoding="utf-8").replace("-120", "-110", 1)
     T.EVAL_CSV.write_text(text, encoding="utf-8")
     assert any("chain" in p for p in T.verify())
+
+
+def test_performance_counts_live_rows_only_by_default(lab):
+    T.select("backfill")
+    T.settle()
+    assert T.performance()["settled"] == 0 and T.performance()["units"] == 0.0
+    assert T.performance(origin="backfill")["settled"] == 2
+    assert T.performance(origin=None)["settled"] == 2
+
+
+def test_bettable_price_needs_a_fresh_named_book_quote():
+    import pandas as pd
+    k, t = "2026-11-08T18:00:00+00:00", "2026-11-08T17:00:00+00:00"
+    q = pd.DataFrame({"market": "h2h", "home": "B", "away": "A", "side": "home", "book": ["x", "y", "z"],
+                      "price": [-120, -110, 150], "commence_time": pd.Timestamp(k),
+                      "quote_time": pd.to_datetime(["2026-11-08T16:50Z", "2026-11-08T16:45Z", "2026-11-08T16:00Z"])})
+    b = T.best_book_price(q, "2026_09_A_B", "home", t, k)
+    assert b["book"] == "y" and b["american_odds"] == -110  # z is better but 60 minutes old
+    assert T.best_book_price(q, "2026_09_A_B", "away", t, k) is None
+    done = pd.DataFrame([{"game_id": "2026_09_A_B", "side": "home", "snapshot_at": t, "kickoff_utc": k, "outcome": "win"},
+                         {"game_id": "2026_09_C_D", "side": "home", "snapshot_at": t, "kickoff_utc": k, "outcome": "win"}])
+    r = T.bettable(done, q)
+    assert r["priced_bets"] == 1 and r["unpriced_bets"] == 1 and r["units"] == pytest.approx(100 / 110)

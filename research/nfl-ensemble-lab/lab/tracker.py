@@ -199,9 +199,44 @@ def verify() -> list[str]:
     return problems
 
 
-def performance(rule_id: str = RULE_ID) -> dict:
+QUOTES = RAW_DIR / "market" / "going_quotes.parquet"
+MAX_QUOTE_AGE_MIN = 30.0
+
+
+def best_book_price(quotes: pd.DataFrame, game_id: str, side: str, snapshot_at: str, kickoff_utc: str) -> dict | None:
+    """Best moneyline a named book showed for this side at snapshot time, if any quote is under 30 minutes old."""
+    _, _, away, home = game_id.split("_")
+    t, k = pd.Timestamp(snapshot_at), pd.Timestamp(kickoff_utc)
+    x = quotes[(quotes.market == "h2h") & (quotes.home == home) & (quotes.away == away) & (quotes.side == side)
+               & ((quotes.commence_time - k).abs() < pd.Timedelta(hours=12)) & (quotes.quote_time <= t)
+               & (quotes.quote_time >= t - pd.Timedelta(minutes=MAX_QUOTE_AGE_MIN))]
+    if x.empty:
+        return None
+    x = x.sort_values("quote_time").groupby("book").tail(1)
+    best = x.loc[x.price.map(lambda o: units_for(o, "win")).idxmax()]
+    return {"book": str(best.book), "american_odds": float(best.price), "quote_time": best.quote_time.isoformat()}
+
+
+def bettable(done: pd.DataFrame, quotes: pd.DataFrame | None = None) -> dict:
+    """Units for settled bets re-priced at a real book. A bet with no fresh quote is not counted."""
+    if quotes is None:
+        quotes = pd.read_parquet(QUOTES) if QUOTES.exists() else pd.DataFrame()
+    n, units = 0, 0.0
+    for r in done.itertuples():
+        b = best_book_price(quotes, r.game_id, r.side, r.snapshot_at, r.kickoff_utc) if len(quotes) else None
+        if b:
+            n, units = n + 1, units + units_for(b["american_odds"], r.outcome)
+    return {"priced_bets": n, "unpriced_bets": int(len(done) - n), "units": float(units) if n else None,
+            "max_quote_age_minutes": MAX_QUOTE_AGE_MIN}
+
+
+def performance(rule_id: str = RULE_ID, origin: str | None = "live") -> dict:
+    """Record for one rule. Default is live rows only: backfill rows were scored after the rule was written, so they
+    stay in the files but are not a performance claim. Pass origin=None for every row, "backfill" for the backfill."""
     ev, st = _read(EVAL_CSV, EVAL_COLS), _read(SETTLE_CSV, SETTLE_COLS)
     ev, st = ev[ev.rule_id == rule_id], st[st.rule_id == rule_id]
+    if origin is not None:
+        ev = ev[ev.origin == origin]
     q = ev[ev.qualified == "1"].merge(st[["game_id", "outcome", "units", "settled_at"]], on="game_id", how="left")
     done = q[q.outcome.isin(["win", "loss", "push"])].copy()
     done["units"] = done.units.astype(float)
@@ -209,7 +244,8 @@ def performance(rule_id: str = RULE_ID) -> dict:
     cum = done.units.cumsum()
     dd = float((cum - cum.cummax().clip(lower=0)).min()) if len(done) else 0.0
     wl = done[done.outcome != "push"]
-    return {"rule_id": rule_id, "games_evaluated": int(len(ev)), "qualified": int(len(q)), "open": int(len(q) - len(done)),
+    return {"rule_id": rule_id, "origin": origin or "all", "price_basis": "nfldata consensus line, not a bettable book",
+            "bettable_price": bettable(done), "games_evaluated": int(len(ev)), "qualified": int(len(q)), "open": int(len(q) - len(done)),
             "settled": int(len(done)), "wins": int((wl.outcome == "win").sum()),
             "win_rate": float((wl.outcome == "win").mean()) if len(wl) else None,
             "units": float(done.units.sum()), "roi_per_unit": float(done.units.sum() / len(done)) if len(done) else None,
