@@ -11,6 +11,9 @@ from ..props.ensemble.combine import loss_rows
 from .common import SEED
 
 
+SCALED=('linear','shrink','distribution','mlp')
+
+
 def binary(stat):return stat in ('anytime_td','win')
 
 
@@ -42,7 +45,17 @@ def estimator(stat,key,threads=1):
                      ('scale',StandardScaler()),('model',model)])
 
 
-def fit_predict(train,test,stat,columns,key,threads=1,weights=None):
+def covered(train,columns,min_coverage):
+    """Columns filled in at least min_coverage of training rows. A column that is
+    nearly empty in training has a near-zero scale, so a filled value at prediction
+    time becomes an input thousands of deviations out (docs/SPARSE_GUARD_PREREG.md)."""
+    share=train[columns].notna().mean()
+    return [c for c in columns if share[c]>=min_coverage]
+
+
+def fit_predict(train,test,stat,columns,key,threads=1,weights=None,min_coverage=None):
+    # min_coverage is the challenger guard; None keeps the champion's columns.
+    if min_coverage is not None and key in SCALED:columns=covered(train,columns,min_coverage)
     if not columns:raise ValueError('No usable predeclared features')
     if train[stat].nunique()<2:
         value=float(train[stat].mean())
