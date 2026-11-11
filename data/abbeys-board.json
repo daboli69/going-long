@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "modelVersion": "abbeys-current-season-v1",
-  "generatedAt": "2026-11-11T02:05:50.756Z",
+  "generatedAt": "2026-11-11T18:01:38.800Z",
   "weeks": [
     {
       "methodology": {
@@ -1393,13 +1393,8 @@
     }
   ],
   "currentWeek": {
-    "season": 2026,
-    "week": 10,
-    "status": "not-frozen",
-    "captureDeadline": "2026-11-15T14:30:00+00:00",
-    "registeredOrigin": "2026-11-12T13:15:00.000Z",
-    "scheduledOriginPassed": false,
-    "reason": "Week 10 has not been captured or published. A prospective manual board may still be captured before the first Sunday/Monday kickoff."
+    "status": "unavailable",
+    "reason": "Current NFL schedule is missing, stale or future-dated. Frozen historical boards remain available."
   },
   "record": {
     "wins": 0,
