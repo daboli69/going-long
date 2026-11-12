@@ -51,3 +51,24 @@ These seasons shaped the design, so they do not count as a test. Mean absolute e
 - Rushing yards below zero are set to zero for the Poisson fit.
 - Routes and snaps by half are not available free; targets and carries stand in.
 - Second-half touchdowns and first-touchdown markets are out of scope for this version.
+
+## Test result: 2025 regular season
+
+Run once on 11 November 2026 after commit d591f95c, with `python -m lab.halftime eval --split test --registered-test`. 272 games. Error is mean absolute error; the gain is rule error minus model error.
+
+| Target | Rows | Model | Simple rule | Gain (95% interval) | One-sided p | Passes with Holm |
+|---|---|---|---|---|---|---|
+| Second-half total points | 272 | 7.84 | 7.91 | 0.07 (0.00 to 0.15) | 0.024 | Yes, barely |
+| Second-half home margin | 272 | 6.96 | 6.96 | 0.00 (-0.10 to 0.11) | 0.497 | No |
+| Second-half receiving yards | 3,547 | 12.81 | 13.20 | 0.39 (0.25 to 0.53) | under 0.001 | Yes |
+| Second-half receptions | 3,547 | 0.97 | 1.01 | 0.04 (0.03 to 0.05) | under 0.001 | Yes |
+| Second-half rushing yards | 1,839 | 11.79 | 12.27 | 0.48 (0.28 to 0.67) | under 0.001 | Yes |
+
+Root mean squared error, model against rule: total 10.04 against 10.08; margin 8.81 against 8.76; receiving yards 18.01 against 18.49; receptions 1.27 against 1.32; rushing yards 17.77 against 18.19.
+
+Reading:
+
+- The three player targets beat the simple rule by about 3% to 4%. That is a real but small gain over a two-number rule.
+- The total passes by a hair: a p of 0.024 against a Holm cut of 0.025, for a gain of 0.07 points. Treat it as a tie.
+- The margin model does not beat the rule, and its squared error is slightly worse.
+- None of this is a betting result. No sportsbook halftime price was used, and the gain over a book's line is unknown. The 2026 Weeks 1 to 9 holdout is still unscored.

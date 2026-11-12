@@ -321,3 +321,9 @@ Earlier rows say "Codex reproduction unavailable". Claude is now the primary dev
 | Hypothesis | Protocol | Result | Decision |
 |---|---|---|---|
 | Dropping columns filled in under 1% of training rows before fitting the linear and neural prop members removes out-of-range predictions without hurting accuracy. | research/nfl-ensemble-lab/docs/SPARSE_GUARD_PREREG.md. Challenger is `fit_predict(..., min_coverage=0.01)`, off by default. One look after 2026 Week 18 on Weeks 11 to 18, stacked mean absolute error, guard minus champion, paired bootstrap by game. | Not read yet. Development only: the Week 10 neural rushing member moved 95.5 yards per player between two training sets without the guard and 3.2 with it; on 552 settled player-games the member errors were 26.74 and 26.44 yards. | Champion unchanged. Challenger registered. |
+
+## Halftime second-half model - preregistered 2026-11-11
+
+| Hypothesis | Protocol | Result | Decision |
+|---|---|---|---|
+| At halftime, a model on first-half play-by-play forecasts second-half totals, margins and player receiving yards, receptions and rushing yards better than a linear rule on the pregame number and the first-half number. | research/nfl-ensemble-lab/docs/HALFTIME_PREREG.md, committed in d591f95c before the look. Fit 2012 to 2022, design on 2023 and 2024, one look at the 2025 regular season (272 games). Mean absolute error, game bootstrap, Holm across five targets. | Player targets pass: receiving yards 12.81 against 13.20, receptions 0.97 against 1.01, rushing yards 11.79 against 12.27. Total 7.84 against 7.91, a marginal pass (p 0.024). Margin 6.96 against 6.96, no gain. No sportsbook price tested. | Keep as a research tool in `lab/halftime.py`. No promotion and no betting claim. A price test needs halftime lines and its own pre-registration. 2026 Weeks 1 to 9 stay unscored. |
