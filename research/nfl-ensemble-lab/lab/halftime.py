@@ -99,8 +99,8 @@ def touches(p: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([rec, run], ignore_index=True)
 
 
-def player_rows(p: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
-    """One row per player with a first-half target or carry. Later plays feed targets and later games' history only."""
+def player_rows(p: pd.DataFrame, games: pd.DataFrame, keep_all: bool = False) -> pd.DataFrame:
+    """One row per player with a first-half target or carry. Later plays feed targets and later games' history only. keep_all keeps players without one, for trailing averages."""
     t = touches(p)
     t["half"] = np.where(t.qtr <= 2, "h1", "h2")
     stats = ["tgt", "rec", "rec_yds", "car", "rush_yds"]
@@ -131,7 +131,8 @@ def player_rows(p: pd.DataFrame, games: pd.DataFrame) -> pd.DataFrame:
     for stat in ("rec_yds", "rec", "rush_yds"):
         wide[f"pre_h2_{stat}"] = by[f"h2_{stat}"].transform(lambda s: s.shift(1).rolling(WINDOW, min_periods=1).mean())
     wide["pre_games"] = by.cumcount().clip(upper=WINDOW)
-    wide = wide[(wide.h1_tgt + wide.h1_car) >= 1]
+    if not keep_all:
+        wide = wide[(wide.h1_tgt + wide.h1_car) >= 1]
     return wide.drop(columns=["home_team", "h1_margin", "home_receives_h2", "last_left", "spread_line"]).reset_index(drop=True)
 
 

@@ -72,3 +72,22 @@ Reading:
 - The total passes by a hair: a p of 0.024 against a Holm cut of 0.025, for a gain of 0.07 points. Treat it as a tie.
 - The margin model does not beat the rule, and its squared error is slightly worse.
 - None of this is a betting result. No sportsbook halftime price was used, and the gain over a book's line is unknown. The 2026 Weeks 1 to 9 holdout is still unscored.
+
+## Live use, added 11 November 2026
+
+Code: `lab/halftime_live.py`. It reads the free ESPN game summary, rebuilds the first-half inputs from the play list and writes one forecast per game to `reports/halftime/live/`. A forecast is written once; later snapshots do not replace it.
+
+```
+python -m lab.halftime_live --pull     # fetch games now at halftime, then forecast
+python -m lab.halftime_live            # forecast from snapshots already stored
+python -m lab.halftime_live --check    # compare live-built inputs with play-by-play
+```
+
+Two things differ from the tested model, and both are stated here so that nobody reads the 2025 test as covering them:
+
+- First-half EPA is not published during a game. The live game model is the same ridge refitted on 2012 to 2022 without the two EPA columns. On the validation seasons its error is 7.52 points on the total and 7.07 on the margin, against 7.58 and 7.10 for the simple rule. It has not been run on the 2025 test, which was spent on the version with EPA. The player models are unchanged.
+- Inputs come from ESPN play text, not from nflverse. `--check` compared the two on the 12 Week 8 games captured on 1 November 2026, using inputs only and no outcomes. 176 of 179 players matched by team and name. Targets and catches agreed on every one. Carries differed in 5 games, mostly on quarterback fumble-and-recover plays and laterals. The average forecast moved by about 0.1 receiving yards and 0.4 rushing yards per player. Three matched players lost their history because they had changed teams and another player shares their short name; they are forecast as new players and are left out of any line comparison.
+
+The Week 8 forecast files written while building this were made after those games ended. They show the command works. They are not prospective forecasts and are not to be scored as such. Prospective use starts with Week 10.
+
+When halftime lines are placed in `data/raw/halftime_lines/`, the command also writes `<game>_edges.csv` beside each forecast. That file is a comparison, not a bet list: no price test has been registered or run.
