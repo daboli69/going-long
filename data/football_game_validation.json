@@ -1,19 +1,19 @@
 {
-  "games": 902,
-  "margin_error_points": 13.53369308367539,
-  "total_error_points": 13.64857227359132,
+  "games": 903,
+  "margin_error_points": 13.5468657734065,
+  "total_error_points": 13.653533268378354,
   "opponent_adjusted": {
-    "margin_error_points": 13.065285719125052,
-    "total_error_points": 13.570804823823357,
-    "margin_improvement_points": 0.4684073645503375,
-    "total_improvement_points": 0.07776744976796302,
+    "margin_error_points": 13.07092075355353,
+    "total_error_points": 13.579333116495208,
+    "margin_improvement_points": 0.4759450198529702,
+    "total_improvement_points": 0.07420015188314544,
     "margin_improvement_range_95": [
-      0.12622007269887447,
-      0.8057520981774964
+      0.13462743773480135,
+      0.8161025551297616
     ],
     "total_improvement_range_95": [
-      -0.16461299018414977,
-      0.32078728961675473
+      -0.17873682905264054,
+      0.3067485874172764
     ],
     "decision": "do_not_promote",
     "early_week_prior_games": 6,
@@ -24,7 +24,7 @@
   "closing_price_advantage": null,
   "notice": "Score-only walk-forward baseline. Historical closing prices alone cannot price earlier decisions. Latest nflverse revisions; not a vintage-data archive.",
   "schema_version": 1,
-  "generated_at": "2026-11-20T03:20:01.077064+00:00",
+  "generated_at": "2026-11-20T18:40:29.548290+00:00",
   "seasons": [
     2023,
     2026
